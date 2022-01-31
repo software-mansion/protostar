@@ -4,8 +4,8 @@ Toolchain for developing, testing and interacting with Cairo contracts for Stark
 ## Development
 ### Tools
 
-[Poetry](https://python-poetry.org/) - dependency manager
-[pyenv](https://github.com/pyenv/pyenv) - recommended for installing and switching python versions locally
+- [Poetry](https://python-poetry.org/) - dependency manager
+- [pyenv](https://github.com/pyenv/pyenv) - recommended for installing and switching python versions locally
 
 Make sure running ``poetry run python --version`` returns ``Python 3.7.12``.
 
