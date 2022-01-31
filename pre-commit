@@ -1,0 +1,4 @@
+#!/bin/sh
+
+poetry run python -m black .
+poetry run poe lint
