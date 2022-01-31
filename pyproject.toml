@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "protostar"
+version = "0.1.0"
+description = "Toolchain for developing, testing and interacting with Cairo contracts for StarkNet"
+authors = ["tomasz.rejowski <tomasz.rejowski@swmansion.com>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/software-mansion/protostar"
+
+[tool.poetry.dependencies]
+python = ">=3.7.12, <3.10"
+
+[tool.poetry.dev-dependencies]
+black = "^22.1.0"
+pylint = "^2.12.2"
+poethepoet = "^0.12.2"
+cairo-lang = "^0.7.0"
+
+[tool.poe.tasks]
+lint = "pylint src"
+format = "black ."
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+target-version = ["py37"]
