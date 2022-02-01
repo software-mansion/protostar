@@ -1,7 +1,7 @@
-from typing_extensions import TypedDict
-from typing import Optional
-from .utils import verify_repo_url
 from enum import Enum
+from typing import Optional
+from typing_extensions import TypedDict
+from .utils import verify_repo_url
 
 
 class InstallErrorEnum(Enum):
