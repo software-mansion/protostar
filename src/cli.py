@@ -1,14 +1,10 @@
-from argparse import ArgumentParser
+import os
+from src.commands.install import install
 
-root_parser = ArgumentParser()
-root_subparsers = root_parser.add_subparsers(help="types of A")
-
-cmd_install_parser = root_subparsers.add_parser("install")
-cmd_install_parser.add_argument("package", type=str, action="append")
+cwd = os.getcwd()
 
 
 def cli(args):
-    print(args)
-
-
-cli(root_parser.parse_args())
+    if args.command == "install":
+        result = install(args.package, os.path.join(cwd))
+        print(result)
