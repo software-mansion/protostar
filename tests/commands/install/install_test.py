@@ -9,7 +9,7 @@ def fixture_repo_url():
 
 
 def test_invalid_local_repository_error(tmpdir: str, repo_url: str):
-    result = install(tmpdir, repo_url)
+    result = install(repo_url, tmpdir)
 
     assert result["error"] == InstallationErrorEnum.INVALID_LOCAL_REPOSITORY
 
@@ -17,7 +17,7 @@ def test_invalid_local_repository_error(tmpdir: str, repo_url: str):
 def test_incorrect_url_error(tmpdir: str):
     git.Repo.init(tmpdir)
 
-    result = install(tmpdir, "https://bitbucket.org/atlassian/python-bitbucket")
+    result = install("https://bitbucket.org/atlassian/python-bitbucket", tmpdir)
 
     assert result["error"] == InstallationErrorEnum.INCORRECT_URL
 
@@ -25,6 +25,6 @@ def test_incorrect_url_error(tmpdir: str):
 def test_basic_case(tmpdir: str, repo_url: str):
     git.Repo.init(tmpdir)
 
-    result = install(tmpdir, repo_url)
+    result = install(repo_url, tmpdir)
 
     assert result["error"] is None

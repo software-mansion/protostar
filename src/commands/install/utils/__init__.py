@@ -1,1 +1,2 @@
 from .verify_repo_url import verify_repo_url
+from .map_url_to_package_name import map_url_to_package_name
