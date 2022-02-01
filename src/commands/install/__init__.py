@@ -1,1 +1,1 @@
-from .install import install
+from .install import install, InstallationErrorEnum
