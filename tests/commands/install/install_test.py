@@ -1,4 +1,4 @@
-import git
+from git.repo import Repo
 import pytest
 from src.commands.install import install, InstallationErrorEnum
 
@@ -15,7 +15,7 @@ def test_invalid_local_repository_error(tmpdir: str, repo_url: str):
 
 
 def test_incorrect_url_error(tmpdir: str):
-    git.Repo.init(tmpdir)
+    Repo.init(tmpdir)
 
     result = install("https://bitbucket.org/atlassian/python-bitbucket", tmpdir)
 
@@ -23,7 +23,7 @@ def test_incorrect_url_error(tmpdir: str):
 
 
 def test_basic_case(tmpdir: str, repo_url: str):
-    git.Repo.init(tmpdir)
+    Repo.init(tmpdir)
 
     result = install(repo_url, tmpdir)
 

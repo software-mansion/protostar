@@ -5,7 +5,7 @@ from git import InvalidGitRepositoryError, NoSuchPathError
 from git.repo import Repo
 from git.objects import Submodule
 from typing_extensions import TypedDict
-from .utils import map_url_to_package_name, verify_repo_url
+from .utils import map_slug_to_package_name, extract_slug_from_url
 
 
 class InstallationErrorEnum(Enum):
@@ -24,7 +24,8 @@ def install(
     path_to_repo_root: str,
     destination="./lib",
 ) -> InstallationResultType:
-    if not verify_repo_url(url):
+    slug = extract_slug_from_url(url)
+    if slug is None:
         return {"error": InstallationErrorEnum.INCORRECT_URL}
 
     try:
@@ -34,7 +35,7 @@ def install(
     except NoSuchPathError as _err:
         return {"error": InstallationErrorEnum.INVALID_LOCAL_REPOSITORY}
 
-    package_name = map_url_to_package_name(url)
+    package_name = map_slug_to_package_name(slug)
 
     if package_name is None:
         return {"error": InstallationErrorEnum.INVALID_PACKAGE_NAME}

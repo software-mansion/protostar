@@ -1,2 +1,2 @@
-from .verify_repo_url import verify_repo_url
-from .map_url_to_package_name import map_url_to_package_name
+from .extract_slug_from_url import extract_slug_from_url
+from .map_url_to_package_name import map_slug_to_package_name
