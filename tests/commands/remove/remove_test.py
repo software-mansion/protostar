@@ -1,6 +1,8 @@
+from os import path
+
 import pytest
 from git.repo import Repo
-from os import path
+
 from src.commands.remove import remove
 
 
