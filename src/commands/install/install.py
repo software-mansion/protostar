@@ -1,7 +1,8 @@
 from enum import Enum
 from os import path
 from typing import Optional
-from git import InvalidGitRepositoryError, NoSuchPathError, Repo
+from git import InvalidGitRepositoryError, NoSuchPathError
+from git.repo import Repo
 from git.objects import Submodule
 from typing_extensions import TypedDict
 from .utils import map_url_to_package_name, verify_repo_url
