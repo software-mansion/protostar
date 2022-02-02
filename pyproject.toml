@@ -19,10 +19,23 @@ pylint = "^2.12.2"
 poethepoet = "^0.12.2"
 cairo-lang = "^0.7.0"
 pytest = "^6.2.5"
+coverage = "^6.3.1"
 
 [tool.poe.tasks]
 lint = "pylint src"
 format = "black ."
+test = ["test_unit"]
+test_unit.shell = "coverage run -m pytest"
+test_report = [{ shell = "coverage report" }]
+test_html = [
+    { shell = "coverage html && open ./htmlcov/index.html" }
+]
+
+[tool.coverage.run]
+source = ["src"]
+
+[tool.coverage.report]
+skip_empty = true
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
