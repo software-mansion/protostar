@@ -6,5 +6,4 @@ cwd = os.getcwd()
 
 def cli(args):
     if args.command == "install":
-        result = install(args.package, os.path.join(cwd))
-        print(result)
+        install(args.package, os.path.join(cwd))

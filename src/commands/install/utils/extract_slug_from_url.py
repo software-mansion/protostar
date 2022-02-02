@@ -1,11 +1,11 @@
 import re
-from typing import Optional
+from .. import installation_exceptions
 
 
-def extract_slug_from_url(url: str) -> Optional[str]:
+def extract_slug_from_url(url: str) -> str:
     result = re.search(r"(?<=https:\/\/github.com\/)[^\/]*\/[^\/]*", url)
 
     if result is None:
-        return None
+        raise installation_exceptions.IncorrectURL()
 
     return result.group()
