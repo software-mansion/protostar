@@ -6,7 +6,6 @@ from git.repo import Repo
 def remove(
     package_name: str, path_to_repo_root: str, packages_directory: str = "./lib"
 ):
-    return
     # remove directory
     # path_to_package = path.join(packages_directory, package_name)
     # if path.exists(path_to_package):

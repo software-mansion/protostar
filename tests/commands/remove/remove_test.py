@@ -1,9 +1,7 @@
-from genericpath import exists
 import pytest
-from src.commands.remove import remove
 from git.repo import Repo
-from git.objects import Submodule
-from os import path, listdir
+from os import path
+from src.commands.remove import remove
 
 
 @pytest.fixture(name="package_name")
@@ -34,15 +32,11 @@ def fixture_submodule(repo: Repo, package_name: str, packages_directory: str):
         path_to_package,
         "https://github.com/software-mansion/protostar",
     )
-    assert submodule.exists()
-    repo.index.add
-    print(repo.submodules)
+    repo.git.add(submodule.path)
+    repo.index.commit("add submodule")
     return submodule
 
 
-def test_base_case(
-    submodule, package_name: str, path_to_repo_root: str, packages_directory: str
-):
-    print("submodule", submodule)
-    assert True is False
-    # remove(package_name, path_to_repo_root, packages_directory)
+@pytest.mark.usefixtures("submodule")
+def test_base_case(package_name: str, path_to_repo_root: str, packages_directory: str):
+    remove(package_name, path_to_repo_root, packages_directory)
