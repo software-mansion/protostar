@@ -1,4 +1,4 @@
-from os import path
+from os import listdir, path
 
 import pytest
 from git.repo import Repo
@@ -11,24 +11,24 @@ def fixture_package_name():
     return "foobar"
 
 
-@pytest.fixture(name="path_to_repo_root")
-def fixture_root_repo_dir(tmpdir):
+@pytest.fixture(name="repo_dir")
+def fixture_path_to_repo_root(tmpdir):
     return tmpdir
 
 
-@pytest.fixture(name="packages_directory")
-def fixture_packages_directory(path_to_repo_root):
-    return path.join(path_to_repo_root, "./lib")
+@pytest.fixture(name="packages_dir")
+def fixture_packages_dir(repo_dir):
+    return path.join(repo_dir, "./lib")
 
 
 @pytest.fixture(name="repo")
-def fixture_repo(path_to_repo_root):
-    return Repo().init(path_to_repo_root)
+def fixture_repo(repo_dir):
+    return Repo().init(repo_dir)
 
 
 @pytest.fixture(name="submodule")
-def fixture_submodule(repo: Repo, package_name: str, packages_directory: str):
-    path_to_package = path.join(packages_directory, package_name)
+def fixture_submodule(repo: Repo, package_name: str, packages_dir: str):
+    path_to_package = path.join(packages_dir, package_name)
     submodule = repo.create_submodule(
         package_name,
         path_to_package,
@@ -40,5 +40,9 @@ def fixture_submodule(repo: Repo, package_name: str, packages_directory: str):
 
 
 @pytest.mark.usefixtures("submodule")
-def test_base_case(package_name: str, path_to_repo_root: str, packages_directory: str):
-    remove(package_name, path_to_repo_root, packages_directory)
+def test_removing(package_name: str, repo_dir: str, packages_dir: str):
+    assert package_name in listdir(packages_dir)
+
+    remove(package_name, repo_dir)
+
+    assert package_name not in listdir(packages_dir)
