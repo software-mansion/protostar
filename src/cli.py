@@ -1,4 +1,5 @@
 import os
+
 from src.commands.install import install
 
 cwd = os.getcwd()
