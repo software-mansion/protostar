@@ -3,7 +3,7 @@ from os import listdir, path
 import pytest
 from git.repo import Repo
 
-from src.commands.remove import remove
+from src.commands.remove import removal_exceptions, remove
 
 
 @pytest.fixture(name="package_name")
@@ -39,6 +39,9 @@ def fixture_submodule(repo: Repo, package_name: str, packages_dir: str):
     return submodule
 
 
+# ----------------------------------- TESTS ---------------------------------- #
+
+
 @pytest.mark.usefixtures("submodule")
 def test_removing(package_name: str, repo_dir: str, packages_dir: str):
     assert package_name in listdir(packages_dir)
@@ -46,3 +49,14 @@ def test_removing(package_name: str, repo_dir: str, packages_dir: str):
     remove(package_name, repo_dir)
 
     assert package_name not in listdir(packages_dir)
+
+
+@pytest.mark.usefixtures("repo")
+def test_removing_not_existing_package(package_name: str, repo_dir: str):
+    with pytest.raises(removal_exceptions.PackageNotFound):
+        remove(package_name, repo_dir)
+
+
+def test_removing_without_repo(package_name: str, repo_dir: str):
+    with pytest.raises(removal_exceptions.InvalidLocalRepository):
+        remove(package_name, repo_dir)
