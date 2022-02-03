@@ -1,4 +1,6 @@
+from dataclasses import dataclass
 from pathlib import Path
+from typing import List
 
 from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
 from starkware.cairo.lang.compiler.cairo_compile import (
@@ -18,34 +20,36 @@ from starkware.starknet.compiler.starknet_preprocessor import (
 from starkware.starknet.services.api.contract_definition import ContractDefinition
 
 
-def get_starknet_pass_manager() -> PassManager:
-    read_module = get_module_reader(
-        cairo_path=[]  # TODO: Include installed project libs here, for compilation
-    ).read
-    return starknet_pass_manager(DEFAULT_PRIME, read_module)
+@dataclass
+class StarknetCompiler:
+    include_paths: List[str]
 
+    def get_starknet_pass_manager(self) -> PassManager:
+        read_module = get_module_reader(
+            cairo_path=self.include_paths
+        ).read
+        return starknet_pass_manager(DEFAULT_PRIME, read_module)
 
-def preprocess_contract(cairo_file_path: Path) -> StarknetPreprocessedProgram:
-    pass_manager = get_starknet_pass_manager()
+    def preprocess_contract(self, cairo_file_path: Path) -> StarknetPreprocessedProgram:
+        pass_manager = self.get_starknet_pass_manager()
 
-    codes = [(cairo_file_path.read_text("utf-8"), str(cairo_file_path))]
-    context = PassManagerContext(
-        codes=codes,
-        main_scope=MAIN_SCOPE,
-        identifiers=IdentifierManager(),
-    )
-    pass_manager.run(context)
-    assert isinstance(context.preprocessed_program, StarknetPreprocessedProgram)
-    return context.preprocessed_program
+        codes = [(cairo_file_path.read_text("utf-8"), str(cairo_file_path))]
+        context = PassManagerContext(
+            codes=codes,
+            main_scope=MAIN_SCOPE,
+            identifiers=IdentifierManager(),
+        )
+        pass_manager.run(context)
+        assert isinstance(context.preprocessed_program, StarknetPreprocessedProgram)
+        return context.preprocessed_program
 
-
-def compile_contract(cairo_file_path: Path) -> ContractDefinition:
-    preprocessed = preprocess_contract(cairo_file_path)
-    assembled = assemble_starknet_contract(
-        preprocessed_program=preprocessed,
-        main_scope=MAIN_SCOPE,
-        add_debug_info=False,
-        file_contents_for_debug_info={},
-    )
-    assert isinstance(assembled, ContractDefinition)
-    return assembled
+    def compile_contract(self, cairo_file_path: Path) -> ContractDefinition:
+        preprocessed = self.preprocess_contract(cairo_file_path)
+        assembled = assemble_starknet_contract(
+            preprocessed_program=preprocessed,
+            main_scope=MAIN_SCOPE,
+            add_debug_info=False,
+            file_contents_for_debug_info={},
+        )
+        assert isinstance(assembled, ContractDefinition)
+        return assembled
