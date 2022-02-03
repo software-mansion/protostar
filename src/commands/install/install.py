@@ -13,7 +13,6 @@ def install(
     path_to_repo_root: str,
     destination="./lib",
 ):
-
     try:
         repo = Repo(path_to_repo_root)
     except InvalidGitRepositoryError as _err:
