@@ -1,9 +1,12 @@
 import os
-from src.commands.install import install
+
+from .commands import install, remove
 
 cwd = os.getcwd()
 
 
 def cli(args):
     if args.command == "install":
-        install(args.package, os.path.join(cwd))
+        install(args.package, cwd)
+    elif args.command == "remove":
+        remove(args.package, cwd)

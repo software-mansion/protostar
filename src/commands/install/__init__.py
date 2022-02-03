@@ -1,2 +1,2 @@
+from . import installation_exceptions
 from .install import install
-from . import installation_exceptions as installation_exceptions
