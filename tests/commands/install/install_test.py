@@ -17,7 +17,7 @@ def test_incorrect_url_error(tmpdir: str):
     Repo.init(tmpdir)
 
     with pytest.raises(installation_exceptions.IncorrectURL):
-        install("https://bitbucket.org/atlassian/python-bitbucket", tmpdir)
+        install("https://www.google.com/", tmpdir)
 
 
 def test_basic_case(tmpdir: str, repo_url: str):
