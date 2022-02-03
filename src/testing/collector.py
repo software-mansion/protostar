@@ -1,14 +1,15 @@
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List
+from typing import List, Optional, Pattern
 
-from src.starknet_compilation import preprocess_contract
+
+from src.starknet_compilation import StarknetCompiler
+from src.testing.utils import collect_subdirectories
 
 
 @dataclass
 class TestSource:
-    target_path: Path
     test_path: Path
     test_functions: List[dict]
 
@@ -16,9 +17,14 @@ class TestSource:
 @dataclass
 class TestCollector:
     sources_directory: str
+    include_paths: Optional[List[str]] = None
 
     # TODO: Optimize, by returning preprocessed test program, for reuse when compiling it for test runs
-    def collect(self) -> List[TestSource]:
+    def collect(
+        self,
+        match_pattern: Optional[Pattern] = None,
+        omit_pattern: Optional[Pattern] = None,
+    ) -> List[TestSource]:
         test_sources = []
         for root, _, files in os.walk(self.sources_directory):
             test_files = [
@@ -27,22 +33,19 @@ class TestCollector:
                 if file.endswith(".cairo") and file.startswith("test_")
             ]
             for test_file_name in test_files:
-                test_file_path = Path(root + test_file_name)
+                test_file_path = Path(root, test_file_name)
 
-                # TODO: Allow relocating tests from source, requires pre-collection of cairo files
-                target_contract_file_name = test_file_name.replace("_test", "")
-                target_contract_file_path = Path(root + target_contract_file_name)
-
-                if not target_contract_file_path.is_file():
+                if match_pattern and not match_pattern.match(str(test_file_path)):
+                    continue
+                if omit_pattern and omit_pattern.match(str(test_file_path)):
                     continue
 
-                test_functions = TestCollector._collect_test_functions(test_file_path)
+                test_functions = self._collect_test_functions(test_file_path)
                 if not test_functions:
                     continue
 
                 test_sources.append(
                     TestSource(
-                        target_path=target_contract_file_path,
                         test_path=test_file_path,
                         test_functions=test_functions,
                     )
@@ -50,9 +53,10 @@ class TestCollector:
 
         return test_sources
 
-    @staticmethod
-    def _collect_test_functions(file_path: Path) -> List[str]:
-        preprocessed = preprocess_contract(file_path)
+    def _collect_test_functions(self, file_path: Path) -> List[str]:
+        preprocessed = StarknetCompiler(
+            include_paths=collect_subdirectories(self.sources_directory)
+        ).preprocess_contract(file_path)
         return [
             fn
             for fn in preprocessed.abi

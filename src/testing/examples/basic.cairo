@@ -30,3 +30,12 @@ end
 func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
     return ()
 end
+
+@contract_interface
+namespace BasicContract:
+    func increase_balance(amount : felt):
+    end
+
+    func get_balance() -> (res : felt):
+    end
+end
