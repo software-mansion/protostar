@@ -5,7 +5,7 @@ from typing import List, Union, Optional, NewType, Dict
 from starkware.starkware_utils.error_handling import StarkException
 
 from src.testing.cases import PassedCase, FailedCase, BrokenTest
-from src.testing.collector import TestSubject
+from src.testing.utils import TestSubject
 
 CaseResult = NewType("CaseResult", Union[PassedCase, FailedCase, BrokenTest])
 
@@ -62,6 +62,10 @@ class TestReporter:
     @staticmethod
     def file_entry(file_name: str):
         print(f"\n{file_name.replace('.cairo', '')}: ", end="")
+
+    @staticmethod
+    def report_collection_error():
+        print("!!!!!!!!!! TEST COLLECTION ERROR !!!!!!!!!!")
 
     def report_summary(self):
         if not self.collected_count:
