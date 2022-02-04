@@ -1,5 +1,4 @@
 %lang starknet
-%builtins pedersen range_check
 
 # Check if importing from root directory is possible
 from basic import BasicContract
