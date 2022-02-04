@@ -28,11 +28,8 @@ def install(
     except NoSuchPathError as _err:
         raise installation_exceptions.InvalidLocalRepository()
 
-    (package_name, _tag, url) = extract_info_from_repo_id(repo_id)
+    (package_name, tag, url) = extract_info_from_repo_id(repo_id)
 
     Submodule.add(
-        repo,
-        package_name,
-        path.join(destination, package_name),
-        url,
+        repo, package_name, path.join(destination, package_name), url, tag, depth=1
     )
