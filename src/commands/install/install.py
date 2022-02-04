@@ -30,19 +30,26 @@ def install(
     except NoSuchPathError as _err:
         raise installation_exceptions.InvalidLocalRepository()
 
-    (package_name, tag, url) = extract_info_from_repo_id(repo_id)
+    package_info = extract_info_from_repo_id(repo_id)
 
-    package_dir = path.join(destination, package_name)
+    package_dir = path.join(destination, package_info.name)
 
     logger.info(
         "Installing %s%s%s in %s %s(%s)%s",
         Fore.CYAN,
-        package_name,
+        package_info.name,
         Fore.RESET,
         package_dir,
         Fore.LIGHTBLACK_EX,
-        url,
+        package_info.url,
         Fore.RESET,
     )
 
-    Submodule.add(repo, package_name, package_dir, url, tag, depth=1)
+    Submodule.add(
+        repo,
+        package_info.name,
+        package_dir,
+        package_info.url,
+        package_info.version,
+        depth=1,
+    )
