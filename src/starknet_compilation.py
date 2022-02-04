@@ -25,9 +25,7 @@ class StarknetCompiler:
     include_paths: List[str]
 
     def get_starknet_pass_manager(self) -> PassManager:
-        read_module = get_module_reader(
-            cairo_path=self.include_paths
-        ).read
+        read_module = get_module_reader(cairo_path=self.include_paths).read
         return starknet_pass_manager(DEFAULT_PRIME, read_module)
 
     def preprocess_contract(self, cairo_file_path: Path) -> StarknetPreprocessedProgram:

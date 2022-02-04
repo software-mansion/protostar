@@ -9,7 +9,10 @@ from src.testing.utils import collect_subdirectories
 
 
 @dataclass
-class TestSource:
+class TestSubject:
+    """
+    A dataclass consisting of identification of a single test bundle, and target functions
+    """
     test_path: Path
     test_functions: List[dict]
 
@@ -24,7 +27,7 @@ class TestCollector:
         self,
         match_pattern: Optional[Pattern] = None,
         omit_pattern: Optional[Pattern] = None,
-    ) -> List[TestSource]:
+    ) -> List[TestSubject]:
         test_sources = []
         for root, _, files in os.walk(self.sources_directory):
             test_files = [
@@ -45,7 +48,7 @@ class TestCollector:
                     continue
 
                 test_sources.append(
-                    TestSource(
+                    TestSubject(
                         test_path=test_file_path,
                         test_functions=test_functions,
                     )
