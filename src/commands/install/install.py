@@ -1,5 +1,7 @@
+from logging import getLogger
 from os import path
 
+from colorama import Fore
 from git import InvalidGitRepositoryError, NoSuchPathError
 from git.objects import Submodule
 from git.repo import Repo
@@ -20,6 +22,7 @@ def install(
         - url — e.g. `https://github.com/software-mansion/protostar`
         - ssh — e.g. `git@github.com:software-mansion/protostar.git`
     """
+    logger = getLogger()
 
     try:
         repo = Repo(path_to_repo_root)
@@ -30,6 +33,17 @@ def install(
 
     (package_name, tag, url) = extract_info_from_repo_id(repo_id)
 
-    Submodule.add(
-        repo, package_name, path.join(destination, package_name), url, tag, depth=1
+    package_dir = path.join(destination, package_name)
+
+    logger.info(
+        "Installing %s%s%s in %s %s(%s)%s",
+        Fore.CYAN,
+        package_name,
+        Fore.RESET,
+        package_dir,
+        Fore.LIGHTBLACK_EX,
+        url,
+        Fore.RESET,
     )
+
+    Submodule.add(repo, package_name, package_dir, url, tag, depth=1)
