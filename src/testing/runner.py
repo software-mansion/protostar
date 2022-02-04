@@ -7,7 +7,8 @@ from starkware.starkware_utils.error_handling import StarkException
 
 from src.starknet_compilation import StarknetCompiler
 from src.testing.cases import BrokenTest, PassedCase, FailedCase
-from src.testing.collector import TestCollector, TestSubject
+from src.testing.collector import TestCollector
+from src.testing.utils import TestSubject
 from src.testing.reporter import TestReporter
 
 
