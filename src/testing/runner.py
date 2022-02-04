@@ -60,9 +60,7 @@ class TestRunner:
         except StarkException as err:
             self.reporter.report(
                 subject=test_subject,
-                case_result=BrokenTest(
-                    file_path=test_subject.test_path, exception=err
-                ),
+                case_result=BrokenTest(file_path=test_subject.test_path, exception=err),
             )
             return
 
