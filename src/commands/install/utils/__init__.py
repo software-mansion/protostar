@@ -1,1 +1,1 @@
-from .map_url_to_ssh_package_name import map_url_or_ssh_to_package_name
+from .extract_info_from_repo_id import extract_info_from_repo_id

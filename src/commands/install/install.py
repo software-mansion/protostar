@@ -5,14 +5,21 @@ from git.objects import Submodule
 from git.repo import Repo
 
 from . import installation_exceptions
-from .utils import map_url_or_ssh_to_package_name
+from .utils import extract_info_from_repo_id
 
 
 def install(
-    url_or_ssh: str,
+    repo_id: str,
     path_to_repo_root: str,
     destination="./lib",
 ):
+    """
+    A function which installs a package as git submodule.
+    :param repo_id: Repo identifier which can be accepted in the following three forms:
+        - name — e.g. `software-mansion/starknet.py@0.1.0-alpha`
+        - url — e.g. `https://github.com/software-mansion/protostar`
+        - ssh — e.g. `git@github.com:software-mansion/protostar.git`
+    """
 
     try:
         repo = Repo(path_to_repo_root)
@@ -21,11 +28,11 @@ def install(
     except NoSuchPathError as _err:
         raise installation_exceptions.InvalidLocalRepository()
 
-    package_name = map_url_or_ssh_to_package_name(url_or_ssh)
+    (package_name, _tag, url) = extract_info_from_repo_id(repo_id)
 
     Submodule.add(
         repo,
         package_name,
         path.join(destination, package_name),
-        url_or_ssh,
+        url,
     )
