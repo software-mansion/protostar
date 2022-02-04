@@ -1,3 +1,3 @@
-from src.commands.install import installation_exceptions
-from .commands import install
+from src.commands import *
+
 from .cli import cli

@@ -1,7 +1,7 @@
 import re
 from typing import NamedTuple, Optional
 
-from .. import installation_exceptions
+from src.commands.install import installation_exceptions
 
 
 class ExtractInfoFromRepoIdResult(NamedTuple):

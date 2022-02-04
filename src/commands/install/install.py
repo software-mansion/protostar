@@ -5,9 +5,8 @@ from colorama import Fore
 from git import InvalidGitRepositoryError, NoSuchPathError
 from git.objects import Submodule
 from git.repo import Repo
-
-from . import installation_exceptions
-from .utils import extract_info_from_repo_id
+from src.commands.install import installation_exceptions
+from src.commands.install.utils import extract_info_from_repo_id
 
 
 def install(
