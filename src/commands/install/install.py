@@ -27,12 +27,15 @@ def install(
     package_name = map_url_or_ssh_to_package_name(url_or_ssh)
     package_dir = path.join(destination, package_name)
 
-    # pylint: disable=logging-fstring-interpolation
     logger.info(
-        f"Installing {Fore.CYAN}%s{Fore.RESET} in %s {Fore.LIGHTBLACK_EX}(%s){Fore.RESET}",
+        "Installing %s%s%s in %s %s(%s)%s",
+        Fore.CYAN,
         package_name,
+        Fore.RESET,
         package_dir,
+        Fore.LIGHTBLACK_EX,
         url_or_ssh,
+        Fore.RESET,
     )
 
     Submodule.add(

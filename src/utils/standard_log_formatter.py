@@ -13,7 +13,7 @@ def get_level_color(level: str) -> str:
         return Fore.YELLOW
     if level == "ERROR":
         return Fore.RED
-    return ""
+    return Fore.RESET
 
 
 class StandardLogFormatter(Formatter):
