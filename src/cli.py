@@ -1,5 +1,5 @@
 import os
-from logging import DEBUG, StreamHandler, getLogger
+from logging import INFO, StreamHandler, getLogger
 
 from colorama import init as init_colorama
 
@@ -13,7 +13,7 @@ cwd = os.getcwd()
 
 def cli(args):
     logger = getLogger()
-    logger.setLevel(DEBUG)
+    logger.setLevel(INFO)
     handler = StreamHandler()
     handler.setFormatter(StandardLogFormatter())
     logger.addHandler(handler)
