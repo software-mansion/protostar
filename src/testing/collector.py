@@ -13,6 +13,7 @@ class TestSubject:
     """
     A dataclass consisting of identification of a single test bundle, and target functions
     """
+
     test_path: Path
     test_functions: List[dict]
 
