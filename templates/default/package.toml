@@ -1,0 +1,10 @@
+["protostar.general"]
+name = "template_package"
+description = "example description"
+license = ""
+version = "0.1.0"
+authors = []
+
+["protostar.dependencies"]
+
+["protostar.dev-dependencies"]
