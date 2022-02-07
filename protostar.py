@@ -11,4 +11,7 @@ cmd_install_parser.add_argument("package", type=str)
 cmd_remove_parser = root_subparsers.add_parser("remove")
 cmd_remove_parser.add_argument("package", type=str)
 
+cmd_remove_parser = root_subparsers.add_parser("new")
+cmd_remove_parser.add_argument("package", type=str)
+
 cli(root_parser.parse_args())
