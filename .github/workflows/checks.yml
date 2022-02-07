@@ -33,3 +33,5 @@ jobs:
       - name: Unit test
         run: |
           poetry run poe test
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
