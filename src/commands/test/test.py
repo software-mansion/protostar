@@ -11,8 +11,8 @@ from src.commands.test.utils import collect_subdirectories
 @pytest.mark.skip
 async def test(
     sources_directory: Path,
-    omit: Pattern,
-    match: Pattern,
+    omit: Optional[Pattern] = None,
+    match: Optional[Pattern] = None,
     cairo_paths: Optional[List[Path]] = None,
     cairo_paths_recursive: Optional[List[Path]] = None,
 ):
