@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+from pathlib import Path
 
 from src import cli
 
@@ -12,6 +13,6 @@ cmd_remove_parser = root_subparsers.add_parser("remove")
 cmd_remove_parser.add_argument("package", type=str)
 
 cmd_remove_parser = root_subparsers.add_parser("new")
-cmd_remove_parser.add_argument("package", type=str)
+cmd_remove_parser.add_argument("project_name", type=str)
 
-cli(root_parser.parse_args())
+cli(root_parser.parse_args(), Path(__file__).parent)

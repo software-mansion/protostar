@@ -11,7 +11,7 @@ init_colorama()
 cwd = os.getcwd()
 
 
-def cli(args):
+def cli(args, script_root):
     logger = getLogger()
     logger.setLevel(INFO)
     handler = StreamHandler()
@@ -23,4 +23,4 @@ def cli(args):
     elif args.command == "remove":
         remove(args.package, cwd)
     elif args.command == "new":
-        new(args.package, cwd)
+        new(args.project_name, script_root)
