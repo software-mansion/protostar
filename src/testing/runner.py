@@ -13,7 +13,7 @@ from src.testing.reporter import TestReporter
 
 
 class TestRunner:
-    reporter: TestReporter = None
+    reporter: Optional[TestReporter] = None
     include_paths: Optional[List[str]] = None
     _collected_count: Optional[int] = None
 
@@ -38,7 +38,7 @@ class TestRunner:
 
         for test_subject in test_subjects:
             compiled_test = StarknetCompiler(
-                include_paths=self.include_paths,
+                include_paths=self.include_paths or [],
             ).compile_contract(test_subject.test_path)
 
             self.reporter.file_entry(test_subject.test_path.name)
@@ -55,6 +55,7 @@ class TestRunner:
         test_subject: TestSubject,
         functions: List[dict],
     ):
+        assert self.reporter, "Uninitialized reporter!"
         try:
             starknet = await Starknet.empty()
             contract = await starknet.deploy(contract_def=test_contract)
