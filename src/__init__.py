@@ -1,5 +1,2 @@
-from src.commands.install import installation_exceptions
-
-from .cli import cli
-from .commands.install import install
-from .commands.remove import remove
+from src.cli import cli
+from src.commands import install, installation_exceptions, removal_exceptions, remove

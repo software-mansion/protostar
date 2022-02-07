@@ -1,1 +1,1 @@
-from .standard_log_formatter import StandardLogFormatter
+from src.utils.standard_log_formatter import StandardLogFormatter

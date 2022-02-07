@@ -1,1 +1,1 @@
-from .remove import remove
+from src.commands.remove.remove import remove
