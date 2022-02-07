@@ -1,18 +1,28 @@
+from logging import getLogger
 from os import path
 
+from colorama import Fore
 from git import InvalidGitRepositoryError, NoSuchPathError
 from git.objects import Submodule
 from git.repo import Repo
 
-from . import installation_exceptions
-from .utils import map_url_or_ssh_to_package_name
+from src.commands.install import installation_exceptions
+from src.commands.install.utils import extract_info_from_repo_id
 
 
 def install(
-    url_or_ssh: str,
+    repo_id: str,
     path_to_repo_root: str,
     destination="./lib",
 ):
+    """
+    A function which installs a package as git submodule.
+    :param repo_id: Repo identifier which can be accepted in the following three forms:
+        - name — e.g. `software-mansion/starknet.py@0.1.0-alpha`
+        - url — e.g. `https://github.com/software-mansion/protostar`
+        - ssh — e.g. `git@github.com:software-mansion/protostar.git`
+    """
+    logger = getLogger()
 
     try:
         repo = Repo(path_to_repo_root)
@@ -21,11 +31,26 @@ def install(
     except NoSuchPathError as _err:
         raise installation_exceptions.InvalidLocalRepository()
 
-    package_name = map_url_or_ssh_to_package_name(url_or_ssh)
+    package_info = extract_info_from_repo_id(repo_id)
+
+    package_dir = path.join(destination, package_info.name)
+
+    logger.info(
+        "Installing %s%s%s in %s %s(%s)%s",
+        Fore.CYAN,
+        package_info.name,
+        Fore.RESET,
+        package_dir,
+        Fore.LIGHTBLACK_EX,
+        package_info.url,
+        Fore.RESET,
+    )
 
     Submodule.add(
         repo,
-        package_name,
-        path.join(destination, package_name),
-        url_or_ssh,
+        package_info.name,
+        package_dir,
+        package_info.url,
+        package_info.version,
+        depth=1,
     )

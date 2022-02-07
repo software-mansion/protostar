@@ -1,5 +1,6 @@
-from git.repo import Repo
 import pytest
+from git.repo import Repo
+
 from src.commands.install import install, installation_exceptions
 
 

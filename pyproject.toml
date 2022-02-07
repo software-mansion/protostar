@@ -12,6 +12,7 @@ python = ">=3.7.12, <3.10"
 GitPython = "^3.1.26"
 typing-extensions = "^4.0.1"
 argparse = "^1.4.0"
+colorama = "^0.4.4"
 
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
@@ -20,6 +21,7 @@ poethepoet = "^0.12.2"
 cairo-lang = "^0.7.0"
 pytest = "^6.2.5"
 coverage = "^6.3.1"
+pyright = "^0.0.13"
 
 [tool.poe.tasks]
 lint = "pylint src"
@@ -43,3 +45,6 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 target-version = ["py37"]
+
+[tool.isort]
+lines_between_sections = 1

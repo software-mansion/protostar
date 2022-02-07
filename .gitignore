@@ -2,6 +2,7 @@
 .vscode
 .envrc
 .DS_Store
+playground/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
