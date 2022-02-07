@@ -13,6 +13,7 @@ GitPython = "^3.1.26"
 typing-extensions = "^4.0.1"
 argparse = "^1.4.0"
 colorama = "^0.4.4"
+tomli-w = "^1.0.0"
 
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
