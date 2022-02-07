@@ -21,7 +21,7 @@ async def test(
         *(
             [
                 s
-                for path_recursive in cairo_paths_recursive
+                for path_recursive in cairo_paths_recursive or []
                 for s in collect_subdirectories(path_recursive)
             ]
         ),

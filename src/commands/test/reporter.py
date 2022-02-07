@@ -100,7 +100,11 @@ class TestReporter:
         if self.broken_tests:
             print("\n----- BROKEN TESTS ------")
             for broken_subject in self.broken_tests:
-                print(broken_subject.file_path.resolve().relative_to(self.tests_root.resolve()))
+                print(
+                    broken_subject.file_path.resolve().relative_to(
+                        self.tests_root.resolve()
+                    )
+                )
                 print_stark_exception(broken_subject.exception)
 
     def report_collected(self, test_subjects: List[TestSubject]):
