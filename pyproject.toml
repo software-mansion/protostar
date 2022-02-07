@@ -24,6 +24,7 @@ pyright = "^0.0.13"
 pytest = "^6.2.5"
 
 [tool.poe.tasks]
+ci = ["type_check", "lint", "format_check", "test"]
 format = "black ."
 format_check = "black --check src"
 lint = "pylint src"
