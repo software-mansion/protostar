@@ -1,16 +1,16 @@
 from functools import reduce
 from pathlib import Path
-from typing import List, Union, Optional, NewType, Dict
+from typing import List, Union, Optional, Dict
 
 from starkware.starkware_utils.error_handling import StarkException
 
 from src.testing.cases import PassedCase, FailedCase, BrokenTest
 from src.testing.utils import TestSubject
 
-CaseResult = NewType("CaseResult", Union[PassedCase, FailedCase, BrokenTest])
+CaseResult = Union[PassedCase, FailedCase, BrokenTest]
 
 
-def print_stark_exception(exception: StarkException) -> dict:
+def print_stark_exception(exception: StarkException):
     indented_message = "\t" + exception.message.replace("\n", "\n\t")
     print("Error type:")
     print(f"\t{exception.code.name}")
@@ -39,13 +39,13 @@ class TestReporter:
         self.tests_root = tests_root
 
     def report(self, subject: TestSubject, case_result: CaseResult):
-        symbol, destination = None, None
+        symbol = None
         if isinstance(case_result, PassedCase):
             symbol = "."
-            destination = self.passed_cases
+            self.passed_cases.append(case_result)
         if isinstance(case_result, FailedCase):
             symbol = "F"
-            destination = self.failed_cases
+            self.failed_cases.append(case_result)
             try:
                 self.failed_tests_by_subject[subject.test_path].append(case_result)
             except KeyError:
@@ -53,11 +53,10 @@ class TestReporter:
 
         if isinstance(case_result, BrokenTest):
             symbol = "!"
-            destination = self.broken_tests
-        assert symbol and destination is not None, "Unrecognised case result!"
+            self.broken_tests.append(case_result)
+        assert symbol, "Unrecognised case result!"
 
         print(symbol, end="")
-        destination.append(case_result)
 
     @staticmethod
     def file_entry(file_name: str):

@@ -18,7 +18,7 @@ class CollectionError(Exception):
 
 @dataclass
 class TestCollector:
-    sources_directory: str
+    sources_directory: Path
     include_paths: Optional[List[str]] = None
 
     # TODO: Optimize, by returning preprocessed test program, for reuse when compiling it for test runs
@@ -55,7 +55,7 @@ class TestCollector:
                 )
         return test_sources
 
-    def _collect_test_functions(self, file_path: Path) -> List[str]:
+    def _collect_test_functions(self, file_path: Path) -> List[dict]:
         try:
             preprocessed = StarknetCompiler(
                 include_paths=collect_subdirectories(self.sources_directory)
