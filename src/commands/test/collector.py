@@ -7,9 +7,9 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     PreprocessorError,
 )
 
-from src.starknet_compilation import StarknetCompiler
-from src.testing.reporter import TestReporter
-from src.testing.utils import collect_subdirectories, TestSubject
+from src.utils.starknet_compilation import StarknetCompiler
+from src.commands.test.reporter import TestReporter
+from src.commands.test.utils import collect_subdirectories, TestSubject
 
 
 class CollectionError(Exception):

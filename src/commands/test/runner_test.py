@@ -2,7 +2,7 @@ from pathlib import Path
 import re
 import pytest
 
-from src.testing.runner import TestRunner
+from src.commands.test.runner import TestRunner
 
 
 current_directory = Path(__file__).parent

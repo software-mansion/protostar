@@ -5,11 +5,11 @@ from starkware.starknet.services.api.contract_definition import ContractDefiniti
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 
-from src.starknet_compilation import StarknetCompiler
-from src.testing.cases import BrokenTest, PassedCase, FailedCase
-from src.testing.collector import TestCollector
-from src.testing.utils import TestSubject
-from src.testing.reporter import TestReporter
+from src.utils.starknet_compilation import StarknetCompiler
+from src.commands.test.cases import BrokenTest, PassedCase, FailedCase
+from src.commands.test.collector import TestCollector
+from src.commands.test.utils import TestSubject
+from src.commands.test.reporter import TestReporter
 
 
 class TestRunner:

@@ -4,8 +4,8 @@ from typing import List, Union, Optional, Dict
 
 from starkware.starkware_utils.error_handling import StarkException
 
-from src.testing.cases import PassedCase, FailedCase, BrokenTest
-from src.testing.utils import TestSubject
+from src.commands.test.cases import PassedCase, FailedCase, BrokenTest
+from src.commands.test.utils import TestSubject
 
 CaseResult = Union[PassedCase, FailedCase, BrokenTest]
 
@@ -94,13 +94,13 @@ class TestReporter:
 
                 for failed_case in failed_cases:
                     print(
-                        f"{test_path.relative_to(self.tests_root)}::{failed_case.function_name}"
+                        f"{test_path.resolve().relative_to(self.tests_root.resolve())}::{failed_case.function_name}"
                     )
                     print_stark_exception(failed_case.exception)
         if self.broken_tests:
             print("\n----- BROKEN TESTS ------")
             for broken_subject in self.broken_tests:
-                print(broken_subject.file_path.relative_to(self.tests_root))
+                print(broken_subject.file_path.resolve().relative_to(self.tests_root.resolve()))
                 print_stark_exception(broken_subject.exception)
 
     def report_collected(self, test_subjects: List[TestSubject]):
