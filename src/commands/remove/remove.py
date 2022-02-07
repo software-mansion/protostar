@@ -1,7 +1,7 @@
 from git import InvalidGitRepositoryError
 from git.repo import Repo
 
-from . import removal_exceptions
+from src.commands.remove import removal_exceptions
 
 
 def remove(package_name: str, path_to_repo_root: str):

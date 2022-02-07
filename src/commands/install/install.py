@@ -6,8 +6,8 @@ from git import InvalidGitRepositoryError, NoSuchPathError
 from git.objects import Submodule
 from git.repo import Repo
 
-from . import installation_exceptions
-from .utils import map_url_or_ssh_to_package_name
+from src.commands.install import installation_exceptions
+from src.commands.install.utils import map_url_or_ssh_to_package_name
 
 
 def install(
