@@ -9,7 +9,6 @@ current_directory = Path(__file__).parent
 
 
 def test_matching_pattern():
-
     match_pattern = re.compile(".*nested/test_basic.*")
     collector = TestCollector(sources_directory=Path(current_directory, "examples"))
     subjects = collector.collect(match_pattern=match_pattern)
