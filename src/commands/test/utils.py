@@ -9,6 +9,16 @@ def collect_subdirectories(root_dir: Path) -> List[str]:
     return [x[0] for x in os.walk(root_dir)]
 
 
+def collect_immediate_subdirectories(root_dir: Path) -> List[str]:
+    assert root_dir.is_dir(), f"{root_dir} is supposed to be a directory!"
+    result = []
+    for (root, dirs, _) in os.walk(str(root_dir.resolve())):
+        for directory in dirs:
+            result.append(str(Path(root, directory).resolve()))
+        break
+    return result
+
+
 @dataclass
 class TestSubject:
     """

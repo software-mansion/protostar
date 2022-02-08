@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
 from starkware.cairo.lang.compiler.cairo_compile import (
@@ -28,10 +28,15 @@ class StarknetCompiler:
         read_module = get_module_reader(cairo_path=self.include_paths).read
         return starknet_pass_manager(DEFAULT_PRIME, read_module)
 
-    def preprocess_contract(self, cairo_file_path: Path) -> StarknetPreprocessedProgram:
+    def preprocess_contract(
+        self, cairo_file_paths: List[Path]
+    ) -> StarknetPreprocessedProgram:
         pass_manager = self.get_starknet_pass_manager()
 
-        codes = [(cairo_file_path.read_text("utf-8"), str(cairo_file_path))]
+        codes = [
+            (cairo_file_path.read_text("utf-8"), str(cairo_file_path))
+            for cairo_file_path in cairo_file_paths
+        ]
         context = PassManagerContext(
             codes=codes,
             main_scope=MAIN_SCOPE,
@@ -41,8 +46,17 @@ class StarknetCompiler:
         assert isinstance(context.preprocessed_program, StarknetPreprocessedProgram)
         return context.preprocessed_program
 
-    def compile_contract(self, cairo_file_path: Path) -> ContractDefinition:
-        preprocessed = self.preprocess_contract(cairo_file_path)
+    def compile_contract(
+        self, source: Optional[Path] = None, sources: Optional[List[Path]] = None
+    ) -> ContractDefinition:
+        cairo_file_paths = []
+        if source:
+            cairo_file_paths = [source]
+        if sources:
+            cairo_file_paths = sources
+        assert cairo_file_paths, "No sources given for compilation!"
+
+        preprocessed = self.preprocess_contract(cairo_file_paths)
         assembled = assemble_starknet_contract(
             preprocessed_program=preprocessed,
             main_scope=MAIN_SCOPE,
