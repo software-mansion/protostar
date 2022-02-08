@@ -59,7 +59,7 @@ class TestCollector:
         try:
             preprocessed = StarknetCompiler(
                 include_paths=collect_subdirectories(self.sources_directory)
-            ).preprocess_contract(file_path)
+            ).preprocess_contract([file_path])
         except PreprocessorError as p_err:
             TestReporter.report_collection_error()
             raise CollectionError from p_err
