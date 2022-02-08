@@ -18,6 +18,7 @@ def compile_contract(
     contract = StarknetCompiler(
         include_paths=[
             *[str(contract_path.parent) for contract_path in input_files],
+            str(libraries_root),
             *collect_immediate_subdirectories(libraries_root),
             *[str(pth) for pth in cairo_path],
         ]
