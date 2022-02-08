@@ -46,7 +46,7 @@ def install(
         Fore.RESET,
     )
 
-    Submodule.add(
+    submodule = Submodule.add(
         repo,
         package_info.name,
         package_dir,
@@ -54,3 +54,6 @@ def install(
         package_info.version,
         depth=1,
     )
+
+    repo.git.add(submodule.path)
+    repo.index.commit(f"add {package_info.name}")
