@@ -29,16 +29,21 @@ def update_package(package_name: str, repo_root_dir: str, packages_dir: str):
     except GitCommandError as _err:
         latest_tag = None
 
-    if latest_tag != current_tag:
-        package_url = submodule.url
-        package_dir = submodule.path
+    if current_tag is not None:
+        if latest_tag != current_tag:
+            package_url = submodule.url
+            package_dir = submodule.path
 
-        submodule.remove()
-        Submodule.add(
-            repo,
-            package_name,
-            package_dir,
-            package_url,
-            latest_tag,
-            depth=1,
-        )
+            submodule.remove()
+            Submodule.add(
+                repo,
+                package_name,
+                package_dir,
+                package_url,
+                latest_tag,
+                depth=1,
+            )
+        else:
+            raise NotImplementedError(latest_tag, current_tag)
+    else:
+        raise NotImplementedError()
