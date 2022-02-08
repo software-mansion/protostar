@@ -3,14 +3,14 @@ from pathlib import Path
 
 import pytest
 
-from src.commands.test.test import test
+from src.commands.test import run_test_runner
 
 current_directory = Path(__file__).parent
 
 
 @pytest.mark.asyncio
-async def test_cli():
-    await test(
+async def test_run_test_runner():
+    await run_test_runner(
         sources_directory=Path(current_directory, "examples"),
         omit=re.compile(r".*invalid.*"),
         cairo_paths=[

@@ -1,1 +1,1 @@
-from .test import test
+from .run_test_runner import run_test_runner

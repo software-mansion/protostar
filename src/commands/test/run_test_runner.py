@@ -2,14 +2,11 @@ from pathlib import Path
 from re import Pattern
 from typing import Optional, List
 
-import pytest
-
 from src.commands.test.runner import TestRunner
 from src.commands.test.utils import collect_subdirectories
 
 
-@pytest.mark.skip
-async def test(
+async def run_test_runner(
     sources_directory: Path,
     omit: Optional[Pattern] = None,
     match: Optional[Pattern] = None,
