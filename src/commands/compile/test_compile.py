@@ -24,9 +24,7 @@ def test_compile():
     output_path = Path(mock_outputs, "mock_compiled.json")
     abi_output_path = Path(mock_outputs, "mock_abi.json")
 
-    with open(
-        str(output_path), mode="w", encoding="utf-8"
-    ) as output, open(
+    with open(str(output_path), mode="w", encoding="utf-8") as output, open(
         str(abi_output_path), mode="w", encoding="utf-8"
     ) as abi_file:
         compile_contract(
