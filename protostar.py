@@ -33,7 +33,7 @@ root_subparsers = root_parser.add_subparsers(dest="command")
 cmd_install_parser = root_subparsers.add_parser("install")
 cmd_install_parser.add_argument("package", type=str)
 cmd_install_parser.add_argument(
-    "--alias", type=str, help="Custom package's directory name"
+    "--name", type=str, help="Custom package's directory name"
 )
 
 cmd_remove_parser = root_subparsers.add_parser("remove")
