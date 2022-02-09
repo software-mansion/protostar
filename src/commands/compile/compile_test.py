@@ -1,28 +1,15 @@
 import json
-import shutil
 from pathlib import Path
-
-import pytest
 
 from src.commands.compile.compile import compile_contract
 
-
 current_directory = Path(__file__).parent
-mock_outputs = Path(current_directory, "mock_output")
 
 
-@pytest.fixture(name="clear_mock_outputs")
-def clear_mock_outputs():
-    if mock_outputs.is_dir():
-        shutil.rmtree(str(mock_outputs))
-    mock_outputs.mkdir()
-
-
-@pytest.mark.usefixtures("clear_mock_outputs")
-def test_compile():
+def test_compile(tmp_path):
     sources_root = Path(current_directory, "mock_sources")
-    output_path = Path(mock_outputs, "mock_compiled.json")
-    abi_output_path = Path(mock_outputs, "mock_abi.json")
+    output_path = Path(tmp_path, "mock_compiled.json")
+    abi_output_path = Path(tmp_path, "mock_abi.json")
 
     with open(str(output_path), mode="w", encoding="utf-8") as output, open(
         str(abi_output_path), mode="w", encoding="utf-8"
