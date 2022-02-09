@@ -1,4 +1,5 @@
 from os import mkdir, path
+from time import sleep
 from typing import Optional
 
 import pytest
@@ -112,6 +113,7 @@ def test_updating_specific_package_with_tag(
         some_file.write("bar")
         some_file.close()
     package_repo.git.add()
+    sleep(1)  # commits are sorted with precision to seconds
     package_repo.index.commit("add bar.txt")
     package_repo.create_tag("0.1.1")
 
