@@ -68,4 +68,4 @@ cmd_test_parser.add_argument(
     required=False,
 )
 
-asyncio.run(cli(root_parser.parse_args()), SCRIPT_ROOT)
+asyncio.run(cli(root_parser.parse_args(), SCRIPT_ROOT))
