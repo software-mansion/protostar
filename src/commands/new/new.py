@@ -17,7 +17,7 @@ def new(project_name: str, script_root: str):
     package.write()
 
 
-def copy_template(script_root, template_name: str, project_path: Path):
+def copy_template(script_root: str, template_name: str, project_path: Path):
     template_path = f"{script_root}/templates/{template_name}"
     shutil.copytree(template_path, project_path)
 
