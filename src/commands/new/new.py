@@ -29,7 +29,7 @@ class PackageConfig:
     def __init__(self, project_path=None):
         self._project_path = project_path
         self.name = "package_name"
-        self.description = "example description"
+        self.description = ""
         self.license = ""
         self.version = "0.1.0"
         self.authors = []

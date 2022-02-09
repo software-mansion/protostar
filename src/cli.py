@@ -12,7 +12,7 @@ init_colorama()
 cwd = os.getcwd()
 
 
-async def cli(args):
+async def cli(args, script_root):
     logger = getLogger()
     logger.setLevel(INFO)
     handler = StreamHandler()
