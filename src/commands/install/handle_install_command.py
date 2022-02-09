@@ -10,8 +10,9 @@ def handle_install_command(args: Any) -> None:
         return
 
     package_info = extract_info_from_repo_id(args.package)
+
     install_package_from_repo(
-        package_info.name,
+        package_info.name if args.alias is None else args.alias,
         package_info.url,
         package_info.version,
         repo_root_dir=getcwd(),
