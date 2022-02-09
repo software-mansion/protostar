@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
 from starkware.cairo.lang.compiler.cairo_compile import (
@@ -46,17 +46,8 @@ class StarknetCompiler:
         assert isinstance(context.preprocessed_program, StarknetPreprocessedProgram)
         return context.preprocessed_program
 
-    def compile_contract(
-        self, source: Optional[Path] = None, sources: Optional[List[Path]] = None
-    ) -> ContractDefinition:
-        cairo_file_paths = []
-        if source:
-            cairo_file_paths = [source]
-        if sources:
-            cairo_file_paths = sources
-        assert cairo_file_paths, "No sources given for compilation!"
-
-        preprocessed = self.preprocess_contract(cairo_file_paths)
+    def compile_contract(self, *sources: List[Path]) -> ContractDefinition:
+        preprocessed = self.preprocess_contract(sources)
         assembled = assemble_starknet_contract(
             preprocessed_program=preprocessed,
             main_scope=MAIN_SCOPE,

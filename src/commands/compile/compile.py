@@ -22,7 +22,7 @@ def compile_contract(
             *collect_immediate_subdirectories(libraries_root),
             *[str(pth) for pth in cairo_path],
         ]
-    ).compile_contract(sources=input_files)
+    ).compile_contract(*input_files)
 
     json.dump(contract.Schema().dump(contract), output_file, indent=4, sort_keys=True)
     output_file.write("\n")

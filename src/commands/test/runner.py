@@ -39,7 +39,7 @@ class TestRunner:
         for test_subject in test_subjects:
             compiled_test = StarknetCompiler(
                 include_paths=self.include_paths or [],
-            ).compile_contract(source=test_subject.test_path)
+            ).compile_contract(test_subject.test_path)
 
             self.reporter.file_entry(test_subject.test_path.name)
             await self._run_test_functions(
