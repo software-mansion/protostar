@@ -30,10 +30,7 @@ cmd_remove_parser.add_argument("package", type=str)
 cmd_new_parser = root_subparsers.add_parser("new")
 cmd_new_parser.add_argument("project_name", type=str)
 
-
 cmd_init_parser = root_subparsers.add_parser("init")
-
-cli(root_parser.parse_args(), SCRIPT_ROOT)
 
 cmd_test_parser = root_subparsers.add_parser("test")
 cmd_test_parser.add_argument("sources-root", type=directory)
