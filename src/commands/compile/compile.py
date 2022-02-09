@@ -26,6 +26,8 @@ def compile_contract(
 
     json.dump(contract.Schema().dump(contract), output_file, indent=4, sort_keys=True)
     output_file.write("\n")
+    if output_file != sys.stdout:
+        output_file.close()
 
     if output_abi_file:
         json.dump(contract.abi, output_abi_file, indent=4, sort_keys=True)
