@@ -10,7 +10,7 @@ from src.commands.install import installation_exceptions
 from src.commands.install.utils import extract_info_from_repo_id
 
 
-def install(
+def install_package(
     repo_id: str,
     path_to_repo_root: str,
     destination="./lib",

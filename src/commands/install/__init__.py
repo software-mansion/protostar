@@ -1,1 +1,1 @@
-from src.commands.install.install import install
+from src.commands.install.install_package import install_package
