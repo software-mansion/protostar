@@ -3,7 +3,7 @@ from logging import INFO, StreamHandler, getLogger
 
 from colorama import init as init_colorama
 
-from src.commands import new, remove
+from src.commands import new, remove, init
 from src.commands.install import install
 from src.commands.test import run_test_runner
 from src.utils import StandardLogFormatter
@@ -25,6 +25,8 @@ async def cli(args, script_root):
         remove(args.package, cwd)
     elif args.command == "new":
         new(args.project_name, script_root)
+    elif args.command == "init":
+        init()
     elif args.command == "test":
         await run_test_runner(
             getattr(args, "sources-root"),
