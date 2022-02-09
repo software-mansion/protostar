@@ -1,7 +1,2 @@
 from src.cli import cli
-from src.commands import (
-    install_package,
-    installation_exceptions,
-    removal_exceptions,
-    remove,
-)
+from src.commands import handle_install_command, removal_exceptions, remove

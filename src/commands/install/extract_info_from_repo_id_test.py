@@ -1,6 +1,7 @@
 import pytest
+
 from src.commands.install import installation_exceptions
-from src.commands.install.utils import extract_info_from_repo_id
+from src.commands.install.extract_info_from_repo_id import extract_info_from_repo_id
 
 
 def test_github():
