@@ -22,6 +22,7 @@ poethepoet = "^0.12.2"
 pylint = "^2.12.2"
 pyright = "^0.0.13"
 pytest = "^6.2.5"
+pytest-mock = "^3.7.0"
 
 [tool.poe.tasks]
 ci = ["type_check", "lint", "format_check", "test"]

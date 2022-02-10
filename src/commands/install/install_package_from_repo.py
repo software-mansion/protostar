@@ -13,9 +13,9 @@ from src.commands.install import installation_exceptions
 def install_package_from_repo(
     name: str,
     url: str,
-    tag: Optional[str],
     repo_root_dir: str,
     destination: str,
+    tag: Optional[str] = None,
 ):
     logger = getLogger()
 

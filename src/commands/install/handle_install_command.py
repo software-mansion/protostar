@@ -14,7 +14,7 @@ def handle_install_command(args: Any) -> None:
     install_package_from_repo(
         package_info.name if args.name is None else args.name,
         package_info.url,
-        package_info.version,
         repo_root_dir=getcwd(),
         destination="./lib",
+        tag=package_info.version,
     )
