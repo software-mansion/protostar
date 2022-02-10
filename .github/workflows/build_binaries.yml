@@ -30,10 +30,19 @@ jobs:
       - name: Build binary
         run: |
           poetry run pyinstaller protostar.spec
+      - name: Escape ref name
+        id: escape-ref-name
+        run: |
+          ref_name="${{ github.ref }}"
+          sub_char="/"
+          to_char="-"
+          escaped="${ref_name//"$sub_char"/"$to_char"}"
+          echo "::set-output name=REF_ESCAPED::${escaped}"
+
       - name: Upload binary
         uses: actions/upload-artifact@v2
         with:
-          name: protostar-${{ github.ref }}-${{ runner.os }}
+          name: protostar-${{ steps.escape-ref-name.outputs.REF_ESCAPED }}-${{ runner.os }}
           path: dist
   publish:
     runs-on: ubuntu-latest
