@@ -153,15 +153,3 @@ def test_updating_specific_package_without_tag(
     )
 
     assert recent_commit_hash_after_update is not recent_commit_hash_before_update
-
-
-# def test_updating_all_packages():
-#     pass
-
-
-# def test_updating_when_repo_not_initiated():
-#     pass
-
-
-# def test_updating_not_existing_package():
-#     pass
