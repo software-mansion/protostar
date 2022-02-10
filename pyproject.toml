@@ -35,6 +35,7 @@ test_html = [
 ]
 test_report = [{shell = "coverage report"}]
 test_unit.shell = "coverage run -m pytest"
+test_xml = ["test_unit", {shell = "coverage xml"}]
 type_check = "pyright"
 
 [tool.coverage.run]
