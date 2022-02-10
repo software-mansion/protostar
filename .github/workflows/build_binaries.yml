@@ -27,5 +27,5 @@ jobs:
       - name: Upload binary
         uses: actions/upload-artifact@v2
         with:
-          name: protostar-${{ github.RUNNER_OS }}
+          name: protostar-${{ runner.os }}
           path: dist/protostar
