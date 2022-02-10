@@ -4,7 +4,10 @@ on: [pull_request]
 
 jobs:
   build:
-    runs-on: [windows-2019, ubuntu-20.04, macOS-10.15]
+    runs-on: ${{ strategy.matrix.os }}
+    strategy:
+      matrix:
+        os: [ windows-2019, ubuntu-20.04, macOS-10.15 ]
     steps:
       - uses: actions/checkout@v2
         with:
