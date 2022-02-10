@@ -36,7 +36,7 @@ jobs:
           ref_name="${{ github.ref }}"
           sub_char="/"
           to_char="-"
-          escaped="${ref_name//"$sub_char"/"$to_char"}"
+          escaped="${ref_name//"$sub_char"/$to_char}"
           echo "::set-output name=REF_ESCAPED::${escaped}"
 
       - name: Upload binary
