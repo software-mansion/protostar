@@ -50,6 +50,7 @@ class PackageConfig:
         self.license = ""
         self.version = "0.1.0"
         self.authors = []
+        self.contracts = []
 
     @property
     def project_path(self) -> Path:
@@ -64,6 +65,7 @@ class PackageConfig:
         obj_dict = self.__dict__
         result = OrderedDict()
         result["protostar.general"] = {key: obj_dict[key] for key in self.general_props}
+        result["protostar.contracts"] = {"main": ["src/main.cairo"]}
         return result
 
     def write(self):
