@@ -29,7 +29,7 @@ def init(script_root: str):
     package.version = version
 
     project_license = input(f"{Fore.CYAN}License: ")
-    package.version = project_license
+    package.license = project_license
 
     package.write()
 
