@@ -1,6 +1,6 @@
 from os import mkdir, path
 from time import sleep
-from typing import Optional
+from typing import Optional, cast
 
 import pytest
 from git.cmd import Git
@@ -10,9 +10,9 @@ from src.commands.update.update_package import update_package
 
 # tmpdir
 # - repo
-#   - lib
-#     - package_dir (s)
-# - package
+#   - packages_dir
+#     - submodule (to package)
+# - package_repo_dir
 
 
 @pytest.fixture(name="package_name")
@@ -71,7 +71,6 @@ def fixture_package_repo(current_tag: Optional[str], package_repo_dir: str):
 
 
 @pytest.fixture(name="submodule")
-@pytest.mark.usefixtures("package_repo")
 # pylint: disable=too-many-arguments
 def fixture_submodule(
     repo: Repo,
@@ -94,6 +93,9 @@ def fixture_submodule(
     return submodule
 
 
+# ----------------------------------- TESTS ---------------------------------- #
+
+
 @pytest.mark.parametrize("current_tag", ["0.1.0"])
 @pytest.mark.usefixtures("submodule")
 def test_updating_specific_package_with_tag(
@@ -103,8 +105,8 @@ def test_updating_specific_package_with_tag(
     package_repo_dir: str,
     package_repo: Repo,  # pylint: disable=unused-argument
 ):
-    cmd = Git(path.join(packages_dir, package_name))
-    current_tag = cmd.execute(["git", "describe", "--tags"])
+    git = Git(path.join(packages_dir, package_name))
+    current_tag = git.execute(["git", "describe", "--tags"])
     assert current_tag == "0.1.0"
 
     dummy_file_path = path.join(package_repo_dir, "bar.txt")
@@ -119,15 +121,38 @@ def test_updating_specific_package_with_tag(
 
     update_package(package_name, repo_dir, packages_dir)
 
-    new_tag = cmd.execute(["git", "describe", "--tags"])
+    new_tag = git.execute(["git", "describe", "--tags"])
     assert new_tag == "0.1.1"
 
 
-# @pytest.mark.usefixtures("submodule")
-# def test_updating_specific_package_without_tag(
-#     package_name: str, repo_dir: str, packages_dir: str
-# ):
-#     update_package(package_name, repo_dir, packages_dir)
+@pytest.mark.usefixtures("submodule")
+def test_updating_specific_package_without_tag(
+    package_name: str,
+    repo_dir: str,
+    packages_dir: str,
+    package_repo: Repo,
+    package_repo_dir: str,
+):
+    git = Git(path.join(packages_dir, package_name))
+
+    dummy_file_path = path.join(package_repo_dir, "bar.txt")
+    with open(dummy_file_path, "w", encoding="utf-8") as some_file:
+        some_file.write("bar")
+        some_file.close()
+    package_repo.git.add()
+    package_repo.index.commit("add bar.txt")
+
+    recent_commit_hash_before_update = cast(
+        str, git.execute(["git", "rev-parse", "HEAD"])
+    )
+
+    update_package(package_name, repo_dir, packages_dir)
+
+    recent_commit_hash_after_update = cast(
+        str, git.execute(["git", "rev-parse", "HEAD"])
+    )
+
+    assert recent_commit_hash_after_update is not recent_commit_hash_before_update
 
 
 # def test_updating_all_packages():

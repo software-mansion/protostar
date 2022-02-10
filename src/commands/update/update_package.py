@@ -12,20 +12,20 @@ def update_package(package_name: str, repo_root_dir: str, packages_dir: str):
 
     submodule = repo.submodule(package_name)
 
-    cmd = Git(path.join(packages_dir, package_name))
+    git = Git(path.join(packages_dir, package_name))
 
     current_tag = Optional[str]
     try:
-        current_tag = cmd.execute(["git", "describe", "--tags"])
+        current_tag = git.execute(["git", "describe", "--tags"])
     except GitCommandError as _err:
         current_tag = None
 
-    cmd.execute(["git", "fetch", "--tags"])
+    git.execute(["git", "fetch", "--tags"])
 
     latest_tag = Optional[str]
     try:
-        rev = cmd.execute(["git", "rev-list", "--tags", "--max-count=1"])
-        latest_tag = cast(str, cmd.execute(["git", "describe", "--tags", rev]))
+        rev = git.execute(["git", "rev-list", "--tags", "--max-count=1"])
+        latest_tag = cast(str, git.execute(["git", "describe", "--tags", rev]))
     except GitCommandError as _err:
         latest_tag = None
 
@@ -44,6 +44,6 @@ def update_package(package_name: str, repo_root_dir: str, packages_dir: str):
                 depth=1,
             )
         else:
-            raise NotImplementedError(latest_tag, current_tag)
+            pass  # TODO: log
     else:
-        raise NotImplementedError()
+        submodule.update()
