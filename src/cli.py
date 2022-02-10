@@ -2,8 +2,8 @@ import os
 from logging import INFO, StreamHandler, getLogger
 
 from colorama import init as init_colorama
-
 from src.commands import new, remove
+from src.commands.compile import compile_contract
 from src.commands.install import install
 from src.commands.test import run_test_runner
 from src.utils import StandardLogFormatter
@@ -32,4 +32,12 @@ async def cli(args, script_root):
             match=args.match,
             cairo_paths=args.cairo_path,
             cairo_paths_recursive=args.cairo_path_recursive,
+        )
+    elif args.command == "compile":
+        compile_contract(
+            input_files=getattr(args, "input-files"),
+            libraries_root=args.libraries_root,
+            output_file=args.output,
+            output_abi_file=args.abi,
+            cairo_path=args.cairo_path,
         )

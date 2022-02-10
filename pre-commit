@@ -1,4 +1,5 @@
 #!/bin/sh
 
-poetry run python -m black .
+poetry run poe type_check
+poetry run poe format_check
 poetry run poe lint
