@@ -1,5 +1,11 @@
 name: Build binaries
 
+# TODO: Uncomment, when pushed to master. This will enable running workflow on new tags
+#on:
+#  push:
+#    tags:
+#      - '*'
+
 on: [pull_request]
 
 jobs:
@@ -27,5 +33,29 @@ jobs:
       - name: Upload binary
         uses: actions/upload-artifact@v2
         with:
-          name: protostar-${{ runner.os }}
-          path: dist/protostar
+          name: protostar-${{ github.ref }}-${{ runner.os }}
+          path: dist
+  publish:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+        - uses: actions/download-artifact@v2
+        with:
+          name: artifact
+          path: dist
+
+        - name: Create a Release
+          uses: elgohr/Github-Release-Action@master
+          env:
+            GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          with:
+            args: ${{ github.ref }}
+
+        - name: Upload binaries to release
+          uses: svenstaro/upload-release-action@v2
+          with:
+            repo_token: ${{ secrets.GITHUB_TOKEN }}
+            file: dist/*
+            tag: ${{ github.ref }}
+            overwrite: true
+            file_glob: true
