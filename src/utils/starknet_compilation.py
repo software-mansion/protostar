@@ -28,10 +28,15 @@ class StarknetCompiler:
         read_module = get_module_reader(cairo_path=self.include_paths).read
         return starknet_pass_manager(DEFAULT_PRIME, read_module)
 
-    def preprocess_contract(self, cairo_file_path: Path) -> StarknetPreprocessedProgram:
+    def preprocess_contract(
+        self, *cairo_file_paths: Path
+    ) -> StarknetPreprocessedProgram:
         pass_manager = self.get_starknet_pass_manager()
 
-        codes = [(cairo_file_path.read_text("utf-8"), str(cairo_file_path))]
+        codes = [
+            (cairo_file_path.read_text("utf-8"), str(cairo_file_path))
+            for cairo_file_path in cairo_file_paths
+        ]
         context = PassManagerContext(
             codes=codes,
             main_scope=MAIN_SCOPE,
@@ -41,8 +46,8 @@ class StarknetCompiler:
         assert isinstance(context.preprocessed_program, StarknetPreprocessedProgram)
         return context.preprocessed_program
 
-    def compile_contract(self, cairo_file_path: Path) -> ContractDefinition:
-        preprocessed = self.preprocess_contract(cairo_file_path)
+    def compile_contract(self, *sources: Path) -> ContractDefinition:
+        preprocessed = self.preprocess_contract(*sources)
         assembled = assemble_starknet_contract(
             preprocessed_program=preprocessed,
             main_scope=MAIN_SCOPE,
