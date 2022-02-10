@@ -3,17 +3,34 @@ from pathlib import Path
 import shutil
 
 import tomli_w
+from colorama import Fore
 
 
-def new(project_name: str, script_root: str):
+def init(script_root: str):
     """
-    Creates new protostar project
+    Creates init protostar project
     """
+    project_name = input(f"{Fore.CYAN}Project name: ")
+
     project_path = Path() / project_name
     copy_template(script_root, "default", project_path)
 
     package = PackageConfig(project_path=project_path)
+
     package.name = project_name
+
+    project_description = input(f"{Fore.CYAN}Project description: ")
+    package.description = project_description
+
+    author = input(f"{Fore.CYAN}Author: ")
+    package.authors = [author]
+
+    version = input(f"{Fore.CYAN}Version: ")
+    package.version = version
+
+    project_license = input(f"{Fore.CYAN}License: ")
+    package.version = project_license
+
     package.write()
 
 
@@ -33,8 +50,6 @@ class PackageConfig:
         self.license = ""
         self.version = "0.1.0"
         self.authors = []
-        self.dependencies = []
-        self.dev_dependencies = []
 
     @property
     def project_path(self) -> Path:
@@ -49,8 +64,6 @@ class PackageConfig:
         obj_dict = self.__dict__
         result = OrderedDict()
         result["protostar.general"] = {key: obj_dict[key] for key in self.general_props}
-        result["protostar.dependencies"] = {}
-        result["protostar.dev-dependencies"] = {}
         return result
 
     def write(self):
