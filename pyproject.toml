@@ -19,10 +19,11 @@ black = "^22.1.0"
 cairo-lang = "^0.7.0"
 coverage = "^6.3.1"
 poethepoet = "^0.12.2"
+pyinstaller = "^4.9"
 pylint = "^2.12.2"
 pyright = "^0.0.13"
 pytest = "^6.2.5"
-pyinstaller = "^4.9"
+pytest-mock = "^3.7.0"
 
 [tool.poe.tasks]
 ci = ["type_check", "lint", "format_check", "test"]
@@ -30,11 +31,10 @@ format = "black ."
 format_check = "black --check src"
 lint = "pylint src"
 test = ["test_unit"]
-test_html = [
-  {shell = "coverage html && open ./htmlcov/index.html"},
-]
+test_html = [{shell = "coverage html && open ./htmlcov/index.html"}]
 test_report = [{shell = "coverage report"}]
 test_unit.shell = "coverage run -m pytest"
+test_xml = [{shell = "poe test_unit && coverage xml"}]
 type_check = "pyright"
 
 [tool.coverage.run]

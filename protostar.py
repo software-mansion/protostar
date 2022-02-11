@@ -1,10 +1,9 @@
+import argparse
 import asyncio
 import re
 from argparse import ArgumentParser
 from pathlib import Path
 from re import Pattern
-
-import argparse
 
 from src import cli
 
@@ -33,6 +32,9 @@ root_subparsers = root_parser.add_subparsers(dest="command")
 
 cmd_install_parser = root_subparsers.add_parser("install")
 cmd_install_parser.add_argument("package", type=str)
+cmd_install_parser.add_argument(
+    "--name", type=str, help="Custom package's directory name"
+)
 
 cmd_remove_parser = root_subparsers.add_parser("remove")
 cmd_remove_parser.add_argument("package", type=str)

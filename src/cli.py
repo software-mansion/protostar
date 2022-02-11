@@ -3,9 +3,8 @@ from logging import INFO, StreamHandler, getLogger
 
 from colorama import init as init_colorama
 
-from src.commands import remove
+from src.commands import handle_install_command, remove
 from src.commands.compile import compile_contract
-from src.commands.install import install
 from src.commands.test import run_test_runner
 from src.utils import StandardLogFormatter
 
@@ -21,7 +20,7 @@ async def cli(args):
     logger.addHandler(handler)
 
     if args.command == "install":
-        install(args.package, cwd)
+        handle_install_command(args)
     elif args.command == "remove":
         remove(args.package, cwd)
     elif args.command == "test":
