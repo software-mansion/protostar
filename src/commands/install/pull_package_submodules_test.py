@@ -3,7 +3,6 @@ from os import mkdir, path
 from unittest.mock import MagicMock
 
 import pytest
-from git import Git
 from git.repo import Repo
 from pytest_mock import MockerFixture
 
@@ -91,14 +90,12 @@ def fixture_repo(
 def fixture_repo_clone(
     repo_clone_dir: str, repo_dir: str, repo: Repo, packages_dir_name: str
 ) -> Repo:
-    # cloned_repo =
-    git = Git()
-    git.execute(["git", "clone", repo_dir, repo_clone_dir])
+    cloned_repo = repo.clone(repo_clone_dir)
 
     assert path.exists(
         path.join(repo_clone_dir, packages_dir_name)
     ), "./lib exists in the cloned repo directory"
-    return Repo(repo_clone_dir)
+    return cloned_repo
 
 
 # ----------------------------------- TESTS ---------------------------------- #
