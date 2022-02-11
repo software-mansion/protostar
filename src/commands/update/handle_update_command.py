@@ -4,10 +4,9 @@ from src.commands.update.update_package import update_package
 
 
 def handle_update_command(args) -> None:
-    if args.command != "update":
-        return
+    assert args.command == "update"
 
-    if args.package is not None and args.package != "":
+    if args.package:
         update_package(args.package, getcwd(), "lib")
     else:
         for package_name in listdir(path.join(getcwd(), "lib")):
