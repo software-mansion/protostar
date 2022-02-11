@@ -6,8 +6,7 @@ from src.commands.install.install_package_from_repo import install_package_from_
 
 
 def handle_install_command(args: Any) -> None:
-    if args.command != "install":
-        return
+    assert args.command == "install"
 
     package_info = extract_info_from_repo_id(args.package)
 
