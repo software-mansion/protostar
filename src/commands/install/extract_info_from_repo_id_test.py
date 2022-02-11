@@ -1,6 +1,10 @@
 import pytest
+
 from src.commands.install import installation_exceptions
-from src.commands.install.utils import extract_info_from_repo_id
+from src.commands.install.extract_info_from_repo_id import (
+    _map_ssh_to_url,
+    extract_info_from_repo_id,
+)
 
 
 def test_github():
@@ -72,3 +76,18 @@ def test_slash_at_the_end():
 def test_incorrect_url():
     with pytest.raises(installation_exceptions.IncorrectURL):
         extract_info_from_repo_id("https://github.com/software-mansion")
+
+
+def test_failure_at_extracting_slug_from_ssh():
+    with pytest.raises(installation_exceptions.IncorrectURL):
+        extract_info_from_repo_id("git@github.com:software-mansion/starknet.py")
+
+
+def test_failure_at_unknown_repo_id_format():
+    with pytest.raises(installation_exceptions.InvalidPackageName):
+        extract_info_from_repo_id("http://github.pl/foobar.git")
+
+
+def test_failure_at_mapping_ssh_to_url():
+    with pytest.raises(installation_exceptions.InvalidPackageName):
+        _map_ssh_to_url("abc@github.com:software-mansion/starknet.py.git")

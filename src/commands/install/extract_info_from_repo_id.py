@@ -9,10 +9,17 @@ from src.commands.install import installation_exceptions
 class PackageInfo:
     name: str
     version: Optional[str]
-    url: Optional[str]
+    url: str
 
 
 def extract_info_from_repo_id(repo_id: str) -> PackageInfo:
+    """
+    A function which installs a package as git submodule.
+    :param repo_id: Repo identifier which can be accepted in the following three forms:
+        - name — e.g. `software-mansion/starknet.py@0.1.0-alpha`
+        - url — e.g. `https://github.com/software-mansion/protostar`
+        - ssh — e.g. `git@github.com:software-mansion/protostar.git`
+    """
     result: Optional[PackageInfo] = None
 
     if repo_id.startswith("git@"):
@@ -55,16 +62,16 @@ def extract_info_from_repo_id(repo_id: str) -> PackageInfo:
     return replace(result, name=result.name.replace("-", "_").replace(".", "_"))
 
 
-def _map_name_to_url(name: str) -> Optional[str]:
+def _map_name_to_url(name: str) -> str:
     return f"https://github.com/{name}"
 
 
-def _map_ssh_to_url(ssh: str) -> Optional[str]:
+def _map_ssh_to_url(ssh: str) -> str:
     slug = _extract_slug_from_ssh(ssh)
     domain_match = re.search(r"(?<=git@).*(?=:)", ssh)
 
     if domain_match is None:
-        return None
+        raise installation_exceptions.InvalidPackageName("Couldn't map SSH to URL.")
 
     return f"https://{domain_match.group()}/{slug}"
 
