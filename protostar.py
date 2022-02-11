@@ -39,6 +39,10 @@ cmd_install_parser.add_argument(
 cmd_remove_parser = root_subparsers.add_parser("remove")
 cmd_remove_parser.add_argument("package", type=str)
 
+cmd_update_parser = root_subparsers.add_parser("update")
+cmd_update_parser.add_argument("package", type=str, default="", nargs="?")
+
+
 cmd_test_parser = root_subparsers.add_parser("test")
 cmd_test_parser.add_argument("sources-root", type=directory)
 cmd_test_parser.add_argument(

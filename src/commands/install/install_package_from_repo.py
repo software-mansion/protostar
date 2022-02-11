@@ -39,7 +39,7 @@ def install_package_from_repo(
         Fore.RESET,
     )
 
-    Submodule.add(
+    submodule = Submodule.add(
         repo,
         name,
         package_dir,
@@ -47,3 +47,6 @@ def install_package_from_repo(
         tag,
         depth=1,
     )
+
+    repo.git.add(submodule.path)
+    repo.index.commit(f"add {name}")
