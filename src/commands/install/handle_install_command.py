@@ -1,12 +1,12 @@
 from logging import getLogger
-from os import getcwd, listdir, path
+from os import getcwd
 from typing import Any
 
 from colorama import Fore
-from git.repo import Repo
 
 from src.commands.install.extract_info_from_repo_id import extract_info_from_repo_id
 from src.commands.install.install_package_from_repo import install_package_from_repo
+from src.commands.install.pull_package_submodules import pull_package_submodules
 
 
 def handle_install_command(args: Any) -> None:
@@ -25,18 +25,14 @@ def handle_install_command(args: Any) -> None:
             tag=package_info.version,
         )
     else:
-        submodule_names = listdir(path.join(getcwd(), "lib"))
-        repo = Repo(getcwd())
-
-        for submodule in repo.submodules:
-            if submodule.name in submodule_names:
-                logger.info(
-                    "Installing %s%s%s %s(%s)%s",
-                    Fore.CYAN,
-                    submodule.name,
-                    Fore.RESET,
-                    Fore.LIGHTBLACK_EX,
-                    submodule.url,
-                    Fore.RESET,
-                )
-                submodule.update(init=True)
+        pull_package_submodules(
+            on_submodule_update_start=lambda package_info: logger.info(
+                "Installing %s%s%s %s(%s)%s",
+                Fore.CYAN,
+                package_info.name,
+                Fore.RESET,
+                Fore.LIGHTBLACK_EX,
+                package_info.url,
+                Fore.RESET,
+            )
+        )
