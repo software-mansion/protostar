@@ -1,12 +1,9 @@
 name: Build binaries
 
-# TODO: Uncomment, when pushed to master. This will enable running workflow on new tags
-#on:
-#  push:
-#    tags:
-#      - '*'
-
-on: [pull_request]
+on:
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   build:
@@ -50,13 +47,6 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           path: dist
-
-      - name: Create a Release
-        uses: elgohr/Github-Release-Action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-        with:
-          args: ${{ github.ref }}
 
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
