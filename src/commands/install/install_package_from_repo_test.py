@@ -1,12 +1,18 @@
 from os import path
 
 import pytest
+from attr import dataclass
 from git.objects import Submodule
 from git.repo import Repo
 from pytest_mock import MockerFixture
 
 from src.commands.install import installation_exceptions
 from src.commands.install.install_package_from_repo import install_package_from_repo
+
+
+@dataclass
+class SubmoduleMock:
+    path = "-A"
 
 
 @pytest.fixture(name="repo_url")
@@ -22,6 +28,7 @@ def test_successful_installation(tmpdir: str, repo_url: str, mocker: MockerFixtu
         attribute="add",
         autospec=True,
     )
+    add_submodule.return_value = SubmoduleMock()
 
     install_package_from_repo("foo", repo_url, tmpdir, path.join(tmpdir, "lib"))
 
