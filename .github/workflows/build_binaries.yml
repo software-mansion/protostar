@@ -28,14 +28,10 @@ jobs:
         run: |
           poetry run pyinstaller protostar.spec
 
-      - name: Get the version
-        id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
-
       - name: Upload binary
         uses: actions/upload-artifact@v2
         with:
-          name: protostar-${{ steps.get_version.outputs.VERSION }}-${{ runner.os }}
+          name: protostar-${{ runner.os }}
           path: dist/protostar
   publish:
     runs-on: ubuntu-latest
@@ -46,15 +42,20 @@ jobs:
         with:
           path: dist
 
-      - name: Debug
-        run: |
-          ls -R
-
-      - name: Upload binaries to release
+      - name: Upload macOS binary to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: dist/*
+          file: dist/protostar-macOS/protostar
+          asset_name: protostar-macOS
           tag: ${{ github.ref }}
           overwrite: true
-          file_glob: true
+
+      - name: Upload Linux binary to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist/protostar-Linux/protostar
+          asset_name: protostar-Linux
+          tag: ${{ github.ref }}
+          overwrite: true
