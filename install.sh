@@ -7,7 +7,7 @@ PROTOSTAR_DIR=${PROTOSTAR_DIR-"$HOME/.protostar"}
 PROTOSTAR_BIN_DIR="$PROTOSTAR_DIR/bin"
 mkdir -p $PROTOSTAR_BIN_DIR
 
-PROTOSTAR_REPO="https://github.com/arcticae/testrepo" # TODO: Pull binary from repo
+PROTOSTAR_REPO="https://github.com/software-mansion/protostar/" # TODO: Pull binary from repo
 
 case $SHELL in
 */zsh)
