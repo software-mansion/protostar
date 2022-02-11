@@ -28,11 +28,14 @@ jobs:
         run: |
           poetry run pyinstaller protostar.spec
 
-      - name: Upload binary
+      - name: Pack binary into a tarball
+        run: tar -czvf protostar.tar.gz ./dist/protostar
+
+      - name: Upload the tarball
         uses: actions/upload-artifact@v2
         with:
           name: protostar-${{ runner.os }}
-          path: dist/protostar
+          path: protostar.tar.gz
   publish:
     runs-on: ubuntu-latest
     needs: [build]
@@ -46,8 +49,8 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: dist/protostar-macOS/protostar
-          asset_name: protostar-macOS
+          file: dist/protostar-macOS/protostar.tar.gz
+          asset_name: protostar-macOS.tar.gz
           tag: ${{ github.ref }}
           overwrite: true
 
@@ -55,7 +58,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: dist/protostar-Linux/protostar
-          asset_name: protostar-Linux
+          file: dist/protostar-Linux/protostar.tar.gz
+          asset_name: protostar-Linux.tar.gz
           tag: ${{ github.ref }}
           overwrite: true
