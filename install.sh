@@ -4,8 +4,7 @@ set -e
 echo Installing protostar
 
 PROTOSTAR_DIR=${PROTOSTAR_DIR-"$HOME/.protostar"}
-PROTOSTAR_BIN_DIR="$PROTOSTAR_DIR/bin"
-mkdir -p "$PROTOSTAR_BIN_DIR"
+mkdir -p "$PROTOSTAR_DIR"
 
 
 PLATFORM="$(uname -s)"
@@ -32,15 +31,15 @@ LATEST_VERSION=$(echo $LATEST_RELEASE | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/
 echo Using version $LATEST_VERSION
 
 LATEST_RELEASE_URL="${PROTOSTAR_REPO}/releases/download/${LATEST_VERSION}"
-PROTOSTAR_EXECUTABLE_NAME="protostar-${PLATFORM}"
-BINARY_DOWNLOAD_URL="${LATEST_RELEASE_URL}/${PROTOSTAR_EXECUTABLE_NAME}"
+PROTOSTAR_TARBALL_NAME="protostar-${PLATFORM}.tar.gz"
+TARBALL_DOWNLOAD_URL="${LATEST_RELEASE_URL}/${PROTOSTAR_TARBALL_NAME}"
 
-echo "Downloading binary from ${BINARY_DOWNLOAD_URL}"
-curl -L $BINARY_DOWNLOAD_URL --output protostar
+echo "Downloading protostar from ${TARBALL_DOWNLOAD_URL}"
+curl -L $TARBALL_DOWNLOAD_URL | tar -xvzC $PROTOSTAR_DIR
 
-BINARY_DESTINATION="${PROTOSTAR_BIN_DIR}/protostar"
-mv "./protostar" $BINARY_DESTINATION
-chmod +x $BINARY_DESTINATION
+PROTOSTAR_BINARY_DIR="${PROTOSTAR_DIR}/dist/protostar"
+PROTOSTAR_BINARY="${PROTOSTAR_BINARY_DIR}/protostar"
+chmod +x $PROTOSTAR_BINARY
 
 case $SHELL in
 */zsh)
@@ -56,12 +55,12 @@ case $SHELL in
     PREF_SHELL=fish
     ;;
 *)
-    echo "error: could not detect shell, manually add ${PROTOSTAR_BIN_DIR} to your PATH."
+    echo "error: could not detect shell, manually add ${PROTOSTAR_BINARY_DIR} to your PATH."
     exit 1
 esac
 
 if [[ ":$PATH:" != *":${PROTOSTAR_BIN_DIR}:"* ]]; then
-    echo >> $PROFILE && echo "export PATH=\"\$PATH:$PROTOSTAR_BIN_DIR\"" >> $PROFILE
+    echo >> $PROFILE && echo "export PATH=\"\$PATH:$PROTOSTAR_BINARY_DIR\"" >> $PROFILE
 fi
 
 echo && echo "Detected your preferred shell is ${PREF_SHELL} and added protostar to PATH. Run 'source ${PROFILE}' or start a new terminal session to use protostar."
