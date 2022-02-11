@@ -1,6 +1,11 @@
 # Protostar 🌟
 Toolchain for developing, testing and interacting with Cairo contracts for StarkNet
+## Installation
+To install the tool run:
 
+```shell
+  curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/install.sh | bash
+```
 ## Development
 ### Tools
 
