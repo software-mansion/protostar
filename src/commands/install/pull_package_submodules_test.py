@@ -1,6 +1,5 @@
 import os
-from os import mkdir, name, path
-from time import sleep
+from os import mkdir, path
 from unittest.mock import MagicMock
 
 import pytest
@@ -105,9 +104,8 @@ def fixture_repo_clone(
 # ----------------------------------- TESTS ---------------------------------- #
 
 
+@pytest.mark.usefixtures("repo_dir", "repo_clone")
 def test_pulling_all_package_submodules(
-    repo_clone: Repo,
-    repo_dir: str,
     repo_clone_dir: str,
     packages_dir_name: str,
     the_package_name: str,
@@ -126,19 +124,10 @@ def test_pulling_all_package_submodules(
         is False
     )
     os.chdir(repo_clone_dir)
-    # callback: MagicMock = mocker.MagicMock()
-    pull_package_submodules(on_submodule_update_start=lambda arg: None)
+    callback: MagicMock = mocker.MagicMock()
+    pull_package_submodules(on_submodule_update_start=callback)
 
-    print(
-        os.listdir(
-            path.join(
-                repo_clone_dir,
-                packages_dir_name,
-                the_package_name,
-            )
-        )
-    )
-
+    callback.assert_called_once()
     assert path.exists(
         path.join(
             repo_clone_dir,
