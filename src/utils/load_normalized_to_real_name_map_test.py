@@ -1,9 +1,14 @@
+# pylint: disable=redefined-outer-name
+# pylint: disable=unused-argument
 from os import mkdir, path
 
 import pytest
 from git.repo import Repo
+from pytest_mock import MockerFixture
 
+from src.utils.create_and_commit_sample_file import create_and_commit_sample_file
 from src.utils.load_normalized_to_real_name_map import load_normalized_to_real_name_map
+from src.utils.package_info.extract_info_from_repo_id import PackageInfo
 
 # - repo_with_normal_name_package
 #   - lib
@@ -49,13 +54,7 @@ def package_repo_dir(tmpdir):
 def package_repo(package_repo_dir: str):
     repo = Repo.init(package_repo_dir)
 
-    with open(
-        path.join(package_repo_dir, "foo.txt"), "w", encoding="utf-8"
-    ) as some_file:
-        some_file.write("foo")
-        some_file.close()
-    repo.git.add("-u")
-    repo.index.commit("add foo.txt")
+    create_and_commit_sample_file(repo, package_repo_dir)
 
     return repo
 
@@ -106,12 +105,48 @@ def repo_with_custom_name_package(
     repo.index.commit("add package")
 
 
-def test_package_installed_under_normal_name(
-    repo_with_normal_name_package_dir: str, packages_dir_name: str
+@pytest.mark.usefixtures("repo_with_normal_name_package")
+def test_package_installed_without_custom_name(
+    repo_with_normal_name_package_dir: str,
+    package_normal_name: str,
+    packages_dir_name: str,
+    mocker: MockerFixture,
 ):
-    # bar()
-    print(repo_with_normal_name_package_dir)
-    load_normalized_to_real_name_map(
+
+    mocked_extract_info_from_repo_id = mocker.patch(
+        "src.utils.load_normalized_to_real_name_map.extract_info_from_repo_id",
+    )
+    mocked_extract_info_from_repo_id.return_value = PackageInfo(
+        name=package_normal_name, url="", version=None
+    )
+
+    mapping = load_normalized_to_real_name_map(
         repo_root_dir=repo_with_normal_name_package_dir,
         packages_dir=path.join(repo_with_normal_name_package_dir, packages_dir_name),
     )
+
+    assert mapping[package_normal_name] == package_normal_name
+
+
+@pytest.mark.usefixtures("repo_with_custom_name_package")
+def test_package_installed_with_custom_name(
+    repo_with_custom_name_package_dir: str,
+    package_custom_name: str,
+    package_normal_name: str,
+    packages_dir_name: str,
+    mocker: MockerFixture,
+):
+
+    mocked_extract_info_from_repo_id = mocker.patch(
+        "src.utils.load_normalized_to_real_name_map.extract_info_from_repo_id",
+    )
+    mocked_extract_info_from_repo_id.return_value = PackageInfo(
+        name=package_normal_name, url="", version=None
+    )
+
+    mapping = load_normalized_to_real_name_map(
+        repo_root_dir=repo_with_custom_name_package_dir,
+        packages_dir=path.join(repo_with_custom_name_package_dir, packages_dir_name),
+    )
+
+    assert mapping[package_normal_name] == package_custom_name
