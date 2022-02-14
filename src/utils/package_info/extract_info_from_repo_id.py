@@ -2,7 +2,7 @@ import re
 from dataclasses import dataclass, replace
 from typing import Optional
 
-from src.commands.install import installation_exceptions
+from src.utils.package_info import package_info_extractor_exceptions
 
 
 @dataclass
@@ -57,7 +57,7 @@ def extract_info_from_repo_id(repo_id: str) -> PackageInfo:
             )
 
     if result is None:
-        raise installation_exceptions.InvalidPackageName()
+        raise package_info_extractor_exceptions.InvalidPackageName()
 
     return replace(result, name=result.name.replace("-", "_").replace(".", "_"))
 
@@ -71,7 +71,9 @@ def _map_ssh_to_url(ssh: str) -> str:
     domain_match = re.search(r"(?<=git@).*(?=:)", ssh)
 
     if domain_match is None:
-        raise installation_exceptions.InvalidPackageName("Couldn't map SSH to URL.")
+        raise package_info_extractor_exceptions.InvalidPackageName(
+            "Couldn't map SSH to URL."
+        )
 
     return f"https://{domain_match.group()}/{slug}"
 
@@ -81,7 +83,7 @@ def _extract_slug_from_url(url: str) -> str:
     result = re.search(r"(?<=.org\/|.com\/)[^\/]*\/[^\/]*", url)
 
     if result is None:
-        raise installation_exceptions.IncorrectURL()
+        raise package_info_extractor_exceptions.IncorrectURL()
 
     return result.group()
 
@@ -91,6 +93,6 @@ def _extract_slug_from_ssh(ssh: str) -> str:
     result = re.search(r"(?<=:)[^\/]*\/[^\/]*(?=\.git)", ssh)
 
     if result is None:
-        raise installation_exceptions.IncorrectURL()
+        raise package_info_extractor_exceptions.IncorrectURL()
 
     return result.group()

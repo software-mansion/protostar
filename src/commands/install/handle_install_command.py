@@ -1,8 +1,8 @@
 from os import getcwd
 from typing import Any
 
-from src.commands.install.extract_info_from_repo_id import extract_info_from_repo_id
 from src.commands.install.install_package_from_repo import install_package_from_repo
+from src.utils import extract_info_from_repo_id
 
 
 def handle_install_command(args: Any) -> None:
