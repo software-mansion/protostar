@@ -1116,6 +1116,14 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
+name = "tomli-w"
+version = "1.0.0"
+description = "A lil' TOML writer"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
 name = "toolz"
 version = "0.11.2"
 description = "List processing tools and functional utilities"
@@ -1258,7 +1266,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.12, <3.10"
-content-hash = "e7e96a4d2193ec31e671d9f4499e4ad85c896d622e86482b3fe3e9c09cac2eb5"
+content-hash = "1c61abd3d3432e8e6b52026c475f32c92865cfba14755a871ee39071521f1548"
 
 [metadata.files]
 aiohttp = [
@@ -2049,6 +2057,10 @@ toml = [
 tomli = [
     {file = "tomli-1.2.3-py3-none-any.whl", hash = "sha256:e3069e4be3ead9668e21cb9b074cd948f7b3113fd9c8bba083f48247aab8b11c"},
     {file = "tomli-1.2.3.tar.gz", hash = "sha256:05b6166bff487dc068d322585c7ea4ef78deed501cc124060e0f238e89a9231f"},
+]
+tomli-w = [
+    {file = "tomli_w-1.0.0-py3-none-any.whl", hash = "sha256:9f2a07e8be30a0729e533ec968016807069991ae2fd921a78d42f429ae5f4463"},
+    {file = "tomli_w-1.0.0.tar.gz", hash = "sha256:f463434305e0336248cac9c2dc8076b707d8a12d019dd349f5c1e382dd1ae1b9"},
 ]
 toolz = [
     {file = "toolz-0.11.2-py3-none-any.whl", hash = "sha256:a5700ce83414c64514d82d60bcda8aabfde092d1c1a8663f9200c07fdcc6da8f"},

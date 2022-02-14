@@ -7,6 +7,8 @@ from re import Pattern
 
 from src import cli
 
+SCRIPT_ROOT = Path(__file__).parent
+
 
 def regexp(input_string: str) -> Pattern:
     return re.compile(input_string)
@@ -38,6 +40,14 @@ cmd_install_parser.add_argument(
 
 cmd_remove_parser = root_subparsers.add_parser("remove")
 cmd_remove_parser.add_argument("package", type=str)
+
+
+cmd_init_parser = root_subparsers.add_parser("init")
+
+
+cmd_update_parser = root_subparsers.add_parser("update")
+cmd_update_parser.add_argument("package", type=str, default="", nargs="?")
+
 
 cmd_test_parser = root_subparsers.add_parser("test")
 cmd_test_parser.add_argument("sources-root", type=directory)
@@ -71,7 +81,6 @@ cmd_test_parser.add_argument(
     help="Paths which will be searched recursively in test contracts compilation",
     required=False,
 )
-
 
 cmd_compile_parser = root_subparsers.add_parser("compile")
 cmd_compile_parser.add_argument(
@@ -108,4 +117,4 @@ cmd_compile_parser.add_argument(
 )
 
 
-asyncio.run(cli(root_parser.parse_args()))
+asyncio.run(cli(root_parser.parse_args(), SCRIPT_ROOT))

@@ -10,8 +10,7 @@ from src.commands.install.pull_package_submodules import pull_package_submodules
 
 
 def handle_install_command(args: Any) -> None:
-    if args.command != "install":
-        return
+    assert args.command == "install"
 
     logger = getLogger()
 
