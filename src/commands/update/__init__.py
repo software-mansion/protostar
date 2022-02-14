@@ -1,0 +1,1 @@
+from src.commands.update.handle_update_command import handle_update_command

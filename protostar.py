@@ -1,9 +1,9 @@
+import argparse
 import asyncio
 import re
 from argparse import ArgumentParser
 from pathlib import Path
 from re import Pattern
-import argparse
 from src import cli
 
 SCRIPT_ROOT = Path(__file__).parent
@@ -33,12 +33,20 @@ root_subparsers = root_parser.add_subparsers(dest="command")
 
 cmd_install_parser = root_subparsers.add_parser("install")
 cmd_install_parser.add_argument("package", type=str)
+cmd_install_parser.add_argument(
+    "--name", type=str, help="Custom package's directory name"
+)
 
 cmd_remove_parser = root_subparsers.add_parser("remove")
 cmd_remove_parser.add_argument("package", type=str)
 
 
 cmd_init_parser = root_subparsers.add_parser("init")
+
+
+cmd_update_parser = root_subparsers.add_parser("update")
+cmd_update_parser.add_argument("package", type=str, default="", nargs="?")
+
 
 cmd_test_parser = root_subparsers.add_parser("test")
 cmd_test_parser.add_argument("sources-root", type=directory)
