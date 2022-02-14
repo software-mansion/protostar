@@ -39,9 +39,6 @@ def fixture_submodule(repo: Repo, package_name: str, packages_dir: str):
     return submodule
 
 
-# ----------------------------------- TESTS ---------------------------------- #
-
-
 @pytest.mark.usefixtures("submodule")
 def test_removing(package_name: str, repo_dir: str, packages_dir: str):
     assert package_name in listdir(packages_dir)

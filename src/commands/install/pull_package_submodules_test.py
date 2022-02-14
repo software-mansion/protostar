@@ -98,9 +98,6 @@ def fixture_repo_clone(
     return cloned_repo
 
 
-# ----------------------------------- TESTS ---------------------------------- #
-
-
 @pytest.mark.usefixtures("repo_dir", "repo_clone")
 def test_pulling_all_package_submodules(
     repo_clone_dir: str,
