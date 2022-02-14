@@ -37,7 +37,8 @@ Updates previously installed package \
 - repository http url 
 - repository ssh url
 - github repository name \
-as long as it points to the same repository as one of already installed packages.
+as long as it points to the same repository as one of already installed packages. \
+You can use `--name` argument to install package using custom name and later reference it using this custom name.
 
 ---
 ```shell
@@ -49,6 +50,7 @@ Removes previously installed package \
 - repository ssh url
 - github repository name \
 as long as it points to the same repository as one of already installed packages.
+
 ---
 ```shell
 protostar test
