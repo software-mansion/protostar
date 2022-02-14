@@ -6,6 +6,60 @@ To install the tool run:
 ```shell
   curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/install.sh | bash
 ```
+## Commands
+```shell
+protostar init
+```
+Interactively creates a new project 
+
+---
+```shell
+protostar compile main.cairo
+```
+Builds cairo project from source files
+
+---
+```shell
+protostar install <package_name>
+```
+Installs cairo package as git submodule. \
+`<package_name>` can be:
+- repository http url - ex. `https://github.com/software-mansion/protostar.git`
+- repository ssh url - ex. `git@github.com:software-mansion/protostar.git`
+- github repository name - ex. `software-mansion/protostar`
+
+---
+```shell
+protostar update <package_name>
+```
+Updates previously installed package \
+`<package_name>` can be:
+- repository http url 
+- repository ssh url
+- github repository name \
+as long as it points to the same repository as one of already installed packages.
+
+---
+```shell
+protostar remove <name>
+```
+Removes previously installed package \
+`<package_name>` can be:
+- repository http url 
+- repository ssh url
+- github repository name \
+as long as it points to the same repository as one of already installed packages.
+---
+```shell
+protostar test
+```
+Runs cairo tests in the project
+
+---
+To see any additional flags for a certain command run
+```
+protostar <command> --help
+```
 ## Development
 ### Tools
 
