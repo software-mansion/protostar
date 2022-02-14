@@ -27,6 +27,7 @@ Installs cairo package as git submodule. \
 - repository http url - ex. `https://github.com/software-mansion/protostar.git`
 - repository ssh url - ex. `git@github.com:software-mansion/protostar.git`
 - github repository name - ex. `software-mansion/protostar`
+You can use `--name` argument to install package using custom name and later reference it using this custom name.
 
 ---
 ```shell
@@ -38,7 +39,6 @@ Updates previously installed package \
 - repository ssh url
 - github repository name \
 as long as it points to the same repository as one of already installed packages. \
-You can use `--name` argument to install package using custom name and later reference it using this custom name.
 
 ---
 ```shell
