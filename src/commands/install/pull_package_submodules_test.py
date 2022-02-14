@@ -1,3 +1,5 @@
+# pylint: disable=redefined-outer-name
+
 import os
 from os import mkdir, path
 from unittest.mock import MagicMock
@@ -17,38 +19,38 @@ from src.commands.install.pull_package_submodules import pull_package_submodules
 #   - foo.txt
 
 
-@pytest.fixture(name="packages_dir_name")
-def fixture_packages_dir_name() -> str:
+@pytest.fixture
+def packages_dir_name() -> str:
     return "lib"
 
 
-@pytest.fixture(name="the_packages_file_name")
-def fixture_the_packages_file_name() -> str:
+@pytest.fixture
+def the_packages_file_name() -> str:
     return "foo.txt"
 
 
-@pytest.fixture(name="the_package_name")
-def fixture_the_package_name() -> str:
+@pytest.fixture
+def the_package_name() -> str:
     return "package"
 
 
-@pytest.fixture(name="repo_dir")
-def fixture_repo_dir(tmpdir: str) -> str:
+@pytest.fixture
+def repo_dir(tmpdir: str) -> str:
     return path.join(tmpdir, "repo")
 
 
-@pytest.fixture(name="repo_clone_dir")
-def fixture_repo_clone_dir(tmpdir: str) -> str:
+@pytest.fixture
+def repo_clone_dir(tmpdir: str) -> str:
     return path.join(tmpdir, "repo_clone")
 
 
-@pytest.fixture(name="package_repo_dir")
-def fixture_package_repo_dir(tmpdir: str) -> str:
+@pytest.fixture
+def package_repo_dir(tmpdir: str) -> str:
     return path.join(tmpdir, "package_repo")
 
 
-@pytest.fixture(name="package_repo")
-def fixture_package_repo(package_repo_dir: str, the_packages_file_name: str) -> Repo:
+@pytest.fixture
+def package_repo(package_repo_dir: str, the_packages_file_name: str) -> Repo:
     repo = Repo.init(package_repo_dir)
 
     the_file_path = path.join(package_repo_dir, the_packages_file_name)
@@ -63,9 +65,9 @@ def fixture_package_repo(package_repo_dir: str, the_packages_file_name: str) -> 
     return repo
 
 
-@pytest.fixture(name="repo")
+@pytest.fixture
 # pylint: disable=unused-argument
-def fixture_repo(
+def repo(
     repo_dir: str,
     package_repo_dir: str,
     packages_dir_name: str,
@@ -85,9 +87,9 @@ def fixture_repo(
     return repo
 
 
-@pytest.fixture(name="repo_clone")
+@pytest.fixture
 # pylint: disable=unused-argument
-def fixture_repo_clone(
+def repo_clone(
     repo_clone_dir: str, repo_dir: str, repo: Repo, packages_dir_name: str
 ) -> Repo:
     cloned_repo = repo.clone(repo_clone_dir)
