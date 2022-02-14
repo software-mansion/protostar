@@ -3,6 +3,7 @@ from dataclasses import dataclass, replace
 from typing import Optional
 
 from src.utils.package_info import package_info_extractor_exceptions
+from src.utils.package_info.normalize_package_name import normalize_package_name
 
 
 @dataclass
@@ -59,7 +60,7 @@ def extract_info_from_repo_id(repo_id: str) -> PackageInfo:
     if result is None:
         raise package_info_extractor_exceptions.InvalidPackageName()
 
-    return replace(result, name=result.name.replace("-", "_").replace(".", "_"))
+    return replace(result, name=normalize_package_name(result.name))
 
 
 def _map_name_to_url(name: str) -> str:
