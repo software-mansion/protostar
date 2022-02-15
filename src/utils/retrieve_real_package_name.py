@@ -1,8 +1,7 @@
 from os import listdir
 
 from src.utils.load_normalized_to_real_name_map import load_normalized_to_real_name_map
-from src.utils.package_info.extract_info_from_repo_id import extract_info_from_repo_id
-from src.utils.package_info.normalize_package_name import normalize_package_name
+from src.utils.package_info import extract_info_from_repo_id, normalize_package_name
 
 
 class PackageNameRetrievalException(Exception):
@@ -23,6 +22,7 @@ def retrieve_real_package_name(
     if normalized_package_name in mapping:
         return mapping[normalized_package_name]
 
+    # custom name
     package_names = listdir(packages_dir)
     if normalized_package_name in package_names:
         return normalized_package_name
