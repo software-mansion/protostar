@@ -2,10 +2,6 @@
 from os import mkdir, path
 
 import pytest
-from pytest_mock import MockerFixture
-
-from src.utils.package_info import PackageInfo
-from src.utils.retrieve_real_package_name import retrieve_real_package_name
 
 
 @pytest.fixture
@@ -33,6 +29,8 @@ def package_dir(packages_dir: str, package_name: str):
     mkdir(package_dir)
     return package_dir
 
+
+# Patching doesn't work for some reason
 
 # @pytest.mark.parametrize("package_name", ["starknet_py"])
 # @pytest.mark.usefixtures("package_dir")
