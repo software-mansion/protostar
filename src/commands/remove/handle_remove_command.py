@@ -17,9 +17,5 @@ def handle_remove_command(args: Any):
         args.package, getcwd(), path.join(repo_root_dir, "lib")
     )
 
-    if not package_name:
-        logger.error("Package not found.")
-        return
-
     logger.info("Removing %s%s%s", Fore.RED, package_name, Fore.RESET)
     remove_package(package_name, repo_root_dir)
