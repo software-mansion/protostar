@@ -12,10 +12,11 @@ def retrieve_real_package_name(
     if "/" in package_id:
         normalized_package_name = extract_info_from_repo_id(package_id).name
     else:
-        normalized_package_name = normalize_package_name(normalized_package_name)
+        normalized_package_name = normalize_package_name(package_id)
 
     mapping = load_normalized_to_real_name_map(root_repo_dir, packages_dir)
 
-    real_package_name = mapping[normalized_package_name]
+    if normalized_package_name in mapping:
+        return mapping[normalized_package_name]
 
-    return real_package_name
+    return None
