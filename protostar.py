@@ -47,6 +47,7 @@ cmd_init_parser = root_subparsers.add_parser("init")
 cmd_update_parser = root_subparsers.add_parser("update")
 cmd_update_parser.add_argument("package", type=str, default="", nargs="?")
 
+cmd_upgrade_parser = root_subparsers.add_parser("upgrade")
 
 cmd_test_parser = root_subparsers.add_parser("test")
 cmd_test_parser.add_argument("sources-root", type=directory)

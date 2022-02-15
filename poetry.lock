@@ -190,7 +190,7 @@ Web3 = "*"
 name = "certifi"
 version = "2021.10.8"
 description = "Python package for providing Mozilla's CA Bundle."
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -198,7 +198,7 @@ python-versions = "*"
 name = "charset-normalizer"
 version = "2.0.11"
 description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.5.0"
 
@@ -486,7 +486,7 @@ test = ["eth-utils (>=1.0.1,<2)", "hypothesis (>=3.44.24,<4)", "pytest-xdist", "
 name = "idna"
 version = "3.3"
 description = "Internationalized Domain Names in Applications (IDNA)"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.5"
 
@@ -1041,7 +1041,7 @@ python-versions = ">=3.6"
 name = "requests"
 version = "2.27.1"
 description = "Python HTTP for Humans."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
 
@@ -1175,7 +1175,7 @@ typing-extensions = ">=3.7.4"
 name = "urllib3"
 version = "1.26.8"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4"
 
@@ -1266,7 +1266,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.12, <3.10"
-content-hash = "b967a9cb457abc28b36cc699f8596170107e274d001566be80a35b0888339437"
+content-hash = "b692eaee6a3decd3c01b72622a19bdfd275e4c8eb2581d3278360a0bc0b0f67e"
 
 [metadata.files]
 aiohttp = [
