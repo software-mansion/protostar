@@ -2,7 +2,9 @@
 from PyInstaller.utils.hooks import collect_data_files
 
 block_cipher = None
-extra_files = collect_data_files('starkware')
+extra_files = [
+    ('templates', 'templates'),
+] + collect_data_files('starkware')
 extra_imports = ['starkware']
 
 a = Analysis(['protostar.py'],

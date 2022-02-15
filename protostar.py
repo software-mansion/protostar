@@ -4,6 +4,7 @@ import re
 from argparse import ArgumentParser
 from pathlib import Path
 from re import Pattern
+
 from src import cli
 
 SCRIPT_ROOT = Path(__file__).parent
@@ -32,7 +33,7 @@ root_parser = ArgumentParser()
 root_subparsers = root_parser.add_subparsers(dest="command")
 
 cmd_install_parser = root_subparsers.add_parser("install")
-cmd_install_parser.add_argument("package", type=str)
+cmd_install_parser.add_argument("package", type=str, nargs="?", default="")
 cmd_install_parser.add_argument(
     "--name", type=str, help="Custom package's directory name"
 )

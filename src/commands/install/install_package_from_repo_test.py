@@ -1,3 +1,4 @@
+# pylint: disable=redefined-outer-name
 from os import path
 
 import pytest
@@ -15,8 +16,8 @@ class SubmoduleMock:
     path = "-A"
 
 
-@pytest.fixture(name="repo_url")
-def fixture_repo_url():
+@pytest.fixture
+def repo_url():
     return "https://github.com/starkware-libs/cairo-lang"
 
 
