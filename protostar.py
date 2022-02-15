@@ -30,6 +30,10 @@ def cairo_file(file_path: str) -> Path:
 
 
 root_parser = ArgumentParser()
+root_parser.add_argument(
+    "--no-color", default=False, help="Disables colors", action="store_true"
+)
+
 root_subparsers = root_parser.add_subparsers(dest="command")
 
 cmd_install_parser = root_subparsers.add_parser("install")

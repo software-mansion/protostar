@@ -2,11 +2,12 @@ from logging import getLogger
 from os import path
 from typing import Optional, cast
 
-from colorama import Fore
 from git.cmd import Git
 from git.exc import GitCommandError
 from git.objects import Submodule
 from git.repo import Repo
+
+from src.utils import log_color_provider
 
 
 def update_package(package_name: str, repo_root_dir: str, packages_dir: str):
@@ -49,9 +50,9 @@ def update_package(package_name: str, repo_root_dir: str, packages_dir: str):
             )
             logger.info(
                 "Updating %s%s%s (%s -> %s)",
-                Fore.CYAN,
+                log_color_provider.get_color("CYAN"),
                 package_name,
-                Fore.RESET,
+                log_color_provider.get_color("RESET"),
                 current_tag,
                 latest_tag,
             )
@@ -60,8 +61,8 @@ def update_package(package_name: str, repo_root_dir: str, packages_dir: str):
     else:
         logger.info(
             "Updating %s%s%s",
-            Fore.CYAN,
+            log_color_provider.get_color("CYAN"),
             package_name,
-            Fore.RESET,
+            log_color_provider.get_color("RESET"),
         )
         submodule.update()

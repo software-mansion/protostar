@@ -2,12 +2,12 @@ from logging import getLogger
 from os import path
 from typing import Optional
 
-from colorama import Fore
 from git import InvalidGitRepositoryError, NoSuchPathError
 from git.objects import Submodule
 from git.repo import Repo
 
 from src.commands.install import installation_exceptions
+from src.utils import log_color_provider
 
 
 def install_package_from_repo(
@@ -29,14 +29,13 @@ def install_package_from_repo(
     package_dir = path.join(destination, name)
 
     logger.info(
-        "Installing %s%s%s in %s %s(%s)%s",
-        Fore.CYAN,
+        "Installing %s%s%s %s(%s)%s",
+        log_color_provider.get_color("CYAN"),
         name,
-        Fore.RESET,
-        package_dir,
-        Fore.LIGHTBLACK_EX,
+        log_color_provider.get_color("RESET"),
+        log_color_provider.get_color("GRAY"),
         url,
-        Fore.RESET,
+        log_color_provider.get_color("RESET"),
     )
 
     submodule = Submodule.add(

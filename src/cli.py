@@ -11,17 +11,19 @@ from src.commands import (
 )
 from src.commands.compile import compile_contract
 from src.commands.test import run_test_runner
-from src.utils import StandardLogFormatter
+from src.utils import StandardLogFormatter, log_color_provider
 
 init_colorama()
 cwd = os.getcwd()
 
 
 async def cli(args, script_root):
+    log_color_provider.is_ci_mode = args.no_color
+
     logger = getLogger()
     logger.setLevel(INFO)
     handler = StreamHandler()
-    handler.setFormatter(StandardLogFormatter())
+    handler.setFormatter(StandardLogFormatter(log_color_provider))
     logger.addHandler(handler)
 
     if args.command == "install":
