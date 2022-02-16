@@ -2,11 +2,12 @@ from logging import getLogger
 from pathlib import Path
 import shutil
 import os
-import requests
 from urllib.request import urlretrieve
 import tarfile
 
 from packaging import version
+import requests
+import tomli
 
 logger = getLogger()
 
@@ -34,8 +35,6 @@ class UpgradeManager:
         self.tarball_name = f"protostar-{platform}.tar.gz"
         self.tarball_loc = PROTOSTAR_DIR / self.tarball_name
 
-        self.current_version = version.parse(self.get_current_version())
-
         self.latest_version_tag = self.get_latest_release()['tag_name']
         self.latest_version = version.parse(self.latest_version_tag)
 
@@ -44,7 +43,7 @@ class UpgradeManager:
     
     def upgrade(self):
         logger.info("Looking for a new version ...")
-        if self.latest_version == self.current_version:
+        if self.latest_version <= self.current_version:
             logger.info("Protostar is up to date")
             return
 
@@ -104,7 +103,8 @@ class UpgradeManager:
         )
         return response.json()
 
-    @classmethod
-    def get_current_version(cls):
-        # TODO
-        return '0.0.0'
+    @property
+    def current_version(self):
+        path = self.protostar_dir / "dist" / "protostar" / "pyproject.toml"
+        with open(path, "r") as f:
+            return tomli.loads(f.read())["tool"]["poetry"]["version"]
