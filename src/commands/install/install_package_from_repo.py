@@ -23,7 +23,8 @@ def install_package_from_repo(
         repo = Repo(repo_root_dir)
     except InvalidGitRepositoryError as _err:
         raise installation_exceptions.InvalidLocalRepository(
-            "Git repository must be initialized in order to install packages because packages are installed as git submodules. Run `protostar init` or `git init` to create a git repository."
+            """Git repository must be initialized in order to install packages.
+Run `protostar init` or `git init` to create a git repository."""
         )
 
     package_dir = path.join(destination, name)

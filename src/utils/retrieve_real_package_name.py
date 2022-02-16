@@ -1,10 +1,11 @@
 from os import listdir
 
+from src.protostar_exception import ProtostarException
 from src.utils.load_normalized_to_real_name_map import load_normalized_to_real_name_map
 from src.utils.package_info import extract_info_from_repo_id, normalize_package_name
 
 
-class PackageNameRetrievalException(Exception):
+class PackageNameRetrievalException(ProtostarException):
     pass
 
 
@@ -27,4 +28,6 @@ def retrieve_real_package_name(
     if normalized_package_name in package_names:
         return normalized_package_name
 
-    raise PackageNameRetrievalException()
+    raise PackageNameRetrievalException(
+        f'Protostar couldn\'t find package "{package_id}".'
+    )

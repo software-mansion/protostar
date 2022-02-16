@@ -64,7 +64,7 @@ Try providing package reference in one of the following formats:
 - software-mansion/protostar (GitHub only)
 - https://github.com/software-mansion/protostar
 - git@github.com:software-mansion/protostar.git
-            """
+"""
         )
 
     return replace(result, name=normalize_package_name(result.name))
