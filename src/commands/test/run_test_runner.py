@@ -8,7 +8,7 @@ from src.utils.config.package import Package
 
 async def run_test_runner(
     tests_root: Path,
-    pkg: Package,
+    pkg: Optional[Package] = None,
     omit: Optional[Pattern] = None,
     match: Optional[Pattern] = None,
     cairo_paths: Optional[List[Path]] = None,
