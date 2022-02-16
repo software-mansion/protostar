@@ -48,34 +48,36 @@ class UpgradeManager:
             return
 
         logger.info(
-            f"Starting upgrade from version {self.current_version} to version {self.latest_version}"
+            "Starting upgrade from version %s to version %s",
+            self.current_version,
+            self.latest_version
         )
         self._backup()
         try:
             self._pull_tarball()
             self._install_new_version()
             self.cleanup()
-        except Exception as e:
+        except Exception as err:
             logger.error("Upgrade failed")
             self._rollback()
             self.cleanup()
-            raise e
+            raise err
 
     def _backup(self):
         shutil.move(self.protostar_dir / "dist", self.old_version)
 
     def _pull_tarball(self):
-        logger.info(f"Pulling latest binary, version: {self.latest_version}")
+        logger.info("Pulling latest binary, version: %s", self.latest_version)
         tar_url = f"{PROTOSTAR_REPO}/releases/download/{self.latest_version_tag}/{self.tarball_name}"
         urlretrieve(tar_url, self.tarball_loc)
 
     def _install_new_version(self):
-        logger.info(f"Installing latest Protostar version: {self.latest_version}")
+        logger.info("Installing latest Protostar version: %s", self.latest_version)
         with tarfile.open(self.tarball_loc, "r:gz") as tar:
             tar.extractall(self.protostar_dir)
 
     def _rollback(self):
-        logger.info(f"Rolling back to the version {self.current_version}")
+        logger.info("Rolling back to the version %s", self.current_version)
         shutil.rmtree(self.protostar_dir / "dist", ignore_errors=True)
         shutil.move(self.old_version, self.protostar_dir / "dist")
 
@@ -105,6 +107,6 @@ class UpgradeManager:
     @property
     def current_version(self):
         path = self.protostar_dir / "dist" / "protostar" / "info" / "pyproject.toml"
-        with open(path, "r") as f:
-            version_s = tomli.loads(f.read())["tool"]["poetry"]["version"]
+        with open(path, "r", encoding='UTF-8') as file:
+            version_s = tomli.loads(file.read())["tool"]["poetry"]["version"]
             return version.parse(version_s)
