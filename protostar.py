@@ -37,20 +37,38 @@ root_parser.add_argument(
 root_subparsers = root_parser.add_subparsers(dest="command")
 
 cmd_install_parser = root_subparsers.add_parser("install")
-cmd_install_parser.add_argument("package", type=str, nargs="?", default="")
 cmd_install_parser.add_argument(
-    "--name", type=str, help="Custom package's directory name"
+    "package",
+    type=str,
+    nargs="?",
+    default="",
+    help="GITHUB_ACCOUNT/REPO_NAME[@TAG]; URL; SSH",
+)
+cmd_install_parser.add_argument(
+    "--name",
+    type=str,
+    help="custom package name — useful in resolving package name conflicts",
 )
 
 cmd_remove_parser = root_subparsers.add_parser("remove")
-cmd_remove_parser.add_argument("package", type=str)
+cmd_remove_parser.add_argument(
+    "package",
+    type=str,
+    help="PACKAGE_DIRNAME, GITHUB_ACCOUNT/REPO_NAME[@TAG]; URL; SSH",
+)
 
 
 cmd_init_parser = root_subparsers.add_parser("init")
 
 
 cmd_update_parser = root_subparsers.add_parser("update")
-cmd_update_parser.add_argument("package", type=str, default="", nargs="?")
+cmd_update_parser.add_argument(
+    "package",
+    type=str,
+    default="",
+    nargs="?",
+    help="PACKAGE_DIRNAME, GITHUB_ACCOUNT/REPO_NAME[@TAG]; URL; SSH",
+)
 
 
 cmd_test_parser = root_subparsers.add_parser("test")
