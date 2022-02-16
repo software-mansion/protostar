@@ -1,7 +1,8 @@
 import os
 from logging import INFO, StreamHandler, getLogger
 from colorama import init as init_colorama
-from src.commands import handle_install_command, handle_update_command, remove, init, upgrade
+
+from src.commands import handle_install_command, handle_update_command, init, remove, upgrade
 from src.commands.compile import compile_contract
 from src.commands.test import run_test_runner
 from src.utils import StandardLogFormatter
