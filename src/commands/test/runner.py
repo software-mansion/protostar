@@ -22,9 +22,14 @@ class TestRunner:
         self, pkg: Optional[Package] = None, include_paths: Optional[List[str]] = None
     ):
         self.include_paths = include_paths or []
-        self.include_paths.append(
-            str(pkg.project_root if pkg else Package.current().project_root)
-        )
+        if pkg:
+            pkg.load_config()
+            self.include_paths.append(
+                str(pkg.project_root)
+            )
+            self.include_paths.append(
+                str(Path(pkg.project_root, pkg.config.libs_path))
+            )
 
     async def run_tests_in(
         self,
