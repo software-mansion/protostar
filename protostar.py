@@ -31,7 +31,7 @@ def cairo_file(file_path: str) -> Path:
 
 root_parser = ArgumentParser()
 root_parser.add_argument(
-    "--no-color", default=False, help="Disables colors", action="store_true"
+    "--no-color", default=False, help="disable colors", action="store_true"
 )
 
 root_subparsers = root_parser.add_subparsers(dest="command")
@@ -121,4 +121,10 @@ cmd_compile_parser.add_argument(
 )
 
 
-asyncio.run(cli(root_parser.parse_args(), SCRIPT_ROOT))
+try:
+    asyncio.run(cli(root_parser.parse_args(), SCRIPT_ROOT))
+except Exception as err:
+    print(
+        "Unexpected Protostar error. Report it here:\nhttps://github.com/software-mansion/protostar/issues\n"
+    )
+    raise err
