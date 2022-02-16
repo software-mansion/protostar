@@ -105,6 +105,7 @@ class UpgradeManager:
 
     @property
     def current_version(self):
-        path = self.protostar_dir / "dist" / "protostar" / "pyproject.toml"
+        path = self.protostar_dir / "dist" / "protostar" / "info" / "pyproject.toml"
         with open(path, "r") as f:
-            return tomli.loads(f.read())["tool"]["poetry"]["version"]
+            version_s = tomli.loads(f.read())["tool"]["poetry"]["version"]
+            return version.parse(version_s)
