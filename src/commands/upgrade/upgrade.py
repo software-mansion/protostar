@@ -35,6 +35,7 @@ class UpgradeManager:
         self.tarball_name = f"protostar-{platform}.tar.gz"
         self.tarball_loc = PROTOSTAR_DIR / self.tarball_name
 
+        self.current_version = self.get_current_version()
         self.latest_version_tag = self.get_latest_release()["tag_name"]
         self.latest_version = version.parse(self.latest_version_tag)
 
@@ -57,11 +58,15 @@ class UpgradeManager:
             self._pull_tarball()
             self._install_new_version()
             self.cleanup()
-        except Exception as err:
-            logger.error("Upgrade failed")
-            self._rollback()
-            self.cleanup()
-            raise err
+        # pylint: disable=broad-except
+        except (Exception, KeyboardInterrupt, SystemExit) as err:
+            self._handle_error(err)
+
+    def _handle_error(self, err):
+        logger.error("Upgrade failed")
+        self._rollback()
+        self.cleanup()
+        raise err
 
     def _backup(self):
         shutil.move(self.protostar_dir / "dist", self.old_version)
@@ -104,8 +109,7 @@ class UpgradeManager:
         response = requests.get(f"{PROTOSTAR_REPO}/releases/latest", headers=headers)
         return response.json()
 
-    @property
-    def current_version(self):
+    def get_current_version(self):
         path = self.protostar_dir / "dist" / "protostar" / "info" / "pyproject.toml"
         with open(path, "r", encoding="UTF-8") as file:
             version_s = tomli.loads(file.read())["tool"]["poetry"]["version"]
