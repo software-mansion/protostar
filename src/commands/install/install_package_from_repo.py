@@ -2,7 +2,7 @@ from logging import getLogger
 from os import path
 from typing import Optional
 
-from git import InvalidGitRepositoryError, NoSuchPathError
+from git import InvalidGitRepositoryError
 from git.objects import Submodule
 from git.repo import Repo
 
@@ -22,9 +22,9 @@ def install_package_from_repo(
     try:
         repo = Repo(repo_root_dir)
     except InvalidGitRepositoryError as _err:
-        raise installation_exceptions.InvalidLocalRepository()
-    except NoSuchPathError as _err:
-        raise installation_exceptions.InvalidLocalRepository()
+        raise installation_exceptions.InvalidLocalRepository(
+            "Git repository must be initialized in order to install packages because packages are installed as git submodules. Run `protostar init` or `git init` to create a git repository."
+        )
 
     package_dir = path.join(destination, name)
 

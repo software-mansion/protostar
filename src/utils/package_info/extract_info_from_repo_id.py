@@ -58,7 +58,14 @@ def extract_info_from_repo_id(repo_id: str) -> PackageInfo:
             )
 
     if result is None:
-        raise package_info_extractor_exceptions.InvalidPackageName()
+        raise package_info_extractor_exceptions.InvalidPackageName(
+            f"""Protostar couldn\'t extract necessary information about the package from "{repo_id}".
+Try providing package reference in one of the following formats:
+- software-mansion/protostar (GitHub only)
+- https://github.com/software-mansion/protostar
+- git@github.com:software-mansion/protostar.git
+            """
+        )
 
     return replace(result, name=normalize_package_name(result.name))
 
@@ -73,7 +80,7 @@ def _map_ssh_to_url(ssh: str) -> str:
 
     if domain_match is None:
         raise package_info_extractor_exceptions.InvalidPackageName(
-            "Couldn't map SSH to URL."
+            f"Couldn't map SSH URI to URL. Are you sure the following URI is correct?\n{ssh}"
         )
 
     return f"https://{domain_match.group()}/{slug}"
@@ -84,7 +91,9 @@ def _extract_slug_from_url(url: str) -> str:
     result = re.search(r"(?<=.org\/|.com\/)[^\/]*\/[^\/]*", url)
 
     if result is None:
-        raise package_info_extractor_exceptions.IncorrectURL()
+        raise package_info_extractor_exceptions.IncorrectURL(
+            f"Protostar couldn't extract slug from the url. Are you sure your the following url is correct?\n{url}"
+        )
 
     return result.group()
 
@@ -94,6 +103,8 @@ def _extract_slug_from_ssh(ssh: str) -> str:
     result = re.search(r"(?<=:)[^\/]*\/[^\/]*(?=\.git)", ssh)
 
     if result is None:
-        raise package_info_extractor_exceptions.IncorrectURL()
+        raise package_info_extractor_exceptions.IncorrectURL(
+            f"Protostar couldn't extract slug from the SSH URI. Are you sure your the following SSH URI is correct?\n{ssh}"
+        )
 
     return result.group()

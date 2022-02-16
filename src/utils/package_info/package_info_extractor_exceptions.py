@@ -1,10 +1,9 @@
-class PackageInfoExtractorException(Exception):
+from src.protostar_exception import ProtostarException
+
+
+class IncorrectURL(ProtostarException):
     pass
 
 
-class IncorrectURL(PackageInfoExtractorException):
-    pass
-
-
-class InvalidPackageName(PackageInfoExtractorException):
+class InvalidPackageName(ProtostarException):
     pass
