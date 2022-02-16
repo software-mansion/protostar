@@ -35,19 +35,21 @@ class UpgradeManager:
         self.tarball_name = f"protostar-{platform}.tar.gz"
         self.tarball_loc = PROTOSTAR_DIR / self.tarball_name
 
-        self.latest_version_tag = self.get_latest_release()['tag_name']
+        self.latest_version_tag = self.get_latest_release()["tag_name"]
         self.latest_version = version.parse(self.latest_version_tag)
 
     def is_current_latest(self):
         return self.latest_version == self.current_version
-    
+
     def upgrade(self):
         logger.info("Looking for a new version ...")
         if self.latest_version <= self.current_version:
             logger.info("Protostar is up to date")
             return
 
-        logger.info(f"Starting upgrade from version {self.current_version} to version {self.latest_version}")
+        logger.info(
+            f"Starting upgrade from version {self.current_version} to version {self.latest_version}"
+        )
         self._backup()
         try:
             self._pull_tarball()
@@ -84,7 +86,7 @@ class UpgradeManager:
             os.remove(self.tarball_loc)
         except FileNotFoundError:
             pass
- 
+
     @classmethod
     def get_platform(cls):
         platform = os.uname()[0]
@@ -96,11 +98,8 @@ class UpgradeManager:
 
     @classmethod
     def get_latest_release(cls):
-        headers = {'Accept': 'application/json'}
-        response = requests.get(
-            f'{PROTOSTAR_REPO}/releases/latest',
-            headers=headers
-        )
+        headers = {"Accept": "application/json"}
+        response = requests.get(f"{PROTOSTAR_REPO}/releases/latest", headers=headers)
         return response.json()
 
     @property
