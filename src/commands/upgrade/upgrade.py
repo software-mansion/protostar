@@ -50,7 +50,7 @@ class UpgradeManager:
         logger.info(
             "Starting upgrade from version %s to version %s",
             self.current_version,
-            self.latest_version
+            self.latest_version,
         )
         self._backup()
         try:
@@ -107,6 +107,6 @@ class UpgradeManager:
     @property
     def current_version(self):
         path = self.protostar_dir / "dist" / "protostar" / "info" / "pyproject.toml"
-        with open(path, "r", encoding='UTF-8') as file:
+        with open(path, "r", encoding="UTF-8") as file:
             version_s = tomli.loads(file.read())["tool"]["poetry"]["version"]
             return version.parse(version_s)
