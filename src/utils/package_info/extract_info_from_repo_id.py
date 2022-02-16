@@ -80,7 +80,9 @@ def _map_ssh_to_url(ssh: str) -> str:
 
     if domain_match is None:
         raise package_info_extractor_exceptions.InvalidPackageName(
-            f"Couldn't map SSH URI to URL. Are you sure the following URI is correct?\n{ssh}"
+            f"""Couldn't map SSH URI to URL.
+Are you sure the following URI is correct?
+{ssh}"""
         )
 
     return f"https://{domain_match.group()}/{slug}"
@@ -92,7 +94,9 @@ def _extract_slug_from_url(url: str) -> str:
 
     if result is None:
         raise package_info_extractor_exceptions.IncorrectURL(
-            f"Protostar couldn't extract slug from the url. Are you sure your the following url is correct?\n{url}"
+            f"""Protostar couldn't extract slug from the url.
+Are you sure your the following url is correct?
+{url}"""
         )
 
     return result.group()
@@ -104,7 +108,9 @@ def _extract_slug_from_ssh(ssh: str) -> str:
 
     if result is None:
         raise package_info_extractor_exceptions.IncorrectURL(
-            f"Protostar couldn't extract slug from the SSH URI. Are you sure your the following SSH URI is correct?\n{ssh}"
+            f"""Protostar couldn't extract slug from the SSH URI.
+Are you sure your the following SSH URI is correct?
+{ssh}"""
         )
 
     return result.group()
