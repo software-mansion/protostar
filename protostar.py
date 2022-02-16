@@ -50,7 +50,7 @@ cmd_update_parser.add_argument("package", type=str, default="", nargs="?")
 
 
 cmd_test_parser = root_subparsers.add_parser("test")
-cmd_test_parser.add_argument("sources-root", type=directory)
+cmd_test_parser.add_argument("tests-root", type=directory)
 cmd_test_parser.add_argument(
     "--omit",
     "-o",
@@ -73,40 +73,16 @@ cmd_test_parser.add_argument(
     help="Paths which will be searched in test contracts compilation",
     required=False,
 )
-cmd_test_parser.add_argument(
-    "--cairo-path-recursive",
-    nargs="+",
-    default=[],
-    type=directory,
-    help="Paths which will be searched recursively in test contracts compilation",
-    required=False,
-)
 
-cmd_compile_parser = root_subparsers.add_parser("compile")
-cmd_compile_parser.add_argument(
-    "input-files", type=cairo_file, nargs="+", help="Input files"
-)
+cmd_compile_parser = root_subparsers.add_parser("build")
 cmd_compile_parser.add_argument(
     "--output",
-    type=argparse.FileType("w", encoding="utf-8"),
-    help="Contract output file",
+    type=Path,
     required=False,
+    default=Path("build"),
+    help="Output directory, which will be used to put the compiled contracts in",
 )
-cmd_compile_parser.add_argument(
-    "--abi",
-    type=argparse.FileType("w", encoding="utf-8"),
-    help="Contract's ABI output file",
-    required=False,
-)
-cmd_compile_parser.add_argument(
-    "--libraries-root",
-    type=directory,
-    help="""
-        Directory where the libraries are installed 
-        (assumed it's installed with protostar, otherwise see --cairo-path)
-    """,
-    default=Path(Path.cwd(), "lib"),
-)
+
 cmd_compile_parser.add_argument(
     "--cairo-path",
     type=directory,

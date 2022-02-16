@@ -5,6 +5,7 @@ from starkware.starknet.services.api.contract_definition import ContractDefiniti
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 
+from src.utils.config.package import Package
 from src.utils.starknet_compilation import StarknetCompiler
 from src.commands.test.cases import BrokenTest, PassedCase, FailedCase
 from src.commands.test.collector import TestCollector
@@ -17,8 +18,13 @@ class TestRunner:
     include_paths: Optional[List[str]] = None
     _collected_count: Optional[int] = None
 
-    def __init__(self, include_paths: Optional[List[str]]):
-        self.include_paths = include_paths
+    def __init__(
+        self, pkg: Optional[Package] = None, include_paths: Optional[List[str]] = None
+    ):
+        self.include_paths = include_paths or []
+        self.include_paths.append(
+            str(pkg.project_root if pkg else Package.current().project_root)
+        )
 
     async def run_tests_in(
         self,
@@ -27,6 +33,7 @@ class TestRunner:
         omit_pattern: Optional[Pattern] = None,
     ):
         self.reporter = TestReporter(src)
+        assert self.include_paths is not None, "Uninitialized paths list in test runner"
         test_subjects = TestCollector(
             sources_directory=src,
             include_paths=self.include_paths,
@@ -38,7 +45,7 @@ class TestRunner:
 
         for test_subject in test_subjects:
             compiled_test = StarknetCompiler(
-                include_paths=self.include_paths or [],
+                include_paths=self.include_paths
             ).compile_contract(test_subject.test_path)
 
             self.reporter.file_entry(test_subject.test_path.name)

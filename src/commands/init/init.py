@@ -1,9 +1,8 @@
-from collections import OrderedDict
 from pathlib import Path
 import shutil
-
-import tomli_w
 from colorama import Fore
+
+from src.utils.config.package import Package, PackageConfig
 
 
 def init(script_root: str):
@@ -12,62 +11,36 @@ def init(script_root: str):
     """
     project_name = input(f"{Fore.CYAN}Project name: ")
 
-    project_path = Path() / project_name
-    copy_template(script_root, "default", project_path)
+    project_root = Path() / project_name
+    copy_template(script_root, "default", project_root)
+    package = Package(project_root=project_root)
 
-    package = PackageConfig(project_path=project_path)
+    def colored_input(message: str):
+        return input(f"{Fore.CYAN}{message}:{Fore.RESET} ")
 
-    package.name = project_name
+    project_description = colored_input("Project description")
+    author = colored_input("Author")
+    version = colored_input("Version")
+    project_license = colored_input("License")
+    lib_dir = colored_input("Libraries directory name (optional)")
 
-    project_description = input(f"{Fore.CYAN}Project description: ")
-    package.description = project_description
+    lib_pth = Path(project_root, lib_dir)
 
-    author = input(f"{Fore.CYAN}Author: ")
-    package.authors = [author]
+    if lib_dir and not lib_pth.is_dir():
+        lib_pth.mkdir(parents=True)
 
-    version = input(f"{Fore.CYAN}Version: ")
-    package.version = version
-
-    project_license = input(f"{Fore.CYAN}License: ")
-    package.license = project_license
-
-    package.write()
+    package.write_config(
+        PackageConfig(
+            name=project_name,
+            description=project_description,
+            license=project_license,
+            version=version,
+            authors=[author],
+            libs_path=lib_dir,
+        )
+    )
 
 
 def copy_template(script_root: str, template_name: str, project_path: Path):
     template_path = f"{script_root}/templates/{template_name}"
     shutil.copytree(template_path, project_path)
-
-
-class PackageConfig:
-    # pylint: disable=too-many-instance-attributes
-    general_props = ["name", "description", "license", "version", "authors"]
-
-    def __init__(self, project_path=None):
-        self._project_path = project_path
-        self.name = "package_name"
-        self.description = ""
-        self.license = ""
-        self.version = "0.1.0"
-        self.authors = []
-        self.contracts = []
-
-    @property
-    def project_path(self) -> Path:
-        return self._project_path if self._project_path else Path()
-
-    @property
-    def config_path(self) -> Path:
-        return self.project_path / "package.toml"
-
-    @property
-    def config_dict(self):
-        obj_dict = self.__dict__
-        result = OrderedDict()
-        result["protostar.general"] = {key: obj_dict[key] for key in self.general_props}
-        result["protostar.contracts"] = {"main": ["src/main.cairo"]}
-        return result
-
-    def write(self):
-        with open(self.config_path, "wb") as file:
-            tomli_w.dump(self.config_dict, file)
