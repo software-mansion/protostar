@@ -7,6 +7,8 @@ from src.utils import retrieve_real_package_name
 def handle_update_command(args) -> None:
     assert args.command == "update"
 
+    # TODO: make root directories easier to maintain
+    # https://github.com/software-mansion/protostar/issues/55
     root_repo_dir = getcwd()
     packages_dir = path.join(root_repo_dir, "lib")
     if args.package:
