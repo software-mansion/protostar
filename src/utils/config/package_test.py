@@ -2,7 +2,11 @@ from pathlib import Path
 
 import pytest
 
-from src.utils.config.package import Package, PackageConfig, NoProtostarPackageFoundError
+from src.utils.config.package import (
+    Package,
+    PackageConfig,
+    NoProtostarPackageFoundError,
+)
 
 current_directory = Path(__file__).parent
 

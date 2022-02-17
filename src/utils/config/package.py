@@ -18,7 +18,9 @@ class PackageConfig:
     license: str = field(default="")
     version: str = field(default="0.1.0")
     authors: List[str] = field(default_factory=list)
-    contracts: Dict[str, List[str]] = field(default_factory=lambda: {"main": ["src/main.cairo"]})
+    contracts: Dict[str, List[str]] = field(
+        default_factory=lambda: {"main": ["src/main.cairo"]}
+    )
     libs_path: str = field(default="lib")
 
 
