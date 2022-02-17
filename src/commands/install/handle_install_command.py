@@ -14,6 +14,9 @@ def handle_install_command(args: Any) -> None:
 
     if args.package is not None and args.package != "":
         package_info = extract_info_from_repo_id(args.package)
+
+        # TODO: make root directories easier to maintain
+        # https://github.com/software-mansion/protostar/issues/55
         install_package_from_repo(
             package_info.name if args.name is None else args.name,
             package_info.url,

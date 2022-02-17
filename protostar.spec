@@ -4,6 +4,7 @@ from PyInstaller.utils.hooks import collect_data_files
 block_cipher = None
 extra_files = [
     ('templates', 'templates'),
+    ('pyproject.toml', 'pyproject.toml'),
 ] + collect_data_files('starkware')
 extra_imports = ['starkware']
 

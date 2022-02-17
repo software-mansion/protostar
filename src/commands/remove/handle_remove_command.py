@@ -10,6 +10,8 @@ def handle_remove_command(args: Any):
     logger = getLogger()
     assert args.command == "remove"
 
+    # TODO: make root directories easier to maintain
+    # https://github.com/software-mansion/protostar/issues/55
     repo_root_dir = getcwd()
     package_name = retrieve_real_package_name(
         args.package, getcwd(), path.join(repo_root_dir, "lib")
