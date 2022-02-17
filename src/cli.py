@@ -9,10 +9,11 @@ from src.commands import (
     handle_update_command,
     init,
 )
-from src.commands.compile import compile_contract
+from src.commands.build.build_project import build_project
 from src.commands.test import run_test_runner
 from src.protostar_exception import ProtostarException
 from src.utils import StandardLogFormatter, log_color_provider
+from src.utils.config.project import Project
 
 init_colorama()
 cwd = os.getcwd()
@@ -26,6 +27,7 @@ async def cli(args, script_root):
     handler = StreamHandler()
     handler.setFormatter(StandardLogFormatter(log_color_provider))
     logger.addHandler(handler)
+    current_project = Project.get_current()
 
     try:
         if args.command == "install":
@@ -38,18 +40,16 @@ async def cli(args, script_root):
             handle_update_command(args)
         elif args.command == "test":
             await run_test_runner(
-                getattr(args, "sources-root"),
+                getattr(args, "tests-root"),
+                project=current_project,
                 omit=args.omit,
                 match=args.match,
                 cairo_paths=args.cairo_path,
-                cairo_paths_recursive=args.cairo_path_recursive,
             )
-        elif args.command == "compile":
-            compile_contract(
-                input_files=getattr(args, "input-files"),
-                libraries_root=args.libraries_root,
-                output_file=args.output,
-                output_abi_file=args.abi,
+        elif args.command == "build":
+            build_project(
+                project=current_project,
+                output_dir=args.output,
                 cairo_path=args.cairo_path,
             )
     except ProtostarException as err:

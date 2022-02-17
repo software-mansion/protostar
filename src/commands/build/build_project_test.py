@@ -1,26 +1,28 @@
 import json
 from pathlib import Path
 
-from src.commands.compile.compile import compile_contract
+from src.commands.build import build_project
+from src.utils.config.project_test import make_mock_project
 
 current_directory = Path(__file__).parent
 
 
-def test_compile(tmp_path):
-    sources_root = Path(current_directory, "mock_sources")
-    output_path = Path(tmp_path, "mock_compiled.json")
-    abi_output_path = Path(tmp_path, "mock_abi.json")
+def test_build(tmp_path, mocker):
 
-    with open(str(output_path), mode="w", encoding="utf-8") as output, open(
-        str(abi_output_path), mode="w", encoding="utf-8"
-    ) as abi_file:
-        compile_contract(
-            input_files=[Path(sources_root, "mock_entry_point.cairo")],
-            libraries_root=Path(current_directory, "mock_lib_root"),
-            output_file=output,
-            output_abi_file=abi_file,
-            cairo_path=[],
-        )
+    libs_path = str(Path(current_directory, "mock_lib_root"))
+    contracts = {
+        "main": [f"{str(current_directory)}/mock_sources/mock_entry_point.cairo"]
+    }
+    mock_project = make_mock_project(mocker, contracts, libs_path, current_directory)
+
+    output_path = Path(tmp_path, "main.json")
+    abi_output_path = Path(tmp_path, "main_abi.json")
+
+    build_project(
+        output_dir=tmp_path,
+        cairo_path=[],
+        project=mock_project,
+    )
 
     with open(str(output_path), mode="r", encoding="utf-8") as output:
         output = json.load(output)

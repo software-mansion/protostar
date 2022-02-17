@@ -9,7 +9,7 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
 
 from src.utils.starknet_compilation import StarknetCompiler
 from src.commands.test.reporter import TestReporter
-from src.commands.test.utils import collect_subdirectories, TestSubject
+from src.commands.test.utils import TestSubject
 
 
 class CollectionError(Exception):
@@ -58,7 +58,7 @@ class TestCollector:
     def _collect_test_functions(self, file_path: Path) -> List[dict]:
         try:
             preprocessed = StarknetCompiler(
-                include_paths=collect_subdirectories(self.sources_directory)
+                include_paths=self.include_paths or [],
             ).preprocess_contract(file_path)
         except PreprocessorError as p_err:
             TestReporter.report_collection_error()
