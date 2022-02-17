@@ -10,14 +10,15 @@ class StandardLogFormatter(Formatter):
         self._log_color_provider = log_color_provider
 
     def get_level_color(self, level: str) -> str:
-        if level == "DEBUG":
-            return self._log_color_provider.get_color("MAGENTA")
-        if level == "INFO":
-            return self._log_color_provider.get_color("BLUE")
-        if level == "WARNING":
-            return self._log_color_provider.get_color("YELLOW")
-        if level == "ERROR":
-            return self._log_color_provider.get_color("RED")
+        mapping = {
+            "DEBUG": self._log_color_provider.get_color("MAGENTA"),
+            "INFO": self._log_color_provider.get_color("BLUE"),
+            "WARNING": self._log_color_provider.get_color("YELLOW"),
+            "ERROR": self._log_color_provider.get_color("RED"),
+        }
+
+        if level in mapping:
+            return mapping[level]
         return self._log_color_provider.get_color("RESET")
 
     def formatMessage(self, record: LogRecord) -> str:

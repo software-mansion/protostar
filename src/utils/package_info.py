@@ -115,8 +115,8 @@ def extract_info_from_repo_id(repo_id: str) -> PackageInfo:
 
     if result is None:
         raise InvalidPackageName(
-            f"""Protostar couldn\'t extract necessary information about the package from "{repo_id}".
-Try providing package reference in one of the following formats:
+            f"""Protostar couldn't extract necessary information about the package from "{repo_id}".
+Try providing a package reference in the one of the following formats:
 - software-mansion/protostar (GitHub only)
 - https://github.com/software-mansion/protostar
 - git@github.com:software-mansion/protostar.git
