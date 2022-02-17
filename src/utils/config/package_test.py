@@ -1,6 +1,8 @@
 from pathlib import Path
 
-from src.utils.config.package import Package, PackageConfig
+import pytest
+
+from src.utils.config.package import Package, PackageConfig, NoProtostarPackageFoundError
 
 current_directory = Path(__file__).parent
 
@@ -31,3 +33,9 @@ def test_parsing_pkg_info():
         "tomekgsd@gmail.com",
     ]
     assert config.libs_path == "lib"
+
+
+def test_no_pkg_found():
+    pkg = Package.current()
+    with pytest.raises(NoProtostarPackageFoundError):
+        pkg.load_config()

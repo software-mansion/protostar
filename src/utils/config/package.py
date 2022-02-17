@@ -7,10 +7,6 @@ import tomli
 import tomli_w
 
 
-def create_default_contracts():
-    return {"main": ["src/main.cairo"]}
-
-
 class NoProtostarPackageFoundError(Exception):
     pass
 
@@ -22,7 +18,7 @@ class PackageConfig:
     license: str = field(default="")
     version: str = field(default="0.1.0")
     authors: List[str] = field(default_factory=list)
-    contracts: Dict[str, List[str]] = field(default_factory=create_default_contracts)
+    contracts: Dict[str, List[str]] = field(default_factory=lambda: {"main": ["src/main.cairo"]})
     libs_path: str = field(default="lib")
 
 
