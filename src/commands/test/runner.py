@@ -5,7 +5,7 @@ from starkware.starknet.services.api.contract_definition import ContractDefiniti
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 
-from src.utils.config.package import Package
+from src.utils.config.project import Project
 from src.utils.starknet_compilation import StarknetCompiler
 from src.commands.test.cases import BrokenTest, PassedCase, FailedCase
 from src.commands.test.collector import TestCollector
@@ -19,13 +19,15 @@ class TestRunner:
     _collected_count: Optional[int] = None
 
     def __init__(
-        self, pkg: Optional[Package] = None, include_paths: Optional[List[str]] = None
+        self,
+        project: Optional[Project] = None,
+        include_paths: Optional[List[str]] = None,
     ):
         self.include_paths = include_paths or []
-        if pkg:
-            config = pkg.load_config()
-            self.include_paths.append(str(pkg.project_root))
-            self.include_paths.append(str(Path(pkg.project_root, config.libs_path)))
+        if project:
+            config = project.load_config()
+            self.include_paths.append(str(project.project_root))
+            self.include_paths.append(str(Path(project.project_root, config.libs_path)))
 
     async def run_tests_in(
         self,

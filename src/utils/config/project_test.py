@@ -2,18 +2,18 @@ from pathlib import Path
 
 import pytest
 
-from src.utils.config.package import (
-    Package,
-    PackageConfig,
-    NoProtostarPackageFoundError,
+from src.utils.config.project import (
+    Project,
+    ProjectConfig,
+    NoProtostarProjectFoundError,
 )
 
 current_directory = Path(__file__).parent
 
 
-def mock_package(mocker, contracts, libs_path, pkg_root=None) -> Package:
-    pkg = Package(pkg_root)
-    mock_config = PackageConfig(
+def make_mock_project(mocker, contracts, libs_path, pkg_root=None) -> Project:
+    pkg = Project(pkg_root)
+    mock_config = ProjectConfig(
         name="",
         description="",
         license="",
@@ -26,9 +26,9 @@ def mock_package(mocker, contracts, libs_path, pkg_root=None) -> Package:
     return pkg
 
 
-def test_parsing_pkg_info():
-    pkg = Package(project_root=Path(current_directory, "examples"))
-    config = pkg.load_config()
+def test_parsing_project_info():
+    proj = Project(project_root=Path(current_directory, "examples"))
+    config = proj.load_config()
     assert config.name == "testproj"
     assert config.description == "descr"
     assert config.license == "MIT"
@@ -39,7 +39,7 @@ def test_parsing_pkg_info():
     assert config.libs_path == "lib"
 
 
-def test_no_pkg_found():
-    pkg = Package.current()
-    with pytest.raises(NoProtostarPackageFoundError):
-        pkg.load_config()
+def test_no_project_found():
+    proj = Project.get_current()
+    with pytest.raises(NoProtostarProjectFoundError):
+        proj.load_config()

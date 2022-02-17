@@ -2,7 +2,7 @@ from pathlib import Path
 import shutil
 from colorama import Fore
 
-from src.utils.config.package import Package, PackageConfig
+from src.utils.config.project import Project, ProjectConfig
 
 
 def init(script_root: str):
@@ -13,7 +13,7 @@ def init(script_root: str):
 
     project_root = Path() / project_name
     copy_template(script_root, "default", project_root)
-    package = Package(project_root=project_root)
+    project = Project(project_root=project_root)
 
     def colored_input(message: str):
         return input(f"{Fore.CYAN}{message}:{Fore.RESET} ")
@@ -29,8 +29,8 @@ def init(script_root: str):
     if lib_dir and not lib_pth.is_dir():
         lib_pth.mkdir(parents=True)
 
-    package.write_config(
-        PackageConfig(
+    project.write_config(
+        ProjectConfig(
             name=project_name,
             description=project_description,
             license=project_license,

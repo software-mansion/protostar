@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 from src.commands.build import build_project
-from src.utils.config.package_test import mock_package
+from src.utils.config.project_test import make_mock_project
 
 current_directory = Path(__file__).parent
 
@@ -13,7 +13,7 @@ def test_build(tmp_path, mocker):
     contracts = {
         "main": [f"{str(current_directory)}/mock_sources/mock_entry_point.cairo"]
     }
-    mock_pkg = mock_package(mocker, contracts, libs_path, current_directory)
+    mock_project = make_mock_project(mocker, contracts, libs_path, current_directory)
 
     output_path = Path(tmp_path, "main.json")
     abi_output_path = Path(tmp_path, "main_abi.json")
@@ -21,7 +21,7 @@ def test_build(tmp_path, mocker):
     build_project(
         output_dir=tmp_path,
         cairo_path=[],
-        pkg=mock_pkg,
+        project=mock_project,
     )
 
     with open(str(output_path), mode="r", encoding="utf-8") as output:

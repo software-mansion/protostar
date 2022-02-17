@@ -3,20 +3,20 @@ from pathlib import Path
 from typing import List
 
 from src.commands.test.utils import collect_immediate_subdirectories
-from src.utils.config.package import Package
+from src.utils.config.project import Project
 from src.utils.starknet_compilation import StarknetCompiler
 
 
 def build_project(
-    pkg: Package,
+    project: Project,
     output_dir: Path,
     cairo_path: List[Path],
 ):
-    pkg_config = pkg.load_config()
+    pkg_config = project.load_config()
     libraries_root = Path(pkg_config.libs_path)
 
     project_paths = [
-        str(pkg.project_root),
+        str(project.project_root),
         str(libraries_root),
         *collect_immediate_subdirectories(libraries_root),
         *[str(pth) for pth in cairo_path],

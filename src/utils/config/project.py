@@ -7,13 +7,13 @@ import tomli
 import tomli_w
 
 
-class NoProtostarPackageFoundError(Exception):
+class NoProtostarProjectFoundError(Exception):
     pass
 
 
 @dataclass
-class PackageConfig:
-    name: str = field(default="package_name")
+class ProjectConfig:
+    name: str = field(default="project_name")
     description: str = field(default="")
     license: str = field(default="")
     version: str = field(default="0.1.0")
@@ -24,9 +24,9 @@ class PackageConfig:
     libs_path: str = field(default="lib")
 
 
-class Package:
+class Project:
     @classmethod
-    def current(cls):
+    def get_current(cls):
         return cls()
 
     def __init__(self, project_root: Optional[Path] = None):
@@ -36,7 +36,7 @@ class Package:
     @property
     def config_path(self) -> Path:
         assert self.project_root, "No project_path provided!"
-        return self.project_root / "package.toml"
+        return self.project_root / "protostar.toml"
 
     @property
     def ordered_dict(self):
@@ -49,15 +49,15 @@ class Package:
         result["protostar.contracts"] = self.config.contracts
         return result
 
-    def write_config(self, config: PackageConfig):
+    def write_config(self, config: ProjectConfig):
         self.config = config
         with open(self.config_path, "wb") as file:
             tomli_w.dump(self.ordered_dict, file)
 
-    def load_config(self) -> "PackageConfig":
+    def load_config(self) -> "ProjectConfig":
         if not self.config_path.is_file():
-            raise NoProtostarPackageFoundError(
-                "No package.toml found in the working directory"
+            raise NoProtostarProjectFoundError(
+                "No protostar.toml found in the working directory"
             )
 
         with open(self.config_path, "rb") as config_file:
@@ -67,5 +67,5 @@ class Package:
                 **parsed_config["protostar.general"],
                 "contracts": parsed_config["protostar.contracts"],
             }
-            self.config = PackageConfig(**flat_config)
+            self.config = ProjectConfig(**flat_config)
             return self.config
