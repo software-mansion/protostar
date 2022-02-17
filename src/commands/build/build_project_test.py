@@ -2,28 +2,18 @@ import json
 from pathlib import Path
 
 from src.commands.build import build_project
-from src.utils.config.package import PackageConfig, Package
+from src.utils.config.package_test import mock_package
 
 current_directory = Path(__file__).parent
 
 
 def test_build(tmp_path, mocker):
-    package = Package(current_directory)
 
-    mock_config = PackageConfig(
-        name="",
-        description="",
-        license="",
-        version="",
-        authors=[""],
-        contracts={
-            "main": [
-                f"{str(current_directory)}/mock_sources/mock_entry_point.cairo"
-            ]
-        },
-        libs_path=str(Path(current_directory, "mock_lib_root")),
-    )
-    mocker.patch.object(package, attribute="load_config").return_value = mock_config
+    libs_path = str(Path(current_directory, "mock_lib_root"))
+    contracts = {
+        "main": [f"{str(current_directory)}/mock_sources/mock_entry_point.cairo"]
+    }
+    mock_pkg = mock_package(mocker, contracts, libs_path)
 
     output_path = Path(tmp_path, "main.json")
     abi_output_path = Path(tmp_path, "main_abi.json")
@@ -31,7 +21,7 @@ def test_build(tmp_path, mocker):
     build_project(
         output_dir=tmp_path,
         cairo_path=[],
-        pkg=package,
+        pkg=mock_pkg,
     )
 
     with open(str(output_path), mode="r", encoding="utf-8") as output:
