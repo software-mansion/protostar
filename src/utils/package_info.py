@@ -1,8 +1,9 @@
 import re
 from dataclasses import dataclass, replace
-from typing import Optional
+from os import listdir
+from typing import Dict, Optional
 
-from src.commands.install import installation_exceptions
+from git.repo import Repo
 
 
 @dataclass
@@ -10,6 +11,58 @@ class PackageInfo:
     name: str
     version: Optional[str]
     url: str
+
+
+class PackageNameRetrievalException(Exception):
+    pass
+
+
+class IncorrectURL(Exception):
+    pass
+
+
+class InvalidPackageName(Exception):
+    pass
+
+
+def retrieve_real_package_name(
+    package_id: str, root_repo_dir: str, packages_dir: str
+) -> str:
+    normalized_package_name = ""
+    if "/" in package_id:
+        normalized_package_name = extract_info_from_repo_id(package_id).name
+    else:
+        normalized_package_name = normalize_package_name(package_id)
+
+    mapping = load_normalized_to_real_name_map(root_repo_dir, packages_dir)
+
+    if normalized_package_name in mapping:
+        return mapping[normalized_package_name]
+
+    # custom name
+    package_names = listdir(packages_dir)
+    if normalized_package_name in package_names:
+        return normalized_package_name
+
+    raise PackageNameRetrievalException()
+
+
+def load_normalized_to_real_name_map(repo_root_dir: str, packages_dir: str):
+    repo = Repo.init(repo_root_dir)
+
+    mapping: Dict["str", "str"] = {}
+
+    package_names = listdir(packages_dir)
+    for submodule in repo.submodules:
+        if submodule.name in package_names:
+            normalized_package_name = extract_info_from_repo_id(submodule.url).name
+            mapping[normalized_package_name] = submodule.name
+
+    return mapping
+
+
+def normalize_package_name(package_name: str) -> str:
+    return package_name.replace("-", "_").replace(".", "_")
 
 
 def extract_info_from_repo_id(repo_id: str) -> PackageInfo:
@@ -57,9 +110,9 @@ def extract_info_from_repo_id(repo_id: str) -> PackageInfo:
             )
 
     if result is None:
-        raise installation_exceptions.InvalidPackageName()
+        raise InvalidPackageName()
 
-    return replace(result, name=result.name.replace("-", "_").replace(".", "_"))
+    return replace(result, name=normalize_package_name(result.name))
 
 
 def _map_name_to_url(name: str) -> str:
@@ -71,7 +124,7 @@ def _map_ssh_to_url(ssh: str) -> str:
     domain_match = re.search(r"(?<=git@).*(?=:)", ssh)
 
     if domain_match is None:
-        raise installation_exceptions.InvalidPackageName("Couldn't map SSH to URL.")
+        raise InvalidPackageName("Couldn't map SSH to URL.")
 
     return f"https://{domain_match.group()}/{slug}"
 
@@ -81,7 +134,7 @@ def _extract_slug_from_url(url: str) -> str:
     result = re.search(r"(?<=.org\/|.com\/)[^\/]*\/[^\/]*", url)
 
     if result is None:
-        raise installation_exceptions.IncorrectURL()
+        raise IncorrectURL()
 
     return result.group()
 
@@ -91,6 +144,6 @@ def _extract_slug_from_ssh(ssh: str) -> str:
     result = re.search(r"(?<=:)[^\/]*\/[^\/]*(?=\.git)", ssh)
 
     if result is None:
-        raise installation_exceptions.IncorrectURL()
+        raise IncorrectURL()
 
     return result.group()

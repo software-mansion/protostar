@@ -4,9 +4,9 @@ from typing import Any
 
 from colorama import Fore
 
-from src.commands.install.extract_info_from_repo_id import extract_info_from_repo_id
 from src.commands.install.install_package_from_repo import install_package_from_repo
 from src.commands.install.pull_package_submodules import pull_package_submodules
+from src.utils import extract_info_from_repo_id
 
 
 def handle_install_command(args: Any) -> None:
@@ -16,6 +16,9 @@ def handle_install_command(args: Any) -> None:
 
     if args.package is not None and args.package != "":
         package_info = extract_info_from_repo_id(args.package)
+
+        # TODO: make root directories easier to maintain
+        # https://github.com/software-mansion/protostar/issues/55
         install_package_from_repo(
             package_info.name if args.name is None else args.name,
             package_info.url,

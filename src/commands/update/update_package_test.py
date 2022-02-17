@@ -7,6 +7,7 @@ from git.cmd import Git
 from git.repo import Repo
 
 from src.commands.update.update_package import update_package
+from src.utils.create_and_commit_sample_file import create_and_commit_sample_file
 
 # tmpdir
 # - repo
@@ -56,13 +57,7 @@ def fixture_package_repo_dir(tmpdir: str) -> str:
 def fixture_package_repo(current_tag: Optional[str], package_repo_dir: str):
     package_repo = Repo().init(package_repo_dir)
 
-    with open(
-        path.join(package_repo_dir, "foo.txt"), "w", encoding="utf-8"
-    ) as some_file:
-        some_file.write("foo")
-        some_file.close()
-    package_repo.git.add("-u")
-    package_repo.index.commit("add foo.txt")
+    create_and_commit_sample_file(package_repo, package_repo_dir)
 
     if current_tag is not None:
         package_repo.create_tag(current_tag)
