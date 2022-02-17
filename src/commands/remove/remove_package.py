@@ -12,8 +12,9 @@ def remove_package(package_name: str, repo_root_dir: str):
 
     except InvalidGitRepositoryError as _err:
         raise removal_exceptions.InvalidLocalRepository(
-            """Git repository must be initialized in order to remove packages.
-Run `protostar init` or `git init` to create a git repository."""
+            """A git repository must be initialized in order to remove packages.
+- Did you run `protostar init`?
+- Are you in the right directory?"""
         )
     except (ValueError, IndexError, AttributeError) as _err:
         raise removal_exceptions.PackageNotFound(
