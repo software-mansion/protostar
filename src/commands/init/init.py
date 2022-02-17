@@ -2,6 +2,7 @@ from pathlib import Path
 import shutil
 from colorama import Fore
 
+from src.utils import log_color_provider
 from src.utils.config.project import Project, ProjectConfig
 
 
@@ -16,7 +17,9 @@ def init(script_root: str):
     project = Project(project_root=project_root)
 
     def colored_input(message: str):
-        return input(f"{Fore.CYAN}{message}:{Fore.RESET} ")
+        return input(
+            f"{log_color_provider.get_color('CYAN')}{message}:{log_color_provider.get_color('RESET')} "
+        )
 
     project_description = colored_input("Project description")
     author = colored_input("Author")

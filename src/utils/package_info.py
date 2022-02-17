@@ -5,6 +5,8 @@ from typing import Dict, Optional
 
 from git.repo import Repo
 
+from src.protostar_exception import ProtostarException
+
 
 @dataclass
 class PackageInfo:
@@ -13,15 +15,15 @@ class PackageInfo:
     url: str
 
 
-class PackageNameRetrievalException(Exception):
+class PackageNameRetrievalException(ProtostarException):
     pass
 
 
-class IncorrectURL(Exception):
+class IncorrectURL(ProtostarException):
     pass
 
 
-class InvalidPackageName(Exception):
+class InvalidPackageName(ProtostarException):
     pass
 
 
@@ -44,7 +46,9 @@ def retrieve_real_package_name(
     if normalized_package_name in package_names:
         return normalized_package_name
 
-    raise PackageNameRetrievalException()
+    raise PackageNameRetrievalException(
+        f'Protostar couldn\'t find package "{package_id}".'
+    )
 
 
 def load_normalized_to_real_name_map(repo_root_dir: str, packages_dir: str):
@@ -110,7 +114,14 @@ def extract_info_from_repo_id(repo_id: str) -> PackageInfo:
             )
 
     if result is None:
-        raise InvalidPackageName()
+        raise InvalidPackageName(
+            f"""Protostar couldn't extract necessary information about the package from "{repo_id}".
+Try providing a package reference in the one of the following formats:
+- software-mansion/protostar (GitHub only)
+- https://github.com/software-mansion/protostar
+- git@github.com:software-mansion/protostar.git
+"""
+        )
 
     return replace(result, name=normalize_package_name(result.name))
 
@@ -124,7 +135,11 @@ def _map_ssh_to_url(ssh: str) -> str:
     domain_match = re.search(r"(?<=git@).*(?=:)", ssh)
 
     if domain_match is None:
-        raise InvalidPackageName("Couldn't map SSH to URL.")
+        raise InvalidPackageName(
+            f"""Protostar couldn't map SSH URI to URL.
+Are you sure the following URI is correct?
+{ssh}"""
+        )
 
     return f"https://{domain_match.group()}/{slug}"
 
@@ -134,7 +149,11 @@ def _extract_slug_from_url(url: str) -> str:
     result = re.search(r"(?<=.org\/|.com\/)[^\/]*\/[^\/]*", url)
 
     if result is None:
-        raise IncorrectURL()
+        raise IncorrectURL(
+            f"""Protostar couldn't extract slug from the url.
+Are you sure your the following url is correct?
+{url}"""
+        )
 
     return result.group()
 
@@ -144,6 +163,10 @@ def _extract_slug_from_ssh(ssh: str) -> str:
     result = re.search(r"(?<=:)[^\/]*\/[^\/]*(?=\.git)", ssh)
 
     if result is None:
-        raise IncorrectURL()
+        raise IncorrectURL(
+            f"""Protostar couldn't extract slug from the SSH URI.
+Are you sure your the following SSH URI is correct?
+{ssh}"""
+        )
 
     return result.group()

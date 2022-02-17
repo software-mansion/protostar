@@ -2,10 +2,8 @@ from logging import getLogger
 from os import getcwd, path
 from typing import Any
 
-from colorama import Fore
-
 from src.commands.remove.remove_package import remove_package
-from src.utils import retrieve_real_package_name
+from src.utils import log_color_provider, retrieve_real_package_name
 
 
 def handle_remove_command(args: Any):
@@ -19,5 +17,10 @@ def handle_remove_command(args: Any):
         args.package, getcwd(), path.join(repo_root_dir, "lib")
     )
 
-    logger.info("Removing %s%s%s", Fore.RED, package_name, Fore.RESET)
+    logger.info(
+        "Removing %s%s%s",
+        log_color_provider.get_color("RED"),
+        package_name,
+        log_color_provider.get_color("RESET"),
+    )
     remove_package(package_name, repo_root_dir)
