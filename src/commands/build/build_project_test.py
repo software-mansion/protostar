@@ -13,7 +13,7 @@ def test_build(tmp_path, mocker):
     contracts = {
         "main": [f"{str(current_directory)}/mock_sources/mock_entry_point.cairo"]
     }
-    mock_pkg = mock_package(mocker, contracts, libs_path)
+    mock_pkg = mock_package(mocker, contracts, libs_path, current_directory)
 
     output_path = Path(tmp_path, "main.json")
     abi_output_path = Path(tmp_path, "main_abi.json")

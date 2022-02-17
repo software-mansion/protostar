@@ -5,8 +5,8 @@ from src.utils.config.package import Package, PackageConfig
 current_directory = Path(__file__).parent
 
 
-def mock_package(mocker, contracts, libs_path) -> Package:
-    pkg = Package()
+def mock_package(mocker, contracts, libs_path, pkg_root=None) -> Package:
+    pkg = Package(pkg_root)
     mock_config = PackageConfig(
         name="",
         description="",
