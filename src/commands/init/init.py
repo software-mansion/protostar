@@ -1,6 +1,7 @@
 from pathlib import Path
 import shutil
 from colorama import Fore
+from git.repo import Repo
 
 from src.utils import log_color_provider
 from src.utils.config.project import Project, ProjectConfig
@@ -42,6 +43,8 @@ def init(script_root: str):
             libs_path=lib_dir,
         )
     )
+
+    Repo.init(project_path)
 
 
 def copy_template(script_root: str, template_name: str, project_path: Path):
