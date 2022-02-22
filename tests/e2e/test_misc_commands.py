@@ -3,10 +3,10 @@ from os import listdir
 
 import pytest
 
-from tests.conftest import init_project, protostar
+from tests.conftest import init_project
 
 
-def test_help():
+def test_help(protostar):
     result = protostar(["--help"])
 
     assert "usage:" in result
@@ -18,4 +18,6 @@ def test_init(project_name: str):
 
     init_project(project_name)
 
-    assert "package.toml" in listdir(f"./{project_name}")
+    dirs = listdir(project_name)
+    assert "package.toml" in dirs
+    assert ".git" in dirs

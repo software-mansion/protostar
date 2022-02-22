@@ -1,6 +1,6 @@
 # pylint: disable=redefined-outer-name
 from os import chdir, getcwd, path
-from subprocess import check_output
+from subprocess import STDOUT, check_output
 from typing import List
 
 import pexpect
@@ -33,14 +33,20 @@ def init_project(project_name: str):
     child.sendline("")
     child.expect("Libraries directory *", timeout=1)
     child.sendline("")
+    child.expect(pexpect.EOF)
 
 
-def protostar(args: List[str]) -> str:
-    return check_output(
-        ["python", path.join(ACTUAL_CWD, "protostar.py")] + args
-    ).decode("utf-8")
+@pytest.fixture
+def protostar():
+    def _protostar(args: List[str]) -> str:
+        return check_output(
+            ["python", path.join(ACTUAL_CWD, "protostar.py")] + args, stderr=STDOUT
+        ).decode("utf-8")
+
+    return _protostar
 
 
 @pytest.fixture
 def init(project_name: str):
     init_project(project_name)
+    chdir(project_name)
