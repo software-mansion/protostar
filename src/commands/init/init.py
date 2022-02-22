@@ -1,5 +1,6 @@
-from pathlib import Path
 import shutil
+from pathlib import Path
+
 from colorama import Fore
 from git.repo import Repo
 
@@ -44,7 +45,7 @@ def init(script_root: str):
         )
     )
 
-    Repo.init(project_path)
+    Repo.init(project_root)
 
 
 def copy_template(script_root: str, template_name: str, project_path: Path):
