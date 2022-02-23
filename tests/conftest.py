@@ -39,9 +39,13 @@ def init_project(project_name: str):
 @pytest.fixture
 def protostar():
     def _protostar(args: List[str]) -> str:
-        return check_output(
-            ["python", path.join(ACTUAL_CWD, "protostar.py")] + args, stderr=STDOUT
-        ).decode("utf-8")
+        return (
+            check_output(
+                ["python", path.join(ACTUAL_CWD, "protostar.py")] + args, stderr=STDOUT
+            )
+            .decode("utf-8")
+            .strip()
+        )
 
     return _protostar
 
