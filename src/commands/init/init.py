@@ -44,7 +44,7 @@ def init(script_root: str):
         )
     )
 
-    Repo.init(project_path)
+    Repo.init(project_root)
 
 
 def copy_template(script_root: str, template_name: str, project_path: Path):

@@ -1,13 +1,13 @@
 import os
 from logging import INFO, StreamHandler, getLogger
-
 from colorama import init as init_colorama
 
 from src.commands import (
     handle_install_command,
-    handle_remove_command,
     handle_update_command,
+    handle_remove_command,
     init,
+    upgrade,
 )
 from src.commands.build.build_project import build_project
 from src.commands.test import run_test_runner
@@ -38,6 +38,8 @@ async def cli(args, script_root):
             init(script_root)
         elif args.command == "update":
             handle_update_command(args)
+        elif args.command == "upgrade":
+            upgrade()
         elif args.command == "test":
             await run_test_runner(
                 getattr(args, "tests-root"),
