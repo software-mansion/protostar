@@ -1,8 +1,11 @@
 import re
 from dataclasses import dataclass, replace
-from typing import Optional
+from os import listdir
+from typing import Dict, Optional
 
-from src.commands.install import installation_exceptions
+from git.repo import Repo
+
+from src.protostar_exception import ProtostarException
 
 
 @dataclass
@@ -10,6 +13,60 @@ class PackageInfo:
     name: str
     version: Optional[str]
     url: str
+
+
+class PackageNameRetrievalException(ProtostarException):
+    pass
+
+
+class IncorrectURL(ProtostarException):
+    pass
+
+
+class InvalidPackageName(ProtostarException):
+    pass
+
+
+def retrieve_real_package_name(
+    package_id: str, root_repo_dir: str, packages_dir: str
+) -> str:
+    normalized_package_name = ""
+    if "/" in package_id:
+        normalized_package_name = extract_info_from_repo_id(package_id).name
+    else:
+        normalized_package_name = normalize_package_name(package_id)
+
+    mapping = load_normalized_to_real_name_map(root_repo_dir, packages_dir)
+
+    if normalized_package_name in mapping:
+        return mapping[normalized_package_name]
+
+    # custom name
+    package_names = listdir(packages_dir)
+    if normalized_package_name in package_names:
+        return normalized_package_name
+
+    raise PackageNameRetrievalException(
+        f'Protostar couldn\'t find package "{package_id}".'
+    )
+
+
+def load_normalized_to_real_name_map(repo_root_dir: str, packages_dir: str):
+    repo = Repo.init(repo_root_dir)
+
+    mapping: Dict["str", "str"] = {}
+
+    package_names = listdir(packages_dir)
+    for submodule in repo.submodules:
+        if submodule.name in package_names:
+            normalized_package_name = extract_info_from_repo_id(submodule.url).name
+            mapping[normalized_package_name] = submodule.name
+
+    return mapping
+
+
+def normalize_package_name(package_name: str) -> str:
+    return package_name.replace("-", "_").replace(".", "_")
 
 
 def extract_info_from_repo_id(repo_id: str) -> PackageInfo:
@@ -57,9 +114,16 @@ def extract_info_from_repo_id(repo_id: str) -> PackageInfo:
             )
 
     if result is None:
-        raise installation_exceptions.InvalidPackageName()
+        raise InvalidPackageName(
+            f"""Protostar couldn't extract necessary information about the package from "{repo_id}".
+Try providing a package reference in the one of the following formats:
+- software-mansion/protostar (GitHub only)
+- https://github.com/software-mansion/protostar
+- git@github.com:software-mansion/protostar.git
+"""
+        )
 
-    return replace(result, name=result.name.replace("-", "_").replace(".", "_"))
+    return replace(result, name=normalize_package_name(result.name))
 
 
 def _map_name_to_url(name: str) -> str:
@@ -71,7 +135,11 @@ def _map_ssh_to_url(ssh: str) -> str:
     domain_match = re.search(r"(?<=git@).*(?=:)", ssh)
 
     if domain_match is None:
-        raise installation_exceptions.InvalidPackageName("Couldn't map SSH to URL.")
+        raise InvalidPackageName(
+            f"""Protostar couldn't map SSH URI to URL.
+Are you sure the following URI is correct?
+{ssh}"""
+        )
 
     return f"https://{domain_match.group()}/{slug}"
 
@@ -81,7 +149,11 @@ def _extract_slug_from_url(url: str) -> str:
     result = re.search(r"(?<=.org\/|.com\/)[^\/]*\/[^\/]*", url)
 
     if result is None:
-        raise installation_exceptions.IncorrectURL()
+        raise IncorrectURL(
+            f"""Protostar couldn't extract slug from the url.
+Are you sure your the following url is correct?
+{url}"""
+        )
 
     return result.group()
 
@@ -91,6 +163,10 @@ def _extract_slug_from_ssh(ssh: str) -> str:
     result = re.search(r"(?<=:)[^\/]*\/[^\/]*(?=\.git)", ssh)
 
     if result is None:
-        raise installation_exceptions.IncorrectURL()
+        raise IncorrectURL(
+            f"""Protostar couldn't extract slug from the SSH URI.
+Are you sure your the following SSH URI is correct?
+{ssh}"""
+        )
 
     return result.group()

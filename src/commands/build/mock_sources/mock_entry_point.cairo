@@ -1,6 +1,6 @@
 %lang starknet
 
-from mock_util import addition
+from mock_sources.mock_util import addition
 from mock_library.mock_source import THREE
 
 @view

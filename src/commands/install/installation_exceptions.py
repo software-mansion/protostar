@@ -1,14 +1,9 @@
-class InstallationException(Exception):
-    pass
+from src.protostar_exception import ProtostarException
 
 
-class IncorrectURL(InstallationException):
+class InstallationException(ProtostarException):
     pass
 
 
 class InvalidLocalRepository(InstallationException):
-    pass
-
-
-class InvalidPackageName(InstallationException):
     pass
