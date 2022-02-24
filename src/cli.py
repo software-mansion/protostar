@@ -5,8 +5,8 @@ from colorama import init as init_colorama
 from src.commands import (
     handle_install_command,
     handle_update_command,
+    handle_remove_command,
     init,
-    remove,
     upgrade,
 )
 from src.commands.build.build_project import build_project
