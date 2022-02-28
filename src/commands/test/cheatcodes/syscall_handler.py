@@ -8,49 +8,49 @@ from starkware.starknet.security.secure_hints import HintsWhitelist
 
 class CheatableSysCallHandler(BusinessLogicSysCallHandler):
     # roll
-    block_number_proxy = None
+    custom_block_number = None
 
     def set_block_number(self, blk_number):
-        self.block_number_proxy = blk_number
+        self.custom_block_number = blk_number
 
     def _get_block_number(self):
         return (
-            self.block_number_proxy
-            if self.block_number_proxy is not None
+            self.custom_block_number
+            if self.custom_block_number is not None
             else super()._get_block_number()
         )
 
     # warp
-    block_timestamp_proxy = None
+    custom_block_timestamp = None
 
     def set_block_timestamp(self, blk_timestamp):
-        self.block_timestamp_proxy = blk_timestamp
+        self.custom_block_timestamp = blk_timestamp
 
     def _get_block_timestamp(self):
         return (
-            self.block_timestamp_proxy
-            if self.block_timestamp_proxy is not None
+            self.custom_block_timestamp
+            if self.custom_block_timestamp is not None
             else super()._get_block_timestamp()
         )
 
     # prank
-    caller_address_proxy = None
+    custom_caller_address = None
 
     def set_caller_address(self, addr):
-        self.caller_address_proxy = addr
+        self.custom_caller_address = addr
 
     def _get_caller_address(
         self,
         segments: MemorySegmentManager,
         syscall_ptr: RelocatableValue,
     ) -> int:
-        if self.caller_address_proxy is not None:
+        if self.custom_caller_address is not None:
             self._read_and_validate_syscall_request(
                 syscall_name="get_caller_address",
                 segments=segments,
                 syscall_ptr=syscall_ptr,
             )
-            return self.caller_address_proxy
+            return self.custom_caller_address
         return super()._get_caller_address(segments, syscall_ptr)
 
 
