@@ -32,7 +32,8 @@ class TestCollector:
             test_files = [
                 file
                 for file in files
-                if file.endswith(".cairo") and file.startswith("test_")
+                if file.endswith(".cairo")
+                and (file.startswith("test_") or file.endswith("_test.cairo"))
             ]
             for test_file_name in test_files:
                 test_file_path = Path(root, test_file_name)
@@ -59,6 +60,7 @@ class TestCollector:
         try:
             preprocessed = StarknetCompiler(
                 include_paths=self.include_paths or [],
+                disable_hint_validation=True,
             ).preprocess_contract(file_path)
         except PreprocessorError as p_err:
             TestReporter.report_collection_error()

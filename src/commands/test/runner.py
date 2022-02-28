@@ -1,16 +1,21 @@
 from pathlib import Path
 from typing import List, Optional, Pattern
-
 from starkware.starknet.services.api.contract_definition import ContractDefinition
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 
+from src.commands.test.cheatcodes.syscall_handler import (
+    CheatableSysCallHandler,
+)
 from src.utils.config.project import Project
+from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
 from src.commands.test.cases import BrokenTest, PassedCase, FailedCase
 from src.commands.test.collector import TestCollector
 from src.commands.test.utils import TestSubject
 from src.commands.test.reporter import TestReporter
+
+current_directory = Path(__file__).parent
 
 
 class TestRunner:
@@ -24,11 +29,18 @@ class TestRunner:
         include_paths: Optional[List[str]] = None,
     ):
         self.include_paths = include_paths or []
+        self.include_paths.append(
+            str(Path(current_directory, "cheatcodes", "cheat_sources"))
+        )
         if project:
             config = project.load_config()
             self.include_paths.append(str(project.project_root))
             self.include_paths.append(str(Path(project.project_root, config.libs_path)))
 
+    @replace_class(
+        "starkware.starknet.core.os.syscall_utils.BusinessLogicSysCallHandler",
+        CheatableSysCallHandler,
+    )
     async def run_tests_in(
         self,
         src: Path,
@@ -48,7 +60,8 @@ class TestRunner:
 
         for test_subject in test_subjects:
             compiled_test = StarknetCompiler(
-                include_paths=self.include_paths
+                include_paths=self.include_paths,
+                disable_hint_validation=True,
             ).compile_contract(test_subject.test_path)
 
             self.reporter.file_entry(test_subject.test_path.name)
