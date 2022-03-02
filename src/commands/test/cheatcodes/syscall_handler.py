@@ -1,8 +1,6 @@
 from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
-from starkware.starknet.core.os.syscall_utils import (
-    BusinessLogicSysCallHandler,
-)
+from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
 from starkware.starknet.security.secure_hints import HintsWhitelist
 
 
@@ -52,6 +50,26 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
             )
             return self.custom_caller_address
         return super()._get_caller_address(segments, syscall_ptr)
+
+    def read_storage(
+        self,
+        address: int,
+        segments: MemorySegmentManager,
+        syscall_ptr: RelocatableValue,
+    ):
+        request = self._read_and_validate_syscall_request(
+            syscall_name="storage_read", segments=segments, syscall_ptr=syscall_ptr
+        )
+
+        value = self._storage_read(address)
+        response = self.structs.StorageReadResponse(value=value)
+
+        self._write_syscall_response(
+            syscall_name="StorageRead",
+            response=response,
+            segments=segments,
+            syscall_ptr=syscall_ptr,
+        )
 
 
 class CheatableHintsWhitelist(HintsWhitelist):
