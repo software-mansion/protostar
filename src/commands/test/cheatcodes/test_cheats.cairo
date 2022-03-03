@@ -34,3 +34,19 @@ func test_start_stop_prank_cheat{syscall_ptr : felt*}(contract_address : felt):
 
     return ()
 end
+
+@view
+func test_mock_call{syscall_ptr : felt*}():
+    let (res) = IBalanceContract.get_balance(
+        contract_address=0x3fe90a1958bb8468fb1b62970747d8a00c435ef96cda708ae8de3d07f1bb56b)
+    return (res=res)
+end
+
+@contract_interface
+namespace IBalanceContract:
+    func increase_balance(amount : felt):
+    end
+
+    func get_balance() -> (res : felt):
+    end
+end
