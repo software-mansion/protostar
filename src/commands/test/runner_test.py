@@ -18,7 +18,7 @@ async def test_run_valid_tests():
         ]
     )
     await runner.run_tests_in(
-        test_root_dir, match_pattern=re.compile(r".*(nested|failure|broken).*")
+        test_root_dir, match_pattern=re.compile(r".*(nested|failure|broken|shouldnt).*")
     )
 
 
