@@ -19,8 +19,3 @@ func stop_prank():
     %{ syscall_handler.set_caller_address(None) %}
     return ()
 end
-
-func load{syscall_ptr : felt*}(address : felt) -> (value : felt):
-    %{ syscall_handler.read_storage(address=ids.address, segments=segments, syscall_ptr=ids.syscall_ptr) %}
-    return (value=2)
-end

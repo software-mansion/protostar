@@ -34,13 +34,3 @@ func test_start_stop_prank_cheat{syscall_ptr : felt*}(contract_address : felt):
 
     return ()
 end
-
-@view
-func test_load{syscall_ptr : felt*}(contract_address : felt):
-    # foo.
-    storage_write(1, 2)
-    # let (result) = storage_read(1)
-    let (value) = load(contract_address)
-    assert value = 2
-    return ()
-end
