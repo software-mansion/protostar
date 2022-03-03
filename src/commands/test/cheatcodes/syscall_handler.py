@@ -1,4 +1,4 @@
-from typing import List, cast
+from typing import Dict, List, cast
 
 from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
@@ -57,7 +57,7 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
         return super()._get_caller_address(segments, syscall_ptr)
 
     # mock_call
-    mocked_calls: dict[address, dict[selector, List[int]]] = {}
+    mocked_calls: Dict[address, Dict[selector, List[int]]] = {}
 
     def register_mock_call(
         self, contract_address: address, calldata: str, retdata: List[int]

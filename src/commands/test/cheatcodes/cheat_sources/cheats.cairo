@@ -19,3 +19,8 @@ func stop_prank():
     %{ syscall_handler.set_caller_address(None) %}
     return ()
 end
+
+func mock_call(contract_address : felt, ret_data : felt):
+    %{ syscall_handler.register_mock_call(ids.contract_address, calldata="", ret_data=[ids.ret_data]) %}
+    return ()
+end
