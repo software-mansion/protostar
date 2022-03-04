@@ -32,3 +32,13 @@ func mock_call(contract_address : felt):
     %}
     return ()
 end
+
+func clear_mock_call(contract_address : felt):
+    %{
+        if mocked_fn_name is None:
+                raise Exception("`mocked_fn_name` not found. Did you define `mocked_fn_name` inside a hint before calling this function?")
+        selector = get_selector_from_name(mocked_fn_name)
+        syscall_handler.unregister_mock_call(ids.contract_address, selector)
+    %}
+    return ()
+end

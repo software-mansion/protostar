@@ -66,6 +66,17 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
             self.mocked_calls[contract_address] = {}
         self.mocked_calls[contract_address][selector] = ret_data
 
+    def unregister_mock_call(self, contract_address: AddressType, selector: int):
+        if contract_address not in self.mocked_calls:
+            raise Exception(
+                f"Contract {contract_address} doesn't have mocked selectors."
+            )
+        if selector not in self.mocked_calls[contract_address]:
+            raise Exception(
+                f"Couldn't find mocked selector {selector} for an address {contract_address}."
+            )
+        del self.mocked_calls[contract_address][selector]
+
     def _call_contract(
         self,
         segments: MemorySegmentManager,
