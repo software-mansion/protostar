@@ -20,7 +20,7 @@ func stop_prank():
     return ()
 end
 
-func mock_call(contract_address : felt, ret_data : felt):
-    %{ syscall_handler.register_mock_call(ids.contract_address, calldata="", ret_data=[ids.ret_data]) %}
+func mock_call(contract_address : felt, selector : felt, ret_data : felt):
+    %{ syscall_handler.register_mock_call(ids.contract_address, selector=ids.selector, ret_data=[ids.ret_data]) %}
     return ()
 end

@@ -5,8 +5,8 @@ from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
 from starkware.starknet.security.secure_hints import HintsWhitelist
 
-address = int
-selector = str
+AddressType = int
+SelectorType = int
 
 
 class CheatableSysCallHandler(BusinessLogicSysCallHandler):
@@ -57,14 +57,14 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
         return super()._get_caller_address(segments, syscall_ptr)
 
     # mock_call
-    mocked_calls: Dict[address, Dict[selector, List[int]]] = {}
+    mocked_calls: Dict[AddressType, Dict[SelectorType, List[int]]] = {}
 
     def register_mock_call(
-        self, contract_address: address, calldata: str, retdata: List[int]
+        self, contract_address: AddressType, selector: int, ret_data: List[int]
     ):
         if contract_address not in self.mocked_calls:
             self.mocked_calls[contract_address] = {}
-        self.mocked_calls[contract_address][calldata] = retdata
+        self.mocked_calls[contract_address][selector] = ret_data
 
     def _call_contract(
         self,
@@ -75,14 +75,11 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
         request = self._read_and_validate_syscall_request(
             syscall_name=syscall_name, segments=segments, syscall_ptr=syscall_ptr
         )
-        calldata = segments.memory.get_range_as_ints(
-            addr=request.calldata, size=request.calldata_size
-        )
         code_address = cast(int, request.contract_address)
 
         if code_address in self.mocked_calls:
-            if calldata in self.mocked_calls[code_address]:
-                return self.mocked_calls[code_address][calldata]
+            if request.function_selector in self.mocked_calls[code_address]:
+                return self.mocked_calls[code_address][request.function_selector]
 
         return super()._call_contract(segments, syscall_ptr, syscall_name)
 

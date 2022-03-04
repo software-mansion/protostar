@@ -37,7 +37,10 @@ end
 
 @view
 func test_mock_call{syscall_ptr : felt*, range_check_ptr}(contract_address : felt):
-    mock_call(0x3fe90a1958bb8468fb1b62970747d8a00c435ef96cda708ae8de3d07f1bb56b, 42)
+    mock_call(
+        0x3fe90a1958bb8468fb1b62970747d8a00c435ef96cda708ae8de3d07f1bb56b,
+        1636223440827086009537493065587328807418413867743950350615962740049133672085,
+        42)
     let (res) = IBalanceContract.get_balance(
         contract_address=0x3fe90a1958bb8468fb1b62970747d8a00c435ef96cda708ae8de3d07f1bb56b)
 
