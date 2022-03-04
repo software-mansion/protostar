@@ -20,7 +20,15 @@ func stop_prank():
     return ()
 end
 
-func mock_call(contract_address : felt, selector : felt, ret_data : felt):
-    %{ syscall_handler.register_mock_call(ids.contract_address, selector=ids.selector, ret_data=[ids.ret_data]) %}
+func mock_call(contract_address : felt):
+    %{
+        if mocked_fn_name is None:
+            raise Exception("`mocked_fn_name` not found. Did you define `mocked_fn_name` inside a hint before calling this function?")
+
+        from starkware.starknet.public.abi import get_selector_from_name
+
+        selector = get_selector_from_name(mocked_fn_name)
+        syscall_handler.register_mock_call(ids.contract_address, selector=selector, ret_data=mocked_ret_data)
+    %}
     return ()
 end

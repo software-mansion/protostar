@@ -35,33 +35,64 @@ func test_start_stop_prank_cheat{syscall_ptr : felt*}(contract_address : felt):
     return ()
 end
 
-@view
-func test_mock_call{syscall_ptr : felt*, range_check_ptr}(contract_address : felt):
-    alloc_locals
+const EXTERNAL_CONTRACT_ADDRESS = 0x3fe90a1958bb8468fb1b62970747d8a00c435ef96cda708ae8de3d07f1bb56b
 
-    local external_contract_address = 0x3fe90a1958bb8468fb1b62970747d8a00c435ef96cda708ae8de3d07f1bb56b
-    local selector
-    %{
-        from starkware.starknet.public.abi import get_selector_from_name
-        ids.selector = get_selector_from_name("get_balance")
-    %}
-
-    mock_call(external_contract_address, selector, 21)
-    let (res) = IBalanceContract.get_balance(contract_address=external_contract_address)
-    assert res = 21
-
-    mock_call(external_contract_address, selector, 37)
-    let (res) = IBalanceContract.get_balance(contract_address=external_contract_address)
-    assert res = 37
-
-    return ()
+struct Point:
+    member x : felt
+    member y : felt
 end
 
 @contract_interface
-namespace IBalanceContract:
-    func increase_balance(amount : felt):
+namespace ITestContract:
+    func get_felt() -> (res : felt):
     end
 
-    func get_balance() -> (res : felt):
+    func get_array() -> (res_len : felt, res : felt*):
     end
+
+    func get_struct() -> (res : Point):
+    end
+end
+
+@view
+func test_mock_call_returning_felt{syscall_ptr : felt*, range_check_ptr}(contract_address : felt):
+    %{
+        mocked_fn_name="get_felt"
+        mocked_ret_data = [42]
+    %}
+    mock_call(EXTERNAL_CONTRACT_ADDRESS)
+
+    let (res) = ITestContract.get_felt(EXTERNAL_CONTRACT_ADDRESS)
+
+    assert res = 42
+    return ()
+end
+
+@view
+func test_mock_call_returning_array{syscall_ptr : felt*, range_check_ptr}(contract_address : felt):
+    %{
+        mocked_fn_name="get_array"
+        mocked_ret_data = [1,42]
+    %}
+    mock_call(EXTERNAL_CONTRACT_ADDRESS)
+
+    let (res_len, res_arr) = ITestContract.get_array(EXTERNAL_CONTRACT_ADDRESS)
+
+    assert res_arr[0] = 42
+    return ()
+end
+
+@view
+func test_mock_call_returning_struct{syscall_ptr : felt*, range_check_ptr}(contract_address : felt):
+    %{
+        mocked_fn_name="get_struct"
+        mocked_ret_data = [21,37]
+    %}
+    mock_call(EXTERNAL_CONTRACT_ADDRESS)
+
+    let (res_struct) = ITestContract.get_struct(EXTERNAL_CONTRACT_ADDRESS)
+
+    assert res_struct.x = 21
+    assert res_struct.y = 37
+    return ()
 end
