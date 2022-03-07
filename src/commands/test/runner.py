@@ -1,15 +1,16 @@
 from pathlib import Path
 from typing import List, Optional, Pattern
 
-from starkware.starknet.services.api.contract_definition import ContractDefinition
+from starkware.starknet.services.api.contract_definition import \
+    ContractDefinition
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 
 from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
-from src.commands.test.cheatcodes.internal_transaction import (
-    CheatableInternalInvokeFunction,
-)
-from src.commands.test.cheatcodes.syscall_handler import CheatableSysCallHandler
+from src.commands.test.cheatcodes.internal_transaction import \
+    CheatableInternalInvokeFunction
+from src.commands.test.cheatcodes.syscall_handler import \
+    CheatableSysCallHandler
 from src.commands.test.collector import TestCollector
 from src.commands.test.reporter import TestReporter
 from src.commands.test.utils import TestSubject
