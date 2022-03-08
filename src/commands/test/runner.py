@@ -1,16 +1,17 @@
 from pathlib import Path
 from typing import List, Optional, Pattern
 
-from starkware.starknet.services.api.contract_definition import \
-    ContractDefinition
+from starkware.starknet.services.api.contract_definition import ContractDefinition
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 
 from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
-from src.commands.test.cheatcodes.internal_transaction import \
-    CheatableInternalInvokeFunction
-from src.commands.test.cheatcodes.syscall_handler import \
-    CheatableSysCallHandler
+from src.commands.test.cheatcodes.internal_transaction import (
+    CheatableInternalDeploy,
+    CheatableInternalInvokeFunction,
+)
+from src.commands.test.cheatcodes.state import CheatableStarknetState
+from src.commands.test.cheatcodes.syscall_handler import CheatableSysCallHandler
 from src.commands.test.collector import TestCollector
 from src.commands.test.reporter import TestReporter
 from src.commands.test.utils import TestSubject
@@ -40,6 +41,14 @@ class TestRunner:
             self.include_paths.append(str(project.project_root))
             self.include_paths.append(str(Path(project.project_root, config.libs_path)))
 
+    @replace_class(
+        "starkware.starknet.testing.state.StarknetState",
+        CheatableStarknetState,
+    )
+    @replace_class(
+        "starkware.starknet.business_logic.internal_transaction.InternalDeploy",
+        CheatableInternalDeploy,
+    )
     @replace_class(
         "starkware.starknet.business_logic.internal_transaction.InternalInvokeFunction",
         CheatableInternalInvokeFunction,
