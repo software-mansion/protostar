@@ -10,6 +10,7 @@ from src.commands.test.cheatcodes.internal_transaction import (
     CheatableInternalDeploy,
     CheatableInternalInvokeFunction,
 )
+from src.commands.test.cheatcodes.starknet import CheatableStarknet
 from src.commands.test.cheatcodes.state import CheatableStarknetState
 from src.commands.test.cheatcodes.syscall_handler import CheatableSysCallHandler
 from src.commands.test.collector import TestCollector
@@ -96,7 +97,7 @@ class TestRunner:
     ):
         assert self.reporter, "Uninitialized reporter!"
         try:
-            starknet = await Starknet.empty()
+            starknet = await CheatableStarknet.empty()
             contract = await starknet.deploy(contract_def=test_contract)
         except StarkException as err:
             self.reporter.report(
