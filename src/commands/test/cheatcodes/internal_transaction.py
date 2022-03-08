@@ -5,6 +5,7 @@ from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.business_logic.internal_transaction import (
     InternalDeploy,
     InternalInvokeFunction,
+    InternalTransaction,
 )
 from starkware.starknet.business_logic.state import CarriedState
 from starkware.starknet.business_logic.transaction_execution_objects import (
