@@ -23,10 +23,15 @@ from starkware.starknet.services.api.contract_definition import ContractDefiniti
 @dataclass
 class StarknetCompiler:
     include_paths: List[str]
+    disable_hint_validation: bool = False
 
     def get_starknet_pass_manager(self) -> PassManager:
         read_module = get_module_reader(cairo_path=self.include_paths).read
-        return starknet_pass_manager(DEFAULT_PRIME, read_module)
+        return starknet_pass_manager(
+            DEFAULT_PRIME,
+            read_module,
+            disable_hint_validation=self.disable_hint_validation,
+        )
 
     def preprocess_contract(
         self, *cairo_file_paths: Path
