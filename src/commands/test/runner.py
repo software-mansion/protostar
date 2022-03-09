@@ -3,7 +3,6 @@ from typing import List, Optional, Pattern
 
 from starkware.starknet.business_logic.internal_transaction import InternalTransaction
 from starkware.starknet.services.api.contract_definition import ContractDefinition
-from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 
 from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
@@ -68,6 +67,9 @@ class TestRunner:
         InternalTransaction.external_to_internal_cls[
             CheatableInternalInvokeFunction.related_external_cls
         ] = CheatableInternalInvokeFunction
+        InternalTransaction.external_to_internal_cls[
+            CheatableInternalDeploy.related_external_cls
+        ] = CheatableInternalDeploy
 
         self.reporter = TestReporter(src)
         assert self.include_paths is not None, "Uninitialized paths list in test runner"
@@ -102,7 +104,7 @@ class TestRunner:
     ):
         assert self.reporter, "Uninitialized reporter!"
         try:
-            starknet = await Starknet.empty()
+            starknet = await CheatableStarknet.empty()
             contract = await starknet.deploy(contract_def=test_contract)
         except StarkException as err:
             self.reporter.report(

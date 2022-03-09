@@ -5,15 +5,17 @@ from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.business_logic.internal_transaction import (
     InternalDeploy,
     InternalInvokeFunction,
-    InternalTransaction,
 )
 from starkware.starknet.business_logic.state import CarriedState
 from starkware.starknet.business_logic.transaction_execution_objects import (
+    ContractCall,
     TransactionExecutionContext,
     TransactionExecutionInfo,
 )
 from starkware.starknet.core.os import syscall_utils
+from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
+from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.services.api.contract_definition import (
     ContractDefinition,
     EntryPointType,
@@ -29,6 +31,7 @@ from starkware.starknet.services.api.gateway.transaction import (
 from starkware.starknet.services.api.gateway.transaction_hash import (
     calculate_deploy_transaction_hash,
 )
+from starkware.starkware_utils.error_handling import stark_assert
 
 
 class CheatableInternalInvokeFunction(InternalInvokeFunction):
@@ -62,7 +65,37 @@ class CheatableInternalDeploy(InternalDeploy):
     async def invoke_constructor(
         self, state: CarriedState, general_config: StarknetGeneralConfig
     ) -> TransactionExecutionInfo:
-        raise BaseException("test")
+        if (
+            len(
+                self.contract_definition.entry_points_by_type[
+                    EntryPointType.CONSTRUCTOR
+                ]
+            )
+            == 0
+        ):
+            stark_assert(
+                len(self.constructor_calldata) == 0,
+                code=StarknetErrorCode.TRANSACTION_FAILED,
+                message="Cannot pass calldata to a contract with no constructor.",
+            )
+            return TransactionExecutionInfo.create(
+                call_info=ContractCall.empty(to_address=self.contract_address)
+            )
+
+        tx = CheatableInternalInvokeFunction(
+            contract_address=self.contract_address,
+            code_address=self.contract_address,
+            entry_point_selector=get_selector_from_name("constructor"),
+            entry_point_type=EntryPointType.CONSTRUCTOR,
+            calldata=self.constructor_calldata,
+            signature=[],
+            hash_value=0,
+            caller_address=0,
+        )
+
+        return await tx._apply_specific_state_updates(
+            state=state, general_config=general_config
+        )
 
     @classmethod
     def _specific_from_external(
