@@ -17,6 +17,7 @@ python = ">=3.7.12, <3.10"
 requests = "^2.27.1"
 tomli = "<2.0.0"
 typing-extensions = "^4.0.1"
+tomli-w = "^1.0.0"
 
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
