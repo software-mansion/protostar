@@ -31,6 +31,7 @@ class TestRunner:
         project: Optional[Project] = None,
         include_paths: Optional[List[str]] = None,
     ):
+        self._is_test_error_expected = False
         self.include_paths = include_paths or []
         self.include_paths.append(
             str(Path(current_directory, "cheatcodes", "cheat_sources"))
@@ -101,15 +102,37 @@ class TestRunner:
 
                 # TODO: Improve stacktrace
                 call_result = await func(contract.contract_address).call()
-                self.reporter.report(
-                    subject=test_subject, case_result=PassedCase(tx_info=call_result)
-                )
+                if self._is_test_error_expected:
+                    self.reporter.report(
+                        subject=test_subject,
+                        case_result=FailedCase(
+                            file_path=test_subject.test_path,
+                            function_name=function["name"],
+                            exception=BaseException("Excpected Revert."),
+                        ),
+                    )
+                else:
+                    self.reporter.report(
+                        subject=test_subject,
+                        case_result=PassedCase(tx_info=call_result),
+                    )
             except StarkException as ex:
-                self.reporter.report(
-                    subject=test_subject,
-                    case_result=FailedCase(
-                        file_path=test_subject.test_path,
-                        function_name=function["name"],
-                        exception=ex,
-                    ),
-                )
+                if self._is_test_error_expected:
+                    self._is_test_error_expected = False
+                    self.reporter.report(
+                        subject=test_subject,
+                        case_result=PassedCase(tx_info=None),
+                    )
+                else:
+                    self.reporter.report(
+                        subject=test_subject,
+                        case_result=FailedCase(
+                            file_path=test_subject.test_path,
+                            function_name=function["name"],
+                            exception=ex,
+                        ),
+                    )
+            self._is_test_error_expected = False
+
+    def except_revert(self):
+        self._is_test_error_expected = True
