@@ -64,4 +64,4 @@ if [[ ":$PATH:" != *":${PROTOSTAR_BIN_DIR}:"* ]]; then
 fi
 
 echo && echo "Detected your preferred shell is ${PREF_SHELL} and added protostar to PATH. Run 'source ${PROFILE}' or start a new terminal session to use protostar."
-echo "Then, simply run 'protostar' "
+echo "Then, simply run 'protostar --help' "

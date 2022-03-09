@@ -10,35 +10,37 @@ version = "0.1.0"
 [tool.poetry.dependencies]
 GitPython = "^3.1.26"
 argparse = "^1.4.0"
-colorama = "^0.4.4"
-tomli-w = "^1.0.0"
-python = ">=3.7.12, <3.10"
-typing-extensions = "^4.0.1"
-requests = "^2.27.1"
-packaging = "^21.3"
-tomli = "<2.0.0"
 cairo-lang = "0.7.1"
+colorama = "^0.4.4"
+packaging = "^21.3"
+python = ">=3.7.12, <3.10"
+requests = "^2.27.1"
+tomli = "<2.0.0"
+typing-extensions = "^4.0.1"
+tomli-w = "^1.0.0"
 
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
 coverage = "^6.3.1"
+pexpect = "^4.8.0"
 poethepoet = "^0.12.2"
 pyinstaller = "^4.9"
 pylint = "^2.12.2"
 pyright = "^0.0.13"
 pytest = "^6.2.5"
 pytest-mock = "^3.7.0"
+pytest-timeout = "^2.1.0"
 
 [tool.poe.tasks]
 ci = ["type_check", "lint", "format_check", "test"]
 format = "black ."
 format_check = "black --check src"
 lint = "pylint src"
-test = ["test_unit"]
+test = ["test_unit", "test_e2e"]
+test_e2e.shell = "pytest tests/*"
 test_html = [{shell = "coverage html && open ./htmlcov/index.html"}]
 test_report = [{shell = "coverage report"}]
-test_unit.shell = "coverage run -m pytest"
-test_xml = [{shell = "poe test_unit && coverage xml"}]
+test_unit.shell = "coverage run -m pytest src/*"
 type_check = "pyright"
 
 [tool.coverage.run]
