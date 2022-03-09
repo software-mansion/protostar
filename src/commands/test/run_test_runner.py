@@ -1,6 +1,6 @@
 from pathlib import Path
 from re import Pattern
-from typing import Optional, List
+from typing import List, Optional
 
 from src.commands.test.runner import TestRunner
 from src.utils.config.project import Project

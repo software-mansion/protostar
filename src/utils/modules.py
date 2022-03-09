@@ -23,3 +23,9 @@ def replace_class(full_path: str, new_module):
         return with_replaced_class
 
     return replace_class_instance
+
+
+def patch_class(full_path: str, new_module):
+    class_name = full_path.split(".")[-1]
+    module_name = ".".join(full_path.split(".")[:-1])
+    setattr(sys.modules[module_name], class_name, new_module)
