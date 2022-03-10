@@ -8,7 +8,7 @@ from starkware.starkware_utils.error_handling import StarkException
 
 from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
 from src.commands.test.cheatcodes.curry_run_from_entrypoint import (
-    curry_run_from_entrypoint,
+    inject_protostar_hint_locals,
 )
 from src.commands.test.cheatcodes.syscall_handler import CheatableSysCallHandler
 from src.commands.test.collector import TestCollector
@@ -36,7 +36,7 @@ class TestRunner:
         self.include_paths.append(
             str(Path(current_directory, "cheatcodes", "cheat_sources"))
         )
-        CairoFunctionRunner.run_from_entrypoint = curry_run_from_entrypoint(
+        CairoFunctionRunner.run_from_entrypoint = inject_protostar_hint_locals(
             CairoFunctionRunner.run_from_entrypoint, self
         )
         if project:

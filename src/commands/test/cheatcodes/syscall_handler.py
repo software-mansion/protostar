@@ -1,9 +1,12 @@
+from collections import defaultdict
 from typing import Dict, List, cast
 
 from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
 from starkware.starknet.security.secure_hints import HintsWhitelist
+
+from src.commands.test.cheatcodes.cheatcode_exceptions import CheatcodeException
 
 AddressType = int
 SelectorType = int
@@ -57,22 +60,20 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
         return super()._get_caller_address(segments, syscall_ptr)
 
     # mock_call
-    mocked_calls: Dict[AddressType, Dict[SelectorType, List[int]]] = {}
+    mocked_calls: Dict[AddressType, Dict[SelectorType, List[int]]] = defaultdict(dict)
 
     def register_mock_call(
         self, contract_address: AddressType, selector: int, ret_data: List[int]
     ):
-        if contract_address not in self.mocked_calls:
-            self.mocked_calls[contract_address] = {}
         self.mocked_calls[contract_address][selector] = ret_data
 
     def unregister_mock_call(self, contract_address: AddressType, selector: int):
         if contract_address not in self.mocked_calls:
-            raise Exception(
+            raise CheatcodeException(
                 f"Contract {contract_address} doesn't have mocked selectors."
             )
         if selector not in self.mocked_calls[contract_address]:
-            raise Exception(
+            raise CheatcodeException(
                 f"Couldn't find mocked selector {selector} for an address {contract_address}."
             )
         del self.mocked_calls[contract_address][selector]
