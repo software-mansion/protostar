@@ -1,5 +1,6 @@
-from pathlib import Path
 import shutil
+from pathlib import Path
+
 from colorama import Fore
 from git.repo import Repo
 
