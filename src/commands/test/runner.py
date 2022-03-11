@@ -135,6 +135,4 @@ class TestRunner:
             self._is_test_error_expected = False
 
     def except_revert(self):
-        if self:
-            raise BaseException("PATCHING WORKS")
         self._is_test_error_expected = True
