@@ -36,9 +36,7 @@ class TestRunner:
         self.include_paths.append(
             str(Path(current_directory, "cheatcodes", "cheat_sources"))
         )
-        CairoFunctionRunner.run_from_entrypoint = inject_protostar_hint_locals(
-            CairoFunctionRunner.run_from_entrypoint, self
-        )
+
         if project:
             config = project.load_config()
             self.include_paths.append(str(project.project_root))
@@ -54,6 +52,11 @@ class TestRunner:
         match_pattern: Optional[Pattern] = None,
         omit_pattern: Optional[Pattern] = None,
     ):
+        original_run_from_entrypoint = CairoFunctionRunner.run_from_entrypoint
+        CairoFunctionRunner.run_from_entrypoint = inject_protostar_hint_locals(
+            CairoFunctionRunner.run_from_entrypoint, self
+        )
+
         self.reporter = TestReporter(src)
         assert self.include_paths is not None, "Uninitialized paths list in test runner"
         test_subjects = TestCollector(
@@ -78,6 +81,7 @@ class TestRunner:
                 functions=test_subject.test_functions,
             )
         self.reporter.report_summary()
+        CairoFunctionRunner.run_from_entrypoint = original_run_from_entrypoint
 
     async def _run_test_functions(
         self,
