@@ -56,12 +56,9 @@ end
 
 @view
 func test_mock_call_returning_felt{syscall_ptr : felt*, range_check_ptr}(contract_address : felt):
-    %{
-        mocked_fn_name="get_felt"
-        mocked_ret_data = [42]
-    %}
-    mock_call(EXTERNAL_CONTRACT_ADDRESS)
+    tempvar external_contract_address = EXTERNAL_CONTRACT_ADDRESS
 
+    %{ mock_call(ids.external_contract_address, "get_felt", [42]) %}
     let (res) = ITestContract.get_felt(EXTERNAL_CONTRACT_ADDRESS)
 
     assert res = 42
