@@ -7,7 +7,7 @@ from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 
 from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
-from src.commands.test.cheatcodes.curry_run_from_entrypoint import (
+from src.commands.test.cheatcodes.inject_protostar_hint_locals import (
     inject_protostar_hint_locals,
 )
 from src.commands.test.cheatcodes.syscall_handler import CheatableSysCallHandler
