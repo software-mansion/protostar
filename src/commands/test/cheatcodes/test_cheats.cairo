@@ -107,8 +107,8 @@ func test_clearing_mocks{syscall_ptr : felt*, range_check_ptr}(contract_address 
     let (res) = ITestContract.get_felt(EXTERNAL_CONTRACT_ADDRESS)
     assert res = 42
 
-    # clear_mock_call(EXTERNAL_CONTRACT_ADDRESS)
-    # except_revert()
-    # let (res) = ITestContract.get_felt(EXTERNAL_CONTRACT_ADDRESS)
+    clear_mock_call(EXTERNAL_CONTRACT_ADDRESS)
+    except_revert()
+    let (res) = ITestContract.get_felt(EXTERNAL_CONTRACT_ADDRESS)
     return ()
 end
