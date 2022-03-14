@@ -1,6 +1,6 @@
 %lang starknet
 
-from cheats import roll, warp, start_prank, stop_prank, mock_call, clear_mock_call
+from cheats import roll, warp, start_prank, stop_prank, mock_call, clear_mock_call, expect_revert
 from starkware.starknet.common.syscalls import (
     get_block_number, get_block_timestamp, get_caller_address)
 from starkware.cairo.common.math import assert_not_equal
@@ -97,18 +97,18 @@ func test_mock_call_returning_struct{syscall_ptr : felt*, range_check_ptr}(contr
     return ()
 end
 
-# TODO: enable test one expectRevert cheatcode is available
-# @view
-# func test_clearing_mocks{syscall_ptr : felt*, range_check_ptr}(contract_address : felt):
-#     %{
-#         mocked_fn_name="get_felt"
-#         mocked_ret_data = [42]
-#     %}
-#     mock_call(EXTERNAL_CONTRACT_ADDRESS)
-#     let (res) = ITestContract.get_felt(EXTERNAL_CONTRACT_ADDRESS)
-#     assert res = 42
+@view
+func test_clearing_mocks{syscall_ptr : felt*, range_check_ptr}(contract_address : felt):
+    %{
+        mocked_fn_name="get_felt"
+        mocked_ret_data = [42]
+    %}
+    mock_call(EXTERNAL_CONTRACT_ADDRESS)
+    let (res) = ITestContract.get_felt(EXTERNAL_CONTRACT_ADDRESS)
+    assert res = 42
 
-# clear_mock_call(EXTERNAL_CONTRACT_ADDRESS)
-#     let (res) = ITestContract.get_felt(EXTERNAL_CONTRACT_ADDRESS)  # expect error
-#     return ()
-# end
+    clear_mock_call(EXTERNAL_CONTRACT_ADDRESS)
+    expect_revert()
+    let (res) = ITestContract.get_felt(EXTERNAL_CONTRACT_ADDRESS)
+    return ()
+end
