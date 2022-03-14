@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional, Pattern
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.public.abi import get_selector_from_name
 
-from src.commands.test.cheatcodes.syscall_handler import CheatableSysCallHandler
+from src.commands.test.cheatable_syscall_handler import CheatableSysCallHandler
 from src.commands.test.runner import TestRunner
 from src.utils.modules import replace_class
 

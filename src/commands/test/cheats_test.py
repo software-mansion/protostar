@@ -10,6 +10,6 @@ current_directory = Path(__file__).parent
 @pytest.mark.asyncio
 async def test_cheatcodes():
     runner = TestRunnerWithCheatcodes()
-    await runner.run_tests_in(current_directory)
+    await runner.run_tests_in(current_directory / "examples" / "cheats")
     assert runner.reporter
     assert not runner.reporter.failed_cases

@@ -6,10 +6,12 @@ from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
 from starkware.starknet.security.secure_hints import HintsWhitelist
 
-from src.commands.test.cheatcodes.cheatcode_exceptions import CheatcodeException
-
 AddressType = int
 SelectorType = int
+
+
+class CheatcodeException(BaseException):
+    pass
 
 
 class CheatableSysCallHandler(BusinessLogicSysCallHandler):
