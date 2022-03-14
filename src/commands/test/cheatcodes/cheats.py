@@ -54,5 +54,5 @@ def inject_cheats_into_hint_locals(
         )
 
     @register_cheatcode
-    def except_revert():
-        modifiable_units["test_runner"].except_revert()
+    def expect_revert():
+        modifiable_units["test_runner"].expect_revert()
