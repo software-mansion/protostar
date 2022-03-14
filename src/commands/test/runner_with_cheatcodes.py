@@ -1,5 +1,4 @@
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Pattern
+from typing import Any, Dict, List
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.public.abi import get_selector_from_name
@@ -14,19 +13,14 @@ class TestRunnerWithCheatcodes(TestRunner):
         "starkware.starknet.core.os.syscall_utils.BusinessLogicSysCallHandler",
         CheatableSysCallHandler,
     )
-    async def run_tests_in(
-        self,
-        src: Path,
-        match_pattern: Optional[Pattern] = None,
-        omit_pattern: Optional[Pattern] = None,
-    ):
+    async def run_tests_in(self, *args, **kwargs):
         original_run_from_entrypoint = CairoFunctionRunner.run_from_entrypoint
         CairoFunctionRunner.run_from_entrypoint = (
             self._get_run_from_entrypoint_with_custom_hint_locals(
                 CairoFunctionRunner.run_from_entrypoint
             )
         )
-        await super().run_tests_in(src, match_pattern, omit_pattern)
+        await super().run_tests_in(*args, **kwargs)
         CairoFunctionRunner.run_from_entrypoint = original_run_from_entrypoint
 
     def _get_run_from_entrypoint_with_custom_hint_locals(
