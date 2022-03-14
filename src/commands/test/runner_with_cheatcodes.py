@@ -10,8 +10,6 @@ from src.utils.modules import replace_class
 
 
 class TestRunnerWithCheatcodes(TestRunner):
-    _cheatable_syscall_handler: Optional[CheatableSysCallHandler]
-
     @replace_class(
         "starkware.starknet.core.os.syscall_utils.BusinessLogicSysCallHandler",
         CheatableSysCallHandler,
@@ -39,11 +37,8 @@ class TestRunnerWithCheatcodes(TestRunner):
             **kwargs,
         ):
             if "hint_locals" in kwargs and kwargs["hint_locals"] is not None:
-                self._cheatable_syscall_handler = kwargs["hint_locals"][
-                    "syscall_handler"
-                ]
                 self._inject_cheats_into_hint_locals(
-                    kwargs["hint_locals"],
+                    kwargs["hint_locals"], kwargs["hint_locals"]["syscall_handler"]
                 )
 
             return fn_run_from_entrypoint(
@@ -53,40 +48,44 @@ class TestRunnerWithCheatcodes(TestRunner):
 
         return modified_run_from_entrypoint
 
-    def _inject_cheats_into_hint_locals(self, hint_locals: Dict[str, Any]):
+    def _inject_cheats_into_hint_locals(
+        self,
+        hint_locals: Dict[str, Any],
+        cheatable_syscall_handler: CheatableSysCallHandler,
+    ):
+        assert cheatable_syscall_handler is not None
+
         def register_cheatcode(func):
             hint_locals[func.__name__] = func
             return func
 
         @register_cheatcode
         def roll(blk_number: int):
-            self._cheatable_syscall_handler.set_block_number(blk_number)
+            cheatable_syscall_handler.set_block_number(blk_number)
 
         @register_cheatcode
         def warp(blk_timestamp: int):
-            self._cheatable_syscall_handler.set_block_timestamp(blk_timestamp)
+            cheatable_syscall_handler.set_block_timestamp(blk_timestamp)
 
         @register_cheatcode
         def start_prank(caller_address: int):
-            self._cheatable_syscall_handler.set_caller_address(caller_address)
+            cheatable_syscall_handler.set_caller_address(caller_address)
 
         @register_cheatcode
         def stop_prank():
-            self._cheatable_syscall_handler.set_caller_address(None)
+            cheatable_syscall_handler.set_caller_address(None)
 
         @register_cheatcode
         def mock_call(contract_address: int, fn_name: str, ret_data: List[int]):
             selector = get_selector_from_name(fn_name)
-            self._cheatable_syscall_handler.register_mock_call(
+            cheatable_syscall_handler.register_mock_call(
                 contract_address, selector=selector, ret_data=ret_data
             )
 
         @register_cheatcode
         def clear_mock_call(contract_address: int, fn_name: str):
             selector = get_selector_from_name(fn_name)
-            self._cheatable_syscall_handler.unregister_mock_call(
-                contract_address, selector
-            )
+            cheatable_syscall_handler.unregister_mock_call(contract_address, selector)
 
         @register_cheatcode
         def expect_revert():
