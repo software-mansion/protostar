@@ -43,7 +43,7 @@ func clear_mock_call(contract_address : felt):
     return ()
 end
 
-func except_revert():
-    %{ __test_runner.except_revert() %}
+func expect_revert():
+    %{ __test_runner.expect_revert() %}
     return ()
 end

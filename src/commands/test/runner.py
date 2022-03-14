@@ -112,7 +112,7 @@ class TestRunner:
                         case_result=FailedCase(
                             file_path=test_subject.test_path,
                             function_name=function["name"],
-                            exception=BaseException("Excpected Revert."),
+                            exception=BaseException("Expected revert"),
                         ),
                     )
                 else:
@@ -138,5 +138,5 @@ class TestRunner:
                     )
             self._is_test_error_expected = False
 
-    def except_revert(self):
+    def expect_revert(self):
         self._is_test_error_expected = True
