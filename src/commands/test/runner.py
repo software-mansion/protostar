@@ -20,6 +20,8 @@ from src.utils.starknet_compilation import StarknetCompiler
 
 current_directory = Path(__file__).parent
 
+# fake comment to be able to resolve conflict
+
 
 class TestRunner:
     reporter: Optional[TestReporter] = None
