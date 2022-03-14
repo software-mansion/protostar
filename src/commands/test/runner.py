@@ -33,9 +33,6 @@ class TestRunner:
     ):
         self._is_test_error_expected = False
         self.include_paths = include_paths or []
-        self.include_paths.append(
-            str(Path(current_directory, "cheatcodes", "cheat_sources"))
-        )
 
         if project:
             config = project.load_config()

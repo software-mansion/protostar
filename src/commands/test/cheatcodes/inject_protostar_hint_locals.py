@@ -13,7 +13,7 @@ def inject_protostar_hint_locals(fn_run_from_entrypoint, test_runner):
             kwargs["hint_locals"]["__test_runner"] = test_runner
             inject_cheats_into_hint_locals(
                 kwargs["hint_locals"],
-                modified_units=ModifiedUnits(
+                modifiable_units=ModifiedUnits(
                     test_runner=test_runner,
                     cheatable_syscall_handler=kwargs["hint_locals"]["syscall_handler"],
                 ),

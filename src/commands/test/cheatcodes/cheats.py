@@ -17,35 +17,42 @@ class ModifiedUnits(TypedDict):
 
 
 def inject_cheats_into_hint_locals(
-    hint_locals: Dict[str, Any], modified_units: ModifiedUnits
+    hint_locals: Dict[str, Any], modifiable_units: ModifiedUnits
 ):
     def register_cheatcode(func):
         hint_locals[func.__name__] = func
         return func
 
-    # func roll(blk_number : felt):
-    #     %{ syscall_handler.set_block_number(ids.blk_number) %}
-    #     return ()
-    # end
+    @register_cheatcode
+    def roll(blk_number: int):
+        modifiable_units["cheatable_syscall_handler"].set_block_number(blk_number)
 
-    # func warp(blk_timestamp : felt):
-    #     %{ syscall_handler.set_block_timestamp(ids.blk_timestamp) %}
-    #     return ()
-    # end
+    @register_cheatcode
+    def warp(blk_timestamp: int):
+        modifiable_units["cheatable_syscall_handler"].set_block_timestamp(blk_timestamp)
 
-    # func start_prank(caller_address : felt):
-    #     %{ syscall_handler.set_caller_address(ids.caller_address) %}
-    #     return ()
-    # end
+    @register_cheatcode
+    def start_prank(caller_address: int):
+        modifiable_units["cheatable_syscall_handler"].set_caller_address(caller_address)
 
-    # func stop_prank():
-    #     %{ syscall_handler.set_caller_address(None) %}
-    #     return ()
-    # end
+    @register_cheatcode
+    def stop_prank():
+        modifiable_units["cheatable_syscall_handler"].set_caller_address(None)
 
     @register_cheatcode
     def mock_call(contract_address: int, fn_name: str, ret_data: List[int]):
         selector = get_selector_from_name(fn_name)
-        modified_units["cheatable_syscall_handler"].register_mock_call(
+        modifiable_units["cheatable_syscall_handler"].register_mock_call(
             contract_address, selector=selector, ret_data=ret_data
         )
+
+    @register_cheatcode
+    def clear_mock_call(contract_address: int, fn_name: str):
+        selector = get_selector_from_name(fn_name)
+        modifiable_units["cheatable_syscall_handler"].unregister_mock_call(
+            contract_address, selector
+        )
+
+    @register_cheatcode
+    def except_revert():
+        modifiable_units["test_runner"].except_revert()
