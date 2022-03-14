@@ -102,3 +102,14 @@ func test_clearing_mocks{syscall_ptr : felt*, range_check_ptr}(contract_address 
     let (res) = ITestContract.get_felt(EXTERNAL_CONTRACT_ADDRESS)
     return ()
 end
+
+@event
+func event_fixture(some_value : felt):
+end
+
+@view
+func test_expect_event{syscall_ptr : felt*, range_check_ptr}(contract_address : felt):
+    event_fixture.emit(some_value=42)
+
+    return ()
+end
