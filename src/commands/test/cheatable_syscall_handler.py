@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Dict, List, cast
+from typing import Dict, List
 
 from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
@@ -80,22 +80,22 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
             )
         del self.mocked_calls[contract_address][selector]
 
-    def _call_contract(
-        self,
-        segments: MemorySegmentManager,
-        syscall_ptr: RelocatableValue,
-        syscall_name: str,
-    ) -> List[int]:
-        request = self._read_and_validate_syscall_request(
-            syscall_name=syscall_name, segments=segments, syscall_ptr=syscall_ptr
-        )
-        code_address = cast(int, request.contract_address)
+    # def _call_contract(
+    #     self,
+    #     segments: MemorySegmentManager,
+    #     syscall_ptr: RelocatableValue,
+    #     syscall_name: str,
+    # ) -> List[int]:
+    #     request = self._read_and_validate_syscall_request(
+    #         syscall_name=syscall_name, segments=segments, syscall_ptr=syscall_ptr
+    #     )
+    #     code_address = cast(int, request.contract_address)
 
-        if code_address in self.mocked_calls:
-            if request.function_selector in self.mocked_calls[code_address]:
-                return self.mocked_calls[code_address][request.function_selector]
+    #     if code_address in self.mocked_calls:
+    #         if request.function_selector in self.mocked_calls[code_address]:
+    #             return self.mocked_calls[code_address][request.function_selector]
 
-        return super()._call_contract(segments, syscall_ptr, syscall_name)
+    # return super()._call_contract(segments, syscall_ptr, syscall_name)
 
 
 class CheatableHintsWhitelist(HintsWhitelist):
