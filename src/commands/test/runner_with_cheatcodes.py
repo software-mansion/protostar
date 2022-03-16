@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.public.abi import get_selector_from_name
@@ -84,3 +84,7 @@ class TestRunnerWithCheatcodes(TestRunner):
         @register_cheatcode
         def expect_revert():
             self.expect_revert()
+
+        @register_cheatcode
+        def expect_emit(value: List[int]):
+            cheatable_syscall_handler.expect_emit_on_next_call(value)

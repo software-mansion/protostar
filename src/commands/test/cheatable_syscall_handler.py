@@ -1,8 +1,11 @@
 from collections import defaultdict
-from typing import Dict, List, cast
+from typing import Dict, List, Optional, cast
 
 from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
+from starkware.starknet.business_logic.transaction_execution_objects import (
+    OrderedEventContent,
+)
 from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
 from starkware.starknet.security.secure_hints import HintsWhitelist
 
@@ -86,6 +89,9 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
         syscall_ptr: RelocatableValue,
         syscall_name: str,
     ) -> List[int]:
+        if self._expected_event_value is not None:
+            self._emit_is_expected = True
+
         request = self._read_and_validate_syscall_request(
             syscall_name=syscall_name, segments=segments, syscall_ptr=syscall_ptr
         )
@@ -96,6 +102,43 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
                 return self.mocked_calls[code_address][request.function_selector]
 
         return super()._call_contract(segments, syscall_ptr, syscall_name)
+
+    _emit_is_expected = False
+    _expected_event_value: Optional[List[int]] = None
+
+    def expect_emit_on_next_call(self, value: List[int]):
+        self._expected_event_value = value
+
+    # def emit_event(self, segments: MemorySegmentManager, syscall_ptr: RelocatableValue):
+    #     request = self._read_and_validate_syscall_request(
+    #         syscall_name="emit_event", segments=segments, syscall_ptr=syscall_ptr
+    #     )
+
+    #     data = segments.memory.get_range_as_ints(
+    #         addr=cast(RelocatableValue, request.data),
+    #         size=cast(int, request.data_len),
+    #     )
+
+    #     if self._emit_is_expected:
+    #         if data != _expected_event_value:
+    #             raise CheatcodeException("Event")
+
+    #     # Update events count.
+    #     self.tx_execution_context.n_emitted_events += 1
+
+    #     self.events.append(
+    #         OrderedEventContent(
+    #             order=self.tx_execution_context.n_emitted_events - 1,
+    #             keys=segments.memory.get_range_as_ints(
+    #                 addr=cast(RelocatableValue, request.keys),
+    #                 size=cast(int, request.keys_len),
+    #             ),
+    #             data=segments.memory.get_range_as_ints(
+    #                 addr=cast(RelocatableValue, request.data),
+    #                 size=cast(int, request.data_len),
+    #             ),
+    #         )
+    #     )
 
 
 class CheatableHintsWhitelist(HintsWhitelist):
