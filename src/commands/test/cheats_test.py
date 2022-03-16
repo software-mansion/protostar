@@ -2,14 +2,14 @@ from pathlib import Path
 
 import pytest
 
-from src.commands.test.runner import TestRunner
+from src.commands.test import TestRunnerWithCheatcodes
 
 current_directory = Path(__file__).parent
 
 
 @pytest.mark.asyncio
 async def test_cheatcodes():
-    runner = TestRunner()
-    await runner.run_tests_in(current_directory)
+    runner = TestRunnerWithCheatcodes()
+    await runner.run_tests_in(current_directory / "examples" / "cheats")
     assert runner.reporter
     assert not runner.reporter.failed_cases
