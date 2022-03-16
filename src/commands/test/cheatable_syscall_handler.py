@@ -1,10 +1,17 @@
 from collections import defaultdict
-from typing import Dict, List
+from typing import Dict, List, cast
 
 from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
-from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
+from starkware.starknet.business_logic.transaction_execution_objects import (
+    ContractCallResponse,
+)
+from starkware.starknet.core.os.syscall_utils import (
+    BusinessLogicSysCallHandler,
+    count_syscall,
+)
 from starkware.starknet.security.secure_hints import HintsWhitelist
+from starkware.starknet.services.api.contract_definition import EntryPointType
 
 AddressType = int
 SelectorType = int
@@ -80,22 +87,88 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
             )
         del self.mocked_calls[contract_address][selector]
 
-    # def _call_contract(
-    #     self,
-    #     segments: MemorySegmentManager,
-    #     syscall_ptr: RelocatableValue,
-    #     syscall_name: str,
-    # ) -> List[int]:
-    #     request = self._read_and_validate_syscall_request(
-    #         syscall_name=syscall_name, segments=segments, syscall_ptr=syscall_ptr
-    #     )
-    #     code_address = cast(int, request.contract_address)
+    def _call_contract(
+        self,
+        segments: MemorySegmentManager,
+        syscall_ptr: RelocatableValue,
+        syscall_name: str,
+    ) -> List[int]:
+        request = self._read_and_validate_syscall_request(
+            syscall_name=syscall_name, segments=segments, syscall_ptr=syscall_ptr
+        )
+        code_address = cast(int, request.contract_address)
 
-    #     if code_address in self.mocked_calls:
-    #         if request.function_selector in self.mocked_calls[code_address]:
-    #             return self.mocked_calls[code_address][request.function_selector]
+        if code_address in self.mocked_calls:
+            if request.function_selector in self.mocked_calls[code_address]:
+                return self.mocked_calls[code_address][request.function_selector]
 
-    # return super()._call_contract(segments, syscall_ptr, syscall_name)
+        return self._call_contract_without_retrieving_request(
+            segments, syscall_name, request
+        )
+
+    @count_syscall
+    def _call_contract_without_retrieving_request(
+        self,
+        segments: MemorySegmentManager,
+        syscall_name: str,
+        request,
+    ) -> List[int]:
+        calldata = segments.memory.get_range_as_ints(
+            addr=request.calldata, size=request.calldata_size
+        )
+
+        code_address = cast(int, request.contract_address)
+        if syscall_name == "call_contract":
+            contract_address = code_address
+            caller_address = self.contract_address
+            entry_point_type = EntryPointType.EXTERNAL
+        elif syscall_name == "delegate_call":
+            contract_address = self.contract_address
+            caller_address = self.caller_address
+            entry_point_type = EntryPointType.EXTERNAL
+        elif syscall_name == "delegate_l1_handler":
+            contract_address = self.contract_address
+            caller_address = self.caller_address
+            entry_point_type = EntryPointType.L1_HANDLER
+        else:
+            raise NotImplementedError(f"Unsupported call type {syscall_name}.")
+
+        from starkware.starknet.business_logic.internal_transaction import (
+            InternalInvokeFunction,
+        )
+
+        tx = InternalInvokeFunction(
+            contract_address=contract_address,
+            code_address=code_address,
+            entry_point_selector=cast(int, request.function_selector),
+            entry_point_type=entry_point_type,
+            calldata=calldata,
+            signature=[],
+            hash_value=0,
+            caller_address=caller_address,
+        )
+
+        with super().contract_call_execution_context(
+            tx=tx, called_contract_address=tx.contract_address
+        ):
+            # Execute contract call.
+            # pylint: disable=protected-access
+            execution_info = tx._synchronous_apply_specific_state_updates(
+                state=self.state,
+                general_config=self.general_config,
+                loop=self.loop,
+                tx_execution_context=self.tx_execution_context,
+            )
+
+        # Update execution info.
+        self.l2_to_l1_messages.extend(execution_info.l2_to_l1_messages)
+        call_response = ContractCallResponse(
+            retdata=execution_info.retdata,
+        )
+        self.internal_call_responses.append(call_response)
+        self.internal_calls.extend(execution_info.contract_calls)
+
+        return call_response.retdata
 
 
 class CheatableHintsWhitelist(HintsWhitelist):

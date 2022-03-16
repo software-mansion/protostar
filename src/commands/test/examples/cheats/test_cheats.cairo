@@ -42,6 +42,69 @@ struct Point:
 end
 
 @contract_interface
+namespace ITestContract:
+    func get_felt() -> (res : felt):
+    end
+
+    func get_array() -> (res_len : felt, res : felt*):
+    end
+
+    func get_struct() -> (res : Point):
+    end
+end
+
+@view
+func test_mock_call_returning_felt{syscall_ptr : felt*, range_check_ptr}():
+    tempvar external_contract_address = EXTERNAL_CONTRACT_ADDRESS
+    %{ mock_call(ids.external_contract_address, "get_felt", [42]) %}
+
+    let (res) = ITestContract.get_felt(EXTERNAL_CONTRACT_ADDRESS)
+
+    assert res = 42
+    return ()
+end
+
+@view
+func test_mock_call_returning_array{syscall_ptr : felt*, range_check_ptr}():
+    tempvar external_contract_address = EXTERNAL_CONTRACT_ADDRESS
+    %{ mock_call(ids.external_contract_address, "get_array", [1, 42]) %}
+
+    let (res_len, res_arr) = ITestContract.get_array(EXTERNAL_CONTRACT_ADDRESS)
+
+    assert res_arr[0] = 42
+    return ()
+end
+
+@view
+func test_mock_call_returning_struct{syscall_ptr : felt*, range_check_ptr}():
+    tempvar external_contract_address = EXTERNAL_CONTRACT_ADDRESS
+    %{ mock_call(ids.external_contract_address, "get_struct", [21,37]) %}
+
+    let (res_struct) = ITestContract.get_struct(EXTERNAL_CONTRACT_ADDRESS)
+
+    assert res_struct.x = 21
+    assert res_struct.y = 37
+    return ()
+end
+
+@view
+func test_clearing_mocks{syscall_ptr : felt*, range_check_ptr}():
+    tempvar external_contract_address = EXTERNAL_CONTRACT_ADDRESS
+    %{ mock_call(ids.external_contract_address, "get_felt", [42]) %}
+    let (res) = ITestContract.get_felt(EXTERNAL_CONTRACT_ADDRESS)
+    assert res = 42
+
+    %{
+        clear_mock_call(ids.external_contract_address, "get_felt")
+        expect_revert()
+    %}
+
+    let (res) = ITestContract.get_felt(EXTERNAL_CONTRACT_ADDRESS)
+    return ()
+end
+
+# deploy_contract
+@contract_interface
 namespace BasicContract:
     func increase_balance(amount : felt):
     end
