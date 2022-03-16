@@ -12,7 +12,7 @@ namespace BasicContract:
 end
 
 @external
-func test_example{range_check_ptr}(test: felt):
+func test_example{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
 
     local contract_a_address : felt

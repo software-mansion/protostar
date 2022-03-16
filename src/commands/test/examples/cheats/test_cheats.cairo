@@ -7,7 +7,7 @@ from starkware.starknet.common.syscalls import storage_read, storage_write
 
 @view
 func test_roll_cheat{syscall_ptr : felt*}():
-    roll(123)
+    %{ roll(123) %}
     let (bn) = get_block_number()
     assert bn = 123
     return ()
@@ -15,7 +15,7 @@ end
 
 @view
 func test_warp_cheat{syscall_ptr : felt*}():
-    warp(321)
+    %{ warp(321) %}
     let (bt) = get_block_timestamp()
     assert bt = 321
     return ()
@@ -23,7 +23,7 @@ end
 
 @view
 func test_start_stop_prank_cheat{syscall_ptr : felt*}():
-    start_prank(123)
+    %{ start_prank(123) %}
     let (caller_addr) = get_caller_address()
     assert caller_addr = 123
 
@@ -51,7 +51,7 @@ namespace BasicContract:
 end
 
 @external
-func test_example{syscall_ptr : felt*, range_check_ptr}():
+func test_deploy_contract{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
 
     local contract_a_address : felt
