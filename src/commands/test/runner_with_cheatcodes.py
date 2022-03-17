@@ -20,8 +20,10 @@ class TestRunnerWithCheatcodes(TestRunner):
                 CairoFunctionRunner.run_from_entrypoint
             )
         )
-        await super().run_tests_in(*args, **kwargs)
-        CairoFunctionRunner.run_from_entrypoint = original_run_from_entrypoint
+        try:
+            await super().run_tests_in(*args, **kwargs)
+        finally:
+            CairoFunctionRunner.run_from_entrypoint = original_run_from_entrypoint
 
     def _get_run_from_entrypoint_with_custom_hint_locals(
         self, fn_run_from_entrypoint: Any

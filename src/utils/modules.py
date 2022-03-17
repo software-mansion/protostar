@@ -12,12 +12,14 @@ def replace_class(full_path: str, new_module):
             replaced_class = getattr(sys.modules[module_name], class_name)
             setattr(sys.modules[module_name], class_name, new_module)
 
-            if inspect.iscoroutinefunction(func):
-                result = await func(*args, **kwargs)
-            else:
-                result = func(*args, **kwargs)
+            try:
+                if inspect.iscoroutinefunction(func):
+                    result = await func(*args, **kwargs)
+                else:
+                    result = func(*args, **kwargs)
+            finally:
+                setattr(sys.modules[module_name], class_name, replaced_class)
 
-            setattr(sys.modules[module_name], class_name, replaced_class)
             return result
 
         return with_replaced_class
