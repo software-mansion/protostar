@@ -34,5 +34,6 @@ def handle_install_command(args: Any) -> None:
                 log_color_provider.get_color("GRAY"),
                 package_info.url,
                 log_color_provider.get_color("RESET"),
-            )
+            ),
+            repo_root_dir=getcwd(),
         )
