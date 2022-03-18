@@ -1,13 +1,18 @@
-from asserts import assert_eq
+%lang starknet
 
-func test_assert_eq():
-    alloc_locals
-    local a = 42
+from asserts import assert_signed_eq, assert_unsigned_eq
 
-    assert_eq(a, 42)
-
+@view
+func test_assert_eq(contract_address : felt):
+    assert_signed_eq(42, 42)
     %{ expect_revert() %}
-    assert_eq(a, 24)
+    assert_signed_eq(21, 37)
 
+    return ()
+end
+
+@view
+func test_assert_unsigned_eq(contract_address : felt):
+    assert_unsigned_eq(-42, 42)
     return ()
 end
