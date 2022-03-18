@@ -1,21 +1,15 @@
 from pathlib import Path
 from typing import List, Optional, Pattern
 
-from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.services.api.contract_definition import ContractDefinition
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 
 from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
-from src.commands.test.cheatcodes.inject_protostar_hint_locals import (
-    inject_protostar_hint_locals,
-)
-from src.commands.test.cheatcodes.syscall_handler import CheatableSysCallHandler
 from src.commands.test.collector import TestCollector
 from src.commands.test.reporter import TestReporter
 from src.commands.test.utils import TestSubject
 from src.utils.config.project import Project
-from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
 
 current_directory = Path(__file__).parent
@@ -33,30 +27,18 @@ class TestRunner:
     ):
         self._is_test_error_expected = False
         self.include_paths = include_paths or []
-        self.include_paths.append(
-            str(Path(current_directory, "cheatcodes", "cheat_sources"))
-        )
 
         if project:
             config = project.load_config()
             self.include_paths.append(str(project.project_root))
             self.include_paths.append(str(Path(project.project_root, config.libs_path)))
 
-    @replace_class(
-        "starkware.starknet.core.os.syscall_utils.BusinessLogicSysCallHandler",
-        CheatableSysCallHandler,
-    )
     async def run_tests_in(
         self,
         src: Path,
         match_pattern: Optional[Pattern] = None,
         omit_pattern: Optional[Pattern] = None,
     ):
-        original_run_from_entrypoint = CairoFunctionRunner.run_from_entrypoint
-        CairoFunctionRunner.run_from_entrypoint = inject_protostar_hint_locals(
-            CairoFunctionRunner.run_from_entrypoint, self
-        )
-
         self.reporter = TestReporter(src)
         assert self.include_paths is not None, "Uninitialized paths list in test runner"
         test_subjects = TestCollector(
@@ -81,7 +63,6 @@ class TestRunner:
                 functions=test_subject.test_functions,
             )
         self.reporter.report_summary()
-        CairoFunctionRunner.run_from_entrypoint = original_run_from_entrypoint
 
     async def _run_test_functions(
         self,

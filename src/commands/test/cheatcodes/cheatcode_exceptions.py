@@ -1,2 +1,0 @@
-class CheatcodeException(BaseException):
-    pass
