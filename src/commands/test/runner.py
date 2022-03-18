@@ -14,17 +14,15 @@ from src.commands.test.collector import TestCollector
 from src.commands.test.reporter import TestReporter
 from src.commands.test.utils import TestSubject
 from src.utils.config.project import Project
+from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
+from src.commands.test.test_environment_exceptions import (
+    ReportedException,
+    MissingExceptReportedException,
+    StarkExceptionReportedException,
+)
 
 current_directory = Path(__file__).parent
-
-
-class TestExecutionEnvironmentException(BaseException):
-    pass
-
-
-class MissingExceptException(TestExecutionEnvironmentException):
-    pass
 
 
 class TestRunner:
@@ -45,6 +43,10 @@ class TestRunner:
             self.include_paths.append(str(project.project_root))
             self.include_paths.append(str(Path(project.project_root, config.libs_path)))
 
+    @replace_class(
+        "starkware.starknet.core.os.syscall_utils.BusinessLogicSysCallHandler",
+        CheatableSysCallHandler,
+    )
     async def run_tests_in(
         self,
         src: Path,
@@ -98,18 +100,8 @@ class TestRunner:
 
             try:
                 call_result = await env.invoke_test_function(function["name"])
-            except StarkException as ex:
-                self.reporter.report(
-                    subject=test_subject,
-                    case_result=FailedCase(
-                        file_path=test_subject.test_path,
-                        function_name=function["name"],
-                        exception=ex,
-                    ),
-                )
-                return
 
-            except TestExecutionEnvironmentException as err:
+            except ReportedException as err:
                 self.reporter.report(
                     subject=test_subject,
                     case_result=FailedCase(
@@ -143,10 +135,7 @@ class TestExecutionEnvironment:
         assert self.starknet
         return asyncio.run(self.starknet.deploy(source=contract_path)).contract_address
 
-    async def invoke_test_function(self, function_name):
-        assert self.starknet
-        assert self.test_contract
-
+    async def invoke_test_function(self, function_name: str):
         original_run_from_entrypoint = CairoFunctionRunner.run_from_entrypoint
         CairoFunctionRunner.run_from_entrypoint = (
             self._get_run_from_entrypoint_with_custom_hint_locals(
@@ -159,12 +148,14 @@ class TestExecutionEnvironment:
         try:
             call_result = await func().invoke()
             if self._is_test_error_expected:
-                raise MissingExceptException("Expected revert")
+                raise MissingExceptReportedException(
+                    "Expected a transaction to be reverted"
+                )
             return call_result
 
         except StarkException as ex:
             if not self._is_test_error_expected:
-                raise ex
+                raise StarkExceptionReportedException(ex) from ex
 
         finally:
             CairoFunctionRunner.run_from_entrypoint = original_run_from_entrypoint
