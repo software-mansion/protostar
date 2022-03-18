@@ -43,6 +43,7 @@ class StarknetCompiler:
             for cairo_file_path in cairo_file_paths
         ]
         context = PassManagerContext(
+            start_codes=[],
             codes=codes,
             main_scope=MAIN_SCOPE,
             identifiers=IdentifierManager(),
