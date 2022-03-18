@@ -6,10 +6,7 @@ from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.starknet.business_logic.transaction_execution_objects import (
     ContractCallResponse,
 )
-from starkware.starknet.core.os.syscall_utils import (
-    BusinessLogicSysCallHandler,
-    count_syscall,
-)
+from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
 from starkware.starknet.security.secure_hints import HintsWhitelist
 from starkware.starknet.services.api.contract_definition import EntryPointType
 
@@ -106,7 +103,7 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
             segments, syscall_name, request
         )
 
-    @count_syscall
+    # copy of super().call_contract with removed call to _read_and_validate_syscall_request
     def _call_contract_without_retrieving_request(
         self,
         segments: MemorySegmentManager,
@@ -143,17 +140,17 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
             entry_point_selector=cast(int, request.function_selector),
             entry_point_type=entry_point_type,
             calldata=calldata,
-            signature=[],
+            signature=self.signature,
             hash_value=0,
             caller_address=caller_address,
+            nonce=None,
         )
 
-        with super().contract_call_execution_context(
+        with self.contract_call_execution_context(
             tx=tx, called_contract_address=tx.contract_address
         ):
             # Execute contract call.
-            # pylint: disable=protected-access
-            execution_info = tx._synchronous_apply_specific_state_updates(
+            execution_info = tx.execute_contract_function(
                 state=self.state,
                 general_config=self.general_config,
                 loop=self.loop,
