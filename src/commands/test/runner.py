@@ -14,7 +14,6 @@ from src.commands.test.collector import TestCollector
 from src.commands.test.reporter import TestReporter
 from src.commands.test.utils import TestSubject
 from src.utils.config.project import Project
-from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
 
 current_directory = Path(__file__).parent
@@ -46,10 +45,6 @@ class TestRunner:
             self.include_paths.append(str(project.project_root))
             self.include_paths.append(str(Path(project.project_root, config.libs_path)))
 
-    @replace_class(
-        "starkware.starknet.core.os.syscall_utils.BusinessLogicSysCallHandler",
-        CheatableSysCallHandler,
-    )
     async def run_tests_in(
         self,
         src: Path,
@@ -145,9 +140,13 @@ class TestExecutionEnvironment:
         return env
 
     def deploy_in_env(self, contract_path: str):
+        assert self.starknet
         return asyncio.run(self.starknet.deploy(source=contract_path)).contract_address
 
     async def invoke_test_function(self, function_name):
+        assert self.starknet
+        assert self.test_contract
+
         original_run_from_entrypoint = CairoFunctionRunner.run_from_entrypoint
         CairoFunctionRunner.run_from_entrypoint = (
             self._get_run_from_entrypoint_with_custom_hint_locals(

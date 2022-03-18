@@ -110,6 +110,7 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
         syscall_name: str,
         request,
     ) -> List[int]:
+        # pylint: disable=import-outside-toplevel
         calldata = segments.memory.get_range_as_ints(
             addr=request.calldata, size=request.calldata_size
         )

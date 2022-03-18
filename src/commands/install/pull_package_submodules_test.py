@@ -1,6 +1,5 @@
 # pylint: disable=redefined-outer-name
 
-import os
 from os import mkdir, path
 from unittest.mock import MagicMock
 
@@ -119,9 +118,10 @@ def test_pulling_all_package_submodules(
         )
         is False
     )
-    os.chdir(repo_clone_dir)
     callback: MagicMock = mocker.MagicMock()
-    pull_package_submodules(on_submodule_update_start=callback)
+    pull_package_submodules(
+        on_submodule_update_start=callback, repo_root_dir=repo_clone_dir
+    )
 
     callback.assert_called_once()
     assert path.exists(

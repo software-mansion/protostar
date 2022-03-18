@@ -6,7 +6,7 @@ from starkware.cairo.common.math import assert_not_equal
 from starkware.starknet.common.syscalls import storage_read, storage_write
 
 @view
-func test_roll_cheat{syscall_ptr : felt*}():
+func test_roll_cheat{syscall_ptr : felt*}(contract_address : felt):
     %{ roll(123) %}
     let (bn) = get_block_number()
     assert bn = 123
@@ -14,7 +14,7 @@ func test_roll_cheat{syscall_ptr : felt*}():
 end
 
 @view
-func test_warp_cheat{syscall_ptr : felt*}():
+func test_warp_cheat{syscall_ptr : felt*}(contract_address : felt):
     %{ warp(321) %}
     let (bt) = get_block_timestamp()
     assert bt = 321
@@ -22,7 +22,7 @@ func test_warp_cheat{syscall_ptr : felt*}():
 end
 
 @view
-func test_start_stop_prank_cheat{syscall_ptr : felt*}():
+func test_start_stop_prank_cheat{syscall_ptr : felt*}(contract_address : felt):
     %{ start_prank(123) %}
     let (caller_addr) = get_caller_address()
     assert caller_addr = 123
@@ -54,7 +54,7 @@ namespace ITestContract:
 end
 
 @view
-func test_mock_call_returning_felt{syscall_ptr : felt*, range_check_ptr}():
+func test_mock_call_returning_felt{syscall_ptr : felt*, range_check_ptr}(contract_address : felt):
     tempvar external_contract_address = EXTERNAL_CONTRACT_ADDRESS
     %{ mock_call(ids.external_contract_address, "get_felt", [42]) %}
 
@@ -65,7 +65,7 @@ func test_mock_call_returning_felt{syscall_ptr : felt*, range_check_ptr}():
 end
 
 @view
-func test_mock_call_returning_array{syscall_ptr : felt*, range_check_ptr}():
+func test_mock_call_returning_array{syscall_ptr : felt*, range_check_ptr}(contract_address : felt):
     tempvar external_contract_address = EXTERNAL_CONTRACT_ADDRESS
     %{ mock_call(ids.external_contract_address, "get_array", [1, 42]) %}
 
@@ -76,7 +76,7 @@ func test_mock_call_returning_array{syscall_ptr : felt*, range_check_ptr}():
 end
 
 @view
-func test_mock_call_returning_struct{syscall_ptr : felt*, range_check_ptr}():
+func test_mock_call_returning_struct{syscall_ptr : felt*, range_check_ptr}(contract_address : felt):
     tempvar external_contract_address = EXTERNAL_CONTRACT_ADDRESS
     %{ mock_call(ids.external_contract_address, "get_struct", [21,37]) %}
 
@@ -88,7 +88,7 @@ func test_mock_call_returning_struct{syscall_ptr : felt*, range_check_ptr}():
 end
 
 @view
-func test_clearing_mocks{syscall_ptr : felt*, range_check_ptr}():
+func test_clearing_mocks{syscall_ptr : felt*, range_check_ptr}(contract_address : felt):
     tempvar external_contract_address = EXTERNAL_CONTRACT_ADDRESS
     %{ mock_call(ids.external_contract_address, "get_felt", [42]) %}
     let (res) = ITestContract.get_felt(EXTERNAL_CONTRACT_ADDRESS)
