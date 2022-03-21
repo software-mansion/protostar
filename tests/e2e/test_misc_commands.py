@@ -3,7 +3,7 @@ from os import listdir
 
 import pytest
 
-from tests.conftest import init_project
+from tests.conftest import init_existing_project, init_project
 
 
 def test_help(protostar):
@@ -21,3 +21,11 @@ def test_init(project_name: str):
     dirs = listdir(project_name)
     assert "protostar.toml" in dirs
     assert ".git" in dirs
+
+
+def test_init_existing():
+    init_existing_project("Test", libdir="lib_test")
+
+    dirs = listdir(".")
+    assert "protostar.toml" in dirs
+    assert "lib_test" in dirs

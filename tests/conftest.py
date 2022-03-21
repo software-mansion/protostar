@@ -36,6 +36,25 @@ def init_project(project_name: str):
     child.expect(pexpect.EOF)
 
 
+def init_existing_project(project_name: str, libdir=""):
+    child = pexpect.spawn(
+        f"python {path.join(ACTUAL_CWD, 'protostar.py')} init --existing"
+    )
+    child.expect("Project name:", timeout=5)
+    child.sendline(project_name)
+    child.expect("Project description:", timeout=1)
+    child.sendline("")
+    child.expect("Author:", timeout=1)
+    child.sendline("")
+    child.expect("Version:", timeout=1)
+    child.sendline("")
+    child.expect("License:", timeout=1)
+    child.sendline("")
+    child.expect("Libraries directory *", timeout=1)
+    child.sendline(libdir)
+    child.expect(pexpect.EOF)
+
+
 @pytest.fixture
 def protostar():
     def _protostar(args: List[str]) -> str:
