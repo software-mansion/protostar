@@ -1,5 +1,7 @@
 %lang starknet
 
+from broken.basic_broken import constructor, dummy
+
 @external
 func test_broken_contract{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
