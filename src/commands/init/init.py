@@ -1,9 +1,7 @@
 import shutil
 from pathlib import Path
-import stat
 from typing import Any
 
-from colorama import Fore
 from git.repo import Repo
 
 from src.utils import log_color_provider
@@ -14,18 +12,18 @@ def init(args: Any, script_root: str):
     """
     Creates init protostar project
     """
-    if args.only_config:
+    if args.existing:
         project_creator = OnlyConfigCreator(script_root)
     else:
         project_creator = ProjectCreator(script_root)
-    
+
     project_creator.create()
 
 
 class ProjectCreator:
-
     def __init__(self, script_root: str):
         self.script_root = script_root
+        self.config = ProjectConfig()
 
     @staticmethod
     def request_input(message: str):
@@ -37,8 +35,7 @@ class ProjectCreator:
         self.interactive_input()
         self.project_creation()
 
-
-    def interactive_input(self) -> ProjectConfig:
+    def interactive_input(self):
         project_name = ProjectCreator.request_input("Project name: ")
         project_description = ProjectCreator.request_input("Project description")
         author = ProjectCreator.request_input("Author")
@@ -51,7 +48,7 @@ class ProjectCreator:
             license=project_license,
             version=version,
             authors=[author],
-            libs_path=lib_dir
+            libs_path=lib_dir,
         )
 
     def project_creation(self):
@@ -68,7 +65,8 @@ class ProjectCreator:
 
         Repo.init(project_root)
 
-    def copy_template(self, script_root: str, template_name: str, project_path: Path):
+    @staticmethod
+    def copy_template(script_root: str, template_name: str, project_path: Path):
         template_path = f"{script_root}/templates/{template_name}"
         shutil.copytree(template_path, project_path)
 
@@ -84,4 +82,3 @@ class OnlyConfigCreator(ProjectCreator):
 
         project = Project(project_root=project_root)
         project.write_config(self.config)
-

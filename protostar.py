@@ -80,7 +80,10 @@ cmd_remove_parser.add_argument(
 
 cmd_init_parser = root_subparsers.add_parser("init")
 cmd_init_parser.add_argument(
-    "--only-config", default=False, help="Creates only a config for existing project", action="store_true"
+    "--existing",
+    default=False,
+    help="Adapts protostar to existing project",
+    action="store_true",
 )
 
 
