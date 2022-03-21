@@ -41,6 +41,8 @@ def init_existing_project(project_name: str, libdir=""):
         f"python {path.join(ACTUAL_CWD, 'protostar.py')} init --existing"
     )
     child.expect("Project name:", timeout=5)
+    child.sendline("")
+    child.expect("Please provide a non-empty project name:", timeout=5)
     child.sendline(project_name)
     child.expect("Project description:", timeout=1)
     child.sendline("")

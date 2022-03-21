@@ -30,13 +30,21 @@ class ProjectCreator:
         return input(
             f"{log_color_provider.get_color('CYAN')}{message}:{log_color_provider.get_color('RESET')} "
         )
+    
+    @staticmethod
+    def request_input_warning(message: str):
+        return input(
+            f"{log_color_provider.get_color('RED')}{message}:{log_color_provider.get_color('RESET')} "
+        )
 
     def create(self):
         self.interactive_input()
         self.project_creation()
 
     def interactive_input(self):
-        project_name = ProjectCreator.request_input("Project name: ")
+        project_name = ProjectCreator.request_input("Project name")
+        while project_name == "":
+            project_name = ProjectCreator.request_input_warning("Please provide a non-empty project name")
         project_description = ProjectCreator.request_input("Project description")
         author = ProjectCreator.request_input("Author")
         version = ProjectCreator.request_input("Version")
