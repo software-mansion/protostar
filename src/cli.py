@@ -35,7 +35,7 @@ async def cli(args, script_root):
         elif args.command == "remove":
             handle_remove_command(args)
         elif args.command == "init":
-            init(script_root)
+            init(args, script_root)
         elif args.command == "update":
             handle_update_command(args)
         elif args.command == "upgrade":
