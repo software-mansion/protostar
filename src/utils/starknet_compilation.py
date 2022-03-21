@@ -23,7 +23,7 @@ from starkware.starknet.services.api.contract_definition import ContractDefiniti
 @dataclass
 class StarknetCompiler:
     include_paths: List[str]
-    disable_hint_validation: bool = False
+    disable_hint_validation: bool
 
     def get_starknet_pass_manager(self) -> PassManager:
         read_module = get_module_reader(cairo_path=self.include_paths).read

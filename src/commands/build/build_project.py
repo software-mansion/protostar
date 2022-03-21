@@ -11,6 +11,7 @@ def build_project(
     project: Project,
     output_dir: Path,
     cairo_path: List[Path],
+    disable_hint_validation: bool,
 ):
     pkg_config = project.load_config()
     libraries_root = Path(pkg_config.libs_path)
@@ -24,8 +25,10 @@ def build_project(
     output_dir.mkdir(exist_ok=True)
 
     for contract_name, contract_components in pkg_config.contracts.items():
-        contract = StarknetCompiler(include_paths=project_paths).compile_contract(
-            *[Path(component) for component in contract_components]
+        contract = StarknetCompiler(
+            include_paths=project_paths, disable_hint_validation=disable_hint_validation,
+        ).compile_contract(
+            *[Path(component) for component in contract_components],
         )
 
         with open(
