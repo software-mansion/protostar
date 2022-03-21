@@ -130,9 +130,8 @@ cmd_compile_parser.add_argument(
 )
 cmd_compile_parser.add_argument(
     "--disable-hint-validation",
-    type=bool,
+    action="store_true",
     required=False,
-    default=False,
     help="Disable validation of hints when building the contracts",
 )
 
