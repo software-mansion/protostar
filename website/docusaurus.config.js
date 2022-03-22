@@ -42,6 +42,7 @@ const config = {
         logo: {
           alt: 'Protostar',
           src: 'img/protostar-logo--dark.png',
+          srcDark: 'img/protostar-logo--light.png',
         },
         items: [
           {
