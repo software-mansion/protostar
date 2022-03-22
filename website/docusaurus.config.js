@@ -46,14 +46,13 @@ const config = {
         },
         items: [
           {
-            type: 'doc',
-            docId: 'intro',
+            type: 'docSidebar',
             position: 'left',
-            label: 'Tutorial',
+            sidebarId: 'api',
+            label: 'API',
           },
-          { to: '/blog', label: 'Blog', position: 'left' },
           {
-            href: 'https://github.com/facebook/docusaurus',
+            href: 'https://github.com/software-mansion/protostar',
             label: 'GitHub',
             position: 'right',
           },
@@ -66,26 +65,18 @@ const config = {
             title: 'Docs',
             items: [
               {
-                label: 'Tutorial',
-                to: '/docs/intro',
+                label: 'API',
+                to: '/docs/api',
               },
             ],
           },
           {
             title: 'Community',
             items: [
-              {
-                label: 'Stack Overflow',
-                href: 'https://stackoverflow.com/questions/tagged/docusaurus',
-              },
-              {
-                label: 'Discord',
-                href: 'https://discordapp.com/invite/docusaurus',
-              },
-              {
-                label: 'Twitter',
-                href: 'https://twitter.com/docusaurus',
-              },
+              //   {
+              //     label: 'Discord',
+              //     href: 'https://discordapp.com/invite/docusaurus',
+              //   },
             ],
           },
         ],
