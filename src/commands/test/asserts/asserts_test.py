@@ -1,17 +1,18 @@
+from os import path
 from pathlib import Path
 
 import pytest
 
 from src.commands.test import TestRunnerWithCheatcodes
 
-current_directory = Path(__file__).parent
+CURRENT_DIR = Path(__file__).parent
 
 
 @pytest.mark.asyncio
 async def test_asserts():
     runner = TestRunnerWithCheatcodes(
-        include_paths=[current_directory / ".." / ".." / ".." / "cairo"]
+        include_paths=[path.join(CURRENT_DIR, "..", "..", "..", "..", "cairo")]
     )
-    await runner.run_tests_in(current_directory / "examples" / "asserts")
+    await runner.run_tests_in(CURRENT_DIR)
     assert runner.reporter
     assert not runner.reporter.failed_cases
