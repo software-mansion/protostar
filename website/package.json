@@ -5,7 +5,7 @@
   "scripts": {
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
-    "build": "npm run typecheck && docusaurus build",
+    "build": "docusaurus build --out-dir ../docs",
     "typecheck": "tsc"
   },
   "dependencies": {
