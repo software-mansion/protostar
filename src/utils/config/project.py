@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, cast
 
 import tomli
 import tomli_w
@@ -39,7 +39,7 @@ class Project:
     def config(self) -> ProjectConfig:
         if not self._config:
             self.load_config()
-        return self._config
+        return cast(ProjectConfig, self._config)
 
     @property
     def config_path(self) -> Path:
