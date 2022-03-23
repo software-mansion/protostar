@@ -48,8 +48,8 @@ const config = {
           {
             type: 'docSidebar',
             position: 'left',
-            sidebarId: 'api',
-            label: 'API',
+            sidebarId: 'tutorials',
+            label: 'Tutorials',
           },
           {
             href: 'https://github.com/software-mansion/protostar',
