@@ -8,8 +8,7 @@ from starkware.starkware_utils.error_handling import StarkException
 from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
 from src.commands.test.collector import TestCollector
 from src.commands.test.reporter import TestReporter
-from src.commands.test.utils import TestSubject, collect_immediate_subdirectories
-from src.utils.config.project import Project
+from src.commands.test.utils import TestSubject
 from src.utils.starknet_compilation import StarknetCompiler
 
 current_directory = Path(__file__).parent
@@ -22,18 +21,14 @@ class TestRunner:
 
     def __init__(
         self,
-        project: Optional[Project] = None,
+        project: Optional["Project"] = None,
         include_paths: Optional[List[str]] = None,
     ):
         self._is_test_error_expected = False
-        self.include_paths = include_paths or []
-
-        if project:
-            config = project.load_config()
-            libs_path = Path(project.project_root, config.libs_path)
-            self.include_paths.append(str(project.project_root))
-            self.include_paths.append(str(libs_path))
-            self.include_paths.extend(collect_immediate_subdirectories(libs_path))
+        if project and not include_paths:
+            self.include_paths = project.get_include_paths()
+        else:
+            self.include_paths = include_paths or []
 
     async def run_tests_in(
         self,

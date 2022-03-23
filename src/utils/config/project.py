@@ -6,6 +6,8 @@ from typing import List, Dict, Optional
 import tomli
 import tomli_w
 
+from src.commands.test.utils import collect_immediate_subdirectories
+
 
 class NoProtostarProjectFoundError(Exception):
     pass
@@ -40,14 +42,23 @@ class Project:
 
     @property
     def ordered_dict(self):
+        self._ensure_config_loaded()
         general = OrderedDict(**self.config.__dict__)
         general.pop("contracts")
 
         result = OrderedDict()
         result["protostar.general"] = general
-        assert self.config, "No package configuration loaded!"
         result["protostar.contracts"] = self.config.contracts
         return result
+
+    def get_include_paths(self) -> List[str]:
+        self._ensure_config_loaded()
+        libs_path = Path(self.project_root, self.config.libs_path)
+        return [
+            str(self.project_root),
+            str(libs_path),
+            *collect_immediate_subdirectories(libs_path),
+        ]
 
     def write_config(self, config: ProjectConfig):
         self.config = config
@@ -69,3 +80,7 @@ class Project:
             }
             self.config = ProjectConfig(**flat_config)
             return self.config
+
+    def _ensure_config_loaded(self):
+        if not self.config:
+            self.load_config()
