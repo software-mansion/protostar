@@ -27,7 +27,7 @@ def init(script_root: str):
     author = colored_input("Author")
     version = colored_input("Version")
     project_license = colored_input("License")
-    lib_dir = colored_input("Libraries directory name (optional)")
+    lib_dir = colored_input("Libraries directory name (optional)") or "lib"
 
     lib_pth = Path(project_root, lib_dir)
 
