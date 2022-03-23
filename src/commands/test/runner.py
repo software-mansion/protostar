@@ -8,7 +8,7 @@ from starkware.starkware_utils.error_handling import StarkException
 from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
 from src.commands.test.collector import TestCollector
 from src.commands.test.reporter import TestReporter
-from src.commands.test.utils import TestSubject
+from src.commands.test.utils import TestSubject, collect_immediate_subdirectories
 from src.utils.config.project import Project
 from src.utils.starknet_compilation import StarknetCompiler
 
@@ -30,8 +30,10 @@ class TestRunner:
 
         if project:
             config = project.load_config()
+            libs_path = Path(project.project_root, config.libs_path)
             self.include_paths.append(str(project.project_root))
-            self.include_paths.append(str(Path(project.project_root, config.libs_path)))
+            self.include_paths.append(str(libs_path))
+            self.include_paths.extend(collect_immediate_subdirectories(libs_path))
 
     async def run_tests_in(
         self,
