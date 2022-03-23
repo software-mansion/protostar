@@ -33,7 +33,13 @@ class Project:
 
     def __init__(self, project_root: Optional[Path] = None):
         self.project_root = project_root or Path()
-        self.config = None
+        self._config = None
+
+    @property
+    def config(self) -> ProjectConfig:
+        if not self._config:
+            self.load_config()
+        return self._config
 
     @property
     def config_path(self) -> Path:
@@ -42,7 +48,6 @@ class Project:
 
     @property
     def ordered_dict(self):
-        self._ensure_config_loaded()
         general = OrderedDict(**self.config.__dict__)
         general.pop("contracts")
 
@@ -52,7 +57,6 @@ class Project:
         return result
 
     def get_include_paths(self) -> List[str]:
-        self._ensure_config_loaded()
         libs_path = Path(self.project_root, self.config.libs_path)
         return [
             str(self.project_root),
@@ -61,7 +65,7 @@ class Project:
         ]
 
     def write_config(self, config: ProjectConfig):
-        self.config = config
+        self._config = config
         with open(self.config_path, "wb") as file:
             tomli_w.dump(self.ordered_dict, file)
 
@@ -78,9 +82,5 @@ class Project:
                 **parsed_config["protostar.general"],
                 "contracts": parsed_config["protostar.contracts"],
             }
-            self.config = ProjectConfig(**flat_config)
-            return self.config
-
-    def _ensure_config_loaded(self):
-        if not self.config:
-            self.load_config()
+            self._config = ProjectConfig(**flat_config)
+            return self._config

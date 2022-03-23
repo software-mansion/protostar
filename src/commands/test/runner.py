@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Optional, Pattern
+from typing import List, Optional, Pattern, TYPE_CHECKING
 
 from starkware.starknet.services.api.contract_definition import ContractDefinition
 from starkware.starknet.testing.starknet import Starknet
@@ -10,6 +10,10 @@ from src.commands.test.collector import TestCollector
 from src.commands.test.reporter import TestReporter
 from src.commands.test.utils import TestSubject
 from src.utils.starknet_compilation import StarknetCompiler
+
+if TYPE_CHECKING:
+    from src.utils.config.project import Project
+
 
 current_directory = Path(__file__).parent
 
