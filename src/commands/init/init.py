@@ -68,7 +68,7 @@ class ProjectCreator:
             license=project_license,
             version=version,
             authors=[author],
-            libs_path=lib_pth,
+            libs_path=str(lib_pth),
         )
 
     def project_creation(self):
