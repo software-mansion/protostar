@@ -1,9 +1,10 @@
 import glob
 import shutil
 from pathlib import Path
-from typing import Any
+from typing import Any, Type
 
 from git.repo import Repo
+
 
 from src.utils import log_color_provider
 from src.utils.config.project import Project, ProjectConfig
@@ -23,24 +24,6 @@ def input_yes_no(message: str) -> bool:
     while res not in ("y", "n"):
         res = ProjectCreator.request_input("Please provide one of the [y/n]")
     return res == "y"
-
-
-def get_creator(args: Any) -> "Type[ProjectCreator]":
-    if args.existing:
-        return OnlyConfigCreator
-
-    files_depth_3 = glob.glob("*/*/*")
-    is_any_cairo_file = any(map(lambda f: f.endswith(".cairo"), files_depth_3))
-
-    out = False
-    if is_any_cairo_file:
-        out = input_yes_no(
-            "There are cairo files in your working directory.\n"
-            "Do you want to adapt current working directory "
-            "as a project instead of creating a new project?."
-        )
-
-    return OnlyConfigCreator if out else ProjectCreator
 
 
 class ProjectCreator:
@@ -115,3 +98,21 @@ class OnlyConfigCreator(ProjectCreator):
 
         project = Project(project_root=project_root)
         project.write_config(self.config)
+
+
+def get_creator(args: Any) -> Type[ProjectCreator]:
+    if args.existing:
+        return OnlyConfigCreator
+
+    files_depth_3 = glob.glob("*/*/*")
+    is_any_cairo_file = any(map(lambda f: f.endswith(".cairo"), files_depth_3))
+
+    out = False
+    if is_any_cairo_file:
+        out = input_yes_no(
+            "There are cairo files in your working directory.\n"
+            "Do you want to adapt current working directory "
+            "as a project instead of creating a new project?."
+        )
+
+    return OnlyConfigCreator if out else ProjectCreator
