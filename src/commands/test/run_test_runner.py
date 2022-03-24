@@ -1,14 +1,16 @@
 from pathlib import Path
 from re import Pattern
-from typing import List, Optional
+from typing import List, Optional, TYPE_CHECKING
 
 from src.commands.test.runner import TestRunner
-from src.utils.config.project import Project
+
+if TYPE_CHECKING:
+    from src.utils.config.project import Project
 
 
 async def run_test_runner(
     tests_root: Path,
-    project: Optional[Project] = None,
+    project: Optional["Project"] = None,
     omit: Optional[Pattern] = None,
     match: Optional[Pattern] = None,
     cairo_paths: Optional[List[Path]] = None,

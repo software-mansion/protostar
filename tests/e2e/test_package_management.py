@@ -18,7 +18,7 @@ def fixture_install_package(init, protostar):
 
 def test_adding_package(install_package):
     with pytest.raises(FileNotFoundError):
-        listdir("lib")
+        listdir("lib/starknet_py")
 
     (result, normalized_package_name) = install_package()
 

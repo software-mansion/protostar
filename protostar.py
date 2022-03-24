@@ -128,6 +128,12 @@ cmd_compile_parser.add_argument(
     default=Path("build"),
     help="Output directory, which will be used to put the compiled contracts in",
 )
+cmd_compile_parser.add_argument(
+    "--disable-hint-validation",
+    action="store_true",
+    required=False,
+    help="Disable validation of hints when building the contracts",
+)
 
 cmd_compile_parser.add_argument(
     "--cairo-path",
