@@ -53,6 +53,7 @@ async def cli(args, script_root):
                 project=current_project,
                 output_dir=args.output,
                 cairo_path=args.cairo_path,
+                disable_hint_validation=args.disable_hint_validation,
             )
     except ProtostarException as err:
         logger.error(err.message)

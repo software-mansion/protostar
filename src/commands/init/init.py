@@ -57,18 +57,22 @@ class ProjectCreator:
         author = ProjectCreator.request_input("Author")
         version = ProjectCreator.request_input("Version")
         project_license = ProjectCreator.request_input("License")
-        lib_dir = ProjectCreator.request_input("Libraries directory name (optional)")
+        lib_dir = (
+            ProjectCreator.request_input("Libraries directory name (optional)") or "lib"
+        )
+        project_root = Path() / project_name
+        lib_pth = Path(project_root, lib_dir)
         self.config = ProjectConfig(
             name=project_name,
             description=project_description,
             license=project_license,
             version=version,
             authors=[author],
-            libs_path=lib_dir,
+            libs_path=lib_pth,
         )
 
     def project_creation(self):
-        project_root = Path() / self.config.name
+        project_root = Path()
         self.copy_template(self.script_root, "default", project_root)
         project = Project(project_root=project_root)
 

@@ -10,7 +10,7 @@ version = "0.1.0"
 [tool.poetry.dependencies]
 GitPython = "^3.1.26"
 argparse = "^1.4.0"
-cairo-lang = "0.7.1"
+cairo-lang = "0.8.0"
 colorama = "^0.4.4"
 packaging = "^21.3"
 python = ">=3.7.12, <3.10"

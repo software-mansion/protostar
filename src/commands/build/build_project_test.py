@@ -22,6 +22,7 @@ def test_build(tmp_path, mocker):
         output_dir=tmp_path,
         cairo_path=[],
         project=mock_project,
+        disable_hint_validation=False,
     )
 
     with open(str(output_path), mode="r", encoding="utf-8") as output:

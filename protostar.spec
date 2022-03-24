@@ -6,7 +6,15 @@ extra_files = [
     ('templates', 'templates'),
     ('pyproject.toml', 'info'),
 ] + collect_data_files('starkware')
-extra_imports = ['starkware']
+# Extra imports which are necessary for executing hints
+extra_imports = [
+        'starkware',
+        'starkware.cairo.common.math_utils',
+        'starkware.python.math_utils',
+        'starkware.cairo.common.dict',
+        'eth_hash.auto',
+        'starkware.cairo.lang.vm.relocatable',
+    ]
 
 a = Analysis(['protostar.py'],
              pathex=[],
