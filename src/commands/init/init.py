@@ -25,12 +25,14 @@ def input_yes_no(message: str) -> bool:
     return res == "y"
 
 
-def get_creator(args: Any) -> "ProjectCreator":
+def get_creator(args: Any) -> "Type[ProjectCreator]":
     if args.existing:
         return OnlyConfigCreator
 
     files_depth_3 = glob.glob("*/*/*")
     is_any_cairo_file = any(map(lambda f: f.endswith(".cairo"), files_depth_3))
+
+    out = False
     if is_any_cairo_file:
         out = input_yes_no(
             "There are cairo files in your working directory.\n"
