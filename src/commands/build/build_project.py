@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 from typing import List
 
+from src.commands.build.build_exceptions import CairoCompilationException
 from src.utils.config.project import Project
 from src.utils.starknet_compilation import StarknetCompiler
 
@@ -12,18 +13,21 @@ def build_project(
     cairo_path: List[Path],
     disable_hint_validation: bool,
 ):
-    project_paths = [
-        *project.get_include_paths(),
-        *[str(pth) for pth in cairo_path]
-    ]
+    project_paths = [*project.get_include_paths(), *[str(pth) for pth in cairo_path]]
     output_dir.mkdir(exist_ok=True)
 
     for contract_name, contract_components in project.config.contracts.items():
-        contract = StarknetCompiler(
-            include_paths=project_paths, disable_hint_validation=disable_hint_validation,
-        ).compile_contract(
-            *[Path(component) for component in contract_components],
-        )
+        try:
+            contract = StarknetCompiler(
+                include_paths=project_paths,
+                disable_hint_validation=disable_hint_validation,
+            ).compile_contract(
+                *[Path(component) for component in contract_components],
+            )
+        except Exception as err:
+            raise CairoCompilationException(
+                f"Protostar couldn't compile '{contract_name}' contract\n{str(err)}"
+            ) from err
 
         with open(
             Path(output_dir, f"{contract_name}.json"), mode="w", encoding="utf-8"
