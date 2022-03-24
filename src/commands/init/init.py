@@ -1,3 +1,4 @@
+import glob
 import shutil
 from pathlib import Path
 from typing import Any
@@ -12,12 +13,32 @@ def init(args: Any, script_root: str):
     """
     Creates init protostar project
     """
-    if args.existing:
-        project_creator = OnlyConfigCreator(script_root)
-    else:
-        project_creator = ProjectCreator(script_root)
-
+    project_creator = get_creator(args)
+    project_creator = project_creator(script_root)
     project_creator.create()
+
+
+def input_yes_no(message: str) -> bool:
+    res = ProjectCreator.request_input(message + " [y/n]")
+    while res not in ("y", "n"):
+        res = ProjectCreator.request_input("Please provide one of the [y/n]")
+    return res == "y"
+
+
+def get_creator(args: Any) -> "ProjectCreator":
+    if args.existing:
+        return OnlyConfigCreator
+
+    files_depth_3 = glob.glob("*/*/*")
+    is_any_cairo_file = any(map(lambda f: f.endswith(".cairo"), files_depth_3))
+    if is_any_cairo_file:
+        out = input_yes_no(
+            "There are cairo files in your working directory.\n"
+            "Do you want to adapt current working directory "
+            "as a project instead of creating a new project?."
+        )
+
+    return OnlyConfigCreator if out else ProjectCreator
 
 
 class ProjectCreator:
@@ -30,7 +51,7 @@ class ProjectCreator:
         return input(
             f"{log_color_provider.get_color('CYAN')}{message}:{log_color_provider.get_color('RESET')} "
         )
-    
+
     @staticmethod
     def request_input_warning(message: str):
         return input(
@@ -44,7 +65,9 @@ class ProjectCreator:
     def interactive_input(self):
         project_name = ProjectCreator.request_input("Project name")
         while project_name == "":
-            project_name = ProjectCreator.request_input_warning("Please provide a non-empty project name")
+            project_name = ProjectCreator.request_input_warning(
+                "Please provide a non-empty project name"
+            )
         project_description = ProjectCreator.request_input("Project description")
         author = ProjectCreator.request_input("Author")
         version = ProjectCreator.request_input("Version")
