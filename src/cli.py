@@ -1,11 +1,15 @@
 import os
+import os.path
 from logging import INFO, StreamHandler, getLogger
+from pathlib import Path
+from typing import List, Optional
+
 from colorama import init as init_colorama
 
 from src.commands import (
     handle_install_command,
-    handle_update_command,
     handle_remove_command,
+    handle_update_command,
     init,
     upgrade,
 )
@@ -19,7 +23,7 @@ init_colorama()
 cwd = os.getcwd()
 
 
-async def cli(args, script_root):
+async def cli(args, script_root, protostar_dir: Optional[Path]):
     log_color_provider.is_ci_mode = args.no_color
 
     logger = getLogger()
@@ -28,6 +32,10 @@ async def cli(args, script_root):
     handler.setFormatter(StandardLogFormatter(log_color_provider))
     logger.addHandler(handler)
     current_project = Project.get_current()
+
+    cairo_paths: List[Path] = args.cairo_paths
+    if protostar_dir:
+        cairo_paths.append(protostar_dir / "cairo")
 
     try:
         if args.command == "install":
@@ -46,13 +54,13 @@ async def cli(args, script_root):
                 project=current_project,
                 omit=args.omit,
                 match=args.match,
-                cairo_paths=args.cairo_path,
+                cairo_paths=cairo_paths,
             )
         elif args.command == "build":
             build_project(
                 project=current_project,
                 output_dir=args.output,
-                cairo_path=args.cairo_path,
+                cairo_path=cairo_paths,
                 disable_hint_validation=args.disable_hint_validation,
             )
     except ProtostarException as err:
