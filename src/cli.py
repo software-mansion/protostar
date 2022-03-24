@@ -33,10 +33,6 @@ async def cli(args, script_root, protostar_dir: Optional[Path]):
     logger.addHandler(handler)
     current_project = Project.get_current()
 
-    cairo_paths: List[Path] = args.cairo_paths
-    if protostar_dir:
-        cairo_paths.append(protostar_dir / "cairo")
-
     try:
         if args.command == "install":
             handle_install_command(args)
@@ -49,6 +45,10 @@ async def cli(args, script_root, protostar_dir: Optional[Path]):
         elif args.command == "upgrade":
             upgrade()
         elif args.command == "test":
+            print(dir(args))
+            cairo_paths: List[Path] = args.cairo_path or []
+            if protostar_dir:
+                cairo_paths.append(protostar_dir / "cairo")
             await run_test_runner(
                 getattr(args, "tests-root"),
                 project=current_project,
@@ -57,6 +57,9 @@ async def cli(args, script_root, protostar_dir: Optional[Path]):
                 cairo_paths=cairo_paths,
             )
         elif args.command == "build":
+            cairo_paths: List[Path] = args.cairo_path
+            if protostar_dir:
+                cairo_paths.append(protostar_dir / "cairo")
             build_project(
                 project=current_project,
                 output_dir=args.output,
