@@ -1,6 +1,6 @@
 %lang starknet
 
-from asserts import (
+from protostar.asserts import (
     assert_eq, assert_not_eq, assert_signed_lt, assert_signed_le, assert_signed_gt,
     assert_unsigned_lt, assert_unsigned_le, assert_unsigned_gt, assert_signed_ge,
     assert_unsigned_ge)

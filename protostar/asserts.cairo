@@ -1,4 +1,4 @@
-from _utils import use_signed_int_hint
+from protostar._utils import use_signed_int_hint
 
 # ---------------------------------- EQUAL ---------------------------------
 func assert_eq(a : felt, to : felt):
