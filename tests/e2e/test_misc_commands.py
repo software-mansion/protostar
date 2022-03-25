@@ -47,13 +47,14 @@ def test_init_existing(project_name: str):
     dirs = listdir(".")
     assert "protostar.toml" in dirs
     assert "lib_test" in dirs
+    assert ".git" in dirs
 
 
 def test_init_ask_existing(project_name: str):
     open(Path() / "example.cairo", "a").close()
 
     child = pexpect.spawn(f"python {path.join(ACTUAL_CWD, 'protostar.py')} init")
-    child.expect("There are cairo.*", timeout=10)
+    child.expect("Your current directory.*", timeout=10)
     child.sendline("y")
     child.expect("Project name:", timeout=5)
     child.sendline("")
@@ -74,3 +75,4 @@ def test_init_ask_existing(project_name: str):
     dirs = listdir(".")
     assert "protostar.toml" in dirs
     assert "lib_test" in dirs
+    assert ".git" in dirs

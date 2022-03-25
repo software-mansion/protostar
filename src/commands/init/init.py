@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any, Type
 
 from git.repo import Repo
+from git.exc import InvalidGitRepositoryError
 
 
 from src.utils import log_color_provider
@@ -101,18 +102,25 @@ class OnlyConfigCreator(ProjectCreator):
         project = Project(project_root=project_root)
         project.write_config(self.config)
 
+        try:
+            Repo(project_root)
+        except InvalidGitRepositoryError:
+            Repo.init(project_root)
+
 
 def get_creator(args: Any) -> Type[ProjectCreator]:
     if args.existing:
         return OnlyConfigCreator
 
     files_depth_3 = glob.glob("*") + glob.glob("*/*") + glob.glob("*/*/*")
-    is_any_cairo_file = any(map(lambda f: f.endswith(".cairo"), files_depth_3))
+    can_be_a_project = any(
+        map(lambda f: f.endswith(".cairo") or f == ".git", files_depth_3)
+    )
 
     out = False
-    if is_any_cairo_file:
+    if can_be_a_project:
         out = input_yes_no(
-            "There are cairo files in your working directory.\n"
+            "Your current directory may be a cairo project.\n"
             "Do you want to adapt current working directory "
             "as a project instead of creating a new project?."
         )
