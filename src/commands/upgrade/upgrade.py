@@ -20,7 +20,7 @@ def upgrade() -> None:
     manager.upgrade()
 
 
-def print_current_version() -> str:
+def print_current_version() -> None:
     manager = UpgradeManager(PROTOSTAR_DIR)
     current_version = manager.get_current_version()
     cairo_version = manager.get_cairo_version()
