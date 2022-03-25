@@ -1,21 +1,16 @@
 import argparse
 import asyncio
-import os.path
 import re
-import shutil
 from argparse import ArgumentParser
 from pathlib import Path
 from re import Pattern
-from typing import Optional
 
 from src import cli
+from src.utils import find_protostar_binary_dir
 
 SCRIPT_ROOT = Path(__file__).parent
 
-protostar_dir: Optional[Path] = None
-protostar_path = shutil.which("protostar")
-if protostar_path:
-    protostar_dir = Path(os.path.split(protostar_path)[0])
+PROTOSTAR_BINARY_DIR = find_protostar_binary_dir()
 
 
 PACKAGE_CORE_FORMATS_HELP_MESSAGE = """a package reference in one of the following formats:
@@ -161,7 +156,7 @@ cmd_compile_parser.add_argument(
 
 
 try:
-    asyncio.run(cli(root_parser.parse_args(), SCRIPT_ROOT, protostar_dir))
+    asyncio.run(cli(root_parser.parse_args(), SCRIPT_ROOT, PROTOSTAR_BINARY_DIR))
 except Exception as err:
     print(
         "Unexpected Protostar error. Report it here:\nhttps://github.com/software-mansion/protostar/issues\n"

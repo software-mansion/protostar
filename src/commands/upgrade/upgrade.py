@@ -1,18 +1,25 @@
+import os
+import shutil
+import tarfile
 from logging import getLogger
 from pathlib import Path
-import shutil
-import os
 from urllib.request import urlretrieve
-import tarfile
 
-from packaging import version
 import requests
 import tomli
+from packaging import version
+
+from src.utils.protostar_binary import find_protostar_binary_dir
 
 logger = getLogger()
 
 PROTOSTAR_REPO = "https://github.com/software-mansion/protostar"
-PROTOSTAR_DIR = Path.home() / ".protostar"
+PROTOSTAR_BINARY_DIR = find_protostar_binary_dir()
+PROTOSTAR_DIR = (
+    PROTOSTAR_BINARY_DIR / ".." / ".."
+    if PROTOSTAR_BINARY_DIR
+    else Path.home() / ".protostar"
+)
 
 
 def upgrade() -> None:

@@ -23,7 +23,7 @@ init_colorama()
 cwd = os.getcwd()
 
 
-async def cli(args, script_root, protostar_dir: Optional[Path]):
+async def cli(args, script_root, protostar_binary_dir: Optional[Path]):
     log_color_provider.is_ci_mode = args.no_color
 
     logger = getLogger()
@@ -45,25 +45,33 @@ async def cli(args, script_root, protostar_dir: Optional[Path]):
         elif args.command == "upgrade":
             upgrade()
         elif args.command == "test":
-            cairo_paths: List[Path] = args.cairo_path or []
-            if protostar_dir:
-                cairo_paths.append(protostar_dir / "cairo")
             await run_test_runner(
                 getattr(args, "tests-root"),
                 project=current_project,
                 omit=args.omit,
                 match=args.match,
-                cairo_paths=cairo_paths,
+                cairo_paths=inject_protostar_cairo_dir(
+                    args.cairo_path or [], protostar_binary_dir
+                ),
             )
         elif args.command == "build":
-            cairo_paths: List[Path] = args.cairo_path
-            if protostar_dir:
-                cairo_paths.append(protostar_dir / "cairo")
             build_project(
                 project=current_project,
                 output_dir=args.output,
-                cairo_path=cairo_paths,
+                cairo_path=inject_protostar_cairo_dir(
+                    args.cairo_path or [], protostar_binary_dir
+                ),
                 disable_hint_validation=args.disable_hint_validation,
             )
     except ProtostarException as err:
         logger.error(err.message)
+
+
+def inject_protostar_cairo_dir(
+    cairo_paths: List[Path], protostar_binary_dir: Optional[Path]
+) -> List[Path]:
+    if protostar_binary_dir:
+        protostar_cairo_dir = protostar_binary_dir / "cairo"
+        if protostar_cairo_dir not in cairo_paths:
+            cairo_paths.append(protostar_cairo_dir)
+    return cairo_paths
