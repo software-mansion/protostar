@@ -115,7 +115,7 @@ def get_creator(args: Any) -> Type[ProjectCreator]:
     files_depth_3 = glob.glob("*") + glob.glob("*/*") + glob.glob("*/*/*")
     can_be_a_project = any(
         map(lambda f: f.endswith(".cairo") or f == ".git", files_depth_3)
-    )
+    ) and "protostar.toml" not in glob.glob("*")
 
     out = False
     if can_be_a_project:
