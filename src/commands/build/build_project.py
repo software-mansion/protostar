@@ -2,6 +2,12 @@ import json
 from pathlib import Path
 from typing import List
 
+from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
+    PreprocessorError,
+)
+from starkware.cairo.lang.vm.vm_exceptions import VmException
+from starkware.starkware_utils.error_handling import StarkException
+
 from src.commands.build.build_exceptions import CairoCompilationException
 from src.utils.config.project import Project
 from src.utils.starknet_compilation import StarknetCompiler
@@ -24,7 +30,7 @@ def build_project(
             ).compile_contract(
                 *[Path(component) for component in contract_components],
             )
-        except Exception as err:
+        except (StarkException, VmException, PreprocessorError) as err:
             raise CairoCompilationException(
                 f"Protostar couldn't compile '{contract_name}' contract\n{str(err)}"
             ) from err
