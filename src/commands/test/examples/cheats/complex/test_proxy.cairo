@@ -22,8 +22,8 @@ func test_proxy_contract{syscall_ptr : felt*, range_check_ptr}():
     local contract_logic_address : felt
     local contract_proxy_address : felt
     %{ 
-        ids.contract_proxy_address = deploy_contract("src/commands/test/examples/cheats/complex/proxy_contract.cairo") 
-        ids.contract_logic_address = deploy_contract("./src/commands/test/examples/basic.cairo") 
+        ids.contract_proxy_address = deploy_contract("src/commands/test/examples/cheats/complex/proxy_contract.cairo").contract_address 
+        ids.contract_logic_address = deploy_contract("./src/commands/test/examples/basic.cairo").contract_address 
     %}
 
     ProxyContract.set_target(
@@ -48,7 +48,7 @@ func test_missing_logic_contract{syscall_ptr : felt*, range_check_ptr}():
     local contract_logic_address : felt
     local contract_proxy_address : felt
     %{ 
-        ids.contract_proxy_address = deploy_contract("src/commands/test/examples/cheats/complex/proxy_contract.cairo") 
+        ids.contract_proxy_address = deploy_contract("src/commands/test/examples/cheats/complex/proxy_contract.cairo").contract_address
         ids.contract_logic_address = 5342435325345
     %}
 

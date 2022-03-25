@@ -134,7 +134,7 @@ class TestExecutionEnvironment:
 
     def deploy_in_env(self, contract_path: str):
         assert self.starknet
-        return asyncio.run(self.starknet.deploy(source=contract_path)).contract_address
+        return asyncio.run(self.starknet.deploy(source=contract_path))
 
     async def invoke_test_function(self, function_name: str):
         original_run_from_entrypoint = CairoFunctionRunner.run_from_entrypoint

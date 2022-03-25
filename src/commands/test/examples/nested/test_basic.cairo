@@ -17,7 +17,7 @@ func test_example{syscall_ptr : felt*, range_check_ptr}():
 
     local contract_a_address : felt
     %{ 
-        ids.contract_a_address = deploy_contract("./src/commands/test/examples/basic.cairo") 
+        ids.contract_a_address = deploy_contract("./src/commands/test/examples/basic.cairo").contract_address
     %}
 
     BasicContract.increase_balance(contract_address=contract_a_address, amount=15)
