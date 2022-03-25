@@ -82,7 +82,7 @@ cmd_init_parser = root_subparsers.add_parser("init")
 cmd_init_parser.add_argument(
     "--existing",
     default=False,
-    help="Adapts protostar to existing project",
+    help="Adapts current directory to a Protostar project",
     action="store_true",
 )
 
