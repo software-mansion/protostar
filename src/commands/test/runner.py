@@ -1,6 +1,7 @@
 from pathlib import Path
-from typing import Any, List, Optional, Pattern, Dict
+from typing import Any, List, Optional, Pattern, Dict, TYPE_CHECKING
 import asyncio
+
 
 from starkware.starknet.services.api.contract_definition import ContractDefinition
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
@@ -22,6 +23,10 @@ from src.commands.test.test_environment_exceptions import (
     StarkExceptionReportedException,
 )
 
+if TYPE_CHECKING:
+    from src.utils.config.project import Project
+
+
 current_directory = Path(__file__).parent
 
 
@@ -32,16 +37,14 @@ class TestRunner:
 
     def __init__(
         self,
-        project: Optional[Project] = None,
+        project: Optional["Project"] = None,
         include_paths: Optional[List[str]] = None,
     ):
         self._is_test_error_expected = False
-        self.include_paths = include_paths or []
-
-        if project:
-            config = project.load_config()
-            self.include_paths.append(str(project.project_root))
-            self.include_paths.append(str(Path(project.project_root, config.libs_path)))
+        if project and not include_paths:
+            self.include_paths = project.get_include_paths()
+        else:
+            self.include_paths = include_paths or []
 
     @replace_class(
         "starkware.starknet.core.os.syscall_utils.BusinessLogicSysCallHandler",
