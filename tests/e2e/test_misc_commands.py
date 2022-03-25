@@ -12,6 +12,7 @@ def test_help(protostar):
     result = protostar(["--help"])
     assert "usage:" in result
 
+
 def test_version(protostar):
     result = protostar(["--version"])
     assert "Protostar version:" in result
