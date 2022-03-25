@@ -2,22 +2,10 @@ from functools import reduce
 from pathlib import Path
 from typing import List, Union, Optional, Dict
 
-from starkware.starkware_utils.error_handling import StarkException
-
 from src.commands.test.cases import PassedCase, FailedCase, BrokenTest
 from src.commands.test.utils import TestSubject
 
 CaseResult = Union[PassedCase, FailedCase, BrokenTest]
-
-
-def print_stark_exception(exception: StarkException):
-    indented_message = "\t" + exception.message.replace("\n", "\n\t")
-    print("Error type:")
-    print(f"\t{exception.code.name}")
-    print("Error message:")
-    print(indented_message)
-    print("Error code:")
-    print(f"\t{exception.code.value}")
 
 
 class TestReporter:
@@ -96,7 +84,7 @@ class TestReporter:
                     print(
                         f"{test_path.resolve().relative_to(self.tests_root.resolve())}::{failed_case.function_name}"
                     )
-                    print_stark_exception(failed_case.exception)
+                    print(str(failed_case.exception))
         if self.broken_tests:
             print("\n----- BROKEN TESTS ------")
             for broken_subject in self.broken_tests:
@@ -105,7 +93,7 @@ class TestReporter:
                         self.tests_root.resolve()
                     )
                 )
-                print_stark_exception(broken_subject.exception)
+                print(str(broken_subject.exception))
 
     def report_collected(self, test_subjects: List[TestSubject]):
         self.collected_subjects = test_subjects
