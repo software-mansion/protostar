@@ -1,29 +1,31 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from src.commands.build import build_project
+from src.commands.build.build_exceptions import CairoCompilationException
 from src.utils.config.project_test import make_mock_project
 
 current_directory = Path(__file__).parent
 
 
 def test_build(tmp_path, mocker):
-
     libs_path = str(Path(current_directory, "mock_lib_root"))
     contracts = {
         "main": [f"{str(current_directory)}/mock_sources/mock_entry_point.cairo"]
     }
-    mock_project = make_mock_project(mocker, contracts, libs_path, current_directory)
-
-    output_path = Path(tmp_path, "main.json")
-    abi_output_path = Path(tmp_path, "main_abi.json")
+    project_mock = make_mock_project(mocker, contracts, libs_path, current_directory)
 
     build_project(
         output_dir=tmp_path,
         cairo_path=[],
-        project=mock_project,
+        project=project_mock,
         disable_hint_validation=False,
     )
+
+    output_path = Path(tmp_path, "main.json")
+    abi_output_path = Path(tmp_path, "main_abi.json")
 
     with open(str(output_path), mode="r", encoding="utf-8") as output:
         output = json.load(output)
@@ -42,3 +44,19 @@ def test_build(tmp_path, mocker):
         assert len(contract_function["inputs"]) == 1
         function_input = contract_function["inputs"][0]
         assert function_input["type"] == "felt"
+
+
+def test_handling_cairo_errors(mocker, tmp_path):
+    libs_path = str(Path(current_directory, "mock_lib_root"))
+    contracts = {
+        "main": [f"{str(current_directory)}/mock_sources/compilation_error.cairo"]
+    }
+    project_mock = make_mock_project(mocker, contracts, libs_path, current_directory)
+
+    with pytest.raises(CairoCompilationException):
+        build_project(
+            output_dir=tmp_path,
+            cairo_path=[],
+            project=project_mock,
+            disable_hint_validation=False,
+        )
