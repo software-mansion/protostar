@@ -3,7 +3,7 @@ from typing import Optional
 
 from attr import dataclass
 from starkware.starknet.testing.objects import StarknetTransactionExecutionInfo
-from starkware.starkware_utils.error_handling import StarkException
+from src.commands.test.test_environment_exceptions import ReportedException
 
 
 @dataclass
@@ -15,10 +15,10 @@ class PassedCase:
 class FailedCase:
     file_path: Path
     function_name: str
-    exception: BaseException
+    exception: ReportedException
 
 
 @dataclass
 class BrokenTest:
     file_path: Path
-    exception: StarkException
+    exception: ReportedException

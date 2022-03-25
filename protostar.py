@@ -88,6 +88,12 @@ cmd_remove_parser.add_argument(
 
 
 cmd_init_parser = root_subparsers.add_parser("init")
+cmd_init_parser.add_argument(
+    "--existing",
+    default=False,
+    help="Adapts current directory to a Protostar project",
+    action="store_true",
+)
 
 
 cmd_update_parser = root_subparsers.add_parser(
