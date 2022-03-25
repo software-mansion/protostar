@@ -60,19 +60,17 @@ class ProjectCreator:
         lib_dir = (
             ProjectCreator.request_input("Libraries directory name (optional)") or "lib"
         )
-        project_root = Path() / project_name
-        lib_pth = Path(project_root, lib_dir)
         self.config = ProjectConfig(
             name=project_name,
             description=project_description,
             license=project_license,
             version=version,
             authors=[author],
-            libs_path=str(lib_pth),
+            libs_path=lib_dir,
         )
 
     def project_creation(self):
-        project_root = Path()
+        project_root = Path() / self.config.name
         self.copy_template(self.script_root, "default", project_root)
         project = Project(project_root=project_root)
 
@@ -108,7 +106,7 @@ def get_creator(args: Any) -> Type[ProjectCreator]:
     if args.existing:
         return OnlyConfigCreator
 
-    files_depth_3 = glob.glob("*/*/*")
+    files_depth_3 = glob.glob("*") + glob.glob("*/*") + glob.glob("*/*/*")
     is_any_cairo_file = any(map(lambda f: f.endswith(".cairo"), files_depth_3))
 
     out = False
