@@ -97,21 +97,16 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
                 return self.mocked_calls[code_address][request.function_selector]
 
         return self._call_contract_without_retrieving_request(
-            segments, syscall_ptr, syscall_name, request
+            segments, syscall_name, request
         )
 
     # copy of super().call_contract with removed call to _read_and_validate_syscall_request
     def _call_contract_without_retrieving_request(
         self,
         segments: MemorySegmentManager,
-        syscall_ptr: RelocatableValue,
         syscall_name: str,
         request,
     ) -> List[int]:
-        # pylint: disable=import-outside-toplevel
-        request = self._read_and_validate_syscall_request(
-            syscall_name=syscall_name, segments=segments, syscall_ptr=syscall_ptr
-        )
         calldata = segments.memory.get_range_as_ints(
             addr=request.calldata, size=request.calldata_size
         )
