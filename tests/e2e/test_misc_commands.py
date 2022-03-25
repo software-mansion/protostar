@@ -11,7 +11,7 @@ from tests.conftest import ACTUAL_CWD, init_project
 def test_help(protostar):
     result = protostar(["--help"])
     assert "usage:" in result
-    
+
 
 def test_init(project_name: str):
     with pytest.raises(FileNotFoundError):
