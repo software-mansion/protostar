@@ -45,7 +45,6 @@ async def cli(args, script_root, protostar_dir: Optional[Path]):
         elif args.command == "upgrade":
             upgrade()
         elif args.command == "test":
-            print(dir(args))
             cairo_paths: List[Path] = args.cairo_path or []
             if protostar_dir:
                 cairo_paths.append(protostar_dir / "cairo")
