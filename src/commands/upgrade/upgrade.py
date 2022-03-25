@@ -20,6 +20,14 @@ def upgrade() -> None:
     manager.upgrade()
 
 
+def print_current_version() -> None:
+    manager = UpgradeManager(PROTOSTAR_DIR)
+    current_version = manager.get_current_version()
+    cairo_version = manager.get_cairo_version()
+    print(f"Protostar version: {current_version}")
+    print(f"Cairo-lang version: {cairo_version}")
+
+
 class UpgradeManagerException(Exception):
     pass
 
@@ -113,4 +121,12 @@ class UpgradeManager:
         path = self.protostar_dir / "dist" / "protostar" / "info" / "pyproject.toml"
         with open(path, "r", encoding="UTF-8") as file:
             version_s = tomli.loads(file.read())["tool"]["poetry"]["version"]
+            return version.parse(version_s)
+
+    def get_cairo_version(self):
+        path = self.protostar_dir / "dist" / "protostar" / "info" / "pyproject.toml"
+        with open(path, "r", encoding="UTF-8") as file:
+            version_s = tomli.loads(file.read())["tool"]["poetry"]["dependencies"][
+                "cairo-lang"
+            ]
             return version.parse(version_s)

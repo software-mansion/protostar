@@ -8,6 +8,7 @@ from src.commands import (
     handle_remove_command,
     init,
     upgrade,
+    print_current_version,
 )
 from src.commands.build.build_project import build_project
 from src.commands.test import run_test_runner
@@ -30,7 +31,9 @@ async def cli(args, script_root):
     current_project = Project.get_current()
 
     try:
-        if args.command == "install":
+        if args.version:
+            print_current_version()
+        elif args.command == "install":
             handle_install_command(args)
         elif args.command == "remove":
             handle_remove_command(args)

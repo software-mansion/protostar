@@ -48,6 +48,13 @@ root_parser = ArgumentParser()
 root_parser.add_argument(
     "--no-color", default=False, help="disable colors", action="store_true"
 )
+root_parser.add_argument(
+    "--version",
+    "-v",
+    default=False,
+    help="Show version-related data",
+    action="store_true",
+)
 
 root_subparsers = root_parser.add_subparsers(dest="command")
 
