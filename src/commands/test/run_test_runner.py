@@ -1,9 +1,8 @@
 from pathlib import Path
 from re import Pattern
-from typing import List, Optional
-from src.commands.test.runner import TestRunner
-from src.utils.config.project import Project
 from typing import List, Optional, TYPE_CHECKING
+from src.commands.test.runner import TestRunner
+
 
 if TYPE_CHECKING:
     from src.utils.config.project import Project

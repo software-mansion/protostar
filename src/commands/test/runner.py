@@ -2,7 +2,6 @@ from pathlib import Path
 from typing import Any, List, Optional, Pattern, Dict, TYPE_CHECKING
 import asyncio
 
-
 from starkware.starknet.services.api.contract_definition import ContractDefinition
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.testing.starknet import Starknet
@@ -14,7 +13,6 @@ from src.commands.test.cheatable_syscall_handler import CheatableSysCallHandler
 from src.commands.test.collector import TestCollector
 from src.commands.test.reporter import TestReporter
 from src.commands.test.utils import TestSubject
-from src.utils.config.project import Project
 from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
 from src.commands.test.test_environment_exceptions import (
