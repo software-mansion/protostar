@@ -21,7 +21,7 @@ init_colorama()
 cwd = os.getcwd()
 
 
-async def cli(args, script_root: Path()):
+async def cli(args, script_root: Path):
     log_color_provider.is_ci_mode = args.no_color
 
     logger = getLogger()

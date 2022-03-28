@@ -19,16 +19,10 @@ def test_init(project_name: str):
 
     init_project(project_name)
 
-    child = pexpect.spawn(
-        f"python {path.join(ACTUAL_CWD, 'protostar.py')} build"
-    )
-    child.expect(pexpect.EOF)
-
     dirs = listdir(project_name)
 
     assert "protostar.toml" in dirs
     assert ".git" in dirs
-    assert "build" in dirs
 
 
 def test_init_existing(project_name: str):
