@@ -1,4 +1,4 @@
-name: Test build docs
+name: Test docs
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   test-deploy:
-    name: Test deployment
+    name: Test build docs
     runs-on: ubuntu-latest
     defaults:
       run:
