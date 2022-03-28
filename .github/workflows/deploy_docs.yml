@@ -1,7 +1,7 @@
 name: Deploy to GitHub Pages
 
 on:
-  pull_request: # TODO: push1
+  push:
     branches:
       - master
   workflow_dispatch:
