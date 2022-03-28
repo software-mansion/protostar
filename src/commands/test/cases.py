@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Optional
 
 from attr import dataclass
 from starkware.starknet.testing.objects import StarknetTransactionExecutionInfo
@@ -7,7 +8,7 @@ from src.commands.test.test_environment_exceptions import ReportedException
 
 @dataclass
 class PassedCase:
-    tx_info: StarknetTransactionExecutionInfo
+    tx_info: Optional[StarknetTransactionExecutionInfo]
 
 
 @dataclass
