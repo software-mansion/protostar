@@ -1,7 +1,9 @@
+# Issue: https://github.community/t/pages-deploy-wedged-incorrect-request-failed-due-to-in-progress-deployment/234793/19
+
 name: Deploy to GitHub Pages
 
 on:
-  pull_request: # TODO: push11
+  push:
     branches:
       - master
   workflow_dispatch:
