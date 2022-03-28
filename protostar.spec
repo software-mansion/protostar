@@ -3,6 +3,7 @@ from PyInstaller.utils.hooks import collect_data_files
 
 block_cipher = None
 extra_files = [
+    ("cairo", "cairo"),
     ('templates', 'templates'),
     ('pyproject.toml', 'info'),
 ] + collect_data_files('starkware')

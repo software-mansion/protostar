@@ -6,8 +6,12 @@ from pathlib import Path
 from re import Pattern
 
 from src import cli
+from src.utils import find_protostar_binary_dir
 
 SCRIPT_ROOT = Path(__file__).parent
+
+PROTOSTAR_BINARY_DIR = find_protostar_binary_dir()
+
 
 PACKAGE_CORE_FORMATS_HELP_MESSAGE = """a package reference in one of the following formats:
 - GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]
@@ -159,7 +163,7 @@ cmd_compile_parser.add_argument(
 
 
 try:
-    asyncio.run(cli(root_parser.parse_args(), SCRIPT_ROOT))
+    asyncio.run(cli(root_parser.parse_args(), SCRIPT_ROOT, PROTOSTAR_BINARY_DIR))
 except Exception as err:
     print(
         "Unexpected Protostar error. Report it here:\nhttps://github.com/software-mansion/protostar/issues\n"
