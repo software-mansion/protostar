@@ -1,34 +1,36 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
-const lightCodeTheme = require('prism-react-renderer/themes/github')
-const darkCodeTheme = require('prism-react-renderer/themes/dracula')
+const lightCodeTheme = require("prism-react-renderer/themes/github");
+const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'Protostar',
-  tagline: 'Cairo smart contract development toolchain',
-  url: 'https://your-docusaurus-test-site.com',
-  baseUrl: '/protostar/',
-  onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
-  favicon: 'img/favicon.ico',
-  organizationName: 'software-mansion', // Usually your GitHub org/user name.
-  projectName: 'protostar', // Usually your repo name.
+  title: "Protostar",
+  tagline: "Cairo smart contract development toolchain",
+  url: "https://your-docusaurus-test-site.com",
+  baseUrl: "/protostar/",
+  onBrokenLinks: "throw",
+  onBrokenMarkdownLinks: "warn",
+  favicon: "img/favicon.ico",
+  organizationName: "software-mansion",
+  projectName: "protostar",
+  trailingSlash: false,
+  deploymentBranch: "gh-pages",
 
   presets: [
     [
-      'classic',
+      "classic",
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          sidebarPath: require.resolve('./sidebars.js'),
+          sidebarPath: require.resolve("./sidebars.js"),
           // Please change this to your repo.
           editUrl: ({ docPath }) =>
             `https://github.com/software-mansion/protostar/tree/gh-pages/website/docs/${docPath}`,
         },
         theme: {
-          customCss: require.resolve('./src/css/custom.css'),
+          customCss: require.resolve("./src/css/custom.css"),
         },
       }),
     ],
@@ -38,40 +40,40 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       navbar: {
-        title: 'Protostar',
+        title: "Protostar",
         logo: {
-          alt: 'Protostar',
-          src: 'img/protostar-logo--dark.png',
-          srcDark: 'img/protostar-logo--light.png',
+          alt: "Protostar",
+          src: "img/protostar-logo--dark.png",
+          srcDark: "img/protostar-logo--light.png",
         },
         items: [
           {
-            type: 'docSidebar',
-            position: 'left',
-            sidebarId: 'tutorials',
-            label: 'Tutorials',
+            type: "docSidebar",
+            position: "left",
+            sidebarId: "tutorials",
+            label: "Tutorials",
           },
           {
-            href: 'https://github.com/software-mansion/protostar',
-            label: 'GitHub',
-            position: 'right',
+            href: "https://github.com/software-mansion/protostar",
+            label: "GitHub",
+            position: "right",
           },
         ],
       },
       footer: {
-        style: 'dark',
+        style: "dark",
         links: [
           {
-            title: 'Docs',
+            title: "Docs",
             items: [
               {
-                label: 'Tutorials',
-                to: '/docs/tutorials/intro',
+                label: "Tutorials",
+                to: "/docs/tutorials/intro",
               },
             ],
           },
           {
-            title: 'Community',
+            title: "Community",
             items: [
               //   {
               //     label: 'Discord',
@@ -87,6 +89,6 @@ const config = {
         darkTheme: darkCodeTheme,
       },
     }),
-}
+};
 
-module.exports = config
+module.exports = config;
