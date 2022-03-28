@@ -1,5 +1,6 @@
 import os
 from logging import INFO, StreamHandler, getLogger
+from pathlib import Path
 from colorama import init as init_colorama
 
 from src.commands import (
@@ -20,7 +21,7 @@ init_colorama()
 cwd = os.getcwd()
 
 
-async def cli(args, script_root):
+async def cli(args, script_root: Path()):
     log_color_provider.is_ci_mode = args.no_color
 
     logger = getLogger()

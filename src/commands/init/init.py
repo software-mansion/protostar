@@ -11,7 +11,7 @@ from src.utils import log_color_provider
 from src.utils.config.project import Project, ProjectConfig
 
 
-def init(args: Any, script_root: str):
+def init(args: Any, script_root: Path()):
     """
     Creates init protostar project
     """
@@ -28,7 +28,7 @@ def input_yes_no(message: str) -> bool:
 
 
 class ProjectCreator:
-    def __init__(self, script_root: str):
+    def __init__(self, script_root: Path()):
         self.script_root = script_root
         self.config = ProjectConfig()
 
@@ -85,8 +85,8 @@ class ProjectCreator:
         Repo.init(project_root)
 
     @staticmethod
-    def copy_template(script_root: str, template_name: str, project_path: Path):
-        template_path = f"{script_root}/templates/{template_name}"
+    def copy_template(script_root: Path(), template_name: str, project_path: Path):
+        template_path = script_root / "templates" / template_name
         shutil.copytree(template_path, project_path)
 
 
