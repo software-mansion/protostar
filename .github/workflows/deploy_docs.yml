@@ -1,9 +1,10 @@
 name: Deploy to GitHub Pages
 
 on:
-  pull_request: # TODO: replace with push
+  push:
     branches:
       - master
+  workflow_dispatch:
 
 jobs:
   deploy:
