@@ -4,6 +4,8 @@
 
 ## Adding new package
 
+### Alias
+
 ## Updating package
 
 ## Removing package

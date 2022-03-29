@@ -7,7 +7,7 @@ const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: "Protostar",
-  tagline: "Cairo smart contract development toolchain",
+  tagline: "StarkNet smart contract development toolchain",
   url: "https://your-docusaurus-test-site.com",
   baseUrl: "/protostar/",
   onBrokenLinks: "throw",
