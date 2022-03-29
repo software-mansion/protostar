@@ -27,7 +27,7 @@ const config = {
           sidebarPath: require.resolve("./sidebars.js"),
           // Please change this to your repo.
           editUrl: ({ docPath }) =>
-            `https://github.com/software-mansion/protostar/tree/gh-pages/website/docs/${docPath}`,
+            `https://github.com/software-mansion/protostar/tree/master/website/docs/${docPath}`,
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
