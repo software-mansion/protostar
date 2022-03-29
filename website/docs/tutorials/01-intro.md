@@ -12,4 +12,4 @@ T.B.D.
 
 ## Prerequisites
 
-T.B.D.
+- Cairo-lang and StarkNet
