@@ -7,7 +7,7 @@ sidebar_label: Dependencies (2 min)
 Protostar manages dependencies (packages) using [git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules) ([similarly to Foundry](https://onbjerg.github.io/foundry-book/projects/dependencies.html)). This is the reason Protostar expects [git](https://git-scm.com/) to be installed. Keep this in mind, especially if your project uses git submodules.
 
 :::note
-Using Git submodules for package management is not an ideal approach. Therefore, [Starkware](https://starkware.co/) plans to create a proper package manager.
+Using Git submodules as a foundation for package management is not an ideal approach. Therefore, [Starkware](https://starkware.co/) plans to create a proper package manager.
 :::
 
 ## Adding a dependency
@@ -44,7 +44,7 @@ Protostar supports the following ways of referencing external dependency:
 
 ### Aliases
 
-Protostar supports installing dependencies with different name. This allows you to resolve name conflict, in case of two GitHub users use the same name for theirs library. In order to install a package with custom name, run `protostar install EXTERNAL_DEPENDENCY_REFERENCE --name CUSTOM_NAME`.
+Protostar supports installing dependencies under a different name. This allows you to resolve a name conflict, in case of two GitHub users use the same name for their library. In order to install a package under a custom name, run `protostar install EXTERNAL_DEPENDENCY_REFERENCE --name CUSTOM_NAME`.
 
 ## Updating dependencies
 
@@ -53,7 +53,7 @@ To update:
 - a single dependency, run `protostar update LOCAL_DEPENDENCY_REFERENCE`
 
 :::info
-**LOCAL_DEPENDENCY_REFERENCE** is any reference shown in [External Dependency Reference Formats](#external-dependency-reference-formats) and the name of a directory storing that dependency.
+**LOCAL_DEPENDENCY_REFERENCE** is any reference shown in [External Dependency Reference Formats](#external-dependency-reference-formats) or the name of a directory storing that dependency.
 :::
 
 
