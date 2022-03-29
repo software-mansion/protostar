@@ -1,8 +1,12 @@
+---
+sidebar_label: Introduction (1 min)
+---
+
 # Introduction
 
 Protostar is a StarkNet smart contract development [toolchain](https://en.wikipedia.org/wiki/Toolchain), which helps you with the following tasks:
 
-- dependencies management
+- [dependencies management](/docs/tutorials/Guides/dependencies-management)
 - project compilation
 - testing your contract
 
@@ -21,5 +25,5 @@ After reading this guides, you will know how to do the following:
 - configure `protostar.toml`
 - adapt existing Cairo project to Protostar project
 - compile project
-- manage project's dependencies
+- [add, remove, and remove dependencies](/docs/tutorials/Guides/dependencies-management)
 - test contracts with the help of cheatcodes
