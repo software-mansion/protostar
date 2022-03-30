@@ -14,13 +14,13 @@ Using Git submodules as a foundation for package management is not an ideal appr
 
 To add a dependency, inside project directory, run `protostar install EXTERNAL_DEPENDENCY_REFERENCE`:
 
-```console title="Installing a dependency from link to a repository"
+```console title="Installing a dependency from link to a repository."
 $ protostar install https://github.com/OpenZeppelin/cairo-contracts
 12:00:00 [INFO] Installing cairo_contracts (https://github.com/OpenZeppelin/cairo-contracts)
 ```
 
 
-```console title="'lib' category contains the installed dependency"
+```console title="'lib' category contains the installed dependency."
 $ tree -L 2
 .
 ├── lib
@@ -46,8 +46,8 @@ Protostar supports the following ways of referencing external dependency:
 
 Protostar supports installing dependencies under a different name. This allows you to resolve a name conflict, in case of two GitHub users use the same name for their library. In order to install a package under a custom name, run `protostar install EXTERNAL_DEPENDENCY_REFERENCE --name CUSTOM_NAME`. [Updating dependencies](#updating-dependencies) section explains how to refer to installed dependency.
 
-```console title="Installing a dependency under different name"
-protostar install https://github.com/OpenZeppelin/cairo-contracts --name open_zeppelin
+```console title="Installing a dependency under different name."
+$ protostar install https://github.com/OpenZeppelin/cairo-contracts --name open_zeppelin
 10:09:51 [INFO] Installing open_zeppelin (https://github.com/OpenZeppelin/cairo-contracts)
 ```
 
@@ -56,7 +56,7 @@ protostar install https://github.com/OpenZeppelin/cairo-contracts --name open_ze
 If you [clone](https://git-scm.com/docs/git-clone) Protostar project using dependencies without `--recurse-submodules` flag, you need to install dependencies using Protostar. Otherwise, your project won't compile and tests will fail. To do so, run `protostar install` in the project directory.
 
 ```console title="Protostar will install all submodules from the dependencies directory."
-protostar install
+$ protostar install
 09:37:42 [INFO] Installing cairo_contracts (https://github.com/OpenZeppelin/cairo-contracts)
 ```
 
@@ -71,8 +71,8 @@ To update:
 `LOCAL_DEPENDENCY_REFERENCE` is a directory name of dependency for example:
 
 ```console title="Updating a previously installed dependency."
-  protostar update cairo_contracts
-  10:03:52 [INFO] Package already up to date.
+$ protostar update cairo_contracts
+10:03:52 [INFO] Package already up to date.
 ```
 
 :::note
@@ -86,6 +86,6 @@ If the default branch of a dependency's repository uses [tags](https://git-scm.c
 
 To remove a dependency, run `protostar remove LOCAL_DEPENDENCY_REFERENCE`.
 ```console title="Removing a dependency."
-  protostar remove cairo_contracts
-  10:04:26 [INFO] Removing cairo_contracts
+$ protostar remove cairo_contracts
+10:04:26 [INFO] Removing cairo_contracts
 ```
