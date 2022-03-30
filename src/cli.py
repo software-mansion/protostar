@@ -7,9 +7,14 @@ from typing import List, Optional
 
 from colorama import init as init_colorama
 
-from src.commands import (handle_install_command, handle_remove_command,
-                          handle_update_command, init, print_current_version,
-                          upgrade)
+from src.commands import (
+    handle_install_command,
+    handle_remove_command,
+    handle_update_command,
+    init,
+    print_current_version,
+    upgrade,
+)
 from src.commands.build.build_project import build_project
 from src.commands.test import run_test_runner
 from src.protostar_exception import ProtostarException
