@@ -16,7 +16,7 @@ Protostar takes its inspiration from [Foundry](https://onbjerg.github.io/foundry
 
 ## Target audience
 
-You have basic knowledge about [Cairo and StarkNet](https://www.cairo-lang.org/docs/).
+This guides assume you have basic knowledge about [Cairo and StarkNet](https://www.cairo-lang.org/docs/) and Git.
 
 ## Learning objectives
 

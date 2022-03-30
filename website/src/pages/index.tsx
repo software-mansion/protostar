@@ -22,7 +22,7 @@ export default function Home(): JSX.Element {
             <TestIcon className="text-secondary" width={64} height={64} />
           )}
           title="Test"
-          description="Test runner and cheatcodes make simplify testing"
+          description="Test runner and cheatcodes simplify testing"
         />
         <HomepageFeature
           renderIcon={() => (
