@@ -8,7 +8,7 @@ Protostar is a StarkNet smart contract development [toolchain](https://en.wikipe
 
 - [dependencies management](/docs/tutorials/Guides/dependencies-management)
 - project compilation
-- testing your contract
+- testing contracts
 
 :::note
 Protostar takes its inspiration from [Foundry](https://onbjerg.github.io/foundry-book/index.html).

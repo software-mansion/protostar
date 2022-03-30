@@ -14,14 +14,13 @@ Using Git submodules as a foundation for package management is not an ideal appr
 
 To add a dependency, inside project directory, run `protostar install EXTERNAL_DEPENDENCY_REFERENCE`:
 
-```console
+```console title="Installing a dependency from link to a repository"
 $ protostar install https://github.com/bellissimogiorno/cairo-integer-types
 12:00:00 [INFO] Installing cairo_integer_types (https://github.com/bellissimogiorno/cairo-integer-types)
 ```
 
-`lib` folder should now contain the installed dependency:
 
-```console
+```console title="'lib' category contains the installed dependency"
 $ tree -L 2
 .
 ├── lib
@@ -47,9 +46,15 @@ Protostar supports the following ways of referencing external dependency:
 
 Protostar supports installing dependencies under a different name. This allows you to resolve a name conflict, in case of two GitHub users use the same name for their library. In order to install a package under a custom name, run `protostar install EXTERNAL_DEPENDENCY_REFERENCE --name CUSTOM_NAME`. [Updating dependencies](#updating-dependencies) section explains how to refer to installed dependency.
 
-## Installing dependencies after cloning repository
+## Installing dependencies after cloning a repository
 
-When you clone Protostar repository without `--recurse-submodules`
+If you [clone](https://git-scm.com/docs/git-clone) Protostar project using dependencies without `--recurse-submodules` flag, you need to install dependencies using Protostar. Otherwise, your project won't compile and tests will fail. To do so, run `protostar install` in the project directory.
+
+```console title="Protostar will install all submodules from the dependencies directory."
+python ../protostar.py install
+09:37:42 [INFO] Installing cairo_contracts (https://github.com/OpenZeppelin/cairo-contracts)
+```
+
 
 ## Updating dependencies
 
@@ -60,19 +65,22 @@ To update:
 
 `LOCAL_DEPENDENCY_REFERENCE` is a directory name of dependency for example:
 
-```console
+```console title="Updating a previously installed dependency."
   protostar update cairo_integer_types
+  10:03:52 [INFO] Package already up to date.
 ```
 
 :::note
 You can use [`EXTERNAL_DEPENDENCY_REFERENCE`](#external-dependency-reference-formats) in place of `LOCAL_DEPENDENCY_REFERENCE`.
 :::
 
-Protostar updates dependencies in the following ways:
+If the default branch of a dependency's repository uses [tags](https://git-scm.com/book/en/v2/Git-Basics-Tagging), Protostar will pull a commit marked with the newest tag. Otherwise, Protostar will pull a recent commit from the default branch.
 
-- updating to recent tag, if dependency's repository uses [tags](https://git-scm.com/book/en/v2/Git-Basics-Tagging)
-- updating to recent commit, if dependency's repository doesn't use tags
 
 ## Removing dependencies
 
 To remove a dependency, run `protostar remove LOCAL_DEPENDENCY_REFERENCE`.
+```console title="Removing a dependency."
+  protostar remove cairo_integer_types
+  10:04:26 [INFO] Removing cairo_contracts
+```
