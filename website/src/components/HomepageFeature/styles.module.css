@@ -1,0 +1,20 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 20rem;
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.iconContainer {
+  background-color: var(--ifm-color-emphasis-200);
+  display: inline-flex;
+  padding: 1.5rem;
+  border-radius: 50%;
+  margin-bottom: 1rem;
+}
+
+.bg-primary {
+  background-color: var(--ifm-color-primary);
+}
