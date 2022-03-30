@@ -32,7 +32,7 @@ $ tree -L 2
     └── test_main.cairo
 ```
 
-### External Dependency Reference Formats
+### External dependency reference formats
 
 Protostar supports the following ways of referencing external dependency:
 
