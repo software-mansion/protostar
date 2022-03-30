@@ -15,8 +15,8 @@ Using Git submodules as a foundation for package management is not an ideal appr
 To add a dependency, inside project directory, run `protostar install EXTERNAL_DEPENDENCY_REFERENCE`:
 
 ```console title="Installing a dependency from link to a repository"
-$ protostar install https://github.com/bellissimogiorno/cairo-integer-types
-12:00:00 [INFO] Installing cairo_integer_types (https://github.com/bellissimogiorno/cairo-integer-types)
+$ protostar install https://github.com/OpenZeppelin/cairo-contracts
+12:00:00 [INFO] Installing cairo_contracts (https://github.com/OpenZeppelin/cairo-contracts)
 ```
 
 
@@ -24,7 +24,7 @@ $ protostar install https://github.com/bellissimogiorno/cairo-integer-types
 $ tree -L 2
 .
 ├── lib
-│   └── cairo_integer_types
+│   └── cairo_contracts
 ├── protostar.toml
 ├── src
 │   └── main.cairo
@@ -66,7 +66,7 @@ To update:
 `LOCAL_DEPENDENCY_REFERENCE` is a directory name of dependency for example:
 
 ```console title="Updating a previously installed dependency."
-  protostar update cairo_integer_types
+  protostar update cairo_contracts
   10:03:52 [INFO] Package already up to date.
 ```
 
@@ -81,6 +81,6 @@ If the default branch of a dependency's repository uses [tags](https://git-scm.c
 
 To remove a dependency, run `protostar remove LOCAL_DEPENDENCY_REFERENCE`.
 ```console title="Removing a dependency."
-  protostar remove cairo_integer_types
+  protostar remove cairo_contracts
   10:04:26 [INFO] Removing cairo_contracts
 ```
