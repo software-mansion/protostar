@@ -50,7 +50,7 @@ def package_repo_dir(tmpdir: str) -> str:
 
 @pytest.fixture
 def package_repo(package_repo_dir: str, the_packages_file_name: str) -> Repo:
-    repo = Repo.init(package_repo_dir)
+    repo = Repo.init(package_repo_dir, initial_branch="main")
 
     the_file_path = path.join(package_repo_dir, the_packages_file_name)
     with open(path.join(the_file_path), "w", encoding="utf-8") as file:
