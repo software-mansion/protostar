@@ -1,6 +1,6 @@
 # Testing
-Protostar provides users a flexible testing environment for cairo smart contracts. 
-It allows to write unit and integration tests and modify the blockchain state with cheatcodes.
+Protostar provides a flexible testing environment for Cairo smart contracts. 
+It allows to write unit/integration tests with a help of [cheatcodes](#cheatcodes).
 
 ## Unit testing
 Protostar provides a simple way to test your functions.
@@ -12,7 +12,7 @@ func sum_func{syscall_ptr : felt*, range_check_ptr}(a : felt, b : felt) -> (res 
 end
 ```
 This is our target function, which we are going to test.
-Then in `tests` directory create file `test_utils.cairo`, this contract with two test cases.
+Then in the `tests` directory create file `test_utils.cairo`, this contract with two test cases.
 ```
 # tests/test_utils.cairo
 %lang starknet
@@ -156,8 +156,6 @@ At the end define testing contract with a single test case
 # tests/test_proxy.cairo
 %lang starknet
 
-# Check if importing from root directory is possible
-
 @contract_interface
 namespace ProxyContract:
     func set_target(new_target : felt):
@@ -188,12 +186,13 @@ func test_proxy_contract{syscall_ptr : felt*, range_check_ptr}():
         new_target=contract_logic_address
     )
 
-    # Calls increase_balance through proxy contract
+    # Invokes increase_balance through proxy contract
     ProxyContract.increase_balance(
         contract_address=contract_proxy_address,
         amount=5
     )
 
+    # Calls get_balance through proxy contract
     let (res) = ProxyContract.get_balance(contract_address=contract_proxy_address)
     assert res = 5
     return ()
@@ -215,3 +214,4 @@ Ran 1 out of 1 total tests
 ```
 
 
+## Cheatcodes
