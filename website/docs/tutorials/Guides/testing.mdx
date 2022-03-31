@@ -1,7 +1,217 @@
 # Testing
+Protostar provides users a flexible testing environment for cairo smart contracts. 
+It allows to write unit and integration tests and modify the blockchain state with cheatcodes.
 
-T.B.D.
+## Unit testing
+Protostar provides a simple way to test your functions.
+In your `src` directory create a `utils.cairo` file
+```
+# src/utils.cairo
+func sum_func{syscall_ptr : felt*, range_check_ptr}(a : felt, b : felt) -> (res : felt):
+    return (a+b)
+end
+```
+This is our target function, which we are going to test.
+Then in `tests` directory create file `test_utils.cairo`, this contract with two test cases.
+```
+# tests/test_utils.cairo
+%lang starknet
 
-## Cheatcodes
+from src.utils import sum_func
 
-T.B.D.
+@external
+func test_sum{syscall_ptr : felt*, range_check_ptr}():
+    let (r) = sum_func(4,3)
+    assert r = 7
+    return ()
+end
+
+@external
+func test_sum_failing{syscall_ptr : felt*, range_check_ptr}():
+    let (r) = sum_func(4,3)
+    assert r = 8
+    return ()
+end
+```
+
+Then run 
+```
+protostar test ./tests
+```
+
+```console title="expected result"
+Collected 2 items
+
+test_utils: .F
+----- TEST SUMMARY ------
+1 failed, 1 passed
+Ran 2 out of 2 total tests
+
+----- FAILURES ------
+test_utils.cairo::test_sum_failing
+Error type: TRANSACTION_FAILED
+Error message:
+  Error at pc=0:38:
+An ASSERT_EQ instruction failed: 7 != 8.
+Cairo traceback (most recent call last):
+Unknown location (pc=0:46)
+Error code:
+  37
+```
+
+## Integration testing
+
+For most projects such local testing won't be enough. Protostar provides a way to test interactions between contracts.
+Create files:
+- `src/storage_contract.cairo`
+- `src/proxy_contract.cairo`
+- `tests/test_proxy.cairo`
+
+First you need to define a simple storage contract:
+```
+# src/storage_contract.cairo
+
+%lang starknet
+%builtins pedersen range_check
+
+from starkware.cairo.common.cairo_builtins import HashBuiltin
+
+# Define a storage variable.
+@storage_var
+func balance() -> (res : felt):
+end
+
+# Increases the balance by the given amount.
+@external
+func increase_balance{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(amount: felt):
+    let (res) = balance.read()
+    balance.write(res + amount)
+    return ()
+end
+
+# Returns the current balance.
+@view
+func get_balance{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (
+        res : felt):
+    let (res) = balance.read()
+    return (res)
+end
+
+@constructor
+func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
+    balance.write(0)
+    return ()
+end
+```
+Then define a proxy contract, your test will call storage contract using proxy contract
+```
+# src/proxy_contract.cairo
+
+%lang starknet
+%builtins pedersen range_check
+
+from starkware.cairo.common.cairo_builtins import HashBuiltin
+
+
+@contract_interface
+namespace StorageContract:
+    func increase_balance(amount : felt):
+    end
+
+    func get_balance() -> (res : felt):
+    end
+end
+
+@storage_var
+func target() -> (res : felt):
+end
+
+# Sets a basic contract address which proxy calls
+@external
+func set_target{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(new_target: felt):
+    target.write(new_target)
+    return ()
+end
+
+# Invokes increase_balance method
+@external
+func increase_balance{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(amount: felt):
+    let (target_contract) = target.read()
+    StorageContract.increase_balance(contract_address=target_contract, amount=amount)
+    return ()
+end
+
+
+# Calls get_balance method and returns the result
+@view
+func get_balance{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (
+        res : felt):
+    let (target_contract) = target.read()
+    let (res) = StorageContract.get_balance(contract_address=target_contract)
+    return (res)
+end
+```
+At the end define testing contract with a single test case
+```
+# tests/test_proxy.cairo
+%lang starknet
+
+# Check if importing from root directory is possible
+
+@contract_interface
+namespace ProxyContract:
+    func set_target(new_target : felt):
+    end
+
+    func increase_balance(amount : felt):
+    end
+
+    func get_balance() -> (res : felt):
+    end
+end
+
+@external
+func test_proxy_contract{syscall_ptr : felt*, range_check_ptr}():
+    alloc_locals
+
+    local contract_logic_address : felt
+    local contract_proxy_address : felt
+    %{
+        # We deploy two contracts and put their addresses into local variables
+        ids.contract_proxy_address = deploy_contract("./src/proxy_contract.cairo").contract_address 
+        ids.contract_logic_address = deploy_contract("./src/storage_contract.cairo").contract_address 
+    %}
+
+    # Sets a target storage contract 
+    ProxyContract.set_target(
+        contract_address=contract_proxy_address,
+        new_target=contract_logic_address
+    )
+
+    # Calls increase_balance through proxy contract
+    ProxyContract.increase_balance(
+        contract_address=contract_proxy_address,
+        amount=5
+    )
+
+    let (res) = ProxyContract.get_balance(contract_address=contract_proxy_address)
+    assert res = 5
+    return ()
+end
+```
+
+Then run
+```
+protostar test ./tests
+```
+
+```console title="expected result"
+Collected 1 items
+
+test_proxy: .
+----- TEST SUMMARY ------
+1 passed
+Ran 1 out of 1 total tests
+```
+
+
