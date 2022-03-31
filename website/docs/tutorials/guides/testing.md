@@ -4,7 +4,21 @@ T.B.D.
 
 ## Asserts
 
-T.B.D.
+Protostar ships with own assert functions. They are more generic and don't accept [implicit arguments](https://www.cairo-lang.org/docs/how_cairo_works/builtins.html?highlight=implicit%20arguments#implicit-arguments), but if you can also you asserts from [`starkware.cairo.common.math`](https://github.com/starkware-libs/cairo-lang/blob/master/src/starkware/cairo/common/math.cairo). You can import asserts in the following way:
+
+```cairo title="test_my_contract.cairo"
+from protostar.asserts import (
+    assert_eq, assert_not_eq, assert_signed_lt, assert_signed_le, assert_signed_gt,
+    assert_unsigned_lt, assert_unsigned_le, assert_unsigned_gt, assert_signed_ge,
+    assert_unsigned_ge)
+```
+
+:::info
+If your IDE supports Cairo and doesn't know how to import `protostar`, add the following directory
+`$(which protostar)/../cairo` to the [`CAIRO_PATH`](https://www.cairo-lang.org/docs/how_cairo_works/imports.html?highlight=cairo_path).
+:::
+
+You can find all [assert signatures here](https://github.com/software-mansion/protostar/blob/master/cairo/protostar/asserts.cairo).
 
 ## Cheatcodes
 
@@ -22,7 +36,7 @@ If you are familiar with [Foundry](https://book.getfoundry.sh/forge/cheatcodes.h
 def mock_call(contract_address: int, fn_name: str, ret_data: List[int]) -> None: ...
 ```
 
-Mocks all calls to function with the name `fn_name` of a contract with an address `contract_address`. Mocked call returns data provided in `ret_data`.
+Mocks all calls to function with the name `fn_name` of a contract with an address `contract_address` unless [`clear_mock_call`](#clear_mock_call) is used. Mocked call returns data provided in `ret_data`.
 
 #### Representing different data structures in `ret_data`
 
@@ -47,7 +61,6 @@ namespace ITestContract:
     func get_struct() -> (res : Point):
     end
 end
-
 ```
 
 ##### Felt
@@ -100,7 +113,6 @@ func test_mock_call_returning_struct{syscall_ptr : felt*, range_check_ptr}():
   assert res_struct.y = 37
   return ()
 end
-
 ```
 
 ### `clear_mock_call`
@@ -108,6 +120,8 @@ end
 ```python
 def clear_mock_call(contract_address: int, fn_name: str) -> None: ...
 ```
+
+Removes mock call specified by function name (`fn_name`) of a contract with an address (`contract_address`).
 
 ### `expect_revert`
 
@@ -143,8 +157,4 @@ def roll(blk_number: int) -> None: ...
 
 ```python
 def warp(blk_timestamp: int) -> None: ...
-```
-
-```
-
 ```
