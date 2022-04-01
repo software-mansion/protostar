@@ -129,11 +129,29 @@ Removes mock call specified by function name (`fn_name`) of a contract with an a
 def expect_revert() -> None: ...
 ```
 
+If a code beneath `expect_revert` triggers revert, a test will pass.
+
+```cairo title="This test passes despite using a random contract address."
+@external
+func test_call_to_non_existing_contract{syscall_ptr : felt*, range_check_ptr}():
+    alloc_locals
+
+    local contract_a_address : felt
+    %{ ids.contract_a_address = 0101010101010101010101010 %}
+
+    %{ expect_revert() %}
+    BasicContract.increase_balance(contract_address=contract_a_address, amount=3)
+    return ()
+end
+```
+
 ### `deploy_contract`
 
 ```python
 def deploy_contract(contract_path: str) -> Contract:
 ```
+
+T.B.D.
 
 ### `start_prank`
 
@@ -141,11 +159,15 @@ def deploy_contract(contract_path: str) -> Contract:
 def start_prank(caller_address: int) -> None: ...
 ```
 
+Changes caller address until [`stop_prank`](#stop_prank) cheatcode is used.
+
 ### `stop_prank`
 
 ```python
 def stop_prank() -> None: ...
 ```
+
+Resets caller address. Always used with [`start_prank`](#start_prank).
 
 ### `roll`
 
@@ -153,8 +175,12 @@ def stop_prank() -> None: ...
 def roll(blk_number: int) -> None: ...
 ```
 
+Sets block number.
+
 ### `warp`
 
 ```python
 def warp(blk_timestamp: int) -> None: ...
 ```
+
+Sets block timestamp.
