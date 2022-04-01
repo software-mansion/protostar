@@ -155,26 +155,28 @@ class TestExecutionEnvironment:
         )
 
         func = getattr(self.test_contract, function_name)
+        is_failure_expected = function_name.startswith("test_fail_")
         # TODO: Improve stacktrace
         try:
-            call_result = await func().invoke()
-            if self._expected_error is None:
-                raise MissingExceptReportedException(
-                    "Expected a transaction to be reverted"
+            try:
+                call_result = await func().invoke()
+                if self._expected_error is None:
+                    raise MissingExceptReportedException(
+                        "Expected a transaction to be reverted"
+                    )
+                return call_result
+
+            except StarkException as ex:
+                is_ex_unexpected = (
+                    self._expected_error is None
+                    or re.compile(self._expected_error.name).match(ex.code.name) is None
                 )
-            return call_result
 
-        except StarkException as ex:
-
-            is_ex_unexpected = (
-                self._expected_error is None
-                or re.compile(self._expected_error.name).match(ex.code.name) is None
-                or re.compile(self._expected_error.message).match(ex.message or "")
-                is None
-            )
-
-            if is_ex_unexpected:
-                raise StarkExceptionReportedException(ex) from ex
+                if is_ex_unexpected:
+                    raise StarkExceptionReportedException(ex) from ex
+        except ReportedException as ex:
+            if not is_failure_expected:
+                raise ex
 
         finally:
             CairoFunctionRunner.run_from_entrypoint = original_run_from_entrypoint
