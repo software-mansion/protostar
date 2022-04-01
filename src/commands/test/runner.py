@@ -1,25 +1,26 @@
-from pathlib import Path
-from typing import Any, List, Optional, Pattern, Dict, TYPE_CHECKING
 import asyncio
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Pattern, Callable, Set
 
-from starkware.starknet.services.api.contract_definition import ContractDefinition
+from attr import dataclass
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
+from starkware.starknet.public.abi import get_selector_from_name
+from starkware.starknet.services.api.contract_definition import ContractDefinition
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
-from starkware.starknet.public.abi import get_selector_from_name
 
 from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
 from src.commands.test.cheatable_syscall_handler import CheatableSysCallHandler
 from src.commands.test.collector import TestCollector
 from src.commands.test.reporter import TestReporter
+from src.commands.test.test_environment_exceptions import (
+    MissingExceptReportedException,
+    ReportedException,
+    StarkExceptionReportedException,
+)
 from src.commands.test.utils import TestSubject
 from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
-from src.commands.test.test_environment_exceptions import (
-    ReportedException,
-    MissingExceptReportedException,
-    StarkExceptionReportedException,
-)
 
 if TYPE_CHECKING:
     from src.utils.config.project import Project
@@ -118,11 +119,20 @@ class TestRunner:
             )
 
 
+@dataclass(frozen=True)
+class ExpectedError:
+    name: str
+    message: str
+
+    def __eq__(self, other: "ExpectedError"):
+        return self.name == other.name and self.message == other.message
+
+
 class TestExecutionEnvironment:
     def __init__(self):
         self.starknet = None
         self.test_contract = None
-        self._is_test_error_expected = False
+        self._expected_errors: Set[ExpectedError] = set()
 
     @classmethod
     async def empty(cls, test_contract: ContractDefinition):
@@ -147,14 +157,20 @@ class TestExecutionEnvironment:
         # TODO: Improve stacktrace
         try:
             call_result = await func().invoke()
-            if self._is_test_error_expected:
+            if len(self._expected_errors) == 0:
                 raise MissingExceptReportedException(
                     "Expected a transaction to be reverted"
                 )
             return call_result
 
         except StarkException as ex:
-            if not self._is_test_error_expected:
+            is_ex_expected = False
+            for expected_error in self._expected_errors:
+                if ex.code.name == expected_error.name:
+                    is_ex_expected = True
+                    break
+
+            if not is_ex_expected:
                 raise StarkExceptionReportedException(ex) from ex
 
         finally:
@@ -220,12 +236,17 @@ class TestExecutionEnvironment:
             cheatable_syscall_handler.unregister_mock_call(contract_address, selector)
 
         @register_cheatcode
-        def expect_revert():
-            self.expect_revert()
+        def expect_revert(error_type: str = ".*", error_message: str = ".*"):
+            self.expect_revert(ExpectedError(name=error_type, message=error_message))
 
         @register_cheatcode
         def deploy_contract(contract_path: str):
             return self.deploy_in_env(contract_path)
 
-    def expect_revert(self):
-        self._is_test_error_expected = True
+    def expect_revert(self, expected_error: ExpectedError) -> Callable[[], None]:
+        self._expected_errors.add(expected_error)
+
+        def stop_expecting_revert():
+            self._expected_errors.remove(expected_error)
+
+        return stop_expecting_revert
