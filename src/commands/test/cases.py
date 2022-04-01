@@ -4,6 +4,7 @@ from typing import Optional
 from attr import dataclass
 from starkware.starknet.testing.objects import StarknetTransactionExecutionInfo
 from src.commands.test.test_environment_exceptions import ReportedException
+from starkware.starkware_utils.error_handling import StarkException
 
 
 @dataclass
@@ -21,4 +22,4 @@ class FailedCase:
 @dataclass
 class BrokenTest:
     file_path: Path
-    exception: ReportedException
+    exception: StarkException

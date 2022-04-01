@@ -38,7 +38,6 @@ class TestRunner:
         project: Optional["Project"] = None,
         include_paths: Optional[List[str]] = None,
     ):
-        self._is_test_error_expected = False
         if project and not include_paths:
             self.include_paths = project.get_include_paths()
         else:
