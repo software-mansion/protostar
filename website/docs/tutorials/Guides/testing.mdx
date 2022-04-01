@@ -3,18 +3,16 @@ Protostar provides a flexible testing environment for Cairo smart contracts.
 It allows to write unit/integration tests with a help of [cheatcodes](#cheatcodes).
 
 ## Unit testing
-We will start with a created protostar project.
+We will start with a [just created protostar project](/docs/tutorials/init).
 In your `src` directory create a `utils.cairo` file
-```
-# src/utils.cairo
+```code title="src/utils.cairo"
 func sum_func{syscall_ptr : felt*, range_check_ptr}(a : felt, b : felt) -> (res : felt):
     return (a+b)
 end
 ```
 This is our target function, which we are going to test.
-Then in the `tests` directory create file `test_utils.cairo`, this contract with two test cases.
-```
-# tests/test_utils.cairo
+Then in the `tests` directory create file `test_utils.cairo`, which contains a single test case.
+```code title="src/test_utils.cairo"
 %lang starknet
 
 from src.utils import sum_func
@@ -27,25 +25,29 @@ func test_sum{syscall_ptr : felt*, range_check_ptr}():
 end
 ```
 
-
-Then run 
+Then run your test with
 ```
 protostar test ./tests
 ```
 
 ```console title="expected result"
-TODO
+Collected 1 items
+
+test_utils: .
+----- TEST SUMMARY ------
+1 passed
+Ran 1 out of 1 total tests
 ```
 
 :::note
-You can place your test files anywhere you want. Protostar searches 
-project tree for cairo files with a name starting with `test_` and treats them as tests files. 
-All functions inside a test file starting with `test_` are treated as separeate test cases
+You can place your test files anywhere you want. Protostar recursively searches 
+the given directory for cairo files with a name starting with `test_` and treats them as tests files. 
+All functions inside a test file starting with `test_` are treated as separeate test cases.
 :::
 
 ## Deploying contracts from tests
 
-For most projects such local testing won't be enough. Protostar provides a way to test interactions between contracts, not only isolated functions.
+For most projects such testing of isolated functions won't be enough. Protostar provides a way to test interactions between contracts.
 We will use an example of a simple storage contract to show you how to deploy contract inside a test case.
 
 First, inside a `src` directory, create a `storage_contract.cairo`
@@ -111,13 +113,19 @@ func test_proxy_contract{syscall_ptr : felt*, range_check_ptr}():
 end
 ```
 
-Then run
+Then run your test with
 ```
 protostar test ./tests
 ```
 
 ```console title="expected result"
-TODO
+Collected 2 items
+
+storage_test: .
+test_utils: .
+----- TEST SUMMARY ------
+2 passed
+Ran 2 out of 2 total tests
 ```
 
 ## Cheatcodes
