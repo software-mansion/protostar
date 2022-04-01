@@ -92,10 +92,30 @@ func test_fail_two_expect_revert_calls{syscall_ptr : felt*, range_check_ptr}():
     return ()
 end
 
-# TEST: callback called twice
+@external
+func test_regex{syscall_ptr : felt*, range_check_ptr}():
+    alloc_locals
 
-# TEST: error type full name
+    local contract_a_address : felt
+    %{ ids.contract_a_address = 3421347281347298134789213489213 %}
 
-# TEST: error type regex
+    %{ stop_expecting_revert = expect_revert("UNINITIALIZED_CONTR.*", ".*Got an exception while executing a hint.*") %}
+    BasicContract.increase_balance(contract_address=contract_a_address, amount=3)
+    %{ stop_expecting_revert() %}
 
-# TEST: error message regex
+    return ()
+end
+
+@external
+func test_fail_caused_by_different_msg{syscall_ptr : felt*, range_check_ptr}():
+    alloc_locals
+
+    local contract_a_address : felt
+    %{ ids.contract_a_address = 3421347281347298134789213489213 %}
+
+    %{ stop_expecting_revert = expect_revert("UNINITIALIZED_CONTR.*", "WRONG_MESSAGE") %}
+    BasicContract.increase_balance(contract_address=contract_a_address, amount=3)
+    %{ stop_expecting_revert() %}
+
+    return ()
+end

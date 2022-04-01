@@ -172,7 +172,10 @@ class TestExecutionEnvironment:
             except StarkException as ex:
                 is_ex_unexpected = (
                     self._expected_error is None
-                    or re.compile(self._expected_error.name).match(ex.code.name) is None
+                    or re.compile(self._expected_error.name).search(ex.code.name)
+                    is None
+                    or re.compile(self._expected_error.message).search(ex.message or "")
+                    is None
                 )
 
                 if is_ex_unexpected:
