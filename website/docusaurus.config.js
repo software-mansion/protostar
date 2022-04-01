@@ -7,7 +7,7 @@ const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: "Protostar",
-  tagline: "Cairo smart contract development toolchain",
+  tagline: "StarkNet smart contract development toolchain",
   url: "https://your-docusaurus-test-site.com",
   baseUrl: "/protostar/",
   onBrokenLinks: "throw",
@@ -27,7 +27,7 @@ const config = {
           sidebarPath: require.resolve("./sidebars.js"),
           // Please change this to your repo.
           editUrl: ({ docPath }) =>
-            `https://github.com/software-mansion/protostar/tree/gh-pages/website/docs/${docPath}`,
+            `https://github.com/software-mansion/protostar/tree/master/website/docs/${docPath}`,
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
@@ -68,19 +68,19 @@ const config = {
             items: [
               {
                 label: "Tutorials",
-                to: "/docs/tutorials/intro",
+                to: "/docs/tutorials/introduction",
               },
             ],
           },
-          {
-            title: "Community",
-            items: [
-              //   {
-              //     label: 'Discord',
-              //     href: 'https://discordapp.com/invite/docusaurus',
-              //   },
-            ],
-          },
+          // {
+          //   title: 'Community',
+          //   items: [
+          //     //   {
+          //     //     label: 'Discord',
+          //     //     href: 'https://discordapp.com/invite/docusaurus',
+          //     //   },
+          //   ],
+          // },
         ],
         copyright: `Copyright © ${new Date().getFullYear()} Protostar, Inc. Built with Docusaurus.`,
       },
