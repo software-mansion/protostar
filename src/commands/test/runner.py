@@ -7,6 +7,7 @@ from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.public.abi import get_selector_from_name
+from starkware.starknet.testing.contract import StarknetContract
 
 from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
 from src.commands.test.cheatable_syscall_handler import CheatableSysCallHandler
@@ -20,6 +21,7 @@ from src.commands.test.test_environment_exceptions import (
     MissingExceptReportedException,
     StarkExceptionReportedException,
 )
+
 
 if TYPE_CHECKING:
     from src.utils.config.project import Project
@@ -134,7 +136,10 @@ class TestExecutionEnvironment:
 
     def deploy_in_env(self, contract_path: str):
         assert self.starknet
-        return asyncio.run(self.starknet.deploy(source=contract_path))
+        contract = DeployedContact(
+            asyncio.run(self.starknet.deploy(source=contract_path))
+        )
+        return contract
 
     async def invoke_test_function(self, function_name: str):
         original_run_from_entrypoint = CairoFunctionRunner.run_from_entrypoint
@@ -230,3 +235,12 @@ class TestExecutionEnvironment:
 
     def expect_revert(self):
         self._is_test_error_expected = True
+
+
+class DeployedContact:
+    def __init__(self, starknet_contract: StarknetContract):
+        self._starknet_contract = starknet_contract
+
+    @property
+    def contract_address(self):
+        return self._starknet_contract.contract_address
