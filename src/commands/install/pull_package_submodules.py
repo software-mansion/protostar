@@ -22,4 +22,4 @@ def pull_package_submodules(
             on_submodule_update_start(
                 PackageInfo(name=submodule.name, url=submodule.url)
             )
-            submodule.update(init=True)
+            repo.git.execute(["git", "submodule", "update", "--init", submodule.path])

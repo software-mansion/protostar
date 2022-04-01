@@ -19,7 +19,6 @@ $ protostar install https://github.com/OpenZeppelin/cairo-contracts
 12:00:00 [INFO] Installing cairo_contracts (https://github.com/OpenZeppelin/cairo-contracts)
 ```
 
-
 ```console title="'lib' category contains the installed dependency."
 $ tree -L 2
 .
@@ -60,31 +59,26 @@ $ protostar install
 09:37:42 [INFO] Installing cairo_contracts (https://github.com/OpenZeppelin/cairo-contracts)
 ```
 
-
 ## Updating dependencies
 
 To update:
 
-- a single dependency, run `protostar update LOCAL_DEPENDENCY_REFERENCE`
+- a single dependency, run `protostar update LOCAL_DEPENDENCY_REFERENCE/EXTERNAL_DEPENDENCY_REFERENCE`
 - all dependencies, run `protostar update`
 
-`LOCAL_DEPENDENCY_REFERENCE` is a directory name of dependency for example:
+`LOCAL_DEPENDENCY_REFERENCE` is a directory name of a dependency, for example:
 
 ```console title="Updating a previously installed dependency."
 $ protostar update cairo_contracts
 10:03:52 [INFO] Package already up to date.
 ```
 
-:::note
-You can use [`EXTERNAL_DEPENDENCY_REFERENCE`](#external-dependency-reference-formats) in place of `LOCAL_DEPENDENCY_REFERENCE`.
-:::
-
 If the default branch of a dependency's repository uses [tags](https://git-scm.com/book/en/v2/Git-Basics-Tagging), Protostar will pull a commit marked with the newest tag. Otherwise, Protostar will pull a recent commit from the default branch.
-
 
 ## Removing dependencies
 
-To remove a dependency, run `protostar remove LOCAL_DEPENDENCY_REFERENCE`.
+To remove a dependency, run `protostar remove LOCAL_DEPENDENCY_REFERENCE/EXTERNAL_DEPENDENCY_REFERENCE`.
+
 ```console title="Removing a dependency."
 $ protostar remove cairo_contracts
 10:04:26 [INFO] Removing cairo_contracts

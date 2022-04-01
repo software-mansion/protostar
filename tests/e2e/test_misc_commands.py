@@ -20,6 +20,7 @@ def test_init(project_name: str):
     init_project(project_name)
 
     dirs = listdir(project_name)
+
     assert "protostar.toml" in dirs
     assert ".git" in dirs
 
