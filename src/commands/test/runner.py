@@ -251,8 +251,12 @@ class TestExecutionEnvironment:
             cheatable_syscall_handler.unregister_mock_call(contract_address, selector)
 
         @register_cheatcode
-        def expect_revert(error_type: str = ".*", error_message: str = ".*"):
-            self.expect_revert(ExpectedError(name=error_type, message=error_message))
+        def expect_revert(
+            error_type: str = ".*", error_message: str = ".*"
+        ) -> Callable[[], None]:
+            return self.expect_revert(
+                ExpectedError(name=error_type, message=error_message)
+            )
 
         @register_cheatcode
         def deploy_contract(contract_path: str):
@@ -267,6 +271,10 @@ class TestExecutionEnvironment:
         self._expected_error = expected_error
 
         def stop_expecting_revert():
+            if self._expected_error is not None:
+                raise MissingExceptReportedException(
+                    "Expected a transaction to be reverted before cancelling expect_revert."
+                )
             self._expected_error = None
 
         return stop_expecting_revert
