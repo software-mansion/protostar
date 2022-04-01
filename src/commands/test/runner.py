@@ -1,6 +1,7 @@
 import asyncio
+import re
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Pattern, Callable, Set
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Pattern
 
 from attr import dataclass
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
@@ -64,8 +65,8 @@ class TestRunner:
             omit_pattern=omit_pattern,
         )
         self.reporter.report_collected(test_subjects)
-
         for test_subject in test_subjects:
+
             compiled_test = StarknetCompiler(
                 include_paths=self.include_paths,
                 disable_hint_validation=True,
@@ -132,7 +133,7 @@ class TestExecutionEnvironment:
     def __init__(self):
         self.starknet = None
         self.test_contract = None
-        self._expected_errors: Set[ExpectedError] = set()
+        self._expected_error: Optional[ExpectedError] = None
 
     @classmethod
     async def empty(cls, test_contract: ContractDefinition):
@@ -157,25 +158,27 @@ class TestExecutionEnvironment:
         # TODO: Improve stacktrace
         try:
             call_result = await func().invoke()
-            if len(self._expected_errors) == 0:
+            if self._expected_error is None:
                 raise MissingExceptReportedException(
                     "Expected a transaction to be reverted"
                 )
             return call_result
 
         except StarkException as ex:
-            is_ex_expected = False
-            for expected_error in self._expected_errors:
-                if ex.code.name == expected_error.name:
-                    is_ex_expected = True
-                    break
 
-            if not is_ex_expected:
+            is_ex_unexpected = (
+                self._expected_error is None
+                or re.compile(self._expected_error.name).match(ex.code.name) is None
+                or re.compile(self._expected_error.message).match(ex.message or "")
+                is None
+            )
+
+            if is_ex_unexpected:
                 raise StarkExceptionReportedException(ex) from ex
 
         finally:
             CairoFunctionRunner.run_from_entrypoint = original_run_from_entrypoint
-            self._is_test_error_expected = False
+            self._expected_error = None
 
     def _get_run_from_entrypoint_with_custom_hint_locals(
         self, fn_run_from_entrypoint: Any
@@ -244,9 +247,9 @@ class TestExecutionEnvironment:
             return self.deploy_in_env(contract_path)
 
     def expect_revert(self, expected_error: ExpectedError) -> Callable[[], None]:
-        self._expected_errors.add(expected_error)
+        self._expected_error = expected_error
 
         def stop_expecting_revert():
-            self._expected_errors.remove(expected_error)
+            self._expected_error = None
 
         return stop_expecting_revert
