@@ -18,6 +18,7 @@ from src.commands.test.test_environment_exceptions import (
     MissingExceptReportedException,
     ReportedException,
     StarkExceptionReportedException,
+    TestNotFailedReportedException,
 )
 from src.commands.test.utils import TestSubject
 from src.utils.modules import replace_class
@@ -160,10 +161,12 @@ class TestExecutionEnvironment:
         try:
             try:
                 call_result = await func().invoke()
-                if self._expected_error is None:
+                if self._expected_error is not None:
                     raise MissingExceptReportedException(
                         "Expected a transaction to be reverted"
                     )
+                if is_failure_expected:
+                    raise TestNotFailedReportedException()
                 return call_result
 
             except StarkException as ex:
@@ -174,10 +177,14 @@ class TestExecutionEnvironment:
 
                 if is_ex_unexpected:
                     raise StarkExceptionReportedException(ex) from ex
+
+                if is_failure_expected:
+                    raise TestNotFailedReportedException() from ex
+        except TestNotFailedReportedException as ex:
+            raise ex
         except ReportedException as ex:
             if not is_failure_expected:
                 raise ex
-
         finally:
             CairoFunctionRunner.run_from_entrypoint = original_run_from_entrypoint
             self._expected_error = None
