@@ -256,6 +256,11 @@ class TestExecutionEnvironment:
             return self.deploy_in_env(contract_path)
 
     def expect_revert(self, expected_error: ExpectedError) -> Callable[[], None]:
+        if self._expected_error is not None:
+            raise MissingExceptReportedException(
+                f"Protostar is already expecting {self._expected_error.name}"
+            )
+
         self._expected_error = expected_error
 
         def stop_expecting_revert():
