@@ -1,6 +1,132 @@
 # Testing
+Protostar provides a flexible testing environment for Cairo smart contracts. 
+It allows to write unit/integration tests with a help of [cheatcodes](#cheatcodes).
 
-T.B.D.
+## Unit testing
+We will start with a [just created protostar project](/docs/tutorials/init).
+In your `src` directory create a `utils.cairo` file
+```code title="src/utils.cairo"
+func sum_func{syscall_ptr : felt*, range_check_ptr}(a : felt, b : felt) -> (res : felt):
+    return (a+b)
+end
+```
+This is our target function, which we are going to test.
+Then in the `tests` directory create file `test_utils.cairo`, which contains a single test case.
+```code title="src/test_utils.cairo"
+%lang starknet
+
+from src.utils import sum_func
+
+@external
+func test_sum{syscall_ptr : felt*, range_check_ptr}():
+    let (r) = sum_func(4,3)
+    assert r = 7
+    return ()
+end
+```
+
+Then run your test with
+```
+protostar test ./tests
+```
+
+```console title="expected result"
+Collected 1 items
+
+test_utils: .
+----- TEST SUMMARY ------
+1 passed
+Ran 1 out of 1 total tests
+```
+
+:::info
+You can place your test files anywhere you want. Protostar recursively searches 
+the given directory for cairo files with a name starting with `test_` and treats them as tests files. 
+All functions inside a test file starting with `test_` are treated as separeate test cases.
+:::
+
+## Deploying contracts from tests
+
+For most projects such testing of isolated functions won't be enough. Protostar provides a way to test interactions between contracts.
+We will use an example of a simple storage contract to show you how to deploy contract inside a test case.
+
+First, inside a `src` directory, create a `storage_contract.cairo`
+```code title="src/storage_contract.cairo"
+%lang starknet
+%builtins pedersen range_check
+
+from starkware.cairo.common.cairo_builtins import HashBuiltin
+
+# Define a storage variable.
+@storage_var
+func balance() -> (res : felt):
+end
+
+# Increases the balance by the given amount.
+@external
+func increase_balance{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(amount: felt):
+    let (res) = balance.read()
+    balance.write(res + amount)
+    return ()
+end
+
+# Returns the current balance.
+@view
+func get_balance{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (
+        res : felt):
+    let (res) = balance.read()
+    return (res)
+end
+```
+Then we can create a test case for the contract.
+Inside `tests` directory, create a `test_storage.cairo` file.
+```code title="tests/test_storage.cairo"
+%lang starknet
+
+@contract_interface
+namespace StorageContract:
+    func increase_balance(amount : felt):
+    end
+
+    func get_balance() -> (res : felt):
+    end
+end
+
+@external
+func test_proxy_contract{syscall_ptr : felt*, range_check_ptr}():
+    alloc_locals
+
+    local contract_address : felt
+    %{
+        # We deploy contract and put its address into a local variable
+        ids.contract_address = deploy_contract("./src/storage_contract.cairo").contract_address 
+    %}
+
+    StorageContract.increase_balance(
+        contract_address=contract_address,
+        amount=5
+    )
+
+    let (res) = StorageContract.get_balance(contract_address=contract_address)
+    assert res = 5
+    return ()
+end
+```
+
+Then run your test with
+```
+protostar test ./tests
+```
+
+```console title="expected result"
+Collected 2 items
+
+storage_test: .
+test_utils: .
+----- TEST SUMMARY ------
+2 passed
+Ran 2 out of 2 total tests
+```
 
 ## Asserts
 
