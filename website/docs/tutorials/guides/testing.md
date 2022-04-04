@@ -47,7 +47,7 @@ All functions inside a test file starting with `test_` are treated as separeate 
 
 ## Deploying contracts from tests
 
-For most projects such testing of isolated functions won't be enough. Protostar provides a way to test interactions between contracts.
+For most projects such testing of isolated functions won't be enough. Protostar provides a [`deploy_contract` cheatcode](#deploy_contract) to test interactions between contracts.
 We will use an example of a simple storage contract to show you how to deploy contract inside a test case.
 
 First, inside a `src` directory, create a `storage_contract.cairo`
@@ -283,10 +283,13 @@ end
 ### `deploy_contract`
 
 ```python
-def deploy_contract(contract_path: str) -> Contract:
-```
+def deploy_contract(contract_path: str) -> DeployedContact:
 
-T.B.D.
+class DeployedContact:
+    contract_address: str
+```
+Deploys a contract given a path relative to a Protostar project root. The section [Deploying contracts from tests](#deploying-contracts-from-tests) demonstrates a usage of this cheatcode.
+
 
 ### `start_prank`
 
