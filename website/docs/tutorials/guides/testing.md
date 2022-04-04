@@ -42,30 +42,18 @@ Mocks all calls to function with the name `fn_name` of a contract with an addres
 
 To use `mock_call` effectively, you need to understand how Cairo data structures are represented under the hood. `Cairo-lang` operates on list of integers. The following examples demonstrate how each data structure is represented in Python code.
 
-```cairo title="Fixtures and type definitions"
-const EXTERNAL_CONTRACT_ADDRESS = 0x3fe90a1958bb8468fb1b62970747d8a00c435ef96cda708ae8de3d07f1bb56b
-
-struct Point:
-    member x : felt
-    member y : felt
-end
-
-@contract_interface
-namespace ITestContract:
-    func get_felt() -> (res : felt):
-    end
-
-    func get_array() -> (res_len : felt, res : felt*):
-    end
-
-    func get_struct() -> (res : Point):
-    end
-end
-```
 
 ##### Felt
 
 ```cairo title="mocked_call returns a felt"
+@contract_interface
+namespace ITestContract:
+    func get_felt() -> (res : felt):
+    end
+end
+
+const EXTERNAL_CONTRACT_ADDRESS = 0x3fe90a1958bb8468fb1b62970747d8a00c435ef96cda708ae8de3d07f1bb56b
+
 @view
 func test_mock_call_returning_felt{syscall_ptr : felt*, range_check_ptr}():
   tempvar external_contract_address = EXTERNAL_CONTRACT_ADDRESS
@@ -87,6 +75,14 @@ To mock a function returning an array, provide data in the following format to `
 ```
 
 ```cairo title="mocked_call returns an array"
+@contract_interface
+namespace ITestContract:
+    func get_array() -> (res_len : felt, res : felt*):
+    end
+end
+
+const EXTERNAL_CONTRACT_ADDRESS = 0x3fe90a1958bb8468fb1b62970747d8a00c435ef96cda708ae8de3d07f1bb56b
+
 @view
 func test_mock_call_returning_array{syscall_ptr : felt*, range_check_ptr}():
   tempvar external_contract_address = EXTERNAL_CONTRACT_ADDRESS
@@ -102,6 +98,19 @@ end
 ##### Struct
 
 ```cairo title="mocked_call returns a struct"
+struct Point:
+    member x : felt
+    member y : felt
+end
+
+@contract_interface
+namespace ITestContract:
+    func get_struct() -> (res : Point):
+    end
+end
+
+const EXTERNAL_CONTRACT_ADDRESS = 0x3fe90a1958bb8468fb1b62970747d8a00c435ef96cda708ae8de3d07f1bb56b
+
 @view
 func test_mock_call_returning_struct{syscall_ptr : felt*, range_check_ptr}():
   tempvar external_contract_address = EXTERNAL_CONTRACT_ADDRESS
