@@ -7,7 +7,7 @@ Protostar provides a flexible testing environment for Cairo smart contracts.
 It allows to write unit/integration tests with a help of [cheatcodes](#cheatcodes).
 
 ## Unit testing
-We will start with a [just created protostar project](/docs/tutorials/init).
+We will start with a [just created protostar project](/docs/tutorials/project-initialization).
 In your `src` directory create a `utils.cairo` file
 ```code title="src/utils.cairo"
 func sum_func{syscall_ptr : felt*, range_check_ptr}(a : felt, b : felt) -> (res : felt):
