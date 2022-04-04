@@ -274,7 +274,7 @@ Removes a mocked call specified by a function name (`fn_name`) of a contract wit
 def expect_revert(error_type: str = ".*", error_message: str = ".*") -> Callable[[], None]: ...
 ```
 
-If a code beneath `expect_revert` triggers revert, a test will pass otherwise. It accepts regex `error_type` and `error_message` and returns a function that limits the scope. Calling that function is optional.
+If a code beneath `expect_revert` raises a specified exception, a test will pass. If not, a test will fail. It accepts regex `error_type` and `error_message` and returns a function that limits the scope. Calling that function is optional.
 
 :::info
 Protostar displays an error type and message when a test fails.
