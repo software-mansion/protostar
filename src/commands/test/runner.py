@@ -63,7 +63,7 @@ class TestRunner:
         self.reporter = TestReporter(src)
         assert self.include_paths is not None, "Uninitialized paths list in test runner"
         test_subjects = TestCollector(
-            sources_directory=src,
+            target=src,
             include_paths=self.include_paths,
         ).collect(
             match_pattern=match_pattern,
