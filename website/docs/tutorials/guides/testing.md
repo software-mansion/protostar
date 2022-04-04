@@ -172,6 +172,8 @@ To use `mock_call` effectively, you need to understand how Cairo data structures
 ##### Felt
 
 ```cairo title="mocked_call returns a felt"
+%lang starknet
+
 @contract_interface
 namespace ITestContract:
     func get_felt() -> (res : felt):
@@ -201,6 +203,8 @@ To mock a function returning an array, provide data in the following format to `
 ```
 
 ```cairo title="mocked_call returns an array"
+%lang starknet
+
 @contract_interface
 namespace ITestContract:
     func get_array() -> (res_len : felt, res : felt*):
@@ -224,6 +228,8 @@ end
 ##### Struct
 
 ```cairo title="mocked_call returns a struct"
+%lang starknet
+
 struct Point:
     member x : felt
     member y : felt
@@ -261,24 +267,58 @@ Removes a mocked call specified by a function name (`fn_name`) of a contract wit
 ### `expect_revert`
 
 ```python
-def expect_revert() -> None: ...
+def expect_revert(error_type: str = ".*", error_message: str = ".*") -> Callable[[], None]: ...
 ```
 
-If a code beneath `expect_revert` triggers revert, a test will pass.
+If a code beneath `expect_revert` triggers revert, a test will pass otherwise. It accepts regex `error_type` and `error_message` and returns a function that limits the scope. Calling that function is optional.
 
-```cairo title="This test passes despite using a random contract address."
+:::info
+Protostar displays an error type and message when a test fails.
+:::
+
+```cairo title="This test passes despite calling an uninitialized contract."
+%lang starknet
+
+@contract_interface
+namespace BasicContract:
+    func increase_balance(amount : felt):
+    end
+
+    func get_balance() -> (res : felt):
+    end
+end
+
 @external
-func test_call_to_non_existing_contract{syscall_ptr : felt*, range_check_ptr}():
+func test_call_not_existing_contract{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
 
     local contract_a_address : felt
-    %{ ids.contract_a_address = 0101010101010101010101010 %}
+    %{ ids.contract_a_address = 3421347281347298134789213489213 %}
 
-    %{ expect_revert() %}
+    %{ expect_revert("UNINITIALIZED_CONTRACT") %}
     BasicContract.increase_balance(contract_address=contract_a_address, amount=3)
     return ()
 end
 ```
+
+
+```cairo title="This test 'fails' because the exceptions wasn't thrown."
+@external
+func test_fail_error_was_not_raised_before_stopping_expect_revert{
+        syscall_ptr : felt*, range_check_ptr}():
+    alloc_locals
+
+    %{ stop_expecting_revert = expect_revert("UNINITIALIZED_CONTRACT") %}
+    local contract_a_address = 42
+    %{ stop_expecting_revert() %}
+
+    return ()
+end
+```
+
+:::info
+The prefix `test_fail_` tells Protostar to pass the test if it fails and fail if it passes.
+:::
 
 ### `deploy_contract`
 
