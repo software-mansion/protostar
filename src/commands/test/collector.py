@@ -1,9 +1,8 @@
-from typing import Generator
+from typing import Generator, List, Optional, Pattern
 import os
 from dataclasses import dataclass
 from pathlib import Path
 import re
-from typing import List, Optional, Pattern
 
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     PreprocessorError,
@@ -67,7 +66,7 @@ class TestCollector:
             yield self.target
             return
         for root, _, files in os.walk(self.target):
-            test_files = map(lambda file: Path(root, file), files)
+            test_files = [Path(root, file) for file in files]
             test_files = filter(lambda file: self.is_test_file(file.name), test_files)
             for test_file in test_files:
                 yield test_file
