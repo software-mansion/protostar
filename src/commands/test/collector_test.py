@@ -7,11 +7,13 @@ from src.commands.test.collector import TestCollector, CollectionError
 
 current_directory = Path(__file__).parent
 
+
 def test_is_test_file():
     assert not TestCollector.is_test_file("ex.cairo")
     assert TestCollector.is_test_file("ex_test.cairo")
     assert TestCollector.is_test_file("test_ex.cairo")
     assert not TestCollector.is_test_file("z_test_ex.cairo")
+
 
 def test_matching_pattern():
     match_pattern = re.compile("test_basic.*")
@@ -21,7 +23,9 @@ def test_matching_pattern():
     )
     subjects = collector.collect(match_pattern=match_pattern)
     test_names = [subject.test_path.name for subject in subjects]
-    assert set(test_names) == set(["test_basic.cairo", "test_basic_broken.cairo", "test_basic_failure.cairo"])
+    assert set(test_names) == set(
+        ["test_basic.cairo", "test_basic_broken.cairo", "test_basic_failure.cairo"]
+    )
 
 
 def test_omitting_pattern():
@@ -30,7 +34,7 @@ def test_omitting_pattern():
         "test_basic_failure.cairo",
         "test_basic.cairo",
         "test_proxy.cairo",
-        "test_cheats.cairo"
+        "test_cheats.cairo",
     ]
     omit_pattern = re.compile(".*invalid.*")
     collector = TestCollector(
@@ -56,18 +60,25 @@ def test_breakage_upon_broken_test_file():
     with pytest.raises(CollectionError):
         collector.collect(match_pattern=match_pattern)
 
+
 def test_collect_specific_file():
     collector = TestCollector(
-        target=Path(current_directory, "examples", "nested" ,"test_basic.cairo"),
+        target=Path(current_directory, "examples", "nested", "test_basic.cairo"),
         include_paths=[str(Path(current_directory, "examples"))],
     )
     subjects = collector.collect()
     test_names = [subject.test_path.name for subject in subjects]
     assert test_names == ["test_basic.cairo"]
 
+
 def test_collect_specific_function():
     collector = TestCollector(
-        target=Path(current_directory, "examples", "nested" ,"test_basic.cairo::test_call_not_deployed"),
+        target=Path(
+            current_directory,
+            "examples",
+            "nested",
+            "test_basic.cairo::test_call_not_deployed",
+        ),
         include_paths=[str(Path(current_directory, "examples"))],
     )
     subjects = collector.collect()

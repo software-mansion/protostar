@@ -23,10 +23,7 @@ class TestCollector:
     target: Path
     include_paths: Optional[List[str]] = None
     target_function: Optional[str] = None
-    test_filename_re = [
-            re.compile(r'^test_.*\.cairo'),
-            re.compile(r'^.*_test.cairo')
-        ]
+    test_filename_re = [re.compile(r"^test_.*\.cairo"), re.compile(r"^.*_test.cairo")]
 
     def __post_init__(self):
         if re.match(r"^.*\.cairo::.*", self.target.name):
@@ -42,26 +39,30 @@ class TestCollector:
     ) -> List[TestSubject]:
 
         test_files = self.get_test_files()
-        
+
         if match_pattern:
             test_files = filter(lambda file: match_pattern.match(file.name), test_files)
         if omit_pattern:
-            test_files = filter(lambda file: not omit_pattern.match(file.name), test_files) 
-        
+            test_files = filter(
+                lambda file: not omit_pattern.match(file.name), test_files
+            )
+
         test_files = map(self.build_test_subject, test_files)
-        non_empty = filter(lambda file: (file.test_functions) != [], test_files )
+        non_empty = filter(lambda file: (file.test_functions) != [], test_files)
         return list(non_empty)
-    
+
     def build_test_subject(self, file_path: Path):
         test_functions = self._collect_test_functions(file_path)
         if self.target_function:
-            test_functions = [f for f in test_functions if f['name'] == self.target_function]
+            test_functions = [
+                f for f in test_functions if f["name"] == self.target_function
+            ]
         return TestSubject(
-                        test_path=file_path,
-                        test_functions=test_functions,
-                    )
+            test_path=file_path,
+            test_functions=test_functions,
+        )
 
-    def get_test_files(self) -> Generator[Path, None, None]:        
+    def get_test_files(self) -> Generator[Path, None, None]:
         if not self.target.is_dir():
             yield self.target
             return
@@ -74,7 +75,6 @@ class TestCollector:
     @classmethod
     def is_test_file(cls, filename: str) -> bool:
         return any(test_re.match(filename) for test_re in cls.test_filename_re)
-
 
     def _collect_test_functions(self, file_path: Path) -> List[dict]:
         try:
