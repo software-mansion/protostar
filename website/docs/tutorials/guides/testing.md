@@ -1,3 +1,7 @@
+---
+sidebar_label: Testing (6 min)
+---
+
 # Testing
 Protostar provides a flexible testing environment for Cairo smart contracts. 
 It allows to write unit/integration tests with a help of [cheatcodes](#cheatcodes).
