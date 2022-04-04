@@ -41,7 +41,10 @@ class TestRunner:
         self,
         project: Optional["Project"] = None,
         include_paths: Optional[List[str]] = None,
+        is_test_fail_enabled=False,
     ):
+        self._is_test_fail_enabled = is_test_fail_enabled
+
         if project and not include_paths:
             self.include_paths = project.get_include_paths()
         else:
@@ -92,7 +95,9 @@ class TestRunner:
 
         for function in functions:
             try:
-                env = await TestExecutionEnvironment.empty(test_contract)
+                env = await TestExecutionEnvironment.empty(
+                    test_contract, self._is_test_fail_enabled
+                )
             except StarkException as err:
                 self.reporter.report(
                     subject=test_subject,
@@ -132,14 +137,15 @@ class ExpectedError:
 
 
 class TestExecutionEnvironment:
-    def __init__(self):
+    def __init__(self, is_test_fail_enabled: bool):
         self.starknet = None
         self.test_contract = None
         self._expected_error: Optional[ExpectedError] = None
+        self._is_test_fail_enabled = is_test_fail_enabled
 
     @classmethod
-    async def empty(cls, test_contract: ContractDefinition):
-        env = cls()
+    async def empty(cls, test_contract: ContractDefinition, is_test_fail_enabled: bool):
+        env = cls(is_test_fail_enabled)
         env.starknet = await Starknet.empty()
         env.test_contract = await env.starknet.deploy(contract_def=test_contract)
         return env
@@ -160,7 +166,11 @@ class TestExecutionEnvironment:
         )
 
         func = getattr(self.test_contract, function_name)
-        is_failure_expected = function_name.startswith("test_fail_")
+        is_failure_expected = (
+            function_name.startswith("test_fail_")
+            if self._is_test_fail_enabled
+            else False
+        )
         # TODO: Improve stacktrace
         try:
             try:
