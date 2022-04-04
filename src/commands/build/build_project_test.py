@@ -6,6 +6,7 @@ import pytest
 from src.commands.build import build_project
 from src.commands.build.build_exceptions import CairoCompilationException
 from src.utils.config.project_test import make_mock_project
+from src.utils.starknet_compilation import StarknetCompiler
 
 current_directory = Path(__file__).parent
 
@@ -54,6 +55,20 @@ def test_handling_cairo_errors(mocker, tmp_path):
     project_mock = make_mock_project(mocker, contracts, libs_path, current_directory)
 
     with pytest.raises(CairoCompilationException):
+        build_project(
+            output_dir=tmp_path,
+            cairo_path=[],
+            project=project_mock,
+            disable_hint_validation=False,
+        )
+
+
+def test_handling_not_existing_main_files(mocker, tmp_path):
+    libs_path = str(Path(current_directory, "mock_lib_root"))
+    contracts = {"main": [f"{str(current_directory)}/NOT_EXISTING_MOCK.cairo"]}
+    project_mock = make_mock_project(mocker, contracts, libs_path, current_directory)
+
+    with pytest.raises(StarknetCompiler.NotExistingMainFileException):
         build_project(
             output_dir=tmp_path,
             cairo_path=[],

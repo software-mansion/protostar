@@ -22,7 +22,7 @@ from src.protostar_exception import ProtostarException
 
 @dataclass
 class StarknetCompiler:
-    class NotExistingMainFile(ProtostarException):
+    class NotExistingMainFileException(ProtostarException):
         pass
 
     include_paths: List[str]
@@ -56,7 +56,7 @@ class StarknetCompiler:
             assert isinstance(context.preprocessed_program, StarknetPreprocessedProgram)
             return context.preprocessed_program
         except FileNotFoundError as err:
-            raise StarknetCompiler.NotExistingMainFile(
+            raise StarknetCompiler.NotExistingMainFileException(
                 message=f"Couldn't find a contract '{err.filename}'\nDid you forget to update protostar.toml::[\"protostar.contracts\"]::main?"
             )
 
