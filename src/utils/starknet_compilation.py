@@ -59,7 +59,7 @@ class StarknetCompiler:
             raise StarknetCompiler.NotExistingMainFileException(
                 message=(
                     f"Couldn't find a contract '{err.filename}'\n"
-                    'Did you forget to update protostar.toml::["protostar.contracts"]::main?'
+                    'Did you forget to update protostar.toml::["protostar.contracts"]?'
                 )
             )
 
