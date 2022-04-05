@@ -10,6 +10,20 @@ namespace BasicContract:
 end
 
 @external
+func test_fail_with_except_revert{syscall_ptr : felt*, range_check_ptr}():
+    %{ expect_revert("TRANSACTION_FAILED") %}
+    assert 0 = 0
+    return ()
+end
+
+@external
+func test_with_except_revert{syscall_ptr : felt*, range_check_ptr}():
+    %{ expect_revert("TRANSACTION_FAILED") %}
+    assert 0 = 1
+    return ()
+end
+
+@external
 func test_fail_call_not_existing_contract{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
 
@@ -116,6 +130,17 @@ func test_fail_caused_by_different_msg{syscall_ptr : felt*, range_check_ptr}():
     %{ stop_expecting_revert = expect_revert("UNINITIALIZED_CONTR.*", "WRONG_MESSAGE") %}
     BasicContract.increase_balance(contract_address=contract_a_address, amount=3)
     %{ stop_expecting_revert() %}
+
+    return ()
+end
+
+@external
+func test_fail_when_not_thrown_expected_exception{syscall_ptr : felt*, range_check_ptr}():
+    alloc_locals
+    %{ expect_revert() %}
+
+    local contract_a_address : felt
+    %{ ids.contract_a_address = 3421347281347298134789213489213 %}
 
     return ()
 end

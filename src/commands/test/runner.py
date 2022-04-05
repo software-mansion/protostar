@@ -127,13 +127,10 @@ class TestRunner:
             )
 
 
-@dataclass(frozen=True)
+@dataclass
 class ExpectedError:
     name: str
     message: str
-
-    def __eq__(self, other: "ExpectedError"):
-        return self.name == other.name and self.message == other.message
 
 
 class TestExecutionEnvironment:
@@ -288,7 +285,6 @@ class TestExecutionEnvironment:
                 raise MissingExceptReportedException(
                     "Expected a transaction to be reverted before cancelling expect_revert"
                 )
-            self._expected_error = None
 
         return stop_expecting_revert
 

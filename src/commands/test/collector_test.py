@@ -32,6 +32,7 @@ def test_omitting_pattern():
     should_collect = [
         "test_basic_broken.cairo",
         "test_basic_failure.cairo",
+        "test_failure_of_test_fail.cairo",
         "test_basic.cairo",
         "test_proxy.cairo",
         "test_cheats.cairo",
