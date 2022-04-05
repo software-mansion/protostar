@@ -205,7 +205,7 @@ Mocks all calls to function with the name `fn_name` of a contract with an addres
 
 #### Representing different data structures in `ret_data`
 
-To use `mock_call` effectively, you need to understand how Cairo data structures are represented under the hood. `Cairo-lang` operates on list of integers. The following examples demonstrate how each data structure is represented in Python code.
+To use `mock_call` effectively, you need to understand how Cairo data structures are represented under the hood. `Cairo-lang` operates on a list of integers. The following examples demonstrate how each data structure is represented in a Python code.
 
 
 ##### Felt

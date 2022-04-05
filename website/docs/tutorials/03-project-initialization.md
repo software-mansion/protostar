@@ -10,13 +10,8 @@ To create a new project run:
 protostar init
 ```
 
-```console title="Protostar asks about project name and few other optional information."
-Project name: hello-protostar
-Project description:
-Author:
-Version:
-License:
-Libraries directory name (optional):
+```console title="Protostar configuration step."
+libraries directory name (lib):
 ```
 
 # Project structure
@@ -30,12 +25,16 @@ The result of running `protostar init` is a configuration file `protostar.toml`,
 ## `protostar.toml`
 
 ```toml
-["protostar.general"]
+["protostar.config"]
+config_version = "0.1.0"    # version of "protostar.toml"
+
+["protostar.project"]
 libs_path = "./lib"         # a path to the dependency directory
 
 # This section is explained in the "Project compilation" guide.
 ["protostar.contracts"]
 main = [
-    "src/main.cairo",
+  "./src/main.cairo",
 ]
+
 ```
