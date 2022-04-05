@@ -107,7 +107,7 @@ try:
     cmd_upgrade_parser = root_subparsers.add_parser("upgrade")
 
     cmd_test_parser = root_subparsers.add_parser("test")
-    cmd_test_parser.add_argument("tests-root", type=directory)
+    cmd_test_parser.add_argument("target", type=Path)
     cmd_test_parser.add_argument(
         "--omit",
         "-o",
