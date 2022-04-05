@@ -5,11 +5,18 @@ from typing import Dict, List, Optional, cast
 
 import tomli
 import tomli_w
+from packaging import version
 
 from src.commands.test.utils import collect_immediate_subdirectories
+from src.config import NEXT_UNSUPPORTED_PROTOSTAR_CONFIG_VERSION
+from src.protostar_exception import ProtostarException
 
 
 class NoProtostarProjectFoundError(Exception):
+    pass
+
+
+class VersionNotSupportedException(ProtostarException):
     pass
 
 
@@ -34,6 +41,7 @@ class Project:
     def __init__(self, project_root: Optional[Path] = None):
         self.project_root = project_root or Path()
         self._config = None
+        self._protostar_config = None
 
     @property
     def config(self) -> ProjectConfig:
@@ -86,6 +94,26 @@ class Project:
                 "contracts": parsed_config["protostar.contracts"],
             }
             self._config = ProjectConfig(**flat_config)
+
+            self._protostar_config = ProtostarConfig(
+                **parsed_config["protostar.config"],
+            )
+
+            protostar_config_version = version.parse(
+                self._protostar_config.config_version
+            )
+            next_unsupported_config_version = version.parse(
+                NEXT_UNSUPPORTED_PROTOSTAR_CONFIG_VERSION
+            )
+
+            if next_unsupported_config_version <= protostar_config_version:
+                raise VersionNotSupportedException(
+                    (
+                        f"Current Protostar build doesn't support config_version {protostar_config_version}\n"
+                        "Try upgrading protostar by running: protostar upgrade"
+                    )
+                )
+
             return self._config
 
     def load_protostar_config(self) -> ProtostarConfig:
@@ -97,8 +125,7 @@ class Project:
         with open(self.config_path, "rb") as config_file:
             parsed_config = tomli.load(config_file)
 
-            flat_config = {
-                "config_version": parsed_config["protostar.config"],
-            }
-            self._config = ProtostarConfig(**flat_config)
-            return self._config
+            self._protostar_config = ProtostarConfig(
+                **parsed_config["protostar.config"]
+            )
+            return self._protostar_config
