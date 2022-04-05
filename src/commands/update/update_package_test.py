@@ -7,6 +7,7 @@ from git.cmd import Git
 from git.repo import Repo
 
 from src.commands.update.update_package import update_package
+from src.commands.update.updating_exceptions import PackageAlreadyUpToDateException
 from src.utils.create_and_commit_sample_file import create_and_commit_sample_file
 
 # tmpdir
@@ -98,7 +99,7 @@ def test_updating_specific_package_with_tag(
     repo_dir: str,
     packages_dir: str,
     package_repo_dir: str,
-    package_repo: Repo,  # pylint: disable=unused-argument
+    package_repo: Repo,
 ):
     git = Git(path.join(packages_dir, package_name))
     current_tag = git.execute(["git", "describe", "--tags"])
@@ -118,6 +119,24 @@ def test_updating_specific_package_with_tag(
 
     new_tag = git.execute(["git", "describe", "--tags"])
     assert new_tag == "0.1.1"
+
+
+@pytest.mark.parametrize("current_tag", ["0.1.0"])
+@pytest.mark.usefixtures("submodule", "package_repo")
+def test_package_already_up_to_date(
+    package_name: str,
+    repo_dir: str,
+    packages_dir: str,
+):
+    git = Git(path.join(packages_dir, package_name))
+    current_tag = git.execute(["git", "describe", "--tags"])
+    assert current_tag == "0.1.0"
+
+    with pytest.raises(PackageAlreadyUpToDateException):
+        update_package(package_name, repo_dir, packages_dir)
+
+    new_tag = git.execute(["git", "describe", "--tags"])
+    assert new_tag == "0.1.0"
 
 
 @pytest.mark.usefixtures("submodule")

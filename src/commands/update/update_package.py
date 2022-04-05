@@ -7,6 +7,7 @@ from git.exc import GitCommandError
 from git.objects import Submodule
 from git.repo import Repo
 
+from src.commands.update.updating_exceptions import PackageAlreadyUpToDateException
 from src.utils import log_color_provider
 
 
@@ -57,7 +58,7 @@ def update_package(package_name: str, repo_root_dir: str, packages_dir: str):
                 latest_tag,
             )
         else:
-            logger.info("Package already up to date.")
+            raise PackageAlreadyUpToDateException()
     else:
         logger.info(
             "Updating %s%s%s",
