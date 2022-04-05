@@ -52,7 +52,7 @@ class Project:
         general.pop("contracts")
 
         result = OrderedDict()
-        result["protostar.general"] = general
+        result["protostar.project"] = general
         result["protostar.contracts"] = self.config.contracts
         return result
 
@@ -79,7 +79,7 @@ class Project:
             parsed_config = tomli.load(config_file)
 
             flat_config = {
-                **parsed_config["protostar.general"],
+                **parsed_config["protostar.project"],
                 "contracts": parsed_config["protostar.contracts"],
             }
             self._config = ProjectConfig(**flat_config)

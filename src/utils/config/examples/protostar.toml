@@ -1,14 +1,14 @@
-["protostar.general"]
-name = "testproj"
-description = "descr"
-license = "MIT"
-version = "1.0"
+["protostar.project"]
 authors = [
-    "tomekgsd@gmail.com",
+  "tomekgsd@gmail.com",
 ]
+description = "descr"
 libs_path = "lib"
+license = "MIT"
+name = "testproj"
+version = "1.0"
 
 ["protostar.contracts"]
 main = [
-    "src/main.cairo",
+  "src/main.cairo",
 ]
