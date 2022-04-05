@@ -28,6 +28,12 @@ def test_parsing_project_info():
     assert config.libs_path == "lib"
 
 
+def test_config_file_is_versioned():
+    proj = Project(project_root=Path(current_directory, "examples"))
+    protostar_config = proj.load_protostar_config()
+    assert protostar_config.config_version is not None
+
+
 def test_no_project_found():
     proj = Project.get_current()
     with pytest.raises(NoProtostarProjectFoundError):

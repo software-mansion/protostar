@@ -1,3 +1,6 @@
+["protostar.config"]
+config_version = "0.1.0"
+
 ["protostar.project"]
 libs_path = "./lib"
 

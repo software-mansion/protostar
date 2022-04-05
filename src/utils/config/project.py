@@ -14,6 +14,11 @@ class NoProtostarProjectFoundError(Exception):
 
 
 @dataclass
+class ProtostarConfig:
+    config_version: str = field(default="0.1.0")
+
+
+@dataclass
 class ProjectConfig:
     libs_path: str = field(default="./lib")
     contracts: Dict[str, List[str]] = field(
@@ -46,7 +51,10 @@ class Project:
         general = OrderedDict(**self.config.__dict__)
         general.pop("contracts")
 
+        protostar_config = ProtostarConfig()
+
         result = OrderedDict()
+        result["protostar.config"] = OrderedDict(protostar_config.__dict__)
         result["protostar.project"] = general
         result["protostar.contracts"] = self.config.contracts
         return result
@@ -78,4 +86,19 @@ class Project:
                 "contracts": parsed_config["protostar.contracts"],
             }
             self._config = ProjectConfig(**flat_config)
+            return self._config
+
+    def load_protostar_config(self) -> ProtostarConfig:
+        if not self.config_path.is_file():
+            raise NoProtostarProjectFoundError(
+                "No protostar.toml found in the working directory"
+            )
+
+        with open(self.config_path, "rb") as config_file:
+            parsed_config = tomli.load(config_file)
+
+            flat_config = {
+                "config_version": parsed_config["protostar.config"],
+            }
+            self._config = ProtostarConfig(**flat_config)
             return self._config
