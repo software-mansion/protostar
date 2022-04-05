@@ -25,15 +25,11 @@ def test_init(project_name: str):
     assert ".git" in dirs
 
 
-def test_init_existing(project_name: str):
+def test_init_existing():
     child = pexpect.spawn(
         f"python {path.join(ACTUAL_CWD, 'protostar.py')} init --existing"
     )
-    child.expect("project directory name:", timeout=5)
-    child.sendline("")
-    child.expect("Please provide a non-empty project directory name:", timeout=5)
-    child.sendline(project_name)
-    child.expect("libraries directory *", timeout=1)
+    child.expect("libraries directory *", timeout=10)
     child.sendline("lib_test")
     child.expect(pexpect.EOF)
 
@@ -43,16 +39,12 @@ def test_init_existing(project_name: str):
     assert ".git" in dirs
 
 
-def test_init_ask_existing(project_name: str):
+def test_init_ask_existing():
     open(Path() / "example.cairo", "a").close()
 
     child = pexpect.spawn(f"python {path.join(ACTUAL_CWD, 'protostar.py')} init")
     child.expect("Your current directory.*", timeout=10)
     child.sendline("y")
-    child.expect("project directory name:", timeout=5)
-    child.sendline("")
-    child.expect("Please provide a non-empty project directory name:", timeout=5)
-    child.sendline(project_name)
     child.expect("libraries directory *", timeout=1)
     child.sendline("lib_test")
     child.expect(pexpect.EOF)
