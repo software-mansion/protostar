@@ -59,7 +59,7 @@ case $SHELL in
     exit 1
 esac
 
-if [[ ":$PATH:" != *":${PROTOSTAR_BIN_DIR}:"* ]]; then
+if [[ ":$PATH:" != *":${PROTOSTAR_BINARY_DIR}:"* ]]; then
     echo >> $PROFILE && echo "export PATH=\"\$PATH:$PROTOSTAR_BINARY_DIR\"" >> $PROFILE
 fi
 
