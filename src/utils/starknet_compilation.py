@@ -3,14 +3,12 @@ from pathlib import Path
 from typing import List
 
 from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
-from starkware.cairo.lang.compiler.cairo_compile import (
-    get_module_reader,
-)
+from starkware.cairo.lang.compiler.cairo_compile import get_module_reader
 from starkware.cairo.lang.compiler.constants import MAIN_SCOPE
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.cairo.lang.compiler.preprocessor.pass_manager import (
-    PassManagerContext,
     PassManager,
+    PassManagerContext,
 )
 from starkware.starknet.compiler.compile import assemble_starknet_contract
 from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_manager
@@ -19,9 +17,14 @@ from starkware.starknet.compiler.starknet_preprocessor import (
 )
 from starkware.starknet.services.api.contract_definition import ContractDefinition
 
+from src.protostar_exception import ProtostarException
+
 
 @dataclass
 class StarknetCompiler:
+    class NotExistingMainFileException(ProtostarException):
+        pass
+
     include_paths: List[str]
     disable_hint_validation: bool
 
@@ -38,19 +41,27 @@ class StarknetCompiler:
     ) -> StarknetPreprocessedProgram:
         pass_manager = self.get_starknet_pass_manager()
 
-        codes = [
-            (cairo_file_path.read_text("utf-8"), str(cairo_file_path))
-            for cairo_file_path in cairo_file_paths
-        ]
-        context = PassManagerContext(
-            start_codes=[],
-            codes=codes,
-            main_scope=MAIN_SCOPE,
-            identifiers=IdentifierManager(),
-        )
-        pass_manager.run(context)
-        assert isinstance(context.preprocessed_program, StarknetPreprocessedProgram)
-        return context.preprocessed_program
+        try:
+            codes = [
+                (cairo_file_path.read_text("utf-8"), str(cairo_file_path))
+                for cairo_file_path in cairo_file_paths
+            ]
+            context = PassManagerContext(
+                start_codes=[],
+                codes=codes,
+                main_scope=MAIN_SCOPE,
+                identifiers=IdentifierManager(),
+            )
+            pass_manager.run(context)
+            assert isinstance(context.preprocessed_program, StarknetPreprocessedProgram)
+            return context.preprocessed_program
+        except FileNotFoundError as err:
+            raise StarknetCompiler.NotExistingMainFileException(
+                message=(
+                    f"Couldn't find a contract '{err.filename}'\n"
+                    'Did you forget to update protostar.toml::["protostar.contracts"]?'
+                )
+            )
 
     def compile_contract(self, *sources: Path) -> ContractDefinition:
         preprocessed = self.preprocess_contract(*sources)

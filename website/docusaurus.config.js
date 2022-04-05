@@ -17,7 +17,7 @@ const config = {
   projectName: "protostar",
   trailingSlash: false,
   deploymentBranch: "gh-pages",
-
+    
   presets: [
     [
       "classic",
