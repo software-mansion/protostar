@@ -271,10 +271,10 @@ Removes a mocked call specified by a function name (`fn_name`) of a contract wit
 ### `expect_revert`
 
 ```python
-def expect_revert(error_type: str = ".*", error_message: str = ".*") -> Callable[[], None]: ...
+def expect_revert(error_type: Optional[str] = None, error_message: Optional[str] = None) -> Callable[[], None]: ...
 ```
 
-If a code beneath `expect_revert` raises a specified exception, a test will pass. If not, a test will fail. It accepts regex `error_type` and `error_message` and returns a function that limits the scope. Calling that function is optional.
+If a code beneath `expect_revert` raises a specified exception, a test will pass. If not, a test will fail. It accepts `error_type`, `error_message`, and returns a function that cancels this cheatcode. Calling that function is optional.
 
 :::info
 Protostar displays an error type and message when a test fails.
