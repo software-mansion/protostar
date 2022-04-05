@@ -134,10 +134,10 @@ class TestExecutionEnvironment:
         env.test_contract = await env.starknet.deploy(contract_def=test_contract)
         return env
 
-    def deploy_in_env(self, contract_path: str):
+    def deploy_in_env(self, contract_path: str, constructor_calldata: Optional[List[int]] = None):
         assert self.starknet
         contract = DeployedContact(
-            asyncio.run(self.starknet.deploy(source=contract_path))
+            asyncio.run(self.starknet.deploy(source=contract_path, constructor_calldata=constructor_calldata))
         )
         return contract
 
@@ -230,8 +230,8 @@ class TestExecutionEnvironment:
             self.expect_revert()
 
         @register_cheatcode
-        def deploy_contract(contract_path: str):
-            return self.deploy_in_env(contract_path)
+        def deploy_contract(contract_path: str, constructor_calldata: Optional[List[int]] = None):
+            return self.deploy_in_env(contract_path, constructor_calldata)
 
     def expect_revert(self):
         self._is_test_error_expected = True
