@@ -129,8 +129,8 @@ class TestRunner:
 
 @dataclass
 class ExpectedError:
-    name: str
-    message: str
+    name: Optional[str]
+    message: Optional[str]
 
 
 class TestExecutionEnvironment:
@@ -180,12 +180,9 @@ class TestExecutionEnvironment:
                 return call_result
 
             except StarkException as ex:
-                is_ex_unexpected = (
-                    self._expected_error is None
-                    or re.compile(self._expected_error.name).search(ex.code.name)
-                    is None
-                    or re.compile(self._expected_error.message).search(ex.message or "")
-                    is None
+                is_ex_unexpected = self._expected_error is None or (
+                    self._expected_error.name == ex.code.name
+                    and self._expected_error.message == ex.message
                 )
 
                 if is_ex_unexpected:
@@ -262,7 +259,7 @@ class TestExecutionEnvironment:
 
         @register_cheatcode
         def expect_revert(
-            error_type: str = ".*", error_message: str = ".*"
+            error_type: Optional[str] = None, error_message: Optional[str] = None
         ) -> Callable[[], None]:
             return self.expect_revert(
                 ExpectedError(name=error_type, message=error_message)

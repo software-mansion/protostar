@@ -18,7 +18,7 @@ end
 
 @external
 func test_with_except_revert{syscall_ptr : felt*, range_check_ptr}():
-    %{ expect_revert("TRANSACTION_FAILED") %}
+    %{ expect_revert() %}
     assert 0 = 1
     return ()
 end
@@ -107,27 +107,13 @@ func test_fail_two_expect_revert_calls{syscall_ptr : felt*, range_check_ptr}():
 end
 
 @external
-func test_regex{syscall_ptr : felt*, range_check_ptr}():
+func test_fail_caused_by_wrong_msg{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
 
     local contract_a_address : felt
     %{ ids.contract_a_address = 3421347281347298134789213489213 %}
 
-    %{ stop_expecting_revert = expect_revert("UNINITIALIZED_CONTR.*", ".*Got an exception while executing a hint.*") %}
-    BasicContract.increase_balance(contract_address=contract_a_address, amount=3)
-    %{ stop_expecting_revert() %}
-
-    return ()
-end
-
-@external
-func test_fail_caused_by_different_msg{syscall_ptr : felt*, range_check_ptr}():
-    alloc_locals
-
-    local contract_a_address : felt
-    %{ ids.contract_a_address = 3421347281347298134789213489213 %}
-
-    %{ stop_expecting_revert = expect_revert("UNINITIALIZED_CONTR.*", "WRONG_MESSAGE") %}
+    %{ stop_expecting_revert = expect_revert("UNINITIALIZED_CONTRACT", "WRONG_MESSAGE") %}
     BasicContract.increase_balance(contract_address=contract_a_address, amount=3)
     %{ stop_expecting_revert() %}
 
