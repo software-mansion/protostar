@@ -1,9 +1,9 @@
 # pylint: disable=redefined-outer-name
-from os import chdir, listdir, path
+from os import listdir, path
 from pathlib import Path
 
-import pytest
 import pexpect
+import pytest
 
 from tests.conftest import ACTUAL_CWD, init_project
 
@@ -29,19 +29,11 @@ def test_init_existing(project_name: str):
     child = pexpect.spawn(
         f"python {path.join(ACTUAL_CWD, 'protostar.py')} init --existing"
     )
-    child.expect("Project name:", timeout=5)
+    child.expect("project directory name:", timeout=5)
     child.sendline("")
-    child.expect("Please provide a non-empty project name:", timeout=5)
+    child.expect("Please provide a non-empty project directory name:", timeout=5)
     child.sendline(project_name)
-    child.expect("Project description:", timeout=1)
-    child.sendline("")
-    child.expect("Author:", timeout=1)
-    child.sendline("")
-    child.expect("Version:", timeout=1)
-    child.sendline("")
-    child.expect("License:", timeout=1)
-    child.sendline("")
-    child.expect("Libraries directory *", timeout=1)
+    child.expect("libraries directory *", timeout=1)
     child.sendline("lib_test")
     child.expect(pexpect.EOF)
 
@@ -57,19 +49,11 @@ def test_init_ask_existing(project_name: str):
     child = pexpect.spawn(f"python {path.join(ACTUAL_CWD, 'protostar.py')} init")
     child.expect("Your current directory.*", timeout=10)
     child.sendline("y")
-    child.expect("Project name:", timeout=5)
+    child.expect("project directory name:", timeout=5)
     child.sendline("")
-    child.expect("Please provide a non-empty project name:", timeout=5)
+    child.expect("Please provide a non-empty project directory name:", timeout=5)
     child.sendline(project_name)
-    child.expect("Project description:", timeout=1)
-    child.sendline("")
-    child.expect("Author:", timeout=1)
-    child.sendline("")
-    child.expect("Version:", timeout=1)
-    child.sendline("")
-    child.expect("License:", timeout=1)
-    child.sendline("")
-    child.expect("Libraries directory *", timeout=1)
+    child.expect("libraries directory *", timeout=1)
     child.sendline("lib_test")
     child.expect(pexpect.EOF)
 

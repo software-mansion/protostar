@@ -1,10 +1,3 @@
 ["protostar.project"]
-authors = []
-description = ""
-license = ""
-name = "template_package"
-version = "0.1.0"
 
-["protostar.dependencies"]
-
-["protostar.dev-dependencies"]
+["protostar.contracts"]

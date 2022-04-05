@@ -3,9 +3,8 @@ import shutil
 from pathlib import Path
 from typing import Any, Type
 
-from git.repo import Repo
 from git.exc import InvalidGitRepositoryError
-
+from git.repo import Repo
 
 from src.utils import log_color_provider
 from src.utils.config.project import Project, ProjectConfig
@@ -50,14 +49,14 @@ class ProjectCreator:
         self.project_creation()
 
     def interactive_input(self):
-        project_name = ProjectCreator.request_input("Project name")
-        while project_name == "":
-            project_name = ProjectCreator.request_input_warning(
-                "Please provide a non-empty project name"
+        project_dir_name = ProjectCreator.request_input("project directory name")
+        while project_dir_name == "":
+            project_dir_name = ProjectCreator.request_input_warning(
+                "Please provide a non-empty project directory name"
             )
-        self._project_dir_name = project_name
+        self._project_dir_name = project_dir_name
         lib_dir = (
-            ProjectCreator.request_input("Libraries directory name (optional)") or "lib"
+            ProjectCreator.request_input("libraries directory name (lib)") or "lib"
         )
         self.config = ProjectConfig(
             libs_path=lib_dir,

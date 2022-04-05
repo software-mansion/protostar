@@ -1,12 +1,5 @@
 ["protostar.project"]
-authors = [
-  "tomekgsd@gmail.com",
-]
-description = "descr"
 libs_path = "lib"
-license = "MIT"
-name = "testproj"
-version = "1.0"
 
 ["protostar.contracts"]
 main = [

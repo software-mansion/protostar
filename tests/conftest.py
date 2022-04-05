@@ -21,16 +21,8 @@ def project_name():
 
 def init_project(project_name: str):
     child = pexpect.spawn(f"python {path.join(ACTUAL_CWD, 'protostar.py')} init")
-    child.expect("Project name:", timeout=5)
+    child.expect("project directory name:", timeout=5)
     child.sendline(project_name)
-    child.expect("Project description:", timeout=1)
-    child.sendline("")
-    child.expect("Author:", timeout=1)
-    child.sendline("")
-    child.expect("Version:", timeout=1)
-    child.sendline("")
-    child.expect("License:", timeout=1)
-    child.sendline("")
     child.expect("Libraries directory *", timeout=1)
     child.sendline("")
     child.expect(pexpect.EOF)
