@@ -16,10 +16,10 @@ from src.commands.test.cheatable_syscall_handler import CheatableSysCallHandler
 from src.commands.test.collector import TestCollector
 from src.commands.test.reporter import TestReporter
 from src.commands.test.test_environment_exceptions import (
-    MissingExceptReportedException,
+    MissingExceptException,
     ReportedException,
-    StarkExceptionReportedException,
-    TestNotFailedReportedException,
+    StarkReportedException,
+    TestNotFailedException,
 )
 from src.commands.test.utils import TestSubject
 from src.utils.modules import replace_class
@@ -172,11 +172,11 @@ class TestExecutionEnvironment:
             try:
                 call_result = await func().invoke()
                 if self._expected_error is not None:
-                    raise MissingExceptReportedException(
+                    raise MissingExceptException(
                         f"Expected an exception matching the following regex: {self._expected_error.name}"
                     )
                 if is_failure_expected:
-                    raise TestNotFailedReportedException()
+                    raise TestNotFailedException()
                 return call_result
 
             except StarkException as ex:
@@ -189,11 +189,11 @@ class TestExecutionEnvironment:
                 )
 
                 if is_ex_unexpected:
-                    raise StarkExceptionReportedException(ex) from ex
+                    raise StarkReportedException(ex) from ex
 
                 if is_failure_expected:
-                    raise TestNotFailedReportedException() from ex
-        except TestNotFailedReportedException as ex:
+                    raise TestNotFailedException() from ex
+        except TestNotFailedException as ex:
             raise ex
         except ReportedException as ex:
             if not is_failure_expected:
@@ -274,7 +274,7 @@ class TestExecutionEnvironment:
 
     def expect_revert(self, expected_error: ExpectedError) -> Callable[[], None]:
         if self._expected_error is not None:
-            raise MissingExceptReportedException(
+            raise MissingExceptException(
                 f"Protostar is already expecting an exception matching the following regex: {self._expected_error.name}"
             )
 
@@ -282,7 +282,7 @@ class TestExecutionEnvironment:
 
         def stop_expecting_revert():
             if self._expected_error is not None:
-                raise MissingExceptReportedException(
+                raise MissingExceptException(
                     "Expected a transaction to be reverted before cancelling expect_revert"
                 )
 

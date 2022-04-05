@@ -6,16 +6,16 @@ class ReportedException(BaseException):
         return str(super().__repr__())
 
 
-class MissingExceptReportedException(ReportedException):
+class MissingExceptException(ReportedException):
     pass
 
 
-class TestNotFailedReportedException(ReportedException):
+class TestNotFailedException(ReportedException):
     def __init__(self) -> None:
         super().__init__("Expected a test to fail")
 
 
-class StarkExceptionReportedException(ReportedException):
+class StarkReportedException(ReportedException):
     def __init__(self, stark_exception: StarkException):
         self.stark_exception = stark_exception
         super().__init__()
