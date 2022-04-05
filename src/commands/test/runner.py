@@ -1,27 +1,28 @@
-from pathlib import Path
-from typing import Any, List, Optional, Pattern, Dict, TYPE_CHECKING
 import asyncio
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Pattern
 
-from starkware.starknet.services.api.contract_definition import ContractDefinition
+from attr import dataclass
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
+from starkware.starknet.public.abi import get_selector_from_name
+from starkware.starknet.services.api.contract_definition import ContractDefinition
+from starkware.starknet.testing.contract import StarknetContract
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
-from starkware.starknet.public.abi import get_selector_from_name
-from starkware.starknet.testing.contract import StarknetContract
 
 from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
 from src.commands.test.cheatable_syscall_handler import CheatableSysCallHandler
 from src.commands.test.collector import TestCollector
 from src.commands.test.reporter import TestReporter
+from src.commands.test.test_environment_exceptions import (
+    MissingExceptException,
+    ReportedException,
+    StarkReportedException,
+    TestNotFailedException,
+)
 from src.commands.test.utils import TestSubject
 from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
-from src.commands.test.test_environment_exceptions import (
-    ReportedException,
-    MissingExceptReportedException,
-    StarkExceptionReportedException,
-)
-
 
 if TYPE_CHECKING:
     from src.utils.config.project import Project
@@ -39,8 +40,10 @@ class TestRunner:
         self,
         project: Optional["Project"] = None,
         include_paths: Optional[List[str]] = None,
+        is_test_fail_enabled=False,
     ):
-        self._is_test_error_expected = False
+        self._is_test_fail_enabled = is_test_fail_enabled
+
         if project and not include_paths:
             self.include_paths = project.get_include_paths()
         else:
@@ -66,8 +69,8 @@ class TestRunner:
             omit_pattern=omit_pattern,
         )
         self.reporter.report_collected(test_subjects)
-
         for test_subject in test_subjects:
+
             compiled_test = StarknetCompiler(
                 include_paths=self.include_paths,
                 disable_hint_validation=True,
@@ -91,7 +94,9 @@ class TestRunner:
 
         for function in functions:
             try:
-                env = await TestExecutionEnvironment.empty(test_contract)
+                env = await TestExecutionEnvironment.empty(
+                    test_contract, self._is_test_fail_enabled
+                )
             except StarkException as err:
                 self.reporter.report(
                     subject=test_subject,
@@ -121,23 +126,36 @@ class TestRunner:
             )
 
 
+@dataclass
+class ExpectedError:
+    name: Optional[str]
+    message: Optional[str]
+
+
 class TestExecutionEnvironment:
-    def __init__(self):
+    def __init__(self, is_test_fail_enabled: bool):
         self.starknet = None
         self.test_contract = None
-        self._is_test_error_expected = False
+        self._expected_error: Optional[ExpectedError] = None
+        self._is_test_fail_enabled = is_test_fail_enabled
 
     @classmethod
-    async def empty(cls, test_contract: ContractDefinition):
-        env = cls()
+    async def empty(cls, test_contract: ContractDefinition, is_test_fail_enabled: bool):
+        env = cls(is_test_fail_enabled)
         env.starknet = await Starknet.empty()
         env.test_contract = await env.starknet.deploy(contract_def=test_contract)
         return env
 
-    def deploy_in_env(self, contract_path: str):
+    def deploy_in_env(
+        self, contract_path: str, constructor_calldata: Optional[List[int]] = None
+    ):
         assert self.starknet
         contract = DeployedContact(
-            asyncio.run(self.starknet.deploy(source=contract_path))
+            asyncio.run(
+                self.starknet.deploy(
+                    source=contract_path, constructor_calldata=constructor_calldata
+                )
+            )
         )
         return contract
 
@@ -150,22 +168,41 @@ class TestExecutionEnvironment:
         )
 
         func = getattr(self.test_contract, function_name)
+        is_failure_expected = (
+            function_name.startswith("test_fail_") and self._is_test_fail_enabled
+        )
+
         # TODO: Improve stacktrace
         try:
-            call_result = await func().invoke()
-            if self._is_test_error_expected:
-                raise MissingExceptReportedException(
-                    "Expected a transaction to be reverted"
+            try:
+                call_result = await func().invoke()
+                if self._expected_error is not None:
+                    raise MissingExceptException(
+                        f"Expected an exception matching the following regex: {self._expected_error.name}"
+                    )
+                if is_failure_expected:
+                    raise TestNotFailedException()
+                return call_result
+
+            except StarkException as ex:
+                is_ex_unexpected = self._expected_error is None or (
+                    self._expected_error.name == ex.code.name
+                    and self._expected_error.message == ex.message
                 )
-            return call_result
 
-        except StarkException as ex:
-            if not self._is_test_error_expected:
-                raise StarkExceptionReportedException(ex) from ex
+                if is_ex_unexpected:
+                    raise StarkReportedException(ex) from ex
 
+                if is_failure_expected:
+                    raise TestNotFailedException() from ex
+        except TestNotFailedException as ex:
+            raise ex
+        except ReportedException as ex:
+            if not is_failure_expected:
+                raise ex
         finally:
             CairoFunctionRunner.run_from_entrypoint = original_run_from_entrypoint
-            self._is_test_error_expected = False
+            self._expected_error = None
 
     def _get_run_from_entrypoint_with_custom_hint_locals(
         self, fn_run_from_entrypoint: Any
@@ -226,15 +263,34 @@ class TestExecutionEnvironment:
             cheatable_syscall_handler.unregister_mock_call(contract_address, selector)
 
         @register_cheatcode
-        def expect_revert():
-            self.expect_revert()
+        def expect_revert(
+            error_type: Optional[str] = None, error_message: Optional[str] = None
+        ) -> Callable[[], None]:
+            return self.expect_revert(
+                ExpectedError(name=error_type, message=error_message)
+            )
 
         @register_cheatcode
-        def deploy_contract(contract_path: str):
-            return self.deploy_in_env(contract_path)
+        def deploy_contract(
+            contract_path: str, constructor_calldata: Optional[List[int]] = None
+        ):
+            return self.deploy_in_env(contract_path, constructor_calldata)
 
-    def expect_revert(self):
-        self._is_test_error_expected = True
+    def expect_revert(self, expected_error: ExpectedError) -> Callable[[], None]:
+        if self._expected_error is not None:
+            raise MissingExceptException(
+                f"Protostar is already expecting an exception matching the following regex: {self._expected_error.name}"
+            )
+
+        self._expected_error = expected_error
+
+        def stop_expecting_revert():
+            if self._expected_error is not None:
+                raise MissingExceptException(
+                    "Expected a transaction to be reverted before cancelling expect_revert"
+                )
+
+        return stop_expecting_revert
 
 
 class DeployedContact:

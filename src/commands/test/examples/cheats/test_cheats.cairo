@@ -4,6 +4,7 @@ from starkware.starknet.common.syscalls import (
     get_block_number, get_block_timestamp, get_caller_address)
 from starkware.cairo.common.math import assert_not_equal
 from starkware.starknet.common.syscalls import storage_read, storage_write
+from starkware.cairo.common.uint256 import Uint256
 
 @view
 func test_roll_cheat{syscall_ptr : felt*}():
@@ -123,6 +124,34 @@ func test_deploy_contract{syscall_ptr : felt*, range_check_ptr}():
     BasicContract.increase_balance(contract_address=contract_a_address, amount=3)
     let (res) = BasicContract.get_balance(contract_address=contract_a_address)
     assert res = 3
+    return ()
+end
+
+@contract_interface
+namespace BasicWithConstructor:
+    func increase_balance(amount : Uint256):
+    end
+
+    func get_balance() -> (res : Uint256):
+    end
+
+    func get_id() -> (res: felt):
+    end
+end
+
+@external
+func test_deploy_contract_with_args_in_constructor{syscall_ptr : felt*, range_check_ptr}():
+    alloc_locals
+
+    local contract_a_address : felt
+    %{ ids.contract_a_address = deploy_contract("./src/commands/test/examples/basic_with_constructor.cairo", [100, 0, 1]).contract_address %}
+
+    let (res) = BasicWithConstructor.get_balance(contract_address=contract_a_address)
+    assert res.low = 100
+    assert res.high = 0
+
+    let (id) = BasicWithConstructor.get_id(contract_address=contract_a_address)
+    assert id = 1
     return ()
 end
 

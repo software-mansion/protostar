@@ -17,7 +17,7 @@ const config = {
   projectName: "protostar",
   trailingSlash: false,
   deploymentBranch: "gh-pages",
-
+    
   presets: [
     [
       "classic",
@@ -87,6 +87,7 @@ const config = {
       prism: {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
+        additionalLanguages: ["toml"]
       },
     }),
 };
