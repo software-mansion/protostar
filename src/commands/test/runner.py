@@ -167,17 +167,16 @@ class TestExecutionEnvironment:
 
         func = getattr(self.test_contract, function_name)
         is_failure_expected = (
-            function_name.startswith("test_fail_")
-            if self._is_test_fail_enabled
-            else False
+            function_name.startswith("test_fail_") and self._is_test_fail_enabled
         )
+
         # TODO: Improve stacktrace
         try:
             try:
                 call_result = await func().invoke()
                 if self._expected_error is not None:
                     raise MissingExceptReportedException(
-                        "Expected a transaction to be reverted"
+                        f"Expected an exception matching the following regex: {self._expected_error.name}"
                     )
                 if is_failure_expected:
                     raise TestNotFailedReportedException()
@@ -279,7 +278,7 @@ class TestExecutionEnvironment:
     def expect_revert(self, expected_error: ExpectedError) -> Callable[[], None]:
         if self._expected_error is not None:
             raise MissingExceptReportedException(
-                f"Protostar is already expecting {self._expected_error.name}"
+                f"Protostar is already expecting an exception matching the following regex: {self._expected_error.name}"
             )
 
         self._expected_error = expected_error
@@ -287,7 +286,7 @@ class TestExecutionEnvironment:
         def stop_expecting_revert():
             if self._expected_error is not None:
                 raise MissingExceptReportedException(
-                    "Expected a transaction to be reverted before cancelling expect_revert."
+                    "Expected a transaction to be reverted before cancelling expect_revert"
                 )
             self._expected_error = None
 
