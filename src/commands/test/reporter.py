@@ -44,7 +44,7 @@ class TestReporter:
             self.broken_tests.append(case_result)
         assert symbol, "Unrecognised case result!"
 
-        print(symbol, end="")
+        print(symbol, end="", flush=True)
 
     @staticmethod
     def file_entry(file_name: str):

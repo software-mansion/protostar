@@ -12,7 +12,7 @@ class StandardLogFormatter(Formatter):
     def get_level_color(self, level: str) -> str:
         mapping = {
             "DEBUG": self._log_color_provider.get_color("MAGENTA"),
-            "INFO": self._log_color_provider.get_color("BLUE"),
+            "INFO": self._log_color_provider.get_color("CYAN"),
             "WARNING": self._log_color_provider.get_color("YELLOW"),
             "ERROR": self._log_color_provider.get_color("RED"),
         }

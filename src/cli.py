@@ -50,7 +50,7 @@ async def cli(args, script_root: Path, protostar_binary_dir: Optional[Path]):
             upgrade()
         elif args.command == "test":
             await run_test_runner(
-                getattr(args, "tests-root"),
+                args.target,
                 project=current_project,
                 omit=args.omit,
                 match=args.match,
