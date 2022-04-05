@@ -25,7 +25,7 @@ def make_mock_project(mocker, contracts, libs_path, pkg_root=None) -> Project:
 def test_parsing_project_info():
     proj = Project(project_root=Path(current_directory, "examples"))
     config = proj.load_config()
-    assert config.libs_path == "lib"
+    assert config.libs_path == "./lib"
 
 
 def test_config_file_is_versioned():
