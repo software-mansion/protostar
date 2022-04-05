@@ -1,8 +1,10 @@
 import os
 import os.path
+import sys
 from logging import INFO, StreamHandler, getLogger
 from pathlib import Path
 from typing import List, Optional
+
 from colorama import init as init_colorama
 
 from src.commands import (
@@ -10,8 +12,8 @@ from src.commands import (
     handle_remove_command,
     handle_update_command,
     init,
-    upgrade,
     print_current_version,
+    upgrade,
 )
 from src.commands.build.build_project import build_project
 from src.commands.test import run_test_runner
@@ -67,6 +69,8 @@ async def cli(args, script_root: Path, protostar_binary_dir: Optional[Path]):
             )
     except ProtostarException as err:
         logger.error(err.message)
+    except KeyboardInterrupt:
+        sys.exit()
 
 
 def inject_protostar_cairo_dir(
