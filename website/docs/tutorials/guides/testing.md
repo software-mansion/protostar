@@ -149,7 +149,7 @@ end
 ```
 
 :::info
-Please refer to https://www.cairo-lang.org/docs/hello_starknet/more_features.html#passing-tuples-and-structs-in-calldata on how to serialize your constructor arguments to array of integers
+Please refer to ["passing typles and structs in calldata"](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#passing-tuples-and-structs-in-calldata) on how to serialize your constructor arguments to array of integers
 :::
 
 Then run your test with
