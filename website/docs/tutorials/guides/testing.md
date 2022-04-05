@@ -306,10 +306,10 @@ Removes a mocked call specified by a function name (`fn_name`) of a contract wit
 ### `expect_revert`
 
 ```python
-def expect_revert(error_type: str = ".*", error_message: str = ".*") -> Callable[[], None]: ...
+def expect_revert(error_type: Optional[str] = None, error_message: Optional[str] = None) -> Callable[[], None]: ...
 ```
 
-If a code beneath `expect_revert` raises a specified exception, a test will pass. If not, a test will fail. It accepts regex `error_type` and `error_message` and returns a function that limits the scope. Calling that function is optional.
+If a code beneath `expect_revert` raises a specified exception, a test will pass. If not, a test will fail. It accepts `error_type`, `error_message`, and returns a function that cancels this cheatcode. Calling that function is optional.
 
 :::info
 Protostar displays an error type and message when a test fails.
@@ -328,36 +328,20 @@ namespace BasicContract:
 end
 
 @external
-func test_call_not_existing_contract{syscall_ptr : felt*, range_check_ptr}():
+func test_failing_to_call_external_contract{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
 
     local contract_a_address : felt
     %{ ids.contract_a_address = 3421347281347298134789213489213 %}
 
-    %{ expect_revert("UNINITIALIZED_CONTRACT") %}
-    BasicContract.increase_balance(contract_address=contract_a_address, amount=3)
-    return ()
-end
-```
-
-
-```cairo title="This test 'fails' because the exceptions wasn't thrown."
-@external
-func test_fail_error_was_not_raised_before_stopping_expect_revert{
-        syscall_ptr : felt*, range_check_ptr}():
-    alloc_locals
-
     %{ stop_expecting_revert = expect_revert("UNINITIALIZED_CONTRACT") %}
-    local contract_a_address = 42
+    BasicContract.increase_balance(contract_address=contract_a_address, amount=3)
     %{ stop_expecting_revert() %}
 
     return ()
 end
 ```
 
-:::info
-The prefix `test_fail_` tells Protostar to pass the test if it fails and fail if it passes.
-:::
 
 ### `deploy_contract`
 
