@@ -348,8 +348,9 @@ end
 ```python
 def deploy_contract(contract_path: str, constructor_calldata: List[int]) -> DeployedContact:
 
-class DeployedContact:
-    contract_address: str
+class DeployedContract:
+    @property
+    def contract_address(self) -> int: ...
 ```
 Deploys a contract given a path relative to a Protostar project root. The section [Deploying contracts from tests](#deploying-contracts-from-tests) demonstrates a usage of this cheatcode.
 
