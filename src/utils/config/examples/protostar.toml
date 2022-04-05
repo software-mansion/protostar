@@ -1,7 +1,7 @@
 ["protostar.project"]
-libs_path = "lib"
+libs_path = "./lib"
 
 ["protostar.contracts"]
 main = [
-  "src/main.cairo",
+  "./src/main.cairo",
 ]

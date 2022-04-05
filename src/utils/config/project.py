@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Dict, Optional, cast
+from typing import Dict, List, Optional, cast
 
 import tomli
 import tomli_w
@@ -15,9 +15,9 @@ class NoProtostarProjectFoundError(Exception):
 
 @dataclass
 class ProjectConfig:
-    libs_path: str = field(default="lib")
+    libs_path: str = field(default="./lib")
     contracts: Dict[str, List[str]] = field(
-        default_factory=lambda: {"main": ["src/main.cairo"]}
+        default_factory=lambda: {"main": ["./src/main.cairo"]}
     )
 
 
