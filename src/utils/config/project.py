@@ -15,15 +15,10 @@ class NoProtostarProjectFoundError(Exception):
 
 @dataclass
 class ProjectConfig:
-    name: str = field(default="project_name")
-    description: str = field(default="")
-    license: str = field(default="")
-    version: str = field(default="0.1.0")
-    authors: List[str] = field(default_factory=list)
+    libs_path: str = field(default="lib")
     contracts: Dict[str, List[str]] = field(
         default_factory=lambda: {"main": ["src/main.cairo"]}
     )
-    libs_path: str = field(default="lib")
 
 
 class Project:

@@ -31,6 +31,7 @@ class ProjectCreator:
     def __init__(self, script_root: Path):
         self.script_root = script_root
         self.config = ProjectConfig()
+        self._project_dir_name = ""
 
     @staticmethod
     def request_input(message: str):
@@ -54,24 +55,16 @@ class ProjectCreator:
             project_name = ProjectCreator.request_input_warning(
                 "Please provide a non-empty project name"
             )
-        project_description = ProjectCreator.request_input("Project description")
-        author = ProjectCreator.request_input("Author")
-        version = ProjectCreator.request_input("Version")
-        project_license = ProjectCreator.request_input("License")
+        self._project_dir_name = project_name
         lib_dir = (
             ProjectCreator.request_input("Libraries directory name (optional)") or "lib"
         )
         self.config = ProjectConfig(
-            name=project_name,
-            description=project_description,
-            license=project_license,
-            version=version,
-            authors=[author],
             libs_path=lib_dir,
         )
 
     def project_creation(self):
-        project_root = Path() / self.config.name
+        project_root = Path() / self._project_dir_name
         self.copy_template(self.script_root, "default", project_root)
         project = Project(project_root=project_root)
 
