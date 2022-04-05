@@ -1,4 +1,5 @@
 import glob
+import os
 import shutil
 from pathlib import Path
 from typing import Any, Type
@@ -83,6 +84,15 @@ class ProjectCreator:
 
 
 class OnlyConfigCreator(ProjectCreator):
+    def interactive_input(self):
+        self._project_dir_name = os.path.basename(os.getcwd())
+        lib_dir = (
+            ProjectCreator.request_input("libraries directory name (lib)") or "lib"
+        )
+        self.config = ProjectConfig(
+            libs_path=lib_dir,
+        )
+
     def project_creation(self):
         project_root = Path()
 
