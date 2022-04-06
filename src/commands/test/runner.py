@@ -44,10 +44,12 @@ class TestRunner:
     ):
         self._is_test_fail_enabled = is_test_fail_enabled
 
-        if project and not include_paths:
-            self.include_paths = project.get_include_paths()
-        else:
-            self.include_paths = include_paths or []
+        self.include_paths = []
+        if project:
+            self.include_paths.extend(project.get_include_paths())
+
+        if include_paths:
+            self.include_paths.extend(include_paths)
 
     @replace_class(
         "starkware.starknet.core.os.syscall_utils.BusinessLogicSysCallHandler",
