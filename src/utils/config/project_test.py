@@ -1,4 +1,6 @@
 from pathlib import Path
+from typing import Any
+from pytest_mock import MockerFixture
 
 import pytest
 
@@ -8,10 +10,6 @@ from src.utils.config.project import (
     ProjectConfig,
     VersionNotSupportedException,
 )
-
-from typing import Any
-
-from pytest_mock import MockerFixture
 from src.utils.protostar_directory import VersionManager
 
 current_directory = Path(__file__).parent

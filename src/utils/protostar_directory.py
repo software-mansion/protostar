@@ -1,10 +1,10 @@
-from mimetypes import init
-from typing import Union
+from typing import Union, Optional
+from pathlib import Path
+
 import os.path
 import shutil
-from pathlib import Path
-from typing import Optional
 import tomli
+
 from packaging import version
 from packaging.version import LegacyVersion, Version as PackagingVersion
 
@@ -36,9 +36,10 @@ class ProtostarDirectory:
         return self._protostar_root_dir
 
 
-class VersionManager:
-    VersionType = Union[LegacyVersion, PackagingVersion]
+VersionType = Union[LegacyVersion, PackagingVersion]
 
+
+class VersionManager:
     @staticmethod
     def parse(version_str: str) -> VersionType:
         return version.parse(version_str)

@@ -105,6 +105,7 @@ class Project:
             if self._version_manager.protostar_version < config_protostar_version:
                 raise VersionNotSupportedException(
                     (
+                        # pylint: disable=line-too-long
                         f"Current Protostar build ({self._version_manager.protostar_version}) doesn't support protostar_version {config_protostar_version}\n"
                         "Try upgrading protostar by running: protostar upgrade"
                     )

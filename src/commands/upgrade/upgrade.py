@@ -5,7 +5,6 @@ from logging import getLogger
 from urllib.request import urlretrieve
 
 import requests
-import tomli
 from packaging import version
 
 from src.utils import ProtostarDirectory, VersionManager
