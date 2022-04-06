@@ -7,17 +7,17 @@ from typing import Any, Type
 from git.exc import InvalidGitRepositoryError
 from git.repo import Repo
 
-from src.utils import log_color_provider
+from src.utils import log_color_provider, VersionManager
 from src.utils.config.project import Project, ProjectConfig
 
 
-def init(args: Any, script_root: Path):
+def init(args: Any, script_root: Path, version_manager: VersionManager):
     """
     Creates init protostar project
     """
-    project_creator = get_creator(args)
-    project_creator = project_creator(script_root)
-    project_creator.create()
+    CurrentProjectCreator = get_creator(args)
+    project_creator = CurrentProjectCreator(script_root, version_manager)
+    project_creator.run()
 
 
 def input_yes_no(message: str) -> bool:
@@ -28,9 +28,10 @@ def input_yes_no(message: str) -> bool:
 
 
 class ProjectCreator:
-    def __init__(self, script_root: Path):
+    def __init__(self, script_root: Path, version_manager: VersionManager):
         self.script_root = script_root
         self.config = ProjectConfig()
+        self._version_manager = version_manager
         self._project_dir_name = ""
 
     @staticmethod
@@ -45,7 +46,7 @@ class ProjectCreator:
             f"{log_color_provider.get_color('RED')}{message}:{log_color_provider.get_color('RESET')} "
         )
 
-    def create(self):
+    def run(self):
         self.interactive_input()
         self.project_creation()
 
@@ -66,7 +67,7 @@ class ProjectCreator:
     def project_creation(self):
         project_root = Path() / self._project_dir_name
         self.copy_template(self.script_root, "default", project_root)
-        project = Project(project_root=project_root)
+        project = Project(self._version_manager, project_root)
 
         lib_pth = Path(project_root, self.config.libs_path)
 
@@ -85,7 +86,7 @@ class ProjectCreator:
 
 class OnlyConfigCreator(ProjectCreator):
     def interactive_input(self):
-        self._project_dir_name = os.path.basename(os.getcwd())
+        self._project_dir_name = os.path.basename(Path.cwd())
         lib_dir = (
             ProjectCreator.request_input("libraries directory name (lib)") or "lib"
         )
@@ -101,7 +102,7 @@ class OnlyConfigCreator(ProjectCreator):
         if self.config.libs_path and not lib_pth.is_dir():
             lib_pth.mkdir(parents=True)
 
-        project = Project(project_root=project_root)
+        project = Project(self._version_manager, project_root)
         project.write_config(self.config)
 
         try:

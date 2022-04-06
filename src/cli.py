@@ -34,6 +34,7 @@ async def cli(args, script_root: Path):
     handler = StreamHandler()
     handler.setFormatter(StandardLogFormatter(log_color_provider))
     logger.addHandler(handler)
+
     protostar_directory = ProtostarDirectory()
     version_manager = VersionManager(protostar_directory)
     current_project = Project(version_manager)
@@ -46,7 +47,7 @@ async def cli(args, script_root: Path):
         elif args.command == "remove":
             handle_remove_command(args)
         elif args.command == "init":
-            init(args, script_root)
+            init(args, script_root, version_manager)
         elif args.command == "update":
             handle_update_command(args)
         elif args.command == "upgrade":
