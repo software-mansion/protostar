@@ -29,3 +29,14 @@ After reading this guides, you will know how to do the following:
 - compile project
 - [add, remove, and remove dependencies](/docs/tutorials/Guides/dependencies-management)
 - test contracts with the help of cheatcodes
+
+## Reference
+Protostar is designed to be discoverable straight from the terminal. If you want to get the information about available commands and flags you can always use
+```
+protostar --help
+```
+If you want to get the detailed information about a certain command and available flags you can always use 
+```
+protostar COMMAND --help
+```
+For example `protostar test --help`

@@ -113,14 +113,14 @@ try:
         "-o",
         type=regexp,
         required=False,
-        help="A path regexp, which omits the test file if it matches the pattern",
+        help="A filename regexp, which omits the test file if it matches the pattern",
     )
     cmd_test_parser.add_argument(
         "--match",
         "-m",
         type=regexp,
         required=False,
-        help="A path regexp, which omits the test file if it does not match the pattern",
+        help="A filename regexp, which omits the test file if it does not match the pattern",
     )
     cmd_test_parser.add_argument(
         "--cairo-path",
