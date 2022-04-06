@@ -135,7 +135,7 @@ class ExpectedError:
 
 
 class TestExecutionEnvironment:
-    def __init__(self, is_test_fail_enabled: bool, include_paths):
+    def __init__(self, is_test_fail_enabled: bool, include_paths: List[str]):
         self.starknet = None
         self.test_contract = None
         self._expected_error: Optional[ExpectedError] = None
@@ -149,7 +149,7 @@ class TestExecutionEnvironment:
         is_test_fail_enabled: bool,
         include_paths: Optional[List[str]] = None,
     ):
-        env = cls(is_test_fail_enabled, include_paths)
+        env = cls(is_test_fail_enabled, include_paths or [])
         env.starknet = await Starknet.empty()
         env.test_contract = await env.starknet.deploy(contract_def=test_contract)
         return env
