@@ -27,7 +27,10 @@ jobs:
       - name: Analyzing the code with pylint
         run: |
           poetry run poe lint
-      - name: Unit test
+      - name: Add the protostar dist directory to PATH
+        run: |
+          echo "./dist/protostar" >> $GITHUB_PATH
+      - name: Test
         run: |
           poetry run poe test
       - name: Convert coverage to XML
