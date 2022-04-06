@@ -1,7 +1,8 @@
+import os
 from pathlib import Path
-from pytest_mock import MockerFixture
 
 import pytest
+from pytest_mock import MockerFixture
 
 from src.utils.protostar_directory import ProtostarDirectory
 
@@ -11,7 +12,7 @@ def home_path_fixture(tmpdir: str) -> Path:
     return Path(tmpdir)
 
 
-@pytest.fixture(name="home_path")
+@pytest.fixture(name="protostar_bin_dir_path")
 def protostar_bin_dir_path_fixture(home_path) -> Path:
     return home_path / ".protostar" / "dist" / "protostar"
 
@@ -41,3 +42,19 @@ def test_not_existing_protostar_binary_dir_path():
     with pytest.raises(ProtostarDirectory.ProtostarNotInstalledException):
         # pylint: disable=pointless-statement
         protostar_directory.protostar_binary_dir_path
+
+
+@pytest.mark.usefixtures("protostar_in_path")
+def test_directory_root_path():
+    protostar_directory = ProtostarDirectory()
+
+    assert os.path.exists(protostar_directory.directory_root_path)
+
+
+@pytest.mark.usefixtures("protostar_not_in_path")
+def test_not_existing_directory_root_path():
+    protostar_directory = ProtostarDirectory()
+
+    with pytest.raises(ProtostarDirectory.ProtostarNotInstalledException):
+        # pylint: disable=pointless-statement
+        protostar_directory.directory_root_path
