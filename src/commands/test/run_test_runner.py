@@ -18,10 +18,7 @@ async def run_test_runner(
     cairo_path = cairo_paths or []
 
     test_root_dir = Path(tests_root)
-    runner = TestRunner(
-        project=project,
-        include_paths=[str(pth) for pth in cairo_path]
-    )
+    runner = TestRunner(project=project, include_paths=[str(pth) for pth in cairo_path])
     await runner.run_tests_in(
         test_root_dir,
         omit_pattern=omit,
