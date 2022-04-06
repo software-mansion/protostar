@@ -12,7 +12,7 @@ from src.commands.test.utils import collect_immediate_subdirectories
 from src.protostar_exception import ProtostarException
 
 
-class NoProtostarProjectFoundError(Exception):
+class NoProtostarProjectFoundError(ProtostarException):
     pass
 
 
