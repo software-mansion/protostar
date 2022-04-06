@@ -43,7 +43,6 @@ class Project:
 
     @property
     def config_path(self) -> Path:
-        assert self.project_root, "No project_path provided!"
         return self.project_root / "protostar.toml"
 
     @property

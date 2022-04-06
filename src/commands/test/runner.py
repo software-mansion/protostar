@@ -97,7 +97,7 @@ class TestRunner:
         for function in functions:
             try:
                 env = await TestExecutionEnvironment.empty(
-                    test_contract, self._is_test_fail_enabled
+                    test_contract, self._is_test_fail_enabled, self.include_paths
                 )
             except StarkException as err:
                 self.reporter.report(
@@ -135,15 +135,21 @@ class ExpectedError:
 
 
 class TestExecutionEnvironment:
-    def __init__(self, is_test_fail_enabled: bool):
+    def __init__(self, is_test_fail_enabled: bool, include_paths):
         self.starknet = None
         self.test_contract = None
         self._expected_error: Optional[ExpectedError] = None
         self._is_test_fail_enabled = is_test_fail_enabled
+        self._include_paths = include_paths
 
     @classmethod
-    async def empty(cls, test_contract: ContractDefinition, is_test_fail_enabled: bool):
-        env = cls(is_test_fail_enabled)
+    async def empty(
+        cls,
+        test_contract: ContractDefinition,
+        is_test_fail_enabled: bool,
+        include_paths: Optional[List[str]] = None,
+    ):
+        env = cls(is_test_fail_enabled, include_paths)
         env.starknet = await Starknet.empty()
         env.test_contract = await env.starknet.deploy(contract_def=test_contract)
         return env
@@ -155,7 +161,9 @@ class TestExecutionEnvironment:
         contract = DeployedContact(
             asyncio.run(
                 self.starknet.deploy(
-                    source=contract_path, constructor_calldata=constructor_calldata
+                    source=contract_path,
+                    constructor_calldata=constructor_calldata,
+                    cairo_path=self._include_paths,
                 )
             )
         )
