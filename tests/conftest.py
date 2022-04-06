@@ -6,25 +6,8 @@ from typing import List
 
 import pexpect
 import pytest
-from pytest_mock import MockerFixture
 
-ACTUAL_CWD = getcwd()
-
-
-@pytest.fixture(name="home_path")
-def home_path_fixture(tmpdir: str) -> Path:
-    return Path(tmpdir)
-
-
-@pytest.fixture(name="protostar_bin_dir_path")
-def protostar_bin_dir_path_fixture(home_path) -> Path:
-    return home_path / ".protostar" / "dist" / "protostar"
-
-
-@pytest.fixture(autouse=True)
-def protostar_in_path_fixture(mocker: MockerFixture, protostar_bin_dir_path: Path):
-    protostar_bin_dir_path.mkdir(parents=True)
-    mocker.patch("shutil.which").return_value = protostar_bin_dir_path / "protostar"
+ACTUAL_CWD = Path(getcwd())
 
 
 @pytest.fixture(autouse=True)
@@ -38,7 +21,9 @@ def project_name():
 
 
 def init_project(project_name: str):
-    child = pexpect.spawn(f"python {path.join(ACTUAL_CWD, 'protostar.py')} init")
+    child = pexpect.spawn(
+        f"{path.join(ACTUAL_CWD, 'dist', 'protostar', 'protostar')} init"
+    )
     child.expect("project directory name:", timeout=5)
     child.sendline(project_name)
     child.expect("libraries directory *", timeout=1)
@@ -51,7 +36,8 @@ def protostar():
     def _protostar(args: List[str]) -> str:
         return (
             check_output(
-                ["python", path.join(ACTUAL_CWD, "protostar.py")] + args, stderr=STDOUT
+                [path.join(ACTUAL_CWD, "dist", "protostar", "protostar")] + args,
+                stderr=STDOUT,
             )
             .decode("utf-8")
             .strip()
