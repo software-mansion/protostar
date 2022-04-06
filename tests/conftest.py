@@ -1,12 +1,30 @@
 # pylint: disable=redefined-outer-name
 from os import chdir, getcwd, path
+from pathlib import Path
 from subprocess import STDOUT, check_output
 from typing import List
 
 import pexpect
 import pytest
+from pytest_mock import MockerFixture
 
 ACTUAL_CWD = getcwd()
+
+
+@pytest.fixture(name="home_path")
+def home_path_fixture(tmpdir: str) -> Path:
+    return Path(tmpdir)
+
+
+@pytest.fixture(name="protostar_bin_dir_path")
+def protostar_bin_dir_path_fixture(home_path) -> Path:
+    return home_path / ".protostar" / "dist" / "protostar"
+
+
+@pytest.fixture(autouse=True)
+def protostar_in_path_fixture(mocker: MockerFixture, protostar_bin_dir_path: Path):
+    protostar_bin_dir_path.mkdir(parents=True)
+    mocker.patch("shutil.which").return_value = protostar_bin_dir_path / "protostar"
 
 
 @pytest.fixture(autouse=True)
