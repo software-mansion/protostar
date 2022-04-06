@@ -17,9 +17,8 @@ from src.commands import (
 from src.commands.build.build_project import build_project
 from src.commands.test import run_test_runner
 from src.protostar_exception import ProtostarException
-from src.utils import StandardLogFormatter, log_color_provider
+from src.utils import ProtostarDirectory, StandardLogFormatter, log_color_provider
 from src.utils.config.project import Project
-from src.utils import ProtostarDirectory
 from src.utils.protostar_directory import VersionManager
 
 init_colorama()
@@ -35,7 +34,7 @@ async def cli(args, script_root: Path):
     handler.setFormatter(StandardLogFormatter(log_color_provider))
     logger.addHandler(handler)
 
-    protostar_directory = ProtostarDirectory()
+    protostar_directory = ProtostarDirectory(script_root)
     version_manager = VersionManager(protostar_directory)
     current_project = Project(version_manager)
 

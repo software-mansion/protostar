@@ -38,7 +38,7 @@ format = "black ."
 format_check = "black --check src"
 lint = "pylint src"
 test = ["test_unit", "build", "test_e2e"]
-test_e2e.shell = "PATH=./dist/protostar:$PATH && pytest tests/*"
+test_e2e.shell = "pytest tests/*"
 test_html = [{shell = "coverage html && open ./htmlcov/index.html"}]
 test_report = [{shell = "coverage report"}]
 test_unit.shell = "coverage run -m pytest src/*"
