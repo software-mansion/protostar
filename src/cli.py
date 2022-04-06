@@ -42,13 +42,13 @@ async def cli(args, script_root: Path):
         if args.version:
             version_manager.print_current_version()
         elif args.command == "install":
-            handle_install_command(args)
+            handle_install_command(args, current_project)
         elif args.command == "remove":
-            handle_remove_command(args)
+            handle_remove_command(args, current_project)
         elif args.command == "init":
             init(args, script_root, version_manager)
         elif args.command == "update":
-            handle_update_command(args)
+            handle_update_command(args, current_project)
         elif args.command == "upgrade":
             upgrade(protostar_directory, version_manager)
         elif args.command == "test":

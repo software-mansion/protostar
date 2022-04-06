@@ -7,9 +7,9 @@ import tomli
 import tomli_w
 from packaging import version
 
-from src.utils.protostar_directory import VersionManager
 from src.commands.test.utils import collect_immediate_subdirectories
 from src.protostar_exception import ProtostarException
+from src.utils.protostar_directory import VersionManager
 
 
 class NoProtostarProjectFoundError(ProtostarException):

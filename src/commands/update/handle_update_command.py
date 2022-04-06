@@ -1,18 +1,16 @@
 from logging import getLogger
-from os import getcwd, listdir, path
+from os import listdir
 
 from src.commands.update.update_package import update_package
 from src.commands.update.updating_exceptions import PackageAlreadyUpToDateException
-from src.utils import retrieve_real_package_name
+from src.utils import Project, retrieve_real_package_name
 
 
-def handle_update_command(args) -> None:
+def handle_update_command(args, project: Project) -> None:
     assert args.command == "update"
 
-    # TODO: make root directories easier to maintain
-    # https://github.com/software-mansion/protostar/issues/55
-    root_repo_dir = getcwd()
-    packages_dir = path.join(root_repo_dir, "lib")
+    root_repo_dir = str(project.project_root)
+    packages_dir = project.config.libs_path
     logger = getLogger()
 
     if args.package:
