@@ -26,7 +26,7 @@ The result of running `protostar init` is a configuration file `protostar.toml`,
 
 ```toml
 ["protostar.config"]
-config_version = "0.1.0"    # version of "protostar.toml"
+protostar_version = "0.1.0"
 
 ["protostar.project"]
 libs_path = "./lib"         # a path to the dependency directory

@@ -12,7 +12,6 @@ from src.commands import (
     handle_remove_command,
     handle_update_command,
     init,
-    print_current_version,
     upgrade,
 )
 from src.commands.build.build_project import build_project
@@ -20,12 +19,14 @@ from src.commands.test import run_test_runner
 from src.protostar_exception import ProtostarException
 from src.utils import StandardLogFormatter, log_color_provider
 from src.utils.config.project import Project
+from src.utils import ProtostarDirectory
+from src.utils.protostar_directory import VersionManager
 
 init_colorama()
 cwd = os.getcwd()
 
 
-async def cli(args, script_root: Path, protostar_binary_dir: Optional[Path]):
+async def cli(args, script_root: Path):
     log_color_provider.is_ci_mode = args.no_color
 
     logger = getLogger()
@@ -33,11 +34,13 @@ async def cli(args, script_root: Path, protostar_binary_dir: Optional[Path]):
     handler = StreamHandler()
     handler.setFormatter(StandardLogFormatter(log_color_provider))
     logger.addHandler(handler)
-    current_project = Project.get_current()
+    protostar_directory = ProtostarDirectory()
+    version_manager = VersionManager(protostar_directory)
+    current_project = Project(version_manager)
 
     try:
         if args.version:
-            print_current_version()
+            version_manager.print_current_version()
         elif args.command == "install":
             handle_install_command(args)
         elif args.command == "remove":
@@ -47,7 +50,7 @@ async def cli(args, script_root: Path, protostar_binary_dir: Optional[Path]):
         elif args.command == "update":
             handle_update_command(args)
         elif args.command == "upgrade":
-            upgrade()
+            upgrade(protostar_directory, version_manager)
         elif args.command == "test":
             await run_test_runner(
                 args.target,
@@ -55,7 +58,7 @@ async def cli(args, script_root: Path, protostar_binary_dir: Optional[Path]):
                 omit=args.omit,
                 match=args.match,
                 cairo_paths=inject_protostar_cairo_dir(
-                    args.cairo_path or [], protostar_binary_dir
+                    args.cairo_path or [], protostar_directory.protostar_binary_dir_path
                 ),
             )
         elif args.command == "build":
@@ -63,7 +66,7 @@ async def cli(args, script_root: Path, protostar_binary_dir: Optional[Path]):
                 project=current_project,
                 output_dir=args.output,
                 cairo_path=inject_protostar_cairo_dir(
-                    args.cairo_path or [], protostar_binary_dir
+                    args.cairo_path or [], protostar_directory.protostar_binary_dir_path
                 ),
                 disable_hint_validation=args.disable_hint_validation,
             )

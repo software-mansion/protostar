@@ -7,8 +7,8 @@ import tomli
 import tomli_w
 from packaging import version
 
+from src.utils.protostar_directory import VersionManager
 from src.commands.test.utils import collect_immediate_subdirectories
-from src.config import NEXT_UNSUPPORTED_PROTOSTAR_CONFIG_VERSION
 from src.protostar_exception import ProtostarException
 
 
@@ -22,7 +22,7 @@ class VersionNotSupportedException(ProtostarException):
 
 @dataclass
 class ProtostarConfig:
-    config_version: str = field(default="0.1.0")
+    protostar_version: str = field(default="0.1.0")
 
 
 @dataclass
@@ -34,14 +34,13 @@ class ProjectConfig:
 
 
 class Project:
-    @classmethod
-    def get_current(cls):
-        return cls()
-
-    def __init__(self, project_root: Optional[Path] = None):
+    def __init__(
+        self, version_manager: VersionManager, project_root: Optional[Path] = None
+    ):
         self.project_root = project_root or Path()
         self._config = None
         self._protostar_config = None
+        self._version_manager = version_manager
 
     @property
     def config(self) -> ProjectConfig:
@@ -99,17 +98,14 @@ class Project:
                 **parsed_config["protostar.config"],
             )
 
-            protostar_config_version = version.parse(
-                self._protostar_config.config_version
-            )
-            next_unsupported_config_version = version.parse(
-                NEXT_UNSUPPORTED_PROTOSTAR_CONFIG_VERSION
+            config_protostar_version = version.parse(
+                self._protostar_config.protostar_version
             )
 
-            if next_unsupported_config_version <= protostar_config_version:
+            if self._version_manager.protostar_version < config_protostar_version:
                 raise VersionNotSupportedException(
                     (
-                        f"Current Protostar build doesn't support config_version {protostar_config_version}\n"
+                        f"Current Protostar build ({self._version_manager.protostar_version}) doesn't support protostar_version {config_protostar_version}\n"
                         "Try upgrading protostar by running: protostar upgrade"
                     )
                 )
