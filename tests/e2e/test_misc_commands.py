@@ -17,7 +17,7 @@ def test_init(project_name: str):
     with pytest.raises(FileNotFoundError):
         listdir(f"./{project_name}")
 
-    init_project(project_name)
+    init_project(project_name, "")
 
     dirs = listdir(project_name)
 
