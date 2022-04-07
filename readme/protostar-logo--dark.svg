@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg width="100%" height="100%" viewBox="0 0 253 142" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
-    <g id="protostar-readme-logo" transform="matrix(1.75437,0,0,1.5502,771.924,334.843)">
+<svg width="100%" height="100%" viewBox="0 0 253 152" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g id="protostar-readme-logo" transform="matrix(1.75437,0,0,1.66009,771.924,358.58)">
         <rect x="-440" y="-216" width="144" height="91" style="fill:none;"/>
         <clipPath id="_clip1">
             <rect x="-440" y="-216" width="144" height="91"/>
         </clipPath>
         <g clip-path="url(#_clip1)">
-            <g id="dark">
+            <g id="dark" transform="matrix(1,0,0,0.933805,0,-14.2982)">
                 <g id="Background" transform="matrix(0.130691,0,0,0.147904,-702.723,-372.927)">
                     <use xlink:href="#_Image2" x="2431" y="1060" width="260px" height="439px"/>
                 </g>
