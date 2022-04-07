@@ -31,6 +31,10 @@ $ tree -L 2
     └── test_main.cairo
 ```
 
+:::warning
+Protostar creates a git commit after installing a dependency.
+:::
+
 ### External dependency reference formats
 
 Protostar supports the following ways of referencing external dependency:
