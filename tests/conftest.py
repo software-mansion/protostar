@@ -16,11 +16,16 @@ def change_cwd(tmpdir):
 
 
 @pytest.fixture
-def project_name():
+def project_name() -> str:
     return "foobar"
 
 
-def init_project(project_name: str):
+@pytest.fixture
+def libs_path() -> str:
+    return ""
+
+
+def init_project(project_name: str, libs_path: str):
     child = pexpect.spawn(
         f"{path.join(ACTUAL_CWD, 'dist', 'protostar', 'protostar')} init"
     )
@@ -29,7 +34,7 @@ def init_project(project_name: str):
     )  # the very first run is a bit slow
     child.sendline(project_name)
     child.expect("libraries directory *", timeout=1)
-    child.sendline("")
+    child.sendline(libs_path)
     child.expect(pexpect.EOF)
 
 
@@ -49,6 +54,6 @@ def protostar():
 
 
 @pytest.fixture
-def init(project_name: str):
-    init_project(project_name)
+def init(project_name: str, libs_path: str):
+    init_project(project_name, libs_path)
     chdir(project_name)
