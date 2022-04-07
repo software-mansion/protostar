@@ -1,8 +1,8 @@
 from pathlib import Path
 from typing import Any
-from pytest_mock import MockerFixture
 
 import pytest
+from pytest_mock import MockerFixture
 
 from src.utils.config.project import (
     NoProtostarProjectFoundError,
@@ -26,7 +26,7 @@ def make_mock_project(mocker, contracts, libs_path, pkg_root=None) -> Project:
         libs_path=libs_path,
     )
     mocker.patch.object(pkg, attribute="load_config").return_value = mock_config
-    mocker.patch.object(pkg, attribute="_config", new=mock_config)
+    mocker.patch.object(pkg, attribute="_project_config", new=mock_config)
     return pkg
 
 
