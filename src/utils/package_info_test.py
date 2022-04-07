@@ -3,20 +3,24 @@
 # pylint: disable=unused-argument
 # pylint: disable=too-many-arguments
 
-from os import mkdir, path
+from os import mkdir
 from pathlib import Path
 
 import pytest
 from git.repo import Repo
 from pytest_mock import MockerFixture
 
-from src.utils.create_and_commit_sample_file import \
-    create_and_commit_sample_file
-from src.utils.package_info import (IncorrectURL, InvalidPackageName,
-                                    PackageInfo, PackageNameRetrievalException,
-                                    _map_ssh_to_url, extract_info_from_repo_id,
-                                    load_normalized_to_real_name_map,
-                                    retrieve_real_package_name)
+from src.utils.create_and_commit_sample_file import create_and_commit_sample_file
+from src.utils.package_info import (
+    IncorrectURL,
+    InvalidPackageName,
+    PackageInfo,
+    PackageNameRetrievalException,
+    _map_ssh_to_url,
+    extract_info_from_repo_id,
+    load_normalized_to_real_name_map,
+    retrieve_real_package_name,
+)
 
 
 class ExtractInfoFromRepoIdTest:
