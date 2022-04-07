@@ -7,6 +7,19 @@
 </div>
 
 ---
+
+## Table of contents <!-- omit in toc -->
+- [About](#about)
+- [Documentation](#documentation)
+- [Installation](#installation)
+- [Development](#development)
+  - [Requirements](#requirements)
+  - [Setting up environment](#setting-up-environment)
+    - [Git hooks](#git-hooks)
+- [Updating website/docs](#updating-websitedocs)
+
+
+
 ## About
 Protostar manages your dependencies, compiles your project, and runs tests.
 
@@ -20,7 +33,6 @@ To install the tool, run:
 ```shell
 curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/install.sh | bash
 ```
-
 ---
 
 ## Development
@@ -55,3 +67,6 @@ cp pre-commit ./.git/hooks/
 chmod +x ./.git/hooks/pre-commit
 chmod +x ./.git/hooks/pre-push
 ```
+
+## Updating website/docs
+Please read [website/README.md](./website/README.md).
