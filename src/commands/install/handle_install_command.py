@@ -18,8 +18,8 @@ def handle_install_command(args: Any, project: Project) -> None:
         install_package_from_repo(
             package_info.name if args.name is None else args.name,
             package_info.url,
-            repo_root_dir=str(project.project_root),
-            destination=project.config.libs_path,
+            repo_root_dir=project.project_root,
+            destination=project.project_root / project.config.libs_path,
             tag=package_info.version,
         )
     else:

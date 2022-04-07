@@ -9,8 +9,8 @@ from src.utils import Project, retrieve_real_package_name
 def handle_update_command(args, project: Project) -> None:
     assert args.command == "update"
 
-    root_repo_dir = str(project.project_root)
-    packages_dir = project.config.libs_path
+    root_repo_dir = project.project_root
+    packages_dir = project.project_root / project.config.libs_path
     logger = getLogger()
 
     if args.package:

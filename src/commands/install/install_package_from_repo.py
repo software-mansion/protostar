@@ -29,7 +29,7 @@ def install_package_from_repo(
 - Are you in the right directory?"""
         )
 
-    package_dir = path.join(destination, name)
+    package_dir = destination / name
 
     logger.info(
         "Installing %s%s%s %s(%s)%s",
