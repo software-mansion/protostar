@@ -1,8 +1,12 @@
-<div style="display: flex; flex: 1; flex-direction: column; align-items: center; border-bottom: 2px solid rgba(128,128,128,0.25); padding-bottom: 1rem; margin-bottom: 2rem;">
-<img src="website/static/img/protostar-logo--dark.png" width=80 alt="protostar-logo" />
-<h1 style="display: inline-block; border-bottom: none; margin-bottom: 0;"><b>PROTO</b>STAR</h1>
+<div align="center">
+<img src="./readme/protostar-logo--dark.svg#gh-light-mode-only" width=200 alt="protostar-logo" />
+<img src="./readme/protostar-logo--light.svg#gh-dark-mode-only" width=200 alt="protostar-logo" />
+
 StarkNet smart contract development toolchain
+
 </div>
+
+---
 
 ## Installation
 
