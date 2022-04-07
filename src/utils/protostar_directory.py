@@ -6,17 +6,8 @@ from packaging import version
 from packaging.version import LegacyVersion
 from packaging.version import Version as PackagingVersion
 
-from src.protostar_exception import ProtostarException
-
 
 class ProtostarDirectory:
-    class ProtostarNotInstalledException(ProtostarException):
-        def __init__(self):
-            super().__init__(
-                "Couldn't find the protostar binary\n"
-                "Did you add the protostar binary to the $PATH variable?"
-            )
-
     def __init__(self, protostar_binary_dir_path: Path) -> None:
         self._protostar_binary_dir_path: Path = protostar_binary_dir_path
 

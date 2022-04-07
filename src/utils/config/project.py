@@ -5,7 +5,6 @@ from typing import Dict, List, Optional, cast
 
 import tomli
 import tomli_w
-from packaging import version
 
 from src.commands.test.utils import collect_immediate_subdirectories
 from src.protostar_exception import ProtostarException
@@ -38,15 +37,15 @@ class Project:
         self, version_manager: VersionManager, project_root: Optional[Path] = None
     ):
         self.project_root = project_root or Path()
-        self._config = None
+        self._project_config = None
         self._protostar_config = None
         self._version_manager = version_manager
 
     @property
     def config(self) -> ProjectConfig:
-        if not self._config:
+        if not self._project_config:
             self.load_config()
-        return cast(ProjectConfig, self._config)
+        return cast(ProjectConfig, self._project_config)
 
     @property
     def config_path(self) -> Path:
@@ -75,7 +74,7 @@ class Project:
         ]
 
     def write_config(self, config: ProjectConfig):
-        self._config = config
+        self._project_config = config
         with open(self.config_path, "wb") as file:
             tomli_w.dump(self.ordered_dict, file)
 
@@ -92,13 +91,13 @@ class Project:
                 **parsed_config["protostar.project"],
                 "contracts": parsed_config["protostar.contracts"],
             }
-            self._config = ProjectConfig(**flat_config)
+            self._project_config = ProjectConfig(**flat_config)
 
             self._protostar_config = ProtostarConfig(
                 **parsed_config["protostar.config"],
             )
 
-            config_protostar_version = version.parse(
+            config_protostar_version = self._version_manager.parse(
                 self._protostar_config.protostar_version
             )
 
@@ -111,7 +110,7 @@ class Project:
                     )
                 )
 
-            return self._config
+            return self._project_config
 
     def load_protostar_config(self) -> ProtostarConfig:
         if not self.config_path.is_file():

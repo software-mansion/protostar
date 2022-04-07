@@ -1,5 +1,4 @@
 import glob
-import os
 import shutil
 from pathlib import Path
 from typing import Any, Type
@@ -86,7 +85,7 @@ class ProjectCreator:
 
 class OnlyConfigCreator(ProjectCreator):
     def interactive_input(self):
-        self._project_dir_name = os.path.basename(Path.cwd())
+        self._project_dir_name = Path.cwd().name
         lib_dir = (
             ProjectCreator.request_input("libraries directory name (lib)") or "lib"
         )
