@@ -1,41 +1,29 @@
-# Website
+# Protostar Website
+
+https://docs.swmansion.com/protostar/
 
 This website is built using [Docusaurus 2](https://docusaurus.io/), a modern static website generator.
 
-### Installation
+## Development
 
-```
-$ yarn install
-```
+### Requirements
 
-### Local Development
+- [Node.js](https://nodejs.org/en/) version >= 14 or above (which can be checked by running `node -v`). You can use nvm for managing multiple Node versions on a single machine installed.
 
-```
-$ yarn start
-```
+### Running website locally
 
-This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
+1. Install yarn: `npm i yarn -g`
+2. Install website dependencies: `yarn install`
+3. Run the website locally: `yarn start`
 
-### Build
+## Updating documentation
 
-```
-$ yarn build
-```
+You can find documentation source files in the `docs` directory. The documentation is written in the `markdown` format. Docusaurus converts markdown files into website.
 
-This command generates static content into the `build` directory and can be served using any static contents hosting service.
+To change the navigation flow, update `docusaurus.config.js`. This file configures Docusaurus.
 
-### Deployment
+[Docusaurus configuration docs](https://docusaurus.io/docs/configuration#what-goes-into-a-docusaurusconfigjs)
 
-Using SSH:
+## Deployment
 
-```
-$ USE_SSH=true yarn deploy
-```
-
-Not using SSH:
-
-```
-$ GIT_USER=<Your GitHub username> yarn deploy
-```
-
-If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
+Deployment is automatized. When a pull-request is merged to the `master` branch, `../.github/workflows/deploy_docs.yml` builds project and deploys it to the `gh-pages` branch.
