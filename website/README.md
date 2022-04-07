@@ -14,13 +14,15 @@ This website is built using [Docusaurus 2](https://docusaurus.io/), a modern sta
 
 1. Install yarn: `npm i yarn -g`
 2. Install website dependencies: `yarn install`
-3. Run website locally: `yarn start`
+3. Run the website locally: `yarn start`
 
 ## Updating documentation
 
-You can find documentation source files in the `docs` directory. These files use `markdown` format. Docusaurus converts markdown files into website.
+You can find documentation source files in the `docs` directory. The documentation is written in the `markdown` format. Docusaurus converts markdown files into website.
 
-To change the navigation flow, update `docusaurus.config.js`. This file configures Docusaurus. Read [Docusaurus configuration docs](https://docusaurus.io/docs/configuration#what-goes-into-a-docusaurusconfigjs).
+To change the navigation flow, update `docusaurus.config.js`. This file configures Docusaurus.
+
+[Docusaurus configuration docs](https://docusaurus.io/docs/configuration#what-goes-into-a-docusaurusconfigjs)
 
 ## Deployment
 
