@@ -133,6 +133,9 @@ class ExpectedError:
     name: Optional[str]
     message: Optional[str]
 
+    def __str__(self) -> str:
+        return f"(error_type: {self.name}; error_message: {self.message})"
+
 
 class TestExecutionEnvironment:
     def __init__(self, is_test_fail_enabled: bool, include_paths: List[str]):
@@ -188,19 +191,26 @@ class TestExecutionEnvironment:
                 call_result = await func().invoke()
                 if self._expected_error is not None:
                     raise MissingExceptException(
-                        f"Expected an exception matching the following regex: {self._expected_error.name}"
+                        f"Expected an exception matching the following error: {self._expected_error}"
                     )
                 if is_failure_expected:
                     raise TestNotFailedException()
                 return call_result
 
             except StarkException as ex:
-                is_ex_unexpected = self._expected_error is None or (
-                    self._expected_error.name == ex.code.name
-                    and self._expected_error.message == ex.message
+                is_ex_expected = (
+                    self._expected_error is not None
+                    and (
+                        self._expected_error.name is None
+                        or self._expected_error.name == ex.code.name
+                    )
+                    and (
+                        self._expected_error.message is None
+                        or (ex.message or "").startswith(self._expected_error.message)
+                    )
                 )
 
-                if is_ex_unexpected:
+                if not is_ex_expected:
                     raise StarkReportedException(ex) from ex
 
                 if is_failure_expected:
@@ -289,7 +299,7 @@ class TestExecutionEnvironment:
     def expect_revert(self, expected_error: ExpectedError) -> Callable[[], None]:
         if self._expected_error is not None:
             raise MissingExceptException(
-                f"Protostar is already expecting an exception matching the following regex: {self._expected_error.name}"
+                f"Protostar is already expecting an exception matching the following error: {self._expected_error}"
             )
 
         self._expected_error = expected_error
