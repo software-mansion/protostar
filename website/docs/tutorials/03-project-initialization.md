@@ -14,6 +14,9 @@ protostar init
 libraries directory name (lib):
 ```
 
+### Adapting an existing project to the Protostar project
+Protostar project must be a git repository and have `protostar.toml` file. You can adapt your project manually or by running `protostar init --existing`.
+
 # Project structure
 
 The result of running `protostar init` is a configuration file `protostar.toml`, example files, and the following 3 directories:
