@@ -15,12 +15,15 @@ def test_basic_contract(protostar):
 
 @pytest.mark.usefixtures("init")
 def test_complex(protostar, copy_fixture):
-    copy_fixture("basic_with_constructor.cairo", "./src") 
+    copy_fixture("basic.cairo", "./src") 
     copy_fixture("proxy_contract.cairo", "./src") 
     copy_fixture("test_proxy.cairo", "./tests") 
 
     result = protostar(["test", "tests"])
-    assert "1 passed" in result
+    
+    assert "Collected 3 items" in result
+    assert "3 passed" in result
+    
     
     
     
