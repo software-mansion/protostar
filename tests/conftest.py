@@ -1,7 +1,7 @@
 # pylint: disable=redefined-outer-name
-from os import chdir, getcwd, path
-from pathlib import Path
 import shutil
+from os import chdir, getcwd, mkdir, path
+from pathlib import Path
 from subprocess import STDOUT, check_output
 from typing import List
 
@@ -13,8 +13,11 @@ ACTUAL_CWD = getcwd()
 
 @pytest.fixture(autouse=True)
 def change_cwd(tmpdir):
-    yield chdir(tmpdir)
+    protostar_project_dir = Path(tmpdir) / "protostar_project"
+    mkdir(protostar_project_dir)
+    yield chdir(protostar_project_dir)
     chdir(ACTUAL_CWD)
+
 
 @pytest.fixture
 def cairo_fixtures_dir():
