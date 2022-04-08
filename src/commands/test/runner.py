@@ -109,6 +109,10 @@ class TestRunner:
 
             try:
                 call_result = await env.invoke_test_function(function["name"])
+                self.reporter.report(
+                    subject=test_subject,
+                    case_result=PassedCase(tx_info=call_result),
+                )
 
             except ReportedException as err:
                 self.reporter.report(
@@ -119,12 +123,6 @@ class TestRunner:
                         exception=err,
                     ),
                 )
-                return
-
-            self.reporter.report(
-                subject=test_subject,
-                case_result=PassedCase(tx_info=call_result),
-            )
 
 
 @dataclass
