@@ -9,12 +9,6 @@ class ReportedException(BaseException):
 class MissingExceptException(ReportedException):
     pass
 
-
-class TestNotFailedException(ReportedException):
-    def __init__(self) -> None:
-        super().__init__("Expected a test to fail")
-
-
 class StarkReportedException(ReportedException):
     def __init__(self, stark_exception: StarkException):
         self.stark_exception = stark_exception
