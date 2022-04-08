@@ -25,6 +25,17 @@ def test_complex(protostar, copy_fixture):
     assert "3 passed" in result
     
     
+@pytest.mark.usefixtures("init")
+def test_except_revert(protostar, copy_fixture):
+    copy_fixture("test_except.cairo", "./tests") 
+
+    result = protostar(["test", "tests"])
+    print(result)
+    
+    
+    assert "Collected 8 items" in result
+    assert "5 passed" in result
+    assert "3 failed" in result
     
     
     
