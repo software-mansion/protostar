@@ -66,6 +66,7 @@ def protostar():
 
     return _protostar
 
+
 @pytest.fixture
 def init(project_name: str, libs_path: str):
     init_project(project_name, libs_path)

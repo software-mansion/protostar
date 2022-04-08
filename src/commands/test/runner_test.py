@@ -25,15 +25,6 @@ async def test_run_syntaxtically_valid_tests():
 
 
 @pytest.mark.asyncio
-async def test_failing_test_actually_fail():
-    runner = TestRunner()
-    await runner.run_tests_in(current_directory / "examples" / "failure")
-    assert runner.reporter
-    assert len(runner.reporter.failed_cases) == 3
-    assert not runner.reporter.passed_cases
-
-
-@pytest.mark.asyncio
 async def test_no_collected_items():
     test_root_dir = Path(current_directory, "examples")
     runner = TestRunner(

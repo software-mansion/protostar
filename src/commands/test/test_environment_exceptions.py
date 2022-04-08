@@ -9,6 +9,7 @@ class ReportedException(BaseException):
 class MissingExceptException(ReportedException):
     pass
 
+
 class StarkReportedException(ReportedException):
     def __init__(self, stark_exception: StarkException):
         self.stark_exception = stark_exception

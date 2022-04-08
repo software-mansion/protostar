@@ -17,7 +17,7 @@ from src.commands.test.reporter import TestReporter
 from src.commands.test.test_environment_exceptions import (
     MissingExceptException,
     ReportedException,
-    StarkReportedException
+    StarkReportedException,
 )
 from src.commands.test.utils import TestSubject
 from src.utils.modules import replace_class
