@@ -1,5 +1,5 @@
 # pylint: disable=redefined-outer-name
-from os import path
+from pathlib import Path
 
 import pytest
 from attr import dataclass
@@ -31,11 +31,11 @@ def test_successful_installation(tmpdir: str, repo_url: str, mocker: MockerFixtu
     )
     add_submodule.return_value = SubmoduleMock()
 
-    install_package_from_repo("foo", repo_url, tmpdir, path.join(tmpdir, "lib"))
+    install_package_from_repo("foo", repo_url, Path(tmpdir), Path(tmpdir) / "lib")
 
     add_submodule.assert_called_once()
 
 
 def test_not_initialized_repo(tmpdir: str, repo_url: str):
     with pytest.raises(installation_exceptions.InvalidLocalRepository):
-        install_package_from_repo("foo", repo_url, tmpdir, path.join(tmpdir, "lib"))
+        install_package_from_repo("foo", repo_url, Path(tmpdir), Path(tmpdir) / "lib")

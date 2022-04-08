@@ -10,14 +10,12 @@ To create a new project run:
 protostar init
 ```
 
-```console title="Protostar asks about project name and few other optional information."
-Project name: hello-protostar
-Project description:
-Author:
-Version:
-License:
-Libraries directory name (optional):
+```console title="Protostar configuration step."
+libraries directory name (lib):
 ```
+
+### Adapting an existing project to the Protostar project
+Protostar project must be a git repository and have `protostar.toml` file. You can adapt your project manually or by running `protostar init --existing`.
 
 # Project structure
 
@@ -30,12 +28,16 @@ The result of running `protostar init` is a configuration file `protostar.toml`,
 ## `protostar.toml`
 
 ```toml
-["protostar.general"]
+["protostar.config"]
+protostar_version = "0.1.0"
+
+["protostar.project"]
 libs_path = "./lib"         # a path to the dependency directory
 
 # This section is explained in the "Project compilation" guide.
 ["protostar.contracts"]
 main = [
-    "src/main.cairo",
+  "./src/main.cairo",
 ]
+
 ```

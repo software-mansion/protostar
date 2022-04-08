@@ -1,1 +1,1 @@
-from src.commands.upgrade.upgrade import upgrade, print_current_version
+from src.commands.upgrade.upgrade import upgrade

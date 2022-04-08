@@ -205,7 +205,7 @@ Mocks all calls to function with the name `fn_name` of a contract with an addres
 
 #### Representing different data structures in `ret_data`
 
-To use `mock_call` effectively, you need to understand how Cairo data structures are represented under the hood. `Cairo-lang` operates on list of integers. The following examples demonstrate how each data structure is represented in Python code.
+To use `mock_call` effectively, you need to understand how Cairo data structures are represented under the hood. `Cairo-lang` operates on a list of integers. The following examples demonstrate how each data structure is represented in Python code.
 
 
 ##### Felt
@@ -309,7 +309,7 @@ Removes a mocked call specified by a function name (`fn_name`) of a contract wit
 def expect_revert(error_type: Optional[str] = None, error_message: Optional[str] = None) -> Callable[[], None]: ...
 ```
 
-If a code beneath `expect_revert` raises a specified exception, a test will pass. If not, a test will fail. It accepts `error_type`, `error_message`, and returns a function that cancels this cheatcode. Calling that function is optional.
+If a code beneath `expect_revert` raises a specified exception, a test will pass. If not, a test will fail. It accepts `error_type`, `error_message`, and returns a function that cancels this cheatcode. You can call that function to limit the expected error scope.
 
 :::info
 Protostar displays an error type and message when a test fails.
@@ -331,12 +331,11 @@ end
 func test_failing_to_call_external_contract{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
 
-    local contract_a_address : felt
-    %{ ids.contract_a_address = 3421347281347298134789213489213 %}
-
     %{ stop_expecting_revert = expect_revert("UNINITIALIZED_CONTRACT") %}
-    BasicContract.increase_balance(contract_address=contract_a_address, amount=3)
-    %{ stop_expecting_revert() %}
+    BasicContract.increase_balance(contract_address=21, amount=3)
+    %{ stop_expecting_revert() %}                                       
+
+    BasicContract.increase_balance(contract_address=37, amount=3)
 
     return ()
 end
@@ -348,8 +347,9 @@ end
 ```python
 def deploy_contract(contract_path: str, constructor_calldata: List[int]) -> DeployedContact:
 
-class DeployedContact:
-    contract_address: str
+class DeployedContract:
+    @property
+    def contract_address(self) -> int: ...
 ```
 Deploys a contract given a path relative to a Protostar project root. The section [Deploying contracts from tests](#deploying-contracts-from-tests) demonstrates a usage of this cheatcode.
 

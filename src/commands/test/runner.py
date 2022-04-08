@@ -158,7 +158,7 @@ class TestExecutionEnvironment:
         self, contract_path: str, constructor_calldata: Optional[List[int]] = None
     ):
         assert self.starknet
-        contract = DeployedContact(
+        contract = DeployedContract(
             asyncio.run(
                 self.starknet.deploy(
                     source=contract_path,
@@ -297,7 +297,7 @@ class TestExecutionEnvironment:
         return stop_expecting_revert
 
 
-class DeployedContact:
+class DeployedContract:
     def __init__(self, starknet_contract: StarknetContract):
         self._starknet_contract = starknet_contract
 

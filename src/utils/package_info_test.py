@@ -3,7 +3,8 @@
 # pylint: disable=unused-argument
 # pylint: disable=too-many-arguments
 
-from os import mkdir, path
+from os import mkdir
+from pathlib import Path
 
 import pytest
 from git.repo import Repo
@@ -125,19 +126,19 @@ class LoadNormalizedToRealNameMapTest:
         return "lib"
 
     @pytest.fixture
-    def repo_with_normal_name_package_dir(self, tmpdir):
-        return path.join(tmpdir, "repo_a")
+    def repo_with_normal_name_package_dir(self, tmpdir) -> Path:
+        return Path(tmpdir) / "repo_a"
 
     @pytest.fixture
-    def repo_with_custom_name_package_dir(self, tmpdir):
-        return path.join(tmpdir, "repo_b")
+    def repo_with_custom_name_package_dir(self, tmpdir) -> Path:
+        return Path(tmpdir) / "repo_b"
 
     @pytest.fixture
-    def package_repo_dir(self, tmpdir):
-        return path.join(tmpdir, "package_repo")
+    def package_repo_dir(self, tmpdir) -> Path:
+        return Path(tmpdir) / "package_repo"
 
     @pytest.fixture
-    def package_repo(self, package_repo_dir: str):
+    def package_repo(self, package_repo_dir: Path):
         repo = Repo.init(package_repo_dir)
 
         create_and_commit_sample_file(repo, package_repo_dir)
@@ -148,19 +149,19 @@ class LoadNormalizedToRealNameMapTest:
     def repo_with_normal_name_package(
         self,
         package_repo,
-        repo_with_normal_name_package_dir: str,
+        repo_with_normal_name_package_dir: Path,
         package_normal_name: str,
         packages_dir_name: str,
-        package_repo_dir: str,
+        package_repo_dir: Path,
     ):
         repo = Repo.init(repo_with_normal_name_package_dir)
 
-        packages_dir = path.join(repo_with_normal_name_package_dir, packages_dir_name)
+        packages_dir = repo_with_normal_name_package_dir / packages_dir_name
         mkdir(packages_dir)
 
         repo.create_submodule(
             package_normal_name,
-            path.join(packages_dir, package_normal_name),
+            packages_dir / package_normal_name,
             package_repo_dir,
         )
 
@@ -171,19 +172,19 @@ class LoadNormalizedToRealNameMapTest:
     def repo_with_custom_name_package(
         self,
         package_repo,
-        repo_with_custom_name_package_dir: str,
+        repo_with_custom_name_package_dir: Path,
         package_custom_name: str,
         packages_dir_name: str,
-        package_repo_dir: str,
+        package_repo_dir: Path,
     ):
         repo = Repo.init(repo_with_custom_name_package_dir)
 
-        packages_dir = path.join(repo_with_custom_name_package_dir, packages_dir_name)
+        packages_dir = repo_with_custom_name_package_dir / packages_dir_name
         mkdir(packages_dir)
 
         repo.create_submodule(
             package_custom_name,
-            path.join(packages_dir, package_custom_name),
+            packages_dir / package_custom_name,
             package_repo_dir,
         )
 
@@ -193,7 +194,7 @@ class LoadNormalizedToRealNameMapTest:
     @pytest.mark.usefixtures("repo_with_normal_name_package")
     def test_package_installed_without_custom_name(
         self,
-        repo_with_normal_name_package_dir: str,
+        repo_with_normal_name_package_dir: Path,
         package_normal_name: str,
         packages_dir_name: str,
         mocker: MockerFixture,
@@ -208,9 +209,7 @@ class LoadNormalizedToRealNameMapTest:
 
         mapping = load_normalized_to_real_name_map(
             repo_root_dir=repo_with_normal_name_package_dir,
-            packages_dir=path.join(
-                repo_with_normal_name_package_dir, packages_dir_name
-            ),
+            packages_dir=repo_with_normal_name_package_dir / packages_dir_name,
         )
 
         assert mapping[package_normal_name] == package_normal_name
@@ -218,7 +217,7 @@ class LoadNormalizedToRealNameMapTest:
     @pytest.mark.usefixtures("repo_with_custom_name_package")
     def test_package_installed_with_custom_name(
         self,
-        repo_with_custom_name_package_dir: str,
+        repo_with_custom_name_package_dir: Path,
         package_custom_name: str,
         package_normal_name: str,
         packages_dir_name: str,
@@ -234,9 +233,7 @@ class LoadNormalizedToRealNameMapTest:
 
         mapping = load_normalized_to_real_name_map(
             repo_root_dir=repo_with_custom_name_package_dir,
-            packages_dir=path.join(
-                repo_with_custom_name_package_dir, packages_dir_name
-            ),
+            packages_dir=repo_with_custom_name_package_dir / packages_dir_name,
         )
 
         assert mapping[package_normal_name] == package_custom_name
@@ -244,14 +241,14 @@ class LoadNormalizedToRealNameMapTest:
 
 class RetrieveRealPackageNameTest:
     @pytest.fixture
-    def repo_root_dir(self, tmpdir):
-        repo_dir = path.join(tmpdir, "repo")
+    def repo_root_dir(self, tmpdir) -> Path:
+        repo_dir = Path(tmpdir) / "repo"
         mkdir(repo_dir)
         return repo_dir
 
     @pytest.fixture
-    def packages_dir(self, repo_root_dir: str):
-        packages_dir = path.join(repo_root_dir, "lib")
+    def packages_dir(self, repo_root_dir: Path) -> Path:
+        packages_dir = repo_root_dir / "lib"
         mkdir(packages_dir)
         return packages_dir
 
@@ -260,8 +257,8 @@ class RetrieveRealPackageNameTest:
         return "package"
 
     @pytest.fixture
-    def package_dir(self, packages_dir: str, package_name: str):
-        package_dir = path.join(packages_dir, package_name)
+    def package_dir(self, packages_dir: Path, package_name: str) -> Path:
+        package_dir = packages_dir / package_name
         mkdir(package_dir)
         return package_dir
 
@@ -269,8 +266,8 @@ class RetrieveRealPackageNameTest:
     @pytest.mark.usefixtures("package_dir")
     def test_name_supported_by_install_command(
         self,
-        repo_root_dir: str,
-        packages_dir: str,
+        repo_root_dir: Path,
+        packages_dir: Path,
         package_name: str,
         mocker: MockerFixture,
     ):
@@ -292,8 +289,8 @@ class RetrieveRealPackageNameTest:
     @pytest.mark.usefixtures("package_dir")
     def test_not_normalized_name(
         self,
-        repo_root_dir: str,
-        packages_dir: str,
+        repo_root_dir: Path,
+        packages_dir: Path,
         package_name: str,
         mocker: MockerFixture,
     ):
@@ -313,8 +310,8 @@ class RetrieveRealPackageNameTest:
     @pytest.mark.usefixtures("package_dir")
     def test_package_custom_name(
         self,
-        repo_root_dir: str,
-        packages_dir: str,
+        repo_root_dir: Path,
+        packages_dir: Path,
         package_name: str,
         mocker: MockerFixture,
     ):
@@ -334,8 +331,8 @@ class RetrieveRealPackageNameTest:
     @pytest.mark.usefixtures("package_dir")
     def test_not_existing_package(
         self,
-        repo_root_dir: str,
-        packages_dir: str,
+        repo_root_dir: Path,
+        packages_dir: Path,
         mocker: MockerFixture,
     ):
         mocked_load_normalized_to_real_name_map = mocker.patch(

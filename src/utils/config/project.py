@@ -1,45 +1,51 @@
 from collections import OrderedDict
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Dict, Optional, cast
+from typing import Dict, List, Optional, cast
 
 import tomli
 import tomli_w
 
 from src.commands.test.utils import collect_immediate_subdirectories
+from src.protostar_exception import ProtostarException
+from src.utils.protostar_directory import VersionManager
 
 
-class NoProtostarProjectFoundError(Exception):
+class NoProtostarProjectFoundError(ProtostarException):
+    pass
+
+
+class VersionNotSupportedException(ProtostarException):
     pass
 
 
 @dataclass
+class ProtostarConfig:
+    protostar_version: str = field(default="0.1.0")
+
+
+@dataclass
 class ProjectConfig:
-    name: str = field(default="project_name")
-    description: str = field(default="")
-    license: str = field(default="")
-    version: str = field(default="0.1.0")
-    authors: List[str] = field(default_factory=list)
+    libs_path: str = field(default="./lib")
     contracts: Dict[str, List[str]] = field(
-        default_factory=lambda: {"main": ["src/main.cairo"]}
+        default_factory=lambda: {"main": ["./src/main.cairo"]}
     )
-    libs_path: str = field(default="lib")
 
 
 class Project:
-    @classmethod
-    def get_current(cls):
-        return cls()
-
-    def __init__(self, project_root: Optional[Path] = None):
+    def __init__(
+        self, version_manager: VersionManager, project_root: Optional[Path] = None
+    ):
         self.project_root = project_root or Path()
-        self._config = None
+        self._project_config = None
+        self._protostar_config = None
+        self._version_manager = version_manager
 
     @property
     def config(self) -> ProjectConfig:
-        if not self._config:
+        if not self._project_config:
             self.load_config()
-        return cast(ProjectConfig, self._config)
+        return cast(ProjectConfig, self._project_config)
 
     @property
     def config_path(self) -> Path:
@@ -50,8 +56,11 @@ class Project:
         general = OrderedDict(**self.config.__dict__)
         general.pop("contracts")
 
+        protostar_config = ProtostarConfig()
+
         result = OrderedDict()
-        result["protostar.general"] = general
+        result["protostar.config"] = OrderedDict(protostar_config.__dict__)
+        result["protostar.project"] = general
         result["protostar.contracts"] = self.config.contracts
         return result
 
@@ -64,7 +73,7 @@ class Project:
         ]
 
     def write_config(self, config: ProjectConfig):
-        self._config = config
+        self._project_config = config
         with open(self.config_path, "wb") as file:
             tomli_w.dump(self.ordered_dict, file)
 
@@ -78,8 +87,40 @@ class Project:
             parsed_config = tomli.load(config_file)
 
             flat_config = {
-                **parsed_config["protostar.general"],
+                **parsed_config["protostar.project"],
                 "contracts": parsed_config["protostar.contracts"],
             }
-            self._config = ProjectConfig(**flat_config)
-            return self._config
+            self._project_config = ProjectConfig(**flat_config)
+
+            self._protostar_config = ProtostarConfig(
+                **parsed_config["protostar.config"],
+            )
+
+            config_protostar_version = self._version_manager.parse(
+                self._protostar_config.protostar_version
+            )
+
+            if self._version_manager.protostar_version < config_protostar_version:
+                raise VersionNotSupportedException(
+                    (
+                        # pylint: disable=line-too-long
+                        f"Current Protostar build ({self._version_manager.protostar_version}) doesn't support protostar_version {config_protostar_version}\n"
+                        "Try upgrading protostar by running: protostar upgrade"
+                    )
+                )
+
+            return self._project_config
+
+    def load_protostar_config(self) -> ProtostarConfig:
+        if not self.config_path.is_file():
+            raise NoProtostarProjectFoundError(
+                "No protostar.toml found in the working directory"
+            )
+
+        with open(self.config_path, "rb") as config_file:
+            parsed_config = tomli.load(config_file)
+
+            self._protostar_config = ProtostarConfig(
+                **parsed_config["protostar.config"]
+            )
+            return self._protostar_config

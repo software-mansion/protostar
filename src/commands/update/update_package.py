@@ -1,5 +1,6 @@
 from logging import getLogger
 from os import path
+from pathlib import Path
 from typing import Optional, cast
 
 from git.cmd import Git
@@ -11,7 +12,7 @@ from src.commands.update.updating_exceptions import PackageAlreadyUpToDateExcept
 from src.utils import log_color_provider
 
 
-def update_package(package_name: str, repo_root_dir: str, packages_dir: str):
+def update_package(package_name: str, repo_root_dir: Path, packages_dir: Path):
     logger = getLogger()
 
     repo = Repo(repo_root_dir)

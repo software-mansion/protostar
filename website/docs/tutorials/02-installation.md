@@ -23,3 +23,8 @@ Cairo-lang version: 0.8.0
 ## Windows
 Not supported. 
 
+# Upgrading Protostar
+To upgrade Protostar, run:
+```shell
+$ protostar upgrade
+```
