@@ -2,10 +2,6 @@ import shutil
 from black import Path
 import pytest
 
-@pytest.fixture(name="test_file")
-def complex_protostar():
-    fixtures_path = Path() / "tests" /"e2e" / "fixtures"
-
 
 @pytest.mark.usefixtures("init")
 def test_basic_contract(protostar):
@@ -32,14 +28,10 @@ def test_except_revert(protostar, copy_fixture):
     result = protostar(["test", "tests"])
     print(result)
     
-    
     assert "Collected 8 items" in result
-    assert "5 passed" in result
-    assert "3 failed" in result
-    
-    
-    
-    
-    
-    
-    
+    assert "4 passed" in result
+    assert "4 failed" in result
+    assert "test_except.cairo::test_with_except_revert_fail_expected" in result
+    assert "test_except.cairo::test_with_except_out_of_scope_revert_fail_expected" in result
+    assert "test_except.cairo::test_call_not_existing_contract_fail_expected" in result
+    assert "test_except.cairo::test_error_was_not_raised_before_stopping_expect_revert_fail_expected" in result

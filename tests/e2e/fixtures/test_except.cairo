@@ -10,22 +10,22 @@ namespace BasicContract:
 end
 
 @external
-func test_with_except_revert{syscall_ptr : felt*, range_check_ptr}():
+func test_with_except_revert_fail_expected{syscall_ptr : felt*, range_check_ptr}():
     %{ expect_revert("TRANSACTION_FAILED") %}
     assert 0 = 0
     return ()
 end
 
 @external
-func test_with_except_revert_fail_expected{syscall_ptr : felt*, range_check_ptr}():
-    %{ expect_revert() %}
+func test_with_except_revert{syscall_ptr : felt*, range_check_ptr}():
+    %{ expect_revert("TRANSACTION_FAILED") %}
     assert 0 = 1
     return ()
 end
 
 @external
-func test_with_except_out_of_scope_revert{syscall_ptr : felt*, range_check_ptr}():
-    %{ expect_revert() %}
+func test_with_except_out_of_scope_revert_fail_expected{syscall_ptr : felt*, range_check_ptr}():
+    %{ stop_expecting_revert = expect_revert() %}
     %{ stop_expecting_revert() %}
     assert 0 = 1
     return ()
@@ -69,7 +69,7 @@ func test_call_not_existing_contract_fail_expected{syscall_ptr : felt*, range_ch
 end
 
 @external
-func test_error_was_not_raised_before_stopping_expect_revert{
+func test_error_was_not_raised_before_stopping_expect_revert_fail_expected{
         syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
 
@@ -79,4 +79,3 @@ func test_error_was_not_raised_before_stopping_expect_revert{
 
     return ()
 end
-
