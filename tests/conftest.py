@@ -1,12 +1,13 @@
 # pylint: disable=redefined-outer-name
 from os import chdir, getcwd, path
+from pathlib import Path
 from subprocess import STDOUT, check_output
 from typing import List
 
 import pexpect
 import pytest
 
-ACTUAL_CWD = getcwd()
+ACTUAL_CWD = Path(getcwd())
 
 
 @pytest.fixture(autouse=True)
@@ -15,24 +16,25 @@ def change_cwd(tmpdir):
 
 
 @pytest.fixture
-def project_name():
+def project_name() -> str:
     return "foobar"
 
 
-def init_project(project_name: str):
-    child = pexpect.spawn(f"python {path.join(ACTUAL_CWD, 'protostar.py')} init")
-    child.expect("Project name:", timeout=5)
+@pytest.fixture
+def libs_path() -> str:
+    return ""
+
+
+def init_project(project_name: str, libs_path: str):
+    child = pexpect.spawn(
+        f"{path.join(ACTUAL_CWD, 'dist', 'protostar', 'protostar')} init"
+    )
+    child.expect(
+        "project directory name:", timeout=30
+    )  # the very first run is a bit slow
     child.sendline(project_name)
-    child.expect("Project description:", timeout=1)
-    child.sendline("")
-    child.expect("Author:", timeout=1)
-    child.sendline("")
-    child.expect("Version:", timeout=1)
-    child.sendline("")
-    child.expect("License:", timeout=1)
-    child.sendline("")
-    child.expect("Libraries directory *", timeout=1)
-    child.sendline("")
+    child.expect("libraries directory *", timeout=1)
+    child.sendline(libs_path)
     child.expect(pexpect.EOF)
 
 
@@ -41,7 +43,8 @@ def protostar():
     def _protostar(args: List[str]) -> str:
         return (
             check_output(
-                ["python", path.join(ACTUAL_CWD, "protostar.py")] + args, stderr=STDOUT
+                [path.join(ACTUAL_CWD, "dist", "protostar", "protostar")] + args,
+                stderr=STDOUT,
             )
             .decode("utf-8")
             .strip()
@@ -51,6 +54,6 @@ def protostar():
 
 
 @pytest.fixture
-def init(project_name: str):
-    init_project(project_name)
+def init(project_name: str, libs_path: str):
+    init_project(project_name, libs_path)
     chdir(project_name)

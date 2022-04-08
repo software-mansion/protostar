@@ -27,9 +27,15 @@ jobs:
       - name: Analyzing the code with pylint
         run: |
           poetry run poe lint
-      - name: Unit test
+      - name: Unit tests
         run: |
-          poetry run poe test
+          poetry run poe test_unit
+      - name: Build
+        run: |
+          poetry run poe build
+      - name: E2E tests
+        run: |
+          poetry run poe test_e2e
       - name: Convert coverage to XML
         run: |
           poetry run python -m coverage xml

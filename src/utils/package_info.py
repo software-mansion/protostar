@@ -2,6 +2,7 @@ import re
 from dataclasses import dataclass, replace
 from os import listdir
 from typing import Dict, Optional
+from pathlib import Path
 
 from git.repo import Repo
 
@@ -28,7 +29,7 @@ class InvalidPackageName(ProtostarException):
 
 
 def retrieve_real_package_name(
-    package_id: str, root_repo_dir: str, packages_dir: str
+    package_id: str, root_repo_dir: Path, packages_dir: Path
 ) -> str:
     normalized_package_name = ""
     if "/" in package_id:
@@ -51,7 +52,7 @@ def retrieve_real_package_name(
     )
 
 
-def load_normalized_to_real_name_map(repo_root_dir: str, packages_dir: str):
+def load_normalized_to_real_name_map(repo_root_dir: Path, packages_dir: Path):
     repo = Repo.init(repo_root_dir)
 
     mapping: Dict["str", "str"] = {}
