@@ -26,7 +26,7 @@ async def test_run_syntaxtically_valid_tests():
 
 @pytest.mark.asyncio
 async def test_failing_test_actually_fail():
-    runner = TestRunner(is_test_fail_enabled=True)
+    runner = TestRunner()
     await runner.run_tests_in(current_directory / "examples" / "failure")
     assert runner.reporter
     assert len(runner.reporter.failed_cases) == 3
@@ -50,5 +50,5 @@ async def test_no_collected_items():
 @pytest.mark.asyncio
 async def test_revert():
     test_root_dir = Path(current_directory, "examples")
-    runner = TestRunner(is_test_fail_enabled=True)
+    runner = TestRunner()
     await runner.run_tests_in(test_root_dir, match_pattern=re.compile(r".*(revert).*"))
