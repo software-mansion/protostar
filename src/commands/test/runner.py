@@ -17,8 +17,7 @@ from src.commands.test.reporter import TestReporter
 from src.commands.test.test_environment_exceptions import (
     MissingExceptException,
     ReportedException,
-    StarkReportedException,
-    TestNotFailedException,
+    StarkReportedException
 )
 from src.commands.test.utils import TestSubject
 from src.utils.modules import replace_class
@@ -181,45 +180,32 @@ class TestExecutionEnvironment:
         )
 
         func = getattr(self.test_contract, function_name)
-        is_failure_expected = (
-            function_name.startswith("test_fail_") and self._is_test_fail_enabled
-        )
 
         # TODO: Improve stacktrace
         try:
-            try:
-                call_result = await func().invoke()
-                if self._expected_error is not None:
-                    raise MissingExceptException(
-                        f"Expected an exception matching the following error: {self._expected_error}"
-                    )
-                if is_failure_expected:
-                    raise TestNotFailedException()
-                return call_result
-
-            except StarkException as ex:
-                is_ex_expected = (
-                    self._expected_error is not None
-                    and (
-                        self._expected_error.name is None
-                        or self._expected_error.name == ex.code.name
-                    )
-                    and (
-                        self._expected_error.message is None
-                        or (ex.message or "").startswith(self._expected_error.message)
-                    )
+            call_result = await func().invoke()
+            if self._expected_error is not None:
+                raise MissingExceptException(
+                    f"Expected an exception matching the following error: {self._expected_error}"
                 )
+            return call_result
 
-                if not is_ex_expected:
-                    raise StarkReportedException(ex) from ex
+        except StarkException as ex:
+            is_ex_expected = (
+                self._expected_error is not None
+                and (
+                    self._expected_error.name is None
+                    or self._expected_error.name == ex.code.name
+                )
+                and (
+                    self._expected_error.message is None
+                    or (ex.message or "").startswith(self._expected_error.message)
+                )
+            )
 
-                if is_failure_expected:
-                    raise TestNotFailedException() from ex
-        except TestNotFailedException as ex:
-            raise ex
-        except ReportedException as ex:
-            if not is_failure_expected:
-                raise ex
+            if not is_ex_expected:
+                raise StarkReportedException(ex) from ex
+
         finally:
             CairoFunctionRunner.run_from_entrypoint = original_run_from_entrypoint
             self._expected_error = None
