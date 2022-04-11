@@ -25,17 +25,15 @@ func assert_not_equal(a, b):
 end
 
 # --------------------------------------------------
-@external
-func test_error_message{syscall_ptr : felt*, range_check_ptr}():
-    alloc_locals
+@view
+func test_error_message():
     %{ expect_revert(error_message="a and b must be distinct.") %}
     assert_not_equal(0, 0)
     return ()
 end
 
-@external
-func test_fail_error_message{syscall_ptr : felt*, range_check_ptr}():
-    alloc_locals
+@view
+func test_fail_error_message():
     %{ expect_revert(error_message="a and b must be distinct. FOO") %}
     assert_not_equal(0, 0)
     return ()

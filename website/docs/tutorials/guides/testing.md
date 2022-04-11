@@ -312,7 +312,7 @@ def expect_revert(error_type: Optional[str] = None, error_message: Optional[str]
 If a code beneath `expect_revert` raises a specified exception, a test will pass. If not, a test will fail. It accepts `error_type`, `error_message`, and returns a function that cancels this cheatcode. You can call that function to limit the expected error scope.
 
 :::info
-Protostar displays an error type and message when a test fails.
+Protostar displays an error type and a message when a test fails.
 :::
 
 ```cairo title="This test passes despite calling an uninitialized contract."
@@ -341,6 +341,35 @@ func test_failing_to_call_external_contract{syscall_ptr : felt*, range_check_ptr
 end
 ```
 
+
+```cairo title="Use 'error_message' to check the last error annotation."
+%lang starknet
+
+func inverse(x) -> (res):
+    with_attr error_message("x must not be zero. Got x={x}."):
+        return (res=1 / x)
+    end
+end
+
+func assert_not_equal(a, b):
+    let diff = a - b
+    with_attr error_message("a and b must be distinct."):
+        inverse(diff)
+    end
+    return ()
+end
+
+@view
+func test_error_message{syscall_ptr : felt*, range_check_ptr}():
+    %{ expect_revert(error_message="a and b must be distinct.") %}
+    assert_not_equal(0, 0)
+    return ()
+end
+```
+
+:::info
+Use [scope attributes](https://www.cairo-lang.org/docs/how_cairo_works/scope_attributes.html?highlight=with_attr) to annotate a code block with an informative error message.
+:::
 
 ### `deploy_contract`
 
