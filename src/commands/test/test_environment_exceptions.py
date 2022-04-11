@@ -11,7 +11,7 @@ class MissingExceptException(ReportedException):
     pass
 
 
-class ExceptMissmatchException(ReportedException):
+class ExceptMismatchException(ReportedException):
     def __init__(
         self,
         expected_name: Union[str, None],
@@ -26,9 +26,11 @@ class ExceptMissmatchException(ReportedException):
     def __str__(self) -> str:
         message = [
             "Expected:",
-            f"name: {self.expected_name}, message: {self.expected_message}",
+            f"name: {self.expected_name}, message: "
+            self.expected_message,
             "Instead got:",
-            f"name: {self.received.code.name}, message: {self.received.message}",
+            f"name: {self.received.code.name}, message: ",
+            self.received.message,
         ]
         return "\n".join(message)
 

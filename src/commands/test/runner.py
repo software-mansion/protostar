@@ -15,7 +15,7 @@ from src.commands.test.cheatable_syscall_handler import CheatableSysCallHandler
 from src.commands.test.collector import TestCollector
 from src.commands.test.reporter import TestReporter
 from src.commands.test.test_environment_exceptions import (
-    ExceptMissmatchException,
+    ExceptMismatchException,
     MissingExceptException,
     ReportedException,
     StarkReportedException,
@@ -199,7 +199,7 @@ class TestExecutionEnvironment:
             if is_ex_expected:
                 assert self._expected_error is not None
                 if not self._expected_error.match(ex):
-                    raise ExceptMissmatchException(
+                    raise ExceptMismatchException(
                         expected_name=self._expected_error.name,
                         expected_message=self._expected_error.message,
                         received=ex,
