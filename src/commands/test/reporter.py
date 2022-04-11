@@ -1,9 +1,10 @@
 from functools import reduce
 from pathlib import Path
-from typing import List, Union, Optional, Dict
+from typing import Dict, List, Optional, Union
 
-from src.commands.test.cases import PassedCase, FailedCase, BrokenTest
+from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
 from src.commands.test.utils import TestSubject
+from src.utils import log_color_provider
 
 CaseResult = Union[PassedCase, FailedCase, BrokenTest]
 
@@ -29,10 +30,18 @@ class TestReporter:
     def report(self, subject: TestSubject, case_result: CaseResult):
         symbol = None
         if isinstance(case_result, PassedCase):
-            symbol = "."
+            symbol = (
+                log_color_provider.get_color("GREEN")
+                + "."
+                + log_color_provider.get_color("RESET")
+            )
             self.passed_cases.append(case_result)
         if isinstance(case_result, FailedCase):
-            symbol = "F"
+            symbol = (
+                log_color_provider.get_color("RED")
+                + "F"
+                + log_color_provider.get_color("RESET")
+            )
             self.failed_cases.append(case_result)
             try:
                 self.failed_tests_by_subject[subject.test_path].append(case_result)
@@ -42,7 +51,7 @@ class TestReporter:
         if isinstance(case_result, BrokenTest):
             symbol = "!"
             self.broken_tests.append(case_result)
-        assert symbol, "Unrecognised case result!"
+        assert symbol, "Unrecognized case result"
 
         print(symbol, end="", flush=True)
 
@@ -77,7 +86,7 @@ class TestReporter:
 
     def _report_failures(self):
         if self.failed_cases:
-            print("\n----- FAILURES ------")
+            print("\n------- FAILURES --------")
             for test_path, failed_cases in self.failed_tests_by_subject.items():
 
                 for failed_case in failed_cases:

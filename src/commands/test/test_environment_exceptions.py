@@ -1,4 +1,5 @@
 from typing import Optional
+
 from starkware.starkware_utils.error_handling import StarkException
 
 
@@ -43,8 +44,10 @@ class StarkReportedException(ReportedException):
     def __str__(self) -> str:
         message = [
             f"Error type: {self.stark_exception.code.name}",
-            "Error message:",
-            f"  {self.stark_exception.message}",
+            "",
+            "Error description:",
+            f"{self.stark_exception.message}",
+            "",
             "Error code:",
             f"  {self.stark_exception.code.value}",
         ]

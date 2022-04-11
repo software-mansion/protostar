@@ -3,6 +3,7 @@
 .envrc
 .DS_Store
 playground/
+protostar.toml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

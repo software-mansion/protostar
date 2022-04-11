@@ -135,6 +135,7 @@ class ExpectedError:
         return f"(error_type: {self.name}; error_message: {self.message})"
 
     def match(self, other: StarkException):
+
         return (self.name is None or self.name == other.code.name) and (
             self.message is None or (other.message or "").startswith(self.message)
         )
