@@ -15,6 +15,7 @@ from src.commands.test.cheatable_syscall_handler import CheatableSysCallHandler
 from src.commands.test.collector import TestCollector
 from src.commands.test.reporter import TestReporter
 from src.commands.test.test_environment_exceptions import (
+    ExceptMismatchException,
     MissingExceptException,
     ReportedException,
     StarkReportedException,
@@ -133,6 +134,11 @@ class ExpectedError:
     def __str__(self) -> str:
         return f"(error_type: {self.name}; error_message: {self.message})"
 
+    def match(self, other: StarkException):
+        return (self.name is None or self.name == other.code.name) and (
+            self.message is None or (other.message or "").startswith(self.message)
+        )
+
 
 class TestExecutionEnvironment:
     def __init__(self, is_test_fail_enabled: bool, include_paths: List[str]):
@@ -189,21 +195,15 @@ class TestExecutionEnvironment:
             return call_result
 
         except StarkException as ex:
-            is_ex_expected = (
-                self._expected_error is not None
-                and (
-                    self._expected_error.name is None
-                    or self._expected_error.name == ex.code.name
-                )
-                and (
-                    self._expected_error.message is None
-                    or (ex.message or "").startswith(self._expected_error.message)
-                )
-            )
-
-            if not is_ex_expected:
+            if self._expected_error:
+                if not self._expected_error.match(ex):
+                    raise ExceptMismatchException(
+                        expected_name=self._expected_error.name,
+                        expected_message=self._expected_error.message,
+                        received=ex,
+                    ) from ex
+            else:
                 raise StarkReportedException(ex) from ex
-
         finally:
             CairoFunctionRunner.run_from_entrypoint = original_run_from_entrypoint
             self._expected_error = None
