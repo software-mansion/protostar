@@ -27,10 +27,10 @@ class ExceptMismatchException(ReportedException):
         message = [
             "Expected:",
             f"name: {self.expected_name}, message: ",
-            self.expected_message,
+            str(self.expected_message),
             "Instead got:",
             f"name: {self.received.code.name}, message: ",
-            self.received.message,
+            str(self.received.message),
         ]
         return "\n".join(message)
 
