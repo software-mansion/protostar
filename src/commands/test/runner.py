@@ -195,19 +195,15 @@ class TestExecutionEnvironment:
             return call_result
 
         except StarkException as ex:
-            is_ex_expected = self._expected_error is not None
-            if is_ex_expected:
-                assert self._expected_error is not None
+            if self._expected_error:
                 if not self._expected_error.match(ex):
                     raise ExceptMismatchException(
                         expected_name=self._expected_error.name,
                         expected_message=self._expected_error.message,
                         received=ex,
                     ) from ex
-
-            if not is_ex_expected:
+            else:
                 raise StarkReportedException(ex) from ex
-
         finally:
             CairoFunctionRunner.run_from_entrypoint = original_run_from_entrypoint
             self._expected_error = None

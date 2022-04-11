@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Optional
 from starkware.starkware_utils.error_handling import StarkException
 
 
@@ -14,8 +14,8 @@ class MissingExceptException(ReportedException):
 class ExceptMismatchException(ReportedException):
     def __init__(
         self,
-        expected_name: Union[str, None],
-        expected_message: Union[str, None],
+        expected_name: Optional[str],
+        expected_message: Optional[str],
         received: StarkException,
     ):
         self.expected_name = expected_name
@@ -26,7 +26,7 @@ class ExceptMismatchException(ReportedException):
     def __str__(self) -> str:
         message = [
             "Expected:",
-            f"name: {self.expected_name}, message: "
+            f"name: {self.expected_name}, message: ",
             self.expected_message,
             "Instead got:",
             f"name: {self.received.code.name}, message: ",
