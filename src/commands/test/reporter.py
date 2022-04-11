@@ -4,7 +4,6 @@ from typing import Dict, List, Optional, Union
 
 from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
 from src.commands.test.utils import TestSubject
-from src.utils import log_color_provider
 
 CaseResult = Union[PassedCase, FailedCase, BrokenTest]
 
@@ -30,18 +29,10 @@ class TestReporter:
     def report(self, subject: TestSubject, case_result: CaseResult):
         symbol = None
         if isinstance(case_result, PassedCase):
-            symbol = (
-                log_color_provider.get_color("GREEN")
-                + "."
-                + log_color_provider.get_color("RESET")
-            )
+            symbol = "."
             self.passed_cases.append(case_result)
         if isinstance(case_result, FailedCase):
-            symbol = (
-                log_color_provider.get_color("RED")
-                + "F"
-                + log_color_provider.get_color("RESET")
-            )
+            symbol = "F"
             self.failed_cases.append(case_result)
             try:
                 self.failed_tests_by_subject[subject.test_path].append(case_result)
