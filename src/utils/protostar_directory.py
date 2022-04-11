@@ -1,3 +1,4 @@
+from logging import getLogger
 from pathlib import Path
 from typing import Optional, Union
 
@@ -40,9 +41,13 @@ class VersionManager:
             / "info"
             / "pyproject.toml"
         )
-        with open(path, "r", encoding="UTF-8") as file:
-            version_s = tomli.loads(file.read())["tool"]["poetry"]["version"]
-            return VersionManager.parse(version_s)
+        try:
+            with open(path, "r", encoding="UTF-8") as file:
+                version_s = tomli.loads(file.read())["tool"]["poetry"]["version"]
+                return VersionManager.parse(version_s)
+        except FileNotFoundError:
+            getLogger().warning("Couldn't read Protostar version.")
+            return VersionManager.parse("0.0.0")
 
     @property
     def cairo_version(self) -> VersionType:
