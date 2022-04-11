@@ -20,7 +20,7 @@ from src.commands.test.test_environment_exceptions import (
     ReportedException,
     StarkReportedException,
 )
-from src.commands.test.utils import TestSubject
+from src.commands.test.utils import TestSubject, extract_core_info_from_stark_ex_message
 from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
 
@@ -137,7 +137,8 @@ class ExpectedError:
     def match(self, other: StarkException):
 
         return (self.name is None or self.name == other.code.name) and (
-            self.message is None or (other.message or "").startswith(self.message)
+            self.message is None
+            or extract_core_info_from_stark_ex_message(other.message) == self.message
         )
 
 

@@ -3,8 +3,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional
 
-from starkware.starkware_utils.error_handling import StarkException
-
 
 def collect_immediate_subdirectories(root_dir: Path) -> List[str]:
     assert root_dir.is_dir(), f"{root_dir} is supposed to be a directory!"
@@ -12,12 +10,19 @@ def collect_immediate_subdirectories(root_dir: Path) -> List[str]:
     return [str(Path(root, directory).resolve()) for directory in dirs]
 
 
-def simplify_stark_exception_error_message(ex: StarkException) -> Optional[str]:
-    if not ex.message:
+def extract_core_info_from_stark_ex_message(msg: Optional[str]) -> Optional[str]:
+    if not msg:
         return None
 
-    ex.message.rfind("Error message:")
-    # TODO: ...
+    prefix = "Error message: "
+    start_index = msg.rfind(prefix)
+
+    if start_index == -1:
+        return None
+
+    end_index = msg.find("\n", start_index)
+
+    return msg[start_index + len(prefix) : end_index]
 
 
 @dataclass
