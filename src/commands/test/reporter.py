@@ -85,6 +85,7 @@ class TestReporter:
                         f"{test_path.resolve().relative_to(self.tests_root.resolve())}::{failed_case.function_name}"
                     )
                     print(str(failed_case.exception))
+                    print("")
         if self.broken_tests:
             print("\n----- BROKEN TESTS ------")
             for broken_subject in self.broken_tests:
@@ -94,6 +95,7 @@ class TestReporter:
                     )
                 )
                 print(str(broken_subject.exception))
+                print("")
 
     def report_collected(self, test_subjects: List[TestSubject]):
         self.collected_subjects = test_subjects
