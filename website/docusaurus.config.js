@@ -82,7 +82,7 @@ const config = {
           //   ],
           // },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} Protostar, Inc. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} Software Mansion. Built with Docusaurus.`,
       },
       prism: {
         theme: lightCodeTheme,
