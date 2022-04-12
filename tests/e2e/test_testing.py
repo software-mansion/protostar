@@ -43,3 +43,4 @@ def test_expect_revert(protostar, copy_fixture):
         in result
     )
     assert "name: RANDOM_ERROR_NAME, message:" in result
+    assert "Unknown location" not in result
