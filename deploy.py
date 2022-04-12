@@ -58,8 +58,9 @@ commit = repo.index.commit(
 )
 
 # add tag
-repo.create_tag(f"v{new_protostar_version_str}")
+tag = repo.create_tag(f"v{new_protostar_version_str}")
 
 # push to master
 origin = repo.remote(name="origin")
 origin.push()
+origin.push(tag.path)
