@@ -138,7 +138,8 @@ class ExpectedError:
 
         return (self.name is None or self.name == other.code.name) and (
             self.message is None
-            or extract_core_info_from_stark_ex_message(other.message) == self.message
+            or self.message
+            in (extract_core_info_from_stark_ex_message(other.message) or "")
         )
 
 
