@@ -17,6 +17,7 @@
   - [Setting up environment](#setting-up-environment)
     - [Git hooks](#git-hooks)
 - [Updating website/docs](#updating-websitedocs)
+- [Deployment](#deployment)
 
 
 
@@ -70,3 +71,10 @@ chmod +x ./.git/hooks/pre-push
 
 ## Updating website/docs
 Please read [website/README.md](./website/README.md).
+
+## Deployment
+```
+$ poe deploy
+Current Protostar version: 0.1.0
+Provide the new Protostar version:
+```
