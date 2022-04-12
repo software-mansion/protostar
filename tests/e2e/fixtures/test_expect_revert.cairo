@@ -1,4 +1,5 @@
 %lang starknet
+%builtins pedersen range_check
 
 @contract_interface
 namespace BasicContract:
@@ -7,6 +8,35 @@ namespace BasicContract:
 
     func get_balance() -> (res : felt):
     end
+end
+
+func inverse(x) -> (res):
+    with_attr error_message("x must not be zero. Got x={x}."):
+        return (res=1 / x)
+    end
+end
+
+func assert_not_equal(a, b):
+    let diff = a - b
+    with_attr error_message("a and b must be distinct."):
+        inverse(diff)
+    end
+    return ()
+end
+
+# --------------------------------------------------
+@view
+func test_error_message():
+    %{ expect_revert(error_message="a and b must be distinct.") %}
+    assert_not_equal(0, 0)
+    return ()
+end
+
+@view
+func test_fail_error_message():
+    %{ expect_revert(error_message="a and b must be distinct. FOO") %}
+    assert_not_equal(0, 0)
+    return ()
 end
 
 @external
@@ -54,7 +84,6 @@ func test_call_not_existing_contract_err_message{syscall_ptr : felt*, range_chec
     BasicContract.increase_balance(contract_address=contract_a_address, amount=3)
     return ()
 end
-
 
 @external
 func test_call_not_existing_contract_fail_expected{syscall_ptr : felt*, range_check_ptr}():

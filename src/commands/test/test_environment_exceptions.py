@@ -1,5 +1,8 @@
 from typing import Optional
+
 from starkware.starkware_utils.error_handling import StarkException
+
+from src.commands.test.utils import extract_core_info_from_stark_ex_message
 
 
 class ReportedException(BaseException):
@@ -42,10 +45,17 @@ class StarkReportedException(ReportedException):
 
     def __str__(self) -> str:
         message = [
-            f"Error type: {self.stark_exception.code.name}",
-            "Error message:",
-            f"  {self.stark_exception.message}",
-            "Error code:",
-            f"  {self.stark_exception.code.value}",
+            "[ERROR TYPE]",
+            self.stark_exception.code.name,
+            "",
+            "[ERROR CODE]",
+            str(self.stark_exception.code.value),
+            "",
+            "[ERROR MESSAGE]",
+            extract_core_info_from_stark_ex_message(self.stark_exception.message) or "",
+            "",
+            "[ERROR DESCRIPTION]",
+            self.stark_exception.message,
+            "",
         ]
         return "\n".join(message)
