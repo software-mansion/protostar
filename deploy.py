@@ -11,7 +11,7 @@ from packaging import version
 SCRIPT_ROOT = Path(__file__).parent
 repo = Repo(SCRIPT_ROOT)
 
-if not repo.active_branch == "master":
+if str(repo.active_branch) != "master":
     print("Checkout to master and try again.")
     sys.exit(1)
 
