@@ -53,7 +53,7 @@ with open(path, "r+", encoding="UTF-8") as file:
 # add commit
 assert new_protostar_version_str is not None
 repo.git.add("pyproject.toml")
-commit = repo.index.commit(f"update protostar ({new_protostar_version_str})")
+commit = repo.index.commit(f"release Protostar {new_protostar_version_str}")
 
 # add tag
 tag = repo.create_tag(f"v{new_protostar_version_str}", ref=commit.hexsha)
