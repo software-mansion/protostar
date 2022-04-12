@@ -342,7 +342,7 @@ end
 ```
 
 
-```cairo title="Use 'error_message' to check the last error annotation."
+```cairo title="'except_revert' checks if the last error annotation contains 'error_message'."
 %lang starknet
 
 func inverse(x) -> (res):
@@ -361,7 +361,7 @@ end
 
 @view
 func test_error_message{syscall_ptr : felt*, range_check_ptr}():
-    %{ expect_revert(error_message="a and b must be distinct.") %}
+    %{ expect_revert(error_message="must be distinct") %}
     assert_not_equal(0, 0)
     return ()
 end
