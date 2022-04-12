@@ -34,6 +34,7 @@ pytest-timeout = "^2.1.0"
 [tool.poe.tasks]
 build = "pyinstaller protostar.spec"
 ci = ["type_check", "lint", "format_check", "test"]
+deploy = "python ./deploy.py"
 format = "black ."
 format_check = "black --check src"
 lint = "pylint src"
