@@ -76,7 +76,7 @@ class TestRunner:
             compiled_test = StarknetCompiler(
                 include_paths=self.include_paths,
                 disable_hint_validation=True,
-            ).compile_contract(test_subject.test_path)
+            ).compile_contract(test_subject.test_path, add_debug_info=True)
 
             self.reporter.file_entry(test_subject.test_path.name)
             await self._run_test_functions(
