@@ -20,6 +20,7 @@ end
 func test_failing_when_event_was_not_emitted{syscall_ptr : felt*, range_check_ptr}():
     %{
         stop_expecting_emit = expect_emit("increase_balance_called", [37,21])
+        expect_revert("EXPECTED_EMIT", "event_name: increase_balance_called, event_data: [37, 21]")
         stop_expecting_emit()
     %}
     increase_balance()

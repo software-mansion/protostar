@@ -1,16 +1,20 @@
 from typing import List, Optional
 
-from starkware.starkware_utils.error_handling import StarkException
-
-from src.commands.test.utils import extract_core_info_from_stark_ex_message
-
 
 class ReportedException(BaseException):
+    """
+    The exception used for catching unexpected errors thrown from test cases and as a base class.
+    """
+
     def __str__(self) -> str:
         return str(super().__repr__())
 
 
 class StandardReportedException(ReportedException):
+    """
+    The exception commonly used to display errors encountered during test execution.
+    """
+
     def __init__(
         self,
         error_message: Optional[str] = None,
@@ -44,6 +48,10 @@ class StandardReportedException(ReportedException):
 
 
 class RevertableException(BaseException):
+    """
+    This exception is caught by `except_revert` logic.
+    """
+
     error_type: Optional[str]
     error_message: Optional[str]
     original_exception: Optional[BaseException]
@@ -104,26 +112,3 @@ class ExpectedRevertMismatchException(ReportedException):
             result.append("instead got nothing")
 
         return "\n".join(result)
-
-
-class StarkReportedException(ReportedException):
-    def __init__(self, stark_exception: StarkException):
-        self.stark_exception = stark_exception
-        super().__init__()
-
-    def __str__(self) -> str:
-        message = [
-            "[ERROR TYPE]",
-            self.stark_exception.code.name,
-            "",
-            "[ERROR CODE]",
-            str(self.stark_exception.code.value),
-            "",
-            "[ERROR MESSAGE]",
-            extract_core_info_from_stark_ex_message(self.stark_exception.message) or "",
-            "",
-            "[ERROR DESCRIPTION]",
-            self.stark_exception.message,
-            "",
-        ]
-        return "\n".join(message)

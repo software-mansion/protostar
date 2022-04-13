@@ -310,9 +310,23 @@ class TestExecutionEnvironment:
                     if is_event_expected:
                         return
 
-                raise RevertableException(
+                error_message: List[str] = []
+                error_message.append(f"event_name: {event_name}")
+
+                if event_data:
+                    error_message.append(f"event_data: {event_data}")
+
+                if order is not None:
+                    error_message.append(f"order: {order}")
+
+                ex = StandardReportedException(
                     error_type="EXPECTED_EMIT",
-                    error_message=f"event_name: {event_name}, event_data: {event_data}, order: {order}",
+                    error_message=", ".join(error_message),
+                )
+                raise RevertableException(
+                    error_type=ex.error_type,
+                    error_message=ex.error_message,
+                    exception=ex,
                 )
 
             unsubscribe_listening_to_test_finish = self.subscribe_to_test_finish(
