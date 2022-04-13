@@ -16,11 +16,13 @@ from src.commands.test.collector import TestCollector
 from src.commands.test.reporter import TestReporter
 from src.commands.test.test_environment_exceptions import (
     ExceptMismatchException,
+    ExpectedEmitException,
     MissingExceptException,
     ReportedException,
     StarkReportedException,
 )
 from src.commands.test.utils import TestSubject, extract_core_info_from_stark_ex_message
+from src.protostar_exception import ProtostarException
 from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
 
@@ -275,6 +277,40 @@ class TestExecutionEnvironment:
             return self.expect_revert(
                 ExpectedError(name=error_type, message=error_message)
             )
+
+        @register_cheatcode
+        def expect_emit(
+            event_name: str,
+            event_data: Optional[List[int]] = None,
+            order: Optional[int] = None,
+        ) -> Callable[[], None]:
+            already_emitted_events_count: Optional[int] = len(
+                cheatable_syscall_handler.events
+            )
+
+            def stop_expecting_emit():
+                for event in cheatable_syscall_handler.events[
+                    already_emitted_events_count:
+                ]:
+                    if len(event.keys) == 0:
+                        raise ProtostarException(
+                            "Something went wrong when checking expected emits [len(event.keys) == 0]"
+                        )
+
+                    is_event_expected = (
+                        get_selector_from_name(event_name) == event.keys[0]
+                        and (event_data is None or event_data == event.data)
+                        and (order is None or event.order == order)
+                    )
+
+                    if is_event_expected:
+                        return
+
+                raise ExpectedEmitException(
+                    f"Expected an event (event_name: {event_name}, event_data: {event_data}, order: {order})"
+                )
+
+            return stop_expecting_emit
 
         @register_cheatcode
         def deploy_contract(

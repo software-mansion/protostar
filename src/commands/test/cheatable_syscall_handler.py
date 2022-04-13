@@ -3,6 +3,7 @@ from typing import Dict, List, cast
 
 from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
+from starkware.starknet.business_logic.execution.objects import OrderedEvent
 from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
 from starkware.starknet.security.secure_hints import HintsWhitelist
 from starkware.starknet.services.api.contract_definition import EntryPointType
@@ -151,6 +152,31 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
         self.internal_calls.append(call_info)
 
         return call_info.retdata
+
+    def emit_event(self, segments: MemorySegmentManager, syscall_ptr: RelocatableValue):
+        """
+        Handles the emit_event system call.
+        """
+        request = self._read_and_validate_syscall_request(
+            syscall_name="emit_event", segments=segments, syscall_ptr=syscall_ptr
+        )
+
+        self.events.append(
+            OrderedEvent(
+                order=self.tx_execution_context.n_emitted_events,
+                keys=segments.memory.get_range_as_ints(
+                    addr=cast(RelocatableValue, request.keys),
+                    size=cast(int, request.keys_len),
+                ),
+                data=segments.memory.get_range_as_ints(
+                    addr=cast(RelocatableValue, request.data),
+                    size=cast(int, request.data_len),
+                ),
+            )
+        )
+
+        # Update events count.
+        self.tx_execution_context.n_emitted_events += 1
 
 
 class CheatableHintsWhitelist(HintsWhitelist):

@@ -59,3 +59,7 @@ class StarkReportedException(ReportedException):
             "",
         ]
         return "\n".join(message)
+
+
+class ExpectedEmitException(ReportedException):
+    pass
