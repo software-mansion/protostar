@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import List, Optional
 
 from starkware.starkware_utils.error_handling import StarkException
@@ -11,32 +10,100 @@ class ReportedException(BaseException):
         return str(super().__repr__())
 
 
-class MissingExceptException(ReportedException):
-    pass
-
-
-class ExceptMismatchException(ReportedException):
+class StandardReportedException(ReportedException):
     def __init__(
         self,
-        expected_name: Optional[str],
-        expected_message: Optional[str],
-        received: StarkException,
+        error_message: Optional[str] = None,
+        error_type: Optional[str] = None,
+        code: Optional[int] = None,
+        details: Optional[str] = None,
+    ) -> None:
+        super().__init__(error_message)
+        self.error_type = error_type
+        self.error_message = error_message
+        self.code = code
+        self.details = details
+
+    def __str__(self) -> str:
+        result: List[str] = []
+
+        if self.error_type:
+            result.append(f"[type] {self.error_type}")
+
+        if self.error_message:
+            result.append(f"[message] {self.error_message}")
+
+        if self.code:
+            result.append(f"[code] {str(self.code)}")
+
+        if self.details:
+            result.append("[details]:\n")
+            result.append(self.details)
+
+        return "\n".join(result)
+
+
+class RevertableException(BaseException):
+    error_type: Optional[str]
+    error_message: Optional[str]
+    original_exception: Optional[BaseException]
+
+    def __init__(
+        self,
+        exception: Optional[BaseException] = None,
+        error_type: Optional[str] = None,
+        error_message: Optional[str] = None,
+    ) -> None:
+        super().__init__(error_message)
+        self.error_type = error_type
+        self.error_message = error_message
+        self.original_exception = exception
+
+    def __str__(self) -> str:
+        result: List[str] = []
+        if self.error_type is not None:
+            result.append(f"[error_type] {self.error_type}")
+
+        if self.error_type is not None:
+            result.append(f"[error_message] {self.error_message}")
+        return "\n".join(result)
+
+    def __eq__(self, other: "RevertableException") -> bool:
+        return (self.error_type is None or self.error_type == other.error_type) and (
+            self.error_message is None or self.error_message == other.error_message
+        )
+
+
+class ExpectedRevertMismatchException(ReportedException):
+    def __init__(
+        self,
+        expected: RevertableException,
+        received: RevertableException,
     ):
-        self.expected_name = expected_name
-        self.expected_message = expected_message
-        self.received = received
+        self._expected = expected
+        self._received = received
         super().__init__()
 
     def __str__(self) -> str:
-        message = [
-            "Expected:",
-            f"name: {self.expected_name}, message: ",
-            str(self.expected_message),
-            "Instead got:",
-            f"name: {self.received.code.name}, message: ",
-            str(self.received.message),
-        ]
-        return "\n".join(message)
+        result: List[str] = []
+
+        if self._expected:
+            result.append("EXPECTED:")
+            result.append(
+                str(self._expected),
+            )
+        else:
+            result.append("Expected any error")
+
+        if self._received:
+            result.append("INSTEAD GOT:")
+            result.append(
+                str(self._received),
+            )
+        else:
+            result.append("instead got nothing")
+
+        return "\n".join(result)
 
 
 class StarkReportedException(ReportedException):
@@ -60,21 +127,3 @@ class StarkReportedException(ReportedException):
             "",
         ]
         return "\n".join(message)
-
-
-class ExpectedEmitException(StarkException):
-    @dataclass
-    class StarkExceptionCode:
-        name: str
-        value: int
-
-    def __init__(
-        self,
-        event_name: str,
-        event_data: Optional[List[int]] = None,
-        order: Optional[int] = None,
-    ):
-        super().__init__(
-            ExpectedEmitException.StarkExceptionCode("EXPECTED_EMIT", value=-1),
-            message=f"Expected an event with the following properties: event_name: {event_name}, event_data: {event_data}, order: {order}",
-        )

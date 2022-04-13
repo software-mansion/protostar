@@ -42,5 +42,5 @@ def test_expect_revert(protostar, copy_fixture):
         "test_expect_revert.cairo::test_error_was_not_raised_before_stopping_expect_revert_fail_expected"
         in result
     )
-    assert "name: RANDOM_ERROR_NAME, message:" in result
+    assert "[error_type] RANDOM_ERROR_NAME" in result
     assert "Unknown location" not in result

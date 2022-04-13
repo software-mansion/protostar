@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Pattern
 from uuid import UUID
 from uuid import uuid4 as uuid
 
-from attr import dataclass
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.services.api.contract_definition import ContractDefinition
@@ -17,14 +16,12 @@ from src.commands.test.cheatable_syscall_handler import CheatableSysCallHandler
 from src.commands.test.collector import TestCollector
 from src.commands.test.reporter import TestReporter
 from src.commands.test.test_environment_exceptions import (
-    ExceptMismatchException,
-    ExpectedEmitException,
-    MissingExceptException,
+    ExpectedRevertMismatchException,
     ReportedException,
-    StarkReportedException,
+    RevertableException,
+    StandardReportedException,
 )
 from src.commands.test.utils import TestSubject, extract_core_info_from_stark_ex_message
-from src.protostar_exception import ProtostarException
 from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
 
@@ -130,27 +127,11 @@ class TestRunner:
                 )
 
 
-@dataclass
-class ExpectedError:
-    name: Optional[str]
-    message: Optional[str]
-
-    def __str__(self) -> str:
-        return f"(error_type: {self.name}; error_message: {self.message})"
-
-    def match(self, other: StarkException):
-
-        return (self.name is None or self.name == other.code.name) and (
-            self.message is None
-            or extract_core_info_from_stark_ex_message(other.message) == self.message
-        )
-
-
 class TestExecutionEnvironment:
     def __init__(self, is_test_fail_enabled: bool, include_paths: List[str]):
         self.starknet = None
         self.test_contract = None
-        self._expected_error: Optional[ExpectedError] = None
+        self._expected_error: Optional[RevertableException] = None
         self._is_test_fail_enabled = is_test_fail_enabled
         self._include_paths = include_paths
         self._test_finished_listener_map: Dict[UUID, Optional[Callable[[], None]]] = {}
@@ -194,27 +175,34 @@ class TestExecutionEnvironment:
 
         # TODO: Improve stacktrace
         try:
-            call_result = await func().invoke()
-            if self._expected_error is not None:
-                raise MissingExceptException(
-                    f"Expected an exception matching the following error: {self._expected_error}"
-                )
+            try:
+                call_result = await func().invoke()
+                if self._expected_error is not None:
+                    raise StandardReportedException(
+                        f"Expected an exception matching the following error:\n{self._expected_error}"
+                    )
 
-            for listener in self._test_finished_listener_map.values():
-                if listener:
-                    listener()
-            return call_result
+                for listener in self._test_finished_listener_map.values():
+                    if listener:
+                        listener()
+                return call_result
+            except StarkException as ex:
+                raise RevertableException(
+                    error_type=ex.code.name,
+                    error_message=extract_core_info_from_stark_ex_message(ex.message),
+                    exception=ex,
+                ) from ex
 
-        except StarkException as ex:
+        except RevertableException as ex:
             if self._expected_error:
-                if not self._expected_error.match(ex):
-                    raise ExceptMismatchException(
-                        expected_name=self._expected_error.name,
-                        expected_message=self._expected_error.message,
+                if self._expected_error != ex:
+                    raise ExpectedRevertMismatchException(
+                        expected=self._expected_error,
                         received=ex,
                     ) from ex
             else:
-                raise StarkReportedException(ex) from ex
+                if ex.original_exception:
+                    raise ex.original_exception
         finally:
             CairoFunctionRunner.run_from_entrypoint = original_run_from_entrypoint
             self._expected_error = None
@@ -293,7 +281,7 @@ class TestExecutionEnvironment:
             error_type: Optional[str] = None, error_message: Optional[str] = None
         ) -> Callable[[], None]:
             return self.expect_revert(
-                ExpectedError(name=error_type, message=error_message)
+                RevertableException(error_type=error_type, error_message=error_message)
             )
 
         @register_cheatcode
@@ -311,10 +299,7 @@ class TestExecutionEnvironment:
                 for event in cheatable_syscall_handler.events[
                     already_emitted_events_count:
                 ]:
-                    if len(event.keys) == 0:
-                        raise ProtostarException(
-                            "Something went wrong when checking expected emits [len(event.keys) == 0]"
-                        )
+                    assert len(event.keys) > 0
 
                     is_event_expected = (
                         get_selector_from_name(event_name) == event.keys[0]
@@ -325,7 +310,10 @@ class TestExecutionEnvironment:
                     if is_event_expected:
                         return
 
-                raise ExpectedEmitException(event_name, event_data, order)
+                raise RevertableException(
+                    error_type="EXPECTED_EMIT",
+                    error_message=f"event_name: {event_name}, event_data: {event_data}, order: {order}",
+                )
 
             unsubscribe_listening_to_test_finish = self.subscribe_to_test_finish(
                 stop_expecting_emit
@@ -338,9 +326,9 @@ class TestExecutionEnvironment:
         ):
             return self.deploy_in_env(contract_path, constructor_calldata)
 
-    def expect_revert(self, expected_error: ExpectedError) -> Callable[[], None]:
+    def expect_revert(self, expected_error: RevertableException) -> Callable[[], None]:
         if self._expected_error is not None:
-            raise MissingExceptException(
+            raise StandardReportedException(
                 f"Protostar is already expecting an exception matching the following error: {self._expected_error}"
             )
 
@@ -348,7 +336,7 @@ class TestExecutionEnvironment:
 
         def stop_expecting_revert():
             if self._expected_error is not None:
-                raise MissingExceptException(
+                raise StandardReportedException(
                     "Expected a transaction to be reverted before cancelling expect_revert"
                 )
 
