@@ -13,7 +13,7 @@ end
 func test_event_emitted_from_tested_contract{syscall_ptr : felt*, range_check_ptr}():
     %{ stop_expecting_emit = expect_emit("increase_balance_called", [37,21]) %}
     increase_balance()
-    %{ stop_expecting_emit() %}
+    # %{ stop_expecting_emit() %}
     return ()
 end
 

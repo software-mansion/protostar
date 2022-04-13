@@ -1,6 +1,8 @@
 import asyncio
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Pattern
+from uuid import UUID
+from uuid import uuid4 as uuid
 
 from attr import dataclass
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
@@ -151,6 +153,7 @@ class TestExecutionEnvironment:
         self._expected_error: Optional[ExpectedError] = None
         self._is_test_fail_enabled = is_test_fail_enabled
         self._include_paths = include_paths
+        self._test_finished_listener_map: Dict[UUID, Optional[Callable[[], None]]] = {}
 
     @classmethod
     async def empty(
@@ -196,6 +199,10 @@ class TestExecutionEnvironment:
                 raise MissingExceptException(
                     f"Expected an exception matching the following error: {self._expected_error}"
                 )
+
+            for listener in self._test_finished_listener_map.values():
+                if listener:
+                    listener()
             return call_result
 
         except StarkException as ex:
@@ -211,6 +218,17 @@ class TestExecutionEnvironment:
         finally:
             CairoFunctionRunner.run_from_entrypoint = original_run_from_entrypoint
             self._expected_error = None
+
+    def subscribe_to_test_finish(
+        self, listener: Callable[[], None]
+    ) -> Callable[[], None]:
+        listener_id = uuid()
+        self._test_finished_listener_map[listener_id] = listener
+
+        def unsubscribe():
+            self._test_finished_listener_map[listener_id] = None
+
+        return unsubscribe
 
     def _get_run_from_entrypoint_with_custom_hint_locals(
         self, fn_run_from_entrypoint: Any
@@ -289,6 +307,7 @@ class TestExecutionEnvironment:
             )
 
             def stop_expecting_emit():
+                unsubscribe_listening_to_test_finish()
                 for event in cheatable_syscall_handler.events[
                     already_emitted_events_count:
                 ]:
@@ -310,6 +329,9 @@ class TestExecutionEnvironment:
                     f"Expected an event (event_name: {event_name}, event_data: {event_data}, order: {order})"
                 )
 
+            unsubscribe_listening_to_test_finish = self.subscribe_to_test_finish(
+                stop_expecting_emit
+            )
             return stop_expecting_emit
 
         @register_cheatcode
