@@ -325,9 +325,7 @@ class TestExecutionEnvironment:
                     if is_event_expected:
                         return
 
-                raise ExpectedEmitException(
-                    f"Expected an event (event_name: {event_name}, event_data: {event_data}, order: {order})"
-                )
+                raise ExpectedEmitException(event_name, event_data, order)
 
             unsubscribe_listening_to_test_finish = self.subscribe_to_test_finish(
                 stop_expecting_emit

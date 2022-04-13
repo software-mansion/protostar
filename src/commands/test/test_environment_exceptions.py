@@ -1,4 +1,5 @@
-from typing import Optional
+from dataclasses import dataclass
+from typing import List, Optional
 
 from starkware.starkware_utils.error_handling import StarkException
 
@@ -61,5 +62,19 @@ class StarkReportedException(ReportedException):
         return "\n".join(message)
 
 
-class ExpectedEmitException(ReportedException):
-    pass
+class ExpectedEmitException(StarkException):
+    @dataclass
+    class StarkExceptionCode:
+        name: str
+        value: int
+
+    def __init__(
+        self,
+        event_name: str,
+        event_data: Optional[List[int]] = None,
+        order: Optional[int] = None,
+    ):
+        super().__init__(
+            ExpectedEmitException.StarkExceptionCode("EXPECTED_EMIT", value=-1),
+            message=f"Expected an event with the following properties: event_name: {event_name}, event_data: {event_data}, order: {order}",
+        )
