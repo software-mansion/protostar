@@ -1,4 +1,4 @@
-from .utils import extract_core_info_from_stark_ex_message
+from .utils import ExpectedEvent, extract_core_info_from_stark_ex_message
 
 ERROR_DESCRIPTION_WITH_TWO_ERROR_MESSAGES = """
 Error message: x must not be zero. Got x=0.
@@ -33,3 +33,17 @@ def test_failing_at_extracting_last_error_message():
         ERROR_DESCRIPTION_WITH_NO_ERROR_MESSAGES
     )
     assert result is None
+
+
+def test_normalizing_expected_event_input():
+    event = ExpectedEvent("foo")
+    assert event.name == "foo"
+    assert event.data is None
+
+    event = ExpectedEvent({"name": "foo"})
+    assert event.name == "foo"
+    assert event.data is None
+
+    event = ExpectedEvent({"name": "foo", "data": [42]})
+    assert event.name == "foo"
+    assert event.data == [42]

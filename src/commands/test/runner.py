@@ -128,7 +128,7 @@ class TestRunner:
 
 class TestExecutionEnvironment:
     def __init__(self, is_test_fail_enabled: bool, include_paths: List[str]):
-        self.starknet = None
+        self.starknet: Optional[Starknet] = None
         self.test_contract = None
         self._expected_error: Optional[RevertableException] = None
         self._is_test_fail_enabled = is_test_fail_enabled
@@ -295,23 +295,24 @@ class TestExecutionEnvironment:
         def expect_emit(
             event_name: str,
             event_data: Optional[List[int]] = None,
-            order: Optional[int] = None,
         ) -> Callable[[], None]:
+            assert self.starknet is not None
+
             already_emitted_events_count: Optional[int] = len(
-                cheatable_syscall_handler.events
+                self.starknet.state.events
             )
 
             def stop_expecting_emit():
                 unsubscribe_listening_to_test_finish()
-                for event in cheatable_syscall_handler.events[
-                    already_emitted_events_count:
-                ]:
+
+                assert self.starknet is not None
+                for event in self.starknet.state.events[already_emitted_events_count:]:
                     assert len(event.keys) > 0
 
-                    is_event_expected = (
-                        get_selector_from_name(event_name) == event.keys[0]
-                        and (event_data is None or event_data == event.data)
-                        and (order is None or event.order == order)
+                    is_event_expected = get_selector_from_name(
+                        event_name
+                    ) == event.keys[0] and (
+                        event_data is None or event_data == event.data
                     )
 
                     if is_event_expected:
@@ -322,9 +323,6 @@ class TestExecutionEnvironment:
 
                 if event_data:
                     error_message.append(f"event_data: {event_data}")
-
-                if order is not None:
-                    error_message.append(f"order: {order}")
 
                 ex = StandardReportedException(
                     error_type="EXPECTED_EMIT",
