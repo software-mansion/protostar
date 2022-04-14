@@ -29,7 +29,6 @@ def extract_core_info_from_stark_ex_message(msg: Optional[str]) -> Optional[str]
     return msg[start_index + len(prefix) : end_index]
 
 
-@dataclass
 class ExpectedEvent:
     RawEventType = TypedDict(
         "ExpectedEvent", {"name": str, "data": NotRequired[List[int]]}
@@ -50,6 +49,9 @@ class ExpectedEvent:
             self.name = raw_expected_event["name"]
             if "data" in raw_expected_event:
                 self.data = raw_expected_event["data"]
+
+    def __str__(self) -> str:
+        return '{"name": ' + self.name + ', "data": ' + str(self.data) + "}"
 
     @classmethod
     def compare_events(

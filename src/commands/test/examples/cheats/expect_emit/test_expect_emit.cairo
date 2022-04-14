@@ -16,12 +16,12 @@ namespace BasicContract:
 end
 # ----------------------------------------------------------
 
-# @view
-# func test_event_emitted_from_tested_contract{syscall_ptr : felt*, range_check_ptr}():
-#     %{ expect_emit("increase_balance_called", [37,21]) %}
-#     increase_balance()
-#     return ()
-# end
+@view
+func test_event_emitted_from_tested_contract{syscall_ptr : felt*, range_check_ptr}():
+    %{ expect_emit("increase_balance_called") %}
+    increase_balance()
+    return ()
+end
 
 # @view
 # func test_failing_when_event_was_not_emitted{syscall_ptr : felt*, range_check_ptr}():
@@ -34,19 +34,18 @@ end
 #     return ()
 # end
 
-# test_event_emitted_by_external_contract
-@view
-func test_event_emitted_by_external_contract{syscall_ptr : felt*, range_check_ptr}():
-    alloc_locals
+# @view
+# func test_event_emitted_by_external_contract{syscall_ptr : felt*, range_check_ptr}():
+#     alloc_locals
 
-    local contract_address : felt
-    %{ ids.contract_address = deploy_contract("./src/commands/test/examples/cheats/expect_emit/basic_contract.cairo").contract_address %}
+# local contract_address : felt
+#     %{ ids.contract_address = deploy_contract("./src/commands/test/examples/cheats/expect_emit/basic_contract.cairo").contract_address %}
 
-    %{ expect_emit("balance_increased") %}
-    BasicContract.increase_balance(contract_address=contract_address)
+# %{ expect_emit("balance_increased") %}
+#     BasicContract.increase_balance(contract_address=contract_address)
 
-    return ()
-end
+# return ()
+# end
 
 # test_failing_when_event_was_not_emitted
 # test_failing_when_emitted_event_has_different_name

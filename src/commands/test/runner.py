@@ -21,7 +21,11 @@ from src.commands.test.test_environment_exceptions import (
     RevertableException,
     StandardReportedException,
 )
-from src.commands.test.utils import TestSubject, extract_core_info_from_stark_ex_message
+from src.commands.test.utils import (
+    ExpectedEvent,
+    TestSubject,
+    extract_core_info_from_stark_ex_message,
+)
 from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
 
@@ -293,8 +297,7 @@ class TestExecutionEnvironment:
 
         @register_cheatcode
         def expect_emit(
-            event_name: str,
-            event_data: Optional[List[int]] = None,
+            *raw_expected_events: ExpectedEvent.CheatcodeInputType,
         ) -> Callable[[], None]:
             assert self.starknet is not None
 
@@ -306,33 +309,24 @@ class TestExecutionEnvironment:
                 unsubscribe_listening_to_test_finish()
 
                 assert self.starknet is not None
-                for event in self.starknet.state.events[already_emitted_events_count:]:
-                    assert len(event.keys) > 0
 
-                    is_event_expected = get_selector_from_name(
-                        event_name
-                    ) == event.keys[0] and (
-                        event_data is None or event_data == event.data
+                expected_events = list(
+                    map(lambda e: ExpectedEvent(e), raw_expected_events)
+                )
+                if not ExpectedEvent.compare_events(
+                    expected_events,
+                    self.starknet.state.events[already_emitted_events_count:],
+                ):
+
+                    ex = StandardReportedException(
+                        error_type="EXPECTED_EMIT",
+                        error_message="\n".join(str(e) for e in expected_events),
                     )
-
-                    if is_event_expected:
-                        return
-
-                error_message: List[str] = []
-                error_message.append(f"event_name: {event_name}")
-
-                if event_data:
-                    error_message.append(f"event_data: {event_data}")
-
-                ex = StandardReportedException(
-                    error_type="EXPECTED_EMIT",
-                    error_message=", ".join(error_message),
-                )
-                raise RevertableException(
-                    error_type=ex.error_type,
-                    error_message=ex.error_message,
-                    exception=ex,
-                )
+                    raise RevertableException(
+                        error_type=ex.error_type,
+                        error_message=ex.error_message,
+                        exception=ex,
+                    )
 
             unsubscribe_listening_to_test_finish = self.subscribe_to_test_finish(
                 stop_expecting_emit

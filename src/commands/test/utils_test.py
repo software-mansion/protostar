@@ -1,3 +1,6 @@
+from starkware.starknet.business_logic.execution.objects import Event
+from starkware.starknet.public.abi import get_selector_from_name
+
 from .utils import ExpectedEvent, extract_core_info_from_stark_ex_message
 
 ERROR_DESCRIPTION_WITH_TWO_ERROR_MESSAGES = """
@@ -47,3 +50,65 @@ def test_normalizing_expected_event_input():
     event = ExpectedEvent({"name": "foo", "data": [42]})
     assert event.name == "foo"
     assert event.data == [42]
+
+
+def test_comparing_expected_event_with_state_event():
+    assert ExpectedEvent({"name": "foo", "data": [42]}).match(
+        Event(keys=[get_selector_from_name("foo")], data=[42], from_address=123)
+    )
+
+    assert ExpectedEvent({"name": "foo"}).match(
+        Event(keys=[get_selector_from_name("foo")], data=[42], from_address=123)
+    )
+
+    assert not ExpectedEvent({"name": "bar"}).match(
+        Event(keys=[get_selector_from_name("foo")], data=[42], from_address=123)
+    )
+
+    assert not ExpectedEvent({"name": "bar", "data": [24]}).match(
+        Event(keys=[get_selector_from_name("foo")], data=[42], from_address=123)
+    )
+
+
+def test_comparing_events():
+    assert ExpectedEvent.compare_events(
+        [ExpectedEvent("bar"), ExpectedEvent("baz")],
+        [
+            Event(keys=[get_selector_from_name("foo")], data=[42], from_address=123),
+            Event(keys=[get_selector_from_name("bar")], data=[42], from_address=123),
+            Event(keys=[get_selector_from_name("baz")], data=[42], from_address=123),
+        ],
+    )
+
+
+def test_comparing_single_event():
+    assert ExpectedEvent.compare_events(
+        [ExpectedEvent("bar")],
+        [
+            Event(keys=[get_selector_from_name("foo")], data=[42], from_address=123),
+            Event(keys=[get_selector_from_name("bar")], data=[42], from_address=123),
+            Event(keys=[get_selector_from_name("baz")], data=[42], from_address=123),
+        ],
+    )
+
+
+def test_comparing_events_with_emit_between():
+    assert ExpectedEvent.compare_events(
+        [ExpectedEvent("foo"), ExpectedEvent("baz")],
+        [
+            Event(keys=[get_selector_from_name("foo")], data=[42], from_address=123),
+            Event(keys=[get_selector_from_name("bar")], data=[42], from_address=123),
+            Event(keys=[get_selector_from_name("baz")], data=[42], from_address=123),
+        ],
+    )
+
+
+def test_fail_compating_events():
+    assert not ExpectedEvent.compare_events(
+        [ExpectedEvent("bar"), ExpectedEvent("baz")],
+        [
+            Event(keys=[get_selector_from_name("baz")], data=[42], from_address=123),
+            Event(keys=[get_selector_from_name("bar")], data=[42], from_address=123),
+            Event(keys=[get_selector_from_name("foo")], data=[42], from_address=123),
+        ],
+    )
