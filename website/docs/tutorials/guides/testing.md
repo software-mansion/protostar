@@ -16,7 +16,7 @@ end
 ```
 This is our target function, which we are going to test.
 Then in the `tests` directory create file `test_utils.cairo`, which contains a single test case.
-```code title="src/test_utils.cairo"
+```code title="tests/test_utils.cairo"
 %lang starknet
 
 from src.utils import sum_func
