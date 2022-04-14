@@ -115,7 +115,6 @@ class TestRunner:
                     subject=test_subject,
                     case_result=PassedCase(tx_info=call_result),
                 )
-
             except ReportedException as err:
                 self.reporter.report(
                     subject=test_subject,
@@ -173,36 +172,44 @@ class TestExecutionEnvironment:
 
         func = getattr(self.test_contract, function_name)
 
-        # TODO: Improve stacktrace
         try:
             try:
-                call_result = await func().invoke()
-                if self._expected_error is not None:
-                    raise StandardReportedException(
-                        f"Expected an exception matching the following error:\n{self._expected_error}"
-                    )
+                try:
+                    call_result = await func().invoke()
+                    if self._expected_error is not None:
+                        raise StandardReportedException(
+                            f"Expected an exception matching the following error:\n{self._expected_error}"
+                        )
 
-                for listener in self._test_finished_listener_map.values():
-                    if listener:
-                        listener()
-                return call_result
-            except StarkException as ex:
-                raise RevertableException(
-                    error_type=ex.code.name,
-                    error_message=extract_core_info_from_stark_ex_message(ex.message),
-                    exception=ex,
-                ) from ex
-
-        except RevertableException as ex:
-            if self._expected_error:
-                if self._expected_error != ex:
-                    raise ExpectedRevertMismatchException(
-                        expected=self._expected_error,
-                        received=ex,
+                    for listener in self._test_finished_listener_map.values():
+                        if listener:
+                            listener()
+                    return call_result
+                except StarkException as ex:
+                    raise RevertableException(
+                        error_type=ex.code.name,
+                        error_message=extract_core_info_from_stark_ex_message(
+                            ex.message
+                        ),
+                        exception=ex,
                     ) from ex
-            else:
-                if ex.original_exception:
-                    raise ex.original_exception
+            except RevertableException as ex:
+                if self._expected_error:
+                    if self._expected_error != ex:
+                        raise ExpectedRevertMismatchException(
+                            expected=self._expected_error,
+                            received=ex,
+                        ) from ex
+                else:
+                    if ex.original_exception:
+                        raise ex.original_exception
+        except StarkException as ex:
+            raise StandardReportedException(
+                error_message=extract_core_info_from_stark_ex_message(ex.message),
+                error_type=ex.code.name,
+                code=ex.code.value,
+                details=ex.message,
+            ) from ex
         finally:
             CairoFunctionRunner.run_from_entrypoint = original_run_from_entrypoint
             self._expected_error = None
