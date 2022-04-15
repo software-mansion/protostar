@@ -130,6 +130,23 @@ class TestRunner:
                 )
 
 
+@dataclass
+class ExpectedError:
+    name: Optional[str]
+    message: Optional[str]
+
+    def __str__(self) -> str:
+        return f"(error_type: {self.name}; error_message: {self.message})"
+
+    def match(self, other: StarkException):
+
+        return (self.name is None or self.name == other.code.name) and (
+            self.message is None
+            or self.message
+            in (extract_core_info_from_stark_ex_message(other.message) or "")
+        )
+
+
 class TestExecutionEnvironment:
     def __init__(self, is_test_fail_enabled: bool, include_paths: List[str]):
         self.starknet: Optional[Starknet] = None
