@@ -171,7 +171,7 @@ class TestExecutionEnvironment:
             include_paths=self._include_paths,
         )
         n_env.starknet = self.starknet.fork()
-        n_env.test_contract = n_env.starknet.plug_from_different_state(
+        n_env.test_contract = n_env.starknet.copy_and_adapt_contract(
             self.test_contract
         )
         return n_env

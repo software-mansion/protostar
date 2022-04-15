@@ -16,12 +16,12 @@ class ForkableStarknet(Starknet):
             state=await StarknetState.empty(general_config=general_config)
         )
 
-    def plug_from_different_state(self, deployed_contact: StarknetContract):
+    def copy_and_adapt_contract(self, deployed_contract: StarknetContract):
         return StarknetContract(
             state=self.state,
-            abi=copy.deepcopy(deployed_contact.abi),
-            contract_address=deployed_contact.contract_address,
-            deploy_execution_info=copy.deepcopy(deployed_contact.deploy_execution_info),
+            abi=copy.deepcopy(deployed_contract.abi),
+            contract_address=deployed_contract.contract_address,
+            deploy_execution_info=copy.deepcopy(deployed_contract.deploy_execution_info),
         )
 
     def fork(self):
