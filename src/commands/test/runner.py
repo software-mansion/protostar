@@ -317,7 +317,7 @@ class TestExecutionEnvironment:
                 )
                 if not_found_expected_event:
                     ex = StandardReportedException(
-                        error_type="EXPECTED_EMIT",
+                        error_type="EXPECTED_EVENT",
                         error_message=str(not_found_expected_event),
                     )
                     raise RevertableException(
