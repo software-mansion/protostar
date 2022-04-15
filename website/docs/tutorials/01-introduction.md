@@ -27,7 +27,7 @@ After reading this guides, you will know how to do the following:
 - [configure `protostar.toml`](/docs/tutorials/project-initialization#protostartoml)
 - [adapt an existing Cairo project to the Protostar project](/docs/tutorials/project-initialization#adapting-an-existing-project-to-the-protostar-project)
 - [compile project](/docs/tutorials/guides/compiling)
-- [add, remove, and remove dependencies](/docs/tutorials/guides/dependencies-management)
+- [add, update, and remove dependencies](/docs/tutorials/guides/dependencies-management)
 - [test contracts with the help of cheatcodes](/docs/tutorials/guides/testing)
 
 ## Reference
