@@ -1,9 +1,9 @@
-from pathlib import Path
 import re
+from pathlib import Path
+
 import pytest
 
 from src.commands.test.runner import TestRunner
-
 
 current_directory = Path(__file__).parent
 
@@ -36,10 +36,3 @@ async def test_no_collected_items():
     await runner.run_tests_in(
         test_root_dir, match_pattern=re.compile(r".*empty/no_test_functions.*")
     )
-
-
-@pytest.mark.asyncio
-async def test_revert():
-    test_root_dir = Path(current_directory, "examples")
-    runner = TestRunner()
-    await runner.run_tests_in(test_root_dir, match_pattern=re.compile(r".*(revert).*"))

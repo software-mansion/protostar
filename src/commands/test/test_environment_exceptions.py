@@ -31,8 +31,7 @@ class StandardReportedException(ReportedException):
     def __str__(self) -> str:
         result: List[str] = []
 
-        if self.error_type:
-            result.append(f"[type] {self.error_type}")
+        result.append(f"[type] {self.error_type}")
 
         if self.error_message:
             result.append(f"[message] {self.error_message}")
@@ -76,11 +75,10 @@ class RevertableException(BaseException):
             result.append(f"[error_message] {self.error_message}")
         return "\n".join(result)
 
-    def __eq__(self, other: "RevertableException") -> bool:
+    def match(self, other: "RevertableException") -> bool:
         return (self.error_type is None or self.error_type == other.error_type) and (
             self.error_message is None
-            or self.error_message
-            in (other.error_message or "")  # TODO: __eq__ -> match
+            or self.error_message in (other.error_message or "")
         )
 
 

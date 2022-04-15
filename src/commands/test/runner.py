@@ -202,7 +202,7 @@ class TestExecutionEnvironment:
             # catch a RevertableException and rethrow the original_exception if the exception is not expected
             except RevertableException as ex:
                 if self._expected_error:
-                    if self._expected_error != ex:
+                    if not self._expected_error.match(ex):
                         raise ExpectedRevertMismatchException(
                             expected=self._expected_error,
                             received=ex,
@@ -218,6 +218,9 @@ class TestExecutionEnvironment:
                 code=ex.code.value,
                 details=ex.message,
             ) from ex
+        except BaseException as ex:
+            print(ex)
+            raise ex
         finally:
             CairoFunctionRunner.run_from_entrypoint = original_run_from_entrypoint
             self._expected_error = None
@@ -294,8 +297,8 @@ class TestExecutionEnvironment:
         @register_cheatcode
         def expect_revert(
             error_type: Optional[str] = None, error_message: Optional[str] = None
-        ) -> None:
-            self.expect_revert(
+        ):
+            return self.expect_revert(
                 RevertableException(error_type=error_type, error_message=error_message)
             )
 
