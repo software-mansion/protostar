@@ -15,8 +15,7 @@ async def test_run_syntaxtically_valid_tests():
         include_paths=[
             str(test_root_dir.resolve()),
             str(Path(test_root_dir, "broken")),  # Additional broken contract source
-        ],
-        is_test_fail_enabled=True,
+        ]
     )
     await runner.run_tests_in(
         test_root_dir,
