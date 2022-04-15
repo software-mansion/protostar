@@ -36,7 +36,7 @@ def test_contracts():
             f.write(content)
 
 
-# @pytest.mark.skip(reason="performance_test")
+@pytest.mark.skip(reason="performance_test")
 @pytest.mark.usefixtures("test_contracts")
 @pytest.mark.usefixtures("init")
 def test_testing_performance(protostar):
