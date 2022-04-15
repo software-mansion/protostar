@@ -3,21 +3,20 @@ import shutil
 from pathlib import Path
 from typing import Any, Type
 
-from git.repo import Repo
 from git.exc import InvalidGitRepositoryError
+from git.repo import Repo
 
-
-from src.utils import log_color_provider
+from src.utils import log_color_provider, VersionManager
 from src.utils.config.project import Project, ProjectConfig
 
 
-def init(args: Any, script_root: Path):
+def init(args: Any, script_root: Path, version_manager: VersionManager):
     """
     Creates init protostar project
     """
-    project_creator = get_creator(args)
-    project_creator = project_creator(script_root)
-    project_creator.create()
+    CurrentProjectCreator = get_creator(args)
+    project_creator = CurrentProjectCreator(script_root, version_manager)
+    project_creator.run()
 
 
 def input_yes_no(message: str) -> bool:
@@ -28,9 +27,11 @@ def input_yes_no(message: str) -> bool:
 
 
 class ProjectCreator:
-    def __init__(self, script_root: Path):
+    def __init__(self, script_root: Path, version_manager: VersionManager):
         self.script_root = script_root
         self.config = ProjectConfig()
+        self._version_manager = version_manager
+        self._project_dir_name = ""
 
     @staticmethod
     def request_input(message: str):
@@ -44,36 +45,28 @@ class ProjectCreator:
             f"{log_color_provider.get_color('RED')}{message}:{log_color_provider.get_color('RESET')} "
         )
 
-    def create(self):
+    def run(self):
         self.interactive_input()
         self.project_creation()
 
     def interactive_input(self):
-        project_name = ProjectCreator.request_input("Project name")
-        while project_name == "":
-            project_name = ProjectCreator.request_input_warning(
-                "Please provide a non-empty project name"
+        project_dir_name = ProjectCreator.request_input("project directory name")
+        while project_dir_name == "":
+            project_dir_name = ProjectCreator.request_input_warning(
+                "Please provide a non-empty project directory name"
             )
-        project_description = ProjectCreator.request_input("Project description")
-        author = ProjectCreator.request_input("Author")
-        version = ProjectCreator.request_input("Version")
-        project_license = ProjectCreator.request_input("License")
+        self._project_dir_name = project_dir_name
         lib_dir = (
-            ProjectCreator.request_input("Libraries directory name (optional)") or "lib"
+            ProjectCreator.request_input("libraries directory name (lib)") or "lib"
         )
         self.config = ProjectConfig(
-            name=project_name,
-            description=project_description,
-            license=project_license,
-            version=version,
-            authors=[author],
             libs_path=lib_dir,
         )
 
     def project_creation(self):
-        project_root = Path() / self.config.name
+        project_root = Path() / self._project_dir_name
         self.copy_template(self.script_root, "default", project_root)
-        project = Project(project_root=project_root)
+        project = Project(self._version_manager, project_root)
 
         lib_pth = Path(project_root, self.config.libs_path)
 
@@ -91,6 +84,15 @@ class ProjectCreator:
 
 
 class OnlyConfigCreator(ProjectCreator):
+    def interactive_input(self):
+        self._project_dir_name = Path.cwd().name
+        lib_dir = (
+            ProjectCreator.request_input("libraries directory name (lib)") or "lib"
+        )
+        self.config = ProjectConfig(
+            libs_path=lib_dir,
+        )
+
     def project_creation(self):
         project_root = Path()
 
@@ -99,7 +101,7 @@ class OnlyConfigCreator(ProjectCreator):
         if self.config.libs_path and not lib_pth.is_dir():
             lib_pth.mkdir(parents=True)
 
-        project = Project(project_root=project_root)
+        project = Project(self._version_manager, project_root)
         project.write_config(self.config)
 
         try:

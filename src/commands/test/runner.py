@@ -15,12 +15,12 @@ from src.commands.test.cheatable_syscall_handler import CheatableSysCallHandler
 from src.commands.test.collector import TestCollector
 from src.commands.test.reporter import TestReporter
 from src.commands.test.test_environment_exceptions import (
+    ExceptMismatchException,
     MissingExceptException,
     ReportedException,
     StarkReportedException,
-    TestNotFailedException,
 )
-from src.commands.test.utils import TestSubject
+from src.commands.test.utils import TestSubject, extract_core_info_from_stark_ex_message
 from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
 
@@ -76,7 +76,7 @@ class TestRunner:
             compiled_test = StarknetCompiler(
                 include_paths=self.include_paths,
                 disable_hint_validation=True,
-            ).compile_contract(test_subject.test_path)
+            ).compile_contract(test_subject.test_path, add_debug_info=True)
 
             self.reporter.file_entry(test_subject.test_path.name)
             await self._run_test_functions(
@@ -110,6 +110,10 @@ class TestRunner:
 
             try:
                 call_result = await env.invoke_test_function(function["name"])
+                self.reporter.report(
+                    subject=test_subject,
+                    case_result=PassedCase(tx_info=call_result),
+                )
 
             except ReportedException as err:
                 self.reporter.report(
@@ -120,12 +124,6 @@ class TestRunner:
                         exception=err,
                     ),
                 )
-                return
-
-            self.reporter.report(
-                subject=test_subject,
-                case_result=PassedCase(tx_info=call_result),
-            )
 
 
 @dataclass
@@ -135,6 +133,14 @@ class ExpectedError:
 
     def __str__(self) -> str:
         return f"(error_type: {self.name}; error_message: {self.message})"
+
+    def match(self, other: StarkException):
+
+        return (self.name is None or self.name == other.code.name) and (
+            self.message is None
+            or self.message
+            in (extract_core_info_from_stark_ex_message(other.message) or "")
+        )
 
 
 class TestExecutionEnvironment:
@@ -161,7 +167,7 @@ class TestExecutionEnvironment:
         self, contract_path: str, constructor_calldata: Optional[List[int]] = None
     ):
         assert self.starknet
-        contract = DeployedContact(
+        contract = DeployedContract(
             asyncio.run(
                 self.starknet.deploy(
                     source=contract_path,
@@ -181,45 +187,26 @@ class TestExecutionEnvironment:
         )
 
         func = getattr(self.test_contract, function_name)
-        is_failure_expected = (
-            function_name.startswith("test_fail_") and self._is_test_fail_enabled
-        )
 
         # TODO: Improve stacktrace
         try:
-            try:
-                call_result = await func().invoke()
-                if self._expected_error is not None:
-                    raise MissingExceptException(
-                        f"Expected an exception matching the following error: {self._expected_error}"
-                    )
-                if is_failure_expected:
-                    raise TestNotFailedException()
-                return call_result
-
-            except StarkException as ex:
-                is_ex_expected = (
-                    self._expected_error is not None
-                    and (
-                        self._expected_error.name is None
-                        or self._expected_error.name == ex.code.name
-                    )
-                    and (
-                        self._expected_error.message is None
-                        or (ex.message or "").startswith(self._expected_error.message)
-                    )
+            call_result = await func().invoke()
+            if self._expected_error is not None:
+                raise MissingExceptException(
+                    f"Expected an exception matching the following error: {self._expected_error}"
                 )
+            return call_result
 
-                if not is_ex_expected:
-                    raise StarkReportedException(ex) from ex
-
-                if is_failure_expected:
-                    raise TestNotFailedException() from ex
-        except TestNotFailedException as ex:
-            raise ex
-        except ReportedException as ex:
-            if not is_failure_expected:
-                raise ex
+        except StarkException as ex:
+            if self._expected_error:
+                if not self._expected_error.match(ex):
+                    raise ExceptMismatchException(
+                        expected_name=self._expected_error.name,
+                        expected_message=self._expected_error.message,
+                        received=ex,
+                    ) from ex
+            else:
+                raise StarkReportedException(ex) from ex
         finally:
             CairoFunctionRunner.run_from_entrypoint = original_run_from_entrypoint
             self._expected_error = None
@@ -313,7 +300,7 @@ class TestExecutionEnvironment:
         return stop_expecting_revert
 
 
-class DeployedContact:
+class DeployedContract:
     def __init__(self, starknet_contract: StarknetContract):
         self._starknet_contract = starknet_contract
 

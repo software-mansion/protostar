@@ -1,4 +1,5 @@
 from os import mkdir, path
+from pathlib import Path
 from time import sleep
 from typing import Optional, cast
 
@@ -23,17 +24,17 @@ def fixture_package_name() -> str:
 
 
 @pytest.fixture(name="repo_dir")
-def fixture_repo_root_dir(tmpdir) -> str:
-    return path.join(tmpdir, "repo")
+def fixture_repo_root_dir(tmpdir) -> Path:
+    return Path(tmpdir) / "repo"
 
 
 @pytest.fixture(name="packages_dir")
-def fixture_packages_dir(repo_dir: str) -> str:
-    return path.join(repo_dir, "lib")
+def fixture_packages_dir(repo_dir: Path) -> Path:
+    return repo_dir / "lib"
 
 
 @pytest.fixture(name="repo")
-def fixture_repo(repo_dir: str):
+def fixture_repo(repo_dir: Path):
     return Repo().init(repo_dir)
 
 
@@ -48,14 +49,14 @@ def fixture_new_tag() -> Optional[str]:
 
 
 @pytest.fixture(name="package_repo_dir")
-def fixture_package_repo_dir(tmpdir: str) -> str:
-    package_repo_dir = path.join(tmpdir, "package")
+def fixture_package_repo_dir(tmpdir: str) -> Path:
+    package_repo_dir = Path(tmpdir) / "package"
     mkdir(package_repo_dir)
     return package_repo_dir
 
 
 @pytest.fixture(name="package_repo")
-def fixture_package_repo(current_tag: Optional[str], package_repo_dir: str):
+def fixture_package_repo(current_tag: Optional[str], package_repo_dir: Path):
     package_repo = Repo().init(package_repo_dir)
 
     create_and_commit_sample_file(package_repo, package_repo_dir)
@@ -71,15 +72,14 @@ def fixture_package_repo(current_tag: Optional[str], package_repo_dir: str):
 def fixture_submodule(
     repo: Repo,
     package_name: str,
-    packages_dir: str,
-    package_repo_dir: str,
+    packages_dir: Path,
+    package_repo_dir: Path,
     current_tag: Optional[str],
     package_repo: Repo,  # pylint: disable=unused-argument
 ):
-    package_dir = path.join(packages_dir, package_name)
     submodule = repo.create_submodule(
         package_name,
-        package_dir,
+        packages_dir / package_name,
         package_repo_dir,
         current_tag,
     )
@@ -96,16 +96,16 @@ def fixture_submodule(
 @pytest.mark.usefixtures("submodule")
 def test_updating_specific_package_with_tag(
     package_name: str,
-    repo_dir: str,
-    packages_dir: str,
-    package_repo_dir: str,
+    repo_dir: Path,
+    packages_dir: Path,
+    package_repo_dir: Path,
     package_repo: Repo,
 ):
-    git = Git(path.join(packages_dir, package_name))
+    git = Git(packages_dir / package_name)
     current_tag = git.execute(["git", "describe", "--tags"])
     assert current_tag == "0.1.0"
 
-    dummy_file_path = path.join(package_repo_dir, "bar.txt")
+    dummy_file_path = package_repo_dir / "bar.txt"
     assert not path.exists(dummy_file_path)
     with open(dummy_file_path, "w", encoding="utf-8") as some_file:
         some_file.write("bar")
@@ -125,10 +125,10 @@ def test_updating_specific_package_with_tag(
 @pytest.mark.usefixtures("submodule", "package_repo")
 def test_package_already_up_to_date(
     package_name: str,
-    repo_dir: str,
-    packages_dir: str,
+    repo_dir: Path,
+    packages_dir: Path,
 ):
-    git = Git(path.join(packages_dir, package_name))
+    git = Git(packages_dir / package_name)
     current_tag = git.execute(["git", "describe", "--tags"])
     assert current_tag == "0.1.0"
 
@@ -142,14 +142,14 @@ def test_package_already_up_to_date(
 @pytest.mark.usefixtures("submodule")
 def test_updating_specific_package_without_tag(
     package_name: str,
-    repo_dir: str,
-    packages_dir: str,
+    repo_dir: Path,
+    packages_dir: Path,
     package_repo: Repo,
-    package_repo_dir: str,
+    package_repo_dir: Path,
 ):
-    git = Git(path.join(packages_dir, package_name))
+    git = Git(packages_dir / package_name)
 
-    dummy_file_path = path.join(package_repo_dir, "bar.txt")
+    dummy_file_path = package_repo_dir / "bar.txt"
     with open(dummy_file_path, "w", encoding="utf-8") as some_file:
         some_file.write("bar")
         some_file.close()

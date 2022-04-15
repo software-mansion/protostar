@@ -2,37 +2,23 @@ import os
 import shutil
 import tarfile
 from logging import getLogger
-from pathlib import Path
 from urllib.request import urlretrieve
 
 import requests
-import tomli
 from packaging import version
 
-from src.utils.protostar_binary import find_protostar_binary_dir
+from src.utils import ProtostarDirectory, VersionManager
 
 logger = getLogger()
 
 PROTOSTAR_REPO = "https://github.com/software-mansion/protostar"
-PROTOSTAR_BINARY_DIR = find_protostar_binary_dir()
-PROTOSTAR_DIR = (
-    PROTOSTAR_BINARY_DIR / ".." / ".."
-    if PROTOSTAR_BINARY_DIR
-    else Path.home() / ".protostar"
-)
 
 
-def upgrade() -> None:
-    manager = UpgradeManager(PROTOSTAR_DIR)
+def upgrade(
+    protostar_directory: ProtostarDirectory, version_manager: VersionManager
+) -> None:
+    manager = UpgradeManager(protostar_directory, version_manager)
     manager.upgrade()
-
-
-def print_current_version() -> None:
-    manager = UpgradeManager(PROTOSTAR_DIR)
-    current_version = manager.get_current_version()
-    cairo_version = manager.get_cairo_version()
-    print(f"Protostar version: {current_version}")
-    print(f"Cairo-lang version: {cairo_version}")
 
 
 class UpgradeManagerException(Exception):
@@ -40,17 +26,19 @@ class UpgradeManagerException(Exception):
 
 
 class UpgradeManager:
-    def __init__(self, protostar_dir: Path):
-        assert os.path.isdir(protostar_dir)
-        assert os.path.isdir(protostar_dir / "dist")
-        self.protostar_dir = protostar_dir
-        self.old_version = protostar_dir / "previous_version_tmp"
+    def __init__(
+        self, protostar_directory: ProtostarDirectory, version_manager: VersionManager
+    ):
+        assert os.path.isdir(protostar_directory.directory_root_path)
+        assert os.path.isdir(protostar_directory.directory_root_path / "dist")
+        self.protostar_dir = protostar_directory.directory_root_path
+        self.old_version = self.protostar_dir / "previous_version_tmp"
 
         platform = self.get_platform()
         self.tarball_name = f"protostar-{platform}.tar.gz"
-        self.tarball_loc = PROTOSTAR_DIR / self.tarball_name
+        self.tarball_loc = self.protostar_dir / self.tarball_name
 
-        self.current_version = self.get_current_version()
+        self.current_version = version_manager.protostar_version
         self.latest_version_tag = self.get_latest_release()["tag_name"]
         self.latest_version = version.parse(self.latest_version_tag)
 
@@ -84,7 +72,7 @@ class UpgradeManager:
         raise err
 
     def _backup(self):
-        shutil.move(self.protostar_dir / "dist", self.old_version)
+        shutil.move(str(self.protostar_dir / "dist"), self.old_version)
 
     def _pull_tarball(self):
         logger.info("Pulling latest binary, version: %s", self.latest_version)
@@ -99,7 +87,7 @@ class UpgradeManager:
     def _rollback(self):
         logger.info("Rolling back to the version %s", self.current_version)
         shutil.rmtree(self.protostar_dir / "dist", ignore_errors=True)
-        shutil.move(self.old_version, self.protostar_dir / "dist")
+        shutil.move(str(self.old_version), self.protostar_dir / "dist")
 
     def cleanup(self):
         logger.info("Cleaning up after installation")
@@ -123,17 +111,3 @@ class UpgradeManager:
         headers = {"Accept": "application/json"}
         response = requests.get(f"{PROTOSTAR_REPO}/releases/latest", headers=headers)
         return response.json()
-
-    def get_current_version(self):
-        path = self.protostar_dir / "dist" / "protostar" / "info" / "pyproject.toml"
-        with open(path, "r", encoding="UTF-8") as file:
-            version_s = tomli.loads(file.read())["tool"]["poetry"]["version"]
-            return version.parse(version_s)
-
-    def get_cairo_version(self):
-        path = self.protostar_dir / "dist" / "protostar" / "info" / "pyproject.toml"
-        with open(path, "r", encoding="UTF-8") as file:
-            version_s = tomli.loads(file.read())["tool"]["poetry"]["dependencies"][
-                "cairo-lang"
-            ]
-            return version.parse(version_s)

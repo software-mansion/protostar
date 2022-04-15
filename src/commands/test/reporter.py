@@ -1,8 +1,8 @@
 from functools import reduce
 from pathlib import Path
-from typing import List, Union, Optional, Dict
+from typing import Dict, List, Optional, Union
 
-from src.commands.test.cases import PassedCase, FailedCase, BrokenTest
+from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
 from src.commands.test.utils import TestSubject
 
 CaseResult = Union[PassedCase, FailedCase, BrokenTest]
@@ -42,7 +42,7 @@ class TestReporter:
         if isinstance(case_result, BrokenTest):
             symbol = "!"
             self.broken_tests.append(case_result)
-        assert symbol, "Unrecognised case result!"
+        assert symbol, "Unrecognized case result"
 
         print(symbol, end="", flush=True)
 
@@ -77,7 +77,7 @@ class TestReporter:
 
     def _report_failures(self):
         if self.failed_cases:
-            print("\n----- FAILURES ------")
+            print("\n------- FAILURES --------")
             for test_path, failed_cases in self.failed_tests_by_subject.items():
 
                 for failed_case in failed_cases:
@@ -85,6 +85,7 @@ class TestReporter:
                         f"{test_path.resolve().relative_to(self.tests_root.resolve())}::{failed_case.function_name}"
                     )
                     print(str(failed_case.exception))
+                    print("")
         if self.broken_tests:
             print("\n----- BROKEN TESTS ------")
             for broken_subject in self.broken_tests:
@@ -94,6 +95,7 @@ class TestReporter:
                     )
                 )
                 print(str(broken_subject.exception))
+                print("")
 
     def report_collected(self, test_subjects: List[TestSubject]):
         self.collected_subjects = test_subjects

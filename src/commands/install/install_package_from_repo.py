@@ -1,5 +1,5 @@
 from logging import getLogger
-from os import path
+from pathlib import Path
 from typing import Optional
 
 from git import InvalidGitRepositoryError
@@ -13,8 +13,8 @@ from src.utils import log_color_provider
 def install_package_from_repo(
     name: str,
     url: str,
-    repo_root_dir: str,
-    destination: str,
+    repo_root_dir: Path,
+    destination: Path,
     tag: Optional[str] = None,
 ):
     logger = getLogger()
@@ -28,7 +28,7 @@ def install_package_from_repo(
 - Are you in the right directory?"""
         )
 
-    package_dir = path.join(destination, name)
+    package_dir = destination / name
 
     logger.info(
         "Installing %s%s%s %s(%s)%s",

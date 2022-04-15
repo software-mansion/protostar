@@ -33,13 +33,15 @@ pytest-timeout = "^2.1.0"
 snakeviz = "^2.1.1"
 
 [tool.poe.tasks]
+build = "pyinstaller protostar.spec"
 ci = ["type_check", "lint", "format_check", "test"]
+deploy = "python ./deploy.py"
 format = "black ."
 format_check = "black --check src"
 lint = "pylint src"
 profile = "python -m cProfile -o recent_profiling.prof protostar.py"
 show_prof = "snakeviz recent_profiling.prof"
-test = ["test_unit", "test_e2e"]
+test = ["test_unit", "build", "test_e2e"]
 test_e2e.shell = "pytest tests/*"
 test_html = [{shell = "coverage html && open ./htmlcov/index.html"}]
 test_report = [{shell = "coverage report"}]
