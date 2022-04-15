@@ -65,6 +65,9 @@ def test_handling_not_supported_version(version_manager: VersionManager):
 
 
 def test_no_project_found(version_manager: VersionManager):
-    proj = Project(version_manager)
+    proj = Project(
+        version_manager,
+        project_root=Path(current_directory, "examples"),
+    )
     with pytest.raises(NoProtostarProjectFoundError):
         proj.load_config()
