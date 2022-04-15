@@ -305,24 +305,20 @@ class TestExecutionEnvironment:
         ) -> None:
             assert self.starknet is not None
 
-            already_emitted_events_count: Optional[int] = len(
-                self.starknet.state.events
-            )
-
             def stop_expecting_emit():
                 unsubscribe_listening_to_test_finish()
 
                 assert self.starknet is not None
 
                 expected_events = list(map(ExpectedEvent, raw_expected_events))
-                if not ExpectedEvent.compare_events(
+                not_found_expected_event = ExpectedEvent.find_first_expected_event_not_included_in_state_events(
                     expected_events,
-                    self.starknet.state.events[already_emitted_events_count:],
-                ):
-
+                    self.starknet.state.events,
+                )
+                if not_found_expected_event:
                     ex = StandardReportedException(
                         error_type="EXPECTED_EMIT",
-                        error_message="\n".join(str(e) for e in expected_events),
+                        error_message=str(not_found_expected_event),
                     )
                     raise RevertableException(
                         error_type=ex.error_type,

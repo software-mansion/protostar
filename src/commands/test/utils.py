@@ -31,52 +31,77 @@ def extract_core_info_from_stark_ex_message(msg: Optional[str]) -> Optional[str]
 
 class ExpectedEvent:
     RawEventType = TypedDict(
-        "ExpectedEvent", {"name": str, "data": NotRequired[List[int]]}
+        "ExpectedEvent",
+        {"name": str, "data": NotRequired[List[int]], "from_address": NotRequired[int]},
     )
     CheatcodeInputType = Union[RawEventType, str]
 
     name: str
     data: Optional[List[int]]
+    from_address: Optional[int]
 
     def __init__(
         self,
         raw_expected_event: CheatcodeInputType,
     ):
         self.data = None
+        self.from_address = None
         if isinstance(raw_expected_event, str):
             self.name = raw_expected_event
         else:
             self.name = raw_expected_event["name"]
             if "data" in raw_expected_event:
                 self.data = raw_expected_event["data"]
+            if "from_address" in raw_expected_event:
+                self.from_address = raw_expected_event["from_address"]
 
     def __str__(self) -> str:
-        result = 'ExpectedEvent {"name": "' + self.name + '"'
+        result = (
+            'Expected an event with the following properties: {"name": "'
+            + self.name
+            + '"'
+        )
         if self.data:
             result += ', "data": "' + str(self.data) + '"'
+        if self.from_address:
+            result += ', "from_address": "' + str(self.from_address) + '"'
         result += "}"
         return result
 
     @classmethod
-    def compare_events(
+    def find_first_expected_event_not_included_in_state_events(
         cls, expected_events: List["ExpectedEvent"], state_events: List[Event]
-    ) -> bool:
+    ) -> Optional["ExpectedEvent"]:
+        """Returns the expect event that has not been found."""
+        assert len(expected_events) > 0
         matches_count = 0
-        recent_match_index = 0
+        recent_match_state_event_index = -1
         for expected_event in expected_events:
-            for (index, state_event) in enumerate(state_events[recent_match_index:]):
+            is_match = False
+            for (se_index, state_event) in enumerate(
+                state_events[recent_match_state_event_index + 1 :]
+            ):
                 if expected_event.match(state_event):
                     matches_count += 1
-                    recent_match_index = index
+                    recent_match_state_event_index = se_index
+                    is_match = True
                     continue
-            if matches_count == len(expected_events):
-                return True
 
-        return False
+            if matches_count == len(expected_events):
+                return None
+
+            if not is_match:
+                return expected_event
+        assert False, "Unreachable code"
 
     def match(self, state_event: Event) -> bool:
-        return get_selector_from_name(self.name) == state_event.keys[0] and (
-            self.data is None or self.data == state_event.data
+        return (
+            get_selector_from_name(self.name) == state_event.keys[0]
+            and (self.data is None or self.data == state_event.data)
+            and (
+                self.from_address is None
+                or self.from_address == state_event.from_address
+            )
         )
 
 

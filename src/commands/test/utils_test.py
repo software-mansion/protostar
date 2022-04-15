@@ -1,3 +1,6 @@
+from typing import List
+
+import pytest
 from starkware.starknet.business_logic.execution.objects import Event
 from starkware.starknet.public.abi import get_selector_from_name
 
@@ -52,63 +55,92 @@ def test_normalizing_expected_event_input():
     assert event.data == [42]
 
 
-def test_comparing_expected_event_with_state_event():
-    assert ExpectedEvent({"name": "foo", "data": [42]}).match(
-        Event(keys=[get_selector_from_name("foo")], data=[42], from_address=123)
+@pytest.fixture(name="create_state_event")
+def create_state_event_fixture():
+    # pylint: disable=dangerous-default-value
+    def create_state_event(
+        name: str = "foo", data: List[int] = [42], from_address: int = 123
+    ) -> Event:
+        return Event(
+            keys=[get_selector_from_name(name)], data=data, from_address=from_address
+        )
+
+    return create_state_event
+
+
+def test_comparing_expected_event_names(
+    create_state_event,
+):
+    assert ExpectedEvent({"name": "foo"}).match(create_state_event())
+    assert not ExpectedEvent({"name": "bar"}).match(create_state_event())
+
+
+def test_comparing_state_events_data(create_state_event):
+    assert ExpectedEvent({"name": "foo", "data": [42]}).match(create_state_event())
+    assert not ExpectedEvent({"name": "foo", "data": [24]}).match(create_state_event())
+
+
+def test_comparing_state_event_addresses(create_state_event):
+    assert ExpectedEvent({"name": "foo", "from_address": 123}).match(
+        create_state_event()
     )
-
-    assert ExpectedEvent({"name": "foo"}).match(
-        Event(keys=[get_selector_from_name("foo")], data=[42], from_address=123)
-    )
-
-    assert not ExpectedEvent({"name": "bar"}).match(
-        Event(keys=[get_selector_from_name("foo")], data=[42], from_address=123)
-    )
-
-    assert not ExpectedEvent({"name": "bar", "data": [24]}).match(
-        Event(keys=[get_selector_from_name("foo")], data=[42], from_address=123)
-    )
-
-
-def test_comparing_events():
-    assert ExpectedEvent.compare_events(
-        [ExpectedEvent("bar"), ExpectedEvent("baz")],
-        [
-            Event(keys=[get_selector_from_name("foo")], data=[42], from_address=123),
-            Event(keys=[get_selector_from_name("bar")], data=[42], from_address=123),
-            Event(keys=[get_selector_from_name("baz")], data=[42], from_address=123),
-        ],
-    )
-
-
-def test_comparing_single_event():
-    assert ExpectedEvent.compare_events(
-        [ExpectedEvent("bar")],
-        [
-            Event(keys=[get_selector_from_name("foo")], data=[42], from_address=123),
-            Event(keys=[get_selector_from_name("bar")], data=[42], from_address=123),
-            Event(keys=[get_selector_from_name("baz")], data=[42], from_address=123),
-        ],
+    assert not ExpectedEvent({"name": "foo", "from_address": 321}).match(
+        create_state_event()
     )
 
 
-def test_comparing_events_with_emit_between():
-    assert ExpectedEvent.compare_events(
-        [ExpectedEvent("foo"), ExpectedEvent("baz")],
-        [
-            Event(keys=[get_selector_from_name("foo")], data=[42], from_address=123),
-            Event(keys=[get_selector_from_name("bar")], data=[42], from_address=123),
-            Event(keys=[get_selector_from_name("baz")], data=[42], from_address=123),
-        ],
+def test_comparing_event_lists(create_state_event):
+    assert (
+        ExpectedEvent.find_first_expected_event_not_included_in_state_events(
+            [ExpectedEvent("bar"), ExpectedEvent("baz")],
+            [
+                create_state_event("foo"),
+                create_state_event("bar"),
+                create_state_event("baz"),
+            ],
+        )
+        is None
     )
 
 
-def test_fail_compating_events():
-    assert not ExpectedEvent.compare_events(
-        [ExpectedEvent("bar"), ExpectedEvent("baz")],
-        [
-            Event(keys=[get_selector_from_name("baz")], data=[42], from_address=123),
-            Event(keys=[get_selector_from_name("bar")], data=[42], from_address=123),
-            Event(keys=[get_selector_from_name("foo")], data=[42], from_address=123),
-        ],
+def test_comparing_event_list_with_one_element(create_state_event):
+    assert (
+        ExpectedEvent.find_first_expected_event_not_included_in_state_events(
+            [ExpectedEvent("bar")],
+            [
+                create_state_event("foo"),
+                create_state_event("bar"),
+                create_state_event("baz"),
+            ],
+        )
+        is None
     )
+
+
+def test_comparing_events_with_emit_between(create_state_event):
+    assert (
+        ExpectedEvent.find_first_expected_event_not_included_in_state_events(
+            [ExpectedEvent("foo"), ExpectedEvent("baz")],
+            [
+                create_state_event("foo"),
+                create_state_event("bar"),
+                create_state_event("baz"),
+            ],
+        )
+        is None
+    )
+
+
+def test_fail_comparing_event_lists(create_state_event):
+    expected_event = (
+        ExpectedEvent.find_first_expected_event_not_included_in_state_events(
+            [ExpectedEvent("bar"), ExpectedEvent("baz")],
+            [
+                create_state_event("baz"),
+                create_state_event("bar"),
+                create_state_event("foo"),
+            ],
+        )
+    )
+    assert expected_event is not None
+    assert expected_event.name == "baz"
