@@ -34,6 +34,10 @@ Then run your test with
 protostar test ./tests
 ```
 
+:::info
+In the example above, Protostar will run every test case it manages to find in the `tests` directory. You can read more about specifying where and how Protostar should search for test cases by running `protostar test --help`. 
+:::
+
 ```console title="expected result"
 Collected 1 items
 
