@@ -12,7 +12,7 @@ from starkware.starkware_utils.error_handling import StarkException
 from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
 from src.commands.test.cheatable_syscall_handler import CheatableSysCallHandler
 from src.commands.test.collector import TestCollector
-from src.commands.test.contract_fork import ForkableStarknet
+from src.commands.test.forkable_starknet import ForkableStarknet
 from src.commands.test.reporter import TestReporter
 from src.commands.test.test_environment_exceptions import (
     ExceptMismatchException,
@@ -40,9 +40,7 @@ class TestRunner:
         self,
         project: Optional["Project"] = None,
         include_paths: Optional[List[str]] = None,
-        is_test_fail_enabled=False,
     ):
-        self._is_test_fail_enabled = is_test_fail_enabled
 
         self.include_paths = []
         if project:
@@ -96,14 +94,12 @@ class TestRunner:
 
         try:
             env_base = await TestExecutionEnvironment.empty(
-                test_contract, self._is_test_fail_enabled, self.include_paths
+                test_contract, self.include_paths
             )
         except StarkException as err:
             self.reporter.report(
                 subject=test_subject,
-                case_result=BrokenTest(
-                    file_path=test_subject.test_path, exception=err
-                ),
+                case_result=BrokenTest(file_path=test_subject.test_path, exception=err),
             )
             return
 
@@ -145,33 +141,35 @@ class ExpectedError:
 
 
 class TestExecutionEnvironment:
-    def __init__(self, is_test_fail_enabled: bool, include_paths: List[str]):
+    def __init__(self, include_paths: List[str]):
         self.starknet = None
         self.test_contract = None
         self._expected_error: Optional[ExpectedError] = None
-        self._is_test_fail_enabled = is_test_fail_enabled
         self._include_paths = include_paths
 
     @classmethod
     async def empty(
         cls,
         test_contract: ContractDefinition,
-        is_test_fail_enabled: bool,
         include_paths: Optional[List[str]] = None,
     ):
-        env = cls(is_test_fail_enabled, include_paths or [])
+        env = cls(include_paths or [])
         env.starknet = await ForkableStarknet.empty()
         env.test_contract = await env.starknet.deploy(contract_def=test_contract)
         return env
-    
+
     def fork(self):
-        n_env = TestExecutionEnvironment(
-            is_test_fail_enabled=self._is_test_fail_enabled,
-            include_paths=self._include_paths
+        assert self.starknet
+        assert self.test_contract
+
+        new_env = TestExecutionEnvironment(
+            include_paths=self._include_paths,
         )
-        n_env.starknet = self.starknet.fork()
-        n_env.test_contract = n_env.starknet.plug_from_different_state(self.test_contract)
-        return n_env
+        new_env.starknet = self.starknet.fork()
+        new_env.test_contract = new_env.starknet.copy_and_adapt_contract(
+            self.test_contract
+        )
+        return new_env
 
     def deploy_in_env(
         self, contract_path: str, constructor_calldata: Optional[List[int]] = None
