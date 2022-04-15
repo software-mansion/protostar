@@ -21,7 +21,9 @@ class ForkableStarknet(Starknet):
             state=self.state,
             abi=copy.deepcopy(deployed_contract.abi),
             contract_address=deployed_contract.contract_address,
-            deploy_execution_info=copy.deepcopy(deployed_contract.deploy_execution_info),
+            deploy_execution_info=copy.deepcopy(
+                deployed_contract.deploy_execution_info
+            ),
         )
 
     def fork(self):

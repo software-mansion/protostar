@@ -40,9 +40,7 @@ class TestRunner:
         self,
         project: Optional["Project"] = None,
         include_paths: Optional[List[str]] = None,
-        is_test_fail_enabled=False,
     ):
-        self._is_test_fail_enabled = is_test_fail_enabled
 
         self.include_paths = []
         if project:
@@ -96,7 +94,7 @@ class TestRunner:
 
         try:
             env_base = await TestExecutionEnvironment.empty(
-                test_contract, self._is_test_fail_enabled, self.include_paths
+                test_contract, self.include_paths
             )
         except StarkException as err:
             self.reporter.report(
@@ -143,21 +141,19 @@ class ExpectedError:
 
 
 class TestExecutionEnvironment:
-    def __init__(self, is_test_fail_enabled: bool, include_paths: List[str]):
+    def __init__(self, include_paths: List[str]):
         self.starknet = None
         self.test_contract = None
         self._expected_error: Optional[ExpectedError] = None
-        self._is_test_fail_enabled = is_test_fail_enabled
         self._include_paths = include_paths
 
     @classmethod
     async def empty(
         cls,
         test_contract: ContractDefinition,
-        is_test_fail_enabled: bool,
         include_paths: Optional[List[str]] = None,
     ):
-        env = cls(is_test_fail_enabled, include_paths or [])
+        env = cls(include_paths or [])
         env.starknet = await ForkableStarknet.empty()
         env.test_contract = await env.starknet.deploy(contract_def=test_contract)
         return env
@@ -166,15 +162,14 @@ class TestExecutionEnvironment:
         assert self.starknet
         assert self.test_contract
 
-        n_env = TestExecutionEnvironment(
-            is_test_fail_enabled=self._is_test_fail_enabled,
+        new_env = TestExecutionEnvironment(
             include_paths=self._include_paths,
         )
-        n_env.starknet = self.starknet.fork()
-        n_env.test_contract = n_env.starknet.copy_and_adapt_contract(
+        new_env.starknet = self.starknet.fork()
+        new_env.test_contract = new_env.starknet.copy_and_adapt_contract(
             self.test_contract
         )
-        return n_env
+        return new_env
 
     def deploy_in_env(
         self, contract_path: str, constructor_calldata: Optional[List[int]] = None
