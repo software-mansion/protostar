@@ -103,8 +103,22 @@ try:
 
     cmd_upgrade_parser = root_subparsers.add_parser("upgrade")
 
-    cmd_test_parser = root_subparsers.add_parser("test")
-    cmd_test_parser.add_argument("target", type=Path)
+    cmd_test_parser = root_subparsers.add_parser(
+        "test", formatter_class=argparse.RawTextHelpFormatter
+    )
+    cmd_test_parser.add_argument(
+        "target",
+        type=Path,
+        help=(
+            "A path to:\n"
+            "- the directory with test files\n"
+            "  tests\n"
+            "- the specific test file\n"
+            "  tests/test_main.cairo\n"
+            "- the specific test case\n"
+            "  tests/test_main.cairo::test_example\n"
+        ),
+    )
     cmd_test_parser.add_argument(
         "--omit",
         "-o",
