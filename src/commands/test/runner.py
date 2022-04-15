@@ -7,12 +7,12 @@ from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.services.api.contract_definition import ContractDefinition
 from starkware.starknet.testing.contract import StarknetContract
-from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 
 from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
 from src.commands.test.cheatable_syscall_handler import CheatableSysCallHandler
 from src.commands.test.collector import TestCollector
+from src.commands.test.contract_fork import ForkableStarknet
 from src.commands.test.reporter import TestReporter
 from src.commands.test.test_environment_exceptions import (
     ExceptMismatchException,
@@ -94,20 +94,21 @@ class TestRunner:
     ):
         assert self.reporter, "Uninitialized reporter!"
 
-        for function in functions:
-            try:
-                env = await TestExecutionEnvironment.empty(
-                    test_contract, self._is_test_fail_enabled, self.include_paths
-                )
-            except StarkException as err:
-                self.reporter.report(
-                    subject=test_subject,
-                    case_result=BrokenTest(
-                        file_path=test_subject.test_path, exception=err
-                    ),
-                )
-                return
+        try:
+            env_base = await TestExecutionEnvironment.empty(
+                test_contract, self._is_test_fail_enabled, self.include_paths
+            )
+        except StarkException as err:
+            self.reporter.report(
+                subject=test_subject,
+                case_result=BrokenTest(
+                    file_path=test_subject.test_path, exception=err
+                ),
+            )
+            return
 
+        for function in functions:
+            env = env_base.fork()
             try:
                 call_result = await env.invoke_test_function(function["name"])
                 self.reporter.report(
@@ -159,9 +160,18 @@ class TestExecutionEnvironment:
         include_paths: Optional[List[str]] = None,
     ):
         env = cls(is_test_fail_enabled, include_paths or [])
-        env.starknet = await Starknet.empty()
+        env.starknet = await ForkableStarknet.empty()
         env.test_contract = await env.starknet.deploy(contract_def=test_contract)
         return env
+    
+    def fork(self):
+        n_env = TestExecutionEnvironment(
+            is_test_fail_enabled=self._is_test_fail_enabled,
+            include_paths=self._include_paths
+        )
+        n_env.starknet = self.starknet.fork()
+        n_env.test_contract = n_env.starknet.plug_from_different_state(self.test_contract)
+        return n_env
 
     def deploy_in_env(
         self, contract_path: str, constructor_calldata: Optional[List[int]] = None
