@@ -101,9 +101,7 @@ class TestRunner:
         except StarkException as err:
             self.reporter.report(
                 subject=test_subject,
-                case_result=BrokenTest(
-                    file_path=test_subject.test_path, exception=err
-                ),
+                case_result=BrokenTest(file_path=test_subject.test_path, exception=err),
             )
             return
 
@@ -163,14 +161,19 @@ class TestExecutionEnvironment:
         env.starknet = await ForkableStarknet.empty()
         env.test_contract = await env.starknet.deploy(contract_def=test_contract)
         return env
-    
+
     def fork(self):
+        assert self.starknet
+        assert self.test_contract
+
         n_env = TestExecutionEnvironment(
             is_test_fail_enabled=self._is_test_fail_enabled,
-            include_paths=self._include_paths
+            include_paths=self._include_paths,
         )
         n_env.starknet = self.starknet.fork()
-        n_env.test_contract = n_env.starknet.plug_from_different_state(self.test_contract)
+        n_env.test_contract = n_env.starknet.plug_from_different_state(
+            self.test_contract
+        )
         return n_env
 
     def deploy_in_env(
