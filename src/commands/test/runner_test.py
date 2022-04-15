@@ -35,3 +35,25 @@ async def test_no_collected_items():
     await runner.run_tests_in(
         test_root_dir, match_pattern=re.compile(r".*empty/no_test_functions.*")
     )
+
+
+@pytest.mark.asyncio
+async def test_cheatcodes():
+    runner = TestRunner()
+    await runner.run_tests_in(current_directory / "examples" / "cheats")
+    assert runner.reporter
+    assert not runner.reporter.failed_cases
+
+
+@pytest.mark.asyncio
+async def test_expect_emit():
+    runner = TestRunner()
+    await runner.run_tests_in(
+        current_directory
+        / "examples"
+        / "cheats"
+        / "expect_events"
+        / "test_expect_events.cairo"
+    )
+    assert runner.reporter
+    assert not runner.reporter.failed_cases
