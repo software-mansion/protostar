@@ -26,8 +26,8 @@ def test_expect_revert(protostar, copy_fixture):
     result = protostar(["test", "tests"])
     print(result)
 
-    assert "Collected 10 items" in result
-    assert "5 passed" in result
+    assert "Collected 11 items" in result
+    assert "6 passed" in result
     assert "5 failed" in result
     assert "test_expect_revert.cairo::test_with_except_revert_fail_expected" in result
     assert (

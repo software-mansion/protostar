@@ -16,7 +16,7 @@ end
 ```
 This is our target function, which we are going to test.
 Then in the `tests` directory create file `test_utils.cairo`, which contains a single test case.
-```code title="src/test_utils.cairo"
+```code title="tests/test_utils.cairo"
 %lang starknet
 
 from src.utils import sum_func
@@ -33,6 +33,10 @@ Then run your test with
 ```
 protostar test ./tests
 ```
+
+:::info
+In the example above, Protostar will run every test case it manages to find in the `tests` directory. You can read more about specifying where and how Protostar should search for test cases by running `protostar test --help`. 
+:::
 
 ```console title="expected result"
 Collected 1 items
@@ -342,7 +346,7 @@ end
 ```
 
 
-```cairo title="Use 'error_message' to check the last error annotation."
+```cairo title="'except_revert' checks if the last error annotation contains 'error_message'."
 %lang starknet
 
 func inverse(x) -> (res):
@@ -361,7 +365,7 @@ end
 
 @view
 func test_error_message{syscall_ptr : felt*, range_check_ptr}():
-    %{ expect_revert(error_message="a and b must be distinct.") %}
+    %{ expect_revert(error_message="must be distinct") %}
     assert_not_equal(0, 0)
     return ()
 end

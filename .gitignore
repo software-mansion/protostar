@@ -4,6 +4,7 @@
 .DS_Store
 playground/
 protostar.toml
+*.prof
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

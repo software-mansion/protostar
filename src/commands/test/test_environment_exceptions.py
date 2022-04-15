@@ -78,7 +78,8 @@ class RevertableException(BaseException):
 
     def __eq__(self, other: "RevertableException") -> bool:
         return (self.error_type is None or self.error_type == other.error_type) and (
-            self.error_message is None or self.error_message == other.error_message
+            self.error_message is None
+            or self.error_message in (other.error_message or "")
         )
 
 

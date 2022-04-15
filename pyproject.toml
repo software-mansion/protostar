@@ -30,6 +30,7 @@ pyright = "^0.0.13"
 pytest = "^6.2.5"
 pytest-mock = "^3.7.0"
 pytest-timeout = "^2.1.0"
+snakeviz = "^2.1.1"
 
 [tool.poe.tasks]
 build = "pyinstaller protostar.spec"
@@ -38,6 +39,8 @@ deploy = "python ./deploy.py"
 format = "black ."
 format_check = "black --check src"
 lint = "pylint src"
+profile = "python -m cProfile -o recent_profiling.prof protostar.py"
+show_prof = "snakeviz recent_profiling.prof"
 test = ["test_unit", "build", "test_e2e"]
 test_e2e.shell = "pytest tests/*"
 test_html = [{shell = "coverage html && open ./htmlcov/index.html"}]
