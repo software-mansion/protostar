@@ -22,8 +22,8 @@ async def test_expect_emit():
         current_directory
         / "examples"
         / "cheats"
-        / "expect_emit"
-        / "test_expect_emit.cairo"
+        / "expect_events"
+        / "test_expect_events.cairo"
     )
     assert runner.reporter
     assert not runner.reporter.failed_cases

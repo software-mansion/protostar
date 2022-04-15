@@ -176,19 +176,21 @@ class TestExecutionEnvironment:
 
         func = getattr(self.test_contract, function_name)
 
+        # pylint: disable=too-many-nested-blocks
         try:
             try:
                 try:
                     call_result = await func().invoke()
+                    for listener in self._test_finished_listener_map.values():
+                        if listener:
+                            listener()
+
                     if self._expected_error is not None:
                         raise StandardReportedException(
                             f"Expected an exception matching the following error:\n{self._expected_error}"
                         )
-
-                    for listener in self._test_finished_listener_map.values():
-                        if listener:
-                            listener()
                     return call_result
+                # catch StarkNet exceptions and wrap them with RevertableException
                 except StarkException as ex:
                     raise RevertableException(
                         error_type=ex.code.name,
@@ -197,6 +199,7 @@ class TestExecutionEnvironment:
                         ),
                         exception=ex,
                     ) from ex
+            # catch a RevertableException and rethrow the original_exception if the exception is not expected
             except RevertableException as ex:
                 if self._expected_error:
                     if self._expected_error != ex:
@@ -207,6 +210,7 @@ class TestExecutionEnvironment:
                 else:
                     if ex.original_exception:
                         raise ex.original_exception
+        # wrap exceptions with StandardReportedException print errors in a consistent way
         except StarkException as ex:
             raise StandardReportedException(
                 error_message=extract_core_info_from_stark_ex_message(ex.message),
@@ -290,15 +294,15 @@ class TestExecutionEnvironment:
         @register_cheatcode
         def expect_revert(
             error_type: Optional[str] = None, error_message: Optional[str] = None
-        ) -> Callable[[], None]:
-            return self.expect_revert(
+        ) -> None:
+            self.expect_revert(
                 RevertableException(error_type=error_type, error_message=error_message)
             )
 
         @register_cheatcode
-        def expect_emit(
+        def expect_events(
             *raw_expected_events: ExpectedEvent.CheatcodeInputType,
-        ) -> Callable[[], None]:
+        ) -> None:
             assert self.starknet is not None
 
             already_emitted_events_count: Optional[int] = len(
@@ -310,9 +314,7 @@ class TestExecutionEnvironment:
 
                 assert self.starknet is not None
 
-                expected_events = list(
-                    map(lambda e: ExpectedEvent(e), raw_expected_events)
-                )
+                expected_events = list(map(ExpectedEvent, raw_expected_events))
                 if not ExpectedEvent.compare_events(
                     expected_events,
                     self.starknet.state.events[already_emitted_events_count:],
@@ -331,7 +333,6 @@ class TestExecutionEnvironment:
             unsubscribe_listening_to_test_finish = self.subscribe_to_test_finish(
                 stop_expecting_emit
             )
-            return stop_expecting_emit
 
         @register_cheatcode
         def deploy_contract(

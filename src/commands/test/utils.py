@@ -51,7 +51,11 @@ class ExpectedEvent:
                 self.data = raw_expected_event["data"]
 
     def __str__(self) -> str:
-        return '{"name": ' + self.name + ', "data": ' + str(self.data) + "}"
+        result = 'ExpectedEvent {"name": "' + self.name + '"'
+        if self.data:
+            result += ', "data": "' + str(self.data) + '"'
+        result += "}"
+        return result
 
     @classmethod
     def compare_events(
