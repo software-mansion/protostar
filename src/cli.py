@@ -7,13 +7,17 @@ from typing import List, Optional
 
 from colorama import init as init_colorama
 
-from src.commands import (handle_install_command, handle_remove_command,
-                          handle_update_command, init, upgrade)
+from src.commands import (
+    handle_install_command,
+    handle_remove_command,
+    handle_update_command,
+    init,
+    upgrade,
+)
 from src.commands.build.build_project import build_project
 from src.commands.test import run_test_runner
 from src.protostar_exception import ProtostarException
-from src.utils import (ProtostarDirectory, StandardLogFormatter,
-                       log_color_provider)
+from src.utils import ProtostarDirectory, StandardLogFormatter, log_color_provider
 from src.utils.config.project import Project
 from src.utils.protostar_directory import VersionManager
 
