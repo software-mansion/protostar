@@ -32,16 +32,16 @@ current_directory = Path(__file__).parent
 
 
 class TestRunner:
-    reporter: Optional[TestReporter] = None
     include_paths: Optional[List[str]] = None
     _collected_count: Optional[int] = None
 
     def __init__(
         self,
+        reporter: TestReporter,
         project: Optional["Project"] = None,
         include_paths: Optional[List[str]] = None,
     ):
-
+        self.reporter = reporter 
         self.include_paths = []
         if project:
             self.include_paths.extend(project.get_include_paths())
@@ -55,19 +55,9 @@ class TestRunner:
     )
     async def run_tests_in(
         self,
-        src: Path,
-        match_pattern: Optional[Pattern] = None,
-        omit_pattern: Optional[Pattern] = None,
+        test_subjects
     ):
-        self.reporter = TestReporter(src)
         assert self.include_paths is not None, "Uninitialized paths list in test runner"
-        test_subjects = TestCollector(
-            target=src,
-            include_paths=self.include_paths,
-        ).collect(
-            match_pattern=match_pattern,
-            omit_pattern=omit_pattern,
-        )
         self.reporter.report_collected(test_subjects)
         for test_subject in test_subjects:
 
