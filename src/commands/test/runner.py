@@ -294,7 +294,7 @@ class TestExecutionEnvironment:
 
         def stop_expecting_revert():
             if self._expected_error is not None:
-                logger.warning("The callback returned by the `expect_revert` cheatcode is deprecated.")
+                logger.warning("The callback returned by the `expect_revert` is deprecated.")
                 raise MissingExceptException(
                     "Expected a transaction to be reverted before cancelling expect_revert"
                 )
