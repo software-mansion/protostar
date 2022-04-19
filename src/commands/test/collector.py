@@ -1,17 +1,17 @@
-from typing import Generator, List, Optional, Pattern
 import os
+import re
 from dataclasses import dataclass
 from pathlib import Path
-import re
+from typing import Generator, List, Optional, Pattern, cast
 
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     PreprocessorError,
 )
-from src.protostar_exception import ProtostarException
 
-from src.utils.starknet_compilation import StarknetCompiler
 from src.commands.test.reporter import TestReporter
 from src.commands.test.utils import TestSubject
+from src.protostar_exception import ProtostarException
+from src.utils.starknet_compilation import StarknetCompiler
 
 
 class CollectionError(ProtostarException):
@@ -41,10 +41,13 @@ class TestCollector:
         test_files = self.get_test_files()
 
         if match_pattern:
-            test_files = filter(lambda file: match_pattern.match(file.name), test_files)
+            test_files = filter(
+                lambda file: cast(Pattern, match_pattern).match(file.name), test_files
+            )
         if omit_pattern:
             test_files = filter(
-                lambda file: not omit_pattern.match(file.name), test_files
+                lambda file: not cast(Pattern, omit_pattern).match(file.name),
+                test_files,
             )
 
         test_files = map(self.build_test_subject, test_files)
