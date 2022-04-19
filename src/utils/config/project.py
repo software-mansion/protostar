@@ -100,7 +100,10 @@ class Project:
                 self._protostar_config.protostar_version
             )
 
-            if self._version_manager.protostar_version < config_protostar_version:
+            if (
+                self._version_manager.protostar_version
+                or VersionManager.parse("99.99.99")
+            ) < config_protostar_version:
                 raise VersionNotSupportedException(
                     (
                         # pylint: disable=line-too-long
