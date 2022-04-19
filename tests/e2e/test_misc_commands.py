@@ -17,7 +17,6 @@ def test_versions(protostar):
     result = protostar(["-v"])
     assert "Protostar" in result
     assert "Cairo-lang" in result
-    assert "Git" in result
 
 
 def test_init(project_name: str):

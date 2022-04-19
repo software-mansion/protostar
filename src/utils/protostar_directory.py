@@ -80,4 +80,3 @@ class VersionManager:
     def print_current_version(self) -> None:
         print(f"Protostar version: {self.protostar_version or 'unknown'}")
         print(f"Cairo-lang version: {self.cairo_version or 'unknown'}")
-        print(f"Git version: {self.git_version or 'unknown'}")

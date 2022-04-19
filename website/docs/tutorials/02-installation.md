@@ -13,12 +13,8 @@ Protostar requires a [git](https://git-scm.com/) executable (>= 2.28) to be spec
 curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/install.sh | bash
 ```
 2. Restart the terminal.
-3. Run `protostar -v`.
+3. Run `protostar -v` to check Protostar and [cairo-lang](https://pypi.org/project/cairo-lang/) version.
 
-```console title="Protostar should print its and cairo-lang version."
-Protostar version: 0.1.0
-Cairo-lang version: 0.8.1
-```
 
 ## Windows
 Not supported. 

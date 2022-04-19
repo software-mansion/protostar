@@ -11,7 +11,7 @@ assignees: ''
 
 ## Protostar version
 <!--- Tell us what Protostar version you are running. -->
-<!--- You can check the following versions by running `protostar -v`. -->
+<!--- You can check the Protostar and Cairo-lang version by running `protostar -v`. -->
 | Name       | Version              |
 | ---------- | -------------------- |
 | Protostar  | `PROTOSTAR_VERSION`  |
