@@ -36,10 +36,6 @@ class ExpectedEvent:
     )
     CheatcodeInputType = Union[RawEventType, str]
 
-    name: str
-    data: Optional[List[int]]
-    from_address: Optional[int]
-
     def __init__(
         self,
         raw_expected_event: CheatcodeInputType,
@@ -56,17 +52,15 @@ class ExpectedEvent:
                 self.from_address = raw_expected_event["from_address"]
 
     def __str__(self) -> str:
-        result = (
-            'Expected an event with the following properties: {"name": "'
-            + self.name
-            + '"'
-        )
+        result: List[str] = []
+
+        result.append(f'"name": "{self.name}"')
         if self.data:
-            result += ', "data": "' + str(self.data) + '"'
+            result.append(f'"data": "{str(self.data)}"')
         if self.from_address:
-            result += ', "from_address": "' + str(self.from_address) + '"'
-        result += "}"
-        return result
+            result.append(f'"from_address": "{str(self.from_address)}"')
+
+        return f"{{{', '.join(result)}}}"
 
     @classmethod
     def find_first_expected_event_not_included_in_state_events(

@@ -130,7 +130,7 @@ class TestRunner:
 class TestExecutionEnvironment:
     def __init__(self, include_paths: List[str]):
         self.starknet = None
-        self.test_contract = None
+        self.test_contract: Optional[StarknetContract] = None
         self._expected_error: Optional[RevertableException] = None
         self._include_paths = include_paths
         self._test_finished_listener_map: Dict[UUID, Optional[Callable[[], None]]] = {}
@@ -226,9 +226,6 @@ class TestExecutionEnvironment:
                 code=ex.code.value,
                 details=ex.message,
             ) from ex
-        except BaseException as ex:
-            print(ex)
-            raise ex
         finally:
             CairoFunctionRunner.run_from_entrypoint = original_run_from_entrypoint
             self._expected_error = None
@@ -329,7 +326,7 @@ class TestExecutionEnvironment:
                 if not_found_expected_event:
                     ex = StandardReportedException(
                         error_type="EXPECTED_EVENT",
-                        error_message=str(not_found_expected_event),
+                        error_message=f"Expected the following event: {str(not_found_expected_event)}",
                     )
                     raise RevertableException(
                         error_type=ex.error_type,

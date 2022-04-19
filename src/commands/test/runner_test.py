@@ -46,7 +46,7 @@ async def test_cheatcodes():
 
 
 @pytest.mark.asyncio
-async def test_expect_emit():
+async def test_expect_events():
     runner = TestRunner()
     await runner.run_tests_in(
         current_directory
