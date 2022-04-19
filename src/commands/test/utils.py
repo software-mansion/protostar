@@ -62,9 +62,9 @@ class ExpectedEvent:
 
         return f"{{{', '.join(result)}}}"
 
-    @classmethod
+    @staticmethod
     def find_first_expected_event_not_included_in_state_events(
-        cls, expected_events: List["ExpectedEvent"], state_events: List[Event]
+        expected_events: List["ExpectedEvent"], state_events: List[Event]
     ) -> Optional["ExpectedEvent"]:
         """Returns the expect event that has not been found."""
         assert len(expected_events) > 0

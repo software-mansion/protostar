@@ -184,48 +184,39 @@ class TestExecutionEnvironment:
 
         func = getattr(self.test_contract, function_name)
 
-        # pylint: disable=too-many-nested-blocks
         try:
             try:
-                try:
-                    call_result = await func().invoke()
-                    for listener in self._test_finished_listener_map.values():
-                        if listener:
-                            listener()
+                call_result = await func().invoke()
+                for listener in self._test_finished_listener_map.values():
+                    if listener:
+                        listener()
 
-                    if self._expected_error is not None:
-                        raise StandardReportedException(
-                            f"Expected an exception matching the following error:\n{self._expected_error}"
-                        )
-                    return call_result
-                # catch StarkNet exceptions and wrap them with RevertableException
-                except StarkException as ex:
-                    raise RevertableException(
-                        error_type=ex.code.name,
+                if self._expected_error is not None:
+                    raise StandardReportedException(
+                        f"Expected an exception matching the following error:\n{self._expected_error}"
+                    )
+                return call_result
+            except StarkException as ex:
+                raise RevertableException.from_std_reported_ex(
+                    StandardReportedException(
                         error_message=extract_core_info_from_stark_ex_message(
                             ex.message
                         ),
-                        exception=ex,
+                        error_type=ex.code.name,
+                        code=ex.code.value,
+                        details=ex.message,
+                    )
+                ) from ex
+        except RevertableException as ex:
+            if self._expected_error:
+                if not self._expected_error.match(ex):
+                    raise ExpectedRevertMismatchException(
+                        expected=self._expected_error,
+                        received=ex,
                     ) from ex
-            # catch a RevertableException and rethrow the original_exception if the exception is not expected
-            except RevertableException as ex:
-                if self._expected_error:
-                    if not self._expected_error.match(ex):
-                        raise ExpectedRevertMismatchException(
-                            expected=self._expected_error,
-                            received=ex,
-                        ) from ex
-                else:
-                    if ex.original_exception:
-                        raise ex.original_exception
-        # wrap exceptions with StandardReportedException print errors in a consistent way
-        except StarkException as ex:
-            raise StandardReportedException(
-                error_message=extract_core_info_from_stark_ex_message(ex.message),
-                error_type=ex.code.name,
-                code=ex.code.value,
-                details=ex.message,
-            ) from ex
+            else:
+                if ex.original_exception:
+                    raise ex.original_exception
         finally:
             CairoFunctionRunner.run_from_entrypoint = original_run_from_entrypoint
             self._expected_error = None
@@ -324,14 +315,11 @@ class TestExecutionEnvironment:
                     self.starknet.state.events,
                 )
                 if not_found_expected_event:
-                    ex = StandardReportedException(
-                        error_type="EXPECTED_EVENT",
-                        error_message=f"Expected the following event: {str(not_found_expected_event)}",
-                    )
-                    raise RevertableException(
-                        error_type=ex.error_type,
-                        error_message=ex.error_message,
-                        exception=ex,
+                    raise RevertableException.from_std_reported_ex(
+                        StandardReportedException(
+                            error_type="EXPECTED_EVENT",
+                            error_message=f"Expected the following event: {str(not_found_expected_event)}",
+                        )
                     )
 
             unsubscribe_listening_to_test_finish = self.subscribe_to_test_finish(

@@ -51,9 +51,13 @@ class RevertableException(BaseException):
     This exception is caught by `except_revert` logic.
     """
 
-    error_type: Optional[str]
-    error_message: Optional[str]
-    original_exception: Optional[BaseException]
+    @classmethod
+    def from_std_reported_ex(
+        cls, ex: StandardReportedException
+    ) -> "RevertableException":
+        return cls(
+            exception=ex, error_message=ex.error_message, error_type=ex.error_type
+        )
 
     def __init__(
         self,
