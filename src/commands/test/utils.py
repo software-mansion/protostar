@@ -68,25 +68,24 @@ class ExpectedEvent:
     ) -> Optional["ExpectedEvent"]:
         """Returns the expect event that has not been found."""
         assert len(expected_events) > 0
-        matches_count = 0
-        recent_match_state_event_index = -1
+
         for expected_event in expected_events:
-            is_match = False
-            for (se_index, state_event) in enumerate(
-                state_events[recent_match_state_event_index + 1 :]
-            ):
-                if expected_event.match(state_event):
-                    matches_count += 1
-                    recent_match_state_event_index = se_index
-                    is_match = True
-                    continue
-
-            if matches_count == len(expected_events):
-                return None
-
-            if not is_match:
+            new_state_events = ExpectedEvent._get_next_state_events_if_event_found(
+                expected_event, state_events
+            )
+            if new_state_events is None:
                 return expected_event
-        assert False, "Unreachable code"
+            state_events = new_state_events
+        return None
+
+    @staticmethod
+    def _get_next_state_events_if_event_found(
+        expected_event: "ExpectedEvent", state_events: List[Event]
+    ) -> Optional[List[Event]]:
+        for (se_index, state_event) in enumerate(state_events):
+            if expected_event.match(state_event):
+                return state_events[se_index + 1 :]
+        return None
 
     def match(self, state_event: Event) -> bool:
         return (
