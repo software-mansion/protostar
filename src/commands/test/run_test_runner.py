@@ -9,7 +9,7 @@ from src.commands.test.runner import TestRunner
 if TYPE_CHECKING:
     from src.utils.config.project import Project
 
-
+# pylint: disable=too-many-arguments
 async def run_test_runner(
     reporter: TestReporter,
     tests_root: Path,
@@ -21,9 +21,7 @@ async def run_test_runner(
     cairo_path = cairo_paths or []
     include_paths = [str(pth) for pth in cairo_path]
 
-
     reporter = TestReporter(tests_root)
-
 
     test_subjects = TestCollector(
         target=Path(tests_root),
