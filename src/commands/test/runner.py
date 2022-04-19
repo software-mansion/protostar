@@ -1,8 +1,6 @@
 import asyncio
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Pattern
-from uuid import UUID
-from uuid import uuid4 as uuid
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Pattern, Set
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.public.abi import get_selector_from_name
@@ -133,7 +131,7 @@ class TestExecutionEnvironment:
         self.test_contract: Optional[StarknetContract] = None
         self._expected_error: Optional[RevertableException] = None
         self._include_paths = include_paths
-        self._test_finished_listener_map: Dict[UUID, Optional[Callable[[], None]]] = {}
+        self._test_finish_hooks: Set[Callable[[], None]] = set()
 
     @classmethod
     async def empty(
@@ -187,9 +185,8 @@ class TestExecutionEnvironment:
         try:
             try:
                 call_result = await func().invoke()
-                for listener in self._test_finished_listener_map.values():
-                    if listener:
-                        listener()
+                for hook in self._test_finish_hooks:
+                    hook()
 
                 if self._expected_error is not None:
                     raise StandardReportedException(
@@ -220,17 +217,15 @@ class TestExecutionEnvironment:
         finally:
             CairoFunctionRunner.run_from_entrypoint = original_run_from_entrypoint
             self._expected_error = None
+            self._test_finish_hooks.clear()
 
-    def subscribe_to_test_finish(
-        self, listener: Callable[[], None]
-    ) -> Callable[[], None]:
-        listener_id = uuid()
-        self._test_finished_listener_map[listener_id] = listener
+    def add_test_finish_hook(self, listener: Callable[[], None]) -> Callable[[], None]:
+        self._test_finish_hooks.add(listener)
 
-        def unsubscribe():
-            self._test_finished_listener_map[listener_id] = None
+        def remove_hook():
+            self._test_finish_hooks.remove(listener)
 
-        return unsubscribe
+        return remove_hook
 
     def _get_run_from_entrypoint_with_custom_hint_locals(
         self, fn_run_from_entrypoint: Any
@@ -304,9 +299,7 @@ class TestExecutionEnvironment:
         ) -> None:
             assert self.starknet is not None
 
-            def stop_expecting_emit():
-                unsubscribe_listening_to_test_finish()
-
+            def compare_expected_and_emitted_events():
                 assert self.starknet is not None
 
                 expected_events = list(map(ExpectedEvent, raw_expected_events))
@@ -322,9 +315,7 @@ class TestExecutionEnvironment:
                         )
                     )
 
-            unsubscribe_listening_to_test_finish = self.subscribe_to_test_finish(
-                stop_expecting_emit
-            )
+            self.add_test_finish_hook(compare_expected_and_emitted_events)
 
         @register_cheatcode
         def deploy_contract(
