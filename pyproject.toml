@@ -32,7 +32,7 @@ pytest-mock = "^3.7.0"
 pytest-timeout = "^2.1.0"
 
 [tool.poe.tasks]
-build = "pyinstaller protostar.spec"
+build = "pyinstaller protostar.spec --noconfirm"
 ci = ["type_check", "lint", "format_check", "test"]
 deploy = "python ./deploy.py"
 format = "black ."
