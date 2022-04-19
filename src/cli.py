@@ -16,6 +16,7 @@ from src.commands import (
 )
 from src.commands.build.build_project import build_project
 from src.commands.test import run_test_runner
+from src.commands.test.reporter import TestReporter
 from src.protostar_exception import ProtostarException
 from src.utils import ProtostarDirectory, StandardLogFormatter, log_color_provider
 from src.utils.config.project import Project
@@ -53,6 +54,7 @@ async def cli(args, script_root: Path):
             upgrade(protostar_directory, version_manager)
         elif args.command == "test":
             await run_test_runner(
+                TestReporter(args.target),
                 args.target,
                 project=current_project,
                 omit=args.omit,
