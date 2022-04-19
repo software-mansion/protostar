@@ -11,11 +11,12 @@ assignees: ''
 
 ## Protostar version
 <!--- Tell us what Protostar version you are running. -->
-<!--- You can check the Protostar version by running `protostar -v`. -->
+<!--- You can check the following versions by running `protostar -v`. -->
 | Name       | Version              |
 | ---------- | -------------------- |
 | Protostar  | `PROTOSTAR_VERSION`  |
 | Cairo-lang | `CAIRO_LANG_VERSION` |
+| Git        | `GIT_VERSION`        |
 
 
 ## Current Behavior

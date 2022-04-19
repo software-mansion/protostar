@@ -38,7 +38,9 @@ class UpgradeManager:
         self.tarball_name = f"protostar-{platform}.tar.gz"
         self.tarball_loc = self.protostar_dir / self.tarball_name
 
-        self.current_version = version_manager.protostar_version
+        self.current_version = (
+            version_manager.protostar_version or VersionManager.parse("0.0.0")
+        )
         self.latest_version_tag = self.get_latest_release()["tag_name"]
         self.latest_version = version.parse(self.latest_version_tag)
 
