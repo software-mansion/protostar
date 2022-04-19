@@ -57,11 +57,8 @@ class StarknetCompiler:
             return context.preprocessed_program
         except FileNotFoundError as err:
             raise StarknetCompiler.NotExistingMainFileException(
-                message=(
-                    f"Couldn't find a contract '{err.filename}'\n"
-                    'Did you forget to update protostar.toml::["protostar.contracts"]?'
-                )
-            )
+                message=(f"Couldn't find a contract '{err.filename}'")
+            ) from err
 
     def compile_contract(self, *sources: Path) -> ContractDefinition:
         preprocessed = self.preprocess_contract(*sources)
