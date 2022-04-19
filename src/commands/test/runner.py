@@ -4,8 +4,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Set
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.public.abi import get_selector_from_name
-from starkware.starknet.services.api.contract_definition import \
-    ContractDefinition
+from starkware.starknet.services.api.contract_definition import ContractDefinition
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starkware_utils.error_handling import StarkException
 
@@ -14,10 +13,16 @@ from src.commands.test.cheatable_syscall_handler import CheatableSysCallHandler
 from src.commands.test.forkable_starknet import ForkableStarknet
 from src.commands.test.reporter import TestReporter
 from src.commands.test.test_environment_exceptions import (
-    ExpectedRevertMismatchException, ReportedException, RevertableException,
-    StandardReportedException)
-from src.commands.test.utils import (ExpectedEvent, TestSubject,
-                                     extract_core_info_from_stark_ex_message)
+    ExpectedRevertMismatchException,
+    ReportedException,
+    RevertableException,
+    StandardReportedException,
+)
+from src.commands.test.utils import (
+    ExpectedEvent,
+    TestSubject,
+    extract_core_info_from_stark_ex_message,
+)
 from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
 
