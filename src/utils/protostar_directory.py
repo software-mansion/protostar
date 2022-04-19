@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Optional, Union
 
 import tomli
+from git.cmd import Git
 from packaging import version
 from packaging.version import LegacyVersion
 from packaging.version import Version as PackagingVersion
@@ -63,6 +64,14 @@ class VersionManager:
                 "cairo-lang"
             ]
             return VersionManager.parse(version_s)
+
+    @property
+    def git_version(self) -> Optional[VersionType]:
+        output = Git().execute(["git", "--version"])
+        # pylint: disable=unidiomatic-typecheck
+        if type(output) is str:
+            return version.parse(output.replace("git version ", ""))
+        return None
 
     def print_current_version(self) -> None:
         print(f"Protostar version: {self.protostar_version}")
