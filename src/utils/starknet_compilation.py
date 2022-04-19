@@ -7,14 +7,15 @@ from starkware.cairo.lang.compiler.cairo_compile import get_module_reader
 from starkware.cairo.lang.compiler.constants import MAIN_SCOPE
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.cairo.lang.compiler.preprocessor.pass_manager import (
-    PassManager, PassManagerContext)
+    PassManager,
+    PassManagerContext,
+)
 from starkware.starknet.compiler.compile import assemble_starknet_contract
-from starkware.starknet.compiler.starknet_pass_manager import \
-    starknet_pass_manager
-from starkware.starknet.compiler.starknet_preprocessor import \
-    StarknetPreprocessedProgram
-from starkware.starknet.services.api.contract_definition import \
-    ContractDefinition
+from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_manager
+from starkware.starknet.compiler.starknet_preprocessor import (
+    StarknetPreprocessedProgram,
+)
+from starkware.starknet.services.api.contract_definition import ContractDefinition
 
 from src.protostar_exception import ProtostarException
 
