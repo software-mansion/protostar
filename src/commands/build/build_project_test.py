@@ -68,7 +68,7 @@ def test_handling_not_existing_main_files(mocker, tmp_path):
     contracts = {"main": [f"{str(current_directory)}/NOT_EXISTING_MOCK.cairo"]}
     project_mock = make_mock_project(mocker, contracts, libs_path, current_directory)
 
-    with pytest.raises(StarknetCompiler.NotExistingMainFileException):
+    with pytest.raises(StarknetCompiler.FileNotFoundException):
         build_project(
             output_dir=tmp_path,
             cairo_path=[],

@@ -31,7 +31,7 @@ def build_project(
             ).compile_contract(
                 *[Path(component) for component in contract_components],
             )
-        except StarknetCompiler.NotExistingMainFileException as err:
+        except StarknetCompiler.FileNotFoundException as err:
             raise ProtostarException(
                 message=(
                     err.message
