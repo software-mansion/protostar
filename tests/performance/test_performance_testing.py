@@ -5,6 +5,7 @@ from subprocess import run
 from string import Template
 
 from tests.conftest import ACTUAL_CWD
+
 header = """
 %lang starknet
 %builtins pedersen range_check
@@ -17,7 +18,8 @@ end
 
 """
 
-case = Template("""
+case = Template(
+    """
 @external
 func test_m$file$case{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
     let (target_contract) = target.read()
@@ -28,12 +30,16 @@ func test_m$file$case{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_ch
     return ()
 end
 
-""")
+"""
+)
+
 
 @pytest.fixture
 def test_contracts():
-    for file in range(5):
-        cases = "".join([case.substitute(file=str(file), case=str(i)) for i in range(5)])
+    for file in range(10):
+        cases = "".join(
+            [case.substitute(file=str(file), case=str(i)) for i in range(5)]
+        )
         content = header + cases
         with open(Path() / "tests" / f"test_file_{file}.cairo", "w") as f:
             f.write(content)
@@ -43,10 +49,4 @@ def test_contracts():
 @pytest.mark.usefixtures("test_contracts")
 @pytest.mark.usefixtures("init")
 def test_testing_performance():
-    run(
-        [
-            f"{path.join(ACTUAL_CWD, 'dist', 'protostar', 'protostar')}",
-            "test",
-            "tests"
-        ]
-    )
+    run([f"{path.join(ACTUAL_CWD, 'dist', 'protostar', 'protostar')}", "test", "tests"])
