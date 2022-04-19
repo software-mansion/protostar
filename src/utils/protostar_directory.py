@@ -47,7 +47,7 @@ class VersionManager:
                 return VersionManager.parse(version_s)
         except FileNotFoundError:
             getLogger().warning("Couldn't read Protostar version.")
-            return VersionManager.parse("99.99.99")
+            return VersionManager.parse("0.0.0")
 
     @property
     def cairo_version(self) -> VersionType:
