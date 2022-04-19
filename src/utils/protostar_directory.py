@@ -1,3 +1,4 @@
+import re
 from logging import getLogger
 from pathlib import Path
 from typing import Optional, Union
@@ -74,7 +75,9 @@ class VersionManager:
         output = Git().execute(["git", "--version"])
         # pylint: disable=unidiomatic-typecheck
         if type(output) is str:
-            return version.parse(output.replace("git version ", ""))
+            result = re.search(r"\d*\.\d*.\d*", output)
+            if result:
+                return version.parse(result.group())
         return None
 
     def print_current_version(self) -> None:
