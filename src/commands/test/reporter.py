@@ -1,12 +1,24 @@
-from functools import reduce
+from collections import defaultdict
 from pathlib import Path
+from tkinter import W
 from typing import Dict, List, Optional, Union
+from tqdm import tqdm as bar
 
 from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
 from src.commands.test.utils import TestSubject
 
 CaseResult = Union[PassedCase, FailedCase, BrokenTest]
 
+class Reporter:
+
+    def __init__(self, queue):
+        self.reports_queue = queue
+
+    def report(self, subject: TestSubject, case_result: CaseResult):
+        self.reports_queue.put((subject, case_result))
+    
+    def file_entry(self, file_name: str):
+        pass
 
 class TestReporter:
     _collected_count: Optional[int]
@@ -17,47 +29,48 @@ class TestReporter:
     collected_subjects: List[TestSubject]
     tests_root: Path
 
-    def __init__(self, tests_root: Path):
+    def __init__(self, tests_root: Path, test_subjects, queue):
         self.broken_tests = []
         self.failed_cases = []
         self.passed_cases = []
-        self.failed_tests_by_subject = {}
-        self.collected_subjects = []
-        self._collected_count = None
+        self.failed_tests_by_subject = defaultdict(list)
+        self.collected_subjects = test_subjects
+        self.collected_count = sum([len(subject.test_functions) for subject in self.collected_subjects])
         self.tests_root = tests_root
 
-    def report(self, subject: TestSubject, case_result: CaseResult):
-        symbol = None
-        if isinstance(case_result, PassedCase):
-            symbol = "."
-            self.passed_cases.append(case_result)
-        if isinstance(case_result, FailedCase):
-            symbol = "F"
-            self.failed_cases.append(case_result)
-            try:
+        self.reports_queue = queue
+    
+    def get_collected_results(self):
+        return self.passed_cases + self.failed_cases + self.broken_tests
+
+    def report_collected(self):
+        if self.collected_count:
+            print(f"Collected {self.collected_count} items")
+        else:
+            print("No cases found")
+
+    def live_reporting(self):
+        self.report_collected()
+
+        for _ in bar(range(self.collected_count)):
+            subject, case_result = self.reports_queue.get(block=True)
+        
+            if isinstance(case_result, PassedCase):
+                self.passed_cases.append(case_result)
+            if isinstance(case_result, FailedCase):
+                self.failed_cases.append(case_result)
                 self.failed_tests_by_subject[subject.test_path].append(case_result)
-            except KeyError:
-                self.failed_tests_by_subject[subject.test_path] = [case_result]
+            if isinstance(case_result, BrokenTest):
+                self.broken_tests.append(case_result)
 
-        if isinstance(case_result, BrokenTest):
-            symbol = "!"
-            self.broken_tests.append(case_result)
-        assert symbol, "Unrecognized case result"
+        self.report_summary()
 
-        print(symbol, end="", flush=True)
-
-    @staticmethod
-    def file_entry(file_name: str):
-        print(f"\n{file_name.replace('.cairo', '')}: ", end="")
 
     @staticmethod
     def report_collection_error():
         print("!!!!!!!!!! TEST COLLECTION ERROR !!!!!!!!!!")
 
     def report_summary(self):
-        if not self.collected_count:
-            return
-
         failed_tests_amt = len(self.failed_cases)
         succeeded_tests_amt = len(self.passed_cases)
         broken_tests_amt = len(self.broken_tests)
@@ -97,20 +110,3 @@ class TestReporter:
                 print(str(broken_subject.exception))
                 print("")
 
-    def report_collected(self, test_subjects: List[TestSubject]):
-        self.collected_subjects = test_subjects
-
-        if self.collected_count:
-            print(f"Collected {self.collected_count} items")
-        else:
-            print("No cases found")
-
-    @property
-    def collected_count(self) -> int:
-        if self._collected_count is None:
-            self._collected_count = reduce(
-                lambda x, y: x + y,
-                [len(subject.test_functions) for subject in self.collected_subjects],
-                0,
-            )
-        return self._collected_count

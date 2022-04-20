@@ -60,7 +60,6 @@ async def cli(args, script_root: Path):
             upgrade(protostar_directory, version_manager)
         elif args.command == "test":
             await run_test_runner(
-                TestReporter(args.target),
                 args.target,
                 project=current_project,
                 omit=args.omit,

@@ -56,23 +56,19 @@ class TestRunner:
         "starkware.starknet.core.os.syscall_utils.BusinessLogicSysCallHandler",
         CheatableSysCallHandler,
     )
-    async def run_tests_in(self, test_subjects):
+    async def run_test_subject(self, test_subject):
         assert self.include_paths is not None, "Uninitialized paths list in test runner"
-        self.reporter.report_collected(test_subjects)
-        for test_subject in test_subjects:
 
-            compiled_test = StarknetCompiler(
-                include_paths=self.include_paths,
-                disable_hint_validation=True,
-            ).compile_contract(test_subject.test_path, add_debug_info=True)
+        compiled_test = StarknetCompiler(
+            include_paths=self.include_paths,
+            disable_hint_validation=True,
+        ).compile_contract(test_subject.test_path, add_debug_info=True)
 
-            self.reporter.file_entry(test_subject.test_path.name)
-            await self._run_test_functions(
-                test_contract=compiled_test,
-                test_subject=test_subject,
-                functions=test_subject.test_functions,
-            )
-        self.reporter.report_summary()
+        await self._run_test_functions(
+            test_contract=compiled_test,
+            test_subject=test_subject,
+            functions=test_subject.test_functions,
+        )
 
     async def _run_test_functions(
         self,
@@ -96,10 +92,10 @@ class TestRunner:
         for function in functions:
             env = env_base.fork()
             try:
-                call_result = await env.invoke_test_function(function["name"])
+                await env.invoke_test_function(function["name"])
                 self.reporter.report(
                     subject=test_subject,
-                    case_result=PassedCase(tx_info=call_result),
+                    case_result=PassedCase(tx_info=None),
                 )
             except ReportedException as err:
                 self.reporter.report(
