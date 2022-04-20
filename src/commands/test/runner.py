@@ -14,6 +14,7 @@ from src.commands.test.forkable_starknet import ForkableStarknet
 from src.commands.test.reporter import TestReporter
 from src.commands.test.test_environment_exceptions import (
     ExpectedRevertMismatchException,
+    ExpectedRevertMissingException,
     ReportedException,
     RevertableException,
     StandardReportedException,
@@ -158,6 +159,23 @@ class TestExecutionEnvironment:
         )
         return contract
 
+    async def _call_function(self, function_name):
+        try:
+            func = getattr(self.test_contract, function_name)
+            return await func().invoke()
+        except StarkException as ex:
+            # convert all stark exceptions to unified protostar format
+            raise StandardReportedException(
+                error_message=extract_core_info_from_stark_ex_message(
+                    ex.message
+                ),
+                error_type=ex.code.name,
+                code=ex.code.value,
+                details=ex.message,
+            )
+
+
+
     async def invoke_test_function(self, function_name: str):
         original_run_from_entrypoint = CairoFunctionRunner.run_from_entrypoint
         CairoFunctionRunner.run_from_entrypoint = (
@@ -165,31 +183,17 @@ class TestExecutionEnvironment:
                 CairoFunctionRunner.run_from_entrypoint
             )
         )
-
-        func = getattr(self.test_contract, function_name)
-
         try:
-            try:
-                call_result = await func().invoke()
-                for hook in self._test_finish_hooks:
-                    hook()
+            call_result = await self._call_function(function_name) 
+            for hook in self._test_finish_hooks:
+                hook()
 
-                if self._expected_error is not None:
-                    raise StandardReportedException(
-                        f"Expected an exception matching the following error:\n{self._expected_error}"
-                    )
-                return call_result
-            except StarkException as ex:
-                raise RevertableException.from_std_reported_ex(
-                    StandardReportedException(
-                        error_message=extract_core_info_from_stark_ex_message(
-                            ex.message
-                        ),
-                        error_type=ex.code.name,
-                        code=ex.code.value,
-                        details=ex.message,
-                    )
-                ) from ex
+            if self._expected_error is not None:
+                raise ExpectedRevertMissingException(
+                    f"Expected an exception matching the following error:\n{self._expected_error}"
+            )
+
+            return call_result
         except RevertableException as ex:
             if self._expected_error:
                 if not self._expected_error.match(ex):
@@ -294,11 +298,9 @@ class TestExecutionEnvironment:
                     self.starknet.state.events,
                 )
                 if not_found_expected_event:
-                    raise RevertableException.from_std_reported_ex(
-                        StandardReportedException(
-                            error_type="EXPECTED_EVENT",
-                            error_message=f"Expected the following event: {str(not_found_expected_event)}",
-                        )
+                    StandardReportedException(
+                        error_type="EXPECTED_EVENT",
+                        error_message=f"Expected the following event: {str(not_found_expected_event)}",
                     )
 
             self.add_test_finish_hook(compare_expected_and_emitted_events)
@@ -311,7 +313,7 @@ class TestExecutionEnvironment:
 
     def expect_revert(self, expected_error: RevertableException) -> Callable[[], None]:
         if self._expected_error is not None:
-            raise StandardReportedException(
+            raise ReportedException(
                 f"Protostar is already expecting an exception matching the following error: {self._expected_error}"
             )
 
@@ -319,7 +321,7 @@ class TestExecutionEnvironment:
 
         def stop_expecting_revert():
             if self._expected_error is not None:
-                raise StandardReportedException(
+                raise ReportedException(
                     "Expected a transaction to be reverted before cancelling expect_revert"
                 )
 
