@@ -18,14 +18,17 @@ class Argument:
 
 class AbstractCommand(ABC):
     @property
+    @abstractmethod
     def name(self) -> str:
         ...
 
     @property
+    @abstractmethod
     def description(self) -> str:
         ...
 
     @property
+    @abstractmethod
     def example(self) -> Optional[str]:
         ...
 
@@ -35,10 +38,30 @@ class AbstractCommand(ABC):
         self.arguments = arguments
 
     @abstractmethod
-    def run(self):
+    async def run(self):
         ...
 
 
 class Application:
-    def __init__(self, inputs: List[Argument | AbstractCommand]) -> None:
-        pass
+    def __init__(
+        self, commands: List[AbstractCommand], root_args: List[Argument]
+    ) -> None:
+        self.commands = commands
+        self.root_args = root_args
+
+    def generate_cli_reference_markdown(self) -> str:
+        result = []
+
+        for arg in self.root_args:
+            result.append(f"### `{arg.name}`")
+            if arg.example:
+                result.append(f"```\n{arg.example}\n```")
+            result.append(f"{arg.description}")
+
+        for command in self.commands:
+            result.append(f"## `{command.name}`")
+            if command.example:
+                result.append(f"```shell\n{command.example}\n```")
+            result.append(f"{command.description}")
+
+        return "\n".join(result)
