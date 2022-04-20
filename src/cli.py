@@ -40,6 +40,12 @@ async def cli(args, script_root: Path):
     current_project = Project(version_manager)
 
     try:
+        git_version = version_manager.git_version
+        if git_version and git_version < VersionManager.parse("2.28"):
+            raise ProtostarException(
+                f"Protostar requires version 2.28 or greater of Git (current version: {git_version})"
+            )
+
         if args.version:
             version_manager.print_current_version()
         elif args.command == "install":

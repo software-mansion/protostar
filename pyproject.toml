@@ -33,7 +33,7 @@ pytest-timeout = "^2.1.0"
 snakeviz = "^2.1.1"
 
 [tool.poe.tasks]
-build = "pyinstaller protostar.spec"
+build = "pyinstaller protostar.spec --noconfirm"
 ci = ["type_check", "lint", "format_check", "test"]
 deploy = "python ./deploy.py"
 format = "black ."
