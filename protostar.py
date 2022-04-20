@@ -52,9 +52,7 @@ try:
         help="Show version-related data",
         action="store_true",
     )
-
     root_subparsers = root_parser.add_subparsers(dest="command")
-
     cmd_install_parser = root_subparsers.add_parser(
         "install",
         formatter_class=argparse.RawTextHelpFormatter,
