@@ -27,7 +27,8 @@ class FooCommand(AbstractCommand):
                 description="foo_desc",
                 example="FOO --foo",
                 input_type="bool",
-                is_positional=False,
+                is_required=False,
+                is_array=False,
             )
         ]
 
