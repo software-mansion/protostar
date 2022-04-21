@@ -17,7 +17,7 @@ from src.commands.test.test_environment_exceptions import (
     ExpectedRevertMismatchException,
     ReportedException,
     RevertableException,
-    StandardRevertableException,
+    StarknetRevertableException,
 )
 from src.commands.test.utils import (
     ExpectedEvent,
@@ -169,6 +169,8 @@ class TestExecutionEnvironment:
 
         try:
             await self._call_test_function(function_name)
+            for hook in self._test_finish_hooks:
+                hook()
         except RevertableException as ex:
             if self._expected_error:
                 if not self._expected_error.match(ex):
@@ -185,14 +187,12 @@ class TestExecutionEnvironment:
         try:
             func = getattr(self.test_contract, function_name)
             call_result = await func().invoke()
-            for hook in self._test_finish_hooks:
-                hook()
 
             if self._expected_error is not None:
                 raise ExpectedRevertException(self._expected_error)
             return call_result
         except StarkException as ex:
-            raise StandardRevertableException(
+            raise StarknetRevertableException(
                 error_message=extract_core_info_from_stark_ex_message(ex.message),
                 error_type=ex.code.name,
                 code=ex.code.value,
@@ -288,7 +288,7 @@ class TestExecutionEnvironment:
                     self.starknet.state.events,
                 )
                 if not_found_expected_event:
-                    raise StandardRevertableException(
+                    raise RevertableException(
                         error_type="EXPECTED_EVENT",
                         error_message=f"Expected the following event: {str(not_found_expected_event)}",
                     )

@@ -10,7 +10,7 @@ class ReportedException(BaseException):
         return str(super().__repr__())
 
 
-class RevertableException(BaseException):
+class RevertableException(ReportedException):
     """
     This exception is used by `except_revert` logic.
     """
@@ -40,9 +40,9 @@ class RevertableException(BaseException):
         )
 
 
-class StandardRevertableException(RevertableException):
+class StarknetRevertableException(RevertableException):
     """
-    The exception commonly used to display errors encountered during test execution.
+    The exception is an abstraction over errors raised by StarkNet.
     """
 
     def __init__(
