@@ -3,12 +3,12 @@ import re
 from abc import ABC, abstractmethod
 from argparse import ArgumentParser
 from pathlib import Path
-from typing import Any, Callable, List, Mapping, Optional, Pattern
+from typing import Any, List, Optional, Pattern
 
 from attr import dataclass
 from typing_extensions import Literal
 
-InputAllowedType = Literal["string", "directory", "path", "bool"]
+InputAllowedType = Literal["str", "directory", "path", "bool", "regexp"]
 
 
 class AbstractCommand(ABC):
@@ -28,9 +28,10 @@ class AbstractCommand(ABC):
         name: str
         description: str
         input_type: InputAllowedType
-        is_required: bool
-        is_array: bool
-        example: Optional[str]
+        is_required: bool = False
+        is_array: bool = False
+        default: Optional[str] = None
+        example: Optional[str] = None
 
     @property
     @abstractmethod
@@ -67,16 +68,15 @@ class ArgumentParserFacade:
             command.name,
             formatter_class=argparse.RawTextHelpFormatter,
         )
-        command_parser.add_argument()
+        for arg in command.arguments:
+            ArgumentParserFacade.add_argument(command_parser, arg)
 
         return self
 
     def add_root_argument(
         self, argument: AbstractCommand.Argument
     ) -> "ArgumentParserFacade":
-        name = argument.name if argument.is_required else f"--{argument.name}"
-
-        self.argument_parser.add_argument(name)
+        ArgumentParserFacade.add_argument(self.argument_parser, argument)
         return self
 
     @staticmethod
@@ -85,11 +85,39 @@ class ArgumentParserFacade:
     ) -> ArgumentParser:
         name = argument.name if argument.is_required else f"--{argument.name}"
 
+        if argument.input_type == "bool":
+            assert argument.is_required is False, "Booleans must be always optional"
+            assert argument.is_array is False, "Array of booleans is not allowed"
+            argument_parser.add_argument(
+                name,
+                help=argument.description,
+                action="store_true",
+            )
+            return argument_parser
+
+        arg_type = str
+
+        if argument.input_type == "directory":
+            arg_type = AbstractCommand.Argument.Type.directory
+        elif argument.input_type == "regexp":
+            arg_type = AbstractCommand.Argument.Type.regexp
+        elif argument.input_type == "path":
+            arg_type = Path
+
+        default = arg_type(argument.default) if argument.default and arg_type else None
+
+        if not default and argument.is_array:
+            default = []
+
+        nargs = "?"
+        if argument.is_array:
+            nargs = "+"
+
         argument_parser.add_argument(
             name,
-            type=str,
-            default="",
-            nargs="?",
+            type=arg_type,
+            default=default,
+            nargs=nargs,
             help=argument.description,
         )
         return argument_parser

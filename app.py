@@ -29,7 +29,15 @@ class FooCommand(AbstractCommand):
                 input_type="bool",
                 is_required=False,
                 is_array=False,
-            )
+            ),
+            AbstractCommand.Argument(
+                name="bar",
+                description="foo_desc",
+                example="FOO --foo",
+                input_type="bool",
+                is_required=False,
+                is_array=False,
+            ),
         ]
 
     async def run(self):
