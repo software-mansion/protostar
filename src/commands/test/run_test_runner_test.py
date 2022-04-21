@@ -74,3 +74,10 @@ async def test_revert(reporter, test_root_dir):
         match=re.compile(r".*(revert).*"),
     )
     assert not reporter.failed_cases
+
+
+@pytest.mark.asyncio
+async def test_cheats(reporter):
+    reporter = TestReporter(current_directory / "examples" / "cheats")
+    await run_test_runner(reporter, current_directory / "examples" / "cheats")
+    assert not reporter.failed_cases
