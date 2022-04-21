@@ -43,30 +43,24 @@ class AbstractCommand(ABC):
         ...
 
 
-class ArgumentCommandParserFacade:
+class ArgumentParserFacade:
     def __init__(self, argument_parser: ArgumentParser) -> None:
-        self.argument_parser = argument_parser
-
-    def add_argument(
-        self, argument: AbstractCommand.Argument
-    ) -> "ArgumentCommandParserFacade":
-        self.argument_parser.add_argument()
-        return self
-
-
-class ArgumentParserFacade(ArgumentCommandParserFacade):
-    def __init__(self, argument_parser: ArgumentParser) -> None:
-        super().__init__(argument_parser)
         self.argument_parser = argument_parser
         self.command_parsers = self.argument_parser.add_subparsers(dest="command")
 
-    def add_command(self, name: str) -> ArgumentCommandParserFacade:
-        return ArgumentCommandParserFacade(
-            self.command_parsers.add_parser(
-                name,
-                formatter_class=argparse.RawTextHelpFormatter,
-            )
+    def add_command(self, command: AbstractCommand) -> "ArgumentParserFacade":
+        self.command_parsers.add_parser(
+            command.name,
+            formatter_class=argparse.RawTextHelpFormatter,
         )
+
+        return self
+
+    def add_root_argument(
+        self, argument: AbstractCommand.Argument
+    ) -> "ArgumentParserFacade":
+        self.argument_parser.add_argument()
+        return self
 
     def parse(self) -> Any:
         return self.argument_parser.parse_args()
@@ -78,6 +72,15 @@ class Application:
     ) -> None:
         self.commands = commands
         self.root_args = root_args
+
+    def setup_parser(
+        self, argument_parser: ArgumentParserFacade
+    ) -> ArgumentParserFacade:
+
+        for cmd in self.commands:
+            argument_parser.add_command(cmd)
+
+        return argument_parser
 
     def generate_cli_reference_markdown(self) -> str:
         result: List[str] = []

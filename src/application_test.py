@@ -1,9 +1,9 @@
+from argparse import ArgumentParser
 from typing import List, Optional
 
 import pytest
-from click import Argument
 
-from src.application import AbstractCommand, Application
+from src.application import AbstractCommand, Application, ArgumentParserFacade
 
 
 class FooCommand(AbstractCommand):
@@ -49,7 +49,7 @@ class BarCommand(AbstractCommand):
         return None
 
     @property
-    def arguments(self) -> List[Argument]:
+    def arguments(self) -> List[AbstractCommand.Argument]:
         return []
 
     async def run(self):
@@ -95,5 +95,15 @@ def test_generating_markdown_for_command_arguments(foo_command: FooCommand):
     assert f"{foo_command.arguments[0].description}" in splitted_result
 
 
-# test_root_args
-# test_order
+# TODO: test_root_args
+# TODO: test_order
+
+
+def test_basic_argument_parsing(foo_command: FooCommand):
+    app = Application(commands=[foo_command], root_args=[])
+    parser = ArgumentParserFacade(ArgumentParser())
+
+    parser = app.setup_parser(parser)
+    result = parser.parse()
+
+    raise result
