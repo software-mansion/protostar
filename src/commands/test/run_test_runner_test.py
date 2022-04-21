@@ -5,7 +5,6 @@ import pytest
 
 from src.commands.test import run_test_runner
 from src.commands.test.cases import PassedCase
-from src.commands.test.reporter import TestReporter
 from src.utils.config.project_test import make_mock_project
 
 current_directory = Path(__file__).parent
@@ -17,7 +16,8 @@ def fixture_test_root_dir():
 
 
 def all_passed(results):
-    return all(lambda r: isinstance(r, PassedCase), results)
+    return all(map(lambda r: isinstance(r, PassedCase), results))
+
 @pytest.mark.asyncio
 async def test_run_test_runner(mocker, test_root_dir):
     contracts = {"main": ["examples/basic.cairo"]}
@@ -34,7 +34,7 @@ async def test_run_test_runner(mocker, test_root_dir):
 
 
 @pytest.mark.asyncio
-async def test_run_syntaxtically_valid_tests(reporter, test_root_dir):
+async def test_run_syntaxtically_valid_tests(test_root_dir):
     results = await run_test_runner(
         test_root_dir,
         cairo_paths=[
@@ -49,9 +49,8 @@ async def test_run_syntaxtically_valid_tests(reporter, test_root_dir):
 
 
 @pytest.mark.asyncio
-async def test_no_collected_items(reporter, test_root_dir):
+async def test_no_collected_items( test_root_dir):
     results = await run_test_runner(
-        reporter,
         test_root_dir,
         cairo_paths=[
             test_root_dir.resolve(),
@@ -67,7 +66,6 @@ async def test_no_collected_items(reporter, test_root_dir):
 @pytest.mark.asyncio
 async def test_revert(reporter, test_root_dir):
     results = await run_test_runner(
-        reporter,
         test_root_dir,
         cairo_paths=[
             test_root_dir.resolve(),

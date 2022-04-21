@@ -2,6 +2,7 @@ from collections import defaultdict
 from pathlib import Path
 from tkinter import W
 from typing import Dict, List, Optional, Union
+from black import Enum
 from tqdm import tqdm as bar
 
 from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
@@ -9,36 +10,41 @@ from src.commands.test.utils import TestSubject
 
 CaseResult = Union[PassedCase, FailedCase, BrokenTest]
 
-class Reporter:
+class ResultReport(Enum):
+    PASSED_CASE = 1 
+    FAILED_CASE = 2
+    BROKEN_CASE = 3
 
+class Reporter:
     def __init__(self, queue):
         self.reports_queue = queue
+        self.broken_tests = []
+        self.failed_cases = []
+        self.passed_cases = []
+
 
     def report(self, subject: TestSubject, case_result: CaseResult):
-        self.reports_queue.put((subject, case_result))
-    
-    def file_entry(self, file_name: str):
-        pass
+        if isinstance(case_result, PassedCase):
+            self.passed_cases.append(case_result)
+            self.reports_queue.put((subject, ResultReport.PASSED_CASE))
+        if isinstance(case_result, FailedCase):
+            self.failed_cases.append(case_result)
+            self.reports_queue.put((subject, ResultReport.FAILED_CASE))
+        if isinstance(case_result, BrokenTest):
+            self.broken_tests.append(case_result)
+            self.reports_queue.put((subject, ResultReport.BROKEN_CASE))
 
 class TestReporter:
     _collected_count: Optional[int]
-    broken_tests: List[BrokenTest]
-    failed_cases: List[FailedCase]
-    passed_cases: List[PassedCase]
-    failed_tests_by_subject: Dict[Path, List[FailedCase]]
     collected_subjects: List[TestSubject]
     tests_root: Path
 
     def __init__(self, tests_root: Path, test_subjects, queue):
-        self.broken_tests = []
-        self.failed_cases = []
-        self.passed_cases = []
-        self.failed_tests_by_subject = defaultdict(list)
         self.collected_subjects = test_subjects
         self.collected_count = sum([len(subject.test_functions) for subject in self.collected_subjects])
         self.tests_root = tests_root
-
         self.reports_queue = queue
+
     
     def get_collected_results(self):
         return self.passed_cases + self.failed_cases + self.broken_tests
@@ -54,23 +60,17 @@ class TestReporter:
 
         for _ in bar(range(self.collected_count)):
             subject, case_result = self.reports_queue.get(block=True)
-        
-            if isinstance(case_result, PassedCase):
-                self.passed_cases.append(case_result)
-            if isinstance(case_result, FailedCase):
-                self.failed_cases.append(case_result)
-                self.failed_tests_by_subject[subject.test_path].append(case_result)
-            if isinstance(case_result, BrokenTest):
-                self.broken_tests.append(case_result)
 
-        self.report_summary()
-
+   
+    def get_reporter(self):
+        return Reporter(self.queue)
 
     @staticmethod
     def report_collection_error():
         print("!!!!!!!!!! TEST COLLECTION ERROR !!!!!!!!!!")
 
-    def report_summary(self):
+    def report_summary(self, reporters):
+
         failed_tests_amt = len(self.failed_cases)
         succeeded_tests_amt = len(self.passed_cases)
         broken_tests_amt = len(self.broken_tests)

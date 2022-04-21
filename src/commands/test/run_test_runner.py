@@ -38,7 +38,7 @@ async def run_test_runner(
         setups = [
             (
                 subject,
-                queue,
+                reporter.get_reporter(),
                 project,
                 include_paths, 
             )
@@ -49,15 +49,16 @@ async def run_test_runner(
             result = p.starmap_async(run_worker, setups)
             reporter.live_reporting()
             result.get() # TODO add test timeout
+            
         
         return reporter.failed_cases
 
 def run_worker(    
         subject,
-        queue,
+        reporter,
         project: "Project",
         include_paths,
     ):
-    reporter = Reporter(queue)
     runner = TestRunner(reporter=reporter, project=project, include_paths=include_paths)
-    asyncio.run(runner.run_test_subject(subject))
+    result = asyncio.run(runner.run_test_subject(subject))
+    return result.reporter
