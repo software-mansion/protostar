@@ -3,6 +3,7 @@ from logging import INFO, StreamHandler, getLogger
 from pathlib import Path
 from typing import Any
 
+from src.commands import InitCommand
 from src.core import Application, Command
 from src.protostar_exception import ProtostarException
 from src.utils import (
@@ -13,7 +14,8 @@ from src.utils import (
     log_color_provider,
 )
 
-protostar_directory = ProtostarDirectory(Path(__file__).parent / "..")
+SCRIPT_ROOT = Path(__file__).parent / ".."
+protostar_directory = ProtostarDirectory(SCRIPT_ROOT)
 version_manager = VersionManager(protostar_directory)
 current_project = Project(version_manager)
 
@@ -52,6 +54,12 @@ protostar_app = ProtostarApplication(
             short_name="v",
             input_type="bool",
             description="Show Protostar and Cairo-lang version.",
-        )
-    ]
+        ),
+        Command.Argument(
+            name="no-color",
+            input_type="bool",
+            description="Disable colors.",
+        ),
+    ],
+    commands=[InitCommand(SCRIPT_ROOT, version_manager)],
 )

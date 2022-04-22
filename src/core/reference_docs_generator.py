@@ -22,9 +22,9 @@ class ReferenceDocsGenerator:
             result += self._generate_args_markdown(self.app.root_args)
 
         if len(self.app.commands) > 0:
-            result += ["# Commands"]
+            result += ["## Commands"]
             for command in self.app.commands:
-                result.append(f"## `{command.name}`")
+                result.append(f"### `{command.name}`")
                 if command.example:
                     result.append(f"```shell\n{command.example}\n```")
                 result.append(f"{command.description}")
@@ -38,7 +38,7 @@ class ReferenceDocsGenerator:
         result: List[str] = []
 
         for arg in arguments:
-            result.append(f"### `{arg.name}`")
+            result.append(f"#### `{arg.name}`")
             if arg.example:
                 result.append(f"```\n{arg.example}\n```")
             result.append(f"{arg.description}")
