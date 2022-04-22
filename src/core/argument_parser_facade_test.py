@@ -5,7 +5,7 @@ from typing import Pattern
 from src.core.application import Application
 from src.core.argument_parser_facade import ArgumentParserFacade
 from src.core.command import Command
-from src.core.conftest import FooCommand
+from src.core.conftest import BaseTestCommand, FooCommand
 
 # TODO: test_root_args
 # TODO: test_order
@@ -34,14 +34,94 @@ def test_directory_argument():
     assert isinstance(result.dir, Path)
 
 
-# def test_regexp_argument():
-#     app = Application(
-#         root_args=[
-#             Command.Argument(name="match", description="...", input_type="regexp")
-#         ]
-#     )
-#     parser = ArgumentParserFacade(ArgumentParser(), app)
+def test_regexp_argument():
+    app = Application(
+        root_args=[
+            Command.Argument(name="match", description="...", input_type="regexp")
+        ]
+    )
+    parser = ArgumentParserFacade(ArgumentParser(), app)
 
-#     result = parser.parse(["--mach", ".*"])
+    result = parser.parse(["--match", ".*"])
 
-#     assert isinstance(result.dir, Pattern)
+    assert isinstance(result.match, Pattern)
+
+
+def test_path_argument():
+    app = Application(
+        root_args=[Command.Argument(name="x", description="...", input_type="path")]
+    )
+    parser = ArgumentParserFacade(ArgumentParser(), app)
+
+    result = parser.parse(["--x", "foo"])
+
+    assert isinstance(result.x, Path)
+
+
+def test_short_name_argument():
+    app = Application(
+        root_args=[
+            Command.Argument(
+                name="directory", short_name="d", description="...", input_type="str"
+            )
+        ]
+    )
+    parser = ArgumentParserFacade(ArgumentParser(), app)
+
+    result = parser.parse(["-d", "foo"])
+
+    assert result.directory == "foo"
+
+
+def test_arrays():
+    app = Application(
+        root_args=[
+            Command.Argument(
+                name="target",
+                description="...",
+                input_type="str",
+                is_array=True,
+            )
+        ]
+    )
+    parser = ArgumentParserFacade(ArgumentParser(), app)
+
+    result = parser.parse(["--target", "foo", "bar"])
+
+    assert result.target == ["foo", "bar"]
+
+
+def test_required():
+    class CommandWithRequiredArg(BaseTestCommand):
+        @property
+        def arguments(self):
+            return [
+                Command.Argument(
+                    name="target", description="...", is_required=True, input_type="str"
+                )
+            ]
+
+    cmd = CommandWithRequiredArg()
+    app = Application(
+        commands=[cmd],
+    )
+    parser = ArgumentParserFacade(ArgumentParser(), app)
+
+    result = parser.parse([cmd.name, "foo"])
+
+    assert result.target == "foo"
+
+
+def test_default():
+    app = Application(
+        root_args=[
+            Command.Argument(
+                name="target", description="...", input_type="str", default="foo"
+            )
+        ]
+    )
+    parser = ArgumentParserFacade(ArgumentParser(), app)
+
+    result = parser.parse([])
+
+    assert result.target == "foo"

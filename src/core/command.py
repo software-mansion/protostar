@@ -30,6 +30,7 @@ class Command(ABC):
         is_array: bool = False
         default: Optional[str] = None
         example: Optional[str] = None
+        short_name: Optional[str] = None
 
     @property
     @abstractmethod

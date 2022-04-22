@@ -5,6 +5,23 @@ import pytest
 from src.core.command import Command
 
 
+class BaseTestCommand(Command):
+    @property
+    def name(self) -> str:
+        return "FOO"
+
+    @property
+    def description(self) -> str:
+        return "FOO_DESC"
+
+    @property
+    def example(self) -> Optional[str]:
+        return "$ foo"
+
+    async def run(self, args):
+        pass
+
+
 class FooCommand(Command):
     @property
     def name(self) -> str:
