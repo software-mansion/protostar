@@ -3,7 +3,7 @@ import re
 from abc import ABC, abstractmethod
 from argparse import ArgumentParser
 from pathlib import Path
-from typing import Any, List, Optional, Pattern
+from typing import Any, List, Optional, Pattern, Sequence
 
 from attr import dataclass
 from typing_extensions import Literal
@@ -122,8 +122,8 @@ class ArgumentParserFacade:
         )
         return argument_parser
 
-    def parse(self) -> Any:
-        return self.argument_parser.parse_args()
+    def parse(self, input_args: Optional[Sequence[str]] = None) -> Any:
+        return self.argument_parser.parse_args(input_args)
 
 
 class Application:

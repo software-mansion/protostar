@@ -27,7 +27,6 @@ class FooCommand(AbstractCommand):
                 description="foo_desc",
                 example="FOO --foo",
                 input_type="bool",
-                is_positional=False,
             )
         ]
 
@@ -104,6 +103,7 @@ def test_basic_argument_parsing(foo_command: FooCommand):
     parser = ArgumentParserFacade(ArgumentParser())
 
     parser = app.setup_parser(parser)
-    result = parser.parse()
+    result = parser.parse(["FOO"])
 
-    raise result
+    assert result.command == foo_command.name
+    assert result.foo is False
