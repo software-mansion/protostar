@@ -1,8 +1,8 @@
 # CLI Reference
 ## Generic flags
-#### `version`
+#### `--version`
 Show Protostar and Cairo-lang version.
-#### `no-color`
+#### `--no-color`
 Disable colors.
 ## Commands
 ### `init`
@@ -10,5 +10,16 @@ Disable colors.
 $ protostar init
 ```
 Create a Protostar project.
-#### `existing`
+#### `--existing`
 Adapt current directory to a Protostar project.
+### `build`
+```shell
+$ protostar build
+```
+Compile contracts.
+#### `--cairo-path DIRECTORY[]`
+Additional directories to look for sources.
+#### `--disable-hint-validation`
+Disable validation of hints when building the contracts.
+#### `--output PATH`
+An output directory that will be used to put the compiled contracts in.

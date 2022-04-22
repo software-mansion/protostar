@@ -3,7 +3,7 @@ from logging import INFO, StreamHandler, getLogger
 from pathlib import Path
 from typing import Any
 
-from src.commands import InitCommand
+from src.commands import BuildCommand, InitCommand
 from src.core import Application, Command
 from src.protostar_exception import ProtostarException
 from src.utils import (
@@ -61,5 +61,5 @@ protostar_app = ProtostarApplication(
             description="Disable colors.",
         ),
     ],
-    commands=[InitCommand(SCRIPT_ROOT, version_manager)],
+    commands=[InitCommand(SCRIPT_ROOT, version_manager), BuildCommand(current_project)],
 )

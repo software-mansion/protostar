@@ -43,6 +43,7 @@ class InitCommand(Command):
         get_creator(args)(self._script_root, self._version_manager).run()
 
 
+# TODO: remove me
 def init(args: Any, script_root: Path, version_manager: VersionManager):
     """
     Creates init protostar project

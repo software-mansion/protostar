@@ -1,3 +1,4 @@
+from src.commands.build import BuildCommand
 from src.commands.init import InitCommand, init
 from src.commands.install import handle_install_command
 from src.commands.remove import handle_remove_command, removal_exceptions
