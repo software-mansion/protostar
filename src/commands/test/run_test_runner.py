@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 # pylint: disable=too-many-arguments
 async def run_test_runner(
-    reporter: TestReporter,
+    reporter: Optional["TestReporter"],
     tests_root: Path,
     project: Optional["Project"] = None,
     omit: Optional[Pattern] = None,
