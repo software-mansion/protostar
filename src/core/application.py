@@ -5,7 +5,7 @@ from src.core.command import Command
 
 class Application:
     def __init__(
-        self, commands: List[Command], root_args: List[Command.Argument]
+        self, commands: List[Command] = [], root_args: List[Command.Argument] = []
     ) -> None:
         self.commands = commands
         self.root_args = root_args

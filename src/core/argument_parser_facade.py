@@ -18,6 +18,13 @@ class ArgumentParserFacade:
     def parse(self, input_args: Optional[Sequence[str]] = None) -> Any:
         return self.argument_parser.parse_args(input_args)
 
+    def _setup_parser(self) -> None:
+        for cmd in self.app.commands:
+            self._add_command(cmd)
+
+        for root_arg in self.app.root_args:
+            self._add_root_argument(root_arg)
+
     def _add_command(self, command: Command) -> "ArgumentParserFacade":
         command_parser = self.command_parsers.add_parser(
             command.name,
@@ -74,7 +81,3 @@ class ArgumentParserFacade:
             help=argument.description,
         )
         return argument_parser
-
-    def _setup_parser(self) -> None:
-        for cmd in self.app.commands:
-            self._add_command(cmd)

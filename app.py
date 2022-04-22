@@ -1,5 +1,6 @@
 # TODO: REMOVE FILE BEFORE PUSH/MERGE!
 
+import sys
 from argparse import ArgumentParser
 from typing import List, Optional
 
@@ -25,16 +26,7 @@ class FooCommand(Command):
             Command.Argument(
                 name="foo",
                 description="foo_desc",
-                example="FOO --foo",
-                input_type="bool",
-                is_required=False,
-                is_array=False,
-            ),
-            Command.Argument(
-                name="bar",
-                description="bar_desc",
-                example="FOO --foo",
-                input_type="bool",
+                input_type="directory",
                 is_required=False,
                 is_array=False,
             ),
@@ -47,4 +39,5 @@ class FooCommand(Command):
 app = Application(commands=[FooCommand()], root_args=[])
 parser = ArgumentParserFacade(ArgumentParser(), app)
 
+print(sys.argv[1:])
 print(parser.parse())
