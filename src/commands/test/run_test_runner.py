@@ -22,7 +22,11 @@ async def run_test_runner(
     cairo_paths: Optional[List[Path]] = None,
 ):
     cairo_path = cairo_paths or []
+
     include_paths = [str(pth) for pth in cairo_path]
+    if project:
+        include_paths.extend(project.get_include_paths())
+
     test_subjects = TestCollector(
         target=Path(tests_root),
         include_paths=include_paths,
@@ -38,8 +42,7 @@ async def run_test_runner(
         setups = [
             (
                 subject,
-                reporter.get_reporter(),
-                project,
+                reporter.get_reporter(subject),
                 include_paths, 
             )
             for subject in test_subjects
@@ -48,17 +51,16 @@ async def run_test_runner(
         with Pool(multiprocessing.cpu_count()) as p:
             result = p.starmap_async(run_worker, setups)
             reporter.live_reporting()
-            result.get() # TODO add test timeout
+            results = result.get() # TODO add test timeout
+            reporter.report_summary(results)
             
-        
         return reporter.failed_cases
 
 def run_worker(    
         subject,
         reporter,
-        project: "Project",
         include_paths,
     ):
-    runner = TestRunner(reporter=reporter, project=project, include_paths=include_paths)
-    result = asyncio.run(runner.run_test_subject(subject))
-    return result.reporter
+    runner = TestRunner(reporter=reporter, include_paths=include_paths)
+    asyncio.run(runner.run_test_subject(subject))
+    return runner.reporter

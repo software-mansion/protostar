@@ -41,13 +41,11 @@ class TestRunner:
     def __init__(
         self,
         reporter: TestReporter,
-        project: Optional["Project"] = None,
         include_paths: Optional[List[str]] = None,
     ):
         self.reporter = reporter
         self.include_paths = []
-        if project:
-            self.include_paths.extend(project.get_include_paths())
+
 
         if include_paths:
             self.include_paths.extend(include_paths)
