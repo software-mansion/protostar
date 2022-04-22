@@ -1,6 +1,6 @@
 import asyncio
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Set
+from typing import Any, Callable, Dict, List, Optional, Set
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.public.abi import get_selector_from_name
@@ -11,7 +11,7 @@ from starkware.starkware_utils.error_handling import StarkException
 from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
 from src.commands.test.cheatable_syscall_handler import CheatableSysCallHandler
 from src.commands.test.forkable_starknet import ForkableStarknet
-from src.commands.test.reporter import TestReporter
+from src.commands.test.reporter import Reporter
 from src.commands.test.test_environment_exceptions import (
     ExpectedRevertException,
     ExpectedRevertMismatchException,
@@ -27,10 +27,6 @@ from src.commands.test.utils import (
 from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
 
-if TYPE_CHECKING:
-    from src.utils.config.project import Project
-
-
 current_directory = Path(__file__).parent
 
 
@@ -40,12 +36,11 @@ class TestRunner:
 
     def __init__(
         self,
-        reporter: TestReporter,
+        reporter: Reporter,
         include_paths: Optional[List[str]] = None,
     ):
         self.reporter = reporter
         self.include_paths = []
-
 
         if include_paths:
             self.include_paths.extend(include_paths)

@@ -1,8 +1,7 @@
-from collections import defaultdict
+import itertools
 from pathlib import Path
-from tkinter import W
-from typing import Dict, List, Optional, Union
-from black import Enum
+from typing import List, Optional, Union
+from enum import Enum
 from tqdm import tqdm as bar
 
 from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
@@ -10,10 +9,12 @@ from src.commands.test.utils import TestSubject
 
 CaseResult = Union[PassedCase, FailedCase, BrokenTest]
 
+
 class ResultReport(Enum):
-    PASSED_CASE = 1 
+    PASSED_CASE = 1
     FAILED_CASE = 2
     BROKEN_CASE = 3
+
 
 class Reporter:
     def __init__(self, subject, queue):
@@ -22,7 +23,6 @@ class Reporter:
         self.broken_tests = []
         self.failed_cases = []
         self.passed_cases = []
-
 
     def report(self, subject: TestSubject, case_result: CaseResult):
         if isinstance(case_result, PassedCase):
@@ -34,33 +34,32 @@ class Reporter:
         if isinstance(case_result, BrokenTest):
             self.broken_tests.append(case_result)
             self.reports_queue.put((subject, ResultReport.BROKEN_CASE))
-    
+
     @property
     def passed_count(self):
         return len(self.passed_cases)
-    
+
     @property
     def broken_count(self):
         return len(self.broken_tests)
-    
+
     @property
     def failed_count(self):
         return len(self.failed_cases)
 
-class TestReporter:
+
+class ReportCollector:
     _collected_count: Optional[int]
     collected_subjects: List[TestSubject]
     tests_root: Path
 
     def __init__(self, tests_root: Path, test_subjects, queue):
         self.collected_subjects = test_subjects
-        self.collected_count = sum([len(subject.test_functions) for subject in self.collected_subjects])
+        self.collected_count = sum(
+            [len(subject.test_functions) for subject in self.collected_subjects]
+        )
         self.tests_root = tests_root
         self.reports_queue = queue
-
-    
-    # def get_collected_results(self):
-    #     return self.passed_cases + self.failed_cases + self.broken_tests
 
     def report_collected(self):
         if self.collected_count:
@@ -70,10 +69,9 @@ class TestReporter:
 
     def live_reporting(self):
         self.report_collected()
-        # for _ in bar(range(self.collected_count)):
-        #     _, _ = self.reports_queue.get(block=True)
+        for _ in bar(range(self.collected_count)):
+            _, _ = self.reports_queue.get(block=True)
 
-   
     def get_reporter(self, subject):
         return Reporter(subject, self.reports_queue)
 
@@ -82,9 +80,6 @@ class TestReporter:
         print("!!!!!!!!!! TEST COLLECTION ERROR !!!!!!!!!!")
 
     def report_summary(self, reporters):
-        breakpoint()
-        
-
         failed_tests_amt = sum([r.failed_count for r in reporters])
         succeeded_tests_amt = sum([r.passed_count for r in reporters])
         broken_tests_amt = sum([r.broken_count for r in reporters])
@@ -99,28 +94,33 @@ class TestReporter:
 
         print(f"{succeeded_tests_amt} passed")
         print(f"Ran {ran_tests} out of {self.collected_count} total tests")
+        if failed_tests_amt > 0:
+            self._report_failures(reporters)
+        if broken_tests_amt > 0:
+            self._report_broken_tests(reporters)
 
-    #     self._report_failures()
+    def _report_failures(self, reporters):
 
-    # def _report_failures(self, reporters):
-    #     if self.failed_cases:
-    #         print("\n------- FAILURES --------")
-    #         for test_path, failed_cases in self.failed_tests_by_subject.items():
+        print("\n------- FAILURES --------")
+        for test_path, failed_cases in [
+            (r.subject.test_path, r.failed_cases) for r in reporters
+        ]:
 
-    #             for failed_case in failed_cases:
-    #                 print(
-    #                     f"{test_path.resolve().relative_to(self.tests_root.resolve())}::{failed_case.function_name}"
-    #                 )
-    #                 print(str(failed_case.exception))
-    #                 print("")
-    #     if self.broken_tests:
-    #         print("\n----- BROKEN TESTS ------")
-    #         for broken_subject in self.broken_tests:
-    #             print(
-    #                 broken_subject.file_path.resolve().relative_to(
-    #                     self.tests_root.resolve()
-    #                 )
-    #             )
-    #             print(str(broken_subject.exception))
-    #             print("")
+            for failed_case in failed_cases:
+                print(
+                    f"{test_path.resolve().relative_to(self.tests_root.resolve())}::{failed_case.function_name}"
+                )
+                print(str(failed_case.exception))
+                print("")
 
+    def _report_broken_tests(self, reporters):
+
+        print("\n----- BROKEN TESTS ------")
+        for broken_subject in itertools.chain([r.broken_tests for r in reporters]):
+            print(
+                broken_subject.file_path.resolve().relative_to(
+                    self.tests_root.resolve()
+                )
+            )
+            print(str(broken_subject.exception))
+            print("")

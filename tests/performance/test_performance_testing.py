@@ -49,10 +49,4 @@ def test_contracts():
 @pytest.mark.usefixtures("test_contracts")
 @pytest.mark.usefixtures("init")
 def test_testing_performance():
-    run(
-        [
-            f"{path.join(ACTUAL_CWD, 'dist', 'protostar', 'protostar')}",
-            "test",
-            "tests"
-        ]
-    )
+    run([f"{path.join(ACTUAL_CWD, 'dist', 'protostar', 'protostar')}", "test", "tests"])
