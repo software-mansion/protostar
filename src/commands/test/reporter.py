@@ -85,6 +85,11 @@ class ReportCollector:
         broken_tests_amt = sum([r.broken_count for r in reporters])
 
         ran_tests = succeeded_tests_amt + failed_tests_amt
+        
+        if failed_tests_amt > 0:
+            self._report_failures(reporters)
+        if broken_tests_amt > 0:
+            self._report_broken_tests(reporters)
 
         print("\n----- TEST SUMMARY ------")
         if failed_tests_amt:
@@ -94,10 +99,7 @@ class ReportCollector:
 
         print(f"{succeeded_tests_amt} passed")
         print(f"Ran {ran_tests} out of {self.collected_count} total tests")
-        if failed_tests_amt > 0:
-            self._report_failures(reporters)
-        if broken_tests_amt > 0:
-            self._report_broken_tests(reporters)
+
 
     def _report_failures(self, reporters):
 
