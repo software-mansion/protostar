@@ -15,11 +15,11 @@ def test_generating_markdown_for_commands(
     result = docs_generator.generate_cli_reference_markdown()
     splitted_result = result.split("\n")
 
-    assert f"## `{bar_command.name}`" in splitted_result
+    assert f"### `{bar_command.name}`" in splitted_result
     assert bar_command.example is None
     assert f"{bar_command.description}" in splitted_result
 
-    assert f"## `{foo_command.name}`" in splitted_result
+    assert f"### `{foo_command.name}`" in splitted_result
     assert f"{foo_command.example}" in splitted_result
     assert f"{foo_command.description}" in splitted_result
 
@@ -32,8 +32,8 @@ def test_generating_markdown_for_command_arguments(foo_command: FooCommand):
     result = docs_generator.generate_cli_reference_markdown()
     splitted_result = result.split("\n")
 
-    assert f"## `{foo_command.name}`" in splitted_result
-    assert f"### `{foo_command.arguments[0].name}`" in splitted_result
+    assert f"### `{foo_command.name}`" in splitted_result
+    assert f"#### `--{foo_command.arguments[0].name}`" in splitted_result
     assert f"{foo_command.arguments[0].example}" in splitted_result
     assert f"{foo_command.arguments[0].description}" in splitted_result
 
