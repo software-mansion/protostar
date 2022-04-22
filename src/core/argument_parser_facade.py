@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any, Optional, Sequence
 
 from src.core.application import Application
-from src.core.command import AbstractCommand
+from src.core.command import Command
 
 
 class ArgumentParserFacade:
@@ -18,7 +18,7 @@ class ArgumentParserFacade:
     def parse(self, input_args: Optional[Sequence[str]] = None) -> Any:
         return self.argument_parser.parse_args(input_args)
 
-    def _add_command(self, command: AbstractCommand) -> "ArgumentParserFacade":
+    def _add_command(self, command: Command) -> "ArgumentParserFacade":
         command_parser = self.command_parsers.add_parser(
             command.name,
             formatter_class=argparse.RawTextHelpFormatter,
@@ -28,15 +28,13 @@ class ArgumentParserFacade:
 
         return self
 
-    def _add_root_argument(
-        self, argument: AbstractCommand.Argument
-    ) -> "ArgumentParserFacade":
+    def _add_root_argument(self, argument: Command.Argument) -> "ArgumentParserFacade":
         ArgumentParserFacade._add_argument(self.argument_parser, argument)
         return self
 
     @staticmethod
     def _add_argument(
-        argument_parser: ArgumentParser, argument: AbstractCommand.Argument
+        argument_parser: ArgumentParser, argument: Command.Argument
     ) -> ArgumentParser:
         name = argument.name if argument.is_required else f"--{argument.name}"
 
@@ -53,9 +51,9 @@ class ArgumentParserFacade:
         arg_type = str
 
         if argument.input_type == "directory":
-            arg_type = AbstractCommand.Argument.Type.directory
+            arg_type = Command.Argument.Type.directory
         elif argument.input_type == "regexp":
-            arg_type = AbstractCommand.Argument.Type.regexp
+            arg_type = Command.Argument.Type.regexp
         elif argument.input_type == "path":
             arg_type = Path
 

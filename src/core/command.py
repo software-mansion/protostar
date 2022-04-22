@@ -1,7 +1,7 @@
 import re
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import List, Optional, Pattern
+from typing import Any, List, Optional, Pattern
 
 from attr import dataclass
 from typing_extensions import Literal
@@ -9,7 +9,7 @@ from typing_extensions import Literal
 InputAllowedType = Literal["str", "directory", "path", "bool", "regexp"]
 
 
-class AbstractCommand(ABC):
+class Command(ABC):
     @dataclass
     class Argument:
         class Type:
@@ -52,5 +52,5 @@ class AbstractCommand(ABC):
         ...
 
     @abstractmethod
-    async def run(self):
+    async def run(self, args: Any):
         ...

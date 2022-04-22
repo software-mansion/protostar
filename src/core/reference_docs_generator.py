@@ -1,7 +1,7 @@
 from typing import List
 
 from src.core.application import Application
-from src.core.command import AbstractCommand
+from src.core.command import Command
 
 
 class ReferenceDocsGenerator:
@@ -24,9 +24,7 @@ class ReferenceDocsGenerator:
         return "\n".join(result)
 
     # pylint: disable=no-self-use
-    def _generate_args_markdown(
-        self, arguments: List[AbstractCommand.Argument]
-    ) -> List[str]:
+    def _generate_args_markdown(self, arguments: List[Command.Argument]) -> List[str]:
         result: List[str] = []
 
         for arg in arguments:

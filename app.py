@@ -3,10 +3,10 @@
 from argparse import ArgumentParser
 from typing import List, Optional
 
-from src.core import AbstractCommand, Application, ArgumentParserFacade
+from src.core import Application, ArgumentParserFacade, Command
 
 
-class FooCommand(AbstractCommand):
+class FooCommand(Command):
     @property
     def name(self) -> str:
         return "FOO"
@@ -20,9 +20,9 @@ class FooCommand(AbstractCommand):
         return "$ foo"
 
     @property
-    def arguments(self) -> List[AbstractCommand.Argument]:
+    def arguments(self) -> List[Command.Argument]:
         return [
-            AbstractCommand.Argument(
+            Command.Argument(
                 name="foo",
                 description="foo_desc",
                 example="FOO --foo",
@@ -30,9 +30,9 @@ class FooCommand(AbstractCommand):
                 is_required=False,
                 is_array=False,
             ),
-            AbstractCommand.Argument(
+            Command.Argument(
                 name="bar",
-                description="foo_desc",
+                description="bar_desc",
                 example="FOO --foo",
                 input_type="bool",
                 is_required=False,
@@ -40,7 +40,7 @@ class FooCommand(AbstractCommand):
             ),
         ]
 
-    async def run(self):
+    async def run(self, args):
         pass
 
 

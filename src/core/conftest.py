@@ -2,10 +2,10 @@ from typing import List, Optional
 
 import pytest
 
-from src.core.command import AbstractCommand
+from src.core.command import Command
 
 
-class FooCommand(AbstractCommand):
+class FooCommand(Command):
     @property
     def name(self) -> str:
         return "FOO"
@@ -19,9 +19,9 @@ class FooCommand(AbstractCommand):
         return "$ foo"
 
     @property
-    def arguments(self) -> List[AbstractCommand.Argument]:
+    def arguments(self) -> List[Command.Argument]:
         return [
-            AbstractCommand.Argument(
+            Command.Argument(
                 name="foo",
                 description="foo_desc",
                 example="FOO --foo",
@@ -29,11 +29,11 @@ class FooCommand(AbstractCommand):
             )
         ]
 
-    async def run(self):
+    async def run(self, args):
         pass
 
 
-class BarCommand(AbstractCommand):
+class BarCommand(Command):
     @property
     def name(self) -> str:
         return "BAR"
@@ -47,10 +47,10 @@ class BarCommand(AbstractCommand):
         return None
 
     @property
-    def arguments(self) -> List[AbstractCommand.Argument]:
+    def arguments(self) -> List[Command.Argument]:
         return []
 
-    async def run(self):
+    async def run(self, args):
         pass
 
 
