@@ -38,7 +38,8 @@ class ReferenceDocsGenerator:
         result: List[str] = []
 
         for arg in arguments:
-            result.append(f"#### `{arg.name}`")
+            name = arg.name if arg.is_required else f"--{arg.name}"
+            result.append(f"#### `{name}`")
             if arg.example:
                 result.append(f"```\n{arg.example}\n```")
             result.append(f"{arg.description}")

@@ -23,9 +23,7 @@ def test_bool_argument_parsing(foo_command: FooCommand):
 
 def test_directory_argument():
     app = Application(
-        root_args=[
-            Command.Argument(name="dir", description="...", input_type="directory")
-        ]
+        root_args=[Command.Argument(name="dir", description="...", type="directory")]
     )
     parser = ArgumentParserFacade(ArgumentParser(), app)
 
@@ -36,9 +34,7 @@ def test_directory_argument():
 
 def test_regexp_argument():
     app = Application(
-        root_args=[
-            Command.Argument(name="match", description="...", input_type="regexp")
-        ]
+        root_args=[Command.Argument(name="match", description="...", type="regexp")]
     )
     parser = ArgumentParserFacade(ArgumentParser(), app)
 
@@ -49,7 +45,7 @@ def test_regexp_argument():
 
 def test_path_argument():
     app = Application(
-        root_args=[Command.Argument(name="x", description="...", input_type="path")]
+        root_args=[Command.Argument(name="x", description="...", type="path")]
     )
     parser = ArgumentParserFacade(ArgumentParser(), app)
 
@@ -62,7 +58,7 @@ def test_short_name_argument():
     app = Application(
         root_args=[
             Command.Argument(
-                name="directory", short_name="d", description="...", input_type="str"
+                name="directory", short_name="d", description="...", type="str"
             )
         ]
     )
@@ -79,7 +75,7 @@ def test_arrays():
             Command.Argument(
                 name="target",
                 description="...",
-                input_type="str",
+                type="str",
                 is_array=True,
             )
         ]
@@ -97,7 +93,7 @@ def test_required():
         def arguments(self):
             return [
                 Command.Argument(
-                    name="target", description="...", is_required=True, input_type="str"
+                    name="target", description="...", is_required=True, type="str"
                 )
             ]
 
@@ -116,7 +112,7 @@ def test_default():
     app = Application(
         root_args=[
             Command.Argument(
-                name="target", description="...", input_type="str", default="foo"
+                name="target", description="...", type="str", default="foo"
             )
         ]
     )

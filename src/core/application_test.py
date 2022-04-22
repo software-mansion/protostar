@@ -32,9 +32,7 @@ async def test_command_run_method_was_called(foo_command: FooCommand):
 async def test_run_returns_false_when_no_command_was_called(foo_command: FooCommand):
     app = Application(
         commands=[foo_command],
-        root_args=[
-            Command.Argument(name="version", input_type="bool", description="...")
-        ],
+        root_args=[Command.Argument(name="version", type="bool", description="...")],
     )
     parser = ArgumentParserFacade(ArgumentParser(), app)
 

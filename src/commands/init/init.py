@@ -35,7 +35,7 @@ class InitCommand(Command):
             Command.Argument(
                 name="existing",
                 description="Adapt current directory to a Protostar project.",
-                input_type="bool",
+                type="bool",
             )
         ]
 

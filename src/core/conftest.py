@@ -42,7 +42,7 @@ class FooCommand(Command):
                 name="foo",
                 description="foo_desc",
                 example="FOO --foo",
-                input_type="bool",
+                type="bool",
             )
         ]
 

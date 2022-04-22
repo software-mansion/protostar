@@ -52,12 +52,12 @@ protostar_app = ProtostarApplication(
         Command.Argument(
             name="version",
             short_name="v",
-            input_type="bool",
+            type="bool",
             description="Show Protostar and Cairo-lang version.",
         ),
         Command.Argument(
             name="no-color",
-            input_type="bool",
+            type="bool",
             description="Disable colors.",
         ),
     ],

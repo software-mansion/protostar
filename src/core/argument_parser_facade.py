@@ -53,7 +53,7 @@ class ArgumentParserFacade:
         if short_name:
             names.append(short_name)
 
-        if argument.input_type == "bool":
+        if argument.type == "bool":
             assert argument.is_required is False, "Booleans must be always optional"
             assert argument.is_array is False, "Array of booleans is not allowed"
             argument_parser.add_argument(
@@ -65,11 +65,11 @@ class ArgumentParserFacade:
 
         arg_type = str
 
-        if argument.input_type == "directory":
+        if argument.type == "directory":
             arg_type = Command.Argument.Type.directory
-        elif argument.input_type == "regexp":
+        elif argument.type == "regexp":
             arg_type = Command.Argument.Type.regexp
-        elif argument.input_type == "path":
+        elif argument.type == "path":
             arg_type = Path
 
         default = arg_type(argument.default) if argument.default and arg_type else None
