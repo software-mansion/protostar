@@ -21,7 +21,7 @@ async def run_test_runner(
     cairo_path = cairo_paths or []
     include_paths = [str(pth) for pth in cairo_path]
 
-    reporter = TestReporter(tests_root)
+    reporter = reporter if reporter else TestReporter(tests_root)
 
     test_subjects = TestCollector(
         target=Path(tests_root),
