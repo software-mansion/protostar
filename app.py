@@ -1,45 +1,11 @@
-# TODO: REMOVE FILE BEFORE PUSH/MERGE!
-
-import sys
+# TODO: rename to protostar.py
+import asyncio
 from argparse import ArgumentParser
-from typing import List, Optional
 
-from src.core import Application, ArgumentParserFacade, Command
+from src.core import ArgumentParserFacade
+from src.protostar_app import protostar_app
 
+parser = ArgumentParserFacade(ArgumentParser(), protostar_app)
+args = parser.parse()
 
-class FooCommand(Command):
-    @property
-    def name(self) -> str:
-        return "FOO"
-
-    @property
-    def description(self) -> str:
-        return "FOO_DESC"
-
-    @property
-    def example(self) -> Optional[str]:
-        return "$ foo"
-
-    @property
-    def arguments(self) -> List[Command.Argument]:
-        return [
-            Command.Argument(
-                name="foo",
-                description="foo_desc",
-                input_type="directory",
-                is_required=False,
-                is_array=False,
-            ),
-        ]
-
-    async def run(self, args):
-        pass
-
-
-app = Application(
-    commands=[FooCommand()],
-    root_args=[Command.Argument(name="version", input_type="bool", description="...")],
-)
-parser = ArgumentParserFacade(ArgumentParser(), app)
-
-print(parser.parse())
+asyncio.run(protostar_app.run(args))
