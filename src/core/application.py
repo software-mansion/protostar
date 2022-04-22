@@ -16,6 +16,10 @@ class Application:
         for command in self.commands:
             self._command_mapping[command.name] = command
 
-    async def run(self, args: Any):
+    async def run(self, args: Any) -> bool:
+        if not args.command:
+            return False
+
         command = self._command_mapping[args.command]
         await command.run(args)
+        return True

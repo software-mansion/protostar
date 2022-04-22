@@ -36,8 +36,10 @@ class FooCommand(Command):
         pass
 
 
-app = Application(commands=[FooCommand()], root_args=[])
+app = Application(
+    commands=[FooCommand()],
+    root_args=[Command.Argument(name="version", input_type="bool", description="...")],
+)
 parser = ArgumentParserFacade(ArgumentParser(), app)
 
-print(sys.argv[1:])
 print(parser.parse())

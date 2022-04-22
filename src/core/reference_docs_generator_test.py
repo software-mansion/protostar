@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from src.core.application import Application
 from src.core.conftest import FooCommand
 from src.core.reference_docs_generator import ReferenceDocsGenerator
@@ -34,3 +36,11 @@ def test_generating_markdown_for_command_arguments(foo_command: FooCommand):
     assert f"### `{foo_command.arguments[0].name}`" in splitted_result
     assert f"{foo_command.arguments[0].example}" in splitted_result
     assert f"{foo_command.arguments[0].description}" in splitted_result
+
+
+def test_saving_markdown_file(tmpdir):
+    filepath = Path(tmpdir) / "foo.md"
+    ReferenceDocsGenerator.save_to_markdown_file(filepath, "foobar")
+
+    with open(filepath, "r", encoding="utf-8") as file:
+        assert file.read() == "foobar"

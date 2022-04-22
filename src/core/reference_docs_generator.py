@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import List
 
 from src.core.application import Application
@@ -5,21 +6,30 @@ from src.core.command import Command
 
 
 class ReferenceDocsGenerator:
+    @staticmethod
+    def save_to_markdown_file(filepath: Path, content: str):
+        with open(filepath, "w", encoding="utf_8") as file:
+            file.write(content)
+
     def __init__(self, app: Application) -> None:
         self.app = app
 
     def generate_cli_reference_markdown(self) -> str:
-        result: List[str] = []
+        result: List[str] = ["# CLI Reference"]
 
-        result += self._generate_args_markdown(self.app.root_args)
+        if len(self.app.root_args) > 0:
+            result += ["## Generic flags"]
+            result += self._generate_args_markdown(self.app.root_args)
 
-        for command in self.app.commands:
-            result.append(f"## `{command.name}`")
-            if command.example:
-                result.append(f"```shell\n{command.example}\n```")
-            result.append(f"{command.description}")
+        if len(self.app.commands) > 0:
+            result += ["# Commands"]
+            for command in self.app.commands:
+                result.append(f"## `{command.name}`")
+                if command.example:
+                    result.append(f"```shell\n{command.example}\n```")
+                result.append(f"{command.description}")
 
-            result += self._generate_args_markdown(command.arguments)
+                result += self._generate_args_markdown(command.arguments)
 
         return "\n".join(result)
 
