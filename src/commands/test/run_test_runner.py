@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 # pylint: disable=too-many-arguments
 async def run_test_runner(
-    reporter: TestReporter,
+    reporter: Optional["TestReporter"],
     tests_root: Path,
     project: Optional["Project"] = None,
     omit: Optional[Pattern] = None,
@@ -21,7 +21,7 @@ async def run_test_runner(
     cairo_path = cairo_paths or []
     include_paths = [str(pth) for pth in cairo_path]
 
-    reporter = TestReporter(tests_root)
+    reporter = reporter if reporter else TestReporter(tests_root)
 
     test_subjects = TestCollector(
         target=Path(tests_root),

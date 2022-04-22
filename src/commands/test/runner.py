@@ -180,6 +180,8 @@ class TestExecutionEnvironment:
                         expected=self._expected_error,
                         received=ex,
                     ) from ex
+            else:
+                raise ex
         finally:
             CairoFunctionRunner.run_from_entrypoint = original_run_from_entrypoint
             self._expected_error = None
