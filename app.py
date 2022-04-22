@@ -3,7 +3,7 @@
 from argparse import ArgumentParser
 from typing import List, Optional
 
-from src.application import AbstractCommand, Application, ArgumentParserFacade
+from src.core import AbstractCommand, Application, ArgumentParserFacade
 
 
 class FooCommand(AbstractCommand):
@@ -45,7 +45,6 @@ class FooCommand(AbstractCommand):
 
 
 app = Application(commands=[FooCommand()], root_args=[])
-parser = ArgumentParserFacade(ArgumentParser())
-parser = app.setup_parser(parser)
+parser = ArgumentParserFacade(ArgumentParser(), app)
 
 print(parser.parse())
