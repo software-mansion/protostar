@@ -49,6 +49,7 @@ class BuildCommand(Command):
                 name="output",
                 description="An output directory that will be used to put the compiled contracts in.",
                 type="path",
+                default="build",
             ),
         ]
 

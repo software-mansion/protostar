@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from src.core.application import Application
+from src.core.command import Command
 from src.core.conftest import FooCommand
 from src.core.reference_docs_generator import ReferenceDocsGenerator
 
@@ -36,6 +37,47 @@ def test_generating_markdown_for_command_arguments(foo_command: FooCommand):
     assert f"#### `--{foo_command.arguments[0].name}`" in splitted_result
     assert f"{foo_command.arguments[0].example}" in splitted_result
     assert f"{foo_command.arguments[0].description}" in splitted_result
+
+
+def test_generating_default_type_and_array_info():
+    docs_generator = ReferenceDocsGenerator(
+        Application(
+            root_args=[
+                Command.Argument(
+                    name="foo",
+                    description="...",
+                    default="FOO",
+                    is_array=True,
+                    type="str",
+                )
+            ]
+        )
+    )
+
+    result = docs_generator.generate_cli_reference_markdown()
+    splitted_result = result.split("\n")
+
+    assert "#### `--foo STR[]=FOO`" in splitted_result
+
+
+def test_generating_short_name_info():
+    docs_generator = ReferenceDocsGenerator(
+        Application(
+            root_args=[
+                Command.Argument(
+                    name="foo",
+                    short_name="f",
+                    description="...",
+                    type="bool",
+                )
+            ]
+        )
+    )
+
+    result = docs_generator.generate_cli_reference_markdown()
+    splitted_result = result.split("\n")
+
+    assert "#### `--foo` `-f`" in splitted_result
 
 
 def test_saving_markdown_file(tmpdir):

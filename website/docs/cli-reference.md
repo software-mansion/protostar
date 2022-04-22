@@ -1,6 +1,6 @@
 # CLI Reference
 ## Generic flags
-#### `--version`
+#### `--version` `-v`
 Show Protostar and Cairo-lang version.
 #### `--no-color`
 Disable colors.
@@ -21,5 +21,5 @@ Compile contracts.
 Additional directories to look for sources.
 #### `--disable-hint-validation`
 Disable validation of hints when building the contracts.
-#### `--output PATH`
+#### `--output PATH=build`
 An output directory that will be used to put the compiled contracts in.
