@@ -47,6 +47,8 @@ class ReferenceDocsGenerator:
             result.append(f"#### `{name}{arg_type or ''}`{short_name}")
             if arg.example:
                 result.append(f"```\n{arg.example}\n```")
+            if arg.is_required:
+                result.append("Required.\n")
             result.append(f"{arg.description}")
 
         return result

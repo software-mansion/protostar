@@ -1,8 +1,8 @@
 from pathlib import Path
 
+from src.conftest import FooCommand
 from src.core.cli import CLI
 from src.core.command import Command
-from src.conftest import FooCommand
 from src.core.reference_docs_generator import ReferenceDocsGenerator
 
 
@@ -78,9 +78,33 @@ def test_generating_short_name_info():
     assert "#### `--foo` `-f`" in splitted_result
 
 
+def test_required_info():
+    docs_generator = ReferenceDocsGenerator(
+        CLI(
+            root_args=[
+                Command.Argument(
+                    name="foo",
+                    short_name="f",
+                    description="...",
+                    type="bool",
+                    is_required=True,
+                )
+            ]
+        )
+    )
+
+    result = docs_generator.generate_cli_reference_markdown()
+    splitted_result = result.split("\n")
+
+    assert "Required." in splitted_result
+
+
 def test_saving_markdown_file(tmpdir):
     filepath = Path(tmpdir) / "foo.md"
     ReferenceDocsGenerator.save_to_markdown_file(filepath, "foobar")
 
     with open(filepath, "r", encoding="utf-8") as file:
         assert file.read() == "foobar"
+
+
+# TODO: test_order_by_is_positional_and_name

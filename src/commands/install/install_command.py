@@ -7,8 +7,7 @@ from src.commands.install.pull_package_submodules import pull_package_submodules
 from src.core import Command
 from src.utils import Project, extract_info_from_repo_id, log_color_provider
 
-EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = """EXTERNAL_DEPENDENCY_REFERENCE
-- GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]
+EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = """- GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]
     e.g. OpenZeppelin/cairo-contracts@0.1.0
 - URL_TO_THE_REPOSITORY
     e.g. https://github.com/OpenZeppelin/cairo-contracts
@@ -38,14 +37,14 @@ class InstallCommand(Command):
     def arguments(self) -> List[Command.Argument]:
         return [
             Command.Argument(
-                name="package",
+                name="external_dependency_reference",
                 description=EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
                 type="str",
                 is_positional=True,
             ),
             Command.Argument(
                 name="name",
-                description="Custom package name. Use it to resolve name conflicts.",
+                description="A custom package name. Use it to resolve name conflicts.",
                 type="str",
             ),
         ]

@@ -2,16 +2,15 @@ from argparse import ArgumentParser
 from pathlib import Path
 from typing import Any, Optional, Pattern
 
+import pytest
+
+from src.conftest import BaseTestCommand, FooCommand
 from src.core.argument_parser_facade import (
     ArgumentDefaultValueProvider,
     ArgumentParserFacade,
 )
 from src.core.cli import CLI
 from src.core.command import Command
-from src.conftest import BaseTestCommand, FooCommand
-
-# TODO: test_root_args
-# TODO: test_order
 
 
 def test_bool_argument_parsing(foo_command: FooCommand):
@@ -122,6 +121,20 @@ def test_default():
     result = parser.parse([])
 
     assert result.target == "foo"
+
+
+def test_required():
+    app = CLI(
+        root_args=[
+            Command.Argument(
+                name="target", description="...", type="str", is_required=True
+            )
+        ]
+    )
+
+    ArgumentParserFacade(ArgumentParser(), app).parse(["--target"])
+    with pytest.raises(SystemExit):
+        ArgumentParserFacade(ArgumentParser(), app).parse([])
 
 
 def test_loading_default_values_from_provider(foo_command: FooCommand):

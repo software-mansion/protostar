@@ -119,5 +119,6 @@ class ArgumentParserFacade:
             default=default,
             nargs=nargs,
             help=argument.description,
+            required=argument.is_required,
         )
         return argument_parser
