@@ -35,7 +35,7 @@ class BuildCommand(Command):
     def arguments(self) -> List[Command.Argument]:
         return [
             Command.Argument(
-                name="cairo-path",
+                name="cairo-path",  # TODO: use plural name
                 description="Additional directories to look for sources.",
                 type="directory",
                 is_array=True,

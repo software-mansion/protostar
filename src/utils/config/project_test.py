@@ -47,6 +47,15 @@ def test_parsing_project_info(version_manager: VersionManager):
     assert config.libs_path == "./lib"
 
 
+def test_loading_config_dict(version_manager: VersionManager):
+    proj = Project(
+        version_manager,
+        project_root=Path(current_directory, "examples", "command_config"),
+    )
+    result = proj.load_argument("build", "disable-hint-validation")
+    assert result is True
+
+
 def test_config_file_is_versioned(version_manager: VersionManager):
     proj = Project(
         version_manager, project_root=Path(current_directory, "examples", "standard")

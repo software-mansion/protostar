@@ -1,4 +1,5 @@
 import argparse
+from abc import ABC, abstractmethod
 from argparse import ArgumentParser
 from pathlib import Path
 from typing import Any, Optional, Sequence
@@ -7,11 +8,25 @@ from src.core.cli import CLI
 from src.core.command import Command
 
 
+class ArgumentDefaultValueProvider(ABC):
+    @abstractmethod
+    def get_default_value(
+        self, command: Optional[Command], argument: Command.Argument
+    ) -> Optional[Any]:
+        ...
+
+
 class ArgumentParserFacade:
-    def __init__(self, argument_parser: ArgumentParser, app: CLI) -> None:
+    def __init__(
+        self,
+        argument_parser: ArgumentParser,
+        cli: CLI,
+        default_value_provider: Optional[ArgumentDefaultValueProvider] = None,
+    ) -> None:
         self.argument_parser = argument_parser
         self.command_parsers = self.argument_parser.add_subparsers(dest="command")
-        self.app = app
+        self.cli = cli
+        self._default_value_provider = default_value_provider
 
         self._setup_parser()
 
@@ -19,10 +34,10 @@ class ArgumentParserFacade:
         return self.argument_parser.parse_args(input_args)
 
     def _setup_parser(self) -> None:
-        for cmd in self.app.commands:
+        for cmd in self.cli.commands:
             self._add_command(cmd)
 
-        for root_arg in self.app.root_args:
+        for root_arg in self.cli.root_args:
             self._add_root_argument(root_arg)
 
     def _add_command(self, command: Command) -> "ArgumentParserFacade":
@@ -31,6 +46,13 @@ class ArgumentParserFacade:
             formatter_class=argparse.RawTextHelpFormatter,
         )
         for arg in command.arguments:
+            if self._default_value_provider:
+                new_default = self._default_value_provider.get_default_value(
+                    command, arg
+                )
+                if new_default is not None:
+                    arg.default = new_default
+
             ArgumentParserFacade._add_argument(command_parser, arg)
 
         return self
@@ -39,6 +61,12 @@ class ArgumentParserFacade:
         assert (
             argument.is_required is False
         ), f"A root argument ({argument.name}) cannot be required"
+
+        if self._default_value_provider:
+            new_default = self._default_value_provider.get_default_value(None, argument)
+            if new_default:
+                argument.default = new_default
+
         ArgumentParserFacade._add_argument(self.argument_parser, argument)
         return self
 
@@ -60,6 +88,7 @@ class ArgumentParserFacade:
                 *names,
                 help=argument.description,
                 action="store_true",
+                default=argument.default,
             )
             return argument_parser
 
@@ -72,7 +101,7 @@ class ArgumentParserFacade:
         elif argument.type == "path":
             arg_type = Path
 
-        default = arg_type(argument.default) if argument.default and arg_type else None
+        default = argument.default
 
         if not default and argument.is_array:
             default = []
