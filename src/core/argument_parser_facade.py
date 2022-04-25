@@ -109,20 +109,21 @@ class ArgumentParserFacade:
         if not default and argument.is_array:
             default = []
 
-        nargs = "?"
-        if argument.is_array:
-            nargs = "+"
-
-        required = {}
+        kwargs = {}
         if argument.is_required and not argument.is_positional:
-            required["required"] = True
+            kwargs["required"] = True
+
+        if argument.is_positional and not argument.is_required:
+            kwargs["nargs"] = "?"
+
+        if argument.is_array:
+            kwargs["nargs"] = "+"
 
         argument_parser.add_argument(
             *names,
             type=arg_type,
             default=default,
-            nargs=nargs,
             help=argument.description,
-            **required,
+            **kwargs,
         )
         return argument_parser

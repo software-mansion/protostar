@@ -3,7 +3,7 @@ from logging import INFO, StreamHandler, getLogger
 from pathlib import Path
 from typing import Any, List, Optional
 
-from src.commands import BuildCommand, InitCommand, InstallCommand
+from src.commands import BuildCommand, InitCommand, InstallCommand, RemoveCommand
 from src.core import CLI, Command
 from src.protostar_exception import ProtostarException
 from src.utils import (
@@ -74,6 +74,7 @@ COMMANDS = [
     InitCommand(SCRIPT_ROOT, current_version_manager),
     BuildCommand(current_project),
     InstallCommand(current_project),
+    RemoveCommand(current_project),
 ]
 
 protostar_cli = ProtostarCLI(current_version_manager, COMMANDS, ROOT_ARGS)
