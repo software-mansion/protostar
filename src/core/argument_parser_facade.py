@@ -53,8 +53,8 @@ class ArgumentParserFacade:
 
     def _add_root_argument(self, argument: Command.Argument) -> "ArgumentParserFacade":
         assert (
-            argument.is_required is False
-        ), f"A root argument ({argument.name}) cannot be required"
+            argument.is_positional is False
+        ), f"A root argument ({argument.name}) cannot be positional"
 
         self._update_arg_default_value_if_necessary(None, argument)
         ArgumentParserFacade._add_argument(self.argument_parser, argument)
@@ -75,7 +75,7 @@ class ArgumentParserFacade:
     def _add_argument(
         argument_parser: ArgumentParser, argument: Command.Argument
     ) -> ArgumentParser:
-        name = argument.name if argument.is_required else f"--{argument.name}"
+        name = argument.name if argument.is_positional else f"--{argument.name}"
         short_name = f"-{argument.short_name}" if argument.short_name else None
 
         names = [name]
@@ -83,7 +83,9 @@ class ArgumentParserFacade:
             names.append(short_name)
 
         if argument.type == "bool":
-            assert argument.is_required is False, "Booleans must be always optional"
+            assert (
+                argument.is_positional is False
+            ), "A boolean can't be positional argument"
             assert argument.is_array is False, "Array of booleans is not allowed"
             argument_parser.add_argument(
                 *names,

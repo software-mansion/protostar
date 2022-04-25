@@ -26,7 +26,7 @@ class Command(ABC):
         name: str
         description: str
         type: InputAllowedType
-        is_required: bool = False
+        is_positional: bool = False
         is_array: bool = False
         default: Optional[str] = None
         example: Optional[str] = None

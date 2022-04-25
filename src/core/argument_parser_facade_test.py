@@ -88,13 +88,13 @@ def test_arrays():
     assert result.target == ["foo", "bar"]
 
 
-def test_required():
+def test_positional():
     class CommandWithRequiredArg(BaseTestCommand):
         @property
         def arguments(self):
             return [
                 Command.Argument(
-                    name="target", description="...", is_required=True, type="str"
+                    name="target", description="...", is_positional=True, type="str"
                 )
             ]
 
