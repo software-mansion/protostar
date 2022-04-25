@@ -50,29 +50,29 @@ class ProtostarCLI(CLI):
         self._check_git_version()
 
         if args.version:
-            current_version_manager.print_current_version()
+            self._version_manager.print_current_version()
             return True
 
         return await super().run(args)
 
 
-protostar_cli = ProtostarCLI(
-    current_version_manager,
-    root_args=[
-        Command.Argument(
-            name="version",
-            short_name="v",
-            type="bool",
-            description="Show Protostar and Cairo-lang version.",
-        ),
-        Command.Argument(
-            name="no-color",
-            type="bool",
-            description="Disable colors.",
-        ),
-    ],
-    commands=[
-        InitCommand(SCRIPT_ROOT, current_version_manager),
-        BuildCommand(current_project),
-    ],
-)
+ROOT_ARGS = [
+    Command.Argument(
+        name="version",
+        short_name="v",
+        type="bool",
+        description="Show Protostar and Cairo-lang version.",
+    ),
+    Command.Argument(
+        name="no-color",
+        type="bool",
+        description="Disable colors.",
+    ),
+]
+
+COMMANDS = [
+    InitCommand(SCRIPT_ROOT, current_version_manager),
+    BuildCommand(current_project),
+]
+
+protostar_cli = ProtostarCLI(current_version_manager, COMMANDS, ROOT_ARGS)

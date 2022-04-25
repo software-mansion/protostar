@@ -11,19 +11,19 @@ class ReferenceDocsGenerator:
         with open(filepath, "w", encoding="utf_8") as file:
             file.write(content)
 
-    def __init__(self, app: CLI) -> None:
-        self.app = app
+    def __init__(self, cli: CLI) -> None:
+        self.cli = cli
 
     def generate_cli_reference_markdown(self) -> str:
         result: List[str] = ["# CLI Reference"]
 
-        if len(self.app.root_args) > 0:
+        if len(self.cli.root_args) > 0:
             result += ["## Generic flags"]
-            result += self._generate_args_markdown(self.app.root_args)
+            result += self._generate_args_markdown(self.cli.root_args)
 
-        if len(self.app.commands) > 0:
+        if len(self.cli.commands) > 0:
             result += ["## Commands"]
-            for command in self.app.commands:
+            for command in self.cli.commands:
                 result.append(f"### `{command.name}`")
                 if command.example:
                     result.append(f"```shell\n{command.example}\n```")

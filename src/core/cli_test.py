@@ -2,10 +2,10 @@ from argparse import ArgumentParser
 
 import pytest
 
+from src.conftest import FooCommand
 from src.core.argument_parser_facade import ArgumentParserFacade
 from src.core.cli import CLI
 from src.core.command import Command
-from src.conftest import FooCommand
 
 
 @pytest.mark.asyncio
@@ -19,10 +19,10 @@ async def test_command_run_method_was_called(foo_command: FooCommand):
 
     foo_command.run = on_run
 
-    app = CLI(commands=[foo_command])
-    parser = ArgumentParserFacade(ArgumentParser(), app)
+    cli = CLI(commands=[foo_command])
+    parser = ArgumentParserFacade(ArgumentParser(), cli)
 
-    result = await app.run(parser.parse([foo_command.name]))
+    result = await cli.run(parser.parse([foo_command.name]))
 
     assert was_called_ref["current"]
     assert result is True
@@ -30,12 +30,12 @@ async def test_command_run_method_was_called(foo_command: FooCommand):
 
 @pytest.mark.asyncio
 async def test_run_returns_false_when_no_command_was_called(foo_command: FooCommand):
-    app = CLI(
+    cli = CLI(
         commands=[foo_command],
         root_args=[Command.Argument(name="version", type="bool", description="...")],
     )
-    parser = ArgumentParserFacade(ArgumentParser(), app)
+    parser = ArgumentParserFacade(ArgumentParser(), cli)
 
-    result = await app.run(parser.parse(["--version"]))
+    result = await cli.run(parser.parse(["--version"]))
 
     assert result is False
