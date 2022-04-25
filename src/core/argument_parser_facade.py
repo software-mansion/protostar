@@ -46,13 +46,7 @@ class ArgumentParserFacade:
             formatter_class=argparse.RawTextHelpFormatter,
         )
         for arg in command.arguments:
-            if self._default_value_provider:
-                new_default = self._default_value_provider.get_default_value(
-                    command, arg
-                )
-                if new_default is not None:
-                    arg.default = new_default
-
+            self._update_arg_default_value_if_necessary(command, arg)
             ArgumentParserFacade._add_argument(command_parser, arg)
 
         return self
@@ -62,13 +56,20 @@ class ArgumentParserFacade:
             argument.is_required is False
         ), f"A root argument ({argument.name}) cannot be required"
 
-        if self._default_value_provider:
-            new_default = self._default_value_provider.get_default_value(None, argument)
-            if new_default:
-                argument.default = new_default
-
+        self._update_arg_default_value_if_necessary(None, argument)
         ArgumentParserFacade._add_argument(self.argument_parser, argument)
         return self
+
+    def _update_arg_default_value_if_necessary(
+        self, command: Optional[Command], argument: Command.Argument
+    ) -> Command.Argument:
+        if self._default_value_provider:
+            new_default = self._default_value_provider.get_default_value(
+                command, argument
+            )
+            if new_default is not None:
+                argument.default = new_default
+        return argument
 
     @staticmethod
     def _add_argument(

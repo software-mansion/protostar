@@ -1,9 +1,12 @@
 from argparse import ArgumentParser
 from pathlib import Path
-from typing import Pattern
+from typing import Any, Optional, Pattern
 
+from src.core.argument_parser_facade import (
+    ArgumentDefaultValueProvider,
+    ArgumentParserFacade,
+)
 from src.core.cli import CLI
-from src.core.argument_parser_facade import ArgumentParserFacade
 from src.core.command import Command
 from src.core.conftest import BaseTestCommand, FooCommand
 
@@ -18,7 +21,7 @@ def test_bool_argument_parsing(foo_command: FooCommand):
     result = parser.parse(["FOO"])
 
     assert result.command == foo_command.name
-    assert result.foo is False
+    assert result.foo is False or result.foo is None
 
 
 def test_directory_argument():
@@ -119,3 +122,24 @@ def test_default():
     result = parser.parse([])
 
     assert result.target == "foo"
+
+
+def test_loading_default_values_from_provider(foo_command: FooCommand):
+    app = CLI(
+        root_args=[Command.Argument(name="bar", description="...", type="str")],
+        commands=[foo_command],
+    )
+
+    class DefaultValuesProvider(ArgumentDefaultValueProvider):
+        def get_default_value(
+            self, command: Optional[Command], _argument: Command.Argument
+        ) -> Optional[Any]:
+            if command:
+                return "COMMAND_ARG_DEFAULT"
+            return "ROOT_ARG_DEFAULT"
+
+    parser = ArgumentParserFacade(ArgumentParser(), app, DefaultValuesProvider())
+
+    result = parser.parse(["FOO"])
+    assert result.foo == "COMMAND_ARG_DEFAULT"
+    assert result.bar == "ROOT_ARG_DEFAULT"
