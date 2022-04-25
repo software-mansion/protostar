@@ -9,16 +9,11 @@ from src.core.command import Command
 
 
 @pytest.mark.asyncio
-async def test_command_run_method_was_called(foo_command: FooCommand):
-    # MagicMock doesn't work when awaited
-    was_called_ref = {"current": False}
-
-    async def on_run(_args) -> None:
-        was_called_ref["current"] = True
-        return None
-
+async def test_command_run_method_was_called(
+    foo_command: FooCommand, create_async_called_checker
+):
+    (on_run, was_called_ref) = create_async_called_checker()
     foo_command.run = on_run
-
     cli = CLI(commands=[foo_command])
     parser = ArgumentParserFacade(ArgumentParser(), cli)
 

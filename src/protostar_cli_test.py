@@ -28,17 +28,12 @@ def version_manager_fixture(mocker: MockerFixture, git_version: str):
 
 @pytest.mark.asyncio
 async def test_should_call_all_provided_commands(
-    version_manager: VersionManager, foo_command: FooCommand
+    version_manager: VersionManager,
+    foo_command: FooCommand,
+    create_async_called_checker,
 ):
-    # MagicMock doesn't work when awaited
-    was_called_ref = {"current": False}
-
-    async def on_run(_args) -> None:
-        was_called_ref["current"] = True
-        return None
-
+    (on_run, was_called_ref) = create_async_called_checker()
     foo_command.run = on_run
-
     cli = ProtostarCLI(version_manager, commands=[foo_command], root_args=ROOT_ARGS)
     parser = ArgumentParserFacade(ArgumentParser(), cli)
 
