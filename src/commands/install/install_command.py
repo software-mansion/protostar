@@ -7,12 +7,12 @@ from src.commands.install.pull_package_submodules import pull_package_submodules
 from src.core import Command
 from src.utils import Project, extract_info_from_repo_id, log_color_provider
 
-EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = """- GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]
-    e.g. OpenZeppelin/cairo-contracts@0.1.0
-- URL_TO_THE_REPOSITORY
-    e.g. https://github.com/OpenZeppelin/cairo-contracts
-- SSH_URI
-    e.g. git@github.com:OpenZeppelin/cairo-contracts.git
+EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = """- `GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]`
+    - `OpenZeppelin/cairo-contracts@0.1.0`
+- `URL_TO_THE_REPOSITORY`
+    - `https://github.com/OpenZeppelin/cairo-contracts`
+- `SSH_URI`
+    - `git@github.com:OpenZeppelin/cairo-contracts.git`
 """
 
 

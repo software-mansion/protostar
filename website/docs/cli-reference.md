@@ -28,13 +28,13 @@ An output directory that will be used to put the compiled contracts in.
 $ protostar install https://github.com/OpenZeppelin/cairo-contracts
 ```
 Install a dependency as a git submodule.
-#### `external_dependency_reference STR`
-- GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]
-    e.g. OpenZeppelin/cairo-contracts@0.1.0
-- URL_TO_THE_REPOSITORY
-    e.g. https://github.com/OpenZeppelin/cairo-contracts
-- SSH_URI
-    e.g. git@github.com:OpenZeppelin/cairo-contracts.git
+#### `external_dependency_reference STRING`
+- `GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]`
+    - `OpenZeppelin/cairo-contracts@0.1.0`
+- `URL_TO_THE_REPOSITORY`
+    - `https://github.com/OpenZeppelin/cairo-contracts`
+- `SSH_URI`
+    - `git@github.com:OpenZeppelin/cairo-contracts.git`
 
-#### `--name STR`
+#### `--name STRING`
 A custom package name. Use it to resolve name conflicts.
