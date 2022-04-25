@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any
 
 from src.commands import BuildCommand, InitCommand
-from src.core import Application, Command
+from src.core import CLI, Command
 from src.protostar_exception import ProtostarException
 from src.utils import (
     Project,
@@ -20,7 +20,7 @@ version_manager = VersionManager(protostar_directory)
 current_project = Project(version_manager)
 
 
-class ProtostarApplication(Application):
+class ProtostarApplication(CLI):
     def _setup_logger(self, is_ci_mode: bool):
         log_color_provider.is_ci_mode = is_ci_mode
         logger = getLogger()

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from src.core.application import Application
+from src.core.cli import CLI
 from src.core.command import Command
 from src.core.conftest import FooCommand
 from src.core.reference_docs_generator import ReferenceDocsGenerator
@@ -10,7 +10,7 @@ def test_generating_markdown_for_commands(
     foo_command: FooCommand, bar_command: FooCommand
 ):
     docs_generator = ReferenceDocsGenerator(
-        Application(commands=[foo_command, bar_command], root_args=[])
+        CLI(commands=[foo_command, bar_command], root_args=[])
     )
 
     result = docs_generator.generate_cli_reference_markdown()
@@ -26,9 +26,7 @@ def test_generating_markdown_for_commands(
 
 
 def test_generating_markdown_for_command_arguments(foo_command: FooCommand):
-    docs_generator = ReferenceDocsGenerator(
-        Application(commands=[foo_command], root_args=[])
-    )
+    docs_generator = ReferenceDocsGenerator(CLI(commands=[foo_command], root_args=[]))
 
     result = docs_generator.generate_cli_reference_markdown()
     splitted_result = result.split("\n")
@@ -41,7 +39,7 @@ def test_generating_markdown_for_command_arguments(foo_command: FooCommand):
 
 def test_generating_default_type_and_array_info():
     docs_generator = ReferenceDocsGenerator(
-        Application(
+        CLI(
             root_args=[
                 Command.Argument(
                     name="foo",
@@ -62,7 +60,7 @@ def test_generating_default_type_and_array_info():
 
 def test_generating_short_name_info():
     docs_generator = ReferenceDocsGenerator(
-        Application(
+        CLI(
             root_args=[
                 Command.Argument(
                     name="foo",

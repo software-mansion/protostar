@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 from typing import Pattern
 
-from src.core.application import Application
+from src.core.cli import CLI
 from src.core.argument_parser_facade import ArgumentParserFacade
 from src.core.command import Command
 from src.core.conftest import BaseTestCommand, FooCommand
@@ -12,7 +12,7 @@ from src.core.conftest import BaseTestCommand, FooCommand
 
 
 def test_bool_argument_parsing(foo_command: FooCommand):
-    app = Application(commands=[foo_command])
+    app = CLI(commands=[foo_command])
     parser = ArgumentParserFacade(ArgumentParser(), app)
 
     result = parser.parse(["FOO"])
@@ -22,7 +22,7 @@ def test_bool_argument_parsing(foo_command: FooCommand):
 
 
 def test_directory_argument():
-    app = Application(
+    app = CLI(
         root_args=[Command.Argument(name="dir", description="...", type="directory")]
     )
     parser = ArgumentParserFacade(ArgumentParser(), app)
@@ -33,7 +33,7 @@ def test_directory_argument():
 
 
 def test_regexp_argument():
-    app = Application(
+    app = CLI(
         root_args=[Command.Argument(name="match", description="...", type="regexp")]
     )
     parser = ArgumentParserFacade(ArgumentParser(), app)
@@ -44,9 +44,7 @@ def test_regexp_argument():
 
 
 def test_path_argument():
-    app = Application(
-        root_args=[Command.Argument(name="x", description="...", type="path")]
-    )
+    app = CLI(root_args=[Command.Argument(name="x", description="...", type="path")])
     parser = ArgumentParserFacade(ArgumentParser(), app)
 
     result = parser.parse(["--x", "foo"])
@@ -55,7 +53,7 @@ def test_path_argument():
 
 
 def test_short_name_argument():
-    app = Application(
+    app = CLI(
         root_args=[
             Command.Argument(
                 name="directory", short_name="d", description="...", type="str"
@@ -70,7 +68,7 @@ def test_short_name_argument():
 
 
 def test_arrays():
-    app = Application(
+    app = CLI(
         root_args=[
             Command.Argument(
                 name="target",
@@ -98,7 +96,7 @@ def test_required():
             ]
 
     cmd = CommandWithRequiredArg()
-    app = Application(
+    app = CLI(
         commands=[cmd],
     )
     parser = ArgumentParserFacade(ArgumentParser(), app)
@@ -109,7 +107,7 @@ def test_required():
 
 
 def test_default():
-    app = Application(
+    app = CLI(
         root_args=[
             Command.Argument(
                 name="target", description="...", type="str", default="foo"

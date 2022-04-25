@@ -3,12 +3,12 @@ from argparse import ArgumentParser
 from pathlib import Path
 from typing import Any, Optional, Sequence
 
-from src.core.application import Application
+from src.core.cli import CLI
 from src.core.command import Command
 
 
 class ArgumentParserFacade:
-    def __init__(self, argument_parser: ArgumentParser, app: Application) -> None:
+    def __init__(self, argument_parser: ArgumentParser, app: CLI) -> None:
         self.argument_parser = argument_parser
         self.command_parsers = self.argument_parser.add_subparsers(dest="command")
         self.app = app

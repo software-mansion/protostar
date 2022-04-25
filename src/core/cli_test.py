@@ -2,8 +2,8 @@ from argparse import ArgumentParser
 
 import pytest
 
-from src.core.application import Application
 from src.core.argument_parser_facade import ArgumentParserFacade
+from src.core.cli import CLI
 from src.core.command import Command
 from src.core.conftest import FooCommand
 
@@ -19,7 +19,7 @@ async def test_command_run_method_was_called(foo_command: FooCommand):
 
     foo_command.run = on_run
 
-    app = Application(commands=[foo_command])
+    app = CLI(commands=[foo_command])
     parser = ArgumentParserFacade(ArgumentParser(), app)
 
     result = await app.run(parser.parse([foo_command.name]))
@@ -30,7 +30,7 @@ async def test_command_run_method_was_called(foo_command: FooCommand):
 
 @pytest.mark.asyncio
 async def test_run_returns_false_when_no_command_was_called(foo_command: FooCommand):
-    app = Application(
+    app = CLI(
         commands=[foo_command],
         root_args=[Command.Argument(name="version", type="bool", description="...")],
     )

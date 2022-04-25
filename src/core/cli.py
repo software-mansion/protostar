@@ -3,7 +3,7 @@ from typing import Any, List, Mapping, Optional
 from src.core.command import Command
 
 
-class Application:
+class CLI:
     def __init__(
         self,
         commands: Optional[List[Command]] = None,

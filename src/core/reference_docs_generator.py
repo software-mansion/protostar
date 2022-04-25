@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import List
 
-from src.core.application import Application
+from src.core.cli import CLI
 from src.core.command import Command
 
 
@@ -11,7 +11,7 @@ class ReferenceDocsGenerator:
         with open(filepath, "w", encoding="utf_8") as file:
             file.write(content)
 
-    def __init__(self, app: Application) -> None:
+    def __init__(self, app: CLI) -> None:
         self.app = app
 
     def generate_cli_reference_markdown(self) -> str:
