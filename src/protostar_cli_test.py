@@ -69,3 +69,16 @@ def test_instance_matches_cli_reference_docs():
     ) as doc_file:
         snapshot = doc_file.read()
         assert snapshot == new_snapshot, "Snapshot mismatch. Run `poe update_cli_docs`."
+
+
+@pytest.mark.asyncio
+async def test_should_print_protostar_version(
+    version_manager: VersionManager, mocker: MockerFixture
+):
+    version_manager.print_current_version = mocker.MagicMock()
+    cli = ProtostarCLI(version_manager, root_args=ROOT_ARGS)
+    parser = ArgumentParserFacade(ArgumentParser(), cli)
+
+    await cli.run(parser.parse(["--version"]))
+
+    version_manager.print_current_version.assert_called_once()
