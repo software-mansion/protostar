@@ -37,7 +37,7 @@ class InstallCommand(Command):
     def arguments(self) -> List[Command.Argument]:
         return [
             Command.Argument(
-                name="external_dependency_reference",
+                name="package",
                 description=EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
                 type="str",
                 is_positional=True,

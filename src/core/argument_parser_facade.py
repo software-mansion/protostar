@@ -113,12 +113,16 @@ class ArgumentParserFacade:
         if argument.is_array:
             nargs = "+"
 
+        required = {}
+        if argument.is_required and not argument.is_positional:
+            required["required"] = True
+
         argument_parser.add_argument(
             *names,
             type=arg_type,
             default=default,
             nargs=nargs,
             help=argument.description,
-            required=argument.is_required,
+            **required,
         )
         return argument_parser
