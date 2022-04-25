@@ -8,7 +8,7 @@ from src.core.argument_parser_facade import (
 )
 from src.core.cli import CLI
 from src.core.command import Command
-from src.core.conftest import BaseTestCommand, FooCommand
+from src.conftest import BaseTestCommand, FooCommand
 
 # TODO: test_root_args
 # TODO: test_order

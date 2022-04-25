@@ -1,21 +1,35 @@
 # pylint: disable=no-self-use
 from logging import INFO, StreamHandler, getLogger
 from pathlib import Path
-from typing import Any
+from typing import Any, List, Optional
 
 from src.commands import BuildCommand, InitCommand
 from src.core import CLI, Command
 from src.protostar_exception import ProtostarException
-from src.utils import (Project, ProtostarDirectory, StandardLogFormatter,
-                       VersionManager, log_color_provider)
+from src.utils import (
+    Project,
+    ProtostarDirectory,
+    StandardLogFormatter,
+    VersionManager,
+    log_color_provider,
+)
 
 SCRIPT_ROOT = Path(__file__).parent / ".."
 protostar_directory = ProtostarDirectory(SCRIPT_ROOT)
-version_manager = VersionManager(protostar_directory)
-current_project = Project(version_manager)
+current_version_manager = VersionManager(protostar_directory)
+current_project = Project(current_version_manager)
 
 
 class ProtostarCLI(CLI):
+    def __init__(
+        self,
+        version_manager: VersionManager,
+        commands: Optional[List[Command]] = None,
+        root_args: Optional[List[Command.Argument]] = None,
+    ) -> None:
+        super().__init__(commands, root_args)
+        self._version_manager = version_manager
+
     def _setup_logger(self, is_ci_mode: bool):
         log_color_provider.is_ci_mode = is_ci_mode
         logger = getLogger()
@@ -25,7 +39,7 @@ class ProtostarCLI(CLI):
         logger.addHandler(handler)
 
     def _check_git_version(self):
-        git_version = version_manager.git_version
+        git_version = self._version_manager.git_version
         if git_version and git_version < VersionManager.parse("2.28"):
             raise ProtostarException(
                 f"Protostar requires version 2.28 or greater of Git (current version: {git_version})"
@@ -36,13 +50,14 @@ class ProtostarCLI(CLI):
         self._check_git_version()
 
         if args.version:
-            version_manager.print_current_version()
+            current_version_manager.print_current_version()
             return True
 
         return await super().run(args)
 
 
 protostar_cli = ProtostarCLI(
+    current_version_manager,
     root_args=[
         Command.Argument(
             name="version",
@@ -56,5 +71,8 @@ protostar_cli = ProtostarCLI(
             description="Disable colors.",
         ),
     ],
-    commands=[InitCommand(SCRIPT_ROOT, version_manager), BuildCommand(current_project)],
+    commands=[
+        InitCommand(SCRIPT_ROOT, current_version_manager),
+        BuildCommand(current_project),
+    ],
 )

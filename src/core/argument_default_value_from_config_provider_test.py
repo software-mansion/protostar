@@ -3,7 +3,7 @@ from pytest_mock import MockerFixture
 from src.core.argument_default_value_from_config_provider import (
     ArgumentDefaultValueFromConfigProvider,
 )
-from src.core.conftest import FooCommand
+from src.conftest import FooCommand
 from src.utils import Project
 
 

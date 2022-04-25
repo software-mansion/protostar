@@ -5,7 +5,7 @@ import pytest
 from src.core.argument_parser_facade import ArgumentParserFacade
 from src.core.cli import CLI
 from src.core.command import Command
-from src.core.conftest import FooCommand
+from src.conftest import FooCommand
 
 
 @pytest.mark.asyncio
