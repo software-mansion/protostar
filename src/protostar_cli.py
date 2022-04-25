@@ -6,13 +6,8 @@ from typing import Any
 from src.commands import BuildCommand, InitCommand
 from src.core import CLI, Command
 from src.protostar_exception import ProtostarException
-from src.utils import (
-    Project,
-    ProtostarDirectory,
-    StandardLogFormatter,
-    VersionManager,
-    log_color_provider,
-)
+from src.utils import (Project, ProtostarDirectory, StandardLogFormatter,
+                       VersionManager, log_color_provider)
 
 SCRIPT_ROOT = Path(__file__).parent / ".."
 protostar_directory = ProtostarDirectory(SCRIPT_ROOT)
@@ -20,7 +15,7 @@ version_manager = VersionManager(protostar_directory)
 current_project = Project(version_manager)
 
 
-class ProtostarApplication(CLI):
+class ProtostarCLI(CLI):
     def _setup_logger(self, is_ci_mode: bool):
         log_color_provider.is_ci_mode = is_ci_mode
         logger = getLogger()
@@ -47,7 +42,7 @@ class ProtostarApplication(CLI):
         return await super().run(args)
 
 
-protostar_app = ProtostarApplication(
+protostar_cli = ProtostarCLI(
     root_args=[
         Command.Argument(
             name="version",

@@ -37,7 +37,7 @@ snakeviz = "^2.1.1"
 build = "pyinstaller protostar.spec --noconfirm"
 ci = ["type_check", "lint", "format_check", "test"]
 cov = "pytest --cov-report xml:cov.xml --cov=src"
-deploy = "python ./deploy.py"
+deploy = "python ./scripts/deploy.py"
 format = "black ."
 format_check = "black --check src"
 lint = "pylint src"
@@ -49,6 +49,7 @@ test_html = [{shell = "coverage html && open ./htmlcov/index.html"}]
 test_report = [{shell = "coverage report"}]
 test_unit.shell = "coverage run -m pytest src/*"
 type_check = "pyright"
+update_cli_docs = "python ./scripts/generate_reference_docs.py"
 
 [tool.coverage.run]
 source = ["src"]
