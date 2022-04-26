@@ -1,3 +1,4 @@
+from logging import Logger
 from typing import Any
 
 import pytest
@@ -8,7 +9,6 @@ from src.core import ArgumentParserFacade, ReferenceDocsGenerator
 from src.utils.protostar_directory import VersionManager
 
 from .protostar_cli import PROTOSTAR_CLI, ROOT_ARGS, SCRIPT_ROOT, ProtostarCLI
-from .protostar_exception import ProtostarException
 
 
 @pytest.fixture(name="git_version")
@@ -45,12 +45,21 @@ async def test_should_call_all_provided_commands(
 @pytest.mark.parametrize("git_version", ["2.27"])
 @pytest.mark.asyncio
 async def test_should_fail_due_to_old_git(
-    version_manager: VersionManager, foo_command: FooCommand
+    mocker: MockerFixture, version_manager: VersionManager, foo_command: FooCommand
 ):
     cli = ProtostarCLI(version_manager, commands=[foo_command], root_args=ROOT_ARGS)
+    # pylint: disable=protected-access
+    cli._setup_logger = mocker.MagicMock()
+    logger_mock = mocker.MagicMock(Logger)
+    logger_mock.error = mocker.MagicMock()
+    # pylint: disable=protected-access
+    cli._setup_logger.return_value = logger_mock
     parser = ArgumentParserFacade(cli)
-    with pytest.raises(ProtostarException):
-        await cli.run(parser.parse([foo_command.name]))
+
+    await cli.run(parser.parse([foo_command.name]))
+
+    logger_mock.error.assert_called_once()
+    assert "2.28" in logger_mock.error.call_args_list[0][0][0]
 
 
 def test_instance_matches_cli_reference_docs():

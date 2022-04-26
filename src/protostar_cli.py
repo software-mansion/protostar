@@ -1,5 +1,6 @@
 # pylint: disable=no-self-use
-from logging import INFO, StreamHandler, getLogger
+import sys
+from logging import INFO, Logger, StreamHandler, getLogger
 from pathlib import Path
 from typing import Any, List, Optional
 
@@ -62,13 +63,14 @@ class ProtostarCLI(CLI):
         super().__init__(commands, root_args)
         self._version_manager = version_manager
 
-    def _setup_logger(self, is_ci_mode: bool):
+    def _setup_logger(self, is_ci_mode: bool) -> Logger:
         log_color_provider.is_ci_mode = is_ci_mode
         logger = getLogger()
         logger.setLevel(INFO)
         handler = StreamHandler()
         handler.setFormatter(StandardLogFormatter(log_color_provider))
         logger.addHandler(handler)
+        return logger
 
     def _check_git_version(self):
         git_version = self._version_manager.git_version
@@ -78,14 +80,21 @@ class ProtostarCLI(CLI):
             )
 
     async def run(self, args: Any) -> bool:
-        self._setup_logger(args.no_color)
-        self._check_git_version()
+        logger = self._setup_logger(args.no_color)
 
-        if args.version:
-            self._version_manager.print_current_version()
-            return True
+        try:
+            self._check_git_version()
 
-        return await super().run(args)
+            if args.version:
+                self._version_manager.print_current_version()
+                return True
+
+            return await super().run(args)
+        except ProtostarException as err:
+            logger.error(err.message)
+        except KeyboardInterrupt:
+            sys.exit()
+        return False
 
 
 PROTOSTAR_CLI = ProtostarCLI(VERSION_MANAGER, COMMANDS, ROOT_ARGS)
