@@ -36,7 +36,7 @@ def test_omitting_pattern():
         "test_basic.cairo",
         "test_proxy.cairo",
         "test_cheats.cairo",
-        "test_expect_revert.cairo",
+        "test_expect_events.cairo",
     ]
     omit_pattern = re.compile(".*invalid.*")
     collector = TestCollector(

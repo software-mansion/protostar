@@ -1,8 +1,7 @@
 import asyncio
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Set
 
-from attr import dataclass
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.services.api.contract_definition import ContractDefinition
@@ -14,12 +13,17 @@ from src.commands.test.cheatable_syscall_handler import CheatableSysCallHandler
 from src.commands.test.forkable_starknet import ForkableStarknet
 from src.commands.test.reporter import TestReporter
 from src.commands.test.test_environment_exceptions import (
-    ExceptMismatchException,
-    MissingExceptException,
+    ExpectedRevertException,
+    ExpectedRevertMismatchException,
     ReportedException,
-    StarkReportedException,
+    RevertableException,
+    StarknetRevertableException,
 )
-from src.commands.test.utils import TestSubject, extract_core_info_from_stark_ex_message
+from src.commands.test.utils import (
+    ExpectedEvent,
+    TestSubject,
+    extract_core_info_from_stark_ex_message,
+)
 from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
 
@@ -97,7 +101,6 @@ class TestRunner:
                     subject=test_subject,
                     case_result=PassedCase(tx_info=call_result),
                 )
-
             except ReportedException as err:
                 self.reporter.report(
                     subject=test_subject,
@@ -109,29 +112,13 @@ class TestRunner:
                 )
 
 
-@dataclass
-class ExpectedError:
-    name: Optional[str]
-    message: Optional[str]
-
-    def __str__(self) -> str:
-        return f"(error_type: {self.name}; error_message: {self.message})"
-
-    def match(self, other: StarkException):
-
-        return (self.name is None or self.name == other.code.name) and (
-            self.message is None
-            or self.message
-            in (extract_core_info_from_stark_ex_message(other.message) or "")
-        )
-
-
 class TestExecutionEnvironment:
     def __init__(self, include_paths: List[str]):
         self.starknet = None
-        self.test_contract = None
-        self._expected_error: Optional[ExpectedError] = None
+        self.test_contract: Optional[StarknetContract] = None
+        self._expected_error: Optional[RevertableException] = None
         self._include_paths = include_paths
+        self._test_finish_hooks: Set[Callable[[], None]] = set()
 
     @classmethod
     async def empty(
@@ -180,30 +167,45 @@ class TestExecutionEnvironment:
             )
         )
 
-        func = getattr(self.test_contract, function_name)
-
-        # TODO: Improve stacktrace
         try:
-            call_result = await func().invoke()
+            await self._call_test_function(function_name)
+            for hook in self._test_finish_hooks:
+                hook()
             if self._expected_error is not None:
-                raise MissingExceptException(
-                    f"Expected an exception matching the following error: {self._expected_error}"
-                )
-            return call_result
-
-        except StarkException as ex:
+                raise ExpectedRevertException(self._expected_error)
+        except RevertableException as ex:
             if self._expected_error:
                 if not self._expected_error.match(ex):
-                    raise ExceptMismatchException(
-                        expected_name=self._expected_error.name,
-                        expected_message=self._expected_error.message,
+                    raise ExpectedRevertMismatchException(
+                        expected=self._expected_error,
                         received=ex,
                     ) from ex
             else:
-                raise StarkReportedException(ex) from ex
+                raise ex
         finally:
             CairoFunctionRunner.run_from_entrypoint = original_run_from_entrypoint
             self._expected_error = None
+            self._test_finish_hooks.clear()
+
+    async def _call_test_function(self, function_name: str):
+        try:
+            func = getattr(self.test_contract, function_name)
+            return await func().invoke()
+        except StarkException as ex:
+            raise StarknetRevertableException(
+                error_message=extract_core_info_from_stark_ex_message(ex.message),
+                error_type=ex.code.name,
+                code=ex.code.value,
+                details=ex.message,
+            ) from ex
+
+    def add_test_finish_hook(self, listener: Callable[[], None]) -> Callable[[], None]:
+        self._test_finish_hooks.add(listener)
+
+        def remove_hook():
+            self._test_finish_hooks.remove(listener)
+
+        return remove_hook
 
     def _get_run_from_entrypoint_with_custom_hint_locals(
         self, fn_run_from_entrypoint: Any
@@ -266,10 +268,32 @@ class TestExecutionEnvironment:
         @register_cheatcode
         def expect_revert(
             error_type: Optional[str] = None, error_message: Optional[str] = None
-        ) -> Callable[[], None]:
+        ):
             return self.expect_revert(
-                ExpectedError(name=error_type, message=error_message)
+                RevertableException(error_type=error_type, error_message=error_message)
             )
+
+        @register_cheatcode
+        def expect_events(
+            *raw_expected_events: ExpectedEvent.CheatcodeInputType,
+        ) -> None:
+            assert self.starknet is not None
+
+            def compare_expected_and_emitted_events():
+                assert self.starknet is not None
+
+                expected_events = list(map(ExpectedEvent, raw_expected_events))
+                not_found_expected_event = ExpectedEvent.find_first_expected_event_not_included_in_state_events(
+                    expected_events,
+                    self.starknet.state.events,
+                )
+                if not_found_expected_event:
+                    raise RevertableException(
+                        error_type="EXPECTED_EVENT",
+                        error_message=f"Expected the following event: {str(not_found_expected_event)}",
+                    )
+
+            self.add_test_finish_hook(compare_expected_and_emitted_events)
 
         @register_cheatcode
         def deploy_contract(
@@ -277,9 +301,9 @@ class TestExecutionEnvironment:
         ):
             return self.deploy_in_env(contract_path, constructor_calldata)
 
-    def expect_revert(self, expected_error: ExpectedError) -> Callable[[], None]:
+    def expect_revert(self, expected_error: RevertableException) -> Callable[[], None]:
         if self._expected_error is not None:
-            raise MissingExceptException(
+            raise ReportedException(
                 f"Protostar is already expecting an exception matching the following error: {self._expected_error}"
             )
 
@@ -287,7 +311,7 @@ class TestExecutionEnvironment:
 
         def stop_expecting_revert():
             if self._expected_error is not None:
-                raise MissingExceptException(
+                raise ReportedException(
                     "Expected a transaction to be reverted before cancelling expect_revert"
                 )
 

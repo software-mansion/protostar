@@ -28,7 +28,9 @@ async def test_run_test_runner(mocker, test_root_dir, reporter):
         reporter=reporter,
         project=mock_project,
         tests_root=test_root_dir,
-        omit=re.compile(r".*invalid.*"),
+        omit=re.compile(
+            r"(test_basic|test_basic_failure|test_basic_broken|test_invalid_syntax).*"
+        ),
         cairo_paths=[],
     )
     assert not reporter.failed_cases
@@ -43,9 +45,11 @@ async def test_run_syntaxtically_valid_tests(reporter, test_root_dir):
             test_root_dir.resolve(),
             Path(test_root_dir, "broken"),  # Additional broken contract source
         ],
-        match=re.compile(r".*(nested|failure|broken).*"),
+        match=re.compile(r"(test_basic|test_basic_failure|test_basic_broken).*"),
     )
-    assert not reporter.failed_cases
+    assert reporter.collected_count == 4
+    assert len(reporter.failed_cases) == 2
+    assert len(reporter.passed_cases) == 2
 
 
 @pytest.mark.asyncio
@@ -60,6 +64,8 @@ async def test_no_collected_items(reporter, test_root_dir):
         match=re.compile(r".*empty/no_test_functions.*"),
     )
     assert not reporter.failed_cases
+    assert not reporter.passed_cases
+    assert not reporter.broken_tests
 
 
 @pytest.mark.asyncio
@@ -73,4 +79,10 @@ async def test_revert(reporter, test_root_dir):
         ],
         match=re.compile(r".*(revert).*"),
     )
+    assert not reporter.failed_cases
+
+
+@pytest.mark.asyncio
+async def test_cheats(reporter):
+    await run_test_runner(reporter, current_directory / "examples" / "cheats")
     assert not reporter.failed_cases
