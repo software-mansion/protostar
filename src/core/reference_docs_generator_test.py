@@ -55,7 +55,7 @@ def test_generating_default_type_and_array_info():
     result = docs_generator.generate_cli_reference_markdown()
     splitted_result = result.split("\n")
 
-    assert "#### `--foo STR[]=FOO`" in splitted_result
+    assert "#### `--foo STRING[]=FOO`" in splitted_result
 
 
 def test_generating_short_name_info():

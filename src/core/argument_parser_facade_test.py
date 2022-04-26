@@ -123,7 +123,7 @@ def test_default():
     assert result.target == "foo"
 
 
-def test_required():
+def test_required_non_positional_arg():
     app = CLI(
         root_args=[
             Command.Argument(
@@ -132,9 +132,30 @@ def test_required():
         ]
     )
 
-    ArgumentParserFacade(ArgumentParser(), app).parse(["--target"])
+    ArgumentParserFacade(ArgumentParser(), app).parse(["--target", "foo"])
     with pytest.raises(SystemExit):
         ArgumentParserFacade(ArgumentParser(), app).parse([])
+
+
+def test_required_positional_arg():
+    class CommandWithRequiredArg(BaseTestCommand):
+        @property
+        def arguments(self):
+            return [
+                Command.Argument(
+                    name="target",
+                    description="...",
+                    type="str",
+                    is_positional=True,
+                    is_required=True,
+                )
+            ]
+
+    app = CLI(commands=[CommandWithRequiredArg()])
+
+    ArgumentParserFacade(ArgumentParser(), app).parse(["FOO", "x"])
+    with pytest.raises(SystemExit):
+        ArgumentParserFacade(ArgumentParser(), app).parse(["FOO"])
 
 
 def test_loading_default_values_from_provider(foo_command: FooCommand):
