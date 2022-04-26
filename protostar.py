@@ -1,13 +1,18 @@
 import asyncio
 import sys
+from pathlib import Path
 
 try:
     from src.cli import ArgumentDefaultValueFromConfigProvider, ArgumentParserFacade
-    from src.protostar_cli import PROJECT, PROTOSTAR_CLI
+    from src.protostar_cli import ProtostarCLI
 
+    SCRIPT_ROOT = Path(__file__).parent
+    PROTOSTAR_CLI = ProtostarCLI.create(SCRIPT_ROOT)
     PARSER = ArgumentParserFacade(
         PROTOSTAR_CLI,
-        default_value_provider=ArgumentDefaultValueFromConfigProvider(PROJECT),
+        default_value_provider=ArgumentDefaultValueFromConfigProvider(
+            PROTOSTAR_CLI.project
+        ),
     )
     ARGS = PARSER.parse()
 
