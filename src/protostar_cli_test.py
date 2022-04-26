@@ -35,7 +35,7 @@ async def test_should_call_all_provided_commands(
     (on_run, was_called_ref) = create_async_called_checker()
     foo_command.run = on_run
     cli = ProtostarCLI(version_manager, commands=[foo_command], root_args=ROOT_ARGS)
-    parser = ArgumentParserFacade(ArgumentParser(), cli)
+    parser = ArgumentParserFacade(cli)
 
     result = await cli.run(parser.parse([foo_command.name]))
 
@@ -49,7 +49,7 @@ async def test_should_fail_due_to_old_git(
     version_manager: VersionManager, foo_command: FooCommand
 ):
     cli = ProtostarCLI(version_manager, commands=[foo_command], root_args=ROOT_ARGS)
-    parser = ArgumentParserFacade(ArgumentParser(), cli)
+    parser = ArgumentParserFacade(cli)
     with pytest.raises(ProtostarException):
         await cli.run(parser.parse([foo_command.name]))
 
@@ -72,7 +72,7 @@ async def test_should_print_protostar_version(
 ):
     version_manager.print_current_version = mocker.MagicMock()
     cli = ProtostarCLI(version_manager, root_args=ROOT_ARGS)
-    parser = ArgumentParserFacade(ArgumentParser(), cli)
+    parser = ArgumentParserFacade(cli)
 
     await cli.run(parser.parse(["--version"]))
 

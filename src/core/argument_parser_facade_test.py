@@ -1,4 +1,3 @@
-from argparse import ArgumentParser
 from pathlib import Path
 from typing import Any, Optional, Pattern
 
@@ -15,7 +14,7 @@ from src.core.command import Command
 
 def test_bool_argument_parsing(foo_command: FooCommand):
     app = CLI(commands=[foo_command])
-    parser = ArgumentParserFacade(ArgumentParser(), app)
+    parser = ArgumentParserFacade(app)
 
     result = parser.parse(["FOO"])
 
@@ -27,7 +26,7 @@ def test_directory_argument():
     app = CLI(
         root_args=[Command.Argument(name="dir", description="...", type="directory")]
     )
-    parser = ArgumentParserFacade(ArgumentParser(), app)
+    parser = ArgumentParserFacade(app)
 
     result = parser.parse(["--dir", "src"])
 
@@ -38,7 +37,7 @@ def test_regexp_argument():
     app = CLI(
         root_args=[Command.Argument(name="match", description="...", type="regexp")]
     )
-    parser = ArgumentParserFacade(ArgumentParser(), app)
+    parser = ArgumentParserFacade(app)
 
     result = parser.parse(["--match", ".*"])
 
@@ -47,7 +46,7 @@ def test_regexp_argument():
 
 def test_path_argument():
     app = CLI(root_args=[Command.Argument(name="x", description="...", type="path")])
-    parser = ArgumentParserFacade(ArgumentParser(), app)
+    parser = ArgumentParserFacade(app)
 
     result = parser.parse(["--x", "foo"])
 
@@ -62,7 +61,7 @@ def test_short_name_argument():
             )
         ]
     )
-    parser = ArgumentParserFacade(ArgumentParser(), app)
+    parser = ArgumentParserFacade(app)
 
     result = parser.parse(["-d", "foo"])
 
@@ -80,7 +79,7 @@ def test_arrays():
             )
         ]
     )
-    parser = ArgumentParserFacade(ArgumentParser(), app)
+    parser = ArgumentParserFacade(app)
 
     result = parser.parse(["--target", "foo", "bar"])
 
@@ -101,7 +100,7 @@ def test_positional():
     app = CLI(
         commands=[cmd],
     )
-    parser = ArgumentParserFacade(ArgumentParser(), app)
+    parser = ArgumentParserFacade(app)
 
     result = parser.parse([cmd.name, "foo"])
 
@@ -116,7 +115,7 @@ def test_default():
             )
         ]
     )
-    parser = ArgumentParserFacade(ArgumentParser(), app)
+    parser = ArgumentParserFacade(app)
 
     result = parser.parse([])
 
@@ -132,9 +131,9 @@ def test_required_non_positional_arg():
         ]
     )
 
-    ArgumentParserFacade(ArgumentParser(), app).parse(["--target", "foo"])
+    ArgumentParserFacade(app).parse(["--target", "foo"])
     with pytest.raises(SystemExit):
-        ArgumentParserFacade(ArgumentParser(), app).parse([])
+        ArgumentParserFacade(app).parse([])
 
 
 def test_required_positional_arg():
@@ -153,9 +152,9 @@ def test_required_positional_arg():
 
     app = CLI(commands=[CommandWithRequiredArg()])
 
-    ArgumentParserFacade(ArgumentParser(), app).parse(["FOO", "x"])
+    ArgumentParserFacade(app).parse(["FOO", "x"])
     with pytest.raises(SystemExit):
-        ArgumentParserFacade(ArgumentParser(), app).parse(["FOO"])
+        ArgumentParserFacade(app).parse(["FOO"])
 
 
 def test_loading_default_values_from_provider(foo_command: FooCommand):
@@ -172,7 +171,7 @@ def test_loading_default_values_from_provider(foo_command: FooCommand):
                 return "COMMAND_ARG_DEFAULT"
             return "ROOT_ARG_DEFAULT"
 
-    parser = ArgumentParserFacade(ArgumentParser(), app, DefaultValuesProvider())
+    parser = ArgumentParserFacade(app, DefaultValuesProvider())
 
     result = parser.parse(["FOO"])
     assert result.foo == "COMMAND_ARG_DEFAULT"

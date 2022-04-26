@@ -19,11 +19,10 @@ class ArgumentDefaultValueProvider(ABC):
 class ArgumentParserFacade:
     def __init__(
         self,
-        argument_parser: ArgumentParser,
         cli: CLI,
         default_value_provider: Optional[ArgumentDefaultValueProvider] = None,
     ) -> None:
-        self.argument_parser = argument_parser
+        self.argument_parser = ArgumentParser()
         self.command_parsers = self.argument_parser.add_subparsers(dest="command")
         self.cli = cli
         self._default_value_provider = default_value_provider

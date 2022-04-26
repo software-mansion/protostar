@@ -15,7 +15,7 @@ async def test_command_run_method_was_called(
     (on_run, was_called_ref) = create_async_called_checker()
     foo_command.run = on_run
     cli = CLI(commands=[foo_command])
-    parser = ArgumentParserFacade(ArgumentParser(), cli)
+    parser = ArgumentParserFacade(cli)
 
     result = await cli.run(parser.parse([foo_command.name]))
 
@@ -29,7 +29,7 @@ async def test_run_returns_false_when_no_command_was_called(foo_command: FooComm
         commands=[foo_command],
         root_args=[Command.Argument(name="version", type="bool", description="...")],
     )
-    parser = ArgumentParserFacade(ArgumentParser(), cli)
+    parser = ArgumentParserFacade(cli)
 
     result = await cli.run(parser.parse(["--version"]))
 
