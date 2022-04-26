@@ -47,13 +47,22 @@ def test_parsing_project_info(version_manager: VersionManager):
     assert config.libs_path == "./lib"
 
 
-def test_loading_config_dict(version_manager: VersionManager):
+def test_loading_argument(version_manager: VersionManager):
     proj = Project(
         version_manager,
         project_root=Path(current_directory, "examples", "command_config"),
     )
-    result = proj.load_argument("build", "disable-hint-validation")
-    assert result is True
+    assert proj.load_argument("build", "disable-hint-validation") is True
+
+
+def test_loading_argument_when_config_file_does_not_exist(
+    version_manager: VersionManager, tmpdir
+):
+    proj = Project(
+        version_manager,
+        project_root=Path(tmpdir),
+    )
+    assert proj.load_argument("build", "disable-hint-validation") is None
 
 
 def test_config_file_is_versioned(version_manager: VersionManager):

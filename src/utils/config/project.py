@@ -80,8 +80,11 @@ class Project:
 
     def load_argument(self, section_name: str, attribute_name: str) -> Optional[Any]:
         if not self._config_dict:
-            with open(self.config_path, "rb") as config_file:
-                self._config_dict = tomli.load(config_file)
+            try:
+                with open(self.config_path, "rb") as config_file:
+                    self._config_dict = tomli.load(config_file)
+            except FileNotFoundError:
+                return None
 
         section_name = f"protostar.{section_name}"
         if section_name not in self._config_dict:
