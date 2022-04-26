@@ -18,12 +18,13 @@ class ReferenceDocsGenerator:
         result: List[str] = ["# CLI Reference"]
 
         if len(self.cli.root_args) > 0:
-            result += ["## Generic flags"]
+            result += ["## Common flags"]
             result += self._generate_args_markdown(self.cli.root_args)
 
         if len(self.cli.commands) > 0:
+            sorted_commands = sorted(self.cli.commands, key=(lambda c: c.name))
             result += ["## Commands"]
-            for command in self.cli.commands:
+            for command in sorted_commands:
                 result.append(f"### `{command.name}`")
                 if command.example:
                     result.append(f"```shell\n{command.example}\n```")
@@ -37,7 +38,11 @@ class ReferenceDocsGenerator:
     def _generate_args_markdown(self, arguments: List[Command.Argument]) -> List[str]:
         result: List[str] = []
 
-        for arg in arguments:
+        sorted_arguments = sorted(
+            arguments, key=(lambda a: (not a.is_positional, a.name))
+        )
+
+        for arg in sorted_arguments:
             name = arg.name if arg.is_positional else f"--{arg.name}"
             arg_type = arg.type if arg.type != "bool" else None
             arg_type = "string" if arg.type == "str" else arg_type

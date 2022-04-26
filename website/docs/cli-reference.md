@@ -1,17 +1,10 @@
 # CLI Reference
-## Generic flags
-#### `-v` `--version`
-Show Protostar and Cairo-lang version.
+## Common flags
 #### `--no-color`
 Disable colors.
+#### `-v` `--version`
+Show Protostar and Cairo-lang version.
 ## Commands
-### `init`
-```shell
-$ protostar init
-```
-Create a Protostar project.
-#### `--existing`
-Adapt current directory to a Protostar project.
 ### `build`
 ```shell
 $ protostar build
@@ -23,6 +16,13 @@ Additional directories to look for sources.
 Disable validation of hints when building the contracts.
 #### `--output PATH=build`
 An output directory that will be used to put the compiled contracts in.
+### `init`
+```shell
+$ protostar init
+```
+Create a Protostar project.
+#### `--existing`
+Adapt current directory to a Protostar project.
 ### `install`
 ```shell
 $ protostar install https://github.com/OpenZeppelin/cairo-contracts
@@ -54,6 +54,26 @@ Required.
     - `git@github.com:OpenZeppelin/cairo-contracts.git`
 - `PACKAGE_DIRECTORY_NAME`
     - `cairo_contracts`, if the package location is `lib/cairo_contracts`
+### `test`
+```shell
+$ protostar test
+```
+Execute tests.
+#### `target PATH=tests`
+A path can point to:
+- the directory with test files
+    - `tests`
+- the specific test file
+    - `tests/test_main.cairo`
+- the specific test case
+    - `tests/test_main.cairo::test_example`
+
+#### `--cairo-path DIRECTORY[]`
+Additional directories to look for sources.
+#### `-m` `--match REGEXP`
+A filename regexp, which omits the test file if it does not match the pattern.
+#### `-o` `--omit REGEXP`
+A filename regexp, which omits the test file if it matches the pattern.
 ### `update`
 ```shell
 $ protostar update cairo-contracts
@@ -73,23 +93,3 @@ Update a dependency or dependencies. If the default branch of a dependency's rep
 $ protostar upgrade
 ```
 Upgrade Protostar.
-### `test`
-```shell
-$ protostar test
-```
-Execute tests.
-#### `target PATH=tests`
-A path can point to:
-- the directory with test files
-    - `tests`
-- the specific test file
-    - `tests/test_main.cairo`
-- the specific test case
-    - `tests/test_main.cairo::test_example`
-
-#### `-o` `--omit REGEXP`
-A filename regexp, which omits the test file if it matches the pattern.
-#### `-m` `--match REGEXP`
-A filename regexp, which omits the test file if it does not match the pattern.
-#### `--cairo-path DIRECTORY[]`
-Additional directories to look for sources.
