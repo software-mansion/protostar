@@ -1,11 +1,11 @@
 from logging import getLogger
 from typing import Any, List, Optional
 
+from src.cli import Command
 from src.commands.install.install_command import (
     EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
 )
 from src.commands.remove.remove_package import remove_package
-from src.cli import Command
 from src.utils import Project, log_color_provider, retrieve_real_package_name
 
 INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = (
@@ -39,8 +39,8 @@ class RemoveCommand(Command):
                 name="package",
                 description=INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
                 type="str",
-                is_positional=True,
                 is_required=True,
+                is_positional=True,
             ),
         ]
 

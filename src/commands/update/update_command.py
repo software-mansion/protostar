@@ -2,10 +2,10 @@ from logging import getLogger
 from os import listdir
 from typing import List, Optional
 
+from src.cli import Command
 from src.commands.remove.remove_command import INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION
 from src.commands.update.update_package import update_package
 from src.commands.update.updating_exceptions import PackageAlreadyUpToDateException
-from src.cli import Command
 from src.utils import Project, retrieve_real_package_name
 
 
@@ -37,8 +37,8 @@ class UpdateCommand(Command):
     def arguments(self) -> List[Command.Argument]:
         return [
             Command.Argument(
-                name="package",
                 description=INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
+                name="package",
                 type="str",
                 is_positional=True,
             ),
