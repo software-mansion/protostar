@@ -3,28 +3,42 @@ from logging import INFO, StreamHandler, getLogger
 from pathlib import Path
 from typing import Any, List, Optional
 
-from src.commands import (
-    BuildCommand,
-    InitCommand,
-    InstallCommand,
-    RemoveCommand,
-    UpdateCommand,
-    UpgradeCommand,
-)
+from src.commands import (BuildCommand, InitCommand, InstallCommand,
+                          RemoveCommand, TestCommand, UpdateCommand,
+                          UpgradeCommand)
 from src.core import CLI, Command
 from src.protostar_exception import ProtostarException
-from src.utils import (
-    Project,
-    ProtostarDirectory,
-    StandardLogFormatter,
-    VersionManager,
-    log_color_provider,
-)
+from src.utils import (Project, ProtostarDirectory, StandardLogFormatter,
+                       VersionManager, log_color_provider)
 
 SCRIPT_ROOT = Path(__file__).parent / ".."
-protostar_directory = ProtostarDirectory(SCRIPT_ROOT)
-current_version_manager = VersionManager(protostar_directory)
-current_project = Project(current_version_manager)
+PROTOSTAR_DIRECTORY = ProtostarDirectory(SCRIPT_ROOT)
+VERSION_MANAGER = VersionManager(PROTOSTAR_DIRECTORY)
+PROJECT = Project(VERSION_MANAGER)
+
+ROOT_ARGS = [
+    Command.Argument(
+        name="version",
+        short_name="v",
+        type="bool",
+        description="Show Protostar and Cairo-lang version.",
+    ),
+    Command.Argument(
+        name="no-color",
+        type="bool",
+        description="Disable colors.",
+    ),
+]
+
+COMMANDS = [
+    InitCommand(SCRIPT_ROOT, VERSION_MANAGER),
+    BuildCommand(PROJECT),
+    InstallCommand(PROJECT),
+    RemoveCommand(PROJECT),
+    UpdateCommand(PROJECT),
+    UpgradeCommand(PROTOSTAR_DIRECTORY, VERSION_MANAGER),
+    TestCommand(PROJECT, PROTOSTAR_DIRECTORY),
+]
 
 
 class ProtostarCLI(CLI):
@@ -63,27 +77,4 @@ class ProtostarCLI(CLI):
         return await super().run(args)
 
 
-ROOT_ARGS = [
-    Command.Argument(
-        name="version",
-        short_name="v",
-        type="bool",
-        description="Show Protostar and Cairo-lang version.",
-    ),
-    Command.Argument(
-        name="no-color",
-        type="bool",
-        description="Disable colors.",
-    ),
-]
-
-COMMANDS = [
-    InitCommand(SCRIPT_ROOT, current_version_manager),
-    BuildCommand(current_project),
-    InstallCommand(current_project),
-    RemoveCommand(current_project),
-    UpdateCommand(current_project),
-    UpgradeCommand(protostar_directory, current_version_manager),
-]
-
-protostar_cli = ProtostarCLI(current_version_manager, COMMANDS, ROOT_ARGS)
+protostar_cli = ProtostarCLI(VERSION_MANAGER, COMMANDS, ROOT_ARGS)

@@ -3,12 +3,12 @@ import asyncio
 from argparse import ArgumentParser
 
 from src.core import ArgumentDefaultValueFromConfigProvider, ArgumentParserFacade
-from src.protostar_cli import current_project, protostar_cli
+from src.protostar_cli import PROJECT, protostar_cli
 
 parser = ArgumentParserFacade(
     ArgumentParser(),
     protostar_cli,
-    default_value_provider=ArgumentDefaultValueFromConfigProvider(current_project),
+    default_value_provider=ArgumentDefaultValueFromConfigProvider(PROJECT),
 )
 args = parser.parse()
 
