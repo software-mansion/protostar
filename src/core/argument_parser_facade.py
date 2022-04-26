@@ -44,6 +44,7 @@ class ArgumentParserFacade:
         command_parser = self.command_parsers.add_parser(
             command.name,
             formatter_class=argparse.RawTextHelpFormatter,
+            description=command.description,
         )
         for arg in command.arguments:
             self._update_arg_default_value_if_necessary(command, arg)
