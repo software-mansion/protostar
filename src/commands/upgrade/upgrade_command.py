@@ -2,16 +2,46 @@ import os
 import shutil
 import tarfile
 from logging import getLogger
+from typing import List, Optional
 from urllib.request import urlretrieve
 
 import requests
 from packaging import version
 
+from src.core.command import Command
 from src.utils import ProtostarDirectory, VersionManager
 
 logger = getLogger()
 
 PROTOSTAR_REPO = "https://github.com/software-mansion/protostar"
+
+
+class UpgradeCommand(Command):
+    def __init__(
+        self, protostar_directory: ProtostarDirectory, version_manager: VersionManager
+    ) -> None:
+        super().__init__()
+        self._protostar_directory = protostar_directory
+        self._version_manager = version_manager
+
+    @property
+    def name(self) -> str:
+        return "upgrade"
+
+    @property
+    def description(self) -> str:
+        return "Upgrade Protostar."
+
+    @property
+    def example(self) -> Optional[str]:
+        return "$ protostar upgrade"
+
+    @property
+    def arguments(self) -> List[Command.Argument]:
+        return []
+
+    async def run(self, _args):
+        upgrade(self._protostar_directory, self._version_manager)
 
 
 def upgrade(
