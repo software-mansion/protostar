@@ -54,6 +54,44 @@ def test_cairo_path_argument(protostar, my_private_libs_setup):
     assert "build" in dirs
 
 
+def test_cairo_path_loaded_from_command_config_section_in_config_file(
+    protostar, my_private_libs_setup
+):
+    (my_private_libs_dir,) = my_private_libs_setup
+
+    with open("./protostar.toml", "a", encoding="utf-8") as protostar_toml:
+        protostar_toml.write(
+            f"""
+["protostar.build"]
+cairo_path = ["{str(my_private_libs_dir)}"]
+"""
+        )
+
+    protostar(["build"])
+
+    dirs = listdir()
+    assert "build" in dirs
+
+
+def test_cairo_path_loaded_from_command_shared_section_in_config_file(
+    protostar, my_private_libs_setup
+):
+    (my_private_libs_dir,) = my_private_libs_setup
+
+    with open("./protostar.toml", "a", encoding="utf-8") as protostar_toml:
+        protostar_toml.write(
+            f"""
+["protostar.shared_command_configs"]
+cairo_path = ["{str(my_private_libs_dir)}"]
+"""
+        )
+
+    protostar(["build"])
+
+    dirs = listdir()
+    assert "build" in dirs
+
+
 @pytest.mark.usefixtures("init")
 def test_disable_hint_validation(protostar):
 
