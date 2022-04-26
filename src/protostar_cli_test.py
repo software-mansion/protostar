@@ -1,4 +1,3 @@
-from argparse import ArgumentParser
 from typing import Any
 
 import pytest
@@ -8,7 +7,7 @@ from src.conftest import FooCommand
 from src.core import ArgumentParserFacade, ReferenceDocsGenerator
 from src.utils.protostar_directory import VersionManager
 
-from .protostar_cli import ROOT_ARGS, SCRIPT_ROOT, ProtostarCLI, protostar_cli
+from .protostar_cli import PROTOSTAR_CLI, ROOT_ARGS, SCRIPT_ROOT, ProtostarCLI
 from .protostar_exception import ProtostarException
 
 
@@ -56,7 +55,7 @@ async def test_should_fail_due_to_old_git(
 
 def test_instance_matches_cli_reference_docs():
     new_snapshot = ReferenceDocsGenerator(
-        protostar_cli
+        PROTOSTAR_CLI
     ).generate_cli_reference_markdown()
 
     with open(
