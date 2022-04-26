@@ -49,8 +49,12 @@ from openzeppelin.introspection.ERC165 import ERC165_supports_interface
 ```shell
 $ protostar build --cairo-path ./lib/cairo_contracts/src
 ```
-
 :::
+
+:::info
+You can configure your `cairo-path` in [the configuration file](/docs/tutorials/project-initialization#protostartoml).
+:::
+
 
 ### External dependency reference formats
 
