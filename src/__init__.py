@@ -1,3 +1,1 @@
-from src.commands import handle_install_command, removal_exceptions, remove, upgrade
-from src.protostar_exception import ProtostarException
-from src.utils.config import Project
+from src.commands import *  # Python complains about importing Project if this line is removed
