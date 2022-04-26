@@ -1,10 +1,9 @@
 import asyncio
 import sys
 
-from src.core import ArgumentDefaultValueFromConfigProvider, ArgumentParserFacade
-from src.protostar_cli import PROJECT, PROTOSTAR_CLI
-
 try:
+    from src.core import ArgumentDefaultValueFromConfigProvider, ArgumentParserFacade
+    from src.protostar_cli import PROJECT, PROTOSTAR_CLI
 
     PARSER = ArgumentParserFacade(
         PROTOSTAR_CLI,
