@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, List, Optional
 
 from src.commands.test import run_test_runner
 from src.commands.test.reporter import TestReporter
-from src.core.command import Command
+from src.cli.command import Command
 from src.utils.protostar_directory import ProtostarDirectory
 
 if TYPE_CHECKING:

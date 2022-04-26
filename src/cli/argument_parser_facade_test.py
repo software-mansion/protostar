@@ -4,12 +4,12 @@ from typing import Any, Optional, Pattern
 import pytest
 
 from src.conftest import BaseTestCommand, FooCommand
-from src.core.argument_parser_facade import (
+from src.cli.argument_parser_facade import (
     ArgumentDefaultValueProvider,
     ArgumentParserFacade,
 )
-from src.core.cli_app import CLIApp
-from src.core.command import Command
+from src.cli.cli_app import CLIApp
+from src.cli.command import Command
 
 
 def test_bool_argument_parsing(foo_command: FooCommand):

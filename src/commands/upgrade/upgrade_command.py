@@ -8,7 +8,7 @@ from urllib.request import urlretrieve
 import requests
 from packaging import version
 
-from src.core.command import Command
+from src.cli.command import Command
 from src.utils import ProtostarDirectory, VersionManager
 
 logger = getLogger()

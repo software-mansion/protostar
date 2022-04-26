@@ -6,7 +6,7 @@ from typing import Any, List, Optional, Type
 from git.exc import InvalidGitRepositoryError
 from git.repo import Repo
 
-from src.core import Command
+from src.cli import Command
 from src.utils import VersionManager, log_color_provider
 from src.utils.config.project import Project, ProjectConfig
 

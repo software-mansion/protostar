@@ -4,7 +4,7 @@ from typing import Any, List, Optional
 
 from src.commands.install.install_package_from_repo import install_package_from_repo
 from src.commands.install.pull_package_submodules import pull_package_submodules
-from src.core import Command
+from src.cli import Command
 from src.utils import Project, extract_info_from_repo_id, log_color_provider
 
 EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = """- `GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]`

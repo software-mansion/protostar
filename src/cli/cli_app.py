@@ -1,6 +1,6 @@
 from typing import Any, List, Mapping, Optional
 
-from src.core.command import Command
+from src.cli.command import Command
 
 
 class CLIApp:

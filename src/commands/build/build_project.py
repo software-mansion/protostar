@@ -9,7 +9,7 @@ from starkware.cairo.lang.vm.vm_exceptions import VmException
 from starkware.starkware_utils.error_handling import StarkException
 
 from src.commands.build.build_exceptions import CairoCompilationException
-from src.core.command import Command
+from src.cli.command import Command
 from src.utils.config.project import Project
 from src.utils.starknet_compilation import StarknetCompiler
 

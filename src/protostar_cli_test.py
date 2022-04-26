@@ -5,7 +5,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from src.conftest import FooCommand
-from src.core import ArgumentParserFacade, ReferenceDocsGenerator
+from src.cli import ArgumentParserFacade, ReferenceDocsGenerator
 from src.utils.protostar_directory import VersionManager
 
 from .protostar_cli import PROTOSTAR_CLI, ROOT_ARGS, SCRIPT_ROOT, ProtostarCLI

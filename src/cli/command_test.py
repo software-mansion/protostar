@@ -3,7 +3,7 @@ from typing import Pattern
 
 import pytest
 
-from src.core.command import Command
+from src.cli.command import Command
 
 
 def test_regexp_type():

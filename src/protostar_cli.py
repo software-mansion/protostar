@@ -4,24 +4,13 @@ from logging import INFO, Logger, StreamHandler, getLogger
 from pathlib import Path
 from typing import Any, List, Optional
 
-from src.commands import (
-    BuildCommand,
-    InitCommand,
-    InstallCommand,
-    RemoveCommand,
-    TestCommand,
-    UpdateCommand,
-    UpgradeCommand,
-)
-from src.core import CLIApp, Command
+from src.cli import CLIApp, Command
+from src.commands import (BuildCommand, InitCommand, InstallCommand,
+                          RemoveCommand, TestCommand, UpdateCommand,
+                          UpgradeCommand)
 from src.protostar_exception import ProtostarException
-from src.utils import (
-    Project,
-    ProtostarDirectory,
-    StandardLogFormatter,
-    VersionManager,
-    log_color_provider,
-)
+from src.utils import (Project, ProtostarDirectory, StandardLogFormatter,
+                       VersionManager, log_color_provider)
 
 SCRIPT_ROOT = Path(__file__).parent / ".."
 PROTOSTAR_DIRECTORY = ProtostarDirectory(SCRIPT_ROOT)

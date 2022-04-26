@@ -4,8 +4,8 @@ from argparse import ArgumentParser
 from pathlib import Path
 from typing import Any, Optional, Sequence
 
-from src.core.cli_app import CLIApp
-from src.core.command import Command
+from src.cli.cli_app import CLIApp
+from src.cli.command import Command
 
 
 class ArgumentDefaultValueProvider(ABC):

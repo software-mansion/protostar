@@ -1,9 +1,9 @@
 import pytest
 
 from src.conftest import FooCommand
-from src.core.argument_parser_facade import ArgumentParserFacade
-from src.core.cli_app import CLIApp
-from src.core.command import Command
+from src.cli.argument_parser_facade import ArgumentParserFacade
+from src.cli.cli_app import CLIApp
+from src.cli.command import Command
 
 
 @pytest.mark.asyncio

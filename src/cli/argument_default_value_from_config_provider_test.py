@@ -1,7 +1,7 @@
 from pytest_mock import MockerFixture
 
 from src.conftest import FooCommand
-from src.core.argument_default_value_from_config_provider import (
+from src.cli.argument_default_value_from_config_provider import (
     ArgumentDefaultValueFromConfigProvider,
 )
 from src.utils import Project

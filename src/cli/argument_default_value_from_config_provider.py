@@ -1,7 +1,7 @@
 from typing import Any, Optional
 
-from src.core.argument_parser_facade import ArgumentDefaultValueProvider
-from src.core.command import Command
+from src.cli.argument_parser_facade import ArgumentDefaultValueProvider
+from src.cli.command import Command
 from src.utils import Project
 
 
