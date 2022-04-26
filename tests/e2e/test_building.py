@@ -4,23 +4,9 @@ from pathlib import Path
 import pytest
 
 
-@pytest.mark.usefixtures("init")
-def test_default_build(protostar):
-    protostar(["build"])
-    dirs = listdir()
-    assert "build" in dirs
-
-
-@pytest.mark.usefixtures("init")
-def test_output_dir(protostar):
-    protostar(["build", "--output", "out"])
-    dirs = listdir()
-    assert "build" not in dirs
-    assert "out" in dirs
-
-
-@pytest.mark.usefixtures("init")
-def test_cairo_path_argument(protostar, tmpdir, copy_fixture):
+# pylint: disable=unused-argument
+@pytest.fixture(name="my_private_libs_setup")
+def my_private_libs_setup_fixture(init, tmpdir, copy_fixture):
     my_private_libs_dir = Path(tmpdir) / "my_private_libs"
     mkdir(my_private_libs_dir)
 
@@ -41,6 +27,26 @@ func my_func() -> (res: felt):
 end
 """
         )
+    return (my_private_libs_dir,)
+
+
+@pytest.mark.usefixtures("init")
+def test_default_build(protostar):
+    protostar(["build"])
+    dirs = listdir()
+    assert "build" in dirs
+
+
+@pytest.mark.usefixtures("init")
+def test_output_dir(protostar):
+    protostar(["build", "--output", "out"])
+    dirs = listdir()
+    assert "build" not in dirs
+    assert "out" in dirs
+
+
+def test_cairo_path_argument(protostar, my_private_libs_setup):
+    (my_private_libs_dir,) = my_private_libs_setup
 
     protostar(["build", "--cairo-path", my_private_libs_dir])
 
