@@ -1,1 +1,1 @@
-from src.commands.update.handle_update_command import handle_update_command
+from src.commands.update.update_command import handle_update_command

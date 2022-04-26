@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any, List, Optional
 
 from src.commands import BuildCommand, InitCommand, InstallCommand, RemoveCommand
+from src.commands.update.update_command import UpdateCommand
 from src.core import CLI, Command
 from src.protostar_exception import ProtostarException
 from src.utils import (
@@ -75,6 +76,7 @@ COMMANDS = [
     BuildCommand(current_project),
     InstallCommand(current_project),
     RemoveCommand(current_project),
+    UpdateCommand(current_project),
 ]
 
 protostar_cli = ProtostarCLI(current_version_manager, COMMANDS, ROOT_ARGS)
