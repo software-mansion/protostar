@@ -1,6 +1,6 @@
 # CLI Reference
 ## Generic flags
-#### `--version` `-v`
+#### `-v` `--version`
 Show Protostar and Cairo-lang version.
 #### `--no-color`
 Disable colors.
@@ -79,17 +79,17 @@ $ protostar test
 ```
 Execute tests.
 #### `target PATH=tests`
-A path to:
+A path can point to:
 - the directory with test files
-  tests
+    - `tests`
 - the specific test file
-  tests/test_main.cairo
+    - `tests/test_main.cairo`
 - the specific test case
-  tests/test_main.cairo::test_example
+    - `tests/test_main.cairo::test_example`
 
-#### `--omit REGEXP` `-o`
+#### `-o` `--omit REGEXP`
 A filename regexp, which omits the test file if it matches the pattern.
-#### `--match REGEXP` `-m`
+#### `-m` `--match REGEXP`
 A filename regexp, which omits the test file if it does not match the pattern.
 #### `--cairo-path DIRECTORY[]`
 Additional directories to look for sources.

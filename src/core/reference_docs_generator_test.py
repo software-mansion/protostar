@@ -75,7 +75,7 @@ def test_generating_short_name_info():
     result = docs_generator.generate_cli_reference_markdown()
     splitted_result = result.split("\n")
 
-    assert "#### `--foo` `-f`" in splitted_result
+    assert "#### `-f` `--foo`" in splitted_result
 
 
 def test_required_info():

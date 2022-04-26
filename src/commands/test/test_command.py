@@ -35,13 +35,13 @@ class TestCommand(Command):
             Command.Argument(
                 name="target",
                 description=(
-                    "A path to:\n"
+                    "A path can point to:\n"
                     "- the directory with test files\n"
-                    "  tests\n"
+                    "    - `tests`\n"
                     "- the specific test file\n"
-                    "  tests/test_main.cairo\n"
+                    "    - `tests/test_main.cairo`\n"
                     "- the specific test case\n"
-                    "  tests/test_main.cairo::test_example\n"
+                    "    - `tests/test_main.cairo::test_example`\n"
                 ),
                 type="path",
                 is_positional=True,

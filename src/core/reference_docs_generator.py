@@ -44,8 +44,8 @@ class ReferenceDocsGenerator:
             arg_type = f"{arg_type}[]" if arg.is_array else arg_type
             arg_type = f" {arg_type.upper()}" if arg_type else ""
             arg_type = f"{arg_type}={arg.default}" if arg.default else arg_type
-            short_name = f" `-{arg.short_name}`" if arg.short_name else ""
-            result.append(f"#### `{name}{arg_type or ''}`{short_name}")
+            short_name = f"`-{arg.short_name}` " if arg.short_name else ""
+            result.append(f"#### {short_name}`{name}{arg_type or ''}`")
             if arg.example:
                 result.append(f"```\n{arg.example}\n```")
             if arg.is_required:
