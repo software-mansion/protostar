@@ -13,8 +13,10 @@ class ArgumentDefaultValueFromConfigProvider(ArgumentDefaultValueProvider):
     def get_default_value(
         self, command: Optional[Command], argument: Command.Argument
     ) -> Optional[Any]:
-        project_scope_config = self._project.load_argument("project", argument.name)
+        shared_config = self._project.load_argument(
+            "shared_command_configs", argument.name
+        )
 
-        command_name = command.name if command else "project"
+        command_name = command.name if command else "shared_command_configs"
         command_scope_config = self._project.load_argument(command_name, argument.name)
-        return command_scope_config or project_scope_config
+        return command_scope_config or shared_config

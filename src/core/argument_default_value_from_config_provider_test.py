@@ -1,9 +1,9 @@
 from pytest_mock import MockerFixture
 
+from src.conftest import FooCommand
 from src.core.argument_default_value_from_config_provider import (
     ArgumentDefaultValueFromConfigProvider,
 )
-from src.conftest import FooCommand
 from src.utils import Project
 
 
@@ -17,7 +17,7 @@ def test_should_get_config(mocker: MockerFixture, foo_command: FooCommand):
     result = arg_provider.get_default_value(foo_command, arg)
 
     assert project.load_argument.call_args_list[0][0] == (
-        "project",
+        "shared_command_configs",
         arg.name,
     ), "Get a shared config"
     assert project.load_argument.call_args_list[1][0] == (
