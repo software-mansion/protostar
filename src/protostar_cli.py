@@ -13,7 +13,7 @@ from src.commands import (
     UpdateCommand,
     UpgradeCommand,
 )
-from src.core import CLI, Command
+from src.core import CLIApp, Command
 from src.protostar_exception import ProtostarException
 from src.utils import (
     Project,
@@ -53,7 +53,7 @@ COMMANDS = [
 ]
 
 
-class ProtostarCLI(CLI):
+class ProtostarCLI(CLIApp):
     def __init__(
         self,
         version_manager: VersionManager,

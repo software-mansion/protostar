@@ -4,7 +4,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 from typing import Any, Optional, Sequence
 
-from src.core.cli import CLI
+from src.core.cli_app import CLIApp
 from src.core.command import Command
 
 
@@ -19,12 +19,12 @@ class ArgumentDefaultValueProvider(ABC):
 class ArgumentParserFacade:
     def __init__(
         self,
-        cli: CLI,
+        cli_app: CLIApp,
         default_value_provider: Optional[ArgumentDefaultValueProvider] = None,
     ) -> None:
         self.argument_parser = ArgumentParser()
         self.command_parsers = self.argument_parser.add_subparsers(dest="command")
-        self.cli = cli
+        self.cli_app = cli_app
         self._default_value_provider = default_value_provider
 
         self._setup_parser()
@@ -33,10 +33,10 @@ class ArgumentParserFacade:
         return self.argument_parser.parse_args(input_args)
 
     def _setup_parser(self) -> None:
-        for cmd in self.cli.commands:
+        for cmd in self.cli_app.commands:
             self._add_command(cmd)
 
-        for root_arg in self.cli.root_args:
+        for root_arg in self.cli_app.root_args:
             self._add_root_argument(root_arg)
 
     def _add_command(self, command: Command) -> "ArgumentParserFacade":

@@ -3,7 +3,11 @@ from typing import Any, List, Mapping, Optional
 from src.core.command import Command
 
 
-class CLI:
+class CLIApp:
+    """
+    Defines CLI structure and is responsible for executing the proper command.
+    """
+
     def __init__(
         self,
         commands: Optional[List[Command]] = None,

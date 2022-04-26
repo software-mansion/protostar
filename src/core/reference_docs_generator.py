@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import List
 
-from src.core.cli import CLI
+from src.core.cli_app import CLIApp
 from src.core.command import Command
 
 
@@ -11,18 +11,18 @@ class ReferenceDocsGenerator:
         with open(filepath, "w", encoding="utf_8") as file:
             file.write(content)
 
-    def __init__(self, cli: CLI) -> None:
-        self.cli = cli
+    def __init__(self, cli_app: CLIApp) -> None:
+        self.cli_app = cli_app
 
     def generate_cli_reference_markdown(self) -> str:
         result: List[str] = ["# CLI Reference"]
 
-        if len(self.cli.root_args) > 0:
+        if len(self.cli_app.root_args) > 0:
             result += ["## Common flags"]
-            result += self._generate_args_markdown(self.cli.root_args)
+            result += self._generate_args_markdown(self.cli_app.root_args)
 
-        if len(self.cli.commands) > 0:
-            sorted_commands = sorted(self.cli.commands, key=(lambda c: c.name))
+        if len(self.cli_app.commands) > 0:
+            sorted_commands = sorted(self.cli_app.commands, key=(lambda c: c.name))
             result += ["## Commands"]
             for command in sorted_commands:
                 result.append(f"### `{command.name}`")

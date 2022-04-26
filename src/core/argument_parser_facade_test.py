@@ -8,12 +8,12 @@ from src.core.argument_parser_facade import (
     ArgumentDefaultValueProvider,
     ArgumentParserFacade,
 )
-from src.core.cli import CLI
+from src.core.cli_app import CLIApp
 from src.core.command import Command
 
 
 def test_bool_argument_parsing(foo_command: FooCommand):
-    app = CLI(commands=[foo_command])
+    app = CLIApp(commands=[foo_command])
     parser = ArgumentParserFacade(app)
 
     result = parser.parse(["FOO"])
@@ -23,7 +23,7 @@ def test_bool_argument_parsing(foo_command: FooCommand):
 
 
 def test_directory_argument():
-    app = CLI(
+    app = CLIApp(
         root_args=[Command.Argument(name="dir", description="...", type="directory")]
     )
     parser = ArgumentParserFacade(app)
@@ -34,7 +34,7 @@ def test_directory_argument():
 
 
 def test_regexp_argument():
-    app = CLI(
+    app = CLIApp(
         root_args=[Command.Argument(name="match", description="...", type="regexp")]
     )
     parser = ArgumentParserFacade(app)
@@ -45,7 +45,7 @@ def test_regexp_argument():
 
 
 def test_path_argument():
-    app = CLI(root_args=[Command.Argument(name="x", description="...", type="path")])
+    app = CLIApp(root_args=[Command.Argument(name="x", description="...", type="path")])
     parser = ArgumentParserFacade(app)
 
     result = parser.parse(["--x", "foo"])
@@ -54,7 +54,7 @@ def test_path_argument():
 
 
 def test_short_name_argument():
-    app = CLI(
+    app = CLIApp(
         root_args=[
             Command.Argument(
                 name="directory", short_name="d", description="...", type="str"
@@ -69,7 +69,7 @@ def test_short_name_argument():
 
 
 def test_arrays():
-    app = CLI(
+    app = CLIApp(
         root_args=[
             Command.Argument(
                 name="target",
@@ -97,7 +97,7 @@ def test_positional():
             ]
 
     cmd = CommandWithRequiredArg()
-    app = CLI(
+    app = CLIApp(
         commands=[cmd],
     )
     parser = ArgumentParserFacade(app)
@@ -108,7 +108,7 @@ def test_positional():
 
 
 def test_default():
-    app = CLI(
+    app = CLIApp(
         root_args=[
             Command.Argument(
                 name="target", description="...", type="str", default="foo"
@@ -123,7 +123,7 @@ def test_default():
 
 
 def test_required_non_positional_arg():
-    app = CLI(
+    app = CLIApp(
         root_args=[
             Command.Argument(
                 name="target", description="...", type="str", is_required=True
@@ -150,7 +150,7 @@ def test_required_positional_arg():
                 )
             ]
 
-    app = CLI(commands=[CommandWithRequiredArg()])
+    app = CLIApp(commands=[CommandWithRequiredArg()])
 
     ArgumentParserFacade(app).parse(["FOO", "x"])
     with pytest.raises(SystemExit):
@@ -158,7 +158,7 @@ def test_required_positional_arg():
 
 
 def test_loading_default_values_from_provider(foo_command: FooCommand):
-    app = CLI(
+    app = CLIApp(
         root_args=[Command.Argument(name="bar", description="...", type="str")],
         commands=[foo_command],
     )

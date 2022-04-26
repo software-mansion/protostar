@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from src.conftest import BarCommand, FooCommand
-from src.core.cli import CLI
+from src.core.cli_app import CLIApp
 from src.core.command import Command
 from src.core.reference_docs_generator import ReferenceDocsGenerator
 
@@ -10,7 +10,7 @@ def test_generating_markdown_for_commands(
     foo_command: FooCommand, bar_command: FooCommand
 ):
     docs_generator = ReferenceDocsGenerator(
-        CLI(commands=[foo_command, bar_command], root_args=[])
+        CLIApp(commands=[foo_command, bar_command], root_args=[])
     )
 
     result = docs_generator.generate_cli_reference_markdown()
@@ -26,7 +26,9 @@ def test_generating_markdown_for_commands(
 
 
 def test_generating_markdown_for_command_arguments(foo_command: FooCommand):
-    docs_generator = ReferenceDocsGenerator(CLI(commands=[foo_command], root_args=[]))
+    docs_generator = ReferenceDocsGenerator(
+        CLIApp(commands=[foo_command], root_args=[])
+    )
 
     result = docs_generator.generate_cli_reference_markdown()
     splitted_result = result.split("\n")
@@ -39,7 +41,7 @@ def test_generating_markdown_for_command_arguments(foo_command: FooCommand):
 
 def test_generating_default_type_and_array_info():
     docs_generator = ReferenceDocsGenerator(
-        CLI(
+        CLIApp(
             root_args=[
                 Command.Argument(
                     name="foo",
@@ -60,7 +62,7 @@ def test_generating_default_type_and_array_info():
 
 def test_generating_short_name_info():
     docs_generator = ReferenceDocsGenerator(
-        CLI(
+        CLIApp(
             root_args=[
                 Command.Argument(
                     name="foo",
@@ -80,7 +82,7 @@ def test_generating_short_name_info():
 
 def test_required_info():
     docs_generator = ReferenceDocsGenerator(
-        CLI(
+        CLIApp(
             root_args=[
                 Command.Argument(
                     name="foo",
@@ -108,7 +110,7 @@ def test_saving_markdown_file(tmpdir):
 
 
 def test_command_order(foo_command: FooCommand, bar_command: BarCommand):
-    docs_generator = ReferenceDocsGenerator(CLI(commands=[foo_command, bar_command]))
+    docs_generator = ReferenceDocsGenerator(CLIApp(commands=[foo_command, bar_command]))
     result = docs_generator.generate_cli_reference_markdown()
     splitted_result = result.split("\n")
 
@@ -120,7 +122,7 @@ def test_command_order(foo_command: FooCommand, bar_command: BarCommand):
 
 def test_args_order_by_is_positional_and_name():
     docs_generator = ReferenceDocsGenerator(
-        CLI(
+        CLIApp(
             root_args=[
                 Command.Argument(name="foo", description="...", type="str"),
                 Command.Argument(name="bar", description="...", type="str"),
