@@ -1,16 +1,14 @@
-# Contributing guide
-Follow one of the instructions here to help us develop protostar! 
-Before submitting an issue/pull request, please make sure to check out those:
-   - [issues](https://github.com/software-mansion/protostar/issues) 
-   - [project cards](https://github.com/software-mansion/protostar/projects)
-   - [pull requests](https://github.com/software-mansion/protostar/pulls)
-   
-to make sure that the feature/bug has not already been addressed, or is being worked upon.
+# Contributing Guide
+## Documentation fixes
+If you spot a typo, broken link, a mistake in the documentation feel free to create a PR.
+## New features or fixes
+Check if your issue is listed on the [Issues](https://github.com/software-mansion/protostar/issues) page. If the issue exists and is assigned to somebody, it will be resolved in the near future. Otherwise:
+1. Create a new issue
+1. Start working on it
+1. Test your PR locally by running `poe ci`
 
-Our development guide can be found [here](https://starknetpy.readthedocs.io/en/latest/development.html)
-
-## If you want to contribute a feature, fix a bug, or suggest solution:
-- Follow our pull request/issue template to make it easier for us to verify your contributions 
-- Make sure to document and test the changes
-- Make a pull request with `development` as base branch
- 
+## Generic contribution
+If you want to help developing this project in start consider:
+1. checking issues with the label [`good first issue`](https://github.com/software-mansion/protostar/labels/good%20first%20issue)
+1. creating new tests
+1. fixing small bugs or features
