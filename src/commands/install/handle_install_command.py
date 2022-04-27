@@ -1,5 +1,4 @@
 from logging import getLogger
-from os import getcwd
 from typing import Any
 
 from src.commands.install.install_package_from_repo import install_package_from_repo
@@ -11,6 +10,9 @@ def handle_install_command(args: Any, project: Project) -> None:
     assert args.command == "install"
 
     logger = getLogger()
+
+    repo_root_dir = project.project_root
+    libs_dir = project.project_root / project.config.libs_path
 
     if args.package is not None and args.package != "":
         package_info = extract_info_from_repo_id(args.package)
@@ -33,5 +35,6 @@ def handle_install_command(args: Any, project: Project) -> None:
                 package_info.url,
                 log_color_provider.get_color("RESET"),
             ),
-            repo_root_dir=getcwd(),
+            repo_root_dir=repo_root_dir,
+            libs_dir=libs_dir,
         )
