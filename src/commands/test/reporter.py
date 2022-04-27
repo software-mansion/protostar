@@ -1,12 +1,15 @@
 import itertools
 from pathlib import Path
+import queue
 from typing import List, Optional, Union
 from enum import Enum
+from async_timeout import timeout
 from sympy import O
 from tqdm import tqdm as bar
 
 from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
 from src.commands.test.utils import TestSubject
+from src.protostar_exception import ProtostarException
 
 CaseResult = Union[PassedCase, FailedCase, BrokenTest]
 
@@ -70,18 +73,21 @@ class ReportCollector:
 
     def live_reporting(self):
         self.report_collected()
-        with bar(total=self.collected_count) as progress_bar:
-            tests_left = self.collected_count
-            while tests_left > 0:
-                subject, report = self.reports_queue.get(block=True)
-                if report == ResultReport.BROKEN_CASE:
-                   tests_in_case = len(subject.test_functions)
-                   progress_bar.update(tests_in_case)
-                   tests_left -= tests_in_case
-                else:
-                    progress_bar.update(1)
-                    tests_left -= 1
-            
+        try:
+            with bar(total=self.collected_count) as progress_bar:
+                tests_left = self.collected_count
+                while tests_left > 0:
+                    subject, report = self.reports_queue.get(block=True, timeout=1)
+                    if report == ResultReport.BROKEN_CASE:
+                        tests_in_case = len(subject.test_functions)
+                        progress_bar.update(tests_in_case)
+                        tests_left -= tests_in_case
+                    else:
+                        progress_bar.update(1)
+                        tests_left -= 1
+        except queue.Empty:
+            # We just skip it to prevent deadlock, and provide a proper error message
+            pass
 
     def get_reporter(self, subject):
         return Reporter(subject, self.reports_queue)
