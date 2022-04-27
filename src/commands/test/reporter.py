@@ -27,11 +27,11 @@ class Reporter:
 
     def report(self, subject: TestSubject, case_result: CaseResult):
         if isinstance(case_result, PassedCase):
+            self.passed_cases.append(case_result)
             self.live_reports_queue.put((subject, ResultReport.PASSED_CASE))
         if isinstance(case_result, FailedCase):
             self.failed_cases.append(case_result)
             self.live_reports_queue.put((subject, ResultReport.FAILED_CASE))
-            
         if isinstance(case_result, BrokenTest):
             self.broken_tests.append(case_result)
             self.live_reports_queue.put((subject, ResultReport.BROKEN_CASE))

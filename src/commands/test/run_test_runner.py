@@ -50,7 +50,7 @@ async def run_test_runner(
         with Pool(multiprocessing.cpu_count()) as pool:
             result = pool.starmap_async(run_worker, setups)
             reporter.live_reporting()
-            results = result.get()  # TODO add test timeout
+            results = result.get()
             reporter.report_summary(results)
 
         return results
