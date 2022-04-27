@@ -85,10 +85,10 @@ class TestRunner:
         for function in functions:
             env = env_base.fork()
             try:
-                await env.invoke_test_function(function["name"])
+                call_result = await env.invoke_test_function(function["name"])
                 self.reporter.report(
                     subject=test_subject,
-                    case_result=PassedCase(tx_info=None),
+                    case_result=PassedCase(tx_info=call_result),
                 )
             except ReportedException as err:
                 self.reporter.report(

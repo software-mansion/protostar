@@ -2,6 +2,7 @@ import itertools
 from pathlib import Path
 from typing import List, Optional, Union
 from enum import Enum
+from sympy import O
 from tqdm import tqdm as bar
 
 from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
@@ -69,15 +70,25 @@ class ReportCollector:
 
     def live_reporting(self):
         self.report_collected()
-        for _ in bar(range(self.collected_count)):
-            _, _ = self.reports_queue.get(block=True)
+        with bar(total=self.collected_count) as progress_bar:
+            tests_left = self.collected_count
+            while tests_left > 0:
+                subject, report = self.reports_queue.get(block=True)
+                if report == ResultReport.BROKEN_CASE:
+                   tests_in_case = len(subject.test_functions)
+                   progress_bar.update(tests_in_case)
+                   tests_left -= tests_in_case
+                else:
+                    progress_bar.update(1)
+                    tests_left -= 1
+            
 
     def get_reporter(self, subject):
         return Reporter(subject, self.reports_queue)
 
     @staticmethod
     def report_collection_error():
-        print("!!!!!!!!!! TEST COLLECTION ERROR !!!!!!!!!!")
+        print("------- TEST COLLECTION ERROR -------")
 
     def report_summary(self, reporters):
         failed_tests_amt = sum([r.failed_count for r in reporters])
