@@ -74,7 +74,7 @@ class ReportCollector:
             with bar(total=self.collected_count) as progress_bar:
                 tests_left = self.collected_count
                 while tests_left > 0:
-                    subject, report = self.live_reports_queue.get(block=True, timeout=1)
+                    subject, report = self.live_reports_queue.get(block=True, timeout=1000)
                     if report == ResultReport.BROKEN_CASE:
                         tests_in_case = len(subject.test_functions)
                         progress_bar.update(tests_in_case)
