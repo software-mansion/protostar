@@ -3,13 +3,10 @@ from pathlib import Path
 import queue
 from typing import List, Optional, Union
 from enum import Enum
-from async_timeout import timeout
-from sympy import O
 from tqdm import tqdm as bar
 
 from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
 from src.commands.test.utils import TestSubject
-from src.protostar_exception import ProtostarException
 
 CaseResult = Union[PassedCase, FailedCase, BrokenTest]
 
@@ -21,23 +18,23 @@ class ResultReport(Enum):
 
 
 class Reporter:
-    def __init__(self, subject, queue):
+    def __init__(self, subject, live_reports_queue):
         self.subject = subject
-        self.reports_queue = queue
+        self.live_reports_queue = live_reports_queue
         self.broken_tests = []
         self.failed_cases = []
         self.passed_cases = []
 
     def report(self, subject: TestSubject, case_result: CaseResult):
         if isinstance(case_result, PassedCase):
-            self.passed_cases.append(case_result)
-            self.reports_queue.put((subject, ResultReport.PASSED_CASE))
+            self.live_reports_queue.put((subject, ResultReport.PASSED_CASE))
         if isinstance(case_result, FailedCase):
             self.failed_cases.append(case_result)
-            self.reports_queue.put((subject, ResultReport.FAILED_CASE))
+            self.live_reports_queue.put((subject, ResultReport.FAILED_CASE))
+            
         if isinstance(case_result, BrokenTest):
             self.broken_tests.append(case_result)
-            self.reports_queue.put((subject, ResultReport.BROKEN_CASE))
+            self.live_reports_queue.put((subject, ResultReport.BROKEN_CASE))
 
     @property
     def passed_count(self):
@@ -57,13 +54,13 @@ class ReportCollector:
     collected_subjects: List[TestSubject]
     tests_root: Path
 
-    def __init__(self, tests_root: Path, test_subjects, queue):
+    def __init__(self, tests_root: Path, test_subjects, live_reports_queue):
         self.collected_subjects = test_subjects
         self.collected_count = sum(
             [len(subject.test_functions) for subject in self.collected_subjects]
         )
         self.tests_root = tests_root
-        self.reports_queue = queue
+        self.live_reports_queue = live_reports_queue
 
     def report_collected(self):
         if self.collected_count:
@@ -77,7 +74,7 @@ class ReportCollector:
             with bar(total=self.collected_count) as progress_bar:
                 tests_left = self.collected_count
                 while tests_left > 0:
-                    subject, report = self.reports_queue.get(block=True, timeout=1)
+                    subject, report = self.live_reports_queue.get(block=True, timeout=1)
                     if report == ResultReport.BROKEN_CASE:
                         tests_in_case = len(subject.test_functions)
                         progress_bar.update(tests_in_case)
@@ -90,7 +87,7 @@ class ReportCollector:
             pass
 
     def get_reporter(self, subject):
-        return Reporter(subject, self.reports_queue)
+        return Reporter(subject, self.live_reports_queue)
 
     @staticmethod
     def report_collection_error():
@@ -102,7 +99,7 @@ class ReportCollector:
         broken_tests_amt = sum([r.broken_count for r in reporters])
 
         ran_tests = succeeded_tests_amt + failed_tests_amt
-        
+
         if failed_tests_amt > 0:
             self._report_failures(reporters)
         if broken_tests_amt > 0:
@@ -116,7 +113,6 @@ class ReportCollector:
 
         print(f"{succeeded_tests_amt} passed")
         print(f"Ran {ran_tests} out of {self.collected_count} total tests")
-
 
     def _report_failures(self, reporters):
 
