@@ -1,24 +1,27 @@
-import pytest
+from asyncio import Future
 
-from src.conftest import FooCommand
+import pytest
+from pytest_mock import MockerFixture
+
 from src.cli.argument_parser_facade import ArgumentParserFacade
 from src.cli.cli_app import CLIApp
 from src.cli.command import Command
+from src.conftest import FooCommand
 
 
 @pytest.mark.asyncio
 async def test_command_run_method_was_called(
-    foo_command: FooCommand, create_async_called_checker
+    foo_command: FooCommand, mocker: MockerFixture
 ):
-    (on_run, was_called_ref) = create_async_called_checker()
-    foo_command.run = on_run
+    foo_command.run = mocker.MagicMock()
+    foo_command.run.return_value = Future()
+    foo_command.run.return_value.set_result(True)
     cli = CLIApp(commands=[foo_command])
     parser = ArgumentParserFacade(cli)
 
-    result = await cli.run(parser.parse([foo_command.name]))
+    await cli.run(parser.parse([foo_command.name]))
 
-    assert was_called_ref["current"]
-    assert result is True
+    foo_command.run.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -29,6 +32,8 @@ async def test_run_returns_false_when_no_command_was_called(foo_command: FooComm
     )
     parser = ArgumentParserFacade(cli)
 
-    result = await cli.run(parser.parse(["--version"]))
+    cmd_result = await cli.run(parser.parse(["FOO"]))
+    arg_result = await cli.run(parser.parse(["--version"]))
 
-    assert result is False
+    assert cmd_result is True
+    assert arg_result is False

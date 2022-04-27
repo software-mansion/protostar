@@ -1,3 +1,4 @@
+from asyncio import Future
 from logging import Logger
 from pathlib import Path
 from typing import Any
@@ -81,3 +82,41 @@ async def test_should_print_protostar_version(
     await protostar_cli.run(parser.parse(["--version"]))
 
     protostar_cli.version_manager.print_current_version.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_should_run_expected_command(
+    protostar_cli: ProtostarCLI, mocker: MockerFixture
+):
+    command = protostar_cli.commands[0]
+    command.run = mocker.MagicMock()
+    command.run.return_value = Future()
+    command.run.return_value.set_result(True)
+    parser = ArgumentParserFacade(protostar_cli)
+
+    await protostar_cli.run(parser.parse([command.name]))
+
+    command.run.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_should_sys_exit_on_keyboard_interrupt(
+    protostar_cli: ProtostarCLI, mocker: MockerFixture
+):
+    command = protostar_cli.commands[0]
+    command.run = mocker.MagicMock()
+    command.run.side_effect = KeyboardInterrupt()
+    parser = ArgumentParserFacade(protostar_cli)
+
+    with pytest.raises(SystemExit):
+        await protostar_cli.run(parser.parse([command.name]))
+
+
+def test_should_create_instance_of_protostar_cli(tmpdir):
+    script_root = Path(tmpdir)
+    protostar_cli = ProtostarCLI.create(script_root)
+    # pylint: disable=protected-access
+    assert (
+        protostar_cli.version_manager._protostar_directory.protostar_binary_dir_path
+        == script_root
+    )

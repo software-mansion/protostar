@@ -79,18 +79,3 @@ def foo_command_fixture() -> FooCommand:
 @pytest.fixture(name="bar_command")
 def bar_command_fixture() -> BarCommand:
     return BarCommand()
-
-
-# MagicMock doesn't work when awaited
-@pytest.fixture(name="create_async_called_checker")
-def fixture_create_async_called_checker():
-    def create_async_called_checker():
-        was_called_ref = {"current": False}
-
-        async def on_run(_args) -> None:
-            was_called_ref["current"] = True
-            return None
-
-        return (on_run, was_called_ref)
-
-    return create_async_called_checker
