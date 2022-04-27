@@ -6,8 +6,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Pattern
 from attr import dataclass
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.public.abi import get_selector_from_name
-from starkware.starknet.services.api.contract_definition import \
-    ContractDefinition
+from starkware.starknet.services.api.contract_definition import ContractDefinition
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
@@ -17,10 +16,12 @@ from src.commands.test.cheatable_syscall_handler import CheatableSysCallHandler
 from src.commands.test.collector import TestCollector
 from src.commands.test.reporter import TestReporter
 from src.commands.test.test_environment_exceptions import (
-    ExceptMismatchException, MissingExceptException, ReportedException,
-    StarkReportedException)
-from src.commands.test.utils import (TestSubject,
-                                     extract_core_info_from_stark_ex_message)
+    ExceptMismatchException,
+    MissingExceptException,
+    ReportedException,
+    StarkReportedException,
+)
+from src.commands.test.utils import TestSubject, extract_core_info_from_stark_ex_message
 from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
 
@@ -293,8 +294,10 @@ class TestExecutionEnvironment:
         self._expected_error = expected_error
 
         def stop_expecting_revert():
+            logger.warning(
+                "The callback returned by the `expect_revert` is deprecated."
+            )
             if self._expected_error is not None:
-                logger.warning("The callback returned by the `expect_revert` is deprecated.")
                 raise MissingExceptException(
                     "Expected a transaction to be reverted before cancelling expect_revert"
                 )
