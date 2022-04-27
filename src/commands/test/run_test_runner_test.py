@@ -46,7 +46,6 @@ async def test_run_syntaxtically_valid_tests(test_root_dir):
     assert sum([r.passed_count for r in results]) == 2
 
 
-
 @pytest.mark.asyncio
 async def test_no_collected_items(test_root_dir):
     results = await run_test_runner(
@@ -71,6 +70,7 @@ async def test_revert(test_root_dir):
         match=re.compile(r".*(revert).*"),
     )
     assert sum([r.failed_count for r in results]) == 0
+
 
 async def test_cheats():
     results = await run_test_runner(current_directory / "examples" / "cheats")
