@@ -75,6 +75,9 @@ class RevertableException(ReportedException):
                 return True
         return False
 
+    def __reduce__(self):
+        return type(self), (self.error_message, self.error_type)
+
 
 class StarknetRevertableException(RevertableException):
     """
@@ -135,6 +138,14 @@ class StarknetRevertableException(RevertableException):
 
         return "\n".join(result)
 
+    def __reduce__(self):
+        return type(self), (
+            self.error_message,
+            self.error_type,
+            self.code,
+            self.details,
+        )
+
 
 class ExpectedRevertException(ReportedException):
     def __init__(self, expected_error: RevertableException) -> None:
@@ -146,6 +157,9 @@ class ExpectedRevertException(ReportedException):
         result.append(str(self._expected_error))
 
         return "\n".join(result)
+
+    def __reduce__(self):
+        return type(self), (self._expected_error,)
 
 
 class ExpectedRevertMismatchException(ReportedException):
@@ -178,3 +192,6 @@ class ExpectedRevertMismatchException(ReportedException):
             result.append("instead got nothing")
 
         return "\n".join(result)
+
+    def __reduce__(self):
+        return type(self), (self._expected, self._received)

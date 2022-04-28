@@ -4,7 +4,6 @@ from pathlib import Path
 import pytest
 
 from src.commands.test import run_test_runner
-from src.commands.test.reporter import TestReporter
 from src.utils.config.project_test import make_mock_project
 
 current_directory = Path(__file__).parent
@@ -15,17 +14,11 @@ def fixture_test_root_dir():
     return Path(current_directory, "examples")
 
 
-@pytest.fixture(name="reporter")
-def fixture_reporter(test_root_dir):
-    return TestReporter(test_root_dir)
-
-
 @pytest.mark.asyncio
-async def test_run_test_runner(mocker, test_root_dir, reporter):
+async def test_run_test_runner(mocker, test_root_dir):
     contracts = {"main": ["examples/basic.cairo"]}
     mock_project = make_mock_project(mocker, contracts, str(test_root_dir))
-    await run_test_runner(
-        reporter=reporter,
+    results = await run_test_runner(
         project=mock_project,
         tests_root=test_root_dir,
         omit=re.compile(
@@ -33,13 +26,14 @@ async def test_run_test_runner(mocker, test_root_dir, reporter):
         ),
         cairo_paths=[],
     )
-    assert not reporter.failed_cases
+    assert sum([r.passed_count for r in results]) == 23
+    assert sum([r.failed_count for r in results]) == 0
+    assert sum([r.broken_count for r in results]) == 0
 
 
 @pytest.mark.asyncio
-async def test_run_syntaxtically_valid_tests(reporter, test_root_dir):
-    await run_test_runner(
-        reporter,
+async def test_run_syntaxtically_valid_tests(test_root_dir):
+    results = await run_test_runner(
         test_root_dir,
         cairo_paths=[
             test_root_dir.resolve(),
@@ -47,15 +41,14 @@ async def test_run_syntaxtically_valid_tests(reporter, test_root_dir):
         ],
         match=re.compile(r"(test_basic|test_basic_failure|test_basic_broken).*"),
     )
-    assert reporter.collected_count == 4
-    assert len(reporter.failed_cases) == 2
-    assert len(reporter.passed_cases) == 2
+    assert len(results) == 3
+    assert sum([r.failed_count for r in results]) == 2
+    assert sum([r.passed_count for r in results]) == 2
 
 
 @pytest.mark.asyncio
-async def test_no_collected_items(reporter, test_root_dir):
-    await run_test_runner(
-        reporter,
+async def test_no_collected_items(test_root_dir):
+    results = await run_test_runner(
         test_root_dir,
         cairo_paths=[
             test_root_dir.resolve(),
@@ -63,15 +56,12 @@ async def test_no_collected_items(reporter, test_root_dir):
         ],
         match=re.compile(r".*empty/no_test_functions.*"),
     )
-    assert not reporter.failed_cases
-    assert not reporter.passed_cases
-    assert not reporter.broken_tests
+    assert not results
 
 
 @pytest.mark.asyncio
-async def test_revert(reporter, test_root_dir):
-    await run_test_runner(
-        reporter,
+async def test_revert(test_root_dir):
+    results = await run_test_runner(
         test_root_dir,
         cairo_paths=[
             test_root_dir.resolve(),
@@ -79,10 +69,10 @@ async def test_revert(reporter, test_root_dir):
         ],
         match=re.compile(r".*(revert).*"),
     )
-    assert not reporter.failed_cases
+    assert sum([r.failed_count for r in results]) == 0
 
 
-@pytest.mark.asyncio
-async def test_cheats(reporter):
-    await run_test_runner(reporter, current_directory / "examples" / "cheats")
-    assert not reporter.failed_cases
+async def test_cheats():
+    results = await run_test_runner(current_directory / "examples" / "cheats")
+
+    assert sum([r.failed_count for r in results]) == 0
