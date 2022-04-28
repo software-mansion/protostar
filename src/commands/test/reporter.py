@@ -1,7 +1,7 @@
 import itertools
 from pathlib import Path
 import queue
-from typing import List, Optional, Union
+from typing import List, Union
 from enum import Enum
 from tqdm import tqdm as bar
 
@@ -50,7 +50,12 @@ class Reporter:
 
 
 class ReporterCoordinator:
-    def __init__(self, tests_root: Path, test_subjects: List[TestSubject], live_reports_queue: queue.Queue):
+    def __init__(
+        self,
+        tests_root: Path,
+        test_subjects: List[TestSubject],
+        live_reports_queue: queue.Queue,
+    ):
         self.collected_subjects = test_subjects
         self.collected_count = sum(
             [len(subject.test_functions) for subject in self.collected_subjects]
