@@ -19,11 +19,7 @@ from src.commands.test.test_environment_exceptions import (
     RevertableException,
     StarknetRevertableException,
 )
-from src.commands.test.utils import (
-    ExpectedEvent,
-    TestSubject,
-    extract_core_info_from_stark_ex_message,
-)
+from src.commands.test.utils import ExpectedEvent, TestSubject
 from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
 
@@ -193,7 +189,9 @@ class TestExecutionEnvironment:
             return await func().invoke()
         except StarkException as ex:
             raise StarknetRevertableException(
-                error_message=extract_core_info_from_stark_ex_message(ex.message),
+                error_message=StarknetRevertableException.extract_core_info_from_stark_ex_message(
+                    ex.message
+                ),
                 error_type=ex.code.name,
                 code=ex.code.value,
                 details=ex.message,
