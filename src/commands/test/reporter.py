@@ -18,7 +18,7 @@ class ResultReport(Enum):
 
 
 class Reporter:
-    def __init__(self, subject, live_reports_queue):
+    def __init__(self, subject: TestSubject, live_reports_queue: queue.Queue):
         self.subject = subject
         self.live_reports_queue = live_reports_queue
         self.broken_tests = []
@@ -49,12 +49,8 @@ class Reporter:
         return len(self.failed_cases)
 
 
-class ReportCollector:
-    _collected_count: Optional[int]
-    collected_subjects: List[TestSubject]
-    tests_root: Path
-
-    def __init__(self, tests_root: Path, test_subjects, live_reports_queue):
+class ReporterCoordinator:
+    def __init__(self, tests_root: Path, test_subjects: List[TestSubject], live_reports_queue: queue.Queue):
         self.collected_subjects = test_subjects
         self.collected_count = sum(
             [len(subject.test_functions) for subject in self.collected_subjects]
@@ -72,23 +68,24 @@ class ReportCollector:
         self.report_collected()
         try:
             with bar(total=self.collected_count) as progress_bar:
-                tests_left = self.collected_count
-                while tests_left > 0:
+                tests_left_n = self.collected_count
+                while tests_left_n > 0:
                     subject, report = self.live_reports_queue.get(
                         block=True, timeout=1000
                     )
                     if report == ResultReport.BROKEN_CASE:
-                        tests_in_case = len(subject.test_functions)
-                        progress_bar.update(tests_in_case)
-                        tests_left -= tests_in_case
+                        tests_in_case_count = len(subject.test_functions)
+                        progress_bar.update(tests_in_case_count)
+                        tests_left_n -= tests_in_case_count
                     else:
                         progress_bar.update(1)
-                        tests_left -= 1
+                        tests_left_n -= 1
         except queue.Empty:
-            # We just skip it to prevent deadlock, and provide a proper error message
+            # https://docs.python.org/3/library/queue.html#queue.Queue.get
+            # We skip it to prevent deadlock, but this error should never happen
             pass
 
-    def get_reporter(self, subject):
+    def create_reporter(self, subject):
         return Reporter(subject, self.live_reports_queue)
 
     @staticmethod

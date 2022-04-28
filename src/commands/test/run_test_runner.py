@@ -4,8 +4,8 @@ import multiprocessing
 from pathlib import Path
 from re import Pattern
 from typing import List, Optional, TYPE_CHECKING
-from src.commands.test.collector import TestCollector
-from src.commands.test.reporter import ReportCollector, Reporter
+from src.commands.test.test_collector import TestCollector
+from src.commands.test.reporter import ReporterCoordinator, Reporter
 
 from src.commands.test.runner import TestRunner
 
@@ -37,11 +37,11 @@ async def run_test_runner(
 
     with multiprocessing.Manager() as manager:
         queue = manager.Queue()  # type: ignore
-        reporter = ReportCollector(tests_root, test_subjects, queue)
+        reporter = ReporterCoordinator(tests_root, test_subjects, queue)
         setups = [
             (
                 subject,
-                reporter.get_reporter(subject),
+                reporter.create_reporter(subject),
                 include_paths,
             )
             for subject in test_subjects
