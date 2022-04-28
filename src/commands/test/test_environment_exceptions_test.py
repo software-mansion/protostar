@@ -73,3 +73,13 @@ def test_matching_by_the_error_messages():
     assert not RevertableException(error_message="foo").match(ex)
     assert RevertableException(error_message=["baz", "bar"]).match(ex)
     assert not RevertableException(error_message=["foo", "bar"]).match(ex)
+
+
+def test_matching_by_partial_error_message():
+    ex = RevertableException(error_type="foo", error_message=["bar", "baz"])
+
+    assert RevertableException(error_type="foo", error_message="ba").match(ex)
+    assert RevertableException(error_message="ba").match(ex)
+    assert RevertableException(error_message="a").match(ex)
+    assert RevertableException(error_message=["ba", "b"]).match(ex)
+    assert not RevertableException(error_message=["f", "b"]).match(ex)

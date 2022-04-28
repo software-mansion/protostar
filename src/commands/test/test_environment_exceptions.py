@@ -62,10 +62,18 @@ class RevertableException(ReportedException):
         ) or []
 
         for self_e_msg in self_error_messages:
-            if self_e_msg not in other_error_messages:
+            if not RevertableException.can_pattern_be_found(
+                self_e_msg, other_error_messages
+            ):
                 return False
-
         return True
+
+    @staticmethod
+    def can_pattern_be_found(pattern: str, strings: List[str]) -> bool:
+        for string in strings:
+            if pattern in string:
+                return True
+        return False
 
 
 class StarknetRevertableException(RevertableException):
@@ -110,14 +118,19 @@ class StarknetRevertableException(RevertableException):
 
         result.append(f"[type] {self.error_type}")
 
-        if self.error_message:
-            result.append(f"[message] {self.error_message}")
-
         if self.code:
             result.append(f"[code] {str(self.code)}")
 
+        if self.error_message:
+            if isinstance(self.error_message, list):
+                result.append("[messages]:")
+                for e_msg in self.error_message:
+                    result.append(f"— {e_msg}")
+            else:
+                result.append(f"[message] {self.error_message}")
+
         if self.details:
-            result.append("[details]:\n")
+            result.append("[details]:")
             result.append(self.details)
 
         return "\n".join(result)
