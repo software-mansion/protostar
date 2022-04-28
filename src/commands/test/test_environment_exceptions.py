@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 
 
 class ReportedException(BaseException):
@@ -17,7 +17,7 @@ class RevertableException(ReportedException):
 
     def __init__(
         self,
-        error_message: Optional[str] = None,
+        error_message: Optional[Union[str, List[str]]] = None,
         error_type: Optional[str] = None,
     ) -> None:
         super().__init__(error_message)
@@ -29,15 +29,43 @@ class RevertableException(ReportedException):
         if self.error_type is not None:
             result.append(f"[error_type] {self.error_type}")
 
-        if self.error_type is not None:
-            result.append(f"[error_message] {self.error_message}")
+        if self.error_message is not None:
+            if isinstance(self.error_message, list):
+                result.append("[error_messages]:")
+                for e_msg in self.error_message:
+                    result.append(f"— {e_msg}")
+            else:
+                result.append(f"[error_message] {self.error_message}")
         return "\n".join(result)
 
     def match(self, other: "RevertableException") -> bool:
-        return (self.error_type is None or self.error_type == other.error_type) and (
-            self.error_message is None
-            or self.error_message in (other.error_message or "")
+        error_type_match = (
+            self.error_type is None or self.error_type == other.error_type
         )
+
+        if error_type_match:
+            if self.error_message is None:
+                return True
+        else:
+            return False
+
+        self_error_messages = (
+            [self.error_message]
+            if isinstance(self.error_message, str)
+            else self.error_message
+        )
+
+        other_error_messages = (
+            [other.error_message]
+            if isinstance(other.error_message, str)
+            else other.error_message
+        ) or []
+
+        for self_e_msg in self_error_messages:
+            if self_e_msg not in other_error_messages:
+                return False
+
+        return True
 
 
 class StarknetRevertableException(RevertableException):
