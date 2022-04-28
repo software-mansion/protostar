@@ -45,12 +45,14 @@ class StarknetRevertableException(RevertableException):
     The exception is an abstraction over errors raised by StarkNet.
     """
 
+    _ERROR_MESSAGE_PREFIX = "Error message: "
+
     @staticmethod
     def extract_core_info_from_stark_ex_message(msg: Optional[str]) -> Optional[str]:
         if not msg:
             return None
 
-        prefix = "Error message: "
+        prefix = StarknetRevertableException._ERROR_MESSAGE_PREFIX
         start_index = msg.rfind(prefix)
 
         if start_index == -1:
@@ -59,6 +61,27 @@ class StarknetRevertableException(RevertableException):
         end_index = msg.find("\n", start_index)
 
         return msg[start_index + len(prefix) : end_index]
+
+    @staticmethod
+    def extract_error_messages_from_stark_ex_message(
+        msg: Optional[str],
+    ) -> List[str]:
+        results: List[str] = []
+
+        if msg is None:
+            return []
+
+        prefix = StarknetRevertableException._ERROR_MESSAGE_PREFIX
+        remaining_msg = msg
+        start_index = remaining_msg.find(prefix)
+        while not start_index == -1:
+            end_index = remaining_msg.find("\n", start_index)
+            results.append(remaining_msg[start_index + len(prefix) : end_index])
+            remaining_msg = remaining_msg[end_index:]
+            start_index = remaining_msg.find(prefix)
+
+        results.reverse()
+        return results
 
     def __init__(
         self,

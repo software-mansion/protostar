@@ -33,3 +33,19 @@ def test_failing_at_extracting_last_error_message():
         ERROR_DESCRIPTION_WITH_NO_ERROR_MESSAGES
     )
     assert result is None
+
+
+def test_extracting_all_error_messages_if_stark_ex_message_is_empty():
+    results = StarknetRevertableException.extract_error_messages_from_stark_ex_message(
+        None
+    )
+
+    assert len(results) == 0
+
+
+def test_extracting_all_error_messages_from_stark_ex_message():
+    results = StarknetRevertableException.extract_error_messages_from_stark_ex_message(
+        ERROR_DESCRIPTION_WITH_TWO_ERROR_MESSAGES
+    )
+
+    assert results == ["a and b must be distinct.", "x must not be zero. Got x=0."]
