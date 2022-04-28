@@ -33,5 +33,8 @@ class LogColorProvider:
             return mapping[color_name]
         return ""
 
+    def colorize(self, color_name: SupportedColorName, content: str):
+        return f"{self.get_color(color_name)}{content}{self.get_color('RESET')}"
+
 
 log_color_provider = LogColorProvider()
