@@ -12,6 +12,9 @@ Check if your issue is listed on the [Issues](https://github.com/software-mansio
 
 ## Generic contribution
 If you want to help develop this project, and you don't know where to start, consider:
-1. checking issues with the label [`good first issue`](https://github.com/software-mansion/protostar/labels/good%20first%20issue)
-1. increasing test coverage
-1. fixing small bugs or adding small features
+- checking issues with the label [`good first issue`](https://github.com/software-mansion/protostar/labels/good%20first%20issue)
+- increasing test coverage
+- fixing small bugs or adding small features
+
+## Contact
+[Protostar Discord channel](https://discord.gg/uJ9HZTUk2Y)
