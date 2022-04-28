@@ -189,7 +189,7 @@ class TestExecutionEnvironment:
             return await func().invoke()
         except StarkException as ex:
             raise StarknetRevertableException(
-                error_message=StarknetRevertableException.extract_core_info_from_stark_ex_message(
+                error_message=StarknetRevertableException.extract_error_messages_from_stark_ex_message(
                     ex.message
                 ),
                 error_type=ex.code.name,

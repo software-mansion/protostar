@@ -113,7 +113,7 @@ class StarknetRevertableException(RevertableException):
 
     def __init__(
         self,
-        error_message: Optional[str] = None,
+        error_message: Optional[Union[str, List[str]]] = None,
         error_type: Optional[str] = None,
         code: Optional[int] = None,
         details: Optional[str] = None,
