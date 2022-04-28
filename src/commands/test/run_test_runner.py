@@ -1,8 +1,12 @@
+import asyncio
+from multiprocessing import Pool
+import multiprocessing
 from pathlib import Path
 from re import Pattern
 from typing import List, Optional, TYPE_CHECKING
-from src.commands.test.collector import TestCollector
-from src.commands.test.reporter import TestReporter
+from src.commands.test.test_collector import TestCollector
+from src.commands.test.reporter import ReporterCoordinator, Reporter
+
 from src.commands.test.runner import TestRunner
 
 
@@ -11,17 +15,17 @@ if TYPE_CHECKING:
 
 # pylint: disable=too-many-arguments
 async def run_test_runner(
-    reporter: Optional["TestReporter"],
     tests_root: Path,
     project: Optional["Project"] = None,
     omit: Optional[Pattern] = None,
     match: Optional[Pattern] = None,
     cairo_paths: Optional[List[Path]] = None,
-):
+) -> List[Reporter]:
     cairo_path = cairo_paths or []
-    include_paths = [str(pth) for pth in cairo_path]
 
-    reporter = reporter if reporter else TestReporter(tests_root)
+    include_paths = [str(pth) for pth in cairo_path]
+    if project:
+        include_paths.extend(project.get_include_paths())
 
     test_subjects = TestCollector(
         target=Path(tests_root),
@@ -31,6 +35,32 @@ async def run_test_runner(
         omit_pattern=omit,
     )
 
-    runner = TestRunner(reporter=reporter, project=project, include_paths=include_paths)
+    with multiprocessing.Manager() as manager:
+        queue = manager.Queue()  # type: ignore
+        reporter = ReporterCoordinator(tests_root, test_subjects, queue)
+        setups = [
+            (
+                subject,
+                reporter.create_reporter(subject),
+                include_paths,
+            )
+            for subject in test_subjects
+        ]
 
-    await runner.run_tests_in(test_subjects)
+        with Pool(multiprocessing.cpu_count()) as pool:
+            result = pool.starmap_async(run_worker, setups)
+            reporter.live_reporting()
+            results = result.get()
+            reporter.report_summary(results)
+
+        return results
+
+
+def run_worker(
+    subject,
+    reporter,
+    include_paths,
+):
+    runner = TestRunner(reporter=reporter, include_paths=include_paths)
+    asyncio.run(runner.run_test_subject(subject))
+    return runner.reporter

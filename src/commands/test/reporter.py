@@ -1,6 +1,9 @@
-from functools import reduce
+import itertools
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+import queue
+from typing import List, Union
+from enum import Enum
+from tqdm import tqdm as bar
 
 from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
 from src.commands.test.utils import TestSubject
@@ -8,61 +11,103 @@ from src.commands.test.utils import TestSubject
 CaseResult = Union[PassedCase, FailedCase, BrokenTest]
 
 
-class TestReporter:
-    _collected_count: Optional[int]
-    broken_tests: List[BrokenTest]
-    failed_cases: List[FailedCase]
-    passed_cases: List[PassedCase]
-    failed_tests_by_subject: Dict[Path, List[FailedCase]]
-    collected_subjects: List[TestSubject]
-    tests_root: Path
+class ResultReport(Enum):
+    PASSED_CASE = 1
+    FAILED_CASE = 2
+    BROKEN_CASE = 3
 
-    def __init__(self, tests_root: Path):
+
+class Reporter:
+    def __init__(self, subject: TestSubject, live_reports_queue: queue.Queue):
+        self.subject = subject
+        self.live_reports_queue = live_reports_queue
         self.broken_tests = []
         self.failed_cases = []
         self.passed_cases = []
-        self.failed_tests_by_subject = {}
-        self.collected_subjects = []
-        self._collected_count = None
-        self.tests_root = tests_root
 
     def report(self, subject: TestSubject, case_result: CaseResult):
-        symbol = None
         if isinstance(case_result, PassedCase):
-            symbol = "."
             self.passed_cases.append(case_result)
+            self.live_reports_queue.put((subject, ResultReport.PASSED_CASE))
         if isinstance(case_result, FailedCase):
-            symbol = "F"
             self.failed_cases.append(case_result)
-            try:
-                self.failed_tests_by_subject[subject.test_path].append(case_result)
-            except KeyError:
-                self.failed_tests_by_subject[subject.test_path] = [case_result]
-
+            self.live_reports_queue.put((subject, ResultReport.FAILED_CASE))
         if isinstance(case_result, BrokenTest):
-            symbol = "!"
             self.broken_tests.append(case_result)
-        assert symbol, "Unrecognized case result"
+            self.live_reports_queue.put((subject, ResultReport.BROKEN_CASE))
 
-        print(symbol, end="", flush=True)
+    @property
+    def passed_count(self):
+        return len(self.passed_cases)
 
-    @staticmethod
-    def file_entry(file_name: str):
-        print(f"\n{file_name.replace('.cairo', '')}: ", end="")
+    @property
+    def broken_count(self):
+        return len(self.broken_tests)
+
+    @property
+    def failed_count(self):
+        return len(self.failed_cases)
+
+
+class ReporterCoordinator:
+    def __init__(
+        self,
+        tests_root: Path,
+        test_subjects: List[TestSubject],
+        live_reports_queue: queue.Queue,
+    ):
+        self.collected_subjects = test_subjects
+        self.collected_count = sum(
+            [len(subject.test_functions) for subject in self.collected_subjects]
+        )
+        self.tests_root = tests_root
+        self.live_reports_queue = live_reports_queue
+
+    def report_collected(self):
+        if self.collected_count:
+            print(f"Collected {self.collected_count} items")
+        else:
+            print("No cases found")
+
+    def live_reporting(self):
+        self.report_collected()
+        try:
+            with bar(total=self.collected_count) as progress_bar:
+                tests_left_n = self.collected_count
+                while tests_left_n > 0:
+                    subject, report = self.live_reports_queue.get(
+                        block=True, timeout=1000
+                    )
+                    if report == ResultReport.BROKEN_CASE:
+                        tests_in_case_count = len(subject.test_functions)
+                        progress_bar.update(tests_in_case_count)
+                        tests_left_n -= tests_in_case_count
+                    else:
+                        progress_bar.update(1)
+                        tests_left_n -= 1
+        except queue.Empty:
+            # https://docs.python.org/3/library/queue.html#queue.Queue.get
+            # We skip it to prevent deadlock, but this error should never happen
+            pass
+
+    def create_reporter(self, subject):
+        return Reporter(subject, self.live_reports_queue)
 
     @staticmethod
     def report_collection_error():
-        print("!!!!!!!!!! TEST COLLECTION ERROR !!!!!!!!!!")
+        print("------- TEST COLLECTION ERROR -------")
 
-    def report_summary(self):
-        if not self.collected_count:
-            return
-
-        failed_tests_amt = len(self.failed_cases)
-        succeeded_tests_amt = len(self.passed_cases)
-        broken_tests_amt = len(self.broken_tests)
+    def report_summary(self, reporters):
+        failed_tests_amt = sum([r.failed_count for r in reporters])
+        succeeded_tests_amt = sum([r.passed_count for r in reporters])
+        broken_tests_amt = sum([r.broken_count for r in reporters])
 
         ran_tests = succeeded_tests_amt + failed_tests_amt
+
+        if failed_tests_amt > 0:
+            self._report_failures(reporters)
+        if broken_tests_amt > 0:
+            self._report_broken_tests(reporters)
 
         print("\n----- TEST SUMMARY ------")
         if failed_tests_amt:
@@ -73,44 +118,28 @@ class TestReporter:
         print(f"{succeeded_tests_amt} passed")
         print(f"Ran {ran_tests} out of {self.collected_count} total tests")
 
-        self._report_failures()
+    def _report_failures(self, reporters):
 
-    def _report_failures(self):
-        if self.failed_cases:
-            print("\n------- FAILURES --------")
-            for test_path, failed_cases in self.failed_tests_by_subject.items():
+        print("\n------- FAILURES --------")
+        for test_path, failed_cases in [
+            (r.subject.test_path, r.failed_cases) for r in reporters
+        ]:
 
-                for failed_case in failed_cases:
-                    print(
-                        f"{test_path.resolve().relative_to(self.tests_root.resolve())}::{failed_case.function_name}"
-                    )
-                    print(str(failed_case.exception))
-                    print("")
-        if self.broken_tests:
-            print("\n----- BROKEN TESTS ------")
-            for broken_subject in self.broken_tests:
+            for failed_case in failed_cases:
                 print(
-                    broken_subject.file_path.resolve().relative_to(
-                        self.tests_root.resolve()
-                    )
+                    f"{test_path.resolve().relative_to(self.tests_root.resolve())}::{failed_case.function_name}"
                 )
-                print(str(broken_subject.exception))
+                print(str(failed_case.exception))
                 print("")
 
-    def report_collected(self, test_subjects: List[TestSubject]):
-        self.collected_subjects = test_subjects
+    def _report_broken_tests(self, reporters):
 
-        if self.collected_count:
-            print(f"Collected {self.collected_count} items")
-        else:
-            print("No cases found")
-
-    @property
-    def collected_count(self) -> int:
-        if self._collected_count is None:
-            self._collected_count = reduce(
-                lambda x, y: x + y,
-                [len(subject.test_functions) for subject in self.collected_subjects],
-                0,
+        print("\n----- BROKEN TESTS ------")
+        for broken_subject in itertools.chain([r.broken_tests for r in reporters]):
+            print(
+                broken_subject.file_path.resolve().relative_to(
+                    self.tests_root.resolve()
+                )
             )
-        return self._collected_count
+            print(str(broken_subject.exception))
+            print("")
