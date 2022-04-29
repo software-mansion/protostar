@@ -24,7 +24,7 @@ class Reporter:
 
 class TestingResult:
     def __init__(self, case_results: List[CaseResult]) -> None:
-        self.case_results = case_results
+        self.case_results = []
         self.test_files: Dict[Path, List[CaseResult]] = {}
         self.passed: List[PassedCase] = []
         self.failed: List[FailedCase] = []
@@ -132,8 +132,6 @@ class ReporterCoordinator:
     def _get_test_cases_summary(self, testing_result: TestingResult) -> str:
         failed_test_cases_amt = len(testing_result.failed)
         passed_test_cases_amt = len(testing_result.passed)
-
-        print(testing_result.failed)
 
         return ", ".join(
             self._get_preprocessed_core_testing_summary(
