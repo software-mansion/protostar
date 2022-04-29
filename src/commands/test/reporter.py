@@ -23,6 +23,10 @@ class Reporter:
 
 
 class TestingResult:
+    @classmethod
+    def from_reporters(cls, reporters: List[Reporter]) -> "TestingResult":
+        return cls(sum([r.test_case_results for r in reporters], []))
+
     def __init__(self, case_results: List[CaseResult]) -> None:
         self.case_results = []
         self.test_files: Dict[Path, List[CaseResult]] = {}
@@ -112,9 +116,7 @@ class ReporterCoordinator:
         return Reporter(self.live_reports_queue)
 
     def report_summary(self, reporters: List[Reporter]):
-        testing_result = TestingResult(
-            sum([r.test_case_results for r in reporters], [])
-        )
+        testing_result = TestingResult.from_reporters(reporters)
 
         self.logger.info(
             log_color_provider.bold("Test suits: ")

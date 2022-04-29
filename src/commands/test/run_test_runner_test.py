@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 
 from src.commands.test import run_test_runner
+from src.commands.test.reporter import TestingResult
 from src.utils.config.project_test import make_mock_project
 
 current_directory = Path(__file__).parent
@@ -18,7 +19,7 @@ def fixture_test_root_dir():
 async def test_run_test_runner(mocker, test_root_dir):
     contracts = {"main": ["examples/basic.cairo"]}
     mock_project = make_mock_project(mocker, contracts, str(test_root_dir))
-    results = await run_test_runner(
+    reporters = await run_test_runner(
         project=mock_project,
         tests_root=test_root_dir,
         omit=re.compile(
@@ -26,9 +27,11 @@ async def test_run_test_runner(mocker, test_root_dir):
         ),
         cairo_paths=[],
     )
-    assert sum([r.passed_count for r in results]) == 23
-    assert sum([r.failed_count for r in results]) == 0
-    assert sum([r.broken_count for r in results]) == 0
+
+    testing_result = TestingResult.from_reporters(reporters)
+    assert len(testing_result.passed) == 23
+    assert len(testing_result.failed) == 0
+    assert len(testing_result.broken) == 0
 
 
 @pytest.mark.asyncio
