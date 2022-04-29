@@ -65,7 +65,7 @@ async def run_test_runner(
 
 def worker_init():
     def signal_handler(_signal_num, _frame):
-        pass
+        return None
 
     signal.signal(signal.SIGINT, signal_handler)
 

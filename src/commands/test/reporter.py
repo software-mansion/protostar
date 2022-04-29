@@ -60,7 +60,7 @@ class ReporterCoordinator:
     ):
         self.collected_subjects = test_subjects
 
-        self.collected_count = sum(
+        self.collected_tests_count = sum(
             [len(subject.test_functions) for subject in self.collected_subjects]
         )
         self.tests_root = tests_root
@@ -68,7 +68,7 @@ class ReporterCoordinator:
         self.logger = logger
 
     def report_collected(self):
-        if self.collected_count:
+        if self.collected_tests_count:
             result: List[str] = ["Collected"]
             suits_count = len(self.collected_subjects)
             if suits_count == 1:
@@ -77,13 +77,13 @@ class ReporterCoordinator:
                 result.append(f"{suits_count} suits")
 
             result.append(", and")
-            if self.collected_count == 1:
+            if self.collected_tests_count == 1:
                 result.append("1 test")
             else:
-                result.append(f"{self.collected_count} tests")
+                result.append(f"{self.collected_tests_count} tests")
 
             self.logger.info(
-                f"Collected {len(self.collected_subjects)} suits, and {self.collected_count} tests"
+                f"Collected {len(self.collected_subjects)} suits, and {self.collected_tests_count} tests"
             )
         else:
             self.logger.warn("No cases found")
@@ -94,11 +94,11 @@ class ReporterCoordinator:
 
         try:
             with bar(
-                total=self.collected_count,
+                total=self.collected_tests_count,
                 bar_format="{l_bar}{bar}[{n_fmt}/{total_fmt}]",
                 dynamic_ncols=True,
             ) as progress_bar:
-                tests_left_n = self.collected_count
+                tests_left_n = self.collected_tests_count
                 progress_bar.update()
                 try:
                     while tests_left_n > 0:
@@ -153,6 +153,7 @@ class ReporterCoordinator:
             self._get_preprocessed_core_testing_summary(
                 failed_count=failed_test_cases_amt,
                 passed_count=passed_test_cases_amt,
+                total_count=self.collected_tests_count,
             )
         )
 
@@ -197,14 +198,19 @@ class ReporterCoordinator:
                 broken_count=broken_test_suits_amt,
                 failed_count=failed_test_suits_amt,
                 passed_count=passed_test_suits_amt,
+                total_count=len(self.collected_subjects),
             )
         )
 
     # pylint: disable=no-self-use
     def _get_preprocessed_core_testing_summary(
-        self, broken_count: int = 0, failed_count: int = 0, passed_count: int = 0
+        self,
+        broken_count: int = 0,
+        failed_count: int = 0,
+        passed_count: int = 0,
+        total_count: int = 0,
     ) -> List[str]:
-        total_count = broken_count + failed_count + passed_count
+        skipped_count = total_count - (broken_count + failed_count + passed_count)
         test_suits_result: List[str] = []
 
         if broken_count > 0:
@@ -214,6 +220,10 @@ class ReporterCoordinator:
         if failed_count > 0:
             test_suits_result.append(
                 log_color_provider.colorize("RED", f"{failed_count} failed")
+            )
+        if skipped_count > 0:
+            test_suits_result.append(
+                log_color_provider.colorize("YELLOW", f"{skipped_count} skipped")
             )
         if passed_count > 0:
             test_suits_result.append(
