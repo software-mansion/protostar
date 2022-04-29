@@ -8,7 +8,6 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     PreprocessorError,
 )
 
-from src.commands.test.reporter import ReporterCoordinator
 from src.commands.test.utils import TestSubject
 from src.protostar_exception import ProtostarException
 from src.utils.starknet_compilation import StarknetCompiler
@@ -87,7 +86,6 @@ class TestCollector:
             ).preprocess_contract(file_path)
         except PreprocessorError as p_err:
             print(p_err)
-            ReporterCoordinator.report_collection_error()
             raise CollectionError("Failed to collect test cases") from p_err
         return [
             fn

@@ -111,10 +111,6 @@ class ReporterCoordinator:
     def create_reporter(self):
         return Reporter(self.live_reports_queue)
 
-    @staticmethod
-    def report_collection_error():
-        print("------- TEST COLLECTION ERROR -------")
-
     def report_summary(self, reporters: List[Reporter]):
         testing_result = TestingResult(
             sum([r.test_case_results for r in reporters], [])
