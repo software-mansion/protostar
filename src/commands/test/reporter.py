@@ -69,13 +69,28 @@ class ReporterCoordinator:
 
     def report_collected(self):
         if self.collected_count:
-            self.logger.info(f"Collected {self.collected_count} items")
+            result: List[str] = ["Collected"]
+            suits_count = len(self.collected_subjects)
+            if suits_count == 1:
+                result.append("1 suit")
+            else:
+                result.append(f"{suits_count} suits")
+
+            result.append(", and")
+            if self.collected_count == 1:
+                result.append("1 test")
+            else:
+                result.append(f"{self.collected_count} tests")
+
+            self.logger.info(
+                f"Collected {len(self.collected_subjects)} suits, and {self.collected_count} tests"
+            )
         else:
             self.logger.warn("No cases found")
 
     def live_reporting(self):
         self.report_collected()
-        case_results = TestingResult([])
+        testing_result = TestingResult([])
 
         try:
             with bar(
@@ -85,27 +100,31 @@ class ReporterCoordinator:
             ) as progress_bar:
                 tests_left_n = self.collected_count
                 progress_bar.update()
-                while tests_left_n > 0:
-                    subject, case_result = self.live_reports_queue.get(
-                        block=True, timeout=1000
-                    )
-                    case_results.append([case_result])
-                    cast(Any, progress_bar).colour = (
-                        "RED"
-                        if len(case_results.failed) + len(case_results.broken) > 0
-                        else "GREEN"
-                    )
-                    progress_bar.write(str(case_result))
+                try:
+                    while tests_left_n > 0:
+                        subject, case_result = self.live_reports_queue.get(
+                            block=True, timeout=1000
+                        )
+                        testing_result.append([case_result])
+                        cast(Any, progress_bar).colour = (
+                            "RED"
+                            if len(testing_result.failed) + len(testing_result.broken)
+                            > 0
+                            else "GREEN"
+                        )
+                        progress_bar.write(str(case_result))
 
-                    if isinstance(case_result, BrokenTest):
-                        tests_in_case_count = len(subject.test_functions)
-                        progress_bar.update(tests_in_case_count)
-                        tests_left_n -= tests_in_case_count
-                    else:
-                        progress_bar.update(1)
-                        tests_left_n -= 1
-                progress_bar.bar_format = "{desc}"
-                progress_bar.update()
+                        if isinstance(case_result, BrokenTest):
+                            tests_in_case_count = len(subject.test_functions)
+                            progress_bar.update(tests_in_case_count)
+                            tests_left_n -= tests_in_case_count
+                        else:
+                            progress_bar.update(1)
+                            tests_left_n -= 1
+                finally:
+                    progress_bar.bar_format = "{desc}"
+                    progress_bar.update()
+                    self.report_summary(testing_result)
 
         except queue.Empty:
             # https://docs.python.org/3/library/queue.html#queue.Queue.get
@@ -115,8 +134,7 @@ class ReporterCoordinator:
     def create_reporter(self):
         return Reporter(self.live_reports_queue)
 
-    def report_summary(self, reporters: List[Reporter]):
-        testing_result = TestingResult.from_reporters(reporters)
+    def report_summary(self, testing_result: TestingResult):
 
         self.logger.info(
             log_color_provider.bold("Test suits: ")

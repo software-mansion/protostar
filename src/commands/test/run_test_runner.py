@@ -1,5 +1,6 @@
 import asyncio
 import multiprocessing
+import signal
 from logging import getLogger
 from multiprocessing import Pool
 from pathlib import Path
@@ -51,13 +52,22 @@ async def run_test_runner(
             for subject in test_subjects
         ]
 
-        with Pool(multiprocessing.cpu_count()) as pool:
+        with Pool(multiprocessing.cpu_count(), worker_init) as pool:
             result = pool.starmap_async(run_worker, setups)
-            reporter_coordinator.live_reporting()
-            reporters = result.get()
-            reporter_coordinator.report_summary(reporters)
+            try:
+                reporter_coordinator.live_reporting()
+                return result.get()
+            except KeyboardInterrupt:
+                pool.terminate()
+                pool.join()
+                return []
 
-        return reporters
+
+def worker_init():
+    def signal_handler(_signal_num, _frame):
+        pass
+
+    signal.signal(signal.SIGINT, signal_handler)
 
 
 def run_worker(
