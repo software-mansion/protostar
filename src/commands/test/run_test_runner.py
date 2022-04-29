@@ -55,8 +55,7 @@ async def run_test_runner(
             result = pool.starmap_async(run_worker, setups)
             reporter_coordinator.live_reporting()
             reporters = result.get()
-            # todo: ENABLE
-            # reporter_coordinator.report_summary(reporters)
+            reporter_coordinator.report_summary(reporters)
 
         return reporters
 
