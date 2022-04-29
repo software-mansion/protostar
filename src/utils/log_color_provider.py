@@ -36,7 +36,7 @@ class LogColorProvider:
     def colorize(self, color_name: SupportedColorName, content: str):
         return f"{self.get_color(color_name)}{content}{self.get_color('RESET')}"
 
-    # pylint disable:no-self-use
+    # pylint: disable=no-self-use
     def bold(self, content: str):
         return f"{Style.BRIGHT}{content}{Style.RESET_ALL}"
 
