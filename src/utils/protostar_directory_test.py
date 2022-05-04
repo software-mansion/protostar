@@ -26,6 +26,6 @@ def test_injecting_cairo_dir(script_root: Path):
     protostar_directory = ProtostarDirectory(script_root)
 
     foo_path = Path("foo")
-    cairo_paths = protostar_directory.inject_protostar_cairo_dir([foo_path])
+    cairo_paths = protostar_directory.add_protostar_cairo_dir([foo_path])
 
     assert Path(script_root / "cairo") in cairo_paths

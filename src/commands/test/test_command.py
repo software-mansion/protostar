@@ -74,7 +74,7 @@ class TestCommand(Command):
             project=self._project,
             omit=args.omit,
             match=args.match,
-            cairo_paths=self._protostar_directory.inject_protostar_cairo_dir(
+            cairo_paths=self._protostar_directory.add_protostar_cairo_dir(
                 args.cairo_path
             ),
         )
