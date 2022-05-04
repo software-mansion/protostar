@@ -14,15 +14,14 @@ def test_generating_markdown_for_commands(
     )
 
     result = docs_generator.generate_cli_reference_markdown()
-    splitted_result = result.split("\n")
 
-    assert f"### `{bar_command.name}`" in splitted_result
+    assert bar_command.name in result
     assert bar_command.example is None
-    assert f"{bar_command.description}" in splitted_result
+    assert bar_command.description in result
 
-    assert f"### `{foo_command.name}`" in splitted_result
-    assert f"{foo_command.example}" in splitted_result
-    assert f"{foo_command.description}" in splitted_result
+    assert foo_command.name in result
+    assert foo_command.example is not None and foo_command.example in result
+    assert foo_command.description in result
 
 
 def test_generating_markdown_for_command_arguments(foo_command: FooCommand):
@@ -31,12 +30,11 @@ def test_generating_markdown_for_command_arguments(foo_command: FooCommand):
     )
 
     result = docs_generator.generate_cli_reference_markdown()
-    splitted_result = result.split("\n")
 
-    assert f"### `{foo_command.name}`" in splitted_result
-    assert f"#### `--{foo_command.arguments[0].name}`" in splitted_result
-    assert f"{foo_command.arguments[0].example}" in splitted_result
-    assert f"{foo_command.arguments[0].description}" in splitted_result
+    assert foo_command.name in result
+    assert foo_command.arguments[0].name in result
+    assert foo_command.arguments[0].example or "" in result
+    assert foo_command.arguments[0].description in result
 
 
 def test_generating_default_type_and_array_info():
@@ -75,9 +73,9 @@ def test_generating_short_name_info():
     )
 
     result = docs_generator.generate_cli_reference_markdown()
-    splitted_result = result.split("\n")
 
-    assert "#### `-f` `--foo`" in splitted_result
+    assert "-f" in result
+    assert "--foo" in result
 
 
 def test_required_info():
@@ -96,9 +94,8 @@ def test_required_info():
     )
 
     result = docs_generator.generate_cli_reference_markdown()
-    splitted_result = result.split("\n")
 
-    assert "Required." in splitted_result
+    assert "Required." in result
 
 
 def test_saving_markdown_file(tmpdir):
@@ -112,10 +109,9 @@ def test_saving_markdown_file(tmpdir):
 def test_command_order(foo_command: FooCommand, bar_command: BarCommand):
     docs_generator = ReferenceDocsGenerator(CLIApp(commands=[foo_command, bar_command]))
     result = docs_generator.generate_cli_reference_markdown()
-    splitted_result = result.split("\n")
 
-    foo_command_index = splitted_result.index(f"### `{foo_command.name}`")
-    bar_command_index = splitted_result.index(f"### `{bar_command.name}`")
+    foo_command_index = result.index(foo_command.name)
+    bar_command_index = result.index(bar_command.name)
 
     assert bar_command_index < foo_command_index
 
@@ -133,9 +129,9 @@ def test_args_order_by_is_positional_and_name():
         )
     )
     result = docs_generator.generate_cli_reference_markdown()
-    splitted_result = result.split("\n")
-    baz_index = splitted_result.index("#### `baz STRING`")
-    bar_index = splitted_result.index("#### `--bar STRING`")
-    foo_index = splitted_result.index("#### `--foo STRING`")
+
+    baz_index = result.index("baz")
+    bar_index = result.index("--bar")
+    foo_index = result.index("--foo")
     assert baz_index < bar_index
     assert bar_index < foo_index
