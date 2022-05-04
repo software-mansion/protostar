@@ -8,6 +8,9 @@ class CLIApp:
     Defines CLI structure and is responsible for executing the proper command.
     """
 
+    class CommandNotFoundError(BaseException):
+        pass
+
     def __init__(
         self,
         commands: Optional[List[Command]] = None,
@@ -17,13 +20,9 @@ class CLIApp:
         self.root_args = root_args or []
         self._command_mapping = {command.name: command for command in self.commands}
 
-    async def run(self, args: Any) -> bool:
-        """
-        Returns `True` if a command was recognized and executed.
-        """
-        if not args.command or args.command not in self._command_mapping:
-            return False
+    async def run(self, args: Any) -> None:
+        if not args or not args.command or args.command not in self._command_mapping:
+            raise CLIApp.CommandNotFoundError()
 
         command = self._command_mapping[args.command]
         await command.run(args)
-        return True

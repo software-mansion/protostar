@@ -2,6 +2,7 @@
 import asyncio
 from pathlib import Path
 
+from src.cli.cli_app import CLIApp
 from src.protostar_cli import ProtostarCLI
 
 
@@ -19,8 +20,9 @@ def main(script_root: Path):
     args = parser.parse()
 
     try:
-        if not asyncio.run(protostar_cli.run(args)):
-            parser.print_help()
+        asyncio.run(protostar_cli.run(args))
+    except CLIApp.CommandNotFoundError:
+        parser.print_help()
     except Exception as err:
         print(
             "Unexpected Protostar error. Report it here:\nhttps://github.com/software-mansion/protostar/issues\n"
