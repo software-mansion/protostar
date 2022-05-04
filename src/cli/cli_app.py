@@ -21,7 +21,7 @@ class CLIApp:
         """
         Returns `True` if a command was recognized and executed.
         """
-        if not args.command:
+        if not args.command or args.command not in self._command_mapping:
             return False
 
         command = self._command_mapping[args.command]
