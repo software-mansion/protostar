@@ -1,4 +1,4 @@
-from typing import Any, List, Mapping, Optional
+from typing import Any, List, Optional
 
 from src.cli.command import Command
 
@@ -15,10 +15,7 @@ class CLIApp:
     ) -> None:
         self.commands = commands or []
         self.root_args = root_args or []
-
-        self._command_mapping: Mapping[str, Command] = {}
-        for command in self.commands:
-            self._command_mapping[command.name] = command
+        self._command_mapping = {command.name: command for command in self.commands}
 
     async def run(self, args: Any) -> bool:
         if not args.command:
