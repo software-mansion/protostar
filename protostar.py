@@ -166,13 +166,14 @@ try:
         required=False,
     )
 
-    try:
-        asyncio.run(cli(root_parser.parse_args(), SCRIPT_ROOT))
-    except Exception as err:
-        print(
-            "Unexpected Protostar error. Report it here:\nhttps://github.com/software-mansion/protostar/issues\n"
-        )
-        raise err
+    if __name__ == "__main__":
+        try:
+            asyncio.run(cli(root_parser.parse_args(), SCRIPT_ROOT))
+        except Exception as err:
+            print(
+                "Unexpected Protostar error. Report it here:\nhttps://github.com/software-mansion/protostar/issues\n"
+            )
+            raise err
 
 except ImportError as err:
     # pylint: disable=no-member
