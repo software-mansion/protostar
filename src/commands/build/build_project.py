@@ -8,8 +8,8 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
 from starkware.cairo.lang.vm.vm_exceptions import VmException
 from starkware.starkware_utils.error_handling import StarkException
 
-from src.commands.build.build_exceptions import CairoCompilationException
 from src.cli.command import Command
+from src.commands.build.build_exceptions import CairoCompilationException
 from src.utils.config.project import Project
 from src.utils.starknet_compilation import StarknetCompiler
 
@@ -59,6 +59,7 @@ class BuildCommand(Command):
         )
 
 
+# TODO: https://github.com/software-mansion/protostar/issues/241
 def build_project(
     project: Project,
     output_dir: Path,

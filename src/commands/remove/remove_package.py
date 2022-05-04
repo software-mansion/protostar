@@ -6,6 +6,7 @@ from git.repo import Repo
 from src.commands.remove import removal_exceptions
 
 
+# TODO: https://github.com/software-mansion/protostar/issues/241
 def remove_package(package_name: str, repo_root_dir: Path):
     try:
         repo = Repo(repo_root_dir)
