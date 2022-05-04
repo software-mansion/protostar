@@ -1,6 +1,12 @@
 name: types -> format -> lint -> test
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
+      - development
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   build:
