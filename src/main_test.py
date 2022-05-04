@@ -1,12 +1,11 @@
 import asyncio
 from pathlib import Path
-from typing import List, cast
 from unittest.mock import MagicMock
 
 import pytest
 from pytest_mock import MockerFixture
 
-from .main import main
+from src.main import main
 
 
 @pytest.fixture(name="protostar_cli_create_mock")
@@ -33,6 +32,7 @@ def protostar_cli_fixture(
 
 
 def test_should_run_protostar_cli(run_mock: MagicMock):
+
     main(Path())
 
     run_mock.assert_called_once()
@@ -49,16 +49,3 @@ def test_should_tell_user_where_to_report_unexpected_errors(
     captured = capsys.readouterr()
     output = captured.out.split("\n")
     assert "https://github.com/software-mansion/protostar/issues" in output
-
-
-def test_handling_no_git_error(capsys, protostar_cli_create_mock: MagicMock):
-    protostar_cli_create_mock.side_effect = ImportError(
-        "Failed to initialize: Bad git executable."
-    )
-
-    with pytest.raises(SystemExit):
-        main(Path())
-
-    captured = capsys.readouterr()
-    output = cast(List[str], captured.out.split("\n"))
-    assert output[0].startswith("Protostar requires git")
