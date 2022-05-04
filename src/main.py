@@ -19,7 +19,8 @@ def main(script_root: Path):
     args = parser.parse()
 
     try:
-        asyncio.run(protostar_cli.run(args))
+        if not asyncio.run(protostar_cli.run(args)):
+            parser.print_help()
     except Exception as err:
         print(
             "Unexpected Protostar error. Report it here:\nhttps://github.com/software-mansion/protostar/issues\n"

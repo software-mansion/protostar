@@ -18,6 +18,9 @@ class CLIApp:
         self._command_mapping = {command.name: command for command in self.commands}
 
     async def run(self, args: Any) -> bool:
+        """
+        Returns `True` if a command was recognized and executed.
+        """
         if not args.command:
             return False
 
