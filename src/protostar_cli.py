@@ -25,13 +25,6 @@ from src.utils import (
 
 
 class ProtostarCLI(CLIApp):
-    @classmethod
-    def create(cls, script_root: Path):
-        protostar_directory = ProtostarDirectory(script_root)
-        version_manager = VersionManager(protostar_directory)
-        project = Project(version_manager)
-        return cls(script_root, protostar_directory, project, version_manager)
-
     def __init__(
         self,
         script_root: Path,
@@ -65,6 +58,13 @@ class ProtostarCLI(CLIApp):
             ],
         )
         self.version_manager = version_manager
+
+    @classmethod
+    def create(cls, script_root: Path):
+        protostar_directory = ProtostarDirectory(script_root)
+        version_manager = VersionManager(protostar_directory)
+        project = Project(version_manager)
+        return cls(script_root, protostar_directory, project, version_manager)
 
     def _setup_logger(self, is_ci_mode: bool) -> Logger:
         log_color_provider.is_ci_mode = is_ci_mode
