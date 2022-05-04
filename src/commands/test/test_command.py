@@ -1,8 +1,7 @@
 from typing import TYPE_CHECKING, List, Optional
 
-from src.commands.test import run_test_runner
-from src.commands.test.reporter import TestReporter
 from src.cli.command import Command
+from src.commands.test import run_test_runner
 from src.utils.protostar_directory import ProtostarDirectory
 
 if TYPE_CHECKING:
@@ -69,7 +68,6 @@ class TestCommand(Command):
 
     async def run(self, args):
         await run_test_runner(
-            TestReporter(args.target),
             args.target,
             project=self._project,
             omit=args.omit,

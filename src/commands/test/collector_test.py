@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from src.commands.test.collector import CollectionError, TestCollector
+from src.commands.test.test_collector import CollectionError, TestCollector
 
 current_directory = Path(__file__).parent
 
