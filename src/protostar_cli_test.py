@@ -6,7 +6,8 @@ from typing import Any
 import pytest
 from pytest_mock import MockerFixture
 
-from src.cli import ArgumentParserFacade, ReferenceDocsGenerator
+from docs_generator import ReferenceDocsGenerator
+from src.cli import ArgumentParserFacade
 from src.utils.protostar_directory import VersionManager
 
 from .protostar_cli import ProtostarCLI

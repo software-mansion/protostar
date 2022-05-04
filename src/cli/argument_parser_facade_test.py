@@ -3,7 +3,7 @@ from typing import Any, Optional, Pattern
 
 import pytest
 
-from src.conftest import BaseTestCommand, FooCommand
+from conftest import BaseTestCommand, FooCommand
 from src.cli.argument_parser_facade import (
     ArgumentDefaultValueProvider,
     ArgumentParserFacade,

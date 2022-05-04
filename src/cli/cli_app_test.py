@@ -6,7 +6,7 @@ from pytest_mock import MockerFixture
 from src.cli.argument_parser_facade import ArgumentParserFacade
 from src.cli.cli_app import CLIApp
 from src.cli.command import Command
-from src.conftest import FooCommand
+from conftest import FooCommand
 
 
 @pytest.mark.asyncio
