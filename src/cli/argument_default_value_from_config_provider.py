@@ -1,11 +1,10 @@
 from typing import Any, Optional
 
-from src.cli.argument_parser_facade import ArgumentDefaultValueProvider
 from src.cli.command import Command
 from src.utils import Project
 
 
-class ArgumentDefaultValueFromConfigProvider(ArgumentDefaultValueProvider):
+class ArgumentDefaultValueFromConfigProvider:
     def __init__(self, project: Project) -> None:
         self._project = project
         super().__init__()
