@@ -1,6 +1,6 @@
-from .argument_default_value_from_config_provider import (
+from src.cli.argument_default_value_from_config_provider import (
     ArgumentDefaultValueFromConfigProvider,
 )
-from .argument_parser_facade import ArgumentParserFacade
-from .cli_app import CLIApp
-from .command import Command
+from src.cli.argument_parser_facade import ArgumentParserFacade
+from src.cli.cli_app import CLIApp
+from src.cli.command import Command
