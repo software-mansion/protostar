@@ -48,7 +48,6 @@ class UpdateCommand(Command):
         handle_update_command(args, self._project)
 
 
-# TODO: https://github.com/software-mansion/protostar/issues/241
 def handle_update_command(args, project: Project) -> None:
     assert args.command == "update"
 

@@ -31,7 +31,6 @@ class TestCollector:
             self.target = self.target.parent / file_name
             assert not self.target.is_dir()
 
-    # TODO: Optimize, by returning preprocessed test program, for reuse when compiling it for test runs
     def collect(
         self,
         match_pattern: Optional[Pattern] = None,

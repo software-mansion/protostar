@@ -44,7 +44,6 @@ class UpgradeCommand(Command):
         upgrade(self._protostar_directory, self._version_manager)
 
 
-# TODO: https://github.com/software-mansion/protostar/issues/241
 def upgrade(
     protostar_directory: ProtostarDirectory, version_manager: VersionManager
 ) -> None:

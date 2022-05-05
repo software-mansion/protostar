@@ -35,7 +35,7 @@ class BuildCommand(Command):
     def arguments(self) -> List[Command.Argument]:
         return [
             Command.Argument(
-                name="cairo-path",  # TODO: use plural name
+                name="cairo-path",
                 description="Additional directories to look for sources.",
                 type="directory",
                 is_array=True,
@@ -59,7 +59,6 @@ class BuildCommand(Command):
         )
 
 
-# TODO: https://github.com/software-mansion/protostar/issues/241
 def build_project(
     project: Project,
     output_dir: Path,
