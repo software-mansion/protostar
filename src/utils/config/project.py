@@ -42,6 +42,16 @@ class Project:
         self._version_manager = version_manager
 
     @property
+    def repo_path(self) -> Optional[Path]:
+        root = self.project_root.resolve().root
+        potential_repo_path = self.project_root.resolve()
+        while str(potential_repo_path) != root:
+            if (potential_repo_path / ".git").exists():
+                return potential_repo_path
+            potential_repo_path = potential_repo_path.parent
+        return None
+
+    @property
     def config(self) -> ProjectConfig:
         if not self._project_config:
             self.load_config()
