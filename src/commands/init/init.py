@@ -6,7 +6,7 @@ from typing import Any, Type
 from git.exc import InvalidGitRepositoryError
 from git.repo import Repo
 
-from src.utils import log_color_provider, VersionManager
+from src.utils import VersionManager, log_color_provider
 from src.utils.config.project import Project, ProjectConfig
 
 
@@ -75,7 +75,8 @@ class ProjectCreator:
 
         project.write_config(self.config)
 
-        Repo.init(project_root)
+        if not project.repo_path:
+            Repo.init(project_root)
 
     @staticmethod
     def copy_template(script_root: Path, template_name: str, project_path: Path):
@@ -105,7 +106,7 @@ class OnlyConfigCreator(ProjectCreator):
         project.write_config(self.config)
 
         try:
-            Repo(project_root)
+            Repo(project.repo_path or project.project_root)
         except InvalidGitRepositoryError:
             Repo.init(project_root)
 
