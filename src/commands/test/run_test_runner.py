@@ -52,22 +52,17 @@ async def run_test_runner(
             for subject in test_subjects
         ]
 
-        with Pool(multiprocessing.cpu_count(), worker_init) as pool:
-            result = pool.starmap_async(run_worker, setups)
-            try:
+        try:
+            with Pool(multiprocessing.cpu_count(), worker_init) as pool:
+                result = pool.starmap_async(run_worker, setups)
                 reporter_coordinator.live_reporting()
                 return result.get()
-            except KeyboardInterrupt:
-                pool.terminate()
-                pool.join()
-                return []
+        except KeyboardInterrupt:
+            return []
 
 
 def worker_init():
-    def signal_handler(_signal_num, _frame):
-        return None
-
-    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 
 def run_worker(
