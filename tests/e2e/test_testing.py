@@ -50,8 +50,6 @@ def test_expect_revert(protostar, copy_fixture):
 def test_loading_cairo_path_from_config_file(protostar, my_private_libs_setup):
     (my_private_libs_dir,) = my_private_libs_setup
 
-    # TODO: Protostar shouldn't crash when imports are incorrect
-    # https://github.com/software-mansion/protostar/issues/230
     with pytest.raises(CalledProcessError):
         protostar(["test", "tests"])
 
