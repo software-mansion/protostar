@@ -8,14 +8,12 @@ from src.protostar_cli import ProtostarCLI
 
 def main(script_root: Path):
     # mocker.patch doesn't work when imported normally
-    from src.cli import ArgumentDefaultValueFromConfigProvider, ArgumentParserFacade
+    from src.cli import ArgumentValueFromConfigProvider, ArgumentParserFacade
 
     protostar_cli = ProtostarCLI.create(script_root)
     parser = ArgumentParserFacade(
         protostar_cli,
-        default_value_provider=ArgumentDefaultValueFromConfigProvider(
-            protostar_cli.project
-        ),
+        default_value_provider=ArgumentValueFromConfigProvider(protostar_cli.project),
     )
     args = parser.parse()
 

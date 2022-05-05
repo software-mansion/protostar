@@ -3,8 +3,8 @@ from argparse import ArgumentParser
 from pathlib import Path
 from typing import Any, Optional, Sequence
 
-from src.cli.argument_default_value_from_config_provider import (
-    ArgumentDefaultValueFromConfigProvider,
+from src.cli.argument_value_from_config_provider import (
+    ArgumentValueFromConfigProvider,
 )
 from src.cli.cli_app import CLIApp
 from src.cli.command import Command
@@ -14,7 +14,7 @@ class ArgumentParserFacade:
     def __init__(
         self,
         cli_app: CLIApp,
-        default_value_provider: Optional[ArgumentDefaultValueFromConfigProvider] = None,
+        default_value_provider: Optional[ArgumentValueFromConfigProvider] = None,
     ) -> None:
         self.argument_parser = ArgumentParser()
         self.command_parsers = self.argument_parser.add_subparsers(dest="command")
@@ -45,7 +45,7 @@ class ArgumentParserFacade:
         for arg in command.arguments:
             ArgumentParserFacade._add_argument(
                 command_parser,
-                self._update_arg_default_value_if_necessary(command, arg),
+                self._update_from_config(command, arg),
             )
 
         return self
@@ -57,11 +57,11 @@ class ArgumentParserFacade:
 
         ArgumentParserFacade._add_argument(
             self.argument_parser,
-            self._update_arg_default_value_if_necessary(None, argument),
+            self._update_from_config(None, argument),
         )
         return self
 
-    def _update_arg_default_value_if_necessary(
+    def _update_from_config(
         self, command: Optional[Command], argument: Command.Argument
     ) -> Command.Argument:
         if self._default_value_provider:

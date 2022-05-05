@@ -4,7 +4,7 @@ from src.cli.command import Command
 from src.utils import Project
 
 
-class ArgumentDefaultValueFromConfigProvider:
+class ArgumentValueFromConfigProvider:
     def __init__(self, project: Project) -> None:
         self._project = project
         super().__init__()
