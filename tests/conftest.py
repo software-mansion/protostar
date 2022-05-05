@@ -72,3 +72,20 @@ def init(project_name: str, libs_path: str):
     init_project(project_name, libs_path)
     yield chdir(project_name)
     chdir(ACTUAL_CWD)
+
+
+# pylint: disable=unused-argument
+@pytest.fixture(name="my_private_libs_setup")
+def my_private_libs_setup_fixture(init, tmpdir, copy_fixture):
+    my_private_libs_dir = Path(tmpdir) / "my_private_libs"
+    mkdir(my_private_libs_dir)
+
+    my_lib_dir = my_private_libs_dir / "my_lib"
+    mkdir(my_lib_dir)
+
+    copy_fixture("simple_function.cairo", my_lib_dir / "utils.cairo")
+    copy_fixture("main_using_simple_function.cairo", Path() / "src" / "main.cairo")
+    copy_fixture(
+        "test_main_using_simple_function.cairo", Path() / "tests" / "test_main.cairo"
+    )
+    return (my_private_libs_dir,)

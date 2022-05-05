@@ -1,3 +1,5 @@
+from subprocess import CalledProcessError
+
 import pytest
 
 
@@ -24,7 +26,6 @@ def test_expect_revert(protostar, copy_fixture):
     copy_fixture("test_expect_revert.cairo", "./tests")
 
     result = protostar(["test", "tests"])
-    print(result)
 
     assert "Collected 11 items" in result
     assert "6 passed" in result
@@ -44,3 +45,24 @@ def test_expect_revert(protostar, copy_fixture):
     )
     assert "[error_type] RANDOM_ERROR_NAME" in result
     assert "Unknown location" not in result
+
+
+def test_loading_cairo_path_from_config_file(protostar, my_private_libs_setup):
+    (my_private_libs_dir,) = my_private_libs_setup
+
+    # TODO: Protostar shouldn't crash when imports are incorrect
+    # https://github.com/software-mansion/protostar/issues/230
+    with pytest.raises(CalledProcessError):
+        protostar(["test", "tests"])
+
+    with open("./protostar.toml", "a", encoding="utf-8") as protostar_toml:
+        protostar_toml.write(
+            f"""
+["protostar.shared_command_configs"]
+cairo_path = ["{str(my_private_libs_dir)}"]
+"""
+        )
+
+    result = protostar(["test", "tests"])
+    assert "/my_lib/utils.cairo" not in result
+    assert "1 passed" in result

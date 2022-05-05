@@ -1,33 +1,6 @@
-from os import listdir, mkdir
-from pathlib import Path
+from os import listdir
 
 import pytest
-
-
-# pylint: disable=unused-argument
-@pytest.fixture(name="my_private_libs_setup")
-def my_private_libs_setup_fixture(init, tmpdir, copy_fixture):
-    my_private_libs_dir = Path(tmpdir) / "my_private_libs"
-    mkdir(my_private_libs_dir)
-
-    my_lib_dir = my_private_libs_dir / "my_lib"
-    mkdir(my_lib_dir)
-
-    copy_fixture("simple_function.cairo", my_lib_dir / "utils.cairo")
-
-    with open("./src/main.cairo", mode="w", encoding="utf-8") as my_contract:
-        my_contract.write(
-            """%lang starknet
-from my_lib.utils import get_my_number
-
-@view
-func my_func() -> (res: felt):
-    let (res) = get_my_number()
-    return (res)
-end
-"""
-        )
-    return (my_private_libs_dir,)
 
 
 @pytest.mark.usefixtures("init")
