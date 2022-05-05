@@ -1,17 +1,18 @@
 import re
 from abc import ABC, abstractmethod
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any, List, Optional, Pattern
 
-from attr import dataclass, frozen
 from typing_extensions import Literal
 
 InputAllowedType = Literal["str", "directory", "path", "bool", "regexp"]
 
 
-@frozen
 class Command(ABC):
-    @dataclass
+
+    # pylint: disable=too-many-instance-attributes
+    @dataclass(frozen=True)
     class Argument:
         class Type:
             @staticmethod
@@ -33,6 +34,9 @@ class Command(ABC):
         default: Optional[str] = None
         example: Optional[str] = None
         short_name: Optional[str] = None
+
+        def copy_with(self, **changes) -> "Command.Argument":
+            return replace(self, **changes)
 
     @property
     @abstractmethod

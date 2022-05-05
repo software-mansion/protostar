@@ -43,8 +43,10 @@ class ArgumentParserFacade:
             description=command.description,
         )
         for arg in command.arguments:
-            self._update_arg_default_value_if_necessary(command, arg)
-            ArgumentParserFacade._add_argument(command_parser, arg)
+            ArgumentParserFacade._add_argument(
+                command_parser,
+                self._update_arg_default_value_if_necessary(command, arg),
+            )
 
         return self
 
@@ -53,8 +55,10 @@ class ArgumentParserFacade:
             argument.is_positional is False
         ), f"A root argument ({argument.name}) cannot be positional"
 
-        self._update_arg_default_value_if_necessary(None, argument)
-        ArgumentParserFacade._add_argument(self.argument_parser, argument)
+        ArgumentParserFacade._add_argument(
+            self.argument_parser,
+            self._update_arg_default_value_if_necessary(None, argument),
+        )
         return self
 
     def _update_arg_default_value_if_necessary(
@@ -65,7 +69,7 @@ class ArgumentParserFacade:
                 command, argument
             )
             if new_default is not None:
-                argument.default = new_default
+                return argument.copy_with(default=new_default)
         return argument
 
     @staticmethod
