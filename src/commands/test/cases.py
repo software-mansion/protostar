@@ -9,7 +9,7 @@ from src.commands.test.test_environment_exceptions import ReportedException
 from src.utils.log_color_provider import log_color_provider
 
 
-@dataclass
+@dataclass(frozen=True)
 class CaseResult:
     file_path: Path
 
@@ -17,7 +17,7 @@ class CaseResult:
         return log_color_provider.colorize("GRAY", str(self.file_path))
 
 
-@dataclass
+@dataclass(frozen=True)
 class PassedCase(CaseResult):
     function_name: str
     tx_info: Optional[StarknetTransactionExecutionInfo]
@@ -29,7 +29,7 @@ class PassedCase(CaseResult):
         return " ".join(result)
 
 
-@dataclass
+@dataclass(frozen=True)
 class FailedCase(CaseResult):
     function_name: str
     exception: ReportedException
@@ -44,7 +44,7 @@ class FailedCase(CaseResult):
         return "".join(result)
 
 
-@dataclass
+@dataclass(frozen=True)
 class BrokenTest(CaseResult):
     exception: StarkException
 

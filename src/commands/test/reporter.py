@@ -1,4 +1,5 @@
 import queue
+from collections import defaultdict
 from logging import Logger
 from pathlib import Path
 
@@ -13,7 +14,9 @@ from src.utils.log_color_provider import log_color_provider
 
 
 class Reporter:
-    def __init__(self, live_reports_queue: queue.Queue):
+    def __init__(
+        self, live_reports_queue: "queue.Queue[Tuple[TestSubject, CaseResult]]"
+    ):
         self.live_reports_queue = live_reports_queue
         self.test_case_results: List[CaseResult] = []
 
@@ -29,17 +32,15 @@ class TestingResult:
 
     def __init__(self, case_results: List[CaseResult]) -> None:
         self.case_results = []
-        self.test_files: Dict[Path, List[CaseResult]] = {}
+        self.test_files: Dict[Path, List[CaseResult]] = defaultdict(list)
         self.passed: List[PassedCase] = []
         self.failed: List[FailedCase] = []
         self.broken: List[BrokenTest] = []
-        self.append(case_results)
+        self.extend(case_results)
 
-    def append(self, case_results: List[CaseResult]):
+    def extend(self, case_results: List[CaseResult]):
         self.case_results += case_results
         for case_result in case_results:
-            if case_result.file_path not in self.test_files:
-                self.test_files[case_result.file_path] = []
             self.test_files[case_result.file_path].append(case_result)
 
             if isinstance(case_result, PassedCase):
@@ -72,19 +73,17 @@ class ReporterCoordinator:
             result: List[str] = ["Collected"]
             suits_count = len(self.collected_subjects)
             if suits_count == 1:
-                result.append("1 suit")
+                result.append("1 suit,")
             else:
-                result.append(f"{suits_count} suits")
+                result.append(f"{suits_count} suits,")
 
-            result.append(", and")
+            result.append("and")
             if self.collected_tests_count == 1:
-                result.append("1 test")
+                result.append("1 test case")
             else:
-                result.append(f"{self.collected_tests_count} tests")
+                result.append(f"{self.collected_tests_count} test cases")
 
-            self.logger.info(
-                f"Collected {len(self.collected_subjects)} suits, and {self.collected_tests_count} tests"
-            )
+            self.logger.info(" ".join(result))
         else:
             self.logger.warn("No cases found")
 
@@ -105,7 +104,7 @@ class ReporterCoordinator:
                         subject, case_result = self.live_reports_queue.get(
                             block=True, timeout=1000
                         )
-                        testing_result.append([case_result])
+                        testing_result.extend([case_result])
                         cast(Any, progress_bar).colour = (
                             "RED"
                             if len(testing_result.failed) + len(testing_result.broken)
@@ -146,58 +145,60 @@ class ReporterCoordinator:
         )
 
     def _get_test_cases_summary(self, testing_result: TestingResult) -> str:
-        failed_test_cases_amt = len(testing_result.failed)
-        passed_test_cases_amt = len(testing_result.passed)
+        failed_test_cases_count = len(testing_result.failed)
+        passed_test_cases_count = len(testing_result.passed)
 
         return ", ".join(
             self._get_preprocessed_core_testing_summary(
-                failed_count=failed_test_cases_amt,
-                passed_count=passed_test_cases_amt,
+                failed_count=failed_test_cases_count,
+                passed_count=passed_test_cases_count,
                 total_count=self.collected_tests_count,
             )
         )
 
     def _get_test_suits_summary(self, testing_result: TestingResult) -> str:
-        passed_test_suits_amt = 0
-        failed_test_suits_amt = 0
-        broken_test_suits_amt = 0
-        total_test_suits_amt = len(testing_result.test_files)
+        passed_test_suits_count = 0
+        failed_test_suits_count = 0
+        broken_test_suits_count = 0
+        total_test_suits_count = len(testing_result.test_files)
         for suit_case_results in testing_result.test_files.values():
             partial_results = TestingResult(suit_case_results)
 
             if len(partial_results.broken) > 0:
-                broken_test_suits_amt += 1
+                broken_test_suits_count += 1
                 continue
 
             if len(partial_results.failed) > 0:
-                failed_test_suits_amt += 1
+                failed_test_suits_count += 1
                 continue
 
             if len(partial_results.passed) > 0:
-                passed_test_suits_amt += 1
+                passed_test_suits_count += 1
 
         test_suits_result: List[str] = []
 
-        if broken_test_suits_amt > 0:
+        if broken_test_suits_count > 0:
             test_suits_result.append(
-                log_color_provider.colorize("RED", f"{broken_test_suits_amt} broken")
+                log_color_provider.colorize("RED", f"{broken_test_suits_count} broken")
             )
-        if failed_test_suits_amt > 0:
+        if failed_test_suits_count > 0:
             test_suits_result.append(
-                log_color_provider.colorize("RED", f"{failed_test_suits_amt} failed")
+                log_color_provider.colorize("RED", f"{failed_test_suits_count} failed")
             )
-        if passed_test_suits_amt > 0:
+        if passed_test_suits_count > 0:
             test_suits_result.append(
-                log_color_provider.colorize("GREEN", f"{passed_test_suits_amt} passed")
+                log_color_provider.colorize(
+                    "GREEN", f"{passed_test_suits_count} passed"
+                )
             )
-        if total_test_suits_amt > 0:
-            test_suits_result.append(f"{total_test_suits_amt} total")
+        if total_test_suits_count > 0:
+            test_suits_result.append(f"{total_test_suits_count} total")
 
         return ", ".join(
             self._get_preprocessed_core_testing_summary(
-                broken_count=broken_test_suits_amt,
-                failed_count=failed_test_suits_amt,
-                passed_count=passed_test_suits_amt,
+                broken_count=broken_test_suits_count,
+                failed_count=failed_test_suits_count,
+                passed_count=passed_test_suits_count,
                 total_count=len(self.collected_subjects),
             )
         )
