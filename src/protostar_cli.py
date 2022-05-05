@@ -82,7 +82,7 @@ class ProtostarCLI(CLIApp):
                 f"Protostar requires version 2.28 or greater of Git (current version: {git_version})"
             )
 
-    async def run(self, args: Any) -> bool:
+    async def run(self, args: Any) -> None:
         logger = self._setup_logger(args.no_color)
 
         try:
@@ -90,11 +90,10 @@ class ProtostarCLI(CLIApp):
 
             if args.version:
                 self.version_manager.print_current_version()
-                return True
+                return
 
-            return await super().run(args)
+            await super().run(args)
         except ProtostarException as err:
             logger.error(err.message)
         except KeyboardInterrupt:
             sys.exit()
-        return False

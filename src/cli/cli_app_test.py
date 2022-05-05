@@ -3,10 +3,10 @@ from asyncio import Future
 import pytest
 from pytest_mock import MockerFixture
 
+from conftest import FooCommand
 from src.cli.argument_parser_facade import ArgumentParserFacade
 from src.cli.cli_app import CLIApp
 from src.cli.command import Command
-from conftest import FooCommand
 
 
 @pytest.mark.asyncio
@@ -15,7 +15,7 @@ async def test_command_run_method_was_called(
 ):
     foo_command.run = mocker.MagicMock()
     foo_command.run.return_value = Future()
-    foo_command.run.return_value.set_result(True)
+    foo_command.run.return_value.set_result(None)
     cli = CLIApp(commands=[foo_command])
     parser = ArgumentParserFacade(cli)
 
@@ -25,15 +25,14 @@ async def test_command_run_method_was_called(
 
 
 @pytest.mark.asyncio
-async def test_run_returns_false_when_no_command_was_called(foo_command: FooCommand):
+async def test_fail_when_no_command_was_found(foo_command: FooCommand):
     cli = CLIApp(
         commands=[foo_command],
         root_args=[Command.Argument(name="version", type="bool", description="...")],
     )
     parser = ArgumentParserFacade(cli)
 
-    cmd_result = await cli.run(parser.parse(["FOO"]))
-    arg_result = await cli.run(parser.parse(["--version"]))
+    await cli.run(parser.parse(["FOO"]))
 
-    assert cmd_result is True
-    assert arg_result is False
+    with pytest.raises(CLIApp.CommandNotFoundError):
+        await cli.run(None)

@@ -1,26 +1,20 @@
 import argparse
-from abc import ABC, abstractmethod
 from argparse import ArgumentParser
 from pathlib import Path
 from typing import Any, Optional, Sequence
 
+from src.cli.argument_default_value_from_config_provider import (
+    ArgumentDefaultValueFromConfigProvider,
+)
 from src.cli.cli_app import CLIApp
 from src.cli.command import Command
-
-
-class ArgumentDefaultValueProvider(ABC):
-    @abstractmethod
-    def get_default_value(
-        self, command: Optional[Command], argument: Command.Argument
-    ) -> Optional[Any]:
-        ...
 
 
 class ArgumentParserFacade:
     def __init__(
         self,
         cli_app: CLIApp,
-        default_value_provider: Optional[ArgumentDefaultValueProvider] = None,
+        default_value_provider: Optional[ArgumentDefaultValueFromConfigProvider] = None,
     ) -> None:
         self.argument_parser = ArgumentParser()
         self.command_parsers = self.argument_parser.add_subparsers(dest="command")

@@ -1,13 +1,11 @@
 from pathlib import Path
-from typing import Any, Optional, Pattern
+from typing import Pattern
 
 import pytest
+from pytest_mock import MockerFixture
 
 from conftest import BaseTestCommand, FooCommand
-from src.cli.argument_parser_facade import (
-    ArgumentDefaultValueProvider,
-    ArgumentParserFacade,
-)
+from src.cli.argument_parser_facade import ArgumentParserFacade
 from src.cli.cli_app import CLIApp
 from src.cli.command import Command
 
@@ -157,22 +155,20 @@ def test_required_positional_arg():
         ArgumentParserFacade(app).parse(["FOO"])
 
 
-def test_loading_default_values_from_provider(foo_command: FooCommand):
+def test_loading_default_values_from_provider(
+    mocker: MockerFixture, foo_command: FooCommand
+):
     app = CLIApp(
         root_args=[Command.Argument(name="bar", description="...", type="str")],
         commands=[foo_command],
     )
 
-    class DefaultValuesProvider(ArgumentDefaultValueProvider):
-        def get_default_value(
-            self, command: Optional[Command], _argument: Command.Argument
-        ) -> Optional[Any]:
-            if command:
-                return "COMMAND_ARG_DEFAULT"
-            return "ROOT_ARG_DEFAULT"
+    mocked_default_value_provider = mocker.MagicMock()
+    mocked_get_default_value = mocker.MagicMock()
+    mocked_get_default_value.return_value = "FOOBAR"
+    mocked_default_value_provider.get_default_value = mocked_get_default_value
 
-    parser = ArgumentParserFacade(app, DefaultValuesProvider())
+    result = ArgumentParserFacade(app, mocked_default_value_provider).parse(["FOO"])
 
-    result = parser.parse(["FOO"])
-    assert result.foo == "COMMAND_ARG_DEFAULT"
-    assert result.bar == "ROOT_ARG_DEFAULT"
+    assert result.foo == "FOOBAR"
+    assert result.bar == "FOOBAR"
