@@ -11,7 +11,7 @@ from src.protostar_exception import ProtostarException
 from src.utils.protostar_directory import VersionManager
 
 
-class NoProtostarProjectFoundError(ProtostarException):
+class NoProtostarProjectFoundException(ProtostarException):
     pass
 
 
@@ -97,7 +97,7 @@ class Project:
 
     def load_config(self) -> "ProjectConfig":
         if not self.config_path.is_file():
-            raise NoProtostarProjectFoundError(
+            raise NoProtostarProjectFoundException(
                 "No protostar.toml found in the working directory"
             )
 
@@ -134,7 +134,7 @@ class Project:
 
     def load_protostar_config(self) -> ProtostarConfig:
         if not self.config_path.is_file():
-            raise NoProtostarProjectFoundError(
+            raise NoProtostarProjectFoundException(
                 "No protostar.toml found in the working directory"
             )
 

@@ -3,12 +3,13 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, List, Optional, Pattern
 
-from attr import dataclass
+from attr import dataclass, frozen
 from typing_extensions import Literal
 
 InputAllowedType = Literal["str", "directory", "path", "bool", "regexp"]
 
 
+@frozen
 class Command(ABC):
     @dataclass
     class Argument:

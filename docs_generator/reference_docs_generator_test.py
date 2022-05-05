@@ -7,7 +7,7 @@ from src.cli.command import Command
 
 
 def test_generating_markdown_for_commands(
-    foo_command: FooCommand, bar_command: FooCommand
+    foo_command: FooCommand, bar_command: BarCommand
 ):
     docs_generator = ReferenceDocsGenerator(
         CLIApp(commands=[foo_command, bar_command], root_args=[])
@@ -53,9 +53,8 @@ def test_generating_default_type_and_array_info():
     )
 
     result = docs_generator.generate_cli_reference_markdown()
-    splitted_result = result.split("\n")
 
-    assert "#### `--foo STRING[]=FOO`" in splitted_result
+    assert "STRING[]=FOO" in result
 
 
 def test_generating_short_name_info():

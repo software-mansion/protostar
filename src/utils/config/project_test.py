@@ -5,7 +5,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from src.utils.config.project import (
-    NoProtostarProjectFoundError,
+    NoProtostarProjectFoundException,
     Project,
     ProjectConfig,
     VersionNotSupportedException,
@@ -84,5 +84,5 @@ def test_handling_not_supported_version(version_manager: VersionManager):
 
 def test_no_project_found(version_manager: VersionManager, tmpdir):
     proj = Project(version_manager, Path(tmpdir))
-    with pytest.raises(NoProtostarProjectFoundError):
+    with pytest.raises(NoProtostarProjectFoundException):
         proj.load_config()
