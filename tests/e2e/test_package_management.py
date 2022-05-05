@@ -8,7 +8,7 @@ import pytest
 def fixture_install_package(init, protostar):
     def install_package():
         result = protostar(
-            ["install", "https://github.com/software-mansion/starknet.py"]
+            ["--no-color", "install", "https://github.com/software-mansion/starknet.py"]
         )
         normalized_package_name = "starknet_py"
         return (result, normalized_package_name)
@@ -31,7 +31,7 @@ def test_adding_package(install_package, libs_path: str):
 def test_updating_package(install_package, protostar, libs_path):
     install_package()
 
-    result = protostar(["update", "starknet_py"])
+    result = protostar(["--no-color", "update", "starknet_py"])
 
     assert "Updating starknet_py" in result
     assert "starknet_py" in listdir(libs_path)
@@ -41,7 +41,7 @@ def test_updating_package(install_package, protostar, libs_path):
 def test_removing_package(install_package, protostar, libs_path):
     install_package()
 
-    result = protostar(["remove", "starknet_py"])
+    result = protostar(["--no-color", "remove", "starknet_py"])
 
     assert "Removing starknet_py" in result
     assert "starknet_py" not in listdir(libs_path)

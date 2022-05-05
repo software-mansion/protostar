@@ -1,5 +1,4 @@
-from os import listdir, mkdir
-from pathlib import Path
+from os import listdir
 
 import pytest
 
@@ -19,30 +18,48 @@ def test_output_dir(protostar):
     assert "out" in dirs
 
 
-@pytest.mark.usefixtures("init")
-def test_cairo_path_argument(protostar, tmpdir, copy_fixture):
-    my_private_libs_dir = Path(tmpdir) / "my_private_libs"
-    mkdir(my_private_libs_dir)
+def test_cairo_path_argument(protostar, my_private_libs_setup):
+    (my_private_libs_dir,) = my_private_libs_setup
 
-    my_lib_dir = my_private_libs_dir / "my_lib"
-    mkdir(my_lib_dir)
+    protostar(["build", "--cairo-path", my_private_libs_dir])
 
-    copy_fixture("simple_function.cairo", my_lib_dir / "utils.cairo")
+    dirs = listdir()
+    assert "build" in dirs
 
-    with open("./src/main.cairo", mode="w", encoding="utf-8") as my_contract:
-        my_contract.write(
-            """%lang starknet
-from my_lib.utils import get_my_number
 
-@view
-func my_func() -> (res: felt):
-    let (res) = get_my_number()
-    return (res)
-end
+def test_cairo_path_loaded_from_command_config_section_in_config_file(
+    protostar, my_private_libs_setup
+):
+    (my_private_libs_dir,) = my_private_libs_setup
+
+    with open("./protostar.toml", "a", encoding="utf-8") as protostar_toml:
+        protostar_toml.write(
+            f"""
+["protostar.build"]
+cairo_path = ["{str(my_private_libs_dir)}"]
 """
         )
 
-    protostar(["build", "--cairo-path", my_private_libs_dir])
+    protostar(["build"])
+
+    dirs = listdir()
+    assert "build" in dirs
+
+
+def test_cairo_path_loaded_from_command_shared_section_in_config_file(
+    protostar, my_private_libs_setup
+):
+    (my_private_libs_dir,) = my_private_libs_setup
+
+    with open("./protostar.toml", "a", encoding="utf-8") as protostar_toml:
+        protostar_toml.write(
+            f"""
+["protostar.shared_command_configs"]
+cairo_path = ["{str(my_private_libs_dir)}"]
+"""
+        )
+
+    protostar(["build"])
 
     dirs = listdir()
     assert "build" in dirs

@@ -29,6 +29,7 @@ pyinstaller = "^4.9"
 pylint = "^2.12.2"
 pyright = "^0.0.13"
 pytest = "^6.2.5"
+pytest-cov = "^3.0.0"
 pytest-mock = "^3.7.0"
 pytest-timeout = "^2.1.0"
 snakeviz = "^2.1.1"
@@ -36,7 +37,8 @@ snakeviz = "^2.1.1"
 [tool.poe.tasks]
 build = "pyinstaller protostar.spec --noconfirm"
 ci = ["type_check", "lint", "format_check", "test"]
-deploy = "python ./deploy.py"
+cov = "pytest --cov-report xml:cov.xml --cov=src"
+deploy = "python ./scripts/deploy.py"
 format = "black ."
 format_check = "black --check src"
 lint = "pylint src"
@@ -48,6 +50,7 @@ test_html = [{shell = "coverage html && open ./htmlcov/index.html"}]
 test_report = [{shell = "coverage report"}]
 test_unit.shell = "coverage run -m pytest src/*"
 type_check = "pyright"
+update_cli_docs = "python ./scripts/generate_reference_docs.py"
 
 [tool.coverage.run]
 source = ["src"]

@@ -54,6 +54,12 @@ const config = {
             label: 'Tutorials',
           },
           {
+            type: 'doc',
+            position: 'left',
+            docId: 'cli-reference',
+            label: 'CLI Reference',
+          },
+          {
             href: 'https://github.com/software-mansion/protostar',
             label: 'GitHub',
             position: 'right',
