@@ -25,9 +25,9 @@ class Reporter:
         self.test_case_results.append(case_result)
 
 
-class TestingResult:
+class TestingSummary:
     @classmethod
-    def from_reporters(cls, reporters: List[Reporter]) -> "TestingResult":
+    def from_reporters(cls, reporters: List[Reporter]) -> "TestingSummary":
         return cls(sum([r.test_case_results for r in reporters], []))
 
     def __init__(self, case_results: List[CaseResult]) -> None:
@@ -89,7 +89,7 @@ class ReporterCoordinator:
 
     def live_reporting(self):
         self.report_collected()
-        testing_result = TestingResult([])
+        testing_summary = TestingSummary([])
 
         try:
             with bar(
@@ -104,10 +104,10 @@ class ReporterCoordinator:
                         subject, case_result = self.live_reports_queue.get(
                             block=True, timeout=1000
                         )
-                        testing_result.extend([case_result])
+                        testing_summary.extend([case_result])
                         cast(Any, progress_bar).colour = (
                             "RED"
-                            if len(testing_result.failed) + len(testing_result.broken)
+                            if len(testing_summary.failed) + len(testing_summary.broken)
                             > 0
                             else "GREEN"
                         )
@@ -123,7 +123,7 @@ class ReporterCoordinator:
                 finally:
                     progress_bar.bar_format = "{desc}"
                     progress_bar.update()
-                    self.report_summary(testing_result)
+                    self.report_summary(testing_summary)
 
         except queue.Empty:
             # https://docs.python.org/3/library/queue.html#queue.Queue.get
@@ -133,18 +133,18 @@ class ReporterCoordinator:
     def create_reporter(self):
         return Reporter(self.live_reports_queue)
 
-    def report_summary(self, testing_result: TestingResult):
+    def report_summary(self, testing_summary: TestingSummary):
 
         self.logger.info(
             log_color_provider.bold("Test suits: ")
-            + self._get_test_suits_summary(testing_result)
+            + self._get_test_suits_summary(testing_summary)
         )
         self.logger.info(
             log_color_provider.bold("Tests:      ")
-            + self._get_test_cases_summary(testing_result)
+            + self._get_test_cases_summary(testing_summary)
         )
 
-    def _get_test_cases_summary(self, testing_result: TestingResult) -> str:
+    def _get_test_cases_summary(self, testing_result: TestingSummary) -> str:
         failed_test_cases_count = len(testing_result.failed)
         passed_test_cases_count = len(testing_result.passed)
 
@@ -156,23 +156,23 @@ class ReporterCoordinator:
             )
         )
 
-    def _get_test_suits_summary(self, testing_result: TestingResult) -> str:
+    def _get_test_suits_summary(self, testing_summary: TestingSummary) -> str:
         passed_test_suits_count = 0
         failed_test_suits_count = 0
         broken_test_suits_count = 0
-        total_test_suits_count = len(testing_result.test_files)
-        for suit_case_results in testing_result.test_files.values():
-            partial_results = TestingResult(suit_case_results)
+        total_test_suits_count = len(testing_summary.test_files)
+        for suit_case_results in testing_summary.test_files.values():
+            partial_summary = TestingSummary(suit_case_results)
 
-            if len(partial_results.broken) > 0:
+            if len(partial_summary.broken) > 0:
                 broken_test_suits_count += 1
                 continue
 
-            if len(partial_results.failed) > 0:
+            if len(partial_summary.failed) > 0:
                 failed_test_suits_count += 1
                 continue
 
-            if len(partial_results.passed) > 0:
+            if len(partial_summary.passed) > 0:
                 passed_test_suits_count += 1
 
         test_suits_result: List[str] = []
