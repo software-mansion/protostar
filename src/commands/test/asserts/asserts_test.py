@@ -1,7 +1,8 @@
-from os import path
 from pathlib import Path
 
 import pytest
+
+from src.commands.test.reporter import TestingResult
 from src.commands.test.run_test_runner import run_test_runner
 
 CURRENT_DIR = Path(__file__).parent
@@ -14,5 +15,7 @@ async def test_asserts():
         cairo_paths=[Path(CURRENT_DIR, "..", "..", "..", "..", "cairo")],
     )
 
-    assert sum([r.failed_count for r in results]) == 0
-    assert sum([r.broken_count for r in results]) == 0
+    testing_result = TestingResult.from_reporters(results)
+
+    assert len(testing_result.failed) == 0
+    assert len(testing_result.broken) == 0

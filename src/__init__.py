@@ -1,4 +1,11 @@
-from src.cli import cli
-from src.commands import handle_install_command, removal_exceptions, remove, upgrade
-from src.protostar_exception import ProtostarException
-from src.utils.config import Project
+# Python complains about importing `Project`` if the import below is removed
+from src.commands import (
+    BuildCommand,
+    InitCommand,
+    InstallCommand,
+    RemoveCommand,
+    TestCommand,
+    UpdateCommand,
+    UpgradeCommand,
+)
+from src.main import main

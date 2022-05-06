@@ -1,17 +1,19 @@
 import asyncio
-from multiprocessing import Pool
 import multiprocessing
+import signal
+from logging import getLogger
+from multiprocessing import Pool
 from pathlib import Path
 from re import Pattern
-from typing import List, Optional, TYPE_CHECKING
-from src.commands.test.test_collector import TestCollector
-from src.commands.test.reporter import ReporterCoordinator, Reporter
+from typing import TYPE_CHECKING, List, Optional
 
+from src.commands.test.reporter import Reporter, ReporterCoordinator
 from src.commands.test.runner import TestRunner
-
+from src.commands.test.test_collector import TestCollector
 
 if TYPE_CHECKING:
     from src.utils.config.project import Project
+
 
 # pylint: disable=too-many-arguments
 async def run_test_runner(
@@ -21,6 +23,7 @@ async def run_test_runner(
     match: Optional[Pattern] = None,
     cairo_paths: Optional[List[Path]] = None,
 ) -> List[Reporter]:
+    logger = getLogger()
     cairo_path = cairo_paths or []
 
     include_paths = [str(pth) for pth in cairo_path]
@@ -37,23 +40,29 @@ async def run_test_runner(
 
     with multiprocessing.Manager() as manager:
         queue = manager.Queue()  # type: ignore
-        reporter = ReporterCoordinator(tests_root, test_subjects, queue)
+        reporter_coordinator = ReporterCoordinator(
+            tests_root, test_subjects, queue, logger
+        )
         setups = [
             (
                 subject,
-                reporter.create_reporter(subject),
+                reporter_coordinator.create_reporter(),
                 include_paths,
             )
             for subject in test_subjects
         ]
 
-        with Pool(multiprocessing.cpu_count()) as pool:
-            result = pool.starmap_async(run_worker, setups)
-            reporter.live_reporting()
-            results = result.get()
-            reporter.report_summary(results)
+        try:
+            with Pool(multiprocessing.cpu_count(), worker_init) as pool:
+                result = pool.starmap_async(run_worker, setups)
+                reporter_coordinator.live_reporting()
+                return result.get()
+        except KeyboardInterrupt:
+            return []
 
-        return results
+
+def worker_init():
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 
 def run_worker(
