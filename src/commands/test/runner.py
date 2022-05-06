@@ -84,7 +84,11 @@ class TestRunner:
                 call_result = await env.invoke_test_function(function["name"])
                 self.reporter.report(
                     subject=test_subject,
-                    case_result=PassedCase(tx_info=call_result),
+                    case_result=PassedCase(
+                        file_path=test_subject.test_path,
+                        function_name=function["name"],
+                        tx_info=call_result,
+                    ),
                 )
             except ReportedException as err:
                 self.reporter.report(

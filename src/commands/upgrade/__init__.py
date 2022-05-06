@@ -1,1 +1,1 @@
-from src.commands.upgrade.upgrade import upgrade
+from src.commands.upgrade.upgrade_command import UpgradeCommand, upgrade

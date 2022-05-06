@@ -1,5 +1,7 @@
 from typing import List, Optional, Union
 
+from src.utils.log_color_provider import log_color_provider
+
 
 class ReportedException(BaseException):
     """
@@ -134,7 +136,7 @@ class StarknetRevertableException(RevertableException):
 
         if self.details:
             result.append("[details]:")
-            result.append(self.details)
+            result.append(log_color_provider.colorize("GRAY", self.details))
 
         return "\n".join(result)
 
