@@ -1,3 +1,5 @@
+from subprocess import CalledProcessError
+
 import pytest
 
 
@@ -23,8 +25,7 @@ def test_complex(protostar, copy_fixture):
 def test_expect_revert(protostar, copy_fixture):
     copy_fixture("test_expect_revert.cairo", "./tests")
 
-    result = protostar(["test", "tests/test_expect_revert.cairo"])
-    print(result)
+    result = protostar(["--no-color", "test", "tests/test_expect_revert.cairo"])
 
     assert "[FAIL] tests/test_expect_revert.cairo test_fail_error_message" in result
 
@@ -50,3 +51,22 @@ def test_expect_revert(protostar, copy_fixture):
     )
     assert "5 failed, 5 passed, 10 total" in result
     assert "Unknown location" not in result
+
+
+def test_loading_cairo_path_from_config_file(protostar, my_private_libs_setup):
+    (my_private_libs_dir,) = my_private_libs_setup
+
+    with pytest.raises(CalledProcessError):
+        protostar(["test", "tests"])
+
+    with open("./protostar.toml", "a", encoding="utf-8") as protostar_toml:
+        protostar_toml.write(
+            f"""
+["protostar.shared_command_configs"]
+cairo_path = ["{str(my_private_libs_dir)}"]
+"""
+        )
+
+    result = protostar(["test", "tests"])
+    assert "/my_lib/utils.cairo" not in result
+    assert "1 passed" in result

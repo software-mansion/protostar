@@ -8,15 +8,15 @@ from git.repo import Repo
 from packaging import version
 
 # check if the active branch is master
-SCRIPT_ROOT = Path(__file__).parent
-repo = Repo(SCRIPT_ROOT)
+PROJECT_ROOT = Path(__file__).parent / ".."
+repo = Repo(PROJECT_ROOT)
 
 if str(repo.active_branch) != "master":
     print("Checkout to master and try again.")
     sys.exit(1)
 
 # get current Protostar version
-path = SCRIPT_ROOT / "pyproject.toml"
+path = PROJECT_ROOT / "pyproject.toml"
 
 new_protostar_version_str: Optional[str] = None
 with open(path, "r+", encoding="UTF-8") as file:

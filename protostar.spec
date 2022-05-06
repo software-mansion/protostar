@@ -1,5 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
-from PyInstaller.utils.hooks import collect_data_files
+from PyInstaller.utils.hooks import collect_data_files, collect_submodules
 
 block_cipher = None
 extra_files = [
@@ -9,13 +9,8 @@ extra_files = [
 ] + collect_data_files('starkware')
 # Extra imports which are necessary for executing hints
 extra_imports = [
-        'starkware',
-        'starkware.cairo.common.math_utils',
-        'starkware.python.math_utils',
-        'starkware.cairo.common.dict',
-        'eth_hash.auto',
-        'starkware.cairo.lang.vm.relocatable',
-    ]
+        "eth_hash.auto",
+    ] + collect_submodules('starkware')
 
 a = Analysis(['protostar.py'],
              pathex=[],

@@ -1,1 +1,1 @@
-from src.commands.remove.handle_remove_command import handle_remove_command
+from src.commands.remove.remove_command import RemoveCommand, handle_remove_command
