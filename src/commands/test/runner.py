@@ -1,52 +1,42 @@
 import asyncio
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Pattern
+from typing import Any, Callable, Dict, List, Optional, Set
 
-from attr import dataclass
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.services.api.contract_definition import ContractDefinition
 from starkware.starknet.testing.contract import StarknetContract
-from starkware.starknet.testing.starknet import Starknet
 from starkware.starkware_utils.error_handling import StarkException
 
 from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
 from src.commands.test.cheatable_syscall_handler import CheatableSysCallHandler
-from src.commands.test.collector import TestCollector
-from src.commands.test.reporter import TestReporter
+from src.commands.test.forkable_starknet import ForkableStarknet
+from src.commands.test.reporter import Reporter
 from src.commands.test.test_environment_exceptions import (
-    ExceptMismatchException,
-    MissingExceptException,
+    ExpectedRevertException,
+    ExpectedRevertMismatchException,
     ReportedException,
-    StarkReportedException,
+    RevertableException,
+    StarknetRevertableException,
 )
-from src.commands.test.utils import TestSubject, extract_core_info_from_stark_ex_message
+from src.commands.test.utils import ExpectedEvent, TestSubject
 from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
-
-if TYPE_CHECKING:
-    from src.utils.config.project import Project
-
 
 current_directory = Path(__file__).parent
 
 
 class TestRunner:
-    reporter: Optional[TestReporter] = None
     include_paths: Optional[List[str]] = None
     _collected_count: Optional[int] = None
 
     def __init__(
         self,
-        project: Optional["Project"] = None,
+        reporter: Reporter,
         include_paths: Optional[List[str]] = None,
-        is_test_fail_enabled=False,
     ):
-        self._is_test_fail_enabled = is_test_fail_enabled
-
+        self.reporter = reporter
         self.include_paths = []
-        if project:
-            self.include_paths.extend(project.get_include_paths())
 
         if include_paths:
             self.include_paths.extend(include_paths)
@@ -55,36 +45,19 @@ class TestRunner:
         "starkware.starknet.core.os.syscall_utils.BusinessLogicSysCallHandler",
         CheatableSysCallHandler,
     )
-    async def run_tests_in(
-        self,
-        src: Path,
-        match_pattern: Optional[Pattern] = None,
-        omit_pattern: Optional[Pattern] = None,
-    ):
-        self.reporter = TestReporter(src)
+    async def run_test_subject(self, test_subject):
         assert self.include_paths is not None, "Uninitialized paths list in test runner"
-        test_subjects = TestCollector(
-            target=src,
+
+        compiled_test = StarknetCompiler(
             include_paths=self.include_paths,
-        ).collect(
-            match_pattern=match_pattern,
-            omit_pattern=omit_pattern,
+            disable_hint_validation=True,
+        ).compile_contract(test_subject.test_path, add_debug_info=True)
+
+        await self._run_test_functions(
+            test_contract=compiled_test,
+            test_subject=test_subject,
+            functions=test_subject.test_functions,
         )
-        self.reporter.report_collected(test_subjects)
-        for test_subject in test_subjects:
-
-            compiled_test = StarknetCompiler(
-                include_paths=self.include_paths,
-                disable_hint_validation=True,
-            ).compile_contract(test_subject.test_path)
-
-            self.reporter.file_entry(test_subject.test_path.name)
-            await self._run_test_functions(
-                test_contract=compiled_test,
-                test_subject=test_subject,
-                functions=test_subject.test_functions,
-            )
-        self.reporter.report_summary()
 
     async def _run_test_functions(
         self,
@@ -94,27 +67,29 @@ class TestRunner:
     ):
         assert self.reporter, "Uninitialized reporter!"
 
-        for function in functions:
-            try:
-                env = await TestExecutionEnvironment.empty(
-                    test_contract, self._is_test_fail_enabled, self.include_paths
-                )
-            except StarkException as err:
-                self.reporter.report(
-                    subject=test_subject,
-                    case_result=BrokenTest(
-                        file_path=test_subject.test_path, exception=err
-                    ),
-                )
-                return
+        try:
+            env_base = await TestExecutionEnvironment.empty(
+                test_contract, self.include_paths
+            )
+        except StarkException as err:
+            self.reporter.report(
+                subject=test_subject,
+                case_result=BrokenTest(file_path=test_subject.test_path, exception=err),
+            )
+            return
 
+        for function in functions:
+            env = env_base.fork()
             try:
                 call_result = await env.invoke_test_function(function["name"])
                 self.reporter.report(
                     subject=test_subject,
-                    case_result=PassedCase(tx_info=call_result),
+                    case_result=PassedCase(
+                        file_path=test_subject.test_path,
+                        function_name=function["name"],
+                        tx_info=call_result,
+                    ),
                 )
-
             except ReportedException as err:
                 self.reporter.report(
                     subject=test_subject,
@@ -126,41 +101,37 @@ class TestRunner:
                 )
 
 
-@dataclass
-class ExpectedError:
-    name: Optional[str]
-    message: Optional[str]
-
-    def __str__(self) -> str:
-        return f"(error_type: {self.name}; error_message: {self.message})"
-
-    def match(self, other: StarkException):
-
-        return (self.name is None or self.name == other.code.name) and (
-            self.message is None
-            or extract_core_info_from_stark_ex_message(other.message) == self.message
-        )
-
-
 class TestExecutionEnvironment:
-    def __init__(self, is_test_fail_enabled: bool, include_paths: List[str]):
+    def __init__(self, include_paths: List[str]):
         self.starknet = None
-        self.test_contract = None
-        self._expected_error: Optional[ExpectedError] = None
-        self._is_test_fail_enabled = is_test_fail_enabled
+        self.test_contract: Optional[StarknetContract] = None
+        self._expected_error: Optional[RevertableException] = None
         self._include_paths = include_paths
+        self._test_finish_hooks: Set[Callable[[], None]] = set()
 
     @classmethod
     async def empty(
         cls,
         test_contract: ContractDefinition,
-        is_test_fail_enabled: bool,
         include_paths: Optional[List[str]] = None,
     ):
-        env = cls(is_test_fail_enabled, include_paths or [])
-        env.starknet = await Starknet.empty()
+        env = cls(include_paths or [])
+        env.starknet = await ForkableStarknet.empty()
         env.test_contract = await env.starknet.deploy(contract_def=test_contract)
         return env
+
+    def fork(self):
+        assert self.starknet
+        assert self.test_contract
+
+        new_env = TestExecutionEnvironment(
+            include_paths=self._include_paths,
+        )
+        new_env.starknet = self.starknet.fork()
+        new_env.test_contract = new_env.starknet.copy_and_adapt_contract(
+            self.test_contract
+        )
+        return new_env
 
     def deploy_in_env(
         self, contract_path: str, constructor_calldata: Optional[List[int]] = None
@@ -185,30 +156,47 @@ class TestExecutionEnvironment:
             )
         )
 
-        func = getattr(self.test_contract, function_name)
-
-        # TODO: Improve stacktrace
         try:
-            call_result = await func().invoke()
+            await self._call_test_function(function_name)
+            for hook in self._test_finish_hooks:
+                hook()
             if self._expected_error is not None:
-                raise MissingExceptException(
-                    f"Expected an exception matching the following error: {self._expected_error}"
-                )
-            return call_result
-
-        except StarkException as ex:
+                raise ExpectedRevertException(self._expected_error)
+        except RevertableException as ex:
             if self._expected_error:
                 if not self._expected_error.match(ex):
-                    raise ExceptMismatchException(
-                        expected_name=self._expected_error.name,
-                        expected_message=self._expected_error.message,
+                    raise ExpectedRevertMismatchException(
+                        expected=self._expected_error,
                         received=ex,
                     ) from ex
             else:
-                raise StarkReportedException(ex) from ex
+                raise ex
         finally:
             CairoFunctionRunner.run_from_entrypoint = original_run_from_entrypoint
             self._expected_error = None
+            self._test_finish_hooks.clear()
+
+    async def _call_test_function(self, function_name: str):
+        try:
+            func = getattr(self.test_contract, function_name)
+            return await func().invoke()
+        except StarkException as ex:
+            raise StarknetRevertableException(
+                error_message=StarknetRevertableException.extract_error_messages_from_stark_ex_message(
+                    ex.message
+                ),
+                error_type=ex.code.name,
+                code=ex.code.value,
+                details=ex.message,
+            ) from ex
+
+    def add_test_finish_hook(self, listener: Callable[[], None]) -> Callable[[], None]:
+        self._test_finish_hooks.add(listener)
+
+        def remove_hook():
+            self._test_finish_hooks.remove(listener)
+
+        return remove_hook
 
     def _get_run_from_entrypoint_with_custom_hint_locals(
         self, fn_run_from_entrypoint: Any
@@ -271,10 +259,32 @@ class TestExecutionEnvironment:
         @register_cheatcode
         def expect_revert(
             error_type: Optional[str] = None, error_message: Optional[str] = None
-        ) -> Callable[[], None]:
+        ):
             return self.expect_revert(
-                ExpectedError(name=error_type, message=error_message)
+                RevertableException(error_type=error_type, error_message=error_message)
             )
+
+        @register_cheatcode
+        def expect_events(
+            *raw_expected_events: ExpectedEvent.CheatcodeInputType,
+        ) -> None:
+            assert self.starknet is not None
+
+            def compare_expected_and_emitted_events():
+                assert self.starknet is not None
+
+                expected_events = list(map(ExpectedEvent, raw_expected_events))
+                not_found_expected_event = ExpectedEvent.find_first_expected_event_not_included_in_state_events(
+                    expected_events,
+                    self.starknet.state.events,
+                )
+                if not_found_expected_event:
+                    raise RevertableException(
+                        error_type="EXPECTED_EVENT",
+                        error_message=f"Expected the following event: {str(not_found_expected_event)}",
+                    )
+
+            self.add_test_finish_hook(compare_expected_and_emitted_events)
 
         @register_cheatcode
         def deploy_contract(
@@ -282,9 +292,9 @@ class TestExecutionEnvironment:
         ):
             return self.deploy_in_env(contract_path, constructor_calldata)
 
-    def expect_revert(self, expected_error: ExpectedError) -> Callable[[], None]:
+    def expect_revert(self, expected_error: RevertableException) -> Callable[[], None]:
         if self._expected_error is not None:
-            raise MissingExceptException(
+            raise ReportedException(
                 f"Protostar is already expecting an exception matching the following error: {self._expected_error}"
             )
 
@@ -292,7 +302,7 @@ class TestExecutionEnvironment:
 
         def stop_expecting_revert():
             if self._expected_error is not None:
-                raise MissingExceptException(
+                raise ReportedException(
                     "Expected a transaction to be reverted before cancelling expect_revert"
                 )
 

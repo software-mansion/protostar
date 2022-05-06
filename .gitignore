@@ -1,9 +1,11 @@
+cov.xml
 .idea
 .vscode
 .envrc
 .DS_Store
 playground/
-protostar.toml
+/protostar.toml
+*.prof
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

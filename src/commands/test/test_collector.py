@@ -8,7 +8,6 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     PreprocessorError,
 )
 
-from src.commands.test.reporter import TestReporter
 from src.commands.test.utils import TestSubject
 from src.protostar_exception import ProtostarException
 from src.utils.starknet_compilation import StarknetCompiler
@@ -31,7 +30,6 @@ class TestCollector:
             self.target = self.target.parent / file_name
             assert not self.target.is_dir()
 
-    # TODO: Optimize, by returning preprocessed test program, for reuse when compiling it for test runs
     def collect(
         self,
         match_pattern: Optional[Pattern] = None,
@@ -87,7 +85,6 @@ class TestCollector:
             ).preprocess_contract(file_path)
         except PreprocessorError as p_err:
             print(p_err)
-            TestReporter.report_collection_error()
             raise CollectionError("Failed to collect test cases") from p_err
         return [
             fn

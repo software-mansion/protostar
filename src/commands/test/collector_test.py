@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from src.commands.test.collector import CollectionError, TestCollector
+from src.commands.test.test_collector import CollectionError, TestCollector
 
 current_directory = Path(__file__).parent
 
@@ -36,7 +36,7 @@ def test_omitting_pattern():
         "test_basic.cairo",
         "test_proxy.cairo",
         "test_cheats.cairo",
-        "test_expect_revert.cairo",
+        "test_expect_events.cairo",
     ]
     omit_pattern = re.compile(".*invalid.*")
     collector = TestCollector(

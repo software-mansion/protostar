@@ -5,7 +5,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from src.utils.config.project import (
-    NoProtostarProjectFoundError,
+    NoProtostarProjectFoundException,
     Project,
     ProjectConfig,
     VersionNotSupportedException,
@@ -47,6 +47,24 @@ def test_parsing_project_info(version_manager: VersionManager):
     assert config.libs_path == "./lib"
 
 
+def test_loading_argument(version_manager: VersionManager):
+    proj = Project(
+        version_manager,
+        project_root=Path(current_directory, "examples", "command_config"),
+    )
+    assert proj.load_argument("build", "disable-hint-validation") is True
+
+
+def test_loading_argument_when_config_file_does_not_exist(
+    version_manager: VersionManager, tmpdir
+):
+    proj = Project(
+        version_manager,
+        project_root=Path(tmpdir),
+    )
+    assert proj.load_argument("build", "disable-hint-validation") is None
+
+
 def test_config_file_is_versioned(version_manager: VersionManager):
     proj = Project(
         version_manager, project_root=Path(current_directory, "examples", "standard")
@@ -64,7 +82,7 @@ def test_handling_not_supported_version(version_manager: VersionManager):
         proj.load_config()
 
 
-def test_no_project_found(version_manager: VersionManager):
-    proj = Project(version_manager)
-    with pytest.raises(NoProtostarProjectFoundError):
+def test_no_project_found(version_manager: VersionManager, tmpdir):
+    proj = Project(version_manager, Path(tmpdir))
+    with pytest.raises(NoProtostarProjectFoundException):
         proj.load_config()

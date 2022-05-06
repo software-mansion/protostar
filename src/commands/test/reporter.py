@@ -1,116 +1,236 @@
-from functools import reduce
+import queue
+from collections import defaultdict
+from logging import Logger
 from pathlib import Path
-from typing import Dict, List, Optional, Union
 
-from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
+# pylint: disable=unused-import
+from typing import Any, Dict, List, Tuple, cast
+
+from tqdm import tqdm as bar
+
+from src.commands.test.cases import BrokenTest, CaseResult, FailedCase, PassedCase
 from src.commands.test.utils import TestSubject
+from src.utils.log_color_provider import log_color_provider
 
-CaseResult = Union[PassedCase, FailedCase, BrokenTest]
 
-
-class TestReporter:
-    _collected_count: Optional[int]
-    broken_tests: List[BrokenTest]
-    failed_cases: List[FailedCase]
-    passed_cases: List[PassedCase]
-    failed_tests_by_subject: Dict[Path, List[FailedCase]]
-    collected_subjects: List[TestSubject]
-    tests_root: Path
-
-    def __init__(self, tests_root: Path):
-        self.broken_tests = []
-        self.failed_cases = []
-        self.passed_cases = []
-        self.failed_tests_by_subject = {}
-        self.collected_subjects = []
-        self._collected_count = None
-        self.tests_root = tests_root
+class Reporter:
+    def __init__(
+        self, live_reports_queue: "queue.Queue[Tuple[TestSubject, CaseResult]]"
+    ):
+        self.live_reports_queue = live_reports_queue
+        self.test_case_results: List[CaseResult] = []
 
     def report(self, subject: TestSubject, case_result: CaseResult):
-        symbol = None
-        if isinstance(case_result, PassedCase):
-            symbol = "."
-            self.passed_cases.append(case_result)
-        if isinstance(case_result, FailedCase):
-            symbol = "F"
-            self.failed_cases.append(case_result)
-            try:
-                self.failed_tests_by_subject[subject.test_path].append(case_result)
-            except KeyError:
-                self.failed_tests_by_subject[subject.test_path] = [case_result]
+        self.live_reports_queue.put((subject, case_result))
+        self.test_case_results.append(case_result)
 
-        if isinstance(case_result, BrokenTest):
-            symbol = "!"
-            self.broken_tests.append(case_result)
-        assert symbol, "Unrecognized case result"
 
-        print(symbol, end="", flush=True)
+class TestingResult:
+    @classmethod
+    def from_reporters(cls, reporters: List[Reporter]) -> "TestingResult":
+        return cls(sum([r.test_case_results for r in reporters], []))
 
-    @staticmethod
-    def file_entry(file_name: str):
-        print(f"\n{file_name.replace('.cairo', '')}: ", end="")
+    def __init__(self, case_results: List[CaseResult]) -> None:
+        self.case_results = []
+        self.test_files: Dict[Path, List[CaseResult]] = defaultdict(list)
+        self.passed: List[PassedCase] = []
+        self.failed: List[FailedCase] = []
+        self.broken: List[BrokenTest] = []
+        self.extend(case_results)
 
-    @staticmethod
-    def report_collection_error():
-        print("!!!!!!!!!! TEST COLLECTION ERROR !!!!!!!!!!")
+    def extend(self, case_results: List[CaseResult]):
+        self.case_results += case_results
+        for case_result in case_results:
+            self.test_files[case_result.file_path].append(case_result)
 
-    def report_summary(self):
-        if not self.collected_count:
-            return
+            if isinstance(case_result, PassedCase):
+                self.passed.append(case_result)
+            if isinstance(case_result, FailedCase):
+                self.failed.append(case_result)
+            if isinstance(case_result, BrokenTest):
+                self.broken.append(case_result)
 
-        failed_tests_amt = len(self.failed_cases)
-        succeeded_tests_amt = len(self.passed_cases)
-        broken_tests_amt = len(self.broken_tests)
 
-        ran_tests = succeeded_tests_amt + failed_tests_amt
-
-        print("\n----- TEST SUMMARY ------")
-        if failed_tests_amt:
-            print(f"{failed_tests_amt} failed, ", end="")
-        if broken_tests_amt:
-            print(f"{broken_tests_amt} failed to run, ", end="")
-
-        print(f"{succeeded_tests_amt} passed")
-        print(f"Ran {ran_tests} out of {self.collected_count} total tests")
-
-        self._report_failures()
-
-    def _report_failures(self):
-        if self.failed_cases:
-            print("\n------- FAILURES --------")
-            for test_path, failed_cases in self.failed_tests_by_subject.items():
-
-                for failed_case in failed_cases:
-                    print(
-                        f"{test_path.resolve().relative_to(self.tests_root.resolve())}::{failed_case.function_name}"
-                    )
-                    print(str(failed_case.exception))
-                    print("")
-        if self.broken_tests:
-            print("\n----- BROKEN TESTS ------")
-            for broken_subject in self.broken_tests:
-                print(
-                    broken_subject.file_path.resolve().relative_to(
-                        self.tests_root.resolve()
-                    )
-                )
-                print(str(broken_subject.exception))
-                print("")
-
-    def report_collected(self, test_subjects: List[TestSubject]):
+class ReporterCoordinator:
+    def __init__(
+        self,
+        tests_root: Path,
+        test_subjects: List[TestSubject],
+        live_reports_queue: "queue.Queue[Tuple[TestSubject, CaseResult]]",
+        logger: Logger,
+    ):
         self.collected_subjects = test_subjects
 
-        if self.collected_count:
-            print(f"Collected {self.collected_count} items")
-        else:
-            print("No cases found")
+        self.collected_tests_count = sum(
+            [len(subject.test_functions) for subject in self.collected_subjects]
+        )
+        self.tests_root = tests_root
+        self.live_reports_queue = live_reports_queue
+        self.logger = logger
 
-    @property
-    def collected_count(self) -> int:
-        if self._collected_count is None:
-            self._collected_count = reduce(
-                lambda x, y: x + y,
-                [len(subject.test_functions) for subject in self.collected_subjects],
-                0,
+    def report_collected(self):
+        if self.collected_tests_count:
+            result: List[str] = ["Collected"]
+            suits_count = len(self.collected_subjects)
+            if suits_count == 1:
+                result.append("1 suit,")
+            else:
+                result.append(f"{suits_count} suits,")
+
+            result.append("and")
+            if self.collected_tests_count == 1:
+                result.append("1 test case")
+            else:
+                result.append(f"{self.collected_tests_count} test cases")
+
+            self.logger.info(" ".join(result))
+        else:
+            self.logger.warn("No cases found")
+
+    def live_reporting(self):
+        self.report_collected()
+        testing_result = TestingResult([])
+
+        try:
+            with bar(
+                total=self.collected_tests_count,
+                bar_format="{l_bar}{bar}[{n_fmt}/{total_fmt}]",
+                dynamic_ncols=True,
+            ) as progress_bar:
+                tests_left_n = self.collected_tests_count
+                progress_bar.update()
+                try:
+                    while tests_left_n > 0:
+                        subject, case_result = self.live_reports_queue.get(
+                            block=True, timeout=1000
+                        )
+                        testing_result.extend([case_result])
+                        cast(Any, progress_bar).colour = (
+                            "RED"
+                            if len(testing_result.failed) + len(testing_result.broken)
+                            > 0
+                            else "GREEN"
+                        )
+                        progress_bar.write(str(case_result))
+
+                        if isinstance(case_result, BrokenTest):
+                            tests_in_case_count = len(subject.test_functions)
+                            progress_bar.update(tests_in_case_count)
+                            tests_left_n -= tests_in_case_count
+                        else:
+                            progress_bar.update(1)
+                            tests_left_n -= 1
+                finally:
+                    progress_bar.bar_format = "{desc}"
+                    progress_bar.update()
+                    self.report_summary(testing_result)
+
+        except queue.Empty:
+            # https://docs.python.org/3/library/queue.html#queue.Queue.get
+            # We skip it to prevent deadlock, but this error should never happen
+            pass
+
+    def create_reporter(self):
+        return Reporter(self.live_reports_queue)
+
+    def report_summary(self, testing_result: TestingResult):
+
+        self.logger.info(
+            log_color_provider.bold("Test suits: ")
+            + self._get_test_suits_summary(testing_result)
+        )
+        self.logger.info(
+            log_color_provider.bold("Tests:      ")
+            + self._get_test_cases_summary(testing_result)
+        )
+
+    def _get_test_cases_summary(self, testing_result: TestingResult) -> str:
+        failed_test_cases_count = len(testing_result.failed)
+        passed_test_cases_count = len(testing_result.passed)
+
+        return ", ".join(
+            self._get_preprocessed_core_testing_summary(
+                failed_count=failed_test_cases_count,
+                passed_count=passed_test_cases_count,
+                total_count=self.collected_tests_count,
             )
-        return self._collected_count
+        )
+
+    def _get_test_suits_summary(self, testing_result: TestingResult) -> str:
+        passed_test_suits_count = 0
+        failed_test_suits_count = 0
+        broken_test_suits_count = 0
+        total_test_suits_count = len(testing_result.test_files)
+        for suit_case_results in testing_result.test_files.values():
+            partial_results = TestingResult(suit_case_results)
+
+            if len(partial_results.broken) > 0:
+                broken_test_suits_count += 1
+                continue
+
+            if len(partial_results.failed) > 0:
+                failed_test_suits_count += 1
+                continue
+
+            if len(partial_results.passed) > 0:
+                passed_test_suits_count += 1
+
+        test_suits_result: List[str] = []
+
+        if broken_test_suits_count > 0:
+            test_suits_result.append(
+                log_color_provider.colorize("RED", f"{broken_test_suits_count} broken")
+            )
+        if failed_test_suits_count > 0:
+            test_suits_result.append(
+                log_color_provider.colorize("RED", f"{failed_test_suits_count} failed")
+            )
+        if passed_test_suits_count > 0:
+            test_suits_result.append(
+                log_color_provider.colorize(
+                    "GREEN", f"{passed_test_suits_count} passed"
+                )
+            )
+        if total_test_suits_count > 0:
+            test_suits_result.append(f"{total_test_suits_count} total")
+
+        return ", ".join(
+            self._get_preprocessed_core_testing_summary(
+                broken_count=broken_test_suits_count,
+                failed_count=failed_test_suits_count,
+                passed_count=passed_test_suits_count,
+                total_count=len(self.collected_subjects),
+            )
+        )
+
+    # pylint: disable=no-self-use
+    def _get_preprocessed_core_testing_summary(
+        self,
+        broken_count: int = 0,
+        failed_count: int = 0,
+        passed_count: int = 0,
+        total_count: int = 0,
+    ) -> List[str]:
+        skipped_count = total_count - (broken_count + failed_count + passed_count)
+        test_suits_result: List[str] = []
+
+        if broken_count > 0:
+            test_suits_result.append(
+                log_color_provider.colorize("RED", f"{broken_count} broken")
+            )
+        if failed_count > 0:
+            test_suits_result.append(
+                log_color_provider.colorize("RED", f"{failed_count} failed")
+            )
+        if skipped_count > 0:
+            test_suits_result.append(
+                log_color_provider.colorize("YELLOW", f"{skipped_count} skipped")
+            )
+        if passed_count > 0:
+            test_suits_result.append(
+                log_color_provider.colorize("GREEN", f"{passed_count} passed")
+            )
+        if total_count > 0:
+            test_suits_result.append(f"{total_count} total")
+
+        return test_suits_result

@@ -60,12 +60,14 @@ class StarknetCompiler:
                 message=(f"Couldn't find file '{err.filename}'")
             ) from err
 
-    def compile_contract(self, *sources: Path) -> ContractDefinition:
+    def compile_contract(
+        self, *sources: Path, add_debug_info: bool = False
+    ) -> ContractDefinition:
         preprocessed = self.preprocess_contract(*sources)
         assembled = assemble_starknet_contract(
             preprocessed_program=preprocessed,
             main_scope=MAIN_SCOPE,
-            add_debug_info=False,
+            add_debug_info=add_debug_info,
             file_contents_for_debug_info={},
         )
         assert isinstance(assembled, ContractDefinition)
