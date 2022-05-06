@@ -24,20 +24,19 @@ class RevertableException(ReportedException):
     ) -> None:
         super().__init__(error_message)
         self.error_type = error_type
-        self.error_message = error_message
+        self.error_messages = (
+            [error_message] if isinstance(error_message, str) else error_message
+        ) or []
 
     def __str__(self) -> str:
         result: List[str] = []
         if self.error_type is not None:
             result.append(f"[error_type] {self.error_type}")
 
-        if self.error_message is not None:
-            if isinstance(self.error_message, list):
-                result.append("[error_messages]:")
-                for e_msg in self.error_message:
-                    result.append(f"— {e_msg}")
-            else:
-                result.append(f"[error_message] {self.error_message}")
+        result.append("[error_messages]:")
+        for e_msg in self.error_messages:
+            result.append(f"— {e_msg}")
+
         return "\n".join(result)
 
     def match(self, other: "RevertableException") -> bool:
@@ -45,40 +44,31 @@ class RevertableException(ReportedException):
             self.error_type is None or self.error_type == other.error_type
         )
 
-        if error_type_match:
-            if self.error_message is None:
-                return True
-        else:
+        if not error_type_match:
             return False
 
-        self_error_messages = (
-            [self.error_message]
-            if isinstance(self.error_message, str)
-            else self.error_message
-        )
+        if error_type_match and len(self.error_messages) == 0:
+            return True
 
-        other_error_messages = (
-            [other.error_message]
-            if isinstance(other.error_message, str)
-            else other.error_message
-        ) or []
+        self_error_messages = (
+            [self.error_messages]
+            if isinstance(self.error_messages, str)
+            else self.error_messages
+        )
 
         for self_e_msg in self_error_messages:
             if not RevertableException.can_pattern_be_found(
-                self_e_msg, other_error_messages
+                self_e_msg, other.error_messages
             ):
                 return False
         return True
 
     @staticmethod
     def can_pattern_be_found(pattern: str, strings: List[str]) -> bool:
-        for string in strings:
-            if pattern in string:
-                return True
-        return False
+        return any(pattern in string for string in strings)
 
     def __reduce__(self):
-        return type(self), (self.error_message, self.error_type)
+        return type(self), (self.error_messages, self.error_type)
 
 
 class StarknetRevertableException(RevertableException):
@@ -126,13 +116,13 @@ class StarknetRevertableException(RevertableException):
         if self.code:
             result.append(f"[code] {str(self.code)}")
 
-        if self.error_message:
-            if isinstance(self.error_message, list):
+        if self.error_messages:
+            if isinstance(self.error_messages, list):
                 result.append("[messages]:")
-                for e_msg in self.error_message:
+                for e_msg in self.error_messages:
                     result.append(f"— {e_msg}")
             else:
-                result.append(f"[message] {self.error_message}")
+                result.append(f"[message] {self.error_messages}")
 
         if self.details:
             result.append("[details]:")
@@ -142,7 +132,7 @@ class StarknetRevertableException(RevertableException):
 
     def __reduce__(self):
         return type(self), (
-            self.error_message,
+            self.error_messages,
             self.error_type,
             self.code,
             self.details,
