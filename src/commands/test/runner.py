@@ -1,4 +1,5 @@
 import asyncio
+from logging import getLogger
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Set
 
@@ -19,15 +20,13 @@ from src.commands.test.test_environment_exceptions import (
     RevertableException,
     StarknetRevertableException,
 )
-from src.commands.test.utils import (
-    ExpectedEvent,
-    TestSubject,
-    extract_core_info_from_stark_ex_message,
-)
+from src.commands.test.utils import ExpectedEvent, TestSubject
 from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
 
 current_directory = Path(__file__).parent
+
+logger = getLogger()
 
 
 class TestRunner:
@@ -186,7 +185,9 @@ class TestExecutionEnvironment:
             return await func().invoke()
         except StarkException as ex:
             raise StarknetRevertableException(
-                error_message=extract_core_info_from_stark_ex_message(ex.message),
+                error_message=StarknetRevertableException.extract_error_messages_from_stark_ex_message(
+                    ex.message
+                ),
                 error_type=ex.code.name,
                 code=ex.code.value,
                 details=ex.message,
@@ -303,6 +304,9 @@ class TestExecutionEnvironment:
         self._expected_error = expected_error
 
         def stop_expecting_revert():
+            logger.warning(
+                "The callback returned by the `expect_revert` is deprecated."
+            )
             if self._expected_error is not None:
                 raise ReportedException(
                     "Expected a transaction to be reverted before cancelling expect_revert"

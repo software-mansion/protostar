@@ -1134,8 +1134,8 @@ category = "dev"
 description = "Command line wrapper for pyright"
 name = "pyright"
 optional = false
-python-versions = ">=3"
-version = "0.0.13.post0"
+python-versions = ">=3.7"
+version = "1.1.244"
 
 [package.dependencies]
 nodeenv = ">=1.6.0"
@@ -1602,7 +1602,7 @@ testing = [
 ]
 
 [metadata]
-content-hash = "911948c5d7ff2f482e70347e3acb4c21587fb6c7d9315ac7b3a22c08b04f52ad"
+content-hash = "24d47149e7ed3ea129eec797add7aefeb795400447186ba332bba6eaa1bbaf7c"
 lock-version = "1.1"
 python-versions = ">=3.7.12, <3.10"
 
@@ -2280,8 +2280,8 @@ pyparsing = [
   {file = "pyparsing-3.0.7.tar.gz", hash = "sha256:18ee9022775d270c55187733956460083db60b37d0d0fb357445f3094eed3eea"},
 ]
 pyright = [
-  {file = "pyright-0.0.13.post0-py3-none-any.whl", hash = "sha256:47c29623f208226f4437bf02276475b816beff6f539ea166e3cade57d6717598"},
-  {file = "pyright-0.0.13.post0.tar.gz", hash = "sha256:dda7602f3692f07fdff8c6d30d704f1b1ed20b5b3bb55c069599988d1ec9bd5a"},
+  {file = "pyright-1.1.244-py3-none-any.whl", hash = "sha256:b12c186320b932d15b6e6f85b08077ca688c6ae572d8a6fef58ba3c0f9eca1d4"},
+  {file = "pyright-1.1.244.tar.gz", hash = "sha256:24aca93b33a72345cffcfcecd303b77bf53f08a54235f9949f51df7d4287fd57"},
 ]
 pyrsistent = [
   {file = "pyrsistent-0.18.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:df46c854f490f81210870e509818b729db4488e1f30f2a1ce1698b2295a878d1"},

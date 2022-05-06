@@ -310,10 +310,10 @@ Removes a mocked call specified by a function name (`fn_name`) of a contract wit
 ### `expect_revert`
 
 ```python
-def expect_revert(error_type: Optional[str] = None, error_message: Optional[str] = None) -> Callable[[], None]: ...
+def expect_revert(error_type: Optional[str] = None, error_message: Optional[str] = None) -> None: ...
 ```
 
-If a code beneath `expect_revert` raises a specified exception, a test will pass. If not, a test will fail. It accepts `error_type`, `error_message`, and returns a function that cancels this cheatcode. You can call that function to limit the expected error scope.
+If a code beneath `expect_revert` raises a specified exception, a test will pass. If not, a test will fail.
 
 :::info
 Protostar displays an error type and a message when a test fails.
@@ -335,11 +335,8 @@ end
 func test_failing_to_call_external_contract{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
 
-    %{ stop_expecting_revert = expect_revert("UNINITIALIZED_CONTRACT") %}
+    %{ expect_revert("UNINITIALIZED_CONTRACT") %}
     BasicContract.increase_balance(contract_address=21, amount=3)
-    %{ stop_expecting_revert() %}                                       
-
-    BasicContract.increase_balance(contract_address=37, amount=3)
 
     return ()
 end

@@ -76,6 +76,13 @@ def build_project(
             ).compile_contract(
                 *[Path(component) for component in contract_components],
             )
+        except StarknetCompiler.FileNotFoundException as err:
+            raise StarknetCompiler.FileNotFoundException(
+                message=(
+                    err.message
+                    + '\nDid you forget to update protostar.toml::["protostar.contracts"]?'
+                )
+            ) from err
         except (StarkException, VmException, PreprocessorError) as err:
             raise CairoCompilationException(
                 f"Protostar couldn't compile '{contract_name}' contract\n{str(err)}"
