@@ -27,12 +27,12 @@ pexpect = "^4.8.0"
 poethepoet = "^0.12.2"
 pyinstaller = "^4.9"
 pylint = "^2.12.2"
-pyright = "^1.1.238"
 pytest = "^6.2.5"
 pytest-cov = "^3.0.0"
 pytest-mock = "^3.7.0"
 pytest-timeout = "^2.1.0"
 snakeviz = "^2.1.1"
+pyright = "^1.1.244"
 
 [tool.poe.tasks]
 build = "pyinstaller protostar.spec --noconfirm"
