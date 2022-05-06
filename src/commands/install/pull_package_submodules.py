@@ -1,4 +1,5 @@
-from os import listdir, path
+from os import listdir
+from pathlib import Path
 from typing import Callable
 
 from attr import dataclass
@@ -12,9 +13,11 @@ class PackageInfo:
 
 
 def pull_package_submodules(
-    on_submodule_update_start: Callable[[PackageInfo], None], repo_root_dir: str
+    on_submodule_update_start: Callable[[PackageInfo], None],
+    repo_root_dir: Path,
+    libs_dir: Path,
 ) -> None:
-    submodule_names = listdir(path.join(repo_root_dir, "lib"))
+    submodule_names = listdir(libs_dir)
     repo = Repo(repo_root_dir)
 
     for submodule in repo.submodules:

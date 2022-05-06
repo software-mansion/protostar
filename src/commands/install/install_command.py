@@ -1,5 +1,4 @@
 from logging import getLogger
-from os import getcwd
 from typing import Any, List, Optional
 
 from src.cli import Command
@@ -56,14 +55,17 @@ class InstallCommand(Command):
 def handle_install_command(args: Any, project: Project) -> None:
     logger = getLogger()
 
+    repo_root_dir = project.project_root
+    libs_dir = project.project_root / project.config.libs_path
+
     if args.package is not None and args.package != "":
         package_info = extract_info_from_repo_id(args.package)
 
         install_package_from_repo(
             package_info.name if args.name is None else args.name,
             package_info.url,
-            repo_root_dir=project.project_root,
-            destination=project.project_root / project.config.libs_path,
+            repo_root_dir=repo_root_dir,
+            destination=libs_dir,
             tag=package_info.version,
         )
     else:
@@ -77,5 +79,6 @@ def handle_install_command(args: Any, project: Project) -> None:
                 package_info.url,
                 log_color_provider.get_color("RESET"),
             ),
-            repo_root_dir=getcwd(),
+            repo_root_dir=repo_root_dir,
+            libs_dir=libs_dir,
         )

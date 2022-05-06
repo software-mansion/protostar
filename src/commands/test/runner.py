@@ -1,4 +1,5 @@
 import asyncio
+from logging import getLogger
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Set
 
@@ -24,6 +25,8 @@ from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
 
 current_directory = Path(__file__).parent
+
+logger = getLogger()
 
 
 class TestRunner:
@@ -301,6 +304,9 @@ class TestExecutionEnvironment:
         self._expected_error = expected_error
 
         def stop_expecting_revert():
+            logger.warning(
+                "The callback returned by the `expect_revert` is deprecated."
+            )
             if self._expected_error is not None:
                 raise ReportedException(
                     "Expected a transaction to be reverted before cancelling expect_revert"
