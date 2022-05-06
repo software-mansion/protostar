@@ -15,13 +15,13 @@ func test_increasing_balance{syscall_ptr : felt*, range_check_ptr, pedersen_ptr 
 end
 
 @view
-func test_revert_when_negative_value_is_provided{
+func test_failing_when_increasing_balance_with_negative_value{
     syscall_ptr : felt*, range_check_ptr, pedersen_ptr : HashBuiltin*
 }():
     let (result_before) = balance.read()
     assert result_before = 0
 
-    %{ expect_revert("TRANSACTION_FAILED") %}
+    %{ expect_revert("TRANSACTION_FAILED", "Amount must be positive") %}
     increase_balance(-42)
 
     return ()

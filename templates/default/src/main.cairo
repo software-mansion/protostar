@@ -11,8 +11,11 @@ end
 func increase_balance{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     amount : felt
 ):
+    with_attr error_message("Amount must be positive. Got: {amount}."):
+        assert_nn(amount)
+    end
+
     let (res) = balance.read()
-    assert_nn(amount)
     balance.write(res + amount)
     return ()
 end
