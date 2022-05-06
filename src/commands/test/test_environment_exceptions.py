@@ -33,9 +33,10 @@ class RevertableException(ReportedException):
         if self.error_type is not None:
             result.append(f"[error_type] {self.error_type}")
 
-        result.append("[error_messages]:")
-        for e_msg in self.error_messages:
-            result.append(f"— {e_msg}")
+        if len(self.error_messages) > 0:
+            result.append("[error_messages]:")
+            for e_msg in self.error_messages:
+                result.append(f"— {e_msg}")
 
         return "\n".join(result)
 
@@ -50,13 +51,7 @@ class RevertableException(ReportedException):
         if error_type_match and len(self.error_messages) == 0:
             return True
 
-        self_error_messages = (
-            [self.error_messages]
-            if isinstance(self.error_messages, str)
-            else self.error_messages
-        )
-
-        for self_e_msg in self_error_messages:
+        for self_e_msg in self.error_messages:
             if not RevertableException.can_pattern_be_found(
                 self_e_msg, other.error_messages
             ):
@@ -116,13 +111,10 @@ class StarknetRevertableException(RevertableException):
         if self.code:
             result.append(f"[code] {str(self.code)}")
 
-        if self.error_messages:
-            if isinstance(self.error_messages, list):
-                result.append("[messages]:")
-                for e_msg in self.error_messages:
-                    result.append(f"— {e_msg}")
-            else:
-                result.append(f"[message] {self.error_messages}")
+        if len(self.error_messages) > 0:
+            result.append("[messages]:")
+            for e_msg in self.error_messages:
+                result.append(f"— {e_msg}")
 
         if self.details:
             result.append("[details]:")
