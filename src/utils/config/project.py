@@ -53,6 +53,10 @@ class Project:
         return None
 
     @property
+    def libs_path(self) -> Path:
+        return self.project_root.resolve() / self.config.libs_path
+
+    @property
     def config(self) -> ProjectConfig:
         if not self._project_config:
             self.load_config()
