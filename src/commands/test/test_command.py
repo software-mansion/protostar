@@ -1,7 +1,16 @@
-from typing import TYPE_CHECKING, List, Optional
+import asyncio
+import multiprocessing
+import signal
+from dataclasses import dataclass, field
+from logging import getLogger
+from pathlib import Path
+from typing import TYPE_CHECKING, List, Optional, Pattern
 
 from src.cli.command import Command
-from src.commands.test import run_test_runner
+from src.commands.test.reporter import Reporter, ReporterCoordinator
+from src.commands.test.runner import TestRunner
+from src.commands.test.test_collector import TestCollector
+from src.commands.test.utils import TestSubject
 from src.utils.protostar_directory import ProtostarDirectory
 
 if TYPE_CHECKING:
@@ -66,13 +75,64 @@ class TestCommand(Command):
             ),
         ]
 
-    async def run(self, args):
-        await run_test_runner(
-            args.target,
-            project=self._project,
-            omit=args.omit,
-            match=args.match,
-            cairo_paths=self._protostar_directory.add_protostar_cairo_dir(
-                args.cairo_path
-            ),
+    @dataclass
+    class Args:
+        target: Path
+        match: Optional[Pattern] = None
+        omit: Optional[Pattern] = None
+        cairo_path: List[Path] = field(default_factory=list)
+
+    async def run(self, args: "TestCommand.Args"):
+
+        cairo_paths: List[Path] = args.cairo_path or []
+        cairo_paths = self._protostar_directory.add_protostar_cairo_dir(cairo_paths)
+        include_paths = [str(pth) for pth in cairo_paths]
+        include_paths.extend(self._project.get_include_paths())
+
+        logger = getLogger()
+
+        test_subjects = TestCollector(
+            target=args.target,
+            include_paths=include_paths,
+        ).collect(
+            match_pattern=args.match,
+            omit_pattern=args.omit,
         )
+
+        with multiprocessing.Manager() as manager:
+            queue = manager.Queue()
+            reporter_coordinator = ReporterCoordinator(
+                args.target, test_subjects, queue, logger
+            )
+            setups = [
+                (
+                    subject,
+                    reporter_coordinator.create_reporter(),
+                    include_paths,
+                )
+                for subject in test_subjects
+            ]
+
+            try:
+                with multiprocessing.Pool(
+                    multiprocessing.cpu_count(), init_pool
+                ) as pool:
+                    result = pool.starmap_async(run_test_subject_worker, setups)
+                    reporter_coordinator.live_reporting()
+                    return result.get()
+            except KeyboardInterrupt:
+                return []
+
+
+def init_pool():
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+
+
+def run_test_subject_worker(
+    subject: TestSubject,
+    reporter: Reporter,
+    include_paths: List[str],
+):
+    runner = TestRunner(reporter=reporter, include_paths=include_paths)
+    asyncio.run(runner.run_test_subject(subject))
+    return runner.reporter
