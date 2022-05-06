@@ -1,3 +1,4 @@
+import re
 from typing import List, Optional, Union
 
 from src.utils.log_color_provider import log_color_provider
@@ -75,20 +76,10 @@ class StarknetRevertableException(RevertableException):
     def extract_error_messages_from_stark_ex_message(
         msg: Optional[str],
     ) -> List[str]:
-        results: List[str] = []
-
         if msg is None:
             return []
 
-        prefix = "Error message: "
-        remaining_msg = msg
-        start_index = remaining_msg.find(prefix)
-        while not start_index == -1:
-            end_index = remaining_msg.find("\n", start_index)
-            results.append(remaining_msg[start_index + len(prefix) : end_index])
-            remaining_msg = remaining_msg[end_index:]
-            start_index = remaining_msg.find(prefix)
-
+        results = re.findall("Error message: (.*)", msg)
         results.reverse()
         return results
 
