@@ -17,7 +17,7 @@ def test_complex(protostar, copy_fixture):
 
     result = protostar(["test", "tests"])
 
-    assert "Collected 3 items" in result
+    assert "Collected 2 suits, and 3 test cases" in result
     assert "3 passed" in result
 
 
@@ -25,25 +25,31 @@ def test_complex(protostar, copy_fixture):
 def test_expect_revert(protostar, copy_fixture):
     copy_fixture("test_expect_revert.cairo", "./tests")
 
-    result = protostar(["test", "tests"])
+    result = protostar(["--no-color", "test", "tests/test_expect_revert.cairo"])
 
-    assert "Collected 11 items" in result
-    assert "6 passed" in result
-    assert "5 failed" in result
-    assert "test_expect_revert.cairo::test_with_except_revert_fail_expected" in result
+    assert "[FAIL] tests/test_expect_revert.cairo test_fail_error_message" in result
+
     assert (
-        "test_expect_revert.cairo::test_with_except_out_of_scope_revert_fail_expected"
+        "[FAIL] tests/test_expect_revert.cairo test_with_except_revert_fail_expected"
         in result
     )
+
     assert (
-        "test_expect_revert.cairo::test_call_not_existing_contract_fail_expected"
+        "[FAIL] tests/test_expect_revert.cairo test_with_except_out_of_scope_revert_fail_expected"
         in result
     )
+
     assert (
-        "test_expect_revert.cairo::test_error_was_not_raised_before_stopping_expect_revert_fail_expected"
+        "[FAIL] tests/test_expect_revert.cairo test_call_not_existing_contract_fail_expected"
         in result
     )
     assert "[error_type] RANDOM_ERROR_NAME" in result
+
+    assert (
+        "[FAIL] tests/test_expect_revert.cairo test_error_was_not_raised_before_stopping_expect_revert_fail_expected"
+        in result
+    )
+    assert "5 failed, 5 passed, 10 total" in result
     assert "Unknown location" not in result
 
 
