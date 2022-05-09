@@ -4,10 +4,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING, List, Optional, Pattern
 
 from src.cli.command import Command
-from src.commands.test.test_runner import TestRunner
 from src.commands.test.test_collector import TestCollector
-from src.commands.test.testing_live_logger import TestingLiveLogger
+from src.commands.test.test_runner import TestRunner
 from src.commands.test.test_scheduler import TestScheduler
+from src.commands.test.testing_live_logger import TestingLiveLogger
 from src.utils.protostar_directory import ProtostarDirectory
 
 if TYPE_CHECKING:
@@ -80,14 +80,9 @@ class TestCommand(Command):
         cairo_path: List[Path] = field(default_factory=list)
 
     async def run(self, args: "TestCommand.Args") -> None:
-
-        cairo_paths: List[Path] = args.cairo_path or []
-        cairo_paths = self._protostar_directory.add_protostar_cairo_dir(cairo_paths)
-        include_paths = [str(pth) for pth in cairo_paths]
-        include_paths.extend(self._project.get_include_paths())
-
         logger = getLogger()
 
+        include_paths = self._get_include_paths(args.cairo_path)
         test_collector_result = TestCollector(
             target=args.target,
             include_paths=include_paths,
@@ -100,3 +95,9 @@ class TestCommand(Command):
         TestScheduler(TestingLiveLogger(logger), worker=TestRunner.worker).run(
             include_paths=include_paths, test_collector_result=test_collector_result
         )
+
+    def _get_include_paths(self, cairo_paths: List[Path]) -> List[str]:
+        cairo_paths = self._protostar_directory.add_protostar_cairo_dir(cairo_paths)
+        include_paths = [str(pth) for pth in cairo_paths]
+        include_paths.extend(self._project.get_include_paths())
+        return include_paths
