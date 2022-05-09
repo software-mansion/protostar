@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, List, Optional, Pattern
 
 from src.cli.command import Command
-from src.commands.test.runner import TestRunner
+from src.commands.test.test_runner import TestRunner
 from src.commands.test.test_collector import TestCollector
 from src.commands.test.test_live_logger import TestLiveLogger
 from src.commands.test.test_scheduler import TestScheduler
