@@ -1,4 +1,3 @@
-# Python complains about importing `Project`` if the import below is removed
 import asyncio
 from pathlib import Path
 
