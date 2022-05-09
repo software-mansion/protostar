@@ -1,8 +1,8 @@
 import re
 from dataclasses import dataclass, replace
 from os import listdir
-from typing import Dict, Optional
 from pathlib import Path
+from typing import Dict, Optional
 
 from git.repo import Repo
 
@@ -29,7 +29,7 @@ class InvalidPackageName(ProtostarException):
 
 
 def retrieve_real_package_name(
-    package_id: str, root_repo_dir: Path, packages_dir: Path
+    package_id: str, repo_dir: Path, packages_dir: Path
 ) -> str:
     normalized_package_name = ""
     if "/" in package_id:
@@ -37,7 +37,7 @@ def retrieve_real_package_name(
     else:
         normalized_package_name = normalize_package_name(package_id)
 
-    mapping = load_normalized_to_real_name_map(root_repo_dir, packages_dir)
+    mapping = load_normalized_to_real_name_map(repo_dir, packages_dir)
 
     if normalized_package_name in mapping:
         return mapping[normalized_package_name]
@@ -52,8 +52,8 @@ def retrieve_real_package_name(
     )
 
 
-def load_normalized_to_real_name_map(repo_root_dir: Path, packages_dir: Path):
-    repo = Repo.init(repo_root_dir)
+def load_normalized_to_real_name_map(repo_dir: Path, packages_dir: Path):
+    repo = Repo(repo_dir, search_parent_directories=True)
 
     mapping: Dict["str", "str"] = {}
 

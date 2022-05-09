@@ -49,23 +49,20 @@ class UpdateCommand(Command):
 
 
 def handle_update_command(args, project: Project) -> None:
-    assert args.command == "update"
 
-    root_repo_dir = project.project_root
-    packages_dir = project.project_root / project.config.libs_path
     logger = getLogger()
 
     if args.package:
         package_name = retrieve_real_package_name(
-            args.package, root_repo_dir, packages_dir
+            args.package, project.project_root, project.libs_path
         )
         try:
-            update_package(package_name, root_repo_dir, packages_dir)
+            update_package(package_name, project.project_root, project.libs_path)
         except PackageAlreadyUpToDateException as err:
             logger.info(err.message)
     else:
-        for package_name in listdir(packages_dir):
+        for package_name in listdir(project.libs_path):
             try:
-                update_package(package_name, root_repo_dir, packages_dir)
+                update_package(package_name, project.project_root, project.libs_path)
             except PackageAlreadyUpToDateException:
                 continue
