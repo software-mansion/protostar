@@ -36,135 +36,39 @@ class TestingSummary:
             if isinstance(case_result, BrokenTest):
                 self.broken.append(case_result)
 
-
-class ReporterCoordinator:
-    def __init__(
+    def log(
         self,
-        tests_root: Path,
-        test_subjects: List[TestSubject],
         logger: Logger,
+        collected_test_cases_count: int,
+        collected_test_files_count: int,
     ):
-        self.collected_subjects = test_subjects
-
-        self.collected_tests_count = sum(
-            [len(subject.test_functions) for subject in self.collected_subjects]
-        )
-        self.tests_root = tests_root
-        self.logger = logger
-
-    def report_collected(self):
-        if self.collected_tests_count:
-            result: List[str] = ["Collected"]
-            suits_count = len(self.collected_subjects)
-            if suits_count == 1:
-                result.append("1 suit,")
-            else:
-                result.append(f"{suits_count} suits,")
-
-            result.append("and")
-            if self.collected_tests_count == 1:
-                result.append("1 test case")
-            else:
-                result.append(f"{self.collected_tests_count} test cases")
-
-            self.logger.info(" ".join(result))
-        else:
-            self.logger.warn("No cases found")
-
-    def live_reporting(
-        self,
-        test_subject_queue: TestSubjectQueue,
-    ):
-        self.report_collected()
-        testing_summary = TestingSummary([])
-
-        try:
-            with bar(
-                total=self.collected_tests_count,
-                bar_format="{l_bar}{bar}[{n_fmt}/{total_fmt}]",
-                dynamic_ncols=True,
-            ) as progress_bar:
-                tests_left_n = self.collected_tests_count
-                progress_bar.update()
-                try:
-                    while tests_left_n > 0:
-                        (subject, case_result) = test_subject_queue.dequeue()
-                        testing_summary.extend([case_result])
-                        cast(Any, progress_bar).colour = (
-                            "RED"
-                            if len(testing_summary.failed) + len(testing_summary.broken)
-                            > 0
-                            else "GREEN"
-                        )
-                        progress_bar.write(str(case_result))
-
-                        if isinstance(case_result, BrokenTest):
-                            tests_in_case_count = len(subject.test_functions)
-                            progress_bar.update(tests_in_case_count)
-                            tests_left_n -= tests_in_case_count
-                        else:
-                            progress_bar.update(1)
-                            tests_left_n -= 1
-                finally:
-                    progress_bar.bar_format = "{desc}"
-                    progress_bar.update()
-                    self.report_summary(testing_summary)
-
-        except queue.Empty:
-            # https://docs.python.org/3/library/queue.html#queue.Queue.get
-            # We skip it to prevent deadlock, but this error should never happen
-            pass
-
-    def run(self, test_subjects: List[TestSubject], include_paths: List[str]):
-        with multiprocessing.Manager() as manager:
-            testing_queue = TestSubjectQueue(manager.Queue())
-            setups = [
-                (
-                    subject,
-                    testing_queue,
-                    include_paths,
-                )
-                for subject in test_subjects
-            ]
-
-            try:
-                with multiprocessing.Pool(
-                    multiprocessing.cpu_count(), init_pool
-                ) as pool:
-                    pool.starmap_async(run_test_subject_worker, setups)
-                    self.live_reporting(testing_queue)
-            except KeyboardInterrupt:
-                return
-
-    def report_summary(self, testing_summary: TestingSummary):
-
-        self.logger.info(
+        logger.info(
             log_color_provider.bold("Test suits: ")
-            + self._get_test_suits_summary(testing_summary)
+            + self._get_test_suits_summary(collected_test_files_count)
         )
-        self.logger.info(
+        logger.info(
             log_color_provider.bold("Tests:      ")
-            + self._get_test_cases_summary(testing_summary)
+            + self._get_test_cases_summary(collected_test_cases_count)
         )
 
-    def _get_test_cases_summary(self, testing_result: TestingSummary) -> str:
-        failed_test_cases_count = len(testing_result.failed)
-        passed_test_cases_count = len(testing_result.passed)
+    def _get_test_cases_summary(self, collected_test_cases_count: int) -> str:
+        failed_test_cases_count = len(self.failed)
+        passed_test_cases_count = len(self.passed)
 
         return ", ".join(
             self._get_preprocessed_core_testing_summary(
                 failed_count=failed_test_cases_count,
                 passed_count=passed_test_cases_count,
-                total_count=self.collected_tests_count,
+                total_count=collected_test_cases_count,
             )
         )
 
-    def _get_test_suits_summary(self, testing_summary: TestingSummary) -> str:
+    def _get_test_suits_summary(self, collected_test_files_count: int) -> str:
         passed_test_suits_count = 0
         failed_test_suits_count = 0
         broken_test_suits_count = 0
-        total_test_suits_count = len(testing_summary.test_files)
-        for suit_case_results in testing_summary.test_files.values():
+        total_test_suits_count = len(self.test_files)
+        for suit_case_results in self.test_files.values():
             partial_summary = TestingSummary(suit_case_results)
 
             if len(partial_summary.broken) > 0:
@@ -202,7 +106,7 @@ class ReporterCoordinator:
                 broken_count=broken_test_suits_count,
                 failed_count=failed_test_suits_count,
                 passed_count=passed_test_suits_count,
-                total_count=len(self.collected_subjects),
+                total_count=collected_test_files_count,
             )
         )
 
@@ -237,6 +141,90 @@ class ReporterCoordinator:
             test_suits_result.append(f"{total_count} total")
 
         return test_suits_result
+
+
+class ReporterCoordinator:
+    def __init__(
+        self,
+        tests_root: Path,
+        test_subjects: List[TestSubject],
+        logger: Logger,
+    ):
+        self.collected_subjects = test_subjects
+
+        self.collected_tests_count = sum(
+            [len(subject.test_functions) for subject in self.collected_subjects]
+        )
+        self.tests_root = tests_root
+        self.logger = logger
+
+    def run(self, test_subjects: List[TestSubject], include_paths: List[str]):
+        with multiprocessing.Manager() as manager:
+            testing_queue = TestSubjectQueue(manager.Queue())
+            setups = [
+                (
+                    subject,
+                    testing_queue,
+                    include_paths,
+                )
+                for subject in test_subjects
+            ]
+
+            try:
+                with multiprocessing.Pool(
+                    multiprocessing.cpu_count(), init_pool
+                ) as pool:
+                    pool.starmap_async(run_test_subject_worker, setups)
+                    self.live_reporting(testing_queue)
+            except KeyboardInterrupt:
+                return
+
+    def live_reporting(
+        self,
+        test_subject_queue: TestSubjectQueue,
+    ):
+        testing_summary = TestingSummary([])
+
+        try:
+            with bar(
+                total=self.collected_tests_count,
+                bar_format="{l_bar}{bar}[{n_fmt}/{total_fmt}]",
+                dynamic_ncols=True,
+            ) as progress_bar:
+                tests_left_n = self.collected_tests_count
+                progress_bar.update()
+                try:
+                    while tests_left_n > 0:
+                        (subject, case_result) = test_subject_queue.dequeue()
+                        testing_summary.extend([case_result])
+                        cast(Any, progress_bar).colour = (
+                            "RED"
+                            if len(testing_summary.failed) + len(testing_summary.broken)
+                            > 0
+                            else "GREEN"
+                        )
+                        progress_bar.write(str(case_result))
+
+                        if isinstance(case_result, BrokenTest):
+                            tests_in_case_count = len(subject.test_functions)
+                            progress_bar.update(tests_in_case_count)
+                            tests_left_n -= tests_in_case_count
+                        else:
+                            progress_bar.update(1)
+                            tests_left_n -= 1
+                finally:
+                    progress_bar.bar_format = "{desc}"
+                    progress_bar.update()
+                    testing_summary.log(
+                        logger=self.logger,
+                        collected_test_cases_count=self.collected_tests_count,
+                        collected_test_files_count=len(self.collected_subjects),
+                    )
+
+        except queue.Empty:
+            # https://docs.python.org/3/library/queue.html#queue.Queue.get
+            # We skip it to prevent deadlock, but this error should never happen
+            pass
 
 
 def init_pool():

@@ -1,6 +1,7 @@
 import os
 import re
 from dataclasses import dataclass
+from logging import Logger
 from pathlib import Path
 from typing import Generator, List, Optional, Pattern, cast
 
@@ -19,6 +20,30 @@ class CollectionError(ProtostarException):
 
 @dataclass
 class TestCollector:
+    @dataclass(frozen=True)
+    class Result:
+        test_subjects: List[TestSubject]
+        test_cases_count: int
+
+        def log(self, logger: Logger):
+            if self.test_cases_count:
+                result: List[str] = ["Collected"]
+                suits_count = len(self.test_subjects)
+                if suits_count == 1:
+                    result.append("1 suit,")
+                else:
+                    result.append(f"{suits_count} suits,")
+
+                result.append("and")
+                if self.test_cases_count == 1:
+                    result.append("1 test case")
+                else:
+                    result.append(f"{self.test_cases_count} test cases")
+
+                logger.info(" ".join(result))
+            else:
+                logger.warn("No cases found")
+
     target: Path
     include_paths: Optional[List[str]] = None
     target_function: Optional[str] = None
@@ -34,9 +59,9 @@ class TestCollector:
         self,
         match_pattern: Optional[Pattern] = None,
         omit_pattern: Optional[Pattern] = None,
-    ) -> List[TestSubject]:
+    ) -> "TestCollector.Result":
 
-        test_files = self.get_test_files()
+        test_files = self._get_test_files()
 
         if match_pattern:
             test_files = filter(
@@ -48,11 +73,22 @@ class TestCollector:
                 test_files,
             )
 
-        test_files = map(self.build_test_subject, test_files)
-        non_empty = filter(lambda file: (file.test_functions) != [], test_files)
-        return list(non_empty)
+        test_files = map(self._build_test_subject, test_files)
+        test_subjects = list(
+            filter(lambda file: (file.test_functions) != [], test_files)
+        )
+        return TestCollector.Result(
+            test_subjects=test_subjects,
+            test_cases_count=sum(
+                [len(subject.test_functions) for subject in test_subjects]
+            ),
+        )
 
-    def build_test_subject(self, file_path: Path):
+    @classmethod
+    def is_test_file(cls, filename: str) -> bool:
+        return any(test_re.match(filename) for test_re in cls.test_filename_re)
+
+    def _build_test_subject(self, file_path: Path):
         test_functions = self._collect_test_functions(file_path)
         if self.target_function:
             test_functions = [
@@ -63,7 +99,7 @@ class TestCollector:
             test_functions=test_functions,
         )
 
-    def get_test_files(self) -> Generator[Path, None, None]:
+    def _get_test_files(self) -> Generator[Path, None, None]:
         if not self.target.is_dir():
             yield self.target
             return
@@ -72,10 +108,6 @@ class TestCollector:
             test_files = filter(lambda file: self.is_test_file(file.name), test_files)
             for test_file in test_files:
                 yield test_file
-
-    @classmethod
-    def is_test_file(cls, filename: str) -> bool:
-        return any(test_re.match(filename) for test_re in cls.test_filename_re)
 
     def _collect_test_functions(self, file_path: Path) -> List[dict]:
         try:
