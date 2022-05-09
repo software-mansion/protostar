@@ -1,13 +1,10 @@
-import multiprocessing
 import queue
-import signal
 from logging import Logger
-from typing import TYPE_CHECKING, Any, Callable, List, Tuple, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from tqdm import tqdm as bar
 
 from src.commands.test.cases import BrokenTest
-from src.commands.test.runner import TestRunner
 from src.commands.test.test_subject_queue import TestSubjectQueue
 from src.commands.test.testing_summary import TestingSummary
 
@@ -15,47 +12,11 @@ if TYPE_CHECKING:
     from src.commands.test.test_collector import TestCollector
 
 
-class ReporterCoordinator:
-    def __init__(
-        self,
-        logger: Logger,
-        worker: Callable[
-            [TestRunner.WorkerArgs],
-            None,
-        ],
-    ):
+class TestLiveLogger:
+    def __init__(self, logger: Logger) -> None:
         self._logger = logger
-        self._worker = worker
 
-    def run(
-        self, test_collector_result: "TestCollector.Result", include_paths: List[str]
-    ):
-        with multiprocessing.Manager() as manager:
-            testing_queue = TestSubjectQueue(manager.Queue())
-            setups: List[Tuple[TestRunner.WorkerArgs]] = [
-                (
-                    TestRunner.WorkerArgs(
-                        subject,
-                        testing_queue,
-                        include_paths,
-                    ),
-                )
-                for subject in test_collector_result.test_subjects
-            ]
-
-            try:
-                with multiprocessing.Pool(
-                    multiprocessing.cpu_count(),
-                    lambda: signal.signal(
-                        signal.SIGINT, signal.SIG_IGN
-                    ),  # prevents showing a stacktrace on cmd/ctrl + c
-                ) as pool:
-                    pool.starmap_async(self._worker, setups)
-                    self._log_until_finished(testing_queue, test_collector_result)
-            except KeyboardInterrupt:
-                return
-
-    def _log_until_finished(
+    def log(
         self,
         test_subject_queue: TestSubjectQueue,
         test_collector_result: "TestCollector.Result",
