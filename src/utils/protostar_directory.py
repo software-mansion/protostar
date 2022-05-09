@@ -1,7 +1,7 @@
 import re
 from logging import getLogger
 from pathlib import Path
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 import tomli
 from git.cmd import Git
@@ -21,6 +21,13 @@ class ProtostarDirectory:
     @property
     def directory_root_path(self) -> Path:
         return self._protostar_binary_dir_path / ".." / ".."
+
+    def add_protostar_cairo_dir(self, cairo_paths: List[Path]) -> List[Path]:
+        if self.protostar_binary_dir_path:
+            protostar_cairo_dir = self.protostar_binary_dir_path / "cairo"
+            if protostar_cairo_dir not in cairo_paths:
+                cairo_paths.append(protostar_cairo_dir)
+        return cairo_paths
 
 
 VersionType = Union[LegacyVersion, PackagingVersion]

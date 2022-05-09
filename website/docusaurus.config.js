@@ -16,7 +16,7 @@ const config = {
   organizationName: 'software-mansion',
   projectName: 'protostar',
   trailingSlash: false,
-  deploymentBranch: 'gh-pages',
+  deploymentBranch: "gh-pages",
 
   presets: [
     [
@@ -54,9 +54,15 @@ const config = {
             label: 'Tutorials',
           },
           {
-            href: 'https://github.com/software-mansion/protostar',
-            label: 'GitHub',
-            position: 'right',
+            type: "doc",
+            position: "left",
+            docId: "cli-reference",
+            label: "CLI Reference",
+          },
+          {
+            href: "https://github.com/software-mansion/protostar",
+            label: "GitHub",
+            position: "right",
           },
         ],
       },
@@ -81,13 +87,22 @@ const config = {
               },
             ],
           },
+          {
+            title: "Community",
+            items: [
+              {
+                label: "Discord",
+                href: "https://discord.gg/uJ9HZTUk2Y",
+              },
+            ],
+          },
         ],
         copyright: `Copyright © ${new Date().getFullYear()} Software Mansion. Built with Docusaurus.`,
       },
       prism: {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
-        additionalLanguages: ['toml'],
+        additionalLanguages: ["toml"],
       },
     }),
 }

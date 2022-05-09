@@ -1,13 +1,46 @@
 import glob
 import shutil
 from pathlib import Path
-from typing import Any, Type
+from typing import Any, List, Optional, Type
 
 from git.exc import InvalidGitRepositoryError
 from git.repo import Repo
 
-from src.utils import log_color_provider, VersionManager
+from src.cli import Command
+from src.utils import VersionManager, log_color_provider
 from src.utils.config.project import Project, ProjectConfig
+
+
+class InitCommand(Command):
+    def __init__(self, script_root: Path, version_manager: VersionManager) -> None:
+        super().__init__()
+        self._script_root = script_root
+        self._version_manager = version_manager
+
+    @property
+    def name(self) -> str:
+        return "init"
+
+    @property
+    def description(self) -> str:
+        return "Create a Protostar project."
+
+    @property
+    def example(self) -> Optional[str]:
+        return "$ protostar init"
+
+    @property
+    def arguments(self) -> List[Command.Argument]:
+        return [
+            Command.Argument(
+                name="existing",
+                description="Adapt current directory to a Protostar project.",
+                type="bool",
+            )
+        ]
+
+    async def run(self, args):
+        init(args, self._script_root, self._version_manager)
 
 
 def init(args: Any, script_root: Path, version_manager: VersionManager):
@@ -75,7 +108,10 @@ class ProjectCreator:
 
         project.write_config(self.config)
 
-        Repo.init(project_root)
+        try:
+            Repo(project_root, search_parent_directories=True)
+        except InvalidGitRepositoryError:
+            Repo.init(project_root)
 
     @staticmethod
     def copy_template(script_root: Path, template_name: str, project_path: Path):
@@ -105,7 +141,7 @@ class OnlyConfigCreator(ProjectCreator):
         project.write_config(self.config)
 
         try:
-            Repo(project_root)
+            Repo(project_root, search_parent_directories=True)
         except InvalidGitRepositoryError:
             Repo.init(project_root)
 

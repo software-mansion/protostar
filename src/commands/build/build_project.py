@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     PreprocessorError,
@@ -8,9 +8,55 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
 from starkware.cairo.lang.vm.vm_exceptions import VmException
 from starkware.starkware_utils.error_handling import StarkException
 
+from src.cli.command import Command
 from src.commands.build.build_exceptions import CairoCompilationException
 from src.utils.config.project import Project
 from src.utils.starknet_compilation import StarknetCompiler
+
+
+class BuildCommand(Command):
+    def __init__(self, project: Project) -> None:
+        super().__init__()
+        self._project = project
+
+    @property
+    def name(self) -> str:
+        return "build"
+
+    @property
+    def description(self) -> str:
+        return "Compile contracts."
+
+    @property
+    def example(self) -> Optional[str]:
+        return "$ protostar build"
+
+    @property
+    def arguments(self) -> List[Command.Argument]:
+        return [
+            Command.Argument(
+                name="cairo-path",
+                description="Additional directories to look for sources.",
+                type="directory",
+                is_array=True,
+            ),
+            Command.Argument(
+                name="disable-hint-validation",
+                description="Disable validation of hints when building the contracts.",
+                type="bool",
+            ),
+            Command.Argument(
+                name="output",
+                description="An output directory that will be used to put the compiled contracts in.",
+                type="path",
+                default="build",
+            ),
+        ]
+
+    async def run(self, args):
+        build_project(
+            self._project, args.output, args.cairo_path, args.disable_hint_validation
+        )
 
 
 def build_project(
@@ -30,6 +76,13 @@ def build_project(
             ).compile_contract(
                 *[Path(component) for component in contract_components],
             )
+        except StarknetCompiler.FileNotFoundException as err:
+            raise StarknetCompiler.FileNotFoundException(
+                message=(
+                    err.message
+                    + '\nDid you forget to update protostar.toml::["protostar.contracts"]?'
+                )
+            ) from err
         except (StarkException, VmException, PreprocessorError) as err:
             raise CairoCompilationException(
                 f"Protostar couldn't compile '{contract_name}' contract\n{str(err)}"

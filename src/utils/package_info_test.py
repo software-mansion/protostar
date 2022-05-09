@@ -208,7 +208,7 @@ class LoadNormalizedToRealNameMapTest:
         )
 
         mapping = load_normalized_to_real_name_map(
-            repo_root_dir=repo_with_normal_name_package_dir,
+            repo_dir=repo_with_normal_name_package_dir,
             packages_dir=repo_with_normal_name_package_dir / packages_dir_name,
         )
 
@@ -232,7 +232,7 @@ class LoadNormalizedToRealNameMapTest:
         )
 
         mapping = load_normalized_to_real_name_map(
-            repo_root_dir=repo_with_custom_name_package_dir,
+            repo_dir=repo_with_custom_name_package_dir,
             packages_dir=repo_with_custom_name_package_dir / packages_dir_name,
         )
 

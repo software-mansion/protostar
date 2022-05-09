@@ -18,6 +18,7 @@ requests = "^2.27.1"
 tomli = "<2.0.0"
 tomli-w = "^1.0.0"
 typing-extensions = "^4.0.1"
+tqdm = "^4.64.0"
 
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
@@ -26,24 +27,30 @@ pexpect = "^4.8.0"
 poethepoet = "^0.12.2"
 pyinstaller = "^4.9"
 pylint = "^2.12.2"
-pyright = "^0.0.13"
 pytest = "^6.2.5"
+pytest-cov = "^3.0.0"
 pytest-mock = "^3.7.0"
 pytest-timeout = "^2.1.0"
+snakeviz = "^2.1.1"
+pyright = "^1.1.244"
 
 [tool.poe.tasks]
 build = "pyinstaller protostar.spec --noconfirm"
 ci = ["type_check", "lint", "format_check", "test"]
-deploy = "python ./deploy.py"
+cov = "pytest --cov-report xml:cov.xml --cov=src"
+deploy = "python ./scripts/deploy.py"
 format = "black ."
 format_check = "black --check src"
 lint = "pylint src"
+profile = "python -m cProfile -o recent_profiling.prof protostar.py"
+show_prof = "snakeviz recent_profiling.prof"
 test = ["test_unit", "build", "test_e2e"]
 test_e2e.shell = "pytest tests/*"
 test_html = [{shell = "coverage html && open ./htmlcov/index.html"}]
 test_report = [{shell = "coverage report"}]
 test_unit.shell = "coverage run -m pytest src/*"
 type_check = "pyright"
+update_cli_docs = "python ./scripts/generate_reference_docs.py"
 
 [tool.coverage.run]
 source = ["src"]

@@ -12,10 +12,10 @@ from src.commands.update.updating_exceptions import PackageAlreadyUpToDateExcept
 from src.utils import log_color_provider
 
 
-def update_package(package_name: str, repo_root_dir: Path, packages_dir: Path):
+def update_package(package_name: str, repo_dir: Path, packages_dir: Path):
     logger = getLogger()
 
-    repo = Repo(repo_root_dir)
+    repo = Repo(repo_dir, search_parent_directories=True)
 
     submodule = repo.submodule(package_name)
 

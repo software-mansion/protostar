@@ -1,1 +1,1 @@
-from .build_project import build_project
+from .build_project import BuildCommand, build_project
