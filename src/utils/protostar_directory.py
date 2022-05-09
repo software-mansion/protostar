@@ -20,7 +20,7 @@ class ProtostarDirectory:
 
     @property
     def directory_root_path(self) -> Path:
-        return self._protostar_binary_dir_path / ".." / ".."
+        return self._protostar_binary_dir_path.parent.parent
 
     def add_protostar_cairo_dir(self, cairo_paths: List[Path]) -> List[Path]:
         if self.protostar_binary_dir_path:

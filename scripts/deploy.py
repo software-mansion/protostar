@@ -8,7 +8,7 @@ from git.repo import Repo
 from packaging import version
 
 # check if the active branch is master
-PROJECT_ROOT = Path(__file__).parent / ".."
+PROJECT_ROOT = Path(__file__).parent.parent 
 repo = Repo(PROJECT_ROOT)
 
 if str(repo.active_branch) != "master":
