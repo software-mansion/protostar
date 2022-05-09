@@ -19,7 +19,7 @@ def test_protostar_binary_dir_path(script_root: Path):
 def test_directory_root_path(script_root: Path):
     protostar_directory = ProtostarDirectory(script_root)
 
-    assert protostar_directory.directory_root_path == script_root / ".." / ".."
+    assert protostar_directory.directory_root_path == script_root.parent.parent
 
 
 def test_injecting_cairo_dir(script_root: Path):
