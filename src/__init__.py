@@ -8,4 +8,4 @@ from src.commands import (
     UpdateCommand,
     UpgradeCommand,
 )
-from src.main import main
+from src.start import main

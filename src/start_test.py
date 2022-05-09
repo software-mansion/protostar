@@ -1,11 +1,11 @@
 import asyncio
 from pathlib import Path
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 from pytest_mock import MockerFixture
 
-from src.main import main
+from src import main
 
 
 @pytest.fixture(name="protostar_cli_create_mock")
@@ -23,7 +23,7 @@ def run_fixture(mocker: MockerFixture):
 def protostar_cli_fixture(
     mocker: MockerFixture, protostar_cli_create_mock: MagicMock, run_mock: MagicMock
 ):
-    mocker.patch("src.cli.ArgumentParserFacade")
+    mocker.patch("src.start.ArgumentParserFacade")
     protostar_cli_mock = mocker.MagicMock()
     protostar_cli_create_mock.return_value = protostar_cli_mock
     mocker.patch.object(

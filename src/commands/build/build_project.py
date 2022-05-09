@@ -83,7 +83,7 @@ def build_project(
                     + '\nDid you forget to update protostar.toml::["protostar.contracts"]?'
                 )
             ) from err
-        except (StarkException, VmException, PreprocessorError) as err:
+        except (StarkException, VmException, PreprocessorError) as err: #type: ignore
             raise CairoCompilationException(
                 f"Protostar couldn't compile '{contract_name}' contract\n{str(err)}"
             ) from err
