@@ -14,14 +14,12 @@ from src.utils.log_color_provider import log_color_provider
 
 
 class Reporter:
-    def __init__(
-        self, live_reports_queue: "queue.Queue[Tuple[TestSubject, CaseResult]]"
-    ):
+    def __init__(self, live_reports_queue: "ReporterCoordinator.Queue"):
         self.live_reports_queue = live_reports_queue
         self.test_case_results: List[CaseResult] = []
 
     def report(self, subject: TestSubject, case_result: CaseResult):
-        self.live_reports_queue.put((subject, case_result))
+        self.live_reports_queue.enqueue((subject, case_result))
         self.test_case_results.append(case_result)
 
 
@@ -52,11 +50,22 @@ class TestingSummary:
 
 
 class ReporterCoordinator:
+    class Queue:
+        def __init__(
+            self, shared_queue: "queue.Queue[Tuple[TestSubject, CaseResult]]"
+        ) -> None:
+            self._shared_queue = shared_queue
+
+        def dequeue(self) -> Tuple[TestSubject, CaseResult]:
+            return self._shared_queue.get(block=True, timeout=1000)
+
+        def enqueue(self, item: Tuple[TestSubject, CaseResult]) -> None:
+            self._shared_queue.put(item)
+
     def __init__(
         self,
         tests_root: Path,
         test_subjects: List[TestSubject],
-        live_reports_queue: "queue.Queue[Tuple[TestSubject, CaseResult]]",
         logger: Logger,
     ):
         self.collected_subjects = test_subjects
@@ -65,7 +74,6 @@ class ReporterCoordinator:
             [len(subject.test_functions) for subject in self.collected_subjects]
         )
         self.tests_root = tests_root
-        self.live_reports_queue = live_reports_queue
         self.logger = logger
 
     def report_collected(self):
@@ -87,7 +95,10 @@ class ReporterCoordinator:
         else:
             self.logger.warn("No cases found")
 
-    def live_reporting(self):
+    def live_reporting(
+        self,
+        live_reports_queue: "ReporterCoordinator.Queue",
+    ):
         self.report_collected()
         testing_summary = TestingSummary([])
 
@@ -101,9 +112,7 @@ class ReporterCoordinator:
                 progress_bar.update()
                 try:
                     while tests_left_n > 0:
-                        subject, case_result = self.live_reports_queue.get(
-                            block=True, timeout=1000
-                        )
+                        (subject, case_result) = live_reports_queue.dequeue()
                         testing_summary.extend([case_result])
                         cast(Any, progress_bar).colour = (
                             "RED"
@@ -130,8 +139,8 @@ class ReporterCoordinator:
             # We skip it to prevent deadlock, but this error should never happen
             pass
 
-    def create_reporter(self):
-        return Reporter(self.live_reports_queue)
+    def create_reporter(self, live_reports_queue: "ReporterCoordinator.Queue"):
+        return Reporter(live_reports_queue)
 
     def report_summary(self, testing_summary: TestingSummary):
 

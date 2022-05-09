@@ -99,15 +99,13 @@ class TestCommand(Command):
             omit_pattern=args.omit,
         )
 
+        reporter_coordinator = ReporterCoordinator(args.target, test_subjects, logger)
         with multiprocessing.Manager() as manager:
-            queue = manager.Queue()
-            reporter_coordinator = ReporterCoordinator(
-                args.target, test_subjects, queue, logger
-            )
+            queue = ReporterCoordinator.Queue(manager.Queue())
             setups = [
                 (
                     subject,
-                    reporter_coordinator.create_reporter(),
+                    reporter_coordinator.create_reporter(queue),
                     include_paths,
                 )
                 for subject in test_subjects
@@ -118,7 +116,7 @@ class TestCommand(Command):
                     multiprocessing.cpu_count(), init_pool
                 ) as pool:
                     result = pool.starmap_async(run_test_subject_worker, setups)
-                    reporter_coordinator.live_reporting()
+                    reporter_coordinator.live_reporting(queue)
                     return result.get()
             except KeyboardInterrupt:
                 return []
