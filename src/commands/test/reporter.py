@@ -1,14 +1,12 @@
-import asyncio
 import multiprocessing
 import queue
 import signal
 from logging import Logger
-from typing import TYPE_CHECKING, Any, List, cast
+from typing import TYPE_CHECKING, Any, Callable, List, cast
 
 from tqdm import tqdm as bar
 
 from src.commands.test.cases import BrokenTest
-from src.commands.test.runner import TestRunner
 from src.commands.test.test_subject_queue import TestSubject, TestSubjectQueue
 from src.commands.test.testing_summary import TestingSummary
 
@@ -20,8 +18,17 @@ class ReporterCoordinator:
     def __init__(
         self,
         logger: Logger,
+        worker: Callable[
+            [
+                TestSubject,
+                TestSubjectQueue,
+                List[str],
+            ],
+            None,
+        ],
     ):
         self._logger = logger
+        self._worker = worker
 
     def run(
         self, test_collector_result: "TestCollector.Result", include_paths: List[str]
@@ -39,9 +46,12 @@ class ReporterCoordinator:
 
             try:
                 with multiprocessing.Pool(
-                    multiprocessing.cpu_count(), init_pool
+                    multiprocessing.cpu_count(),
+                    lambda: signal.signal(
+                        signal.SIGINT, signal.SIG_IGN
+                    ),  # prevents showing a stacktrace on cmd/ctrl + c
                 ) as pool:
-                    pool.starmap_async(run_test_subject_worker, setups)
+                    pool.starmap_async(self._worker, setups)
                     self.log_until_finished(testing_queue, test_collector_result)
             except KeyboardInterrupt:
                 return
@@ -95,17 +105,3 @@ class ReporterCoordinator:
             # https://docs.python.org/3/library/queue.html#queue.Queue.get
             # We skip it to prevent deadlock, but this error should never happen
             pass
-
-
-def init_pool():
-    signal.signal(signal.SIGINT, signal.SIG_IGN)
-
-
-def run_test_subject_worker(
-    subject: TestSubject,
-    test_subject_queue: TestSubjectQueue,
-    include_paths: List[str],
-):
-    runner = TestRunner(queue=test_subject_queue, include_paths=include_paths)
-    asyncio.run(runner.run_test_subject(subject))
-    return runner.queue

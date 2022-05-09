@@ -43,6 +43,19 @@ class TestRunner:
         if include_paths:
             self.include_paths.extend(include_paths)
 
+    @classmethod
+    def worker(
+        cls,
+        subject: TestSubject,
+        test_subject_queue: TestSubjectQueue,
+        include_paths: List[str],
+    ):
+        asyncio.run(
+            cls(queue=test_subject_queue, include_paths=include_paths).run_test_subject(
+                subject
+            )
+        )
+
     @replace_class(
         "starkware.starknet.core.os.syscall_utils.BusinessLogicSysCallHandler",
         CheatableSysCallHandler,
