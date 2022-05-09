@@ -1,24 +1,23 @@
 import asyncio
+from dataclasses import dataclass
 from logging import getLogger
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Set
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.public.abi import get_selector_from_name
-from starkware.starknet.services.api.contract_definition import ContractDefinition
+from starkware.starknet.services.api.contract_definition import \
+    ContractDefinition
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starkware_utils.error_handling import StarkException
 
 from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
 from src.commands.test.expected_event import ExpectedEvent
-from src.commands.test.starkware_patch import CheatableSysCallHandler, ForkableStarknet
+from src.commands.test.starkware_patch import (CheatableSysCallHandler,
+                                               ForkableStarknet)
 from src.commands.test.test_environment_exceptions import (
-    ExpectedRevertException,
-    ExpectedRevertMismatchException,
-    ReportedException,
-    RevertableException,
-    StarknetRevertableException,
-)
+    ExpectedRevertException, ExpectedRevertMismatchException,
+    ReportedException, RevertableException, StarknetRevertableException)
 from src.commands.test.test_subject_queue import TestSubject, TestSubjectQueue
 from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
@@ -43,16 +42,17 @@ class TestRunner:
         if include_paths:
             self.include_paths.extend(include_paths)
 
+    @dataclass
+    class WorkerArgs:
+        subject: TestSubject
+        test_subject_queue: TestSubjectQueue
+        include_paths: List[str]
+
     @classmethod
-    def worker(
-        cls,
-        subject: TestSubject,
-        test_subject_queue: TestSubjectQueue,
-        include_paths: List[str],
-    ):
+    def worker(cls, args: "TestRunner.WorkerArgs"):
         asyncio.run(
-            cls(queue=test_subject_queue, include_paths=include_paths).run_test_subject(
-                subject
+            cls(queue=args.test_subject_queue, include_paths=args.include_paths).run_test_subject(
+                args.subject
             )
         )
 

@@ -2,12 +2,13 @@ import multiprocessing
 import queue
 import signal
 from logging import Logger
-from typing import TYPE_CHECKING, Any, Callable, List, cast
+from typing import TYPE_CHECKING, Any, Callable, List, Tuple, cast
 
 from tqdm import tqdm as bar
 
 from src.commands.test.cases import BrokenTest
-from src.commands.test.test_subject_queue import TestSubject, TestSubjectQueue
+from src.commands.test.runner import TestRunner
+from src.commands.test.test_subject_queue import TestSubjectQueue
 from src.commands.test.testing_summary import TestingSummary
 
 if TYPE_CHECKING:
@@ -19,11 +20,7 @@ class ReporterCoordinator:
         self,
         logger: Logger,
         worker: Callable[
-            [
-                TestSubject,
-                TestSubjectQueue,
-                List[str],
-            ],
+            [TestRunner.WorkerArgs],
             None,
         ],
     ):
@@ -35,11 +32,13 @@ class ReporterCoordinator:
     ):
         with multiprocessing.Manager() as manager:
             testing_queue = TestSubjectQueue(manager.Queue())
-            setups = [
+            setups: List[Tuple[TestRunner.WorkerArgs]] = [
                 (
-                    subject,
-                    testing_queue,
-                    include_paths,
+                    TestRunner.WorkerArgs(
+                        subject,
+                        testing_queue,
+                        include_paths,
+                    ),
                 )
                 for subject in test_collector_result.test_subjects
             ]
@@ -52,11 +51,11 @@ class ReporterCoordinator:
                     ),  # prevents showing a stacktrace on cmd/ctrl + c
                 ) as pool:
                     pool.starmap_async(self._worker, setups)
-                    self.log_until_finished(testing_queue, test_collector_result)
+                    self._log_until_finished(testing_queue, test_collector_result)
             except KeyboardInterrupt:
                 return
 
-    def log_until_finished(
+    def _log_until_finished(
         self,
         test_subject_queue: TestSubjectQueue,
         test_collector_result: "TestCollector.Result",
