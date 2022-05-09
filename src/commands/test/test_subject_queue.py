@@ -1,10 +1,21 @@
-from typing import TYPE_CHECKING, Tuple
+from dataclasses import dataclass
+from pathlib import Path
+from typing import TYPE_CHECKING, List, Tuple
 
 from src.commands.test.cases import CaseResult
-from src.commands.test.utils import TestSubject
 
 if TYPE_CHECKING:
     import queue
+
+
+@dataclass
+class TestSubject:
+    """
+    A dataclass consisting of identification of a single test bundle, and target functions
+    """
+
+    test_path: Path
+    test_functions: List[dict]
 
 
 class TestSubjectQueue:

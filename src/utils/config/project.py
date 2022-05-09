@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, cast
 import tomli
 import tomli_w
 
-from src.commands.test.utils import collect_immediate_subdirectories
+from src.commands.test.expected_event import collect_immediate_subdirectories
 from src.protostar_exception import ProtostarException
 from src.utils.protostar_directory import VersionManager
 

@@ -11,8 +11,7 @@ from tqdm import tqdm as bar
 
 from src.commands.test.cases import BrokenTest, CaseResult, FailedCase, PassedCase
 from src.commands.test.runner import TestRunner
-from src.commands.test.test_subject_queue import TestSubjectQueue
-from src.commands.test.utils import TestSubject
+from src.commands.test.test_subject_queue import TestSubject, TestSubjectQueue
 from src.utils.log_color_provider import log_color_provider
 
 

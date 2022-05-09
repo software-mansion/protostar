@@ -10,6 +10,7 @@ from starkware.starknet.testing.contract import StarknetContract
 from starkware.starkware_utils.error_handling import StarkException
 
 from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
+from src.commands.test.expected_event import ExpectedEvent
 from src.commands.test.starkware_patch import CheatableSysCallHandler, ForkableStarknet
 from src.commands.test.test_environment_exceptions import (
     ExpectedRevertException,
@@ -18,8 +19,7 @@ from src.commands.test.test_environment_exceptions import (
     RevertableException,
     StarknetRevertableException,
 )
-from src.commands.test.test_subject_queue import TestSubjectQueue
-from src.commands.test.utils import ExpectedEvent, TestSubject
+from src.commands.test.test_subject_queue import TestSubject, TestSubjectQueue
 from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
 

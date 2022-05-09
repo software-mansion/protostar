@@ -4,7 +4,7 @@ import pytest
 from starkware.starknet.business_logic.execution.objects import Event
 from starkware.starknet.public.abi import get_selector_from_name
 
-from .utils import ExpectedEvent
+from .expected_event import ExpectedEvent
 
 
 def test_normalizing_expected_event_input():
