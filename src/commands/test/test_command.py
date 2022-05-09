@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, List, Optional, Pattern
 
 from src.cli.command import Command
-from src.commands.test.reporter import Reporter, ReporterCoordinator
+from src.commands.test.reporter import ReporterCoordinator
 from src.commands.test.runner import TestRunner
 from src.commands.test.test_collector import TestCollector
 from src.commands.test.utils import TestSubject
@@ -82,7 +82,7 @@ class TestCommand(Command):
         omit: Optional[Pattern] = None
         cairo_path: List[Path] = field(default_factory=list)
 
-    async def run(self, args: "TestCommand.Args"):
+    async def run(self, args: "TestCommand.Args") -> None:
 
         cairo_paths: List[Path] = args.cairo_path or []
         cairo_paths = self._protostar_directory.add_protostar_cairo_dir(cairo_paths)
@@ -105,7 +105,7 @@ class TestCommand(Command):
             setups = [
                 (
                     subject,
-                    reporter_coordinator.create_reporter(queue),
+                    queue,
                     include_paths,
                 )
                 for subject in test_subjects
@@ -115,11 +115,10 @@ class TestCommand(Command):
                 with multiprocessing.Pool(
                     multiprocessing.cpu_count(), init_pool
                 ) as pool:
-                    result = pool.starmap_async(run_test_subject_worker, setups)
+                    pool.starmap_async(run_test_subject_worker, setups)
                     reporter_coordinator.live_reporting(queue)
-                    return result.get()
             except KeyboardInterrupt:
-                return []
+                return
 
 
 def init_pool():
@@ -128,9 +127,9 @@ def init_pool():
 
 def run_test_subject_worker(
     subject: TestSubject,
-    reporter: Reporter,
+    queue: ReporterCoordinator.Queue,
     include_paths: List[str],
 ):
-    runner = TestRunner(reporter=reporter, include_paths=include_paths)
+    runner = TestRunner(queue=queue, include_paths=include_paths)
     asyncio.run(runner.run_test_subject(subject))
-    return runner.reporter
+    return runner.queue

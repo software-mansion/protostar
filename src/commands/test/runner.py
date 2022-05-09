@@ -12,7 +12,7 @@ from starkware.starkware_utils.error_handling import StarkException
 from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
 from src.commands.test.cheatable_syscall_handler import CheatableSysCallHandler
 from src.commands.test.forkable_starknet import ForkableStarknet
-from src.commands.test.reporter import Reporter
+from src.commands.test.reporter import ReporterCoordinator
 from src.commands.test.test_environment_exceptions import (
     ExpectedRevertException,
     ExpectedRevertMismatchException,
@@ -35,10 +35,10 @@ class TestRunner:
 
     def __init__(
         self,
-        reporter: Reporter,
+        queue: ReporterCoordinator.Queue,
         include_paths: Optional[List[str]] = None,
     ):
-        self.reporter = reporter
+        self.queue = queue
         self.include_paths = []
 
         if include_paths:
@@ -68,16 +68,18 @@ class TestRunner:
         test_subject: TestSubject,
         functions: List[dict],
     ):
-        assert self.reporter, "Uninitialized reporter!"
+        assert self.queue, "Uninitialized reporter!"
 
         try:
             env_base = await TestExecutionEnvironment.empty(
                 test_contract, self.include_paths
             )
         except StarkException as err:
-            self.reporter.report(
-                subject=test_subject,
-                case_result=BrokenTest(file_path=test_subject.test_path, exception=err),
+            self.queue.enqueue(
+                (
+                    test_subject,
+                    BrokenTest(file_path=test_subject.test_path, exception=err),
+                )
             )
             return
 
@@ -85,22 +87,26 @@ class TestRunner:
             env = env_base.fork()
             try:
                 call_result = await env.invoke_test_function(function["name"])
-                self.reporter.report(
-                    subject=test_subject,
-                    case_result=PassedCase(
-                        file_path=test_subject.test_path,
-                        function_name=function["name"],
-                        tx_info=call_result,
-                    ),
+                self.queue.enqueue(
+                    (
+                        test_subject,
+                        PassedCase(
+                            file_path=test_subject.test_path,
+                            function_name=function["name"],
+                            tx_info=call_result,
+                        ),
+                    )
                 )
             except ReportedException as err:
-                self.reporter.report(
-                    subject=test_subject,
-                    case_result=FailedCase(
-                        file_path=test_subject.test_path,
-                        function_name=function["name"],
-                        exception=err,
-                    ),
+                self.queue.enqueue(
+                    (
+                        test_subject,
+                        FailedCase(
+                            file_path=test_subject.test_path,
+                            function_name=function["name"],
+                            exception=err,
+                        ),
+                    )
                 )
 
 

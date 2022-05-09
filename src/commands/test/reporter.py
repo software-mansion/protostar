@@ -13,14 +13,6 @@ from src.commands.test.utils import TestSubject
 from src.utils.log_color_provider import log_color_provider
 
 
-class Reporter:
-    def __init__(self, live_reports_queue: "ReporterCoordinator.Queue"):
-        self.live_reports_queue = live_reports_queue
-
-    def report(self, subject: TestSubject, case_result: CaseResult):
-        self.live_reports_queue.enqueue((subject, case_result))
-
-
 class TestingSummary:
     def __init__(self, case_results: List[CaseResult]) -> None:
         self.case_results = []
@@ -132,9 +124,6 @@ class ReporterCoordinator:
             # https://docs.python.org/3/library/queue.html#queue.Queue.get
             # We skip it to prevent deadlock, but this error should never happen
             pass
-
-    def create_reporter(self, live_reports_queue: "ReporterCoordinator.Queue"):
-        return Reporter(live_reports_queue)
 
     def report_summary(self, testing_summary: TestingSummary):
 
