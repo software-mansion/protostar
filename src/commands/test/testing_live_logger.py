@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from src.commands.test.test_collector import TestCollector
 
 
-class TestLiveLogger:
+class TestingLiveLogger:
     def __init__(self, logger: Logger) -> None:
         self._logger = logger
 

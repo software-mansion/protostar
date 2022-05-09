@@ -3,7 +3,7 @@ import signal
 from typing import TYPE_CHECKING, Callable, List, Tuple
 
 from src.commands.test.test_runner import TestRunner
-from src.commands.test.test_live_logger import TestLiveLogger
+from src.commands.test.testing_live_logger import TestingLiveLogger
 from src.commands.test.test_subject_queue import TestSubjectQueue
 
 if TYPE_CHECKING:
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class TestScheduler:
     def __init__(
         self,
-        live_logger: TestLiveLogger,
+        live_logger: TestingLiveLogger,
         worker: Callable[
             [TestRunner.WorkerArgs],
             None,

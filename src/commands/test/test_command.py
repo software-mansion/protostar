@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, List, Optional, Pattern
 from src.cli.command import Command
 from src.commands.test.test_runner import TestRunner
 from src.commands.test.test_collector import TestCollector
-from src.commands.test.test_live_logger import TestLiveLogger
+from src.commands.test.testing_live_logger import TestingLiveLogger
 from src.commands.test.test_scheduler import TestScheduler
 from src.utils.protostar_directory import ProtostarDirectory
 
@@ -97,6 +97,6 @@ class TestCommand(Command):
         )
         test_collector_result.log(logger)
 
-        TestScheduler(TestLiveLogger(logger), worker=TestRunner.worker).run(
+        TestScheduler(TestingLiveLogger(logger), worker=TestRunner.worker).run(
             include_paths=include_paths, test_collector_result=test_collector_result
         )
