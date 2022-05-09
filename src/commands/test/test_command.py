@@ -86,18 +86,15 @@ class TestCommand(Command):
 
         logger = getLogger()
 
-        collection_result = TestCollector(
+        test_collector_result = TestCollector(
             target=args.target,
             include_paths=include_paths,
         ).collect(
             match_pattern=args.match,
             omit_pattern=args.omit,
         )
-        collection_result.log(logger)
+        test_collector_result.log(logger)
 
-        reporter_coordinator = ReporterCoordinator(
-            args.target, collection_result.test_subjects, logger
-        )
-        reporter_coordinator.run(
-            include_paths=include_paths, test_subjects=collection_result.test_subjects
+        ReporterCoordinator(logger).run(
+            include_paths=include_paths, test_collector_result=test_collector_result
         )
