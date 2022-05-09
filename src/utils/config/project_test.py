@@ -91,38 +91,3 @@ def test_no_project_found(version_manager: VersionManager, tmpdir):
 def test_libs_path(version_manager: VersionManager):
     project = Project(version_manager, Path(current_directory, "examples", "standard"))
     assert project.libs_path == project.project_root / "lib"
-
-
-def test_finding_git_path(tmpdir, version_manager: VersionManager):
-    root = Path(tmpdir)
-    repo_path = root / "monorepo"
-    project_path = repo_path / "project"
-    project_path.mkdir(exist_ok=True, parents=True)
-    (repo_path / ".git").mkdir(exist_ok=True, parents=True)
-
-    project = Project(version_manager, project_path)
-
-    assert project.repo_path == repo_path
-
-
-def test_finding_git_path_in_the_project_dir(tmpdir, version_manager: VersionManager):
-    root = Path(tmpdir)
-    repo_path = root / "project"
-    project_path = repo_path
-    project_path.mkdir(exist_ok=True, parents=True)
-    (repo_path / ".git").mkdir(exist_ok=True, parents=True)
-
-    project = Project(version_manager, project_path)
-
-    assert project.repo_path == repo_path
-
-
-def test_not_finding_git_path(tmpdir, version_manager: VersionManager):
-    root = Path(tmpdir)
-    repo_path = root / "monorepo"
-    project_path = repo_path / "project"
-    project_path.mkdir(exist_ok=True, parents=True)
-
-    project = Project(version_manager, project_path)
-
-    assert project.repo_path is None

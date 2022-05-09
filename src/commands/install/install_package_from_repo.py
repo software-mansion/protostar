@@ -13,14 +13,14 @@ from src.utils import log_color_provider
 def install_package_from_repo(
     name: str,
     url: str,
-    repo_root_dir: Path,
+    repo_dir: Path,
     destination: Path,
     tag: Optional[str] = None,
 ):
     logger = getLogger()
 
     try:
-        repo = Repo(repo_root_dir)
+        repo = Repo(repo_dir, search_parent_directories=True)
     except InvalidGitRepositoryError as _err:
         raise installation_exceptions.InvalidLocalRepository(
             """A git repository must be initialized in order to install packages.

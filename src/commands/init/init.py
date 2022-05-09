@@ -108,7 +108,9 @@ class ProjectCreator:
 
         project.write_config(self.config)
 
-        if not project.repo_path:
+        try:
+            Repo(project_root, search_parent_directories=True)
+        except InvalidGitRepositoryError:
             Repo.init(project_root)
 
     @staticmethod
@@ -139,7 +141,7 @@ class OnlyConfigCreator(ProjectCreator):
         project.write_config(self.config)
 
         try:
-            Repo(project.repo_path or project.project_root)
+            Repo(project_root, search_parent_directories=True)
         except InvalidGitRepositoryError:
             Repo.init(project_root)
 

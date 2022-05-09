@@ -50,11 +50,10 @@ class RemoveCommand(Command):
 
 def handle_remove_command(args: Any, project: Project):
     logger = getLogger()
-    assert project.repo_path
 
     package_name = retrieve_real_package_name(
         args.package,
-        project.repo_path,
+        project.project_root,
         project.libs_path,
     )
 
@@ -64,4 +63,4 @@ def handle_remove_command(args: Any, project: Project):
         package_name,
         log_color_provider.get_color("RESET"),
     )
-    remove_package(package_name, project.repo_path)
+    remove_package(package_name, project.project_root)

@@ -14,11 +14,11 @@ class PackageInfo:
 
 def pull_package_submodules(
     on_submodule_update_start: Callable[[PackageInfo], None],
-    repo_root_dir: Path,
+    repo_dir: Path,
     libs_dir: Path,
 ) -> None:
     submodule_names = listdir(libs_dir)
-    repo = Repo(repo_root_dir)
+    repo = Repo(repo_dir, search_parent_directories=True)
 
     for submodule in repo.submodules:
         if submodule.name in submodule_names:

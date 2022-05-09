@@ -43,16 +43,6 @@ class Project:
         self._config_dict: Optional[Dict[str, Any]] = None
 
     @property
-    def repo_path(self) -> Optional[Path]:
-        root = self.project_root.resolve().root
-        potential_repo_path = self.project_root.resolve()
-        while str(potential_repo_path) != root:
-            if (potential_repo_path / ".git").exists():
-                return potential_repo_path
-            potential_repo_path = potential_repo_path.parent
-        return None
-
-    @property
     def libs_path(self) -> Path:
         return self.project_root.resolve() / self.config.libs_path
 
