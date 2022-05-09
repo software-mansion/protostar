@@ -12,7 +12,6 @@ from starkware.starkware_utils.error_handling import StarkException
 from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
 from src.commands.test.cheatable_syscall_handler import CheatableSysCallHandler
 from src.commands.test.forkable_starknet import ForkableStarknet
-from src.commands.test.reporter import ReporterCoordinator
 from src.commands.test.test_environment_exceptions import (
     ExpectedRevertException,
     ExpectedRevertMismatchException,
@@ -20,6 +19,7 @@ from src.commands.test.test_environment_exceptions import (
     RevertableException,
     StarknetRevertableException,
 )
+from src.commands.test.test_subject_queue import TestSubjectQueue
 from src.commands.test.utils import ExpectedEvent, TestSubject
 from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
@@ -35,7 +35,7 @@ class TestRunner:
 
     def __init__(
         self,
-        queue: ReporterCoordinator.Queue,
+        queue: TestSubjectQueue,
         include_paths: Optional[List[str]] = None,
     ):
         self.queue = queue

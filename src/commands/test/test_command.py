@@ -1,6 +1,3 @@
-import asyncio
-import multiprocessing
-import signal
 from dataclasses import dataclass, field
 from logging import getLogger
 from pathlib import Path
@@ -8,9 +5,7 @@ from typing import TYPE_CHECKING, List, Optional, Pattern
 
 from src.cli.command import Command
 from src.commands.test.reporter import ReporterCoordinator
-from src.commands.test.runner import TestRunner
 from src.commands.test.test_collector import TestCollector
-from src.commands.test.utils import TestSubject
 from src.utils.protostar_directory import ProtostarDirectory
 
 if TYPE_CHECKING:
@@ -100,36 +95,6 @@ class TestCommand(Command):
         )
 
         reporter_coordinator = ReporterCoordinator(args.target, test_subjects, logger)
-        with multiprocessing.Manager() as manager:
-            queue = ReporterCoordinator.Queue(manager.Queue())
-            setups = [
-                (
-                    subject,
-                    queue,
-                    include_paths,
-                )
-                for subject in test_subjects
-            ]
-
-            try:
-                with multiprocessing.Pool(
-                    multiprocessing.cpu_count(), init_pool
-                ) as pool:
-                    pool.starmap_async(run_test_subject_worker, setups)
-                    reporter_coordinator.live_reporting(queue)
-            except KeyboardInterrupt:
-                return
-
-
-def init_pool():
-    signal.signal(signal.SIGINT, signal.SIG_IGN)
-
-
-def run_test_subject_worker(
-    subject: TestSubject,
-    queue: ReporterCoordinator.Queue,
-    include_paths: List[str],
-):
-    runner = TestRunner(queue=queue, include_paths=include_paths)
-    asyncio.run(runner.run_test_subject(subject))
-    return runner.queue
+        reporter_coordinator.run(
+            include_paths=include_paths, test_subjects=test_subjects
+        )

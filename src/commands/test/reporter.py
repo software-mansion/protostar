@@ -1,14 +1,17 @@
+import asyncio
+import multiprocessing
 import queue
+import signal
 from collections import defaultdict
 from logging import Logger
 from pathlib import Path
-
-# pylint: disable=unused-import
-from typing import Any, Dict, List, Tuple, cast
+from typing import Any, Dict, List, cast
 
 from tqdm import tqdm as bar
 
 from src.commands.test.cases import BrokenTest, CaseResult, FailedCase, PassedCase
+from src.commands.test.runner import TestRunner
+from src.commands.test.test_subject_queue import TestSubjectQueue
 from src.commands.test.utils import TestSubject
 from src.utils.log_color_provider import log_color_provider
 
@@ -36,18 +39,6 @@ class TestingSummary:
 
 
 class ReporterCoordinator:
-    class Queue:
-        def __init__(
-            self, shared_queue: "queue.Queue[Tuple[TestSubject, CaseResult]]"
-        ) -> None:
-            self._shared_queue = shared_queue
-
-        def dequeue(self) -> Tuple[TestSubject, CaseResult]:
-            return self._shared_queue.get(block=True, timeout=1000)
-
-        def enqueue(self, item: Tuple[TestSubject, CaseResult]) -> None:
-            self._shared_queue.put(item)
-
     def __init__(
         self,
         tests_root: Path,
@@ -83,7 +74,7 @@ class ReporterCoordinator:
 
     def live_reporting(
         self,
-        live_reports_queue: "ReporterCoordinator.Queue",
+        test_subject_queue: TestSubjectQueue,
     ):
         self.report_collected()
         testing_summary = TestingSummary([])
@@ -98,7 +89,7 @@ class ReporterCoordinator:
                 progress_bar.update()
                 try:
                     while tests_left_n > 0:
-                        (subject, case_result) = live_reports_queue.dequeue()
+                        (subject, case_result) = test_subject_queue.dequeue()
                         testing_summary.extend([case_result])
                         cast(Any, progress_bar).colour = (
                             "RED"
@@ -124,6 +115,27 @@ class ReporterCoordinator:
             # https://docs.python.org/3/library/queue.html#queue.Queue.get
             # We skip it to prevent deadlock, but this error should never happen
             pass
+
+    def run(self, test_subjects: List[TestSubject], include_paths: List[str]):
+        with multiprocessing.Manager() as manager:
+            testing_queue = TestSubjectQueue(manager.Queue())
+            setups = [
+                (
+                    subject,
+                    testing_queue,
+                    include_paths,
+                )
+                for subject in test_subjects
+            ]
+
+            try:
+                with multiprocessing.Pool(
+                    multiprocessing.cpu_count(), init_pool
+                ) as pool:
+                    pool.starmap_async(run_test_subject_worker, setups)
+                    self.live_reporting(testing_queue)
+            except KeyboardInterrupt:
+                return
 
     def report_summary(self, testing_summary: TestingSummary):
 
@@ -226,3 +238,17 @@ class ReporterCoordinator:
             test_suits_result.append(f"{total_count} total")
 
         return test_suits_result
+
+
+def init_pool():
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+
+
+def run_test_subject_worker(
+    subject: TestSubject,
+    test_subject_queue: TestSubjectQueue,
+    include_paths: List[str],
+):
+    runner = TestRunner(queue=test_subject_queue, include_paths=include_paths)
+    asyncio.run(runner.run_test_subject(subject))
+    return runner.queue
