@@ -3,29 +3,34 @@ from logging import Logger
 from pathlib import Path
 from typing import Dict, List
 
-from src.commands.test.cases import BrokenTest, CaseResult, FailedCase, PassedCase
+from src.commands.test.test_cases import (
+    BrokenTestFile,
+    TestCaseResult,
+    FailedTestCase,
+    PassedTestCase,
+)
 from src.utils.log_color_provider import log_color_provider
 
 
 class TestingSummary:
-    def __init__(self, case_results: List[CaseResult]) -> None:
+    def __init__(self, case_results: List[TestCaseResult]) -> None:
         self.case_results = []
-        self.test_files: Dict[Path, List[CaseResult]] = defaultdict(list)
-        self.passed: List[PassedCase] = []
-        self.failed: List[FailedCase] = []
-        self.broken: List[BrokenTest] = []
+        self.test_files: Dict[Path, List[TestCaseResult]] = defaultdict(list)
+        self.passed: List[PassedTestCase] = []
+        self.failed: List[FailedTestCase] = []
+        self.broken: List[BrokenTestFile] = []
         self.extend(case_results)
 
-    def extend(self, case_results: List[CaseResult]):
+    def extend(self, case_results: List[TestCaseResult]):
         self.case_results += case_results
         for case_result in case_results:
             self.test_files[case_result.file_path].append(case_result)
 
-            if isinstance(case_result, PassedCase):
+            if isinstance(case_result, PassedTestCase):
                 self.passed.append(case_result)
-            if isinstance(case_result, FailedCase):
+            if isinstance(case_result, FailedTestCase):
                 self.failed.append(case_result)
-            if isinstance(case_result, BrokenTest):
+            if isinstance(case_result, BrokenTestFile):
                 self.broken.append(case_result)
 
     def log(

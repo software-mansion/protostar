@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, List, Tuple
 
-from src.commands.test.cases import CaseResult
+from src.commands.test.test_cases import TestCaseResult
 
 if TYPE_CHECKING:
     import queue
@@ -20,12 +20,12 @@ class TestSubject:
 
 class TestSubjectQueue:
     def __init__(
-        self, shared_queue: "queue.Queue[Tuple[TestSubject, CaseResult]]"
+        self, shared_queue: "queue.Queue[Tuple[TestSubject, TestCaseResult]]"
     ) -> None:
         self._shared_queue = shared_queue
 
-    def dequeue(self) -> Tuple[TestSubject, CaseResult]:
+    def dequeue(self) -> Tuple[TestSubject, TestCaseResult]:
         return self._shared_queue.get(block=True, timeout=1000)
 
-    def enqueue(self, item: Tuple[TestSubject, CaseResult]) -> None:
+    def enqueue(self, item: Tuple[TestSubject, TestCaseResult]) -> None:
         self._shared_queue.put(item)

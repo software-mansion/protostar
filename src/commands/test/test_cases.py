@@ -10,7 +10,7 @@ from src.utils.log_color_provider import log_color_provider
 
 
 @dataclass(frozen=True)
-class CaseResult:
+class TestCaseResult:
     file_path: Path
 
     def get_formatted_file_path(self):
@@ -18,7 +18,7 @@ class CaseResult:
 
 
 @dataclass(frozen=True)
-class PassedCase(CaseResult):
+class PassedTestCase(TestCaseResult):
     function_name: str
     tx_info: Optional[StarknetTransactionExecutionInfo]
 
@@ -30,7 +30,7 @@ class PassedCase(CaseResult):
 
 
 @dataclass(frozen=True)
-class FailedCase(CaseResult):
+class FailedTestCase(TestCaseResult):
     function_name: str
     exception: ReportedException
 
@@ -45,7 +45,7 @@ class FailedCase(CaseResult):
 
 
 @dataclass(frozen=True)
-class BrokenTest(CaseResult):
+class BrokenTestFile(TestCaseResult):
     exception: StarkException
 
     def __str__(self) -> str:

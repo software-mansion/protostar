@@ -6,18 +6,20 @@ from typing import Any, Callable, Dict, List, Optional, Set
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.public.abi import get_selector_from_name
-from starkware.starknet.services.api.contract_definition import \
-    ContractDefinition
+from starkware.starknet.services.api.contract_definition import ContractDefinition
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starkware_utils.error_handling import StarkException
 
-from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
+from src.commands.test.test_cases import BrokenTestFile, FailedTestCase, PassedTestCase
 from src.commands.test.expected_event import ExpectedEvent
-from src.commands.test.starkware_patch import (CheatableSysCallHandler,
-                                               ForkableStarknet)
+from src.commands.test.starkware_patch import CheatableSysCallHandler, ForkableStarknet
 from src.commands.test.test_environment_exceptions import (
-    ExpectedRevertException, ExpectedRevertMismatchException,
-    ReportedException, RevertableException, StarknetRevertableException)
+    ExpectedRevertException,
+    ExpectedRevertMismatchException,
+    ReportedException,
+    RevertableException,
+    StarknetRevertableException,
+)
 from src.commands.test.test_subject_queue import TestSubject, TestSubjectQueue
 from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
@@ -51,9 +53,9 @@ class TestRunner:
     @classmethod
     def worker(cls, args: "TestRunner.WorkerArgs"):
         asyncio.run(
-            cls(queue=args.test_subject_queue, include_paths=args.include_paths).run_test_subject(
-                args.subject
-            )
+            cls(
+                queue=args.test_subject_queue, include_paths=args.include_paths
+            ).run_test_subject(args.subject)
         )
 
     @replace_class(
@@ -90,7 +92,7 @@ class TestRunner:
             self.queue.enqueue(
                 (
                     test_subject,
-                    BrokenTest(file_path=test_subject.test_path, exception=err),
+                    BrokenTestFile(file_path=test_subject.test_path, exception=err),
                 )
             )
             return
@@ -102,7 +104,7 @@ class TestRunner:
                 self.queue.enqueue(
                     (
                         test_subject,
-                        PassedCase(
+                        PassedTestCase(
                             file_path=test_subject.test_path,
                             function_name=function["name"],
                             tx_info=call_result,
@@ -113,7 +115,7 @@ class TestRunner:
                 self.queue.enqueue(
                     (
                         test_subject,
-                        FailedCase(
+                        FailedTestCase(
                             file_path=test_subject.test_path,
                             function_name=function["name"],
                             exception=err,
