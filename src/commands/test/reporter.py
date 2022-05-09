@@ -16,18 +16,12 @@ from src.utils.log_color_provider import log_color_provider
 class Reporter:
     def __init__(self, live_reports_queue: "ReporterCoordinator.Queue"):
         self.live_reports_queue = live_reports_queue
-        self.test_case_results: List[CaseResult] = []
 
     def report(self, subject: TestSubject, case_result: CaseResult):
         self.live_reports_queue.enqueue((subject, case_result))
-        self.test_case_results.append(case_result)
 
 
 class TestingSummary:
-    @classmethod
-    def from_reporters(cls, reporters: List[Reporter]) -> "TestingSummary":
-        return cls(sum([r.test_case_results for r in reporters], []))
-
     def __init__(self, case_results: List[CaseResult]) -> None:
         self.case_results = []
         self.test_files: Dict[Path, List[CaseResult]] = defaultdict(list)
