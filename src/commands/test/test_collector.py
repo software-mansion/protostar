@@ -44,24 +44,27 @@ class TestCollector:
             else:
                 logger.warn("No cases found")
 
-    target: Path
-    include_paths: Optional[List[str]] = None
-    target_function: Optional[str] = None
-    test_filename_re = [re.compile(r"^test_.*\.cairo"), re.compile(r"^.*_test.cairo")]
+    def __init__(self, starknet_compiler: StarknetCompiler) -> None:
+        self._starknet_compiler = starknet_compiler
 
-    def __post_init__(self):
-        if re.match(r"^.*\.cairo::.*", self.target.name):
-            file_name, self.target_function = self.target.name.split("::")
-            self.target = self.target.parent / file_name
-            assert not self.target.is_dir()
+    supported_test_filename_patterns = [
+        re.compile(r"^test_.*\.cairo"),
+        re.compile(r"^.*_test.cairo"),
+    ]
 
     def collect(
         self,
+        target: Path,
         match_pattern: Optional[Pattern] = None,
         omit_pattern: Optional[Pattern] = None,
     ) -> "TestCollector.Result":
+        target_function: Optional[str] = None
+        if re.match(r"^.*\.cairo::.*", target.name):
+            file_name, target_function = target.name.split("::")
+            target = target.parent / file_name
+            assert not target.is_dir()
 
-        test_files = self._get_test_files()
+        test_files = self._get_test_files(target)
 
         if match_pattern:
             test_files = filter(
@@ -73,37 +76,42 @@ class TestCollector:
                 test_files,
             )
 
-        test_files = map(self._build_test_subject, test_files)
-        test_subjects = list(
-            filter(lambda file: (file.test_functions) != [], test_files)
+        test_subjects: List[TestSubject] = []
+        for test_file in test_files:
+            test_subjects.append(self._build_test_subject(test_file, target_function))
+
+        non_empty_test_subjects = list(
+            filter(lambda file: (file.test_functions) != [], test_subjects)
         )
         return TestCollector.Result(
-            test_subjects=test_subjects,
+            test_subjects=non_empty_test_subjects,
             test_cases_count=sum(
-                [len(subject.test_functions) for subject in test_subjects]
+                [len(subject.test_functions) for subject in non_empty_test_subjects]
             ),
         )
 
     @classmethod
     def is_test_file(cls, filename: str) -> bool:
-        return any(test_re.match(filename) for test_re in cls.test_filename_re)
+        return any(
+            test_re.match(filename) for test_re in cls.supported_test_filename_patterns
+        )
 
-    def _build_test_subject(self, file_path: Path):
+    def _build_test_subject(
+        self, file_path: Path, target_function: Optional[str]
+    ) -> TestSubject:
         test_functions = self._collect_test_functions(file_path)
-        if self.target_function:
-            test_functions = [
-                f for f in test_functions if f["name"] == self.target_function
-            ]
+        if target_function:
+            test_functions = [f for f in test_functions if f["name"] == target_function]
         return TestSubject(
             test_path=file_path,
             test_functions=test_functions,
         )
 
-    def _get_test_files(self) -> Generator[Path, None, None]:
-        if not self.target.is_dir():
-            yield self.target
+    def _get_test_files(self, target: Path) -> Generator[Path, None, None]:
+        if not target.is_dir():
+            yield target
             return
-        for root, _, files in os.walk(self.target):
+        for root, _, files in os.walk(target):
             test_files = [Path(root, file) for file in files]
             test_files = filter(lambda file: self.is_test_file(file.name), test_files)
             for test_file in test_files:
@@ -111,10 +119,7 @@ class TestCollector:
 
     def _collect_test_functions(self, file_path: Path) -> List[dict]:
         try:
-            preprocessed = StarknetCompiler(
-                include_paths=self.include_paths or [],
-                disable_hint_validation=True,
-            ).preprocess_contract(file_path)
+            preprocessed = self._starknet_compiler.preprocess_contract(file_path)
         except PreprocessorError as p_err:
             print(p_err)
             raise CollectionError("Failed to collect test cases") from p_err

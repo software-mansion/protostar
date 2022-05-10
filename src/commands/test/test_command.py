@@ -9,6 +9,7 @@ from src.commands.test.test_runner import TestRunner
 from src.commands.test.test_scheduler import TestScheduler
 from src.commands.test.testing_live_logger import TestingLiveLogger
 from src.utils.protostar_directory import ProtostarDirectory
+from src.utils.starknet_compilation import StarknetCompiler
 
 if TYPE_CHECKING:
     from src.utils.config.project import Project
@@ -83,11 +84,11 @@ class TestCommand(Command):
         logger = getLogger()
 
         include_paths = self._get_include_paths(args.cairo_path)
-        test_collector = TestCollector(
+
+        test_collector_result = TestCollector(
+            StarknetCompiler(disable_hint_validation=True, include_paths=include_paths)
+        ).collect(
             target=args.target,
-            include_paths=include_paths,
-        )
-        test_collector_result = test_collector.collect(
             match_pattern=args.match,
             omit_pattern=args.omit,
         )
