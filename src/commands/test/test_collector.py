@@ -64,20 +64,21 @@ class TestCollector:
             target = target.parent / file_name
             assert not target.is_dir()
 
-        test_files = self._get_test_files(target)
+        test_file_paths = self._get_test_file_paths(target)
 
         if match_pattern:
-            test_files = filter(
-                lambda file: cast(Pattern, match_pattern).match(file.name), test_files
+            test_file_paths = filter(
+                lambda file_path: cast(Pattern, match_pattern).match(str(file_path)),
+                test_file_paths,
             )
         if omit_pattern:
-            test_files = filter(
-                lambda file: not cast(Pattern, omit_pattern).match(file.name),
-                test_files,
+            test_file_paths = filter(
+                lambda file_path: not cast(Pattern, omit_pattern).match(str(file_path)),
+                test_file_paths,
             )
 
         test_subjects: List[TestSubject] = []
-        for test_file in test_files:
+        for test_file in test_file_paths:
             test_subjects.append(self._build_test_subject(test_file, target_function))
 
         non_empty_test_subjects = list(
@@ -107,7 +108,7 @@ class TestCollector:
             test_functions=test_functions,
         )
 
-    def _get_test_files(self, target: Path) -> Generator[Path, None, None]:
+    def _get_test_file_paths(self, target: Path) -> Generator[Path, None, None]:
         if not target.is_dir():
             yield target
             return

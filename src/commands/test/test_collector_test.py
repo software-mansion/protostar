@@ -1,10 +1,13 @@
+import re
 import shutil
 from pathlib import Path
+from typing import List
 
 import pytest
 from pytest_mock import MockerFixture
 
 from src.commands.test.test_collector import TestCollector
+from src.commands.test.test_subject_queue import TestSubject
 from src.utils.starknet_compilation import StarknetCompiler
 
 CURRENT_DIR = Path(__file__).parent
@@ -19,25 +22,43 @@ def project_root_fixture(tmpdir) -> Path:
 def test_files_fixture(project_root: Path):
     """
     - tmpdir
-    - src
-        - test_basic.cairo
+    - bar
+        - test_bar.cairo
     - foo
         - test_foo.cairo
     """
-    tmp_src_path = project_root / "src"
-    tmp_src_path.mkdir(exist_ok=True, parents=True)
     tmp_foo_path = project_root / "foo"
     tmp_foo_path.mkdir(exist_ok=True, parents=True)
+    tmp_bar_path = project_root / "bar"
+    tmp_bar_path.mkdir(exist_ok=True, parents=True)
 
     shutil.copyfile(
         CURRENT_DIR / "examples" / "basic" / "test_basic.cairo",
-        tmp_src_path / "test_basic.cairo",
+        tmp_bar_path / "test_bar.cairo",
     )
 
     shutil.copyfile(
         CURRENT_DIR / "examples" / "basic" / "test_basic.cairo",
         tmp_foo_path / "test_foo.cairo",
     )
+
+
+@pytest.fixture(name="starknet_compiler")
+def starknet_compiler_fixture(mocker: MockerFixture):
+    starknet_compiler_mock = mocker.MagicMock()
+    starknet_compiler_mock.get_functions.return_value = [
+        StarknetCompiler.AbiElement(
+            name="test_foo", type="function", inputs=[], outputs=[]
+        )
+    ]
+    return starknet_compiler_mock
+
+
+def assert_tested_file_names(
+    test_subjects: List[TestSubject], expected_file_names: List[str]
+):
+    test_file_names = [test_subject.test_path.name for test_subject in test_subjects]
+    assert set(test_file_names) == set(expected_file_names)
 
 
 def test_is_test_file():
@@ -47,60 +68,35 @@ def test_is_test_file():
     assert not TestCollector.is_test_file("z_test_ex.cairo")
 
 
-def test_collecting_tests_from_target(mocker: MockerFixture, project_root):
-    starknet_compiler_mock = mocker.MagicMock()
-    starknet_compiler_mock.get_functions.return_value = [
-        StarknetCompiler.AbiElement(
-            name="test_foo", type="function", inputs=[], outputs=[]
-        )
-    ]
-    test_collector = TestCollector(starknet_compiler_mock)
+def test_collecting_tests_from_target(starknet_compiler, project_root):
+    test_collector = TestCollector(starknet_compiler)
 
-    result = test_collector.collect(target=project_root / "src")
+    result = test_collector.collect(target=project_root)
 
-    test_file_names = [
-        test_subject.test_path.name for test_subject in result.test_subjects
-    ]
+    assert_tested_file_names(result.test_subjects, ["test_bar.cairo", "test_foo.cairo"])
+    assert result.test_cases_count == 2
 
-    assert set(test_file_names) == set(["test_basic.cairo"])
+
+def test_matching_pattern(starknet_compiler, project_root):
+    test_collector = TestCollector(starknet_compiler)
+
+    result = test_collector.collect(
+        target=project_root, match_pattern=re.compile(".*bar.*")
+    )
+
+    assert_tested_file_names(result.test_subjects, ["test_bar.cairo"])
     assert result.test_cases_count == 1
 
 
-# def test_matching_pattern():
-#     match_pattern = re.compile("test_basic.*")
-#     collector = TestCollector(
-#         target=Path(current_directory, "examples"),
-#         include_paths=[str(Path(current_directory, "examples"))],
-#     )
-#     subjects = collector.collect(match_pattern=match_pattern)
-#     test_names = [subject.test_path.name for subject in subjects]
-#     assert set(test_names) == set(
-#         ["test_basic.cairo", "test_basic_broken.cairo", "test_basic_failure.cairo"]
-#     )
+def test_omitting_pattern(starknet_compiler, project_root):
+    test_collector = TestCollector(starknet_compiler)
 
+    result = test_collector.collect(
+        target=project_root, omit_pattern=re.compile(".*bar.*")
+    )
 
-# def test_omitting_pattern():
-#     should_collect = [
-#         "test_basic_broken.cairo",
-#         "test_basic_failure.cairo",
-#         "test_basic_failure.cairo",
-#         "test_basic.cairo",
-#         "test_proxy.cairo",
-#         "test_cheats.cairo",
-#         "test_expect_events.cairo",
-#     ]
-#     omit_pattern = re.compile(".*invalid.*")
-#     collector = TestCollector(
-#         target=Path(current_directory, "examples"),
-#         include_paths=[str(Path(current_directory, "examples"))],
-#     )
-#     subjects = collector.collect(omit_pattern=omit_pattern)
-#     test_names = [subject.test_path.name for subject in subjects]
-
-#     assert set(test_names) == set(should_collect)
-
-#     assert "test_invalid_syntax.cairo" not in test_names
-#     assert "test_no_test_functions.cairo" not in test_names
+    assert_tested_file_names(result.test_subjects, ["test_foo.cairo"])
+    assert result.test_cases_count == 1
 
 
 # def test_breakage_upon_broken_test_file():
