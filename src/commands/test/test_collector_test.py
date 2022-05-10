@@ -1,5 +1,4 @@
 import re
-import shutil
 from pathlib import Path
 from typing import List, cast
 from unittest.mock import MagicMock
@@ -25,11 +24,11 @@ def project_root_fixture(tmpdir) -> Path:
 @pytest.fixture(name="test_files", autouse=True)
 def test_files_fixture(project_root: Path):
     """
-    - tmpdir
-    - bar
-        - test_bar.cairo
-    - foo
-        - test_foo.cairo
+    - project_root
+        - bar
+            - test_bar.cairo
+        - foo
+            - test_foo.cairo
     """
     tmp_bar_path = project_root / "bar"
     tmp_bar_path.mkdir(exist_ok=True, parents=True)
@@ -45,7 +44,10 @@ def starknet_compiler_fixture(mocker: MockerFixture):
     starknet_compiler_mock.get_functions.return_value = [
         StarknetCompiler.AbiElement(
             name="test_foo", type="function", inputs=[], outputs=[]
-        )
+        ),
+        StarknetCompiler.AbiElement(
+            name="test_bar", type="function", inputs=[], outputs=[]
+        ),
     ]
     return starknet_compiler_mock
 
@@ -58,9 +60,9 @@ def assert_tested_file_names(
 
 
 def test_is_test_file():
-    assert not TestCollector.is_test_file("ex.cairo")
     assert TestCollector.is_test_file("ex_test.cairo")
     assert TestCollector.is_test_file("test_ex.cairo")
+    assert not TestCollector.is_test_file("ex.cairo")
     assert not TestCollector.is_test_file("z_test_ex.cairo")
 
 
@@ -70,7 +72,7 @@ def test_collecting_tests_from_target(starknet_compiler, project_root):
     result = test_collector.collect(target=project_root)
 
     assert_tested_file_names(result.test_subjects, ["test_bar.cairo", "test_foo.cairo"])
-    assert result.test_cases_count == 2
+    assert result.test_cases_count == 4
 
 
 def test_matching_pattern(starknet_compiler, project_root):
@@ -81,7 +83,7 @@ def test_matching_pattern(starknet_compiler, project_root):
     )
 
     assert_tested_file_names(result.test_subjects, ["test_bar.cairo"])
-    assert result.test_cases_count == 1
+    assert result.test_cases_count == 2
 
 
 def test_omitting_pattern(starknet_compiler, project_root):
@@ -92,7 +94,7 @@ def test_omitting_pattern(starknet_compiler, project_root):
     )
 
     assert_tested_file_names(result.test_subjects, ["test_foo.cairo"])
-    assert result.test_cases_count == 1
+    assert result.test_cases_count == 2
 
 
 def test_breakage_upon_broken_test_file(starknet_compiler, project_root):
@@ -103,27 +105,18 @@ def test_breakage_upon_broken_test_file(starknet_compiler, project_root):
         test_collector.collect(target=project_root)
 
 
-# def test_collect_specific_file():
-#     collector = TestCollector(
-#         target=Path(current_directory, "examples", "nested", "test_basic.cairo"),
-#         include_paths=[str(Path(current_directory, "examples"))],
-#     )
-#     subjects = collector.collect()
-#     test_names = [subject.test_path.name for subject in subjects]
-#     assert test_names == ["test_basic.cairo"]
+def test_collecting_specific_file(starknet_compiler, project_root: Path):
+    test_collector = TestCollector(starknet_compiler)
+
+    result = test_collector.collect(project_root / "foo" / "test_foo.cairo")
+
+    assert_tested_file_names(result.test_subjects, ["test_foo.cairo"])
 
 
-# def test_collect_specific_function():
-#     collector = TestCollector(
-#         target=Path(
-#             current_directory,
-#             "examples",
-#             "nested",
-#             "test_basic.cairo::test_call_not_deployed",
-#         ),
-#         include_paths=[str(Path(current_directory, "examples"))],
-#     )
-#     subjects = collector.collect()
-#     test_names = [subject.test_path.name for subject in subjects]
-#     assert test_names == ["test_basic.cairo"]
-#     assert len(subjects[0].test_functions) == 1
+def test_collecting_specific_function(starknet_compiler, project_root: Path):
+    test_collector = TestCollector(starknet_compiler)
+
+    result = test_collector.collect(project_root / "foo" / "test_foo.cairo::test_foo")
+
+    assert_tested_file_names(result.test_subjects, ["test_foo.cairo"])
+    assert result.test_cases_count == 1
