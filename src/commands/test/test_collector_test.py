@@ -1,12 +1,16 @@
 import re
 import shutil
 from pathlib import Path
-from typing import List
+from typing import List, cast
+from unittest.mock import MagicMock
 
 import pytest
 from pytest_mock import MockerFixture
+from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
+    PreprocessorError,
+)
 
-from src.commands.test.test_collector import TestCollector
+from src.commands.test.test_collector import TestCollectingException, TestCollector
 from src.commands.test.test_subject_queue import TestSubject
 from src.utils.starknet_compilation import StarknetCompiler
 
@@ -27,20 +31,12 @@ def test_files_fixture(project_root: Path):
     - foo
         - test_foo.cairo
     """
-    tmp_foo_path = project_root / "foo"
-    tmp_foo_path.mkdir(exist_ok=True, parents=True)
     tmp_bar_path = project_root / "bar"
     tmp_bar_path.mkdir(exist_ok=True, parents=True)
-
-    shutil.copyfile(
-        CURRENT_DIR / "examples" / "basic" / "test_basic.cairo",
-        tmp_bar_path / "test_bar.cairo",
-    )
-
-    shutil.copyfile(
-        CURRENT_DIR / "examples" / "basic" / "test_basic.cairo",
-        tmp_foo_path / "test_foo.cairo",
-    )
+    (tmp_bar_path / "test_bar.cairo").touch()
+    tmp_foo_path = project_root / "foo"
+    tmp_foo_path.mkdir(exist_ok=True, parents=True)
+    (tmp_foo_path / "test_foo.cairo").touch()
 
 
 @pytest.fixture(name="starknet_compiler")
@@ -99,15 +95,12 @@ def test_omitting_pattern(starknet_compiler, project_root):
     assert result.test_cases_count == 1
 
 
-# def test_breakage_upon_broken_test_file():
-#     match_pattern = re.compile("test_invalid_syntax.*")
-#     collector = TestCollector(
-#         target=Path(current_directory, "examples", "invalid"),
-#         include_paths=[str(Path(current_directory, "examples"))],
-#     )
+def test_breakage_upon_broken_test_file(starknet_compiler, project_root):
+    test_collector = TestCollector(starknet_compiler)
+    cast(MagicMock, starknet_compiler.get_functions).side_effect = PreprocessorError("")
 
-#     with pytest.raises(CollectionError):
-#         collector.collect(match_pattern=match_pattern)
+    with pytest.raises(TestCollectingException):
+        test_collector.collect(target=project_root)
 
 
 # def test_collect_specific_file():
