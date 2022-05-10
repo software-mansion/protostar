@@ -101,9 +101,9 @@ func get_id{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}()
 end
 
 @constructor
-func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(initial_balance: Uint256, id: felt):
+func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(initial_balance: Uint256, _id: felt):
     balance.write(initial_balance)
-    id.write(id)
+    id.write(_id)
     return ()
 end
 
@@ -115,10 +115,10 @@ Inside `tests` directory, create a `test_storage.cairo` file.
 
 @contract_interface
 namespace StorageContract:
-    func increase_balance(amount : felt):
+    func increase_balance(amount : Uint256):
     end
 
-    func get_balance() -> (res : felt):
+    func get_balance() -> (res : Uint256):
     end
     
     func get_id() -> (res: felt):
