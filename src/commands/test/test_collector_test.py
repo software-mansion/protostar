@@ -1,8 +1,69 @@
-# def test_is_test_file():
-#     assert not TestCollector.is_test_file("ex.cairo")
-#     assert TestCollector.is_test_file("ex_test.cairo")
-#     assert TestCollector.is_test_file("test_ex.cairo")
-#     assert not TestCollector.is_test_file("z_test_ex.cairo")
+import shutil
+from pathlib import Path
+
+import pytest
+from pytest_mock import MockerFixture
+
+from src.commands.test.test_collector import TestCollector
+from src.utils.starknet_compilation import StarknetCompiler
+
+CURRENT_DIR = Path(__file__).parent
+
+
+@pytest.fixture(name="project_root")
+def project_root_fixture(tmpdir) -> Path:
+    return Path(tmpdir)
+
+
+@pytest.fixture(name="test_files", autouse=True)
+def test_files_fixture(project_root: Path):
+    """
+    - tmpdir
+    - src
+        - test_basic.cairo
+    - foo
+        - test_foo.cairo
+    """
+    tmp_src_path = project_root / "src"
+    tmp_src_path.mkdir(exist_ok=True, parents=True)
+    tmp_foo_path = project_root / "foo"
+    tmp_foo_path.mkdir(exist_ok=True, parents=True)
+
+    shutil.copyfile(
+        CURRENT_DIR / "examples" / "basic" / "test_basic.cairo",
+        tmp_src_path / "test_basic.cairo",
+    )
+
+    shutil.copyfile(
+        CURRENT_DIR / "examples" / "basic" / "test_basic.cairo",
+        tmp_foo_path / "test_foo.cairo",
+    )
+
+
+def test_is_test_file():
+    assert not TestCollector.is_test_file("ex.cairo")
+    assert TestCollector.is_test_file("ex_test.cairo")
+    assert TestCollector.is_test_file("test_ex.cairo")
+    assert not TestCollector.is_test_file("z_test_ex.cairo")
+
+
+def test_collecting_tests_from_target(mocker: MockerFixture, project_root):
+    starknet_compiler_mock = mocker.MagicMock()
+    starknet_compiler_mock.get_functions.return_value = [
+        StarknetCompiler.AbiElement(
+            name="test_foo", type="function", inputs=[], outputs=[]
+        )
+    ]
+    test_collector = TestCollector(starknet_compiler_mock)
+
+    result = test_collector.collect(target=project_root / "src")
+
+    test_file_names = [
+        test_subject.test_path.name for test_subject in result.test_subjects
+    ]
+
+    assert set(test_file_names) == set(["test_basic.cairo"])
+    assert result.test_cases_count == 1
 
 
 # def test_matching_pattern():

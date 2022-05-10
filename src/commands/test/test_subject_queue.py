@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, List, Tuple
 
 from src.commands.test.test_cases import TestCaseResult
+from src.utils.starknet_compilation import StarknetCompiler
 
 if TYPE_CHECKING:
     import queue
@@ -15,7 +16,7 @@ class TestSubject:
     """
 
     test_path: Path
-    test_functions: List[dict]
+    test_functions: List[StarknetCompiler.AbiElement]
 
 
 class TestSubjectQueue:

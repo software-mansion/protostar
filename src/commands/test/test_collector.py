@@ -14,7 +14,7 @@ from src.protostar_exception import ProtostarException
 from src.utils.starknet_compilation import StarknetCompiler
 
 
-class CollectionError(ProtostarException):
+class TestCollectingException(ProtostarException):
     pass
 
 
@@ -81,7 +81,7 @@ class TestCollector:
             test_subjects.append(self._build_test_subject(test_file, target_function))
 
         non_empty_test_subjects = list(
-            filter(lambda file: (file.test_functions) != [], test_subjects)
+            filter(lambda test_file: (test_file.test_functions) != [], test_subjects)
         )
         return TestCollector.Result(
             test_subjects=non_empty_test_subjects,
@@ -117,14 +117,11 @@ class TestCollector:
             for test_file in test_files:
                 yield test_file
 
-    def _collect_test_functions(self, file_path: Path) -> List[dict]:
+    def _collect_test_functions(
+        self, file_path: Path
+    ) -> List[StarknetCompiler.AbiElement]:
         try:
-            preprocessed = self._starknet_compiler.preprocess_contract(file_path)
+            return self._starknet_compiler.get_functions(file_path, prefix="test_")
         except PreprocessorError as p_err:
             print(p_err)
-            raise CollectionError("Failed to collect test cases") from p_err
-        return [
-            fn
-            for fn in preprocessed.abi
-            if fn["type"] == "function" and fn["name"].startswith("test_")
-        ]
+            raise TestCollectingException("Failed to collect test cases") from p_err
