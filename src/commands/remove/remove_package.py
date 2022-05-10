@@ -6,9 +6,9 @@ from git.repo import Repo
 from src.commands.remove import removal_exceptions
 
 
-def remove_package(package_name: str, repo_root_dir: Path):
+def remove_package(package_name: str, repo_dir: Path):
     try:
-        repo = Repo(repo_root_dir)
+        repo = Repo(repo_dir, search_parent_directories=True)
         submodule = repo.submodule(package_name)
         submodule.remove(force=True)
 

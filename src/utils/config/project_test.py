@@ -86,3 +86,8 @@ def test_no_project_found(version_manager: VersionManager, tmpdir):
     proj = Project(version_manager, Path(tmpdir))
     with pytest.raises(NoProtostarProjectFoundException):
         proj.load_config()
+
+
+def test_libs_path(version_manager: VersionManager):
+    project = Project(version_manager, Path(current_directory, "examples", "standard"))
+    assert project.libs_path == project.project_root / "lib"

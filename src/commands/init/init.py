@@ -40,7 +40,7 @@ class InitCommand(Command):
         ]
 
     async def run(self, args):
-        get_creator(args)(self._script_root, self._version_manager).run()
+        init(args, self._script_root, self._version_manager)
 
 
 def init(args: Any, script_root: Path, version_manager: VersionManager):
@@ -108,7 +108,10 @@ class ProjectCreator:
 
         project.write_config(self.config)
 
-        Repo.init(project_root)
+        try:
+            Repo(project_root, search_parent_directories=True)
+        except InvalidGitRepositoryError:
+            Repo.init(project_root)
 
     @staticmethod
     def copy_template(script_root: Path, template_name: str, project_path: Path):
@@ -138,7 +141,7 @@ class OnlyConfigCreator(ProjectCreator):
         project.write_config(self.config)
 
         try:
-            Repo(project_root)
+            Repo(project_root, search_parent_directories=True)
         except InvalidGitRepositoryError:
             Repo.init(project_root)
 

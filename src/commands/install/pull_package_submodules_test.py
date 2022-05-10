@@ -122,7 +122,7 @@ def test_pulling_all_package_submodules(
     callback: MagicMock = mocker.MagicMock()
     pull_package_submodules(
         on_submodule_update_start=callback,
-        repo_root_dir=repo_clone_dir,
+        repo_dir=repo_clone_dir,
         libs_dir=repo_clone_dir / packages_dir_name,
     )
 

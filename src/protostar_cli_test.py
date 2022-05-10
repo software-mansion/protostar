@@ -65,7 +65,7 @@ def test_instance_matches_cli_reference_docs(protostar_cli: ProtostarCLI):
     ).generate_cli_reference_markdown()
 
     with open(
-        Path(__file__).parent / ".." / "website" / "docs" / "cli-reference.md",
+        Path(__file__).parent.parent / "website" / "docs" / "cli-reference.md",
         "r",
         encoding="utf-8",
     ) as doc_file:

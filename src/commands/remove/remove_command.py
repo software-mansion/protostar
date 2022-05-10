@@ -50,12 +50,11 @@ class RemoveCommand(Command):
 
 def handle_remove_command(args: Any, project: Project):
     logger = getLogger()
-    assert args.command == "remove"
 
     package_name = retrieve_real_package_name(
         args.package,
         project.project_root,
-        project.project_root / project.config.libs_path,
+        project.libs_path,
     )
 
     logger.info(

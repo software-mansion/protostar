@@ -17,8 +17,8 @@ def test_complex(protostar, copy_fixture):
 
     result = protostar(["test", "tests"])
 
-    assert "Collected 2 suits, and 3 test cases" in result
-    assert "3 passed" in result
+    assert "Collected 2 suits, and 4 test cases" in result
+    assert "4 passed" in result
 
 
 @pytest.mark.usefixtures("init")
