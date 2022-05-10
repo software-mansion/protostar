@@ -30,9 +30,9 @@ class TestCollector:
                 result: List[str] = ["Collected"]
                 suits_count = len(self.test_subjects)
                 if suits_count == 1:
-                    result.append("1 suit,")
+                    result.append("1 suite,")
                 else:
-                    result.append(f"{suits_count} suits,")
+                    result.append(f"{suits_count} suites,")
 
                 result.append("and")
                 if self.test_cases_count == 1:

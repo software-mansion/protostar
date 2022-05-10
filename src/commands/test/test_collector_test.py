@@ -120,3 +120,66 @@ def test_collecting_specific_function(starknet_compiler, project_root: Path):
 
     assert_tested_file_names(result.test_subjects, ["test_foo.cairo"])
     assert result.test_cases_count == 1
+
+
+def test_logging_collected_one_test_suite_and_one_test_case(mocker: MockerFixture):
+    logger_mock = mocker.MagicMock()
+
+    TestCollector.Result(
+        test_subjects=[
+            TestSubject(
+                test_functions=[
+                    StarknetCompiler.AbiElement(
+                        name="foo", type="function", inputs=[], outputs=[]
+                    ),
+                ],
+                test_path=Path(),
+            )
+        ],
+        test_cases_count=1,
+    ).log(logger_mock)
+
+    cast(MagicMock, logger_mock.info).assert_called_once_with(
+        "Collected 1 suite, and 1 test case"
+    )
+
+
+def test_logging_many_test_suites_and_many_test_cases(mocker: MockerFixture):
+    logger_mock = mocker.MagicMock()
+
+    TestCollector.Result(
+        test_subjects=[
+            TestSubject(
+                test_functions=[
+                    StarknetCompiler.AbiElement(
+                        name="foo", type="function", inputs=[], outputs=[]
+                    ),
+                ],
+                test_path=Path(),
+            ),
+            TestSubject(
+                test_functions=[
+                    StarknetCompiler.AbiElement(
+                        name="foo", type="function", inputs=[], outputs=[]
+                    ),
+                ],
+                test_path=Path(),
+            ),
+        ],
+        test_cases_count=2,
+    ).log(logger_mock)
+
+    cast(MagicMock, logger_mock.info).assert_called_once_with(
+        "Collected 2 suites, and 2 test cases"
+    )
+
+
+def test_logging_no_cases_found(mocker: MockerFixture):
+    logger_mock = mocker.MagicMock()
+
+    TestCollector.Result(
+        test_subjects=[],
+        test_cases_count=0,
+    ).log(logger_mock)
+
+    cast(MagicMock, logger_mock.warn).assert_called_once_with("No cases found")
