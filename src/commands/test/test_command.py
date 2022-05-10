@@ -83,13 +83,15 @@ class TestCommand(Command):
         logger = getLogger()
 
         include_paths = self._get_include_paths(args.cairo_path)
-        test_collector_result = TestCollector(
+        test_collector = TestCollector(
             target=args.target,
             include_paths=include_paths,
-        ).collect(
+        )
+        test_collector_result = test_collector.collect(
             match_pattern=args.match,
             omit_pattern=args.omit,
         )
+
         test_collector_result.log(logger)
 
         TestScheduler(TestingLiveLogger(logger), worker=TestRunner.worker).run(
