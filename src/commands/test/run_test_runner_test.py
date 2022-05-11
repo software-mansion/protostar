@@ -23,7 +23,7 @@ async def test_run_test_runner(mocker, test_root_dir):
         project=mock_project,
         tests_root=test_root_dir,
         omit=re.compile(
-            r"(test_basic|test_basic_failure|test_basic_broken|test_invalid_syntax).*"
+            r".*(test_basic|test_basic_failure|test_basic_broken|test_invalid_syntax).*"
         ),
         cairo_paths=[],
     )
@@ -42,7 +42,7 @@ async def test_run_syntaxtically_valid_tests(test_root_dir):
             test_root_dir.resolve(),
             Path(test_root_dir, "broken"),  # Additional broken contract source
         ],
-        match=re.compile(r"(test_basic|test_basic_failure|test_basic_broken).*"),
+        match=re.compile(r".*(test_basic|test_basic_failure|test_basic_broken).*"),
     )
     testing_result = TestingResult.from_reporters(reporters)
     assert len(testing_result.test_files) == 3
