@@ -10,7 +10,7 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
 )
 
 from src.commands.test.test_collector import TestCollectingException, TestCollector
-from src.commands.test.test_results_queue import TestSubject
+from src.commands.test.test_subject import TestSubject
 from src.utils.starknet_compilation import StarknetCompiler
 
 

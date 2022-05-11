@@ -10,7 +10,8 @@ from src.commands.test.starkware_patch import CheatableSysCallHandler
 from src.commands.test.test_cases import BrokenTestFile, FailedTestCase, PassedTestCase
 from src.commands.test.test_environment_exceptions import ReportedException
 from src.commands.test.test_execution_environment import TestExecutionEnvironment
-from src.commands.test.test_results_queue import TestSubject, TestResultsQueue
+from src.commands.test.test_results_queue import TestResultsQueue
+from src.commands.test.test_subject import TestSubject
 from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
 
