@@ -17,7 +17,7 @@ def test_complex(protostar, copy_fixture):
 
     result = protostar(["test", "tests"])
 
-    assert "Collected 2 suits, and 4 test cases" in result
+    assert "Collected 2 suites, and 4 test cases" in result
     assert "4 passed" in result
 
 
