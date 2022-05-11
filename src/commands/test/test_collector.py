@@ -28,11 +28,11 @@ class TestCollector:
         def log(self, logger: Logger):
             if self.test_cases_count:
                 result: List[str] = ["Collected"]
-                suits_count = len(self.test_subjects)
-                if suits_count == 1:
+                suites_count = len(self.test_subjects)
+                if suites_count == 1:
                     result.append("1 suite,")
                 else:
-                    result.append(f"{suits_count} suites,")
+                    result.append(f"{suites_count} suites,")
 
                 result.append("and")
                 if self.test_cases_count == 1:

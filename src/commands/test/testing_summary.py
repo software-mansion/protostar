@@ -5,9 +5,9 @@ from typing import Dict, List
 
 from src.commands.test.test_cases import (
     BrokenTestFile,
-    TestCaseResult,
     FailedTestCase,
     PassedTestCase,
+    TestCaseResult,
 )
 from src.utils.log_color_provider import log_color_provider
 
@@ -40,8 +40,8 @@ class TestingSummary:
         collected_test_files_count: int,
     ):
         logger.info(
-            log_color_provider.bold("Test suits: ")
-            + self._get_test_suits_summary(collected_test_files_count)
+            log_color_provider.bold("Test suites: ")
+            + self._get_test_suites_summary(collected_test_files_count)
         )
         logger.info(
             log_color_provider.bold("Tests:      ")
@@ -60,49 +60,49 @@ class TestingSummary:
             )
         )
 
-    def _get_test_suits_summary(self, collected_test_files_count: int) -> str:
-        passed_test_suits_count = 0
-        failed_test_suits_count = 0
-        broken_test_suits_count = 0
-        total_test_suits_count = len(self.test_files)
+    def _get_test_suites_summary(self, collected_test_files_count: int) -> str:
+        passed_test_suites_count = 0
+        failed_test_suites_count = 0
+        broken_test_suites_count = 0
+        total_test_suites_count = len(self.test_files)
         for suit_case_results in self.test_files.values():
             partial_summary = TestingSummary(suit_case_results)
 
             if len(partial_summary.broken) > 0:
-                broken_test_suits_count += 1
+                broken_test_suites_count += 1
                 continue
 
             if len(partial_summary.failed) > 0:
-                failed_test_suits_count += 1
+                failed_test_suites_count += 1
                 continue
 
             if len(partial_summary.passed) > 0:
-                passed_test_suits_count += 1
+                passed_test_suites_count += 1
 
-        test_suits_result: List[str] = []
+        test_suites_result: List[str] = []
 
-        if broken_test_suits_count > 0:
-            test_suits_result.append(
-                log_color_provider.colorize("RED", f"{broken_test_suits_count} broken")
+        if broken_test_suites_count > 0:
+            test_suites_result.append(
+                log_color_provider.colorize("RED", f"{broken_test_suites_count} broken")
             )
-        if failed_test_suits_count > 0:
-            test_suits_result.append(
-                log_color_provider.colorize("RED", f"{failed_test_suits_count} failed")
+        if failed_test_suites_count > 0:
+            test_suites_result.append(
+                log_color_provider.colorize("RED", f"{failed_test_suites_count} failed")
             )
-        if passed_test_suits_count > 0:
-            test_suits_result.append(
+        if passed_test_suites_count > 0:
+            test_suites_result.append(
                 log_color_provider.colorize(
-                    "GREEN", f"{passed_test_suits_count} passed"
+                    "GREEN", f"{passed_test_suites_count} passed"
                 )
             )
-        if total_test_suits_count > 0:
-            test_suits_result.append(f"{total_test_suits_count} total")
+        if total_test_suites_count > 0:
+            test_suites_result.append(f"{total_test_suites_count} total")
 
         return ", ".join(
             self._get_preprocessed_core_testing_summary(
-                broken_count=broken_test_suits_count,
-                failed_count=failed_test_suits_count,
-                passed_count=passed_test_suits_count,
+                broken_count=broken_test_suites_count,
+                failed_count=failed_test_suites_count,
+                passed_count=passed_test_suites_count,
                 total_count=collected_test_files_count,
             )
         )
@@ -116,25 +116,25 @@ class TestingSummary:
         total_count: int = 0,
     ) -> List[str]:
         skipped_count = total_count - (broken_count + failed_count + passed_count)
-        test_suits_result: List[str] = []
+        test_suites_result: List[str] = []
 
         if broken_count > 0:
-            test_suits_result.append(
+            test_suites_result.append(
                 log_color_provider.colorize("RED", f"{broken_count} broken")
             )
         if failed_count > 0:
-            test_suits_result.append(
+            test_suites_result.append(
                 log_color_provider.colorize("RED", f"{failed_count} failed")
             )
         if skipped_count > 0:
-            test_suits_result.append(
+            test_suites_result.append(
                 log_color_provider.colorize("YELLOW", f"{skipped_count} skipped")
             )
         if passed_count > 0:
-            test_suits_result.append(
+            test_suites_result.append(
                 log_color_provider.colorize("GREEN", f"{passed_count} passed")
             )
         if total_count > 0:
-            test_suits_result.append(f"{total_count} total")
+            test_suites_result.append(f"{total_count} total")
 
-        return test_suits_result
+        return test_suites_result
