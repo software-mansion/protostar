@@ -24,16 +24,18 @@ def test_files_fixture(project_root: Path):
     """
     - project_root
         - bar
-            - test_bar.cairo
+            - bar_test.cairo
         - foo
             - test_foo.cairo
+            - foo.cairo
     """
     tmp_bar_path = project_root / "bar"
     tmp_bar_path.mkdir(exist_ok=True, parents=True)
-    (tmp_bar_path / "test_bar.cairo").touch()
+    (tmp_bar_path / "bar_test.cairo").touch()
     tmp_foo_path = project_root / "foo"
     tmp_foo_path.mkdir(exist_ok=True, parents=True)
     (tmp_foo_path / "test_foo.cairo").touch()
+    (tmp_foo_path / "foo.cairo").touch()
 
 
 @pytest.fixture(name="starknet_compiler")
@@ -44,7 +46,7 @@ def starknet_compiler_fixture(mocker: MockerFixture):
             name="test_foo", type="function", inputs=[], outputs=[]
         ),
         StarknetCompiler.AbiElement(
-            name="test_bar", type="function", inputs=[], outputs=[]
+            name="bar_test", type="function", inputs=[], outputs=[]
         ),
     ]
     return starknet_compiler_mock
@@ -69,7 +71,7 @@ def test_collecting_tests_from_target(starknet_compiler, project_root):
 
     result = test_collector.collect(target=project_root)
 
-    assert_tested_file_names(result.test_subjects, ["test_bar.cairo", "test_foo.cairo"])
+    assert_tested_file_names(result.test_subjects, ["bar_test.cairo", "test_foo.cairo"])
     assert result.test_cases_count == 4
 
 
@@ -80,7 +82,7 @@ def test_matching_pattern(starknet_compiler, project_root):
         target=project_root, match_pattern=re.compile(".*bar.*")
     )
 
-    assert_tested_file_names(result.test_subjects, ["test_bar.cairo"])
+    assert_tested_file_names(result.test_subjects, ["bar_test.cairo"])
     assert result.test_cases_count == 2
 
 
