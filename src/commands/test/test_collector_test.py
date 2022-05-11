@@ -42,12 +42,8 @@ def test_suites_fixture(project_root: Path):
 def starknet_compiler_fixture(mocker: MockerFixture):
     starknet_compiler_mock = mocker.MagicMock()
     starknet_compiler_mock.get_functions.return_value = [
-        StarknetCompiler.AbiElement(
-            name="test_foo", type="function", inputs=[], outputs=[]
-        ),
-        StarknetCompiler.AbiElement(
-            name="bar_test", type="function", inputs=[], outputs=[]
-        ),
+        StarknetCompiler.AbiElement(name="test_foo", type="function"),
+        StarknetCompiler.AbiElement(name="bar_test", type="function"),
     ]
     return starknet_compiler_mock
 
@@ -129,9 +125,7 @@ def test_logging_collected_one_test_suite_and_one_test_case(mocker: MockerFixtur
         test_subjects=[
             TestSubject(
                 test_functions=[
-                    StarknetCompiler.AbiElement(
-                        name="foo", type="function", inputs=[], outputs=[]
-                    ),
+                    StarknetCompiler.AbiElement(name="foo", type="function"),
                 ],
                 test_path=Path(),
             )
@@ -151,17 +145,13 @@ def test_logging_many_test_suites_and_many_test_cases(mocker: MockerFixture):
         test_subjects=[
             TestSubject(
                 test_functions=[
-                    StarknetCompiler.AbiElement(
-                        name="foo", type="function", inputs=[], outputs=[]
-                    ),
+                    StarknetCompiler.AbiElement(name="foo", type="function"),
                 ],
                 test_path=Path(),
             ),
             TestSubject(
                 test_functions=[
-                    StarknetCompiler.AbiElement(
-                        name="foo", type="function", inputs=[], outputs=[]
-                    ),
+                    StarknetCompiler.AbiElement(name="foo", type="function"),
                 ],
                 test_path=Path(),
             ),
