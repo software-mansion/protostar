@@ -8,6 +8,11 @@ from starkware.starknet.services.api.contract_definition import ContractDefiniti
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starkware_utils.error_handling import StarkException
 
+from src.commands.test.cheatcodes.expect_revert_cheatcode import (
+    Cheatcode,
+    ExpectRevertCheatcode,
+    RevertableTestingExecutionEnvironment,
+)
 from src.commands.test.expected_event import ExpectedEvent
 from src.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
@@ -34,7 +39,7 @@ class DeployedContract:
         return self._starknet_contract.contract_address
 
 
-class TestExecutionEnvironment:
+class TestExecutionEnvironment(RevertableTestingExecutionEnvironment):
     def __init__(self, include_paths: List[str]):
         self.starknet = None
         self.test_contract: Optional[StarknetContract] = None
@@ -194,14 +199,6 @@ class TestExecutionEnvironment:
             cheatable_syscall_handler.unregister_mock_call(contract_address, selector)
 
         @register_cheatcode
-        def expect_revert(
-            error_type: Optional[str] = None, error_message: Optional[str] = None
-        ):
-            return self.expect_revert(
-                RevertableException(error_type=error_type, error_message=error_message)
-            )
-
-        @register_cheatcode
         def expect_events(
             *raw_expected_events: ExpectedEvent.CheatcodeInputType,
         ) -> None:
@@ -228,6 +225,10 @@ class TestExecutionEnvironment:
             contract_path: str, constructor_calldata: Optional[List[int]] = None
         ):
             return self.deploy_in_env(contract_path, constructor_calldata)
+
+        cheatcodes: List[Cheatcode] = [ExpectRevertCheatcode(self)]
+        for cheatcode in cheatcodes:
+            hint_locals[cheatcode.name] = cheatcode.build()
 
     def expect_revert(self, expected_error: RevertableException) -> Callable[[], None]:
         if self._expected_error is not None:
