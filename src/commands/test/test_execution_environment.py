@@ -20,6 +20,7 @@ from src.commands.test.test_environment_exceptions import (
     RevertableException,
     StarknetRevertableException,
 )
+from src.utils.modules import replace_class
 
 logger = getLogger()
 
@@ -80,6 +81,10 @@ class TestExecutionEnvironment:
         )
         return contract
 
+    @replace_class(
+        "starkware.starknet.core.os.syscall_utils.BusinessLogicSysCallHandler",
+        CheatableSysCallHandler,
+    )
     async def invoke_test_function(self, function_name: str):
         original_run_from_entrypoint = CairoFunctionRunner.run_from_entrypoint
         CairoFunctionRunner.run_from_entrypoint = (

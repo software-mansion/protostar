@@ -44,7 +44,7 @@ class TestingSummary:
             + self._get_test_suites_summary(collected_test_suites_count)
         )
         logger.info(
-            log_color_provider.bold("Tests:      ")
+            log_color_provider.bold("Tests:       ")
             + self._get_test_cases_summary(collected_test_cases_count)
         )
 

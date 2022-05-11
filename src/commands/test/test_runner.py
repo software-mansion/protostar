@@ -6,13 +6,11 @@ from typing import List, Optional
 from starkware.starknet.services.api.contract_definition import ContractDefinition
 from starkware.starkware_utils.error_handling import StarkException
 
-from src.commands.test.starkware import CheatableSysCallHandler
 from src.commands.test.test_cases import BrokenTestSuite, FailedTestCase, PassedTestCase
 from src.commands.test.test_environment_exceptions import ReportedException
 from src.commands.test.test_execution_environment import TestExecutionEnvironment
 from src.commands.test.test_results_queue import TestResultsQueue
 from src.commands.test.test_suite import TestSuite
-from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
 
 logger = getLogger()
@@ -47,10 +45,6 @@ class TestRunner:
             ).run_test_suite(args.test_suite)
         )
 
-    @replace_class(
-        "starkware.starknet.core.os.syscall_utils.BusinessLogicSysCallHandler",
-        CheatableSysCallHandler,
-    )
     async def run_test_suite(self, test_suite: TestSuite):
         assert self.include_paths is not None, "Uninitialized paths list in test runner"
 
