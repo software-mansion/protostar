@@ -7,7 +7,7 @@ from starkware.starknet.services.api.contract_definition import ContractDefiniti
 from starkware.starkware_utils.error_handling import StarkException
 
 from src.commands.test.starkware_patch import CheatableSysCallHandler
-from src.commands.test.test_cases import BrokenTestFile, FailedTestCase, PassedTestCase
+from src.commands.test.test_cases import BrokenTestSuite, FailedTestCase, PassedTestCase
 from src.commands.test.test_environment_exceptions import ReportedException
 from src.commands.test.test_execution_environment import TestExecutionEnvironment
 from src.commands.test.test_results_queue import TestResultsQueue
@@ -81,7 +81,7 @@ class TestRunner:
             self.queue.put(
                 (
                     test_subject,
-                    BrokenTestFile(file_path=test_subject.test_path, exception=err),
+                    BrokenTestSuite(file_path=test_subject.test_path, exception=err),
                 )
             )
             return

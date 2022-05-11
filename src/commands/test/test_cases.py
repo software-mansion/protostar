@@ -45,7 +45,7 @@ class FailedTestCase(TestCaseResult):
 
 
 @dataclass(frozen=True)
-class BrokenTestFile(TestCaseResult):
+class BrokenTestSuite(TestCaseResult):
     exception: StarkException
 
     def __str__(self) -> str:

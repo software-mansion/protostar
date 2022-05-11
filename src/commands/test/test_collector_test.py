@@ -19,8 +19,8 @@ def project_root_fixture(tmpdir) -> Path:
     return Path(tmpdir)
 
 
-@pytest.fixture(name="test_files", autouse=True)
-def test_files_fixture(project_root: Path):
+@pytest.fixture(name="test_suites", autouse=True)
+def test_suites_fixture(project_root: Path):
     """
     - project_root
         - bar
@@ -52,18 +52,18 @@ def starknet_compiler_fixture(mocker: MockerFixture):
     return starknet_compiler_mock
 
 
-def assert_tested_file_names(
+def assert_tested_suites(
     test_subjects: List[TestSubject], expected_file_names: List[str]
 ):
-    test_file_names = [test_subject.test_path.name for test_subject in test_subjects]
-    assert set(test_file_names) == set(expected_file_names)
+    test_suite_names = [test_subject.test_path.name for test_subject in test_subjects]
+    assert set(test_suite_names) == set(expected_file_names)
 
 
-def test_is_test_file():
-    assert TestCollector.is_test_file("ex_test.cairo")
-    assert TestCollector.is_test_file("test_ex.cairo")
-    assert not TestCollector.is_test_file("ex.cairo")
-    assert not TestCollector.is_test_file("z_test_ex.cairo")
+def test_is_test_suite():
+    assert TestCollector.is_test_suite("ex_test.cairo")
+    assert TestCollector.is_test_suite("test_ex.cairo")
+    assert not TestCollector.is_test_suite("ex.cairo")
+    assert not TestCollector.is_test_suite("z_test_ex.cairo")
 
 
 def test_collecting_tests_from_target(starknet_compiler, project_root):
@@ -71,7 +71,7 @@ def test_collecting_tests_from_target(starknet_compiler, project_root):
 
     result = test_collector.collect(target=project_root)
 
-    assert_tested_file_names(result.test_subjects, ["bar_test.cairo", "test_foo.cairo"])
+    assert_tested_suites(result.test_subjects, ["bar_test.cairo", "test_foo.cairo"])
     assert result.test_cases_count == 4
 
 
@@ -82,7 +82,7 @@ def test_matching_pattern(starknet_compiler, project_root):
         target=project_root, match_pattern=re.compile(".*bar.*")
     )
 
-    assert_tested_file_names(result.test_subjects, ["bar_test.cairo"])
+    assert_tested_suites(result.test_subjects, ["bar_test.cairo"])
     assert result.test_cases_count == 2
 
 
@@ -93,11 +93,11 @@ def test_omitting_pattern(starknet_compiler, project_root):
         target=project_root, omit_pattern=re.compile(".*bar.*")
     )
 
-    assert_tested_file_names(result.test_subjects, ["test_foo.cairo"])
+    assert_tested_suites(result.test_subjects, ["test_foo.cairo"])
     assert result.test_cases_count == 2
 
 
-def test_breakage_upon_broken_test_file(starknet_compiler, project_root):
+def test_breakage_upon_broken_test_suite(starknet_compiler, project_root):
     test_collector = TestCollector(starknet_compiler)
     cast(MagicMock, starknet_compiler.get_functions).side_effect = PreprocessorError("")
 
@@ -110,7 +110,7 @@ def test_collecting_specific_file(starknet_compiler, project_root: Path):
 
     result = test_collector.collect(project_root / "foo" / "test_foo.cairo")
 
-    assert_tested_file_names(result.test_subjects, ["test_foo.cairo"])
+    assert_tested_suites(result.test_subjects, ["test_foo.cairo"])
 
 
 def test_collecting_specific_function(starknet_compiler, project_root: Path):
@@ -118,7 +118,7 @@ def test_collecting_specific_function(starknet_compiler, project_root: Path):
 
     result = test_collector.collect(project_root / "foo" / "test_foo.cairo::test_foo")
 
-    assert_tested_file_names(result.test_subjects, ["test_foo.cairo"])
+    assert_tested_suites(result.test_subjects, ["test_foo.cairo"])
     assert result.test_cases_count == 1
 
 

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 from tqdm import tqdm as bar
 
-from src.commands.test.test_cases import BrokenTestFile
+from src.commands.test.test_cases import BrokenTestSuite
 from src.commands.test.test_results_queue import TestResultsQueue
 from src.commands.test.testing_summary import TestingSummary
 
@@ -43,7 +43,7 @@ class TestingLiveLogger:
                         )
                         progress_bar.write(str(case_result))
 
-                        if isinstance(case_result, BrokenTestFile):
+                        if isinstance(case_result, BrokenTestSuite):
                             tests_in_case_count = len(subject.test_functions)
                             progress_bar.update(tests_in_case_count)
                             tests_left_n -= tests_in_case_count
@@ -56,7 +56,7 @@ class TestingLiveLogger:
                     testing_summary.log(
                         logger=self._logger,
                         collected_test_cases_count=test_collector_result.test_cases_count,
-                        collected_test_files_count=len(
+                        collected_test_suites_count=len(
                             test_collector_result.test_subjects
                         ),
                     )
