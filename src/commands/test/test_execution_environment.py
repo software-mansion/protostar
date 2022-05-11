@@ -13,6 +13,7 @@ from src.commands.test.cheatcodes.expect_revert_cheatcode import (
     ExpectRevertCheatcode,
     RevertableTestingExecutionEnvironment,
 )
+from src.commands.test.cheatcodes.roll_cheatcode import RollCheatcode
 from src.commands.test.expected_event import ExpectedEvent
 from src.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
@@ -171,10 +172,6 @@ class TestExecutionEnvironment(RevertableTestingExecutionEnvironment):
             return func
 
         @register_cheatcode
-        def roll(blk_number: int):
-            cheatable_syscall_handler.set_block_number(blk_number)
-
-        @register_cheatcode
         def warp(blk_timestamp: int):
             cheatable_syscall_handler.set_block_timestamp(blk_timestamp)
 
@@ -226,7 +223,11 @@ class TestExecutionEnvironment(RevertableTestingExecutionEnvironment):
         ):
             return self.deploy_in_env(contract_path, constructor_calldata)
 
-        cheatcodes: List[Cheatcode] = [ExpectRevertCheatcode(self)]
+        cheatcodes: List[Cheatcode] = [
+            ExpectRevertCheatcode(self),
+            RollCheatcode(cheatable_syscall_handler),
+        ]
+
         for cheatcode in cheatcodes:
             hint_locals[cheatcode.name] = cheatcode.build()
 
