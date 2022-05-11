@@ -86,7 +86,7 @@ class ExpectedEvent:
 @dataclass
 class TestSubject:
     """
-    A dataclass consisting of identification of a single test bundle, and target functions
+    Deprecated. Use `TestSuite`.
     """
 
     test_path: Path

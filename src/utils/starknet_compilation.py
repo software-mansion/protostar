@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List
+from typing import List, cast
 
 from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
 from starkware.cairo.lang.compiler.cairo_compile import get_module_reader
@@ -16,6 +16,7 @@ from starkware.starknet.compiler.starknet_preprocessor import (
     StarknetPreprocessedProgram,
 )
 from starkware.starknet.services.api.contract_definition import ContractDefinition
+from typing_extensions import Literal, TypedDict
 
 from src.protostar_exception import ProtostarException
 
@@ -72,3 +73,17 @@ class StarknetCompiler:
         )
         assert isinstance(assembled, ContractDefinition)
         return assembled
+
+    class AbiElement(TypedDict):
+        """NOTE: This type doesn't represent a dictionary faithfully. The dictionary can have more attributes."""
+
+        name: str
+        type: Literal["function"]
+
+    def get_functions(self, cairo_file_path: Path, prefix: str) -> List[AbiElement]:
+        preprocessed = self.preprocess_contract(cairo_file_path)
+        return [
+            el
+            for el in cast(List["StarknetCompiler.AbiElement"], preprocessed.abi)
+            if el["type"] == "function" and el["name"].startswith(prefix)
+        ]

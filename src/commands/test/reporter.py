@@ -9,18 +9,16 @@ from typing import Any, Dict, List, Tuple, cast
 from tqdm import tqdm as bar
 
 from src.commands.test.cases import BrokenTest, CaseResult, FailedCase, PassedCase
-from src.commands.test.utils import TestSubject
+from src.commands.test.test_suite import TestSuite
 from src.utils.log_color_provider import log_color_provider
 
 
 class Reporter:
-    def __init__(
-        self, live_reports_queue: "queue.Queue[Tuple[TestSubject, CaseResult]]"
-    ):
+    def __init__(self, live_reports_queue: "queue.Queue[Tuple[TestSuite, CaseResult]]"):
         self.live_reports_queue = live_reports_queue
         self.test_case_results: List[CaseResult] = []
 
-    def report(self, subject: TestSubject, case_result: CaseResult):
+    def report(self, subject: TestSuite, case_result: CaseResult):
         self.live_reports_queue.put((subject, case_result))
         self.test_case_results.append(case_result)
 
@@ -55,8 +53,8 @@ class ReporterCoordinator:
     def __init__(
         self,
         tests_root: Path,
-        test_subjects: List[TestSubject],
-        live_reports_queue: "queue.Queue[Tuple[TestSubject, CaseResult]]",
+        test_subjects: List[TestSuite],
+        live_reports_queue: "queue.Queue[Tuple[TestSuite, CaseResult]]",
         logger: Logger,
     ):
         self.collected_subjects = test_subjects
