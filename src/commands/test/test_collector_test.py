@@ -13,8 +13,6 @@ from src.commands.test.test_collector import TestCollectingException, TestCollec
 from src.commands.test.test_subject_queue import TestSubject
 from src.utils.starknet_compilation import StarknetCompiler
 
-CURRENT_DIR = Path(__file__).parent
-
 
 @pytest.fixture(name="project_root")
 def project_root_fixture(tmpdir) -> Path:

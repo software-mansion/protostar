@@ -1,7 +1,6 @@
 import asyncio
 from dataclasses import dataclass
 from logging import getLogger
-from pathlib import Path
 from typing import List, Optional
 
 from starkware.starknet.services.api.contract_definition import ContractDefinition
@@ -14,8 +13,6 @@ from src.commands.test.test_execution_environment import TestExecutionEnvironmen
 from src.commands.test.test_subject_queue import TestSubject, TestSubjectQueue
 from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
-
-current_directory = Path(__file__).parent
 
 logger = getLogger()
 
