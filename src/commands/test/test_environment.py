@@ -8,7 +8,6 @@ from starkware.starknet.services.api.contract_definition import ContractDefiniti
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starkware_utils.error_handling import StarkException
 
-from src.commands.test.deployed_contract import DeployedContract
 from src.commands.test.expected_event import ExpectedEvent
 from src.commands.test.starkware_patch.cheatable_syscall_handler import (
     CheatableSysCallHandler,
@@ -23,6 +22,15 @@ from src.commands.test.test_environment_exceptions import (
 )
 
 logger = getLogger()
+
+
+class DeployedContract:
+    def __init__(self, starknet_contract: StarknetContract):
+        self._starknet_contract = starknet_contract
+
+    @property
+    def contract_address(self):
+        return self._starknet_contract.contract_address
 
 
 class TestEnvironment:
