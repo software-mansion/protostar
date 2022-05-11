@@ -4,22 +4,19 @@ from typing import Any, Callable, Dict, List, Optional, Set
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.public.abi import get_selector_from_name
-from starkware.starknet.services.api.contract_definition import ContractDefinition
+from starkware.starknet.services.api.contract_definition import \
+    ContractDefinition
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starkware_utils.error_handling import StarkException
 
 from src.commands.test.expected_event import ExpectedEvent
-from src.commands.test.starkware_patch.cheatable_syscall_handler import (
-    CheatableSysCallHandler,
-)
-from src.commands.test.starkware_patch.forkable_starknet import ForkableStarknet
+from src.commands.test.starkware_patch.cheatable_syscall_handler import \
+    CheatableSysCallHandler
+from src.commands.test.starkware_patch.forkable_starknet import \
+    ForkableStarknet
 from src.commands.test.test_environment_exceptions import (
-    ExpectedRevertException,
-    ExpectedRevertMismatchException,
-    ReportedException,
-    RevertableException,
-    StarknetRevertableException,
-)
+    ExpectedRevertException, ExpectedRevertMismatchException,
+    ReportedException, RevertableException, StarknetRevertableException)
 
 logger = getLogger()
 
@@ -33,7 +30,7 @@ class DeployedContract:
         return self._starknet_contract.contract_address
 
 
-class TestEnvironment:
+class TestExecutionEnvironment:
     def __init__(self, include_paths: List[str]):
         self.starknet = None
         self.test_contract: Optional[StarknetContract] = None
@@ -56,7 +53,7 @@ class TestEnvironment:
         assert self.starknet
         assert self.test_contract
 
-        new_env = TestEnvironment(
+        new_env = TestExecutionEnvironment(
             include_paths=self._include_paths,
         )
         new_env.starknet = self.starknet.fork()

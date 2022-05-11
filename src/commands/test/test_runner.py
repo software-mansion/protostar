@@ -10,7 +10,7 @@ from starkware.starkware_utils.error_handling import StarkException
 from src.commands.test.starkware_patch import CheatableSysCallHandler
 from src.commands.test.test_cases import BrokenTestFile, FailedTestCase, PassedTestCase
 from src.commands.test.test_environment_exceptions import ReportedException
-from src.commands.test.test_environment import TestEnvironment
+from src.commands.test.test_execution_environment import TestExecutionEnvironment
 from src.commands.test.test_subject_queue import TestSubject, TestSubjectQueue
 from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
@@ -76,7 +76,9 @@ class TestRunner:
         assert self.queue, "Uninitialized reporter!"
 
         try:
-            env_base = await TestEnvironment.empty(test_contract, self.include_paths)
+            env_base = await TestExecutionEnvironment.empty(
+                test_contract, self.include_paths
+            )
         except StarkException as err:
             self.queue.enqueue(
                 (
