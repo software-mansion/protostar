@@ -6,7 +6,7 @@ from typing import List, Optional
 from starkware.starknet.services.api.contract_definition import ContractDefinition
 from starkware.starkware_utils.error_handling import StarkException
 
-from src.commands.test.starkware_patch import CheatableSysCallHandler
+from src.commands.test.starkware import CheatableSysCallHandler
 from src.commands.test.test_cases import BrokenTestSuite, FailedTestCase, PassedTestCase
 from src.commands.test.test_environment_exceptions import ReportedException
 from src.commands.test.test_execution_environment import TestExecutionEnvironment

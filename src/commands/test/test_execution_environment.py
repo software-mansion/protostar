@@ -9,10 +9,10 @@ from starkware.starknet.testing.contract import StarknetContract
 from starkware.starkware_utils.error_handling import StarkException
 
 from src.commands.test.expected_event import ExpectedEvent
-from src.commands.test.starkware_patch.cheatable_syscall_handler import (
+from src.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
 )
-from src.commands.test.starkware_patch.forkable_starknet import ForkableStarknet
+from src.commands.test.starkware.forkable_starknet import ForkableStarknet
 from src.commands.test.test_environment_exceptions import (
     ExpectedRevertException,
     ExpectedRevertMismatchException,
