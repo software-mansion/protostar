@@ -42,14 +42,6 @@ async def test_test_command_runs_scheduler_properly(mocker: MockerFixture):
     )
 
 
-def test_test_command_name(mocker: MockerFixture):
-    test_command = TestCommand(mocker.MagicMock(), mocker.MagicMock())
-
-    assert test_command.name == "test"
-    assert len(test_command.description) > 3
-    assert test_command.example
-
-
 def test_arguments_match_corresponding_dataclass(mocker: MockerFixture):
     cmd_args = TestCommand(mocker.MagicMock(), mocker.MagicMock()).arguments
     cmd_args_names = [cmd_arg.name.replace("-", "_") for cmd_arg in cmd_args]
