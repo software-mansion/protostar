@@ -9,7 +9,7 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     PreprocessorError,
 )
 
-from src.commands.test.test_subject_queue import TestSubject
+from src.commands.test.test_results_queue import TestSubject
 from src.protostar_exception import ProtostarException
 from src.utils.starknet_compilation import StarknetCompiler
 

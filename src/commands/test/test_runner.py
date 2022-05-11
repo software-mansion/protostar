@@ -10,7 +10,7 @@ from src.commands.test.starkware_patch import CheatableSysCallHandler
 from src.commands.test.test_cases import BrokenTestFile, FailedTestCase, PassedTestCase
 from src.commands.test.test_environment_exceptions import ReportedException
 from src.commands.test.test_execution_environment import TestExecutionEnvironment
-from src.commands.test.test_subject_queue import TestSubject, TestSubjectQueue
+from src.commands.test.test_results_queue import TestSubject, TestResultsQueue
 from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
 
@@ -23,7 +23,7 @@ class TestRunner:
 
     def __init__(
         self,
-        queue: TestSubjectQueue,
+        queue: TestResultsQueue,
         include_paths: Optional[List[str]] = None,
     ):
         self.queue = queue
@@ -35,7 +35,7 @@ class TestRunner:
     @dataclass
     class WorkerArgs:
         subject: TestSubject
-        test_subject_queue: TestSubjectQueue
+        test_subject_queue: TestResultsQueue
         include_paths: List[str]
 
     @classmethod
@@ -77,7 +77,7 @@ class TestRunner:
                 test_contract, self.include_paths
             )
         except StarkException as err:
-            self.queue.enqueue(
+            self.queue.put(
                 (
                     test_subject,
                     BrokenTestFile(file_path=test_subject.test_path, exception=err),
@@ -89,7 +89,7 @@ class TestRunner:
             env = env_base.fork()
             try:
                 call_result = await env.invoke_test_function(function["name"])
-                self.queue.enqueue(
+                self.queue.put(
                     (
                         test_subject,
                         PassedTestCase(
@@ -100,7 +100,7 @@ class TestRunner:
                     )
                 )
             except ReportedException as err:
-                self.queue.enqueue(
+                self.queue.put(
                     (
                         test_subject,
                         FailedTestCase(

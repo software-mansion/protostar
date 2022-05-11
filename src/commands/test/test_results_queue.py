@@ -19,14 +19,14 @@ class TestSubject:
     test_functions: List[StarknetCompiler.AbiElement]
 
 
-class TestSubjectQueue:
+class TestResultsQueue:
     def __init__(
         self, shared_queue: "queue.Queue[Tuple[TestSubject, TestCaseResult]]"
     ) -> None:
         self._shared_queue = shared_queue
 
-    def dequeue(self) -> Tuple[TestSubject, TestCaseResult]:
+    def get(self) -> Tuple[TestSubject, TestCaseResult]:
         return self._shared_queue.get(block=True, timeout=1000)
 
-    def enqueue(self, item: Tuple[TestSubject, TestCaseResult]) -> None:
+    def put(self, item: Tuple[TestSubject, TestCaseResult]) -> None:
         self._shared_queue.put(item)

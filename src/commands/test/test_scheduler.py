@@ -3,7 +3,7 @@ import signal
 from typing import TYPE_CHECKING, Callable, List
 
 from src.commands.test.test_runner import TestRunner
-from src.commands.test.test_subject_queue import TestSubjectQueue
+from src.commands.test.test_results_queue import TestResultsQueue
 from src.commands.test.testing_live_logger import TestingLiveLogger
 
 if TYPE_CHECKING:
@@ -26,7 +26,7 @@ class TestScheduler:
         self, test_collector_result: "TestCollector.Result", include_paths: List[str]
     ):
         with multiprocessing.Manager() as manager:
-            testing_queue = TestSubjectQueue(manager.Queue())
+            testing_queue = TestResultsQueue(manager.Queue())
             setups: List[TestRunner.WorkerArgs] = [
                 TestRunner.WorkerArgs(
                     subject,

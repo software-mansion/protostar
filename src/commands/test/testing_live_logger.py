@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, cast
 from tqdm import tqdm as bar
 
 from src.commands.test.test_cases import BrokenTestFile
-from src.commands.test.test_subject_queue import TestSubjectQueue
+from src.commands.test.test_results_queue import TestResultsQueue
 from src.commands.test.testing_summary import TestingSummary
 
 if TYPE_CHECKING:
@@ -18,7 +18,7 @@ class TestingLiveLogger:
 
     def log(
         self,
-        test_subject_queue: TestSubjectQueue,
+        test_subject_queue: TestResultsQueue,
         test_collector_result: "TestCollector.Result",
     ):
         testing_summary = TestingSummary([])
@@ -33,7 +33,7 @@ class TestingLiveLogger:
                 progress_bar.update()
                 try:
                     while tests_left_n > 0:
-                        (subject, case_result) = test_subject_queue.dequeue()
+                        (subject, case_result) = test_subject_queue.get()
                         testing_summary.extend([case_result])
                         cast(Any, progress_bar).colour = (
                             "RED"
