@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Tuple
 
 from src.commands.test.test_cases import TestCaseResult
-from src.commands.test.test_subject import TestSubject
+from src.commands.test.test_suite import TestSuite
 
 if TYPE_CHECKING:
     import queue
@@ -9,12 +9,12 @@ if TYPE_CHECKING:
 
 class TestResultsQueue:
     def __init__(
-        self, shared_queue: "queue.Queue[Tuple[TestSubject, TestCaseResult]]"
+        self, shared_queue: "queue.Queue[Tuple[TestSuite, TestCaseResult]]"
     ) -> None:
         self._shared_queue = shared_queue
 
-    def get(self) -> Tuple[TestSubject, TestCaseResult]:
+    def get(self) -> Tuple[TestSuite, TestCaseResult]:
         return self._shared_queue.get(block=True, timeout=1000)
 
-    def put(self, item: Tuple[TestSubject, TestCaseResult]) -> None:
+    def put(self, item: Tuple[TestSuite, TestCaseResult]) -> None:
         self._shared_queue.put(item)

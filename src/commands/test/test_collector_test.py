@@ -10,7 +10,7 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
 )
 
 from src.commands.test.test_collector import TestCollectingException, TestCollector
-from src.commands.test.test_subject import TestSubject
+from src.commands.test.test_suite import TestSuite
 from src.utils.starknet_compilation import StarknetCompiler
 
 
@@ -48,10 +48,8 @@ def starknet_compiler_fixture(mocker: MockerFixture):
     return starknet_compiler_mock
 
 
-def assert_tested_suites(
-    test_subjects: List[TestSubject], expected_file_names: List[str]
-):
-    test_suite_names = [test_subject.test_path.name for test_subject in test_subjects]
+def assert_tested_suites(test_suites: List[TestSuite], expected_file_names: List[str]):
+    test_suite_names = [test_suite.test_path.name for test_suite in test_suites]
     assert set(test_suite_names) == set(expected_file_names)
 
 
@@ -67,7 +65,7 @@ def test_collecting_tests_from_target(starknet_compiler, project_root):
 
     result = test_collector.collect(target=project_root)
 
-    assert_tested_suites(result.test_subjects, ["bar_test.cairo", "test_foo.cairo"])
+    assert_tested_suites(result.test_suites, ["bar_test.cairo", "test_foo.cairo"])
     assert result.test_cases_count == 4
 
 
@@ -78,7 +76,7 @@ def test_matching_pattern(starknet_compiler, project_root):
         target=project_root, match_pattern=re.compile(".*bar.*")
     )
 
-    assert_tested_suites(result.test_subjects, ["bar_test.cairo"])
+    assert_tested_suites(result.test_suites, ["bar_test.cairo"])
     assert result.test_cases_count == 2
 
 
@@ -89,7 +87,7 @@ def test_omitting_pattern(starknet_compiler, project_root):
         target=project_root, omit_pattern=re.compile(".*bar.*")
     )
 
-    assert_tested_suites(result.test_subjects, ["test_foo.cairo"])
+    assert_tested_suites(result.test_suites, ["test_foo.cairo"])
     assert result.test_cases_count == 2
 
 
@@ -106,7 +104,7 @@ def test_collecting_specific_file(starknet_compiler, project_root: Path):
 
     result = test_collector.collect(project_root / "foo" / "test_foo.cairo")
 
-    assert_tested_suites(result.test_subjects, ["test_foo.cairo"])
+    assert_tested_suites(result.test_suites, ["test_foo.cairo"])
 
 
 def test_collecting_specific_function(starknet_compiler, project_root: Path):
@@ -114,7 +112,7 @@ def test_collecting_specific_function(starknet_compiler, project_root: Path):
 
     result = test_collector.collect(project_root / "foo" / "test_foo.cairo::test_foo")
 
-    assert_tested_suites(result.test_subjects, ["test_foo.cairo"])
+    assert_tested_suites(result.test_suites, ["test_foo.cairo"])
     assert result.test_cases_count == 1
 
 
@@ -122,8 +120,8 @@ def test_logging_collected_one_test_suite_and_one_test_case(mocker: MockerFixtur
     logger_mock = mocker.MagicMock()
 
     TestCollector.Result(
-        test_subjects=[
-            TestSubject(
+        test_suites=[
+            TestSuite(
                 test_functions=[
                     StarknetCompiler.AbiElement(name="foo", type="function"),
                 ],
@@ -142,14 +140,14 @@ def test_logging_many_test_suites_and_many_test_cases(mocker: MockerFixture):
     logger_mock = mocker.MagicMock()
 
     TestCollector.Result(
-        test_subjects=[
-            TestSubject(
+        test_suites=[
+            TestSuite(
                 test_functions=[
                     StarknetCompiler.AbiElement(name="foo", type="function"),
                 ],
                 test_path=Path(),
             ),
-            TestSubject(
+            TestSuite(
                 test_functions=[
                     StarknetCompiler.AbiElement(name="foo", type="function"),
                 ],
@@ -168,7 +166,7 @@ def test_logging_no_cases_found(mocker: MockerFixture):
     logger_mock = mocker.MagicMock()
 
     TestCollector.Result(
-        test_subjects=[],
+        test_suites=[],
         test_cases_count=0,
     ).log(logger_mock)
 

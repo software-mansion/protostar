@@ -18,7 +18,7 @@ class TestingLiveLogger:
 
     def log(
         self,
-        test_subject_queue: TestResultsQueue,
+        test_results_queue: TestResultsQueue,
         test_collector_result: "TestCollector.Result",
     ):
         testing_summary = TestingSummary([])
@@ -33,18 +33,18 @@ class TestingLiveLogger:
                 progress_bar.update()
                 try:
                     while tests_left_n > 0:
-                        (subject, case_result) = test_subject_queue.get()
-                        testing_summary.extend([case_result])
+                        (test_suite, test_case_result) = test_results_queue.get()
+                        testing_summary.extend([test_case_result])
                         cast(Any, progress_bar).colour = (
                             "RED"
                             if len(testing_summary.failed) + len(testing_summary.broken)
                             > 0
                             else "GREEN"
                         )
-                        progress_bar.write(str(case_result))
+                        progress_bar.write(str(test_case_result))
 
-                        if isinstance(case_result, BrokenTestSuite):
-                            tests_in_case_count = len(subject.test_functions)
+                        if isinstance(test_case_result, BrokenTestSuite):
+                            tests_in_case_count = len(test_suite.test_functions)
                             progress_bar.update(tests_in_case_count)
                             tests_left_n -= tests_in_case_count
                         else:
@@ -57,7 +57,7 @@ class TestingLiveLogger:
                         logger=self._logger,
                         collected_test_cases_count=test_collector_result.test_cases_count,
                         collected_test_suites_count=len(
-                            test_collector_result.test_subjects
+                            test_collector_result.test_suites
                         ),
                     )
 

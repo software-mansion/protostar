@@ -2,8 +2,8 @@ import multiprocessing
 import signal
 from typing import TYPE_CHECKING, Callable, List
 
-from src.commands.test.test_runner import TestRunner
 from src.commands.test.test_results_queue import TestResultsQueue
+from src.commands.test.test_runner import TestRunner
 from src.commands.test.testing_live_logger import TestingLiveLogger
 
 if TYPE_CHECKING:
@@ -26,14 +26,14 @@ class TestScheduler:
         self, test_collector_result: "TestCollector.Result", include_paths: List[str]
     ):
         with multiprocessing.Manager() as manager:
-            testing_queue = TestResultsQueue(manager.Queue())
+            test_results_queue = TestResultsQueue(manager.Queue())
             setups: List[TestRunner.WorkerArgs] = [
                 TestRunner.WorkerArgs(
-                    subject,
-                    testing_queue,
+                    test_suite,
+                    test_results_queue,
                     include_paths,
                 )
-                for subject in test_collector_result.test_subjects
+                for test_suite in test_collector_result.test_suites
             ]
 
             try:
@@ -44,6 +44,6 @@ class TestScheduler:
                     ),  # prevents showing a stacktrace on cmd/ctrl + c
                 ) as pool:
                     pool.map_async(self._worker, setups)
-                    self._live_logger.log(testing_queue, test_collector_result)
+                    self._live_logger.log(test_results_queue, test_collector_result)
             except KeyboardInterrupt:
                 return

@@ -75,7 +75,7 @@ class StarknetCompiler:
         return assembled
 
     class AbiElement(TypedDict):
-        """NOTE: This type doesn't represent dictionary faithfully. This dictionary can have more attributes."""
+        """NOTE: This type doesn't represent a dictionary faithfully. The dictionary can have more attributes."""
 
         name: str
         type: Literal["function"]

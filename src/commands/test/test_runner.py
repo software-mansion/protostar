@@ -11,7 +11,7 @@ from src.commands.test.test_cases import BrokenTestSuite, FailedTestCase, Passed
 from src.commands.test.test_environment_exceptions import ReportedException
 from src.commands.test.test_execution_environment import TestExecutionEnvironment
 from src.commands.test.test_results_queue import TestResultsQueue
-from src.commands.test.test_subject import TestSubject
+from src.commands.test.test_suite import TestSuite
 from src.utils.modules import replace_class
 from src.utils.starknet_compilation import StarknetCompiler
 
@@ -35,41 +35,39 @@ class TestRunner:
 
     @dataclass
     class WorkerArgs:
-        subject: TestSubject
-        test_subject_queue: TestResultsQueue
+        test_suite: TestSuite
+        test_results_queue: TestResultsQueue
         include_paths: List[str]
 
     @classmethod
     def worker(cls, args: "TestRunner.WorkerArgs"):
         asyncio.run(
             cls(
-                queue=args.test_subject_queue, include_paths=args.include_paths
-            ).run_test_subject(args.subject)
+                queue=args.test_results_queue, include_paths=args.include_paths
+            ).run_test_suite(args.test_suite)
         )
 
     @replace_class(
         "starkware.starknet.core.os.syscall_utils.BusinessLogicSysCallHandler",
         CheatableSysCallHandler,
     )
-    async def run_test_subject(self, test_subject):
+    async def run_test_suite(self, test_suite: TestSuite):
         assert self.include_paths is not None, "Uninitialized paths list in test runner"
 
         compiled_test = StarknetCompiler(
             include_paths=self.include_paths,
             disable_hint_validation=True,
-        ).compile_contract(test_subject.test_path, add_debug_info=True)
+        ).compile_contract(test_suite.test_path, add_debug_info=True)
 
         await self._run_test_functions(
             test_contract=compiled_test,
-            test_subject=test_subject,
-            functions=test_subject.test_functions,
+            test_suite=test_suite,
         )
 
     async def _run_test_functions(
         self,
         test_contract: ContractDefinition,
-        test_subject: TestSubject,
-        functions: List[dict],
+        test_suite: TestSuite,
     ):
         assert self.queue, "Uninitialized reporter!"
 
@@ -80,21 +78,21 @@ class TestRunner:
         except StarkException as err:
             self.queue.put(
                 (
-                    test_subject,
-                    BrokenTestSuite(file_path=test_subject.test_path, exception=err),
+                    test_suite,
+                    BrokenTestSuite(file_path=test_suite.test_path, exception=err),
                 )
             )
             return
 
-        for function in functions:
+        for function in test_suite.test_functions:
             env = env_base.fork()
             try:
                 call_result = await env.invoke_test_function(function["name"])
                 self.queue.put(
                     (
-                        test_subject,
+                        test_suite,
                         PassedTestCase(
-                            file_path=test_subject.test_path,
+                            file_path=test_suite.test_path,
                             function_name=function["name"],
                             tx_info=call_result,
                         ),
@@ -103,9 +101,9 @@ class TestRunner:
             except ReportedException as err:
                 self.queue.put(
                     (
-                        test_subject,
+                        test_suite,
                         FailedTestCase(
-                            file_path=test_subject.test_path,
+                            file_path=test_suite.test_path,
                             function_name=function["name"],
                             exception=err,
                         ),
