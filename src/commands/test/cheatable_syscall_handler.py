@@ -47,20 +47,23 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
     custom_caller_address = None
 
     def set_caller_address(self, addr):
-        self.custom_caller_address = addr
+        self.state.placeholder = addr
 
     def _get_caller_address(
         self,
         segments: MemorySegmentManager,
         syscall_ptr: RelocatableValue,
     ) -> int:
-        if self.custom_caller_address is not None:
+        if self.state.placeholder is not None:
             self._read_and_validate_syscall_request(
                 syscall_name="get_caller_address",
                 segments=segments,
                 syscall_ptr=syscall_ptr,
             )
-            return self.custom_caller_address
+            # print("CALLE", self.state.placeholder)
+            return self.state.placeholder
+        # print("CALLED", self.state.placeholder)
+        # print(self.state.placeholder)
         return super()._get_caller_address(segments, syscall_ptr)
 
     # mock_call

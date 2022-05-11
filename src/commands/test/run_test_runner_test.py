@@ -82,3 +82,10 @@ async def test_cheats():
 
     testing_result = TestingResult.from_reporters(reporters)
     assert len(testing_result.failed) == 0
+
+
+async def test_prank():
+    reporters = await run_test_runner(current_directory / "examples" / "cheats"/ "test_prank.cairo")
+
+    testing_result = TestingResult.from_reporters(reporters)
+    assert len(testing_result.failed) == 0
