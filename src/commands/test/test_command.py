@@ -49,13 +49,13 @@ class TestCommand(Command):
             Command.Argument(
                 name="omit",
                 short_name="o",
-                description="A filename regexp, which omits the test file if it matches the pattern.",
+                description="A filepath regexp that omits the test file if it matches the pattern.",
                 type="regexp",
             ),
             Command.Argument(
                 name="match",
                 short_name="m",
-                description="A filename regexp, which omits the test file if it does not match the pattern.",
+                description="A filepath regexp that omits the test file if it does not match the pattern.",
                 type="regexp",
             ),
             Command.Argument(

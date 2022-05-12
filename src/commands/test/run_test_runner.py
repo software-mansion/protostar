@@ -5,11 +5,13 @@ from logging import getLogger
 from multiprocessing import Pool
 from pathlib import Path
 from re import Pattern
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List, Optional, cast
 
 from src.commands.test.reporter import Reporter, ReporterCoordinator
 from src.commands.test.runner import TestRunner
 from src.commands.test.test_collector import TestCollector
+from src.commands.test.utils import TestSubject
+from src.utils.starknet_compilation import StarknetCompiler
 
 if TYPE_CHECKING:
     from src.utils.config.project import Project
@@ -30,10 +32,10 @@ async def run_test_runner(
     if project:
         include_paths.extend(project.get_include_paths())
 
-    test_subjects = TestCollector(
-        target=Path(tests_root),
-        include_paths=include_paths,
+    test_collector_result = TestCollector(
+        StarknetCompiler(disable_hint_validation=True, include_paths=include_paths)
     ).collect(
+        target=tests_root,
         match_pattern=match,
         omit_pattern=omit,
     )
@@ -41,7 +43,10 @@ async def run_test_runner(
     with multiprocessing.Manager() as manager:
         queue = manager.Queue()  # type: ignore
         reporter_coordinator = ReporterCoordinator(
-            tests_root, test_subjects, queue, logger
+            tests_root,
+            cast(List[TestSubject], test_collector_result.test_suites),
+            queue,
+            logger,
         )
         setups = [
             (
@@ -49,7 +54,7 @@ async def run_test_runner(
                 reporter_coordinator.create_reporter(),
                 include_paths,
             )
-            for subject in test_subjects
+            for subject in test_collector_result.test_suites
         ]
 
         try:
