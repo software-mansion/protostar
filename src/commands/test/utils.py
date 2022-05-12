@@ -1,11 +1,12 @@
 import os
-from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional, Union
 
 from starkware.starknet.business_logic.execution.objects import Event
 from starkware.starknet.public.abi import get_selector_from_name
 from typing_extensions import NotRequired, TypedDict
+
+from src.commands.test.test_suite import TestSuite
 
 
 def collect_immediate_subdirectories(root_dir: Path) -> List[str]:
@@ -83,11 +84,4 @@ class ExpectedEvent:
         )
 
 
-@dataclass
-class TestSubject:
-    """
-    Deprecated. Use `TestSuite`.
-    """
-
-    test_path: Path
-    test_functions: List[dict]
+TestSubject = TestSuite
