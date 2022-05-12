@@ -14,9 +14,8 @@ CURRENT_DIR = Path(__file__).parent
 @pytest.mark.asyncio
 async def test_asserts(mocker: MockerFixture):
     protostar_directory_mock = mocker.MagicMock()
-    cairo_dir = Path(CURRENT_DIR, "..", "..", "..", "cairo").resolve()
     cast(MagicMock, protostar_directory_mock.add_protostar_cairo_dir).return_value = [
-        cairo_dir
+        Path() / "cairo"
     ]
 
     testing_summary = await TestCommand(

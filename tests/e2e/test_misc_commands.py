@@ -5,7 +5,7 @@ from pathlib import Path
 import pexpect
 import pytest
 
-from tests.conftest import ACTUAL_CWD, init_project
+from tests.e2e.conftest import ACTUAL_CWD, init_project
 
 
 def test_help(protostar):

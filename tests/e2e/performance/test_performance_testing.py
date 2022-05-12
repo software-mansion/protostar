@@ -1,10 +1,11 @@
 from os import path
 from pathlib import Path
-import pytest
-from subprocess import run
 from string import Template
+from subprocess import run
 
-from tests.conftest import ACTUAL_CWD
+import pytest
+
+from tests.e2e.conftest import ACTUAL_CWD
 
 header = """
 %lang starknet
