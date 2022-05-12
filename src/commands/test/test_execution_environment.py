@@ -91,7 +91,7 @@ class TestExecutionEnvironment(RevertableTestingExecutionEnvironment):
         "starkware.starknet.core.os.syscall_utils.BusinessLogicSysCallHandler",
         CheatableSysCallHandler,
     )
-    async def invoke_test_function(self, function_name: str):
+    async def invoke_test_case(self, test_case_name: str):
         original_run_from_entrypoint = CairoFunctionRunner.run_from_entrypoint
         CairoFunctionRunner.run_from_entrypoint = (
             self._get_run_from_entrypoint_with_custom_hint_locals(
@@ -100,7 +100,7 @@ class TestExecutionEnvironment(RevertableTestingExecutionEnvironment):
         )
 
         try:
-            await self._call_test_function(function_name)
+            await self._call_test_case_fn(test_case_name)
             for hook in self._test_finish_hooks:
                 hook()
             if self._expected_error is not None:
@@ -119,9 +119,9 @@ class TestExecutionEnvironment(RevertableTestingExecutionEnvironment):
             self._expected_error = None
             self._test_finish_hooks.clear()
 
-    async def _call_test_function(self, function_name: str):
+    async def _call_test_case_fn(self, test_case_name: str):
         try:
-            func = getattr(self.test_contract, function_name)
+            func = getattr(self.test_contract, test_case_name)
             return await func().invoke()
         except StarkException as ex:
             raise StarknetRevertableException(

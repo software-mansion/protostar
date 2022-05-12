@@ -3,12 +3,15 @@ from dataclasses import dataclass
 from logging import getLogger
 from typing import List, Optional
 
-from starkware.starknet.services.api.contract_definition import ContractDefinition
+from starkware.starknet.services.api.contract_definition import \
+    ContractDefinition
 from starkware.starkware_utils.error_handling import StarkException
 
-from src.commands.test.test_cases import BrokenTestSuite, FailedTestCase, PassedTestCase
+from src.commands.test.test_cases import (BrokenTestSuite, FailedTestCase,
+                                          PassedTestCase)
 from src.commands.test.test_environment_exceptions import ReportedException
-from src.commands.test.test_execution_environment import TestExecutionEnvironment
+from src.commands.test.test_execution_environment import \
+    TestExecutionEnvironment
 from src.commands.test.test_results_queue import TestResultsQueue
 from src.commands.test.test_suite import TestSuite
 from src.utils.starknet_compilation import StarknetCompiler
@@ -53,12 +56,12 @@ class TestRunner:
             disable_hint_validation=True,
         ).compile_contract(test_suite.test_path, add_debug_info=True)
 
-        await self._run_test_functions(
+        await self._run_test_suite(
             test_contract=compiled_test,
             test_suite=test_suite,
         )
 
-    async def _run_test_functions(
+    async def _run_test_suite(
         self,
         test_contract: ContractDefinition,
         test_suite: TestSuite,
@@ -81,7 +84,7 @@ class TestRunner:
         for test_case_name in test_suite.test_case_names:
             env = env_base.fork()
             try:
-                call_result = await env.invoke_test_function(test_case_name)
+                call_result = await env.invoke_test_case(test_case_name)
                 self.queue.put(
                     (
                         test_suite,
