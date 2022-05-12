@@ -68,9 +68,6 @@ end
 
 @external
 func test_syscall_counter_correct{syscall_ptr : felt*, range_check_ptr}():
-    alloc_locals
-
-    local contract_a_address : felt
     %{ 
         stop_prank = start_prank(345)
     %}
@@ -79,4 +76,3 @@ func test_syscall_counter_correct{syscall_ptr : felt*, range_check_ptr}():
     let (bn) = get_block_number()
     return ()
 end
-

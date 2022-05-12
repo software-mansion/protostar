@@ -45,6 +45,10 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
 
     def set_caller_address(self, addr: int, target: Optional[int]=None):
         target = target if target else self.contract_address
+        if target in self.state.pranked_contracts:
+            raise CheatcodeException(
+                f"Contract with address {target} has been already pranked"
+            )
         self.state.pranked_contracts[target] = addr
     
     def reset_caller_address(self, target: Optional[int]=None):
