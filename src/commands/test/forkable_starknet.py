@@ -32,6 +32,10 @@ from starkware.storage.storage import FactFetchingContext
 
 
 class ForkableStarknet(Starknet):
+    """
+    Modified version of Starknet from testing framework. 
+    It introduces additional cheats state, and can be cheaply forked.
+    """
     @classmethod
     async def empty(
         cls, general_config: Optional[StarknetGeneralConfig] = None
@@ -54,11 +58,15 @@ class ForkableStarknet(Starknet):
         return ForkableStarknet(state=self.state.copy())
 
 class CheatableStarknetState(StarknetState):
+    """
+    Modified version of StarknetState from testing framework. 
+    It uses extended version of CarriedState - CheatableCarriedState.
+    """
 
     @classmethod
     async def empty(cls, general_config: Optional[StarknetGeneralConfig] = None) -> "StarknetState":
         """
-        Creates a new StarknetState instance.
+        An updated StarknetState instance introducing additional cheats state/
         """
         if general_config is None:
             general_config = StarknetGeneralConfig()
@@ -73,4 +81,7 @@ class CheatableStarknetState(StarknetState):
 
 
 class CheatableCarriedState(CarriedState):
-    placeholder: int = 1
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.pranked_contracts = {}

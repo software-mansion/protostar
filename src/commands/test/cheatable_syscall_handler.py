@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Dict, List, cast
+from typing import Dict, List, Optional, cast
 
 from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
@@ -43,28 +43,33 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
             else super()._get_block_timestamp()
         )
 
-    # prank
-    custom_caller_address = None
-
-    def set_caller_address(self, addr):
-        self.state.placeholder = addr
+    def set_caller_address(self, addr: int, target: Optional[int]=None):
+        target = target if target else self.contract_address
+        self.state.pranked_contracts[target] = addr
+    
+    def reset_caller_address(self, target: Optional[int]=None):
+        target = target if target else self.contract_address
+        if target not in self.state.pranked_contracts:
+            raise CheatcodeException(
+                f"Contract with address {target} has not been pranked"
+            )
+        del self.state.pranked_contracts[target]
 
     def _get_caller_address(
         self,
         segments: MemorySegmentManager,
         syscall_ptr: RelocatableValue,
     ) -> int:
-        if self.state.placeholder is not None:
-            self._read_and_validate_syscall_request(
-                syscall_name="get_caller_address",
-                segments=segments,
-                syscall_ptr=syscall_ptr,
-            )
-            # print("CALLE", self.state.placeholder)
-            return self.state.placeholder
-        # print("CALLED", self.state.placeholder)
-        # print(self.state.placeholder)
-        return super()._get_caller_address(segments, syscall_ptr)
+        self._read_and_validate_syscall_request(
+            syscall_name="get_caller_address",
+            segments=segments,
+            syscall_ptr=syscall_ptr,
+        )
+
+        if self.contract_address in self.state.pranked_contracts:
+            return self.state.pranked_contracts[self.contract_address]
+
+        return self.caller_address
 
     # mock_call
     mocked_calls: Dict[AddressType, Dict[SelectorType, List[int]]] = defaultdict(dict)
