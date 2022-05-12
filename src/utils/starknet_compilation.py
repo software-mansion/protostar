@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, cast
+from typing import List
 
 from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
 from starkware.cairo.lang.compiler.cairo_compile import get_module_reader
@@ -16,7 +16,6 @@ from starkware.starknet.compiler.starknet_preprocessor import (
     StarknetPreprocessedProgram,
 )
 from starkware.starknet.services.api.contract_definition import ContractDefinition
-from typing_extensions import Literal, TypedDict
 
 from src.protostar_exception import ProtostarException
 
