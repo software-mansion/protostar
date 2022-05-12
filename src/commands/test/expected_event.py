@@ -6,6 +6,8 @@ from starkware.starknet.business_logic.execution.objects import Event
 from starkware.starknet.public.abi import get_selector_from_name
 from typing_extensions import NotRequired, TypedDict
 
+from src.commands.test.test_suite import TestSuite
+
 
 def collect_immediate_subdirectories(root_dir: Path) -> List[str]:
     assert root_dir.is_dir(), f"{root_dir} is supposed to be a directory!"
@@ -80,3 +82,6 @@ class ExpectedEvent:
                 or self.from_address == state_event.from_address
             )
         )
+
+
+TestSubject = TestSuite

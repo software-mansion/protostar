@@ -74,16 +74,10 @@ class StarknetCompiler:
         assert isinstance(assembled, ContractDefinition)
         return assembled
 
-    class AbiElement(TypedDict):
-        """NOTE: This type doesn't represent a dictionary faithfully. The dictionary can have more attributes."""
-
-        name: str
-        type: Literal["function"]
-
-    def get_functions(self, cairo_file_path: Path, prefix: str) -> List[AbiElement]:
+    def get_functions(self, cairo_file_path: Path, prefix: str) -> List[dict]:
         preprocessed = self.preprocess_contract(cairo_file_path)
         return [
             el
-            for el in cast(List["StarknetCompiler.AbiElement"], preprocessed.abi)
+            for el in preprocessed.abi
             if el["type"] == "function" and el["name"].startswith(prefix)
         ]

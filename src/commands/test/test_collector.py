@@ -121,9 +121,7 @@ class TestCollector:
             for test_suite_path in test_suite_paths:
                 yield test_suite_path
 
-    def _collect_test_functions(
-        self, file_path: Path
-    ) -> List[StarknetCompiler.AbiElement]:
+    def _collect_test_functions(self, file_path: Path) -> List[dict]:
         try:
             return self._starknet_compiler.get_functions(file_path, prefix="test_")
         except PreprocessorError as p_err:

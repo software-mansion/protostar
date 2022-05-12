@@ -11,7 +11,6 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
 
 from src.commands.test.test_collector import TestCollectingException, TestCollector
 from src.commands.test.test_suite import TestSuite
-from src.utils.starknet_compilation import StarknetCompiler
 
 
 @pytest.fixture(name="project_root")
@@ -42,8 +41,8 @@ def test_suites_fixture(project_root: Path):
 def starknet_compiler_fixture(mocker: MockerFixture):
     starknet_compiler_mock = mocker.MagicMock()
     starknet_compiler_mock.get_functions.return_value = [
-        StarknetCompiler.AbiElement(name="test_foo", type="function"),
-        StarknetCompiler.AbiElement(name="bar_test", type="function"),
+        {"name": "test_foo", "type": "function"},
+        {"name": "bar_test", "type": "function"},
     ]
     return starknet_compiler_mock
 
@@ -122,9 +121,7 @@ def test_logging_collected_one_test_suite_and_one_test_case(mocker: MockerFixtur
     TestCollector.Result(
         test_suites=[
             TestSuite(
-                test_functions=[
-                    StarknetCompiler.AbiElement(name="foo", type="function"),
-                ],
+                test_functions=[{"name": "foo", "type": "function"}],
                 test_path=Path(),
             )
         ],
@@ -142,15 +139,11 @@ def test_logging_many_test_suites_and_many_test_cases(mocker: MockerFixture):
     TestCollector.Result(
         test_suites=[
             TestSuite(
-                test_functions=[
-                    StarknetCompiler.AbiElement(name="foo", type="function"),
-                ],
+                test_functions=[{"name": "foo", "type": "function"}],
                 test_path=Path(),
             ),
             TestSuite(
-                test_functions=[
-                    StarknetCompiler.AbiElement(name="foo", type="function"),
-                ],
+                test_functions=[{"name": "foo", "type": "function"}],
                 test_path=Path(),
             ),
         ],
