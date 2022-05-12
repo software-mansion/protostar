@@ -10,7 +10,7 @@ from protostar import main
 
 @pytest.fixture(name="protostar_cli_create_mock")
 def protostar_cli_create_mock_fixture(mocker: MockerFixture):
-    return mocker.patch("src.protostar_cli.ProtostarCLI.create")
+    return mocker.patch("protostar.protostar_cli.ProtostarCLI.create")
 
 
 @pytest.fixture(name="run_mock")
@@ -23,7 +23,7 @@ def run_fixture(mocker: MockerFixture):
 def protostar_cli_fixture(
     mocker: MockerFixture, protostar_cli_create_mock: MagicMock, run_mock: MagicMock
 ):
-    mocker.patch("src.start.ArgumentParserFacade")
+    mocker.patch("protostar.start.ArgumentParserFacade")
     protostar_cli_mock = mocker.MagicMock()
     protostar_cli_create_mock.return_value = protostar_cli_mock
     mocker.patch.object(

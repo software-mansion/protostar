@@ -201,7 +201,7 @@ class LoadNormalizedToRealNameMapTest:
     ):
 
         mocked_extract_info_from_repo_id = mocker.patch(
-            "src.utils.package_info.extract_info_from_repo_id",
+            "protostar.utils.package_info.extract_info_from_repo_id",
         )
         mocked_extract_info_from_repo_id.return_value = PackageInfo(
             name=package_normal_name, url="", version=None
@@ -225,7 +225,7 @@ class LoadNormalizedToRealNameMapTest:
     ):
 
         mocked_extract_info_from_repo_id = mocker.patch(
-            "src.utils.package_info.extract_info_from_repo_id",
+            "protostar.utils.package_info.extract_info_from_repo_id",
         )
         mocked_extract_info_from_repo_id.return_value = PackageInfo(
             name=package_normal_name, url="", version=None
@@ -272,7 +272,7 @@ class RetrieveRealPackageNameTest:
         mocker: MockerFixture,
     ):
         mocked_load_normalized_to_real_name_map = mocker.patch(
-            "src.utils.package_info.load_normalized_to_real_name_map",
+            "protostar.utils.package_info.load_normalized_to_real_name_map",
         )
         mocked_load_normalized_to_real_name_map.return_value = {
             "starknet_py": "starknet_py",
@@ -295,7 +295,7 @@ class RetrieveRealPackageNameTest:
         mocker: MockerFixture,
     ):
         mocked_load_normalized_to_real_name_map = mocker.patch(
-            "src.utils.package_info.load_normalized_to_real_name_map",
+            "protostar.utils.package_info.load_normalized_to_real_name_map",
         )
         mocked_load_normalized_to_real_name_map.return_value = {
             "starknet_py": "starknet_py",
@@ -316,7 +316,7 @@ class RetrieveRealPackageNameTest:
         mocker: MockerFixture,
     ):
         mocked_load_normalized_to_real_name_map = mocker.patch(
-            "src.utils.package_info.load_normalized_to_real_name_map",
+            "protostar.utils.package_info.load_normalized_to_real_name_map",
         )
         mocked_load_normalized_to_real_name_map.return_value = {
             "starknet_py": "sn",
@@ -336,7 +336,7 @@ class RetrieveRealPackageNameTest:
         mocker: MockerFixture,
     ):
         mocked_load_normalized_to_real_name_map = mocker.patch(
-            "src.utils.package_info.load_normalized_to_real_name_map",
+            "protostar.utils.package_info.load_normalized_to_real_name_map",
         )
         mocked_load_normalized_to_real_name_map.return_value = {
             "starknet_py": "sn",

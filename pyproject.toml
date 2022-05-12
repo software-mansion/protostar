@@ -38,23 +38,23 @@ starknet-devnet = "^0.2.1"
 [tool.poe.tasks]
 build = "pyinstaller protostar.spec --noconfirm"
 ci = ["type_check", "lint", "format_check", "test"]
-cov = "pytest --cov-report xml:cov.xml --cov=src"
+cov = "pytest --cov-report xml:cov.xml --cov=protostar"
 deploy = "python ./scripts/deploy.py"
 format = "black ."
-format_check = "black --check src"
-lint = "pylint src"
+format_check = "black --check protostar"
+lint = "pylint protostar"
 profile = "python -m cProfile -o recent_profiling.prof protostar.py"
 show_prof = "snakeviz recent_profiling.prof"
 test = ["test_unit", "build", "test_e2e"]
 test_e2e.shell = "pytest tests/*"
 test_html = [{shell = "coverage html && open ./htmlcov/index.html"}]
 test_report = [{shell = "coverage report"}]
-test_unit.shell = "coverage run -m pytest src/*"
+test_unit.shell = "coverage run -m pytest protostar/*"
 type_check = "pyright"
 update_cli_docs = "python ./scripts/generate_reference_docs.py"
 
 [tool.coverage.run]
-source = ["src"]
+source = ["protostar"]
 
 [tool.coverage.report]
 skip_empty = true

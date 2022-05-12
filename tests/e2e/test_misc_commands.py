@@ -33,7 +33,7 @@ def test_init(project_name: str):
 
 def test_init_existing():
     child = pexpect.spawn(
-        f"python {path.join(ACTUAL_CWD, 'protostar.py')} init --existing"
+        f"python {path.join(ACTUAL_CWD, 'binary_entrypoint.py')} init --existing"
     )
     child.expect("libraries directory *", timeout=10)
     child.sendline("lib_test")
@@ -48,7 +48,9 @@ def test_init_existing():
 def test_init_ask_existing():
     open(Path() / "example.cairo", "a").close()
 
-    child = pexpect.spawn(f"python {path.join(ACTUAL_CWD, 'protostar.py')} init")
+    child = pexpect.spawn(
+        f"python {path.join(ACTUAL_CWD, 'binary_entrypoint.py')} init"
+    )
     child.expect("Your current directory.*", timeout=10)
     child.sendline("y")
     child.expect("libraries directory *", timeout=1)

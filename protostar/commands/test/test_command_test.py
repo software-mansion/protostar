@@ -19,10 +19,14 @@ async def test_test_command_runs_scheduler_properly(mocker: MockerFixture):
     args.cairo_path = [Path() / "baz"]
 
     TestCollectorMock = mocker.patch(
-        "src.commands.test.test_command.TestCollector",
+        "protostar.commands.test.test_command.TestCollector",
     )
-    TestSchedulerMock = mocker.patch("src.commands.test.test_command.TestScheduler")
-    TestingLiveLogger = mocker.patch("src.commands.test.test_command.TestingLiveLogger")
+    TestSchedulerMock = mocker.patch(
+        "protostar.commands.test.test_command.TestScheduler"
+    )
+    TestingLiveLogger = mocker.patch(
+        "protostar.commands.test.test_command.TestingLiveLogger"
+    )
     project_mock = mocker.MagicMock()
     protostar_directory_mock = mocker.MagicMock()
     protostar_directory_mock.add_protostar_cairo_dir.return_value = args.cairo_path

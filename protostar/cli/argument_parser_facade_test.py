@@ -26,7 +26,7 @@ def test_directory_argument():
     )
     parser = ArgumentParserFacade(app)
 
-    result = parser.parse(["--dir", "src"])
+    result = parser.parse(["--dir", "protostar"])
 
     assert isinstance(result.dir, Path)
 
