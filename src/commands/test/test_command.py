@@ -8,6 +8,7 @@ from src.commands.test.test_collector import TestCollector
 from src.commands.test.test_runner import TestRunner
 from src.commands.test.test_scheduler import TestScheduler
 from src.commands.test.testing_live_logger import TestingLiveLogger
+from src.commands.test.testing_summary import TestingSummary
 from src.utils.protostar_directory import ProtostarDirectory
 from src.utils.starknet_compilation import StarknetCompiler
 
@@ -80,7 +81,7 @@ class TestCommand(Command):
         omit: Optional[Pattern] = None
         cairo_path: List[Path] = field(default_factory=list)
 
-    async def run(self, args: "TestCommand.Args") -> None:
+    async def run(self, args: "TestCommand.Args") -> TestingSummary:
         logger = getLogger()
 
         include_paths = self._get_include_paths(args.cairo_path)
@@ -95,9 +96,12 @@ class TestCommand(Command):
 
         test_collector_result.log(logger)
 
-        TestScheduler(TestingLiveLogger(logger), worker=TestRunner.worker).run(
+        testing_summary = TestingSummary([])
+        live_logger = TestingLiveLogger(logger, testing_summary)
+        TestScheduler(live_logger, worker=TestRunner.worker).run(
             include_paths=include_paths, test_collector_result=test_collector_result
         )
+        return testing_summary
 
     def _get_include_paths(self, cairo_paths: List[Path]) -> List[str]:
         cairo_paths = self._protostar_directory.add_protostar_cairo_dir(cairo_paths)

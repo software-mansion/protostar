@@ -13,15 +13,15 @@ if TYPE_CHECKING:
 
 
 class TestingLiveLogger:
-    def __init__(self, logger: Logger) -> None:
+    def __init__(self, logger: Logger, testing_summary: TestingSummary) -> None:
         self._logger = logger
+        self.testing_summary = testing_summary
 
     def log(
         self,
         test_results_queue: TestResultsQueue,
         test_collector_result: "TestCollector.Result",
     ):
-        testing_summary = TestingSummary([])
 
         try:
             with bar(
@@ -34,10 +34,11 @@ class TestingLiveLogger:
                 try:
                     while tests_left_n > 0:
                         (test_suite, test_case_result) = test_results_queue.get()
-                        testing_summary.extend([test_case_result])
+                        self.testing_summary.extend([test_case_result])
                         cast(Any, progress_bar).colour = (
                             "RED"
-                            if len(testing_summary.failed) + len(testing_summary.broken)
+                            if len(self.testing_summary.failed)
+                            + len(self.testing_summary.broken)
                             > 0
                             else "GREEN"
                         )
@@ -53,7 +54,7 @@ class TestingLiveLogger:
                 finally:
                     progress_bar.bar_format = "{desc}"
                     progress_bar.update()
-                    testing_summary.log(
+                    self.testing_summary.log(
                         logger=self._logger,
                         collected_test_cases_count=test_collector_result.test_cases_count,
                         collected_test_suites_count=len(
