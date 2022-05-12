@@ -45,7 +45,7 @@ class TestingLiveLogger:
                         progress_bar.write(str(test_case_result))
 
                         if isinstance(test_case_result, BrokenTestSuite):
-                            tests_in_case_count = len(test_suite.test_functions)
+                            tests_in_case_count = len(test_suite.test_case_names)
                             progress_bar.update(tests_in_case_count)
                             tests_left_n -= tests_in_case_count
                         else:

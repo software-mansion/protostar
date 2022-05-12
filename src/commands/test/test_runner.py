@@ -78,16 +78,16 @@ class TestRunner:
             )
             return
 
-        for function in test_suite.test_functions:
+        for test_case_name in test_suite.test_case_names:
             env = env_base.fork()
             try:
-                call_result = await env.invoke_test_function(function["name"])
+                call_result = await env.invoke_test_function(test_case_name)
                 self.queue.put(
                     (
                         test_suite,
                         PassedTestCase(
                             file_path=test_suite.test_path,
-                            function_name=function["name"],
+                            function_name=test_case_name,
                             tx_info=call_result,
                         ),
                     )
@@ -98,7 +98,7 @@ class TestRunner:
                         test_suite,
                         FailedTestCase(
                             file_path=test_suite.test_path,
-                            function_name=function["name"],
+                            function_name=test_case_name,
                             exception=err,
                         ),
                     )
