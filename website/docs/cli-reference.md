@@ -71,9 +71,9 @@ A path can point to:
 #### `--cairo-path DIRECTORY[]`
 Additional directories to look for sources.
 #### `-m` `--match REGEXP`
-A filename regexp, which omits the test file if it does not match the pattern.
+A filepath regexp that omits the test file if it does not match the pattern.
 #### `-o` `--omit REGEXP`
-A filename regexp, which omits the test file if it matches the pattern.
+A filepath regexp that omits the test file if it matches the pattern.
 ### `update`
 ```shell
 $ protostar update cairo-contracts
