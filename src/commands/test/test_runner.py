@@ -3,15 +3,12 @@ from dataclasses import dataclass
 from logging import getLogger
 from typing import List, Optional
 
-from starkware.starknet.services.api.contract_definition import \
-    ContractDefinition
+from starkware.starknet.services.api.contract_definition import ContractDefinition
 from starkware.starkware_utils.error_handling import StarkException
 
-from src.commands.test.test_cases import (BrokenTestSuite, FailedTestCase,
-                                          PassedTestCase)
+from src.commands.test.test_cases import BrokenTestSuite, FailedTestCase, PassedTestCase
 from src.commands.test.test_environment_exceptions import ReportedException
-from src.commands.test.test_execution_environment import \
-    TestExecutionEnvironment
+from src.commands.test.test_execution_environment import TestExecutionEnvironment
 from src.commands.test.test_results_queue import TestResultsQueue
 from src.commands.test.test_suite import TestSuite
 from src.utils.starknet_compilation import StarknetCompiler
