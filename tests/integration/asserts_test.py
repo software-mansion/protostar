@@ -21,7 +21,7 @@ async def test_asserts(mocker: MockerFixture):
 
     testing_summary = await TestCommand(
         project=mocker.MagicMock(), protostar_directory=protostar_directory_mock
-    ).run(TestCommand.Args(target=CURRENT_DIR / "test_asserts.cairo"))
+    ).run(TestCommand.Args(target=CURRENT_DIR / "asserts_test.cairo"))
 
     assert len(testing_summary.passed) == 10
     assert len(testing_summary.failed) == 0
