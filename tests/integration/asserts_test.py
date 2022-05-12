@@ -6,9 +6,8 @@ from unittest.mock import MagicMock
 import pytest
 from pytest_mock import MockerFixture
 
-from src.commands.test.test_command import TestCommand
-
-CURRENT_DIR = Path(__file__).parent
+from src.commands.test import TestCommand
+from tests.integration.conftest import assert_cairo_test_cases
 
 
 @pytest.mark.asyncio
@@ -19,9 +18,23 @@ async def test_asserts(mocker: MockerFixture):
     ]
 
     testing_summary = await TestCommand(
-        project=mocker.MagicMock(), protostar_directory=protostar_directory_mock
-    ).run(TestCommand.Args(target=CURRENT_DIR / "asserts_test.cairo"))
+        project=mocker.MagicMock(),
+        protostar_directory=protostar_directory_mock,
+    ).run(TestCommand.Args(target=Path(__file__).parent / "asserts_test.cairo"))
 
-    assert len(testing_summary.passed) == 10
-    assert len(testing_summary.failed) == 0
-    assert len(testing_summary.broken) == 0
+    assert_cairo_test_cases(
+        testing_summary,
+        expected_passed_test_cases_names=[
+            "test_assert_eq",
+            "test_assert_not_eq",
+            "test_assert_signed_lt",
+            "test_assert_unsigned_lt",
+            "test_assert_signed_le",
+            "test_assert_unsigned_le",
+            "test_assert_signed_gt",
+            "test_assert_unsigned_gt",
+            "test_assert_signed_ge",
+            "test_assert_unsigned_ge",
+        ],
+        expected_failed_test_cases_names=[],
+    )
