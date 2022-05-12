@@ -31,7 +31,11 @@ async def test_test_command_runs_scheduler_properly(mocker: MockerFixture):
 
     await test_command.run(args)
 
-    cast(MagicMock, TestCollectorMock.return_value.collect).assert_called_once()
+    cast(MagicMock, TestCollectorMock.return_value.collect).assert_called_once_with(
+        target=args.target,
+        match_pattern=args.match,
+        omit_pattern=args.omit,
+    )
     TestingLiveLogger.assert_called_once()
     cast(MagicMock, TestSchedulerMock.return_value.run).assert_called_once()
     assert (
