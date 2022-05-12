@@ -12,7 +12,7 @@ extra_imports = [
         "eth_hash.auto",
     ] + collect_submodules('starkware')
 
-a = Analysis(['protostar.py'],
+a = Analysis(['binary_entrypoint.py'],
              pathex=[],
              binaries=[],
              datas=extra_files,
