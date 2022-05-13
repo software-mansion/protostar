@@ -23,7 +23,7 @@ async def test_run_test_runner(mocker, test_root_dir):
         project=mock_project,
         tests_root=test_root_dir,
         omit=re.compile(
-            r".*(test_basic|test_basic_failure|test_basic_broken|test_invalid_syntax).*"
+            r".*(test_basic|test_basic_failure|test_basic_broken|test_invalid_syntax|test_prank).*"
         ),
         cairo_paths=[],
     )
@@ -79,6 +79,15 @@ async def test_revert(test_root_dir):
 
 async def test_cheats():
     reporters = await run_test_runner(current_directory / "examples" / "cheats")
+
+    testing_result = TestingResult.from_reporters(reporters)
+    assert len(testing_result.failed) == 0
+
+
+async def test_prank():
+    reporters = await run_test_runner(
+        current_directory / "examples" / "cheats" / "test_prank.cairo"
+    )
 
     testing_result = TestingResult.from_reporters(reporters)
     assert len(testing_result.failed) == 0

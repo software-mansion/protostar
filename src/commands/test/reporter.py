@@ -85,7 +85,7 @@ class ReporterCoordinator:
 
             self.logger.info(" ".join(result))
         else:
-            self.logger.warn("No cases found")
+            self.logger.warning("No cases found")
 
     def live_reporting(self):
         self.report_collected()
