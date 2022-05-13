@@ -242,26 +242,26 @@ class TestExecutionEnvironment:
 
         @register_cheatcode
         def start_prank(
-            caller_address: int, target_contract_addr: Optional[int] = None
+            caller_address: int, target_contract_address: Optional[int] = None
         ):
             cheatable_syscall_handler.set_caller_address(
-                caller_address, target_contract_addr=target_contract_addr
+                caller_address, target_contract_address=target_contract_address
             )
 
             def stop_started_prank():
                 cheatable_syscall_handler.reset_caller_address(
-                    target_contract_addr=target_contract_addr
+                    target_contract_address=target_contract_address
                 )
 
             return stop_started_prank
 
         @register_cheatcode
-        def stop_prank(target_contract_addr: Optional[int] = None):
+        def stop_prank(target_contract_address: Optional[int] = None):
             logger.warning(
                 "Using stop_prank() is deprecated, instead use a function returned by start_prank()"
             )
             cheatable_syscall_handler.reset_caller_address(
-                target_contract_addr=target_contract_addr
+                target_contract_address=target_contract_address
             )
 
         @register_cheatcode

@@ -19,7 +19,7 @@ func test_remote_prank{syscall_ptr : felt*, range_check_ptr}():
     local contract_address : felt
     %{ 
         ids.contract_address = deploy_contract("./src/commands/test/examples/cheats/pranked.cairo").contract_address 
-        stop_prank = start_prank(123, target_contract_addr=ids.contract_address)
+        stop_prank = start_prank(123, target_contract_address=ids.contract_address)
     %}
     Pranked.assert_pranked(contract_address=contract_address)
 
@@ -56,7 +56,7 @@ func test_pranks_only_target{syscall_ptr : felt*, range_check_ptr}():
     %{ 
         ids.contract_a_address = deploy_contract("./src/commands/test/examples/cheats/pranked.cairo").contract_address 
         ids.contract_b_address = deploy_contract("./src/commands/test/examples/cheats/pranked.cairo").contract_address 
-        stop_prank = start_prank(123, target_contract_addr=ids.contract_a_address)
+        stop_prank = start_prank(123, target_contract_address=ids.contract_a_address)
     %}
 
     Pranked.assert_pranked(contract_address=contract_a_address)
@@ -74,6 +74,7 @@ func test_syscall_counter_correct{syscall_ptr : felt*, range_check_ptr}():
     let (caller_addr) = get_caller_address()
     assert caller_addr = 345
     # We check if syscall counter has been correctly incremented
+    # It will throw an error if it hasn't been incremented
     let (bn) = get_block_number()
     return ()
 end
@@ -105,7 +106,7 @@ end
 @external
 func test_prank_wrong_target{syscall_ptr : felt*, range_check_ptr}():
     %{ 
-        stop_prank = start_prank(123, target_contract_addr=123)
+        stop_prank = start_prank(123, target_contract_address=123)
     %}
     return ()
 end

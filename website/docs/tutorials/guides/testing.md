@@ -21,7 +21,7 @@ Then in the `tests` directory create file `test_utils.cairo`, which contains a s
 
 from src.utils import sum_func
 
-@external
+@**external**
 func test_sum{syscall_ptr : felt*, range_check_ptr}():
     let (r) = sum_func(4,3)
     assert r = 7
@@ -443,12 +443,29 @@ Deploys a contract given a path relative to a Protostar project root. The sectio
 ### `start_prank`
 
 ```python
-def start_prank(caller_address: int, target_contract_addr: Optional[int] = None) -> Callable: ...
+def start_prank(caller_address: int, target_contract_address: Optional[int] = None) -> Callable: ...
 ```
 
-Changes caller address until the returned callable is called. If `target_contract_addr` specified, prank affects only the contract with the specified address. Otherwise prank affects the current contract.
+Changes caller address until the returned callable is called. If `target_contract_address` specified, `start_prank` affects only the contract with the specified address. Otherwise `start_prank` affects the current contract.
 
-#### With target
+#### In unit tests
+```cairo title="Local assert passes"
+
+@external
+func test_remote_prank{syscall_ptr : felt*, range_check_ptr}():
+    %{ 
+        stop_prank_callable = start_prank(123)
+    %}
+
+    let (caller_addr) = get_caller_address()
+    # Does not raise error
+    assert caller_addr = 123
+
+    %{ stop_prank_callable() %}
+    return ()
+end
+``` 
+#### In integration tests
 ```cairo title="./pranked_contract.cairo"
 %lang starknet
 
@@ -476,7 +493,7 @@ func test_remote_prank{syscall_ptr : felt*, range_check_ptr}():
     local contract_address : felt
     %{ 
         ids.contract_address = deploy_contract("./pranked_contract.cairo").contract_address 
-        stop_prank_callable = start_prank(123, target_contract_addr=ids.contract_address)
+        stop_prank_callable = start_prank(123, target_contract_address=ids.contract_address)
     %}
     # Does not raise error
     Pranked.assert_pranked(contract_address=contract_address)
@@ -485,26 +502,7 @@ func test_remote_prank{syscall_ptr : felt*, range_check_ptr}():
 end
 ``` 
 
-#### Locally
-```cairo title="Local assert passes"
 
-@external
-func test_remote_prank{syscall_ptr : felt*, range_check_ptr}():
-    alloc_locals
-    local contract_address : felt
-    %{ 
-        ids.contract_address = deploy_contract("./src/commands/test/examples/cheats/pranked.cairo").contract_address 
-        stop_prank_callable = start_prank(123)
-    %}
-
-    let (caller_addr) = get_caller_address()
-    # Does not raise error
-    assert caller_addr = 123
-
-    %{ stop_prank_callable() %}
-    return ()
-end
-``` 
 
 ### `roll`
 
