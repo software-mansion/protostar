@@ -11,7 +11,7 @@ async def test_prank_cheatcode(mocker):
     testing_summary = await TestCommand(
         project=mocker.MagicMock(),
         protostar_directory=mocker.MagicMock(),
-    ).run(TestCommand.Args(target=Path(__file__).parent / "prank_test.cairo"))
+    ).test(target=Path(__file__).parent / "prank_test.cairo")
 
     assert_cairo_test_cases(
         testing_summary,

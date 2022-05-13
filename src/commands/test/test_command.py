@@ -1,6 +1,6 @@
 from logging import getLogger
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List, Optional, Pattern
 
 from src.cli.command import Command
 from src.commands.test.test_collector import TestCollector
@@ -74,16 +74,30 @@ class TestCommand(Command):
         ]
 
     async def run(self, args) -> TestingSummary:
+        return await self.test(
+            target=args.target,
+            match=args.match,
+            omit=args.omit,
+            cairo_path=args.cairo_path,
+        )
+
+    async def test(
+        self,
+        target: Path,
+        match: Optional[Pattern] = None,
+        omit: Optional[Pattern] = None,
+        cairo_path: Optional[List[Path]] = None,
+    ) -> TestingSummary:
         logger = getLogger()
 
-        include_paths = self._build_include_paths(args.cairo_path)
+        include_paths = self._build_include_paths(cairo_path or [])
 
         test_collector_result = TestCollector(
             StarknetCompiler(disable_hint_validation=True, include_paths=include_paths)
         ).collect(
-            target=args.target,
-            match_pattern=args.match,
-            omit_pattern=args.omit,
+            target=target,
+            match_pattern=match,
+            omit_pattern=omit,
         )
 
         test_collector_result.log(logger)
