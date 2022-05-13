@@ -1,7 +1,7 @@
 # pylint: disable=invalid-name
 import re
-from dataclasses import fields
 from pathlib import Path
+from types import SimpleNamespace
 from typing import cast
 from unittest.mock import MagicMock
 
@@ -13,12 +13,12 @@ from src.commands.test import TestCommand
 
 @pytest.mark.asyncio
 async def test_test_command_runs_scheduler_properly(mocker: MockerFixture):
-    args = TestCommand.Args(
-        target=Path("foo"),
-        match=re.compile("foo"),
-        omit=re.compile("bar"),
-        cairo_path=[Path() / "baz"],
-    )
+    args = SimpleNamespace()
+    args.target = Path("foo")
+    args.match = re.compile("foo")
+    args.omit = re.compile("bar")
+    args.cairo_path = [Path() / "baz"]
+
     TestCollectorMock = mocker.patch(
         "src.commands.test.test_command.TestCollector",
     )
@@ -44,12 +44,3 @@ async def test_test_command_runs_scheduler_properly(mocker: MockerFixture):
             "include_paths"
         ]
     )
-
-
-def test_arguments_match_corresponding_dataclass(mocker: MockerFixture):
-    cmd_args = TestCommand(mocker.MagicMock(), mocker.MagicMock()).arguments
-    cmd_args_names = [cmd_arg.name.replace("-", "_") for cmd_arg in cmd_args]
-    expected_names = [field.name for field in fields(TestCommand.Args)]
-
-    for expected_name in expected_names:
-        assert expected_name in cmd_args_names

@@ -1,7 +1,6 @@
-from dataclasses import dataclass, field
 from logging import getLogger
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Optional, Pattern
+from typing import TYPE_CHECKING, List, Optional
 
 from src.cli.command import Command
 from src.commands.test.test_collector import TestCollector
@@ -74,17 +73,10 @@ class TestCommand(Command):
             ),
         ]
 
-    @dataclass
-    class Args:
-        target: Path
-        match: Optional[Pattern] = None
-        omit: Optional[Pattern] = None
-        cairo_path: List[Path] = field(default_factory=list)
-
-    async def run(self, args: "TestCommand.Args") -> TestingSummary:
+    async def run(self, args) -> TestingSummary:
         logger = getLogger()
 
-        include_paths = self._get_include_paths(args.cairo_path)
+        include_paths = self._build_include_paths(args.cairo_path)
 
         test_collector_result = TestCollector(
             StarknetCompiler(disable_hint_validation=True, include_paths=include_paths)
@@ -103,7 +95,7 @@ class TestCommand(Command):
         )
         return testing_summary
 
-    def _get_include_paths(self, cairo_paths: List[Path]) -> List[str]:
+    def _build_include_paths(self, cairo_paths: List[Path]) -> List[str]:
         cairo_paths = self._protostar_directory.add_protostar_cairo_dir(cairo_paths)
         include_paths = [str(pth) for pth in cairo_paths]
         include_paths.extend(self._project.get_include_paths())

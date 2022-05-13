@@ -23,10 +23,10 @@ end
 @external
 func test_cannot_call_methods_of_not_deployed_contract{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
-    %{ expect_revert() %}
 
     local contract_a_address : felt
     %{ ids.contract_a_address = 34134124 %}
+    %{ expect_revert() %}
     BasicContract.increase_balance(contract_address=contract_a_address, amount=15)
     return ()
 end

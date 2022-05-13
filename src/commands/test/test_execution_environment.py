@@ -8,12 +8,7 @@ from starkware.starknet.services.api.contract_definition import ContractDefiniti
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starkware_utils.error_handling import StarkException
 
-from src.commands.test.cheatcodes.expect_revert_cheatcode import (
-    Cheatcode,
-    ExpectRevertCheatcode,
-    RevertableTestingExecutionEnvironment,
-)
-from src.commands.test.cheatcodes.roll_cheatcode import RollCheatcode
+from src.commands.test.cheatcodes import Cheatcode, ExpectRevertCheatcode, RollCheatcode
 from src.commands.test.expected_event import ExpectedEvent
 from src.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
@@ -40,7 +35,7 @@ class DeployedContract:
         return self._starknet_contract.contract_address
 
 
-class TestExecutionEnvironment(RevertableTestingExecutionEnvironment):
+class TestExecutionEnvironment:
     def __init__(self, include_paths: List[str]):
         self.starknet = None
         self.test_contract: Optional[StarknetContract] = None
