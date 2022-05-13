@@ -162,4 +162,4 @@ def test_logging_no_cases_found(mocker: MockerFixture):
         test_cases_count=0,
     ).log(logger_mock)
 
-    cast(MagicMock, logger_mock.warn).assert_called_once_with("No cases found")
+    cast(MagicMock, logger_mock.warning).assert_called_once_with("No cases found")
