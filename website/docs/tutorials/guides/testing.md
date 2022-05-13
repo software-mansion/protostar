@@ -75,10 +75,10 @@ end
 func id() -> (res : felt):
 end
 
-
 # Increases the balance by the given amount.
 @external
-func increase_balance{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(amount: Uint256):
+func increase_balance{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        amount : Uint256):
     let (read_balance) = balance.read()
     let (new_balance, carry) = uint256_add(read_balance, amount)
     assert carry = 0
@@ -101,7 +101,8 @@ func get_id{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}()
 end
 
 @constructor
-func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(initial_balance: Uint256, _id: felt):
+func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        initial_balance : Uint256, _id : felt):
     balance.write(initial_balance)
     id.write(_id)
     return ()
@@ -109,9 +110,10 @@ end
 
 ```
 Then we can create a test case for the contract.
-Inside `tests` directory, create a `test_storage.cairo` file.
-```code title="tests/test_storage.cairo"
+Inside `tests` directory, create a `test_storage_contract.cairo` file.
+```code title="tests/test_storage_contract.cairo"
 %lang starknet
+from starkware.cairo.common.uint256 import Uint256
 
 @contract_interface
 namespace StorageContract:
@@ -120,8 +122,8 @@ namespace StorageContract:
 
     func get_balance() -> (res : Uint256):
     end
-    
-    func get_id() -> (res: felt):
+
+    func get_id() -> (res : felt):
     end
 end
 
@@ -129,21 +131,18 @@ end
 func test_proxy_contract{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
 
-    local contract_a_address : felt
+    local contract_address : felt
     # We deploy contract and put its address into a local variable. Second argument is calldata array
-    %{ ids.contract_a_address = deploy_contract("./src/commands/test/examples/basic_with_constructor.cairo", [100, 0, 1]).contract_address %}
+    %{ ids.contract_address = deploy_contract("./src/storage_contract.cairo", [100, 0, 1]).contract_address %}
 
-    let (res) = StorageContract.get_balance(contract_address=contract_a_address)
+    let (res) = StorageContract.get_balance(contract_address=contract_address)
     assert res.low = 100
     assert res.high = 0
 
-    let (id) = StorageContract.get_id(contract_address=contract_a_address)
+    let (id) = StorageContract.get_id(contract_address=contract_address)
     assert id = 1
-  
-    StorageContract.increase_balance(
-        contract_address=contract_address,
-        amount=Uint256(50, 0)
-    )
+
+    StorageContract.increase_balance(contract_address=contract_address, amount=Uint256(50, 0))
 
     let (res) = StorageContract.get_balance(contract_address=contract_address)
     assert res.low = 150
