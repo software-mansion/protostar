@@ -453,9 +453,7 @@ Changes caller address until the returned callable is called. If `target_contrac
 
 @external
 func test_remote_prank{syscall_ptr : felt*, range_check_ptr}():
-    %{ 
-        stop_prank_callable = start_prank(123)
-    %}
+    %{ stop_prank_callable = start_prank(123) %}
 
     let (caller_addr) = get_caller_address()
     # Does not raise error
@@ -471,7 +469,7 @@ end
 
 from starkware.starknet.common.syscalls import (get_caller_address)
 
-@view
+@external
 func assert_pranked{syscall_ptr : felt*}():
     let (caller_addr) = get_caller_address()
     with_attr error_message("Not pranked!"):

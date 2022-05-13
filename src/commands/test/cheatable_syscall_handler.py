@@ -43,8 +43,14 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
             else super()._get_block_timestamp()
         )
 
-    def set_caller_address(self, addr: int, target_contract_address: Optional[int] = None):
-        target = target_contract_address if target_contract_address else self.contract_address
+    def set_caller_address(
+        self, addr: int, target_contract_address: Optional[int] = None
+    ):
+        target = (
+            target_contract_address
+            if target_contract_address
+            else self.contract_address
+        )
         if target in self.state.pranked_contracts_map:
             raise CheatcodeException(
                 f"Contract with address {target} has been already pranked"
@@ -52,7 +58,11 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
         self.state.pranked_contracts_map[target] = addr
 
     def reset_caller_address(self, target_contract_address: Optional[int] = None):
-        target = target_contract_address if target_contract_address else self.contract_address
+        target = (
+            target_contract_address
+            if target_contract_address
+            else self.contract_address
+        )
         if target not in self.state.pranked_contracts_map:
             raise CheatcodeException(
                 f"Contract with address {target} has not been pranked"
