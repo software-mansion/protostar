@@ -176,12 +176,28 @@ class TestExecutionEnvironment(RevertableTestingExecutionEnvironment):
             cheatable_syscall_handler.set_block_timestamp(blk_timestamp)
 
         @register_cheatcode
-        def start_prank(caller_address: int):
-            cheatable_syscall_handler.set_caller_address(caller_address)
+        def start_prank(
+            caller_address: int, target_contract_address: Optional[int] = None
+        ):
+            cheatable_syscall_handler.set_caller_address(
+                caller_address, target_contract_address=target_contract_address
+            )
+
+            def stop_started_prank():
+                cheatable_syscall_handler.reset_caller_address(
+                    target_contract_address=target_contract_address
+                )
+
+            return stop_started_prank
 
         @register_cheatcode
-        def stop_prank():
-            cheatable_syscall_handler.set_caller_address(None)
+        def stop_prank(target_contract_address: Optional[int] = None):
+            logger.warning(
+                "Using stop_prank() is deprecated, instead use a function returned by start_prank()"
+            )
+            cheatable_syscall_handler.reset_caller_address(
+                target_contract_address=target_contract_address
+            )
 
         @register_cheatcode
         def mock_call(contract_address: int, fn_name: str, ret_data: List[int]):

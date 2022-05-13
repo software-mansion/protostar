@@ -42,7 +42,7 @@ class TestCollector:
 
                 logger.info(" ".join(result))
             else:
-                logger.warn("No cases found")
+                logger.warning("No cases found")
 
     def __init__(self, starknet_compiler: StarknetCompiler) -> None:
         self._starknet_compiler = starknet_compiler
