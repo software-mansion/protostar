@@ -1,5 +1,5 @@
 import copy
-from typing import Optional
+from typing import Mapping, Optional
 
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starknet.testing.contract import StarknetContract
@@ -66,4 +66,4 @@ class CheatableStarknetState(StarknetState):
 class CheatableCarriedState(CarriedState):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.pranked_contracts = {}
+        self.pranked_contracts_map: Mapping[int, int] = {}

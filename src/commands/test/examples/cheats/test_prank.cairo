@@ -16,19 +16,19 @@ end
 func test_remote_prank{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
 
-    local contract_a_address : felt
+    local contract_address : felt
     %{ 
-        ids.contract_a_address = deploy_contract("./src/commands/test/examples/cheats/pranked.cairo").contract_address 
-        stop_prank = start_prank(123, target=ids.contract_a_address)
+        ids.contract_address = deploy_contract("./src/commands/test/examples/cheats/pranked.cairo").contract_address 
+        stop_prank = start_prank(123, target_contract_addr=ids.contract_address)
     %}
-    Pranked.assert_pranked(contract_address=contract_a_address)
+    Pranked.assert_pranked(contract_address=contract_address)
 
     %{ 
         stop_prank()
         expect_revert("TRANSACTION_FAILED", "Not pranked")
     %}
     
-    Pranked.assert_pranked(contract_address=contract_a_address)
+    Pranked.assert_pranked(contract_address=contract_address)
     return ()
 end
 
@@ -56,7 +56,7 @@ func test_pranks_only_target{syscall_ptr : felt*, range_check_ptr}():
     %{ 
         ids.contract_a_address = deploy_contract("./src/commands/test/examples/cheats/pranked.cairo").contract_address 
         ids.contract_b_address = deploy_contract("./src/commands/test/examples/cheats/pranked.cairo").contract_address 
-        stop_prank = start_prank(123, target=ids.contract_a_address)
+        stop_prank = start_prank(123, target_contract_addr=ids.contract_a_address)
     %}
 
     Pranked.assert_pranked(contract_address=contract_a_address)
@@ -73,6 +73,39 @@ func test_syscall_counter_correct{syscall_ptr : felt*, range_check_ptr}():
     %}
     let (caller_addr) = get_caller_address()
     assert caller_addr = 345
+    # We check if syscall counter has been correctly incremented
     let (bn) = get_block_number()
+    return ()
+end
+
+@external
+func test__missing_remote_prank{syscall_ptr : felt*, range_check_ptr}():
+    alloc_locals
+
+    local contract_address : felt
+    %{ 
+        ids.contract_address = deploy_contract("./src/commands/test/examples/cheats/pranked.cairo").contract_address
+        expect_revert("TRANSACTION_FAILED", "Not pranked")
+    %}
+    Pranked.assert_pranked(contract_address=contract_address)
+    return ()
+end
+
+@external
+func test_missing_local_prank{syscall_ptr : felt*, range_check_ptr}():
+    alloc_locals
+    %{ 
+        expect_revert("TRANSACTION_FAILED")
+    %}
+    let (caller_addr) = get_caller_address()
+    assert caller_addr = 123
+    return ()
+end
+
+@external
+func test_prank_wrong_target{syscall_ptr : felt*, range_check_ptr}():
+    %{ 
+        stop_prank = start_prank(123, target_contract_addr=123)
+    %}
     return ()
 end

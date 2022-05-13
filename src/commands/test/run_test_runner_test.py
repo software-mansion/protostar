@@ -23,7 +23,7 @@ async def test_run_test_runner(mocker, test_root_dir):
         project=mock_project,
         tests_root=test_root_dir,
         omit=re.compile(
-            r"(test_basic|test_basic_failure|test_basic_broken|test_invalid_syntax|test_prank).*"
+            r".*(test_basic|test_basic_failure|test_basic_broken|test_invalid_syntax|test_prank).*"
         ),
         cairo_paths=[],
     )
