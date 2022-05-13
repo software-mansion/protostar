@@ -10,7 +10,6 @@ version = "0.2.0"
 [tool.poetry.dependencies]
 GitPython = "^3.1.26"
 argparse = "^1.4.0"
-cairo-lang = "0.8.1"
 colorama = "^0.4.4"
 packaging = "^21.3"
 python = ">=3.7.12, <3.10"
@@ -19,6 +18,7 @@ tomli = "<2.0.0"
 tomli-w = "^1.0.0"
 typing-extensions = "^4.0.1"
 tqdm = "^4.64.0"
+cairo-lang = "0.8.2.1"
 
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
