@@ -92,6 +92,6 @@ cairo_path = ["{str(my_private_libs_dir)}"]
 
 @pytest.mark.usefixtures("init")
 def test_exit_code_if_any_test_failed(protostar, copy_fixture):
-    copy_fixture("failed.cairo", "./tests")
+    copy_fixture("test_failed.cairo", "./tests")
     with pytest.raises(CalledProcessError):
         protostar(["test", "tests"]) 
