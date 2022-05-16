@@ -14,6 +14,7 @@ from src.commands import (
     UpdateCommand,
     UpgradeCommand,
 )
+from src.commands.deploy.deploy_command import DeployCommand
 from src.protostar_exception import ProtostarException
 from src.utils import (
     Project,
@@ -42,6 +43,7 @@ class ProtostarCLI(CLIApp):
                 UpdateCommand(project),
                 UpgradeCommand(protostar_directory, version_manager),
                 TestCommand(project, protostar_directory),
+                DeployCommand(),
             ],
             root_args=[
                 Command.Argument(
