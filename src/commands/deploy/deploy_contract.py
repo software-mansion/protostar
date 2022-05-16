@@ -5,10 +5,8 @@ from services.external_api.base_client import RetryConfig
 from starkware.starknet.cli.starknet_cli import validate_arguments
 from starkware.starknet.definitions import fields
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
-from starkware.starknet.services.api.contract_definition import \
-    ContractDefinition
-from starkware.starknet.services.api.gateway.gateway_client import \
-    GatewayClient
+from starkware.starknet.services.api.contract_definition import ContractDefinition
+from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
 from starkware.starknet.services.api.gateway.transaction import Deploy
 from starkware.starknet.utils.api_utils import cast_to_felts
 from starkware.starkware_utils.error_handling import StarkErrorCode
