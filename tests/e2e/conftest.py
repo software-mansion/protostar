@@ -54,13 +54,13 @@ def init_project(project_name: str, libs_path: str):
 
 @pytest.fixture
 def protostar():
-    def _protostar(args: List[str], check=True) -> str:
+    def _protostar(args: List[str], ignore_exit_code=False) -> str:
         return (
             run(
                 [path.join(ACTUAL_CWD, "dist", "protostar", "protostar")] + args,
                 stdout=PIPE,
                 stderr=STDOUT,
-                check=check,
+                check=(not ignore_exit_code),
             )
             .stdout.decode("utf-8")
             .strip()

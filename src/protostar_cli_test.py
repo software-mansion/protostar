@@ -54,8 +54,9 @@ async def test_should_fail_due_to_old_git(
     protostar_cli._setup_logger.return_value = logger_mock
     parser = ArgumentParserFacade(protostar_cli)
 
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit) as ex:
         await protostar_cli.run(parser.parse(["--version"]))
+        assert ex.code == 1
 
     logger_mock.error.assert_called_once()
     assert "2.28" in logger_mock.error.call_args_list[0][0][0]
@@ -111,8 +112,9 @@ async def test_should_sys_exit_on_keyboard_interrupt(
     command.run.side_effect = KeyboardInterrupt()
     parser = ArgumentParserFacade(protostar_cli)
 
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit) as ex:
         await protostar_cli.run(parser.parse([command.name]))
+        assert ex.code == 1
 
 
 @pytest.mark.asyncio
@@ -124,8 +126,9 @@ async def test_should_sys_exit_on_protostar_exception(
     command.run.side_effect = ProtostarException("Something")
     parser = ArgumentParserFacade(protostar_cli)
 
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit) as ex:
         await protostar_cli.run(parser.parse([command.name]))
+        assert ex.code == 1
 
 
 @pytest.mark.asyncio
@@ -137,8 +140,9 @@ async def test_should_sys_exit_on_protostar_silent_exception(
     command.run.side_effect = ProtostarExceptionSilent("Something")
     parser = ArgumentParserFacade(protostar_cli)
 
-    with pytest.raises(SystemExit):
+    with pytest.raises(SystemExit) as ex:
         await protostar_cli.run(parser.parse([command.name]))
+        assert ex.code == 1
 
 
 def test_should_create_instance_of_protostar_cli(tmpdir):

@@ -37,7 +37,7 @@ def test_expect_revert(protostar):
     )
 
     result = protostar(
-        ["--no-color", "test", "tests/expect_revert_test.cairo"], check=False
+        ["--no-color", "test", "tests/expect_revert_test.cairo"], ignore_exit_code=True
     )
 
     assert "[PASS] tests/expect_revert_test.cairo test_error_message" in result

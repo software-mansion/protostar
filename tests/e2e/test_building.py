@@ -100,8 +100,8 @@ end
 """
         )
 
-    result = protostar(["build"], check=False)
+    result = protostar(["build"], ignore_exit_code=True)
     assert "Hint is not whitelisted." in result
 
-    result = protostar(["build", "--disable-hint-validation"], check=False)
+    result = protostar(["build", "--disable-hint-validation"], ignore_exit_code=True)
     assert result == ""
