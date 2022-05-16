@@ -15,7 +15,6 @@ from src.commands.test import TestCommand
 async def test_test_command_runs_scheduler_properly(mocker: MockerFixture):
     args = SimpleNamespace()
     args.target = Path("foo")
-    args.match = re.compile("foo")
     args.omit = re.compile("bar")
     args.cairo_path = [Path() / "baz"]
 
@@ -33,7 +32,6 @@ async def test_test_command_runs_scheduler_properly(mocker: MockerFixture):
 
     cast(MagicMock, TestCollectorMock.return_value.collect).assert_called_once_with(
         target=args.target,
-        match_pattern=args.match,
         omit_pattern=args.omit,
     )
     TestingLiveLogger.assert_called_once()
