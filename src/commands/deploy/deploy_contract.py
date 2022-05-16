@@ -1,30 +1,39 @@
 from io import TextIOWrapper
-from typing import Optional, Sequence, cast
+from typing import Optional, Sequence, Union, cast
 
 from services.external_api.base_client import RetryConfig
 from starkware.starknet.cli.starknet_cli import validate_arguments
 from starkware.starknet.definitions import fields
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
-from starkware.starknet.services.api.contract_definition import ContractDefinition
-from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
+from starkware.starknet.services.api.contract_definition import \
+    ContractDefinition
+from starkware.starknet.services.api.gateway.gateway_client import \
+    GatewayClient
 from starkware.starknet.services.api.gateway.transaction import Deploy
 from starkware.starknet.utils.api_utils import cast_to_felts
+from starkware.starkware_utils.error_handling import StarkErrorCode
 from typing_extensions import TypedDict
 
+from src.protostar_exception import ProtostarException
 
-class GatewayResponseFacade(TypedDict):
+
+class SuccessfulGatewayResponseFacade(TypedDict):
     code: str
     address: str
     transaction_hash: str
 
 
+class DeployContractException(ProtostarException):
+    pass
+
+
 async def deploy_contract(
     gateway_url: str,
     compiled_contract_file: TextIOWrapper,
-    constructor_args: Optional[Sequence[str | int]] = None,
+    constructor_args: Optional[Sequence[Union[str, int]]] = None,
     salt: Optional[str] = None,
     token: Optional[str] = None,
-) -> GatewayResponseFacade:
+) -> SuccessfulGatewayResponseFacade:
     """Version of deploy function from starkware.starknet.cli.starknet_cli independent of CLI logic."""
 
     inputs = cast_to_felts(constructor_args or [])
@@ -69,6 +78,14 @@ async def deploy_contract(
         constructor_calldata=inputs,
     )  # type: ignore
 
-    return cast(
-        GatewayResponseFacade, await gateway_client.add_transaction(tx=tx, token=token)
+    gateway_response = cast(
+        SuccessfulGatewayResponseFacade,
+        await gateway_client.add_transaction(tx=tx, token=token),
     )
+
+    if gateway_response["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
+        raise DeployContractException(
+            message=f"Failed to send transaction. Response: {gateway_response}"
+        )
+
+    return gateway_response
