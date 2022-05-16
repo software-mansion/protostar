@@ -46,4 +46,4 @@ class DeployCommand(Command):
         return await self.deploy()
 
     async def deploy(self):
-        pass
+        raise NotImplementedError()
