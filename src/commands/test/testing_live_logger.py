@@ -61,7 +61,6 @@ class TestingLiveLogger:
                             test_collector_result.test_suites
                         ),
                     )
-                    self.testing_summary.assert_passed()
 
         except queue.Empty:
             # https://docs.python.org/3/library/queue.html#queue.Queue.get

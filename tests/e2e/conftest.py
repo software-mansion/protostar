@@ -62,8 +62,7 @@ def protostar():
                 stderr=STDOUT,
                 check=check,
             )
-            .stdout
-            .decode("utf-8")
+            .stdout.decode("utf-8")
             .strip()
         )
 

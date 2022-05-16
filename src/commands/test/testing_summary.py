@@ -48,9 +48,9 @@ class TestingSummary:
             log_color_provider.bold("Tests:       ")
             + self._get_test_cases_summary(collected_test_cases_count)
         )
-    
-    def assert_passed(self):
-        if self.failed != [] or self.broken != []:
+
+    def assert_all_passed(self):
+        if self.failed or self.broken:
             raise ProtostarExceptionSilent("Not all test cases passed")
 
     def _get_test_cases_summary(self, collected_test_cases_count: int) -> str:

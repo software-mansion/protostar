@@ -93,7 +93,7 @@ class ProtostarCLI(CLIApp):
                 return
 
             await super().run(args)
-        except ProtostarExceptionSilent as err:
+        except ProtostarExceptionSilent:
             sys.exit(1)
         except ProtostarException as err:
             logger.error(err.message)

@@ -36,7 +36,9 @@ def test_expect_revert(protostar):
         "./tests",
     )
 
-    result = protostar(["--no-color", "test", "tests/expect_revert_test.cairo"], check=False)
+    result = protostar(
+        ["--no-color", "test", "tests/expect_revert_test.cairo"], check=False
+    )
 
     assert "[PASS] tests/expect_revert_test.cairo test_error_message" in result
     assert "[PASS] tests/expect_revert_test.cairo test_partial_error_message" in result
@@ -94,4 +96,4 @@ cairo_path = ["{str(my_private_libs_dir)}"]
 def test_exit_code_if_any_test_failed(protostar, copy_fixture):
     copy_fixture("test_failed.cairo", "./tests")
     with pytest.raises(CalledProcessError):
-        protostar(["test", "tests"]) 
+        protostar(["test", "tests"])

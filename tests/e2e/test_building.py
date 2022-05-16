@@ -24,7 +24,6 @@ func broken():
         protostar(["build"])
 
 
-
 @pytest.mark.usefixtures("init")
 def test_output_dir(protostar):
     protostar(["build", "--output", "out"])

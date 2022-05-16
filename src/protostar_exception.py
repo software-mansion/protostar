@@ -1,4 +1,3 @@
-
 class ProtostarException(Exception):
     "This exception is nicely printed by protostar and results in non-zero exit code"
     # Disabling pylint to narrow down types
