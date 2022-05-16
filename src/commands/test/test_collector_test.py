@@ -65,17 +65,6 @@ def test_collecting_tests_from_target(starknet_compiler, project_root):
     assert result.test_cases_count == 4
 
 
-def test_matching_pattern(starknet_compiler, project_root):
-    test_collector = TestCollector(starknet_compiler)
-
-    result = test_collector.collect(
-        target=project_root, match_pattern=re.compile(".*bar.*")
-    )
-
-    assert_tested_suites(result.test_suites, ["bar_test.cairo"])
-    assert result.test_cases_count == 2
-
-
 def test_omitting_pattern(starknet_compiler, project_root):
     test_collector = TestCollector(starknet_compiler)
 
