@@ -43,13 +43,7 @@ class DeployCommand(Command):
         ]
 
     async def run(self, _args):
-        raise NotImplementedError()
+        return await self.deploy()
 
-    async def deploy(
-        self,
-        contract_name: str,
-        network_name: str,
-        inputs: Optional[List[str]] = None,
-        token: Optional[str] = None,
-    ):
-        pass
+    async def deploy(self):
+        raise NotImplementedError()
