@@ -61,17 +61,15 @@ $ protostar test
 Execute tests.
 #### `target PATH=tests`
 A path can point to:
-- the directory with test files
+- a directory with test files
     - `tests`
-- the specific test file
+- a specific test file
     - `tests/test_main.cairo`
-- the specific test case
+- a specific test case
     - `tests/test_main.cairo::test_example`
 
 #### `--cairo-path DIRECTORY[]`
 Additional directories to look for sources.
-#### `-m` `--match REGEXP`
-A filepath regexp that omits the test file if it does not match the pattern.
 #### `-o` `--omit REGEXP`
 A filepath regexp that omits the test file if it matches the pattern.
 ### `update`
