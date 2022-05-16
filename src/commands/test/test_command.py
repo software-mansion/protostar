@@ -109,7 +109,7 @@ class TestCommand(Command):
         TestScheduler(live_logger, worker=TestRunner.worker).run(
             include_paths=include_paths, test_collector_result=test_collector_result
         )
-        
+
         return testing_summary
 
     def _build_include_paths(self, cairo_paths: List[Path]) -> List[str]:

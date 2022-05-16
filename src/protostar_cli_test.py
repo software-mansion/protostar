@@ -114,6 +114,7 @@ async def test_should_sys_exit_on_keyboard_interrupt(
     with pytest.raises(SystemExit):
         await protostar_cli.run(parser.parse([command.name]))
 
+
 @pytest.mark.asyncio
 async def test_should_sys_exit_on_protostar_exception(
     protostar_cli: ProtostarCLI, mocker: MockerFixture
@@ -125,6 +126,7 @@ async def test_should_sys_exit_on_protostar_exception(
 
     with pytest.raises(SystemExit):
         await protostar_cli.run(parser.parse([command.name]))
+
 
 @pytest.mark.asyncio
 async def test_should_sys_exit_on_protostar_silent_exception(
