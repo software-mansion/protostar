@@ -33,6 +33,7 @@ pytest-mock = "^3.7.0"
 pytest-timeout = "^2.1.0"
 snakeviz = "^2.1.1"
 pyright = "^1.1.244"
+starknet-devnet = "^0.2.1"
 
 [tool.poe.tasks]
 build = "pyinstaller protostar.spec --noconfirm"
