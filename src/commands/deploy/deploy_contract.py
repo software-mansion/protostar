@@ -1,27 +1,74 @@
-from pathlib import Path
-from types import SimpleNamespace
-from typing import Optional, Sequence
+from io import TextIOWrapper
+from typing import Optional, Sequence, cast
 
-from starkware.starknet.cli.starknet_cli import deploy
+from services.external_api.base_client import RetryConfig
+from starkware.starknet.cli.starknet_cli import validate_arguments
+from starkware.starknet.definitions import fields
+from starkware.starknet.public.abi_structs import identifier_manager_from_abi
+from starkware.starknet.services.api.contract_definition import ContractDefinition
+from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
+from starkware.starknet.services.api.gateway.transaction import Deploy
+from starkware.starknet.utils.api_utils import cast_to_felts
+from typing_extensions import TypedDict
 
-from src.commands.deploy.network_config import NetworkConfig
+
+class GatewayResponseFacade(TypedDict):
+    code: str
+    address: str
+    transaction_hash: str
 
 
 async def deploy_contract(
-    network: NetworkConfig,
-    compiled_contract_path: Path,
-    inputs: Optional[Sequence[str | int]] = None,
+    gateway_url: str,
+    compiled_contract_file: TextIOWrapper,
+    constructor_args: Optional[Sequence[str | int]] = None,
     salt: Optional[str] = None,
-) -> None:
+    token: Optional[str] = None,
+) -> GatewayResponseFacade:
     """Version of deploy function from starkware.starknet.cli.starknet_cli independent of CLI logic."""
 
-    args = SimpleNamespace()
-    args.gateway_url = network.gateway_url
-    args.network = network.starkware_network_name
+    inputs = cast_to_felts(constructor_args or [])
 
-    command_args = SimpleNamespace()
-    command_args.inputs = inputs
-    command_args.contract = str(compiled_contract_path)
-    command_args.salt = salt
+    gateway_client = GatewayClient(
+        url=gateway_url, retry_config=RetryConfig(n_retries=1)
+    )
+    if salt is not None and not salt.startswith("0x"):
+        raise ValueError(f"salt must start with '0x'. Got: {salt}.")
 
-    await deploy(args, command_args)
+    numeric_salt: int = 0
+    try:
+        numeric_salt = (
+            fields.ContractAddressSalt.get_random_value()
+            if salt is None
+            else int(salt, 16)
+        )
+    except ValueError as err:
+        raise ValueError("Invalid salt format.") from err
+
+    contract_definition = ContractDefinition.loads(compiled_contract_file.read())
+    abi = contract_definition.abi
+    assert abi is not None, "Missing ABI in the given contract definition."
+
+    for abi_entry in abi:
+        if abi_entry["type"] == "constructor":
+            validate_arguments(
+                inputs=inputs,
+                abi_entry=abi_entry,
+                identifier_manager=identifier_manager_from_abi(abi=abi),
+            )
+            break
+    else:
+        if len(inputs) > 0:
+            raise ValueError(
+                "Constructor args cannot be specified for contracts without a constructor."
+            )
+
+    tx = Deploy(
+        contract_address_salt=numeric_salt,
+        contract_definition=contract_definition,
+        constructor_calldata=inputs,
+    )  # type: ignore
+
+    return cast(
+        GatewayResponseFacade, await gateway_client.add_transaction(tx=tx, token=token)
+    )
