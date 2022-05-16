@@ -1,7 +1,7 @@
 from asyncio import Future
 from logging import Logger
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pytest
 from pytest_mock import MockerFixture
@@ -56,7 +56,7 @@ async def test_should_fail_due_to_old_git(
 
     with pytest.raises(SystemExit) as ex:
         await protostar_cli.run(parser.parse(["--version"]))
-        assert ex.code == 1
+        assert cast(SystemExit, ex).code == 1
 
     logger_mock.error.assert_called_once()
     assert "2.28" in logger_mock.error.call_args_list[0][0][0]
@@ -114,7 +114,7 @@ async def test_should_sys_exit_on_keyboard_interrupt(
 
     with pytest.raises(SystemExit) as ex:
         await protostar_cli.run(parser.parse([command.name]))
-        assert ex.code == 1
+        assert cast(SystemExit, ex).code == 1
 
 
 @pytest.mark.asyncio
@@ -128,7 +128,7 @@ async def test_should_sys_exit_on_protostar_exception(
 
     with pytest.raises(SystemExit) as ex:
         await protostar_cli.run(parser.parse([command.name]))
-        assert ex.code == 1
+        assert cast(SystemExit, ex).code == 1
 
 
 @pytest.mark.asyncio
@@ -142,7 +142,7 @@ async def test_should_sys_exit_on_protostar_silent_exception(
 
     with pytest.raises(SystemExit) as ex:
         await protostar_cli.run(parser.parse([command.name]))
-        assert ex.code == 1
+        assert cast(SystemExit, ex).code == 1
 
 
 def test_should_create_instance_of_protostar_cli(tmpdir):
