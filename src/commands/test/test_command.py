@@ -74,12 +74,14 @@ class TestCommand(Command):
         ]
 
     async def run(self, args) -> TestingSummary:
-        return await self.test(
+        summary = await self.test(
             target=args.target,
             match=args.match,
             omit=args.omit,
             cairo_path=args.cairo_path,
         )
+        summary.assert_all_passed()
+        return summary
 
     async def test(
         self,
@@ -107,6 +109,7 @@ class TestCommand(Command):
         TestScheduler(live_logger, worker=TestRunner.worker).run(
             include_paths=include_paths, test_collector_result=test_collector_result
         )
+        
         return testing_summary
 
     def _build_include_paths(self, cairo_paths: List[Path]) -> List[str]:

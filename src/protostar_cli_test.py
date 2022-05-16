@@ -8,6 +8,7 @@ from pytest_mock import MockerFixture
 
 from docs_generator import ReferenceDocsGenerator
 from src.cli import ArgumentParserFacade
+from src.protostar_exception import ProtostarException, ProtostarExceptionSilent
 from src.utils.protostar_directory import VersionManager
 
 from .protostar_cli import ProtostarCLI
@@ -53,7 +54,8 @@ async def test_should_fail_due_to_old_git(
     protostar_cli._setup_logger.return_value = logger_mock
     parser = ArgumentParserFacade(protostar_cli)
 
-    await protostar_cli.run(parser.parse(["--version"]))
+    with pytest.raises(SystemExit):
+        await protostar_cli.run(parser.parse(["--version"]))
 
     logger_mock.error.assert_called_once()
     assert "2.28" in logger_mock.error.call_args_list[0][0][0]
@@ -107,6 +109,30 @@ async def test_should_sys_exit_on_keyboard_interrupt(
     command = protostar_cli.commands[0]
     command.run = mocker.MagicMock()
     command.run.side_effect = KeyboardInterrupt()
+    parser = ArgumentParserFacade(protostar_cli)
+
+    with pytest.raises(SystemExit):
+        await protostar_cli.run(parser.parse([command.name]))
+
+@pytest.mark.asyncio
+async def test_should_sys_exit_on_protostar_exception(
+    protostar_cli: ProtostarCLI, mocker: MockerFixture
+):
+    command = protostar_cli.commands[0]
+    command.run = mocker.MagicMock()
+    command.run.side_effect = ProtostarException("Something")
+    parser = ArgumentParserFacade(protostar_cli)
+
+    with pytest.raises(SystemExit):
+        await protostar_cli.run(parser.parse([command.name]))
+
+@pytest.mark.asyncio
+async def test_should_sys_exit_on_protostar_silent_exception(
+    protostar_cli: ProtostarCLI, mocker: MockerFixture
+):
+    command = protostar_cli.commands[0]
+    command.run = mocker.MagicMock()
+    command.run.side_effect = ProtostarExceptionSilent("Something")
     parser = ArgumentParserFacade(protostar_cli)
 
     with pytest.raises(SystemExit):

@@ -14,7 +14,7 @@ from src.commands import (
     UpdateCommand,
     UpgradeCommand,
 )
-from src.protostar_exception import ProtostarException
+from src.protostar_exception import ProtostarException, ProtostarExceptionSilent
 from src.utils import (
     Project,
     ProtostarDirectory,
@@ -93,7 +93,10 @@ class ProtostarCLI(CLIApp):
                 return
 
             await super().run(args)
+        except ProtostarExceptionSilent:
+            sys.exit(1)
         except ProtostarException as err:
             logger.error(err.message)
+            sys.exit(1)
         except KeyboardInterrupt:
-            sys.exit()
+            sys.exit(1)

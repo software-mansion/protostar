@@ -2,7 +2,7 @@
 import shutil
 from os import chdir, getcwd, mkdir, path
 from pathlib import Path
-from subprocess import STDOUT, check_output
+from subprocess import PIPE, STDOUT, check_output, run
 from typing import List
 
 import pexpect
@@ -54,13 +54,15 @@ def init_project(project_name: str, libs_path: str):
 
 @pytest.fixture
 def protostar():
-    def _protostar(args: List[str]) -> str:
+    def _protostar(args: List[str], check=True) -> str:
         return (
-            check_output(
+            run(
                 [path.join(ACTUAL_CWD, "dist", "protostar", "protostar")] + args,
+                stdout=PIPE,
                 stderr=STDOUT,
+                check=check,
             )
-            .decode("utf-8")
+            .stdout.decode("utf-8")
             .strip()
         )
 
