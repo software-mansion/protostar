@@ -55,7 +55,6 @@ class TestCollector:
     def collect(
         self,
         target: Path,
-        match_pattern: Optional[Pattern] = None,
         omit_pattern: Optional[Pattern] = None,
     ) -> "TestCollector.Result":
         target_test_case: Optional[str] = None
@@ -66,11 +65,6 @@ class TestCollector:
 
         test_suite_paths = self._get_test_suite_paths(target)
 
-        if match_pattern:
-            test_suite_paths = filter(
-                lambda file_path: cast(Pattern, match_pattern).match(str(file_path)),
-                test_suite_paths,
-            )
         if omit_pattern:
             test_suite_paths = filter(
                 lambda file_path: not cast(Pattern, omit_pattern).match(str(file_path)),

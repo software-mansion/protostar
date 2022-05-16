@@ -42,11 +42,11 @@ class TestCommand(Command):
                 name="target",
                 description=(
                     "A path can point to:\n"
-                    "- the directory with test files\n"
+                    "- a directory with test files\n"
                     "    - `tests`\n"
-                    "- the specific test file\n"
+                    "- a specific test file\n"
                     "    - `tests/test_main.cairo`\n"
-                    "- the specific test case\n"
+                    "- a specific test case\n"
                     "    - `tests/test_main.cairo::test_example`\n"
                 ),
                 type="path",
@@ -60,12 +60,6 @@ class TestCommand(Command):
                 type="regexp",
             ),
             Command.Argument(
-                name="match",
-                short_name="m",
-                description="A filepath regexp that omits the test file if it does not match the pattern.",
-                type="regexp",
-            ),
-            Command.Argument(
                 name="cairo-path",
                 is_array=True,
                 description="Additional directories to look for sources.",
@@ -76,7 +70,6 @@ class TestCommand(Command):
     async def run(self, args) -> TestingSummary:
         summary = await self.test(
             target=args.target,
-            match=args.match,
             omit=args.omit,
             cairo_path=args.cairo_path,
         )
@@ -86,7 +79,6 @@ class TestCommand(Command):
     async def test(
         self,
         target: Path,
-        match: Optional[Pattern] = None,
         omit: Optional[Pattern] = None,
         cairo_path: Optional[List[Path]] = None,
     ) -> TestingSummary:
@@ -98,7 +90,6 @@ class TestCommand(Command):
             StarknetCompiler(disable_hint_validation=True, include_paths=include_paths)
         ).collect(
             target=target,
-            match_pattern=match,
             omit_pattern=omit,
         )
 
