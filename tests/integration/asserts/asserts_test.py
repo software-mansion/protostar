@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 import pytest
 from pytest_mock import MockerFixture
 
-from src.commands.test import TestCommand
+from protostar.commands.test import TestCommand
 from tests.integration.conftest import assert_cairo_test_cases
 
 

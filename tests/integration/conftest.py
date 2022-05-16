@@ -1,7 +1,7 @@
 # pylint: disable=invalid-name
 from typing import List
 
-from src.commands.test.testing_summary import TestingSummary
+from protostar.commands.test.testing_summary import TestingSummary
 
 
 def assert_cairo_test_cases(
