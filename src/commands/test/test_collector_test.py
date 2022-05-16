@@ -40,10 +40,7 @@ def test_suites_fixture(project_root: Path):
 @pytest.fixture(name="starknet_compiler")
 def starknet_compiler_fixture(mocker: MockerFixture):
     starknet_compiler_mock = mocker.MagicMock()
-    starknet_compiler_mock.get_functions.return_value = [
-        {"name": "test_foo", "type": "function"},
-        {"name": "bar_test", "type": "function"},
-    ]
+    starknet_compiler_mock.get_function_names.return_value = ["test_foo", "bar_test"]
     return starknet_compiler_mock
 
 
@@ -92,7 +89,9 @@ def test_omitting_pattern(starknet_compiler, project_root):
 
 def test_breakage_upon_broken_test_suite(starknet_compiler, project_root):
     test_collector = TestCollector(starknet_compiler)
-    cast(MagicMock, starknet_compiler.get_functions).side_effect = PreprocessorError("")
+    cast(
+        MagicMock, starknet_compiler.get_function_names
+    ).side_effect = PreprocessorError("")
 
     with pytest.raises(TestCollectingException):
         test_collector.collect(target=project_root)
@@ -121,7 +120,7 @@ def test_logging_collected_one_test_suite_and_one_test_case(mocker: MockerFixtur
     TestCollector.Result(
         test_suites=[
             TestSuite(
-                test_functions=[{"name": "foo", "type": "function"}],
+                test_case_names=["foo"],
                 test_path=Path(),
             )
         ],
@@ -139,11 +138,11 @@ def test_logging_many_test_suites_and_many_test_cases(mocker: MockerFixture):
     TestCollector.Result(
         test_suites=[
             TestSuite(
-                test_functions=[{"name": "foo", "type": "function"}],
+                test_case_names=["foo"],
                 test_path=Path(),
             ),
             TestSuite(
-                test_functions=[{"name": "foo", "type": "function"}],
+                test_case_names=["foo"],
                 test_path=Path(),
             ),
         ],
@@ -163,4 +162,4 @@ def test_logging_no_cases_found(mocker: MockerFixture):
         test_cases_count=0,
     ).log(logger_mock)
 
-    cast(MagicMock, logger_mock.warn).assert_called_once_with("No cases found")
+    cast(MagicMock, logger_mock.warning).assert_called_once_with("No cases found")

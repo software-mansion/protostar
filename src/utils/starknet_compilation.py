@@ -73,10 +73,10 @@ class StarknetCompiler:
         assert isinstance(assembled, ContractDefinition)
         return assembled
 
-    def get_functions(self, cairo_file_path: Path, prefix: str) -> List[dict]:
+    def get_function_names(self, cairo_file_path: Path, prefix: str) -> List[str]:
         preprocessed = self.preprocess_contract(cairo_file_path)
         return [
-            el
+            el["name"]
             for el in preprocessed.abi
             if el["type"] == "function" and el["name"].startswith(prefix)
         ]

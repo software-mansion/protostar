@@ -58,7 +58,7 @@ func test_expect_event_emitted_by_external_contract{syscall_ptr : felt*, range_c
     %{ expect_events("balance_increased") %}
     alloc_locals
     local contract_address : felt
-    %{ ids.contract_address = deploy_contract("./src/commands/test/examples/cheats/expect_events/basic_contract.cairo").contract_address %}
+    %{ ids.contract_address = deploy_contract("./tests/integration/cheatcodes/expect_events/basic_contract.cairo").contract_address %}
     BasicContract.increase_balance(contract_address=contract_address)
     return ()
 end
@@ -68,7 +68,7 @@ func test_expect_event_by_contract_address{syscall_ptr : felt*, range_check_ptr}
     alloc_locals
     local contract_address : felt
     %{
-        ids.contract_address = deploy_contract("./src/commands/test/examples/cheats/expect_events/basic_contract.cairo").contract_address
+        ids.contract_address = deploy_contract("./tests/integration/cheatcodes/expect_events/basic_contract.cairo").contract_address
         expect_events({"name": "balance_increased", "from_address": ids.contract_address})
     %}
     BasicContract.increase_balance(contract_address=contract_address)
@@ -80,7 +80,7 @@ func test_revert_on_contract_address_mismatch{syscall_ptr : felt*, range_check_p
     alloc_locals
     local contract_address : felt
     %{
-        ids.contract_address = deploy_contract("./src/commands/test/examples/cheats/expect_events/basic_contract.cairo").contract_address
+        ids.contract_address = deploy_contract("./tests/integration/cheatcodes/expect_events/basic_contract.cairo").contract_address
         expect_revert("EXPECTED_EVENT", '{"name": "balance_increased", "from_address": "123"}')
         expect_events({"name": "balance_increased", "from_address": 123})
     %}

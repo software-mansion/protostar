@@ -1,6 +1,5 @@
 import asyncio
 from logging import getLogger
-from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Set
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
@@ -9,11 +8,12 @@ from starkware.starknet.services.api.contract_definition import ContractDefiniti
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starkware_utils.error_handling import StarkException
 
-
-from src.commands.test.cases import BrokenTest, FailedCase, PassedCase
-from src.commands.test.cheatable_syscall_handler import CheatableSysCallHandler
-from src.commands.test.forkable_starknet import ForkableStarknet
-from src.commands.test.reporter import Reporter
+from src.commands.test.cheatcodes import Cheatcode, ExpectRevertCheatcode, RollCheatcode
+from src.commands.test.expected_event import ExpectedEvent
+from src.commands.test.starkware.cheatable_syscall_handler import (
+    CheatableSysCallHandler,
+)
+from src.commands.test.starkware.forkable_starknet import ForkableStarknet
 from src.commands.test.test_environment_exceptions import (
     ExpectedRevertException,
     ExpectedRevertMismatchException,
@@ -21,88 +21,18 @@ from src.commands.test.test_environment_exceptions import (
     RevertableException,
     StarknetRevertableException,
 )
-from src.commands.test.utils import ExpectedEvent, TestSubject
 from src.utils.modules import replace_class
-from src.utils.starknet_compilation import StarknetCompiler
-
-current_directory = Path(__file__).parent
 
 logger = getLogger()
 
 
-class TestRunner:
-    include_paths: Optional[List[str]] = None
-    _collected_count: Optional[int] = None
+class DeployedContract:
+    def __init__(self, starknet_contract: StarknetContract):
+        self._starknet_contract = starknet_contract
 
-    def __init__(
-        self,
-        reporter: Reporter,
-        include_paths: Optional[List[str]] = None,
-    ):
-        self.reporter = reporter
-        self.include_paths = []
-
-        if include_paths:
-            self.include_paths.extend(include_paths)
-
-    @replace_class(
-        "starkware.starknet.core.os.syscall_utils.BusinessLogicSysCallHandler",
-        CheatableSysCallHandler,
-    )
-    async def run_test_subject(self, test_subject):
-        assert self.include_paths is not None, "Uninitialized paths list in test runner"
-
-        compiled_test = StarknetCompiler(
-            include_paths=self.include_paths,
-            disable_hint_validation=True,
-        ).compile_contract(test_subject.test_path, add_debug_info=True)
-
-        await self._run_test_functions(
-            test_contract=compiled_test,
-            test_subject=test_subject,
-            functions=test_subject.test_functions,
-        )
-
-    async def _run_test_functions(
-        self,
-        test_contract: ContractDefinition,
-        test_subject: TestSubject,
-        functions: List[dict],
-    ):
-        assert self.reporter, "Uninitialized reporter!"
-
-        try:
-            env_base = await TestExecutionEnvironment.empty(
-                test_contract, self.include_paths
-            )
-        except StarkException as err:
-            self.reporter.report(
-                subject=test_subject,
-                case_result=BrokenTest(file_path=test_subject.test_path, exception=err),
-            )
-            return
-
-        for function in functions:
-            env = env_base.fork()
-            try:
-                call_result = await env.invoke_test_function(function["name"])
-                self.reporter.report(
-                    subject=test_subject,
-                    case_result=PassedCase(
-                        file_path=test_subject.test_path,
-                        function_name=function["name"],
-                        tx_info=call_result,
-                    ),
-                )
-            except ReportedException as err:
-                self.reporter.report(
-                    subject=test_subject,
-                    case_result=FailedCase(
-                        file_path=test_subject.test_path,
-                        function_name=function["name"],
-                        exception=err,
-                    ),
-                )
+    @property
+    def contract_address(self):
+        return self._starknet_contract.contract_address
 
 
 class TestExecutionEnvironment:
@@ -152,7 +82,11 @@ class TestExecutionEnvironment:
         )
         return contract
 
-    async def invoke_test_function(self, function_name: str):
+    @replace_class(
+        "starkware.starknet.core.os.syscall_utils.BusinessLogicSysCallHandler",
+        CheatableSysCallHandler,
+    )
+    async def invoke_test_case(self, test_case_name: str):
         original_run_from_entrypoint = CairoFunctionRunner.run_from_entrypoint
         CairoFunctionRunner.run_from_entrypoint = (
             self._get_run_from_entrypoint_with_custom_hint_locals(
@@ -161,7 +95,7 @@ class TestExecutionEnvironment:
         )
 
         try:
-            await self._call_test_function(function_name)
+            await self._call_test_case_fn(test_case_name)
             for hook in self._test_finish_hooks:
                 hook()
             if self._expected_error is not None:
@@ -180,9 +114,9 @@ class TestExecutionEnvironment:
             self._expected_error = None
             self._test_finish_hooks.clear()
 
-    async def _call_test_function(self, function_name: str):
+    async def _call_test_case_fn(self, test_case_name: str):
         try:
-            func = getattr(self.test_contract, function_name)
+            func = getattr(self.test_contract, test_case_name)
             return await func().invoke()
         except StarkException as ex:
             raise StarknetRevertableException(
@@ -233,10 +167,6 @@ class TestExecutionEnvironment:
             return func
 
         @register_cheatcode
-        def roll(blk_number: int):
-            cheatable_syscall_handler.set_block_number(blk_number)
-
-        @register_cheatcode
         def warp(blk_timestamp: int):
             cheatable_syscall_handler.set_block_timestamp(blk_timestamp)
 
@@ -277,14 +207,6 @@ class TestExecutionEnvironment:
             cheatable_syscall_handler.unregister_mock_call(contract_address, selector)
 
         @register_cheatcode
-        def expect_revert(
-            error_type: Optional[str] = None, error_message: Optional[str] = None
-        ):
-            return self.expect_revert(
-                RevertableException(error_type=error_type, error_message=error_message)
-            )
-
-        @register_cheatcode
         def expect_events(
             *raw_expected_events: ExpectedEvent.CheatcodeInputType,
         ) -> None:
@@ -312,6 +234,14 @@ class TestExecutionEnvironment:
         ):
             return self.deploy_in_env(contract_path, constructor_calldata)
 
+        cheatcodes: List[Cheatcode] = [
+            ExpectRevertCheatcode(self),
+            RollCheatcode(cheatable_syscall_handler),
+        ]
+
+        for cheatcode in cheatcodes:
+            hint_locals[cheatcode.name] = cheatcode.build()
+
     def expect_revert(self, expected_error: RevertableException) -> Callable[[], None]:
         if self._expected_error is not None:
             raise ReportedException(
@@ -330,12 +260,3 @@ class TestExecutionEnvironment:
                 )
 
         return stop_expecting_revert
-
-
-class DeployedContract:
-    def __init__(self, starknet_contract: StarknetContract):
-        self._starknet_contract = starknet_contract
-
-    @property
-    def contract_address(self):
-        return self._starknet_contract.contract_address

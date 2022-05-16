@@ -42,7 +42,7 @@ class TestCollector:
 
                 logger.info(" ".join(result))
             else:
-                logger.warn("No cases found")
+                logger.warning("No cases found")
 
     def __init__(self, starknet_compiler: StarknetCompiler) -> None:
         self._starknet_compiler = starknet_compiler
@@ -58,9 +58,9 @@ class TestCollector:
         match_pattern: Optional[Pattern] = None,
         omit_pattern: Optional[Pattern] = None,
     ) -> "TestCollector.Result":
-        target_function: Optional[str] = None
+        target_test_case: Optional[str] = None
         if re.match(r"^.*\.cairo::.*", target.name):
-            file_name, target_function = target.name.split("::")
+            file_name, target_test_case = target.name.split("::")
             target = target.parent / file_name
             assert not target.is_dir()
 
@@ -79,15 +79,18 @@ class TestCollector:
 
         test_suites: List[TestSuite] = []
         for test_suite in test_suite_paths:
-            test_suites.append(self._build_test_suite(test_suite, target_function))
+            test_suites.append(self._build_test_suite(test_suite, target_test_case))
 
         non_empty_test_suites = list(
-            filter(lambda test_file: (test_file.test_functions) != [], test_suites)
+            filter(lambda test_file: (test_file.test_case_names) != [], test_suites)
         )
         return TestCollector.Result(
             test_suites=non_empty_test_suites,
             test_cases_count=sum(
-                [len(test_suite.test_functions) for test_suite in non_empty_test_suites]
+                [
+                    len(test_suite.test_case_names)
+                    for test_suite in non_empty_test_suites
+                ]
             ),
         )
 
@@ -99,14 +102,18 @@ class TestCollector:
         )
 
     def _build_test_suite(
-        self, file_path: Path, target_function: Optional[str]
+        self, file_path: Path, target_test_case_name: Optional[str]
     ) -> TestSuite:
-        test_functions = self._collect_test_functions(file_path)
-        if target_function:
-            test_functions = [f for f in test_functions if f["name"] == target_function]
+        test_case_names = self._collect_test_case_names(file_path)
+        if target_test_case_name:
+            test_case_names = [
+                test_case_name
+                for test_case_name in test_case_names
+                if test_case_name == target_test_case_name
+            ]
         return TestSuite(
             test_path=file_path,
-            test_functions=test_functions,
+            test_case_names=test_case_names,
         )
 
     def _get_test_suite_paths(self, target: Path) -> Generator[Path, None, None]:
@@ -121,9 +128,9 @@ class TestCollector:
             for test_suite_path in test_suite_paths:
                 yield test_suite_path
 
-    def _collect_test_functions(self, file_path: Path) -> List[dict]:
+    def _collect_test_case_names(self, file_path: Path) -> List[str]:
         try:
-            return self._starknet_compiler.get_functions(file_path, prefix="test_")
+            return self._starknet_compiler.get_function_names(file_path, prefix="test_")
         except PreprocessorError as p_err:
             print(p_err)
             raise TestCollectingException("Failed to collect test cases") from p_err
