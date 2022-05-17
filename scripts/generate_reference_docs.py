@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from docs_generator import ReferenceDocsGenerator
-from src.protostar_cli import ProtostarCLI
+from protostar.protostar_cli import ProtostarCLI
 
 CLI_REFERENCE_MARKDOWN_CONTENT = ReferenceDocsGenerator(
     ProtostarCLI.create(Path())
