@@ -2,7 +2,10 @@ from pathlib import Path
 from typing import List, Optional
 
 from protostar.cli.command import Command
-from protostar.commands.deploy.deploy_contract import deploy_contract
+from protostar.commands.deploy.deploy_contract import (
+    SuccessfulGatewayResponseFacade,
+    deploy_contract,
+)
 from protostar.commands.deploy.network_config import NetworkConfig
 from protostar.commands.shared_args import output_shared_argument
 from protostar.utils.config.project import Project
@@ -45,10 +48,10 @@ class DeployCommand(Command):
         return [
             Command.Argument(
                 name="contract",
-                short_name="c",
                 description='A name of the contract defined in protostar.toml::["protostar.contracts"]',
                 type="str",
                 is_required=True,
+                is_positional=True,
             ),
             Command.Argument(
                 name="inputs",
@@ -101,15 +104,15 @@ class DeployCommand(Command):
         inputs: Optional[List[str]] = None,
         token: Optional[str] = None,
         salt: Optional[str] = None,
-    ):
+    ) -> SuccessfulGatewayResponseFacade:
         with open(
-            output_dir / f"{contract_name}.json",
+            self._project.project_root / output_dir / f"{contract_name}.json",
             mode="r",
             encoding="utf-8",
         ) as compiled_contract_file:
             network_config = NetworkConfig.from_config_file(network, self._project)
 
-            await deploy_contract(
+            return await deploy_contract(
                 gateway_url=network_config.gateway_url,
                 compiled_contract_file=compiled_contract_file,
                 constructor_args=inputs,
