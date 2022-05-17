@@ -7,7 +7,7 @@ from socket import socket as Socket
 
 import pytest
 
-from src.commands.deploy.deploy_contract import deploy_contract
+from protostar.commands.deploy.deploy_contract import deploy_contract
 
 
 def get_available_port() -> int:

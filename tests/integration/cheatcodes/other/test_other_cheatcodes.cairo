@@ -119,7 +119,7 @@ func test_deploy_contract{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
 
     local contract_a_address : felt
-    %{ ids.contract_a_address = deploy_contract("./src/commands/test/examples/basic.cairo").contract_address %}
+    %{ ids.contract_a_address = deploy_contract("./protostar/commands/test/examples/basic.cairo").contract_address %}
 
     BasicContract.increase_balance(contract_address=contract_a_address, amount=3)
     let (res) = BasicContract.get_balance(contract_address=contract_a_address)
@@ -135,7 +135,7 @@ namespace BasicWithConstructor:
     func get_balance() -> (res : Uint256):
     end
 
-    func get_id() -> (res: felt):
+    func get_id() -> (res : felt):
     end
 end
 
@@ -144,7 +144,7 @@ func test_deploy_contract_with_args_in_constructor{syscall_ptr : felt*, range_ch
     alloc_locals
 
     local contract_a_address : felt
-    %{ ids.contract_a_address = deploy_contract("./src/commands/test/examples/basic_with_constructor.cairo", [100, 0, 1]).contract_address %}
+    %{ ids.contract_a_address = deploy_contract("./protostar/commands/test/examples/basic_with_constructor.cairo", [100, 0, 1]).contract_address %}
 
     let (res) = BasicWithConstructor.get_balance(contract_address=contract_a_address)
     assert res.low = 100

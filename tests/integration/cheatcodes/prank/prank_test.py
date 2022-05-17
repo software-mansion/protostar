@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from src.commands.test.test_command import TestCommand
+from protostar.commands.test.test_command import TestCommand
 from tests.integration.conftest import assert_cairo_test_cases
 
 

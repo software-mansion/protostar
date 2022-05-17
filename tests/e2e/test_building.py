@@ -1,4 +1,5 @@
 from os import listdir
+from subprocess import CalledProcessError
 
 import pytest
 
@@ -8,6 +9,19 @@ def test_default_build(protostar):
     protostar(["build"])
     dirs = listdir()
     assert "build" in dirs
+
+
+@pytest.mark.usefixtures("init")
+def test_non_zero_exit_code_if_fails(protostar):
+    with open("./src/main.cairo", mode="w", encoding="utf-8") as my_contract:
+        my_contract.write(
+            """%lang starknet
+@view
+func broken():
+"""
+        )
+    with pytest.raises(CalledProcessError):
+        protostar(["build"])
 
 
 @pytest.mark.usefixtures("init")
@@ -86,8 +100,8 @@ end
 """
         )
 
-    result = protostar(["build"])
+    result = protostar(["build"], ignore_exit_code=True)
     assert "Hint is not whitelisted." in result
 
-    result = protostar(["build", "--disable-hint-validation"])
+    result = protostar(["build", "--disable-hint-validation"], ignore_exit_code=True)
     assert result == ""

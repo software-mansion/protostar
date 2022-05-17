@@ -1,9 +1,10 @@
 name: Test docs
 
 on:
-  pull_request:
-    branches:
-      - master
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
 
 jobs:
   test-deploy:

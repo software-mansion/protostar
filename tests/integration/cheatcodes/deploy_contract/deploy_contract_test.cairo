@@ -26,8 +26,7 @@ func test_proxy_contract{syscall_ptr : felt*, range_check_ptr}():
     %}
 
     ProxyContract.set_target(
-        contract_address=contract_proxy_address, new_target=contract_logic_address
-    )
+        contract_address=contract_proxy_address, new_target=contract_logic_address)
 
     ProxyContract.increase_twice(contract_address=contract_proxy_address, amount=5)
 
@@ -50,8 +49,7 @@ func test_missing_logic_contract{syscall_ptr : felt*, range_check_ptr}():
     %{ expect_revert() %}
 
     ProxyContract.set_target(
-        contract_address=contract_proxy_address, new_target=contract_logic_address
-    )
+        contract_address=contract_proxy_address, new_target=contract_logic_address)
 
     ProxyContract.increase_twice(contract_address=contract_proxy_address, amount=5)
     return ()
