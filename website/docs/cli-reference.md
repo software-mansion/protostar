@@ -14,8 +14,41 @@ Compile contracts.
 Additional directories to look for sources.
 #### `--disable-hint-validation`
 Disable validation of hints when building the contracts.
-#### `--output PATH=build`
-An output directory that will be used to put the compiled contracts in.
+#### `-o` `--output PATH=build`
+An output directory used to put the compiled contracts in.
+### `deploy`
+```shell
+protostar deploy main -n testnet
+```
+Deploys contracts. Before running this command you need to configure networks in the `protostar.toml`
+
+Network configuration examples:
+
+[protostar.network.devnet]
+gateway_url = "http://127.0.0.1:5050/"
+
+[protostar.network.testnet]
+network = "alpha-goerli"
+
+[protostar.network.mainnet]
+network = "alpha-mainnet"
+
+#### `contract STRING`
+Required.
+
+A name of the contract defined in protostar.toml::["protostar.contracts"]
+#### `-i` `--inputs STRING[]`
+The inputs to the constructor
+#### `-n` `--network STRING`
+Required.
+
+A name of the network defined in protostar.toml
+#### `-o` `--output PATH=build`
+An output directory used to put the compiled contracts in.
+#### `--salt STRING`
+An optional salt controlling where the contract will be deployed. The contract deployment address is determined by the hash of contract, salt and caller. If the salt is not supplied, the contract will be deployed with a random salt.
+#### `--token STRING`
+Used for deploying contracts in Alpha MainNet.
 ### `init`
 ```shell
 $ protostar init
