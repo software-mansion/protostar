@@ -4,13 +4,13 @@ from typing import List, Optional
 from protostar.cli.command import Command
 from protostar.commands.deploy.deploy_contract import deploy_contract
 from protostar.commands.deploy.network_config import NetworkConfig
+from protostar.commands.shared_args import output_shared_argument
 from protostar.utils.config.project import Project
 
 
 class DeployCommand(Command):
-    def __init__(self, project: Project, build_output_path: Path) -> None:
+    def __init__(self, project: Project) -> None:
         self._project = project
-        self._build_output_path = build_output_path
 
     @property
     def name(self) -> str:
@@ -18,30 +18,51 @@ class DeployCommand(Command):
 
     @property
     def description(self) -> str:
-        return "Deploys contracts."
+        return "\n".join(
+            [
+                "Deploys contracts. Before running this command you need to configure networks in the `protostar.toml`",
+                "",
+                "Network configuration examples:",
+                "",
+                "[protostar.network.devnet]",
+                'gateway_url = "http://127.0.0.1:5050/"',
+                "",
+                "[protostar.network.testnet]",
+                'network = "alpha-goerli"',
+                "",
+                "[protostar.network.mainnet]",
+                'network = "alpha-mainnet"',
+                "",
+            ]
+        )
 
     @property
     def example(self) -> Optional[str]:
-        return None
+        return "protostar deploy -c main -n testnet"
 
     @property
     def arguments(self) -> List[Command.Argument]:
         return [
             Command.Argument(
                 name="contract",
+                short_name="c",
                 description='A name of the contract defined in protostar.toml::["protostar.contracts"]',
                 type="str",
+                is_required=True,
             ),
             Command.Argument(
                 name="inputs",
+                short_name="i",
                 description="The inputs to the constructor",
                 type="str",
                 is_array=True,
             ),
             Command.Argument(
                 name="network",
+                short_name="n",
                 description="A name of the network defined in protostar.toml",
                 type="str",
+                is_required=True,
             ),
             Command.Argument(
                 name="token",
@@ -58,12 +79,14 @@ class DeployCommand(Command):
                 ),
                 type="str",
             ),
+            output_shared_argument,
         ]
 
     async def run(self, args):
         return await self.deploy(
             contract_name=args.contract,
             network=args.network,
+            output_dir=args.output,
             inputs=args.inputs,
             token=args.token,
             salt=args.salt,
@@ -74,12 +97,13 @@ class DeployCommand(Command):
         self,
         contract_name: str,
         network: str,
+        output_dir: Path,
         inputs: Optional[List[str]] = None,
         token: Optional[str] = None,
         salt: Optional[str] = None,
     ):
         with open(
-            self._build_output_path / f"{contract_name}.json",
+            output_dir / f"{contract_name}.json",
             mode="r",
             encoding="utf-8",
         ) as compiled_contract_file:

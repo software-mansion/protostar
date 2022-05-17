@@ -10,6 +10,7 @@ from starkware.starkware_utils.error_handling import StarkException
 
 from protostar.cli.command import Command
 from protostar.commands.build.build_exceptions import CairoCompilationException
+from protostar.commands.shared_args import output_shared_argument
 from protostar.utils.config.project import Project
 from protostar.utils.starknet_compilation import StarknetCompiler
 
@@ -45,12 +46,7 @@ class BuildCommand(Command):
                 description="Disable validation of hints when building the contracts.",
                 type="bool",
             ),
-            Command.Argument(
-                name="output",
-                description="An output directory that will be used to put the compiled contracts in.",
-                type="path",
-                default="build",
-            ),
+            output_shared_argument,
         ]
 
     async def run(self, args):
