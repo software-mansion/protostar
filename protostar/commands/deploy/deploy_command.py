@@ -41,7 +41,7 @@ class DeployCommand(Command):
 
     @property
     def example(self) -> Optional[str]:
-        return "protostar deploy -c main -n testnet"
+        return "protostar deploy main -n testnet"
 
     @property
     def arguments(self) -> List[Command.Argument]:
