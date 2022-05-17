@@ -8,7 +8,12 @@ from protostar.commands.deploy.deploy_contract import (
 )
 from protostar.commands.deploy.network_config import NetworkConfig
 from protostar.commands.shared_args import output_shared_argument
+from protostar.protostar_exception import ProtostarException
 from protostar.utils.config.project import Project
+
+
+class CompilationOutputNotFoundException(ProtostarException):
+    pass
 
 
 class DeployCommand(Command):
@@ -27,13 +32,13 @@ class DeployCommand(Command):
                 "",
                 "Network configuration examples:",
                 "",
-                "[protostar.network.devnet]",
+                '["protostar.network.devnet"]',
                 'gateway_url = "http://127.0.0.1:5050/"',
                 "",
-                "[protostar.network.testnet]",
+                '["protostar.network.testnet"]',
                 'network = "alpha-goerli"',
                 "",
-                "[protostar.network.mainnet]",
+                '["protostar.network.mainnet"]',
                 'network = "alpha-mainnet"',
                 "",
             ]
@@ -41,17 +46,17 @@ class DeployCommand(Command):
 
     @property
     def example(self) -> Optional[str]:
-        return "protostar deploy main -n testnet"
+        return "protostar deploy -c main -n testnet"
 
     @property
     def arguments(self) -> List[Command.Argument]:
         return [
             Command.Argument(
                 name="contract",
+                short_name="c",
                 description='A name of the contract defined in protostar.toml::["protostar.contracts"]',
                 type="str",
                 is_required=True,
-                is_positional=True,
             ),
             Command.Argument(
                 name="inputs",
@@ -105,17 +110,30 @@ class DeployCommand(Command):
         token: Optional[str] = None,
         salt: Optional[str] = None,
     ) -> SuccessfulGatewayResponseFacade:
-        with open(
-            self._project.project_root / output_dir / f"{contract_name}.json",
-            mode="r",
-            encoding="utf-8",
-        ) as compiled_contract_file:
-            network_config = NetworkConfig.from_config_file(network, self._project)
+        network_config = NetworkConfig.from_config_file(network, self._project)
 
-            return await deploy_contract(
-                gateway_url=network_config.gateway_url,
-                compiled_contract_file=compiled_contract_file,
-                constructor_args=inputs,
-                salt=salt,
-                token=token,
-            )
+        compilation_output_filepath = (
+            self._project.project_root / output_dir / f"{contract_name}.json"
+        )
+
+        try:
+            with open(
+                compilation_output_filepath,
+                mode="r",
+                encoding="utf-8",
+            ) as compiled_contract_file:
+
+                return await deploy_contract(
+                    gateway_url=network_config.gateway_url,
+                    compiled_contract_file=compiled_contract_file,
+                    constructor_args=inputs,
+                    salt=salt,
+                    token=token,
+                )
+        except FileNotFoundError as err:
+            raise CompilationOutputNotFoundException(
+                (
+                    f"Couldn't find `{compilation_output_filepath}`\n"
+                    "Did you run `protostar build` before running this command?"
+                )
+            ) from err
