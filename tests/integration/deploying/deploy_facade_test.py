@@ -1,6 +1,6 @@
 import pytest
 
-from protostar.commands.deploy.deploy_contract import deploy_contract
+from protostar.commands.deploy.deploy_facade import deploy_contract
 
 
 @pytest.mark.asyncio

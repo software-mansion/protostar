@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from protostar.cli.command import Command
-from protostar.commands.deploy.deploy_contract import (
+from protostar.commands.deploy.deploy_facade import (
     SuccessfulGatewayResponseFacade,
     deploy_contract,
 )
