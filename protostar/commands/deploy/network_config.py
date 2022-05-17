@@ -11,21 +11,19 @@ class InvalidNetworkConfigException(ProtostarException):
 class NetworkConfig:
     @classmethod
     def from_config_file(cls, network_name: str, project: Project) -> "NetworkConfig":
-        gateway_url = project.load_argument(
-            f"protostar.network.{network_name}", "gateway_url"
-        )
+        gateway_url = project.load_argument(f"network.{network_name}", "gateway_url")
         if gateway_url:
             return cls(gateway_url=gateway_url)
 
         starkware_network_name = project.load_argument(
-            f"protostar.network.{network_name}", "network"
+            f"network.{network_name}", "network"
         )
         if starkware_network_name:
             return cls.from_starkware_network(starkware_network_name)
 
         raise InvalidNetworkConfigException(
             (
-                f"Protostar couldn't find `gateway_url` for {network_name} network."
+                f"Protostar couldn't find `gateway_url` for `{network_name}` network\n"
                 f'Did you define `network` or `gateway_url`in protostar.toml::["protostar.network.{network_name}"]?'
             )
         )
