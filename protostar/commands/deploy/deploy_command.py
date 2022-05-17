@@ -1,11 +1,10 @@
+from logging import getLogger
 from pathlib import Path
 from typing import List, Optional
 
 from protostar.cli.command import Command
-from protostar.commands.deploy.deploy_facade import (
-    SuccessfulGatewayResponseFacade,
-    deploy_contract,
-)
+from protostar.commands.deploy.deploy_facade import deploy_contract
+from protostar.commands.deploy.gateway_response import SuccessfulGatewayResponseFacade
 from protostar.commands.deploy.network_config import NetworkConfig
 from protostar.commands.shared_args import output_shared_argument
 from protostar.protostar_exception import ProtostarException
@@ -110,6 +109,8 @@ class DeployCommand(Command):
         token: Optional[str] = None,
         salt: Optional[str] = None,
     ) -> SuccessfulGatewayResponseFacade:
+        logger = getLogger()
+
         network_config = NetworkConfig.from_config_file(network, self._project)
 
         compilation_output_filepath = (
@@ -122,14 +123,17 @@ class DeployCommand(Command):
                 mode="r",
                 encoding="utf-8",
             ) as compiled_contract_file:
-
-                return await deploy_contract(
+                response = await deploy_contract(
                     gateway_url=network_config.gateway_url,
                     compiled_contract_file=compiled_contract_file,
                     constructor_args=inputs,
                     salt=salt,
                     token=token,
                 )
+
+                response.log(logger)
+
+                return response
         except FileNotFoundError as err:
             raise CompilationOutputNotFoundException(
                 (
