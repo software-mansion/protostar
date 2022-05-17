@@ -620,6 +620,14 @@ Six = "*"
 
 [[package]]
 category = "main"
+description = "Python module for interacting with nested dicts as a single level dict with delimited keys."
+name = "flatdict"
+optional = false
+python-versions = "*"
+version = "4.0.1"
+
+[[package]]
+category = "main"
 description = "An immutable dictionary"
 name = "frozendict"
 optional = false
@@ -1767,7 +1775,7 @@ testing = [
 ]
 
 [metadata]
-content-hash = "44057139b0e12622f0aaee6b91d14d501bfc356f1885dd47cffb0a297d8a889e"
+content-hash = "3786df2cf5bccf3936b2205186974b14627049e4b166a2e1a151758c94cf014c"
 lock-version = "1.1"
 python-versions = ">=3.7.12, <3.10"
 
@@ -2038,6 +2046,9 @@ flask = [
 flask-cors = [
   {file = "Flask-Cors-3.0.10.tar.gz", hash = "sha256:b60839393f3b84a0f3746f6cdca56c1ad7426aa738b70d6c61375857823181de"},
   {file = "Flask_Cors-3.0.10-py2.py3-none-any.whl", hash = "sha256:74efc975af1194fc7891ff5cd85b0f7478be4f7f59fe158102e91abb72bb4438"},
+]
+flatdict = [
+  {file = "flatdict-4.0.1.tar.gz", hash = "sha256:cd32f08fd31ed21eb09ebc76f06b6bd12046a24f77beb1fd0281917e47f26742"},
 ]
 frozendict = [
   {file = "frozendict-1.2.tar.gz", hash = "sha256:774179f22db2ef8a106e9c38d4d1f8503864603db08de2e33be5b778230f6e45"},
