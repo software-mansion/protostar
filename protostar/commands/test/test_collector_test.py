@@ -108,12 +108,14 @@ def test_collecting_specific_function(starknet_compiler, project_root: Path):
 
 def test_logging_collected_one_test_suite_and_one_test_case(mocker: MockerFixture):
     logger_mock = mocker.MagicMock()
-    test_suite_mock = mocker.MagicMock()
-    test_suite_mock.test_case_names.return_value = ["foo"]
-    test_suite_mock.test_path = Path()
 
     TestCollector.Result(
-        test_suites=[test_suite_mock],
+        test_suites=[
+            TestSuite(
+                test_case_names=["foo"],
+                test_path=Path(),
+            )
+        ],
         test_cases_count=1,
     ).log(logger_mock)
 
@@ -124,18 +126,17 @@ def test_logging_collected_one_test_suite_and_one_test_case(mocker: MockerFixtur
 
 def test_logging_many_test_suites_and_many_test_cases(mocker: MockerFixture):
     logger_mock = mocker.MagicMock()
-    test_suite_1_mock = mocker.MagicMock()
-    test_suite_1_mock.test_case_names.return_value = ["foo"]
-    test_suite_1_mock.test_path = Path()
-
-    test_suite_2_mock = mocker.MagicMock()
-    test_suite_2_mock.test_case_names.return_value = ["foo"]
-    test_suite_2_mock.test_path = Path()
 
     TestCollector.Result(
         test_suites=[
-            test_suite_1_mock,
-            test_suite_2_mock,
+            TestSuite(
+                test_case_names=["foo"],
+                test_path=Path(),
+            ),
+            TestSuite(
+                test_case_names=["foo"],
+                test_path=Path(),
+            ),
         ],
         test_cases_count=2,
     ).log(logger_mock)
