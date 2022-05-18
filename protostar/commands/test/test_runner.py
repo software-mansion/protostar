@@ -78,7 +78,7 @@ class TestRunner:
                 BrokenTestSuite(
                     file_path=test_suite.test_path,
                     exception=err,
-                    test_case_names=test_suite.test_case_names
+                    test_case_names=test_suite.test_case_names,
                 )
             )
             return
@@ -88,11 +88,11 @@ class TestRunner:
             try:
                 call_result = await env.invoke_test_case(test_case_name)
                 self.queue.put(
-                        PassedTestCase(
-                            file_path=test_suite.test_path,
-                            test_case_name=test_case_name,
-                            tx_info=call_result,
-                        )
+                    PassedTestCase(
+                        file_path=test_suite.test_path,
+                        test_case_name=test_case_name,
+                        tx_info=call_result,
+                    )
                 )
             except ReportedException as err:
                 self.queue.put(

@@ -1,16 +1,13 @@
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING
 
 from protostar.commands.test.test_cases import TestCaseResult
-from protostar.commands.test.test_suite import TestSuite
 
 if TYPE_CHECKING:
     import queue
 
 
 class TestResultsQueue:
-    def __init__(
-        self, shared_queue: "queue.Queue[TestCaseResult]"
-    ) -> None:
+    def __init__(self, shared_queue: "queue.Queue[TestCaseResult]") -> None:
         self._shared_queue = shared_queue
 
     def get(self) -> TestCaseResult:
