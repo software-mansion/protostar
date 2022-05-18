@@ -25,7 +25,7 @@ class DeployContractException(ProtostarException):
     pass
 
 
-async def deploy_contract(
+async def deploy(
     gateway_url: str,
     compiled_contract_file: TextIOWrapper,
     constructor_args: Optional[Sequence[Union[str, int]]] = None,
