@@ -15,7 +15,7 @@ from typing_extensions import TypedDict
 from protostar.protostar_exception import ProtostarException
 
 
-class SuccessfulGatewayResponseFacade(TypedDict):
+class SuccessfulGatewayResponse(TypedDict):
     code: str
     address: str
     transaction_hash: str
@@ -31,7 +31,7 @@ async def deploy(
     constructor_args: Optional[Sequence[Union[str, int]]] = None,
     salt: Optional[str] = None,
     token: Optional[str] = None,
-) -> SuccessfulGatewayResponseFacade:
+) -> SuccessfulGatewayResponse:
     """Version of deploy function from starkware.starknet.cli.starknet_cli independent of CLI logic."""
 
     inputs = cast_to_felts(constructor_args or [])
@@ -77,7 +77,7 @@ async def deploy(
     )  # type: ignore
 
     gateway_response = cast(
-        SuccessfulGatewayResponseFacade,
+        SuccessfulGatewayResponse,
         await gateway_client.add_transaction(tx=tx, token=token),
     )
 
