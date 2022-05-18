@@ -19,25 +19,25 @@ class TestCaseResult:
 
 @dataclass(frozen=True)
 class PassedTestCase(TestCaseResult):
-    function_name: str
+    test_case_name: str
     tx_info: Optional[StarknetTransactionExecutionInfo]
 
     def __str__(self) -> str:
         result: List[str] = []
         result.append(f"[{log_color_provider.colorize('GREEN', 'PASS')}]")
-        result.append(f"{self.get_formatted_file_path()} {self.function_name}")
+        result.append(f"{self.get_formatted_file_path()} {self.test_case_name}")
         return " ".join(result)
 
 
 @dataclass(frozen=True)
 class FailedTestCase(TestCaseResult):
-    function_name: str
+    test_case_name: str
     exception: ReportedException
 
     def __str__(self) -> str:
         result: List[str] = []
         result.append(f"[{log_color_provider.colorize('RED', 'FAIL')}] ")
-        result.append(f"{self.get_formatted_file_path()} {self.function_name}")
+        result.append(f"{self.get_formatted_file_path()} {self.test_case_name}")
         result.append("\n")
         result.append(str(self.exception))
         result.append("\n")
@@ -46,6 +46,7 @@ class FailedTestCase(TestCaseResult):
 
 @dataclass(frozen=True)
 class BrokenTestSuite(TestCaseResult):
+    test_case_names: List[str]
     exception: StarkException
 
     def __str__(self) -> str:
