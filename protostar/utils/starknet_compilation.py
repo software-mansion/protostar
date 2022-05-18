@@ -60,10 +60,10 @@ class StarknetCompiler:
                 message=(f"Couldn't find file '{err.filename}'")
             ) from err
 
-    def compile_contract(
-        self, *sources: Path, add_debug_info: bool = False
+    @staticmethod
+    def compile_preprocessed_contract(
+        preprocessed: StarknetPreprocessedProgram, add_debug_info: bool = False
     ) -> ContractDefinition:
-        preprocessed = self.preprocess_contract(*sources)
         assembled = assemble_starknet_contract(
             preprocessed_program=preprocessed,
             main_scope=MAIN_SCOPE,
@@ -73,8 +73,17 @@ class StarknetCompiler:
         assert isinstance(assembled, ContractDefinition)
         return assembled
 
-    def get_function_names(self, cairo_file_path: Path, prefix: str) -> List[str]:
-        preprocessed = self.preprocess_contract(cairo_file_path)
+    def compile_contract(
+        self, *sources: Path, add_debug_info: bool = False
+    ) -> ContractDefinition:
+        preprocessed = self.preprocess_contract(*sources)
+        assembled = self.compile_preprocessed_contract(preprocessed, add_debug_info)
+        return assembled
+
+    @staticmethod
+    def get_function_names(
+        preprocessed: StarknetPreprocessedProgram, prefix: str
+    ) -> List[str]:
         return [
             el["name"]
             for el in preprocessed.abi
