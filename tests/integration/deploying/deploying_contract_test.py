@@ -10,16 +10,15 @@ import pytest
 from protostar.commands.deploy.deploy_contract import deploy_contract
 
 
-def get_available_port() -> int:
+@pytest.fixture(name="devnet_gateway_port")
+def devnet_gateway_port_fixture() -> int:
     with Socket() as socket:
         socket.bind(("", 0))
         return socket.getsockname()[1]
 
 
 @pytest.fixture(name="devnet_gateway_url")
-def devnet_gateway_url_fixture():
-    devnet_port = get_available_port()
-
+def devnet_gateway_url_fixture(devnet_gateway_port: int):
     command = [
         "poetry",
         "run",
@@ -27,12 +26,12 @@ def devnet_gateway_url_fixture():
         "--host",
         "localhost",
         "--port",
-        str(devnet_port),
+        str(devnet_gateway_port),
     ]
     # pylint: disable=consider-using-with
     proc = subprocess.Popen(command)
     time.sleep(5)
-    yield f"http://localhost:{devnet_port}"
+    yield f"http://localhost:{devnet_gateway_port}"
     proc.kill()
 
 
