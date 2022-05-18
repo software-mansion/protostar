@@ -1344,6 +1344,17 @@ pytest = ">=4.6"
 testing = ["fields", "hunter", "process-tests", "six", "pytest-xdist", "virtualenv"]
 
 [[package]]
+category = "main"
+description = "pytest plugin for test data directories and files"
+name = "pytest-datadir"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+version = "1.3.1"
+
+[package.dependencies]
+pytest = ">=2.7.0"
+
+[[package]]
 category = "dev"
 description = "Thin-wrapper around the mock package for easier use with pytest"
 name = "pytest-mock"
@@ -1767,7 +1778,7 @@ testing = [
 ]
 
 [metadata]
-content-hash = "44057139b0e12622f0aaee6b91d14d501bfc356f1885dd47cffb0a297d8a889e"
+content-hash = "af0675300a501feb81c5ba2680ca1c22581f77a57dfdd0ce301fcac051872b91"
 lock-version = "1.1"
 python-versions = ">=3.7.12, <3.10"
 
@@ -2575,6 +2586,10 @@ pytest-asyncio = [
 pytest-cov = [
   {file = "pytest-cov-3.0.0.tar.gz", hash = "sha256:e7f0f5b1617d2210a2cabc266dfe2f4c75a8d32fb89eafb7ad9d06f6d076d470"},
   {file = "pytest_cov-3.0.0-py3-none-any.whl", hash = "sha256:578d5d15ac4a25e5f961c938b85a05b09fdaae9deef3bb6de9a6e766622ca7a6"},
+]
+pytest-datadir = [
+  {file = "pytest-datadir-1.3.1.tar.gz", hash = "sha256:d3af1e738df87515ee509d6135780f25a15959766d9c2b2dbe02bf4fb979cb18"},
+  {file = "pytest_datadir-1.3.1-py2.py3-none-any.whl", hash = "sha256:1847ed0efe0bc54cac40ab3fba6d651c2f03d18dd01f2a582979604d32e7621e"},
 ]
 pytest-mock = [
   {file = "pytest-mock-3.7.0.tar.gz", hash = "sha256:5112bd92cc9f186ee96e1a92efc84969ea494939c3aead39c50f421c4cc69534"},
