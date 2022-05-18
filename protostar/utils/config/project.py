@@ -6,7 +6,8 @@ from typing import Any, Dict, List, Optional, cast
 import tomli
 import tomli_w
 
-from protostar.commands.test.expected_event import collect_immediate_subdirectories
+from protostar.commands.test.expected_event import \
+    collect_immediate_subdirectories
 from protostar.protostar_exception import ProtostarException
 from protostar.utils.protostar_directory import VersionManager
 
@@ -37,6 +38,7 @@ class Project:
         self, version_manager: VersionManager, project_root: Optional[Path] = None
     ):
         self.project_root = project_root or Path()
+        self.shared_command_configs_section_name = "shared_command_configs"
         self._project_config = None
         self._protostar_config = None
         self._version_manager = version_manager

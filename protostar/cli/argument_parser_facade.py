@@ -1,5 +1,4 @@
-import argparse
-from argparse import ArgumentParser
+from argparse import ArgumentParser, RawTextHelpFormatter, _SubParsersAction
 from pathlib import Path
 from typing import Any, Optional, Sequence
 
@@ -15,15 +14,22 @@ class ArgumentParserFacade:
         self,
         cli_app: CLIApp,
         default_value_provider: Optional[ArgumentValueFromConfigProvider] = None,
+        disable_help=False,
     ) -> None:
-        self.argument_parser = ArgumentParser()
-        self.command_parsers = self.argument_parser.add_subparsers(dest="command")
+        self.argument_parser = ArgumentParser(
+            formatter_class=RawTextHelpFormatter, add_help=not disable_help
+        )
+        self.command_parsers: Optional[_SubParsersAction] = None
         self.cli_app = cli_app
         self._default_value_provider = default_value_provider
-
         self._setup_parser()
 
-    def parse(self, input_args: Optional[Sequence[str]] = None) -> Any:
+    def parse(
+        self, input_args: Optional[Sequence[str]] = None, ignore_unrecognized=False
+    ) -> Any:
+        if ignore_unrecognized:
+            (known_args, _) = self.argument_parser.parse_known_args(input_args)
+            return known_args
         return self.argument_parser.parse_args(input_args)
 
     def print_help(self):
@@ -37,9 +43,12 @@ class ArgumentParserFacade:
             self._add_root_argument(root_arg)
 
     def _add_command(self, command: Command) -> "ArgumentParserFacade":
+        if not self.command_parsers:
+            self.command_parsers = self.argument_parser.add_subparsers(dest="command")
+
         command_parser = self.command_parsers.add_parser(
             command.name,
-            formatter_class=argparse.RawTextHelpFormatter,
+            formatter_class=RawTextHelpFormatter,
             description=command.description,
         )
         for arg in command.arguments:

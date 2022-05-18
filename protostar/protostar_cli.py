@@ -23,6 +23,32 @@ from protostar.utils import (
     log_color_provider,
 )
 
+PROFILE_ARG = Command.Argument(
+    name="profile",
+    short_name="p",
+    type="str",
+    description="\n".join(
+        [
+            "Specifies active profile configuration, for example:",
+            "",
+            "```toml",
+            '["protostar.deploy.PROFILE_NAME"]',
+            "# ...",
+            "```",
+            "",
+            "`protostar -p PROFILE_NAME deploy ...`",
+        ]
+    ),
+)
+
+
+class ConfigurationProfileCLI(CLIApp):
+    def __init__(self) -> None:
+        super().__init__(
+            commands=[],
+            root_args=[PROFILE_ARG],
+        )
+
 
 class ProtostarCLI(CLIApp):
     def __init__(
@@ -33,6 +59,7 @@ class ProtostarCLI(CLIApp):
         version_manager: VersionManager,
     ) -> None:
         self.project = project
+
         super().__init__(
             commands=[
                 InitCommand(script_root, version_manager),
@@ -44,6 +71,7 @@ class ProtostarCLI(CLIApp):
                 TestCommand(project, protostar_directory),
             ],
             root_args=[
+                PROFILE_ARG,
                 Command.Argument(
                     name="version",
                     short_name="v",

@@ -1,10 +1,9 @@
 import asyncio
 from pathlib import Path
 
+from protostar.cli import ArgumentParserFacade, ArgumentValueFromConfigProvider
 from protostar.cli.cli_app import CLIApp
-from protostar.protostar_cli import ProtostarCLI
-from protostar.cli import ArgumentValueFromConfigProvider
-from protostar.cli import ArgumentParserFacade
+from protostar.protostar_cli import ConfigurationProfileCLI, ProtostarCLI
 
 
 def main(script_root: Path):
@@ -12,12 +11,18 @@ def main(script_root: Path):
 
     parser = ArgumentParserFacade(
         protostar_cli,
-        default_value_provider=ArgumentValueFromConfigProvider(protostar_cli.project),
+        default_value_provider=ArgumentValueFromConfigProvider(
+            protostar_cli.project,
+            configuration_profile_name=ArgumentParserFacade(
+                ConfigurationProfileCLI(), disable_help=True
+            )
+            .parse(ignore_unrecognized=True)
+            .profile,
+        ),
     )
-    args = parser.parse()
 
     try:
-        asyncio.run(protostar_cli.run(args))
+        asyncio.run(protostar_cli.run(parser.parse()))
     except CLIApp.CommandNotFoundError:
         parser.print_help()
     except Exception as err:

@@ -5,17 +5,37 @@ from protostar.utils import Project
 
 
 class ArgumentValueFromConfigProvider:
-    def __init__(self, project: Project) -> None:
+    def __init__(
+        self, project: Project, configuration_profile_name: Optional[str] = None
+    ) -> None:
         self._project = project
+        self._configuration_profile_name = configuration_profile_name
         super().__init__()
 
     def get_default_value(
         self, command: Optional[Command], argument: Command.Argument
     ) -> Optional[Any]:
-        shared_config = self._project.load_argument(
-            "shared_command_configs", argument.name
-        )
+        if self._configuration_profile_name and command:
+            profile_cmd_arg = self._project.load_argument(
+                f"{command.name}.{self._configuration_profile_name}", argument.name
+            )
+            if profile_cmd_arg:
+                return profile_cmd_arg
 
-        command_name = command.name if command else "shared_command_configs"
-        command_scope_config = self._project.load_argument(command_name, argument.name)
-        return command_scope_config or shared_config
+        if command:
+            cmd_arg = self._project.load_argument(command.name, argument.name)
+            if cmd_arg:
+                return cmd_arg
+
+        if self._configuration_profile_name:
+            profile_shared_arg = self._project.load_argument(
+                f"{self._project.shared_command_configs_section_name}.{self._configuration_profile_name}",
+                argument.name,
+            )
+            if profile_shared_arg:
+                return profile_shared_arg
+
+        shared_arg = self._project.load_argument(
+            self._project.shared_command_configs_section_name, argument.name
+        )
+        return shared_arg
