@@ -1,37 +1,29 @@
+from typing import List
+
 from starkware.starknet.cli.starknet_cli import NETWORKS
 
 from protostar.protostar_exception import ProtostarException
-from protostar.utils.config.project import Project
 
 
-class InvalidNetworkConfigException(ProtostarException):
-    pass
+class UnknownStarkwareNetworkException(ProtostarException):
+    def __init__(self):
+        message_lines: List[str] = []
+        message_lines.append("Unknown starkware network")
+        message_lines.append("The following starkware network names are supported:")
+        for network_name in NETWORKS:
+            message_lines.append(f"- {network_name}")
+        super().__init__("\n".join(message_lines))
 
 
 class NetworkConfig:
     @classmethod
-    def from_config_file(cls, network_name: str, project: Project) -> "NetworkConfig":
-        gateway_url = project.load_argument(
-            f"protostar.network.{network_name}", "gateway_url"
-        )
-        if gateway_url:
-            return cls(gateway_url=gateway_url)
+    def from_starknet_network_name(
+        cls,
+        starkware_network_name: str,
+    ) -> "NetworkConfig":
+        if starkware_network_name not in NETWORKS:
+            raise UnknownStarkwareNetworkException()
 
-        starkware_network_name = project.load_argument(
-            f"protostar.network.{network_name}", "network"
-        )
-        if starkware_network_name:
-            return cls.from_starkware_network(starkware_network_name)
-
-        raise InvalidNetworkConfigException(
-            (
-                f"Protostar couldn't find `gateway_url` for {network_name} network."
-                f'Did you define `network` or `gateway_url`in protostar.toml::["protostar.network.{network_name}"]?'
-            )
-        )
-
-    @classmethod
-    def from_starkware_network(cls, starkware_network_name: str) -> "NetworkConfig":
         return cls(gateway_url=f"https://{NETWORKS[starkware_network_name]}/gateway")
 
     def __init__(self, gateway_url: str):
