@@ -1352,7 +1352,7 @@ pytest = ">=4.6"
 testing = ["fields", "hunter", "process-tests", "six", "pytest-xdist", "virtualenv"]
 
 [[package]]
-category = "dev"
+category = "main"
 description = "pytest plugin for test data directories and files"
 name = "pytest-datadir"
 optional = false
@@ -1786,7 +1786,7 @@ testing = [
 ]
 
 [metadata]
-content-hash = "4f7a344c0315f7f0c6d011050b428fd808ea3e4114712e86631149965d8e9fcf"
+content-hash = "ba9f5da032e5ca1f4d77692a01f9a939c705c00883562e93a248d9d058202f29"
 lock-version = "1.1"
 python-versions = ">=3.7.12, <3.10"
 
