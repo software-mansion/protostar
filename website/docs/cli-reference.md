@@ -2,6 +2,21 @@
 ## Common flags
 #### `--no-color`
 Disable colors.
+#### `-p` `--profile STRING`
+Specifies active profile configuration.
+#### CI configuration
+```toml title="protostar.toml"
+[protostar.shared_command_configs.ci]
+no_color=true
+```
+`protostar -p ci test`
+
+#### Deployment configuration
+```toml title="protostar.toml"
+[protostar.deploy.devnet]
+gateway_url="http://127.0.0.1:5050/"
+```
+`protostar -p devnet deploy ...`
 #### `-v` `--version`
 Show Protostar and Cairo-lang version.
 ## Commands

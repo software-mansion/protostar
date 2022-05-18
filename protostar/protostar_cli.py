@@ -29,14 +29,20 @@ PROFILE_ARG = Command.Argument(
     type="str",
     description="\n".join(
         [
-            "Specifies active profile configuration, for example:",
-            "",
-            "```toml",
-            '["protostar.deploy.PROFILE_NAME"]',
-            "# ...",
+            "Specifies active profile configuration.",
+            "#### CI configuration",
+            '```toml title="protostar.toml"',
+            "[protostar.shared_command_configs.ci]",
+            "no_color=true",
             "```",
+            "`protostar -p ci test`",
             "",
-            "`protostar -p PROFILE_NAME deploy ...`",
+            "#### Deployment configuration",
+            '```toml title="protostar.toml"',
+            "[protostar.deploy.devnet]",
+            'gateway_url="http://127.0.0.1:5050/"',
+            "```",
+            "`protostar -p devnet deploy ...`" "",
         ]
     ),
 )
