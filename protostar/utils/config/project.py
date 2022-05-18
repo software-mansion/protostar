@@ -3,11 +3,11 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, cast
 
+import flatdict
 import tomli
 import tomli_w
 
-from protostar.commands.test.expected_event import \
-    collect_immediate_subdirectories
+from protostar.commands.test.expected_event import collect_immediate_subdirectories
 from protostar.protostar_exception import ProtostarException
 from protostar.utils.protostar_directory import VersionManager
 
@@ -85,6 +85,8 @@ class Project:
             tomli_w.dump(self.ordered_dict, file)
 
     def load_argument(self, section_name: str, attribute_name: str) -> Optional[Any]:
+        assert not section_name.startswith("protostar.")
+
         if not self._config_dict:
             try:
                 with open(self.config_path, "rb") as config_file:
@@ -92,14 +94,16 @@ class Project:
             except FileNotFoundError:
                 return None
 
+        flat_config = flatdict.FlatDict(self._config_dict, delimiter=".")
+
         section_name = f"protostar.{section_name}"
-        if section_name not in self._config_dict:
+        if section_name not in flat_config:
             return None
-        command_config = self._config_dict[section_name]
+        section_config = flat_config[section_name]
         attribute_name = attribute_name.replace("-", "_")
-        if attribute_name not in command_config:
+        if attribute_name not in section_config:
             return None
-        return command_config[attribute_name]
+        return section_config[attribute_name]
 
     def load_config(self) -> "ProjectConfig":
         if not self.config_path.is_file():

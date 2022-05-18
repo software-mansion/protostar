@@ -1,0 +1,15 @@
+
+[protostar.shared_command_configs]
+arg = "a"
+shared_arg = true
+
+[protostar.shared_command_configs.testnet]
+arg = "b"
+shared_profiled_arg = true
+
+[protostar.deploy]
+arg = "c"
+cmd_arg = true
+
+[protostar.deploy.testnet]
+arg = "d"

@@ -74,8 +74,8 @@ class ArgumentParserFacade:
         self, command: Optional[Command], argument: Command.Argument
     ) -> Command.Argument:
         if self._default_value_provider:
-            new_default = self._default_value_provider.get_default_value(
-                command, argument
+            new_default = self._default_value_provider.load_value(
+                command.name if command else None, argument.name
             )
             if new_default is not None:
                 return argument.copy_with(default=new_default)

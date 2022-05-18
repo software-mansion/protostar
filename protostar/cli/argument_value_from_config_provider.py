@@ -1,6 +1,5 @@
 from typing import Any, Optional
 
-from protostar.cli.command import Command
 from protostar.utils import Project
 
 
@@ -12,30 +11,30 @@ class ArgumentValueFromConfigProvider:
         self._configuration_profile_name = configuration_profile_name
         super().__init__()
 
-    def get_default_value(
-        self, command: Optional[Command], argument: Command.Argument
+    def load_value(
+        self, command_name: Optional[str], argument_name: str
     ) -> Optional[Any]:
-        if self._configuration_profile_name and command:
+        if self._configuration_profile_name and command_name:
             profile_cmd_arg = self._project.load_argument(
-                f"{command.name}.{self._configuration_profile_name}", argument.name
+                f"{command_name}.{self._configuration_profile_name}", argument_name
             )
             if profile_cmd_arg:
                 return profile_cmd_arg
 
-        if command:
-            cmd_arg = self._project.load_argument(command.name, argument.name)
+        if command_name:
+            cmd_arg = self._project.load_argument(command_name, argument_name)
             if cmd_arg:
                 return cmd_arg
 
         if self._configuration_profile_name:
             profile_shared_arg = self._project.load_argument(
                 f"{self._project.shared_command_configs_section_name}.{self._configuration_profile_name}",
-                argument.name,
+                argument_name,
             )
             if profile_shared_arg:
                 return profile_shared_arg
 
         shared_arg = self._project.load_argument(
-            self._project.shared_command_configs_section_name, argument.name
+            self._project.shared_command_configs_section_name, argument_name
         )
         return shared_arg
