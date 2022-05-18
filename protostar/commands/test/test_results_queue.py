@@ -9,12 +9,12 @@ if TYPE_CHECKING:
 
 class TestResultsQueue:
     def __init__(
-        self, shared_queue: "queue.Queue[Tuple[TestSuite, TestCaseResult]]"
+        self, shared_queue: "queue.Queue[TestCaseResult]"
     ) -> None:
         self._shared_queue = shared_queue
 
-    def get(self) -> Tuple[TestSuite, TestCaseResult]:
+    def get(self) -> TestCaseResult:
         return self._shared_queue.get(block=True, timeout=1000)
 
-    def put(self, item: Tuple[TestSuite, TestCaseResult]) -> None:
+    def put(self, item: TestCaseResult) -> None:
         self._shared_queue.put(item)
