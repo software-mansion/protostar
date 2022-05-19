@@ -21,7 +21,9 @@ async def test_deploying_contract(
     deploy_command = DeployCommand(project_mock)
 
     response = await deploy_command.deploy(
-        contract_name="main", gateway_url=devnet_gateway_url, output_dir=output_path
+        contract_name="main",
+        gateway_url=devnet_gateway_url,
+        build_output_dir=output_path,
     )
 
     assert response["address"] is not None

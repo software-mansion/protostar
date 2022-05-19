@@ -7,7 +7,6 @@ from protostar.commands.deploy.starkware.starknet_cli import (
     SuccessfulGatewayResponse,
     deploy,
 )
-from protostar.commands.shared_args import output_shared_argument
 from protostar.protostar_exception import ProtostarException
 from protostar.utils.config.project import Project
 
@@ -25,9 +24,8 @@ class DeployCommand(Command):
         type="str",
     )
 
-    def __init__(self, project: Project, build_output_path: Path) -> None:
+    def __init__(self, project: Project) -> None:
         self._project = project
-        self._build_output_path = build_output_path
 
     @property
     def name(self) -> str:
@@ -63,6 +61,12 @@ class DeployCommand(Command):
                 is_array=True,
             ),
             Command.Argument(
+                name="build-output",
+                description="An output directory used to put the compiled contracts in.",
+                type="path",
+                default="build",
+            ),
+            Command.Argument(
                 name="token",
                 description="Used for deploying contracts in Alpha MainNet.",
                 type="str",
@@ -77,7 +81,6 @@ class DeployCommand(Command):
                 ),
                 type="str",
             ),
-            output_shared_argument,
             DeployCommand.gateway_url_arg,
             DeployCommand.network_arg,
         ]
@@ -86,7 +89,7 @@ class DeployCommand(Command):
         return await self.deploy(
             contract_name=args.contract,
             network=args.network,
-            output_dir=args.output,
+            build_output_dir=args.build_output,
             inputs=args.inputs,
             token=args.token,
             salt=args.salt,
@@ -96,7 +99,7 @@ class DeployCommand(Command):
     async def deploy(
         self,
         contract_name: str,
-        output_dir: Path,
+        build_output_dir: Path,
         inputs: Optional[List[str]] = None,
         network: Optional[str] = None,
         gateway_url: Optional[str] = None,
@@ -104,7 +107,7 @@ class DeployCommand(Command):
         salt: Optional[str] = None,
     ) -> SuccessfulGatewayResponse:
         with open(
-            self._project.project_root / output_dir / f"{contract_name}.json",
+            self._project.project_root / build_output_dir / f"{contract_name}.json",
             mode="r",
             encoding="utf-8",
         ) as compiled_contract_file:
