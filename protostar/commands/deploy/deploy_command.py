@@ -13,20 +13,21 @@ from protostar.utils.config.project import Project
 
 
 class DeployCommand(Command):
-    def __init__(self, project: Project) -> None:
+    gateway_url_arg = Command.Argument(
+        name="gateway_url",
+        description="The URL of a StarkNet gateway.",
+        type="str",
+    )
+
+    network_arg = Command.Argument(
+        name="network",
+        description="The name of the StarkNet network.",
+        type="str",
+    )
+
+    def __init__(self, project: Project, build_output_path: Path) -> None:
         self._project = project
-
-        self._gateway_url_arg = Command.Argument(
-            name="gateway_url",
-            description="The URL of a StarkNet gateway.",
-            type="str",
-        )
-
-        self._network_arg = Command.Argument(
-            name="network",
-            description="The name of the StarkNet network.",
-            type="str",
-        )
+        self._build_output_path = build_output_path
 
     @property
     def name(self) -> str:
@@ -77,8 +78,8 @@ class DeployCommand(Command):
                 type="str",
             ),
             output_shared_argument,
-            self._gateway_url_arg,
-            self._network_arg,
+            DeployCommand.gateway_url_arg,
+            DeployCommand.network_arg,
         ]
 
     async def run(self, args):
@@ -108,7 +109,7 @@ class DeployCommand(Command):
             encoding="utf-8",
         ) as compiled_contract_file:
 
-            network_config = self._get_network_config(
+            network_config = self._build_network_config(
                 gateway_url=gateway_url, network=network
             )
 
@@ -120,7 +121,8 @@ class DeployCommand(Command):
                 token=token,
             )
 
-    def _get_network_config(
+    # pylint: disable=no-self-use
+    def _build_network_config(
         self,
         gateway_url: Optional[str] = None,
         network: Optional[str] = None,
@@ -134,7 +136,7 @@ class DeployCommand(Command):
 
         if network_config is None:
             raise ProtostarException(
-                f"Argument `{self._gateway_url_arg.name}` or `{self._network_arg.name}` is required"
+                f"Argument `{DeployCommand.gateway_url_arg.name}` or `{DeployCommand.network_arg.name}` is required"
             )
 
         return network_config
