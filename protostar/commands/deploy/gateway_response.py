@@ -3,7 +3,7 @@ from logging import Logger
 
 
 @dataclass
-class SuccessfulGatewayResponseFacade:
+class SuccessfulGatewayResponse:
     code: str
     address: int
     transaction_hash: str

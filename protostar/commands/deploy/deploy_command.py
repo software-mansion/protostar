@@ -3,9 +3,11 @@ from pathlib import Path
 from typing import List, Optional
 
 from protostar.cli.command import Command
-from protostar.commands.deploy.deploy_facade import deploy_contract
-from protostar.commands.deploy.gateway_response import SuccessfulGatewayResponseFacade
 from protostar.commands.deploy.network_config import NetworkConfig
+from protostar.commands.deploy.starkware.starknet_cli import (
+    SuccessfulGatewayResponse,
+    deploy,
+)
 from protostar.commands.shared_args import output_shared_argument
 from protostar.protostar_exception import ProtostarException
 from protostar.utils.config.project import Project
@@ -19,6 +21,18 @@ class DeployCommand(Command):
     def __init__(self, project: Project) -> None:
         self._project = project
 
+        self._gateway_url_arg = Command.Argument(
+            name="gateway_url",
+            description="The URL of a StarkNet gateway.",
+            type="str",
+        )
+
+        self._network_arg = Command.Argument(
+            name="network",
+            description="The name of the StarkNet network.",
+            type="str",
+        )
+
     @property
     def name(self) -> str:
         return "deploy"
@@ -27,19 +41,7 @@ class DeployCommand(Command):
     def description(self) -> str:
         return "\n".join(
             [
-                "Deploys contracts. Before running this command you need to configure networks in the `protostar.toml`",
-                "",
-                "Network configuration examples:",
-                "",
-                '["protostar.network.devnet"]',
-                'gateway_url = "http://127.0.0.1:5050/"',
-                "",
-                '["protostar.network.testnet"]',
-                'network = "alpha-goerli"',
-                "",
-                '["protostar.network.mainnet"]',
-                'network = "alpha-mainnet"',
-                "",
+                "Deploys contracts.",
             ]
         )
 
@@ -52,24 +54,16 @@ class DeployCommand(Command):
         return [
             Command.Argument(
                 name="contract",
-                short_name="c",
-                description='A name of the contract defined in protostar.toml::["protostar.contracts"]',
+                description='A name of the contract defined in protostar.toml::["protostar.contracts"].',
                 type="str",
                 is_required=True,
             ),
             Command.Argument(
                 name="inputs",
                 short_name="i",
-                description="The inputs to the constructor",
+                description="The inputs to the constructor.",
                 type="str",
                 is_array=True,
-            ),
-            Command.Argument(
-                name="network",
-                short_name="n",
-                description="A name of the network defined in protostar.toml",
-                type="str",
-                is_required=True,
             ),
             Command.Argument(
                 name="token",
@@ -87,6 +81,8 @@ class DeployCommand(Command):
                 type="str",
             ),
             output_shared_argument,
+            self._gateway_url_arg,
+            self._network_arg,
         ]
 
     async def run(self, args):
@@ -103,15 +99,19 @@ class DeployCommand(Command):
     async def deploy(
         self,
         contract_name: str,
-        network: str,
         output_dir: Path,
         inputs: Optional[List[str]] = None,
+        network: Optional[str] = None,
+        gateway_url: Optional[str] = None,
         token: Optional[str] = None,
         salt: Optional[str] = None,
-    ) -> SuccessfulGatewayResponseFacade:
+    ) -> SuccessfulGatewayResponse:
+
         logger = getLogger()
 
-        network_config = NetworkConfig.from_config_file(network, self._project)
+        network_config = self._get_network_config(
+            gateway_url=gateway_url, network=network
+        )
 
         compilation_output_filepath = (
             self._project.project_root / output_dir / f"{contract_name}.json"
@@ -119,11 +119,11 @@ class DeployCommand(Command):
 
         try:
             with open(
-                compilation_output_filepath,
+                self._project.project_root / output_dir / f"{contract_name}.json",
                 mode="r",
                 encoding="utf-8",
             ) as compiled_contract_file:
-                response = await deploy_contract(
+                response = await deploy(
                     gateway_url=network_config.gateway_url,
                     compiled_contract_file=compiled_contract_file,
                     constructor_args=inputs,
@@ -134,6 +134,7 @@ class DeployCommand(Command):
                 response.log(logger)
 
                 return response
+
         except FileNotFoundError as err:
             raise CompilationOutputNotFoundException(
                 (
@@ -141,3 +142,22 @@ class DeployCommand(Command):
                     "Did you run `protostar build` before running this command?"
                 )
             ) from err
+
+    def _get_network_config(
+        self,
+        gateway_url: Optional[str] = None,
+        network: Optional[str] = None,
+    ) -> NetworkConfig:
+        network_config: Optional[NetworkConfig] = None
+
+        if network:
+            network_config = NetworkConfig.from_starknet_network_name(network)
+        if gateway_url:
+            network_config = NetworkConfig(gateway_url=gateway_url)
+
+        if network_config is None:
+            raise ProtostarException(
+                f"Argument `{self._gateway_url_arg.name}` or `{self._network_arg.name}` is required"
+            )
+
+        return network_config

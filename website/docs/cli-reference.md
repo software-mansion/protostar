@@ -20,29 +20,17 @@ An output directory used to put the compiled contracts in.
 ```shell
 protostar deploy main -n testnet
 ```
-Deploys contracts. Before running this command you need to configure networks in the `protostar.toml`
-
-Network configuration examples:
-
-[protostar.network.devnet]
-gateway_url = "http://127.0.0.1:5050/"
-
-[protostar.network.testnet]
-network = "alpha-goerli"
-
-[protostar.network.mainnet]
-network = "alpha-mainnet"
-
+Deploys contracts.
 #### `contract STRING`
 Required.
 
-A name of the contract defined in protostar.toml::["protostar.contracts"]
+A name of the contract defined in protostar.toml::["protostar.contracts"].
+#### `--gateway_url STRING`
+The URL of a StarkNet gateway.
 #### `-i` `--inputs STRING[]`
-The inputs to the constructor
-#### `-n` `--network STRING`
-Required.
-
-A name of the network defined in protostar.toml
+The inputs to the constructor.
+#### `--network STRING`
+The name of the StarkNet network.
 #### `-o` `--output PATH=build`
 An output directory used to put the compiled contracts in.
 #### `--salt STRING`

@@ -11,7 +11,7 @@ from starkware.starknet.services.api.gateway.transaction import Deploy
 from starkware.starknet.utils.api_utils import cast_to_felts
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
-from protostar.commands.deploy.gateway_response import SuccessfulGatewayResponseFacade
+from protostar.commands.deploy.gateway_response import SuccessfulGatewayResponse
 from protostar.protostar_exception import ProtostarException
 
 
@@ -19,13 +19,13 @@ class DeployContractException(ProtostarException):
     pass
 
 
-async def deploy_contract(
+async def deploy(
     gateway_url: str,
     compiled_contract_file: TextIOWrapper,
     constructor_args: Optional[Sequence[Union[str, int]]] = None,
     salt: Optional[str] = None,
     token: Optional[str] = None,
-) -> SuccessfulGatewayResponseFacade:
+) -> SuccessfulGatewayResponse:
     """Version of deploy function from starkware.starknet.cli.starknet_cli independent of CLI logic."""
 
     inputs = cast_to_felts(constructor_args or [])
@@ -80,7 +80,7 @@ async def deploy_contract(
     # return gateway_response
     contract_address = int(gateway_response["address"], 16)
 
-    return SuccessfulGatewayResponseFacade(
+    return SuccessfulGatewayResponse(
         address=contract_address,
         code=gateway_response["code"],
         transaction_hash=gateway_response["transaction_hash"],
