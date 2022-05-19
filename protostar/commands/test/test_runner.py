@@ -55,7 +55,9 @@ class TestRunner:
         compiled_test = StarknetCompiler(
             include_paths=self.include_paths,
             disable_hint_validation=True,
-        ).compile_contract(test_suite.test_path, add_debug_info=True)
+        ).compile_preprocessed_contract(
+            test_suite.preprocessed_contract, add_debug_info=True
+        )
 
         await self._run_test_suite(
             test_contract=compiled_test,
