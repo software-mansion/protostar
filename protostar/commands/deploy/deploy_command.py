@@ -46,15 +46,15 @@ class DeployCommand(Command):
 
     @property
     def example(self) -> Optional[str]:
-        return "protostar deploy -c main -n testnet"
+        return None
 
     @property
     def arguments(self) -> List[Command.Argument]:
         return [
             Command.Argument(
-                name="contract",
-                description='A name of the contract defined in protostar.toml::["protostar.contracts"].',
-                type="str",
+                name="compiled-contract",
+                description="The path to the compiled contract.",
+                type="path",
                 is_required=True,
                 is_positional=True,
             ),
@@ -64,12 +64,6 @@ class DeployCommand(Command):
                 description="The inputs to the constructor.",
                 type="str",
                 is_array=True,
-            ),
-            Command.Argument(
-                name="build-output",
-                description="An output directory used to put the compiled contracts in.",
-                type="path",
-                default="build",
             ),
             Command.Argument(
                 name="token",
@@ -92,10 +86,9 @@ class DeployCommand(Command):
 
     async def run(self, args):
         return await self.deploy(
-            contract_name=args.contract,
+            compiled_contract_path=args.compiled_contract,
             network=args.network,
             gateway_url=args.gateway_url,
-            build_output_dir=args.build_output,
             inputs=args.inputs,
             token=args.token,
             salt=args.salt,
@@ -104,14 +97,22 @@ class DeployCommand(Command):
     # pylint: disable=too-many-arguments
     async def deploy(
         self,
-        contract_name: str,
-        build_output_dir: Path,
+        compiled_contract_path: Path,
         inputs: Optional[List[str]] = None,
         network: Optional[str] = None,
         gateway_url: Optional[str] = None,
         token: Optional[str] = None,
         salt: Optional[str] = None,
     ) -> SuccessfulGatewayResponse:
+        with open(
+            self._project.project_root / compiled_contract_path,
+            mode="r",
+            encoding="utf-8",
+        ) as compiled_contract_file:
+
+            network_config = self._build_network_config(
+                gateway_url=gateway_url, network=network
+            )
 
         logger = getLogger()
 
@@ -120,12 +121,12 @@ class DeployCommand(Command):
         )
 
         compilation_output_filepath = (
-            self._project.project_root / build_output_dir / f"{contract_name}.json"
+            self._project.project_root / compiled_contract_path
         )
 
         try:
             with open(
-                self._project.project_root / build_output_dir / f"{contract_name}.json",
+                self._project.project_root / compilation_output_filepath,
                 mode="r",
                 encoding="utf-8",
             ) as compiled_contract_file:
