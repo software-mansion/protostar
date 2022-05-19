@@ -47,9 +47,10 @@ format_check = "black --check protostar"
 lint = "pylint protostar"
 profile = "python -m cProfile -o recent_profiling.prof protostar.py"
 show_prof = "snakeviz recent_profiling.prof"
-test = ["test_unit", "build", "test_e2e"]
-test_e2e.shell = "pytest tests/*"
+test = ["test_unit", "test_integration", "build", "test_e2e"]
+test_e2e.shell = "starknet-devnet && pytest tests/e2e"
 test_html = [{shell = "coverage html && open ./htmlcov/index.html"}]
+test_integration.shell = "pytest tests/integration"
 test_report = [{shell = "coverage report"}]
 test_unit.shell = "coverage run -m pytest protostar/*"
 type_check = "pyright"
