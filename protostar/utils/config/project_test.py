@@ -60,7 +60,7 @@ def test_loading_nested_argument(version_manager: VersionManager):
         version_manager,
         project_root=Path(current_directory, "examples", "nested"),
     )
-    assert proj.load_argument("network.foo", "network") == "foo"
+    assert proj.load_argument("deploy.testnet", "network") == "foo"
 
 
 def test_loading_argument_when_config_file_does_not_exist(

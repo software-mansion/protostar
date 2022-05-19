@@ -9,5 +9,5 @@ main = [
   "./src/main.cairo",
 ]
 
-["protostar.network.foo"]
+["protostar.deploy.testnet"]
 network = "foo"

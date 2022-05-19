@@ -36,19 +36,7 @@ class DeployCommand(Command):
     def description(self) -> str:
         return "\n".join(
             [
-                "Deploys contracts. Before running this command you need to configure networks in the `protostar.toml`",
-                "",
-                "Network configuration examples:",
-                "",
-                "[protostar.network.devnet]",
-                'gateway_url = "http://127.0.0.1:5050/"',
-                "",
-                "[protostar.network.testnet]",
-                'network = "alpha-goerli"',
-                "",
-                "[protostar.network.mainnet]",
-                'network = "alpha-mainnet"',
-                "",
+                "Deploys contracts.",
             ]
         )
 
