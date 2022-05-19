@@ -15,13 +15,13 @@ class DeployCommand(Command):
 
         self._gateway_url_arg = Command.Argument(
             name="gateway_url",
-            description="The URL of a StarkNet gateway",
+            description="The URL of a StarkNet gateway.",
             type="str",
         )
 
         self._network_arg = Command.Argument(
             name="network",
-            description="The name of the StarkNet network",
+            description="The name of the StarkNet network.",
             type="str",
         )
 
