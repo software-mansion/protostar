@@ -1,36 +1,7 @@
-# pylint: disable=consider-using-with
-import subprocess
-import time
 from distutils.file_util import copy_file
 from pathlib import Path
-from socket import socket as Socket
 
 import pytest
-
-
-@pytest.fixture(name="devnet_port")
-def devnet_port_fixture() -> int:
-    with Socket() as socket:
-        socket.bind(("", 0))
-        return socket.getsockname()[1]
-
-
-@pytest.fixture(name="devnet_gateway_url")
-def devnet_gateway_url_fixture(devnet_port: int):
-    command = [
-        "poetry",
-        "run",
-        "starknet-devnet",
-        "--host",
-        "localhost",
-        "--port",
-        str(devnet_port),
-    ]
-    # pylint: disable=consider-using-with
-    proc = subprocess.Popen(command)
-    time.sleep(5)
-    yield f"http://localhost:{devnet_port}"
-    proc.kill()
 
 
 @pytest.fixture(name="project_root_path")
@@ -71,6 +42,7 @@ def compiled_contract_filepath_fixture(
 
 @pytest.fixture(name="compiled_contract_file_handle")
 def compiled_contract_file_handle_fixture(compiled_contract_filepath):
+    # pylint: disable=consider-using-with
     file_handle = open(compiled_contract_filepath, "r", encoding="utf_8")
     yield file_handle
     file_handle.close()

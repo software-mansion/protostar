@@ -52,7 +52,7 @@ class DeployCommand(Command):
     def arguments(self) -> List[Command.Argument]:
         return [
             Command.Argument(
-                name="compiled-contract",
+                name="contract",
                 description="The path to the compiled contract.",
                 type="path",
                 is_required=True,
@@ -86,7 +86,7 @@ class DeployCommand(Command):
 
     async def run(self, args):
         return await self.deploy(
-            compiled_contract_path=args.compiled_contract,
+            compiled_contract_path=args.contract,
             network=args.network,
             gateway_url=args.gateway_url,
             inputs=args.inputs,

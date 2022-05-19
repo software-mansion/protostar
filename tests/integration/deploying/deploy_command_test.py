@@ -22,7 +22,7 @@ async def test_deploying_contract(
     deploy_command = DeployCommand(project_mock)
 
     args = SimpleNamespace()
-    args.compiled_contract = compiled_contract_filepath
+    args.contract = compiled_contract_filepath
     args.gateway_url = devnet_gateway_url
     args.inputs = ["42"]
     args.network = None

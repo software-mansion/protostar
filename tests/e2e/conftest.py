@@ -2,7 +2,7 @@
 import shutil
 from os import chdir, getcwd, mkdir, path
 from pathlib import Path
-from subprocess import PIPE, STDOUT, check_output, run
+from subprocess import PIPE, STDOUT, run
 from typing import List
 
 import pexpect
