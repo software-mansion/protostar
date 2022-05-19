@@ -82,7 +82,7 @@ def test_omitting_pattern(starknet_compiler, project_root):
 def test_breakage_upon_broken_test_suite(starknet_compiler, project_root):
     test_collector = TestCollector(starknet_compiler)
     cast(
-        MagicMock, starknet_compiler.get_function_names
+        MagicMock, starknet_compiler.preprocess_contract
     ).side_effect = PreprocessorError("")
 
     with pytest.raises(TestCollectingException):
@@ -104,6 +104,20 @@ def test_collecting_specific_function(starknet_compiler, project_root: Path):
 
     assert_tested_suites(result.test_suites, ["test_foo.cairo"])
     assert result.test_cases_count == 1
+
+
+def test_collector_preprocess_contracts(
+    mocker: MockerFixture, starknet_compiler, project_root: Path
+):
+    preprocessed_contract = mocker.MagicMock()
+    starknet_compiler.preprocess_contract.return_value = preprocessed_contract
+    test_collector = TestCollector(starknet_compiler)
+
+    [suite] = test_collector.collect(
+        project_root / "foo" / "test_foo.cairo"
+    ).test_suites
+    starknet_compiler.preprocess_contract.assert_called_once()
+    assert suite.preprocessed_contract == preprocessed_contract
 
 
 def test_logging_collected_one_test_suite_and_one_test_case(mocker: MockerFixture):

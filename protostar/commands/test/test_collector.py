@@ -131,13 +131,7 @@ class TestCollector:
     def _collect_test_case_names(
         self, preprocessed: StarknetPreprocessedProgram
     ) -> List[str]:
-        try:
-            return self._starknet_compiler.get_function_names(
-                preprocessed, prefix="test_"
-            )
-        except PreprocessorError as p_err:
-            print(p_err)
-            raise TestCollectingException("Failed to collect test cases") from p_err
+        return self._starknet_compiler.get_function_names(preprocessed, prefix="test_")
 
     def _preprocess_contract(self, file_path: Path) -> StarknetPreprocessedProgram:
         try:
