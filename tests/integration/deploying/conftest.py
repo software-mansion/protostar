@@ -34,6 +34,11 @@ def devnet_gateway_url_fixture():
     proc.kill()
 
 
+@pytest.fixture(name="project_root_path")
+def project_root_path_fixture(tmpdir) -> Path:
+    return Path(tmpdir)
+
+
 @pytest.fixture(name="output_path")
 def output_path_fixture(tmpdir) -> Path:
     return Path(tmpdir)
