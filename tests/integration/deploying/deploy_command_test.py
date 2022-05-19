@@ -1,4 +1,5 @@
 from pathlib import Path
+from types import SimpleNamespace
 from typing import cast
 
 import pytest
@@ -21,11 +22,15 @@ async def test_deploying_contract(
     cast(Project, project_mock).project_root = project_root_path
     deploy_command = DeployCommand(project_mock)
 
-    response = await deploy_command.deploy(
-        contract_name="main_with_constructor",
-        gateway_url=devnet_gateway_url,
-        build_output_dir=output_dir,
-        inputs=["42"],
-    )
+    args = SimpleNamespace()
+    args.contract = "main_with_constructor"
+    args.gateway_url = devnet_gateway_url
+    args.build_output = output_dir
+    args.inputs = ["42"]
+    args.network = None
+    args.token = None
+    args.salt = None
+
+    response = await deploy_command.run(args)
 
     assert response["address"] is not None

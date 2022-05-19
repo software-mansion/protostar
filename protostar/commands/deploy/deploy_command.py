@@ -89,6 +89,7 @@ class DeployCommand(Command):
         return await self.deploy(
             contract_name=args.contract,
             network=args.network,
+            gateway_url=args.gateway_url,
             build_output_dir=args.build_output,
             inputs=args.inputs,
             token=args.token,
