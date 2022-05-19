@@ -8,16 +8,15 @@ from socket import socket as Socket
 import pytest
 
 
-def get_available_port() -> int:
+@pytest.fixture(name="devnet_port")
+def devnet_port_fixture() -> int:
     with Socket() as socket:
         socket.bind(("", 0))
         return socket.getsockname()[1]
 
 
 @pytest.fixture(name="devnet_gateway_url")
-def devnet_gateway_url_fixture():
-    devnet_port = get_available_port()
-
+def devnet_gateway_url_fixture(devnet_port: int):
     command = [
         "poetry",
         "run",
