@@ -61,7 +61,7 @@ class DeployCommand(Command):
         return [
             Command.Argument(
                 name="contract",
-                description='A name of the contract defined in protostar.toml::["protostar.contracts"]',
+                description='A name of the contract defined in protostar.toml::["protostar.contracts"].',
                 type="str",
                 is_required=True,
                 is_positional=True,
@@ -69,7 +69,7 @@ class DeployCommand(Command):
             Command.Argument(
                 name="inputs",
                 short_name="i",
-                description="The inputs to the constructor",
+                description="The inputs to the constructor.",
                 type="str",
                 is_array=True,
             ),

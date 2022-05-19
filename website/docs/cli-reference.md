@@ -36,13 +36,13 @@ network = "alpha-mainnet"
 #### `contract STRING`
 Required.
 
-A name of the contract defined in protostar.toml::["protostar.contracts"]
+A name of the contract defined in protostar.toml::["protostar.contracts"].
+#### `--gateway_url STRING`
+The URL of a StarkNet gateway.
 #### `-i` `--inputs STRING[]`
-The inputs to the constructor
-#### `-n` `--network STRING`
-Required.
-
-A name of the network defined in protostar.toml
+The inputs to the constructor.
+#### `--network STRING`
+The name of the StarkNet network.
 #### `-o` `--output PATH=build`
 An output directory used to put the compiled contracts in.
 #### `--salt STRING`
