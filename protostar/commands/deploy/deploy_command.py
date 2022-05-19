@@ -46,7 +46,7 @@ class DeployCommand(Command):
 
     @property
     def example(self) -> Optional[str]:
-        return None
+        return "protostar deploy main -n testnet"
 
     @property
     def arguments(self) -> List[Command.Argument]:
@@ -104,16 +104,6 @@ class DeployCommand(Command):
         token: Optional[str] = None,
         salt: Optional[str] = None,
     ) -> SuccessfulGatewayResponse:
-        with open(
-            self._project.project_root / compiled_contract_path,
-            mode="r",
-            encoding="utf-8",
-        ) as compiled_contract_file:
-
-            network_config = self._build_network_config(
-                gateway_url=gateway_url, network=network
-            )
-
         logger = getLogger()
 
         network_config = self._build_network_config(
