@@ -21,7 +21,7 @@ An output directory used to put the compiled contracts in.
 protostar deploy main -n testnet
 ```
 Deploys contracts.
-#### `compiled-contract PATH`
+#### `contract PATH`
 Required.
 
 The path to the compiled contract.
