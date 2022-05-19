@@ -57,6 +57,7 @@ class DeployCommand(Command):
                 description='A name of the contract defined in protostar.toml::["protostar.contracts"].',
                 type="str",
                 is_required=True,
+                is_positional=True,
             ),
             Command.Argument(
                 name="inputs",
@@ -90,6 +91,7 @@ class DeployCommand(Command):
             contract_name=args.contract,
             network=args.network,
             output_dir=args.output,
+            gateway_url=args.gateway_url,
             inputs=args.inputs,
             token=args.token,
             salt=args.salt,
