@@ -21,12 +21,10 @@ An output directory used to put the compiled contracts in.
 protostar deploy main -n testnet
 ```
 Deploys contracts.
-#### `contract STRING`
+#### `compiled-contract PATH`
 Required.
 
-A name of the contract defined in protostar.toml::["protostar.contracts"].
-#### `--build-output PATH=build`
-An output directory used to put the compiled contracts in.
+The path to the compiled contract.
 #### `--gateway_url STRING`
 The URL of a StarkNet gateway.
 #### `-i` `--inputs STRING[]`
