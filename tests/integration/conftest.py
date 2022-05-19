@@ -11,10 +11,10 @@ def assert_cairo_test_cases(
 ):
 
     passed_test_cases_names = [
-        passed_test_case.function_name for passed_test_case in testing_summary.passed
+        passed_test_case.test_case_name for passed_test_case in testing_summary.passed
     ]
     failed_test_cases_names = [
-        failed_test_case.function_name for failed_test_case in testing_summary.failed
+        failed_test_case.test_case_name for failed_test_case in testing_summary.failed
     ]
     assert set(expected_passed_test_cases_names) == set(passed_test_cases_names)
     assert set(expected_failed_test_cases_names) == set(failed_test_cases_names)

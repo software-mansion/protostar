@@ -33,7 +33,7 @@ class TestingLiveLogger:
                 progress_bar.update()
                 try:
                     while tests_left_n > 0:
-                        (test_suite, test_case_result) = test_results_queue.get()
+                        test_case_result = test_results_queue.get()
                         self.testing_summary.extend([test_case_result])
                         cast(Any, progress_bar).colour = (
                             "RED"
@@ -45,7 +45,7 @@ class TestingLiveLogger:
                         progress_bar.write(str(test_case_result))
 
                         if isinstance(test_case_result, BrokenTestSuite):
-                            tests_in_case_count = len(test_suite.test_case_names)
+                            tests_in_case_count = len(test_case_result.test_case_names)
                             progress_bar.update(tests_in_case_count)
                             tests_left_n -= tests_in_case_count
                         else:
