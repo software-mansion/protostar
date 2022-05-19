@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, cast
 
+import flatdict
 import tomli
 import tomli_w
 
@@ -90,14 +91,18 @@ class Project:
             except FileNotFoundError:
                 return None
 
+        flat_config = flatdict.FlatDict(self._config_dict, delimiter=".")
+
+        assert not section_name.startswith("protostar.")
         section_name = f"protostar.{section_name}"
-        if section_name not in self._config_dict:
+
+        if section_name not in flat_config:
             return None
-        command_config = self._config_dict[section_name]
+        section_config = flat_config[section_name]
         attribute_name = attribute_name.replace("-", "_")
-        if attribute_name not in command_config:
+        if attribute_name not in section_config:
             return None
-        return command_config[attribute_name]
+        return section_config[attribute_name]
 
     def load_config(self) -> "ProjectConfig":
         if not self.config_path.is_file():

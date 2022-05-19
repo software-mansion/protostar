@@ -3,7 +3,10 @@ from typing import List, Optional
 
 from protostar.cli.command import Command
 from protostar.commands.deploy.network_config import NetworkConfig
-from protostar.commands.deploy.starkware.starknet_cli import deploy
+from protostar.commands.deploy.starkware.starknet_cli import (
+    SuccessfulGatewayResponse,
+    deploy,
+)
 from protostar.protostar_exception import ProtostarException
 from protostar.utils.config.project import Project
 
@@ -21,9 +24,8 @@ class DeployCommand(Command):
         type="str",
     )
 
-    def __init__(self, project: Project, build_output_path: Path) -> None:
+    def __init__(self, project: Project) -> None:
         self._project = project
-        self._build_output_path = build_output_path
 
     @property
     def name(self) -> str:
@@ -31,23 +33,30 @@ class DeployCommand(Command):
 
     @property
     def description(self) -> str:
-        return "Deploys contracts."
+        return "\n".join(
+            [
+                "Deploys contracts.",
+            ]
+        )
 
     @property
     def example(self) -> Optional[str]:
-        return None
+        return "protostar deploy main -n testnet"
 
     @property
     def arguments(self) -> List[Command.Argument]:
         return [
             Command.Argument(
-                name="contract",
-                description='A name of the contract defined in protostar.toml::["protostar.contracts"]',
-                type="str",
+                name="compiled-contract",
+                description="The path to the compiled contract.",
+                type="path",
+                is_required=True,
+                is_positional=True,
             ),
             Command.Argument(
                 name="inputs",
-                description="The inputs to the constructor",
+                short_name="i",
+                description="The inputs to the constructor.",
                 type="str",
                 is_array=True,
             ),
@@ -72,8 +81,9 @@ class DeployCommand(Command):
 
     async def run(self, args):
         return await self.deploy(
-            contract_name=args.contract,
+            compiled_contract_path=args.compiled_contract,
             network=args.network,
+            gateway_url=args.gateway_url,
             inputs=args.inputs,
             token=args.token,
             salt=args.salt,
@@ -82,17 +92,15 @@ class DeployCommand(Command):
     # pylint: disable=too-many-arguments
     async def deploy(
         self,
-        contract_name: str,
+        compiled_contract_path: Path,
         inputs: Optional[List[str]] = None,
         network: Optional[str] = None,
         gateway_url: Optional[str] = None,
         token: Optional[str] = None,
         salt: Optional[str] = None,
-    ):
+    ) -> SuccessfulGatewayResponse:
         with open(
-            self._project.project_root
-            / self._build_output_path
-            / f"{contract_name}.json",
+            self._project.project_root / compiled_contract_path,
             mode="r",
             encoding="utf-8",
         ) as compiled_contract_file:
@@ -101,7 +109,7 @@ class DeployCommand(Command):
                 gateway_url=gateway_url, network=network
             )
 
-            await deploy(
+            return await deploy(
                 gateway_url=network_config.gateway_url,
                 compiled_contract_file=compiled_contract_file,
                 constructor_args=inputs,

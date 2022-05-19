@@ -47,7 +47,8 @@ class BuildCommand(Command):
             ),
             Command.Argument(
                 name="output",
-                description="An output directory that will be used to put the compiled contracts in.",
+                short_name="o",
+                description="An output directory used to put the compiled contracts in.",
                 type="path",
                 default="build",
             ),

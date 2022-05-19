@@ -7,6 +7,7 @@ from typing import Any
 from protostar.cli import CLIApp, Command
 from protostar.commands import (
     BuildCommand,
+    DeployCommand,
     InitCommand,
     InstallCommand,
     RemoveCommand,
@@ -42,6 +43,7 @@ class ProtostarCLI(CLIApp):
                 UpdateCommand(project),
                 UpgradeCommand(protostar_directory, version_manager),
                 TestCommand(project, protostar_directory),
+                DeployCommand(project),
             ],
             root_args=[
                 Command.Argument(
