@@ -25,14 +25,14 @@ Deploys contracts.
 Required.
 
 A name of the contract defined in protostar.toml::["protostar.contracts"].
+#### `--build-output PATH=build`
+An output directory used to put the compiled contracts in.
 #### `--gateway_url STRING`
 The URL of a StarkNet gateway.
 #### `-i` `--inputs STRING[]`
 The inputs to the constructor.
 #### `--network STRING`
 The name of the StarkNet network.
-#### `-o` `--output PATH=build`
-An output directory used to put the compiled contracts in.
 #### `--salt STRING`
 An optional salt controlling where the contract will be deployed. The contract deployment address is determined by the hash of contract, salt and caller. If the salt is not supplied, the contract will be deployed with a random salt.
 #### `--token STRING`

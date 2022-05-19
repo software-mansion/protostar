@@ -8,7 +8,6 @@ from protostar.commands.deploy.starkware.starknet_cli import (
     SuccessfulGatewayResponse,
     deploy,
 )
-from protostar.commands.shared_args import output_shared_argument
 from protostar.protostar_exception import ProtostarException
 from protostar.utils.config.project import Project
 
@@ -18,20 +17,20 @@ class CompilationOutputNotFoundException(ProtostarException):
 
 
 class DeployCommand(Command):
+    gateway_url_arg = Command.Argument(
+        name="gateway_url",
+        description="The URL of a StarkNet gateway.",
+        type="str",
+    )
+
+    network_arg = Command.Argument(
+        name="network",
+        description="The name of the StarkNet network.",
+        type="str",
+    )
+
     def __init__(self, project: Project) -> None:
         self._project = project
-
-        self._gateway_url_arg = Command.Argument(
-            name="gateway_url",
-            description="The URL of a StarkNet gateway.",
-            type="str",
-        )
-
-        self._network_arg = Command.Argument(
-            name="network",
-            description="The name of the StarkNet network.",
-            type="str",
-        )
 
     @property
     def name(self) -> str:
@@ -67,6 +66,12 @@ class DeployCommand(Command):
                 is_array=True,
             ),
             Command.Argument(
+                name="build-output",
+                description="An output directory used to put the compiled contracts in.",
+                type="path",
+                default="build",
+            ),
+            Command.Argument(
                 name="token",
                 description="Used for deploying contracts in Alpha MainNet.",
                 type="str",
@@ -81,17 +86,16 @@ class DeployCommand(Command):
                 ),
                 type="str",
             ),
-            output_shared_argument,
-            self._gateway_url_arg,
-            self._network_arg,
+            DeployCommand.gateway_url_arg,
+            DeployCommand.network_arg,
         ]
 
     async def run(self, args):
         return await self.deploy(
             contract_name=args.contract,
             network=args.network,
-            output_dir=args.output,
             gateway_url=args.gateway_url,
+            build_output_dir=args.build_output,
             inputs=args.inputs,
             token=args.token,
             salt=args.salt,
@@ -101,7 +105,7 @@ class DeployCommand(Command):
     async def deploy(
         self,
         contract_name: str,
-        output_dir: Path,
+        build_output_dir: Path,
         inputs: Optional[List[str]] = None,
         network: Optional[str] = None,
         gateway_url: Optional[str] = None,
@@ -111,17 +115,17 @@ class DeployCommand(Command):
 
         logger = getLogger()
 
-        network_config = self._get_network_config(
+        network_config = self._build_network_config(
             gateway_url=gateway_url, network=network
         )
 
         compilation_output_filepath = (
-            self._project.project_root / output_dir / f"{contract_name}.json"
+            self._project.project_root / build_output_dir / f"{contract_name}.json"
         )
 
         try:
             with open(
-                self._project.project_root / output_dir / f"{contract_name}.json",
+                self._project.project_root / build_output_dir / f"{contract_name}.json",
                 mode="r",
                 encoding="utf-8",
             ) as compiled_contract_file:
@@ -145,7 +149,8 @@ class DeployCommand(Command):
                 )
             ) from err
 
-    def _get_network_config(
+    # pylint: disable=no-self-use
+    def _build_network_config(
         self,
         gateway_url: Optional[str] = None,
         network: Optional[str] = None,
@@ -159,7 +164,7 @@ class DeployCommand(Command):
 
         if network_config is None:
             raise ProtostarException(
-                f"Argument `{self._gateway_url_arg.name}` or `{self._network_arg.name}` is required"
+                f"Argument `{DeployCommand.gateway_url_arg.name}` or `{DeployCommand.network_arg.name}` is required"
             )
 
         return network_config
