@@ -4,7 +4,7 @@ from typing import List, Optional
 from protostar.cli.command import Command
 from protostar.commands.deploy.network_config import NetworkConfig
 from protostar.commands.deploy.starkware.starknet_cli import (
-    SuccessfulGatewayResponseFacade,
+    SuccessfulGatewayResponse,
     deploy,
 )
 from protostar.commands.shared_args import output_shared_argument
@@ -101,7 +101,7 @@ class DeployCommand(Command):
         gateway_url: Optional[str] = None,
         token: Optional[str] = None,
         salt: Optional[str] = None,
-    ) -> SuccessfulGatewayResponseFacade:
+    ) -> SuccessfulGatewayResponse:
         with open(
             self._project.project_root / output_dir / f"{contract_name}.json",
             mode="r",
