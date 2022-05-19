@@ -6,7 +6,7 @@ from socket import socket as Socket
 
 import pytest
 
-from protostar.commands.deploy.starkware.deploy import deploy
+from protostar.commands.deploy.starkware.starknet_cli import deploy
 
 
 @pytest.fixture(name="devnet_gateway_port", scope="session")
