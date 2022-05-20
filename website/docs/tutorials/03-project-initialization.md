@@ -61,14 +61,15 @@ cairo_path = ["./lib/cairo_contracts/src"]
 ```
 
 ### Configuration profiles
-Protostar supports configuration profiles. It allows you to define different configuration for specific use case. A configuration profile can be defined by naming section in the following way `["protostar.COMMAND_NAME__OR__SHARED_COMMAND_CONFIGS.PROFILE_NAME"]`.
+Configuration profiles provide a way to easily switch between Protostar configurations. This is especially useful for configuring StarkNet networks. Profiles inherit values from non-profiled configuration. In order to create a configuration profile, add a new section in `protostar.toml` with the following naming convention:<br/>  `["profile.PROFILE_NAME.protostar.COMMAND_NAME"]`.
 
 ```toml title="protostar.toml"
 # ...
-["protostar.shared_command_configs.ci"]
+["profile.ci.protostar.shared_command_configs"]
 no_color = true
 ```
-Then, run Protostar with the `--profile` argument:
+Then, run Protostar with the `--profile` (or `-p`) argument:
 ```shell
 protostar -p ci ...
+
 ```
