@@ -1786,7 +1786,7 @@ testing = [
 ]
 
 [metadata]
-content-hash = "2b74d801c6526cac424adc5aa9077fe96c5056349316d0a294ced052c1d7ebd4"
+content-hash = "ba9f5da032e5ca1f4d77692a01f9a939c705c00883562e93a248d9d058202f29"
 lock-version = "1.1"
 python-versions = ">=3.7.12, <3.10"
 

@@ -48,10 +48,9 @@ def test_cairo_path_loaded_from_command_config_section_in_config_file(
 
     with open("./protostar.toml", "a", encoding="utf-8") as protostar_toml:
         protostar_toml.write(
-            f"""
-["protostar.build"]
-cairo_path = ["{str(my_private_libs_dir)}"]
-"""
+            "\n".join(
+                ['["protostar.build"]', f'cairo_path = ["{str(my_private_libs_dir)}"]']
+            )
         )
 
     protostar(["build"])
@@ -67,13 +66,37 @@ def test_cairo_path_loaded_from_command_shared_section_in_config_file(
 
     with open("./protostar.toml", "a", encoding="utf-8") as protostar_toml:
         protostar_toml.write(
-            f"""
-["protostar.shared_command_configs"]
-cairo_path = ["{str(my_private_libs_dir)}"]
-"""
+            "\n".join(
+                [
+                    '["protostar.shared_command_configs"]',
+                    f'cairo_path = ["{str(my_private_libs_dir)}"]',
+                ]
+            )
         )
 
     protostar(["build"])
+
+    dirs = listdir()
+    assert "build" in dirs
+
+
+def test_cairo_path_loaded_from_profile_section(protostar, my_private_libs_setup):
+    (my_private_libs_dir,) = my_private_libs_setup
+
+    with pytest.raises(CalledProcessError):
+        protostar(["build"])
+
+    with open("./protostar.toml", "a", encoding="utf-8") as protostar_toml:
+        protostar_toml.write(
+            "\n".join(
+                [
+                    '["profile.my_profile.protostar.shared_command_configs"]',
+                    f'cairo_path = ["{str(my_private_libs_dir)}"]',
+                ]
+            )
+        )
+
+    protostar(["-p", "my_profile", "build"])
 
     dirs = listdir()
     assert "build" in dirs
@@ -84,20 +107,23 @@ def test_disable_hint_validation(protostar):
 
     with open("./src/main.cairo", mode="w", encoding="utf-8") as my_contract:
         my_contract.write(
-            """%lang starknet
-
-@view
-func use_hint():
-    tempvar x
-    %{
-        from foo import bar
-        ids.x = 42
-    %}
-    assert x = 42
-
-    return ()
-end
-"""
+            "\n".join(
+                [
+                    "%lang starknet",
+                    "",
+                    "@view",
+                    "func use_hint():",
+                    "    tempvar x",
+                    "    %{",
+                    "        from foo import bar",
+                    "        ids.x = 42",
+                    "    %}",
+                    "    assert x = 42",
+                    "",
+                    "    return ()",
+                    "end",
+                ]
+            )
         )
 
     result = protostar(["build"], ignore_exit_code=True)
