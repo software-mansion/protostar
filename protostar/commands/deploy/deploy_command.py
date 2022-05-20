@@ -64,6 +64,7 @@ class DeployCommand(Command):
                 description=(
                     "The inputs to the constructor. "
                     "Calldata arguments may be of any type that does not contain pointers.\n"
+                    # pylint: disable=line-too-long
                     "[Read more about representing Cairo data types in the CLI.](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#array-arguments-in-calldata)"
                 ),
                 type="str",
