@@ -63,12 +63,28 @@ def test_loading_nested_argument(version_manager: VersionManager):
     assert proj.load_argument("deploy.testnet", "network") == "foo"
 
 
-def test_loading_argument_not_existing_argument(version_manager: VersionManager):
+def test_loading_argument_from_profile_section(version_manager: VersionManager):
+    proj = Project(
+        version_manager,
+        project_root=Path(current_directory, "examples", "profile"),
+    )
+    assert proj.load_argument("shared_command_configs", "no_color", profile_name="ci")
+
+
+def test_loading_argument_from_not_defined_section(version_manager: VersionManager):
     proj = Project(
         version_manager,
         project_root=Path(current_directory, "examples", "nested"),
     )
     assert proj.load_argument("foo.bar", "baz") is None
+
+
+def test_loading_not_defined_argument(version_manager: VersionManager):
+    proj = Project(
+        version_manager,
+        project_root=Path(current_directory, "examples", "command_config"),
+    )
+    assert proj.load_argument("build", "foo") is None
 
 
 def test_loading_argument_when_config_file_does_not_exist(

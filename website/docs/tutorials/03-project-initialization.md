@@ -26,6 +26,8 @@ The result of running `protostar init` is a configuration file `protostar.toml`,
 - `tests` — A directory storing tests.
 
 ## `protostar.toml`
+### Project configuration
+Project configuration is required.
 
 ```toml title="protostar.toml"
 ["protostar.config"]
@@ -41,7 +43,9 @@ main = [
 ]
 
 ```
-Protostar's commands can be configured in the `protostar.toml`. This is number of arguments you would have to provide in the CLI otherwise. Protostar expects a section `["protostar.COMMAND_NAME"]` and a argument name with underscores (`_`) in place of dashes (`-`), for example:
+### Command configuration
+
+Not required arguments can be configured in the `protostar.toml`. It allows you to avoid passing arguments every time you run a command. Protostar checks `["protostar.COMMAND_NAME"]` section and searches an attribute matching an argument name with underscores (`_`) in place of dashes (`-`), for example:
 ```toml title="protostar.toml"
 # ...
 
@@ -49,11 +53,29 @@ Protostar's commands can be configured in the `protostar.toml`. This is number o
 cairo_path = ["./lib/cairo_contracts/src"]
 ```
 
-If you want configure an argument that is not tied to any command or an argument that is shared across many commands (e.g. `cairo-path`), specify configuration in the `["protostar.shared_command_configs"]` section. This is useful if you want to specify the same `cairo-path` for `build` and `test` commands as demonstrated on the following example:
+If you want to configure an argument that is not tied to any command or an argument that is shared across many commands (e.g. `cairo-path`), specify it in the `["protostar.shared_command_configs"]` section. This is useful if you want to specify the same `cairo-path` for `build` and `test` commands as demonstrated on the following example:
 
 ```toml title="protostar.toml"
 # ...
 
 ["protostar.shared_command_configs"]
 cairo_path = ["./lib/cairo_contracts/src"]
+```
+
+:::info
+You can't specify the `profile` argument in the `protostar.toml`.
+:::
+
+### Configuration profiles
+Configuration profiles provide a way to easily switch between Protostar configurations. This is especially useful for configuring StarkNet networks. Profiles inherit values from non-profiled configuration. In order to create a configuration profile, add a new section in `protostar.toml` with the following naming convention:<br/>  `["profile.PROFILE_NAME.protostar.COMMAND_NAME"]`.
+
+```toml title="protostar.toml"
+# ...
+["profile.ci.protostar.shared_command_configs"]
+no_color = true
+```
+Then, run Protostar with the `--profile` (or `-p`) argument:
+```shell
+protostar -p ci ...
+
 ```
