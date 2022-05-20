@@ -1,14 +1,13 @@
 import subprocess
 import time
-from pathlib import Path
 from socket import socket as Socket
+from typing import List
 
 import pytest
 
 
-def run_devnet(devnet_path: Path, port: int) -> subprocess.Popen:
-    command = [
-        str(devnet_path),
+def run_devnet(devnet: List[str], port: int) -> subprocess.Popen:
+    command = devnet + [
         "--host",
         "localhost",
         "--port",
