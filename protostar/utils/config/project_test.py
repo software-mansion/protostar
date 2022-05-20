@@ -55,6 +55,22 @@ def test_loading_argument(version_manager: VersionManager):
     assert proj.load_argument("build", "disable-hint-validation") is True
 
 
+def test_loading_nested_argument(version_manager: VersionManager):
+    proj = Project(
+        version_manager,
+        project_root=Path(current_directory, "examples", "nested"),
+    )
+    assert proj.load_argument("deploy.testnet", "network") == "foo"
+
+
+def test_loading_argument_not_existing_argument(version_manager: VersionManager):
+    proj = Project(
+        version_manager,
+        project_root=Path(current_directory, "examples", "nested"),
+    )
+    assert proj.load_argument("foo.bar", "baz") is None
+
+
 def test_loading_argument_when_config_file_does_not_exist(
     version_manager: VersionManager, tmpdir
 ):

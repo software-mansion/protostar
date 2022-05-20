@@ -8,6 +8,9 @@ from typing import Generator, List, Optional, Pattern, cast
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     PreprocessorError,
 )
+from starkware.starknet.compiler.starknet_preprocessor import (
+    StarknetPreprocessedProgram,
+)
 
 from protostar.commands.test.test_suite import TestSuite
 from protostar.protostar_exception import ProtostarException
@@ -78,6 +81,7 @@ class TestCollector:
         non_empty_test_suites = list(
             filter(lambda test_file: (test_file.test_case_names) != [], test_suites)
         )
+
         return TestCollector.Result(
             test_suites=non_empty_test_suites,
             test_cases_count=sum(
@@ -98,7 +102,8 @@ class TestCollector:
     def _build_test_suite(
         self, file_path: Path, target_test_case_name: Optional[str]
     ) -> TestSuite:
-        test_case_names = self._collect_test_case_names(file_path)
+        preprocessed = self._preprocess_contract(file_path)
+        test_case_names = self._collect_test_case_names(preprocessed)
         if target_test_case_name:
             test_case_names = [
                 test_case_name
@@ -108,6 +113,7 @@ class TestCollector:
         return TestSuite(
             test_path=file_path,
             test_case_names=test_case_names,
+            preprocessed_contract=preprocessed,
         )
 
     def _get_test_suite_paths(self, target: Path) -> Generator[Path, None, None]:
@@ -122,9 +128,14 @@ class TestCollector:
             for test_suite_path in test_suite_paths:
                 yield test_suite_path
 
-    def _collect_test_case_names(self, file_path: Path) -> List[str]:
+    def _collect_test_case_names(
+        self, preprocessed: StarknetPreprocessedProgram
+    ) -> List[str]:
+        return self._starknet_compiler.get_function_names(preprocessed, prefix="test_")
+
+    def _preprocess_contract(self, file_path: Path) -> StarknetPreprocessedProgram:
         try:
-            return self._starknet_compiler.get_function_names(file_path, prefix="test_")
+            return self._starknet_compiler.preprocess_contract(file_path)
         except PreprocessorError as p_err:
             print(p_err)
             raise TestCollectingException("Failed to collect test cases") from p_err

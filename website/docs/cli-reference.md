@@ -29,8 +29,27 @@ Compile contracts.
 Additional directories to look for sources.
 #### `--disable-hint-validation`
 Disable validation of hints when building the contracts.
-#### `--output PATH=build`
-An output directory that will be used to put the compiled contracts in.
+#### `-o` `--output PATH=build`
+An output directory used to put the compiled contracts in.
+### `deploy`
+```shell
+protostar deploy main -n testnet
+```
+Deploys contracts.
+#### `compiled-contract PATH`
+Required.
+
+The path to the compiled contract.
+#### `--gateway_url STRING`
+The URL of a StarkNet gateway.
+#### `-i` `--inputs STRING[]`
+The inputs to the constructor.
+#### `--network STRING`
+The name of the StarkNet network.
+#### `--salt STRING`
+An optional salt controlling where the contract will be deployed. The contract deployment address is determined by the hash of contract, salt and caller. If the salt is not supplied, the contract will be deployed with a random salt.
+#### `--token STRING`
+Used for deploying contracts in Alpha MainNet.
 ### `init`
 ```shell
 $ protostar init

@@ -97,6 +97,7 @@ class Project:
         flat_config = flatdict.FlatDict(self._config_dict, delimiter=".")
 
         section_name = f"protostar.{section_name}"
+
         if section_name not in flat_config:
             return None
         section_config = flat_config[section_name]
