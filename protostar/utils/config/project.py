@@ -38,6 +38,7 @@ class Project:
         self, version_manager: VersionManager, project_root: Optional[Path] = None
     ):
         self.project_root = project_root or Path()
+        self.shared_command_configs_section_name = "shared_command_configs"
         self._project_config = None
         self._protostar_config = None
         self._version_manager = version_manager
@@ -83,7 +84,11 @@ class Project:
         with open(self.config_path, "wb") as file:
             tomli_w.dump(self.ordered_dict, file)
 
-    def load_argument(self, section_name: str, attribute_name: str) -> Optional[Any]:
+    def load_argument(
+        self, section_name: str, attribute_name: str, profile_name: Optional[str] = None
+    ) -> Optional[Any]:
+        assert not section_name.startswith("protostar.")
+
         if not self._config_dict:
             try:
                 with open(self.config_path, "rb") as config_file:
@@ -93,15 +98,19 @@ class Project:
 
         flat_config = flatdict.FlatDict(self._config_dict, delimiter=".")
 
-        assert not section_name.startswith("protostar.")
         section_name = f"protostar.{section_name}"
+
+        if profile_name:
+            section_name = f"profile.{profile_name}.{section_name}"
 
         if section_name not in flat_config:
             return None
+
         section_config = flat_config[section_name]
         attribute_name = attribute_name.replace("-", "_")
         if attribute_name not in section_config:
             return None
+
         return section_config[attribute_name]
 
     def load_config(self) -> "ProjectConfig":

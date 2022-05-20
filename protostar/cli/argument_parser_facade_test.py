@@ -1,11 +1,14 @@
 from pathlib import Path
-from typing import Pattern
+from typing import Pattern, cast
 
 import pytest
 from pytest_mock import MockerFixture
 
 from conftest import BaseTestCommand, FooCommand
 from protostar.cli.argument_parser_facade import ArgumentParserFacade
+from protostar.cli.argument_value_from_config_provider import (
+    ArgumentValueFromConfigProvider,
+)
 from protostar.cli.cli_app import CLIApp
 from protostar.cli.command import Command
 
@@ -164,9 +167,11 @@ def test_loading_default_values_from_provider(
     )
 
     mocked_default_value_provider = mocker.MagicMock()
-    mocked_get_default_value = mocker.MagicMock()
-    mocked_get_default_value.return_value = "FOOBAR"
-    mocked_default_value_provider.get_default_value = mocked_get_default_value
+    mocked_get_value = mocker.MagicMock()
+    mocked_get_value.return_value = "FOOBAR"
+    cast(
+        ArgumentValueFromConfigProvider, mocked_default_value_provider
+    ).load_value = mocked_get_value
 
     result = ArgumentParserFacade(app, mocked_default_value_provider).parse(["FOO"])
 
