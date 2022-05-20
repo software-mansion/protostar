@@ -16,7 +16,7 @@ class ArgumentValueFromConfigProvider:
     ) -> Optional[Any]:
         if self._configuration_profile_name and command_name:
             profile_cmd_arg = self._project.load_argument(
-                f"{command_name}.{self._configuration_profile_name}", argument_name
+                command_name, argument_name, self._configuration_profile_name
             )
             if profile_cmd_arg:
                 return profile_cmd_arg
@@ -28,8 +28,9 @@ class ArgumentValueFromConfigProvider:
 
         if self._configuration_profile_name:
             profile_shared_arg = self._project.load_argument(
-                f"{self._project.shared_command_configs_section_name}.{self._configuration_profile_name}",
+                self._project.shared_command_configs_section_name,
                 argument_name,
+                self._configuration_profile_name,
             )
             if profile_shared_arg:
                 return profile_shared_arg

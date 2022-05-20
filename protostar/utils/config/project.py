@@ -84,7 +84,9 @@ class Project:
         with open(self.config_path, "wb") as file:
             tomli_w.dump(self.ordered_dict, file)
 
-    def load_argument(self, section_name: str, attribute_name: str) -> Optional[Any]:
+    def load_argument(
+        self, section_name: str, attribute_name: str, profile_name: Optional[str] = None
+    ) -> Optional[Any]:
         assert not section_name.startswith("protostar.")
 
         if not self._config_dict:
@@ -98,12 +100,17 @@ class Project:
 
         section_name = f"protostar.{section_name}"
 
+        if profile_name:
+            section_name = f"profile.{profile_name}.{section_name}"
+
         if section_name not in flat_config:
             return None
+
         section_config = flat_config[section_name]
         attribute_name = attribute_name.replace("-", "_")
         if attribute_name not in section_config:
             return None
+
         return section_config[attribute_name]
 
     def load_config(self) -> "ProjectConfig":

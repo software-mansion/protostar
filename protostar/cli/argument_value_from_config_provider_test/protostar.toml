@@ -3,7 +3,7 @@
 arg = "a"
 shared_arg = true
 
-[protostar.shared_command_configs.testnet]
+[profile.testnet.protostar.shared_command_configs]
 arg = "b"
 shared_profiled_arg = true
 
@@ -11,5 +11,5 @@ shared_profiled_arg = true
 arg = "c"
 cmd_arg = true
 
-[protostar.deploy.testnet]
+[profile.testnet.protostar.deploy]
 arg = "d"
