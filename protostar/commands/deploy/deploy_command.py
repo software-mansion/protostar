@@ -25,6 +25,7 @@ class DeployCommand(Command):
 
     network_arg = Command.Argument(
         name="network",
+        short_name="n",
         description="The name of the StarkNet network.",
         type="str",
     )
@@ -46,7 +47,7 @@ class DeployCommand(Command):
 
     @property
     def example(self) -> Optional[str]:
-        return "protostar deploy main -n testnet"
+        return "protostar deploy ./build/main.json --network alpha-goerli"
 
     @property
     def arguments(self) -> List[Command.Argument]:
