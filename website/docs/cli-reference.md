@@ -28,7 +28,8 @@ The path to the compiled contract.
 #### `--gateway_url STRING`
 The URL of a StarkNet gateway.
 #### `-i` `--inputs STRING[]`
-The inputs to the constructor.
+The inputs to the constructor. Calldata arguments may be of any type that does not contain pointers.
+[Read more about representing Cairo data types in the CLI.](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#array-arguments-in-calldata)
 #### `--network STRING`
 The name of the StarkNet network.
 #### `--salt STRING`
