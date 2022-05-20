@@ -128,7 +128,15 @@ class DeployCommand(Command):
                     token=token,
                 )
 
-                response.log(logger)
+                explorer_url = network_config.get_contract_explorer_url(
+                    response.address
+                )
+                explorer_url_msg_lines: List[str] = []
+
+                if explorer_url:
+                    explorer_url_msg_lines = ["", explorer_url]
+
+                response.log(logger, extra_msg=explorer_url_msg_lines)
 
                 return response
 

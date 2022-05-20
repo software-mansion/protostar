@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from starkware.starknet.cli.starknet_cli import NETWORKS
 
@@ -24,7 +24,26 @@ class NetworkConfig:
         if starkware_network_name not in NETWORKS:
             raise UnknownStarkwareNetworkException()
 
-        return cls(gateway_url=f"https://{NETWORKS[starkware_network_name]}/gateway")
+        contract_explorer_search_url_mapping = {
+            "alpha-goerli": "https://goerli.voyager.online/contract",
+            "alpha-mainnet": "https://voyager.online/contract",
+        }
 
-    def __init__(self, gateway_url: str):
+        return cls(
+            gateway_url=f"https://{NETWORKS[starkware_network_name]}/gateway",
+            contract_explorer_search_url=contract_explorer_search_url_mapping.get(
+                starkware_network_name
+            ),
+        )
+
+    def __init__(
+        self, gateway_url: str, contract_explorer_search_url: Optional[str] = None
+    ):
         self.gateway_url = gateway_url
+        self.contract_explorer_search_url = contract_explorer_search_url
+
+    def get_contract_explorer_url(self, contract_address: int) -> Optional[str]:
+        if not self.contract_explorer_search_url:
+            return None
+
+        return f"{self.contract_explorer_search_url}/0x{contract_address:064x}"
