@@ -18,7 +18,7 @@ class CompilationOutputNotFoundException(ProtostarException):
 
 class DeployCommand(Command):
     gateway_url_arg = Command.Argument(
-        name="gateway_url",
+        name="gateway-url",
         description="The URL of a StarkNet gateway. It is required unless `--network` is provided.",
         type="str",
     )
@@ -30,7 +30,7 @@ class DeployCommand(Command):
             "\n".join(
                 [
                     "The name of the StarkNet network.",
-                    "It is required unless `--gateway_url` is provided.",
+                    "It is required unless `--gateway-url` is provided.",
                     "",
                     "Supported StarkNet networks:",
                 ]

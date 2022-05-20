@@ -25,14 +25,14 @@ Deploys contracts.
 Required.
 
 The path to the compiled contract.
-#### `--gateway_url STRING`
+#### `--gateway-url STRING`
 The URL of a StarkNet gateway. It is required unless `--network` is provided.
 #### `-i` `--inputs STRING[]`
 The inputs to the constructor. Calldata arguments may be of any type that does not contain pointers.
 [Read more about representing Cairo data types in the CLI.](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#array-arguments-in-calldata)
 #### `-n` `--network STRING`
 The name of the StarkNet network.
-It is required unless `--gateway_url` is provided.
+It is required unless `--gateway-url` is provided.
 
 Supported StarkNet networks:
 - `alpha-goerli`

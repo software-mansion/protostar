@@ -1,7 +1,11 @@
 # pylint: disable=invalid-name
+from pathlib import Path
 from typing import List
 
+import pytest
+
 from protostar.commands.test.testing_summary import TestingSummary
+from tests.conftest import run_devnet
 
 
 def assert_cairo_test_cases(
@@ -19,3 +23,10 @@ def assert_cairo_test_cases(
     assert set(expected_passed_test_cases_names) == set(passed_test_cases_names)
     assert set(expected_failed_test_cases_names) == set(failed_test_cases_names)
     assert len(testing_summary.broken) == 0
+
+
+@pytest.fixture(name="devnet_gateway_url", scope="module")
+def devnet_gateway_url_fixture(devnet_port: int):
+    proc = run_devnet(Path() / ".venv" / "bin" / "starknet-devnet", devnet_port)
+    yield f"http://localhost:{devnet_port}"
+    proc.kill()
