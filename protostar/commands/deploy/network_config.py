@@ -16,6 +16,10 @@ class UnknownStarkwareNetworkException(ProtostarException):
 
 
 class NetworkConfig:
+    @staticmethod
+    def get_starknet_networks() -> List[str]:
+        return list(NETWORKS.keys())
+
     @classmethod
     def from_starknet_network_name(
         cls,

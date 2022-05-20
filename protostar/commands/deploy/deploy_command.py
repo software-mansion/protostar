@@ -18,14 +18,25 @@ class CompilationOutputNotFoundException(ProtostarException):
 
 class DeployCommand(Command):
     gateway_url_arg = Command.Argument(
-        name="gateway_url",
-        description="The URL of a StarkNet gateway.",
+        name="gateway-url",
+        description="The URL of a StarkNet gateway. It is required unless `--network` is provided.",
         type="str",
     )
 
     network_arg = Command.Argument(
         name="network",
-        description="The name of the StarkNet network.",
+        short_name="n",
+        description=(
+            "\n".join(
+                [
+                    "The name of the StarkNet network.",
+                    "It is required unless `--gateway-url` is provided.",
+                    "",
+                    "Supported StarkNet networks:",
+                ]
+                + [f"- `{n}`" for n in NetworkConfig.get_starknet_networks()]
+            )
+        ),
         type="str",
     )
 
@@ -46,7 +57,7 @@ class DeployCommand(Command):
 
     @property
     def example(self) -> Optional[str]:
-        return "protostar deploy main -n testnet"
+        return "protostar deploy ./build/main.json --network alpha-goerli"
 
     @property
     def arguments(self) -> List[Command.Argument]:
@@ -61,7 +72,12 @@ class DeployCommand(Command):
             Command.Argument(
                 name="inputs",
                 short_name="i",
-                description="The inputs to the constructor.",
+                description=(
+                    "The inputs to the constructor. "
+                    "Calldata arguments may be of any type that does not contain pointers.\n"
+                    # pylint: disable=line-too-long
+                    "[Read more about representing Cairo data types in the CLI.](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#array-arguments-in-calldata)"
+                ),
                 type="str",
                 is_array=True,
             ),
