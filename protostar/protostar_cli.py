@@ -5,13 +5,24 @@ from pathlib import Path
 from typing import Any
 
 from protostar.cli import CLIApp, Command
-from protostar.commands import (BuildCommand, DeployCommand, InitCommand,
-                                InstallCommand, RemoveCommand, TestCommand,
-                                UpdateCommand, UpgradeCommand)
-from protostar.protostar_exception import (ProtostarException,
-                                           ProtostarExceptionSilent)
-from protostar.utils import (Project, ProtostarDirectory, StandardLogFormatter,
-                             VersionManager, log_color_provider)
+from protostar.commands import (
+    BuildCommand,
+    DeployCommand,
+    InitCommand,
+    InstallCommand,
+    RemoveCommand,
+    TestCommand,
+    UpdateCommand,
+    UpgradeCommand,
+)
+from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
+from protostar.utils import (
+    Project,
+    ProtostarDirectory,
+    StandardLogFormatter,
+    VersionManager,
+    log_color_provider,
+)
 
 PROFILE_ARG = Command.Argument(
     name="profile",
