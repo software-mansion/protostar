@@ -3,21 +3,22 @@ from pathlib import Path
 
 from protostar.cli import ArgumentParserFacade, ArgumentValueFromConfigProvider
 from protostar.cli.cli_app import CLIApp
-from protostar.protostar_cli import ConfigurationProfileCLI, ProtostarCLI
+from protostar.protostar_cli import ConfigurationProfileCLISchema, ProtostarCLI
 
 
 def main(script_root: Path):
     protostar_cli = ProtostarCLI.create(script_root)
 
+    configuration_profile_name = (
+        ArgumentParserFacade(ConfigurationProfileCLISchema(), disable_help=True)
+        .parse(ignore_unrecognized=True)
+        .profile
+    )
+
     parser = ArgumentParserFacade(
         protostar_cli,
         default_value_provider=ArgumentValueFromConfigProvider(
-            protostar_cli.project,
-            configuration_profile_name=ArgumentParserFacade(
-                ConfigurationProfileCLI(), disable_help=True
-            )
-            .parse(ignore_unrecognized=True)
-            .profile,
+            protostar_cli.project, configuration_profile_name=configuration_profile_name
         ),
     )
 

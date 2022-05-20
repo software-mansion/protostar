@@ -26,7 +26,9 @@ The result of running `protostar init` is a configuration file `protostar.toml`,
 - `tests` — A directory storing tests.
 
 ## `protostar.toml`
-### Static configuration
+### Project configuration
+Project configuration is required.
+
 ```toml title="protostar.toml"
 ["protostar.config"]
 protostar_version = "0.1.0"
@@ -41,9 +43,9 @@ main = [
 ]
 
 ```
-### Dynamic configuration
+### Command configuration
 
-Not required arguments can be configured in the `protostar.toml`. Protostar checks `["protostar.COMMAND_NAME"]` section and searches an attribute matching an argument name with underscores (`_`) in place of dashes (`-`), for example:
+Not required arguments can be configured in the `protostar.toml`. It allows you to avoid passing arguments every time you run a command. Protostar checks `["protostar.COMMAND_NAME"]` section and searches an attribute matching an argument name with underscores (`_`) in place of dashes (`-`), for example:
 ```toml title="protostar.toml"
 # ...
 
@@ -59,6 +61,10 @@ If you want to configure an argument that is not tied to any command or an argum
 ["protostar.shared_command_configs"]
 cairo_path = ["./lib/cairo_contracts/src"]
 ```
+
+:::info
+You can't specify the `profile` argument in the `protostar.toml`.
+:::
 
 ### Configuration profiles
 Configuration profiles provide a way to easily switch between Protostar configurations. This is especially useful for configuring StarkNet networks. Profiles inherit values from non-profiled configuration. In order to create a configuration profile, add a new section in `protostar.toml` with the following naming convention:<br/>  `["profile.PROFILE_NAME.protostar.COMMAND_NAME"]`.
