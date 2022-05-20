@@ -4,13 +4,21 @@ sidebar_label: Deployment
 
 # Deployment
 
-Protostar `>=0.2.1` can deploy smart contracts to a given network with the `protostar deploy` command. It has similar interface to `starknet deploy` command. Read CLI reference...
+Protostar `>=0.2.1` supports deploying smart contracts to a given network with the `protostar deploy` command. It has similar interface to `starknet deploy` command. [Read the CLI reference for the deploy command](/docs/cli-reference#deploy) to learn more about all supported arguments.
 
-1. protostar init
-2. protostar build
-3. protostar deploy ./build/main.json --network alpha-goerli
-
-
+## Example — deploying the default contract
+1. Create new project 
+   ```bash
+   $ protostar init
+   ```
+2. Build the project
+   ```bash
+   $ protostar build
+   ```
+3. Deploy the contract to the testnet
+   ```
+   $ protostar deploy ./build/main.json --network alpha-goerli
+   ```
 
 
 <!-- - protostar wraps starknet deploy command.  leverage configuration capabilities.
