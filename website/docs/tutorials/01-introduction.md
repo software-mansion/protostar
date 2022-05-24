@@ -29,6 +29,7 @@ After reading this guides, you will know how to do the following:
 - [compile project](/docs/tutorials/guides/compiling)
 - [add, update, and remove dependencies](/docs/tutorials/guides/dependencies-management)
 - [test contracts with the help of cheatcodes](/docs/tutorials/guides/testing)
+- [deploy contracts using Protostar](/docs/tutorials/guides/deployment)
 
 ## Reference
 Protostar is designed to be discoverable straight from the terminal. If you want to get the information about available commands and flags, you can always use:
