@@ -63,10 +63,8 @@ class Project:
         general = OrderedDict(**self.config.__dict__)
         general.pop("contracts")
 
-        protostar_config = ProtostarConfig()
-
         result = OrderedDict()
-        result["protostar.config"] = OrderedDict(protostar_config.__dict__)
+        result["protostar.config"] = OrderedDict(self._protostar_config.__dict__)
         result["protostar.project"] = general
         result["protostar.contracts"] = self.config.contracts
         return result
@@ -79,8 +77,11 @@ class Project:
             *collect_immediate_subdirectories(libs_path),
         ]
 
-    def write_config(self, config: ProjectConfig):
-        self._project_config = config
+    def write_config(self, project_config: ProjectConfig):
+        self._project_config = project_config
+        self._protostar_config = ProtostarConfig(
+            protostar_version=str(self._version_manager.protostar_version)
+        )
         with open(self.config_path, "wb") as file:
             tomli_w.dump(self.ordered_dict, file)
 
