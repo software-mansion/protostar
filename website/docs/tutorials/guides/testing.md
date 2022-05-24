@@ -440,27 +440,12 @@ Deploys a contract given a path relative to a Protostar project root. The sectio
 
 
 ### `start_prank`
-```python
-def start_prank(caller_address: int) -> None: ...
-```
 
-Changes caller address until [`stop_prank`](#stop_prank) cheatcode is used.
-
-### `stop_prank`
-
-```python
-def stop_prank() -> None: ...
-```
-
-Resets caller address. Always used with [`start_prank`](#start_prank).
-
-<!-- PROTOSTAR 0.2.1 -->
-<!-- 
 ```python
 def start_prank(caller_address: int, target_contract_address: Optional[int] = None) -> Callable: ...
 ```
 
-Changes caller address until the returned callable is called. If `target_contract_address` specified, `start_prank` affects only the contract with the specified address. Otherwise `start_prank` affects the current contract.
+Changes the caller address until the returned callable is called. If `target_contract_address` is specified, `start_prank` affects only the contract with the specified address. Otherwise, `start_prank` affects only the current contract.
 
 #### In unit tests
 ```cairo title="Local assert passes"
@@ -513,7 +498,6 @@ func test_remote_prank{syscall_ptr : felt*, range_check_ptr}():
     return ()
 end
 ``` 
- -->
 
 
 ### `roll`
