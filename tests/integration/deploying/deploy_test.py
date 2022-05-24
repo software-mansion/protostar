@@ -15,4 +15,4 @@ async def test_deploying_contract(
         compiled_contract_file=compiled_contract_file_handle,
     )
 
-    assert response["address"] is not None
+    assert response.address is not None

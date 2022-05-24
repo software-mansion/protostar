@@ -33,19 +33,25 @@ Disable validation of hints when building the contracts.
 An output directory used to put the compiled contracts in.
 ### `deploy`
 ```shell
-protostar deploy main -n testnet
+protostar deploy ./build/main.json --network alpha-goerli
 ```
 Deploys contracts.
-#### `compiled-contract PATH`
+#### `contract PATH`
 Required.
 
 The path to the compiled contract.
-#### `--gateway_url STRING`
-The URL of a StarkNet gateway.
+#### `--gateway-url STRING`
+The URL of a StarkNet gateway. It is required unless `--network` is provided.
 #### `-i` `--inputs STRING[]`
-The inputs to the constructor.
-#### `--network STRING`
+The inputs to the constructor. Calldata arguments may be of any type that does not contain pointers.
+[Read more about representing Cairo data types in the CLI.](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#array-arguments-in-calldata)
+#### `-n` `--network STRING`
 The name of the StarkNet network.
+It is required unless `--gateway-url` is provided.
+
+Supported StarkNet networks:
+- `alpha-goerli`
+- `alpha-mainnet`
 #### `--salt STRING`
 An optional salt controlling where the contract will be deployed. The contract deployment address is determined by the hash of contract, salt and caller. If the salt is not supplied, the contract will be deployed with a random salt.
 #### `--token STRING`

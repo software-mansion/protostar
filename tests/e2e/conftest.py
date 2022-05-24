@@ -2,11 +2,13 @@
 import shutil
 from os import chdir, getcwd, mkdir, path
 from pathlib import Path
-from subprocess import PIPE, STDOUT, check_output, run
+from subprocess import PIPE, STDOUT, run
 from typing import List
 
 import pexpect
 import pytest
+
+from tests.conftest import run_devnet
 
 ACTUAL_CWD = Path(getcwd())
 
@@ -67,6 +69,13 @@ def protostar():
         )
 
     return _protostar
+
+
+@pytest.fixture(name="devnet_gateway_url", scope="module")
+def devnet_gateway_url_fixture(devnet_port: int):
+    proc = run_devnet(["poetry", "run", "starknet-devnet"], devnet_port)
+    yield f"http://localhost:{devnet_port}"
+    proc.kill()
 
 
 @pytest.fixture

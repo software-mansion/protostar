@@ -1,5 +1,5 @@
 from io import TextIOWrapper
-from typing import Optional, Sequence, Union, cast
+from typing import Optional, Sequence, Union
 
 from services.external_api.base_client import RetryConfig
 from starkware.starknet.cli.starknet_cli import validate_arguments
@@ -10,15 +10,9 @@ from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
 from starkware.starknet.services.api.gateway.transaction import Deploy
 from starkware.starknet.utils.api_utils import cast_to_felts
 from starkware.starkware_utils.error_handling import StarkErrorCode
-from typing_extensions import TypedDict
 
+from protostar.commands.deploy.gateway_response import SuccessfulGatewayResponse
 from protostar.protostar_exception import ProtostarException
-
-
-class SuccessfulGatewayResponse(TypedDict):
-    code: str
-    address: str
-    transaction_hash: str
 
 
 class DeployContractException(ProtostarException):
@@ -76,14 +70,18 @@ async def deploy(
         constructor_calldata=inputs,
     )  # type: ignore
 
-    gateway_response = cast(
-        SuccessfulGatewayResponse,
-        await gateway_client.add_transaction(tx=tx, token=token),
-    )
+    gateway_response = await gateway_client.add_transaction(tx=tx, token=token)
 
     if gateway_response["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
         raise DeployContractException(
             message=f"Failed to send transaction. Response: {gateway_response}"
         )
 
-    return gateway_response
+    # return gateway_response
+    contract_address = int(gateway_response["address"], 16)
+
+    return SuccessfulGatewayResponse(
+        address=contract_address,
+        code=gateway_response["code"],
+        transaction_hash=gateway_response["transaction_hash"],
+    )

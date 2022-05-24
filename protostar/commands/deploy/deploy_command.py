@@ -1,3 +1,4 @@
+from logging import getLogger
 from pathlib import Path
 from typing import List, Optional
 
@@ -11,16 +12,31 @@ from protostar.protostar_exception import ProtostarException
 from protostar.utils.config.project import Project
 
 
+class CompilationOutputNotFoundException(ProtostarException):
+    pass
+
+
 class DeployCommand(Command):
     gateway_url_arg = Command.Argument(
-        name="gateway_url",
-        description="The URL of a StarkNet gateway.",
+        name="gateway-url",
+        description="The URL of a StarkNet gateway. It is required unless `--network` is provided.",
         type="str",
     )
 
     network_arg = Command.Argument(
         name="network",
-        description="The name of the StarkNet network.",
+        short_name="n",
+        description=(
+            "\n".join(
+                [
+                    "The name of the StarkNet network.",
+                    "It is required unless `--gateway-url` is provided.",
+                    "",
+                    "Supported StarkNet networks:",
+                ]
+                + [f"- `{n}`" for n in NetworkConfig.get_starknet_networks()]
+            )
+        ),
         type="str",
     )
 
@@ -41,13 +57,13 @@ class DeployCommand(Command):
 
     @property
     def example(self) -> Optional[str]:
-        return "protostar deploy main -n testnet"
+        return "protostar deploy ./build/main.json --network alpha-goerli"
 
     @property
     def arguments(self) -> List[Command.Argument]:
         return [
             Command.Argument(
-                name="compiled-contract",
+                name="contract",
                 description="The path to the compiled contract.",
                 type="path",
                 is_required=True,
@@ -56,7 +72,12 @@ class DeployCommand(Command):
             Command.Argument(
                 name="inputs",
                 short_name="i",
-                description="The inputs to the constructor.",
+                description=(
+                    "The inputs to the constructor. "
+                    "Calldata arguments may be of any type that does not contain pointers.\n"
+                    # pylint: disable=line-too-long
+                    "[Read more about representing Cairo data types in the CLI.](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#array-arguments-in-calldata)"
+                ),
                 type="str",
                 is_array=True,
             ),
@@ -81,7 +102,7 @@ class DeployCommand(Command):
 
     async def run(self, args):
         return await self.deploy(
-            compiled_contract_path=args.compiled_contract,
+            compiled_contract_path=args.contract,
             network=args.network,
             gateway_url=args.gateway_url,
             inputs=args.inputs,
@@ -99,23 +120,49 @@ class DeployCommand(Command):
         token: Optional[str] = None,
         salt: Optional[str] = None,
     ) -> SuccessfulGatewayResponse:
-        with open(
-            self._project.project_root / compiled_contract_path,
-            mode="r",
-            encoding="utf-8",
-        ) as compiled_contract_file:
+        logger = getLogger()
 
-            network_config = self._build_network_config(
-                gateway_url=gateway_url, network=network
-            )
+        network_config = self._build_network_config(
+            gateway_url=gateway_url, network=network
+        )
 
-            return await deploy(
-                gateway_url=network_config.gateway_url,
-                compiled_contract_file=compiled_contract_file,
-                constructor_args=inputs,
-                salt=salt,
-                token=token,
-            )
+        compilation_output_filepath = (
+            self._project.project_root / compiled_contract_path
+        )
+
+        try:
+            with open(
+                self._project.project_root / compilation_output_filepath,
+                mode="r",
+                encoding="utf-8",
+            ) as compiled_contract_file:
+                response = await deploy(
+                    gateway_url=network_config.gateway_url,
+                    compiled_contract_file=compiled_contract_file,
+                    constructor_args=inputs,
+                    salt=salt,
+                    token=token,
+                )
+
+                explorer_url = network_config.get_contract_explorer_url(
+                    response.address
+                )
+                explorer_url_msg_lines: List[str] = []
+
+                if explorer_url:
+                    explorer_url_msg_lines = ["", explorer_url]
+
+                response.log(logger, extra_msg=explorer_url_msg_lines)
+
+                return response
+
+        except FileNotFoundError as err:
+            raise CompilationOutputNotFoundException(
+                (
+                    f"Couldn't find `{compilation_output_filepath}`\n"
+                    "Did you run `protostar build` before running this command?"
+                )
+            ) from err
 
     # pylint: disable=no-self-use
     def _build_network_config(
