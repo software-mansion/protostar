@@ -445,7 +445,7 @@ Deploys a contract given a path relative to a Protostar project root. The sectio
 def start_prank(caller_address: int, target_contract_address: Optional[int] = None) -> Callable: ...
 ```
 
-Changes the caller address until the returned callable is called. If `target_contract_address` is specified, `start_prank` affects only the contract with the specified address. Otherwise, `start_prank` affects only the current contract.
+Changes a caller address returned by `get_caller_address()` until the returned callable is called. If `target_contract_address` is specified, `start_prank` affects only the contract with the specified address. Otherwise, `start_prank` affects  the current contract.
 
 #### In unit tests
 ```cairo title="Local assert passes"
