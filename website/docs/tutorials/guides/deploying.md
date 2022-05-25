@@ -7,7 +7,7 @@ sidebar_label: Deploying (1 min)
 Protostar supports deploying smart contracts to a given network with the `protostar deploy` command. It has a similar interface to the `starknet deploy` command. [Read the CLI reference for the deploy command](/docs/cli-reference#deploy) to learn more about all supported arguments.
 
 ## Example — deploying the default contract
-After [compiling your project](/docs/tutorials/guides/compiling), you can deploy the contract in the following way.
+After [compiling your contract](/docs/tutorials/guides/compiling), you can deploy the contract in the following way.
 
 ```
 $ protostar deploy ./build/main.json --network alpha-goerli
