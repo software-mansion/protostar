@@ -4,7 +4,9 @@ from pathlib import Path
 
 import pexpect
 import pytest
+import tomli
 
+from protostar.utils.protostar_directory import ProtostarDirectory, VersionManager
 from tests.e2e.conftest import ACTUAL_CWD, init_project
 
 
@@ -61,3 +63,19 @@ def test_init_ask_existing():
     assert "protostar.toml" in dirs
     assert "lib_test" in dirs
     assert ".git" in dirs
+
+
+@pytest.mark.usefixtures("init")
+def test_protostar_version_in_config_file():
+    version_manager = VersionManager(
+        ProtostarDirectory(ACTUAL_CWD / "dist" / "protostar")
+    )
+    assert version_manager.protostar_version is not None
+
+    with open("./protostar.toml", "r+", encoding="UTF-8") as protostar_toml:
+        raw_protostar_toml = protostar_toml.read()
+        protostar_toml_dict = tomli.loads(raw_protostar_toml)
+        version_str = protostar_toml_dict["protostar.config"]["protostar_version"]
+        protostar_version = VersionManager.parse(version_str)
+
+        assert version_manager.protostar_version == protostar_version
