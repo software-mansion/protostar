@@ -1,6 +1,7 @@
 %lang starknet
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
+@view
 func setup_state():
     %{ contract = deploy_contract("./src/main.cairo") %}
     return ()

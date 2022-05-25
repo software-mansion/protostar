@@ -75,6 +75,10 @@ class TestRunner:
             env_base = await TestExecutionEnvironment.empty(
                 test_contract, self.include_paths
             )
+
+            if test_suite.setup_state_fn_name:
+                raise NotImplementedError()
+
         except StarkException as err:
             self.queue.put(
                 BrokenTestSuite(
