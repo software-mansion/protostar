@@ -6,7 +6,6 @@ from protostar.commands.test.test_command import TestCommand
 from tests.integration.conftest import assert_cairo_test_cases
 
 
-@pytest.mark.skip
 @pytest.mark.asyncio
 async def test_testing_hooks(mocker):
     testing_summary = await TestCommand(

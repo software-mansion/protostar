@@ -1,4 +1,5 @@
 import asyncio
+from copy import copy
 from logging import getLogger
 from typing import Any, Callable, Dict, List, Optional, Set
 
@@ -43,9 +44,11 @@ class TestExecutionEnvironment:
     def __init__(self, include_paths: List[str]):
         self.starknet = None
         self.test_contract: Optional[StarknetContract] = None
+        self.tmp_state: Dict[str, str] = {}
         self._expected_error: Optional[RevertableException] = None
         self._include_paths = include_paths
         self._test_finish_hooks: Set[Callable[[], None]] = set()
+        self._hijacked_hint_locals: Optional[Dict[str, Any]] = {}
 
     @classmethod
     async def empty(
@@ -69,6 +72,9 @@ class TestExecutionEnvironment:
         new_env.test_contract = new_env.starknet.copy_and_adapt_contract(
             self.test_contract
         )
+        new_env.tmp_state = copy(
+            self.tmp_state
+        )  # NOTE: `deepcopy`` could freeze Protostar
         return new_env
 
     def deploy_in_env(
@@ -148,9 +154,11 @@ class TestExecutionEnvironment:
             **kwargs,
         ):
             if "hint_locals" in kwargs and kwargs["hint_locals"] is not None:
+                self._hijacked_hint_locals = kwargs["hint_locals"]
                 self._inject_cheats_into_hint_locals(
                     kwargs["hint_locals"], kwargs["hint_locals"]["syscall_handler"]
                 )
+                self._inject_state_into_hint_locals(kwargs["hint_locals"])
 
             return fn_run_from_entrypoint(
                 *args,
@@ -158,6 +166,18 @@ class TestExecutionEnvironment:
             )
 
         return modified_run_from_entrypoint
+
+    def update_tmp_state(self):
+        assert self._hijacked_hint_locals is not None
+
+        self.tmp_state = (
+            self._hijacked_hint_locals["tmp_state"]
+            if "tmp_state" in self._hijacked_hint_locals
+            else {}
+        )
+
+    def _inject_state_into_hint_locals(self, hint_locals: Dict[str, Any]):
+        hint_locals["tmp_state"] = self.tmp_state
 
     def _inject_cheats_into_hint_locals(
         self,
