@@ -92,6 +92,16 @@ class TestExecutionEnvironment:
         )
         return contract
 
+    async def invoke_setup_tmp_state(self, fn_name: str) -> None:
+        await self.invoke_test_case(fn_name)
+        assert self._hijacked_hint_locals is not None
+
+        self.tmp_state = (
+            self._hijacked_hint_locals["tmp_state"]
+            if "tmp_state" in self._hijacked_hint_locals
+            else {}
+        )
+
     @replace_class(
         "starkware.starknet.core.os.syscall_utils.BusinessLogicSysCallHandler",
         CheatableSysCallHandler,
@@ -166,15 +176,6 @@ class TestExecutionEnvironment:
             )
 
         return modified_run_from_entrypoint
-
-    def update_tmp_state(self):
-        assert self._hijacked_hint_locals is not None
-
-        self.tmp_state = (
-            self._hijacked_hint_locals["tmp_state"]
-            if "tmp_state" in self._hijacked_hint_locals
-            else {}
-        )
 
     def _inject_state_into_hint_locals(self, hint_locals: Dict[str, Any]):
         hint_locals["tmp_state"] = self.tmp_state

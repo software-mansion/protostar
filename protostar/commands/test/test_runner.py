@@ -77,8 +77,7 @@ class TestRunner:
             )
 
             if test_suite.setup_state_fn_name:
-                await env_base.invoke_test_case(test_suite.setup_state_fn_name)
-                env_base.update_tmp_state()
+                await env_base.invoke_setup_tmp_state(test_suite.setup_state_fn_name)
 
         except StarkException as err:
             self.queue.put(
