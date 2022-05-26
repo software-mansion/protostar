@@ -3,9 +3,9 @@ from typing import List, Optional
 
 from attr import dataclass
 from starkware.starknet.testing.objects import StarknetTransactionExecutionInfo
-from starkware.starkware_utils.error_handling import StarkException
 
 from protostar.commands.test.test_environment_exceptions import ReportedException
+from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
 from protostar.utils.log_color_provider import log_color_provider
 
 
@@ -47,10 +47,26 @@ class FailedTestCase(TestCaseResult):
 @dataclass(frozen=True)
 class BrokenTestSuite(TestCaseResult):
     test_case_names: List[str]
-    exception: StarkException
+    exception: BaseException
 
     def __str__(self) -> str:
-        result: List[str] = []
-        result.append(f"[{log_color_provider.colorize('RED', 'BROKEN')}]")
-        result.append(f"{self.get_formatted_file_path()}")
-        return " ".join(result)
+        first_line: List[str] = []
+        first_line.append(f"[{log_color_provider.colorize('RED', 'BROKEN')}]")
+        first_line.append(f"{self.get_formatted_file_path()}")
+        result = [" ".join(first_line)]
+        result.append(str(self.exception))
+        return "\n".join(result)
+
+
+@dataclass(frozen=True)
+class UnexpectedExceptionTestSuiteResult(BrokenTestSuite):
+    def __str__(self) -> str:
+        first_line: List[str] = []
+        first_line.append(
+            f"[{log_color_provider.colorize('RED', 'UNEXPECTED_EXCEPTION')}]"
+        )
+        first_line.append(self.get_formatted_file_path())
+
+        result = [" ".join(first_line), UNEXPECTED_PROTOSTAR_ERROR_MSG]
+        result.append(str(self.exception))
+        return "\n".join(result)
