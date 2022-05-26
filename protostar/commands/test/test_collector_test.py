@@ -125,7 +125,7 @@ def test_finding_setup_state_function(
     starknet_compiler: StarknetCompiler, project_root: Path
 ):
     def get_function_names(_, predicate: Callable[[str], bool]) -> List[str]:
-        return list(filter(predicate, ["test_main", "setup_state"]))
+        return list(filter(predicate, ["test_main", "setup_tmp_state"]))
 
     cast(
         MagicMock, starknet_compiler.get_function_names
@@ -136,7 +136,7 @@ def test_finding_setup_state_function(
         project_root / "foo" / "test_foo.cairo"
     ).test_suites
 
-    assert suite.setup_state_fn_name == "setup_state"
+    assert suite.setup_state_fn_name == "setup_tmp_state"
 
 
 def test_logging_collected_one_test_suite_and_one_test_case(mocker: MockerFixture):
