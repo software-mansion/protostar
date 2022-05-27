@@ -24,12 +24,11 @@ from protostar.commands.test.test_environment_exceptions import (
     CheatcodeException,
     ExpectedRevertException,
     ExpectedRevertMismatchException,
-    ReportedException,
     RevertableException,
+    SimpleReportedException,
     StarknetRevertableException,
 )
 from protostar.commands.test.tmp_state import TmpState
-from protostar.protostar_exception import ProtostarException
 from protostar.utils.modules import replace_class
 
 logger = getLogger()
@@ -106,8 +105,11 @@ class TestExecutionEnvironment:
             else TmpState()
         )
         if not self.tmp_state.validate():
-            raise ProtostarException(
-                f"Invalid value stored in tmp_state\nSupported types: {TmpState.SUPPORTED_TYPES}"
+            raise SimpleReportedException(
+                (
+                    'Invalid value type stored in "tmp_state"\n'
+                    f"Supported types: {[t.__name__ for t in TmpState.SUPPORTED_TYPES]}"
+                )
             )
 
     @replace_class(
@@ -291,7 +293,7 @@ class TestExecutionEnvironment:
 
     def expect_revert(self, expected_error: RevertableException) -> Callable[[], None]:
         if self._expected_error is not None:
-            raise ReportedException(
+            raise SimpleReportedException(
                 f"Protostar is already expecting an exception matching the following error: {self._expected_error}"
             )
 
@@ -302,7 +304,7 @@ class TestExecutionEnvironment:
                 "The callback returned by the `expect_revert` is deprecated."
             )
             if self._expected_error is not None:
-                raise ReportedException(
+                raise SimpleReportedException(
                     "Expected a transaction to be reverted before cancelling expect_revert"
                 )
 

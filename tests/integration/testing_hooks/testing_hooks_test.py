@@ -21,3 +21,13 @@ async def test_testing_hooks(mocker):
         ],
         expected_failed_test_cases_names=[],
     )
+
+
+@pytest.mark.asyncio
+async def test_invalid_setup_state(mocker):
+    testing_summary = await TestCommand(
+        project=mocker.MagicMock(),
+        protostar_directory=mocker.MagicMock(),
+    ).test(target=Path(__file__).parent / "invalid_setup_state_test.cairo")
+
+    assert len(testing_summary.broken) == 1
