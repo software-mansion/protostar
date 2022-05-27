@@ -18,8 +18,7 @@ end
 
 @view
 func test_contract_was_deployed_in_setup_state{
-    syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
-}():
+        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
     tempvar contract_address
 
     %{ ids.contract_address = tmp_state["contract"].contract_address %}
