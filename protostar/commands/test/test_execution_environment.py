@@ -28,6 +28,8 @@ from protostar.commands.test.test_environment_exceptions import (
     RevertableException,
     StarknetRevertableException,
 )
+from protostar.commands.test.tmp_state import TmpState
+from protostar.protostar_exception import ProtostarException
 from protostar.utils.modules import replace_class
 
 logger = getLogger()
@@ -46,7 +48,7 @@ class TestExecutionEnvironment:
     def __init__(self, include_paths: List[str]):
         self.starknet = None
         self.test_contract: Optional[StarknetContract] = None
-        self.tmp_state: Dict[str, str] = {}
+        self.tmp_state = TmpState()
         self._expected_error: Optional[RevertableException] = None
         self._include_paths = include_paths
         self._test_finish_hooks: Set[Callable[[], None]] = set()
@@ -101,8 +103,12 @@ class TestExecutionEnvironment:
         self.tmp_state = (
             self._hijacked_hint_locals["tmp_state"]
             if "tmp_state" in self._hijacked_hint_locals
-            else {}
+            else TmpState()
         )
+        if not self.tmp_state.validate():
+            raise ProtostarException(
+                f"Invalid value stored in tmp_state\nSupported types: {TmpState.SUPPORTED_TYPES}"
+            )
 
     @replace_class(
         "starkware.starknet.core.os.syscall_utils.BusinessLogicSysCallHandler",

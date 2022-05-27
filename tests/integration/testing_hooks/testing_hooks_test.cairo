@@ -12,7 +12,7 @@ end
 
 @view
 func setup_state():
-    %{ tmp_state["contract"] = deploy_contract("./tests/integration/testing_hooks/basic_contract.cairo") %}
+    %{ tmp_state.contract_address = deploy_contract("./tests/integration/testing_hooks/basic_contract.cairo").contract_address %}
     return ()
 end
 
@@ -21,7 +21,7 @@ func test_contract_was_deployed_in_setup_state{
         syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
     tempvar contract_address
 
-    %{ ids.contract_address = tmp_state["contract"].contract_address %}
+    %{ ids.contract_address = tmp_state.contract_address %}
 
     BasicContract.increase_balance(contract_address, 42)
     let (result) = BasicContract.get_balance(contract_address)
@@ -29,14 +29,14 @@ func test_contract_was_deployed_in_setup_state{
     assert result = 42
 
     # The following hint tries to modify the state for the next test case
-    %{ tmp_state["contract"] = None %}
+    %{ tmp_state.contract_address = None %}
 
     return ()
 end
 
 @view
 func test_tmp_state_remains_unchanged_despite_modification_in_test_case_above():
-    %{ assert tmp_state["contract"].contract_address is not None %}
+    %{ assert tmp_state.contract_address is not None %}
 
     return ()
 end
