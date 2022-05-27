@@ -1,5 +1,4 @@
 import asyncio
-from copy import copy
 from logging import getLogger
 from typing import Any, Callable, Dict, List, Optional, Set
 
@@ -75,9 +74,7 @@ class TestExecutionEnvironment:
         new_env.test_contract = new_env.starknet.copy_and_adapt_contract(
             self.test_contract
         )
-        new_env.tmp_state = copy(
-            self.tmp_state
-        )  # NOTE: `deepcopy`` could freeze Protostar
+        new_env.tmp_state = self.tmp_state.fork()
         return new_env
 
     def deploy_in_env(

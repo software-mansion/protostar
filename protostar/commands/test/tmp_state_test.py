@@ -37,3 +37,14 @@ def test_not_supporting_dicts():
     tmp_state.number = {}
 
     assert tmp_state.validate() is False
+
+
+def test_forking():
+    tmp_state = TmpState()
+    tmp_state.foo = "foo"
+
+    new_state = tmp_state.fork()
+    new_state.foo = "bar"
+
+    assert tmp_state.foo == "foo"
+    assert new_state.foo == "bar"

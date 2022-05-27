@@ -1,3 +1,4 @@
+from copy import deepcopy
 from types import SimpleNamespace
 
 
@@ -10,3 +11,6 @@ class TmpState(SimpleNamespace):
             if not isinstance(val, TmpState.SUPPORTED_TYPES):
                 return False
         return True
+
+    def fork(self) -> "TmpState":
+        return deepcopy(self)
