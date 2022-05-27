@@ -188,6 +188,32 @@ If your IDE supports Cairo and doesn't know how to import `protostar`, add the f
 
 You can find all [assert signatures here](https://github.com/software-mansion/protostar/blob/master/cairo/protostar/asserts.cairo).
 
+## `setup_state`
+Often while writing tests you have some setup work that needs to happen before tests run. The hook `setup_tmp_setup` can simplify your test functions and will speed up your tests. Use `tmp_state` to pass the information between `setup_state` and test functions as demonstrated on the example below:
+```cairo
+%lang starknet
+
+@view
+func setup_state():
+    %{ tmp_state["contract"] = deploy_contract("./tests/integration/testing_hooks/basic_contract.cairo") %}
+    return ()
+end
+
+@view
+func test_something():
+    tempvar contract_address
+    %{ ids.contract_address = tmp_state["contract"].contract_address %}
+
+    # ...
+
+    return ()
+end
+```
+
+:::warning
+Protostar copies `tmp_state` dictionary defined in `setup_state` to a test function shallowly.
+:::
+
 ## Cheatcodes
 
 Most of the time, testing smart contracts with assertions only is not enough. Some test cases require manipulating the state of the blockchain, as well as checking for reverts and events. For that reason, Protostar provides a set of cheatcodes.
