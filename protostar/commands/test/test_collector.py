@@ -141,7 +141,7 @@ class TestCollector:
         self, preprocessed: StarknetPreprocessedProgram
     ) -> Optional[str]:
         function_names = self._starknet_compiler.get_function_names(
-            preprocessed, predicate=lambda fn_name: fn_name == "setup_tmp_state"
+            preprocessed, predicate=lambda fn_name: fn_name == "setup_state"
         )
         return function_names[0] if len(function_names) > 0 else None
 

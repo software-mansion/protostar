@@ -11,14 +11,15 @@ namespace BasicContract:
 end
 
 @view
-func setup_tmp_state():
+func setup_state():
     %{ tmp_state["contract"] = deploy_contract("./tests/integration/testing_hooks/basic_contract.cairo") %}
     return ()
 end
 
 @view
 func test_contract_was_deployed_in_setup_state{
-        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
+    syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr
+}():
     tempvar contract_address
 
     %{ ids.contract_address = tmp_state["contract"].contract_address %}
