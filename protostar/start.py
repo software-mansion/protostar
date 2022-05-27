@@ -4,6 +4,7 @@ from pathlib import Path
 from protostar.cli import ArgumentParserFacade, ArgumentValueFromConfigProvider
 from protostar.cli.cli_app import CLIApp
 from protostar.protostar_cli import ConfigurationProfileCLISchema, ProtostarCLI
+from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
 
 
 def main(script_root: Path):
@@ -27,7 +28,5 @@ def main(script_root: Path):
     except CLIApp.CommandNotFoundError:
         parser.print_help()
     except Exception as err:
-        print(
-            "Unexpected Protostar error. Report it here:\nhttps://github.com/software-mansion/protostar/issues\n"
-        )
+        print(UNEXPECTED_PROTOSTAR_ERROR_MSG)
         raise err
