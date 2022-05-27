@@ -199,7 +199,7 @@ class ExpectedEventMissingException(ReportedException):
         for match in self.matches:
             if match[0] == ExpectedEvent.MatchResult.MATCH:
                 (_, expected_ev, state_ev) = match
-                result.append(
+                result.append( # TODO decode names
                     log_color_provider.colorize("GREEN", self.state_event_to_string(state_ev))
                 )
                 result.append(
