@@ -56,57 +56,76 @@ def test_comparing_state_event_addresses(create_state_event):
 
 
 def test_comparing_event_lists(create_state_event):
-    assert (
-        ExpectedEvent.find_first_expected_event_not_included_in_state_events(
-            [ExpectedEvent("bar"), ExpectedEvent("baz")],
-            [
-                create_state_event("foo"),
-                create_state_event("bar"),
-                create_state_event("baz"),
-            ],
-        )
-        is None
+    expected_events = [ExpectedEvent("bar"), ExpectedEvent("baz")]
+    state_events = [
+            create_state_event("foo"),
+            create_state_event("bar"),
+            create_state_event("baz"),
+        ]
+
+    matches, remaining = ExpectedEvent.match_state_events_to_expected_to_events(
+        expected_events, state_events
     )
+    assert remaining == []
+    assert matches == [
+        (ExpectedEvent.MatchResult.SKIPPED, state_events[0]),
+        (ExpectedEvent.MatchResult.MATCH, expected_events[0], state_events[1]),
+        (ExpectedEvent.MatchResult.MATCH, expected_events[1], state_events[2])
+    ]
 
 
 def test_comparing_event_list_with_one_element(create_state_event):
-    assert (
-        ExpectedEvent.find_first_expected_event_not_included_in_state_events(
-            [ExpectedEvent("bar")],
-            [
-                create_state_event("foo"),
-                create_state_event("bar"),
-                create_state_event("baz"),
-            ],
-        )
-        is None
+    expected_events = [ExpectedEvent("bar")]
+    state_events = [
+            create_state_event("foo"),
+            create_state_event("bar"),
+            create_state_event("baz"),
+        ]
+
+    matches, remaining = ExpectedEvent.match_state_events_to_expected_to_events(
+        expected_events, state_events
     )
+    assert remaining == []
+    assert matches == [
+        (ExpectedEvent.MatchResult.SKIPPED, state_events[0]),
+        (ExpectedEvent.MatchResult.MATCH, expected_events[0], state_events[1]),
+        (ExpectedEvent.MatchResult.SKIPPED, state_events[2])
+    ]
 
 
 def test_comparing_events_with_emit_between(create_state_event):
-    assert (
-        ExpectedEvent.find_first_expected_event_not_included_in_state_events(
-            [ExpectedEvent("foo"), ExpectedEvent("baz")],
-            [
-                create_state_event("foo"),
-                create_state_event("bar"),
-                create_state_event("baz"),
-            ],
-        )
-        is None
+    expected_events = [ExpectedEvent("foo"), ExpectedEvent("baz")]
+    state_events = [
+            create_state_event("foo"),
+            create_state_event("bar"),
+            create_state_event("baz"),
+        ]
+
+    matches, remaining = ExpectedEvent.match_state_events_to_expected_to_events(
+        expected_events, state_events
     )
+    assert remaining == []
+    assert matches == [
+        (ExpectedEvent.MatchResult.MATCH, expected_events[0], state_events[0]),
+        (ExpectedEvent.MatchResult.SKIPPED, state_events[1]),
+        (ExpectedEvent.MatchResult.MATCH, expected_events[1], state_events[2])
+    ]
 
 
 def test_fail_comparing_event_lists(create_state_event):
-    expected_event = (
-        ExpectedEvent.find_first_expected_event_not_included_in_state_events(
-            [ExpectedEvent("bar"), ExpectedEvent("baz")],
-            [
-                create_state_event("baz"),
-                create_state_event("bar"),
-                create_state_event("foo"),
-            ],
-        )
+    expected_events = [ExpectedEvent("baz"), ExpectedEvent("bar")]
+    state_events = [
+            create_state_event("foo"),
+            create_state_event("bar"),
+            create_state_event("baz"),
+        ]
+
+    matches, remaining = ExpectedEvent.match_state_events_to_expected_to_events(
+        expected_events, state_events
     )
-    assert expected_event is not None
-    assert expected_event.name == "baz"
+    assert remaining == [expected_events[1]]
+    assert matches == [
+        (ExpectedEvent.MatchResult.SKIPPED, state_events[0]),
+        (ExpectedEvent.MatchResult.SKIPPED, state_events[1]),
+        (ExpectedEvent.MatchResult.MATCH, expected_events[0], state_events[2])
+    ]

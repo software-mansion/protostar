@@ -1,3 +1,5 @@
+from collections import deque
+from enum import Enum
 import os
 from pathlib import Path
 from typing import List, Optional, Union
@@ -48,30 +50,26 @@ class ExpectedEvent:
 
         return f"{{{', '.join(result)}}}"
 
+    class MatchResult(Enum):
+        MATCH = 1
+        SKIPPED = 2
+
     @staticmethod
-    def find_first_expected_event_not_included_in_state_events(
-        expected_events: List["ExpectedEvent"], state_events: List[Event]
-    ) -> Optional["ExpectedEvent"]:
-        """Returns the expect event that has not been found."""
+    def match_state_events_to_expected_to_events(expected_events: List["ExpectedEvent"], state_events: List[Event]):
         assert len(expected_events) > 0
+        expected = deque(expected_events)
+        results = []
+        for state_event in state_events:
+            try:
+                if expected[0].match(state_event):
+                    results.append((ExpectedEvent.MatchResult.MATCH, expected[0], state_event))
+                    expected.popleft()
+                else:
+                    results.append((ExpectedEvent.MatchResult.SKIPPED, state_event))
+            except IndexError:
+                results.append((ExpectedEvent.MatchResult.SKIPPED, state_event))
 
-        for expected_event in expected_events:
-            new_state_events = ExpectedEvent._get_next_state_events_if_event_found(
-                expected_event, state_events
-            )
-            if new_state_events is None:
-                return expected_event
-            state_events = new_state_events
-        return None
-
-    @staticmethod
-    def _get_next_state_events_if_event_found(
-        expected_event: "ExpectedEvent", state_events: List[Event]
-    ) -> Optional[List[Event]]:
-        for (se_index, state_event) in enumerate(state_events):
-            if expected_event.match(state_event):
-                return state_events[se_index + 1 :]
-        return None
+        return results, list(expected)
 
     def match(self, state_event: Event) -> bool:
         return (
