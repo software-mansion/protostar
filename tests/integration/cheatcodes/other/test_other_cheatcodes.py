@@ -28,5 +28,7 @@ async def test_other_cheatcodes(mocker):
             "test_call_not_existing_contract",
             "test_call_not_existing_contract_specific_error",
         ],
-        expected_failed_test_cases_names=[],
+        expected_failed_test_cases_names=[
+            "test_cannot_freeze_when_cheatcode_exception_is_raised"
+        ],
     )

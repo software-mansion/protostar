@@ -12,8 +12,10 @@ AddressType = int
 SelectorType = int
 
 
-class CheatcodeException(BaseException):
-    pass
+class CheatableSysCallHandlerException(BaseException):
+    def __init__(self, message: str):
+        self.message = message
+        super().__init__(message)
 
 
 class CheatableSysCallHandler(BusinessLogicSysCallHandler):
@@ -52,7 +54,7 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
             else self.contract_address
         )
         if target in self.state.pranked_contracts_map:
-            raise CheatcodeException(
+            raise CheatableSysCallHandlerException(
                 f"Contract with address {target} has been already pranked"
             )
         self.state.pranked_contracts_map[target] = addr
@@ -64,7 +66,7 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
             else self.contract_address
         )
         if target not in self.state.pranked_contracts_map:
-            raise CheatcodeException(
+            raise CheatableSysCallHandlerException(
                 f"Contract with address {target} has not been pranked"
             )
         del self.state.pranked_contracts_map[target]
@@ -95,11 +97,11 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
 
     def unregister_mock_call(self, contract_address: AddressType, selector: int):
         if contract_address not in self.mocked_calls:
-            raise CheatcodeException(
+            raise CheatableSysCallHandlerException(
                 f"Contract {contract_address} doesn't have mocked selectors."
             )
         if selector not in self.mocked_calls[contract_address]:
-            raise CheatcodeException(
+            raise CheatableSysCallHandlerException(
                 f"Couldn't find mocked selector {selector} for an address {contract_address}."
             )
         del self.mocked_calls[contract_address][selector]
