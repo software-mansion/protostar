@@ -190,6 +190,7 @@ You can find all [assert signatures here](https://github.com/software-mansion/pr
 
 ## `setup_state`
 Often while writing tests you have some setup work that needs to happen before tests run. The hook `setup_tmp_setup` can simplify your test functions and will speed up your tests. Use `tmp_state` to pass the information between `setup_state` and test functions as demonstrated on the example below:
+
 ```cairo
 %lang starknet
 
@@ -209,6 +210,10 @@ func test_something():
     return ()
 end
 ```
+:::note
+Protostar executes `setup_state` only once per test file, and creates a copy of StarkNet state and `tmp_state` object for each test case.
+:::
+
 
 :::warning
 Protostar copies `tmp_state` dictionary defined in `setup_state` to a test function shallowly.
