@@ -14,15 +14,6 @@ Error message: a and b must be distinct.
 Unknown location (pc=0:5)
 """
 
-ERROR_DESCRIPTION_WITH_NO_ERROR_MESSAGES = """
-Error at pc=0:2:
-Unknown value for memory cell at address 1:18.
-Cairo traceback (most recent call last):
-Unknown location (pc=0:22)
-Unknown location (pc=0:14)
-Unknown location (pc=0:5)
-"""
-
 
 def test_extracting_all_error_messages_if_stark_ex_message_is_empty():
     results = StarknetRevertableException.extract_error_messages_from_stark_ex_message(
