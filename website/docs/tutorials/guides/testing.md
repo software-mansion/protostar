@@ -21,7 +21,7 @@ Then in the `tests` directory create file `test_utils.cairo`, which contains a s
 
 from src.utils import sum_func
 
-@**external**
+@external
 func test_sum{syscall_ptr : felt*, range_check_ptr}():
     let (r) = sum_func(4,3)
     assert r = 7
