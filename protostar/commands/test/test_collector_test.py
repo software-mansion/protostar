@@ -1,6 +1,6 @@
 import re
 from pathlib import Path
-from typing import List, cast
+from typing import Callable, List, cast
 from unittest.mock import MagicMock
 
 import pytest
@@ -14,6 +14,7 @@ from protostar.commands.test.test_collector import (
     TestCollector,
 )
 from protostar.commands.test.test_suite import TestSuite
+from protostar.utils.starknet_compilation import StarknetCompiler
 
 
 @pytest.fixture(name="project_root")
@@ -133,6 +134,24 @@ def test_collector_preprocess_contracts(
     ).test_suites
     starknet_compiler.preprocess_contract.assert_called_once()
     assert suite.preprocessed_contract == preprocessed_contract
+
+
+def test_finding_setup_state_function(
+    starknet_compiler: StarknetCompiler, project_root: Path
+):
+    def get_function_names(_, predicate: Callable[[str], bool]) -> List[str]:
+        return list(filter(predicate, ["test_main", "setup_state"]))
+
+    cast(
+        MagicMock, starknet_compiler.get_function_names
+    ).side_effect = get_function_names
+    test_collector = TestCollector(starknet_compiler)
+
+    [suite] = test_collector.collect(
+        project_root / "foo" / "test_foo.cairo"
+    ).test_suites
+
+    assert suite.setup_state_fn_name == "setup_state"
 
 
 def test_logging_collected_one_test_suite_and_one_test_case(mocker: MockerFixture):

@@ -171,10 +171,12 @@ class TestCollector:
                 for test_case_name in test_case_names
                 if test_case_name == target_test_case_name
             ]
+
         return TestSuite(
             test_path=file_path,
             test_case_names=test_case_names,
             preprocessed_contract=preprocessed,
+            setup_state_fn_name=self._find_setup_state_hook_name(preprocessed),
         )
 
     def _get_test_suite_paths(self, target: Path) -> Generator[Path, None, None]:
@@ -192,7 +194,17 @@ class TestCollector:
     def _collect_test_case_names(
         self, preprocessed: StarknetPreprocessedProgram
     ) -> List[str]:
-        return self._starknet_compiler.get_function_names(preprocessed, prefix="test_")
+        return self._starknet_compiler.get_function_names(
+            preprocessed, predicate=lambda fn_name: fn_name.startswith("test_")
+        )
+
+    def _find_setup_state_hook_name(
+        self, preprocessed: StarknetPreprocessedProgram
+    ) -> Optional[str]:
+        function_names = self._starknet_compiler.get_function_names(
+            preprocessed, predicate=lambda fn_name: fn_name == "setup_state"
+        )
+        return function_names[0] if len(function_names) > 0 else None
 
     def _preprocess_contract(self, file_path: Path) -> StarknetPreprocessedProgram:
         try:

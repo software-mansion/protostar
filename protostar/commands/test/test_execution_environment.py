@@ -16,9 +16,11 @@ from protostar.commands.test.cheatcodes import (
 from protostar.commands.test.expected_event import ExpectedEvent
 from protostar.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
+    CheatableSysCallHandlerException,
 )
 from protostar.commands.test.starkware.forkable_starknet import ForkableStarknet
 from protostar.commands.test.test_environment_exceptions import (
+    CheatcodeException,
     ExpectedRevertException,
     ExpectedRevertMismatchException,
     ReportedException,
@@ -178,14 +180,20 @@ class TestExecutionEnvironment:
         def start_prank(
             caller_address: int, target_contract_address: Optional[int] = None
         ):
-            cheatable_syscall_handler.set_caller_address(
-                caller_address, target_contract_address=target_contract_address
-            )
+            try:
+                cheatable_syscall_handler.set_caller_address(
+                    caller_address, target_contract_address=target_contract_address
+                )
+            except CheatableSysCallHandlerException as err:
+                raise CheatcodeException("start_prank", err.message) from err
 
             def stop_started_prank():
-                cheatable_syscall_handler.reset_caller_address(
-                    target_contract_address=target_contract_address
-                )
+                try:
+                    cheatable_syscall_handler.reset_caller_address(
+                        target_contract_address=target_contract_address
+                    )
+                except CheatableSysCallHandlerException as err:
+                    raise CheatcodeException("start_prank", err.message) from err
 
             return stop_started_prank
 
@@ -194,9 +202,12 @@ class TestExecutionEnvironment:
             logger.warning(
                 "Using stop_prank() is deprecated, instead use a function returned by start_prank()"
             )
-            cheatable_syscall_handler.reset_caller_address(
-                target_contract_address=target_contract_address
-            )
+            try:
+                cheatable_syscall_handler.reset_caller_address(
+                    target_contract_address=target_contract_address
+                )
+            except CheatableSysCallHandlerException as err:
+                raise CheatcodeException("stop_prank", err.message) from err
 
         @register_cheatcode
         def mock_call(contract_address: int, fn_name: str, ret_data: List[int]):
@@ -208,7 +219,12 @@ class TestExecutionEnvironment:
         @register_cheatcode
         def clear_mock_call(contract_address: int, fn_name: str):
             selector = get_selector_from_name(fn_name)
-            cheatable_syscall_handler.unregister_mock_call(contract_address, selector)
+            try:
+                cheatable_syscall_handler.unregister_mock_call(
+                    contract_address, selector
+                )
+            except CheatableSysCallHandlerException as err:
+                raise CheatcodeException("stop_prank", err.message) from err
 
         @register_cheatcode
         def expect_events(

@@ -13,6 +13,22 @@ class ReportedException(BaseException):
         return str(super().__repr__())
 
 
+class CheatcodeException(ReportedException):
+    def __init__(self, cheatcode_name: str, message: str):
+        self.cheatcode_name = cheatcode_name
+        self.message = message
+        super().__init__(message)
+
+    def __str__(self):
+        lines: List[str] = []
+        lines.append(f"Incorrect usage of `{self.cheatcode_name}` cheatcode")
+        lines.append(self.message)
+        return "\n".join(lines)
+
+    def __reduce__(self):
+        return type(self), (self.cheatcode_name, self.message)
+
+
 class RevertableException(ReportedException):
     """
     This exception is used by `except_revert` logic.

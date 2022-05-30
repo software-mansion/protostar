@@ -10,6 +10,7 @@ from protostar.commands.test.test_cases import (
     BrokenTestSuite,
     FailedTestCase,
     PassedTestCase,
+    UnexpectedExceptionTestSuiteResult,
 )
 from protostar.commands.test.test_environment_exceptions import ReportedException
 from protostar.commands.test.test_execution_environment import TestExecutionEnvironment
@@ -50,19 +51,33 @@ class TestRunner:
         )
 
     async def run_test_suite(self, test_suite: TestSuite):
-        assert self.include_paths is not None, "Uninitialized paths list in test runner"
+        try:
+            assert (
+                self.include_paths is not None
+            ), "Uninitialized paths list in test runner"
 
-        compiled_test = StarknetCompiler(
-            include_paths=self.include_paths,
-            disable_hint_validation=True,
-        ).compile_preprocessed_contract(
-            test_suite.preprocessed_contract, add_debug_info=True
-        )
+            compiled_test = StarknetCompiler(
+                include_paths=self.include_paths,
+                disable_hint_validation=True,
+            ).compile_preprocessed_contract(
+                test_suite.preprocessed_contract, add_debug_info=True
+            )
 
-        await self._run_test_suite(
-            test_contract=compiled_test,
-            test_suite=test_suite,
-        )
+            await self._run_test_suite(
+                test_contract=compiled_test,
+                test_suite=test_suite,
+            )
+
+        # An unexpected exception in a worker should crash nor freeze the whole application
+        # pylint: disable=broad-except
+        except BaseException as ex:
+            self.queue.put(
+                UnexpectedExceptionTestSuiteResult(
+                    file_path=test_suite.test_path,
+                    test_case_names=test_suite.test_case_names,
+                    exception=ex,
+                )
+            )
 
     async def _run_test_suite(
         self,
@@ -75,6 +90,10 @@ class TestRunner:
             env_base = await TestExecutionEnvironment.empty(
                 test_contract, self.include_paths
             )
+
+            if test_suite.setup_state_fn_name:
+                raise NotImplementedError()
+
         except StarkException as err:
             self.queue.put(
                 BrokenTestSuite(
