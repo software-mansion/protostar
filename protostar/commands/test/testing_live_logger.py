@@ -28,6 +28,7 @@ class TestingLiveLogger:
                 total=test_collector_result.test_cases_count,
                 bar_format="{l_bar}{bar}[{n_fmt}/{total_fmt}]",
                 dynamic_ncols=True,
+                leave=False,
             ) as progress_bar:
                 tests_left_n = test_collector_result.test_cases_count
                 progress_bar.update()
@@ -52,8 +53,8 @@ class TestingLiveLogger:
                             progress_bar.update(1)
                             tests_left_n -= 1
                 finally:
-                    progress_bar.bar_format = "{desc}"
-                    progress_bar.update()
+                    progress_bar.write("")
+                    progress_bar.clear()
                     self.testing_summary.log(
                         logger=self._logger,
                         collected_test_cases_count=test_collector_result.test_cases_count,
