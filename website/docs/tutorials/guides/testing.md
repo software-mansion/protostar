@@ -196,28 +196,30 @@ Often while writing tests you have some setup work that needs to happen before t
 
 @view
 func setup_state():
-    %{ tmp_state["contract"] = deploy_contract("./tests/integration/testing_hooks/basic_contract.cairo") %}
+    %{ tmp_state.contract_a_address = deploy_contract("./tests/integration/testing_hooks/basic_contract.cairo").contract_address %}
     return ()
 end
 
 @view
 func test_something():
     tempvar contract_address
-    %{ ids.contract_address = tmp_state["contract"].contract_address %}
+    %{ ids.contract_address = tmp_state.contract_a_address %}
 
     # ...
 
     return ()
 end
 ```
-:::note
+:::warning
+`tmp_state` can only store strings, integers and booleans.
+:::
+
+:::info
 Protostar executes `setup_state` only once per test file, and creates a copy of StarkNet state and `tmp_state` object for each test case.
 :::
 
 
-:::warning
-Protostar copies `tmp_state` dictionary defined in `setup_state` to a test function shallowly.
-:::
+
 
 ## Cheatcodes
 
