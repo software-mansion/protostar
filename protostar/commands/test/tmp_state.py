@@ -8,16 +8,6 @@ from protostar.commands.test.test_environment_exceptions import SimpleReportedEx
 class TmpState(SimpleNamespace):
     SUPPORTED_TYPES = (int, str, bool)
 
-    # TODO: fix context.__deepcopy__
-    def __getattr__(self, __name: str) -> Any:
-        if __name not in vars(self):
-            raise SimpleReportedException(
-                (
-                    f"Tried to read undefined value.\n"
-                    f"Did you define 'context.{__name}' in the '__setup__' function?"
-                )
-            )
-
     def __setattr__(self, __name: str, __value: Any) -> None:
         if not isinstance(__value, TmpState.SUPPORTED_TYPES):
             raise SimpleReportedException(
