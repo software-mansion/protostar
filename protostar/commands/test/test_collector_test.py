@@ -30,10 +30,22 @@ def test_suites_fixture(project_root: Path):
         - foo
             - test_foo.cairo
             - foo.cairo
+        - baz
+            - foo
+                - test_foo.cairo
+                - foo.cairo
     """
     tmp_bar_path = project_root / "bar"
     tmp_bar_path.mkdir(exist_ok=True, parents=True)
     (tmp_bar_path / "bar_test.cairo").touch()
+
+    tmp_foo_path = project_root / "foo"
+    tmp_foo_path.mkdir(exist_ok=True, parents=True)
+    (tmp_foo_path / "test_foo.cairo").touch()
+    (tmp_foo_path / "foo.cairo").touch()
+
+    tmp_baz_path = project_root / "baz"
+    tmp_baz_path.mkdir(exist_ok=True, parents=True)
     tmp_foo_path = project_root / "foo"
     tmp_foo_path.mkdir(exist_ok=True, parents=True)
     (tmp_foo_path / "test_foo.cairo").touch()
@@ -179,3 +191,13 @@ def test_collecting_from_directory_globs(starknet_compiler, project_root):
     )
 
     assert_tested_suites(result.test_suites, ["bar_test.cairo", "test_foo.cairo"])
+
+
+def test_recursive_globs(starknet_compiler, project_root):
+    test_collector = TestCollector(starknet_compiler)
+
+    result = test_collector.collect_from_glob_targets(
+        [f"{project_root}/**/test_foo.cairo"]
+    )
+
+    assert_tested_suites(result.test_suites, ["test_foo.cairo", "test_foo.cairo"])

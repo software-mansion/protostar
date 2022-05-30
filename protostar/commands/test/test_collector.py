@@ -27,8 +27,8 @@ class TestCollector:
     class Result:
         def __init__(self, test_suites: List[TestSuite]) -> None:
             self.test_suites = test_suites
-            self.test_cases_count = (
-                sum([len(test_suite.test_case_names) for test_suite in test_suites]),
+            self.test_cases_count = sum(
+                [len(test_suite.test_case_names) for test_suite in test_suites]
             )
 
         def log(self, logger: Logger):
@@ -94,16 +94,15 @@ class TestCollector:
     ) -> "TestCollector.Result":
         test_suite_filepaths: Set[str] = set()
         for glob_target in glob_targets:
-            if not glob_target.endswith(".cairo"):
-                matches = glob(glob_target, recursive=True)
-                for match in matches:
-                    path = Path(match)
-                    if path.is_dir():
-                        test_suite_filepaths.update(
-                            self._find_test_suite_filepaths_in_dir(path)
-                        )
-                    elif path.is_file() and TestCollector.is_test_suite(path.name):
-                        test_suite_filepaths.add(str(path))
+            matches = glob(glob_target, recursive=True)
+            for match in matches:
+                path = Path(match)
+                if path.is_dir():
+                    test_suite_filepaths.update(
+                        self._find_test_suite_filepaths_in_dir(path)
+                    )
+                elif path.is_file() and TestCollector.is_test_suite(path.name):
+                    test_suite_filepaths.add(match)
 
         test_suites: List[TestSuite] = []
         for test_suite in test_suite_filepaths:
