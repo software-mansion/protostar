@@ -2,7 +2,7 @@ from collections import deque
 from enum import Enum
 import os
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import List, Union
 
 from starkware.starknet.business_logic.execution.objects import Event
 from starkware.starknet.public.abi import get_selector_from_name
@@ -42,7 +42,7 @@ class ExpectedEvent:
     def __str__(self) -> str:
         result: List[str] = []
 
-        result.append(f'"name": "{self.name}"')
+        result.append(f'"name": "{get_selector_from_name(self.name)}"')
         if self.data:
             result.append(f'"data": "{str(self.data)}"')
         if self.from_address:
@@ -55,14 +55,18 @@ class ExpectedEvent:
         SKIPPED = 2
 
     @staticmethod
-    def match_state_events_to_expected_to_events(expected_events: List["ExpectedEvent"], state_events: List[Event]):
+    def match_state_events_to_expected_to_events(
+        expected_events: List["ExpectedEvent"], state_events: List[Event]
+    ):
         assert len(expected_events) > 0
         expected = deque(expected_events)
         results = []
         for state_event in state_events:
             try:
                 if expected[0].match(state_event):
-                    results.append((ExpectedEvent.MatchResult.MATCH, expected[0], state_event))
+                    results.append(
+                        (ExpectedEvent.MatchResult.MATCH, expected[0], state_event)
+                    )
                     expected.popleft()
                 else:
                     results.append((ExpectedEvent.MatchResult.SKIPPED, state_event))

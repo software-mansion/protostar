@@ -28,7 +28,6 @@ from protostar.commands.test.test_environment_exceptions import (
     RevertableException,
     StarknetRevertableException,
 )
-from protostar.utils import log_color_provider
 from protostar.utils.modules import replace_class
 
 logger = getLogger()
@@ -239,15 +238,17 @@ class TestExecutionEnvironment:
 
                 expected_events = list(map(ExpectedEvent, raw_expected_events))
 
-                matches, missing = ExpectedEvent.match_state_events_to_expected_to_events(
+                (
+                    matches,
+                    missing,
+                ) = ExpectedEvent.match_state_events_to_expected_to_events(
                     expected_events,
                     self.starknet.state.events,
                 )
 
                 if len(missing) > 0:
                     raise ExpectedEventMissingException(
-                        matches=matches,
-                        missing=missing     
+                        matches=matches, missing=missing
                     )
 
             self.add_test_finish_hook(compare_expected_and_emitted_events)

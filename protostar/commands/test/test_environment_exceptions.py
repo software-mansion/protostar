@@ -5,6 +5,7 @@ from starkware.starknet.business_logic.execution.objects import Event
 from protostar.utils.log_color_provider import log_color_provider
 from protostar.commands.test.expected_event import ExpectedEvent
 
+
 class ReportedException(BaseException):
     """
     The exception used for catching unexpected errors thrown from test cases and as a base class.
@@ -188,6 +189,7 @@ class ExpectedRevertMismatchException(ReportedException):
     def __reduce__(self):
         return type(self), (self._expected, self._received)
 
+
 class ExpectedEventMissingException(ReportedException):
     def __init__(self, matches, missing) -> None:
         self.matches = matches
@@ -199,8 +201,10 @@ class ExpectedEventMissingException(ReportedException):
         for match in self.matches:
             if match[0] == ExpectedEvent.MatchResult.MATCH:
                 (_, expected_ev, state_ev) = match
-                result.append( # TODO decode names
-                    log_color_provider.colorize("GREEN", self.state_event_to_string(state_ev))
+                result.append(
+                    log_color_provider.colorize(
+                        "GREEN", self.state_event_to_string(state_ev)
+                    )
                 )
                 result.append(
                     log_color_provider.colorize("GREEN", f"Match: {str(expected_ev)}")
@@ -209,17 +213,17 @@ class ExpectedEventMissingException(ReportedException):
             elif match[0] == ExpectedEvent.MatchResult.SKIPPED:
                 (_, state_ev) = match
                 result.append(
-                    log_color_provider.colorize("GRAY", self.state_event_to_string(state_ev))
+                    log_color_provider.colorize(
+                        "GRAY", self.state_event_to_string(state_ev)
+                    )
                 )
             result.append("")
 
         result.append("Missing: ")
         for missed_event in self.missing:
-            result.append(
-                log_color_provider.colorize("RED", str(missed_event))
-            )
+            result.append(log_color_provider.colorize("RED", str(missed_event)))
         return "\n".join(result)
-    
+
     @staticmethod
     def state_event_to_string(state_event: Event):
         result: List[str] = []
@@ -230,4 +234,3 @@ class ExpectedEventMissingException(ReportedException):
 
     def __reduce__(self):
         return type(self), (self.matches, self.missing)
-    

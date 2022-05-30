@@ -27,6 +27,6 @@ async def test_expect_events(mocker):
             "test_fail_on_data_mismatch",
             "test_fail_when_no_events_were_emitted",
             "test_fail_on_contract_address_mismatch",
-            "test_fail_message_about_first_not_found_event"
+            "test_fail_message_about_first_not_found_event",
         ],
     )
