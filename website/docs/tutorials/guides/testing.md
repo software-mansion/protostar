@@ -21,7 +21,7 @@ Then in the `tests` directory create file `test_utils.cairo`, which contains a s
 
 from src.utils import sum_func
 
-@**external**
+@external
 func test_sum{syscall_ptr : felt*, range_check_ptr}():
     let (r) = sum_func(4,3)
     assert r = 7
@@ -61,7 +61,6 @@ We will use an example of a simple storage contract to show you how to deploy co
 First, inside a `src` directory, create a `storage_contract.cairo`
 ```code title="src/storage_contract.cairo"
 %lang starknet
-%builtins pedersen range_check
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.uint256 import Uint256, uint256_add
