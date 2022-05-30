@@ -1,7 +1,7 @@
 %lang starknet
 
 @view
-func setup_state():
+func __setup__():
     %{ context.foo = {} %}
     return ()
 end

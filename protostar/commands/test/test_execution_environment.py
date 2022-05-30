@@ -5,30 +5,24 @@ from typing import Any, Callable, Dict, List, Optional, Set
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.public.abi import get_selector_from_name
-from starkware.starknet.services.api.contract_definition import ContractDefinition
+from starkware.starknet.services.api.contract_definition import \
+    ContractDefinition
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starkware_utils.error_handling import StarkException
 
-from protostar.commands.test.cheatcodes import (
-    Cheatcode,
-    ExpectRevertCheatcode,
-    RollCheatcode,
-)
+from protostar.commands.test.cheatcodes import (Cheatcode,
+                                                ExpectRevertCheatcode,
+                                                RollCheatcode)
 from protostar.commands.test.expected_event import ExpectedEvent
 from protostar.commands.test.starkware.cheatable_syscall_handler import (
-    CheatableSysCallHandler,
-    CheatableSysCallHandlerException,
-)
-from protostar.commands.test.starkware.forkable_starknet import ForkableStarknet
+    CheatableSysCallHandler, CheatableSysCallHandlerException)
+from protostar.commands.test.starkware.forkable_starknet import \
+    ForkableStarknet
 from protostar.commands.test.test_context import TestContext
 from protostar.commands.test.test_environment_exceptions import (
-    CheatcodeException,
-    ExpectedRevertException,
-    ExpectedRevertMismatchException,
-    RevertableException,
-    SimpleReportedException,
-    StarknetRevertableException,
-)
+    CheatcodeException, ExpectedRevertException,
+    ExpectedRevertMismatchException, RevertableException,
+    SimpleReportedException, StarknetRevertableException)
 from protostar.utils.modules import replace_class
 
 logger = getLogger()
@@ -92,7 +86,7 @@ class TestExecutionEnvironment:
         )
         return contract
 
-    async def invoke_setup_state(self, fn_name: str) -> None:
+    async def invoke_setup_hook(self, fn_name: str) -> None:
         await self.invoke_test_case(fn_name)
 
     @replace_class(

@@ -98,8 +98,8 @@ class TestRunner:
                 test_contract, self.include_paths
             )
 
-            if test_suite.setup_state_fn_name:
-                await env_base.invoke_setup_state(test_suite.setup_state_fn_name)
+            if test_suite.setup_fn_name:
+                await env_base.invoke_setup_hook(test_suite.setup_fn_name)
 
         except StarkException as err:
             self.queue.put(
