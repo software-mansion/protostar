@@ -42,7 +42,7 @@ class ExpectedEvent:
     def __str__(self) -> str:
         result: List[str] = []
 
-        result.append(f'"name": "{get_selector_from_name(self.name)}"')
+        result.append(f'"name": ({self.name})"{get_selector_from_name(self.name)}"')
         if self.data:
             result.append(f'"data": "{str(self.data)}"')
         if self.from_address:
