@@ -90,32 +90,61 @@ class TestCollector:
         )
 
     def collect_from_glob_targets(
-        self, glob_targets: List[str]
+        self,
+        glob_targets: List[str],
+        omit_pattern: Optional[Pattern] = None,
     ) -> "TestCollector.Result":
-        test_suite_filepaths: Set[str] = set()
+
+        unique_test_suites: Set[TestSuite] = set()
         for glob_target in glob_targets:
-            matches = glob(glob_target, recursive=True)
-            for match in matches:
-                path = Path(match)
-                if path.is_dir():
-                    test_suite_filepaths.update(
-                        self._find_test_suite_filepaths_in_dir(path)
+            test_suite_filepaths: Set[str] = set()
+            target_test_case: Optional[str] = None
+            valid_glob = glob_target
+            if re.match(r"^.*\.cairo::.*", glob_target):
+                valid_glob, target_test_case = glob_target.split("::")
+
+            test_suite_filepaths.update(
+                self._find_test_suite_filepaths_from_glob(valid_glob)
+            )
+
+            if omit_pattern:
+                test_suite_filepaths = set(
+                    filter(
+                        lambda filepath: not cast(Pattern, omit_pattern).match(
+                            str(filepath)
+                        ),
+                        test_suite_filepaths,
                     )
-                elif path.is_file() and TestCollector.is_test_suite(path.name):
-                    test_suite_filepaths.add(match)
+                )
 
-        test_suites: List[TestSuite] = []
-        for test_suite in test_suite_filepaths:
-            test_suites.append(self._build_test_suite(Path(test_suite), None))
+            test_suites: List[TestSuite] = []
+            for test_suite in test_suite_filepaths:
+                test_suites.append(
+                    self._build_test_suite(Path(test_suite), target_test_case)
+                )
 
-        non_empty_test_suites = list(
-            filter(lambda test_file: (test_file.test_case_names) != [], test_suites)
-        )
+            non_empty_test_suites = list(
+                filter(lambda test_file: (test_file.test_case_names) != [], test_suites)
+            )
+
+            unique_test_suites.update(non_empty_test_suites)
 
         return TestCollector.Result(
-            test_suites=non_empty_test_suites,
+            test_suites=list(unique_test_suites),
         )
 
+    def _find_test_suite_filepaths_from_glob(self, glob_target: str) -> Set[str]:
+        results: Set[str] = set()
+        matches = glob(glob_target, recursive=True)
+        for match in matches:
+            path = Path(match)
+            if path.is_dir():
+                results.update(self._find_test_suite_filepaths_in_dir(path))
+            elif path.is_file() and TestCollector.is_test_suite(path.name):
+                results.add(match)
+        return results
+
+    # pylint: disable=no-self-use
     def _find_test_suite_filepaths_in_dir(self, path: Path) -> Set[str]:
         filepaths = set(glob(f"{path}/**/*.cairo", recursive=True))
         results: Set[str] = set()
