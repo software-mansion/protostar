@@ -1,4 +1,5 @@
 import asyncio
+from copy import deepcopy
 from logging import getLogger
 from typing import Any, Callable, Dict, List, Optional, Set
 
@@ -50,7 +51,6 @@ class TestExecutionEnvironment:
         self._expected_error: Optional[RevertableException] = None
         self._include_paths = include_paths
         self._test_finish_hooks: Set[Callable[[], None]] = set()
-        self._hijacked_hint_locals: Optional[Dict[str, Any]] = {}
 
     @classmethod
     async def empty(
@@ -74,7 +74,7 @@ class TestExecutionEnvironment:
         new_env.test_contract = new_env.starknet.copy_and_adapt_contract(
             self.test_contract
         )
-        new_env.tmp_state = self.tmp_state.fork()
+        new_env.tmp_state = deepcopy(self.tmp_state)
         return new_env
 
     def deploy_in_env(
@@ -94,20 +94,6 @@ class TestExecutionEnvironment:
 
     async def invoke_setup_state(self, fn_name: str) -> None:
         await self.invoke_test_case(fn_name)
-        assert self._hijacked_hint_locals is not None
-
-        self.tmp_state = (
-            self._hijacked_hint_locals["tmp_state"]
-            if "tmp_state" in self._hijacked_hint_locals
-            else TmpState()
-        )
-        if not self.tmp_state.validate():
-            raise SimpleReportedException(
-                (
-                    'Invalid value type stored in "tmp_state"\n'
-                    f"Supported types: {[t.__name__ for t in TmpState.SUPPORTED_TYPES]}"
-                )
-            )
 
     @replace_class(
         "starkware.starknet.core.os.syscall_utils.BusinessLogicSysCallHandler",
@@ -171,11 +157,10 @@ class TestExecutionEnvironment:
             **kwargs,
         ):
             if "hint_locals" in kwargs and kwargs["hint_locals"] is not None:
-                self._hijacked_hint_locals = kwargs["hint_locals"]
                 self._inject_cheats_into_hint_locals(
                     kwargs["hint_locals"], kwargs["hint_locals"]["syscall_handler"]
                 )
-                self._inject_state_into_hint_locals(kwargs["hint_locals"])
+                self._inject_test_context_into_hint_locals(kwargs["hint_locals"])
 
             return fn_run_from_entrypoint(
                 *args,
@@ -184,7 +169,7 @@ class TestExecutionEnvironment:
 
         return modified_run_from_entrypoint
 
-    def _inject_state_into_hint_locals(self, hint_locals: Dict[str, Any]):
+    def _inject_test_context_into_hint_locals(self, hint_locals: Dict[str, Any]):
         hint_locals["tmp_state"] = self.tmp_state
 
     def _inject_cheats_into_hint_locals(

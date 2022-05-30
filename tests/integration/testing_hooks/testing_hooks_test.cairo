@@ -29,7 +29,7 @@ func test_contract_was_deployed_in_setup_state{
     assert result = 42
 
     # The following hint tries to modify the state for the next test case
-    %{ tmp_state.contract_address = None %}
+    %{ tmp_state.contract_address = -1 %}
 
     return ()
 end

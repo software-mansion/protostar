@@ -1,10 +1,7 @@
+import pytest
+
+from protostar.commands.test.test_environment_exceptions import ReportedException
 from protostar.commands.test.tmp_state import TmpState
-
-
-def test_empty_state_is_valid():
-    tmp_state = TmpState()
-
-    assert tmp_state.validate() is True
 
 
 def test_tmp_state_supports_integers():
@@ -12,15 +9,11 @@ def test_tmp_state_supports_integers():
 
     tmp_state.number = 42
 
-    assert tmp_state.validate() is True
-
 
 def test_tmp_state_supports_strings():
     tmp_state = TmpState()
 
     tmp_state.string = ""
-
-    assert tmp_state.validate() is True
 
 
 def test_tmp_state_supports_bools():
@@ -28,23 +21,17 @@ def test_tmp_state_supports_bools():
 
     tmp_state.bool = False
 
-    assert tmp_state.validate() is True
-
 
 def test_not_supporting_dicts():
     tmp_state = TmpState()
 
-    tmp_state.number = {}
+    with pytest.raises(ReportedException):
+        tmp_state.number = {}
 
-    assert tmp_state.validate() is False
 
-
-def test_forking():
+def test_should_fail_when_reading_undefined_value():
     tmp_state = TmpState()
-    tmp_state.foo = "foo"
 
-    new_state = tmp_state.fork()
-    new_state.foo = "bar"
-
-    assert tmp_state.foo == "foo"
-    assert new_state.foo == "bar"
+    with pytest.raises(ReportedException):
+        # pylint: disable=pointless-statement
+        tmp_state.foobar
