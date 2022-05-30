@@ -27,3 +27,11 @@ def test_not_supporting_dicts():
 
     with pytest.raises(ReportedException):
         context.number = {}
+
+
+def test_immutability():
+    context = TestContext()
+
+    context.number = 0
+    with pytest.raises(ReportedException):
+        context.number = 1
