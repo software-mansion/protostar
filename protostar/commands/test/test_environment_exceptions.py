@@ -191,7 +191,9 @@ class ExpectedRevertMismatchException(ReportedException):
 
 
 class ExpectedEventMissingException(ReportedException):
-    def __init__(self, matches: ExpectedEvent.MatchesList, missing: List[ExpectedEvent]) -> None:
+    def __init__(
+        self, matches: ExpectedEvent.MatchesList, missing: List[ExpectedEvent]
+    ) -> None:
         self.matches = matches
         self.missing = missing
         super().__init__()

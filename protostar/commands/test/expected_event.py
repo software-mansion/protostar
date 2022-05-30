@@ -2,11 +2,11 @@ from collections import deque
 from enum import Enum
 import os
 from pathlib import Path
-from typing import List, Literal, Tuple, Union
+from typing import List, Tuple, Union
 
 from starkware.starknet.business_logic.execution.objects import Event
 from starkware.starknet.public.abi import get_selector_from_name
-from typing_extensions import NotRequired, TypedDict
+from typing_extensions import NotRequired, TypedDict, Literal
 
 from protostar.commands.test.test_suite import TestSuite
 
@@ -54,12 +54,17 @@ class ExpectedEvent:
         MATCH = 1
         SKIPPED = 2
 
-    MatchesList = List[Union[Tuple[Literal[MatchResult.SKIPPED], Event], Tuple[Literal[MatchResult.MATCH], "ExpectedEvent", Event]]]
+    MatchesList = List[
+        Union[
+            Tuple[Literal[MatchResult.SKIPPED], Event],
+            Tuple[Literal[MatchResult.MATCH], "ExpectedEvent", Event],
+        ]
+    ]
 
     @staticmethod
     def match_state_events_to_expected_to_events(
         expected_events: List["ExpectedEvent"], state_events: List[Event]
-    ) ->  Tuple[MatchesList, List["ExpectedEvent"]]:
+    ) -> Tuple[MatchesList, List["ExpectedEvent"]]:
         assert len(expected_events) > 0
         expected = deque(expected_events)
         results: ExpectedEvent.MatchesList = []
