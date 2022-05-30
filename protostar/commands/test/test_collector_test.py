@@ -131,7 +131,6 @@ def test_logging_collected_one_test_suite_and_one_test_case(mocker: MockerFixtur
                 preprocessed_contract=mocker.MagicMock(),
             )
         ],
-        test_cases_count=1,
     ).log(logger_mock)
 
     cast(MagicMock, logger_mock.info).assert_called_once_with(
@@ -155,7 +154,6 @@ def test_logging_many_test_suites_and_many_test_cases(mocker: MockerFixture):
                 preprocessed_contract=mocker.MagicMock(),
             ),
         ],
-        test_cases_count=2,
     ).log(logger_mock)
 
     cast(MagicMock, logger_mock.info).assert_called_once_with(
@@ -168,7 +166,16 @@ def test_logging_no_cases_found(mocker: MockerFixture):
 
     TestCollector.Result(
         test_suites=[],
-        test_cases_count=0,
     ).log(logger_mock)
 
     cast(MagicMock, logger_mock.warning).assert_called_once_with("No cases found")
+
+
+def test_collecting_from_directory_globs(starknet_compiler, project_root):
+    test_collector = TestCollector(starknet_compiler)
+
+    result = test_collector.collect_from_glob_targets(
+        [f"{project_root}/b*", f"{project_root}/f*"]
+    )
+
+    assert_tested_suites(result.test_suites, ["bar_test.cairo", "test_foo.cairo"])

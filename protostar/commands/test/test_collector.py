@@ -1,9 +1,10 @@
 import os
 import re
 from dataclasses import dataclass
+from glob import glob
 from logging import Logger
 from pathlib import Path
-from typing import Generator, List, Optional, Pattern, cast
+from typing import Generator, List, Optional, Pattern, Set, cast
 
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     PreprocessorError,
@@ -23,10 +24,12 @@ class TestCollectingException(ProtostarException):
 
 @dataclass
 class TestCollector:
-    @dataclass(frozen=True)
     class Result:
-        test_suites: List[TestSuite]
-        test_cases_count: int
+        def __init__(self, test_suites: List[TestSuite]) -> None:
+            self.test_suites = test_suites
+            self.test_cases_count = (
+                sum([len(test_suite.test_case_names) for test_suite in test_suites]),
+            )
 
         def log(self, logger: Logger):
             if self.test_cases_count:
@@ -84,13 +87,43 @@ class TestCollector:
 
         return TestCollector.Result(
             test_suites=non_empty_test_suites,
-            test_cases_count=sum(
-                [
-                    len(test_suite.test_case_names)
-                    for test_suite in non_empty_test_suites
-                ]
-            ),
         )
+
+    def collect_from_glob_targets(
+        self, glob_targets: List[str]
+    ) -> "TestCollector.Result":
+        test_suite_filepaths: Set[str] = set()
+        for glob_target in glob_targets:
+            if not glob_target.endswith(".cairo"):
+                matches = glob(glob_target, recursive=True)
+                for match in matches:
+                    path = Path(match)
+                    if path.is_dir():
+                        test_suite_filepaths.update(
+                            self._find_test_suite_filepaths_in_dir(path)
+                        )
+                    elif path.is_file() and TestCollector.is_test_suite(path.name):
+                        test_suite_filepaths.add(str(path))
+
+        test_suites: List[TestSuite] = []
+        for test_suite in test_suite_filepaths:
+            test_suites.append(self._build_test_suite(Path(test_suite), None))
+
+        non_empty_test_suites = list(
+            filter(lambda test_file: (test_file.test_case_names) != [], test_suites)
+        )
+
+        return TestCollector.Result(
+            test_suites=non_empty_test_suites,
+        )
+
+    def _find_test_suite_filepaths_in_dir(self, path: Path) -> Set[str]:
+        filepaths = set(glob(f"{path}/**/*.cairo", recursive=True))
+        results: Set[str] = set()
+        for filepath in filepaths:
+            if TestCollector.is_test_suite(Path(filepath).name):
+                results.add(filepath)
+        return results
 
     @classmethod
     def is_test_suite(cls, filename: str) -> bool:
