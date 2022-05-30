@@ -20,6 +20,7 @@ from protostar.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandlerException,
 )
 from protostar.commands.test.starkware.forkable_starknet import ForkableStarknet
+from protostar.commands.test.test_context import TestContext
 from protostar.commands.test.test_environment_exceptions import (
     CheatcodeException,
     ExpectedRevertException,
@@ -28,7 +29,6 @@ from protostar.commands.test.test_environment_exceptions import (
     SimpleReportedException,
     StarknetRevertableException,
 )
-from protostar.commands.test.tmp_state import TmpState
 from protostar.utils.modules import replace_class
 
 logger = getLogger()
@@ -47,7 +47,7 @@ class TestExecutionEnvironment:
     def __init__(self, include_paths: List[str]):
         self.starknet = None
         self.test_contract: Optional[StarknetContract] = None
-        self.tmp_state = TmpState()
+        self.test_context = TestContext()
         self._expected_error: Optional[RevertableException] = None
         self._include_paths = include_paths
         self._test_finish_hooks: Set[Callable[[], None]] = set()
@@ -74,7 +74,7 @@ class TestExecutionEnvironment:
         new_env.test_contract = new_env.starknet.copy_and_adapt_contract(
             self.test_contract
         )
-        new_env.tmp_state = deepcopy(self.tmp_state)
+        new_env.test_context = deepcopy(self.test_context)
         return new_env
 
     def deploy_in_env(
@@ -170,7 +170,7 @@ class TestExecutionEnvironment:
         return modified_run_from_entrypoint
 
     def _inject_test_context_into_hint_locals(self, hint_locals: Dict[str, Any]):
-        hint_locals["tmp_state"] = self.tmp_state
+        hint_locals["context"] = self.test_context
 
     def _inject_cheats_into_hint_locals(
         self,

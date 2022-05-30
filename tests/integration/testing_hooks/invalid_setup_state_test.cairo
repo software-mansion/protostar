@@ -2,7 +2,7 @@
 
 @view
 func setup_state():
-    %{ tmp_state.foo = {} %}
+    %{ context.foo = {} %}
     return ()
 end
 

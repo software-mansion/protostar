@@ -17,7 +17,6 @@ async def test_testing_hooks(mocker):
         testing_summary,
         expected_passed_test_cases_names=[
             "test_contract_was_deployed_in_setup_state",
-            "test_tmp_state_remains_unchanged_despite_modification_in_test_case_above",
         ],
         expected_failed_test_cases_names=[],
     )
