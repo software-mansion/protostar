@@ -1,6 +1,6 @@
 from logging import getLogger
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Optional, Pattern
+from typing import TYPE_CHECKING, List, Optional
 
 from protostar.cli.command import Command
 from protostar.commands.test.test_collector import TestCollector
@@ -41,23 +41,23 @@ class TestCommand(Command):
             Command.Argument(
                 name="target",
                 description=(
-                    "A path can point to:\n"
-                    "- a directory with test files\n"
-                    "    - `tests`\n"
-                    "- a specific test file\n"
-                    "    - `tests/test_main.cairo`\n"
-                    "- a specific test case\n"
-                    "    - `tests/test_main.cairo::test_example`\n"
+                    "A glob or globs to a directory or a test suite. You can target a specific test case for example:\n"
+                    "`tests/**/*_main*::*_balance`\n"
                 ),
-                type="path",
+                type="str",
+                is_array=True,
                 is_positional=True,
-                default="tests",
+                default=["tests"],
             ),
             Command.Argument(
-                name="omit",
-                short_name="o",
-                description="A filepath regexp that omits the test file if it matches the pattern.",
-                type="regexp",
+                name="ignore",
+                short_name="i",
+                description=(
+                    "A glob or globs to a directory or a test suite, which should be ignored.\n"
+                    "You can target a specific test case."
+                ),
+                is_array=True,
+                type="str",
             ),
             Command.Argument(
                 name="cairo-path",
@@ -69,8 +69,8 @@ class TestCommand(Command):
 
     async def run(self, args) -> TestingSummary:
         summary = await self.test(
-            target=args.target,
-            omit=args.omit,
+            target_globs=args.target,
+            ignored_globs=args.ignore,
             cairo_path=args.cairo_path,
         )
         summary.assert_all_passed()
@@ -78,8 +78,8 @@ class TestCommand(Command):
 
     async def test(
         self,
-        target: Path,
-        omit: Optional[Pattern] = None,
+        target_globs: List[str],
+        ignored_globs: Optional[List[str]] = None,
         cairo_path: Optional[List[Path]] = None,
     ) -> TestingSummary:
         logger = getLogger()
@@ -88,9 +88,9 @@ class TestCommand(Command):
 
         test_collector_result = TestCollector(
             StarknetCompiler(disable_hint_validation=True, include_paths=include_paths)
-        ).collect(
-            target=target,
-            omit_pattern=omit,
+        ).collect_from_globs(
+            target_globs=target_globs,
+            ignored_globs=ignored_globs,
         )
 
         test_collector_result.log(logger)

@@ -11,7 +11,7 @@ async def test_other_cheatcodes(mocker):
     testing_summary = await TestCommand(
         project=mocker.MagicMock(),
         protostar_directory=mocker.MagicMock(),
-    ).test(target=Path(__file__).parent / "test_other_cheatcodes.cairo")
+    ).test(target_globs=[f"{Path(__file__).parent}/test_other_cheatcodes.cairo"])
 
     assert_cairo_test_cases(
         testing_summary,
