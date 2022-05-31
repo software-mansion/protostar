@@ -156,6 +156,7 @@ class TestCollector:
         self,
         target_globs: List[str],
         ignored_globs: Optional[List[str]] = None,
+        default_test_suite_glob: Optional[str] = None,
     ) -> "TestCollector.Result":
 
         test_suites: Set[TestSuite] = set()
@@ -183,6 +184,7 @@ class TestCollector:
                 target_glob,
                 ignored_test_suite_filepaths,
                 ignored_test_suite_and_test_case_globs,
+                default_test_suite_glob,
             )
 
             test_suites.update(target_test_suites)
@@ -196,12 +198,16 @@ class TestCollector:
         target_glob: str,
         ignored_test_suite_filepaths: Set[str],
         ignored_test_suite_and_test_case_globs: Set[str],
+        default_test_suite_glob: Optional[str] = None,
     ) -> Set[TestSuite]:
         # extract target_test_case_glob
         target_test_case_glob: Optional[str] = None
         target_test_suite_glob = target_glob
         if "::" in target_glob:
             target_test_suite_glob, target_test_case_glob = target_glob.split("::")
+
+        if not target_test_suite_glob and default_test_suite_glob:
+            target_test_suite_glob = default_test_suite_glob
 
         # find test suites from target
         potential_test_suite_filepaths = self._find_test_suite_filepaths_from_glob(

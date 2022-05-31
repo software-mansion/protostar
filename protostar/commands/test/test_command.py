@@ -91,6 +91,7 @@ class TestCommand(Command):
         ).collect_from_globs(
             target_globs=target_globs,
             ignored_globs=ignored_globs,
+            default_test_suite_glob=str(self._project.project_root.resolve()),
         )
 
         test_collector_result.log(logger)
