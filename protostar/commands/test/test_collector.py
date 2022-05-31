@@ -92,17 +92,17 @@ class TestCollector:
 
     def collect_from_globs(
         self,
-        glob_targets: List[str],
+        target_globs: List[str],
         omit_pattern: Optional[Pattern] = None,
     ) -> "TestCollector.Result":
 
         unique_test_suites: Set[TestSuite] = set()
-        for glob_target in glob_targets:
+        for target_glob in target_globs:
             test_suite_filepaths: Set[str] = set()
             target_test_case_glob: Optional[str] = None
-            valid_glob = glob_target
-            if re.match(r"^.*\.cairo::.*", glob_target):
-                valid_glob, target_test_case_glob = glob_target.split("::")
+            valid_glob = target_glob
+            if re.match(r"^.*\.cairo::.*", target_glob):
+                valid_glob, target_test_case_glob = target_glob.split("::")
 
             test_suite_filepaths.update(
                 self._find_test_suite_filepaths_from_glob(valid_glob)
@@ -136,9 +136,9 @@ class TestCollector:
             test_suites=list(unique_test_suites),
         )
 
-    def _find_test_suite_filepaths_from_glob(self, glob_target: str) -> Set[str]:
+    def _find_test_suite_filepaths_from_glob(self, target_glob: str) -> Set[str]:
         results: Set[str] = set()
-        matches = glob(glob_target, recursive=True)
+        matches = glob(target_glob, recursive=True)
         for match in matches:
             path = Path(match)
             if path.is_dir():
