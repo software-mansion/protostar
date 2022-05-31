@@ -279,7 +279,7 @@ def test_omitting_pattern_in_globs(starknet_compiler, project_root):
     test_collector = TestCollector(starknet_compiler)
 
     result = test_collector.collect_from_globs(
-        [str(project_root)], omit_pattern=re.compile(".*foo.*")
+        [str(project_root)], ignored_globs=[f"{project_root}/**/test_foo.cairo"]
     )
 
     assert_tested_suites(result.test_suites, ["bar_test.cairo"])
@@ -291,6 +291,18 @@ def test_globs_in_test_case_name(starknet_compiler, project_root):
 
     result = test_collector.collect_from_globs(
         [f"{project_root}/foo/test_foo.cairo::*b"]
+    )
+
+    assert_tested_suites(result.test_suites, ["test_foo.cairo"])
+    assert result.test_cases_count == 1
+    assert result.test_suites[0].test_case_names[0] == "test_case_b"
+
+
+def test_ignoring_test_cases(starknet_compiler, project_root):
+    test_collector = TestCollector(starknet_compiler)
+
+    result = test_collector.collect_from_globs(
+        [f"{project_root}/foo/test_foo.cairo"], ignored_globs=["::test_case_a"]
     )
 
     assert_tested_suites(result.test_suites, ["test_foo.cairo"])
