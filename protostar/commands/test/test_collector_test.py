@@ -28,15 +28,21 @@ def test_suites_fixture(project_root: Path):
     - project_root
         - bar
             - bar_test.cairo
-              * test_foo
+                * test_case_a
+                * test_case_b
+                * run
         - foo
             - test_foo.cairo
-              * test_foo
+                * test_case_a
+                * test_case_b
+                * run
             - foo.cairo
         - baz
             - foo
                 - test_foo.cairo
-                  * test_foo
+                    * test_case_a
+                    * test_case_b
+                    * run
                 - foo.cairo
     """
     tmp_bar_path = project_root / "bar"
@@ -50,7 +56,7 @@ def test_suites_fixture(project_root: Path):
 
     tmp_baz_path = project_root / "baz"
     tmp_baz_path.mkdir(exist_ok=True, parents=True)
-    tmp_foo_path = project_root / "foo"
+    tmp_foo_path = tmp_baz_path / "foo"
     tmp_foo_path.mkdir(exist_ok=True, parents=True)
     (tmp_foo_path / "test_foo.cairo").touch()
     (tmp_foo_path / "foo.cairo").touch()
@@ -59,13 +65,24 @@ def test_suites_fixture(project_root: Path):
 @pytest.fixture(name="starknet_compiler")
 def starknet_compiler_fixture(mocker: MockerFixture):
     starknet_compiler_mock = mocker.MagicMock()
-    starknet_compiler_mock.get_function_names.return_value = ["test_foo", "bar_test"]
+    starknet_compiler_mock.get_function_names = mocker.MagicMock()
+
+    def get_function_names(_, predicate):
+        return [
+            fn_name
+            for fn_name in ["test_case_a", "test_case_b", "run"]
+            if predicate(fn_name)
+        ]
+
+    starknet_compiler_mock.get_function_names.side_effect = get_function_names
+
     return starknet_compiler_mock
 
 
 def assert_tested_suites(test_suites: List[TestSuite], expected_file_names: List[str]):
     test_suite_names = [test_suite.test_path.name for test_suite in test_suites]
     assert set(test_suite_names) == set(expected_file_names)
+    assert len(expected_file_names) == len(test_suites)
 
 
 def test_is_test_suite():
@@ -80,8 +97,10 @@ def test_collecting_tests_from_target(starknet_compiler, project_root):
 
     result = test_collector.collect(target=project_root)
 
-    assert_tested_suites(result.test_suites, ["bar_test.cairo", "test_foo.cairo"])
-    assert result.test_cases_count == 4
+    assert_tested_suites(
+        result.test_suites, ["bar_test.cairo", "test_foo.cairo", "test_foo.cairo"]
+    )
+    assert result.test_cases_count == 6
 
 
 def test_omitting_pattern(starknet_compiler, project_root):
@@ -91,8 +110,8 @@ def test_omitting_pattern(starknet_compiler, project_root):
         target=project_root, omit_pattern=re.compile(".*bar.*")
     )
 
-    assert_tested_suites(result.test_suites, ["test_foo.cairo"])
-    assert result.test_cases_count == 2
+    assert_tested_suites(result.test_suites, ["test_foo.cairo", "test_foo.cairo"])
+    assert result.test_cases_count == 4
 
 
 def test_breakage_upon_broken_test_suite(starknet_compiler, project_root):
@@ -116,7 +135,9 @@ def test_collecting_specific_file(starknet_compiler, project_root: Path):
 def test_collecting_specific_function(starknet_compiler, project_root: Path):
     test_collector = TestCollector(starknet_compiler)
 
-    result = test_collector.collect(project_root / "foo" / "test_foo.cairo::test_foo")
+    result = test_collector.collect(
+        project_root / "foo" / "test_foo.cairo::test_case_a"
+    )
 
     assert_tested_suites(result.test_suites, ["test_foo.cairo"])
     assert result.test_cases_count == 1
@@ -209,7 +230,7 @@ def test_collecting_from_directory_globs(starknet_compiler, project_root):
     test_collector = TestCollector(starknet_compiler)
 
     result = test_collector.collect_from_glob_targets(
-        [f"{project_root}/b*", f"{project_root}/f*"]
+        [f"{project_root}/b*r", f"{project_root}/f*"]
     )
 
     assert_tested_suites(result.test_suites, ["bar_test.cairo", "test_foo.cairo"])
@@ -229,23 +250,23 @@ def test_collecting_specific_function_in_glob(starknet_compiler, project_root):
     test_collector = TestCollector(starknet_compiler)
 
     result = test_collector.collect_from_glob_targets(
-        [f"{project_root}/**/test_foo.cairo::test_foo"]
+        [f"{project_root}/**/test_foo.cairo::test_case_a"]
     )
 
     assert_tested_suites(
         result.test_suites,
-        ["test_foo.cairo"],
+        ["test_foo.cairo", "test_foo.cairo"],
     )
-    assert result.test_cases_count == 1
+    assert result.test_cases_count == 2
 
 
-def test_multiple_globs(starknet_compiler, project_root):
+def test_multiple_globs_pointing_to_test_case(starknet_compiler, project_root):
     test_collector = TestCollector(starknet_compiler)
 
     result = test_collector.collect_from_glob_targets(
         [
-            f"{project_root}/**/test_foo.cairo::test_foo",
-            f"{project_root}/**/bar_test.cairo::test_foo",
+            f"{project_root}/foo/test_foo.cairo::test_case_a",
+            f"{project_root}/**/bar_test.cairo::test_case_a",
         ]
     )
 
@@ -260,8 +281,8 @@ def test_omitting_pattern_in_globs(starknet_compiler, project_root):
     test_collector = TestCollector(starknet_compiler)
 
     result = test_collector.collect_from_glob_targets(
-        [str(project_root)], omit_pattern=re.compile(".*bar.*")
+        [str(project_root)], omit_pattern=re.compile(".*foo.*")
     )
 
-    assert_tested_suites(result.test_suites, ["test_foo.cairo"])
+    assert_tested_suites(result.test_suites, ["bar_test.cairo"])
     assert result.test_cases_count == 2
