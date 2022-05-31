@@ -7,10 +7,12 @@ from logging import Logger
 from pathlib import Path
 from typing import Generator, List, Optional, Pattern, Set, cast
 
-from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import \
-    PreprocessorError
-from starkware.starknet.compiler.starknet_preprocessor import \
-    StarknetPreprocessedProgram
+from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
+    PreprocessorError,
+)
+from starkware.starknet.compiler.starknet_preprocessor import (
+    StarknetPreprocessedProgram,
+)
 
 from protostar.commands.test.test_suite import TestSuite
 from protostar.protostar_exception import ProtostarException
@@ -88,7 +90,7 @@ class TestCollector:
             test_suites=non_empty_test_suites,
         )
 
-    def collect_from_glob_targets(
+    def collect_from_globs(
         self,
         glob_targets: List[str],
         omit_pattern: Optional[Pattern] = None,
@@ -119,7 +121,9 @@ class TestCollector:
             test_suites: List[TestSuite] = []
             for test_suite in test_suite_filepaths:
                 test_suites.append(
-                    self._build_test_suite_from_test_case_glob(Path(test_suite), target_test_case_glob)
+                    self._build_test_suite_from_test_case_glob(
+                        Path(test_suite), target_test_case_glob
+                    )
                 )
 
             non_empty_test_suites = list(
