@@ -2,8 +2,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional
 
-from starkware.starknet.compiler.starknet_preprocessor import \
-    StarknetPreprocessedProgram
+from starkware.starknet.compiler.starknet_preprocessor import (
+    StarknetPreprocessedProgram,
+)
 
 
 @dataclass(frozen=True)
