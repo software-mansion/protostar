@@ -90,137 +90,6 @@ class TestCollector:
             test_suites=non_empty_test_suites,
         )
 
-    def collect_from_globs(
-        self,
-        target_globs: List[str],
-        ignored_globs: Optional[List[str]] = None,
-    ) -> "TestCollector.Result":
-
-        unique_test_suites: Set[TestSuite] = set()
-
-        # extract ignored globs that target test_case
-        ignored_test_suite_globs: Set[str] = set()
-        ignored_test_suite_and_test_case_globs: Set[str] = set()
-
-        if ignored_globs:
-            for ignored_glob in ignored_globs:
-                if "::" in ignored_glob:
-                    ignored_test_suite_and_test_case_globs.add(ignored_glob)
-                else:
-                    ignored_test_suite_globs.add(ignored_glob)
-
-        # find ignored test suite filepaths
-        ignored_test_suite_filepaths: Set[str] = set()
-        for ignored_test_suite_glob in ignored_test_suite_globs:
-            ignored_test_suite_filepaths.update(
-                self._find_test_suite_filepaths_from_glob(ignored_test_suite_glob)
-            )
-
-        # for each glob find test_suites
-        for target_glob in target_globs:
-
-            # extract target_test_case_glob
-            target_test_case_glob: Optional[str] = None
-            target_test_suite_glob = target_glob
-            if "::" in target_glob:
-                target_test_suite_glob, target_test_case_glob = target_glob.split("::")
-
-            # find potential test suites
-            potential_test_suite_filepaths = self._find_test_suite_filepaths_from_glob(
-                target_test_suite_glob
-            )
-
-            # filter out ignored test suites
-            filtered_test_suite_filepaths = (
-                potential_test_suite_filepaths - ignored_test_suite_filepaths
-            )
-
-            # create TestSuite objects
-            test_suites: List[TestSuite] = []
-            for test_suite_filepath in filtered_test_suite_filepaths:
-                # find ignored test case globs for this test suite
-                ignored_test_case_globs: Set[str] = set()
-                for (
-                    ignored_test_suite_and_test_case_glob
-                ) in ignored_test_suite_and_test_case_globs:
-                    (
-                        _,
-                        ignored_test_case_glob,
-                    ) = ignored_test_suite_and_test_case_glob.split("::")
-                    ignored_test_case_globs.add(ignored_test_case_glob)
-
-                test_suites.append(
-                    self._build_test_suite_from_test_case_glob(
-                        Path(test_suite_filepath),
-                        target_test_case_glob,
-                        ignored_test_case_globs,
-                    )
-                )
-
-            # remove empty test suites
-            non_empty_test_suites = list(
-                filter(lambda test_file: (test_file.test_case_names) != [], test_suites)
-            )
-
-            # update function's result
-            unique_test_suites.update(non_empty_test_suites)
-
-        return TestCollector.Result(
-            test_suites=list(unique_test_suites),
-        )
-
-    def _find_test_suite_filepaths_from_glob(self, target_glob: str) -> Set[str]:
-        results: Set[str] = set()
-        matches = glob(target_glob, recursive=True)
-        for match in matches:
-            path = Path(match)
-            if path.is_dir():
-                results.update(self._find_test_suite_filepaths_in_dir(path))
-            elif path.is_file() and TestCollector.is_test_suite(path.name):
-                results.add(match)
-        return results
-
-    # pylint: disable=no-self-use
-    def _find_test_suite_filepaths_in_dir(self, path: Path) -> Set[str]:
-        filepaths = set(glob(f"{path}/**/*.cairo", recursive=True))
-        results: Set[str] = set()
-        for filepath in filepaths:
-            if TestCollector.is_test_suite(Path(filepath).name):
-                results.add(filepath)
-        return results
-
-    def _build_test_suite_from_test_case_glob(
-        self,
-        test_suite_path: Path,
-        target_test_case_glob: Optional[str],
-        ignored_test_case_globs: Set[str],
-    ) -> TestSuite:
-        preprocessed = self._preprocess_contract(test_suite_path)
-        collected_test_case_names = set(self._collect_test_case_names(preprocessed))
-
-        test_case_names = collected_test_case_names
-        if target_test_case_glob:
-            test_case_names = set()
-            for collected_test_case_name in collected_test_case_names:
-                if fnmatch(collected_test_case_name, target_test_case_glob):
-                    test_case_names.add(collected_test_case_name)
-
-        filtered_test_case_names: Set[str] = set()
-        for test_case_name in test_case_names:
-            if len(ignored_test_case_globs) == 0:
-                filtered_test_case_names = test_case_names
-            else:
-                for ignored_test_case_glob in ignored_test_case_globs:
-                    if not fnmatch(test_case_name, ignored_test_case_glob):
-                        filtered_test_case_names.add(test_case_name)
-
-        return TestSuite(
-            test_path=test_suite_path,
-            test_case_names=list(filtered_test_case_names),
-            preprocessed_contract=preprocessed,
-            setup_state_fn_name=self._find_setup_state_hook_name(preprocessed),
-        )
-
     @classmethod
     def is_test_suite(cls, filename: str) -> bool:
         return any(
@@ -280,3 +149,147 @@ class TestCollector:
         except PreprocessorError as p_err:
             print(p_err)
             raise TestCollectingException("Failed to collect test cases") from p_err
+
+    # GLOBS
+
+    def collect_from_globs(
+        self,
+        target_globs: List[str],
+        ignored_globs: Optional[List[str]] = None,
+    ) -> "TestCollector.Result":
+
+        test_suites: Set[TestSuite] = set()
+
+        # extract ignored globs that target test_case
+        ignored_test_suite_globs: Set[str] = set()
+        ignored_test_suite_and_test_case_globs: Set[str] = set()
+
+        if ignored_globs:
+            for ignored_glob in ignored_globs:
+                if "::" in ignored_glob:
+                    ignored_test_suite_and_test_case_globs.add(ignored_glob)
+                else:
+                    ignored_test_suite_globs.add(ignored_glob)
+
+        # find ignored test suite filepaths
+        ignored_test_suite_filepaths: Set[str] = set()
+        for ignored_test_suite_glob in ignored_test_suite_globs:
+            ignored_test_suite_filepaths.update(
+                self._find_test_suite_filepaths_from_glob(ignored_test_suite_glob)
+            )
+
+        for target_glob in target_globs:
+            target_test_suites = self._collect_from_glob(
+                target_glob,
+                ignored_test_suite_filepaths,
+                ignored_test_suite_and_test_case_globs,
+            )
+
+            test_suites.update(target_test_suites)
+
+        return TestCollector.Result(
+            test_suites=list(test_suites),
+        )
+
+    def _collect_from_glob(
+        self,
+        target_glob: str,
+        ignored_test_suite_filepaths: Set[str],
+        ignored_test_suite_and_test_case_globs: Set[str],
+    ) -> Set[TestSuite]:
+        # extract target_test_case_glob
+        target_test_case_glob: Optional[str] = None
+        target_test_suite_glob = target_glob
+        if "::" in target_glob:
+            target_test_suite_glob, target_test_case_glob = target_glob.split("::")
+
+        # find test suites from target
+        potential_test_suite_filepaths = self._find_test_suite_filepaths_from_glob(
+            target_test_suite_glob
+        )
+
+        # filter out ignored test suites
+        filtered_test_suite_filepaths = (
+            potential_test_suite_filepaths - ignored_test_suite_filepaths
+        )
+
+        # create TestSuite objects
+        test_suites: List[TestSuite] = []
+        for test_suite_filepath in filtered_test_suite_filepaths:
+            # find ignored test case globs for this test suite
+            ignored_test_case_globs: Set[str] = set()
+            for (
+                ignored_test_suite_and_test_case_glob
+            ) in ignored_test_suite_and_test_case_globs:
+                (
+                    _,
+                    ignored_test_case_glob,
+                ) = ignored_test_suite_and_test_case_glob.split("::")
+                ignored_test_case_globs.add(ignored_test_case_glob)
+
+            test_suites.append(
+                self._build_test_suite_from_test_case_glob(
+                    Path(test_suite_filepath),
+                    target_test_case_glob,
+                    ignored_test_case_globs,
+                )
+            )
+
+        # filter out empty test suites
+        non_empty_test_suites = set(
+            filter(lambda test_file: (test_file.test_case_names) != [], test_suites)
+        )
+
+        return non_empty_test_suites
+
+    def _find_test_suite_filepaths_from_glob(self, test_suite_glob: str) -> Set[str]:
+        results: Set[str] = set()
+        matches = glob(test_suite_glob, recursive=True)
+        for match in matches:
+            path = Path(match)
+            if path.is_dir():
+                results.update(self._find_test_suite_filepaths_in_dir(path))
+            elif path.is_file() and TestCollector.is_test_suite(path.name):
+                results.add(match)
+        return results
+
+    # pylint: disable=no-self-use
+    def _find_test_suite_filepaths_in_dir(self, path: Path) -> Set[str]:
+        filepaths = set(glob(f"{path}/**/*.cairo", recursive=True))
+        results: Set[str] = set()
+        for filepath in filepaths:
+            if TestCollector.is_test_suite(Path(filepath).name):
+                results.add(filepath)
+        return results
+
+    def _build_test_suite_from_test_case_glob(
+        self,
+        test_suite_path: Path,
+        target_test_case_glob: Optional[str],
+        ignored_test_case_globs: Set[str],
+    ) -> TestSuite:
+        preprocessed = self._preprocess_contract(test_suite_path)
+        collected_test_case_names = set(self._collect_test_case_names(preprocessed))
+
+        test_case_names = collected_test_case_names
+        if target_test_case_glob:
+            test_case_names = set()
+            for collected_test_case_name in collected_test_case_names:
+                if fnmatch(collected_test_case_name, target_test_case_glob):
+                    test_case_names.add(collected_test_case_name)
+
+        filtered_test_case_names: Set[str] = set()
+        for test_case_name in test_case_names:
+            if len(ignored_test_case_globs) == 0:
+                filtered_test_case_names = test_case_names
+            else:
+                for ignored_test_case_glob in ignored_test_case_globs:
+                    if not fnmatch(test_case_name, ignored_test_case_glob):
+                        filtered_test_case_names.add(test_case_name)
+
+        return TestSuite(
+            test_path=test_suite_path,
+            test_case_names=list(filtered_test_case_names),
+            preprocessed_contract=preprocessed,
+            setup_state_fn_name=self._find_setup_state_hook_name(preprocessed),
+        )
