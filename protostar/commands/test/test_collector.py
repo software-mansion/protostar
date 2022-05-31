@@ -1,17 +1,16 @@
 import os
 import re
 from dataclasses import dataclass
+from fnmatch import fnmatch
 from glob import glob
 from logging import Logger
 from pathlib import Path
 from typing import Generator, List, Optional, Pattern, Set, cast
 
-from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
-    PreprocessorError,
-)
-from starkware.starknet.compiler.starknet_preprocessor import (
-    StarknetPreprocessedProgram,
-)
+from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import \
+    PreprocessorError
+from starkware.starknet.compiler.starknet_preprocessor import \
+    StarknetPreprocessedProgram
 
 from protostar.commands.test.test_suite import TestSuite
 from protostar.protostar_exception import ProtostarException
@@ -98,10 +97,10 @@ class TestCollector:
         unique_test_suites: Set[TestSuite] = set()
         for glob_target in glob_targets:
             test_suite_filepaths: Set[str] = set()
-            target_test_case: Optional[str] = None
+            target_test_case_glob: Optional[str] = None
             valid_glob = glob_target
             if re.match(r"^.*\.cairo::.*", glob_target):
-                valid_glob, target_test_case = glob_target.split("::")
+                valid_glob, target_test_case_glob = glob_target.split("::")
 
             test_suite_filepaths.update(
                 self._find_test_suite_filepaths_from_glob(valid_glob)
@@ -120,7 +119,7 @@ class TestCollector:
             test_suites: List[TestSuite] = []
             for test_suite in test_suite_filepaths:
                 test_suites.append(
-                    self._build_test_suite(Path(test_suite), target_test_case)
+                    self._build_test_suite_from_test_case_glob(Path(test_suite), target_test_case_glob)
                 )
 
             non_empty_test_suites = list(
@@ -152,6 +151,25 @@ class TestCollector:
             if TestCollector.is_test_suite(Path(filepath).name):
                 results.add(filepath)
         return results
+
+    def _build_test_suite_from_test_case_glob(
+        self, file_path: Path, target_test_case_glob: Optional[str]
+    ) -> TestSuite:
+        preprocessed = self._preprocess_contract(file_path)
+        test_case_names = self._collect_test_case_names(preprocessed)
+        if target_test_case_glob:
+            test_case_names = [
+                test_case_name
+                for test_case_name in test_case_names
+                if fnmatch(test_case_name, target_test_case_glob)
+            ]
+
+        return TestSuite(
+            test_path=file_path,
+            test_case_names=test_case_names,
+            preprocessed_contract=preprocessed,
+            setup_state_fn_name=self._find_setup_state_hook_name(preprocessed),
+        )
 
     @classmethod
     def is_test_suite(cls, filename: str) -> bool:
