@@ -299,18 +299,23 @@ class TestCollector:
         preprocessed = self._preprocess_contract(test_suite_path)
         collected_test_case_names = set(self._collect_test_case_names(preprocessed))
 
-        target_test_case_names: Set[str] = collected_test_case_names.copy()
+        # gather test cases that match any test case glob
+        target_test_case_names: Set[str] = set()
         for test_case_name in collected_test_case_names:
-            for test_case_glob in test_cases_info.test_case_globs:
-                if not fnmatch(test_case_name, test_case_glob):
-                    target_test_case_names.remove(test_case_name)
-                    break
+            if len(test_cases_info.test_case_globs) == 0:
+                target_test_case_names = collected_test_case_names.copy()
+            else:
+                for test_case_glob in test_cases_info.test_case_globs:
+                    if fnmatch(test_case_name, test_case_glob):
+                        target_test_case_names.add(test_case_name)
 
+        # filter out test cases that match any test case glob
         not_ignored_target_test_case_names = target_test_case_names.copy()
         for test_case_name in target_test_case_names:
             for ignored_test_case_glob in test_cases_info.ignored_test_cases:
                 if fnmatch(test_case_name, ignored_test_case_glob):
                     not_ignored_target_test_case_names.remove(test_case_name)
+                    break
 
         return TestSuite(
             test_path=test_suite_path,
