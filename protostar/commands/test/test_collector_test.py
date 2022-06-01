@@ -298,8 +298,10 @@ def test_globs_in_test_case_name(starknet_compiler, project_root):
     assert result.test_suites[0].test_case_names[0] == "test_case_b"
 
 
-def test_ignoring_test_cases(starknet_compiler, project_root):
-    test_collector = TestCollector(starknet_compiler)
+def test_ignoring_test_cases(starknet_compiler, project_root: Path):
+    test_collector = TestCollector(
+        starknet_compiler, default_test_suite_glob=str(project_root)
+    )
 
     result = test_collector.collect_from_globs(
         [f"{project_root}/foo/test_foo.cairo"], ignored_globs=["::test_case_a"]
