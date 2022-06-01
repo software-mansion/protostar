@@ -188,22 +188,22 @@ If your IDE supports Cairo and doesn't know how to import `protostar`, add the f
 
 You can find all [assert signatures here](https://github.com/software-mansion/protostar/blob/master/cairo/protostar/asserts.cairo).
 
-## `setup_state`
-Often while writing tests you have some setup work that needs to happen before tests run. The hook `setup_tmp_setup` can simplify your test functions and will speed up your tests. Use `tmp_state` to pass the information between `setup_state` and test functions as demonstrated on the example below:
+## `__setup__`
+Often while writing tests you have some setup work that needs to happen before tests run. The hook `__setup__` can simplify and speed up your tests. Use `context` hint local to pass data from `__setup__` to test functions as demonstrated on the example below:
 
 ```cairo
 %lang starknet
 
 @view
-func setup_state():
-    %{ tmp_state.contract_a_address = deploy_contract("./tests/integration/testing_hooks/basic_contract.cairo").contract_address %}
+func __setup__():
+    %{ context.contract_a_address = deploy_contract("./tests/integration/testing_hooks/basic_contract.cairo").contract_address %}
     return ()
 end
 
 @view
 func test_something():
     tempvar contract_address
-    %{ ids.contract_address = tmp_state.contract_a_address %}
+    %{ ids.contract_address = context.contract_a_address %}
 
     # ...
 
@@ -211,11 +211,11 @@ func test_something():
 end
 ```
 :::warning
-`tmp_state` can only store strings, integers and booleans.
+Hint local `context` can only store strings, integers and booleans.
 :::
 
 :::info
-Protostar executes `setup_state` only once per test file, and creates a copy of StarkNet state and `tmp_state` object for each test case.
+Protostar executes `__setup__` only once per a [test suite](https://en.wikipedia.org/wiki/Test_suite). Then, for each test case Protostar copies the StarkNet state and `context` object.
 :::
 
 
@@ -471,7 +471,9 @@ class DeployedContract:
 ```
 Deploys a contract given a path relative to a Protostar project root. The section [Deploying contracts from tests](#deploying-contracts-from-tests) demonstrates a usage of this cheatcode.
 
-
+:::warning
+Deploying contract is a slow operation. If it's possible try using this cheatcode in the [`__setup__` hook](#__setup__).
+:::
 ### `start_prank`
 
 ```python
