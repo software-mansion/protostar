@@ -23,6 +23,7 @@ from protostar.commands.test.starkware.forkable_starknet import ForkableStarknet
 from protostar.commands.test.test_context import TestContext
 from protostar.commands.test.test_environment_exceptions import (
     CheatcodeException,
+    ExpectedEventMissingException,
     ExpectedRevertException,
     ExpectedRevertMismatchException,
     RevertableException,
@@ -247,14 +248,18 @@ class TestExecutionEnvironment:
                 assert self.starknet is not None
 
                 expected_events = list(map(ExpectedEvent, raw_expected_events))
-                not_found_expected_event = ExpectedEvent.find_first_expected_event_not_included_in_state_events(
+
+                (
+                    matches,
+                    missing,
+                ) = ExpectedEvent.match_state_events_to_expected_to_events(
                     expected_events,
                     self.starknet.state.events,
                 )
-                if not_found_expected_event:
-                    raise RevertableException(
-                        error_type="EXPECTED_EVENT",
-                        error_message=f"Expected the following event: {str(not_found_expected_event)}",
+
+                if len(missing) > 0:
+                    raise ExpectedEventMissingException(
+                        matches=matches, missing=missing
                     )
 
             self.add_test_finish_hook(compare_expected_and_emitted_events)
