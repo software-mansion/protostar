@@ -6,6 +6,8 @@ on:
   push:
     tags:
       - 'v*'
+    tags-ignore:
+      - '*pre-release*'
   workflow_dispatch:
 
 jobs:
