@@ -19,17 +19,20 @@ from protostar.protostar_exception import ProtostarException
 from protostar.utils.starknet_compilation import StarknetCompiler
 
 TestSuiteGlob = str
-TestSuitePath = str
+TestSuiteFilepath = str
 TestCaseGlob = str
-
-"""e.g. tests/**/::test_*"""
 TestSuiteAndCaseGlob = str
+"""e.g. `tests/**/::test_*`"""
+TestCasesMapping = Dict[TestSuiteFilepath, Set[TestCaseGlob]]
 
 
 @dataclass
-class TestSuiteTarget:
-    target_test_cases: Set[TestCaseGlob]
-    ignored_target_test_cases: Set[TestCaseGlob]
+class TargetTestCasesInfo:
+    test_case_globs: Set[TestCaseGlob]
+    ignored_test_cases: Set[TestCaseGlob]
+
+
+TargetTestCasesInfoMapping = Dict[TestSuiteFilepath, TargetTestCasesInfo]
 
 
 class TestCollectingException(ProtostarException):
@@ -170,90 +173,83 @@ class TestCollector:
 
     def collect_from_globs(
         self,
-        target_globs: List[str],
+        globs: List[str],
         ignored_globs: Optional[List[str]] = None,
     ) -> "TestCollector.Result":
-        target_test_suite_paths_to_test_case_globs = (
-            self.normalize_test_suite_and_case_globs(set(target_globs))
-        )
-        ignored_target_test_suite_paths_to_test_case_globs = (
-            self.normalize_test_suite_and_case_globs(set(ignored_globs or []))
+        test_cases_mapping = self.build_test_cases_mapping(set(globs))
+        ignored_test_cases_mapping = self.build_test_cases_mapping(
+            set(ignored_globs or [])
         )
 
-        test_suite_path_to_test_suite_target = (
-            self.combine_normalized_target_and_ignored_globs(
-                target_test_suite_paths_to_test_case_globs,
-                ignored_target_test_suite_paths_to_test_case_globs,
-            )
+        target_test_cases_info_mapping = self.build_target_test_cases_info_mapping(
+            test_cases_mapping,
+            ignored_test_cases_mapping,
         )
 
-        test_suites: List[TestSuite] = []
-        for (
-            test_suite_path,
-            test_suite,
-        ) in test_suite_path_to_test_suite_target.items():
-            test_suites.append(
-                self._build_test_suite_from_test_target(
-                    Path(test_suite_path),
-                    test_suite,
-                )
-            )
+        test_suites = self._build_test_suites_from_target_test_cases_info_mapping(
+            target_test_cases_info_mapping
+        )
 
         return TestCollector.Result(
             test_suites=test_suites,
         )
 
-    def normalize_test_suite_and_case_globs(
+    def build_test_cases_mapping(
         self,
         test_suite_and_case_globs: Set[TestSuiteAndCaseGlob],
-    ) -> Dict[TestSuitePath, Set[TestCaseGlob]]:
-        results: Dict[TestSuitePath, Set[TestCaseGlob]] = {}
+    ) -> TestCasesMapping:
+        results: TestCasesMapping = {}
 
         for test_suite_and_case_glob in test_suite_and_case_globs:
+            # split globs
             test_suite_glob: Optional[TestSuiteGlob] = test_suite_and_case_glob
             test_case_glob: Optional[TestCaseGlob] = None
             if "::" in test_suite_and_case_glob:
                 (test_suite_glob, test_case_glob) = test_suite_and_case_glob.split("::")
             test_suite_glob = test_suite_glob or self._default_test_suite_glob
+
             if not test_suite_glob:
                 continue
 
-            test_suite_paths = self._find_test_suite_filepaths_from_glob(
+            # get filepaths and create the mapping
+            test_suite_filepaths = self._find_test_suite_filepaths_from_glob(
                 test_suite_glob
             )
-            for test_suite_path in test_suite_paths:
-                test_case_globs = results.setdefault(test_suite_path, set())
+            for test_suite_filepath in test_suite_filepaths:
+                test_case_globs = results.setdefault(test_suite_filepath, set())
                 if test_case_glob:
                     test_case_globs.add(test_case_glob)
 
         return results
 
-    def combine_normalized_target_and_ignored_globs(
+    # pylint: disable=no-self-use
+    def build_target_test_cases_info_mapping(
         self,
-        targets: Dict[TestSuitePath, Set[TestCaseGlob]],
-        ignored_targets: Dict[TestSuitePath, Set[TestCaseGlob]],
-    ) -> Dict[TestSuitePath, TestSuiteTarget]:
-        filtered_targets = targets
-        for ignored_target_path in ignored_targets:
+        test_cases_mapping: TestCasesMapping,
+        ignored_test_cases_mapping: TestCasesMapping,
+    ) -> TargetTestCasesInfoMapping:
+        # filter out test suites, which shouldn't be parsed
+        filtered_test_cases_mapping = test_cases_mapping
+        for ignored_target_path in ignored_test_cases_mapping:
             if (
-                len(ignored_targets[ignored_target_path]) == 0
-                and ignored_target_path in filtered_targets
+                len(ignored_test_cases_mapping[ignored_target_path]) == 0
+                and ignored_target_path in filtered_test_cases_mapping
             ):
-                del filtered_targets[ignored_target_path]
+                del filtered_test_cases_mapping[ignored_target_path]
 
-        result: Dict[TestSuitePath, TestSuiteTarget] = {}
-
-        for target_path in filtered_targets:
-            test_suite_target = result.setdefault(
-                target_path,
-                TestSuiteTarget(
-                    target_test_cases=set(), ignored_target_test_cases=set()
-                ),
+        # create the mapping
+        result: TargetTestCasesInfoMapping = {}
+        for test_suite_filepath in filtered_test_cases_mapping:
+            target_test_cases_info = result.setdefault(
+                test_suite_filepath,
+                TargetTestCasesInfo(test_case_globs=set(), ignored_test_cases=set()),
             )
-            test_suite_target.target_test_cases = filtered_targets[target_path]
-            if target_path in ignored_targets:
-                test_suite_target.ignored_target_test_cases = ignored_targets[
-                    target_path
+            target_test_cases_info.test_case_globs = filtered_test_cases_mapping[
+                test_suite_filepath
+            ]
+            if test_suite_filepath in ignored_test_cases_mapping:
+                target_test_cases_info.ignored_test_cases = ignored_test_cases_mapping[
+                    test_suite_filepath
                 ]
 
         return result
@@ -278,24 +274,41 @@ class TestCollector:
                 results.add(filepath)
         return results
 
-    def _build_test_suite_from_test_target(
+    def _build_test_suites_from_target_test_cases_info_mapping(
+        self,
+        target_test_cases_info_mapping: TargetTestCasesInfoMapping,
+    ) -> List[TestSuite]:
+        test_suites: List[TestSuite] = []
+        for (
+            test_suite_filepath,
+            target_test_cases_info,
+        ) in target_test_cases_info_mapping.items():
+            test_suites.append(
+                self._build_test_suite_from_test_cases_info(
+                    Path(test_suite_filepath),
+                    target_test_cases_info,
+                )
+            )
+        return test_suites
+
+    def _build_test_suite_from_test_cases_info(
         self,
         test_suite_path: Path,
-        test_suite_target: TestSuiteTarget,
+        test_cases_info: TargetTestCasesInfo,
     ) -> TestSuite:
         preprocessed = self._preprocess_contract(test_suite_path)
         collected_test_case_names = set(self._collect_test_case_names(preprocessed))
 
         target_test_case_names: Set[str] = collected_test_case_names.copy()
         for test_case_name in collected_test_case_names:
-            for test_case_glob in test_suite_target.target_test_cases:
+            for test_case_glob in test_cases_info.test_case_globs:
                 if not fnmatch(test_case_name, test_case_glob):
                     target_test_case_names.remove(test_case_name)
                     break
 
         not_ignored_target_test_case_names = target_test_case_names.copy()
         for test_case_name in target_test_case_names:
-            for ignored_test_case_glob in test_suite_target.ignored_target_test_cases:
+            for ignored_test_case_glob in test_cases_info.ignored_test_cases:
                 if fnmatch(test_case_name, ignored_test_case_glob):
                     not_ignored_target_test_case_names.remove(test_case_name)
 
