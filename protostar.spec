@@ -1,6 +1,8 @@
 # -*- mode: python ; coding: utf-8 -*-
 from PyInstaller.utils.hooks import collect_data_files, collect_submodules
 
+import crypto_cpp_py
+
 block_cipher = None
 extra_files = [
     ("cairo", "cairo"),
@@ -12,9 +14,11 @@ extra_imports = [
         "eth_hash.auto",
     ] + collect_submodules('starkware')
 
+binaries = [(f"{crypto_cpp_py.__path__[0]}/../libcrypto_c_exports.*", ".")]
+
 a = Analysis(['binary_entrypoint.py'],
              pathex=[],
-             binaries=[],
+             binaries=binaries,
              datas=extra_files,
              hiddenimports=extra_imports,
              hookspath=[],
