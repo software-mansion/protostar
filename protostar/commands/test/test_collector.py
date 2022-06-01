@@ -113,7 +113,7 @@ class TestCollector:
             test_path=file_path,
             test_case_names=test_case_names,
             preprocessed_contract=preprocessed,
-            setup_state_fn_name=self._find_setup_state_hook_name(preprocessed),
+            setup_fn_name=self._find_setup_hook_name(preprocessed),
         )
 
     def _get_test_suite_paths(self, target: Path) -> Generator[Path, None, None]:
@@ -135,11 +135,11 @@ class TestCollector:
             preprocessed, predicate=lambda fn_name: fn_name.startswith("test_")
         )
 
-    def _find_setup_state_hook_name(
+    def _find_setup_hook_name(
         self, preprocessed: StarknetPreprocessedProgram
     ) -> Optional[str]:
         function_names = self._starknet_compiler.get_function_names(
-            preprocessed, predicate=lambda fn_name: fn_name == "setup_state"
+            preprocessed, predicate=lambda fn_name: fn_name == "__setup__"
         )
         return function_names[0] if len(function_names) > 0 else None
 

@@ -12,11 +12,11 @@ class TestSuite:
     test_path: Path
     preprocessed_contract: StarknetPreprocessedProgram
     test_case_names: List[str]
-    setup_state_fn_name: Optional[str] = None
+    setup_fn_name: Optional[str] = None
 
     def __hash__(self) -> int:
         return hash(
             str(self.test_path)
             + str(set(self.test_case_names))
-            + str(self.setup_state_fn_name)
+            + str(self.setup_fn_name)
         )

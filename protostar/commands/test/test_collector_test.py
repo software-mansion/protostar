@@ -157,11 +157,11 @@ def test_collector_preprocess_contracts(
     assert suite.preprocessed_contract == preprocessed_contract
 
 
-def test_finding_setup_state_function(
+def test_finding_setup_function(
     starknet_compiler: StarknetCompiler, project_root: Path
 ):
     def get_function_names(_, predicate: Callable[[str], bool]) -> List[str]:
-        return list(filter(predicate, ["test_main", "setup_state"]))
+        return list(filter(predicate, ["test_main", "__setup__"]))
 
     cast(
         MagicMock, starknet_compiler.get_function_names
@@ -172,7 +172,7 @@ def test_finding_setup_state_function(
         project_root / "foo" / "test_foo.cairo"
     ).test_suites
 
-    assert suite.setup_state_fn_name == "setup_state"
+    assert suite.setup_fn_name == "__setup__"
 
 
 def test_logging_collected_one_test_suite_and_one_test_case(mocker: MockerFixture):
