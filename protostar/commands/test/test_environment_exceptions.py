@@ -229,7 +229,7 @@ class ExpectedEventMissingException(ReportedException):
     @staticmethod
     def state_event_to_string(state_event: Event):
         result: List[str] = []
-        result.append(f'"name": "{state_event.keys[0]}"')
+        result.append(f'"selector (hashed name)": "{state_event.keys[0]}"')
         result.append(f'"data": "{str(state_event.data)}"')
         result.append(f'"from_address": "{state_event.from_address}"')
         return f"{{{', '.join(result)}}}"
