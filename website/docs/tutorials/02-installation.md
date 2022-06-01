@@ -31,4 +31,4 @@ If your platform isn't supported or installation fails, you can try building Pro
 1. [Set up a development environment.](https://github.com/software-mansion/protostar#setting-up-environment)
 1. Run `poe build`. The result of running this command should be the `dist` directory.
 1. Move the `dist` directory to the desired location (e.g. `~/.protostar`).
-1. Add `DESIRED_LOCATION/dist/protostar` to `PATH` variable.
+1. Add `DESIRED_LOCATION/dist/protostar` to the `PATH`.
