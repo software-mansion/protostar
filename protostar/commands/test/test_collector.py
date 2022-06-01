@@ -150,14 +150,11 @@ class TestCollector:
             print(p_err)
             raise TestCollectingException("Failed to collect test cases") from p_err
 
-    # GLOBS
-
     def collect_from_globs(
         self,
         target_globs: List[str],
         ignored_globs: Optional[List[str]] = None,
     ) -> "TestCollector.Result":
-
         test_suites: Set[TestSuite] = set()
 
         # extract ignored globs that target test_case
@@ -291,5 +288,5 @@ class TestCollector:
             test_path=test_suite_path,
             test_case_names=list(filtered_test_case_names),
             preprocessed_contract=preprocessed,
-            setup_state_fn_name=self._find_setup_state_hook_name(preprocessed),
+            setup_fn_name=self._find_setup_hook_name(preprocessed),
         )
