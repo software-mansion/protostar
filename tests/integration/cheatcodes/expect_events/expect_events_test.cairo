@@ -35,9 +35,8 @@ func test_expect_event_by_name_and_data{syscall_ptr : felt*, range_check_ptr}():
 end
 
 @view
-func test_revert_on_data_mismatch{syscall_ptr : felt*, range_check_ptr}():
+func test_fail_on_data_mismatch{syscall_ptr : felt*, range_check_ptr}():
     %{
-        expect_revert("EXPECTED_EVENT")
         expect_events({"name": "foobar", "data": [21]})
     %}
     emit_foobar(42)
@@ -45,9 +44,8 @@ func test_revert_on_data_mismatch{syscall_ptr : felt*, range_check_ptr}():
 end
 
 @view
-func test_revert_when_no_events_were_emitted{syscall_ptr : felt*, range_check_ptr}():
+func test_fail_when_no_events_were_emitted{syscall_ptr : felt*, range_check_ptr}():
     %{
-        expect_revert("EXPECTED_EVENT")
         expect_events("foobar")
     %}
     return ()
@@ -76,12 +74,11 @@ func test_expect_event_by_contract_address{syscall_ptr : felt*, range_check_ptr}
 end
 
 @view
-func test_revert_on_contract_address_mismatch{syscall_ptr : felt*, range_check_ptr}():
+func test_fail_on_contract_address_mismatch{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
     local contract_address : felt
     %{
         ids.contract_address = deploy_contract("./tests/integration/cheatcodes/expect_events/basic_contract.cairo").contract_address
-        expect_revert("EXPECTED_EVENT", '{"name": "balance_increased", "from_address": "123"}')
         expect_events({"name": "balance_increased", "from_address": 123})
     %}
     BasicContract.increase_balance(contract_address=contract_address)
@@ -97,9 +94,8 @@ func test_expect_events_in_declared_order{syscall_ptr : felt*, range_check_ptr}(
 end
 
 @view
-func test_message_about_first_not_found_event{syscall_ptr : felt*, range_check_ptr}():
+func test_fail_message_about_first_not_found_event{syscall_ptr : felt*, range_check_ptr}():
     %{
-        expect_revert("EXPECTED_EVENT", '[21]')
         expect_events({"name": "foobar", "data": [37]}, {"name": "foobar", "data": [21]})
     %}
     emit_foobar(21)

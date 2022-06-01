@@ -68,9 +68,16 @@ class TestRunner:
                 test_suite=test_suite,
             )
 
+        except ReportedException as ex:
+            self.queue.put(
+                BrokenTestSuite(
+                    file_path=test_suite.test_path,
+                    test_case_names=test_suite.test_case_names,
+                    exception=ex,
+                )
+            )
         # An unexpected exception in a worker should crash nor freeze the whole application
-        # pylint: disable=broad-except
-        except BaseException as ex:
+        except BaseException as ex:  # pylint: disable=broad-except
             self.queue.put(
                 UnexpectedExceptionTestSuiteResult(
                     file_path=test_suite.test_path,
@@ -91,8 +98,8 @@ class TestRunner:
                 test_contract, self.include_paths
             )
 
-            if test_suite.setup_state_fn_name:
-                raise NotImplementedError()
+            if test_suite.setup_fn_name:
+                await env_base.invoke_setup_hook(test_suite.setup_fn_name)
 
         except StarkException as err:
             self.queue.put(

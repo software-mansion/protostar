@@ -1,4 +1,5 @@
 import asyncio
+from copy import deepcopy
 from logging import getLogger
 from typing import Any, Callable, Dict, List, Optional, Set
 
@@ -19,12 +20,14 @@ from protostar.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandlerException,
 )
 from protostar.commands.test.starkware.forkable_starknet import ForkableStarknet
+from protostar.commands.test.test_context import TestContext
 from protostar.commands.test.test_environment_exceptions import (
     CheatcodeException,
+    ExpectedEventMissingException,
     ExpectedRevertException,
     ExpectedRevertMismatchException,
-    ReportedException,
     RevertableException,
+    SimpleReportedException,
     StarknetRevertableException,
 )
 from protostar.utils.modules import replace_class
@@ -45,6 +48,7 @@ class TestExecutionEnvironment:
     def __init__(self, include_paths: List[str]):
         self.starknet = None
         self.test_contract: Optional[StarknetContract] = None
+        self.test_context = TestContext()
         self._expected_error: Optional[RevertableException] = None
         self._include_paths = include_paths
         self._test_finish_hooks: Set[Callable[[], None]] = set()
@@ -71,6 +75,7 @@ class TestExecutionEnvironment:
         new_env.test_contract = new_env.starknet.copy_and_adapt_contract(
             self.test_contract
         )
+        new_env.test_context = deepcopy(self.test_context)
         return new_env
 
     def deploy_in_env(
@@ -87,6 +92,9 @@ class TestExecutionEnvironment:
             )
         )
         return contract
+
+    async def invoke_setup_hook(self, fn_name: str) -> None:
+        await self.invoke_test_case(fn_name)
 
     @replace_class(
         "starkware.starknet.core.os.syscall_utils.BusinessLogicSysCallHandler",
@@ -153,6 +161,7 @@ class TestExecutionEnvironment:
                 self._inject_cheats_into_hint_locals(
                     kwargs["hint_locals"], kwargs["hint_locals"]["syscall_handler"]
                 )
+                self._inject_test_context_into_hint_locals(kwargs["hint_locals"])
 
             return fn_run_from_entrypoint(
                 *args,
@@ -160,6 +169,9 @@ class TestExecutionEnvironment:
             )
 
         return modified_run_from_entrypoint
+
+    def _inject_test_context_into_hint_locals(self, hint_locals: Dict[str, Any]):
+        hint_locals["context"] = self.test_context
 
     def _inject_cheats_into_hint_locals(
         self,
@@ -236,14 +248,18 @@ class TestExecutionEnvironment:
                 assert self.starknet is not None
 
                 expected_events = list(map(ExpectedEvent, raw_expected_events))
-                not_found_expected_event = ExpectedEvent.find_first_expected_event_not_included_in_state_events(
+
+                (
+                    matches,
+                    missing,
+                ) = ExpectedEvent.match_state_events_to_expected_to_events(
                     expected_events,
                     self.starknet.state.events,
                 )
-                if not_found_expected_event:
-                    raise RevertableException(
-                        error_type="EXPECTED_EVENT",
-                        error_message=f"Expected the following event: {str(not_found_expected_event)}",
+
+                if len(missing) > 0:
+                    raise ExpectedEventMissingException(
+                        matches=matches, missing=missing
                     )
 
             self.add_test_finish_hook(compare_expected_and_emitted_events)
@@ -264,7 +280,7 @@ class TestExecutionEnvironment:
 
     def expect_revert(self, expected_error: RevertableException) -> Callable[[], None]:
         if self._expected_error is not None:
-            raise ReportedException(
+            raise SimpleReportedException(
                 f"Protostar is already expecting an exception matching the following error: {self._expected_error}"
             )
 
@@ -275,7 +291,7 @@ class TestExecutionEnvironment:
                 "The callback returned by the `expect_revert` is deprecated."
             )
             if self._expected_error is not None:
-                raise ReportedException(
+                raise SimpleReportedException(
                     "Expected a transaction to be reverted before cancelling expect_revert"
                 )
 

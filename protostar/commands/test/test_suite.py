@@ -12,4 +12,4 @@ class TestSuite:
     test_path: Path
     preprocessed_contract: StarknetPreprocessedProgram
     test_case_names: List[str]
-    setup_state_fn_name: Optional[str] = None
+    setup_fn_name: Optional[str] = None

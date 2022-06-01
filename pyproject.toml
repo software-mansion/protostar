@@ -41,6 +41,7 @@ starknet-devnet = "^0.2.1"
 [tool.poe.tasks]
 build = "pyinstaller protostar.spec --noconfirm"
 ci = ["type_check", "lint", "format_check", "test"]
+local_static_check = ["format", "lint", "type_check"]
 cov = "pytest --cov-report xml:cov.xml --cov=protostar"
 deploy = "python ./scripts/deploy.py"
 format = "black ."
