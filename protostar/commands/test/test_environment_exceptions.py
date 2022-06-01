@@ -13,6 +13,15 @@ class ReportedException(BaseException):
         return str(super().__repr__())
 
 
+class SimpleReportedException(ReportedException):
+    def __init__(self, message: str) -> None:
+        self.message = message
+        super().__init__(message)
+
+    def __str__(self) -> str:
+        return str(self.message)
+
+
 class CheatcodeException(ReportedException):
     def __init__(self, cheatcode_name: str, message: str):
         self.cheatcode_name = cheatcode_name
