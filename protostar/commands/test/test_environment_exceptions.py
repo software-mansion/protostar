@@ -2,9 +2,11 @@ import re
 from typing import Dict, List, Optional, Union
 
 from starkware.starknet.business_logic.execution.objects import Event
+from typing_extensions import Literal
 
 from protostar.commands.test.expected_event import ExpectedEvent
-from protostar.utils.log_color_provider import log_color_provider
+from protostar.utils.log_color_provider import (SupportedColorName,
+                                                log_color_provider)
 
 
 class ReportedException(BaseException):
@@ -201,41 +203,76 @@ class ExpectedRevertMismatchException(ReportedException):
 
 
 class ExpectedEventMissingException(ReportedException):
+    ResultType = Literal["skip", "pass", "miss"]
+
     def __init__(
         self,
         matches: ExpectedEvent.MatchesList,
         missing: List[ExpectedEvent],
         event_selector_to_name_map: Dict[int, str],
+        line_prefix="  ",
     ) -> None:
         self.matches = matches
         self.missing = missing
         self._event_selector_to_name_map = event_selector_to_name_map
+        self.line_prefix = line_prefix
         super().__init__()
+
+    def map_match_result_to_lines(
+        self,
+        result: ResultType,
+        expected_ev: Optional[ExpectedEvent],
+        state_ev: Optional[Event],
+    ) -> List[str]:
+        lines: List[str] = []
+
+        result_to_color: Dict[
+            ExpectedEventMissingException.ResultType, SupportedColorName
+        ] = {
+            "skip": "GRAY",
+            "pass": "GREEN",
+            "miss": "RED",
+        }
+
+        colored_state_ev = (
+            log_color_provider.colorize(
+                "GRAY",
+                self._state_event_to_string(state_ev),
+            )
+            if state_ev
+            else None
+        )
+
+        lines.append(
+            self.line_prefix
+            + f"[{log_color_provider.colorize(result_to_color[result], result)}] {str(expected_ev) if expected_ev else colored_state_ev}"
+        )
+        if expected_ev and state_ev:
+            lines.append(
+                log_color_provider.colorize(
+                    "GRAY",
+                    self.line_prefix
+                    + "       "
+                    + self._state_event_to_string(state_ev),
+                )
+            )
+        return lines
 
     def __str__(self) -> str:
         result: List[str] = []
         for match in self.matches:
             if match[0] == ExpectedEvent.MatchResult.MATCH:
                 (_, expected_ev, state_ev) = match
-                result.append(
-                    f"  [{log_color_provider.colorize('GREEN', 'pass')}] {str(expected_ev)}"
-                )
-                result.append(
-                    log_color_provider.colorize(
-                        "GRAY", "         " + self._state_event_to_string(state_ev)
-                    )
+                result = result + self.map_match_result_to_lines(
+                    "pass", expected_ev, state_ev
                 )
 
             elif match[0] == ExpectedEvent.MatchResult.SKIPPED:
                 (_, state_ev) = match
-                result.append(
-                    f"  [{log_color_provider.colorize('GRAY', 'skip')}] {log_color_provider.colorize('GRAY', self._state_event_to_string(state_ev))}"
-                )
+                result = result + self.map_match_result_to_lines("skip", None, state_ev)
 
         for missed_event in self.missing:
-            result.append(
-                f"  [{log_color_provider.colorize('RED', 'miss')}] {str(missed_event)}"
-            )
+            result = result + self.map_match_result_to_lines("miss", missed_event, None)
         return "\n".join(result)
 
     def _state_event_to_string(self, state_event: Event):
