@@ -45,43 +45,47 @@ class DeployedContract:
 
 
 class TestExecutionEnvironment:
-    def __init__(self, include_paths: List[str]):
-        self.starknet = None
-        self.test_contract: Optional[StarknetContract] = None
-        self.test_context = TestContext()
+    def __init__(
+        self,
+        include_paths: List[str],
+        forkable_starknet: ForkableStarknet,
+        test_contract: StarknetContract,
+        test_context: TestContext,
+    ):
+        self.starknet = forkable_starknet
+        self.test_contract: StarknetContract = test_contract
+        self.test_context = test_context
         self._expected_error: Optional[RevertableException] = None
         self._include_paths = include_paths
         self._test_finish_hooks: Set[Callable[[], None]] = set()
 
     @classmethod
-    async def empty(
+    async def from_test_suite_definition(
         cls,
-        test_contract: ContractDefinition,
+        test_suite_definition: ContractDefinition,
         include_paths: Optional[List[str]] = None,
     ):
-        env = cls(include_paths or [])
-        env.starknet = await ForkableStarknet.empty()
-        env.test_contract = await env.starknet.deploy(contract_def=test_contract)
-        return env
+        starknet = await ForkableStarknet.empty()
+        return cls(
+            include_paths or [],
+            forkable_starknet=starknet,
+            test_contract=await starknet.deploy(contract_def=test_suite_definition),
+            test_context=TestContext(),
+        )
 
     def fork(self):
-        assert self.starknet
-        assert self.test_contract
-
+        starknet_fork = self.starknet.fork()
         new_env = TestExecutionEnvironment(
             include_paths=self._include_paths,
+            forkable_starknet=starknet_fork,
+            test_contract=starknet_fork.copy_and_adapt_contract(self.test_contract),
+            test_context=deepcopy(self.test_context),
         )
-        new_env.starknet = self.starknet.fork()
-        new_env.test_contract = new_env.starknet.copy_and_adapt_contract(
-            self.test_contract
-        )
-        new_env.test_context = deepcopy(self.test_context)
         return new_env
 
     def deploy_in_env(
         self, contract_path: str, constructor_calldata: Optional[List[int]] = None
     ):
-        assert self.starknet
         contract = DeployedContract(
             asyncio.run(
                 self.starknet.deploy(
@@ -242,10 +246,7 @@ class TestExecutionEnvironment:
         def expect_events(
             *raw_expected_events: ExpectedEvent.CheatcodeInputType,
         ) -> None:
-            assert self.starknet is not None
-
             def compare_expected_and_emitted_events():
-                assert self.starknet is not None
 
                 expected_events = list(map(ExpectedEvent, raw_expected_events))
 
