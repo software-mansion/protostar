@@ -213,10 +213,12 @@ class TestCollector:
             target_test_cases_info_dict
         )
 
-        # TODO: filter out empty test suites
+        non_empty_test_suites = list(
+            filter(lambda test_file: (test_file.test_case_names) != [], test_suites)
+        )
 
         return TestCollector.Result(
-            test_suites=test_suites,
+            test_suites=non_empty_test_suites,
         )
 
     def build_test_cases_dict(
