@@ -7,7 +7,6 @@ if __name__ == "__main__":
 
         # Use certifi certs to avoid problems on mac os
         os.environ["SSL_CERT_FILE"] = certifi.where()
-        print(os.environ["SSL_CERT_FILE"])
 
         main(Path(__file__).parent)
 
