@@ -247,8 +247,8 @@ class ExpectedEventMissingException(ReportedException):
         else:
             result.append(f'"selector (hashed name)": "{selector}"')
 
-        result.append(f'"data": "{str(state_event.data)}"')
-        result.append(f'"from_address": "{state_event.from_address}"')
+        result.append(f'"data": {str(state_event.data)}')
+        result.append(f'"from_address": {state_event.from_address}')
         return f"{{{', '.join(result)}}}"
 
     def __reduce__(self):

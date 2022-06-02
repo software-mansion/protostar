@@ -44,9 +44,9 @@ class ExpectedEvent:
         result.append(f'"name": "{self.name}"')
 
         if self.data:
-            result.append(f'"data": "{str(self.data)}"')
+            result.append(f'"data": {str(self.data)}')
         if self.from_address:
-            result.append(f'"from_address": "{str(self.from_address)}"')
+            result.append(f'"from_address": {str(self.from_address)}')
 
         return f"{{{', '.join(result)}}}"
 
