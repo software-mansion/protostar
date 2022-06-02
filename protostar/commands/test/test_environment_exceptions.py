@@ -242,9 +242,13 @@ class ExpectedEventMissingException(ReportedException):
             else None
         )
 
+        result_message = (
+            f"[{log_color_provider.colorize(result_to_color[result], result)}]"
+        )
         lines.append(
             self.line_prefix
-            + f"[{log_color_provider.colorize(result_to_color[result], result)}] {str(expected_ev) if expected_ev else colored_state_ev}"
+            + result_message
+            + f" {str(expected_ev) if expected_ev else colored_state_ev}"
         )
         if expected_ev and state_ev:
             lines.append(

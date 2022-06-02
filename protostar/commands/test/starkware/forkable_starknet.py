@@ -92,6 +92,7 @@ class ForkableStarknet(Starknet):
     def fork(self):
         return ForkableStarknet(state=self.cheatable_state.copy())
 
+    # pylint: disable=too-many-arguments
     async def deploy(
         self,
         source: Optional[str] = None,
