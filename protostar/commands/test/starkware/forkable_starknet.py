@@ -1,5 +1,5 @@
 import copy
-from typing import Mapping, Optional, cast
+from typing import Dict, Optional, cast
 
 from starkware.cairo.lang.vm.crypto import pedersen_hash_func
 from starkware.starknet.business_logic.state.state import CarriedState
@@ -14,7 +14,7 @@ from starkware.storage.storage import FactFetchingContext
 class CheatableCarriedState(CarriedState):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.pranked_contracts_map: Mapping[int, int] = {}
+        self.pranked_contracts_map: Dict[int, int] = {}
 
 
 class CheatableStarknetState(StarknetState):

@@ -8,6 +8,8 @@ from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
 from starkware.starknet.security.secure_hints import HintsWhitelist
 from starkware.starknet.services.api.contract_definition import EntryPointType
 
+from protostar.commands.test.starkware.forkable_starknet import CheatableCarriedState
+
 AddressType = int
 SelectorType = int
 
@@ -19,6 +21,10 @@ class CheatableSysCallHandlerException(BaseException):
 
 
 class CheatableSysCallHandler(BusinessLogicSysCallHandler):
+    @property
+    def cheatable_state(self):
+        return cast(CheatableCarriedState, self.state)
+
     # roll
     custom_block_number = None
 
@@ -53,11 +59,11 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
             if target_contract_address
             else self.contract_address
         )
-        if target in self.state.pranked_contracts_map:
+        if target in self.cheatable_state.pranked_contracts_map:
             raise CheatableSysCallHandlerException(
                 f"Contract with address {target} has been already pranked"
             )
-        self.state.pranked_contracts_map[target] = addr
+        self.cheatable_state.pranked_contracts_map[target] = addr
 
     def reset_caller_address(self, target_contract_address: Optional[int] = None):
         target = (
@@ -65,11 +71,11 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
             if target_contract_address
             else self.contract_address
         )
-        if target not in self.state.pranked_contracts_map:
+        if target not in self.cheatable_state.pranked_contracts_map:
             raise CheatableSysCallHandlerException(
                 f"Contract with address {target} has not been pranked"
             )
-        del self.state.pranked_contracts_map[target]
+        del self.cheatable_state.pranked_contracts_map[target]
 
     def _get_caller_address(
         self,
@@ -82,8 +88,8 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
             syscall_ptr=syscall_ptr,
         )
 
-        if self.contract_address in self.state.pranked_contracts_map:
-            return self.state.pranked_contracts_map[self.contract_address]
+        if self.contract_address in self.cheatable_state.pranked_contracts_map:
+            return self.cheatable_state.pranked_contracts_map[self.contract_address]
 
         return self.caller_address
 
