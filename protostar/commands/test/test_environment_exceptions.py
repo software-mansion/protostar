@@ -213,31 +213,29 @@ class ExpectedEventMissingException(ReportedException):
         super().__init__()
 
     def __str__(self) -> str:
-        result: List[str] = ["Matches: "]
+        result: List[str] = []
         for match in self.matches:
             if match[0] == ExpectedEvent.MatchResult.MATCH:
                 (_, expected_ev, state_ev) = match
                 result.append(
-                    log_color_provider.colorize(
-                        "GREEN", self._state_event_to_string(state_ev)
-                    )
+                    f"  [{log_color_provider.colorize('GREEN', 'pass')}] {str(expected_ev)}"
                 )
                 result.append(
-                    log_color_provider.colorize("GREEN", f"Match: {str(expected_ev)}")
+                    log_color_provider.colorize(
+                        "GRAY", "         " + self._state_event_to_string(state_ev)
+                    )
                 )
 
             elif match[0] == ExpectedEvent.MatchResult.SKIPPED:
                 (_, state_ev) = match
                 result.append(
-                    log_color_provider.colorize(
-                        "GRAY", self._state_event_to_string(state_ev)
-                    )
+                    f"  [{log_color_provider.colorize('GRAY', 'skip')}] {log_color_provider.colorize('GRAY', self._state_event_to_string(state_ev))}"
                 )
-            result.append("")
 
-        result.append("Missing: ")
         for missed_event in self.missing:
-            result.append(log_color_provider.colorize("RED", str(missed_event)))
+            result.append(
+                f"  [{log_color_provider.colorize('RED', 'miss')}] {str(missed_event)}"
+            )
         return "\n".join(result)
 
     def _state_event_to_string(self, state_event: Event):
