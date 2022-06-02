@@ -1,9 +1,10 @@
 import re
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
+
 from starkware.starknet.business_logic.execution.objects import Event
 
-from protostar.utils.log_color_provider import log_color_provider
 from protostar.commands.test.expected_event import ExpectedEvent
+from protostar.utils.log_color_provider import log_color_provider
 
 
 class ReportedException(BaseException):
@@ -201,10 +202,14 @@ class ExpectedRevertMismatchException(ReportedException):
 
 class ExpectedEventMissingException(ReportedException):
     def __init__(
-        self, matches: ExpectedEvent.MatchesList, missing: List[ExpectedEvent]
+        self,
+        matches: ExpectedEvent.MatchesList,
+        missing: List[ExpectedEvent],
+        event_selector_to_name_map: Dict[int, str],
     ) -> None:
         self.matches = matches
         self.missing = missing
+        self._event_selector_to_name_map = event_selector_to_name_map
         super().__init__()
 
     def __str__(self) -> str:
@@ -214,7 +219,7 @@ class ExpectedEventMissingException(ReportedException):
                 (_, expected_ev, state_ev) = match
                 result.append(
                     log_color_provider.colorize(
-                        "GREEN", self.state_event_to_string(state_ev)
+                        "GREEN", self._state_event_to_string(state_ev)
                     )
                 )
                 result.append(
@@ -225,7 +230,7 @@ class ExpectedEventMissingException(ReportedException):
                 (_, state_ev) = match
                 result.append(
                     log_color_provider.colorize(
-                        "GRAY", self.state_event_to_string(state_ev)
+                        "GRAY", self._state_event_to_string(state_ev)
                     )
                 )
             result.append("")
@@ -235,13 +240,22 @@ class ExpectedEventMissingException(ReportedException):
             result.append(log_color_provider.colorize("RED", str(missed_event)))
         return "\n".join(result)
 
-    @staticmethod
-    def state_event_to_string(state_event: Event):
+    def _state_event_to_string(self, state_event: Event):
         result: List[str] = []
-        result.append(f'"selector (hashed name)": "{state_event.keys[0]}"')
+
+        selector = state_event.keys[0]
+        if selector in self._event_selector_to_name_map:
+            result.append(f'"name": "{self._event_selector_to_name_map[selector]}"')
+        else:
+            result.append(f'"selector (hashed name)": "{selector}"')
+
         result.append(f'"data": "{str(state_event.data)}"')
         result.append(f'"from_address": "{state_event.from_address}"')
         return f"{{{', '.join(result)}}}"
 
     def __reduce__(self):
-        return type(self), (self.matches, self.missing)
+        return type(self), (
+            self.matches,
+            self.missing,
+            self._event_selector_to_name_map,
+        )

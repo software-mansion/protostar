@@ -1,12 +1,12 @@
+import os
 from collections import deque
 from enum import Enum
-import os
 from pathlib import Path
 from typing import List, Tuple, Union
 
 from starkware.starknet.business_logic.execution.objects import Event
 from starkware.starknet.public.abi import get_selector_from_name
-from typing_extensions import NotRequired, TypedDict, Literal
+from typing_extensions import Literal, NotRequired, TypedDict
 
 from protostar.commands.test.test_suite import TestSuite
 
@@ -42,9 +42,6 @@ class ExpectedEvent:
     def __str__(self) -> str:
         result: List[str] = []
         result.append(f'"name": "{self.name}"')
-        result.append(
-            f'"selector (hashed name)": "{get_selector_from_name(self.name)}"'
-        )
 
         if self.data:
             result.append(f'"data": "{str(self.data)}"')
