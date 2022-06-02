@@ -77,7 +77,7 @@ class TestExecutionEnvironment:
         starknet_fork = self.starknet.fork()
         new_env = TestExecutionEnvironment(
             include_paths=self._include_paths,
-            forkable_starknet=self.starknet.fork(),
+            forkable_starknet=starknet_fork,
             test_contract=starknet_fork.copy_and_adapt_contract(self.test_contract),
             test_context=deepcopy(self.test_context),
         )
