@@ -10,6 +10,7 @@ extra_files = [
 # Extra imports which are necessary for executing hints
 extra_imports = [
         "eth_hash.auto",
+        "certifi",
     ] + collect_submodules('starkware')
 
 a = Analysis(['binary_entrypoint.py'],
