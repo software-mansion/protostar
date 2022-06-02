@@ -45,8 +45,8 @@ class DeployedContract:
 
 
 class TestExecutionEnvironment:
-    def __init__(self, include_paths: List[str]):
-        self.starknet = None
+    def __init__(self, include_paths: List[str], forkable_starknet: ForkableStarknet):
+        self.starknet = forkable_starknet
         self.test_contract: Optional[StarknetContract] = None
         self.test_context = TestContext()
         self._expected_error: Optional[RevertableException] = None
@@ -59,8 +59,7 @@ class TestExecutionEnvironment:
         test_contract: ContractDefinition,
         include_paths: Optional[List[str]] = None,
     ):
-        env = cls(include_paths or [])
-        env.starknet = await ForkableStarknet.empty()
+        env = cls(include_paths or [], await ForkableStarknet.empty())
         env.test_contract = await env.starknet.deploy(contract_def=test_contract)
         return env
 
@@ -69,9 +68,8 @@ class TestExecutionEnvironment:
         assert self.test_contract
 
         new_env = TestExecutionEnvironment(
-            include_paths=self._include_paths,
+            include_paths=self._include_paths, forkable_starknet=self.starknet.fork()
         )
-        new_env.starknet = self.starknet.fork()
         new_env.test_contract = new_env.starknet.copy_and_adapt_contract(
             self.test_contract
         )

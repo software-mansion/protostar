@@ -1,11 +1,11 @@
 import copy
 from typing import Mapping, Optional
 
-from starkware.starknet.testing.starknet import Starknet
-from starkware.starknet.testing.contract import StarknetContract
-from starkware.starknet.definitions.general_config import StarknetGeneralConfig
-from starkware.starknet.business_logic.state.state import CarriedState
 from starkware.cairo.lang.vm.crypto import pedersen_hash_func
+from starkware.starknet.business_logic.state.state import CarriedState
+from starkware.starknet.definitions.general_config import StarknetGeneralConfig
+from starkware.starknet.testing.contract import StarknetContract
+from starkware.starknet.testing.starknet import Starknet
 from starkware.starknet.testing.state import StarknetState
 from starkware.storage.dict_storage import DictStorage
 from starkware.storage.storage import FactFetchingContext
@@ -20,7 +20,7 @@ class ForkableStarknet(Starknet):
     @classmethod
     async def empty(
         cls, general_config: Optional[StarknetGeneralConfig] = None
-    ) -> "Starknet":
+    ) -> "ForkableStarknet":
         return ForkableStarknet(
             state=await CheatableStarknetState.empty(general_config=general_config)
         )
