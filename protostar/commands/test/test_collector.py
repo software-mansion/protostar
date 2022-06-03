@@ -1,3 +1,5 @@
+# pylint: disable=no-self-use
+
 import os
 import re
 from dataclasses import dataclass
@@ -23,7 +25,7 @@ TestSuitePath = Path
 TestCaseGlob = str
 Target = str
 """e.g. `tests/**/::test_*`"""
-TestCasesDict = Dict[TestSuitePath, Set[TestCaseGlob]]
+TestCaseGlobsDict = Dict[TestSuitePath, Set[TestCaseGlob]]
 
 
 @dataclass(frozen=True)
@@ -201,17 +203,19 @@ class TestCollector:
             set(ignored_targets or []), default_test_suite_glob
         )
 
-        test_cases_dict = self.build_test_cases_dict(parsed_targets)
-        ignored_test_cases_dict = self.build_test_cases_dict(ignored_parsed_targets)
+        test_case_globs_dict = self.build_test_case_globs_dict(parsed_targets)
+        ignored_test_case_globs_dict = self.build_test_case_globs_dict(
+            ignored_parsed_targets
+        )
 
-        filtered_test_cases_dict = self.filter_out_ignored_test_suites(
-            test_cases_dict,
-            ignored_test_cases_dict,
+        filtered_test_case_globs_dict = self.filter_out_ignored_test_suites(
+            test_case_globs_dict,
+            ignored_test_case_globs_dict,
         )
 
         test_suite_info_dict = self.build_test_suite_info_dict(
-            filtered_test_cases_dict,
-            ignored_test_cases_dict,
+            filtered_test_case_globs_dict,
+            ignored_test_case_globs_dict,
         )
 
         test_suites = self._build_test_suites_from_test_suite_info_dict(
@@ -226,11 +230,11 @@ class TestCollector:
             test_suites=non_empty_test_suites,
         )
 
-    def build_test_cases_dict(
+    def build_test_case_globs_dict(
         self,
         parsed_targets: Set[ParsedTarget],
-    ) -> TestCasesDict:
-        results: TestCasesDict = {}
+    ) -> TestCaseGlobsDict:
+        results: TestCaseGlobsDict = {}
 
         for parsed_target in parsed_targets:
             test_suite_paths = self._find_test_suite_paths_from_glob(
@@ -251,36 +255,34 @@ class TestCollector:
             for target in targets
         }
 
-    # pylint: disable=no-self-use
     def filter_out_ignored_test_suites(
         self,
-        test_cases_dict: TestCasesDict,
-        ignored_test_cases_dict: TestCasesDict,
-    ):
-        result = test_cases_dict.copy()
-        for ignored_target_path in ignored_test_cases_dict:
+        test_case_globs_dict: TestCaseGlobsDict,
+        ignored_test_case_globs_dict: TestCaseGlobsDict,
+    ) -> TestCaseGlobsDict:
+        result = test_case_globs_dict.copy()
+        for ignored_target_path in ignored_test_case_globs_dict:
             if (
-                "*" in ignored_test_cases_dict[ignored_target_path]
+                "*" in ignored_test_case_globs_dict[ignored_target_path]
                 and ignored_target_path in result
             ):
                 del result[ignored_target_path]
         return result
 
-    # pylint: disable=no-self-use
     def build_test_suite_info_dict(
         self,
-        test_cases_dict: TestCasesDict,
-        ignored_test_cases_dict: TestCasesDict,
+        test_case_globs_dict: TestCaseGlobsDict,
+        ignored_test_case_globs_dict: TestCaseGlobsDict,
     ) -> TestSuiteInfoDict:
         result: TestSuiteInfoDict = {}
-        for test_suite_path in test_cases_dict:
+        for test_suite_path in test_case_globs_dict:
             test_suite_info = result.setdefault(
                 test_suite_path,
                 TestSuiteInfo(test_case_globs=set(), ignored_test_case_globs=set()),
             )
-            test_suite_info.test_case_globs = test_cases_dict[test_suite_path]
-            if test_suite_path in ignored_test_cases_dict:
-                test_suite_info.ignored_test_case_globs = ignored_test_cases_dict[
+            test_suite_info.test_case_globs = test_case_globs_dict[test_suite_path]
+            if test_suite_path in ignored_test_case_globs_dict:
+                test_suite_info.ignored_test_case_globs = ignored_test_case_globs_dict[
                     test_suite_path
                 ]
         return result
@@ -298,7 +300,6 @@ class TestCollector:
                 results.add(path)
         return results
 
-    # pylint: disable=no-self-use
     def _find_test_suite_paths_in_dir(self, path: Path) -> Set[TestSuitePath]:
         filepaths = set(glob(f"{path}/**/*.cairo", recursive=True))
         results: Set[Path] = set()
