@@ -100,14 +100,15 @@ $ protostar test
 ```
 Execute tests.
 #### `target STRING[]=['tests']`
-A glob or globs to a directory or a test suite. You can target a specific test case for example:
-`tests/**/*_main*::*_balance`
+A glob or globs to a directory or a test suite, for example:
+- `tests/**/*_main*::*_balance` — find test cases, which names ends with `_balance` in test suites with the `_main` in filenames in the `tests` directory
+- `::test_increase_balance` — find `test_increase_balance` test_cases in any test suite within the project 
 
 #### `--cairo-path DIRECTORY[]`
 Additional directories to look for sources.
 #### `-i` `--ignore STRING[]`
 A glob or globs to a directory or a test suite, which should be ignored.
-You can target a specific test case.
+
 ### `update`
 ```shell
 $ protostar update cairo-contracts

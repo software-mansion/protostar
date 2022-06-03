@@ -41,8 +41,12 @@ class TestCommand(Command):
             Command.Argument(
                 name="target",
                 description=(
-                    "A glob or globs to a directory or a test suite. You can target a specific test case for example:\n"
-                    "`tests/**/*_main*::*_balance`\n"
+                    "A glob or globs to a directory or a test suite, for example:\n"
+                    "- `tests/**/*_main*::*_balance` — "
+                    "find test cases, which names ends with `_balance` in test suites with the `_main` "
+                    "in filenames in the `tests` directory\n"
+                    "- `::test_increase_balance` — "
+                    "find `test_increase_balance` test_cases in any test suite within the project \n"
                 ),
                 type="str",
                 is_array=True,
@@ -54,7 +58,6 @@ class TestCommand(Command):
                 short_name="i",
                 description=(
                     "A glob or globs to a directory or a test suite, which should be ignored.\n"
-                    "You can target a specific test case."
                 ),
                 is_array=True,
                 type="str",
