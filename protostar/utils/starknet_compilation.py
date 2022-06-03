@@ -15,7 +15,7 @@ from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_mana
 from starkware.starknet.compiler.starknet_preprocessor import (
     StarknetPreprocessedProgram,
 )
-from starkware.starknet.services.api.contract_definition import ContractDefinition
+from starkware.starknet.services.api.contract_class import ContractClass
 
 from protostar.protostar_exception import ProtostarException
 
@@ -63,19 +63,19 @@ class StarknetCompiler:
     @staticmethod
     def compile_preprocessed_contract(
         preprocessed: StarknetPreprocessedProgram, add_debug_info: bool = False
-    ) -> ContractDefinition:
+    ) -> ContractClass:
         assembled = assemble_starknet_contract(
             preprocessed_program=preprocessed,
             main_scope=MAIN_SCOPE,
             add_debug_info=add_debug_info,
             file_contents_for_debug_info={},
         )
-        assert isinstance(assembled, ContractDefinition)
+        assert isinstance(assembled, ContractClass)
         return assembled
 
     def compile_contract(
         self, *sources: Path, add_debug_info: bool = False
-    ) -> ContractDefinition:
+    ) -> ContractClass:
         preprocessed = self.preprocess_contract(*sources)
         assembled = self.compile_preprocessed_contract(preprocessed, add_debug_info)
         return assembled
