@@ -21,6 +21,7 @@ tomli = "<2.0.0"
 tomli-w = "^1.0.0"
 tqdm = "^4.64.0"
 typing-extensions = "^4.0.1"
+crypto-cpp-py = "^1.0.4"
 
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
