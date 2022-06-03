@@ -6,7 +6,7 @@ from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.starknet.business_logic.execution.objects import OrderedEvent
 from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
 from starkware.starknet.security.secure_hints import HintsWhitelist
-from starkware.starknet.services.api.contract_definition import EntryPointType
+from starkware.starknet.services.api.contract_class import EntryPointType
 
 AddressType = int
 SelectorType = int

@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict, List, Optional, Set
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.public.abi import get_selector_from_name
-from starkware.starknet.services.api.contract_definition import ContractDefinition
+from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starkware_utils.error_handling import StarkException
 
@@ -56,7 +56,7 @@ class TestExecutionEnvironment:
     @classmethod
     async def empty(
         cls,
-        test_contract: ContractDefinition,
+        test_contract: ContractClass,
         include_paths: Optional[List[str]] = None,
     ):
         env = cls(include_paths or [])
