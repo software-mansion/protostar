@@ -115,7 +115,7 @@ class TestCollector:
                 else:
                     result.append(f"{self.test_cases_count} test cases")
 
-                result.append(f"({self.duration:.3f} sec)")
+                result.append(f"({self.duration:.3f} s)")
 
                 logger.info(" ".join(result))
             else:
