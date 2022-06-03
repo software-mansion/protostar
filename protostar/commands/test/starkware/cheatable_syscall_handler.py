@@ -1,5 +1,6 @@
 from collections import defaultdict
 from typing import Dict, List, Optional, cast
+from starkware.cairo.common.structs import CairoStructProxy
 
 from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
@@ -7,6 +8,8 @@ from starkware.starknet.business_logic.execution.objects import OrderedEvent
 from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
 from starkware.starknet.security.secure_hints import HintsWhitelist
 from starkware.starknet.services.api.contract_class import EntryPointType
+from starkware.starknet.business_logic.execution.objects import CallType
+from starkware.python.utils import to_bytes
 
 AddressType = int
 SelectorType = int
@@ -130,29 +133,51 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
         self,
         segments: MemorySegmentManager,
         syscall_name: str,
-        request,
+        request: CairoStructProxy,
     ) -> List[int]:
+
         calldata = segments.memory.get_range_as_ints(
             addr=request.calldata, size=request.calldata_size
         )
 
-        code_address = cast(int, request.contract_address)
+        code_address = None
+        class_hash = None
         if syscall_name == "call_contract":
+            code_address = cast(int, request.contract_address)
             contract_address = code_address
             caller_address = self.contract_address
             entry_point_type = EntryPointType.EXTERNAL
+            call_type = CallType.CALL
         elif syscall_name == "delegate_call":
+            code_address = cast(int, request.contract_address)
             contract_address = self.contract_address
             caller_address = self.caller_address
             entry_point_type = EntryPointType.EXTERNAL
+            call_type = CallType.DELEGATE
         elif syscall_name == "delegate_l1_handler":
+            code_address = cast(int, request.contract_address)
             contract_address = self.contract_address
             caller_address = self.caller_address
             entry_point_type = EntryPointType.L1_HANDLER
+            call_type = CallType.DELEGATE
+        elif syscall_name == "library_call":
+            class_hash = to_bytes(cast(int, request.class_hash))
+            contract_address = self.contract_address
+            caller_address = self.caller_address
+            entry_point_type = EntryPointType.EXTERNAL
+            call_type = CallType.DELEGATE
+        elif syscall_name == "library_call_l1_handler":
+            class_hash = to_bytes(cast(int, request.class_hash))
+            contract_address = self.contract_address
+            caller_address = self.caller_address
+            entry_point_type = EntryPointType.L1_HANDLER
+            call_type = CallType.DELEGATE
         else:
             raise NotImplementedError(f"Unsupported call type {syscall_name}.")
 
         call = self.execute_entry_point_cls(
+            call_type=call_type,
+            class_hash=class_hash,
             contract_address=contract_address,
             code_address=code_address,
             entry_point_selector=cast(int, request.function_selector),
@@ -161,21 +186,8 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
             caller_address=caller_address,
         )
 
-        with self.contract_call_execution_context(
-            call=call, called_contract_address=contract_address
-        ):
-            # Execute contract call.
-            call_info = call.sync_execute(
-                state=self.state,
-                general_config=self.general_config,
-                loop=self.loop,
-                tx_execution_context=self.tx_execution_context,
-            )
+        return self.execute_entry_point(call=call)
 
-        # Update execution info.
-        self.internal_calls.append(call_info)
-
-        return call_info.retdata
 
     def emit_event(self, segments: MemorySegmentManager, syscall_ptr: RelocatableValue):
         """

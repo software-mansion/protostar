@@ -61,7 +61,7 @@ class TestExecutionEnvironment:
     ):
         env = cls(include_paths or [])
         env.starknet = await ForkableStarknet.empty()
-        env.test_contract = await env.starknet.deploy(contract_def=test_contract)
+        env.test_contract = await env.starknet.deploy(contract_class=test_contract)
         return env
 
     def fork(self):
