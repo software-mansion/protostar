@@ -19,11 +19,11 @@ from protostar.protostar_exception import ProtostarException
 from protostar.utils.starknet_compilation import StarknetCompiler
 
 TestSuiteGlob = str
-TestSuiteFilepath = str
+TestSuitePath = Path
 TestCaseGlob = str
 Target = str
 """e.g. `tests/**/::test_*`"""
-TestCasesDict = Dict[TestSuiteFilepath, Set[TestCaseGlob]]
+TestCasesDict = Dict[TestSuitePath, Set[TestCaseGlob]]
 
 
 @dataclass(frozen=True)
@@ -49,7 +49,7 @@ class TargetTestCasesInfo:
     ignored_test_case_globs: Set[TestCaseGlob]
 
 
-TargetTestCasesInfoDict = Dict[TestSuiteFilepath, TargetTestCasesInfo]
+TargetTestCasesInfoDict = Dict[TestSuitePath, TargetTestCasesInfo]
 
 
 class TestCollectingException(ProtostarException):
@@ -230,11 +230,11 @@ class TestCollector:
         for parsed_target in parsed_targets:
             if not parsed_target.test_suite_glob:
                 continue
-            test_suite_filepaths = self._find_test_suite_filepaths_from_glob(
+            test_suite_paths = self._find_test_suite_paths_from_glob(
                 parsed_target.test_suite_glob
             )
-            for test_suite_filepath in test_suite_filepaths:
-                test_case_globs = results.setdefault(test_suite_filepath, set())
+            for test_suite_path in test_suite_paths:
+                test_case_globs = results.setdefault(test_suite_path, set())
                 if parsed_target.test_case_glob:
                     test_case_globs.add(parsed_target.test_case_glob)
 
@@ -268,40 +268,39 @@ class TestCollector:
         ignored_test_cases_dict: TestCasesDict,
     ) -> TargetTestCasesInfoDict:
         result: TargetTestCasesInfoDict = {}
-        for test_suite_filepath in test_cases_dict:
+        for test_suite_path in test_cases_dict:
             target_test_cases_info = result.setdefault(
-                test_suite_filepath,
+                test_suite_path,
                 TargetTestCasesInfo(
                     test_case_globs=set(), ignored_test_case_globs=set()
                 ),
             )
-            target_test_cases_info.test_case_globs = test_cases_dict[
-                test_suite_filepath
-            ]
-            if test_suite_filepath in ignored_test_cases_dict:
+            target_test_cases_info.test_case_globs = test_cases_dict[test_suite_path]
+            if test_suite_path in ignored_test_cases_dict:
                 target_test_cases_info.ignored_test_case_globs = (
-                    ignored_test_cases_dict[test_suite_filepath]
+                    ignored_test_cases_dict[test_suite_path]
                 )
         return result
 
-    def _find_test_suite_filepaths_from_glob(self, test_suite_glob: str) -> Set[str]:
-        results: Set[str] = set()
+    def _find_test_suite_paths_from_glob(self, test_suite_glob: str) -> Set[Path]:
+        results: Set[Path] = set()
         matches = glob(test_suite_glob, recursive=True)
         for match in matches:
             path = Path(match)
             if path.is_dir():
-                results.update(self._find_test_suite_filepaths_in_dir(path))
+                results.update(self._find_test_suite_paths_in_dir(path))
             elif path.is_file() and TestCollector.is_test_suite(path.name):
-                results.add(match)
+                results.add(path)
         return results
 
     # pylint: disable=no-self-use
-    def _find_test_suite_filepaths_in_dir(self, path: Path) -> Set[str]:
+    def _find_test_suite_paths_in_dir(self, path: Path) -> Set[Path]:
         filepaths = set(glob(f"{path}/**/*.cairo", recursive=True))
-        results: Set[str] = set()
+        results: Set[Path] = set()
         for filepath in filepaths:
-            if TestCollector.is_test_suite(Path(filepath).name):
-                results.add(filepath)
+            path = Path(filepath)
+            if TestCollector.is_test_suite(path.name):
+                results.add(path)
         return results
 
     def _build_test_suites_from_target_test_cases_info_dict(
@@ -310,12 +309,12 @@ class TestCollector:
     ) -> List[TestSuite]:
         test_suites: List[TestSuite] = []
         for (
-            test_suite_filepath,
+            test_suite_path,
             target_test_cases_info,
         ) in target_test_cases_info_dict.items():
             test_suites.append(
                 self._build_test_suite_from_test_cases_info(
-                    Path(test_suite_filepath),
+                    Path(test_suite_path),
                     target_test_cases_info,
                 )
             )
