@@ -189,7 +189,7 @@ If your IDE supports Cairo and doesn't know how to import `protostar`, add the f
 You can find all [assert signatures here](https://github.com/software-mansion/protostar/blob/master/cairo/protostar/asserts.cairo).
 
 ## `__setup__`
-Often while writing tests you have some setup work that needs to happen before tests run. The hook `__setup__` can simplify and speed up your tests. Use `context` hint local to pass data from `__setup__` to test functions as demonstrated on the example below:
+Often while writing tests you have some setup work that needs to happen before tests run. The hook `__setup__` can simplify and speed up your tests. Use `context` variable to pass data from `__setup__` to test functions as demonstrated on the example below:
 
 ```cairo
 %lang starknet
