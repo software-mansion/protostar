@@ -27,7 +27,7 @@ class ActivityIndicator:
     def stop(self):
         self.done = True
         cols = get_terminal_size((80, 20)).columns
-        print("\r" + " " * cols, end="", flush=True)
+        print("\r" + " " * cols, end="\r", flush=True)
 
     def __enter__(self):
         self.start()
