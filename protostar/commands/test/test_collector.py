@@ -48,12 +48,12 @@ class ParsedTarget:
 
 
 @dataclass
-class TargetTestCasesInfo:
+class TestSuiteInfo:
     test_case_globs: Set[TestCaseGlob]
     ignored_test_case_globs: Set[TestCaseGlob]
 
 
-TargetTestCasesInfoDict = Dict[TestSuitePath, TargetTestCasesInfo]
+TestSuiteInfoDict = Dict[TestSuitePath, TestSuiteInfo]
 
 
 class TestCollectingException(ProtostarException):
@@ -209,13 +209,13 @@ class TestCollector:
             ignored_test_cases_dict,
         )
 
-        target_test_cases_info_dict = self.build_target_test_cases_info_dict(
+        test_suite_info_dict = self.build_test_suite_info_dict(
             filtered_test_cases_dict,
             ignored_test_cases_dict,
         )
 
-        test_suites = self._build_test_suites_from_target_test_cases_info_dict(
-            target_test_cases_info_dict
+        test_suites = self._build_test_suites_from_test_suite_info_dict(
+            test_suite_info_dict
         )
 
         non_empty_test_suites = list(
@@ -267,24 +267,22 @@ class TestCollector:
         return result
 
     # pylint: disable=no-self-use
-    def build_target_test_cases_info_dict(
+    def build_test_suite_info_dict(
         self,
         test_cases_dict: TestCasesDict,
         ignored_test_cases_dict: TestCasesDict,
-    ) -> TargetTestCasesInfoDict:
-        result: TargetTestCasesInfoDict = {}
+    ) -> TestSuiteInfoDict:
+        result: TestSuiteInfoDict = {}
         for test_suite_path in test_cases_dict:
-            target_test_cases_info = result.setdefault(
+            test_suite_info = result.setdefault(
                 test_suite_path,
-                TargetTestCasesInfo(
-                    test_case_globs=set(), ignored_test_case_globs=set()
-                ),
+                TestSuiteInfo(test_case_globs=set(), ignored_test_case_globs=set()),
             )
-            target_test_cases_info.test_case_globs = test_cases_dict[test_suite_path]
+            test_suite_info.test_case_globs = test_cases_dict[test_suite_path]
             if test_suite_path in ignored_test_cases_dict:
-                target_test_cases_info.ignored_test_case_globs = (
-                    ignored_test_cases_dict[test_suite_path]
-                )
+                test_suite_info.ignored_test_case_globs = ignored_test_cases_dict[
+                    test_suite_path
+                ]
         return result
 
     def _find_test_suite_paths_from_glob(
@@ -310,27 +308,27 @@ class TestCollector:
                 results.add(path)
         return results
 
-    def _build_test_suites_from_target_test_cases_info_dict(
+    def _build_test_suites_from_test_suite_info_dict(
         self,
-        target_test_cases_info_dict: TargetTestCasesInfoDict,
+        test_suite_info_dict: TestSuiteInfoDict,
     ) -> List[TestSuite]:
         test_suites: List[TestSuite] = []
         for (
             test_suite_path,
-            target_test_cases_info,
-        ) in target_test_cases_info_dict.items():
+            test_suite_info,
+        ) in test_suite_info_dict.items():
             test_suites.append(
-                self._build_test_suite_from_test_cases_info(
+                self._build_test_suite_from_test_suite_info(
                     Path(test_suite_path),
-                    target_test_cases_info,
+                    test_suite_info,
                 )
             )
         return test_suites
 
-    def _build_test_suite_from_test_cases_info(
+    def _build_test_suite_from_test_suite_info(
         self,
         test_suite_path: Path,
-        test_cases_info: TargetTestCasesInfo,
+        test_suite_info: TestSuiteInfo,
     ) -> TestSuite:
         preprocessed = self._preprocess_contract(test_suite_path)
         collected_test_case_names = set(self._collect_test_case_names(preprocessed))
@@ -338,10 +336,10 @@ class TestCollector:
         # gather test cases that match any test case glob
         target_test_case_names: Set[str] = set()
         for test_case_name in collected_test_case_names:
-            if len(test_cases_info.test_case_globs) == 0:
+            if len(test_suite_info.test_case_globs) == 0:
                 target_test_case_names = collected_test_case_names
             else:
-                for test_case_glob in test_cases_info.test_case_globs:
+                for test_case_glob in test_suite_info.test_case_globs:
                     if fnmatch(test_case_name, test_case_glob):
                         target_test_case_names.add(test_case_name)
 
@@ -350,7 +348,7 @@ class TestCollector:
             target_test_case_names.copy()
         )  # copy prevents changing lengths of this collection during loop execution
         for test_case_name in target_test_case_names:
-            for ignored_test_case_glob in test_cases_info.ignored_test_case_globs:
+            for ignored_test_case_glob in test_suite_info.ignored_test_case_globs:
                 if fnmatch(test_case_name, ignored_test_case_glob):
                     not_ignored_target_test_case_names.remove(test_case_name)
                     break
