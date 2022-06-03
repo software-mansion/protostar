@@ -8,6 +8,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from protostar.commands.test import TestCommand
+from protostar.commands.test.test_collector import TestCollector
 
 
 @pytest.mark.asyncio
@@ -20,6 +21,10 @@ async def test_test_command_runs_scheduler_properly(mocker: MockerFixture):
     TestCollectorMock = mocker.patch(
         "protostar.commands.test.test_command.TestCollector",
     )
+    test_collector_result = TestCollector.Result([])
+    test_collector_result.test_cases_count = 1
+    TestCollectorMock.return_value.collect.return_value = test_collector_result
+
     TestSchedulerMock = mocker.patch(
         "protostar.commands.test.test_command.TestScheduler"
     )
