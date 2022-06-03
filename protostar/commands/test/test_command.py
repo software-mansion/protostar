@@ -2,12 +2,14 @@ from logging import getLogger
 from pathlib import Path
 from typing import TYPE_CHECKING, List, Optional
 
+from protostar.cli.activity_indicator import ActivityIndicator
 from protostar.cli.command import Command
 from protostar.commands.test.test_collector import TestCollector
 from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.test_scheduler import TestScheduler
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.commands.test.testing_summary import TestingSummary
+from protostar.utils.log_color_provider import log_color_provider
 from protostar.utils.protostar_directory import ProtostarDirectory
 from protostar.utils.starknet_compilation import StarknetCompiler
 
@@ -89,13 +91,16 @@ class TestCommand(Command):
 
         include_paths = self._build_include_paths(cairo_path or [])
 
-        test_collector_result = TestCollector(
-            StarknetCompiler(disable_hint_validation=True, include_paths=include_paths)
-        ).collect(
-            targets=targets,
-            ignored_targets=ignored_targets,
-            default_test_suite_glob=str(self._project.project_root),
-        )
+        with ActivityIndicator(log_color_provider.colorize("GRAY", "Collecting tests")):
+            test_collector_result = TestCollector(
+                StarknetCompiler(
+                    disable_hint_validation=True, include_paths=include_paths
+                )
+            ).collect(
+                targets=targets,
+                ignored_targets=ignored_targets,
+                default_test_suite_glob=str(self._project.project_root),
+            )
 
         test_collector_result.log(logger)
 
