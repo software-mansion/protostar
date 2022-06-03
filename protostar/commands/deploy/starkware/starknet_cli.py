@@ -4,8 +4,7 @@ from typing import Optional, Sequence, Union
 from services.external_api.client import RetryConfig
 from starkware.starknet.cli.starknet_cli import (
     assert_tx_received,
-    get_gateway_client,
-    validate_arguments,
+    validate_arguments
 )
 from starkware.starknet.definitions import fields
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
@@ -38,7 +37,7 @@ async def deploy(
         raise ValueError(f"salt must start with '0x'. Got: {salt}.")
 
     try:
-        salt: int = (
+        numeric_salt: int = (
             fields.ContractAddressSalt.get_random_value()
             if salt is None
             else int(salt, 16)
@@ -65,11 +64,11 @@ async def deploy(
             )
 
     tx = Deploy(
-        contract_address_salt=salt,
+        contract_address_salt=numeric_salt,
         contract_definition=contract_class,
         constructor_calldata=inputs,
         version=constants.TRANSACTION_VERSION,
-    )
+    )  # type: ignore
 
     gateway_client = GatewayClient(
         url=gateway_url, retry_config=RetryConfig(n_retries=1)

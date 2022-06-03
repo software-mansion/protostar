@@ -69,7 +69,7 @@ class TestExecutionEnvironment:
         return cls(
             include_paths or [],
             forkable_starknet=starknet,
-            test_contract=await starknet.deploy(contract_def=test_suite_definition),
+            test_contract=await starknet.deploy(contract_class=test_suite_definition),
             test_context=TestContext(),
         )
 
