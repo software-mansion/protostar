@@ -105,10 +105,12 @@ class TestCommand(Command):
         test_collector_result.log(logger)
 
         testing_summary = TestingSummary([])
-        live_logger = TestingLiveLogger(logger, testing_summary)
-        TestScheduler(live_logger, worker=TestRunner.worker).run(
-            include_paths=include_paths, test_collector_result=test_collector_result
-        )
+
+        if test_collector_result.test_cases_count > 0:
+            live_logger = TestingLiveLogger(logger, testing_summary)
+            TestScheduler(live_logger, worker=TestRunner.worker).run(
+                include_paths=include_paths, test_collector_result=test_collector_result
+            )
 
         return testing_summary
 
