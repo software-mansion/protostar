@@ -314,11 +314,13 @@ def test_combining_test_suites(starknet_compiler, project_root):
 
 def test_ignoring_test_cases(starknet_compiler, project_root: Path):
     test_collector = TestCollector(
-        starknet_compiler, default_test_suite_glob=str(project_root)
+        starknet_compiler,
     )
 
     result = test_collector.collect_from_targets(
-        [f"{project_root}/foo/test_foo.cairo"], ignored_targets=["::test_case_a"]
+        [f"{project_root}/foo/test_foo.cairo"],
+        ignored_targets=["::test_case_a"],
+        default_test_suite_glob=str(project_root),
     )
 
     assert_tested_suites(result.test_suites, ["test_foo.cairo"])
@@ -327,12 +329,26 @@ def test_ignoring_test_cases(starknet_compiler, project_root: Path):
 
 
 def test_empty_test_suites(starknet_compiler, project_root: Path):
-    test_collector = TestCollector(
-        starknet_compiler, default_test_suite_glob=str(project_root)
-    )
+    test_collector = TestCollector(starknet_compiler)
 
     result = test_collector.collect_from_targets(
         [f"{project_root}/foo/test_foo.cairo::test_not_existing_test_case"],
     )
 
     assert_tested_suites(result.test_suites, [])
+
+
+def test_testing_all_test_cases_despite_one_of_points_to_specific_test_case(
+    starknet_compiler, project_root: Path
+):
+    test_collector = TestCollector(starknet_compiler)
+
+    result = test_collector.collect_from_targets(
+        [
+            f"{project_root}/foo/test_foo.cairo",
+            f"{project_root}/foo/test_foo.cairo::test_case_a",
+        ],
+    )
+
+    assert_tested_suites(result.test_suites, ["test_foo.cairo"])
+    assert result.test_cases_count == 2

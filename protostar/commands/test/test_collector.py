@@ -28,8 +28,8 @@ TestCasesDict = Dict[TestSuitePath, Set[TestCaseGlob]]
 
 @dataclass(frozen=True)
 class ParsedTarget:
-    test_suite_glob: Optional[TestCaseGlob]
-    test_case_glob: Optional[TestCaseGlob]
+    test_suite_glob: TestSuiteGlob
+    test_case_glob: TestCaseGlob
 
     @classmethod
     def from_target(
@@ -39,7 +39,11 @@ class ParsedTarget:
         test_case_glob: Optional[TestCaseGlob] = None
         if "::" in target:
             (test_suite_glob, test_case_glob) = target.split("::")
-        test_suite_glob = test_suite_glob or default_test_suite_glob
+        test_suite_glob = test_suite_glob or default_test_suite_glob or "."
+
+        if not test_case_glob:
+            test_case_glob = "*"
+
         return cls(test_suite_glob, test_case_glob)
 
 
@@ -87,10 +91,8 @@ class TestCollector:
     def __init__(
         self,
         starknet_compiler: StarknetCompiler,
-        default_test_suite_glob: Optional[str] = None,
     ) -> None:
         self._starknet_compiler = starknet_compiler
-        self._default_test_suite_glob = default_test_suite_glob
 
     supported_test_suite_filename_patterns = [
         re.compile(r"^test_.*\.cairo"),
@@ -192,9 +194,12 @@ class TestCollector:
         self,
         targets: List[Target],
         ignored_targets: Optional[List[Target]] = None,
+        default_test_suite_glob: Optional[str] = None,
     ) -> "TestCollector.Result":
-        parsed_targets = self.parse_targets(set(targets))
-        ignored_parsed_targets = self.parse_targets(set(ignored_targets or []))
+        parsed_targets = self.parse_targets(set(targets), default_test_suite_glob)
+        ignored_parsed_targets = self.parse_targets(
+            set(ignored_targets or []), default_test_suite_glob
+        )
 
         test_cases_dict = self.build_test_cases_dict(parsed_targets)
         ignored_test_cases_dict = self.build_test_cases_dict(ignored_parsed_targets)
@@ -240,9 +245,11 @@ class TestCollector:
 
         return results
 
-    def parse_targets(self, targets: Set[Target]) -> Set[ParsedTarget]:
+    def parse_targets(
+        self, targets: Set[Target], default_test_suite_glob: Optional[str] = None
+    ) -> Set[ParsedTarget]:
         return {
-            ParsedTarget.from_target(target, self._default_test_suite_glob)
+            ParsedTarget.from_target(target, default_test_suite_glob)
             for target in targets
         }
 
@@ -255,7 +262,7 @@ class TestCollector:
         result = test_cases_dict.copy()
         for ignored_target_path in ignored_test_cases_dict:
             if (
-                len(ignored_test_cases_dict[ignored_target_path]) == 0
+                "*" in ignored_test_cases_dict[ignored_target_path]
                 and ignored_target_path in result
             ):
                 del result[ignored_target_path]
