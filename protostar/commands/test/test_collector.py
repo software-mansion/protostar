@@ -233,8 +233,6 @@ class TestCollector:
         results: TestCasesDict = {}
 
         for parsed_target in parsed_targets:
-            if not parsed_target.test_suite_glob:
-                continue
             test_suite_paths = self._find_test_suite_paths_from_glob(
                 parsed_target.test_suite_glob
             )
