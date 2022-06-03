@@ -234,17 +234,14 @@ class TestCollector:
         self,
         parsed_targets: Set[ParsedTarget],
     ) -> TestCaseGlobsDict:
-        results: TestCaseGlobsDict = {}
+        results: TestCaseGlobsDict = defaultdict(set)
 
         for parsed_target in parsed_targets:
             test_suite_paths = self._find_test_suite_paths_from_glob(
                 parsed_target.test_suite_glob
             )
             for test_suite_path in test_suite_paths:
-                test_case_globs = results.setdefault(test_suite_path, set())
-                if parsed_target.test_case_glob:
-                    test_case_globs.add(parsed_target.test_case_glob)
-
+                result[test_suite_path].add(parsed_target.test_case_glob)
         return results
 
     def parse_targets(
