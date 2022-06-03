@@ -56,6 +56,32 @@ class TestSuiteInfo:
     test_case_globs: Set[TestCaseGlob]
     ignored_test_case_globs: Set[TestCaseGlob]
 
+    def match_test_case_names(self, test_case_names: List[str]) -> List[str]:
+        matches = self._find_matching_any_test_case_glob(test_case_names)
+        result = self._filter_out_matching_any_ignored_test_case_glob(matches)
+        return list(result)
+
+    def _find_matching_any_test_case_glob(self, test_case_names: List[str]) -> Set[str]:
+        result: Set[str] = set()
+        for test_case_name in test_case_names:
+            for test_case_glob in self.test_case_globs:
+                if fnmatch(test_case_name, test_case_glob):
+                    result.add(test_case_name)
+        return result
+
+    def _filter_out_matching_any_ignored_test_case_glob(
+        self, test_case_names: Set[str]
+    ) -> Set[str]:
+        result = (
+            test_case_names.copy()
+        )  # copy prevents changing lengths of this collection during loop execution
+        for test_case_name in test_case_names:
+            for ignored_test_case_glob in self.ignored_test_case_globs:
+                if fnmatch(test_case_name, ignored_test_case_glob):
+                    result.remove(test_case_name)
+                    break
+        return result
+
 
 TestSuiteInfoDict = Dict[TestSuitePath, TestSuiteInfo]
 
@@ -328,31 +354,14 @@ class TestCollector:
         test_suite_info: TestSuiteInfo,
     ) -> TestSuite:
         preprocessed = self._preprocess_contract(test_suite_info.path)
-        collected_test_case_names = set(self._collect_test_case_names(preprocessed))
-
-        # gather test cases that match any test case glob
-        target_test_case_names: Set[str] = set()
-        for test_case_name in collected_test_case_names:
-            if len(test_suite_info.test_case_globs) == 0:
-                target_test_case_names = collected_test_case_names
-            else:
-                for test_case_glob in test_suite_info.test_case_globs:
-                    if fnmatch(test_case_name, test_case_glob):
-                        target_test_case_names.add(test_case_name)
-
-        # filter out test cases that match any test case glob
-        not_ignored_target_test_case_names = (
-            target_test_case_names.copy()
-        )  # copy prevents changing lengths of this collection during loop execution
-        for test_case_name in target_test_case_names:
-            for ignored_test_case_glob in test_suite_info.ignored_test_case_globs:
-                if fnmatch(test_case_name, ignored_test_case_glob):
-                    not_ignored_target_test_case_names.remove(test_case_name)
-                    break
+        collected_test_case_names = self._collect_test_case_names(preprocessed)
+        matching_test_case_names = test_suite_info.match_test_case_names(
+            collected_test_case_names
+        )
 
         return TestSuite(
             test_path=test_suite_info.path,
-            test_case_names=list(not_ignored_target_test_case_names),
+            test_case_names=matching_test_case_names,
             preprocessed_contract=preprocessed,
             setup_fn_name=self._find_setup_hook_name(preprocessed),
         )
