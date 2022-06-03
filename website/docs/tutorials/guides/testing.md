@@ -472,7 +472,7 @@ class DeployedContract:
 Deploys a contract given a path relative to a Protostar project root. The section [Deploying contracts from tests](#deploying-contracts-from-tests) demonstrates a usage of this cheatcode.
 
 :::warning
-Deploying contract is a slow operation. If it's possible try using this cheatcode in the [`__setup__` hook](#__setup__).
+Deploying a contract is a slow operation. If it's possible try using this cheatcode in the [`__setup__` hook](#__setup__).
 :::
 ### `start_prank`
 
