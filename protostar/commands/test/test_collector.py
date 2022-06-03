@@ -287,7 +287,9 @@ class TestCollector:
                 )
         return result
 
-    def _find_test_suite_paths_from_glob(self, test_suite_glob: str) -> Set[Path]:
+    def _find_test_suite_paths_from_glob(
+        self, test_suite_glob: str
+    ) -> Set[TestSuitePath]:
         results: Set[Path] = set()
         matches = glob(test_suite_glob, recursive=True)
         for match in matches:
@@ -299,7 +301,7 @@ class TestCollector:
         return results
 
     # pylint: disable=no-self-use
-    def _find_test_suite_paths_in_dir(self, path: Path) -> Set[Path]:
+    def _find_test_suite_paths_in_dir(self, path: Path) -> Set[TestSuitePath]:
         filepaths = set(glob(f"{path}/**/*.cairo", recursive=True))
         results: Set[Path] = set()
         for filepath in filepaths:
