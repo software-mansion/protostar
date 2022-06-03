@@ -188,13 +188,13 @@ class TestCollector:
             print(p_err)
             raise TestCollectingException("Failed to collect test cases") from p_err
 
-    def collect_from_globs(
+    def collect_from_targets(
         self,
-        globs: List[str],
-        ignored_globs: Optional[List[str]] = None,
+        targets: List[Target],
+        ignored_targets: Optional[List[Target]] = None,
     ) -> "TestCollector.Result":
-        parsed_targets = self.parse_targets(set(globs))
-        ignored_parsed_targets = self.parse_targets(set(ignored_globs or []))
+        parsed_targets = self.parse_targets(set(targets))
+        ignored_parsed_targets = self.parse_targets(set(ignored_targets or []))
 
         test_cases_dict = self.build_test_cases_dict(parsed_targets)
         ignored_test_cases_dict = self.build_test_cases_dict(ignored_parsed_targets)

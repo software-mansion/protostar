@@ -229,7 +229,7 @@ def test_logging_no_cases_found(mocker: MockerFixture):
 def test_collecting_from_directory_globs(starknet_compiler, project_root):
     test_collector = TestCollector(starknet_compiler)
 
-    result = test_collector.collect_from_globs(
+    result = test_collector.collect_from_targets(
         [f"{project_root}/b*r", f"{project_root}/f*"]
     )
 
@@ -239,7 +239,7 @@ def test_collecting_from_directory_globs(starknet_compiler, project_root):
 def test_recursive_globs(starknet_compiler, project_root):
     test_collector = TestCollector(starknet_compiler)
 
-    result = test_collector.collect_from_globs([f"{project_root}/**/test_foo.cairo"])
+    result = test_collector.collect_from_targets([f"{project_root}/**/test_foo.cairo"])
 
     assert_tested_suites(result.test_suites, ["test_foo.cairo", "test_foo.cairo"])
 
@@ -247,7 +247,7 @@ def test_recursive_globs(starknet_compiler, project_root):
 def test_collecting_specific_function_in_glob(starknet_compiler, project_root):
     test_collector = TestCollector(starknet_compiler)
 
-    result = test_collector.collect_from_globs(
+    result = test_collector.collect_from_targets(
         [f"{project_root}/**/test_foo.cairo::test_case_a"]
     )
 
@@ -261,7 +261,7 @@ def test_collecting_specific_function_in_glob(starknet_compiler, project_root):
 def test_multiple_globs_pointing_to_test_case(starknet_compiler, project_root):
     test_collector = TestCollector(starknet_compiler)
 
-    result = test_collector.collect_from_globs(
+    result = test_collector.collect_from_targets(
         [
             f"{project_root}/foo/test_foo.cairo::test_case_a",
             f"{project_root}/**/bar_test.cairo::test_case_a",
@@ -278,8 +278,8 @@ def test_multiple_globs_pointing_to_test_case(starknet_compiler, project_root):
 def test_omitting_pattern_in_globs(starknet_compiler, project_root):
     test_collector = TestCollector(starknet_compiler)
 
-    result = test_collector.collect_from_globs(
-        [str(project_root)], ignored_globs=[f"{project_root}/**/test_foo.cairo"]
+    result = test_collector.collect_from_targets(
+        [str(project_root)], ignored_targets=[f"{project_root}/**/test_foo.cairo"]
     )
 
     assert_tested_suites(result.test_suites, ["bar_test.cairo"])
@@ -289,7 +289,7 @@ def test_omitting_pattern_in_globs(starknet_compiler, project_root):
 def test_globs_in_test_case_name(starknet_compiler, project_root):
     test_collector = TestCollector(starknet_compiler)
 
-    result = test_collector.collect_from_globs(
+    result = test_collector.collect_from_targets(
         [f"{project_root}/foo/test_foo.cairo::*b"]
     )
 
@@ -301,7 +301,7 @@ def test_globs_in_test_case_name(starknet_compiler, project_root):
 def test_combining_test_suites(starknet_compiler, project_root):
     test_collector = TestCollector(starknet_compiler)
 
-    result = test_collector.collect_from_globs(
+    result = test_collector.collect_from_targets(
         [
             f"{project_root}/foo/test_foo.cairo::*a",
             f"{project_root}/foo/test_foo.cairo::*b",
@@ -317,8 +317,8 @@ def test_ignoring_test_cases(starknet_compiler, project_root: Path):
         starknet_compiler, default_test_suite_glob=str(project_root)
     )
 
-    result = test_collector.collect_from_globs(
-        [f"{project_root}/foo/test_foo.cairo"], ignored_globs=["::test_case_a"]
+    result = test_collector.collect_from_targets(
+        [f"{project_root}/foo/test_foo.cairo"], ignored_targets=["::test_case_a"]
     )
 
     assert_tested_suites(result.test_suites, ["test_foo.cairo"])
@@ -331,7 +331,7 @@ def test_empty_test_suites(starknet_compiler, project_root: Path):
         starknet_compiler, default_test_suite_glob=str(project_root)
     )
 
-    result = test_collector.collect_from_globs(
+    result = test_collector.collect_from_targets(
         [f"{project_root}/foo/test_foo.cairo::test_not_existing_test_case"],
     )
 
