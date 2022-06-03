@@ -188,7 +188,6 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
 
         return self.execute_entry_point(call=call)
 
-
     def emit_event(self, segments: MemorySegmentManager, syscall_ptr: RelocatableValue):
         """
         Handles the emit_event system call.

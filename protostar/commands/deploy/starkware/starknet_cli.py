@@ -2,7 +2,11 @@ from io import TextIOWrapper
 from typing import Optional, Sequence, Union
 
 from services.external_api.client import RetryConfig
-from starkware.starknet.cli.starknet_cli import assert_tx_received, get_gateway_client, validate_arguments
+from starkware.starknet.cli.starknet_cli import (
+    assert_tx_received,
+    get_gateway_client,
+    validate_arguments,
+)
 from starkware.starknet.definitions import fields
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 from starkware.starknet.services.api.contract_class import ContractClass
@@ -34,7 +38,7 @@ async def deploy(
         raise ValueError(f"salt must start with '0x'. Got: {salt}.")
 
     try:
-        salt = (
+        salt: int = (
             fields.ContractAddressSalt.get_random_value()
             if salt is None
             else int(salt, 16)
