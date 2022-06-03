@@ -21,6 +21,7 @@ tomli = "<2.0.0"
 tomli-w = "^1.0.0"
 tqdm = "^4.64.0"
 typing-extensions = "^4.0.1"
+crypto-cpp-py = "^1.0.4"
 
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
@@ -41,6 +42,7 @@ starknet-devnet = "^0.2.1"
 [tool.poe.tasks]
 build = "pyinstaller protostar.spec --noconfirm"
 ci = ["type_check", "lint", "format_check", "test"]
+local_static_check = ["format", "lint", "type_check"]
 cov = "pytest --cov-report xml:cov.xml --cov=protostar"
 deploy = "python ./scripts/deploy.py"
 format = "black ."

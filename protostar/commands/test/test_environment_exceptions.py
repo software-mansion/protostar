@@ -1,7 +1,9 @@
 import re
 from typing import List, Optional, Union
+from starkware.starknet.business_logic.execution.objects import Event
 
 from protostar.utils.log_color_provider import log_color_provider
+from protostar.commands.test.expected_event import ExpectedEvent
 
 
 class ReportedException(BaseException):
@@ -11,6 +13,15 @@ class ReportedException(BaseException):
 
     def __str__(self) -> str:
         return str(super().__repr__())
+
+
+class SimpleReportedException(ReportedException):
+    def __init__(self, message: str) -> None:
+        self.message = message
+        super().__init__(message)
+
+    def __str__(self) -> str:
+        return str(self.message)
 
 
 class CheatcodeException(ReportedException):
@@ -186,3 +197,51 @@ class ExpectedRevertMismatchException(ReportedException):
 
     def __reduce__(self):
         return type(self), (self._expected, self._received)
+
+
+class ExpectedEventMissingException(ReportedException):
+    def __init__(
+        self, matches: ExpectedEvent.MatchesList, missing: List[ExpectedEvent]
+    ) -> None:
+        self.matches = matches
+        self.missing = missing
+        super().__init__()
+
+    def __str__(self) -> str:
+        result: List[str] = ["Matches: "]
+        for match in self.matches:
+            if match[0] == ExpectedEvent.MatchResult.MATCH:
+                (_, expected_ev, state_ev) = match
+                result.append(
+                    log_color_provider.colorize(
+                        "GREEN", self.state_event_to_string(state_ev)
+                    )
+                )
+                result.append(
+                    log_color_provider.colorize("GREEN", f"Match: {str(expected_ev)}")
+                )
+
+            elif match[0] == ExpectedEvent.MatchResult.SKIPPED:
+                (_, state_ev) = match
+                result.append(
+                    log_color_provider.colorize(
+                        "GRAY", self.state_event_to_string(state_ev)
+                    )
+                )
+            result.append("")
+
+        result.append("Missing: ")
+        for missed_event in self.missing:
+            result.append(log_color_provider.colorize("RED", str(missed_event)))
+        return "\n".join(result)
+
+    @staticmethod
+    def state_event_to_string(state_event: Event):
+        result: List[str] = []
+        result.append(f'"selector (hashed name)": "{state_event.keys[0]}"')
+        result.append(f'"data": "{str(state_event.data)}"')
+        result.append(f'"from_address": "{state_event.from_address}"')
+        return f"{{{', '.join(result)}}}"
+
+    def __reduce__(self):
+        return type(self), (self.matches, self.missing)

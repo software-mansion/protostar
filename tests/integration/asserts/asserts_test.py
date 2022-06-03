@@ -20,7 +20,7 @@ async def test_asserts(mocker: MockerFixture):
     testing_summary = await TestCommand(
         project=mocker.MagicMock(),
         protostar_directory=protostar_directory_mock,
-    ).test(target_globs=[f"{Path(__file__).parent}/asserts_test.cairo"])
+    ).test(targets=[f"{Path(__file__).parent}/asserts_test.cairo"])
 
     assert_cairo_test_cases(
         testing_summary,

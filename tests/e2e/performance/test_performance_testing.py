@@ -7,9 +7,8 @@ import pytest
 
 from tests.e2e.conftest import ACTUAL_CWD
 
-header = """
+TEST_SUITE_HEADER = """
 %lang starknet
-%builtins pedersen range_check
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
@@ -19,7 +18,7 @@ end
 
 """
 
-case = Template(
+TEST_CASE_TEMPLATE = Template(
     """
 @external
 func test_m$file$case{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
@@ -39,9 +38,12 @@ end
 def test_contracts():
     for file in range(5):
         cases = "".join(
-            [case.substitute(file=str(file), case=str(i)) for i in range(5)]
+            [
+                TEST_CASE_TEMPLATE.substitute(file=str(file), case=str(i))
+                for i in range(5)
+            ]
         )
-        content = header + cases
+        content = TEST_SUITE_HEADER + cases
         with open(Path() / "tests" / f"test_file_{file}.cairo", "w") as f:
             f.write(content)
 

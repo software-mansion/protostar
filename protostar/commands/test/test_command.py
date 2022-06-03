@@ -69,8 +69,8 @@ class TestCommand(Command):
 
     async def run(self, args) -> TestingSummary:
         summary = await self.test(
-            target_globs=args.target,
-            ignored_globs=args.ignore,
+            targets=args.target,
+            ignored_targets=args.ignore,
             cairo_path=args.cairo_path,
         )
         summary.assert_all_passed()
@@ -78,8 +78,8 @@ class TestCommand(Command):
 
     async def test(
         self,
-        target_globs: List[str],
-        ignored_globs: Optional[List[str]] = None,
+        targets: List[str],
+        ignored_targets: Optional[List[str]] = None,
         cairo_path: Optional[List[Path]] = None,
     ) -> TestingSummary:
         logger = getLogger()
@@ -88,9 +88,9 @@ class TestCommand(Command):
 
         test_collector_result = TestCollector(
             StarknetCompiler(disable_hint_validation=True, include_paths=include_paths)
-        ).collect_from_globs(
-            target_globs=target_globs,
-            ignored_globs=ignored_globs,
+        ).collect_from_targets(
+            targets=targets,
+            ignored_targets=ignored_targets,
             default_test_suite_glob=str(self._project.project_root.resolve()),
         )
 

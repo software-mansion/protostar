@@ -1,10 +1,8 @@
 # Declare this file as a StarkNet contract and set the required
 # builtins.
 %lang starknet
-%builtins pedersen range_check
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-
 
 @contract_interface
 namespace BasicContract:
@@ -20,13 +18,15 @@ func target() -> (res : felt):
 end
 
 @external
-func set_target{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(new_target: felt):
+func set_target{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        new_target : felt):
     target.write(new_target)
     return ()
 end
 
 @external
-func increase_twice{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(amount: felt):
+func increase_twice{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        amount : felt):
     let (target_contract) = target.read()
     BasicContract.increase_balance(contract_address=target_contract, amount=amount)
     BasicContract.increase_balance(contract_address=target_contract, amount=amount)
