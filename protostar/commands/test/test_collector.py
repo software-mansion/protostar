@@ -2,6 +2,7 @@
 
 import os
 import re
+from collections import defaultdict
 from dataclasses import dataclass
 from fnmatch import fnmatch
 from glob import glob
@@ -51,6 +52,7 @@ class ParsedTarget:
 
 @dataclass
 class TestSuiteInfo:
+    path: Path
     test_case_globs: Set[TestCaseGlob]
     ignored_test_case_globs: Set[TestCaseGlob]
 
@@ -241,7 +243,7 @@ class TestCollector:
                 parsed_target.test_suite_glob
             )
             for test_suite_path in test_suite_paths:
-                result[test_suite_path].add(parsed_target.test_case_glob)
+                results[test_suite_path].add(parsed_target.test_case_glob)
         return results
 
     def parse_targets(
@@ -275,7 +277,11 @@ class TestCollector:
         for test_suite_path in test_case_globs_dict:
             test_suite_info = result.setdefault(
                 test_suite_path,
-                TestSuiteInfo(test_case_globs=set(), ignored_test_case_globs=set()),
+                TestSuiteInfo(
+                    test_case_globs=set(),
+                    ignored_test_case_globs=set(),
+                    path=test_suite_path,
+                ),
             )
             test_suite_info.test_case_globs = test_case_globs_dict[test_suite_path]
             if test_suite_path in ignored_test_case_globs_dict:
@@ -310,25 +316,18 @@ class TestCollector:
         self,
         test_suite_info_dict: TestSuiteInfoDict,
     ) -> List[TestSuite]:
-        test_suites: List[TestSuite] = []
-        for (
-            test_suite_path,
-            test_suite_info,
-        ) in test_suite_info_dict.items():
-            test_suites.append(
-                self._build_test_suite_from_test_suite_info(
-                    Path(test_suite_path),
-                    test_suite_info,
-                )
+        return [
+            self._build_test_suite_from_test_suite_info(
+                test_suite_info,
             )
-        return test_suites
+            for test_suite_info in test_suite_info_dict.values()
+        ]
 
     def _build_test_suite_from_test_suite_info(
         self,
-        test_suite_path: Path,
         test_suite_info: TestSuiteInfo,
     ) -> TestSuite:
-        preprocessed = self._preprocess_contract(test_suite_path)
+        preprocessed = self._preprocess_contract(test_suite_info.path)
         collected_test_case_names = set(self._collect_test_case_names(preprocessed))
 
         # gather test cases that match any test case glob
@@ -352,7 +351,7 @@ class TestCollector:
                     break
 
         return TestSuite(
-            test_path=test_suite_path,
+            test_path=test_suite_info.path,
             test_case_names=list(not_ignored_target_test_case_names),
             preprocessed_contract=preprocessed,
             setup_fn_name=self._find_setup_hook_name(preprocessed),
