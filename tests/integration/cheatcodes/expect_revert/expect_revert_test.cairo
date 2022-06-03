@@ -1,5 +1,4 @@
 %lang starknet
-%builtins pedersen range_check
 
 @contract_interface
 namespace BasicContract:
@@ -106,8 +105,7 @@ end
 
 @external
 func test_error_was_not_raised_before_stopping_expect_revert_fail_expected{
-    syscall_ptr : felt*, range_check_ptr
-}():
+        syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
 
     %{ stop_expecting_revert = expect_revert("UNINITIALIZED_CONTRACT") %}

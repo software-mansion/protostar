@@ -94,7 +94,7 @@ class TestRunner:
         assert self.queue, "Uninitialized reporter!"
 
         try:
-            env_base = await TestExecutionEnvironment.empty(
+            env_base = await TestExecutionEnvironment.from_test_suite_definition(
                 test_contract, self.include_paths
             )
 
