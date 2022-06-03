@@ -94,7 +94,7 @@ class TestCommand(Command):
         ).collect(
             targets=targets,
             ignored_targets=ignored_targets,
-            default_test_suite_glob=str(self._project.project_root.resolve()),
+            default_test_suite_glob=str(self._project.project_root),
         )
 
         test_collector_result.log(logger)

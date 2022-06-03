@@ -7,12 +7,15 @@ from fnmatch import fnmatch
 from glob import glob
 from logging import Logger
 from pathlib import Path
+from time import time
 from typing import Dict, List, Optional, Set
 
-from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import \
-    PreprocessorError
-from starkware.starknet.compiler.starknet_preprocessor import \
-    StarknetPreprocessedProgram
+from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
+    PreprocessorError,
+)
+from starkware.starknet.compiler.starknet_preprocessor import (
+    StarknetPreprocessedProgram,
+)
 
 from protostar.commands.test.test_suite import TestSuite
 from protostar.protostar_exception import ProtostarException
@@ -90,11 +93,12 @@ class TestCollectingException(ProtostarException):
 @dataclass
 class TestCollector:
     class Result:
-        def __init__(self, test_suites: List[TestSuite]) -> None:
+        def __init__(self, test_suites: List[TestSuite], duration: float = 0.0) -> None:
             self.test_suites = test_suites
             self.test_cases_count = sum(
                 [len(test_suite.test_case_names) for test_suite in test_suites]
             )
+            self.duration = duration
 
         def log(self, logger: Logger):
             if self.test_cases_count:
@@ -110,6 +114,8 @@ class TestCollector:
                     result.append("1 test case")
                 else:
                     result.append(f"{self.test_cases_count} test cases")
+
+                result.append(f"({self.duration:.3f} sec)")
 
                 logger.info(" ".join(result))
             else:
@@ -139,6 +145,8 @@ class TestCollector:
         ignored_targets: Optional[List[Target]] = None,
         default_test_suite_glob: Optional[str] = None,
     ) -> "TestCollector.Result":
+        start_time = time()
+
         parsed_targets = self.parse_targets(set(targets), default_test_suite_glob)
         ignored_parsed_targets = self.parse_targets(
             set(ignored_targets or []), default_test_suite_glob
@@ -167,8 +175,10 @@ class TestCollector:
             filter(lambda test_file: (test_file.test_case_names) != [], test_suites)
         )
 
+        end_time = time()
+
         return TestCollector.Result(
-            test_suites=non_empty_test_suites,
+            test_suites=non_empty_test_suites, duration=end_time - start_time
         )
 
     def build_test_case_globs_dict(
@@ -199,6 +209,7 @@ class TestCollector:
         ignored_test_case_globs_dict: TestCaseGlobsDict,
     ) -> TestCaseGlobsDict:
         result = test_case_globs_dict.copy()
+
         for ignored_target_path in ignored_test_case_globs_dict:
             if (
                 "*" in ignored_test_case_globs_dict[ignored_target_path]

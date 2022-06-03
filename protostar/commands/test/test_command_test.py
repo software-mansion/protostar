@@ -27,10 +27,8 @@ async def test_test_command_runs_scheduler_properly(mocker: MockerFixture):
         "protostar.commands.test.test_command.TestingLiveLogger"
     )
     project_mock = mocker.MagicMock()
-    resolve_project_root_mock = mocker.MagicMock()
     project_root = "."
-    resolve_project_root_mock.return_value = project_root
-    project_mock.project_root.resolve = resolve_project_root_mock
+    project_mock.project_root = project_root
 
     protostar_directory_mock = mocker.MagicMock()
     protostar_directory_mock.add_protostar_cairo_dir.return_value = args.cairo_path
