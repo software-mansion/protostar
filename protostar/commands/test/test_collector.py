@@ -1,6 +1,5 @@
 # pylint: disable=no-self-use
 
-import os
 import re
 from collections import defaultdict
 from dataclasses import dataclass
@@ -8,14 +7,12 @@ from fnmatch import fnmatch
 from glob import glob
 from logging import Logger
 from pathlib import Path
-from typing import Dict, Generator, List, Optional, Pattern, Set, cast
+from typing import Dict, List, Optional, Set
 
-from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
-    PreprocessorError,
-)
-from starkware.starknet.compiler.starknet_preprocessor import (
-    StarknetPreprocessedProgram,
-)
+from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import \
+    PreprocessorError
+from starkware.starknet.compiler.starknet_preprocessor import \
+    StarknetPreprocessedProgram
 
 from protostar.commands.test.test_suite import TestSuite
 from protostar.protostar_exception import ProtostarException
@@ -129,37 +126,6 @@ class TestCollector:
         re.compile(r"^.*_test.cairo"),
     ]
 
-    def collect(
-        self,
-        target: Path,
-        omit_pattern: Optional[Pattern] = None,
-    ) -> "TestCollector.Result":
-        target_test_case: Optional[str] = None
-        if re.match(r"^.*\.cairo::.*", target.name):
-            file_name, target_test_case = target.name.split("::")
-            target = target.parent / file_name
-            assert not target.is_dir()
-
-        test_suite_paths = self._get_test_suite_paths(target)
-
-        if omit_pattern:
-            test_suite_paths = filter(
-                lambda file_path: not cast(Pattern, omit_pattern).match(str(file_path)),
-                test_suite_paths,
-            )
-
-        test_suites: List[TestSuite] = []
-        for test_suite in test_suite_paths:
-            test_suites.append(self._build_test_suite(test_suite, target_test_case))
-
-        non_empty_test_suites = list(
-            filter(lambda test_file: (test_file.test_case_names) != [], test_suites)
-        )
-
-        return TestCollector.Result(
-            test_suites=non_empty_test_suites,
-        )
-
     @classmethod
     def is_test_suite(cls, filename: str) -> bool:
         return any(
@@ -167,60 +133,7 @@ class TestCollector:
             for test_re in cls.supported_test_suite_filename_patterns
         )
 
-    def _build_test_suite(
-        self, file_path: Path, target_test_case_name: Optional[str]
-    ) -> TestSuite:
-        preprocessed = self._preprocess_contract(file_path)
-        test_case_names = self._collect_test_case_names(preprocessed)
-        if target_test_case_name:
-            test_case_names = [
-                test_case_name
-                for test_case_name in test_case_names
-                if test_case_name == target_test_case_name
-            ]
-
-        return TestSuite(
-            test_path=file_path,
-            test_case_names=test_case_names,
-            preprocessed_contract=preprocessed,
-            setup_fn_name=self._find_setup_hook_name(preprocessed),
-        )
-
-    def _get_test_suite_paths(self, target: Path) -> Generator[Path, None, None]:
-        if not target.is_dir():
-            yield target
-            return
-        for root, _, files in os.walk(target):
-            test_suite_paths = [Path(root, file) for file in files]
-            test_suite_paths = filter(
-                lambda file: self.is_test_suite(file.name), test_suite_paths
-            )
-            for test_suite_path in test_suite_paths:
-                yield test_suite_path
-
-    def _collect_test_case_names(
-        self, preprocessed: StarknetPreprocessedProgram
-    ) -> List[str]:
-        return self._starknet_compiler.get_function_names(
-            preprocessed, predicate=lambda fn_name: fn_name.startswith("test_")
-        )
-
-    def _find_setup_hook_name(
-        self, preprocessed: StarknetPreprocessedProgram
-    ) -> Optional[str]:
-        function_names = self._starknet_compiler.get_function_names(
-            preprocessed, predicate=lambda fn_name: fn_name == "__setup__"
-        )
-        return function_names[0] if len(function_names) > 0 else None
-
-    def _preprocess_contract(self, file_path: Path) -> StarknetPreprocessedProgram:
-        try:
-            return self._starknet_compiler.preprocess_contract(file_path)
-        except PreprocessorError as p_err:
-            print(p_err)
-            raise TestCollectingException("Failed to collect test cases") from p_err
-
-    def collect_from_targets(
+    def collect(
         self,
         targets: List[Target],
         ignored_targets: Optional[List[Target]] = None,
@@ -365,3 +278,25 @@ class TestCollector:
             preprocessed_contract=preprocessed,
             setup_fn_name=self._find_setup_hook_name(preprocessed),
         )
+
+    def _collect_test_case_names(
+        self, preprocessed: StarknetPreprocessedProgram
+    ) -> List[str]:
+        return self._starknet_compiler.get_function_names(
+            preprocessed, predicate=lambda fn_name: fn_name.startswith("test_")
+        )
+
+    def _find_setup_hook_name(
+        self, preprocessed: StarknetPreprocessedProgram
+    ) -> Optional[str]:
+        function_names = self._starknet_compiler.get_function_names(
+            preprocessed, predicate=lambda fn_name: fn_name == "__setup__"
+        )
+        return function_names[0] if len(function_names) > 0 else None
+
+    def _preprocess_contract(self, file_path: Path) -> StarknetPreprocessedProgram:
+        try:
+            return self._starknet_compiler.preprocess_contract(file_path)
+        except PreprocessorError as p_err:
+            print(p_err)
+            raise TestCollectingException("Failed to collect test cases") from p_err

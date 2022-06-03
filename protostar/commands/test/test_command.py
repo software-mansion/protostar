@@ -88,7 +88,7 @@ class TestCommand(Command):
 
         test_collector_result = TestCollector(
             StarknetCompiler(disable_hint_validation=True, include_paths=include_paths)
-        ).collect_from_targets(
+        ).collect(
             targets=targets,
             ignored_targets=ignored_targets,
             default_test_suite_glob=str(self._project.project_root.resolve()),
