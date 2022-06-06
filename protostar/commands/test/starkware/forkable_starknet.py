@@ -1,6 +1,6 @@
 from collections import defaultdict
 import copy
-from typing import Dict, List, Optional, cast
+from typing import TYPE_CHECKING, Dict, List, Optional, cast
 
 from starkware.cairo.lang.vm.crypto import pedersen_hash_func
 from starkware.starknet.business_logic.state.state import CarriedState
@@ -11,7 +11,8 @@ from starkware.starknet.testing.state import StarknetState
 from starkware.storage.dict_storage import DictStorage
 from starkware.storage.storage import FactFetchingContext
 
-from protostar.commands.test.starkware.cheatable_syscall_handler import AddressType, SelectorType
+if TYPE_CHECKING:
+    from protostar.commands.test.starkware.cheatable_syscall_handler import AddressType, SelectorType
 
 
 class CheatableCarriedState(CarriedState):
