@@ -4,9 +4,8 @@ from typing import Any, Dict, Optional
 import flatdict
 import tomli
 
-from protostar.protostar_toml.protostar_toml_exceptions import (
-    NoProtostarProjectFoundException,
-)
+from protostar.protostar_toml.protostar_toml_exceptions import \
+    NoProtostarProjectFoundException
 from protostar.utils.protostar_directory import VersionManager
 
 

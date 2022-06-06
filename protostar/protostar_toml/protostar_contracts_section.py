@@ -2,11 +2,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from protostar.protostar_toml.protostar_toml_exceptions import \
-    InvalidProtostarTOMLException
+from protostar.protostar_toml.protostar_toml_exceptions import (
+    InvalidProtostarTOMLException,
+)
 from protostar.protostar_toml.protostar_toml_reader import ProtostarTOMLReader
-from protostar.protostar_toml.protostar_toml_section import \
-    ProtostarTOMLSection
+from protostar.protostar_toml.protostar_toml_section import ProtostarTOMLSection
 
 
 @dataclass
@@ -27,7 +27,9 @@ class ProtostarContractsSection(ProtostarTOMLSection):
         return cls.from_dict(section_dict)
 
     @classmethod
-    def from_dict(cls, raw_dict: Optional[Dict[str, Any]]) -> "ProtostarContractsSection":
+    def from_dict(
+        cls, raw_dict: Optional[Dict[str, Any]]
+    ) -> "ProtostarContractsSection":
         if not raw_dict:
             return cls(contract_dict={})
 
