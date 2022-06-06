@@ -3,10 +3,12 @@ from typing import List, OrderedDict
 
 import tomli_w
 
-from protostar.protostar_toml.core.protostar_toml_section import ProtostarTOMLSection
-from protostar.protostar_toml.protostar_config import ProtostarConfig
-from protostar.protostar_toml.protostar_contracts import ProtostarContracts
-from protostar.protostar_toml.protostar_project import ProtostarProject
+from protostar.protostar_toml.protostar_config_section import ProtostarConfigSection
+from protostar.protostar_toml.protostar_contracts_section import (
+    ProtostarContractsSection,
+)
+from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
+from protostar.protostar_toml.protostar_toml_section import ProtostarTOMLSection
 
 
 class ProtostarTOMLWriter:
@@ -14,9 +16,9 @@ class ProtostarTOMLWriter:
     def save(
         self,
         path: Path,
-        protostar_config: ProtostarConfig,
-        protostar_project: ProtostarProject,
-        protostar_contracts: ProtostarContracts,
+        protostar_config: ProtostarConfigSection,
+        protostar_project: ProtostarProjectSection,
+        protostar_contracts: ProtostarContractsSection,
     ) -> None:
         result = OrderedDict()
 
