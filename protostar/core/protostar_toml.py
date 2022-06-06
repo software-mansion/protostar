@@ -50,7 +50,7 @@ class ProtostarTOML:
         libs_path: Path
 
         @classmethod
-        def from_dict(cls, raw_dict: Dict[str, Any]):
+        def from_dict(cls, raw_dict: Dict[str, Any]) -> "ProtostarTOML.ProjectConfig":
             return cls(libs_path=Path(raw_dict["libs_path"]))
 
     @dataclass
@@ -58,7 +58,9 @@ class ProtostarTOML:
         contract_dict: Dict[str, List[Path]]
 
         @classmethod
-        def from_dict(cls, raw_dict: Optional[Dict[str, Any]]):
+        def from_dict(
+            cls, raw_dict: Optional[Dict[str, Any]]
+        ) -> "ProtostarTOML.ContractsConfig":
             if not raw_dict:
                 return cls(contract_dict={})
 
