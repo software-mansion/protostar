@@ -1,76 +1,25 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 import flatdict
 import tomli
 
-from protostar.protostar_exception import ProtostarException
-from protostar.utils.protostar_directory import VersionManager, VersionType
-
-
-class NoProtostarProjectFoundException(ProtostarException):
-    pass
-
-
-class VersionNotSupportedException(ProtostarException):
-    pass
-
-
-class InvalidProtostarTOMLException(ProtostarException):
-    def __init__(self, section_name: str):
-        self.section_name = section_name
-        super().__init__(section_name)
-
-    def __str__(self) -> str:
-        return "\n".join(
-            [
-                "Invalid 'protostar.toml' configuration.",
-                f"Couldn't load [protostar.{self.section_name}]",
-            ]
-        )
-
+from protostar.protostar_toml.protostar_toml_exceptions import (
+    InvalidProtostarTOMLException,
+    NoProtostarProjectFoundException,
+)
+from protostar.protostar_toml.sections import (
+    ProtostarConfig,
+    ProtostarContracts,
+    ProtostarProject,
+)
+from protostar.utils.protostar_directory import VersionManager
 
 ProtostarTOMLDict = Dict[str, Any]
 
 
 class ProtostarTOML:
-    @dataclass
-    class ProtostarConfig:
-        protostar_version: VersionType
-
-        @classmethod
-        def from_dict(cls, raw_dict: Dict[str, Any]) -> "ProtostarTOML.ProtostarConfig":
-            return cls(
-                protostar_version=VersionManager.parse(raw_dict["protostar_version"])
-            )
-
-    @dataclass
-    class ProjectConfig:
-        libs_path: Path
-
-        @classmethod
-        def from_dict(cls, raw_dict: Dict[str, Any]) -> "ProtostarTOML.ProjectConfig":
-            return cls(libs_path=Path(raw_dict["libs_path"]))
-
-    @dataclass
-    class ContractsConfig:
-        contract_dict: Dict[str, List[Path]]
-
-        @classmethod
-        def from_dict(
-            cls, raw_dict: Optional[Dict[str, Any]]
-        ) -> "ProtostarTOML.ContractsConfig":
-            if not raw_dict:
-                return cls(contract_dict={})
-
-            contract_dict: Dict[str, List[Path]] = {}
-            for contract_name, str_paths in raw_dict.items():
-                contract_dict[contract_name] = [
-                    Path(str_path) for str_path in str_paths
-                ]
-            return cls(contract_dict=contract_dict)
-
     @dataclass
     class CLIConfig:
         def __init__(self, protostar_toml: "ProtostarTOML"):
@@ -90,7 +39,6 @@ class ProtostarTOML:
         self, version_manager: VersionManager, project_root: Optional[Path] = None
     ):
         self.project_root = project_root or Path()
-        self.shared_command_configs_section_name = "shared_command_configs"
         self._version_manager = version_manager
         self._cache: Optional[Dict[str, Any]] = None
 
@@ -99,22 +47,19 @@ class ProtostarTOML:
         config_section = self.get_section("config")
         if config_section is None:
             raise InvalidProtostarTOMLException("config")
-
-        return ProtostarTOML.ProtostarConfig.from_dict(config_section)
+        return ProtostarConfig.from_dict(config_section)
 
     @property
-    def project_config(self) -> ProjectConfig:
+    def protostar_project(self) -> ProtostarProject:
         project_section = self.get_section("project")
         if project_section is None:
             raise InvalidProtostarTOMLException("project")
-
-        return ProtostarTOML.ProjectConfig.from_dict(project_section)
+        return ProtostarProject.from_dict(project_section)
 
     @property
-    def contracts_config(self) -> ContractsConfig:
+    def contracts_config(self) -> ProtostarContracts:
         contracts_section = self.get_section("contracts")
-
-        return ProtostarTOML.ContractsConfig.from_dict(contracts_section)
+        return ProtostarContracts.from_dict(contracts_section)
 
     @property
     def path(self) -> Path:
