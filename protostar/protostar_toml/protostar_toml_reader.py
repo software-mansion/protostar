@@ -1,27 +1,15 @@
-from collections import OrderedDict
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 import flatdict
 import tomli
-import tomli_w
 
-from protostar.protostar_toml.protostar_toml_exceptions import (
-    InvalidProtostarTOMLException,
-    NoProtostarProjectFoundException,
-)
-from protostar.protostar_toml.sections import (
-    ProtostarConfig,
-    ProtostarContracts,
-    ProtostarProject,
-    ProtostarTOMLSection,
-)
+from protostar.protostar_toml.protostar_toml_exceptions import \
+    NoProtostarProjectFoundException
 from protostar.utils.protostar_directory import VersionManager
 
-ProtostarTOMLDict = Dict[str, Any]
 
-
-class ProtostarTOML:
+class ProtostarTOMLReader:
     def __init__(
         self,
         version_manager: VersionManager,
@@ -30,26 +18,6 @@ class ProtostarTOML:
         self.path = protostar_toml_path or Path() / "protostar.toml"
         self._version_manager = version_manager
         self._cache: Optional[Dict[str, Any]] = None
-
-    @property
-    def protostar_config(self) -> ProtostarConfig:
-        config_section = self.get_section(ProtostarConfig.get_name())
-        if config_section is None:
-            raise InvalidProtostarTOMLException(ProtostarConfig.get_name())
-        return ProtostarConfig.from_dict(config_section)
-
-    @property
-    def protostar_project(self) -> ProtostarProject:
-        project_section = self.get_section(ProtostarProject.get_name())
-        if project_section is None:
-            raise InvalidProtostarTOMLException(ProtostarProject.get_name())
-        return ProtostarProject.from_dict(project_section)
-
-    @property
-    def contracts_config(self) -> ProtostarContracts:
-        return ProtostarContracts.from_dict(
-            self.get_section(ProtostarContracts.get_name())
-        )
 
     def get_section(
         self, section_name: str, profile_name: Optional[str] = None
@@ -84,27 +52,7 @@ class ProtostarTOML:
 
         return section[attribute_name]
 
-    def save(
-        self,
-        protostar_config: ProtostarConfig,
-        protostar_project: ProtostarProject,
-        protostar_contracts: ProtostarContracts,
-    ) -> None:
-        result = OrderedDict()
-
-        sections: List[ProtostarTOMLSection] = [
-            protostar_config,
-            protostar_project,
-            protostar_contracts,
-        ]
-
-        for section in sections:
-            result[section.get_name()] = section.to_dict()
-
-        with open(self.path, "wb") as protostar_toml_file:
-            tomli_w.dump(result, protostar_toml_file)
-
-    def _read_if_cache_miss(self) -> ProtostarTOMLDict:
+    def _read_if_cache_miss(self) -> Dict[str, Any]:
         if self._cache:
             return self._cache
 
