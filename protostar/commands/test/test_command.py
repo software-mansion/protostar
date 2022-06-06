@@ -1,13 +1,15 @@
 from logging import getLogger
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Optional, Pattern
+from typing import TYPE_CHECKING, List, Optional
 
+from protostar.cli.activity_indicator import ActivityIndicator
 from protostar.cli.command import Command
 from protostar.commands.test.test_collector import TestCollector
 from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.test_scheduler import TestScheduler
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.commands.test.testing_summary import TestingSummary
+from protostar.utils.log_color_provider import log_color_provider
 from protostar.utils.protostar_directory import ProtostarDirectory
 from protostar.utils.starknet_compilation import StarknetCompiler
 
@@ -41,23 +43,26 @@ class TestCommand(Command):
             Command.Argument(
                 name="target",
                 description=(
-                    "A path can point to:\n"
-                    "- a directory with test files\n"
-                    "    - `tests`\n"
-                    "- a specific test file\n"
-                    "    - `tests/test_main.cairo`\n"
-                    "- a specific test case\n"
-                    "    - `tests/test_main.cairo::test_example`\n"
+                    "A glob or globs to a directory or a test suite, for example:\n"
+                    "- `tests/**/*_main*::*_balance` — "
+                    "find test cases, which names ends with `_balance` in test suites with the `_main` "
+                    "in filenames in the `tests` directory\n"
+                    "- `::test_increase_balance` — "
+                    "find `test_increase_balance` test_cases in any test suite within the project \n"
                 ),
-                type="path",
+                type="str",
+                is_array=True,
                 is_positional=True,
-                default="tests",
+                default=["tests"],
             ),
             Command.Argument(
-                name="omit",
-                short_name="o",
-                description="A filepath regexp that omits the test file if it matches the pattern.",
-                type="regexp",
+                name="ignore",
+                short_name="i",
+                description=(
+                    "A glob or globs to a directory or a test suite, which should be ignored.\n"
+                ),
+                is_array=True,
+                type="str",
             ),
             Command.Argument(
                 name="cairo-path",
@@ -69,8 +74,8 @@ class TestCommand(Command):
 
     async def run(self, args) -> TestingSummary:
         summary = await self.test(
-            target=args.target,
-            omit=args.omit,
+            targets=args.target,
+            ignored_targets=args.ignore,
             cairo_path=args.cairo_path,
         )
         summary.assert_all_passed()
@@ -78,28 +83,34 @@ class TestCommand(Command):
 
     async def test(
         self,
-        target: Path,
-        omit: Optional[Pattern] = None,
+        targets: List[str],
+        ignored_targets: Optional[List[str]] = None,
         cairo_path: Optional[List[Path]] = None,
     ) -> TestingSummary:
         logger = getLogger()
 
         include_paths = self._build_include_paths(cairo_path or [])
 
-        test_collector_result = TestCollector(
-            StarknetCompiler(disable_hint_validation=True, include_paths=include_paths)
-        ).collect(
-            target=target,
-            omit_pattern=omit,
-        )
+        with ActivityIndicator(log_color_provider.colorize("GRAY", "Collecting tests")):
+            test_collector_result = TestCollector(
+                StarknetCompiler(
+                    disable_hint_validation=True, include_paths=include_paths
+                )
+            ).collect(
+                targets=targets,
+                ignored_targets=ignored_targets,
+                default_test_suite_glob=str(self._project.project_root),
+            )
 
         test_collector_result.log(logger)
 
         testing_summary = TestingSummary([])
-        live_logger = TestingLiveLogger(logger, testing_summary)
-        TestScheduler(live_logger, worker=TestRunner.worker).run(
-            include_paths=include_paths, test_collector_result=test_collector_result
-        )
+
+        if test_collector_result.test_cases_count > 0:
+            live_logger = TestingLiveLogger(logger, testing_summary)
+            TestScheduler(live_logger, worker=TestRunner.worker).run(
+                include_paths=include_paths, test_collector_result=test_collector_result
+            )
 
         return testing_summary
 
