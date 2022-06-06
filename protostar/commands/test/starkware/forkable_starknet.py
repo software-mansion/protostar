@@ -1,5 +1,6 @@
+from collections import defaultdict
 import copy
-from typing import Dict, Optional, cast
+from typing import Dict, List, Optional, cast
 
 from starkware.cairo.lang.vm.crypto import pedersen_hash_func
 from starkware.starknet.business_logic.state.state import CarriedState
@@ -10,11 +11,14 @@ from starkware.starknet.testing.state import StarknetState
 from starkware.storage.dict_storage import DictStorage
 from starkware.storage.storage import FactFetchingContext
 
+from protostar.commands.test.starkware.cheatable_syscall_handler import AddressType, SelectorType
+
 
 class CheatableCarriedState(CarriedState):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.pranked_contracts_map: Dict[int, int] = {}
+        self.mocked_calls_map: Dict[AddressType, Dict[SelectorType, List[int]]] = defaultdict(dict)
 
 
 class CheatableStarknetState(StarknetState):

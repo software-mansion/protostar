@@ -93,24 +93,25 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
 
         return self.caller_address
 
-    # mock_call
-    mocked_calls: Dict[AddressType, Dict[SelectorType, List[int]]] = defaultdict(dict)
-
     def register_mock_call(
-        self, contract_address: AddressType, selector: int, ret_data: List[int]
+        self, contract_address: AddressType, selector: SelectorType, ret_data: List[int]
     ):
-        self.mocked_calls[contract_address][selector] = ret_data
+        if selector in self.cheatable_state.mocked_calls_map[contract_address]:
+            raise CheatableSysCallHandlerException(
+                f"{selector} in contract with address {contract_address} has been already mocked"
+            )
+        self.cheatable_state.mocked_calls_map[contract_address][selector] = ret_data
 
-    def unregister_mock_call(self, contract_address: AddressType, selector: int):
-        if contract_address not in self.mocked_calls:
+    def unregister_mock_call(self, contract_address: AddressType, selector: SelectorType):
+        if contract_address not in self.cheatable_state.mocked_calls_map:
             raise CheatableSysCallHandlerException(
                 f"Contract {contract_address} doesn't have mocked selectors."
             )
-        if selector not in self.mocked_calls[contract_address]:
+        if selector not in self.cheatable_state.mocked_calls_map[contract_address]:
             raise CheatableSysCallHandlerException(
                 f"Couldn't find mocked selector {selector} for an address {contract_address}."
             )
-        del self.mocked_calls[contract_address][selector]
+        del self.cheatable_state.mocked_calls_map[contract_address][selector]
 
     def _call_contract(
         self,
@@ -123,9 +124,9 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
         )
         code_address = cast(int, request.contract_address)
 
-        if code_address in self.mocked_calls:
-            if request.function_selector in self.mocked_calls[code_address]:
-                return self.mocked_calls[code_address][request.function_selector]
+        if code_address in self.cheatable_state.mocked_calls_map:
+            if request.function_selector in self.cheatable_state.mocked_calls_map[code_address]:
+                return self.cheatable_state.mocked_calls_map[code_address][request.function_selector]
 
         return self._call_contract_without_retrieving_request(
             segments, syscall_name, request

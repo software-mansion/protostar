@@ -228,9 +228,12 @@ class TestExecutionEnvironment:
         @register_cheatcode
         def mock_call(contract_address: int, fn_name: str, ret_data: List[int]):
             selector = get_selector_from_name(fn_name)
-            cheatable_syscall_handler.register_mock_call(
-                contract_address, selector=selector, ret_data=ret_data
-            )
+            try:
+                cheatable_syscall_handler.register_mock_call(
+                    contract_address, selector=selector, ret_data=ret_data
+                )
+            except CheatableSysCallHandlerException as err:
+                raise CheatcodeException("mock_call", err.message) from err
 
         @register_cheatcode
         def clear_mock_call(contract_address: int, fn_name: str):
