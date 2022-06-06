@@ -66,6 +66,7 @@ class TestExecutionEnvironment:
         include_paths: Optional[List[str]] = None,
     ):
         starknet = await ForkableStarknet.empty()
+
         return cls(
             include_paths or [],
             forkable_starknet=starknet,
@@ -260,7 +261,10 @@ class TestExecutionEnvironment:
 
                 if len(missing) > 0:
                     raise ExpectedEventMissingException(
-                        matches=matches, missing=missing
+                        matches=matches,
+                        missing=missing,
+                        # pylint: disable=line-too-long
+                        event_selector_to_name_map=self.starknet.cheatable_state.cheatable_carried_state.event_selector_to_name_map,
                     )
 
             self.add_test_finish_hook(compare_expected_and_emitted_events)
