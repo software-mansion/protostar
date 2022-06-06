@@ -1,5 +1,4 @@
-from collections import defaultdict
-from typing import Dict, List, Optional, cast
+from typing import List, Optional, cast
 
 from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
@@ -102,7 +101,9 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
             )
         self.cheatable_state.mocked_calls_map[contract_address][selector] = ret_data
 
-    def unregister_mock_call(self, contract_address: AddressType, selector: SelectorType):
+    def unregister_mock_call(
+        self, contract_address: AddressType, selector: SelectorType
+    ):
         if contract_address not in self.cheatable_state.mocked_calls_map:
             raise CheatableSysCallHandlerException(
                 f"Contract {contract_address} doesn't have mocked selectors."
@@ -125,8 +126,13 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
         code_address = cast(int, request.contract_address)
 
         if code_address in self.cheatable_state.mocked_calls_map:
-            if request.function_selector in self.cheatable_state.mocked_calls_map[code_address]:
-                return self.cheatable_state.mocked_calls_map[code_address][request.function_selector]
+            if (
+                request.function_selector
+                in self.cheatable_state.mocked_calls_map[code_address]
+            ):
+                return self.cheatable_state.mocked_calls_map[code_address][
+                    request.function_selector
+                ]
 
         return self._call_contract_without_retrieving_request(
             segments, syscall_name, request

@@ -242,7 +242,7 @@ class TestExecutionEnvironment:
                     )
                 except CheatableSysCallHandlerException as err:
                     raise CheatcodeException("stop_prank", err.message) from err
-            
+
             return clear_mock_call
 
         @register_cheatcode

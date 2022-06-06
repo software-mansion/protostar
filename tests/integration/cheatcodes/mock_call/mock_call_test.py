@@ -24,7 +24,5 @@ async def test_prank_cheatcode(mocker):
             "test_mock_call_wrong_target",
             "test_mock_call_wrong_selector_target",
         ],
-        expected_failed_test_cases_names=[
-            "test_mock_call_twice"
-        ],
+        expected_failed_test_cases_names=["test_mock_call_twice"],
     )
