@@ -31,7 +31,7 @@ class Command(ABC):
         is_positional: bool = False
         is_required: bool = False
         is_array: bool = False
-        default: Optional[str] = None
+        default: Any = None
         example: Optional[str] = None
         short_name: Optional[str] = None
 
