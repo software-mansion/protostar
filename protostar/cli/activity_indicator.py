@@ -5,6 +5,8 @@ from time import sleep
 
 
 class ActivityIndicator:
+    """NOTE: Don't put anything to stdout while this indicator is active."""
+
     def __init__(self, message: str):
         self.message = message
 
