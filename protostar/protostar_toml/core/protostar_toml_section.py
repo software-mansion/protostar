@@ -7,7 +7,7 @@ class ProtostarTOMLSection(ABC):
 
     @staticmethod
     @abstractmethod
-    def get_name() -> str:
+    def get_section_name() -> str:
         ...
 
     @abstractmethod

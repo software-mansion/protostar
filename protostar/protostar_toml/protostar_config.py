@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from typing import Any, Dict
 
-from protostar.protostar_toml._protostar_toml_section import ProtostarTOMLSection
-from protostar.protostar_toml.protostar_toml_reader import ProtostarTOMLReader
-from protostar.protostar_toml.protostar_toml_exceptions import (
+from protostar.protostar_toml.core import (
     InvalidProtostarTOMLException,
+    ProtostarTOMLReader,
+    ProtostarTOMLSection,
 )
 from protostar.utils.protostar_directory import VersionManager, VersionType
 
@@ -14,16 +14,16 @@ class ProtostarConfig(ProtostarTOMLSection):
     protostar_version: VersionType
 
     @staticmethod
-    def get_name() -> str:
+    def get_section_name() -> str:
         return "config"
 
     @classmethod
     def from_protostar_toml(
         cls, protostar_toml: ProtostarTOMLReader
     ) -> "ProtostarConfig":
-        section_dict = protostar_toml.get_section(cls.get_name())
+        section_dict = protostar_toml.get_section(cls.get_section_name())
         if section_dict is None:
-            raise InvalidProtostarTOMLException(cls.get_name())
+            raise InvalidProtostarTOMLException(cls.get_section_name())
         return cls.from_dict(section_dict)
 
     @classmethod
