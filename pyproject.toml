@@ -5,7 +5,7 @@ license = "MIT"
 name = "protostar"
 readme = "README.md"
 repository = "https://github.com/software-mansion/protostar"
-version = "0.2.1"
+version = "0.2.2"
 
 [tool.poetry.dependencies]
 GitPython = "^3.1.26"
