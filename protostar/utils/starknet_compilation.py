@@ -70,6 +70,7 @@ class StarknetCompiler:
             add_debug_info=add_debug_info,
             file_contents_for_debug_info={},
             filter_identifiers=False,
+            is_account_contract=False,
         )
         assert isinstance(assembled, ContractClass)
         return assembled
