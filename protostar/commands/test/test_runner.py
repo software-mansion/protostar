@@ -16,6 +16,7 @@ from protostar.commands.test.test_environment_exceptions import ReportedExceptio
 from protostar.commands.test.test_execution_environment import TestExecutionEnvironment
 from protostar.commands.test.test_results_queue import TestResultsQueue
 from protostar.commands.test.test_suite import TestSuite
+from protostar.protostar_exception import ProtostarException
 from protostar.utils.starknet_compilation import StarknetCompiler
 
 logger = getLogger()
@@ -101,11 +102,20 @@ class TestRunner:
             if test_suite.setup_fn_name:
                 await env_base.invoke_setup_hook(test_suite.setup_fn_name)
 
-        except StarkException as err:
+        except StarkException as ex:
+            if self.is_constructor_args_exception(ex):
+                ex = ProtostarException(
+                    (
+                        "Protostar doesn't support the unit testing approach for"
+                        "files with a constructor expecting arguments."
+                        "Restructure your code or use `deploy_contract` cheatcode."
+                    )
+                )
+
             self.queue.put(
                 BrokenTestSuite(
                     file_path=test_suite.test_path,
-                    exception=err,
+                    exception=ex,
                     test_case_names=test_suite.test_case_names,
                 )
             )
@@ -122,11 +132,17 @@ class TestRunner:
                         tx_info=call_result,
                     )
                 )
-            except ReportedException as err:
+            except ReportedException as ex:
                 self.queue.put(
                     FailedTestCase(
                         file_path=test_suite.test_path,
                         test_case_name=test_case_name,
-                        exception=err,
+                        exception=ex,
                     )
                 )
+
+    @staticmethod
+    def is_constructor_args_exception(ex: StarkException) -> bool:
+        if not ex.message:
+            return False
+        return "constructor" in ex.message and "__calldata_actual_size" in ex.message
