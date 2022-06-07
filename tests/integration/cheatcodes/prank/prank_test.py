@@ -24,5 +24,7 @@ async def test_prank_cheatcode(mocker):
             "test_missing_local_prank",
             "test_prank_wrong_target",
         ],
-        expected_failed_test_cases_names=[],
+        expected_failed_test_cases_names=[
+            "test_fails_but_cannot_freeze_when_cheatcode_exception_is_raised"
+        ],
     )
