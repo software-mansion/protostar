@@ -71,6 +71,14 @@ def test_loading_argument_from_profile_section(version_manager: VersionManager):
     assert proj.load_argument("shared_command_configs", "no_color", profile_name="ci")
 
 
+def test_loading_argument_kebab_case(version_manager: VersionManager):
+    proj = Project(
+        version_manager,
+        project_root=Path(current_directory, "examples", "kebab_case"),
+    )
+    assert proj.load_argument("shared_command_configs", "no_color", profile_name="ci")
+
+
 def test_loading_argument_from_not_defined_section(version_manager: VersionManager):
     proj = Project(
         version_manager,
