@@ -12,6 +12,7 @@ GitPython = "^3.1.26"
 argparse = "^1.4.0"
 cairo-lang = "0.8.2.1"
 colorama = "^0.4.4"
+crypto-cpp-py = "^1.0.4"
 flatdict = "^4.0.1"
 packaging = "^21.3"
 pytest-datadir = "^1.3.1"
@@ -21,7 +22,6 @@ tomli = "<2.0.0"
 tomli-w = "^1.0.0"
 tqdm = "^4.64.0"
 typing-extensions = "^4.0.1"
-crypto-cpp-py = "^1.0.4"
 
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
@@ -42,18 +42,18 @@ starknet-devnet = "^0.2.1"
 [tool.poe.tasks]
 build = "pyinstaller protostar.spec --noconfirm"
 ci = ["type_check", "lint", "format_check", "test"]
-local_static_check = ["format", "lint", "type_check"]
 cov = "pytest --cov-report xml:cov.xml --cov=protostar"
 deploy = "python ./scripts/deploy.py"
 format = "black ."
 format_check = "black --check protostar"
 lint = "pylint protostar"
+local_static_check = ["format", "lint", "type_check"]
 profile = "python -m cProfile -o recent_profiling.prof protostar.py"
 show_prof = "snakeviz recent_profiling.prof"
 test = ["test_unit", "test_integration", "build", "test_e2e"]
 test_e2e.shell = "pytest tests/e2e"
 test_html = [{shell = "coverage html && open ./htmlcov/index.html"}]
-test_integration.shell = "pytest tests/integration"
+test_integration.shell = "coverage run -a -m pytest tests/integration"
 test_report = [{shell = "coverage report"}]
 test_unit.shell = "coverage run -m pytest protostar/*"
 type_check = "pyright"
