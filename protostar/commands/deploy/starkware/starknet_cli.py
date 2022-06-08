@@ -9,6 +9,7 @@ from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
 from starkware.starknet.services.api.gateway.transaction import Deploy
 from starkware.starknet.utils.api_utils import cast_to_felts
+from starkware.starkware_utils.error_handling import StarkErrorCode
 
 from protostar.commands.deploy.gateway_response import SuccessfulGatewayResponse
 from protostar.protostar_exception import ProtostarException
@@ -70,7 +71,12 @@ async def deploy(
         url=gateway_url, retry_config=RetryConfig(n_retries=1)
     )
     gateway_response = await gateway_client.add_transaction(tx=tx, token=token)
-    assert_tx_received(gateway_response=gateway_response)
+
+    if gateway_response["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
+        raise DeployContractException(
+            message=f"Failed to send transaction. Response: {gateway_response}."
+        )
+
     contract_address = int(gateway_response["address"], 16)
 
     return SuccessfulGatewayResponse(
