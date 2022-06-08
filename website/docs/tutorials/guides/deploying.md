@@ -29,7 +29,7 @@ Configuration profiles allow you to easily reuse configuration for devnet, testn
 
 # https://github.com/Shard-Labs/starknet-devnet
 [profile.devnet.protostar.deploy]
-gateway_url="http://127.0.0.1:5050/"
+gateway-url="http://127.0.0.1:5050/"
 
 [profile.testnet.protostar.deploy]
 network="alpha-goerli"
