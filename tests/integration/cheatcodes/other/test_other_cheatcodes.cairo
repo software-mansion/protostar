@@ -104,14 +104,6 @@ func test_clearing_mocks{syscall_ptr : felt*, range_check_ptr}():
     return ()
 end
 
-@view
-func test_cannot_freeze_when_cheatcode_exception_is_raised{syscall_ptr : felt*, range_check_ptr}():
-    tempvar external_contract_address = EXTERNAL_CONTRACT_ADDRESS
-    %{ clear_mock_call(ids.external_contract_address, "get_felt") %}
-
-    return ()
-end
-
 # deploy_contract
 @contract_interface
 namespace BasicContract:
