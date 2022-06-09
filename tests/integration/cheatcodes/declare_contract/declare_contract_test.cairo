@@ -45,7 +45,7 @@ func test_deploy_declared_contract_in_proxy{syscall_ptr : felt*, range_check_ptr
     local proxy_address : felt
     local class_hash : felt
     %{
-        ids.proxy_address = deploy_contract("./tests/integration/cheatcodes/declare_contract/basic_contract.cairo").contract_address
+        ids.proxy_address = deploy_contract("./tests/integration/cheatcodes/declare_contract/proxy_contract.cairo").contract_address
         ids.class_hash = declare_contract("./tests/integration/cheatcodes/declare_contract/basic_contract.cairo").class_hash
     %}
 

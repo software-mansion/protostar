@@ -19,6 +19,7 @@ end
 @external
 func deploy_contract_from_proxy{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
         class_hash_d : felt) -> (address : felt):
+    alloc_locals
     let (local calldata: felt*) = alloc()
     let (contract_address) = deploy(class_hash_d, 42, 0, calldata)
     return (contract_address)
