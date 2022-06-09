@@ -16,7 +16,7 @@ end
 func assert_mocked{syscall_ptr : felt*, range_check_ptr}(mocked_target: felt):
     let (result) = Mocked.get_number(mocked_target)
     with_attr error_message("Not mocked"):
-        assert result = 555
+        assert result = 42
     end
     return ()
 end
