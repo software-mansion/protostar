@@ -36,6 +36,11 @@ class TestRunner:
         if include_paths:
             self.include_paths.extend(include_paths)
 
+        self.starknet_compiler = StarknetCompiler(
+            include_paths=self.include_paths,
+            disable_hint_validation=True,
+        )
+
     @dataclass
     class WorkerArgs:
         test_suite: TestSuite
@@ -56,10 +61,7 @@ class TestRunner:
                 self.include_paths is not None
             ), "Uninitialized paths list in test runner"
 
-            compiled_test = StarknetCompiler(
-                include_paths=self.include_paths,
-                disable_hint_validation=True,
-            ).compile_preprocessed_contract(
+            compiled_test = self.starknet_compiler.compile_preprocessed_contract(
                 test_suite.preprocessed_contract, add_debug_info=True
             )
 
@@ -95,7 +97,7 @@ class TestRunner:
 
         try:
             env_base = await TestExecutionEnvironment.from_test_suite_definition(
-                test_contract, self.include_paths
+                self.starknet_compiler, test_contract, self.include_paths
             )
 
             if test_suite.setup_fn_name:
