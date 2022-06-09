@@ -6,9 +6,9 @@ from typing import Any, Callable, Dict, List, Optional, Set
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.services.api.contract_class import ContractClass
-# from starkware.starknet.testing.contract import DeclaredClass
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starkware_utils.error_handling import StarkException
+from starkware.starknet.testing.contract import DeclaredClass
 
 from protostar.commands.test.cheatcodes import (
     Cheatcode,
@@ -22,7 +22,7 @@ from protostar.commands.test.starkware.cheatable_syscall_handler import (
 )
 from protostar.commands.test.starkware.forkable_starknet import ForkableStarknet
 from protostar.commands.test.test_context import TestContext
-from starkware.starknet.testing.contract import DeclaredClass
+
 
 from protostar.commands.test.test_environment_exceptions import (
     CheatcodeException,
@@ -45,6 +45,7 @@ class DeployedContract:
     @property
     def contract_address(self):
         return self._starknet_contract.contract_address
+
 
 class ProtostarDeclaredClass:
     def __init__(self, declared_class: DeclaredClass):
@@ -108,10 +109,8 @@ class TestExecutionEnvironment:
             )
         )
         return contract
-    
-    def declare_in_env(
-        self, contract_path: str
-    ):
+
+    def declare_in_env(self, contract_path: str):
         contract = ProtostarDeclaredClass(
             asyncio.run(
                 self.starknet.declare(
@@ -314,11 +313,9 @@ class TestExecutionEnvironment:
             contract_path: str, constructor_calldata: Optional[List[int]] = None
         ):
             return self.deploy_in_env(contract_path, constructor_calldata)
-        
+
         @register_cheatcode
-        def declare_contract(
-            contract_path: str
-        ):
+        def declare_contract(contract_path: str):
             return self.declare_in_env(contract_path)
 
         cheatcodes: List[Cheatcode] = [
