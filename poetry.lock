@@ -48,6 +48,20 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "asgiref"
+version = "3.5.2"
+description = "ASGI specs, helper code, and adapters"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+typing-extensions = {version = "*", markers = "python_version < \"3.8\""}
+
+[package.extras]
+tests = ["pytest", "pytest-asyncio", "mypy (>=0.800)"]
+
+[[package]]
 name = "astroid"
 version = "2.9.3"
 description = "An abstract syntax tree for Python with inference support."
@@ -1188,6 +1202,23 @@ python-versions = "*"
 tornado = ">=2.0"
 
 [[package]]
+name = "starknet.py"
+version = "0.3.0a0"
+description = "A python SDK for StarkNet"
+category = "main"
+optional = false
+python-versions = ">=3.7.2,<3.10"
+
+[package.dependencies]
+asgiref = ">=3.4.1,<4.0.0"
+cairo-lang = "0.9.0"
+crypto-cpp-py = ">=1.0.4,<2.0.0"
+web3 = ">=5.28.0,<6"
+
+[package.extras]
+docs = ["enum-tools[sphinx] (==0.9.0)", "sphinx (>=4.3.1,<5.0.0)"]
+
+[[package]]
 name = "sympy"
 version = "1.10.1"
 description = "Computer algebra system (CAS) in Python"
@@ -1391,7 +1422,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.12, <3.10"
-content-hash = "fba0f1aa77dcb8fc5f6627cdf3a00dc59fd84d4b3cd12ce76064bf54f2fe33ef"
+content-hash = "71afd8b9d0293959dcffa340132d9f5508fb6f8c668b12ccdd856a27bd5ac047"
 
 [metadata.files]
 aiohttp = [
@@ -1479,6 +1510,10 @@ altgraph = [
 argparse = [
     {file = "argparse-1.4.0-py2.py3-none-any.whl", hash = "sha256:c31647edb69fd3d465a847ea3157d37bed1f95f19760b11a47aa91c04b666314"},
     {file = "argparse-1.4.0.tar.gz", hash = "sha256:62b089a55be1d8949cd2bc7e0df0bddb9e028faefc8c32038cc84862aefdd6e4"},
+]
+asgiref = [
+    {file = "asgiref-3.5.2-py3-none-any.whl", hash = "sha256:1d2880b792ae8757289136f1db2b7b99100ce959b2aa57fd69dab783d05afac4"},
+    {file = "asgiref-3.5.2.tar.gz", hash = "sha256:4a29362a6acebe09bf1d6640db38c1dc3d9217c68e6f9f6204d72667fc19a424"},
 ]
 astroid = [
     {file = "astroid-2.9.3-py3-none-any.whl", hash = "sha256:506daabe5edffb7e696ad82483ad0228245a9742ed7d2d8c9cdb31537decf9f6"},
@@ -2237,6 +2272,9 @@ smmap = [
 snakeviz = [
     {file = "snakeviz-2.1.1-py2.py3-none-any.whl", hash = "sha256:931142dc927101c9a4b6e89bc0577ff1a3d1886b483a04e6af70c31d2c3dce19"},
     {file = "snakeviz-2.1.1.tar.gz", hash = "sha256:0d96c006304f095cb4b3fb7ed98bb866ca35a7ca4ab9020bbc27d295ee4c94d9"},
+]
+"starknet.py" = [
+    {file = "starknet.py-0.3.0a0.tar.gz", hash = "sha256:2016bcb9b4e959f14b9302b603135a364a7b88450e408ffab6ee26c275bf2938"},
 ]
 sympy = [
     {file = "sympy-1.10.1-py3-none-any.whl", hash = "sha256:df75d738930f6fe9ebe7034e59d56698f29e85f443f743e51e47df0caccc2130"},
