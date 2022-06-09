@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict, List, Optional, Set
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.public.abi import get_selector_from_name
-from starkware.starknet.services.api.contract_definition import ContractDefinition
+from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starkware_utils.error_handling import StarkException
 
@@ -62,7 +62,7 @@ class TestExecutionEnvironment:
     @classmethod
     async def from_test_suite_definition(
         cls,
-        test_suite_definition: ContractDefinition,
+        test_suite_definition: ContractClass,
         include_paths: Optional[List[str]] = None,
     ):
         starknet = await ForkableStarknet.empty()
@@ -70,7 +70,7 @@ class TestExecutionEnvironment:
         return cls(
             include_paths or [],
             forkable_starknet=starknet,
-            test_contract=await starknet.deploy(contract_def=test_suite_definition),
+            test_contract=await starknet.deploy(contract_class=test_suite_definition),
             test_context=TestContext(),
         )
 
