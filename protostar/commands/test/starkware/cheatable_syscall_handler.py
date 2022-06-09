@@ -11,10 +11,7 @@ from starkware.starknet.business_logic.execution.objects import CallType
 from starkware.python.utils import to_bytes
 
 from protostar.commands.test.starkware.forkable_starknet import CheatableCarriedState
-
-AddressType = int
-SelectorType = int
-
+from protostar.commands.test.starkware.types import AddressType, SelectorType
 
 class CheatableSysCallHandlerException(BaseException):
     def __init__(self, message: str):

@@ -12,7 +12,7 @@ from starkware.starknet.testing.state import CastableToAddressSalt, StarknetStat
 from starkware.storage.dict_storage import DictStorage
 from starkware.storage.storage import FactFetchingContext
 
-from protostar.commands.test.starkware.cheatable_syscall_handler import AddressType, SelectorType
+from protostar.commands.test.starkware.types import AddressType, SelectorType
 
 class CheatableCarriedState(CarriedState):
     def __init__(self, *args, **kwargs):
