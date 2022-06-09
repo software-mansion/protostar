@@ -28,7 +28,7 @@ func test_remote_mock{syscall_ptr : felt*, range_check_ptr}():
     %{
         ids.to_mock_address = deploy_contract("./tests/integration/cheatcodes/mock_call/mocked.cairo").contract_address
         ids.proxy_address = deploy_contract("./tests/integration/cheatcodes/mock_call/proxy.cairo").contract_address
-        stop_mock = mock_call(ids.to_mock_address, "get_number", [555])
+        stop_mock = mock_call(ids.to_mock_address, "get_number", [42])
     %}
     Proxy.assert_mocked(proxy_address, to_mock_address)
 
@@ -48,10 +48,10 @@ func test_local_mock{syscall_ptr : felt*, range_check_ptr}():
     local to_mock_address : felt    
     %{
         ids.to_mock_address = deploy_contract("./tests/integration/cheatcodes/mock_call/mocked.cairo").contract_address
-        stop_mock = mock_call(ids.to_mock_address, "get_number", [555])
+        stop_mock = mock_call(ids.to_mock_address, "get_number", [42])
     %}
     let (res1) = Mocked.get_number(to_mock_address)
-    assert res1 = 555
+    assert res1 = 42
     %{
         stop_mock()
     %}
@@ -97,7 +97,7 @@ func test_syscall_counter_updated{syscall_ptr : felt*, range_check_ptr}():
     local to_mock_address : felt
     %{
         ids.to_mock_address = deploy_contract("./tests/integration/cheatcodes/mock_call/mocked.cairo").contract_address
-        stop_mock = mock_call(ids.to_mock_address, "get_number", [555])
+        stop_mock = mock_call(ids.to_mock_address, "get_number", [42])
     %}
     let (res1) = Mocked.get_number(to_mock_address)
     %{
@@ -109,7 +109,7 @@ end
 
 @external
 func test_mock_call_wrong_target{syscall_ptr : felt*, range_check_ptr}():
-    %{ stop_mock = mock_call(111, "get_number", [555]) %}
+    %{ stop_mock = mock_call(111, "get_number", [42]) %}
     return ()
 end
 
@@ -119,7 +119,7 @@ func test_mock_call_wrong_selector_target{syscall_ptr : felt*, range_check_ptr}(
     local to_mock_address : felt
     %{
         ids.to_mock_address = deploy_contract("./tests/integration/cheatcodes/mock_call/mocked.cairo").contract_address
-        stop_mock = mock_call(111, "get_number_t", [555])
+        stop_mock = mock_call(111, "get_number_t", [42])
     %}
     return ()
 end
@@ -130,7 +130,7 @@ func test_mock_call_twice{syscall_ptr : felt*, range_check_ptr}():
     local to_mock_address : felt
     %{
         ids.to_mock_address = deploy_contract("./tests/integration/cheatcodes/mock_call/mocked.cairo").contract_address
-        stop_mock = mock_call(ids.to_mock_address, "get_number", [555])
+        stop_mock = mock_call(ids.to_mock_address, "get_number", [42])
         stop_mock_2 = mock_call(ids.to_mock_address, "get_number", [666])
     %}
 
