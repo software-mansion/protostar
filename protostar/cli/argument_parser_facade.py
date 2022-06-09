@@ -127,7 +127,10 @@ class ArgumentParserFacade:
             kwargs["nargs"] = "?"
 
         if argument.is_array:
-            kwargs["nargs"] = "+"
+            if argument.is_required:
+                kwargs["nargs"] = "+"
+            else:
+                kwargs["nargs"] = "*"
 
         argument_parser.add_argument(
             *names,

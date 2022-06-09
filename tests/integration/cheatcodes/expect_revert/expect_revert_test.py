@@ -11,7 +11,7 @@ async def test_expect_revert(mocker):
     testing_summary = await TestCommand(
         project=mocker.MagicMock(),
         protostar_directory=mocker.MagicMock(),
-    ).test(target=Path(__file__).parent / "expect_revert_test.cairo")
+    ).test(targets=[f"{Path(__file__).parent}/expect_revert_test.cairo"])
 
     assert_cairo_test_cases(
         testing_summary,

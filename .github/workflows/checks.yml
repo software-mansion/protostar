@@ -1,4 +1,4 @@
-name: types -> format -> lint -> test
+name: Static analysis and tests
 
 on:
   push:
@@ -36,6 +36,9 @@ jobs:
       - name: Unit tests
         run: |
           poetry run poe test_unit
+      - name: Integration tests
+        run: |
+          poetry run poe test_integration
       - name: Build
         run: |
           poetry run poe build

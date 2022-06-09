@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict, List, Optional, Set
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.public.abi import get_selector_from_name
-from starkware.starknet.services.api.contract_definition import ContractDefinition
+from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starkware_utils.error_handling import StarkException
 
@@ -62,14 +62,15 @@ class TestExecutionEnvironment:
     @classmethod
     async def from_test_suite_definition(
         cls,
-        test_suite_definition: ContractDefinition,
+        test_suite_definition: ContractClass,
         include_paths: Optional[List[str]] = None,
     ):
         starknet = await ForkableStarknet.empty()
+
         return cls(
             include_paths or [],
             forkable_starknet=starknet,
-            test_contract=await starknet.deploy(contract_def=test_suite_definition),
+            test_contract=await starknet.deploy(contract_class=test_suite_definition),
             test_context=TestContext(),
         )
 
@@ -276,7 +277,10 @@ class TestExecutionEnvironment:
 
                 if len(missing) > 0:
                     raise ExpectedEventMissingException(
-                        matches=matches, missing=missing
+                        matches=matches,
+                        missing=missing,
+                        # pylint: disable=line-too-long
+                        event_selector_to_name_map=self.starknet.cheatable_state.cheatable_carried_state.event_selector_to_name_map,
                     )
 
             self.add_test_finish_hook(compare_expected_and_emitted_events)

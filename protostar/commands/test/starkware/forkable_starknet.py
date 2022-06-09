@@ -5,9 +5,10 @@ from typing import Dict, List, Optional, cast
 from starkware.cairo.lang.vm.crypto import pedersen_hash_func
 from starkware.starknet.business_logic.state.state import CarriedState
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
+from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starknet.testing.starknet import Starknet
-from starkware.starknet.testing.state import StarknetState
+from starkware.starknet.testing.state import CastableToAddressSalt, StarknetState
 from starkware.storage.dict_storage import DictStorage
 from starkware.storage.storage import FactFetchingContext
 
@@ -18,6 +19,13 @@ class CheatableCarriedState(CarriedState):
         super().__init__(*args, **kwargs)
         self.pranked_contracts_map: Dict[int, int] = {}
         self.mocked_calls_map: Dict[AddressType, Dict[SelectorType, List[int]]] = defaultdict(dict)
+        self.event_selector_to_name_map: Dict[int, str] = {}
+
+    def update_event_selector_to_name_map(
+        self, local_event_selector_to_name_map: Dict[int, str]
+    ):
+        for selector, name in local_event_selector_to_name_map.items():
+            self.event_selector_to_name_map[selector] = name
 
 
 class CheatableStarknetState(StarknetState):
@@ -25,6 +33,12 @@ class CheatableStarknetState(StarknetState):
     Modified version of StarknetState from testing framework.
     It uses extended version of CarriedState - CheatableCarriedState.
     """
+
+    def __init__(
+        self, state: CheatableCarriedState, general_config: StarknetGeneralConfig
+    ):
+        self.cheatable_carried_state = state
+        super().__init__(state, general_config)
 
     @classmethod
     async def empty(
@@ -38,8 +52,11 @@ class CheatableStarknetState(StarknetState):
 
         ffc = FactFetchingContext(storage=DictStorage(), hash_func=pedersen_hash_func)
 
-        state = await CheatableCarriedState.empty_for_testing(
-            shared_state=None, ffc=ffc, general_config=general_config
+        state = cast(
+            CheatableCarriedState,
+            await CheatableCarriedState.empty_for_testing(
+                shared_state=None, ffc=ffc, general_config=general_config
+            ),
         )
         return cls(state=state, general_config=general_config)
 
@@ -77,3 +94,27 @@ class ForkableStarknet(Starknet):
 
     def fork(self):
         return ForkableStarknet(state=self.cheatable_state.copy())
+
+    # pylint: disable=too-many-arguments
+    async def deploy(
+        self,
+        source: Optional[str] = None,
+        contract_class: Optional[ContractClass] = None,
+        contract_address_salt: Optional[CastableToAddressSalt] = None,
+        cairo_path: Optional[List[str]] = None,
+        constructor_calldata: Optional[List[int]] = None,
+    ) -> StarknetContract:
+        starknet_contract = await super().deploy(
+            source=source,
+            contract_class=contract_class,
+            contract_address_salt=contract_address_salt,
+            cairo_path=cairo_path,
+            constructor_calldata=constructor_calldata,
+        )
+
+        self.cheatable_state.cheatable_carried_state.update_event_selector_to_name_map(
+            # pylint: disable=protected-access
+            starknet_contract.event_manager._selector_to_name
+        )
+
+        return starknet_contract

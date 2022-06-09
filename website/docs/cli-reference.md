@@ -99,19 +99,16 @@ Required.
 $ protostar test
 ```
 Execute tests.
-#### `target PATH=tests`
-A path can point to:
-- a directory with test files
-    - `tests`
-- a specific test file
-    - `tests/test_main.cairo`
-- a specific test case
-    - `tests/test_main.cairo::test_example`
+#### `target STRING[]=['tests']`
+A glob or globs to a directory or a test suite, for example:
+- `tests/**/*_main*::*_balance` — find test cases, which names ends with `_balance` in test suites with the `_main` in filenames in the `tests` directory
+- `::test_increase_balance` — find `test_increase_balance` test_cases in any test suite within the project 
 
 #### `--cairo-path DIRECTORY[]`
 Additional directories to look for sources.
-#### `-o` `--omit REGEXP`
-A filepath regexp that omits the test file if it matches the pattern.
+#### `-i` `--ignore STRING[]`
+A glob or globs to a directory or a test suite, which should be ignored.
+
 ### `update`
 ```shell
 $ protostar update cairo-contracts
