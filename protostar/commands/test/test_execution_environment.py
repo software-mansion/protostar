@@ -285,7 +285,7 @@ class TestExecutionEnvironment:
         @register_cheatcode
         def deploy_contract(
             contract_path: str,
-            constructor_calldata: Union[Optional[List[int]], Dict] = None,
+            constructor_calldata: Optional[Union[List[int], Dict]] = None,
         ):
             if isinstance(constructor_calldata, Mapping):
                 fn_name = "constructor"

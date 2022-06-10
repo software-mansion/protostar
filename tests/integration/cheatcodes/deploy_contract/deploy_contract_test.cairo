@@ -67,6 +67,28 @@ func test_missing_logic_contract{syscall_ptr : felt*, range_check_ptr}():
 end
 
 @external
+func test_passing_constructor_data_as_list{syscall_ptr : felt*, range_check_ptr}():
+    alloc_locals
+    local deployed_contract_address : felt
+    let (contract_address) = get_contract_address()
+
+    %{
+        ids.deployed_contract_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor.cairo",
+            [42, 0, ids.contract_address]
+        ).contract_address
+    %}
+
+    let (balance) = BasicWithConstructor.get_balance(deployed_contract_address)
+    let (id) = BasicWithConstructor.get_id(deployed_contract_address)
+
+    assert balance.low = 42
+    assert balance.high = 0
+    assert id = contract_address
+
+    return ()
+end
+
+@external
 func test_data_transformation{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
     local deployed_contract_address : felt
