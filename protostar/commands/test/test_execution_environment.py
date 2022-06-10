@@ -49,6 +49,7 @@ class DeployedContract:
 
 
 class TestExecutionEnvironment:
+    # pylint: disable=too-many-arguments
     def __init__(
         self,
         include_paths: List[str],
