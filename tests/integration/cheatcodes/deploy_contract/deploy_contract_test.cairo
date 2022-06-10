@@ -1,5 +1,6 @@
 %lang starknet
-from starkware.cairo.common.uint256 import Uint256, uint256_add
+from starkware.starknet.common.syscalls import get_contract_address
+from starkware.cairo.common.uint256 import Uint256
 
 # Check if importing from root directory is possible
 
@@ -17,9 +18,6 @@ end
 
 @contract_interface
 namespace BasicWithConstructor:
-    func increase_balance(amount : Uint256):
-    end
-
     func get_balance() -> (res : Uint256):
     end
 
@@ -69,17 +67,45 @@ func test_missing_logic_contract{syscall_ptr : felt*, range_check_ptr}():
 end
 
 @external
-func test_deploy_contract_with_args_in_constructor{syscall_ptr : felt*, range_check_ptr}():
+func test_passing_constructor_data_as_list{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
+    local deployed_contract_address : felt
+    let (contract_address) = get_contract_address()
 
-    local contract_a_address : felt
-    %{ ids.contract_a_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor.cairo", [100, 0, 1]).contract_address %}
+    %{
+        ids.deployed_contract_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor.cairo",
+            [42, 0, ids.contract_address]
+        ).contract_address
+    %}
 
-    let (res) = BasicWithConstructor.get_balance(contract_address=contract_a_address)
-    assert res.low = 100
-    assert res.high = 0
+    let (balance) = BasicWithConstructor.get_balance(deployed_contract_address)
+    let (id) = BasicWithConstructor.get_id(deployed_contract_address)
 
-    let (id) = BasicWithConstructor.get_id(contract_address=contract_a_address)
-    assert id = 1
+    assert balance.low = 42
+    assert balance.high = 0
+    assert id = contract_address
+
+    return ()
+end
+
+@external
+func test_data_transformation{syscall_ptr : felt*, range_check_ptr}():
+    alloc_locals
+    local deployed_contract_address : felt
+    let (contract_address) = get_contract_address()
+
+    %{
+        ids.deployed_contract_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor.cairo",
+            { "initial_balance": 42, "contract_id": ids.contract_address }
+        ).contract_address
+    %}
+
+    let (balance) = BasicWithConstructor.get_balance(deployed_contract_address)
+    let (id) = BasicWithConstructor.get_id(deployed_contract_address)
+
+    assert balance.low = 42
+    assert balance.high = 0
+    assert id = contract_address
+
     return ()
 end
