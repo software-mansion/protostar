@@ -23,6 +23,7 @@ async def test_deploy_contract(mocker, target: str):
         expected_passed_test_cases_names=[
             "test_proxy_contract",
             "test_missing_logic_contract",
+            "test_passing_constructor_data_as_list",
         ],
         expected_failed_test_cases_names=[],
     )
