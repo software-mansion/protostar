@@ -1,5 +1,8 @@
 import asyncio
 from collections.abc import Mapping
+from protostar.commands.test.starkware.cheatable_execute_entry_point import (
+    CheatableExecuteEntryPoint,
+)
 from copy import deepcopy
 from logging import getLogger
 from pathlib import Path
@@ -17,7 +20,10 @@ from protostar.commands.test.cheatcodes import (
     ExpectRevertCheatcode,
     RollCheatcode,
 )
+
+# from protostar.commands.test.cheatcodes.contract import ContractCheatcode
 from protostar.commands.test.expected_event import ExpectedEvent
+
 from protostar.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
     CheatableSysCallHandlerException,
@@ -137,10 +143,6 @@ class TestExecutionEnvironment:
     async def invoke_setup_hook(self, fn_name: str) -> None:
         await self.invoke_test_case(fn_name)
 
-    @replace_class(
-        "starkware.starknet.core.os.syscall_utils.BusinessLogicSysCallHandler",
-        CheatableSysCallHandler,
-    )
     async def invoke_test_case(self, test_case_name: str):
         original_run_from_entrypoint = CairoFunctionRunner.run_from_entrypoint
         CairoFunctionRunner.run_from_entrypoint = (
@@ -341,6 +343,7 @@ class TestExecutionEnvironment:
         cheatcodes: List[Cheatcode] = [
             ExpectRevertCheatcode(self),
             RollCheatcode(cheatable_syscall_handler),
+            # ContractCheatcode(self)
         ]
 
         for cheatcode in cheatcodes:

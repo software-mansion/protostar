@@ -11,8 +11,75 @@ from starkware.starknet.testing.starknet import Starknet
 from starkware.starknet.testing.state import CastableToAddressSalt, StarknetState
 from starkware.storage.dict_storage import DictStorage
 from starkware.storage.storage import FactFetchingContext
+from protostar.commands.test.starkware.cheatable_execute_entry_point import (
+    CheatableInternalInvokeFunction,
+)
+import copy
+from typing import Dict, List, Optional, Tuple, Union
+
+from starkware.cairo.lang.vm.crypto import pedersen_hash_func
+from starkware.starknet.business_logic.execution.objects import (
+    CallInfo,
+    Event,
+    TransactionExecutionInfo,
+)
+from starkware.starknet.business_logic.internal_transaction import (
+    InternalDeclare,
+    InternalDeploy,
+    InternalInvokeFunction,
+)
+from starkware.starknet.business_logic.state.state import CarriedState
+from starkware.starknet.definitions import constants, fields
+from starkware.starknet.definitions.general_config import StarknetGeneralConfig
+from starkware.starknet.public.abi import get_selector_from_name
+from starkware.starknet.services.api.contract_class import ContractClass, EntryPointType
+from starkware.starknet.services.api.messages import StarknetMessageToL1
+from starkware.storage.dict_storage import DictStorage
+from starkware.storage.storage import FactFetchingContext
+
+CastableToAddress = Union[str, int]
+CastableToAddressSalt = Union[str, int]
 
 from protostar.commands.test.starkware.types import AddressType, SelectorType
+
+
+def create_invoke_function(
+    contract_address: CastableToAddress,
+    selector: Union[int, str],
+    calldata: List[int],
+    caller_address: int,
+    max_fee: int,
+    version: int,
+    signature: Optional[List[int]],
+    entry_point_type: EntryPointType,
+    nonce: Optional[int],
+    chain_id: int,
+    only_query: bool = False,
+) -> CheatableInternalInvokeFunction:
+
+    if isinstance(contract_address, str):
+        contract_address = int(contract_address, 16)
+    assert isinstance(contract_address, int)
+
+    if isinstance(selector, str):
+        selector = get_selector_from_name(selector)
+    assert isinstance(selector, int)
+
+    signature = [] if signature is None else signature
+
+    return CheatableInternalInvokeFunction.create(
+        contract_address=contract_address,
+        entry_point_selector=selector,
+        entry_point_type=entry_point_type,
+        calldata=calldata,
+        max_fee=max_fee,
+        signature=signature,
+        caller_address=caller_address,
+        nonce=nonce,
+        chain_id=chain_id,
+        version=version,
+        only_query=only_query,
+    )
 
 
 class CheatableCarriedState(CarriedState):
@@ -42,6 +109,63 @@ class CheatableStarknetState(StarknetState):
     ):
         self.cheatable_carried_state = state
         super().__init__(state, general_config)
+
+    async def invoke_raw(
+        self,
+        contract_address: CastableToAddress,
+        selector: Union[int, str],
+        calldata: List[int],
+        caller_address: int,
+        max_fee: int,
+        signature: Optional[List[int]] = None,
+        entry_point_type: EntryPointType = EntryPointType.EXTERNAL,
+        nonce: Optional[int] = None,
+    ) -> TransactionExecutionInfo:
+        """
+        Invokes a contract function. Returns the execution info.
+
+        Args:
+        contract_address - a hexadecimal string or an integer representing the contract address.
+        selector - either a function name or an integer selector for the entrypoint to invoke.
+        calldata - a list of integers to pass as calldata to the invoked function.
+        signature - a list of integers to pass as signature to the invoked function.
+        """
+        print("invoked")
+        tx = create_invoke_function(
+            contract_address=contract_address,
+            selector=selector,
+            calldata=calldata,
+            caller_address=caller_address,
+            max_fee=max_fee,
+            version=constants.TRANSACTION_VERSION,
+            signature=signature,
+            entry_point_type=entry_point_type,
+            nonce=nonce,
+            chain_id=self.general_config.chain_id.value,
+        )
+
+        with self.state.copy_and_apply() as state_copy:
+            tx_execution_info = await tx.apply_state_updates(
+                state=state_copy, general_config=self.general_config
+            )
+
+        # Add messages.
+        for message in tx_execution_info.get_sorted_l2_to_l1_messages():
+            starknet_message = StarknetMessageToL1(
+                from_address=message.from_address,
+                to_address=message.to_address,
+                payload=message.payload,
+            )
+            self.l2_to_l1_messages_log.append(starknet_message)
+            message_hash = starknet_message.get_hash()
+            self._l2_to_l1_messages[message_hash] = (
+                self._l2_to_l1_messages.get(message_hash, 0) + 1
+            )
+
+        # Add events.
+        self.events += tx_execution_info.get_sorted_events()
+
+        return tx_execution_info
 
     @classmethod
     async def empty(
