@@ -10,7 +10,6 @@ from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starkware_utils.error_handling import StarkException
-from typing_extensions import TypedDict
 
 from protostar.commands.test.cheatcodes import (
     Cheatcode,
@@ -38,11 +37,6 @@ from protostar.utils.modules import replace_class
 from protostar.utils.starknet_compilation import StarknetCompiler
 
 logger = getLogger()
-
-
-class DataTransformerArgs(TypedDict):
-    fn_name: Optional[str]
-    args: Dict
 
 
 class DeployedContract:
@@ -290,15 +284,13 @@ class TestExecutionEnvironment:
         @register_cheatcode
         def deploy_contract(
             contract_path: str,
-            constructor_calldata: Union[
-                Optional[List[int]], DataTransformerArgs
-            ] = None,
+            constructor_calldata: Union[Optional[List[int]], Dict] = None,
         ):
             if isinstance(constructor_calldata, Mapping):
                 fn_name = "constructor"
                 constructor_calldata = DataTransformerFacade.from_contract_path(
                     Path(contract_path), self._starknet_compiler
-                ).from_python(fn_name, **constructor_calldata["args"])
+                ).from_python(fn_name, **constructor_calldata)
 
             return self.deploy_in_env(contract_path, constructor_calldata)
 

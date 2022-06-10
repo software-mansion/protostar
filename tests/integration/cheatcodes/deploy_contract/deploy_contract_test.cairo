@@ -1,4 +1,6 @@
 %lang starknet
+from starkware.starknet.common.syscalls import get_contract_address
+from starkware.cairo.common.uint256 import Uint256
 
 # Check if importing from root directory is possible
 
@@ -11,6 +13,15 @@ namespace ProxyContract:
     end
 
     func get_balance() -> (res : felt):
+    end
+end
+
+@contract_interface
+namespace BasicWithConstructor:
+    func get_balance() -> (res : Uint256):
+    end
+
+    func get_id() -> (res : felt):
     end
 end
 
@@ -52,5 +63,27 @@ func test_missing_logic_contract{syscall_ptr : felt*, range_check_ptr}():
         contract_address=contract_proxy_address, new_target=contract_logic_address)
 
     ProxyContract.increase_twice(contract_address=contract_proxy_address, amount=5)
+    return ()
+end
+
+@external
+func test_data_transformation{syscall_ptr : felt*, range_check_ptr}():
+    alloc_locals
+    local deployed_contract_address : felt
+    let (contract_address) = get_contract_address()
+
+    %{
+        ids.deployed_contract_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor.cairo",
+            { "initial_balance": 42, "contract_id": ids.contract_address }
+        ).contract_address
+    %}
+
+    let (balance) = BasicWithConstructor.get_balance(deployed_contract_address)
+    let (id) = BasicWithConstructor.get_id(deployed_contract_address)
+
+    assert balance.low = 42
+    assert balance.high = 0
+    assert id = contract_address
+
     return ()
 end

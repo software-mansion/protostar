@@ -33,11 +33,11 @@ class DataTransformerFacade:
                 "name"
             ] == fn_name:
                 return item
-        raise FunctionNotFoundException(f"Couldn't find a function {fn_name}")
+        raise FunctionNotFoundException(f"Couldn't find a function '{fn_name}'")
 
     def from_python(self, fn_name: str, *args, **kwargs) -> List[int]:
         data_transformer = DataTransformer(
             self._get_function_abi(fn_name),
             identifier_manager_from_abi(self._contract_abi),
         )
-        return data_transformer.from_python(args, kwargs)[0]
+        return data_transformer.from_python(*args, **kwargs)[0]
