@@ -11,6 +11,7 @@ from protostar.utils.config.project import Project
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("contract_name", ["main_with_constructor"])
+@pytest.mark.skip(reason="We have to wait for devnet update to 0.9")
 async def test_deploying_contract(
     mocker: MockerFixture,
     devnet_gateway_url: str,

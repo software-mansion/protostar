@@ -1,21 +1,27 @@
+from collections import defaultdict
 import copy
 from typing import Dict, List, Optional, cast
 
 from starkware.cairo.lang.vm.crypto import pedersen_hash_func
 from starkware.starknet.business_logic.state.state import CarriedState
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
-from starkware.starknet.services.api.contract_definition import ContractDefinition
+from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starknet.testing.state import CastableToAddressSalt, StarknetState
 from starkware.storage.dict_storage import DictStorage
 from starkware.storage.storage import FactFetchingContext
 
+from protostar.commands.test.starkware.types import AddressType, SelectorType
+
 
 class CheatableCarriedState(CarriedState):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.pranked_contracts_map: Dict[int, int] = {}
+        self.mocked_calls_map: Dict[
+            AddressType, Dict[SelectorType, List[int]]
+        ] = defaultdict(dict)
         self.event_selector_to_name_map: Dict[int, str] = {}
 
     def update_event_selector_to_name_map(
@@ -96,14 +102,14 @@ class ForkableStarknet(Starknet):
     async def deploy(
         self,
         source: Optional[str] = None,
-        contract_def: Optional[ContractDefinition] = None,
+        contract_class: Optional[ContractClass] = None,
         contract_address_salt: Optional[CastableToAddressSalt] = None,
         cairo_path: Optional[List[str]] = None,
         constructor_calldata: Optional[List[int]] = None,
     ) -> StarknetContract:
         starknet_contract = await super().deploy(
             source=source,
-            contract_def=contract_def,
+            contract_class=contract_class,
             contract_address_salt=contract_address_salt,
             cairo_path=cairo_path,
             constructor_calldata=constructor_calldata,

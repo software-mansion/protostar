@@ -19,13 +19,13 @@ with open(path, "r+", encoding="UTF-8") as file:
     version_str = pyproject["tool"]["poetry"]["version"]
     protostar_version = version.parse(version_str)
     print(f"Current Protostar version: {protostar_version}")
-    
+
     new_protostar_version_str = input("Provide the new Protostar version: ")
     new_protostar_version_str += "-pre-release"
 
 assert new_protostar_version_str is not None
 
-tag = repo.create_tag(f"v{new_protostar_version_str}", ref='HEAD')
+tag = repo.create_tag(f"v{new_protostar_version_str}", ref="HEAD")
 
 # push to master
 origin = repo.remote(name="origin")

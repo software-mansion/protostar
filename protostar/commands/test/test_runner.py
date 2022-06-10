@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from logging import getLogger
 from typing import List, Optional
 
-from starkware.starknet.services.api.contract_definition import ContractDefinition
+from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 
 from protostar.commands.test.test_cases import (
@@ -88,7 +88,7 @@ class TestRunner:
 
     async def _run_test_suite(
         self,
-        test_contract: ContractDefinition,
+        test_contract: ContractClass,
         test_suite: TestSuite,
     ):
         assert self.queue, "Uninitialized reporter!"

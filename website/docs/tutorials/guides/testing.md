@@ -233,10 +233,10 @@ If you are familiar with [Foundry](https://book.getfoundry.sh/forge/cheatcodes.h
 ### `mock_call`
 
 ```python
-def mock_call(contract_address: int, fn_name: str, ret_data: List[int]) -> None: ...
+def mock_call(contract_address: int, fn_name: str, ret_data: List[int]) -> Callable: ...
 ```
 
-Mocks all calls to function with the name `fn_name` of a contract with an address `contract_address` unless [`clear_mock_call`](#clear_mock_call) is used. Mocked call returns data provided in `ret_data`.
+Mocks all calls to function with the name `fn_name` of a contract with an address `contract_address` until the returned callable is called. Mocked call returns data provided in `ret_data`. Mock works globally, for all of the contracts, not only the testing contract.
 
 #### Representing different data structures in `ret_data`
 
@@ -260,8 +260,9 @@ const EXTERNAL_CONTRACT_ADDRESS = 0x3fe90a1958bb8468fb1b62970747d8a00c435ef96cda
 func test_mock_call_returning_felt{syscall_ptr : felt*, range_check_ptr}():
   tempvar external_contract_address = EXTERNAL_CONTRACT_ADDRESS
 
-  %{ mock_call(ids.external_contract_address, "get_felt", [42]) %}
+  %{ stop_mock = mock_call(ids.external_contract_address, "get_felt", [42]) %}
   let (res) = ITestContract.get_felt(EXTERNAL_CONTRACT_ADDRESS)
+  %{ stop_mock() %}
 
   assert res = 42
   return ()
@@ -291,8 +292,9 @@ const EXTERNAL_CONTRACT_ADDRESS = 0x3fe90a1958bb8468fb1b62970747d8a00c435ef96cda
 func test_mock_call_returning_array{syscall_ptr : felt*, range_check_ptr}():
   tempvar external_contract_address = EXTERNAL_CONTRACT_ADDRESS
 
-  %{ mock_call(ids.external_contract_address, "get_array", [1, 42]) %}
+  %{ stop_mock = mock_call(ids.external_contract_address, "get_array", [1, 42]) %}
   let (res_len, res_arr) = ITestContract.get_array(EXTERNAL_CONTRACT_ADDRESS)
+  %{ stop_mock() %}
 
   assert res_arr[0] = 42
   return ()
@@ -321,22 +323,15 @@ const EXTERNAL_CONTRACT_ADDRESS = 0x3fe90a1958bb8468fb1b62970747d8a00c435ef96cda
 func test_mock_call_returning_struct{syscall_ptr : felt*, range_check_ptr}():
   tempvar external_contract_address = EXTERNAL_CONTRACT_ADDRESS
 
-  %{ mock_call(ids.external_contract_address, "get_struct", [21,37]) %}
+  %{ stop_mock = mock_call(ids.external_contract_address, "get_struct", [21,37]) %}
   let (res_struct) = ITestContract.get_struct(EXTERNAL_CONTRACT_ADDRESS)
+  %{ stop_mock() %}
 
   assert res_struct.x = 21
   assert res_struct.y = 37
   return ()
 end
 ```
-
-### `clear_mock_call`
-
-```python
-def clear_mock_call(contract_address: int, fn_name: str) -> None: ...
-```
-
-Removes a mocked call specified by a function name (`fn_name`) of a contract with an address (`contract_address`).
 
 ### `expect_revert`
 
