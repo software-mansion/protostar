@@ -12,11 +12,11 @@ def test_normalizing_expected_event_input():
     assert event.name == "foo"
     assert event.data is None
 
-    event = ExpectedEvent({"name": "foo"})
+    event = ExpectedEvent.from_cheatcode_input_type({"name": "foo"})
     assert event.name == "foo"
     assert event.data is None
 
-    event = ExpectedEvent({"name": "foo", "data": [42]})
+    event = ExpectedEvent.from_cheatcode_input_type({"name": "foo", "data": [42]})
     assert event.name == "foo"
     assert event.data == [42]
 
@@ -37,22 +37,18 @@ def create_state_event_fixture():
 def test_comparing_expected_event_names(
     create_state_event,
 ):
-    assert ExpectedEvent({"name": "foo"}).match(create_state_event())
-    assert not ExpectedEvent({"name": "bar"}).match(create_state_event())
+    assert ExpectedEvent(name="foo").match(create_state_event())
+    assert not ExpectedEvent(name="bar").match(create_state_event())
 
 
 def test_comparing_state_events_data(create_state_event):
-    assert ExpectedEvent({"name": "foo", "data": [42]}).match(create_state_event())
-    assert not ExpectedEvent({"name": "foo", "data": [24]}).match(create_state_event())
+    assert ExpectedEvent(name="foo", data=[42]).match(create_state_event())
+    assert not ExpectedEvent(name="foo", data=[24]).match(create_state_event())
 
 
 def test_comparing_state_event_addresses(create_state_event):
-    assert ExpectedEvent({"name": "foo", "from_address": 123}).match(
-        create_state_event()
-    )
-    assert not ExpectedEvent({"name": "foo", "from_address": 321}).match(
-        create_state_event()
-    )
+    assert ExpectedEvent(name="foo", from_address=123).match(create_state_event())
+    assert not ExpectedEvent(name="foo", from_address=321).match(create_state_event())
 
 
 def test_comparing_event_lists(create_state_event):

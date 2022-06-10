@@ -1,14 +1,16 @@
 import os
 from collections import deque
+from collections.abc import Mapping
 from enum import Enum
 from pathlib import Path
-from typing import List, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 from starkware.starknet.business_logic.execution.objects import Event
 from starkware.starknet.public.abi import get_selector_from_name
 from typing_extensions import Literal, NotRequired, TypedDict
 
 from protostar.commands.test.test_suite import TestSuite
+from protostar.utils.data_transformer_facade import DataTransformerFacade
 
 
 def collect_immediate_subdirectories(root_dir: Path) -> List[str]:
@@ -20,24 +22,60 @@ def collect_immediate_subdirectories(root_dir: Path) -> List[str]:
 class ExpectedEvent:
     RawEventType = TypedDict(
         "ExpectedEvent",
+        {
+            "name": str,
+            "data": NotRequired[
+                Union[
+                    List[int],
+                    Dict[
+                        DataTransformerFacade.ArgumentName,
+                        DataTransformerFacade.SupportedType,
+                    ],
+                ]
+            ],
+            "from_address": NotRequired[int],
+        },
+    )
+    RawEventTypeWithTransformedData = TypedDict(
+        "ExpectedEvent",
         {"name": str, "data": NotRequired[List[int]], "from_address": NotRequired[int]},
     )
     CheatcodeInputType = Union[RawEventType, str]
 
+    @classmethod
+    def from_cheatcode_input_type(
+        cls, raw_expected_event: CheatcodeInputType
+    ) -> "ExpectedEvent":
+
+        data = None
+        from_address = None
+        if isinstance(raw_expected_event, str):
+            name = raw_expected_event
+        else:
+            name = raw_expected_event["name"]
+            if "data" in raw_expected_event:
+                data = raw_expected_event["data"]
+
+            if "from_address" in raw_expected_event:
+                from_address = raw_expected_event["from_address"]
+
+        # if isinstance(data, Mapping):
+        #     fn_name = "constructor"
+        #     constructor_calldata = DataTransformerFacade.from_contract_path(
+        #         Path(contract_path), self._starknet_compiler
+        #     ).build_from_python_transformer(fn_name, "inputs")(constructor_calldata)
+
+        return cls(name=name, data=data, from_address=from_address)
+
     def __init__(
         self,
-        raw_expected_event: CheatcodeInputType,
+        name: str,
+        data: Optional[List[int]] = None,
+        from_address: Optional[int] = None,
     ):
-        self.data = None
-        self.from_address = None
-        if isinstance(raw_expected_event, str):
-            self.name = raw_expected_event
-        else:
-            self.name = raw_expected_event["name"]
-            if "data" in raw_expected_event:
-                self.data = raw_expected_event["data"]
-            if "from_address" in raw_expected_event:
-                self.from_address = raw_expected_event["from_address"]
+        self.name = name
+        self.data = data
+        self.from_address = from_address
 
     def __str__(self) -> str:
         result: List[str] = []

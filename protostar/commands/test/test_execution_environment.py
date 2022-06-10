@@ -330,7 +330,9 @@ class TestExecutionEnvironment:
         ) -> None:
             def compare_expected_and_emitted_events():
 
-                expected_events = list(map(ExpectedEvent, raw_expected_events))
+                expected_events = list(
+                    map(ExpectedEvent.from_cheatcode_input_type, raw_expected_events)
+                )
 
                 (
                     matches,
