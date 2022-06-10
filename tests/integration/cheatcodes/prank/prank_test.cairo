@@ -103,3 +103,11 @@ func test_prank_wrong_target{syscall_ptr : felt*, range_check_ptr}():
     %{ stop_prank = start_prank(123, target_contract_address=123) %}
     return ()
 end
+
+@external
+func test_fails_but_cannot_freeze_when_cheatcode_exception_is_raised{
+        syscall_ptr : felt*, range_check_ptr}():
+    %{ start_prank(123, target_contract_address=123) %}
+    %{ start_prank(123, target_contract_address=123) %}
+    return ()
+end

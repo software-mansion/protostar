@@ -1,13 +1,16 @@
 import asyncio
+from collections.abc import Mapping
 from copy import deepcopy
 from logging import getLogger
-from typing import Any, Callable, Dict, List, Optional, Set
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Set, Union
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starkware_utils.error_handling import StarkException
+from starkware.starknet.testing.contract import DeclaredClass
 
 from protostar.commands.test.cheatcodes import (
     Cheatcode,
@@ -21,6 +24,8 @@ from protostar.commands.test.starkware.cheatable_syscall_handler import (
 )
 from protostar.commands.test.starkware.forkable_starknet import ForkableStarknet
 from protostar.commands.test.test_context import TestContext
+
+
 from protostar.commands.test.test_environment_exceptions import (
     CheatcodeException,
     ExpectedEventMissingException,
@@ -30,7 +35,9 @@ from protostar.commands.test.test_environment_exceptions import (
     SimpleReportedException,
     StarknetRevertableException,
 )
+from protostar.utils.data_transformer_facade import DataTransformerFacade
 from protostar.utils.modules import replace_class
+from protostar.utils.starknet_compilation import StarknetCompiler
 
 logger = getLogger()
 
@@ -44,13 +51,24 @@ class DeployedContract:
         return self._starknet_contract.contract_address
 
 
+class ProtostarDeclaredClass:
+    def __init__(self, declared_class: DeclaredClass):
+        self._declared_class = declared_class
+
+    @property
+    def class_hash(self):
+        return self._declared_class.class_hash
+
+
 class TestExecutionEnvironment:
+    # pylint: disable=too-many-arguments
     def __init__(
         self,
         include_paths: List[str],
         forkable_starknet: ForkableStarknet,
         test_contract: StarknetContract,
         test_context: TestContext,
+        starknet_compiler: StarknetCompiler,
     ):
         self.starknet = forkable_starknet
         self.test_contract: StarknetContract = test_contract
@@ -58,20 +76,25 @@ class TestExecutionEnvironment:
         self._expected_error: Optional[RevertableException] = None
         self._include_paths = include_paths
         self._test_finish_hooks: Set[Callable[[], None]] = set()
+        self._starknet_compiler = starknet_compiler
 
     @classmethod
     async def from_test_suite_definition(
         cls,
+        starknet_compiler: StarknetCompiler,
         test_suite_definition: ContractClass,
         include_paths: Optional[List[str]] = None,
     ):
         starknet = await ForkableStarknet.empty()
 
+        starknet_contract = await starknet.deploy(contract_class=test_suite_definition)
+
         return cls(
             include_paths or [],
             forkable_starknet=starknet,
-            test_contract=await starknet.deploy(contract_class=test_suite_definition),
+            test_contract=starknet_contract,
             test_context=TestContext(),
+            starknet_compiler=starknet_compiler,
         )
 
     def fork(self):
@@ -81,17 +104,30 @@ class TestExecutionEnvironment:
             forkable_starknet=starknet_fork,
             test_contract=starknet_fork.copy_and_adapt_contract(self.test_contract),
             test_context=deepcopy(self.test_context),
+            starknet_compiler=self._starknet_compiler,
         )
         return new_env
 
     def deploy_in_env(
         self, contract_path: str, constructor_calldata: Optional[List[int]] = None
     ):
+
         contract = DeployedContract(
             asyncio.run(
                 self.starknet.deploy(
                     source=contract_path,
                     constructor_calldata=constructor_calldata,
+                    cairo_path=self._include_paths,
+                )
+            )
+        )
+        return contract
+
+    def declare_in_env(self, contract_path: str):
+        contract = ProtostarDeclaredClass(
+            asyncio.run(
+                self.starknet.declare(
+                    source=contract_path,
                     cairo_path=self._include_paths,
                 )
             )
@@ -287,9 +323,20 @@ class TestExecutionEnvironment:
 
         @register_cheatcode
         def deploy_contract(
-            contract_path: str, constructor_calldata: Optional[List[int]] = None
+            contract_path: str,
+            constructor_calldata: Optional[Union[List[int], Dict]] = None,
         ):
+            if isinstance(constructor_calldata, Mapping):
+                fn_name = "constructor"
+                constructor_calldata = DataTransformerFacade.from_contract_path(
+                    Path(contract_path), self._starknet_compiler
+                ).from_python(fn_name, **constructor_calldata)
+
             return self.deploy_in_env(contract_path, constructor_calldata)
+
+        @register_cheatcode
+        def declare_contract(contract_path: str):
+            return self.declare_in_env(contract_path)
 
         cheatcodes: List[Cheatcode] = [
             ExpectRevertCheatcode(self),
