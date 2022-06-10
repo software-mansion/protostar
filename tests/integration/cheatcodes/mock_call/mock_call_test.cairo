@@ -8,13 +8,13 @@ from starkware.cairo.common.uint256 import Uint256
 
 @contract_interface
 namespace Proxy:
-    func assert_mocked(mocked_target: felt) -> ():
+    func assert_mocked(mocked_target : felt) -> ():
     end
 end
 
 @contract_interface
 namespace Mocked:
-    func get_number() -> (val: felt):
+    func get_number() -> (val : felt):
     end
 end
 
@@ -24,7 +24,7 @@ func test_remote_mock{syscall_ptr : felt*, range_check_ptr}():
 
     local to_mock_address : felt
     local proxy_address : felt
-    
+
     %{
         ids.to_mock_address = deploy_contract("./tests/integration/cheatcodes/mock_call/mocked.cairo").contract_address
         ids.proxy_address = deploy_contract("./tests/integration/cheatcodes/mock_call/proxy.cairo").contract_address
@@ -45,17 +45,15 @@ end
 func test_local_mock{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
 
-    local to_mock_address : felt    
+    local to_mock_address : felt
     %{
         ids.to_mock_address = deploy_contract("./tests/integration/cheatcodes/mock_call/mocked.cairo").contract_address
         stop_mock = mock_call(ids.to_mock_address, "get_number", [42])
     %}
     let (res1) = Mocked.get_number(to_mock_address)
     assert res1 = 42
-    %{
-        stop_mock()
-    %}
-    let (res2) = Mocked.get_number( to_mock_address)
+    %{ stop_mock() %}
+    let (res2) = Mocked.get_number(to_mock_address)
     assert res2 = 1
     return ()
 end
@@ -66,7 +64,7 @@ func test_missing_remote_mock{syscall_ptr : felt*, range_check_ptr}():
 
     local to_mock_address : felt
     local proxy_address : felt
-    
+
     %{
         ids.to_mock_address = deploy_contract("./tests/integration/cheatcodes/mock_call/mocked.cairo").contract_address
         ids.proxy_address = deploy_contract("./tests/integration/cheatcodes/mock_call/proxy.cairo").contract_address
@@ -81,15 +79,12 @@ end
 func test_missing_local_mock{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
 
-    local to_mock_address : felt    
-    %{
-        ids.to_mock_address = deploy_contract("./tests/integration/cheatcodes/mock_call/mocked.cairo").contract_address
-    %}
-    let (res2) = Mocked.get_number( to_mock_address)
+    local to_mock_address : felt
+    %{ ids.to_mock_address = deploy_contract("./tests/integration/cheatcodes/mock_call/mocked.cairo").contract_address %}
+    let (res2) = Mocked.get_number(to_mock_address)
     assert res2 = 1
     return ()
 end
-
 
 @external
 func test_syscall_counter_updated{syscall_ptr : felt*, range_check_ptr}():
@@ -100,9 +95,7 @@ func test_syscall_counter_updated{syscall_ptr : felt*, range_check_ptr}():
         stop_mock = mock_call(ids.to_mock_address, "get_number", [42])
     %}
     let (res1) = Mocked.get_number(to_mock_address)
-    %{
-        stop_mock()
-    %}
+    %{ stop_mock() %}
     let (caller) = get_caller_address()
     return ()
 end
@@ -134,5 +127,18 @@ func test_mock_call_twice{syscall_ptr : felt*, range_check_ptr}():
         stop_mock_2 = mock_call(ids.to_mock_address, "get_number", [666])
     %}
 
+    return ()
+end
+
+@external
+func test_data_transformation{syscall_ptr : felt*, range_check_ptr}():
+    alloc_locals
+    local to_mock_address : felt
+    %{
+        ids.to_mock_address = deploy_contract("./tests/integration/cheatcodes/mock_call/mocked.cairo").contract_address
+        mock_call(ids.to_mock_address, "get_number", { "val1": 42 })
+    %}
+    let (val) = Mocked.get_number(to_mock_address)
+    assert val = 42
     return ()
 end

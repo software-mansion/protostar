@@ -8,9 +8,8 @@ from typing import Any, Callable, Dict, List, Optional, Set, Union
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.services.api.contract_class import ContractClass
-from starkware.starknet.testing.contract import StarknetContract
+from starkware.starknet.testing.contract import DeclaredClass, StarknetContract
 from starkware.starkware_utils.error_handling import StarkException
-from starkware.starknet.testing.contract import DeclaredClass
 
 from protostar.commands.test.cheatcodes import (
     Cheatcode,
@@ -24,8 +23,6 @@ from protostar.commands.test.starkware.cheatable_syscall_handler import (
 )
 from protostar.commands.test.starkware.forkable_starknet import ForkableStarknet
 from protostar.commands.test.test_context import TestContext
-
-
 from protostar.commands.test.test_environment_exceptions import (
     CheatcodeException,
     ExpectedEventMissingException,
@@ -69,10 +66,12 @@ class TestExecutionEnvironment:
         test_contract: StarknetContract,
         test_context: TestContext,
         starknet_compiler: StarknetCompiler,
+        address_to_contract_path: Optional[Dict[int, Path]] = None,
     ):
         self.starknet = forkable_starknet
         self.test_contract: StarknetContract = test_contract
         self.test_context = test_context
+        self._contract_address_to_contract_path = address_to_contract_path or {}
         self._expected_error: Optional[RevertableException] = None
         self._include_paths = include_paths
         self._test_finish_hooks: Set[Callable[[], None]] = set()
@@ -105,6 +104,7 @@ class TestExecutionEnvironment:
             test_contract=starknet_fork.copy_and_adapt_contract(self.test_contract),
             test_context=deepcopy(self.test_context),
             starknet_compiler=self._starknet_compiler,
+            address_to_contract_path=self._contract_address_to_contract_path,
         )
         return new_env
 
@@ -120,6 +120,9 @@ class TestExecutionEnvironment:
                     cairo_path=self._include_paths,
                 )
             )
+        )
+        self._contract_address_to_contract_path[contract.contract_address] = Path(
+            contract_path
         )
         return contract
 
@@ -263,9 +266,35 @@ class TestExecutionEnvironment:
                 raise CheatcodeException("stop_prank", err.message) from err
 
         @register_cheatcode
-        def mock_call(contract_address: int, fn_name: str, ret_data: List[int]):
+        def mock_call(
+            contract_address: int,
+            fn_name: str,
+            ret_data: Union[
+                List[int],
+                Dict[
+                    DataTransformerFacade.ArgumentName,
+                    DataTransformerFacade.SupportedType,
+                ],
+            ],
+        ):
             selector = get_selector_from_name(fn_name)
             try:
+                if isinstance(ret_data, Mapping):
+                    if contract_address not in self._contract_address_to_contract_path:
+                        raise CheatcodeException(
+                            "mock_call",
+                            (
+                                "Couldn't map the `contract_address` to the contract path."
+                                "Is the `contract_address` valid?"
+                            ),
+                        )
+                    contract_path = self._contract_address_to_contract_path[
+                        contract_address
+                    ]
+                    ret_data = DataTransformerFacade.from_contract_path(
+                        contract_path, self._starknet_compiler
+                    ).build_from_python_transformer(fn_name, "outputs")(ret_data)
+
                 cheatable_syscall_handler.register_mock_call(
                     contract_address, selector=selector, ret_data=ret_data
                 )
@@ -324,13 +353,21 @@ class TestExecutionEnvironment:
         @register_cheatcode
         def deploy_contract(
             contract_path: str,
-            constructor_calldata: Optional[Union[List[int], Dict]] = None,
+            constructor_calldata: Optional[
+                Union[
+                    List[int],
+                    Dict[
+                        DataTransformerFacade.ArgumentName,
+                        DataTransformerFacade.SupportedType,
+                    ],
+                ]
+            ] = None,
         ):
             if isinstance(constructor_calldata, Mapping):
                 fn_name = "constructor"
                 constructor_calldata = DataTransformerFacade.from_contract_path(
                     Path(contract_path), self._starknet_compiler
-                ).from_python(fn_name, **constructor_calldata)
+                ).build_from_python_transformer(fn_name, "inputs")(constructor_calldata)
 
             return self.deploy_in_env(contract_path, constructor_calldata)
 
