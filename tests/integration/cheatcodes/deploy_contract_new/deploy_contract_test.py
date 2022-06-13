@@ -16,8 +16,8 @@ async def test_deploy_contract(mocker):
     assert_cairo_test_cases(
         testing_summary,
         expected_passed_test_cases_names=[
-            "test_proxy_contract",
-            "test_missing_logic_contract",
+            "test_deploy_contract",
+            "test_deploy_contract_simplified",
         ],
         expected_failed_test_cases_names=[],
     )

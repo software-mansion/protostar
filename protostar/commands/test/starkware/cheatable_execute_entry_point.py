@@ -1,16 +1,11 @@
-from starkware.starknet.business_logic.execution.execute_entry_point import (
-    ExecuteEntryPoint,
-)
-from starkware.starknet.business_logic.internal_transaction import (
-    InternalInvokeFunction,
-)
 import asyncio
-import functools
 import logging
-from typing import List, Tuple, cast
+from pathlib import Path
+import random
+from typing import Callable, List, Tuple, cast
+from dataclasses import dataclass
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
-from starkware.cairo.lang.vm.cairo_pie import ExecutionResources
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.cairo.lang.vm.security import SecurityError
 from starkware.cairo.lang.vm.utils import ResourcesError
@@ -19,145 +14,38 @@ from starkware.cairo.lang.vm.vm_exceptions import (
     VmException,
     VmExceptionBase,
 )
-from starkware.starknet.business_logic.execution.execute_entry_point_base import (
-    ExecuteEntryPointBase,
-)
 from starkware.starknet.business_logic.execution.objects import (
-    CallInfo,
-    CallType,
     TransactionExecutionContext,
 )
 from starkware.starknet.business_logic.state.state import CarriedState
-from starkware.starknet.business_logic.utils import get_return_values
 from starkware.starknet.core.os import os_utils, syscall_utils
-from starkware.starknet.definitions import fields
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.public import abi as starknet_abi
-from starkware.starknet.services.api.contract_class import (
-    ContractClass,
-    ContractEntryPoint,
-)
 from starkware.starknet.storage.starknet_storage import BusinessLogicStarknetStorage
 from starkware.starkware_utils.error_handling import (
     StarkException,
-    stark_assert,
     wrap_with_stark_exception,
 )
 
-from typing import List, Optional, Union
-
 from starkware.python.utils import from_bytes
-from starkware.starknet.business_logic.execution.objects import TransactionExecutionInfo
-from starkware.starknet.definitions.general_config import StarknetGeneralConfig
-from starkware.starknet.services.api.contract_class import ContractClass, EntryPointType
-from starkware.starknet.services.api.messages import StarknetMessageToL1
-from starkware.starknet.testing.contract import DeclaredClass, StarknetContract
+from starkware.starknet.testing.contract import DeclaredClass
 from starkware.starknet.testing.contract_utils import get_abi, get_contract_class
-from starkware.starknet.testing.objects import StarknetTransactionExecutionInfo
-from starkware.starknet.testing.state import (
-    CastableToAddress,
-    CastableToAddressSalt,
-    StarknetState,
-)
+from starkware.python.utils import to_bytes
 
-import copy
-from typing import Dict, List, Optional, Tuple, Union
 
-from starkware.cairo.lang.vm.crypto import pedersen_hash_func
-from starkware.starknet.business_logic.execution.objects import (
-    CallInfo,
-    Event,
-    TransactionExecutionInfo,
-)
 from starkware.starknet.business_logic.internal_transaction import (
     InternalDeclare,
-    InternalDeploy,
-    InternalInvokeFunction,
 )
-from starkware.starknet.business_logic.state.state import CarriedState
-from starkware.starknet.definitions import constants, fields
-from starkware.starknet.definitions.general_config import StarknetGeneralConfig
-from starkware.starknet.public.abi import get_selector_from_name
-from starkware.starknet.services.api.contract_class import ContractClass, EntryPointType
-from starkware.starknet.services.api.messages import StarknetMessageToL1
-from starkware.storage.dict_storage import DictStorage
-from starkware.storage.storage import FactFetchingContext
-import dataclasses
 import logging
-from abc import abstractmethod
-from dataclasses import field
-from typing import Any, ClassVar, Dict, List, Optional, Tuple, Type
-
-import marshmallow
-import marshmallow_dataclass
-from marshmallow_oneofschema import OneOfSchema
-
-from services.everest.api.gateway.transaction import EverestTransaction
-from services.everest.business_logic.internal_transaction import (
-    EverestInternalTransaction,
-)
-from services.everest.business_logic.state import CarriedStateBase
-from starkware.cairo.lang.vm.cairo_pie import ExecutionResources
-from starkware.python.utils import to_bytes
 from starkware.starknet.business_logic.execution.execute_entry_point import (
     ExecuteEntryPoint,
 )
-from starkware.starknet.business_logic.execution.objects import (
-    CallInfo,
-    CallType,
-    TransactionExecutionContext,
-    TransactionExecutionInfo,
-)
-from starkware.starknet.business_logic.internal_transaction_interface import (
-    InternalStateTransaction,
-)
-from starkware.starknet.business_logic.state.state import (
-    BlockInfo,
-    CarriedState,
-    StateSelector,
-)
-from starkware.starknet.business_logic.transaction_fee import (
-    calculate_tx_fee,
-    execute_fee_transfer,
-)
-from starkware.starknet.business_logic.utils import (
-    preprocess_invoke_function_fields,
-    read_contract_class,
-    validate_version,
-    write_contract_class_fact,
-)
-
-from starkware.starknet.core.os.class_hash import compute_class_hash
+from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler, initialize_contract_state
 from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
 )
-from starkware.starknet.core.os.syscall_utils import initialize_contract_state
-from starkware.starknet.core.os.transaction_hash.transaction_hash import (
-    calculate_declare_transaction_hash,
-    calculate_deploy_transaction_hash,
-    calculate_transaction_hash_common,
-)
-from starkware.starknet.definitions import constants, fields
-from starkware.starknet.definitions.error_codes import StarknetErrorCode
-from starkware.starknet.definitions.general_config import StarknetGeneralConfig
-from starkware.starknet.definitions.transaction_type import TransactionType
-from starkware.starknet.public import abi as starknet_abi
-from starkware.starknet.services.api.contract_class import (
-    CONSTRUCTOR_SELECTOR,
-    ContractClass,
-    EntryPointType,
-)
-from starkware.starknet.services.api.gateway.transaction import (
-    DECLARE_SENDER_ADDRESS,
-    Declare,
-    Deploy,
-    InvokeFunction,
-    Transaction,
-)
-from starkware.starkware_utils.config_base import Config
-from starkware.starkware_utils.error_handling import stark_assert, stark_assert_eq
-from starkware.storage.storage import FactFetchingContext, Storage
+
 
 # from protostar.commands.test.starkware.cheatable_syscall_handler import CheatableSysCallHandler
 
@@ -201,83 +89,92 @@ from starkware.storage.storage import FactFetchingContext, Storage
 
 logger = logging.getLogger(__name__)
 
+@dataclass
+class DeclaredContract:
+    class_hash: int
 
-def contract_build(deployer_address, state, general_config):
-    class Contract:
-        def __init__(self, contract_path, constructor_calldata=None):
-            self._genral_config = general_config
-            self._contract_path = contract_path
-            self._constructor_calldata = constructor_calldata
-            self._deployer_address = deployer_address
-            self._state = state
-            self._declared = asyncio.run(self._declare_contract())
+@dataclass(frozen=True)
+class PreparedContract:
+    constructor_calldata: List[int]
+    contract_address: int
+    class_hash: int
 
-        async def _declare_contract(self):
-            contract_class = get_contract_class(
-                source=self._contract_path, cairo_path=[]  # TODO
-            )
+@dataclass(frozen=True)
+class DeployedContract:
+    contract_address: int
 
-            tx = await InternalDeclare.create_for_testing(
-                ffc=self._state.ffc,
-                contract_class=contract_class,
-                chain_id=self._genral_config.chain_id.value,
-            )
+class DeploymentManager(BusinessLogicSysCallHandler):
+    @property
+    def cheatable_state(self):
+        return self.state
 
-            with self._state.copy_and_apply() as state_copy:
-                tx_execution_info = await tx.apply_state_updates(
-                    state=state_copy, general_config=self._genral_config
-                )
-
-            class_hash = tx_execution_info.call_info.class_hash
-            assert class_hash is not None
-            return DeclaredClass(
-                class_hash=from_bytes(class_hash),
-                abi=get_abi(contract_class=contract_class),
-            )
-
-        @property
-        def contract_address(self):
-            pass
-
-        def deploy(self):
-            pass
-
-    return Contract
-
-
-@marshmallow_dataclass.dataclass(frozen=True)
-class CheatableInternalInvokeFunction(InternalInvokeFunction):
-    async def execute(
-        self,
-        state: CarriedState,
-        general_config: StarknetGeneralConfig,
-        only_query: bool = False,
-    ) -> CallInfo:
-        """
-        Builds the transaction execution context and executes the entry point.
-        Returns the CallInfo.
-        """
-        # Sanity check for query mode.
-        validate_version(version=self.version, only_query=only_query)
-
-        call = CheatableExecuteEntryPoint(
-            call_type=CallType.CALL,
-            class_hash=None,
-            contract_address=self.contract_address,
-            code_address=None,
-            entry_point_selector=self.entry_point_selector,
-            entry_point_type=self.entry_point_type,
-            calldata=self.calldata,
-            caller_address=self.caller_address,
-        )
-
-        return await call.execute(
-            state=state,
-            general_config=general_config,
-            tx_execution_context=self.get_execution_context(
-                n_steps=general_config.invoke_tx_max_n_steps
+    def deploy(self, prepared):
+        class_hash_bytes = to_bytes(prepared.class_hash)
+        future = asyncio.run_coroutine_threadsafe(
+            coro=initialize_contract_state(
+                state=self.cheatable_state,
+                class_hash=class_hash_bytes,
+                contract_address=prepared.contract_address,
             ),
+            loop=self.loop,
         )
+        future.result()
+
+
+        self.execute_constructor_entry_point(
+            contract_address=self.contract_address,
+            class_hash_bytes=class_hash_bytes,
+            constructor_calldata=prepared.constructor_calldata,
+        )
+        return DeployedContract(prepared.contract_address)
+
+    def prepare(self, declared, constructor_calldata = None) -> PreparedContract:
+        constructor_calldata = constructor_calldata or []
+        contract_address: int = calculate_contract_address_from_hash(
+            salt=random.randint(0, 10000000000),
+            class_hash=declared.class_hash,
+            constructor_calldata=constructor_calldata,
+            deployer_address=self.contract_address,
+        )
+        return PreparedContract(constructor_calldata, contract_address, declared.class_hash)
+        
+
+    def declare(self, contract_path) -> DeclaredContract: 
+        class_hash = cast(int, asyncio.run(self._declare_contract(contract_path)).class_hash)
+        return DeclaredContract(class_hash)
+
+    async def _declare_contract(self, contract_path):
+        contract_class = get_contract_class(
+            source=contract_path, cairo_path=[]  # TODO
+        )
+
+        tx = await InternalDeclare.create_for_testing(
+            ffc=self.cheatable_state.ffc,
+            contract_class=contract_class,
+            chain_id=self.general_config.chain_id.value
+        )
+
+        with self.cheatable_state.copy_and_apply() as state_copy:
+            tx_execution_info = await tx.apply_state_updates(
+                state=state_copy, general_config=self.general_config 
+            )
+
+        class_hash = tx_execution_info.call_info.class_hash
+        assert class_hash is not None
+        return DeclaredClass(
+            class_hash=from_bytes(class_hash),
+            abi=get_abi(contract_class=contract_class),
+        )
+
+def build_deploy_contract(manager) -> Callable[[Path, List[int]], DeployedContract]: #TODO add transformer
+    """
+    Syntatic sugar for contract deployment compatible with old interface
+    """
+    def deploy_contract(path, constructor_calldata) -> DeployedContract:
+        declared = manager.declare("./tests/integration/cheatcodes/deploy_contract_new/basic_contract.cairo")
+        prepared = manager.prepare(declared)
+        return manager.deploy(prepared)
+    return deploy_contract
 
 
 class CheatableExecuteEntryPoint(ExecuteEntryPoint):
@@ -328,7 +225,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             RelocatableValue, os_context[starknet_abi.SYSCALL_PTR_OFFSET]
         )
 
-        # --- PROTOSTAR MODIFICATIONS ---
+        # --- MODIFICATIONS START ---
         # syscall_handler = CheatableSysCallHandler(
         syscall_handler = syscall_utils.BusinessLogicSysCallHandler(
             execute_entry_point_cls=ExecuteEntryPoint,
@@ -340,8 +237,16 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             general_config=general_config,
             initial_syscall_ptr=initial_syscall_ptr,
         )
-        contract_cheatcode = contract_build(
-            self.contract_address, state, general_config
+
+        deployment_manager = DeploymentManager(
+            execute_entry_point_cls=ExecuteEntryPoint,
+            tx_execution_context=tx_execution_context,
+            state=state,
+            caller_address=self.caller_address,
+            contract_address=self.contract_address,
+            starknet_storage=starknet_storage,
+            general_config=general_config,
+            initial_syscall_ptr=initial_syscall_ptr,
         )
 
         # Positional arguments are passed to *args in the 'run_from_entrypoint' function.
@@ -356,10 +261,13 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             runner.run_from_entrypoint(
                 entry_point.offset,
                 *entry_points_args,
-                hint_locals={
+                hint_locals= {
                     "__storage": starknet_storage,
                     "syscall_handler": syscall_handler,
-                    "Contract": contract_cheatcode,
+                    "declare": deployment_manager.declare,
+                    "prepare": deployment_manager.prepare,
+                    "deploy": deployment_manager.deploy,
+                    "deploy_contract": build_deploy_contract(deployment_manager)
                 },
                 static_locals={
                     "__find_element_max_size": 2**20,
@@ -370,6 +278,8 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
                 run_resources=tx_execution_context.run_resources,
                 verify_secure=True,
             )
+        # --- MODIFICATIONS END ---
+
         except VmException as exception:
             code = StarknetErrorCode.TRANSACTION_FAILED
             if isinstance(exception.inner_exc, HintException):

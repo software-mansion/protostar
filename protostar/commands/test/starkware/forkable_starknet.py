@@ -1,5 +1,6 @@
 from collections import defaultdict
 import copy
+import marshmallow_dataclass
 from typing import Dict, List, Optional, cast
 
 from starkware.cairo.lang.vm.crypto import pedersen_hash_func
@@ -11,39 +12,69 @@ from starkware.starknet.testing.starknet import Starknet
 from starkware.starknet.testing.state import CastableToAddressSalt, StarknetState
 from starkware.storage.dict_storage import DictStorage
 from starkware.storage.storage import FactFetchingContext
-from protostar.commands.test.starkware.cheatable_execute_entry_point import (
-    CheatableInternalInvokeFunction,
-)
+from protostar.commands.test.starkware.cheatable_execute_entry_point import CheatableExecuteEntryPoint
 import copy
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Union
 
 from starkware.cairo.lang.vm.crypto import pedersen_hash_func
 from starkware.starknet.business_logic.execution.objects import (
     CallInfo,
-    Event,
+    CallType,
     TransactionExecutionInfo,
 )
-from starkware.starknet.business_logic.internal_transaction import (
-    InternalDeclare,
-    InternalDeploy,
-    InternalInvokeFunction,
-)
+from starkware.starknet.business_logic.internal_transaction import InternalInvokeFunction
 from starkware.starknet.business_logic.state.state import CarriedState
-from starkware.starknet.definitions import constants, fields
+from starkware.starknet.definitions import constants
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.services.api.contract_class import ContractClass, EntryPointType
 from starkware.starknet.services.api.messages import StarknetMessageToL1
 from starkware.storage.dict_storage import DictStorage
 from starkware.storage.storage import FactFetchingContext
+from starkware.starknet.business_logic.utils import (
+    validate_version,
+)
 
 CastableToAddress = Union[str, int]
 CastableToAddressSalt = Union[str, int]
 
 from protostar.commands.test.starkware.types import AddressType, SelectorType
 
+@marshmallow_dataclass.dataclass(frozen=True)
+class CheatableInternalInvokeFunction(InternalInvokeFunction):
+    async def execute(
+        self,
+        state: CarriedState,
+        general_config: StarknetGeneralConfig,
+        only_query: bool = False,
+    ) -> CallInfo:
+        """
+        Builds the transaction execution context and executes the entry point.
+        Returns the CallInfo.
+        """
+        # Sanity check for query mode.
+        validate_version(version=self.version, only_query=only_query)
 
-def create_invoke_function(
+        call = CheatableExecuteEntryPoint(
+            call_type=CallType.CALL,
+            class_hash=None,
+            contract_address=self.contract_address,
+            code_address=None,
+            entry_point_selector=self.entry_point_selector,
+            entry_point_type=self.entry_point_type,
+            calldata=self.calldata,
+            caller_address=self.caller_address,
+        )
+
+        return await call.execute(
+            state=state,
+            general_config=general_config,
+            tx_execution_context=self.get_execution_context(
+                n_steps=general_config.invoke_tx_max_n_steps
+            ),
+        )
+
+def create_cheatable_invoke_function(
     contract_address: CastableToAddress,
     selector: Union[int, str],
     calldata: List[int],
@@ -130,8 +161,7 @@ class CheatableStarknetState(StarknetState):
         calldata - a list of integers to pass as calldata to the invoked function.
         signature - a list of integers to pass as signature to the invoked function.
         """
-        print("invoked")
-        tx = create_invoke_function(
+        tx = create_cheatable_invoke_function(
             contract_address=contract_address,
             selector=selector,
             calldata=calldata,

@@ -43,7 +43,25 @@ func test_deploy_contract{syscall_ptr : felt*, range_check_ptr}():
 
     local contract_address : felt
     %{
-        ids.contract_address = Contract("./tests/integration/cheatcodes/deploy_contract_new/basic_contract.cairo").deploy().contract_address 
+        declared = declare("./tests/integration/cheatcodes/deploy_contract_new/basic_contract.cairo")
+        prepared = prepare(declared)
+        contract = deploy(prepared)
+        ids.contract_address = contract.contract_address 
+    %}
+    
+    BasicContract.increase_balance(contract_address, 5)
+    let (res) = BasicContract.get_balance(contract_address)
+    assert res = 5
+    return ()
+end
+
+@external
+func test_deploy_contract_simplified{syscall_ptr : felt*, range_check_ptr}():
+    alloc_locals
+
+    local contract_address : felt
+    %{
+        ids.contract_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract_new/basic_contract.cairo").contract_address
     %}
     
     BasicContract.increase_balance(contract_address, 5)
