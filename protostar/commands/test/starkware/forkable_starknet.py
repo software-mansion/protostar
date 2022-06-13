@@ -1,5 +1,5 @@
 import copy
-from typing import List, Optional, Union
+from typing import List, Optional
 
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.services.api.contract_class import ContractClass
