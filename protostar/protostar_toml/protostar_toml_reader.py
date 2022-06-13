@@ -47,7 +47,7 @@ class ProtostarTOMLReader:
 
         alternative_attribute_name = self._find_alternative_key(attribute_name, section)
 
-        if alternative_attribute_name in section:
+        if alternative_attribute_name and alternative_attribute_name in section:
             return section[alternative_attribute_name]
         return None
 
