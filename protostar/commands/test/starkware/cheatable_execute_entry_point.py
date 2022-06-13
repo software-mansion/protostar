@@ -17,7 +17,6 @@ from starkware.starknet.business_logic.execution.objects import (
 from starkware.starknet.business_logic.state.state import CarriedState
 from starkware.starknet.core.os import os_utils, syscall_utils
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
-from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.public import abi as starknet_abi
 from starkware.starknet.storage.starknet_storage import BusinessLogicStarknetStorage
 from starkware.starkware_utils.error_handling import (
@@ -33,6 +32,7 @@ from protostar.commands.test.cheatcodes.deployment_manager import (
     DeploymentManager,
     build_deploy_contract,
 )
+from protostar.commands.test.starkware.chatable_starknet_general_config import CheatableStarknetGeneralConfig
 
 from protostar.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
@@ -47,7 +47,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     def _run(
         self,
         state: CarriedState,
-        general_config: StarknetGeneralConfig,
+        general_config: CheatableStarknetGeneralConfig,
         loop: asyncio.AbstractEventLoop,
         tx_execution_context: TransactionExecutionContext,
     ) -> Tuple[CairoFunctionRunner, syscall_utils.BusinessLogicSysCallHandler]:

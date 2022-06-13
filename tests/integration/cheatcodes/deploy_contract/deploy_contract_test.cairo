@@ -161,8 +161,14 @@ func test_syscall_after_deploy{syscall_ptr : felt*, range_check_ptr}():
     return ()
 end
 
-# TESTS
-# deploy using cairo after declare
+@external
+func test_utilizes_cairo_path{syscall_ptr : felt*, range_check_ptr}():
+    %{
+        deploy_contract("./tests/integration/cheatcodes/deploy_contract/contract_using_external.cairo").contract_address
+    %}
+    return ()
+end
+
 
 # @external
 # func test_passing_constructor_data_as_list{syscall_ptr : felt*, range_check_ptr}():

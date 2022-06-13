@@ -85,7 +85,7 @@ class DeploymentManager(BusinessLogicSysCallHandler):
         return DeclaredContract(class_hash)
 
     async def _declare_contract(self, contract_path):
-        contract_class = get_contract_class(source=contract_path, cairo_path=[])  # TODO
+        contract_class = get_contract_class(source=contract_path, cairo_path=self.general_config.cheatcodes_cairo_path)
 
         tx = await InternalDeclare.create_for_testing(
             ffc=self.cheatable_state.ffc,
