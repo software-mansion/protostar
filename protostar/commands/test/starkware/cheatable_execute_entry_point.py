@@ -46,6 +46,8 @@ from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
 )
 
+from protostar.commands.test.starkware.cheatable_syscall_handler import CheatableSysCallHandler
+
 
 logger = logging.getLogger(__name__)
 
@@ -186,8 +188,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         )
 
         # --- MODIFICATIONS START ---
-        # syscall_handler = CheatableSysCallHandler(
-        syscall_handler = syscall_utils.BusinessLogicSysCallHandler(
+        syscall_handler = CheatableSysCallHandler(
             execute_entry_point_cls=ExecuteEntryPoint,
             tx_execution_context=tx_execution_context,
             state=state,

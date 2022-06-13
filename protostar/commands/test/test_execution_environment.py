@@ -1,8 +1,5 @@
 import asyncio
 from collections.abc import Mapping
-from protostar.commands.test.starkware.cheatable_execute_entry_point import (
-    CheatableExecuteEntryPoint,
-)
 from copy import deepcopy
 from logging import getLogger
 from pathlib import Path
@@ -21,7 +18,6 @@ from protostar.commands.test.cheatcodes import (
     RollCheatcode,
 )
 
-# from protostar.commands.test.cheatcodes.contract import ContractCheatcode
 from protostar.commands.test.expected_event import ExpectedEvent
 
 from protostar.commands.test.starkware.cheatable_syscall_handler import (
@@ -42,7 +38,6 @@ from protostar.commands.test.test_environment_exceptions import (
     StarknetRevertableException,
 )
 from protostar.utils.data_transformer_facade import DataTransformerFacade
-from protostar.utils.modules import replace_class
 from protostar.utils.starknet_compilation import StarknetCompiler
 
 logger = getLogger()
@@ -343,7 +338,6 @@ class TestExecutionEnvironment:
         cheatcodes: List[Cheatcode] = [
             ExpectRevertCheatcode(self),
             RollCheatcode(cheatable_syscall_handler),
-            # ContractCheatcode(self)
         ]
 
         for cheatcode in cheatcodes:
