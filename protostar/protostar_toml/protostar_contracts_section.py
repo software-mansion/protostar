@@ -38,8 +38,8 @@ class ProtostarContractsSection(ProtostarTOMLSection):
             contract_dict[contract_name] = [Path(str_path) for str_path in str_paths]
         return cls(contract_dict=contract_dict)
 
-    def to_dict(self) -> "ProtostarTOMLSection.Dict":
-        result: "ProtostarTOMLSection.Dict" = {}
+    def to_dict(self) -> "ProtostarTOMLSection.TOMLCompatibleDict":
+        result: "ProtostarTOMLSection.TOMLCompatibleDict" = {}
 
         for contract_name, path in self.contract_dict:
             result[contract_name] = str(path)

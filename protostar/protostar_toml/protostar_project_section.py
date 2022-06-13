@@ -30,8 +30,8 @@ class ProtostarProjectSection(ProtostarTOMLSection):
     def from_dict(cls, raw_dict: Dict[str, Any]) -> "ProtostarProjectSection":
         return cls(libs_path=Path(raw_dict["libs_path"]))
 
-    def to_dict(self) -> "ProtostarTOMLSection.Dict":
-        result: "ProtostarTOMLSection.Dict" = {}
+    def to_dict(self) -> "ProtostarTOMLSection.TOMLCompatibleDict":
+        result: "ProtostarTOMLSection.TOMLCompatibleDict" = {}
 
         result["libs_path"] = str(self.libs_path)
 

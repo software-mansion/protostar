@@ -32,7 +32,7 @@ class ProtostarConfigSection(ProtostarTOMLSection):
             protostar_version=VersionManager.parse(raw_dict["protostar_version"])
         )
 
-    def to_dict(self) -> "ProtostarTOMLSection.Dict":
-        result: ProtostarTOMLSection.Dict = {}
+    def to_dict(self) -> "ProtostarTOMLSection.TOMLCompatibleDict":
+        result: ProtostarTOMLSection.TOMLCompatibleDict = {}
         result["protostar_version"] = str(self.protostar_version)
         return result
