@@ -170,7 +170,7 @@ def build_deploy_contract(manager) -> Callable[[Path, List[int]], DeployedContra
     """
     Syntatic sugar for contract deployment compatible with old interface
     """
-    def deploy_contract(path, constructor_calldata) -> DeployedContract:
+    def deploy_contract(path: Path, constructor_calldata: List[int]) -> DeployedContract:
         declared = manager.declare("./tests/integration/cheatcodes/deploy_contract_new/basic_contract.cairo")
         prepared = manager.prepare(declared)
         return manager.deploy(prepared)

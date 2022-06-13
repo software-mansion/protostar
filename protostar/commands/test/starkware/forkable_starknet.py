@@ -1,7 +1,7 @@
 from collections import defaultdict
 import copy
 import marshmallow_dataclass
-from typing import Dict, List, Optional, cast
+from typing import Dict, List, Optional, cast, Union
 
 from starkware.cairo.lang.vm.crypto import pedersen_hash_func
 from starkware.starknet.business_logic.state.state import CarriedState
@@ -13,8 +13,6 @@ from starkware.starknet.testing.state import CastableToAddressSalt, StarknetStat
 from starkware.storage.dict_storage import DictStorage
 from starkware.storage.storage import FactFetchingContext
 from protostar.commands.test.starkware.cheatable_execute_entry_point import CheatableExecuteEntryPoint
-import copy
-from typing import Dict, List, Optional, Union
 
 from starkware.cairo.lang.vm.crypto import pedersen_hash_func
 from starkware.starknet.business_logic.execution.objects import (
