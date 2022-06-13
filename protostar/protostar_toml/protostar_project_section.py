@@ -28,7 +28,9 @@ class ProtostarProjectSection(ProtostarTOMLSection):
 
     @classmethod
     def from_dict(cls, raw_dict: Dict[str, Any]) -> "ProtostarProjectSection":
-        return cls(libs_path=Path(raw_dict["libs_path"]))
+        return cls(
+            libs_path=cls._load_path_from_raw_dict(raw_dict, attribute_name="libs_path")
+        )
 
     def to_dict(self) -> "ProtostarTOMLSection.TOMLCompatibleDict":
         result: "ProtostarTOMLSection.TOMLCompatibleDict" = {}
