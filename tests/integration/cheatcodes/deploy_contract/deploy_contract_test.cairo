@@ -1,9 +1,8 @@
 %lang starknet
 
 from starkware.starknet.common.syscalls import get_contract_address
-from starkware.cairo.common.uint256 import Uint256
-
-# Check if importing from root directory is possible
+from starkware.starknet.common.syscalls import deploy
+from starkware.cairo.common.alloc import alloc
 
 @contract_interface
 namespace ProxyContract:
@@ -28,10 +27,10 @@ end
 
 @contract_interface
 namespace BasicWithConstructor:
-    func get_balance() -> (res : Uint256):
+    func increase_balance(amount : felt):
     end
 
-    func get_id() -> (res : felt):
+    func get_balance() -> (res : felt):
     end
 end
 
@@ -75,8 +74,8 @@ func test_deploy_contract_with_contructor{syscall_ptr : felt*, range_check_ptr}(
     %{
         ids.contract_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor.cairo", [41]).contract_address
     %}
-    BasicContract.increase_balance(contract_address, 1)
-    let (res) = BasicContract.get_balance(contract_address)
+    BasicWithConstructor.increase_balance(contract_address, 1)
+    let (res) = BasicWithConstructor.get_balance(contract_address)
     assert res = 42
     return ()
 end
@@ -90,8 +89,8 @@ func test_deploy_contract_with_contructor_steps{syscall_ptr : felt*, range_check
         prepared = prepare(declared, [41])
         ids.contract_address = deploy(prepared).contract_address
     %}
-    BasicContract.increase_balance(contract_address, 1)
-    let (res) = BasicContract.get_balance(contract_address)
+    BasicWithConstructor.increase_balance(contract_address, 1)
+    let (res) = BasicWithConstructor.get_balance(contract_address)
     assert res = 42
     return ()
 end
@@ -119,8 +118,6 @@ end
 
 @external
 func test_deploy_the_same_contract_twice{syscall_ptr : felt*, range_check_ptr}():
-    alloc_locals
-
     %{
         declared_1 = declare("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor.cairo")
         declared_2 = declare("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor.cairo")
@@ -134,6 +131,38 @@ func test_deploy_the_same_contract_twice{syscall_ptr : felt*, range_check_ptr}()
     return ()
 end
 
+@external
+func test_deploy_using_syscall{syscall_ptr : felt*, range_check_ptr}():
+    alloc_locals
+    local class_hash : felt
+    %{
+        ids.class_hash = declare("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor.cairo").class_hash
+    %}
+    let (local calldata: felt*) = alloc()
+    assert calldata[0] = 41
+    let (contract_address) = deploy(class_hash, 34124, 1, calldata)
+
+    BasicWithConstructor.increase_balance(contract_address, 1)
+    let (res) = BasicWithConstructor.get_balance(contract_address)
+    assert res = 42
+    return ()
+end
+
+@external
+func test_syscall_after_deploy{syscall_ptr : felt*, range_check_ptr}():
+    alloc_locals
+    local contract_address : felt
+    %{
+        ids.contract_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract/basic_contract.cairo").contract_address
+    %}
+
+    BasicWithConstructor.increase_balance(contract_address, 1)
+    let (res) = get_contract_address()
+    return ()
+end
+
+# TESTS
+# deploy using cairo after declare
 
 # @external
 # func test_passing_constructor_data_as_list{syscall_ptr : felt*, range_check_ptr}():

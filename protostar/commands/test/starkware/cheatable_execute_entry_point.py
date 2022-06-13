@@ -30,6 +30,7 @@ import logging
 from starkware.starknet.business_logic.execution.execute_entry_point import (
     ExecuteEntryPoint,
 )
+from protostar.commands.test.cheatcodes.deployment_manager import DeploymentManager, build_deploy_contract
 
 from protostar.commands.test.starkware.cheatable_syscall_handler import CheatableSysCallHandler
 
