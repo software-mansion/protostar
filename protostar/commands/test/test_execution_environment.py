@@ -11,19 +11,27 @@ from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.testing.contract import DeclaredClass, StarknetContract
 from starkware.starkware_utils.error_handling import StarkException
 
-from protostar.commands.test.cheatcodes import (Cheatcode,
-                                                ExpectRevertCheatcode,
-                                                RollCheatcode)
+from protostar.commands.test.cheatcodes import (
+    Cheatcode,
+    ExpectRevertCheatcode,
+    RollCheatcode,
+)
 from protostar.commands.test.expected_event import ExpectedEvent
 from protostar.commands.test.starkware.cheatable_syscall_handler import (
-    CheatableSysCallHandler, CheatableSysCallHandlerException)
-from protostar.commands.test.starkware.forkable_starknet import \
-    ForkableStarknet
+    CheatableSysCallHandler,
+    CheatableSysCallHandlerException,
+)
+from protostar.commands.test.starkware.forkable_starknet import ForkableStarknet
 from protostar.commands.test.test_context import TestContext
 from protostar.commands.test.test_environment_exceptions import (
-    CheatcodeException, ExpectedEventMissingException, ExpectedRevertException,
-    ExpectedRevertMismatchException, RevertableException,
-    SimpleReportedException, StarknetRevertableException)
+    CheatcodeException,
+    ExpectedEventMissingException,
+    ExpectedRevertException,
+    ExpectedRevertMismatchException,
+    RevertableException,
+    SimpleReportedException,
+    StarknetRevertableException,
+)
 from protostar.utils.data_transformer_facade import DataTransformerFacade
 from protostar.utils.modules import replace_class
 from protostar.utils.starknet_compilation import StarknetCompiler
