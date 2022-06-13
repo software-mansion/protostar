@@ -47,46 +47,6 @@ from starkware.starknet.core.os.contract_address.contract_address import (
 )
 
 
-# from protostar.commands.test.starkware.cheatable_syscall_handler import CheatableSysCallHandler
-
-# class Contract:
-# def __init__(self, contract_path: str, constructor_calldata: Optional[Union[List[int], Dict]] = None):
-#
-#     self._constructor_calldata = constructor_calldata
-#     self._declared = test_env.declare_in_env(self._contract_path)
-#     self._deployer_address = 111
-#     self._contract_address = self.calculate_contract_address()
-
-# def calculate_contract_address(self):
-#     return calculate_contract_address_from_hash(
-#         salt=cast(int, nonce),
-#         class_hash=self._declared.class_hash,
-#         constructor_calldata=self._constructor_calldata,
-#         deployer_address=self.contract_address,
-#     )
-
-
-#     @property
-#     def class_hash(self) -> int:
-#         return self._declared.class_hash
-
-#     @property
-#     def contract_address(self) -> AddressType:
-#         return self._contract_address
-
-
-#     def deploy(self):
-#         assert not self._deployed # TODO error
-#         if isinstance(self._constructor_calldata, Mapping):
-#             fn_name = "constructor"
-#             constructor_calldata = DataTransformerFacade.from_contract_path(
-#                 Path(self._contract_path), starknet_compiler
-#             ).from_python(fn_name, **self._constructor_calldata)
-#         else:
-#             constructor_calldata = self._constructor_calldata
-#         test_env.deploy_in_env(self._contract_path, constructor_calldata)
-
-
 logger = logging.getLogger(__name__)
 
 @dataclass
