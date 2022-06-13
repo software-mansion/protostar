@@ -21,6 +21,7 @@ async def test_deploy_contract(mocker):
             "test_deploy_contract_with_contructor",
             "test_deploy_contract_with_contructor_steps",
             "test_deploy_contract_pranked",
+            "test_deploy_the_same_contract_twice"
         ],
         expected_failed_test_cases_names=[],
     )

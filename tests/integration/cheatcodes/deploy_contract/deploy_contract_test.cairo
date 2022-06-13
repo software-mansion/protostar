@@ -34,8 +34,6 @@ namespace BasicWithConstructor:
     func get_id() -> (res : felt):
     end
 end
-# TODO
-# double deploy test
 
 @external
 func test_deploy_contract{syscall_ptr : felt*, range_check_ptr}():
@@ -43,7 +41,7 @@ func test_deploy_contract{syscall_ptr : felt*, range_check_ptr}():
 
     local contract_address : felt
     %{
-        declared = declare("./tests/integration/cheatcodes/deploy_contract_new/basic_contract.cairo")
+        declared = declare("./tests/integration/cheatcodes/deploy_contract/basic_contract.cairo")
         prepared = prepare(declared)
         contract = deploy(prepared)
         ids.contract_address = contract.contract_address 
@@ -61,7 +59,7 @@ func test_deploy_contract_simplified{syscall_ptr : felt*, range_check_ptr}():
 
     local contract_address : felt
     %{
-        ids.contract_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract_new/basic_contract.cairo").contract_address
+        ids.contract_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract/basic_contract.cairo").contract_address
     %}
     
     BasicContract.increase_balance(contract_address, 5)
@@ -75,7 +73,7 @@ func test_deploy_contract_with_contructor{syscall_ptr : felt*, range_check_ptr}(
     alloc_locals
     local contract_address : felt
     %{
-        ids.contract_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract_new/basic_with_constructor.cairo", [41]).contract_address
+        ids.contract_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor.cairo", [41]).contract_address
     %}
     BasicContract.increase_balance(contract_address, 1)
     let (res) = BasicContract.get_balance(contract_address)
@@ -88,7 +86,7 @@ func test_deploy_contract_with_contructor_steps{syscall_ptr : felt*, range_check
     alloc_locals
     local contract_address : felt
     %{
-        declared = declare("./tests/integration/cheatcodes/deploy_contract_new/basic_with_constructor.cairo")
+        declared = declare("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor.cairo")
         prepared = prepare(declared, [41])
         ids.contract_address = deploy(prepared).contract_address
     %}
@@ -104,8 +102,8 @@ func test_deploy_contract_pranked{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
 
     %{
-        declared_1 = declare("./tests/integration/cheatcodes/deploy_contract_new/pranked_contract.cairo")
-        declared_2 = declare("./tests/integration/cheatcodes/deploy_contract_new/pranked_contract.cairo")
+        declared_1 = declare("./tests/integration/cheatcodes/deploy_contract/pranked_contract.cairo")
+        declared_2 = declare("./tests/integration/cheatcodes/deploy_contract/pranked_contract.cairo")
 
         prepared_1 = prepare(declared_1, [111])
         prepared_2 = prepare(declared_2, [222])
@@ -119,26 +117,23 @@ func test_deploy_contract_pranked{syscall_ptr : felt*, range_check_ptr}():
     return ()
 end
 
+@external
+func test_deploy_the_same_contract_twice{syscall_ptr : felt*, range_check_ptr}():
+    alloc_locals
 
-# @external
-# func test_missing_logic_contract{syscall_ptr : felt*, range_check_ptr}():
-#     alloc_locals
+    %{
+        declared_1 = declare("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor.cairo")
+        declared_2 = declare("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor.cairo")
 
-#     local contract_logic_address : felt
-#     local contract_proxy_address : felt
-#     %{
-#         ids.contract_proxy_address = Contract("./tests/integration/cheatcodes/deploy_contract/proxy_contract.cairo").deploy().contract_address
-#         ids.contract_logic_address = 5342435325345
-#     %}
+        prepared_1 = prepare(declared_1, [42])
+        prepared_2 = prepare(declared_2, [42])
 
-#     %{ expect_revert() %}
+        deploy(prepared_1)
+        deploy(prepared_2)
+    %}
+    return ()
+end
 
-#     ProxyContract.set_target(
-#         contract_address=contract_proxy_address, new_target=contract_logic_address)
-
-#     ProxyContract.increase_twice(contract_address=contract_proxy_address, amount=5)
-#     return ()
-# end
 
 # @external
 # func test_passing_constructor_data_as_list{syscall_ptr : felt*, range_check_ptr}():
@@ -147,9 +142,9 @@ end
 #     let (contract_address) = get_contract_address()
 
 #     %{
-#         ids.deployed_contract_address = Contract("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor.cairo",
+#         ids.deployed_contract_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor.cairo",
 #             [42, 0, ids.contract_address]
-#         ).deploy().contract_address
+#         )contract_address
 #     %}
 
 #     let (balance) = BasicWithConstructor.get_balance(deployed_contract_address)
