@@ -5,6 +5,7 @@ from starkware.starknet.business_logic.state.state import CarriedState
 
 from protostar.commands.test.starkware.types import AddressType, SelectorType
 
+
 class CheatableCarriedState(CarriedState):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

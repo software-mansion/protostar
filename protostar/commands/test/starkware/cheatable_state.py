@@ -1,23 +1,20 @@
 from collections import defaultdict
-import marshmallow_dataclass
 from typing import Dict, List, Optional, cast, Union
 
+import marshmallow_dataclass
 from starkware.cairo.lang.vm.crypto import pedersen_hash_func
 from starkware.starknet.business_logic.state.state import CarriedState
-from starkware.starknet.definitions.general_config import StarknetGeneralConfig
-from starkware.starknet.testing.state import CastableToAddressSalt, StarknetState
-from starkware.storage.dict_storage import DictStorage
-from starkware.storage.storage import FactFetchingContext
-from protostar.commands.test.starkware.cheatable_execute_entry_point import CheatableExecuteEntryPoint
+from starkware.starknet.testing.state import StarknetState
 
-from starkware.cairo.lang.vm.crypto import pedersen_hash_func
+
 from starkware.starknet.business_logic.execution.objects import (
     CallInfo,
     CallType,
     TransactionExecutionInfo,
 )
-from starkware.starknet.business_logic.internal_transaction import InternalInvokeFunction
-from starkware.starknet.business_logic.state.state import CarriedState
+from starkware.starknet.business_logic.internal_transaction import (
+    InternalInvokeFunction,
+)
 from starkware.starknet.definitions import constants
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.public.abi import get_selector_from_name
@@ -29,11 +26,16 @@ from starkware.starknet.business_logic.utils import (
     validate_version,
 )
 
+from protostar.commands.test.starkware.types import AddressType, SelectorType
+from protostar.commands.test.starkware.cheatable_execute_entry_point import (
+    CheatableExecuteEntryPoint,
+)
+
 CastableToAddress = Union[str, int]
 CastableToAddressSalt = Union[str, int]
 
-from protostar.commands.test.starkware.types import AddressType, SelectorType
-
+# pylint: disable=too-many-ancestors
+# pylint: disable=too-many-arguments
 @marshmallow_dataclass.dataclass(frozen=True)
 class CheatableInternalInvokeFunction(InternalInvokeFunction):
     async def execute(
@@ -67,6 +69,7 @@ class CheatableInternalInvokeFunction(InternalInvokeFunction):
                 n_steps=general_config.invoke_tx_max_n_steps
             ),
         )
+
 
 def create_cheatable_invoke_function(
     contract_address: CastableToAddress,

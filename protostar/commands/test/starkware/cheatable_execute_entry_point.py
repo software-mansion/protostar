@@ -26,17 +26,23 @@ from starkware.starkware_utils.error_handling import (
 )
 
 
-import logging
 from starkware.starknet.business_logic.execution.execute_entry_point import (
     ExecuteEntryPoint,
 )
-from protostar.commands.test.cheatcodes.deployment_manager import DeploymentManager, build_deploy_contract
+from protostar.commands.test.cheatcodes.deployment_manager import (
+    DeploymentManager,
+    build_deploy_contract,
+)
 
-from protostar.commands.test.starkware.cheatable_syscall_handler import CheatableSysCallHandler
+from protostar.commands.test.starkware.cheatable_syscall_handler import (
+    CheatableSysCallHandler,
+)
 
 
 logger = logging.getLogger(__name__)
 
+# pylint: disable=too-many-locals
+# pylint: disable=raise-missing-from
 class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     def _run(
         self,
@@ -85,7 +91,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             RelocatableValue, os_context[starknet_abi.SYSCALL_PTR_OFFSET]
         )
 
-        # --- MODIFICATIONS START ---
+        # --- MODIFICATIONS START --- # TODO
         syscall_handler = CheatableSysCallHandler(
             execute_entry_point_cls=CheatableExecuteEntryPoint,
             tx_execution_context=tx_execution_context,
@@ -120,13 +126,13 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             runner.run_from_entrypoint(
                 entry_point.offset,
                 *entry_points_args,
-                hint_locals= {
+                hint_locals={
                     "__storage": starknet_storage,
                     "syscall_handler": syscall_handler,
                     "declare": deployment_manager.declare,
-                    "prepare": deployment_manager.prepare,
-                    "deploy": deployment_manager.deploy,
-                    "deploy_contract": build_deploy_contract(deployment_manager)
+                    "prepare": deployment_manager.prepare_declared,
+                    "deploy": deployment_manager.deploy_prepared,
+                    "deploy_contract": build_deploy_contract(deployment_manager),
                 },
                 static_locals={
                     "__find_element_max_size": 2**20,
