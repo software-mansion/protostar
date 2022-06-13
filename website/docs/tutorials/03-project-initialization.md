@@ -45,13 +45,14 @@ main = [
 ```
 ### Command configuration
 
-Not required arguments can be configured in the `protostar.toml`. It allows you to avoid passing arguments every time you run a command. Protostar checks `["protostar.COMMAND_NAME"]` section and searches an attribute matching an argument name with underscores (`_`) in place of dashes (`-`), for example:
+Not required arguments can be configured in the `protostar.toml`. It allows you to avoid passing arguments every time you run a command. Protostar checks `["protostar.COMMAND_NAME"]` section and looks for an argument value, for example:
 ```toml title="protostar.toml"
 # ...
 
 ["protostar.build"]
-cairo_path = ["./lib/cairo_contracts/src"]
+cairo-path = ["./lib/cairo_contracts/src"]
 ```
+
 
 If you want to configure an argument that is not tied to any command or an argument that is shared across many commands (e.g. `cairo-path`), specify it in the `["protostar.shared_command_configs"]` section. This is useful if you want to specify the same `cairo-path` for `build` and `test` commands as demonstrated on the following example:
 
@@ -59,7 +60,7 @@ If you want to configure an argument that is not tied to any command or an argum
 # ...
 
 ["protostar.shared_command_configs"]
-cairo_path = ["./lib/cairo_contracts/src"]
+cairo-path = ["./lib/cairo_contracts/src"]
 ```
 
 :::info
@@ -72,7 +73,7 @@ Configuration profiles provide a way to easily switch between Protostar configur
 ```toml title="protostar.toml"
 # ...
 ["profile.ci.protostar.shared_command_configs"]
-no_color = true
+no-color = true
 ```
 Then, run Protostar with the `--profile` (or `-p`) argument:
 ```shell

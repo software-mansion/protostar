@@ -108,7 +108,13 @@ class Project:
             return None
 
         section_config = flat_config[section_name]
-        attribute_name = attribute_name.replace("-", "_")
+
+        if attribute_name not in section_config:
+            attribute_name = attribute_name.replace("-", "_")
+
+        if attribute_name not in section_config:
+            attribute_name = attribute_name.replace("_", "-")
+
         if attribute_name not in section_config:
             return None
 

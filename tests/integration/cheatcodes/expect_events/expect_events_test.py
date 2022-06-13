@@ -1,8 +1,12 @@
 from pathlib import Path
+from typing import cast
 
 import pytest
 
 from protostar.commands.test.test_command import TestCommand
+from protostar.commands.test.test_environment_exceptions import (
+    ExpectedEventMissingException,
+)
 from tests.integration.conftest import assert_cairo_test_cases
 
 
@@ -11,7 +15,12 @@ async def test_expect_events(mocker):
     testing_summary = await TestCommand(
         project=mocker.MagicMock(),
         protostar_directory=mocker.MagicMock(),
-    ).test(target=Path(__file__).parent / "expect_events_test.cairo")
+    ).test(
+        targets=[f"{Path(__file__).parent}/expect_events_test.cairo"],
+        ignored_targets=[
+            f"{Path(__file__).parent}/expect_events_test.cairo::test_selector_to_name_mapping"
+        ],
+    )
 
     assert_cairo_test_cases(
         testing_summary,
@@ -30,3 +39,20 @@ async def test_expect_events(mocker):
             "test_fail_message_about_first_not_found_event",
         ],
     )
+
+
+@pytest.mark.asyncio
+async def test_event_selector_to_name_mapping(mocker):
+    testing_summary = await TestCommand(
+        project=mocker.MagicMock(),
+        protostar_directory=mocker.MagicMock(),
+    ).test(
+        targets=[
+            f"{Path(__file__).parent}/expect_events_test.cairo::test_selector_to_name_mapping"
+        ]
+    )
+
+    ex = cast(ExpectedEventMissingException, testing_summary.failed[0].exception)
+    str_ex = str(ex)
+    assert '"name": "foobar"' in str_ex
+    assert '"name": "balance_increased"' in str_ex

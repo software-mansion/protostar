@@ -233,10 +233,10 @@ If you are familiar with [Foundry](https://book.getfoundry.sh/forge/cheatcodes.h
 ### `mock_call`
 
 ```python
-def mock_call(contract_address: int, fn_name: str, ret_data: List[int]) -> None: ...
+def mock_call(contract_address: int, fn_name: str, ret_data: List[int]) -> Callable: ...
 ```
 
-Mocks all calls to function with the name `fn_name` of a contract with an address `contract_address` unless [`clear_mock_call`](#clear_mock_call) is used. Mocked call returns data provided in `ret_data`.
+Mocks all calls to function with the name `fn_name` of a contract with an address `contract_address` until the returned callable is called. Mocked call returns data provided in `ret_data`. Mock works globally, for all of the contracts, not only the testing contract.
 
 #### Representing different data structures in `ret_data`
 
@@ -260,8 +260,9 @@ const EXTERNAL_CONTRACT_ADDRESS = 0x3fe90a1958bb8468fb1b62970747d8a00c435ef96cda
 func test_mock_call_returning_felt{syscall_ptr : felt*, range_check_ptr}():
   tempvar external_contract_address = EXTERNAL_CONTRACT_ADDRESS
 
-  %{ mock_call(ids.external_contract_address, "get_felt", [42]) %}
+  %{ stop_mock = mock_call(ids.external_contract_address, "get_felt", [42]) %}
   let (res) = ITestContract.get_felt(EXTERNAL_CONTRACT_ADDRESS)
+  %{ stop_mock() %}
 
   assert res = 42
   return ()
@@ -291,8 +292,9 @@ const EXTERNAL_CONTRACT_ADDRESS = 0x3fe90a1958bb8468fb1b62970747d8a00c435ef96cda
 func test_mock_call_returning_array{syscall_ptr : felt*, range_check_ptr}():
   tempvar external_contract_address = EXTERNAL_CONTRACT_ADDRESS
 
-  %{ mock_call(ids.external_contract_address, "get_array", [1, 42]) %}
+  %{ stop_mock = mock_call(ids.external_contract_address, "get_array", [1, 42]) %}
   let (res_len, res_arr) = ITestContract.get_array(EXTERNAL_CONTRACT_ADDRESS)
+  %{ stop_mock() %}
 
   assert res_arr[0] = 42
   return ()
@@ -321,22 +323,15 @@ const EXTERNAL_CONTRACT_ADDRESS = 0x3fe90a1958bb8468fb1b62970747d8a00c435ef96cda
 func test_mock_call_returning_struct{syscall_ptr : felt*, range_check_ptr}():
   tempvar external_contract_address = EXTERNAL_CONTRACT_ADDRESS
 
-  %{ mock_call(ids.external_contract_address, "get_struct", [21,37]) %}
+  %{ stop_mock = mock_call(ids.external_contract_address, "get_struct", [21,37]) %}
   let (res_struct) = ITestContract.get_struct(EXTERNAL_CONTRACT_ADDRESS)
+  %{ stop_mock() %}
 
   assert res_struct.x = 21
   assert res_struct.y = 37
   return ()
 end
 ```
-
-### `clear_mock_call`
-
-```python
-def clear_mock_call(contract_address: int, fn_name: str) -> None: ...
-```
-
-Removes a mocked call specified by a function name (`fn_name`) of a contract with an address (`contract_address`).
 
 ### `expect_revert`
 
@@ -462,7 +457,7 @@ end
 ### `deploy_contract`
 
 ```python
-def deploy_contract(contract_path: str, constructor_calldata: List[int]) -> DeployedContact:
+def deploy_contract(contract_path: str, constructor_calldata: Optional[Union[List[int], Dict]] = None) -> DeployedContact:
 
 class DeployedContract:
     @property
@@ -473,6 +468,34 @@ Deploys a contract given a path relative to a Protostar project root. The sectio
 :::warning
 Deploying a contract is a slow operation. If it's possible try using this cheatcode in the [`__setup__` hook](#__setup__).
 :::
+
+If the constructor of the contract accepts arguments, `constructor_calldata` expects a list of integers in the representation described in ["passing tuples and structs in calldata" section of official docs](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#passing-tuples-and-structs-in-calldata) or by a dictionary. In case of a dictionary, Protostar uses [Starknet.py](https://github.com/software-mansion/starknet.py)'s data transformer to translate Python values to Cairo values.
+
+#### Example
+```python title="Passing constructor data as a dictionary"
+deploy_contract("./src/main.cairo", {"initial_balance": 42, "contract_id": 123})
+```
+
+```python title="Passing constructor data as a list of integers"
+deploy_contract("./src/main.cairo", [42, 0, 123])
+```
+
+
+
+```cairo title="./src/main.cairo"
+@constructor
+func constructor(initial_balance : Uint256, contract_id : felt):
+    # ...
+    return ()
+end
+```
+
+:::info
+To learn more how data is transformed from Python to Cairo read [Data transformation section in the Starknet.py's documentation](https://starknetpy.readthedocs.io/en/latest/guide.html#data-transformation).
+:::
+
+
+
 ### `start_prank`
 
 ```python

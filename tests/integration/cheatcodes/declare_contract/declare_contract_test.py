@@ -7,26 +7,17 @@ from tests.integration.conftest import assert_cairo_test_cases
 
 
 @pytest.mark.asyncio
-async def test_testing_hooks(mocker):
+async def test_declare_contract(mocker):
     testing_summary = await TestCommand(
         project=mocker.MagicMock(),
         protostar_directory=mocker.MagicMock(),
-    ).test(targets=[f"{Path(__file__).parent}/testing_hooks_test.cairo"])
+    ).test(targets=[str(Path(__file__).parent / "declare_contract_test.cairo")])
 
     assert_cairo_test_cases(
         testing_summary,
         expected_passed_test_cases_names=[
-            "test_contract_was_deployed_in_setup",
+            "test_deploy_declared_contract",
+            "test_deploy_declared_contract_in_proxy",
         ],
         expected_failed_test_cases_names=[],
     )
-
-
-@pytest.mark.asyncio
-async def test_invalid_setup(mocker):
-    testing_summary = await TestCommand(
-        project=mocker.MagicMock(),
-        protostar_directory=mocker.MagicMock(),
-    ).test(targets=[f"{Path(__file__).parent}/invalid_setup_test.cairo"])
-
-    assert len(testing_summary.broken) == 1
