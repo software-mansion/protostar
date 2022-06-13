@@ -164,7 +164,9 @@ end
 @external
 func test_utilizes_cairo_path{syscall_ptr : felt*, range_check_ptr}():
     %{
-        deploy_contract("./tests/integration/cheatcodes/deploy_contract/contract_using_external.cairo").contract_address
+        declared = declare("./tests/integration/cheatcodes/deploy_contract/contract_using_external.cairo")
+        prepared = prepare(declared)
+        deploy(prepared).contract_address
     %}
     return ()
 end
