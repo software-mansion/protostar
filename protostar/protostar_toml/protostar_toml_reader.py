@@ -7,17 +7,14 @@ import tomli
 from protostar.protostar_toml.protostar_toml_exceptions import (
     NoProtostarProjectFoundException,
 )
-from protostar.utils.protostar_directory import VersionManager
 
 
 class ProtostarTOMLReader:
     def __init__(
         self,
-        version_manager: VersionManager,
         protostar_toml_path: Optional[Path] = None,
     ):
         self.path = protostar_toml_path or Path() / "protostar.toml"
-        self._version_manager = version_manager
         self._cache: Optional[Dict[str, Any]] = None
 
     def get_section(
