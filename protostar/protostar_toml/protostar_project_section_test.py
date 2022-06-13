@@ -5,10 +5,10 @@ import pytest
 from pytest_mock import MockerFixture
 
 from protostar.protostar_toml._conftest import mock_protostar_toml_reader
-from protostar.protostar_toml.protostar_project_section import \
-    ProtostarProjectSection
-from protostar.protostar_toml.protostar_toml_exceptions import \
-    InvalidProtostarTOMLException
+from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
+from protostar.protostar_toml.protostar_toml_exceptions import (
+    InvalidProtostarTOMLException,
+)
 
 
 @pytest.fixture(name="section_dict")
@@ -27,7 +27,7 @@ def test_serialization(mocker: MockerFixture, section_dict: Dict):
 
 def test_fail_loading_libs_path(mocker: MockerFixture):
     protostar_toml_reader_mock = mock_protostar_toml_reader(mocker)(
-        protostar_section_dict=None
+        protostar_section_dict="True"
     )
 
     with pytest.raises(InvalidProtostarTOMLException):
