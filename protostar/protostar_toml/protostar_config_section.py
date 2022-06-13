@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 from typing import Any, Dict
 
-from protostar.protostar_toml.protostar_toml_exceptions import \
-    InvalidProtostarTOMLException
+from protostar.protostar_toml.protostar_toml_exceptions import (
+    InvalidProtostarTOMLException,
+)
 from protostar.protostar_toml.protostar_toml_reader import ProtostarTOMLReader
-from protostar.protostar_toml.protostar_toml_section import \
-    ProtostarTOMLSection
+from protostar.protostar_toml.protostar_toml_section import ProtostarTOMLSection
 from protostar.utils.protostar_directory import VersionType
 
 
