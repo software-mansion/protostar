@@ -1,8 +1,6 @@
 import asyncio
-from collections.abc import Mapping
 from copy import deepcopy
 from logging import getLogger
-from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Set, Union
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
@@ -37,7 +35,6 @@ from protostar.commands.test.test_environment_exceptions import (
     SimpleReportedException,
     StarknetRevertableException,
 )
-from protostar.utils.data_transformer_facade import DataTransformerFacade
 from protostar.utils.starknet_compilation import StarknetCompiler
 
 logger = getLogger()
@@ -317,19 +314,6 @@ class TestExecutionEnvironment:
                     )
 
             self.add_test_finish_hook(compare_expected_and_emitted_events)
-
-        @register_cheatcode
-        def deploy_contract(
-            contract_path: str,
-            constructor_calldata: Optional[Union[List[int], Dict]] = None,
-        ):
-            if isinstance(constructor_calldata, Mapping):
-                fn_name = "constructor"
-                constructor_calldata = DataTransformerFacade.from_contract_path(
-                    Path(contract_path), self._starknet_compiler
-                ).from_python(fn_name, **constructor_calldata)
-
-            return self.deploy_in_env(contract_path, constructor_calldata)
 
         @register_cheatcode
         def declare_contract(contract_path: str):

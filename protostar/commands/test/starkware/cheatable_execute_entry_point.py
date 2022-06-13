@@ -2,7 +2,7 @@ import asyncio
 import logging
 from pathlib import Path
 import random
-from typing import Callable, List, Tuple, cast
+from typing import Callable, List, Optional, Tuple, cast
 from dataclasses import dataclass
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
@@ -82,9 +82,8 @@ class DeploymentManager(BusinessLogicSysCallHandler):
         )
         future.result()
 
-
         self.execute_constructor_entry_point(
-            contract_address=self.contract_address,
+            contract_address=prepared.contract_address,
             class_hash_bytes=class_hash_bytes,
             constructor_calldata=prepared.constructor_calldata,
         )
@@ -93,14 +92,13 @@ class DeploymentManager(BusinessLogicSysCallHandler):
     def prepare(self, declared, constructor_calldata = None) -> PreparedContract:
         constructor_calldata = constructor_calldata or []
         contract_address: int = calculate_contract_address_from_hash(
-            salt=random.randint(0, 10000000000),
+            salt=random.randint(0, 10000000000), #TODO deterministic
             class_hash=declared.class_hash,
             constructor_calldata=constructor_calldata,
             deployer_address=self.contract_address,
         )
         return PreparedContract(constructor_calldata, contract_address, declared.class_hash)
         
-
     def declare(self, contract_path) -> DeclaredContract: 
         class_hash = cast(int, asyncio.run(self._declare_contract(contract_path)).class_hash)
         return DeclaredContract(class_hash)
@@ -130,11 +128,11 @@ class DeploymentManager(BusinessLogicSysCallHandler):
 
 def build_deploy_contract(manager) -> Callable[[Path, List[int]], DeployedContract]: #TODO add transformer
     """
-    Syntatic sugar for contract deployment compatible with old interface
+    Syntatic sugar for contract deployment compatible with the old interface
     """
-    def deploy_contract(path: Path, constructor_calldata: List[int]) -> DeployedContract:
-        declared = manager.declare("./tests/integration/cheatcodes/deploy_contract_new/basic_contract.cairo")
-        prepared = manager.prepare(declared)
+    def deploy_contract(path: Path, constructor_calldata: Optional[List[int]] = None) -> DeployedContract:
+        declared = manager.declare(path)
+        prepared = manager.prepare(declared, constructor_calldata)
         return manager.deploy(prepared)
     return deploy_contract
 
@@ -189,7 +187,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
 
         # --- MODIFICATIONS START ---
         syscall_handler = CheatableSysCallHandler(
-            execute_entry_point_cls=ExecuteEntryPoint,
+            execute_entry_point_cls=CheatableExecuteEntryPoint,
             tx_execution_context=tx_execution_context,
             state=state,
             caller_address=self.caller_address,
@@ -200,7 +198,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         )
 
         deployment_manager = DeploymentManager(
-            execute_entry_point_cls=ExecuteEntryPoint,
+            execute_entry_point_cls=CheatableExecuteEntryPoint,
             tx_execution_context=tx_execution_context,
             state=state,
             caller_address=self.caller_address,
