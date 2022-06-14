@@ -20,7 +20,6 @@ from starkware.starknet.compiler.starknet_preprocessor import (
 
 from protostar.commands.test.test_cases import BrokenTestSuite
 from protostar.commands.test.test_suite import TestSuite
-from protostar.protostar_exception import ProtostarException
 from protostar.utils.starknet_compilation import StarknetCompiler
 
 TestSuiteGlob = str
@@ -86,10 +85,6 @@ class TestSuiteInfo:
 
 
 TestSuiteInfoDict = Dict[TestSuitePath, TestSuiteInfo]
-
-
-class TestCollectingException(ProtostarException):
-    pass
 
 
 @dataclass
