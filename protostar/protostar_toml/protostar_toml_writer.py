@@ -1,6 +1,6 @@
 # pylint: disable=no-self-use
 from pathlib import Path
-from typing import List, OrderedDict
+from typing import List, Optional, OrderedDict
 
 import tomli_w
 
@@ -14,7 +14,12 @@ from protostar.utils.protostar_directory import VersionManager
 
 
 class ProtostarTOMLWriter:
-    def save_default(self, path: Path, version_manager: VersionManager):
+    def save_default(
+        self,
+        path: Path,
+        version_manager: VersionManager,
+        lib_path: Optional[Path] = None,
+    ):
         self.save(
             path=path,
             protostar_config=ProtostarConfigSection(
@@ -24,7 +29,7 @@ class ProtostarTOMLWriter:
             protostar_contracts=ProtostarContractsSection(
                 contract_name_to_paths={"main": [Path("src/main.cairo")]}
             ),
-            protostar_project=ProtostarProjectSection(Path("lib")),
+            protostar_project=ProtostarProjectSection(lib_path or Path("lib")),
         )
 
     def save(

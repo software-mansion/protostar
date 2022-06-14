@@ -15,6 +15,10 @@ from protostar.commands import (
     UpdateCommand,
     UpgradeCommand,
 )
+from protostar.commands.init.project_creator import (
+    AdaptedProjectCreator,
+    NewProjectCreator,
+)
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
 from protostar.protostar_toml.protostar_toml_writer import ProtostarTOMLWriter
 from protostar.utils import (
@@ -24,6 +28,7 @@ from protostar.utils import (
     VersionManager,
     log_color_provider,
 )
+from protostar.utils.requester import Requester
 
 PROFILE_ARG = Command.Argument(
     name="profile",
@@ -66,12 +71,27 @@ class ProtostarCLI(CLIApp):
         project: Project,
         version_manager: VersionManager,
         protostar_toml_writer: ProtostarTOMLWriter,
+        requester: Requester,
     ) -> None:
         self.project = project
 
         super().__init__(
             commands=[
-                InitCommand(script_root, version_manager, protostar_toml_writer),
+                InitCommand(
+                    requester=requester,
+                    new_project_creator=NewProjectCreator(
+                        script_root,
+                        requester,
+                        protostar_toml_writer,
+                        version_manager,
+                    ),
+                    adapted_project_creator=AdaptedProjectCreator(
+                        script_root,
+                        requester,
+                        protostar_toml_writer,
+                        version_manager,
+                    ),
+                ),
                 BuildCommand(project),
                 InstallCommand(project),
                 RemoveCommand(project),
@@ -103,6 +123,7 @@ class ProtostarCLI(CLIApp):
         version_manager = VersionManager(protostar_directory)
         project = Project(version_manager)
         protostar_toml_writer = ProtostarTOMLWriter()
+        requester = Requester(log_color_provider)
 
         return cls(
             script_root,
@@ -110,6 +131,7 @@ class ProtostarCLI(CLIApp):
             project,
             version_manager,
             protostar_toml_writer,
+            requester,
         )
 
     def _setup_logger(self, is_ci_mode: bool) -> Logger:

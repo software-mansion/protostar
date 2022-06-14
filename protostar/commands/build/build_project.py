@@ -55,50 +55,62 @@ class BuildCommand(Command):
         ]
 
     async def run(self, args):
-        build_project(
-            self._project, args.output, args.cairo_path, args.disable_hint_validation
+        self.build(
+            output_dir=args.output,
+            cairo_path=args.cairo_path,
+            disable_hint_validation=args.disable_hint_validation,
         )
 
+    def build(
+        self,
+        output_dir: Path,
+        cairo_path: List[Path],
+        disable_hint_validation: bool,
+    ):
+        project_paths = [
+            *self._project.get_include_paths(),
+            *[str(pth) for pth in cairo_path],
+        ]
+        output_dir.mkdir(exist_ok=True)
 
-def build_project(
-    project: Project,
-    output_dir: Path,
-    cairo_path: List[Path],
-    disable_hint_validation: bool,
-):
-    project_paths = [*project.get_include_paths(), *[str(pth) for pth in cairo_path]]
-    output_dir.mkdir(exist_ok=True)
-
-    for contract_name, contract_components in project.config.contracts.items():
-        try:
-            contract = StarknetCompiler(
-                include_paths=project_paths,
-                disable_hint_validation=disable_hint_validation,
-            ).compile_contract(
-                *[Path(component) for component in contract_components],
-            )
-        except StarknetCompiler.FileNotFoundException as err:
-            raise StarknetCompiler.FileNotFoundException(
-                message=(
-                    err.message
-                    + '\nDid you forget to update protostar.toml::["protostar.contracts"]?'
+        for (
+            contract_name,
+            contract_components,
+        ) in self._project.config.contracts.items():
+            try:
+                contract = StarknetCompiler(
+                    include_paths=project_paths,
+                    disable_hint_validation=disable_hint_validation,
+                ).compile_contract(
+                    *[Path(component) for component in contract_components],
                 )
-            ) from err
-        except (StarkException, VmException, PreprocessorError) as err:
-            raise CairoCompilationException(
-                f"Protostar couldn't compile '{contract_name}' contract\n{str(err)}"
-            ) from err
+            except StarknetCompiler.FileNotFoundException as err:
+                raise StarknetCompiler.FileNotFoundException(
+                    message=(
+                        err.message
+                        + '\nDid you forget to update protostar.toml::["protostar.contracts"]?'
+                    )
+                ) from err
+            except (StarkException, VmException, PreprocessorError) as err:
+                raise CairoCompilationException(
+                    f"Protostar couldn't compile '{contract_name}' contract\n{str(err)}"
+                ) from err
 
-        with open(
-            Path(output_dir, f"{contract_name}.json"), mode="w", encoding="utf-8"
-        ) as output_file:
-            json.dump(
-                contract.Schema().dump(contract), output_file, indent=4, sort_keys=True
-            )
-            output_file.write("\n")
+            with open(
+                Path(output_dir, f"{contract_name}.json"), mode="w", encoding="utf-8"
+            ) as output_file:
+                json.dump(
+                    contract.Schema().dump(contract),
+                    output_file,
+                    indent=4,
+                    sort_keys=True,
+                )
+                output_file.write("\n")
 
-        with open(
-            Path(output_dir, f"{contract_name}_abi.json"), mode="w", encoding="utf-8"
-        ) as output_abi_file:
-            json.dump(contract.abi, output_abi_file, indent=4, sort_keys=True)
-            output_abi_file.write("\n")
+            with open(
+                Path(output_dir, f"{contract_name}_abi.json"),
+                mode="w",
+                encoding="utf-8",
+            ) as output_abi_file:
+                json.dump(contract.abi, output_abi_file, indent=4, sort_keys=True)
+                output_abi_file.write("\n")
