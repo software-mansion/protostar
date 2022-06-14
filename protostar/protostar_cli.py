@@ -16,6 +16,7 @@ from protostar.commands import (
     UpgradeCommand,
 )
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
+from protostar.protostar_toml.protostar_toml_writer import ProtostarTOMLWriter
 from protostar.utils import (
     Project,
     ProtostarDirectory,
@@ -64,12 +65,13 @@ class ProtostarCLI(CLIApp):
         protostar_directory: ProtostarDirectory,
         project: Project,
         version_manager: VersionManager,
+        protostar_toml_writer: ProtostarTOMLWriter,
     ) -> None:
         self.project = project
 
         super().__init__(
             commands=[
-                InitCommand(script_root, version_manager),
+                InitCommand(script_root, version_manager, protostar_toml_writer),
                 BuildCommand(project),
                 InstallCommand(project),
                 RemoveCommand(project),
@@ -100,7 +102,15 @@ class ProtostarCLI(CLIApp):
         protostar_directory = ProtostarDirectory(script_root)
         version_manager = VersionManager(protostar_directory)
         project = Project(version_manager)
-        return cls(script_root, protostar_directory, project, version_manager)
+        protostar_toml_writer = ProtostarTOMLWriter()
+
+        return cls(
+            script_root,
+            protostar_directory,
+            project,
+            version_manager,
+            protostar_toml_writer,
+        )
 
     def _setup_logger(self, is_ci_mode: bool) -> Logger:
         log_color_provider.is_ci_mode = is_ci_mode

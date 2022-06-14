@@ -1,21 +1,28 @@
 import glob
 import shutil
 from pathlib import Path
-from typing import Any, List, Optional, Type
+from typing import List, Optional, Type
 
 from git.exc import InvalidGitRepositoryError
 from git.repo import Repo
 
 from protostar.cli import Command
+from protostar.protostar_toml.protostar_toml_writer import ProtostarTOMLWriter
 from protostar.utils import VersionManager, log_color_provider
 from protostar.utils.config.project import Project, ProjectConfig
 
 
 class InitCommand(Command):
-    def __init__(self, script_root: Path, version_manager: VersionManager) -> None:
+    def __init__(
+        self,
+        script_root: Path,
+        version_manager: VersionManager,
+        protostar_toml_writer: ProtostarTOMLWriter,
+    ) -> None:
         super().__init__()
         self._script_root = script_root
         self._version_manager = version_manager
+        self._protostar_toml_writer = protostar_toml_writer
 
     @property
     def name(self) -> str:
@@ -40,16 +47,14 @@ class InitCommand(Command):
         ]
 
     async def run(self, args):
-        init(args, self._script_root, self._version_manager)
+        self.init(project_already_exists=args.existing)
 
-
-def init(args: Any, script_root: Path, version_manager: VersionManager):
-    """
-    Creates init protostar project
-    """
-    CurrentProjectCreator = get_creator(args)
-    project_creator = CurrentProjectCreator(script_root, version_manager)
-    project_creator.run()
+    def init(self, project_already_exists: bool):
+        ActiveProjectCreator = choose_project_creator(project_already_exists)
+        project_creator = ActiveProjectCreator(
+            self._script_root, self._version_manager, self._protostar_toml_writer
+        )
+        project_creator.run()
 
 
 def input_yes_no(message: str) -> bool:
@@ -60,11 +65,17 @@ def input_yes_no(message: str) -> bool:
 
 
 class ProjectCreator:
-    def __init__(self, script_root: Path, version_manager: VersionManager):
+    def __init__(
+        self,
+        script_root: Path,
+        version_manager: VersionManager,
+        protostar_toml_writer: ProtostarTOMLWriter,
+    ):
         self.script_root = script_root
         self.config = ProjectConfig()
         self._version_manager = version_manager
         self._project_dir_name = ""
+        self._protostar_toml_writer = protostar_toml_writer
 
     @staticmethod
     def request_input(message: str):
@@ -99,14 +110,15 @@ class ProjectCreator:
     def project_creation(self):
         project_root = Path() / self._project_dir_name
         self.copy_template(self.script_root, "default", project_root)
-        project = Project(self._version_manager, project_root)
 
         lib_pth = Path(project_root, self.config.libs_path)
 
         if self.config.libs_path and not lib_pth.is_dir():
             lib_pth.mkdir(parents=True)
 
-        project.write_config(self.config)
+        self._protostar_toml_writer.save_default(
+            path=project_root / "protostar.toml", version_manager=self._version_manager
+        )
 
         try:
             Repo(project_root, search_parent_directories=True)
@@ -146,8 +158,8 @@ class OnlyConfigCreator(ProjectCreator):
             Repo.init(project_root)
 
 
-def get_creator(args: Any) -> Type[ProjectCreator]:
-    if args.existing:
+def choose_project_creator(project_already_exists: bool) -> Type[ProjectCreator]:
+    if project_already_exists:
         return OnlyConfigCreator
 
     files_depth_3 = glob.glob("*") + glob.glob("*/*") + glob.glob("*/*/*")

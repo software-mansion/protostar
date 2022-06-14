@@ -1,1 +1,1 @@
-from protostar.commands.init.init_command import InitCommand, init
+from protostar.commands.init.init_command import InitCommand
