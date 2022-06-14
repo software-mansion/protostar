@@ -4,8 +4,7 @@ from pathlib import Path
 from git import InvalidGitRepositoryError
 from git.repo import Repo
 
-from protostar.commands.init.project_creator._project_creator import \
-    ProjectCreator
+from protostar.commands.init.project_creator._project_creator import ProjectCreator
 from protostar.protostar_toml.protostar_toml_writer import ProtostarTOMLWriter
 from protostar.utils.protostar_directory import VersionManager
 from protostar.utils.requester import Requester
