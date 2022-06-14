@@ -103,5 +103,5 @@ def test_exit_code_if_any_test_failed(protostar, copy_fixture):
 def test_broken_test_suite_in_collecting_phase(protostar, copy_fixture):
     copy_fixture("test_broken.cairo", "./tests")
 
-    result: str = protostar(["--no-color", "test", "tests"], ignore_exit_code=True)
-    assert result.index("BROKEN") < result.index("1 broken, 1 passed")
+    result: str = protostar(["--no-color", "test", "**/test_*"], ignore_exit_code=True)
+    assert "1 broken, 1 passed" in result
