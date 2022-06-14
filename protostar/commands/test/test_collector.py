@@ -8,15 +8,17 @@ from glob import glob
 from logging import Logger
 from pathlib import Path
 from time import time
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, Tuple
 
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
+    LocationError,
     PreprocessorError,
 )
 from starkware.starknet.compiler.starknet_preprocessor import (
     StarknetPreprocessedProgram,
 )
 
+from protostar.commands.test.test_cases import BrokenTestSuite
 from protostar.commands.test.test_suite import TestSuite
 from protostar.protostar_exception import ProtostarException
 from protostar.utils.starknet_compilation import StarknetCompiler
@@ -93,14 +95,22 @@ class TestCollectingException(ProtostarException):
 @dataclass
 class TestCollector:
     class Result:
-        def __init__(self, test_suites: List[TestSuite], duration: float = 0.0) -> None:
+        def __init__(
+            self,
+            test_suites: List[TestSuite],
+            broken_test_suites: Optional[List[BrokenTestSuite]] = None,
+            duration: float = 0.0,
+        ) -> None:
             self.test_suites = test_suites
+            self.broken_test_suites: List[BrokenTestSuite] = broken_test_suites or []
             self.test_cases_count = sum(
                 [len(test_suite.test_case_names) for test_suite in test_suites]
             )
             self.duration = duration
 
         def log(self, logger: Logger):
+            for broken_test_suite in self.broken_test_suites:
+                print(broken_test_suite)
             if self.test_cases_count:
                 result: List[str] = ["Collected"]
                 suites_count = len(self.test_suites)
@@ -119,7 +129,7 @@ class TestCollector:
 
                 logger.info(" ".join(result))
             else:
-                logger.warning("No cases found")
+                logger.warning("No test cases found")
 
     def __init__(
         self,
@@ -167,9 +177,10 @@ class TestCollector:
             ignored_test_case_globs_dict,
         )
 
-        test_suites = self._build_test_suites_from_test_suite_info_dict(
-            test_suite_info_dict
-        )
+        (
+            test_suites,
+            broken_test_suites,
+        ) = self._build_test_suites_from_test_suite_info_dict(test_suite_info_dict)
 
         non_empty_test_suites = list(
             filter(lambda test_file: (test_file.test_case_names) != [], test_suites)
@@ -178,7 +189,9 @@ class TestCollector:
         end_time = time()
 
         return TestCollector.Result(
-            test_suites=non_empty_test_suites, duration=end_time - start_time
+            non_empty_test_suites,
+            broken_test_suites=broken_test_suites,
+            duration=end_time - start_time,
         )
 
     def build_test_case_globs_dict(
@@ -265,13 +278,27 @@ class TestCollector:
     def _build_test_suites_from_test_suite_info_dict(
         self,
         test_suite_info_dict: TestSuiteInfoDict,
-    ) -> List[TestSuite]:
-        return [
-            self._build_test_suite_from_test_suite_info(
-                test_suite_info,
-            )
-            for test_suite_info in test_suite_info_dict.values()
-        ]
+    ) -> Tuple[List[TestSuite], List[BrokenTestSuite]]:
+        test_suites: List[TestSuite] = []
+        broken_test_suites: List[BrokenTestSuite] = []
+
+        for test_suite_info in test_suite_info_dict.values():
+            try:
+                test_suites.append(
+                    self._build_test_suite_from_test_suite_info(
+                        test_suite_info,
+                    )
+                )
+            except (PreprocessorError, LocationError) as err:
+                broken_test_suites.append(
+                    BrokenTestSuite(
+                        file_path=test_suite_info.path,
+                        test_case_names=[],
+                        exception=err,
+                    )
+                )
+
+        return (test_suites, broken_test_suites)
 
     def _build_test_suite_from_test_suite_info(
         self,
@@ -306,8 +333,4 @@ class TestCollector:
         return function_names[0] if len(function_names) > 0 else None
 
     def _preprocess_contract(self, file_path: Path) -> StarknetPreprocessedProgram:
-        try:
-            return self._starknet_compiler.preprocess_contract(file_path)
-        except PreprocessorError as p_err:
-            print(p_err)
-            raise TestCollectingException("Failed to collect test cases") from p_err
+        return self._starknet_compiler.preprocess_contract(file_path)
