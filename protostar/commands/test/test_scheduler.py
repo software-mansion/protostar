@@ -1,8 +1,7 @@
 import multiprocessing
 import signal
-from typing import TYPE_CHECKING, Callable, List, Optional
+from typing import TYPE_CHECKING, Callable, List
 
-from protostar.commands.test.test_cases import TestCaseResult
 from protostar.commands.test.test_results_queue import TestResultsQueue
 from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
