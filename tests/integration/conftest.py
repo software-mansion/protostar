@@ -1,8 +1,11 @@
 # pylint: disable=invalid-name
+from pathlib import Path
 from typing import List
 
 import pytest
+from pytest_mock import MockerFixture
 
+from protostar.commands.test.test_command import TestCommand
 from protostar.commands.test.testing_summary import TestingSummary
 from tests.conftest import run_devnet
 
@@ -29,3 +32,11 @@ def devnet_gateway_url_fixture(devnet_port: int):
     proc = run_devnet(["poetry", "run", "starknet-devnet"], devnet_port)
     yield f"http://localhost:{devnet_port}"
     proc.kill()
+
+
+
+async def run_cairo_test_runner(mocker: MockerFixture, path: Path) -> TestingSummary:
+    return await TestCommand(
+        project=mocker.MagicMock(),
+        protostar_directory=mocker.MagicMock(),
+    ).test(targets=[str(path)])

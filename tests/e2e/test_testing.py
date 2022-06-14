@@ -97,3 +97,11 @@ def test_exit_code_if_any_test_failed(protostar, copy_fixture):
     copy_fixture("test_failed.cairo", "./tests")
     with pytest.raises(CalledProcessError):
         protostar(["test", "tests"])
+
+
+@pytest.mark.usefixtures("init")
+def test_broken_test_suite_in_collecting_phase(protostar, copy_fixture):
+    copy_fixture("test_broken.cairo", "./tests")
+
+    result: str = protostar(["--no-color", "test", "tests"], ignore_exit_code=True)
+    assert result.index("BROKEN") < result.index("1 broken, 1 passed")
