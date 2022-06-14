@@ -64,6 +64,7 @@ class ConfigurationProfileCLISchema(CLIApp):
 
 
 class ProtostarCLI(CLIApp):
+    # pylint: disable=too-many-arguments
     def __init__(
         self,
         script_root: Path,
