@@ -58,7 +58,7 @@ class NewProjectCreator(ProjectCreator):
         self._protostar_toml_writer.save_default(
             path=project_root_path / "protostar.toml",
             version_manager=self._version_manager,
-            lib_path=lib_path,
+            lib_path=Path(user_input.lib_dirname),
         )
 
         try:
