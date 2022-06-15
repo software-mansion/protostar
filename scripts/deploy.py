@@ -15,6 +15,13 @@ if str(repo.active_branch) != "master":
     print("Checkout to master and try again.")
     sys.exit(1)
 
+# check if the local master is in sync with the remote master
+commits_behind_count = sum(1 for c in repo.iter_commits("master..origin/master"))
+commits_ahead_count = sum(1 for c in repo.iter_commits("origin/master..master"))
+if commits_ahead_count + commits_behind_count > 0:
+    print("`master` is not in sync with the `origin/master`")
+    sys.exit(1)
+
 # get current Protostar version
 path = PROJECT_ROOT / "pyproject.toml"
 
@@ -56,9 +63,13 @@ repo.git.add("pyproject.toml")
 commit = repo.index.commit(f"release Protostar {new_protostar_version_str}")
 
 # add tag
-tag = repo.create_tag(f"v{new_protostar_version_str}", ref=commit.hexsha)
+tag_name = f"v{new_protostar_version_str}"
+tag = repo.create_tag(tag_name, ref=commit.hexsha)
 
 # push to master
 origin = repo.remote(name="origin")
 origin.push()
 origin.push(tag.path)
+
+print((f"Created and pushed tag: {tag_name}"))
+print(("It may take some time until GitHub action builds and uploads binaries."))
