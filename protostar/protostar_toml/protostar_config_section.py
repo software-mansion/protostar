@@ -6,7 +6,7 @@ from protostar.protostar_toml.protostar_toml_exceptions import (
 )
 from protostar.protostar_toml.protostar_toml_reader import ProtostarTOMLReader
 from protostar.protostar_toml.protostar_toml_section import ProtostarTOMLSection
-from protostar.utils.protostar_directory import VersionType
+from protostar.utils.protostar_directory import VersionManager, VersionType
 
 
 @dataclass
@@ -16,6 +16,13 @@ class ProtostarConfigSection(ProtostarTOMLSection):
     @staticmethod
     def get_section_name() -> str:
         return "config"
+
+    @classmethod
+    def get_default(cls, version_manager: VersionManager) -> "ProtostarConfigSection":
+        return cls(
+            protostar_version=version_manager.protostar_version
+            or version_manager.parse("0.0.0")
+        )
 
     @classmethod
     def from_protostar_toml_reader(

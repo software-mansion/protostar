@@ -15,6 +15,10 @@ class ProtostarContractsSection(ProtostarTOMLSection):
         return "contracts"
 
     @classmethod
+    def get_default(cls) -> "ProtostarContractsSection":
+        return cls(contract_name_to_paths={"main": [Path("src/main.cairo")]})
+
+    @classmethod
     def from_protostar_toml_reader(
         cls, protostar_toml_reader: ProtostarTOMLReader
     ) -> "ProtostarContractsSection":

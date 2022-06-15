@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from protostar.protostar_toml.protostar_toml_exceptions import (
     InvalidProtostarTOMLException,
@@ -18,7 +18,7 @@ class ProtostarProjectSection(ProtostarTOMLSection):
         return "project"
 
     @classmethod
-    def get_default(cls) -> Optional["ProtostarProjectSection"]:
+    def get_default(cls) -> "ProtostarProjectSection":
         return cls(libs_path=Path("lib"))
 
     @classmethod
