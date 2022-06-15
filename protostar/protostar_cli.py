@@ -132,6 +132,8 @@ class ProtostarCLI(CLIApp):
         except ProtostarExceptionSilent:
             sys.exit(1)
         except ProtostarException as err:
+            if err.details:
+                print(err.details)
             logger.error(err.message)
             sys.exit(1)
         except KeyboardInterrupt:
