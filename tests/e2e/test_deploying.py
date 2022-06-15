@@ -5,7 +5,6 @@ import pytest
 
 
 @pytest.mark.usefixtures("init")
-@pytest.mark.skip(reason="We have to wait for devnet update to 0.9")
 def test_deploying_contract_with_constructor(
     protostar, devnet_gateway_url, datadir: Path
 ):
@@ -30,7 +29,6 @@ def test_deploying_contract_with_constructor(
 
 
 @pytest.mark.usefixtures("init")
-@pytest.mark.skip(reason="We have to wait for devnet update to 0.9")
 def test_deploying_contract_with_constructor_and_inputs_defined_in_config_file(
     protostar, devnet_gateway_url, datadir: Path
 ):

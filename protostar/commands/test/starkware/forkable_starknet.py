@@ -1,3 +1,4 @@
+from collections import defaultdict
 import copy
 from typing import Dict, List, Optional, cast
 
@@ -11,11 +12,16 @@ from starkware.starknet.testing.state import CastableToAddressSalt, StarknetStat
 from starkware.storage.dict_storage import DictStorage
 from starkware.storage.storage import FactFetchingContext
 
+from protostar.commands.test.starkware.types import AddressType, SelectorType
+
 
 class CheatableCarriedState(CarriedState):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.pranked_contracts_map: Dict[int, int] = {}
+        self.mocked_calls_map: Dict[
+            AddressType, Dict[SelectorType, List[int]]
+        ] = defaultdict(dict)
         self.event_selector_to_name_map: Dict[int, str] = {}
 
     def update_event_selector_to_name_map(

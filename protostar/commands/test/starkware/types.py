@@ -1,0 +1,2 @@
+AddressType = int
+SelectorType = int
