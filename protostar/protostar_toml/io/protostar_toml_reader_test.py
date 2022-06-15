@@ -3,10 +3,10 @@ from pathlib import Path
 import pytest
 from pytest_mock import MockerFixture
 
+from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 from protostar.protostar_toml.protostar_toml_exceptions import (
     NoProtostarProjectFoundException,
 )
-from protostar.protostar_toml.protostar_toml_reader import ProtostarTOMLReader
 
 
 @pytest.fixture(name="protostar_toml_path")
@@ -62,7 +62,7 @@ def test_supporting_snake_case(protostar_toml_path: Path):
 
 
 def test_open_file_only_once(protostar_toml_path: Path, mocker: MockerFixture):
-    tomli_mock = mocker.patch("protostar.protostar_toml.protostar_toml_reader.tomli")
+    tomli_mock = mocker.patch("protostar.protostar_toml.io.protostar_toml_reader.tomli")
     tomli_mock.load = mocker.MagicMock()
     tomli_mock.load.return_value = {}
 

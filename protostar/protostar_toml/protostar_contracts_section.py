@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List
 
-from protostar.protostar_toml.protostar_toml_reader import ProtostarTOMLReader
+from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 from protostar.protostar_toml.protostar_toml_section import ProtostarTOMLSection
 
 

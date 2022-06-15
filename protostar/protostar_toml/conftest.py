@@ -4,7 +4,7 @@ import pytest
 from pytest_mock import MockerFixture
 from typing_extensions import Protocol
 
-from protostar.protostar_toml.protostar_toml_reader import ProtostarTOMLReader
+from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 
 
 class MockProtostarTOMLReaderFixture(Protocol):

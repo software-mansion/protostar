@@ -2,13 +2,13 @@ from pathlib import Path
 
 from pytest_mock import MockerFixture
 
-from protostar.protostar_toml.protostar_config_section import ProtostarConfigSection
-from protostar.protostar_toml.protostar_contracts_section import (
+from protostar.protostar_toml import (
+    ProtostarConfigSection,
     ProtostarContractsSection,
+    ProtostarProjectSection,
+    ProtostarTOMLReader,
+    ProtostarTOMLWriter,
 )
-from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
-from protostar.protostar_toml.protostar_toml_reader import ProtostarTOMLReader
-from protostar.protostar_toml.protostar_toml_writer import ProtostarTOMLWriter
 from protostar.utils.protostar_directory import VersionManager
 
 
