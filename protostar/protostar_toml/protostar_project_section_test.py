@@ -4,10 +4,10 @@ from typing import Dict
 import pytest
 
 from protostar.protostar_toml.conftest import MockProtostarTOMLReaderFixture
-from protostar.protostar_toml.protostar_project_section import \
-    ProtostarProjectSection
-from protostar.protostar_toml.protostar_toml_exceptions import \
-    InvalidProtostarTOMLException
+from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
+from protostar.protostar_toml.protostar_toml_exceptions import (
+    InvalidProtostarTOMLException,
+)
 
 
 @pytest.fixture(name="section_dict")
