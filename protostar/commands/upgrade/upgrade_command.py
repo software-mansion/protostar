@@ -95,6 +95,7 @@ class UpgradeManager:
             self._install_new_version()
             self.cleanup()
         except KeyboardInterrupt:
+            logger.info("Interrupting...")
             self._rollback()
             self.cleanup()
         except (Exception, SystemExit) as err:
