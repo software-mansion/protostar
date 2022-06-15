@@ -104,7 +104,9 @@ class TestCommand(Command):
 
         test_collector_result.log(logger)
 
-        testing_summary = TestingSummary([])
+        testing_summary = TestingSummary(
+            case_results=test_collector_result.broken_test_suites  # type: ignore | pyright bug?
+        )
 
         if test_collector_result.test_cases_count > 0:
             live_logger = TestingLiveLogger(logger, testing_summary)

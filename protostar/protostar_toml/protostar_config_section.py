@@ -34,7 +34,7 @@ class ProtostarConfigSection(ProtostarTOMLSection):
             )
         )
 
-    def to_dict(self) -> "ProtostarTOMLSection.TOMLCompatibleDict":
-        result: ProtostarTOMLSection.TOMLCompatibleDict = {}
+    def to_dict(self) -> "ProtostarTOMLSection.ParsedProtostarTOML":
+        result: ProtostarTOMLSection.ParsedProtostarTOML = {}
         result["protostar_version"] = str(self.protostar_version)
         return result

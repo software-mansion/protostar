@@ -10,7 +10,7 @@ from protostar.utils.protostar_directory import VersionManager
 
 
 @pytest.fixture(name="protostar_config_section_dict")
-def protostar_config_section_dict_fixture() -> ProtostarConfigSection.TOMLCompatibleDict:
+def protostar_config_section_dict_fixture() -> ProtostarConfigSection.ParsedProtostarTOML:
     return {"protostar_version": "0.1.0"}
 
 

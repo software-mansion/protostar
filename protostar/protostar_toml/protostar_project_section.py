@@ -32,8 +32,8 @@ class ProtostarProjectSection(ProtostarTOMLSection):
             libs_path=cls._load_path_from_raw_dict(raw_dict, attribute_name="libs_path")
         )
 
-    def to_dict(self) -> "ProtostarTOMLSection.TOMLCompatibleDict":
-        result: "ProtostarTOMLSection.TOMLCompatibleDict" = {}
+    def to_dict(self) -> "ProtostarTOMLSection.ParsedProtostarTOML":
+        result: "ProtostarTOMLSection.ParsedProtostarTOML" = {}
 
         result["libs_path"] = str(self.libs_path)
 
