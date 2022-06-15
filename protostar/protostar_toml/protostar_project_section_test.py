@@ -2,9 +2,8 @@ from pathlib import Path
 from typing import Dict
 
 import pytest
-from pytest_mock import MockerFixture
 
-from protostar.protostar_toml._conftest import mock_protostar_toml_reader
+from protostar.protostar_toml.conftest import MockProtostarTOMLReaderFixture
 from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
 from protostar.protostar_toml.protostar_toml_exceptions import (
     InvalidProtostarTOMLException,
@@ -16,8 +15,10 @@ def section_dict_fixture() -> Dict:
     return {"libs_path": "lib"}
 
 
-def test_serialization(mocker: MockerFixture, section_dict: Dict):
-    protostar_toml_reader_mock = mock_protostar_toml_reader(mocker)(section_dict)
+def test_serialization(
+    mock_protostar_toml_reader: MockProtostarTOMLReaderFixture, section_dict: Dict
+):
+    protostar_toml_reader_mock = mock_protostar_toml_reader(section_dict)
 
     section = ProtostarProjectSection.from_protostar_toml(protostar_toml_reader_mock)
 
@@ -25,8 +26,10 @@ def test_serialization(mocker: MockerFixture, section_dict: Dict):
     assert section.to_dict() == section_dict
 
 
-def test_fail_loading_libs_path(mocker: MockerFixture):
-    protostar_toml_reader_mock = mock_protostar_toml_reader(mocker)(
+def test_fail_loading_libs_path(
+    mock_protostar_toml_reader: MockProtostarTOMLReaderFixture,
+):
+    protostar_toml_reader_mock = mock_protostar_toml_reader(
         protostar_section_dict="True"
     )
 
