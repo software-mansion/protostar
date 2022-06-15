@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 from protostar.protostar_toml.protostar_toml_exceptions import (
     InvalidProtostarTOMLException,
@@ -14,6 +14,11 @@ class ProtostarTOMLSection(ABC):
     @staticmethod
     @abstractmethod
     def get_section_name() -> str:
+        ...
+
+    @classmethod
+    @abstractmethod
+    def get_default(cls) -> Optional["ProtostarTOMLSection"]:
         ...
 
     @abstractmethod
