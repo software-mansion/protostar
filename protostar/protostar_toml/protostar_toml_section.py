@@ -3,7 +3,7 @@ from typing import Dict, List, Union
 
 
 class ProtostarTOMLSection(ABC):
-    TOMLCompatibleDict = Dict[str, Union[str, int, bool, List[str]]]
+    ParsedProtostarTOML = Dict[str, Union[str, int, bool, List[str]]]
 
     @staticmethod
     @abstractmethod
@@ -11,5 +11,5 @@ class ProtostarTOMLSection(ABC):
         ...
 
     @abstractmethod
-    def to_dict(self) -> "ProtostarTOMLSection.TOMLCompatibleDict":
+    def to_dict(self) -> "ProtostarTOMLSection.ParsedProtostarTOML":
         ...
