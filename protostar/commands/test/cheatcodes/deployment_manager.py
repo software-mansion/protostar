@@ -110,7 +110,7 @@ def build_deploy_contract(
     manager,
 ) -> Callable[[Path, List[int]], DeployedContract]:  # TODO add transformer
     """
-    Syntatic sugar for contract deployment compatible with the old interface
+    Syntactic sugar for contract deployment compatible with the old interface
     """
 
     def deploy_contract(
