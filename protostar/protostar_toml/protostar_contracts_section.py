@@ -19,7 +19,7 @@ class ProtostarContractsSection(ProtostarTOMLSection):
         return cls(contract_name_to_paths={"main": [Path("src/main.cairo")]})
 
     @classmethod
-    def from_protostar_toml_reader(
+    def load(
         cls, protostar_toml_reader: ProtostarTOMLReader
     ) -> "ProtostarContractsSection":
         section_dict = protostar_toml_reader.get_section(cls.get_section_name())

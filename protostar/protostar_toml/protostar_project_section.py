@@ -22,9 +22,7 @@ class ProtostarProjectSection(ProtostarTOMLSection):
         return cls(libs_path=Path("lib"))
 
     @classmethod
-    def from_protostar_toml(
-        cls, protostar_toml: ProtostarTOMLReader
-    ) -> "ProtostarProjectSection":
+    def load(cls, protostar_toml: ProtostarTOMLReader) -> "ProtostarProjectSection":
         section_dict = protostar_toml.get_section(cls.get_section_name())
         if section_dict is None:
             raise InvalidProtostarTOMLException(cls.get_section_name())

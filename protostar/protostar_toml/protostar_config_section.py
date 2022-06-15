@@ -25,9 +25,7 @@ class ProtostarConfigSection(ProtostarTOMLSection):
         )
 
     @classmethod
-    def from_protostar_toml_reader(
-        cls, protostar_toml: ProtostarTOMLReader
-    ) -> "ProtostarConfigSection":
+    def load(cls, protostar_toml: ProtostarTOMLReader) -> "ProtostarConfigSection":
         section_dict = protostar_toml.get_section(cls.get_section_name())
         if section_dict is None:
             raise InvalidProtostarTOMLException(cls.get_section_name())

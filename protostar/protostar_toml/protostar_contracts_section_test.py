@@ -19,7 +19,7 @@ def test_serialization(
 ):
     protostar_toml_reader_mock = mock_protostar_toml_reader(section_dict)
 
-    section = ProtostarContractsSection.from_protostar_toml_reader(
+    section = ProtostarContractsSection.load(
         protostar_toml_reader=protostar_toml_reader_mock
     )
 
@@ -32,7 +32,7 @@ def test_reading_undefined_section(
 ):
     protostar_toml_reader_mock = mock_protostar_toml_reader(protostar_section_dict=None)
 
-    section = ProtostarContractsSection.from_protostar_toml_reader(
+    section = ProtostarContractsSection.load(
         protostar_toml_reader=protostar_toml_reader_mock
     )
 

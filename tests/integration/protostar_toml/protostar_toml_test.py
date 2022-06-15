@@ -29,16 +29,11 @@ def test_saving_and_reading(tmpdir, mocker: MockerFixture):
     reader = ProtostarTOMLReader(path)
 
     assert (
-        ProtostarConfigSection.from_protostar_toml_reader(reader).protostar_version
+        ProtostarConfigSection.load(reader).protostar_version
         == config_section.protostar_version
     )
+    assert ProtostarProjectSection.load(reader).libs_path == project_section.libs_path
     assert (
-        ProtostarProjectSection.from_protostar_toml(reader).libs_path
-        == project_section.libs_path
-    )
-    assert (
-        ProtostarContractsSection.from_protostar_toml_reader(
-            reader
-        ).contract_name_to_paths
+        ProtostarContractsSection.load(reader).contract_name_to_paths
         == contracts_section.contract_name_to_paths
     )
