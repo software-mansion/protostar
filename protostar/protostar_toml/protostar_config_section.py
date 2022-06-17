@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 from typing import Any, Dict
 
+from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 from protostar.protostar_toml.protostar_toml_exceptions import (
     InvalidProtostarTOMLException,
 )
-from protostar.protostar_toml.protostar_toml_reader import ProtostarTOMLReader
 from protostar.protostar_toml.protostar_toml_section import ProtostarTOMLSection
-from protostar.utils.protostar_directory import VersionType
+from protostar.utils.protostar_directory import VersionManager, VersionType
 
 
 @dataclass
@@ -18,9 +18,14 @@ class ProtostarConfigSection(ProtostarTOMLSection):
         return "config"
 
     @classmethod
-    def from_protostar_toml_reader(
-        cls, protostar_toml: ProtostarTOMLReader
-    ) -> "ProtostarConfigSection":
+    def get_default(cls, version_manager: VersionManager) -> "ProtostarConfigSection":
+        return cls(
+            protostar_version=version_manager.protostar_version
+            or version_manager.parse("0.0.0")
+        )
+
+    @classmethod
+    def load(cls, protostar_toml: ProtostarTOMLReader) -> "ProtostarConfigSection":
         section_dict = protostar_toml.get_section(cls.get_section_name())
         if section_dict is None:
             raise InvalidProtostarTOMLException(cls.get_section_name())
@@ -34,7 +39,7 @@ class ProtostarConfigSection(ProtostarTOMLSection):
             )
         )
 
-    def to_dict(self) -> "ProtostarTOMLSection.TOMLCompatibleDict":
-        result: ProtostarTOMLSection.TOMLCompatibleDict = {}
+    def to_dict(self) -> "ProtostarTOMLSection.ParsedProtostarTOML":
+        result: ProtostarTOMLSection.ParsedProtostarTOML = {}
         result["protostar_version"] = str(self.protostar_version)
         return result

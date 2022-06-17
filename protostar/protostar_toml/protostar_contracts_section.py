@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List
 
-from protostar.protostar_toml.protostar_toml_reader import ProtostarTOMLReader
+from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 from protostar.protostar_toml.protostar_toml_section import ProtostarTOMLSection
 
 
@@ -15,7 +15,11 @@ class ProtostarContractsSection(ProtostarTOMLSection):
         return "contracts"
 
     @classmethod
-    def from_protostar_toml_reader(
+    def get_default(cls) -> "ProtostarContractsSection":
+        return cls(contract_name_to_paths={"main": [Path("src/main.cairo")]})
+
+    @classmethod
+    def load(
         cls, protostar_toml_reader: ProtostarTOMLReader
     ) -> "ProtostarContractsSection":
         section_dict = protostar_toml_reader.get_section(cls.get_section_name())
@@ -32,8 +36,8 @@ class ProtostarContractsSection(ProtostarTOMLSection):
             ]
         return cls(contract_name_to_paths=contract_name_to_paths)
 
-    def to_dict(self) -> "ProtostarTOMLSection.TOMLCompatibleDict":
-        result: "ProtostarTOMLSection.TOMLCompatibleDict" = {}
+    def to_dict(self) -> "ProtostarTOMLSection.ParsedProtostarTOML":
+        result: "ProtostarTOMLSection.ParsedProtostarTOML" = {}
 
         for contract_name, paths in self.contract_name_to_paths.items():
             result[contract_name] = [str(path) for path in paths]
