@@ -20,7 +20,7 @@ from protostar.commands.init.project_creator import (
     NewProjectCreator,
 )
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
-from protostar.protostar_toml.protostar_toml_writer import ProtostarTOMLWriter
+from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
 from protostar.utils import (
     Project,
     ProtostarDirectory,

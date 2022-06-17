@@ -5,7 +5,7 @@ from git import InvalidGitRepositoryError
 from git.repo import Repo
 
 from protostar.commands.init.project_creator._project_creator import ProjectCreator
-from protostar.protostar_toml.protostar_toml_writer import ProtostarTOMLWriter
+from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
 from protostar.utils.protostar_directory import VersionManager
 from protostar.utils.requester import Requester
 
@@ -22,7 +22,7 @@ class AdaptedProjectCreator(ProjectCreator):
         protostar_toml_writer: ProtostarTOMLWriter,
         version_manager: VersionManager,
     ):
-        super().__init__(script_root)
+        super().__init__(script_root, protostar_toml_writer, version_manager)
         self._protostar_toml_writer = protostar_toml_writer
         self._version_manager = version_manager
         self._requester = requester
@@ -44,10 +44,8 @@ class AdaptedProjectCreator(ProjectCreator):
         if not lib_path.is_dir():
             lib_path.mkdir(parents=True)
 
-        self._protostar_toml_writer.save_default(
-            path=project_root_path / "protostar.toml",
-            version_manager=self._version_manager,
-            lib_path=Path(user_input.lib_dirname),
+        self.save_protostar_toml(
+            project_root_path, libs_path=Path(user_input.lib_dirname)
         )
 
         try:
