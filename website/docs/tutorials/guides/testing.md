@@ -50,9 +50,12 @@ Ran 1 out of 1 total tests
 :::info
 You can place your test files anywhere you want. Protostar recursively searches 
 the given directory for cairo files with a name starting with `test_` and treats them as tests files. 
-All functions inside a test file starting with `test_` are treated as separeate test cases.
+All functions inside a test file starting with `test_` are treated as separate test cases.
 :::
 
+:::warning
+The tested file cannot have a constructor that expects arguments because, Protostar won't be able to deploy the contract automatically. As a workaround, keep your constructor in a different file. You can test the constructor using the `deploy_contract` cheatcode as described below.
+:::
 ## Deploying contracts from tests
 
 For most projects such testing of isolated functions won't be enough. Protostar provides a [`deploy_contract` cheatcode](#deploy_contract) to test interactions between contracts.
