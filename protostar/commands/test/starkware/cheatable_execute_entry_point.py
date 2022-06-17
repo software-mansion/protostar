@@ -28,10 +28,8 @@ from starkware.starkware_utils.error_handling import (
 from starkware.starknet.business_logic.execution.execute_entry_point import (
     ExecuteEntryPoint,
 )
-from protostar.commands.test.cheatcodes.deployment_manager_cheatcode import (
-    DeployContractCheatcode,
-    build_deploy_contract,
-)
+from protostar.commands.test.cheatcodes import Cheatcode, CheatcodeFactory
+
 from protostar.commands.test.starkware.cheatable_starknet_general_config import (
     CheatableStarknetGeneralConfig,
 )
@@ -105,7 +103,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             initial_syscall_ptr=initial_syscall_ptr,
         )
 
-        deployment_manager = DeployContractCheatcode(
+        cheatcode_factory = CheatcodeFactory(
             execute_entry_point_cls=CheatableExecuteEntryPoint,
             tx_execution_context=tx_execution_context,
             state=state,
@@ -115,6 +113,12 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             general_config=general_config,
             initial_syscall_ptr=initial_syscall_ptr,
         )
+        hint_locals = {
+                    "__storage": starknet_storage,
+                    "syscall_handler": syscall_handler,
+                }
+        for cheatcode in Cheatcode.__subclasses__():
+            hint_locals[cheatcode.name()] = cheatcode_factory.build(cheatcode)
 
         # Positional arguments are passed to *args in the 'run_from_entrypoint' function.
         entry_points_args = [
@@ -128,14 +132,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             runner.run_from_entrypoint(
                 entry_point.offset,
                 *entry_points_args,
-                hint_locals={
-                    "__storage": starknet_storage,
-                    "syscall_handler": syscall_handler,
-                    "declare": deployment_manager.declare,
-                    "prepare": deployment_manager.prepare_declared,
-                    "deploy": deployment_manager.deploy_prepared,
-                    "deploy_contract": build_deploy_contract(deployment_manager),
-                },
+                hint_locals=hint_locals,
                 static_locals={
                     "__find_element_max_size": 2**20,
                     "__squash_dict_max_size": 2**20,

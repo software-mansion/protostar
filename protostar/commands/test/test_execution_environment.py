@@ -12,7 +12,7 @@ from starkware.starknet.testing.contract import StarknetContract
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.testing.contract import DeclaredClass
 
-from protostar.commands.test.cheatcodes import (
+from protostar.commands.test.cheatcodes_legacy import (
     Cheatcode,
     ExpectRevertCheatcode,
     RollCheatcode,

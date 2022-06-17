@@ -1,6 +1,6 @@
 from typing import Callable
 
-from protostar.commands.test.cheatcodes._cheatcode import Cheatcode
+from protostar.commands.test.cheatcodes_legacy._cheatcode import Cheatcode
 from protostar.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
 )

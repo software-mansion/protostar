@@ -1,5 +1,4 @@
-from protostar.commands.test.cheatcodes._cheatcode import Cheatcode
-from protostar.commands.test.cheatcodes.expect_revert_cheatcode import (
-    ExpectRevertCheatcode,
-)
-from protostar.commands.test.cheatcodes.roll_cheatcode import RollCheatcode
+from protostar.commands.test.cheatcodes.cheatcode import Cheatcode, CheatcodeFactory
+from protostar.commands.test.cheatcodes.declare_cheatcode import DeclaredContract, DeclareCheatcode
+from protostar.commands.test.cheatcodes.deploy_cheatcode import DeployedContract, DeployCheatcode
+from protostar.commands.test.cheatcodes.prepare_cheatcode import PreparedContract, PrepareCheatcode
