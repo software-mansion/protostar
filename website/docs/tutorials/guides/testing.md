@@ -50,9 +50,12 @@ Ran 1 out of 1 total tests
 :::info
 You can place your test files anywhere you want. Protostar recursively searches 
 the given directory for cairo files with a name starting with `test_` and treats them as tests files. 
-All functions inside a test file starting with `test_` are treated as separeate test cases.
+All functions inside a test file starting with `test_` are treated as separate test cases.
 :::
 
+:::warning
+The tested file cannot have a constructor that expects arguments because, Protostar won't be able to deploy the contract automatically. As a workaround, keep your constructor in a different file. You can test the constructor using the `deploy_contract` cheatcode as described below.
+:::
 ## Deploying contracts from tests
 
 For most projects such testing of isolated functions won't be enough. Protostar provides a [`deploy_contract` cheatcode](#deploy_contract) to test interactions between contracts.
@@ -460,8 +463,7 @@ end
 def deploy_contract(contract_path: str, constructor_calldata: Optional[Union[List[int], Dict]] = None) -> DeployedContact:
 
 class DeployedContract:
-    @property
-    def contract_address(self) -> int: ...
+    contract_address: int
 ```
 Deploys a contract given a path relative to a Protostar project root. The section [Deploying contracts from tests](#deploying-contracts-from-tests) demonstrates a usage of this cheatcode.
 
@@ -470,6 +472,64 @@ Deploying a contract is a slow operation. If it's possible try using this cheatc
 :::
 
 If the constructor of the contract accepts arguments, `constructor_calldata` expects a list of integers in the representation described in ["passing tuples and structs in calldata" section of official docs](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#passing-tuples-and-structs-in-calldata) or by a dictionary. In case of a dictionary, Protostar uses [Starknet.py](https://github.com/software-mansion/starknet.py)'s data transformer to translate Python values to Cairo values.
+
+:::info
+`deploy_contract` is just a syntatic sugar over executing cheatcodes `declare` -> `prepare` -> `deploy` separately, and it's what does it under the hood.
+:::
+
+### `declare`
+
+```python
+def declare(contract_path: str) -> DeclaredContract:
+
+class DeclaredContract:
+    class_hash: int
+```
+Declares contract given a path relative to a Protostar project root.
+
+### `prepare`
+```python
+def prepare(declared: DeclaredContract, constructor_calldata: Optional[List[int]]] = None) -> PreparedContract:
+
+class PreparedContract:
+    constructor_calldata: List[int]
+    contract_address: int
+    class_hash: int
+```
+Prepares contract for deployment given `DeclaredContract` and constructor_calldata. The cheatcode is useful when you want to know contract address before deploying it to affect constructor with a targeted cheatcode. Example:
+
+```
+@view
+func test_prank_constructor{syscall_ptr : felt*, range_check_ptr}():
+    %{
+        declared = declare("path/to/contract.cairo")
+        prepared = prepare(declared, [1,2,3])
+        start_prank(111, target_contract_address=prepared.contract_address)
+
+        # constructor will be affected by prank
+        deploy(prepared)
+    %}
+    return ()
+end
+
+```
+:::info
+You can prepare multiple contracts from one `DeclaredContract`.
+:::
+
+
+### `deploy`
+```
+def deploy(prepared: PreparedContract) -> DeployedContract:
+
+class DeployedContract:
+    contract_address: int
+```
+Deploys contract for deployment given `PreparedContract`. 
+
+:::warning
+You can't deploy the same `PreparedContract` twice.
+:::
 
 #### Example
 ```python title="Passing constructor data as a dictionary"

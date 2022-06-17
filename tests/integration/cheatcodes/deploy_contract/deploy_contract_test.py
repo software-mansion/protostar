@@ -1,45 +1,36 @@
 from pathlib import Path
+from typing import cast
 
 import pytest
 
 from protostar.commands.test.test_command import TestCommand
 from tests.integration.conftest import assert_cairo_test_cases
-
-
-@pytest.fixture(name="target")
-def target_fixture() -> str:
-    return f"{Path(__file__).parent}/deploy_contract_test.cairo"
+from unittest.mock import MagicMock
 
 
 @pytest.mark.asyncio
-async def test_deploy_contract(mocker, target: str):
+async def test_deploy_contract(mocker):
+    protostar_directory_mock = mocker.MagicMock()
+    cast(MagicMock, protostar_directory_mock.add_protostar_cairo_dir).return_value = [
+        Path() / "tests" / "integration" / "data"
+    ]
     testing_summary = await TestCommand(
         project=mocker.MagicMock(),
-        protostar_directory=mocker.MagicMock(),
-    ).test(targets=[target], ignored_targets=[f"{target}::test_data_transformation"])
+        protostar_directory=protostar_directory_mock,
+    ).test(targets=[f"{Path(__file__).parent}/deploy_contract_test.cairo"])
 
     assert_cairo_test_cases(
         testing_summary,
         expected_passed_test_cases_names=[
-            "test_proxy_contract",
-            "test_missing_logic_contract",
-            "test_passing_constructor_data_as_list",
-        ],
-        expected_failed_test_cases_names=[],
-    )
-
-
-@pytest.mark.asyncio
-async def test_data_transformation(mocker, target):
-    testing_summary = await TestCommand(
-        project=mocker.MagicMock(),
-        protostar_directory=mocker.MagicMock(),
-    ).test(targets=[f"{target}::test_data_transformation"])
-
-    assert_cairo_test_cases(
-        testing_summary,
-        expected_passed_test_cases_names=[
-            "test_data_transformation",
+            "test_deploy_contract",
+            "test_deploy_contract_simplified",
+            "test_deploy_contract_with_constructor",
+            "test_deploy_contract_with_constructor_steps",
+            "test_deploy_contract_pranked",
+            "test_deploy_the_same_contract_twice",
+            "test_deploy_using_syscall",
+            "test_syscall_after_deploy",
+            "test_utilizes_cairo_path",
         ],
         expected_failed_test_cases_names=[],
     )

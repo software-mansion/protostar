@@ -16,7 +16,12 @@ from protostar.commands.test.cheatcodes import (
     ExpectRevertCheatcode,
     RollCheatcode,
 )
+
 from protostar.commands.test.expected_event import ExpectedEvent
+from protostar.commands.test.starkware.cheatable_starknet_general_config import (
+    CheatableStarknetGeneralConfig,
+)
+
 from protostar.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
     CheatableSysCallHandlerException,
@@ -33,7 +38,6 @@ from protostar.commands.test.test_environment_exceptions import (
     StarknetRevertableException,
 )
 from protostar.utils.data_transformer_facade import DataTransformerFacade
-from protostar.utils.modules import replace_class
 from protostar.utils.starknet_compilation import StarknetCompiler
 
 logger = getLogger()
@@ -85,7 +89,10 @@ class TestExecutionEnvironment:
         test_suite_definition: ContractClass,
         include_paths: Optional[List[str]] = None,
     ):
-        starknet = await ForkableStarknet.empty()
+        general_config = CheatableStarknetGeneralConfig(
+            cheatcodes_cairo_path=include_paths
+        )
+        starknet = await ForkableStarknet.empty(general_config=general_config)
 
         starknet_contract = await starknet.deploy(contract_class=test_suite_definition)
 
@@ -141,10 +148,6 @@ class TestExecutionEnvironment:
     async def invoke_setup_hook(self, fn_name: str) -> None:
         await self.invoke_test_case(fn_name)
 
-    @replace_class(
-        "starkware.starknet.core.os.syscall_utils.BusinessLogicSysCallHandler",
-        CheatableSysCallHandler,
-    )
     async def invoke_test_case(self, test_case_name: str):
         original_run_from_entrypoint = CairoFunctionRunner.run_from_entrypoint
         CairoFunctionRunner.run_from_entrypoint = (

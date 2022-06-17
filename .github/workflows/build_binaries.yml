@@ -53,6 +53,7 @@ jobs:
           asset_name: protostar-macOS.tar.gz
           tag: ${{ github.ref }}
           overwrite: true
+          prerelease: ${{ endsWith(github.ref, "pre-release") }}
 
       - name: Upload Linux binary to release
         uses: svenstaro/upload-release-action@v2
@@ -62,3 +63,5 @@ jobs:
           asset_name: protostar-Linux.tar.gz
           tag: ${{ github.ref }}
           overwrite: true
+          prerelease: ${{ endsWith(github.ref, "pre-release") }}
+

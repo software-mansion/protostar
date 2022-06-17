@@ -1,0 +1,16 @@
+["protostar.config"]
+protostar_version = "0.2.4"
+
+["protostar.project"]
+libs_path = "lib"
+
+["protostar.contracts"]
+main = [
+  "./src/main.cairo",
+]
+
+["protostar.shared_command_configs"]
+no_color = false
+
+["profile.ci.protostar.shared_command_configs"]
+no-color = true

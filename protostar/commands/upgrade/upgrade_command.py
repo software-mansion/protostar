@@ -1,3 +1,4 @@
+# pylint: disable=broad-except
 import os
 import shutil
 import tarfile
@@ -93,12 +94,21 @@ class UpgradeManager:
             self._pull_tarball()
             self._install_new_version()
             self.cleanup()
-        # pylint: disable=broad-except
-        except (Exception, KeyboardInterrupt, SystemExit) as err:
+        except KeyboardInterrupt:
+            logger.info("Interrupting...")
+            self._rollback()
+            self.cleanup()
+        except (Exception, SystemExit) as err:
             self._handle_error(err)
 
     def _handle_error(self, err):
-        logger.error("Upgrade failed")
+        logger.error(
+            (
+                "Upgrade failed\n"
+                "You can run the following installation script instead:\n"
+                "curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/install.sh | bash"
+            )
+        )
         self._rollback()
         self.cleanup()
         raise err

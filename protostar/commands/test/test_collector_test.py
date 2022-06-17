@@ -8,10 +8,7 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     PreprocessorError,
 )
 
-from protostar.commands.test.test_collector import (
-    TestCollectingException,
-    TestCollector,
-)
+from protostar.commands.test.test_collector import TestCollector
 from protostar.commands.test.test_suite import TestSuite
 from protostar.utils.starknet_compilation import StarknetCompiler
 
@@ -102,14 +99,15 @@ def test_collecting_tests_from_target(starknet_compiler, project_root: Path):
     assert result.test_cases_count == 6
 
 
-def test_breakage_upon_broken_test_suite(starknet_compiler, project_root):
+def test_returning_broken_test_suites(starknet_compiler, project_root):
     test_collector = TestCollector(starknet_compiler)
     cast(
         MagicMock, starknet_compiler.preprocess_contract
     ).side_effect = PreprocessorError("")
 
-    with pytest.raises(TestCollectingException):
-        test_collector.collect(targets=[str(project_root)])
+    result = test_collector.collect(targets=[str(project_root)])
+
+    assert len(result.broken_test_suites) > 0
 
 
 def test_collecting_specific_file(starknet_compiler, project_root: Path):
@@ -211,7 +209,7 @@ def test_logging_no_cases_found(mocker: MockerFixture):
         test_suites=[],
     ).log(logger_mock)
 
-    cast(MagicMock, logger_mock.warning).assert_called_once_with("No cases found")
+    cast(MagicMock, logger_mock.warning).assert_called_once_with("No test cases found")
 
 
 def test_collecting_from_directory_globs(starknet_compiler, project_root):
