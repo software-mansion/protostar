@@ -34,7 +34,6 @@ def devnet_gateway_url_fixture(devnet_port: int):
     proc.kill()
 
 
-
 async def run_cairo_test_runner(mocker: MockerFixture, path: Path) -> TestingSummary:
     return await TestCommand(
         project=mocker.MagicMock(),
