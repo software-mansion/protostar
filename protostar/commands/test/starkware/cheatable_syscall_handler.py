@@ -1,5 +1,4 @@
 from typing import List, Optional, cast
-from starkware.cairo.common.structs import CairoStructProxy
 
 from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
