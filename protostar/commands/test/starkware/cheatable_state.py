@@ -24,7 +24,9 @@ from starkware.storage.storage import FactFetchingContext
 from starkware.starknet.business_logic.utils import (
     validate_version,
 )
-from protostar.commands.test.starkware.cheatable_starknet_general_config import CheatableStarknetGeneralConfig
+from protostar.commands.test.starkware.cheatable_starknet_general_config import (
+    CheatableStarknetGeneralConfig,
+)
 
 from protostar.commands.test.starkware.types import AddressType, SelectorType
 from protostar.commands.test.starkware.cheatable_execute_entry_point import (
@@ -133,7 +135,9 @@ class CheatableStarknetState(StarknetState):
     """
 
     def __init__(
-        self, state: CheatableCarriedState, general_config: CheatableStarknetGeneralConfig
+        self,
+        state: CheatableCarriedState,
+        general_config: CheatableStarknetGeneralConfig,
     ):
         self.cheatable_carried_state = state
         super().__init__(state, general_config)

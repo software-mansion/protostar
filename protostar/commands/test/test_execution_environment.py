@@ -19,7 +19,9 @@ from protostar.commands.test.cheatcodes import (
 )
 
 from protostar.commands.test.expected_event import ExpectedEvent
-from protostar.commands.test.starkware.cheatable_starknet_general_config import CheatableStarknetGeneralConfig
+from protostar.commands.test.starkware.cheatable_starknet_general_config import (
+    CheatableStarknetGeneralConfig,
+)
 
 from protostar.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
@@ -87,7 +89,9 @@ class TestExecutionEnvironment:
         test_suite_definition: ContractClass,
         include_paths: Optional[List[str]] = None,
     ):
-        general_config = CheatableStarknetGeneralConfig(cheatcodes_cairo_path=include_paths)
+        general_config = CheatableStarknetGeneralConfig(
+            cheatcodes_cairo_path=include_paths
+        )
         starknet = await ForkableStarknet.empty(general_config=general_config)
 
         starknet_contract = await starknet.deploy(contract_class=test_suite_definition)

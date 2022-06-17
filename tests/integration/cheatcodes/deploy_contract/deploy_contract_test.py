@@ -30,7 +30,7 @@ async def test_deploy_contract(mocker):
             "test_deploy_the_same_contract_twice",
             "test_deploy_using_syscall",
             "test_syscall_after_deploy",
-            "test_utilizes_cairo_path"
+            "test_utilizes_cairo_path",
         ],
         expected_failed_test_cases_names=[],
     )

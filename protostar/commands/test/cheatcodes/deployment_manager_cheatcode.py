@@ -65,7 +65,9 @@ class DeployContractCheatcode(BusinessLogicSysCallHandler):
         )
         return DeployedContract(prepared.contract_address)
 
-    def prepare_declared(self, declared: DeclaredContract, constructor_calldata=None) -> PreparedContract:
+    def prepare_declared(
+        self, declared: DeclaredContract, constructor_calldata=None
+    ) -> PreparedContract:
         constructor_calldata = constructor_calldata or []
         contract_address: int = calculate_contract_address_from_hash(
             salt=DeployContractCheatcode.salt_nonce,
@@ -85,7 +87,9 @@ class DeployContractCheatcode(BusinessLogicSysCallHandler):
         return DeclaredContract(class_hash)
 
     async def _declare_contract(self, contract_path):
-        contract_class = get_contract_class(source=contract_path, cairo_path=self.general_config.cheatcodes_cairo_path)
+        contract_class = get_contract_class(
+            source=contract_path, cairo_path=self.general_config.cheatcodes_cairo_path
+        )
 
         tx = await InternalDeclare.create_for_testing(
             ffc=self.cheatable_state.ffc,

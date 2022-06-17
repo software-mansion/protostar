@@ -32,7 +32,9 @@ from protostar.commands.test.cheatcodes.deployment_manager_cheatcode import (
     DeployContractCheatcode,
     build_deploy_contract,
 )
-from protostar.commands.test.starkware.cheatable_starknet_general_config import CheatableStarknetGeneralConfig
+from protostar.commands.test.starkware.cheatable_starknet_general_config import (
+    CheatableStarknetGeneralConfig,
+)
 
 from protostar.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
