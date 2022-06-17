@@ -53,10 +53,8 @@ class ProtostarTOMLReader:
             return section[alternative_attribute_name]
         return None
 
-    # pylint: disable=no-self-use
-    def _find_alternative_key(
-        self, base_key: str, raw_dict: Dict[str, Any]
-    ) -> Optional[str]:
+    @staticmethod
+    def _find_alternative_key(base_key: str, raw_dict: Dict[str, Any]) -> Optional[str]:
         if base_key in raw_dict:
             return base_key
 
