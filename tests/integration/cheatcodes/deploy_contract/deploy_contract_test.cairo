@@ -68,7 +68,7 @@ func test_deploy_contract_simplified{syscall_ptr : felt*, range_check_ptr}():
 end
 
 @external
-func test_deploy_contract_with_contructor{syscall_ptr : felt*, range_check_ptr}():
+func test_deploy_contract_with_constructor{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
     local contract_address : felt
     %{
@@ -81,7 +81,7 @@ func test_deploy_contract_with_contructor{syscall_ptr : felt*, range_check_ptr}(
 end
 
 @external
-func test_deploy_contract_with_contructor_steps{syscall_ptr : felt*, range_check_ptr}():
+func test_deploy_contract_with_constructor_steps{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
     local contract_address : felt
     %{
