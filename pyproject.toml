@@ -102,3 +102,4 @@ reportUnusedClass = true
 strictDictionaryInference = true
 strictListInference = true
 strictSetInference = true
+useLibraryCodeForTypes = true

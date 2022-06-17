@@ -1,24 +1,22 @@
 import asyncio
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, List, Optional, cast
-from dataclasses import dataclass
 
-
-from starkware.python.utils import from_bytes
-from starkware.starknet.testing.contract import DeclaredClass
-from starkware.starknet.testing.contract_utils import get_abi, get_contract_class
-from starkware.python.utils import to_bytes
-
-
-from starkware.starknet.business_logic.internal_transaction import (
-    InternalDeclare,
+from starkware.python.utils import from_bytes, to_bytes
+from starkware.starknet.business_logic.internal_transaction import InternalDeclare
+from starkware.starknet.core.os.contract_address.contract_address import (
+    calculate_contract_address_from_hash,
 )
 from starkware.starknet.core.os.syscall_utils import (
     BusinessLogicSysCallHandler,
     initialize_contract_state,
 )
-from starkware.starknet.core.os.contract_address.contract_address import (
-    calculate_contract_address_from_hash,
+from starkware.starknet.testing.contract import DeclaredClass
+from starkware.starknet.testing.contract_utils import get_abi, get_contract_class
+
+from protostar.commands.test.starkware.cheatable_starknet_general_config import (
+    CheatableStarknetGeneralConfig,
 )
 
 
@@ -43,14 +41,14 @@ class DeployContractCheatcode(BusinessLogicSysCallHandler):
     salt_nonce = 1
 
     @property
-    def cheatable_state(self):
-        return self.state
+    def cheatable_general_config(self) -> CheatableStarknetGeneralConfig:
+        return cast(CheatableStarknetGeneralConfig, self.general_config)
 
     def deploy_prepared(self, prepared: PreparedContract):
         class_hash_bytes = to_bytes(prepared.class_hash)
         future = asyncio.run_coroutine_threadsafe(
             coro=initialize_contract_state(
-                state=self.cheatable_state,
+                state=self.state,
                 class_hash=class_hash_bytes,
                 contract_address=prepared.contract_address,
             ),
@@ -81,23 +79,22 @@ class DeployContractCheatcode(BusinessLogicSysCallHandler):
         )
 
     def declare(self, contract_path: Path) -> DeclaredContract:
-        class_hash = cast(
-            int, asyncio.run(self._declare_contract(contract_path)).class_hash
-        )
+        class_hash = asyncio.run(self._declare_contract(contract_path)).class_hash
         return DeclaredContract(class_hash)
 
     async def _declare_contract(self, contract_path):
         contract_class = get_contract_class(
-            source=contract_path, cairo_path=self.general_config.cheatcodes_cairo_path
+            source=contract_path,
+            cairo_path=self.cheatable_general_config.cheatcodes_cairo_path,
         )
 
         tx = await InternalDeclare.create_for_testing(
-            ffc=self.cheatable_state.ffc,
+            ffc=self.state.ffc,
             contract_class=contract_class,
             chain_id=self.general_config.chain_id.value,
         )
 
-        with self.cheatable_state.copy_and_apply() as state_copy:
+        with self.state.copy_and_apply() as state_copy:
             tx_execution_info = await tx.apply_state_updates(
                 state=state_copy, general_config=self.general_config
             )
