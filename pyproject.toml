@@ -45,6 +45,7 @@ build = "pyinstaller protostar.spec --noconfirm"
 ci = ["type_check", "lint", "format_check", "test"]
 cov = "pytest --cov-report xml:cov.xml --cov=protostar"
 deploy = "python ./scripts/deploy.py"
+deploy_prerelease = "python ./scripts/deploy_prerelease.py"
 format = "black ."
 format_check = "black --check protostar"
 lint = "pylint protostar"

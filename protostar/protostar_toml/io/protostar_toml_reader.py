@@ -10,14 +10,16 @@ from protostar.protostar_toml.protostar_toml_exceptions import (
 
 
 class ProtostarTOMLReader:
-    FlatSectionName = str
+
+    FlattenSectionName = str
+    """e.g. `profile.ci.protostar.shared_command_configs`"""
 
     def __init__(
         self,
         protostar_toml_path: Optional[Path] = None,
     ):
         self.path = protostar_toml_path or Path() / "protostar.toml"
-        self._cache: Optional[Dict[ProtostarTOMLReader.FlatSectionName, Any]] = None
+        self._cache: Optional[Dict[ProtostarTOMLReader.FlattenSectionName, Any]] = None
 
     def get_section(
         self, section_name: str, profile_name: Optional[str] = None
@@ -51,10 +53,8 @@ class ProtostarTOMLReader:
             return section[alternative_attribute_name]
         return None
 
-    # pylint: disable=no-self-use
-    def _find_alternative_key(
-        self, base_key: str, raw_dict: Dict[str, Any]
-    ) -> Optional[str]:
+    @staticmethod
+    def _find_alternative_key(base_key: str, raw_dict: Dict[str, Any]) -> Optional[str]:
         if base_key in raw_dict:
             return base_key
 
@@ -80,7 +80,7 @@ class ProtostarTOMLReader:
         with open(self.path, "rb") as protostar_toml_file:
             protostar_toml_dict = tomli.load(protostar_toml_file)
             protostar_toml_flat_dict = cast(
-                Dict[ProtostarTOMLReader.FlatSectionName, Any],
+                Dict[ProtostarTOMLReader.FlattenSectionName, Any],
                 flatdict.FlatDict(protostar_toml_dict, delimiter="."),
             )
 

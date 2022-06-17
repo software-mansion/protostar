@@ -1,4 +1,3 @@
-# pylint: disable=no-self-use
 from pathlib import Path
 from typing import List, OrderedDict
 
@@ -13,8 +12,8 @@ from protostar.protostar_toml.protostar_toml_section import ProtostarTOMLSection
 
 
 class ProtostarTOMLWriter:
+    @staticmethod
     def save(
-        self,
         path: Path,
         protostar_config: ProtostarConfigSection,
         protostar_project: ProtostarProjectSection,
