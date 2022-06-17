@@ -28,11 +28,11 @@ from starkware.starkware_utils.error_handling import (
 from starkware.starknet.business_logic.execution.execute_entry_point import (
     ExecuteEntryPoint,
 )
-from protostar.commands.test.cheatcodes.deployment_manager import (
-    DeploymentManager,
+from protostar.commands.test.cheatcodes.deployment_manager_cheatcode import (
+    DeployContractCheatcode,
     build_deploy_contract,
 )
-from protostar.commands.test.starkware.chatable_starknet_general_config import CheatableStarknetGeneralConfig
+from protostar.commands.test.starkware.cheatable_starknet_general_config import CheatableStarknetGeneralConfig
 
 from protostar.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
@@ -103,7 +103,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             initial_syscall_ptr=initial_syscall_ptr,
         )
 
-        deployment_manager = DeploymentManager(
+        deployment_manager = DeployContractCheatcode(
             execute_entry_point_cls=CheatableExecuteEntryPoint,
             tx_execution_context=tx_execution_context,
             state=state,

@@ -5,7 +5,7 @@ from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starknet.testing.state import CastableToAddressSalt
-from protostar.commands.test.starkware.chatable_starknet_general_config import CheatableStarknetGeneralConfig
+from protostar.commands.test.starkware.cheatable_starknet_general_config import CheatableStarknetGeneralConfig
 from protostar.commands.test.starkware.cheatable_state import CheatableStarknetState
 
 

@@ -19,7 +19,7 @@ from protostar.commands.test.cheatcodes import (
 )
 
 from protostar.commands.test.expected_event import ExpectedEvent
-from protostar.commands.test.starkware.chatable_starknet_general_config import CheatableStarknetGeneralConfig
+from protostar.commands.test.starkware.cheatable_starknet_general_config import CheatableStarknetGeneralConfig
 
 from protostar.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
