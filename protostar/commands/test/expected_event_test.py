@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 import pytest
 from starkware.starknet.business_logic.execution.objects import Event
@@ -25,10 +25,12 @@ def test_normalizing_expected_event_input():
 def create_state_event_fixture():
     # pylint: disable=dangerous-default-value
     def create_state_event(
-        name: str = "foo", data: List[int] = [42], from_address: int = 123
+        name: str = "foo", data: Optional[List[int]] = None, from_address: int = 123
     ) -> Event:
         return Event(
-            keys=[get_selector_from_name(name)], data=data, from_address=from_address
+            keys=[get_selector_from_name(name)],
+            data=data or [42],
+            from_address=from_address,
         )
 
     return create_state_event
