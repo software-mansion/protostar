@@ -157,6 +157,6 @@ func test_library_call_not_affected_by_mock{syscall_ptr : felt*, range_check_ptr
     %}
     BalanceContract.increase_balance(proxy_address, 5)
     let (res) = BalanceContract.get_balance(proxy_address) 
-    assert res = 6
+    assert res = 5
     return ()
 end
