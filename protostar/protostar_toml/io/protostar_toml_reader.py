@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, cast
 
 import flatdict
 import tomli
@@ -7,18 +7,19 @@ import tomli
 from protostar.protostar_toml.protostar_toml_exceptions import (
     NoProtostarProjectFoundException,
 )
-from protostar.utils.protostar_directory import VersionManager
 
 
 class ProtostarTOMLReader:
+
+    FlattenSectionName = str
+    """e.g. `profile.ci.protostar.shared_command_configs`"""
+
     def __init__(
         self,
-        version_manager: VersionManager,
         protostar_toml_path: Optional[Path] = None,
     ):
         self.path = protostar_toml_path or Path() / "protostar.toml"
-        self._version_manager = version_manager
-        self._cache: Optional[Dict[str, Any]] = None
+        self._cache: Optional[Dict[ProtostarTOMLReader.FlattenSectionName, Any]] = None
 
     def get_section(
         self, section_name: str, profile_name: Optional[str] = None
@@ -46,15 +47,29 @@ class ProtostarTOMLReader:
         if not section:
             return None
 
-        if attribute_name not in section:
-            attribute_name = attribute_name.replace("-", "_")
-            if attribute_name not in section:
-                return None
+        alternative_attribute_name = self._find_alternative_key(attribute_name, section)
 
-        return section[attribute_name]
+        if alternative_attribute_name and alternative_attribute_name in section:
+            return section[alternative_attribute_name]
+        return None
+
+    @staticmethod
+    def _find_alternative_key(base_key: str, raw_dict: Dict[str, Any]) -> Optional[str]:
+        if base_key in raw_dict:
+            return base_key
+
+        underscored_variant = base_key.replace("-", "_")
+        if underscored_variant in raw_dict:
+            return underscored_variant
+
+        dashed_variant = base_key.replace("_", "-")
+        if dashed_variant in raw_dict:
+            return dashed_variant
+
+        return None
 
     def _read_if_cache_miss(self) -> Dict[str, Any]:
-        if self._cache:
+        if self._cache is not None:
             return self._cache
 
         if not self.path.is_file():
@@ -64,9 +79,11 @@ class ProtostarTOMLReader:
 
         with open(self.path, "rb") as protostar_toml_file:
             protostar_toml_dict = tomli.load(protostar_toml_file)
-            flat_protostar_toml_dict = flatdict.FlatDict(
-                protostar_toml_dict, delimiter="."
-            ).as_dict()
-            self._cache = flat_protostar_toml_dict
+            protostar_toml_flat_dict = cast(
+                Dict[ProtostarTOMLReader.FlattenSectionName, Any],
+                flatdict.FlatDict(protostar_toml_dict, delimiter="."),
+            )
 
-            return flat_protostar_toml_dict
+            self._cache = protostar_toml_flat_dict
+
+            return protostar_toml_flat_dict
