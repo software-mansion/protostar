@@ -24,8 +24,8 @@ async def test_deploy_contract(mocker):
         expected_passed_test_cases_names=[
             "test_deploy_contract",
             "test_deploy_contract_simplified",
-            "test_deploy_contract_with_contructor",
-            "test_deploy_contract_with_contructor_steps",
+            "test_deploy_contract_with_constructor",
+            "test_deploy_contract_with_constructor_steps",
             "test_deploy_contract_pranked",
             "test_deploy_the_same_contract_twice",
             "test_deploy_using_syscall",
