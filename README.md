@@ -42,7 +42,7 @@ curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/inst
 - good knowledge of [Python](https://www.python.org/)
 - good knowledge of [pytest](https://docs.pytest.org/en/7.1.x/)
 - basic knowledge of [Cairo and StarkNet](https://www.cairo-lang.org/docs/index.html)
-- basic knowledge of [mypy](https://mypy.readthedocs.io/en/stable/introduction.html)
+- basic knowledge of [mypy](https://mypy.readthedocs.io/en/stable/getting_started.html)
 
 
 ### Setting up environment
