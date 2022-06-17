@@ -124,28 +124,6 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
         request = self._read_and_validate_syscall_request(
             syscall_name=syscall_name, segments=segments, syscall_ptr=syscall_ptr
         )
-        code_address = cast(int, request.contract_address)
-
-        if code_address in self.cheatable_state.mocked_calls_map:
-            if (
-                request.function_selector
-                in self.cheatable_state.mocked_calls_map[code_address]
-            ):
-                return self.cheatable_state.mocked_calls_map[code_address][
-                    request.function_selector
-                ]
-
-        return self._call_contract_without_retrieving_request(
-            segments, syscall_name, request
-        )
-
-    # copy of super().call_contract with removed call to _read_and_validate_syscall_request
-    def _call_contract_without_retrieving_request(
-        self,
-        segments: MemorySegmentManager,
-        syscall_name: str,
-        request: CairoStructProxy,
-    ) -> List[int]:
 
         calldata = segments.memory.get_range_as_ints(
             addr=request.calldata, size=request.calldata_size
@@ -155,6 +133,14 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
         class_hash = None
         if syscall_name == "call_contract":
             code_address = cast(int, request.contract_address)
+            if code_address in self.cheatable_state.mocked_calls_map:
+                if (
+                    request.function_selector
+                    in self.cheatable_state.mocked_calls_map[code_address]
+                ):
+                    return self.cheatable_state.mocked_calls_map[code_address][
+                        request.function_selector
+                    ]
             contract_address = code_address
             caller_address = self.contract_address
             entry_point_type = EntryPointType.EXTERNAL
