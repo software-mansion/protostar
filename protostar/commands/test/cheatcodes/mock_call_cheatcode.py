@@ -84,8 +84,8 @@ class MockCallCheatcode(CheatableSysCallHandler):
             if contract_path is None:
                 raise MockCallMisusageException(
                     (
-                        "Couldn't map the `contract_address` to the contract path."
-                        "Is the `contract_address` valid?"
+                        "Couldn't map the `contract_address` to the `contract_path`.\n"
+                        f"Is the `contract_address` ({contract_address}) valid?"
                     ),
                 )
 

@@ -1,25 +1,19 @@
 import asyncio
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, List, Optional, cast
-from dataclasses import dataclass
 
-
-from starkware.python.utils import from_bytes
-from starkware.starknet.testing.contract import DeclaredClass
-from starkware.starknet.testing.contract_utils import get_abi, get_contract_class
-from starkware.python.utils import to_bytes
-
-
-from starkware.starknet.business_logic.internal_transaction import (
-    InternalDeclare,
+from starkware.python.utils import from_bytes, to_bytes
+from starkware.starknet.business_logic.internal_transaction import InternalDeclare
+from starkware.starknet.core.os.contract_address.contract_address import (
+    calculate_contract_address_from_hash,
 )
 from starkware.starknet.core.os.syscall_utils import (
     BusinessLogicSysCallHandler,
     initialize_contract_state,
 )
-from starkware.starknet.core.os.contract_address.contract_address import (
-    calculate_contract_address_from_hash,
-)
+from starkware.starknet.testing.contract import DeclaredClass
+from starkware.starknet.testing.contract_utils import get_abi, get_contract_class
 
 
 @dataclass
