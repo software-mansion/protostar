@@ -1,4 +1,5 @@
 from collections import defaultdict
+from pathlib import Path
 from typing import Dict, List
 
 from starkware.starknet.business_logic.state.state import CarriedState
@@ -13,6 +14,9 @@ class CheatableCarriedState(CarriedState):
         self.mocked_calls_map: Dict[
             AddressType, Dict[SelectorType, List[int]]
         ] = defaultdict(dict)
+        self.contract_address_to_class_hash_map: Dict[int, int] = {}
+        self.class_hash_to_contract_path_map: Dict[int, Path] = {}
+        self.contract_address_to_contract_path_map: Dict[int, Path] = {}
         self.event_selector_to_name_map: Dict[int, str] = {}
 
     def update_event_selector_to_name_map(

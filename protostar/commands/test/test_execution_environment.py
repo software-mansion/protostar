@@ -16,12 +16,10 @@ from protostar.commands.test.cheatcodes import (
     ExpectRevertCheatcode,
     RollCheatcode,
 )
-
 from protostar.commands.test.expected_event import ExpectedEvent
 from protostar.commands.test.starkware.cheatable_starknet_general_config import (
     CheatableStarknetGeneralConfig,
 )
-
 from protostar.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
     CheatableSysCallHandlerException,
@@ -81,6 +79,7 @@ class TestExecutionEnvironment:
         self._include_paths = include_paths
         self._test_finish_hooks: Set[Callable[[], None]] = set()
         self._starknet_compiler = starknet_compiler
+        self._data_transformer = DataTransformerFacade(starknet_compiler)
 
     @classmethod
     async def from_test_suite_definition(
@@ -91,7 +90,7 @@ class TestExecutionEnvironment:
     ):
         general_config = CheatableStarknetGeneralConfig(
             cheatcodes_cairo_path=include_paths
-        )
+        )  # type: ignore
         starknet = await ForkableStarknet.empty(general_config=general_config)
 
         starknet_contract = await starknet.deploy(contract_class=test_suite_definition)
@@ -295,9 +294,9 @@ class TestExecutionEnvironment:
                     contract_path = self._contract_address_to_contract_path[
                         contract_address
                     ]
-                    ret_data = DataTransformerFacade.from_contract_path(
-                        contract_path, self._starknet_compiler
-                    ).build_from_python_transformer(fn_name, "outputs")(ret_data)
+                    ret_data = self._data_transformer.build_from_python_transformer(
+                        contract_path, fn_name, "outputs"
+                    )(ret_data)
 
                 cheatable_syscall_handler.register_mock_call(
                     contract_address, selector=selector, ret_data=ret_data
@@ -369,9 +368,11 @@ class TestExecutionEnvironment:
         ):
             if isinstance(constructor_calldata, Mapping):
                 fn_name = "constructor"
-                constructor_calldata = DataTransformerFacade.from_contract_path(
-                    Path(contract_path), self._starknet_compiler
-                ).build_from_python_transformer(fn_name, "inputs")(constructor_calldata)
+                constructor_calldata = (
+                    self._data_transformer.build_from_python_transformer(
+                        Path(contract_path), fn_name, "inputs"
+                    )(constructor_calldata)
+                )
 
             return self.deploy_in_env(contract_path, constructor_calldata)
 

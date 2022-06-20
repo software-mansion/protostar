@@ -1,7 +1,5 @@
-from abc import ABC, abstractmethod
 from collections.abc import Mapping
-from pathlib import Path
-from typing import Callable, Dict, List, Optional, Type, Union
+from typing import Dict, List, Type, Union
 
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.starknet.business_logic.execution.execute_entry_point_base import (
@@ -22,11 +20,6 @@ from protostar.commands.test.starkware.cheatable_starknet_general_config import 
 from protostar.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
 )
-from protostar.commands.test.starkware.types import (
-    AddressType,
-    ClassHashType,
-    SelectorType,
-)
 from protostar.utils.data_transformer_facade import DataTransformerFacade
 
 
@@ -34,65 +27,6 @@ class MockCallMisusageException(BaseException):
     def __init__(self, message: str) -> None:
         super().__init__(message)
         self.message = message
-
-
-class ContractPathMapperState(ABC):
-    @abstractmethod
-    def set_contract_address_to_contract_path(
-        self, contract_address: AddressType, contract_path: Path
-    ) -> None:
-        ...
-
-    @abstractmethod
-    def get_contract_path_from_contract_address(
-        self, contract_address: AddressType
-    ) -> Optional[Path]:
-        ...
-
-    @abstractmethod
-    def set_contract_address_to_class_hash(
-        self, contract_address: AddressType, class_hash: ClassHashType
-    ) -> None:
-        ...
-
-    @abstractmethod
-    def get_class_hash_from_contract_path(
-        self, contract_address: AddressType
-    ) -> Optional[ClassHashType]:
-        ...
-
-    @abstractmethod
-    def set_class_hash_to_contract_path(self, class_hash: ClassHashType) -> None:
-        ...
-
-    @abstractmethod
-    def get_contract_path_from_class_hash(self, class_hash: ClassHashType) -> Path:
-        ...
-
-
-class MockedCallState(ABC):
-    MockCallData = List[str]
-
-    @abstractmethod
-    def set_mock_data(
-        self,
-        contract_address: AddressType,
-        fn_selector: SelectorType,
-        ret_data: Optional[MockCallData],
-    ) -> None:
-        ...
-
-    @abstractmethod
-    def get_mock_data(
-        self, contract_address: AddressType, fn_selector: SelectorType
-    ) -> MockCallData:
-        ...
-
-    @abstractmethod
-    def clear_mock_data(
-        self, contract_address: AddressType, fn_selector: SelectorType
-    ) -> None:
-        ...
 
 
 class MockCallCheatcode(CheatableSysCallHandler):
@@ -107,8 +41,6 @@ class MockCallCheatcode(CheatableSysCallHandler):
         starknet_storage: BusinessLogicStarknetStorage,
         general_config: CheatableStarknetGeneralConfig,
         initial_syscall_ptr: RelocatableValue,
-        mocked_call_state: MockedCallState,
-        contract_path_mapper_state: ContractPathMapperState,
         data_transformer_facade: DataTransformerFacade,
     ):
         super().__init__(
@@ -121,15 +53,13 @@ class MockCallCheatcode(CheatableSysCallHandler):
             general_config=general_config,
             initial_syscall_ptr=initial_syscall_ptr,
         )
-        self.mocked_call_state = mocked_call_state
-        self.contract_path_mapper_state = contract_path_mapper_state
         self.data_transformer_facade = data_transformer_facade
 
     @property
     def name(self) -> str:
         return "mock_call"
 
-    def mock_call(
+    def execute(
         self,
         contract_address: int,
         fn_name: str,
@@ -140,13 +70,11 @@ class MockCallCheatcode(CheatableSysCallHandler):
                 DataTransformerFacade.SupportedType,
             ],
         ],
-    ) -> Callable:
+    ):
         selector = get_selector_from_name(fn_name)
         if isinstance(ret_data, Mapping):
-            contract_path = (
-                self.contract_path_mapper_state.get_contract_path_from_contract_address(
-                    contract_address
-                )
+            contract_path = self.get_contract_path_from_contract_address(
+                contract_address
             )
             if contract_path is None:
                 raise MockCallMisusageException(
@@ -155,15 +83,26 @@ class MockCallCheatcode(CheatableSysCallHandler):
                         "Is the `contract_address` valid?"
                     ),
                 )
-            # ret_data = DataTransformerFacade.from_contract_path(
-            #     contract_path, self._starknet_compiler
-            # ).build_from_python_transformer(fn_name, "outputs")(ret_data)
 
-        self.mocked_call_state.set_mock_data(
-            contract_address, fn_selector=selector, ret_data=None  # TODO
-        )
+            ret_data = self.data_transformer_facade.build_from_python_transformer(
+                contract_path, fn_name, "outputs"
+            )(ret_data)
+
+        if selector in self.cheatable_state.mocked_calls_map[contract_address]:
+            raise MockCallMisusageException(
+                f"{selector} in contract with address {contract_address} has been already mocked"
+            )
+        self.cheatable_state.mocked_calls_map[contract_address][selector] = ret_data
 
         def clear_mock():
-            pass
+            if contract_address not in self.cheatable_state.mocked_calls_map:
+                raise MockCallMisusageException(
+                    f"Contract {contract_address} doesn't have mocked selectors."
+                )
+            if selector not in self.cheatable_state.mocked_calls_map[contract_address]:
+                raise MockCallMisusageException(
+                    f"Couldn't find mocked selector {selector} for an address {contract_address}."
+                )
+            del self.cheatable_state.mocked_calls_map[contract_address][selector]
 
         return clear_mock

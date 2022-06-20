@@ -62,19 +62,12 @@ class DataTransformerFacade:
     ArgumentName = str
     SupportedType = Any
 
-    @classmethod
-    def from_contract_path(
-        cls, path: Path, starknet_compiler: StarknetCompiler
-    ) -> "DataTransformerFacade":
-        preprocessed = starknet_compiler.preprocess_contract(path)
-        return cls(preprocessed.abi)
+    def __init__(self, starknet_compiler: StarknetCompiler) -> None:
+        self._starknet_compiler = starknet_compiler
 
-    def __init__(self, contract_abi: AbiType) -> None:
-        self._contract_abi = contract_abi
-        self._identifier_manager = identifier_manager_from_abi(contract_abi)
-
-    def _get_function_abi(self, fn_name: str) -> ABIFunctionEntry:
-        for item in self._contract_abi:
+    @staticmethod
+    def _get_function_abi(contract_abi: AbiType, fn_name: str) -> ABIFunctionEntry:
+        for item in contract_abi:
             if (item["type"] == "function" or item["type"] == "constructor") and item[
                 "name"
             ] == fn_name:
@@ -82,13 +75,15 @@ class DataTransformerFacade:
         raise FunctionNotFoundException(f"Couldn't find a function '{fn_name}'")
 
     def build_from_python_transformer(
-        self, fn_name: str, mode: Literal["inputs", "outputs"]
+        self, contract_path: Path, fn_name: str, mode: Literal["inputs", "outputs"]
     ) -> Callable[[Dict[ArgumentName, SupportedType]], List[int]]:
-        fn_abi = self._get_function_abi(fn_name)
+        contract_abi = self._starknet_compiler.preprocess_contract(contract_path).abi
+
+        fn_abi = self._get_function_abi(contract_abi, fn_name)
 
         data_transformer = PatchedDataTransformer(
             fn_abi,
-            identifier_manager_from_abi(self._contract_abi),
+            identifier_manager_from_abi(contract_abi),
         )
 
         def transform(

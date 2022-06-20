@@ -1,19 +1,19 @@
+from pathlib import Path
 from typing import List, Optional, cast
-from starkware.cairo.common.structs import CairoStructProxy
 
+from starkware.cairo.common.structs import CairoStructProxy
 from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
-from starkware.starknet.business_logic.execution.objects import OrderedEvent
+from starkware.python.utils import to_bytes
+from starkware.starknet.business_logic.execution.objects import CallType, OrderedEvent
 from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
 from starkware.starknet.security.secure_hints import HintsWhitelist
 from starkware.starknet.services.api.contract_class import EntryPointType
-from starkware.starknet.business_logic.execution.objects import CallType
-from starkware.python.utils import to_bytes
 
-from protostar.commands.test.starkware.types import AddressType, SelectorType
 from protostar.commands.test.starkware.cheatable_carried_state import (
     CheatableCarriedState,
 )
+from protostar.commands.test.starkware.types import AddressType, SelectorType
 
 
 class CheatableSysCallHandlerException(BaseException):
@@ -117,6 +117,26 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
             )
         del self.cheatable_state.mocked_calls_map[contract_address][selector]
 
+    def get_contract_path_from_contract_address(
+        self, contract_address: AddressType
+    ) -> Optional[Path]:
+        if (
+            contract_address
+            in self.cheatable_state.contract_address_to_contract_path_map
+        ):
+            return self.cheatable_state.contract_address_to_contract_path_map[
+                contract_address
+            ]
+
+        if contract_address in self.cheatable_state.contract_address_to_class_hash_map:
+            class_hash = self.cheatable_state.contract_address_to_class_hash_map[
+                contract_address
+            ]
+            if class_hash in self.cheatable_state.class_hash_to_contract_path_map:
+                return self.cheatable_state.class_hash_to_contract_path_map[class_hash]
+
+        return None
+
     def _call_contract(
         self,
         segments: MemorySegmentManager,
@@ -126,14 +146,14 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
         request = self._read_and_validate_syscall_request(
             syscall_name=syscall_name, segments=segments, syscall_ptr=syscall_ptr
         )
-        code_address = cast(int, request.contract_address)
+        contract_address = cast(int, request.contract_address)
 
-        if code_address in self.cheatable_state.mocked_calls_map:
+        if contract_address in self.cheatable_state.mocked_calls_map:
             if (
                 request.function_selector
-                in self.cheatable_state.mocked_calls_map[code_address]
+                in self.cheatable_state.mocked_calls_map[contract_address]
             ):
-                return self.cheatable_state.mocked_calls_map[code_address][
+                return self.cheatable_state.mocked_calls_map[contract_address][
                     request.function_selector
                 ]
 
