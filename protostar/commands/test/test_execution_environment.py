@@ -269,52 +269,6 @@ class TestExecutionEnvironment:
                 raise CheatcodeException("stop_prank", err.message) from err
 
         @register_cheatcode
-        def mock_call(
-            contract_address: int,
-            fn_name: str,
-            ret_data: Union[
-                List[int],
-                Dict[
-                    DataTransformerFacade.ArgumentName,
-                    DataTransformerFacade.SupportedType,
-                ],
-            ],
-        ):
-            selector = get_selector_from_name(fn_name)
-            try:
-                if isinstance(ret_data, Mapping):
-                    if contract_address not in self._contract_address_to_contract_path:
-                        raise CheatcodeException(
-                            "mock_call",
-                            (
-                                "Couldn't map the `contract_address` to the contract path."
-                                "Is the `contract_address` valid?"
-                            ),
-                        )
-                    contract_path = self._contract_address_to_contract_path[
-                        contract_address
-                    ]
-                    ret_data = self._data_transformer.build_from_python_transformer(
-                        contract_path, fn_name, "outputs"
-                    )(ret_data)
-
-                cheatable_syscall_handler.register_mock_call(
-                    contract_address, selector=selector, ret_data=ret_data
-                )
-            except CheatableSysCallHandlerException as err:
-                raise CheatcodeException("mock_call", err.message) from err
-
-            def clear_mock_call():
-                try:
-                    cheatable_syscall_handler.unregister_mock_call(
-                        contract_address, selector
-                    )
-                except CheatableSysCallHandlerException as err:
-                    raise CheatcodeException("clear_mock_call", err.message) from err
-
-            return clear_mock_call
-
-        @register_cheatcode
         def clear_mock_call(contract_address: int, fn_name: str):
             logger.warning(
                 "Using clear_mock_call() is deprecated, instead call a function returned by mock_call()"

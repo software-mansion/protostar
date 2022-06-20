@@ -21,6 +21,7 @@ from protostar.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
 )
 from protostar.utils.data_transformer_facade import DataTransformerFacade
+from protostar.utils.starknet_compilation import StarknetCompiler
 
 
 class MockCallMisusageException(BaseException):
@@ -41,7 +42,6 @@ class MockCallCheatcode(CheatableSysCallHandler):
         starknet_storage: BusinessLogicStarknetStorage,
         general_config: CheatableStarknetGeneralConfig,
         initial_syscall_ptr: RelocatableValue,
-        data_transformer_facade: DataTransformerFacade,
     ):
         super().__init__(
             execute_entry_point_cls=execute_entry_point_cls,
@@ -53,7 +53,12 @@ class MockCallCheatcode(CheatableSysCallHandler):
             general_config=general_config,
             initial_syscall_ptr=initial_syscall_ptr,
         )
-        self.data_transformer_facade = data_transformer_facade
+        self.data_transformer_facade = DataTransformerFacade(
+            StarknetCompiler(
+                include_paths=general_config.cheatcodes_cairo_path,
+                disable_hint_validation=True,
+            )
+        )
 
     @property
     def name(self) -> str:

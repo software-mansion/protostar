@@ -95,15 +95,6 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
 
         return self.caller_address
 
-    def register_mock_call(
-        self, contract_address: AddressType, selector: SelectorType, ret_data: List[int]
-    ):
-        if selector in self.cheatable_state.mocked_calls_map[contract_address]:
-            raise CheatableSysCallHandlerException(
-                f"{selector} in contract with address {contract_address} has been already mocked"
-            )
-        self.cheatable_state.mocked_calls_map[contract_address][selector] = ret_data
-
     def unregister_mock_call(
         self, contract_address: AddressType, selector: SelectorType
     ):

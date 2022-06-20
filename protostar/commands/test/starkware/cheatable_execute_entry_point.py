@@ -11,10 +11,12 @@ from starkware.cairo.lang.vm.vm_exceptions import (
     VmException,
     VmExceptionBase,
 )
+from starkware.starknet.business_logic.execution.execute_entry_point import (
+    ExecuteEntryPoint,
+)
 from starkware.starknet.business_logic.execution.objects import (
     TransactionExecutionContext,
 )
-from starkware.starknet.business_logic.state.state import CarriedState
 from starkware.starknet.core.os import os_utils, syscall_utils
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from starkware.starknet.public import abi as starknet_abi
@@ -24,22 +26,20 @@ from starkware.starkware_utils.error_handling import (
     wrap_with_stark_exception,
 )
 
-
-from starkware.starknet.business_logic.execution.execute_entry_point import (
-    ExecuteEntryPoint,
-)
 from protostar.commands.test.cheatcodes.deployment_manager_cheatcode import (
     DeployContractCheatcode,
     build_deploy_contract,
 )
+from protostar.commands.test.cheatcodes.mock_call_cheatcode import MockCallCheatcode
+from protostar.commands.test.starkware.cheatable_carried_state import (
+    CheatableCarriedState,
+)
 from protostar.commands.test.starkware.cheatable_starknet_general_config import (
     CheatableStarknetGeneralConfig,
 )
-
 from protostar.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
 )
-
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ logger = logging.getLogger(__name__)
 class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     def _run(
         self,
-        state: CarriedState,
+        state: CheatableCarriedState,
         general_config: CheatableStarknetGeneralConfig,
         loop: asyncio.AbstractEventLoop,
         tx_execution_context: TransactionExecutionContext,
@@ -116,6 +116,17 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             initial_syscall_ptr=initial_syscall_ptr,
         )
 
+        mock_call_cheatcode = MockCallCheatcode(
+            execute_entry_point_cls=CheatableExecuteEntryPoint,
+            tx_execution_context=tx_execution_context,
+            state=state,
+            caller_address=self.caller_address,
+            contract_address=self.contract_address,
+            starknet_storage=starknet_storage,
+            general_config=general_config,
+            initial_syscall_ptr=initial_syscall_ptr,
+        )
+
         # Positional arguments are passed to *args in the 'run_from_entrypoint' function.
         entry_points_args = [
             self.entry_point_selector,
@@ -135,6 +146,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
                     "prepare": deployment_manager.prepare_declared,
                     "deploy": deployment_manager.deploy_prepared,
                     "deploy_contract": build_deploy_contract(deployment_manager),
+                    f"{mock_call_cheatcode.name}": mock_call_cheatcode.execute,
                 },
                 static_locals={
                     "__find_element_max_size": 2**20,
