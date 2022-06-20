@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from typing import Tuple, cast
+from typing import TYPE_CHECKING, Tuple, cast
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
@@ -31,15 +31,15 @@ from protostar.commands.test.cheatcodes.deployment_manager_cheatcode import (
     build_deploy_contract,
 )
 from protostar.commands.test.cheatcodes.mock_call_cheatcode import MockCallCheatcode
-from protostar.commands.test.starkware.cheatable_carried_state import (
-    CheatableCarriedState,
-)
 from protostar.commands.test.starkware.cheatable_starknet_general_config import (
     CheatableStarknetGeneralConfig,
 )
 from protostar.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
 )
+
+if TYPE_CHECKING:
+    from protostar.commands.test.starkware.cheatable_state import CheatableCarriedState
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ logger = logging.getLogger(__name__)
 class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     def _run(
         self,
-        state: CheatableCarriedState,
+        state: "CheatableCarriedState",
         general_config: CheatableStarknetGeneralConfig,
         loop: asyncio.AbstractEventLoop,
         tx_execution_context: TransactionExecutionContext,

@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Dict, List, Type, Union
+from typing import TYPE_CHECKING, Dict, List, Type, Union
 
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.starknet.business_logic.execution.execute_entry_point_base import (
@@ -11,9 +11,6 @@ from starkware.starknet.business_logic.execution.objects import (
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.storage.starknet_storage import BusinessLogicStarknetStorage
 
-from protostar.commands.test.starkware.cheatable_carried_state import (
-    CheatableCarriedState,
-)
 from protostar.commands.test.starkware.cheatable_starknet_general_config import (
     CheatableStarknetGeneralConfig,
 )
@@ -22,6 +19,9 @@ from protostar.commands.test.starkware.cheatable_syscall_handler import (
 )
 from protostar.utils.data_transformer_facade import DataTransformerFacade
 from protostar.utils.starknet_compilation import StarknetCompiler
+
+if TYPE_CHECKING:
+    from protostar.commands.test.starkware.cheatable_state import CheatableCarriedState
 
 
 class MockCallMisusageException(BaseException):
@@ -36,7 +36,7 @@ class MockCallCheatcode(CheatableSysCallHandler):
         self,
         execute_entry_point_cls: Type[ExecuteEntryPointBase],
         tx_execution_context: TransactionExecutionContext,
-        state: CheatableCarriedState,
+        state: "CheatableCarriedState",
         caller_address: int,
         contract_address: int,
         starknet_storage: BusinessLogicStarknetStorage,

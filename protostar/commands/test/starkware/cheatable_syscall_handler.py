@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Optional, cast
+from typing import TYPE_CHECKING, List, Optional, cast
 
 from starkware.cairo.common.structs import CairoStructProxy
 from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
@@ -10,10 +10,10 @@ from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
 from starkware.starknet.security.secure_hints import HintsWhitelist
 from starkware.starknet.services.api.contract_class import EntryPointType
 
-from protostar.commands.test.starkware.cheatable_carried_state import (
-    CheatableCarriedState,
-)
 from protostar.commands.test.starkware.types import AddressType, SelectorType
+
+if TYPE_CHECKING:
+    from protostar.commands.test.starkware.cheatable_state import CheatableCarriedState
 
 
 class CheatableSysCallHandlerException(BaseException):
@@ -25,7 +25,7 @@ class CheatableSysCallHandlerException(BaseException):
 class CheatableSysCallHandler(BusinessLogicSysCallHandler):
     @property
     def cheatable_state(self):
-        return cast(CheatableCarriedState, self.state)
+        return cast("CheatableCarriedState", self.state)
 
     # roll
     custom_block_number = None
