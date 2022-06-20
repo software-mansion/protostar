@@ -308,29 +308,6 @@ class TestExecutionEnvironment:
             self.add_test_finish_hook(compare_expected_and_emitted_events)
 
         @register_cheatcode
-        def deploy_contract(
-            contract_path: str,
-            constructor_calldata: Optional[
-                Union[
-                    List[int],
-                    Dict[
-                        DataTransformerFacade.ArgumentName,
-                        DataTransformerFacade.SupportedType,
-                    ],
-                ]
-            ] = None,
-        ):
-            if isinstance(constructor_calldata, Mapping):
-                fn_name = "constructor"
-                constructor_calldata = (
-                    self._data_transformer.build_from_python_transformer(
-                        Path(contract_path), fn_name, "inputs"
-                    )(constructor_calldata)
-                )
-
-            return self.deploy_in_env(contract_path, constructor_calldata)
-
-        @register_cheatcode
         def declare_contract(contract_path: str):
             return self.declare_in_env(contract_path)
 

@@ -8,12 +8,13 @@ from starkware.starknet.business_logic.internal_transaction import InternalDecla
 from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
 )
-from starkware.starknet.core.os.syscall_utils import (
-    BusinessLogicSysCallHandler,
-    initialize_contract_state,
-)
+from starkware.starknet.core.os.syscall_utils import initialize_contract_state
 from starkware.starknet.testing.contract import DeclaredClass
 from starkware.starknet.testing.contract_utils import get_abi, get_contract_class
+
+from protostar.commands.test.starkware.cheatable_syscall_handler import (
+    CheatableSysCallHandler,
+)
 
 
 @dataclass
@@ -33,12 +34,8 @@ class DeployedContract:
     contract_address: int
 
 
-class DeployContractCheatcode(BusinessLogicSysCallHandler):
+class DeployContractCheatcode(CheatableSysCallHandler):
     salt_nonce = 1
-
-    @property
-    def cheatable_state(self):
-        return self.state
 
     def deploy_prepared(self, prepared: PreparedContract):
         class_hash_bytes = to_bytes(prepared.class_hash)
@@ -69,20 +66,27 @@ class DeployContractCheatcode(BusinessLogicSysCallHandler):
             constructor_calldata=constructor_calldata,
             deployer_address=self.contract_address,
         )
+        self.cheatable_state.contract_address_to_class_hash_map[
+            contract_address
+        ] = declared.class_hash
         DeployContractCheatcode.salt_nonce += 1
         return PreparedContract(
             constructor_calldata, contract_address, declared.class_hash
         )
 
-    def declare(self, contract_path: Path) -> DeclaredContract:
+    def declare(self, contract_path_str: str) -> DeclaredContract:
         class_hash = cast(
-            int, asyncio.run(self._declare_contract(contract_path)).class_hash
+            int, asyncio.run(self._declare_contract(contract_path_str)).class_hash
+        )
+        self.cheatable_state.class_hash_to_contract_path_map[class_hash] = Path(
+            contract_path_str
         )
         return DeclaredContract(class_hash)
 
-    async def _declare_contract(self, contract_path):
+    async def _declare_contract(self, contract_path_str: str):
         contract_class = get_contract_class(
-            source=contract_path, cairo_path=self.general_config.cheatcodes_cairo_path
+            source=contract_path_str,
+            cairo_path=self.general_config.cheatcodes_cairo_path,
         )
 
         tx = await InternalDeclare.create_for_testing(
