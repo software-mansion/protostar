@@ -17,17 +17,12 @@ from protostar.commands.test.starkware.cheatable_starknet_general_config import 
 from protostar.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
 )
+from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.utils.data_transformer_facade import DataTransformerFacade
 from protostar.utils.starknet_compilation import StarknetCompiler
 
 if TYPE_CHECKING:
     from protostar.commands.test.starkware.cheatable_state import CheatableCarriedState
-
-
-class MockCallMisusageException(BaseException):
-    def __init__(self, message: str) -> None:
-        super().__init__(message)
-        self.message = message
 
 
 class MockCallCheatcode(CheatableSysCallHandler):
@@ -82,7 +77,8 @@ class MockCallCheatcode(CheatableSysCallHandler):
                 contract_address
             )
             if contract_path is None:
-                raise MockCallMisusageException(
+                raise CheatcodeException(
+                    self.name,
                     (
                         "Couldn't map the `contract_address` to the `contract_path`.\n"
                         f"Is the `contract_address` ({contract_address}) valid?"
@@ -94,19 +90,22 @@ class MockCallCheatcode(CheatableSysCallHandler):
             )(ret_data)
 
         if selector in self.cheatable_state.mocked_calls_map[contract_address]:
-            raise MockCallMisusageException(
-                f"{selector} in contract with address {contract_address} has been already mocked"
+            raise CheatcodeException(
+                self.name,
+                f"'{fn_name}' in the contract with address {contract_address} has been already mocked",
             )
         self.cheatable_state.mocked_calls_map[contract_address][selector] = ret_data
 
         def clear_mock():
             if contract_address not in self.cheatable_state.mocked_calls_map:
-                raise MockCallMisusageException(
-                    f"Contract {contract_address} doesn't have mocked selectors."
+                raise CheatcodeException(
+                    self.name,
+                    f"Contract {contract_address} doesn't have mocked selectors.",
                 )
             if selector not in self.cheatable_state.mocked_calls_map[contract_address]:
-                raise MockCallMisusageException(
-                    f"Couldn't find mocked selector {selector} for an address {contract_address}."
+                raise CheatcodeException(
+                    self.name,
+                    f"Couldn't find mocked selector {selector} for an address {contract_address}.",
                 )
             del self.cheatable_state.mocked_calls_map[contract_address][selector]
 
