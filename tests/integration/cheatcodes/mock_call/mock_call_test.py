@@ -23,6 +23,7 @@ async def test_prank_cheatcode(mocker):
             "test_syscall_counter_updated",
             "test_mock_call_wrong_target",
             "test_mock_call_wrong_selector_target",
+            "test_library_call_not_affected_by_mock",
         ],
         expected_failed_test_cases_names=["test_mock_call_twice"],
     )
