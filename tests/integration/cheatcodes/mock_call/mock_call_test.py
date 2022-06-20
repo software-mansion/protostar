@@ -25,6 +25,7 @@ async def test_mock_call(mocker):
             "test_mock_call_wrong_selector_target",
             "test_data_transformation",
             "test_data_transformation_with_syscall_deploy",
+            "test_library_call_not_affected_by_mock",
         ],
         expected_failed_test_cases_names=["test_mock_call_twice"],
     )
