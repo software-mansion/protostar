@@ -23,22 +23,8 @@ async def test_mock_call(mocker):
             "test_syscall_counter_updated",
             "test_mock_call_wrong_target",
             "test_mock_call_wrong_selector_target",
+            "test_data_transformation",
+            "test_data_transformation_with_syscall_deploy",
         ],
         expected_failed_test_cases_names=["test_mock_call_twice"],
-    )
-
-
-@pytest.mark.asyncio
-async def test_data_transformation(mocker):
-    testing_summary = await TestCommand(
-        project=mocker.MagicMock(),
-        protostar_directory=mocker.MagicMock(),
-    ).test(targets=[str(Path(__file__).parent / "mock_call_test.cairo")])
-
-    assert_cairo_test_cases(
-        testing_summary,
-        expected_passed_test_cases_names=[
-            "test_data_transformation",
-        ],
-        expected_failed_test_cases_names=[],
     )

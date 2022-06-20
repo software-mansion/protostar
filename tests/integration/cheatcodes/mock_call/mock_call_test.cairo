@@ -5,6 +5,8 @@ from starkware.starknet.common.syscalls import (
 from starkware.cairo.common.math import assert_not_equal
 from starkware.starknet.common.syscalls import storage_read, storage_write
 from starkware.cairo.common.uint256 import Uint256
+from starkware.cairo.common.alloc import alloc
+from starkware.starknet.common.syscalls import deploy
 
 @contract_interface
 namespace Proxy:
@@ -140,5 +142,21 @@ func test_data_transformation{syscall_ptr : felt*, range_check_ptr}():
     %}
     let (val) = Mocked.get_number(to_mock_address)
     assert val = 42
+    return ()
+end
+
+@external
+func test_data_transformation_with_syscall_deploy{syscall_ptr : felt*, range_check_ptr}():
+    alloc_locals
+    local class_hash : felt
+    %{ ids.class_hash = declare("./tests/integration/cheatcodes/mock_call/mocked.cairo").class_hash %}
+
+    let (local calldata : felt*) = alloc()
+    let (contract_address) = deploy(class_hash, 42, 0, calldata)
+
+    %{ mock_call(ids.contract_address, "get_number", { "val": 42 }) %}
+    let (val) = Mocked.get_number(contract_address)
+    assert val = 42
+
     return ()
 end
