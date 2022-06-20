@@ -118,7 +118,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
                     "syscall_handler": syscall_handler,
                 }
         for cheatcode in Cheatcode.__subclasses__():
-            hint_locals[cheatcode.name()] = cheatcode_factory.build(cheatcode)
+            hint_locals[cheatcode.name()] = getattr(cheatcode_factory.build(cheatcode), cheatcode.name())
 
         # Positional arguments are passed to *args in the 'run_from_entrypoint' function.
         entry_points_args = [

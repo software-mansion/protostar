@@ -25,7 +25,7 @@ class DeclareCheatcode(Cheatcode):
     def name() -> str:
         return "declare" 
 
-    def execue(self, contract_path: Path) -> DeclaredContract:
+    def declare(self, contract_path: Path) -> DeclaredContract:
         class_hash = cast(
             int, asyncio.run(self._declare_contract(contract_path)).class_hash
         )
@@ -33,7 +33,7 @@ class DeclareCheatcode(Cheatcode):
 
     async def _declare_contract(self, contract_path):
         contract_class = get_contract_class(
-                source=contract_path, cairo_path=self.cheatable_global_config.cheatcodes_cairo_path
+                source=contract_path, cairo_path=self.general_config.cheatcodes_cairo_path
         )
 
         tx = await InternalDeclare.create_for_testing(

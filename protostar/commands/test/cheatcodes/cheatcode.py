@@ -1,35 +1,60 @@
 from abc import abstractmethod
+import inspect
 from typing import Any, Type, cast
+from starkware.cairo.lang.vm.relocatable import RelocatableValue
+from starkware.starknet.business_logic.execution.objects import TransactionExecutionContext
 
 from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
+from starkware.starknet.storage.starknet_storage import BusinessLogicStarknetStorage
 
 from protostar.commands.test.starkware.cheatable_carried_state import CheatableCarriedState
+from protostar.commands.test.starkware.cheatable_execute_entry_point import CheatableExecuteEntryPoint
 from protostar.commands.test.starkware.cheatable_starknet_general_config import CheatableStarknetGeneralConfig
 
 
 class Cheatcode(BusinessLogicSysCallHandler):
-    @property
-    def cheatable_state(self):
-        return cast(CheatableCarriedState, self.state)
-
-    @property
-    def cheatable_global_config(self):
-        return cast(CheatableStarknetGeneralConfig, self.state)
+    def __init__(
+        self,
+        execute_entry_point_cls: Type[CheatableExecuteEntryPoint],
+        tx_execution_context: TransactionExecutionContext,
+        state: CheatableCarriedState,
+        caller_address: int,
+        contract_address: int,
+        starknet_storage: BusinessLogicStarknetStorage,
+        general_config: CheatableStarknetGeneralConfig,
+        initial_syscall_ptr: RelocatableValue
+        ):
+        super().__init__(execute_entry_point_cls, tx_execution_context, state, caller_address, contract_address, starknet_storage, general_config, initial_syscall_ptr)
 
     @staticmethod
     @abstractmethod
     def name() -> str:
         ...
 
-    @abstractmethod
-    def execute(self) -> Any:
-        ...
 
 
 class CheatcodeFactory():
-    def __init__(self, *args, **kwargs): 
-        self.args = args
-        self.kwargs = kwargs
+    def __init__(
+        self,
+        execute_entry_point_cls: Type[CheatableExecuteEntryPoint],
+        tx_execution_context: TransactionExecutionContext,
+        state: CheatableCarriedState,
+        caller_address: int,
+        contract_address: int,
+        starknet_storage: BusinessLogicStarknetStorage,
+        general_config: CheatableStarknetGeneralConfig,
+        initial_syscall_ptr: RelocatableValue
+        ):
+        self.execute_entry_point_cls = execute_entry_point_cls
+        self.tx_execution_context = tx_execution_context 
+        self.state = state
+        self.caller_address = caller_address
+        self.contract_address = contract_address
+        self.starknet_storage = starknet_storage
+        self.general_config = general_config
+        self.initial_syscall_ptr = initial_syscall_ptr
 
     def build(self, cheatcode_type: Type[Cheatcode]):
-        return cheatcode_type(*self.args, **self.kwargs)
+        cheatcode_args_types = inspect.signature(cheatcode_type).parameters
+        cheatcode_args = [getattr(self, name) for name in cheatcode_args_types]
+        return cheatcode_type(*cheatcode_args)

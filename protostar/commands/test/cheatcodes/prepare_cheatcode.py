@@ -25,17 +25,17 @@ class PrepareCheatcode(Cheatcode):
     def name() -> str:
         return "prepare"
 
-    def execute(
+    def prepare(
         self, declared: DeclaredContract, constructor_calldata=None
     ) -> PreparedContract:
         constructor_calldata = constructor_calldata or []
         contract_address: int = calculate_contract_address_from_hash(
-            salt=DeclareContractCheatcode.salt_nonce,
+            salt=PrepareCheatcode.salt_nonce,
             class_hash=declared.class_hash,
             constructor_calldata=constructor_calldata,
             deployer_address=self.contract_address,
         )
-        DeclareContractCheatcode.salt_nonce += 1
+        PrepareCheatcode.salt_nonce += 1
         return PreparedContract(
             constructor_calldata, contract_address, declared.class_hash
         )
