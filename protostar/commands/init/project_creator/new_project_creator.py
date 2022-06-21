@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from pathlib import Path
 
 from git import InvalidGitRepositoryError
@@ -10,6 +11,7 @@ from protostar.utils.protostar_directory import VersionManager
 
 
 class NewProjectCreator(ProjectCreator):
+    @dataclass
     class UserInput:
         project_dirname: str
         lib_dirname: str
@@ -30,21 +32,18 @@ class NewProjectCreator(ProjectCreator):
         self._create_project(self._gather_input())
 
     def _gather_input(self) -> "NewProjectCreator.UserInput":
-        user_input = NewProjectCreator.UserInput()
 
-        user_input.project_dirname = self._requester.request_input(
-            "project directory name"
-        )
-        while user_input.project_dirname == "":
-            user_input.project_dirname = self._requester.request_input_again(
+        project_dirname = self._requester.request_input("project directory name")
+        while project_dirname == "":
+            project_dirname = self._requester.request_input_again(
                 "Please provide a non-empty project directory name"
             )
 
-        user_input.lib_dirname = (
+        lib_dirname = (
             self._requester.request_input("libraries directory name (lib)") or "lib"
         )
 
-        return user_input
+        return NewProjectCreator.UserInput(project_dirname, lib_dirname)
 
     def _create_project(self, user_input: "NewProjectCreator.UserInput") -> None:
         project_root_path = Path() / user_input.project_dirname
