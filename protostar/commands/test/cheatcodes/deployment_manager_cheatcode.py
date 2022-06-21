@@ -108,16 +108,16 @@ class DeployContractCheatcode(CheatableSysCallHandler):
             chain_id=self.general_config.chain_id.value,
         )
 
+        with self.cheatable_state.copy_and_apply() as state_copy:
+            tx_execution_info = await tx.apply_state_updates(
+                state=state_copy, general_config=self.general_config
+            )
         abi = get_abi(contract_class=contract_class)
         event_manager = EventManager(abi=abi)
         self.cheatable_state.update_event_selector_to_name_map(
             # pylint: disable=protected-access
             event_manager._selector_to_name
         )
-        with self.cheatable_state.copy_and_apply() as state_copy:
-            tx_execution_info = await tx.apply_state_updates(
-                state=state_copy, general_config=self.general_config
-            )
 
         class_hash = tx_execution_info.call_info.class_hash
         assert class_hash is not None

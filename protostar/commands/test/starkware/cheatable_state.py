@@ -124,6 +124,28 @@ class CheatableCarriedState(CarriedState):
         self.contract_address_to_contract_path_map: Dict[int, Path] = {}
         self.contract_address_to_class_hash_map: Dict[int, int] = {}
 
+    def _apply(self):
+        assert self.parent_state is not None
+
+        self.parent_state.event_selector_to_name_map = {
+            **self.parent_state.event_selector_to_name_map,
+            **self.event_selector_to_name_map,
+        }
+        self.parent_state.class_hash_to_contract_path_map = {
+            **self.parent_state.class_hash_to_contract_path_map,
+            **self.class_hash_to_contract_path_map,
+        }
+        self.parent_state.contract_address_to_contract_path_map = {
+            **self.parent_state.contract_address_to_contract_path_map,
+            **self.contract_address_to_contract_path_map,
+        }
+        self.parent_state.contract_address_to_class_hash_map = {
+            **self.parent_state.contract_address_to_class_hash_map,
+            **self.contract_address_to_class_hash_map,
+        }
+
+        return super()._apply()
+
     def update_event_selector_to_name_map(
         self, local_event_selector_to_name_map: Dict[int, str]
     ):
@@ -142,8 +164,11 @@ class CheatableStarknetState(StarknetState):
         state: CheatableCarriedState,
         general_config: CheatableStarknetGeneralConfig,
     ):
-        self.cheatable_carried_state = state
         super().__init__(state, general_config)
+
+    @property
+    def cheatable_carried_state(self):
+        return cast(CheatableCarriedState, self.state)
 
     async def invoke_raw(
         self,
