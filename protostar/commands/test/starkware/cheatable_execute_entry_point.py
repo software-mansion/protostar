@@ -114,11 +114,13 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             initial_syscall_ptr=initial_syscall_ptr,
         )
         hint_locals = {
-                    "__storage": starknet_storage,
-                    "syscall_handler": syscall_handler,
-                }
+            "__storage": starknet_storage,
+            "syscall_handler": syscall_handler,
+        }
         for cheatcode in Cheatcode.__subclasses__():
-            hint_locals[cheatcode.name()] = getattr(cheatcode_factory.build(cheatcode), cheatcode.name())
+            hint_locals[cheatcode.name()] = getattr(
+                cheatcode_factory.build(cheatcode), cheatcode.name()
+            )
 
         # Positional arguments are passed to *args in the 'run_from_entrypoint' function.
         entry_points_args = [

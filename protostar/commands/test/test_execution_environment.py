@@ -19,7 +19,7 @@ from protostar.commands.test.cheatcodes_legacy import (
 )
 
 from protostar.commands.test.expected_event import ExpectedEvent
-from protostar.commands.test.starkware.cheatable_starknet_general_config import (
+from protostar.commands.test.starkware import (
     CheatableStarknetGeneralConfig,
 )
 
@@ -319,7 +319,7 @@ class TestExecutionEnvironment:
                         matches=matches,
                         missing=missing,
                         # pylint: disable=line-too-long
-                        event_selector_to_name_map=self.starknet.cheatable_state.cheatable_carried_state.event_selector_to_name_map,
+                        event_selector_to_name_map=self.starknet.state.cheatable_carried_state.event_selector_to_name_map,
                     )
 
             self.add_test_finish_hook(compare_expected_and_emitted_events)

@@ -10,19 +10,22 @@ from protostar.commands.test.cheatcodes.cheatcode import Cheatcode
 from protostar.commands.test.cheatcodes.declare_cheatcode import DeclaredContract
 
 
-
 @dataclass(frozen=True)
 class PreparedContract:
     constructor_calldata: List[int]
     contract_address: int
     class_hash: int
 
+
 class PrepareCheatcode(Cheatcode):
     salt_nonce = 1
 
-
     @staticmethod
     def name() -> str:
+        return "prepare"
+
+    @staticmethod
+    def implementation() -> str:
         return "prepare"
 
     def prepare(
@@ -39,4 +42,3 @@ class PrepareCheatcode(Cheatcode):
         return PreparedContract(
             constructor_calldata, contract_address, declared.class_hash
         )
-

@@ -15,15 +15,20 @@ from starkware.starknet.business_logic.internal_transaction import (
 
 from protostar.commands.test.cheatcodes.cheatcode import Cheatcode
 
+
 @dataclass
 class DeclaredContract:
     class_hash: int
 
-class DeclareCheatcode(Cheatcode):
 
+class DeclareCheatcode(Cheatcode):
     @staticmethod
     def name() -> str:
-        return "declare" 
+        return "declare"
+
+    @staticmethod
+    def implementation() -> str:
+        return "declare"
 
     def declare(self, contract_path: Path) -> DeclaredContract:
         class_hash = cast(
@@ -33,16 +38,16 @@ class DeclareCheatcode(Cheatcode):
 
     async def _declare_contract(self, contract_path):
         contract_class = get_contract_class(
-                source=contract_path, cairo_path=self.general_config.cheatcodes_cairo_path
+            source=contract_path, cairo_path=self.general_config.cheatcodes_cairo_path
         )
 
         tx = await InternalDeclare.create_for_testing(
-            ffc=self.cheatable_state.ffc,
+            ffc=self.state.ffc,
             contract_class=contract_class,
             chain_id=self.general_config.chain_id.value,
         )
 
-        with self.cheatable_state.copy_and_apply() as state_copy:
+        with self.state.copy_and_apply() as state_copy:
             tx_execution_info = await tx.apply_state_updates(
                 state=state_copy, general_config=self.general_config
             )
@@ -53,4 +58,3 @@ class DeclareCheatcode(Cheatcode):
             class_hash=from_bytes(class_hash),
             abi=get_abi(contract_class=contract_class),
         )
-
