@@ -5,7 +5,7 @@ from git.repo import Repo
 
 from protostar.commands.init.project_creator._project_creator import ProjectCreator
 from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
-from protostar.utils import Requester
+from protostar.utils import InputRequester
 from protostar.utils.protostar_directory import VersionManager
 
 
@@ -17,7 +17,7 @@ class NewProjectCreator(ProjectCreator):
     def __init__(
         self,
         script_root: Path,
-        requester: Requester,
+        requester: InputRequester,
         protostar_toml_writer: ProtostarTOMLWriter,
         version_manager: VersionManager,
     ):

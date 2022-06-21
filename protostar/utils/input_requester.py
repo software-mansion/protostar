@@ -1,7 +1,7 @@
 from protostar.utils.log_color_provider import LogColorProvider
 
 
-class Requester:
+class InputRequester:
     def __init__(self, log_color_provider: LogColorProvider) -> None:
         self._log_color_provider = log_color_provider
 

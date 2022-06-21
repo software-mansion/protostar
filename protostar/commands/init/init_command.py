@@ -8,13 +8,13 @@ from protostar.commands.init.project_creator.adapted_project_creator import (
 from protostar.commands.init.project_creator.new_project_creator import (
     NewProjectCreator,
 )
-from protostar.utils.requester import Requester
+from protostar.utils.input_requester import InputRequester
 
 
 class InitCommand(Command):
     def __init__(
         self,
-        requester: Requester,
+        requester: InputRequester,
         new_project_creator: NewProjectCreator,
         adapted_project_creator: AdaptedProjectCreator,
     ) -> None:
