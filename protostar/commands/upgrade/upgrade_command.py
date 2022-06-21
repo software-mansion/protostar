@@ -119,7 +119,11 @@ class UpgradeManager:
     def _pull_tarball(self):
         logger.info("Pulling latest binary, version: %s", self.latest_version)
         tar_url = f"{PROTOSTAR_REPO}/releases/download/{self.latest_version_tag}/{self.tarball_name}"
-        urlretrieve(tar_url, self.tarball_loc)
+        with requests.get(tar_url, stream=True) as r:
+            with open(self.tarball_loc, 'wb') as f:
+                shutil.copyfileobj(r.raw, f)
+
+
 
     def _install_new_version(self):
         logger.info("Installing latest Protostar version: %s", self.latest_version)
