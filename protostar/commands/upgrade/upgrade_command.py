@@ -88,9 +88,13 @@ class UpgradeManager:
             self.current_version,
             self.latest_version,
         )
+        try:
+            self._pull_tarball()
+        except (Exception, SystemExit) as err:
+            self._handle_error(err)
 
-        self._pull_tarball()
         self._backup()
+
         try:
             self._install_new_version()
             self.cleanup()
@@ -114,7 +118,7 @@ class UpgradeManager:
         raise err
 
     def _backup(self):
-        shutil.copy(str(self.protostar_dir / "dist"), self.old_version)
+        shutil.move(str(self.protostar_dir / "dist"), self.old_version)
 
     def _pull_tarball(self):
         logger.info("Pulling latest binary, version: %s", self.latest_version)
