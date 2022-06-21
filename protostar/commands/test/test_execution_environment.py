@@ -1,7 +1,6 @@
 import asyncio
 from copy import deepcopy
 from logging import getLogger
-from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Set
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
@@ -68,12 +67,10 @@ class TestExecutionEnvironment:
         test_contract: StarknetContract,
         test_context: TestContext,
         starknet_compiler: StarknetCompiler,
-        address_to_contract_path: Optional[Dict[int, Path]] = None,
     ):
         self.starknet = forkable_starknet
         self.test_contract: StarknetContract = test_contract
         self.test_context = test_context
-        self._contract_address_to_contract_path = address_to_contract_path or {}
         self._expected_error: Optional[RevertableException] = None
         self._include_paths = include_paths
         self._test_finish_hooks: Set[Callable[[], None]] = set()
@@ -110,7 +107,6 @@ class TestExecutionEnvironment:
             test_contract=starknet_fork.copy_and_adapt_contract(self.test_contract),
             test_context=deepcopy(self.test_context),
             starknet_compiler=self._starknet_compiler,
-            address_to_contract_path=self._contract_address_to_contract_path,
         )
         return new_env
 
@@ -127,9 +123,7 @@ class TestExecutionEnvironment:
                 )
             )
         )
-        self._contract_address_to_contract_path[contract.contract_address] = Path(
-            contract_path
-        )
+
         return contract
 
     def declare_in_env(self, contract_path: str):

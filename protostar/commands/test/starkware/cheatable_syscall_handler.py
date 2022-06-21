@@ -117,14 +117,6 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
     def get_contract_path_from_contract_address(
         self, contract_address: AddressType
     ) -> Optional[Path]:
-        if (
-            contract_address
-            in self.cheatable_state.contract_address_to_contract_path_map
-        ):
-            return self.cheatable_state.contract_address_to_contract_path_map[
-                contract_address
-            ]
-
         if contract_address in self.cheatable_state.contract_address_to_class_hash_map:
             class_hash = self.cheatable_state.contract_address_to_class_hash_map[
                 contract_address

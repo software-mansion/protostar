@@ -77,6 +77,9 @@ class MockCallCheatcode(CheatableSysCallHandler):
                 contract_address, fn_name, ret_data
             )
 
+        if contract_address not in self.cheatable_state.mocked_calls_map:
+            self.cheatable_state.mocked_calls_map[contract_address] = {}
+
         if selector in self.cheatable_state.mocked_calls_map[contract_address]:
             raise CheatcodeException(
                 self.name,
