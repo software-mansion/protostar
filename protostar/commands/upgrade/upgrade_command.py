@@ -89,9 +89,10 @@ class UpgradeManager:
             self.current_version,
             self.latest_version,
         )
+
+        self._pull_tarball()          
         self._backup()
         try:
-            self._pull_tarball()
             self._install_new_version()
             self.cleanup()
         except KeyboardInterrupt:
@@ -114,7 +115,7 @@ class UpgradeManager:
         raise err
 
     def _backup(self):
-        shutil.move(str(self.protostar_dir / "dist"), self.old_version)
+        shutil.copy(str(self.protostar_dir / "dist"), self.old_version)
 
     def _pull_tarball(self):
         logger.info("Pulling latest binary, version: %s", self.latest_version)
