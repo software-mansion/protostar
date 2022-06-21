@@ -1,7 +1,7 @@
 from logging import getLogger
 from os import path
 from pathlib import Path
-from typing import Optional, cast
+from typing import Any, Optional
 
 from git.cmd import Git
 from git.exc import GitCommandError
@@ -31,10 +31,10 @@ def update_package(package_name: str, repo_dir: Path, packages_dir: Path):
 
     git.execute(["git", "fetch", "--tags"])
 
-    latest_tag = Optional[str]
+    latest_tag: Any
     try:
         rev = git.execute(["git", "rev-list", "--tags", "--max-count=1"])
-        latest_tag = cast(str, git.execute(["git", "describe", "--tags", rev]))
+        latest_tag = git.execute(["git", "describe", "--tags", rev])
     except GitCommandError as _err:
         latest_tag = None
 

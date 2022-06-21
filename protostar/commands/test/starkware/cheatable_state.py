@@ -33,8 +33,8 @@ from protostar.commands.test.starkware.types import AddressType, SelectorType
 CastableToAddress = Union[str, int]
 CastableToAddressSalt = Union[str, int]
 
-# pylint: disable=too-many-ancestors
 # pylint: disable=too-many-arguments
+# pylint: disable=too-many-ancestors
 @marshmallow_dataclass.dataclass(frozen=True)
 class CheatableInternalInvokeFunction(InternalInvokeFunction):
     async def execute(
@@ -94,18 +94,21 @@ def create_cheatable_invoke_function(
 
     signature = [] if signature is None else signature
 
-    return CheatableInternalInvokeFunction.create(
-        contract_address=contract_address,
-        entry_point_selector=selector,
-        entry_point_type=entry_point_type,
-        calldata=calldata,
-        max_fee=max_fee,
-        signature=signature,
-        caller_address=caller_address,
-        nonce=nonce,
-        chain_id=chain_id,
-        version=version,
-        only_query=only_query,
+    return cast(
+        CheatableInternalInvokeFunction,
+        CheatableInternalInvokeFunction.create(
+            contract_address=contract_address,
+            entry_point_selector=selector,
+            entry_point_type=entry_point_type,
+            calldata=calldata,
+            max_fee=max_fee,
+            signature=signature,
+            caller_address=caller_address,
+            nonce=nonce,
+            chain_id=chain_id,
+            version=version,
+            only_query=only_query,
+        ),
     )
 
 

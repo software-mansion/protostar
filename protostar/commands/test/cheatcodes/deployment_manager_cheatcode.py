@@ -12,6 +12,9 @@ from starkware.starknet.core.os.syscall_utils import initialize_contract_state
 from starkware.starknet.testing.contract import DeclaredClass
 from starkware.starknet.testing.contract_utils import get_abi, get_contract_class
 
+from protostar.commands.test.starkware.cheatable_starknet_general_config import (
+    CheatableStarknetGeneralConfig,
+)
 from protostar.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
 )
@@ -37,11 +40,15 @@ class DeployedContract:
 class DeployContractCheatcode(CheatableSysCallHandler):
     salt_nonce = 1
 
+    @property
+    def cheatable_general_config(self) -> CheatableStarknetGeneralConfig:
+        return cast(CheatableStarknetGeneralConfig, self.general_config)
+
     def deploy_prepared(self, prepared: PreparedContract):
         class_hash_bytes = to_bytes(prepared.class_hash)
         future = asyncio.run_coroutine_threadsafe(
             coro=initialize_contract_state(
-                state=self.cheatable_state,
+                state=self.state,
                 class_hash=class_hash_bytes,
                 contract_address=prepared.contract_address,
             ),
@@ -75,9 +82,8 @@ class DeployContractCheatcode(CheatableSysCallHandler):
         )
 
     def declare(self, contract_path_str: str) -> DeclaredContract:
-        class_hash = cast(
-            int, asyncio.run(self._declare_contract(contract_path_str)).class_hash
-        )
+        class_hash = asyncio.run(self._declare_contract(contract_path_str)).class_hash
+
         self.cheatable_state.class_hash_to_contract_path_map[class_hash] = Path(
             contract_path_str
         )
@@ -86,16 +92,16 @@ class DeployContractCheatcode(CheatableSysCallHandler):
     async def _declare_contract(self, contract_path_str: str):
         contract_class = get_contract_class(
             source=contract_path_str,
-            cairo_path=self.general_config.cheatcodes_cairo_path,
+            cairo_path=self.cheatable_general_config.cheatcodes_cairo_path,
         )
 
         tx = await InternalDeclare.create_for_testing(
-            ffc=self.cheatable_state.ffc,
+            ffc=self.state.ffc,
             contract_class=contract_class,
             chain_id=self.general_config.chain_id.value,
         )
 
-        with self.cheatable_state.copy_and_apply() as state_copy:
+        with self.state.copy_and_apply() as state_copy:
             tx_execution_info = await tx.apply_state_updates(
                 state=state_copy, general_config=self.general_config
             )
@@ -112,7 +118,7 @@ def build_deploy_contract(
     manager,
 ) -> Callable[[Path, List[int]], DeployedContract]:  # TODO add transformer
     """
-    Syntatic sugar for contract deployment compatible with the old interface
+    Syntactic sugar for contract deployment compatible with the old interface
     """
 
     def deploy_contract(
