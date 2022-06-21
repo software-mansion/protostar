@@ -134,6 +134,8 @@ class CheatableCarriedState(CarriedState):
         }
 
         self.parent_state.mocked_calls_map = {**self.parent_state.mocked_calls_map}
+
+        # pylint: disable=consider-using-dict-items
         for address in self.mocked_calls_map:
             if address in self.parent_state.mocked_calls_map:
                 self.parent_state.mocked_calls_map[address] = {
