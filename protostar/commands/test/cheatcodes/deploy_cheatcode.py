@@ -21,9 +21,9 @@ class DeployCheatcode(Cheatcode):
 
     @staticmethod
     def implementation() -> str:
-        return "deploy"
+        return "deploy_prepared"
 
-    def deploy(self, prepared: PreparedContract):
+    def deploy_prepared(self, prepared: PreparedContract):
         class_hash_bytes = to_bytes(prepared.class_hash)
         future = asyncio.run_coroutine_threadsafe(
             coro=initialize_contract_state(

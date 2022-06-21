@@ -2,7 +2,7 @@
 # pylint: disable=too-many-instance-attributes
 from abc import abstractmethod
 import inspect
-from typing import TYPE_CHECKING, Any, Type, cast
+from typing import TYPE_CHECKING, Type
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.starknet.business_logic.execution.objects import (
     TransactionExecutionContext,
