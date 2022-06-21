@@ -7,5 +7,5 @@ from protostar.utils.package_info import (
     retrieve_real_package_name,
 )
 from protostar.utils.protostar_directory import ProtostarDirectory, VersionManager
-from protostar.utils.requester import Requester
+from protostar.utils.input_requester import InputRequester
 from protostar.utils.standard_log_formatter import StandardLogFormatter

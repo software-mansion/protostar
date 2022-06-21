@@ -28,7 +28,7 @@ from protostar.utils import (
     VersionManager,
     log_color_provider,
 )
-from protostar.utils.requester import Requester
+from protostar.utils.input_requester import InputRequester
 
 PROFILE_ARG = Command.Argument(
     name="profile",
@@ -72,7 +72,7 @@ class ProtostarCLI(CLIApp):
         project: Project,
         version_manager: VersionManager,
         protostar_toml_writer: ProtostarTOMLWriter,
-        requester: Requester,
+        requester: InputRequester,
     ) -> None:
         self.project = project
 
@@ -124,7 +124,7 @@ class ProtostarCLI(CLIApp):
         version_manager = VersionManager(protostar_directory)
         project = Project(version_manager)
         protostar_toml_writer = ProtostarTOMLWriter()
-        requester = Requester(log_color_provider)
+        requester = InputRequester(log_color_provider)
 
         return cls(
             script_root,
