@@ -73,21 +73,9 @@ class MockCallCheatcode(CheatableSysCallHandler):
     ):
         selector = get_selector_from_name(fn_name)
         if isinstance(ret_data, Mapping):
-            contract_path = self.get_contract_path_from_contract_address(
-                contract_address
+            ret_data = self._transform_ret_data_to_cairo_format(
+                contract_address, fn_name, ret_data
             )
-            if contract_path is None:
-                raise CheatcodeException(
-                    self.name,
-                    (
-                        "Couldn't map the `contract_address` to the `contract_path`.\n"
-                        f"Is the `contract_address` ({contract_address}) valid?"
-                    ),
-                )
-
-            ret_data = self.data_transformer_facade.build_from_python_transformer(
-                contract_path, fn_name, "outputs"
-            )(ret_data)
 
         if selector in self.cheatable_state.mocked_calls_map[contract_address]:
             raise CheatcodeException(
@@ -110,3 +98,26 @@ class MockCallCheatcode(CheatableSysCallHandler):
             del self.cheatable_state.mocked_calls_map[contract_address][selector]
 
         return clear_mock
+
+    def _transform_ret_data_to_cairo_format(
+        self,
+        contract_address: int,
+        fn_name: str,
+        ret_data: Dict[
+            DataTransformerFacade.ArgumentName,
+            DataTransformerFacade.SupportedType,
+        ],
+    ) -> List[int]:
+        contract_path = self.get_contract_path_from_contract_address(contract_address)
+        if contract_path is None:
+            raise CheatcodeException(
+                self.name,
+                (
+                    "Couldn't map the `contract_address` to the `contract_path`.\n"
+                    f"Is the `contract_address` ({contract_address}) valid?\n"
+                ),
+            )
+
+        return self.data_transformer_facade.build_from_python_transformer(
+            contract_path, fn_name, "outputs"
+        )(ret_data)

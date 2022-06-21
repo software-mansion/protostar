@@ -5,13 +5,9 @@ from typing import Dict, List, Optional, Union, cast
 import marshmallow_dataclass
 from starkware.cairo.lang.vm.crypto import pedersen_hash_func
 from starkware.starknet.business_logic.execution.objects import (
-    CallInfo,
-    CallType,
-    TransactionExecutionInfo,
-)
-from starkware.starknet.business_logic.internal_transaction import (
-    InternalInvokeFunction,
-)
+    CallInfo, CallType, TransactionExecutionInfo)
+from starkware.starknet.business_logic.internal_transaction import \
+    InternalInvokeFunction
 from starkware.starknet.business_logic.state.state import CarriedState
 from starkware.starknet.business_logic.utils import validate_version
 from starkware.starknet.definitions import constants
@@ -22,12 +18,10 @@ from starkware.starknet.testing.state import StarknetState
 from starkware.storage.dict_storage import DictStorage
 from starkware.storage.storage import FactFetchingContext
 
-from protostar.commands.test.starkware.cheatable_execute_entry_point import (
-    CheatableExecuteEntryPoint,
-)
-from protostar.commands.test.starkware.cheatable_starknet_general_config import (
-    CheatableStarknetGeneralConfig,
-)
+from protostar.commands.test.starkware.cheatable_execute_entry_point import \
+    CheatableExecuteEntryPoint
+from protostar.commands.test.starkware.cheatable_starknet_general_config import \
+    CheatableStarknetGeneralConfig
 from protostar.commands.test.starkware.types import AddressType, SelectorType
 
 CastableToAddress = Union[str, int]
@@ -121,11 +115,24 @@ class CheatableCarriedState(CarriedState):
         ] = defaultdict(dict)
         self.event_selector_to_name_map: Dict[int, str] = {}
         self.class_hash_to_contract_path_map: Dict[int, Path] = {}
-        self.contract_address_to_contract_path_map: Dict[int, Path] = {}
         self.contract_address_to_class_hash_map: Dict[int, int] = {}
 
     def _apply(self):
+        """Merge state changes with the `self.parent_state`"""
         assert self.parent_state is not None
+
+        self.parent_state.pranked_contracts_map = {
+            **self.parent_state.pranked_contracts_map,
+            **self.pranked_contracts_map,
+        }
+
+        self.parent_state.mocked_calls_map = {**self.parent_state.mocked_calls_map}
+        for address in self.parent_state.mocked_calls_map:
+            if address in self.mocked_calls_map:
+                self.parent_state.mocked_calls_map[address] = {
+                    **self.parent_state.mocked_calls_map[address],
+                    **self.mocked_calls_map[address],
+                }
 
         self.parent_state.event_selector_to_name_map = {
             **self.parent_state.event_selector_to_name_map,
@@ -134,10 +141,6 @@ class CheatableCarriedState(CarriedState):
         self.parent_state.class_hash_to_contract_path_map = {
             **self.parent_state.class_hash_to_contract_path_map,
             **self.class_hash_to_contract_path_map,
-        }
-        self.parent_state.contract_address_to_contract_path_map = {
-            **self.parent_state.contract_address_to_contract_path_map,
-            **self.contract_address_to_contract_path_map,
         }
         self.parent_state.contract_address_to_class_hash_map = {
             **self.parent_state.contract_address_to_class_hash_map,
