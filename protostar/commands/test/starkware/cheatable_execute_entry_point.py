@@ -119,7 +119,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         }
         for cheatcode in Cheatcode.__subclasses__():
             hint_locals[cheatcode.name()] = getattr(
-                cheatcode_factory.build(cheatcode), cheatcode.name()
+                cheatcode_factory.build(cheatcode), cheatcode.implementation()
             )
 
         # Positional arguments are passed to *args in the 'run_from_entrypoint' function.
