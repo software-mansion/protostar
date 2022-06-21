@@ -1,7 +1,7 @@
 import asyncio
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, List, Optional, cast
+from typing import TYPE_CHECKING, Callable, List, Optional, cast
 
 from starkware.python.utils import from_bytes, to_bytes
 from starkware.starknet.business_logic.internal_transaction import InternalDeclare
@@ -10,7 +10,11 @@ from starkware.starknet.core.os.contract_address.contract_address import (
 )
 from starkware.starknet.core.os.syscall_utils import initialize_contract_state
 from starkware.starknet.testing.contract import DeclaredClass
-from starkware.starknet.testing.contract_utils import get_abi, get_contract_class
+from starkware.starknet.testing.contract_utils import (
+    EventManager,
+    get_abi,
+    get_contract_class,
+)
 
 from protostar.commands.test.starkware.cheatable_starknet_general_config import (
     CheatableStarknetGeneralConfig,
@@ -18,6 +22,9 @@ from protostar.commands.test.starkware.cheatable_starknet_general_config import 
 from protostar.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
 )
+
+if TYPE_CHECKING:
+    from protostar.commands.test.starkware.cheatable_state import CheatableCarriedState
 
 
 @dataclass
@@ -101,7 +108,13 @@ class DeployContractCheatcode(CheatableSysCallHandler):
             chain_id=self.general_config.chain_id.value,
         )
 
-        with self.state.copy_and_apply() as state_copy:
+        abi = get_abi(contract_class=contract_class)
+        event_manager = EventManager(abi=abi)
+        self.cheatable_state.update_event_selector_to_name_map(
+            # pylint: disable=protected-access
+            event_manager._selector_to_name
+        )
+        with self.cheatable_state.copy_and_apply() as state_copy:
             tx_execution_info = await tx.apply_state_updates(
                 state=state_copy, general_config=self.general_config
             )
@@ -110,7 +123,7 @@ class DeployContractCheatcode(CheatableSysCallHandler):
         assert class_hash is not None
         return DeclaredClass(
             class_hash=from_bytes(class_hash),
-            abi=get_abi(contract_class=contract_class),
+            abi=abi,
         )
 
 
