@@ -36,35 +36,6 @@ CastableToAddressSalt = Union[str, int]
 # pylint: disable=too-many-ancestors
 @marshmallow_dataclass.dataclass(frozen=True)
 class CheatableInternalInvokeFunction(InternalInvokeFunction):
-    @classmethod
-    def create(
-        cls,
-        contract_address: int,
-        entry_point_selector: int,
-        max_fee: int,
-        entry_point_type: EntryPointType,
-        calldata: List[int],
-        signature: List[int],
-        nonce: Optional[int],
-        chain_id: int,
-        version: int,
-        caller_address: int = 0,
-        only_query: bool = False,
-    ) -> "CheatableInternalInvokeFunction":
-        return cls.create(
-            contract_address,
-            entry_point_selector,
-            max_fee,
-            entry_point_type,
-            calldata,
-            signature,
-            nonce,
-            chain_id,
-            version,
-            caller_address,
-            only_query,
-        )
-
     async def execute(
         self,
         state: CarriedState,
@@ -122,18 +93,21 @@ def create_cheatable_invoke_function(
 
     signature = [] if signature is None else signature
 
-    return CheatableInternalInvokeFunction.create(
-        contract_address=contract_address,
-        entry_point_selector=selector,
-        entry_point_type=entry_point_type,
-        calldata=calldata,
-        max_fee=max_fee,
-        signature=signature,
-        caller_address=caller_address,
-        nonce=nonce,
-        chain_id=chain_id,
-        version=version,
-        only_query=only_query,
+    return cast(
+        CheatableInternalInvokeFunction,
+        CheatableInternalInvokeFunction.create(
+            contract_address=contract_address,
+            entry_point_selector=selector,
+            entry_point_type=entry_point_type,
+            calldata=calldata,
+            max_fee=max_fee,
+            signature=signature,
+            caller_address=caller_address,
+            nonce=nonce,
+            chain_id=chain_id,
+            version=version,
+            only_query=only_query,
+        ),
     )
 
 
