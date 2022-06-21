@@ -4,6 +4,4 @@ github_checks:
 coverage:
   status:
     project:
-    patch:
-      default:
-        informational: true
+    patch: off
