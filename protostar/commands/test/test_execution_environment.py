@@ -1,9 +1,8 @@
 import asyncio
-from collections.abc import Mapping
 from copy import deepcopy
 from logging import getLogger
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Set, Union
+from typing import Any, Callable, Dict, List, Optional, Set
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.public.abi import get_selector_from_name
