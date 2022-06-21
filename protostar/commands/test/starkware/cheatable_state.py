@@ -1,12 +1,8 @@
 from collections import defaultdict
-from typing import Dict, List, Optional, cast, Union
+from typing import Dict, List, Optional, Union, cast
 
 import marshmallow_dataclass
 from starkware.cairo.lang.vm.crypto import pedersen_hash_func
-from starkware.starknet.business_logic.state.state import CarriedState
-from starkware.starknet.testing.state import StarknetState
-
-
 from starkware.starknet.business_logic.execution.objects import (
     CallInfo,
     CallType,
@@ -15,29 +11,29 @@ from starkware.starknet.business_logic.execution.objects import (
 from starkware.starknet.business_logic.internal_transaction import (
     InternalInvokeFunction,
 )
+from starkware.starknet.business_logic.state.state import CarriedState
+from starkware.starknet.business_logic.utils import validate_version
 from starkware.starknet.definitions import constants
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.services.api.contract_class import EntryPointType
 from starkware.starknet.services.api.messages import StarknetMessageToL1
+from starkware.starknet.testing.state import StarknetState
 from starkware.storage.dict_storage import DictStorage
 from starkware.storage.storage import FactFetchingContext
-from starkware.starknet.business_logic.utils import (
-    validate_version,
+
+from protostar.commands.test.starkware.cheatable_execute_entry_point import (
+    CheatableExecuteEntryPoint,
 )
 from protostar.commands.test.starkware.cheatable_starknet_general_config import (
     CheatableStarknetGeneralConfig,
 )
-
 from protostar.commands.test.starkware.types import AddressType, SelectorType
-from protostar.commands.test.starkware.cheatable_execute_entry_point import (
-    CheatableExecuteEntryPoint,
-)
 
 CastableToAddress = Union[str, int]
 CastableToAddressSalt = Union[str, int]
 
-# pylint: disable=too-many-ancestors
 # pylint: disable=too-many-arguments
+# pylint: disable=too-many-ancestors
 @marshmallow_dataclass.dataclass(frozen=True)
 class CheatableInternalInvokeFunction(InternalInvokeFunction):
     async def execute(
@@ -97,18 +93,21 @@ def create_cheatable_invoke_function(
 
     signature = [] if signature is None else signature
 
-    return CheatableInternalInvokeFunction.create(
-        contract_address=contract_address,
-        entry_point_selector=selector,
-        entry_point_type=entry_point_type,
-        calldata=calldata,
-        max_fee=max_fee,
-        signature=signature,
-        caller_address=caller_address,
-        nonce=nonce,
-        chain_id=chain_id,
-        version=version,
-        only_query=only_query,
+    return cast(
+        CheatableInternalInvokeFunction,
+        CheatableInternalInvokeFunction.create(
+            contract_address=contract_address,
+            entry_point_selector=selector,
+            entry_point_type=entry_point_type,
+            calldata=calldata,
+            max_fee=max_fee,
+            signature=signature,
+            caller_address=caller_address,
+            nonce=nonce,
+            chain_id=chain_id,
+            version=version,
+            only_query=only_query,
+        ),
     )
 
 
