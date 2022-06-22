@@ -1,43 +1,32 @@
 import asyncio
 import logging
-from typing import Tuple, cast
+from typing import Any, Dict, Tuple, cast
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.cairo.lang.vm.security import SecurityError
 from starkware.cairo.lang.vm.utils import ResourcesError
-from starkware.cairo.lang.vm.vm_exceptions import (
-    HintException,
-    VmException,
-    VmExceptionBase,
-)
-from starkware.starknet.business_logic.execution.objects import (
-    TransactionExecutionContext,
-)
-from starkware.starknet.business_logic.state.state import CarriedState
+from starkware.cairo.lang.vm.vm_exceptions import (HintException, VmException,
+                                                   VmExceptionBase)
+from starkware.starknet.business_logic.execution.execute_entry_point import \
+    ExecuteEntryPoint
+from starkware.starknet.business_logic.execution.objects import \
+    TransactionExecutionContext
 from starkware.starknet.core.os import os_utils, syscall_utils
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from starkware.starknet.public import abi as starknet_abi
-from starkware.starknet.storage.starknet_storage import BusinessLogicStarknetStorage
+from starkware.starknet.storage.starknet_storage import \
+    BusinessLogicStarknetStorage
 from starkware.starkware_utils.error_handling import (
-    StarkException,
-    wrap_with_stark_exception,
-)
+    StarkException, wrap_with_stark_exception)
 
-
-from starkware.starknet.business_logic.execution.execute_entry_point import (
-    ExecuteEntryPoint,
-)
 from protostar.commands.test.cheatcodes import Cheatcode, CheatcodeFactory
-
-from protostar.commands.test.starkware.cheatable_starknet_general_config import (
-    CheatableStarknetGeneralConfig,
-)
-
-from protostar.commands.test.starkware.cheatable_syscall_handler import (
-    CheatableSysCallHandler,
-)
-
+from protostar.commands.test.starkware.cheatable_carried_state import \
+    CheatableCarriedState
+from protostar.commands.test.starkware.cheatable_starknet_general_config import \
+    CheatableStarknetGeneralConfig
+from protostar.commands.test.starkware.cheatable_syscall_handler import \
+    CheatableSysCallHandler
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +35,7 @@ logger = logging.getLogger(__name__)
 class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     def _run(
         self,
-        state: CarriedState,
+        state: CheatableCarriedState,
         general_config: CheatableStarknetGeneralConfig,
         loop: asyncio.AbstractEventLoop,
         tx_execution_context: TransactionExecutionContext,
@@ -113,14 +102,15 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             general_config=general_config,
             initial_syscall_ptr=initial_syscall_ptr,
         )
-        hint_locals = {
+        hint_locals: Dict[str, Any] = {
             "__storage": starknet_storage,
             "syscall_handler": syscall_handler,
         }
-        for cheatcode in Cheatcode.__subclasses__():
-            hint_locals[cheatcode.name()] = getattr(
-                cheatcode_factory.build(cheatcode), cheatcode.implementation()
-            )
+        # pylint: disable=invalid-name
+        for ConcreteCheatcodeImplementation in Cheatcode.__subclasses__():
+            hint_locals[
+                ConcreteCheatcodeImplementation.name()
+            ] = cheatcode_factory.build(ConcreteCheatcodeImplementation).build()
 
         # Positional arguments are passed to *args in the 'run_from_entrypoint' function.
         entry_points_args = [

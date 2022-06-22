@@ -5,21 +5,23 @@ from abc import abstractmethod
 from typing import TYPE_CHECKING, Any, Callable, Type
 
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
-from starkware.starknet.business_logic.execution.objects import \
-    TransactionExecutionContext
-from starkware.starknet.core.os.syscall_utils import \
-    BusinessLogicSysCallHandler
-from starkware.starknet.storage.starknet_storage import \
-    BusinessLogicStarknetStorage
+from starkware.starknet.business_logic.execution.objects import (
+    TransactionExecutionContext,
+)
+from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
+from starkware.starknet.storage.starknet_storage import BusinessLogicStarknetStorage
 
-from protostar.commands.test.starkware.cheatable_carried_state import \
-    CheatableCarriedState
-from protostar.commands.test.starkware.cheatable_starknet_general_config import \
-    CheatableStarknetGeneralConfig
+from protostar.commands.test.starkware.cheatable_carried_state import (
+    CheatableCarriedState,
+)
+from protostar.commands.test.starkware.cheatable_starknet_general_config import (
+    CheatableStarknetGeneralConfig,
+)
 
 if TYPE_CHECKING:
-    from protostar.commands.test.starkware.cheatable_execute_entry_point import \
-        CheatableExecuteEntryPoint
+    from protostar.commands.test.starkware.cheatable_execute_entry_point import (
+        CheatableExecuteEntryPoint,
+    )
 
 
 class Cheatcode(BusinessLogicSysCallHandler):
@@ -54,7 +56,7 @@ class Cheatcode(BusinessLogicSysCallHandler):
         ...
 
     @abstractmethod
-    def build() -> Callable[[Any], Any]:
+    def build(self) -> Callable[[Any], Any]:
         ...
 
 
