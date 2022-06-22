@@ -6,27 +6,36 @@ from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.cairo.lang.vm.security import SecurityError
 from starkware.cairo.lang.vm.utils import ResourcesError
-from starkware.cairo.lang.vm.vm_exceptions import (HintException, VmException,
-                                                   VmExceptionBase)
-from starkware.starknet.business_logic.execution.execute_entry_point import \
-    ExecuteEntryPoint
-from starkware.starknet.business_logic.execution.objects import \
-    TransactionExecutionContext
+from starkware.cairo.lang.vm.vm_exceptions import (
+    HintException,
+    VmException,
+    VmExceptionBase,
+)
+from starkware.starknet.business_logic.execution.execute_entry_point import (
+    ExecuteEntryPoint,
+)
+from starkware.starknet.business_logic.execution.objects import (
+    TransactionExecutionContext,
+)
 from starkware.starknet.core.os import os_utils, syscall_utils
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from starkware.starknet.public import abi as starknet_abi
-from starkware.starknet.storage.starknet_storage import \
-    BusinessLogicStarknetStorage
+from starkware.starknet.storage.starknet_storage import BusinessLogicStarknetStorage
 from starkware.starkware_utils.error_handling import (
-    StarkException, wrap_with_stark_exception)
+    StarkException,
+    wrap_with_stark_exception,
+)
 
 from protostar.commands.test.cheatcodes import Cheatcode, CheatcodeFactory
-from protostar.commands.test.starkware.cheatable_carried_state import \
-    CheatableCarriedState
-from protostar.commands.test.starkware.cheatable_starknet_general_config import \
-    CheatableStarknetGeneralConfig
-from protostar.commands.test.starkware.cheatable_syscall_handler import \
-    CheatableSysCallHandler
+from protostar.commands.test.starkware.cheatable_carried_state import (
+    CheatableCarriedState,
+)
+from protostar.commands.test.starkware.cheatable_starknet_general_config import (
+    CheatableStarknetGeneralConfig,
+)
+from protostar.commands.test.starkware.cheatable_syscall_handler import (
+    CheatableSysCallHandler,
+)
 
 logger = logging.getLogger(__name__)
 

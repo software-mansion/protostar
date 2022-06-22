@@ -4,11 +4,9 @@ from pathlib import Path
 from typing import Any, Callable
 
 from starkware.python.utils import from_bytes
-from starkware.starknet.business_logic.internal_transaction import \
-    InternalDeclare
+from starkware.starknet.business_logic.internal_transaction import InternalDeclare
 from starkware.starknet.testing.contract import DeclaredClass
-from starkware.starknet.testing.contract_utils import (get_abi,
-                                                       get_contract_class)
+from starkware.starknet.testing.contract_utils import get_abi, get_contract_class
 
 from protostar.commands.test.cheatcodes.cheatcode import Cheatcode
 
