@@ -15,6 +15,9 @@ async def test_warp_cheatcode(mocker):
 
     assert_cairo_test_cases(
         testing_summary,
-        expected_passed_test_cases_names=["test_changing_timestamp"],
+        expected_passed_test_cases_names=[
+            "test_changing_timestamp",
+            "test_changing_timestamp_in_deployed_contract",
+        ],
         expected_failed_test_cases_names=[],
     )
