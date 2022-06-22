@@ -628,15 +628,47 @@ end
 ### `roll`
 
 ```python
-def roll(blk_number: int) -> None: ...
+def roll(blk_number: int, contract_address: Optional[int] = None) -> Callable[[], None]: ...
 ```
 
-Sets block number.
+Sets a block number for a specific contract. If the `contract_address` is undefined, the roll cheatcode affects tests and contracts imported to the test file. You can call the callback returned by this cheatcode to cancel its behavior.
+
+```cairo title="Roll cheatcode changes the value returned by get_block_number"
+%lang starknet
+from starkware.starknet.common.syscalls import get_block_number
+
+@view
+func test_changing_block_number{syscall_ptr : felt*}():
+    %{ stop_roll = roll(123) %}
+    let (bn) = get_block_number()
+    assert bn = 123
+    %{ stop_roll() %}
+
+    let (bn2) = get_block_number()
+    %{ ids.bn2 != 123 %}
+
+    return ()
+end
+```
 
 ### `warp`
 
 ```python
-def warp(blk_timestamp: int) -> None: ...
+def warp(blk_timestamp: int, contract_address: Optional[int] = None) -> Callable[[], None]: ...
 ```
 
-Sets block timestamp.
+Sets a block timestamp for a speicfic contract. If the `contract_address` is undefined, the warp cheatcode affects tests and contracts imported to the test file. You can call the callback returned by this cheatcode to cancel its behavior.
+
+```cairo title="Warp cheatcode changes the value returned by get_block_timestamp"
+%lang starknet
+
+from starkware.starknet.common.syscalls import get_block_timestamp
+
+@view
+func test_changing_timestamp{syscall_ptr : felt*}():
+    %{ warp(321) %}
+    let (bt) = get_block_timestamp()
+    assert bt = 321
+    return ()
+end
+```
