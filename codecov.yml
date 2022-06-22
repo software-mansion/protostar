@@ -1,6 +1,7 @@
+github_checks:
+  annotations: false
+
 coverage:
   status:
     project:
-    patch:
-      default:
-        informational: true
+    patch: off

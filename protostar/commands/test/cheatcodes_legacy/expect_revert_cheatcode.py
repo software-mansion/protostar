@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Callable, Optional
 
-from protostar.commands.test.cheatcodes._cheatcode import Cheatcode
+from protostar.commands.test.cheatcodes_legacy._cheatcode import Cheatcode
 from protostar.commands.test.test_environment_exceptions import RevertableException
 
 if TYPE_CHECKING:

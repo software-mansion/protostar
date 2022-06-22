@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from typing import TYPE_CHECKING, Tuple, cast
+from typing import Any, Dict, Tuple, cast
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
@@ -26,20 +26,15 @@ from starkware.starkware_utils.error_handling import (
     wrap_with_stark_exception,
 )
 
-from protostar.commands.test.cheatcodes.deployment_manager_cheatcode import (
-    DeployContractCheatcode,
-    build_deploy_contract,
-)
+from protostar.commands.test.cheatcodes import Cheatcode, CheatcodeFactory
 from protostar.commands.test.cheatcodes.mock_call_cheatcode import MockCallCheatcode
 from protostar.commands.test.starkware.cheatable_starknet_general_config import (
     CheatableStarknetGeneralConfig,
 )
+from protostar.commands.test.starkware.cheatable_state import CheatableCarriedState
 from protostar.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
 )
-
-if TYPE_CHECKING:
-    from protostar.commands.test.starkware.cheatable_state import CheatableCarriedState
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +43,7 @@ logger = logging.getLogger(__name__)
 class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     def _run(
         self,
-        state: "CheatableCarriedState",
+        state: CheatableCarriedState,
         general_config: CheatableStarknetGeneralConfig,
         loop: asyncio.AbstractEventLoop,
         tx_execution_context: TransactionExecutionContext,
@@ -105,7 +100,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             initial_syscall_ptr=initial_syscall_ptr,
         )
 
-        deployment_manager = DeployContractCheatcode(
+        cheatcode_factory = CheatcodeFactory(
             execute_entry_point_cls=CheatableExecuteEntryPoint,
             tx_execution_context=tx_execution_context,
             state=state,
@@ -115,6 +110,15 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             general_config=general_config,
             initial_syscall_ptr=initial_syscall_ptr,
         )
+        hint_locals: Dict[str, Any] = {
+            "__storage": starknet_storage,
+            "syscall_handler": syscall_handler,
+        }
+        # pylint: disable=invalid-name
+        for ConcreteCheatcodeImplementation in Cheatcode.__subclasses__():
+            hint_locals[
+                ConcreteCheatcodeImplementation.name()
+            ] = cheatcode_factory.build(ConcreteCheatcodeImplementation).build()
 
         mock_call_cheatcode = MockCallCheatcode(
             execute_entry_point_cls=CheatableExecuteEntryPoint,
@@ -139,15 +143,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             runner.run_from_entrypoint(
                 entry_point.offset,
                 *entry_points_args,
-                hint_locals={
-                    "__storage": starknet_storage,
-                    "syscall_handler": syscall_handler,
-                    "declare": deployment_manager.declare,
-                    "prepare": deployment_manager.prepare_declared,
-                    "deploy": deployment_manager.deploy_prepared,
-                    "deploy_contract": build_deploy_contract(deployment_manager),
-                    f"{mock_call_cheatcode.name}": mock_call_cheatcode.execute,
-                },
+                hint_locals=hint_locals,
                 static_locals={
                     "__find_element_max_size": 2**20,
                     "__squash_dict_max_size": 2**20,

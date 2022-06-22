@@ -4,7 +4,6 @@ import shutil
 import tarfile
 from logging import getLogger
 from typing import List, Optional
-from urllib.request import urlretrieve
 
 import requests
 from packaging import version
@@ -89,9 +88,14 @@ class UpgradeManager:
             self.current_version,
             self.latest_version,
         )
-        self._backup()
         try:
             self._pull_tarball()
+        except (Exception, SystemExit) as err:
+            self._handle_error(err)
+
+        self._backup()
+
+        try:
             self._install_new_version()
             self.cleanup()
         except KeyboardInterrupt:
@@ -119,7 +123,9 @@ class UpgradeManager:
     def _pull_tarball(self):
         logger.info("Pulling latest binary, version: %s", self.latest_version)
         tar_url = f"{PROTOSTAR_REPO}/releases/download/{self.latest_version_tag}/{self.tarball_name}"
-        urlretrieve(tar_url, self.tarball_loc)
+        with requests.get(tar_url, stream=True) as request:
+            with open(self.tarball_loc, "wb") as file:
+                shutil.copyfileobj(request.raw, file)
 
     def _install_new_version(self):
         logger.info("Installing latest Protostar version: %s", self.latest_version)
