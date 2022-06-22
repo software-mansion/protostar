@@ -33,6 +33,8 @@ from protostar.commands.test.starkware.cheatable_starknet_general_config import 
 from protostar.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
 )
+from protostar.utils.data_transformer_facade import DataTransformerFacade
+from protostar.utils.starknet_compilation import StarknetCompiler
 
 if TYPE_CHECKING:
     from protostar.commands.test.starkware.cheatable_state import CheatableCarriedState
@@ -110,6 +112,12 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             starknet_storage=starknet_storage,
             general_config=general_config,
             initial_syscall_ptr=initial_syscall_ptr,
+            data_transformer=DataTransformerFacade(
+                StarknetCompiler(
+                    include_paths=general_config.cheatcodes_cairo_path,
+                    disable_hint_validation=True,
+                )
+            ),
         )
         hint_locals: Dict[str, Any] = {
             "__storage": starknet_storage,

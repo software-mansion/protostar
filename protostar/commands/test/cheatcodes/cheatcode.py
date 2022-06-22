@@ -57,10 +57,11 @@ class Cheatcode(BusinessLogicSysCallHandler):
         ...
 
     @abstractmethod
-    def build(self) -> Callable[[Any], Any]:
+    def build(self) -> Callable[..., Any]:
         ...
 
 
+# TODO: Refactor!
 class CheatcodeFactory:
     def __init__(
         self,
@@ -72,6 +73,7 @@ class CheatcodeFactory:
         starknet_storage: BusinessLogicStarknetStorage,
         general_config: CheatableStarknetGeneralConfig,
         initial_syscall_ptr: RelocatableValue,
+        data_transformer: DataTransformerFacade,
     ):
         self.execute_entry_point_cls = execute_entry_point_cls
         self.tx_execution_context = tx_execution_context
@@ -81,6 +83,7 @@ class CheatcodeFactory:
         self.starknet_storage = starknet_storage
         self.general_config = general_config
         self.initial_syscall_ptr = initial_syscall_ptr
+        self.data_transformer = data_transformer
 
     def build(self, cheatcode_type: Type[Cheatcode]):
         cheatcode_args_types = inspect.signature(cheatcode_type).parameters

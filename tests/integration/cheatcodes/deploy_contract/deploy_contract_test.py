@@ -1,11 +1,11 @@
 from pathlib import Path
 from typing import cast
+from unittest.mock import MagicMock
 
 import pytest
 
 from protostar.commands.test.test_command import TestCommand
 from tests.integration.conftest import assert_cairo_test_cases
-from unittest.mock import MagicMock
 
 
 @pytest.mark.asyncio
@@ -31,6 +31,8 @@ async def test_deploy_contract(mocker):
             "test_deploy_using_syscall",
             "test_syscall_after_deploy",
             "test_utilizes_cairo_path",
+            "test_data_transformation",
+            "test_passing_constructor_data_as_list",
         ],
         expected_failed_test_cases_names=[],
     )
