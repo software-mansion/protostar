@@ -12,9 +12,8 @@ from protostar.protostar_toml.protostar_toml_section import ProtostarTOMLSection
 
 
 class ProtostarTOMLWriter:
-    # pylint: disable=no-self-use
+    @staticmethod
     def save(
-        self,
         path: Path,
         protostar_config: ProtostarConfigSection,
         protostar_project: ProtostarProjectSection,
@@ -29,7 +28,7 @@ class ProtostarTOMLWriter:
         ]
 
         for section in sections:
-            result[section.get_section_name()] = section.to_dict()
+            result[f"protostar.{section.get_section_name()}"] = section.to_dict()
 
         with open(path, "wb") as protostar_toml_file:
             tomli_w.dump(result, protostar_toml_file)

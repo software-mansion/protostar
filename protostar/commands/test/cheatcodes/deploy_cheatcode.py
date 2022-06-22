@@ -1,9 +1,9 @@
 import asyncio
 from dataclasses import dataclass
+from typing import Any, Callable
+
 from starkware.python.utils import to_bytes
-from starkware.starknet.core.os.syscall_utils import (
-    initialize_contract_state,
-)
+from starkware.starknet.core.os.syscall_utils import initialize_contract_state
 
 from protostar.commands.test.cheatcodes.cheatcode import Cheatcode
 from protostar.commands.test.cheatcodes.prepare_cheatcode import PreparedContract
@@ -19,9 +19,8 @@ class DeployCheatcode(Cheatcode):
     def name() -> str:
         return "deploy"
 
-    @staticmethod
-    def implementation() -> str:
-        return "deploy_prepared"
+    def build(self) -> Callable[[Any], Any]:
+        return self.deploy_prepared
 
     def deploy_prepared(self, prepared: PreparedContract):
         class_hash_bytes = to_bytes(prepared.class_hash)

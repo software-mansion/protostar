@@ -8,29 +8,24 @@ from typing import Any, Callable, Dict, List, Optional, Set, Union
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.services.api.contract_class import ContractClass
-from starkware.starknet.testing.contract import StarknetContract
+from starkware.starknet.testing.contract import DeclaredClass, StarknetContract
 from starkware.starkware_utils.error_handling import StarkException
-from starkware.starknet.testing.contract import DeclaredClass
 
 from protostar.commands.test.cheatcodes_legacy import (
     Cheatcode,
     ExpectRevertCheatcode,
     RollCheatcode,
 )
-
 from protostar.commands.test.expected_event import ExpectedEvent
 from protostar.commands.test.starkware import (
     CheatableStarknetGeneralConfig,
 )
-
 from protostar.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
     CheatableSysCallHandlerException,
 )
 from protostar.commands.test.starkware.forkable_starknet import ForkableStarknet
 from protostar.commands.test.test_context import TestContext
-
-
 from protostar.commands.test.test_environment_exceptions import (
     CheatcodeException,
     ExpectedEventMissingException,
@@ -91,7 +86,7 @@ class TestExecutionEnvironment:
     ):
         general_config = CheatableStarknetGeneralConfig(
             cheatcodes_cairo_path=include_paths
-        )
+        )  # type: ignore
         starknet = await ForkableStarknet.empty(general_config=general_config)
 
         starknet_contract = await starknet.deploy(contract_class=test_suite_definition)

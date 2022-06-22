@@ -136,3 +136,27 @@ func test_mock_call_twice{syscall_ptr : felt*, range_check_ptr}():
 
     return ()
 end
+
+@contract_interface
+namespace BalanceContract:
+    func increase_balance(amount : felt):
+    end
+
+    func get_balance() -> (res : felt):
+    end
+end
+
+@external
+func test_library_call_not_affected_by_mock{syscall_ptr : felt*, range_check_ptr}():
+    alloc_locals
+    local balance_class_hash : felt
+    local proxy_address : felt
+    %{
+        ids.balance_class_hash = declare_contract("./tests/integration/cheatcodes/mock_call/balance_contract.cairo").class_hash
+        ids.proxy_address = deploy_contract("./tests/integration/cheatcodes/mock_call/delegate_proxy.cairo" , [ids.balance_class_hash]).contract_address
+    %}
+    BalanceContract.increase_balance(proxy_address, 5)
+    let (res) = BalanceContract.get_balance(proxy_address) 
+    assert res = 5
+    return ()
+end

@@ -1,6 +1,6 @@
 from protostar.commands.build import BuildCommand
 from protostar.commands.deploy import DeployCommand
-from protostar.commands.init import InitCommand, init
+from protostar.commands.init import InitCommand
 from protostar.commands.install import InstallCommand, handle_install_command
 from protostar.commands.remove import (
     RemoveCommand,

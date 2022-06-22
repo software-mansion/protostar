@@ -1,6 +1,5 @@
-from typing import List
 from dataclasses import dataclass
-
+from typing import Any, Callable, List
 
 from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
@@ -24,9 +23,8 @@ class PrepareCheatcode(Cheatcode):
     def name() -> str:
         return "prepare"
 
-    @staticmethod
-    def implementation() -> str:
-        return "prepare"
+    def build(self) -> Callable[[Any], Any]:
+        return self.prepare
 
     def prepare(
         self, declared: DeclaredContract, constructor_calldata=None
