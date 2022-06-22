@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from typing import Any, Dict, Tuple, cast
+from typing import TYPE_CHECKING, Any, Dict, Tuple, cast
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
@@ -27,14 +27,15 @@ from starkware.starkware_utils.error_handling import (
 )
 
 from protostar.commands.test.cheatcodes import Cheatcode, CheatcodeFactory
-from protostar.commands.test.cheatcodes.mock_call_cheatcode import MockCallCheatcode
 from protostar.commands.test.starkware.cheatable_starknet_general_config import (
     CheatableStarknetGeneralConfig,
 )
-from protostar.commands.test.starkware.cheatable_state import CheatableCarriedState
 from protostar.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
 )
+
+if TYPE_CHECKING:
+    from protostar.commands.test.starkware.cheatable_state import CheatableCarriedState
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +44,7 @@ logger = logging.getLogger(__name__)
 class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     def _run(
         self,
-        state: CheatableCarriedState,
+        state: "CheatableCarriedState",
         general_config: CheatableStarknetGeneralConfig,
         loop: asyncio.AbstractEventLoop,
         tx_execution_context: TransactionExecutionContext,
@@ -119,17 +120,6 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             hint_locals[
                 ConcreteCheatcodeImplementation.name()
             ] = cheatcode_factory.build(ConcreteCheatcodeImplementation).build()
-
-        mock_call_cheatcode = MockCallCheatcode(
-            execute_entry_point_cls=CheatableExecuteEntryPoint,
-            tx_execution_context=tx_execution_context,
-            state=state,
-            caller_address=self.caller_address,
-            contract_address=self.contract_address,
-            starknet_storage=starknet_storage,
-            general_config=general_config,
-            initial_syscall_ptr=initial_syscall_ptr,
-        )
 
         # Positional arguments are passed to *args in the 'run_from_entrypoint' function.
         entry_points_args = [
