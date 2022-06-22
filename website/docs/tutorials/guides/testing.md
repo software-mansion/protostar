@@ -236,10 +236,14 @@ If you are familiar with [Foundry](https://book.getfoundry.sh/forge/cheatcodes.h
 ### `mock_call`
 
 ```python
-def mock_call(contract_address: int, fn_name: str, ret_data: List[int]) -> Callable: ...
+def mock_call(contract_address: int, fn_name: str, ret_data: Union[List[int], Dict]) -> Callable: ...
 ```
 
 Mocks all calls to function with the name `fn_name` of a contract with an address `contract_address` until the returned callable is called. Mocked call returns data provided in `ret_data`. Mock works globally, for all of the contracts, not only the testing contract.
+
+:::tip
+You can provide constructor arguments as a dictionary to leverage [data transformer](/docs/tutorials/guides/testing#data-transformer).
+:::
 
 #### Representing different data structures in `ret_data`
 
@@ -397,7 +401,7 @@ func test_error_message{syscall_ptr : felt*, range_check_ptr}():
 end
 ```
 
-:::info
+:::tip
 Use [scope attributes](https://www.cairo-lang.org/docs/how_cairo_works/scope_attributes.html?highlight=with_attr) to annotate a code block with an informative error message.
 :::
 
@@ -471,10 +475,11 @@ Deploys a contract given a path relative to a Protostar project root. The sectio
 Deploying a contract is a slow operation. If it's possible try using this cheatcode in the [`__setup__` hook](#__setup__).
 :::
 
-If the constructor of the contract accepts arguments, `constructor_calldata` expects a list of integers in the representation described in ["passing tuples and structs in calldata" section of official docs](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#passing-tuples-and-structs-in-calldata) or by a dictionary. In case of a dictionary, Protostar uses [Starknet.py](https://github.com/software-mansion/starknet.py)'s data transformer to translate Python values to Cairo values.
+### Data transformer
+If the constructor of the contract accepts arguments, `constructor_calldata` expects a list of integers in the representation described in ["passing tuples and structs in calldata" section of official docs](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#passing-tuples-and-structs-in-calldata) or by a dictionary. In case of a dictionary, Protostar uses [Starknet.py](https://github.com/software-mansion/starknet.py)'s data transformer to translate Python values to Cairo friendly representation.
 
 :::info
-`deploy_contract` is just a syntatic sugar over executing cheatcodes `declare` -> `prepare` -> `deploy` separately, and it's what does it under the hood.
+`deploy_contract` is just a syntactic sugar over executing cheatcodes `declare` -> `prepare` -> `deploy` separately, and it's what does it under the hood.
 :::
 
 ### `declare`
@@ -489,7 +494,7 @@ Declares contract given a path relative to a Protostar project root.
 
 ### `prepare`
 ```python
-def prepare(declared: DeclaredContract, constructor_calldata: Optional[List[int]]] = None) -> PreparedContract:
+def prepare(declared: DeclaredContract, constructor_calldata: Optional[Union[List[int], Dict]]] = None) -> PreparedContract:
 
 class PreparedContract:
     constructor_calldata: List[int]
@@ -517,6 +522,9 @@ end
 You can prepare multiple contracts from one `DeclaredContract`.
 :::
 
+:::tip
+You can provide constructor arguments as a dictionary to leverage [data transformer](/docs/tutorials/guides/testing#data-transformer).
+:::
 
 ### `deploy`
 ```
@@ -533,7 +541,7 @@ You can't deploy the same `PreparedContract` twice.
 
 #### Example
 ```python title="Passing constructor data as a dictionary"
-deploy_contract("./src/main.cairo", {"initial_balance": 42, "contract_id": 123})
+deploy_contract("./src/main.cairo", { "initial_balance": 42, "contract_id": 123 })
 ```
 
 ```python title="Passing constructor data as a list of integers"
