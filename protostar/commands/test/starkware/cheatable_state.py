@@ -123,6 +123,7 @@ class CheatableCarriedState(CarriedState):
         self.event_selector_to_name_map: Dict[int, str] = {}
         self.class_hash_to_contract_path_map: Dict[ClassHashType, Path] = {}
         self.contract_address_to_class_hash_map: Dict[AddressType, ClassHashType] = {}
+        self.contract_address_to_block_timestamp: Dict[AddressType, int] = {}
 
     def _apply(self):
         """Merge state changes with the `self.parent_state`"""
@@ -158,6 +159,11 @@ class CheatableCarriedState(CarriedState):
         self.parent_state.contract_address_to_class_hash_map = {
             **self.parent_state.contract_address_to_class_hash_map,
             **self.contract_address_to_class_hash_map,
+        }
+
+        self.parent_state.contract_address_to_block_timestamp = {
+            **self.parent_state.contract_address_to_block_timestamp,
+            **self.contract_address_to_block_timestamp,
         }
 
         return super()._apply()

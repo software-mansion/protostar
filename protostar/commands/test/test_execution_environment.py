@@ -223,10 +223,6 @@ class TestExecutionEnvironment:
             return func
 
         @register_cheatcode
-        def warp(blk_timestamp: int):
-            cheatable_syscall_handler.set_block_timestamp(blk_timestamp)
-
-        @register_cheatcode
         def start_prank(
             caller_address: int, target_contract_address: Optional[int] = None
         ):
