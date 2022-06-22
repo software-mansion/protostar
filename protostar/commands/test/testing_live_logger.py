@@ -27,7 +27,7 @@ class TestingLiveLogger:
             with bar(
                 total=test_collector_result.test_cases_count,
                 bar_format="{l_bar}{bar}[{n_fmt}/{total_fmt}]",
-                dynamic_ncols=True,
+                dynamic_ncols=True. The cheatcode refactor didn't include deploy_contract,
                 leave=False,
             ) as progress_bar:
                 tests_left_n = test_collector_result.test_cases_count
