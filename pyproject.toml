@@ -42,14 +42,14 @@ starknet-devnet = "^0.2.3"
 
 [tool.poe.tasks]
 build = "pyinstaller protostar.spec --noconfirm"
-ci = ["type_check", "lint", "format_check", "test"]
+ci = ["type_check", "lint", "format_check", "custom_checks", "test"]
 cov = "pytest --cov-report xml:cov.xml --cov=protostar"
 deploy = "python ./scripts/deploy.py"
 deploy_prerelease = "python ./scripts/deploy_prerelease.py"
 format = "black ."
 format_check = "black --check protostar"
 lint = "pylint protostar"
-local_static_check = ["format", "lint", "type_check"]
+local_static_check = ["format", "lint", "type_check", "custom_checks"]
 profile = "python -m cProfile -o recent_profiling.prof protostar.py"
 show_prof = "snakeviz recent_profiling.prof"
 test = ["test_unit", "test_integration", "build", "test_e2e"]
@@ -59,6 +59,7 @@ test_integration.shell = "coverage run -a -m pytest tests/integration"
 test_report = [{shell = "coverage report"}]
 test_unit.shell = "coverage run -m pytest protostar/*"
 type_check = "pyright"
+custom_checks = "sh ./scripts/custom_checks.sh"
 update_cli_docs = "python ./scripts/generate_reference_docs.py"
 
 [tool.coverage.run]
