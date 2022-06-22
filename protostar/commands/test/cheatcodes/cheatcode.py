@@ -24,6 +24,14 @@ if TYPE_CHECKING:
 
 
 class Cheatcode(BusinessLogicSysCallHandler):
+    """
+    #### ACHTUNG:
+    Protostar looks for Cheatcode subclasses to find cheatcodes to register. The concrete class needs to be imported
+    (in `__init__.py`) somewhere, otherwise this registration system doesn't work. If the concrete class needs to define
+    a custom constructor, its arguments must be named in the same way as CheatcodeFactory arguments. The connection
+    between `CheatcodeFactory::build` and `ConcreteCheatcode::constructor` is not type-safe.
+    """
+
     def __init__(
         self,
         execute_entry_point_cls: Type["CheatableExecuteEntryPoint"],
@@ -61,7 +69,6 @@ class Cheatcode(BusinessLogicSysCallHandler):
         ...
 
 
-# TODO: Refactor!
 class CheatcodeFactory:
     def __init__(
         self,

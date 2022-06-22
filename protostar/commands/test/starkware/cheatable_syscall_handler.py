@@ -1,5 +1,4 @@
 import asyncio
-from pathlib import Path
 from typing import TYPE_CHECKING, List, Optional, cast
 
 from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
@@ -113,18 +112,6 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
                 f"Couldn't find mocked selector {selector} for an address {contract_address}."
             )
         del self.cheatable_state.mocked_calls_map[contract_address][selector]
-
-    def get_contract_path_from_contract_address(
-        self, contract_address: AddressType
-    ) -> Optional[Path]:
-        if contract_address in self.cheatable_state.contract_address_to_class_hash_map:
-            class_hash = self.cheatable_state.contract_address_to_class_hash_map[
-                contract_address
-            ]
-            if class_hash in self.cheatable_state.class_hash_to_contract_path_map:
-                return self.cheatable_state.class_hash_to_contract_path_map[class_hash]
-
-        return None
 
     def _call_contract(
         self,

@@ -10,6 +10,7 @@ from protostar.commands.test.cheatcodes.deploy_cheatcode import (
 from protostar.commands.test.cheatcodes.deploy_contract_cheatcode import (
     DeployContractCheatcode,
 )
+from protostar.commands.test.cheatcodes.mock_call_cheatcode import MockCallCheatcode
 from protostar.commands.test.cheatcodes.prepare_cheatcode import (
     PrepareCheatcode,
     PreparedContract,
