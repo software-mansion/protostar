@@ -14,6 +14,7 @@ from starkware.starknet.storage.starknet_storage import BusinessLogicStarknetSto
 from protostar.commands.test.starkware.cheatable_starknet_general_config import (
     CheatableStarknetGeneralConfig,
 )
+from protostar.utils.data_transformer_facade import DataTransformerFacade
 
 if TYPE_CHECKING:
     from protostar.commands.test.starkware.cheatable_execute_entry_point import (
@@ -33,6 +34,7 @@ class Cheatcode(BusinessLogicSysCallHandler):
         starknet_storage: BusinessLogicStarknetStorage,
         general_config: CheatableStarknetGeneralConfig,
         initial_syscall_ptr: RelocatableValue,
+        data_transformer: DataTransformerFacade,
     ):
         super().__init__(
             execute_entry_point_cls,
@@ -47,6 +49,7 @@ class Cheatcode(BusinessLogicSysCallHandler):
         self.state = state
         self.general_config = general_config
         self.execute_entry_point_cls = execute_entry_point_cls
+        self.data_transformer = data_transformer
 
     @staticmethod
     @abstractmethod
