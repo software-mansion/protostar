@@ -4,21 +4,20 @@ from typing import TYPE_CHECKING, List, Optional, cast
 from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.python.utils import to_bytes
-from starkware.starknet.business_logic.execution.objects import CallType, OrderedEvent
-from starkware.starknet.core.os.contract_address.contract_address import (
-    calculate_contract_address_from_hash,
-)
+from starkware.starknet.business_logic.execution.objects import (CallType,
+                                                                 OrderedEvent)
+from starkware.starknet.core.os.contract_address.contract_address import \
+    calculate_contract_address_from_hash
 from starkware.starknet.core.os.syscall_utils import (
-    BusinessLogicSysCallHandler,
-    initialize_contract_state,
-)
+    BusinessLogicSysCallHandler, initialize_contract_state)
 from starkware.starknet.security.secure_hints import HintsWhitelist
 from starkware.starknet.services.api.contract_class import EntryPointType
 
 from protostar.commands.test.starkware.types import AddressType, SelectorType
 
 if TYPE_CHECKING:
-    from protostar.commands.test.starkware.cheatable_state import CheatableCarriedState
+    from protostar.commands.test.starkware.cheatable_state import \
+        CheatableCarriedState
 
 
 class CheatableSysCallHandlerException(BaseException):
@@ -33,17 +32,10 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
         return cast("CheatableCarriedState", self.state)
 
     # roll
-    custom_block_number = None
-
-    def set_block_number(self, blk_number):
-        self.custom_block_number = blk_number
-
     def _get_block_number(self):
-        return (
-            self.custom_block_number
-            if self.custom_block_number is not None
-            else super()._get_block_number()
-        )
+        if self.contract_address in self.cheatable_state.contract_address_to_block_number:
+            return self.cheatable_state.contract_address_to_block_number[self.contract_address]
+        return super()._get_block_number()
 
     # warp
     def _get_block_timestamp(self):
