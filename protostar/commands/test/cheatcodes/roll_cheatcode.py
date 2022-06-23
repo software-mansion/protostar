@@ -5,8 +5,8 @@ from protostar.commands.test.starkware.types import AddressType
 
 
 class RollCheatcode(Cheatcode):
-    @staticmethod
-    def name() -> str:
+    @property
+    def name(self) -> str:
         return "roll"
 
     def build(self) -> Callable[..., Any]:

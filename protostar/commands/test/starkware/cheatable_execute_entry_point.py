@@ -33,6 +33,8 @@ from protostar.commands.test.cheatcodes import (
     DeployContractCheatcode,
     MockCallCheatcode,
     PrepareCheatcode,
+    RollCheatcode,
+    WarpCheatcode,
 )
 from protostar.commands.test.starkware.cheatable_starknet_general_config import (
     CheatableStarknetGeneralConfig,
@@ -78,6 +80,8 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
                 deploy_cheatcode,
             ),
             MockCallCheatcode(syscall_dependencies, data_transformer),
+            WarpCheatcode(syscall_dependencies),
+            RollCheatcode(syscall_dependencies),
         ]
 
     def _run(

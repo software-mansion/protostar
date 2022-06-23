@@ -4,9 +4,9 @@ from protostar.commands.test.cheatcodes.cheatcode import Cheatcode
 from protostar.commands.test.starkware.types import AddressType
 
 
-class WarpCheatode(Cheatcode):
-    @staticmethod
-    def name() -> str:
+class WarpCheatcode(Cheatcode):
+    @property
+    def name(self) -> str:
         return "warp"
 
     def build(self) -> Callable[..., Any]:
