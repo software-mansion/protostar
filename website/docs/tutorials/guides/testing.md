@@ -196,13 +196,13 @@ Often while writing tests you have some setup work that needs to happen before t
 ```cairo
 %lang starknet
 
-@view
+@external
 func __setup__():
     %{ context.contract_a_address = deploy_contract("./tests/integration/testing_hooks/basic_contract.cairo").contract_address %}
     return ()
 end
 
-@view
+@external
 func test_something():
     tempvar contract_address
     %{ ids.contract_address = context.contract_a_address %}
@@ -263,7 +263,7 @@ end
 
 const EXTERNAL_CONTRACT_ADDRESS = 0x3fe90a1958bb8468fb1b62970747d8a00c435ef96cda708ae8de3d07f1bb56b
 
-@view
+@external
 func test_mock_call_returning_felt{syscall_ptr : felt*, range_check_ptr}():
   tempvar external_contract_address = EXTERNAL_CONTRACT_ADDRESS
 
@@ -295,7 +295,7 @@ end
 
 const EXTERNAL_CONTRACT_ADDRESS = 0x3fe90a1958bb8468fb1b62970747d8a00c435ef96cda708ae8de3d07f1bb56b
 
-@view
+@external
 func test_mock_call_returning_array{syscall_ptr : felt*, range_check_ptr}():
   tempvar external_contract_address = EXTERNAL_CONTRACT_ADDRESS
 
@@ -326,7 +326,7 @@ end
 
 const EXTERNAL_CONTRACT_ADDRESS = 0x3fe90a1958bb8468fb1b62970747d8a00c435ef96cda708ae8de3d07f1bb56b
 
-@view
+@external
 func test_mock_call_returning_struct{syscall_ptr : felt*, range_check_ptr}():
   tempvar external_contract_address = EXTERNAL_CONTRACT_ADDRESS
 
@@ -393,7 +393,7 @@ func assert_not_equal(a, b):
     return ()
 end
 
-@view
+@external
 func test_error_message{syscall_ptr : felt*, range_check_ptr}():
     %{ expect_revert(error_message="must be distinct") %}
     assert_not_equal(0, 0)
@@ -440,7 +440,7 @@ end
 
 # ----------------------------------------------
 
-@view
+@external
 func test_expect_events_are_in_declared_order{syscall_ptr : felt*, range_check_ptr}():
     %{ expect_events({"name": "foobar", "data": [21]}, {"name": "foobar", "data": [37]}) %}
     emit_foobar(21)
@@ -448,7 +448,7 @@ func test_expect_events_are_in_declared_order{syscall_ptr : felt*, range_check_p
     return ()
 end
 
-@view
+@external
 func test_expect_event_by_contract_address{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
     local contract_address : felt
@@ -504,7 +504,7 @@ class PreparedContract:
 Prepares contract for deployment given `DeclaredContract` and constructor_calldata. The cheatcode is useful when you want to know contract address before deploying it to affect constructor with a targeted cheatcode. Example:
 
 ```
-@view
+@external
 func test_prank_constructor{syscall_ptr : felt*, range_check_ptr}():
     %{
         declared = declare("path/to/contract.cairo")

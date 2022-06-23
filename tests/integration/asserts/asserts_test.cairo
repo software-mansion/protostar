@@ -6,7 +6,7 @@ from protostar.asserts import (
     assert_unsigned_ge)
 
 # ---------------------------------- EQUAL ---------------------------------
-@view
+@external
 func test_assert_eq():
     assert_eq(42, 42)
 
@@ -16,7 +16,7 @@ func test_assert_eq():
     return ()
 end
 
-@view
+@external
 func test_assert_not_eq():
     assert_not_eq(21, 37)
 
@@ -27,7 +27,7 @@ func test_assert_not_eq():
 end
 
 # ---------------------------------- LESS ----------------------------------
-@view
+@external
 func test_assert_signed_lt():
     assert_signed_lt(-21, 37)
 
@@ -40,7 +40,7 @@ func test_assert_signed_lt():
     return ()
 end
 
-@view
+@external
 func test_assert_unsigned_lt():
     assert_unsigned_lt(37, -21)
     assert_unsigned_lt(21, 37)
@@ -54,7 +54,7 @@ func test_assert_unsigned_lt():
     return ()
 end
 
-@view
+@external
 func test_assert_signed_le():
     assert_signed_le(-21, 37)
 
@@ -67,7 +67,7 @@ func test_assert_signed_le():
     return ()
 end
 
-@view
+@external
 func test_assert_unsigned_le():
     assert_unsigned_le(21, 37)
     assert_unsigned_le(42, 42)
@@ -80,7 +80,7 @@ end
 
 # --------------------------------- GREATER --------------------------------
 
-@view
+@external
 func test_assert_signed_gt():
     assert_signed_gt(37, -21)
     assert_signed_gt(37, 21)
@@ -94,7 +94,7 @@ func test_assert_signed_gt():
     return ()
 end
 
-@view
+@external
 func test_assert_unsigned_gt():
     assert_unsigned_gt(37, 21)
     assert_unsigned_gt(-21, 37)
@@ -108,7 +108,7 @@ func test_assert_unsigned_gt():
     return ()
 end
 
-@view
+@external
 func test_assert_signed_ge():
     assert_signed_ge(37, -21)
     assert_signed_ge(37, 21)
@@ -120,7 +120,7 @@ func test_assert_signed_ge():
     return ()
 end
 
-@view
+@external
 func test_assert_unsigned_ge():
     assert_unsigned_ge(37, 21)
     assert_unsigned_ge(-21, 37)
