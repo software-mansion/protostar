@@ -24,21 +24,21 @@ func assert_not_equal(a, b):
 end
 
 # --------------------------------------------------
-@view
+@external
 func test_error_message():
     %{ expect_revert(error_message="a and b must be distinct.") %}
     assert_not_equal(0, 0)
     return ()
 end
 
-@view
+@external
 func test_partial_error_message():
     %{ expect_revert(error_message="must be distinct") %}
     assert_not_equal(0, 0)
     return ()
 end
 
-@view
+@external
 func test_fail_error_message():
     %{ expect_revert(error_message="a and b must be distinct. FOO") %}
     assert_not_equal(0, 0)
