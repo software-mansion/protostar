@@ -570,7 +570,7 @@ To learn more how data is transformed from Python to Cairo read [Data transforma
 def start_prank(caller_address: int, target_contract_address: Optional[int] = None) -> Callable: ...
 ```
 
-Changes a caller address returned by `get_caller_address()` until the returned callable is called. If `target_contract_address` is specified, `start_prank` affects only the contract with the specified address. Otherwise, `start_prank` affects  the current contract.
+Changes a caller address returned by `get_caller_address()` until the returned callable is called. If `target_contract_address` is specified, `start_prank` affects only the contract with the specified address. Otherwise, `start_prank` affects the current contract.
 
 #### In unit tests
 ```cairo title="Local assert passes"
@@ -631,7 +631,7 @@ end
 def roll(blk_number: int, target_contract_address: Optional[int] = None) -> Callable[[], None]: ...
 ```
 
-Sets a block number for a specific contract. If the `target_contract_address` is undefined, the roll cheatcode affects tests and contracts imported to the test file. You can call the callback returned by this cheatcode to cancel its behavior.
+Changes a block number until the returned function is called. If `target_contract_address` is specified, `roll` affects only the contract with the specified address. Otherwise, `roll` affects the current contract.
 
 ```cairo title="Roll cheatcode changes the value returned by get_block_number"
 %lang starknet
@@ -657,7 +657,7 @@ end
 def warp(blk_timestamp: int, target_contract_address: Optional[int] = None) -> Callable[[], None]: ...
 ```
 
-Sets a block timestamp for a speicfic contract. If the `target_contract_address` is undefined, the warp cheatcode affects tests and contracts imported to the test file. You can call the callback returned by this cheatcode to cancel its behavior.
+Changes a block timestamp until the returned function is called. If `target_contract_address` is specified, `warp` affects only the contract with the specified address. Otherwise, `warp` affects the current contract.
 
 ```cairo title="Warp cheatcode changes the value returned by get_block_timestamp"
 %lang starknet
