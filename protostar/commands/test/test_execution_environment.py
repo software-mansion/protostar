@@ -30,7 +30,6 @@ from protostar.commands.test.test_environment_exceptions import (
     SimpleReportedException,
     StarknetRevertableException,
 )
-from protostar.utils.data_transformer_facade import DataTransformerFacade
 from protostar.utils.starknet_compilation import StarknetCompiler
 
 logger = getLogger()
@@ -54,7 +53,6 @@ class TestExecutionEnvironment:
         self._include_paths = include_paths
         self._test_finish_hooks: Set[Callable[[], None]] = set()
         self._starknet_compiler = starknet_compiler
-        self._data_transformer = DataTransformerFacade(starknet_compiler)
 
     @classmethod
     async def from_test_suite_definition(
