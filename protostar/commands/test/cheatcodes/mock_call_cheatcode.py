@@ -11,8 +11,16 @@ from protostar.utils.data_transformer_facade import DataTransformerFacade
 
 
 class MockCallCheatcode(Cheatcode):
-    @staticmethod
-    def name() -> str:
+    def __init__(
+        self,
+        syscall_dependencies: Cheatcode.SyscallDependencies,
+        data_transformer: DataTransformerFacade,
+    ):
+        super().__init__(syscall_dependencies)
+        self._data_transformer = data_transformer
+
+    @property
+    def name(self) -> str:
         return "mock_call"
 
     def build(self) -> Callable[..., Any]:
@@ -41,7 +49,7 @@ class MockCallCheatcode(Cheatcode):
 
         if selector in self.state.mocked_calls_map[contract_address]:
             raise CheatcodeException(
-                self.name(),
+                self.name,
                 f"'{fn_name}' in the contract with address {contract_address} has been already mocked",
             )
         self.state.mocked_calls_map[contract_address][selector] = ret_data
@@ -49,12 +57,12 @@ class MockCallCheatcode(Cheatcode):
         def clear_mock():
             if contract_address not in self.state.mocked_calls_map:
                 raise CheatcodeException(
-                    self.name(),
+                    self.name,
                     f"Contract {contract_address} doesn't have mocked selectors.",
                 )
             if selector not in self.state.mocked_calls_map[contract_address]:
                 raise CheatcodeException(
-                    self.name(),
+                    self.name,
                     f"Couldn't find mocked selector {selector} for an address {contract_address}.",
                 )
             del self.state.mocked_calls_map[contract_address][selector]
@@ -73,14 +81,14 @@ class MockCallCheatcode(Cheatcode):
         contract_path = self.get_contract_path_from_contract_address(contract_address)
         if contract_path is None:
             raise CheatcodeException(
-                self.name(),
+                self.name,
                 (
                     "Couldn't map the `contract_address` to the `contract_path`.\n"
                     f"Is the `contract_address` ({contract_address}) valid?\n"
                 ),
             )
 
-        return self.data_transformer.build_from_python_transformer(
+        return self._data_transformer.build_from_python_transformer(
             contract_path, fn_name, "outputs"
         )(ret_data)
 

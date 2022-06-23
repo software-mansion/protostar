@@ -176,7 +176,7 @@ func test_library_call_not_affected_by_mock{syscall_ptr : felt*, range_check_ptr
     local balance_class_hash : felt
     local proxy_address : felt
     %{
-        ids.balance_class_hash = declare_contract("./tests/integration/cheatcodes/mock_call/balance_contract.cairo").class_hash
+        ids.balance_class_hash = declare("./tests/integration/cheatcodes/mock_call/balance_contract.cairo").class_hash
         ids.proxy_address = deploy_contract("./tests/integration/cheatcodes/mock_call/delegate_proxy.cairo" , [ids.balance_class_hash]).contract_address
     %}
     BalanceContract.increase_balance(proxy_address, 5)
