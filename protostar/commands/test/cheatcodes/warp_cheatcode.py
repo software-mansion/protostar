@@ -13,14 +13,16 @@ class WarpCheatcode(Cheatcode):
         return self.warp
 
     def warp(
-        self, block_timestamp: int, contract_address: Optional[AddressType] = None
+        self,
+        blk_timestamp: int,
+        target_contract_address: Optional[AddressType] = None,
     ) -> Callable[[], None]:
-        contract_address = contract_address or self.contract_address
+        target_contract_address = target_contract_address or self.contract_address
         self.state.contract_address_to_block_timestamp[
-            contract_address
-        ] = block_timestamp
+            target_contract_address
+        ] = blk_timestamp
 
         def stop_warp():
-            del self.state.contract_address_to_block_timestamp[contract_address]
+            del self.state.contract_address_to_block_timestamp[target_contract_address]
 
         return stop_warp

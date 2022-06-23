@@ -32,7 +32,6 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
     def cheatable_state(self):
         return cast("CheatableCarriedState", self.state)
 
-    # roll
     def _get_block_number(self):
         if (
             self.contract_address
@@ -43,7 +42,6 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
             ]
         return super()._get_block_number()
 
-    # warp
     def _get_block_timestamp(self):
         if (
             self.contract_address
