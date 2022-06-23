@@ -21,8 +21,8 @@ class DeclaredContract:
 
 
 class DeclareCheatcode(Cheatcode):
-    @staticmethod
-    def name() -> str:
+    @property
+    def name(self) -> str:
         return "declare"
 
     def build(self) -> Callable[[Any], Any]:

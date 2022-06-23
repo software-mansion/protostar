@@ -26,7 +26,14 @@ from starkware.starkware_utils.error_handling import (
     wrap_with_stark_exception,
 )
 
-from protostar.commands.test.cheatcodes import Cheatcode, CheatcodeFactory
+from protostar.commands.test.cheatcodes import (
+    Cheatcode,
+    DeclareCheatcode,
+    DeployCheatcode,
+    DeployContractCheatcode,
+    MockCallCheatcode,
+    PrepareCheatcode,
+)
 from protostar.commands.test.starkware.cheatable_starknet_general_config import (
     CheatableStarknetGeneralConfig,
 )
@@ -92,7 +99,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         )
 
         # --- MODIFICATIONS START --- # TODO
-        syscall_handler = CheatableSysCallHandler(
+        syscall_dependencies = Cheatcode.SyscallDependencies(
             execute_entry_point_cls=CheatableExecuteEntryPoint,
             tx_execution_context=tx_execution_context,
             state=state,
@@ -103,31 +110,35 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             initial_syscall_ptr=initial_syscall_ptr,
         )
 
-        cheatcode_factory = CheatcodeFactory(
-            execute_entry_point_cls=CheatableExecuteEntryPoint,
-            tx_execution_context=tx_execution_context,
-            state=state,
-            caller_address=self.caller_address,
-            contract_address=self.contract_address,
-            starknet_storage=starknet_storage,
-            general_config=general_config,
-            initial_syscall_ptr=initial_syscall_ptr,
-            data_transformer=DataTransformerFacade(
-                StarknetCompiler(
-                    include_paths=general_config.cheatcodes_cairo_path,
-                    disable_hint_validation=True,
-                )
-            ),
+        syscall_handler = CheatableSysCallHandler(**syscall_dependencies)
+        data_transformer = DataTransformerFacade(
+            StarknetCompiler(
+                include_paths=general_config.cheatcodes_cairo_path,
+                disable_hint_validation=True,
+            )
         )
+        declare_cheatcode = DeclareCheatcode(syscall_dependencies)
+        prepare_cheatcode = PrepareCheatcode(syscall_dependencies, data_transformer)
+        deploy_cheatcode = DeployCheatcode(syscall_dependencies)
+        cheatcodes = [
+            declare_cheatcode,
+            prepare_cheatcode,
+            deploy_cheatcode,
+            DeployContractCheatcode(
+                syscall_dependencies,
+                declare_cheatcode,
+                prepare_cheatcode,
+                deploy_cheatcode,
+            ),
+            MockCallCheatcode(syscall_dependencies, data_transformer),
+        ]
+
         hint_locals: Dict[str, Any] = {
             "__storage": starknet_storage,
             "syscall_handler": syscall_handler,
         }
-        # pylint: disable=invalid-name
-        for ConcreteCheatcodeImplementation in Cheatcode.__subclasses__():
-            hint_locals[
-                ConcreteCheatcodeImplementation.name()
-            ] = cheatcode_factory.build(ConcreteCheatcodeImplementation).build()
+        for cheatcode in cheatcodes:
+            hint_locals[cheatcode.name] = cheatcode.build()
 
         # Positional arguments are passed to *args in the 'run_from_entrypoint' function.
         entry_points_args = [

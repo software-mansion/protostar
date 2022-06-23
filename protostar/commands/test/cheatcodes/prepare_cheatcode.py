@@ -22,8 +22,16 @@ class PreparedContract:
 class PrepareCheatcode(Cheatcode):
     salt_nonce = 1
 
-    @staticmethod
-    def name() -> str:
+    def __init__(
+        self,
+        syscall_dependencies: Cheatcode.SyscallDependencies,
+        data_transformer: DataTransformerFacade,
+    ):
+        super().__init__(syscall_dependencies)
+        self._data_transformer = data_transformer
+
+    @property
+    def name(self) -> str:
         return "prepare"
 
     def build(self) -> Callable[[Any], Any]:
@@ -73,11 +81,11 @@ class PrepareCheatcode(Cheatcode):
     ) -> List[int]:
         if class_hash not in self.state.class_hash_to_contract_path_map:
             raise CheatcodeException(
-                self.name(), f"Couldn't map `class_hash` ({class_hash}) to ({self})."
+                self.name, f"Couldn't map `class_hash` ({class_hash}) to ({self})."
             )
         contract_path = self.state.class_hash_to_contract_path_map[class_hash]
 
-        return self.data_transformer.build_from_python_transformer(
+        return self._data_transformer.build_from_python_transformer(
             contract_path,
             "constructor",
             "inputs",
