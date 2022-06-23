@@ -17,6 +17,7 @@ async def test_roll_cheatcode(mocker):
         testing_summary,
         expected_passed_test_cases_names=[
             "test_changing_block_number",
+            "test_changing_block_number_in_deployed_contract",
         ],
         expected_failed_test_cases_names=[],
     )
