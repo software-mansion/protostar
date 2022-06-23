@@ -104,6 +104,12 @@ const config = {
         darkTheme: darkCodeTheme,
         additionalLanguages: ["toml"],
       },
+      algolia: {
+        appId: "QNXZL3QPUX",
+        apiKey: "24238025ee666b83f52e6b00ff6f78d2",
+        indexName: "protostar",
+        contextualSearch: true,
+      }
     }),
 }
 
