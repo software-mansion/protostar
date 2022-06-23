@@ -2,8 +2,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional
 
-from starkware.starknet.testing.objects import StarknetTransactionExecutionInfo
-
+from protostar.commands.test.starkware.execution_resources_facade import (
+    ExecutionResourcesFacade,
+)
 from protostar.commands.test.test_environment_exceptions import ReportedException
 from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
 from protostar.utils.log_color_provider import log_color_provider
@@ -20,12 +21,15 @@ class TestCaseResult:
 @dataclass(frozen=True)
 class PassedTestCase(TestCaseResult):
     test_case_name: str
-    tx_info: Optional[StarknetTransactionExecutionInfo]
+    execution_resources: Optional[ExecutionResourcesFacade]
 
     def __str__(self) -> str:
         result: List[str] = []
         result.append(f"[{log_color_provider.colorize('GREEN', 'PASS')}]")
         result.append(f"{self.get_formatted_file_path()} {self.test_case_name}")
+        # TODO: refine
+        result.append("")
+        result.append(str(self.execution_resources))
         return " ".join(result)
 
 

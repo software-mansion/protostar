@@ -126,12 +126,12 @@ class TestRunner:
         for test_case_name in test_suite.test_case_names:
             env = env_base.fork()
             try:
-                call_result = await env.invoke_test_case(test_case_name)
+                execution_resources = await env.invoke_test_case(test_case_name)
                 self.queue.put(
                     PassedTestCase(
                         file_path=test_suite.test_path,
                         test_case_name=test_case_name,
-                        tx_info=call_result,
+                        execution_resources=execution_resources,
                     )
                 )
             except ReportedException as ex:
