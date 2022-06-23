@@ -32,31 +32,25 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
     def cheatable_state(self):
         return cast("CheatableCarriedState", self.state)
 
-    # roll
-    custom_block_number = None
-
-    def set_block_number(self, blk_number):
-        self.custom_block_number = blk_number
-
     def _get_block_number(self):
-        return (
-            self.custom_block_number
-            if self.custom_block_number is not None
-            else super()._get_block_number()
-        )
-
-    # warp
-    custom_block_timestamp = None
-
-    def set_block_timestamp(self, blk_timestamp):
-        self.custom_block_timestamp = blk_timestamp
+        if (
+            self.contract_address
+            in self.cheatable_state.contract_address_to_block_number
+        ):
+            return self.cheatable_state.contract_address_to_block_number[
+                self.contract_address
+            ]
+        return super()._get_block_number()
 
     def _get_block_timestamp(self):
-        return (
-            self.custom_block_timestamp
-            if self.custom_block_timestamp is not None
-            else super()._get_block_timestamp()
-        )
+        if (
+            self.contract_address
+            in self.cheatable_state.contract_address_to_block_timestamp
+        ):
+            return self.cheatable_state.contract_address_to_block_timestamp[
+                self.contract_address
+            ]
+        return super()._get_block_timestamp()
 
     def set_caller_address(
         self, addr: int, target_contract_address: Optional[int] = None

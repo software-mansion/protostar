@@ -8,11 +8,7 @@ from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starkware_utils.error_handling import StarkException
 
-from protostar.commands.test.cheatcodes_legacy import (
-    Cheatcode,
-    ExpectRevertCheatcode,
-    RollCheatcode,
-)
+from protostar.commands.test.cheatcodes_legacy import Cheatcode, ExpectRevertCheatcode
 from protostar.commands.test.expected_event import ExpectedEvent
 from protostar.commands.test.starkware import CheatableStarknetGeneralConfig
 from protostar.commands.test.starkware.cheatable_syscall_handler import (
@@ -175,10 +171,6 @@ class TestExecutionEnvironment:
             return func
 
         @register_cheatcode
-        def warp(blk_timestamp: int):
-            cheatable_syscall_handler.set_block_timestamp(blk_timestamp)
-
-        @register_cheatcode
         def start_prank(
             caller_address: int, target_contract_address: Optional[int] = None
         ):
@@ -252,7 +244,6 @@ class TestExecutionEnvironment:
 
         cheatcodes: List[Cheatcode] = [
             ExpectRevertCheatcode(self),
-            RollCheatcode(cheatable_syscall_handler),
         ]
 
         for cheatcode in cheatcodes:

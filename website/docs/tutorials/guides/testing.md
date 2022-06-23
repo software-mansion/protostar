@@ -570,7 +570,7 @@ To learn more how data is transformed from Python to Cairo read [Data transforma
 def start_prank(caller_address: int, target_contract_address: Optional[int] = None) -> Callable: ...
 ```
 
-Changes a caller address returned by `get_caller_address()` until the returned callable is called. If `target_contract_address` is specified, `start_prank` affects only the contract with the specified address. Otherwise, `start_prank` affects  the current contract.
+Changes a caller address returned by `get_caller_address()` until the returned callable is called. If `target_contract_address` is specified, `start_prank` affects only the contract with the specified address. Otherwise, `start_prank` affects the current contract.
 
 #### In unit tests
 ```cairo title="Local assert passes"
@@ -628,15 +628,51 @@ end
 ### `roll`
 
 ```python
-def roll(blk_number: int) -> None: ...
+def roll(blk_number: int, target_contract_address: Optional[int] = None) -> Callable[[], None]: ...
 ```
 
-Sets block number.
+Changes a block number until the returned function is called. If `target_contract_address` is specified, `roll` affects only the contract with the specified address. Otherwise, `roll` affects the current contract.
+
+```cairo title="Roll cheatcode changes the value returned by get_block_number"
+%lang starknet
+from starkware.starknet.common.syscalls import get_block_number
+
+@view
+func test_changing_block_number{syscall_ptr : felt*}():
+    %{ stop_roll = roll(123) %}
+    let (bn) = get_block_number()
+    assert bn = 123
+    %{ stop_roll() %}
+
+    let (bn2) = get_block_number()
+    %{ ids.bn2 != 123 %}
+
+    return ()
+end
+```
 
 ### `warp`
 
 ```python
-def warp(blk_timestamp: int) -> None: ...
+def warp(blk_timestamp: int, target_contract_address: Optional[int] = None) -> Callable[[], None]: ...
 ```
 
-Sets block timestamp.
+Changes a block timestamp until the returned function is called. If `target_contract_address` is specified, `warp` affects only the contract with the specified address. Otherwise, `warp` affects the current contract.
+
+```cairo title="Warp cheatcode changes the value returned by get_block_timestamp"
+%lang starknet
+
+from starkware.starknet.common.syscalls import get_block_timestamp
+
+@view
+func test_changing_timestamp{syscall_ptr : felt*}():
+    %{ stop_warp = warp(321) %}
+    let (bt) = get_block_timestamp()
+    assert bt = 321
+
+    %{ stop_warp() %}
+    let (bt2) = get_block_timestamp()
+    %{ assert ids.bt2 != 321 %}
+    return ()
+end
+```
