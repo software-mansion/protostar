@@ -298,10 +298,6 @@ class TestExecutionEnvironment:
 
             self.add_test_finish_hook(compare_expected_and_emitted_events)
 
-        @register_cheatcode
-        def declare_contract(contract_path: str):
-            return self.declare_in_env(contract_path)
-
         cheatcodes: List[Cheatcode] = [
             ExpectRevertCheatcode(self),
             RollCheatcode(cheatable_syscall_handler),
