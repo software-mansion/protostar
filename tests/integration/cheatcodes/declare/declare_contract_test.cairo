@@ -18,17 +18,14 @@ namespace ProxyContract:
     end
 end
 
-
 @external
 func test_deploy_declared_contract{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
 
     local class_hash : felt
-    %{
-        ids.class_hash = declare_contract("./tests/integration/cheatcodes/declare_contract/basic_contract.cairo").class_hash
-    %}
+    %{ ids.class_hash = declare("./tests/integration/cheatcodes/declare/basic_contract.cairo").class_hash %}
 
-    let (local calldata: felt*) = alloc()
+    let (local calldata : felt*) = alloc()
     let (contract_address) = deploy(class_hash, 42, 0, calldata)
 
     BasicContract.increase_balance(contract_address, 12)
@@ -45,8 +42,8 @@ func test_deploy_declared_contract_in_proxy{syscall_ptr : felt*, range_check_ptr
     local proxy_address : felt
     local class_hash : felt
     %{
-        ids.proxy_address = deploy_contract("./tests/integration/cheatcodes/declare_contract/proxy_contract.cairo").contract_address
-        ids.class_hash = declare_contract("./tests/integration/cheatcodes/declare_contract/basic_contract.cairo").class_hash
+        ids.proxy_address = deploy_contract("./tests/integration/cheatcodes/declare/proxy_contract.cairo").contract_address
+        ids.class_hash = declare("./tests/integration/cheatcodes/declare/basic_contract.cairo").class_hash
     %}
 
     let (contract_address) = ProxyContract.deploy_contract_from_proxy(proxy_address, class_hash)
@@ -57,4 +54,3 @@ func test_deploy_declared_contract_in_proxy{syscall_ptr : felt*, range_check_ptr
     assert balance = 12
     return ()
 end
-

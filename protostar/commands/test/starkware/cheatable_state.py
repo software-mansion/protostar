@@ -1,4 +1,4 @@
-from collections import defaultdict
+from pathlib import Path
 from typing import Dict, List, Optional, Union, cast
 
 import marshmallow_dataclass
@@ -27,7 +27,11 @@ from protostar.commands.test.starkware.cheatable_execute_entry_point import (
 from protostar.commands.test.starkware.cheatable_starknet_general_config import (
     CheatableStarknetGeneralConfig,
 )
-from protostar.commands.test.starkware.types import AddressType, SelectorType
+from protostar.commands.test.starkware.types import (
+    AddressType,
+    ClassHashType,
+    SelectorType,
+)
 
 CastableToAddress = Union[str, int]
 CastableToAddressSalt = Union[str, int]
@@ -115,10 +119,48 @@ class CheatableCarriedState(CarriedState):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.pranked_contracts_map: Dict[int, int] = {}
-        self.mocked_calls_map: Dict[
-            AddressType, Dict[SelectorType, List[int]]
-        ] = defaultdict(dict)
+        self.mocked_calls_map: Dict[AddressType, Dict[SelectorType, List[int]]] = {}
         self.event_selector_to_name_map: Dict[int, str] = {}
+        self.class_hash_to_contract_path_map: Dict[ClassHashType, Path] = {}
+        self.contract_address_to_class_hash_map: Dict[AddressType, ClassHashType] = {}
+
+    def _apply(self):
+        """Merge state changes with the `self.parent_state`"""
+        assert self.parent_state is not None
+
+        self.parent_state.pranked_contracts_map = {
+            **self.parent_state.pranked_contracts_map,
+            **self.pranked_contracts_map,
+        }
+
+        self.parent_state.mocked_calls_map = {**self.parent_state.mocked_calls_map}
+
+        # pylint: disable=consider-using-dict-items
+        for address in self.mocked_calls_map:
+            if address in self.parent_state.mocked_calls_map:
+                self.parent_state.mocked_calls_map[address] = {
+                    **self.parent_state.mocked_calls_map[address],
+                    **self.mocked_calls_map[address],
+                }
+            else:
+                self.parent_state.mocked_calls_map[address] = self.mocked_calls_map[
+                    address
+                ]
+
+        self.parent_state.event_selector_to_name_map = {
+            **self.parent_state.event_selector_to_name_map,
+            **self.event_selector_to_name_map,
+        }
+        self.parent_state.class_hash_to_contract_path_map = {
+            **self.parent_state.class_hash_to_contract_path_map,
+            **self.class_hash_to_contract_path_map,
+        }
+        self.parent_state.contract_address_to_class_hash_map = {
+            **self.parent_state.contract_address_to_class_hash_map,
+            **self.contract_address_to_class_hash_map,
+        }
+
+        return super()._apply()
 
     def update_event_selector_to_name_map(
         self, local_event_selector_to_name_map: Dict[int, str]
@@ -138,8 +180,11 @@ class CheatableStarknetState(StarknetState):
         state: CheatableCarriedState,
         general_config: CheatableStarknetGeneralConfig,
     ):
-        self.cheatable_carried_state = state
         super().__init__(state, general_config)
+
+    @property
+    def cheatable_carried_state(self):
+        return cast(CheatableCarriedState, self.state)
 
     async def invoke_raw(
         self,

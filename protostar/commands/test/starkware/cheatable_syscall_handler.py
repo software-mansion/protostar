@@ -1,18 +1,24 @@
-from typing import List, Optional, cast
+import asyncio
+from typing import TYPE_CHECKING, List, Optional, cast
 
 from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
-from starkware.starknet.business_logic.execution.objects import OrderedEvent
-from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
+from starkware.python.utils import to_bytes
+from starkware.starknet.business_logic.execution.objects import CallType, OrderedEvent
+from starkware.starknet.core.os.contract_address.contract_address import (
+    calculate_contract_address_from_hash,
+)
+from starkware.starknet.core.os.syscall_utils import (
+    BusinessLogicSysCallHandler,
+    initialize_contract_state,
+)
 from starkware.starknet.security.secure_hints import HintsWhitelist
 from starkware.starknet.services.api.contract_class import EntryPointType
-from starkware.starknet.business_logic.execution.objects import CallType
-from starkware.python.utils import to_bytes
 
 from protostar.commands.test.starkware.types import AddressType, SelectorType
-from protostar.commands.test.starkware.cheatable_carried_state import (
-    CheatableCarriedState,
-)
+
+if TYPE_CHECKING:
+    from protostar.commands.test.starkware.cheatable_state import CheatableCarriedState
 
 
 class CheatableSysCallHandlerException(BaseException):
@@ -24,7 +30,7 @@ class CheatableSysCallHandlerException(BaseException):
 class CheatableSysCallHandler(BusinessLogicSysCallHandler):
     @property
     def cheatable_state(self):
-        return cast(CheatableCarriedState, self.state)
+        return cast("CheatableCarriedState", self.state)
 
     # roll
     custom_block_number = None
@@ -93,15 +99,6 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
             return self.cheatable_state.pranked_contracts_map[self.contract_address]
 
         return self.caller_address
-
-    def register_mock_call(
-        self, contract_address: AddressType, selector: SelectorType, ret_data: List[int]
-    ):
-        if selector in self.cheatable_state.mocked_calls_map[contract_address]:
-            raise CheatableSysCallHandlerException(
-                f"{selector} in contract with address {contract_address} has been already mocked"
-            )
-        self.cheatable_state.mocked_calls_map[contract_address][selector] = ret_data
 
     def unregister_mock_call(
         self, contract_address: AddressType, selector: SelectorType
@@ -210,6 +207,57 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
 
         # Update events count.
         self.tx_execution_context.n_emitted_events += 1
+
+    def _deploy(
+        self, segments: MemorySegmentManager, syscall_ptr: RelocatableValue
+    ) -> int:
+        request = self._read_and_validate_syscall_request(
+            syscall_name="deploy", segments=segments, syscall_ptr=syscall_ptr
+        )
+        assert (
+            request.reserved == 0
+        ), "The reserved field in the deploy system call must be 0."
+        constructor_calldata = segments.memory.get_range_as_ints(
+            addr=cast(RelocatableValue, request.constructor_calldata),
+            size=cast(int, request.constructor_calldata_size),
+        )
+        class_hash = cast(int, request.class_hash)
+
+        contract_address = calculate_contract_address_from_hash(
+            salt=cast(int, request.contract_address_salt),
+            class_hash=class_hash,
+            constructor_calldata=constructor_calldata,
+            deployer_address=self.contract_address,
+        )
+
+        # BEGIN: PROTOSTAR_MODIFICATION — update mappings
+        self.cheatable_state.contract_address_to_class_hash_map[
+            contract_address
+        ] = class_hash
+        # END: PROTOSTAR_MODIFICATION
+
+        # Initialize the contract.
+        class_hash_bytes = to_bytes(class_hash)
+        future = asyncio.run_coroutine_threadsafe(
+            coro=initialize_contract_state(
+                state=self.state,
+                class_hash=class_hash_bytes,
+                contract_address=contract_address,
+            ),
+            loop=self.loop,
+        )
+        future.result()
+
+        self.execute_constructor_entry_point(
+            contract_address=contract_address,
+            class_hash_bytes=class_hash_bytes,
+            constructor_calldata=constructor_calldata,
+        )
+
+        # Update deployed contract addresses.
+        self.deployed_contracts.append(contract_address)
+
+        return contract_address
 
 
 class CheatableHintsWhitelist(HintsWhitelist):

@@ -1,14 +1,11 @@
-import asyncio
-from collections.abc import Mapping
 from copy import deepcopy
 from logging import getLogger
-from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Set, Union
+from typing import Any, Callable, Dict, List, Optional, Set
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.services.api.contract_class import ContractClass
-from starkware.starknet.testing.contract import DeclaredClass, StarknetContract
+from starkware.starknet.testing.contract import StarknetContract
 from starkware.starkware_utils.error_handling import StarkException
 
 from protostar.commands.test.cheatcodes_legacy import (
@@ -33,30 +30,12 @@ from protostar.commands.test.test_environment_exceptions import (
     SimpleReportedException,
     StarknetRevertableException,
 )
-from protostar.utils.data_transformer_facade import DataTransformerFacade
 from protostar.utils.starknet_compilation import StarknetCompiler
 
 logger = getLogger()
 
 
-class DeployedContract:
-    def __init__(self, starknet_contract: StarknetContract):
-        self._starknet_contract = starknet_contract
-
-    @property
-    def contract_address(self):
-        return self._starknet_contract.contract_address
-
-
-class ProtostarDeclaredClass:
-    def __init__(self, declared_class: DeclaredClass):
-        self._declared_class = declared_class
-
-    @property
-    def class_hash(self):
-        return self._declared_class.class_hash
-
-
+# pylint: disable=too-many-instance-attributes
 class TestExecutionEnvironment:
     # pylint: disable=too-many-arguments
     def __init__(
@@ -107,32 +86,6 @@ class TestExecutionEnvironment:
             starknet_compiler=self._starknet_compiler,
         )
         return new_env
-
-    def deploy_in_env(
-        self, contract_path: str, constructor_calldata: Optional[List[int]] = None
-    ):
-
-        contract = DeployedContract(
-            asyncio.run(
-                self.starknet.deploy(
-                    source=contract_path,
-                    constructor_calldata=constructor_calldata,
-                    cairo_path=self._include_paths,
-                )
-            )
-        )
-        return contract
-
-    def declare_in_env(self, contract_path: str):
-        contract = ProtostarDeclaredClass(
-            asyncio.run(
-                self.starknet.declare(
-                    source=contract_path,
-                    cairo_path=self._include_paths,
-                )
-            )
-        )
-        return contract
 
     async def invoke_setup_hook(self, fn_name: str) -> None:
         await self.invoke_test_case(fn_name)
@@ -259,26 +212,6 @@ class TestExecutionEnvironment:
                 raise CheatcodeException("stop_prank", err.message) from err
 
         @register_cheatcode
-        def mock_call(contract_address: int, fn_name: str, ret_data: List[int]):
-            selector = get_selector_from_name(fn_name)
-            try:
-                cheatable_syscall_handler.register_mock_call(
-                    contract_address, selector=selector, ret_data=ret_data
-                )
-            except CheatableSysCallHandlerException as err:
-                raise CheatcodeException("mock_call", err.message) from err
-
-            def clear_mock_call():
-                try:
-                    cheatable_syscall_handler.unregister_mock_call(
-                        contract_address, selector
-                    )
-                except CheatableSysCallHandlerException as err:
-                    raise CheatcodeException("clear_mock_call", err.message) from err
-
-            return clear_mock_call
-
-        @register_cheatcode
         def clear_mock_call(contract_address: int, fn_name: str):
             logger.warning(
                 "Using clear_mock_call() is deprecated, instead call a function returned by mock_call()"
@@ -316,23 +249,6 @@ class TestExecutionEnvironment:
                     )
 
             self.add_test_finish_hook(compare_expected_and_emitted_events)
-
-        @register_cheatcode
-        def deploy_contract(
-            contract_path: str,
-            constructor_calldata: Optional[Union[List[int], Dict]] = None,
-        ):
-            if isinstance(constructor_calldata, Mapping):
-                fn_name = "constructor"
-                constructor_calldata = DataTransformerFacade.from_contract_path(
-                    Path(contract_path), self._starknet_compiler
-                ).from_python(fn_name, **constructor_calldata)
-
-            return self.deploy_in_env(contract_path, constructor_calldata)
-
-        @register_cheatcode
-        def declare_contract(contract_path: str):
-            return self.declare_in_env(contract_path)
 
         cheatcodes: List[Cheatcode] = [
             ExpectRevertCheatcode(self),

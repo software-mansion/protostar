@@ -1,13 +1,17 @@
-from protostar.commands.test.cheatcodes.cheatcode import Cheatcode, CheatcodeFactory
+from protostar.commands.test.cheatcodes.cheatcode import Cheatcode
 from protostar.commands.test.cheatcodes.declare_cheatcode import (
-    DeclaredContract,
     DeclareCheatcode,
+    DeclaredContract,
 )
 from protostar.commands.test.cheatcodes.deploy_cheatcode import (
-    DeployedContract,
     DeployCheatcode,
+    DeployedContract,
 )
+from protostar.commands.test.cheatcodes.deploy_contract_cheatcode import (
+    DeployContractCheatcode,
+)
+from protostar.commands.test.cheatcodes.mock_call_cheatcode import MockCallCheatcode
 from protostar.commands.test.cheatcodes.prepare_cheatcode import (
-    PreparedContract,
     PrepareCheatcode,
+    PreparedContract,
 )

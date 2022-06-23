@@ -7,7 +7,7 @@ from tests.integration.conftest import assert_cairo_test_cases
 
 
 @pytest.mark.asyncio
-async def test_prank_cheatcode(mocker):
+async def test_mock_call(mocker):
     testing_summary = await TestCommand(
         project=mocker.MagicMock(),
         protostar_directory=mocker.MagicMock(),
@@ -23,6 +23,8 @@ async def test_prank_cheatcode(mocker):
             "test_syscall_counter_updated",
             "test_mock_call_wrong_target",
             "test_mock_call_wrong_selector_target",
+            "test_data_transformation",
+            "test_data_transformation_with_syscall_deploy",
             "test_library_call_not_affected_by_mock",
         ],
         expected_failed_test_cases_names=["test_mock_call_twice"],
