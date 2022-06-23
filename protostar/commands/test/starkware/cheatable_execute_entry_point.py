@@ -51,8 +51,10 @@ logger = logging.getLogger(__name__)
 # pylint: disable=too-many-locals
 # pylint: disable=raise-missing-from
 class CheatableExecuteEntryPoint(ExecuteEntryPoint):
+    # pylint: disable=no-self-use
     def _build_cheatcodes(
-        self, syscall_dependencies: Cheatcode.SyscallDependencies
+        self,
+        syscall_dependencies: Cheatcode.SyscallDependencies,
     ) -> List[Cheatcode]:
         data_transformer = DataTransformerFacade(
             StarknetCompiler(
