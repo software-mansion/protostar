@@ -15,8 +15,8 @@ class DeployedContract:
 
 
 class DeployCheatcode(Cheatcode):
-    @staticmethod
-    def name() -> str:
+    @property
+    def name(self) -> str:
         return "deploy"
 
     def build(self) -> Callable[[Any], Any]:

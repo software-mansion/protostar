@@ -10,13 +10,13 @@ namespace BasicContract:
     end
 end
 
-@view
+@external
 func __setup__():
     %{ context.contract_address = deploy_contract("./tests/integration/testing_hooks/basic_contract.cairo").contract_address %}
     return ()
 end
 
-@view
+@external
 func test_contract_was_deployed_in_setup{
         syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
     tempvar contract_address

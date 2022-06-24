@@ -3,6 +3,7 @@
 from starkware.starknet.common.syscalls import get_contract_address
 from starkware.starknet.common.syscalls import deploy
 from starkware.cairo.common.alloc import alloc
+from starkware.cairo.common.uint256 import Uint256
 
 @contract_interface
 namespace ProxyContract:
@@ -43,9 +44,9 @@ func test_deploy_contract{syscall_ptr : felt*, range_check_ptr}():
         declared = declare("./tests/integration/cheatcodes/deploy_contract/basic_contract.cairo")
         prepared = prepare(declared)
         contract = deploy(prepared)
-        ids.contract_address = contract.contract_address 
+        ids.contract_address = contract.contract_address
     %}
-    
+
     BasicContract.increase_balance(contract_address, 5)
     let (res) = BasicContract.get_balance(contract_address)
     assert res = 5
@@ -57,10 +58,8 @@ func test_deploy_contract_simplified{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
 
     local contract_address : felt
-    %{
-        ids.contract_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract/basic_contract.cairo").contract_address
-    %}
-    
+    %{ ids.contract_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract/basic_contract.cairo").contract_address %}
+
     BasicContract.increase_balance(contract_address, 5)
     let (res) = BasicContract.get_balance(contract_address)
     assert res = 5
@@ -71,9 +70,7 @@ end
 func test_deploy_contract_with_constructor{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
     local contract_address : felt
-    %{
-        ids.contract_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor.cairo", [41]).contract_address
-    %}
+    %{ ids.contract_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor.cairo", [41]).contract_address %}
     BasicWithConstructor.increase_balance(contract_address, 1)
     let (res) = BasicWithConstructor.get_balance(contract_address)
     assert res = 42
@@ -94,7 +91,6 @@ func test_deploy_contract_with_constructor_steps{syscall_ptr : felt*, range_chec
     assert res = 42
     return ()
 end
-
 
 @external
 func test_deploy_contract_pranked{syscall_ptr : felt*, range_check_ptr}():
@@ -135,10 +131,8 @@ end
 func test_deploy_using_syscall{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
     local class_hash : felt
-    %{
-        ids.class_hash = declare("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor.cairo").class_hash
-    %}
-    let (local calldata: felt*) = alloc()
+    %{ ids.class_hash = declare("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor.cairo").class_hash %}
+    let (local calldata : felt*) = alloc()
     assert calldata[0] = 41
     let (contract_address) = deploy(class_hash, 34124, 1, calldata)
 
@@ -152,9 +146,7 @@ end
 func test_syscall_after_deploy{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
     local contract_address : felt
-    %{
-        ids.contract_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract/basic_contract.cairo").contract_address
-    %}
+    %{ ids.contract_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract/basic_contract.cairo").contract_address %}
 
     BasicWithConstructor.increase_balance(contract_address, 1)
     let (res) = get_contract_address()
@@ -171,47 +163,49 @@ func test_utilizes_cairo_path{syscall_ptr : felt*, range_check_ptr}():
     return ()
 end
 
+@contract_interface
+namespace BasicWithConstructorUint256:
+    func increase_balance(amount : Uint256):
+    end
 
-# @external
-# func test_passing_constructor_data_as_list{syscall_ptr : felt*, range_check_ptr}():
-#     alloc_locals
-#     local deployed_contract_address : felt
-#     let (contract_address) = get_contract_address()
+    func get_balance() -> (res : Uint256):
+    end
+end
 
-#     %{
-#         ids.deployed_contract_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor.cairo",
-#             [42, 0, ids.contract_address]
-#         )contract_address
-#     %}
+@external
+func test_passing_constructor_data_as_list{syscall_ptr : felt*, range_check_ptr}():
+    alloc_locals
+    local deployed_contract_address : felt
 
-#     let (balance) = BasicWithConstructor.get_balance(deployed_contract_address)
-#     let (id) = BasicWithConstructor.get_id(deployed_contract_address)
+    %{
+        ids.deployed_contract_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor_uint256.cairo",
+            [42, 0]
+        ).contract_address
+    %}
 
-#     assert balance.low = 42
-#     assert balance.high = 0
-#     assert id = contract_address
+    let (balance) = BasicWithConstructorUint256.get_balance(deployed_contract_address)
 
-#     return ()
-# end
+    assert balance.low = 42
+    assert balance.high = 0
 
-# @external
-# func test_data_transformation{syscall_ptr : felt*, range_check_ptr}():
-#     alloc_locals
-#     local deployed_contract_address : felt
-#     let (contract_address) = get_contract_address()
+    return ()
+end
 
-#     %{
-#         ids.deployed_contract_address = Contract("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor.cairo",
-#             { "initial_balance": 42, "contract_id": ids.contract_address }
-#         ).deploy().contract_address
-#     %}
+@external
+func test_data_transformation{syscall_ptr : felt*, range_check_ptr}():
+    alloc_locals
+    local deployed_contract_address : felt
 
-#     let (balance) = BasicWithConstructor.get_balance(deployed_contract_address)
-#     let (id) = BasicWithConstructor.get_id(deployed_contract_address)
+    %{
+        ids.deployed_contract_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor_uint256.cairo",
+            { "initial_balance": 42 }
+        ).contract_address
+    %}
 
-#     assert balance.low = 42
-#     assert balance.high = 0
-#     assert id = contract_address
+    let (balance) = BasicWithConstructorUint256.get_balance(deployed_contract_address)
 
-#     return ()
-# end
+    assert balance.low = 42
+    assert balance.high = 0
+
+    return ()
+end

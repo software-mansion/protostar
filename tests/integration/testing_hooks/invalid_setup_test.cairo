@@ -1,12 +1,12 @@
 %lang starknet
 
-@view
+@external
 func __setup__():
     %{ context.foo = {} %}
     return ()
 end
 
-@view
+@external
 func test_should_not_be_executed():
     return ()
 end

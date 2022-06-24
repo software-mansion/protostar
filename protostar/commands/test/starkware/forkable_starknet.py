@@ -1,10 +1,11 @@
 import copy
-from typing import List, Optional
+from typing import List, Optional, cast
 
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starknet.testing.state import CastableToAddressSalt
+
 from protostar.commands.test.starkware.cheatable_starknet_general_config import (
     CheatableStarknetGeneralConfig,
 )
@@ -18,8 +19,11 @@ class ForkableStarknet(Starknet):
     """
 
     def __init__(self, state: CheatableStarknetState):
-        self.cheatable_state = state
         super().__init__(state)
+
+    @property
+    def cheatable_state(self) -> CheatableStarknetState:
+        return cast(CheatableStarknetState, self.state)
 
     @classmethod
     async def empty(
@@ -31,7 +35,7 @@ class ForkableStarknet(Starknet):
 
     def copy_and_adapt_contract(self, deployed_contract: StarknetContract):
         return StarknetContract(
-            state=self.state,
+            state=self.cheatable_state,
             abi=copy.deepcopy(deployed_contract.abi),
             contract_address=deployed_contract.contract_address,
             deploy_execution_info=copy.deepcopy(

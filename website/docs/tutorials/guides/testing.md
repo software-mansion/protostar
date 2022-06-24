@@ -196,13 +196,13 @@ Often while writing tests you have some setup work that needs to happen before t
 ```cairo
 %lang starknet
 
-@view
+@external
 func __setup__():
     %{ context.contract_a_address = deploy_contract("./tests/integration/testing_hooks/basic_contract.cairo").contract_address %}
     return ()
 end
 
-@view
+@external
 func test_something():
     tempvar contract_address
     %{ ids.contract_address = context.contract_a_address %}
@@ -236,10 +236,14 @@ If you are familiar with [Foundry](https://book.getfoundry.sh/forge/cheatcodes.h
 ### `mock_call`
 
 ```python
-def mock_call(contract_address: int, fn_name: str, ret_data: List[int]) -> Callable: ...
+def mock_call(contract_address: int, fn_name: str, ret_data: Union[List[int], Dict]) -> Callable: ...
 ```
 
 Mocks all calls to function with the name `fn_name` of a contract with an address `contract_address` until the returned callable is called. Mocked call returns data provided in `ret_data`. Mock works globally, for all of the contracts, not only the testing contract.
+
+:::tip
+You can provide constructor arguments as a dictionary to leverage [data transformer](/docs/tutorials/guides/testing#data-transformer).
+:::
 
 #### Representing different data structures in `ret_data`
 
@@ -259,7 +263,7 @@ end
 
 const EXTERNAL_CONTRACT_ADDRESS = 0x3fe90a1958bb8468fb1b62970747d8a00c435ef96cda708ae8de3d07f1bb56b
 
-@view
+@external
 func test_mock_call_returning_felt{syscall_ptr : felt*, range_check_ptr}():
   tempvar external_contract_address = EXTERNAL_CONTRACT_ADDRESS
 
@@ -291,7 +295,7 @@ end
 
 const EXTERNAL_CONTRACT_ADDRESS = 0x3fe90a1958bb8468fb1b62970747d8a00c435ef96cda708ae8de3d07f1bb56b
 
-@view
+@external
 func test_mock_call_returning_array{syscall_ptr : felt*, range_check_ptr}():
   tempvar external_contract_address = EXTERNAL_CONTRACT_ADDRESS
 
@@ -322,7 +326,7 @@ end
 
 const EXTERNAL_CONTRACT_ADDRESS = 0x3fe90a1958bb8468fb1b62970747d8a00c435ef96cda708ae8de3d07f1bb56b
 
-@view
+@external
 func test_mock_call_returning_struct{syscall_ptr : felt*, range_check_ptr}():
   tempvar external_contract_address = EXTERNAL_CONTRACT_ADDRESS
 
@@ -389,7 +393,7 @@ func assert_not_equal(a, b):
     return ()
 end
 
-@view
+@external
 func test_error_message{syscall_ptr : felt*, range_check_ptr}():
     %{ expect_revert(error_message="must be distinct") %}
     assert_not_equal(0, 0)
@@ -397,7 +401,7 @@ func test_error_message{syscall_ptr : felt*, range_check_ptr}():
 end
 ```
 
-:::info
+:::tip
 Use [scope attributes](https://www.cairo-lang.org/docs/how_cairo_works/scope_attributes.html?highlight=with_attr) to annotate a code block with an informative error message.
 :::
 
@@ -436,7 +440,7 @@ end
 
 # ----------------------------------------------
 
-@view
+@external
 func test_expect_events_are_in_declared_order{syscall_ptr : felt*, range_check_ptr}():
     %{ expect_events({"name": "foobar", "data": [21]}, {"name": "foobar", "data": [37]}) %}
     emit_foobar(21)
@@ -444,7 +448,7 @@ func test_expect_events_are_in_declared_order{syscall_ptr : felt*, range_check_p
     return ()
 end
 
-@view
+@external
 func test_expect_event_by_contract_address{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
     local contract_address : felt
@@ -471,10 +475,11 @@ Deploys a contract given a path relative to a Protostar project root. The sectio
 Deploying a contract is a slow operation. If it's possible try using this cheatcode in the [`__setup__` hook](#__setup__).
 :::
 
-If the constructor of the contract accepts arguments, `constructor_calldata` expects a list of integers in the representation described in ["passing tuples and structs in calldata" section of official docs](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#passing-tuples-and-structs-in-calldata) or by a dictionary. In case of a dictionary, Protostar uses [Starknet.py](https://github.com/software-mansion/starknet.py)'s data transformer to translate Python values to Cairo values.
+### Data transformer
+If the constructor of the contract accepts arguments, `constructor_calldata` expects a list of integers in the representation described in ["passing tuples and structs in calldata" section of official docs](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#passing-tuples-and-structs-in-calldata) or by a dictionary. In case of a dictionary, Protostar uses [Starknet.py](https://github.com/software-mansion/starknet.py)'s data transformer to translate Python values to Cairo friendly representation.
 
 :::info
-`deploy_contract` is just a syntatic sugar over executing cheatcodes `declare` -> `prepare` -> `deploy` separately, and it's what does it under the hood.
+`deploy_contract` is just a syntactic sugar over executing cheatcodes `declare` -> `prepare` -> `deploy` separately, and it's what does it under the hood.
 :::
 
 ### `declare`
@@ -489,7 +494,7 @@ Declares contract given a path relative to a Protostar project root.
 
 ### `prepare`
 ```python
-def prepare(declared: DeclaredContract, constructor_calldata: Optional[List[int]]] = None) -> PreparedContract:
+def prepare(declared: DeclaredContract, constructor_calldata: Optional[Union[List[int], Dict]]] = None) -> PreparedContract:
 
 class PreparedContract:
     constructor_calldata: List[int]
@@ -499,7 +504,7 @@ class PreparedContract:
 Prepares contract for deployment given `DeclaredContract` and constructor_calldata. The cheatcode is useful when you want to know contract address before deploying it to affect constructor with a targeted cheatcode. Example:
 
 ```
-@view
+@external
 func test_prank_constructor{syscall_ptr : felt*, range_check_ptr}():
     %{
         declared = declare("path/to/contract.cairo")
@@ -517,6 +522,9 @@ end
 You can prepare multiple contracts from one `DeclaredContract`.
 :::
 
+:::tip
+You can provide constructor arguments as a dictionary to leverage [data transformer](/docs/tutorials/guides/testing#data-transformer).
+:::
 
 ### `deploy`
 ```
@@ -533,7 +541,7 @@ You can't deploy the same `PreparedContract` twice.
 
 #### Example
 ```python title="Passing constructor data as a dictionary"
-deploy_contract("./src/main.cairo", {"initial_balance": 42, "contract_id": 123})
+deploy_contract("./src/main.cairo", { "initial_balance": 42, "contract_id": 123 })
 ```
 
 ```python title="Passing constructor data as a list of integers"
@@ -562,7 +570,7 @@ To learn more how data is transformed from Python to Cairo read [Data transforma
 def start_prank(caller_address: int, target_contract_address: Optional[int] = None) -> Callable: ...
 ```
 
-Changes a caller address returned by `get_caller_address()` until the returned callable is called. If `target_contract_address` is specified, `start_prank` affects only the contract with the specified address. Otherwise, `start_prank` affects  the current contract.
+Changes a caller address returned by `get_caller_address()` until the returned callable is called. If `target_contract_address` is specified, `start_prank` affects only the contract with the specified address. Otherwise, `start_prank` affects the current contract.
 
 #### In unit tests
 ```cairo title="Local assert passes"
@@ -620,15 +628,51 @@ end
 ### `roll`
 
 ```python
-def roll(blk_number: int) -> None: ...
+def roll(blk_number: int, target_contract_address: Optional[int] = None) -> Callable[[], None]: ...
 ```
 
-Sets block number.
+Changes a block number until the returned function is called. If `target_contract_address` is specified, `roll` affects only the contract with the specified address. Otherwise, `roll` affects the current contract.
+
+```cairo title="Roll cheatcode changes the value returned by get_block_number"
+%lang starknet
+from starkware.starknet.common.syscalls import get_block_number
+
+@view
+func test_changing_block_number{syscall_ptr : felt*}():
+    %{ stop_roll = roll(123) %}
+    let (bn) = get_block_number()
+    assert bn = 123
+    %{ stop_roll() %}
+
+    let (bn2) = get_block_number()
+    %{ ids.bn2 != 123 %}
+
+    return ()
+end
+```
 
 ### `warp`
 
 ```python
-def warp(blk_timestamp: int) -> None: ...
+def warp(blk_timestamp: int, target_contract_address: Optional[int] = None) -> Callable[[], None]: ...
 ```
 
-Sets block timestamp.
+Changes a block timestamp until the returned function is called. If `target_contract_address` is specified, `warp` affects only the contract with the specified address. Otherwise, `warp` affects the current contract.
+
+```cairo title="Warp cheatcode changes the value returned by get_block_timestamp"
+%lang starknet
+
+from starkware.starknet.common.syscalls import get_block_timestamp
+
+@view
+func test_changing_timestamp{syscall_ptr : felt*}():
+    %{ stop_warp = warp(321) %}
+    let (bt) = get_block_timestamp()
+    assert bt = 321
+
+    %{ stop_warp() %}
+    let (bt2) = get_block_timestamp()
+    %{ assert ids.bt2 != 321 %}
+    return ()
+end
+```
