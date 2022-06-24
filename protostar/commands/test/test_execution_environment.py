@@ -156,7 +156,6 @@ class TestExecutionEnvironment:
 
         return stop_expecting_revert
 
-    # pylint: disable=no-self-use
     def _build_cheatcodes_factory(self) -> CheatableExecuteEntryPoint.CheatcodeFactory:
         def build_cheatcodes(
             syscall_dependencies: Cheatcode.SyscallDependencies,
