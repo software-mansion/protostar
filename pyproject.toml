@@ -5,7 +5,7 @@ license = "MIT"
 name = "protostar"
 readme = "README.md"
 repository = "https://github.com/software-mansion/protostar"
-version = "0.2.4"
+version = "0.2.3"
 
 [tool.poetry.dependencies]
 GitPython = "^3.1.26"
@@ -44,6 +44,7 @@ starknet-devnet = "^0.2.3"
 build = "pyinstaller protostar.spec --noconfirm"
 ci = ["type_check", "lint", "format_check", "custom_checks", "test"]
 cov = "pytest --cov-report xml:cov.xml --cov=protostar"
+custom_checks = "sh ./scripts/custom_checks.sh"
 deploy = "python ./scripts/deploy.py"
 deploy_prerelease = "python ./scripts/deploy_prerelease.py"
 format = "black ."
@@ -60,7 +61,6 @@ test_integration.shell = "coverage run -a -m pytest tests/integration"
 test_report = [{shell = "coverage report"}]
 test_unit.shell = "coverage run -m pytest protostar/*"
 type_check = "pyright"
-custom_checks = "sh ./scripts/custom_checks.sh"
 update_cli_docs = "python ./scripts/generate_reference_docs.py"
 
 [tool.coverage.run]
