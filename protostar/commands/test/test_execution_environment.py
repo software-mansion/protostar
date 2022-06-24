@@ -161,14 +161,7 @@ class TestExecutionEnvironment:
         def build_cheatcodes(
             syscall_dependencies: Cheatcode.SyscallDependencies,
         ) -> List[Cheatcode]:
-            data_transformer = DataTransformerFacade(
-                StarknetCompiler(
-                    include_paths=syscall_dependencies[
-                        "general_config"
-                    ].cheatcodes_cairo_path,
-                    disable_hint_validation=True,
-                )
-            )
+            data_transformer = DataTransformerFacade(self._starknet_compiler)
             declare_cheatcode = DeclareCheatcode(syscall_dependencies)
             prepare_cheatcode = PrepareCheatcode(syscall_dependencies, data_transformer)
             deploy_cheatcode = DeployCheatcode(syscall_dependencies)
