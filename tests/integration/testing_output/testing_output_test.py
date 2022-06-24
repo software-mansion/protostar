@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 from protostar.commands.test.test_command import TestCommand
+from tests.integration.conftest import assert_cairo_test_cases
 
 
 @pytest.mark.asyncio
@@ -12,6 +13,16 @@ async def test_testing_output(mocker):
         protostar_directory=mocker.MagicMock(),
     ).test(targets=[f"{Path(__file__).parent}/testing_output_test.cairo"])
 
-    test_case_output = str(testing_summary.passed[0])
-    assert "steps=" in test_case_output
-    assert "pedersen_builtin=" in test_case_output
+    assert_cairo_test_cases(
+        testing_summary,
+        expected_passed_test_cases_names=[
+            "test_printing_resource_usage_in_unit_testing_approach",
+            "test_printing_resource_usage_in_integration_testing_approach",
+        ],
+        expected_failed_test_cases_names=[],
+    )
+
+    for passed_test_case in testing_summary.passed:
+        output = str(passed_test_case)
+        assert "steps=" in output
+        assert "pedersen_builtin=" in output
