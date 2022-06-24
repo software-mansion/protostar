@@ -9,6 +9,9 @@ from protostar.commands.test.cheatcodes.deploy_cheatcode import (
 from protostar.commands.test.cheatcodes.deploy_contract_cheatcode import (
     DeployContractCheatcode,
 )
+from protostar.commands.test.cheatcodes.expect_events_cheatcode import (
+    ExpectEventsCheatcode,
+)
 from protostar.commands.test.cheatcodes.expect_revert_cheatcode import (
     ExpectRevertCheatcode,
 )

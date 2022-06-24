@@ -1,8 +1,7 @@
 from copy import deepcopy
 from logging import getLogger
-from typing import Any, Callable, Dict, List, Optional, Set
+from typing import Callable, List, Optional, Set
 
-from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starkware_utils.error_handling import StarkException
@@ -11,6 +10,7 @@ from protostar.commands.test.cheatcodes import (
     DeclareCheatcode,
     DeployCheatcode,
     DeployContractCheatcode,
+    ExpectEventsCheatcode,
     ExpectRevertCheatcode,
     MockCallCheatcode,
     PrepareCheatcode,
@@ -18,19 +18,14 @@ from protostar.commands.test.cheatcodes import (
     StartPrankCheatcode,
     WarpCheatcode,
 )
-from protostar.commands.test.expected_event import ExpectedEvent
 from protostar.commands.test.starkware import CheatableStarknetGeneralConfig
 from protostar.commands.test.starkware.cheatable_execute_entry_point import (
     CheatableExecuteEntryPoint,
-)
-from protostar.commands.test.starkware.cheatable_syscall_handler import (
-    CheatableSysCallHandler,
 )
 from protostar.commands.test.starkware.cheatcode import Cheatcode
 from protostar.commands.test.starkware.forkable_starknet import ForkableStarknet
 from protostar.commands.test.test_context import TestContext
 from protostar.commands.test.test_environment_exceptions import (
-    ExpectedEventMissingException,
     ExpectedRevertException,
     ExpectedRevertMismatchException,
     RevertableException,
@@ -99,14 +94,7 @@ class TestExecutionEnvironment:
         await self.invoke_test_case(fn_name)
 
     async def invoke_test_case(self, test_case_name: str):
-        original_run_from_entrypoint = CairoFunctionRunner.run_from_entrypoint
         CheatableExecuteEntryPoint.cheatcode_factory = self._build_cheatcodes_factory()
-
-        CairoFunctionRunner.run_from_entrypoint = (
-            self._get_run_from_entrypoint_with_custom_hint_locals(
-                CairoFunctionRunner.run_from_entrypoint
-            )
-        )
 
         try:
             await self._call_test_case_fn(test_case_name)
@@ -124,7 +112,6 @@ class TestExecutionEnvironment:
             else:
                 raise ex
         finally:
-            CairoFunctionRunner.run_from_entrypoint = original_run_from_entrypoint
             self._expected_error = None
             self._test_finish_hooks.clear()
 
@@ -149,66 +136,6 @@ class TestExecutionEnvironment:
             self._test_finish_hooks.remove(listener)
 
         return remove_hook
-
-    def _get_run_from_entrypoint_with_custom_hint_locals(
-        self, fn_run_from_entrypoint: Any
-    ):
-        def modified_run_from_entrypoint(
-            *args,
-            **kwargs,
-        ):
-            if "hint_locals" in kwargs and kwargs["hint_locals"] is not None:
-                self._inject_cheats_into_hint_locals(
-                    kwargs["hint_locals"], kwargs["hint_locals"]["syscall_handler"]
-                )
-                self._inject_test_context_into_hint_locals(kwargs["hint_locals"])
-
-            return fn_run_from_entrypoint(
-                *args,
-                **kwargs,
-            )
-
-        return modified_run_from_entrypoint
-
-    def _inject_test_context_into_hint_locals(self, hint_locals: Dict[str, Any]):
-        hint_locals["context"] = self.test_context
-
-    def _inject_cheats_into_hint_locals(
-        self,
-        hint_locals: Dict[str, Any],
-        cheatable_syscall_handler: CheatableSysCallHandler,
-    ):
-        assert cheatable_syscall_handler is not None
-
-        def register_cheatcode(func):
-            hint_locals[func.__name__] = func
-            return func
-
-        @register_cheatcode
-        def expect_events(
-            *raw_expected_events: ExpectedEvent.CheatcodeInputType,
-        ) -> None:
-            def compare_expected_and_emitted_events():
-
-                expected_events = list(map(ExpectedEvent, raw_expected_events))
-
-                (
-                    matches,
-                    missing,
-                ) = ExpectedEvent.match_state_events_to_expected_to_events(
-                    expected_events,
-                    self.starknet.state.events,
-                )
-
-                if len(missing) > 0:
-                    raise ExpectedEventMissingException(
-                        matches=matches,
-                        missing=missing,
-                        # pylint: disable=line-too-long
-                        event_selector_to_name_map=self.starknet.cheatable_state.cheatable_carried_state.event_selector_to_name_map,
-                    )
-
-            self.add_test_finish_hook(compare_expected_and_emitted_events)
 
     def expect_revert(self, expected_error: RevertableException) -> Callable[[], None]:
         if self._expected_error is not None:
@@ -262,6 +189,7 @@ class TestExecutionEnvironment:
                     syscall_dependencies, testing_execution_environment=self
                 ),
                 StartPrankCheatcode(syscall_dependencies),
+                ExpectEventsCheatcode(syscall_dependencies, self.starknet, self),
             ]
 
         return build_cheatcodes
