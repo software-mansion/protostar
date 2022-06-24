@@ -24,13 +24,50 @@ class PassedTestCase(TestCaseResult):
     execution_resources: Optional[ExecutionResourcesFacade]
 
     def __str__(self) -> str:
-        result: List[str] = []
-        result.append(f"[{log_color_provider.colorize('GREEN', 'PASS')}]")
-        result.append(f"{self.get_formatted_file_path()} {self.test_case_name}")
-        # TODO: refine
-        result.append("")
-        result.append(str(self.execution_resources))
-        return " ".join(result)
+        first_line_elements: List[str] = []
+        first_line_elements.append(f"[{log_color_provider.colorize('GREEN', 'PASS')}]")
+        first_line_elements.append(
+            f"{self.get_formatted_file_path()} {self.test_case_name}"
+        )
+
+        if self.execution_resources:
+            common_execution_resources_elements: List[str] = []
+            common_execution_resources_elements.append(
+                f"steps={self.execution_resources.n_steps}"
+            )
+            if self.execution_resources.n_memory_holes:
+                common_execution_resources_elements.append(
+                    f"memory_holes={self.execution_resources.n_memory_holes}"
+                )
+            merged_common_execution_resource_info = ", ".join(
+                common_execution_resources_elements
+            )
+            first_line_elements.append(
+                log_color_provider.colorize(
+                    "GRAY", f"({merged_common_execution_resource_info})"
+                )
+            )
+
+        first_line = " ".join(first_line_elements)
+
+        second_line_elements: List[str] = []
+        if self.execution_resources:
+            for (
+                builtin_name,
+                builtin_count,
+            ) in self.execution_resources.builtin_name_to_count_map.items():
+                if builtin_count > 0:
+                    second_line_elements.append(
+                        log_color_provider.colorize(
+                            "GRAY", f"{builtin_name}={builtin_count}"
+                        )
+                    )
+        if len(second_line_elements) > 0:
+            second_line_elements.insert(0, "      ")
+            second_line = " ".join(second_line_elements)
+            return "\n".join([first_line, second_line])
+
+        return first_line
 
 
 @dataclass(frozen=True)
