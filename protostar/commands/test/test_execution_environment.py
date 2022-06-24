@@ -3,7 +3,6 @@ from logging import getLogger
 from typing import Any, Callable, Dict, List, Optional, Set
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
-from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starkware_utils.error_handling import StarkException
@@ -26,13 +25,11 @@ from protostar.commands.test.starkware.cheatable_execute_entry_point import (
 )
 from protostar.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
-    CheatableSysCallHandlerException,
 )
 from protostar.commands.test.starkware.cheatcode import Cheatcode
 from protostar.commands.test.starkware.forkable_starknet import ForkableStarknet
 from protostar.commands.test.test_context import TestContext
 from protostar.commands.test.test_environment_exceptions import (
-    CheatcodeException,
     ExpectedEventMissingException,
     ExpectedRevertException,
     ExpectedRevertMismatchException,
@@ -186,19 +183,6 @@ class TestExecutionEnvironment:
         def register_cheatcode(func):
             hint_locals[func.__name__] = func
             return func
-
-        @register_cheatcode
-        def clear_mock_call(contract_address: int, fn_name: str):
-            logger.warning(
-                "Using clear_mock_call() is deprecated, instead call a function returned by mock_call()"
-            )
-            selector = get_selector_from_name(fn_name)
-            try:
-                cheatable_syscall_handler.unregister_mock_call(
-                    contract_address, selector
-                )
-            except CheatableSysCallHandlerException as err:
-                raise CheatcodeException("clear_mock_call", err.message) from err
 
         @register_cheatcode
         def expect_events(
