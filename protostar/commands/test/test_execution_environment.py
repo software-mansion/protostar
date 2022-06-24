@@ -8,13 +8,29 @@ from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starkware_utils.error_handling import StarkException
 
-from protostar.commands.test.cheatcodes_legacy import Cheatcode, ExpectRevertCheatcode
+from protostar.commands.test.cheatcodes import (
+    DeclareCheatcode,
+    DeployCheatcode,
+    DeployContractCheatcode,
+    MockCallCheatcode,
+    PrepareCheatcode,
+    RollCheatcode,
+    WarpCheatcode,
+)
+from protostar.commands.test.cheatcodes_legacy import (
+    ExpectRevertCheatcode,
+    OldCheatcode,
+)
 from protostar.commands.test.expected_event import ExpectedEvent
 from protostar.commands.test.starkware import CheatableStarknetGeneralConfig
+from protostar.commands.test.starkware.cheatable_execute_entry_point import (
+    CheatableExecuteEntryPoint,
+)
 from protostar.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
     CheatableSysCallHandlerException,
 )
+from protostar.commands.test.starkware.cheatcode import Cheatcode
 from protostar.commands.test.starkware.forkable_starknet import ForkableStarknet
 from protostar.commands.test.test_context import TestContext
 from protostar.commands.test.test_environment_exceptions import (
@@ -26,6 +42,7 @@ from protostar.commands.test.test_environment_exceptions import (
     SimpleReportedException,
     StarknetRevertableException,
 )
+from protostar.utils.data_transformer_facade import DataTransformerFacade
 from protostar.utils.starknet_compilation import StarknetCompiler
 
 logger = getLogger()
@@ -88,6 +105,8 @@ class TestExecutionEnvironment:
 
     async def invoke_test_case(self, test_case_name: str):
         original_run_from_entrypoint = CairoFunctionRunner.run_from_entrypoint
+        CheatableExecuteEntryPoint.cheatcode_factory = self._build_cheatcodes_factory()
+
         CairoFunctionRunner.run_from_entrypoint = (
             self._get_run_from_entrypoint_with_custom_hint_locals(
                 CairoFunctionRunner.run_from_entrypoint
@@ -242,7 +261,7 @@ class TestExecutionEnvironment:
 
             self.add_test_finish_hook(compare_expected_and_emitted_events)
 
-        cheatcodes: List[Cheatcode] = [
+        cheatcodes: List[OldCheatcode] = [
             ExpectRevertCheatcode(self),
         ]
 
@@ -267,3 +286,36 @@ class TestExecutionEnvironment:
                 )
 
         return stop_expecting_revert
+
+    # pylint: disable=no-self-use
+    def _build_cheatcodes_factory(self) -> CheatableExecuteEntryPoint.CheatcodeFactory:
+        def build_cheatcodes(
+            syscall_dependencies: Cheatcode.SyscallDependencies,
+        ) -> List[Cheatcode]:
+            data_transformer = DataTransformerFacade(
+                StarknetCompiler(
+                    include_paths=syscall_dependencies[
+                        "general_config"
+                    ].cheatcodes_cairo_path,
+                    disable_hint_validation=True,
+                )
+            )
+            declare_cheatcode = DeclareCheatcode(syscall_dependencies)
+            prepare_cheatcode = PrepareCheatcode(syscall_dependencies, data_transformer)
+            deploy_cheatcode = DeployCheatcode(syscall_dependencies)
+            return [
+                declare_cheatcode,
+                prepare_cheatcode,
+                deploy_cheatcode,
+                DeployContractCheatcode(
+                    syscall_dependencies,
+                    declare_cheatcode,
+                    prepare_cheatcode,
+                    deploy_cheatcode,
+                ),
+                MockCallCheatcode(syscall_dependencies, data_transformer),
+                WarpCheatcode(syscall_dependencies),
+                RollCheatcode(syscall_dependencies),
+            ]
+
+        return build_cheatcodes

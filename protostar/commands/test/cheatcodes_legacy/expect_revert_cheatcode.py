@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Callable, Optional
 
-from protostar.commands.test.cheatcodes_legacy._cheatcode import Cheatcode
+from protostar.commands.test.cheatcodes_legacy._cheatcode import OldCheatcode
 from protostar.commands.test.test_environment_exceptions import RevertableException
 
 if TYPE_CHECKING:
@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     )
 
 
-class ExpectRevertCheatcode(Cheatcode):
+class ExpectRevertCheatcode(OldCheatcode):
     def __init__(
         self,
         testing_execution_environment: "TestExecutionEnvironment",

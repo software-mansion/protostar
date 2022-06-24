@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Callable
 
 
-class Cheatcode(ABC):
+class OldCheatcode(ABC):
     @property
     @abstractmethod
     def name(self) -> str:

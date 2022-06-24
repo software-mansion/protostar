@@ -1,6 +1,3 @@
-# pylint: disable=too-many-arguments
-# pylint: disable=too-many-instance-attributes
-
 from abc import abstractmethod
 from typing import TYPE_CHECKING, Any, Callable, Type
 
