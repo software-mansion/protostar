@@ -1,4 +1,4 @@
-from typing import Mapping
+from typing import Mapping, Union
 
 from colorama import Fore, Style
 from typing_extensions import Literal
@@ -36,9 +36,9 @@ class LogColorProvider:
     def colorize(self, color_name: SupportedColorName, content: str):
         return f"{self.get_color(color_name)}{content}{self.get_color('RESET')}"
 
-    # pylint: disable=no-self-use
-    def bold(self, content: str):
-        return f"{Style.BRIGHT}{content}{Style.RESET_ALL}"
+    @staticmethod
+    def bold(content: Union[str, int]):
+        return f"{Style.BRIGHT}{content}{Style.NORMAL}"
 
 
 log_color_provider = LogColorProvider()

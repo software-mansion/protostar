@@ -14,4 +14,4 @@ async def test_testing_output(mocker):
 
     test_case_output = str(testing_summary.passed[0])
     assert "steps=" in test_case_output
-    assert "pedersen_builtin=1" in test_case_output
+    assert "pedersen_builtin=" in test_case_output

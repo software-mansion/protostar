@@ -33,11 +33,11 @@ class PassedTestCase(TestCaseResult):
         if self.execution_resources:
             common_execution_resources_elements: List[str] = []
             common_execution_resources_elements.append(
-                f"steps={self.execution_resources.n_steps}"
+                f"steps={log_color_provider.bold(self.execution_resources.n_steps)}"
             )
             if self.execution_resources.n_memory_holes:
                 common_execution_resources_elements.append(
-                    f"memory_holes={self.execution_resources.n_memory_holes}"
+                    f"memory_holes={log_color_provider.bold(self.execution_resources.n_memory_holes)}"
                 )
             merged_common_execution_resource_info = ", ".join(
                 common_execution_resources_elements
@@ -59,7 +59,8 @@ class PassedTestCase(TestCaseResult):
                 if builtin_count > 0:
                     second_line_elements.append(
                         log_color_provider.colorize(
-                            "GRAY", f"{builtin_name}={builtin_count}"
+                            "GRAY",
+                            f"{builtin_name}={log_color_provider.bold(builtin_count)}",
                         )
                     )
         if len(second_line_elements) > 0:
