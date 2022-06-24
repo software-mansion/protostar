@@ -1,4 +1,3 @@
-from protostar.commands.test.cheatcodes.cheatcode import Cheatcode
 from protostar.commands.test.cheatcodes.declare_cheatcode import (
     DeclareCheatcode,
     DeclaredContract,

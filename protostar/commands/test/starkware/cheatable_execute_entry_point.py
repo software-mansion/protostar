@@ -27,7 +27,6 @@ from starkware.starkware_utils.error_handling import (
 )
 
 from protostar.commands.test.cheatcodes import (
-    Cheatcode,
     DeclareCheatcode,
     DeployCheatcode,
     DeployContractCheatcode,
@@ -42,6 +41,7 @@ from protostar.commands.test.starkware.cheatable_starknet_general_config import 
 from protostar.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
 )
+from protostar.commands.test.starkware.cheatcode import Cheatcode
 from protostar.utils.data_transformer_facade import DataTransformerFacade
 from protostar.utils.starknet_compilation import StarknetCompiler
 
@@ -53,6 +53,7 @@ logger = logging.getLogger(__name__)
 # pylint: disable=too-many-locals
 # pylint: disable=raise-missing-from
 class CheatableExecuteEntryPoint(ExecuteEntryPoint):
+
     # pylint: disable=no-self-use
     def _build_cheatcodes(
         self,
