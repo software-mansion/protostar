@@ -16,6 +16,7 @@ from protostar.commands.test.cheatcodes import (
     MockCallCheatcode,
     PrepareCheatcode,
     RollCheatcode,
+    StartPrankCheatcode,
     WarpCheatcode,
 )
 from protostar.commands.test.expected_event import ExpectedEvent
@@ -187,39 +188,6 @@ class TestExecutionEnvironment:
             return func
 
         @register_cheatcode
-        def start_prank(
-            caller_address: int, target_contract_address: Optional[int] = None
-        ):
-            try:
-                cheatable_syscall_handler.set_caller_address(
-                    caller_address, target_contract_address=target_contract_address
-                )
-            except CheatableSysCallHandlerException as err:
-                raise CheatcodeException("start_prank", err.message) from err
-
-            def stop_started_prank():
-                try:
-                    cheatable_syscall_handler.reset_caller_address(
-                        target_contract_address=target_contract_address
-                    )
-                except CheatableSysCallHandlerException as err:
-                    raise CheatcodeException("start_prank", err.message) from err
-
-            return stop_started_prank
-
-        @register_cheatcode
-        def stop_prank(target_contract_address: Optional[int] = None):
-            logger.warning(
-                "Using stop_prank() is deprecated, instead call a function returned by start_prank()"
-            )
-            try:
-                cheatable_syscall_handler.reset_caller_address(
-                    target_contract_address=target_contract_address
-                )
-            except CheatableSysCallHandlerException as err:
-                raise CheatcodeException("stop_prank", err.message) from err
-
-        @register_cheatcode
         def clear_mock_call(contract_address: int, fn_name: str):
             logger.warning(
                 "Using clear_mock_call() is deprecated, instead call a function returned by mock_call()"
@@ -309,6 +277,7 @@ class TestExecutionEnvironment:
                 ExpectRevertCheatcode(
                     syscall_dependencies, testing_execution_environment=self
                 ),
+                StartPrankCheatcode(syscall_dependencies),
             ]
 
         return build_cheatcodes
