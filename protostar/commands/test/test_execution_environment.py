@@ -12,14 +12,11 @@ from protostar.commands.test.cheatcodes import (
     DeclareCheatcode,
     DeployCheatcode,
     DeployContractCheatcode,
+    ExpectRevertCheatcode,
     MockCallCheatcode,
     PrepareCheatcode,
     RollCheatcode,
     WarpCheatcode,
-)
-from protostar.commands.test.cheatcodes_legacy import (
-    ExpectRevertCheatcode,
-    OldCheatcode,
 )
 from protostar.commands.test.expected_event import ExpectedEvent
 from protostar.commands.test.starkware import CheatableStarknetGeneralConfig
@@ -261,13 +258,6 @@ class TestExecutionEnvironment:
 
             self.add_test_finish_hook(compare_expected_and_emitted_events)
 
-        cheatcodes: List[OldCheatcode] = [
-            ExpectRevertCheatcode(self),
-        ]
-
-        for cheatcode in cheatcodes:
-            hint_locals[cheatcode.name] = cheatcode.build()
-
     def expect_revert(self, expected_error: RevertableException) -> Callable[[], None]:
         if self._expected_error is not None:
             raise SimpleReportedException(
@@ -316,6 +306,9 @@ class TestExecutionEnvironment:
                 MockCallCheatcode(syscall_dependencies, data_transformer),
                 WarpCheatcode(syscall_dependencies),
                 RollCheatcode(syscall_dependencies),
+                ExpectRevertCheatcode(
+                    syscall_dependencies, testing_execution_environment=self
+                ),
             ]
 
         return build_cheatcodes
