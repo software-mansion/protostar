@@ -33,6 +33,7 @@ from protostar.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
 )
 from protostar.commands.test.starkware.cheatcode import Cheatcode
+from protostar.commands.test.starkware.hint_local import HintLocal
 
 if TYPE_CHECKING:
     from protostar.commands.test.starkware.cheatable_state import CheatableCarriedState
@@ -44,6 +45,8 @@ logger = logging.getLogger(__name__)
 class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     CheatcodeFactory = Callable[[Cheatcode.SyscallDependencies], List[Cheatcode]]
     cheatcode_factory: Optional[CheatcodeFactory] = None
+
+    custom_hint_locals: Optional[List[HintLocal]] = None
 
     def _run(
         self,
@@ -120,6 +123,10 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             syscall_dependencies
         ):
             hint_locals[cheatcode.name] = cheatcode.build()
+
+        if CheatableExecuteEntryPoint.custom_hint_locals:
+            for custom_hint_local in CheatableExecuteEntryPoint.custom_hint_locals:
+                hint_locals[custom_hint_local.name] = custom_hint_local.build()
 
         # Positional arguments are passed to *args in the 'run_from_entrypoint' function.
         entry_points_args = [

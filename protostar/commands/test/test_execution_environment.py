@@ -24,7 +24,7 @@ from protostar.commands.test.starkware.cheatable_execute_entry_point import (
 )
 from protostar.commands.test.starkware.cheatcode import Cheatcode
 from protostar.commands.test.starkware.forkable_starknet import ForkableStarknet
-from protostar.commands.test.test_context import TestContext
+from protostar.commands.test.test_context import TestContext, TestContextHintLocal
 from protostar.commands.test.test_environment_exceptions import (
     ExpectedRevertException,
     ExpectedRevertMismatchException,
@@ -95,6 +95,9 @@ class TestExecutionEnvironment:
 
     async def invoke_test_case(self, test_case_name: str):
         CheatableExecuteEntryPoint.cheatcode_factory = self._build_cheatcodes_factory()
+        CheatableExecuteEntryPoint.custom_hint_locals = [
+            TestContextHintLocal(self.test_context)
+        ]
 
         try:
             await self._call_test_case_fn(test_case_name)

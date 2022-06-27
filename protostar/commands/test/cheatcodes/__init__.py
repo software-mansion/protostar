@@ -21,5 +21,7 @@ from protostar.commands.test.cheatcodes.prepare_cheatcode import (
     PreparedContract,
 )
 from protostar.commands.test.cheatcodes.roll_cheatcode import RollCheatcode
-from protostar.commands.test.cheatcodes.start_prank_cheatcode import StartPrankCheatcode
+from protostar.commands.test.cheatcodes.start_prank_cheatcode import (
+    StartPrankCheatcode,
+)
 from protostar.commands.test.cheatcodes.warp_cheatcode import WarpCheatcode
