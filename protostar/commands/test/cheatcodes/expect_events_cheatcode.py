@@ -1,4 +1,6 @@
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Callable, List, Optional, Union
+
+from typing_extensions import NotRequired, TypedDict
 
 from protostar.commands.test.expected_event import ExpectedEvent
 from protostar.commands.test.starkware.cheatcode import Cheatcode
@@ -14,6 +16,12 @@ if TYPE_CHECKING:
 
 
 class ExpectEventsCheatcode(Cheatcode):
+    RawExpectedEventDictType = TypedDict(
+        "ExpectedEvent",
+        {"name": str, "data": NotRequired[List[int]], "from_address": NotRequired[int]},
+    )
+    RawExpectedEventType = Union[RawExpectedEventDictType, str]
+
     def __init__(
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
@@ -33,11 +41,18 @@ class ExpectEventsCheatcode(Cheatcode):
 
     def expect_events(
         self,
-        *raw_expected_events: ExpectedEvent.CheatcodeInputType,
+        *raw_expected_events: RawExpectedEventType,
     ) -> None:
         def compare_expected_and_emitted_events():
 
-            expected_events = list(map(ExpectedEvent, raw_expected_events))
+            expected_events: List[ExpectedEvent] = []
+
+            for raw_expected_event in raw_expected_events:
+                expected_events.append(
+                    self._convert_raw_expected_event_to_expected_event(
+                        raw_expected_event
+                    )
+                )
 
             (
                 matches,
@@ -58,3 +73,21 @@ class ExpectEventsCheatcode(Cheatcode):
         self.test_execution_environment.add_test_finish_hook(
             compare_expected_and_emitted_events
         )
+
+    @staticmethod
+    def _convert_raw_expected_event_to_expected_event(
+        raw_expected_event: RawExpectedEventType,
+    ):
+        name: str
+        data: Optional[List[int]] = None
+        from_address: Optional[int] = None
+        if isinstance(raw_expected_event, str):
+            name = raw_expected_event
+        else:
+            name = raw_expected_event["name"]
+            if "data" in raw_expected_event:
+                data = raw_expected_event["data"]
+            if "from_address" in raw_expected_event:
+                from_address = raw_expected_event["from_address"]
+
+        return ExpectedEvent(name=name, data=data, from_address=from_address)

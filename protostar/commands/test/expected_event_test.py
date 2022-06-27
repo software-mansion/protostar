@@ -7,20 +7,6 @@ from starkware.starknet.public.abi import get_selector_from_name
 from .expected_event import ExpectedEvent
 
 
-def test_normalizing_expected_event_input():
-    event = ExpectedEvent("foo")
-    assert event.name == "foo"
-    assert event.data is None
-
-    event = ExpectedEvent({"name": "foo"})
-    assert event.name == "foo"
-    assert event.data is None
-
-    event = ExpectedEvent({"name": "foo", "data": [42]})
-    assert event.name == "foo"
-    assert event.data == [42]
-
-
 @pytest.fixture(name="create_state_event")
 def create_state_event_fixture():
     # pylint: disable=dangerous-default-value
@@ -39,22 +25,18 @@ def create_state_event_fixture():
 def test_comparing_expected_event_names(
     create_state_event,
 ):
-    assert ExpectedEvent({"name": "foo"}).match(create_state_event())
-    assert not ExpectedEvent({"name": "bar"}).match(create_state_event())
+    assert ExpectedEvent("foo").match(create_state_event())
+    assert not ExpectedEvent("bar").match(create_state_event())
 
 
 def test_comparing_state_events_data(create_state_event):
-    assert ExpectedEvent({"name": "foo", "data": [42]}).match(create_state_event())
-    assert not ExpectedEvent({"name": "foo", "data": [24]}).match(create_state_event())
+    assert ExpectedEvent("foo", data=[42]).match(create_state_event())
+    assert not ExpectedEvent("foo", data=[24]).match(create_state_event())
 
 
 def test_comparing_state_event_addresses(create_state_event):
-    assert ExpectedEvent({"name": "foo", "from_address": 123}).match(
-        create_state_event()
-    )
-    assert not ExpectedEvent({"name": "foo", "from_address": 321}).match(
-        create_state_event()
-    )
+    assert ExpectedEvent("foo", from_address=123).match(create_state_event())
+    assert not ExpectedEvent("foo", from_address=321).match(create_state_event())
 
 
 def test_comparing_event_lists(create_state_event):

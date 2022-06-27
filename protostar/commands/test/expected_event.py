@@ -1,12 +1,13 @@
 import os
 from collections import deque
+from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import List, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 from starkware.starknet.business_logic.execution.objects import Event
 from starkware.starknet.public.abi import get_selector_from_name
-from typing_extensions import Literal, NotRequired, TypedDict
+from typing_extensions import Literal
 
 from protostar.commands.test.test_suite import TestSuite
 
@@ -17,27 +18,11 @@ def collect_immediate_subdirectories(root_dir: Path) -> List[str]:
     return [str(Path(root, directory).resolve()) for directory in dirs]
 
 
+@dataclass
 class ExpectedEvent:
-    RawEventType = TypedDict(
-        "ExpectedEvent",
-        {"name": str, "data": NotRequired[List[int]], "from_address": NotRequired[int]},
-    )
-    CheatcodeInputType = Union[RawEventType, str]
-
-    def __init__(
-        self,
-        raw_expected_event: CheatcodeInputType,
-    ):
-        self.data = None
-        self.from_address = None
-        if isinstance(raw_expected_event, str):
-            self.name = raw_expected_event
-        else:
-            self.name = raw_expected_event["name"]
-            if "data" in raw_expected_event:
-                self.data = raw_expected_event["data"]
-            if "from_address" in raw_expected_event:
-                self.from_address = raw_expected_event["from_address"]
+    name: str
+    data: Optional[List[int]] = None
+    from_address: Optional[int] = None
 
     def __str__(self) -> str:
         result: List[str] = []
