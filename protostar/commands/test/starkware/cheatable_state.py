@@ -4,13 +4,9 @@ from typing import Dict, List, Optional, Union, cast
 import marshmallow_dataclass
 from starkware.cairo.lang.vm.crypto import pedersen_hash_func
 from starkware.starknet.business_logic.execution.objects import (
-    CallInfo,
-    CallType,
-    TransactionExecutionInfo,
-)
-from starkware.starknet.business_logic.internal_transaction import (
-    InternalInvokeFunction,
-)
+    CallInfo, CallType, TransactionExecutionInfo)
+from starkware.starknet.business_logic.internal_transaction import \
+    InternalInvokeFunction
 from starkware.starknet.business_logic.state.state import CarriedState
 from starkware.starknet.business_logic.utils import validate_version
 from starkware.starknet.definitions import constants
@@ -21,17 +17,13 @@ from starkware.starknet.testing.state import StarknetState
 from starkware.storage.dict_storage import DictStorage
 from starkware.storage.storage import FactFetchingContext
 
-from protostar.commands.test.starkware.cheatable_execute_entry_point import (
-    CheatableExecuteEntryPoint,
-)
-from protostar.commands.test.starkware.cheatable_starknet_general_config import (
-    CheatableStarknetGeneralConfig,
-)
-from protostar.commands.test.starkware.types import (
-    AddressType,
-    ClassHashType,
-    SelectorType,
-)
+from protostar.commands.test.starkware.cheatable_execute_entry_point import \
+    CheatableExecuteEntryPoint
+from protostar.commands.test.starkware.cheatable_starknet_general_config import \
+    CheatableStarknetGeneralConfig
+from protostar.commands.test.starkware.types import (AddressType,
+                                                     ClassHashType,
+                                                     SelectorType)
 
 CastableToAddress = Union[str, int]
 CastableToAddressSalt = Union[str, int]
@@ -115,12 +107,14 @@ def create_cheatable_invoke_function(
     )
 
 
+# pylint: disable=too-many-instance-attributes
 class CheatableCarriedState(CarriedState):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.pranked_contracts_map: Dict[int, int] = {}
         self.mocked_calls_map: Dict[AddressType, Dict[SelectorType, List[int]]] = {}
         self.event_selector_to_name_map: Dict[int, str] = {}
+        self.event_name_to_contract_path_map: Dict[str, List[Path]] = {}
         self.class_hash_to_contract_path_map: Dict[ClassHashType, Path] = {}
         self.contract_address_to_class_hash_map: Dict[AddressType, ClassHashType] = {}
         self.contract_address_to_block_timestamp: Dict[AddressType, int] = {}
@@ -153,6 +147,13 @@ class CheatableCarriedState(CarriedState):
             **self.parent_state.event_selector_to_name_map,
             **self.event_selector_to_name_map,
         }
+
+
+        self.parent_state.event_name_to_contract_path_map = {
+            **self.parent_state.event_name_to_contract_path_map,
+            **self.event_name_to_contract_path_map,
+        }
+
         self.parent_state.class_hash_to_contract_path_map = {
             **self.parent_state.class_hash_to_contract_path_map,
             **self.class_hash_to_contract_path_map,

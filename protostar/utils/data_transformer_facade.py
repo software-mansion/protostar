@@ -1,10 +1,7 @@
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Tuple
 
-from starknet_py.utils.data_transformer.data_transformer import (
-    ABIFunctionEntry,
-    DataTransformer,
-)
+from starknet_py.utils.data_transformer.data_transformer import DataTransformer
 from starkware.starknet.public.abi import AbiType
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 from typing_extensions import Literal
@@ -18,7 +15,7 @@ class FunctionNotFoundException(BaseException):
 
 class PatchedDataTransformer(DataTransformer):
     def patched_from_python(
-        self, mode: Literal["inputs", "outputs"], *args, **kwargs
+        self, mode: Literal["inputs", "outputs", "data"], *args, **kwargs
     ) -> Tuple[List[int], Dict[str, List[int]]]:
         """
         Transforms params into Cairo representation.
@@ -61,37 +58,49 @@ class PatchedDataTransformer(DataTransformer):
 class DataTransformerFacade:
     ArgumentName = str
     SupportedType = Any
+    PythonRepresentation = Dict[ArgumentName, SupportedType]
+    FromPythonTransformer = Callable[[PythonRepresentation], List[int]]
 
     def __init__(self, starknet_compiler: StarknetCompiler) -> None:
         self._starknet_compiler = starknet_compiler
 
     @staticmethod
-    def _get_function_abi(contract_abi: AbiType, fn_name: str) -> ABIFunctionEntry:
+    def _find_abi(contract_abi: AbiType, name: str) -> Dict:
         for item in contract_abi:
-            if (item["type"] == "function" or item["type"] == "constructor") and item[
-                "name"
-            ] == fn_name:
+            if item["name"] == name:
                 return item
-        raise FunctionNotFoundException(f"Couldn't find a function '{fn_name}'")
+        raise FunctionNotFoundException(f"Couldn't find '{name}' ABI")
 
     def build_from_python_transformer(
         self, contract_path: Path, fn_name: str, mode: Literal["inputs", "outputs"]
-    ) -> Callable[[Dict[ArgumentName, SupportedType]], List[int]]:
+    ) -> "DataTransformerFacade.FromPythonTransformer":
         contract_abi = self._starknet_compiler.preprocess_contract(contract_path).abi
 
-        fn_abi = self._get_function_abi(contract_abi, fn_name)
+        fn_abi = self._find_abi(contract_abi, fn_name)
 
         data_transformer = PatchedDataTransformer(
             fn_abi,
             identifier_manager_from_abi(contract_abi),
         )
 
-        def transform(
-            data: Dict[
-                DataTransformerFacade.ArgumentName,
-                DataTransformerFacade.SupportedType,
-            ]
-        ) -> List[int]:
+        def transform(data: DataTransformerFacade.PythonRepresentation) -> List[int]:
             return data_transformer.patched_from_python(mode, **data)[0]
+
+        return transform
+
+    def build_from_python_events_transformer(
+        self, contract_path: Path, event_name: str
+    ) -> "DataTransformerFacade.FromPythonTransformer":
+        contract_abi = self._starknet_compiler.preprocess_contract(contract_path).abi
+
+        event_abi = self._find_abi(contract_abi, event_name)
+
+        data_transformer = PatchedDataTransformer(
+            event_abi,
+            identifier_manager_from_abi(contract_abi),
+        )
+
+        def transform(data: DataTransformerFacade.PythonRepresentation) -> List[int]:
+            return data_transformer.patched_from_python("data", **data)[0]
 
         return transform

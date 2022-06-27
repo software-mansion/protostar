@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Callable, List, Optional, Union
+import collections
+from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Union
 
 from typing_extensions import NotRequired, TypedDict
 
@@ -7,6 +8,7 @@ from protostar.commands.test.starkware.cheatcode import Cheatcode
 from protostar.commands.test.test_environment_exceptions import (
     ExpectedEventMissingException,
 )
+from protostar.utils.data_transformer_facade import DataTransformerFacade
 
 if TYPE_CHECKING:
     from protostar.commands.test.starkware.forkable_starknet import ForkableStarknet
@@ -18,7 +20,19 @@ if TYPE_CHECKING:
 class ExpectEventsCheatcode(Cheatcode):
     RawExpectedEventDictType = TypedDict(
         "ExpectedEvent",
-        {"name": str, "data": NotRequired[List[int]], "from_address": NotRequired[int]},
+        {
+            "name": str,
+            "data": NotRequired[
+                Union[
+                    List[int],
+                    Dict[
+                        DataTransformerFacade.ArgumentName,
+                        DataTransformerFacade.SupportedType,
+                    ],
+                ]
+            ],
+            "from_address": NotRequired[int],
+        },
     )
     RawExpectedEventType = Union[RawExpectedEventDictType, str]
 
@@ -27,10 +41,12 @@ class ExpectEventsCheatcode(Cheatcode):
         syscall_dependencies: Cheatcode.SyscallDependencies,
         starknet: "ForkableStarknet",
         test_execution_environment: "TestExecutionEnvironment",
+        data_transformer: DataTransformerFacade,
     ):
         super().__init__(syscall_dependencies)
         self.starknet = starknet
         self.test_execution_environment = test_execution_environment
+        self.data_transformer = data_transformer
 
     @property
     def name(self) -> str:
@@ -74,10 +90,13 @@ class ExpectEventsCheatcode(Cheatcode):
             compare_expected_and_emitted_events
         )
 
-    @staticmethod
     def _convert_raw_expected_event_to_expected_event(
+        self,
         raw_expected_event: RawExpectedEventType,
     ):
+        self.state.event_name_to_contract_path_map
+        contract_path = Path()
+
         name: str
         data: Optional[List[int]] = None
         from_address: Optional[int] = None
@@ -86,7 +105,13 @@ class ExpectEventsCheatcode(Cheatcode):
         else:
             name = raw_expected_event["name"]
             if "data" in raw_expected_event:
-                data = raw_expected_event["data"]
+                raw_data = raw_expected_event["data"]
+                if isinstance(raw_data, collections.Mapping):
+                    data = self.data_transformer.build_from_python_events_transformer(
+                        contract_path, name
+                    )(raw_data)
+                else:
+                    data = raw_data
             if "from_address" in raw_expected_event:
                 from_address = raw_expected_event["from_address"]
 
