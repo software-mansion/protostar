@@ -10,6 +10,6 @@ from starkware.starknet.compiler.starknet_preprocessor import (
 @dataclass(frozen=True)
 class TestSuite:
     test_path: Path
-    preprocessed_contract: StarknetPreprocessedProgram
+    # preprocessed_contract: StarknetPreprocessedProgram
     test_case_names: List[str]
     setup_fn_name: Optional[str] = None

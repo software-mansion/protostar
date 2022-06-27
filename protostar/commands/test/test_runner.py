@@ -63,8 +63,8 @@ class TestRunner:
                 self.include_paths is not None
             ), "Uninitialized paths list in test runner"
 
-            compiled_test = self.starknet_compiler.compile_preprocessed_contract(
-                test_suite.preprocessed_contract, add_debug_info=True
+            compiled_test = self.starknet_compiler.compile_contract(
+                test_suite.test_path, add_debug_info=True
             )
 
             await self._run_test_suite(
