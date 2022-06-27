@@ -43,6 +43,7 @@ class TestScheduler:
                         signal.SIGINT, signal.SIG_IGN
                     ),  # prevents showing a stacktrace on cmd/ctrl + c
                 ) as pool:
+                    print("RUNNING TESTS ", multiprocessing.cpu_count())
                     results = pool.map_async(self._worker, setups)
                     self._live_logger.log(test_results_queue, test_collector_result)
                     results.get()

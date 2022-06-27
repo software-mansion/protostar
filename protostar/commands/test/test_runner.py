@@ -50,6 +50,7 @@ class TestRunner:
 
     @classmethod
     def worker(cls, args: "TestRunner.WorkerArgs"):
+        print(args.test_suite.test_path)
         asyncio.run(
             cls(
                 queue=args.test_results_queue, include_paths=args.include_paths
@@ -102,6 +103,7 @@ class TestRunner:
             )
 
             if test_suite.setup_fn_name:
+                print("SETUP", test_suite.test_path)
                 await env_base.invoke_setup_hook(test_suite.setup_fn_name)
 
         except StarkException as ex:
@@ -126,6 +128,7 @@ class TestRunner:
         for test_case_name in test_suite.test_case_names:
             env = env_base.fork()
             try:
+                print(test_case_name)
                 call_result = await env.invoke_test_case(test_case_name)
                 self.queue.put(
                     PassedTestCase(

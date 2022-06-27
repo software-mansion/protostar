@@ -1,5 +1,7 @@
 # pylint: disable=no-self-use
 
+import json
+import os
 import re
 from collections import defaultdict
 from dataclasses import dataclass
@@ -152,26 +154,31 @@ class TestCollector:
     ) -> "TestCollector.Result":
         start_time = time()
 
+        print("PARSE_TARGETS")
         parsed_targets = self.parse_targets(set(targets), default_test_suite_glob)
         ignored_parsed_targets = self.parse_targets(
             set(ignored_targets or []), default_test_suite_glob
         )
 
+        print("BUILD_TEST_CASE_GLOBS_DICT")
         test_case_globs_dict = self.build_test_case_globs_dict(parsed_targets)
         ignored_test_case_globs_dict = self.build_test_case_globs_dict(
             ignored_parsed_targets
         )
 
+        print("FILTER_OUT")
         filtered_test_case_globs_dict = self.filter_out_ignored_test_suites(
             test_case_globs_dict,
             ignored_test_case_globs_dict,
         )
 
+        print("BUILD_TEST_SUITE_INFO_DICT")
         test_suite_info_dict = self.build_test_suite_info_dict(
             filtered_test_case_globs_dict,
             ignored_test_case_globs_dict,
         )
 
+        print("BUILD_TEST_SUITES")
         (
             test_suites,
             broken_test_suites,
@@ -267,6 +274,7 @@ class TestCollector:
         for filepath in filepaths:
             path = Path(filepath)
             if TestCollector.is_test_suite(path.name):
+                print(path)
                 results.add(path)
         return results
 
@@ -299,6 +307,8 @@ class TestCollector:
         self,
         test_suite_info: TestSuiteInfo,
     ) -> TestSuite:
+
+        hash(test_suite_info.path)
         preprocessed = self._preprocess_contract(test_suite_info.path)
         collected_test_case_names = self._collect_test_case_names(preprocessed)
         matching_test_case_names = test_suite_info.match_test_case_names(
@@ -328,4 +338,19 @@ class TestCollector:
         return function_names[0] if len(function_names) > 0 else None
 
     def _preprocess_contract(self, file_path: Path) -> StarknetPreprocessedProgram:
-        return self._starknet_compiler.preprocess_contract(file_path)
+        print(file_path)
+        # cwd = Path(os.getcwd())
+        # cache_path = cwd / "cache"
+        # if not cache_path.exists():
+        #     cache_path.mkdir()
+        # cache_file_path = cache_path / (str(hash(file_path)) + ".json")
+
+        # if cache_file_path.exists():
+        #     with open(cache_file_path, "r", encoding="utf-8") as raw_preprocessed:
+        #         return json.load(raw_preprocessed)
+
+        preprocessed = self._starknet_compiler.preprocess_contract(file_path)
+        # with open(cache_file_path, "w", encoding="utf-8") as file:
+        #     json.dump(preprocessed, file)
+
+        return preprocessed
