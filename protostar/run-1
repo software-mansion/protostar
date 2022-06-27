@@ -1,0 +1,533 @@
+[PASS] contract/tests/pool/test_get_stake_pool.cairo test_non_existent_getStakePool 
+  1%|▊                                                                       [2/178]test_bond_already_exists
+[PASS] contract/tests/pool/test_pool_snapshots_in_range.cairo test_happy_path       
+  2%|█▏                                                                      [3/178]contract/tests/test_upgrade.cairo
+test_happy_path_admin_unfreeze_account
+test_happy_path_claimBondReward
+[FAIL] contract/tests/token/test_approvals.cairo test_spender_frozen                
+Incorrect usage of `start_prank` cheatcode
+Contract with address 2268122782736397187122455293781626745930920887479460475541210832115731449333 has been already pranked
+
+[PASS] contract/tests/bond/test_create_bond.cairo test_bond_already_exists          
+[PASS] contract/tests/administration/test_admin_freeze_account.cairo test_happy_path_admin_unfreeze_account
+  3%|██▍                                                                     [6/178]test_staker_frozen
+test_happy_path_unstake_partially
+[FAIL] contract/tests/bond/test_claim_bond_reward.cairo test_happy_path_claimBondReward
+Incorrect usage of `start_prank` cheatcode
+Contract with address 2697195197961620243638468955177206851952662402293674969824913981662450408536 has been already pranked
+
+  4%|██▊                                                                     [7/178]test_happy_getStakePool
+[PASS] contract/tests/pool/test_get_stake_pool.cairo test_happy_getStakePool        
+  4%|███▏                                                                    [8/178]contract/tests/token/test_burn.cairo
+test_recipient_frozen
+[FAIL] contract/tests/staking/test_staking.cairo test_staker_frozen                 
+Incorrect usage of `start_prank` cheatcode
+Contract with address 169820602070767239142717138919160256492797473964124189503822532291986172996 has been already pranked
+
+  5%|███▋                                                                    [9/178]test_pool_doesnt_exist
+test_happy_path_adminToggleFreezeAccount
+[FAIL] contract/tests/token/test_approvals.cairo test_recipient_frozen              
+Incorrect usage of `start_prank` cheatcode
+Contract with address 2268122782736397187122455293781626745930920887479460475541210832115731449333 has been already pranked
+
+[PASS] contract/tests/staking/test_unstaking.cairo test_happy_path_unstake_partially
+[PASS] contract/tests/administration/test_admin_freeze_account.cairo test_happy_path_adminToggleFreezeAccount
+[PASS] contract/tests/bond/test_create_bond.cairo test_pool_doesnt_exist            
+  7%|████▊                                                                  [12/178]test_not_buyer
+[PASS] contract/tests/bond/test_claim_bond_reward.cairo test_not_buyer              
+  8%|█████▌                                                                 [14/178]test_stake_just_not_enough_funds
+test_happy_transfer_from
+[FAIL] contract/tests/token/test_approvals.cairo test_happy_transfer_from           
+Incorrect usage of `start_prank` cheatcode
+Contract with address 2268122782736397187122455293781626745930920887479460475541210832115731449333 has been already pranked
+
+[PASS] contract/tests/staking/test_staking.cairo test_stake_just_not_enough_funds   
+  8%|█████▉                                                                 [15/178]test_unlock_start_date_in_past
+test_not_authority
+[PASS] contract/tests/administration/test_admin_freeze_account.cairo test_not_authority
+ 10%|██████▊                                                                [17/178]contract/tests/administration/test_get_configuration.cairo
+[PASS] contract/tests/bond/test_create_bond.cairo test_unlock_start_date_in_past    
+ 10%|███████▏                                                               [18/178]test_pool_has_rewards
+[FAIL] contract/tests/staking/test_unstaking.cairo test_pool_has_rewards            
+Incorrect usage of `start_prank` cheatcode
+Contract with address 853832476505956843827483755661140912715122117493324947288025692916395312818 has been already pranked
+
+ 11%|███████▌                                                               [19/178]test_double_claim
+[PASS] contract/tests/bond/test_claim_bond_reward.cairo test_double_claim           
+ 11%|███████▉                                                               [20/178]test_sender_frozen
+[FAIL] contract/tests/token/test_approvals.cairo test_sender_frozen                 
+Incorrect usage of `start_prank` cheatcode
+Contract with address 2268122782736397187122455293781626745930920887479460475541210832115731449333 has been already pranked
+
+ 12%|████████▍                                                              [21/178]contract/tests/administration/test_is_account_frozen.cairo
+test_unlock_interval_zero
+[PASS] contract/tests/bond/test_create_bond.cairo test_unlock_interval_zero         
+ 12%|████████▊                                                              [22/178]test_amount_exact_minimum
+test_caller_frozen
+[PASS] contract/tests/staking/test_staking.cairo test_amount_exact_minimum          
+[PASS] contract/tests/staking/test_unstaking.cairo test_caller_frozen               
+ 13%|█████████▌                                                             [24/178]test_no_reward
+[PASS] contract/tests/bond/test_claim_bond_reward.cairo test_no_reward              
+ 14%|█████████▉                                                             [25/178]contract/tests/staking/test_get_unstake_request.cairo
+test_buyer_is_frozen
+[PASS] contract/tests/bond/test_create_bond.cairo test_buyer_is_frozen              
+ 15%|██████████▎                                                            [26/178]test_zero_reward_stake
+test_unstake_more_than_staked
+[FAIL] contract/tests/staking/test_staking.cairo test_zero_reward_stake             
+Incorrect usage of `start_prank` cheatcode
+Contract with address 169820602070767239142717138919160256492797473964124189503822532291986172996 has been already pranked
+
+[PASS] contract/tests/staking/test_unstaking.cairo test_unstake_more_than_staked    
+ 16%|███████████▏                                                           [28/178]test_isAccountFrozen
+[PASS] contract/tests/administration/test_is_account_frozen.cairo test_isAccountFrozen
+ 16%|███████████▌                                                           [29/178]contract/tests/pool/test_packing.cairo
+test_not_bond_seller
+[PASS] contract/tests/bond/test_create_bond.cairo test_not_bond_seller              
+ 17%|███████████▉                                                           [30/178]test_staker_has_no_stake_account
+test_happy_path_unstake_all
+[PASS] contract/tests/staking/test_staking.cairo test_staker_has_no_stake_account   
+[PASS] contract/tests/staking/test_unstaking.cairo test_happy_path_unstake_all      
+ 18%|████████████▊                                                          [32/178]test_happy_path_createBond
+[PASS] contract/tests/bond/test_create_bond.cairo test_happy_path_createBond        
+ 19%|█████████████▏                                                         [33/178]test_happy_path_stake
+[PASS] contract/tests/staking/test_staking.cairo test_happy_path_stake              
+ 19%|█████████████▌                                                         [34/178]test_caller_frozen_between_queue_and_execution
+[FAIL] contract/tests/staking/test_unstaking.cairo test_caller_frozen_between_queue_and_execution
+Incorrect usage of `start_prank` cheatcode
+Contract with address 853832476505956843827483755661140912715122117493324947288025692916395312818 has been already pranked
+
+ 20%|█████████████▉                                                         [35/178]test_unlock_value_bigger_than_value
+[PASS] contract/tests/bond/test_create_bond.cairo test_unlock_value_bigger_than_value
+ 20%|██████████████▎                                                        [36/178]contract/tests/administration/test_packing.cairo
+test_amount_too_small
+[PASS] contract/tests/staking/test_staking.cairo test_amount_too_small              
+ 21%|██████████████▊                                                        [37/178]test_pool_frozen
+[PASS] contract/tests/staking/test_unstaking.cairo test_pool_frozen                 
+ 21%|███████████████▏                                                       [38/178]test_stake_no_funds
+[PASS] contract/tests/staking/test_staking.cairo test_stake_no_funds                
+ 22%|███████████████▌                                                       [39/178]test_unstake_zero
+[PASS] contract/tests/staking/test_unstaking.cairo test_unstake_zero                
+ 22%|███████████████▉                                                       [40/178]test_upgrade_not_admin
+[PASS] contract/tests/test_upgrade.cairo test_upgrade_not_admin                     
+ 23%|████████████████▎                                                      [41/178]test_balance_not_enough
+[PASS] contract/tests/token/test_burn.cairo test_balance_not_enough                 
+ 24%|████████████████▊                                                      [42/178]test_pool_not_active
+[FAIL] contract/tests/staking/test_staking.cairo test_pool_not_active               
+Incorrect usage of `start_prank` cheatcode
+Contract with address 169820602070767239142717138919160256492797473964124189503822532291986172996 has been already pranked
+
+ 24%|█████████████████▏                                                     [43/178]test_raising_the_stake_limit_and_restaking
+[FAIL] contract/tests/staking/test_unstaking.cairo test_raising_the_stake_limit_and_restaking
+Incorrect usage of `start_prank` cheatcode
+Contract with address 853832476505956843827483755661140912715122117493324947288025692916395312818 has been already pranked
+
+ 25%|█████████████████▌                                                     [44/178]test_upgrade
+[PASS] contract/tests/test_upgrade.cairo test_upgrade                               
+ 25%|█████████████████▉                                                     [45/178]contract/tests/bond/test_get_bond_reward.cairo
+test_happy_burn
+[PASS] contract/tests/token/test_burn.cairo test_happy_burn                         
+ 26%|██████████████████▎                                                    [46/178]test_stake_unclaimed_rewards
+[PASS] contract/tests/staking/test_staking.cairo test_stake_unclaimed_rewards       
+ 26%|██████████████████▋                                                    [47/178]contract/tests/staking/test_claim_stake_rewards.cairo
+test_getConfiguration
+[PASS] contract/tests/administration/test_get_configuration.cairo test_getConfiguration
+ 27%|███████████████████▏                                                   [48/178]contract/tests/pool/test_change_pool_minimum.cairo
+test_queue_empty
+[PASS] contract/tests/staking/test_unstaking.cairo test_queue_empty                 
+ 28%|███████████████████▌                                                   [49/178]test_account_frozen
+[PASS] contract/tests/token/test_burn.cairo test_account_frozen                     
+ 28%|███████████████████▉                                                   [50/178]contract/tests/pool/test_get_stake_pool_reward.cairo
+test_unstake_period_not_preserved
+[PASS] contract/tests/staking/test_unstaking.cairo test_unstake_period_not_preserved
+ 29%|████████████████████▎                                                  [51/178]test_happy_getUnstakeRequest
+[FAIL] contract/tests/staking/test_get_unstake_request.cairo test_happy_getUnstakeRequest
+Incorrect usage of `start_prank` cheatcode
+Contract with address 813560643706334534540410308591800843855631071562410024553484855292291734679 has been already pranked
+
+ 29%|████████████████████▋                                                  [52/178]test_happy_cases
+[PASS] contract/tests/pool/test_packing.cairo test_happy_cases                      
+ 30%|█████████████████████▏                                                 [53/178]test_lowering_the_stake_limit_and_restaking
+test_no_stake_account
+[PASS] contract/tests/staking/test_get_unstake_request.cairo test_no_stake_account  
+[FAIL] contract/tests/staking/test_unstaking.cairo test_lowering_the_stake_limit_and_restaking
+Incorrect usage of `start_prank` cheatcode
+Contract with address 853832476505956843827483755661140912715122117493324947288025692916395312818 has been already pranked
+
+ 31%|█████████████████████▉                                                 [55/178]test_status_too_big
+[PASS] contract/tests/pool/test_packing.cairo test_status_too_big                   
+ 31%|██████████████████████▎                                                [56/178]test_stake_account_frozen
+test_no_request
+[FAIL] contract/tests/staking/test_get_unstake_request.cairo test_no_request        
+Incorrect usage of `start_prank` cheatcode
+Contract with address 813560643706334534540410308591800843855631071562410024553484855292291734679 has been already pranked
+
+ 32%|██████████████████████▋                                                [57/178]contract/tests/integration/test_multiple_users.cairo
+[FAIL] contract/tests/staking/test_unstaking.cairo test_stake_account_frozen        
+Incorrect usage of `start_prank` cheatcode
+Contract with address 853832476505956843827483755661140912715122117493324947288025692916395312818 has been already pranked
+
+ 33%|███████████████████████▏                                               [58/178]test_pool_staked_too_big
+[PASS] contract/tests/pool/test_packing.cairo test_pool_staked_too_big              
+ 33%|███████████████████████▌                                               [59/178]test_zero_reward_unstake
+[FAIL] contract/tests/staking/test_unstaking.cairo test_zero_reward_unstake         
+Incorrect usage of `start_prank` cheatcode
+Contract with address 853832476505956843827483755661140912715122117493324947288025692916395312818 has been already pranked
+
+ 34%|███████████████████████▉                                               [60/178]contract/tests/bond/test_unlock_bond_tokens.cairo
+test_stakers_part_too_big
+[PASS] contract/tests/pool/test_packing.cairo test_stakers_part_too_big             
+ 34%|████████████████████████▎                                              [61/178]contract/tests/staking/test_creating_stake_account.cairo
+test_happy_cases
+[PASS] contract/tests/administration/test_packing.cairo test_happy_cases            
+ 35%|████████████████████████▋                                              [62/178]test_inflation_too_big
+[PASS] contract/tests/administration/test_packing.cairo test_inflation_too_big      
+ 35%|█████████████████████████▏                                             [63/178]test_global_staked_too_big
+[PASS] contract/tests/administration/test_packing.cairo test_global_staked_too_big  
+ 36%|█████████████████████████▌                                             [64/178]contract/tests/administration/test_global_snapshots_in_range.cairo
+test_happy_pth
+[PASS] contract/tests/administration/test_global_snapshots_in_range.cairo test_happy_pth
+ 37%|█████████████████████████▉                                             [65/178]contract/tests/pool/test_claim_pool_rewards.cairo
+test_get_reward
+[FAIL] contract/tests/bond/test_get_bond_reward.cairo test_get_reward               
+Incorrect usage of `start_prank` cheatcode
+Contract with address 2068203019026873223911367856625918139722044793654315687526175631977263788033 has been already pranked
+
+ 37%|██████████████████████████▎                                            [66/178]contract/tests/token/test_transfer.cairo
+test_claiming_stake_rewards_pool_frozen
+[FAIL] contract/tests/staking/test_claim_stake_rewards.cairo test_claiming_stake_rewards_pool_frozen
+Incorrect usage of `start_prank` cheatcode
+Contract with address 3323065572404962515799322017441810323541883215379544304023467074436693801488 has been already pranked
+
+ 38%|██████████████████████████▋                                            [67/178]test_not_pool_owner
+[PASS] contract/tests/pool/test_change_pool_minimum.cairo test_not_pool_owner       
+ 38%|███████████████████████████                                            [68/178]test_happy_getStakePoolReward
+[FAIL] contract/tests/pool/test_get_stake_pool_reward.cairo test_happy_getStakePoolReward
+Incorrect usage of `start_prank` cheatcode
+Contract with address 2931525097473737079427075495359715914791460149355254624930501682744234684533 has been already pranked
+
+ 39%|███████████████████████████▌                                           [69/178]test_happy_claiming_stake_rewards
+[FAIL] contract/tests/staking/test_claim_stake_rewards.cairo test_happy_claiming_stake_rewards
+Incorrect usage of `start_prank` cheatcode
+Contract with address 3323065572404962515799322017441810323541883215379544304023467074436693801488 has been already pranked
+
+ 39%|███████████████████████████▉                                           [70/178]test_owner_frozen
+[PASS] contract/tests/pool/test_change_pool_minimum.cairo test_owner_frozen         
+ 40%|████████████████████████████▎                                          [71/178]test_check_0_reward_after_claiming
+[FAIL] contract/tests/pool/test_get_stake_pool_reward.cairo test_check_0_reward_after_claiming
+Incorrect usage of `start_prank` cheatcode
+Contract with address 2931525097473737079427075495359715914791460149355254624930501682744234684533 has been already pranked
+
+ 40%|████████████████████████████▋                                          [72/178]contract/tests/administration/test_get_global_staked.cairo
+test_no_pool
+[PASS] contract/tests/pool/test_change_pool_minimum.cairo test_no_pool              
+ 41%|█████████████████████████████                                          [73/178]test_claiming_stake_rewards_caller_frozen
+[FAIL] contract/tests/staking/test_claim_stake_rewards.cairo test_claiming_stake_rewards_caller_frozen
+Incorrect usage of `start_prank` cheatcode
+Contract with address 3323065572404962515799322017441810323541883215379544304023467074436693801488 has been already pranked
+
+ 42%|█████████████████████████████▌                                         [74/178]contract/tests/integration/test_bonds.cairo
+test_inactive_pool
+[PASS] contract/tests/pool/test_change_pool_minimum.cairo test_inactive_pool        
+ 42%|█████████████████████████████▉                                         [75/178]test_happy_path_changePoolMinimum
+[PASS] contract/tests/pool/test_change_pool_minimum.cairo test_happy_path_changePoolMinimum
+ 43%|██████████████████████████████▎                                        [76/178]test_multiple_users
+[FAIL] contract/tests/integration/test_multiple_users.cairo test_multiple_users     
+Incorrect usage of `start_prank` cheatcode
+Contract with address 1201510287394151018042784863745779528370034651707792384970084680666243843104 has been already pranked
+
+ 43%|██████████████████████████████▋                                        [77/178]contract/tests/staking/test_get_stake_account.cairo
+test_minimum_too_small
+[PASS] contract/tests/pool/test_change_pool_minimum.cairo test_minimum_too_small    
+ 44%|███████████████████████████████                                        [78/178]test_happy_path_createStakeAccount
+[PASS] contract/tests/staking/test_creating_stake_account.cairo test_happy_path_createStakeAccount
+ 44%|███████████████████████████████▌                                       [79/178]test_happy_path_unlockBondTokens
+test_minimum_too_big
+[PASS] contract/tests/pool/test_change_pool_minimum.cairo test_minimum_too_big      
+[PASS] contract/tests/bond/test_unlock_bond_tokens.cairo test_happy_path_unlockBondTokens
+ 46%|████████████████████████████████▎                                      [81/178]test_stake_account_already_exists
+[PASS] contract/tests/staking/test_creating_stake_account.cairo test_stake_account_already_exists
+ 46%|████████████████████████████████▋                                      [82/178]test_frozen_pool
+[PASS] contract/tests/pool/test_change_pool_minimum.cairo test_frozen_pool          
+ 47%|█████████████████████████████████                                      [83/178]contract/tests/bond/test_is_bond_approved.cairo
+test_pool_does_not_exist
+[PASS] contract/tests/staking/test_creating_stake_account.cairo test_pool_does_not_exist
+ 47%|█████████████████████████████████▌                                     [84/178]test_owner_frozen
+[PASS] contract/tests/bond/test_unlock_bond_tokens.cairo test_owner_frozen          
+ 48%|█████████████████████████████████▉                                     [85/178]test_pool_is_not_active
+[PASS] contract/tests/staking/test_creating_stake_account.cairo test_pool_is_not_active
+ 48%|██████████████████████████████████▎                                    [86/178]contract/tests/test_initializer.cairo
+test_unlock_period_did_not_pass
+[PASS] contract/tests/bond/test_unlock_bond_tokens.cairo test_unlock_period_did_not_pass
+ 49%|██████████████████████████████████▋                                    [87/178]test_only_owner_can_claim
+[PASS] contract/tests/pool/test_claim_pool_rewards.cairo test_only_owner_can_claim  
+ 49%|███████████████████████████████████                                    [88/178]test_balance_not_enough
+[PASS] contract/tests/token/test_transfer.cairo test_balance_not_enough             
+ 50%|███████████████████████████████████▌                                   [89/178]test_unlocked_all_already
+[PASS] contract/tests/bond/test_unlock_bond_tokens.cairo test_unlocked_all_already  
+ 51%|███████████████████████████████████▉                                   [90/178]test_frozen_owner_cant_claim_reward
+[PASS] contract/tests/pool/test_claim_pool_rewards.cairo test_frozen_owner_cant_claim_reward
+ 51%|████████████████████████████████████▎                                  [91/178]test_happy_transfer
+[PASS] contract/tests/token/test_transfer.cairo test_happy_transfer                 
+ 52%|████████████████████████████████████▋                                  [92/178]test_cant_claim_same_day_again
+test_not_bond_owner
+[PASS] contract/tests/pool/test_claim_pool_rewards.cairo test_cant_claim_same_day_again
+[PASS] contract/tests/bond/test_unlock_bond_tokens.cairo test_not_bond_owner        
+ 53%|█████████████████████████████████████▍                                 [94/178]test_recipient_frozen
+[PASS] contract/tests/token/test_transfer.cairo test_recipient_frozen               
+ 53%|█████████████████████████████████████▉                                 [95/178]test_getConfiguration
+[PASS] contract/tests/administration/test_get_global_staked.cairo test_getConfiguration
+ 54%|██████████████████████████████████████▎                                [96/178]contract/tests/staking/test_get_unstake_queue_info.cairo
+test_happy_path_claimStakePoolReward
+test_cant_be_unlocked_yet
+[PASS] contract/tests/pool/test_claim_pool_rewards.cairo test_happy_path_claimStakePoolReward
+[PASS] contract/tests/bond/test_unlock_bond_tokens.cairo test_cant_be_unlocked_yet  
+ 55%|███████████████████████████████████████                                [98/178]contract/tests/bond/test_approve_bond.cairo
+test_sender_frozen
+[PASS] contract/tests/token/test_transfer.cairo test_sender_frozen                  
+ 56%|███████████████████████████████████████▍                               [99/178]contract/tests/staking/test_has_valid_stake.cairo
+test_multiple_bonds
+[FAIL] contract/tests/integration/test_bonds.cairo test_multiple_bonds              
+Incorrect usage of `start_prank` cheatcode
+Contract with address 555597400653300905491757395854064248091081102115012560967076246791335635736 has been already pranked
+
+ 56%|███████████████████████████████████████▎                              [100/178]contract/tests/pool/test_create_stake_pool.cairo
+test_cant_claim_from_inactive_pool
+[PASS] contract/tests/pool/test_claim_pool_rewards.cairo test_cant_claim_from_inactive_pool
+ 57%|███████████████████████████████████████▋                              [101/178]test_cant_claim_from_non_existing
+[PASS] contract/tests/pool/test_claim_pool_rewards.cairo test_cant_claim_from_non_existing
+ 57%|████████████████████████████████████████                              [102/178]test_happy_getStakeAccount
+[PASS] contract/tests/staking/test_get_stake_account.cairo test_happy_getStakeAccount
+ 58%|████████████████████████████████████████▌                             [103/178]test_unfrozen_pool_rewards
+[PASS] contract/tests/pool/test_claim_pool_rewards.cairo test_unfrozen_pool_rewards 
+ 58%|████████████████████████████████████████▉                             [104/178]test_account_doesnt_exist
+[PASS] contract/tests/staking/test_get_stake_account.cairo test_account_doesnt_exist
+ 59%|█████████████████████████████████████████▎                            [105/178]contract/tests/bond/test_get_bond.cairo
+test_cant_claim_from_frozen_pool
+[PASS] contract/tests/pool/test_claim_pool_rewards.cairo test_cant_claim_from_frozen_pool
+ 60%|█████████████████████████████████████████▋                            [106/178]test_happy_createStakePool
+[PASS] contract/tests/pool/test_create_stake_pool.cairo test_happy_createStakePool  
+ 60%|██████████████████████████████████████████                            [107/178]test_pool_already_exists
+[PASS] contract/tests/pool/test_create_stake_pool.cairo test_pool_already_exists    
+ 61%|██████████████████████████████████████████▍                           [108/178]test_get
+[PASS] contract/tests/bond/test_is_bond_approved.cairo test_get                     
+ 61%|██████████████████████████████████████████▊                           [109/178]contract/tests/bond/test_is_bond_seller.cairo
+test_frozen_creator
+[PASS] contract/tests/pool/test_create_stake_pool.cairo test_frozen_creator         
+ 62%|███████████████████████████████████████████▎                          [110/178]test_cant_claim_0_reward
+[PASS] contract/tests/pool/test_claim_pool_rewards.cairo test_cant_claim_0_reward   
+ 62%|███████████████████████████████████████████▋                          [111/178]contract/tests/pool/test_admin_freeze_stake_pool.cairo
+test_pool_no_minimum
+[PASS] contract/tests/pool/test_create_stake_pool.cairo test_pool_no_minimum        
+ 63%|████████████████████████████████████████████                          [112/178]test_pool_minimum_too_big
+[PASS] contract/tests/pool/test_create_stake_pool.cairo test_pool_minimum_too_big   
+ 63%|████████████████████████████████████████████▍                         [113/178]contract/tests/bond/test_claim_bond.cairo
+test_initializer
+[PASS] contract/tests/test_initializer.cairo test_initializer                       
+ 64%|████████████████████████████████████████████▊                         [114/178]test_cant_initialize_twice
+[PASS] contract/tests/test_initializer.cairo test_cant_initialize_twice             
+ 65%|█████████████████████████████████████████████▏                        [115/178]contract/tests/pool/test_change_stakers_part.cairo
+test_no_stake_account
+[PASS] contract/tests/staking/test_get_unstake_queue_info.cairo test_no_stake_account
+ 65%|█████████████████████████████████████████████▌                        [116/178]test_bond_already_active
+[PASS] contract/tests/bond/test_approve_bond.cairo test_bond_already_active         
+ 66%|██████████████████████████████████████████████                        [117/178]test_happy_hasValidStake
+[PASS] contract/tests/staking/test_has_valid_stake.cairo test_happy_hasValidStake   
+ 66%|██████████████████████████████████████████████▍                       [118/178]test_no_entries
+[FAIL] contract/tests/staking/test_get_unstake_queue_info.cairo test_no_entries     
+Incorrect usage of `start_prank` cheatcode
+Contract with address 78992142868678849872650094704052127743253310171798839213321585480167297337 has been already pranked
+
+ 67%|██████████████████████████████████████████████▊                       [119/178]test_approved_again_by_same_address
+[PASS] contract/tests/bond/test_approve_bond.cairo test_approved_again_by_same_address
+ 67%|███████████████████████████████████████████████▏                      [120/178]test_not_enough_staked
+[PASS] contract/tests/staking/test_has_valid_stake.cairo test_not_enough_staked     
+ 68%|███████████████████████████████████████████████▌                      [121/178]test_all_processed
+[FAIL] contract/tests/staking/test_get_unstake_queue_info.cairo test_all_processed  
+Incorrect usage of `start_prank` cheatcode
+Contract with address 78992142868678849872650094704052127743253310171798839213321585480167297337 has been already pranked
+
+ 69%|███████████████████████████████████████████████▉                      [122/178]test_bond_not_found
+[PASS] contract/tests/bond/test_approve_bond.cairo test_bond_not_found              
+ 69%|████████████████████████████████████████████████▎                     [123/178]test_account_does_not_exist
+[PASS] contract/tests/staking/test_has_valid_stake.cairo test_account_does_not_exist
+ 70%|████████████████████████████████████████████████▊                     [124/178]test_happy_getUnstakeQueueInfo
+[FAIL] contract/tests/staking/test_get_unstake_queue_info.cairo test_happy_getUnstakeQueueInfo
+Incorrect usage of `start_prank` cheatcode
+Contract with address 78992142868678849872650094704052127743253310171798839213321585480167297337 has been already pranked
+
+ 70%|█████████████████████████████████████████████████▏                    [125/178]contract/tests/administration/test_change_inflation.cairo
+test_happy_path_approveBond
+[PASS] contract/tests/bond/test_approve_bond.cairo test_happy_path_approveBond      
+ 71%|█████████████████████████████████████████████████▌                    [126/178]test_account_frozen
+[FAIL] contract/tests/staking/test_has_valid_stake.cairo test_account_frozen        
+Incorrect usage of `start_prank` cheatcode
+Contract with address 224053447489104224323653450171063785179529180306525752011131593620680368104 has been already pranked
+
+ 71%|█████████████████████████████████████████████████▉                    [127/178]contract/tests/staking/test_get_stake_account_reward.cairo
+test_happy_path
+[PASS] contract/tests/bond/test_get_bond.cairo test_happy_path                      
+ 72%|██████████████████████████████████████████████████▎                   [128/178]test_approved_threshold_reached
+[FAIL] contract/tests/bond/test_approve_bond.cairo test_approved_threshold_reached  
+Incorrect usage of `start_prank` cheatcode
+Contract with address 2136723090086548816438652903338597892341192484000264760812029882663951947714 has been already pranked
+
+ 72%|██████████████████████████████████████████████████▋                   [129/178]test_doesnt_exist
+[PASS] contract/tests/bond/test_get_bond.cairo test_doesnt_exist                    
+ 73%|███████████████████████████████████████████████████                   [130/178]contract/tests/bond/test_get_bond_token_unlock_info.cairo
+test_pool_inactive
+test_is_bond_seller_after_constructor
+[PASS] contract/tests/bond/test_is_bond_seller.cairo test_is_bond_seller_after_constructor
+ 74%|███████████████████████████████████████████████████▌                  [131/178]contract/tests/bond/test_did_approve_bond.cairo
+test_not_seller
+[PASS] contract/tests/pool/test_admin_freeze_stake_pool.cairo test_pool_inactive    
+[FAIL] contract/tests/bond/test_approve_bond.cairo test_not_seller                  
+Incorrect usage of `start_prank` cheatcode
+Contract with address 2136723090086548816438652903338597892341192484000264760812029882663951947714 has been already pranked
+
+ 75%|████████████████████████████████████████████████████▎                 [133/178]contract/tests/pool/test_activate_stake_pool.cairo
+test_no_pool
+[PASS] contract/tests/pool/test_admin_freeze_stake_pool.cairo test_no_pool          
+ 75%|████████████████████████████████████████████████████▋                 [134/178]test_not_enough_funds
+[FAIL] contract/tests/bond/test_claim_bond.cairo test_not_enough_funds              
+Incorrect usage of `start_prank` cheatcode
+Contract with address 2635710640785080693646318365313733763532947589102722289549905592215126786613 has been already pranked
+
+ 76%|█████████████████████████████████████████████████████                 [135/178]test_happy_path_freeze
+[PASS] contract/tests/pool/test_admin_freeze_stake_pool.cairo test_happy_path_freeze
+ 76%|█████████████████████████████████████████████████████▍                [136/178]test_not_buyer
+[FAIL] contract/tests/bond/test_claim_bond.cairo test_not_buyer                     
+Incorrect usage of `start_prank` cheatcode
+Contract with address 2635710640785080693646318365313733763532947589102722289549905592215126786613 has been already pranked
+
+ 77%|█████████████████████████████████████████████████████▉                [137/178]test_happy_path_changeStakersPart
+test_not_authority
+[PASS] contract/tests/pool/test_admin_freeze_stake_pool.cairo test_not_authority    
+[PASS] contract/tests/pool/test_change_stakers_part.cairo test_happy_path_changeStakersPart
+ 78%|██████████████████████████████████████████████████████▎               [138/178]test_buyer_frozen
+[FAIL] contract/tests/bond/test_claim_bond.cairo test_buyer_frozen                  
+Incorrect usage of `start_prank` cheatcode
+Contract with address 2635710640785080693646318365313733763532947589102722289549905592215126786613 has been already pranked
+
+ 79%|███████████████████████████████████████████████████████               [140/178]test_not_pool_owner
+[PASS] contract/tests/pool/test_change_stakers_part.cairo test_not_pool_owner       
+ 79%|███████████████████████████████████████████████████████▍              [141/178]test_happy_path_unfreeze
+[PASS] contract/tests/pool/test_admin_freeze_stake_pool.cairo test_happy_path_unfreeze
+ 80%|███████████████████████████████████████████████████████▊              [142/178]contract/tests/pool/test_get_stake_pool_snapshot.cairo
+test_claimed_already
+[FAIL] contract/tests/bond/test_claim_bond.cairo test_claimed_already               
+Incorrect usage of `start_prank` cheatcode
+Contract with address 2635710640785080693646318365313733763532947589102722289549905592215126786613 has been already pranked
+
+ 80%|████████████████████████████████████████████████████████▏             [143/178]test_owner_frozen
+[PASS] contract/tests/pool/test_change_stakers_part.cairo test_owner_frozen         
+ 81%|████████████████████████████████████████████████████████▋             [144/178]test_happy_path_claim_bond
+[FAIL] contract/tests/bond/test_claim_bond.cairo test_happy_path_claim_bond         
+Incorrect usage of `start_prank` cheatcode
+Contract with address 2635710640785080693646318365313733763532947589102722289549905592215126786613 has been already pranked
+
+ 81%|█████████████████████████████████████████████████████████             [145/178]test_no_pool
+[PASS] contract/tests/pool/test_change_stakers_part.cairo test_no_pool              
+ 82%|█████████████████████████████████████████████████████████▍            [146/178]test_inactive_pool
+[PASS] contract/tests/pool/test_change_stakers_part.cairo test_inactive_pool        
+ 83%|█████████████████████████████████████████████████████████▊            [147/178]test_not_enough_approvals
+[FAIL] contract/tests/bond/test_claim_bond.cairo test_not_enough_approvals          
+Incorrect usage of `start_prank` cheatcode
+Contract with address 2635710640785080693646318365313733763532947589102722289549905592215126786613 has been already pranked
+
+ 83%|██████████████████████████████████████████████████████████▏           [148/178]test_happy_path_changeInflation
+[PASS] contract/tests/administration/test_change_inflation.cairo test_happy_path_changeInflation
+ 84%|██████████████████████████████████████████████████████████▌           [149/178]test_stakers_part_too_small
+test_pool_frozen
+[PASS] contract/tests/pool/test_change_stakers_part.cairo test_stakers_part_too_small
+[FAIL] contract/tests/bond/test_claim_bond.cairo test_pool_frozen                   
+Incorrect usage of `start_prank` cheatcode
+Contract with address 2635710640785080693646318365313733763532947589102722289549905592215126786613 has been already pranked
+
+ 85%|███████████████████████████████████████████████████████████▍          [151/178]test_check_0_reward_after_claiming
+[FAIL] contract/tests/staking/test_get_stake_account_reward.cairo test_check_0_reward_after_claiming
+Incorrect usage of `start_prank` cheatcode
+Contract with address 487314827690554670525397987939181572318154930057462633690822577332709447176 has been already pranked
+
+ 85%|███████████████████████████████████████████████████████████▊          [152/178]test_value_way_too_big
+[PASS] contract/tests/administration/test_change_inflation.cairo test_value_way_too_big
+ 86%|████████████████████████████████████████████████████████████▏         [153/178]test_stakers_part_too_big
+[PASS] contract/tests/pool/test_change_stakers_part.cairo test_stakers_part_too_big 
+ 87%|████████████████████████████████████████████████████████████▌         [154/178]test_happy_getStakeAccountReward
+test_not_existing
+[FAIL] contract/tests/staking/test_get_stake_account_reward.cairo test_happy_getStakeAccountReward
+Incorrect usage of `start_prank` cheatcode
+Contract with address 487314827690554670525397987939181572318154930057462633690822577332709447176 has been already pranked
+
+ 87%|████████████████████████████████████████████████████████████▉         [155/178]contract/tests/integration/test_unstaking.cairo
+[FAIL] contract/tests/bond/test_claim_bond.cairo test_not_existing                  
+Incorrect usage of `start_prank` cheatcode
+Contract with address 2635710640785080693646318365313733763532947589102722289549905592215126786613 has been already pranked
+
+ 88%|█████████████████████████████████████████████████████████████▎        [156/178]contract/tests/administration/test_admin_mint.cairo
+test_inactive_bond
+test_value_too_big
+[PASS] contract/tests/bond/test_get_bond_token_unlock_info.cairo test_inactive_bond 
+[PASS] contract/tests/administration/test_change_inflation.cairo test_value_too_big 
+ 89%|██████████████████████████████████████████████████████████████▏       [158/178]test_frozen_pool
+test_already_active_pool
+[PASS] contract/tests/pool/test_activate_stake_pool.cairo test_already_active_pool  
+[PASS] contract/tests/pool/test_change_stakers_part.cairo test_frozen_pool          
+ 90%|██████████████████████████████████████████████████████████████▉       [160/178]test_no_unlock_in_the_same_block
+test_did_approve_bond
+test_not_authority
+[PASS] contract/tests/administration/test_change_inflation.cairo test_not_authority 
+[FAIL] contract/tests/bond/test_get_bond_token_unlock_info.cairo test_no_unlock_in_the_same_block
+Incorrect usage of `start_prank` cheatcode
+Contract with address 859988555738620781887160566987864331954355550787116498833638848966518277967 has been already pranked
+
+[FAIL] contract/tests/bond/test_did_approve_bond.cairo test_did_approve_bond        
+Incorrect usage of `start_prank` cheatcode
+Contract with address 2728799729434387053425517220859436919416886869936800352456741081455833153739 has been already pranked
+
+ 92%|████████████████████████████████████████████████████████████████      [163/178]test_happy_path_activate
+[PASS] contract/tests/pool/test_activate_stake_pool.cairo test_happy_path_activate  
+ 92%|████████████████████████████████████████████████████████████████▍     [164/178]test_no_locked_value
+[FAIL] contract/tests/bond/test_get_bond_token_unlock_info.cairo test_no_locked_value
+Incorrect usage of `start_prank` cheatcode
+Contract with address 859988555738620781887160566987864331954355550787116498833638848966518277967 has been already pranked
+
+ 93%|████████████████████████████████████████████████████████████████▉     [165/178]test_no_pool
+[PASS] contract/tests/pool/test_activate_stake_pool.cairo test_no_pool              
+ 93%|█████████████████████████████████████████████████████████████████▎    [166/178]test_frozen_pool
+[PASS] contract/tests/pool/test_activate_stake_pool.cairo test_frozen_pool          
+ 94%|█████████████████████████████████████████████████████████████████▋    [167/178]test_not_authority
+[PASS] contract/tests/pool/test_activate_stake_pool.cairo test_not_authority        
+ 94%|██████████████████████████████████████████████████████████████████    [168/178]test_future_day
+[PASS] contract/tests/pool/test_get_stake_pool_snapshot.cairo test_future_day       
+ 95%|██████████████████████████████████████████████████████████████████▍   [169/178]test_pool_doesnt_exist_yet
+[PASS] contract/tests/pool/test_get_stake_pool_snapshot.cairo test_pool_doesnt_exist_yet
+ 96%|██████████████████████████████████████████████████████████████████▊   [170/178]test_happy_getStakePoolSnapshot
+[FAIL] contract/tests/pool/test_get_stake_pool_snapshot.cairo test_happy_getStakePoolSnapshot
+Incorrect usage of `start_prank` cheatcode
+Contract with address 883393577434566105639858873065652412148269264948630838830081522285025038510 has been already pranked
+
+ 96%|███████████████████████████████████████████████████████████████████▏  [171/178]test_non_existent_getStakePoolSnapshot
+[PASS] contract/tests/pool/test_get_stake_pool_snapshot.cairo test_non_existent_getStakePoolSnapshot
+ 97%|███████████████████████████████████████████████████████████████████▋  [172/178]test_frozen_recipient
+[PASS] contract/tests/administration/test_admin_mint.cairo test_frozen_recipient    
+ 97%|████████████████████████████████████████████████████████████████████  [173/178]test_updating_last_claim
+[FAIL] contract/tests/integration/test_unstaking.cairo test_updating_last_claim     
+Incorrect usage of `start_prank` cheatcode
+Contract with address 1140060966478508798727983900472428488195661838687345864623212843599025607211 has been already pranked
+
+ 98%|████████████████████████████████████████████████████████████████████▍ [174/178]test_value_too_big
+[PASS] contract/tests/administration/test_admin_mint.cairo test_value_too_big       
+ 98%|████████████████████████████████████████████████████████████████████▊ [175/178]test_unstaking
+[FAIL] contract/tests/integration/test_unstaking.cairo test_unstaking               
+Incorrect usage of `start_prank` cheatcode
+Contract with address 1140060966478508798727983900472428488195661838687345864623212843599025607211 has been already pranked
+
+ 99%|█████████████████████████████████████████████████████████████████████▏[176/178]test_not_authority
+[PASS] contract/tests/administration/test_admin_mint.cairo test_not_authority       
+ 99%|█████████████████████████████████████████████████████████████████████▌[177/178]test_value_way_too_big
+[PASS] contract/tests/administration/test_admin_mint.cairo test_value_way_too_big   
+100%|██████████████████████████████████████████████████████████████████████[178/178]test_happy_path_mint
+[PASS] contract/tests/administration/test_admin_mint.cairo test_happy_path_mint     
+                                                                                    
+18:22:52 [INFO] Test suites: 19 failed, 28 passed, 47 total                         
+18:22:52 [INFO] Tests:       46 failed, 132 passed, 178 total
