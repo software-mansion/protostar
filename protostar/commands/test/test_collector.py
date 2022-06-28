@@ -299,7 +299,6 @@ class TestCollector:
         self,
         test_suite_info: TestSuiteInfo,
     ) -> TestSuite:
-
         preprocessed = self._preprocess_contract(test_suite_info.path)
         collected_test_case_names = self._collect_test_case_names(preprocessed)
         matching_test_case_names = test_suite_info.match_test_case_names(
