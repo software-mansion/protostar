@@ -65,7 +65,7 @@ class BuildCommand(Command):
             args.output,
             args.cairo_path,
             args.disable_hint_validation,
-            is_account_contract=args.is_account_contract,
+            is_account_contract=args.account_contract,
         )
 
 
