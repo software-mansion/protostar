@@ -1,4 +1,4 @@
-from typing import Mapping, Union
+from typing import Mapping
 
 from colorama import Fore, Style
 from typing_extensions import Literal
@@ -37,7 +37,7 @@ class LogColorProvider:
         return f"{self.get_color(color_name)}{content}{self.get_color('RESET')}"
 
     @staticmethod
-    def bold(content: Union[str, int]):
+    def bold(content: object):
         return f"{Style.BRIGHT}{content}{Style.NORMAL}"
 
 
