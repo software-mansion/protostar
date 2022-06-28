@@ -74,7 +74,7 @@ def build_project(
     output_dir: Path,
     cairo_path: List[Path],
     disable_hint_validation: bool,
-    is_account_contract: bool,
+    is_account_contract=False,
 ):
     project_paths = [*project.get_include_paths(), *[str(pth) for pth in cairo_path]]
     output_dir.mkdir(exist_ok=True)
