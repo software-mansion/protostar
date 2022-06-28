@@ -154,31 +154,26 @@ class TestCollector:
     ) -> "TestCollector.Result":
         start_time = time()
 
-        print("PARSE_TARGETS")
         parsed_targets = self.parse_targets(set(targets), default_test_suite_glob)
         ignored_parsed_targets = self.parse_targets(
             set(ignored_targets or []), default_test_suite_glob
         )
 
-        print("BUILD_TEST_CASE_GLOBS_DICT")
         test_case_globs_dict = self.build_test_case_globs_dict(parsed_targets)
         ignored_test_case_globs_dict = self.build_test_case_globs_dict(
             ignored_parsed_targets
         )
 
-        print("FILTER_OUT")
         filtered_test_case_globs_dict = self.filter_out_ignored_test_suites(
             test_case_globs_dict,
             ignored_test_case_globs_dict,
         )
 
-        print("BUILD_TEST_SUITE_INFO_DICT")
         test_suite_info_dict = self.build_test_suite_info_dict(
             filtered_test_case_globs_dict,
             ignored_test_case_globs_dict,
         )
 
-        print("BUILD_TEST_SUITES")
         (
             test_suites,
             broken_test_suites,
