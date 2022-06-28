@@ -28,9 +28,11 @@ class TestRunner:
         self,
         queue: TestResultsQueue,
         include_paths: Optional[List[str]] = None,
+        is_account_contract=False,
     ):
         self.queue = queue
         self.include_paths: List[str] = []
+        self.is_account_contract = is_account_contract
 
         if include_paths:
             self.include_paths.extend(include_paths)
@@ -51,7 +53,9 @@ class TestRunner:
     def worker(cls, args: "TestRunner.WorkerArgs"):
         asyncio.run(
             cls(
-                queue=args.test_results_queue, include_paths=args.include_paths
+                queue=args.test_results_queue,
+                include_paths=args.include_paths,
+                is_account_contract=args.is_account_contract,
             ).run_test_suite(args.test_suite)
         )
 
@@ -64,7 +68,7 @@ class TestRunner:
             compiled_test = self.starknet_compiler.compile_preprocessed_contract(
                 test_suite.preprocessed_contract,
                 add_debug_info=True,
-                is_account_contract=False,
+                is_account_contract=self.is_account_contract,
             )
 
             await self._run_test_suite(
