@@ -26,3 +26,4 @@ async def test_testing_output(mocker):
         output = str(passed_test_case)
         assert "steps=" in output
         assert "pedersen_builtin=" in output
+        assert "range_check=" not in output
