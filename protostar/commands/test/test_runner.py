@@ -75,6 +75,14 @@ class TestRunner:
                 test_contract=compiled_test,
                 test_suite=test_suite,
             )
+        except ProtostarException as ex:
+            self.queue.put(
+                BrokenTestSuite(
+                    file_path=test_suite.test_path,
+                    test_case_names=test_suite.test_case_names,
+                    exception=ex,
+                )
+            )
 
         except ReportedException as ex:
             self.queue.put(

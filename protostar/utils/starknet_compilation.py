@@ -10,6 +10,9 @@ from starkware.cairo.lang.compiler.preprocessor.pass_manager import (
     PassManager,
     PassManagerContext,
 )
+from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
+    PreprocessorError,
+)
 from starkware.starknet.compiler.compile import assemble_starknet_contract
 from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_manager
 from starkware.starknet.compiler.starknet_preprocessor import (
@@ -66,16 +69,24 @@ class StarknetCompiler:
         add_debug_info: bool = False,
         is_account_contract: bool = False,
     ) -> ContractClass:
-        assembled = assemble_starknet_contract(
-            preprocessed_program=preprocessed,
-            main_scope=MAIN_SCOPE,
-            add_debug_info=add_debug_info,
-            file_contents_for_debug_info={},
-            filter_identifiers=False,
-            is_account_contract=is_account_contract,
-        )
-        assert isinstance(assembled, ContractClass)
-        return assembled
+        try:
+            assembled = assemble_starknet_contract(
+                preprocessed_program=preprocessed,
+                main_scope=MAIN_SCOPE,
+                add_debug_info=add_debug_info,
+                file_contents_for_debug_info={},
+                filter_identifiers=False,
+                is_account_contract=is_account_contract,
+            )
+            assert isinstance(assembled, ContractClass)
+            return assembled
+        except PreprocessorError as err:
+            err_message = err.message
+            if isinstance(err_message, str) and "account_contract" in err_message:
+                raise ProtostarException(
+                    err_message.replace("account_contract", "account-contract")
+                ) from err
+            raise err
 
     def compile_contract(
         self,
