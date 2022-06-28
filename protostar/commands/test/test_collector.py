@@ -1,6 +1,5 @@
 # pylint: disable=no-self-use
 
-
 import re
 from collections import defaultdict
 from dataclasses import dataclass
@@ -301,7 +300,6 @@ class TestCollector:
         test_suite_info: TestSuiteInfo,
     ) -> TestSuite:
 
-        hash(test_suite_info.path)
         preprocessed = self._preprocess_contract(test_suite_info.path)
         collected_test_case_names = self._collect_test_case_names(preprocessed)
         matching_test_case_names = test_suite_info.match_test_case_names(
@@ -311,7 +309,6 @@ class TestCollector:
         return TestSuite(
             test_path=test_suite_info.path,
             test_case_names=matching_test_case_names,
-            # preprocessed_contract=preprocessed,
             setup_fn_name=self._find_setup_hook_name(preprocessed),
         )
 
@@ -331,19 +328,4 @@ class TestCollector:
         return function_names[0] if len(function_names) > 0 else None
 
     def _preprocess_contract(self, file_path: Path) -> StarknetPreprocessedProgram:
-        print(file_path)
-        # cwd = Path(os.getcwd())
-        # cache_path = cwd / "cache"
-        # if not cache_path.exists():
-        #     cache_path.mkdir()
-        # cache_file_path = cache_path / (str(hash(file_path)) + ".json")
-
-        # if cache_file_path.exists():
-        #     with open(cache_file_path, "r", encoding="utf-8") as raw_preprocessed:
-        #         return json.load(raw_preprocessed)
-
-        preprocessed = self._starknet_compiler.preprocess_contract(file_path)
-        # with open(cache_file_path, "w", encoding="utf-8") as file:
-        #     json.dump(preprocessed, file)
-
-        return preprocessed
+        return self._starknet_compiler.preprocess_contract(file_path)

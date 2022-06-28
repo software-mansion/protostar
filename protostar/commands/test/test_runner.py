@@ -126,7 +126,6 @@ class TestRunner:
         for test_case_name in test_suite.test_case_names:
             env = env_base.fork()
             try:
-                print(test_case_name)
                 call_result = await env.invoke_test_case(test_case_name)
                 self.queue.put(
                     PassedTestCase(
