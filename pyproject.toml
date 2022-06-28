@@ -80,6 +80,7 @@ target-version = ["py37"]
 lines_between_sections = 1
 
 [tool.pyright]
+exclude = ["**/__pycache__", "./.venv", "./playground"] 
 reportCallInDefaultInitializer = true 
 reportConstantRedefinition = true 
 reportDuplicateImport = true 
