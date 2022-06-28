@@ -1,4 +1,5 @@
 import asyncio
+import traceback
 from dataclasses import dataclass
 from logging import getLogger
 from typing import List, Optional
@@ -86,6 +87,7 @@ class TestRunner:
                     file_path=test_suite.test_path,
                     test_case_names=test_suite.test_case_names,
                     exception=ex,
+                    traceback=traceback.format_exc(),
                 )
             )
 
