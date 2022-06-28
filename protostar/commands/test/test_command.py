@@ -70,6 +70,11 @@ class TestCommand(Command):
                 description="Additional directories to look for sources.",
                 type="directory",
             ),
+            Command.Argument(
+                name="account-contract",
+                description="Compile as account contract.",
+                type="bool",
+            ),
         ]
 
     async def run(self, args) -> TestingSummary:
@@ -77,6 +82,7 @@ class TestCommand(Command):
             targets=args.target,
             ignored_targets=args.ignore,
             cairo_path=args.cairo_path,
+            is_account_contract=args.account_contract,
         )
         summary.assert_all_passed()
         return summary
@@ -86,6 +92,7 @@ class TestCommand(Command):
         targets: List[str],
         ignored_targets: Optional[List[str]] = None,
         cairo_path: Optional[List[Path]] = None,
+        is_account_contract=False,
     ) -> TestingSummary:
         logger = getLogger()
 
@@ -111,7 +118,9 @@ class TestCommand(Command):
         if test_collector_result.test_cases_count > 0:
             live_logger = TestingLiveLogger(logger, testing_summary)
             TestScheduler(live_logger, worker=TestRunner.worker).run(
-                include_paths=include_paths, test_collector_result=test_collector_result
+                include_paths=include_paths,
+                test_collector_result=test_collector_result,
+                is_account_contract=is_account_contract,
             )
 
         return testing_summary

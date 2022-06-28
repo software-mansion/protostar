@@ -52,11 +52,20 @@ class BuildCommand(Command):
                 type="path",
                 default="build",
             ),
+            Command.Argument(
+                name="account-contract",
+                description="Compile as account contract.",
+                type="bool",
+            ),
         ]
 
     async def run(self, args):
         build_project(
-            self._project, args.output, args.cairo_path, args.disable_hint_validation
+            self._project,
+            args.output,
+            args.cairo_path,
+            args.disable_hint_validation,
+            is_account_contract=args.is_account_contract,
         )
 
 
@@ -65,6 +74,7 @@ def build_project(
     output_dir: Path,
     cairo_path: List[Path],
     disable_hint_validation: bool,
+    is_account_contract: bool,
 ):
     project_paths = [*project.get_include_paths(), *[str(pth) for pth in cairo_path]]
     output_dir.mkdir(exist_ok=True)
@@ -76,6 +86,7 @@ def build_project(
                 disable_hint_validation=disable_hint_validation,
             ).compile_contract(
                 *[Path(component) for component in contract_components],
+                is_account_contract=is_account_contract,
             )
         except StarknetCompiler.FileNotFoundException as err:
             raise StarknetCompiler.FileNotFoundException(

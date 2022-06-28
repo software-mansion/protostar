@@ -23,16 +23,13 @@ logger = getLogger()
 
 
 class TestRunner:
-    include_paths: Optional[List[str]] = None
-    _collected_count: Optional[int] = None
-
     def __init__(
         self,
         queue: TestResultsQueue,
         include_paths: Optional[List[str]] = None,
     ):
         self.queue = queue
-        self.include_paths = []
+        self.include_paths: List[str] = []
 
         if include_paths:
             self.include_paths.extend(include_paths)
@@ -47,6 +44,7 @@ class TestRunner:
         test_suite: TestSuite
         test_results_queue: TestResultsQueue
         include_paths: List[str]
+        is_account_contract: bool
 
     @classmethod
     def worker(cls, args: "TestRunner.WorkerArgs"):
@@ -63,7 +61,9 @@ class TestRunner:
             ), "Uninitialized paths list in test runner"
 
             compiled_test = self.starknet_compiler.compile_preprocessed_contract(
-                test_suite.preprocessed_contract, add_debug_info=True
+                test_suite.preprocessed_contract,
+                add_debug_info=True,
+                is_account_contract=False,
             )
 
             await self._run_test_suite(

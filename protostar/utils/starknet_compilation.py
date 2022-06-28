@@ -62,7 +62,9 @@ class StarknetCompiler:
 
     @staticmethod
     def compile_preprocessed_contract(
-        preprocessed: StarknetPreprocessedProgram, add_debug_info: bool = False
+        preprocessed: StarknetPreprocessedProgram,
+        add_debug_info: bool = False,
+        is_account_contract: bool = False,
     ) -> ContractClass:
         assembled = assemble_starknet_contract(
             preprocessed_program=preprocessed,
@@ -70,16 +72,21 @@ class StarknetCompiler:
             add_debug_info=add_debug_info,
             file_contents_for_debug_info={},
             filter_identifiers=False,
-            is_account_contract=False,
+            is_account_contract=is_account_contract,
         )
         assert isinstance(assembled, ContractClass)
         return assembled
 
     def compile_contract(
-        self, *sources: Path, add_debug_info: bool = False
+        self,
+        *sources: Path,
+        add_debug_info: bool = False,
+        is_account_contract: bool = False,
     ) -> ContractClass:
         preprocessed = self.preprocess_contract(*sources)
-        assembled = self.compile_preprocessed_contract(preprocessed, add_debug_info)
+        assembled = self.compile_preprocessed_contract(
+            preprocessed, add_debug_info, is_account_contract
+        )
         return assembled
 
     @staticmethod
