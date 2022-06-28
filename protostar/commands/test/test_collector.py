@@ -1,7 +1,6 @@
 # pylint: disable=no-self-use
 
-import json
-import os
+
 import re
 from collections import defaultdict
 from dataclasses import dataclass
@@ -269,7 +268,6 @@ class TestCollector:
         for filepath in filepaths:
             path = Path(filepath)
             if TestCollector.is_test_suite(path.name):
-                print(path)
                 results.add(path)
         return results
 
