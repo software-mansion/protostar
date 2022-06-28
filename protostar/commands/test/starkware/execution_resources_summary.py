@@ -5,7 +5,7 @@ from starkware.cairo.lang.vm.cairo_pie import ExecutionResources
 
 
 @dataclass
-class ExecutionResourcesFacade:
+class ExecutionResourcesSummary:
     @classmethod
     def from_execution_resources(cls, execution_resources: ExecutionResources):
         return cls(

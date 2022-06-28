@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional
 
-from protostar.commands.test.starkware.execution_resources_facade import (
-    ExecutionResourcesFacade,
+from protostar.commands.test.starkware.execution_resources_summary import (
+    ExecutionResourcesSummary,
 )
 from protostar.commands.test.test_environment_exceptions import ReportedException
 from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
@@ -21,7 +21,7 @@ class TestCaseResult:
 @dataclass(frozen=True)
 class PassedTestCase(TestCaseResult):
     test_case_name: str
-    execution_resources: Optional[ExecutionResourcesFacade]
+    execution_resources: Optional[ExecutionResourcesSummary]
 
     def __str__(self) -> str:
         first_line_elements: List[str] = []

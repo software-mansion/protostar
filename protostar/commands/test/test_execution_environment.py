@@ -13,7 +13,7 @@ from protostar.commands.test.cheatcodes_legacy import Cheatcode, ExpectRevertChe
 from protostar.commands.test.expected_event import ExpectedEvent
 from protostar.commands.test.starkware import (
     CheatableStarknetGeneralConfig,
-    ExecutionResourcesFacade,
+    ExecutionResourcesSummary,
 )
 from protostar.commands.test.starkware.cheatable_syscall_handler import (
     CheatableSysCallHandler,
@@ -92,14 +92,14 @@ class TestExecutionEnvironment:
 
     async def invoke_test_case(
         self, test_case_name: str
-    ) -> Optional[ExecutionResourcesFacade]:
+    ) -> Optional[ExecutionResourcesSummary]:
         original_run_from_entrypoint = CairoFunctionRunner.run_from_entrypoint
         CairoFunctionRunner.run_from_entrypoint = (
             self._get_run_from_entrypoint_with_custom_hint_locals(
                 CairoFunctionRunner.run_from_entrypoint
             )
         )
-        execution_resources: Optional[ExecutionResourcesFacade] = None
+        execution_resources: Optional[ExecutionResourcesSummary] = None
         try:
             execution_resources = await self._call_test_case_fn(test_case_name)
             for hook in self._test_finish_hooks:
@@ -121,11 +121,13 @@ class TestExecutionEnvironment:
             self._test_finish_hooks.clear()
         return execution_resources
 
-    async def _call_test_case_fn(self, test_case_name: str) -> ExecutionResourcesFacade:
+    async def _call_test_case_fn(
+        self, test_case_name: str
+    ) -> ExecutionResourcesSummary:
         try:
             func = getattr(self.test_contract, test_case_name)
             tx_info: StarknetTransactionExecutionInfo = await func().invoke()
-            return ExecutionResourcesFacade.from_execution_resources(
+            return ExecutionResourcesSummary.from_execution_resources(
                 tx_info.call_info.execution_resources
             )
 
