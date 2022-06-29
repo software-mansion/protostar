@@ -15,6 +15,7 @@ from starkware.starknet.business_logic.execution.execute_entry_point import (
     ExecuteEntryPoint,
 )
 from starkware.starknet.business_logic.execution.objects import (
+    CallInfo,
     TransactionExecutionContext,
 )
 from starkware.starknet.core.os import os_utils, syscall_utils
@@ -57,6 +58,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     def _build_cheatcodes(
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
+        internal_calls: List[CallInfo],
     ) -> List[Cheatcode]:
         data_transformer = DataTransformerFacade(
             StarknetCompiler(
@@ -68,7 +70,9 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         )
         declare_cheatcode = DeclareCheatcode(syscall_dependencies)
         prepare_cheatcode = PrepareCheatcode(syscall_dependencies, data_transformer)
-        deploy_cheatcode = DeployCheatcode(syscall_dependencies)
+        deploy_cheatcode = DeployCheatcode(
+            syscall_dependencies, cheatable_syscall_internal_calls=internal_calls
+        )
         return [
             declare_cheatcode,
             prepare_cheatcode,
@@ -149,7 +153,9 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             "__storage": starknet_storage,
             "syscall_handler": syscall_handler,
         }
-        for cheatcode in self._build_cheatcodes(syscall_dependencies):
+        for cheatcode in self._build_cheatcodes(
+            syscall_dependencies, syscall_handler.internal_calls
+        ):
             hint_locals[cheatcode.name] = cheatcode.build()
 
         # Positional arguments are passed to *args in the 'run_from_entrypoint' function.

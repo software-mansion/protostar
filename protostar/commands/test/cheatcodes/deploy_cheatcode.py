@@ -1,12 +1,15 @@
 import asyncio
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any, Callable, List
 
 from starkware.python.utils import to_bytes
 from starkware.starknet.core.os.syscall_utils import initialize_contract_state
 
 from protostar.commands.test.cheatcodes.cheatcode import Cheatcode
 from protostar.commands.test.cheatcodes.prepare_cheatcode import PreparedContract
+from starkware.starknet.business_logic.execution.objects import (
+    CallInfo,
+)
 
 
 @dataclass(frozen=True)
@@ -15,6 +18,14 @@ class DeployedContract:
 
 
 class DeployCheatcode(Cheatcode):
+    def __init__(
+        self,
+        syscall_dependencies: Cheatcode.SyscallDependencies,
+        cheatable_syscall_internal_calls: List[CallInfo],
+    ):
+        super().__init__(syscall_dependencies)
+        self.internal_calls = cheatable_syscall_internal_calls
+
     @property
     def name(self) -> str:
         return "deploy"
