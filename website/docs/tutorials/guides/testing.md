@@ -475,12 +475,23 @@ Deploys a contract given a path relative to a Protostar project root. The sectio
 Deploying a contract is a slow operation. If it's possible try using this cheatcode in the [`__setup__` hook](#__setup__).
 :::
 
-### Data transformer
-If the constructor of the contract accepts arguments, `constructor_calldata` expects a list of integers in the representation described in ["passing tuples and structs in calldata" section of official docs](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#passing-tuples-and-structs-in-calldata) or by a dictionary. In case of a dictionary, Protostar uses [Starknet.py](https://github.com/software-mansion/starknet.py)'s data transformer to translate Python values to Cairo friendly representation.
-
 :::info
 `deploy_contract` is just a syntactic sugar over executing cheatcodes `declare` -> `prepare` -> `deploy` separately, and it's what does it under the hood.
 :::
+
+#### Data transformer
+If the constructor of the contract accepts arguments, `constructor_calldata` expects a list of integers in the representation described in ["passing tuples and structs in calldata" section of official docs](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#passing-tuples-and-structs-in-calldata) or by a dictionary. In case of a dictionary, Protostar uses [Starknet.py](https://github.com/software-mansion/starknet.py)'s data transformer to translate Python values to Cairo friendly representation.
+
+
+##### Example
+```python title="Passing constructor data as a dictionary"
+deploy_contract("./src/main.cairo", { "initial_balance": 42, "contract_id": 123 })
+```
+
+```python title="Passing constructor data as a list of integers"
+deploy_contract("./src/main.cairo", [42, 0, 123])
+```
+
 
 ### `declare`
 
@@ -539,14 +550,6 @@ Deploys contract for deployment given `PreparedContract`.
 You can't deploy the same `PreparedContract` twice.
 :::
 
-#### Example
-```python title="Passing constructor data as a dictionary"
-deploy_contract("./src/main.cairo", { "initial_balance": 42, "contract_id": 123 })
-```
-
-```python title="Passing constructor data as a list of integers"
-deploy_contract("./src/main.cairo", [42, 0, 123])
-```
 
 
 

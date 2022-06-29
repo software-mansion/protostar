@@ -65,8 +65,8 @@ class TestRunner:
                 self.include_paths is not None
             ), "Uninitialized paths list in test runner"
 
-            compiled_test = self.starknet_compiler.compile_preprocessed_contract(
-                test_suite.preprocessed_contract,
+            compiled_test = self.starknet_compiler.compile_contract(
+                test_suite.test_path,
                 add_debug_info=True,
                 is_account_contract=self.is_account_contract,
             )
@@ -140,12 +140,12 @@ class TestRunner:
         for test_case_name in test_suite.test_case_names:
             env = env_base.fork()
             try:
-                call_result = await env.invoke_test_case(test_case_name)
+                execution_resources = await env.invoke_test_case(test_case_name)
                 self.queue.put(
                     PassedTestCase(
                         file_path=test_suite.test_path,
                         test_case_name=test_case_name,
-                        tx_info=call_result,
+                        execution_resources=execution_resources,
                     )
                 )
             except ReportedException as ex:
