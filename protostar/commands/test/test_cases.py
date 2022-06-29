@@ -102,13 +102,20 @@ class BrokenTestSuite(TestCaseResult):
 
 @dataclass(frozen=True)
 class UnexpectedExceptionTestSuiteResult(BrokenTestSuite):
+    traceback: Optional[str] = None
+
     def __str__(self) -> str:
-        first_line: List[str] = []
-        first_line.append(
+        lines: List[str] = []
+        main_line: List[str] = []
+        main_line.append(
             f"[{log_color_provider.colorize('RED', 'UNEXPECTED_EXCEPTION')}]"
         )
-        first_line.append(self.get_formatted_file_path())
+        main_line.append(self.get_formatted_file_path())
+        lines.append(" ".join(main_line))
 
-        result = [" ".join(first_line), UNEXPECTED_PROTOSTAR_ERROR_MSG]
-        result.append(str(self.exception))
-        return "\n".join(result)
+        if self.traceback:
+            lines.append(self.traceback)
+
+        lines.append(UNEXPECTED_PROTOSTAR_ERROR_MSG)
+        lines.append(str(self.exception))
+        return "\n".join(lines)
