@@ -3,13 +3,11 @@ from dataclasses import dataclass
 from typing import Any, Callable, List
 
 from starkware.python.utils import to_bytes
+from starkware.starknet.business_logic.execution.objects import CallInfo
 from starkware.starknet.core.os.syscall_utils import initialize_contract_state
 
 from protostar.commands.test.cheatcodes.cheatcode import Cheatcode
 from protostar.commands.test.cheatcodes.prepare_cheatcode import PreparedContract
-from starkware.starknet.business_logic.execution.objects import (
-    CallInfo,
-)
 
 
 @dataclass(frozen=True)
