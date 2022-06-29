@@ -20,7 +20,7 @@ namespace TimestampContract:
     end
 end
 
-@view
+@external
 func test_changing_timestamp_in_deployed_contract{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
     local contract_address
