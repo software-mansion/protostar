@@ -308,7 +308,6 @@ class TestCollector:
         return TestSuite(
             test_path=test_suite_info.path,
             test_case_names=matching_test_case_names,
-            preprocessed_contract=preprocessed,
             setup_fn_name=self._find_setup_hook_name(preprocessed),
         )
 

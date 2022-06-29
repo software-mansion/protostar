@@ -131,3 +131,29 @@ def test_disable_hint_validation(protostar):
 
     result = protostar(["build", "--disable-hint-validation"], ignore_exit_code=True)
     assert result == ""
+
+
+@pytest.mark.usefixtures("init")
+def test_building_account_contract(protostar):
+
+    with open("./src/main.cairo", mode="w", encoding="utf-8") as my_contract:
+        my_contract.write(
+            "\n".join(
+                [
+                    "%lang starknet",
+                    "",
+                    "@external",
+                    "func __execute__():",
+                    "    return ()",
+                    "end",
+                ]
+            )
+        )
+
+    with pytest.raises(CalledProcessError):
+        protostar(["build"])
+
+    protostar(["build", "--account-contract"])
+
+    dirs = listdir()
+    assert "build" in dirs
