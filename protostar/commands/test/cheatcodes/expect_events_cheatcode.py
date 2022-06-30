@@ -94,7 +94,15 @@ class ExpectEventsCheatcode(Cheatcode):
     ):
 
         name: str
-        data: Optional[List[int]] = None
+        data: Optional[
+            Union[
+                List[int],
+                Dict[
+                    DataTransformerFacade.ArgumentName,
+                    DataTransformerFacade.SupportedType,
+                ],
+            ]
+        ] = None
         from_address: Optional[int] = None
         if isinstance(raw_expected_event, str):
             name = raw_expected_event

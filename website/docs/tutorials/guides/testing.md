@@ -412,13 +412,30 @@ Use [scope attributes](https://www.cairo-lang.org/docs/how_cairo_works/scope_att
                 str, # Protostar interprets string as an event's name 
                 TypedDict("ExpectedEvent", {
                     "name": str,
-                    "data": NotRequired[List[int]],
+                    "data": NotRequired[Union[
+                      List[int],
+                      Dict[
+                        # e.g.
+                        # {"current_balance" : 37, "amount" : 21}
+                        # 
+                        # for the following event signature:
+                        # @event
+                        # func balance_increased(current_balance : felt, amount : felt):
+                        # end
+                        DataTransformer.ArgumentName,
+                        DataTransformer.SupportedType,
+                      ]
+                    ]],
                     "from_address": NotRequired[int]
                 },
             )],
         ) -> None: ...
 ```
-Compares expected events with events in the StarkNet state. You can use this cheatcode to test whether a contract emits specified events in unit and integration tests. Protostar compares events after a test case is completed. Therefore, you can use this cheatcode in any place within a test case.
+Compares expected events with events in the StarkNet state. You can use this cheatcode to test whether a contract emits specified events. Protostar compares events after a test case is completed. Therefore, you can use this cheatcode in any place within a test case.
+
+:::tip
+You can provide `"data"` as a dictionary to leverage [data transformer](/docs/tutorials/guides/testing#data-transformer).
+:::
 
 ```cairo title="Protostar also checks the order of emitted events."
 %lang starknet
@@ -479,19 +496,9 @@ Deploying a contract is a slow operation. If it's possible try using this cheatc
 `deploy_contract` is just a syntactic sugar over executing cheatcodes `declare` -> `prepare` -> `deploy` separately, and it's what does it under the hood.
 :::
 
-#### Data transformer
-If the constructor of the contract accepts arguments, `constructor_calldata` expects a list of integers in the representation described in ["passing tuples and structs in calldata" section of official docs](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#passing-tuples-and-structs-in-calldata) or by a dictionary. In case of a dictionary, Protostar uses [Starknet.py](https://github.com/software-mansion/starknet.py)'s data transformer to translate Python values to Cairo friendly representation.
-
-
-##### Example
-```python title="Passing constructor data as a dictionary"
-deploy_contract("./src/main.cairo", { "initial_balance": 42, "contract_id": 123 })
-```
-
-```python title="Passing constructor data as a list of integers"
-deploy_contract("./src/main.cairo", [42, 0, 123])
-```
-
+:::tip
+You can provide `constructor_calldata` as a dictionary to leverage [data transformer](/docs/tutorials/guides/testing#data-transformer).
+:::
 
 ### `declare`
 
@@ -534,7 +541,7 @@ You can prepare multiple contracts from one `DeclaredContract`.
 :::
 
 :::tip
-You can provide constructor arguments as a dictionary to leverage [data transformer](/docs/tutorials/guides/testing#data-transformer).
+You can provide `constructor_calldata` as a dictionary to leverage [data transformer](/docs/tutorials/guides/testing#data-transformer).
 :::
 
 ### `deploy`
@@ -679,3 +686,38 @@ func test_changing_timestamp{syscall_ptr : felt*}():
     return ()
 end
 ```
+
+## Data Transformer
+### What is a Data Transformer
+Data Transformer converts inputs and outputs of Cairo functions to Python friendly representation. Cairo internally operates on a list of integers, which readability and maintenance becomes problematic for complex data structures. You can read more about: 
+- [Data Transformer in the Starknet.py's documentation](https://starknetpy.readthedocs.io/en/latest/guide.html?highlight=Data%20transformer#data-transformation).
+- [representing tuples and structs as a list of integers in the official documentation](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#passing-tuples-and-structs-in-calldata)
+
+### Using Data Transformer in cheatcodes
+Cheatcodes accept arguments representing input or output of a Cairo function as:
+- `List[int]` — a list of integers
+- `Dict[DataTransformer.ArgumentName, DataTransformer.SupportedType]` — Data Transformer friendly dictionary
+
+### Example
+The following example demonstrate usage on the [`deploy_contract`](#deploy_contract).
+
+```cairo title="./src/main.cairo"
+%lang starknet
+from starkware.cairo.common.uint256 import Uint256
+
+@constructor
+func constructor(initial_balance : Uint256, contract_id : felt):
+    # ...
+    return ()
+end
+```
+
+
+```python title="Passing constructor data as a dictionary"
+deploy_contract("./src/main.cairo", { "initial_balance": 42, "contract_id": 123 })
+```
+
+```python title="Passing constructor data as a list of integers"
+deploy_contract("./src/main.cairo", [42, 0, 123])
+```
+
