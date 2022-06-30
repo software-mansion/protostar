@@ -112,7 +112,7 @@ Compile as account contract.
 Additional directories to look for sources.
 #### `--disable-hint-validation`
 Disable hint validation in contracts declared by the `declare` cheatcode.
-Useful when using `%{ print ("...") %}` in the tested contract that is deployed from a cheatcode.
+
 #### `-i` `--ignore STRING[]`
 A glob or globs to a directory or a test suite, which should be ignored.
 
