@@ -9,7 +9,7 @@ from typing_extensions import Literal
 from protostar.utils.starknet_compilation import StarknetCompiler
 
 
-class FunctionNotFoundException(BaseException):
+class AbiItemNotFoundException(BaseException):
     pass
 
 
@@ -69,7 +69,7 @@ class DataTransformerFacade:
         for item in contract_abi:
             if item["name"] == name:
                 return item
-        raise FunctionNotFoundException(f"Couldn't find '{name}' ABI")
+        raise AbiItemNotFoundException(f"Couldn't find '{name}' ABI")
 
     def build_from_python_transformer(
         self, contract_path: Path, fn_name: str, mode: Literal["inputs", "outputs"]
