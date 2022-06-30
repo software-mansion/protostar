@@ -5,14 +5,12 @@ from typing import Any, Callable
 
 from starkware.python.utils import from_bytes
 from starkware.starknet.business_logic.internal_transaction import InternalDeclare
+from starkware.starknet.compiler.compile import compile_starknet_files
 from starkware.starknet.testing.contract import DeclaredClass
-from starkware.starknet.testing.contract_utils import (
-    EventManager,
-    get_abi,
-    get_contract_class,
-)
+from starkware.starknet.testing.contract_utils import EventManager, get_abi
 
 from protostar.commands.test.starkware.cheatcode import Cheatcode
+from protostar.commands.test.starkware.contract_utils import get_contract_class
 
 
 @dataclass
@@ -21,6 +19,14 @@ class DeclaredContract:
 
 
 class DeclareCheatcode(Cheatcode):
+    def __init__(
+        self,
+        syscall_dependencies: Cheatcode.SyscallDependencies,
+        disable_hint_validation: bool,
+    ):
+        super().__init__(syscall_dependencies)
+        self._disable_hint_validation_in_external_contracts = disable_hint_validation
+
     @property
     def name(self) -> str:
         return "declare"
@@ -41,6 +47,7 @@ class DeclareCheatcode(Cheatcode):
         contract_class = get_contract_class(
             source=str(contract_path),
             cairo_path=self.general_config.cheatcodes_cairo_path,
+            disable_hint_validation=self._disable_hint_validation_in_external_contracts,
         )
 
         tx = await InternalDeclare.create_for_testing(

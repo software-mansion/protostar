@@ -110,6 +110,8 @@ A glob or globs to a directory or a test suite, for example:
 Compile as account contract.
 #### `--cairo-path DIRECTORY[]`
 Additional directories to look for sources.
+#### `--disable-hint-validation`
+Disable hint validation in contracts declared by the `declare` cheatcode.
 #### `-i` `--ignore STRING[]`
 A glob or globs to a directory or a test suite, which should be ignored.
 
