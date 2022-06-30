@@ -11,7 +11,7 @@ def get_contract_class(
     disable_hint_validation=False,
 ) -> ContractClass:
     """
-    This method compared to the original allows disabling hint validation.
+    This function (compared to the original) allows disabling hint validation.
     """
     assert (source is None) != (
         contract_class is None
