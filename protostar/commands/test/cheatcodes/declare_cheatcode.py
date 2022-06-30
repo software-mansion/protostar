@@ -12,7 +12,7 @@ from starkware.starknet.testing.contract_utils import (
     get_contract_class,
 )
 
-from protostar.commands.test.cheatcodes.cheatcode import Cheatcode
+from protostar.commands.test.starkware.cheatcode import Cheatcode
 
 
 @dataclass

@@ -1,4 +1,3 @@
-from protostar.commands.test.cheatcodes.cheatcode import Cheatcode
 from protostar.commands.test.cheatcodes.declare_cheatcode import (
     DeclareCheatcode,
     DeclaredContract,
@@ -10,10 +9,19 @@ from protostar.commands.test.cheatcodes.deploy_cheatcode import (
 from protostar.commands.test.cheatcodes.deploy_contract_cheatcode import (
     DeployContractCheatcode,
 )
+from protostar.commands.test.cheatcodes.expect_events_cheatcode import (
+    ExpectEventsCheatcode,
+)
+from protostar.commands.test.cheatcodes.expect_revert_cheatcode import (
+    ExpectRevertCheatcode,
+)
 from protostar.commands.test.cheatcodes.mock_call_cheatcode import MockCallCheatcode
 from protostar.commands.test.cheatcodes.prepare_cheatcode import (
     PrepareCheatcode,
     PreparedContract,
 )
 from protostar.commands.test.cheatcodes.roll_cheatcode import RollCheatcode
+from protostar.commands.test.cheatcodes.start_prank_cheatcode import (
+    StartPrankCheatcode,
+)
 from protostar.commands.test.cheatcodes.warp_cheatcode import WarpCheatcode

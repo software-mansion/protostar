@@ -1,5 +1,5 @@
 import asyncio
-from typing import TYPE_CHECKING, List, Optional, cast
+from typing import TYPE_CHECKING, List, cast
 
 from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
@@ -51,32 +51,6 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
                 self.contract_address
             ]
         return super()._get_block_timestamp()
-
-    def set_caller_address(
-        self, addr: int, target_contract_address: Optional[int] = None
-    ):
-        target = (
-            target_contract_address
-            if target_contract_address
-            else self.contract_address
-        )
-        if target in self.cheatable_state.pranked_contracts_map:
-            raise CheatableSysCallHandlerException(
-                f"Contract with address {target} has been already pranked"
-            )
-        self.cheatable_state.pranked_contracts_map[target] = addr
-
-    def reset_caller_address(self, target_contract_address: Optional[int] = None):
-        target = (
-            target_contract_address
-            if target_contract_address
-            else self.contract_address
-        )
-        if target not in self.cheatable_state.pranked_contracts_map:
-            raise CheatableSysCallHandlerException(
-                f"Contract with address {target} has not been pranked"
-            )
-        del self.cheatable_state.pranked_contracts_map[target]
 
     def _get_caller_address(
         self,
