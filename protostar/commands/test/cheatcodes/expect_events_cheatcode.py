@@ -1,5 +1,4 @@
 import collections
-from pathlib import Path
 from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Union
 
 from typing_extensions import NotRequired, TypedDict
@@ -62,14 +61,12 @@ class ExpectEventsCheatcode(Cheatcode):
     ) -> None:
         def compare_expected_and_emitted_events():
 
-            expected_events: List[ExpectedEvent] = []
-
-            for raw_expected_event in raw_expected_events:
-                expected_events.append(
-                    self._convert_raw_expected_event_to_expected_event(
-                        raw_expected_event
-                    )
+            expected_events = list(
+                map(
+                    self._convert_raw_expected_event_to_expected_event,
+                    raw_expected_events,
                 )
+            )
 
             (
                 matches,
@@ -95,8 +92,6 @@ class ExpectEventsCheatcode(Cheatcode):
         self,
         raw_expected_event: RawExpectedEventType,
     ):
-        self.state.event_name_to_contract_path_map
-        contract_path = Path()
 
         name: str
         data: Optional[List[int]] = None
@@ -108,8 +103,13 @@ class ExpectEventsCheatcode(Cheatcode):
             if "data" in raw_expected_event:
                 raw_data = raw_expected_event["data"]
                 if isinstance(raw_data, collections.Mapping):
+                    assert (
+                        name in self.state.event_name_to_contract_abi_map
+                    ), "Couldn't map event name to the contract path with that event"
+
+                    contract_abi = self.state.event_name_to_contract_abi_map[name]
                     data = self.data_transformer.build_from_python_events_transformer(
-                        contract_path, name
+                        contract_abi, name
                     )(raw_data)
                 else:
                     data = raw_data

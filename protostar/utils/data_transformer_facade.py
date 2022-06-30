@@ -89,10 +89,8 @@ class DataTransformerFacade:
         return transform
 
     def build_from_python_events_transformer(
-        self, contract_path: Path, event_name: str
+        self, contract_abi: AbiType, event_name: str
     ) -> "DataTransformerFacade.FromPythonTransformer":
-        contract_abi = self._starknet_compiler.preprocess_contract(contract_path).abi
-
         event_abi = self._find_abi(contract_abi, event_name)
 
         data_transformer = PatchedDataTransformer(
