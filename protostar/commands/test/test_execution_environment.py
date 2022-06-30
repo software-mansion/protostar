@@ -2,6 +2,7 @@ from copy import deepcopy
 from logging import getLogger
 from typing import Callable, List, Optional, Set
 
+from starkware.starknet.business_logic.execution.objects import CallInfo
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starknet.testing.objects import StarknetTransactionExecutionInfo
@@ -176,11 +177,12 @@ class TestExecutionEnvironment:
     def _build_cheatcodes_factory(self) -> CheatableExecuteEntryPoint.CheatcodeFactory:
         def build_cheatcodes(
             syscall_dependencies: Cheatcode.SyscallDependencies,
+            internal_calls: List[CallInfo],
         ) -> List[Cheatcode]:
             data_transformer = DataTransformerFacade(self._starknet_compiler)
             declare_cheatcode = DeclareCheatcode(syscall_dependencies)
             prepare_cheatcode = PrepareCheatcode(syscall_dependencies, data_transformer)
-            deploy_cheatcode = DeployCheatcode(syscall_dependencies)
+            deploy_cheatcode = DeployCheatcode(syscall_dependencies, internal_calls)
             return [
                 declare_cheatcode,
                 prepare_cheatcode,
