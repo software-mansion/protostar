@@ -5,7 +5,6 @@ from typing import Any, Callable
 
 from starkware.python.utils import from_bytes
 from starkware.starknet.business_logic.internal_transaction import InternalDeclare
-from starkware.starknet.compiler.compile import compile_starknet_files
 from starkware.starknet.testing.contract import DeclaredClass
 from starkware.starknet.testing.contract_utils import EventManager, get_abi
 
