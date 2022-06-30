@@ -105,3 +105,31 @@ def test_broken_test_suite_in_collecting_phase(protostar, copy_fixture):
 
     result: str = protostar(["--no-color", "test", "**/test_*"], ignore_exit_code=True)
     assert "1 broken, 1 passed" in result
+
+
+@pytest.mark.usefixtures("init")
+def test_account_contract(protostar, copy_fixture):
+    copy_fixture("main_with_execute.cairo", "./src")
+    copy_fixture("test_main_with_execute.cairo", "./tests")
+
+    result: str = protostar(
+        [
+            "--no-color",
+            "test",
+            "tests/test_main_with_execute.cairo",
+        ],
+        ignore_exit_code=True,
+    )
+    assert "broken" in result
+    assert "--account" in result
+
+    result: str = protostar(
+        [
+            "--no-color",
+            "test",
+            "tests/test_main_with_execute.cairo",
+            "--account-contract",
+        ],
+        ignore_exit_code=True,
+    )
+    assert "broken" not in result

@@ -25,6 +25,8 @@ Show Protostar and Cairo-lang version.
 $ protostar build
 ```
 Compile contracts.
+#### `--account-contract`
+Compile as account contract.
 #### `--cairo-path DIRECTORY[]`
 Additional directories to look for sources.
 #### `--disable-hint-validation`
@@ -104,6 +106,8 @@ A glob or globs to a directory or a test suite, for example:
 - `tests/**/*_main*::*_balance` — find test cases, which names ends with `_balance` in test suites with the `_main` in filenames in the `tests` directory
 - `::test_increase_balance` — find `test_increase_balance` test_cases in any test suite within the project 
 
+#### `--account-contract`
+Compile as account contract.
 #### `--cairo-path DIRECTORY[]`
 Additional directories to look for sources.
 #### `-i` `--ignore STRING[]`

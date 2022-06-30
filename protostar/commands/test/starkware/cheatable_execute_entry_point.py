@@ -15,6 +15,7 @@ from starkware.starknet.business_logic.execution.execute_entry_point import (
     ExecuteEntryPoint,
 )
 from starkware.starknet.business_logic.execution.objects import (
+    CallInfo,
     TransactionExecutionContext,
 )
 from starkware.starknet.core.os import os_utils, syscall_utils
@@ -43,9 +44,10 @@ logger = logging.getLogger(__name__)
 # pylint: disable=too-many-locals
 # pylint: disable=raise-missing-from
 class CheatableExecuteEntryPoint(ExecuteEntryPoint):
-    CheatcodeFactory = Callable[[Cheatcode.SyscallDependencies], List[Cheatcode]]
+    CheatcodeFactory = Callable[
+        [Cheatcode.SyscallDependencies, List[CallInfo]], List[Cheatcode]
+    ]
     cheatcode_factory: Optional[CheatcodeFactory] = None
-
     custom_hint_locals: Optional[List[HintLocal]] = None
 
     def _run(
@@ -120,7 +122,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
 
         # pylint: disable=not-callable
         for cheatcode in CheatableExecuteEntryPoint.cheatcode_factory(
-            syscall_dependencies
+            syscall_dependencies, syscall_handler.internal_calls
         ):
             hint_locals[cheatcode.name] = cheatcode.build()
 
