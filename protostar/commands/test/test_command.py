@@ -77,7 +77,10 @@ class TestCommand(Command):
             ),
             Command.Argument(
                 name="disable-hint-validation",
-                description="Disable hint validation in contracts declared by the `declare` cheatcode.",
+                description=(
+                    "Disable hint validation in contracts declared by the `declare` cheatcode.\n"
+                    'Useful when using `%{ print ("...") %}` in the tested contract that is deployed from a cheatcode.'
+                ),
                 type="bool",
             ),
         ]
