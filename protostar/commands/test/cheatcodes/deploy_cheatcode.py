@@ -22,6 +22,7 @@ class DeployCheatcode(Cheatcode):
         cheatable_syscall_internal_calls: List[CallInfo],
     ):
         super().__init__(syscall_dependencies)
+        # fixes https://github.com/software-mansion/protostar/issues/398
         self.internal_calls = cheatable_syscall_internal_calls
 
     @property
