@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import List
+from typing import List, Type
 
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     PreprocessorError,
@@ -9,6 +9,7 @@ from starkware.cairo.lang.vm.vm_exceptions import VmException
 from starkware.starkware_utils.error_handling import StarkException
 
 from protostar.commands.build.build_exceptions import CairoCompilationException
+from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 from protostar.protostar_toml.protostar_contracts_section import (
     ProtostarContractsSection,
 )
@@ -19,11 +20,13 @@ from protostar.utils.starknet_compilation import StarknetCompiler
 class ProjectCompiler:
     def __init__(
         self,
-        project_section: ProtostarProjectSection,
-        contracts_section: ProtostarContractsSection,
+        protostar_toml_reader: ProtostarTOMLReader,
+        ProjectSection: Type[ProtostarProjectSection],
+        ContractsSection: Type[ProtostarContractsSection],
     ):
-        self._project_section = project_section
-        self._contracts_section = contracts_section
+        self._protostar_toml_reader = protostar_toml_reader
+        self._ProjectSection = ProjectSection
+        self._ContractsSection = ContractsSection
 
     def compile(
         self,
