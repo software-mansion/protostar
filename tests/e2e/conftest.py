@@ -7,6 +7,7 @@ from typing import Callable, List
 
 import pexpect
 import pytest
+from typing_extensions import Protocol
 
 from tests.conftest import run_devnet
 
@@ -54,8 +55,13 @@ def init_project(project_name: str, libs_path: str):
     child.expect(pexpect.EOF)
 
 
+class ProtostarFixture(Protocol):
+    def __call__(self, args: List[str], ignore_exit_code=False) -> str:
+        ...
+
+
 @pytest.fixture
-def protostar():
+def protostar() -> ProtostarFixture:
     def _protostar(args: List[str], ignore_exit_code=False) -> str:
         return (
             run(

@@ -3,7 +3,7 @@ from subprocess import CalledProcessError
 
 import pytest
 
-from tests.e2e.conftest import ACTUAL_CWD
+from tests.e2e.conftest import ACTUAL_CWD, ProtostarFixture
 
 
 @pytest.mark.usefixtures("init")
@@ -133,3 +133,30 @@ def test_account_contract(protostar, copy_fixture):
         ignore_exit_code=True,
     )
     assert "broken" not in result
+
+
+@pytest.mark.usefixtures("init")
+def test_disabling_hint_validation(protostar: ProtostarFixture, copy_fixture):
+    copy_fixture("contract_with_invalid_hint.cairo", "./src")
+    copy_fixture("contract_with_invalid_hint_test.cairo", "./tests")
+
+    result_before = protostar(
+        [
+            "--no-color",
+            "test",
+            "tests/contract_with_invalid_hint_test.cairo",
+        ],
+        ignore_exit_code=True,
+    )
+    assert "Hint is not whitelisted" in result_before
+
+    result_after = protostar(
+        [
+            "--no-color",
+            "test",
+            "tests/contract_with_invalid_hint_test.cairo",
+            "--disable-hint-validation",
+        ],
+        ignore_exit_code=True,
+    )
+    assert "Hint is not whitelisted" not in result_after
