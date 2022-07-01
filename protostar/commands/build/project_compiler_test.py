@@ -3,8 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from protostar.commands.build import build_project
 from protostar.commands.build.build_exceptions import CairoCompilationException
+from protostar.commands.build.project_compiler import ProjectCompiler
 from protostar.utils.config.project_test import make_mock_project
 from protostar.utils.starknet_compilation import StarknetCompiler
 
@@ -21,7 +21,7 @@ def test_build(tmp_path, mocker):
     build_project(
         output_dir=tmp_path,
         cairo_path=[],
-        project=project_mock,
+        project_section=project_mock,
         disable_hint_validation=False,
     )
 
@@ -58,7 +58,7 @@ def test_handling_cairo_errors(mocker, tmp_path):
         build_project(
             output_dir=tmp_path,
             cairo_path=[],
-            project=project_mock,
+            project_section=project_mock,
             disable_hint_validation=False,
         )
 
@@ -72,6 +72,6 @@ def test_handling_not_existing_main_files(mocker, tmp_path):
         build_project(
             output_dir=tmp_path,
             cairo_path=[],
-            project=project_mock,
+            project_section=project_mock,
             disable_hint_validation=False,
         )
