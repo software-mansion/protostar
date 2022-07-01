@@ -3,7 +3,7 @@ from starkware.starknet.public.abi import get_storage_var_address
 from starkware.starknet.storage.starknet_storage import BusinessLogicStarknetStorage
 from starkware.crypto.signature.fast_pedersen_hash import pedersen_hash
 
-from protostar.commands.test.cheatcodes.cheatcode import Cheatcode
+from protostar.commands.test.starkware.cheatcode import Cheatcode
 
 
 ADDR_BOUND = 2**251 - 256

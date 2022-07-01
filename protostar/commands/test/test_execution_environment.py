@@ -19,6 +19,7 @@ from protostar.commands.test.cheatcodes import (
     RollCheatcode,
     StartPrankCheatcode,
     WarpCheatcode,
+    StoreCheatcode,
 )
 from protostar.commands.test.starkware import ExecutionResourcesSummary
 from protostar.commands.test.starkware.cheatable_execute_entry_point import (
@@ -207,6 +208,7 @@ class TestExecutionEnvironment:
                 ExpectEventsCheatcode(
                     syscall_dependencies, self.starknet, self, data_transformer
                 ),
+                StoreCheatcode(syscall_dependencies),
             ]
 
         return build_cheatcodes
