@@ -15,12 +15,18 @@ from protostar.commands import (
     UpdateCommand,
     UpgradeCommand,
 )
+from protostar.commands.build import ProjectCompiler
 from protostar.commands.init.project_creator import (
     AdaptedProjectCreator,
     NewProjectCreator,
 )
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
+from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
+from protostar.protostar_toml.protostar_contracts_section import (
+    ProtostarContractsSection,
+)
+from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
 from protostar.utils import (
     Project,
     ProtostarDirectory,
@@ -72,6 +78,7 @@ class ProtostarCLI(CLIApp):
         project: Project,
         version_manager: VersionManager,
         protostar_toml_writer: ProtostarTOMLWriter,
+        protostar_toml_reader: ProtostarTOMLReader,
         requester: InputRequester,
     ) -> None:
         self.project = project
@@ -93,7 +100,16 @@ class ProtostarCLI(CLIApp):
                         version_manager,
                     ),
                 ),
-                BuildCommand(project),
+                BuildCommand(
+                    ProjectCompiler(
+                        project_section=ProtostarProjectSection.load(
+                            protostar_toml_reader
+                        ),
+                        contracts_section=ProtostarContractsSection.load(
+                            protostar_toml_reader
+                        ),
+                    )
+                ),
                 InstallCommand(project),
                 RemoveCommand(project),
                 UpdateCommand(project),
@@ -124,6 +140,7 @@ class ProtostarCLI(CLIApp):
         version_manager = VersionManager(protostar_directory)
         project = Project(version_manager)
         protostar_toml_writer = ProtostarTOMLWriter()
+        protostar_toml_reader = ProtostarTOMLReader()
         requester = InputRequester(log_color_provider)
 
         return cls(
@@ -132,6 +149,7 @@ class ProtostarCLI(CLIApp):
             project,
             version_manager,
             protostar_toml_writer,
+            protostar_toml_reader,
             requester,
         )
 

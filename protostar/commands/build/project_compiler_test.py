@@ -5,36 +5,34 @@ import pytest
 
 from protostar.commands.build.build_exceptions import CairoCompilationException
 from protostar.commands.build.project_compiler import ProjectCompiler
-from protostar.utils.config.project_test import make_mock_project
+from protostar.protostar_toml.protostar_contracts_section import (
+    ProtostarContractsSection,
+)
+from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
 from protostar.utils.starknet_compilation import StarknetCompiler
 
-current_directory = Path(__file__).parent
 
+def test_compiling(tmp_path: Path, datadir: Path):
+    project_root_path = datadir / "importing"
 
-def test_build(tmp_path, mocker):
-    libs_path = str(Path(current_directory, "mock_lib_root"))
-    contracts = {
-        "main": [f"{str(current_directory)}/mock_sources/mock_entry_point.cairo"]
-    }
-    project_mock = make_mock_project(mocker, contracts, libs_path, current_directory)
-
-    build_project(
+    ProjectCompiler(
+        ProtostarProjectSection(libs_path=project_root_path / "lib"),
+        ProtostarContractsSection(
+            contract_name_to_paths={"main": [project_root_path / "entry_point.cairo"]}
+        ),
+    ).compile(
         output_dir=tmp_path,
-        cairo_path=[],
-        project_section=project_mock,
+        cairo_path=[project_root_path],
         disable_hint_validation=False,
     )
 
-    output_path = Path(tmp_path, "main.json")
-    abi_output_path = Path(tmp_path, "main_abi.json")
-
-    with open(str(output_path), mode="r", encoding="utf-8") as output:
-        output = json.load(output)
+    with open(str(tmp_path / "main.json"), mode="r", encoding="utf-8") as file:
+        output = json.load(file)
         # Check the structure
         assert output["abi"]
         assert output["program"]
 
-    with open(str(abi_output_path), mode="r", encoding="utf-8") as abi_file:
+    with open(str(tmp_path / "main_abi.json"), mode="r", encoding="utf-8") as abi_file:
         # Check the ABI
         abi = json.load(abi_file)
         assert isinstance(abi, list)
@@ -47,31 +45,37 @@ def test_build(tmp_path, mocker):
         assert function_input["type"] == "felt"
 
 
-def test_handling_cairo_errors(mocker, tmp_path):
-    libs_path = str(Path(current_directory, "mock_lib_root"))
-    contracts = {
-        "main": [f"{str(current_directory)}/mock_sources/compilation_error.cairo"]
-    }
-    project_mock = make_mock_project(mocker, contracts, libs_path, current_directory)
+def test_handling_cairo_errors(tmp_path: Path, datadir: Path):
+    project_root_path = datadir / "compilation_error"
 
     with pytest.raises(CairoCompilationException):
-        build_project(
+        ProjectCompiler(
+            ProtostarProjectSection(libs_path=project_root_path / "lib"),
+            ProtostarContractsSection(
+                contract_name_to_paths={
+                    "main": [project_root_path / "invalid_contract.cairo"]
+                }
+            ),
+        ).compile(
             output_dir=tmp_path,
-            cairo_path=[],
-            project_section=project_mock,
+            cairo_path=[project_root_path],
             disable_hint_validation=False,
         )
 
 
-def test_handling_not_existing_main_files(mocker, tmp_path):
-    libs_path = str(Path(current_directory, "mock_lib_root"))
-    contracts = {"main": [f"{str(current_directory)}/NOT_EXISTING_MOCK.cairo"]}
-    project_mock = make_mock_project(mocker, contracts, libs_path, current_directory)
+def test_handling_not_existing_main_files(tmp_path: Path, datadir: Path):
+    project_root_path = datadir / "compilation_error"
 
     with pytest.raises(StarknetCompiler.FileNotFoundException):
-        build_project(
+        ProjectCompiler(
+            ProtostarProjectSection(libs_path=project_root_path / "lib"),
+            ProtostarContractsSection(
+                contract_name_to_paths={
+                    "main": [project_root_path / "NOT_EXISTING_FILE.cairo"]
+                }
+            ),
+        ).compile(
             output_dir=tmp_path,
-            cairo_path=[],
-            project_section=project_mock,
+            cairo_path=[project_root_path],
             disable_hint_validation=False,
         )
