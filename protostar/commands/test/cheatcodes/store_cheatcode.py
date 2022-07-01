@@ -19,7 +19,6 @@ class StoreCheatcode(Cheatcode):
     def build(self) -> Callable[..., Any]:
         return self.store
 
-    # TODO type aliases?
     def store(self, target_contract_address: int, var: str, value: List[int], key: Optional[List[int]]=None):
         key = key or []
         variable_address = self._calc_address(var, key)

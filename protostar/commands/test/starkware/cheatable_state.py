@@ -127,25 +127,6 @@ class CheatableCarriedState(CarriedState):
         self.contract_address_to_block_timestamp: Dict[AddressType, int] = {}
         self.contract_address_to_block_number: Dict[AddressType, int] = {}
 
-    # TODO add units
-    def get_contract_path_from_class_hash(self, class_hash: ClassHashType):
-        if class_hash not in self.class_hash_to_contract_path_map:
-            raise CheatcodeException(
-                self.name, f"Couldn't map `class_hash` ({class_hash}) to ({self})."
-            )
-        return self.class_hash_to_contract_path_map[class_hash]
-
-    def get_contract_path_from_address(self, contract_address: AddressType):
-        if contract_address not in self.contract_address_to_class_hash_map:
-            raise CheatcodeException(
-                self.name, f"Couldn't map `contract_address` ({contract_address}) to ({self})."
-            )
-        class_hash = self.contract_address_to_class_hash_map[contract_address]
-        return self.get_contract_path_from_class_hash(class_hash)
-        
-        
-
-
     def _apply(self):
         """Merge state changes with the `self.parent_state`"""
         assert self.parent_state is not None
