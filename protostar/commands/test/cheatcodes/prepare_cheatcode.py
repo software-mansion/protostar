@@ -1,12 +1,13 @@
 import collections
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional
 
 from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
 )
 
 from protostar.commands.test.cheatcodes.cheatcode import Cheatcode
+from protostar.commands.test.cheatcodes.cheatcode_types import CairoArguments
 from protostar.commands.test.cheatcodes.declare_cheatcode import DeclaredContract
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.utils.data_transformer_facade import DataTransformerFacade
@@ -40,15 +41,7 @@ class PrepareCheatcode(Cheatcode):
     def prepare(
         self,
         declared: DeclaredContract,
-        constructor_calldata: Optional[
-            Union[
-                List[int],
-                Dict[
-                    DataTransformerFacade.ArgumentName,
-                    DataTransformerFacade.SupportedType,
-                ],
-            ]
-        ] = None,
+        constructor_calldata: Optional[CairoArguments] = None,
     ) -> PreparedContract:
         constructor_calldata = constructor_calldata or []
 
