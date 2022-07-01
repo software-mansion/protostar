@@ -31,6 +31,7 @@ async def test_expect_events(mocker):
             "test_expect_event_by_contract_address",
             "test_expect_events_in_declared_order",
             "test_allow_checking_for_events_in_any_order",
+            "test_data_transformation",
         ],
         expected_failed_test_cases_names=[
             "test_fail_on_data_mismatch",

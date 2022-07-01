@@ -15,7 +15,7 @@ from starkware.starknet.business_logic.state.state import CarriedState
 from starkware.starknet.business_logic.utils import validate_version
 from starkware.starknet.definitions import constants
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
-from starkware.starknet.public.abi import get_selector_from_name
+from starkware.starknet.public.abi import AbiType, get_selector_from_name
 from starkware.starknet.services.api.contract_class import EntryPointType
 from starkware.starknet.services.api.messages import StarknetMessageToL1
 from starkware.starknet.testing.state import StarknetState
@@ -113,12 +113,14 @@ def create_cheatable_invoke_function(
     )
 
 
+# pylint: disable=too-many-instance-attributes
 class CheatableCarriedState(CarriedState):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.pranked_contracts_map: Dict[int, int] = {}
         self.mocked_calls_map: Dict[AddressType, Dict[SelectorType, List[int]]] = {}
         self.event_selector_to_name_map: Dict[int, str] = {}
+        self.event_name_to_contract_abi_map: Dict[str, AbiType] = {}
         self.class_hash_to_contract_path_map: Dict[ClassHashType, Path] = {}
         self.contract_address_to_class_hash_map: Dict[AddressType, ClassHashType] = {}
         self.contract_address_to_block_timestamp: Dict[AddressType, int] = {}
@@ -151,6 +153,12 @@ class CheatableCarriedState(CarriedState):
             **self.parent_state.event_selector_to_name_map,
             **self.event_selector_to_name_map,
         }
+
+        self.parent_state.event_name_to_contract_abi_map = {
+            **self.parent_state.event_name_to_contract_abi_map,
+            **self.event_name_to_contract_abi_map,
+        }
+
         self.parent_state.class_hash_to_contract_path_map = {
             **self.parent_state.class_hash_to_contract_path_map,
             **self.class_hash_to_contract_path_map,

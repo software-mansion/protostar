@@ -204,7 +204,9 @@ class TestExecutionEnvironment:
                     syscall_dependencies, testing_execution_environment=self
                 ),
                 StartPrankCheatcode(syscall_dependencies),
-                ExpectEventsCheatcode(syscall_dependencies, self.starknet, self),
+                ExpectEventsCheatcode(
+                    syscall_dependencies, self.starknet, self, data_transformer
+                ),
             ]
 
         return build_cheatcodes

@@ -68,6 +68,9 @@ class DeclareCheatcode(Cheatcode):
             # pylint: disable=protected-access
             event_manager._selector_to_name
         )
+        # pylint: disable=protected-access
+        for event_name in event_manager._selector_to_name.values():
+            self.state.event_name_to_contract_abi_map[event_name] = abi
 
         class_hash = tx_execution_info.call_info.class_hash
         assert class_hash is not None
