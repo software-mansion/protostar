@@ -1,14 +1,21 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, Generic, List, TypeVar, Union
 
 from protostar.protostar_toml.protostar_toml_exceptions import (
     InvalidProtostarTOMLException,
 )
 from protostar.utils.protostar_directory import VersionManager, VersionType
 
+T = TypeVar("T")
+
 
 class ProtostarTOMLSection(ABC):
+    class Loader(Generic[T]):
+        @abstractmethod
+        def load(self) -> T:
+            ...
+
     ParsedProtostarTOML = Dict[str, Union[str, int, bool, List[str]]]
 
     @staticmethod

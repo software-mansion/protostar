@@ -1,7 +1,9 @@
 import json
 from pathlib import Path
+from typing import cast
 
 import pytest
+from pytest_mock import MockerFixture
 
 from protostar.commands.build.build_exceptions import CairoCompilationException
 from protostar.commands.build.project_compiler import ProjectCompiler
@@ -9,16 +11,35 @@ from protostar.protostar_toml.protostar_contracts_section import (
     ProtostarContractsSection,
 )
 from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
+from protostar.protostar_toml.protostar_toml_section import ProtostarTOMLSection
 from protostar.utils.starknet_compilation import StarknetCompiler
 
 
-def test_compiling(tmp_path: Path, datadir: Path):
+@pytest.fixture(name="create_loader")
+def create_loader_fixture(mocker: MockerFixture):
+    def create_loader(return_value) -> ProtostarTOMLSection.Loader:
+        load_mock = mocker.MagicMock()
+        load_mock.return_value = return_value
+        loader = mocker.MagicMock()
+        cast(ProtostarTOMLSection.Loader, loader).load = load_mock
+        return loader
+
+    return create_loader
+
+
+def test_compiling(tmp_path: Path, datadir: Path, create_loader):
     project_root_path = datadir / "importing"
 
     ProjectCompiler(
-        ProtostarProjectSection(libs_path=project_root_path / "lib"),
-        ProtostarContractsSection(
-            contract_name_to_paths={"main": [project_root_path / "entry_point.cairo"]}
+        project_section_loader=create_loader(
+            ProtostarProjectSection(libs_path=project_root_path / "modules")
+        ),
+        contracts_section_loader=create_loader(
+            ProtostarContractsSection(
+                contract_name_to_paths={
+                    "main": [project_root_path / "entry_point.cairo"]
+                }
+            )
         ),
     ).compile(
         output_dir=tmp_path,
@@ -45,16 +66,20 @@ def test_compiling(tmp_path: Path, datadir: Path):
         assert function_input["type"] == "felt"
 
 
-def test_handling_cairo_errors(tmp_path: Path, datadir: Path):
+def test_handling_cairo_errors(tmp_path: Path, datadir: Path, create_loader):
     project_root_path = datadir / "compilation_error"
 
     with pytest.raises(CairoCompilationException):
         ProjectCompiler(
-            ProtostarProjectSection(libs_path=project_root_path / "lib"),
-            ProtostarContractsSection(
-                contract_name_to_paths={
-                    "main": [project_root_path / "invalid_contract.cairo"]
-                }
+            project_section_loader=create_loader(
+                ProtostarProjectSection(libs_path=project_root_path / "modules")
+            ),
+            contracts_section_loader=create_loader(
+                ProtostarContractsSection(
+                    contract_name_to_paths={
+                        "main": [project_root_path / "invalid_contract.cairo"]
+                    }
+                )
             ),
         ).compile(
             output_dir=tmp_path,
@@ -63,16 +88,20 @@ def test_handling_cairo_errors(tmp_path: Path, datadir: Path):
         )
 
 
-def test_handling_not_existing_main_files(tmp_path: Path, datadir: Path):
+def test_handling_not_existing_main_files(tmp_path: Path, datadir: Path, create_loader):
     project_root_path = datadir / "compilation_error"
 
     with pytest.raises(StarknetCompiler.FileNotFoundException):
         ProjectCompiler(
-            ProtostarProjectSection(libs_path=project_root_path / "lib"),
-            ProtostarContractsSection(
-                contract_name_to_paths={
-                    "main": [project_root_path / "NOT_EXISTING_FILE.cairo"]
-                }
+            project_section_loader=create_loader(
+                ProtostarProjectSection(libs_path=project_root_path / "lib")
+            ),
+            contracts_section_loader=create_loader(
+                ProtostarContractsSection(
+                    contract_name_to_paths={
+                        "main": [project_root_path / "NOT_EXISTING_FILE.cairo"]
+                    }
+                )
             ),
         ).compile(
             output_dir=tmp_path,

@@ -10,7 +10,7 @@ from protostar.protostar_toml.protostar_toml_section import ProtostarTOMLSection
 class ProtostarContractsSection(ProtostarTOMLSection):
     contract_name_to_paths: Dict[str, List[Path]]
 
-    class Loader:
+    class Loader(ProtostarTOMLSection.Loader):
         def __init__(self, protostar_toml_reader: ProtostarTOMLReader):
             self._protostar_toml_reader = protostar_toml_reader
 

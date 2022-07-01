@@ -11,7 +11,7 @@ from protostar.protostar_toml.protostar_toml_section import ProtostarTOMLSection
 
 @dataclass
 class ProtostarProjectSection(ProtostarTOMLSection):
-    class Loader:
+    class Loader(ProtostarTOMLSection.Loader):
         def __init__(self, protostar_toml_reader: ProtostarTOMLReader) -> None:
             self._protostar_toml_reader = protostar_toml_reader
 
