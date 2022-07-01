@@ -1,15 +1,13 @@
-import collections
-from typing import Any, Callable, Dict, List, Optional
-
-from protostar.commands.test.cheatcodes.cheatcode import Cheatcode
+from typing import Any, Callable, List, Optional
 from starkware.starknet.public.abi import get_storage_var_address
 from starkware.starknet.storage.starknet_storage import BusinessLogicStarknetStorage
 from starkware.crypto.signature.fast_pedersen_hash import pedersen_hash
 
-from protostar.commands.test.test_environment_exceptions import CheatcodeException
-from protostar.utils.data_transformer_facade import DataTransformerFacade
+from protostar.commands.test.cheatcodes.cheatcode import Cheatcode
 
-ADDR_BOUND = 2 ** 251 - 256
+
+ADDR_BOUND = 2**251 - 256
+
 
 class StoreCheatcode(Cheatcode):
     @property
@@ -19,15 +17,23 @@ class StoreCheatcode(Cheatcode):
     def build(self) -> Callable[..., Any]:
         return self.store
 
-    def store(self, target_contract_address: int, var: str, value: List[int], key: Optional[List[int]]=None):
+    def store(
+        self,
+        target_contract_address: int,
+        var: str,
+        value: List[int],
+        key: Optional[List[int]] = None,
+    ):
         key = key or []
-        variable_address = self._calc_address(var, key)
+        variable_address = self.calc_address(var, key)
         if target_contract_address == self.contract_address:
             for i, val in enumerate(value):
                 self.store_local(variable_address + i, val)
             return
 
-        pre_run_contract_carried_state = self.state.contract_states[target_contract_address]
+        pre_run_contract_carried_state = self.state.contract_states[
+            target_contract_address
+        ]
         contract_state = pre_run_contract_carried_state.state
         contract_state.assert_initialized(contract_address=target_contract_address)
 
@@ -41,7 +47,9 @@ class StoreCheatcode(Cheatcode):
         )
 
         for i, val in enumerate(value):
-            self._write_on_remote_storage(starknet_storage, target_contract_address, variable_address + i, val)
+            self._write_on_remote_storage(
+                starknet_storage, target_contract_address, variable_address + i, val
+            )
 
         # Apply modifications to the contract storage.
         self.state.update_contract_storage(
@@ -58,15 +66,15 @@ class StoreCheatcode(Cheatcode):
 
         self.state.modified_contracts[contract] = None
 
-    def _calc_address(self, var, key):
+    @staticmethod
+    def calc_address(var, key) -> int:
         res = get_storage_var_address(var)
         for i in key:
-           res = pedersen_hash(res, i)
+            res = pedersen_hash(res, i)
         if len(key) > 0:
-            res = self.normalize_address(res)
+            res = StoreCheatcode.normalize_address(res)
         return res
 
-    def normalize_address(self, addr):
+    @staticmethod
+    def normalize_address(addr: int) -> int:
         return addr if addr < ADDR_BOUND else addr - ADDR_BOUND
-
-    

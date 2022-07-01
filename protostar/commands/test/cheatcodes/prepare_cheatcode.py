@@ -40,13 +40,15 @@ class PrepareCheatcode(Cheatcode):
     def prepare(
         self,
         declared: DeclaredContract,
-        constructor_calldata: Optional[Union[
-                    List[int],
-                    Dict[
-                        DataTransformerFacade.ArgumentName,
-                        DataTransformerFacade.SupportedType,
-                    ],
-                ]] = None,
+        constructor_calldata: Optional[
+            Union[
+                List[int],
+                Dict[
+                    DataTransformerFacade.ArgumentName,
+                    DataTransformerFacade.SupportedType,
+                ],
+            ]
+        ] = None,
     ) -> PreparedContract:
         constructor_calldata = constructor_calldata or []
 

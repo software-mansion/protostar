@@ -32,7 +32,6 @@ from protostar.commands.test.starkware.types import (
     ClassHashType,
     SelectorType,
 )
-from protostar.commands.test.test_environment_exceptions import CheatcodeException
 
 CastableToAddress = Union[str, int]
 CastableToAddressSalt = Union[str, int]
