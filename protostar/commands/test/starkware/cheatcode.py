@@ -6,12 +6,10 @@ from starkware.starknet.business_logic.execution.objects import (
     TransactionExecutionContext,
 )
 from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
+from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.storage.starknet_storage import BusinessLogicStarknetStorage
 from typing_extensions import TypedDict
 
-from protostar.commands.test.starkware.cheatable_starknet_general_config import (
-    CheatableStarknetGeneralConfig,
-)
 from protostar.commands.test.starkware.hint_local import HintLocal
 
 if TYPE_CHECKING:
@@ -29,7 +27,7 @@ class Cheatcode(BusinessLogicSysCallHandler, HintLocal):
         caller_address: int
         contract_address: int
         starknet_storage: BusinessLogicStarknetStorage
-        general_config: CheatableStarknetGeneralConfig
+        general_config: StarknetGeneralConfig
         initial_syscall_ptr: RelocatableValue
 
     def __init__(

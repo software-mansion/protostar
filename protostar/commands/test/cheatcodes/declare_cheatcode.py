@@ -1,7 +1,7 @@
 import asyncio
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, List
 
 from starkware.python.utils import from_bytes
 from starkware.starknet.business_logic.internal_transaction import InternalDeclare
@@ -22,9 +22,11 @@ class DeclareCheatcode(Cheatcode):
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
         disable_hint_validation: bool,
+        cairo_path: List[str],
     ):
         super().__init__(syscall_dependencies)
         self._disable_hint_validation_in_external_contracts = disable_hint_validation
+        self._cairo_path = cairo_path
 
     @property
     def name(self) -> str:
@@ -45,7 +47,7 @@ class DeclareCheatcode(Cheatcode):
     async def _declare_contract(self, contract_path: Path):
         contract_class = get_contract_class(
             source=str(contract_path),
-            cairo_path=self.general_config.cheatcodes_cairo_path,
+            cairo_path=self._cairo_path,
             disable_hint_validation=self._disable_hint_validation_in_external_contracts,
         )
 

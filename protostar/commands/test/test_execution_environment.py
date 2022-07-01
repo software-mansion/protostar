@@ -20,10 +20,7 @@ from protostar.commands.test.cheatcodes import (
     StartPrankCheatcode,
     WarpCheatcode,
 )
-from protostar.commands.test.starkware import (
-    CheatableStarknetGeneralConfig,
-    ExecutionResourcesSummary,
-)
+from protostar.commands.test.starkware import ExecutionResourcesSummary
 from protostar.commands.test.starkware.cheatable_execute_entry_point import (
     CheatableExecuteEntryPoint,
 )
@@ -74,11 +71,7 @@ class TestExecutionEnvironment:
         disable_hint_validation_in_external_contracts: bool,
         include_paths: Optional[List[str]] = None,
     ):
-        general_config = CheatableStarknetGeneralConfig(
-            cheatcodes_cairo_path=include_paths
-        )  # type: ignore
-        starknet = await ForkableStarknet.empty(general_config=general_config)
-
+        starknet = await ForkableStarknet.empty()
         starknet_contract = await starknet.deploy(contract_class=test_suite_definition)
 
         return cls(
@@ -190,6 +183,7 @@ class TestExecutionEnvironment:
             declare_cheatcode = DeclareCheatcode(
                 syscall_dependencies,
                 disable_hint_validation=self._disable_hint_validation_in_external_contracts,
+                cairo_path=self._include_paths,
             )
             prepare_cheatcode = PrepareCheatcode(syscall_dependencies, data_transformer)
             deploy_cheatcode = DeployCheatcode(syscall_dependencies, internal_calls)

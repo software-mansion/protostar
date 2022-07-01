@@ -14,6 +14,7 @@ from starkware.starknet.business_logic.internal_transaction import (
 from starkware.starknet.business_logic.state.state import CarriedState
 from starkware.starknet.business_logic.utils import validate_version
 from starkware.starknet.definitions import constants
+from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.services.api.contract_class import EntryPointType
 from starkware.starknet.services.api.messages import StarknetMessageToL1
@@ -23,9 +24,6 @@ from starkware.storage.storage import FactFetchingContext
 
 from protostar.commands.test.starkware.cheatable_execute_entry_point import (
     CheatableExecuteEntryPoint,
-)
-from protostar.commands.test.starkware.cheatable_starknet_general_config import (
-    CheatableStarknetGeneralConfig,
 )
 from protostar.commands.test.starkware.types import (
     AddressType,
@@ -43,7 +41,7 @@ class CheatableInternalInvokeFunction(InternalInvokeFunction):
     async def execute(
         self,
         state: CarriedState,
-        general_config: CheatableStarknetGeneralConfig,
+        general_config: StarknetGeneralConfig,
         only_query: bool = False,
     ) -> CallInfo:
         """
@@ -190,7 +188,7 @@ class CheatableStarknetState(StarknetState):
     def __init__(
         self,
         state: CheatableCarriedState,
-        general_config: CheatableStarknetGeneralConfig,
+        general_config: StarknetGeneralConfig,
     ):
         super().__init__(state, general_config)
 
@@ -256,13 +254,13 @@ class CheatableStarknetState(StarknetState):
 
     @classmethod
     async def empty(
-        cls, general_config: Optional[CheatableStarknetGeneralConfig] = None
+        cls, general_config: Optional[StarknetGeneralConfig] = None
     ) -> "CheatableStarknetState":
         """
         An updated StarknetState instance introducing additional cheats state/
         """
         if general_config is None:
-            general_config = CheatableStarknetGeneralConfig()
+            general_config = StarknetGeneralConfig()
 
         ffc = FactFetchingContext(storage=DictStorage(), hash_func=pedersen_hash_func)
 
