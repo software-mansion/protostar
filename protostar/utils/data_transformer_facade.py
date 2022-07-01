@@ -65,7 +65,7 @@ class DataTransformerFacade:
         self._starknet_compiler = starknet_compiler
 
     @staticmethod
-    def _find_abi(contract_abi: AbiType, name: str) -> Dict:
+    def _find_abi_item(contract_abi: AbiType, name: str) -> Dict:
         for item in contract_abi:
             if item["name"] == name:
                 return item
@@ -76,10 +76,10 @@ class DataTransformerFacade:
     ) -> "DataTransformerFacade.FromPythonTransformer":
         contract_abi = self._starknet_compiler.preprocess_contract(contract_path).abi
 
-        fn_abi = self._find_abi(contract_abi, fn_name)
+        fn_abi_item = self._find_abi_item(contract_abi, fn_name)
 
         data_transformer = PatchedDataTransformer(
-            fn_abi,
+            fn_abi_item,
             identifier_manager_from_abi(contract_abi),
         )
 
@@ -91,10 +91,10 @@ class DataTransformerFacade:
     def build_from_python_events_transformer(
         self, contract_abi: AbiType, event_name: str
     ) -> "DataTransformerFacade.FromPythonTransformer":
-        event_abi = self._find_abi(contract_abi, event_name)
+        event_abi_item = self._find_abi_item(contract_abi, event_name)
 
         data_transformer = PatchedDataTransformer(
-            event_abi,
+            event_abi_item,
             identifier_manager_from_abi(contract_abi),
         )
 
