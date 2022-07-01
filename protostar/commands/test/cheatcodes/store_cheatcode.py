@@ -20,12 +20,12 @@ class StoreCheatcode(Cheatcode):
     def store(
         self,
         target_contract_address: int,
-        var: str,
+        variable_name: str,
         value: List[int],
         key: Optional[List[int]] = None,
     ):
         key = key or []
-        variable_address = self.calc_address(var, key)
+        variable_address = self.calc_address(variable_name, key)
         if target_contract_address == self.contract_address:
             for i, val in enumerate(value):
                 self.store_local(variable_address + i, val)
