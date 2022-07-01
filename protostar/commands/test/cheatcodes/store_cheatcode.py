@@ -20,12 +20,12 @@ class StoreCheatcode(Cheatcode):
         return self.store
 
     # TODO type aliases?
-    def store(self, target_contract_address: int, var: str, value: int, key: Optional[List[int]]=None):
+    def store(self, target_contract_address: int, var: str, value: List[int], key: Optional[List[int]]=None):
         key = key or []
         variable_address = self._calc_address(var, key)
-
         if target_contract_address == self.contract_address:
-            self.store_local(variable_address, value)
+            for i, val in enumerate(value):
+                self.store_local(variable_address + i, val)
             return
 
         pre_run_contract_carried_state = self.state.contract_states[target_contract_address]
@@ -41,7 +41,9 @@ class StoreCheatcode(Cheatcode):
             loop=self.loop,
         )
 
-        self._write_on_remote_storage(starknet_storage, target_contract_address, variable_address, value)
+        for i, val in enumerate(value):
+            self._write_on_remote_storage(starknet_storage, target_contract_address, variable_address + i, val)
+
         # Apply modifications to the contract storage.
         self.state.update_contract_storage(
             contract_address=target_contract_address,

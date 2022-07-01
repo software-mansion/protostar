@@ -1,5 +1,5 @@
 %lang starknet
-from starkware.starknet.common.syscalls import get_block_number
+from starkware.starknet.common.syscalls import get_block_number, get_contract_address
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
 struct Key:
@@ -31,6 +31,10 @@ namespace BlockNumberContract:
     end
 end
 
+@storage_var
+func target_map_complex_key(a: felt, b: felt) -> (res: Value):
+end
+
 
 @external
 func test_store_in_deployed_contract{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
@@ -39,7 +43,7 @@ func test_store_in_deployed_contract{syscall_ptr : felt*, pedersen_ptr : HashBui
 
     %{
         ids.contract_address = deploy_contract("./tests/integration/cheatcodes/store/block_number_contract.cairo").contract_address
-        store(ids.contract_address, "target", 5)
+        store(ids.contract_address, "target", [5])
     %}
 
     let (bn) = BlockNumberContract.get_value(contract_address)
@@ -56,7 +60,7 @@ func test_store_map_in_deployed_contract{syscall_ptr : felt*, pedersen_ptr : Has
 
     %{
         ids.contract_address = deploy_contract("./tests/integration/cheatcodes/store/block_number_contract.cairo").contract_address
-        store(ids.contract_address, "target_map", 5, key=[12])
+        store(ids.contract_address, "target_map", [5], key=[12])
     %}
 
     let (bn) = BlockNumberContract.get_map_value(contract_address, 12)
@@ -72,7 +76,7 @@ func test_store_map_complex_key_in_deployed_contract{syscall_ptr : felt*, peders
 
     %{
         ids.contract_address = deploy_contract("./tests/integration/cheatcodes/store/block_number_contract.cairo").contract_address
-        store(ids.contract_address, "target_map", 5, key=[1,2])
+        store(ids.contract_address, "target_map_complex_key", [5], key=[1,2])
     %}
 
     let (bn) = BlockNumberContract.get_map_value_complex_key(contract_address, 1, 2)
@@ -88,7 +92,7 @@ func test_store_map_struct_key_in_deployed_contract{syscall_ptr : felt*, pederse
 
     %{
         ids.contract_address = deploy_contract("./tests/integration/cheatcodes/store/block_number_contract.cairo").contract_address
-        store(ids.contract_address, "target_map", 5, key=[1,2])
+        store(ids.contract_address, "target_map_struct_key", [5], key=[1,2])
     %}
 
     let key_v = Key(
@@ -110,7 +114,7 @@ func test_store_map_struct_val_in_deployed_contract{syscall_ptr : felt*, pederse
 
     %{
         ids.contract_address = deploy_contract("./tests/integration/cheatcodes/store/block_number_contract.cairo").contract_address
-        store(ids.contract_address, "target_map", [5,10], key=[1])
+        store(ids.contract_address, "target_map_struct_val", [5,10], key=[1])
     %}
 
     let (bn) = BlockNumberContract.get_map_value_struct_val(contract_address, 1)
@@ -120,24 +124,19 @@ func test_store_map_struct_val_in_deployed_contract{syscall_ptr : felt*, pederse
     return ()
 end
 
-## key struct
-## value struct
-## complex key
-## transformer complex
-# redirect local
+@external
+func test_map_store_local{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
+    alloc_locals
+    let (contract_address) = get_contract_address()
 
-# @external
-# func test_map_in_deployed_contract{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
-#     alloc_locals
-#     local contract_address
+    %{
+        store(ids.contract_address, "target_map_complex_key", [1, 2], key=[5, 6])
+    %}
 
-#     %{
-#         ids.contract_address = deploy_contract("./tests/integration/cheatcodes/store/block_number_contract.cairo").contract_address
-#         store("target", 5, None, ids.contract_address)
-#     %}
+    let (bn) = target_map_complex_key.read(5, 6)
 
-#     let (bn) = BlockNumberContract.get_value(contract_address)
+    assert 1 = bn.a
+    assert 2 = bn.b
+    return ()
+end
 
-#     assert bn = 5
-#     return ()
-# end
