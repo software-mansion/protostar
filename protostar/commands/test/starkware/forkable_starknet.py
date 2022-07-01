@@ -1,14 +1,12 @@
 import copy
 from typing import List, Optional, cast
 
+from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starknet.testing.state import CastableToAddressSalt
 
-from protostar.commands.test.starkware.cheatable_starknet_general_config import (
-    CheatableStarknetGeneralConfig,
-)
 from protostar.commands.test.starkware.cheatable_state import CheatableStarknetState
 
 
@@ -27,7 +25,7 @@ class ForkableStarknet(Starknet):
 
     @classmethod
     async def empty(
-        cls, general_config: Optional[CheatableStarknetGeneralConfig] = None
+        cls, general_config: Optional[StarknetGeneralConfig] = None
     ) -> "ForkableStarknet":
         return ForkableStarknet(
             state=await CheatableStarknetState.empty(general_config=general_config)

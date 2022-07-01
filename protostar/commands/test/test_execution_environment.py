@@ -20,10 +20,7 @@ from protostar.commands.test.cheatcodes import (
     StartPrankCheatcode,
     WarpCheatcode,
 )
-from protostar.commands.test.starkware import (
-    CheatableStarknetGeneralConfig,
-    ExecutionResourcesSummary,
-)
+from protostar.commands.test.starkware import ExecutionResourcesSummary
 from protostar.commands.test.starkware.cheatable_execute_entry_point import (
     CheatableExecuteEntryPoint,
 )
@@ -53,6 +50,7 @@ class TestExecutionEnvironment:
         test_contract: StarknetContract,
         test_context: TestContext,
         starknet_compiler: StarknetCompiler,
+        disable_hint_validation_in_external_contracts: bool,
     ):
         self.starknet = forkable_starknet
         self.test_contract: StarknetContract = test_contract
@@ -61,19 +59,19 @@ class TestExecutionEnvironment:
         self._include_paths = include_paths
         self._test_finish_hooks: Set[Callable[[], None]] = set()
         self._starknet_compiler = starknet_compiler
+        self._disable_hint_validation_in_external_contracts = (
+            disable_hint_validation_in_external_contracts
+        )
 
     @classmethod
     async def from_test_suite_definition(
         cls,
         starknet_compiler: StarknetCompiler,
         test_suite_definition: ContractClass,
+        disable_hint_validation_in_external_contracts: bool,
         include_paths: Optional[List[str]] = None,
     ):
-        general_config = CheatableStarknetGeneralConfig(
-            cheatcodes_cairo_path=include_paths
-        )  # type: ignore
-        starknet = await ForkableStarknet.empty(general_config=general_config)
-
+        starknet = await ForkableStarknet.empty()
         starknet_contract = await starknet.deploy(contract_class=test_suite_definition)
 
         return cls(
@@ -82,6 +80,7 @@ class TestExecutionEnvironment:
             test_contract=starknet_contract,
             test_context=TestContext(),
             starknet_compiler=starknet_compiler,
+            disable_hint_validation_in_external_contracts=disable_hint_validation_in_external_contracts,
         )
 
     def fork(self):
@@ -92,6 +91,7 @@ class TestExecutionEnvironment:
             test_contract=starknet_fork.copy_and_adapt_contract(self.test_contract),
             test_context=deepcopy(self.test_context),
             starknet_compiler=self._starknet_compiler,
+            disable_hint_validation_in_external_contracts=self._disable_hint_validation_in_external_contracts,
         )
         return new_env
 
@@ -180,7 +180,11 @@ class TestExecutionEnvironment:
             internal_calls: List[CallInfo],
         ) -> List[Cheatcode]:
             data_transformer = DataTransformerFacade(self._starknet_compiler)
-            declare_cheatcode = DeclareCheatcode(syscall_dependencies)
+            declare_cheatcode = DeclareCheatcode(
+                syscall_dependencies,
+                disable_hint_validation=self._disable_hint_validation_in_external_contracts,
+                cairo_path=self._include_paths,
+            )
             prepare_cheatcode = PrepareCheatcode(syscall_dependencies, data_transformer)
             deploy_cheatcode = DeployCheatcode(syscall_dependencies, internal_calls)
             return [

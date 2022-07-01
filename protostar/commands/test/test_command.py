@@ -75,6 +75,14 @@ class TestCommand(Command):
                 description="Compile as account contract.",
                 type="bool",
             ),
+            Command.Argument(
+                name="disable-hint-validation",
+                description=(
+                    "Disable hint validation in contracts declared by the "
+                    "`declare` cheatcode or deployed by `deploy_contract` cheatcode.\n"
+                ),
+                type="bool",
+            ),
         ]
 
     async def run(self, args) -> TestingSummary:
@@ -83,6 +91,7 @@ class TestCommand(Command):
             ignored_targets=args.ignore,
             cairo_path=args.cairo_path,
             is_account_contract=args.account_contract,
+            disable_hint_validation=args.disable_hint_validation,
         )
         summary.assert_all_passed()
         return summary
@@ -93,6 +102,7 @@ class TestCommand(Command):
         ignored_targets: Optional[List[str]] = None,
         cairo_path: Optional[List[Path]] = None,
         is_account_contract=False,
+        disable_hint_validation=False,
     ) -> TestingSummary:
         logger = getLogger()
 
@@ -121,6 +131,7 @@ class TestCommand(Command):
                 include_paths=include_paths,
                 test_collector_result=test_collector_result,
                 is_account_contract=is_account_contract,
+                disable_hint_validation=disable_hint_validation,
             )
 
         return testing_summary
