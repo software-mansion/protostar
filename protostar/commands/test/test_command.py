@@ -70,6 +70,19 @@ class TestCommand(Command):
                 description="Additional directories to look for sources.",
                 type="directory",
             ),
+            Command.Argument(
+                name="account-contract",
+                description="Compile as account contract.",
+                type="bool",
+            ),
+            Command.Argument(
+                name="disable-hint-validation",
+                description=(
+                    "Disable hint validation in contracts declared by the "
+                    "`declare` cheatcode or deployed by `deploy_contract` cheatcode.\n"
+                ),
+                type="bool",
+            ),
         ]
 
     async def run(self, args) -> TestingSummary:
@@ -77,6 +90,8 @@ class TestCommand(Command):
             targets=args.target,
             ignored_targets=args.ignore,
             cairo_path=args.cairo_path,
+            is_account_contract=args.account_contract,
+            disable_hint_validation=args.disable_hint_validation,
         )
         summary.assert_all_passed()
         return summary
@@ -86,6 +101,8 @@ class TestCommand(Command):
         targets: List[str],
         ignored_targets: Optional[List[str]] = None,
         cairo_path: Optional[List[Path]] = None,
+        is_account_contract=False,
+        disable_hint_validation=False,
     ) -> TestingSummary:
         logger = getLogger()
 
@@ -111,7 +128,10 @@ class TestCommand(Command):
         if test_collector_result.test_cases_count > 0:
             live_logger = TestingLiveLogger(logger, testing_summary)
             TestScheduler(live_logger, worker=TestRunner.worker).run(
-                include_paths=include_paths, test_collector_result=test_collector_result
+                include_paths=include_paths,
+                test_collector_result=test_collector_result,
+                is_account_contract=is_account_contract,
+                disable_hint_validation=disable_hint_validation,
             )
 
         return testing_summary

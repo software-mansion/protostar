@@ -1,12 +1,12 @@
 from typing import Any, Callable, Dict, List, Optional, Union
 
-from protostar.commands.test.cheatcodes.cheatcode import Cheatcode
 from protostar.commands.test.cheatcodes.declare_cheatcode import DeclareCheatcode
 from protostar.commands.test.cheatcodes.deploy_cheatcode import (
     DeployCheatcode,
     DeployedContract,
 )
 from protostar.commands.test.cheatcodes.prepare_cheatcode import PrepareCheatcode
+from protostar.commands.test.starkware.cheatcode import Cheatcode
 from protostar.utils.data_transformer_facade import DataTransformerFacade
 
 

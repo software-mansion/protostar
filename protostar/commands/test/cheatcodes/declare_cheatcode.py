@@ -1,18 +1,15 @@
 import asyncio
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, List
 
 from starkware.python.utils import from_bytes
 from starkware.starknet.business_logic.internal_transaction import InternalDeclare
 from starkware.starknet.testing.contract import DeclaredClass
-from starkware.starknet.testing.contract_utils import (
-    EventManager,
-    get_abi,
-    get_contract_class,
-)
+from starkware.starknet.testing.contract_utils import EventManager, get_abi
 
-from protostar.commands.test.cheatcodes.cheatcode import Cheatcode
+from protostar.commands.test.starkware.cheatcode import Cheatcode
+from protostar.commands.test.starkware.contract_utils import get_contract_class
 
 
 @dataclass
@@ -21,6 +18,16 @@ class DeclaredContract:
 
 
 class DeclareCheatcode(Cheatcode):
+    def __init__(
+        self,
+        syscall_dependencies: Cheatcode.SyscallDependencies,
+        disable_hint_validation: bool,
+        cairo_path: List[str],
+    ):
+        super().__init__(syscall_dependencies)
+        self._disable_hint_validation_in_external_contracts = disable_hint_validation
+        self._cairo_path = cairo_path
+
     @property
     def name(self) -> str:
         return "declare"
@@ -40,7 +47,8 @@ class DeclareCheatcode(Cheatcode):
     async def _declare_contract(self, contract_path: Path):
         contract_class = get_contract_class(
             source=str(contract_path),
-            cairo_path=self.general_config.cheatcodes_cairo_path,
+            cairo_path=self._cairo_path,
+            disable_hint_validation=self._disable_hint_validation_in_external_contracts,
         )
 
         tx = await InternalDeclare.create_for_testing(
@@ -60,6 +68,9 @@ class DeclareCheatcode(Cheatcode):
             # pylint: disable=protected-access
             event_manager._selector_to_name
         )
+        # pylint: disable=protected-access
+        for event_name in event_manager._selector_to_name.values():
+            self.state.event_name_to_contract_abi_map[event_name] = abi
 
         class_hash = tx_execution_info.call_info.class_hash
         assert class_hash is not None

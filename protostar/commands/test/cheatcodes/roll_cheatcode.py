@@ -1,6 +1,6 @@
 from typing import Any, Callable, Optional
 
-from protostar.commands.test.cheatcodes.cheatcode import Cheatcode
+from protostar.commands.test.starkware.cheatcode import Cheatcode
 from protostar.commands.test.starkware.types import AddressType
 
 

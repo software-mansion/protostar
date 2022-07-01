@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
-from typing import Callable
+from typing import Any
 
 
-class Cheatcode(ABC):
+class HintLocal(ABC):
     @property
     @abstractmethod
     def name(self) -> str:
         ...
 
     @abstractmethod
-    def build(self) -> Callable:
+    def build(self) -> Any:
         ...

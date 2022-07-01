@@ -1,4 +1,5 @@
 import asyncio
+import traceback
 from dataclasses import dataclass
 from logging import getLogger
 from typing import List, Optional
@@ -23,16 +24,17 @@ logger = getLogger()
 
 
 class TestRunner:
-    include_paths: Optional[List[str]] = None
-    _collected_count: Optional[int] = None
-
     def __init__(
         self,
         queue: TestResultsQueue,
         include_paths: Optional[List[str]] = None,
+        disable_hint_validation_in_external_contracts=False,
     ):
         self.queue = queue
-        self.include_paths = []
+        self.include_paths: List[str] = []
+        self.disable_hint_validation_in_external_contracts = (
+            disable_hint_validation_in_external_contracts
+        )
 
         if include_paths:
             self.include_paths.extend(include_paths)
@@ -47,28 +49,49 @@ class TestRunner:
         test_suite: TestSuite
         test_results_queue: TestResultsQueue
         include_paths: List[str]
+        is_account_contract: bool
+        disable_hint_validation_in_external_contracts: bool
 
     @classmethod
     def worker(cls, args: "TestRunner.WorkerArgs"):
         asyncio.run(
             cls(
-                queue=args.test_results_queue, include_paths=args.include_paths
-            ).run_test_suite(args.test_suite)
+                queue=args.test_results_queue,
+                include_paths=args.include_paths,
+                disable_hint_validation_in_external_contracts=args.disable_hint_validation_in_external_contracts,
+            ).run_test_suite(
+                args.test_suite,
+                is_account_contract=args.is_account_contract,
+            )
         )
 
-    async def run_test_suite(self, test_suite: TestSuite):
+    async def run_test_suite(
+        self,
+        test_suite: TestSuite,
+        is_account_contract: bool,
+    ):
         try:
             assert (
                 self.include_paths is not None
             ), "Uninitialized paths list in test runner"
 
-            compiled_test = self.starknet_compiler.compile_preprocessed_contract(
-                test_suite.preprocessed_contract, add_debug_info=True
+            compiled_test = self.starknet_compiler.compile_contract(
+                test_suite.test_path,
+                add_debug_info=True,
+                is_account_contract=is_account_contract,
             )
 
             await self._run_test_suite(
                 test_contract=compiled_test,
                 test_suite=test_suite,
+            )
+        except ProtostarException as ex:
+            self.queue.put(
+                BrokenTestSuite(
+                    file_path=test_suite.test_path,
+                    test_case_names=test_suite.test_case_names,
+                    exception=ex,
+                )
             )
 
         except ReportedException as ex:
@@ -86,6 +109,7 @@ class TestRunner:
                     file_path=test_suite.test_path,
                     test_case_names=test_suite.test_case_names,
                     exception=ex,
+                    traceback=traceback.format_exc(),
                 )
             )
 
@@ -97,12 +121,17 @@ class TestRunner:
         assert self.queue, "Uninitialized reporter!"
 
         try:
-            env_base = await TestExecutionEnvironment.from_test_suite_definition(
-                self.starknet_compiler, test_contract, self.include_paths
+            test_execution_env = (
+                await TestExecutionEnvironment.from_test_suite_definition(
+                    self.starknet_compiler,
+                    test_contract,
+                    self.disable_hint_validation_in_external_contracts,
+                    self.include_paths,
+                )
             )
 
             if test_suite.setup_fn_name:
-                await env_base.invoke_setup_hook(test_suite.setup_fn_name)
+                await test_execution_env.invoke_setup_hook(test_suite.setup_fn_name)
 
         except StarkException as ex:
             if self.is_constructor_args_exception(ex):
@@ -124,14 +153,16 @@ class TestRunner:
             return
 
         for test_case_name in test_suite.test_case_names:
-            env = env_base.fork()
+            new_test_execution_env = test_execution_env.fork()
             try:
-                call_result = await env.invoke_test_case(test_case_name)
+                execution_resources = await new_test_execution_env.invoke_test_case(
+                    test_case_name
+                )
                 self.queue.put(
                     PassedTestCase(
                         file_path=test_suite.test_path,
                         test_case_name=test_case_name,
-                        tx_info=call_result,
+                        execution_resources=execution_resources,
                     )
                 )
             except ReportedException as ex:

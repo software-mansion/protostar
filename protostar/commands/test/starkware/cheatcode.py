@@ -1,6 +1,3 @@
-# pylint: disable=too-many-arguments
-# pylint: disable=too-many-instance-attributes
-
 from abc import abstractmethod
 from typing import TYPE_CHECKING, Any, Callable, Type
 
@@ -9,12 +6,11 @@ from starkware.starknet.business_logic.execution.objects import (
     TransactionExecutionContext,
 )
 from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
+from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.storage.starknet_storage import BusinessLogicStarknetStorage
 from typing_extensions import TypedDict
 
-from protostar.commands.test.starkware.cheatable_starknet_general_config import (
-    CheatableStarknetGeneralConfig,
-)
+from protostar.commands.test.starkware.hint_local import HintLocal
 
 if TYPE_CHECKING:
     from protostar.commands.test.starkware.cheatable_execute_entry_point import (
@@ -23,7 +19,7 @@ if TYPE_CHECKING:
     from protostar.commands.test.starkware.cheatable_state import CheatableCarriedState
 
 
-class Cheatcode(BusinessLogicSysCallHandler):
+class Cheatcode(BusinessLogicSysCallHandler, HintLocal):
     class SyscallDependencies(TypedDict):
         execute_entry_point_cls: Type["CheatableExecuteEntryPoint"]
         tx_execution_context: TransactionExecutionContext
@@ -31,7 +27,7 @@ class Cheatcode(BusinessLogicSysCallHandler):
         caller_address: int
         contract_address: int
         starknet_storage: BusinessLogicStarknetStorage
-        general_config: CheatableStarknetGeneralConfig
+        general_config: StarknetGeneralConfig
         initial_syscall_ptr: RelocatableValue
 
     def __init__(
@@ -44,11 +40,6 @@ class Cheatcode(BusinessLogicSysCallHandler):
         self.state = syscall_dependencies["state"]
         self.general_config = syscall_dependencies["general_config"]
         self.execute_entry_point_cls = syscall_dependencies["execute_entry_point_cls"]
-
-    @property
-    @abstractmethod
-    def name(self) -> str:
-        ...
 
     @abstractmethod
     def build(self) -> Callable[..., Any]:

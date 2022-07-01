@@ -4,6 +4,7 @@ from typing import List
 
 import pytest
 from pytest_mock import MockerFixture
+from typing_extensions import Protocol
 
 from protostar.commands.test.test_command import TestCommand
 from protostar.commands.test.testing_summary import TestingSummary
@@ -34,8 +35,17 @@ def devnet_gateway_url_fixture(devnet_port: int):
     proc.kill()
 
 
-async def run_cairo_test_runner(mocker: MockerFixture, path: Path) -> TestingSummary:
-    return await TestCommand(
-        project=mocker.MagicMock(),
-        protostar_directory=mocker.MagicMock(),
-    ).test(targets=[str(path)])
+class RunCairoTestRunnerFixture(Protocol):
+    async def __call__(self, path: Path) -> TestingSummary:
+        ...
+
+
+@pytest.fixture(name="run_cairo_test_runner")
+def run_cairo_test_runner_fixture(mocker: MockerFixture):
+    async def run_cairo_test_runner(path: Path) -> TestingSummary:
+        return await TestCommand(
+            project=mocker.MagicMock(),
+            protostar_directory=mocker.MagicMock(),
+        ).test(targets=[str(path)])
+
+    return run_cairo_test_runner

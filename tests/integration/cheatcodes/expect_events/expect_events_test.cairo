@@ -122,3 +122,16 @@ func test_selector_to_name_mapping{syscall_ptr : felt*, range_check_ptr}():
     # assert in the pytest file
     return ()
 end
+
+@external
+func test_data_transformation{syscall_ptr : felt*, range_check_ptr}():
+    alloc_locals
+    local contract_address : felt
+    %{
+        ids.contract_address = deploy_contract("./tests/integration/cheatcodes/expect_events/basic_contract.cairo").contract_address
+        expect_events({"name": "balance_increased", "data": {"current_balance" : 37, "amount" : 21}})
+    %}
+    BasicContract.increase_balance(contract_address=contract_address)
+
+    return ()
+end
