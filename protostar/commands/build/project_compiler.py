@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import List, Type
+from typing import List
 
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     PreprocessorError,
@@ -9,7 +9,6 @@ from starkware.cairo.lang.vm.vm_exceptions import VmException
 from starkware.starkware_utils.error_handling import StarkException
 
 from protostar.commands.build.build_exceptions import CairoCompilationException
-from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 from protostar.protostar_toml.protostar_contracts_section import (
     ProtostarContractsSection,
 )
@@ -20,13 +19,11 @@ from protostar.utils.starknet_compilation import StarknetCompiler
 class ProjectCompiler:
     def __init__(
         self,
-        protostar_toml_reader: ProtostarTOMLReader,
-        ProjectSection: Type[ProtostarProjectSection],
-        ContractsSection: Type[ProtostarContractsSection],
+        project_section_loader: ProtostarProjectSection.Loader,
+        contracts_section_loader: ProtostarContractsSection.Loader,
     ):
-        self._protostar_toml_reader = protostar_toml_reader
-        self._ProjectSection = ProjectSection
-        self._ContractsSection = ContractsSection
+        self._project_section_loader = project_section_loader
+        self._contracts_section_loader = contracts_section_loader
 
     def compile(
         self,
@@ -35,15 +32,15 @@ class ProjectCompiler:
         disable_hint_validation: bool,
         is_account_contract=False,
     ):
-        include_paths = [
-            str(pth) for pth in [*cairo_path, self._project_section.libs_path]
-        ]
+        project_section = self._project_section_loader.load()
+        contracts_section = self._contracts_section_loader.load()
+        include_paths = [str(pth) for pth in [*cairo_path, project_section.libs_path]]
         output_dir.mkdir(exist_ok=True)
 
         for (
             contract_name,
             contract_paths,
-        ) in self._contracts_section.contract_name_to_paths.items():
+        ) in contracts_section.contract_name_to_paths.items():
             try:
                 contract = StarknetCompiler(
                     include_paths=include_paths,

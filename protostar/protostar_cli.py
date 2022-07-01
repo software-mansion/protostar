@@ -102,10 +102,10 @@ class ProtostarCLI(CLIApp):
                 ),
                 BuildCommand(
                     ProjectCompiler(
-                        project_section=ProtostarProjectSection.load(
+                        project_section_loader=ProtostarProjectSection.Loader(
                             protostar_toml_reader
                         ),
-                        contracts_section=ProtostarContractsSection.load(
+                        contracts_section_loader=ProtostarContractsSection.Loader(
                             protostar_toml_reader
                         ),
                     )
