@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import Dict, List, Optional, Union, cast
 
 import marshmallow_dataclass

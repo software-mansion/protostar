@@ -1,8 +1,8 @@
 from collections.abc import Mapping
-from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Union
 
 from starkware.starknet.public.abi import get_selector_from_name
+from starkware.starknet.public.abi import AbiType
 
 from protostar.commands.test.starkware.cheatcode import Cheatcode
 from protostar.commands.test.starkware.types import AddressType
@@ -94,7 +94,7 @@ class MockCallCheatcode(Cheatcode):
 
     def get_contract_abi_from_contract_address(
         self, contract_address: AddressType
-    ) -> Optional[Path]:
+    ) -> Optional[AbiType]:
         if contract_address in self.state.contract_address_to_class_hash_map:
             class_hash = self.state.contract_address_to_class_hash_map[contract_address]
             if class_hash in self.state.class_hash_to_contract_abi_map:
