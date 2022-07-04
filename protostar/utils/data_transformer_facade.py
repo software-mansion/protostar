@@ -72,9 +72,8 @@ class DataTransformerFacade:
         raise AbiItemNotFoundException(f"Couldn't find '{name}' ABI")
 
     def build_from_python_transformer(
-        self, contract_path: Path, fn_name: str, mode: Literal["inputs", "outputs"]
+        self, contract_abi: AbiType, fn_name: str, mode: Literal["inputs", "outputs"]
     ) -> "DataTransformerFacade.FromPythonTransformer":
-        contract_abi = self._starknet_compiler.preprocess_contract(contract_path).abi
 
         fn_abi_item = self._find_abi_item(contract_abi, fn_name)
 

@@ -120,9 +120,11 @@ class CheatableCarriedState(CarriedState):
         self.pranked_contracts_map: Dict[int, int] = {}
         self.mocked_calls_map: Dict[AddressType, Dict[SelectorType, List[int]]] = {}
         self.event_selector_to_name_map: Dict[int, str] = {}
+
         self.event_name_to_contract_abi_map: Dict[str, AbiType] = {}
-        self.class_hash_to_contract_path_map: Dict[ClassHashType, Path] = {}
+        self.class_hash_to_contract_abi_map: Dict[ClassHashType, AbiType] = {}
         self.contract_address_to_class_hash_map: Dict[AddressType, ClassHashType] = {}
+
         self.contract_address_to_block_timestamp: Dict[AddressType, int] = {}
         self.contract_address_to_block_number: Dict[AddressType, int] = {}
 
@@ -159,9 +161,9 @@ class CheatableCarriedState(CarriedState):
             **self.event_name_to_contract_abi_map,
         }
 
-        self.parent_state.class_hash_to_contract_path_map = {
-            **self.parent_state.class_hash_to_contract_path_map,
-            **self.class_hash_to_contract_path_map,
+        self.parent_state.class_hash_to_contract_abi_map = {
+            **self.parent_state.class_hash_to_contract_abi_map,
+            **self.class_hash_to_contract_abi_map,
         }
         self.parent_state.contract_address_to_class_hash_map = {
             **self.parent_state.contract_address_to_class_hash_map,

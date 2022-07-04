@@ -79,14 +79,14 @@ class PrepareCheatcode(Cheatcode):
             DataTransformerFacade.SupportedType,
         ],
     ) -> List[int]:
-        if class_hash not in self.state.class_hash_to_contract_path_map:
+        if class_hash not in self.state.class_hash_to_contract_abi_map:
             raise CheatcodeException(
                 self.name, f"Couldn't map `class_hash` ({class_hash}) to ({self})."
             )
-        contract_path = self.state.class_hash_to_contract_path_map[class_hash]
+        contract_abi = self.state.class_hash_to_contract_abi_map[class_hash]
 
         return self._data_transformer.build_from_python_transformer(
-            contract_path,
+            contract_abi,
             "constructor",
             "inputs",
         )(constructor_calldata)
