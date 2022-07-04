@@ -1,8 +1,8 @@
 from collections.abc import Mapping
-from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Union
 
 from starkware.starknet.public.abi import get_selector_from_name
+from starkware.starknet.public.abi import AbiType
 
 from protostar.commands.test.starkware.cheatcode import Cheatcode
 from protostar.commands.test.starkware.types import AddressType
@@ -78,26 +78,26 @@ class MockCallCheatcode(Cheatcode):
             DataTransformerFacade.SupportedType,
         ],
     ) -> List[int]:
-        contract_path = self.get_contract_path_from_contract_address(contract_address)
-        if contract_path is None:
+        contract_abi = self.get_contract_abi_from_contract_address(contract_address)
+        if contract_abi is None:
             raise CheatcodeException(
                 self.name,
                 (
-                    "Couldn't map the `contract_address` to the `contract_path`.\n"
+                    "Couldn't map the `contract_address` to the `contract_abi`.\n"
                     f"Is the `contract_address` ({contract_address}) valid?\n"
                 ),
             )
 
         return self._data_transformer.build_from_python_transformer(
-            contract_path, fn_name, "outputs"
+            contract_abi, fn_name, "outputs"
         )(ret_data)
 
-    def get_contract_path_from_contract_address(
+    def get_contract_abi_from_contract_address(
         self, contract_address: AddressType
-    ) -> Optional[Path]:
+    ) -> Optional[AbiType]:
         if contract_address in self.state.contract_address_to_class_hash_map:
             class_hash = self.state.contract_address_to_class_hash_map[contract_address]
-            if class_hash in self.state.class_hash_to_contract_path_map:
-                return self.state.class_hash_to_contract_path_map[class_hash]
+            if class_hash in self.state.class_hash_to_contract_abi_map:
+                return self.state.class_hash_to_contract_abi_map[class_hash]
 
         return None

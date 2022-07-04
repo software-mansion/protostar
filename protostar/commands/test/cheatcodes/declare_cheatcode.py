@@ -36,11 +36,10 @@ class DeclareCheatcode(Cheatcode):
         return self.declare
 
     def declare(self, contract_path_str: str) -> DeclaredContract:
-        class_hash = asyncio.run(
-            self._declare_contract(Path(contract_path_str))
-        ).class_hash
+        declared_class = asyncio.run(self._declare_contract(Path(contract_path_str)))
+        class_hash = declared_class.class_hash
 
-        self.state.class_hash_to_contract_path_map[class_hash] = Path(contract_path_str)
+        self.state.class_hash_to_contract_abi_map[class_hash] = declared_class.abi
 
         return DeclaredContract(class_hash)
 
