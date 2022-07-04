@@ -6,6 +6,7 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     PreprocessorError,
 )
 from starkware.cairo.lang.vm.vm_exceptions import VmException
+from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 
 from protostar.commands.build.build_exceptions import CairoCompilationException
@@ -41,41 +42,68 @@ class ProjectCompiler:
             contract_name,
             contract_paths,
         ) in contracts_section.contract_name_to_paths.items():
-            try:
-                contract = StarknetCompiler(
-                    include_paths=include_paths,
-                    disable_hint_validation=disable_hint_validation,
-                ).compile_contract(
-                    *contract_paths,
-                    is_account_contract=is_account_contract,
-                )
-            except StarknetCompiler.FileNotFoundException as err:
-                raise StarknetCompiler.FileNotFoundException(
-                    message=(
-                        err.message
-                        + '\nDid you forget to update protostar.toml::["protostar.contracts"]?'
-                    )
-                ) from err
-            except (StarkException, VmException, PreprocessorError) as err:
-                raise CairoCompilationException(
-                    f"Protostar couldn't compile '{contract_name}' contract\n{str(err)}"
-                ) from err
+            contract = self._compile_contract(
+                contract_name,
+                contract_paths,
+                include_paths,
+                disable_hint_validation,
+                is_account_contract,
+            )
 
-            with open(
-                Path(output_dir, f"{contract_name}.json"), mode="w", encoding="utf-8"
-            ) as output_file:
-                json.dump(
-                    contract.Schema().dump(contract),
-                    output_file,
-                    indent=4,
-                    sort_keys=True,
-                )
-                output_file.write("\n")
+            self._save_compiled_contract(contract, output_dir, contract_name)
+            self._save_compiled_contract_abi(contract, output_dir, contract_name)
 
-            with open(
-                Path(output_dir, f"{contract_name}_abi.json"),
-                mode="w",
-                encoding="utf-8",
-            ) as output_abi_file:
-                json.dump(contract.abi, output_abi_file, indent=4, sort_keys=True)
-                output_abi_file.write("\n")
+    @staticmethod
+    def _compile_contract(
+        contract_name: str,
+        contract_paths: List[Path],
+        include_paths: List[str],
+        disable_hint_validation: bool,
+        is_account_contract: bool,
+    ) -> ContractClass:
+        try:
+            return StarknetCompiler(
+                include_paths=include_paths,
+                disable_hint_validation=disable_hint_validation,
+            ).compile_contract(
+                *contract_paths,
+                is_account_contract=is_account_contract,
+            )
+        except StarknetCompiler.FileNotFoundException as err:
+            raise StarknetCompiler.FileNotFoundException(
+                message=(
+                    err.message
+                    + '\nDid you forget to update protostar.toml::["protostar.contracts"]?'
+                )
+            ) from err
+        except (StarkException, VmException, PreprocessorError) as err:
+            raise CairoCompilationException(
+                f"Protostar couldn't compile '{contract_name}' contract\n{str(err)}"
+            ) from err
+
+    @staticmethod
+    def _save_compiled_contract(
+        contract: ContractClass, output_dir: Path, contract_name: str
+    ) -> None:
+        with open(
+            Path(output_dir, f"{contract_name}.json"), mode="w", encoding="utf-8"
+        ) as output_file:
+            json.dump(
+                contract.Schema().dump(contract),
+                output_file,
+                indent=4,
+                sort_keys=True,
+            )
+            output_file.write("\n")
+
+    @staticmethod
+    def _save_compiled_contract_abi(
+        contract: ContractClass, output_dir: Path, contract_name: str
+    ) -> None:
+        with open(
+            Path(output_dir, f"{contract_name}_abi.json"),
+            mode="w",
+            encoding="utf-8",
+        ) as output_abi_file:
+            json.dump(contract.abi, output_abi_file, indent=4, sort_keys=True)
+            output_abi_file.write("\n")
