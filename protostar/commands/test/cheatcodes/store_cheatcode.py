@@ -27,7 +27,7 @@ class StoreCheatcode(Cheatcode):
         key = key or []
         variable_address = self.calc_address(variable_name, key)
         if target_contract_address == self.contract_address:
-            self.store_local(target_contract_address, value)
+            self.store_local(variable_address, value)
             return
 
         pre_run_contract_carried_state = self.state.contract_states[
@@ -46,7 +46,7 @@ class StoreCheatcode(Cheatcode):
         )
 
         self._write_on_remote_storage(
-            starknet_storage, target_contract_address, variable_address , value
+            starknet_storage, target_contract_address, variable_address, value
         )
 
         # Apply modifications to the contract storage.
@@ -59,7 +59,9 @@ class StoreCheatcode(Cheatcode):
         for i, val in enumerate(value):
             self._storage_write(address=address + i, value=val)
 
-    def _write_on_remote_storage(self, storage, contract, address: int, value: List[int]):
+    def _write_on_remote_storage(
+        self, storage, contract, address: int, value: List[int]
+    ):
         for i, val in enumerate(value):
             storage.read(address=address + i)
             storage.write(address=address + i, value=val)
