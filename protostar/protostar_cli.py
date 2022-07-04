@@ -2,7 +2,7 @@
 import sys
 from logging import INFO, Logger, StreamHandler, getLogger
 from pathlib import Path
-from typing import Any
+from typing import Any, List
 
 from protostar.cli import CLIApp, Command
 from protostar.commands import (
@@ -80,43 +80,48 @@ class ProtostarCLI(CLIApp):
         protostar_toml_writer: ProtostarTOMLWriter,
         protostar_toml_reader: ProtostarTOMLReader,
         requester: InputRequester,
+        dev_mode=False,
     ) -> None:
         self.project = project
 
+        commands: List[Command] = [
+            InitCommand(
+                requester=requester,
+                new_project_creator=NewProjectCreator(
+                    script_root,
+                    requester,
+                    protostar_toml_writer,
+                    version_manager,
+                ),
+                adapted_project_creator=AdaptedProjectCreator(
+                    script_root,
+                    requester,
+                    protostar_toml_writer,
+                    version_manager,
+                ),
+            ),
+            BuildCommand(
+                ProjectCompiler(
+                    project_section_loader=ProtostarProjectSection.Loader(
+                        protostar_toml_reader
+                    ),
+                    contracts_section_loader=ProtostarContractsSection.Loader(
+                        protostar_toml_reader
+                    ),
+                )
+            ),
+            InstallCommand(project),
+            RemoveCommand(project),
+            UpdateCommand(project),
+            UpgradeCommand(protostar_directory, version_manager),
+            TestCommand(project, protostar_directory),
+            DeployCommand(project),
+        ]
+        if dev_mode:
+            print("DEV_MODE")
+
         super().__init__(
-            commands=[
-                InitCommand(
-                    requester=requester,
-                    new_project_creator=NewProjectCreator(
-                        script_root,
-                        requester,
-                        protostar_toml_writer,
-                        version_manager,
-                    ),
-                    adapted_project_creator=AdaptedProjectCreator(
-                        script_root,
-                        requester,
-                        protostar_toml_writer,
-                        version_manager,
-                    ),
-                ),
-                BuildCommand(
-                    ProjectCompiler(
-                        project_section_loader=ProtostarProjectSection.Loader(
-                            protostar_toml_reader
-                        ),
-                        contracts_section_loader=ProtostarContractsSection.Loader(
-                            protostar_toml_reader
-                        ),
-                    )
-                ),
-                InstallCommand(project),
-                RemoveCommand(project),
-                UpdateCommand(project),
-                UpgradeCommand(protostar_directory, version_manager),
-                TestCommand(project, protostar_directory),
-                DeployCommand(project),
-            ],
+            commands=commands,
             root_args=[
                 PROFILE_ARG,
                 Command.Argument(
@@ -135,7 +140,7 @@ class ProtostarCLI(CLIApp):
         self.version_manager = version_manager
 
     @classmethod
-    def create(cls, script_root: Path):
+    def create(cls, script_root: Path, dev_mode=False):
         protostar_directory = ProtostarDirectory(script_root)
         version_manager = VersionManager(protostar_directory)
         project = Project(version_manager)
@@ -151,6 +156,7 @@ class ProtostarCLI(CLIApp):
             protostar_toml_writer,
             protostar_toml_reader,
             requester,
+            dev_mode,
         )
 
     def _setup_logger(self, is_ci_mode: bool) -> Logger:
