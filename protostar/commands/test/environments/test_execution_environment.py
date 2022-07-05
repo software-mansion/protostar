@@ -1,177 +1,78 @@
-from copy import deepcopy
-from logging import getLogger
-from typing import List, Optional
+from typing import Optional, List
 
 from starkware.starknet.business_logic.execution.objects import CallInfo
-from starkware.starknet.services.api.contract_class import ContractClass
-from starkware.starknet.testing.contract import StarknetContract
-from starkware.starknet.testing.objects import StarknetTransactionExecutionInfo
-from starkware.starkware_utils.error_handling import StarkException
 
 from protostar.commands.test.cheatcodes import (
-    DeclareCheatcode,
-    DeployCheatcode,
-    DeployContractCheatcode,
-    ExpectEventsCheatcode,
     ExpectRevertCheatcode,
-    MockCallCheatcode,
-    PrepareCheatcode,
-    RollCheatcode,
-    StartPrankCheatcode,
-    WarpCheatcode,
-    StoreCheatcode,
+    ExpectEventsCheatcode,
 )
 from protostar.commands.test.cheatcodes.expect_revert_cheatcode import (
     ExpectRevertContext,
 )
+from protostar.commands.test.environments.execution_environment import (
+    ExecutionEnvironment,
+)
+from protostar.commands.test.execution_state import ExecutionState
 from protostar.commands.test.starkware import ExecutionResourcesSummary
-from protostar.commands.test.starkware.cheatable_execute_entry_point import (
-    CheatableExecuteEntryPoint,
-)
 from protostar.commands.test.starkware.cheatcode import Cheatcode
-from protostar.commands.test.starkware.forkable_starknet import ForkableStarknet
-from protostar.commands.test.test_context import TestContext, TestContextHintLocal
-from protostar.commands.test.test_environment_exceptions import (
-    StarknetRevertableException,
+from protostar.commands.test.starkware.cheatcode_factory import (
+    CheatcodeFactory,
 )
-from protostar.utils.data_transformer_facade import DataTransformerFacade
+from protostar.commands.test.environments.setup_execution_environment import (
+    SetupCheatcodeFactory,
+)
 from protostar.utils.hook import Hook
-from protostar.utils.starknet_compilation import StarknetCompiler
-
-logger = getLogger()
 
 
-# pylint: disable=too-many-instance-attributes
-class TestExecutionEnvironment:
-    # pylint: disable=too-many-arguments
-    def __init__(
-        self,
-        include_paths: List[str],
-        forkable_starknet: ForkableStarknet,
-        test_contract: StarknetContract,
-        test_context: TestContext,
-        starknet_compiler: StarknetCompiler,
-        disable_hint_validation_in_external_contracts: bool,
-    ):
-        self.starknet = forkable_starknet
-        self.test_contract: StarknetContract = test_contract
-        self.test_context = test_context
+class TestExecutionEnvironment(ExecutionEnvironment):
+    def __init__(self, state: ExecutionState):
+        super().__init__(state)
         self._expect_revert_context = ExpectRevertContext()
-        self._include_paths = include_paths
         self._finish_hook = Hook()
-        self._starknet_compiler = starknet_compiler
-        self._disable_hint_validation_in_external_contracts = (
-            disable_hint_validation_in_external_contracts
+
+    def _cheatcode_factory(self) -> CheatcodeFactory:
+        return TestCaseCheatcodeFactory(
+            state=self.state,
+            expect_revert_context=self._expect_revert_context,
+            finish_hook=self._finish_hook,
         )
 
-    @classmethod
-    async def from_test_suite_definition(
-        cls,
-        starknet_compiler: StarknetCompiler,
-        test_suite_definition: ContractClass,
-        disable_hint_validation_in_external_contracts: bool,
-        include_paths: Optional[List[str]] = None,
-    ):
-        starknet = await ForkableStarknet.empty()
-        starknet_contract = await starknet.deploy(contract_class=test_suite_definition)
-
-        return cls(
-            include_paths or [],
-            forkable_starknet=starknet,
-            test_contract=starknet_contract,
-            test_context=TestContext(),
-            starknet_compiler=starknet_compiler,
-            disable_hint_validation_in_external_contracts=disable_hint_validation_in_external_contracts,
-        )
-
-    def fork(self):
-        starknet_fork = self.starknet.fork()
-        new_env = TestExecutionEnvironment(
-            include_paths=self._include_paths,
-            forkable_starknet=starknet_fork,
-            test_contract=starknet_fork.copy_and_adapt_contract(self.test_contract),
-            test_context=deepcopy(self.test_context),
-            starknet_compiler=self._starknet_compiler,
-            disable_hint_validation_in_external_contracts=self._disable_hint_validation_in_external_contracts,
-        )
-        return new_env
-
-    async def invoke_setup_hook(self, fn_name: str) -> None:
-        await self.invoke_test_case(fn_name)
-
-    async def invoke_test_case(
-        self, test_case_name: str
-    ) -> Optional[ExecutionResourcesSummary]:
+    async def _invoke(self, function_name: str) -> Optional[ExecutionResourcesSummary]:
         execution_resources: Optional[ExecutionResourcesSummary] = None
-        CheatableExecuteEntryPoint.cheatcode_factory = self._build_cheatcodes_factory()
-        CheatableExecuteEntryPoint.custom_hint_locals = [
-            TestContextHintLocal(self.test_context)
-        ]
 
         async with self._expect_revert_context.test():
             async with self._finish_hook.run_after():
-                execution_resources = await self._call_test_case_fn(test_case_name)
+                execution_resources = await self._call(function_name)
 
         return execution_resources
 
-    async def _call_test_case_fn(
-        self, test_case_name: str
-    ) -> ExecutionResourcesSummary:
-        try:
-            func = getattr(self.test_contract, test_case_name)
-            tx_info: StarknetTransactionExecutionInfo = await func().invoke()
-            return ExecutionResourcesSummary.from_execution_resources(
-                tx_info.call_info.execution_resources
-            )
 
-        except StarkException as ex:
-            raise StarknetRevertableException(
-                error_message=StarknetRevertableException.extract_error_messages_from_stark_ex_message(
-                    ex.message
-                ),
-                error_type=ex.code.name,
-                code=ex.code.value,
-                details=ex.message,
-            ) from ex
+class TestCaseCheatcodeFactory(SetupCheatcodeFactory):
+    def __init__(
+        self,
+        state: ExecutionState,
+        expect_revert_context: ExpectRevertContext,
+        finish_hook: Hook,
+    ):
+        super().__init__(state)
+        self._expect_revert_context = expect_revert_context
+        self._finish_hook = finish_hook
 
-    def _build_cheatcodes_factory(self) -> CheatableExecuteEntryPoint.CheatcodeFactory:
-        def build_cheatcodes(
-            syscall_dependencies: Cheatcode.SyscallDependencies,
-            internal_calls: List[CallInfo],
-        ) -> List[Cheatcode]:
-            data_transformer = DataTransformerFacade(self._starknet_compiler)
-            declare_cheatcode = DeclareCheatcode(
+    def build(
+        self,
+        syscall_dependencies: Cheatcode.SyscallDependencies,
+        internal_calls: List[CallInfo],
+    ) -> List[Cheatcode]:
+        return [
+            *super().build(syscall_dependencies, internal_calls),
+            ExpectRevertCheatcode(
                 syscall_dependencies,
-                disable_hint_validation=self._disable_hint_validation_in_external_contracts,
-                cairo_path=self._include_paths,
-            )
-            prepare_cheatcode = PrepareCheatcode(syscall_dependencies, data_transformer)
-            deploy_cheatcode = DeployCheatcode(syscall_dependencies, internal_calls)
-            return [
-                declare_cheatcode,
-                prepare_cheatcode,
-                deploy_cheatcode,
-                DeployContractCheatcode(
-                    syscall_dependencies,
-                    declare_cheatcode,
-                    prepare_cheatcode,
-                    deploy_cheatcode,
-                ),
-                MockCallCheatcode(syscall_dependencies, data_transformer),
-                WarpCheatcode(syscall_dependencies),
-                RollCheatcode(syscall_dependencies),
-                ExpectRevertCheatcode(
-                    syscall_dependencies,
-                    self._expect_revert_context,
-                ),
-                StartPrankCheatcode(syscall_dependencies),
-                ExpectEventsCheatcode(
-                    syscall_dependencies,
-                    self.starknet,
-                    self._finish_hook,
-                    data_transformer,
-                ),
-                StoreCheatcode(syscall_dependencies),
-            ]
-
-        return build_cheatcodes
+                self._expect_revert_context,
+            ),
+            ExpectEventsCheatcode(
+                syscall_dependencies,
+                self.state.starknet,
+                self._finish_hook,
+                self.data_transformer,
+            ),
+        ]
