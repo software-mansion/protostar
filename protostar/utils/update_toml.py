@@ -4,7 +4,11 @@ from typing import Optional
 import tomli
 import tomli_w
 
-from protostar.utils.protostar_directory import ProtostarDirectory, VersionType
+from protostar.utils.protostar_directory import (
+    ProtostarDirectory,
+    VersionManager,
+    VersionType,
+)
 
 
 @dataclass
@@ -46,4 +50,6 @@ class UpdateTOML:
             with open(update_toml_path, "rb") as update_toml_file:
                 update_toml_dict = tomli.load(update_toml_file)
 
-                return UpdateTOML(version=update_toml_dict["info"]["version"])
+                return UpdateTOML(
+                    version=VersionManager.parse(update_toml_dict["info"]["version"])
+                )
