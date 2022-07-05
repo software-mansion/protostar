@@ -34,6 +34,10 @@ class TestExecutionEnvironment(
         self._finish_hook = Hook()
 
     async def invoke(self, function_name: str) -> Optional[ExecutionResourcesSummary]:
+        assert not DataTransformerFacade.has_function_parameters(
+            self.state.contract.abi, function_name
+        ), f"{self.__class__.__name__} expects no function parameters."
+
         self.set_cheatcodes(
             TestCaseCheatcodeFactory(
                 state=self.state,
@@ -44,11 +48,16 @@ class TestExecutionEnvironment(
 
         self.set_custom_hint_locals([TestContextHintLocal(self.state.context)])
 
+        return await self.invoke_test_case(function_name)
+
+    async def invoke_test_case(
+        self, function_name: str, *args, **kwargs
+    ) -> Optional[ExecutionResourcesSummary]:
         execution_resources: Optional[ExecutionResourcesSummary] = None
 
         async with self._expect_revert_context.test():
             async with self._finish_hook.run_after():
-                tx_info = await self.perform_invoke(function_name)
+                tx_info = await self.perform_invoke(function_name, *args, **kwargs)
                 execution_resources = (
                     ExecutionResourcesSummary.from_execution_resources(
                         tx_info.call_info.execution_resources

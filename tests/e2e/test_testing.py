@@ -227,3 +227,13 @@ def test_print_only_setup(protostar, copy_fixture):
     assert "O_SETUP" in result
     assert "[test]:" not in result
     assert "[setup]:" in result
+
+
+@pytest.mark.usefixtures("init")
+def test_fuzzing(protostar, copy_fixture):
+    copy_fixture("test_fuzz.cairo", "./tests")
+
+    # TODO(mkaput): Implement this.
+    result = protostar(["test", "tests"])
+    print(result)
+    raise NotImplementedError

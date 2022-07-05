@@ -8,6 +8,7 @@ from protostar.commands.test.test_collector import TestCollector
 from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.test_scheduler import TestScheduler
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
+from protostar.commands.test.testing_seed import testing_seed
 from protostar.commands.test.testing_summary import TestingSummary
 from protostar.utils.compiler.pass_managers import (
     StarknetPassManagerFactory,
@@ -138,48 +139,51 @@ class TestCommand(Command):
 
         include_paths = self._build_include_paths(cairo_path or [])
 
-        with ActivityIndicator(log_color_provider.colorize("GRAY", "Collecting tests")):
-            pass_manager_factory = (
-                TestCollectorPassManagerFactory
-                if fast_collecting
-                else StarknetPassManagerFactory
-            )
-            test_collector_result = TestCollector(
-                StarknetCompiler(
+        with testing_seed():
+            with ActivityIndicator(
+                log_color_provider.colorize("GRAY", "Collecting tests")
+            ):
+                pass_manager_factory = (
+                    TestCollectorPassManagerFactory
+                    if fast_collecting
+                    else StarknetPassManagerFactory
+                )
+                test_collector_result = TestCollector(
+                    StarknetCompiler(
                     config=CompilerConfig(
                         disable_hint_validation=True, include_paths=include_paths
                     ),
                     pass_manager_factory=pass_manager_factory,
                 ),
-                config=TestCollector.Config(fast_collecting=fast_collecting),
-            ).collect(
-                targets=targets,
-                ignored_targets=ignored_targets,
-                default_test_suite_glob=str(self._project.project_root),
+                    config=TestCollector.Config(fast_collecting=fast_collecting),
+                ).collect(
+                    targets=targets,
+                    ignored_targets=ignored_targets,
+                    default_test_suite_glob=str(self._project.project_root),
+                )
+
+            test_collector_result.log(logger)
+
+            testing_summary = TestingSummary(
+                case_results=test_collector_result.broken_test_suites  # type: ignore | pyright bug?
             )
 
-        test_collector_result.log(logger)
-
-        testing_summary = TestingSummary(
-            case_results=test_collector_result.broken_test_suites  # type: ignore | pyright bug?
-        )
-
-        if test_collector_result.test_cases_count > 0:
-            live_logger = TestingLiveLogger(
-                logger,
-                testing_summary,
-                no_progress_bar=no_progress_bar,
-                exit_first=exit_first,
+            if test_collector_result.test_cases_count > 0:
+                live_logger = TestingLiveLogger(
+                    logger,
+                    testing_summary,
+                    no_progress_bar=no_progress_bar,
+                    exit_first=exit_first,
                 stdout_on_success=stdout_on_success,
-            )
-            TestScheduler(live_logger, worker=TestRunner.worker).run(
-                include_paths=include_paths,
-                test_collector_result=test_collector_result,
-                disable_hint_validation=disable_hint_validation,
-                exit_first=exit_first,
-            )
+                )
+                TestScheduler(live_logger, worker=TestRunner.worker).run(
+                    include_paths=include_paths,
+                    test_collector_result=test_collector_result,
+                    disable_hint_validation=disable_hint_validation,
+                    exit_first=exit_first,
+                )
 
-        return testing_summary
+            return testing_summary
 
     def _build_include_paths(self, cairo_paths: List[Path]) -> List[str]:
         cairo_paths = self._protostar_directory.add_protostar_cairo_dir(cairo_paths)

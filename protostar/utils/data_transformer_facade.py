@@ -1,8 +1,10 @@
 from typing import Any, Callable, Dict, List, Tuple
 
 from starknet_py.utils.data_transformer.data_transformer import DataTransformer
+from starkware.cairo.lang.compiler.ast.cairo_types import CairoType
 from starkware.starknet.public.abi import AbiType
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
+from starkware.starknet.testing.contract_utils import parse_arguments
 from typing_extensions import Literal
 
 from protostar.utils.starknet_compilation import StarknetCompiler
@@ -69,6 +71,26 @@ class DataTransformerFacade:
             if item["name"] == name:
                 return item
         raise AbiItemNotFoundException(f"Couldn't find '{name}' ABI")
+
+    @classmethod
+    def has_function_parameters(cls, contract_abi: AbiType, name: str) -> bool:
+        fn_abi_item = cls._find_abi_item(contract_abi, name)
+        if fn_abi_item["type"] != "function":
+            raise AbiItemNotFoundException(f"ABI item '{name}' not a function.")
+
+        return bool(fn_abi_item["inputs"])
+
+    @classmethod
+    def get_function_parameters(
+        cls, contract_abi: AbiType, name: str
+    ) -> Dict[str, CairoType]:
+        fn_abi_item = cls._find_abi_item(contract_abi, name)
+        if fn_abi_item["type"] != "function":
+            raise AbiItemNotFoundException(f"ABI item '{name}' not a function.")
+
+        names, types = parse_arguments(fn_abi_item["inputs"])
+        assert len(names) == len(types)
+        return dict(zip(names, types))
 
     def build_from_python_transformer(
         self, contract_abi: AbiType, fn_name: str, mode: Literal["inputs", "outputs"]

@@ -60,7 +60,7 @@ class PassedTestCase(TestCaseResult):
                 builtin_name,
                 builtin_count,
             ) in self.execution_resources.builtin_name_to_count_map.items():
-                if builtin_count > 0:
+                if builtin_count:
                     second_line_elements.append(
                         log_color_provider.colorize(
                             "GRAY",
