@@ -13,9 +13,6 @@ from protostar.utils.hook import Hook
 
 if TYPE_CHECKING:
     from protostar.commands.test.starkware.forkable_starknet import ForkableStarknet
-    from protostar.commands.test.test_execution_environment import (
-        TestExecutionEnvironment,
-    )
 
 
 class ExpectEventsCheatcode(Cheatcode):
