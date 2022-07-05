@@ -1,6 +1,6 @@
 # pylint: disable=no-self-use
 import sys
-from logging import INFO, StreamHandler, getLogger
+from logging import INFO, Logger, StreamHandler, getLogger
 from pathlib import Path
 from typing import Any
 
@@ -36,6 +36,8 @@ from protostar.utils import (
     log_color_provider,
 )
 from protostar.utils.input_requester import InputRequester
+from protostar.utils.upgrade_info_writer_thread import UpgradeInfoWriterThread
+from protostar.utils.upgrade_local_checker import UpgradeLocalChecker
 from protostar.utils.upgrade_poller import UpgradePoller
 
 PROFILE_ARG = Command.Argument(
@@ -82,9 +84,14 @@ class ProtostarCLI(CLIApp):
         protostar_toml_writer: ProtostarTOMLWriter,
         protostar_toml_reader: ProtostarTOMLReader,
         requester: InputRequester,
+        logger: Logger,
+        upgrade_local_checker: UpgradeLocalChecker,
+        upgrade_info_writer_thread: UpgradeInfoWriterThread,
     ) -> None:
         self.project = project
-        self.logger = getLogger()
+        self.logger = logger
+        self.upgrade_local_checker = upgrade_local_checker
+        self.upgrade_info_writer_thread = upgrade_info_writer_thread
 
         super().__init__(
             commands=[
@@ -152,15 +159,25 @@ class ProtostarCLI(CLIApp):
         protostar_toml_writer = ProtostarTOMLWriter()
         protostar_toml_reader = ProtostarTOMLReader()
         requester = InputRequester(log_color_provider)
+        logger = getLogger()
+        upgrade_local_checker = UpgradeLocalChecker(
+            protostar_directory, version_manager, logger
+        )
+        upgrade_info_writer_thread = UpgradeInfoWriterThread(
+            protostar_directory, version_manager
+        )
 
         return cls(
-            script_root,
-            protostar_directory,
-            project,
-            version_manager,
-            protostar_toml_writer,
-            protostar_toml_reader,
-            requester,
+            script_root=script_root,
+            protostar_directory=protostar_directory,
+            project=project,
+            version_manager=version_manager,
+            protostar_toml_writer=protostar_toml_writer,
+            protostar_toml_reader=protostar_toml_reader,
+            requester=requester,
+            logger=logger,
+            upgrade_local_checker=upgrade_local_checker,
+            upgrade_info_writer_thread=upgrade_info_writer_thread,
         )
 
     def _setup_logger(self, is_ci_mode: bool) -> None:
@@ -179,15 +196,17 @@ class ProtostarCLI(CLIApp):
 
     async def run(self, args: Any) -> None:
         self._setup_logger(args.no_color)
-
         try:
+            self.upgrade_local_checker.log_info_if_update_available()
             self._check_git_version()
 
             if args.version:
                 self.version_manager.print_current_version()
                 return
 
-            await super().run(args)
+            with self.upgrade_info_writer_thread:
+                await super().run(args)
+
         except ProtostarExceptionSilent:
             sys.exit(1)
         except ProtostarException as err:

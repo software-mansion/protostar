@@ -5,7 +5,7 @@ from protostar.utils.update_toml import UpdateTOML
 from protostar.utils.upgrade_poller import UpgradePoller
 
 
-class UpgradePollerThread:
+class UpgradeInfoWriterThread:
     def __init__(
         self, protostar_directory: ProtostarDirectory, version_manager: VersionManager
     ):
