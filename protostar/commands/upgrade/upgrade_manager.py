@@ -39,14 +39,14 @@ class UpgradeManager:
         protostar_dir_path = self._protostar_directory.directory_root_path
         protostar_dir_backup_path = protostar_dir_path / "previous_version_tmp"
 
-        platform = self.get_platform()
+        platform = self._get_platform()
         tarball_filename = f"protostar-{platform}.tar.gz"
         tarball_path = protostar_dir_path / tarball_filename
 
         current_version = (
             self._version_manager.protostar_version or VersionManager.parse("0.0.0")
         )
-        latest_version_tag: str = self.get_latest_release()["tag_name"]
+        latest_version_tag = self._get_latest_release_tag()
         latest_version = self._version_manager.parse(latest_version_tag)
 
         self._logger.info("Looking for a new version ...")
@@ -107,6 +107,7 @@ class UpgradeManager:
                 tarball_path=tarball_path,
             )
 
+    # pylint: disable=too-many-arguments
     def _handle_error(
         self,
         err: Any,
@@ -172,8 +173,8 @@ class UpgradeManager:
         except FileNotFoundError:
             pass
 
-    @classmethod
-    def get_platform(cls):
+    @staticmethod
+    def _get_platform():
         platform = os.uname()[0]
         if platform == "Darwin":
             return "macOS"
@@ -181,8 +182,8 @@ class UpgradeManager:
             return "Linux"
         raise UpgradeManagerException(f"{platform} is not supported")
 
-    @classmethod
-    def get_latest_release(cls):
+    @staticmethod
+    def _get_latest_release_tag() -> str:
         headers = {"Accept": "application/json"}
         response = requests.get(f"{PROTOSTAR_REPO}/releases/latest", headers=headers)
-        return response.json()
+        return response.json()["tag_name"]
