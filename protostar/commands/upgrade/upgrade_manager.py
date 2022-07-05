@@ -36,19 +36,19 @@ class UpgradeManager:
         assert os.path.isdir(self._protostar_directory.directory_root_path)
         assert os.path.isdir(self._protostar_directory.directory_root_path / "dist")
 
-        protostar_dir = self._protostar_directory.directory_root_path
-        old_version = protostar_dir / "previous_version_tmp"
+        protostar_dir_path = self._protostar_directory.directory_root_path
+        protostar_dir_backup_path = protostar_dir_path / "previous_version_tmp"
 
         platform = self.get_platform()
-        tarball_name = f"protostar-{platform}.tar.gz"
-        tarball_loc = protostar_dir / tarball_name
+        tarball_filename = f"protostar-{platform}.tar.gz"
+        tarball_path = protostar_dir_path / tarball_filename
 
         current_version = (
             self._version_manager.protostar_version or VersionManager.parse("0.0.0")
         )
         latest_version_tag: str = self.get_latest_release()["tag_name"]
-
         latest_version = self._version_manager.parse(latest_version_tag)
+
         self._logger.info("Looking for a new version ...")
         if latest_version <= current_version:
             self._logger.info("Protostar is up to date")
@@ -63,51 +63,57 @@ class UpgradeManager:
             self._pull_tarball(
                 latest_version=latest_version,
                 latest_version_tag=latest_version_tag,
-                tarball_loc=tarball_loc,
-                tarball_name=tarball_name,
+                tarball_path=tarball_path,
+                tarball_filename=tarball_filename,
             )
         except (Exception, SystemExit) as err:
             self._handle_error(
                 err,
                 current_version=current_version,
-                old_version=old_version,
-                protostar_dir=protostar_dir,
-                tarball_loc=tarball_loc,
+                protostar_dir_backup_path=protostar_dir_backup_path,
+                protostar_dir_path=protostar_dir_path,
+                tarball_path=tarball_path,
             )
 
-        self._backup(protostar_dir, old_version)
+        self._backup(protostar_dir_path, protostar_dir_backup_path)
 
         try:
             self._install_new_version(
                 latest_version=latest_version,
-                tarball_loc=tarball_loc,
-                protostar_dir=protostar_dir,
+                tarball_path=tarball_path,
+                protostar_dir_path=protostar_dir_path,
             )
-            self.cleanup(old_version=old_version, tarball_loc=tarball_loc)
+            self.cleanup(
+                protostar_dir_backup_path=protostar_dir_backup_path,
+                tarball_path=tarball_path,
+            )
         except KeyboardInterrupt:
             self._logger.info("Interrupting...")
             self._rollback(
                 current_version=current_version,
-                old_version=old_version,
-                protostar_dir=protostar_dir,
+                old_version=protostar_dir_backup_path,
+                protostar_dir=protostar_dir_path,
             )
-            self.cleanup(old_version=old_version, tarball_loc=tarball_loc)
+            self.cleanup(
+                protostar_dir_backup_path=protostar_dir_backup_path,
+                tarball_path=tarball_path,
+            )
         except (Exception, SystemExit) as err:
             self._handle_error(
                 err,
                 current_version=current_version,
-                old_version=old_version,
-                protostar_dir=protostar_dir,
-                tarball_loc=tarball_loc,
+                protostar_dir_backup_path=protostar_dir_backup_path,
+                protostar_dir_path=protostar_dir_path,
+                tarball_path=tarball_path,
             )
 
     def _handle_error(
         self,
         err: Any,
         current_version: VersionType,
-        protostar_dir: Path,
-        old_version: Path,
-        tarball_loc: Path,
+        protostar_dir_path: Path,
+        protostar_dir_backup_path: Path,
+        tarball_path: Path,
     ):
         self._logger.error(
             (
@@ -117,9 +123,14 @@ class UpgradeManager:
             )
         )
         self._rollback(
-            current_version, protostar_dir=protostar_dir, old_version=old_version
+            current_version,
+            protostar_dir=protostar_dir_path,
+            old_version=protostar_dir_backup_path,
         )
-        self.cleanup(old_version=old_version, tarball_loc=tarball_loc)
+        self.cleanup(
+            protostar_dir_backup_path=protostar_dir_backup_path,
+            tarball_path=tarball_path,
+        )
         raise err
 
     @staticmethod
@@ -130,23 +141,21 @@ class UpgradeManager:
         self,
         latest_version: VersionType,
         latest_version_tag: str,
-        tarball_name: str,
-        tarball_loc: Path,
+        tarball_filename: str,
+        tarball_path: Path,
     ):
         self._logger.info("Pulling latest binary, version: %s", latest_version)
-        tar_url = (
-            f"{PROTOSTAR_REPO}/releases/download/{latest_version_tag}/{tarball_name}"
-        )
+        tar_url = f"{PROTOSTAR_REPO}/releases/download/{latest_version_tag}/{tarball_filename}"
         with requests.get(tar_url, stream=True) as request:
-            with open(tarball_loc, "wb") as file:
+            with open(tarball_path, "wb") as file:
                 shutil.copyfileobj(request.raw, file)
 
     def _install_new_version(
-        self, latest_version: VersionType, tarball_loc: Path, protostar_dir: Path
+        self, latest_version: VersionType, tarball_path: Path, protostar_dir_path: Path
     ):
         self._logger.info("Installing latest Protostar version: %s", latest_version)
-        with tarfile.open(tarball_loc, "r:gz") as tar:
-            tar.extractall(protostar_dir)
+        with tarfile.open(tarball_path, "r:gz") as tar:
+            tar.extractall(protostar_dir_path)
 
     def _rollback(
         self, current_version: VersionType, protostar_dir: Path, old_version: Path
@@ -155,11 +164,11 @@ class UpgradeManager:
         shutil.rmtree(protostar_dir / "dist", ignore_errors=True)
         shutil.move(str(old_version), protostar_dir / "dist")
 
-    def cleanup(self, old_version: Path, tarball_loc: Path):
+    def cleanup(self, protostar_dir_backup_path: Path, tarball_path: Path):
         self._logger.info("Cleaning up after installation")
-        shutil.rmtree(old_version, ignore_errors=True)
+        shutil.rmtree(protostar_dir_backup_path, ignore_errors=True)
         try:
-            os.remove(tarball_loc)
+            os.remove(tarball_path)
         except FileNotFoundError:
             pass
 
