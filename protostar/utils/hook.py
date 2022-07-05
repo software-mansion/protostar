@@ -15,7 +15,7 @@ class Hook:
         self._hooks.remove(listener)
 
     @asynccontextmanager
-    async def run(self):
+    async def run_after(self):
         try:
             yield
             for hook in self._hooks:

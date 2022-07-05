@@ -109,7 +109,7 @@ class TestExecutionEnvironment:
         ]
 
         async with self._expect_revert_context.test():
-            async with self._finish_hook.run():
+            async with self._finish_hook.run_after():
                 execution_resources = await self._call_test_case_fn(test_case_name)
 
         return execution_resources
