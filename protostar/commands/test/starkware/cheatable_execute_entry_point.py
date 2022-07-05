@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, cast
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
@@ -15,7 +15,6 @@ from starkware.starknet.business_logic.execution.execute_entry_point import (
     ExecuteEntryPoint,
 )
 from starkware.starknet.business_logic.execution.objects import (
-    CallInfo,
     TransactionExecutionContext,
 )
 from starkware.starknet.core.os import os_utils, syscall_utils
@@ -36,16 +35,16 @@ from protostar.commands.test.starkware.hint_local import HintLocal
 
 if TYPE_CHECKING:
     from protostar.commands.test.starkware.cheatable_state import CheatableCarriedState
+    from protostar.commands.test.starkware.cheatcode_factory import CheatcodeFactory
 
 logger = logging.getLogger(__name__)
 
-# pylint: disable=too-many-locals
+
 # pylint: disable=raise-missing-from
+# pylint: disable=too-many-locals
+# pylint: disable=too-many-statements
 class CheatableExecuteEntryPoint(ExecuteEntryPoint):
-    CheatcodeFactory = Callable[
-        [Cheatcode.SyscallDependencies, List[CallInfo]], List[Cheatcode]
-    ]
-    cheatcode_factory: Optional[CheatcodeFactory] = None
+    cheatcode_factory: Optional["CheatcodeFactory"] = None
     custom_hint_locals: Optional[List[HintLocal]] = None
 
     def _run(
@@ -118,10 +117,11 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             CheatableExecuteEntryPoint.cheatcode_factory is not None
         ), "Tried to use CheatableExecuteEntryPoint without cheatcodes"
 
-        # pylint: disable=not-callable
-        for cheatcode in CheatableExecuteEntryPoint.cheatcode_factory(
-            syscall_dependencies, syscall_handler.internal_calls
-        ):
+        cheatcodes = CheatableExecuteEntryPoint.cheatcode_factory.build(
+            syscall_dependencies=syscall_dependencies,
+            internal_calls=syscall_handler.internal_calls,
+        )
+        for cheatcode in cheatcodes:
             hint_locals[cheatcode.name] = cheatcode.build()
 
         if CheatableExecuteEntryPoint.custom_hint_locals:
