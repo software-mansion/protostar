@@ -8,8 +8,11 @@ from typing import Any
 
 import requests
 
-from protostar.utils.protostar_directory import (ProtostarDirectory,
-                                                 VersionManager, VersionType)
+from protostar.utils.protostar_directory import (
+    ProtostarDirectory,
+    VersionManager,
+    VersionType,
+)
 from protostar.utils.upgrade_poller import UpgradePoller
 
 
