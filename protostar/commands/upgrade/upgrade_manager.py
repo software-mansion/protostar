@@ -13,8 +13,7 @@ from protostar.utils.protostar_directory import (
     VersionManager,
     VersionType,
 )
-
-PROTOSTAR_REPO = "https://github.com/software-mansion/protostar"
+from protostar.utils.upgrade_checker import UpgradeChecker
 
 
 class UpgradeManagerException(Exception):
@@ -26,16 +25,26 @@ class UpgradeManager:
         self,
         protostar_directory: ProtostarDirectory,
         version_manager: VersionManager,
+        upgrade_checker: UpgradeChecker,
         logger: Logger,
     ):
         self._protostar_directory = protostar_directory
         self._version_manager = version_manager
+        self._upgrade_checker = upgrade_checker
         self._logger = logger
 
     def upgrade(self):
         assert os.path.isdir(self._protostar_directory.directory_root_path)
         assert os.path.isdir(self._protostar_directory.directory_root_path / "dist")
 
+        self._logger.info("Looking for a new version ...")
+        checking_result = self._upgrade_checker.check()
+        if not checking_result.is_newer_version_available:
+            self._logger.info("Protostar is up to date")
+            return
+
+        latest_version_tag = checking_result.latest_release_tag
+        latest_version = checking_result.latest_version
         protostar_dir_path = self._protostar_directory.directory_root_path
         protostar_dir_backup_path = protostar_dir_path / "previous_version_tmp"
 
@@ -46,13 +55,6 @@ class UpgradeManager:
         current_version = (
             self._version_manager.protostar_version or VersionManager.parse("0.0.0")
         )
-        latest_version_tag = self._get_latest_release_tag()
-        latest_version = self._version_manager.parse(latest_version_tag)
-
-        self._logger.info("Looking for a new version ...")
-        if latest_version <= current_version:
-            self._logger.info("Protostar is up to date")
-            return
 
         self._logger.info(
             "Starting upgrade from version %s to version %s",
@@ -146,7 +148,7 @@ class UpgradeManager:
         tarball_path: Path,
     ):
         self._logger.info("Pulling latest binary, version: %s", latest_version)
-        tar_url = f"{PROTOSTAR_REPO}/releases/download/{latest_version_tag}/{tarball_filename}"
+        tar_url = f"{UpgradeChecker.PROTOSTAR_REPO}/releases/download/{latest_version_tag}/{tarball_filename}"
         with requests.get(tar_url, stream=True) as request:
             with open(tarball_path, "wb") as file:
                 shutil.copyfileobj(request.raw, file)
@@ -181,9 +183,3 @@ class UpgradeManager:
         if platform == "Linux":
             return "Linux"
         raise UpgradeManagerException(f"{platform} is not supported")
-
-    @staticmethod
-    def _get_latest_release_tag() -> str:
-        headers = {"Accept": "application/json"}
-        response = requests.get(f"{PROTOSTAR_REPO}/releases/latest", headers=headers)
-        return response.json()["tag_name"]

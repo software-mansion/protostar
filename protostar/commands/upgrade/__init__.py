@@ -1,2 +1,2 @@
 from protostar.commands.upgrade.upgrade_command import UpgradeCommand
-from protostar.commands.upgrade.upgrade_manager import UpgradeManager
+from protostar.commands.upgrade.upgrade_manager import UpgradeChecker, UpgradeManager

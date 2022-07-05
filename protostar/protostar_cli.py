@@ -36,6 +36,7 @@ from protostar.utils import (
     log_color_provider,
 )
 from protostar.utils.input_requester import InputRequester
+from protostar.utils.upgrade_checker import UpgradeChecker
 
 PROFILE_ARG = Command.Argument(
     name="profile",
@@ -116,7 +117,12 @@ class ProtostarCLI(CLIApp):
                 RemoveCommand(project),
                 UpdateCommand(project),
                 UpgradeCommand(
-                    UpgradeManager(protostar_directory, version_manager, self.logger)
+                    UpgradeManager(
+                        protostar_directory,
+                        version_manager,
+                        UpgradeChecker(protostar_directory, version_manager),
+                        self.logger,
+                    )
                 ),
                 TestCommand(project, protostar_directory),
                 DeployCommand(project),
