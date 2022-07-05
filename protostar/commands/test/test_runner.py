@@ -7,6 +7,7 @@ from typing import List, Optional
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 
+from protostar.commands.test.environments.test_execution_environment import TestExecutionEnvironment
 from protostar.commands.test.test_cases import (
     BrokenTestSuite,
     FailedTestCase,
@@ -14,7 +15,6 @@ from protostar.commands.test.test_cases import (
     UnexpectedExceptionTestSuiteResult,
 )
 from protostar.commands.test.test_environment_exceptions import ReportedException
-from protostar.commands.test.test_execution_environment import TestExecutionEnvironment
 from protostar.commands.test.test_results_queue import TestResultsQueue
 from protostar.commands.test.test_suite import TestSuite
 from protostar.protostar_exception import ProtostarException
