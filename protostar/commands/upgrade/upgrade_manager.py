@@ -8,12 +8,9 @@ from typing import Any
 
 import requests
 
-from protostar.utils.protostar_directory import (
-    ProtostarDirectory,
-    VersionManager,
-    VersionType,
-)
-from protostar.utils.upgrade_checker import UpgradeChecker
+from protostar.utils.protostar_directory import (ProtostarDirectory,
+                                                 VersionManager, VersionType)
+from protostar.utils.upgrade_poller import UpgradePoller
 
 
 class UpgradeManagerException(Exception):
@@ -25,7 +22,7 @@ class UpgradeManager:
         self,
         protostar_directory: ProtostarDirectory,
         version_manager: VersionManager,
-        upgrade_checker: UpgradeChecker,
+        upgrade_checker: UpgradePoller,
         logger: Logger,
     ):
         self._protostar_directory = protostar_directory
@@ -38,7 +35,7 @@ class UpgradeManager:
         assert os.path.isdir(self._protostar_directory.directory_root_path / "dist")
 
         self._logger.info("Looking for a new version ...")
-        checking_result = self._upgrade_checker.check()
+        checking_result = self._upgrade_checker.poll()
         if not checking_result.is_newer_version_available:
             self._logger.info("Protostar is up to date")
             return
@@ -148,7 +145,7 @@ class UpgradeManager:
         tarball_path: Path,
     ):
         self._logger.info("Pulling latest binary, version: %s", latest_version)
-        tar_url = f"{UpgradeChecker.PROTOSTAR_REPO}/releases/download/{latest_version_tag}/{tarball_filename}"
+        tar_url = f"{UpgradePoller.PROTOSTAR_REPO}/releases/download/{latest_version_tag}/{tarball_filename}"
         with requests.get(tar_url, stream=True) as request:
             with open(tarball_path, "wb") as file:
                 shutil.copyfileobj(request.raw, file)
