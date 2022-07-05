@@ -1,6 +1,6 @@
 from copy import deepcopy
 from logging import getLogger
-from typing import Callable, List, Optional, Set
+from typing import Callable, List, Optional
 
 from starkware.starknet.business_logic.execution.objects import CallInfo
 from starkware.starknet.services.api.contract_class import ContractClass
@@ -36,6 +36,7 @@ from protostar.commands.test.test_environment_exceptions import (
     StarknetRevertableException,
 )
 from protostar.utils.data_transformer_facade import DataTransformerFacade
+from protostar.utils.hook import Hook
 from protostar.utils.starknet_compilation import StarknetCompiler
 
 logger = getLogger()
@@ -58,7 +59,7 @@ class TestExecutionEnvironment:
         self.test_context = test_context
         self._expected_error: Optional[RevertableException] = None
         self._include_paths = include_paths
-        self._test_finish_hooks: Set[Callable[[], None]] = set()
+        self._finish_hook = Hook()
         self._starknet_compiler = starknet_compiler
         self._disable_hint_validation_in_external_contracts = (
             disable_hint_validation_in_external_contracts
@@ -109,9 +110,8 @@ class TestExecutionEnvironment:
         ]
 
         try:
-            execution_resources = await self._call_test_case_fn(test_case_name)
-            for hook in self._test_finish_hooks:
-                hook()
+            async with self._finish_hook.run():
+                execution_resources = await self._call_test_case_fn(test_case_name)
             if self._expected_error is not None:
                 raise ExpectedRevertException(self._expected_error)
         except RevertableException as ex:
@@ -125,7 +125,6 @@ class TestExecutionEnvironment:
                 raise ex
         finally:
             self._expected_error = None
-            self._test_finish_hooks.clear()
         return execution_resources
 
     async def _call_test_case_fn(
@@ -147,14 +146,6 @@ class TestExecutionEnvironment:
                 code=ex.code.value,
                 details=ex.message,
             ) from ex
-
-    def add_test_finish_hook(self, listener: Callable[[], None]) -> Callable[[], None]:
-        self._test_finish_hooks.add(listener)
-
-        def remove_hook():
-            self._test_finish_hooks.remove(listener)
-
-        return remove_hook
 
     def expect_revert(self, expected_error: RevertableException) -> Callable[[], None]:
         if self._expected_error is not None:
@@ -206,7 +197,10 @@ class TestExecutionEnvironment:
                 ),
                 StartPrankCheatcode(syscall_dependencies),
                 ExpectEventsCheatcode(
-                    syscall_dependencies, self.starknet, self, data_transformer
+                    syscall_dependencies,
+                    self.starknet,
+                    self._finish_hook,
+                    data_transformer,
                 ),
                 StoreCheatcode(syscall_dependencies),
             ]
