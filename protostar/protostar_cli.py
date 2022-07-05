@@ -20,6 +20,8 @@ from protostar.commands.init.project_creator import (
     AdaptedProjectCreator,
     NewProjectCreator,
 )
+from protostar.commands.migrate.migrate_command import MigrateCommand
+from protostar.commands.migrate.migrator import Migrator
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
 from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
@@ -35,6 +37,7 @@ from protostar.utils import (
     log_color_provider,
 )
 from protostar.utils.input_requester import InputRequester
+from protostar.utils.starknet_compilation import StarknetCompiler
 
 PROFILE_ARG = Command.Argument(
     name="profile",
@@ -118,7 +121,15 @@ class ProtostarCLI(CLIApp):
             DeployCommand(project),
         ]
         if dev_mode:
-            print("DEV_MODE")
+            self.commands.append(
+                MigrateCommand(
+                    Migrator(
+                        starknet_compiler=StarknetCompiler(
+                            include_paths=[], disable_hint_validation=True
+                        )
+                    )
+                )
+            )
 
         super().__init__(
             commands=commands,
