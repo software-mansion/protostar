@@ -1,6 +1,6 @@
 # pylint: disable=no-self-use
 import sys
-from logging import INFO, Logger, StreamHandler, getLogger
+from logging import INFO, StreamHandler, getLogger
 from pathlib import Path
 from typing import Any
 
@@ -20,6 +20,7 @@ from protostar.commands.init.project_creator import (
     AdaptedProjectCreator,
     NewProjectCreator,
 )
+from protostar.commands.upgrade.upgrade_manager import UpgradeManager
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
 from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
@@ -82,6 +83,7 @@ class ProtostarCLI(CLIApp):
         requester: InputRequester,
     ) -> None:
         self.project = project
+        self.logger = getLogger()
 
         super().__init__(
             commands=[
@@ -113,7 +115,9 @@ class ProtostarCLI(CLIApp):
                 InstallCommand(project),
                 RemoveCommand(project),
                 UpdateCommand(project),
-                UpgradeCommand(protostar_directory, version_manager),
+                UpgradeCommand(
+                    UpgradeManager(protostar_directory, version_manager, self.logger)
+                ),
                 TestCommand(project, protostar_directory),
                 DeployCommand(project),
             ],
@@ -153,14 +157,12 @@ class ProtostarCLI(CLIApp):
             requester,
         )
 
-    def _setup_logger(self, is_ci_mode: bool) -> Logger:
+    def _setup_logger(self, is_ci_mode: bool) -> None:
         log_color_provider.is_ci_mode = is_ci_mode
-        logger = getLogger()
-        logger.setLevel(INFO)
+        self.logger.setLevel(INFO)
         handler = StreamHandler()
         handler.setFormatter(StandardLogFormatter(log_color_provider))
-        logger.addHandler(handler)
-        return logger
+        self.logger.addHandler(handler)
 
     def _check_git_version(self):
         git_version = self.version_manager.git_version
@@ -170,7 +172,7 @@ class ProtostarCLI(CLIApp):
             )
 
     async def run(self, args: Any) -> None:
-        logger = self._setup_logger(args.no_color)
+        self._setup_logger(args.no_color)
 
         try:
             self._check_git_version()
@@ -185,7 +187,7 @@ class ProtostarCLI(CLIApp):
         except ProtostarException as err:
             if err.details:
                 print(err.details)
-            logger.error(err.message)
+            self.logger.error(err.message)
             sys.exit(1)
         except KeyboardInterrupt:
             sys.exit(1)
