@@ -1,22 +1,69 @@
-from typing import TYPE_CHECKING, Callable, Optional
+from contextlib import asynccontextmanager
+from logging import getLogger
+from typing import Callable, Optional
 
 from protostar.commands.test.starkware.cheatcode import Cheatcode
-from protostar.commands.test.test_environment_exceptions import RevertableException
+from protostar.commands.test.test_environment_exceptions import (
+    RevertableException,
+    SimpleReportedException,
+    ExpectedRevertException,
+    ExpectedRevertMismatchException,
+)
 
-if TYPE_CHECKING:
-    from protostar.commands.test.test_execution_environment import (
-        TestExecutionEnvironment,
-    )
+logger = getLogger()
+
+
+class ExpectRevertContext:
+    def __init__(self):
+        self._expected_error: Optional[RevertableException] = None
+
+    def expect_revert(self, expected_error: RevertableException) -> Callable[[], None]:
+        if self._expected_error is not None:
+            raise SimpleReportedException(
+                f"Protostar is already expecting an exception matching the following error: "
+                f"{self._expected_error}"
+            )
+
+        self._expected_error = expected_error
+
+        def stop_expecting_revert():
+            logger.warning(
+                "The callback returned by the `expect_revert` is deprecated."
+            )
+            if self._expected_error is not None:
+                raise SimpleReportedException(
+                    "Expected a transaction to be reverted before cancelling expect_revert"
+                )
+
+        return stop_expecting_revert
+
+    @asynccontextmanager
+    async def test(self):
+        try:
+            yield
+            if self._expected_error is not None:
+                raise ExpectedRevertException(self._expected_error)
+        except RevertableException as ex:
+            if self._expected_error:
+                if not self._expected_error.match(ex):
+                    raise ExpectedRevertMismatchException(
+                        expected=self._expected_error,
+                        received=ex,
+                    ) from ex
+            else:
+                raise ex
+        finally:
+            self._expected_error = None
 
 
 class ExpectRevertCheatcode(Cheatcode):
     def __init__(
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
-        testing_execution_environment: "TestExecutionEnvironment",
+        context: ExpectRevertContext,
     ) -> None:
         super().__init__(syscall_dependencies)
-        self._testing_execution_environment = testing_execution_environment
+        self._context = context
 
     @property
     def name(self) -> str:
@@ -28,6 +75,6 @@ class ExpectRevertCheatcode(Cheatcode):
     def expect_revert(
         self, error_type: Optional[str] = None, error_message: Optional[str] = None
     ):
-        return self._testing_execution_environment.expect_revert(
+        return self._context.expect_revert(
             RevertableException(error_type=error_type, error_message=error_message)
         )

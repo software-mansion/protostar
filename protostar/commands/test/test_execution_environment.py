@@ -1,6 +1,6 @@
 from copy import deepcopy
 from logging import getLogger
-from typing import Callable, List, Optional
+from typing import List, Optional
 
 from starkware.starknet.business_logic.execution.objects import CallInfo
 from starkware.starknet.services.api.contract_class import ContractClass
@@ -21,6 +21,9 @@ from protostar.commands.test.cheatcodes import (
     WarpCheatcode,
     StoreCheatcode,
 )
+from protostar.commands.test.cheatcodes.expect_revert_cheatcode import (
+    ExpectRevertContext,
+)
 from protostar.commands.test.starkware import ExecutionResourcesSummary
 from protostar.commands.test.starkware.cheatable_execute_entry_point import (
     CheatableExecuteEntryPoint,
@@ -29,10 +32,6 @@ from protostar.commands.test.starkware.cheatcode import Cheatcode
 from protostar.commands.test.starkware.forkable_starknet import ForkableStarknet
 from protostar.commands.test.test_context import TestContext, TestContextHintLocal
 from protostar.commands.test.test_environment_exceptions import (
-    ExpectedRevertException,
-    ExpectedRevertMismatchException,
-    RevertableException,
-    SimpleReportedException,
     StarknetRevertableException,
 )
 from protostar.utils.data_transformer_facade import DataTransformerFacade
@@ -57,7 +56,7 @@ class TestExecutionEnvironment:
         self.starknet = forkable_starknet
         self.test_contract: StarknetContract = test_contract
         self.test_context = test_context
-        self._expected_error: Optional[RevertableException] = None
+        self._expect_revert_context = ExpectRevertContext()
         self._include_paths = include_paths
         self._finish_hook = Hook()
         self._starknet_compiler = starknet_compiler
@@ -109,22 +108,10 @@ class TestExecutionEnvironment:
             TestContextHintLocal(self.test_context)
         ]
 
-        try:
+        async with self._expect_revert_context.test():
             async with self._finish_hook.run():
                 execution_resources = await self._call_test_case_fn(test_case_name)
-            if self._expected_error is not None:
-                raise ExpectedRevertException(self._expected_error)
-        except RevertableException as ex:
-            if self._expected_error:
-                if not self._expected_error.match(ex):
-                    raise ExpectedRevertMismatchException(
-                        expected=self._expected_error,
-                        received=ex,
-                    ) from ex
-            else:
-                raise ex
-        finally:
-            self._expected_error = None
+
         return execution_resources
 
     async def _call_test_case_fn(
@@ -146,25 +133,6 @@ class TestExecutionEnvironment:
                 code=ex.code.value,
                 details=ex.message,
             ) from ex
-
-    def expect_revert(self, expected_error: RevertableException) -> Callable[[], None]:
-        if self._expected_error is not None:
-            raise SimpleReportedException(
-                f"Protostar is already expecting an exception matching the following error: {self._expected_error}"
-            )
-
-        self._expected_error = expected_error
-
-        def stop_expecting_revert():
-            logger.warning(
-                "The callback returned by the `expect_revert` is deprecated."
-            )
-            if self._expected_error is not None:
-                raise SimpleReportedException(
-                    "Expected a transaction to be reverted before cancelling expect_revert"
-                )
-
-        return stop_expecting_revert
 
     def _build_cheatcodes_factory(self) -> CheatableExecuteEntryPoint.CheatcodeFactory:
         def build_cheatcodes(
@@ -193,7 +161,8 @@ class TestExecutionEnvironment:
                 WarpCheatcode(syscall_dependencies),
                 RollCheatcode(syscall_dependencies),
                 ExpectRevertCheatcode(
-                    syscall_dependencies, testing_execution_environment=self
+                    syscall_dependencies,
+                    self._expect_revert_context,
                 ),
                 StartPrankCheatcode(syscall_dependencies),
                 ExpectEventsCheatcode(
