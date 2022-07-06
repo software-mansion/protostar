@@ -11,9 +11,6 @@ class Hook:
     def on(self, listener: HookHandler):
         self._hooks.add(listener)
 
-    def off(self, listener: HookHandler):
-        self._hooks.remove(listener)
-
     @asynccontextmanager
     async def run_after(self):
         try:
