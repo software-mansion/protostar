@@ -26,7 +26,7 @@ class SetupExecutionEnvironment(ExecutionEnvironment[None]):
         self.set_cheatcodes(SetupCheatcodeFactory(self.state))
         self.set_custom_hint_locals([TestContextHintLocal(self.state.context)])
 
-        await self.call(function_name)
+        await self.perform_invoke(function_name)
 
 
 class SetupCheatcodeFactory(CheatcodeFactory):

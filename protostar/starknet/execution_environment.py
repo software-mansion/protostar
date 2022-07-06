@@ -25,7 +25,7 @@ class ExecutionEnvironment(ABC, Generic[InvokeResultT]):
     async def invoke(self, function_name: str) -> InvokeResultT:
         ...
 
-    async def call(self, function_name: str) -> StarknetTransactionExecutionInfo:
+    async def perform_invoke(self, function_name: str) -> StarknetTransactionExecutionInfo:
         try:
             func = getattr(self.state.contract, function_name)
             return await func().invoke()
