@@ -4,8 +4,11 @@ from typing import Optional
 import tomli
 import tomli_w
 
-from protostar.utils.protostar_directory import (ProtostarDirectory,
-                                                 VersionManager, VersionType)
+from protostar.utils.protostar_directory import (
+    ProtostarDirectory,
+    VersionManager,
+    VersionType,
+)
 
 
 @dataclass
