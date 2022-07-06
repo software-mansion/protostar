@@ -14,9 +14,6 @@ from protostar.commands.test.cheatcodes import (
 from protostar.commands.test.cheatcodes.expect_revert_cheatcode import (
     ExpectRevertContext,
 )
-from protostar.commands.test.environments.execution_environment import (
-    ExecutionEnvironment,
-)
 from protostar.commands.test.environments.setup_execution_environment import (
     SetupCheatcodeFactory,
 )
@@ -24,33 +21,44 @@ from protostar.commands.test.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
 )
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
+from protostar.commands.test.test_context import TestContextHintLocal
 from protostar.starknet.cheatcode import Cheatcode
-from protostar.starknet.cheatcode_factory import (
-    CheatcodeFactory,
-)
+from protostar.starknet.execution_environment import ExecutionEnvironment
 from protostar.utils.data_transformer_facade import DataTransformerFacade
 from protostar.utils.hook import Hook
 
 
-class TestExecutionEnvironment(ExecutionEnvironment):
+class TestExecutionEnvironment(
+    ExecutionEnvironment[Optional[ExecutionResourcesSummary]]
+):
+    state: TestExecutionState
+
     def __init__(self, state: TestExecutionState):
         super().__init__(state)
         self._expect_revert_context = ExpectRevertContext()
         self._finish_hook = Hook()
 
-    def _cheatcode_factory(self) -> CheatcodeFactory:
-        return TestCaseCheatcodeFactory(
-            state=self.state,
-            expect_revert_context=self._expect_revert_context,
-            finish_hook=self._finish_hook,
+    async def invoke(self, function_name: str) -> Optional[ExecutionResourcesSummary]:
+        self.set_cheatcodes(
+            TestCaseCheatcodeFactory(
+                state=self.state,
+                expect_revert_context=self._expect_revert_context,
+                finish_hook=self._finish_hook,
+            )
         )
 
-    async def _invoke(self, function_name: str) -> Optional[ExecutionResourcesSummary]:
+        self.set_custom_hint_locals([TestContextHintLocal(self.state.context)])
+
         execution_resources: Optional[ExecutionResourcesSummary] = None
 
         async with self._expect_revert_context.test():
             async with self._finish_hook.run_after():
-                execution_resources = await self._call(function_name)
+                tx_info = await self.call(function_name)
+                execution_resources = (
+                    ExecutionResourcesSummary.from_execution_resources(
+                        tx_info.call_info.execution_resources
+                    )
+                )
 
         return execution_resources
 

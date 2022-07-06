@@ -8,18 +8,25 @@ from protostar.commands.test.cheatcodes import (
     DeployContractCheatcode,
     PrepareCheatcode,
 )
-from protostar.commands.test.environments.execution_environment import (
-    ExecutionEnvironment,
-)
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
+from protostar.commands.test.test_context import TestContextHintLocal
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.cheatcode_factory import CheatcodeFactory
+from protostar.starknet.execution_environment import ExecutionEnvironment
 from protostar.utils.data_transformer_facade import DataTransformerFacade
 
 
-class SetupExecutionEnvironment(ExecutionEnvironment):
-    def _cheatcode_factory(self) -> CheatcodeFactory:
-        return SetupCheatcodeFactory(self.state)
+class SetupExecutionEnvironment(ExecutionEnvironment[None]):
+    state: TestExecutionState
+
+    def __init__(self, state: TestExecutionState):
+        super().__init__(state)
+
+    async def invoke(self, function_name: str):
+        self.set_cheatcodes(SetupCheatcodeFactory(self.state))
+        self.set_custom_hint_locals([TestContextHintLocal(self.state.context)])
+
+        await self.call(function_name)
 
 
 class SetupCheatcodeFactory(CheatcodeFactory):
