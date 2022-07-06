@@ -130,7 +130,7 @@ class ProtostarCLI(CLIApp):
                     UpgradeManager(
                         protostar_directory,
                         version_manager,
-                        UpgradeRemoteChecker(protostar_directory, version_manager),
+                        UpgradeRemoteChecker(version_manager),
                         self.logger,
                     )
                 ),
@@ -171,7 +171,7 @@ class ProtostarCLI(CLIApp):
             upgrade_toml_reader=UpgradeTOML.Reader(protostar_directory),
         )
         upgrade_info_writer_thread = UpgradeInfoWriterThread(
-            UpgradeRemoteChecker(protostar_directory, version_manager),
+            UpgradeRemoteChecker(version_manager),
             UpgradeTOML.Writer(protostar_directory),
         )
 
