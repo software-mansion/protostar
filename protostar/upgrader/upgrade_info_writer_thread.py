@@ -19,9 +19,11 @@ class UpgradeInfoWriterThread:
     ):
         self._upgrade_remote_checker = upgrade_remote_checker
         self._upgrade_toml_writer = upgrade_toml_writer
-        self._thread = Thread(target=self._overwrite_update_available_file, daemon=True)
+        self._thread = Thread(
+            target=self.overwrite_upgrade_toml_if_necessary, daemon=True
+        )
 
-    def _overwrite_update_available_file(self):
+    def overwrite_upgrade_toml_if_necessary(self):
         try:
             result = self._upgrade_remote_checker.check()
             if result.is_newer_version_available:
@@ -31,6 +33,7 @@ class UpgradeInfoWriterThread:
                         changelog_url=result.changelog_url,
                     )
                 )
+
         except ConnectionError:
             pass
 
