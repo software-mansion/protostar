@@ -31,7 +31,7 @@ from protostar.upgrader import (
     UpgradeInfoWriterThread,
     UpgradeLocalChecker,
     UpgradeManager,
-    UpgradePoller,
+    UpgradeRemoteChecker,
 )
 from protostar.utils import (
     Project,
@@ -129,7 +129,7 @@ class ProtostarCLI(CLIApp):
                     UpgradeManager(
                         protostar_directory,
                         version_manager,
-                        UpgradePoller(protostar_directory, version_manager),
+                        UpgradeRemoteChecker(protostar_directory, version_manager),
                         self.logger,
                     )
                 ),

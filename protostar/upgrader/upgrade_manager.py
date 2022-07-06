@@ -8,7 +8,7 @@ from typing import Any
 
 import requests
 
-from protostar.upgrader.upgrade_poller import UpgradePoller
+from protostar.upgrader.upgrade_remote_checker import UpgradeRemoteChecker
 from protostar.utils.protostar_directory import (
     ProtostarDirectory,
     VersionManager,
@@ -25,7 +25,7 @@ class UpgradeManager:
         self,
         protostar_directory: ProtostarDirectory,
         version_manager: VersionManager,
-        upgrade_checker: UpgradePoller,
+        upgrade_checker: UpgradeRemoteChecker,
         logger: Logger,
     ):
         self._protostar_directory = protostar_directory
@@ -148,7 +148,7 @@ class UpgradeManager:
         tarball_path: Path,
     ):
         self._logger.info("Pulling latest binary, version: %s", latest_version)
-        tar_url = f"{UpgradePoller.PROTOSTAR_REPO}/releases/download/{latest_version_tag}/{tarball_filename}"
+        tar_url = f"{UpgradeRemoteChecker.PROTOSTAR_REPO}/releases/download/{latest_version_tag}/{tarball_filename}"
         with requests.get(tar_url, stream=True) as request:
             with open(tarball_path, "wb") as file:
                 shutil.copyfileobj(request.raw, file)

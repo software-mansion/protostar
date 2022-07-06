@@ -9,7 +9,7 @@ from protostar.utils.protostar_directory import (
 )
 
 
-class UpgradePoller:
+class UpgradeRemoteChecker:
     PROTOSTAR_REPO = "https://github.com/software-mansion/protostar"
 
     @dataclass
@@ -25,16 +25,16 @@ class UpgradePoller:
         self._protostar_directory = protostar_directory
         self._version_manager = version_manager
 
-    def poll(self) -> "UpgradePoller.Result":
+    def poll(self) -> "UpgradeRemoteChecker.Result":
         headers = {"Accept": "application/json"}
         response = requests.get(
-            f"{UpgradePoller.PROTOSTAR_REPO}/releases/latest", headers=headers
+            f"{UpgradeRemoteChecker.PROTOSTAR_REPO}/releases/latest", headers=headers
         )
         response_dict = response.json()
         latest_release_tag = response_dict["tag_name"]
         latest_version = self._version_manager.parse(latest_release_tag)
         changelog_url = "https://github.com" + response_dict["update_url"]
-        return UpgradePoller.Result(
+        return UpgradeRemoteChecker.Result(
             latest_version=latest_version,
             latest_release_tag=latest_release_tag,
             is_newer_version_available=latest_version

@@ -1,6 +1,6 @@
 from threading import Thread
 
-from protostar.upgrader.upgrade_poller import UpgradePoller
+from protostar.upgrader.upgrade_remote_checker import UpgradeRemoteChecker
 from protostar.upgrader.upgrade_toml import UpgradeTOML
 from protostar.utils.protostar_directory import ProtostarDirectory, VersionManager
 
@@ -15,7 +15,7 @@ class UpgradeInfoWriterThread:
         self._thread = Thread(target=self._overwrite_update_available_file, daemon=True)
 
     def _overwrite_update_available_file(self):
-        upgrade_checker = UpgradePoller(
+        upgrade_checker = UpgradeRemoteChecker(
             self._protostar_directory, self._version_manager
         )
         result = upgrade_checker.poll()
