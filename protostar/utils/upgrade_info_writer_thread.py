@@ -21,7 +21,9 @@ class UpgradeInfoWriterThread:
         result = upgrade_checker.poll()
         if result.is_newer_version_available:
             UpdateTOML.Writer(self._protostar_directory).save(
-                UpdateTOML(version=result.latest_version)
+                UpdateTOML(
+                    version=result.latest_version, changelog_url=result.changelog_url
+                )
             )
 
     def __enter__(self):

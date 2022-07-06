@@ -161,7 +161,7 @@ class ProtostarCLI(CLIApp):
         requester = InputRequester(log_color_provider)
         logger = getLogger()
         upgrade_local_checker = UpgradeLocalChecker(
-            protostar_directory, version_manager, logger
+            protostar_directory, version_manager, logger, log_color_provider
         )
         upgrade_info_writer_thread = UpgradeInfoWriterThread(
             protostar_directory, version_manager

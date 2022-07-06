@@ -17,6 +17,7 @@ class UpgradePoller:
         latest_release_tag: str
         latest_version: VersionType
         is_newer_version_available: bool
+        changelog_url: str
 
     def __init__(
         self, protostar_directory: ProtostarDirectory, version_manager: VersionManager
@@ -29,8 +30,10 @@ class UpgradePoller:
         response = requests.get(
             f"{UpgradePoller.PROTOSTAR_REPO}/releases/latest", headers=headers
         )
-        latest_release_tag = response.json()["tag_name"]
+        response_dict = response.json()
+        latest_release_tag = response_dict["tag_name"]
         latest_version = self._version_manager.parse(latest_release_tag)
+        changelog_url = "https://github.com" + response_dict["update_url"]
         return UpgradePoller.Result(
             latest_version=latest_version,
             latest_release_tag=latest_release_tag,
@@ -39,4 +42,5 @@ class UpgradePoller:
                 self._version_manager.protostar_version
                 or self._version_manager.parse("0.0.0")
             ),
+            changelog_url=changelog_url,
         )
