@@ -11,7 +11,7 @@ from protostar.commands.test.cheatcodes import (
 from protostar.commands.test.environments.execution_environment import (
     ExecutionEnvironment,
 )
-from protostar.commands.test.execution_state import ExecutionState
+from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.cheatcode_factory import CheatcodeFactory
 from protostar.utils.data_transformer_facade import DataTransformerFacade
@@ -23,7 +23,7 @@ class SetupExecutionEnvironment(ExecutionEnvironment):
 
 
 class SetupCheatcodeFactory(CheatcodeFactory):
-    def __init__(self, state: ExecutionState):
+    def __init__(self, state: TestExecutionState):
         self._state = state
 
     def build(

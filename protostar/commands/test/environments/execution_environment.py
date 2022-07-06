@@ -4,10 +4,10 @@ from typing import Optional
 from starkware.starknet.testing.objects import StarknetTransactionExecutionInfo
 from starkware.starkware_utils.error_handling import StarkException
 
-from protostar.commands.test.execution_state import ExecutionState
 from protostar.commands.test.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
 )
+from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_context import TestContextHintLocal
 from protostar.commands.test.test_environment_exceptions import (
     StarknetRevertableException,
@@ -19,8 +19,8 @@ from protostar.starknet.cheatcode_factory import CheatcodeFactory
 
 
 class ExecutionEnvironment(ABC):
-    def __init__(self, state: ExecutionState):
-        self.state: ExecutionState = state
+    def __init__(self, state: TestExecutionState):
+        self.state: TestExecutionState = state
 
     @abstractmethod
     def _cheatcode_factory(self) -> CheatcodeFactory:

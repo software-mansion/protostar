@@ -20,10 +20,10 @@ from protostar.commands.test.environments.execution_environment import (
 from protostar.commands.test.environments.setup_execution_environment import (
     SetupCheatcodeFactory,
 )
-from protostar.commands.test.execution_state import ExecutionState
 from protostar.commands.test.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
 )
+from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.cheatcode_factory import (
     CheatcodeFactory,
@@ -33,7 +33,7 @@ from protostar.utils.hook import Hook
 
 
 class TestExecutionEnvironment(ExecutionEnvironment):
-    def __init__(self, state: ExecutionState):
+    def __init__(self, state: TestExecutionState):
         super().__init__(state)
         self._expect_revert_context = ExpectRevertContext()
         self._finish_hook = Hook()
@@ -58,7 +58,7 @@ class TestExecutionEnvironment(ExecutionEnvironment):
 class TestCaseCheatcodeFactory(SetupCheatcodeFactory):
     def __init__(
         self,
-        state: ExecutionState,
+        state: TestExecutionState,
         expect_revert_context: ExpectRevertContext,
         finish_hook: Hook,
     ):

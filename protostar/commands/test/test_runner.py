@@ -8,7 +8,7 @@ from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 
 from protostar.commands.test.environments.factory import invoke_setup, invoke_test_case
-from protostar.commands.test.execution_state import ExecutionState
+from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_cases import (
     BrokenTestSuite,
     FailedTestCase,
@@ -122,7 +122,7 @@ class TestRunner:
         assert self.queue, "Uninitialized reporter!"
 
         try:
-            execution_state = await ExecutionState.from_test_suite_definition(
+            execution_state = await TestExecutionState.from_test_suite_definition(
                 self.starknet_compiler,
                 test_contract,
                 self.disable_hint_validation_in_external_contracts,
