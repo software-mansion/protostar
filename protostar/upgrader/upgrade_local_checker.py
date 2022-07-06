@@ -10,21 +10,24 @@ class UpgradeLocalChecker:
     Check if there's information about the upgrade on the user's disk.
     """
 
+    # pylint: disable=too-many-arguments
     def __init__(
         self,
         protostar_directory: ProtostarDirectory,
         version_manager: VersionManager,
         logger: Logger,
         log_color_provider: LogColorProvider,
+        upgrade_toml_reader: UpgradeTOML.Reader,
     ) -> None:
         self._protostar_directory = protostar_directory
         self._version_manager = version_manager
         self._logger = logger
         self._log_color_provider = log_color_provider
+        self._upgrade_toml_reader = upgrade_toml_reader
 
     def log_info_if_update_available(self):
         try:
-            update_toml = UpgradeTOML.Reader(self._protostar_directory).read()
+            update_toml = self._upgrade_toml_reader.read()
             if not update_toml:
                 return
 
