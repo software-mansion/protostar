@@ -33,6 +33,7 @@ from protostar.upgrader import (
     UpgradeManager,
     UpgradeRemoteChecker,
 )
+from protostar.upgrader.upgrade_toml import UpgradeTOML
 from protostar.utils import (
     Project,
     ProtostarDirectory,
@@ -166,7 +167,8 @@ class ProtostarCLI(CLIApp):
             protostar_directory, version_manager, logger, log_color_provider
         )
         upgrade_info_writer_thread = UpgradeInfoWriterThread(
-            protostar_directory, version_manager
+            UpgradeRemoteChecker(protostar_directory, version_manager),
+            UpgradeTOML.Writer(protostar_directory),
         )
 
         return cls(

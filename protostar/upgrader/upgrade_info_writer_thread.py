@@ -5,7 +5,6 @@ from requests.exceptions import ConnectionError
 
 from protostar.upgrader.upgrade_remote_checker import UpgradeRemoteChecker
 from protostar.upgrader.upgrade_toml import UpgradeTOML
-from protostar.utils.protostar_directory import ProtostarDirectory, VersionManager
 
 
 class UpgradeInfoWriterThread:
@@ -14,20 +13,19 @@ class UpgradeInfoWriterThread:
     """
 
     def __init__(
-        self, protostar_directory: ProtostarDirectory, version_manager: VersionManager
+        self,
+        upgrade_remote_checker: UpgradeRemoteChecker,
+        upgrade_toml_writer: UpgradeTOML.Writer,
     ):
-        self._protostar_directory = protostar_directory
-        self._version_manager = version_manager
+        self._upgrade_remote_checker = upgrade_remote_checker
+        self._upgrade_toml_writer = upgrade_toml_writer
         self._thread = Thread(target=self._overwrite_update_available_file, daemon=True)
 
     def _overwrite_update_available_file(self):
-        upgrade_checker = UpgradeRemoteChecker(
-            self._protostar_directory, self._version_manager
-        )
         try:
-            result = upgrade_checker.check()
+            result = self._upgrade_remote_checker.check()
             if result.is_newer_version_available:
-                UpgradeTOML.Writer(self._protostar_directory).save(
+                self._upgrade_toml_writer.save(
                     UpgradeTOML(
                         version=result.latest_version,
                         changelog_url=result.changelog_url,
