@@ -5,11 +5,6 @@ from starkware.starknet.business_logic.execution.objects import CallInfo
 from protostar.commands.test.cheatcodes import (
     ExpectEventsCheatcode,
     ExpectRevertCheatcode,
-    MockCallCheatcode,
-    RollCheatcode,
-    StartPrankCheatcode,
-    StoreCheatcode,
-    WarpCheatcode,
 )
 from protostar.commands.test.cheatcodes.expect_revert_cheatcode import (
     ExpectRevertContext,
@@ -83,11 +78,6 @@ class TestCaseCheatcodeFactory(SetupCheatcodeFactory):
 
         return [
             *super().build(syscall_dependencies, internal_calls),
-            MockCallCheatcode(syscall_dependencies, data_transformer),
-            WarpCheatcode(syscall_dependencies),
-            RollCheatcode(syscall_dependencies),
-            StartPrankCheatcode(syscall_dependencies),
-            StoreCheatcode(syscall_dependencies),
             ExpectRevertCheatcode(
                 syscall_dependencies,
                 self._expect_revert_context,

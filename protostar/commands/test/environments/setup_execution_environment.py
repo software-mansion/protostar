@@ -6,7 +6,12 @@ from protostar.commands.test.cheatcodes import (
     DeclareCheatcode,
     DeployCheatcode,
     DeployContractCheatcode,
+    MockCallCheatcode,
     PrepareCheatcode,
+    RollCheatcode,
+    StartPrankCheatcode,
+    StoreCheatcode,
+    WarpCheatcode,
 )
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_context import TestContextHintLocal
@@ -57,4 +62,9 @@ class SetupCheatcodeFactory(CheatcodeFactory):
                 prepare_cheatcode,
                 deploy_cheatcode,
             ),
+            MockCallCheatcode(syscall_dependencies, data_transformer),
+            WarpCheatcode(syscall_dependencies),
+            RollCheatcode(syscall_dependencies),
+            StartPrankCheatcode(syscall_dependencies),
+            StoreCheatcode(syscall_dependencies),
         ]
