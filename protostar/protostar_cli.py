@@ -20,7 +20,6 @@ from protostar.commands.init.project_creator import (
     AdaptedProjectCreator,
     NewProjectCreator,
 )
-from protostar.commands.upgrade.upgrade_manager import UpgradeManager
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
 from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
@@ -28,6 +27,12 @@ from protostar.protostar_toml.protostar_contracts_section import (
     ProtostarContractsSection,
 )
 from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
+from protostar.upgrader import (
+    UpgradeInfoWriterThread,
+    UpgradeLocalChecker,
+    UpgradeManager,
+    UpgradePoller,
+)
 from protostar.utils import (
     Project,
     ProtostarDirectory,
@@ -36,9 +41,6 @@ from protostar.utils import (
     log_color_provider,
 )
 from protostar.utils.input_requester import InputRequester
-from protostar.utils.upgrade_info_writer_thread import UpgradeInfoWriterThread
-from protostar.utils.upgrade_local_checker import UpgradeLocalChecker
-from protostar.utils.upgrade_poller import UpgradePoller
 
 PROFILE_ARG = Command.Argument(
     name="profile",

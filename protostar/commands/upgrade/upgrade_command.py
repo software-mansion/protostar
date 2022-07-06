@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 from protostar.cli.command import Command
-from protostar.commands.upgrade.upgrade_manager import UpgradeManager
+from protostar.upgrader import UpgradeManager
 
 
 class UpgradeCommand(Command):

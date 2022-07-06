@@ -1,8 +1,8 @@
 from logging import Logger
 
+from protostar.upgrader import UpdateTOML
 from protostar.utils.log_color_provider import LogColorProvider
 from protostar.utils.protostar_directory import ProtostarDirectory, VersionManager
-from protostar.utils.update_toml import UpdateTOML
 
 
 class UpgradeLocalChecker:

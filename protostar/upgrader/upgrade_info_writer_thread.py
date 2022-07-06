@@ -1,8 +1,8 @@
 from threading import Thread
 
+from protostar.upgrader.update_toml import UpdateTOML
+from protostar.upgrader.upgrade_poller import UpgradePoller
 from protostar.utils.protostar_directory import ProtostarDirectory, VersionManager
-from protostar.utils.update_toml import UpdateTOML
-from protostar.utils.upgrade_poller import UpgradePoller
 
 
 class UpgradeInfoWriterThread:

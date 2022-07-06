@@ -8,12 +8,12 @@ from typing import Any
 
 import requests
 
+from protostar.upgrader.upgrade_poller import UpgradePoller
 from protostar.utils.protostar_directory import (
     ProtostarDirectory,
     VersionManager,
     VersionType,
 )
-from protostar.utils.upgrade_poller import UpgradePoller
 
 
 class UpgradeManagerException(Exception):
