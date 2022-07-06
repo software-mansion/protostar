@@ -25,7 +25,7 @@ class UpgradeRemoteChecker:
         self._protostar_directory = protostar_directory
         self._version_manager = version_manager
 
-    def poll(self) -> "UpgradeRemoteChecker.Result":
+    def check(self) -> "UpgradeRemoteChecker.Result":
         headers = {"Accept": "application/json"}
         response = requests.get(
             f"{UpgradeRemoteChecker.PROTOSTAR_REPO}/releases/latest", headers=headers

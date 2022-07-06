@@ -1,8 +1,12 @@
 from threading import Thread
 
+# pylint: disable=redefined-builtin
+from requests.exceptions import ConnectionError
+
 from protostar.upgrader.upgrade_remote_checker import UpgradeRemoteChecker
 from protostar.upgrader.upgrade_toml import UpgradeTOML
-from protostar.utils.protostar_directory import ProtostarDirectory, VersionManager
+from protostar.utils.protostar_directory import (ProtostarDirectory,
+                                                 VersionManager)
 
 
 class UpgradeInfoWriterThread:
@@ -18,13 +22,17 @@ class UpgradeInfoWriterThread:
         upgrade_checker = UpgradeRemoteChecker(
             self._protostar_directory, self._version_manager
         )
-        result = upgrade_checker.poll()
-        if result.is_newer_version_available:
-            UpgradeTOML.Writer(self._protostar_directory).save(
-                UpgradeTOML(
-                    version=result.latest_version, changelog_url=result.changelog_url
+        try:
+            result = upgrade_checker.check()
+            if result.is_newer_version_available:
+                UpgradeTOML.Writer(self._protostar_directory).save(
+                    UpgradeTOML(
+                        version=result.latest_version,
+                        changelog_url=result.changelog_url,
+                    )
                 )
-            )
+        except ConnectionError:
+            pass
 
     def __enter__(self):
         self._thread.start()
