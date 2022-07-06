@@ -1,7 +1,7 @@
 from threading import Thread
 
-from protostar.upgrader.update_toml import UpdateTOML
 from protostar.upgrader.upgrade_poller import UpgradePoller
+from protostar.upgrader.upgrade_toml import UpgradeTOML
 from protostar.utils.protostar_directory import ProtostarDirectory, VersionManager
 
 
@@ -20,8 +20,8 @@ class UpgradeInfoWriterThread:
         )
         result = upgrade_checker.poll()
         if result.is_newer_version_available:
-            UpdateTOML.Writer(self._protostar_directory).save(
-                UpdateTOML(
+            UpgradeTOML.Writer(self._protostar_directory).save(
+                UpgradeTOML(
                     version=result.latest_version, changelog_url=result.changelog_url
                 )
             )

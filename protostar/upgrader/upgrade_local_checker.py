@@ -1,6 +1,6 @@
 from logging import Logger
 
-from protostar.upgrader import UpdateTOML
+from protostar.upgrader.upgrade_toml import UpgradeTOML
 from protostar.utils.log_color_provider import LogColorProvider
 from protostar.utils.protostar_directory import ProtostarDirectory, VersionManager
 
@@ -20,7 +20,7 @@ class UpgradeLocalChecker:
 
     def log_info_if_update_available(self):
         try:
-            update_toml = UpdateTOML.Reader(self._protostar_directory).read()
+            update_toml = UpgradeTOML.Reader(self._protostar_directory).read()
             if not update_toml:
                 return
 
@@ -48,5 +48,5 @@ class UpgradeLocalChecker:
                 )
         except BaseException:  # pylint: disable=broad-except
             self._logger.warn(
-                f"Couldn't read {self._protostar_directory.update_toml_path}"
+                f"Couldn't read {self._protostar_directory.upgrade_toml_path}"
             )
