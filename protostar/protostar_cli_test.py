@@ -51,19 +51,16 @@ def protostar_cli_fixture(
 async def test_should_fail_due_to_old_git(
     protostar_cli: ProtostarCLI, mocker: MockerFixture
 ):
-
-    # pylint: disable=protected-access
-    protostar_cli._setup_logger = mocker.MagicMock()
     logger_mock = mocker.MagicMock(Logger)
+    protostar_cli.logger = logger_mock
     logger_mock.error = mocker.MagicMock()
     # pylint: disable=protected-access
-    protostar_cli._setup_logger.return_value = logger_mock
+
     parser = ArgumentParserFacade(protostar_cli)
 
     with pytest.raises(SystemExit) as ex:
         await protostar_cli.run(parser.parse(["--version"]))
         assert cast(SystemExit, ex).code == 1
-
     logger_mock.error.assert_called_once()
     assert "2.28" in logger_mock.error.call_args_list[0][0][0]
 
