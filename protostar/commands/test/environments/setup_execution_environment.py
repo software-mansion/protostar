@@ -4,23 +4,17 @@ from starkware.starknet.business_logic.execution.objects import CallInfo
 
 from protostar.commands.test.cheatcodes import (
     DeclareCheatcode,
-    PrepareCheatcode,
     DeployCheatcode,
     DeployContractCheatcode,
-    MockCallCheatcode,
-    WarpCheatcode,
-    RollCheatcode,
-    StartPrankCheatcode,
-    StoreCheatcode,
+    PrepareCheatcode,
 )
 from protostar.commands.test.environments.execution_environment import (
     ExecutionEnvironment,
 )
+from protostar.commands.test.execution_state import ExecutionState
 from protostar.commands.test.starkware.cheatcode import Cheatcode
-from protostar.commands.test.starkware.cheatcode_factory import (
-    CheatcodeFactory,
-    WithDataTransformer,
-)
+from protostar.commands.test.starkware.cheatcode_factory import CheatcodeFactory
+from protostar.utils.data_transformer_facade import DataTransformerFacade
 
 
 class SetupExecutionEnvironment(ExecutionEnvironment):
@@ -28,20 +22,23 @@ class SetupExecutionEnvironment(ExecutionEnvironment):
         return SetupCheatcodeFactory(self.state)
 
 
-class SetupCheatcodeFactory(CheatcodeFactory, WithDataTransformer):
+class SetupCheatcodeFactory(CheatcodeFactory):
+    def __init__(self, state: ExecutionState):
+        self._state = state
+
     def build(
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
         internal_calls: List[CallInfo],
     ) -> List[Cheatcode]:
+        data_transformer = DataTransformerFacade(self._state.starknet_compiler)
+
         declare_cheatcode = DeclareCheatcode(
             syscall_dependencies,
-            disable_hint_validation=self.state.disable_hint_validation_in_external_contracts,
-            cairo_path=self.state.include_paths,
+            disable_hint_validation=self._state.disable_hint_validation_in_external_contracts,
+            cairo_path=self._state.include_paths,
         )
-        prepare_cheatcode = PrepareCheatcode(
-            syscall_dependencies, self.data_transformer
-        )
+        prepare_cheatcode = PrepareCheatcode(syscall_dependencies, data_transformer)
         deploy_cheatcode = DeployCheatcode(syscall_dependencies, internal_calls)
         return [
             declare_cheatcode,
@@ -53,9 +50,4 @@ class SetupCheatcodeFactory(CheatcodeFactory, WithDataTransformer):
                 prepare_cheatcode,
                 deploy_cheatcode,
             ),
-            MockCallCheatcode(syscall_dependencies, self.data_transformer),
-            WarpCheatcode(syscall_dependencies),
-            RollCheatcode(syscall_dependencies),
-            StartPrankCheatcode(syscall_dependencies),
-            StoreCheatcode(syscall_dependencies),
         ]

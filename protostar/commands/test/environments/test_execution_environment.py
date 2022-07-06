@@ -3,8 +3,13 @@ from typing import Optional, List
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
 from protostar.commands.test.cheatcodes import (
-    ExpectRevertCheatcode,
     ExpectEventsCheatcode,
+    ExpectRevertCheatcode,
+    MockCallCheatcode,
+    RollCheatcode,
+    StartPrankCheatcode,
+    StoreCheatcode,
+    WarpCheatcode,
 )
 from protostar.commands.test.cheatcodes.expect_revert_cheatcode import (
     ExpectRevertContext,
@@ -12,15 +17,16 @@ from protostar.commands.test.cheatcodes.expect_revert_cheatcode import (
 from protostar.commands.test.environments.execution_environment import (
     ExecutionEnvironment,
 )
+from protostar.commands.test.environments.setup_execution_environment import (
+    SetupCheatcodeFactory,
+)
 from protostar.commands.test.execution_state import ExecutionState
 from protostar.commands.test.starkware import ExecutionResourcesSummary
 from protostar.commands.test.starkware.cheatcode import Cheatcode
 from protostar.commands.test.starkware.cheatcode_factory import (
     CheatcodeFactory,
 )
-from protostar.commands.test.environments.setup_execution_environment import (
-    SetupCheatcodeFactory,
-)
+from protostar.utils.data_transformer_facade import DataTransformerFacade
 from protostar.utils.hook import Hook
 
 
@@ -63,16 +69,23 @@ class TestCaseCheatcodeFactory(SetupCheatcodeFactory):
         syscall_dependencies: Cheatcode.SyscallDependencies,
         internal_calls: List[CallInfo],
     ) -> List[Cheatcode]:
+        data_transformer = DataTransformerFacade(self._state.starknet_compiler)
+
         return [
             *super().build(syscall_dependencies, internal_calls),
+            MockCallCheatcode(syscall_dependencies, data_transformer),
+            WarpCheatcode(syscall_dependencies),
+            RollCheatcode(syscall_dependencies),
+            StartPrankCheatcode(syscall_dependencies),
+            StoreCheatcode(syscall_dependencies),
             ExpectRevertCheatcode(
                 syscall_dependencies,
                 self._expect_revert_context,
             ),
             ExpectEventsCheatcode(
                 syscall_dependencies,
-                self.state.starknet,
+                self._state.starknet,
                 self._finish_hook,
-                self.data_transformer,
+                data_transformer,
             ),
         ]
