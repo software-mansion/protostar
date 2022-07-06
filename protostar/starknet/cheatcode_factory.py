@@ -3,7 +3,7 @@ from typing import List
 
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
-from protostar.commands.test.starkware.cheatcode import Cheatcode
+from protostar.starknet.cheatcode import Cheatcode
 
 
 class CheatcodeFactory(ABC):

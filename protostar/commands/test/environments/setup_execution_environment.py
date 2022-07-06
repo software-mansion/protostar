@@ -12,8 +12,8 @@ from protostar.commands.test.environments.execution_environment import (
     ExecutionEnvironment,
 )
 from protostar.commands.test.execution_state import ExecutionState
-from protostar.commands.test.starkware.cheatcode import Cheatcode
-from protostar.commands.test.starkware.cheatcode_factory import CheatcodeFactory
+from protostar.starknet.cheatcode import Cheatcode
+from protostar.starknet.cheatcode_factory import CheatcodeFactory
 from protostar.utils.data_transformer_facade import DataTransformerFacade
 
 

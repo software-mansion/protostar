@@ -21,9 +21,11 @@ from protostar.commands.test.environments.setup_execution_environment import (
     SetupCheatcodeFactory,
 )
 from protostar.commands.test.execution_state import ExecutionState
-from protostar.commands.test.starkware import ExecutionResourcesSummary
-from protostar.commands.test.starkware.cheatcode import Cheatcode
-from protostar.commands.test.starkware.cheatcode_factory import (
+from protostar.commands.test.starkware.execution_resources_summary import (
+    ExecutionResourcesSummary,
+)
+from protostar.starknet.cheatcode import Cheatcode
+from protostar.starknet.cheatcode_factory import (
     CheatcodeFactory,
 )
 from protostar.utils.data_transformer_facade import DataTransformerFacade

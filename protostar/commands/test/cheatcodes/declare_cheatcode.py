@@ -8,7 +8,7 @@ from starkware.starknet.business_logic.internal_transaction import InternalDecla
 from starkware.starknet.testing.contract import DeclaredClass
 from starkware.starknet.testing.contract_utils import EventManager, get_abi
 
-from protostar.commands.test.starkware.cheatcode import Cheatcode
+from protostar.starknet.cheatcode import Cheatcode
 from protostar.commands.test.starkware.contract_utils import get_contract_class
 
 

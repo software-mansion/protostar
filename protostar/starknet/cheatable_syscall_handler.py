@@ -15,10 +15,10 @@ from starkware.starknet.core.os.syscall_utils import (
 from starkware.starknet.security.secure_hints import HintsWhitelist
 from starkware.starknet.services.api.contract_class import EntryPointType
 
-from protostar.commands.test.starkware.types import AddressType, SelectorType
+from protostar.starknet.types import AddressType, SelectorType
 
 if TYPE_CHECKING:
-    from protostar.commands.test.starkware.cheatable_state import CheatableCarriedState
+    pass
 
 
 class CheatableSysCallHandlerException(BaseException):

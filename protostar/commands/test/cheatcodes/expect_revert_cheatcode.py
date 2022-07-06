@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from logging import getLogger
 from typing import Callable, Optional
 
-from protostar.commands.test.starkware.cheatcode import Cheatcode
+from protostar.starknet.cheatcode import Cheatcode
 from protostar.commands.test.test_environment_exceptions import (
     RevertableException,
     SimpleReportedException,

@@ -27,15 +27,15 @@ from starkware.starkware_utils.error_handling import (
     wrap_with_stark_exception,
 )
 
-from protostar.commands.test.starkware.cheatable_syscall_handler import (
+from protostar.starknet.cheatable_syscall_handler import (
     CheatableSysCallHandler,
 )
-from protostar.commands.test.starkware.cheatcode import Cheatcode
-from protostar.commands.test.starkware.hint_local import HintLocal
+from protostar.starknet.cheatcode import Cheatcode
+from protostar.starknet.hint_local import HintLocal
 
 if TYPE_CHECKING:
-    from protostar.commands.test.starkware.cheatable_state import CheatableCarriedState
-    from protostar.commands.test.starkware.cheatcode_factory import CheatcodeFactory
+    from protostar.starknet.cheatable_state import CheatableCarriedState
+    from protostar.starknet.cheatcode_factory import CheatcodeFactory
 
 logger = logging.getLogger(__name__)
 

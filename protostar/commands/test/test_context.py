@@ -1,7 +1,7 @@
 from types import SimpleNamespace
 from typing import Any
 
-from protostar.commands.test.starkware.hint_local import HintLocal
+from protostar.starknet.hint_local import HintLocal
 from protostar.commands.test.test_environment_exceptions import SimpleReportedException
 
 

@@ -7,7 +7,9 @@ from protostar.commands.test.environments.test_execution_environment import (
     TestExecutionEnvironment,
 )
 from protostar.commands.test.execution_state import ExecutionState
-from protostar.commands.test.starkware import ExecutionResourcesSummary
+from protostar.commands.test.starkware.execution_resources_summary import (
+    ExecutionResourcesSummary,
+)
 
 
 async def invoke_setup(function_name: str, state: ExecutionState):

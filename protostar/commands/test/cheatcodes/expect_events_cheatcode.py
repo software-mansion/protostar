@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Union
 from typing_extensions import NotRequired, TypedDict
 
 from protostar.commands.test.expected_event import ExpectedEvent
-from protostar.commands.test.starkware.cheatcode import Cheatcode
+from protostar.starknet.cheatcode import Cheatcode
 from protostar.commands.test.test_environment_exceptions import (
     ExpectedEventMissingException,
 )
@@ -12,7 +12,7 @@ from protostar.utils.data_transformer_facade import DataTransformerFacade
 from protostar.utils.hook import Hook
 
 if TYPE_CHECKING:
-    from protostar.commands.test.starkware.forkable_starknet import ForkableStarknet
+    from protostar.starknet.forkable_starknet import ForkableStarknet
 
 
 class ExpectEventsCheatcode(Cheatcode):

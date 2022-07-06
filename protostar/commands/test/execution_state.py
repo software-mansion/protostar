@@ -6,8 +6,8 @@ from typing import List, Optional
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.testing.contract import StarknetContract
 
-from protostar.commands.test.starkware import ForkableStarknet
 from protostar.commands.test.test_context import TestContext
+from protostar.starknet.forkable_starknet import ForkableStarknet
 from protostar.utils.starknet_compilation import StarknetCompiler
 
 

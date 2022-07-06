@@ -5,15 +5,17 @@ from starkware.starknet.testing.objects import StarknetTransactionExecutionInfo
 from starkware.starkware_utils.error_handling import StarkException
 
 from protostar.commands.test.execution_state import ExecutionState
-from protostar.commands.test.starkware import ExecutionResourcesSummary
-from protostar.commands.test.starkware.cheatable_execute_entry_point import (
-    CheatableExecuteEntryPoint,
+from protostar.commands.test.starkware.execution_resources_summary import (
+    ExecutionResourcesSummary,
 )
-from protostar.commands.test.starkware.cheatcode_factory import CheatcodeFactory
 from protostar.commands.test.test_context import TestContextHintLocal
 from protostar.commands.test.test_environment_exceptions import (
     StarknetRevertableException,
 )
+from protostar.starknet.cheatable_execute_entry_point import (
+    CheatableExecuteEntryPoint,
+)
+from protostar.starknet.cheatcode_factory import CheatcodeFactory
 
 
 class ExecutionEnvironment(ABC):
