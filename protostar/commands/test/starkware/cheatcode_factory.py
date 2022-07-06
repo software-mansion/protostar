@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, TYPE_CHECKING
+from typing import List
 
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
