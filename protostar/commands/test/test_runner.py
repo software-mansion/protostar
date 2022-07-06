@@ -7,10 +7,7 @@ from typing import List, Optional
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 
-from protostar.commands.test.environments import (
-    SetupExecutionEnvironment,
-    TestExecutionEnvironment,
-)
+from protostar.commands.test.environments.factory import invoke_setup, invoke_test_case
 from protostar.commands.test.execution_state import ExecutionState
 from protostar.commands.test.test_cases import (
     BrokenTestSuite,
@@ -133,8 +130,7 @@ class TestRunner:
             )
 
             if test_suite.setup_fn_name:
-                setup_env = SetupExecutionEnvironment(execution_state)
-                await setup_env.invoke(test_suite.setup_fn_name)
+                await invoke_setup(test_suite.setup_fn_name, execution_state)
 
         except StarkException as ex:
             if self.is_constructor_args_exception(ex):
@@ -158,8 +154,9 @@ class TestRunner:
         for test_case_name in test_suite.test_case_names:
             new_execution_state = execution_state.fork()
             try:
-                test_env = TestExecutionEnvironment(new_execution_state)
-                execution_resources = await test_env.invoke(test_case_name)
+                execution_resources = await invoke_test_case(
+                    test_case_name, new_execution_state
+                )
                 self.queue.put(
                     PassedTestCase(
                         file_path=test_suite.test_path,
