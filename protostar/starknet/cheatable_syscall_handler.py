@@ -18,7 +18,7 @@ from starkware.starknet.services.api.contract_class import EntryPointType
 from protostar.starknet.types import AddressType, SelectorType
 
 if TYPE_CHECKING:
-    pass
+    from protostar.starknet.cheatable_state import CheatableCarriedState
 
 
 class CheatableSysCallHandlerException(BaseException):
