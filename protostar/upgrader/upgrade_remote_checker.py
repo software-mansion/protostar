@@ -10,6 +10,10 @@ from protostar.utils.protostar_directory import (
 
 
 class UpgradeRemoteChecker:
+    """
+    Call a remote endpoint to figure out if the new Protostar version is available.
+    """
+
     PROTOSTAR_REPO = "https://github.com/software-mansion/protostar"
 
     @dataclass

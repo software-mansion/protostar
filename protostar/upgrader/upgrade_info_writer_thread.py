@@ -5,17 +5,19 @@ from requests.exceptions import ConnectionError
 
 from protostar.upgrader.upgrade_remote_checker import UpgradeRemoteChecker
 from protostar.upgrader.upgrade_toml import UpgradeTOML
-from protostar.utils.protostar_directory import (ProtostarDirectory,
-                                                 VersionManager)
+from protostar.utils.protostar_directory import ProtostarDirectory, VersionManager
 
 
 class UpgradeInfoWriterThread:
+    """
+    Check if the new version "in the background" and create a `upgrade.toml`.
+    """
+
     def __init__(
         self, protostar_directory: ProtostarDirectory, version_manager: VersionManager
     ):
         self._protostar_directory = protostar_directory
         self._version_manager = version_manager
-
         self._thread = Thread(target=self._overwrite_update_available_file, daemon=True)
 
     def _overwrite_update_available_file(self):

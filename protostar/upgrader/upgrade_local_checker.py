@@ -6,6 +6,10 @@ from protostar.utils.protostar_directory import ProtostarDirectory, VersionManag
 
 
 class UpgradeLocalChecker:
+    """
+    Check if there's information about the upgrade on the user's disk.
+    """
+
     def __init__(
         self,
         protostar_directory: ProtostarDirectory,

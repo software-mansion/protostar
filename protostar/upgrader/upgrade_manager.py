@@ -21,6 +21,10 @@ class UpgradeManagerException(Exception):
 
 
 class UpgradeManager:
+    """
+    Coordinate Protostar upgrading.
+    """
+
     def __init__(
         self,
         protostar_directory: ProtostarDirectory,
