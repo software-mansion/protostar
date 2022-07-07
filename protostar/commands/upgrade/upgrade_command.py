@@ -26,4 +26,4 @@ class UpgradeCommand(Command):
         return []
 
     async def run(self, _args):
-        self._upgrade_manager.upgrade()
+        await self._upgrade_manager.upgrade()

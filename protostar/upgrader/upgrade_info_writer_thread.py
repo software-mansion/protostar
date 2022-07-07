@@ -1,4 +1,6 @@
+import asyncio
 from threading import Thread
+from typing import Optional
 
 # pylint: disable=redefined-builtin
 from requests.exceptions import ConnectionError
@@ -22,18 +24,11 @@ class UpgradeInfoWriterThread:
         self._thread = Thread(
             target=self.overwrite_upgrade_toml_if_necessary, daemon=True
         )
+        self._result: Optional[UpgradeRemoteChecker.Result] = None
 
     def overwrite_upgrade_toml_if_necessary(self):
         try:
-            result = self._upgrade_remote_checker.check()
-            if result.is_newer_version_available:
-                self._upgrade_toml_writer.save(
-                    UpgradeTOML(
-                        version=result.latest_version,
-                        changelog_url=result.changelog_url,
-                    )
-                )
-
+            self._result = asyncio.run(self._upgrade_remote_checker.check())
         except ConnectionError:
             pass
 
@@ -41,4 +36,12 @@ class UpgradeInfoWriterThread:
         self._thread.start()
 
     def __exit__(self, exc_type, exc_value, exc_tb):
-        pass
+        self._thread.join()
+
+        if self._result is not None and self._result.is_newer_version_available:
+            self._upgrade_toml_writer.save(
+                UpgradeTOML(
+                    version=self._result.latest_version,
+                    changelog_url=self._result.changelog_url,
+                )
+            )

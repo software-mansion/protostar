@@ -22,7 +22,7 @@ class UpgradeRemoteChecker:
     def __init__(self, version_manager: VersionManager) -> None:
         self._version_manager = version_manager
 
-    def check(self) -> "UpgradeRemoteChecker.Result":
+    async def check(self) -> "UpgradeRemoteChecker.Result":
         headers = {"Accept": "application/json"}
         response = requests.get(
             f"{UpgradeRemoteChecker.PROTOSTAR_REPO}/releases/latest", headers=headers

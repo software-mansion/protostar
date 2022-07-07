@@ -37,12 +37,12 @@ class UpgradeManager:
         self._upgrade_checker = upgrade_checker
         self._logger = logger
 
-    def upgrade(self):
+    async def upgrade(self):
         assert os.path.isdir(self._protostar_directory.directory_root_path)
         assert os.path.isdir(self._protostar_directory.directory_root_path / "dist")
 
         self._logger.info("Looking for a new version ...")
-        checking_result = self._upgrade_checker.check()
+        checking_result = await self._upgrade_checker.check()
         if not checking_result.is_newer_version_available:
             self._logger.info("Protostar is up to date")
             return

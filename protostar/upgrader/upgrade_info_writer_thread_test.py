@@ -69,7 +69,7 @@ def test_not_saves_a_file_when_new_version_is_not_available(mocker: MockerFixtur
     cast(MagicMock, upgrade_toml_writer_mock.save).assert_not_called()
 
 
-async def test_does_not_fail_when_there_is_no_connection(mocker: MockerFixture):
+def test_does_not_fail_when_there_is_no_connection(mocker: MockerFixture):
     upgrade_remote_checker_mock = cast(UpgradeRemoteChecker, mocker.MagicMock())
     cast(MagicMock, upgrade_remote_checker_mock.check).side_effect = ConnectionError()
     upgrade_toml_writer_mock = mocker.MagicMock()
