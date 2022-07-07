@@ -20,11 +20,15 @@ class ProtostarDirectory:
 
     @property
     def directory_root_path(self) -> Path:
-        return self._protostar_binary_dir_path.parent.parent
+        return self._protostar_binary_dir_path.parent.parent.resolve()
+
+    @property
+    def info_dir_path(self) -> Path:
+        return self.directory_root_path / "dist" / "protostar" / "info"
 
     @property
     def upgrade_toml_path(self) -> Path:
-        return self.directory_root_path / "dist" / "protostar" / "info" / "upgrade.toml"
+        return self.info_dir_path / "upgrade.toml"
 
     def add_protostar_cairo_dir(self, cairo_paths: List[Path]) -> List[Path]:
         if self.protostar_binary_dir_path:

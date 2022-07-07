@@ -24,7 +24,10 @@ class UpgradeTOML:
         def __init__(self, protostar_directory: ProtostarDirectory) -> None:
             self._protostar_directory = protostar_directory
 
-        def save(self, update_toml: "UpgradeTOML"):
+        def save(self, update_toml: "UpgradeTOML") -> None:
+            if not self._protostar_directory.info_dir_path.exists():
+                return None
+
             with open(
                 self._protostar_directory.upgrade_toml_path, "wb"
             ) as update_toml_file:
@@ -35,6 +38,7 @@ class UpgradeTOML:
                     }
                 }
                 tomli_w.dump(result, update_toml_file)
+            return None
 
     class Reader:
         def __init__(self, protostar_directory: ProtostarDirectory) -> None:
