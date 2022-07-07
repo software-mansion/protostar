@@ -5,24 +5,35 @@ from pathlib import Path
 from typing import Any
 
 from protostar.cli import CLIApp, Command
-from protostar.commands import (BuildCommand, DeployCommand, InitCommand,
-                                InstallCommand, RemoveCommand, TestCommand,
-                                UpdateCommand, UpgradeCommand)
+from protostar.commands import (
+    BuildCommand,
+    DeployCommand,
+    InitCommand,
+    InstallCommand,
+    RemoveCommand,
+    TestCommand,
+    UpdateCommand,
+    UpgradeCommand,
+)
 from protostar.commands.build import ProjectCompiler
-from protostar.commands.init.project_creator import (AdaptedProjectCreator,
-                                                     NewProjectCreator)
-from protostar.protostar_exception import (ProtostarException,
-                                           ProtostarExceptionSilent)
-from protostar.protostar_toml.io.protostar_toml_reader import \
-    ProtostarTOMLReader
-from protostar.protostar_toml.io.protostar_toml_writer import \
-    ProtostarTOMLWriter
-from protostar.protostar_toml.protostar_contracts_section import \
-    ProtostarContractsSection
-from protostar.protostar_toml.protostar_project_section import \
-    ProtostarProjectSection
-from protostar.utils import (Project, ProtostarDirectory, StandardLogFormatter,
-                             VersionManager, log_color_provider)
+from protostar.commands.init.project_creator import (
+    AdaptedProjectCreator,
+    NewProjectCreator,
+)
+from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
+from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
+from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
+from protostar.protostar_toml.protostar_contracts_section import (
+    ProtostarContractsSection,
+)
+from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
+from protostar.utils import (
+    Project,
+    ProtostarDirectory,
+    StandardLogFormatter,
+    VersionManager,
+    log_color_provider,
+)
 from protostar.utils.input_requester import InputRequester
 
 PROFILE_ARG = Command.Argument(
