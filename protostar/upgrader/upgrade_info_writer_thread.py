@@ -21,12 +21,10 @@ class UpgradeInfoWriterThread:
     ):
         self._upgrade_remote_checker = upgrade_remote_checker
         self._upgrade_toml_writer = upgrade_toml_writer
-        self._thread = Thread(
-            target=self.overwrite_upgrade_toml_if_necessary, daemon=True
-        )
+        self._thread = Thread(target=self.check_new_version_safely, daemon=True)
         self._result: Optional[UpgradeRemoteChecker.Result] = None
 
-    def overwrite_upgrade_toml_if_necessary(self):
+    def check_new_version_safely(self):
         try:
             self._result = asyncio.run(self._upgrade_remote_checker.check())
         except ConnectionError:
