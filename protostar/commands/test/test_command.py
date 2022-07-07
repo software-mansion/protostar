@@ -102,6 +102,7 @@ class TestCommand(Command):
         summary.assert_all_passed()
         return summary
 
+    # pylint: disable=too-many-arguments
     async def test(
         self,
         targets: List[str],
