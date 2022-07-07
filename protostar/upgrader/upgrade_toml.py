@@ -14,7 +14,7 @@ from protostar.utils.protostar_directory import (
 @dataclass(frozen=True)
 class UpgradeTOML:
     """
-    Pytonish representation of the upgrade.toml.
+    Pythonic representation of the upgrade.toml.
     """
 
     version: VersionType
