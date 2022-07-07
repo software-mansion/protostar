@@ -49,7 +49,6 @@ class TestRunner:
         test_suite: TestSuite
         test_results_queue: TestResultsQueue
         include_paths: List[str]
-        is_account_contract: bool
         disable_hint_validation_in_external_contracts: bool
 
     @classmethod
@@ -61,14 +60,12 @@ class TestRunner:
                 disable_hint_validation_in_external_contracts=args.disable_hint_validation_in_external_contracts,
             ).run_test_suite(
                 args.test_suite,
-                is_account_contract=args.is_account_contract,
             )
         )
 
     async def run_test_suite(
         self,
         test_suite: TestSuite,
-        is_account_contract: bool,
     ):
         try:
             assert (
@@ -78,7 +75,6 @@ class TestRunner:
             compiled_test = self.starknet_compiler.compile_contract(
                 test_suite.test_path,
                 add_debug_info=True,
-                is_account_contract=is_account_contract,
             )
 
             await self._run_test_suite(

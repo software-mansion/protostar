@@ -26,7 +26,6 @@ class TestScheduler:
         self,
         test_collector_result: "TestCollector.Result",
         include_paths: List[str],
-        is_account_contract: bool,
         disable_hint_validation: bool,
     ):
         with multiprocessing.Manager() as manager:
@@ -36,7 +35,6 @@ class TestScheduler:
                     test_suite,
                     test_results_queue=test_results_queue,
                     include_paths=include_paths,
-                    is_account_contract=is_account_contract,
                     disable_hint_validation_in_external_contracts=disable_hint_validation,
                 )
                 for test_suite in test_collector_result.test_suites

@@ -7,17 +7,14 @@ from starkware.cairo.lang.compiler.cairo_compile import get_module_reader
 from starkware.cairo.lang.compiler.constants import MAIN_SCOPE
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.cairo.lang.compiler.preprocessor.pass_manager import (
-    PassManager,
-    PassManagerContext,
-)
-from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
-    PreprocessorError,
-)
+    PassManager, PassManagerContext)
+from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import \
+    PreprocessorError
 from starkware.starknet.compiler.compile import assemble_starknet_contract
-from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_manager
-from starkware.starknet.compiler.starknet_preprocessor import (
-    StarknetPreprocessedProgram,
-)
+from starkware.starknet.compiler.starknet_pass_manager import \
+    starknet_pass_manager
+from starkware.starknet.compiler.starknet_preprocessor import \
+    StarknetPreprocessedProgram
 from starkware.starknet.services.api.contract_class import ContractClass
 
 from protostar.protostar_exception import ProtostarException
@@ -67,37 +64,35 @@ class StarknetCompiler:
     def compile_preprocessed_contract(
         preprocessed: StarknetPreprocessedProgram,
         add_debug_info: bool = False,
-        is_account_contract: bool = False,
     ) -> ContractClass:
         try:
-            assembled = assemble_starknet_contract(
+            return assemble_starknet_contract(
                 preprocessed_program=preprocessed,
                 main_scope=MAIN_SCOPE,
                 add_debug_info=add_debug_info,
                 file_contents_for_debug_info={},
                 filter_identifiers=False,
-                is_account_contract=is_account_contract,
+                is_account_contract=False,
             )
-            assert isinstance(assembled, ContractClass)
-            return assembled
         except PreprocessorError as err:
-            err_message = err.message
-            if isinstance(err_message, str) and "account_contract" in err_message:
-                raise ProtostarException(
-                    err_message.replace("account_contract", "account-contract")
-                ) from err
+            if isinstance(err.message, str) and "account_contract" in err.message:
+                return assemble_starknet_contract(
+                    preprocessed_program=preprocessed,
+                    main_scope=MAIN_SCOPE,
+                    add_debug_info=add_debug_info,
+                    file_contents_for_debug_info={},
+                    filter_identifiers=False,
+                    is_account_contract=True,
+                )
             raise err
 
     def compile_contract(
         self,
         *sources: Path,
         add_debug_info: bool = False,
-        is_account_contract: bool = False,
     ) -> ContractClass:
         preprocessed = self.preprocess_contract(*sources)
-        assembled = self.compile_preprocessed_contract(
-            preprocessed, add_debug_info, is_account_contract
-        )
+        assembled = self.compile_preprocessed_contract(preprocessed, add_debug_info)
         return assembled
 
     @staticmethod
