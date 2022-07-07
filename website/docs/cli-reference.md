@@ -116,6 +116,8 @@ Disable hint validation in contracts declared by the `declare` cheatcode or depl
 #### `-i` `--ignore STRING[]`
 A glob or globs to a directory or a test suite, which should be ignored.
 
+#### `--no-progress-bar`
+Disable progress bar.
 ### `update`
 ```shell
 $ protostar update cairo-contracts
