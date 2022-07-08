@@ -136,7 +136,7 @@ def test_finding_setup_function(
         return list(filter(predicate, ["test_main", "__setup__"]))
 
     cast(
-        MagicMock, starknet_compiler.get_function_names
+        MagicMock, starknet_compiler.get_contract_identifiers
     ).side_effect = get_function_names
     test_collector = TestCollector(starknet_compiler)
 

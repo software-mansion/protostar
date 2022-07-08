@@ -14,9 +14,6 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     LocationError,
     PreprocessorError,
 )
-from starkware.starknet.compiler.starknet_preprocessor import (
-    StarknetPreprocessedProgram,
-)
 
 from protostar.commands.test.test_cases import BrokenTestSuite
 from protostar.commands.test.test_suite import TestSuite
@@ -299,8 +296,8 @@ class TestCollector:
         self,
         test_suite_info: TestSuiteInfo,
     ) -> TestSuite:
-        preprocessed = self._preprocess_contract(test_suite_info.path)
-        collected_test_case_names = self._collect_test_case_names(preprocessed)
+        identifiers = self._starknet_compiler.get_file_identifiers(test_suite_info.path)
+        collected_test_case_names = self._find_test_case_names(identifiers)
         matching_test_case_names = test_suite_info.match_test_case_names(
             collected_test_case_names
         )
@@ -308,23 +305,15 @@ class TestCollector:
         return TestSuite(
             test_path=test_suite_info.path,
             test_case_names=matching_test_case_names,
-            setup_fn_name=self._find_setup_hook_name(preprocessed),
+            setup_fn_name=self._find_setup_hook_name(identifiers),
         )
 
-    def _collect_test_case_names(
-        self, preprocessed: StarknetPreprocessedProgram
-    ) -> List[str]:
-        return self._starknet_compiler.get_function_names(
-            preprocessed, predicate=lambda fn_name: fn_name.startswith("test_")
-        )
+    @staticmethod
+    def _find_setup_hook_name(identifiers: List[str]) -> Optional[str]:
+        return "__setup__" if "__setup__" in identifiers else None
 
-    def _find_setup_hook_name(
-        self, preprocessed: StarknetPreprocessedProgram
-    ) -> Optional[str]:
-        function_names = self._starknet_compiler.get_function_names(
-            preprocessed, predicate=lambda fn_name: fn_name == "__setup__"
-        )
-        return function_names[0] if len(function_names) > 0 else None
-
-    def _preprocess_contract(self, file_path: Path) -> StarknetPreprocessedProgram:
-        return self._starknet_compiler.preprocess_contract(file_path)
+    @staticmethod
+    def _find_test_case_names(identifiers: List[str]) -> List[str]:
+        return [
+            identifier for identifier in identifiers if identifier.startswith("test_")
+        ]

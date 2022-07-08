@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, List
+from typing import Callable, List, Set, Tuple
 
 from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
 from starkware.cairo.lang.compiler.cairo_compile import get_module_reader
@@ -9,6 +9,7 @@ from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.cairo.lang.compiler.preprocessor.pass_manager import (
     PassManager,
     PassManagerContext,
+    Stage,
 )
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     PreprocessorError,
@@ -39,6 +40,43 @@ class StarknetCompiler:
             disable_hint_validation=self.disable_hint_validation,
         )
 
+    def get_file_identifiers(self, cairo_file_path: Path) -> List[str]:
+        pass_manager = self.get_starknet_pass_manager()
+        file_identifiers: Set[str] = set()
+
+        try:
+            codes = [(cairo_file_path.read_text("utf-8"), str(cairo_file_path))]
+            context = PassManagerContext(
+                start_codes=[],
+                codes=codes,
+                main_scope=MAIN_SCOPE,
+                identifiers=IdentifierManager(),
+            )
+
+            crucial_stages: List[Tuple[str, Stage]] = [
+                stage_pair
+                for stage_pair in pass_manager.stages
+                if stage_pair[0]
+                in [
+                    "module_collector",
+                    "unique_label_creator",
+                    "storage_var_signature",
+                    "contract_interface_signature",
+                    "event_signature",
+                    "identifier_collector",
+                ]
+            ]
+            pass_manager.stages = crucial_stages
+            pass_manager.run(context)
+            for scoped_name in context.identifiers.dict:
+                if "__main__" == scoped_name.path[0]:
+                    file_identifiers.add(scoped_name.path[1])
+            return list(file_identifiers)
+        except FileNotFoundError as err:
+            raise StarknetCompiler.FileNotFoundException(
+                message=(f"Couldn't find file '{err.filename}'")
+            ) from err
+
     def preprocess_contract(
         self, *cairo_file_paths: Path
     ) -> StarknetPreprocessedProgram:
@@ -55,6 +93,7 @@ class StarknetCompiler:
                 main_scope=MAIN_SCOPE,
                 identifiers=IdentifierManager(),
             )
+
             pass_manager.run(context)
             assert isinstance(context.preprocessed_program, StarknetPreprocessedProgram)
             return context.preprocessed_program
@@ -101,7 +140,7 @@ class StarknetCompiler:
         return assembled
 
     @staticmethod
-    def get_function_names(
+    def get_contract_identifiers(
         preprocessed: StarknetPreprocessedProgram, predicate: Callable[[str], bool]
     ) -> List[str]:
         return [
