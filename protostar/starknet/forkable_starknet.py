@@ -7,7 +7,7 @@ from starkware.starknet.testing.contract import StarknetContract
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starknet.testing.state import CastableToAddressSalt
 
-from protostar.commands.test.starkware.cheatable_state import CheatableStarknetState
+from protostar.starknet.cheatable_state import CheatableStarknetState
 
 
 class ForkableStarknet(Starknet):
