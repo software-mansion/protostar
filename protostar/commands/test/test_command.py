@@ -71,11 +71,6 @@ class TestCommand(Command):
                 type="directory",
             ),
             Command.Argument(
-                name="account-contract",
-                description="Compile as account contract.",
-                type="bool",
-            ),
-            Command.Argument(
                 name="disable-hint-validation",
                 description=(
                     "Disable hint validation in contracts declared by the "
@@ -95,7 +90,6 @@ class TestCommand(Command):
             targets=args.target,
             ignored_targets=args.ignore,
             cairo_path=args.cairo_path,
-            is_account_contract=args.account_contract,
             disable_hint_validation=args.disable_hint_validation,
             no_progress_bar=args.no_progress_bar,
         )
@@ -108,7 +102,6 @@ class TestCommand(Command):
         targets: List[str],
         ignored_targets: Optional[List[str]] = None,
         cairo_path: Optional[List[Path]] = None,
-        is_account_contract=False,
         disable_hint_validation=False,
         no_progress_bar=False,
     ) -> TestingSummary:
@@ -140,7 +133,6 @@ class TestCommand(Command):
             TestScheduler(live_logger, worker=TestRunner.worker).run(
                 include_paths=include_paths,
                 test_collector_result=test_collector_result,
-                is_account_contract=is_account_contract,
                 disable_hint_validation=disable_hint_validation,
             )
 

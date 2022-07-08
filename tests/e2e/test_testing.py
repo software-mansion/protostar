@@ -108,34 +108,6 @@ def test_broken_test_suite_in_collecting_phase(protostar, copy_fixture):
 
 
 @pytest.mark.usefixtures("init")
-def test_account_contract(protostar, copy_fixture):
-    copy_fixture("main_with_execute.cairo", "./src")
-    copy_fixture("test_main_with_execute.cairo", "./tests")
-
-    result: str = protostar(
-        [
-            "--no-color",
-            "test",
-            "tests/test_main_with_execute.cairo",
-        ],
-        ignore_exit_code=True,
-    )
-    assert "broken" in result
-    assert "--account" in result
-
-    result: str = protostar(
-        [
-            "--no-color",
-            "test",
-            "tests/test_main_with_execute.cairo",
-            "--account-contract",
-        ],
-        ignore_exit_code=True,
-    )
-    assert "broken" not in result
-
-
-@pytest.mark.usefixtures("init")
 def test_disabling_hint_validation(protostar: ProtostarFixture, copy_fixture):
     copy_fixture("contract_with_invalid_hint.cairo", "./src")
     copy_fixture("contract_with_invalid_hint_test.cairo", "./tests")

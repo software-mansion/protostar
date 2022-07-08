@@ -150,10 +150,7 @@ def test_building_account_contract(protostar):
             )
         )
 
-    with pytest.raises(CalledProcessError):
-        protostar(["build"])
-
-    protostar(["build", "--account-contract"])
+    protostar(["build"])
 
     dirs = listdir()
     assert "build" in dirs
