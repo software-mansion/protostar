@@ -7,18 +7,14 @@ from starkware.cairo.lang.compiler.cairo_compile import get_module_reader
 from starkware.cairo.lang.compiler.constants import MAIN_SCOPE
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.cairo.lang.compiler.preprocessor.pass_manager import (
-    PassManager,
-    PassManagerContext,
-    Stage,
-)
-from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
-    PreprocessorError,
-)
+    PassManager, PassManagerContext, Stage)
+from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import \
+    PreprocessorError
 from starkware.starknet.compiler.compile import assemble_starknet_contract
-from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_manager
-from starkware.starknet.compiler.starknet_preprocessor import (
-    StarknetPreprocessedProgram,
-)
+from starkware.starknet.compiler.starknet_pass_manager import \
+    starknet_pass_manager
+from starkware.starknet.compiler.starknet_preprocessor import \
+    StarknetPreprocessedProgram
 from starkware.starknet.services.api.contract_class import ContractClass
 
 from protostar.protostar_exception import ProtostarException
@@ -40,7 +36,7 @@ class StarknetCompiler:
             disable_hint_validation=self.disable_hint_validation,
         )
 
-    def get_file_identifiers(self, cairo_file_path: Path) -> List[str]:
+    def get_main_identifiers_in_file(self, cairo_file_path: Path) -> List[str]:
         pass_manager = self.get_starknet_pass_manager()
         file_identifiers: Set[str] = set()
 

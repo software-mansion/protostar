@@ -296,7 +296,9 @@ class TestCollector:
         self,
         test_suite_info: TestSuiteInfo,
     ) -> TestSuite:
-        identifiers = self._starknet_compiler.get_file_identifiers(test_suite_info.path)
+        identifiers = self._starknet_compiler.get_main_identifiers_in_file(
+            test_suite_info.path
+        )
         collected_test_case_names = self._find_test_case_names(identifiers)
         matching_test_case_names = test_suite_info.match_test_case_names(
             collected_test_case_names
