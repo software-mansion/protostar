@@ -36,6 +36,13 @@ namespace BasicWithConstructor:
 end
 
 @external
+func __setup__():
+    %{ context.basic_contract = deploy_contract("./tests/integration/cheatcodes/deploy_contract/basic_contract.cairo") %}
+
+    return ()
+end
+
+@external
 func test_deploy_contract{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
 
@@ -58,7 +65,7 @@ func test_deploy_contract_simplified{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
 
     local contract_address : felt
-    %{ ids.contract_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract/basic_contract.cairo").contract_address %}
+    %{ ids.contract_address = context.basic_contract.contract_address %}
 
     BasicContract.increase_balance(contract_address, 5)
     let (res) = BasicContract.get_balance(contract_address)
@@ -146,7 +153,7 @@ end
 func test_syscall_after_deploy{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
     local contract_address : felt
-    %{ ids.contract_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract/basic_contract.cairo").contract_address %}
+    %{ ids.contract_address = context.basic_contract.contract_address %}
 
     BasicWithConstructor.increase_balance(contract_address, 1)
     let (res) = get_contract_address()

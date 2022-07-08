@@ -212,9 +212,7 @@ func test_something():
     return ()
 end
 ```
-:::warning
-Hint local `context` can only store strings, integers and booleans.
-:::
+
 
 :::info
 Protostar executes `__setup__` only once per a [test suite](https://en.wikipedia.org/wiki/Test_suite). Then, for each test case Protostar copies the StarkNet state and `context` object.
