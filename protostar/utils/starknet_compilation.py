@@ -60,9 +60,6 @@ class StarknetCompiler:
                 in [
                     "module_collector",
                     "unique_label_creator",
-                    "storage_var_signature",
-                    "contract_interface_signature",
-                    "event_signature",
                     "identifier_collector",
                 ]
             ]
