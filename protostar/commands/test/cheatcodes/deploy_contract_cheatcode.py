@@ -6,7 +6,7 @@ from protostar.commands.test.cheatcodes.deploy_cheatcode import (
     DeployedContract,
 )
 from protostar.commands.test.cheatcodes.prepare_cheatcode import PrepareCheatcode
-from protostar.commands.test.starkware.cheatcode import Cheatcode
+from protostar.starknet.cheatcode import Cheatcode
 from protostar.utils.data_transformer_facade import DataTransformerFacade
 
 

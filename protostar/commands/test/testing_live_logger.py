@@ -13,8 +13,11 @@ if TYPE_CHECKING:
 
 
 class TestingLiveLogger:
-    def __init__(self, logger: Logger, testing_summary: TestingSummary) -> None:
+    def __init__(
+        self, logger: Logger, testing_summary: TestingSummary, no_progress_bar: bool
+    ) -> None:
         self._logger = logger
+        self._no_progress_bar = no_progress_bar
         self.testing_summary = testing_summary
 
     def log(
@@ -29,6 +32,7 @@ class TestingLiveLogger:
                 bar_format="{l_bar}{bar}[{n_fmt}/{total_fmt}]",
                 dynamic_ncols=True,
                 leave=False,
+                disable=self._no_progress_bar,
             ) as progress_bar:
                 tests_left_n = test_collector_result.test_cases_count
                 progress_bar.update()
@@ -43,6 +47,7 @@ class TestingLiveLogger:
                             > 0
                             else "GREEN"
                         )
+
                         progress_bar.write(str(test_case_result))
 
                         if isinstance(test_case_result, BrokenTestSuite):

@@ -7,6 +7,8 @@ from typing import List, Optional
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 
+from protostar.commands.test.environments.factory import invoke_setup, invoke_test_case
+from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_cases import (
     BrokenTestSuite,
     FailedTestCase,
@@ -14,7 +16,6 @@ from protostar.commands.test.test_cases import (
     UnexpectedExceptionTestSuiteResult,
 )
 from protostar.commands.test.test_environment_exceptions import ReportedException
-from protostar.commands.test.test_execution_environment import TestExecutionEnvironment
 from protostar.commands.test.test_results_queue import TestResultsQueue
 from protostar.commands.test.test_suite import TestSuite
 from protostar.protostar_exception import ProtostarException
@@ -121,17 +122,15 @@ class TestRunner:
         assert self.queue, "Uninitialized reporter!"
 
         try:
-            test_execution_env = (
-                await TestExecutionEnvironment.from_test_suite_definition(
-                    self.starknet_compiler,
-                    test_contract,
-                    self.disable_hint_validation_in_external_contracts,
-                    self.include_paths,
-                )
+            execution_state = await TestExecutionState.from_test_suite_definition(
+                self.starknet_compiler,
+                test_contract,
+                self.disable_hint_validation_in_external_contracts,
+                self.include_paths,
             )
 
             if test_suite.setup_fn_name:
-                await test_execution_env.invoke_setup_hook(test_suite.setup_fn_name)
+                await invoke_setup(test_suite.setup_fn_name, execution_state)
 
         except StarkException as ex:
             if self.is_constructor_args_exception(ex):
@@ -153,10 +152,10 @@ class TestRunner:
             return
 
         for test_case_name in test_suite.test_case_names:
-            new_test_execution_env = test_execution_env.fork()
+            new_execution_state = execution_state.fork()
             try:
-                execution_resources = await new_test_execution_env.invoke_test_case(
-                    test_case_name
+                execution_resources = await invoke_test_case(
+                    test_case_name, new_execution_state
                 )
                 self.queue.put(
                     PassedTestCase(

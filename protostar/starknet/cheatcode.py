@@ -10,13 +10,13 @@ from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.storage.starknet_storage import BusinessLogicStarknetStorage
 from typing_extensions import TypedDict
 
-from protostar.commands.test.starkware.hint_local import HintLocal
+from protostar.starknet.hint_local import HintLocal
 
 if TYPE_CHECKING:
-    from protostar.commands.test.starkware.cheatable_execute_entry_point import (
+    from protostar.starknet.cheatable_execute_entry_point import (
         CheatableExecuteEntryPoint,
     )
-    from protostar.commands.test.starkware.cheatable_state import CheatableCarriedState
+    from protostar.starknet.cheatable_state import CheatableCarriedState
 
 
 class Cheatcode(BusinessLogicSysCallHandler, HintLocal):

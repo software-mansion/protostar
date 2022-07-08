@@ -7,7 +7,7 @@ from starkware.starknet.core.os.contract_address.contract_address import (
 )
 
 from protostar.commands.test.cheatcodes.declare_cheatcode import DeclaredContract
-from protostar.commands.test.starkware.cheatcode import Cheatcode
+from protostar.starknet.cheatcode import Cheatcode
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.utils.data_transformer_facade import DataTransformerFacade
 

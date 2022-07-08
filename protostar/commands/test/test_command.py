@@ -83,6 +83,11 @@ class TestCommand(Command):
                 ),
                 type="bool",
             ),
+            Command.Argument(
+                name="no-progress-bar",
+                type="bool",
+                description="Disable progress bar.",
+            ),
         ]
 
     async def run(self, args) -> TestingSummary:
@@ -92,10 +97,12 @@ class TestCommand(Command):
             cairo_path=args.cairo_path,
             is_account_contract=args.account_contract,
             disable_hint_validation=args.disable_hint_validation,
+            no_progress_bar=args.no_progress_bar,
         )
         summary.assert_all_passed()
         return summary
 
+    # pylint: disable=too-many-arguments
     async def test(
         self,
         targets: List[str],
@@ -103,6 +110,7 @@ class TestCommand(Command):
         cairo_path: Optional[List[Path]] = None,
         is_account_contract=False,
         disable_hint_validation=False,
+        no_progress_bar=False,
     ) -> TestingSummary:
         logger = getLogger()
 
@@ -126,7 +134,9 @@ class TestCommand(Command):
         )
 
         if test_collector_result.test_cases_count > 0:
-            live_logger = TestingLiveLogger(logger, testing_summary)
+            live_logger = TestingLiveLogger(
+                logger, testing_summary, no_progress_bar=no_progress_bar
+            )
             TestScheduler(live_logger, worker=TestRunner.worker).run(
                 include_paths=include_paths,
                 test_collector_result=test_collector_result,
