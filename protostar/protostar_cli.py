@@ -22,6 +22,9 @@ from protostar.commands.init.project_creator import (
 )
 from protostar.commands.migrate.migrate_command import MigrateCommand
 from protostar.commands.migrate.migrator import Migrator
+from protostar.commands.migrate.migrator_execution_environment import (
+    MigratorExecutionEnvironment,
+)
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
 from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter

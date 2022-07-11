@@ -10,9 +10,6 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
     class State(ExecutionState):
         pass
 
-    def __init__(self, state: ExecutionState):
-        super().__init__(state)
-
     @classmethod
     async def create(
         cls, starknet_compiler: StarknetCompiler, contract_class: ContractClass
@@ -22,8 +19,11 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
         contract = await starknet.deploy(contract_class=contract_class)
         return cls(
             state=MigratorExecutionEnvironment.State(
-                # compiler config data class?
-                # builder?
+                contract=contract,
+                disable_hint_validation_in_external_contracts=False,
+                include_paths=[],
+                starknet=starknet,
+                starknet_compiler=starknet_compiler,
             )
         )
 
