@@ -103,6 +103,7 @@ class TestRunner:
                     exception=ex,
                 )
             )
+
         # An unexpected exception in a worker should crash nor freeze the whole application
         except BaseException as ex:  # pylint: disable=broad-except
             self.queue.put(

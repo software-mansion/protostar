@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 from tqdm import tqdm as bar
 
-from protostar.commands.test.test_cases import BrokenTestSuite
+from protostar.commands.test.test_cases import BrokenTestSuite, TestCaseResult
 from protostar.commands.test.test_results_queue import TestResultsQueue
 from protostar.commands.test.testing_summary import TestingSummary
 
@@ -14,11 +14,12 @@ if TYPE_CHECKING:
 
 class TestingLiveLogger:
     def __init__(
-        self, logger: Logger, testing_summary: TestingSummary, no_progress_bar: bool
+        self, logger: Logger, testing_summary: TestingSummary, no_progress_bar: bool, exit_first: bool
     ) -> None:
         self._logger = logger
         self._no_progress_bar = no_progress_bar
         self.testing_summary = testing_summary
+        self.exit_first = exit_first
 
     def log(
         self,
@@ -38,17 +39,18 @@ class TestingLiveLogger:
                 progress_bar.update()
                 try:
                     while tests_left_n > 0:
-                        test_case_result = test_results_queue.get()
+                        test_case_result: TestCaseResult = test_results_queue.get()
+
                         self.testing_summary.extend([test_case_result])
+
                         cast(Any, progress_bar).colour = (
-                            "RED"
-                            if len(self.testing_summary.failed)
-                            + len(self.testing_summary.broken)
-                            > 0
-                            else "GREEN"
+                            "RED" if test_results_queue.failed() else "GREEN"
                         )
 
                         progress_bar.write(str(test_case_result))
+                        if self.exit_first and test_results_queue.failed():
+                            tests_left_n = 0
+                            return
 
                         if isinstance(test_case_result, BrokenTestSuite):
                             tests_in_case_count = len(test_case_result.test_case_names)
