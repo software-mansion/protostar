@@ -26,6 +26,16 @@ class MigrateCommand(Command):
     def arguments(self) -> List[Command.Argument]:
         return [
             Command.Argument(
+                name="path",
+                description="Path to the migration file.",
+                type="path",
+            ),
+            Command.Argument(
+                name="down",
+                description="Run `down` function in the migration script.",
+                type="str",
+            ),
+            Command.Argument(
                 name="gateway-url",
                 description="The URL of a StarkNet gateway. It is required unless `--network` is provided.",
                 type="str",
@@ -49,6 +59,7 @@ class MigrateCommand(Command):
         ]
 
     async def run(self, args):
-        self._migrator.run(
-            path=None, network=args.network, gateway_url=args.gateway_url
+        await self._migrator.run(
+            mode="down" if args.down else "up",
+            migration_path=args.path,
         )

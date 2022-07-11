@@ -7,8 +7,12 @@ from protostar.utils.starknet_compilation import StarknetCompiler
 
 
 class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
+    # TODO use cheatcodes factory
     class State(ExecutionState):
         pass
+
+    def __init__(self, state: "State"):
+        super().__init__(state)
 
     @classmethod
     async def create(
