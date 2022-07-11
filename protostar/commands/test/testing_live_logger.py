@@ -25,6 +25,15 @@ class TestingLiveLogger:
         self.testing_summary = testing_summary
         self.exit_first = exit_first
 
+    def exit_before_log(self, test_collector_result: "TestCollector.Result") -> None:
+        self.testing_summary.log(
+            logger=self._logger,
+            collected_test_cases_count=test_collector_result.test_cases_count,
+            collected_test_suites_count=len(
+                test_collector_result.test_suites
+            ),
+        )
+
     def log(
         self,
         test_results_queue: TestResultsQueue,

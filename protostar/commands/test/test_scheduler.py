@@ -1,13 +1,11 @@
 import multiprocessing
 import signal
 from typing import TYPE_CHECKING, Callable, List
-from copy import deepcopy
 import ctypes
 
 from protostar.commands.test.test_results_queue import TestResultsQueue
 from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
-from protostar.commands.test.test_cases import PassedTestCase, TestCaseResult
 
 if TYPE_CHECKING:
     from protostar.commands.test.test_collector import TestCollector
@@ -54,11 +52,7 @@ class TestScheduler:
 
             # A test case was broken
             if exit_first and test_results_queue.failed():
-                self._live_logger.testing_summary.log(
-                    logger=self._live_logger._logger,
-                    collected_test_cases_count=test_collector_result.test_cases_count,
-                    collected_test_suites_count=len(test_collector_result.test_suites),
-                )
+                self._live_logger.exit_before_log(test_collector_result)
                 return
 
             try:

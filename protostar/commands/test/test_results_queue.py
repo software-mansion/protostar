@@ -1,8 +1,4 @@
-from ast import Pass
-from concurrent.futures import thread
-import multiprocessing
 from multiprocessing.managers import ValueProxy
-import threading
 from typing import TYPE_CHECKING
 
 from protostar.commands.test.test_cases import TestCaseResult, PassedTestCase
