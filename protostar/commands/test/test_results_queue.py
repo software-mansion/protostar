@@ -1,6 +1,7 @@
 from ast import Pass
 from concurrent.futures import thread
 import multiprocessing
+from multiprocessing.managers import ValueProxy
 import threading
 from typing import TYPE_CHECKING
 
@@ -9,8 +10,11 @@ from protostar.commands.test.test_cases import TestCaseResult, PassedTestCase
 if TYPE_CHECKING:
     import queue
 
+
 class TestResultsQueue:
-    def __init__(self, shared_queue: "queue.Queue[TestCaseResult]", failed: multiprocessing.Value) -> None:
+    def __init__(
+        self, shared_queue: "queue.Queue[TestCaseResult]", failed: ValueProxy
+    ) -> None:
         self._shared_queue = shared_queue
         self._failed = failed
 

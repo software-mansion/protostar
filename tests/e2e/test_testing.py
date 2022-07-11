@@ -173,7 +173,6 @@ def test_exit_first_failed(protostar, copy_fixture):
     assert "skipped" in result
 
 
-
 @pytest.mark.usefixtures("init")
 def test_exit_first_broken(protostar, copy_fixture):
     copy_fixture("basic.cairo", "./src")

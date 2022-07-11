@@ -14,7 +14,11 @@ if TYPE_CHECKING:
 
 class TestingLiveLogger:
     def __init__(
-        self, logger: Logger, testing_summary: TestingSummary, no_progress_bar: bool, exit_first: bool
+        self,
+        logger: Logger,
+        testing_summary: TestingSummary,
+        no_progress_bar: bool,
+        exit_first: bool,
     ) -> None:
         self._logger = logger
         self._no_progress_bar = no_progress_bar

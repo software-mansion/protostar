@@ -38,8 +38,8 @@ class TestScheduler:
                 manager.Queue(),
                 manager.Value(
                     ctypes.c_bool,
-                    (len(test_collector_result.broken_test_suites) > 0) and exit_first
-                )
+                    (len(test_collector_result.broken_test_suites) > 0) and exit_first,
+                ),
             )
             setups: List[TestRunner.WorkerArgs] = [
                 TestRunner.WorkerArgs(
@@ -57,9 +57,7 @@ class TestScheduler:
                 self._live_logger.testing_summary.log(
                     logger=self._live_logger._logger,
                     collected_test_cases_count=test_collector_result.test_cases_count,
-                    collected_test_suites_count=len(
-                        test_collector_result.test_suites
-                    ),
+                    collected_test_suites_count=len(test_collector_result.test_suites),
                 )
                 return
 
@@ -77,7 +75,7 @@ class TestScheduler:
                     if exit_first and test_results_queue.failed():
                         pool.terminate()
                         return
-                            
+
                     results.get()
             except KeyboardInterrupt:
                 return
