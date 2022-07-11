@@ -29,9 +29,7 @@ class TestingLiveLogger:
         self.testing_summary.log(
             logger=self._logger,
             collected_test_cases_count=test_collector_result.test_cases_count,
-            collected_test_suites_count=len(
-                test_collector_result.test_suites
-            ),
+            collected_test_suites_count=len(test_collector_result.test_suites),
         )
 
     def log(
