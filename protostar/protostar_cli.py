@@ -2,7 +2,8 @@
 import sys
 from logging import INFO, Logger, StreamHandler, getLogger
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
+import time
 
 from protostar.cli import CLIApp, Command
 from protostar.commands import (
@@ -80,8 +81,12 @@ class ProtostarCLI(CLIApp):
         protostar_toml_writer: ProtostarTOMLWriter,
         protostar_toml_reader: ProtostarTOMLReader,
         requester: InputRequester,
+        start_time: float = 0.0,
+        logger: Optional[Logger] = None,
     ) -> None:
         self.project = project
+        self.start_time = start_time
+        self.logger = logger
 
         super().__init__(
             commands=[
@@ -135,7 +140,7 @@ class ProtostarCLI(CLIApp):
         self.version_manager = version_manager
 
     @classmethod
-    def create(cls, script_root: Path):
+    def create(cls, script_root: Path, start_time: float = 0.0):
         protostar_directory = ProtostarDirectory(script_root)
         version_manager = VersionManager(protostar_directory)
         project = Project(version_manager)
@@ -151,6 +156,7 @@ class ProtostarCLI(CLIApp):
             protostar_toml_writer,
             protostar_toml_reader,
             requester,
+            start_time,
         )
 
     def _setup_logger(self, is_ci_mode: bool) -> Logger:
@@ -170,13 +176,14 @@ class ProtostarCLI(CLIApp):
             )
 
     async def run(self, args: Any) -> None:
-        logger = self._setup_logger(args.no_color)
+        self.logger = self._setup_logger(args.no_color)
 
         try:
             self._check_git_version()
 
             if args.version:
                 self.version_manager.print_current_version()
+                self.logger = None  # Avoid logging execution time
                 return
 
             await super().run(args)
@@ -185,7 +192,14 @@ class ProtostarCLI(CLIApp):
         except ProtostarException as err:
             if err.details:
                 print(err.details)
-            logger.error(err.message)
+            assert self.logger is not None
+            self.logger.error(err.message)
             sys.exit(1)
         except KeyboardInterrupt:
             sys.exit(1)
+
+    def __del__(self):
+        if self.logger is not None:
+            self.logger.info(
+                "Execution time: %f s", round(time.perf_counter() - self.start_time, 2)
+            )
