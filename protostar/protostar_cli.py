@@ -28,12 +28,7 @@ from protostar.protostar_toml.protostar_contracts_section import (
     ProtostarContractsSection,
 )
 from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
-from protostar.upgrader import (
-    UpgradeInfoWriterThread,
-    UpgradeLocalChecker,
-    UpgradeManager,
-    UpgradeRemoteChecker,
-)
+from protostar.upgrader import UpgradeChecker, UpgradeManager, UpgradeRemoteChecker
 from protostar.upgrader.upgrade_toml import UpgradeTOML
 from protostar.utils import (
     Project,
@@ -89,14 +84,12 @@ class ProtostarCLI(CLIApp):
         protostar_toml_reader: ProtostarTOMLReader,
         requester: InputRequester,
         logger: Logger,
-        upgrade_local_checker: UpgradeLocalChecker,
-        upgrade_info_writer_thread: UpgradeInfoWriterThread,
+        upgrade_checker: UpgradeChecker,
         start_time: float = 0.0,
     ) -> None:
         self.project = project
         self.logger = logger
-        self.upgrade_local_checker = upgrade_local_checker
-        self.upgrade_info_writer_thread = upgrade_info_writer_thread
+        self.upgrade_checker = upgrade_checker
         self.start_time = start_time
 
         super().__init__(
@@ -166,16 +159,14 @@ class ProtostarCLI(CLIApp):
         protostar_toml_reader = ProtostarTOMLReader()
         requester = InputRequester(log_color_provider)
         logger = getLogger()
-        upgrade_local_checker = UpgradeLocalChecker(
-            protostar_directory,
-            version_manager,
-            logger,
-            log_color_provider,
+        upgrade_checker = UpgradeChecker(
+            protostar_directory=protostar_directory,
+            version_manager=version_manager,
+            logger=logger,
+            log_color_provider=log_color_provider,
             upgrade_toml_reader=UpgradeTOML.Reader(protostar_directory),
-        )
-        upgrade_info_writer_thread = UpgradeInfoWriterThread(
-            UpgradeRemoteChecker(version_manager),
-            UpgradeTOML.Writer(protostar_directory),
+            upgrade_toml_writer=UpgradeTOML.Writer(protostar_directory),
+            upgrade_remote_checker=UpgradeRemoteChecker(version_manager),
         )
 
         return cls(
@@ -187,8 +178,7 @@ class ProtostarCLI(CLIApp):
             protostar_toml_reader=protostar_toml_reader,
             requester=requester,
             logger=logger,
-            upgrade_local_checker=upgrade_local_checker,
-            upgrade_info_writer_thread=upgrade_info_writer_thread,
+            upgrade_checker=upgrade_checker,
             start_time=time.perf_counter(),
         )
 
@@ -210,15 +200,14 @@ class ProtostarCLI(CLIApp):
         self._setup_logger(args.no_color)
         has_failed = False
         try:
-            self.upgrade_local_checker.log_info_if_update_available()
+            await self.upgrade_checker.check_for_upgrades_if_necessary()
             self._check_git_version()
 
             if args.version:
                 self.version_manager.print_current_version()
                 return
 
-            with self.upgrade_info_writer_thread:
-                await super().run(args)
+            await super().run(args)
 
         except ProtostarExceptionSilent:
             has_failed = True

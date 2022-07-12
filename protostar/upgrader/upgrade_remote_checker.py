@@ -25,7 +25,9 @@ class UpgradeRemoteChecker:
     async def check(self) -> "UpgradeRemoteChecker.Result":
         headers = {"Accept": "application/json"}
         response = requests.get(
-            f"{UpgradeRemoteChecker.PROTOSTAR_REPO}/releases/latest", headers=headers
+            f"{UpgradeRemoteChecker.PROTOSTAR_REPO}/releases/latest",
+            headers=headers,
+            timeout=8,
         )
         response_dict = response.json()
         latest_release_tag = response_dict["tag_name"]

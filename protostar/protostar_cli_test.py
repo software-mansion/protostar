@@ -42,7 +42,7 @@ def protostar_cli_fixture(
         requester=mocker.MagicMock(),
         logger=mocker.MagicMock(),
         upgrade_info_writer_thread=mocker.MagicMock(),
-        upgrade_local_checker=mocker.MagicMock(),
+        upgrade_checker=mocker.MagicMock(),
     )
 
 

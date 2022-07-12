@@ -1,5 +1,4 @@
-from protostar.upgrader.upgrade_info_writer_thread import UpgradeInfoWriterThread
-from protostar.upgrader.upgrade_local_checker import UpgradeLocalChecker
+from protostar.upgrader.upgrade_local_checker import UpgradeChecker
 from protostar.upgrader.upgrade_manager import UpgradeManager
 from protostar.upgrader.upgrade_remote_checker import UpgradeRemoteChecker
 from protostar.upgrader.upgrade_toml import UpgradeTOML

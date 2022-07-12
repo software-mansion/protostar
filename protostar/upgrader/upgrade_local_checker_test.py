@@ -4,7 +4,7 @@ from typing import Any, cast
 import pytest
 from pytest_mock import MockerFixture
 
-from protostar.upgrader.upgrade_local_checker import UpgradeLocalChecker
+from protostar.upgrader.upgrade_local_checker import UpgradeChecker
 from protostar.upgrader.upgrade_toml import UpgradeTOML
 from protostar.utils.log_color_provider import LogColorProvider
 from protostar.utils.protostar_directory import ProtostarDirectory, VersionManager
@@ -35,7 +35,7 @@ def test_logs_info_about_new_version_when_protostar_is_not_up_to_date(
     cast(mocker.MagicMock, upgrade_toml_reader_mock.read).return_value = upgrade_toml
     cast(Any, version_manager_mock).protostar_version = VersionManager.parse("0.0.0")
 
-    upgrade_local_checker = UpgradeLocalChecker(
+    upgrade_local_checker = UpgradeChecker(
         log_color_provider=log_color_provider_mock,
         logger=logger_mock,
         protostar_directory=protostar_directory_mock,
@@ -43,7 +43,7 @@ def test_logs_info_about_new_version_when_protostar_is_not_up_to_date(
         upgrade_toml_reader=upgrade_toml_reader_mock,
     )
 
-    upgrade_local_checker.log_info_if_update_available()
+    upgrade_local_checker._log_info_if_update_available()
 
     assert (
         "new Protostar version"

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Optional
 
 import tomli
@@ -19,6 +20,7 @@ class UpgradeTOML:
 
     version: VersionType
     changelog_url: str
+    next_check_datetime: datetime
 
     class Writer:
         def __init__(self, protostar_directory: ProtostarDirectory) -> None:
@@ -35,6 +37,7 @@ class UpgradeTOML:
                     "info": {
                         "version": str(update_toml.version),
                         "changelog_url": update_toml.changelog_url,
+                        "next_check_datetime": update_toml.next_check_datetime.isoformat(),
                     }
                 }
                 tomli_w.dump(result, update_toml_file)
@@ -56,4 +59,7 @@ class UpgradeTOML:
                 return UpgradeTOML(
                     version=VersionManager.parse(update_toml_dict["info"]["version"]),
                     changelog_url=update_toml_dict["info"]["changelog_url"],
+                    next_check_datetime=datetime.fromisoformat(
+                        update_toml_dict["info"]["next_check_datetime"]
+                    ),
                 )
