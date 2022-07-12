@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Set, Tuple
+from typing import Callable, List, Set, Tuple
 
 from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
 from starkware.cairo.lang.compiler.cairo_compile import get_module_reader
@@ -133,3 +133,13 @@ class StarknetCompiler:
         preprocessed = self.preprocess_contract(*sources)
         assembled = self.compile_preprocessed_contract(preprocessed, add_debug_info)
         return assembled
+
+    @staticmethod
+    def get_function_names(
+        preprocessed: StarknetPreprocessedProgram, predicate: Callable[[str], bool]
+    ) -> List[str]:
+        return [
+            el["name"]
+            for el in preprocessed.abi
+            if el["type"] == "function" and predicate(el["name"])
+        ]

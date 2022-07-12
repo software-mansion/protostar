@@ -14,6 +14,9 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     LocationError,
     PreprocessorError,
 )
+from starkware.starknet.compiler.starknet_preprocessor import (
+    StarknetPreprocessedProgram,
+)
 
 from protostar.commands.test.test_cases import BrokenTestSuite
 from protostar.commands.test.test_suite import TestSuite
@@ -84,8 +87,11 @@ class TestSuiteInfo:
 TestSuiteInfoDict = Dict[TestSuitePath, TestSuiteInfo]
 
 
-@dataclass
 class TestCollector:
+    @dataclass
+    class Config:
+        fast_collecting: bool = False
+
     class Result:
         def __init__(
             self,
@@ -124,10 +130,10 @@ class TestCollector:
                 logger.warning("No test cases found")
 
     def __init__(
-        self,
-        starknet_compiler: StarknetCompiler,
+        self, starknet_compiler: StarknetCompiler, config: Optional[Config] = None
     ) -> None:
         self._starknet_compiler = starknet_compiler
+        self._config = config or TestCollector.Config()
 
     supported_test_suite_filename_patterns = [
         re.compile(r"^test_.*\.cairo"),
@@ -296,26 +302,50 @@ class TestCollector:
         self,
         test_suite_info: TestSuiteInfo,
     ) -> TestSuite:
-        identifiers = self._starknet_compiler.get_main_identifiers_in_file(
-            test_suite_info.path
-        )
-        collected_test_case_names = self._find_test_case_names(identifiers)
-        matching_test_case_names = test_suite_info.match_test_case_names(
-            collected_test_case_names
-        )
+        matching_test_case_names: List[str] = []
+        setup_fn_name: Optional[str] = None
+
+        if self._config.fast_collecting:
+            identifiers = self._starknet_compiler.get_main_identifiers_in_file(
+                test_suite_info.path
+            )
+            collected_test_case_names = self._find_test_case_names(identifiers)
+            matching_test_case_names = test_suite_info.match_test_case_names(
+                collected_test_case_names
+            )
+            setup_fn_name = self._find_setup_hook_name(identifiers)
+        else:
+            preprocessed = self._starknet_compiler.preprocess_contract(
+                test_suite_info.path
+            )
+            matching_test_case_names = self._collect_test_case_names(preprocessed)
+            setup_fn_name = self._collect_setup_hook_name(preprocessed)
 
         return TestSuite(
             test_path=test_suite_info.path,
             test_case_names=matching_test_case_names,
-            setup_fn_name=self._find_setup_hook_name(identifiers),
+            setup_fn_name=setup_fn_name,
         )
 
-    @staticmethod
-    def _find_setup_hook_name(identifiers: List[str]) -> Optional[str]:
+    def _find_setup_hook_name(self, identifiers: List[str]) -> Optional[str]:
         return "__setup__" if "__setup__" in identifiers else None
 
-    @staticmethod
-    def _find_test_case_names(identifiers: List[str]) -> List[str]:
+    def _find_test_case_names(self, identifiers: List[str]) -> List[str]:
         return [
             identifier for identifier in identifiers if identifier.startswith("test_")
         ]
+
+    def _collect_test_case_names(
+        self, preprocessed: StarknetPreprocessedProgram
+    ) -> List[str]:
+        return self._starknet_compiler.get_function_names(
+            preprocessed, predicate=lambda fn_name: fn_name.startswith("test_")
+        )
+
+    def _collect_setup_hook_name(
+        self, preprocessed: StarknetPreprocessedProgram
+    ) -> Optional[str]:
+        function_names = self._starknet_compiler.get_function_names(
+            preprocessed, predicate=lambda fn_name: fn_name == "__setup__"
+        )
+        return function_names[0] if len(function_names) > 0 else None
