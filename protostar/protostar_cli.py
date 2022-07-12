@@ -1,4 +1,5 @@
 # pylint: disable=no-self-use
+import sys
 from logging import INFO, Logger, StreamHandler, getLogger
 from pathlib import Path
 from typing import Any
@@ -172,7 +173,7 @@ class ProtostarCLI(CLIApp):
                 f"Protostar requires version 2.28 or greater of Git (current version: {git_version})"
             )
 
-    async def run(self, args: Any) -> int:
+    async def run(self, args: Any) -> None:
         logger = self._setup_logger(args.no_color)
         has_failed = False
 
@@ -181,7 +182,7 @@ class ProtostarCLI(CLIApp):
 
             if args.version:
                 self.version_manager.print_current_version()
-                return int(has_failed)
+                return
 
             await super().run(args)
         except ProtostarExceptionSilent:
@@ -196,4 +197,5 @@ class ProtostarCLI(CLIApp):
 
         logger.info("Execution time: %.2f s", time.perf_counter() - self.start_time)
 
-        return int(has_failed)
+        if has_failed:
+            sys.exit(1)
