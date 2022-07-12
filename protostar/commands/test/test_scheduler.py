@@ -1,9 +1,8 @@
 import multiprocessing
 import signal
 from typing import TYPE_CHECKING, Callable, List
-import ctypes
 
-from protostar.commands.test.test_results_queue import TestResultsQueue
+from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
 
@@ -32,17 +31,13 @@ class TestScheduler:
         exit_first: bool,
     ):
         with multiprocessing.Manager() as manager:
-            test_results_queue = TestResultsQueue(
-                shared_queue=manager.Queue(),
-                any_failed_or_broken_shared_value=manager.Value(
-                    ctypes.c_bool,
-                    (len(test_collector_result.broken_test_suites) > 0),
-                ),
+            shared_tests_state = SharedTestsState(
+                test_collector_result=test_collector_result, manager=manager
             )
             setups: List[TestRunner.WorkerArgs] = [
                 TestRunner.WorkerArgs(
                     test_suite,
-                    test_results_queue=test_results_queue,
+                    shared_tests_state=shared_tests_state,
                     include_paths=include_paths,
                     is_account_contract=is_account_contract,
                     disable_hint_validation_in_external_contracts=disable_hint_validation,
@@ -51,7 +46,7 @@ class TestScheduler:
             ]
 
             # A test case was broken
-            if exit_first and test_results_queue.any_failed_or_broken():
+            if exit_first and shared_tests_state.any_failed_or_broken():
                 self._live_logger.log_testing_summary(test_collector_result)
                 return
 
@@ -64,9 +59,9 @@ class TestScheduler:
                 ) as pool:
                     results = pool.map_async(self._worker, setups)
 
-                    self._live_logger.log(test_results_queue, test_collector_result)
+                    self._live_logger.log(shared_tests_state, test_collector_result)
 
-                    if exit_first and test_results_queue.any_failed_or_broken():
+                    if exit_first and shared_tests_state.any_failed_or_broken():
                         pool.terminate()
                         return
 

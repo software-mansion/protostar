@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, cast
 from tqdm import tqdm as bar
 
 from protostar.commands.test.test_cases import BrokenTestSuite, TestCaseResult
-from protostar.commands.test.test_results_queue import TestResultsQueue
+from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.testing_summary import TestingSummary
 
 if TYPE_CHECKING:
@@ -36,7 +36,7 @@ class TestingLiveLogger:
 
     def log(
         self,
-        test_results_queue: TestResultsQueue,
+        shared_tests_state: SharedTestsState,
         test_collector_result: "TestCollector.Result",
     ):
 
@@ -52,20 +52,22 @@ class TestingLiveLogger:
                 progress_bar.update()
                 try:
                     while tests_left_n > 0:
-                        test_case_result: TestCaseResult = test_results_queue.get()
+                        test_case_result: TestCaseResult = (
+                            shared_tests_state.get_result()
+                        )
 
                         self.testing_summary.extend([test_case_result])
 
                         cast(Any, progress_bar).colour = (
                             "RED"
-                            if test_results_queue.any_failed_or_broken()
+                            if shared_tests_state.any_failed_or_broken()
                             else "GREEN"
                         )
 
                         progress_bar.write(str(test_case_result))
                         if (
                             self.exit_first
-                            and test_results_queue.any_failed_or_broken()
+                            and shared_tests_state.any_failed_or_broken()
                         ):
                             tests_left_n = 0
                             return
