@@ -9,7 +9,7 @@ from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
 
 
 def main(script_root: Path):
-    protostar_cli = ProtostarCLI.create(script_root, start_time=time.perf_counter())
+    protostar_cli = ProtostarCLI.create(script_root)
 
     configuration_profile_name = (
         ArgumentParserFacade(ConfigurationProfileCLISchema(), disable_help=True)
