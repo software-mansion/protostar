@@ -32,6 +32,11 @@ def version_manager_fixture(mocker: MockerFixture, git_version: str):
 def protostar_cli_fixture(
     mocker: MockerFixture, version_manager: VersionManager
 ) -> ProtostarCLI:
+    upgrade_checker_mock = mocker.MagicMock()
+    upgrade_checker_mock.check_for_upgrades_if_necessary = mocker.MagicMock()
+    upgrade_checker_mock.check_for_upgrades_if_necessary.return_value = Future()
+    upgrade_checker_mock.check_for_upgrades_if_necessary.return_value.set_result(None)
+
     return ProtostarCLI(
         script_root=Path(),
         protostar_directory=mocker.MagicMock(),
@@ -41,8 +46,7 @@ def protostar_cli_fixture(
         protostar_toml_reader=mocker.MagicMock(),
         requester=mocker.MagicMock(),
         logger=mocker.MagicMock(),
-        upgrade_info_writer_thread=mocker.MagicMock(),
-        upgrade_checker=mocker.MagicMock(),
+        upgrade_checker=upgrade_checker_mock,
     )
 
 
