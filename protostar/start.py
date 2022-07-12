@@ -1,6 +1,5 @@
 import asyncio
 from pathlib import Path
-import time
 
 from protostar.cli import ArgumentParserFacade, ArgumentValueFromConfigProvider
 from protostar.cli.cli_app import CLIApp

@@ -1,8 +1,7 @@
 # pylint: disable=no-self-use
-import sys
 from logging import INFO, Logger, StreamHandler, getLogger
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 import time
 
 from protostar.cli import CLIApp, Command
