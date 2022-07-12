@@ -83,6 +83,12 @@ class TestCommand(Command):
                 type="bool",
                 description="Disable progress bar.",
             ),
+            Command.Argument(
+                name="exit-first",
+                short_name="x",
+                type="bool",
+                description="Exit instantly on first broken or failed test",
+            ),
         ]
 
     async def run(self, args) -> TestingSummary:
@@ -92,6 +98,7 @@ class TestCommand(Command):
             cairo_path=args.cairo_path,
             disable_hint_validation=args.disable_hint_validation,
             no_progress_bar=args.no_progress_bar,
+            exit_first=args.exit_first,
         )
         summary.assert_all_passed()
         return summary
@@ -104,6 +111,7 @@ class TestCommand(Command):
         cairo_path: Optional[List[Path]] = None,
         disable_hint_validation=False,
         no_progress_bar=False,
+        exit_first=False,
     ) -> TestingSummary:
         logger = getLogger()
 
@@ -128,12 +136,16 @@ class TestCommand(Command):
 
         if test_collector_result.test_cases_count > 0:
             live_logger = TestingLiveLogger(
-                logger, testing_summary, no_progress_bar=no_progress_bar
+                logger,
+                testing_summary,
+                no_progress_bar=no_progress_bar,
+                exit_first=exit_first,
             )
             TestScheduler(live_logger, worker=TestRunner.worker).run(
                 include_paths=include_paths,
                 test_collector_result=test_collector_result,
                 disable_hint_validation=disable_hint_validation,
+                exit_first=exit_first,
             )
 
         return testing_summary

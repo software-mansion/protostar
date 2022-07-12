@@ -16,7 +16,7 @@ from protostar.commands.test.test_cases import (
     UnexpectedExceptionTestSuiteResult,
 )
 from protostar.commands.test.test_environment_exceptions import ReportedException
-from protostar.commands.test.test_results_queue import TestResultsQueue
+from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.test_suite import TestSuite
 from protostar.protostar_exception import ProtostarException
 from protostar.utils.starknet_compilation import StarknetCompiler
@@ -27,11 +27,11 @@ logger = getLogger()
 class TestRunner:
     def __init__(
         self,
-        queue: TestResultsQueue,
+        shared_tests_state: SharedTestsState,
         include_paths: Optional[List[str]] = None,
         disable_hint_validation_in_external_contracts=False,
     ):
-        self.queue = queue
+        self.shared_tests_state = shared_tests_state
         self.include_paths: List[str] = []
         self.disable_hint_validation_in_external_contracts = (
             disable_hint_validation_in_external_contracts
@@ -48,7 +48,7 @@ class TestRunner:
     @dataclass
     class WorkerArgs:
         test_suite: TestSuite
-        test_results_queue: TestResultsQueue
+        shared_tests_state: SharedTestsState
         include_paths: List[str]
         disable_hint_validation_in_external_contracts: bool
 
@@ -56,7 +56,7 @@ class TestRunner:
     def worker(cls, args: "TestRunner.WorkerArgs"):
         asyncio.run(
             cls(
-                queue=args.test_results_queue,
+                shared_tests_state=args.shared_tests_state,
                 include_paths=args.include_paths,
                 disable_hint_validation_in_external_contracts=args.disable_hint_validation_in_external_contracts,
             ).run_test_suite(
@@ -83,7 +83,7 @@ class TestRunner:
                 test_suite=test_suite,
             )
         except ProtostarException as ex:
-            self.queue.put(
+            self.shared_tests_state.put_result(
                 BrokenTestSuite(
                     file_path=test_suite.test_path,
                     test_case_names=test_suite.test_case_names,
@@ -92,16 +92,17 @@ class TestRunner:
             )
 
         except ReportedException as ex:
-            self.queue.put(
+            self.shared_tests_state.put_result(
                 BrokenTestSuite(
                     file_path=test_suite.test_path,
                     test_case_names=test_suite.test_case_names,
                     exception=ex,
                 )
             )
+
         # An unexpected exception in a worker should crash nor freeze the whole application
         except BaseException as ex:  # pylint: disable=broad-except
-            self.queue.put(
+            self.shared_tests_state.put_result(
                 UnexpectedExceptionTestSuiteResult(
                     file_path=test_suite.test_path,
                     test_case_names=test_suite.test_case_names,
@@ -115,7 +116,7 @@ class TestRunner:
         test_contract: ContractClass,
         test_suite: TestSuite,
     ):
-        assert self.queue, "Uninitialized reporter!"
+        assert self.shared_tests_state, "Uninitialized reporter!"
 
         try:
             execution_state = await TestExecutionState.from_test_suite_definition(
@@ -138,7 +139,7 @@ class TestRunner:
                     )
                 )
 
-            self.queue.put(
+            self.shared_tests_state.put_result(
                 BrokenTestSuite(
                     file_path=test_suite.test_path,
                     exception=ex,
@@ -153,7 +154,7 @@ class TestRunner:
                 execution_resources = await invoke_test_case(
                     test_case_name, new_execution_state
                 )
-                self.queue.put(
+                self.shared_tests_state.put_result(
                     PassedTestCase(
                         file_path=test_suite.test_path,
                         test_case_name=test_case_name,
@@ -161,7 +162,7 @@ class TestRunner:
                     )
                 )
             except ReportedException as ex:
-                self.queue.put(
+                self.shared_tests_state.put_result(
                     FailedTestCase(
                         file_path=test_suite.test_path,
                         test_case_name=test_case_name,

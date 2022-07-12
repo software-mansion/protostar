@@ -109,6 +109,8 @@ Additional directories to look for sources.
 #### `--disable-hint-validation`
 Disable hint validation in contracts declared by the `declare` cheatcode or deployed by `deploy_contract` cheatcode.
 
+#### `-x` `--exit-first`
+Exit instantly on first broken or failed test
 #### `-i` `--ignore STRING[]`
 A glob or globs to a directory or a test suite, which should be ignored.
 
