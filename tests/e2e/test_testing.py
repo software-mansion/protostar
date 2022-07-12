@@ -132,3 +132,25 @@ def test_disabling_hint_validation(protostar: ProtostarFixture, copy_fixture):
         ignore_exit_code=True,
     )
     assert "Hint is not whitelisted" not in result_after
+
+
+@pytest.mark.usefixtures("init")
+def test_exit_first_failed(protostar, copy_fixture):
+    copy_fixture("basic.cairo", "./src")
+    copy_fixture("proxy_contract.cairo", "./src")
+    copy_fixture("test_proxy.cairo", "./tests")
+    copy_fixture("test_failed.cairo", "./tests")
+
+    assert "skipped" in protostar(["test", "-x", "tests"], ignore_exit_code=True)
+    assert "skipped" not in protostar(["test", "tests"], ignore_exit_code=True)
+
+
+@pytest.mark.usefixtures("init")
+def test_exit_first_broken(protostar, copy_fixture):
+    copy_fixture("basic.cairo", "./src")
+    copy_fixture("proxy_contract.cairo", "./src")
+    copy_fixture("test_proxy.cairo", "./tests")
+    copy_fixture("test_broken.cairo", "./tests")
+
+    assert "skipped" in protostar(["test", "-x", "tests"], ignore_exit_code=True)
+    assert "skipped" not in protostar(["test", "tests"], ignore_exit_code=True)

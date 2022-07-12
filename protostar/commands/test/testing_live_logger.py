@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING, Any, cast
 
 from tqdm import tqdm as bar
 
-from protostar.commands.test.test_cases import BrokenTestSuite
-from protostar.commands.test.test_results_queue import TestResultsQueue
+from protostar.commands.test.test_cases import BrokenTestSuite, TestCaseResult
+from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.testing_summary import TestingSummary
 
 if TYPE_CHECKING:
@@ -14,15 +14,29 @@ if TYPE_CHECKING:
 
 class TestingLiveLogger:
     def __init__(
-        self, logger: Logger, testing_summary: TestingSummary, no_progress_bar: bool
+        self,
+        logger: Logger,
+        testing_summary: TestingSummary,
+        no_progress_bar: bool,
+        exit_first: bool,
     ) -> None:
         self._logger = logger
         self._no_progress_bar = no_progress_bar
         self.testing_summary = testing_summary
+        self.exit_first = exit_first
+
+    def log_testing_summary(
+        self, test_collector_result: "TestCollector.Result"
+    ) -> None:
+        self.testing_summary.log(
+            logger=self._logger,
+            collected_test_cases_count=test_collector_result.test_cases_count,
+            collected_test_suites_count=len(test_collector_result.test_suites),
+        )
 
     def log(
         self,
-        test_results_queue: TestResultsQueue,
+        shared_tests_state: SharedTestsState,
         test_collector_result: "TestCollector.Result",
     ):
 
@@ -38,17 +52,25 @@ class TestingLiveLogger:
                 progress_bar.update()
                 try:
                     while tests_left_n > 0:
-                        test_case_result = test_results_queue.get()
+                        test_case_result: TestCaseResult = (
+                            shared_tests_state.get_result()
+                        )
+
                         self.testing_summary.extend([test_case_result])
+
                         cast(Any, progress_bar).colour = (
                             "RED"
-                            if len(self.testing_summary.failed)
-                            + len(self.testing_summary.broken)
-                            > 0
+                            if shared_tests_state.any_failed_or_broken()
                             else "GREEN"
                         )
 
                         progress_bar.write(str(test_case_result))
+                        if (
+                            self.exit_first
+                            and shared_tests_state.any_failed_or_broken()
+                        ):
+                            tests_left_n = 0
+                            return
 
                         if isinstance(test_case_result, BrokenTestSuite):
                             tests_in_case_count = len(test_case_result.test_case_names)
@@ -60,13 +82,7 @@ class TestingLiveLogger:
                 finally:
                     progress_bar.write("")
                     progress_bar.clear()
-                    self.testing_summary.log(
-                        logger=self._logger,
-                        collected_test_cases_count=test_collector_result.test_cases_count,
-                        collected_test_suites_count=len(
-                            test_collector_result.test_suites
-                        ),
-                    )
+                    self.log_testing_summary(test_collector_result)
 
         except queue.Empty:
             # https://docs.python.org/3/library/queue.html#queue.Queue.get

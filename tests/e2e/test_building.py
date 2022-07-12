@@ -130,7 +130,7 @@ def test_disable_hint_validation(protostar):
     assert "Hint is not whitelisted." in result
 
     result = protostar(["build", "--disable-hint-validation"], ignore_exit_code=True)
-    assert result == ""
+    assert "Hint is not whitelisted." not in result
 
 
 @pytest.mark.usefixtures("init")

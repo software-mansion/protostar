@@ -109,11 +109,10 @@ Additional directories to look for sources.
 #### `--disable-hint-validation`
 Disable hint validation in contracts declared by the `declare` cheatcode or deployed by `deploy_contract` cheatcode.
 
-#### `--fast-collecting`
 Enables fast but unsafe test collecting algorithm. It searches for identifiers in the test file that start with `test_`.
+#### `-x` `--exit-first`
 #### `-i` `--ignore STRING[]`
 A glob or globs to a directory or a test suite, which should be ignored.
-
 #### `--no-progress-bar`
 Disable progress bar.
 ### `update`
