@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, cast
+from typing import Callable, List, cast
 from unittest.mock import MagicMock
 
 import pytest
@@ -61,12 +61,16 @@ def test_suites_fixture(project_root: Path):
 @pytest.fixture(name="starknet_compiler")
 def starknet_compiler_fixture(mocker: MockerFixture):
     starknet_compiler_mock = mocker.MagicMock()
-    starknet_compiler_mock.get_main_identifiers_in_file = mocker.MagicMock()
-    starknet_compiler_mock.get_main_identifiers_in_file.return_value = [
-        "test_case_a",
-        "test_case_b",
-        "run",
-    ]
+    starknet_compiler_mock.get_function_names = mocker.MagicMock()
+
+    def get_function_names(_, predicate):
+        return [
+            fn_name
+            for fn_name in ["test_case_a", "test_case_b", "run"]
+            if predicate(fn_name)
+        ]
+
+    starknet_compiler_mock.get_function_names.side_effect = get_function_names
 
     return starknet_compiler_mock
 
@@ -98,7 +102,7 @@ def test_collecting_tests_from_target(starknet_compiler, project_root: Path):
 def test_returning_broken_test_suites(starknet_compiler, project_root):
     test_collector = TestCollector(starknet_compiler)
     cast(
-        MagicMock, starknet_compiler.get_main_identifiers_in_file
+        MagicMock, starknet_compiler.preprocess_contract
     ).side_effect = PreprocessorError("")
 
     result = test_collector.collect(targets=[str(project_root)])
@@ -128,10 +132,12 @@ def test_collecting_specific_function(starknet_compiler, project_root: Path):
 def test_finding_setup_function(
     starknet_compiler: StarknetCompiler, project_root: Path
 ):
-    cast(MagicMock, starknet_compiler.get_main_identifiers_in_file).return_value = [
-        "test_main",
-        "__setup__",
-    ]
+    def get_function_names(_, predicate: Callable[[str], bool]) -> List[str]:
+        return list(filter(predicate, ["test_main", "__setup__"]))
+
+    cast(
+        MagicMock, starknet_compiler.get_function_names
+    ).side_effect = get_function_names
     test_collector = TestCollector(starknet_compiler)
 
     [suite] = test_collector.collect(

@@ -302,7 +302,7 @@ class TestCollector:
         self,
         test_suite_info: TestSuiteInfo,
     ) -> TestSuite:
-        matching_test_case_names: List[str] = []
+        test_case_names: List[str] = []
         setup_fn_name: Optional[str] = None
 
         if self._config.fast_collecting:
@@ -310,7 +310,7 @@ class TestCollector:
                 test_suite_info.path
             )
             collected_test_case_names = self._find_test_case_names(identifiers)
-            matching_test_case_names = test_suite_info.match_test_case_names(
+            test_case_names = test_suite_info.match_test_case_names(
                 collected_test_case_names
             )
             setup_fn_name = self._find_setup_hook_name(identifiers)
@@ -318,8 +318,12 @@ class TestCollector:
             preprocessed = self._starknet_compiler.preprocess_contract(
                 test_suite_info.path
             )
-            matching_test_case_names = self._collect_test_case_names(preprocessed)
+            test_case_names = self._collect_test_case_names(preprocessed)
             setup_fn_name = self._collect_setup_hook_name(preprocessed)
+
+        matching_test_case_names = test_suite_info.match_test_case_names(
+            test_case_names
+        )
 
         return TestSuite(
             test_path=test_suite_info.path,
