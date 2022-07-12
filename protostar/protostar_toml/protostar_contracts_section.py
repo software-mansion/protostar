@@ -10,6 +10,13 @@ from protostar.protostar_toml.protostar_toml_section import ProtostarTOMLSection
 class ProtostarContractsSection(ProtostarTOMLSection):
     contract_name_to_paths: Dict[str, List[Path]]
 
+    class Loader(ProtostarTOMLSection.Loader):
+        def __init__(self, protostar_toml_reader: ProtostarTOMLReader):
+            self._protostar_toml_reader = protostar_toml_reader
+
+        def load(self):
+            return ProtostarContractsSection.load(self._protostar_toml_reader)
+
     @staticmethod
     def get_section_name() -> str:
         return "contracts"

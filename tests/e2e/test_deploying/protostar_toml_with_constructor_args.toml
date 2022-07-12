@@ -9,5 +9,5 @@ main = [
   "./src/main.cairo",
 ]
 
-[protostar.deploy]
+["protostar.deploy"]
 inputs = [42]

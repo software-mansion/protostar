@@ -1,6 +1,6 @@
 from typing import Any, Callable, Optional
 
-from protostar.commands.test.starkware.cheatcode import Cheatcode
+from protostar.starknet.cheatcode import Cheatcode
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
 
 

@@ -4,17 +4,15 @@ from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Union
 from typing_extensions import NotRequired, TypedDict
 
 from protostar.commands.test.expected_event import ExpectedEvent
-from protostar.commands.test.starkware.cheatcode import Cheatcode
+from protostar.starknet.cheatcode import Cheatcode
 from protostar.commands.test.test_environment_exceptions import (
     ExpectedEventMissingException,
 )
 from protostar.utils.data_transformer_facade import DataTransformerFacade
+from protostar.utils.hook import Hook
 
 if TYPE_CHECKING:
-    from protostar.commands.test.starkware.forkable_starknet import ForkableStarknet
-    from protostar.commands.test.test_execution_environment import (
-        TestExecutionEnvironment,
-    )
+    from protostar.starknet.forkable_starknet import ForkableStarknet
 
 
 class ExpectEventsCheatcode(Cheatcode):
@@ -40,12 +38,12 @@ class ExpectEventsCheatcode(Cheatcode):
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
         starknet: "ForkableStarknet",
-        test_execution_environment: "TestExecutionEnvironment",
+        finish_hook: Hook,
         data_transformer: DataTransformerFacade,
     ):
         super().__init__(syscall_dependencies)
         self.starknet = starknet
-        self.test_execution_environment = test_execution_environment
+        self.finish_hook = finish_hook
         self.data_transformer = data_transformer
 
     @property
@@ -84,9 +82,7 @@ class ExpectEventsCheatcode(Cheatcode):
                     event_selector_to_name_map=self.starknet.cheatable_state.cheatable_carried_state.event_selector_to_name_map,
                 )
 
-        self.test_execution_environment.add_test_finish_hook(
-            compare_expected_and_emitted_events
-        )
+        self.finish_hook.on(compare_expected_and_emitted_events)
 
     def _convert_raw_expected_event_to_expected_event(
         self,

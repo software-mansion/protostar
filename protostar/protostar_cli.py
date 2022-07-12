@@ -3,6 +3,7 @@ import sys
 from logging import INFO, Logger, StreamHandler, getLogger
 from pathlib import Path
 from typing import Any
+import time
 
 from protostar.cli import CLIApp, Command
 from protostar.commands import (
@@ -15,12 +16,18 @@ from protostar.commands import (
     UpdateCommand,
     UpgradeCommand,
 )
+from protostar.commands.build import ProjectCompiler
 from protostar.commands.init.project_creator import (
     AdaptedProjectCreator,
     NewProjectCreator,
 )
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
+from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
+from protostar.protostar_toml.protostar_contracts_section import (
+    ProtostarContractsSection,
+)
+from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
 from protostar.utils import (
     Project,
     ProtostarDirectory,
@@ -72,9 +79,12 @@ class ProtostarCLI(CLIApp):
         project: Project,
         version_manager: VersionManager,
         protostar_toml_writer: ProtostarTOMLWriter,
+        protostar_toml_reader: ProtostarTOMLReader,
         requester: InputRequester,
+        start_time: float = 0.0,
     ) -> None:
         self.project = project
+        self.start_time = start_time
 
         super().__init__(
             commands=[
@@ -93,7 +103,16 @@ class ProtostarCLI(CLIApp):
                         version_manager,
                     ),
                 ),
-                BuildCommand(project),
+                BuildCommand(
+                    ProjectCompiler(
+                        project_section_loader=ProtostarProjectSection.Loader(
+                            protostar_toml_reader
+                        ),
+                        contracts_section_loader=ProtostarContractsSection.Loader(
+                            protostar_toml_reader
+                        ),
+                    )
+                ),
                 InstallCommand(project),
                 RemoveCommand(project),
                 UpdateCommand(project),
@@ -124,6 +143,7 @@ class ProtostarCLI(CLIApp):
         version_manager = VersionManager(protostar_directory)
         project = Project(version_manager)
         protostar_toml_writer = ProtostarTOMLWriter()
+        protostar_toml_reader = ProtostarTOMLReader()
         requester = InputRequester(log_color_provider)
 
         return cls(
@@ -132,7 +152,9 @@ class ProtostarCLI(CLIApp):
             project,
             version_manager,
             protostar_toml_writer,
+            protostar_toml_reader,
             requester,
+            time.perf_counter(),
         )
 
     def _setup_logger(self, is_ci_mode: bool) -> Logger:
@@ -153,6 +175,7 @@ class ProtostarCLI(CLIApp):
 
     async def run(self, args: Any) -> None:
         logger = self._setup_logger(args.no_color)
+        has_failed = False
 
         try:
             self._check_git_version()
@@ -163,11 +186,16 @@ class ProtostarCLI(CLIApp):
 
             await super().run(args)
         except ProtostarExceptionSilent:
-            sys.exit(1)
+            has_failed = True
         except ProtostarException as err:
             if err.details:
                 print(err.details)
             logger.error(err.message)
-            sys.exit(1)
+            has_failed = True
         except KeyboardInterrupt:
+            has_failed = True
+
+        logger.info("Execution time: %.2f s", time.perf_counter() - self.start_time)
+
+        if has_failed:
             sys.exit(1)

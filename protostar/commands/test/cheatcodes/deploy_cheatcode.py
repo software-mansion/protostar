@@ -7,7 +7,7 @@ from starkware.starknet.business_logic.execution.objects import CallInfo
 from starkware.starknet.core.os.syscall_utils import initialize_contract_state
 
 from protostar.commands.test.cheatcodes.prepare_cheatcode import PreparedContract
-from protostar.commands.test.starkware.cheatcode import Cheatcode
+from protostar.starknet.cheatcode import Cheatcode
 
 
 @dataclass(frozen=True)
