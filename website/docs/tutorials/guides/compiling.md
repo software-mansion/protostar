@@ -44,6 +44,10 @@ $ ls ./build
 bar.json     bar_abi.json foo.json     foo_abi.json
 ```
 
+:::note
+Protostar detects account contracts. Unlike `starknet-compile`, you don't have to provide `--account_contract` flag to compile them.
+:::
+
 ### Output directory
 
 By default, Protostar uses a `build` directory as a compilation destination. However, you can specify a custom directory by running `build` command with the `--output` flag:
