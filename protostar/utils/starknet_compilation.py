@@ -1,6 +1,7 @@
 from dataclasses import dataclass
+import dis
 from pathlib import Path
-from typing import Callable, List
+from typing import Callable, List, Optional
 
 from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
 from starkware.cairo.lang.compiler.cairo_compile import get_module_reader
@@ -23,26 +24,37 @@ from starkware.starknet.services.api.contract_class import ContractClass
 from protostar.protostar_exception import ProtostarException
 
 
-@dataclass
 class StarknetCompiler:
     class FileNotFoundException(ProtostarException):
         pass
+    
+    def __init__(
+        self,
+        include_paths: List[str],
+        disable_hint_validation: bool,
+        custom_pass_manager_factory: Optional[Callable[[List[str], bool], PassManager]] = None, 
+    ):
+        self.include_paths = include_paths
+        self.disable_hint_validation = disable_hint_validation
+        self.custom_pass_manager_factory = custom_pass_manager_factory
 
-    include_paths: List[str]
-    disable_hint_validation: bool
-
-    def get_starknet_pass_manager(self) -> PassManager:
-        read_module = get_module_reader(cairo_path=self.include_paths).read
+    @staticmethod
+    def get_starknet_pass_manager(include_paths: List[str], disable_hint_validation: bool) -> PassManager:
+        read_module = get_module_reader(cairo_path=include_paths).read
         return starknet_pass_manager(
             DEFAULT_PRIME,
             read_module,
-            disable_hint_validation=self.disable_hint_validation,
+            disable_hint_validation=disable_hint_validation,
         )
+
+    def get_pass_manager(self):
+        factory = self.custom_pass_manager_factory or StarknetCompiler.get_starknet_pass_manager
+        return factory(self.include_paths, self.disable_hint_validation)
 
     def preprocess_contract(
         self, *cairo_file_paths: Path
     ) -> StarknetPreprocessedProgram:
-        pass_manager = self.get_starknet_pass_manager()
+        pass_manager = self.get_pass_manager()
 
         try:
             codes = [
