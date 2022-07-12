@@ -25,7 +25,9 @@ class TestingLiveLogger:
         self.testing_summary = testing_summary
         self.exit_first = exit_first
 
-    def exit_before_log(self, test_collector_result: "TestCollector.Result") -> None:
+    def log_testing_summary(
+        self, test_collector_result: "TestCollector.Result"
+    ) -> None:
         self.testing_summary.log(
             logger=self._logger,
             collected_test_cases_count=test_collector_result.test_cases_count,
@@ -55,11 +57,16 @@ class TestingLiveLogger:
                         self.testing_summary.extend([test_case_result])
 
                         cast(Any, progress_bar).colour = (
-                            "RED" if test_results_queue.failed() else "GREEN"
+                            "RED"
+                            if test_results_queue.any_failed_or_broken()
+                            else "GREEN"
                         )
 
                         progress_bar.write(str(test_case_result))
-                        if self.exit_first and test_results_queue.failed():
+                        if (
+                            self.exit_first
+                            and test_results_queue.any_failed_or_broken()
+                        ):
                             tests_left_n = 0
                             return
 
@@ -73,13 +80,7 @@ class TestingLiveLogger:
                 finally:
                     progress_bar.write("")
                     progress_bar.clear()
-                    self.testing_summary.log(
-                        logger=self._logger,
-                        collected_test_cases_count=test_collector_result.test_cases_count,
-                        collected_test_suites_count=len(
-                            test_collector_result.test_suites
-                        ),
-                    )
+                    self.log_testing_summary(test_collector_result)
 
         except queue.Empty:
             # https://docs.python.org/3/library/queue.html#queue.Queue.get

@@ -169,8 +169,8 @@ def test_exit_first_failed(protostar, copy_fixture):
     copy_fixture("test_proxy.cairo", "./tests")
     copy_fixture("test_failed.cairo", "./tests")
 
-    result = protostar(["test", "-x", "tests"], ignore_exit_code=True)
-    assert "skipped" in result
+    assert "skipped" in protostar(["test", "-x", "tests"], ignore_exit_code=True)
+    assert "skipped" not in protostar(["test", "tests"], ignore_exit_code=True)
 
 
 @pytest.mark.usefixtures("init")
@@ -180,7 +180,5 @@ def test_exit_first_broken(protostar, copy_fixture):
     copy_fixture("test_proxy.cairo", "./tests")
     copy_fixture("test_broken.cairo", "./tests")
 
-    result = protostar(["test", "-x", "tests"], ignore_exit_code=True)
-
-    print(result)
-    assert "skipped" in result
+    assert "skipped" in protostar(["test", "-x", "tests"], ignore_exit_code=True)
+    assert "skipped" not in protostar(["test", "tests"], ignore_exit_code=True)

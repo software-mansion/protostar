@@ -9,18 +9,20 @@ if TYPE_CHECKING:
 
 class TestResultsQueue:
     def __init__(
-        self, shared_queue: "queue.Queue[TestCaseResult]", failed: ValueProxy
+        self,
+        shared_queue: "queue.Queue[TestCaseResult]",
+        any_failed_or_broken_shared_value: ValueProxy,
     ) -> None:
         self._shared_queue = shared_queue
-        self._failed = failed
+        self._any_failed_or_broken_shared_value = any_failed_or_broken_shared_value
 
     def get(self) -> TestCaseResult:
         return self._shared_queue.get(block=True, timeout=1000)
 
     def put(self, item: TestCaseResult) -> None:
         if not isinstance(item, PassedTestCase):
-            self._failed.value = True
+            self._any_failed_or_broken_shared_value.value = True
         self._shared_queue.put(item)
 
-    def failed(self) -> bool:
-        return self._failed.value
+    def any_failed_or_broken(self) -> bool:
+        return self._any_failed_or_broken_shared_value.value

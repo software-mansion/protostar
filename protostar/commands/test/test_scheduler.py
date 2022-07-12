@@ -33,10 +33,10 @@ class TestScheduler:
     ):
         with multiprocessing.Manager() as manager:
             test_results_queue = TestResultsQueue(
-                manager.Queue(),
-                manager.Value(
+                shared_queue=manager.Queue(),
+                any_failed_or_broken_shared_value=manager.Value(
                     ctypes.c_bool,
-                    (len(test_collector_result.broken_test_suites) > 0) and exit_first,
+                    (len(test_collector_result.broken_test_suites) > 0),
                 ),
             )
             setups: List[TestRunner.WorkerArgs] = [
@@ -51,8 +51,8 @@ class TestScheduler:
             ]
 
             # A test case was broken
-            if exit_first and test_results_queue.failed():
-                self._live_logger.exit_before_log(test_collector_result)
+            if exit_first and test_results_queue.any_failed_or_broken():
+                self._live_logger.log_testing_summary(test_collector_result)
                 return
 
             try:
@@ -66,7 +66,7 @@ class TestScheduler:
 
                     self._live_logger.log(test_results_queue, test_collector_result)
 
-                    if exit_first and test_results_queue.failed():
+                    if exit_first and test_results_queue.any_failed_or_broken():
                         pool.terminate()
                         return
 
