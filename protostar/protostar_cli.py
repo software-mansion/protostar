@@ -3,6 +3,7 @@ import sys
 from logging import INFO, Logger, StreamHandler, getLogger
 from pathlib import Path
 from typing import Any
+import time
 
 from protostar.cli import CLIApp, Command
 from protostar.commands import (
@@ -80,8 +81,10 @@ class ProtostarCLI(CLIApp):
         protostar_toml_writer: ProtostarTOMLWriter,
         protostar_toml_reader: ProtostarTOMLReader,
         requester: InputRequester,
+        start_time: float = 0.0,
     ) -> None:
         self.project = project
+        self.start_time = start_time
 
         super().__init__(
             commands=[
@@ -151,6 +154,7 @@ class ProtostarCLI(CLIApp):
             protostar_toml_writer,
             protostar_toml_reader,
             requester,
+            time.perf_counter(),
         )
 
     def _setup_logger(self, is_ci_mode: bool) -> Logger:
@@ -171,6 +175,7 @@ class ProtostarCLI(CLIApp):
 
     async def run(self, args: Any) -> None:
         logger = self._setup_logger(args.no_color)
+        has_failed = False
 
         try:
             self._check_git_version()
@@ -181,11 +186,16 @@ class ProtostarCLI(CLIApp):
 
             await super().run(args)
         except ProtostarExceptionSilent:
-            sys.exit(1)
+            has_failed = True
         except ProtostarException as err:
             if err.details:
                 print(err.details)
             logger.error(err.message)
-            sys.exit(1)
+            has_failed = True
         except KeyboardInterrupt:
+            has_failed = True
+
+        logger.info("Execution time: %.2f s", time.perf_counter() - self.start_time)
+
+        if has_failed:
             sys.exit(1)
