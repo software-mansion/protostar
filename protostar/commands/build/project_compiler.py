@@ -31,7 +31,6 @@ class ProjectCompiler:
         output_dir: Path,
         cairo_path: List[Path],
         disable_hint_validation: bool,
-        is_account_contract=False,
     ):
         project_section = self._project_section_loader.load()
         contracts_section = self._contracts_section_loader.load()
@@ -47,7 +46,6 @@ class ProjectCompiler:
                 contract_paths,
                 include_paths,
                 disable_hint_validation,
-                is_account_contract,
             )
 
             self._save_compiled_contract(contract, output_dir, contract_name)
@@ -59,7 +57,6 @@ class ProjectCompiler:
         contract_paths: List[Path],
         include_paths: List[str],
         disable_hint_validation: bool,
-        is_account_contract: bool,
     ) -> ContractClass:
         try:
             return StarknetCompiler(
@@ -67,7 +64,6 @@ class ProjectCompiler:
                 disable_hint_validation=disable_hint_validation,
             ).compile_contract(
                 *contract_paths,
-                is_account_contract=is_account_contract,
             )
         except StarknetCompiler.FileNotFoundException as err:
             raise StarknetCompiler.FileNotFoundException(

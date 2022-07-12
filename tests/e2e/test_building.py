@@ -130,7 +130,7 @@ def test_disable_hint_validation(protostar):
     assert "Hint is not whitelisted." in result
 
     result = protostar(["build", "--disable-hint-validation"], ignore_exit_code=True)
-    assert result == ""
+    assert "Hint is not whitelisted." not in result
 
 
 @pytest.mark.usefixtures("init")
@@ -150,10 +150,7 @@ def test_building_account_contract(protostar):
             )
         )
 
-    with pytest.raises(CalledProcessError):
-        protostar(["build"])
-
-    protostar(["build", "--account-contract"])
+    protostar(["build"])
 
     dirs = listdir()
     assert "build" in dirs

@@ -1,5 +1,6 @@
 # pylint: disable=no-self-use
 import sys
+import time
 from logging import INFO, Logger, StreamHandler, getLogger
 from pathlib import Path
 from typing import Any
@@ -90,11 +91,13 @@ class ProtostarCLI(CLIApp):
         logger: Logger,
         upgrade_local_checker: UpgradeLocalChecker,
         upgrade_info_writer_thread: UpgradeInfoWriterThread,
+        start_time: float = 0.0,
     ) -> None:
         self.project = project
         self.logger = logger
         self.upgrade_local_checker = upgrade_local_checker
         self.upgrade_info_writer_thread = upgrade_info_writer_thread
+        self.start_time = start_time
 
         super().__init__(
             commands=[
@@ -186,6 +189,7 @@ class ProtostarCLI(CLIApp):
             logger=logger,
             upgrade_local_checker=upgrade_local_checker,
             upgrade_info_writer_thread=upgrade_info_writer_thread,
+            start_time=time.perf_counter(),
         )
 
     def _setup_logger(self, is_ci_mode: bool) -> None:
@@ -204,6 +208,7 @@ class ProtostarCLI(CLIApp):
 
     async def run(self, args: Any) -> None:
         self._setup_logger(args.no_color)
+        has_failed = False
         try:
             self.upgrade_local_checker.log_info_if_update_available()
             self._check_git_version()
@@ -216,11 +221,18 @@ class ProtostarCLI(CLIApp):
                 await super().run(args)
 
         except ProtostarExceptionSilent:
-            sys.exit(1)
+            has_failed = True
         except ProtostarException as err:
             if err.details:
                 print(err.details)
             self.logger.error(err.message)
             sys.exit(1)
         except KeyboardInterrupt:
+            has_failed = True
+
+        self.logger.info(
+            "Execution time: %.2f s", time.perf_counter() - self.start_time
+        )
+
+        if has_failed:
             sys.exit(1)

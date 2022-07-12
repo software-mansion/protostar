@@ -2,7 +2,7 @@ import multiprocessing
 import signal
 from typing import TYPE_CHECKING, Callable, List
 
-from protostar.commands.test.test_results_queue import TestResultsQueue
+from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
 
@@ -26,21 +26,27 @@ class TestScheduler:
         self,
         test_collector_result: "TestCollector.Result",
         include_paths: List[str],
-        is_account_contract: bool,
         disable_hint_validation: bool,
+        exit_first: bool,
     ):
         with multiprocessing.Manager() as manager:
-            test_results_queue = TestResultsQueue(manager.Queue())
+            shared_tests_state = SharedTestsState(
+                test_collector_result=test_collector_result, manager=manager
+            )
             setups: List[TestRunner.WorkerArgs] = [
                 TestRunner.WorkerArgs(
                     test_suite,
-                    test_results_queue=test_results_queue,
+                    shared_tests_state=shared_tests_state,
                     include_paths=include_paths,
-                    is_account_contract=is_account_contract,
                     disable_hint_validation_in_external_contracts=disable_hint_validation,
                 )
                 for test_suite in test_collector_result.test_suites
             ]
+
+            # A test case was broken
+            if exit_first and shared_tests_state.any_failed_or_broken():
+                self._live_logger.log_testing_summary(test_collector_result)
+                return
 
             try:
                 with multiprocessing.Pool(
@@ -50,7 +56,13 @@ class TestScheduler:
                     ),  # prevents showing a stacktrace on cmd/ctrl + c
                 ) as pool:
                     results = pool.map_async(self._worker, setups)
-                    self._live_logger.log(test_results_queue, test_collector_result)
+
+                    self._live_logger.log(shared_tests_state, test_collector_result)
+
+                    if exit_first and shared_tests_state.any_failed_or_broken():
+                        pool.terminate()
+                        return
+
                     results.get()
             except KeyboardInterrupt:
                 return

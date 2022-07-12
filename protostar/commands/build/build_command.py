@@ -42,11 +42,6 @@ class BuildCommand(Command):
                 type="path",
                 default="build",
             ),
-            Command.Argument(
-                name="account-contract",
-                description="Compile as account contract.",
-                type="bool",
-            ),
         ]
 
     async def run(self, args):
@@ -54,5 +49,4 @@ class BuildCommand(Command):
             output_dir=args.output,
             cairo_path=args.cairo_path,
             disable_hint_validation=args.disable_hint_validation,
-            is_account_contract=args.account_contract,
         )
