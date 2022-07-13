@@ -31,33 +31,26 @@ class LatestVersionChecker:
         self._log_color_provider = log_color_provider
         self._latest_version_cache_toml_reader = latest_version_cache_toml_reader
         self._latest_version_cache_toml_writer = latest_version_cache_toml_writer
-        self._upgrade_remote_checker = latest_version_remote_checker
+        self._latest_version_remote_checker = latest_version_remote_checker
         self._new_latest_version_cache_toml_cache: Optional[
             LatestVersionCacheTOML
         ] = None
 
     async def run(self):
-        current_latest_version_cache_toml = (
-            self._latest_version_cache_toml_reader.read()
-        )
-        new_latest_version_cache_toml = (
-            await self._build_up_to_date_latest_version_cache_toml(
-                current_latest_version_cache_toml
-            )
-        )
-        if new_latest_version_cache_toml is not None:
-            if current_latest_version_cache_toml != new_latest_version_cache_toml:
-                self._latest_version_cache_toml_writer.save(
-                    new_latest_version_cache_toml
-                )
+        latest_version_cache_toml = (
+            await self.load_local_latest_version_cache_toml()
+        ) or await self.check_latest_version()
 
-            if self._version_manager.protostar_version is None or (
-                new_latest_version_cache_toml.version
+        if latest_version_cache_toml and (
+            self._version_manager.protostar_version is None
+            or (
+                latest_version_cache_toml.version
                 > self._version_manager.protostar_version
-            ):
-                self._log_new_version_info(new_latest_version_cache_toml)
+            )
+        ):
+            self.log_new_version_info(latest_version_cache_toml)
 
-    def _log_new_version_info(self, latest_version_cache_toml: LatestVersionCacheTOML):
+    def log_new_version_info(self, latest_version_cache_toml: LatestVersionCacheTOML):
         bold = self._log_color_provider.bold
         colorize = self._log_color_provider.colorize
         self._logger.info(
@@ -80,30 +73,36 @@ class LatestVersionChecker:
             )
         )
 
-    async def _build_up_to_date_latest_version_cache_toml(
-        self, current_latest_version_cache_toml: Optional[LatestVersionCacheTOML]
+    async def load_local_latest_version_cache_toml(
+        self,
     ) -> Optional[LatestVersionCacheTOML]:
-
+        current_latest_version_cache_toml = (
+            self._latest_version_cache_toml_reader.read()
+        )
         if (
             current_latest_version_cache_toml is not None
             and current_latest_version_cache_toml.next_check_datetime > datetime.now()
         ):
             return current_latest_version_cache_toml
+        return None
 
-        new_latest_version_cache_toml = current_latest_version_cache_toml
+    async def check_latest_version(self) -> Optional[LatestVersionCacheTOML]:
         try:
-            self._logger.info("Checking for updates")
-            result = await self._upgrade_remote_checker.check()
-            new_latest_version_cache_toml = LatestVersionCacheTOML(
+            result = await self._latest_version_remote_checker.check()
+            latest_version_cache_toml = LatestVersionCacheTOML(
                 version=result.latest_version,
                 changelog_url=result.changelog_url,
                 next_check_datetime=datetime.now() + timedelta(days=3),
             )
+            self._latest_version_cache_toml_writer.save(latest_version_cache_toml)
+            return latest_version_cache_toml
         except ConnectionError:
+            current_latest_version_cache_toml = (
+                self._latest_version_cache_toml_reader.read()
+            )
             if current_latest_version_cache_toml:
-                new_latest_version_cache_toml = LatestVersionCacheTOML(
+                return LatestVersionCacheTOML(
                     version=current_latest_version_cache_toml.version,
                     changelog_url=current_latest_version_cache_toml.changelog_url,
                     next_check_datetime=datetime.now() + timedelta(days=1),
                 )
-        return new_latest_version_cache_toml
