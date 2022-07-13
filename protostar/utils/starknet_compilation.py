@@ -58,7 +58,9 @@ class StarknetCompiler:
         return factory(self.include_paths, self.disable_hint_validation)
 
     def get_main_identifiers_in_file(self, cairo_file_path: Path) -> List[str]:
-        pass_manager = StarknetCompiler.get_starknet_pass_manager(self.include_paths, self.disable_hint_validation)
+        pass_manager = StarknetCompiler.get_starknet_pass_manager(
+            self.include_paths, self.disable_hint_validation
+        )
         file_identifiers: Set[str] = set()
 
         try:
