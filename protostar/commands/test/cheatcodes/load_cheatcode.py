@@ -8,23 +8,24 @@ from protostar.starknet.storage_var import calc_address
 class LoadCheatcode(Cheatcode):
     @property
     def name(self) -> str:
-        return "store"
+        return "load"
 
     def build(self) -> Callable[..., Any]:
-        return self.store
+        return self.load
 
-    def store(
+    def load(
         self,
         target_contract_address: int,
         variable_name: str,
-        value: List[int],
+        type: str,
         key: Optional[List[int]] = None,
-    ):
+    ) -> List[int]:
         key = key or []
         variable_address = calc_address(variable_name, key)
+        variable_size = self.variable_size(target_contract_address, type)
+
         if target_contract_address == self.contract_address:
-            self.store_local(variable_address, value)
-            return
+            return self.load_local(variable_address, variable_size)
 
         pre_run_contract_carried_state = self.state.contract_states[
             target_contract_address
@@ -41,8 +42,8 @@ class LoadCheatcode(Cheatcode):
             loop=self.loop,
         )
 
-        self._write_on_remote_storage(
-            starknet_storage, target_contract_address, variable_address, value
+        result = self._load_from_remote_storage(
+            starknet_storage, variable_address, variable_size
         )
 
         # Apply modifications to the contract storage.
@@ -50,17 +51,22 @@ class LoadCheatcode(Cheatcode):
             contract_address=target_contract_address,
             modifications=starknet_storage.get_modifications(),
         )
+        return result
 
-    def store_local(self, address: int, value: List[int]):
-        for i, val in enumerate(value):
-            self._storage_write(address=address + i, value=val)
+    def load_local(self, address: int, size: int) -> List[int]:
+        return [self._storage_read(address=address + i) for i in range(size)]
+    
+    def variable_size(self, contract_address: int, type: str) -> int:
+        if type == "felt":
+            return 1
+        abi = self.state.get_abi_with_contract_address(contract_address)
+        size = next(el for el in abi if el["name"] == type)["size"]
+        assert size
+        return size
 
-    def _write_on_remote_storage(
-        self, storage, contract, address: int, value: List[int]
-    ):
-        for i, val in enumerate(value):
-            storage.read(address=address + i)
-            storage.write(address=address + i, value=val)
-            self.state.modified_contracts[contract] = None
 
-
+    def _load_from_remote_storage(
+        self, storage, address: int, size: int
+    ) -> List[int]:
+        return [storage.read(address=address + i) for i in range(size)]
+            

@@ -20,6 +20,7 @@ from starkware.starknet.services.api.messages import StarknetMessageToL1
 from starkware.starknet.testing.state import StarknetState
 from starkware.storage.dict_storage import DictStorage
 from starkware.storage.storage import FactFetchingContext
+from protostar.commands.test.test_environment_exceptions import CheatcodeException
 
 from protostar.starknet.cheatable_execute_entry_point import (
     CheatableExecuteEntryPoint,
@@ -186,7 +187,22 @@ class CheatableCarriedState(CarriedState):
     ):
         for selector, name in local_event_selector_to_name_map.items():
             self.event_selector_to_name_map[selector] = name
+    
+    def get_abi_with_contract_address(self, contract_address: int) -> AbiType:
+        abi = None
+        if contract_address in self.contract_address_to_class_hash_map:
+            class_hash = self.contract_address_to_class_hash_map[contract_address]
+            if class_hash in self.class_hash_to_contract_abi_map:
+                abi = self.class_hash_to_contract_abi_map[class_hash]
 
+        if not abi:    
+            raise CheatcodeException(
+                (
+                    "Couldn't map the `contract_address` to the `contract_abi`.\n"
+                    f"Is the `contract_address` ({contract_address}) valid?\n"
+                ),
+            )
+        return abi
 
 class CheatableStarknetState(StarknetState):
     """
