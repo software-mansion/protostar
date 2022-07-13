@@ -1,6 +1,5 @@
 import dataclasses
 from dataclasses import dataclass
-from typing import List
 
 from starkware.starknet.testing.contract import StarknetContract
 from typing_extensions import Self

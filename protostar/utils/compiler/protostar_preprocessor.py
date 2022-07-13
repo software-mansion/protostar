@@ -1,4 +1,3 @@
-
 from starkware.starknet.public.abi_structs import (
     prepare_type_for_abi,
 )
@@ -16,9 +15,10 @@ from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_mana
 
 
 from starkware.cairo.lang.compiler.preprocessor.default_pass_manager import (
-    PreprocessorStage
+    PreprocessorStage,
 )
 from starkware.starknet.security.hints_whitelist import get_hints_whitelist
+
 
 def get_protostar_pass_manager(include_paths, disable_hint_validation) -> PassManager:
     read_module = get_module_reader(cairo_path=include_paths).read
@@ -30,20 +30,29 @@ def get_protostar_pass_manager(include_paths, disable_hint_validation) -> PassMa
     hint_whitelist = None if disable_hint_validation else get_hints_whitelist()
     manager.replace(
         "preprocessor",
-        PreprocessorStage(DEFAULT_PRIME, ProtostarPreprocessor, None, dict(hint_whitelist=hint_whitelist)),
+        PreprocessorStage(
+            DEFAULT_PRIME,
+            ProtostarPreprocessor,
+            None,
+            dict(hint_whitelist=hint_whitelist),
+        ),
     )
     return manager
 
+
 class ProtostarPreprocessor(StarknetPreprocessor):
     """
-    This preprocessor includes types used in contracts storage variables in ABI 
+    This preprocessor includes types used in contracts storage variables in ABI
     """
 
     def add_abi_storage_var_types(self, elm: CodeElementFunction):
         """
         Adds an entry describing the function to the contract's ABI.
         """
-        for arg in elm.arguments.identifiers + elm.returns.identifiers:
+        args = elm.arguments.identifiers
+        if elm.returns:
+            args.extend(elm.returns.identifiers)
+        for arg in args:
             unresolved_arg_type = arg.get_type()
             arg_type = self.resolve_type(unresolved_arg_type)
             abi_type_info = prepare_type_for_abi(arg_type)
@@ -54,7 +63,5 @@ class ProtostarPreprocessor(StarknetPreprocessor):
         super().visit_CodeElementFunction(elm)
         attr = elm.additional_attributes.get("storage_var")
         if attr is not None:
-            self.add_abi_storage_var_types(
-                elm=attr
-            )
+            self.add_abi_storage_var_types(elm=attr)
             return

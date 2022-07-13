@@ -33,19 +33,18 @@ class TestRunner:
         disable_hint_validation_in_external_contracts=False,
     ):
         self.shared_tests_state = shared_tests_state
-        include_paths_val = []
+        include_paths_val: List[str] = []
         if include_paths:
             include_paths_val.extend(include_paths)
 
         self.tests_compiler = StarknetCompiler(
-            include_paths=include_paths,
-            disable_hint_validation=True
+            include_paths=include_paths_val, disable_hint_validation=True
         )
 
         self.external_contracts_compiler = StarknetCompiler(
-            include_paths=include_paths,
+            include_paths=include_paths_val,
             disable_hint_validation=disable_hint_validation_in_external_contracts,
-            custom_pass_manager_factory = get_protostar_pass_manager,
+            custom_pass_manager_factory=get_protostar_pass_manager,
         )
 
     @dataclass

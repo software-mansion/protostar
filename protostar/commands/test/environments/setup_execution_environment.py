@@ -46,8 +46,7 @@ class SetupCheatcodeFactory(CheatcodeFactory):
         data_transformer = DataTransformerFacade(self._state.starknet_compiler)
 
         declare_cheatcode = DeclareCheatcode(
-            syscall_dependencies,
-            self._state.starknet_compiler
+            syscall_dependencies, self._state.starknet_compiler
         )
         prepare_cheatcode = PrepareCheatcode(syscall_dependencies, data_transformer)
         deploy_cheatcode = DeployCheatcode(syscall_dependencies, internal_calls)

@@ -1,7 +1,6 @@
 import dataclasses
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import List, Optional
 
 from starkware.starknet.services.api.contract_class import ContractClass
 from typing_extensions import Self
@@ -21,7 +20,6 @@ class TestExecutionState(ExecutionState):
         cls,
         starknet_compiler: StarknetCompiler,
         test_suite_definition: ContractClass,
-
     ) -> Self:
         starknet = await ForkableStarknet.empty()
         contract = await starknet.deploy(contract_class=test_suite_definition)

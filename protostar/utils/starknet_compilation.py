@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-import dis
 from pathlib import Path
 from typing import Callable, List, Optional
 
@@ -27,19 +25,23 @@ from protostar.protostar_exception import ProtostarException
 class StarknetCompiler:
     class FileNotFoundException(ProtostarException):
         pass
-    
+
     def __init__(
         self,
         include_paths: List[str],
         disable_hint_validation: bool,
-        custom_pass_manager_factory: Optional[Callable[[List[str], bool], PassManager]] = None, 
+        custom_pass_manager_factory: Optional[
+            Callable[[List[str], bool], PassManager]
+        ] = None,
     ):
         self.include_paths = include_paths
         self.disable_hint_validation = disable_hint_validation
         self.custom_pass_manager_factory = custom_pass_manager_factory
 
     @staticmethod
-    def get_starknet_pass_manager(include_paths: List[str], disable_hint_validation: bool) -> PassManager:
+    def get_starknet_pass_manager(
+        include_paths: List[str], disable_hint_validation: bool
+    ) -> PassManager:
         read_module = get_module_reader(cairo_path=include_paths).read
         return starknet_pass_manager(
             DEFAULT_PRIME,
@@ -48,7 +50,10 @@ class StarknetCompiler:
         )
 
     def get_pass_manager(self):
-        factory = self.custom_pass_manager_factory or StarknetCompiler.get_starknet_pass_manager
+        factory = (
+            self.custom_pass_manager_factory
+            or StarknetCompiler.get_starknet_pass_manager
+        )
         return factory(self.include_paths, self.disable_hint_validation)
 
     def preprocess_contract(

@@ -1,7 +1,7 @@
 import asyncio
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, List
+from typing import Any, Callable
 
 from starkware.python.utils import from_bytes
 from starkware.starknet.business_logic.internal_transaction import InternalDeclare
@@ -21,7 +21,7 @@ class DeclareCheatcode(Cheatcode):
     def __init__(
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
-        starknet_compiler: StarknetCompiler
+        starknet_compiler: StarknetCompiler,
     ):
         super().__init__(syscall_dependencies)
         self._starknet_compiler = starknet_compiler
