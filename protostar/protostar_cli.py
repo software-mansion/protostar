@@ -130,7 +130,7 @@ class ProtostarCLI(CLIApp):
                     UpgradeManager(
                         protostar_directory,
                         version_manager,
-                        LatestVersionRemoteChecker(version_manager),
+                        LatestVersionRemoteChecker(),
                         self.logger,
                     )
                 ),
@@ -174,7 +174,7 @@ class ProtostarCLI(CLIApp):
             latest_version_cache_toml_writer=LatestVersionCacheTOML.Writer(
                 protostar_directory
             ),
-            latest_version_remote_checker=LatestVersionRemoteChecker(version_manager),
+            latest_version_remote_checker=LatestVersionRemoteChecker(),
         )
 
         return cls(

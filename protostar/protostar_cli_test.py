@@ -33,11 +33,9 @@ def protostar_cli_fixture(
     mocker: MockerFixture, version_manager: VersionManager
 ) -> ProtostarCLI:
     latest_version_checker_mock = mocker.MagicMock()
-    latest_version_checker_mock.check_for_upgrades_if_necessary = mocker.MagicMock()
-    latest_version_checker_mock.check_for_upgrades_if_necessary.return_value = Future()
-    latest_version_checker_mock.check_for_upgrades_if_necessary.return_value.set_result(
-        None
-    )
+    latest_version_checker_mock.run = mocker.MagicMock()
+    latest_version_checker_mock.run.return_value = Future()
+    latest_version_checker_mock.run.return_value.set_result(None)
 
     return ProtostarCLI(
         script_root=Path(),
