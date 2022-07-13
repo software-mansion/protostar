@@ -2,13 +2,13 @@ from datetime import datetime, timedelta
 from logging import Logger
 from typing import Optional
 
-from protostar.upgrader.upgrade_remote_checker import UpgradeRemoteChecker
-from protostar.upgrader.upgrade_toml import UpgradeTOML
+from protostar.upgrader.latest_version_cache_toml import LatestVersionCacheTOML
+from protostar.upgrader.latest_version_remote_checker import LatestVersionRemoteChecker
 from protostar.utils.log_color_provider import LogColorProvider
 from protostar.utils.protostar_directory import ProtostarDirectory, VersionManager
 
 
-class UpgradeChecker:
+class LatestVersionChecker:
 
     # pylint: disable=too-many-arguments
     def __init__(
@@ -17,25 +17,27 @@ class UpgradeChecker:
         version_manager: VersionManager,
         logger: Logger,
         log_color_provider: LogColorProvider,
-        upgrade_toml_reader: UpgradeTOML.Reader,
-        upgrade_toml_writer: UpgradeTOML.Writer,
-        upgrade_remote_checker: UpgradeRemoteChecker,
+        latest_version_cache_toml_reader: LatestVersionCacheTOML.Reader,
+        latest_version_cache_toml_writer: LatestVersionCacheTOML.Writer,
+        latest_version_remote_checker: LatestVersionRemoteChecker,
     ) -> None:
         self._protostar_directory = protostar_directory
         self._version_manager = version_manager
         self._logger = logger
         self._log_color_provider = log_color_provider
-        self._upgrade_toml_reader = upgrade_toml_reader
-        self._upgrade_toml_writer = upgrade_toml_writer
-        self._upgrade_remote_checker = upgrade_remote_checker
+        self._latest_version_cache_toml_reader = latest_version_cache_toml_reader
+        self._latest_version_cache_toml_writer = latest_version_cache_toml_writer
+        self._upgrade_remote_checker = latest_version_remote_checker
 
     async def check_for_upgrades_if_necessary(self):
-        upgrade_toml = self._upgrade_toml_reader.read()
-        new_upgrade_toml = await self._update_upgrade_toml_if_necessary(upgrade_toml)
-        if new_upgrade_toml:
-            self._log_info_if_update_available(new_upgrade_toml)
+        latest_version_cache_toml = self._latest_version_cache_toml_reader.read()
+        new_latest_version_cache_toml = await self._update_upgrade_toml_if_necessary(
+            latest_version_cache_toml
+        )
+        if new_latest_version_cache_toml:
+            self._log_info_if_update_available(new_latest_version_cache_toml)
 
-    def _log_info_if_update_available(self, upgrade_toml: UpgradeTOML):
+    def _log_info_if_update_available(self, upgrade_toml: LatestVersionCacheTOML):
         if upgrade_toml.version > (
             self._version_manager.protostar_version or VersionManager.parse("0.0.0")
         ):
@@ -60,8 +62,8 @@ class UpgradeChecker:
             )
 
     async def _update_upgrade_toml_if_necessary(
-        self, upgrade_toml: Optional[UpgradeTOML]
-    ) -> Optional[UpgradeTOML]:
+        self, upgrade_toml: Optional[LatestVersionCacheTOML]
+    ) -> Optional[LatestVersionCacheTOML]:
         new_upgrade_toml = upgrade_toml
 
         if upgrade_toml is None or upgrade_toml.next_check_datetime < datetime.now():
@@ -69,12 +71,12 @@ class UpgradeChecker:
             result = await self._upgrade_remote_checker.check()
 
             if result is not None:
-                new_upgrade_toml = UpgradeTOML(
+                new_upgrade_toml = LatestVersionCacheTOML(
                     version=result.latest_version,
                     changelog_url=result.changelog_url,
                     next_check_datetime=datetime.now() + timedelta(days=3),
                 )
 
         if new_upgrade_toml is not None:
-            self._upgrade_toml_writer.save(new_upgrade_toml)
+            self._latest_version_cache_toml_writer.save(new_upgrade_toml)
         return new_upgrade_toml

@@ -1,13 +1,15 @@
 from pytest_mock import MockerFixture
 
-from protostar.upgrader.upgrade_remote_checker import UpgradeRemoteChecker
+from protostar.upgrader.latest_version_remote_checker import LatestVersionRemoteChecker
 from protostar.utils.protostar_directory import VersionManager
 
 
 async def test_upgrade_remote_checker(mocker: MockerFixture):
     version_manager_mock = mocker.MagicMock()
     version_manager_mock.protostar_version = VersionManager.parse("0.0.0")
-    upgrade_remote_checker = UpgradeRemoteChecker(version_manager=version_manager_mock)
+    upgrade_remote_checker = LatestVersionRemoteChecker(
+        version_manager=version_manager_mock
+    )
 
     result = await upgrade_remote_checker.check()
 

@@ -27,8 +27,8 @@ class ProtostarDirectory:
         return self.directory_root_path / "dist" / "protostar" / "info"
 
     @property
-    def upgrade_toml_path(self) -> Path:
-        return self.info_dir_path / "upgrade.toml"
+    def latest_version_cache_path(self) -> Path:
+        return self.info_dir_path / "latest_version_cache.toml"
 
     def add_protostar_cairo_dir(self, cairo_paths: List[Path]) -> List[Path]:
         if self.protostar_binary_dir_path:

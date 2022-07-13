@@ -1,4 +1,4 @@
-from protostar.upgrader.upgrade_checker import UpgradeChecker
+from protostar.upgrader.latest_version_checker import LatestVersionChecker
 from protostar.upgrader.upgrade_manager import UpgradeManager
-from protostar.upgrader.upgrade_remote_checker import UpgradeRemoteChecker
-from protostar.upgrader.upgrade_toml import UpgradeTOML
+from protostar.upgrader.latest_version_remote_checker import LatestVersionRemoteChecker
+from protostar.upgrader.latest_version_cache_toml import LatestVersionCacheTOML

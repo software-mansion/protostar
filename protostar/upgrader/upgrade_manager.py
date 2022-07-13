@@ -8,7 +8,7 @@ from typing import Any
 
 import requests
 
-from protostar.upgrader.upgrade_remote_checker import UpgradeRemoteChecker
+from protostar.upgrader.latest_version_remote_checker import LatestVersionRemoteChecker
 from protostar.utils.protostar_directory import (
     ProtostarDirectory,
     VersionManager,
@@ -29,12 +29,12 @@ class UpgradeManager:
         self,
         protostar_directory: ProtostarDirectory,
         version_manager: VersionManager,
-        upgrade_checker: UpgradeRemoteChecker,
+        latest_version_checker: LatestVersionRemoteChecker,
         logger: Logger,
     ):
         self._protostar_directory = protostar_directory
         self._version_manager = version_manager
-        self._upgrade_checker = upgrade_checker
+        self._latest_version_checker = latest_version_checker
         self._logger = logger
 
     async def upgrade(self):
@@ -42,7 +42,7 @@ class UpgradeManager:
         assert os.path.isdir(self._protostar_directory.directory_root_path / "dist")
 
         self._logger.info("Looking for a new version ...")
-        checking_result = await self._upgrade_checker.check()
+        checking_result = await self._latest_version_checker.check()
         if not checking_result.is_newer_version_available:
             self._logger.info("Protostar is up to date")
             return
@@ -152,7 +152,8 @@ class UpgradeManager:
         tarball_path: Path,
     ):
         self._logger.info("Pulling latest binary, version: %s", latest_version)
-        tar_url = f"{UpgradeRemoteChecker.PROTOSTAR_REPO}/releases/download/{latest_version_tag}/{tarball_filename}"
+        # pylint: disable=line-too-long
+        tar_url = f"{LatestVersionRemoteChecker.PROTOSTAR_REPO}/releases/download/{latest_version_tag}/{tarball_filename}"
         with requests.get(tar_url, stream=True) as request:
             with open(tarball_path, "wb") as file:
                 shutil.copyfileobj(request.raw, file)

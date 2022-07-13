@@ -5,7 +5,7 @@ import requests
 from protostar.utils.protostar_directory import VersionManager, VersionType
 
 
-class UpgradeRemoteChecker:
+class LatestVersionRemoteChecker:
     """
     Call a remote endpoint to figure out if the new Protostar version is available.
     """
@@ -22,10 +22,10 @@ class UpgradeRemoteChecker:
     def __init__(self, version_manager: VersionManager) -> None:
         self._version_manager = version_manager
 
-    async def check(self) -> "UpgradeRemoteChecker.Result":
+    async def check(self) -> "LatestVersionRemoteChecker.Result":
         headers = {"Accept": "application/json"}
         response = requests.get(
-            f"{UpgradeRemoteChecker.PROTOSTAR_REPO}/releases/latest",
+            f"{LatestVersionRemoteChecker.PROTOSTAR_REPO}/releases/latest",
             headers=headers,
             timeout=8,
         )
@@ -33,7 +33,7 @@ class UpgradeRemoteChecker:
         latest_release_tag = response_dict["tag_name"]
         latest_version = VersionManager.parse(latest_release_tag)
         changelog_url = "https://github.com" + response_dict["update_url"]
-        return UpgradeRemoteChecker.Result(
+        return LatestVersionRemoteChecker.Result(
             latest_version=latest_version,
             latest_release_tag=latest_release_tag,
             is_newer_version_available=latest_version

@@ -13,7 +13,7 @@ from protostar.utils.protostar_directory import (
 
 
 @dataclass(frozen=True)
-class UpgradeTOML:
+class LatestVersionCacheTOML:
     """
     Pythonic representation of the upgrade.toml.
     """
@@ -26,18 +26,18 @@ class UpgradeTOML:
         def __init__(self, protostar_directory: ProtostarDirectory) -> None:
             self._protostar_directory = protostar_directory
 
-        def save(self, update_toml: "UpgradeTOML") -> None:
+        def save(self, upgrade_toml: "LatestVersionCacheTOML") -> None:
             if not self._protostar_directory.info_dir_path.exists():
                 return None
 
             with open(
-                self._protostar_directory.upgrade_toml_path, "wb"
+                self._protostar_directory.latest_version_cache_path, "wb"
             ) as update_toml_file:
                 result = {
                     "info": {
-                        "version": str(update_toml.version),
-                        "changelog_url": update_toml.changelog_url,
-                        "next_check_datetime": update_toml.next_check_datetime.isoformat(),
+                        "version": str(upgrade_toml.version),
+                        "changelog_url": upgrade_toml.changelog_url,
+                        "next_check_datetime": upgrade_toml.next_check_datetime.isoformat(),
                     }
                 }
                 tomli_w.dump(result, update_toml_file)
@@ -47,16 +47,16 @@ class UpgradeTOML:
         def __init__(self, protostar_directory: ProtostarDirectory) -> None:
             self._protostar_directory = protostar_directory
 
-        def read(self) -> Optional["UpgradeTOML"]:
-            if not self._protostar_directory.upgrade_toml_path.exists():
+        def read(self) -> Optional["LatestVersionCacheTOML"]:
+            if not self._protostar_directory.latest_version_cache_path.exists():
                 return None
 
             with open(
-                self._protostar_directory.upgrade_toml_path, "rb"
+                self._protostar_directory.latest_version_cache_path, "rb"
             ) as update_toml_file:
                 update_toml_dict = tomli.load(update_toml_file)
 
-                return UpgradeTOML(
+                return LatestVersionCacheTOML(
                     version=VersionManager.parse(update_toml_dict["info"]["version"]),
                     changelog_url=update_toml_dict["info"]["changelog_url"],
                     next_check_datetime=datetime.fromisoformat(
