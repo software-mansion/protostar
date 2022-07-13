@@ -1,3 +1,4 @@
+from typing import List
 from starkware.starknet.public.abi_structs import (
     prepare_type_for_abi,
 )
@@ -20,7 +21,7 @@ from starkware.cairo.lang.compiler.preprocessor.default_pass_manager import (
 from starkware.starknet.security.hints_whitelist import get_hints_whitelist
 
 
-def get_protostar_pass_manager(include_paths, disable_hint_validation) -> PassManager:
+def get_protostar_pass_manager(include_paths: List[str], disable_hint_validation: bool) -> PassManager:
     read_module = get_module_reader(cairo_path=include_paths).read
     manager = starknet_pass_manager(
         DEFAULT_PRIME,
