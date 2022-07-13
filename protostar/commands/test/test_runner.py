@@ -151,17 +151,17 @@ class TestRunner:
 
         for test_case_name in test_suite.test_case_names:
             new_execution_state = execution_state.fork()
-            logs = io.StringIO()
+            stdout_buffer = io.StringIO()
             try:
                 execution_resources = await invoke_test_case(
-                    test_case_name, new_execution_state, logs
+                    test_case_name, new_execution_state, stdout_buffer
                 )
                 self.shared_tests_state.put_result(
                     PassedTestCase(
                         file_path=test_suite.test_path,
                         test_case_name=test_case_name,
                         execution_resources=execution_resources,
-                        logs=logs.getvalue(),
+                        captured_stdout=stdout_buffer.getvalue(),
                     )
                 )
             except ReportedException as ex:
@@ -170,7 +170,7 @@ class TestRunner:
                         file_path=test_suite.test_path,
                         test_case_name=test_case_name,
                         exception=ex,
-                        logs=logs.getvalue(),
+                        captured_stdout=stdout_buffer.getvalue(),
                     )
                 )
 

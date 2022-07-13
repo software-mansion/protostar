@@ -20,9 +20,9 @@ async def invoke_setup(function_name: str, state: TestExecutionState):
 
 
 async def invoke_test_case(
-    function_name: str, state: TestExecutionState, logs: StringIO
+    function_name: str, state: TestExecutionState, stdout_buffer: StringIO
 ) -> Optional[ExecutionResourcesSummary]:
     env = TestExecutionEnvironment(state)
 
-    with redirect_stdout(logs):
+    with redirect_stdout(stdout_buffer):
         return await env.invoke(function_name)

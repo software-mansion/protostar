@@ -92,7 +92,7 @@ class TestCommand(Command):
             Command.Argument(
                 name="stdout-on-success",
                 type="bool",
-                description="Also capture stdout on passed test cases.",
+                description="Also print captured stdout for passed test cases.",
             ),
         ]
 

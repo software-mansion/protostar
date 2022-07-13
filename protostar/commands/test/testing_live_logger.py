@@ -6,13 +6,11 @@ from tqdm import tqdm as bar
 
 from protostar.commands.test.test_cases import (
     BrokenTestSuite,
-    PassedTestCase,
     FailedTestCase,
     TestCaseResult,
 )
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.testing_summary import TestingSummary
-from protostar.utils.log_color_provider import log_color_provider
 
 if TYPE_CHECKING:
     from protostar.commands.test.test_collector import TestCollector
@@ -73,20 +71,12 @@ class TestingLiveLogger:
                             else "GREEN"
                         )
 
-                        progress_bar.write(str(test_case_result))
-                        if (
-                            isinstance(
-                                test_case_result, (PassedTestCase, FailedTestCase)
+                        progress_bar.write(
+                            test_case_result.log(
+                                self.stdout_on_success
+                                or isinstance(test_case_result, FailedTestCase)
                             )
-                        ) and test_case_result.logs:
-                            passed = isinstance(test_case_result, PassedTestCase)
-                            if not passed or self.stdout_on_success:
-                                progress_bar.write(
-                                    "\n"
-                                    f"[{log_color_provider.colorize('GREEN' if passed else 'RED', 'captured stdout')}]:"
-                                    "\n"
-                                    f"{log_color_provider.colorize('GRAY', test_case_result.logs)}\n"
-                                )
+                        )
 
                         if (
                             self.exit_first

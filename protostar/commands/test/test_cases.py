@@ -1,6 +1,8 @@
+from abc import abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional
+
 
 from protostar.commands.test.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
@@ -17,14 +19,18 @@ class TestCaseResult:
     def get_formatted_file_path(self):
         return log_color_provider.colorize("GRAY", str(self.file_path))
 
+    @abstractmethod
+    def log(self, _: bool = False) -> str:
+        ...
+
 
 @dataclass(frozen=True)
 class PassedTestCase(TestCaseResult):
     test_case_name: str
     execution_resources: Optional[ExecutionResourcesSummary]
-    logs: str
+    captured_stdout: str
 
-    def __str__(self) -> str:
+    def log(self, include_stdout_section: bool = False) -> str:
         first_line_elements: List[str] = []
         first_line_elements.append(f"[{log_color_provider.colorize('GREEN', 'PASS')}]")
         first_line_elements.append(
@@ -64,6 +70,13 @@ class PassedTestCase(TestCaseResult):
                             f"{builtin_name}={log_color_provider.bold(builtin_count)}",
                         )
                     )
+
+        if self.captured_stdout and include_stdout_section:
+            second_line_elements.append(
+                f"\n[{log_color_provider.colorize('GREEN', 'captured stdout')}]:\n"
+                f"{log_color_provider.colorize('GRAY', self.captured_stdout)}"
+            )
+
         if len(second_line_elements) > 0:
             second_line_elements.insert(0, "      ")
             second_line = " ".join(second_line_elements)
@@ -76,15 +89,22 @@ class PassedTestCase(TestCaseResult):
 class FailedTestCase(TestCaseResult):
     test_case_name: str
     exception: ReportedException
-    logs: str
+    captured_stdout: str
 
-    def __str__(self) -> str:
+    def log(self, include_stdout_section: bool = True) -> str:
         result: List[str] = []
         result.append(f"[{log_color_provider.colorize('RED', 'FAIL')}] ")
         result.append(f"{self.get_formatted_file_path()} {self.test_case_name}")
         result.append("\n")
         result.append(str(self.exception))
         result.append("\n")
+
+        if self.captured_stdout and include_stdout_section:
+            result.append(
+                f"\n[{log_color_provider.colorize('RED', 'captured stdout')}]:\n"
+                f"{log_color_provider.colorize('GRAY', self.captured_stdout)}\n"
+            )
+
         return "".join(result)
 
 
@@ -93,7 +113,7 @@ class BrokenTestSuite(TestCaseResult):
     test_case_names: List[str]
     exception: BaseException
 
-    def __str__(self) -> str:
+    def log(self, _: bool = False) -> str:
         first_line: List[str] = []
         first_line.append(f"[{log_color_provider.colorize('RED', 'BROKEN')}]")
         first_line.append(f"{self.get_formatted_file_path()}")
@@ -106,7 +126,7 @@ class BrokenTestSuite(TestCaseResult):
 class UnexpectedExceptionTestSuiteResult(BrokenTestSuite):
     traceback: Optional[str] = None
 
-    def __str__(self) -> str:
+    def log(self, _: bool = False) -> str:
         lines: List[str] = []
         main_line: List[str] = []
         main_line.append(

@@ -117,7 +117,7 @@ A glob or globs to a directory or a test suite, which should be ignored.
 #### `--no-progress-bar`
 Disable progress bar.
 #### `--stdout-on-success`
-Also capture stdout on passed test cases.
+Also print captured stdout for passed test cases.
 ### `update`
 ```shell
 $ protostar update cairo-contracts

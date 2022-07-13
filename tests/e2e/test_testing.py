@@ -172,3 +172,17 @@ def test_print_failed(protostar, copy_fixture):
         ["test", "--stdout-on-success", "tests"], ignore_exit_code=True
     )
     assert "captured stdout" in protostar(["test", "tests"], ignore_exit_code=True)
+
+
+@pytest.mark.usefixtures("init")
+def test_print_both(protostar, copy_fixture):
+    copy_fixture("test_print_failed.cairo", "./tests")
+    copy_fixture("test_print_passed.cairo", "./tests")
+
+    result = protostar(["test", "--stdout-on-success", "tests"], ignore_exit_code=True)
+
+    assert result.count("captured stdout") == 2
+
+    result = protostar(["test", "tests"], ignore_exit_code=True)
+
+    assert result.count("captured stdout") == 1
