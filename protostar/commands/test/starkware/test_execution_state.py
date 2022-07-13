@@ -21,8 +21,7 @@ class TestExecutionState(ExecutionState):
         cls,
         starknet_compiler: StarknetCompiler,
         test_suite_definition: ContractClass,
-        disable_hint_validation_in_external_contracts: bool,
-        include_paths: Optional[List[str]] = None,
+
     ) -> Self:
         starknet = await ForkableStarknet.empty()
         contract = await starknet.deploy(contract_class=test_suite_definition)
@@ -31,8 +30,6 @@ class TestExecutionState(ExecutionState):
             starknet=starknet,
             contract=contract,
             starknet_compiler=starknet_compiler,
-            include_paths=include_paths or [],
-            disable_hint_validation_in_external_contracts=disable_hint_validation_in_external_contracts,
             context=TestContext(),
         )
 

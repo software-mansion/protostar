@@ -14,8 +14,6 @@ class ExecutionState:
     starknet: ForkableStarknet
     contract: StarknetContract
     starknet_compiler: StarknetCompiler
-    include_paths: List[str]
-    disable_hint_validation_in_external_contracts: bool
 
     def fork(self) -> Self:
         starknet_fork = self.starknet.fork()

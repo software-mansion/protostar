@@ -18,6 +18,7 @@ from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_mana
 from starkware.cairo.lang.compiler.preprocessor.default_pass_manager import (
     PreprocessorStage
 )
+from starkware.starknet.security.hints_whitelist import get_hints_whitelist
 
 def get_protostar_pass_manager(include_paths, disable_hint_validation) -> PassManager:
     read_module = get_module_reader(cairo_path=include_paths).read
@@ -26,15 +27,16 @@ def get_protostar_pass_manager(include_paths, disable_hint_validation) -> PassMa
         read_module,
         disable_hint_validation=disable_hint_validation,
     )
+    hint_whitelist = None if disable_hint_validation else get_hints_whitelist()
     manager.replace(
         "preprocessor",
-        PreprocessorStage(DEFAULT_PRIME, ProtostarPreprocessor, None, None),
+        PreprocessorStage(DEFAULT_PRIME, ProtostarPreprocessor, None, dict(hint_whitelist=hint_whitelist)),
     )
     return manager
 
 class ProtostarPreprocessor(StarknetPreprocessor):
     """
-    Preprocessor which includes more information in ABI
+    This preprocessor includes types used in contracts storage variables in ABI 
     """
 
     def add_abi_storage_var_types(self, elm: CodeElementFunction):

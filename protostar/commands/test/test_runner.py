@@ -19,6 +19,7 @@ from protostar.commands.test.test_environment_exceptions import ReportedExceptio
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.test_suite import TestSuite
 from protostar.protostar_exception import ProtostarException
+from protostar.utils.compiler.protostar_preprocessor import get_protostar_pass_manager
 from protostar.utils.starknet_compilation import StarknetCompiler
 
 logger = getLogger()
@@ -32,17 +33,19 @@ class TestRunner:
         disable_hint_validation_in_external_contracts=False,
     ):
         self.shared_tests_state = shared_tests_state
-        self.include_paths: List[str] = []
-        self.disable_hint_validation_in_external_contracts = (
-            disable_hint_validation_in_external_contracts
+        include_paths_val = []
+        if include_paths:
+            include_paths_val.extend(include_paths)
+
+        self.tests_compiler = StarknetCompiler(
+            include_paths=include_paths,
+            disable_hint_validation=True
         )
 
-        if include_paths:
-            self.include_paths.extend(include_paths)
-
-        self.starknet_compiler = StarknetCompiler(
-            include_paths=self.include_paths,
-            disable_hint_validation=True,
+        self.external_contracts_compiler = StarknetCompiler(
+            include_paths=include_paths,
+            disable_hint_validation=disable_hint_validation_in_external_contracts,
+            custom_pass_manager_factory = get_protostar_pass_manager,
         )
 
     @dataclass
@@ -69,11 +72,7 @@ class TestRunner:
         test_suite: TestSuite,
     ):
         try:
-            assert (
-                self.include_paths is not None
-            ), "Uninitialized paths list in test runner"
-
-            compiled_test = self.starknet_compiler.compile_contract(
+            compiled_test = self.tests_compiler.compile_contract(
                 test_suite.test_path,
                 add_debug_info=True,
             )
@@ -120,10 +119,8 @@ class TestRunner:
 
         try:
             execution_state = await TestExecutionState.from_test_suite_definition(
-                self.starknet_compiler,
+                self.external_contracts_compiler,
                 test_contract,
-                self.disable_hint_validation_in_external_contracts,
-                self.include_paths,
             )
 
             if test_suite.setup_fn_name:

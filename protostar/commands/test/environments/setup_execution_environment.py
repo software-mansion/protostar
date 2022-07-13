@@ -47,8 +47,7 @@ class SetupCheatcodeFactory(CheatcodeFactory):
 
         declare_cheatcode = DeclareCheatcode(
             syscall_dependencies,
-            disable_hint_validation=self._state.disable_hint_validation_in_external_contracts,
-            cairo_path=self._state.include_paths,
+            self._state.starknet_compiler
         )
         prepare_cheatcode = PrepareCheatcode(syscall_dependencies, data_transformer)
         deploy_cheatcode = DeployCheatcode(syscall_dependencies, internal_calls)

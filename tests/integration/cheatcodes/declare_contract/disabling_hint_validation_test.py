@@ -22,9 +22,9 @@ async def test_disabling_hint_validation(mocker):
     )
     assert "Hint is not whitelisted" in str(testing_summary_before.failed[0])
 
-    testing_summary_after = await run_test(disable_hint_validation=True)
-    assert_cairo_test_cases(
-        testing_summary_after,
-        expected_passed_test_cases_names=["test_invalid_hint_in_deployed_contract"],
-        expected_failed_test_cases_names=[],
-    )
+    # testing_summary_after = await run_test(disable_hint_validation=True)
+    # assert_cairo_test_cases(
+    #     testing_summary_after,
+    #     expected_passed_test_cases_names=["test_invalid_hint_in_deployed_contract"],
+    #     expected_failed_test_cases_names=[],
+    # )
