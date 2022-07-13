@@ -182,7 +182,11 @@ def test_print_both(protostar, copy_fixture):
     result = protostar(["test", "--stdout-on-success", "tests"], ignore_exit_code=True)
 
     assert result.count("captured stdout") == 2
+    assert "Hello" in result
+    assert "bee" in result
 
     result = protostar(["test", "tests"], ignore_exit_code=True)
 
     assert result.count("captured stdout") == 1
+    assert "Hello" not in result
+    assert "bee" in result
