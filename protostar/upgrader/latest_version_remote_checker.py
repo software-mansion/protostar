@@ -16,13 +16,10 @@ class LatestVersionRemoteChecker:
     class Result:
         latest_release_tag: str
         latest_version: VersionType
-        is_newer_version_available: bool
         changelog_url: str
 
-    def __init__(self, version_manager: VersionManager) -> None:
-        self._version_manager = version_manager
-
-    async def check(self) -> "LatestVersionRemoteChecker.Result":
+    @staticmethod
+    async def check() -> "LatestVersionRemoteChecker.Result":
         headers = {"Accept": "application/json"}
         response = requests.get(
             f"{LatestVersionRemoteChecker.PROTOSTAR_REPO}/releases/latest",
@@ -36,9 +33,5 @@ class LatestVersionRemoteChecker:
         return LatestVersionRemoteChecker.Result(
             latest_version=latest_version,
             latest_release_tag=latest_release_tag,
-            is_newer_version_available=latest_version
-            > (
-                self._version_manager.protostar_version or VersionManager.parse("0.0.0")
-            ),
             changelog_url=changelog_url,
         )

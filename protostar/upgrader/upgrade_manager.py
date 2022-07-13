@@ -43,7 +43,10 @@ class UpgradeManager:
 
         self._logger.info("Looking for a new version ...")
         checking_result = await self._latest_version_checker.check()
-        if not checking_result.is_newer_version_available:
+        is_newer_version_available = checking_result.latest_version > (
+            self._version_manager.protostar_version or VersionManager.parse("0.0.0")
+        )
+        if not is_newer_version_available:
             self._logger.info("Protostar is up to date")
             return
 
