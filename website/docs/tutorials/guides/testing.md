@@ -38,6 +38,10 @@ protostar test ./tests
 In the example above, Protostar will run every test case it manages to find in the `tests` directory. You can read more about specifying where and how Protostar should search for test cases by running `protostar test --help`. 
 :::
 
+:::tip
+If the test collecting phase takes too long, consider using `--fast-collecting` flag. Protostar will use a different algorithm, which doesn't check if a test case is decorated with the `@external` decorator or if an identifier with the name starting with `test_` is a function.
+:::
+
 ```console title="expected result"
 Collected 1 items
 
