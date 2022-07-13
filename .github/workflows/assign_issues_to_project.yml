@@ -3,8 +3,6 @@ name: Auto Assign issue to Project
 on:
   issues:
     types: [opened]
-env:
-  MY_GITHUB_TOKEN: ${{ secrets.PROTOSTAR_GITHUB_TOKEN }}
 
 jobs:
   assign_one_project:
@@ -12,8 +10,7 @@ jobs:
     name: Assign to Project
     steps:
     - name: Assign new issues to the project board
-      uses: srggrs/assign-one-project-github-action@1.2.1
-      if: github.event.action == 'opened'
+      uses: actions/add-to-project@v0.1.0
       with:
-        project: 'https://github.com/orgs/software-mansion/projects/2'
-        column_name: 'TODO'
+        project-url: https://github.com/orgs/software-mansion/projects/2
+        github-token: ${{ secrets.PROTOSTAR_GITHUB_TOKEN }}
