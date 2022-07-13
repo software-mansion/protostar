@@ -22,6 +22,7 @@ class TestCaseResult:
 class PassedTestCase(TestCaseResult):
     test_case_name: str
     execution_resources: Optional[ExecutionResourcesSummary]
+    logs: str
 
     def __str__(self) -> str:
         first_line_elements: List[str] = []
@@ -75,6 +76,7 @@ class PassedTestCase(TestCaseResult):
 class FailedTestCase(TestCaseResult):
     test_case_name: str
     exception: ReportedException
+    logs: str
 
     def __str__(self) -> str:
         result: List[str] = []

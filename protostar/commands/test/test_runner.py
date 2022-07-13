@@ -1,5 +1,6 @@
 import asyncio
 import traceback
+import io
 from dataclasses import dataclass
 from logging import getLogger
 from typing import List, Optional
@@ -150,15 +151,17 @@ class TestRunner:
 
         for test_case_name in test_suite.test_case_names:
             new_execution_state = execution_state.fork()
+            logs = io.StringIO()
             try:
                 execution_resources = await invoke_test_case(
-                    test_case_name, new_execution_state
+                    test_case_name, new_execution_state, logs
                 )
                 self.shared_tests_state.put_result(
                     PassedTestCase(
                         file_path=test_suite.test_path,
                         test_case_name=test_case_name,
                         execution_resources=execution_resources,
+                        logs=logs.getvalue(),
                     )
                 )
             except ReportedException as ex:
@@ -167,6 +170,7 @@ class TestRunner:
                         file_path=test_suite.test_path,
                         test_case_name=test_case_name,
                         exception=ex,
+                        logs=logs.getvalue(),
                     )
                 )
 
