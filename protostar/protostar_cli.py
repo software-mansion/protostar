@@ -208,14 +208,12 @@ class ProtostarCLI(CLIApp):
         self._setup_logger(args.no_color)
         has_failed = False
         try:
-            await self.latest_version_checker.check_for_upgrades_if_necessary()
             self._check_git_version()
-
             if args.version:
                 self.version_manager.print_current_version()
                 return
-
             await super().run(args)
+            await self.latest_version_checker.run()
 
         except ProtostarExceptionSilent:
             has_failed = True

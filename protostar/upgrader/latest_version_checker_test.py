@@ -52,7 +52,7 @@ async def test_logs_info_about_new_version_when_protostar_is_not_up_to_date(
         latest_version_cache_toml_writer=mocker.MagicMock(),
     )
 
-    await upgrade_local_checker.check_for_upgrades_if_necessary()
+    await upgrade_local_checker.run()
 
     assert (
         "new Protostar version"
