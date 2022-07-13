@@ -50,7 +50,7 @@ class TestScheduler:
 
             try:
                 with multiprocessing.Pool(
-                    1,
+                    multiprocessing.cpu_count(),
                     lambda: signal.signal(
                         signal.SIGINT, signal.SIG_IGN
                     ),  # prevents showing a stacktrace on cmd/ctrl + c
