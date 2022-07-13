@@ -2,7 +2,7 @@ from io import TextIOWrapper
 from typing import Optional, Sequence, Union
 
 from services.external_api.client import RetryConfig
-from starkware.starknet.cli.starknet_cli import assert_tx_received, validate_arguments
+from starkware.starknet.cli.starknet_cli import validate_arguments
 from starkware.starknet.definitions import constants, fields
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 from starkware.starknet.services.api.contract_class import ContractClass
@@ -11,7 +11,7 @@ from starkware.starknet.services.api.gateway.transaction import Deploy
 from starkware.starknet.utils.api_utils import cast_to_felts
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
-from protostar.commands.deploy.gateway_response import SuccessfulGatewayResponse
+from protostar.deployer.gateway_response import SuccessfulGatewayResponse
 from protostar.protostar_exception import ProtostarException
 
 
