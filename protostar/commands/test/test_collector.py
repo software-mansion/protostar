@@ -304,7 +304,7 @@ class TestCollector:
     ) -> TestSuite:
         test_case_names: List[str] = []
         setup_fn_name: Optional[str] = None
-
+        # TODO(maksymiliandemitraszek): optimized starknet compiler should provide the same interface as original
         if self._config.fast_collecting:
             identifiers = self._starknet_compiler.get_main_identifiers_in_file(
                 test_suite_info.path

@@ -1,22 +1,16 @@
 # pylint: disable=invalid-name
 from pathlib import Path
-from typing import cast
-from unittest.mock import MagicMock
 
-import pytest
 from pytest_mock import MockerFixture
 
-from protostar.commands.test import TestCommand
-from protostar.utils.compiler.protostar_preprocessor import get_protostar_pass_manager
-from protostar.utils.starknet_compilation import StarknetCompiler
-from tests.integration.conftest import assert_cairo_test_cases
+from protostar.utils.compiler.pass_managers import ProtostarPassMangerFactory
+from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
 
 async def test_protostar_pass(mocker: MockerFixture):
     compiler = StarknetCompiler(
-        include_paths=[],
-        disable_hint_validation=True,
-        custom_pass_manager_factory=get_protostar_pass_manager,
+        config=CompilerConfig(include_paths=[], disable_hint_validation=False),
+        pass_manager_factory=ProtostarPassMangerFactory,
     )
 
     contract_class = compiler.compile_contract(Path(__file__).parent / "contract.cairo")
