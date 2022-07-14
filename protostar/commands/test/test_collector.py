@@ -105,7 +105,7 @@ class TestCollector:
 
         def log(self, logger: Logger):
             for broken_test_suite in self.broken_test_suites:
-                print(broken_test_suite)
+                print(broken_test_suite.log())
             if self.test_cases_count:
                 result: List[str] = ["Collected"]
                 suites_count = len(self.test_suites)

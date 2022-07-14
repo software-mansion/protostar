@@ -190,3 +190,34 @@ def test_print_both(protostar, copy_fixture):
     assert result.count("captured stdout") == 1
     assert "Hello" not in result
     assert "bee" in result
+
+
+@pytest.mark.usefixtures("init")
+def test_print_setup(protostar, copy_fixture):
+    copy_fixture("test_print_failed.cairo", "./tests")
+    copy_fixture("test_print_passed.cairo", "./tests")
+
+    result = protostar(["test", "--stdout-on-success", "tests"], ignore_exit_code=True)
+
+    assert "P_SETUP" in result
+    assert "F_SETUP" in result
+    assert "[test]:" in result
+    assert "[setup]:" in result
+
+    result = protostar(["test", "tests"], ignore_exit_code=True)
+
+    assert "P_SETUP" not in result
+    assert "F_SETUP" in result
+    assert "[test]:" in result
+    assert "[setup]:" in result
+
+
+@pytest.mark.usefixtures("init")
+def test_print_only_setup(protostar, copy_fixture):
+    copy_fixture("test_print_only_setup.cairo", "./tests")
+
+    result = protostar(["test", "--stdout-on-success", "tests"], ignore_exit_code=True)
+
+    assert "O_SETUP" in result
+    assert "[test]:" not in result
+    assert "[setup]:" in result

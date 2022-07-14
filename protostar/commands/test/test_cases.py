@@ -28,7 +28,8 @@ class TestCaseResult:
 class PassedTestCase(TestCaseResult):
     test_case_name: str
     execution_resources: Optional[ExecutionResourcesSummary]
-    captured_stdout: str
+    captured_setup_stdout: str
+    captured_test_stdout: str
 
     def log(self, include_stdout_section: bool = False) -> str:
         first_line_elements: List[str] = []
@@ -71,16 +72,31 @@ class PassedTestCase(TestCaseResult):
                         )
                     )
 
-        if self.captured_stdout and include_stdout_section:
-            second_line_elements.append(
-                f"\n[{log_color_provider.colorize('GREEN', 'captured stdout')}]:\n"
-                f"{log_color_provider.colorize('GRAY', self.captured_stdout)}"
+        stdout_elements: List[str] = []
+        if (
+            self.captured_test_stdout or self.captured_setup_stdout
+        ) and include_stdout_section:
+            stdout_elements.append(
+                f"[{log_color_provider.colorize('GREEN', 'captured stdout')}]:"
             )
 
-        if len(second_line_elements) > 0:
+            if self.captured_setup_stdout:
+                stdout_elements.append(
+                    "[setup]:\n"
+                    f"{log_color_provider.colorize('GRAY', self.captured_setup_stdout)}"
+                )
+
+            if self.captured_test_stdout:
+                stdout_elements.append(
+                    "[test]:\n"
+                    f"{log_color_provider.colorize('GRAY', self.captured_test_stdout)}"
+                )
+
+        if len(second_line_elements) > 0 or len(stdout_elements) > 0:
             second_line_elements.insert(0, "      ")
             second_line = " ".join(second_line_elements)
-            return "\n".join([first_line, second_line])
+            stdout_lines = "\n".join(stdout_elements)
+            return "\n".join([first_line, second_line, stdout_lines])
 
         return first_line
 
@@ -89,7 +105,8 @@ class PassedTestCase(TestCaseResult):
 class FailedTestCase(TestCaseResult):
     test_case_name: str
     exception: ReportedException
-    captured_stdout: str
+    captured_setup_stdout: str
+    captured_test_stdout: str
 
     def log(self, include_stdout_section: bool = True) -> str:
         result: List[str] = []
@@ -99,11 +116,24 @@ class FailedTestCase(TestCaseResult):
         result.append(str(self.exception))
         result.append("\n")
 
-        if self.captured_stdout and include_stdout_section:
+        if (
+            self.captured_test_stdout or self.captured_setup_stdout
+        ) and include_stdout_section:
             result.append(
                 f"\n[{log_color_provider.colorize('RED', 'captured stdout')}]:\n"
-                f"{log_color_provider.colorize('GRAY', self.captured_stdout)}\n"
             )
+
+            if self.captured_setup_stdout:
+                result.append(
+                    "[setup]:\n"
+                    f"{log_color_provider.colorize('GRAY', self.captured_setup_stdout)}\n"
+                )
+
+            if self.captured_test_stdout:
+                result.append(
+                    "[test]:\n"
+                    f"{log_color_provider.colorize('GRAY', self.captured_test_stdout)}\n"
+                )
 
         return "".join(result)
 
