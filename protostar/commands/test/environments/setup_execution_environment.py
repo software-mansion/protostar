@@ -62,7 +62,11 @@ class SetupCheatcodeFactory(CheatcodeFactory):
                 prepare_cheatcode,
                 deploy_cheatcode,
             ),
-            MockCallCheatcode(syscall_dependencies, data_transformer),
+            MockCallCheatcode(
+                syscall_dependencies,
+                data_transformer,
+                cheatable_carried_state=self._state.starknet.cheatable_state.cheatable_carried_state,
+            ),
             WarpCheatcode(syscall_dependencies),
             RollCheatcode(syscall_dependencies),
             StartPrankCheatcode(syscall_dependencies),

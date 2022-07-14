@@ -1,12 +1,12 @@
 from collections.abc import Mapping
 from typing import Any, Callable, Dict, List, Optional, Union
 
-from starkware.starknet.public.abi import get_selector_from_name
-from starkware.starknet.public.abi import AbiType
+from starkware.starknet.public.abi import AbiType, get_selector_from_name
 
+from protostar.commands.test.test_environment_exceptions import CheatcodeException
+from protostar.starknet.cheatable_state import CheatableCarriedState
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.types import AddressType
-from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.utils.data_transformer_facade import DataTransformerFacade
 
 
@@ -15,9 +15,11 @@ class MockCallCheatcode(Cheatcode):
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
         data_transformer: DataTransformerFacade,
+        cheatable_carried_state: CheatableCarriedState,
     ):
         super().__init__(syscall_dependencies)
         self._data_transformer = data_transformer
+        self._cheatable_carried_state = cheatable_carried_state
 
     @property
     def name(self) -> str:
@@ -95,9 +97,22 @@ class MockCallCheatcode(Cheatcode):
     def get_contract_abi_from_contract_address(
         self, contract_address: AddressType
     ) -> Optional[AbiType]:
-        if contract_address in self.state.contract_address_to_class_hash_map:
-            class_hash = self.state.contract_address_to_class_hash_map[contract_address]
-            if class_hash in self.state.class_hash_to_contract_abi_map:
-                return self.state.class_hash_to_contract_abi_map[class_hash]
+
+        if (
+            contract_address
+            in self._cheatable_carried_state.contract_address_to_class_hash_map
+        ):
+            class_hash = (
+                self._cheatable_carried_state.contract_address_to_class_hash_map[
+                    contract_address
+                ]
+            )
+            if (
+                class_hash
+                in self._cheatable_carried_state.class_hash_to_contract_abi_map
+            ):
+                return self._cheatable_carried_state.class_hash_to_contract_abi_map[
+                    class_hash
+                ]
 
         return None

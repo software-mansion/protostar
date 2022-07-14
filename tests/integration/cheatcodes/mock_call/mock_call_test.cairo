@@ -21,6 +21,12 @@ namespace Mocked:
 end
 
 @external
+func __setup__():
+    %{ context.to_mock_address = deploy_contract("./tests/integration/cheatcodes/mock_call/mocked.cairo").contract_address %}
+    return ()
+end
+
+@external
 func test_remote_mock{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
 
@@ -138,6 +144,20 @@ func test_data_transformation{syscall_ptr : felt*, range_check_ptr}():
     local to_mock_address : felt
     %{
         ids.to_mock_address = deploy_contract("./tests/integration/cheatcodes/mock_call/mocked.cairo").contract_address
+        mock_call(ids.to_mock_address, "get_number", { "val": 42 })
+    %}
+    let (val) = Mocked.get_number(to_mock_address)
+    assert val = 42
+    return ()
+end
+
+@external
+func test_data_transformation_when_contract_deployed_in_setup{syscall_ptr : felt*, range_check_ptr}(
+        ):
+    alloc_locals
+    local to_mock_address : felt
+    %{
+        ids.to_mock_address = context.to_mock_address
         mock_call(ids.to_mock_address, "get_number", { "val": 42 })
     %}
     let (val) = Mocked.get_number(to_mock_address)
