@@ -1,5 +1,6 @@
 from typing import Any, Callable, List, Optional
 from starkware.starknet.storage.starknet_storage import BusinessLogicStarknetStorage
+from protostar.commands.test.test_environment_exceptions import CheatcodeException
 
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.storage_var import calc_address
@@ -61,7 +62,8 @@ class LoadCheatcode(Cheatcode):
             return 1
         abi = self.state.get_abi_with_contract_address(contract_address)
         size = next(el for el in abi if el["name"] == type)["size"]
-        assert size
+        if not size:
+            raise CheatcodeException(f"Type {type} has not been found in contract {contract_address}")
         return size
 
 

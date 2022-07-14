@@ -20,7 +20,7 @@ from starkware.starknet.services.api.messages import StarknetMessageToL1
 from starkware.starknet.testing.state import StarknetState
 from starkware.storage.dict_storage import DictStorage
 from starkware.storage.storage import FactFetchingContext
-from protostar.commands.test.test_environment_exceptions import CheatcodeException
+from protostar.commands.test.test_environment_exceptions import SimpleReportedException
 
 from protostar.starknet.cheatable_execute_entry_point import (
     CheatableExecuteEntryPoint,
@@ -128,6 +128,21 @@ class CheatableCarriedState(CarriedState):
         self.contract_address_to_block_timestamp: Dict[AddressType, int] = {}
         self.contract_address_to_block_number: Dict[AddressType, int] = {}
 
+    def _copy(self):
+        copied = super()._copy()
+        copied.pranked_contracts_map = self.pranked_contracts_map.copy()
+        copied.mocked_calls_map = self.mocked_calls_map.copy()
+        copied.event_selector_to_name_map = self.event_selector_to_name_map.copy()
+
+        copied.event_name_to_contract_abi_map = self.event_name_to_contract_abi_map.copy()
+        copied.class_hash_to_contract_abi_map = self.class_hash_to_contract_abi_map.copy()
+        copied.contract_address_to_class_hash_map = self.contract_address_to_class_hash_map.copy()
+
+        copied.contract_address_to_block_timestamp = self.contract_address_to_block_timestamp.copy()
+        copied.contract_address_to_block_number = self.contract_address_to_block_number.copy()
+        return copied
+
+
     def _apply(self):
         """Merge state changes with the `self.parent_state`"""
         assert self.parent_state is not None
@@ -189,20 +204,23 @@ class CheatableCarriedState(CarriedState):
             self.event_selector_to_name_map[selector] = name
     
     def get_abi_with_contract_address(self, contract_address: int) -> AbiType:
-        abi = None
-        if contract_address in self.contract_address_to_class_hash_map:
-            class_hash = self.contract_address_to_class_hash_map[contract_address]
-            if class_hash in self.class_hash_to_contract_abi_map:
-                abi = self.class_hash_to_contract_abi_map[class_hash]
-
-        if not abi:    
-            raise CheatcodeException(
+        if contract_address not in self.contract_address_to_class_hash_map:
+            raise SimpleReportedException(
                 (
-                    "Couldn't map the `contract_address` to the `contract_abi`.\n"
+                    "Couldn't map the `contract_address` to the `class_hash`.\n"
                     f"Is the `contract_address` ({contract_address}) valid?\n"
                 ),
             )
-        return abi
+        class_hash = self.contract_address_to_class_hash_map[contract_address]
+        if class_hash not in self.class_hash_to_contract_abi_map:
+            raise SimpleReportedException(
+                (
+                    "Couldn't map the `class_hash` to the `contract_abi`.\n"
+                    f"Is the `class_hash` ({class_hash}) valid?\n"
+                ),
+            )
+
+        return self.class_hash_to_contract_abi_map[class_hash]
 
 class CheatableStarknetState(StarknetState):
     """
@@ -253,7 +271,6 @@ class CheatableStarknetState(StarknetState):
             nonce=nonce,
             chain_id=self.general_config.chain_id.value,
         )
-
         with self.state.copy_and_apply() as state_copy:
             tx_execution_info = await tx.apply_state_updates(
                 state=state_copy, general_config=self.general_config
