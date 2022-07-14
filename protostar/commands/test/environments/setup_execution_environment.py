@@ -65,7 +65,6 @@ class SetupCheatcodeFactory(CheatcodeFactory):
             MockCallCheatcode(
                 syscall_dependencies,
                 data_transformer,
-                cheatable_carried_state=self._state.starknet.cheatable_state.cheatable_carried_state,
             ),
             WarpCheatcode(syscall_dependencies),
             RollCheatcode(syscall_dependencies),

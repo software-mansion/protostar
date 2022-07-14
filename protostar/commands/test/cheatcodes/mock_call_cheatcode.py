@@ -15,11 +15,9 @@ class MockCallCheatcode(Cheatcode):
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
         data_transformer: DataTransformerFacade,
-        cheatable_carried_state: CheatableCarriedState,
     ):
         super().__init__(syscall_dependencies)
         self._data_transformer = data_transformer
-        self._cheatable_carried_state = cheatable_carried_state
 
     @property
     def name(self) -> str:
@@ -98,21 +96,9 @@ class MockCallCheatcode(Cheatcode):
         self, contract_address: AddressType
     ) -> Optional[AbiType]:
 
-        if (
-            contract_address
-            in self._cheatable_carried_state.contract_address_to_class_hash_map
-        ):
-            class_hash = (
-                self._cheatable_carried_state.contract_address_to_class_hash_map[
-                    contract_address
-                ]
-            )
-            if (
-                class_hash
-                in self._cheatable_carried_state.class_hash_to_contract_abi_map
-            ):
-                return self._cheatable_carried_state.class_hash_to_contract_abi_map[
-                    class_hash
-                ]
+        if contract_address in self.state.contract_address_to_class_hash_map:
+            class_hash = self.state.contract_address_to_class_hash_map[contract_address]
+            if class_hash in self.state.class_hash_to_contract_abi_map:
+                return self.state.class_hash_to_contract_abi_map[class_hash]
 
         return None
