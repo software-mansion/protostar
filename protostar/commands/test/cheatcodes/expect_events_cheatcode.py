@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Union
 from typing_extensions import NotRequired, TypedDict
 
 from protostar.commands.test.expected_event import ExpectedEvent
-from protostar.starknet.cheatcode import Cheatcode
 from protostar.commands.test.test_environment_exceptions import (
     ExpectedEventMissingException,
 )
+from protostar.starknet.cheatcode import Cheatcode
 from protostar.utils.data_transformer_facade import DataTransformerFacade
 from protostar.utils.hook import Hook
 
@@ -107,11 +107,14 @@ class ExpectEventsCheatcode(Cheatcode):
             if "data" in raw_expected_event:
                 raw_data = raw_expected_event["data"]
                 if isinstance(raw_data, collections.Mapping):
+                    event_name_to_contract_abi_map = (
+                        self.starknet.cheatable_state.cheatable_carried_state.event_name_to_contract_abi_map
+                    )
                     assert (
-                        name in self.state.event_name_to_contract_abi_map
+                        name in event_name_to_contract_abi_map
                     ), "Couldn't map event name to the contract path with that event"
 
-                    contract_abi = self.state.event_name_to_contract_abi_map[name]
+                    contract_abi = event_name_to_contract_abi_map[name]
                     data = self.data_transformer.build_from_python_events_transformer(
                         contract_abi, name
                     )(raw_data)

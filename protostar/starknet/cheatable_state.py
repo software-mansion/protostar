@@ -21,14 +21,8 @@ from starkware.starknet.testing.state import StarknetState
 from starkware.storage.dict_storage import DictStorage
 from starkware.storage.storage import FactFetchingContext
 
-from protostar.starknet.cheatable_execute_entry_point import (
-    CheatableExecuteEntryPoint,
-)
-from protostar.starknet.types import (
-    AddressType,
-    ClassHashType,
-    SelectorType,
-)
+from protostar.starknet.cheatable_execute_entry_point import CheatableExecuteEntryPoint
+from protostar.starknet.types import AddressType, ClassHashType, SelectorType
 
 CastableToAddress = Union[str, int]
 CastableToAddressSalt = Union[str, int]
