@@ -38,7 +38,7 @@ class TestScheduler:
                     test_suite,
                     shared_tests_state=shared_tests_state,
                     include_paths=include_paths,
-                    disable_hint_validation_in_external_contracts=disable_hint_validation,
+                    disable_hint_validation_in_user_contracts=disable_hint_validation,
                 )
                 for test_suite in test_collector_result.test_suites
             ]
