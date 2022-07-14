@@ -112,7 +112,7 @@ class ExpectEventsCheatcode(Cheatcode):
                     )
                     assert (
                         name in event_name_to_contract_abi_map
-                    ), "Couldn't map event name to contract abi"
+                    ), "Couldn't map event name to contract ABI."
 
                     contract_abi = event_name_to_contract_abi_map[name]
                     data = self.data_transformer.build_from_python_events_transformer(
