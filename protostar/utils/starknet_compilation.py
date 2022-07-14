@@ -2,29 +2,24 @@ from pathlib import Path
 from typing import Callable, List, Set, Tuple, Optional
 from dataclasses import dataclass
 
-from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
-from starkware.cairo.lang.compiler.cairo_compile import get_module_reader
 from starkware.cairo.lang.compiler.constants import MAIN_SCOPE
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
 from starkware.cairo.lang.compiler.preprocessor.pass_manager import (
-    PassManager,
     PassManagerContext,
-    Stage,
 )
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     PreprocessorError,
 )
 from starkware.starknet.compiler.compile import assemble_starknet_contract
-from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_manager
 from starkware.starknet.compiler.starknet_preprocessor import (
     StarknetPreprocessedProgram,
 )
 from starkware.starknet.services.api.contract_class import ContractClass
 
 from protostar.protostar_exception import ProtostarException
+from protostar.utils.compiler.pass_managers import PassManagerFactory, StarknetPassManagerFactory
 
-class FileNotFoundException(ProtostarException):
-    pass
+
 
 @dataclass(frozen=True)
 class CompilerConfig:
@@ -34,11 +29,16 @@ class CompilerConfig:
 class StarknetCompiler:
     def __init__(
         self,
-        compiler_config: CompilerConfig,
-        pass_manager: Optional[PassManager] = None,
+        config: CompilerConfig,
+        pass_manager_factory: Optional[PassManagerFactory] = None,
     ):
-        self.compiler_config = compiler_config
-        self.pass_manager = pass_manager or get_starknet_pass_manager()
+        self.config = config
+        pass_manager_factory = pass_manager_factory or StarknetPassManagerFactory
+        assert pass_manager_factory is not None
+        self.pass_manager = pass_manager_factory.build(config)
+
+    class FileNotFoundException(ProtostarException):
+        pass
 
     @staticmethod
     def build_context(codes: List[Tuple[str, str]]) -> PassManagerContext:
@@ -66,7 +66,7 @@ class StarknetCompiler:
             assert isinstance(context.preprocessed_program, StarknetPreprocessedProgram)
             return context.preprocessed_program
         except FileNotFoundError as err:
-            raise FileNotFoundException(
+            raise StarknetCompiler.FileNotFoundException(
                 message=(f"Couldn't find file '{err.filename}'")
             ) from err
 
@@ -131,30 +131,3 @@ class StarknetCompiler:
             ) from err
 
 
-
-def get_starknet_pass_manager(
-    config: CompilerConfig
-) -> PassManager:
-    read_module = get_module_reader(cairo_path=config.include_paths).read
-    return starknet_pass_manager(
-        DEFAULT_PRIME,
-        read_module,
-        disable_hint_validation=config.disable_hint_validation,
-    )
-
-def get_test_collector_pass_manager(config: CompilerConfig):
-    pass_manager = get_starknet_pass_manager(
-        config.include_paths, config.disable_hint_validation
-    )
-    crucial_stages: List[Tuple[str, Stage]] = [
-        stage_pair
-        for stage_pair in pass_manager.stages
-        if stage_pair[0]
-        in [
-            "module_collector",
-            "unique_label_creator",
-            "identifier_collector",
-        ]
-    ]
-    pass_manager.stages = crucial_stages
-    return pass_manager

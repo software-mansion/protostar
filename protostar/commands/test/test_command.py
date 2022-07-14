@@ -9,9 +9,10 @@ from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.test_scheduler import TestScheduler
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.commands.test.testing_summary import TestingSummary
+from protostar.utils.compiler.pass_managers import TestCollectorPassManagerFactory
 from protostar.utils.log_color_provider import log_color_provider
 from protostar.utils.protostar_directory import ProtostarDirectory
-from protostar.utils.starknet_compilation import StarknetCompiler
+from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
 if TYPE_CHECKING:
     from protostar.utils.config.project import Project
@@ -130,7 +131,10 @@ class TestCommand(Command):
         with ActivityIndicator(log_color_provider.colorize("GRAY", "Collecting tests")):
             test_collector_result = TestCollector(
                 StarknetCompiler(
-                    disable_hint_validation=True, include_paths=include_paths
+                    config=CompilerConfig(
+                        disable_hint_validation=True, include_paths=include_paths
+                    ),
+                    pass_manager_factory= TestCollectorPassManagerFactory if fast_collecting else None
                 ),
                 config=TestCollector.Config(fast_collecting=fast_collecting),
             ).collect(

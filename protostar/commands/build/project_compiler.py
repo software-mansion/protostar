@@ -14,7 +14,7 @@ from protostar.protostar_toml.protostar_contracts_section import (
     ProtostarContractsSection,
 )
 from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
-from protostar.utils.starknet_compilation import StarknetCompiler
+from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
 
 class ProjectCompiler:
@@ -58,10 +58,13 @@ class ProjectCompiler:
         include_paths: List[str],
         disable_hint_validation: bool,
     ) -> ContractClass:
+
         try:
             return StarknetCompiler(
-                include_paths=include_paths,
-                disable_hint_validation=disable_hint_validation,
+                config = CompilerConfig(
+                    include_paths=include_paths,
+                    disable_hint_validation=disable_hint_validation
+                ), 
             ).compile_contract(
                 *contract_paths,
             )

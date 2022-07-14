@@ -19,8 +19,8 @@ from protostar.commands.test.test_environment_exceptions import ReportedExceptio
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.test_suite import TestSuite
 from protostar.protostar_exception import ProtostarException
-from protostar.utils.compiler.protostar_preprocessor import get_protostar_pass_manager
-from protostar.utils.starknet_compilation import StarknetCompiler
+from protostar.utils.compiler.pass_managers import ProtostarPassMangerFactory
+from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
 logger = getLogger()
 
@@ -30,21 +30,21 @@ class TestRunner:
         self,
         shared_tests_state: SharedTestsState,
         include_paths: Optional[List[str]] = None,
-        disable_hint_validation_in_external_contracts=False,
+        disable_hint_validation_in_user_contracts=False,
     ):
         self.shared_tests_state = shared_tests_state
-        include_paths_val: List[str] = []
-        if include_paths:
-            include_paths_val.extend(include_paths)
+        include_paths = include_paths or []
 
         self.tests_compiler = StarknetCompiler(
-            include_paths=include_paths_val, disable_hint_validation=True
+            config=CompilerConfig(include_paths=include_paths, disable_hint_validation=True)
         )
 
-        self.external_contracts_compiler = StarknetCompiler(
-            include_paths=include_paths_val,
-            disable_hint_validation=disable_hint_validation_in_external_contracts,
-            custom_pass_manager_factory=get_protostar_pass_manager,
+        self.user_contracts_compiler = StarknetCompiler(
+            config=CompilerConfig(
+                include_paths=include_paths,
+                disable_hint_validation=disable_hint_validation_in_user_contracts,
+            ),
+            pass_manager_factory=ProtostarPassMangerFactory,
         )
 
     @dataclass
@@ -52,7 +52,7 @@ class TestRunner:
         test_suite: TestSuite
         shared_tests_state: SharedTestsState
         include_paths: List[str]
-        disable_hint_validation_in_external_contracts: bool
+        disable_hint_validation_in_user_contracts: bool
 
     @classmethod
     def worker(cls, args: "TestRunner.WorkerArgs"):
@@ -60,7 +60,7 @@ class TestRunner:
             cls(
                 shared_tests_state=args.shared_tests_state,
                 include_paths=args.include_paths,
-                disable_hint_validation_in_external_contracts=args.disable_hint_validation_in_external_contracts,
+                disable_hint_validation_in_user_contracts=args.disable_hint_validation_in_user_contracts,
             ).run_test_suite(
                 args.test_suite,
             )
@@ -118,7 +118,7 @@ class TestRunner:
 
         try:
             execution_state = await TestExecutionState.from_test_suite_definition(
-                self.external_contracts_compiler,
+                self.user_contracts_compiler,
                 test_contract,
             )
 
