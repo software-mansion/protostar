@@ -110,7 +110,7 @@ Additional directories to look for sources.
 Disable hint validation in contracts declared by the `declare` cheatcode or deployed by `deploy_contract` cheatcode.
 
 #### `-x` `--exit-first`
-Exit instantly on first broken or failed test
+Exit immediately on first broken or failed test
 #### `--fast-collecting`
 Enables fast but unsafe test collecting algorithm. It searches for identifiers in the test file that start with `test_`.
 #### `-i` `--ignore STRING[]`

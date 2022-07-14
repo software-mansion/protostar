@@ -3,10 +3,11 @@ import shutil
 from os import chdir, getcwd, mkdir, path
 from pathlib import Path
 from subprocess import PIPE, STDOUT, run
-from typing import Callable, List
+from typing import Callable, List, Optional
 
 import pexpect
 import pytest
+import tomli
 from typing_extensions import Protocol
 
 from tests.conftest import run_devnet
@@ -61,11 +62,38 @@ class ProtostarFixture(Protocol):
 
 
 @pytest.fixture
-def protostar() -> ProtostarFixture:
+def declared_protostar_version() -> Optional[str]:
+    return None
+
+
+@pytest.fixture
+def protostar(
+    tmp_path: Path, declared_protostar_version: Optional[str]
+) -> ProtostarFixture:
+    shutil.copytree(ACTUAL_CWD / "dist", tmp_path / "dist")
+
+    if declared_protostar_version is not None:
+        with open(
+            tmp_path / "dist" / "protostar" / "info" / "pyproject.toml",
+            "r+",
+            encoding="UTF-8",
+        ) as file:
+            raw_pyproject = file.read()
+            pyproject = tomli.loads(raw_pyproject)
+            version_str = pyproject["tool"]["poetry"]["version"]
+            file.seek(0)
+            file.truncate()
+            file.write(
+                raw_pyproject.replace(
+                    f'version = "{version_str}"',
+                    f'version = "{declared_protostar_version}"',
+                )
+            )
+
     def _protostar(args: List[str], ignore_exit_code=False) -> str:
         return (
             run(
-                [path.join(ACTUAL_CWD, "dist", "protostar", "protostar")] + args,
+                [path.join(tmp_path, "dist", "protostar", "protostar")] + args,
                 stdout=PIPE,
                 stderr=STDOUT,
                 check=(not ignore_exit_code),
