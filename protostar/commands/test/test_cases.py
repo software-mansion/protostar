@@ -11,29 +11,6 @@ from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
 from protostar.utils.log_color_provider import log_color_provider, SupportedColorName
 
 
-def _get_formatted_stdout(
-    test_stdout: str, setup_stdout: str, color: SupportedColorName
-) -> List[str]:
-    result: List[str] = []
-    result.append(f"\n[{log_color_provider.colorize(color, 'captured stdout')}]:\n")
-
-    if setup_stdout:
-        result.append(
-            "[setup]:\n" f"{log_color_provider.colorize('GRAY', setup_stdout)}\n"
-        )
-
-    if test_stdout:
-        result.append(
-            "[test]:\n" f"{log_color_provider.colorize('GRAY', test_stdout)}\n"
-        )
-
-    return result
-
-
-def _get_formatted_file_path(file_path: Path) -> str:
-    return log_color_provider.colorize("GRAY", str(file_path))
-
-
 @dataclass(frozen=True)
 class TestCaseResult:
     file_path: Path
@@ -174,3 +151,26 @@ class UnexpectedExceptionTestSuiteResult(BrokenTestSuite):
         lines.append(UNEXPECTED_PROTOSTAR_ERROR_MSG)
         lines.append(str(self.exception))
         return "\n".join(lines)
+
+
+def _get_formatted_stdout(
+    test_stdout: str, setup_stdout: str, color: SupportedColorName
+) -> List[str]:
+    result: List[str] = []
+    result.append(f"\n[{log_color_provider.colorize(color, 'captured stdout')}]:\n")
+
+    if setup_stdout:
+        result.append(
+            "[setup]:\n" f"{log_color_provider.colorize('GRAY', setup_stdout)}\n"
+        )
+
+    if test_stdout:
+        result.append(
+            "[test]:\n" f"{log_color_provider.colorize('GRAY', test_stdout)}\n"
+        )
+
+    return result
+
+
+def _get_formatted_file_path(file_path: Path) -> str:
+    return log_color_provider.colorize("GRAY", str(file_path))
