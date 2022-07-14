@@ -20,7 +20,7 @@ from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.test_suite import TestSuite
 from protostar.protostar_exception import ProtostarException
 from protostar.utils.compiler.pass_managers import (
-    ProtostarPassMangerFactory,
+    ProtostarPassMangerFactory
 )
 from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
