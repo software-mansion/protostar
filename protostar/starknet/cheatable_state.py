@@ -134,14 +134,23 @@ class CheatableCarriedState(CarriedState):
         copied.mocked_calls_map = self.mocked_calls_map.copy()
         copied.event_selector_to_name_map = self.event_selector_to_name_map.copy()
 
-        copied.event_name_to_contract_abi_map = self.event_name_to_contract_abi_map.copy()
-        copied.class_hash_to_contract_abi_map = self.class_hash_to_contract_abi_map.copy()
-        copied.contract_address_to_class_hash_map = self.contract_address_to_class_hash_map.copy()
+        copied.event_name_to_contract_abi_map = (
+            self.event_name_to_contract_abi_map.copy()
+        )
+        copied.class_hash_to_contract_abi_map = (
+            self.class_hash_to_contract_abi_map.copy()
+        )
+        copied.contract_address_to_class_hash_map = (
+            self.contract_address_to_class_hash_map.copy()
+        )
 
-        copied.contract_address_to_block_timestamp = self.contract_address_to_block_timestamp.copy()
-        copied.contract_address_to_block_number = self.contract_address_to_block_number.copy()
+        copied.contract_address_to_block_timestamp = (
+            self.contract_address_to_block_timestamp.copy()
+        )
+        copied.contract_address_to_block_number = (
+            self.contract_address_to_block_number.copy()
+        )
         return copied
-
 
     def _apply(self):
         """Merge state changes with the `self.parent_state`"""
@@ -202,7 +211,7 @@ class CheatableCarriedState(CarriedState):
     ):
         for selector, name in local_event_selector_to_name_map.items():
             self.event_selector_to_name_map[selector] = name
-    
+
     def get_abi_with_contract_address(self, contract_address: int) -> AbiType:
         if contract_address not in self.contract_address_to_class_hash_map:
             raise SimpleReportedException(
@@ -221,6 +230,7 @@ class CheatableCarriedState(CarriedState):
             )
 
         return self.class_hash_to_contract_abi_map[class_hash]
+
 
 class CheatableStarknetState(StarknetState):
     """

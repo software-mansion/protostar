@@ -18,12 +18,12 @@ class LoadCheatcode(Cheatcode):
         self,
         target_contract_address: int,
         variable_name: str,
-        type: str,
+        variable_type: str,
         key: Optional[List[int]] = None,
     ) -> List[int]:
         key = key or []
         variable_address = calc_address(variable_name, key)
-        variable_size = self.variable_size(target_contract_address, type)
+        variable_size = self.variable_size(target_contract_address, variable_type)
 
         if target_contract_address == self.contract_address:
             return self.load_local(variable_address, variable_size)
@@ -56,19 +56,19 @@ class LoadCheatcode(Cheatcode):
 
     def load_local(self, address: int, size: int) -> List[int]:
         return [self._storage_read(address=address + i) for i in range(size)]
-    
-    def variable_size(self, contract_address: int, type: str) -> int:
-        if type == "felt":
+
+    def variable_size(self, contract_address: int, variable_type: str) -> int:
+        if variable_type == "felt":
             return 1
         abi = self.state.get_abi_with_contract_address(contract_address)
-        size = next(el for el in abi if el["name"] == type)["size"]
+        size = next(el for el in abi if el["name"] == variable_type)["size"]
         if not size:
-            raise CheatcodeException(f"Type {type} has not been found in contract {contract_address}")
+            raise CheatcodeException(
+                self.name,
+                f"Type {variable_type} has not been found in contract {contract_address}",
+            )
         return size
 
-
-    def _load_from_remote_storage(
-        self, storage, address: int, size: int
-    ) -> List[int]:
+    @staticmethod
+    def _load_from_remote_storage(storage, address: int, size: int) -> List[int]:
         return [storage.read(address=address + i) for i in range(size)]
-            

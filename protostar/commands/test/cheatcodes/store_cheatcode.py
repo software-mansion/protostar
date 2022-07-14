@@ -1,7 +1,5 @@
 from typing import Any, Callable, List, Optional
-from starkware.starknet.public.abi import get_storage_var_address
 from starkware.starknet.storage.starknet_storage import BusinessLogicStarknetStorage
-from starkware.crypto.signature.fast_pedersen_hash import pedersen_hash
 
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.storage_var import calc_address
