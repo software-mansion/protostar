@@ -25,5 +25,7 @@ async def test_load_cheatcode(mocker):
         ],
         expected_failed_test_cases_names=["test_missing_type_name"],
     )
-    
-    assert "ValueB has not been found in contract" in testing_summary.failed[0].exception.message
+
+    assert "ValueB has not been found in contract" in str(
+        testing_summary.failed[0].exception
+    )
