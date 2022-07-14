@@ -95,7 +95,7 @@ class TestCommand(Command):
                 name="exit-first",
                 short_name="x",
                 type="bool",
-                description="Exit instantly on first broken or failed test",
+                description="Exit immediately on first broken or failed test",
             ),
         ]
 
