@@ -146,3 +146,15 @@ func test_map_load_local{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
     return ()
 end
 
+@external
+func test_missing_type_name{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
+    alloc_locals
+    # assert in load_test.py
+    let (contract_address) = get_contract_address()
+    local value: Value
+    %{
+        store(ids.contract_address, "target_map_complex_key", [1, 2], key=[5, 6])
+        value_arr = load(ids.contract_address, "target_map_complex_key", "ValueB", key=[5,6])
+    %}
+    return ()
+end

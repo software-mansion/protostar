@@ -23,5 +23,7 @@ async def test_load_cheatcode(mocker):
             "test_load_map_struct_val_in_deployed_contract",
             "test_map_load_local",
         ],
-        expected_failed_test_cases_names=[],
+        expected_failed_test_cases_names=["test_missing_type_name"],
     )
+    
+    assert "ValueB has not been found in contract" in testing_summary.failed[0].exception.message

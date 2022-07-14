@@ -61,7 +61,8 @@ class LoadCheatcode(Cheatcode):
         if variable_type == "felt":
             return 1
         abi = self.state.get_abi_with_contract_address(contract_address)
-        abi_type = next(el for el in abi if el["name"] == variable_type)
+
+        abi_type = next((el for el in abi if el["name"] == variable_type), None)
         if not abi_type or not "size" in abi_type:
             raise CheatcodeException(
                 self.name,
