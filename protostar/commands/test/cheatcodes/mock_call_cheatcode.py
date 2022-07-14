@@ -4,7 +4,6 @@ from typing import Any, Callable, Dict, List, Optional, Union
 from starkware.starknet.public.abi import AbiType, get_selector_from_name
 
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
-from protostar.starknet.cheatable_state import CheatableCarriedState
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.types import AddressType
 from protostar.utils.data_transformer_facade import DataTransformerFacade
