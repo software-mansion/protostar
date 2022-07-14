@@ -70,7 +70,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
 
             loop = asyncio.get_running_loop()
 
-            test.hypothesis.inner_test = wrap_in_sync(test.hypothesis.inner_test)
+            test.hypothesis.inner_test = wrap_in_sync(test.hypothesis.inner_test)  # type: ignore
 
             await loop.run_in_executor(None, test)
 
