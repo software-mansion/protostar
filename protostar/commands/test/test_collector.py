@@ -137,7 +137,7 @@ class TestCollector:
 
     supported_test_suite_filename_patterns = [
         re.compile(r"^test_.*\.cairo"),
-        re.compile(r"^.*_test.cairo"),
+        re.compile(r"^.*_test\.cairo"),
     ]
 
     @classmethod
