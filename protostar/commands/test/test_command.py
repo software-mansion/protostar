@@ -134,12 +134,13 @@ class TestCommand(Command):
         fast_collecting: bool = False,
         exit_first: bool = False,
         stdout_on_success: bool = False,
+        seed: Optional[int] = None,
     ) -> TestingSummary:
         logger = getLogger()
 
         include_paths = self._build_include_paths(cairo_path or [])
 
-        with testing_seed():
+        with testing_seed(seed):
             with ActivityIndicator(
                 log_color_provider.colorize("GRAY", "Collecting tests")
             ):
