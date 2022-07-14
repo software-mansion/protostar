@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Callable, List, Set, Tuple, Optional
+from dataclasses import dataclass
 
 from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
 from starkware.cairo.lang.compiler.cairo_compile import get_module_reader
@@ -22,99 +23,50 @@ from starkware.starknet.services.api.contract_class import ContractClass
 
 from protostar.protostar_exception import ProtostarException
 
+class FileNotFoundException(ProtostarException):
+    pass
+
+@dataclass(frozen=True)
+class CompilerConfig:
+    include_paths: List[str]
+    disable_hint_validation: bool
 
 class StarknetCompiler:
-    class FileNotFoundException(ProtostarException):
-        pass
-
     def __init__(
         self,
-        include_paths: List[str],
-        disable_hint_validation: bool,
-        custom_pass_manager_factory: Optional[
-            Callable[[List[str], bool], PassManager]
-        ] = None,
+        compiler_config: CompilerConfig,
+        pass_manager: Optional[PassManager] = None,
     ):
-        self.include_paths = include_paths
-        self.disable_hint_validation = disable_hint_validation
-        self.custom_pass_manager_factory = custom_pass_manager_factory
+        self.compiler_config = compiler_config
+        self.pass_manager = pass_manager or get_starknet_pass_manager()
 
     @staticmethod
-    def get_starknet_pass_manager(
-        include_paths: List[str], disable_hint_validation: bool
-    ) -> PassManager:
-        read_module = get_module_reader(cairo_path=include_paths).read
-        return starknet_pass_manager(
-            DEFAULT_PRIME,
-            read_module,
-            disable_hint_validation=disable_hint_validation,
-        )
-
-    def get_pass_manager(self):
-        factory = (
-            self.custom_pass_manager_factory
-            or StarknetCompiler.get_starknet_pass_manager
-        )
-        return factory(self.include_paths, self.disable_hint_validation)
-
-    def get_main_identifiers_in_file(self, cairo_file_path: Path) -> List[str]:
-        pass_manager = StarknetCompiler.get_starknet_pass_manager(
-            self.include_paths, self.disable_hint_validation
-        )
-        file_identifiers: Set[str] = set()
-
-        try:
-            codes = [(cairo_file_path.read_text("utf-8"), str(cairo_file_path))]
-            context = PassManagerContext(
+    def build_context(codes: List[Tuple[str, str]]) -> PassManagerContext:
+        return PassManagerContext(
                 start_codes=[],
                 codes=codes,
                 main_scope=MAIN_SCOPE,
                 identifiers=IdentifierManager(),
             )
 
-            crucial_stages: List[Tuple[str, Stage]] = [
-                stage_pair
-                for stage_pair in pass_manager.stages
-                if stage_pair[0]
-                in [
-                    "module_collector",
-                    "unique_label_creator",
-                    "identifier_collector",
-                ]
+    @staticmethod
+    def build_codes(*cairo_file_paths: Path) -> List[Tuple[str, str]]:
+        return [
+                (cairo_file_path.read_text("utf-8"), str(cairo_file_path))
+                for cairo_file_path in cairo_file_paths
             ]
-            pass_manager.stages = crucial_stages
-            pass_manager.run(context)
-            for scoped_name in context.identifiers.dict:
-                if "__main__" == scoped_name.path[0]:
-                    file_identifiers.add(scoped_name.path[1])
-            return list(file_identifiers)
-        except FileNotFoundError as err:
-            raise StarknetCompiler.FileNotFoundException(
-                message=(f"Couldn't find file '{err.filename}'")
-            ) from err
 
     def preprocess_contract(
         self, *cairo_file_paths: Path
     ) -> StarknetPreprocessedProgram:
-        pass_manager = self.get_pass_manager()
-
         try:
-            codes = [
-                (cairo_file_path.read_text("utf-8"), str(cairo_file_path))
-                for cairo_file_path in cairo_file_paths
-            ]
-            context = PassManagerContext(
-                start_codes=[],
-                codes=codes,
-                main_scope=MAIN_SCOPE,
-                identifiers=IdentifierManager(),
-            )
-
-            pass_manager.run(context)
+            codes = self.build_codes(*cairo_file_paths)
+            context = self.build_context(codes)
+            self.pass_manager.run(context)
             assert isinstance(context.preprocessed_program, StarknetPreprocessedProgram)
             return context.preprocessed_program
         except FileNotFoundError as err:
-            raise StarknetCompiler.FileNotFoundException(
+            raise FileNotFoundException(
                 message=(f"Couldn't find file '{err.filename}'")
             ) from err
 
@@ -162,3 +114,47 @@ class StarknetCompiler:
             for el in preprocessed.abi
             if el["type"] == "function" and predicate(el["name"])
         ]
+    
+    def get_main_identifiers_in_file(self, cairo_file_path: Path) -> List[str]:
+        file_identifiers: Set[str] = set()
+        try:
+            codes = self.build_codes(cairo_file_path)
+            context = self.build_context(codes)
+            self.pass_manager.run(context)
+            for scoped_name in context.identifiers.dict:
+                if "__main__" == scoped_name.path[0]:
+                    file_identifiers.add(scoped_name.path[1])
+            return list(file_identifiers)
+        except FileNotFoundError as err:
+            raise StarknetCompiler.FileNotFoundException(
+                message=(f"Couldn't find file '{err.filename}'")
+            ) from err
+
+
+
+def get_starknet_pass_manager(
+    config: CompilerConfig
+) -> PassManager:
+    read_module = get_module_reader(cairo_path=config.include_paths).read
+    return starknet_pass_manager(
+        DEFAULT_PRIME,
+        read_module,
+        disable_hint_validation=config.disable_hint_validation,
+    )
+
+def get_test_collector_pass_manager(config: CompilerConfig):
+    pass_manager = get_starknet_pass_manager(
+        config.include_paths, config.disable_hint_validation
+    )
+    crucial_stages: List[Tuple[str, Stage]] = [
+        stage_pair
+        for stage_pair in pass_manager.stages
+        if stage_pair[0]
+        in [
+            "module_collector",
+            "unique_label_creator",
+            "identifier_collector",
+        ]
+    ]
+    pass_manager.stages = crucial_stages
+    return pass_manager
