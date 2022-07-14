@@ -19,14 +19,15 @@ async def test_basic(mocker: MockerFixture):
     testing_summary = await TestCommand(
         project=mocker.MagicMock(),
         protostar_directory=protostar_directory_mock,
-    ).test(targets=[f"{Path(__file__).parent}/basic_test.cairo"])
-
-    print([testing_summary.passed, testing_summary.failed, testing_summary.broken])
+    ).test(
+        targets=[f"{Path(__file__).parent}/basic_test.cairo"],
+        seed=10,
+    )
 
     assert_cairo_test_cases(
         testing_summary,
         expected_passed_test_cases_names=[
             "test_fuzz",
         ],
-        expected_failed_test_cases_names=[],
+        expected_failed_test_cases_names=["test_fails_if_big"],
     )
