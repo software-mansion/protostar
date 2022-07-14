@@ -38,17 +38,17 @@ class LatestVersionChecker:
 
     async def run(self):
         latest_version_cache_toml = (
-            await self.load_local_latest_version_cache_toml()
+            self.load_local_latest_version_cache_toml()
         ) or await self.check_latest_version()
 
-        if latest_version_cache_toml and (
-            self._version_manager.protostar_version is None
-            or (
+        if latest_version_cache_toml:
+            self._latest_version_cache_toml_writer.save(latest_version_cache_toml)
+
+            if self._version_manager.protostar_version is None or (
                 latest_version_cache_toml.version
                 > self._version_manager.protostar_version
-            )
-        ):
-            self.log_new_version_info(latest_version_cache_toml)
+            ):
+                self.log_new_version_info(latest_version_cache_toml)
 
     def log_new_version_info(self, latest_version_cache_toml: LatestVersionCacheTOML):
         bold = self._log_color_provider.bold
@@ -73,7 +73,7 @@ class LatestVersionChecker:
             )
         )
 
-    async def load_local_latest_version_cache_toml(
+    def load_local_latest_version_cache_toml(
         self,
     ) -> Optional[LatestVersionCacheTOML]:
         current_latest_version_cache_toml = (
@@ -89,13 +89,11 @@ class LatestVersionChecker:
     async def check_latest_version(self) -> Optional[LatestVersionCacheTOML]:
         try:
             result = await self._latest_version_remote_checker.check()
-            latest_version_cache_toml = LatestVersionCacheTOML(
+            return LatestVersionCacheTOML(
                 version=result.latest_version,
                 changelog_url=result.changelog_url,
                 next_check_datetime=datetime.now() + timedelta(days=3),
             )
-            self._latest_version_cache_toml_writer.save(latest_version_cache_toml)
-            return latest_version_cache_toml
         except ConnectionError:
             current_latest_version_cache_toml = (
                 self._latest_version_cache_toml_reader.read()

@@ -15,7 +15,7 @@ from protostar.utils.protostar_directory import (
 @dataclass(frozen=True)
 class LatestVersionCacheTOML:
     """
-    Pythonic representation of the upgrade.toml.
+    Pythonic representation of the latest_version_cache.toml.
     """
 
     version: VersionType
