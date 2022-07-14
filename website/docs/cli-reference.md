@@ -111,6 +111,8 @@ Disable hint validation in contracts declared by the `declare` cheatcode or depl
 
 #### `-x` `--exit-first`
 Exit instantly on first broken or failed test
+#### `--fast-collecting`
+Enables fast but unsafe test collecting algorithm. It searches for identifiers in the test file that start with `test_`.
 #### `-i` `--ignore STRING[]`
 A glob or globs to a directory or a test suite, which should be ignored.
 
