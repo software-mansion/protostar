@@ -3,7 +3,7 @@ import functools
 import inspect
 from typing import Optional, List, Callable, Awaitable, Any
 
-from hypothesis import settings, seed, Verbosity, given
+from hypothesis import settings, seed, given
 from hypothesis.database import InMemoryExampleDatabase
 from hypothesis.reporting import with_reporter
 from hypothesis.strategies import data, DataObject
@@ -31,7 +31,6 @@ def is_fuzz_test(function_name: str, state: TestExecutionState) -> bool:
 class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
     def __init__(self, state: TestExecutionState):
         super().__init__(state)
-        self.database = InMemoryExampleDatabase()
 
     async def invoke(self, function_name: str) -> Optional[ExecutionResourcesSummary]:
         abi = self.state.contract.abi
@@ -52,26 +51,26 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
 
         execution_resources: List[ExecutionResourcesSummary] = []
 
+        database = InMemoryExampleDatabase()
+        strategy_selector = StrategySelector(parameters)
+
+        @seed(current_testing_seed())
+        @settings(database=database, deadline=None)
+        @given(data_object=data())
+        async def test(data_object: DataObject):
+            inputs = {}
+            for param in strategy_selector.parameter_names:
+                search_strategy = strategy_selector.search_strategies[param]
+                inputs[param] = data_object.draw(search_strategy, label=param)
+
+            run_ers = await self.invoke_test_case(function_name, **inputs)
+            if run_ers is not None:
+                execution_resources.append(run_ers)
+
+        test.hypothesis.inner_test = wrap_in_sync(test.hypothesis.inner_test)  # type: ignore
+
         with with_reporter(protostar_reporter):
-            strategy_selector = StrategySelector(parameters)
-
-            @seed(current_testing_seed())
-            @settings(database=self.database, deadline=None)
-            @given(data_object=data())
-            async def test(data_object: DataObject):
-                inputs = {}
-                for param in strategy_selector.parameter_names:
-                    search_strategy = strategy_selector.search_strategies[param]
-                    inputs[param] = data_object.draw(search_strategy, label=param)
-
-                run_ers = await self.invoke_test_case(function_name, **inputs)
-                if run_ers is not None:
-                    execution_resources.append(run_ers)
-
             loop = asyncio.get_running_loop()
-
-            test.hypothesis.inner_test = wrap_in_sync(test.hypothesis.inner_test)  # type: ignore
-
             await loop.run_in_executor(None, test)
 
         return ExecutionResourcesSummary.sum(execution_resources)
