@@ -17,7 +17,7 @@ class DeclareCommand(Command):
     def description(self) -> str:
         return "\n".join(
             [
-                "Declare contracts.",
+                "Sends a declare transaction to StarkNet.",
             ]
         )
 
