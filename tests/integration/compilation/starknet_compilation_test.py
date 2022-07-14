@@ -9,10 +9,7 @@ from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompile
 
 async def test_protostar_pass(mocker: MockerFixture):
     compiler = StarknetCompiler(
-        config = CompilerConfig(
-            include_paths=[],
-            disable_hint_validation=False
-        ), 
+        config=CompilerConfig(include_paths=[], disable_hint_validation=False),
         pass_manager_factory=ProtostarPassMangerFactory,
     )
 

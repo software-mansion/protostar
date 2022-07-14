@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, List, Tuple
 from starkware.starknet.public.abi_structs import (
     prepare_type_for_abi,
@@ -22,10 +22,6 @@ from starkware.cairo.lang.compiler.preprocessor.default_pass_manager import (
 from starkware.starknet.security.hints_whitelist import get_hints_whitelist
 
 
-
-from abc import abstractmethod
-from typing import List, Tuple
-
 from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
 from starkware.cairo.lang.compiler.cairo_compile import get_module_reader
 from starkware.cairo.lang.compiler.preprocessor.pass_manager import (
@@ -40,15 +36,14 @@ if TYPE_CHECKING:
     from protostar.utils.starknet_compilation import CompilerConfig
 
 
-
-class PassManagerFactory:
-
+class PassManagerFactory(ABC):
+    @staticmethod
     @abstractmethod
     def build(config: "CompilerConfig") -> PassManager:
         ...
 
-class StarknetPassManagerFactory(PassManagerFactory):
 
+class StarknetPassManagerFactory(PassManagerFactory):
     @staticmethod
     def build(config: "CompilerConfig") -> PassManager:
         read_module = get_module_reader(cairo_path=config.include_paths).read
@@ -58,8 +53,8 @@ class StarknetPassManagerFactory(PassManagerFactory):
             disable_hint_validation=config.disable_hint_validation,
         )
 
-class TestCollectorPassManagerFactory(StarknetPassManagerFactory):
 
+class TestCollectorPassManagerFactory(StarknetPassManagerFactory):
     @staticmethod
     def build(config: "CompilerConfig") -> PassManager:
         pass_manager = super().build(config)
@@ -78,7 +73,6 @@ class TestCollectorPassManagerFactory(StarknetPassManagerFactory):
 
 
 class ProtostarPassMangerFactory(StarknetPassManagerFactory):
-
     @staticmethod
     def build(config: "CompilerConfig") -> PassManager:
         read_module = get_module_reader(cairo_path=config.include_paths).read
@@ -87,7 +81,9 @@ class ProtostarPassMangerFactory(StarknetPassManagerFactory):
             read_module,
             disable_hint_validation=config.disable_hint_validation,
         )
-        hint_whitelist = None if config.disable_hint_validation else get_hints_whitelist()
+        hint_whitelist = (
+            None if config.disable_hint_validation else get_hints_whitelist()
+        )
         manager.replace(
             "preprocessor",
             PreprocessorStage(

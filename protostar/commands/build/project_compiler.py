@@ -14,6 +14,7 @@ from protostar.protostar_toml.protostar_contracts_section import (
     ProtostarContractsSection,
 )
 from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
+from protostar.utils.compiler.pass_managers import StarknetPassManagerFactory
 from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
 
@@ -64,7 +65,8 @@ class ProjectCompiler:
                 config = CompilerConfig(
                     include_paths=include_paths,
                     disable_hint_validation=disable_hint_validation
-                ), 
+                ),
+                pass_manager_factory=StarknetPassManagerFactory
             ).compile_contract(
                 *contract_paths,
             )
