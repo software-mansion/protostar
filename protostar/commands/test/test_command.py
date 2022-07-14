@@ -124,11 +124,11 @@ class TestCommand(Command):
         targets: List[str],
         ignored_targets: Optional[List[str]] = None,
         cairo_path: Optional[List[Path]] = None,
-        disable_hint_validation=False,
-        no_progress_bar=False,
-        fast_collecting=False,
-        exit_first=False,
-        stdout_on_success=False,
+        disable_hint_validation: bool = False,
+        no_progress_bar: bool = False,
+        fast_collecting: bool = False,
+        exit_first: bool = False,
+        stdout_on_success: bool = False,
     ) -> TestingSummary:
         logger = getLogger()
 
