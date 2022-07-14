@@ -84,6 +84,14 @@ class TestCommand(Command):
                 description="Disable progress bar.",
             ),
             Command.Argument(
+                name="fast-collecting",
+                type="bool",
+                description=(
+                    "Enables fast but unsafe test collecting algorithm. "
+                    "It searches for identifiers in the test file that start with `test_`."
+                ),
+            ),
+            Command.Argument(
                 name="exit-first",
                 short_name="x",
                 type="bool",
@@ -103,6 +111,7 @@ class TestCommand(Command):
             cairo_path=args.cairo_path,
             disable_hint_validation=args.disable_hint_validation,
             no_progress_bar=args.no_progress_bar,
+            fast_collecting=args.fast_collecting,
             exit_first=args.exit_first,
             stdout_on_success=args.stdout_on_success,
         )
@@ -117,6 +126,7 @@ class TestCommand(Command):
         cairo_path: Optional[List[Path]] = None,
         disable_hint_validation=False,
         no_progress_bar=False,
+        fast_collecting=False,
         exit_first=False,
         stdout_on_success=False,
     ) -> TestingSummary:
@@ -128,7 +138,8 @@ class TestCommand(Command):
             test_collector_result = TestCollector(
                 StarknetCompiler(
                     disable_hint_validation=True, include_paths=include_paths
-                )
+                ),
+                config=TestCollector.Config(fast_collecting=fast_collecting),
             ).collect(
                 targets=targets,
                 ignored_targets=ignored_targets,
