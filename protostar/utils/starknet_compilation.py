@@ -34,7 +34,6 @@ class StarknetCompiler:
         config: CompilerConfig,
         pass_manager_factory: Type[PassManagerFactory],
     ):
-        self.config = config
         self.pass_manager = pass_manager_factory.build(config)
 
     class FileNotFoundException(ProtostarException):
