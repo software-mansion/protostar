@@ -35,10 +35,12 @@ class ExecutionEnvironment(ABC, Generic[InvokeResultT]):
             return await func().invoke()
         except StarkException as ex:
             # HACK: A hint may raise a ReportedException, which will end up being wrapped in
-            #   many layers of VmExceptions, HintExceptions and else by Cairo VM.
+            #   many layers of VmExceptions, HintExceptions and others by Cairo VM.
             #   Try to extract original exception if possible.
             inner_ex = _walk_inner_exc_chain_for_reported_ex(ex)
             if inner_ex is not None:
+                # pylint: disable=raise-missing-from
+                # pylint: disable=raising-bad-type
                 raise inner_ex
 
             raise StarknetRevertableException(
