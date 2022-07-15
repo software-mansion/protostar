@@ -139,17 +139,12 @@ class TestCommand(Command):
         include_paths = self._build_include_paths(cairo_path or [])
 
         with ActivityIndicator(log_color_provider.colorize("GRAY", "Collecting tests")):
-            pass_manager_factory = (
-                TestCollectorPassManagerFactory
-                if fast_collecting
-                else StarknetPassManagerFactory
-            )
             test_collector_result = TestCollector(
                 StarknetCompiler(
                     config=CompilerConfig(
                         disable_hint_validation=True, include_paths=include_paths
                     ),
-                    pass_manager_factory=pass_manager_factory,
+                    pass_manager_factory=TestCollectorPassManagerFactory,
                 ),
                 config=TestCollector.Config(fast_collecting=fast_collecting),
             ).collect(

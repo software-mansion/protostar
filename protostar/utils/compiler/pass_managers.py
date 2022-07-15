@@ -43,6 +43,9 @@ from starkware.cairo.lang.compiler.ast.code_elements import (
     CodeElementInstruction,
     LangDirective,
 )
+from starkware.starknet.compiler.external_wrapper import (
+    get_abi_entry_type
+)
 if TYPE_CHECKING:
     from protostar.utils.starknet_compilation import CompilerConfig
 
@@ -74,21 +77,12 @@ class TestCollectorPassManagerFactory(StarknetPassManagerFactory):
             "module_collector",
             ModuleCollector(
                 read_module=read_module,
-                additional_modules=[
-                    "starkware.cairo.common.alloc",
-                    "starkware.cairo.common.cairo_builtins",
-                    "starkware.cairo.common.hash",
-                    "starkware.cairo.common.memcpy",
-                    "starkware.cairo.lang.compiler.lib.registers",
-                    "starkware.starknet.common.storage",
-                    "starkware.starknet.common.syscalls",
-                ],
+                additional_modules=[],
             ),
         )
         manager.add_stage(
             "unique_label_creator", VisitorStage(lambda _context: UniqueLabelCreator(), modify_ast=True)
         )
-        # factory: Callable[[str, str], int] 
         manager.add_stage(
             "identifier_collector",
             VisitorStage(lambda context: IdentifierCollector(identifiers=context.identifiers)),
@@ -160,15 +154,17 @@ class ProtostarPreprocessor(StarknetPreprocessor):
 class TestCollectorPreprocessor(StarknetPreprocessor):
     """
     This preprocessor generates simpler and more limited ABI in exchange for performance.
-    ABI includes only function names.
+    ABI includes only function types with only names.
     """
 
-    def add_simple_abi_function_entry(self, elm: CodeElementFunction):
+    def add_simple_abi_function_entry(self, elm: CodeElementFunction, external_decorator_name: str):
         """
         Adds an entry describing the function to the contract's ABI.
         """
+        entry_type = get_abi_entry_type(external_decorator_name=external_decorator_name)
         self.abi.append({
             "name": elm.name,
+            "type": entry_type,
         })
 
     def visit_BuiltinsDirective(self, _directive: BuiltinsDirective):
@@ -183,9 +179,9 @@ class TestCollectorPreprocessor(StarknetPreprocessor):
     def visit_CodeElementFunction(self, elm: CodeElementFunction):
         external_decorator, _, _ = parse_entry_point_decorators(elm=elm)
         if external_decorator is not None:
-            breakpoint()
 
             # Add a function/constructor entry to the ABI.
             self.add_simple_abi_function_entry(
                 elm=elm,
+                external_decorator_name=external_decorator.name,
             )
