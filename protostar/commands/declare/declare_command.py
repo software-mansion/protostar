@@ -6,6 +6,7 @@ from protostar.cli.command import Command
 from protostar.commands.deploy.deploy_command import DeployCommand
 from protostar.deployer import Deployer
 from protostar.deployer.deployer import InvalidNetworkConfigurationException
+from protostar.deployer.gateway_response import SuccessfulDeclareResponse
 from protostar.protostar_exception import ProtostarException
 
 
@@ -51,14 +52,14 @@ class DeclareCommand(Command):
             DeployCommand.network_arg,
         ]
 
-    async def run(self, args):
+    async def run(self, args) -> SuccessfulDeclareResponse:
         assert isinstance(args.contract, Path)
         assert args.network is None or isinstance(args.network, str)
         assert args.gateway_url is None or isinstance(args.gateway_url, str)
         assert args.token is None or isinstance(args.token, str)
         assert args.signature is None or isinstance(args.signature, list)
 
-        await self.declare(
+        return await self.declare(
             compiled_contract_path=args.contract,
             network=args.network,
             gateway_url=args.gateway_url,
@@ -74,7 +75,7 @@ class DeclareCommand(Command):
         gateway_url: Optional[str] = None,
         token: Optional[str] = None,
         signature: Optional[List[str]] = None,
-    ):
+    ) -> SuccessfulDeclareResponse:
         try:
             network_config = self._deployer.build_network_config(
                 network=network, gateway_url=gateway_url
@@ -97,3 +98,4 @@ class DeclareCommand(Command):
             explorer_url_msg_lines = ["", explorer_url]
 
         response.log(self._logger, extra_msg=explorer_url_msg_lines)
+        return response

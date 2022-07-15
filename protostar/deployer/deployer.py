@@ -121,7 +121,7 @@ class Deployer:
                     sender_address=sender,
                     max_fee=max_fee,
                     version=constants.TRANSACTION_VERSION,
-                    signature=signature,
+                    signature=signature or [],
                     nonce=nonce,
                 )  # type: ignore
 
