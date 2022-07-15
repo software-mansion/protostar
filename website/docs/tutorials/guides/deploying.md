@@ -4,9 +4,40 @@ sidebar_label: Deploying (1 min)
 
 # Deploying
 
+## Prerequisites
+- [Factory Contract pattern](https://research.csiro.au/blockchainpatterns/general-patterns/contract-structural-patterns/factory-contract/)
+- [Deploying a contract by another contract](https://www.cairo-lang.org/docs/hello_starknet/deploying_from_contracts.html?highlight=class%20hash)
+
+## Declaring a contract
+StarkNet separates contracts into classes and instances. To create a new contract, you need to:
+1. declare a class
+2. call the deploy syscall with the `class_hash` from the declare transaction as an argument
+   ```cairo
+   from starkware.starknet.common.syscalls import deploy
+   ```
+   
+To declare a contract from the Protostar CLI you need to build your project and use the `protostar declare` command.
+
+```sh
+$ protostar declare ./build/main.json --network alpha-goerli
+```
+
+```sh title="The result of running 'protostar declare'."
+[INFO] Declare transaction was sent.
+Class hash: 0x038cc...
+Transaction hash: 0x3c6c...
+
+https://goerli.voyager.online/contract/0x038cc...
+```
+
+## Deploying
+:::caution
+The deploy transaction will be deprecated in future StarkNet versions. To deploy new contract instances, you can use the deploy syscall. For more information, read [StarkNet's Contract Classes documentation](https://docs.starknet.io/docs/Contracts/contract-classes).
+:::
+
 Protostar supports deploying smart contracts to a given network with the `protostar deploy` command. It has a similar interface to the `starknet deploy` command. [Read the CLI reference for the deploy command](/docs/cli-reference#deploy) to learn more about all supported arguments.
 
-## Example — deploying the default contract
+### Example — deploying the default contract
 After [compiling your contract](/docs/tutorials/guides/compiling), you can deploy the contract in the following way.
 
 ```
