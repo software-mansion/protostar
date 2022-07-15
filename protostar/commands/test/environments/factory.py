@@ -1,4 +1,6 @@
+from io import StringIO
 from typing import Optional
+from contextlib import redirect_stdout
 
 from protostar.commands.test.environments.setup_execution_environment import (
     SetupExecutionEnvironment,
@@ -12,13 +14,21 @@ from protostar.commands.test.starkware.execution_resources_summary import (
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 
 
-async def invoke_setup(function_name: str, state: TestExecutionState):
+async def invoke_setup(
+    function_name: str,
+    state: TestExecutionState,
+    stdout_buffer: StringIO,
+):
     env = SetupExecutionEnvironment(state)
-    await env.invoke(function_name)
+    with redirect_stdout(stdout_buffer):
+        await env.invoke(function_name)
 
 
 async def invoke_test_case(
-    function_name: str, state: TestExecutionState
+    function_name: str,
+    state: TestExecutionState,
+    stdout_buffer: StringIO,
 ) -> Optional[ExecutionResourcesSummary]:
     env = TestExecutionEnvironment(state)
-    return await env.invoke(function_name)
+    with redirect_stdout(stdout_buffer):
+        return await env.invoke(function_name)
