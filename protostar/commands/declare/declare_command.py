@@ -66,6 +66,7 @@ class DeclareCommand(Command):
             signature=args.signature,
         )
 
+    # pylint: disable=too-many-arguments
     async def declare(
         self,
         compiled_contract_path: Path,
