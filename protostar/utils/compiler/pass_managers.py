@@ -1,36 +1,17 @@
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, List, Tuple
-from starkware.starknet.public.abi_structs import (
-    prepare_type_for_abi,
-)
-from starkware.cairo.lang.compiler.ast.code_elements import (
-    CodeElementFunction,
-)
-from starkware.starknet.compiler.starknet_preprocessor import StarknetPreprocessor
 
 from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
+from starkware.cairo.lang.compiler.ast.code_elements import CodeElementFunction
 from starkware.cairo.lang.compiler.cairo_compile import get_module_reader
-from starkware.cairo.lang.compiler.preprocessor.pass_manager import (
-    PassManager,
-)
-from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_manager
-
-
 from starkware.cairo.lang.compiler.preprocessor.default_pass_manager import (
     PreprocessorStage,
 )
-from starkware.starknet.security.hints_whitelist import get_hints_whitelist
-
-
-from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
-from starkware.cairo.lang.compiler.cairo_compile import get_module_reader
-from starkware.cairo.lang.compiler.preprocessor.pass_manager import (
-    PassManager,
-    Stage,
-)
-
+from starkware.cairo.lang.compiler.preprocessor.pass_manager import PassManager, Stage
 from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_manager
-
+from starkware.starknet.compiler.starknet_preprocessor import StarknetPreprocessor
+from starkware.starknet.public.abi_structs import prepare_type_for_abi
+from starkware.starknet.security.hints_whitelist import get_hints_whitelist
 
 if TYPE_CHECKING:
     from protostar.utils.starknet_compilation import CompilerConfig
@@ -57,7 +38,7 @@ class StarknetPassManagerFactory(PassManagerFactory):
 class TestCollectorPassManagerFactory(StarknetPassManagerFactory):
     @staticmethod
     def build(config: "CompilerConfig") -> PassManager:
-        pass_manager = super().build(config)
+        pass_manager = StarknetPassManagerFactory.build(config)
         crucial_stages: List[Tuple[str, Stage]] = [
             stage_pair
             for stage_pair in pass_manager.stages
