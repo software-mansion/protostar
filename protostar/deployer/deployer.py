@@ -11,7 +11,10 @@ from starkware.starknet.services.api.gateway.transaction import (
 )
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
-from protostar.deployer.gateway_response import SuccessfulGatewayResponse
+from protostar.deployer.gateway_response import (
+    SuccessfulDeclareResponse,
+    SuccessfulDeployResponse,
+)
 from protostar.deployer.network_config import NetworkConfig
 from protostar.deployer.starkware.starknet_cli import deploy
 from protostar.protostar_exception import ProtostarException
@@ -66,7 +69,7 @@ class Deployer:
         inputs: Optional[List[str]] = None,
         token: Optional[str] = None,
         salt: Optional[str] = None,
-    ) -> SuccessfulGatewayResponse:
+    ) -> SuccessfulDeployResponse:
 
         compilation_output_filepath = self._project_root_path / compiled_contract_path
 
@@ -91,19 +94,22 @@ class Deployer:
 
     async def declare(
         self,
-        compilation_output_filepath: Path,
+        compiled_contract_path: Path,
         gateway_url: str,
         signature: Optional[List[str]] = None,
         token: Optional[str] = None,
     ):
         """Protostar version of starknet_cli::declare"""
+
+        # The following parameters are hardcoded because Starknet CLI have asserts checking if they are equal to these
+        # values. Once Starknet removes these asserts, these parameters should be configurable by the user.
         sender = DECLARE_SENDER_ADDRESS
         max_fee = 0
         nonce = 0
 
         try:
             with open(
-                self._project_root_path / compilation_output_filepath,
+                self._project_root_path / compiled_contract_path,
                 mode="r",
                 encoding="utf-8",
             ) as compiled_contract_file:
@@ -131,14 +137,12 @@ class Deployer:
                         message=f"Failed to send transaction. Response: {gateway_response}."
                     )
 
-                contract_address = int(gateway_response["address"], 16)
+                class_hash = int(gateway_response["class_hash"], 16)
 
-                return SuccessfulGatewayResponse(
-                    address=contract_address,
-                    code=gateway_response["code"],
+                return SuccessfulDeclareResponse(
+                    class_hash=class_hash,
+                    code=gateway_response["class_hash"],
                     transaction_hash=gateway_response["transaction_hash"],
                 )
         except FileNotFoundError as err:
-            raise CompilationOutputNotFoundException(
-                compilation_output_filepath
-            ) from err
+            raise CompilationOutputNotFoundException(compiled_contract_path) from err
