@@ -108,7 +108,7 @@ class TestCollector:
 
         def log(self, logger: Logger):
             for broken_test_suite in self.broken_test_suites:
-                print(broken_test_suite)
+                print(broken_test_suite.display())
             if self.test_cases_count:
                 result: List[str] = ["Collected"]
                 suites_count = len(self.test_suites)
@@ -137,7 +137,7 @@ class TestCollector:
 
     supported_test_suite_filename_patterns = [
         re.compile(r"^test_.*\.cairo"),
-        re.compile(r"^.*_test.cairo"),
+        re.compile(r"^.*_test\.cairo"),
     ]
 
     @classmethod

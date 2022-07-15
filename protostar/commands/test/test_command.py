@@ -101,6 +101,11 @@ class TestCommand(Command):
                 type="bool",
                 description="Exit immediately on first broken or failed test",
             ),
+            Command.Argument(
+                name="stdout-on-success",
+                type="bool",
+                description="Also print captured standard output for passed test cases.",
+            ),
         ]
 
     async def run(self, args) -> TestingSummary:
@@ -112,6 +117,7 @@ class TestCommand(Command):
             no_progress_bar=args.no_progress_bar,
             fast_collecting=args.fast_collecting,
             exit_first=args.exit_first,
+            stdout_on_success=args.stdout_on_success,
         )
         summary.assert_all_passed()
         return summary
@@ -122,10 +128,11 @@ class TestCommand(Command):
         targets: List[str],
         ignored_targets: Optional[List[str]] = None,
         cairo_path: Optional[List[Path]] = None,
-        disable_hint_validation=False,
-        no_progress_bar=False,
-        fast_collecting=False,
-        exit_first=False,
+        disable_hint_validation: bool = False,
+        no_progress_bar: bool = False,
+        fast_collecting: bool = False,
+        exit_first: bool = False,
+        stdout_on_success: bool = False,
     ) -> TestingSummary:
         logger = getLogger()
 
@@ -163,6 +170,7 @@ class TestCommand(Command):
                 testing_summary,
                 no_progress_bar=no_progress_bar,
                 exit_first=exit_first,
+                stdout_on_success=stdout_on_success,
             )
             TestScheduler(live_logger, worker=TestRunner.worker).run(
                 include_paths=include_paths,
