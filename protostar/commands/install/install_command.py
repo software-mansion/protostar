@@ -1,12 +1,15 @@
-from logging import getLogger
-from typing import Any, List, Optional
+from logging import Logger, getLogger
+from pathlib import Path
+from typing import List, Optional
 
 from protostar.cli import Command
 from protostar.commands.install.install_package_from_repo import (
     install_package_from_repo,
 )
 from protostar.commands.install.pull_package_submodules import pull_package_submodules
-from protostar.utils import Project, extract_info_from_repo_id, log_color_provider
+from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
+from protostar.utils import extract_info_from_repo_id
+from protostar.utils.log_color_provider import LogColorProvider
 
 EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = """- `GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]`
     - `OpenZeppelin/cairo-contracts@0.1.0`
@@ -18,9 +21,18 @@ EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = """- `GITHUB_ACCOUNT_NAME/REPO_NAME[
 
 
 class InstallCommand(Command):
-    def __init__(self, project: Project) -> None:
+    def __init__(
+        self,
+        project_root_path: Path,
+        project_section_loader: ProtostarProjectSection.Loader,
+        logger: Logger,
+        log_color_provider: LogColorProvider,
+    ) -> None:
         super().__init__()
-        self._project = project
+        self._project_root_path = project_root_path
+        self._project_section_loader = project_section_loader
+        self._logger = logger
+        self._log_color_provider = log_color_provider
 
     @property
     def name(self) -> str:
@@ -51,20 +63,37 @@ class InstallCommand(Command):
         ]
 
     async def run(self, args):
-        handle_install_command(args, self._project)
+        project_section = self._project_section_loader.load()
+
+        handle_install_command(
+            logger=self._logger,
+            log_color_provider=self._log_color_provider,
+            project_root_path=self._project_root_path,
+            libs_path=self._project_root_path / project_section.libs_path,
+            package_name=args.package,
+            alias=args.name,
+        )
 
 
-def handle_install_command(args: Any, project: Project) -> None:
+# pylint: disable=too-many-arguments
+def handle_install_command(
+    logger: Logger,
+    log_color_provider: LogColorProvider,
+    project_root_path: Path,
+    libs_path: Path,
+    package_name: Optional[str],
+    alias: Optional[str] = None,
+) -> None:
     logger = getLogger()
 
-    if args.package is not None and args.package != "":
-        package_info = extract_info_from_repo_id(args.package)
+    if package_name is not None and package_name != "":
+        package_info = extract_info_from_repo_id(package_name)
 
         install_package_from_repo(
-            package_info.name if args.name is None else args.name,
+            package_info.name if alias is None else alias,
             package_info.url,
-            repo_dir=project.project_root,
-            destination=project.libs_path,
+            repo_dir=project_root_path,
+            destination=libs_path,
             tag=package_info.version,
         )
     else:
@@ -78,6 +107,6 @@ def handle_install_command(args: Any, project: Project) -> None:
                 package_info.url,
                 log_color_provider.get_color("RESET"),
             ),
-            repo_dir=project.project_root,
-            libs_dir=project.libs_path,
+            repo_dir=project_root_path,
+            libs_dir=libs_path,
         )

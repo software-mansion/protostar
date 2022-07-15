@@ -123,7 +123,14 @@ class ProtostarCLI(CLIApp):
                         ),
                     )
                 ),
-                InstallCommand(project),
+                InstallCommand(
+                    log_color_provider=log_color_provider,
+                    logger=logger,
+                    project_root_path=project.project_root,
+                    project_section_loader=ProtostarProjectSection.Loader(
+                        protostar_toml_reader
+                    ),
+                ),
                 RemoveCommand(project),
                 UpdateCommand(project),
                 UpgradeCommand(
