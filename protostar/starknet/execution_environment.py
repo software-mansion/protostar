@@ -70,10 +70,7 @@ def _walk_inner_exc_chain_for_reported_ex(
     if isinstance(ex, ReportedException):
         return ex
 
-    if isinstance(ex, VmException):
-        return _walk_inner_exc_chain_for_reported_ex(ex.inner_exc)
-
-    if isinstance(ex, HintException):
+    if isinstance(ex, (VmException, HintException)):
         return _walk_inner_exc_chain_for_reported_ex(ex.inner_exc)
 
     if ex.__cause__:
