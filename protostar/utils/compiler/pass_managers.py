@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from starkware.starknet.public.abi_structs import (
     prepare_type_for_abi,
@@ -11,7 +12,7 @@ from starkware.starknet.compiler.starknet_preprocessor import StarknetPreprocess
 from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
 from starkware.cairo.lang.compiler.cairo_compile import get_module_reader
 from starkware.cairo.lang.compiler.preprocessor.pass_manager import (
-    PassManager,
+    PassManager, PassManagerContext
 )
 from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_manager
 
@@ -33,16 +34,13 @@ from starkware.cairo.lang.compiler.preprocessor.default_pass_manager import (
 from starkware.starknet.compiler.external_wrapper import (
     parse_entry_point_decorators,
 )
+from starkware.starknet.public.abi import AbiType
 
 from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_manager
-from starkware.cairo.lang.compiler.preprocessor.unique_labels import UniqueLabelCreator
-from starkware.cairo.lang.compiler.preprocessor.identifier_collector import IdentifierCollector
 from starkware.cairo.lang.compiler.ast.code_elements import (
-    BuiltinsDirective,
     CodeElementFunction,
-    CodeElementInstruction,
-    LangDirective,
 )
+from starkware.cairo.lang.compiler.ast.visitor import Visitor
 from starkware.starknet.compiler.external_wrapper import (
     get_abi_entry_type
 )
@@ -80,22 +78,14 @@ class TestCollectorPassManagerFactory(StarknetPassManagerFactory):
                 additional_modules=[],
             ),
         )
+
         manager.add_stage(
-            "unique_label_creator", VisitorStage(lambda _context: UniqueLabelCreator(), modify_ast=True)
-        )
-        manager.add_stage(
-            "identifier_collector",
-            VisitorStage(lambda context: IdentifierCollector(identifiers=context.identifiers)),
-        )
-        manager.add_stage(
-            "preprocessor",
-            PreprocessorStage(
-                DEFAULT_PRIME,
-                TestCollectorPreprocessor,
-                None,
-                dict(hint_whitelist=None),
+            "test_collector_preprocessor",
+            new_stage=TestCollectorStage(
+                lambda _context: TestCollectorPreprocessor(),
+                modify_ast=True,
             ),
-        ) 
+        )
         return manager
 
 
@@ -149,9 +139,27 @@ class ProtostarPreprocessor(StarknetPreprocessor):
             self.add_abi_storage_var_types(elm=attr)
             return
 
+class TestCollectorStage(VisitorStage):
 
+    def run(self, context: PassManagerContext):
+        visitor = self.visitor_factory(context)
+        modified_modules = []
+        for module in context.modules:
+            modified_modules.append(visitor.visit(module))
+        if self.modify_ast:
+            context.modules = modified_modules
+        context.preprocessed_program = visitor.get_program()
+        return visitor
 
-class TestCollectorPreprocessor(StarknetPreprocessor):
+@dataclass
+class TestCollectorPreprocessedProgram():
+    abi: AbiType
+
+class TestCollectorPreprocessor(Visitor):
+    def __init__(self):
+        super().__init__()
+        self.abi: AbiType = []
+
     """
     This preprocessor generates simpler and more limited ABI in exchange for performance.
     ABI includes only function types with only names.
@@ -167,15 +175,6 @@ class TestCollectorPreprocessor(StarknetPreprocessor):
             "type": entry_type,
         })
 
-    def visit_BuiltinsDirective(self, _directive: BuiltinsDirective):
-        pass
-    
-    def visit_LangDirective(self, _directive: LangDirective):
-        pass
-
-    def visit_CodeElementInstruction(self, _elm: CodeElementInstruction):
-        pass
-
     def visit_CodeElementFunction(self, elm: CodeElementFunction):
         external_decorator, _, _ = parse_entry_point_decorators(elm=elm)
         if external_decorator is not None:
@@ -185,3 +184,10 @@ class TestCollectorPreprocessor(StarknetPreprocessor):
                 elm=elm,
                 external_decorator_name=external_decorator.name,
             )
+
+    def get_program(self):
+        return TestCollectorPreprocessedProgram(abi=self.abi)
+
+    
+    def _visit_default(self, obj):
+        pass

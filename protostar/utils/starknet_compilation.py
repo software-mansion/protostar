@@ -62,7 +62,7 @@ class StarknetCompiler:
             codes = self.build_codes(*cairo_file_paths)
             context = self.build_context(codes)
             self.pass_manager.run(context)
-            assert isinstance(context.preprocessed_program, StarknetPreprocessedProgram)
+            # assert isinstance(context.preprocessed_program, StarknetPreprocessedProgram)
             return context.preprocessed_program
         except FileNotFoundError as err:
             raise StarknetCompiler.FileNotFoundException(
