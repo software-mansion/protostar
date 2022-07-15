@@ -9,4 +9,4 @@ from protostar.commands.remove import (
 )
 from protostar.commands.test import TestCommand
 from protostar.commands.update import UpdateCommand, handle_update_command
-from protostar.commands.upgrade import UpgradeCommand, upgrade
+from protostar.commands.upgrade import UpgradeCommand

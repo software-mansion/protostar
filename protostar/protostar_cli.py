@@ -1,9 +1,9 @@
 # pylint: disable=no-self-use
 import sys
+import time
 from logging import INFO, Logger, StreamHandler, getLogger
 from pathlib import Path
 from typing import Any
-import time
 
 from protostar.cli import CLIApp, Command
 from protostar.commands import (
@@ -28,6 +28,12 @@ from protostar.protostar_toml.protostar_contracts_section import (
     ProtostarContractsSection,
 )
 from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
+from protostar.upgrader import (
+    LatestVersionChecker,
+    LatestVersionRemoteChecker,
+    UpgradeManager,
+)
+from protostar.upgrader.latest_version_cache_toml import LatestVersionCacheTOML
 from protostar.utils import (
     Project,
     ProtostarDirectory,
@@ -81,9 +87,13 @@ class ProtostarCLI(CLIApp):
         protostar_toml_writer: ProtostarTOMLWriter,
         protostar_toml_reader: ProtostarTOMLReader,
         requester: InputRequester,
+        logger: Logger,
+        latest_version_checker: LatestVersionChecker,
         start_time: float = 0.0,
     ) -> None:
         self.project = project
+        self.logger = logger
+        self.latest_version_checker = latest_version_checker
         self.start_time = start_time
 
         super().__init__(
@@ -116,7 +126,14 @@ class ProtostarCLI(CLIApp):
                 InstallCommand(project),
                 RemoveCommand(project),
                 UpdateCommand(project),
-                UpgradeCommand(protostar_directory, version_manager),
+                UpgradeCommand(
+                    UpgradeManager(
+                        protostar_directory,
+                        version_manager,
+                        LatestVersionRemoteChecker(),
+                        self.logger,
+                    )
+                ),
                 TestCommand(project, protostar_directory),
                 DeployCommand(project),
             ],
@@ -145,26 +162,40 @@ class ProtostarCLI(CLIApp):
         protostar_toml_writer = ProtostarTOMLWriter()
         protostar_toml_reader = ProtostarTOMLReader()
         requester = InputRequester(log_color_provider)
-
-        return cls(
-            script_root,
-            protostar_directory,
-            project,
-            version_manager,
-            protostar_toml_writer,
-            protostar_toml_reader,
-            requester,
-            time.perf_counter(),
+        logger = getLogger()
+        latest_version_checker = LatestVersionChecker(
+            protostar_directory=protostar_directory,
+            version_manager=version_manager,
+            logger=logger,
+            log_color_provider=log_color_provider,
+            latest_version_cache_toml_reader=LatestVersionCacheTOML.Reader(
+                protostar_directory
+            ),
+            latest_version_cache_toml_writer=LatestVersionCacheTOML.Writer(
+                protostar_directory
+            ),
+            latest_version_remote_checker=LatestVersionRemoteChecker(),
         )
 
-    def _setup_logger(self, is_ci_mode: bool) -> Logger:
+        return cls(
+            script_root=script_root,
+            protostar_directory=protostar_directory,
+            project=project,
+            version_manager=version_manager,
+            protostar_toml_writer=protostar_toml_writer,
+            protostar_toml_reader=protostar_toml_reader,
+            requester=requester,
+            logger=logger,
+            latest_version_checker=latest_version_checker,
+            start_time=time.perf_counter(),
+        )
+
+    def _setup_logger(self, is_ci_mode: bool) -> None:
         log_color_provider.is_ci_mode = is_ci_mode
-        logger = getLogger()
-        logger.setLevel(INFO)
+        self.logger.setLevel(INFO)
         handler = StreamHandler()
         handler.setFormatter(StandardLogFormatter(log_color_provider))
-        logger.addHandler(handler)
-        return logger
+        self.logger.addHandler(handler)
 
     def _check_git_version(self):
         git_version = self.version_manager.git_version
@@ -174,28 +205,29 @@ class ProtostarCLI(CLIApp):
             )
 
     async def run(self, args: Any) -> None:
-        logger = self._setup_logger(args.no_color)
+        self._setup_logger(args.no_color)
         has_failed = False
-
         try:
             self._check_git_version()
-
             if args.version:
                 self.version_manager.print_current_version()
                 return
-
             await super().run(args)
+            await self.latest_version_checker.run()
+
         except ProtostarExceptionSilent:
             has_failed = True
         except ProtostarException as err:
             if err.details:
                 print(err.details)
-            logger.error(err.message)
-            has_failed = True
+            self.logger.error(err.message)
+            sys.exit(1)
         except KeyboardInterrupt:
             has_failed = True
 
-        logger.info("Execution time: %.2f s", time.perf_counter() - self.start_time)
+        self.logger.info(
+            "Execution time: %.2f s", time.perf_counter() - self.start_time
+        )
 
         if has_failed:
             sys.exit(1)

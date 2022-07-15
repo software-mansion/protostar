@@ -17,8 +17,7 @@ namespace BlockNumberContract:
     func get_value() -> (res : felt):
     end
 
-    func get_map_value(key : felt) -> (
-            res : felt):
+    func get_map_value(key : felt) -> (res : felt):
     end
 
     func get_map_value_struct_key(key : Key) -> (res : felt):
@@ -27,17 +26,17 @@ namespace BlockNumberContract:
     func get_map_value_struct_val(key : felt) -> (res : Value):
     end
 
-    func get_map_value_complex_key(a: felt, b: felt) -> (res : felt):
+    func get_map_value_complex_key(a : felt, b : felt) -> (res : felt):
     end
 end
 
 @storage_var
-func target_map_complex_key(a: felt, b: felt) -> (res: Value):
+func target_map_complex_key(a : felt, b : felt) -> (res : Value):
 end
 
-
 @external
-func test_load_in_deployed_contract{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
+func test_load_in_user_contract{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+        ):
     alloc_locals
     local contract_address
     local value
@@ -53,9 +52,9 @@ func test_load_in_deployed_contract{syscall_ptr : felt*, pedersen_ptr : HashBuil
     return ()
 end
 
-
 @external
-func test_load_map_in_deployed_contract{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
+func test_load_map_in_user_contract{
+        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
     alloc_locals
     local contract_address
     local value
@@ -72,7 +71,8 @@ func test_load_map_in_deployed_contract{syscall_ptr : felt*, pedersen_ptr : Hash
 end
 
 @external
-func test_load_map_complex_key_in_deployed_contract{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
+func test_load_map_complex_key_in_user_contract{
+        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
     alloc_locals
     local contract_address
     local value
@@ -89,7 +89,8 @@ func test_load_map_complex_key_in_deployed_contract{syscall_ptr : felt*, pederse
 end
 
 @external
-func test_load_map_struct_key_in_deployed_contract{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
+func test_load_map_struct_key_in_user_contract{
+        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
     alloc_locals
     local contract_address
     local value
@@ -98,21 +99,18 @@ func test_load_map_struct_key_in_deployed_contract{syscall_ptr : felt*, pedersen
         store(ids.contract_address, "target_map_struct_key", [5], key=[1,2])
         ids.value = load(ids.contract_address, "target_map_struct_key", "felt", key=[1,2])[0]
     %}
-    let key_v = Key(
-        a=1,
-        b=2,
-    )
+    let key_v = Key(a=1, b=2)
     let (bn) = BlockNumberContract.get_map_value_struct_key(contract_address, key_v)
     assert value = bn
     return ()
 end
 
-
 @external
-func test_load_map_struct_val_in_deployed_contract{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
+func test_load_map_struct_val_in_user_contract{
+        syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
     alloc_locals
     local contract_address
-    local value: Value
+    local value : Value
     %{
         ids.contract_address = deploy_contract("./tests/integration/cheatcodes/load/block_number_contract.cairo").contract_address
         store(ids.contract_address, "target_map_struct_val", [5,10], key=[1])
@@ -132,7 +130,7 @@ end
 func test_map_load_local{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
     alloc_locals
     let (contract_address) = get_contract_address()
-    local value: Value
+    local value : Value
     %{
         store(ids.contract_address, "target_map_complex_key", [1, 2], key=[5, 6])
         value_arr = load(ids.contract_address, "target_map_complex_key", "Value", key=[5,6])
@@ -146,3 +144,15 @@ func test_map_load_local{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
     return ()
 end
 
+@external
+func test_missing_type_name{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
+    alloc_locals
+    # assert in load_test.py
+    let (contract_address) = get_contract_address()
+    local value : Value
+    %{
+        store(ids.contract_address, "target_map_complex_key", [1, 2], key=[5, 6])
+        value_arr = load(ids.contract_address, "target_map_complex_key", "ValueB", key=[5,6])
+    %}
+    return ()
+end
