@@ -13,7 +13,7 @@ class SuccessfulDeployResponse:
         logger.info(
             "\n".join(
                 [
-                    "Deploy Transaction was sent.",
+                    "Deploy transaction was sent.",
                     f"Contract address: 0x{self.address:064x}",
                     f"Transaction hash: {self.transaction_hash}",
                 ]
@@ -32,7 +32,7 @@ class SuccessfulDeclareResponse:
         logger.info(
             "\n".join(
                 [
-                    "Declare Transaction was sent.",
+                    "Declare transaction was sent.",
                     f"Class hash: 0x{self.class_hash:064x}",
                     f"Transaction hash: {self.transaction_hash}",
                 ]
