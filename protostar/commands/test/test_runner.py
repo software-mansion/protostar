@@ -20,10 +20,7 @@ from protostar.commands.test.test_environment_exceptions import ReportedExceptio
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.test_suite import TestSuite
 from protostar.protostar_exception import ProtostarException
-from protostar.utils.compiler.pass_managers import (
-    ProtostarPassMangerFactory,
-    StarknetPassManagerFactory,
-)
+from protostar.utils.compiler.pass_managers import ProtostarPassMangerFactory
 from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
 logger = getLogger()
@@ -43,7 +40,7 @@ class TestRunner:
             config=CompilerConfig(
                 include_paths=include_paths, disable_hint_validation=True
             ),
-            pass_manager_factory=StarknetPassManagerFactory,
+            pass_manager_factory=ProtostarPassMangerFactory,
         )
 
         self.user_contracts_compiler = StarknetCompiler(
