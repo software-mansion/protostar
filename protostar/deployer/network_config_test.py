@@ -1,6 +1,6 @@
 import pytest
 
-from protostar.commands.deploy.network_config import (
+from protostar.deployer.network_config import (
     NetworkConfig,
     UnknownStarkwareNetworkException,
 )
