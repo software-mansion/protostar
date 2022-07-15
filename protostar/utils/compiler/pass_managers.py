@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, List, Tuple
+from typing import TYPE_CHECKING
 from starkware.starknet.public.abi_structs import (
     prepare_type_for_abi,
 )
@@ -25,13 +25,24 @@ from starkware.starknet.security.hints_whitelist import get_hints_whitelist
 from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
 from starkware.cairo.lang.compiler.cairo_compile import get_module_reader
 from starkware.cairo.lang.compiler.preprocessor.pass_manager import (
-    PassManager,
-    Stage,
+    PassManager, VisitorStage
+)
+from starkware.cairo.lang.compiler.preprocessor.default_pass_manager import (
+    ModuleCollector,
+)
+from starkware.starknet.compiler.external_wrapper import (
+    parse_entry_point_decorators,
 )
 
 from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_manager
-
-
+from starkware.cairo.lang.compiler.preprocessor.unique_labels import UniqueLabelCreator
+from starkware.cairo.lang.compiler.preprocessor.identifier_collector import IdentifierCollector
+from starkware.cairo.lang.compiler.ast.code_elements import (
+    BuiltinsDirective,
+    CodeElementFunction,
+    CodeElementInstruction,
+    LangDirective,
+)
 if TYPE_CHECKING:
     from protostar.utils.starknet_compilation import CompilerConfig
 
@@ -53,23 +64,45 @@ class StarknetPassManagerFactory(PassManagerFactory):
             disable_hint_validation=config.disable_hint_validation,
         )
 
-
 class TestCollectorPassManagerFactory(StarknetPassManagerFactory):
     @staticmethod
     def build(config: "CompilerConfig") -> PassManager:
-        pass_manager = super().build(config)
-        crucial_stages: List[Tuple[str, Stage]] = [
-            stage_pair
-            for stage_pair in pass_manager.stages
-            if stage_pair[0]
-            in [
-                "module_collector",
-                "unique_label_creator",
-                "identifier_collector",
-            ]
-        ]
-        pass_manager.stages = crucial_stages
-        return pass_manager
+        read_module = get_module_reader(cairo_path=config.include_paths).read
+
+        manager = PassManager()
+        manager.add_stage(
+            "module_collector",
+            ModuleCollector(
+                read_module=read_module,
+                additional_modules=[
+                    "starkware.cairo.common.alloc",
+                    "starkware.cairo.common.cairo_builtins",
+                    "starkware.cairo.common.hash",
+                    "starkware.cairo.common.memcpy",
+                    "starkware.cairo.lang.compiler.lib.registers",
+                    "starkware.starknet.common.storage",
+                    "starkware.starknet.common.syscalls",
+                ],
+            ),
+        )
+        manager.add_stage(
+            "unique_label_creator", VisitorStage(lambda _context: UniqueLabelCreator(), modify_ast=True)
+        )
+        # factory: Callable[[str, str], int] 
+        manager.add_stage(
+            "identifier_collector",
+            VisitorStage(lambda context: IdentifierCollector(identifiers=context.identifiers)),
+        )
+        manager.add_stage(
+            "preprocessor",
+            PreprocessorStage(
+                DEFAULT_PRIME,
+                TestCollectorPreprocessor,
+                None,
+                dict(hint_whitelist=None),
+            ),
+        ) 
+        return manager
 
 
 class ProtostarPassMangerFactory(StarknetPassManagerFactory):
@@ -121,3 +154,38 @@ class ProtostarPreprocessor(StarknetPreprocessor):
         if attr is not None:
             self.add_abi_storage_var_types(elm=attr)
             return
+
+
+
+class TestCollectorPreprocessor(StarknetPreprocessor):
+    """
+    This preprocessor generates simpler and more limited ABI in exchange for performance.
+    ABI includes only function names.
+    """
+
+    def add_simple_abi_function_entry(self, elm: CodeElementFunction):
+        """
+        Adds an entry describing the function to the contract's ABI.
+        """
+        self.abi.append({
+            "name": elm.name,
+        })
+
+    def visit_BuiltinsDirective(self, _directive: BuiltinsDirective):
+        pass
+    
+    def visit_LangDirective(self, _directive: LangDirective):
+        pass
+
+    def visit_CodeElementInstruction(self, _elm: CodeElementInstruction):
+        pass
+
+    def visit_CodeElementFunction(self, elm: CodeElementFunction):
+        external_decorator, _, _ = parse_entry_point_decorators(elm=elm)
+        if external_decorator is not None:
+            breakpoint()
+
+            # Add a function/constructor entry to the ABI.
+            self.add_simple_abi_function_entry(
+                elm=elm,
+            )
