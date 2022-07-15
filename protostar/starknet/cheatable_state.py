@@ -212,7 +212,7 @@ class CheatableCarriedState(CarriedState):
         for selector, name in local_event_selector_to_name_map.items():
             self.event_selector_to_name_map[selector] = name
 
-    def get_abi_with_contract_address(self, contract_address: int) -> AbiType:
+    def get_abi_from_contract_address(self, contract_address: int) -> AbiType:
         if contract_address not in self.contract_address_to_class_hash_map:
             raise SimpleReportedException(
                 (

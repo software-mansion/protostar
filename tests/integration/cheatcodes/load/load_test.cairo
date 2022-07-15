@@ -37,7 +37,7 @@ end
 
 
 @external
-func test_load_in_deployed_contract{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
+func test_load_in_user_contract{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
     alloc_locals
     local contract_address
     local value
@@ -55,7 +55,7 @@ end
 
 
 @external
-func test_load_map_in_deployed_contract{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
+func test_load_map_in_user_contract{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
     alloc_locals
     local contract_address
     local value
@@ -72,7 +72,7 @@ func test_load_map_in_deployed_contract{syscall_ptr : felt*, pedersen_ptr : Hash
 end
 
 @external
-func test_load_map_complex_key_in_deployed_contract{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
+func test_load_map_complex_key_in_user_contract{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
     alloc_locals
     local contract_address
     local value
@@ -89,7 +89,7 @@ func test_load_map_complex_key_in_deployed_contract{syscall_ptr : felt*, pederse
 end
 
 @external
-func test_load_map_struct_key_in_deployed_contract{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
+func test_load_map_struct_key_in_user_contract{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
     alloc_locals
     local contract_address
     local value
@@ -109,7 +109,7 @@ end
 
 
 @external
-func test_load_map_struct_val_in_deployed_contract{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
+func test_load_map_struct_val_in_user_contract{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
     alloc_locals
     local contract_address
     local value: Value
