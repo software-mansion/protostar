@@ -13,7 +13,7 @@ class SuccessfulGatewayResponse:
         logger.info(
             "\n".join(
                 [
-                    "Deploy transaction was sent.",
+                    "Transaction was sent.",
                     f"Contract address: 0x{self.address:064x}",
                     f"Transaction hash: {self.transaction_hash}",
                 ]

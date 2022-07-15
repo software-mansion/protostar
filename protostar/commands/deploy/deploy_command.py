@@ -8,10 +8,6 @@ from protostar.deployer.network_config import NetworkConfig
 from protostar.protostar_exception import ProtostarException
 
 
-class CompilationOutputNotFoundException(ProtostarException):
-    pass
-
-
 class DeployCommand(Command):
 
     gateway_url_arg = Command.Argument(
@@ -110,7 +106,7 @@ class DeployCommand(Command):
 
         response = await self._deployer.deploy(
             compiled_contract_path=args.contract,
-            network_config=network_config,
+            gateway_url=network_config.gateway_url,
             inputs=args.inputs,
             token=args.token,
             salt=args.salt,
@@ -118,7 +114,6 @@ class DeployCommand(Command):
 
         explorer_url = network_config.get_contract_explorer_url(response.address)
         explorer_url_msg_lines: List[str] = []
-
         if explorer_url:
             explorer_url_msg_lines = ["", explorer_url]
 

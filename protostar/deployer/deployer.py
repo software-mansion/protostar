@@ -11,7 +11,7 @@ from starkware.starknet.services.api.gateway.transaction import (
 )
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
-from protostar.commands.deploy.deploy_command import CompilationOutputNotFoundException
+from protostar.deployer.gateway_response import SuccessfulGatewayResponse
 from protostar.deployer.network_config import NetworkConfig
 from protostar.deployer.starkware.starknet_cli import deploy
 from protostar.protostar_exception import ProtostarException
@@ -23,6 +23,18 @@ class InvalidNetworkConfigurationException(BaseException):
 
 class TransactionException(ProtostarException):
     pass
+
+
+class CompilationOutputNotFoundException(ProtostarException):
+    def __init__(self, compilation_output_filepath: Path):
+        super().__init__(str(compilation_output_filepath))
+        self._compilation_output_filepath = compilation_output_filepath
+
+    def __str__(self) -> str:
+        return (
+            f"Couldn't find `{self._compilation_output_filepath}`\n"
+            "Did you run `protostar build` before running this command?"
+        )
 
 
 class Deployer:
@@ -54,7 +66,7 @@ class Deployer:
         inputs: Optional[List[str]] = None,
         token: Optional[str] = None,
         salt: Optional[str] = None,
-    ):
+    ) -> SuccessfulGatewayResponse:
 
         compilation_output_filepath = self._project_root_path / compiled_contract_path
 
@@ -74,10 +86,7 @@ class Deployer:
 
         except FileNotFoundError as err:
             raise CompilationOutputNotFoundException(
-                (
-                    f"Couldn't find `{compilation_output_filepath}`\n"
-                    "Did you run `protostar build` before running this command?"
-                )
+                compilation_output_filepath
             ) from err
 
     async def declare(
@@ -92,34 +101,44 @@ class Deployer:
         max_fee = 0
         nonce = 0
 
-        with open(
-            self._project_root_path / compilation_output_filepath,
-            mode="r",
-            encoding="utf-8",
-        ) as compiled_contract_file:
+        try:
+            with open(
+                self._project_root_path / compilation_output_filepath,
+                mode="r",
+                encoding="utf-8",
+            ) as compiled_contract_file:
 
-            tx = Declare(
-                contract_class=ContractClass.loads(data=compiled_contract_file.read()),
-                sender_address=sender,
-                max_fee=max_fee,
-                version=constants.TRANSACTION_VERSION,
-                signature=signature,
-                nonce=nonce,
-            )  # type: ignore
+                tx = Declare(
+                    contract_class=ContractClass.loads(
+                        data=compiled_contract_file.read()
+                    ),
+                    sender_address=sender,
+                    max_fee=max_fee,
+                    version=constants.TRANSACTION_VERSION,
+                    signature=signature,
+                    nonce=nonce,
+                )  # type: ignore
 
-            gateway_client = GatewayClient(
-                url=gateway_url, retry_config=RetryConfig(n_retries=1)
-            )
-            gateway_response = await gateway_client.add_transaction(tx=tx, token=token)
-
-            if gateway_response["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
-                raise TransactionException(
-                    message=f"Failed to send transaction. Response: {gateway_response}."
+                gateway_client = GatewayClient(
+                    url=gateway_url, retry_config=RetryConfig(n_retries=1)
                 )
-            # Don't end sentences with '.', to allow easy double-click copy-pasting of the values.
-            print(
-                f"""\
-        Declare transaction was sent.
-        Contract class hash: {gateway_response['class_hash']}
-        Transaction hash: {gateway_response['transaction_hash']}"""
-            )
+                gateway_response = await gateway_client.add_transaction(
+                    tx=tx, token=token
+                )
+
+                if gateway_response["code"] != StarkErrorCode.TRANSACTION_RECEIVED.name:
+                    raise TransactionException(
+                        message=f"Failed to send transaction. Response: {gateway_response}."
+                    )
+
+                contract_address = int(gateway_response["address"], 16)
+
+                return SuccessfulGatewayResponse(
+                    address=contract_address,
+                    code=gateway_response["code"],
+                    transaction_hash=gateway_response["transaction_hash"],
+                )
+        except FileNotFoundError as err:
+            raise CompilationOutputNotFoundException(
+                compilation_output_filepath
+            ) from err
