@@ -3,7 +3,7 @@ import functools
 import inspect
 from typing import Optional, List, Callable, Awaitable, Any
 
-from hypothesis import settings, seed, given
+from hypothesis import settings, seed, given, Verbosity
 from hypothesis.database import InMemoryExampleDatabase
 from hypothesis.reporting import with_reporter
 from hypothesis.strategies import data, DataObject
@@ -18,6 +18,7 @@ from protostar.commands.test.starkware.execution_resources_summary import (
 )
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_context import TestContextHintLocal
+from protostar.commands.test.test_environment_exceptions import ReportedException
 from protostar.commands.test.testing_seed import current_testing_seed
 from protostar.utils.data_transformer_facade import DataTransformerFacade
 
@@ -55,7 +56,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         strategy_selector = StrategySelector(parameters)
 
         @seed(current_testing_seed())
-        @settings(database=database, deadline=None)
+        @settings(database=database, deadline=None, verbosity=Verbosity.quiet)
         @given(data_object=data())
         async def test(data_object: DataObject):
             inputs = {}
@@ -63,17 +64,29 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
                 search_strategy = strategy_selector.search_strategies[param]
                 inputs[param] = data_object.draw(search_strategy, label=param)
 
-            run_ers = await self.invoke_test_case(function_name, **inputs)
-            if run_ers is not None:
-                execution_resources.append(run_ers)
+            try:
+                run_ers = await self.invoke_test_case(function_name, **inputs)
+                if run_ers is not None:
+                    execution_resources.append(run_ers)
+            except ReportedException as reported_ex:
+                raise HypothesisEscapeError(reported_ex) from reported_ex
 
         test.hypothesis.inner_test = wrap_in_sync(test.hypothesis.inner_test)  # type: ignore
 
         with with_reporter(protostar_reporter):
             loop = asyncio.get_running_loop()
-            await loop.run_in_executor(None, test)
+            try:
+                await loop.run_in_executor(None, test)
+            except HypothesisEscapeError as escape_err:
+                raise escape_err.inner
 
         return ExecutionResourcesSummary.sum(execution_resources)
+
+
+class HypothesisEscapeError(Exception):
+    def __init__(self, inner: ReportedException):
+        super().__init__()
+        self.inner = inner
 
 
 def wrap_in_sync(func: Callable[..., Awaitable[Any]]):
