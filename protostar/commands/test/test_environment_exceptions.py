@@ -8,7 +8,7 @@ from protostar.commands.test.expected_event import ExpectedEvent
 from protostar.utils.log_color_provider import SupportedColorName, log_color_provider
 
 
-class ReportedException(Exception):
+class ReportedException(BaseException):
     """
     The exception used for catching unexpected errors thrown from test cases and as a base class.
     """

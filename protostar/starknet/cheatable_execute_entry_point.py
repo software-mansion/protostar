@@ -150,10 +150,8 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
                 run_resources=tx_execution_context.run_resources,
                 verify_secure=True,
             )
+        # --- MODIFICATIONS END ---
 
-        # Modification:
-        #   Exceptions are raised here with original cause, so that execution environments are
-        #   capable of introspecting real causes.
         except VmException as exception:
             code = StarknetErrorCode.TRANSACTION_FAILED
             if isinstance(exception.inner_exc, HintException):
@@ -172,23 +170,21 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             if isinstance(exception.inner_exc, ResourcesError):
                 code = StarknetErrorCode.OUT_OF_RESOURCES
 
-            raise StarkException(code=code, message=str(exception)) from exception
+            raise StarkException(code=code, message=str(exception))
         except VmExceptionBase as exception:
             raise StarkException(
                 code=StarknetErrorCode.TRANSACTION_FAILED, message=str(exception)
-            ) from exception
+            )
         except SecurityError as exception:
             raise StarkException(
                 code=StarknetErrorCode.SECURITY_ERROR, message=str(exception)
-            ) from exception
-        except Exception as exception:
+            )
+        except Exception:
             logger.error("Got an unexpected exception.", exc_info=True)
             raise StarkException(
                 code=StarknetErrorCode.UNEXPECTED_FAILURE,
                 message="Got an unexpected exception during the execution of the transaction.",
-            ) from exception
-
-        # --- MODIFICATIONS END ---
+            )
 
         # Complete handler validations.
         os_utils.validate_and_process_os_context(
