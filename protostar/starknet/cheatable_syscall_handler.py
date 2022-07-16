@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from protostar.starknet.cheatable_state import CheatableCarriedState
 
 
-class CheatableSysCallHandlerException(BaseException):
+class CheatableSysCallHandlerException(Exception):
     def __init__(self, message: str):
         self.message = message
         super().__init__(message)
