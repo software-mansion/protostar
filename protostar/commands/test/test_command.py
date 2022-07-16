@@ -151,11 +151,11 @@ class TestCommand(Command):
                 )
                 test_collector_result = TestCollector(
                     StarknetCompiler(
-                    config=CompilerConfig(
-                        disable_hint_validation=True, include_paths=include_paths
+                        config=CompilerConfig(
+                            disable_hint_validation=True, include_paths=include_paths
+                        ),
+                        pass_manager_factory=pass_manager_factory,
                     ),
-                    pass_manager_factory=pass_manager_factory,
-                ),
                     config=TestCollector.Config(fast_collecting=fast_collecting),
                 ).collect(
                     targets=targets,
@@ -175,7 +175,7 @@ class TestCommand(Command):
                     testing_summary,
                     no_progress_bar=no_progress_bar,
                     exit_first=exit_first,
-                stdout_on_success=stdout_on_success,
+                    stdout_on_success=stdout_on_success,
                 )
                 TestScheduler(live_logger, worker=TestRunner.worker).run(
                     include_paths=include_paths,
