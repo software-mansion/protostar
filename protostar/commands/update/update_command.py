@@ -1,5 +1,6 @@
-from logging import getLogger
+from logging import Logger
 from os import listdir
+from pathlib import Path
 from typing import List, Optional
 
 from protostar.cli import Command
@@ -10,13 +11,21 @@ from protostar.commands.update.update_package import update_package
 from protostar.commands.update.updating_exceptions import (
     PackageAlreadyUpToDateException,
 )
-from protostar.utils import Project, retrieve_real_package_name
+from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
+from protostar.utils import retrieve_real_package_name
 
 
 class UpdateCommand(Command):
-    def __init__(self, project: Project) -> None:
+    def __init__(
+        self,
+        project_root_path: Path,
+        project_section_loader: ProtostarProjectSection.Loader,
+        logger: Logger,
+    ) -> None:
         super().__init__()
-        self._project = project
+        self._project_root_path = project_root_path
+        self._project_section_loader = project_section_loader
+        self._logger = logger
 
     @property
     def name(self) -> str:
@@ -49,24 +58,26 @@ class UpdateCommand(Command):
         ]
 
     async def run(self, args):
-        handle_update_command(args, self._project)
+        self.update(args.package)
 
+    def update(self, package: Optional[str]) -> None:
+        project_section = self._project_section_loader.load()
 
-def handle_update_command(args, project: Project) -> None:
-
-    logger = getLogger()
-
-    if args.package:
-        package_name = retrieve_real_package_name(
-            args.package, project.project_root, project.libs_path
-        )
-        try:
-            update_package(package_name, project.project_root, project.libs_path)
-        except PackageAlreadyUpToDateException as err:
-            logger.info(err.message)
-    else:
-        for package_name in listdir(project.libs_path):
+        if package:
+            package = retrieve_real_package_name(
+                package, self._project_root_path, project_section.libs_path
+            )
             try:
-                update_package(package_name, project.project_root, project.libs_path)
-            except PackageAlreadyUpToDateException:
-                continue
+                update_package(
+                    package, self._project_root_path, project_section.libs_path
+                )
+            except PackageAlreadyUpToDateException as err:
+                self._logger.info(err.message)
+        else:
+            for package_name in listdir(project_section.libs_path):
+                try:
+                    update_package(
+                        package_name, self._project_root_path, project_section.libs_path
+                    )
+                except PackageAlreadyUpToDateException:
+                    continue

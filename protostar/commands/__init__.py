@@ -8,5 +8,5 @@ from protostar.commands.remove import (
     removal_exceptions,
 )
 from protostar.commands.test import TestCommand
-from protostar.commands.update import UpdateCommand, handle_update_command
+from protostar.commands.update import UpdateCommand
 from protostar.commands.upgrade import UpgradeCommand

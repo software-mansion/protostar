@@ -132,7 +132,13 @@ class ProtostarCLI(CLIApp):
                     ),
                 ),
                 RemoveCommand(project),
-                UpdateCommand(project),
+                UpdateCommand(
+                    logger=logger,
+                    project_root_path=project.project_root,
+                    project_section_loader=ProtostarProjectSection.Loader(
+                        protostar_toml_reader
+                    ),
+                ),
                 UpgradeCommand(
                     UpgradeManager(
                         protostar_directory,
