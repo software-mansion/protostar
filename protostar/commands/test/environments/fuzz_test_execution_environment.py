@@ -2,6 +2,7 @@ import asyncio
 import contextvars
 import functools
 import inspect
+import re
 from typing import Optional, List, Callable, Awaitable, Any
 
 from hypothesis import settings, seed, given, Verbosity
@@ -22,6 +23,12 @@ from protostar.commands.test.test_context import TestContextHintLocal
 from protostar.commands.test.test_environment_exceptions import ReportedException
 from protostar.commands.test.testing_seed import current_testing_seed
 from protostar.utils.data_transformer_facade import DataTransformerFacade
+
+
+HYPOTHESIS_VERBOSITY = Verbosity.normal
+"""
+Change this value to ``Verbosity.verbose`` while debugging Hypothesis adapter code.
+"""
 
 
 def is_fuzz_test(function_name: str, state: TestExecutionState) -> bool:
@@ -56,29 +63,43 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         database = InMemoryExampleDatabase()
         strategy_selector = StrategySelector(parameters)
 
+        # NOTE: Hypothesis' ``reporter`` global is a thread local variable.
+        #   Because we are running Hypothesis from separate thread, and the test itself is
+        #   running in a separate thread executor, we must set the ``reporter`` each first time
+        #   we invoke Hypothesis code in new thread.
+
         @seed(current_testing_seed())
-        @settings(database=database, deadline=None, verbosity=Verbosity.quiet)
+        @settings(
+            database=database,
+            deadline=None,
+            print_blob=False,
+            verbosity=HYPOTHESIS_VERBOSITY,
+        )
         @given(data_object=data())
         async def test(data_object: DataObject):
-            inputs = {}
-            for param in strategy_selector.parameter_names:
-                search_strategy = strategy_selector.search_strategies[param]
-                inputs[param] = data_object.draw(search_strategy, label=param)
+            with with_reporter(protostar_reporter):
+                inputs = {}
+                for param in strategy_selector.parameter_names:
+                    search_strategy = strategy_selector.search_strategies[param]
+                    inputs[param] = data_object.draw(search_strategy, label=param)
 
-            try:
-                run_ers = await self.invoke_test_case(function_name, **inputs)
-                if run_ers is not None:
-                    execution_resources.append(run_ers)
-            except ReportedException as reported_ex:
-                raise HypothesisEscapeError(reported_ex) from reported_ex
+                try:
+                    run_ers = await self.invoke_test_case(function_name, **inputs)
+                    if run_ers is not None:
+                        execution_resources.append(run_ers)
+                except ReportedException as reported_ex:
+                    raise HypothesisEscapeError(reported_ex) from reported_ex
 
         test.hypothesis.inner_test = wrap_in_sync(test.hypothesis.inner_test)  # type: ignore
 
-        with with_reporter(protostar_reporter):
-            try:
-                await to_thread(test)
-            except HypothesisEscapeError as escape_err:
-                raise escape_err.inner
+        def test_thread():
+            with with_reporter(protostar_reporter):
+                test()
+
+        try:
+            await to_thread(test_thread)
+        except HypothesisEscapeError as escape_err:
+            raise escape_err.inner
 
         return ExecutionResourcesSummary.sum(execution_resources)
 
@@ -139,6 +160,9 @@ def wrap_in_sync(func: Callable[..., Awaitable[Any]]):
     return inner
 
 
-def protostar_reporter(value):
-    # TODO(mkaput): Route logs to common Protostar logging infra.
-    print(value)
+JAMMING_MESSAGE = re.compile(r"^Draw|^(Trying|Falsifying) example:")
+
+
+def protostar_reporter(message: str):
+    if HYPOTHESIS_VERBOSITY > Verbosity.normal or not JAMMING_MESSAGE.match(message):
+        print(message)
