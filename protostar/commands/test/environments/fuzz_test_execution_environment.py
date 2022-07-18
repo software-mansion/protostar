@@ -3,7 +3,8 @@ import contextvars
 import functools
 import inspect
 import re
-from typing import Optional, List, Callable, Awaitable, Any
+from dataclasses import dataclass
+from typing import Optional, List, Callable, Awaitable, Any, Dict
 
 from hypothesis import settings, seed, given, Verbosity
 from hypothesis.database import InMemoryExampleDatabase
@@ -23,7 +24,6 @@ from protostar.commands.test.test_context import TestContextHintLocal
 from protostar.commands.test.test_environment_exceptions import ReportedException
 from protostar.commands.test.testing_seed import current_testing_seed
 from protostar.utils.data_transformer_facade import DataTransformerFacade
-
 
 HYPOTHESIS_VERBOSITY = Verbosity.normal
 """
@@ -88,7 +88,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
                     if run_ers is not None:
                         execution_resources.append(run_ers)
                 except ReportedException as reported_ex:
-                    raise HypothesisEscapeError(reported_ex) from reported_ex
+                    raise HypothesisFailureSmugglingError(reported_ex, inputs) from reported_ex
 
         test.hypothesis.inner_test = wrap_in_sync(test.hypothesis.inner_test)  # type: ignore
 
@@ -98,16 +98,31 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
 
         try:
             await to_thread(test_thread)
-        except HypothesisEscapeError as escape_err:
-            raise escape_err.inner
+        except HypothesisFailureSmugglingError as escape_err:
+            # TODO: Smuggle this further to FailingTestCase.
+            print("[inputs]", escape_err.inputs)
+            raise escape_err.error
 
         return ExecutionResourcesSummary.sum(execution_resources)
 
 
-class HypothesisEscapeError(Exception):
-    def __init__(self, inner: ReportedException):
-        super().__init__()
-        self.inner = inner
+@dataclass
+class HypothesisFailureSmugglingError(Exception):
+    """
+    Special error type which is used to smuggle failure exception and metadata from Hypothesis
+    test runner to Protostar fuzz test execution environment.
+
+    Hypothesis does not raise failure exceptions immediately while running observations, instead
+    it tries to shrink input data in order to get minimal reproduction. When input data is shrunk
+    (usually when ``max_examples`` setting is exhausted), Hypothesis re-raises matching exception.
+
+    We use this fact to smuggle additional metadata about failing test case, such as inputs values
+    which caused the test to fail, because apparently there is no supported way to get this from
+    Hypothesis except parsing reported messages.
+    """
+
+    error: ReportedException
+    inputs: Dict[str, Any]
 
 
 async def to_thread(func, *args, **kwargs):
