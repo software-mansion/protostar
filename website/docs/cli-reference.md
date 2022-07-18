@@ -36,7 +36,7 @@ Sends a declare transaction to StarkNet.
 #### `contract PATH`
 Required.
 
-The path to the compiled contract.
+Path to compiled contract.
 #### `--gateway-url STRING`
 The URL of a StarkNet gateway. It is required unless `--network` is provided.
 #### `-n` `--network STRING`
@@ -47,7 +47,7 @@ Supported StarkNet networks:
 - `alpha-goerli`
 - `alpha-mainnet`
 #### `--signature STRING[]`
-The signature information for the declaration.
+Signature information for the declaration.
 #### `--token STRING`
 Used for declaring contracts in Alpha MainNet.
 ### `deploy`
