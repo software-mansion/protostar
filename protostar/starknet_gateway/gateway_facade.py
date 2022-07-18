@@ -11,17 +11,12 @@ from starkware.starknet.services.api.gateway.transaction import (
 )
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
+from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeclareResponse,
     SuccessfulDeployResponse,
 )
-from protostar.starknet_gateway.network_config import NetworkConfig
 from protostar.starknet_gateway.starkware.starknet_cli import deploy
-from protostar.protostar_exception import ProtostarException
-
-
-class InvalidNetworkConfigurationException(BaseException):
-    pass
 
 
 class TransactionException(ProtostarException):
@@ -43,23 +38,6 @@ class CompilationOutputNotFoundException(ProtostarException):
 class GatewayFacade:
     def __init__(self, project_root_path: Path) -> None:
         self._project_root_path = project_root_path
-
-    @staticmethod
-    def build_network_config(
-        gateway_url: Optional[str] = None,
-        network: Optional[str] = None,
-    ) -> NetworkConfig:
-        network_config: Optional[NetworkConfig] = None
-
-        if network:
-            network_config = NetworkConfig.from_starknet_network_name(network)
-        if gateway_url:
-            network_config = NetworkConfig(gateway_url=gateway_url)
-
-        if network_config is None:
-            raise InvalidNetworkConfigurationException()
-
-        return network_config
 
     # pylint: disable=too-many-arguments
     async def deploy(

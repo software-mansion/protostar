@@ -22,7 +22,6 @@ from protostar.commands.init.project_creator import (
     AdaptedProjectCreator,
     NewProjectCreator,
 )
-from protostar.starknet_gateway import GatewayFacade
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
 from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
@@ -30,6 +29,7 @@ from protostar.protostar_toml.protostar_contracts_section import (
     ProtostarContractsSection,
 )
 from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
+from protostar.starknet_gateway import GatewayFacade, NetworkConfig
 from protostar.upgrader import (
     LatestVersionChecker,
     LatestVersionRemoteChecker,
@@ -138,8 +138,8 @@ class ProtostarCLI(CLIApp):
                     )
                 ),
                 TestCommand(project, protostar_directory),
-                DeployCommand(gateway_facade, logger),
-                DeclareCommand(gateway_facade, logger),
+                DeployCommand(gateway_facade, NetworkConfig.Builder(), logger),
+                DeclareCommand(gateway_facade, NetworkConfig.Builder(), logger),
             ],
             root_args=[
                 PROFILE_ARG,
