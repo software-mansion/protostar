@@ -1,5 +1,5 @@
 ---
-sidebar_label: Deploying (1 min)
+sidebar_label: Deploying
 ---
 
 # Deploying
