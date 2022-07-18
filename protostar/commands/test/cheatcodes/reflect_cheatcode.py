@@ -30,7 +30,7 @@ class _ReflectTreeNode:
                 int,
             ]
         ] = [(self, 0)]
-        result: list[str] = []
+        result: List[str] = []
         depth = 0
 
         while len(stack) > 0:
@@ -50,7 +50,10 @@ class _ReflectTreeNode:
         return "".join(result)
 
 
+# pylint: disable=C0103
+REFLECT_INPUT_TYPE = Union[VmConstsReference, RelocatableValue, int]
 REFLECT_VALUE_TYPE = Union[_ReflectTreeNode, RelocatableValue, int]
+REFLECT_RETURN_TYPE = Union[NamedTuple, RelocatableValue, int]
 
 
 class ReflectCheatcode(Cheatcode):
@@ -63,9 +66,7 @@ class ReflectCheatcode(Cheatcode):
 
     # We need to access Cairo's underscore variables
     # pylint: disable=W0212,R0201
-    def _generate_value_tree(
-        self, value: Union[VmConstsReference, RelocatableValue, int]
-    ) -> REFLECT_VALUE_TYPE:
+    def _generate_value_tree(self, value: REFLECT_INPUT_TYPE) -> REFLECT_VALUE_TYPE:
         if not isinstance(value, VmConstsReference):
             return value
 
@@ -125,12 +126,7 @@ class ReflectCheatcode(Cheatcode):
         )
 
     # pylint: disable=R0201
-    def _convert_to_named_tuple_or_simple_type(
-        self, tree: REFLECT_VALUE_TYPE
-    ) -> Union[NamedTuple, RelocatableValue, int]:
-        if not isinstance(tree, _ReflectTreeNode):
-            return tree
-
+    def _convert_to_named_tuple(self, tree: _ReflectTreeNode) -> REFLECT_RETURN_TYPE:
         stack: List[REFLECT_VALUE_TYPE] = [tree]
         pre_order: List[REFLECT_VALUE_TYPE] = []
 
@@ -172,11 +168,11 @@ class ReflectCheatcode(Cheatcode):
         # pylint: disable=E1102
         return tpl(*tree.value.values())
 
-    def reflect(
-        self, value: REFLECT_VALUE_TYPE
-    ) -> Union[NamedTuple, RelocatableValue, int]:
+    def reflect(self, value: REFLECT_INPUT_TYPE) -> REFLECT_RETURN_TYPE:
         tree = self._generate_value_tree(value)
-        tpl = self._convert_to_named_tuple_or_simple_type(tree)
+        if not isinstance(tree, _ReflectTreeNode):
+            return tree
+        tpl = self._convert_to_named_tuple(tree)
         return tpl
 
 
