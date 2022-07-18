@@ -9,7 +9,7 @@ func test_fuzz{syscall_ptr : felt*, range_check_ptr}(a, b : felt):
 end
 
 @external
-func test_fails_if_big{syscall_ptr : felt*, range_check_ptr}(a):
+func test_fails_if_big{syscall_ptr : felt*, range_check_ptr}(a, b, c):
     assert_nn(a)
     return ()
 end
