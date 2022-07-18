@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 from starkware.starknet.public.abi_structs import (
     prepare_type_for_abi,
 )
@@ -78,11 +78,11 @@ class TestCollectorPassManagerFactory(StarknetPassManagerFactory):
                 additional_modules=[],
             ),
         )
-
+        collector_fac: Callable[[PassManagerContext], Visitor] = lambda _: TestCollectorPreprocessor()
         manager.add_stage(
             "test_collector_preprocessor",
             new_stage=TestCollectorStage(
-                lambda _context: TestCollectorPreprocessor(),
+                collector_fac,
                 modify_ast=True,
             ),
         )
