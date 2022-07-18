@@ -16,11 +16,9 @@ class DeclareCommand(Command):
     def __init__(
         self,
         gateway_facade: GatewayFacade,
-        network_config_builder: NetworkConfig.Builder,
         logger: Logger,
     ):
         self._gateway_facade = gateway_facade
-        self._network_config_builder = network_config_builder
         self._logger = logger
 
     @property
@@ -89,9 +87,7 @@ class DeclareCommand(Command):
                 f"Argument `{DeployCommand.gateway_url_arg.name}` or `{DeployCommand.network_arg.name}` is required"
             )
 
-        network_config = self._network_config_builder.build(
-            network=network, gateway_url=gateway_url
-        )
+        network_config = NetworkConfig.build(network=network, gateway_url=gateway_url)
 
         response = await self._gateway_facade.declare(
             compiled_contract_path=compiled_contract_path,

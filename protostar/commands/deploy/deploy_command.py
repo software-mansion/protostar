@@ -35,11 +35,9 @@ class DeployCommand(Command):
     def __init__(
         self,
         gateway_facade: GatewayFacade,
-        network_config_builder: NetworkConfig.Builder,
         logger: Logger,
     ) -> None:
         self._gateway_facade = gateway_facade
-        self._network_config_builder = network_config_builder
         self._logger = logger
 
     @property
@@ -105,7 +103,7 @@ class DeployCommand(Command):
                 f"Argument `{DeployCommand.gateway_url_arg.name}` or `{DeployCommand.network_arg.name}` is required"
             )
 
-        network_config = self._network_config_builder.build(
+        network_config = NetworkConfig.build(
             network=args.network, gateway_url=args.gateway_url
         )
 
