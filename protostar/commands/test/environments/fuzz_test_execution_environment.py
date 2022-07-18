@@ -77,7 +77,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         )
         @given(data_object=data())
         async def test(data_object: DataObject):
-            with with_reporter(protostar_reporter):
+            with with_reporter(_protostar_reporter):
                 inputs = {}
                 for param in strategy_selector.parameter_names:
                     search_strategy = strategy_selector.search_strategies[param]
@@ -88,17 +88,17 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
                     if run_ers is not None:
                         execution_resources.append(run_ers)
                 except ReportedException as reported_ex:
-                    raise HypothesisFailureSmugglingError(reported_ex, inputs) from reported_ex
+                    raise _HypothesisFailureSmugglingError(reported_ex, inputs) from reported_ex
 
-        test.hypothesis.inner_test = wrap_in_sync(test.hypothesis.inner_test)  # type: ignore
+        test.hypothesis.inner_test = _wrap_in_sync(test.hypothesis.inner_test)  # type: ignore
 
         def test_thread():
-            with with_reporter(protostar_reporter):
+            with with_reporter(_protostar_reporter):
                 test()
 
         try:
-            await to_thread(test_thread)
-        except HypothesisFailureSmugglingError as escape_err:
+            await _to_thread(test_thread)
+        except _HypothesisFailureSmugglingError as escape_err:
             # TODO: Smuggle this further to FailingTestCase.
             print("[inputs]", escape_err.inputs)
             raise escape_err.error
@@ -107,7 +107,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
 
 
 @dataclass
-class HypothesisFailureSmugglingError(Exception):
+class _HypothesisFailureSmugglingError(Exception):
     """
     Special error type which is used to smuggle failure exception and metadata from Hypothesis
     test runner to Protostar fuzz test execution environment.
@@ -125,7 +125,7 @@ class HypothesisFailureSmugglingError(Exception):
     inputs: Dict[str, Any]
 
 
-async def to_thread(func, *args, **kwargs):
+async def _to_thread(func, *args, **kwargs):
     """
     Asynchronously run function *func* in a separate thread.
 
@@ -145,7 +145,7 @@ async def to_thread(func, *args, **kwargs):
     return await loop.run_in_executor(None, func_call)
 
 
-def wrap_in_sync(func: Callable[..., Awaitable[Any]]):
+def _wrap_in_sync(func: Callable[..., Awaitable[Any]]):
     """
     Return a sync wrapper around an async function executing it in separate event loop.
 
@@ -175,9 +175,9 @@ def wrap_in_sync(func: Callable[..., Awaitable[Any]]):
     return inner
 
 
-JAMMING_MESSAGE = re.compile(r"^Draw|^(Trying|Falsifying) example:")
+_JAMMING_MESSAGE = re.compile(r"^Draw|^(Trying|Falsifying) example:")
 
 
-def protostar_reporter(message: str):
-    if HYPOTHESIS_VERBOSITY > Verbosity.normal or not JAMMING_MESSAGE.match(message):
+def _protostar_reporter(message: str):
+    if HYPOTHESIS_VERBOSITY > Verbosity.normal or not _JAMMING_MESSAGE.match(message):
         print(message)
