@@ -88,7 +88,10 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
                     if run_ers is not None:
                         execution_resources.append(run_ers)
                 except ReportedException as reported_ex:
-                    raise _HypothesisFailureSmugglingError(reported_ex, inputs) from reported_ex
+                    raise _HypothesisFailureSmugglingError(
+                        error=reported_ex,
+                        inputs=inputs,
+                    ) from reported_ex
 
         test.hypothesis.inner_test = _wrap_in_sync(test.hypothesis.inner_test)  # type: ignore
 
