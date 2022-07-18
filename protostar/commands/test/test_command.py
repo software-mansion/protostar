@@ -137,7 +137,7 @@ class TestCommand(Command):
         logger = getLogger()
 
         include_paths = self._build_include_paths(cairo_path or [])
-        assert not fast_collecting
+        assert not fast_collecting, "`--fast-collecting` is deprecated, use default strategy"
         with ActivityIndicator(log_color_provider.colorize("GRAY", "Collecting tests")):
             test_collector_result = TestCollector(
                 StarknetCompiler(
