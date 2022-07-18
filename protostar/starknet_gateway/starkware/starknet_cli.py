@@ -11,7 +11,7 @@ from starkware.starknet.services.api.gateway.transaction import Deploy
 from starkware.starknet.utils.api_utils import cast_to_felts
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
-from protostar.deployer.gateway_response import SuccessfulDeployResponse
+from protostar.starknet_gateway.gateway_response import SuccessfulDeployResponse
 from protostar.protostar_exception import ProtostarException
 
 

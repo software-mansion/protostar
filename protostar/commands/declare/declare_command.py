@@ -4,15 +4,17 @@ from typing import List, Optional
 
 from protostar.cli.command import Command
 from protostar.commands.deploy.deploy_command import DeployCommand
-from protostar.deployer import Deployer
-from protostar.deployer.deployer import InvalidNetworkConfigurationException
-from protostar.deployer.gateway_response import SuccessfulDeclareResponse
+from protostar.starknet_gateway import GatewayFacade
+from protostar.starknet_gateway.gateway_facade import (
+    InvalidNetworkConfigurationException,
+)
+from protostar.starknet_gateway.gateway_response import SuccessfulDeclareResponse
 from protostar.protostar_exception import ProtostarException
 
 
 class DeclareCommand(Command):
-    def __init__(self, deployer: Deployer, logger: Logger):
-        self._deployer = deployer
+    def __init__(self, gateway_facade: GatewayFacade, logger: Logger):
+        self._gateway_facade = gateway_facade
         self._logger = logger
 
     @property
@@ -77,7 +79,7 @@ class DeclareCommand(Command):
         signature: Optional[List[str]] = None,
     ) -> SuccessfulDeclareResponse:
         try:
-            network_config = self._deployer.build_network_config(
+            network_config = self._gateway_facade.build_network_config(
                 network=network, gateway_url=gateway_url
             )
         except InvalidNetworkConfigurationException as err:
@@ -85,7 +87,7 @@ class DeclareCommand(Command):
                 f"Argument `{DeployCommand.gateway_url_arg.name}` or `{DeployCommand.network_arg.name}` is required"
             ) from err
 
-        response = await self._deployer.declare(
+        response = await self._gateway_facade.declare(
             compiled_contract_path=compiled_contract_path,
             gateway_url=network_config.gateway_url,
             token=token,

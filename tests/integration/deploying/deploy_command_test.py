@@ -5,7 +5,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from protostar.commands.deploy.deploy_command import DeployCommand
-from protostar.deployer import Deployer
+from protostar.starknet_gateway import GatewayFacade
 
 
 @pytest.mark.asyncio
@@ -17,7 +17,7 @@ async def test_deploying_contract(
     compiled_contract_filepath,
 ):
     deploy_command = DeployCommand(
-        deployer=Deployer(project_root_path), logger=mocker.MagicMock()
+        gateway_facade=GatewayFacade(project_root_path), logger=mocker.MagicMock()
     )
     args = SimpleNamespace()
     args.contract = compiled_contract_filepath

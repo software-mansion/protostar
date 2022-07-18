@@ -22,7 +22,7 @@ from protostar.commands.init.project_creator import (
     AdaptedProjectCreator,
     NewProjectCreator,
 )
-from protostar.deployer import Deployer
+from protostar.starknet_gateway import GatewayFacade
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
 from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
@@ -91,7 +91,7 @@ class ProtostarCLI(CLIApp):
         requester: InputRequester,
         logger: Logger,
         latest_version_checker: LatestVersionChecker,
-        deployer: Deployer,
+        gateway_facade: GatewayFacade,
         start_time: float = 0.0,
     ) -> None:
         self.project = project
@@ -138,8 +138,8 @@ class ProtostarCLI(CLIApp):
                     )
                 ),
                 TestCommand(project, protostar_directory),
-                DeployCommand(deployer, logger),
-                DeclareCommand(deployer, logger),
+                DeployCommand(gateway_facade, logger),
+                DeclareCommand(gateway_facade, logger),
             ],
             root_args=[
                 PROFILE_ARG,
@@ -180,7 +180,7 @@ class ProtostarCLI(CLIApp):
             ),
             latest_version_remote_checker=LatestVersionRemoteChecker(),
         )
-        deployer = Deployer(project_root_path=project.project_root)
+        gateway_facade = GatewayFacade(project_root_path=project.project_root)
 
         return cls(
             script_root=script_root,
@@ -192,7 +192,7 @@ class ProtostarCLI(CLIApp):
             requester=requester,
             logger=logger,
             latest_version_checker=latest_version_checker,
-            deployer=deployer,
+            gateway_facade=gateway_facade,
             start_time=time.perf_counter(),
         )
 

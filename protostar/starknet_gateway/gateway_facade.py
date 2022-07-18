@@ -11,12 +11,12 @@ from starkware.starknet.services.api.gateway.transaction import (
 )
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
-from protostar.deployer.gateway_response import (
+from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeclareResponse,
     SuccessfulDeployResponse,
 )
-from protostar.deployer.network_config import NetworkConfig
-from protostar.deployer.starkware.starknet_cli import deploy
+from protostar.starknet_gateway.network_config import NetworkConfig
+from protostar.starknet_gateway.starkware.starknet_cli import deploy
 from protostar.protostar_exception import ProtostarException
 
 
@@ -40,7 +40,7 @@ class CompilationOutputNotFoundException(ProtostarException):
         )
 
 
-class Deployer:
+class GatewayFacade:
     def __init__(self, project_root_path: Path) -> None:
         self._project_root_path = project_root_path
 
