@@ -1,4 +1,5 @@
 import asyncio
+import contextvars
 import functools
 import inspect
 from typing import Optional, List, Callable, Awaitable, Any
@@ -74,9 +75,8 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         test.hypothesis.inner_test = wrap_in_sync(test.hypothesis.inner_test)  # type: ignore
 
         with with_reporter(protostar_reporter):
-            loop = asyncio.get_running_loop()
             try:
-                await loop.run_in_executor(None, test)
+                await to_thread(test)
             except HypothesisEscapeError as escape_err:
                 raise escape_err.inner
 
@@ -87,6 +87,26 @@ class HypothesisEscapeError(Exception):
     def __init__(self, inner: ReportedException):
         super().__init__()
         self.inner = inner
+
+
+async def to_thread(func, *args, **kwargs):
+    """
+    Asynchronously run function *func* in a separate thread.
+
+    Any *args and **kwargs supplied for this function are directly passed
+    to *func*. Also, the current :class:`contextvars.Context` is propagated,
+    allowing context variables from the main thread to be accessed in the
+    separate thread.
+
+    Return a coroutine that can be awaited to get the eventual result of *func*.
+
+    Borrowed from Python 3.9
+    """
+
+    loop = asyncio.get_running_loop()
+    ctx = contextvars.copy_context()
+    func_call = functools.partial(ctx.run, func, *args, **kwargs)
+    return await loop.run_in_executor(None, func_call)
 
 
 def wrap_in_sync(func: Callable[..., Awaitable[Any]]):
