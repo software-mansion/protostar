@@ -131,7 +131,13 @@ class ProtostarCLI(CLIApp):
                         protostar_toml_reader
                     ),
                 ),
-                RemoveCommand(project),
+                RemoveCommand(
+                    logger=logger,
+                    project_root_path=project.project_root,
+                    project_section_loader=ProtostarProjectSection.Loader(
+                        protostar_toml_reader
+                    ),
+                ),
                 UpdateCommand(
                     logger=logger,
                     project_root_path=project.project_root,
