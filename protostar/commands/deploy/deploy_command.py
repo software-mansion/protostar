@@ -100,7 +100,7 @@ class DeployCommand(Command):
         ]
 
     async def run(self, args):
-        if args.network is None or args.gateway_url is None:
+        if args.network is None and args.gateway_url is None:
             raise ProtostarException(
                 f"Argument `{DeployCommand.gateway_url_arg.name}` or `{DeployCommand.network_arg.name}` is required"
             )

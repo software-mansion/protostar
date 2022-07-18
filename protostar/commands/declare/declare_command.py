@@ -84,7 +84,7 @@ class DeclareCommand(Command):
         token: Optional[str] = None,
         signature: Optional[List[str]] = None,
     ) -> SuccessfulDeclareResponse:
-        if network is None or gateway_url is None:
+        if network is None and gateway_url is None:
             raise ProtostarException(
                 f"Argument `{DeployCommand.gateway_url_arg.name}` or `{DeployCommand.network_arg.name}` is required"
             )
