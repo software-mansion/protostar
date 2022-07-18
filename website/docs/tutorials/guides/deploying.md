@@ -9,9 +9,10 @@ sidebar_label: Deploying
 - [Deploying a contract by another contract](https://www.cairo-lang.org/docs/hello_starknet/deploying_from_contracts.html?highlight=class%20hash)
 
 ## Declaring a contract
-StarkNet separates contracts into classes and instances. To create a new contract, you need to:
-1. declare a class
-2. call the deploy syscall with the `class_hash` from the declare transaction as an argument
+
+StarkNet provides a distinction between contract class and instance. To create a new contract, you need to:
+1. Declare a contract
+2. Use the deploy syscall with the `class_hash` from the declare transaction as an argument
    ```cairo
    from starkware.starknet.common.syscalls import deploy
    ```
