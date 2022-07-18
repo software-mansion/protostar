@@ -8,7 +8,7 @@ from glob import glob
 from logging import Logger
 from pathlib import Path
 from time import time
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple, Union
 
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     LocationError,
@@ -20,6 +20,7 @@ from starkware.starknet.compiler.starknet_preprocessor import (
 
 from protostar.commands.test.test_cases import BrokenTestSuite
 from protostar.commands.test.test_suite import TestSuite
+from protostar.utils.compiler.pass_managers import TestCollectorPreprocessedProgram
 from protostar.utils.starknet_compilation import StarknetCompiler
 
 TestSuiteGlob = str
@@ -340,14 +341,20 @@ class TestCollector:
         ]
 
     def _collect_test_case_names(
-        self, preprocessed: StarknetPreprocessedProgram
+        self,
+        preprocessed: Union[
+            StarknetPreprocessedProgram, TestCollectorPreprocessedProgram
+        ],
     ) -> List[str]:
         return self._starknet_compiler.get_function_names(
             preprocessed, predicate=lambda fn_name: fn_name.startswith("test_")
         )
 
     def _collect_setup_hook_name(
-        self, preprocessed: StarknetPreprocessedProgram
+        self,
+        preprocessed: Union[
+            StarknetPreprocessedProgram, TestCollectorPreprocessedProgram
+        ],
     ) -> Optional[str]:
         function_names = self._starknet_compiler.get_function_names(
             preprocessed, predicate=lambda fn_name: fn_name == "__setup__"

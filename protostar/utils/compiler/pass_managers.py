@@ -12,7 +12,8 @@ from starkware.starknet.compiler.starknet_preprocessor import StarknetPreprocess
 from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
 from starkware.cairo.lang.compiler.cairo_compile import get_module_reader
 from starkware.cairo.lang.compiler.preprocessor.pass_manager import (
-    PassManager, PassManagerContext
+    PassManager,
+    PassManagerContext,
 )
 from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_manager
 
@@ -26,7 +27,8 @@ from starkware.starknet.security.hints_whitelist import get_hints_whitelist
 from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
 from starkware.cairo.lang.compiler.cairo_compile import get_module_reader
 from starkware.cairo.lang.compiler.preprocessor.pass_manager import (
-    PassManager, VisitorStage
+    PassManager,
+    VisitorStage,
 )
 from starkware.cairo.lang.compiler.preprocessor.default_pass_manager import (
     ModuleCollector,
@@ -41,9 +43,8 @@ from starkware.cairo.lang.compiler.ast.code_elements import (
     CodeElementFunction,
 )
 from starkware.cairo.lang.compiler.ast.visitor import Visitor
-from starkware.starknet.compiler.external_wrapper import (
-    get_abi_entry_type
-)
+from starkware.starknet.compiler.external_wrapper import get_abi_entry_type
+
 if TYPE_CHECKING:
     from protostar.utils.starknet_compilation import CompilerConfig
 
@@ -65,6 +66,7 @@ class StarknetPassManagerFactory(PassManagerFactory):
             disable_hint_validation=config.disable_hint_validation,
         )
 
+
 class TestCollectorPassManagerFactory(StarknetPassManagerFactory):
     @staticmethod
     def build(config: "CompilerConfig") -> PassManager:
@@ -78,7 +80,9 @@ class TestCollectorPassManagerFactory(StarknetPassManagerFactory):
                 additional_modules=[],
             ),
         )
-        collector_fac: Callable[[PassManagerContext], Visitor] = lambda _: TestCollectorPreprocessor()
+        collector_fac: Callable[
+            [PassManagerContext], Visitor
+        ] = lambda _: TestCollectorPreprocessor()
         manager.add_stage(
             "test_collector_preprocessor",
             new_stage=TestCollectorStage(
@@ -139,8 +143,8 @@ class ProtostarPreprocessor(StarknetPreprocessor):
             self.add_abi_storage_var_types(elm=attr)
             return
 
-class TestCollectorStage(VisitorStage):
 
+class TestCollectorStage(VisitorStage):
     def run(self, context: PassManagerContext):
         visitor = self.visitor_factory(context)
         modified_modules = []
@@ -151,9 +155,11 @@ class TestCollectorStage(VisitorStage):
         context.preprocessed_program = visitor.get_program()
         return visitor
 
+
 @dataclass
-class TestCollectorPreprocessedProgram():
+class TestCollectorPreprocessedProgram:
     abi: AbiType
+
 
 class TestCollectorPreprocessor(Visitor):
     def __init__(self):
@@ -165,15 +171,19 @@ class TestCollectorPreprocessor(Visitor):
     ABI includes only function types with only names.
     """
 
-    def add_simple_abi_function_entry(self, elm: CodeElementFunction, external_decorator_name: str):
+    def add_simple_abi_function_entry(
+        self, elm: CodeElementFunction, external_decorator_name: str
+    ):
         """
         Adds an entry describing the function to the contract's ABI.
         """
         entry_type = get_abi_entry_type(external_decorator_name=external_decorator_name)
-        self.abi.append({
-            "name": elm.name,
-            "type": entry_type,
-        })
+        self.abi.append(
+            {
+                "name": elm.name,
+                "type": entry_type,
+            }
+        )
 
     def visit_CodeElementFunction(self, elm: CodeElementFunction):
         external_decorator, _, _ = parse_entry_point_decorators(elm=elm)
@@ -188,6 +198,5 @@ class TestCollectorPreprocessor(Visitor):
     def get_program(self):
         return TestCollectorPreprocessedProgram(abi=self.abi)
 
-    
     def _visit_default(self, obj):
         pass
