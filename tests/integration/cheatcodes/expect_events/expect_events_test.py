@@ -4,8 +4,9 @@ from typing import cast
 import pytest
 
 from protostar.commands.test.test_command import TestCommand
-from protostar.commands.test.test_environment_exceptions import \
-    ExpectedEventMissingException
+from protostar.commands.test.test_environment_exceptions import (
+    ExpectedEventMissingException,
+)
 from tests.integration.conftest import assert_cairo_test_cases
 
 
