@@ -1,5 +1,5 @@
 ---
-sidebar_label: Compilation (1 min)
+sidebar_label: Compilation
 ---
 
 # Project compilation
