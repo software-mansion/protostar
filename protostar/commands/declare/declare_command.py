@@ -40,14 +40,14 @@ class DeclareCommand(Command):
         return [
             Command.Argument(
                 name="contract",
-                description=("The path to the compiled contract."),
+                description=("Path to compiled contract."),
                 type="path",
                 is_positional=True,
                 is_required=True,
             ),
             Command.Argument(
                 name="signature",
-                description=("The signature information for the declaration."),
+                description=("Signature information for the declaration."),
                 type="str",
                 is_array=True,
             ),
