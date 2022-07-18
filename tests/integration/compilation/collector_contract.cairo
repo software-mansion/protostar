@@ -19,6 +19,13 @@ namespace ProxyContract:
     end
 end
 
+namespace test_utils:
+    func internal_function{
+            syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
+        assert 0 = 0
+        return ()
+    end
+end
 
 func internal_function{
         syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
