@@ -48,9 +48,11 @@ async def test_test_collector_pass(mocker: MockerFixture):
 
     first_type = {
         "name": "test_case1",
+        "type": "function"
     }
     second_type = {
         "name": "test_case2",
+        "type": "function"
     }
 
     assert contract_class.abi
