@@ -10,6 +10,7 @@ from protostar.commands.test.test_scheduler import TestScheduler
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.commands.test.testing_summary import TestingSummary
 from protostar.utils.compiler.pass_managers import (
+    StarknetPassManagerFactory,
     TestCollectorPassManagerFactory,
 )
 from protostar.utils.log_color_provider import log_color_provider
@@ -138,12 +139,17 @@ class TestCommand(Command):
         include_paths = self._build_include_paths(cairo_path or [])
 
         with ActivityIndicator(log_color_provider.colorize("GRAY", "Collecting tests")):
+            factory = (
+                StarknetPassManagerFactory
+                if fast_collecting
+                else TestCollectorPassManagerFactory
+            )
             test_collector_result = TestCollector(
                 StarknetCompiler(
                     config=CompilerConfig(
                         disable_hint_validation=True, include_paths=include_paths
                     ),
-                    pass_manager_factory=TestCollectorPassManagerFactory,
+                    pass_manager_factory=factory,
                 ),
                 config=TestCollector.Config(fast_collecting=fast_collecting),
             ).collect(
