@@ -77,7 +77,7 @@ class GatewayFacade:
         signature: Optional[List[str]] = None,
         token: Optional[str] = None,
     ):
-        """Protostar version of starknet_cli::declare"""
+        """Protostar version of starknet/cli/starknet_cli.py::declare"""
 
         # The following parameters are hardcoded because Starknet CLI have asserts checking if they are equal to these
         # values. Once Starknet removes these asserts, these parameters should be configurable by the user.
