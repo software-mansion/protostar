@@ -10,6 +10,7 @@ from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 
 from protostar.commands.build.build_exceptions import CairoCompilationException
+from protostar.commands.test.expected_event import collect_immediate_subdirectories
 from protostar.protostar_toml.protostar_contracts_section import (
     ProtostarContractsSection,
 )
@@ -27,15 +28,28 @@ class ProjectCompiler:
         self._project_section_loader = project_section_loader
         self._contracts_section_loader = contracts_section_loader
 
+    def build_cairo_paths(self, extra_cairo_paths: List[Path]) -> List[Path]:
+        project_section = self._project_section_loader.load()
+
+        return [
+            *extra_cairo_paths,
+            project_section.libs_path,
+            *[
+                Path(path)
+                for path in collect_immediate_subdirectories(project_section.libs_path)
+            ],
+        ]
+
     def compile(
         self,
         output_dir: Path,
-        cairo_path: List[Path],
+        extra_cairo_paths: List[Path],
         disable_hint_validation: bool,
     ):
-        project_section = self._project_section_loader.load()
+        include_paths = [
+            str(path) for path in self.build_cairo_paths(extra_cairo_paths)
+        ]
         contracts_section = self._contracts_section_loader.load()
-        include_paths = [str(pth) for pth in [*cairo_path, project_section.libs_path]]
         output_dir.mkdir(exist_ok=True)
 
         for (
@@ -62,11 +76,11 @@ class ProjectCompiler:
 
         try:
             return StarknetCompiler(
-                config = CompilerConfig(
+                config=CompilerConfig(
                     include_paths=include_paths,
-                    disable_hint_validation=disable_hint_validation
+                    disable_hint_validation=disable_hint_validation,
                 ),
-                pass_manager_factory=StarknetPassManagerFactory
+                pass_manager_factory=StarknetPassManagerFactory,
             ).compile_contract(
                 *contract_paths,
             )

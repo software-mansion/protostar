@@ -1,9 +1,10 @@
 from logging import getLogger
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Optional
+from typing import List, Optional
 
 from protostar.cli.activity_indicator import ActivityIndicator
 from protostar.cli.command import Command
+from protostar.commands.build.project_compiler import ProjectCompiler
 from protostar.commands.test.test_collector import TestCollector
 from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.test_scheduler import TestScheduler
@@ -17,17 +18,18 @@ from protostar.utils.log_color_provider import log_color_provider
 from protostar.utils.protostar_directory import ProtostarDirectory
 from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
-if TYPE_CHECKING:
-    from protostar.utils.config.project import Project
-
 
 class TestCommand(Command):
     def __init__(
-        self, project: "Project", protostar_directory: ProtostarDirectory
+        self,
+        project_root_path: Path,
+        protostar_directory: ProtostarDirectory,
+        project_compiler: ProjectCompiler,
     ) -> None:
         super().__init__()
-        self._project = project
+        self._project_root_path = project_root_path
         self._protostar_directory = protostar_directory
+        self._project_compiler = project_compiler
 
     @property
     def name(self) -> str:
@@ -112,7 +114,7 @@ class TestCommand(Command):
         summary = await self.test(
             targets=args.target,
             ignored_targets=args.ignore,
-            cairo_path=args.cairo_path,
+            cairo_paths=args.cairo_path,
             disable_hint_validation=args.disable_hint_validation,
             no_progress_bar=args.no_progress_bar,
             fast_collecting=args.fast_collecting,
@@ -127,7 +129,7 @@ class TestCommand(Command):
         self,
         targets: List[str],
         ignored_targets: Optional[List[str]] = None,
-        cairo_path: Optional[List[Path]] = None,
+        cairo_paths: Optional[List[Path]] = None,
         disable_hint_validation: bool = False,
         no_progress_bar: bool = False,
         fast_collecting: bool = False,
@@ -136,7 +138,13 @@ class TestCommand(Command):
     ) -> TestingSummary:
         logger = getLogger()
 
-        include_paths = self._build_include_paths(cairo_path or [])
+        str_cairo_paths = [
+            str(path)
+            for path in [
+                self._protostar_directory.protostar_test_only_cairo_packages_path,
+                *self._project_compiler.build_cairo_paths(cairo_paths or []),
+            ]
+        ]
 
         with ActivityIndicator(log_color_provider.colorize("GRAY", "Collecting tests")):
             pass_manager_factory = (
@@ -147,7 +155,7 @@ class TestCommand(Command):
             test_collector_result = TestCollector(
                 StarknetCompiler(
                     config=CompilerConfig(
-                        disable_hint_validation=True, include_paths=include_paths
+                        disable_hint_validation=True, include_paths=str_cairo_paths
                     ),
                     pass_manager_factory=pass_manager_factory,
                 ),
@@ -155,7 +163,7 @@ class TestCommand(Command):
             ).collect(
                 targets=targets,
                 ignored_targets=ignored_targets,
-                default_test_suite_glob=str(self._project.project_root),
+                default_test_suite_glob=str(self._project_root_path),
             )
 
         test_collector_result.log(logger)
@@ -173,16 +181,10 @@ class TestCommand(Command):
                 stdout_on_success=stdout_on_success,
             )
             TestScheduler(live_logger, worker=TestRunner.worker).run(
-                include_paths=include_paths,
+                include_paths=str_cairo_paths,
                 test_collector_result=test_collector_result,
                 disable_hint_validation=disable_hint_validation,
                 exit_first=exit_first,
             )
 
         return testing_summary
-
-    def _build_include_paths(self, cairo_paths: List[Path]) -> List[str]:
-        cairo_paths = self._protostar_directory.add_protostar_cairo_dir(cairo_paths)
-        include_paths = [str(pth) for pth in cairo_paths]
-        include_paths.extend(self._project.get_include_paths())
-        return include_paths

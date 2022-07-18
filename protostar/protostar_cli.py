@@ -96,6 +96,15 @@ class ProtostarCLI(CLIApp):
         self.latest_version_checker = latest_version_checker
         self.start_time = start_time
 
+        project_compiler = ProjectCompiler(
+            project_section_loader=ProtostarProjectSection.Loader(
+                protostar_toml_reader
+            ),
+            contracts_section_loader=ProtostarContractsSection.Loader(
+                protostar_toml_reader
+            ),
+        )
+
         super().__init__(
             commands=[
                 InitCommand(
@@ -113,16 +122,7 @@ class ProtostarCLI(CLIApp):
                         version_manager,
                     ),
                 ),
-                BuildCommand(
-                    ProjectCompiler(
-                        project_section_loader=ProtostarProjectSection.Loader(
-                            protostar_toml_reader
-                        ),
-                        contracts_section_loader=ProtostarContractsSection.Loader(
-                            protostar_toml_reader
-                        ),
-                    )
-                ),
+                BuildCommand(project_compiler),
                 InstallCommand(
                     log_color_provider=log_color_provider,
                     logger=logger,
@@ -153,7 +153,9 @@ class ProtostarCLI(CLIApp):
                         self.logger,
                     )
                 ),
-                TestCommand(project, protostar_directory),
+                TestCommand(
+                    project.project_root, protostar_directory, project_compiler
+                ),
                 DeployCommand(project),
             ],
             root_args=[

@@ -44,8 +44,9 @@ class RunCairoTestRunnerFixture(Protocol):
 def run_cairo_test_runner_fixture(mocker: MockerFixture):
     async def run_cairo_test_runner(path: Path) -> TestingSummary:
         return await TestCommand(
-            project=mocker.MagicMock(),
+            project_root_path=Path(),
             protostar_directory=mocker.MagicMock(),
+            project_compiler=mocker.MagicMock(),
         ).test(targets=[str(path)])
 
     return run_cairo_test_runner
