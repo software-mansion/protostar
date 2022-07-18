@@ -28,4 +28,4 @@ from protostar.commands.test.cheatcodes.warp_cheatcode import WarpCheatcode
 
 from protostar.commands.test.cheatcodes.store_cheatcode import StoreCheatcode
 
-from protostar.commands.test.cheatcodes.dump_cheatcode import DumpCheatcode
+from protostar.commands.test.cheatcodes.reflect_cheatcode import ReflectCheatcode
