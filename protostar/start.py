@@ -19,7 +19,8 @@ def main(script_root: Path):
     parser = ArgumentParserFacade(
         protostar_cli,
         default_value_provider=ArgumentValueFromConfigProvider(
-            protostar_cli.project, configuration_profile_name=configuration_profile_name
+            protostar_cli.protostar_toml_reader,
+            configuration_profile_name=configuration_profile_name,
         ),
     )
 
