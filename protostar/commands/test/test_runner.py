@@ -1,6 +1,6 @@
 import asyncio
-import traceback
 import io
+import traceback
 from dataclasses import dataclass
 from logging import getLogger
 from typing import List, Optional

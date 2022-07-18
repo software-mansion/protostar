@@ -83,16 +83,7 @@ const config = {
             items: [
               {
                 label: "Discord",
-                href: "https://discord.gg/uJ9HZTUk2Y",
-              },
-            ],
-          },
-          {
-            title: "Community",
-            items: [
-              {
-                label: "Discord",
-                href: "https://discord.gg/uJ9HZTUk2Y",
+                href: "https://discord.com/invite/starknet",
               },
             ],
           },

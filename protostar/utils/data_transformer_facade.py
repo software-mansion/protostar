@@ -8,7 +8,7 @@ from typing_extensions import Literal
 from protostar.utils.starknet_compilation import StarknetCompiler
 
 
-class AbiItemNotFoundException(BaseException):
+class AbiItemNotFoundException(Exception):
     pass
 
 

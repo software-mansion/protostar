@@ -10,6 +10,7 @@ from starkware.cairo.lang.compiler.ast.code_elements import (
 from starkware.starknet.compiler.starknet_preprocessor import StarknetPreprocessor
 
 from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
+from starkware.cairo.lang.compiler.ast.code_elements import CodeElementFunction
 from starkware.cairo.lang.compiler.cairo_compile import get_module_reader
 from starkware.cairo.lang.compiler.preprocessor.pass_manager import (
     PassManager,
