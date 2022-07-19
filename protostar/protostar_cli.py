@@ -23,7 +23,11 @@ from protostar.commands.init.project_creator import (
     NewProjectCreator,
 )
 from protostar.commands.migrate.migrate_command import MigrateCommand
-from protostar.commands.migrate.migrator import Migrator
+from protostar.migrator import Migrator
+from protostar.migrator.migrator_cheatcodes_factory import MigratorCheatcodeFactory
+from protostar.migrator.migrator_execution_environment import (
+    MigratorExecutionEnvironment,
+)
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
 from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
@@ -45,9 +49,7 @@ from protostar.utils import (
     VersionManager,
     log_color_provider,
 )
-from protostar.utils.compiler.pass_managers import ProtostarPassMangerFactory
 from protostar.utils.input_requester import InputRequester
-from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
 PROFILE_ARG = Command.Argument(
     name="profile",
@@ -145,14 +147,9 @@ class ProtostarCLI(CLIApp):
                 DeployCommand(gateway_facade, logger),
                 DeclareCommand(gateway_facade, logger),
                 MigrateCommand(
-                    Migrator(
-                        starknet_compiler=StarknetCompiler(
-                            config=CompilerConfig(
-                                include_paths=[], disable_hint_validation=True
-                            ),
-                            pass_manager_factory=ProtostarPassMangerFactory,
-                        ),
-                    )
+                    migrator_builder=Migrator.Builder(),
+                    migrator_execution_env_builder=MigratorExecutionEnvironment.Builder(),
+                    migrator_cheatcode_factory=MigratorCheatcodeFactory(),
                 ),
             ],
             root_args=[
