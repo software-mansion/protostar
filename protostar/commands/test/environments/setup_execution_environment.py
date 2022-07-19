@@ -13,6 +13,7 @@ from protostar.commands.test.cheatcodes import (
     StoreCheatcode,
     WarpCheatcode,
 )
+from protostar.commands.test.cheatcodes.load_cheatcode import LoadCheatcode
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_context import TestContextHintLocal
 from protostar.starknet.cheatcode import Cheatcode
@@ -46,9 +47,7 @@ class SetupCheatcodeFactory(CheatcodeFactory):
         data_transformer = DataTransformerFacade(self._state.starknet_compiler)
 
         declare_cheatcode = DeclareCheatcode(
-            syscall_dependencies,
-            disable_hint_validation=self._state.disable_hint_validation_in_external_contracts,
-            cairo_path=self._state.include_paths,
+            syscall_dependencies, self._state.starknet_compiler
         )
         prepare_cheatcode = PrepareCheatcode(syscall_dependencies, data_transformer)
         deploy_cheatcode = DeployCheatcode(syscall_dependencies, internal_calls)
@@ -67,4 +66,5 @@ class SetupCheatcodeFactory(CheatcodeFactory):
             RollCheatcode(syscall_dependencies),
             StartPrankCheatcode(syscall_dependencies),
             StoreCheatcode(syscall_dependencies),
+            LoadCheatcode(syscall_dependencies),
         ]

@@ -1,9 +1,8 @@
 from typing import Any, Callable, List, Optional
-from starkware.starknet.public.abi import get_storage_var_address
 from starkware.starknet.storage.starknet_storage import BusinessLogicStarknetStorage
-from starkware.crypto.signature.fast_pedersen_hash import pedersen_hash
 
 from protostar.starknet.cheatcode import Cheatcode
+from protostar.starknet.storage_var import calc_address
 
 
 ADDR_BOUND = 2**251 - 256
@@ -25,7 +24,7 @@ class StoreCheatcode(Cheatcode):
         key: Optional[List[int]] = None,
     ):
         key = key or []
-        variable_address = self.calc_address(variable_name, key)
+        variable_address = calc_address(variable_name, key)
         if target_contract_address == self.contract_address:
             self.store_local(variable_address, value)
             return
@@ -66,16 +65,3 @@ class StoreCheatcode(Cheatcode):
             storage.read(address=address + i)
             storage.write(address=address + i, value=val)
             self.state.modified_contracts[contract] = None
-
-    @staticmethod
-    def calc_address(var, key) -> int:
-        res = get_storage_var_address(var)
-        for i in key:
-            res = pedersen_hash(res, i)
-        if len(key) > 0:
-            res = StoreCheatcode.normalize_address(res)
-        return res
-
-    @staticmethod
-    def normalize_address(addr: int) -> int:
-        return addr if addr < ADDR_BOUND else addr - ADDR_BOUND

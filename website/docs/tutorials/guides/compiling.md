@@ -1,5 +1,5 @@
 ---
-sidebar_label: Compilation (1 min)
+sidebar_label: Compilation
 ---
 
 # Project compilation
@@ -43,6 +43,10 @@ $ protostar build
 $ ls ./build
 bar.json     bar_abi.json foo.json     foo_abi.json
 ```
+
+:::note
+Protostar detects account contracts. Unlike `starknet-compile`, you don't have to provide `--account_contract` flag to compile them.
+:::
 
 ### Output directory
 

@@ -1,15 +1,13 @@
 from pathlib import Path
 from types import SimpleNamespace
-from typing import cast
 
 import pytest
 from pytest_mock import MockerFixture
 
 from protostar.commands.deploy.deploy_command import DeployCommand
-from protostar.utils.config.project import Project
+from protostar.starknet_gateway import GatewayFacade
 
 
-@pytest.mark.asyncio
 @pytest.mark.parametrize("contract_name", ["main_with_constructor"])
 async def test_deploying_contract(
     mocker: MockerFixture,
@@ -17,10 +15,10 @@ async def test_deploying_contract(
     project_root_path: Path,
     compiled_contract_filepath,
 ):
-    project_mock = mocker.MagicMock()
-    cast(Project, project_mock).project_root = project_root_path
-    deploy_command = DeployCommand(project_mock)
-
+    deploy_command = DeployCommand(
+        gateway_facade=GatewayFacade(project_root_path),
+        logger=mocker.MagicMock(),
+    )
     args = SimpleNamespace()
     args.contract = compiled_contract_filepath
     args.gateway_url = devnet_gateway_url

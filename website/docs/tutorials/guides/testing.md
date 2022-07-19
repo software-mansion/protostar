@@ -1,5 +1,5 @@
 ---
-sidebar_label: Testing (6 min)
+sidebar_label: Testing
 ---
 
 # Testing
@@ -36,6 +36,10 @@ protostar test ./tests
 
 :::info
 In the example above, Protostar will run every test case it manages to find in the `tests` directory. You can read more about specifying where and how Protostar should search for test cases by running `protostar test --help`. 
+:::
+
+:::tip
+If the test collecting phase takes too long, consider using `--fast-collecting` flag. Protostar will use a different algorithm, which doesn't check if a test case is decorated with the `@external` decorator or if an identifier with the name starting with `test_` is a function.
 :::
 
 ```console title="expected result"
@@ -687,7 +691,7 @@ end
 
 ### `store`
 ```python
-def store(target_contract_address: int, var: str, value: List[int], key: Optional[List[int]] = None):
+def store(target_contract_address: int, variable_name: str, value: List[int], key: Optional[List[int]] = None):
 ```
 Updates storage variable with name `variable_name` and given key to `value` of a contract with `target_contract_address`.
 Example:
@@ -719,7 +723,6 @@ end
 
 ```cairo title="./test/test_store.cairo"
 %lang starknet
-from starkware.starknet.common.syscalls import get_block_number, get_contract_address
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from src.contract import Value
 
@@ -761,6 +764,66 @@ There is no type checking for `variable_name`, `value`, `key`, make sure you pro
 `key` is a list of arguments because cairo `@storage_var` maps any number of felt arguments to any number of felt values
 :::
 
+### `load`
+```python
+def load(target_contract_address: int, variable_name: str, variable_type: List[int], key: Optional[List[int]] = None) -> List[int]:
+```
+Loads storage variable with name `variable_name` and given `key` and `variable_type` from a contract with `target_contract_address`.
+`variable_type` is provided as a string representation of type name.
+Example:
+
+```cairo title="./src/contract.cairo"
+%lang starknet
+
+from starkware.cairo.common.cairo_builtins import HashBuiltin
+
+struct Value:
+    member a : felt
+    member b : felt
+end
+
+@storage_var
+func store_val(a: felt, b: felt) -> (res: Value):
+end
+
+@storage_var
+func store_felt() -> (res: felt):
+end
+```
+
+```cairo title="./test/test_store.cairo"
+%lang starknet
+from starkware.cairo.common.cairo_builtins import HashBuiltin
+
+
+@external
+func test_store{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
+    alloc_locals
+    local contract_address
+    %{
+        ids.contract_address = deploy_contract("./src/contract.cairo").contract_address
+        felt_val = load(ids.contract_address, "store_felt", "felt")
+        assert felt_val == [0]
+
+        value_val = load(ids.contract_address, "store_val", "Value", key=[1,2])
+        assert value_val == [0, 0]
+    %}
+    return ()
+end
+
+```
+
+:::warning
+You have to provide `key` as list of ints. In the future Data Transformer will be supported.
+:::
+
+:::warning
+There is no type checking for `variable_name`, `key`, `variable_type` make sure you provided values correctly. 
+:::
+
+:::tip
+`key` is a list of arguments because cairo `@storage_var` maps any number of felt arguments to any number of felt values
+:::
 
 ## Data Transformer
 ### What is a Data Transformer

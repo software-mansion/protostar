@@ -1,7 +1,6 @@
 import dataclasses
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import List, Optional
 
 from starkware.starknet.services.api.contract_class import ContractClass
 from typing_extensions import Self
@@ -21,18 +20,21 @@ class TestExecutionState(ExecutionState):
         cls,
         starknet_compiler: StarknetCompiler,
         test_suite_definition: ContractClass,
-        disable_hint_validation_in_external_contracts: bool,
-        include_paths: Optional[List[str]] = None,
     ) -> Self:
+
         starknet = await ForkableStarknet.empty()
         contract = await starknet.deploy(contract_class=test_suite_definition)
-
+        assert test_suite_definition.abi is not None
+        starknet.cheatable_state.cheatable_carried_state.class_hash_to_contract_abi_map[
+            0
+        ] = test_suite_definition.abi
+        starknet.cheatable_state.cheatable_carried_state.contract_address_to_class_hash_map[
+            contract.contract_address
+        ] = 0
         return cls(
             starknet=starknet,
             contract=contract,
             starknet_compiler=starknet_compiler,
-            include_paths=include_paths or [],
-            disable_hint_validation_in_external_contracts=disable_hint_validation_in_external_contracts,
             context=TestContext(),
         )
 

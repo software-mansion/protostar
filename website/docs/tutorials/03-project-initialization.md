@@ -1,5 +1,5 @@
 ---
-sidebar_label: Project initialization (1 min)
+sidebar_label: Project initialization
 ---
 
 # Project initialization

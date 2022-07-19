@@ -9,9 +9,13 @@ from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.test_scheduler import TestScheduler
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.commands.test.testing_summary import TestingSummary
+from protostar.utils.compiler.pass_managers import (
+    StarknetPassManagerFactory,
+    TestCollectorPassManagerFactory,
+)
 from protostar.utils.log_color_provider import log_color_provider
 from protostar.utils.protostar_directory import ProtostarDirectory
-from protostar.utils.starknet_compilation import StarknetCompiler
+from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
 if TYPE_CHECKING:
     from protostar.utils.config.project import Project
@@ -71,11 +75,6 @@ class TestCommand(Command):
                 type="directory",
             ),
             Command.Argument(
-                name="account-contract",
-                description="Compile as account contract.",
-                type="bool",
-            ),
-            Command.Argument(
                 name="disable-hint-validation",
                 description=(
                     "Disable hint validation in contracts declared by the "
@@ -88,6 +87,25 @@ class TestCommand(Command):
                 type="bool",
                 description="Disable progress bar.",
             ),
+            Command.Argument(
+                name="fast-collecting",
+                type="bool",
+                description=(
+                    "Enables fast but unsafe test collecting algorithm. "
+                    "It searches for identifiers in the test file that start with `test_`."
+                ),
+            ),
+            Command.Argument(
+                name="exit-first",
+                short_name="x",
+                type="bool",
+                description="Exit immediately on first broken or failed test",
+            ),
+            Command.Argument(
+                name="stdout-on-success",
+                type="bool",
+                description="Also print captured standard output for passed test cases.",
+            ),
         ]
 
     async def run(self, args) -> TestingSummary:
@@ -95,9 +113,11 @@ class TestCommand(Command):
             targets=args.target,
             ignored_targets=args.ignore,
             cairo_path=args.cairo_path,
-            is_account_contract=args.account_contract,
             disable_hint_validation=args.disable_hint_validation,
             no_progress_bar=args.no_progress_bar,
+            fast_collecting=args.fast_collecting,
+            exit_first=args.exit_first,
+            stdout_on_success=args.stdout_on_success,
         )
         summary.assert_all_passed()
         return summary
@@ -108,19 +128,30 @@ class TestCommand(Command):
         targets: List[str],
         ignored_targets: Optional[List[str]] = None,
         cairo_path: Optional[List[Path]] = None,
-        is_account_contract=False,
-        disable_hint_validation=False,
-        no_progress_bar=False,
+        disable_hint_validation: bool = False,
+        no_progress_bar: bool = False,
+        fast_collecting: bool = False,
+        exit_first: bool = False,
+        stdout_on_success: bool = False,
     ) -> TestingSummary:
         logger = getLogger()
 
         include_paths = self._build_include_paths(cairo_path or [])
 
         with ActivityIndicator(log_color_provider.colorize("GRAY", "Collecting tests")):
+            pass_manager_factory = (
+                TestCollectorPassManagerFactory
+                if fast_collecting
+                else StarknetPassManagerFactory
+            )
             test_collector_result = TestCollector(
                 StarknetCompiler(
-                    disable_hint_validation=True, include_paths=include_paths
-                )
+                    config=CompilerConfig(
+                        disable_hint_validation=True, include_paths=include_paths
+                    ),
+                    pass_manager_factory=pass_manager_factory,
+                ),
+                config=TestCollector.Config(fast_collecting=fast_collecting),
             ).collect(
                 targets=targets,
                 ignored_targets=ignored_targets,
@@ -135,13 +166,17 @@ class TestCommand(Command):
 
         if test_collector_result.test_cases_count > 0:
             live_logger = TestingLiveLogger(
-                logger, testing_summary, no_progress_bar=no_progress_bar
+                logger,
+                testing_summary,
+                no_progress_bar=no_progress_bar,
+                exit_first=exit_first,
+                stdout_on_success=stdout_on_success,
             )
             TestScheduler(live_logger, worker=TestRunner.worker).run(
                 include_paths=include_paths,
                 test_collector_result=test_collector_result,
-                is_account_contract=is_account_contract,
                 disable_hint_validation=disable_hint_validation,
+                exit_first=exit_first,
             )
 
         return testing_summary

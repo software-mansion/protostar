@@ -32,6 +32,11 @@ def version_manager_fixture(mocker: MockerFixture, git_version: str):
 def protostar_cli_fixture(
     mocker: MockerFixture, version_manager: VersionManager
 ) -> ProtostarCLI:
+    latest_version_checker_mock = mocker.MagicMock()
+    latest_version_checker_mock.run = mocker.MagicMock()
+    latest_version_checker_mock.run.return_value = Future()
+    latest_version_checker_mock.run.return_value.set_result(None)
+
     return ProtostarCLI(
         script_root=Path(),
         protostar_directory=mocker.MagicMock(),
@@ -40,6 +45,9 @@ def protostar_cli_fixture(
         protostar_toml_writer=mocker.MagicMock(),
         protostar_toml_reader=mocker.MagicMock(),
         requester=mocker.MagicMock(),
+        logger=mocker.MagicMock(),
+        latest_version_checker=latest_version_checker_mock,
+        gateway_facade=mocker.MagicMock(),
     )
 
 
@@ -48,19 +56,16 @@ def protostar_cli_fixture(
 async def test_should_fail_due_to_old_git(
     protostar_cli: ProtostarCLI, mocker: MockerFixture
 ):
-
-    # pylint: disable=protected-access
-    protostar_cli._setup_logger = mocker.MagicMock()
     logger_mock = mocker.MagicMock(Logger)
+    protostar_cli.logger = logger_mock
     logger_mock.error = mocker.MagicMock()
     # pylint: disable=protected-access
-    protostar_cli._setup_logger.return_value = logger_mock
+
     parser = ArgumentParserFacade(protostar_cli)
 
     with pytest.raises(SystemExit) as ex:
         await protostar_cli.run(parser.parse(["--version"]))
         assert cast(SystemExit, ex).code == 1
-
     logger_mock.error.assert_called_once()
     assert "2.28" in logger_mock.error.call_args_list[0][0][0]
 

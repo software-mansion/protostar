@@ -1,8 +1,8 @@
 from typing import List, Optional
 
 from protostar.cli import Command
-from protostar.commands.deploy.network_config import NetworkConfig
 from protostar.commands.migrate.migrator import Migrator
+from protostar.starknet_gateway import NetworkConfig
 
 
 class MigrateCommand(Command):

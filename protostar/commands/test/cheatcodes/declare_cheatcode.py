@@ -1,7 +1,7 @@
 import asyncio
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, List
+from typing import Any, Callable
 
 from starkware.python.utils import from_bytes
 from starkware.starknet.business_logic.internal_transaction import InternalDeclare
@@ -9,7 +9,7 @@ from starkware.starknet.testing.contract import DeclaredClass
 from starkware.starknet.testing.contract_utils import EventManager, get_abi
 
 from protostar.starknet.cheatcode import Cheatcode
-from protostar.commands.test.starkware.contract_utils import get_contract_class
+from protostar.utils.starknet_compilation import StarknetCompiler
 
 
 @dataclass
@@ -21,12 +21,10 @@ class DeclareCheatcode(Cheatcode):
     def __init__(
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
-        disable_hint_validation: bool,
-        cairo_path: List[str],
+        starknet_compiler: StarknetCompiler,
     ):
         super().__init__(syscall_dependencies)
-        self._disable_hint_validation_in_external_contracts = disable_hint_validation
-        self._cairo_path = cairo_path
+        self._starknet_compiler = starknet_compiler
 
     @property
     def name(self) -> str:
@@ -44,11 +42,7 @@ class DeclareCheatcode(Cheatcode):
         return DeclaredContract(class_hash)
 
     async def _declare_contract(self, contract_path: Path):
-        contract_class = get_contract_class(
-            source=str(contract_path),
-            cairo_path=self._cairo_path,
-            disable_hint_validation=self._disable_hint_validation_in_external_contracts,
-        )
+        contract_class = self._starknet_compiler.compile_contract(contract_path)
 
         tx = await InternalDeclare.create_for_testing(
             ffc=self.state.ffc,

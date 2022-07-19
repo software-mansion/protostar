@@ -8,7 +8,7 @@ class CLIApp:
     Defines CLI structure and is responsible for executing the proper command.
     """
 
-    class CommandNotFoundError(BaseException):
+    class CommandNotFoundError(Exception):
         pass
 
     def __init__(

@@ -25,14 +25,31 @@ Show Protostar and Cairo-lang version.
 $ protostar build
 ```
 Compile contracts.
-#### `--account-contract`
-Compile as account contract.
 #### `--cairo-path DIRECTORY[]`
 Additional directories to look for sources.
 #### `--disable-hint-validation`
 Disable validation of hints when building the contracts.
 #### `-o` `--output PATH=build`
 An output directory used to put the compiled contracts in.
+### `declare`
+Sends a declare transaction to StarkNet.
+#### `contract PATH`
+Required.
+
+Path to compiled contract.
+#### `--gateway-url STRING`
+The URL of a StarkNet gateway. It is required unless `--network` is provided.
+#### `-n` `--network STRING`
+The name of the StarkNet network.
+It is required unless `--gateway-url` is provided.
+
+Supported StarkNet networks:
+- `alpha-goerli`
+- `alpha-mainnet`
+#### `--signature STRING[]`
+Signature information for the declaration.
+#### `--token STRING`
+Used for declaring contracts in Alpha MainNet.
 ### `deploy`
 ```shell
 protostar deploy ./build/main.json --network alpha-goerli
@@ -106,18 +123,22 @@ A glob or globs to a directory or a test suite, for example:
 - `tests/**/*_main*::*_balance` — find test cases, which names ends with `_balance` in test suites with the `_main` in filenames in the `tests` directory
 - `::test_increase_balance` — find `test_increase_balance` test_cases in any test suite within the project 
 
-#### `--account-contract`
-Compile as account contract.
 #### `--cairo-path DIRECTORY[]`
 Additional directories to look for sources.
 #### `--disable-hint-validation`
 Disable hint validation in contracts declared by the `declare` cheatcode or deployed by `deploy_contract` cheatcode.
 
+#### `-x` `--exit-first`
+Exit immediately on first broken or failed test
+#### `--fast-collecting`
+Enables fast but unsafe test collecting algorithm. It searches for identifiers in the test file that start with `test_`.
 #### `-i` `--ignore STRING[]`
 A glob or globs to a directory or a test suite, which should be ignored.
 
 #### `--no-progress-bar`
 Disable progress bar.
+#### `--stdout-on-success`
+Also print captured standard output for passed test cases.
 ### `update`
 ```shell
 $ protostar update cairo-contracts
