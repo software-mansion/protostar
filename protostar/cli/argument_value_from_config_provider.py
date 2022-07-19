@@ -19,6 +19,9 @@ class ArgumentValueFromConfigProvider:
     def load_value(
         self, command_name: Optional[str], argument_name: str
     ) -> Optional[Any]:
+        if not self._protostar_toml_reader.path.exists():
+            return None
+
         if self._configuration_profile_name and command_name:
             profile_cmd_arg = self._protostar_toml_reader.get_attribute(
                 section_name=command_name,
