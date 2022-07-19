@@ -9,10 +9,17 @@ from protostar.migrator.migrator_execution_environment import (
 
 class Migrator:
     class Factory:
-        @staticmethod
-        async def build(migration_file_path: Path):
+        def __init__(
+            self,
+            migrator_execution_environment_factory: MigratorExecutionEnvironment.Factory,
+        ) -> None:
+            self._migrator_execution_environment_factory = (
+                migrator_execution_environment_factory
+            )
+
+        async def build(self, migration_file_path: Path):
             return Migrator(
-                migrator_execution_environment=await MigratorExecutionEnvironment.Factory().build(
+                migrator_execution_environment=await self._migrator_execution_environment_factory.build(
                     migration_file_path
                 )
             )

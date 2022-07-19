@@ -24,6 +24,9 @@ from protostar.commands.init.project_creator import (
 )
 from protostar.commands.migrate.migrate_command import MigrateCommand
 from protostar.migrator import Migrator
+from protostar.migrator.migrator_execution_environment import (
+    MigratorExecutionEnvironment,
+)
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
 from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
@@ -143,7 +146,11 @@ class ProtostarCLI(CLIApp):
                 DeployCommand(gateway_facade, logger),
                 DeclareCommand(gateway_facade, logger),
                 MigrateCommand(
-                    migrator_factory=Migrator.Factory(),
+                    migrator_factory=Migrator.Factory(
+                        MigratorExecutionEnvironment.Factory(
+                            gateway_facade=gateway_facade
+                        )
+                    ),
                 ),
             ],
             root_args=[

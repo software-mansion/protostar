@@ -4,14 +4,19 @@ from protostar.migrator.migrator_cheatcodes_factory import MigratorCheatcodeFact
 from protostar.starknet.execution_environment import ExecutionEnvironment
 from protostar.starknet.execution_state import ExecutionState
 from protostar.starknet.forkable_starknet import ForkableStarknet
+from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.utils.compiler.pass_managers import StarknetPassManagerFactory
 from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
 
 class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
     class Factory:
-        @staticmethod
-        async def build(migration_file_path: Path) -> "MigratorExecutionEnvironment":
+        def __init__(self, gateway_facade: GatewayFacade) -> None:
+            self.gateway_facade = gateway_facade
+
+        async def build(
+            self, migration_file_path: Path
+        ) -> "MigratorExecutionEnvironment":
             compiler_config = CompilerConfig(
                 disable_hint_validation=True, include_paths=[]
             )
@@ -31,7 +36,9 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
                 contract=contract,
                 starknet_compiler=starknet_compiler,
             )
-            migration_cheatcode_factory = MigratorCheatcodeFactory(starknet_compiler)
+            migration_cheatcode_factory = MigratorCheatcodeFactory(
+                starknet_compiler, self.gateway_facade
+            )
 
             return MigratorExecutionEnvironment(
                 state=state,
