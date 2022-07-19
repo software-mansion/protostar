@@ -5,13 +5,10 @@ from protostar.cli import ArgumentParserFacade, ArgumentValueFromConfigProvider
 from protostar.cli.cli_app import CLIApp
 from protostar.protostar_cli import ConfigurationProfileCLISchema, ProtostarCLI
 from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
-from protostar.shared.envs import protostar_envs
 
 
 def main(script_root: Path):
-    protostar_cli = ProtostarCLI.create(
-        script_root, dev_mode=protostar_envs.protostar_dev
-    )
+    protostar_cli = ProtostarCLI.create(script_root)
 
     configuration_profile_name = (
         ArgumentParserFacade(ConfigurationProfileCLISchema(), disable_help=True)
