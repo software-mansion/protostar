@@ -127,7 +127,6 @@ class TestRunner:
                 self.user_contracts_compiler,
                 test_contract,
             )
-
             if test_suite.setup_fn_name:
                 await invoke_setup(
                     test_suite.setup_fn_name, execution_state, setup_stdout_buffer
