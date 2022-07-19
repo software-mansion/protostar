@@ -179,11 +179,19 @@ class ProtostarCLI(CLIApp):
 
     @classmethod
     def create(cls, script_root: Path):
-        project_root_path = Path()
+        protostar_toml_path = ProtostarTOMLReader.find_protostar_toml_path()
+        project_root_path = (
+            protostar_toml_path.parent if protostar_toml_path is not None else Path()
+        )
+        protostar_toml_path = (
+            protostar_toml_path or project_root_path / "protostar.toml"
+        )
         protostar_directory = ProtostarDirectory(script_root)
         version_manager = VersionManager(protostar_directory)
         protostar_toml_writer = ProtostarTOMLWriter()
-        protostar_toml_reader = ProtostarTOMLReader()
+        protostar_toml_reader = ProtostarTOMLReader(
+            protostar_toml_path=protostar_toml_path
+        )
         requester = InputRequester(log_color_provider)
         logger = getLogger()
         latest_version_checker = LatestVersionChecker(

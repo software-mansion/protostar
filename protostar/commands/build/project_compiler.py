@@ -22,9 +22,11 @@ from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompile
 class ProjectCompiler:
     def __init__(
         self,
+        project_root_path: Path,
         project_section_loader: ProtostarProjectSection.Loader,
         contracts_section_loader: ProtostarContractsSection.Loader,
     ):
+        self._project_root_path = project_root_path
         self._project_section_loader = project_section_loader
         self._contracts_section_loader = contracts_section_loader
 
@@ -38,7 +40,7 @@ class ProjectCompiler:
                 [
                     Path(path)
                     for path in collect_immediate_subdirectories(
-                        project_section.libs_path
+                        self._project_root_path / project_section.libs_path
                     )
                 ]
             )
@@ -59,8 +61,11 @@ class ProjectCompiler:
 
         for (
             contract_name,
-            contract_paths,
+            user_contract_paths,
         ) in contracts_section.contract_name_to_paths.items():
+            contract_paths = [
+                self._project_root_path / path for path in user_contract_paths
+            ]
             contract = self._compile_contract(
                 contract_name,
                 contract_paths,
