@@ -29,5 +29,7 @@ async def test_basic(mocker: MockerFixture):
         expected_passed_test_cases_names=[
             "test_fuzz",
         ],
-        expected_failed_test_cases_names=["test_fails_if_big"],
+        expected_failed_test_cases_names=[
+            "test_fails_if_big",
+        ],
     )
