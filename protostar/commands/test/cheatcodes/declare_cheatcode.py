@@ -6,7 +6,7 @@ from typing import Any, Callable
 from starkware.python.utils import from_bytes
 from starkware.starknet.business_logic.internal_transaction import InternalDeclare
 from starkware.starknet.testing.contract import DeclaredClass
-from starkware.starknet.testing.contract_utils import EventManager, get_abi
+from starkware.starknet.testing.contract_utils import get_abi
 
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.utils.starknet_compilation import StarknetCompiler
@@ -56,15 +56,7 @@ class DeclareCheatcode(Cheatcode):
             )
 
         abi = get_abi(contract_class=contract_class)
-        event_manager = EventManager(abi=abi)
-        self.state.update_event_selector_to_name_map(
-            # pylint: disable=protected-access
-            event_manager._selector_to_name
-        )
-        # pylint: disable=protected-access
-        for event_name in event_manager._selector_to_name.values():
-            self.state.event_name_to_contract_abi_map[event_name] = abi
-
+        self._add_event_abi_to_state(abi)
         class_hash = tx_execution_info.call_info.class_hash
         assert class_hash is not None
         return DeclaredClass(
