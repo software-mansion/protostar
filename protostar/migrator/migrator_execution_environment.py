@@ -1,35 +1,41 @@
-from typing import Optional
+from pathlib import Path
 
 from protostar.migrator.migrator_cheatcodes_factory import MigratorCheatcodeFactory
 from protostar.starknet.execution_environment import ExecutionEnvironment
 from protostar.starknet.execution_state import ExecutionState
+from protostar.starknet.forkable_starknet import ForkableStarknet
+from protostar.utils.compiler.pass_managers import StarknetPassManagerFactory
+from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
 
 class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
-    class Builder:
-        def __init__(
-            self,
-        ) -> None:
-            self._state: Optional[MigratorExecutionEnvironment.State] = None
-            self._migration_cheatcode_factory: Optional[MigratorCheatcodeFactory] = None
+    class Factory:
+        @staticmethod
+        async def build(migration_file_path: Path) -> "MigratorExecutionEnvironment":
+            compiler_config = CompilerConfig(
+                disable_hint_validation=True, include_paths=[]
+            )
+            starknet_compiler = StarknetCompiler(
+                pass_manager_factory=StarknetPassManagerFactory,
+                config=compiler_config,
+            )
+            contract_class = starknet_compiler.compile_contract(
+                migration_file_path, add_debug_info=False
+            )
+            (starknet, contract) = await ForkableStarknet.from_contract_class(
+                contract_class
+            )
 
-        def set_migrator_execution_environment_state(
-            self, state: "MigratorExecutionEnvironment.State"
-        ):
-            self._state = state
-
-        def set_migration_cheatcode_factory(
-            self, migration_cheatcode_factory: MigratorCheatcodeFactory
-        ):
-            self._migration_cheatcode_factory = migration_cheatcode_factory
-
-        async def build(self) -> "MigratorExecutionEnvironment":
-            assert self._state is not None
-            assert self._migration_cheatcode_factory is not None
+            state = MigratorExecutionEnvironment.State(
+                starknet=starknet,
+                contract=contract,
+                starknet_compiler=starknet_compiler,
+            )
+            migration_cheatcode_factory = MigratorCheatcodeFactory(starknet_compiler)
 
             return MigratorExecutionEnvironment(
-                state=self._state,
-                migrator_cheatcode_factory=self._migration_cheatcode_factory,
+                state=state,
+                migrator_cheatcode_factory=migration_cheatcode_factory,
             )
 
     class State(ExecutionState):

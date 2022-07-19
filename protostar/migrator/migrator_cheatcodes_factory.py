@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
@@ -8,11 +8,8 @@ from protostar.utils.starknet_compilation import StarknetCompiler
 
 
 class MigratorCheatcodeFactory(CheatcodeFactory):
-    def __init__(self) -> None:
+    def __init__(self, starknet_compiler: StarknetCompiler) -> None:
         super().__init__()
-        self._starknet_compiler: Optional[StarknetCompiler] = None
-
-    def set_starknet_compiler(self, starknet_compiler: StarknetCompiler):
         self._starknet_compiler = starknet_compiler
 
     def build(

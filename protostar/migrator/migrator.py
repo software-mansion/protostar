@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Optional
 
 from typing_extensions import Literal
 
@@ -9,25 +8,13 @@ from protostar.migrator.migrator_execution_environment import (
 
 
 class Migrator:
-    class Builder:
-        def __init__(self) -> None:
-            # self._starknet_compiler: Optional[StarknetCompiler] = None
-            self._migrator_execution_environment: Optional[
-                MigratorExecutionEnvironment
-            ] = None
-
-        # def set_starknet_compiler(self, starknet_compiler: StarknetCompiler) -> None:
-        #     self._starknet_compiler = starknet_compiler
-
-        def set_migrator_execution_environment(
-            self, migrator_execution_environment: MigratorExecutionEnvironment
-        ):
-            self._migrator_execution_environment = migrator_execution_environment
-
-        def build(self):
-            assert self._migrator_execution_environment is not None
+    class Factory:
+        @staticmethod
+        async def build(migration_file_path: Path):
             return Migrator(
-                migrator_execution_environment=self._migrator_execution_environment
+                migrator_execution_environment=await MigratorExecutionEnvironment.Factory().build(
+                    migration_file_path
+                )
             )
 
     def __init__(
