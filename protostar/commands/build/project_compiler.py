@@ -31,14 +31,19 @@ class ProjectCompiler:
     def build_cairo_paths(self, extra_cairo_paths: List[Path]) -> List[Path]:
         project_section = self._project_section_loader.load()
 
-        return [
-            *extra_cairo_paths,
-            project_section.libs_path,
-            *[
-                Path(path)
-                for path in collect_immediate_subdirectories(project_section.libs_path)
-            ],
-        ]
+        results: List[Path] = [*extra_cairo_paths]
+        if project_section.libs_path:
+            results.extend([project_section.libs_path])
+            results.extend(
+                [
+                    Path(path)
+                    for path in collect_immediate_subdirectories(
+                        project_section.libs_path
+                    )
+                ]
+            )
+
+        return results
 
     def compile(
         self,

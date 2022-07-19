@@ -94,7 +94,7 @@ def test_handling_not_existing_main_files(tmp_path: Path, datadir: Path, create_
     with pytest.raises(StarknetCompiler.FileNotFoundException):
         ProjectCompiler(
             project_section_loader=create_loader(
-                ProtostarProjectSection(libs_path=project_root_path / "lib")
+                ProtostarProjectSection(libs_path=project_root_path / "modules")
             ),
             contracts_section_loader=create_loader(
                 ProtostarContractsSection(
