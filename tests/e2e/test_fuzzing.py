@@ -5,7 +5,9 @@ import pytest
 def test_fuzzing(protostar, copy_fixture):
     copy_fixture("test_fuzz.cairo", "./tests")
 
-    result = protostar(["--no-color", "test", "tests/test_fuzz.cairo"], ignore_exit_code=True)
+    result = protostar(
+        ["--no-color", "test", "tests/test_fuzz.cairo"], ignore_exit_code=True
+    )
     print(result)
 
     # To keep assertions free from having to exclude trailing \n
