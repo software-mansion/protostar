@@ -29,6 +29,8 @@ class MigrateCommand(Command):
                 name="path",
                 description="Path to the migration file.",
                 type="path",
+                is_required=True,
+                is_positional=True,
             ),
             Command.Argument(
                 name="down",

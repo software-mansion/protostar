@@ -15,6 +15,8 @@ class Migrator:
 
     async def run(self, mode: Literal["up", "down"], migration_path: Path):
         assert mode in ("up", "down")
+        assert migration_path.exists()
+
         contract = self._compile_contract(migration_path)
         env = await self._create_migration_env(contract)
         await env.invoke(mode)
