@@ -1,5 +1,5 @@
 ---
-sidebar_label: Installation (1 min)
+sidebar_label: Installation
 ---
 
 # Installation
