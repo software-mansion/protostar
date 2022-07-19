@@ -168,7 +168,6 @@ class TestRunner:
                         file_path=test_suite.test_path,
                         test_case_name=test_case_name,
                         exception=ex,
-                        exception_metadata=ex.metadata,
                         captured_stdout=new_execution_state.output_recorder.get_captures(),
                     )
                 )
