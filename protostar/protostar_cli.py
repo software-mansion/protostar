@@ -100,6 +100,7 @@ class ProtostarCLI(CLIApp):
         self.protostar_toml_reader = protostar_toml_reader
 
         project_compiler = ProjectCompiler(
+            project_root_path=project_root_path,
             project_section_loader=ProtostarProjectSection.Loader(
                 protostar_toml_reader
             ),
