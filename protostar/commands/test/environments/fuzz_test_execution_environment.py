@@ -15,6 +15,9 @@ from protostar.commands.test.environments.test_execution_environment import (
     TestExecutionEnvironment,
     TestCaseCheatcodeFactory,
 )
+from protostar.commands.test.fuzzing.fuzz_input_exception_metadata import (
+    FuzzInputExceptionMetadata,
+)
 from protostar.commands.test.fuzzing.strategy_selector import StrategySelector
 from protostar.commands.test.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
@@ -102,8 +105,9 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         try:
             await _to_thread(test_thread)
         except _HypothesisFailureSmugglingError as escape_err:
-            # TODO: Smuggle this further to FailingTestCase.
-            print("[inputs]", escape_err.inputs)
+            escape_err.error.metadata.append(
+                FuzzInputExceptionMetadata(escape_err.inputs)
+            )
             raise escape_err.error
 
         return ExecutionResourcesSummary.sum(execution_resources)

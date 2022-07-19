@@ -1,4 +1,5 @@
 import re
+from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Union
 
 from starkware.starknet.business_logic.execution.objects import Event
@@ -8,10 +9,25 @@ from protostar.commands.test.expected_event import ExpectedEvent
 from protostar.utils.log_color_provider import SupportedColorName, log_color_provider
 
 
+class ExceptionMetadata(ABC):
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        ...
+
+    @abstractmethod
+    def display(self) -> str:
+        ...
+
+
 class ReportedException(BaseException):
     """
     The exception used for catching unexpected errors thrown from test cases and as a base class.
     """
+
+    def __init__(self, *args: object) -> None:
+        self.metadata: List[ExceptionMetadata] = []
+        super().__init__(*args)
 
     def __str__(self) -> str:
         return str(super().__repr__())

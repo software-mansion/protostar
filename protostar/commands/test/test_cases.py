@@ -6,7 +6,7 @@ from typing import List, Optional
 from protostar.commands.test.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
 )
-from protostar.commands.test.test_environment_exceptions import ReportedException
+from protostar.commands.test.test_environment_exceptions import ExceptionMetadata
 from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
 from protostar.utils.log_color_provider import log_color_provider, SupportedColorName
 
@@ -91,8 +91,14 @@ class PassedTestCase(TestCaseResult):
 
 @dataclass(frozen=True)
 class FailedTestCase(TestCaseResult):
+    # HACK: We could put ``exception: ReportedException`` here and omit the ``exception_metadata``
+    #   field, but due to unknown circumstances, the ``metadata`` field of ``ReportedException``
+    #   does not survive travelling through the ``Queue`` object used for exchanging results
+    #   from worker processes to the main thread. Metadata goes empty during this process.
+
     test_case_name: str
-    exception: ReportedException
+    exception: BaseException
+    exception_metadata: List[ExceptionMetadata]
     captured_setup_stdout: str
     captured_test_stdout: str
 
@@ -105,6 +111,10 @@ class FailedTestCase(TestCaseResult):
         result.append("\n")
         result.append(str(self.exception))
         result.append("\n")
+
+        for metadata in self.exception_metadata:
+            result.append(_get_formatted_metadata(metadata))
+            result.append("\n")
 
         if (
             self.captured_test_stdout or self.captured_setup_stdout
@@ -151,6 +161,10 @@ class UnexpectedExceptionTestSuiteResult(BrokenTestSuite):
         lines.append(UNEXPECTED_PROTOSTAR_ERROR_MSG)
         lines.append(str(self.exception))
         return "\n".join(lines)
+
+
+def _get_formatted_metadata(metadata: ExceptionMetadata) -> str:
+    return f"[{metadata.name}]:\n{metadata.display()}"
 
 
 def _get_formatted_stdout(

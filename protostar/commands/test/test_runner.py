@@ -176,6 +176,7 @@ class TestRunner:
                         file_path=test_suite.test_path,
                         test_case_name=test_case_name,
                         exception=ex,
+                        exception_metadata=ex.metadata,
                         captured_setup_stdout=setup_stdout_buffer.getvalue(),
                         captured_test_stdout=test_stdout_buffer.getvalue(),
                     )
