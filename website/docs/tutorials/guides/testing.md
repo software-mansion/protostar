@@ -825,6 +825,96 @@ There is no type checking for `variable_name`, `key`, `variable_type` make sure 
 `key` is a list of arguments because cairo `@storage_var` maps any number of felt arguments to any number of felt values
 :::
 
+### `reflect`
+```python
+def reflect(self, value: Union[VmConstsReference, RelocatableValue, int]) -> Union[NamedTuple, RelocatableValue, int]:
+```
+Converts Cairo object into Python `NamedTuple` (complex structure) or keeps it a simple type `RelocatableValue` (pointer) or `int` (felt). It can be used to easily print and compare complex structures.
+
+
+Loads storage variable with name `variable_name` and given `key` and `variable_type` from a contract with `target_contract_address`.
+`variable_type` is provided as a string representation of type name.
+Example:
+
+```cairo title="./test/example_test.cairo"
+%lang starknet
+
+from starkware.cairo.common.cairo_builtins import HashBuiltin
+
+struct Struct1:
+    member e: felt
+    member f: felt
+end
+
+struct VoterInfo:
+    member a: Struct1
+    member b: felt
+    member c: Struct1*
+    member d: felt**
+    member x: Struct1**
+end
+
+@external
+func test_reflect_passed_full_assert():
+    alloc_locals
+    local value: VoterInfo
+    local strct: Struct1
+    local strct2: Struct1
+    local ptr1: Struct1*
+    local ptr: felt*
+    local pointee: felt
+
+    let (__fp__, _) = get_fp_and_pc()
+    
+    assert pointee = 13
+    assert ptr = &pointee
+    assert ptr1 = &strct2
+    assert strct2.e = 14
+    assert strct2.f = 15
+    assert strct.e = 7
+    assert strct.f = 8
+    assert value.a = strct
+    assert value.b = 2
+    assert value.c = ptr1
+    assert value.d = &ptr
+    assert value.x = &ptr1
+
+    %{
+        value = reflect(ids.value)
+
+        from collections import namedtuple
+        Struct1 = namedtuple("Struct1", "e f")
+        VoterInfo = namedtuple("VoterInfo", "a b c d x")
+        assert value == VoterInfo(
+            a=Struct1(
+                e=7,
+                f=8,
+            ),
+            b=2,
+            c=value.c,
+            d=value.d,
+            x=value.x,
+        )
+
+        print(value)
+    %}
+    return ()
+end
+
+```
+
+:::warning
+You have to provide `key` as list of ints. In the future Data Transformer will be supported.
+:::
+
+:::warning
+There is no type checking for `variable_name`, `key`, `variable_type` make sure you provided values correctly. 
+:::
+
+:::tip
+`key` is a list of arguments because cairo `@storage_var` maps any number of felt arguments to any number of felt values
+:::
+
 ## Data Transformer
 ### What is a Data Transformer
 Data Transformer converts inputs and outputs of Cairo functions to Python friendly representation. Cairo internally operates on a list of integers, which readability and maintenance becomes problematic for complex data structures. You can read more about: 

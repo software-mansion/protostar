@@ -19,6 +19,7 @@ async def test_reflect_cheatcode(mocker):
             "test_reflect_passed_assert",
             "test_reflect_passed_assert_pointer",
             "test_reflect_passed_pointer_loop",
+            "test_reflect_passed_full_assert",
         ],
         expected_failed_test_cases_names=[
             "test_reflect_failed_assert",
@@ -26,6 +27,14 @@ async def test_reflect_cheatcode(mocker):
         ],
     )
 
-    assert "AssertionError" + str(testing_summary.failed[0].exception)
-    assert "VoterInfo" in testing_summary.failed[0].display()
-    assert "a=Struct1(" in testing_summary.failed[0].display()
+    long_failed = (
+        testing_summary.failed[0]
+        if "captured stdout" in testing_summary.failed[0].display()
+        else testing_summary.failed[1]
+    )
+
+    print(long_failed.display())
+
+    assert "AssertionError" + str(long_failed.exception)
+    assert "VoterInfo" in long_failed.display()
+    assert "a=Struct1(" in long_failed.display()

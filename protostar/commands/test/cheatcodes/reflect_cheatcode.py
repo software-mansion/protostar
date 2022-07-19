@@ -1,6 +1,6 @@
 from typing import Any, Callable, List, Dict, NamedTuple, Tuple, Type, Union
 from copy import deepcopy
-import dataclasses
+from dataclasses import dataclass
 
 from starkware.cairo.lang.vm.vm_consts import is_simple_type, VmConstsReference
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
@@ -18,42 +18,15 @@ from starkware.cairo.lang.compiler.identifier_definition import (
 from protostar.starknet.cheatcode import Cheatcode
 
 
-@dataclasses.dataclass
-class _ReflectTreeNode:
+@dataclass
+class ReflectTreeNode:
     typename: str
     value: Union[Dict, int, str]
 
-    def __repr__(self):
-        stack: List[
-            Tuple[
-                Union[_ReflectTreeNode, RelocatableValue, int, str],
-                int,
-            ]
-        ] = [(self, 0)]
-        result: List[str] = []
-        depth = 0
 
-        while len(stack) > 0:
-            curr, depth = stack.pop()
-
-            if not isinstance(curr, _ReflectTreeNode):
-                result.append(str(curr) + ("" if isinstance(curr, str) else "\n"))
-            else:
-                result.append(f"{curr.typename}(\n")
-                stack.append(("    " * depth + ")\n", 0))
-
-                assert isinstance(curr.value, dict)
-                for name, child in reversed(list(curr.value.items())):
-                    stack.append((child, depth + 1))
-                    stack.append(("    " * (depth + 1) + f"{name}=", 0))
-
-        return "".join(result)
-
-
-# pylint: disable=C0103
-REFLECT_INPUT_TYPE = Union[VmConstsReference, RelocatableValue, int]
-REFLECT_VALUE_TYPE = Union[_ReflectTreeNode, RelocatableValue, int]
-REFLECT_RETURN_TYPE = Union[NamedTuple, RelocatableValue, int]
+ReflectInputType = Union[VmConstsReference, RelocatableValue, int]
+ReflectValueType = Union[ReflectTreeNode, RelocatableValue, int]
+ReflectReturnType = Union[NamedTuple, RelocatableValue, int]
 
 
 class ReflectCheatcode(Cheatcode):
@@ -66,9 +39,11 @@ class ReflectCheatcode(Cheatcode):
 
     # We need to access Cairo's underscore variables
     # pylint: disable=W0212,R0201
-    def _generate_value_tree(self, value: REFLECT_INPUT_TYPE) -> REFLECT_VALUE_TYPE:
+    def _generate_value_tree(self, value: ReflectInputType) -> ReflectValueType:
         if not isinstance(value, VmConstsReference):
             return value
+
+        print(value.cairo_type, end="\n\n")
 
         value_tree = {}
         stack: List[Tuple[Dict[str, Any], VmConstsReference]] = [(value_tree, value)]
@@ -97,7 +72,7 @@ class ReflectCheatcode(Cheatcode):
                         curr_dict[name] = tmp
 
                 elif isinstance(expr_type, TypeStruct):
-                    curr_dict[name] = _ReflectTreeNode(
+                    curr_dict[name] = ReflectTreeNode(
                         typename=expr_type.scope.path[1], value={}
                     )
                     stack.append(
@@ -121,38 +96,28 @@ class ReflectCheatcode(Cheatcode):
                     curr_dict[name] = tmp
 
         assert isinstance(value._struct_definition, StructDefinition)
-        return _ReflectTreeNode(
+        return ReflectTreeNode(
             typename=value._struct_definition.full_name.path[1], value=value_tree
         )
 
     # pylint: disable=R0201
-    def _convert_to_named_tuple(self, tree: _ReflectTreeNode) -> REFLECT_RETURN_TYPE:
-        stack: List[REFLECT_VALUE_TYPE] = [tree]
-        pre_order: List[REFLECT_VALUE_TYPE] = []
-
-        while len(stack) > 0:
-            curr = stack.pop()
-            pre_order.append(curr)
-            if isinstance(curr, _ReflectTreeNode):
-                assert isinstance(curr.value, dict)
-                for _, node in curr.value.items():
-                    stack.append(node)
+    def _convert_to_named_tuple(self, tree: ReflectTreeNode) -> ReflectReturnType:
+        pre_order = [
+            x for x in traverse_pre_order(tree) if isinstance(x, ReflectTreeNode)
+        ]
 
         # When we reach each element it contains a single value or namedtuple instead of a dict
         for node in reversed(pre_order):
-            if not isinstance(node, _ReflectTreeNode):
-                # We can't do anything here either way
-                continue
 
             # Convert all of your children into named tuples
             assert isinstance(node.value, dict)
             for name, child in node.value.items():
 
-                if not isinstance(child, _ReflectTreeNode):
+                if not isinstance(child, ReflectTreeNode):
                     node.value[name] = child
                 else:  # child.value is a Dict[str, NamedTuple]
                     assert isinstance(child.value, dict)
-                    tpl = _get_pretty_tuple(
+                    tpl = PrettyNamedTuple(
                         child.typename,
                         [(key, type(elem)) for key, elem in child.value.items()],
                     )
@@ -161,28 +126,43 @@ class ReflectCheatcode(Cheatcode):
                     node.value[name] = tpl(*child.value.values())
 
         assert isinstance(tree.value, dict)
-        tpl = _get_pretty_tuple(
+        tpl = PrettyNamedTuple(
             tree.typename, [(key, type(elem)) for key, elem in tree.value.items()]
         )
 
         # pylint: disable=E1102
         return tpl(*tree.value.values())
 
-    def reflect(self, value: REFLECT_INPUT_TYPE) -> REFLECT_RETURN_TYPE:
+    def reflect(self, value: ReflectInputType) -> ReflectReturnType:
         tree = self._generate_value_tree(value)
-        if not isinstance(tree, _ReflectTreeNode):
+        if not isinstance(tree, ReflectTreeNode):
             return tree
         tpl = self._convert_to_named_tuple(tree)
         return tpl
 
 
-def _isinstance_namedtuple(obj: Any) -> bool:
+def isinstance_namedtuple(obj: Any) -> bool:
     return (
         isinstance(obj, tuple) and hasattr(obj, "_asdict") and hasattr(obj, "_fields")
     )
 
 
-def _get_pretty_tuple(name: str, tuple_args: List[Tuple[str, Type]]) -> Type:
+def traverse_pre_order(tree: ReflectTreeNode) -> List[ReflectValueType]:
+    stack: List[ReflectValueType] = [tree]
+    pre_order: List[ReflectValueType] = []
+
+    while len(stack) > 0:
+        curr = stack.pop()
+        pre_order.append(curr)
+        if isinstance(curr, ReflectTreeNode):
+            assert isinstance(curr.value, dict)
+            for _, node in curr.value.items():
+                stack.append(node)
+
+    return pre_order
+
+
+def PrettyNamedTuple(name: str, tuple_args: List[Tuple[str, Type]]) -> Type:
     def fancy_str(self):
         stack: List[Tuple[Union[Any, RelocatableValue, str, int], int]] = [(self, 0)]
         result: List[str] = []
@@ -191,7 +171,7 @@ def _get_pretty_tuple(name: str, tuple_args: List[Tuple[str, Type]]) -> Type:
         while len(stack) > 0:
             curr, depth = stack.pop()
 
-            if not _isinstance_namedtuple(curr):
+            if not isinstance_namedtuple(curr):
                 result.append(str(curr) + ("" if isinstance(curr, str) else "\n"))
             else:
                 result.append(f"{type(curr).__name__}(\n")
