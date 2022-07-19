@@ -10,7 +10,7 @@ class FuzzInputExceptionMetadata(ExceptionMetadata):
 
     @property
     def name(self) -> str:
-        return "inputs"
+        return "falsifying example"
 
     def display(self) -> str:
         return "\n".join(f"{k} = {v!r}" for k, v in self.inputs.items())

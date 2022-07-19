@@ -19,7 +19,7 @@ def test_fuzzing(protostar, copy_fixture):
     assert "[FAIL] tests/test_fuzz.cairo test_fails_if_big_single_input" in result
     assert (
         """
-[inputs]:
+[falsifying example]:
 x = 340282366920938463463374607431768211456
 """
         in result
@@ -28,7 +28,7 @@ x = 340282366920938463463374607431768211456
     assert "[FAIL] tests/test_fuzz.cairo test_fails_if_big_many_inputs" in result
     assert (
         """
-[inputs]:
+[falsifying example]:
 a = 340282366920938463463374607431768211456
 b = 0
 c = 0
