@@ -1,10 +1,9 @@
 from logging import getLogger
 from pathlib import Path
-from typing import List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from protostar.cli.activity_indicator import ActivityIndicator
 from protostar.cli.command import Command
-from protostar.commands.build.project_compiler import ProjectCompiler
 from protostar.commands.test.test_collector import TestCollector
 from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.test_scheduler import TestScheduler
@@ -18,13 +17,16 @@ from protostar.utils.log_color_provider import log_color_provider
 from protostar.utils.protostar_directory import ProtostarDirectory
 from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
+if TYPE_CHECKING:
+    from protostar.commands.build.project_compiler import ProjectCompiler
+
 
 class TestCommand(Command):
     def __init__(
         self,
         project_root_path: Path,
         protostar_directory: ProtostarDirectory,
-        project_compiler: ProjectCompiler,
+        project_compiler: "ProjectCompiler",
     ) -> None:
         super().__init__()
         self._project_root_path = project_root_path
