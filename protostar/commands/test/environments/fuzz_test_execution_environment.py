@@ -80,7 +80,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         )
         @given(data_object=data())
         async def test(data_object: DataObject):
-            with with_reporter(_protostar_reporter):
+            with with_reporter(protostar_reporter):
                 inputs = {}
                 for param in strategy_selector.parameter_names:
                     search_strategy = strategy_selector.search_strategies[param]
@@ -91,20 +91,20 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
                     if run_ers is not None:
                         execution_resources.append(run_ers)
                 except ReportedException as reported_ex:
-                    raise _HypothesisFailureSmugglingError(
+                    raise HypothesisFailureSmugglingError(
                         error=reported_ex,
                         inputs=inputs,
                     ) from reported_ex
 
-        test.hypothesis.inner_test = _wrap_in_sync(test.hypothesis.inner_test)  # type: ignore
+        test.hypothesis.inner_test = wrap_in_sync(test.hypothesis.inner_test)  # type: ignore
 
         def test_thread():
-            with with_reporter(_protostar_reporter):
+            with with_reporter(protostar_reporter):
                 test()
 
         try:
-            await _to_thread(test_thread)
-        except _HypothesisFailureSmugglingError as escape_err:
+            await to_thread(test_thread)
+        except HypothesisFailureSmugglingError as escape_err:
             escape_err.error.metadata.append(
                 FuzzInputExceptionMetadata(escape_err.inputs)
             )
@@ -114,7 +114,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
 
 
 @dataclass
-class _HypothesisFailureSmugglingError(Exception):
+class HypothesisFailureSmugglingError(Exception):
     """
     Special error type which is used to smuggle failure exception and metadata from Hypothesis
     test runner to Protostar fuzz test execution environment.
@@ -132,7 +132,7 @@ class _HypothesisFailureSmugglingError(Exception):
     inputs: Dict[str, Any]
 
 
-async def _to_thread(func, *args, **kwargs):
+async def to_thread(func, *args, **kwargs):
     """
     Asynchronously run function *func* in a separate thread.
 
@@ -152,7 +152,7 @@ async def _to_thread(func, *args, **kwargs):
     return await loop.run_in_executor(None, func_call)
 
 
-def _wrap_in_sync(func: Callable[..., Awaitable[Any]]):
+def wrap_in_sync(func: Callable[..., Awaitable[Any]]):
     """
     Return a sync wrapper around an async function executing it in separate event loop.
 
@@ -182,9 +182,9 @@ def _wrap_in_sync(func: Callable[..., Awaitable[Any]]):
     return inner
 
 
-_JAMMING_MESSAGE = re.compile(r"^Draw|^(Trying|Falsifying) example:")
+JAMMING_MESSAGE = re.compile(r"^Draw|^(Trying|Falsifying) example:")
 
 
-def _protostar_reporter(message: str):
-    if HYPOTHESIS_VERBOSITY > Verbosity.normal or not _JAMMING_MESSAGE.match(message):
+def protostar_reporter(message: str):
+    if HYPOTHESIS_VERBOSITY > Verbosity.normal or not JAMMING_MESSAGE.match(message):
         print(message)
