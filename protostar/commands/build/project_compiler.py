@@ -62,6 +62,8 @@ class ProjectCompiler:
             str(path) for path in self.build_cairo_paths(extra_cairo_paths)
         ]
         contracts_section = self._contracts_section_loader.load()
+        if not output_dir.is_absolute():
+            output_dir = self._project_root_path / output_dir
         output_dir.mkdir(exist_ok=True)
 
         for (
