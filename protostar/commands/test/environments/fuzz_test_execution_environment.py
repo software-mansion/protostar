@@ -81,7 +81,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         @given(data_object=data())
         async def test(data_object: DataObject):
             with with_reporter(protostar_reporter):
-                inputs = {}
+                inputs: Dict[str, Any] = {}
                 for param in strategy_selector.parameter_names:
                     search_strategy = strategy_selector.search_strategies[param]
                     inputs[param] = data_object.draw(search_strategy, label=param)
