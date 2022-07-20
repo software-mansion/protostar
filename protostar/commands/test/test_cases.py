@@ -16,7 +16,7 @@ class TestCaseResult:
     file_path: Path
 
     @abstractmethod
-    def display(self, include_stdout_section: bool = False) -> str:
+    def format(self, include_stdout_section: bool = False) -> str:
         ...
 
 
@@ -27,7 +27,7 @@ class PassedTestCase(TestCaseResult):
     captured_setup_stdout: str
     captured_test_stdout: str
 
-    def display(self, include_stdout_section: bool = False) -> str:
+    def format(self, include_stdout_section: bool = False) -> str:
         first_line_elements: List[str] = []
         first_line_elements.append(f"[{log_color_provider.colorize('GREEN', 'PASS')}]")
         first_line_elements.append(
@@ -102,7 +102,7 @@ class FailedTestCase(TestCaseResult):
     captured_setup_stdout: str
     captured_test_stdout: str
 
-    def display(self, include_stdout_section: bool = True) -> str:
+    def format(self, include_stdout_section: bool = True) -> str:
         result: List[str] = []
         result.append(f"[{log_color_provider.colorize('RED', 'FAIL')}] ")
         result.append(
@@ -133,7 +133,7 @@ class BrokenTestSuite(TestCaseResult):
     test_case_names: List[str]
     exception: BaseException
 
-    def display(self, include_stdout_section: bool = False) -> str:
+    def format(self, include_stdout_section: bool = False) -> str:
         first_line: List[str] = []
         first_line.append(f"[{log_color_provider.colorize('RED', 'BROKEN')}]")
         first_line.append(f"{_get_formatted_file_path(self.file_path)}")
@@ -146,7 +146,7 @@ class BrokenTestSuite(TestCaseResult):
 class UnexpectedExceptionTestSuiteResult(BrokenTestSuite):
     traceback: Optional[str] = None
 
-    def display(self, include_stdout_section: bool = False) -> str:
+    def format(self, include_stdout_section: bool = False) -> str:
         lines: List[str] = []
         main_line: List[str] = []
         main_line.append(
@@ -164,7 +164,7 @@ class UnexpectedExceptionTestSuiteResult(BrokenTestSuite):
 
 
 def _get_formatted_metadata(metadata: ExceptionMetadata) -> str:
-    return f"[{metadata.name}]:\n{metadata.display()}"
+    return f"[{metadata.name}]:\n{metadata.format()}"
 
 
 def _get_formatted_stdout(

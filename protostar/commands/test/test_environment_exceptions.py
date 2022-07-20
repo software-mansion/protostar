@@ -16,7 +16,7 @@ class ExceptionMetadata(ABC):
         ...
 
     @abstractmethod
-    def display(self) -> str:
+    def format(self) -> str:
         ...
 
 

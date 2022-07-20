@@ -72,7 +72,7 @@ class TestingLiveLogger:
                         )
 
                         progress_bar.write(
-                            test_case_result.display(
+                            test_case_result.format(
                                 self.stdout_on_success
                                 or isinstance(test_case_result, FailedTestCase)
                             )
