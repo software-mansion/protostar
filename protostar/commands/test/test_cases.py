@@ -147,7 +147,7 @@ def _get_formatted_stdout(
 ) -> List[str]:
     result: List[str] = []
 
-    if len(captured_stdout) < 1:
+    if len(captured_stdout) < 1 or all(len(val) == 0 for _, val in captured_stdout):
         return []
 
     result.append(f"\n[{log_color_provider.colorize(color, 'captured stdout')}]:\n")
