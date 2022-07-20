@@ -1,25 +1,25 @@
 import pytest
 
-from protostar.commands.test.testing_seed import testing_seed, current_testing_seed
+from protostar.commands.test.testing_seed import TestingSeed
 
 
 def test_sets_seed():
-    with testing_seed(100):
-        assert current_testing_seed() == 100
+    with TestingSeed(100):
+        assert TestingSeed.current() == 100
 
-    with testing_seed(200):
-        assert current_testing_seed() == 200
+    with TestingSeed(200):
+        assert TestingSeed.current() == 200
 
 
 def test_picks_seed_automatically():
-    with testing_seed():
-        i = current_testing_seed()
+    with TestingSeed():
+        i = TestingSeed.current()
 
-    with testing_seed(seed=None):
-        j = current_testing_seed()
+    with TestingSeed(seed=None):
+        j = TestingSeed.current()
         assert i != j
 
 
 def test_current_testing_seed_raises_outside_context_manager():
     with pytest.raises(LookupError):
-        current_testing_seed()
+        _ = TestingSeed.current()

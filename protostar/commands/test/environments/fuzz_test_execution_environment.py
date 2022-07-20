@@ -25,7 +25,7 @@ from protostar.commands.test.starkware.execution_resources_summary import (
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_context import TestContextHintLocal
 from protostar.commands.test.test_environment_exceptions import ReportedException
-from protostar.commands.test.testing_seed import current_testing_seed
+from protostar.commands.test.testing_seed import TestingSeed
 from protostar.utils.data_transformer_facade import DataTransformerFacade
 
 HYPOTHESIS_VERBOSITY = Verbosity.normal
@@ -71,7 +71,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         #   running in a separate thread executor, we must set the ``reporter`` each first time
         #   we invoke Hypothesis code in new thread.
 
-        @seed(current_testing_seed())
+        @seed(TestingSeed.current())
         @settings(
             database=database,
             deadline=None,

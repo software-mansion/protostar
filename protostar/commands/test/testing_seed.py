@@ -1,26 +1,36 @@
 import os
-from contextlib import contextmanager
-from contextvars import ContextVar
+from contextvars import ContextVar, Token
+from dataclasses import dataclass, field, InitVar
 from typing import Optional
 
 Seed = int
-_testing_seed: ContextVar[Seed] = ContextVar("testing_seed")
+_testing_seed: ContextVar["TestingSeed"] = ContextVar("testing_seed")
 
 
-@contextmanager
-def testing_seed(seed: Optional[Seed] = None):
-    if seed is None:
-        seed = int.from_bytes(os.urandom(4), byteorder="little", signed=False)
+@dataclass
+class TestingSeed:
+    seed: InitVar[Optional[Seed]] = None
 
-    # HACK: Keep typechecker happy
-    assert seed is not None
+    _value: Seed = field(init=False)
+    _token: Optional[Token] = field(default=None, init=False)
 
-    token = _testing_seed.set(seed)
-    try:
-        yield
-    finally:
-        _testing_seed.reset(token)
+    def __post_init__(self, seed: Optional[Seed]):
+        self._value = seed or random_seed()
+
+    @staticmethod
+    def current() -> Seed:
+        self = _testing_seed.get()
+
+        # pylint: disable=protected-access
+        return self._value
+
+    def __enter__(self):
+        self._token = _testing_seed.set(self)
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        assert self._token is not None
+        _testing_seed.reset(self._token)
 
 
-def current_testing_seed() -> Seed:
-    return _testing_seed.get()
+def random_seed() -> Seed:
+    return int.from_bytes(os.urandom(4), byteorder="little", signed=False)

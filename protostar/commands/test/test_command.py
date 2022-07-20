@@ -8,7 +8,7 @@ from protostar.commands.test.test_collector import TestCollector
 from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.test_scheduler import TestScheduler
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
-from protostar.commands.test.testing_seed import testing_seed
+from protostar.commands.test.testing_seed import TestingSeed
 from protostar.commands.test.testing_summary import TestingSummary
 from protostar.utils.compiler.pass_managers import (
     StarknetPassManagerFactory,
@@ -140,7 +140,7 @@ class TestCommand(Command):
 
         include_paths = self._build_include_paths(cairo_path or [])
 
-        with testing_seed(seed):
+        with TestingSeed(seed):
             with ActivityIndicator(
                 log_color_provider.colorize("GRAY", "Collecting tests")
             ):
