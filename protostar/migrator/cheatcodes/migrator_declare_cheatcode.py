@@ -11,6 +11,12 @@ from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet_gateway import GatewayFacade
 
 
+@dataclass
+class MigratorDeclaredContract(DeclaredContract):
+    contract_path: Path
+    config: "MigratorDeclareCheatcode.Config"
+
+
 class MigratorDeclareCheatcode(Cheatcode):
     @dataclass
     class Config:
@@ -35,7 +41,7 @@ class MigratorDeclareCheatcode(Cheatcode):
     def build(self) -> AbstractDeclare:
         return self._declare
 
-    def _declare(self, contract_path_str: str):
+    def _declare(self, contract_path_str: str) -> MigratorDeclaredContract:
         response = asyncio.run(
             self._gateway_facade.declare(
                 compiled_contract_path=Path(contract_path_str),
@@ -45,4 +51,8 @@ class MigratorDeclareCheatcode(Cheatcode):
             )
         )
 
-        return DeclaredContract(class_hash=response.class_hash)
+        return MigratorDeclaredContract(
+            class_hash=response.class_hash,
+            contract_path=Path(contract_path_str),
+            config=self._config,
+        )

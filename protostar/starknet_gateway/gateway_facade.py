@@ -44,7 +44,7 @@ class GatewayFacade:
         self,
         compiled_contract_path: Path,
         gateway_url: str,
-        inputs: Optional[List[str]] = None,
+        inputs: Optional[List[int]] = None,
         token: Optional[str] = None,
         salt: Optional[str] = None,
     ) -> SuccessfulDeployResponse:

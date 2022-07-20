@@ -12,7 +12,7 @@ from protostar.starknet.cheatcode import Cheatcode
 from protostar.utils.data_transformer_facade import DataTransformerFacade
 
 
-@dataclass(frozen=True)
+@dataclass
 class PreparedContract:
     constructor_calldata: List[int]
     contract_address: int
