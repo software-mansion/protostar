@@ -3,8 +3,11 @@ from starkware.cairo.lang.compiler.ast.cairo_types import TypeFelt
 from starkware.starknet.compiler.compile import compile_starknet_codes
 from starkware.starknet.public.abi import AbiType
 
-from protostar.utils import DataTransformerFacade
-from protostar.utils.data_transformer_facade import AbiItemNotFoundException
+from protostar.utils.abi import (
+    get_function_parameters,
+    has_function_parameters,
+    AbiItemNotFoundException,
+)
 
 
 @pytest.fixture(name="abi", scope="module")
@@ -33,25 +36,25 @@ end
 
 
 def test_has_function_parameters(abi: AbiType):
-    assert not DataTransformerFacade.has_function_parameters(abi, "test_no_args")
-    assert DataTransformerFacade.has_function_parameters(abi, "test_fuzz")
+    assert not has_function_parameters(abi, "test_no_args")
+    assert has_function_parameters(abi, "test_fuzz")
 
 
 def test_has_function_parameters_raises_when_function_not_found(abi: AbiType):
     with pytest.raises(AbiItemNotFoundException):
-        DataTransformerFacade.has_function_parameters(abi, "foobar")
+        has_function_parameters(abi, "foobar")
 
 
 def test_has_function_parameters_raises_when_asked_for_struct(abi: AbiType):
     with pytest.raises(AbiItemNotFoundException):
-        DataTransformerFacade.has_function_parameters(abi, "Point")
+        has_function_parameters(abi, "Point")
 
 
 def test_get_function_parameters(abi: AbiType):
-    assert not DataTransformerFacade.get_function_parameters(abi, "test_no_args")
+    assert not get_function_parameters(abi, "test_no_args")
 
     # Order is important here.
-    parameters = DataTransformerFacade.get_function_parameters(abi, "test_fuzz")
+    parameters = get_function_parameters(abi, "test_fuzz")
     assert list(parameters.items()) == [
         ("a", TypeFelt()),
         ("b", TypeFelt()),
@@ -60,9 +63,9 @@ def test_get_function_parameters(abi: AbiType):
 
 def test_get_function_parameters_raises_when_function_not_found(abi: AbiType):
     with pytest.raises(AbiItemNotFoundException):
-        DataTransformerFacade.get_function_parameters(abi, "foobar")
+        get_function_parameters(abi, "foobar")
 
 
 def test_get_function_parameters_raises_when_asked_for_struct(abi: AbiType):
     with pytest.raises(AbiItemNotFoundException):
-        DataTransformerFacade.get_function_parameters(abi, "Point")
+        get_function_parameters(abi, "Point")

@@ -26,7 +26,7 @@ from protostar.commands.test.starkware.test_execution_state import TestExecution
 from protostar.commands.test.test_context import TestContextHintLocal
 from protostar.commands.test.test_environment_exceptions import ReportedException
 from protostar.commands.test.testing_seed import TestingSeed
-from protostar.utils.data_transformer_facade import DataTransformerFacade
+from protostar.utils.abi import get_function_parameters
 
 HYPOTHESIS_VERBOSITY = Verbosity.normal
 """
@@ -36,7 +36,7 @@ Change this value to ``Verbosity.verbose`` while debugging Hypothesis adapter co
 
 def is_fuzz_test(function_name: str, state: TestExecutionState) -> bool:
     abi = state.contract.abi
-    params = DataTransformerFacade.get_function_parameters(abi, function_name)
+    params = get_function_parameters(abi, function_name)
     return bool(params)
 
 
@@ -46,7 +46,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
 
     async def invoke(self, function_name: str) -> Optional[ExecutionResourcesSummary]:
         abi = self.state.contract.abi
-        parameters = DataTransformerFacade.get_function_parameters(abi, function_name)
+        parameters = get_function_parameters(abi, function_name)
         assert (
             parameters
         ), f"{self.__class__.__name__} expects at least one function parameter."
