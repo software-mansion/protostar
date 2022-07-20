@@ -26,9 +26,6 @@ class PreparedContract:
 class PrepareCheatcode(Cheatcode):
     salt_nonce = 1
 
-    def __init__(self, syscall_dependencies: Cheatcode.SyscallDependencies):
-        super().__init__(syscall_dependencies)
-
     @property
     def name(self) -> str:
         return "prepare"

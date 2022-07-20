@@ -15,9 +15,6 @@ from protostar.utils.data_transformer_facade import (
 
 
 class MockCallCheatcode(Cheatcode):
-    def __init__(self, syscall_dependencies: Cheatcode.SyscallDependencies):
-        super().__init__(syscall_dependencies)
-
     @property
     def name(self) -> str:
         return "mock_call"
