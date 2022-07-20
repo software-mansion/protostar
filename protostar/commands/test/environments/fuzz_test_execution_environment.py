@@ -182,9 +182,12 @@ def wrap_in_sync(func: Callable[..., Awaitable[Any]]):
     return inner
 
 
-JAMMING_MESSAGE = re.compile(r"^Draw|^(Trying|Falsifying) example:")
+HYPOTHESIS_MSG_JAMMER_PATTERN = re.compile(r"^Draw|^(Trying|Falsifying) example:")
 
 
 def protostar_reporter(message: str):
-    if HYPOTHESIS_VERBOSITY > Verbosity.normal or not JAMMING_MESSAGE.match(message):
+    if (
+        HYPOTHESIS_VERBOSITY > Verbosity.normal
+        or not HYPOTHESIS_MSG_JAMMER_PATTERN.match(message)
+    ):
         print(message)
