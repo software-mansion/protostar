@@ -830,89 +830,68 @@ There is no type checking for `variable_name`, `key`, `variable_type` make sure 
 def reflect(self, value: Union[VmConstsReference, RelocatableValue, int]) -> Union[NamedTuple, RelocatableValue, int]:
 ```
 Converts Cairo object into Python `NamedTuple` (complex structure) or keeps it a simple type `RelocatableValue` (pointer) or `int` (felt). It can be used to easily print and compare complex structures.
-
-
-Loads storage variable with name `variable_name` and given `key` and `variable_type` from a contract with `target_contract_address`.
-`variable_type` is provided as a string representation of type name.
-Example:
-
 ```cairo title="./test/example_test.cairo"
 %lang starknet
 
-from starkware.cairo.common.cairo_builtins import HashBuiltin
+from starkware.cairo.common.registers import get_fp_and_pc
 
-struct Struct1:
+struct StructB:
     member e: felt
     member f: felt
 end
 
-struct VoterInfo:
-    member a: Struct1
+struct StructA:
+    member a: StructB
     member b: felt
-    member c: Struct1*
+    member c: StructB*
     member d: felt**
-    member x: Struct1**
 end
 
 @external
-func test_reflect_passed_full_assert():
+func test_reflect_passed_full():
     alloc_locals
-    local value: VoterInfo
-    local strct: Struct1
-    local strct2: Struct1
-    local ptr1: Struct1*
-    local ptr: felt*
-    local pointee: felt
 
     let (__fp__, _) = get_fp_and_pc()
-    
-    assert pointee = 13
-    assert ptr = &pointee
-    assert ptr1 = &strct2
-    assert strct2.e = 14
-    assert strct2.f = 15
-    assert strct.e = 7
-    assert strct.f = 8
-    assert value.a = strct
-    assert value.b = 2
-    assert value.c = ptr1
-    assert value.d = &ptr
-    assert value.x = &ptr1
 
+    local pointee: felt = 13
+    local ptr: felt* = &pointee
+
+    local structB: StructB = StructB(e=42, f=24)
+    local structA: StructA = StructA(
+        a = structB,
+        b = 13,
+        c = &structB,
+        d = &ptr,
+    )
+
+    local ptrB: StructB* = &structB
+    
     %{
-        value = reflect(ids.value)
+        structA = reflect(ids).structA
+        ptrB = reflect(ids).ptrB
+        structB = reflect(ids).structB
+        f = reflect(ids).structB.f
+
+        print(structA)
 
         from collections import namedtuple
-        Struct1 = namedtuple("Struct1", "e f")
-        VoterInfo = namedtuple("VoterInfo", "a b c d x")
-        assert value == VoterInfo(
-            a=Struct1(
-                e=7,
-                f=8,
+        StructB = namedtuple("StructB", "e f")
+        StructA = namedtuple("StructA", "a b c d")
+        assert structA == StructA(
+            a=StructB(
+                e=42,
+                f=24,
             ),
-            b=2,
-            c=value.c,
-            d=value.d,
-            x=value.x,
+            b=13,
+            c=ptrB,
+            d=structA.d,
         )
-
-        print(value)
     %}
     return ()
-end
-
 ```
 
 :::warning
-You have to provide `key` as list of ints. In the future Data Transformer will be supported.
-:::
-
-:::warning
-There is no type checking for `variable_name`, `key`, `variable_type` make sure you provided values correctly. 
-:::
-
-:::tip
-`key` is a list of arguments because cairo `@storage_var` maps any number of felt arguments to any number of felt values
+For safety and comparison reasons `reflect` does not automatically dereference pointers `ids`. It will be adressed with a future `dereference` cheatcode. 
 :::
 
 ## Data Transformer

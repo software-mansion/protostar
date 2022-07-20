@@ -16,25 +16,15 @@ async def test_reflect_cheatcode(mocker):
     assert_cairo_test_cases(
         testing_summary,
         expected_passed_test_cases_names=[
-            "test_reflect_passed_assert",
-            "test_reflect_passed_assert_pointer",
+            "test_reflect_passed_simple",
+            "test_reflect_passed_pointer",
             "test_reflect_passed_pointer_loop",
-            "test_reflect_passed_full_assert",
+            "test_reflect_passed_type_pointer",
+            "test_reflect_passed_repr",
+            "test_reflect_passed_full",
         ],
         expected_failed_test_cases_names=[
-            "test_reflect_failed_assert",
+            "test_reflect_failed_simple",
             "test_reflect_failed_corruption",
         ],
     )
-
-    long_failed = (
-        testing_summary.failed[0]
-        if "captured stdout" in testing_summary.failed[0].display()
-        else testing_summary.failed[1]
-    )
-
-    print(long_failed.display())
-
-    assert "AssertionError" + str(long_failed.exception)
-    assert "VoterInfo" in long_failed.display()
-    assert "a=Struct1(" in long_failed.display()
