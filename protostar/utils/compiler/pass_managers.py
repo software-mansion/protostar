@@ -81,13 +81,10 @@ class TestCollectorPassManagerFactory(StarknetPassManagerFactory):
                 additional_modules=[],
             ),
         )
-        collector_fac: Callable[
-            [PassManagerContext], Visitor
-        ] = lambda _: TestCollectorPreprocessor()
         manager.add_stage(
             "test_collector_preprocessor",
             new_stage=TestCollectorStage(
-                collector_fac,
+                TestCollectorPreprocessor,
                 modify_ast=True,
             ),
         )
@@ -146,16 +143,15 @@ class ProtostarPreprocessor(StarknetPreprocessor):
 
 
 class TestCollectorStage(VisitorStage):
+    def __init__(self, visitor_factory, modify_ast=True):
+        self.visitor_factory = visitor_factory
+        self.modify_ast = modify_ast
+
+
     def run(self, context: PassManagerContext):
-        visitor = self.visitor_factory(context)
-        modified_modules = []
-        for module in context.modules:
-            modified_modules.append(visitor.visit(module))
-        if self.modify_ast:
-            context.modules = modified_modules
+        visitor = super().run(context)
         context.preprocessed_program = visitor.get_program()
         return visitor
-
 
 @dataclass
 class TestCollectorPreprocessedProgram:
@@ -163,14 +159,14 @@ class TestCollectorPreprocessedProgram:
 
 
 class TestCollectorPreprocessor(Visitor):
-    def __init__(self):
-        super().__init__()
-        self.abi: AbiType = []
-
     """
     This preprocessor generates simpler and more limited ABI in exchange for performance.
     ABI includes only function types with only names.
     """
+
+    def __init__(self, context: PassManagerContext):
+        super().__init__()
+        self.abi: AbiType = []
 
     def add_simple_abi_function_entry(
         self, elm: CodeElementFunction, external_decorator_name: str
