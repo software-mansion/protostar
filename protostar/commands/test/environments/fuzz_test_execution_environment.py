@@ -87,7 +87,9 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
                     inputs[param] = data_object.draw(search_strategy, label=param)
 
                 try:
-                    this_run_resources = await self.invoke_test_case(function_name, **inputs)
+                    this_run_resources = await self.invoke_test_case(
+                        function_name, **inputs
+                    )
                     if this_run_resources is not None:
                         execution_resources.append(this_run_resources)
                 except ReportedException as reported_ex:
