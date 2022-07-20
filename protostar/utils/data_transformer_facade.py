@@ -1,11 +1,19 @@
-from typing import Any, Callable, Dict, List, Tuple
+from typing import Any, Callable, Dict, List, Tuple, Union
 
-from starknet_py.utils.data_transformer.data_transformer import DataTransformer
+from starknet_py.utils.data_transformer.data_transformer import (
+    DataTransformer,
+    CairoData,
+)
 from starkware.starknet.public.abi import AbiType
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 from typing_extensions import Literal
 
 from protostar.utils.abi import find_abi_item
+
+
+PythonRepresentation = Dict[str, Any]
+FromPythonTransformer = Callable[[PythonRepresentation], CairoData]
+CairoOrPythonData = Union[CairoData, PythonRepresentation]
 
 
 class PatchedDataTransformer(DataTransformer):
@@ -50,45 +58,36 @@ class PatchedDataTransformer(DataTransformer):
         return calldata, all_params
 
 
-class DataTransformerFacade:
-    ArgumentName = str
-    SupportedType = Any
-    PythonRepresentation = Dict[ArgumentName, SupportedType]
-    FromPythonTransformer = Callable[[PythonRepresentation], List[int]]
+def from_python_transformer(
+    contract_abi: AbiType,
+    fn_name: str,
+    mode: Literal["inputs", "outputs"],
+) -> FromPythonTransformer:
+    fn_abi_item = find_abi_item(contract_abi, fn_name)
 
-    @classmethod
-    def build_from_python_transformer(
-        cls,
-        contract_abi: AbiType,
-        fn_name: str,
-        mode: Literal["inputs", "outputs"],
-    ) -> "DataTransformerFacade.FromPythonTransformer":
-        fn_abi_item = find_abi_item(contract_abi, fn_name)
+    data_transformer = PatchedDataTransformer(
+        fn_abi_item,
+        identifier_manager_from_abi(contract_abi),
+    )
 
-        data_transformer = PatchedDataTransformer(
-            fn_abi_item,
-            identifier_manager_from_abi(contract_abi),
-        )
+    def transform(data: PythonRepresentation) -> List[int]:
+        return data_transformer.patched_from_python(mode, **data)[0]
 
-        def transform(data: DataTransformerFacade.PythonRepresentation) -> List[int]:
-            return data_transformer.patched_from_python(mode, **data)[0]
+    return transform
 
-        return transform
 
-    @classmethod
-    def build_from_python_events_transformer(
-        cls,
-        contract_abi: AbiType,
-        event_name: str,
-    ) -> "DataTransformerFacade.FromPythonTransformer":
-        event_abi_item = find_abi_item(contract_abi, event_name)
+def from_python_events_transformer(
+    contract_abi: AbiType,
+    event_name: str,
+) -> FromPythonTransformer:
+    event_abi_item = find_abi_item(contract_abi, event_name)
 
-        data_transformer = PatchedDataTransformer(
-            event_abi_item,
-            identifier_manager_from_abi(contract_abi),
-        )
+    data_transformer = PatchedDataTransformer(
+        event_abi_item,
+        identifier_manager_from_abi(contract_abi),
+    )
 
-        def transform(data: DataTransformerFacade.PythonRepresentation) -> List[int]:
-            return data_transformer.patched_from_python("data", **data)[0]
+    def transform(data: PythonRepresentation) -> List[int]:
+        return data_transformer.patched_from_python("data", **data)[0]
 
-        return transform
+    return transform

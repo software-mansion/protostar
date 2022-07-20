@@ -19,7 +19,6 @@ from protostar.commands.test.test_context import TestContextHintLocal
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.cheatcode_factory import CheatcodeFactory
 from protostar.starknet.execution_environment import ExecutionEnvironment
-from protostar.utils.data_transformer_facade import DataTransformerFacade
 
 
 class SetupExecutionEnvironment(ExecutionEnvironment[None]):

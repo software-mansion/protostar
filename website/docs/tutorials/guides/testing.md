@@ -416,17 +416,15 @@ Use [scope attributes](https://www.cairo-lang.org/docs/how_cairo_works/scope_att
                     "name": str,
                     "data": NotRequired[Union[
                       List[int],
-                      Dict[
-                        # e.g.
-                        # {"current_balance" : 37, "amount" : 21}
-                        # 
-                        # for the following event signature:
-                        # @event
-                        # func balance_increased(current_balance : felt, amount : felt):
-                        # end
-                        DataTransformer.ArgumentName,
-                        DataTransformer.SupportedType,
-                      ]
+                      
+                      # e.g.
+                      # {"current_balance" : 37, "amount" : 21}
+                      # 
+                      # for the following event signature:
+                      # @event
+                      # func balance_increased(current_balance : felt, amount : felt):
+                      # end
+                      Dict[str, Any]
                     ]],
                     "from_address": NotRequired[int]
                 },
@@ -858,4 +856,3 @@ deploy_contract("./src/main.cairo", { "initial_balance": 42, "contract_id": 123 
 ```python title="Passing constructor data as a list of integers"
 deploy_contract("./src/main.cairo", [42, 0, 123])
 ```
-

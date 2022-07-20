@@ -1,13 +1,17 @@
 from collections.abc import Mapping
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, List, Optional
 
-from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.public.abi import AbiType
+from starkware.starknet.public.abi import get_selector_from_name
 
+from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.types import AddressType
-from protostar.commands.test.test_environment_exceptions import CheatcodeException
-from protostar.utils.data_transformer_facade import DataTransformerFacade
+from protostar.utils.data_transformer_facade import (
+    CairoOrPythonData,
+    PythonRepresentation,
+    from_python_transformer,
+)
 
 
 class MockCallCheatcode(Cheatcode):
@@ -25,13 +29,7 @@ class MockCallCheatcode(Cheatcode):
         self,
         contract_address: int,
         fn_name: str,
-        ret_data: Union[
-            List[int],
-            Dict[
-                DataTransformerFacade.ArgumentName,
-                DataTransformerFacade.SupportedType,
-            ],
-        ],
+        ret_data: CairoOrPythonData,
     ):
         selector = get_selector_from_name(fn_name)
         if isinstance(ret_data, Mapping):
@@ -68,10 +66,7 @@ class MockCallCheatcode(Cheatcode):
         self,
         contract_address: int,
         fn_name: str,
-        ret_data: Dict[
-            DataTransformerFacade.ArgumentName,
-            DataTransformerFacade.SupportedType,
-        ],
+        ret_data: PythonRepresentation,
     ) -> List[int]:
         contract_abi = self.get_contract_abi_from_contract_address(contract_address)
         if contract_abi is None:
@@ -83,9 +78,7 @@ class MockCallCheatcode(Cheatcode):
                 ),
             )
 
-        transformer = DataTransformerFacade.build_from_python_transformer(
-            contract_abi, fn_name, "outputs"
-        )
+        transformer = from_python_transformer(contract_abi, fn_name, "outputs")
         return transformer(ret_data)
 
     def get_contract_abi_from_contract_address(

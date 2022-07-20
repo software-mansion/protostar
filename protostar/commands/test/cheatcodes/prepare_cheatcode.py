@@ -1,6 +1,6 @@
 import collections
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, List, Optional
 
 from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
@@ -9,7 +9,11 @@ from starkware.starknet.core.os.contract_address.contract_address import (
 from protostar.commands.test.cheatcodes.declare_cheatcode import DeclaredContract
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.starknet.cheatcode import Cheatcode
-from protostar.utils.data_transformer_facade import DataTransformerFacade
+from protostar.utils.data_transformer_facade import (
+    CairoOrPythonData,
+    PythonRepresentation,
+    from_python_transformer,
+)
 
 
 @dataclass(frozen=True)
@@ -35,15 +39,7 @@ class PrepareCheatcode(Cheatcode):
     def prepare(
         self,
         declared: DeclaredContract,
-        constructor_calldata: Optional[
-            Union[
-                List[int],
-                Dict[
-                    DataTransformerFacade.ArgumentName,
-                    DataTransformerFacade.SupportedType,
-                ],
-            ]
-        ] = None,
+        constructor_calldata: Optional[CairoOrPythonData] = None,
     ) -> PreparedContract:
         constructor_calldata = constructor_calldata or []
 
@@ -69,10 +65,7 @@ class PrepareCheatcode(Cheatcode):
     def transform_data_to_cairo_format(
         self,
         class_hash: int,
-        constructor_calldata: Dict[
-            DataTransformerFacade.ArgumentName,
-            DataTransformerFacade.SupportedType,
-        ],
+        constructor_calldata: PythonRepresentation,
     ) -> List[int]:
         if class_hash not in self.state.class_hash_to_contract_abi_map:
             raise CheatcodeException(
@@ -80,7 +73,7 @@ class PrepareCheatcode(Cheatcode):
             )
         contract_abi = self.state.class_hash_to_contract_abi_map[class_hash]
 
-        transformer = DataTransformerFacade.build_from_python_transformer(
+        transformer = from_python_transformer(
             contract_abi,
             "constructor",
             "inputs",

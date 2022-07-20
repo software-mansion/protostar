@@ -20,7 +20,6 @@ from protostar.commands.test.test_context import TestContextHintLocal
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.execution_environment import ExecutionEnvironment
 from protostar.utils.abi import has_function_parameters
-from protostar.utils.data_transformer_facade import DataTransformerFacade
 from protostar.utils.hook import Hook
 
 
