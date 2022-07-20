@@ -152,9 +152,13 @@ class TestRunner:
             )
             return
 
+        setup_stdout_value = ""
+        if test_suite.setup_fn_name:
+            setup_stdout_value = execution_state.get_output(setup_stdout)
+
         for test_case_name in test_suite.test_case_names:
             new_execution_state = execution_state.fork()
-            test_stdout: OutputName = f"test__{test_case_name}"
+            test_stdout: OutputName = "test"
             try:
                 execution_resources = await invoke_test_case(
                     test_case_name,
@@ -171,10 +175,7 @@ class TestRunner:
                                 setup_stdout,
                                 new_execution_state.get_output(setup_stdout),
                             ),
-                            (
-                                test_stdout,
-                                new_execution_state.get_output(test_stdout),
-                            ),
+                            (test_stdout, setup_stdout_value),
                         ],
                     )
                 )
@@ -189,10 +190,7 @@ class TestRunner:
                                 setup_stdout,
                                 new_execution_state.get_output(setup_stdout),
                             ),
-                            (
-                                test_stdout,
-                                new_execution_state.get_output(test_stdout),
-                            ),
+                            (test_stdout, setup_stdout_value),
                         ],
                     )
                 )

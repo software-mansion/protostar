@@ -11,11 +11,7 @@ or ``("test", 1)``.
 
 def format_output_name(name: OutputName) -> str:
     if isinstance(name, str):
-        if name.startswith("test__"):
-            return "test"
         return name
-    if name[0].startswith("test__"):
-        return f"test:{name[1]}"
     return f"{name[0]}:{name[1]}"
 
 

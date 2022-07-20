@@ -48,5 +48,5 @@ class TestExecutionState(ExecutionState):
         return dataclasses.replace(
             super().fork(),
             context=deepcopy(self.context),
-            output_recorder=self.output_recorder,  # Note: no copy
+            output_recorder=deepcopy(self.output_recorder),
         )
