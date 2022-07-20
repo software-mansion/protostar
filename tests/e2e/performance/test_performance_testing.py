@@ -162,7 +162,7 @@ async def test_deploy_perf(tmp_test_dir, basic_contract_path):
         case_names=case_names,
     )
 
-    with timing(expected=17.5):
+    with timing(expected=30):
         await run_tests(contract=contract_class, test_suite=test_suite)
 
 
@@ -191,7 +191,7 @@ async def test_setup_perf(tmp_test_dir, basic_contract_path):
         case_names=case_names,
         setup_fn_name="__setup__",
     )
-    with timing(expected=6.5):
+    with timing(expected=12):
         await run_tests(contract=contract_class, test_suite=test_suite)
 
     # Unoptimized version
@@ -233,7 +233,7 @@ async def test_expect_revert_perf(tmp_test_dir):
     contract_class, test_suite = build_test_suite(
         source_code=test_cases, file_path=tmp_test_dir, case_names=case_names
     )
-    with timing(expected=4.5):
+    with timing(expected=8):
         await run_tests(
             test_suite=test_suite,
             contract=contract_class,
@@ -262,7 +262,7 @@ async def test_expect_events_perf(tmp_test_dir):
         file_path=tmp_test_dir,
         case_names=case_names,
     )
-    with timing(expected=4.5):
+    with timing(expected=9):
         await run_tests(
             test_suite=test_suite,
             contract=contract_class,
@@ -280,7 +280,7 @@ async def test_declare_perf(tmp_test_dir, basic_contract_path):
     contract_class, test_suite = build_test_suite(
         source_code=test_cases, file_path=tmp_test_dir, case_names=case_names
     )
-    with timing(expected=17.5):
+    with timing(expected=25):
         await run_tests(
             test_suite=test_suite,
             contract=contract_class,
@@ -309,7 +309,7 @@ async def test_prepare_perf(tmp_test_dir, basic_contract_path):
         setup_fn_name="__setup__",
     )
 
-    with timing(expected=6.5):
+    with timing(expected=9):
         await run_tests(
             test_suite=test_suite,
             contract=contract_class,
@@ -333,7 +333,7 @@ async def test_start_prank_perf(tmp_test_dir):
         case_names=case_names,
     )
 
-    with timing(expected=4.5):
+    with timing(expected=9):
         await run_tests(
             test_suite=test_suite,
             contract=contract_class,
@@ -357,7 +357,7 @@ async def test_roll_perf(tmp_test_dir):
         case_names=case_names,
     )
 
-    with timing(expected=4.5):
+    with timing(expected=9):
         await run_tests(
             test_suite=test_suite,
             contract=contract_class,
@@ -381,7 +381,7 @@ async def test_warp_perf(tmp_test_dir):
         case_names=case_names,
     )
 
-    with timing(expected=4.5):
+    with timing(expected=9):
         await run_tests(
             test_suite=test_suite,
             contract=contract_class,
@@ -430,7 +430,7 @@ async def test_assertions_perf(tmp_test_dir, protostar_cairo_path):
         include_paths=[protostar_cairo_path],
     )
 
-    with timing(expected=7.5):
+    with timing(expected=12):
         await run_tests(
             test_suite=test_suite,
             contract=contract_class,
@@ -453,7 +453,7 @@ async def test_unit_testing_perf(tmp_test_dir):
         source_code=test_cases, file_path=tmp_test_dir, case_names=case_names
     )
 
-    with timing(expected=6):
+    with timing(expected=9):
         await run_tests(
             test_suite=test_suite,
             contract=contract_class,
