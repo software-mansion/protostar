@@ -7,9 +7,9 @@ from starkware.starknet.public.abi import get_selector_from_name
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.types import AddressType
-from protostar.utils.data_transformer_facade import (
+from protostar.utils.data_transformer import (
     CairoOrPythonData,
-    PythonRepresentation,
+    PythonData,
     from_python_transformer,
 )
 
@@ -63,7 +63,7 @@ class MockCallCheatcode(Cheatcode):
         self,
         contract_address: int,
         fn_name: str,
-        ret_data: PythonRepresentation,
+        ret_data: PythonData,
     ) -> List[int]:
         contract_abi = self.get_contract_abi_from_contract_address(contract_address)
         if contract_abi is None:

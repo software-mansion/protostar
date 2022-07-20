@@ -7,7 +7,7 @@ from protostar.commands.test.cheatcodes.deploy_cheatcode import (
 )
 from protostar.commands.test.cheatcodes.prepare_cheatcode import PrepareCheatcode
 from protostar.starknet.cheatcode import Cheatcode
-from protostar.utils.data_transformer_facade import (
+from protostar.utils.data_transformer import (
     CairoOrPythonData,
 )
 

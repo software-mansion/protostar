@@ -9,9 +9,9 @@ from starkware.starknet.core.os.contract_address.contract_address import (
 from protostar.commands.test.cheatcodes.declare_cheatcode import DeclaredContract
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.starknet.cheatcode import Cheatcode
-from protostar.utils.data_transformer_facade import (
+from protostar.utils.data_transformer import (
     CairoOrPythonData,
-    PythonRepresentation,
+    PythonData,
     from_python_transformer,
 )
 
@@ -62,7 +62,7 @@ class PrepareCheatcode(Cheatcode):
     def transform_data_to_cairo_format(
         self,
         class_hash: int,
-        constructor_calldata: PythonRepresentation,
+        constructor_calldata: PythonData,
     ) -> List[int]:
         if class_hash not in self.state.class_hash_to_contract_abi_map:
             raise CheatcodeException(

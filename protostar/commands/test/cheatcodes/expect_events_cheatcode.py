@@ -8,7 +8,7 @@ from protostar.commands.test.test_environment_exceptions import (
     ExpectedEventMissingException,
 )
 from protostar.starknet.cheatcode import Cheatcode
-from protostar.utils.data_transformer_facade import (
+from protostar.utils.data_transformer import (
     CairoOrPythonData,
     from_python_events_transformer,
 )

@@ -11,9 +11,9 @@ from typing_extensions import Literal
 from protostar.utils.abi import find_abi_item
 
 
-PythonRepresentation = Dict[str, Any]
-FromPythonTransformer = Callable[[PythonRepresentation], CairoData]
-CairoOrPythonData = Union[CairoData, PythonRepresentation]
+PythonData = Dict[str, Any]
+CairoOrPythonData = Union[CairoData, PythonData]
+FromPythonTransformer = Callable[[PythonData], CairoData]
 
 
 class PatchedDataTransformer(DataTransformer):
@@ -70,7 +70,7 @@ def from_python_transformer(
         identifier_manager_from_abi(contract_abi),
     )
 
-    def transform(data: PythonRepresentation) -> List[int]:
+    def transform(data: PythonData) -> CairoData:
         return data_transformer.patched_from_python(mode, **data)[0]
 
     return transform
@@ -87,7 +87,7 @@ def from_python_events_transformer(
         identifier_manager_from_abi(contract_abi),
     )
 
-    def transform(data: PythonRepresentation) -> List[int]:
+    def transform(data: PythonData) -> CairoData:
         return data_transformer.patched_from_python("data", **data)[0]
 
     return transform
