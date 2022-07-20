@@ -63,49 +63,40 @@ class InstallCommand(Command):
         ]
 
     async def run(self, args):
-        project_section = self._project_section_loader.load()
-
-        handle_install_command(
-            logger=self._logger,
-            log_color_provider=self._log_color_provider,
-            project_root_path=self._project_root_path,
-            libs_path=self._project_root_path / project_section.libs_path,
+        self.install(
             package_name=args.package,
             alias=args.name,
         )
 
+    def install(
+        self,
+        package_name: Optional[str],
+        alias: Optional[str] = None,
+    ) -> None:
+        project_section = self._project_section_loader.load()
+        libs_path = self._project_root_path / project_section.libs_path
 
-# pylint: disable=too-many-arguments
-def handle_install_command(
-    logger: Logger,
-    log_color_provider: LogColorProvider,
-    project_root_path: Path,
-    libs_path: Path,
-    package_name: Optional[str],
-    alias: Optional[str] = None,
-) -> None:
+        if package_name:
+            package_info = extract_info_from_repo_id(package_name)
 
-    if package_name:
-        package_info = extract_info_from_repo_id(package_name)
-
-        install_package_from_repo(
-            alias or package_info.name,
-            package_info.url,
-            repo_dir=project_root_path,
-            destination=libs_path,
-            tag=package_info.version,
-        )
-    else:
-        pull_package_submodules(
-            on_submodule_update_start=lambda package_info: logger.info(
-                "Installing %s%s%s %s(%s)%s",
-                log_color_provider.get_color("CYAN"),
-                package_info.name,
-                log_color_provider.get_color("RESET"),
-                log_color_provider.get_color("GRAY"),
+            install_package_from_repo(
+                alias or package_info.name,
                 package_info.url,
-                log_color_provider.get_color("RESET"),
-            ),
-            repo_dir=project_root_path,
-            libs_dir=libs_path,
-        )
+                repo_dir=self._project_root_path,
+                destination=libs_path,
+                tag=package_info.version,
+            )
+        else:
+            pull_package_submodules(
+                on_submodule_update_start=lambda package_info: self._logger.info(
+                    "Installing %s%s%s %s(%s)%s",
+                    self._log_color_provider.get_color("CYAN"),
+                    package_info.name,
+                    self._log_color_provider.get_color("RESET"),
+                    self._log_color_provider.get_color("GRAY"),
+                    package_info.url,
+                    self._log_color_provider.get_color("RESET"),
+                ),
+                repo_dir=self._project_root_path,
+                libs_dir=libs_path,
+            )
