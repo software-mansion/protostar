@@ -1,4 +1,4 @@
-from logging import Logger, getLogger
+from logging import Logger
 from pathlib import Path
 from typing import List, Optional
 
@@ -84,7 +84,6 @@ def handle_install_command(
     package_name: Optional[str],
     alias: Optional[str] = None,
 ) -> None:
-    logger = getLogger()
 
     if package_name is not None and package_name != "":
         package_info = extract_info_from_repo_id(package_name)
