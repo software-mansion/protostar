@@ -9,10 +9,10 @@ def test_display():
     )
     assert (
         metadata.display()
-        == """
+        == """\
 a = 340282366920938463463374607431768211456
 b = 0
-c = 'abc'
+c = 'abc'\
 """
     )
 
