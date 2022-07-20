@@ -191,7 +191,8 @@ async def test_setup_perf(tmp_test_dir, basic_contract_path):
         case_names=case_names,
         setup_fn_name="__setup__",
     )
-    with timing(expected=12):
+    expected_with_setup = 12
+    with timing(expected=expected_with_setup):
         await run_tests(contract=contract_class, test_suite=test_suite)
 
     # Unoptimized version
@@ -218,7 +219,7 @@ async def test_setup_perf(tmp_test_dir, basic_contract_path):
         case_names=case_names,
     )
 
-    with timing(expected=20, minimum=10):
+    with timing(expected=30, minimum=expected_with_setup):
         await run_tests(contract=contract_class, test_suite=test_suite)
 
 
