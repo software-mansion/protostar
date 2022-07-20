@@ -23,7 +23,10 @@ from protostar.commands.init.project_creator import (
     NewProjectCreator,
 )
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
-from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
+from protostar.protostar_toml.io.protostar_toml_reader import (
+    ProtostarTOMLReader,
+    find_protostar_toml_path,
+)
 from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
 from protostar.protostar_toml.protostar_contracts_section import (
     ProtostarContractsSection,
@@ -180,7 +183,7 @@ class ProtostarCLI(CLIApp):
 
     @classmethod
     def create(cls, script_root: Path):
-        protostar_toml_path = ProtostarTOMLReader.find_protostar_toml_path()
+        protostar_toml_path = find_protostar_toml_path()
         project_root_path = (
             protostar_toml_path.parent if protostar_toml_path is not None else Path()
         )

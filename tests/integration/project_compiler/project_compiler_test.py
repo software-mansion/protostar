@@ -42,7 +42,7 @@ def test_compiling(tmp_path: Path, datadir: Path, create_loader):
         ),
     ).compile(
         output_dir=tmp_path,
-        extra_cairo_paths=[],
+        relative_cairo_path=[],
         disable_hint_validation=False,
     )
 
@@ -83,7 +83,7 @@ def test_handling_cairo_errors(tmp_path: Path, datadir: Path, create_loader):
             ),
         ).compile(
             output_dir=tmp_path,
-            extra_cairo_paths=[project_root_path],
+            relative_cairo_path=[project_root_path],
             disable_hint_validation=False,
         )
 
@@ -106,6 +106,6 @@ def test_handling_not_existing_main_files(tmp_path: Path, datadir: Path, create_
             ),
         ).compile(
             output_dir=tmp_path,
-            extra_cairo_paths=[project_root_path],
+            relative_cairo_path=[project_root_path],
             disable_hint_validation=False,
         )

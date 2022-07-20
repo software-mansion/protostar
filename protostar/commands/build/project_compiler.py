@@ -30,18 +30,18 @@ class ProjectCompiler:
         self._project_section_loader = project_section_loader
         self._contracts_section_loader = contracts_section_loader
 
-    def build_cairo_paths(self, extra_cairo_paths: List[Path]) -> List[Path]:
+    def build_cairo_path(self, relative_cairo_path: List[Path]) -> List[Path]:
         project_section = self._project_section_loader.load()
 
-        results: List[Path] = [*extra_cairo_paths]
+        cairo_path: List[Path] = [*relative_cairo_path]
         if project_section.libs_path:
-            results.extend(
+            cairo_path.extend(
                 [
                     self._project_root_path,
                     self._project_root_path / project_section.libs_path,
                 ]
             )
-            results.extend(
+            cairo_path.extend(
                 [
                     Path(path)
                     for path in collect_immediate_subdirectories(
@@ -50,16 +50,16 @@ class ProjectCompiler:
                 ]
             )
 
-        return results
+        return cairo_path
 
     def compile(
         self,
         output_dir: Path,
-        extra_cairo_paths: List[Path],
+        relative_cairo_path: List[Path],
         disable_hint_validation: bool,
     ):
         include_paths = [
-            str(path) for path in self.build_cairo_paths(extra_cairo_paths)
+            str(path) for path in self.build_cairo_path(relative_cairo_path)
         ]
         contracts_section = self._contracts_section_loader.load()
         if not output_dir.is_absolute():

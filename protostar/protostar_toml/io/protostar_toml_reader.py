@@ -88,13 +88,13 @@ class ProtostarTOMLReader:
 
             return protostar_toml_flat_dict
 
-    @staticmethod
-    def find_protostar_toml_path() -> Optional[Path]:
-        directory_path = Path().resolve()
-        root_path = Path(directory_path.root)
-        while directory_path != root_path:
-            if "protostar.toml" in listdir(directory_path):
-                return directory_path / "protostar.toml"
 
-            directory_path = directory_path.parent
-        return None
+def find_protostar_toml_path() -> Optional[Path]:
+    directory_path = Path().resolve()
+    root_path = Path(directory_path.root)
+    while directory_path != root_path:
+        if "protostar.toml" in listdir(directory_path):
+            return directory_path / "protostar.toml"
+
+        directory_path = directory_path.parent
+    return None

@@ -116,7 +116,7 @@ class TestCommand(Command):
         summary = await self.test(
             targets=args.target,
             ignored_targets=args.ignore,
-            cairo_paths=args.cairo_path,
+            cairo_path=args.cairo_path,
             disable_hint_validation=args.disable_hint_validation,
             no_progress_bar=args.no_progress_bar,
             fast_collecting=args.fast_collecting,
@@ -131,7 +131,7 @@ class TestCommand(Command):
         self,
         targets: List[str],
         ignored_targets: Optional[List[str]] = None,
-        cairo_paths: Optional[List[Path]] = None,
+        cairo_path: Optional[List[Path]] = None,
         disable_hint_validation: bool = False,
         no_progress_bar: bool = False,
         fast_collecting: bool = False,
@@ -140,11 +140,11 @@ class TestCommand(Command):
     ) -> TestingSummary:
         logger = getLogger()
 
-        str_cairo_paths = [
+        include_paths = [
             str(path)
             for path in [
                 self._protostar_directory.protostar_test_only_cairo_packages_path,
-                *self._project_compiler.build_cairo_paths(cairo_paths or []),
+                *self._project_compiler.build_cairo_path(cairo_path or []),
             ]
         ]
 
@@ -157,7 +157,7 @@ class TestCommand(Command):
             test_collector_result = TestCollector(
                 StarknetCompiler(
                     config=CompilerConfig(
-                        disable_hint_validation=True, include_paths=str_cairo_paths
+                        disable_hint_validation=True, include_paths=include_paths
                     ),
                     pass_manager_factory=pass_manager_factory,
                 ),
@@ -183,7 +183,7 @@ class TestCommand(Command):
                 stdout_on_success=stdout_on_success,
             )
             TestScheduler(live_logger, worker=TestRunner.worker).run(
-                include_paths=str_cairo_paths,
+                include_paths=include_paths,
                 test_collector_result=test_collector_result,
                 disable_hint_validation=disable_hint_validation,
                 exit_first=exit_first,
