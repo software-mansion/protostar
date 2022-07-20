@@ -186,10 +186,17 @@ class TestCollectorPreprocessor(Visitor):
             }
         )
 
+    def visit_namespace_elements(self, elm: CodeElementFunction):
+        for elm in elm.code_block.code_elements:
+            self.visit(elm.code_elm)
+
+
     def visit_CodeElementFunction(self, elm: CodeElementFunction):
+        if elm.element_type == "namespace":
+            self.visit_namespace_elements(elm)
+
         external_decorator, _, _ = parse_entry_point_decorators(elm=elm)
         if external_decorator is not None:
-
             # Add a function/constructor entry to the ABI.
             self.add_simple_abi_function_entry(
                 elm=elm,

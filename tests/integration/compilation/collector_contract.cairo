@@ -47,3 +47,28 @@ func test_case2{
     return ()
 end
 
+namespace TestNamespace:
+    @external
+    func test_case3{
+            syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
+        internal_function()
+        return ()
+    end
+end
+
+namespace TestNamespace2:
+    @external
+    func test_case4{
+            syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
+        internal_function()
+        return ()
+    end
+    @external
+    func test_case5{
+            syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
+        internal_function()
+        return ()
+    end
+end
+
+
