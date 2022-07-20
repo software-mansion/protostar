@@ -5,7 +5,7 @@ from time import time
 from pathlib import Path
 from string import Template
 from contextlib import contextmanager
-from typing import List, Optional
+from typing import List, Optional, Tuple, Generator
 
 import pytest
 from starkware.starknet.services.api.contract_class import ContractClass
@@ -21,7 +21,7 @@ from protostar.utils.starknet_compilation import StarknetCompiler, CompilerConfi
 SCRIPT_DIRECTORY = Path(__file__).parent
 
 
-def _multiply_cases(test_body: str) -> (str, List[str]):
+def _multiply_cases(test_body: str) -> Tuple[str, List[str]]:
     source_code = ""
     cases_names = []
     for i in range(15):
@@ -39,7 +39,7 @@ def _multiply_cases(test_body: str) -> (str, List[str]):
     return source_code, cases_names
 
 
-def make_test_file(test_body: str, imports: Optional[str] = "") -> (Path, List[str]):
+def make_test_file(test_body: str, imports: Optional[str] = "") -> Tuple[str, List[str]]:
     source, cases = _multiply_cases(test_body)
     return (
         f"""
@@ -53,7 +53,7 @@ def make_test_file(test_body: str, imports: Optional[str] = "") -> (Path, List[s
 
 
 @pytest.fixture(name="tmp_test_dir")
-def make_test_dir() -> Path:
+def make_test_dir() -> Generator[Path, None, None]:
     test_dir_path = SCRIPT_DIRECTORY / "tmp_test_files"
     test_dir_path.mkdir()
     yield test_dir_path
@@ -98,7 +98,7 @@ def build_test_suite(
     file_path: Path,
     setup_fn_name: Optional[str] = None,
     include_paths: Optional[List[str]] = None,
-) -> (ContractClass, TestSuite):
+) -> Tuple[ContractClass, TestSuite]:
     compiler = get_test_starknet_compiler(include_paths)
 
     if not file_path.name.endswith(".cairo"):
