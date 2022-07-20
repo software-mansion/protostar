@@ -85,11 +85,11 @@ def handle_install_command(
     alias: Optional[str] = None,
 ) -> None:
 
-    if package_name is not None and package_name != "":
+    if package_name:
         package_info = extract_info_from_repo_id(package_name)
 
         install_package_from_repo(
-            package_info.name if alias is None else alias,
+            alias or package_info.name,
             package_info.url,
             repo_dir=project_root_path,
             destination=libs_path,
