@@ -143,7 +143,7 @@ class TestCommand(Command):
             if safe_collecting
             else TestCollectorPassManagerFactory
         )
-        with TestingSeed(seed):
+        with TestingSeed(seed) as testing_seed:
             with ActivityIndicator(
                 log_color_provider.colorize("GRAY", "Collecting tests")
             ):
@@ -163,7 +163,8 @@ class TestCommand(Command):
             test_collector_result.log(logger)
 
             testing_summary = TestingSummary(
-                case_results=test_collector_result.broken_test_suites  # type: ignore | pyright bug?
+                case_results=test_collector_result.broken_test_suites,  # type: ignore | pyright bug?
+                testing_seed=testing_seed,
             )
 
             if test_collector_result.test_cases_count > 0:
