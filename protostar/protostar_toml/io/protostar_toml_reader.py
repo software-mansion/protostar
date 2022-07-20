@@ -1,4 +1,3 @@
-from os import listdir
 from pathlib import Path
 from typing import Any, Dict, Optional, cast
 
@@ -89,12 +88,13 @@ class ProtostarTOMLReader:
             return protostar_toml_flat_dict
 
 
-def find_protostar_toml_path() -> Optional[Path]:
-    directory_path = Path().resolve()
+def search_upwards_protostar_toml_path(start_path: Path) -> Optional[Path]:
+    directory_path = start_path
     root_path = Path(directory_path.root)
     while directory_path != root_path:
-        if "protostar.toml" in listdir(directory_path):
-            return directory_path / "protostar.toml"
+        for file_path in directory_path.iterdir():
+            if "protostar.toml" == file_path.name:
+                return directory_path / "protostar.toml"
 
         directory_path = directory_path.parent
     return None
