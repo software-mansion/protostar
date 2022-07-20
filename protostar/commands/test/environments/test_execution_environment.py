@@ -52,7 +52,11 @@ class TestExecutionEnvironment(
 
         async with self._expect_revert_context.test():
             async with self._finish_hook.run_after():
-                with redirect_stdout(self.state.output_recorder.record(output_name)):
+                print("MAKING BUFFER")
+                buffer = self.state.output_recorder.record(output_name)
+                print("MADE BUFFER")
+                with redirect_stdout(buffer):
+                    print("AAAAAAAA")
                     tx_info = await self.perform_invoke(function_name)
                 execution_resources = (
                     ExecutionResourcesSummary.from_execution_resources(
