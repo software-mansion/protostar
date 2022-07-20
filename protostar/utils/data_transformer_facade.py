@@ -5,11 +5,8 @@ from starkware.starknet.public.abi import AbiType
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 from typing_extensions import Literal
 
+from protostar.utils.abi import find_abi_item
 from protostar.utils.starknet_compilation import StarknetCompiler
-
-
-class AbiItemNotFoundException(Exception):
-    pass
 
 
 class PatchedDataTransformer(DataTransformer):
@@ -63,18 +60,14 @@ class DataTransformerFacade:
     def __init__(self, starknet_compiler: StarknetCompiler) -> None:
         self._starknet_compiler = starknet_compiler
 
-    @staticmethod
-    def _find_abi_item(contract_abi: AbiType, name: str) -> Dict:
-        for item in contract_abi:
-            if item["name"] == name:
-                return item
-        raise AbiItemNotFoundException(f"Couldn't find '{name}' ABI")
-
+    @classmethod
     def build_from_python_transformer(
-        self, contract_abi: AbiType, fn_name: str, mode: Literal["inputs", "outputs"]
+        cls,
+        contract_abi: AbiType,
+        fn_name: str,
+        mode: Literal["inputs", "outputs"],
     ) -> "DataTransformerFacade.FromPythonTransformer":
-
-        fn_abi_item = self._find_abi_item(contract_abi, fn_name)
+        fn_abi_item = find_abi_item(contract_abi, fn_name)
 
         data_transformer = PatchedDataTransformer(
             fn_abi_item,
@@ -86,10 +79,13 @@ class DataTransformerFacade:
 
         return transform
 
+    @classmethod
     def build_from_python_events_transformer(
-        self, contract_abi: AbiType, event_name: str
+        cls,
+        contract_abi: AbiType,
+        event_name: str,
     ) -> "DataTransformerFacade.FromPythonTransformer":
-        event_abi_item = self._find_abi_item(contract_abi, event_name)
+        event_abi_item = find_abi_item(contract_abi, event_name)
 
         data_transformer = PatchedDataTransformer(
             event_abi_item,
