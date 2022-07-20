@@ -8,6 +8,8 @@ from typing_extensions import Literal
 from protostar.commands.test.expected_event import ExpectedEvent
 from protostar.utils.log_color_provider import SupportedColorName, log_color_provider
 
+# NOTE: When adding new exception type, do not forget to include it in ``test_pickle`` test.
+
 
 class ExceptionMetadata(ABC):
     @property
@@ -32,6 +34,15 @@ class ReportedException(BaseException):
     def __str__(self) -> str:
         return str(super().__repr__())
 
+    def __getstate__(self):
+        return self.__dict__.copy()
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+
+    def __eq__(self, other):
+        return isinstance(other, type(self)) and self.__dict__ == other.__dict__
+
 
 class SimpleReportedException(ReportedException):
     def __init__(self, message: str) -> None:
@@ -55,7 +66,7 @@ class CheatcodeException(ReportedException):
         return "\n".join(lines)
 
     def __reduce__(self):
-        return type(self), (self.cheatcode_name, self.message)
+        return type(self), (self.cheatcode_name, self.message), self.__getstate__()
 
 
 class RevertableException(ReportedException):
@@ -109,7 +120,7 @@ class RevertableException(ReportedException):
         return any(pattern in string for string in strings)
 
     def __reduce__(self):
-        return type(self), (self.error_messages, self.error_type)
+        return type(self), (self.error_messages, self.error_type), self.__getstate__()
 
 
 class StarknetRevertableException(RevertableException):
@@ -159,11 +170,15 @@ class StarknetRevertableException(RevertableException):
         return "\n".join(result)
 
     def __reduce__(self):
-        return type(self), (
-            self.error_messages,
-            self.error_type,
-            self.code,
-            self.details,
+        return (
+            type(self),
+            (
+                self.error_messages,
+                self.error_type,
+                self.code,
+                self.details,
+            ),
+            self.__getstate__(),
         )
 
 
@@ -179,7 +194,7 @@ class ExpectedRevertException(ReportedException):
         return "\n".join(result)
 
     def __reduce__(self):
-        return type(self), (self._expected_error,)
+        return type(self), (self._expected_error,), self.__getstate__()
 
 
 class ExpectedRevertMismatchException(ReportedException):
@@ -214,7 +229,7 @@ class ExpectedRevertMismatchException(ReportedException):
         return "\n".join(result)
 
     def __reduce__(self):
-        return type(self), (self._expected, self._received)
+        return type(self), (self._expected, self._received), self.__getstate__()
 
 
 class ExpectedEventMissingException(ReportedException):
@@ -308,8 +323,12 @@ class ExpectedEventMissingException(ReportedException):
         return f"{{{', '.join(result)}}}"
 
     def __reduce__(self):
-        return type(self), (
-            self.matches,
-            self.missing,
-            self._event_selector_to_name_map,
+        return (
+            type(self),
+            (
+                self.matches,
+                self.missing,
+                self._event_selector_to_name_map,
+            ),
+            self.__getstate__(),
         )
