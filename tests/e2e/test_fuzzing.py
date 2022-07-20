@@ -8,7 +8,6 @@ def test_fuzzing(protostar, copy_fixture):
     result = protostar(
         ["--no-color", "test", "tests/test_fuzz.cairo"], ignore_exit_code=True
     )
-    print(result)
 
     # To keep assertions free from having to exclude trailing \n
     result += "\n"
