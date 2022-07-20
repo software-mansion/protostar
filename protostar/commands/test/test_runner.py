@@ -1,6 +1,5 @@
 import asyncio
 import traceback
-import io
 from dataclasses import dataclass
 from logging import getLogger
 from typing import List, Optional
@@ -17,6 +16,7 @@ from protostar.commands.test.test_cases import (
     UnexpectedExceptionTestSuiteResult,
 )
 from protostar.commands.test.test_environment_exceptions import ReportedException
+from protostar.commands.test.test_output_recorder import OutputName
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.test_suite import TestSuite
 from protostar.protostar_exception import ProtostarException
@@ -120,7 +120,7 @@ class TestRunner:
     ):
         assert self.shared_tests_state, "Uninitialized reporter!"
 
-        setup_stdout_buffer = io.StringIO()
+        setup_stdout: OutputName = "setup"
 
         try:
             execution_state = await TestExecutionState.from_test_suite_definition(
@@ -130,7 +130,7 @@ class TestRunner:
 
             if test_suite.setup_fn_name:
                 await invoke_setup(
-                    test_suite.setup_fn_name, execution_state, setup_stdout_buffer
+                    test_suite.setup_fn_name, execution_state, setup_stdout
                 )
 
         except StarkException as ex:
@@ -154,20 +154,28 @@ class TestRunner:
 
         for test_case_name in test_suite.test_case_names:
             new_execution_state = execution_state.fork()
-            test_stdout_buffer = io.StringIO()
+            test_stdout: OutputName = f"test__{test_case_name}"
             try:
                 execution_resources = await invoke_test_case(
                     test_case_name,
                     new_execution_state,
-                    test_stdout_buffer,
+                    test_stdout,
                 )
                 self.shared_tests_state.put_result(
                     PassedTestCase(
                         file_path=test_suite.test_path,
                         test_case_name=test_case_name,
                         execution_resources=execution_resources,
-                        captured_setup_stdout=setup_stdout_buffer.getvalue(),
-                        captured_test_stdout=test_stdout_buffer.getvalue(),
+                        captured_stdout=[
+                            (
+                                setup_stdout,
+                                new_execution_state.get_output(setup_stdout),
+                            ),
+                            (
+                                test_stdout,
+                                new_execution_state.get_output(test_stdout),
+                            ),
+                        ],
                     )
                 )
             except ReportedException as ex:
@@ -176,8 +184,16 @@ class TestRunner:
                         file_path=test_suite.test_path,
                         test_case_name=test_case_name,
                         exception=ex,
-                        captured_setup_stdout=setup_stdout_buffer.getvalue(),
-                        captured_test_stdout=test_stdout_buffer.getvalue(),
+                        captured_stdout=[
+                            (
+                                setup_stdout,
+                                new_execution_state.get_output(setup_stdout),
+                            ),
+                            (
+                                test_stdout,
+                                new_execution_state.get_output(test_stdout),
+                            ),
+                        ],
                     )
                 )
 

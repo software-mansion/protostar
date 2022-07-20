@@ -1,12 +1,13 @@
 from abc import abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from protostar.commands.test.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
 )
 from protostar.commands.test.test_environment_exceptions import ReportedException
+from protostar.commands.test.test_output_recorder import OutputName, format_output_name
 from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
 from protostar.utils.log_color_provider import log_color_provider, SupportedColorName
 
@@ -24,8 +25,7 @@ class TestCaseResult:
 class PassedTestCase(TestCaseResult):
     test_case_name: str
     execution_resources: Optional[ExecutionResourcesSummary]
-    captured_setup_stdout: str
-    captured_test_stdout: str
+    captured_stdout: List[Tuple[OutputName, str]] = field(default_factory=list)
 
     def display(self, include_stdout_section: bool = False) -> str:
         first_line_elements: List[str] = []
@@ -69,12 +69,8 @@ class PassedTestCase(TestCaseResult):
                     )
 
         stdout_elements: List[str] = []
-        if (
-            self.captured_test_stdout or self.captured_setup_stdout
-        ) and include_stdout_section:
-            stdout_elements = _get_formatted_stdout(
-                self.captured_test_stdout, self.captured_setup_stdout, "GREEN"
-            )
+        if include_stdout_section:
+            stdout_elements = _get_formatted_stdout(self.captured_stdout, "GREEN")
 
         if len(second_line_elements) > 0 or len(stdout_elements) > 0:
             second_line_elements.insert(0, "      ")
@@ -93,8 +89,7 @@ class PassedTestCase(TestCaseResult):
 class FailedTestCase(TestCaseResult):
     test_case_name: str
     exception: ReportedException
-    captured_setup_stdout: str
-    captured_test_stdout: str
+    captured_stdout: List[Tuple[OutputName, str]] = field(default_factory=list)
 
     def display(self, include_stdout_section: bool = True) -> str:
         result: List[str] = []
@@ -106,14 +101,8 @@ class FailedTestCase(TestCaseResult):
         result.append(str(self.exception))
         result.append("\n")
 
-        if (
-            self.captured_test_stdout or self.captured_setup_stdout
-        ) and include_stdout_section:
-            result.extend(
-                _get_formatted_stdout(
-                    self.captured_test_stdout, self.captured_setup_stdout, "RED"
-                )
-            )
+        if include_stdout_section:
+            result.extend(_get_formatted_stdout(self.captured_stdout, "RED"))
 
         return "".join(result)
 
@@ -154,20 +143,20 @@ class UnexpectedExceptionTestSuiteResult(BrokenTestSuite):
 
 
 def _get_formatted_stdout(
-    test_stdout: str, setup_stdout: str, color: SupportedColorName
+    captured_stdout: List[Tuple[OutputName, str]], color: SupportedColorName
 ) -> List[str]:
     result: List[str] = []
+
+    if len(captured_stdout) < 1:
+        return []
+
     result.append(f"\n[{log_color_provider.colorize(color, 'captured stdout')}]:\n")
 
-    if setup_stdout:
-        result.append(
-            "[setup]:\n" f"{log_color_provider.colorize('GRAY', setup_stdout)}\n"
-        )
-
-    if test_stdout:
-        result.append(
-            "[test]:\n" f"{log_color_provider.colorize('GRAY', test_stdout)}\n"
-        )
+    for name, value in captured_stdout:
+        if value:
+            result.append(
+                f"[{format_output_name(name)}]:\n{log_color_provider.colorize('GRAY', value)}\n"
+            )
 
     return result
 

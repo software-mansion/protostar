@@ -9,11 +9,13 @@ from protostar.commands.test.test_context import TestContext
 from protostar.starknet.execution_state import ExecutionState
 from protostar.starknet.forkable_starknet import ForkableStarknet
 from protostar.utils.starknet_compilation import StarknetCompiler
+from protostar.commands.test.test_output_recorder import OutputName, OutputRecorder
 
 
 @dataclass
 class TestExecutionState(ExecutionState):
     context: TestContext
+    output_recorder: OutputRecorder
 
     @classmethod
     async def from_test_suite_definition(
@@ -36,7 +38,15 @@ class TestExecutionState(ExecutionState):
             contract=contract,
             starknet_compiler=starknet_compiler,
             context=TestContext(),
+            output_recorder=OutputRecorder(),
         )
 
+    def get_output(self, name: OutputName):
+        return self.output_recorder.captures[name].getvalue()
+
     def fork(self) -> Self:
-        return dataclasses.replace(super().fork(), context=deepcopy(self.context))
+        return dataclasses.replace(
+            super().fork(),
+            context=deepcopy(self.context),
+            output_recorder=self.output_recorder,  # Note: no copy
+        )
