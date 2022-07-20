@@ -217,3 +217,12 @@ func test_reflect_passed_full():
     %}
     return ()
 end
+
+@external
+func test_reflect_failed_illegal_arg():    
+    %{
+        structC = reflect(ids).structC
+        print(structC)
+    %}
+    return ()
+end
