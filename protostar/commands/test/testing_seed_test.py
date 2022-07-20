@@ -4,20 +4,19 @@ from protostar.commands.test.testing_seed import testing_seed, current_testing_s
 
 
 def test_sets_seed():
-    with testing_seed(100) as i:
-        assert i == 100
+    with testing_seed(100):
         assert current_testing_seed() == 100
 
-    with testing_seed(200) as j:
-        assert j == 200
+    with testing_seed(200):
         assert current_testing_seed() == 200
 
 
 def test_picks_seed_automatically():
-    with testing_seed() as i:
-        pass
+    with testing_seed():
+        i = current_testing_seed()
 
-    with testing_seed(seed=None) as j:
+    with testing_seed(seed=None):
+        j = current_testing_seed()
         assert i != j
 
 

@@ -1,14 +1,14 @@
 import os
 from contextlib import contextmanager
 from contextvars import ContextVar
-from typing import Iterator, Optional
+from typing import Optional
 
 Seed = int
 _testing_seed: ContextVar[Seed] = ContextVar("testing_seed")
 
 
 @contextmanager
-def testing_seed(seed: Optional[Seed] = None) -> Iterator[Seed]:
+def testing_seed(seed: Optional[Seed] = None):
     if seed is None:
         seed = int.from_bytes(os.urandom(4), byteorder="little", signed=False)
 
@@ -17,7 +17,7 @@ def testing_seed(seed: Optional[Seed] = None) -> Iterator[Seed]:
 
     token = _testing_seed.set(seed)
     try:
-        yield seed
+        yield
     finally:
         _testing_seed.reset(token)
 
