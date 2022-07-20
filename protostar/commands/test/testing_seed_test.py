@@ -23,3 +23,11 @@ def test_picks_seed_automatically():
 def test_current_testing_seed_raises_outside_context_manager():
     with pytest.raises(LookupError):
         _ = TestingSeed.current()
+
+
+def test_was_used():
+    for _ in range(2):
+        with TestingSeed():
+            assert not TestingSeed.was_used()
+            _ = TestingSeed.current()
+            assert TestingSeed.was_used()
