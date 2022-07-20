@@ -39,12 +39,10 @@ class ExpectEventsCheatcode(Cheatcode):
         syscall_dependencies: Cheatcode.SyscallDependencies,
         starknet: "ForkableStarknet",
         finish_hook: Hook,
-        data_transformer: DataTransformerFacade,
     ):
         super().__init__(syscall_dependencies)
         self.starknet = starknet
         self.finish_hook = finish_hook
-        self.data_transformer = data_transformer
 
     @property
     def name(self) -> str:
@@ -112,9 +110,12 @@ class ExpectEventsCheatcode(Cheatcode):
                     ), "Couldn't map event name to the contract path with that event"
 
                     contract_abi = self.state.event_name_to_contract_abi_map[name]
-                    data = self.data_transformer.build_from_python_events_transformer(
-                        contract_abi, name
-                    )(raw_data)
+                    transformer = (
+                        DataTransformerFacade.build_from_python_events_transformer(
+                            contract_abi, name
+                        )
+                    )
+                    data = transformer(raw_data)
                 else:
                     data = raw_data
             if "from_address" in raw_expected_event:

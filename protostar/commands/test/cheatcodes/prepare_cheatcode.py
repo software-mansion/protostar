@@ -22,13 +22,8 @@ class PreparedContract:
 class PrepareCheatcode(Cheatcode):
     salt_nonce = 1
 
-    def __init__(
-        self,
-        syscall_dependencies: Cheatcode.SyscallDependencies,
-        data_transformer: DataTransformerFacade,
-    ):
+    def __init__(self, syscall_dependencies: Cheatcode.SyscallDependencies):
         super().__init__(syscall_dependencies)
-        self._data_transformer = data_transformer
 
     @property
     def name(self) -> str:
@@ -85,8 +80,9 @@ class PrepareCheatcode(Cheatcode):
             )
         contract_abi = self.state.class_hash_to_contract_abi_map[class_hash]
 
-        return self._data_transformer.build_from_python_transformer(
+        transformer = DataTransformerFacade.build_from_python_transformer(
             contract_abi,
             "constructor",
             "inputs",
-        )(constructor_calldata)
+        )
+        return transformer(constructor_calldata)

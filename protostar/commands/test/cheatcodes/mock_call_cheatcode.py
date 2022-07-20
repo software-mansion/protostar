@@ -11,13 +11,8 @@ from protostar.utils.data_transformer_facade import DataTransformerFacade
 
 
 class MockCallCheatcode(Cheatcode):
-    def __init__(
-        self,
-        syscall_dependencies: Cheatcode.SyscallDependencies,
-        data_transformer: DataTransformerFacade,
-    ):
+    def __init__(self, syscall_dependencies: Cheatcode.SyscallDependencies):
         super().__init__(syscall_dependencies)
-        self._data_transformer = data_transformer
 
     @property
     def name(self) -> str:
@@ -88,9 +83,10 @@ class MockCallCheatcode(Cheatcode):
                 ),
             )
 
-        return self._data_transformer.build_from_python_transformer(
+        transformer = DataTransformerFacade.build_from_python_transformer(
             contract_abi, fn_name, "outputs"
-        )(ret_data)
+        )
+        return transformer(ret_data)
 
     def get_contract_abi_from_contract_address(
         self, contract_address: AddressType

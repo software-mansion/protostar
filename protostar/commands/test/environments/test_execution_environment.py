@@ -79,8 +79,6 @@ class TestCaseCheatcodeFactory(SetupCheatcodeFactory):
         syscall_dependencies: Cheatcode.SyscallDependencies,
         internal_calls: List[CallInfo],
     ) -> List[Cheatcode]:
-        data_transformer = DataTransformerFacade(self._state.starknet_compiler)
-
         return [
             *super().build(syscall_dependencies, internal_calls),
             ExpectRevertCheatcode(
@@ -91,6 +89,5 @@ class TestCaseCheatcodeFactory(SetupCheatcodeFactory):
                 syscall_dependencies,
                 self._state.starknet,
                 self._finish_hook,
-                data_transformer,
             ),
         ]

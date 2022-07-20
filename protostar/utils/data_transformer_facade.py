@@ -6,7 +6,6 @@ from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 from typing_extensions import Literal
 
 from protostar.utils.abi import find_abi_item
-from protostar.utils.starknet_compilation import StarknetCompiler
 
 
 class PatchedDataTransformer(DataTransformer):
@@ -56,9 +55,6 @@ class DataTransformerFacade:
     SupportedType = Any
     PythonRepresentation = Dict[ArgumentName, SupportedType]
     FromPythonTransformer = Callable[[PythonRepresentation], List[int]]
-
-    def __init__(self, starknet_compiler: StarknetCompiler) -> None:
-        self._starknet_compiler = starknet_compiler
 
     @classmethod
     def build_from_python_transformer(
