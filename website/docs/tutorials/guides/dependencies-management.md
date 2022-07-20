@@ -1,5 +1,5 @@
 ---
-sidebar_label: Dependencies (3 min)
+sidebar_label: Dependencies
 ---
 
 # Dependencies
