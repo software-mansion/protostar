@@ -1,8 +1,12 @@
 import asyncio
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, List, Optional
+from typing import List, Optional
 
+from protostar.commands.test.cheatcodes.declare_cheatcode import (
+    AbstractDeclare,
+    DeclaredContract,
+)
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet_gateway import GatewayFacade
 
@@ -28,15 +32,17 @@ class MigratorDeclareCheatcode(Cheatcode):
     def name(self) -> str:
         return "declare"
 
-    def build(self) -> Callable:
+    def build(self) -> AbstractDeclare:
         return self._declare
 
-    def _declare(self, contract_path: Path):
-        asyncio.run(
+    def _declare(self, contract_path_str: str):
+        response = asyncio.run(
             self._gateway_facade.declare(
-                compiled_contract_path=contract_path,
+                compiled_contract_path=Path(contract_path_str),
                 gateway_url=self._config.gateway_url,
                 signature=self._config.signature,
                 token=self._config.token,
             )
         )
+
+        return DeclaredContract(class_hash=response.class_hash)

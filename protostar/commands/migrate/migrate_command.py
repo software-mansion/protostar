@@ -85,10 +85,26 @@ class MigrateCommand(Command):
         ]
 
     async def run(self, args):
-        await self.migrate(migration_file_path=args.path, rollback=args.down)
+        await self.migrate(
+            migration_file_path=args.path,
+            rollback=args.down,
+            gateway_url=args.gateway_url,
+            network=args.network,
+        )
 
-    async def migrate(self, migration_file_path: Path, rollback: bool):
-        migrator = await self._migrator_factory.build(migration_file_path)
+    async def migrate(
+        self,
+        migration_file_path: Path,
+        rollback: bool,
+        gateway_url: Optional[str],
+        network: Optional[str],
+    ):
+        network_config = NetworkConfig.build(gateway_url, network)
+
+        migrator = await self._migrator_factory.build(
+            migration_file_path,
+            config=Migrator.Config(gateway_url=network_config.gateway_url),
+        )
 
         await migrator.run(
             mode="down" if rollback else "up",

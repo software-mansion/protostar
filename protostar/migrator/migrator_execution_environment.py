@@ -1,5 +1,8 @@
 from pathlib import Path
 
+from protostar.migrator.cheatcodes.migrator_declare_cheatcode import (
+    MigratorDeclareCheatcode,
+)
 from protostar.migrator.migrator_cheatcodes_factory import MigratorCheatcodeFactory
 from protostar.starknet.execution_environment import ExecutionEnvironment
 from protostar.starknet.execution_state import ExecutionState
@@ -10,12 +13,19 @@ from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompile
 
 
 class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
+    Config = MigratorDeclareCheatcode.Config
+
     class Factory:
-        def __init__(self, gateway_facade: GatewayFacade) -> None:
-            self.gateway_facade = gateway_facade
+        def __init__(
+            self,
+            gateway_facade: GatewayFacade,
+        ) -> None:
+            self._gateway_facade = gateway_facade
 
         async def build(
-            self, migration_file_path: Path
+            self,
+            migration_file_path: Path,
+            config: "MigratorExecutionEnvironment.Config",
         ) -> "MigratorExecutionEnvironment":
             compiler_config = CompilerConfig(
                 disable_hint_validation=True, include_paths=[]
@@ -37,7 +47,7 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
                 starknet_compiler=starknet_compiler,
             )
             migration_cheatcode_factory = MigratorCheatcodeFactory(
-                starknet_compiler, self.gateway_facade
+                starknet_compiler, self._gateway_facade, config=config
             )
 
             return MigratorExecutionEnvironment(

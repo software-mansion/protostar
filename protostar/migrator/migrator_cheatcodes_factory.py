@@ -13,11 +13,15 @@ from protostar.utils.starknet_compilation import StarknetCompiler
 
 class MigratorCheatcodeFactory(CheatcodeFactory):
     def __init__(
-        self, starknet_compiler: StarknetCompiler, gateway_facade: GatewayFacade
+        self,
+        starknet_compiler: StarknetCompiler,
+        gateway_facade: GatewayFacade,
+        config: MigratorDeclareCheatcode.Config,
     ) -> None:
         super().__init__()
         self._starknet_compiler = starknet_compiler
         self._gateway_facade = gateway_facade
+        self._config = config
 
     def build(
         self,
@@ -30,6 +34,6 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
             MigratorDeclareCheatcode(
                 syscall_dependencies,
                 self._gateway_facade,
-                config=MigratorDeclareCheatcode.Config(gateway_url=""),
+                config=self._config,
             )
         ]

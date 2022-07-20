@@ -8,6 +8,8 @@ from protostar.migrator.migrator_execution_environment import (
 
 
 class Migrator:
+    Config = MigratorExecutionEnvironment.Config
+
     class Factory:
         def __init__(
             self,
@@ -17,10 +19,10 @@ class Migrator:
                 migrator_execution_environment_factory
             )
 
-        async def build(self, migration_file_path: Path):
+        async def build(self, migration_file_path: Path, config: "Migrator.Config"):
             return Migrator(
                 migrator_execution_environment=await self._migrator_execution_environment_factory.build(
-                    migration_file_path
+                    migration_file_path, config=config
                 )
             )
 
