@@ -6,7 +6,6 @@ from tqdm import tqdm as bar
 
 from protostar.commands.test.test_cases import (
     BrokenTestSuite,
-    FailedTestCase,
     TestCaseResult,
 )
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
