@@ -7,13 +7,17 @@ from protostar.commands.test.test_command import TestCommand
 from protostar.commands.test.test_environment_exceptions import (
     ExpectedEventMissingException,
 )
-from tests.integration.conftest import assert_cairo_test_cases
+from tests.integration.conftest import (
+    RunCairoTestRunnerFixture,
+    assert_cairo_test_cases,
+)
 
 
 @pytest.mark.asyncio
 async def test_expect_events(mocker):
     testing_summary = await TestCommand(
-        project=mocker.MagicMock(),
+        project_root_path=Path(),
+        project_compiler=mocker.MagicMock(),
         protostar_directory=mocker.MagicMock(),
     ).test(
         targets=[f"{Path(__file__).parent}/expect_events_test.cairo"],
@@ -44,14 +48,12 @@ async def test_expect_events(mocker):
 
 
 @pytest.mark.asyncio
-async def test_event_selector_to_name_mapping(mocker):
-    testing_summary = await TestCommand(
-        project=mocker.MagicMock(),
-        protostar_directory=mocker.MagicMock(),
-    ).test(
-        targets=[
-            f"{Path(__file__).parent}/expect_events_test.cairo::test_selector_to_name_mapping"
-        ]
+async def test_event_selector_to_name_mapping(
+    run_cairo_test_runner: RunCairoTestRunnerFixture,
+):
+    testing_summary = await run_cairo_test_runner(
+        Path(__file__).parent
+        / "expect_events_test.cairo::test_selector_to_name_mapping"
     )
 
     ex = cast(ExpectedEventMissingException, testing_summary.failed[0].exception)

@@ -1,17 +1,50 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, List, Tuple
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Callable
+from starkware.starknet.public.abi_structs import (
+    prepare_type_for_abi,
+)
+from starkware.cairo.lang.compiler.ast.code_elements import (
+    CodeElementFunction,
+)
+from starkware.starknet.compiler.starknet_preprocessor import StarknetPreprocessor
 
 from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
 from starkware.cairo.lang.compiler.ast.code_elements import CodeElementFunction
 from starkware.cairo.lang.compiler.cairo_compile import get_module_reader
+from starkware.cairo.lang.compiler.preprocessor.pass_manager import (
+    PassManager,
+    PassManagerContext,
+)
+from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_manager
+
+
 from starkware.cairo.lang.compiler.preprocessor.default_pass_manager import (
     PreprocessorStage,
 )
-from starkware.cairo.lang.compiler.preprocessor.pass_manager import PassManager, Stage
-from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_manager
-from starkware.starknet.compiler.starknet_preprocessor import StarknetPreprocessor
-from starkware.starknet.public.abi_structs import prepare_type_for_abi
 from starkware.starknet.security.hints_whitelist import get_hints_whitelist
+
+
+from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
+from starkware.cairo.lang.compiler.cairo_compile import get_module_reader
+from starkware.cairo.lang.compiler.preprocessor.pass_manager import (
+    PassManager,
+    VisitorStage,
+)
+from starkware.cairo.lang.compiler.preprocessor.default_pass_manager import (
+    ModuleCollector,
+)
+from starkware.starknet.compiler.external_wrapper import (
+    parse_entry_point_decorators,
+)
+from starkware.starknet.public.abi import AbiType
+
+from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_manager
+from starkware.cairo.lang.compiler.ast.code_elements import (
+    CodeElementFunction,
+)
+from starkware.cairo.lang.compiler.ast.visitor import Visitor
+from starkware.starknet.compiler.external_wrapper import get_abi_entry_type
 
 if TYPE_CHECKING:
     from protostar.utils.starknet_compilation import CompilerConfig
@@ -38,19 +71,21 @@ class StarknetPassManagerFactory(PassManagerFactory):
 class TestCollectorPassManagerFactory(StarknetPassManagerFactory):
     @staticmethod
     def build(config: "CompilerConfig") -> PassManager:
-        pass_manager = StarknetPassManagerFactory.build(config)
-        crucial_stages: List[Tuple[str, Stage]] = [
-            stage_pair
-            for stage_pair in pass_manager.stages
-            if stage_pair[0]
-            in [
-                "module_collector",
-                "unique_label_creator",
-                "identifier_collector",
-            ]
-        ]
-        pass_manager.stages = crucial_stages
-        return pass_manager
+        read_module = get_module_reader(cairo_path=config.include_paths).read
+
+        manager = PassManager()
+        manager.add_stage(
+            "module_collector",
+            ModuleCollector(
+                read_module=read_module,
+                additional_modules=[],
+            ),
+        )
+        manager.add_stage(
+            "test_collector_preprocessor",
+            new_stage=TestCollectorStage(),
+        )
+        return manager
 
 
 class ProtostarPassMangerFactory(StarknetPassManagerFactory):
@@ -102,3 +137,65 @@ class ProtostarPreprocessor(StarknetPreprocessor):
         if attr is not None:
             self.add_abi_storage_var_types(elm=attr)
             return
+
+
+class TestCollectorStage(VisitorStage):
+    def __init__(self):
+        super().__init__(TestCollectorPreprocessor, modify_ast=True)
+
+    def run(self, context: PassManagerContext):
+        visitor = super().run(context)
+        context.preprocessed_program = visitor.get_program()
+        return visitor
+
+
+@dataclass
+class TestCollectorPreprocessedProgram:
+    abi: AbiType
+
+
+class TestCollectorPreprocessor(Visitor):
+    """
+    This preprocessor generates simpler and more limited ABI in exchange for performance.
+    ABI includes only function types with only names.
+    """
+
+    def __init__(self, context: PassManagerContext):
+        super().__init__()
+        self.abi: AbiType = []
+
+    def add_simple_abi_function_entry(
+        self, elm: CodeElementFunction, external_decorator_name: str
+    ):
+        """
+        Adds an entry describing the function to the contract's ABI.
+        """
+        entry_type = get_abi_entry_type(external_decorator_name=external_decorator_name)
+        self.abi.append(
+            {
+                "name": elm.name,
+                "type": entry_type,
+            }
+        )
+
+    def visit_namespace_elements(self, elm: CodeElementFunction):
+        for block in elm.code_block.code_elements:
+            self.visit(block.code_elm)
+
+    def visit_CodeElementFunction(self, elm: CodeElementFunction):
+        if elm.element_type == "namespace":
+            self.visit_namespace_elements(elm)
+
+        external_decorator, _, _ = parse_entry_point_decorators(elm=elm)
+        if external_decorator is not None:
+            # Add a function/constructor entry to the ABI.
+            self.add_simple_abi_function_entry(
+                elm=elm,
+                external_decorator_name=external_decorator.name,
+            )
+
+    def get_program(self):
+        return TestCollectorPreprocessedProgram(abi=self.abi)
+
+    def _visit_default(self, obj):
+        pass

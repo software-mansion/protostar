@@ -47,6 +47,6 @@ class BuildCommand(Command):
     async def run(self, args):
         self._project_compiler.compile(
             output_dir=args.output,
-            cairo_path=args.cairo_path,
+            relative_cairo_path=args.cairo_path,
             disable_hint_validation=args.disable_hint_validation,
         )

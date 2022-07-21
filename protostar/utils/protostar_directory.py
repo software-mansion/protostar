@@ -1,7 +1,7 @@
 import re
 from logging import getLogger
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 import tomli
 from git.cmd import Git
@@ -30,12 +30,10 @@ class ProtostarDirectory:
     def latest_version_cache_path(self) -> Path:
         return self.info_dir_path / "latest_version_cache.toml"
 
-    def add_protostar_cairo_dir(self, cairo_paths: List[Path]) -> List[Path]:
-        if self.protostar_binary_dir_path:
-            protostar_cairo_dir = self.protostar_binary_dir_path / "cairo"
-            if protostar_cairo_dir not in cairo_paths:
-                cairo_paths.append(protostar_cairo_dir)
-        return cairo_paths
+    @property
+    def protostar_test_only_cairo_packages_path(self) -> Path:
+        assert self.protostar_binary_dir_path is not None
+        return self.protostar_binary_dir_path / "cairo"
 
 
 VersionType = Union[LegacyVersion, PackagingVersion]

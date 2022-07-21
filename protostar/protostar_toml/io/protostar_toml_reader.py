@@ -10,15 +10,14 @@ from protostar.protostar_toml.protostar_toml_exceptions import (
 
 
 class ProtostarTOMLReader:
-
     FlattenSectionName = str
     """e.g. `profile.ci.protostar.shared_command_configs`"""
 
     def __init__(
         self,
-        protostar_toml_path: Optional[Path] = None,
+        protostar_toml_path: Path,
     ):
-        self.path = protostar_toml_path or Path() / "protostar.toml"
+        self.path = protostar_toml_path
         self._cache: Optional[Dict[ProtostarTOMLReader.FlattenSectionName, Any]] = None
 
     def get_section(
@@ -87,3 +86,15 @@ class ProtostarTOMLReader:
             self._cache = protostar_toml_flat_dict
 
             return protostar_toml_flat_dict
+
+
+def search_upwards_protostar_toml_path(start_path: Path) -> Optional[Path]:
+    directory_path = start_path
+    root_path = Path(directory_path.root)
+    while directory_path != root_path:
+        for file_path in directory_path.iterdir():
+            if "protostar.toml" == file_path.name:
+                return directory_path / "protostar.toml"
+
+        directory_path = directory_path.parent
+    return None
