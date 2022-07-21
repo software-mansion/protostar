@@ -24,8 +24,6 @@ from protostar.starknet.execution_environment import ExecutionEnvironment
 from protostar.utils.data_transformer_facade import DataTransformerFacade
 from protostar.utils.hook import Hook
 
-from io import StringIO
-
 
 class TestExecutionEnvironment(
     ExecutionEnvironment[Optional[ExecutionResourcesSummary]]
