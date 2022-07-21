@@ -55,10 +55,10 @@ class StarknetInteraction:
                     lines.append(
                         colorize(
                             "GRAY",
-                            f"{key.ljust(first_column_width)} {bold(value)}",
+                            f"  {key.ljust(first_column_width)} {bold(value)}",
                         )
                     )
                 else:
-                    lines.append(f"{key.ljust(first_column_width)} {value}")
+                    lines.append(f"  {key.ljust(first_column_width)} {value}")
 
         return "\n".join(lines)
