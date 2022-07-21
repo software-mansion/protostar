@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Literal, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 from services.external_api.client import RetryConfig
 from starkware.starknet.definitions import constants
@@ -11,6 +11,7 @@ from starkware.starknet.services.api.gateway.transaction import (
     Declare,
 )
 from starkware.starkware_utils.error_handling import StarkErrorCode
+from typing_extensions import Literal
 
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway.gateway_response import (
@@ -41,11 +42,16 @@ class GatewayFacade:
     class StarknetInteraction:
         direction: Literal["TO_STARKNET", "FROM_STARKNET"]
         action: str
-        payload: Optional[str]
+        payload: Optional[Dict[str, Any]]
 
-    def __init__(self, project_root_path: Path) -> None:
+    def __init__(
+        self,
+        project_root_path: Path,
+        on_starknet_interaction: Optional[Callable[[StarknetInteraction], None]] = None,
+    ) -> None:
         self._project_root_path = project_root_path
         self.starknet_interactions: List["GatewayFacade.StarknetInteraction"] = []
+        self._on_starknet_interaction = on_starknet_interaction
 
     # pylint: disable=too-many-arguments
     async def deploy(
@@ -61,23 +67,45 @@ class GatewayFacade:
 
         try:
             with open(
-                self._project_root_path / compilation_output_filepath,
+                compilation_output_filepath,
                 mode="r",
                 encoding="utf-8",
             ) as compiled_contract_file:
-                return await deploy(
+                self._add_interaction(
+                    GatewayFacade.StarknetInteraction(
+                        direction="TO_STARKNET",
+                        action="DEPLOY",
+                        payload={
+                            "compiled_contract_file": compiled_contract_file,
+                            "gateway_url": gateway_url,
+                            "constructor_args": inputs,
+                            "salt": salt,
+                            "token": token,
+                        },
+                    )
+                )
+                response = await deploy(
                     gateway_url=gateway_url,
                     compiled_contract_file=compiled_contract_file,
                     constructor_args=inputs,
                     salt=salt,
                     token=token,
                 )
+                self._add_interaction(
+                    GatewayFacade.StarknetInteraction(
+                        direction="FROM_STARKNET",
+                        action="DEPLOY",
+                        payload=response.__dict__,
+                    )
+                )
+                return response
 
         except FileNotFoundError as err:
             raise CompilationOutputNotFoundException(
                 compilation_output_filepath
             ) from err
 
+    # pylint: disable=too-many-locals
     async def declare(
         self,
         compiled_contract_path: Path,
@@ -93,9 +121,10 @@ class GatewayFacade:
         max_fee = 0
         nonce = 0
 
+        compiled_contract_abs_path = self._project_root_path / compiled_contract_path
         try:
             with open(
-                self._project_root_path / compiled_contract_path,
+                compiled_contract_abs_path,
                 mode="r",
                 encoding="utf-8",
             ) as compiled_contract_file:
@@ -111,6 +140,20 @@ class GatewayFacade:
                     nonce=nonce,
                 )  # type: ignore
 
+                self._add_interaction(
+                    GatewayFacade.StarknetInteraction(
+                        direction="TO_STARKNET",
+                        action="DECLARE",
+                        payload={
+                            "compiled_contract_file": compiled_contract_file,
+                            "sender_address": sender,
+                            "max_fee": max_fee,
+                            "version": constants.TRANSACTION_VERSION,
+                            "signature": signature or [],
+                            "nonce": nonce,
+                        },
+                    )
+                )
                 gateway_client = GatewayClient(
                     url=gateway_url, retry_config=RetryConfig(n_retries=1)
                 )
@@ -124,11 +167,23 @@ class GatewayFacade:
                     )
 
                 class_hash = int(gateway_response["class_hash"], 16)
-
-                return SuccessfulDeclareResponse(
+                response = SuccessfulDeclareResponse(
                     class_hash=class_hash,
-                    code=gateway_response["class_hash"],
+                    code=gateway_response["code"],
                     transaction_hash=gateway_response["transaction_hash"],
                 )
+                self._add_interaction(
+                    GatewayFacade.StarknetInteraction(
+                        direction="FROM_STARKNET",
+                        action="DECLARE",
+                        payload=response.__dict__,
+                    )
+                )
+                return response
         except FileNotFoundError as err:
             raise CompilationOutputNotFoundException(compiled_contract_path) from err
+
+    def _add_interaction(self, starknet_interaction: StarknetInteraction):
+        if self._on_starknet_interaction:
+            self._on_starknet_interaction(starknet_interaction)
+        self.starknet_interactions.append(starknet_interaction)
