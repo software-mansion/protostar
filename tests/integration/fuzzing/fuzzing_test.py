@@ -10,8 +10,10 @@ from tests.integration.conftest import (
 
 @pytest.mark.asyncio
 async def test_basic(run_cairo_test_runner: RunCairoTestRunnerFixture):
+    seed = 10
+
     testing_summary = await run_cairo_test_runner(
-        Path(__file__).parent / "basic_test.cairo", seed=10
+        Path(__file__).parent / "basic_test.cairo", seed=seed
     )
 
     assert_cairo_test_cases(
@@ -23,6 +25,9 @@ async def test_basic(run_cairo_test_runner: RunCairoTestRunnerFixture):
             "test_fails_if_big",
         ],
     )
+
+    assert testing_summary.testing_seed.value == seed
+    assert testing_summary.testing_seed.was_used
 
 
 @pytest.mark.asyncio

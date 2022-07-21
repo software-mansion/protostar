@@ -1,6 +1,7 @@
 import os
 from contextvars import ContextVar, Token
 from dataclasses import dataclass, field, InitVar
+from multiprocessing import Value
 from typing import Optional
 
 from typing_extensions import Self
@@ -14,7 +15,8 @@ class TestingSeed:
     seed: InitVar[Optional[Seed]] = None
 
     value: Seed = field(init=False)
-    was_used: bool = field(default=False, init=False)
+
+    _was_used: Value = field(default_factory=lambda: Value("B", 0), init=False)  # type: ignore
     _token: Optional[Token] = field(default=None, init=False)
 
     def __post_init__(self, seed: Optional[Seed]):
@@ -25,8 +27,17 @@ class TestingSeed:
         self = _testing_seed.get()
 
         # pylint: disable=protected-access
-        self.was_used = True
+        self._set_used()
+
         return self.value
+
+    @property
+    def was_used(self) -> bool:
+        return self._was_used.value != 0
+
+    def _set_used(self):
+        with self._was_used.get_lock():
+            self._was_used.value = 1
 
     def __enter__(self) -> Self:
         assert self._token is None
