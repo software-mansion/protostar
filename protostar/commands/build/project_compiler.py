@@ -10,6 +10,7 @@ from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 
 from protostar.commands.build.build_exceptions import CairoCompilationException
+from protostar.commands.test.expected_event import collect_immediate_subdirectories
 from protostar.protostar_toml.protostar_contracts_section import (
     ProtostarContractsSection,
 )
@@ -21,27 +22,57 @@ from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompile
 class ProjectCompiler:
     def __init__(
         self,
+        project_root_path: Path,
         project_section_loader: ProtostarProjectSection.Loader,
         contracts_section_loader: ProtostarContractsSection.Loader,
     ):
+        self._project_root_path = project_root_path
         self._project_section_loader = project_section_loader
         self._contracts_section_loader = contracts_section_loader
+
+    def build_cairo_path(self, relative_cairo_path: List[Path]) -> List[Path]:
+        project_section = self._project_section_loader.load()
+
+        cairo_path: List[Path] = [*relative_cairo_path]
+        if project_section.libs_path:
+            cairo_path.extend(
+                [
+                    self._project_root_path,
+                    self._project_root_path / project_section.libs_path,
+                ]
+            )
+            cairo_path.extend(
+                [
+                    Path(path)
+                    for path in collect_immediate_subdirectories(
+                        self._project_root_path / project_section.libs_path
+                    )
+                ]
+            )
+
+        return cairo_path
 
     def compile(
         self,
         output_dir: Path,
-        cairo_path: List[Path],
+        relative_cairo_path: List[Path],
         disable_hint_validation: bool,
     ):
-        project_section = self._project_section_loader.load()
+        include_paths = [
+            str(path) for path in self.build_cairo_path(relative_cairo_path)
+        ]
         contracts_section = self._contracts_section_loader.load()
-        include_paths = [str(pth) for pth in [*cairo_path, project_section.libs_path]]
+        if not output_dir.is_absolute():
+            output_dir = self._project_root_path / output_dir
         output_dir.mkdir(exist_ok=True)
 
         for (
             contract_name,
-            contract_paths,
+            user_contract_paths,
         ) in contracts_section.contract_name_to_paths.items():
+            contract_paths = [
+                self._project_root_path / path for path in user_contract_paths
+            ]
             contract = self._compile_contract(
                 contract_name,
                 contract_paths,
@@ -62,11 +93,11 @@ class ProjectCompiler:
 
         try:
             return StarknetCompiler(
-                config = CompilerConfig(
+                config=CompilerConfig(
                     include_paths=include_paths,
-                    disable_hint_validation=disable_hint_validation
+                    disable_hint_validation=disable_hint_validation,
                 ),
-                pass_manager_factory=StarknetPassManagerFactory
+                pass_manager_factory=StarknetPassManagerFactory,
             ).compile_contract(
                 *contract_paths,
             )

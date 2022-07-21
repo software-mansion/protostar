@@ -1,7 +1,10 @@
 from os import listdir
 from subprocess import CalledProcessError
+from textwrap import dedent
 
 import pytest
+
+from tests.e2e.conftest import ProtostarFixture
 
 
 @pytest.mark.usefixtures("init")
@@ -154,3 +157,34 @@ def test_building_account_contract(protostar):
 
     dirs = listdir()
     assert "build" in dirs
+
+
+@pytest.mark.usefixtures("init")
+def test_building_project_with_modified_protostar_toml(protostar: ProtostarFixture):
+
+    with open("./protostar.toml", mode="w", encoding="utf-8") as protostar_toml:
+        protostar_toml.write(
+            dedent(
+                """
+            ["protostar.config"]
+            protostar_version = "0.0.0"
+
+            ["protostar.project"]
+            libs_path = "lib"
+
+            ["protostar.contracts"]
+            foo = [
+                "./src/main.cairo",
+            ]
+            bar = [
+                "./src/main.cairo",
+            ]
+            """
+            )
+        )
+
+    protostar(["build"])
+
+    build_dir = listdir("./build")
+    assert "foo.json" in build_dir
+    assert "bar.json" in build_dir

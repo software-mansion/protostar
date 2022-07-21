@@ -1,21 +1,22 @@
 from pathlib import Path
-from typing import cast
-from unittest.mock import MagicMock
 
 import pytest
+from pytest_mock import MockerFixture
 
 from protostar.commands.test.test_command import TestCommand
 from tests.integration.conftest import assert_cairo_test_cases
 
 
 @pytest.mark.asyncio
-async def test_deploy_contract(mocker):
+async def test_deploy_contract(mocker: MockerFixture):
     protostar_directory_mock = mocker.MagicMock()
-    cast(MagicMock, protostar_directory_mock.add_protostar_cairo_dir).return_value = [
+    protostar_directory_mock.protostar_test_only_cairo_packages_path = (
         Path() / "tests" / "integration" / "data"
-    ]
+    )
+
     testing_summary = await TestCommand(
-        project=mocker.MagicMock(),
+        project_root_path=Path(),
+        project_compiler=mocker.MagicMock(),
         protostar_directory=protostar_directory_mock,
     ).test(targets=[f"{Path(__file__).parent}/deploy_contract_test.cairo"])
 

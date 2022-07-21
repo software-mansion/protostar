@@ -18,16 +18,20 @@ from protostar.utils.protostar_directory import ProtostarDirectory
 from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
 if TYPE_CHECKING:
-    from protostar.utils.config.project import Project
+    from protostar.commands.build.project_compiler import ProjectCompiler
 
 
 class TestCommand(Command):
     def __init__(
-        self, project: "Project", protostar_directory: ProtostarDirectory
+        self,
+        project_root_path: Path,
+        protostar_directory: ProtostarDirectory,
+        project_compiler: "ProjectCompiler",
     ) -> None:
         super().__init__()
-        self._project = project
+        self._project_root_path = project_root_path
         self._protostar_directory = protostar_directory
+        self._project_compiler = project_compiler
 
     @property
     def name(self) -> str:
@@ -132,8 +136,13 @@ class TestCommand(Command):
         stdout_on_success: bool = False,
     ) -> TestingSummary:
         logger = getLogger()
-
-        include_paths = self._build_include_paths(cairo_path or [])
+        include_paths = [
+            str(path)
+            for path in [
+                self._protostar_directory.protostar_test_only_cairo_packages_path,
+                *self._project_compiler.build_cairo_path(cairo_path or []),
+            ]
+        ]
         factory = (
             StarknetPassManagerFactory
             if safe_collecting
@@ -151,7 +160,7 @@ class TestCommand(Command):
             ).collect(
                 targets=targets,
                 ignored_targets=ignored_targets,
-                default_test_suite_glob=str(self._project.project_root),
+                default_test_suite_glob=str(self._project_root_path),
             )
         test_collector_result.log(logger)
 
@@ -175,9 +184,3 @@ class TestCommand(Command):
             )
 
         return testing_summary
-
-    def _build_include_paths(self, cairo_paths: List[Path]) -> List[str]:
-        cairo_paths = self._protostar_directory.add_protostar_cairo_dir(cairo_paths)
-        include_paths = [str(pth) for pth in cairo_paths]
-        include_paths.extend(self._project.get_include_paths())
-        return include_paths
