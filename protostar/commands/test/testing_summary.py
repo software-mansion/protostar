@@ -44,21 +44,21 @@ class TestingSummary:
         collected_test_cases_count: int,
         collected_test_suites_count: int,
     ):
+        header_width = len("Test suites: ")
+
         logger.info(
-            log_color_provider.bold("Test suites: ")
+            log_color_provider.bold("Test suites: ".ljust(header_width))
             + self._get_test_suites_summary(collected_test_suites_count)
         )
         logger.info(
-            log_color_provider.bold("Tests:       ")
+            log_color_provider.bold("Tests: ".ljust(header_width))
             + self._get_test_cases_summary(collected_test_cases_count)
         )
 
         if self.testing_seed.was_used:
-            logger.info("")
             logger.info(
-                log_color_provider.colorize(
-                    "GRAY", f"Randomized with seed {self.testing_seed.value}"
-                )
+                log_color_provider.bold("Seed: ".ljust(header_width))
+                + str(self.testing_seed.value)
             )
 
     def assert_all_passed(self):

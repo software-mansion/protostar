@@ -13,6 +13,7 @@ def test_fuzzing(protostar, copy_fixture):
     result += "\n"
 
     assert "2 failed, 1 passed, 3 total" in result
+    assert "Seed:" in result
 
     assert "[PASS] tests/test_fuzz.cairo" in result
     assert "μ: 18, Md: 18, min: 18, max: 18" in result
