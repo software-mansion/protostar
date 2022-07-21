@@ -1,7 +1,9 @@
 from pathlib import Path
 
+from reactivex import Subject
 from typing_extensions import Literal
 
+from protostar.migrator.migrator_cheatcodes_factory import MigratorCheatcodeFactory
 from protostar.migrator.migrator_execution_environment import (
     MigratorExecutionEnvironment,
 )
@@ -35,6 +37,14 @@ class Migrator:
     async def run(self, mode: Literal["up", "down"]):
         assert mode in ("up", "down")
 
-        await self._migrator_execution_environment.invoke(function_name=mode)
+        starknet_interactions_subject = Subject[
+            MigratorCheatcodeFactory.StarknetInteraction
+        ]()
+
+        with starknet_interactions_subject:
+            self._migrator_execution_environment.cheatcode_factory.starknet_interaction_subject = (
+                starknet_interactions_subject
+            )
+            await self._migrator_execution_environment.invoke(function_name=mode)
 
         # TODO: save the results

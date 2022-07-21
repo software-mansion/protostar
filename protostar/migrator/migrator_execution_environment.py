@@ -47,7 +47,9 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
                 starknet_compiler=starknet_compiler,
             )
             migration_cheatcode_factory = MigratorCheatcodeFactory(
-                starknet_compiler, self._gateway_facade, config=config
+                starknet_compiler,
+                self._gateway_facade,
+                config=config,
             )
 
             return MigratorExecutionEnvironment(
@@ -62,8 +64,12 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
         self, state: "State", migrator_cheatcode_factory: MigratorCheatcodeFactory
     ):
         super().__init__(state)
-        self._migrator_cheatcode_factory = migrator_cheatcode_factory
+        self.cheatcode_factory = migrator_cheatcode_factory
 
-    async def invoke(self, function_name: str) -> None:
-        self.set_cheatcodes(self._migrator_cheatcode_factory)
+    async def invoke(
+        self,
+        function_name: str,
+    ) -> None:
+
+        self.set_cheatcodes(self.cheatcode_factory)
         await self.perform_invoke(function_name)

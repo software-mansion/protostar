@@ -1,5 +1,7 @@
-from typing import List
+from dataclasses import dataclass
+from typing import List, Optional
 
+from reactivex import Subject
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
 from protostar.migrator.cheatcodes.migrator_declare_cheatcode import (
@@ -18,6 +20,10 @@ from protostar.utils.starknet_compilation import StarknetCompiler
 
 
 class MigratorCheatcodeFactory(CheatcodeFactory):
+    @dataclass
+    class StarknetInteraction:
+        type: str
+
     def __init__(
         self,
         starknet_compiler: StarknetCompiler,
@@ -28,6 +34,9 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
         self._starknet_compiler = starknet_compiler
         self._gateway_facade = gateway_facade
         self._config = config
+        self.starknet_interaction_subject: Optional[
+            Subject["MigratorCheatcodeFactory.StarknetInteraction"]
+        ] = None
 
     def build(
         self,
