@@ -24,13 +24,11 @@ class TestingLiveLogger:
         testing_summary: TestingSummary,
         no_progress_bar: bool,
         exit_first: bool,
-        stdout_on_success: bool,
     ) -> None:
         self._logger = logger
         self._no_progress_bar = no_progress_bar
         self.testing_summary = testing_summary
         self.exit_first = exit_first
-        self.stdout_on_success = stdout_on_success
 
     def log_testing_summary(
         self, test_collector_result: "TestCollector.Result"
@@ -71,12 +69,7 @@ class TestingLiveLogger:
                             else "GREEN"
                         )
 
-                        progress_bar.write(
-                            test_case_result.display(
-                                self.stdout_on_success
-                                or isinstance(test_case_result, FailedTestCase)
-                            )
-                        )
+                        progress_bar.write(test_case_result.display(True))
 
                         if (
                             self.exit_first
