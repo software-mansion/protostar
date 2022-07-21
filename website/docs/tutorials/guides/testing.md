@@ -891,7 +891,7 @@ func test_reflect_passed_full():
 ```
 
 :::warning
-For safety and comparison reasons `reflect` does not automatically dereference pointers `ids`. It will be adressed with a future `dereference` cheatcode. 
+For safety and comparison reasons `reflect` does not automatically dereference pointers like `ids`. It will be adressed with a future `dereference` cheatcode. 
 :::
 
 ## Data Transformer
