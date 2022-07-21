@@ -13,10 +13,9 @@ def test_basic_contract(protostar):
 
 
 @pytest.mark.usefixtures("init")
-def test_fast_collecting(protostar):
-    result = protostar(["test", "--fast-collecting"])
+def test_safe_collecting(protostar):
+    result = protostar(["test", "--safe-collecting"])
     assert "1 passed" in result
-
 
 @pytest.mark.usefixtures("init")
 def test_complex(protostar, copy_fixture):

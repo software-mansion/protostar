@@ -10,6 +10,7 @@ from protostar.commands.test.test_scheduler import TestScheduler
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.commands.test.testing_summary import TestingSummary
 from protostar.utils.compiler.pass_managers import (
+    ProtostarPassMangerFactory,
     StarknetPassManagerFactory,
     TestCollectorPassManagerFactory,
 )
@@ -96,6 +97,13 @@ class TestCommand(Command):
                 ),
             ),
             Command.Argument(
+                name="safe-collecting",
+                type="bool",
+                description=(
+                    "Uses cairo compiler for test collection"
+                ),
+            ),
+            Command.Argument(
                 name="exit-first",
                 short_name="x",
                 type="bool",
@@ -116,6 +124,7 @@ class TestCommand(Command):
             disable_hint_validation=args.disable_hint_validation,
             no_progress_bar=args.no_progress_bar,
             fast_collecting=args.fast_collecting,
+            safe_collecting=args.safe_collecting,
             exit_first=args.exit_first,
             stdout_on_success=args.stdout_on_success,
         )
@@ -131,12 +140,14 @@ class TestCommand(Command):
         disable_hint_validation: bool = False,
         no_progress_bar: bool = False,
         fast_collecting: bool = False,
+        safe_collecting: bool = False,
         exit_first: bool = False,
         stdout_on_success: bool = False,
     ) -> TestingSummary:
         logger = getLogger()
 
         include_paths = self._build_include_paths(cairo_path or [])
+        factory = ProtostarPassMangerFactory if safe_collecting else TestCollectorPassManagerFactory
         assert not fast_collecting, "`--fast-collecting` is deprecated, use default strategy"
         with ActivityIndicator(log_color_provider.colorize("GRAY", "Collecting tests")):
             test_collector_result = TestCollector(
@@ -144,7 +155,7 @@ class TestCommand(Command):
                     config=CompilerConfig(
                         disable_hint_validation=True, include_paths=include_paths
                     ),
-                    pass_manager_factory=TestCollectorPassManagerFactory,
+                    pass_manager_factory=factory,
                 ),
                 config=TestCollector.Config(fast_collecting=fast_collecting),
             ).collect(

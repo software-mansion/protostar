@@ -92,6 +92,7 @@ class TestCollector:
     @dataclass
     class Config:
         fast_collecting: bool = False
+        safe_collecting: bool = False
 
     class Result:
         def __init__(
