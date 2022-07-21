@@ -96,6 +96,11 @@ class TestCommand(Command):
                 ),
             ),
             Command.Argument(
+                name="safe-collecting",
+                type="bool",
+                description=("Uses cairo compiler for test collection"),
+            ),
+            Command.Argument(
                 name="exit-first",
                 short_name="x",
                 type="bool",
@@ -116,6 +121,7 @@ class TestCommand(Command):
             disable_hint_validation=args.disable_hint_validation,
             no_progress_bar=args.no_progress_bar,
             fast_collecting=args.fast_collecting,
+            safe_collecting=args.safe_collecting,
             exit_first=args.exit_first,
             stdout_on_success=args.stdout_on_success,
         )
@@ -131,25 +137,28 @@ class TestCommand(Command):
         disable_hint_validation: bool = False,
         no_progress_bar: bool = False,
         fast_collecting: bool = False,
+        safe_collecting: bool = False,
         exit_first: bool = False,
         stdout_on_success: bool = False,
     ) -> TestingSummary:
         logger = getLogger()
 
         include_paths = self._build_include_paths(cairo_path or [])
-
+        factory = (
+            StarknetPassManagerFactory
+            if safe_collecting
+            else TestCollectorPassManagerFactory
+        )
+        assert (
+            not fast_collecting
+        ), "`--fast-collecting` is deprecated, use default strategy"
         with ActivityIndicator(log_color_provider.colorize("GRAY", "Collecting tests")):
-            pass_manager_factory = (
-                TestCollectorPassManagerFactory
-                if fast_collecting
-                else StarknetPassManagerFactory
-            )
             test_collector_result = TestCollector(
                 StarknetCompiler(
                     config=CompilerConfig(
                         disable_hint_validation=True, include_paths=include_paths
                     ),
-                    pass_manager_factory=pass_manager_factory,
+                    pass_manager_factory=factory,
                 ),
                 config=TestCollector.Config(fast_collecting=fast_collecting),
             ).collect(
@@ -157,7 +166,6 @@ class TestCommand(Command):
                 ignored_targets=ignored_targets,
                 default_test_suite_glob=str(self._project.project_root),
             )
-
         test_collector_result.log(logger)
 
         testing_summary = TestingSummary(

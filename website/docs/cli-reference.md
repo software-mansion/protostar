@@ -137,6 +137,8 @@ A glob or globs to a directory or a test suite, which should be ignored.
 
 #### `--no-progress-bar`
 Disable progress bar.
+#### `--safe-collecting`
+Uses cairo compiler for test collection
 #### `--stdout-on-success`
 Also print captured standard output for passed test cases.
 ### `update`
