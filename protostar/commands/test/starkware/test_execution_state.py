@@ -42,11 +42,7 @@ class TestExecutionState(ExecutionState):
         )
 
     def get_output(self, name: OutputName) -> str:
-        if name in self.output_recorder.captures:
-            return self.output_recorder.captures[name].getvalue()
-
-        # Handles weird situations when execution stops mid setup
-        return self.output_recorder.record(name).getvalue()
+        return self.output_recorder.captures[name].getvalue()
 
     def fork(self) -> Self:
         return dataclasses.replace(

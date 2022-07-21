@@ -29,14 +29,3 @@ class OutputRecorder:
         buffer = StringIO()
         self.captures[name] = buffer
         return buffer
-
-
-# # In TestExecutionState
-# class TestExecutionState:
-#     output_recorder: OutputRecorder
-
-#     # fork will copy output_recorder
-
-# # Execution environments will wrap `await.perform_invoke` calls with:
-# with redirect_stdout(self.state.output_recorder.record(...)):
-#     ...
