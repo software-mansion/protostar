@@ -23,7 +23,10 @@ from protostar.commands.init.project_creator import (
     NewProjectCreator,
 )
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
-from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
+from protostar.protostar_toml.io.protostar_toml_reader import (
+    ProtostarTOMLReader,
+    search_upwards_protostar_toml_path,
+)
 from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
 from protostar.protostar_toml.protostar_contracts_section import (
     ProtostarContractsSection,
@@ -37,7 +40,6 @@ from protostar.upgrader import (
 )
 from protostar.upgrader.latest_version_cache_toml import LatestVersionCacheTOML
 from protostar.utils import (
-    Project,
     ProtostarDirectory,
     StandardLogFormatter,
     VersionManager,
@@ -84,7 +86,7 @@ class ProtostarCLI(CLIApp):
         self,
         script_root: Path,
         protostar_directory: ProtostarDirectory,
-        project: Project,
+        project_root_path: Path,
         version_manager: VersionManager,
         protostar_toml_writer: ProtostarTOMLWriter,
         protostar_toml_reader: ProtostarTOMLReader,
@@ -94,10 +96,21 @@ class ProtostarCLI(CLIApp):
         gateway_facade: GatewayFacade,
         start_time: float = 0.0,
     ) -> None:
-        self.project = project
+        self.project_root_path = project_root_path
         self.logger = logger
         self.latest_version_checker = latest_version_checker
         self.start_time = start_time
+        self.protostar_toml_reader = protostar_toml_reader
+
+        project_compiler = ProjectCompiler(
+            project_root_path=project_root_path,
+            project_section_loader=ProtostarProjectSection.Loader(
+                protostar_toml_reader
+            ),
+            contracts_section_loader=ProtostarContractsSection.Loader(
+                protostar_toml_reader
+            ),
+        )
 
         super().__init__(
             commands=[
@@ -116,19 +129,29 @@ class ProtostarCLI(CLIApp):
                         version_manager,
                     ),
                 ),
-                BuildCommand(
-                    ProjectCompiler(
-                        project_section_loader=ProtostarProjectSection.Loader(
-                            protostar_toml_reader
-                        ),
-                        contracts_section_loader=ProtostarContractsSection.Loader(
-                            protostar_toml_reader
-                        ),
-                    )
+                BuildCommand(project_compiler),
+                InstallCommand(
+                    log_color_provider=log_color_provider,
+                    logger=logger,
+                    project_root_path=project_root_path,
+                    project_section_loader=ProtostarProjectSection.Loader(
+                        protostar_toml_reader
+                    ),
                 ),
-                InstallCommand(project),
-                RemoveCommand(project),
-                UpdateCommand(project),
+                RemoveCommand(
+                    logger=logger,
+                    project_root_path=project_root_path,
+                    project_section_loader=ProtostarProjectSection.Loader(
+                        protostar_toml_reader
+                    ),
+                ),
+                UpdateCommand(
+                    logger=logger,
+                    project_root_path=project_root_path,
+                    project_section_loader=ProtostarProjectSection.Loader(
+                        protostar_toml_reader
+                    ),
+                ),
                 UpgradeCommand(
                     UpgradeManager(
                         protostar_directory,
@@ -137,7 +160,7 @@ class ProtostarCLI(CLIApp):
                         self.logger,
                     )
                 ),
-                TestCommand(project, protostar_directory),
+                TestCommand(project_root_path, protostar_directory, project_compiler),
                 DeployCommand(gateway_facade, logger),
                 DeclareCommand(gateway_facade, logger),
             ],
@@ -160,11 +183,21 @@ class ProtostarCLI(CLIApp):
 
     @classmethod
     def create(cls, script_root: Path):
+        protostar_toml_path = search_upwards_protostar_toml_path(
+            start_path=Path().resolve()
+        )
+        project_root_path = (
+            protostar_toml_path.parent if protostar_toml_path is not None else Path()
+        )
+        protostar_toml_path = (
+            protostar_toml_path or project_root_path / "protostar.toml"
+        )
         protostar_directory = ProtostarDirectory(script_root)
         version_manager = VersionManager(protostar_directory)
-        project = Project(version_manager)
         protostar_toml_writer = ProtostarTOMLWriter()
-        protostar_toml_reader = ProtostarTOMLReader()
+        protostar_toml_reader = ProtostarTOMLReader(
+            protostar_toml_path=protostar_toml_path
+        )
         requester = InputRequester(log_color_provider)
         logger = getLogger()
         latest_version_checker = LatestVersionChecker(
@@ -180,12 +213,12 @@ class ProtostarCLI(CLIApp):
             ),
             latest_version_remote_checker=LatestVersionRemoteChecker(),
         )
-        gateway_facade = GatewayFacade(project_root_path=project.project_root)
+        gateway_facade = GatewayFacade(project_root_path=project_root_path)
 
         return cls(
             script_root=script_root,
+            project_root_path=project_root_path,
             protostar_directory=protostar_directory,
-            project=project,
             version_manager=version_manager,
             protostar_toml_writer=protostar_toml_writer,
             protostar_toml_reader=protostar_toml_reader,

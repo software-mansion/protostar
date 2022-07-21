@@ -7,7 +7,8 @@ from tests.integration.conftest import assert_cairo_test_cases
 async def test_disabling_hint_validation(mocker):
     async def run_test(disable_hint_validation: bool):
         return await TestCommand(
-            project=mocker.MagicMock(),
+            project_root_path=Path(),
+            project_compiler=mocker.MagicMock(),
             protostar_directory=mocker.MagicMock(),
         ).test(
             targets=[f"{Path(__file__).parent}/disabling_hint_validation_test.cairo"],

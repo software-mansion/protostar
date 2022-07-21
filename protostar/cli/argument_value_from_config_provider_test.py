@@ -2,12 +2,11 @@ from pathlib import Path
 from typing import Optional
 
 import pytest
-from pytest_mock import MockerFixture
 
 from protostar.cli.argument_value_from_config_provider import (
     ArgumentValueFromConfigProvider,
 )
-from protostar.utils import Project
+from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 
 
 @pytest.fixture(name="configuration_profile_name")
@@ -16,12 +15,12 @@ def configuration_profile_name_fixture() -> Optional[str]:
 
 
 @pytest.fixture(name="arg_value_provider")
-def arg_value_provider_fixture(
-    mocker: MockerFixture, datadir: Path, configuration_profile_name
-):
+def arg_value_provider_fixture(datadir: Path, configuration_profile_name):
     return ArgumentValueFromConfigProvider(
-        Project(project_root=datadir, version_manager=mocker.MagicMock()),
-        configuration_profile_name,
+        protostar_toml_reader=ProtostarTOMLReader(
+            protostar_toml_path=datadir / "protostar.toml"
+        ),
+        configuration_profile_name=configuration_profile_name,
     )
 
 
