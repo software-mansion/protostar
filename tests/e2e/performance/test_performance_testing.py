@@ -162,7 +162,7 @@ async def test_deploy_perf(tmp_test_dir, basic_contract_path):
         case_names=case_names,
     )
 
-    with timing(expected=30):
+    with timing(expected=40):
         await run_tests(contract=contract_class, test_suite=test_suite)
 
 
@@ -219,7 +219,7 @@ async def test_setup_perf(tmp_test_dir, basic_contract_path):
         case_names=case_names,
     )
 
-    with timing(expected=30, minimum=expected_with_setup):
+    with timing(expected=40, minimum=expected_with_setup):
         await run_tests(contract=contract_class, test_suite=test_suite)
 
 
@@ -234,7 +234,7 @@ async def test_expect_revert_perf(tmp_test_dir):
     contract_class, test_suite = build_test_suite(
         source_code=test_cases, file_path=tmp_test_dir, case_names=case_names
     )
-    with timing(expected=8):
+    with timing(expected=10):
         await run_tests(
             test_suite=test_suite,
             contract=contract_class,
@@ -263,7 +263,7 @@ async def test_expect_events_perf(tmp_test_dir):
         file_path=tmp_test_dir,
         case_names=case_names,
     )
-    with timing(expected=9):
+    with timing(expected=12):
         await run_tests(
             test_suite=test_suite,
             contract=contract_class,
@@ -281,7 +281,7 @@ async def test_declare_perf(tmp_test_dir, basic_contract_path):
     contract_class, test_suite = build_test_suite(
         source_code=test_cases, file_path=tmp_test_dir, case_names=case_names
     )
-    with timing(expected=25):
+    with timing(expected=33):
         await run_tests(
             test_suite=test_suite,
             contract=contract_class,
@@ -310,7 +310,7 @@ async def test_prepare_perf(tmp_test_dir, basic_contract_path):
         setup_fn_name="__setup__",
     )
 
-    with timing(expected=9):
+    with timing(expected=13):
         await run_tests(
             test_suite=test_suite,
             contract=contract_class,
@@ -431,7 +431,7 @@ async def test_assertions_perf(tmp_test_dir, protostar_cairo_path):
         include_paths=[protostar_cairo_path],
     )
 
-    with timing(expected=12):
+    with timing(expected=15):
         await run_tests(
             test_suite=test_suite,
             contract=contract_class,
@@ -454,7 +454,7 @@ async def test_unit_testing_perf(tmp_test_dir):
         source_code=test_cases, file_path=tmp_test_dir, case_names=case_names
     )
 
-    with timing(expected=9):
+    with timing(expected=13):
         await run_tests(
             test_suite=test_suite,
             contract=contract_class,
@@ -497,7 +497,7 @@ async def test_collecting_tests_perf(tmp_test_dir):
 
     build_subtree(current_directory=tmp_test_dir)
 
-    with timing(expected=65):
+    with timing(expected=85):
         result = TestCollector(starknet_compiler=get_test_starknet_compiler()).collect(
             [str(tmp_test_dir)]
         )
