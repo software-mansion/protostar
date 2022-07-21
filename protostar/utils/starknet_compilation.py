@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Callable, List, Set, Tuple, Type, Union
+from typing import Callable, List, Tuple, Type, Union
 from dataclasses import dataclass
 
 from starkware.cairo.lang.compiler.constants import MAIN_SCOPE

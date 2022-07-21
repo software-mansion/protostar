@@ -305,9 +305,7 @@ class TestCollector:
     ) -> TestSuite:
         test_case_names: List[str] = []
         setup_fn_name: Optional[str] = None
-        preprocessed = self._starknet_compiler.preprocess_contract(
-            test_suite_info.path
-        )
+        preprocessed = self._starknet_compiler.preprocess_contract(test_suite_info.path)
         test_case_names = self._collect_test_case_names(preprocessed)
         setup_fn_name = self._collect_setup_hook_name(preprocessed)
 
