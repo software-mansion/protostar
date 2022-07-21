@@ -68,7 +68,9 @@ class TestingLiveLogger:
                             else "GREEN"
                         )
 
-                        progress_bar.write(test_case_result.display(include_stdout_section=True))
+                        progress_bar.write(
+                            test_case_result.display(include_stdout_section=True)
+                        )
 
                         if (
                             self.exit_first
