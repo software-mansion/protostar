@@ -141,12 +141,13 @@ class ProtostarPreprocessor(StarknetPreprocessor):
 
 class TestCollectorStage(VisitorStage):
     def __init__(self):
-        self.super(TestCollectorPreprocessor, modify_ast=True)
+        super().__init__(TestCollectorPreprocessor, modify_ast=True)
 
     def run(self, context: PassManagerContext):
         visitor = super().run(context)
         context.preprocessed_program = visitor.get_program()
         return visitor
+
 
 @dataclass
 class TestCollectorPreprocessedProgram:
@@ -178,9 +179,8 @@ class TestCollectorPreprocessor(Visitor):
         )
 
     def visit_namespace_elements(self, elm: CodeElementFunction):
-        for elm in elm.code_block.code_elements:
-            self.visit(elm.code_elm)
-
+        for block in elm.code_block.code_elements:
+            self.visit(block.code_elm)
 
     def visit_CodeElementFunction(self, elm: CodeElementFunction):
         if elm.element_type == "namespace":

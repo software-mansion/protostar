@@ -10,7 +10,6 @@ from protostar.commands.test.test_scheduler import TestScheduler
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.commands.test.testing_summary import TestingSummary
 from protostar.utils.compiler.pass_managers import (
-    ProtostarPassMangerFactory,
     StarknetPassManagerFactory,
     TestCollectorPassManagerFactory,
 )
@@ -99,9 +98,7 @@ class TestCommand(Command):
             Command.Argument(
                 name="safe-collecting",
                 type="bool",
-                description=(
-                    "Uses cairo compiler for test collection"
-                ),
+                description=("Uses cairo compiler for test collection"),
             ),
             Command.Argument(
                 name="exit-first",
@@ -147,8 +144,14 @@ class TestCommand(Command):
         logger = getLogger()
 
         include_paths = self._build_include_paths(cairo_path or [])
-        factory = ProtostarPassMangerFactory if safe_collecting else TestCollectorPassManagerFactory
-        assert not fast_collecting, "`--fast-collecting` is deprecated, use default strategy"
+        factory = (
+            StarknetPassManagerFactory
+            if safe_collecting
+            else TestCollectorPassManagerFactory
+        )
+        assert (
+            not fast_collecting
+        ), "`--fast-collecting` is deprecated, use default strategy"
         with ActivityIndicator(log_color_provider.colorize("GRAY", "Collecting tests")):
             test_collector_result = TestCollector(
                 StarknetCompiler(

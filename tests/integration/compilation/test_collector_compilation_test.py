@@ -24,9 +24,11 @@ async def test_test_collector_pass_oracle(mocker: MockerFixture):
         pass_manager_factory=TestCollectorPassManagerFactory,
     )
     file_path = Path(__file__).parent / "collector_contract.cairo"
-    
+
     contract_class = compiler.preprocess_contract(file_path)
 
     assert contract_class.abi
-    assert set([el["name"] for el in contract_class.abi]) == set(expected_collected_functions_oracle(file_path))
+    assert set([el["name"] for el in contract_class.abi]) == set(
+        expected_collected_functions_oracle(file_path)
+    )
     assert all([el["type"] == "function" for el in contract_class.abi])

@@ -38,6 +38,3 @@ async def test_protostar_pass(mocker: MockerFixture):
     assert contract_class.abi
     assert first_type in contract_class.abi
     assert second_type in contract_class.abi
-
-
-
