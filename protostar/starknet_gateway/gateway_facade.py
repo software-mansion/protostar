@@ -1,5 +1,6 @@
+from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Literal, Optional
 
 from services.external_api.client import RetryConfig
 from starkware.starknet.definitions import constants
@@ -36,8 +37,15 @@ class CompilationOutputNotFoundException(ProtostarException):
 
 
 class GatewayFacade:
+    @dataclass
+    class StarknetInteraction:
+        direction: Literal["TO_STARKNET", "FROM_STARKNET"]
+        action: str
+        payload: Optional[str]
+
     def __init__(self, project_root_path: Path) -> None:
         self._project_root_path = project_root_path
+        self.starknet_interactions: List["GatewayFacade.StarknetInteraction"] = []
 
     # pylint: disable=too-many-arguments
     async def deploy(
