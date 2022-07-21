@@ -83,10 +83,7 @@ class TestCollectorPassManagerFactory(StarknetPassManagerFactory):
         )
         manager.add_stage(
             "test_collector_preprocessor",
-            new_stage=TestCollectorStage(
-                TestCollectorPreprocessor,
-                modify_ast=True,
-            ),
+            new_stage=TestCollectorStage(),
         )
         return manager
 
@@ -143,10 +140,8 @@ class ProtostarPreprocessor(StarknetPreprocessor):
 
 
 class TestCollectorStage(VisitorStage):
-    def __init__(self, visitor_factory, modify_ast=True):
-        self.visitor_factory = visitor_factory
-        self.modify_ast = modify_ast
-
+    def __init__(self):
+        self.super(TestCollectorPreprocessor, modify_ast=True)
 
     def run(self, context: PassManagerContext):
         visitor = super().run(context)
