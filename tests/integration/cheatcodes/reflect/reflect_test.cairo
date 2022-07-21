@@ -32,7 +32,7 @@ func test_reflect_passed_simple():
     )
 
     %{
-        structA = reflect(ids).structA
+        structA = reflect(ids).structA.get()
 
         from collections import namedtuple
         StructB = namedtuple("StructB", "e f")
@@ -61,7 +61,7 @@ func test_reflect_failed_simple():
     )
 
     %{
-        structA = reflect(ids).structA
+        structA = reflect(ids).structA.get()
         assert structA.a.f == 42
     %}
     return ()
@@ -86,7 +86,7 @@ func test_reflect_passed_pointer():
 
     local ptrB: StructB* = &structB
 
-    %{ assert reflect(ids).structA.c == reflect(ids).ptrB %}
+    %{ assert reflect(ids).structA.c.get() == reflect(ids).ptrB.get() %}
     return ()
 end
 
@@ -103,7 +103,7 @@ func test_reflect_passed_pointer_loop():
     
     assert node.next = &node
     
-    %{ print(reflect(ids).node) %}
+    %{ print(reflect(ids).node.get()) %}
 
     return()
 end
@@ -114,7 +114,7 @@ func test_reflect_failed_corruption():
     local structB: StructB = StructB(e=42, f=24)
 
     %{
-        structB = reflect(ids).structB
+        structB = reflect(ids).structB.get()
         structB.f = 69
     %}
 
@@ -140,7 +140,7 @@ func test_reflect_passed_repr():
     )
 
     %{
-        value = reflect(ids).structA
+        value = reflect(ids).structA.get()
 
         print(str(value))
 
@@ -170,9 +170,9 @@ func test_reflect_passed_type_pointer():
     local ptrA: felt* = &a
     
     %{
-        # ids.T* -> T, reflect(ids).T* == T*
+        # ids.T* -> T, reflect(ids).T* -> T*
         # pointers (RelocatableValue) are not type safe
-        assert type(reflect(ids).ptrB) == type(reflect(ids).ptrA)
+        assert type(reflect(ids).ptrB.get()) == type(reflect(ids).ptrA.get())
     %}
     return ()
 end
@@ -197,10 +197,10 @@ func test_reflect_passed_full():
     local ptrB: StructB* = &structB
     
     %{
-        structA = reflect(ids).structA
-        ptrB = reflect(ids).ptrB
-        structB = reflect(ids).structB
-        f = reflect(ids).structB.f
+        structA = reflect(ids).structA.get()
+        ptrB = reflect(ids).ptrB.get()
+        structB = reflect(ids).structB.get()
+        f = reflect(ids).structB.f.get()
 
         from collections import namedtuple
         StructB = namedtuple("StructB", "e f")
@@ -221,8 +221,54 @@ end
 @external
 func test_reflect_failed_illegal_arg():    
     %{
-        structC = reflect(ids).structC
+        structC = reflect(ids).structC.get()
         print(structC)
+    %}
+    return ()
+end
+
+@external
+func test_reflect_failed_getattr_felt(): 
+    alloc_locals
+
+    let f: felt = 1010101
+
+    %{
+        invalid = reflect(ids).f.invalid.get()
+    %}
+    return ()
+end
+
+@external
+func test_reflect_failed_getattr_pointer():    
+    alloc_locals
+
+    let (__fp__, _) = get_fp_and_pc()
+
+    local structB: StructB = StructB(e=42, f=24)
+    local ptrB: StructB* = &structB
+
+    %{
+        invalid = reflect(ids).ptrB.f.get()
+    %}
+    return ()
+end
+
+@external
+func test_reflect_failed_invalid_member():    
+    alloc_locals
+    local structB: StructB = StructB(e=42, f=24)
+
+    %{
+        invalid = reflect(ids).structB.g.get()
+    %}
+    return ()
+end
+
+@external
+func test_reflect_failed_get_on_none():
+    %{
+        invalid = reflect(ids).get()
     %}
     return ()
 end

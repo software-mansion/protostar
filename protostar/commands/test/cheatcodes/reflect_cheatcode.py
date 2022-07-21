@@ -1,4 +1,14 @@
-from typing import Any, Callable, List, Dict, NamedTuple, Tuple, Type, Union, Optional
+from typing import (
+    Any,
+    Callable,
+    List,
+    Dict,
+    NamedTuple,
+    Tuple,
+    Type,
+    Union,
+    Optional,
+)
 from copy import deepcopy
 from dataclasses import dataclass
 
@@ -31,6 +41,7 @@ from starkware.cairo.lang.compiler.identifier_manager import (
 from starkware.cairo.lang.compiler.type_system_visitor import simplify_type_system
 
 from protostar.starknet.cheatcode import Cheatcode
+from protostar.commands.test.test_environment_exceptions import CheatcodeException
 
 
 @dataclass
@@ -39,26 +50,73 @@ class ReflectTreeNode:
     value: Union[Dict, int, str]
 
 
-ReflectInputType = Union[VmConstsReference, RelocatableValue, int]
+ReflectInputType = Union[VmConstsReference, RelocatableValue, None, int]
 ReflectValueType = Union[ReflectTreeNode, RelocatableValue, int]
-ReflectReturnType = Union[NamedTuple, RelocatableValue, int]
+ReflectReturnType = Union[NamedTuple, RelocatableValue, None, int]
 
 
 class Reflector:
     def __init__(self, ids: VmConsts):
-        self.ids = ids
-
-    def __getattr__(self, name: str):
-        value = self._get_value(name)
-        tree = self._generate_value_tree(value)
-        if not isinstance(tree, ReflectTreeNode):
-            return tree
-        tpl = self._convert_to_named_tuple(tree)
-        return tpl
+        self._ids = ids
+        self._value: ReflectInputType = None
 
     # We need to access Cairo's underscore variables
+    # pylint: disable=W0212
+    def __getattr__(self, name: str) -> "Reflector":
+        if not self._value:
+            self._value = self._get_value(name)
+        elif isinstance(self._value, VmConstsReference):
+
+            assert isinstance(self._value._struct_definition, StructDefinition)
+            assert isinstance(self._value._reference_value, RelocatableValue)
+            members = self._value._struct_definition.members
+
+            if name not in members:
+                value_name = self._value._struct_definition.full_name.path[1]
+                raise CheatcodeException(
+                    "reflect", f'"{name}" is not a member of "{value_name}".'
+                )
+
+            member = members[name]
+            expr_type = member.cairo_type
+            addr = self._value._reference_value + member.offset
+
+            if is_simple_type(expr_type):
+                if isinstance(expr_type, TypeFelt):
+                    tmp = int(self._value.get_or_set_value(name, None))  # type: ignore
+                    assert isinstance(tmp, int)
+                    self._value = tmp
+                else:
+                    assert isinstance(expr_type, TypePointer)
+                    tmp = deepcopy(self._value.get_or_set_value(name, None))
+                    assert isinstance(tmp, RelocatableValue)
+                    self._value = tmp
+
+            elif isinstance(expr_type, TypeStruct):
+                self._value = VmConstsReference(
+                    context=self._value._context,
+                    struct_name=expr_type.scope,
+                    reference_value=addr,
+                )
+
+            else:
+                assert isinstance(expr_type, TypePointer) and isinstance(
+                    expr_type.pointee, TypeStruct
+                ), "Type must be of the form T*."
+
+                tmp = deepcopy(self._value._context.memory[addr])  # type: ignore
+                assert isinstance(tmp, RelocatableValue)
+                self._value = tmp
+        else:
+            raise CheatcodeException(
+                "reflect",
+                f"Tried to get attribute of a {to_cairo_naming(type(self._value))} ({type(self._value).__name__}).",
+            )
+        return self
+
     # pylint: disable=W0212,R0201
     def _generate_value_tree(self, value: ReflectInputType) -> ReflectValueType:
+        assert value is not None
         if not isinstance(value, VmConstsReference):
             return value
 
@@ -151,7 +209,7 @@ class Reflector:
 
     def _get_value(self, name: str) -> ReflectInputType:
         ids_get: Callable[[str], Any] = lambda name: object.__getattribute__(
-            self.ids, name
+            self._ids, name
         )
 
         try:
@@ -178,15 +236,15 @@ class Reflector:
         else:
             raise NotImplementedError(f"Unexpected type {type(result).__name__}.")
 
-        if handler_name not in dir(self.ids):
-            self.ids.raise_unsupported_error(
+        if handler_name not in dir(self._ids):
+            self._ids.raise_unsupported_error(
                 name=ids_get("_path") + name, identifier_type=identifier_type  # type: ignore
             )
 
         if handler_name == "handle_ReferenceDefinition":
             return self._handler(value)  # type: ignore
 
-        return getattr(self.ids, handler_name)(name, value, scope, None)
+        return getattr(self._ids, handler_name)(name, value, scope, None)
 
     def _handler(
         self,
@@ -194,7 +252,7 @@ class Reflector:
     ) -> ReflectInputType:
 
         ids_get: Callable[[str], Any] = lambda name: object.__getattribute__(
-            self.ids, name
+            self._ids, name
         )
 
         reference = ids_get("_context").flow_tracking_data.resolve_reference(
@@ -232,6 +290,16 @@ class Reflector:
             reference_value=val,
         )
 
+    def get(self):
+        if self._value is None:
+            raise CheatcodeException("reflect", "Reflector.get() called on no value.")
+
+        tree = self._generate_value_tree(self._value)
+        if not isinstance(tree, ReflectTreeNode):
+            return tree
+        tpl = self._convert_to_named_tuple(tree)
+        return tpl
+
 
 class ReflectCheatcode(Cheatcode):
     @property
@@ -265,6 +333,16 @@ def traverse_pre_order(tree: ReflectTreeNode) -> List[ReflectValueType]:
                 stack.append(node)
 
     return pre_order
+
+
+def to_cairo_naming(input_type: Type):
+    if input_type == RelocatableValue:
+        return "pointer"
+    if input_type == int:
+        return "felt"
+    if input_type == VmConstsReference:
+        return "struct"
+    assert False, "Not a valid cairo type"
 
 
 # pylint: disable=C0103

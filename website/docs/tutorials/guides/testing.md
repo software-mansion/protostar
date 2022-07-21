@@ -829,7 +829,7 @@ There is no type checking for `variable_name`, `key`, `variable_type` make sure 
 ```python
 def reflect(self, value: Union[VmConstsReference, RelocatableValue, int]) -> Union[NamedTuple, RelocatableValue, int]:
 ```
-Converts Cairo object into Python `NamedTuple` (complex structure) or keeps it a simple type `RelocatableValue` (pointer) or `int` (felt). It can be used to easily print and compare complex structures.
+Lazily converts Cairo object into Python `NamedTuple` (complex structure) or keeps it a simple type `RelocatableValue` (pointer) or `int` (felt). It can be used to easily print and compare complex structures.
 ```cairo title="./test/example_test.cairo"
 %lang starknet
 
@@ -867,10 +867,10 @@ func test_reflect_passed_full():
     local ptrB: StructB* = &structB
     
     %{
-        structA = reflect(ids).structA
-        ptrB = reflect(ids).ptrB
-        structB = reflect(ids).structB
-        f = reflect(ids).structB.f
+        structA = reflect(ids).structA.get()
+        ptrB = reflect(ids).ptrB.get()
+        structB = reflect(ids).structB.get()
+        f = reflect(ids).structB.f.get()
 
         print(structA)
 
@@ -891,7 +891,7 @@ func test_reflect_passed_full():
 ```
 
 :::warning
-For safety and comparison reasons `reflect` does not automatically dereference pointers like `ids`. It will be adressed with a future `dereference` cheatcode. 
+For safety and comparison reasons `reflect` does not automatically dereference pointers like `ids`. It will be adressed in the future. 
 :::
 
 ## Data Transformer
