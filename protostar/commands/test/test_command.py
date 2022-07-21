@@ -119,6 +119,7 @@ class TestCommand(Command):
         return summary
 
     # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-locals
     async def test(
         self,
         targets: List[str],
