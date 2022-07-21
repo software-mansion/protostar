@@ -137,6 +137,8 @@ A glob or globs to a directory or a test suite, which should be ignored.
 Disable progress bar.
 #### `--safe-collecting`
 Uses cairo compiler for test collection
+#### `--seed INT`
+Set a seed to use for all fuzz tests.
 ### `update`
 ```shell
 $ protostar update cairo-contracts
