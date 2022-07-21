@@ -110,11 +110,6 @@ class TestCommand(Command):
                 type="bool",
                 description="Exit immediately on first broken or failed test",
             ),
-            Command.Argument(
-                name="stdout-on-success",
-                type="bool",
-                description="Also print captured standard output for passed test cases.",
-            ),
         ]
 
     async def run(self, args) -> TestingSummary:
@@ -127,7 +122,6 @@ class TestCommand(Command):
             fast_collecting=args.fast_collecting,
             safe_collecting=args.safe_collecting,
             exit_first=args.exit_first,
-            stdout_on_success=args.stdout_on_success,
         )
         summary.assert_all_passed()
         return summary
@@ -143,7 +137,6 @@ class TestCommand(Command):
         fast_collecting: bool = False,
         safe_collecting: bool = False,
         exit_first: bool = False,
-        stdout_on_success: bool = False,
     ) -> TestingSummary:
         logger = getLogger()
         include_paths = [
@@ -188,7 +181,6 @@ class TestCommand(Command):
                 testing_summary,
                 no_progress_bar=no_progress_bar,
                 exit_first=exit_first,
-                stdout_on_success=stdout_on_success,
             )
             TestScheduler(live_logger, worker=TestRunner.worker).run(
                 include_paths=include_paths,
