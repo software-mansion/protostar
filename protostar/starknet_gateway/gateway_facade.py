@@ -1,6 +1,5 @@
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Callable, List, Optional
 
 from services.external_api.client import RetryConfig
 from starkware.starknet.definitions import constants
@@ -11,15 +10,14 @@ from starkware.starknet.services.api.gateway.transaction import (
     Declare,
 )
 from starkware.starkware_utils.error_handling import StarkErrorCode
-from typing_extensions import Literal
 
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeclareResponse,
     SuccessfulDeployResponse,
 )
+from protostar.starknet_gateway.starknet_interaction import StarknetInteraction
 from protostar.starknet_gateway.starkware.starknet_cli import deploy
-from protostar.utils.log_color_provider import LogColorProvider
 
 
 class TransactionException(ProtostarException):
@@ -39,70 +37,13 @@ class CompilationOutputNotFoundException(ProtostarException):
 
 
 class GatewayFacade:
-    @dataclass
-    class StarknetInteraction:
-        direction: Literal["TO_STARKNET", "FROM_STARKNET"]
-        action: str
-        payload: Optional[Dict[str, Any]]
-
-        def prettify(self, color_provider: Optional[LogColorProvider]) -> str:
-
-            lines: List[str] = []
-
-            first_line_items: List[str] = []
-            protostar_label = "Protostar"
-            arrow = "→"
-            starknet_label = "StarkNet"
-
-            if self.direction == "FROM_STARKNET":
-                arrow = "←"
-
-            if color_provider:
-                bold = color_provider.bold
-                arrow = bold(arrow)
-                if self.direction == "FROM_STARKNET":
-                    starknet_label = bold(starknet_label)
-                else:
-                    protostar_label = bold(protostar_label)
-
-            first_line_items.append(f"({protostar_label} {arrow} {starknet_label})")
-            if color_provider:
-                first_line_items.append(color_provider.bold(self.action))
-            else:
-                first_line_items.append(self.action)
-
-            lines.append(" ".join(first_line_items))
-
-            if self.payload:
-                max_key_length = 0
-                for key in self.payload:
-                    if len(key) > max_key_length:
-                        max_key_length = len(key)
-
-                first_column_width = max(max_key_length, 20)
-                for key, value in self.payload.items():
-
-                    if color_provider:
-                        colorize = color_provider.colorize
-                        bold = color_provider.bold
-                        lines.append(
-                            colorize(
-                                "GRAY",
-                                f"{key.ljust(first_column_width)} {bold(value)}",
-                            )
-                        )
-                    else:
-                        lines.append(f"{key.ljust(first_column_width)} {value}")
-
-            return "\n".join(lines)
-
     def __init__(
         self,
         project_root_path: Path,
         on_starknet_interaction: Optional[Callable[[StarknetInteraction], None]] = None,
     ) -> None:
         self._project_root_path = project_root_path
-        self.starknet_interactions: List["GatewayFacade.StarknetInteraction"] = []
+        self.starknet_interactions: List[StarknetInteraction] = []
         self._on_starknet_interaction = on_starknet_interaction
 
     # pylint: disable=too-many-arguments
@@ -124,7 +65,7 @@ class GatewayFacade:
                 encoding="utf-8",
             ) as compiled_contract_file:
                 self._add_interaction(
-                    GatewayFacade.StarknetInteraction(
+                    StarknetInteraction(
                         direction="TO_STARKNET",
                         action="DEPLOY",
                         payload={
@@ -144,7 +85,7 @@ class GatewayFacade:
                     token=token,
                 )
                 self._add_interaction(
-                    GatewayFacade.StarknetInteraction(
+                    StarknetInteraction(
                         direction="FROM_STARKNET",
                         action="DEPLOY",
                         payload=response.__dict__,
@@ -193,7 +134,7 @@ class GatewayFacade:
                 )  # type: ignore
 
                 self._add_interaction(
-                    GatewayFacade.StarknetInteraction(
+                    StarknetInteraction(
                         direction="TO_STARKNET",
                         action="DECLARE",
                         payload={
@@ -225,7 +166,7 @@ class GatewayFacade:
                     transaction_hash=gateway_response["transaction_hash"],
                 )
                 self._add_interaction(
-                    GatewayFacade.StarknetInteraction(
+                    StarknetInteraction(
                         direction="FROM_STARKNET",
                         action="DECLARE",
                         payload=response.__dict__,
