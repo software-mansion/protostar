@@ -171,11 +171,11 @@ class TestRunner:
                         test_case_name=test_case_name,
                         execution_resources=execution_resources,
                         captured_stdout=[
+                            (setup_stdout, setup_stdout_value),
                             (
-                                setup_stdout,
+                                test_stdout,
                                 new_execution_state.get_output(test_stdout),
                             ),
-                            (test_stdout, setup_stdout_value),
                         ],
                     )
                 )
@@ -186,11 +186,11 @@ class TestRunner:
                         test_case_name=test_case_name,
                         exception=ex,
                         captured_stdout=[
+                            (setup_stdout, setup_stdout_value),
                             (
-                                setup_stdout,
+                                test_stdout,
                                 new_execution_state.get_output(test_stdout),
                             ),
-                            (test_stdout, setup_stdout_value),
                         ],
                     )
                 )
