@@ -69,7 +69,7 @@ class GatewayFacade:
                         direction="TO_STARKNET",
                         action="DEPLOY",
                         payload={
-                            "contract": compilation_output_filepath,
+                            "contract": str(compilation_output_filepath),
                             "gateway_url": gateway_url,
                             "constructor_args": inputs,
                             "salt": salt,
@@ -138,7 +138,7 @@ class GatewayFacade:
                         direction="TO_STARKNET",
                         action="DECLARE",
                         payload={
-                            "contract": compiled_contract_abs_path,
+                            "contract": str(compiled_contract_abs_path),
                             "sender_address": sender,
                             "max_fee": max_fee,
                             "version": constants.TRANSACTION_VERSION,

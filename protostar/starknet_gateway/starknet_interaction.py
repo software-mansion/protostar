@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 from typing_extensions import Literal
 
@@ -10,7 +10,7 @@ from protostar.utils.log_color_provider import LogColorProvider
 class StarknetInteraction:
     direction: Literal["TO_STARKNET", "FROM_STARKNET"]
     action: str
-    payload: Optional[Dict[str, Any]]
+    payload: Optional[Dict[str, Union[None, str, int, List[int], List[str]]]]
 
     def prettify(self, color_provider: Optional[LogColorProvider]) -> str:
 

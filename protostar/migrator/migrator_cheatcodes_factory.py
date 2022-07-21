@@ -31,8 +31,8 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
         config: MigratorDeclareCheatcode.Config,
     ) -> None:
         super().__init__()
+        self.gateway_facade = gateway_facade
         self._starknet_compiler = starknet_compiler
-        self._gateway_facade = gateway_facade
         self._config = config
         self.starknet_interaction_subject: Optional[
             Subject["MigratorCheatcodeFactory.StarknetInteraction"]
@@ -48,9 +48,9 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
         return [
             MigratorDeclareCheatcode(
                 syscall_dependencies,
-                self._gateway_facade,
+                self.gateway_facade,
                 config=self._config,
             ),
             MigratorPrepareCheatcode(syscall_dependencies),
-            MigratorDeployCheatcode(syscall_dependencies, self._gateway_facade),
+            MigratorDeployCheatcode(syscall_dependencies, self.gateway_facade),
         ]

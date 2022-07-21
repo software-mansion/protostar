@@ -7,26 +7,6 @@ from protostar.starknet_gateway import NetworkConfig
 
 
 class MigrateCommand(Command):
-    """
-    #### Migration
-    ```cairo
-    %lang starknet
-    from starkware.starknet.common.syscalls import deploy
-    from starkware.cairo.common.alloc import alloc
-
-    @external
-    func up{syscall_ptr : felt*}() -> (contract_address : felt):
-        alloc_locals
-        local class_hash
-        %{ ids.class_hash = declare("./build/main.json").class_hash %}
-        let (local calldata : felt*) = alloc()
-        let (contract_address) = deploy(class_hash, 42, 0, calldata)
-
-        return (contract_address)
-    end
-    ```
-    """
-
     def __init__(
         self,
         migrator_factory: Migrator.Factory,
@@ -55,6 +35,11 @@ class MigrateCommand(Command):
                 type="path",
                 is_required=True,
                 is_positional=True,
+            ),
+            Command.Argument(
+                name="output-dir",
+                description="Migration output directory",
+                type="path",
             ),
             Command.Argument(
                 name="down",
@@ -90,14 +75,17 @@ class MigrateCommand(Command):
             rollback=args.down,
             gateway_url=args.gateway_url,
             network=args.network,
+            output_dir_path=args.output_dir,
         )
 
+    # pylint: disable=too-many-arguments
     async def migrate(
         self,
         migration_file_path: Path,
         rollback: bool,
         gateway_url: Optional[str],
         network: Optional[str],
+        output_dir_path: Optional[Path],
     ):
         network_config = NetworkConfig.build(gateway_url, network)
 
@@ -106,6 +94,13 @@ class MigrateCommand(Command):
             config=Migrator.Config(gateway_url=network_config.gateway_url),
         )
 
-        await migrator.run(
+        result = await migrator.run(
             mode="down" if rollback else "up",
         )
+
+        if output_dir_path:
+            migrator.save_result(
+                result,
+                migration_file_path=migration_file_path,
+                output_dir_path=output_dir_path,
+            )
