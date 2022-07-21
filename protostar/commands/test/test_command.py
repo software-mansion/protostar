@@ -103,6 +103,11 @@ class TestCommand(Command):
                 type="bool",
                 description="Exit immediately on first broken or failed test",
             ),
+            Command.Argument(
+                name="seed",
+                type="int",
+                description="Set a seed to use for all fuzz tests.",
+            ),
         ]
 
     async def run(self, args) -> TestingSummary:
@@ -114,6 +119,7 @@ class TestCommand(Command):
             no_progress_bar=args.no_progress_bar,
             safe_collecting=args.safe_collecting,
             exit_first=args.exit_first,
+            seed=args.seed,
         )
         summary.assert_all_passed()
         return summary
