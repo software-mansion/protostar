@@ -53,7 +53,7 @@ def make_test_file(test_body: str, imports: Optional[str] = "") -> Tuple[str, Li
 
 
 @pytest.fixture(name="tmp_test_dir")
-def make_test_dir() -> Generator[Path, None, None]:
+def tmp_test_dir_fixture() -> Generator[Path, None, None]:
     test_dir_path = SCRIPT_DIRECTORY / "tmp_test_files"
     test_dir_path.mkdir()
     yield test_dir_path
@@ -61,12 +61,12 @@ def make_test_dir() -> Generator[Path, None, None]:
 
 
 @pytest.fixture(name="basic_contract_path")
-def get_basic_contract_path(request) -> Path:
+def basic_contract_path_fixture(request) -> Path:
     return (Path(request.node.fspath).parent / "basic.cairo").absolute()
 
 
 @pytest.fixture(name="protostar_cairo_path")
-def get_protostar_cairo_path(request) -> Path:
+def protostar_cairo_path_fixture(request) -> Path:
     return (Path(request.node.fspath).parent.parent.parent.parent / "cairo").absolute()
 
 
