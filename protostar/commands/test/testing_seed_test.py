@@ -35,3 +35,10 @@ def test_was_used():
 
             _ = TestingSeed.current()
             assert seed.was_used
+
+
+def test_nesting_is_prohibited():
+    with TestingSeed():
+        with pytest.raises(AssertionError):
+            with TestingSeed():
+                pass

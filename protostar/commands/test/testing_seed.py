@@ -29,12 +29,15 @@ class TestingSeed:
         return self.value
 
     def __enter__(self) -> Self:
+        assert self._token is None
+        assert _testing_seed.get(None) is None, f"{type(self)} usage cannot be nested."
         self._token = _testing_seed.set(self)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         assert self._token is not None
         _testing_seed.reset(self._token)
+        self._token = None
 
 
 def random_seed() -> Seed:
