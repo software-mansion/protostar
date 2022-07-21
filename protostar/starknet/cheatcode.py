@@ -42,10 +42,11 @@ class Cheatcode(BusinessLogicSysCallHandler, HintLocal):
         self.state = syscall_dependencies["state"]
         self.general_config = syscall_dependencies["general_config"]
         self.execute_entry_point_cls = syscall_dependencies["execute_entry_point_cls"]
-        abi = self.state.get_abi_from_contract_address(
-            syscall_dependencies["contract_address"]
-        )
-        self._add_event_abi_to_state(abi)
+        # DO NOT PUT THIS SHIT IN THE CONSTRUCTOR AAAAAAAA
+        # abi = self.state.get_abi_from_contract_address(
+        #     syscall_dependencies["contract_address"]
+        # )
+        # self._add_event_abi_to_state(abi)
 
     @abstractmethod
     def build(self) -> Callable[..., Any]:

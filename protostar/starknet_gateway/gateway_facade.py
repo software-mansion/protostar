@@ -44,6 +44,22 @@ class GatewayFacade:
         action: str
         payload: Optional[Dict[str, Any]]
 
+        def __str__(self) -> str:
+            lines: List[str] = []
+
+            first_line_items: List[str] = []
+            first_line_items.append("=>" if self.direction == "TO_STARKNET" else "<=")
+            first_line_items.append(self.action)
+            lines.append(" ".join(first_line_items))
+
+            second_line_items: List[str] = []
+            if self.payload:
+                for key, value in self.payload:
+                    second_line_items.append(f"{key}: {value}")
+
+            lines.append(" ".join(second_line_items))
+            return "\n".join(lines)
+
     def __init__(
         self,
         project_root_path: Path,
