@@ -1,0 +1,105 @@
+# Testing
+
+Protostar provides a flexible testing environment for Cairo smart contracts.
+It allows to write unit/integration tests with a help of [cheatcodes](02-cheatcodes/README.md).
+
+## Unit testing
+We will start with a [just created protostar project](../03-project-initialization.md).
+In your `src` directory create a `utils.cairo` file
+```code title="src/utils.cairo"
+func sum_func{syscall_ptr : felt*, range_check_ptr}(a : felt, b : felt) -> (res : felt):
+    return (a+b)
+end
+```
+This is our target function, which we are going to test.
+Then in the `tests` directory create file `test_utils.cairo`, which contains a single test case.
+```code title="tests/test_utils.cairo"
+%lang starknet
+
+from src.utils import sum_func
+
+@external
+func test_sum{syscall_ptr : felt*, range_check_ptr}():
+    let (r) = sum_func(4,3)
+    assert r = 7
+    return ()
+end
+```
+
+Then run your test with
+```
+protostar test ./tests
+```
+
+:::info
+In the example above, Protostar will run every test case it manages to find in the `tests` directory. You can read more about specifying where and how Protostar should search for test cases by running `protostar test --help`. 
+:::
+
+:::tip
+If the test collecting phase takes too long, consider using `--fast-collecting` flag. Protostar will use a different algorithm, which doesn't check if a test case is decorated with the `@external` decorator or if an identifier with the name starting with `test_` is a function.
+:::
+
+```console title="expected result"
+Collected 1 items
+
+test_utils: .
+----- TEST SUMMARY ------
+1 passed
+Ran 1 out of 1 total tests
+```
+
+:::info
+You can place your test files anywhere you want. Protostar recursively searches 
+the given directory for cairo files with a name starting with `test_` and treats them as tests files. 
+All functions inside a test file starting with `test_` are treated as separate test cases.
+:::
+
+:::warning
+The tested file cannot have a constructor that expects arguments because, Protostar won't be able to deploy the contract automatically. As a workaround, keep your constructor in a different file. You can test the constructor using the `deploy_contract` cheatcode as described below.
+:::
+
+## Asserts
+
+Protostar ships with its own assert functions. They don't accept [implicit arguments](https://www.cairo-lang.org/docs/how_cairo_works/builtins.html?highlight=implicit%20arguments#implicit-arguments) compared to asserts from [`starkware.cairo.common.math`](https://github.com/starkware-libs/cairo-lang/blob/master/src/starkware/cairo/common/math.cairo). You can import Protostar asserts in the following way:
+
+```cairo title="test_my_contract.cairo"
+from protostar.asserts import (
+    assert_eq, assert_not_eq, assert_signed_lt, assert_signed_le, assert_signed_gt,
+    assert_unsigned_lt, assert_unsigned_le, assert_unsigned_gt, assert_signed_ge,
+    assert_unsigned_ge)
+```
+
+:::info
+If your IDE supports Cairo and doesn't know how to import `protostar`, add the following directory
+`$(which protostar)/../cairo` to the [`CAIRO_PATH`](https://www.cairo-lang.org/docs/how_cairo_works/imports.html?highlight=cairo_path).
+:::
+
+You can find all [assert signatures here](https://github.com/software-mansion/protostar/blob/master/cairo/protostar/asserts.cairo).
+
+## `__setup__`
+Often while writing tests you have some setup work that needs to happen before tests run. The hook `__setup__` can simplify and speed up your tests. Use `context` variable to pass data from `__setup__` to test functions as demonstrated on the example below:
+
+```cairo
+%lang starknet
+
+@external
+func __setup__():
+    %{ context.contract_a_address = deploy_contract("./tests/integration/testing_hooks/basic_contract.cairo").contract_address %}
+    return ()
+end
+
+@external
+func test_something():
+    tempvar contract_address
+    %{ ids.contract_address = context.contract_a_address %}
+
+    # ...
+
+    return ()
+end
+```
+
+
+:::info
+Protostar executes `__setup__` only once per a [test suite](https://en.wikipedia.org/wiki/Test_suite). Then, for each test case Protostar copies the StarkNet state and `context` object.
+:::
