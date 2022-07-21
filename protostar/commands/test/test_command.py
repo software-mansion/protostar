@@ -88,14 +88,6 @@ class TestCommand(Command):
                 description="Disable progress bar.",
             ),
             Command.Argument(
-                name="fast-collecting",
-                type="bool",
-                description=(
-                    "Enables fast but unsafe test collecting algorithm. "
-                    "It searches for identifiers in the test file that start with `test_`."
-                ),
-            ),
-            Command.Argument(
                 name="safe-collecting",
                 type="bool",
                 description=("Uses cairo compiler for test collection"),
