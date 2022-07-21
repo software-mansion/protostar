@@ -91,7 +91,6 @@ TestSuiteInfoDict = Dict[TestSuitePath, TestSuiteInfo]
 class TestCollector:
     @dataclass
     class Config:
-        fast_collecting: bool = False
         safe_collecting: bool = False
 
     class Result:
@@ -306,22 +305,11 @@ class TestCollector:
     ) -> TestSuite:
         test_case_names: List[str] = []
         setup_fn_name: Optional[str] = None
-        # TODO(maksymiliandemitraszek): optimized starknet compiler should provide the same interface as original
-        if self._config.fast_collecting:
-            identifiers = self._starknet_compiler.get_main_identifiers_in_file(
-                test_suite_info.path
-            )
-            collected_test_case_names = self._find_test_case_names(identifiers)
-            test_case_names = test_suite_info.match_test_case_names(
-                collected_test_case_names
-            )
-            setup_fn_name = self._find_setup_hook_name(identifiers)
-        else:
-            preprocessed = self._starknet_compiler.preprocess_contract(
-                test_suite_info.path
-            )
-            test_case_names = self._collect_test_case_names(preprocessed)
-            setup_fn_name = self._collect_setup_hook_name(preprocessed)
+        preprocessed = self._starknet_compiler.preprocess_contract(
+            test_suite_info.path
+        )
+        test_case_names = self._collect_test_case_names(preprocessed)
+        setup_fn_name = self._collect_setup_hook_name(preprocessed)
 
         matching_test_case_names = test_suite_info.match_test_case_names(
             test_case_names
@@ -332,14 +320,6 @@ class TestCollector:
             test_case_names=matching_test_case_names,
             setup_fn_name=setup_fn_name,
         )
-
-    def _find_setup_hook_name(self, identifiers: List[str]) -> Optional[str]:
-        return "__setup__" if "__setup__" in identifiers else None
-
-    def _find_test_case_names(self, identifiers: List[str]) -> List[str]:
-        return [
-            identifier for identifier in identifiers if identifier.startswith("test_")
-        ]
 
     def _collect_test_case_names(
         self,
