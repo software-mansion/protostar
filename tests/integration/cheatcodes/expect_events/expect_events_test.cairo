@@ -18,6 +18,13 @@ namespace BasicContract:
     func increase_balance():
     end
 end
+
+@external
+func __setup__():
+    %{ context.contract_address = deploy_contract("./tests/integration/cheatcodes/expect_events/basic_contract.cairo").contract_address %}
+    return ()
+end
+
 # ----------------------------------------------------------
 
 @external
@@ -129,6 +136,19 @@ func test_data_transformation{syscall_ptr : felt*, range_check_ptr}():
     local contract_address : felt
     %{
         ids.contract_address = deploy_contract("./tests/integration/cheatcodes/expect_events/basic_contract.cairo").contract_address
+        expect_events({"name": "balance_increased", "data": {"current_balance" : 37, "amount" : 21}})
+    %}
+    BasicContract.increase_balance(contract_address=contract_address)
+
+    return ()
+end
+
+@external
+func test_data_transformation_in_contract_deployed_in_setup{syscall_ptr : felt*, range_check_ptr}():
+    alloc_locals
+    local contract_address : felt
+    %{
+        ids.contract_address = context.contract_address
         expect_events({"name": "balance_increased", "data": {"current_balance" : 37, "amount" : 21}})
     %}
     BasicContract.increase_balance(contract_address=contract_address)

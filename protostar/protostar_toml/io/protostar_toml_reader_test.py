@@ -3,7 +3,10 @@ from pathlib import Path
 import pytest
 from pytest_mock import MockerFixture
 
-from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
+from protostar.protostar_toml.io.protostar_toml_reader import (
+    ProtostarTOMLReader,
+    search_upwards_protostar_toml_path,
+)
 from protostar.protostar_toml.protostar_toml_exceptions import (
     NoProtostarProjectFoundException,
 )
@@ -99,3 +102,28 @@ def test_returning_none_on_section_not_found(protostar_toml_path: Path):
     result = ProtostarTOMLReader(protostar_toml_path).get_section("undefined_section")
 
     assert result is None
+
+
+def test_searching_protostar_from_cwd(tmp_path: Path):
+    protostar_toml_path = tmp_path / "protostar.toml"
+    protostar_toml_path.touch()
+
+    result = search_upwards_protostar_toml_path(tmp_path)
+
+    assert result == protostar_toml_path
+
+
+def test_searching_protostar_toml_from_project(tmp_path: Path):
+    project_root_path = tmp_path
+    src_path = project_root_path / "src"
+    src_path.mkdir()
+    protostar_toml_path = project_root_path / "protostar.toml"
+    protostar_toml_path.touch()
+
+    result = search_upwards_protostar_toml_path(src_path)
+
+    assert result == protostar_toml_path
+
+
+def test_not_finding_protostar_toml(tmp_path: Path):
+    assert search_upwards_protostar_toml_path(tmp_path) is None

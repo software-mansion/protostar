@@ -31,6 +31,25 @@ Additional directories to look for sources.
 Disable validation of hints when building the contracts.
 #### `-o` `--output PATH=build`
 An output directory used to put the compiled contracts in.
+### `declare`
+Sends a declare transaction to StarkNet.
+#### `contract PATH`
+Required.
+
+Path to compiled contract.
+#### `--gateway-url STRING`
+The URL of a StarkNet gateway. It is required unless `--network` is provided.
+#### `-n` `--network STRING`
+The name of the StarkNet network.
+It is required unless `--gateway-url` is provided.
+
+Supported StarkNet networks:
+- `alpha-goerli`
+- `alpha-mainnet`
+#### `--signature STRING[]`
+Signature information for the declaration.
+#### `--token STRING`
+Used for declaring contracts in Alpha MainNet.
 ### `deploy`
 ```shell
 protostar deploy ./build/main.json --network alpha-goerli
@@ -118,6 +137,8 @@ A glob or globs to a directory or a test suite, which should be ignored.
 
 #### `--no-progress-bar`
 Disable progress bar.
+#### `--safe-collecting`
+Uses cairo compiler for test collection
 #### `--stdout-on-success`
 Also print captured standard output for passed test cases.
 ### `update`

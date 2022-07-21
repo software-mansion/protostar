@@ -1,12 +1,14 @@
-from logging import getLogger
-from typing import Any, List, Optional
+from logging import Logger
+from pathlib import Path
+from typing import List, Optional
 
 from protostar.cli import Command
 from protostar.commands.install.install_command import (
     EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
 )
 from protostar.commands.remove.remove_package import remove_package
-from protostar.utils import Project, log_color_provider, retrieve_real_package_name
+from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
+from protostar.utils import log_color_provider, retrieve_real_package_name
 
 INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = (
     EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION
@@ -16,9 +18,16 @@ INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = (
 
 
 class RemoveCommand(Command):
-    def __init__(self, project: Project) -> None:
+    def __init__(
+        self,
+        project_root_path: Path,
+        project_section_loader: ProtostarProjectSection.Loader,
+        logger: Logger,
+    ) -> None:
         super().__init__()
-        self._project = project
+        self._project_root_path = project_root_path
+        self._project_section_loader = project_section_loader
+        self._logger = logger
 
     @property
     def name(self) -> str:
@@ -45,22 +54,21 @@ class RemoveCommand(Command):
         ]
 
     async def run(self, args):
-        handle_remove_command(args, self._project)
+        self.remove(args.package)
 
+    def remove(self, internal_dependency_reference: str):
+        project_section = self._project_section_loader.load()
 
-def handle_remove_command(args: Any, project: Project):
-    logger = getLogger()
+        package_name = retrieve_real_package_name(
+            internal_dependency_reference,
+            self._project_root_path,
+            project_section.libs_path,
+        )
 
-    package_name = retrieve_real_package_name(
-        args.package,
-        project.project_root,
-        project.libs_path,
-    )
-
-    logger.info(
-        "Removing %s%s%s",
-        log_color_provider.get_color("RED"),
-        package_name,
-        log_color_provider.get_color("RESET"),
-    )
-    remove_package(package_name, project.project_root)
+        self._logger.info(
+            "Removing %s%s%s",
+            log_color_provider.get_color("RED"),
+            package_name,
+            log_color_provider.get_color("RESET"),
+        )
+        remove_package(package_name, self._project_root_path)

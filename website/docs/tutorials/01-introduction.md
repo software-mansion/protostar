@@ -1,5 +1,5 @@
 ---
-sidebar_label: Introduction (1 min)
+sidebar_label: Introduction
 ---
 
 # Introduction

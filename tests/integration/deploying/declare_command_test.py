@@ -4,7 +4,7 @@ from types import SimpleNamespace
 import pytest
 from pytest_mock import MockerFixture
 
-from protostar.commands.deploy.deploy_command import DeployCommand
+from protostar.commands.declare.declare_command import DeclareCommand
 from protostar.starknet_gateway import GatewayFacade
 
 
@@ -15,18 +15,17 @@ async def test_deploying_contract(
     project_root_path: Path,
     compiled_contract_filepath,
 ):
-    deploy_command = DeployCommand(
+    declare_command = DeclareCommand(
         gateway_facade=GatewayFacade(project_root_path),
         logger=mocker.MagicMock(),
     )
     args = SimpleNamespace()
     args.contract = compiled_contract_filepath
     args.gateway_url = devnet_gateway_url
-    args.inputs = ["42"]
     args.network = None
     args.token = None
-    args.salt = None
+    args.signature = None
 
-    response = await deploy_command.run(args)
+    response = await declare_command.run(args)
 
-    assert response.address is not None
+    assert response.class_hash is not None

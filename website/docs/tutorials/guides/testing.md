@@ -1,5 +1,5 @@
 ---
-sidebar_label: Testing (6 min)
+sidebar_label: Testing
 ---
 
 # Testing
