@@ -19,6 +19,7 @@ from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeployResponse,
 )
 from protostar.starknet_gateway.starkware.starknet_cli import deploy
+from protostar.utils.log_color_provider import LogColorProvider
 
 
 class TransactionException(ProtostarException):
@@ -44,20 +45,55 @@ class GatewayFacade:
         action: str
         payload: Optional[Dict[str, Any]]
 
-        def __str__(self) -> str:
+        def prettify(self, color_provider: Optional[LogColorProvider]) -> str:
+
             lines: List[str] = []
 
             first_line_items: List[str] = []
-            first_line_items.append("=>" if self.direction == "TO_STARKNET" else "<=")
-            first_line_items.append(self.action)
+            protostar_label = "Protostar"
+            arrow = "→"
+            starknet_label = "StarkNet"
+
+            if self.direction == "FROM_STARKNET":
+                arrow = "←"
+
+            if color_provider:
+                bold = color_provider.bold
+                arrow = bold(arrow)
+                if self.direction == "FROM_STARKNET":
+                    starknet_label = bold(starknet_label)
+                else:
+                    protostar_label = bold(protostar_label)
+
+            first_line_items.append(f"({protostar_label} {arrow} {starknet_label})")
+            if color_provider:
+                first_line_items.append(color_provider.bold(self.action))
+            else:
+                first_line_items.append(self.action)
+
             lines.append(" ".join(first_line_items))
 
-            second_line_items: List[str] = []
             if self.payload:
-                for key, value in self.payload:
-                    second_line_items.append(f"{key}: {value}")
+                max_key_length = 0
+                for key in self.payload:
+                    if len(key) > max_key_length:
+                        max_key_length = len(key)
 
-            lines.append(" ".join(second_line_items))
+                first_column_width = max(max_key_length, 20)
+                for key, value in self.payload.items():
+
+                    if color_provider:
+                        colorize = color_provider.colorize
+                        bold = color_provider.bold
+                        lines.append(
+                            colorize(
+                                "GRAY",
+                                f"{key.ljust(first_column_width)} {bold(value)}",
+                            )
+                        )
+                    else:
+                        lines.append(f"{key.ljust(first_column_width)} {value}")
+
             return "\n".join(lines)
 
     def __init__(
@@ -92,7 +128,7 @@ class GatewayFacade:
                         direction="TO_STARKNET",
                         action="DEPLOY",
                         payload={
-                            "compiled_contract_file": compiled_contract_file,
+                            "contract": compilation_output_filepath,
                             "gateway_url": gateway_url,
                             "constructor_args": inputs,
                             "salt": salt,
@@ -161,7 +197,7 @@ class GatewayFacade:
                         direction="TO_STARKNET",
                         action="DECLARE",
                         payload={
-                            "compiled_contract_file": compiled_contract_file,
+                            "contract": compiled_contract_abs_path,
                             "sender_address": sender,
                             "max_fee": max_fee,
                             "version": constants.TRANSACTION_VERSION,

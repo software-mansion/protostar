@@ -172,7 +172,10 @@ class ProtostarCLI(CLIApp):
                     migrator_factory=Migrator.Factory(
                         MigratorExecutionEnvironment.Factory(
                             gateway_facade=GatewayFacade(
-                                project_root_path, on_starknet_interaction=logger.info
+                                project_root_path,
+                                on_starknet_interaction=lambda ev: logger.info(
+                                    ev.prettify(color_provider=log_color_provider)
+                                ),
                             ),
                         )
                     ),
