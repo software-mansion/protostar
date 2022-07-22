@@ -28,14 +28,11 @@ class TransactionException(ProtostarException):
 
 class CompilationOutputNotFoundException(ProtostarException):
     def __init__(self, compilation_output_filepath: Path):
-        super().__init__(str(compilation_output_filepath))
-        self._compilation_output_filepath = compilation_output_filepath
-
-    def __str__(self) -> str:
-        return (
-            f"Couldn't find `{self._compilation_output_filepath}`\n"
-            "Did you run `protostar build` before running this command?"
+        super().__init__(
+            f"Couldn't find `{str(compilation_output_filepath.resolve())}`\n"
+            "Did you run `protostar build`?"
         )
+        self._compilation_output_filepath = compilation_output_filepath
 
 
 class GatewayFacade:

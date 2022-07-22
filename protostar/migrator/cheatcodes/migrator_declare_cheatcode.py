@@ -7,8 +7,10 @@ from protostar.commands.test.cheatcodes.declare_cheatcode import (
     AbstractDeclare,
     DeclaredContract,
 )
+from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet_gateway import GatewayFacade
+from protostar.starknet_gateway.gateway_facade import CompilationOutputNotFoundException
 
 
 @dataclass
@@ -42,17 +44,23 @@ class MigratorDeclareCheatcode(Cheatcode):
         return self._declare
 
     def _declare(self, contract_path_str: str) -> MigratorDeclaredContract:
-        response = asyncio.run(
-            self._gateway_facade.declare(
-                compiled_contract_path=Path(contract_path_str),
-                gateway_url=self._config.gateway_url,
-                signature=self._config.signature,
-                token=self._config.token,
+        try:
+            response = asyncio.run(
+                self._gateway_facade.declare(
+                    compiled_contract_path=Path(contract_path_str),
+                    gateway_url=self._config.gateway_url,
+                    signature=self._config.signature,
+                    token=self._config.token,
+                )
             )
-        )
 
-        return MigratorDeclaredContract(
-            class_hash=response.class_hash,
-            contract_path=Path(contract_path_str),
-            config=self._config,
-        )
+            return MigratorDeclaredContract(
+                class_hash=response.class_hash,
+                contract_path=Path(contract_path_str),
+                config=self._config,
+            )
+
+        except CompilationOutputNotFoundException as ex:
+            raise CheatcodeException(
+                cheatcode_name=self.name, message=ex.message
+            ) from ex

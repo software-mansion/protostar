@@ -3,7 +3,9 @@ from pathlib import Path
 from typing import List, Optional
 
 from protostar.cli import Command
+from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.migrator import Migrator
+from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import NetworkConfig
 from protostar.utils.log_color_provider import LogColorProvider
 
@@ -94,6 +96,7 @@ class MigrateCommand(Command):
         output_dir_path: Optional[Path],
     ):
         # TODO: ask if the project is build
+        # TODO: pretty print invalid network config
         network_config = NetworkConfig.build(gateway_url, network)
 
         self._migrator_factory.set_logger(self._logger, self._log_color_provider)
@@ -103,13 +106,16 @@ class MigrateCommand(Command):
             config=Migrator.Config(gateway_url=network_config.gateway_url),
         )
 
-        result = await migrator.run(
-            mode="down" if rollback else "up",
-        )
-
-        if output_dir_path:
-            migrator.save_result(
-                result,
-                migration_file_basename=Path(migration_file_path).stem,
-                output_dir_path=output_dir_path,
+        try:
+            result = await migrator.run(
+                mode="down" if rollback else "up",
             )
+
+            if output_dir_path:
+                migrator.save_result(
+                    result,
+                    migration_file_basename=Path(migration_file_path).stem,
+                    output_dir_path=output_dir_path,
+                )
+        except CheatcodeException as ex:
+            raise ProtostarException(str(ex)) from ex
