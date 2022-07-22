@@ -18,7 +18,7 @@ class Statistic(ABC):
     def __bool__(self) -> bool:
         ...
 
-    def __add__(self, other: "Statistic") -> "CountSeriesStatistic":
+    def add_observation(self, other: "Statistic") -> "CountSeriesStatistic":
         self_series = CountSeriesStatistic.from_statistic(self)
         other_series = CountSeriesStatistic.from_statistic(other)
         return CountSeriesStatistic(self_series.series + other_series.series)
@@ -86,16 +86,18 @@ class ExecutionResourcesSummary:
             },
         )
 
-    def __add__(self, other: Self) -> Self:
+    def add_observation(self, other: Self) -> Self:
         builtin_name_to_count_map = defaultdict(CountSeriesStatistic)
         for source in [self.builtin_name_to_count_map, other.builtin_name_to_count_map]:
             for k, v in source.items():
-                builtin_name_to_count_map[k] += v
+                builtin_name_to_count_map[k] = builtin_name_to_count_map[
+                    k
+                ].add_observation(v)
 
         return dataclasses.replace(
             self,
-            n_steps=self.n_steps + other.n_steps,
-            n_memory_holes=self.n_memory_holes + other.n_memory_holes,
+            n_steps=self.n_steps.add_observation(other.n_steps),
+            n_memory_holes=self.n_memory_holes.add_observation(other.n_memory_holes),
             builtin_name_to_count_map=dict(builtin_name_to_count_map),
         )
 
@@ -108,5 +110,5 @@ class ExecutionResourcesSummary:
             if result is None:
                 result = item
             else:
-                result += item
+                result = result.add_observation(item)
         return result

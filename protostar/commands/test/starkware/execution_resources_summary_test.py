@@ -65,27 +65,50 @@ def test_count_series_statistic_from_unknown_type():
         CountSeriesStatistic.from_statistic(SentinelStatistic())
 
 
-def test_statistic_add():
-    assert CountStatistic(1) + CountStatistic(2) == CountSeriesStatistic([1, 2])
-    assert CountStatistic(1) + CountSeriesStatistic([2, 3]) == CountSeriesStatistic(
-        [1, 2, 3]
+def test_statistic_add_observation():
+    assert CountStatistic(1).add_observation(CountStatistic(2)) == CountSeriesStatistic(
+        [1, 2]
     )
-    assert CountSeriesStatistic([1, 2]) + CountStatistic(3) == CountSeriesStatistic(
-        [1, 2, 3]
-    )
-    assert CountSeriesStatistic([1, 2]) + CountSeriesStatistic(
-        [3, 4]
+    assert CountStatistic(1).add_observation(
+        CountSeriesStatistic([2, 3])
+    ) == CountSeriesStatistic([1, 2, 3])
+    assert CountSeriesStatistic([1, 2]).add_observation(
+        CountStatistic(3)
+    ) == CountSeriesStatistic([1, 2, 3])
+    assert CountSeriesStatistic([1, 2]).add_observation(
+        CountSeriesStatistic([3, 4])
     ) == CountSeriesStatistic([1, 2, 3, 4])
 
 
-def test_statistic_add_zeros():
-    assert CountStatistic() + CountStatistic() == CountSeriesStatistic()
-    assert CountStatistic() + CountSeriesStatistic() == CountSeriesStatistic()
-    assert CountSeriesStatistic() + CountStatistic() == CountSeriesStatistic()
-    assert CountSeriesStatistic() + CountSeriesStatistic() == CountSeriesStatistic()
+def test_statistic_add_observation_zeros():
+    assert CountStatistic().add_observation(CountStatistic()) == CountSeriesStatistic()
+    assert (
+        CountStatistic().add_observation(CountSeriesStatistic())
+        == CountSeriesStatistic()
+    )
+    assert (
+        CountSeriesStatistic().add_observation(CountStatistic())
+        == CountSeriesStatistic()
+    )
+    assert (
+        CountSeriesStatistic().add_observation(CountSeriesStatistic())
+        == CountSeriesStatistic()
+    )
+
+    assert CountStatistic(1).add_observation(CountStatistic()) == CountSeriesStatistic(
+        [1]
+    )
 
 
-def test_execution_resources_summary_add():
+def test_statistic_add_observation_is_associative():
+    assert CountStatistic(1).add_observation(CountStatistic(2)).add_observation(
+        CountStatistic(3)
+    ) == CountStatistic(1).add_observation(
+        CountStatistic(2).add_observation(CountStatistic(3))
+    )
+
+
+def test_execution_resources_summary_add_observation():
     lhs = ExecutionResourcesSummary(
         n_steps=CountStatistic(1),
         n_memory_holes=CountSeriesStatistic([1, 2]),
@@ -98,7 +121,7 @@ def test_execution_resources_summary_add():
         builtin_name_to_count_map={"foo": CountStatistic(2), "moo": CountStatistic(1)},
     )
 
-    assert lhs + rhs == ExecutionResourcesSummary(
+    assert lhs.add_observation(rhs) == ExecutionResourcesSummary(
         n_steps=CountSeriesStatistic([1, 2]),
         n_memory_holes=CountSeriesStatistic([1, 2, 3, 4]),
         builtin_name_to_count_map={
@@ -109,11 +132,47 @@ def test_execution_resources_summary_add():
     )
 
 
-def test_execution_resources_summary_add_zeros():
-    assert (
-        ExecutionResourcesSummary() + ExecutionResourcesSummary()
-        == ExecutionResourcesSummary(
-            n_steps=CountSeriesStatistic(),
-            n_memory_holes=CountSeriesStatistic(),
-        )
+def test_execution_resources_summary_add_observation_zeros():
+    assert ExecutionResourcesSummary().add_observation(
+        ExecutionResourcesSummary()
+    ) == ExecutionResourcesSummary(
+        n_steps=CountSeriesStatistic(),
+        n_memory_holes=CountSeriesStatistic(),
+    )
+
+    assert ExecutionResourcesSummary(
+        n_steps=CountStatistic(1),
+        n_memory_holes=CountSeriesStatistic([1, 2]),
+        builtin_name_to_count_map={"foo": CountStatistic(1), "bar": CountStatistic(1)},
+    ).add_observation(ExecutionResourcesSummary()) == ExecutionResourcesSummary(
+        n_steps=CountSeriesStatistic([1]),
+        n_memory_holes=CountSeriesStatistic([1, 2]),
+        builtin_name_to_count_map={
+            "foo": CountSeriesStatistic([1]),
+            "bar": CountSeriesStatistic([1]),
+        },
+    )
+
+
+def test_execution_resources_summary_add_observation_is_associative():
+    a = ExecutionResourcesSummary(
+        n_steps=CountStatistic(1),
+        n_memory_holes=CountSeriesStatistic([1, 2]),
+        builtin_name_to_count_map={"foo": CountStatistic(1), "bar": CountStatistic(1)},
+    )
+
+    b = ExecutionResourcesSummary(
+        n_steps=CountStatistic(3),
+        n_memory_holes=CountSeriesStatistic([3, 4]),
+        builtin_name_to_count_map={"foo": CountStatistic(2), "bar": CountStatistic(2)},
+    )
+
+    c = ExecutionResourcesSummary(
+        n_steps=CountStatistic(4),
+        n_memory_holes=CountSeriesStatistic([5, 6]),
+        builtin_name_to_count_map={"foo": CountStatistic(3), "bar": CountStatistic(3)},
+    )
+
+    assert a.add_observation(b).add_observation(c) == a.add_observation(
+        b.add_observation(c)
     )
