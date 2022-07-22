@@ -92,14 +92,6 @@ class TestCommand(Command):
                 description="Disable progress bar.",
             ),
             Command.Argument(
-                name="fast-collecting",
-                type="bool",
-                description=(
-                    "Enables fast but unsafe test collecting algorithm. "
-                    "It searches for identifiers in the test file that start with `test_`."
-                ),
-            ),
-            Command.Argument(
                 name="safe-collecting",
                 type="bool",
                 description=("Uses cairo compiler for test collection"),
@@ -119,7 +111,6 @@ class TestCommand(Command):
             cairo_path=args.cairo_path,
             disable_hint_validation=args.disable_hint_validation,
             no_progress_bar=args.no_progress_bar,
-            fast_collecting=args.fast_collecting,
             safe_collecting=args.safe_collecting,
             exit_first=args.exit_first,
         )
@@ -134,7 +125,6 @@ class TestCommand(Command):
         cairo_path: Optional[List[Path]] = None,
         disable_hint_validation: bool = False,
         no_progress_bar: bool = False,
-        fast_collecting: bool = False,
         safe_collecting: bool = False,
         exit_first: bool = False,
     ) -> TestingSummary:
@@ -151,10 +141,6 @@ class TestCommand(Command):
             if safe_collecting
             else TestCollectorPassManagerFactory
         )
-
-        assert (
-            not fast_collecting
-        ), "`--fast-collecting` is deprecated, use default strategy"
         with ActivityIndicator(log_color_provider.colorize("GRAY", "Collecting tests")):
             test_collector_result = TestCollector(
                 StarknetCompiler(
@@ -163,7 +149,7 @@ class TestCommand(Command):
                     ),
                     pass_manager_factory=factory,
                 ),
-                config=TestCollector.Config(fast_collecting=fast_collecting),
+                config=TestCollector.Config(safe_collecting=safe_collecting),
             ).collect(
                 targets=targets,
                 ignored_targets=ignored_targets,
