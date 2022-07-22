@@ -20,7 +20,6 @@ from protostar.commands.test.test_context import TestContextHintLocal
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.cheatcode_factory import CheatcodeFactory
 from protostar.starknet.execution_environment import ExecutionEnvironment
-from protostar.utils.data_transformer_facade import DataTransformerFacade
 
 
 class SetupExecutionEnvironment(ExecutionEnvironment[None]):
@@ -45,12 +44,10 @@ class SetupCheatcodeFactory(CheatcodeFactory):
         syscall_dependencies: Cheatcode.SyscallDependencies,
         internal_calls: List[CallInfo],
     ) -> List[Cheatcode]:
-        data_transformer = DataTransformerFacade(self._state.starknet_compiler)
-
         declare_cheatcode = DeclareCheatcode(
             syscall_dependencies, self._state.starknet_compiler
         )
-        prepare_cheatcode = PrepareCheatcode(syscall_dependencies, data_transformer)
+        prepare_cheatcode = PrepareCheatcode(syscall_dependencies)
         deploy_cheatcode = DeployCheatcode(syscall_dependencies, internal_calls)
         return [
             declare_cheatcode,
@@ -62,7 +59,7 @@ class SetupCheatcodeFactory(CheatcodeFactory):
                 prepare_cheatcode,
                 deploy_cheatcode,
             ),
-            MockCallCheatcode(syscall_dependencies, data_transformer),
+            MockCallCheatcode(syscall_dependencies),
             WarpCheatcode(syscall_dependencies),
             RollCheatcode(syscall_dependencies),
             StartPrankCheatcode(syscall_dependencies),
