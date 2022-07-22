@@ -53,5 +53,5 @@ async def test_non_felt_parameter(mocker: MockerFixture):
         testing_summary,
         expected_passed_test_cases_names=[],
         expected_failed_test_cases_names=[],
-        expected_broken_test_cases_names=["test_fails_on_non_felt_parameter1"],
+        expected_broken_test_cases_names=["test_fails_on_non_felt_parameter"],
     )
