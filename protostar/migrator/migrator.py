@@ -22,6 +22,10 @@ class Migrator:
     class Result:
         starknet_interactions: List[StarknetInteraction]
 
+        def save_as_json(self, output_file_path: Path):
+            with open(output_file_path, "w", encoding="utf-8") as output_file:
+                json.dump(dataclasses.asdict(self), output_file, indent=4)
+
     class Factory:
         def __init__(
             self,
@@ -71,10 +75,9 @@ class Migrator:
     ):
         migration_basename = Path(migration_file_path).stem
         prefix = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
-        output_path = output_dir_path / f"{prefix}_{migration_basename}.json"
+        output_file_path = output_dir_path / f"{prefix}_{migration_basename}.json"
 
         if not output_dir_path.exists():
             output_dir_path.mkdir(parents=True)
 
-        with open(output_path, "w", encoding="utf-8") as output_file:
-            json.dump(dataclasses.asdict(result), output_file, indent=4)
+        result.save_as_json(output_file_path)
