@@ -1,5 +1,3 @@
-# Declare this file as a StarkNet contract and set the required
-# builtins.
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
