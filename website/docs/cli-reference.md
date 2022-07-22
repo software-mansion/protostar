@@ -97,6 +97,27 @@ Install a dependency as a git submodule.
 
 #### `--name STRING`
 A custom package name. Use it to resolve name conflicts.
+### `migrate`
+Run migration file.
+#### `path PATH`
+Required.
+
+Path to the migration file.
+#### `--down STRING`
+Run `down` function in the migration script.
+#### `--gateway-url STRING`
+The URL of a StarkNet gateway. It is required unless `--network` is provided.
+#### `-n` `--network STRING`
+The name of the StarkNet network.
+It is required unless `--gateway-url` is provided.
+
+Supported StarkNet networks:
+- `alpha-goerli`
+- `alpha-mainnet`
+#### `--no-confirm`
+Skip confirming building the project.
+#### `--output-dir PATH`
+Migration output directory.
 ### `remove`
 ```shell
 $ protostar remove cairo-contracts

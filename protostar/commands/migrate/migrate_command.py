@@ -7,6 +7,7 @@ from protostar.commands.test.test_environment_exceptions import CheatcodeExcepti
 from protostar.migrator import Migrator
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import NetworkConfig
+from protostar.utils.input_requester import InputRequester
 from protostar.utils.log_color_provider import LogColorProvider
 
 
@@ -16,11 +17,13 @@ class MigrateCommand(Command):
         migrator_factory: Migrator.Factory,
         logger: Logger,
         log_color_provider: LogColorProvider,
+        requester: InputRequester,
     ) -> None:
         super().__init__()
         self._migrator_factory = migrator_factory
         self._logger = logger
         self._log_color_provider = log_color_provider
+        self._requester = requester
 
     @property
     def name(self) -> str:
@@ -46,13 +49,18 @@ class MigrateCommand(Command):
             ),
             Command.Argument(
                 name="output-dir",
-                description="Migration output directory",
+                description="Migration output directory.",
                 type="path",
             ),
             Command.Argument(
                 name="down",
                 description="Run `down` function in the migration script.",
                 type="str",
+            ),
+            Command.Argument(
+                name="no-confirm",
+                description="Skip confirming building the project.",
+                type="bool",
             ),
             Command.Argument(
                 name="gateway-url",
@@ -84,6 +92,7 @@ class MigrateCommand(Command):
             gateway_url=args.gateway_url,
             network=args.network,
             output_dir_path=args.output_dir,
+            no_confirm=args.no_confirm,
         )
 
     # pylint: disable=too-many-arguments
@@ -94,10 +103,17 @@ class MigrateCommand(Command):
         gateway_url: Optional[str],
         network: Optional[str],
         output_dir_path: Optional[Path],
+        no_confirm: bool,
     ):
-        # TODO: ask if the project is build
-        # TODO: pretty print invalid network config
         network_config = NetworkConfig.build(gateway_url, network)
+
+        # mitigates the risk of running migrate on an outdated project
+        should_confirm = not no_confirm
+        if should_confirm and not self._requester.confirm(
+            "Did you build the project before running this command?"
+        ):
+            self._logger.info("Migration cancelled")
+            return
 
         self._migrator_factory.set_logger(self._logger, self._log_color_provider)
 

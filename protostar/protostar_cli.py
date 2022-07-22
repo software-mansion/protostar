@@ -176,6 +176,7 @@ class ProtostarCLI(CLIApp):
                             ),
                         )
                     ),
+                    requester=requester,
                     logger=self.logger,
                     log_color_provider=log_color_provider,
                 ),
