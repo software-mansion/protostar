@@ -1,8 +1,4 @@
-from typing import (
-    Any,
-    Callable,
-    Optional,
-)
+from typing import Optional
 
 from starkware.cairo.lang.vm.vm_consts import (
     VmConstsReference,
