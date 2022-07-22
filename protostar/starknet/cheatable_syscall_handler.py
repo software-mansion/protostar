@@ -176,7 +176,9 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
         # Update events count.
         self.tx_execution_context.n_emitted_events += 1
 
-    def _deploy(self, segments: MemorySegmentManager, syscall_ptr: RelocatableValue) -> int:
+    def _deploy(
+        self, segments: MemorySegmentManager, syscall_ptr: RelocatableValue
+    ) -> int:
         """
         Method logic copied from BusinessLogicSysCallHandler
         """
