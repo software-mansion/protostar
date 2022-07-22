@@ -35,17 +35,14 @@ def get_value_from_vm(ids: VmConsts, name: str):
         ids: VmConsts,
         identifier: ReferenceDefinition,
     ) -> ReflectInputType:
-
-        ids_get: Callable[[str], Any] = lambda name: object.__getattribute__(ids, name)
-
-        reference = ids_get("_context").flow_tracking_data.resolve_reference(
-            reference_manager=ids_get("_context").reference_manager,
+        reference = getattr(ids, "_context").flow_tracking_data.resolve_reference(
+            reference_manager=getattr(ids, "_context").reference_manager,
             name=identifier.full_name,
         )
 
-        expr = reference.eval(ids_get("_context").flow_tracking_data.ap_tracking)
+        expr = reference.eval(getattr(ids, "_context").flow_tracking_data.ap_tracking)
         expr, expr_type = simplify_type_system(
-            expr, identifiers=ids_get("_context").identifiers
+            expr, identifiers=getattr(ids, "_context").identifiers
         )
 
         is_object = False
@@ -59,7 +56,7 @@ def get_value_from_vm(ids: VmConsts, name: str):
 
             is_object = True
 
-        val = ids_get("_context").evaluator(expr)
+        val = getattr(ids, "_context").evaluator(expr)
 
         if not is_object:
             return val
@@ -68,18 +65,15 @@ def get_value_from_vm(ids: VmConsts, name: str):
             expr_type.pointee, TypeStruct
         ), "Type must be of the form T*."
         return VmConstsReference(
-            context=ids_get("_context"),
+            context=getattr(ids, "_context"),
             struct_name=expr_type.pointee.scope,
             reference_value=val,
         )
-
-    ids_get: Callable[[str], Any] = lambda name: object.__getattribute__(ids, name)
-
     try:
         # Handle attributes representing program scopes and constants.
         result = search_identifier_or_scope(
-            identifiers=ids_get("_context").identifiers,
-            accessible_scopes=ids_get("_accessible_scopes"),
+            identifiers=getattr(ids, "_context").identifiers,
+            accessible_scopes=getattr(ids, "_accessible_scopes"),
             name=ScopedName.from_string(name),
         )
     except MissingIdentifierError:
@@ -101,7 +95,7 @@ def get_value_from_vm(ids: VmConsts, name: str):
 
     if handler_name not in dir(ids):
         ids.raise_unsupported_error(
-            name=ids_get("_path") + name, identifier_type=identifier_type  # type: ignore
+            name=getattr(ids, "_path") + name, identifier_type=identifier_type  # type: ignore
         )
 
     if handler_name == "handle_ReferenceDefinition":
