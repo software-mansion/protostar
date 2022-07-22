@@ -109,6 +109,6 @@ class MigrateCommand(Command):
         if output_dir_path:
             migrator.save_result(
                 result,
-                migration_file_path=migration_file_path,
+                migration_file_basename=Path(migration_file_path).stem,
                 output_dir_path=output_dir_path,
             )

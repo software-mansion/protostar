@@ -70,12 +70,11 @@ class Migrator:
     @staticmethod
     def save_result(
         result: Result,
-        migration_file_path: Path,
+        migration_file_basename: str,
         output_dir_path: Path,
     ):
-        migration_basename = Path(migration_file_path).stem
         prefix = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
-        output_file_path = output_dir_path / f"{prefix}_{migration_basename}.json"
+        output_file_path = output_dir_path / f"{prefix}_{migration_file_basename}.json"
 
         if not output_dir_path.exists():
             output_dir_path.mkdir(parents=True)
