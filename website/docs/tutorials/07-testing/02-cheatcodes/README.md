@@ -33,7 +33,7 @@ Cheatcodes accept arguments representing input or output of a Cairo function as:
 - `Dict[DataTransformer.ArgumentName, DataTransformer.SupportedType]` — Data Transformer friendly dictionary
 
 ### Example
-The following example demonstrate usage on the [`deploy_contract`](04-deploy-contract.md).
+The following example demonstrate usage on the [`deploy_contract`](deploy-contract.md).
 
 ```cairo title="./src/main.cairo"
 %lang starknet

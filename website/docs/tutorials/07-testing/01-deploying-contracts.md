@@ -5,7 +5,7 @@ sidebar_label: Deploying contracts from tests
 # Deploying contracts from tests
 
 For most projects, testing of isolated functions won't be enough.
-Protostar provides a [`deploy_contract` cheatcode](02-cheatcodes/04-deploy-contract.md) to test interactions between contracts.
+Protostar provides a [`deploy_contract` cheatcode](02-cheatcodes/deploy-contract.md) to test interactions between contracts.
 We will use an example of a simple storage contract to show you how to deploy contract inside a test case.
 
 First, inside a `src` directory, create a `storage_contract.cairo`
