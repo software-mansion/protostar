@@ -34,8 +34,7 @@ func test_reflect_passed_simple():
     %{
         structA = reflect(ids).structA.get()
 
-        from collections import namedtuple
-        StructB = namedtuple("StructB", "e f")
+        StructB = CairoStruct("StructB")
         other = StructB(e=42, f=24)
 
         assert structA.a == other
@@ -202,9 +201,8 @@ func test_reflect_passed_full():
         structB = reflect(ids).structB.get()
         f = reflect(ids).structB.f.get()
 
-        from collections import namedtuple
-        StructB = namedtuple("StructB", "e f")
-        StructA = namedtuple("StructA", "a b c d")
+        StructB = CairoStruct("StructB")
+        StructA = CairoStruct("StructA")
         assert structA == StructA(
             a=StructB(
                 e=42,

@@ -1,4 +1,3 @@
-from typing import NamedTuple
 from copy import deepcopy
 
 from starkware.cairo.lang.vm.vm_consts import (
@@ -19,7 +18,6 @@ from protostar.commands.test.test_environment_exceptions import CheatcodeExcepti
 from protostar.commands.test.cheatcodes.reflect.reflect_misc import (
     ReflectInputType,
     to_cairo_naming,
-    ReflectTreeNode,
     ReflectReturnType,
 )
 
@@ -28,7 +26,6 @@ from protostar.commands.test.cheatcodes.reflect.reflect_get_from_vm import (
 )
 from protostar.commands.test.cheatcodes.reflect.reflect_build_output import (
     generate_value_tree,
-    convert_to_named_tuple,
 )
 
 
@@ -94,9 +91,4 @@ class Reflector:
     def get(self) -> ReflectReturnType:
         if self._value is None:
             raise CheatcodeException("reflect", "Reflector.get() called on no value.")
-
-        tree = generate_value_tree(self._value)
-        if not isinstance(tree, ReflectTreeNode):
-            return tree
-        tpl = convert_to_named_tuple(tree)
-        return tpl
+        return generate_value_tree(self._value)

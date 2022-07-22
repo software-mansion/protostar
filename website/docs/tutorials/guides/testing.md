@@ -830,7 +830,7 @@ There is no type checking for `variable_name`, `key`, `variable_type` make sure 
 def reflect(self, ids: VmConsts) -> Reflector:
 Reflector.get() -> Union[NamedTuple, RelocatableValue, int]
 ```
-Lazily converts Cairo object into Python `NamedTuple` (complex structure) or keeps it a simple type `RelocatableValue` (pointer) or `int` (felt). It can be used to easily print and compare complex structures.
+Lazily converts Cairo object into Python custom named `CairoStruct` (complex structure) or keeps it a simple type `RelocatableValue` (pointer) or `int` (felt). It can be used to easily print and compare complex structures.
 ```cairo title="./test/example_test.cairo"
 %lang starknet
 
@@ -875,9 +875,8 @@ func test_reflect_passed_full():
 
         print(structA)
 
-        from collections import namedtuple
-        StructB = namedtuple("StructB", "e f")
-        StructA = namedtuple("StructA", "a b c d")
+        StructB = CairoStruct("StructB")
+        StructA = CairoStruct("StructA")
         assert structA == StructA(
             a=StructB(
                 e=42,

@@ -27,6 +27,7 @@ from starkware.cairo.lang.compiler.identifier_manager import (
 from starkware.cairo.lang.compiler.type_system_visitor import simplify_type_system
 
 from protostar.commands.test.cheatcodes.reflect.reflect_misc import ReflectInputType
+from protostar.commands.test.test_environment_exceptions import CheatcodeException
 
 
 def get_value_from_vm(ids: VmConsts, name: str):
@@ -81,8 +82,8 @@ def get_value_from_vm(ids: VmConsts, name: str):
             accessible_scopes=ids_get("_accessible_scopes"),
             name=ScopedName.from_string(name),
         )
-    except MissingIdentifierError as exc:
-        raise MissingIdentifierError(ids_get("_path") + exc.fullname) from None  # type: ignore
+    except MissingIdentifierError:
+        raise CheatcodeException("reflect", f'Unknown identifier "{name}".') from None
 
     value: Optional[IdentifierDefinition]
     if isinstance(result, IdentifierSearchResult):
