@@ -20,7 +20,6 @@ from protostar.commands.test.test_context import TestContextHintLocal
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.execution_environment import ExecutionEnvironment
 from protostar.utils.abi import has_function_parameters
-from protostar.utils.data_transformer_facade import DataTransformerFacade
 from protostar.utils.hook import Hook
 
 
@@ -84,8 +83,6 @@ class TestCaseCheatcodeFactory(SetupCheatcodeFactory):
         syscall_dependencies: Cheatcode.SyscallDependencies,
         internal_calls: List[CallInfo],
     ) -> List[Cheatcode]:
-        data_transformer = DataTransformerFacade(self._state.starknet_compiler)
-
         return [
             *super().build(syscall_dependencies, internal_calls),
             ExpectRevertCheatcode(
@@ -96,6 +93,5 @@ class TestCaseCheatcodeFactory(SetupCheatcodeFactory):
                 syscall_dependencies,
                 self._state.starknet,
                 self._finish_hook,
-                data_transformer,
             ),
         ]

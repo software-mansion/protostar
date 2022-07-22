@@ -31,19 +31,18 @@ def test_compiling(tmp_path: Path, datadir: Path, create_loader):
     project_root_path = datadir / "importing"
 
     ProjectCompiler(
+        project_root_path,
         project_section_loader=create_loader(
-            ProtostarProjectSection(libs_path=project_root_path / "modules")
+            ProtostarProjectSection(libs_path=Path("./modules"))
         ),
         contracts_section_loader=create_loader(
             ProtostarContractsSection(
-                contract_name_to_paths={
-                    "main": [project_root_path / "entry_point.cairo"]
-                }
+                contract_name_to_paths={"main": [Path("./entry_point.cairo")]}
             )
         ),
     ).compile(
         output_dir=tmp_path,
-        cairo_path=[project_root_path],
+        relative_cairo_path=[],
         disable_hint_validation=False,
     )
 
@@ -71,6 +70,7 @@ def test_handling_cairo_errors(tmp_path: Path, datadir: Path, create_loader):
 
     with pytest.raises(CairoCompilationException):
         ProjectCompiler(
+            project_root_path=project_root_path,
             project_section_loader=create_loader(
                 ProtostarProjectSection(libs_path=project_root_path / "modules")
             ),
@@ -83,7 +83,7 @@ def test_handling_cairo_errors(tmp_path: Path, datadir: Path, create_loader):
             ),
         ).compile(
             output_dir=tmp_path,
-            cairo_path=[project_root_path],
+            relative_cairo_path=[project_root_path],
             disable_hint_validation=False,
         )
 
@@ -93,8 +93,9 @@ def test_handling_not_existing_main_files(tmp_path: Path, datadir: Path, create_
 
     with pytest.raises(StarknetCompiler.FileNotFoundException):
         ProjectCompiler(
+            project_root_path=project_root_path,
             project_section_loader=create_loader(
-                ProtostarProjectSection(libs_path=project_root_path / "lib")
+                ProtostarProjectSection(libs_path=project_root_path / "modules")
             ),
             contracts_section_loader=create_loader(
                 ProtostarContractsSection(
@@ -105,6 +106,6 @@ def test_handling_not_existing_main_files(tmp_path: Path, datadir: Path, create_
             ),
         ).compile(
             output_dir=tmp_path,
-            cairo_path=[project_root_path],
+            relative_cairo_path=[project_root_path],
             disable_hint_validation=False,
         )

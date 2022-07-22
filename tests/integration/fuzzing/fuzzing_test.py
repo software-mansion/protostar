@@ -1,27 +1,17 @@
 from pathlib import Path
-from typing import cast
-from unittest.mock import MagicMock
 
 import pytest
-from pytest_mock import MockerFixture
 
-from protostar import TestCommand
-from tests.integration.conftest import assert_cairo_test_cases
+from tests.integration.conftest import (
+    assert_cairo_test_cases,
+    RunCairoTestRunnerFixture,
+)
 
 
 @pytest.mark.asyncio
-async def test_basic(mocker: MockerFixture):
-    protostar_directory_mock = mocker.MagicMock()
-    cast(MagicMock, protostar_directory_mock.add_protostar_cairo_dir).return_value = [
-        Path() / "cairo"
-    ]
-
-    testing_summary = await TestCommand(
-        project=mocker.MagicMock(),
-        protostar_directory=protostar_directory_mock,
-    ).test(
-        targets=[f"{Path(__file__).parent}/basic_test.cairo"],
-        seed=10,
+async def test_basic(run_cairo_test_runner: RunCairoTestRunnerFixture):
+    testing_summary = await run_cairo_test_runner(
+        Path(__file__).parent / "basic_test.cairo", seed=10
     )
 
     assert_cairo_test_cases(
@@ -36,17 +26,9 @@ async def test_basic(mocker: MockerFixture):
 
 
 @pytest.mark.asyncio
-async def test_non_felt_parameter(mocker: MockerFixture):
-    protostar_directory_mock = mocker.MagicMock()
-    cast(MagicMock, protostar_directory_mock.add_protostar_cairo_dir).return_value = [
-        Path() / "cairo"
-    ]
-
-    testing_summary = await TestCommand(
-        project=mocker.MagicMock(),
-        protostar_directory=protostar_directory_mock,
-    ).test(
-        targets=[f"{Path(__file__).parent}/non_felt_parameter_test.cairo"],
+async def test_non_felt_parameter(run_cairo_test_runner: RunCairoTestRunnerFixture):
+    testing_summary = await run_cairo_test_runner(
+        Path(__file__).parent / "non_felt_parameter_test.cairo"
     )
 
     assert_cairo_test_cases(

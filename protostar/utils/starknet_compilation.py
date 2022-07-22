@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Callable, List, Set, Tuple, Type
+from typing import Callable, List, Tuple, Type, Union
 from dataclasses import dataclass
 
 from starkware.cairo.lang.compiler.constants import MAIN_SCOPE
@@ -19,6 +19,7 @@ from starkware.starknet.services.api.contract_class import ContractClass
 from protostar.protostar_exception import ProtostarException
 from protostar.utils.compiler.pass_managers import (
     PassManagerFactory,
+    TestCollectorPreprocessedProgram,
 )
 
 
@@ -57,12 +58,15 @@ class StarknetCompiler:
 
     def preprocess_contract(
         self, *cairo_file_paths: Path
-    ) -> StarknetPreprocessedProgram:
+    ) -> Union[StarknetPreprocessedProgram, TestCollectorPreprocessedProgram]:
         try:
             codes = self.build_codes(*cairo_file_paths)
             context = self.build_context(codes)
             self.pass_manager.run(context)
-            assert isinstance(context.preprocessed_program, StarknetPreprocessedProgram)
+            assert isinstance(
+                context.preprocessed_program,
+                (StarknetPreprocessedProgram, TestCollectorPreprocessedProgram),
+            )
             return context.preprocessed_program
         except FileNotFoundError as err:
             raise StarknetCompiler.FileNotFoundException(
@@ -101,30 +105,19 @@ class StarknetCompiler:
         add_debug_info: bool = False,
     ) -> ContractClass:
         preprocessed = self.preprocess_contract(*sources)
+        assert isinstance(preprocessed, StarknetPreprocessedProgram)
         assembled = self.compile_preprocessed_contract(preprocessed, add_debug_info)
         return assembled
 
     @staticmethod
     def get_function_names(
-        preprocessed: StarknetPreprocessedProgram, predicate: Callable[[str], bool]
+        preprocessed: Union[
+            StarknetPreprocessedProgram, TestCollectorPreprocessedProgram
+        ],
+        predicate: Callable[[str], bool],
     ) -> List[str]:
         return [
             el["name"]
             for el in preprocessed.abi
             if el["type"] == "function" and predicate(el["name"])
         ]
-
-    def get_main_identifiers_in_file(self, cairo_file_path: Path) -> List[str]:
-        file_identifiers: Set[str] = set()
-        try:
-            codes = self.build_codes(cairo_file_path)
-            context = self.build_context(codes)
-            self.pass_manager.run(context)
-            for scoped_name in context.identifiers.dict:
-                if "__main__" == scoped_name.path[0]:
-                    file_identifiers.add(scoped_name.path[1])
-            return list(file_identifiers)
-        except FileNotFoundError as err:
-            raise StarknetCompiler.FileNotFoundException(
-                message=(f"Couldn't find file '{err.filename}'")
-            ) from err

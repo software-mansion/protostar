@@ -1,14 +1,17 @@
 import collections
-from typing import TYPE_CHECKING, Callable, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Callable, Optional, Union
 
 from typing_extensions import NotRequired, TypedDict
 
 from protostar.commands.test.expected_event import ExpectedEvent
-from protostar.starknet.cheatcode import Cheatcode
 from protostar.commands.test.test_environment_exceptions import (
     ExpectedEventMissingException,
 )
-from protostar.utils.data_transformer_facade import DataTransformerFacade
+from protostar.starknet.cheatcode import Cheatcode
+from protostar.utils.data_transformer import (
+    CairoOrPythonData,
+    from_python_events_transformer,
+)
 from protostar.utils.hook import Hook
 
 if TYPE_CHECKING:
@@ -20,15 +23,7 @@ class ExpectEventsCheatcode(Cheatcode):
         "ExpectedEvent",
         {
             "name": str,
-            "data": NotRequired[
-                Union[
-                    List[int],
-                    Dict[
-                        DataTransformerFacade.ArgumentName,
-                        DataTransformerFacade.SupportedType,
-                    ],
-                ]
-            ],
+            "data": NotRequired[CairoOrPythonData],
             "from_address": NotRequired[int],
         },
     )
@@ -39,12 +34,10 @@ class ExpectEventsCheatcode(Cheatcode):
         syscall_dependencies: Cheatcode.SyscallDependencies,
         starknet: "ForkableStarknet",
         finish_hook: Hook,
-        data_transformer: DataTransformerFacade,
     ):
         super().__init__(syscall_dependencies)
         self.starknet = starknet
         self.finish_hook = finish_hook
-        self.data_transformer = data_transformer
 
     @property
     def name(self) -> str:
@@ -90,15 +83,7 @@ class ExpectEventsCheatcode(Cheatcode):
     ):
 
         name: str
-        data: Optional[
-            Union[
-                List[int],
-                Dict[
-                    DataTransformerFacade.ArgumentName,
-                    DataTransformerFacade.SupportedType,
-                ],
-            ]
-        ] = None
+        data: Optional[CairoOrPythonData] = None
         from_address: Optional[int] = None
         if isinstance(raw_expected_event, str):
             name = raw_expected_event
@@ -112,9 +97,8 @@ class ExpectEventsCheatcode(Cheatcode):
                     ), "Couldn't map event name to the contract path with that event"
 
                     contract_abi = self.state.event_name_to_contract_abi_map[name]
-                    data = self.data_transformer.build_from_python_events_transformer(
-                        contract_abi, name
-                    )(raw_data)
+                    transformer = from_python_events_transformer(contract_abi, name)
+                    data = transformer(raw_data)
                 else:
                     data = raw_data
             if "from_address" in raw_expected_event:

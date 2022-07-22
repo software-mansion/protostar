@@ -6,7 +6,6 @@ from tqdm import tqdm as bar
 
 from protostar.commands.test.test_cases import (
     BrokenTestSuite,
-    FailedTestCase,
     TestCaseResult,
 )
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
@@ -24,13 +23,11 @@ class TestingLiveLogger:
         testing_summary: TestingSummary,
         no_progress_bar: bool,
         exit_first: bool,
-        stdout_on_success: bool,
     ) -> None:
         self._logger = logger
         self._no_progress_bar = no_progress_bar
         self.testing_summary = testing_summary
         self.exit_first = exit_first
-        self.stdout_on_success = stdout_on_success
 
     def log_testing_summary(
         self, test_collector_result: "TestCollector.Result"
@@ -72,10 +69,7 @@ class TestingLiveLogger:
                         )
 
                         progress_bar.write(
-                            test_case_result.format(
-                                self.stdout_on_success
-                                or isinstance(test_case_result, FailedTestCase)
-                            )
+                            test_case_result.format(include_stdout_section=True)
                         )
 
                         if (

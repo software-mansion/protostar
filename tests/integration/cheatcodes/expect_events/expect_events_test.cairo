@@ -155,3 +155,10 @@ func test_data_transformation_in_contract_deployed_in_setup{syscall_ptr : felt*,
 
     return ()
 end
+
+@external
+func test_data_transformations_in_unit_testing_approach{syscall_ptr : felt*, range_check_ptr}():
+    %{ expect_events({"name": "foobar", "data": {"number": 42}}) %}
+    emit_foobar(42)
+    return ()
+end

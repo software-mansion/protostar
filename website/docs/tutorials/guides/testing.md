@@ -1,5 +1,5 @@
 ---
-sidebar_label: Testing (6 min)
+sidebar_label: Testing
 ---
 
 # Testing
@@ -39,7 +39,7 @@ In the example above, Protostar will run every test case it manages to find in t
 :::
 
 :::tip
-If the test collecting phase takes too long, consider using `--fast-collecting` flag. Protostar will use a different algorithm, which doesn't check if a test case is decorated with the `@external` decorator or if an identifier with the name starting with `test_` is a function.
+If you experience any errors during test collection phase consider using `--safe-collecting` flag.
 :::
 
 ```console title="expected result"
@@ -416,17 +416,15 @@ Use [scope attributes](https://www.cairo-lang.org/docs/how_cairo_works/scope_att
                     "name": str,
                     "data": NotRequired[Union[
                       List[int],
-                      Dict[
-                        # e.g.
-                        # {"current_balance" : 37, "amount" : 21}
-                        # 
-                        # for the following event signature:
-                        # @event
-                        # func balance_increased(current_balance : felt, amount : felt):
-                        # end
-                        DataTransformer.ArgumentName,
-                        DataTransformer.SupportedType,
-                      ]
+                      
+                      # e.g.
+                      # {"current_balance" : 37, "amount" : 21}
+                      # 
+                      # for the following event signature:
+                      # @event
+                      # func balance_increased(current_balance : felt, amount : felt):
+                      # end
+                      Dict[str, Any]
                     ]],
                     "from_address": NotRequired[int]
                 },
@@ -858,4 +856,3 @@ deploy_contract("./src/main.cairo", { "initial_balance": 42, "contract_id": 123 
 ```python title="Passing constructor data as a list of integers"
 deploy_contract("./src/main.cairo", [42, 0, 123])
 ```
-

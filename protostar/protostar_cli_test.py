@@ -39,14 +39,15 @@ def protostar_cli_fixture(
 
     return ProtostarCLI(
         script_root=Path(),
+        project_root_path=Path(),
         protostar_directory=mocker.MagicMock(),
-        project=mocker.MagicMock(),
         version_manager=version_manager,
         protostar_toml_writer=mocker.MagicMock(),
         protostar_toml_reader=mocker.MagicMock(),
         requester=mocker.MagicMock(),
         logger=mocker.MagicMock(),
         latest_version_checker=latest_version_checker_mock,
+        gateway_facade=mocker.MagicMock(),
     )
 
 

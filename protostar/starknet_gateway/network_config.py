@@ -5,6 +5,10 @@ from starkware.starknet.cli.starknet_cli import NETWORKS
 from protostar.protostar_exception import ProtostarException
 
 
+class InvalidNetworkConfigurationException(Exception):
+    pass
+
+
 class UnknownStarkwareNetworkException(ProtostarException):
     def __init__(self):
         message_lines: List[str] = []
@@ -16,6 +20,24 @@ class UnknownStarkwareNetworkException(ProtostarException):
 
 
 class NetworkConfig:
+    @classmethod
+    def build(
+        cls,
+        gateway_url: Optional[str] = None,
+        network: Optional[str] = None,
+    ) -> "NetworkConfig":
+        network_config: Optional[NetworkConfig] = None
+
+        if network:
+            network_config = cls.from_starknet_network_name(network)
+        if gateway_url:
+            network_config = cls(gateway_url=gateway_url)
+
+        if network_config is None:
+            raise InvalidNetworkConfigurationException()
+
+        return network_config
+
     @staticmethod
     def get_starknet_networks() -> List[str]:
         return list(NETWORKS.keys())
