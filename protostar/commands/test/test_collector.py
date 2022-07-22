@@ -8,7 +8,7 @@ from glob import glob
 from logging import Logger
 from pathlib import Path
 from time import time
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple, Union
 
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     LocationError,
@@ -20,6 +20,7 @@ from starkware.starknet.compiler.starknet_preprocessor import (
 
 from protostar.commands.test.test_cases import BrokenTestSuite
 from protostar.commands.test.test_suite import TestSuite
+from protostar.utils.compiler.pass_managers import TestCollectorPreprocessedProgram
 from protostar.utils.starknet_compilation import StarknetCompiler
 
 TestSuiteGlob = str
@@ -90,7 +91,7 @@ TestSuiteInfoDict = Dict[TestSuitePath, TestSuiteInfo]
 class TestCollector:
     @dataclass
     class Config:
-        fast_collecting: bool = False
+        safe_collecting: bool = False
 
     class Result:
         def __init__(
@@ -304,22 +305,9 @@ class TestCollector:
     ) -> TestSuite:
         test_case_names: List[str] = []
         setup_fn_name: Optional[str] = None
-        # TODO(maksymiliandemitraszek): optimized starknet compiler should provide the same interface as original
-        if self._config.fast_collecting:
-            identifiers = self._starknet_compiler.get_main_identifiers_in_file(
-                test_suite_info.path
-            )
-            collected_test_case_names = self._find_test_case_names(identifiers)
-            test_case_names = test_suite_info.match_test_case_names(
-                collected_test_case_names
-            )
-            setup_fn_name = self._find_setup_hook_name(identifiers)
-        else:
-            preprocessed = self._starknet_compiler.preprocess_contract(
-                test_suite_info.path
-            )
-            test_case_names = self._collect_test_case_names(preprocessed)
-            setup_fn_name = self._collect_setup_hook_name(preprocessed)
+        preprocessed = self._starknet_compiler.preprocess_contract(test_suite_info.path)
+        test_case_names = self._collect_test_case_names(preprocessed)
+        setup_fn_name = self._collect_setup_hook_name(preprocessed)
 
         matching_test_case_names = test_suite_info.match_test_case_names(
             test_case_names
@@ -331,23 +319,21 @@ class TestCollector:
             setup_fn_name=setup_fn_name,
         )
 
-    def _find_setup_hook_name(self, identifiers: List[str]) -> Optional[str]:
-        return "__setup__" if "__setup__" in identifiers else None
-
-    def _find_test_case_names(self, identifiers: List[str]) -> List[str]:
-        return [
-            identifier for identifier in identifiers if identifier.startswith("test_")
-        ]
-
     def _collect_test_case_names(
-        self, preprocessed: StarknetPreprocessedProgram
+        self,
+        preprocessed: Union[
+            StarknetPreprocessedProgram, TestCollectorPreprocessedProgram
+        ],
     ) -> List[str]:
         return self._starknet_compiler.get_function_names(
             preprocessed, predicate=lambda fn_name: fn_name.startswith("test_")
         )
 
     def _collect_setup_hook_name(
-        self, preprocessed: StarknetPreprocessedProgram
+        self,
+        preprocessed: Union[
+            StarknetPreprocessedProgram, TestCollectorPreprocessedProgram
+        ],
     ) -> Optional[str]:
         function_names = self._starknet_compiler.get_function_names(
             preprocessed, predicate=lambda fn_name: fn_name == "__setup__"

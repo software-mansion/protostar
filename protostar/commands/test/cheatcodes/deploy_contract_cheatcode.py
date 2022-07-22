@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Optional
 
 from protostar.commands.test.cheatcodes.declare_cheatcode import DeclareCheatcode
 from protostar.commands.test.cheatcodes.deploy_cheatcode import (
@@ -7,11 +7,12 @@ from protostar.commands.test.cheatcodes.deploy_cheatcode import (
 )
 from protostar.commands.test.cheatcodes.prepare_cheatcode import PrepareCheatcode
 from protostar.starknet.cheatcode import Cheatcode
-from protostar.utils.data_transformer_facade import DataTransformerFacade
+from protostar.utils.data_transformer import (
+    CairoOrPythonData,
+)
 
 
 class DeployContractCheatcode(Cheatcode):
-    # pylint: disable=too-many-arguments
     def __init__(
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
@@ -34,15 +35,7 @@ class DeployContractCheatcode(Cheatcode):
     def deploy_contract(
         self,
         contract_path: str,
-        constructor_args: Optional[
-            Union[
-                List[int],
-                Dict[
-                    DataTransformerFacade.ArgumentName,
-                    DataTransformerFacade.SupportedType,
-                ],
-            ]
-        ] = None,
+        constructor_args: Optional[CairoOrPythonData] = None,
     ) -> DeployedContract:
         declared_contract = self._declare_cheatcode.declare(contract_path)
         prepared_contract = self._prepare_cheatcode.prepare(
