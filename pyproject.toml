@@ -54,7 +54,7 @@ lint = "pylint protostar"
 local_static_check = ["format", "lint", "type_check", "custom_checks"]
 profile = "python -m cProfile -o recent_profiling.prof protostar.py"
 show_prof = "snakeviz recent_profiling.prof"
-test = ["test_unit", "test_integration", "build", "test_e2e", "test_performance"]
+test = ["test_unit", "test_integration", "test_performance", "build", "test_e2e"]
 test_cairo = "python ./binary_entrypoint.py test"
 test_e2e.shell = "pytest tests/e2e"
 test_html = [{shell = "coverage html && open ./htmlcov/index.html"}]
