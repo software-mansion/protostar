@@ -19,13 +19,13 @@ class CairoTestCases:
     broken: Union[int, Set[str]]
 
     def __repr__(self) -> str:
-        passed = "[Passed]\n" + "\n".join(self.passed)
-        failed = "[Failed]\n" + "\n".join(self.failed)
+        passed = "[Passed]\n" + "\n".join(sorted(self.passed))
+        failed = "[Failed]\n" + "\n".join(sorted(self.failed))
 
         if isinstance(self.broken, int):
             broken = f"Broken count: {self.broken}"
         else:
-            broken = "[Broken]\n" + "\n".join(self.broken)
+            broken = "[Broken]\n" + "\n".join(sorted(self.broken))
 
         return "\n".join([passed, failed, broken])
 
