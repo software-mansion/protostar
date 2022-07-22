@@ -69,6 +69,7 @@ def get_value_from_vm(ids: VmConsts, name: str):
             struct_name=expr_type.pointee.scope,
             reference_value=val,
         )
+
     try:
         # Handle attributes representing program scopes and constants.
         result = search_identifier_or_scope(
