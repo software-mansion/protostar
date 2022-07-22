@@ -6,50 +6,33 @@ from pathlib import Path
 from typing import Any
 
 from protostar.cli import CLIApp, Command
-from protostar.commands import (
-    BuildCommand,
-    DeployCommand,
-    InitCommand,
-    InstallCommand,
-    RemoveCommand,
-    TestCommand,
-    UpdateCommand,
-    UpgradeCommand,
-)
+from protostar.commands import (BuildCommand, DeployCommand, InitCommand,
+                                InstallCommand, RemoveCommand, TestCommand,
+                                UpdateCommand, UpgradeCommand)
 from protostar.commands.build import ProjectCompiler
 from protostar.commands.declare.declare_command import DeclareCommand
-from protostar.commands.init.project_creator import (
-    AdaptedProjectCreator,
-    NewProjectCreator,
-)
+from protostar.commands.init.project_creator import (AdaptedProjectCreator,
+                                                     NewProjectCreator)
 from protostar.commands.migrate.migrate_command import MigrateCommand
 from protostar.migrator import Migrator
-from protostar.migrator.migrator_execution_environment import (
-    MigratorExecutionEnvironment,
-)
-from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
+from protostar.migrator.migrator_execution_environment import \
+    MigratorExecutionEnvironment
+from protostar.protostar_exception import (ProtostarException,
+                                           ProtostarExceptionSilent)
 from protostar.protostar_toml.io.protostar_toml_reader import (
-    ProtostarTOMLReader,
-    search_upwards_protostar_toml_path,
-)
-from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
-from protostar.protostar_toml.protostar_contracts_section import (
-    ProtostarContractsSection,
-)
-from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
+    ProtostarTOMLReader, search_upwards_protostar_toml_path)
+from protostar.protostar_toml.io.protostar_toml_writer import \
+    ProtostarTOMLWriter
+from protostar.protostar_toml.protostar_contracts_section import \
+    ProtostarContractsSection
+from protostar.protostar_toml.protostar_project_section import \
+    ProtostarProjectSection
 from protostar.starknet_gateway import GatewayFacade
-from protostar.upgrader import (
-    LatestVersionChecker,
-    LatestVersionRemoteChecker,
-    UpgradeManager,
-)
+from protostar.upgrader import (LatestVersionChecker,
+                                LatestVersionRemoteChecker, UpgradeManager)
 from protostar.upgrader.latest_version_cache_toml import LatestVersionCacheTOML
-from protostar.utils import (
-    ProtostarDirectory,
-    StandardLogFormatter,
-    VersionManager,
-    log_color_provider,
-)
+from protostar.utils import (ProtostarDirectory, StandardLogFormatter,
+                             VersionManager, log_color_provider)
 from protostar.utils.input_requester import InputRequester
 
 PROFILE_ARG = Command.Argument(
@@ -173,12 +156,11 @@ class ProtostarCLI(CLIApp):
                         MigratorExecutionEnvironment.Factory(
                             gateway_facade=GatewayFacade(
                                 project_root_path,
-                                on_starknet_interaction=lambda ev: logger.info(
-                                    ev.prettify(color_provider=log_color_provider)
-                                ),
                             ),
                         )
                     ),
+                    logger=self.logger,
+                    log_color_provider=log_color_provider
                 ),
             ],
             root_args=[

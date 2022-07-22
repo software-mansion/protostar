@@ -1,5 +1,6 @@
+from logging import Logger
 from pathlib import Path
-from typing import Callable, List, Optional
+from typing import List, Optional
 
 from services.external_api.client import RetryConfig
 from starkware.starknet.definitions import constants
@@ -18,6 +19,7 @@ from protostar.starknet_gateway.gateway_response import (
 )
 from protostar.starknet_gateway.starknet_interaction import StarknetInteraction
 from protostar.starknet_gateway.starkware.starknet_cli import deploy
+from protostar.utils.log_color_provider import LogColorProvider
 
 
 class TransactionException(ProtostarException):
@@ -40,11 +42,15 @@ class GatewayFacade:
     def __init__(
         self,
         project_root_path: Path,
-        on_starknet_interaction: Optional[Callable[[StarknetInteraction], None]] = None,
     ) -> None:
         self._project_root_path = project_root_path
         self.starknet_interactions: List[StarknetInteraction] = []
-        self._on_starknet_interaction = on_starknet_interaction
+        self._logger: Optional[Logger] = None
+        self._log_color_provider: Optional[LogColorProvider] = None
+
+    def set_logger(self, logger: Logger, log_color_provider: LogColorProvider) -> None:
+        self._logger = logger
+        self._log_color_provider = log_color_provider
 
     # pylint: disable=too-many-arguments
     async def deploy(
@@ -177,6 +183,8 @@ class GatewayFacade:
             raise CompilationOutputNotFoundException(compiled_contract_path) from err
 
     def _add_interaction(self, starknet_interaction: StarknetInteraction):
-        if self._on_starknet_interaction:
-            self._on_starknet_interaction(starknet_interaction)
+        if self._logger:
+            self._logger.info(
+                starknet_interaction.prettify(color_provider=self._log_color_provider)
+            )
         self.starknet_interactions.append(starknet_interaction)

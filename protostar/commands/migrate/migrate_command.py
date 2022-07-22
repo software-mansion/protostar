@@ -1,18 +1,24 @@
+from logging import Logger
 from pathlib import Path
 from typing import List, Optional
 
 from protostar.cli import Command
 from protostar.migrator import Migrator
 from protostar.starknet_gateway import NetworkConfig
+from protostar.utils.log_color_provider import LogColorProvider
 
 
 class MigrateCommand(Command):
     def __init__(
         self,
         migrator_factory: Migrator.Factory,
+        logger: Logger,
+        log_color_provider: LogColorProvider,
     ) -> None:
         super().__init__()
         self._migrator_factory = migrator_factory
+        self._logger = logger
+        self._log_color_provider = log_color_provider
 
     @property
     def name(self) -> str:
@@ -88,6 +94,8 @@ class MigrateCommand(Command):
         output_dir_path: Optional[Path],
     ):
         network_config = NetworkConfig.build(gateway_url, network)
+
+        self._migrator_factory.set_logger(self._logger, self._log_color_provider)
 
         migrator = await self._migrator_factory.build(
             migration_file_path,

@@ -2,17 +2,19 @@ import dataclasses
 import json
 from dataclasses import dataclass
 from datetime import datetime
+from logging import Logger
 from pathlib import Path
 from typing import List
 
 from reactivex import Subject
 from typing_extensions import Literal
 
-from protostar.migrator.migrator_cheatcodes_factory import MigratorCheatcodeFactory
-from protostar.migrator.migrator_execution_environment import (
-    MigratorExecutionEnvironment,
-)
+from protostar.migrator.migrator_cheatcodes_factory import \
+    MigratorCheatcodeFactory
+from protostar.migrator.migrator_execution_environment import \
+    MigratorExecutionEnvironment
 from protostar.starknet_gateway.starknet_interaction import StarknetInteraction
+from protostar.utils.log_color_provider import LogColorProvider
 
 
 class Migrator:
@@ -31,12 +33,21 @@ class Migrator:
                 migrator_execution_environment_factory
             )
 
+        def set_logger(
+            self, logger: Logger, log_color_provider: LogColorProvider
+        ) -> None:
+            self._migrator_execution_environment_factory.set_logger(
+                logger, log_color_provider
+            )
+
         async def build(self, migration_file_path: Path, config: "Migrator.Config"):
-            return Migrator(
-                migrator_execution_environment=await self._migrator_execution_environment_factory.build(
+            migrator_execution_env = (
+                await self._migrator_execution_environment_factory.build(
                     migration_file_path, config=config
                 )
             )
+
+            return Migrator(migrator_execution_environment=migrator_execution_env)
 
     def __init__(
         self,

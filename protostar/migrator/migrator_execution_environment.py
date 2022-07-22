@@ -1,3 +1,4 @@
+from logging import Logger
 from pathlib import Path
 
 from protostar.migrator.cheatcodes.migrator_declare_cheatcode import (
@@ -9,6 +10,7 @@ from protostar.starknet.execution_state import ExecutionState
 from protostar.starknet.forkable_starknet import ForkableStarknet
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.utils.compiler.pass_managers import StarknetPassManagerFactory
+from protostar.utils.log_color_provider import LogColorProvider
 from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
 
@@ -21,6 +23,12 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
             gateway_facade: GatewayFacade,
         ) -> None:
             self._gateway_facade = gateway_facade
+
+        def set_logger(
+            self, logger: Logger, log_color_provider: LogColorProvider
+        ) -> None:
+            if logger:
+                self._gateway_facade.set_logger(logger, log_color_provider)
 
         async def build(
             self,
