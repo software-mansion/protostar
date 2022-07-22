@@ -70,11 +70,11 @@ class Migrator:
         output_dir_path: Path,
     ):
         migration_basename = Path(migration_file_path).stem
-        prefix = datetime.strftime(datetime.now(), "YYMMDDHHmmss")
-        output_path = output_dir_path / f"{prefix}_{migration_basename}"
+        prefix = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
+        output_path = output_dir_path / f"{prefix}_{migration_basename}.json"
 
-        if not output_path.exists():
+        if not output_dir_path.exists():
             output_dir_path.mkdir(parents=True)
 
         with open(output_path, "w", encoding="utf-8") as output_file:
-            json.dump(dataclasses.asdict(result), output_file)
+            json.dump(dataclasses.asdict(result), output_file, indent=4)
