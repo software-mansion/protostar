@@ -29,5 +29,5 @@ You can prepare multiple contracts from one `DeclaredContract`.
 :::
 
 :::tip
-You can provide `constructor_calldata` as a dictionary to leverage [data transformer](/docs/tutorials/guides/testing#data-transformer).
+You can provide `constructor_calldata` as a dictionary to leverage [data transformer](README.md#data-transformer).
 :::

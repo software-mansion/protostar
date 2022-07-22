@@ -27,7 +27,7 @@
 Compares expected events with events in the StarkNet state. You can use this cheatcode to test whether a contract emits specified events. Protostar compares events after a test case is completed. Therefore, you can use this cheatcode in any place within a test case.
 
 :::tip
-You can provide `"data"` as a dictionary to leverage [data transformer](/docs/tutorials/guides/testing#data-transformer).
+You can provide `"data"` as a dictionary to leverage [data transformer](README.md#data-transformer).
 :::
 
 ```cairo title="Protostar also checks the order of emitted events."
