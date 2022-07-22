@@ -4,8 +4,9 @@ from pathlib import Path
 
 from starkware.python.utils import from_bytes
 from starkware.starknet.business_logic.internal_transaction import InternalDeclare
+from starkware.starknet.public.abi import AbiType
 from starkware.starknet.testing.contract import DeclaredClass
-from starkware.starknet.testing.contract_utils import get_abi
+from starkware.starknet.testing.contract_utils import EventManager, get_abi
 from typing_extensions import Protocol
 
 from protostar.starknet.cheatcode import Cheatcode
@@ -69,3 +70,13 @@ class DeclareCheatcode(Cheatcode):
             class_hash=from_bytes(class_hash),
             abi=get_abi(contract_class=contract_class),
         )
+
+    def _add_event_abi_to_state(self, abi: AbiType):
+        event_manager = EventManager(abi=abi)
+        self.state.update_event_selector_to_name_map(
+            # pylint: disable=protected-access
+            event_manager._selector_to_name
+        )
+        # pylint: disable=protected-access
+        for event_name in event_manager._selector_to_name.values():
+            self.state.event_name_to_contract_abi_map[event_name] = abi

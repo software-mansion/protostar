@@ -165,18 +165,12 @@ def test_exit_first_broken(protostar, copy_fixture):
 @pytest.mark.usefixtures("init")
 def test_print_passed(protostar, copy_fixture):
     copy_fixture("test_print_passed.cairo", "./tests")
-    assert "captured stdout" in protostar(
-        ["test", "--stdout-on-success", "tests"], ignore_exit_code=True
-    )
-    assert "captured stdout" not in protostar(["test", "tests"], ignore_exit_code=True)
+    assert "captured stdout" in protostar(["test", "tests"], ignore_exit_code=True)
 
 
 @pytest.mark.usefixtures("init")
 def test_print_failed(protostar, copy_fixture):
     copy_fixture("test_print_failed.cairo", "./tests")
-    assert "captured stdout" in protostar(
-        ["test", "--stdout-on-success", "tests"], ignore_exit_code=True
-    )
     assert "captured stdout" in protostar(["test", "tests"], ignore_exit_code=True)
 
 
@@ -185,16 +179,10 @@ def test_print_both(protostar, copy_fixture):
     copy_fixture("test_print_failed.cairo", "./tests")
     copy_fixture("test_print_passed.cairo", "./tests")
 
-    result = protostar(["test", "--stdout-on-success", "tests"], ignore_exit_code=True)
+    result = protostar(["test", "tests"], ignore_exit_code=True)
 
     assert result.count("captured stdout") == 2
     assert "Hello" in result
-    assert "bee" in result
-
-    result = protostar(["test", "tests"], ignore_exit_code=True)
-
-    assert result.count("captured stdout") == 1
-    assert "Hello" not in result
     assert "bee" in result
 
 
@@ -203,16 +191,9 @@ def test_print_setup(protostar, copy_fixture):
     copy_fixture("test_print_failed.cairo", "./tests")
     copy_fixture("test_print_passed.cairo", "./tests")
 
-    result = protostar(["test", "--stdout-on-success", "tests"], ignore_exit_code=True)
-
-    assert "P_SETUP" in result
-    assert "F_SETUP" in result
-    assert "[test]:" in result
-    assert "[setup]:" in result
-
     result = protostar(["test", "tests"], ignore_exit_code=True)
 
-    assert "P_SETUP" not in result
+    assert "P_SETUP" in result
     assert "F_SETUP" in result
     assert "[test]:" in result
     assert "[setup]:" in result
@@ -222,7 +203,7 @@ def test_print_setup(protostar, copy_fixture):
 def test_print_only_setup(protostar, copy_fixture):
     copy_fixture("test_print_only_setup.cairo", "./tests")
 
-    result = protostar(["test", "--stdout-on-success", "tests"], ignore_exit_code=True)
+    result = protostar(["test", "tests"], ignore_exit_code=True)
 
     assert "O_SETUP" in result
     assert "[test]:" not in result

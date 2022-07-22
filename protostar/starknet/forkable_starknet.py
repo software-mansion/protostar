@@ -73,5 +73,10 @@ class ForkableStarknet(Starknet):
             # pylint: disable=protected-access
             starknet_contract.event_manager._selector_to_name
         )
+        # pylint: disable=protected-access
+        for event_name in starknet_contract.event_manager._selector_to_name.values():
+            self.cheatable_state.cheatable_carried_state.event_name_to_contract_abi_map[
+                event_name
+            ] = starknet_contract.abi
 
         return starknet_contract
