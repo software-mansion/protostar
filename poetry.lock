@@ -1227,17 +1227,6 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
-name = "reactivex"
-version = "4.0.4"
-description = "ReactiveX (Rx) for Python"
-category = "main"
-optional = false
-python-versions = ">=3.7,<4.0"
-
-[package.dependencies]
-typing-extensions = ">=4.1.1,<5.0.0"
-
-[[package]]
 name = "requests"
 version = "2.27.1"
 description = "Python HTTP for Humans."
@@ -1549,7 +1538,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.12, <3.10"
-content-hash = "1c2f02eb1a5fe72c712abbc4e85db87ff39376f572e7f09c34e964f878af0cf2"
+content-hash = "b3eeb3ba7012e8a5481ea3031e78ba87420a17566084f43b4b2ecbe6e57a1532"
 
 [metadata.files]
 aiohttp = [
@@ -2416,7 +2405,6 @@ pyyaml = [
     {file = "PyYAML-6.0-cp39-cp39-win_amd64.whl", hash = "sha256:b3d267842bf12586ba6c734f89d1f5b871df0273157918b0ccefa29deb05c21c"},
     {file = "PyYAML-6.0.tar.gz", hash = "sha256:68fb519c14306fec9720a2a5b45bc9f0c8d1b9c72adf45c37baedfcd949c35a2"},
 ]
-reactivex = []
 requests = [
     {file = "requests-2.27.1-py2.py3-none-any.whl", hash = "sha256:f22fa1e554c9ddfd16e6e41ac79759e17be9e492b3587efa038054674760e72d"},
     {file = "requests-2.27.1.tar.gz", hash = "sha256:68d7c56fd5a8999887728ef304a6d12edc7be74f1cfa47714fc8b414525c9a61"},

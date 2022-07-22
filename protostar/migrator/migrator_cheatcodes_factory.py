@@ -1,7 +1,6 @@
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List
 
-from reactivex import Subject
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
 from protostar.migrator.cheatcodes.migrator_declare_cheatcode import (
@@ -34,9 +33,6 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
         self.gateway_facade = gateway_facade
         self._starknet_compiler = starknet_compiler
         self._config = config
-        self.starknet_interaction_subject: Optional[
-            Subject["MigratorCheatcodeFactory.StarknetInteraction"]
-        ] = None
 
     def build(
         self,

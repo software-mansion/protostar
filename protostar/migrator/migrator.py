@@ -6,13 +6,11 @@ from logging import Logger
 from pathlib import Path
 from typing import List
 
-from reactivex import Subject
 from typing_extensions import Literal
 
-from protostar.migrator.migrator_cheatcodes_factory import \
-    MigratorCheatcodeFactory
-from protostar.migrator.migrator_execution_environment import \
-    MigratorExecutionEnvironment
+from protostar.migrator.migrator_execution_environment import (
+    MigratorExecutionEnvironment,
+)
 from protostar.starknet_gateway.starknet_interaction import StarknetInteraction
 from protostar.utils.log_color_provider import LogColorProvider
 
@@ -58,15 +56,7 @@ class Migrator:
     async def run(self, mode: Literal["up", "down"]) -> Result:
         assert mode in ("up", "down")
 
-        starknet_interactions_subject = Subject[
-            MigratorCheatcodeFactory.StarknetInteraction
-        ]()
-
-        with starknet_interactions_subject:
-            self._migrator_execution_environment.cheatcode_factory.starknet_interaction_subject = (
-                starknet_interactions_subject
-            )
-            await self._migrator_execution_environment.invoke(function_name=mode)
+        await self._migrator_execution_environment.invoke(function_name=mode)
 
         return Migrator.Result(
             # pylint: disable=line-too-long
