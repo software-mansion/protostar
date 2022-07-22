@@ -50,7 +50,7 @@ class CountSeriesStatistic(Statistic):
         stdev_v = round(statistics.stdev(self.series), 2)
         min_v = min(self.series)
         max_v = max(self.series)
-        return f"mean: {mean_v}, δ: {stdev_v}, min: {min_v}, max: {max_v}"
+        return f"mean: {mean_v}, σ: {stdev_v}, min: {min_v}, max: {max_v}"
 
     def __bool__(self) -> bool:
         return bool(self.series)

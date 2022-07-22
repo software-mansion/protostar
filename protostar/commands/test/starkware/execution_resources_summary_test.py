@@ -22,11 +22,11 @@ def test_count_series_statistic_str():
     assert str(CountSeriesStatistic([1])) == "1"
     assert (
         str(CountSeriesStatistic([1, 2, 3, 4, 5, 6]))
-        == "mean: 3.5, δ: 1.87, min: 1, max: 6"
+        == "mean: 3.5, σ: 1.87, min: 1, max: 6"
     )
     assert (
         str(CountSeriesStatistic([1, 1, 1, 1, 1, 1]))
-        == "mean: 1, δ: 0.0, min: 1, max: 1"
+        == "mean: 1, σ: 0.0, min: 1, max: 1"
     )
 
 
