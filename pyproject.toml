@@ -40,6 +40,7 @@ pytest-timeout = "^2.1.0"
 snakeviz = "^2.1.1"
 starknet-devnet = "^0.2.3"
 pytest-benchmark = "^3.4.1"
+freezegun = "^1.2.1"
 
 [tool.poe.tasks]
 build = "pyinstaller protostar.spec --noconfirm"
