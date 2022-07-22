@@ -93,6 +93,7 @@ class MigrateCommand(Command):
         network: Optional[str],
         output_dir_path: Optional[Path],
     ):
+        # TODO: ask if the project is build
         network_config = NetworkConfig.build(gateway_url, network)
 
         self._migrator_factory.set_logger(self._logger, self._log_color_provider)

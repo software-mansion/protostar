@@ -10,7 +10,7 @@ from protostar.utils.log_color_provider import LogColorProvider
 class StarknetInteraction:
     direction: Literal["TO_STARKNET", "FROM_STARKNET"]
     action: str
-    payload: Optional[Dict[str, Union[None, str, int, List[int], List[str]]]]
+    payload: Dict[str, Union[None, str, int, List[int], List[str]]]
 
     def prettify(self, color_provider: Optional[LogColorProvider]) -> str:
 
