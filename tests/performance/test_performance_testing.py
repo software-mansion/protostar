@@ -1,11 +1,9 @@
+import asyncio
 import multiprocessing
-import shutil
 import sys
-from time import time
 from pathlib import Path
 from string import Template
-from contextlib import contextmanager
-from typing import List, Optional, Tuple, Generator
+from typing import List, Optional, Tuple
 
 import pytest
 from starkware.starknet.services.api.contract_class import ContractClass
@@ -24,7 +22,7 @@ SCRIPT_DIRECTORY = Path(__file__).parent
 def _multiply_cases(test_body: str) -> Tuple[str, List[str]]:
     source_code = ""
     cases_names = []
-    for i in range(15):
+    for i in range(3):
         case_name = f"test_case_{i}"
         source_code += Template(
             """
@@ -39,7 +37,9 @@ def _multiply_cases(test_body: str) -> Tuple[str, List[str]]:
     return source_code, cases_names
 
 
-def make_test_file(test_body: str, imports: Optional[str] = "") -> Tuple[str, List[str]]:
+def make_test_file(
+    test_body: str, imports: Optional[str] = ""
+) -> Tuple[str, List[str]]:
     source, cases = _multiply_cases(test_body)
     return (
         f"""
@@ -52,14 +52,6 @@ def make_test_file(test_body: str, imports: Optional[str] = "") -> Tuple[str, Li
     )
 
 
-@pytest.fixture(name="tmp_test_dir")
-def tmp_test_dir_fixture() -> Generator[Path, None, None]:
-    test_dir_path = SCRIPT_DIRECTORY / "tmp_test_files"
-    test_dir_path.mkdir()
-    yield test_dir_path
-    shutil.rmtree(test_dir_path)
-
-
 @pytest.fixture(name="basic_contract_path")
 def basic_contract_path_fixture(request) -> Path:
     return (Path(request.node.fspath).parent / "basic.cairo").absolute()
@@ -67,18 +59,7 @@ def basic_contract_path_fixture(request) -> Path:
 
 @pytest.fixture(name="protostar_cairo_path")
 def protostar_cairo_path_fixture(request) -> Path:
-    return (Path(request.node.fspath).parent.parent.parent.parent / "cairo").absolute()
-
-
-@contextmanager
-def timing(expected, minimum=None):
-    start_timer = time()
-    yield
-    stop_timer = time()
-    elapsed = stop_timer - start_timer
-    if minimum:
-        assert elapsed >= minimum, "Tests are faster than the given minimum"
-    assert elapsed <= expected, "Tests are slower than expected"
+    return (Path(request.node.fspath).parent.parent.parent / "cairo").absolute()
 
 
 def get_test_starknet_compiler(
@@ -116,7 +97,11 @@ def build_test_suite(
     return contract, suite
 
 
-async def run_tests(test_suite: TestSuite, contract: ContractClass):
+def run_tests(test_suite: TestSuite, contract: ContractClass):
+    asyncio.run(_run_tests_inner(test_suite, contract))
+
+
+async def _run_tests_inner(test_suite: TestSuite, contract: ContractClass):
     with multiprocessing.Manager() as manager:
         tests_state = SharedTestsState(
             test_collector_result=TestCollector.Result(test_suites=[test_suite]),
@@ -149,8 +134,7 @@ async def run_tests(test_suite: TestSuite, contract: ContractClass):
         ), "Tests failed! See logs above for more info"
 
 
-@pytest.mark.asyncio
-async def test_deploy_perf(tmp_test_dir, basic_contract_path):
+def test_deploy_perf(benchmark, tmp_path, basic_contract_path):
     test_source, case_names = make_test_file(
         Template("%{ deploy_contract('$contractpath') %}").substitute(
             contractpath=basic_contract_path
@@ -158,16 +142,14 @@ async def test_deploy_perf(tmp_test_dir, basic_contract_path):
     )
     contract_class, test_suite = build_test_suite(
         source_code=test_source,
-        file_path=tmp_test_dir,
+        file_path=tmp_path,
         case_names=case_names,
     )
 
-    with timing(expected=40):
-        await run_tests(contract=contract_class, test_suite=test_suite)
+    benchmark(run_tests, contract=contract_class, test_suite=test_suite)
 
 
-@pytest.mark.asyncio
-async def test_setup_perf(tmp_test_dir, basic_contract_path):
+def test_setup_perf(benchmark, tmp_path, basic_contract_path):
     test_cases, case_names = make_test_file(
         """
         alloc_locals
@@ -187,44 +169,15 @@ async def test_setup_perf(tmp_test_dir, basic_contract_path):
 
     contract_class, test_suite = build_test_suite(
         source_code=test_cases + definitions,
-        file_path=tmp_test_dir,
+        file_path=tmp_path,
         case_names=case_names,
         setup_fn_name="__setup__",
     )
-    expected_with_setup = 12
-    with timing(expected=expected_with_setup):
-        await run_tests(contract=contract_class, test_suite=test_suite)
 
-    # Unoptimized version
-    test_cases, case_names = make_test_file(
-        """
-        let (deployed_contract_address) = setup_test()
-        """
-    )
-
-    definitions = Template(
-        """
-        @external
-        func setup_test{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (res: felt):
-            alloc_locals
-            local deployed_contract_addr: felt
-            %{ ids.deployed_contract_addr = deploy_contract("$basic_contract_path").contract_address %}
-            return (deployed_contract_addr)
-        end
-    """
-    ).substitute(basic_contract_path=basic_contract_path)
-    contract_class, test_suite = build_test_suite(
-        source_code=test_cases + definitions,
-        file_path=tmp_test_dir,
-        case_names=case_names,
-    )
-
-    with timing(expected=40, minimum=expected_with_setup):
-        await run_tests(contract=contract_class, test_suite=test_suite)
+    benchmark(run_tests, test_suite=test_suite, contract=contract_class)
 
 
-@pytest.mark.asyncio
-async def test_expect_revert_perf(tmp_test_dir):
+def test_expect_revert_perf(benchmark, tmp_path):
     test_cases, case_names = make_test_file(
         """
         %{ expect_revert() %}
@@ -232,17 +185,13 @@ async def test_expect_revert_perf(tmp_test_dir):
         """
     )
     contract_class, test_suite = build_test_suite(
-        source_code=test_cases, file_path=tmp_test_dir, case_names=case_names
+        source_code=test_cases, file_path=tmp_path, case_names=case_names
     )
-    with timing(expected=10):
-        await run_tests(
-            test_suite=test_suite,
-            contract=contract_class,
-        )
+
+    benchmark(run_tests, test_suite=test_suite, contract=contract_class)
 
 
-@pytest.mark.asyncio
-async def test_expect_events_perf(tmp_test_dir):
+def test_expect_events_perf(benchmark, tmp_path):
     test_cases, case_names = make_test_file(
         """
         %{ expect_events({"name": "increase_balance_called", "data": {"current_balance": 123, "amount": 20} }) %}
@@ -260,18 +209,14 @@ async def test_expect_events_perf(tmp_test_dir):
 
     contract_class, test_suite = build_test_suite(
         source_code=test_cases + definitions,
-        file_path=tmp_test_dir,
+        file_path=tmp_path,
         case_names=case_names,
     )
-    with timing(expected=12):
-        await run_tests(
-            test_suite=test_suite,
-            contract=contract_class,
-        )
+
+    benchmark(run_tests, test_suite=test_suite, contract=contract_class)
 
 
-@pytest.mark.asyncio
-async def test_declare_perf(tmp_test_dir, basic_contract_path):
+def test_declare_perf(benchmark, tmp_path, basic_contract_path):
     test_cases, case_names = make_test_file(
         Template('%{ declare("$contractpath") %}').substitute(
             contractpath=basic_contract_path
@@ -279,17 +224,13 @@ async def test_declare_perf(tmp_test_dir, basic_contract_path):
     )
 
     contract_class, test_suite = build_test_suite(
-        source_code=test_cases, file_path=tmp_test_dir, case_names=case_names
+        source_code=test_cases, file_path=tmp_path, case_names=case_names
     )
-    with timing(expected=33):
-        await run_tests(
-            test_suite=test_suite,
-            contract=contract_class,
-        )
+
+    benchmark(run_tests, test_suite=test_suite, contract=contract_class)
 
 
-@pytest.mark.asyncio
-async def test_prepare_perf(tmp_test_dir, basic_contract_path):
+def test_prepare_perf(benchmark, tmp_path, basic_contract_path):
     test_cases, case_names = make_test_file(
         "%{ prepared = prepare(context.declared, [1,2,3]) %}"
     )
@@ -305,20 +246,15 @@ async def test_prepare_perf(tmp_test_dir, basic_contract_path):
 
     contract_class, test_suite = build_test_suite(
         source_code=test_cases + definitions,
-        file_path=tmp_test_dir,
+        file_path=tmp_path,
         case_names=case_names,
         setup_fn_name="__setup__",
     )
 
-    with timing(expected=13):
-        await run_tests(
-            test_suite=test_suite,
-            contract=contract_class,
-        )
+    benchmark(run_tests, test_suite=test_suite, contract=contract_class)
 
 
-@pytest.mark.asyncio
-async def test_start_prank_perf(tmp_test_dir):
+def test_start_prank_perf(benchmark, tmp_path):
     test_cases, case_names = make_test_file(
         test_body="""
             %{ start_prank(12) %}
@@ -330,19 +266,14 @@ async def test_start_prank_perf(tmp_test_dir):
 
     contract_class, test_suite = build_test_suite(
         source_code=test_cases,
-        file_path=tmp_test_dir,
+        file_path=tmp_path,
         case_names=case_names,
     )
 
-    with timing(expected=9):
-        await run_tests(
-            test_suite=test_suite,
-            contract=contract_class,
-        )
+    benchmark(run_tests, test_suite=test_suite, contract=contract_class)
 
 
-@pytest.mark.asyncio
-async def test_roll_perf(tmp_test_dir):
+def test_roll_perf(benchmark, tmp_path):
     test_cases, case_names = make_test_file(
         test_body="""
             %{ roll(12) %}
@@ -354,19 +285,14 @@ async def test_roll_perf(tmp_test_dir):
 
     contract_class, test_suite = build_test_suite(
         source_code=test_cases,
-        file_path=tmp_test_dir,
+        file_path=tmp_path,
         case_names=case_names,
     )
 
-    with timing(expected=9):
-        await run_tests(
-            test_suite=test_suite,
-            contract=contract_class,
-        )
+    benchmark(run_tests, test_suite=test_suite, contract=contract_class)
 
 
-@pytest.mark.asyncio
-async def test_warp_perf(tmp_test_dir):
+def test_warp_perf(benchmark, tmp_path):
     test_cases, case_names = make_test_file(
         test_body="""
             %{ warp(12) %}
@@ -378,19 +304,14 @@ async def test_warp_perf(tmp_test_dir):
 
     contract_class, test_suite = build_test_suite(
         source_code=test_cases,
-        file_path=tmp_test_dir,
+        file_path=tmp_path,
         case_names=case_names,
     )
 
-    with timing(expected=9):
-        await run_tests(
-            test_suite=test_suite,
-            contract=contract_class,
-        )
+    benchmark(run_tests, test_suite=test_suite, contract=contract_class)
 
 
-@pytest.mark.asyncio
-async def test_assertions_perf(tmp_test_dir, protostar_cairo_path):
+def test_assertions_perf(benchmark, tmp_path, protostar_cairo_path):
     # TODO: Leverage fuzz testing here, when it's implemented
     # TODO: Add cases for both minus values when asserts are fixed
     test_cases, case_names = make_test_file(
@@ -426,20 +347,15 @@ async def test_assertions_perf(tmp_test_dir, protostar_cairo_path):
 
     contract_class, test_suite = build_test_suite(
         source_code=test_cases,
-        file_path=tmp_test_dir,
+        file_path=tmp_path,
         case_names=case_names,
         include_paths=[protostar_cairo_path],
     )
 
-    with timing(expected=15):
-        await run_tests(
-            test_suite=test_suite,
-            contract=contract_class,
-        )
+    benchmark(run_tests, test_suite=test_suite, contract=contract_class)
 
 
-@pytest.mark.asyncio
-async def test_unit_testing_perf(tmp_test_dir):
+def test_unit_testing_perf(benchmark, tmp_path):
     test_cases, case_names = make_test_file(
         test_body="""
         let var1 = 1
@@ -451,17 +367,13 @@ async def test_unit_testing_perf(tmp_test_dir):
     )
 
     contract_class, test_suite = build_test_suite(
-        source_code=test_cases, file_path=tmp_test_dir, case_names=case_names
+        source_code=test_cases, file_path=tmp_path, case_names=case_names
     )
 
-    with timing(expected=13):
-        await run_tests(
-            test_suite=test_suite,
-            contract=contract_class,
-        )
+    benchmark(run_tests, test_suite=test_suite, contract=contract_class)
 
 
-async def test_collecting_tests_perf(tmp_test_dir):
+async def test_collecting_tests_perf(benchmark, tmp_path):
     test_cases, case_names = make_test_file(
         test_body="""
         let var1 = 1
@@ -495,10 +407,8 @@ async def test_collecting_tests_perf(tmp_test_dir):
                 current_depth=current_depth + 1,
             )
 
-    build_subtree(current_directory=tmp_test_dir)
+    build_subtree(current_directory=tmp_path)
 
-    with timing(expected=85):
-        result = TestCollector(starknet_compiler=get_test_starknet_compiler()).collect(
-            [str(tmp_test_dir)]
-        )
-        assert result.test_cases_count == 975
+    test_collector = TestCollector(starknet_compiler=get_test_starknet_compiler())
+    result = benchmark(test_collector.collect, [str(tmp_path)])
+    assert result.test_cases_count == 195
