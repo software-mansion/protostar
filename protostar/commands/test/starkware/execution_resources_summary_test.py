@@ -155,24 +155,24 @@ def test_execution_resources_summary_add_observation_zeros():
 
 
 def test_execution_resources_summary_add_observation_is_associative():
-    a = ExecutionResourcesSummary(
+    ers_a = ExecutionResourcesSummary(
         n_steps=CountStatistic(1),
         n_memory_holes=CountSeriesStatistic([1, 2]),
         builtin_name_to_count_map={"foo": CountStatistic(1), "bar": CountStatistic(1)},
     )
 
-    b = ExecutionResourcesSummary(
+    ers_b = ExecutionResourcesSummary(
         n_steps=CountStatistic(3),
         n_memory_holes=CountSeriesStatistic([3, 4]),
         builtin_name_to_count_map={"foo": CountStatistic(2), "bar": CountStatistic(2)},
     )
 
-    c = ExecutionResourcesSummary(
+    ers_c = ExecutionResourcesSummary(
         n_steps=CountStatistic(4),
         n_memory_holes=CountSeriesStatistic([5, 6]),
         builtin_name_to_count_map={"foo": CountStatistic(3), "bar": CountStatistic(3)},
     )
 
-    assert a.add_observation(b).add_observation(c) == a.add_observation(
-        b.add_observation(c)
+    assert ers_a.add_observation(ers_b).add_observation(ers_c) == ers_a.add_observation(
+        ers_b.add_observation(ers_c)
     )
