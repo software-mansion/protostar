@@ -176,28 +176,30 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
         # Update events count.
         self.tx_execution_context.n_emitted_events += 1
 
-    def _deploy(
-        self, segments: MemorySegmentManager, syscall_ptr: RelocatableValue
-    ) -> int:
+    def _deploy(self, segments: MemorySegmentManager, syscall_ptr: RelocatableValue) -> int:
+        """
+        Method logic copied from BusinessLogicSysCallHandler
+        """
         request = self._read_and_validate_syscall_request(
             syscall_name="deploy", segments=segments, syscall_ptr=syscall_ptr
         )
-        assert (
-            request.reserved == 0
-        ), "The reserved field in the deploy system call must be 0."
+        assert request.deploy_from_zero in [
+            0,
+            1,
+        ], "The deploy_from_zero field in the deploy system call must be 0 or 1."
         constructor_calldata = segments.memory.get_range_as_ints(
             addr=cast(RelocatableValue, request.constructor_calldata),
             size=cast(int, request.constructor_calldata_size),
         )
         class_hash = cast(int, request.class_hash)
 
+        deployer_address = self.contract_address if request.deploy_from_zero == 0 else 0
         contract_address = calculate_contract_address_from_hash(
             salt=cast(int, request.contract_address_salt),
             class_hash=class_hash,
             constructor_calldata=constructor_calldata,
-            deployer_address=self.contract_address,
+            deployer_address=deployer_address,
         )
-
         # BEGIN: PROTOSTAR_MODIFICATION — update mappings
         self.cheatable_state.contract_address_to_class_hash_map[
             contract_address

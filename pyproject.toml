@@ -22,6 +22,7 @@ tomli-w = "^1.0.0"
 tqdm = "^4.64.0"
 typing-extensions = "^4.0.1"
 "starknet.py" = "^0.4.1-alpha.0"
+cairo-lang = "^0.9.1"
 
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"

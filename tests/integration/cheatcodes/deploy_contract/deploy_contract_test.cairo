@@ -141,7 +141,22 @@ func test_deploy_using_syscall{syscall_ptr : felt*, range_check_ptr}():
     %{ ids.class_hash = declare("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor.cairo").class_hash %}
     let (local calldata : felt*) = alloc()
     assert calldata[0] = 41
-    let (contract_address) = deploy(class_hash, 34124, 1, calldata)
+    let (contract_address) = deploy(class_hash, 34124, 1, calldata, 0)
+
+    BasicWithConstructor.increase_balance(contract_address, 1)
+    let (res) = BasicWithConstructor.get_balance(contract_address)
+    assert res = 42
+    return ()
+end
+
+@external
+func test_deploy_using_syscall_non_zero_flag{syscall_ptr : felt*, range_check_ptr}():
+    alloc_locals
+    local class_hash : felt
+    %{ ids.class_hash = declare("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor.cairo").class_hash %}
+    let (local calldata : felt*) = alloc()
+    assert calldata[0] = 41
+    let (contract_address) = deploy(class_hash, 34124, 1, calldata, 1)
 
     BasicWithConstructor.increase_balance(contract_address, 1)
     let (res) = BasicWithConstructor.get_balance(contract_address)

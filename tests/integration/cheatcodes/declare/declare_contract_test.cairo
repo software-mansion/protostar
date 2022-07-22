@@ -26,7 +26,24 @@ func test_deploy_declared_contract{syscall_ptr : felt*, range_check_ptr}():
     %{ ids.class_hash = declare("./tests/integration/cheatcodes/declare/basic_contract.cairo").class_hash %}
 
     let (local calldata : felt*) = alloc()
-    let (contract_address) = deploy(class_hash, 42, 0, calldata)
+    let (contract_address) = deploy(class_hash, 42, 0, calldata, 0)
+
+    BasicContract.increase_balance(contract_address, 12)
+
+    let (balance) = BasicContract.get_balance(contract_address)
+    assert balance = 12
+    return ()
+end
+
+@external
+func test_deploy_declared_contract_deploy_zero_flag{syscall_ptr : felt*, range_check_ptr}():
+    alloc_locals
+
+    local class_hash : felt
+    %{ ids.class_hash = declare("./tests/integration/cheatcodes/declare/basic_contract.cairo").class_hash %}
+
+    let (local calldata : felt*) = alloc()
+    let (contract_address) = deploy(class_hash, 42, 0, calldata, 1)
 
     BasicContract.increase_balance(contract_address, 12)
 
