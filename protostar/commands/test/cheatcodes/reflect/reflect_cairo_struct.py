@@ -42,8 +42,6 @@ class CairoStruct:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, CairoStruct):
             return False
-        if type(self).__name__ != type(other).__name__:
-            return False
         if len(self._ordered_dict) != len(other._ordered_dict):
             return False
         for key, value in self._ordered_dict.items():
@@ -84,7 +82,7 @@ class CairoStructHintLocal(HintLocal):
         return "CairoStruct"
 
     def build(self) -> Callable[[str], Type]:
-        return named_cairo_struct
+        return CairoStruct
 
 
 def named_cairo_struct(typename: str) -> Type:
