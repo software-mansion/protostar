@@ -144,8 +144,8 @@ func test_reflect_passed_repr():
         print(str(value))
 
         assert str(value).strip() == """
-        StructA(
-            a=StructB(
+        CairoStruct(
+            a=CairoStruct(
                 e=42
                 f=24
             )
