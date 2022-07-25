@@ -1,8 +1,7 @@
-from protostar.commands.test.cheatcodes.reflect.reflect_cairo_struct import (
-    CairoStruct,
-    named_cairo_struct,
-)
+from protostar.commands.test.cheatcodes.reflect.reflect_cairo_struct import CairoStruct
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
+
+# pylint: disable=C0103,W0612
 
 
 def test_cairo_struct_equality():
@@ -84,10 +83,3 @@ def test_cairo_struct_non_keyword_args():
         assert False
     except CheatcodeException as exc:
         assert "CairoStruct constructor takes only keyword arguments." in str(exc)
-
-
-def test_cairo_struct_name_not_str():
-    try:
-        x_type = named_cairo_struct(0xC0FEE)
-    except CheatcodeException as exc:
-        assert 'Struct typename must be of type "str"' in str(exc)

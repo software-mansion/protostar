@@ -1,4 +1,4 @@
-from typing import OrderedDict, Type, Union, Any, List, Tuple, Callable
+from typing import OrderedDict, Union, Any, List, Tuple
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.starknet.hint_local import HintLocal

@@ -22,10 +22,7 @@ from protostar.commands.test.cheatcodes.reflect.reflect_misc import (
     ReflectValueType,
 )
 
-from protostar.commands.test.cheatcodes.reflect.reflect_cairo_struct import (
-    CairoStruct,
-    named_cairo_struct,
-)
+from protostar.commands.test.cheatcodes.reflect.reflect_cairo_struct import CairoStruct
 
 # pylint: disable=W0212
 def generate_value_tree(value: ReflectInputType) -> ReflectValueType:
