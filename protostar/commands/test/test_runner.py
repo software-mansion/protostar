@@ -8,7 +8,11 @@ from typing import List, Optional
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 
-from protostar.commands.test.environments.factory import invoke_setup, invoke_test_case
+from protostar.commands.test.environments.factory import (
+    invoke_setup,
+    invoke_test_case,
+    InvokeCaseCallable,
+)
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_cases import (
     BrokenTestSuite,
@@ -117,6 +121,7 @@ class TestRunner:
         self,
         test_contract: ContractClass,
         test_suite: TestSuite,
+        invoke_case: Optional[InvokeCaseCallable] = invoke_test_case,
     ):
         assert self.shared_tests_state, "Uninitialized reporter!"
 
@@ -156,7 +161,7 @@ class TestRunner:
             new_execution_state = execution_state.fork()
             test_stdout_buffer = io.StringIO()
             try:
-                execution_resources = await invoke_test_case(
+                execution_resources = await invoke_case(
                     test_case_name,
                     new_execution_state,
                     test_stdout_buffer,
