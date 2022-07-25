@@ -38,10 +38,7 @@ class OutputRecorder:
     @contextmanager
     def redirect(self, name: OutputName):
         with redirect_stdout(self.record(name)):
-            try:
-                yield
-            finally:
-                pass
+            yield
 
     def fork(self) -> "OutputRecorder":
         return deepcopy(self)
