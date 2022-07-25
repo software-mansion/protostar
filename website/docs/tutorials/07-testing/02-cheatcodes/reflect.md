@@ -1,11 +1,45 @@
 # `reflect`
 ```python
 def reflect(self, ids: VmConsts) -> Reflector:
-Reflector.get() -> Union[CairoStruct, RelocatableValue, int]
-def CairoStruct(typename: str) -> Type # inherits from base CairoStruct
+
+class Reflector:
+    def get(self) -> Union[CairoStruct, RelocatableValue, int]
 ```
-Lazily converts Cairo object into Python custom named `CairoStruct` (complex structure) or keeps it a simple type `RelocatableValue` (pointer) or `int` (felt). It can be used to easily print and compare complex structures.
-```cairo title="./test/example_test.cairo"
+Loads specified Cairo object into Python type. get() can return: <\br>
+- int (for felt) <\br>
+- RelocatableValue (for pointer) <\br>
+- Cairo Struct (for more complex types) <\br>
+You can use it to print cairo data and compare complex structures.
+
+```cairo title="./test/simple_example_test.cairo"
+%lang starknet
+
+struct SimpleStruct:
+    member x: felt
+end
+
+@external
+func test_reflect_simple():
+    alloc_locals
+
+    local simple_struct: SimpleStruct = SimpleStruct(x=10)
+
+    %{
+        simple_struct = reflect(ids).simple_struct.get()
+        print(simple_struct)
+        # output:
+        # CairoStruct(
+        #     x=10
+        # )
+
+        assert simple_struct.x == 10 # true
+    %}
+
+    return()
+end
+```
+
+```cairo title="./test/complex_example_test.cairo"
 %lang starknet
 
 from starkware.cairo.common.registers import get_fp_and_pc
@@ -49,8 +83,8 @@ func test_reflect_passed_full():
 
         print(structA)
 
-        StructB = CairoStruct("StructB")
-        StructA = CairoStruct("StructA")
+        StructB = CairoStruct
+        StructA = CairoStruct
         assert structA == StructA(
             a=StructB(
                 e=42,
@@ -63,3 +97,7 @@ func test_reflect_passed_full():
     %}
     return ()
 ```
+
+:::warning
+Unlike `ids`, `reflect` does not automatically dereference pointers. As of right now you have to dereference them in Cairo.
+:::

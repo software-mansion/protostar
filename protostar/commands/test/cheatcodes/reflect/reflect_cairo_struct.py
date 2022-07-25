@@ -42,12 +42,7 @@ class CairoStruct:
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, CairoStruct):
             return False
-        if len(self._ordered_dict) != len(other._ordered_dict):
-            return False
-        for key, value in self._ordered_dict.items():
-            if value != other._ordered_dict[key]:
-                return False
-        return True
+        return self._ordered_dict == other._ordered_dict
 
     def __str__(self) -> str:
         stack: List[Tuple[Union[CairoStruct, RelocatableValue, str, int], int]] = [
