@@ -6,13 +6,16 @@ def test_fuzzing(protostar, copy_fixture):
     copy_fixture("test_fuzz.cairo", "./tests")
 
     result = protostar(
-        ["--no-color", "test", "tests/test_fuzz.cairo"], ignore_exit_code=True
+        ["--no-color", "test", "--seed", "12345678", "tests/test_fuzz.cairo"],
+        ignore_exit_code=True,
     )
 
     # To keep assertions free from having to exclude trailing \n
     result += "\n"
 
     assert "2 failed, 1 passed, 3 total" in result
+    assert "Seed:" in result
+    assert "12345678" in result
 
     assert "[PASS] tests/test_fuzz.cairo" in result
     assert "μ: 18, Md: 18, min: 18, max: 18" in result

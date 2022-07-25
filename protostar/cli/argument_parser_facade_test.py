@@ -54,6 +54,18 @@ def test_path_argument():
     assert isinstance(result.x, Path)
 
 
+def test_int_argument():
+    app = CLIApp(root_args=[Command.Argument(name="x", description="...", type="int")])
+    parser = ArgumentParserFacade(app)
+
+    result = parser.parse(["--x", "123"])
+
+    assert result.x == 123
+
+    with pytest.raises(SystemExit):
+        parser.parse(["--x", "foo"])
+
+
 def test_short_name_argument():
     app = CLIApp(
         root_args=[
