@@ -8,7 +8,10 @@ from protostar.commands.test.test_output_recorder import OutputName, format_outp
 from protostar.commands.test.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
 )
-from protostar.commands.test.test_environment_exceptions import ExceptionMetadata
+from protostar.commands.test.test_environment_exceptions import (
+    ExceptionMetadata,
+    ReportedException,
+)
 from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
 from protostar.utils.log_color_provider import log_color_provider, SupportedColorName
 
@@ -86,14 +89,8 @@ class PassedTestCase(TestCaseResult):
 
 @dataclass(frozen=True)
 class FailedTestCase(TestCaseResult):
-    # HACK: We could put ``exception: ReportedException`` here and omit the ``exception_metadata``
-    #   field, but due to unknown circumstances, the ``metadata`` field of ``ReportedException``
-    #   does not survive travelling through the ``Queue`` object used for exchanging results
-    #   from worker processes to the main thread. Metadata goes empty during this process.
-
     test_case_name: str
-    exception: BaseException
-    exception_metadata: List[ExceptionMetadata]
+    exception: ReportedException
     captured_stdout: Dict[OutputName, str] = field(default_factory=dict)
 
     def format(self) -> str:
@@ -106,7 +103,7 @@ class FailedTestCase(TestCaseResult):
         result.append(str(self.exception))
         result.append("\n")
 
-        for metadata in self.exception_metadata:
+        for metadata in self.exception.metadata:
             result.append(_get_formatted_metadata(metadata))
             result.append("\n")
 

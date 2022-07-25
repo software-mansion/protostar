@@ -1,5 +1,16 @@
+import pickle
+
+import pytest
+
 from .test_environment_exceptions import (
+    CheatcodeException,
+    ExceptionMetadata,
+    ExpectedEventMissingException,
+    ExpectedRevertException,
+    ExpectedRevertMismatchException,
+    ReportedException,
     RevertableException,
+    SimpleReportedException,
     StarknetRevertableException,
 )
 
@@ -13,6 +24,21 @@ Unknown location (pc=0:14)
 Error message: a and b must be distinct.
 Unknown location (pc=0:5)
 """
+
+
+class MockMetadata(ExceptionMetadata):
+    @property
+    def name(self) -> str:
+        return "mock"
+
+    def format(self) -> str:
+        return "mock"
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, type(self))
+
+    def __repr__(self) -> str:
+        return "<MockMetadata>"
 
 
 def test_extracting_all_error_messages_if_stark_ex_message_is_empty():
@@ -74,3 +100,43 @@ def test_matching_by_partial_error_message():
     assert RevertableException(error_message="a").match(ex)
     assert RevertableException(error_message=["ba", "b"]).match(ex)
     assert not RevertableException(error_message=["f", "b"]).match(ex)
+
+
+@pytest.mark.parametrize(
+    "exception",
+    [
+        ReportedException("x", "y", 123),
+        SimpleReportedException("message"),
+        CheatcodeException("foo", "bar"),
+        RevertableException(["foobar"], "TRANSACTION_FAILED"),
+        StarknetRevertableException(
+            error_message=["message1", "message2"],
+            error_type="TRANSACTION_FAILED",
+            code=400,
+            details="details",
+        ),
+        ExpectedRevertException(RevertableException(["foo"], "BAR")),
+        ExpectedRevertMismatchException(
+            RevertableException(["foobar"], "FOO"),
+            RevertableException(["fizzbuzz"], "BAR"),
+        ),
+        ExpectedEventMissingException(
+            matches=[],
+            missing=[],
+            event_selector_to_name_map={},
+        ),
+    ],
+    ids=lambda ex: ex.__class__.__name__,
+)
+def test_pickle(exception: ReportedException):
+    if not exception.metadata:
+        exception.metadata.append(MockMetadata())
+
+    assert "metadata" in exception.__dict__
+
+    pickled = pickle.dumps(exception)
+    actual = pickle.loads(pickled)
+
+    assert actual is not exception
+    assert isinstance(actual, type(exception))
+    assert actual == exception
