@@ -21,7 +21,7 @@ from protostar.commands.test.test_context import TestContextHintLocal
 from protostar.commands.test.test_output_recorder import OutputName
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.execution_environment import ExecutionEnvironment
-from protostar.utils.data_transformer_facade import DataTransformerFacade
+from protostar.utils.abi import has_function_parameters
 from protostar.utils.hook import Hook
 
 
@@ -38,6 +38,10 @@ class TestExecutionEnvironment(
     async def invoke(
         self, function_name: str, output_name: OutputName
     ) -> Optional[ExecutionResourcesSummary]:
+        assert not has_function_parameters(
+            self.state.contract.abi, function_name
+        ), f"{self.__class__.__name__} expects no function parameters."
+
         self.set_cheatcodes(
             TestCaseCheatcodeFactory(
                 state=self.state,
@@ -79,8 +83,6 @@ class TestCaseCheatcodeFactory(SetupCheatcodeFactory):
         syscall_dependencies: Cheatcode.SyscallDependencies,
         internal_calls: List[CallInfo],
     ) -> List[Cheatcode]:
-        data_transformer = DataTransformerFacade(self._state.starknet_compiler)
-
         return [
             *super().build(syscall_dependencies, internal_calls),
             ExpectRevertCheatcode(
@@ -91,6 +93,5 @@ class TestCaseCheatcodeFactory(SetupCheatcodeFactory):
                 syscall_dependencies,
                 self._state.starknet,
                 self._finish_hook,
-                data_transformer,
             ),
         ]

@@ -100,12 +100,38 @@ const config = {
          * `appId` and `apiKey` are not secrets and can be added to your Git repository
          * https://docusaurus.io/blog/2021/11/21/algolia-docsearch-migration#upgrading-your-docusaurus-site
          */
-        appId: "QNXZL3QPUX",
-        apiKey: "24238025ee666b83f52e6b00ff6f78d2",
-        indexName: "protostar",
+        appId: 'QNXZL3QPUX',
+        apiKey: '24238025ee666b83f52e6b00ff6f78d2',
+        indexName: 'protostar',
         contextualSearch: true,
       },
     }),
+
+  plugins: [
+    ['@docusaurus/plugin-client-redirects', {
+      redirects: [
+        // NOTE: Old links before 2022-07-21
+        //   To test, check if links in this blog post work:
+        //   https://mirror.xyz/onlydust.eth/uhKk_3p34mE0oFUxkIYlCsjkE7ZvUfSFWU83UM9_w-w
+        {
+          to: '/docs/tutorials/compiling',
+          from: '/docs/tutorials/guides/compiling',
+        },
+        {
+          to: '/docs/tutorials/dependencies-management',
+          from: '/docs/tutorials/guides/dependencies-management',
+        },
+        {
+          to: '/docs/tutorials/deploying',
+          from: '/docs/tutorials/guides/deploying',
+        },
+        {
+          to: '/docs/tutorials/testing',
+          from: '/docs/tutorials/guides/testing',
+        },
+      ],
+    }],
+  ],
 };
 
 module.exports = config;
