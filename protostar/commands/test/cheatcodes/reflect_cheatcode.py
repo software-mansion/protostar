@@ -1,4 +1,4 @@
-from typing import Any, Callable
+from typing import Callable
 from starkware.cairo.lang.vm.vm_consts import VmConsts
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.commands.test.cheatcodes.reflect.reflector import Reflector

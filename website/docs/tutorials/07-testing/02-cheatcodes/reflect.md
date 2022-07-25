@@ -5,10 +5,10 @@ def reflect(self, ids: VmConsts) -> Reflector:
 class Reflector:
     def get(self)
 ```
-Loads specified Cairo object into Python type. get() can return: <\br>
-- int (for felt) <\br>
-- RelocatableValue (for pointer) <\br>
-- Cairo Struct (for more complex types) <\br>
+Loads specified Cairo object into Python type. ```get()``` can return: </br>
+- int (for felt) </br>
+- RelocatableValue (for pointer) </br>
+- Cairo Struct (for more complex types) </br> 
 You can use it to print cairo data and compare complex structures.
 
 ```cairo title="./test/simple_example_test.cairo"
