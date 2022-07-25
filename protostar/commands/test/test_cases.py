@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import List, Optional, Dict
 
 from protostar.commands.test.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
@@ -25,7 +25,7 @@ class TestCaseResult:
 class PassedTestCase(TestCaseResult):
     test_case_name: str
     execution_resources: Optional[ExecutionResourcesSummary]
-    captured_stdout: List[Tuple[OutputName, str]] = field(default_factory=list)
+    captured_stdout: Dict[OutputName, str] = field(default_factory=dict)
 
     def display(self, include_stdout_section: bool = False) -> str:
         first_line_elements: List[str] = []
@@ -89,7 +89,7 @@ class PassedTestCase(TestCaseResult):
 class FailedTestCase(TestCaseResult):
     test_case_name: str
     exception: ReportedException
-    captured_stdout: List[Tuple[OutputName, str]] = field(default_factory=list)
+    captured_stdout: Dict[OutputName, str] = field(default_factory=dict)
 
     def display(self, include_stdout_section: bool = True) -> str:
         result: List[str] = []
@@ -143,16 +143,18 @@ class UnexpectedExceptionTestSuiteResult(BrokenTestSuite):
 
 
 def _get_formatted_stdout(
-    captured_stdout: List[Tuple[OutputName, str]], color: SupportedColorName
+    captured_stdout: Dict[OutputName, str], color: SupportedColorName
 ) -> List[str]:
     result: List[str] = []
 
-    if len(captured_stdout) < 1 or all(len(val) == 0 for _, val in captured_stdout):
+    if len(captured_stdout) == 0 or all(
+        len(val) == 0 for _, val in captured_stdout.items()
+    ):
         return []
 
     result.append(f"\n[{log_color_provider.colorize(color, 'captured stdout')}]:\n")
 
-    for name, value in captured_stdout:
+    for name, value in captured_stdout.items():
         if value:
             result.append(
                 f"[{format_output_name(name)}]:\n{log_color_provider.colorize('GRAY', value)}\n"

@@ -120,8 +120,6 @@ class TestRunner:
     ):
         assert self.shared_tests_state, "Uninitialized reporter!"
 
-        setup_stdout: OutputName = "setup"
-
         try:
             execution_state = await TestExecutionState.from_test_suite_definition(
                 self.user_contracts_compiler,
@@ -129,9 +127,7 @@ class TestRunner:
             )
 
             if test_suite.setup_fn_name:
-                await invoke_setup(
-                    test_suite.setup_fn_name, execution_state, setup_stdout
-                )
+                await invoke_setup(test_suite.setup_fn_name, execution_state)
 
         except StarkException as ex:
             if self.is_constructor_args_exception(ex):
@@ -152,31 +148,22 @@ class TestRunner:
             )
             return
 
-        setup_stdout_value = ""
-        if test_suite.setup_fn_name:
-            setup_stdout_value = execution_state.get_output(setup_stdout)
-
         for test_case_name in test_suite.test_case_names:
             new_execution_state = execution_state.fork()
-            test_stdout: OutputName = "test"
             try:
                 execution_resources = await invoke_test_case(
                     test_case_name,
                     new_execution_state,
-                    test_stdout,
                 )
                 self.shared_tests_state.put_result(
                     PassedTestCase(
                         file_path=test_suite.test_path,
                         test_case_name=test_case_name,
                         execution_resources=execution_resources,
-                        captured_stdout=[
-                            (setup_stdout, setup_stdout_value),
-                            (
-                                test_stdout,
-                                new_execution_state.get_output(test_stdout),
-                            ),
-                        ],
+                        captured_stdout={
+                            key: value.getvalue()
+                            for key, value in new_execution_state.output_recorder.captures
+                        },
                     )
                 )
             except ReportedException as ex:
@@ -185,13 +172,10 @@ class TestRunner:
                         file_path=test_suite.test_path,
                         test_case_name=test_case_name,
                         exception=ex,
-                        captured_stdout=[
-                            (setup_stdout, setup_stdout_value),
-                            (
-                                test_stdout,
-                                new_execution_state.get_output(test_stdout),
-                            ),
-                        ],
+                        captured_stdout={
+                            key: value.getvalue()
+                            for key, value in new_execution_state.output_recorder.captures
+                        },
                     )
                 )
 

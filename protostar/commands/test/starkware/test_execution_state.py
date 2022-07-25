@@ -41,12 +41,9 @@ class TestExecutionState(ExecutionState):
             output_recorder=OutputRecorder(),
         )
 
-    def get_output(self, name: OutputName) -> str:
-        return self.output_recorder.captures[name].getvalue()
-
     def fork(self) -> Self:
         return dataclasses.replace(
             super().fork(),
             context=deepcopy(self.context),
-            output_recorder=deepcopy(self.output_recorder),
+            output_recorder=self.output_recorder.fork(),
         )

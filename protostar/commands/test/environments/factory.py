@@ -18,16 +18,14 @@ from protostar.commands.test.test_output_recorder import OutputName
 async def invoke_setup(
     function_name: str,
     state: TestExecutionState,
-    output_name: OutputName,
 ) -> Optional[ExecutionResourcesSummary]:
     env = TestExecutionEnvironment(state)
-    return await env.invoke(function_name, output_name)
+    return await env.invoke(function_name, "setup")
 
 
 async def invoke_test_case(
     function_name: str,
     state: TestExecutionState,
-    output_name: OutputName,
 ) -> Optional[ExecutionResourcesSummary]:
     env = TestExecutionEnvironment(state)
-    return await env.invoke(function_name, output_name)
+    return await env.invoke(function_name, "test")

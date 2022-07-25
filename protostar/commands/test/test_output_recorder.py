@@ -1,6 +1,7 @@
 from typing import Union, Tuple, Dict
 from io import StringIO
 from dataclasses import dataclass, field
+from copy import deepcopy
 
 OutputName = Union[str, Tuple[str, int]]
 """
@@ -29,3 +30,6 @@ class OutputRecorder:
         buffer = StringIO()
         self.captures[name] = buffer
         return buffer
+
+    def fork(self) -> "OutputRecorder":
+        return deepcopy(self)
