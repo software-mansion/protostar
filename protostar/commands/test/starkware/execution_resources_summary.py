@@ -47,10 +47,10 @@ class CountSeriesStatistic(Statistic):
             return str(self.series[0])
 
         mean_v = round(statistics.mean(self.series), 2)
-        stdev_v = round(statistics.stdev(self.series), 2)
+        median_v = statistics.median(self.series)
         min_v = min(self.series)
         max_v = max(self.series)
-        return f"mean: {mean_v}, σ: {stdev_v}, min: {min_v}, max: {max_v}"
+        return f"μ: {mean_v:g}, Md: {median_v:g}, min: {min_v:g}, max: {max_v:g}"
 
     def __bool__(self) -> bool:
         return bool(self.series)
