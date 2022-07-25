@@ -2,7 +2,7 @@
 
 @external
 func up():
-    %{ deploy_contract("./build/main.json", [21]) %}
+    %{ deploy_contract("./build/main.json") %}
 
     return ()
 end

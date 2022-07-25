@@ -133,5 +133,6 @@ class MigrateCommand(Command):
                     migration_file_basename=Path(migration_file_path).stem,
                     output_dir_path=output_dir_path,
                 )
+            self._logger.info("Migration completed")
         except CheatcodeException as ex:
             raise ProtostarException(str(ex)) from ex

@@ -7,7 +7,7 @@ from tests.e2e.conftest import ProtostarFixture
 
 
 @pytest.mark.usefixtures("init")
-def test_migrating_basic_file(
+def test_migrating_base_case(
     protostar: ProtostarFixture, devnet_gateway_url, datadir: Path
 ):
     protostar(["build"])
@@ -20,6 +20,7 @@ def test_migrating_basic_file(
 
     result = protostar(
         [
+            "--no-color",
             "migrate",
             "migrations/migration.cairo",
             "--gateway-url",
@@ -27,3 +28,5 @@ def test_migrating_basic_file(
             "--no-confirm",
         ]
     )
+
+    assert "Migration completed" in result
