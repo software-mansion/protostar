@@ -19,6 +19,7 @@ async def test_declare_contract(run_cairo_test_runner: RunCairoTestRunnerFixture
         expected_passed_test_cases_names=[
             "test_deploy_declared_contract",
             "test_deploy_declared_contract_in_proxy",
+            "test_deploy_declared_contract_deploy_zero_flag",
         ],
         expected_failed_test_cases_names=[],
     )
