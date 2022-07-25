@@ -34,7 +34,7 @@ func test_reflect_passed_simple():
     %{
         structA = reflect(ids).structA.get()
 
-        StructB = CairoStruct("StructB")
+        StructB = CairoStruct
         other = StructB(e=42, f=24)
 
         assert structA.a == other
@@ -201,8 +201,8 @@ func test_reflect_passed_full():
         structB = reflect(ids).structB.get()
         f = reflect(ids).structB.f.get()
 
-        StructB = CairoStruct("StructB")
-        StructA = CairoStruct("StructA")
+        StructB = CairoStruct
+        StructA = CairoStruct
         assert structA == StructA(
             a=StructB(
                 e=42,

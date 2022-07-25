@@ -83,12 +83,3 @@ class CairoStructHintLocal(HintLocal):
 
     def build(self) -> Any:
         return CairoStruct
-
-
-def named_cairo_struct(typename: str) -> Type:
-    if not isinstance(typename, str):  # type: ignore
-        raise CheatcodeException(
-            "reflect",
-            f'Struct typename must be of type "str", got "{type(typename).__name__}".',
-        )
-    return type(typename, (CairoStruct,), {})

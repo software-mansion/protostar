@@ -34,8 +34,7 @@ def generate_value_tree(value: ReflectInputType) -> ReflectValueType:
         return value
 
     assert isinstance(value._struct_definition, StructDefinition)
-    tree_struct = named_cairo_struct(value._struct_definition.full_name.path[1])
-    tree = tree_struct()
+    tree = CairoStruct()
 
     stack: List[Tuple[CairoStruct, VmConstsReference]] = [(tree, value)]
 
@@ -63,8 +62,7 @@ def generate_value_tree(value: ReflectInputType) -> ReflectValueType:
                     curr_tree._set(name, tmp)
 
             elif isinstance(expr_type, TypeStruct):
-                cairo_struct = named_cairo_struct(expr_type.scope.path[1])
-                curr_tree._set(name, cairo_struct())
+                curr_tree._set(name, CairoStruct())
                 stack.append(
                     (
                         curr_tree._ordered_dict[name],  # type: ignore

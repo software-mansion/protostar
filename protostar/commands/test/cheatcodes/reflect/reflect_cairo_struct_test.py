@@ -40,19 +40,6 @@ def test_cairo_struct_equality():
     assert x != z
 
 
-def test_cairo_struct_naming():
-
-    main_type = named_cairo_struct("Foo")
-    b_type = named_cairo_struct("Bar")
-
-    x = main_type(a=12, b=b_type(x=13), c=14)
-    y = CairoStruct(a=12, b=CairoStruct(x=13), c=14)
-    z = CairoStruct(a=12, b=b_type(x=13), c=14)
-    w = main_type(a=12, b=CairoStruct(x=13), c=14)
-
-    assert x == y == z == w
-
-
 def test_cairo_struct_immutability():
     x = CairoStruct(a=0b0110, b=0b1001)
 
