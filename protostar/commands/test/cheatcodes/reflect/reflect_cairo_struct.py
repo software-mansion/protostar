@@ -29,7 +29,7 @@ class CairoStruct:
 
     def __setattr__(self, name: str, value: Any) -> None:
         if name != "_ordered_dict":
-            raise Exception("CairoStruct is immutable.")
+            raise CheatcodeException("reflect", "CairoStruct is immutable.")
         super().__setattr__(name, value)
 
     def _set(self, name: str, value: "CairoValueType") -> None:
@@ -81,7 +81,7 @@ class CairoStructHintLocal(HintLocal):
     def name(self) -> str:
         return "CairoStruct"
 
-    def build(self) -> Callable[[str], Type]:
+    def build(self) -> Any:
         return CairoStruct
 
 

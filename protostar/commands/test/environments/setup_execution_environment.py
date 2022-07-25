@@ -20,6 +20,9 @@ from protostar.commands.test.test_context import TestContextHintLocal
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.cheatcode_factory import CheatcodeFactory
 from protostar.starknet.execution_environment import ExecutionEnvironment
+from protostar.commands.test.cheatcodes.reflect.reflect_cairo_struct import (
+    CairoStructHintLocal,
+)
 
 
 class SetupExecutionEnvironment(ExecutionEnvironment[None]):
@@ -30,7 +33,9 @@ class SetupExecutionEnvironment(ExecutionEnvironment[None]):
 
     async def invoke(self, function_name: str):
         self.set_cheatcodes(SetupCheatcodeFactory(self.state))
-        self.set_custom_hint_locals([TestContextHintLocal(self.state.context)])
+        self.set_custom_hint_locals(
+            [TestContextHintLocal(self.state.context), CairoStructHintLocal()]
+        )
 
         await self.perform_invoke(function_name)
 
