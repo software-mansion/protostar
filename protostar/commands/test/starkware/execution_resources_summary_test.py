@@ -25,8 +25,7 @@ def test_count_series_statistic_str():
         == "μ: 3.33, Md: 2.5, min: 1, max: 6"
     )
     assert (
-        str(CountSeriesStatistic([1, 1, 1, 1, 1, 1]))
-        == "μ: 1, Md: 1, min: 1, max: 1"
+        str(CountSeriesStatistic([1, 1, 1, 1, 1, 1])) == "μ: 1, Md: 1, min: 1, max: 1"
     )
 
 
