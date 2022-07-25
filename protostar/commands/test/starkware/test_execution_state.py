@@ -9,7 +9,7 @@ from protostar.commands.test.test_context import TestContext
 from protostar.starknet.execution_state import ExecutionState
 from protostar.starknet.forkable_starknet import ForkableStarknet
 from protostar.utils.starknet_compilation import StarknetCompiler
-from protostar.commands.test.test_output_recorder import OutputName, OutputRecorder
+from protostar.commands.test.test_output_recorder import OutputRecorder
 
 
 @dataclass
