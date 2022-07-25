@@ -83,21 +83,23 @@ func test_reflect_passed_full():
         structB = reflect(ids).structB.get()
         f = reflect(ids).structB.f.get()
 
-        print(structA)
+        print(structA) # You can print CairoStructs easily
 
-        StructB = CairoStruct
-        StructA = CairoStruct
+        StructB = CairoStruct #
+        StructA = CairoStruct # This way you can add aliases for readability
+
         assert structA == StructA(
-            a=StructB(
-                e=42,
-                f=24,
-            ),
-            b=13,
-            c=ptrB,
-            d=structA.d,
+            a=StructB(                  # You can do nested comparisons
+                e=42,                   #
+                f=24,                   #
+            ),                          #
+            b=13,                       #
+            c=ptrB,                     # Pointers are compared directly using their addresses
+            d=structA.d,                # You can use struct's members if you don't want to compare them against anything
         )
     %}
     return ()
+end
 ```
 
 :::warning
