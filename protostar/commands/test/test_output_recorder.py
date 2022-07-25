@@ -1,5 +1,5 @@
 from contextlib import contextmanager, redirect_stdout
-from typing import Union, Tuple, Dict
+from typing import Union, Tuple, Dict, Generator
 from io import StringIO
 from dataclasses import dataclass, field
 from copy import deepcopy
@@ -32,7 +32,7 @@ class OutputRecorder:
         self.captures[name] = buffer
         return buffer
 
-    def get_captures(self):
+    def get_captures(self) -> Dict[OutputName, str]:
         return {k: v.getvalue() for k, v in self.captures.items()}
 
     @contextmanager

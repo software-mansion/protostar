@@ -1,3 +1,4 @@
+import pytest
 from protostar.commands.test.test_output_recorder import (
     format_output_name,
     OutputRecorder,
@@ -14,11 +15,8 @@ def test_record_same_output_name():
 
     output_recorder.record("foo")
 
-    try:
+    with pytest.raises(KeyError):
         output_recorder.record("foo")
-        assert False
-    except KeyError:
-        pass
 
 
 def test_record_output():
