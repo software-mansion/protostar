@@ -8,6 +8,7 @@ from protostar.commands.test.test_collector import TestCollector
 from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.test_scheduler import TestScheduler
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
+from protostar.commands.test.testing_seed import TestingSeed
 from protostar.commands.test.testing_summary import TestingSummary
 from protostar.utils.compiler.pass_managers import (
     StarknetPassManagerFactory,
@@ -127,6 +128,7 @@ class TestCommand(Command):
         no_progress_bar: bool = False,
         safe_collecting: bool = False,
         exit_first: bool = False,
+        seed: Optional[int] = None,
     ) -> TestingSummary:
         logger = getLogger()
         include_paths = [
@@ -141,38 +143,41 @@ class TestCommand(Command):
             if safe_collecting
             else TestCollectorPassManagerFactory
         )
-        with ActivityIndicator(log_color_provider.colorize("GRAY", "Collecting tests")):
-            test_collector_result = TestCollector(
-                StarknetCompiler(
-                    config=CompilerConfig(
-                        disable_hint_validation=True, include_paths=include_paths
+        with TestingSeed(seed):
+            with ActivityIndicator(
+                log_color_provider.colorize("GRAY", "Collecting tests")
+            ):
+                test_collector_result = TestCollector(
+                    StarknetCompiler(
+                        config=CompilerConfig(
+                            disable_hint_validation=True, include_paths=include_paths
+                        ),
+                        pass_manager_factory=factory,
                     ),
-                    pass_manager_factory=factory,
-                ),
-                config=TestCollector.Config(safe_collecting=safe_collecting),
-            ).collect(
-                targets=targets,
-                ignored_targets=ignored_targets,
-                default_test_suite_glob=str(self._project_root_path),
-            )
-        test_collector_result.log(logger)
+                    config=TestCollector.Config(safe_collecting=safe_collecting),
+                ).collect(
+                    targets=targets,
+                    ignored_targets=ignored_targets,
+                    default_test_suite_glob=str(self._project_root_path),
+                )
+            test_collector_result.log(logger)
 
-        testing_summary = TestingSummary(
-            case_results=test_collector_result.broken_test_suites  # type: ignore | pyright bug?
-        )
-
-        if test_collector_result.test_cases_count > 0:
-            live_logger = TestingLiveLogger(
-                logger,
-                testing_summary,
-                no_progress_bar=no_progress_bar,
-                exit_first=exit_first,
-            )
-            TestScheduler(live_logger, worker=TestRunner.worker).run(
-                include_paths=include_paths,
-                test_collector_result=test_collector_result,
-                disable_hint_validation=disable_hint_validation,
-                exit_first=exit_first,
+            testing_summary = TestingSummary(
+                case_results=test_collector_result.broken_test_suites  # type: ignore | pyright bug?
             )
 
-        return testing_summary
+            if test_collector_result.test_cases_count > 0:
+                live_logger = TestingLiveLogger(
+                    logger,
+                    testing_summary,
+                    no_progress_bar=no_progress_bar,
+                    exit_first=exit_first,
+                )
+                TestScheduler(live_logger, worker=TestRunner.worker).run(
+                    include_paths=include_paths,
+                    test_collector_result=test_collector_result,
+                    disable_hint_validation=disable_hint_validation,
+                    exit_first=exit_first,
+                )
+
+            return testing_summary

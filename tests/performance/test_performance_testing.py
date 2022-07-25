@@ -126,7 +126,7 @@ async def _run_tests_inner(test_suite: TestSuite, contract: ContractClass):
             else:
                 out = sys.stderr
 
-            print(test_result.display(), file=out)
+            print(test_result.format(), file=out)
             tests_left -= 1
 
         assert (
@@ -349,7 +349,7 @@ def test_assertions_perf(benchmark, tmp_path, protostar_cairo_path):
         source_code=test_cases,
         file_path=tmp_path,
         case_names=case_names,
-        include_paths=[protostar_cairo_path],
+        include_paths=[str(protostar_cairo_path)],
     )
 
     benchmark(run_tests, test_suite=test_suite, contract=contract_class)

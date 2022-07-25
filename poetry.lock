@@ -451,6 +451,17 @@ lint = ["black (>=18.6b4,<19)", "flake8 (==3.7.9)", "isort (>=4.2.15,<5)", "mypy
 test = ["hypothesis (>=4.43.0,<5.0.0)", "pytest (==5.4.1)", "pytest-xdist", "tox (==3.14.6)"]
 
 [[package]]
+name = "exceptiongroup"
+version = "1.0.0rc8"
+description = "Backport of PEP 654 (exception groups)"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.extras]
+test = ["pytest (>=6)"]
+
+[[package]]
 name = "fastecdsa"
 version = "2.2.3"
 description = "Fast elliptic curve digital signatures"
@@ -565,6 +576,35 @@ dev = ["Sphinx (>=1.6.5,<2)", "bumpversion (>=0.5.3,<1)", "eth-utils (>=1.0.1,<2
 doc = ["Sphinx (>=1.6.5,<2)", "sphinx-rtd-theme (>=0.1.9,<1)", "towncrier (>=19.2.0,<20)"]
 lint = ["flake8 (==3.7.9)", "isort (>=4.2.15,<5)", "mypy (==0.770)", "pydocstyle (>=5.0.0,<6)"]
 test = ["eth-utils (>=1.0.1,<2)", "hypothesis (>=3.44.24,<4)", "pytest-xdist", "pytest (==5.4.1)", "tox (==3.14.6)"]
+
+[[package]]
+name = "hypothesis"
+version = "6.49.1"
+description = "A library for property-based testing"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+attrs = ">=19.2.0"
+exceptiongroup = {version = ">=1.0.0rc8", markers = "python_version < \"3.11\""}
+sortedcontainers = ">=2.1.0,<3.0.0"
+
+[package.extras]
+all = ["black (>=19.10b0)", "click (>=7.0)", "django (>=2.2)", "dpcontracts (>=0.4)", "lark-parser (>=0.6.5)", "libcst (>=0.3.16)", "numpy (>=1.9.0)", "pandas (>=0.25)", "pytest (>=4.6)", "python-dateutil (>=1.4)", "pytz (>=2014.1)", "redis (>=3.0.0)", "rich (>=9.0.0)", "importlib-metadata (>=3.6)", "backports.zoneinfo (>=0.2.1)", "tzdata (>=2022.1)"]
+cli = ["click (>=7.0)", "black (>=19.10b0)", "rich (>=9.0.0)"]
+codemods = ["libcst (>=0.3.16)"]
+dateutil = ["python-dateutil (>=1.4)"]
+django = ["django (>=2.2)"]
+dpcontracts = ["dpcontracts (>=0.4)"]
+ghostwriter = ["black (>=19.10b0)"]
+lark = ["lark-parser (>=0.6.5)"]
+numpy = ["numpy (>=1.9.0)"]
+pandas = ["pandas (>=0.25)"]
+pytest = ["pytest (>=4.6)"]
+pytz = ["pytz (>=2014.1)"]
+redis = ["redis (>=3.0.0)"]
+zoneinfo = ["backports.zoneinfo (>=0.2.1)", "tzdata (>=2022.1)"]
 
 [[package]]
 name = "idna"
@@ -1315,6 +1355,14 @@ python-versions = "*"
 tornado = ">=2.0"
 
 [[package]]
+name = "sortedcontainers"
+version = "2.4.0"
+description = "Sorted Containers -- Sorted List, Sorted Dict, Sorted Set"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "starknet-devnet"
 version = "0.2.6"
 description = "A local testnet for Starknet"
@@ -1333,7 +1381,7 @@ Werkzeug = ">=2.0.3,<2.1.0"
 
 [[package]]
 name = "starknet.py"
-version = "0.4.1a0"
+version = "0.4.2a0"
 description = "A python SDK for StarkNet"
 category = "main"
 optional = false
@@ -1565,7 +1613,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.12, <3.10"
-content-hash = "2779f626d6b47aa5baf93ef7ade6cdefba56410bda04c620df38551c85fad9ef"
+content-hash = "f572a0bfd6d2a902f60e64df601132672307028314429295e5bdc31405de4208"
 
 [metadata.files]
 aiohttp = [
@@ -1779,8 +1827,10 @@ coverage = [
     {file = "coverage-6.3.2.tar.gz", hash = "sha256:03e2a7826086b91ef345ff18742ee9fc47a6839ccd517061ef8fa1976e652ce9"},
 ]
 crypto-cpp-py = [
+    {file = "crypto_cpp_py-1.0.4-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:3a802e2b4d015f080a114c2ffeef7a117509c73f368372aca8e3f337dfdc7f51"},
     {file = "crypto_cpp_py-1.0.4-cp37-cp37m-macosx_11_0_x86_64.whl", hash = "sha256:29422520f1dabca90d3031fd5c53234aabe126dc903dd48992d26e78f104df8f"},
     {file = "crypto_cpp_py-1.0.4-cp37-cp37m-macosx_12_0_arm64.whl", hash = "sha256:05e3b586d03b553e532d5d44d119fd4f6a8e86107245b03bdaac61381324f969"},
+    {file = "crypto_cpp_py-1.0.4-cp37-cp37m-macosx_12_0_x86_64.whl", hash = "sha256:2d77ec9927d9b9eaa0fd9060ad616080fa78095c899a3b9055cd131243b28095"},
     {file = "crypto_cpp_py-1.0.4-cp37-cp37m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:6590aeb6dabf674b231f32eb82d6272d3cdf9b689054195d6ebb6cba1c51fb8d"},
     {file = "crypto_cpp_py-1.0.4-cp37-cp37m-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:16e5314bf0829cbf578b8bfe228f13370c4666d0613dfd490c30396c30ee5e46"},
     {file = "crypto_cpp_py-1.0.4-cp37-cp37m-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:246a642524b61f4bc04f0deccd391e62273816174c4e87448cd9531f0c33d91a"},
@@ -1791,8 +1841,10 @@ crypto-cpp-py = [
     {file = "crypto_cpp_py-1.0.4-cp37-cp37m-musllinux_1_1_x86_64.whl", hash = "sha256:4166fbe3ea025c3dfdcbf9269323a24c43af3f92880fbd8008891ea6b9489fc2"},
     {file = "crypto_cpp_py-1.0.4-cp37-cp37m-win32.whl", hash = "sha256:e78d08225bd20d829f119ba2e00c11b69bf6d2a99b655e56181580290392a010"},
     {file = "crypto_cpp_py-1.0.4-cp37-cp37m-win_amd64.whl", hash = "sha256:059e2ba230a22762087032fd508f7e8b5213ea5a18d1b091eb5c796093af9548"},
+    {file = "crypto_cpp_py-1.0.4-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:afe891d1a28b4d905257b410563fc4b2fc0c4d536c1d8c9b0bdb7c6d18a7f565"},
     {file = "crypto_cpp_py-1.0.4-cp38-cp38-macosx_11_0_x86_64.whl", hash = "sha256:02520302ebcfa209bb79cb6a70fadffdd090b73e302142e48e1757bb513f2eca"},
     {file = "crypto_cpp_py-1.0.4-cp38-cp38-macosx_12_0_arm64.whl", hash = "sha256:447af208c5e6ff59a9d44c69806d2e3a71f32ec63b9435d7837fefe258a09f0b"},
+    {file = "crypto_cpp_py-1.0.4-cp38-cp38-macosx_12_0_x86_64.whl", hash = "sha256:7d128ce933440303706c36eb6f5aa32ee76316138ce17cb12217ad283b030f4f"},
     {file = "crypto_cpp_py-1.0.4-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:3eeeab30e7c9409d102dfb0d6f2a9024f518f5104e4f615964ae422c6cca8370"},
     {file = "crypto_cpp_py-1.0.4-cp38-cp38-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:d1952ecad9ae8f9756e0510a45dae6cbd3ff85b594968266b90f504bd2c4b083"},
     {file = "crypto_cpp_py-1.0.4-cp38-cp38-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:712e03d6516b3cc12a4ff334b47e5683c58baf7c923f6ba9d1cf6478800ad550"},
@@ -1803,8 +1855,10 @@ crypto-cpp-py = [
     {file = "crypto_cpp_py-1.0.4-cp38-cp38-musllinux_1_1_x86_64.whl", hash = "sha256:8c94e012a1e591bbe112778ec64576fa5b3dd4856208c0a6ac3c51c5ad62c61d"},
     {file = "crypto_cpp_py-1.0.4-cp38-cp38-win32.whl", hash = "sha256:d7a9889203d9e56cb5f7128c3742b7fc62a36cde8dddd71989570f0db6491c5c"},
     {file = "crypto_cpp_py-1.0.4-cp38-cp38-win_amd64.whl", hash = "sha256:7573420e603b523cec2e8ce26a11bcbc380987c2b68ce64be0e0068e9c0ff515"},
+    {file = "crypto_cpp_py-1.0.4-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:31b7a93a34fb444bd8e5540907e83737dcf6ce8d19f770fe1b49c6091cc9a6b9"},
     {file = "crypto_cpp_py-1.0.4-cp39-cp39-macosx_11_0_x86_64.whl", hash = "sha256:a3f4ac6852b5919508cc0218c5ae166afdbff64aa63bf6dfc8602761879706a5"},
     {file = "crypto_cpp_py-1.0.4-cp39-cp39-macosx_12_0_arm64.whl", hash = "sha256:0bad6955111f68e49e6b053171a8ed998a6e8a706464c72c1728497b9e4ebd4c"},
+    {file = "crypto_cpp_py-1.0.4-cp39-cp39-macosx_12_0_x86_64.whl", hash = "sha256:88ca995b5a28d5f8e775bd3efa0a6e995decc76866c6fa548df5637729d23c09"},
     {file = "crypto_cpp_py-1.0.4-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:c4266a9851f0abba7757dbdda41b70fe986fbb333eca36d6d520400485cd64cf"},
     {file = "crypto_cpp_py-1.0.4-cp39-cp39-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:734c5baddd300601d4c42638922a736ab3e74cef3cc3d15785cb3698b28ca90e"},
     {file = "crypto_cpp_py-1.0.4-cp39-cp39-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:8cf24b9b18775a21eaf1a7add19076184bd1d38c2c3dbced48502414f1c2cbd6"},
@@ -1855,6 +1909,10 @@ eth-typing = [
 eth-utils = [
     {file = "eth-utils-1.10.0.tar.gz", hash = "sha256:bf82762a46978714190b0370265a7148c954d3f0adaa31c6f085ea375e4c61af"},
     {file = "eth_utils-1.10.0-py3-none-any.whl", hash = "sha256:74240a8c6f652d085ed3c85f5f1654203d2f10ff9062f83b3bad0a12ff321c7a"},
+]
+exceptiongroup = [
+    {file = "exceptiongroup-1.0.0rc8-py3-none-any.whl", hash = "sha256:ab0a968e1ef769e55d9a596f4a89f7be9ffedbc9fdefdb77cc68cf5c33ce1035"},
+    {file = "exceptiongroup-1.0.0rc8.tar.gz", hash = "sha256:6990c24f06b8d33c8065cfe43e5e8a4bfa384e0358be036af9cc60b6321bd11a"},
 ]
 fastecdsa = [
     {file = "fastecdsa-2.2.3-cp310-cp310-macosx_11_0_x86_64.whl", hash = "sha256:c1f27c5b37aee4bafa8ee304f6da3382ba90200a6998764b3cedba506ef03ff5"},
@@ -1973,6 +2031,10 @@ greenlet = [
 hexbytes = [
     {file = "hexbytes-0.2.2-py3-none-any.whl", hash = "sha256:ef53c37ea9f316fff86fcb1df057b4c6ba454da348083e972031bbf7bc9c3acc"},
     {file = "hexbytes-0.2.2.tar.gz", hash = "sha256:a5881304d186e87578fb263a85317c808cf130e1d4b3d37d30142ab0f7898d03"},
+]
+hypothesis = [
+    {file = "hypothesis-6.49.1-py3-none-any.whl", hash = "sha256:a28a74e700960065f9fc972983c56f7c0821989c6c06a6fbcc42abe3a47e9986"},
+    {file = "hypothesis-6.49.1.tar.gz", hash = "sha256:0310d446fb87415e31798e8267288acc22f0be4a0530128a3a694190fcc43e5b"},
 ]
 idna = [
     {file = "idna-3.3-py3-none-any.whl", hash = "sha256:84d9dd047ffa80596e0f246e2eab0b391788b0503584e8945f2368256d2735ff"},
@@ -2497,6 +2559,10 @@ smmap = [
 snakeviz = [
     {file = "snakeviz-2.1.1-py2.py3-none-any.whl", hash = "sha256:931142dc927101c9a4b6e89bc0577ff1a3d1886b483a04e6af70c31d2c3dce19"},
     {file = "snakeviz-2.1.1.tar.gz", hash = "sha256:0d96c006304f095cb4b3fb7ed98bb866ca35a7ca4ab9020bbc27d295ee4c94d9"},
+]
+sortedcontainers = [
+    {file = "sortedcontainers-2.4.0-py2.py3-none-any.whl", hash = "sha256:a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0"},
+    {file = "sortedcontainers-2.4.0.tar.gz", hash = "sha256:25caa5a06cc30b6b83d11423433f65d1f9d76c4c6a0c90e3379eaa43b9bfdb88"},
 ]
 starknet-devnet = []
 "starknet.py" = []
