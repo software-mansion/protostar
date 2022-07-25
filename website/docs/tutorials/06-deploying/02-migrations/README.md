@@ -20,23 +20,25 @@ You can't import a Cairo file, if its name starts with a digit. In the future, y
 ## Migration file structure
 Each migration should have 2 functions: `up` and `down`. The `up` function is responsible to migrate your project forward,  and the `down`function is executed to rollback changes.
 
-```cairo title="'up' and 'down' functions must be decorated with '@external' decorator"
+```python title="'up' and 'down' functions must be decorated with '@external' decorator"
 %lang starknet
 
 @external
 func up():
-    # ...
+    %{ declare("./build/main.json") %}
     return ()
 end
 
 @external
 func down():
-    # ...
+    %{ assert False, "Not implemented" %}
     return ()
 end
 
 ``` 
 
+## Running the migration
+T.B.D.
 
 
 ## Available migration cheatcodes
