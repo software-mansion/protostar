@@ -16,9 +16,11 @@ class DeployedContract:
 Deploys a **compiled** contract given a path relative to the project root.
 
 
-:::warning
-This cheatcode doesn't support [Data Transformer](/docs/tutorials/testing/cheatcodes#data-transformer) unlike its [testing counterpart](/docs/tutorials/testing/cheatcodes/deploy-contract).
+:::info
+This cheatcode has testing counterpart — [deploy_contract](/docs/tutorials/testing/cheatcodes/deploy-contract).
 :::
+
+
 
 
 ## Example
