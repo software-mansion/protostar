@@ -18,7 +18,6 @@ from protostar.commands.test.starkware.execution_resources_summary import (
 )
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_context import TestContextHintLocal
-from protostar.commands.test.test_output_recorder import OutputName
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.execution_environment import ExecutionEnvironment
 from protostar.utils.abi import has_function_parameters
@@ -35,9 +34,7 @@ class TestExecutionEnvironment(
         self._expect_revert_context = ExpectRevertContext()
         self._finish_hook = Hook()
 
-    async def invoke(
-        self, function_name: str, output_name: OutputName
-    ) -> Optional[ExecutionResourcesSummary]:
+    async def invoke(self, function_name: str) -> Optional[ExecutionResourcesSummary]:
         assert not has_function_parameters(
             self.state.contract.abi, function_name
         ), f"{self.__class__.__name__} expects no function parameters."
@@ -56,7 +53,7 @@ class TestExecutionEnvironment(
 
         async with self._expect_revert_context.test():
             async with self._finish_hook.run_after():
-                with redirect_stdout(self.state.output_recorder.record(output_name)):
+                with self.state.output_recorder.redirect("test"):
                     tx_info = await self.perform_invoke(function_name)
                 execution_resources = (
                     ExecutionResourcesSummary.from_execution_resources(

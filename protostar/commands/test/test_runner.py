@@ -16,7 +16,6 @@ from protostar.commands.test.test_cases import (
     UnexpectedExceptionTestSuiteResult,
 )
 from protostar.commands.test.test_environment_exceptions import ReportedException
-from protostar.commands.test.test_output_recorder import OutputName
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.test_suite import TestSuite
 from protostar.protostar_exception import ProtostarException
@@ -160,10 +159,7 @@ class TestRunner:
                         file_path=test_suite.test_path,
                         test_case_name=test_case_name,
                         execution_resources=execution_resources,
-                        captured_stdout={
-                            key: value.getvalue()
-                            for key, value in new_execution_state.output_recorder.captures
-                        },
+                        captured_stdout=new_execution_state.output_recorder.get_captures(),
                     )
                 )
             except ReportedException as ex:
@@ -172,10 +168,7 @@ class TestRunner:
                         file_path=test_suite.test_path,
                         test_case_name=test_case_name,
                         exception=ex,
-                        captured_stdout={
-                            key: value.getvalue()
-                            for key, value in new_execution_state.output_recorder.captures
-                        },
+                        captured_stdout=new_execution_state.output_recorder.get_captures(),
                     )
                 )
 

@@ -12,15 +12,14 @@ from protostar.commands.test.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
 )
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
-from protostar.commands.test.test_output_recorder import OutputName
 
 
 async def invoke_setup(
     function_name: str,
     state: TestExecutionState,
 ) -> Optional[ExecutionResourcesSummary]:
-    env = TestExecutionEnvironment(state)
-    return await env.invoke(function_name, "setup")
+    env = SetupExecutionEnvironment(state)
+    return await env.invoke(function_name)
 
 
 async def invoke_test_case(
@@ -28,4 +27,4 @@ async def invoke_test_case(
     state: TestExecutionState,
 ) -> Optional[ExecutionResourcesSummary]:
     env = TestExecutionEnvironment(state)
-    return await env.invoke(function_name, "test")
+    return await env.invoke(function_name)

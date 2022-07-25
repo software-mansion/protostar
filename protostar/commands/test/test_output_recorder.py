@@ -1,3 +1,4 @@
+from contextlib import contextmanager, redirect_stdout
 from typing import Union, Tuple, Dict
 from io import StringIO
 from dataclasses import dataclass, field
@@ -30,6 +31,17 @@ class OutputRecorder:
         buffer = StringIO()
         self.captures[name] = buffer
         return buffer
+
+    def get_captures(self):
+        return {k: v.getvalue() for k, v in self.captures.items()}
+
+    @contextmanager
+    def redirect(self, name: OutputName):
+        with redirect_stdout(self.record(name)):
+            try:
+                yield
+            finally:
+                pass
 
     def fork(self) -> "OutputRecorder":
         return deepcopy(self)
