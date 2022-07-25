@@ -49,7 +49,8 @@ class TestExecutionEnvironment(
 
         self.set_custom_hint_locals([TestContextHintLocal(self.state.context)])
 
-        return await self.invoke_test_case(function_name)
+        with self.state.output_recorder.redirect("test"):
+            return await self.invoke_test_case(function_name)
 
     async def invoke_test_case(
         self, function_name: str, *args, **kwargs
@@ -58,8 +59,7 @@ class TestExecutionEnvironment(
 
         async with self._expect_revert_context.test():
             async with self._finish_hook.run_after():
-                with self.state.output_recorder.redirect("test"):
-                    tx_info = await self.perform_invoke(function_name, *args, **kwargs)
+                tx_info = await self.perform_invoke(function_name, *args, **kwargs)
                 execution_resources = (
                     ExecutionResourcesSummary.from_execution_resources(
                         tx_info.call_info.execution_resources

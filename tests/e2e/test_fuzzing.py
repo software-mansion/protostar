@@ -25,6 +25,8 @@ x = 340282366920938463463374607431768211456
 """
         in result
     )
+    assert f"[test:1]:\nTESTING STDOUT" in result
+    assert f"[test:100]:\nTESTING STDOUT" in result
 
     assert "[FAIL] tests/test_fuzz.cairo test_fails_if_big_many_inputs" in result
     assert (

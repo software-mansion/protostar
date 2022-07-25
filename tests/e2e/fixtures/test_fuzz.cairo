@@ -10,6 +10,7 @@ end
 
 @external
 func test_fails_if_big_single_input{syscall_ptr : felt*, range_check_ptr}(x):
+    %{ print("TESTING STDOUT", ids.x) %}
     assert_nn(x)
     return ()
 end

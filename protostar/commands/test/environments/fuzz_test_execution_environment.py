@@ -3,7 +3,7 @@ import contextvars
 import functools
 import inspect
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional, List, Callable, Awaitable, Any, Dict
 
 from hypothesis import settings, seed, given, Verbosity
@@ -66,6 +66,8 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         database = InMemoryExampleDatabase()
         strategy_selector = StrategySelector(parameters)
 
+        runs_counter = RunsCounter()
+
         # NOTE: Hypothesis' ``reporter`` global is a thread local variable.
         #   Because we are running Hypothesis from separate thread, and the test itself is
         #   running in a separate thread executor, we must set the ``reporter`` each first time
@@ -80,23 +82,25 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         )
         @given(data_object=data())
         async def test(data_object: DataObject):
-            with with_reporter(protostar_reporter):
-                inputs: Dict[str, Any] = {}
-                for param in strategy_selector.parameter_names:
-                    search_strategy = strategy_selector.search_strategies[param]
-                    inputs[param] = data_object.draw(search_strategy, label=param)
+            run_no = next(runs_counter)
+            with self.state.output_recorder.redirect(("test", run_no)):
+                with with_reporter(protostar_reporter):
+                    inputs: Dict[str, Any] = {}
+                    for param in strategy_selector.parameter_names:
+                        search_strategy = strategy_selector.search_strategies[param]
+                        inputs[param] = data_object.draw(search_strategy, label=param)
 
-                try:
-                    this_run_resources = await self.invoke_test_case(
-                        function_name, **inputs
-                    )
-                    if this_run_resources is not None:
-                        execution_resources.append(this_run_resources)
-                except ReportedException as reported_ex:
-                    raise HypothesisFailureSmugglingError(
-                        error=reported_ex,
-                        inputs=inputs,
-                    ) from reported_ex
+                    try:
+                        this_run_resources = await self.invoke_test_case(
+                            function_name, **inputs
+                        )
+                        if this_run_resources is not None:
+                            execution_resources.append(this_run_resources)
+                    except ReportedException as reported_ex:
+                        raise HypothesisFailureSmugglingError(
+                            error=reported_ex,
+                            inputs=inputs,
+                        ) from reported_ex
 
         test.hypothesis.inner_test = wrap_in_sync(test.hypothesis.inner_test)  # type: ignore
 
@@ -105,7 +109,8 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
                 test()
 
         try:
-            await to_thread(test_thread)
+            with self.state.output_recorder.redirect("test"):
+                await to_thread(test_thread)
         except HypothesisFailureSmugglingError as escape_err:
             escape_err.error.metadata.append(
                 FuzzInputExceptionMetadata(escape_err.inputs)
@@ -193,3 +198,17 @@ def protostar_reporter(message: str):
         or not HYPOTHESIS_MSG_JAMMER_PATTERN.match(message)
     ):
         print(message)
+
+
+@dataclass
+class RunsCounter:
+    """
+    A boxed integer that can be safely shared between Python threads.
+    It is used to count fuzz test runs.
+    """
+
+    count: int = field(default=0)
+
+    def __next__(self) -> int:
+        self.count += 1
+        return self.count
