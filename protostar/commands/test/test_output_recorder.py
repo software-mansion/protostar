@@ -36,7 +36,7 @@ class OutputRecorder:
         return {k: v.getvalue() for k, v in self.captures.items()}
 
     @contextmanager
-    def redirect(self, name: OutputName):
+    def redirect(self, name: OutputName) -> Generator[None, None, None]:
         with redirect_stdout(self.record(name)):
             yield
 
