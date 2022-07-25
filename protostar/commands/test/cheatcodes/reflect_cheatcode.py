@@ -9,9 +9,9 @@ class ReflectCheatcode(Cheatcode):
     def name(self) -> str:
         return "reflect"
 
-    def build(self) -> Callable[..., Any]:
+    def build(self) -> Callable[[VmConsts], Reflector]:
         return self.reflect
 
     # pylint: disable=R0201
-    def reflect(self, ids: VmConsts):
+    def reflect(self, ids: VmConsts) -> Reflector:
         return Reflector(ids)

@@ -1,4 +1,4 @@
-from protostar.commands.test.cheatcodes.reflect.reflect_cairo_struct import CairoStruct
+from protostar.commands.test.cheatcodes.reflect.cairo_struct import CairoStruct
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
 
 # pylint: disable=C0103,W0612

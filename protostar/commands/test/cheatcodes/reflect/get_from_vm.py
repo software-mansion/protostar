@@ -22,7 +22,7 @@ from starkware.cairo.lang.compiler.identifier_manager import (
 )
 from starkware.cairo.lang.compiler.type_system_visitor import simplify_type_system
 
-from protostar.commands.test.cheatcodes.reflect.reflect_misc import ReflectInputType
+from protostar.commands.test.cheatcodes.reflect.misc import ReflectInputType
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
 
 

@@ -17,12 +17,12 @@ from starkware.cairo.lang.compiler.identifier_definition import (
     MemberDefinition,
 )
 
-from protostar.commands.test.cheatcodes.reflect.reflect_misc import (
+from protostar.commands.test.cheatcodes.reflect.misc import (
     ReflectInputType,
     ReflectValueType,
 )
 
-from protostar.commands.test.cheatcodes.reflect.reflect_cairo_struct import CairoStruct
+from protostar.commands.test.cheatcodes.reflect.cairo_struct import CairoStruct
 
 # pylint: disable=W0212
 def generate_value_tree(value: ReflectInputType) -> ReflectValueType:

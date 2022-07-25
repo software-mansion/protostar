@@ -15,16 +15,16 @@ from starkware.cairo.lang.compiler.ast.cairo_types import (
 from starkware.cairo.lang.compiler.identifier_definition import StructDefinition
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
 
-from protostar.commands.test.cheatcodes.reflect.reflect_misc import (
+from protostar.commands.test.cheatcodes.reflect.misc import (
     ReflectInputType,
     to_cairo_naming,
     ReflectReturnType,
 )
 
-from protostar.commands.test.cheatcodes.reflect.reflect_get_from_vm import (
+from protostar.commands.test.cheatcodes.reflect.get_from_vm import (
     get_value_from_vm,
 )
-from protostar.commands.test.cheatcodes.reflect.reflect_build_output import (
+from protostar.commands.test.cheatcodes.reflect.build_output import (
     generate_value_tree,
 )
 

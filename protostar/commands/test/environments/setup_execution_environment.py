@@ -20,7 +20,7 @@ from protostar.commands.test.test_context import TestContextHintLocal
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.cheatcode_factory import CheatcodeFactory
 from protostar.starknet.execution_environment import ExecutionEnvironment
-from protostar.commands.test.cheatcodes.reflect.reflect_cairo_struct import (
+from protostar.commands.test.cheatcodes.reflect.cairo_struct import (
     CairoStructHintLocal,
 )
 

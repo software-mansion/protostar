@@ -3,7 +3,7 @@
 def reflect(self, ids: VmConsts) -> Reflector:
 
 class Reflector:
-    def get(self) -> Union[CairoStruct, RelocatableValue, int]
+    def get(self)
 ```
 Loads specified Cairo object into Python type. get() can return: <\br>
 - int (for felt) <\br>
