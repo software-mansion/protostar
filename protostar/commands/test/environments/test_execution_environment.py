@@ -1,4 +1,5 @@
 from typing import Optional, List
+from contextlib import redirect_stdout
 
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
@@ -52,7 +53,8 @@ class TestExecutionEnvironment(
 
         async with self._expect_revert_context.test():
             async with self._finish_hook.run_after():
-                tx_info = await self.perform_invoke(function_name)
+                with self.state.output_recorder.redirect("test"):
+                    tx_info = await self.perform_invoke(function_name)
                 execution_resources = (
                     ExecutionResourcesSummary.from_execution_resources(
                         tx_info.call_info.execution_resources

@@ -17,18 +17,14 @@ from protostar.commands.test.starkware.test_execution_state import TestExecution
 async def invoke_setup(
     function_name: str,
     state: TestExecutionState,
-    stdout_buffer: StringIO,
-):
+) -> Optional[ExecutionResourcesSummary]:
     env = SetupExecutionEnvironment(state)
-    with redirect_stdout(stdout_buffer):
-        await env.invoke(function_name)
+    return await env.invoke(function_name)
 
 
 async def invoke_test_case(
     function_name: str,
     state: TestExecutionState,
-    stdout_buffer: StringIO,
 ) -> Optional[ExecutionResourcesSummary]:
     env = TestExecutionEnvironment(state)
-    with redirect_stdout(stdout_buffer):
-        return await env.invoke(function_name)
+    return await env.invoke(function_name)
