@@ -1,5 +1,4 @@
 import asyncio
-import io
 import traceback
 from dataclasses import dataclass
 from logging import getLogger
@@ -129,8 +128,6 @@ class TestRunner:
     ) -> Optional[Tuple[io.StringIO, TestExecutionState]]:
         assert self.shared_tests_state, "Uninitialized reporter!"
 
-        setup_stdout_buffer = io.StringIO()
-
         try:
             execution_state = await TestExecutionState.from_test_suite_definition(
                 self.user_contracts_compiler,
@@ -138,9 +135,7 @@ class TestRunner:
             )
 
             if test_suite.setup_fn_name:
-                await invoke_setup(
-                    test_suite.setup_fn_name, execution_state, setup_stdout_buffer
-                )
+                await invoke_setup(test_suite.setup_fn_name, execution_state)
 
         except StarkException as ex:
             if self.is_constructor_args_exception(ex):
@@ -170,20 +165,17 @@ class TestRunner:
     ):
         for test_case_name in test_suite.test_case_names:
             new_execution_state = execution_state.fork()
-            test_stdout_buffer = io.StringIO()
             try:
                 execution_resources = await invoke_test_case(
                     test_case_name,
                     new_execution_state,
-                    test_stdout_buffer,
                 )
                 self.shared_tests_state.put_result(
                     PassedTestCase(
                         file_path=test_suite.test_path,
                         test_case_name=test_case_name,
                         execution_resources=execution_resources,
-                        captured_setup_stdout=setup_stdout_buffer.getvalue(),
-                        captured_test_stdout=test_stdout_buffer.getvalue(),
+                        captured_stdout=new_execution_state.output_recorder.get_captures(),
                     )
                 )
             except ReportedException as ex:
@@ -192,8 +184,7 @@ class TestRunner:
                         file_path=test_suite.test_path,
                         test_case_name=test_case_name,
                         exception=ex,
-                        captured_setup_stdout=setup_stdout_buffer.getvalue(),
-                        captured_test_stdout=test_stdout_buffer.getvalue(),
+                        captured_stdout=new_execution_state.output_recorder.get_captures(),
                     )
                 )
 

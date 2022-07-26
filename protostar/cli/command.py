@@ -6,7 +6,14 @@ from typing import Any, List, Optional, Pattern
 
 from typing_extensions import Literal
 
-InputAllowedType = Literal["str", "directory", "path", "bool", "regexp"]
+InputAllowedType = Literal[
+    "str",
+    "directory",
+    "path",
+    "bool",
+    "regexp",
+    "int",
+]
 
 
 class Command(ABC):

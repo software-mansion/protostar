@@ -132,7 +132,7 @@ def wait_for_completion(test_suite: TestSuite, tests_state: SharedTestsState):
         else:
             out = sys.stderr
 
-        print(test_result.display(), file=out)
+        print(test_result.format(), file=out)
         tests_left -= 1
 
     assert (
@@ -439,7 +439,7 @@ async def test_assertions_perf(aio_benchmark, tmp_path, protostar_cairo_path):
         source_code=test_cases,
         file_path=tmp_path,
         case_names=case_names,
-        include_paths=[protostar_cairo_path],
+        include_paths=[str(protostar_cairo_path)],
     )
 
     async with prepare_tests(contract_class, test_suite) as run_tests:

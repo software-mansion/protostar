@@ -26,11 +26,11 @@ class ExecutionEnvironment(ABC, Generic[InvokeResultT]):
         ...
 
     async def perform_invoke(
-        self, function_name: str
+        self, function_name: str, *args, **kwargs
     ) -> StarknetTransactionExecutionInfo:
         try:
             func = getattr(self.state.contract, function_name)
-            return await func().invoke()
+            return await func(*args, **kwargs).invoke()
         except StarkException as ex:
             raise StarknetRevertableException(
                 error_message=StarknetRevertableException.extract_error_messages_from_stark_ex_message(

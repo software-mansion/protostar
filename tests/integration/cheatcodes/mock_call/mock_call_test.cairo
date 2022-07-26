@@ -172,7 +172,7 @@ func test_data_transformation_with_syscall_deploy{syscall_ptr : felt*, range_che
     %{ ids.class_hash = declare("./tests/integration/cheatcodes/mock_call/mocked.cairo").class_hash %}
 
     let (local calldata : felt*) = alloc()
-    let (contract_address) = deploy(class_hash, 42, 0, calldata)
+    let (contract_address) = deploy(class_hash, 42, 0, calldata, 0)
 
     %{ mock_call(ids.contract_address, "get_number", { "val": 42 }) %}
     let (val) = Mocked.get_number(contract_address)

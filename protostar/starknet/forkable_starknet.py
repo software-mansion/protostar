@@ -52,6 +52,7 @@ class ForkableStarknet(Starknet):
         contract_address_salt: Optional[CastableToAddressSalt] = None,
         cairo_path: Optional[List[str]] = None,
         constructor_calldata: Optional[List[int]] = None,
+        disable_hint_validation: bool = False,
     ) -> StarknetContract:
         starknet_contract = await super().deploy(
             source=source,
@@ -59,6 +60,7 @@ class ForkableStarknet(Starknet):
             contract_address_salt=contract_address_salt,
             cairo_path=cairo_path,
             constructor_calldata=constructor_calldata,
+            disable_hint_validation=disable_hint_validation,
         )
 
         self.cheatable_state.cheatable_carried_state.update_event_selector_to_name_map(

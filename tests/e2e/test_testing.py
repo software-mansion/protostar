@@ -10,6 +10,7 @@ from tests.e2e.conftest import ACTUAL_CWD, ProtostarFixture
 def test_basic_contract(protostar):
     result = protostar(["test", "tests"])
     assert "1 passed" in result
+    assert "Seed:" not in result
 
 
 @pytest.mark.usefixtures("init")
