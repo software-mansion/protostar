@@ -11,7 +11,7 @@ func test_deploy_declared_contract{syscall_ptr : felt*, range_check_ptr}():
     %{ ids.class_hash = declare("./tests/integration/constructor_in_tested_file/basic_contract.cairo").class_hash %}
 
     let (local calldata : felt*) = alloc()
-    let (contract_address) = deploy(class_hash, 42, 0, calldata)
+    let (contract_address) = deploy(class_hash, 42, 0, calldata, 0)
 
     return ()
 end

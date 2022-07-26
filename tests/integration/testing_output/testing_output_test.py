@@ -24,7 +24,7 @@ async def test_testing_output(run_cairo_test_runner: RunCairoTestRunnerFixture):
     )
 
     for passed_test_case in testing_summary.passed:
-        output = passed_test_case.display()
+        output = passed_test_case.format()
         assert "steps=" in output
         assert "pedersen_builtin=" in output
         assert "range_check=" not in output

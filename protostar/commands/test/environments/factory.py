@@ -1,7 +1,9 @@
-from io import StringIO
 from typing import Optional
-from contextlib import redirect_stdout
 
+from protostar.commands.test.environments.fuzz_test_execution_environment import (
+    is_fuzz_test,
+    FuzzTestExecutionEnvironment,
+)
 from protostar.commands.test.environments.setup_execution_environment import (
     SetupExecutionEnvironment,
 )
@@ -17,18 +19,18 @@ from protostar.commands.test.starkware.test_execution_state import TestExecution
 async def invoke_setup(
     function_name: str,
     state: TestExecutionState,
-    stdout_buffer: StringIO,
 ):
     env = SetupExecutionEnvironment(state)
-    with redirect_stdout(stdout_buffer):
-        await env.invoke(function_name)
+    await env.invoke(function_name)
 
 
 async def invoke_test_case(
     function_name: str,
     state: TestExecutionState,
-    stdout_buffer: StringIO,
 ) -> Optional[ExecutionResourcesSummary]:
-    env = TestExecutionEnvironment(state)
-    with redirect_stdout(stdout_buffer):
-        return await env.invoke(function_name)
+    if is_fuzz_test(function_name, state):
+        env = FuzzTestExecutionEnvironment(state)
+    else:
+        env = TestExecutionEnvironment(state)
+
+    return await env.invoke(function_name)

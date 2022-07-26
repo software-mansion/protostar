@@ -9,12 +9,16 @@ from protostar.commands.test.test_cases import (
     PassedTestCase,
     TestCaseResult,
 )
+from protostar.commands.test.testing_seed import TestingSeed
 from protostar.protostar_exception import ProtostarExceptionSilent
 from protostar.utils.log_color_provider import log_color_provider
 
 
 class TestingSummary:
-    def __init__(self, case_results: List[TestCaseResult]) -> None:
+    def __init__(
+        self, case_results: List[TestCaseResult], testing_seed: TestingSeed
+    ) -> None:
+        self.testing_seed = testing_seed
         self.case_results = []
         self.test_suites_mapping: Dict[Path, List[TestCaseResult]] = defaultdict(list)
         self.passed: List[PassedTestCase] = []
@@ -40,14 +44,22 @@ class TestingSummary:
         collected_test_cases_count: int,
         collected_test_suites_count: int,
     ):
+        header_width = len("Test suites: ")
+
         logger.info(
-            log_color_provider.bold("Test suites: ")
+            log_color_provider.bold("Test suites: ".ljust(header_width))
             + self._get_test_suites_summary(collected_test_suites_count)
         )
         logger.info(
-            log_color_provider.bold("Tests:       ")
+            log_color_provider.bold("Tests: ".ljust(header_width))
             + self._get_test_cases_summary(collected_test_cases_count)
         )
+
+        if self.testing_seed.was_used:
+            logger.info(
+                log_color_provider.bold("Seed: ".ljust(header_width))
+                + str(self.testing_seed.value)
+            )
 
     def assert_all_passed(self):
         if self.failed or self.broken:
@@ -71,7 +83,7 @@ class TestingSummary:
         broken_test_suites_count = 0
         total_test_suites_count = len(self.test_suites_mapping)
         for suit_case_results in self.test_suites_mapping.values():
-            partial_summary = TestingSummary(suit_case_results)
+            partial_summary = TestingSummary(suit_case_results, self.testing_seed)
 
             if len(partial_summary.broken) > 0:
                 broken_test_suites_count += 1

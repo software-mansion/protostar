@@ -79,17 +79,24 @@ def devnet_gateway_url_fixture(devnet_port: int):
 
 
 class RunCairoTestRunnerFixture(Protocol):
-    async def __call__(self, path: Path) -> TestingSummary:
+    async def __call__(
+        self,
+        path: Path,
+        seed: Optional[int] = None,
+    ) -> TestingSummary:
         ...
 
 
 @pytest.fixture(name="run_cairo_test_runner")
-def run_cairo_test_runner_fixture(mocker: MockerFixture):
-    async def run_cairo_test_runner(path: Path) -> TestingSummary:
+def run_cairo_test_runner_fixture(mocker: MockerFixture) -> RunCairoTestRunnerFixture:
+    async def run_cairo_test_runner(
+        path: Path,
+        seed: Optional[int] = None,
+    ) -> TestingSummary:
         return await TestCommand(
             project_root_path=Path(),
             protostar_directory=mocker.MagicMock(),
             project_compiler=mocker.MagicMock(),
-        ).test(targets=[str(path)])
+        ).test(targets=[str(path)], seed=seed)
 
     return run_cairo_test_runner
