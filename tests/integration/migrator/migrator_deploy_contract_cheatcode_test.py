@@ -14,7 +14,7 @@ async def test_deploy_contract(
         config=Migrator.Config(gateway_url=devnet_gateway_url),
     )
 
-    result = await migrator.run("up")
+    result = await migrator.run()
 
     assert len(result.starknet_requests) == 1
     assert result.starknet_requests[0].action == "DEPLOY"

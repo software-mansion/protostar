@@ -11,7 +11,7 @@ async def test_migrate_up(
         config=Migrator.Config(gateway_url=devnet_gateway_url),
     )
 
-    result = await migrator.run("up")
+    result = await migrator.run()
     assert result.starknet_requests[0].action == "DEPLOY"
 
 
@@ -23,5 +23,5 @@ async def test_migrate_down(
         config=Migrator.Config(gateway_url=devnet_gateway_url),
     )
 
-    result = await migrator.run("down")
+    result = await migrator.run(rollback=True)
     assert result.starknet_requests[0].action == "DECLARE"

@@ -6,8 +6,6 @@ from logging import Logger
 from pathlib import Path
 from typing import List
 
-from typing_extensions import Literal
-
 from protostar.migrator.migrator_execution_environment import (
     MigratorExecutionEnvironment,
 )
@@ -57,10 +55,10 @@ class Migrator:
     ) -> None:
         self._migrator_execution_environment = migrator_execution_environment
 
-    async def run(self, mode: Literal["up", "down"]) -> History:
-        assert mode in ("up", "down")
-
-        await self._migrator_execution_environment.invoke(function_name=mode)
+    async def run(self, rollback=False) -> History:
+        await self._migrator_execution_environment.invoke(
+            function_name="down" if rollback else "up"
+        )
 
         return Migrator.History(
             # pylint: disable=line-too-long

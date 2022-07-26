@@ -18,7 +18,7 @@ async def test_declare_contract(
         config=Migrator.Config(gateway_url=devnet_gateway_url),
     )
 
-    result = await migrator.run("up")
+    result = await migrator.run()
 
     assert len(result.starknet_requests) == 1
     assert result.starknet_requests[0].action == "DECLARE"
@@ -46,4 +46,4 @@ async def test_descriptive_error_on_file_not_found(
             "Couldn't find `.*/NOT_EXISTING_FILE.json`",
         ),
     ):
-        await migrator.run("up")
+        await migrator.run()

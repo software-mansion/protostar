@@ -131,9 +131,7 @@ class MigrateCommand(Command):
         )
 
         try:
-            migrator_history = await migrator.run(
-                mode="down" if rollback else "up",
-            )
+            migrator_history = await migrator.run(rollback)
 
             if output_dir_path:
                 migrator.save_history(
