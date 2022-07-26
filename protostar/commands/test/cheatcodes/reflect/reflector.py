@@ -13,7 +13,7 @@ from starkware.cairo.lang.compiler.ast.cairo_types import (
 )
 
 from starkware.cairo.lang.compiler.identifier_definition import StructDefinition
-from protostar.commands.test.test_environment_exceptions import CheatcodeException
+from protostar.commands.test.test_environment_exceptions import SimpleReportedException
 
 from protostar.commands.test.cheatcodes.reflect.misc import (
     ReflectInputType,
@@ -47,7 +47,7 @@ class Reflector:
 
             if name not in members:
                 value_name = self._value._struct_definition.full_name.path[1]
-                raise CheatcodeException(
+                raise SimpleReportedException(
                     "reflect", f'"{name}" is not a member of "{value_name}".'
                 )
 
@@ -82,7 +82,7 @@ class Reflector:
                 assert isinstance(tmp, RelocatableValue)
                 self._value = tmp
         else:
-            raise CheatcodeException(
+            raise SimpleReportedException(
                 "reflect",
                 f"Tried to get attribute of a {to_cairo_naming(type(self._value))} ({type(self._value).__name__}).",
             )
@@ -90,5 +90,7 @@ class Reflector:
 
     def get(self) -> ReflectReturnType:
         if self._value is None:
-            raise CheatcodeException("reflect", "Reflector.get() called on no value.")
+            raise SimpleReportedException(
+                "reflect", "Reflector.get() called on no value."
+            )
         return generate_value_tree(self._value)

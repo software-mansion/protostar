@@ -1,7 +1,8 @@
+from msilib.schema import RegLocator
 import pytest
 from protostar.commands.test.cheatcodes.reflect.cairo_struct import CairoStruct
-from protostar.commands.test.test_environment_exceptions import CheatcodeException
-
+from protostar.commands.test.test_environment_exceptions import SimpleReportedException
+from starkware.cairo.lang.vm.relocatable import RelocatableValue
 
 # pylint: disable=C0103,W0612
 
@@ -12,7 +13,7 @@ def test_cairo_struct_equality():
         b=222222,
         c=CairoStruct(
             d=333333,
-            e=444444,
+            e=RelocatableValue(4, 4),
             f=555555,
         ),
     )
@@ -22,7 +23,7 @@ def test_cairo_struct_equality():
         b=222222,
         c=CairoStruct(
             d=333333,
-            e=444444,
+            e=RelocatableValue(4, 4),
             f=555555,
         ),
     )
@@ -32,7 +33,7 @@ def test_cairo_struct_equality():
         b=222222,
         c=CairoStruct(
             d=333333,
-            e=444444,
+            e=RelocatableValue(4, 4),
             f=0xDEADBEEF,
         ),
     )
@@ -44,13 +45,13 @@ def test_cairo_struct_equality():
 def test_cairo_struct_immutability():
     x = CairoStruct(a=0b0110, b=0b1001)
 
-    with pytest.raises(CheatcodeException) as exc:
+    with pytest.raises(SimpleReportedException) as exc:
         x.b = 0b1000101
     assert "CairoStruct is immutable." in str(exc.value)
 
 
 def test_cairo_struct_type_safety():
-    with pytest.raises(CheatcodeException) as exc:
+    with pytest.raises(SimpleReportedException) as exc:
         x = CairoStruct(
             a="""
             I love Cairo
@@ -64,13 +65,13 @@ def test_cairo_struct_type_safety():
 def test_cairo_struct_no_member():
     x = CairoStruct(a=0xAD0BE_BAD)
 
-    with pytest.raises(CheatcodeException) as exc:
+    with pytest.raises(SimpleReportedException) as exc:
         y = x.b
     assert "is not a member of this CairoStruct" in str(exc.value)
 
 
 def test_cairo_struct_non_keyword_args():
-    with pytest.raises(CheatcodeException) as exc:
+    with pytest.raises(SimpleReportedException) as exc:
         x = CairoStruct(
             0xBAD_C0DE,
             a=14,

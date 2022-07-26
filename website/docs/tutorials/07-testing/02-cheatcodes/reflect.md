@@ -7,11 +7,13 @@ class Reflector:
 ```
 Loads specified Cairo object into Python type. ```get()``` can return:
 
-- int (for felt)
-- RelocatableValue (for pointer)
-- Cairo Struct (for more complex types)
+- ```int``` (for felt)
+- ```RelocatableValue``` (for pointer)
+- ```CairoStruct``` (for more complex types)
 
 You can use it to print cairo data and compare complex structures.
+
+### Printing:
 
 ```cairo
 %lang starknet
@@ -41,6 +43,8 @@ func test_reflect_simple():
 end
 ```
 
+### Pointers:
+
 ```cairo
 %lang starknet
 
@@ -60,12 +64,15 @@ func test_pointers():
         ptr1 = reflect(ids).ptr1.get()
         ptr2 = reflect(ids).ptr2.get()
 
-        print(type(ptr1)) # RelocatableValue
+        print(ptr1) # output: 1:8
+        print(type(ptr1)) # output: RelocatableValue
         assert ptr1 == ptr2  # Pointers are compared directly using their addresses
     %}
     return ()
 end
 ```
+
+### Nested comparisons:
 
 ```cairo
 %lang starknet
@@ -100,6 +107,8 @@ func test_nesting():
 end
 ```
 
+### Wildcards:
+
 ```cairo
 %lang starknet
 
@@ -126,5 +135,9 @@ end
 ```
 
 :::warning
-Unlike `ids`, `reflect` does not automatically dereference pointers. As of right now you have to dereference them in Cairo.
+Unlike `ids`, `reflect` does not automatically dereference pointers. Currently you have to dereference them in Cairo.
+:::
+
+:::warning
+`reflect` does not work for references created with `let`.
 :::

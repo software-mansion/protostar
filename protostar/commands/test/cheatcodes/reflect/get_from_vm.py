@@ -23,7 +23,7 @@ from starkware.cairo.lang.compiler.identifier_manager import (
 from starkware.cairo.lang.compiler.type_system_visitor import simplify_type_system
 
 from protostar.commands.test.cheatcodes.reflect.misc import ReflectInputType
-from protostar.commands.test.test_environment_exceptions import CheatcodeException
+from protostar.commands.test.test_environment_exceptions import SimpleReportedException
 
 
 def get_value_from_vm(ids: VmConsts, name: str):
@@ -74,7 +74,9 @@ def get_value_from_vm(ids: VmConsts, name: str):
             name=ScopedName.from_string(name),
         )
     except MissingIdentifierError:
-        raise CheatcodeException("reflect", f'Unknown identifier "{name}".') from None
+        raise SimpleReportedException(
+            "reflect", f'Unknown identifier "{name}".'
+        ) from None
 
     value: Optional[IdentifierDefinition]
     if isinstance(result, IdentifierSearchResult):
