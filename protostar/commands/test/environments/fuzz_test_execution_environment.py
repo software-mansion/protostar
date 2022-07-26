@@ -80,6 +80,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             database=database,
             deadline=None,
             print_blob=False,
+            report_multiple_bugs=False,
             verbosity=HYPOTHESIS_VERBOSITY,
         )
         @given(data_object=data())
