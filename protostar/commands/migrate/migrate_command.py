@@ -12,6 +12,9 @@ from protostar.utils.log_color_provider import LogColorProvider
 
 
 class MigrateCommand(Command):
+    GATEWAY_URL_ARG_NAME = "gateway-url"
+    NETWORK_ARG_NAME = "network"
+
     def __init__(
         self,
         migrator_factory: Migrator.Factory,
@@ -63,12 +66,12 @@ class MigrateCommand(Command):
                 type="bool",
             ),
             Command.Argument(
-                name="gateway-url",
+                name=MigrateCommand.GATEWAY_URL_ARG_NAME,
                 description="The URL of a StarkNet gateway. It is required unless `--network` is provided.",
                 type="str",
             ),
             Command.Argument(
-                name="network",
+                name=MigrateCommand.NETWORK_ARG_NAME,
                 short_name="n",
                 description=(
                     "\n".join(
@@ -105,6 +108,11 @@ class MigrateCommand(Command):
         output_dir_path: Optional[Path],
         no_confirm: bool,
     ):
+        if network is None and gateway_url is None:
+            raise ProtostarException(
+                f"Argument `{MigrateCommand.GATEWAY_URL_ARG_NAME}` or `{MigrateCommand.NETWORK_ARG_NAME}` is required"
+            )
+
         network_config = NetworkConfig.build(gateway_url, network)
 
         # mitigates the risk of running migrate on an outdated project
