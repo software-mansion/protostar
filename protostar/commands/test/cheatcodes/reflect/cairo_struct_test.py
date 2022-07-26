@@ -1,6 +1,6 @@
+import pytest
 from protostar.commands.test.cheatcodes.reflect.cairo_struct import CairoStruct
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
-import pytest
 
 
 # pylint: disable=C0103,W0612
@@ -70,12 +70,10 @@ def test_cairo_struct_no_member():
 
 
 def test_cairo_struct_non_keyword_args():
-    try:
+    with pytest.raises(CheatcodeException) as exc:
         x = CairoStruct(
             0xBAD_C0DE,
             a=14,
             b=16,
         )
-        assert False
-    except CheatcodeException as exc:
-        assert "CairoStruct constructor takes only keyword arguments." in str(exc)
+    assert "CairoStruct constructor takes only keyword arguments." in str(exc.value)
