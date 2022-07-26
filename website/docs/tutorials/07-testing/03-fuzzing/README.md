@@ -7,7 +7,7 @@ This feature is actively developed and many new additions will land in future Pr
 Protostar tests can take parameters which makes such tests to be run in a _fuzzing mode_.
 In this mode, Protostar treats the test case parameters as a specification of the test case,
 in the form of properties which it should satisfy,
-and tests that these properties hold in a large number of randomly generated input data.
+and tests that these properties hold in numerous randomly generated input data.
 
 This technique is often called _property-based testing_.
 From the perspective of a user, the purpose of property-based testing is to make it easier for the
