@@ -123,13 +123,13 @@ class MigrateCommand(Command):
         )
 
         try:
-            result = await migrator.run(
+            migrator_history = await migrator.run(
                 mode="down" if rollback else "up",
             )
 
             if output_dir_path:
-                migrator.save_result(
-                    result,
+                migrator.save_history(
+                    migrator_history,
                     migration_file_basename=Path(migration_file_path).stem,
                     output_dir_path=output_dir_path,
                 )

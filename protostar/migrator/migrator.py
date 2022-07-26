@@ -19,7 +19,7 @@ class Migrator:
     Config = MigratorExecutionEnvironment.Config
 
     @dataclass(frozen=True)
-    class Result:
+    class History:
         starknet_interactions: List[StarknetInteraction]
 
         def save_as_json(self, output_file_path: Path):
@@ -57,19 +57,19 @@ class Migrator:
     ) -> None:
         self._migrator_execution_environment = migrator_execution_environment
 
-    async def run(self, mode: Literal["up", "down"]) -> Result:
+    async def run(self, mode: Literal["up", "down"]) -> History:
         assert mode in ("up", "down")
 
         await self._migrator_execution_environment.invoke(function_name=mode)
 
-        return Migrator.Result(
+        return Migrator.History(
             # pylint: disable=line-too-long
             starknet_interactions=self._migrator_execution_environment.cheatcode_factory.gateway_facade.starknet_interactions
         )
 
     @staticmethod
-    def save_result(
-        result: Result,
+    def save_history(
+        history: History,
         migration_file_basename: str,
         output_dir_path: Path,
     ):
@@ -79,4 +79,4 @@ class Migrator:
         if not output_dir_path.exists():
             output_dir_path.mkdir(parents=True)
 
-        result.save_as_json(output_file_path)
+        history.save_as_json(output_file_path)

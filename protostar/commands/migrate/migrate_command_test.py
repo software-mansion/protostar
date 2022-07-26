@@ -29,7 +29,7 @@ def setup_migrate(mocker: MockerFixture):
     requester_confirm_mock = cast(mocker.MagicMock, input_requester_mock.confirm)
     migrator_mock = cast(Migrator, mocker.MagicMock())
     migration_result_future = Future()
-    migration_result_future.set_result(Migrator.Result(starknet_interactions=[]))
+    migration_result_future.set_result(Migrator.History(starknet_interactions=[]))
     migrator_run_mock = cast(mocker.MagicMock, migrator_mock.run)
     migrator_run_mock.return_value = migration_result_future
     migrate_command = MigrateCommand(

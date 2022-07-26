@@ -9,8 +9,8 @@ from protostar.starknet_gateway.starknet_interaction import StarknetInteraction
 
 @freeze_time("2022-04-02 21:37:42")
 def test_migrator_saves_result_successfully_with_proper_name(tmp_path: Path):
-    Migrator.save_result(
-        result=Migrator.Result(
+    Migrator.save_history(
+        history=Migrator.History(
             starknet_interactions=[
                 StarknetInteraction(
                     direction="FROM_STARKNET", action="DEPLOY", payload={"foo": "bar"}
