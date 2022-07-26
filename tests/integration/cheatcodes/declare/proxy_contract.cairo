@@ -21,6 +21,6 @@ func deploy_contract_from_proxy{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*
         class_hash_d : felt) -> (address : felt):
     alloc_locals
     let (local calldata: felt*) = alloc()
-    let (contract_address) = deploy(class_hash_d, 42, 0, calldata)
+    let (contract_address) = deploy(class_hash_d, 42, 0, calldata, 0)
     return (contract_address)
 end

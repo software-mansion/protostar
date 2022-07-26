@@ -37,7 +37,8 @@ class SetupExecutionEnvironment(ExecutionEnvironment[None]):
             [TestContextHintLocal(self.state.context), CairoStructHintLocal()]
         )
 
-        await self.perform_invoke(function_name)
+        with self.state.output_recorder.redirect("setup"):
+            await self.perform_invoke(function_name)
 
 
 class SetupCheatcodeFactory(CheatcodeFactory):
