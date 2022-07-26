@@ -30,15 +30,16 @@ from protostar.commands.test.cheatcodes.reflect.build_output import (
 
 
 class Reflector:
-    def __init__(self, ids: VmConsts):
+    def __init__(self, ids: VmConsts, value: ReflectInputType = None):
         self._ids = ids
-        self._value: ReflectInputType = None
+        self._value = value
 
     # We need to access Cairo's underscore variables
     # pylint: disable=W0212
     def __getattr__(self, name: str) -> "Reflector":
+        new_value: ReflectInputType
         if not self._value:
-            self._value = get_value_from_vm(self._ids, name)
+            new_value = get_value_from_vm(self._ids, name)
         elif isinstance(self._value, VmConstsReference):
 
             assert isinstance(self._value._struct_definition, StructDefinition)
@@ -59,15 +60,15 @@ class Reflector:
                 if isinstance(expr_type, TypeFelt):
                     tmp = int(self._value.get_or_set_value(name, None))  # type: ignore
                     assert isinstance(tmp, int)
-                    self._value = tmp
+                    new_value = tmp
                 else:
                     assert isinstance(expr_type, TypePointer)
                     tmp = deepcopy(self._value.get_or_set_value(name, None))
                     assert isinstance(tmp, RelocatableValue)
-                    self._value = tmp
+                    new_value = tmp
 
             elif isinstance(expr_type, TypeStruct):
-                self._value = VmConstsReference(
+                new_value = VmConstsReference(
                     context=self._value._context,
                     struct_name=expr_type.scope,
                     reference_value=addr,
@@ -80,13 +81,13 @@ class Reflector:
 
                 tmp = deepcopy(self._value._context.memory[addr])  # type: ignore
                 assert isinstance(tmp, RelocatableValue)
-                self._value = tmp
+                new_value = tmp
         else:
             raise CheatcodeException(
                 "reflect",
                 f"Tried to get attribute of a {to_cairo_naming(type(self._value))} ({type(self._value).__name__}).",
             )
-        return self
+        return Reflector(self._ids, new_value)
 
     def get(self) -> ReflectReturnType:
         if self._value is None:
