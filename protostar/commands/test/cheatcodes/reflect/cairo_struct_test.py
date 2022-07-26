@@ -1,8 +1,9 @@
-from msilib.schema import RegLocator
 import pytest
+
+from starkware.cairo.lang.vm.relocatable import RelocatableValue
+
 from protostar.commands.test.cheatcodes.reflect.cairo_struct import CairoStruct
 from protostar.commands.test.test_environment_exceptions import SimpleReportedException
-from starkware.cairo.lang.vm.relocatable import RelocatableValue
 
 # pylint: disable=C0103,W0612
 
