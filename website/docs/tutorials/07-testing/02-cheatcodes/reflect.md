@@ -13,7 +13,7 @@ Loads specified Cairo object into Python type. ```get()``` can return:
 
 You can use it to print cairo data and compare complex structures.
 
-```cairo title="./test/simple_example_test.cairo"
+```cairo
 %lang starknet
 
 struct SimpleStruct:
@@ -41,61 +41,84 @@ func test_reflect_simple():
 end
 ```
 
-```cairo title="./test/complex_example_test.cairo"
+```cairo
 %lang starknet
 
 from starkware.cairo.common.registers import get_fp_and_pc
 
-struct StructB:
-    member e: felt
-    member f: felt
-end
-
-struct StructA:
-    member a: StructB
-    member b: felt
-    member c: StructB*
-    member d: felt**
-end
-
 @external
-func test_reflect_passed_full():
+func test_pointers():
     alloc_locals
 
     let (__fp__, _) = get_fp_and_pc()
 
     local pointee: felt = 13
-    local ptr: felt* = &pointee
-
-    local structB: StructB = StructB(e=42, f=24)
-    local structA: StructA = StructA(
-        a = structB,
-        b = 13,
-        c = &structB,
-        d = &ptr,
-    )
-
-    local ptrB: StructB* = &structB
+    local ptr1: felt* = &pointee
+    local ptr2: felt* = &pointee
     
     %{
-        structA = reflect(ids).structA.get()
-        ptrB = reflect(ids).ptrB.get()
-        structB = reflect(ids).structB.get()
-        f = reflect(ids).structB.f.get()
+        ptr1 = reflect(ids).ptr1.get()
+        ptr2 = reflect(ids).ptr2.get()
 
-        print(structA) # You can print CairoStructs easily
+        print(type(ptr1)) # RelocatableValue
+        assert ptr1 == ptr2  # Pointers are compared directly using their addresses
+    %}
+    return ()
+end
+```
 
-        StructB = CairoStruct #
-        StructA = CairoStruct # This way you can add aliases for readability
+```cairo
+%lang starknet
 
-        assert structA == StructA(
-            a=StructB(                  # You can do nested comparisons
-                e=42,                   #
-                f=24,                   #
-            ),                          #
-            b=13,                       #
-            c=ptrB,                     # Pointers are compared directly using their addresses
-            d=structA.d,                # You can use struct's members if you don't want to compare them against anything
+struct InnerStruct:
+    member value: felt
+end
+
+struct OuterStruct:
+    member inner_struct: InnerStruct
+end
+
+@external
+func test_nesting():
+    alloc_locals
+    local inner_struct: InnerStruct = InnerStruct(value=7)
+    local outer_struct: OuterStruct = OuterStruct(inner_struct=inner_struct)
+
+    %{
+        outer_struct = reflect(ids).outer_struct.get()
+        OuterStruct = CairoStruct #
+        InnerStruct = CairoStruct # This way you can add aliases for readability
+
+        # You can compare nested structs
+        assert outer_struct == OuterStruct(
+            inner_struct=InnerStruct(
+                value=7
+            )
+        )
+    %}
+    return ()
+end
+```
+
+```cairo
+%lang starknet
+
+struct TwoFieldStruct:
+    member value1: felt
+    member value2: felt
+end
+
+@external
+func test_wildcards():
+    alloc_locals
+    local two_field_struct: TwoFieldStruct = TwoFieldStruct(value1=23, value2=17)
+    
+    %{
+        two_field_struct = reflect(ids).two_field_struct.get()
+        assert two_field_struct == CairoStruct(
+            value1=23,
+            value2=two_field_struct.value2
+            # You can use struct members in comparison to make sure it evaluates to true
         )
     %}
     return ()
