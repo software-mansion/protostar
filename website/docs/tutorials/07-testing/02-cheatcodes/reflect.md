@@ -1,21 +1,16 @@
 # `reflect`
 ```python
-def reflect(self, ids: VmConsts) -> Reflector:
-
-class Reflector:
-    def get(self)
+def reflect(self, ids) -> Reflector:
 ```
-Loads specified Cairo object into Python type. ```get()``` can return:
+Loads specified Cairo object into Python type. Returns `Reflector` object that works simillarly to `ids`. To retrieve the value use `get()` method which can return:
 
-- ```int``` (for felt)
-- ```RelocatableValue``` (for pointer)
-- ```CairoStruct``` (for more complex types)
+- `int` (for felt)
+- `RelocatableValue` (for pointer)
+- `CairoStruct` (for more complex types)
 
 You can use it to print cairo data and compare complex structures.
 
-### Printing:
-
-```cairo
+```cairo title=Printing
 %lang starknet
 
 struct SimpleStruct:
@@ -43,9 +38,8 @@ func test_reflect_simple():
 end
 ```
 
-### Pointers:
 
-```cairo
+```cairo title=Pointers
 %lang starknet
 
 from starkware.cairo.common.registers import get_fp_and_pc
@@ -72,9 +66,7 @@ func test_pointers():
 end
 ```
 
-### Nested comparisons:
-
-```cairo
+```cairo title=Nested comparisons
 %lang starknet
 
 struct InnerStruct:
@@ -107,9 +99,8 @@ func test_nesting():
 end
 ```
 
-### Wildcards:
 
-```cairo
+```cairo title=Wildcards
 %lang starknet
 
 struct TwoFieldStruct:
