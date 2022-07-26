@@ -13,12 +13,6 @@ from protostar.starknet_gateway import GatewayFacade
 from protostar.starknet_gateway.gateway_facade import CompilationOutputNotFoundException
 
 
-@dataclass
-class MigratorDeclaredContract(DeclaredContract):
-    contract_path: Path
-    config: "MigratorDeclareCheatcode.Config"
-
-
 class MigratorDeclareCheatcode(Cheatcode):
     @dataclass
     class Config:
@@ -43,7 +37,7 @@ class MigratorDeclareCheatcode(Cheatcode):
     def build(self) -> AbstractDeclare:
         return self._declare
 
-    def _declare(self, contract_path_str: str) -> MigratorDeclaredContract:
+    def _declare(self, contract_path_str: str) -> DeclaredContract:
         try:
             response = asyncio.run(
                 self._gateway_facade.declare(
@@ -54,10 +48,8 @@ class MigratorDeclareCheatcode(Cheatcode):
                 )
             )
 
-            return MigratorDeclaredContract(
+            return DeclaredContract(
                 class_hash=response.class_hash,
-                contract_path=Path(contract_path_str),
-                config=self._config,
             )
 
         except CompilationOutputNotFoundException as ex:
