@@ -1,14 +1,12 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Optional
 
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
-from protostar.migrator.cheatcodes.migrator_declare_cheatcode import (
-    MigratorDeclareCheatcode,
-)
-from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import (
-    MigratorDeployContractCheatcode,
-)
+from protostar.migrator.cheatcodes.migrator_declare_cheatcode import \
+    MigratorDeclareCheatcode
+from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import \
+    MigratorDeployContractCheatcode
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.cheatcode_factory import CheatcodeFactory
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
@@ -17,6 +15,12 @@ from protostar.utils.starknet_compilation import StarknetCompiler
 
 class MigratorCheatcodeFactory(CheatcodeFactory):
     @dataclass
+    class Config:
+        gateway_url: str
+        signature: Optional[List[str]] = None
+        token: Optional[str] = None
+
+    @dataclass
     class StarknetInteraction:
         type: str
 
@@ -24,7 +28,7 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
         self,
         starknet_compiler: StarknetCompiler,
         gateway_facade: GatewayFacade,
-        config: MigratorDeclareCheatcode.Config,
+        config: "MigratorCheatcodeFactory.Config",
     ) -> None:
         super().__init__()
         self.gateway_facade = gateway_facade
@@ -42,7 +46,11 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
             MigratorDeclareCheatcode(
                 syscall_dependencies,
                 self.gateway_facade,
-                config=self._config,
+                config=MigratorDeclareCheatcode.Config(
+                    gateway_url=self._config.gateway_url,
+                    signature=self._config.signature,
+                    token=self._config.token,
+                ),
             ),
             MigratorDeployContractCheatcode(
                 syscall_dependencies,

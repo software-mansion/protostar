@@ -1,9 +1,6 @@
 from logging import Logger
 from pathlib import Path
 
-from protostar.migrator.cheatcodes.migrator_declare_cheatcode import (
-    MigratorDeclareCheatcode,
-)
 from protostar.migrator.migrator_cheatcodes_factory import MigratorCheatcodeFactory
 from protostar.starknet.execution_environment import ExecutionEnvironment
 from protostar.starknet.execution_state import ExecutionState
@@ -15,7 +12,7 @@ from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompile
 
 
 class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
-    Config = MigratorDeclareCheatcode.Config
+    Config = MigratorCheatcodeFactory.Config
 
     class Factory:
         def __init__(
