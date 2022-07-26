@@ -3,10 +3,12 @@ from typing import List, Optional
 
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
-from protostar.migrator.cheatcodes.migrator_declare_cheatcode import \
-    MigratorDeclareCheatcode
-from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import \
-    MigratorDeployContractCheatcode
+from protostar.migrator.cheatcodes.migrator_declare_cheatcode import (
+    MigratorDeclareCheatcode,
+)
+from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import (
+    MigratorDeployContractCheatcode,
+)
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.cheatcode_factory import CheatcodeFactory
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
