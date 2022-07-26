@@ -3,7 +3,7 @@ import io
 import traceback
 from dataclasses import dataclass
 from logging import getLogger
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
@@ -11,7 +11,6 @@ from starkware.starkware_utils.error_handling import StarkException
 from protostar.commands.test.environments.factory import (
     invoke_setup,
     invoke_test_case,
-    InvokeCaseCallable,
 )
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_cases import (
@@ -84,9 +83,15 @@ class TestRunner:
                 add_debug_info=True,
             )
 
-            await self._run_test_suite(
+            setup_buffer, execution_state = await self._prepare_suite(
                 test_contract=compiled_test,
                 test_suite=test_suite,
+            )
+
+            await self._invoke_cases(
+                test_suite=test_suite,
+                setup_stdout_buffer=setup_buffer,
+                execution_state=execution_state,
             )
         except ProtostarException as ex:
             self.shared_tests_state.put_result(
@@ -117,12 +122,11 @@ class TestRunner:
                 )
             )
 
-    async def _run_test_suite(
+    async def _prepare_suite(
         self,
         test_contract: ContractClass,
         test_suite: TestSuite,
-        invoke_case: Optional[InvokeCaseCallable] = invoke_test_case,
-    ):
+    ) -> Optional[Tuple[io.StringIO, TestExecutionState]]:
         assert self.shared_tests_state, "Uninitialized reporter!"
 
         setup_stdout_buffer = io.StringIO()
@@ -156,12 +160,19 @@ class TestRunner:
                 )
             )
             return
+        return setup_stdout_buffer, execution_state
 
+    async def _invoke_cases(
+        self,
+        test_suite: TestSuite,
+        setup_stdout_buffer: io.StringIO,
+        execution_state: TestExecutionState,
+    ):
         for test_case_name in test_suite.test_case_names:
             new_execution_state = execution_state.fork()
             test_stdout_buffer = io.StringIO()
             try:
-                execution_resources = await invoke_case(
+                execution_resources = await invoke_test_case(
                     test_case_name,
                     new_execution_state,
                     test_stdout_buffer,

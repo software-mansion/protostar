@@ -1,5 +1,5 @@
 from io import StringIO
-from typing import Optional, Callable, Awaitable
+from typing import Optional
 from contextlib import redirect_stdout
 
 from protostar.commands.test.environments.setup_execution_environment import (
@@ -22,12 +22,6 @@ async def invoke_setup(
     env = SetupExecutionEnvironment(state)
     with redirect_stdout(stdout_buffer):
         await env.invoke(function_name)
-
-
-InvokeCaseCallable = Callable[
-    [str, TestExecutionState, StringIO],
-    Awaitable[Optional[ExecutionResourcesSummary]],
-]
 
 
 async def invoke_test_case(
