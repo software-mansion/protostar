@@ -18,7 +18,7 @@ class DeclaredContract:
     class_hash: int
 
 
-class AbstractDeclare(Protocol):
+class DeclareCheatcodeProtocol(Protocol):
     def __call__(self, contract_path_str: str) -> DeclaredContract:
         ...
 
@@ -36,7 +36,7 @@ class DeclareCheatcode(Cheatcode):
     def name(self) -> str:
         return "declare"
 
-    def build(self) -> AbstractDeclare:
+    def build(self) -> DeclareCheatcodeProtocol:
         return self.declare
 
     def declare(self, contract_path_str: str) -> DeclaredContract:

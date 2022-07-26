@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from protostar.commands.test.cheatcodes.declare_cheatcode import (
-    AbstractDeclare,
+    DeclareCheatcodeProtocol,
     DeclaredContract,
 )
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
@@ -34,7 +34,7 @@ class MigratorDeclareCheatcode(Cheatcode):
     def name(self) -> str:
         return "declare"
 
-    def build(self) -> AbstractDeclare:
+    def build(self) -> DeclareCheatcodeProtocol:
         return self._declare
 
     def _declare(self, contract_path_str: str) -> DeclaredContract:

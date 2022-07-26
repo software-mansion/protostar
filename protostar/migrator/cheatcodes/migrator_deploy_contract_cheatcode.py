@@ -1,11 +1,15 @@
 import asyncio
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 from protostar.commands.test.cheatcodes.deploy_cheatcode import DeployedContract
+from protostar.commands.test.cheatcodes.deploy_contract_cheatcode import (
+    DeployContractCheatcodeProtocol,
+)
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
+from protostar.utils.data_transformer import CairoOrPythonData
 
 
 class MigratorDeployContractCheatcode(Cheatcode):
@@ -28,14 +32,16 @@ class MigratorDeployContractCheatcode(Cheatcode):
     def name(self) -> str:
         return "deploy_contract"
 
-    def build(self):
+    def build(self) -> DeployContractCheatcodeProtocol:
         return self._deploy_contract
 
     def _deploy_contract(
         self,
         contract_path: str,
-        constructor_args: Optional[List[int]] = None,
+        constructor_args: Optional[CairoOrPythonData] = None,
     ) -> DeployedContract:
+        # TODO: assert constructor_args
+
         response = asyncio.run(
             self._gateway_facade.deploy(
                 compiled_contract_path=Path(contract_path),
