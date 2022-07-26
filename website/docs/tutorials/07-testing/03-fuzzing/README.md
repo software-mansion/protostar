@@ -4,7 +4,7 @@
 This feature is actively developed and many new additions will land in future Protostar releases.
 :::
 
-Protostar tests can take parameters which makes such tests to be run in a _fuzzing mode_.
+Protostar tests can take parameters, which makes such tests to be run in a _fuzzing mode_.
 In this mode, Protostar treats the test case parameters as a specification of the test case,
 in the form of properties which it should satisfy,
 and tests that these properties hold in numerous randomly generated input data.
