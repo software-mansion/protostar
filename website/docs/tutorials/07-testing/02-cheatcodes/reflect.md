@@ -31,7 +31,7 @@ func test_reflect_simple():
         #     x=10
         # )
 
-        assert simple_struct.x == 10 # true
+        assert simple_struct.x == 10
     %}
 
     return()
