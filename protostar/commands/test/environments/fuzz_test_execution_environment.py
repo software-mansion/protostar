@@ -1,5 +1,6 @@
 import asyncio
 import contextvars
+import dataclasses
 import functools
 import inspect
 import re
@@ -43,6 +44,7 @@ def is_fuzz_test(function_name: str, state: TestExecutionState) -> bool:
 class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
     def __init__(self, state: TestExecutionState):
         super().__init__(state)
+        self.initial_state = state
 
     async def invoke(self, function_name: str) -> Optional[ExecutionResourcesSummary]:
         abi = self.state.contract.abi
@@ -82,6 +84,8 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         )
         @given(data_object=data())
         async def test(data_object: DataObject):
+            self.fork_state_for_test()
+
             run_no = next(runs_counter)
             with self.state.output_recorder.redirect(("test", run_no)):
                 with with_reporter(protostar_reporter):
@@ -118,6 +122,17 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             raise escape_err.error
 
         return ExecutionResourcesSummary.sum(execution_resources)
+
+    def fork_state_for_test(self):
+        """
+        Some parts of execution state **must** be shared between fuzz test runs,
+        so as kinda hack, we fork the state and then bring back old, shared, objects selectively.
+        """
+
+        self.state = dataclasses.replace(
+            self.initial_state.fork(),
+            output_recorder=self.initial_state.output_recorder,
+        )
 
 
 @dataclass
