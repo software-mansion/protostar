@@ -120,6 +120,7 @@ class MigrateCommand(Command):
         if should_confirm and not self._requester.confirm(
             "Did you build the project before running this command?"
         ):
+            self._logger.info("Please run `protostar build`")
             self._logger.info("Migration cancelled")
             return
 
