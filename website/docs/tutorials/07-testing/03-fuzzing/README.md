@@ -1,6 +1,6 @@
 # Fuzzing
 
-:::warn
+:::warning
 This feature is actively developed and many new additions will land in future Protostar releases.
 :::
 
