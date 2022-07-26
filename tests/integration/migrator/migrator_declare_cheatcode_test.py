@@ -18,15 +18,12 @@ async def test_declare_contract(
 
     result = await migrator.run("up")
 
-    assert len(result.starknet_interactions) == 2
-    assert result.starknet_interactions[0].action == "DECLARE"
-    assert result.starknet_interactions[0].direction == "TO_STARKNET"
-    assert result.starknet_interactions[0].payload["contract"] == str(
+    assert len(result.starknet_requests) == 1
+    assert result.starknet_requests[0].action == "DECLARE"
+    assert result.starknet_requests[0].payload["contract"] == str(
         (project_root_path / "build" / "main_with_constructor.json").resolve()
     )
-    assert result.starknet_interactions[1].action == "DECLARE"
-    assert result.starknet_interactions[1].direction == "FROM_STARKNET"
-    assert result.starknet_interactions[1].payload["code"] == "TRANSACTION_RECEIVED"
+    assert result.starknet_requests[0].response["code"] == "TRANSACTION_RECEIVED"
 
 
 async def test_descriptive_error_on_file_not_found(

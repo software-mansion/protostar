@@ -11,7 +11,7 @@ from typing_extensions import Literal
 from protostar.migrator.migrator_execution_environment import (
     MigratorExecutionEnvironment,
 )
-from protostar.starknet_gateway.starknet_interaction import StarknetInteraction
+from protostar.starknet_gateway.starknet_request import StarknetRequest
 from protostar.utils.log_color_provider import LogColorProvider
 
 
@@ -20,7 +20,7 @@ class Migrator:
 
     @dataclass(frozen=True)
     class History:
-        starknet_interactions: List[StarknetInteraction]
+        starknet_requests: List[StarknetRequest]
 
         def save_as_json(self, output_file_path: Path):
             with open(output_file_path, "w", encoding="utf-8") as output_file:
@@ -64,7 +64,7 @@ class Migrator:
 
         return Migrator.History(
             # pylint: disable=line-too-long
-            starknet_interactions=self._migrator_execution_environment.cheatcode_factory.gateway_facade.starknet_interactions
+            starknet_requests=self._migrator_execution_environment.cheatcode_factory.gateway_facade.starknet_requests
         )
 
     @staticmethod

@@ -4,16 +4,16 @@ from pathlib import Path
 from freezegun import freeze_time
 
 from protostar.migrator.migrator import Migrator
-from protostar.starknet_gateway.starknet_interaction import StarknetInteraction
+from protostar.starknet_gateway.starknet_request import StarknetRequest
 
 
 @freeze_time("2022-04-02 21:37:42")
 def test_migrator_saves_result_successfully_with_proper_name(tmp_path: Path):
     Migrator.save_history(
         history=Migrator.History(
-            starknet_interactions=[
-                StarknetInteraction(
-                    direction="FROM_STARKNET", action="DEPLOY", payload={"foo": "bar"}
+            starknet_requests=[
+                StarknetRequest(
+                    action="DEPLOY", payload={"foo": "bar"}, response={"bar": "foo"}
                 )
             ]
         ),

@@ -22,10 +22,6 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
         signature: Optional[List[str]] = None
         token: Optional[str] = None
 
-    @dataclass
-    class StarknetInteraction:
-        type: str
-
     def __init__(
         self,
         starknet_compiler: StarknetCompiler,

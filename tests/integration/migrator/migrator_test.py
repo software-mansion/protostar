@@ -12,7 +12,7 @@ async def test_migrate_up(
     )
 
     result = await migrator.run("up")
-    assert result.starknet_interactions[0].action == "DEPLOY"
+    assert result.starknet_requests[0].action == "DEPLOY"
 
 
 async def test_migrate_down(
@@ -24,4 +24,4 @@ async def test_migrate_down(
     )
 
     result = await migrator.run("down")
-    assert result.starknet_interactions[0].action == "DECLARE"
+    assert result.starknet_requests[0].action == "DECLARE"
