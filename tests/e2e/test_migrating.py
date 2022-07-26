@@ -1,3 +1,4 @@
+from os import listdir
 from pathlib import Path
 from shutil import copyfile
 
@@ -26,7 +27,10 @@ def test_migrating_base_case(
             "--gateway-url",
             devnet_gateway_url,
             "--no-confirm",
+            "--output-dir",
+            "migrations/output",
         ]
     )
 
     assert "Migration completed" in result
+    assert len(listdir((migrations_dir_path / "output"))) == 1
