@@ -1,4 +1,5 @@
 import asyncio
+import collections
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -40,7 +41,8 @@ class MigratorDeployContractCheatcode(Cheatcode):
         contract_path: str,
         constructor_args: Optional[CairoOrPythonData] = None,
     ) -> DeployedContract:
-        # TODO: assert constructor_args
+        if isinstance(constructor_args, collections.Mapping):
+            assert False, "Data Transformer is not supported"
 
         response = asyncio.run(
             self._gateway_facade.deploy(
