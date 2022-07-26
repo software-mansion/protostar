@@ -1,5 +1,5 @@
 import copy
-from typing import List, Optional, Tuple, cast
+from typing import List, Optional, cast
 
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.services.api.contract_class import ContractClass
@@ -30,14 +30,6 @@ class ForkableStarknet(Starknet):
         return ForkableStarknet(
             state=await CheatableStarknetState.empty(general_config=general_config)
         )
-
-    @classmethod
-    async def from_contract_class(
-        cls, contract_class: ContractClass
-    ) -> Tuple["ForkableStarknet", StarknetContract]:
-        starknet = await cls.empty()
-        contract = await starknet.deploy(contract_class=contract_class)
-        return (starknet, contract)
 
     def copy_and_adapt_contract(self, deployed_contract: StarknetContract):
         return StarknetContract(

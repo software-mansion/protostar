@@ -42,9 +42,8 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
             contract_class = starknet_compiler.compile_contract(
                 migration_file_path, add_debug_info=False
             )
-            (starknet, contract) = await ForkableStarknet.from_contract_class(
-                contract_class
-            )
+            starknet = await ForkableStarknet.empty()
+            contract = await starknet.deploy(contract_class=contract_class)
 
             state = MigratorExecutionEnvironment.State(
                 starknet=starknet,
