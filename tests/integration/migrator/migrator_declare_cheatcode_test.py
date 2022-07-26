@@ -1,10 +1,12 @@
 import re
 from pathlib import Path
+from typing import cast
 
 import pytest
 
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.migrator import Migrator
+from tests.integration.migrator.conftest import assert_transaction_accepted
 
 
 async def test_declare_contract(
@@ -24,6 +26,10 @@ async def test_declare_contract(
         (project_root_path / "build" / "main_with_constructor.json").resolve()
     )
     assert result.starknet_requests[0].response["code"] == "TRANSACTION_RECEIVED"
+    transaction_hash = cast(
+        int, result.starknet_requests[0].response["transaction_hash"]
+    )
+    await assert_transaction_accepted(devnet_gateway_url, transaction_hash)
 
 
 async def test_descriptive_error_on_file_not_found(

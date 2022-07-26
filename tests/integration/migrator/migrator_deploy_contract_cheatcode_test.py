@@ -1,6 +1,8 @@
 from pathlib import Path
+from typing import cast
 
 from protostar.migrator import Migrator
+from tests.integration.migrator.conftest import assert_transaction_accepted
 
 
 async def test_deploy_contract(
@@ -21,3 +23,8 @@ async def test_deploy_contract(
     )
     assert result.starknet_requests[0].payload["constructor_args"] == [42]
     assert result.starknet_requests[0].response["code"] == "TRANSACTION_RECEIVED"
+
+    transaction_hash = cast(
+        int, result.starknet_requests[0].response["transaction_hash"]
+    )
+    await assert_transaction_accepted(devnet_gateway_url, transaction_hash)
