@@ -12,6 +12,7 @@ from protostar.commands.test.cheatcodes import (
     StartPrankCheatcode,
     StoreCheatcode,
     WarpCheatcode,
+    ReflectCheatcode,
 )
 from protostar.commands.test.cheatcodes.load_cheatcode import LoadCheatcode
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
@@ -19,6 +20,9 @@ from protostar.commands.test.test_context import TestContextHintLocal
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.cheatcode_factory import CheatcodeFactory
 from protostar.starknet.execution_environment import ExecutionEnvironment
+from protostar.commands.test.cheatcodes.reflect.cairo_struct import (
+    CairoStructHintLocal,
+)
 
 
 class SetupExecutionEnvironment(ExecutionEnvironment[None]):
@@ -29,7 +33,9 @@ class SetupExecutionEnvironment(ExecutionEnvironment[None]):
 
     async def invoke(self, function_name: str):
         self.set_cheatcodes(SetupCheatcodeFactory(self.state))
-        self.set_custom_hint_locals([TestContextHintLocal(self.state.context)])
+        self.set_custom_hint_locals(
+            [TestContextHintLocal(self.state.context), CairoStructHintLocal()]
+        )
 
         with self.state.output_recorder.redirect("setup"):
             await self.perform_invoke(function_name)
@@ -65,4 +71,5 @@ class SetupCheatcodeFactory(CheatcodeFactory):
             StartPrankCheatcode(syscall_dependencies),
             StoreCheatcode(syscall_dependencies),
             LoadCheatcode(syscall_dependencies),
+            ReflectCheatcode(syscall_dependencies),
         ]
