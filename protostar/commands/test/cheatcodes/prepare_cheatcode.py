@@ -16,7 +16,7 @@ from protostar.utils.data_transformer import (
 )
 
 
-@dataclass
+@dataclass(frozen=True)
 class PreparedContract:
     constructor_calldata: List[int]
     contract_address: int
