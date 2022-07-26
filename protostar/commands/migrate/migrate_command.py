@@ -53,9 +53,9 @@ class MigrateCommand(Command):
                 type="path",
             ),
             Command.Argument(
-                name="down",
-                description="Run `down` function in the migration script.",
-                type="str",
+                name="rollback",
+                description="Run `rollback` function in the migration script.",
+                type="bool",
             ),
             Command.Argument(
                 name="no-confirm",
@@ -88,7 +88,7 @@ class MigrateCommand(Command):
     async def run(self, args):
         await self.migrate(
             migration_file_path=args.path,
-            rollback=args.down,
+            rollback=args.rollback,
             gateway_url=args.gateway_url,
             network=args.network,
             output_dir_path=args.output_dir,

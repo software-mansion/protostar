@@ -103,8 +103,6 @@ Run migration file.
 Required.
 
 Path to the migration file.
-#### `--down STRING`
-Run `down` function in the migration script.
 #### `--gateway-url STRING`
 The URL of a StarkNet gateway. It is required unless `--network` is provided.
 #### `-n` `--network STRING`
@@ -118,6 +116,8 @@ Supported StarkNet networks:
 Skip confirming building the project.
 #### `--output-dir PATH`
 Migration output directory.
+#### `--rollback`
+Run `rollback` function in the migration script.
 ### `remove`
 ```shell
 $ protostar remove cairo-contracts
