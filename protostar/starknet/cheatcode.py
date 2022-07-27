@@ -20,6 +20,8 @@ if TYPE_CHECKING:
 
 
 class Cheatcode(BusinessLogicSysCallHandler, HintLocal):
+    _exec_locals = {}
+
     class SyscallDependencies(TypedDict):
         execute_entry_point_cls: Type["CheatableExecuteEntryPoint"]
         tx_execution_context: TransactionExecutionContext

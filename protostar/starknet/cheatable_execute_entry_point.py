@@ -32,13 +32,15 @@ from protostar.starknet.cheatable_syscall_handler import (
 )
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.hint_local import HintLocal
+from protostar.starknet.cheatable_cairo_function_runner import (
+    CheatableCairoFunctionRunner,
+)
 
 if TYPE_CHECKING:
     from protostar.starknet.cheatable_state import CheatableCarriedState
     from protostar.starknet.cheatcode_factory import CheatcodeFactory
 
 logger = logging.getLogger(__name__)
-
 
 # pylint: disable=raise-missing-from
 # pylint: disable=too-many-locals
@@ -73,7 +75,9 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
 
         # Run the specified contract entry point with given calldata.
         with wrap_with_stark_exception(code=StarknetErrorCode.SECURITY_ERROR):
-            runner = CairoFunctionRunner(program=contract_class.program, layout="all")
+            runner = CheatableCairoFunctionRunner(  # <-- MODIFICATION # TODO
+                program=contract_class.program, layout="all"
+            )
         os_context = os_utils.prepare_os_context(runner=runner)
 
         # Extract pre-fetched contract state from carried state.
