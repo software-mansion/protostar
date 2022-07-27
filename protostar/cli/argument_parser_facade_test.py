@@ -5,7 +5,10 @@ import pytest
 from pytest_mock import MockerFixture
 
 from conftest import BaseTestCommand, FooCommand
-from protostar.cli.argument_parser_facade import ArgumentParserFacade
+from protostar.cli.argument_parser_facade import (
+    ArgumentParserFacade,
+    MissingRequiredArgumentException,
+)
 from protostar.cli.argument_value_from_config_provider import (
     ArgumentValueFromConfigProvider,
 )
@@ -145,7 +148,7 @@ def test_required_non_positional_arg():
     )
 
     ArgumentParserFacade(app).parse(["--target", "foo"])
-    with pytest.raises(SystemExit):
+    with pytest.raises(MissingRequiredArgumentException):
         ArgumentParserFacade(app).parse([])
 
 
@@ -166,7 +169,7 @@ def test_required_positional_arg():
     app = CLIApp(commands=[CommandWithRequiredArg()])
 
     ArgumentParserFacade(app).parse(["FOO", "x"])
-    with pytest.raises(SystemExit):
+    with pytest.raises(MissingRequiredArgumentException):
         ArgumentParserFacade(app).parse(["FOO"])
 
 
