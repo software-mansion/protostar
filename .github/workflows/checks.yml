@@ -47,7 +47,7 @@ jobs:
 #          poetry run poe test_e2e
       - name: Performance tests
         run: |
-          poetry run poe test_performance --benchmark-save-data --benchmark-autosave
+          poetry run poe test_performance
       - uses: actions/upload-artifact@v3
         with:
           name: benchmark
