@@ -1,7 +1,6 @@
 import multiprocessing
 import sys
 from contextlib import asynccontextmanager
-from io import StringIO
 import asyncio
 import threading
 from multiprocessing.managers import SyncManager
@@ -105,7 +104,7 @@ def build_test_suite(
 
 async def prepare_suite(
     manager: SyncManager, test_suite: TestSuite, contract: ContractClass
-) -> Tuple[TestRunner, SharedTestsState, TestExecutionState, StringIO]:
+) -> Tuple[TestRunner, SharedTestsState, Optional[TestExecutionState]]:
     tests_state = SharedTestsState(
         test_collector_result=TestCollector.Result(test_suites=[test_suite]),
         manager=manager,
@@ -116,11 +115,11 @@ async def prepare_suite(
     )
 
     # pylint: disable=protected-access
-    setup_stdout_buffer, execution_state = await runner._prepare_suite(
+    execution_state = await runner._prepare_suite(
         test_contract=contract,
         test_suite=test_suite,
     )
-    return runner, tests_state, execution_state, setup_stdout_buffer
+    return runner, tests_state, execution_state
 
 
 def wait_for_completion(test_suite: TestSuite, tests_state: SharedTestsState):
@@ -141,7 +140,7 @@ def wait_for_completion(test_suite: TestSuite, tests_state: SharedTestsState):
 
 
 # https://github.com/ionelmc/pytest-benchmark/issues/66#issuecomment-575853801
-@pytest.yield_fixture(scope="function", name="aio_benchmark")
+@pytest.fixture(scope="function", name="aio_benchmark")
 def aio_benchmark_fixture(benchmark):
     class Sync2Async:
         def __init__(self, coro, *args, **kwargs):
@@ -192,13 +191,15 @@ def aio_benchmark_fixture(benchmark):
 @asynccontextmanager
 async def prepare_tests(contract_class: ContractClass, test_suite: TestSuite):
     with multiprocessing.Manager() as manager:
-        runner, shared_state, execution_state, setup_buffer = await prepare_suite(
+        runner, shared_state, execution_state = await prepare_suite(
             manager, test_suite, contract_class
         )
+        if not execution_state:
+            return
 
         async def run():
             # pylint: disable=protected-access
-            await runner._invoke_cases(test_suite, setup_buffer, execution_state)
+            await runner._invoke_cases(test_suite, execution_state)
 
         yield run
 

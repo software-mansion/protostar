@@ -2,7 +2,7 @@ import asyncio
 import traceback
 from dataclasses import dataclass
 from logging import getLogger
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
@@ -82,14 +82,14 @@ class TestRunner:
                 add_debug_info=True,
             )
 
-            setup_buffer, execution_state = await self._prepare_suite(
+            execution_state = await self._prepare_suite(
                 test_contract=compiled_test,
                 test_suite=test_suite,
             )
-
+            if not execution_state:
+                return
             await self._invoke_cases(
                 test_suite=test_suite,
-                setup_stdout_buffer=setup_buffer,
                 execution_state=execution_state,
             )
         except ProtostarException as ex:
@@ -125,7 +125,7 @@ class TestRunner:
         self,
         test_contract: ContractClass,
         test_suite: TestSuite,
-    ) -> Optional[Tuple[io.StringIO, TestExecutionState]]:
+    ) -> Optional[TestExecutionState]:
         assert self.shared_tests_state, "Uninitialized reporter!"
 
         try:
@@ -137,6 +137,7 @@ class TestRunner:
             if test_suite.setup_fn_name:
                 await invoke_setup(test_suite.setup_fn_name, execution_state)
 
+            return execution_state
         except StarkException as ex:
             if self.is_constructor_args_exception(ex):
                 ex = ProtostarException(
@@ -154,13 +155,10 @@ class TestRunner:
                     test_case_names=test_suite.test_case_names,
                 )
             )
-            return
-        return setup_stdout_buffer, execution_state
 
     async def _invoke_cases(
         self,
         test_suite: TestSuite,
-        setup_stdout_buffer: io.StringIO,
         execution_state: TestExecutionState,
     ):
         for test_case_name in test_suite.test_case_names:
