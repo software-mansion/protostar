@@ -33,18 +33,18 @@ jobs:
       - name: Analyzing the code with pylint
         run: |
           poetry run poe lint
-#      - name: Unit tests
-#        run: |
-#          poetry run poe test_unit
-#      - name: Integration tests
-#        run: |
-#          poetry run poe test_integration
-#      - name: Build
-#        run: |
-#          poetry run poe build
-#      - name: E2E tests
-#        run: |
-#          poetry run poe test_e2e
+      - name: Unit tests
+        run: |
+          poetry run poe test_unit
+      - name: Integration tests
+        run: |
+          poetry run poe test_integration
+      - name: Build
+        run: |
+          poetry run poe build
+      - name: E2E tests
+        run: |
+          poetry run poe test_e2e
       - name: Performance tests
         run: |
           poetry run poe test_performance
