@@ -5,9 +5,6 @@ from typing import List, Optional
 from protostar.cli import Command
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.migrator import Migrator
-from protostar.migrator.migrator_execution_environment import (
-    MigratorExecutionEnvironment,
-)
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import NetworkConfig
 from protostar.utils.input_requester import InputRequester
@@ -18,20 +15,15 @@ class MigrateCommand(Command):
     GATEWAY_URL_ARG_NAME = "gateway-url"
     NETWORK_ARG_NAME = "network"
 
-    # pylint: disable=too-many-arguments
     def __init__(
         self,
         migrator_builder: Migrator.Builder,
-        migration_execution_environment_builder: MigratorExecutionEnvironment.Builder,
         logger: Logger,
         log_color_provider: LogColorProvider,
         requester: InputRequester,
     ) -> None:
         super().__init__()
         self._migrator_builder = migrator_builder
-        self._migration_execution_environment_builder = (
-            migration_execution_environment_builder
-        )
         self._logger = logger
         self._log_color_provider = log_color_provider
         self._requester = requester
@@ -132,21 +124,12 @@ class MigrateCommand(Command):
             self._logger.info("Migration cancelled")
             return
 
-        self._migration_execution_environment_builder.set_logger(
-            self._logger, self._log_color_provider
-        )
+        self._migrator_builder.set_logger(self._logger, self._log_color_provider)
 
-        migrator_execution_env = (
-            await self._migration_execution_environment_builder.build(
-                migration_file_path,
-                config=Migrator.Config(gateway_url=network_config.gateway_url),
-            )
+        migrator = await self._migrator_builder.build(
+            migration_file_path,
+            config=Migrator.Config(gateway_url=network_config.gateway_url),
         )
-
-        self._migrator_builder.set_migrator_execution_environment(
-            migrator_execution_env
-        )
-        migrator = self._migrator_builder.build()
 
         try:
             migrator_history = await migrator.run(rollback)

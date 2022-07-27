@@ -8,9 +8,6 @@ from pytest_mock import MockerFixture
 from protostar.commands.migrate.migrate_command import MigrateCommand
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.migrator import Migrator
-from protostar.migrator.migrator_execution_environment import (
-    MigratorExecutionEnvironment,
-)
 from protostar.protostar_exception import ProtostarException
 from protostar.utils.input_requester import InputRequester
 
@@ -18,23 +15,13 @@ from protostar.utils.input_requester import InputRequester
 def mock_migrator_builder(
     mocker: MockerFixture, migrator_mock: Migrator
 ) -> Migrator.Builder:
+    migrator_mock_future = Future()
+    migrator_mock_future.set_result(migrator_mock)
     migrator_builder_mock = cast(Migrator.Builder, mocker.MagicMock())
-    cast(mocker.MagicMock, migrator_builder_mock.build).return_value = migrator_mock
-    return migrator_builder_mock
-
-
-def mock_migrator_execution_environment_builder(
-    mocker: MockerFixture,
-) -> MigratorExecutionEnvironment.Builder:
-    migrator_ex_env_mock_future = Future()
-    migrator_ex_env_mock_future.set_result(mocker.MagicMock())
-    migrator_ex_env_builder_mock = cast(
-        MigratorExecutionEnvironment.Builder, mocker.MagicMock()
-    )
     cast(
-        mocker.MagicMock, migrator_ex_env_builder_mock.build
-    ).return_value = migrator_ex_env_mock_future
-    return migrator_ex_env_builder_mock
+        mocker.MagicMock, migrator_builder_mock.build
+    ).return_value = migrator_mock_future
+    return migrator_builder_mock
 
 
 def setup_migrate(mocker: MockerFixture):
@@ -47,9 +34,6 @@ def setup_migrate(mocker: MockerFixture):
     migrator_run_mock.return_value = migration_result_future
     migrate_command = MigrateCommand(
         migrator_builder=mock_migrator_builder(mocker, migrator_mock),
-        migration_execution_environment_builder=mock_migrator_execution_environment_builder(
-            mocker
-        ),
         logger=mocker.MagicMock(),
         log_color_provider=mocker.MagicMock(),
         requester=input_requester_mock,
@@ -76,9 +60,6 @@ async def test_cheatcode_exceptions_are_pretty_printed(mocker: MockerFixture):
 
     migrate_command = MigrateCommand(
         migrator_builder=mock_migrator_builder(mocker, migrator_mock),
-        migration_execution_environment_builder=mock_migrator_execution_environment_builder(
-            mocker
-        ),
         logger=mocker.MagicMock(),
         log_color_provider=mocker.MagicMock(),
         requester=mocker.MagicMock(),

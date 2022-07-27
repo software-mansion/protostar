@@ -2,13 +2,15 @@ import dataclasses
 import json
 from dataclasses import dataclass
 from datetime import datetime
+from logging import Logger
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 from protostar.migrator.migrator_execution_environment import (
     MigratorExecutionEnvironment,
 )
 from protostar.starknet_gateway.starknet_request import StarknetRequest
+from protostar.utils.log_color_provider import LogColorProvider
 
 
 class Migrator:
@@ -23,22 +25,29 @@ class Migrator:
                 json.dump(dataclasses.asdict(self), output_file, indent=4)
 
     class Builder:
-        def __init__(self) -> None:
-            self._migrator_execution_environment: Optional[
-                MigratorExecutionEnvironment
-            ] = None
-
-        def set_migrator_execution_environment(
+        def __init__(
             self,
-            migrator_execution_environment: MigratorExecutionEnvironment,
+            migrator_execution_environment_builder: MigratorExecutionEnvironment.Builder,
         ) -> None:
-            self._migrator_execution_environment = migrator_execution_environment
-
-        def build(self):
-            assert self._migrator_execution_environment is not None
-            return Migrator(
-                migrator_execution_environment=self._migrator_execution_environment
+            self._migrator_execution_environment_builder = (
+                migrator_execution_environment_builder
             )
+
+        def set_logger(
+            self, logger: Logger, log_color_provider: LogColorProvider
+        ) -> None:
+            self._migrator_execution_environment_builder.set_logger(
+                logger, log_color_provider
+            )
+
+        async def build(self, migration_file_path: Path, config: "Migrator.Config"):
+            migrator_execution_env = (
+                await self._migrator_execution_environment_builder.build(
+                    migration_file_path, config=config
+                )
+            )
+
+            return Migrator(migrator_execution_environment=migrator_execution_env)
 
     def __init__(
         self,
