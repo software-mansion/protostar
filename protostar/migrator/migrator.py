@@ -24,25 +24,25 @@ class Migrator:
             with open(output_file_path, "w", encoding="utf-8") as output_file:
                 json.dump(dataclasses.asdict(self), output_file, indent=4)
 
-    class Factory:
+    class Builder:
         def __init__(
             self,
-            migrator_execution_environment_factory: MigratorExecutionEnvironment.Factory,
+            migrator_execution_environment_builder: MigratorExecutionEnvironment.Builder,
         ) -> None:
-            self._migrator_execution_environment_factory = (
-                migrator_execution_environment_factory
+            self._migrator_execution_environment_builder = (
+                migrator_execution_environment_builder
             )
 
         def set_logger(
             self, logger: Logger, log_color_provider: LogColorProvider
         ) -> None:
-            self._migrator_execution_environment_factory.set_logger(
+            self._migrator_execution_environment_builder.set_logger(
                 logger, log_color_provider
             )
 
         async def build(self, migration_file_path: Path, config: "Migrator.Config"):
             migrator_execution_env = (
-                await self._migrator_execution_environment_factory.build(
+                await self._migrator_execution_environment_builder.build(
                     migration_file_path, config=config
                 )
             )

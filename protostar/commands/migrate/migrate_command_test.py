@@ -12,16 +12,16 @@ from protostar.protostar_exception import ProtostarException
 from protostar.utils.input_requester import InputRequester
 
 
-def mock_migrator_factory(
+def mock_migrator_builder(
     mocker: MockerFixture, migrator_mock: Migrator
-) -> Migrator.Factory:
+) -> Migrator.Builder:
     migrator_mock_future = Future()
     migrator_mock_future.set_result(migrator_mock)
-    migrator_factory_mock = cast(Migrator.Factory, mocker.MagicMock())
+    migrator_builder_mock = cast(Migrator.Builder, mocker.MagicMock())
     cast(
-        mocker.MagicMock, migrator_factory_mock.build
+        mocker.MagicMock, migrator_builder_mock.build
     ).return_value = migrator_mock_future
-    return migrator_factory_mock
+    return migrator_builder_mock
 
 
 def setup_migrate(mocker: MockerFixture):
@@ -33,7 +33,7 @@ def setup_migrate(mocker: MockerFixture):
     migrator_run_mock = cast(mocker.MagicMock, migrator_mock.run)
     migrator_run_mock.return_value = migration_result_future
     migrate_command = MigrateCommand(
-        migrator_factory=mock_migrator_factory(mocker, migrator_mock),
+        migrator_builder=mock_migrator_builder(mocker, migrator_mock),
         logger=mocker.MagicMock(),
         log_color_provider=mocker.MagicMock(),
         requester=input_requester_mock,
@@ -59,7 +59,7 @@ async def test_cheatcode_exceptions_are_pretty_printed(mocker: MockerFixture):
     )
 
     migrate_command = MigrateCommand(
-        migrator_factory=mock_migrator_factory(mocker, migrator_mock),
+        migrator_builder=mock_migrator_builder(mocker, migrator_mock),
         logger=mocker.MagicMock(),
         log_color_provider=mocker.MagicMock(),
         requester=mocker.MagicMock(),

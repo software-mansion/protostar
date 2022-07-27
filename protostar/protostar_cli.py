@@ -169,8 +169,8 @@ class ProtostarCLI(CLIApp):
                 DeployCommand(gateway_facade, logger),
                 DeclareCommand(gateway_facade, logger),
                 MigrateCommand(
-                    migrator_factory=Migrator.Factory(
-                        MigratorExecutionEnvironment.Factory(
+                    migrator_builder=Migrator.Builder(
+                        MigratorExecutionEnvironment.Builder(
                             gateway_facade=GatewayFacade(
                                 project_root_path,
                             ),

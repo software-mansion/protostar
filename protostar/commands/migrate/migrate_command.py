@@ -17,13 +17,13 @@ class MigrateCommand(Command):
 
     def __init__(
         self,
-        migrator_factory: Migrator.Factory,
+        migrator_builder: Migrator.Builder,
         logger: Logger,
         log_color_provider: LogColorProvider,
         requester: InputRequester,
     ) -> None:
         super().__init__()
-        self._migrator_factory = migrator_factory
+        self._migrator_builder = migrator_builder
         self._logger = logger
         self._log_color_provider = log_color_provider
         self._requester = requester
@@ -124,9 +124,9 @@ class MigrateCommand(Command):
             self._logger.info("Migration cancelled")
             return
 
-        self._migrator_factory.set_logger(self._logger, self._log_color_provider)
+        self._migrator_builder.set_logger(self._logger, self._log_color_provider)
 
-        migrator = await self._migrator_factory.build(
+        migrator = await self._migrator_builder.build(
             migration_file_path,
             config=Migrator.Config(gateway_url=network_config.gateway_url),
         )

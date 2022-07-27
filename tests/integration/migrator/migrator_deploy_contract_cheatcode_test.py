@@ -6,10 +6,10 @@ from tests.integration.migrator.conftest import assert_transaction_accepted
 
 
 async def test_deploy_contract(
-    migrator_factory: Migrator.Factory, devnet_gateway_url: str, project_root_path: Path
+    migrator_builder: Migrator.Builder, devnet_gateway_url: str, project_root_path: Path
 ):
 
-    migrator = await migrator_factory.build(
+    migrator = await migrator_builder.build(
         project_root_path / "migrations" / "migration_deploy_contract.cairo",
         config=Migrator.Config(gateway_url=devnet_gateway_url),
     )

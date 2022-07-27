@@ -18,10 +18,10 @@ def project_root_path_fixture(shared_datadir: Path) -> Path:
     return shared_datadir
 
 
-@pytest.fixture(name="migrator_factory")
-def migrator_factory_fixture(project_root_path: Path):
-    return Migrator.Factory(
-        migrator_execution_environment_factory=MigratorExecutionEnvironment.Factory(
+@pytest.fixture(name="migrator_builder")
+def migrator_builder_fixture(project_root_path: Path):
+    return Migrator.Builder(
+        migrator_execution_environment_builder=MigratorExecutionEnvironment.Builder(
             gateway_facade=GatewayFacade(project_root_path)
         )
     )

@@ -14,7 +14,7 @@ from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompile
 class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
     Config = MigratorCheatcodeFactory.Config
 
-    class Factory:
+    class Builder:
         def __init__(
             self,
             gateway_facade: GatewayFacade,
