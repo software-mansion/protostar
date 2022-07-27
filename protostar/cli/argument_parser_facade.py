@@ -1,12 +1,22 @@
-from argparse import ArgumentParser, RawTextHelpFormatter, _SubParsersAction
+from argparse import ArgumentParser, Namespace, RawTextHelpFormatter, _SubParsersAction
 from pathlib import Path
-from typing import Any, Optional, Sequence
+from typing import Any, List, Optional, Sequence, Tuple
 
 from protostar.cli.argument_value_from_config_provider import (
     ArgumentValueFromConfigProvider,
 )
 from protostar.cli.cli_app import CLIApp
 from protostar.cli.command import Command
+
+
+class MissingRequiredArgumentException(Exception):
+    def __init__(self, argument_name: str, command_name: Optional[str]) -> None:
+        self.message = (
+            f"Command `{command_name}` expects argument: `{argument_name}`"
+            if command_name
+            else f"Missing required argument: `{argument_name}`"
+        )
+        super().__init__(self.message)
 
 
 class ArgumentParserFacade:
@@ -27,13 +37,58 @@ class ArgumentParserFacade:
     def parse(
         self, input_args: Optional[Sequence[str]] = None, ignore_unrecognized=False
     ) -> Any:
+        args: Namespace
         if ignore_unrecognized:
             (known_args, _) = self.argument_parser.parse_known_args(input_args)
-            return known_args
-        return self.argument_parser.parse_args(input_args)
+            args = known_args
+        else:
+            args = self.argument_parser.parse_args(input_args)
+
+        missing_data = self._find_missing_required_arg_in_project(args)
+        if missing_data:
+            (command, arg) = missing_data
+            raise MissingRequiredArgumentException(
+                argument_name=arg.name, command_name=command.name if command else None
+            )
+
+        return args
 
     def print_help(self):
         self.argument_parser.print_help()
+
+    def _find_missing_required_arg_in_project(
+        self, parsed_args: Namespace
+    ) -> Optional[Tuple[Optional[Command], Command.Argument]]:
+        missing_arg = self._find_missing_required_arg(
+            self.cli_app.root_args, parsed_args
+        )
+        if missing_arg:
+            return (None, missing_arg)
+
+        if hasattr(parsed_args, "command"):
+            command = self.cli_app.get_command_by_name(parsed_args.command)
+            missing_arg = self._find_missing_required_arg(
+                command.arguments, parsed_args
+            )
+            if missing_arg:
+                return (command, missing_arg)
+        return None
+
+    @staticmethod
+    def _find_missing_required_arg(
+        declared_args: List[Command.Argument], parsed_args: Namespace
+    ) -> Optional[Command.Argument]:
+        for arg in declared_args:
+            if not arg.is_required:
+                continue
+
+            arg_name = arg.name.replace("-", "_")
+            is_argument_set = hasattr(parsed_args, arg_name) and getattr(
+                parsed_args, arg_name
+            )
+            if not is_argument_set:
+                return arg
+        return None
 
     def _setup_parser(self) -> None:
         for cmd in self.cli_app.commands:
@@ -122,17 +177,12 @@ class ArgumentParserFacade:
             default = []
 
         kwargs = {}
-        if argument.is_required and not argument.is_positional:
-            kwargs["required"] = True
 
-        if argument.is_positional and not argument.is_required:
+        if argument.is_positional:
             kwargs["nargs"] = "?"
 
         if argument.is_array:
-            if argument.is_required:
-                kwargs["nargs"] = "+"
-            else:
-                kwargs["nargs"] = "*"
+            kwargs["nargs"] = "*"
 
         argument_parser.add_argument(
             *names,
