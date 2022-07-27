@@ -45,6 +45,9 @@ jobs:
       - name: E2E tests
         run: |
           poetry run poe test_e2e
+       - name: Performance tests
+         run: |
+           poetry run poe test_performance
       - name: Convert coverage to XML
         run: |
           poetry run python -m coverage xml
