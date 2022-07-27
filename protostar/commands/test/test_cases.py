@@ -29,6 +29,7 @@ class TestCaseResult:
 class PassedTestCase(TestCaseResult):
     test_case_name: str
     execution_resources: Optional[ExecutionResourcesSummary]
+    execution_time: float
     captured_stdout: Dict[OutputName, str] = field(default_factory=dict)
 
     def format(self) -> str:
@@ -55,6 +56,8 @@ class PassedTestCase(TestCaseResult):
                     "GRAY", f"({merged_common_execution_resource_info})"
                 )
             )
+
+        first_line_elements.append(_get_formatted_execution_time(self.execution_time))
 
         first_line = " ".join(first_line_elements)
 
@@ -91,6 +94,7 @@ class PassedTestCase(TestCaseResult):
 class FailedTestCase(TestCaseResult):
     test_case_name: str
     exception: ReportedException
+    execution_time: float
     captured_stdout: Dict[OutputName, str] = field(default_factory=dict)
 
     def format(self) -> str:
@@ -99,6 +103,8 @@ class FailedTestCase(TestCaseResult):
         result.append(
             f"{_get_formatted_file_path(self.file_path)} {self.test_case_name}"
         )
+        result.append(" ")
+        result.append(_get_formatted_execution_time(self.execution_time))
         result.append("\n")
         result.append(str(self.exception))
         result.append("\n")
@@ -174,3 +180,7 @@ def _get_formatted_stdout(
 
 def _get_formatted_file_path(file_path: Path) -> str:
     return log_color_provider.colorize("GRAY", str(file_path))
+
+
+def _get_formatted_execution_time(execution_time: float) -> str:
+    return log_color_provider.colorize("GREY", f"(time={round(execution_time, 2)})")

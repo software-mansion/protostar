@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, List, Optional
 
 from protostar.cli.activity_indicator import ActivityIndicator
 from protostar.cli.command import Command
+from protostar.commands.test.slowest_test_formatting import get_formatted_slow_tests
 from protostar.commands.test.test_collector import TestCollector
 from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.test_scheduler import TestScheduler
@@ -108,6 +109,12 @@ class TestCommand(Command):
                 type="int",
                 description="Set a seed to use for all fuzz tests.",
             ),
+            Command.Argument(
+                name="report-slowest-tests",
+                type="int",
+                description="Print slowest tests at the end.",
+                default=0,
+            ),
         ]
 
     async def run(self, args) -> TestingSummary:
@@ -120,6 +127,7 @@ class TestCommand(Command):
             safe_collecting=args.safe_collecting,
             exit_first=args.exit_first,
             seed=args.seed,
+            report_slowest_tests_count=args.report_slowest_tests,
         )
         summary.assert_all_passed()
         return summary
@@ -136,6 +144,7 @@ class TestCommand(Command):
         safe_collecting: bool = False,
         exit_first: bool = False,
         seed: Optional[int] = None,
+        report_slowest_tests_count: int = 0,
     ) -> TestingSummary:
         logger = getLogger()
         include_paths = [
@@ -187,5 +196,20 @@ class TestCommand(Command):
                     disable_hint_validation=disable_hint_validation,
                     exit_first=exit_first,
                 )
+
+            try:
+                if (
+                    report_slowest_tests_count
+                    and (len(testing_summary.failed) + len(testing_summary.passed)) > 0
+                ):
+                    logger.info(log_color_provider.bold("Slowest test cases:"))
+                    print(
+                        get_formatted_slow_tests(
+                            testing_summary, report_slowest_tests_count
+                        ),
+                        end="\n\n",
+                    )
+            except KeyboardInterrupt:  # Avoid traceback
+                pass
 
             return testing_summary

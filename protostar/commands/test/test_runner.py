@@ -1,4 +1,5 @@
 import asyncio
+import time
 import traceback
 from dataclasses import dataclass
 from logging import getLogger
@@ -150,6 +151,7 @@ class TestRunner:
         for test_case_name in test_suite.test_case_names:
             new_execution_state = execution_state.fork()
             try:
+                start_time = time.perf_counter()
                 execution_resources = await invoke_test_case(
                     test_case_name,
                     new_execution_state,
@@ -159,6 +161,7 @@ class TestRunner:
                         file_path=test_suite.test_path,
                         test_case_name=test_case_name,
                         execution_resources=execution_resources,
+                        execution_time=time.perf_counter() - start_time,
                         captured_stdout=new_execution_state.output_recorder.get_captures(),
                     )
                 )
@@ -168,6 +171,7 @@ class TestRunner:
                         file_path=test_suite.test_path,
                         test_case_name=test_case_name,
                         exception=ex,
+                        execution_time=time.perf_counter() - start_time,
                         captured_stdout=new_execution_state.output_recorder.get_captures(),
                     )
                 )
