@@ -58,3 +58,15 @@ def test_loading_command_profiled_config(
     val = arg_value_provider.load_value(command_name="deploy", argument_name="arg")
 
     assert val == "d"
+
+
+@pytest.mark.parametrize("configuration_profile_name", [None])
+def test_returning_none_when_file_config_file_does_not_exists(
+    arg_value_provider: ArgumentValueFromConfigProvider,
+):
+    # pylint: disable=protected-access
+    arg_value_provider._protostar_toml_reader.path = Path() / "NOT_EXISTING_DIR"
+
+    val = arg_value_provider.load_value(command_name="deploy", argument_name="arg")
+
+    assert val is None

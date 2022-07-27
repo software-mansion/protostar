@@ -1,8 +1,12 @@
 import asyncio
 from pathlib import Path
 
-from protostar.cli import ArgumentParserFacade, ArgumentValueFromConfigProvider
-from protostar.cli.cli_app import CLIApp
+from protostar.cli import (
+    ArgumentParserFacade,
+    ArgumentValueFromConfigProvider,
+    CLIApp,
+    MissingRequiredArgumentException,
+)
 from protostar.protostar_cli import ConfigurationProfileCLISchema, ProtostarCLI
 from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
 
@@ -26,6 +30,8 @@ def main(script_root: Path):
 
     try:
         asyncio.run(protostar_cli.run(parser.parse()))
+    except MissingRequiredArgumentException as err:
+        print(err.message)
     except CLIApp.CommandNotFoundError:
         parser.print_help()
     except Exception as err:

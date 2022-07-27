@@ -1,11 +1,14 @@
 from pathlib import Path
-from typing import Pattern, cast
+from typing import Any, List, Optional, Pattern, cast
 
 import pytest
 from pytest_mock import MockerFixture
 
 from conftest import BaseTestCommand, FooCommand
-from protostar.cli.argument_parser_facade import ArgumentParserFacade
+from protostar.cli.argument_parser_facade import (
+    ArgumentParserFacade,
+    MissingRequiredArgumentException,
+)
 from protostar.cli.argument_value_from_config_provider import (
     ArgumentValueFromConfigProvider,
 )
@@ -145,7 +148,7 @@ def test_required_non_positional_arg():
     )
 
     ArgumentParserFacade(app).parse(["--target", "foo"])
-    with pytest.raises(SystemExit):
+    with pytest.raises(MissingRequiredArgumentException):
         ArgumentParserFacade(app).parse([])
 
 
@@ -166,7 +169,7 @@ def test_required_positional_arg():
     app = CLIApp(commands=[CommandWithRequiredArg()])
 
     ArgumentParserFacade(app).parse(["FOO", "x"])
-    with pytest.raises(SystemExit):
+    with pytest.raises(MissingRequiredArgumentException):
         ArgumentParserFacade(app).parse(["FOO"])
 
 
@@ -189,3 +192,47 @@ def test_loading_default_values_from_provider(
 
     assert result.foo == "FOOBAR"
     assert result.bar == "FOOBAR"
+
+
+def test_loading_required_value_from_provider(mocker: MockerFixture):
+    fake_arg = Command.Argument(
+        name="fake-arg", description="...", type="str", is_required=True
+    )
+
+    class FakeCommand(Command):
+        @property
+        def name(self) -> str:
+            return "fake-cmd"
+
+        @property
+        def description(self) -> str:
+            return "..."
+
+        @property
+        def example(self) -> Optional[str]:
+            return None
+
+        @property
+        def arguments(self) -> List[Command.Argument]:
+            return [fake_arg]
+
+        async def run(self, args: Any):
+            return await super().run(args)
+
+    fake_command = FakeCommand()
+    app = CLIApp(
+        root_args=[],
+        commands=[fake_command],
+    )
+    default_value_provider_mock = cast(
+        ArgumentValueFromConfigProvider, mocker.MagicMock()
+    )
+    fake_value = "FAKE_VALUE"
+    cast(
+        mocker.MagicMock, default_value_provider_mock.load_value
+    ).return_value = fake_value
+    parser = ArgumentParserFacade(app, default_value_provider_mock)
+
+    result = parser.parse(["fake-cmd"])
+
+    assert result.fake_arg == fake_value
