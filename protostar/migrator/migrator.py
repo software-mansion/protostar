@@ -53,7 +53,7 @@ class Migrator:
 
         return Migrator.History(
             # pylint: disable=line-too-long
-            starknet_requests=self._migrator_execution_environment.cheatcode_factory.gateway_facade.starknet_requests
+            starknet_requests=self._migrator_execution_environment.cheatcode_factory.gateway_facade.get_starknet_requests()
         )
 
     @staticmethod

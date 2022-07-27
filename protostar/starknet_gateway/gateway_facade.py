@@ -41,13 +41,16 @@ class GatewayFacade:
         project_root_path: Path,
     ) -> None:
         self._project_root_path = project_root_path
-        self.starknet_requests: List[StarknetRequest] = []
+        self._starknet_requests: List[StarknetRequest] = []
         self._logger: Optional[Logger] = None
         self._log_color_provider: Optional[LogColorProvider] = None
 
     def set_logger(self, logger: Logger, log_color_provider: LogColorProvider) -> None:
         self._logger = logger
         self._log_color_provider = log_color_provider
+
+    def get_starknet_requests(self) -> List[StarknetRequest]:
+        return self._starknet_requests.copy()
 
     # pylint: disable=too-many-arguments
     async def deploy(
@@ -200,7 +203,7 @@ class GatewayFacade:
                     )
                 )
 
-            self.starknet_requests.append(
+            self._starknet_requests.append(
                 StarknetRequest(action=action, payload=payload, response=response)
             )
 
