@@ -75,7 +75,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
 
         # Run the specified contract entry point with given calldata.
         with wrap_with_stark_exception(code=StarknetErrorCode.SECURITY_ERROR):
-            runner = CheatableCairoFunctionRunner(  # <-- MODIFICATION # TODO
+            runner = CheatableCairoFunctionRunner(  # <-- MODIFICATION
                 program=contract_class.program, layout="all"
             )
         os_context = os_utils.prepare_os_context(runner=runner)

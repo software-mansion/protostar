@@ -3,6 +3,10 @@ from protostar.starknet.cheatcode import Cheatcode
 
 
 class CheatableVirtualMachine(VirtualMachine):
+    """
+    VirtualMachine with modified step function that captures execution locals of a hint.
+    """
+
     # pylint: disable=C0103,W0212
     def step(self):
         self.skip_instruction_execution = False
@@ -22,12 +26,12 @@ class CheatableVirtualMachine(VirtualMachine):
             exec_locals.update(self.static_locals)
             exec_locals.update(self.builtin_runners)
 
-            # --- MODIFICATIONS START --- # TODO
-            Cheatcode._exec_locals = exec_locals
+            # --- MODIFICATIONS START ---
+            Cheatcode.exec_locals = exec_locals
 
             self.exec_hint(hint.compiled, exec_locals, hint_index=hint_index)
 
-            Cheatcode._exec_locals = {}
+            Cheatcode.exec_locals = {}
             # --- MODIFICATIONS END ---
 
             # There are memory leaks in 'exec_scopes'.

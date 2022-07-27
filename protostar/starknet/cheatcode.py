@@ -20,7 +20,10 @@ if TYPE_CHECKING:
 
 
 class Cheatcode(BusinessLogicSysCallHandler, HintLocal):
-    _exec_locals = {}
+    exec_locals = {}
+    """
+        This property stores current execution locals of a hint.
+    """
 
     class SyscallDependencies(TypedDict):
         execute_entry_point_cls: Type["CheatableExecuteEntryPoint"]

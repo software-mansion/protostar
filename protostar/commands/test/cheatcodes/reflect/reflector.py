@@ -36,7 +36,7 @@ class Reflector:
     # We need to access Cairo's underscore variables
     # pylint: disable=W0212
     def __getattr__(self, name: str) -> "Reflector":
-        ids = Cheatcode._exec_locals["ids"]
+        ids = Cheatcode.exec_locals["ids"]
 
         new_value: ReflectInputType
         if not self._value:
