@@ -65,7 +65,7 @@ class ArgumentParserFacade:
         if missing_arg:
             return (None, missing_arg)
 
-        if hasattr(parsed_args, "command"):
+        if hasattr(parsed_args, "command") and parsed_args.command:
             command = self.cli_app.get_command_by_name(parsed_args.command)
             missing_arg = self._find_missing_required_arg(
                 command.arguments, parsed_args
