@@ -4,7 +4,7 @@ from protostar.starknet.cheatable_cairo_vm import CheatableVirtualMachine
 
 
 class CheatableCairoFunctionRunner(CairoFunctionRunner):
-    # MODIFICATION vm_class=VirutalMachine -> vm_class=CheatableVirtualMachine # TODO
+    # MODIFICATION vm_class=VirutalMachine -> vm_class=CheatableVirtualMachine
     def initialize_vm(
         self,
         hint_locals,
