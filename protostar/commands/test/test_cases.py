@@ -1,9 +1,7 @@
 from abc import abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Optional, Dict
-
-from protostar.commands.test.test_output_recorder import OutputName, format_output_name
+from typing import Dict, List, Optional
 
 from protostar.commands.test.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
@@ -12,8 +10,9 @@ from protostar.commands.test.test_environment_exceptions import (
     ExceptionMetadata,
     ReportedException,
 )
+from protostar.commands.test.test_output_recorder import OutputName, format_output_name
 from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
-from protostar.utils.log_color_provider import log_color_provider, SupportedColorName
+from protostar.utils.log_color_provider import SupportedColorName, log_color_provider
 
 
 @dataclass(frozen=True)
@@ -40,9 +39,10 @@ class PassedTestCase(TestCaseResult):
 
         if self.execution_resources:
             common_execution_resources_elements: List[str] = []
-            common_execution_resources_elements.append(
-                f"steps={log_color_provider.bold(self.execution_resources.n_steps)}"
-            )
+            if self.execution_resources.n_steps:
+                common_execution_resources_elements.append(
+                    f"steps={log_color_provider.bold(self.execution_resources.n_steps)}"
+                )
             if self.execution_resources.n_memory_holes:
                 common_execution_resources_elements.append(
                     f"memory_holes={log_color_provider.bold(self.execution_resources.n_memory_holes)}"
