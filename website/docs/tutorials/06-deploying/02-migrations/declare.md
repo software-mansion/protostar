@@ -8,10 +8,6 @@ class DeclaredContract:
 ```
 Declares contract given a relative to a project root path to **compiled** contract.
 
-:::info
-This cheatcode has testing counterpart — [declare](/docs/tutorials/testing/cheatcodes/declare).
-:::
-
 
 ## Example
 
