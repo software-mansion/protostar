@@ -57,7 +57,7 @@ jobs:
 
       - name: Check types
         run: |
-          ~/.poetry/bin/poetry run poe type_check
+          poetry run poe type_check
       - name: Check formatting with black
         run: |
           poetry run poe format_check
