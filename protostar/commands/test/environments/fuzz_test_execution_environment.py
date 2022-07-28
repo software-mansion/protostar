@@ -5,18 +5,17 @@ import functools
 import inspect
 import re
 from dataclasses import dataclass, field
-from typing import Optional, List, Callable, Awaitable, Any, Dict
+from typing import Any, Awaitable, Callable, Dict, List, Optional
 
-from hypothesis import settings, seed, given, Verbosity
+from hypothesis import Verbosity, given, seed, settings
 from hypothesis.database import InMemoryExampleDatabase
 from hypothesis.reporting import with_reporter
-from hypothesis.strategies import data, DataObject
+from hypothesis.strategies import DataObject, data
 
 from protostar.commands.test.cheatcodes.reflect.cairo_struct import CairoStructHintLocal
-
 from protostar.commands.test.environments.test_execution_environment import (
-    TestExecutionEnvironment,
     TestCaseCheatcodeFactory,
+    TestExecutionEnvironment,
 )
 from protostar.commands.test.fuzzing.fuzz_input_exception_metadata import (
     FuzzInputExceptionMetadata,
@@ -86,6 +85,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             print_blob=False,
             report_multiple_bugs=False,
             verbosity=HYPOTHESIS_VERBOSITY,
+            max_examples=self.state.config.max_fuzz_examples,
         )
         @given(data_object=data())
         async def test(data_object: DataObject):
@@ -115,6 +115,8 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
 
         def test_thread():
             with with_reporter(protostar_reporter):
+                # TODO: Document how the data_object is passed to test function
+                # pylint: disable=no-value-for-parameter
                 test()
 
         try:

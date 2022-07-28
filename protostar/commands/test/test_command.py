@@ -108,6 +108,15 @@ class TestCommand(Command):
                 type="int",
                 description="Set a seed to use for all fuzz tests.",
             ),
+            Command.Argument(
+                name="max-fuzz-examples",
+                type="int",
+                default=100,
+                description=(
+                    "Once this many satisfying examples have been considered "
+                    "without finding any counter-example, falsification will terminate."
+                ),
+            ),
         ]
 
     async def run(self, args) -> TestingSummary:
@@ -120,6 +129,7 @@ class TestCommand(Command):
             safe_collecting=args.safe_collecting,
             exit_first=args.exit_first,
             seed=args.seed,
+            max_fuzz_examples=args.default,
         )
         summary.assert_all_passed()
         return summary
@@ -136,6 +146,7 @@ class TestCommand(Command):
         safe_collecting: bool = False,
         exit_first: bool = False,
         seed: Optional[int] = None,
+        max_fuzz_examples: int = 100,
     ) -> TestingSummary:
         logger = getLogger()
         include_paths = [
@@ -184,6 +195,7 @@ class TestCommand(Command):
                 TestScheduler(live_logger, worker=TestRunner.worker).run(
                     include_paths=include_paths,
                     test_collector_result=test_collector_result,
+                    config=TestRunner.Config(max_fuzz_examples=max_fuzz_examples),
                     disable_hint_validation=disable_hint_validation,
                     exit_first=exit_first,
                 )

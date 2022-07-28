@@ -26,14 +26,18 @@ logger = getLogger()
 
 
 class TestRunner:
+    Config = TestExecutionState.Config
+
     def __init__(
         self,
         shared_tests_state: SharedTestsState,
+        config: Config,
         include_paths: Optional[List[str]] = None,
         disable_hint_validation_in_user_contracts=False,
     ):
         self.shared_tests_state = shared_tests_state
         include_paths = include_paths or []
+        self.config = config
 
         self.tests_compiler = StarknetCompiler(
             config=CompilerConfig(
@@ -56,12 +60,14 @@ class TestRunner:
         shared_tests_state: SharedTestsState
         include_paths: List[str]
         disable_hint_validation_in_user_contracts: bool
+        config: TestExecutionState.Config
 
     @classmethod
     def worker(cls, args: "TestRunner.WorkerArgs"):
         asyncio.run(
             cls(
                 shared_tests_state=args.shared_tests_state,
+                config=args.config,
                 include_paths=args.include_paths,
                 disable_hint_validation_in_user_contracts=args.disable_hint_validation_in_user_contracts,
             ).run_test_suite(
