@@ -12,8 +12,8 @@ class InvalidNetworkConfigurationException(Exception):
 class UnknownStarkwareNetworkException(ProtostarException):
     def __init__(self):
         message_lines: List[str] = []
-        message_lines.append("Unknown starkware network")
-        message_lines.append("The following starkware network names are supported:")
+        message_lines.append("Unknown StarkNet network")
+        message_lines.append("The following StarkNet network names are supported:")
         for network_name in NETWORKS:
             message_lines.append(f"- {network_name}")
         super().__init__("\n".join(message_lines))

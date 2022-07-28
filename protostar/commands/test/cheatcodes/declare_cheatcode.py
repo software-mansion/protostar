@@ -1,13 +1,13 @@
 import asyncio
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable
 
 from starkware.python.utils import from_bytes
 from starkware.starknet.business_logic.internal_transaction import InternalDeclare
 from starkware.starknet.public.abi import AbiType
 from starkware.starknet.testing.contract import DeclaredClass
 from starkware.starknet.testing.contract_utils import EventManager, get_abi
+from typing_extensions import Protocol
 
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.utils.starknet_compilation import StarknetCompiler
@@ -16,6 +16,11 @@ from protostar.utils.starknet_compilation import StarknetCompiler
 @dataclass
 class DeclaredContract:
     class_hash: int
+
+
+class DeclareCheatcodeProtocol(Protocol):
+    def __call__(self, contract_path_str: str) -> DeclaredContract:
+        ...
 
 
 class DeclareCheatcode(Cheatcode):
@@ -31,11 +36,12 @@ class DeclareCheatcode(Cheatcode):
     def name(self) -> str:
         return "declare"
 
-    def build(self) -> Callable[[Any], Any]:
+    def build(self) -> DeclareCheatcodeProtocol:
         return self.declare
 
     def declare(self, contract_path_str: str) -> DeclaredContract:
         declared_class = asyncio.run(self._declare_contract(Path(contract_path_str)))
+        assert declared_class
         class_hash = declared_class.class_hash
 
         self.state.class_hash_to_contract_abi_map[class_hash] = declared_class.abi

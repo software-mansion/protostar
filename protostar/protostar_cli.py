@@ -22,6 +22,11 @@ from protostar.commands.init.project_creator import (
     AdaptedProjectCreator,
     NewProjectCreator,
 )
+from protostar.commands.migrate.migrate_command import MigrateCommand
+from protostar.migrator import Migrator
+from protostar.migrator.migrator_execution_environment import (
+    MigratorExecutionEnvironment,
+)
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
 from protostar.protostar_toml.io.protostar_toml_reader import (
     ProtostarTOMLReader,
@@ -163,6 +168,18 @@ class ProtostarCLI(CLIApp):
                 TestCommand(project_root_path, protostar_directory, project_compiler),
                 DeployCommand(gateway_facade, logger),
                 DeclareCommand(gateway_facade, logger),
+                MigrateCommand(
+                    migrator_builder=Migrator.Builder(
+                        MigratorExecutionEnvironment.Builder(
+                            gateway_facade=GatewayFacade(
+                                project_root_path,
+                            ),
+                        )
+                    ),
+                    requester=requester,
+                    logger=self.logger,
+                    log_color_provider=log_color_provider,
+                ),
             ],
             root_args=[
                 PROFILE_ARG,
