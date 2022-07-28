@@ -32,9 +32,9 @@ jobs:
             ~/.cache/pypoetry
             ~/.poetry
           key: poetry-${{ hashFiles('poetry.lock') }}
-      - name: Debug .poetry
+      - name: Debug current dir
         run: |
-          ls -R ~/.poetry
+          ls -R
 
   lint:
     name: Check formatting, linting and types
