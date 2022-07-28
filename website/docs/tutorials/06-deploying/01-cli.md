@@ -1,12 +1,11 @@
 ---
-sidebar_label: Deploying
+sidebar_label: CLI
 ---
 
-# Deploying
+# Deployment CLI
+Protostar offers similar CLI to [StarkNet's CLI](https://docs.starknet.io/docs/CLI/commands). However, with Protostar you can move deployment configuration to [`protostar.toml`](/docs/tutorials/project-initialization#protostartoml) and display help for each command.
 
-## Prerequisites
-- [Factory Contract pattern](https://research.csiro.au/blockchainpatterns/general-patterns/contract-structural-patterns/factory-contract/)
-- [Deploying a contract by another contract](https://www.cairo-lang.org/docs/hello_starknet/deploying_from_contracts.html?highlight=class%20hash)
+
 
 ## Declaring a contract
 
@@ -36,10 +35,10 @@ https://goerli.voyager.online/contract/0x038cc...
 The deploy transaction will be deprecated in future StarkNet versions. To deploy new contract instances, you can use the deploy syscall. For more information, read [StarkNet's Contract Classes documentation](https://docs.starknet.io/docs/Contracts/contract-classes).
 :::
 
-Protostar supports deploying smart contracts to a given network with the `protostar deploy` command. It has a similar interface to the `starknet deploy` command. [Read the CLI reference for the deploy command](../cli-reference.md#deploy) to learn more about all supported arguments.
+Protostar supports deploying smart contracts to a given network with the `protostar deploy` command. It has a similar interface to the `starknet deploy` command. [Read the CLI reference for the deploy command](../../cli-reference.md#deploy) to learn more about all supported arguments.
 
 ### Example — deploying the default contract
-After [compiling your contract](04-compiling.md), you can deploy the contract in the following way.
+After [compiling your contract](../04-compiling.md), you can deploy the contract in the following way.
 
 ```
 $ protostar deploy ./build/main.json --network alpha-goerli
@@ -53,7 +52,7 @@ Transaction hash: 0x1cbba90ba0d1fbfba09b1f7a0f987134dd9a02a845ca89244b3272374d37
 https://goerli.voyager.online/contract/0x06a5ea9e42c921bd58e24b8da9d1fc91a488df0700b173f1c6bb0e453f68afec
 ```
 
-## Using [configuration profiles](03-project-initialization.md#configuration-profiles)
+## Using [configuration profiles](../03-project-initialization.md#configuration-profiles)
 Configuration profiles allow you to easily reuse configuration for devnet, testnet, and mainnet networks. You can define a network configuration in the `protostar.toml` as demonstrated in the snippet below.
 
 ```toml title=protostar.toml
