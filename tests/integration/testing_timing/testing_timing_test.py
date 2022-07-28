@@ -1,8 +1,6 @@
 from pathlib import Path
 from typing import Set
 
-from sys import stderr
-
 import pytest
 
 from tests.integration.conftest import (
@@ -12,7 +10,11 @@ from tests.integration.conftest import (
 
 
 def assert_in_order(logs: str) -> None:
-    exec_times = [float(row.split()[3][:-1]) for row in logs.split("\n")]
+    raw_exec_times = [row.split()[3] for row in logs.split("\n")]
+    exec_times = [
+        float(exec_time[exec_time.find(".") -1 : exec_time.find(".") + 3])
+        for exec_time in raw_exec_times
+    ] # decoloring
     assert exec_times == sorted(exec_times, reverse=True)
 
 
