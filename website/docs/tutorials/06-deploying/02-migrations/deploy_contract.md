@@ -16,8 +16,8 @@ class DeployedContract:
 Deploys a **compiled** contract given a path relative to the project root.
 
 
-:::info
-This cheatcode has testing counterpart — [deploy_contract](/docs/tutorials/testing/cheatcodes/deploy-contract).
+:::warning
+Don't use `starkware.starknet.common.syscalls.deploy`. It will deploy the contract to the Protostar's local StarkNet.
 :::
 
 
