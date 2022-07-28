@@ -191,16 +191,19 @@ class TestingSummary:
         rows: List[List[str]] = []
         for i, test_case in enumerate(slowest, 1):
             row: List[str] = []
-            row.append(
-                # pylint: disable=line-too-long
-                f"[{log_color_provider.colorize('RED' if isinstance(test_case, FailedTestCase) else 'GREEN', str(i))}]  "
-            )
+            row.append(f"{log_color_provider.colorize('CYAN', str(i))}.")
 
             row.append(
                 f"{log_color_provider.colorize('GRAY', str(test_case.file_path))}"
             )
             row.append(test_case.test_case_name)
-            row.append(f"{test_case.execution_time:.2f} s")
+
+            row.append(
+                log_color_provider.colorize(
+                    "GRAY",
+                    f"(time={log_color_provider.bold(f'{test_case.execution_time:.2f}')}s)",
+                )
+            )
 
             rows.append(row)
 

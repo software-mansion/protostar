@@ -188,6 +188,7 @@ class TestCommand(Command):
                     testing_summary,
                     no_progress_bar=no_progress_bar,
                     exit_first=exit_first,
+                    slowest_tests_to_report_count=slowest_tests_to_report_count,
                 )
                 TestScheduler(live_logger, worker=TestRunner.worker).run(
                     include_paths=include_paths,
@@ -195,7 +196,5 @@ class TestCommand(Command):
                     disable_hint_validation=disable_hint_validation,
                     exit_first=exit_first,
                 )
-
-            testing_summary.log_slowest(logger, slowest_tests_to_report_count)
 
             return testing_summary

@@ -23,11 +23,13 @@ class TestingLiveLogger:
         testing_summary: TestingSummary,
         no_progress_bar: bool,
         exit_first: bool,
+        slowest_tests_to_report_count: int,
     ) -> None:
         self._logger = logger
         self._no_progress_bar = no_progress_bar
         self.testing_summary = testing_summary
         self.exit_first = exit_first
+        self.slowest_tests_to_report_count = slowest_tests_to_report_count
 
     def log_testing_summary(
         self, test_collector_result: "TestCollector.Result"
@@ -87,6 +89,9 @@ class TestingLiveLogger:
                 finally:
                     progress_bar.write("")
                     progress_bar.clear()
+                    self.testing_summary.log_slowest(
+                        self._logger, self.slowest_tests_to_report_count
+                    )
                     self.log_testing_summary(test_collector_result)
 
         except queue.Empty:
