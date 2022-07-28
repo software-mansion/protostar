@@ -1,8 +1,8 @@
 from copy import deepcopy
-
 from starkware.cairo.lang.vm.vm_consts import (
     is_simple_type,
     VmConstsReference,
+    VmConsts,
 )
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.cairo.lang.compiler.ast.cairo_types import (
@@ -26,21 +26,19 @@ from protostar.commands.test.cheatcodes.reflect.get_from_vm import (
 from protostar.commands.test.cheatcodes.reflect.build_output import (
     generate_value_tree,
 )
-from protostar.starknet.cheatcode import Cheatcode
 
 
 class Reflector:
-    def __init__(self, value: ReflectInputType = None):
+    def __init__(self, ids: VmConsts, value: ReflectInputType = None):
+        self._ids = ids
         self._value = value
 
     # We need to access Cairo's underscore variables
     # pylint: disable=W0212
     def __getattr__(self, name: str) -> "Reflector":
-        ids = Cheatcode.exec_locals["ids"]
-
         new_value: ReflectInputType
         if not self._value:
-            new_value = get_value_from_vm(ids, name)
+            new_value = get_value_from_vm(self._ids, name)
         elif isinstance(self._value, VmConstsReference):
 
             assert isinstance(self._value._struct_definition, StructDefinition)
@@ -88,7 +86,7 @@ class Reflector:
                 "reflect",
                 f"Tried to get attribute of a {to_cairo_naming(type(self._value))} ({type(self._value).__name__}).",
             )
-        return Reflector(new_value)
+        return Reflector(self._ids, new_value)
 
     def get(self) -> ReflectReturnType:
         if self._value is None:

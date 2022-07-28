@@ -1,5 +1,5 @@
 from starkware.cairo.lang.vm.vm_core import VirtualMachine
-from protostar.starknet.cheatcode import Cheatcode
+from protostar.starknet.delayed_builder import DelayedBuilder
 
 
 class CheatableVirtualMachine(VirtualMachine):
@@ -27,11 +27,11 @@ class CheatableVirtualMachine(VirtualMachine):
             exec_locals.update(self.builtin_runners)
 
             # --- MODIFICATIONS START ---
-            Cheatcode.exec_locals = exec_locals
+            for name, value in exec_locals.items():
+                if isinstance(value, DelayedBuilder):
+                    exec_locals[name] = value.internal_build(exec_locals)
 
             self.exec_hint(hint.compiled, exec_locals, hint_index=hint_index)
-
-            Cheatcode.exec_locals = {}
             # --- MODIFICATIONS END ---
 
             # There are memory leaks in 'exec_scopes'.
