@@ -8,7 +8,6 @@ from tests.integration.conftest import RunCairoTestRunnerFixture
 
 @pytest.mark.asyncio
 async def test_should_accept_case_with_constructor(
-    pretty_printed_error_message_substring: str,
     run_cairo_test_runner: RunCairoTestRunnerFixture,
 ):
 
@@ -16,8 +15,4 @@ async def test_should_accept_case_with_constructor(
         Path(__file__).parent / "basic_contract_test.cairo"
     )
 
-    assert len(testing_summary.broken) == 1
-    assert pretty_printed_error_message_substring in str(
-        testing_summary.broken[0].exception
-    )
-
+    assert len(testing_summary.broken) == 0

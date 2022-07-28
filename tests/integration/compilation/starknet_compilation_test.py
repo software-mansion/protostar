@@ -4,7 +4,9 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 
 from protostar.utils.compiler.pass_managers import (
-    ProtostarPassMangerFactory, StarknetPassManagerFactory, TestCasePassMangerFactory
+    ProtostarPassMangerFactory,
+    StarknetPassManagerFactory,
+    TestCasePassMangerFactory,
 )
 from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
