@@ -89,9 +89,6 @@ class TestingLiveLogger:
                 finally:
                     progress_bar.write("")
                     progress_bar.clear()
-                    self.testing_summary.log_slowest(
-                        self._logger, self.slowest_tests_to_report_count
-                    )
                     self.log_testing_summary(test_collector_result)
 
         except queue.Empty:

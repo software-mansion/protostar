@@ -43,7 +43,10 @@ class TestingSummary:
         logger: Logger,
         collected_test_cases_count: int,
         collected_test_suites_count: int,
+        slowest_test_cases_to_report_count: int,
     ):
+        self.log_slowest_test_cases(logger, slowest_test_cases_to_report_count)
+
         header_width = len("Test suites: ")
 
         logger.info(
@@ -61,23 +64,20 @@ class TestingSummary:
                 + str(self.testing_seed.value)
             )
 
-    def log_slowest(
+    def log_slowest_test_cases(
         self,
         logger: Logger,
         slowest_tests_to_report_count: int,
     ):
-        try:
-            if (
-                slowest_tests_to_report_count
-                and (len(self.failed) + len(self.passed)) > 0
-            ):
-                logger.info(log_color_provider.bold("Slowest test cases:"))
-                print(
-                    self._get_formatted_slow_tests(slowest_tests_to_report_count),
-                    end="\n\n",
-                )
-        except KeyboardInterrupt:  # Avoid traceback
-            pass
+        if (
+            slowest_tests_to_report_count
+            and (len(self.failed) + len(self.passed)) > 0
+        ):
+            logger.info(log_color_provider.bold("Slowest test cases:"))
+            print(
+                self._format_slow_test_cases_list(slowest_tests_to_report_count),
+                end="\n\n",
+            )
 
     def assert_all_passed(self):
         if self.failed or self.broken:
@@ -174,7 +174,7 @@ class TestingSummary:
 
         return test_suites_result
 
-    def _get_slowest_list(
+    def _get_slowest_test_cases_list(
         self,
         failed_and_passed_list: List[Union[PassedTestCase, FailedTestCase]],
         count: int,
@@ -184,12 +184,12 @@ class TestingSummary:
         )
         return lst[: min(count, len(lst))]
 
-    def _get_formatted_slow_tests(self, count: int) -> str:
+    def _format_slow_test_cases_list(self, count: int) -> str:
 
-        slowest = self._get_slowest_list(self.failed + self.passed, count)  # type: ignore
+        slowest_test_cases = self._get_slowest_test_cases_list(self.failed + self.passed, count)  # type: ignore
 
         rows: List[List[str]] = []
-        for i, test_case in enumerate(slowest, 1):
+        for i, test_case in enumerate(slowest_test_cases, 1):
             row: List[str] = []
             row.append(f"{log_color_provider.colorize('CYAN', str(i))}.")
 
@@ -207,8 +207,8 @@ class TestingSummary:
 
             rows.append(row)
 
-        widths = [max(map(len, col)) for col in zip(*rows)]
+        column_widths = [max(map(len, col)) for col in zip(*rows)]
         return "\n".join(
-            "  ".join((val.ljust(width) for val, width in zip(row, widths)))
+            "  ".join((val.ljust(width) for val, width in zip(row, column_widths)))
             for row in rows
         )

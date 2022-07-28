@@ -25,7 +25,6 @@ def get_one_digit_test_indices(logs: str) -> Set[int]:
     )  # decoloring
 
 
-@pytest.mark.asyncio
 async def test_testing_output(run_cairo_test_runner: RunCairoTestRunnerFixture):
     testing_summary = await run_cairo_test_runner(
         Path(__file__).parent / "testing_timing_test.cairo"
@@ -43,20 +42,20 @@ async def test_testing_output(run_cairo_test_runner: RunCairoTestRunnerFixture):
         ],
     )
 
-    test3 = testing_summary._get_formatted_slow_tests(3)
+    test3 = testing_summary._format_slow_test_cases_list(3)
     assert_in_order(test3)
     indices3 = get_one_digit_test_indices(test3)
     assert {1, 2, 3} == indices3
 
-    test4 = testing_summary._get_formatted_slow_tests(4)
+    test4 = testing_summary._format_slow_test_cases_list(4)
     assert_in_order(test4)
     assert {1, 2, 3, 4} == get_one_digit_test_indices(test4)
 
     # Specyfing a number too big should have no effect, because of potential skipped tests.
-    test5 = testing_summary._get_formatted_slow_tests(5)
+    test5 = testing_summary._format_slow_test_cases_list(5)
     assert_in_order(test5)
     assert {1, 2, 3, 4} == get_one_digit_test_indices(test5)
 
     # Zero should yield no result
-    test0 = testing_summary._get_formatted_slow_tests(0)
+    test0 = testing_summary._format_slow_test_cases_list(0)
     assert test0 == ""
