@@ -31,6 +31,7 @@ jobs:
           path: | 
             ~/.cache/pypoetry
             ~/.poetry
+            ~/.bashrc
           key: poetry-${{ hashFiles('poetry.lock') }}
 
   lint:
@@ -44,6 +45,7 @@ jobs:
           path: | 
             ~/.cache/pypoetry
             ~/.poetry
+            ~/.bashrc
           key: poetry-${{ hashFiles('poetry.lock') }}
       - name: Check types
         run: |
@@ -66,6 +68,7 @@ jobs:
           path: |
             ~/.cache/pypoetry
             ~/.poetry
+            ~/.bashrc
           key: poetry-${{ hashFiles('poetry.lock') }}
       - name: Unit tests
         run: |
@@ -93,6 +96,7 @@ jobs:
           path: |
             ~/.cache/pypoetry
             ~/.poetry
+            ~/.bashrc
           key: poetry-${{ hashFiles('poetry.lock') }}
       - name: E2E tests
         run: |
