@@ -5,7 +5,6 @@ sidebar_label: Deployment
 # Deployment
 
 ## Prerequisites
-- [Factory Contract pattern](https://research.csiro.au/blockchainpatterns/general-patterns/contract-structural-patterns/factory-contract/)
 - [Deploying a contract by another contract](https://www.cairo-lang.org/docs/hello_starknet/deploying_from_contracts.html?highlight=class%20hash)
 
 
