@@ -129,15 +129,6 @@ class TestRunner:
                 await invoke_setup(test_suite.setup_fn_name, execution_state)
 
         except StarkException as ex:
-            if self.is_constructor_args_exception(ex):
-                ex = ProtostarException(
-                    (
-                        "Protostar doesn't support the unit testing approach for"
-                        "files with a constructor expecting arguments."
-                        "Restructure your code or use `deploy_contract` cheatcode."
-                    )
-                )
-
             self.shared_tests_state.put_result(
                 BrokenTestSuite(
                     file_path=test_suite.test_path,
@@ -171,9 +162,3 @@ class TestRunner:
                         captured_stdout=new_execution_state.output_recorder.get_captures(),
                     )
                 )
-
-    @staticmethod
-    def is_constructor_args_exception(ex: StarkException) -> bool:
-        if not ex.message:
-            return False
-        return "constructor" in ex.message and "__calldata_actual_size" in ex.message
