@@ -34,7 +34,7 @@ jobs:
           key: poetry-${{ hashFiles('poetry.lock') }}
       - name: Debug current dir
         run: |
-          ls -R
+          ls -Ra
 
   lint:
     name: Check formatting, linting and types
