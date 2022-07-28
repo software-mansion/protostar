@@ -15,7 +15,3 @@ import {useCurrentSidebarCategory} from '@docusaurus/theme-common';
 
 <DocCardList items={useCurrentSidebarCategory().items}/>
 ```
-
-:::info
-If you encountered an problem with Protostar, you can always use the official [StarkNet CLI](https://docs.starknet.io/docs/CLI/commands).
-:::
