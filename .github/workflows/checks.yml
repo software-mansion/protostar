@@ -9,7 +9,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  setup:
+    name: Download deps, install poetry, populate caches
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -19,11 +20,31 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
-      - name: Install dependencies
+      - name: Install poetry, and dependencies
         run: |
           python -m pip install --upgrade pip
           pip install poetry
           poetry install
+      - name: Populate caches
+        uses: actions/cache@v3
+        with:
+          path: | 
+            ~/.cache/pypoetry
+            ~/.poetry
+          key: poetry-${{ hashFiles('poetry.lock') }}
+
+  lint:
+    name: Check formatting, linting and types
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Restore caches
+        uses: actions/cache@v3
+        with:
+          path: | 
+            ~/.cache/pypoetry
+            ~/.poetry
+          key: poetry-${{ hashFiles('poetry.lock') }}
       - name: Check types
         run: |
           poetry run poe type_check
@@ -33,6 +54,19 @@ jobs:
       - name: Analyzing the code with pylint
         run: |
           poetry run poe lint
+
+  unit-and-integration-tests:
+    name: Unit and integration tests + coverage upload
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Restore caches
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/pypoetry
+            ~/.poetry
+          key: poetry-${{ hashFiles('poetry.lock') }}
       - name: Unit tests
         run: |
           poetry run poe test_unit
@@ -42,11 +76,24 @@ jobs:
       - name: Build
         run: |
           poetry run poe build
-      - name: E2E tests
-        run: |
-          poetry run poe test_e2e
       - name: Convert coverage to XML
         run: |
           poetry run python -m coverage xml
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
+
+  e2e-tests:
+    name: Unit and integration tests + coverage upload
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Restore caches
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/pypoetry
+            ~/.poetry
+          key: poetry-${{ hashFiles('poetry.lock') }}
+      - name: E2E tests
+        run: |
+          poetry run poe test_e2e
