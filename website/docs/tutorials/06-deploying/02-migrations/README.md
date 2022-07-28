@@ -64,7 +64,7 @@ Run `protostar migrate` with the `--no-confirm` flag to skip this check.
 :::
 
 
-If you build the project, Protostar will print the data flow in the command line.
+If you build the project, Protostar will print migration logs in the command line.
 
 ```text title="You can use this output for the debugging purposes"
 [INFO] (Protostar → StarkNet) DECLARE
