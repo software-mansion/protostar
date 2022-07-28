@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING, Callable
 from starkware.starknet.public.abi_structs import (
     prepare_type_for_abi,
@@ -238,18 +238,11 @@ class PrepareTestCaseVisitor(Visitor):
             return False
         return external_decorator.name == CONSTRUCTOR_DECORATOR
 
-    def visit_namespace_elements(self, elm: CodeElementFunction):
-        for block in elm.code_block.code_elements:
-            self.visit(block.code_elm)
-        return CodeBlock([el for el in elm.code_elements if not self.is_constructor(el.code_elm)])
-
-    def visit_CodeElementFunction(self, elm: CodeElementFunction):
-        if elm.element_type == "namespace":
-            self.visit_namespace_elements(elm)
-
     def visit_CodeBlock(self, elm: CodeBlock):
-        return CodeBlock([el for el in elm.code_elements if not self.is_constructor(el.code_elm)])
+        visited = super().visit_CodeBlock(elm)
+        removed_constructors = [el for el in visited.code_elements if not self.is_constructor(el.code_elm)]
 
+        return replace(visited, code_elements=removed_constructors)
 
     def _visit_default(self, obj):
-        pass
+        return obj
