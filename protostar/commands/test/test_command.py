@@ -129,7 +129,7 @@ class TestCommand(Command):
             safe_collecting=args.safe_collecting,
             exit_first=args.exit_first,
             seed=args.seed,
-            max_fuzz_examples=args.default,
+            max_fuzz_examples=args.max_fuzz_examples,
         )
         summary.assert_all_passed()
         return summary

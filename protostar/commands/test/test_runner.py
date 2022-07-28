@@ -127,8 +127,7 @@ class TestRunner:
 
         try:
             execution_state = await TestExecutionState.from_test_suite_definition(
-                self.user_contracts_compiler,
-                test_contract,
+                self.user_contracts_compiler, test_contract, self.config
             )
 
             if test_suite.setup_fn_name:
