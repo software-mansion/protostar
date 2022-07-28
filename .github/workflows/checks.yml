@@ -45,8 +45,9 @@ jobs:
             ~/.cache/pypoetry
             ~/.poetry
           key: poetry-${{ hashFiles('poetry.lock') }}
-      - name: Add poetry to path
-        run: export PATH="~/.poetry/bin:$PATH"
+      - name: Debug .poetry
+        run: |
+          ls -R ~/.poetry
       - name: Check types
         run: |
           ~/.poetry/bin/poetry run poe type_check
