@@ -9,7 +9,7 @@ This feature is actively developed. Many new additions or changes will land in f
 :::
 
 
-Migrations are Cairo files that help you deploy contracts to the StarkNet network. They are especially useful, when your project consists of multiple contracts. Migration code is mainly written in hints. Protostar injects special functions into hints' scope, which you can use to interact with the StarkNet. These functions are similar to cheatcodes used to test contracts, hence in this document we will refer to these functions as Migration Cheatcodes.
+Migrations are Cairo files that help you manage conntracts on the StarkNet. They are especially useful, when your project consists of multiple contracts. Migration code is mainly written in hints. Protostar injects special functions into hints' scope, which you can use to interact with the StarkNet. These functions are similar to cheatcodes used to test contracts, hence in this document we will refer to these functions as migration cheatcodes.
 
 :::info
 Protostar aims to make Migration Cheatcodes a subset of Testing Cheatcodes in order to allow testing migration scripts against Protostar's StarkNet. 
