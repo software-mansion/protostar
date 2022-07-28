@@ -183,4 +183,4 @@ def _get_formatted_file_path(file_path: Path) -> str:
 
 
 def _get_formatted_execution_time(execution_time: float) -> str:
-    return log_color_provider.colorize("GREY", f"(time={round(execution_time, 2)})")
+    return log_color_provider.colorize("GRAY", f"(time={round(execution_time, 2)})")

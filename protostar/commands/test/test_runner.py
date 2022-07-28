@@ -171,7 +171,7 @@ class TestRunner:
                         file_path=test_suite.test_path,
                         test_case_name=test_case_name,
                         exception=ex,
-                        execution_time=time.perf_counter() - start_time,
+                        execution_time=time.perf_counter() - start_time,  # type: ignore
                         captured_stdout=new_execution_state.output_recorder.get_captures(),
                     )
                 )

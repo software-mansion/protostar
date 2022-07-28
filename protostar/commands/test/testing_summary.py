@@ -1,7 +1,7 @@
 from collections import defaultdict
 from logging import Logger
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Union
 
 from protostar.commands.test.test_cases import (
     BrokenTestSuite,
@@ -60,6 +60,24 @@ class TestingSummary:
                 log_color_provider.bold("Seed: ".ljust(header_width))
                 + str(self.testing_seed.value)
             )
+
+    def log_slowest(
+        self,
+        logger: Logger,
+        slowest_tests_to_report_count: int,
+    ):
+        try:
+            if (
+                slowest_tests_to_report_count
+                and (len(self.failed) + len(self.passed)) > 0
+            ):
+                logger.info(log_color_provider.bold("Slowest test cases:"))
+                print(
+                    self._get_formatted_slow_tests(slowest_tests_to_report_count),
+                    end="\n\n",
+                )
+        except KeyboardInterrupt:  # Avoid traceback
+            pass
 
     def assert_all_passed(self):
         if self.failed or self.broken:
@@ -155,3 +173,39 @@ class TestingSummary:
             test_suites_result.append(f"{total_count} total")
 
         return test_suites_result
+
+    def _get_slowest_list(
+        self,
+        failed_and_passed_list: List[Union[PassedTestCase, FailedTestCase]],
+        count: int,
+    ) -> List[Union[PassedTestCase, FailedTestCase]]:
+        lst = sorted(
+            failed_and_passed_list, key=lambda x: x.execution_time, reverse=True
+        )
+        return lst[: min(count, len(lst))]
+
+    def _get_formatted_slow_tests(self, count: int) -> str:
+
+        slowest = self._get_slowest_list(self.failed + self.passed, count)  # type: ignore
+
+        rows: List[List[str]] = []
+        for i, test_case in enumerate(slowest, 1):
+            row: List[str] = []
+            row.append(
+                # pylint: disable=line-too-long
+                f"[{log_color_provider.colorize('RED' if isinstance(test_case, FailedTestCase) else 'GREEN', str(i))}]  "
+            )
+
+            row.append(
+                f"{log_color_provider.colorize('GRAY', str(test_case.file_path))}"
+            )
+            row.append(test_case.test_case_name)
+            row.append(f"{test_case.execution_time:.2f} s")
+
+            rows.append(row)
+
+        widths = [max(map(len, col)) for col in zip(*rows)]
+        return "\n".join(
+            "  ".join((val.ljust(width) for val, width in zip(row, widths)))
+            for row in rows
+        )
