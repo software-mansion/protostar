@@ -4,7 +4,7 @@ from pytest_mock import MockerFixture
 
 from protostar.utils.compiler.pass_managers import (
     StarknetPassManagerFactory,
-    TestCasePassMangerFactory,
+    TestSuitePassMangerFactory,
 )
 from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
@@ -24,7 +24,7 @@ def oracle_abi() -> AbiType:
 async def test_case_compile_pass_removes_constructor_oracle(mocker: MockerFixture):
     compiler = StarknetCompiler(
         config=CompilerConfig(include_paths=[], disable_hint_validation=False),
-        pass_manager_factory=TestCasePassMangerFactory,
+        pass_manager_factory=TestSuitePassMangerFactory,
     )
     contract_class = compiler.compile_contract(
         Path(__file__).parent / "test_unit_with_constructor.cairo"
@@ -41,7 +41,7 @@ async def test_case_compile_pass_removes_namespace_constructor_oracle(
 ):
     compiler = StarknetCompiler(
         config=CompilerConfig(include_paths=[], disable_hint_validation=False),
-        pass_manager_factory=TestCasePassMangerFactory,
+        pass_manager_factory=TestSuitePassMangerFactory,
     )
     contract_class = compiler.compile_contract(
         Path(__file__).parent / "test_unit_with_namespace_constructor.cairo"

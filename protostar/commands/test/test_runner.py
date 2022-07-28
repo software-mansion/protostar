@@ -21,7 +21,7 @@ from protostar.commands.test.test_suite import TestSuite
 from protostar.protostar_exception import ProtostarException
 from protostar.utils.compiler.pass_managers import (
     ProtostarPassMangerFactory,
-    TestCasePassMangerFactory,
+    TestSuitePassMangerFactory,
 )
 from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
@@ -42,7 +42,7 @@ class TestRunner:
             config=CompilerConfig(
                 include_paths=include_paths, disable_hint_validation=True
             ),
-            pass_manager_factory=TestCasePassMangerFactory,
+            pass_manager_factory=TestSuitePassMangerFactory,
         )
 
         self.user_contracts_compiler = StarknetCompiler(

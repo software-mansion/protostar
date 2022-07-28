@@ -75,7 +75,7 @@ class StarknetPassManagerFactory(PassManagerFactory):
 
 class TestCollectorPassManagerFactory(StarknetPassManagerFactory):
     """
-    Very fast pass only colleciting ABI functions
+    Very fast pass only collecting ABI functions
     """
 
     @staticmethod
@@ -125,7 +125,7 @@ class ProtostarPassMangerFactory(StarknetPassManagerFactory):
         return manager
 
 
-class TestCasePassMangerFactory(ProtostarPassMangerFactory):
+class TestSuitePassMangerFactory(ProtostarPassMangerFactory):
     """
     Does everything done by `ProtostarPassMangerFactory` and additionally auto-removes constructor from contract
     """
