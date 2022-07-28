@@ -49,7 +49,7 @@ jobs:
         run: export PATH="~/.poetry/bin:$PATH"
       - name: Check types
         run: |
-          poetry run poe type_check
+          ~/.poetry/bin/poetry run poe type_check
       - name: Check formatting with black
         run: |
           poetry run poe format_check
