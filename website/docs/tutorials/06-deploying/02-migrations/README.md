@@ -16,7 +16,7 @@ Protostar aims to make Migration Cheatcodes a subset of Testing Cheatcodes in or
 :::
 
 ## Creating a migration file
-You can create a migration file anywhere, but we recommend creating them inside a `migrations` directory. Currently, Protostar doesn't enforce any naming convention for migration files. We recommend name: `migration_NUMBER_TITLE.cairo`, for example `migration_01_init.cairo`.
+You can create a migration file anywhere, but we recommend creating them inside a `migrations` directory. Currently, Protostar doesn't enforce any naming convention for migration files. In this tutorial we use a naming convention: `migration_NUMBER_TITLE.cairo`, for example `migration_01_init.cairo`.
 
 :::info
 You can't import a Cairo file, if its name starts with a digit. In the future, you might import your migration files for testing purposes.
