@@ -41,10 +41,11 @@ from starkware.starknet.public.abi import AbiType
 
 from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_manager
 from starkware.cairo.lang.compiler.ast.code_elements import (
-    CodeElementFunction,
+    CodeElementFunction, CodeElement
 )
 from starkware.cairo.lang.compiler.ast.visitor import Visitor
-from starkware.starknet.compiler.external_wrapper import get_abi_entry_type
+from starkware.starknet.compiler.external_wrapper import ( get_abi_entry_type, CONSTRUCTOR_DECORATOR)
+from starkware.cairo.lang.compiler.ast.code_elements import CodeBlock
 
 if TYPE_CHECKING:
     from protostar.utils.starknet_compilation import CompilerConfig
@@ -69,6 +70,9 @@ class StarknetPassManagerFactory(PassManagerFactory):
 
 
 class TestCollectorPassManagerFactory(StarknetPassManagerFactory):
+    """
+    Very fast pass only colleciting ABI functions
+    """
     @staticmethod
     def build(config: "CompilerConfig") -> PassManager:
         read_module = get_module_reader(cairo_path=config.include_paths).read
@@ -89,6 +93,9 @@ class TestCollectorPassManagerFactory(StarknetPassManagerFactory):
 
 
 class ProtostarPassMangerFactory(StarknetPassManagerFactory):
+    """
+    Standard StarkNet pass which includes types used for storage_vars in ABI.
+    """
     @staticmethod
     def build(config: "CompilerConfig") -> PassManager:
         read_module = get_module_reader(cairo_path=config.include_paths).read
@@ -107,6 +114,22 @@ class ProtostarPassMangerFactory(StarknetPassManagerFactory):
                 ProtostarPreprocessor,
                 None,
                 dict(hint_whitelist=hint_whitelist),
+            ),
+        )
+        return manager
+
+class TestCasePassMangerFactory(ProtostarPassMangerFactory):
+    """
+    Does everything done by `ProtostarPassMangerFactory` and additionally auto-removes constructor from contract
+    """
+    @staticmethod
+    def build(config: "CompilerConfig") -> PassManager:
+        manager = ProtostarPassMangerFactory.build(config)
+        manager.add_before(
+            existing_stage="identifier_collector",
+            new_stage_name="remove_constructors",
+            new_stage=VisitorStage(
+                lambda context: PrepareTestCaseVisitor(), modify_ast=True
             ),
         )
         return manager
@@ -196,6 +219,37 @@ class TestCollectorPreprocessor(Visitor):
 
     def get_program(self):
         return TestCollectorPreprocessedProgram(abi=self.abi)
+
+    def _visit_default(self, obj):
+        pass
+
+
+class PrepareTestCaseVisitor(Visitor):
+    """
+    This preprocessor removes constructors from module.
+    """
+
+    @staticmethod
+    def is_constructor(elm: CodeElement) -> bool:
+        if not isinstance(elm, CodeElementFunction):
+            return False
+        external_decorator, _, _ = parse_entry_point_decorators(elm=elm)
+        if not external_decorator:
+            return False
+        return external_decorator.name == CONSTRUCTOR_DECORATOR
+
+    def visit_namespace_elements(self, elm: CodeElementFunction):
+        for block in elm.code_block.code_elements:
+            self.visit(block.code_elm)
+        return CodeBlock([el for el in elm.code_elements if not self.is_constructor(el.code_elm)])
+
+    def visit_CodeElementFunction(self, elm: CodeElementFunction):
+        if elm.element_type == "namespace":
+            self.visit_namespace_elements(elm)
+
+    def visit_CodeBlock(self, elm: CodeBlock):
+        return CodeBlock([el for el in elm.code_elements if not self.is_constructor(el.code_elm)])
+
 
     def _visit_default(self, obj):
         pass

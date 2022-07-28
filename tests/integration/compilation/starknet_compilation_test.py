@@ -4,7 +4,7 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 
 from protostar.utils.compiler.pass_managers import (
-    ProtostarPassMangerFactory,
+    ProtostarPassMangerFactory, TestCasePassMangerFactory
 )
 from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
@@ -42,9 +42,20 @@ async def test_protostar_pass(mocker: MockerFixture):
 async def test_case_compile_pass_removes_constructor(mocker: MockerFixture):
     compiler = StarknetCompiler(
         config=CompilerConfig(include_paths=[], disable_hint_validation=False),
-        pass_manager_factory=ProtostarPassMangerFactory,
+        pass_manager_factory=TestCasePassMangerFactory,
     )
 
     contract_class = compiler.compile_contract(Path(__file__).parent / "test_unit_with_constructor.cairo")
+    assert contract_class.abi
+    assert not [el for el in contract_class.abi if el["type"] == "constructor"]
+
+async def test_case_compile_pass_removes_namespace_constructor(mocker: MockerFixture):
+    # TODO add check if others are ok
+    compiler = StarknetCompiler(
+        config=CompilerConfig(include_paths=[], disable_hint_validation=False),
+        pass_manager_factory=TestCasePassMangerFactory,
+    )
+
+    contract_class = compiler.compile_contract(Path(__file__).parent / "test_unit_with_namespace_constructor.cairo")
     assert contract_class.abi
     assert not [el for el in contract_class.abi if el["type"] == "constructor"]
