@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, Type, Union
+from typing import TYPE_CHECKING, Any, Type
 
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.starknet.business_logic.execution.objects import (
@@ -11,7 +11,6 @@ from starkware.starknet.storage.starknet_storage import BusinessLogicStarknetSto
 from typing_extensions import TypedDict
 
 from protostar.starknet.hint_local import HintLocal
-from protostar.starknet.delayed_builder import DelayedBuilder
 
 if TYPE_CHECKING:
     from protostar.starknet.cheatable_execute_entry_point import (
