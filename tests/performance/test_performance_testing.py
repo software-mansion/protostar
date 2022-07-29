@@ -206,7 +206,6 @@ async def prepare_tests(contract_class: ContractClass, test_suite: TestSuite):
         wait_for_completion(test_suite, shared_state)
 
 
-@pytest.mark.asyncio
 async def test_deploy_perf(aio_benchmark, tmp_path, basic_contract_path):
     test_source, case_names = make_test_file(
         Template("%{ deploy_contract('$contractpath') %}").substitute(
@@ -223,7 +222,6 @@ async def test_deploy_perf(aio_benchmark, tmp_path, basic_contract_path):
         aio_benchmark(run_tests)
 
 
-@pytest.mark.asyncio
 async def test_setup_perf(aio_benchmark, tmp_path, basic_contract_path):
     test_cases, case_names = make_test_file(
         """
@@ -253,7 +251,6 @@ async def test_setup_perf(aio_benchmark, tmp_path, basic_contract_path):
         aio_benchmark(run_tests)
 
 
-@pytest.mark.asyncio
 async def test_expect_revert_perf(aio_benchmark, tmp_path):
     test_cases, case_names = make_test_file(
         """
@@ -269,7 +266,6 @@ async def test_expect_revert_perf(aio_benchmark, tmp_path):
         aio_benchmark(run_tests)
 
 
-@pytest.mark.asyncio
 async def test_expect_events_perf(aio_benchmark, tmp_path):
     test_cases, case_names = make_test_file(
         """
@@ -296,7 +292,6 @@ async def test_expect_events_perf(aio_benchmark, tmp_path):
         aio_benchmark(run_tests)
 
 
-@pytest.mark.asyncio
 async def test_declare_perf(aio_benchmark, tmp_path, basic_contract_path):
     test_cases, case_names = make_test_file(
         Template('%{ declare("$contractpath") %}').substitute(
@@ -312,7 +307,6 @@ async def test_declare_perf(aio_benchmark, tmp_path, basic_contract_path):
         aio_benchmark(run_tests)
 
 
-@pytest.mark.asyncio
 async def test_prepare_perf(aio_benchmark, tmp_path, basic_contract_path):
     test_cases, case_names = make_test_file(
         "%{ prepared = prepare(context.declared, [1,2,3]) %}"
@@ -338,7 +332,6 @@ async def test_prepare_perf(aio_benchmark, tmp_path, basic_contract_path):
         aio_benchmark(run_tests)
 
 
-@pytest.mark.asyncio
 async def test_start_prank_perf(aio_benchmark, tmp_path):
     test_cases, case_names = make_test_file(
         test_body="""
@@ -359,7 +352,6 @@ async def test_start_prank_perf(aio_benchmark, tmp_path):
         aio_benchmark(run_tests)
 
 
-@pytest.mark.asyncio
 async def test_roll_perf(aio_benchmark, tmp_path):
     test_cases, case_names = make_test_file(
         test_body="""
@@ -380,7 +372,6 @@ async def test_roll_perf(aio_benchmark, tmp_path):
         aio_benchmark(run_tests)
 
 
-@pytest.mark.asyncio
 async def test_warp_perf(aio_benchmark, tmp_path):
     test_cases, case_names = make_test_file(
         test_body="""
@@ -401,7 +392,6 @@ async def test_warp_perf(aio_benchmark, tmp_path):
         aio_benchmark(run_tests)
 
 
-@pytest.mark.asyncio
 async def test_assertions_perf(aio_benchmark, tmp_path, protostar_cairo_path):
     # TODO: Leverage fuzz testing here, when it's implemented
     # TODO: Add cases for both minus values when asserts are fixed
@@ -447,7 +437,6 @@ async def test_assertions_perf(aio_benchmark, tmp_path, protostar_cairo_path):
         aio_benchmark(run_tests)
 
 
-@pytest.mark.asyncio
 async def test_unit_testing_perf(aio_benchmark, tmp_path):
     test_cases, case_names = make_test_file(
         test_body="""
@@ -467,7 +456,6 @@ async def test_unit_testing_perf(aio_benchmark, tmp_path):
         aio_benchmark(run_tests)
 
 
-@pytest.mark.asyncio
 async def test_collecting_tests_perf(benchmark, tmp_path):
     test_cases, case_names = make_test_file(
         test_body="""
