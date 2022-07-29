@@ -1,7 +1,7 @@
 # pylint: disable=invalid-name
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional, Union, Set
+from typing import List, Optional, Set, Union
 
 import pytest
 from pytest_mock import MockerFixture
@@ -83,6 +83,7 @@ class RunCairoTestRunnerFixture(Protocol):
         self,
         path: Path,
         seed: Optional[int] = None,
+        max_fuzz_examples=100,
     ) -> TestingSummary:
         ...
 
@@ -92,11 +93,12 @@ def run_cairo_test_runner_fixture(mocker: MockerFixture) -> RunCairoTestRunnerFi
     async def run_cairo_test_runner(
         path: Path,
         seed: Optional[int] = None,
+        max_fuzz_examples=100,
     ) -> TestingSummary:
         return await TestCommand(
             project_root_path=Path(),
             protostar_directory=mocker.MagicMock(),
             project_compiler=mocker.MagicMock(),
-        ).test(targets=[str(path)], seed=seed)
+        ).test(targets=[str(path)], seed=seed, max_fuzz_examples=max_fuzz_examples)
 
     return run_cairo_test_runner
