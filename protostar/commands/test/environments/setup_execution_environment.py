@@ -1,3 +1,4 @@
+import sys
 from typing import List
 
 from starkware.starknet.business_logic.execution.objects import CallInfo
@@ -13,6 +14,7 @@ from protostar.commands.test.cheatcodes import (
     StoreCheatcode,
     WarpCheatcode,
     ReflectCheatcode,
+    RejectCheatcode,
 )
 from protostar.commands.test.cheatcodes.load_cheatcode import LoadCheatcode
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
@@ -72,4 +74,5 @@ class SetupCheatcodeFactory(CheatcodeFactory):
             StoreCheatcode(syscall_dependencies),
             LoadCheatcode(syscall_dependencies),
             ReflectCheatcode(syscall_dependencies),
+            RejectCheatcode(syscall_dependencies),
         ]
