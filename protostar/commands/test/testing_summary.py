@@ -2,7 +2,6 @@ from collections import defaultdict
 from logging import Logger
 from pathlib import Path
 from typing import Dict, List, Union
-from dataclasses import dataclass
 
 from protostar.commands.test.test_cases import (
     BrokenTestSuite,
