@@ -115,7 +115,7 @@ async def prepare_suite(
     )
 
     # pylint: disable=protected-access
-    execution_state = await runner._prepare_suite(
+    execution_state = await runner._build_execution_state(
         test_contract=contract,
         test_suite=test_suite,
     )
@@ -199,7 +199,7 @@ async def prepare_tests(contract_class: ContractClass, test_suite: TestSuite):
 
         async def run():
             # pylint: disable=protected-access
-            await runner._invoke_cases(test_suite, execution_state)
+            await runner._invoke_test_cases(test_suite, execution_state)
 
         yield run
 

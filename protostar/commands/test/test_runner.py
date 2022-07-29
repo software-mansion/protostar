@@ -86,13 +86,13 @@ class TestRunner:
                 add_debug_info=True,
             )
 
-            execution_state = await self._prepare_suite(
+            execution_state = await self._build_execution_state(
                 test_contract=compiled_test,
                 test_suite=test_suite,
             )
             if not execution_state:
                 return
-            await self._invoke_cases(
+            await self._invoke_test_cases(
                 test_suite=test_suite,
                 execution_state=execution_state,
             )
