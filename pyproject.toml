@@ -62,7 +62,7 @@ test_e2e.shell = "pytest tests/e2e"
 test_html = [{shell = "coverage html && open ./htmlcov/index.html"}]
 test_integration.shell = "coverage run -a -m pytest tests/integration"
 benchmark.shell = "pytest tests/benchmarks --benchmark-save-data --benchmark-autosave"
-statistical_test.shell = "python ./tests/performance/statistical_test.py"
+statistical_test.shell = "python ./tests/benchmarks/statistical_test.py"
 test_report = [{shell = "coverage report"}]
 test_unit.shell = "coverage run -m pytest protostar/*"
 type_check = "pyright"
