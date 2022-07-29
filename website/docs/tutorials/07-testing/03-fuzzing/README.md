@@ -179,6 +179,12 @@ amount = 340282366920938463463374607431768211456
 11:41:48 [INFO] Seed:        4258368192
 ```
 
+:::info
+By default, Protostar tries to fail a test case within 100 examples. The more complex code, the more examples are needed to find uncommon bugs. Use `--max-fuzz-examples` parameter to change the number of examples.
+:::
+
+
+
 ### Fixing the bug
 
 The test fails because if `amount` value is high enough, because it is a `felt`, when it is
