@@ -227,10 +227,24 @@ def test_report_slowest(protostar, copy_fixture):
 
 
 @pytest.mark.usefixtures("init")
-def test_report_slowest_no_flag(protostar, copy_fixture):
-    copy_fixture("basic.cairo", "./src")
-    copy_fixture("test_print_passed.cairo", "./tests")
+def test_seed_and_max_fuzz_examples_impact_testing_results(
+    protostar: ProtostarFixture, copy_fixture
+):
+    copy_fixture("test_fuzz.cairo", "./tests")
+    seed = str(213742)
+    max_fuzz_examples = 2
 
-    result = protostar(["test", "tests"], ignore_exit_code=True)
+    result = protostar(
+        [
+            "--no-color",
+            "test",
+            "--seed",
+            seed,
+            "--max-fuzz-examples",
+            str(max_fuzz_examples),
+        ],
+        ignore_exit_code=True,
+    )
 
-    assert "Slowest test cases" not in result
+    assert seed in result
+    assert f"fuzz_runs={max_fuzz_examples}" in result
