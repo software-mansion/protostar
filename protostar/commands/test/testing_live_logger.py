@@ -38,6 +38,7 @@ class TestingLiveLogger:
             logger=self._logger,
             collected_test_cases_count=test_collector_result.test_cases_count,
             collected_test_suites_count=len(test_collector_result.test_suites),
+            slowest_test_cases_to_report_count=self.slowest_tests_to_report_count,
         )
 
     def log(
