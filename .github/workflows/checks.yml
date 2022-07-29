@@ -155,8 +155,11 @@ jobs:
 
       - name: Run performance tests
         run: |
-          poetry run poe test_performance
+          poetry run poe benchmark
       - uses: actions/upload-artifact@v3
         with:
           name: benchmark
           path: .benchmarks
+      - name: Assess performance
+        run: |
+          poetry run poe statistical_test
