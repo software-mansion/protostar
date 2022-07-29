@@ -1,5 +1,4 @@
 from copy import deepcopy
-
 from starkware.cairo.lang.vm.vm_consts import (
     is_simple_type,
     VmConstsReference,
