@@ -4,7 +4,7 @@ from glob import glob
 from pathlib import Path
 from typing import List, Tuple
 
-from tests.performance.constants import ROUNDS_NUMBER, THRESHOLD, BENCHMARKS_PATH
+from tests.benchmarks.constants import ROUNDS_NUMBER, THRESHOLD, BENCHMARKS_PATH
 
 
 def get_benchmarks() -> List[Tuple[dict, float]]:

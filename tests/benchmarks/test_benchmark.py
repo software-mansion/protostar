@@ -17,7 +17,7 @@ from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.test_suite import TestSuite
 from protostar.utils.compiler.pass_managers import ProtostarPassMangerFactory
 from protostar.utils.starknet_compilation import StarknetCompiler, CompilerConfig
-from tests.performance.constants import ROUNDS_NUMBER
+from tests.benchmarks.constants import ROUNDS_NUMBER
 
 SCRIPT_DIRECTORY = Path(__file__).parent
 
