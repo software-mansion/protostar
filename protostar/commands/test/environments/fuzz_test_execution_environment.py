@@ -31,7 +31,7 @@ from protostar.commands.test.test_environment_exceptions import ReportedExceptio
 from protostar.commands.test.testing_seed import TestingSeed
 from protostar.utils.abi import get_function_parameters
 
-HYPOTHESIS_VERBOSITY = Verbosity.verbose
+HYPOTHESIS_VERBOSITY = Verbosity.normal
 """
 Change this value to ``Verbosity.verbose`` while debugging Hypothesis adapter code.
 """

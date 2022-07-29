@@ -2,7 +2,6 @@ from typing import Any, Callable
 
 import hypothesis
 import hypothesis.errors
-
 from protostar.starknet.cheatcode import Cheatcode
 
 
@@ -15,5 +14,8 @@ class RejectCheatcode(Cheatcode):
         return self.reject
 
     def reject(self) -> None:
-        hypothesis.reject()
+        try:
+            hypothesis.reject()
+        except hypothesis.errors.UnsatisfiedAssumption as exc:
+            raise exc
         return
