@@ -66,7 +66,7 @@ def main():
     benchmarks = get_benchmarks()
     assert len(benchmarks) == 2, "There are more than 2 benchmarks to compare"
 
-    benchmarks.sort(key=lambda benchmark: benchmark[1])
+    benchmarks.sort(key=lambda benchmark: benchmark[1])  # type: ignore
     (before, _), (after, _) = benchmarks
 
     for test in before["benchmarks"]:
