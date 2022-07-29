@@ -1,4 +1,6 @@
-from typing import Any, Callable, Optional
+from typing import Optional
+
+from typing_extensions import Protocol
 
 from protostar.commands.test.cheatcodes.declare_cheatcode import DeclareCheatcode
 from protostar.commands.test.cheatcodes.deploy_cheatcode import (
@@ -7,9 +9,16 @@ from protostar.commands.test.cheatcodes.deploy_cheatcode import (
 )
 from protostar.commands.test.cheatcodes.prepare_cheatcode import PrepareCheatcode
 from protostar.starknet.cheatcode import Cheatcode
-from protostar.utils.data_transformer import (
-    CairoOrPythonData,
-)
+from protostar.utils.data_transformer import CairoOrPythonData
+
+
+class DeployContractCheatcodeProtocol(Protocol):
+    def __call__(
+        self,
+        contract_path: str,
+        constructor_args: Optional[CairoOrPythonData] = None,
+    ) -> DeployedContract:
+        ...
 
 
 class DeployContractCheatcode(Cheatcode):
@@ -29,7 +38,7 @@ class DeployContractCheatcode(Cheatcode):
     def name(self) -> str:
         return "deploy_contract"
 
-    def build(self) -> Callable[..., Any]:
+    def build(self) -> DeployContractCheatcodeProtocol:
         return self.deploy_contract
 
     def deploy_contract(

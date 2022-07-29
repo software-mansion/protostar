@@ -1,5 +1,8 @@
 from protostar.cli.activity_indicator import ActivityIndicator
-from protostar.cli.argument_parser_facade import ArgumentParserFacade
+from protostar.cli.argument_parser_facade import (
+    ArgumentParserFacade,
+    MissingRequiredArgumentException,
+)
 from protostar.cli.argument_value_from_config_provider import (
     ArgumentValueFromConfigProvider,
 )

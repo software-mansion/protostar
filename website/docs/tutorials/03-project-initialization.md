@@ -27,9 +27,7 @@ The result of running `protostar init` is a configuration file `protostar.toml`,
 
 ## `protostar.toml`
 ### Project configuration
-Project configuration is required.
-
-```toml title="protostar.toml"
+```toml title="'protostar.toml' is required"
 ["protostar.config"]
 protostar_version = "0.1.0"
 
@@ -45,7 +43,7 @@ main = [
 ```
 ### Command configuration
 
-Not required arguments can be configured in the `protostar.toml`. It allows you to avoid passing arguments every time you run a command. Protostar checks `["protostar.COMMAND_NAME"]` section and looks for an argument value, for example:
+`protostar.toml` can be used to avoid passing arguments every time you run a command. Protostar searches for an argument value in the `["protostar.COMMAND_NAME"]` section, for example:
 ```toml title="protostar.toml"
 # ...
 
@@ -54,7 +52,7 @@ cairo-path = ["./lib/cairo_contracts/src"]
 ```
 
 
-If you want to configure an argument that is not tied to any command or an argument that is shared across many commands (e.g. `cairo-path`), specify it in the `["protostar.shared_command_configs"]` section. This is useful if you want to specify the same `cairo-path` for `build` and `test` commands as demonstrated on the following example:
+If you want to configure a generic argument or an argument that is used by multiple commands (e.g. `cairo-path`), specify it in the `["protostar.shared_command_configs"]` section. This is useful if you want to specify the same `cairo-path` for `build` and `test` commands as demonstrated on the following example:
 
 ```toml title="protostar.toml"
 # ...
