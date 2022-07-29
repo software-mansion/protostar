@@ -50,8 +50,7 @@ def extract_measure(before, after, test_name):
     return calc_t_student_measure(before_test, after_test)
 
 
-def assert_n(run, n):
-    """This functions makes sure the number of benchmark runs is right with the configuration"""
+def assert_benchmark_runs_matches_config(run):
     for benchmark in run["benchmarks"]:
         times_run = benchmark["stats"]["rounds"] * benchmark["stats"]["iterations"]
         assert (
