@@ -1,5 +1,4 @@
 import multiprocessing
-import sys
 from contextlib import asynccontextmanager
 import asyncio
 import threading
@@ -12,7 +11,6 @@ import pytest
 from starkware.starknet.services.api.contract_class import ContractClass
 
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
-from protostar.commands.test.test_cases import PassedTestCase
 from protostar.commands.test.test_collector import TestCollector
 from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
@@ -125,13 +123,7 @@ async def prepare_suite(
 def wait_for_completion(test_suite: TestSuite, tests_state: SharedTestsState):
     tests_left = len(test_suite.test_case_names)
     while tests_left:
-        test_result = tests_state.get_result()
-        if isinstance(test_result, PassedTestCase):
-            out = sys.stdout
-        else:
-            out = sys.stderr
-
-        print(test_result.format(), file=out)
+        tests_state.get_result()
         tests_left -= 1
 
     assert (
