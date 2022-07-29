@@ -5,7 +5,7 @@ import functools
 import inspect
 import re
 from dataclasses import dataclass, field
-from typing import Any, Awaitable, Callable, Dict, List, Optional
+from typing import Any, Awaitable, Callable, Dict, List
 
 from hypothesis import Verbosity, given, seed, settings
 from hypothesis.database import InMemoryExampleDatabase
@@ -16,6 +16,7 @@ from protostar.commands.test.cheatcodes.reflect.cairo_struct import CairoStructH
 from protostar.commands.test.environments.test_execution_environment import (
     TestCaseCheatcodeFactory,
     TestExecutionEnvironment,
+    TestExecutionResult,
 )
 from protostar.commands.test.fuzzing.fuzz_input_exception_metadata import (
     FuzzInputExceptionMetadata,
@@ -47,7 +48,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         super().__init__(state)
         self.initial_state = state
 
-    async def invoke(self, function_name: str) -> Optional[ExecutionResourcesSummary]:
+    async def invoke(self, function_name: str) -> TestExecutionResult:
         abi = self.state.contract.abi
         parameters = get_function_parameters(abi, function_name)
         assert (
@@ -123,12 +124,17 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             with self.state.output_recorder.redirect("test"):
                 await to_thread(test_thread)
         except HypothesisFailureSmugglingError as escape_err:
+            if runs_counter.count > 1:
+                escape_err.error.execution_info["fuzz_runs"] = runs_counter.count
             escape_err.error.metadata.append(
                 FuzzInputExceptionMetadata(escape_err.inputs)
             )
             raise escape_err.error
 
-        return ExecutionResourcesSummary.sum(execution_resources)
+        return TestExecutionResult(
+            execution_resources=ExecutionResourcesSummary.sum(execution_resources),
+            fuzz_runs_count=runs_counter.count,
+        )
 
     def fork_state_for_test(self):
         """

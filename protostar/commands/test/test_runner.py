@@ -155,7 +155,7 @@ class TestRunner:
         for test_case_name in test_suite.test_case_names:
             new_execution_state = execution_state.fork()
             try:
-                execution_resources = await invoke_test_case(
+                execution_result = await invoke_test_case(
                     test_case_name,
                     new_execution_state,
                 )
@@ -163,8 +163,9 @@ class TestRunner:
                     PassedTestCase(
                         file_path=test_suite.test_path,
                         test_case_name=test_case_name,
-                        execution_resources=execution_resources,
+                        execution_resources=execution_result.execution_resources,
                         captured_stdout=new_execution_state.output_recorder.get_captures(),
+                        fuzz_runs_count=execution_result.fuzz_runs_count,
                     )
                 )
             except ReportedException as ex:

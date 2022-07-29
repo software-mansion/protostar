@@ -29,6 +29,7 @@ class PassedTestCase(TestCaseResult):
     test_case_name: str
     execution_resources: Optional[ExecutionResourcesSummary]
     captured_stdout: Dict[OutputName, str] = field(default_factory=dict)
+    fuzz_runs_count: int = 1
 
     def format(self) -> str:
         first_line_elements: List[str] = []
@@ -37,24 +38,25 @@ class PassedTestCase(TestCaseResult):
             f"{_get_formatted_file_path(self.file_path)} {self.test_case_name}"
         )
 
+        info_items: List[str] = []
+        if self.fuzz_runs_count > 1:
+            info_items.append(
+                f"fuzz_runs={log_color_provider.bold(self.fuzz_runs_count)}"
+            )
+
         if self.execution_resources:
-            common_execution_resources_elements: List[str] = []
             if self.execution_resources.n_steps:
-                common_execution_resources_elements.append(
+                info_items.append(
                     f"steps={log_color_provider.bold(self.execution_resources.n_steps)}"
                 )
             if self.execution_resources.n_memory_holes:
-                common_execution_resources_elements.append(
+                info_items.append(
                     f"memory_holes={log_color_provider.bold(self.execution_resources.n_memory_holes)}"
                 )
-            merged_common_execution_resource_info = ", ".join(
-                common_execution_resources_elements
-            )
-            first_line_elements.append(
-                log_color_provider.colorize(
-                    "GRAY", f"({merged_common_execution_resource_info})"
-                )
-            )
+
+        if len(info_items) > 0:
+            info = ", ".join(info_items)
+            first_line_elements.append(log_color_provider.colorize("GRAY", f"({info})"))
 
         first_line = " ".join(first_line_elements)
 
@@ -95,10 +97,23 @@ class FailedTestCase(TestCaseResult):
 
     def format(self) -> str:
         result: List[str] = []
-        result.append(f"[{log_color_provider.colorize('RED', 'FAIL')}] ")
-        result.append(
+        first_line_items: List[str] = []
+
+        first_line_items.append(f"[{log_color_provider.colorize('RED', 'FAIL')}]")
+        first_line_items.append(
             f"{_get_formatted_file_path(self.file_path)} {self.test_case_name}"
         )
+
+        info_items = []
+        for key, value in self.exception.execution_info.items():
+            info_items.append(f"{key}={log_color_provider.bold(value)}")
+
+        if len(info_items) > 0:
+            info = ", ".join(info_items)
+            first_line_items.append(log_color_provider.colorize("GRAY", f"({info})"))
+
+        result.append(" ".join(first_line_items))
+
         result.append("\n")
         result.append(str(self.exception))
         result.append("\n")
