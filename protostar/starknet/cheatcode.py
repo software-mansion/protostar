@@ -21,11 +21,6 @@ if TYPE_CHECKING:
 
 
 class Cheatcode(BusinessLogicSysCallHandler, HintLocal):
-    exec_locals = {}
-    """
-        This property stores current execution locals of a hint.
-    """
-
     class SyscallDependencies(TypedDict):
         execute_entry_point_cls: Type["CheatableExecuteEntryPoint"]
         tx_execution_context: TransactionExecutionContext
@@ -48,5 +43,5 @@ class Cheatcode(BusinessLogicSysCallHandler, HintLocal):
         self.execute_entry_point_cls = syscall_dependencies["execute_entry_point_cls"]
 
     @abstractmethod
-    def build(self) -> Union[DelayedBuilder, Callable[..., Any]]:
+    def build(self) -> Any:
         ...
