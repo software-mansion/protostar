@@ -121,7 +121,7 @@ class TestRunner:
                 )
             )
 
-    async def _prepare_suite(
+    async def _build_execution_state(
         self,
         test_contract: ContractClass,
         test_suite: TestSuite,
