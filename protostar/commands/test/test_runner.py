@@ -1,4 +1,5 @@
 import asyncio
+import time
 import traceback
 from dataclasses import dataclass
 from logging import getLogger
@@ -19,7 +20,10 @@ from protostar.commands.test.test_environment_exceptions import ReportedExceptio
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.test_suite import TestSuite
 from protostar.protostar_exception import ProtostarException
-from protostar.utils.compiler.pass_managers import ProtostarPassMangerFactory
+from protostar.utils.compiler.pass_managers import (
+    ProtostarPassMangerFactory,
+    TestSuitePassMangerFactory,
+)
 from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
 logger = getLogger()
@@ -43,7 +47,7 @@ class TestRunner:
             config=CompilerConfig(
                 include_paths=include_paths, disable_hint_validation=True
             ),
-            pass_manager_factory=ProtostarPassMangerFactory,
+            pass_manager_factory=TestSuitePassMangerFactory,
         )
 
         self.user_contracts_compiler = StarknetCompiler(
@@ -134,15 +138,6 @@ class TestRunner:
                 await invoke_setup(test_suite.setup_fn_name, execution_state)
 
         except StarkException as ex:
-            if self.is_constructor_args_exception(ex):
-                ex = ProtostarException(
-                    (
-                        "Protostar doesn't support the unit testing approach for"
-                        "files with a constructor expecting arguments."
-                        "Restructure your code or use `deploy_contract` cheatcode."
-                    )
-                )
-
             self.shared_tests_state.put_result(
                 BrokenTestSuite(
                     file_path=test_suite.test_path,
@@ -154,6 +149,7 @@ class TestRunner:
 
         for test_case_name in test_suite.test_case_names:
             new_execution_state = execution_state.fork()
+            start_time = time.perf_counter()
             try:
                 execution_result = await invoke_test_case(
                     test_case_name,
@@ -164,6 +160,7 @@ class TestRunner:
                         file_path=test_suite.test_path,
                         test_case_name=test_case_name,
                         execution_resources=execution_result.execution_resources,
+                        execution_time=time.perf_counter() - start_time,
                         captured_stdout=new_execution_state.output_recorder.get_captures(),
                         fuzz_runs_count=execution_result.fuzz_runs_count,
                     )
@@ -174,12 +171,7 @@ class TestRunner:
                         file_path=test_suite.test_path,
                         test_case_name=test_case_name,
                         exception=ex,
+                        execution_time=time.perf_counter() - start_time,
                         captured_stdout=new_execution_state.output_recorder.get_captures(),
                     )
                 )
-
-    @staticmethod
-    def is_constructor_args_exception(ex: StarkException) -> bool:
-        if not ex.message:
-            return False
-        return "constructor" in ex.message and "__calldata_actual_size" in ex.message

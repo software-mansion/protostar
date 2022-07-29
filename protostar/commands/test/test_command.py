@@ -117,6 +117,12 @@ class TestCommand(Command):
                     "without finding any counter-example, falsification will terminate."
                 ),
             ),
+            Command.Argument(
+                name="report-slowest-tests",
+                type="int",
+                description="Print slowest tests at the end.",
+                default=0,
+            ),
         ]
 
     async def run(self, args) -> TestingSummary:
@@ -130,6 +136,7 @@ class TestCommand(Command):
             exit_first=args.exit_first,
             seed=args.seed,
             max_fuzz_examples=args.max_fuzz_examples,
+            slowest_tests_to_report_count=args.report_slowest_tests,
         )
         summary.assert_all_passed()
         return summary
@@ -147,6 +154,7 @@ class TestCommand(Command):
         exit_first: bool = False,
         seed: Optional[int] = None,
         max_fuzz_examples: int = 100,
+        slowest_tests_to_report_count: int = 0,
     ) -> TestingSummary:
         logger = getLogger()
         include_paths = [
@@ -191,6 +199,7 @@ class TestCommand(Command):
                     testing_summary,
                     no_progress_bar=no_progress_bar,
                     exit_first=exit_first,
+                    slowest_tests_to_report_count=slowest_tests_to_report_count,
                 )
                 TestScheduler(live_logger, worker=TestRunner.worker).run(
                     include_paths=include_paths,

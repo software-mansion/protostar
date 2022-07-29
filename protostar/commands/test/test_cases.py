@@ -12,7 +12,7 @@ from protostar.commands.test.test_environment_exceptions import (
 )
 from protostar.commands.test.test_output_recorder import OutputName, format_output_name
 from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
-from protostar.utils.log_color_provider import SupportedColorName, log_color_provider
+from protostar.utils.log_color_provider import log_color_provider
 
 
 @dataclass(frozen=True)
@@ -28,6 +28,7 @@ class TestCaseResult:
 class PassedTestCase(TestCaseResult):
     test_case_name: str
     execution_resources: Optional[ExecutionResourcesSummary]
+    execution_time: float
     captured_stdout: Dict[OutputName, str] = field(default_factory=dict)
     fuzz_runs_count: int = 1
 
@@ -39,6 +40,9 @@ class PassedTestCase(TestCaseResult):
         )
 
         info_items: List[str] = []
+
+        info_items.append(_get_formatted_execution_time(self.execution_time))
+
         if self.fuzz_runs_count > 1:
             info_items.append(
                 f"fuzz_runs={log_color_provider.bold(self.fuzz_runs_count)}"
@@ -74,7 +78,7 @@ class PassedTestCase(TestCaseResult):
                         )
                     )
 
-        stdout_elements = _get_formatted_stdout(self.captured_stdout, "GREEN")
+        stdout_elements = _get_formatted_stdout(self.captured_stdout)
 
         if len(second_line_elements) > 0 or len(stdout_elements) > 0:
             second_line_elements.insert(0, "      ")
@@ -93,6 +97,7 @@ class PassedTestCase(TestCaseResult):
 class FailedTestCase(TestCaseResult):
     test_case_name: str
     exception: ReportedException
+    execution_time: float
     captured_stdout: Dict[OutputName, str] = field(default_factory=dict)
 
     def format(self) -> str:
@@ -105,6 +110,9 @@ class FailedTestCase(TestCaseResult):
         )
 
         info_items = []
+
+        info_items.append(_get_formatted_execution_time(self.execution_time))
+
         for key, value in self.exception.execution_info.items():
             info_items.append(f"{key}={log_color_provider.bold(value)}")
 
@@ -122,7 +130,7 @@ class FailedTestCase(TestCaseResult):
             result.append(_get_formatted_metadata(metadata))
             result.append("\n")
 
-        result.extend(_get_formatted_stdout(self.captured_stdout, "RED"))
+        result.extend(_get_formatted_stdout(self.captured_stdout))
 
         return "".join(result)
 
@@ -166,9 +174,7 @@ def _get_formatted_metadata(metadata: ExceptionMetadata) -> str:
     return f"[{metadata.name}]:\n{metadata.format()}"
 
 
-def _get_formatted_stdout(
-    captured_stdout: Dict[OutputName, str], color: SupportedColorName
-) -> List[str]:
+def _get_formatted_stdout(captured_stdout: Dict[OutputName, str]) -> List[str]:
     result: List[str] = []
 
     if len(captured_stdout) == 0 or all(
@@ -176,7 +182,7 @@ def _get_formatted_stdout(
     ):
         return []
 
-    result.append(f"\n[{log_color_provider.colorize(color, 'captured stdout')}]:\n")
+    result.append(f"\n[{log_color_provider.colorize('CYAN', 'captured stdout')}]:\n")
 
     for name, value in captured_stdout.items():
         if value:
@@ -189,3 +195,7 @@ def _get_formatted_stdout(
 
 def _get_formatted_file_path(file_path: Path) -> str:
     return log_color_provider.colorize("GRAY", str(file_path))
+
+
+def _get_formatted_execution_time(execution_time: float) -> str:
+    return f"time={log_color_provider.bold(f'{execution_time:.2f}')}s"

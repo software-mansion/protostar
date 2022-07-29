@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Any, Callable, Type
+from typing import TYPE_CHECKING, Any, Type
 
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.starknet.business_logic.execution.objects import (
@@ -42,5 +42,5 @@ class Cheatcode(BusinessLogicSysCallHandler, HintLocal):
         self.execute_entry_point_cls = syscall_dependencies["execute_entry_point_cls"]
 
     @abstractmethod
-    def build(self) -> Callable[..., Any]:
+    def build(self) -> Any:
         ...
