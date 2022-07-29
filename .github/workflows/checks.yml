@@ -129,11 +129,6 @@ jobs:
       - name: E2E tests
         run: |
           poetry run poe test_e2e
-      - name: Convert coverage to XML
-        run: |
-          poetry run python -m coverage xml
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2
 
   performance-tests:
     name: Performance tests
