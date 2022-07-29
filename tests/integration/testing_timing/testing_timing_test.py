@@ -1,6 +1,5 @@
 from pathlib import Path
 from typing import Set
-from types import MethodType
 
 import pytest
 from protostar.commands.test.testing_summary import TestingSummary
