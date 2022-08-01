@@ -8,13 +8,16 @@ from typing import List, Optional, Tuple
 import pytest
 from starkware.starknet.services.api.contract_class import ContractClass
 
+from protostar.commands.test.environments.fuzz_test_execution_environment import (
+    FuzzConfig,
+)
 from protostar.commands.test.test_cases import PassedTestCase
 from protostar.commands.test.test_collector import TestCollector
 from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.test_suite import TestSuite
 from protostar.utils.compiler.pass_managers import ProtostarPassMangerFactory
-from protostar.utils.starknet_compilation import StarknetCompiler, CompilerConfig
+from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
 SCRIPT_DIRECTORY = Path(__file__).parent
 
@@ -110,6 +113,7 @@ async def _run_tests_inner(test_suite: TestSuite, contract: ContractClass):
         runner = TestRunner(
             shared_tests_state=tests_state,
             include_paths=[],
+            fuzz_config=FuzzConfig(),
         )
 
         # pylint: disable=protected-access

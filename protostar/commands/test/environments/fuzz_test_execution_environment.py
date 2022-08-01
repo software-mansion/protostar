@@ -5,20 +5,20 @@ import functools
 import inspect
 import re
 from dataclasses import dataclass, field
-from typing import Optional, List, Callable, Awaitable, Any, Dict
+from typing import Any, Awaitable, Callable, Dict, List, Optional
 
-from hypothesis import settings, seed, given, Verbosity
+from hypothesis import Verbosity, given, seed, settings
 from hypothesis.database import InMemoryExampleDatabase
 from hypothesis.reporting import with_reporter
-from hypothesis.strategies import data, DataObject
+from hypothesis.strategies import DataObject, data
 
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
 from protostar.commands.test.cheatcodes.reflect.cairo_struct import CairoStructHintLocal
-
 from protostar.commands.test.environments.test_execution_environment import (
-    TestExecutionEnvironment,
     TestCaseCheatcodeFactory,
+    TestExecutionEnvironment,
+    TestExecutionResult,
 )
 from protostar.commands.test.fuzzing.exceptions import HypothesisRejectException
 from protostar.commands.test.fuzzing.fuzz_input_exception_metadata import (
@@ -58,12 +58,25 @@ def is_fuzz_test(function_name: str, state: TestExecutionState) -> bool:
     return bool(params)
 
 
+@dataclass
+class FuzzConfig:
+    max_examples: int = 100
+
+
+@dataclass
+class FuzzTestExecutionResult(TestExecutionResult):
+    fuzz_runs_count: int
+
+
 class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
-    def __init__(self, state: TestExecutionState):
+    def __init__(
+        self, state: TestExecutionState, fuzz_config: Optional[FuzzConfig] = None
+    ):
         super().__init__(state)
         self.initial_state = state
+        self._fuzz_config = fuzz_config or FuzzConfig()
 
-    async def invoke(self, function_name: str) -> Optional[ExecutionResourcesSummary]:
+    async def invoke(self, function_name: str) -> TestExecutionResult:
         abi = self.state.contract.abi
         parameters = get_function_parameters(abi, function_name)
         assert (
@@ -101,6 +114,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             print_blob=False,
             report_multiple_bugs=False,
             verbosity=HYPOTHESIS_VERBOSITY,
+            max_examples=self._fuzz_config.max_examples,
         )
         @given(data_object=data())
         async def test(data_object: DataObject):
@@ -132,18 +146,30 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
 
         def test_thread():
             with with_reporter(protostar_reporter):
+                # TODO: Document how the data_object is passed to test function
+                # pylint: disable=no-value-for-parameter
                 test()
 
         try:
             with self.state.output_recorder.redirect("test"):
                 await to_thread(test_thread)
         except HypothesisFailureSmugglingError as escape_err:
+            if runs_counter.count > 1:
+                escape_err.error.execution_info[
+                    "fuzz_runs"
+                ] = self._fuzz_config.max_examples
+                escape_err.error.execution_info["fuzz_simplification_runs"] = (
+                    runs_counter.count - self._fuzz_config.max_examples
+                )
             escape_err.error.metadata.append(
                 FuzzInputExceptionMetadata(escape_err.inputs)
             )
             raise escape_err.error
 
-        return ExecutionResourcesSummary.sum(execution_resources)
+        return FuzzTestExecutionResult(
+            execution_resources=ExecutionResourcesSummary.sum(execution_resources),
+            fuzz_runs_count=runs_counter.count,
+        )
 
     def fork_state_for_test(self):
         """
