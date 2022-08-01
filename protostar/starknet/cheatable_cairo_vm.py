@@ -1,4 +1,9 @@
+import sys
+
 from starkware.cairo.lang.vm.vm_core import VirtualMachine
+from hypothesis.errors import UnsatisfiedAssumption
+from starkware.cairo.lang.vm.vm_exceptions import HintException
+
 from protostar.starknet.delayed_builder import DelayedBuilder
 
 
@@ -56,3 +61,20 @@ class CheatableVirtualMachine(VirtualMachine):
 
         # Run.
         self.run_instruction(instruction)
+
+    def exec_hint(self, code, globals_, hint_index):
+        """
+        Executes the given code with the given globals.
+        This function can be overridden by subclasses.
+        """
+        try:
+            exec(code, globals_)
+        except UnsatisfiedAssumption as ex:
+            raise ex
+        except Exception:
+            hint_exception = HintException(self, *sys.exc_info())
+            raise self.as_vm_exception(
+                hint_exception,
+                notes=[hint_exception.exception_str],
+                hint_index=hint_index,
+            ) from None

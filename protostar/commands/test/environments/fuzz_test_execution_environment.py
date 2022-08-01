@@ -11,6 +11,7 @@ from hypothesis import settings, seed, given, Verbosity
 from hypothesis.database import InMemoryExampleDatabase
 from hypothesis.reporting import with_reporter
 from hypothesis.strategies import data, DataObject
+from hypothesis.errors import UnsatisfiedAssumption
 
 from protostar.commands.test.cheatcodes.reflect.cairo_struct import CairoStructHintLocal
 
@@ -105,6 +106,8 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
                         )
                         if this_run_resources is not None:
                             execution_resources.append(this_run_resources)
+                    except UnsatisfiedAssumption:
+                        data_object.mark_invalid()
                     except ReportedException as reported_ex:
                         raise HypothesisFailureSmugglingError(
                             error=reported_ex,

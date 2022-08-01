@@ -2,6 +2,7 @@ import asyncio
 import logging
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, cast
 
+from hypothesis.errors import UnsatisfiedAssumption
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.cairo.lang.vm.security import SecurityError
@@ -154,6 +155,8 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
                 run_resources=tx_execution_context.run_resources,
                 verify_secure=True,
             )
+        except UnsatisfiedAssumption as ex:
+            raise ex
         # --- MODIFICATIONS END ---
 
         except VmException as exception:

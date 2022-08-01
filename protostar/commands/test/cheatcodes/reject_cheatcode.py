@@ -14,8 +14,5 @@ class RejectCheatcode(Cheatcode):
         return self.reject
 
     def reject(self) -> None:
-        try:
-            hypothesis.reject()
-        except hypothesis.errors.UnsatisfiedAssumption as exc:
-            raise exc
+        hypothesis.reject()
         return
