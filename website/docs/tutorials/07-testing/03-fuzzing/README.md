@@ -181,8 +181,7 @@ amount = 340282366920938463463374607431768211456
 
 ### Fixing the bug
 
-The test fails because if `amount` value is high enough, because it is a `felt`, when it is
-interpreted as a signed number in range comparisons, it overflows.
+The test fails because `amount` has `felt` type so its value can be negative. If smallest possible `felt` value is substracted from `balance` it causes `felt` overflow.
 The solution, is to check if `amount` is a negative number in `withdraw`, and adjust `test_withdraw`
 appropriately:
 
