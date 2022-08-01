@@ -1,7 +1,10 @@
 from typing import Callable
 
 import hypothesis
+from hypothesis.errors import UnsatisfiedAssumption
+
 from protostar.starknet.cheatcode import Cheatcode
+from protostar.commands.test.fuzzing.exceptions import HypothesisRejectException
 
 
 class AssumeCheatcode(Cheatcode):
@@ -14,4 +17,7 @@ class AssumeCheatcode(Cheatcode):
 
     # pylint: disable=no-self-use
     def assume(self, condition: bool) -> None:
-        hypothesis.assume(condition)
+        try:
+            hypothesis.assume(condition)
+        except UnsatisfiedAssumption as reject_exc:
+            raise HypothesisRejectException(reject_exc) from reject_exc
