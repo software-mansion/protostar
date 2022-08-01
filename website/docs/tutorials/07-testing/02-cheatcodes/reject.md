@@ -15,7 +15,7 @@ This cheatcode is only available in [fuzz tests](../fuzzing).
 
 @external
 func test_function_that_takes_nonzero_argument{syscall_ptr : felt*, range_check_ptr}(value):
-    if value != 0:
+    if value == 0:
         %{ reject() %}
         assert 0 = 0
     end
