@@ -13,7 +13,14 @@ from hypothesis.reporting import with_reporter
 from hypothesis.strategies import DataObject, data
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
-from protostar.commands.test.cheatcodes import AssumeCheatcode, RejectCheatcode
+from protostar.commands.test.cheatcodes import (
+    AssumeCheatcode,
+    GivenCheatcode,
+    RejectCheatcode,
+)
+from protostar.commands.test.cheatcodes.expect_revert_cheatcode import (
+    ExpectRevertContext,
+)
 from protostar.commands.test.cheatcodes.reflect.cairo_struct import CairoStructHintLocal
 from protostar.commands.test.environments.test_execution_environment import (
     TestCaseCheatcodeFactory,
@@ -34,6 +41,7 @@ from protostar.commands.test.test_environment_exceptions import ReportedExceptio
 from protostar.commands.test.testing_seed import TestingSeed
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.utils.abi import get_function_parameters
+from protostar.utils.hook import Hook
 
 HYPOTHESIS_VERBOSITY = Verbosity.normal
 """
@@ -72,11 +80,14 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             parameters
         ), f"{self.__class__.__name__} expects at least one function parameter."
 
+        strategy_selector = StrategySelector(parameters)
+
         self.set_cheatcodes(
             FuzzTestCaseCheatcodeFactory(
                 state=self.state,
                 expect_revert_context=self._expect_revert_context,
                 finish_hook=self._finish_hook,
+                strategy_selector=strategy_selector,
             )
         )
 
@@ -87,8 +98,6 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         execution_resources: List[ExecutionResourcesSummary] = []
 
         database = InMemoryExampleDatabase()
-        strategy_selector = StrategySelector(parameters)
-
         runs_counter = RunsCounter()
 
         # NOTE: Hypothesis' ``reporter`` global is a thread local variable.
@@ -261,6 +270,16 @@ class RunsCounter:
 
 
 class FuzzTestCaseCheatcodeFactory(TestCaseCheatcodeFactory):
+    def __init__(
+        self,
+        state: TestExecutionState,
+        expect_revert_context: ExpectRevertContext,
+        finish_hook: Hook,
+        strategy_selector: StrategySelector,
+    ):
+        super().__init__(state, expect_revert_context, finish_hook)
+        self.strategy_selector = strategy_selector
+
     def build(
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
@@ -270,4 +289,5 @@ class FuzzTestCaseCheatcodeFactory(TestCaseCheatcodeFactory):
             *super().build(syscall_dependencies, internal_calls),
             RejectCheatcode(syscall_dependencies),
             AssumeCheatcode(syscall_dependencies),
+            GivenCheatcode(syscall_dependencies, self.strategy_selector),
         ]

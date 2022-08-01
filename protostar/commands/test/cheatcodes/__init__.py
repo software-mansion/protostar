@@ -4,6 +4,7 @@ from .deploy_cheatcode import DeployCheatcode, DeployedContract
 from .deploy_contract_cheatcode import DeployContractCheatcode
 from .expect_events_cheatcode import ExpectEventsCheatcode
 from .expect_revert_cheatcode import ExpectRevertCheatcode
+from .given_cheatcode import GivenCheatcode
 from .mock_call_cheatcode import MockCallCheatcode
 from .prepare_cheatcode import PrepareCheatcode, PreparedContract
 from .reflect_cheatcode import ReflectCheatcode

@@ -81,6 +81,7 @@ async def test_hypothesis_multiple_errors(
     )
 
 
+@pytest.mark.asyncio
 async def test_max_fuzz_runs_less_or_equal_than_specified(
     run_cairo_test_runner: RunCairoTestRunnerFixture,
 ):
@@ -94,3 +95,22 @@ async def test_max_fuzz_runs_less_or_equal_than_specified(
 
     assert testing_summary.passed[0].fuzz_runs_count is not None
     assert testing_summary.passed[0].fuzz_runs_count <= fuzz_max_examples
+
+
+@pytest.mark.asyncio
+async def test_strategies(
+    run_cairo_test_runner: RunCairoTestRunnerFixture,
+):
+    testing_summary = await run_cairo_test_runner(
+        Path(__file__).parent / "strategies_test.cairo"
+    )
+
+    assert_cairo_test_cases(
+        testing_summary,
+        expected_passed_test_cases_names=[],
+        expected_failed_test_cases_names=[
+            "test_unknown_parameter",
+            "test_not_strategy_object",
+        ],
+        expected_broken_test_cases_names=[],
+    )

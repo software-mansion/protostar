@@ -28,7 +28,7 @@ class StrategySelector:
         return param in self._parameters
 
     def get_strategy_descriptor(self, param: str) -> StrategyDescriptor:
-        self._check_exists(param)
+        self.check_exists(param)
 
         if param in self._strategy_descriptors:
             return self._strategy_descriptors[param]
@@ -42,7 +42,7 @@ class StrategySelector:
         return descriptor
 
     def get_search_strategy(self, param: str) -> SearchStrategy[Any]:
-        self._check_exists(param)
+        self.check_exists(param)
 
         if param in self._search_strategies:
             return self._search_strategies[param]
@@ -61,7 +61,7 @@ class StrategySelector:
         param: str,
         strategy_descriptor: StrategyDescriptor,
     ):
-        self._check_exists(param)
+        self.check_exists(param)
 
         # NOTE: Calling `get_strategy_descriptor` may construct default descriptor if not already
         #   set, which may raise an exception from `infer_strategy_from_cairo_type` if it fails.
@@ -73,7 +73,7 @@ class StrategySelector:
             self._forget(param)
             self._strategy_descriptors[param] = strategy_descriptor
 
-    def _check_exists(self, param: str):
+    def check_exists(self, param: str):
         if param not in self._parameters:
             raise FuzzingError(f"Unknown fuzzing parameter '{param}'.")
 
