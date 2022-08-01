@@ -8,7 +8,10 @@ from typing import List, Optional
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 
-from protostar.commands.test.environments.factory import invoke_setup, invoke_test_case
+from protostar.commands.test.environments.factory import (
+    invoke_setup,
+    invoke_test_case,
+)
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_cases import (
     BrokenTestSuite,
@@ -83,9 +86,15 @@ class TestRunner:
                 add_debug_info=True,
             )
 
-            await self._run_test_suite(
+            execution_state = await self._build_execution_state(
                 test_contract=compiled_test,
                 test_suite=test_suite,
+            )
+            if not execution_state:
+                return
+            await self._invoke_test_cases(
+                test_suite=test_suite,
+                execution_state=execution_state,
             )
         except ProtostarException as ex:
             self.shared_tests_state.put_result(
@@ -116,11 +125,11 @@ class TestRunner:
                 )
             )
 
-    async def _run_test_suite(
+    async def _build_execution_state(
         self,
         test_contract: ContractClass,
         test_suite: TestSuite,
-    ):
+    ) -> Optional[TestExecutionState]:
         assert self.shared_tests_state, "Uninitialized reporter!"
 
         try:
@@ -132,6 +141,7 @@ class TestRunner:
             if test_suite.setup_fn_name:
                 await invoke_setup(test_suite.setup_fn_name, execution_state)
 
+            return execution_state
         except StarkException as ex:
             self.shared_tests_state.put_result(
                 BrokenTestSuite(
@@ -140,8 +150,12 @@ class TestRunner:
                     test_case_names=test_suite.test_case_names,
                 )
             )
-            return
 
+    async def _invoke_test_cases(
+        self,
+        test_suite: TestSuite,
+        execution_state: TestExecutionState,
+    ):
         for test_case_name in test_suite.test_case_names:
             new_execution_state = execution_state.fork()
             start_time = time.perf_counter()
