@@ -45,6 +45,12 @@ class Command(ABC):
         def copy_with(self, **changes) -> "Command.Argument":
             return replace(self, **changes)
 
+    @dataclass(frozen=True)
+    class PrintedOutputs:
+        entry: str
+        exit_success: str
+        exit_error: str
+
     @property
     @abstractmethod
     def name(self) -> str:

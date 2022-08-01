@@ -57,8 +57,22 @@ class UpdateCommand(Command):
             ),
         ]
 
+    @property
+    def outputs(self) -> Command.PrintedOutputs:
+        return Command.PrintedOutputs(
+            entry="Running dependency update",
+            exit_success="Updated successfully",
+            exit_error="Update command failed",
+        )
+
     async def run(self, args):
-        self.update(args.package)
+        self._logger.info(self.outputs.entry)
+        try:
+            self.update(args.package)
+        except BaseException as exc:
+            self._logger.error(self.outputs.exit_error)
+            raise exc
+        self._logger.info(self.outputs.exit_success)
 
     def update(self, package: Optional[str]) -> None:
         project_section = self._project_section_loader.load()
