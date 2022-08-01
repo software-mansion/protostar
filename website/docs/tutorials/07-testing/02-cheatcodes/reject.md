@@ -2,6 +2,8 @@
 ```python
 def reject() -> None:
 ```
+Marks example as bad, thus preventing fuzz tests from using it as a falsifying example.
+
 `reject()` is equivalent to `assume(False)`.
 
 ```cairo
@@ -20,7 +22,7 @@ func test_function_that_takes_nonzero_argument{syscall_ptr : felt*, range_check_
 end
 ```
 :::warning
-This cheatcode is only available in [fuzz tests](TODO).
+This cheatcode is only available in [fuzz tests](../fuzzing).
 :::
 
 :::tip

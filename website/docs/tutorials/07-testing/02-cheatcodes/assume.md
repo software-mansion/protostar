@@ -17,7 +17,7 @@ func test_function_that_takes_nonzero_argument{syscall_ptr : felt*, range_check_
 end
 ```
 :::warning
-This cheatcode is only available in [fuzz tests](TODO).
+This cheatcode is only available in [fuzz tests](../fuzzing).
 :::
 
 :::tip
