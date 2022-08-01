@@ -2,8 +2,11 @@ import multiprocessing
 import signal
 from typing import TYPE_CHECKING, Callable, List
 
-from protostar.commands.test.test_shared_tests_state import SharedTestsState
+from protostar.commands.test.environments.fuzz_test_execution_environment import (
+    FuzzConfig,
+)
 from protostar.commands.test.test_runner import TestRunner
+from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
 
 if TYPE_CHECKING:
@@ -22,9 +25,11 @@ class TestScheduler:
         self._live_logger = live_logger
         self._worker = worker
 
+    # pylint: disable=too-many-arguments
     def run(
         self,
         test_collector_result: "TestCollector.Result",
+        fuzz_config: FuzzConfig,
         include_paths: List[str],
         disable_hint_validation: bool,
         exit_first: bool,
@@ -37,6 +42,7 @@ class TestScheduler:
                 TestRunner.WorkerArgs(
                     test_suite,
                     shared_tests_state=shared_tests_state,
+                    fuzz_config=fuzz_config,
                     include_paths=include_paths,
                     disable_hint_validation_in_user_contracts=disable_hint_validation,
                 )

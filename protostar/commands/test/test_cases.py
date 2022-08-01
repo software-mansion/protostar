@@ -1,9 +1,7 @@
 from abc import abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Optional, Dict
-
-from protostar.commands.test.test_output_recorder import OutputName, format_output_name
+from typing import Dict, List, Optional
 
 from protostar.commands.test.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
@@ -12,6 +10,7 @@ from protostar.commands.test.test_environment_exceptions import (
     ExceptionMetadata,
     ReportedException,
 )
+from protostar.commands.test.test_output_recorder import OutputName, format_output_name
 from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
 from protostar.utils.log_color_provider import log_color_provider
 
@@ -31,6 +30,7 @@ class PassedTestCase(TestCaseResult):
     execution_resources: Optional[ExecutionResourcesSummary]
     execution_time: float
     captured_stdout: Dict[OutputName, str] = field(default_factory=dict)
+    fuzz_runs_count: Optional[int] = None
 
     def format(self) -> str:
         first_line_elements: List[str] = []
@@ -39,25 +39,28 @@ class PassedTestCase(TestCaseResult):
             f"{_get_formatted_file_path(self.file_path)} {self.test_case_name}"
         )
 
-        common_execution_elements: List[str] = []
-        common_execution_elements.append(
-            _get_formatted_execution_time(self.execution_time)
-        )
+        info_items: List[str] = []
+
+        info_items.append(_get_formatted_execution_time(self.execution_time))
+
+        if self.fuzz_runs_count is not None:
+            info_items.append(
+                f"fuzz_runs={log_color_provider.bold(self.fuzz_runs_count)}"
+            )
 
         if self.execution_resources:
-
-            common_execution_elements.append(
-                f"steps={log_color_provider.bold(self.execution_resources.n_steps)}"
-            )
+            if self.execution_resources.n_steps:
+                info_items.append(
+                    f"steps={log_color_provider.bold(self.execution_resources.n_steps)}"
+                )
             if self.execution_resources.n_memory_holes:
-                common_execution_elements.append(
+                info_items.append(
                     f"memory_holes={log_color_provider.bold(self.execution_resources.n_memory_holes)}"
                 )
 
-        merged_common_execution_info = ", ".join(common_execution_elements)
-        first_line_elements.append(
-            log_color_provider.colorize("GRAY", f"({merged_common_execution_info})")
-        )
+        if len(info_items) > 0:
+            info = ", ".join(info_items)
+            first_line_elements.append(log_color_provider.colorize("GRAY", f"({info})"))
 
         first_line = " ".join(first_line_elements)
 
@@ -99,16 +102,26 @@ class FailedTestCase(TestCaseResult):
 
     def format(self) -> str:
         result: List[str] = []
-        result.append(f"[{log_color_provider.colorize('RED', 'FAIL')}] ")
-        result.append(
+        first_line_items: List[str] = []
+
+        first_line_items.append(f"[{log_color_provider.colorize('RED', 'FAIL')}]")
+        first_line_items.append(
             f"{_get_formatted_file_path(self.file_path)} {self.test_case_name}"
         )
-        result.append(" ")
-        result.append(
-            log_color_provider.colorize(
-                "GRAY", f"({ _get_formatted_execution_time(self.execution_time)})"
-            )
-        )
+
+        info_items = []
+
+        info_items.append(_get_formatted_execution_time(self.execution_time))
+
+        for key, value in self.exception.execution_info.items():
+            info_items.append(f"{key}={log_color_provider.bold(value)}")
+
+        if len(info_items) > 0:
+            info = ", ".join(info_items)
+            first_line_items.append(log_color_provider.colorize("GRAY", f"({info})"))
+
+        result.append(" ".join(first_line_items))
+
         result.append("\n")
         result.append(str(self.exception))
         result.append("\n")

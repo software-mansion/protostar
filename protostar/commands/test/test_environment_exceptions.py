@@ -29,6 +29,7 @@ class ReportedException(BaseException):
 
     def __init__(self, *args: object) -> None:
         self.metadata: List[ExceptionMetadata] = []
+        self.execution_info: Dict[str, Union[int, str]] = {}
         super().__init__(*args)
 
     def __str__(self) -> str:
