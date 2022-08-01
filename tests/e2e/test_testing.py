@@ -209,3 +209,28 @@ def test_print_only_setup(protostar, copy_fixture):
     assert "O_SETUP" in result
     assert "[test]:" not in result
     assert "[setup]:" in result
+
+
+@pytest.mark.usefixtures("init")
+def test_report_slowest(protostar, copy_fixture):
+    copy_fixture("basic.cairo", "./src")
+    copy_fixture("proxy_contract.cairo", "./src")
+    copy_fixture("test_proxy.cairo", "./tests")
+    copy_fixture("test_failed.cairo", "./tests")
+    copy_fixture("test_print_passed.cairo", "./tests")
+
+    result = protostar(
+        ["test", "tests", "--report-slowest-tests", "999999"], ignore_exit_code=True
+    )
+
+    assert "Slowest test cases" in result
+
+
+@pytest.mark.usefixtures("init")
+def test_report_slowest_no_flag(protostar, copy_fixture):
+    copy_fixture("basic.cairo", "./src")
+    copy_fixture("test_print_passed.cairo", "./tests")
+
+    result = protostar(["test", "tests"], ignore_exit_code=True)
+
+    assert "Slowest test cases" not in result

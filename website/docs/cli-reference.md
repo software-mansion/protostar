@@ -156,6 +156,8 @@ A glob or globs to a directory or a test suite, which should be ignored.
 
 #### `--no-progress-bar`
 Disable progress bar.
+#### `--report-slowest-tests INT`
+Print slowest tests at the end.
 #### `--safe-collecting`
 Uses cairo compiler for test collection
 #### `--seed INT`

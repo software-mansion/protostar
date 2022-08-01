@@ -13,7 +13,7 @@ from protostar.commands.test.test_environment_exceptions import (
     ReportedException,
 )
 from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
-from protostar.utils.log_color_provider import log_color_provider, SupportedColorName
+from protostar.utils.log_color_provider import log_color_provider
 
 
 @dataclass(frozen=True)
@@ -29,6 +29,7 @@ class TestCaseResult:
 class PassedTestCase(TestCaseResult):
     test_case_name: str
     execution_resources: Optional[ExecutionResourcesSummary]
+    execution_time: float
     captured_stdout: Dict[OutputName, str] = field(default_factory=dict)
 
     def format(self) -> str:
@@ -38,23 +39,25 @@ class PassedTestCase(TestCaseResult):
             f"{_get_formatted_file_path(self.file_path)} {self.test_case_name}"
         )
 
+        common_execution_elements: List[str] = []
+        common_execution_elements.append(
+            _get_formatted_execution_time(self.execution_time)
+        )
+
         if self.execution_resources:
-            common_execution_resources_elements: List[str] = []
-            common_execution_resources_elements.append(
+
+            common_execution_elements.append(
                 f"steps={log_color_provider.bold(self.execution_resources.n_steps)}"
             )
             if self.execution_resources.n_memory_holes:
-                common_execution_resources_elements.append(
+                common_execution_elements.append(
                     f"memory_holes={log_color_provider.bold(self.execution_resources.n_memory_holes)}"
                 )
-            merged_common_execution_resource_info = ", ".join(
-                common_execution_resources_elements
-            )
-            first_line_elements.append(
-                log_color_provider.colorize(
-                    "GRAY", f"({merged_common_execution_resource_info})"
-                )
-            )
+
+        merged_common_execution_info = ", ".join(common_execution_elements)
+        first_line_elements.append(
+            log_color_provider.colorize("GRAY", f"({merged_common_execution_info})")
+        )
 
         first_line = " ".join(first_line_elements)
 
@@ -72,7 +75,7 @@ class PassedTestCase(TestCaseResult):
                         )
                     )
 
-        stdout_elements = _get_formatted_stdout(self.captured_stdout, "GREEN")
+        stdout_elements = _get_formatted_stdout(self.captured_stdout)
 
         if len(second_line_elements) > 0 or len(stdout_elements) > 0:
             second_line_elements.insert(0, "      ")
@@ -91,6 +94,7 @@ class PassedTestCase(TestCaseResult):
 class FailedTestCase(TestCaseResult):
     test_case_name: str
     exception: ReportedException
+    execution_time: float
     captured_stdout: Dict[OutputName, str] = field(default_factory=dict)
 
     def format(self) -> str:
@@ -98,6 +102,12 @@ class FailedTestCase(TestCaseResult):
         result.append(f"[{log_color_provider.colorize('RED', 'FAIL')}] ")
         result.append(
             f"{_get_formatted_file_path(self.file_path)} {self.test_case_name}"
+        )
+        result.append(" ")
+        result.append(
+            log_color_provider.colorize(
+                "GRAY", f"({ _get_formatted_execution_time(self.execution_time)})"
+            )
         )
         result.append("\n")
         result.append(str(self.exception))
@@ -107,7 +117,7 @@ class FailedTestCase(TestCaseResult):
             result.append(_get_formatted_metadata(metadata))
             result.append("\n")
 
-        result.extend(_get_formatted_stdout(self.captured_stdout, "RED"))
+        result.extend(_get_formatted_stdout(self.captured_stdout))
 
         return "".join(result)
 
@@ -151,9 +161,7 @@ def _get_formatted_metadata(metadata: ExceptionMetadata) -> str:
     return f"[{metadata.name}]:\n{metadata.format()}"
 
 
-def _get_formatted_stdout(
-    captured_stdout: Dict[OutputName, str], color: SupportedColorName
-) -> List[str]:
+def _get_formatted_stdout(captured_stdout: Dict[OutputName, str]) -> List[str]:
     result: List[str] = []
 
     if len(captured_stdout) == 0 or all(
@@ -161,7 +169,7 @@ def _get_formatted_stdout(
     ):
         return []
 
-    result.append(f"\n[{log_color_provider.colorize(color, 'captured stdout')}]:\n")
+    result.append(f"\n[{log_color_provider.colorize('CYAN', 'captured stdout')}]:\n")
 
     for name, value in captured_stdout.items():
         if value:
@@ -174,3 +182,7 @@ def _get_formatted_stdout(
 
 def _get_formatted_file_path(file_path: Path) -> str:
     return log_color_provider.colorize("GRAY", str(file_path))
+
+
+def _get_formatted_execution_time(execution_time: float) -> str:
+    return f"time={log_color_provider.bold(f'{execution_time:.2f}')}s"

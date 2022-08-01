@@ -36,8 +36,9 @@ class LogColorProvider:
     def colorize(self, color_name: SupportedColorName, content: str):
         return f"{self.get_color(color_name)}{content}{self.get_color('RESET')}"
 
-    @staticmethod
-    def bold(content: object):
+    def bold(self, content: object):
+        if self.is_ci_mode:
+            return str(content)
         return f"{Style.BRIGHT}{content}{Style.NORMAL}"
 
 
