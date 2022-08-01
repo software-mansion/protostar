@@ -233,7 +233,7 @@ We can also observe the variance of resources usage, caused by the `if amount ==
 
 ## Interpreting results
 
-In fuzzing mode, the test is executed many times, hence test summaries are slightly more extensive:
+In fuzzing mode, the test is executed many times, hence test summaries are extended:
 
 ```
 [PASS] tests/test_main.cairo test_withdraw (steps=μ: 127, Md: 137, min: 84, max: 137)
