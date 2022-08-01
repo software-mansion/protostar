@@ -8,16 +8,10 @@ from typing import List, Optional
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 
-from protostar.commands.test.environments.factory import invoke_setup
+from protostar.commands.test.environments.factory import invoke_setup, invoke_test_case
 from protostar.commands.test.environments.fuzz_test_execution_environment import (
     FuzzConfig,
-    FuzzTestExecutionEnvironment,
     FuzzTestExecutionResult,
-    is_fuzz_test,
-)
-from protostar.commands.test.environments.test_execution_environment import (
-    TestExecutionEnvironment,
-    TestExecutionResult,
 )
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_cases import (
@@ -159,9 +153,8 @@ class TestRunner:
             new_execution_state = execution_state.fork()
             start_time = time.perf_counter()
             try:
-                execution_result = await self.invoke_test_case(
-                    test_case_name,
-                    new_execution_state,
+                execution_result = await invoke_test_case(
+                    test_case_name, new_execution_state, fuzz_config=self._fuzz_config
                 )
                 fuzz_runs_count = (
                     execution_result.fuzz_runs_count
@@ -191,16 +184,3 @@ class TestRunner:
                         captured_stdout=new_execution_state.output_recorder.get_captures(),
                     )
                 )
-
-    async def invoke_test_case(
-        self,
-        function_name: str,
-        state: TestExecutionState,
-    ) -> TestExecutionResult:
-        if is_fuzz_test(function_name, state):
-            env = FuzzTestExecutionEnvironment(state)
-            env.set_fuzz_config(self._fuzz_config)
-        else:
-            env = TestExecutionEnvironment(state)
-
-        return await env.invoke(function_name)

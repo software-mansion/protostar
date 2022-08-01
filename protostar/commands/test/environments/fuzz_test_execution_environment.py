@@ -5,7 +5,7 @@ import functools
 import inspect
 import re
 from dataclasses import dataclass, field
-from typing import Any, Awaitable, Callable, Dict, List
+from typing import Any, Awaitable, Callable, Dict, List, Optional
 
 from hypothesis import Verbosity, given, seed, settings
 from hypothesis.database import InMemoryExampleDatabase
@@ -54,13 +54,12 @@ class FuzzTestExecutionResult(TestExecutionResult):
 
 
 class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
-    def __init__(self, state: TestExecutionState):
+    def __init__(
+        self, state: TestExecutionState, fuzz_config: Optional[FuzzConfig] = None
+    ):
         super().__init__(state)
         self.initial_state = state
-        self._fuzz_config = FuzzConfig()
-
-    def set_fuzz_config(self, fuzz_config: FuzzConfig) -> None:
-        self._fuzz_config = fuzz_config
+        self._fuzz_config = fuzz_config or FuzzConfig()
 
     async def invoke(self, function_name: str) -> TestExecutionResult:
         abi = self.state.contract.abi
