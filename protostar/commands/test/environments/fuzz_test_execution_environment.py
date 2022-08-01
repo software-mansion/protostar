@@ -12,6 +12,8 @@ from hypothesis.database import InMemoryExampleDatabase
 from hypothesis.reporting import with_reporter
 from hypothesis.strategies import data, DataObject
 
+from protostar.commands.test.cheatcodes.reflect.cairo_struct import CairoStructHintLocal
+
 from protostar.commands.test.environments.test_execution_environment import (
     TestExecutionEnvironment,
     TestCaseCheatcodeFactory,
@@ -61,7 +63,9 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             )
         )
 
-        self.set_custom_hint_locals([TestContextHintLocal(self.state.context)])
+        self.set_custom_hint_locals(
+            [TestContextHintLocal(self.state.context), CairoStructHintLocal()]
+        )
 
         execution_resources: List[ExecutionResourcesSummary] = []
 
@@ -80,6 +84,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             database=database,
             deadline=None,
             print_blob=False,
+            report_multiple_bugs=False,
             verbosity=HYPOTHESIS_VERBOSITY,
         )
         @given(data_object=data())

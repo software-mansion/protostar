@@ -57,3 +57,25 @@ async def test_state_is_isolated(run_cairo_test_runner: RunCairoTestRunnerFixtur
         ],
         expected_failed_test_cases_names=[],
     )
+
+
+@pytest.mark.asyncio
+async def test_hypothesis_multiple_errors(
+    run_cairo_test_runner: RunCairoTestRunnerFixture,
+):
+    """
+    This test potentially raises ``hypothesis.errors.MultipleFailures``
+    when ``report_multiple_bugs`` setting is set to ``True``.
+    """
+
+    testing_summary = await run_cairo_test_runner(
+        Path(__file__).parent / "hypothesis_multiple_errors_test.cairo", seed=10
+    )
+
+    assert_cairo_test_cases(
+        testing_summary,
+        expected_passed_test_cases_names=[],
+        expected_failed_test_cases_names=[
+            "test_hypothesis_multiple_errors",
+        ],
+    )

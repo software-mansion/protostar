@@ -24,5 +24,8 @@ class CLIApp:
         if not args or not args.command or args.command not in self._command_mapping:
             raise CLIApp.CommandNotFoundError()
 
-        command = self._command_mapping[args.command]
+        command = self.get_command_by_name(args.command)
         await command.run(args)
+
+    def get_command_by_name(self, command_name: str) -> Command:
+        return self._command_mapping[command_name]

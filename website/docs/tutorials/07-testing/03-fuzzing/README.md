@@ -103,8 +103,8 @@ So far, so good. Running the test, we see it passes:
 
 ### Generalizing the test
 
-This unit test does test that we can withdraw "some" amount from our safe.
-However, can we be sure that it works for all amounts, not just 1?
+This unit test performs checks if we can withdraw "some" amount from our safe.
+However, can we be sure that it works for all amounts, not just this particular one?
 
 The general property here is: given a safe balance, when we withdraw some amount from it,
 we should get reduced balance in the safe, and it should not be possible to withdraw more than we
@@ -184,11 +184,9 @@ By default, Protostar tries to fail a test case within 100 examples. The more co
 :::
 
 
-
 ### Fixing the bug
 
-The test fails because if `amount` value is high enough, because it is a `felt`, when it is
-interpreted as a signed number in range comparisons, it overflows.
+The test fails because `amount` has `felt` type so its value can be negative. If smallest possible `felt` value is subtracted from `balance` it causes `felt` overflow.
 The solution, is to check if `amount` is a negative number in `withdraw`, and adjust `test_withdraw`
 appropriately:
 
@@ -240,7 +238,7 @@ We can also observe the variance of resources usage, caused by the `if amount ==
 
 ## Interpreting results
 
-In fuzzing mode, the test is executed many times, hence test summaries are slightly more extensive:
+In fuzzing mode, the test is executed many times, hence test summaries are extended:
 
 ```
 [PASS] tests/test_main.cairo test_withdraw (steps=μ: 127, Md: 137, min: 84, max: 137)

@@ -55,7 +55,7 @@ All functions inside a test file starting with `test_` are treated as separate t
 :::
 
 :::warning
-The tested file cannot have a constructor that expects arguments because, Protostar won't be able to deploy the contract automatically. As a workaround, keep your constructor in a different file. You can test the constructor using the `deploy_contract` cheatcode as described below.
+Protostar auto-removes constructors from test files. You can test a constructor using the `deploy_contract` cheatcode.
 :::
 
 ## Asserts

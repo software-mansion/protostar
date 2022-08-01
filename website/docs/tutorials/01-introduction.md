@@ -29,7 +29,7 @@ After reading this guides, you will know how to do the following:
 - [compile project](04-compiling.md)
 - [add, update, and remove dependencies](05-dependencies-management.md)
 - [test contracts with the help of cheatcodes](07-testing/README.md)
-- [deploy contracts using Protostar](06-deploying.md)
+- [deploy contracts using Protostar](06-deploying/README.md)
 
 ## Reference
 Protostar is designed to be discoverable straight from the terminal. If you want to get the information about available commands and flags, you can always use:
