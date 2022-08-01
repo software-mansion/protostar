@@ -1,5 +1,4 @@
 from typing import Optional, List
-from contextlib import redirect_stdout
 
 from starkware.starknet.business_logic.execution.objects import CallInfo
 

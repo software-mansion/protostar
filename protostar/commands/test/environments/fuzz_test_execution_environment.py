@@ -11,7 +11,8 @@ from hypothesis import settings, seed, given, Verbosity
 from hypothesis.database import InMemoryExampleDatabase
 from hypothesis.reporting import with_reporter
 from hypothesis.strategies import data, DataObject
-from hypothesis.errors import UnsatisfiedAssumption
+
+from starkware.starknet.business_logic.execution.objects import CallInfo
 
 from protostar.commands.test.cheatcodes.reflect.cairo_struct import CairoStructHintLocal
 
@@ -19,6 +20,7 @@ from protostar.commands.test.environments.test_execution_environment import (
     TestExecutionEnvironment,
     TestCaseCheatcodeFactory,
 )
+from protostar.commands.test.fuzzing.exceptions import HypothesisRejectException
 from protostar.commands.test.fuzzing.fuzz_input_exception_metadata import (
     FuzzInputExceptionMetadata,
 )
@@ -30,7 +32,19 @@ from protostar.commands.test.starkware.test_execution_state import TestExecution
 from protostar.commands.test.test_context import TestContextHintLocal
 from protostar.commands.test.test_environment_exceptions import ReportedException
 from protostar.commands.test.testing_seed import TestingSeed
+from protostar.starknet.cheatcode import Cheatcode
 from protostar.utils.abi import get_function_parameters
+from protostar.utils.hook import Hook
+
+from protostar.commands.test.cheatcodes.expect_revert_cheatcode import (
+    ExpectRevertContext,
+)
+
+from protostar.commands.test.cheatcodes import (
+    RejectCheatcode,
+    AssumeCheatcode,
+)
+
 
 HYPOTHESIS_VERBOSITY = Verbosity.normal
 """
@@ -57,7 +71,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         ), f"{self.__class__.__name__} expects at least one function parameter."
 
         self.set_cheatcodes(
-            TestCaseCheatcodeFactory(
+            FuzzTestCaseCheatcodeFactory(
                 state=self.state,
                 expect_revert_context=self._expect_revert_context,
                 finish_hook=self._finish_hook,
@@ -106,8 +120,8 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
                         )
                         if this_run_resources is not None:
                             execution_resources.append(this_run_resources)
-                    except UnsatisfiedAssumption:
-                        data_object.mark_invalid()
+                    except HypothesisRejectException:
+                        data_object.conjecture_data.mark_invalid()
                     except ReportedException as reported_ex:
                         raise HypothesisFailureSmugglingError(
                             error=reported_ex,
@@ -235,3 +249,24 @@ class RunsCounter:
     def __next__(self) -> int:
         self.count += 1
         return self.count
+
+
+class FuzzTestCaseCheatcodeFactory(TestCaseCheatcodeFactory):
+    def __init__(
+        self,
+        state: TestExecutionState,
+        expect_revert_context: ExpectRevertContext,
+        finish_hook: Hook,
+    ):
+        super().__init__(state, expect_revert_context, finish_hook)
+
+    def build(
+        self,
+        syscall_dependencies: Cheatcode.SyscallDependencies,
+        internal_calls: List[CallInfo],
+    ) -> List[Cheatcode]:
+        return [
+            *super().build(syscall_dependencies, internal_calls),
+            RejectCheatcode(syscall_dependencies),
+            AssumeCheatcode(syscall_dependencies),
+        ]

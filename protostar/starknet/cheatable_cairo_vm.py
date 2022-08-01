@@ -1,9 +1,11 @@
 import sys
 
 from starkware.cairo.lang.vm.vm_core import VirtualMachine
-from hypothesis.errors import UnsatisfiedAssumption
 from starkware.cairo.lang.vm.vm_exceptions import HintException
 
+from hypothesis.errors import UnsatisfiedAssumption
+
+from protostar.commands.test.fuzzing.exceptions import HypothesisRejectException
 from protostar.starknet.delayed_builder import DelayedBuilder
 
 
@@ -35,9 +37,9 @@ class CheatableVirtualMachine(VirtualMachine):
             for name, value in exec_locals.items():
                 if isinstance(value, DelayedBuilder):
                     exec_locals[name] = value.internal_build(exec_locals)
+            # --- MODIFICATIONS END ---
 
             self.exec_hint(hint.compiled, exec_locals, hint_index=hint_index)
-            # --- MODIFICATIONS END ---
 
             # There are memory leaks in 'exec_scopes'.
             # So, we clear some fields in order to reduce the problem.
@@ -62,6 +64,7 @@ class CheatableVirtualMachine(VirtualMachine):
         # Run.
         self.run_instruction(instruction)
 
+    # pylint: disable=exec-used
     def exec_hint(self, code, globals_, hint_index):
         """
         Executes the given code with the given globals.
@@ -69,8 +72,10 @@ class CheatableVirtualMachine(VirtualMachine):
         """
         try:
             exec(code, globals_)
-        except UnsatisfiedAssumption as ex:
-            raise ex
+        # --- MODIFICATIONS START ---
+        except UnsatisfiedAssumption:
+            raise HypothesisRejectException() from None
+        # --- MODIFICATIONS END ---
         except Exception:
             hint_exception = HintException(self, *sys.exc_info())
             raise self.as_vm_exception(

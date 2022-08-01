@@ -1,7 +1,6 @@
-from typing import Any, Callable
+from typing import Callable
 
 import hypothesis
-import hypothesis.errors
 from protostar.starknet.cheatcode import Cheatcode
 
 
@@ -10,9 +9,9 @@ class RejectCheatcode(Cheatcode):
     def name(self) -> str:
         return "reject"
 
-    def build(self) -> Callable[..., Any]:
+    def build(self) -> Callable[[], None]:
         return self.reject
 
+    # pylint: disable=no-self-use
     def reject(self) -> None:
         hypothesis.reject()
-        return
