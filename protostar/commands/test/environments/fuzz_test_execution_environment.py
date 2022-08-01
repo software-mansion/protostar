@@ -11,6 +11,7 @@ from hypothesis import Verbosity, given, seed, settings
 from hypothesis.database import InMemoryExampleDatabase
 from hypothesis.reporting import with_reporter
 from hypothesis.strategies import DataObject, data
+from typing_extensions import Self
 
 from protostar.commands.test.cheatcodes.reflect.cairo_struct import CairoStructHintLocal
 from protostar.commands.test.environments.test_execution_environment import (
@@ -44,9 +45,18 @@ def is_fuzz_test(function_name: str, state: TestExecutionState) -> bool:
 
 
 class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
+    @dataclass
+    class FuzzConfig:
+        max_fuzz_examples = 100
+
     def __init__(self, state: TestExecutionState):
         super().__init__(state)
         self.initial_state = state
+        self._fuzz_config = FuzzTestExecutionEnvironment.FuzzConfig()
+
+    def set_fuzz_config(self, fuzz_config: FuzzConfig) -> Self:
+        self._fuzz_config = fuzz_config
+        return self
 
     async def invoke(self, function_name: str) -> TestExecutionResult:
         abi = self.state.contract.abi
@@ -86,7 +96,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             print_blob=False,
             report_multiple_bugs=False,
             verbosity=HYPOTHESIS_VERBOSITY,
-            max_examples=self.state.config.max_fuzz_examples,
+            max_examples=self._fuzz_config.max_fuzz_examples,
         )
         @given(data_object=data())
         async def test(data_object: DataObject):
@@ -127,9 +137,9 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             if runs_counter.count > 1:
                 escape_err.error.execution_info[
                     "fuzz_runs"
-                ] = self.state.config.max_fuzz_examples
+                ] = self._fuzz_config.max_fuzz_examples
                 escape_err.error.execution_info["fuzz_simplification_runs"] = (
-                    runs_counter.count - self.state.config.max_fuzz_examples
+                    runs_counter.count - self._fuzz_config.max_fuzz_examples
                 )
             escape_err.error.metadata.append(
                 FuzzInputExceptionMetadata(escape_err.inputs)

@@ -14,20 +14,15 @@ from protostar.utils.starknet_compilation import StarknetCompiler
 
 @dataclass
 class TestExecutionState(ExecutionState):
-    @dataclass
-    class Config:
-        max_fuzz_examples: int
 
     context: TestContext
     output_recorder: OutputRecorder
-    config: Config
 
     @classmethod
     async def from_test_suite_definition(
         cls,
         starknet_compiler: StarknetCompiler,
         test_suite_definition: ContractClass,
-        config: Config,
     ) -> Self:
         starknet = await ForkableStarknet.empty()
         contract = await starknet.deploy(contract_class=test_suite_definition)
@@ -44,7 +39,6 @@ class TestExecutionState(ExecutionState):
             starknet_compiler=starknet_compiler,
             context=TestContext(),
             output_recorder=OutputRecorder(),
-            config=config,
         )
 
     def fork(self) -> Self:
@@ -52,5 +46,4 @@ class TestExecutionState(ExecutionState):
             super().fork(),
             context=deepcopy(self.context),
             output_recorder=self.output_recorder.fork(),
-            config=deepcopy(self.config),
         )
