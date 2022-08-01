@@ -8,6 +8,9 @@ from typing import List, Optional, Tuple
 import pytest
 from starkware.starknet.services.api.contract_class import ContractClass
 
+from protostar.commands.test.environments.fuzz_test_execution_environment import (
+    FuzzConfig,
+)
 from protostar.commands.test.test_cases import PassedTestCase
 from protostar.commands.test.test_collector import TestCollector
 from protostar.commands.test.test_runner import TestRunner
@@ -110,7 +113,7 @@ async def _run_tests_inner(test_suite: TestSuite, contract: ContractClass):
         runner = TestRunner(
             shared_tests_state=tests_state,
             include_paths=[],
-            fuzz_config=TestRunner.FuzzConfig(max_fuzz_examples=100),
+            fuzz_config=FuzzConfig(),
         )
 
         # pylint: disable=protected-access

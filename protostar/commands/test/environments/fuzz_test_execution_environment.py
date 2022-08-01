@@ -45,7 +45,7 @@ def is_fuzz_test(function_name: str, state: TestExecutionState) -> bool:
 
 @dataclass
 class FuzzConfig:
-    max_fuzz_examples: int = 100
+    max_examples: int = 100
 
 
 @dataclass
@@ -100,7 +100,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             print_blob=False,
             report_multiple_bugs=False,
             verbosity=HYPOTHESIS_VERBOSITY,
-            max_examples=self._fuzz_config.max_fuzz_examples,
+            max_examples=self._fuzz_config.max_examples,
         )
         @given(data_object=data())
         async def test(data_object: DataObject):
@@ -141,9 +141,9 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             if runs_counter.count > 1:
                 escape_err.error.execution_info[
                     "fuzz_runs"
-                ] = self._fuzz_config.max_fuzz_examples
+                ] = self._fuzz_config.max_examples
                 escape_err.error.execution_info["fuzz_simplification_runs"] = (
-                    runs_counter.count - self._fuzz_config.max_fuzz_examples
+                    runs_counter.count - self._fuzz_config.max_examples
                 )
             escape_err.error.metadata.append(
                 FuzzInputExceptionMetadata(escape_err.inputs)

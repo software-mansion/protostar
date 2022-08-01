@@ -232,7 +232,7 @@ def test_seed_and_max_fuzz_examples_impact_testing_results(
 ):
     copy_fixture("test_fuzz.cairo", "./tests")
     seed = str(213742)
-    max_fuzz_examples = 2
+    fuzz_max_examples = 2
 
     result = protostar(
         [
@@ -240,11 +240,11 @@ def test_seed_and_max_fuzz_examples_impact_testing_results(
             "test",
             "--seed",
             seed,
-            "--max-fuzz-examples",
-            str(max_fuzz_examples),
+            "--fuzz-max-examples",
+            str(fuzz_max_examples),
         ],
         ignore_exit_code=True,
     )
 
     assert seed in result
-    assert f"fuzz_runs={max_fuzz_examples}" in result
+    assert f"fuzz_runs={fuzz_max_examples}" in result

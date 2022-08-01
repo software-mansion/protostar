@@ -4,8 +4,9 @@ from typing import TYPE_CHECKING, List, Optional
 
 from protostar.cli.activity_indicator import ActivityIndicator
 from protostar.cli.command import Command
-from protostar.commands.test.environments.fuzz_test_execution_environment import \
-    FuzzConfig
+from protostar.commands.test.environments.fuzz_test_execution_environment import (
+    FuzzConfig,
+)
 from protostar.commands.test.test_collector import TestCollector
 from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.test_scheduler import TestScheduler
@@ -13,11 +14,12 @@ from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.commands.test.testing_seed import TestingSeed
 from protostar.commands.test.testing_summary import TestingSummary
 from protostar.utils.compiler.pass_managers import (
-    StarknetPassManagerFactory, TestCollectorPassManagerFactory)
+    StarknetPassManagerFactory,
+    TestCollectorPassManagerFactory,
+)
 from protostar.utils.log_color_provider import log_color_provider
 from protostar.utils.protostar_directory import ProtostarDirectory
-from protostar.utils.starknet_compilation import (CompilerConfig,
-                                                  StarknetCompiler)
+from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
 if TYPE_CHECKING:
     from protostar.commands.build.project_compiler import ProjectCompiler
@@ -205,7 +207,7 @@ class TestCommand(Command):
                 TestScheduler(live_logger, worker=TestRunner.worker).run(
                     include_paths=include_paths,
                     test_collector_result=test_collector_result,
-                    fuzz_config=FuzzConfig(max_fuzz_examples=fuzz_max_examples),
+                    fuzz_config=FuzzConfig(max_examples=fuzz_max_examples),
                     disable_hint_validation=disable_hint_validation,
                     exit_first=exit_first,
                 )
