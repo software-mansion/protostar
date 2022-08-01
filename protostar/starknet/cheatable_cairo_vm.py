@@ -4,7 +4,7 @@ from protostar.starknet.delayed_builder import DelayedBuilder
 
 class CheatableVirtualMachine(VirtualMachine):
     """
-    `VirtualMachine` with modified `step` function that builds cheatcodes created with `DelayedBuilder`.
+    VirtualMachine with modified step function that captures execution locals of a hint.
     """
 
     # pylint: disable=C0103,W0212
