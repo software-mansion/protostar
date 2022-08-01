@@ -2,9 +2,20 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from hypothesis.strategies import SearchStrategy
+from starkware.cairo.lang.compiler.ast.cairo_types import CairoType
+
+from protostar.commands.test.fuzzing.exceptions import FuzzingError
+
+
+class SearchStrategyBuildError(FuzzingError):
+    pass
 
 
 class StrategyDescriptor(ABC):
     @abstractmethod
-    def build_strategy(self) -> SearchStrategy[Any]:
+    def build_strategy(self, cairo_type: CairoType) -> SearchStrategy[Any]:
+        ...
+
+    @abstractmethod
+    def __eq__(self, other: "StrategyDescriptor") -> bool:
         ...

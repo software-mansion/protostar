@@ -114,7 +114,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
                 with with_reporter(protostar_reporter):
                     inputs: Dict[str, Any] = {}
                     for param in strategy_selector.parameter_names:
-                        search_strategy = strategy_selector.search_strategies[param]
+                        search_strategy = strategy_selector.get_search_strategy(param)
                         inputs[param] = data_object.draw(search_strategy, label=param)
 
                     try:
