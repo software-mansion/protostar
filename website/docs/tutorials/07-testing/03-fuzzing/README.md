@@ -103,7 +103,7 @@ So far, so good. Running the test, we see it passes:
 
 ### Generalizing the test
 
-This unit test does test that we can withdraw "some" amount from our safe.
+This unit test performs cheks if we can withdraw "some" amount from our safe.
 However, can we be sure that it works for all amounts, not just 1?
 
 The general property here is: given a safe balance, when we withdraw some amount from it,
