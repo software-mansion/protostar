@@ -11,7 +11,6 @@ from hypothesis import Verbosity, given, seed, settings
 from hypothesis.database import InMemoryExampleDatabase
 from hypothesis.reporting import with_reporter
 from hypothesis.strategies import DataObject, data
-from typing_extensions import Self
 
 from protostar.commands.test.cheatcodes.reflect.cairo_struct import CairoStructHintLocal
 from protostar.commands.test.environments.test_execution_environment import (
@@ -45,23 +44,23 @@ def is_fuzz_test(function_name: str, state: TestExecutionState) -> bool:
 
 
 @dataclass
+class FuzzConfig:
+    max_fuzz_examples: int = 100
+
+
+@dataclass
 class FuzzTestExecutionResult(TestExecutionResult):
     fuzz_runs_count: int
 
 
 class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
-    @dataclass
-    class FuzzConfig:
-        max_fuzz_examples: int = 100
-
     def __init__(self, state: TestExecutionState):
         super().__init__(state)
         self.initial_state = state
-        self._fuzz_config = FuzzTestExecutionEnvironment.FuzzConfig()
+        self._fuzz_config = FuzzConfig()
 
-    def set_fuzz_config(self, fuzz_config: FuzzConfig) -> Self:
+    def set_fuzz_config(self, fuzz_config: FuzzConfig) -> None:
         self._fuzz_config = fuzz_config
-        return self
 
     async def invoke(self, function_name: str) -> TestExecutionResult:
         abi = self.state.contract.abi

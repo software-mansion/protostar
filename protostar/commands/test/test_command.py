@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING, List, Optional
 
 from protostar.cli.activity_indicator import ActivityIndicator
 from protostar.cli.command import Command
+from protostar.commands.test.environments.fuzz_test_execution_environment import \
+    FuzzConfig
 from protostar.commands.test.test_collector import TestCollector
 from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.test_scheduler import TestScheduler
@@ -11,12 +13,11 @@ from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.commands.test.testing_seed import TestingSeed
 from protostar.commands.test.testing_summary import TestingSummary
 from protostar.utils.compiler.pass_managers import (
-    StarknetPassManagerFactory,
-    TestCollectorPassManagerFactory,
-)
+    StarknetPassManagerFactory, TestCollectorPassManagerFactory)
 from protostar.utils.log_color_provider import log_color_provider
 from protostar.utils.protostar_directory import ProtostarDirectory
-from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
+from protostar.utils.starknet_compilation import (CompilerConfig,
+                                                  StarknetCompiler)
 
 if TYPE_CHECKING:
     from protostar.commands.build.project_compiler import ProjectCompiler
@@ -109,7 +110,7 @@ class TestCommand(Command):
                 description="Set a seed to use for all fuzz tests.",
             ),
             Command.Argument(
-                name="max-fuzz-examples",
+                name="fuzz-max-examples",
                 type="int",
                 default=100,
                 description=(
@@ -135,7 +136,7 @@ class TestCommand(Command):
             safe_collecting=args.safe_collecting,
             exit_first=args.exit_first,
             seed=args.seed,
-            max_fuzz_examples=args.max_fuzz_examples,
+            fuzz_max_examples=args.fuzz_max_examples,
             slowest_tests_to_report_count=args.report_slowest_tests,
         )
         summary.assert_all_passed()
@@ -153,7 +154,7 @@ class TestCommand(Command):
         safe_collecting: bool = False,
         exit_first: bool = False,
         seed: Optional[int] = None,
-        max_fuzz_examples: int = 100,
+        fuzz_max_examples: int = 100,
         slowest_tests_to_report_count: int = 0,
     ) -> TestingSummary:
         logger = getLogger()
@@ -204,7 +205,7 @@ class TestCommand(Command):
                 TestScheduler(live_logger, worker=TestRunner.worker).run(
                     include_paths=include_paths,
                     test_collector_result=test_collector_result,
-                    config=TestRunner.FuzzConfig(max_fuzz_examples=max_fuzz_examples),
+                    fuzz_config=FuzzConfig(max_fuzz_examples=fuzz_max_examples),
                     disable_hint_validation=disable_hint_validation,
                     exit_first=exit_first,
                 )

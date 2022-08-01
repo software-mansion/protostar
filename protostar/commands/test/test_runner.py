@@ -10,6 +10,7 @@ from starkware.starkware_utils.error_handling import StarkException
 
 from protostar.commands.test.environments.factory import invoke_setup
 from protostar.commands.test.environments.fuzz_test_execution_environment import (
+    FuzzConfig,
     FuzzTestExecutionEnvironment,
     FuzzTestExecutionResult,
     is_fuzz_test,
@@ -39,8 +40,6 @@ logger = getLogger()
 
 
 class TestRunner:
-    FuzzConfig = FuzzTestExecutionEnvironment.FuzzConfig
-
     def __init__(
         self,
         shared_tests_state: SharedTestsState,
@@ -73,7 +72,7 @@ class TestRunner:
         shared_tests_state: SharedTestsState
         include_paths: List[str]
         disable_hint_validation_in_user_contracts: bool
-        fuzz_config: "TestRunner.FuzzConfig"
+        fuzz_config: FuzzConfig
 
     @classmethod
     def worker(cls, args: "TestRunner.WorkerArgs"):
@@ -164,6 +163,12 @@ class TestRunner:
                     test_case_name,
                     new_execution_state,
                 )
+                fuzz_runs_count = (
+                    execution_result.fuzz_runs_count
+                    if isinstance(execution_result, FuzzTestExecutionResult)
+                    else None
+                )
+
                 self.shared_tests_state.put_result(
                     PassedTestCase(
                         file_path=test_suite.test_path,
@@ -171,7 +176,7 @@ class TestRunner:
                         execution_resources=execution_result.execution_resources,
                         execution_time=time.perf_counter() - start_time,
                         captured_stdout=new_execution_state.output_recorder.get_captures(),
-                        fuzz_runs_count=execution_result.fuzz_runs_count
+                        fuzz_runs_count=fuzz_runs_count
                         if isinstance(execution_result, FuzzTestExecutionResult)
                         else None,
                     )
@@ -194,12 +199,7 @@ class TestRunner:
     ) -> TestExecutionResult:
         if is_fuzz_test(function_name, state):
             env = FuzzTestExecutionEnvironment(state)
-
-            env.set_fuzz_config(
-                FuzzTestExecutionEnvironment.FuzzConfig(
-                    max_fuzz_examples=self._fuzz_config.max_fuzz_examples
-                )
-            )
+            env.set_fuzz_config(self._fuzz_config)
         else:
             env = TestExecutionEnvironment(state)
 
