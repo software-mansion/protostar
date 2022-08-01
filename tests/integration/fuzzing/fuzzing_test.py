@@ -1,10 +1,11 @@
 from pathlib import Path
+from typing import cast
 
 import pytest
 
 from tests.integration.conftest import (
-    assert_cairo_test_cases,
     RunCairoTestRunnerFixture,
+    assert_cairo_test_cases,
 )
 
 
@@ -79,3 +80,21 @@ async def test_hypothesis_multiple_errors(
             "test_hypothesis_multiple_errors",
         ],
     )
+
+
+async def test_max_fuzz_runs_less_or_equal_than_specified(
+    run_cairo_test_runner: RunCairoTestRunnerFixture,
+):
+    fuzz_max_examples = 25
+
+    testing_summary = await run_cairo_test_runner(
+        Path(__file__).parent / "basic_test.cairo",
+        seed=3,
+        fuzz_max_examples=fuzz_max_examples,
+    )
+
+    assert testing_summary.passed[0].fuzz_runs_count is not None
+    assert testing_summary.passed[0].fuzz_runs_count <= fuzz_max_examples
+    failed_test_execution_info = testing_summary.failed[0].exception.execution_info
+    assert cast(int, failed_test_execution_info["fuzz_runs"]) <= fuzz_max_examples
+    assert cast(int, failed_test_execution_info["fuzz_simplification_runs"]) >= 0

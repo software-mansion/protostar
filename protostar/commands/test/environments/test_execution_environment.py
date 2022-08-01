@@ -1,5 +1,5 @@
-from typing import Optional, List
-from contextlib import redirect_stdout
+from dataclasses import dataclass
+from typing import List, Optional
 
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
@@ -10,6 +10,7 @@ from protostar.commands.test.cheatcodes import (
 from protostar.commands.test.cheatcodes.expect_revert_cheatcode import (
     ExpectRevertContext,
 )
+from protostar.commands.test.cheatcodes.reflect.cairo_struct import CairoStructHintLocal
 from protostar.commands.test.environments.setup_execution_environment import (
     SetupCheatcodeFactory,
 )
@@ -22,14 +23,14 @@ from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.execution_environment import ExecutionEnvironment
 from protostar.utils.abi import has_function_parameters
 from protostar.utils.hook import Hook
-from protostar.commands.test.cheatcodes.reflect.cairo_struct import (
-    CairoStructHintLocal,
-)
 
 
-class TestExecutionEnvironment(
-    ExecutionEnvironment[Optional[ExecutionResourcesSummary]]
-):
+@dataclass
+class TestExecutionResult:
+    execution_resources: Optional[ExecutionResourcesSummary]
+
+
+class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
     state: TestExecutionState
 
     def __init__(self, state: TestExecutionState):
@@ -37,7 +38,7 @@ class TestExecutionEnvironment(
         self._expect_revert_context = ExpectRevertContext()
         self._finish_hook = Hook()
 
-    async def invoke(self, function_name: str) -> Optional[ExecutionResourcesSummary]:
+    async def invoke(self, function_name: str) -> TestExecutionResult:
         assert not has_function_parameters(
             self.state.contract.abi, function_name
         ), f"{self.__class__.__name__} expects no function parameters."
@@ -55,7 +56,9 @@ class TestExecutionEnvironment(
         )
 
         with self.state.output_recorder.redirect("test"):
-            return await self.invoke_test_case(function_name)
+            return TestExecutionResult(
+                execution_resources=await self.invoke_test_case(function_name)
+            )
 
     async def invoke_test_case(
         self, function_name: str, *args, **kwargs

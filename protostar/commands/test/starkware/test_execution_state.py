@@ -6,14 +6,15 @@ from starkware.starknet.services.api.contract_class import ContractClass
 from typing_extensions import Self
 
 from protostar.commands.test.test_context import TestContext
+from protostar.commands.test.test_output_recorder import OutputRecorder
 from protostar.starknet.execution_state import ExecutionState
 from protostar.starknet.forkable_starknet import ForkableStarknet
 from protostar.utils.starknet_compilation import StarknetCompiler
-from protostar.commands.test.test_output_recorder import OutputRecorder
 
 
 @dataclass
 class TestExecutionState(ExecutionState):
+
     context: TestContext
     output_recorder: OutputRecorder
 
@@ -23,7 +24,6 @@ class TestExecutionState(ExecutionState):
         starknet_compiler: StarknetCompiler,
         test_suite_definition: ContractClass,
     ) -> Self:
-
         starknet = await ForkableStarknet.empty()
         contract = await starknet.deploy(contract_class=test_suite_definition)
         assert test_suite_definition.abi is not None
