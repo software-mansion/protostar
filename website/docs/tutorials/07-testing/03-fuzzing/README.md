@@ -179,9 +179,7 @@ amount = 340282366920938463463374607431768211456
 11:41:48 [INFO] Seed:        4258368192
 ```
 
-:::info
-By default, Protostar tries to fail a test case within 100 examples. The more complex code, the more examples are needed to find uncommon bugs. Use `--max-fuzz-examples` parameter to change the number of examples.
-:::
+
 
 
 ### Fixing the bug
@@ -228,7 +226,7 @@ And now, the test passes.
 We can also observe the variance of resources usage, caused by the `if amount == 0:` branch in code.
 
 ```text title="$ protostar test"
-[PASS] tests/test_main.cairo test_withdraw (steps=μ: 127, Md: 137, min: 84, max: 137)
+[PASS] tests/test_main.cairo test_withdraw (fuzz_runs=100, steps=μ: 127, Md: 137, min: 84, max: 137)
        range_check_builtin=μ: 1.81, Md: 2, min: 1, max: 2
 
 11:55:18 [INFO] Test suites: 1 passed, 1 total
@@ -241,7 +239,7 @@ We can also observe the variance of resources usage, caused by the `if amount ==
 In fuzzing mode, the test is executed many times, hence test summaries are extended:
 
 ```
-[PASS] tests/test_main.cairo test_withdraw (steps=μ: 127, Md: 137, min: 84, max: 137)
+[PASS] tests/test_main.cairo test_withdraw (fuzz_runs=100, steps=μ: 127, Md: 137, min: 84, max: 137)
        range_check_builtin=μ: 1.81, Md: 2, min: 1, max: 2
 ```
 
@@ -250,3 +248,6 @@ Each resource counter presents a summary of observed values across all test runs
 - `Md` is the median value of this resource,
 - `min` is the lowest value observed,
 - `max` is the highest value observed.
+
+## Adjusting fuzzing quality
+By default, Protostar tries to fail a test case within 100 examples. The default value is chosen to suit a workflow where the test will be part of a suite that is regularly executed locally or on a CI server, balancing total running time against the chance of missing a bug. The more complex code, the more examples are needed to find uncommon bugs. Use [`--fuzz-max-examples` parameter](/docs/cli-reference#--fuzz-max-examples-int100) to change the number of examples.
