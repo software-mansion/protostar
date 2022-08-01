@@ -29,3 +29,7 @@ from protostar.commands.test.cheatcodes.warp_cheatcode import WarpCheatcode
 from protostar.commands.test.cheatcodes.store_cheatcode import StoreCheatcode
 
 from protostar.commands.test.cheatcodes.reflect_cheatcode import ReflectCheatcode
+
+from protostar.commands.test.cheatcodes.reject_cheatcode import RejectCheatcode
+
+from protostar.commands.test.cheatcodes.assume_cheatcode import AssumeCheatcode
