@@ -41,21 +41,3 @@ c = 0
 """
         in result
     )
-
-
-@pytest.mark.usefixtures("init")
-def test_assume_and_reject(protostar, copy_fixture):
-    copy_fixture("test_assume_and_reject.cairo", "./tests")
-    result = protostar(
-        ["--no-color", "test", "--seed", "42", "tests/test_assume_and_reject.cairo"],
-        ignore_exit_code=True,
-    )
-
-    assert (
-        """
-[falsifying example]:
-a = 6
-b = 3
-""".rstrip()
-        in result
-    )

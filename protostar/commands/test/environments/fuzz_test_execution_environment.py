@@ -120,8 +120,8 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
                         )
                         if this_run_resources is not None:
                             execution_resources.append(this_run_resources)
-                    except HypothesisRejectException:
-                        data_object.conjecture_data.mark_invalid()
+                    except HypothesisRejectException as exc:
+                        raise exc.unsatisfied_assumption_exc
                     except ReportedException as reported_ex:
                         raise HypothesisFailureSmugglingError(
                             error=reported_ex,
