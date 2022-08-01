@@ -6,6 +6,10 @@ Marks example as bad, thus preventing fuzz tests from using it as a falsifying e
 
 `reject()` is equivalent to `assume(False)`.
 
+:::warning
+This cheatcode is only available in [fuzz tests](../fuzzing).
+:::
+
 ```cairo
 %lang starknet
 
@@ -21,9 +25,6 @@ func test_function_that_takes_nonzero_argument{syscall_ptr : felt*, range_check_
     return ()
 end
 ```
-:::warning
-This cheatcode is only available in [fuzz tests](../fuzzing).
-:::
 
 :::tip
 You should use `reject` only for narrow checks, as it can slow down the tests significantly due to the need of more specific inputs.
