@@ -2,9 +2,9 @@
 ```python
 def reject() -> None:
 ```
-Marks example as bad, thus preventing fuzz tests from using it as a falsifying example.
+`reject()` skips testing against the given example.
 
-`reject()` is equivalent to `assume(False)`.
+It is equivalent to `assume(False)`.
 
 :::warning
 This cheatcode is only available in [fuzz tests](../fuzzing).

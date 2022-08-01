@@ -2,7 +2,7 @@
 ```python
 def assume(condition: bool) -> None:
 ```
-`assume(condition)` works similarly to `assert condition` but instead of marking the example as failed it marks it as bad, thus preventing fuzz tests from using it as a falsifying example.
+`assume(condition)` skips testing against the given example if the `condition` is `False`.
 
 :::warning
 This cheatcode is only available in [fuzz tests](../fuzzing).
