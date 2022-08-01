@@ -93,6 +93,7 @@ async def test_max_fuzz_runs_less_or_equal_than_specified(
         max_fuzz_examples=max_fuzz_examples,
     )
 
+    assert testing_summary.passed[0].fuzz_runs_count is not None
     assert testing_summary.passed[0].fuzz_runs_count <= max_fuzz_examples
     failed_test_execution_info = testing_summary.failed[0].exception.execution_info
     assert cast(int, failed_test_execution_info["fuzz_runs"]) <= max_fuzz_examples

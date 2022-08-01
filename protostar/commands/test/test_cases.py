@@ -30,7 +30,7 @@ class PassedTestCase(TestCaseResult):
     execution_resources: Optional[ExecutionResourcesSummary]
     execution_time: float
     captured_stdout: Dict[OutputName, str] = field(default_factory=dict)
-    fuzz_runs_count: int = 1
+    fuzz_runs_count: Optional[int] = None
 
     def format(self) -> str:
         first_line_elements: List[str] = []
@@ -43,7 +43,7 @@ class PassedTestCase(TestCaseResult):
 
         info_items.append(_get_formatted_execution_time(self.execution_time))
 
-        if self.fuzz_runs_count > 1:
+        if self.fuzz_runs_count is not None:
             info_items.append(
                 f"fuzz_runs={log_color_provider.bold(self.fuzz_runs_count)}"
             )

@@ -204,7 +204,7 @@ class TestCommand(Command):
                 TestScheduler(live_logger, worker=TestRunner.worker).run(
                     include_paths=include_paths,
                     test_collector_result=test_collector_result,
-                    config=TestRunner.Config(max_fuzz_examples=max_fuzz_examples),
+                    config=TestRunner.FuzzConfig(max_fuzz_examples=max_fuzz_examples),
                     disable_hint_validation=disable_hint_validation,
                     exit_first=exit_first,
                 )

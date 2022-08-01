@@ -28,7 +28,6 @@ from protostar.utils.hook import Hook
 @dataclass
 class TestExecutionResult:
     execution_resources: Optional[ExecutionResourcesSummary]
-    fuzz_runs_count: int
 
 
 class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
@@ -58,8 +57,7 @@ class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
 
         with self.state.output_recorder.redirect("test"):
             return TestExecutionResult(
-                execution_resources=await self.invoke_test_case(function_name),
-                fuzz_runs_count=1,
+                execution_resources=await self.invoke_test_case(function_name)
             )
 
     async def invoke_test_case(

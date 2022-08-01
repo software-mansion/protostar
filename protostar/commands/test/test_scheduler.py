@@ -26,7 +26,7 @@ class TestScheduler:
     def run(
         self,
         test_collector_result: "TestCollector.Result",
-        config: TestRunner.Config,
+        config: TestRunner.FuzzConfig,
         include_paths: List[str],
         disable_hint_validation: bool,
         exit_first: bool,
@@ -39,7 +39,7 @@ class TestScheduler:
                 TestRunner.WorkerArgs(
                     test_suite,
                     shared_tests_state=shared_tests_state,
-                    config=config,
+                    fuzz_config=config,
                     include_paths=include_paths,
                     disable_hint_validation_in_user_contracts=disable_hint_validation,
                 )

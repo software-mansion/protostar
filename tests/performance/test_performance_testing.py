@@ -110,7 +110,7 @@ async def _run_tests_inner(test_suite: TestSuite, contract: ContractClass):
         runner = TestRunner(
             shared_tests_state=tests_state,
             include_paths=[],
-            config=TestRunner.Config(max_fuzz_examples=100),
+            fuzz_config=TestRunner.FuzzConfig(max_fuzz_examples=100),
         )
 
         # pylint: disable=protected-access

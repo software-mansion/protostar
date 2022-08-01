@@ -44,10 +44,15 @@ def is_fuzz_test(function_name: str, state: TestExecutionState) -> bool:
     return bool(params)
 
 
+@dataclass
+class FuzzTestExecutionResult(TestExecutionResult):
+    fuzz_runs_count: int
+
+
 class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
     @dataclass
     class FuzzConfig:
-        max_fuzz_examples = 100
+        max_fuzz_examples: int = 100
 
     def __init__(self, state: TestExecutionState):
         super().__init__(state)
@@ -146,7 +151,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             )
             raise escape_err.error
 
-        return TestExecutionResult(
+        return FuzzTestExecutionResult(
             execution_resources=ExecutionResourcesSummary.sum(execution_resources),
             fuzz_runs_count=runs_counter.count,
         )
