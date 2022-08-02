@@ -1,5 +1,5 @@
 import dataclasses
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
 from hypothesis import given, seed, settings
@@ -31,6 +31,7 @@ from protostar.commands.test.fuzzing.hypothesis.reporter import (
     HYPOTHESIS_VERBOSITY,
     protostar_reporter,
 )
+from protostar.commands.test.fuzzing.hypothesis.runs_counter import RunsCounter
 from protostar.commands.test.fuzzing.strategies import StrategiesHintLocal
 from protostar.commands.test.fuzzing.strategy_selector import StrategySelector
 from protostar.commands.test.starkware.execution_resources_summary import (
@@ -192,29 +193,6 @@ class HypothesisFailureSmugglingError(Exception):
 
     error: ReportedException
     inputs: Dict[str, Any]
-
-
-@dataclass
-class RunsCounter:
-    """
-    A boxed integer that can be safely shared between Python threads.
-    It is used to count fuzz test runs.
-    """
-
-    budget: int
-    count: int = field(default=0)
-
-    def __next__(self) -> int:
-        self.count += 1
-        return self.count
-
-    @property
-    def balance(self) -> int:
-        return self.budget - self.count
-
-    @property
-    def available_runs(self) -> int:
-        return max(0, self.balance)
 
 
 class FuzzTestCaseCheatcodeFactory(TestCaseCheatcodeFactory):
