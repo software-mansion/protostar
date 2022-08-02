@@ -3,10 +3,11 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
 from hypothesis import given, seed, settings
+from hypothesis.core import HypothesisHandle
 from hypothesis.database import InMemoryExampleDatabase
 from hypothesis.reporting import with_reporter
-from hypothesis.strategies import DataObject, data
 from starkware.starknet.business_logic.execution.objects import CallInfo
+from typing_extensions import Protocol
 
 from protostar.commands.test.cheatcodes import (
     AssumeCheatcode,
@@ -16,13 +17,17 @@ from protostar.commands.test.cheatcodes import (
 from protostar.commands.test.cheatcodes.expect_revert_cheatcode import (
     ExpectRevertContext,
 )
+from protostar.commands.test.cheatcodes.given_cheatcode import StrategyLearnedException
 from protostar.commands.test.cheatcodes.reflect.cairo_struct import CairoStructHintLocal
 from protostar.commands.test.environments.test_execution_environment import (
     TestCaseCheatcodeFactory,
     TestExecutionEnvironment,
     TestExecutionResult,
 )
-from protostar.commands.test.fuzzing.exceptions import HypothesisRejectException
+from protostar.commands.test.fuzzing.exceptions import (
+    HypothesisRejectException,
+    FuzzingError,
+)
 from protostar.commands.test.fuzzing.fuzz_input_exception_metadata import (
     FuzzInputExceptionMetadata,
 )
@@ -39,7 +44,10 @@ from protostar.commands.test.starkware.execution_resources_summary import (
 )
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_context import TestContextHintLocal
-from protostar.commands.test.test_environment_exceptions import ReportedException
+from protostar.commands.test.test_environment_exceptions import (
+    ReportedException,
+    CheatcodeException,
+)
 from protostar.commands.test.testing_seed import TestingSeed
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.utils.abi import get_function_parameters
@@ -55,6 +63,7 @@ def is_fuzz_test(function_name: str, state: TestExecutionState) -> bool:
 @dataclass
 class FuzzConfig:
     max_examples: int = 100
+    max_strategy_learnings: int = 10
 
 
 @dataclass
@@ -62,9 +71,18 @@ class FuzzTestExecutionResult(TestExecutionResult):
     fuzz_runs_count: int
 
 
+class TestCallable(Protocol):
+    hypothesis: HypothesisHandle
+
+    def __call__(self):
+        ...
+
+
 class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
     def __init__(
-        self, state: TestExecutionState, fuzz_config: Optional[FuzzConfig] = None
+        self,
+        state: TestExecutionState,
+        fuzz_config: Optional[FuzzConfig] = None,
     ):
         super().__init__(state)
         self.initial_state = state
@@ -115,18 +133,12 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             report_multiple_bugs=False,
             verbosity=HYPOTHESIS_VERBOSITY,
         )
-        @given(data_object=data())
-        async def test(data_object: DataObject):
+        async def test_template(**inputs: Any):
             self.fork_state_for_test()
 
             run_no = next(runs_counter)
             with self.state.output_recorder.redirect(("test", run_no)):
                 with with_reporter(protostar_reporter):
-                    inputs: Dict[str, Any] = {}
-                    for param in strategy_selector.parameter_names:
-                        search_strategy = strategy_selector.get_search_strategy(param)
-                        inputs[param] = data_object.draw(search_strategy, label=param)
-
                     try:
                         this_run_resources = await self.invoke_test_case(
                             function_name, **inputs
@@ -141,13 +153,25 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
                             inputs=inputs,
                         ) from reported_ex
 
-        test.hypothesis.inner_test = wrap_in_sync(test.hypothesis.inner_test)  # type: ignore
-
         def test_thread():
             with with_reporter(protostar_reporter):
-                # TODO: Document how the data_object is passed to test function
-                # pylint: disable=no-value-for-parameter
-                test()
+                for _ in range(self._fuzz_config.max_strategy_learnings):
+                    test: TestCallable = given(**strategy_selector.given_strategies)(
+                        test_template
+                    )
+                    test.hypothesis.inner_test = wrap_in_sync(
+                        test.hypothesis.inner_test
+                    )
+
+                    try:
+                        test()
+                        break
+                    except StrategyLearnedException:
+                        continue
+                else:
+                    raise CheatcodeException(
+                        "given", "Cheatcode was called with changing strategies."
+                    )
 
         try:
             with self.state.output_recorder.redirect("test"):

@@ -8,6 +8,10 @@ from protostar.commands.test.fuzzing.strategy_selector import StrategySelector
 from protostar.starknet.cheatcode import Cheatcode
 
 
+class StrategyLearnedException(BaseException):
+    pass
+
+
 class GivenCallable(Protocol):
     def __call__(self, **kwargs: StrategyDescriptor):
         ...
@@ -34,6 +38,8 @@ class GivenCheatcode(Cheatcode):
         for param in kwargs:
             self.strategy_selector.check_exists(param)
 
+        learned = False
+
         for param, descriptor in kwargs.items():
             # Raise nice error if got object which is not a strategy descriptor.
             if not isinstance(descriptor, StrategyDescriptor):
@@ -42,4 +48,7 @@ class GivenCheatcode(Cheatcode):
                     f"Type {type(descriptor)} is not a valid fuzzing strategy."
                 )
 
-            self.strategy_selector.set_strategy_descriptor(param, descriptor)
+            learned |= self.strategy_selector.learn(param, descriptor)
+
+        if learned:
+            raise StrategyLearnedException

@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from typing import Dict, Iterable, Any, Generator
+from typing import Dict, Iterable, Any, Generator, Mapping
 
 from hypothesis.strategies import SearchStrategy
 from starkware.cairo.lang.compiler.ast.cairo_types import CairoType, TypeFelt
@@ -16,73 +16,47 @@ from protostar.commands.test.fuzzing.strategy_descriptor import (
 
 class StrategySelector:
     def __init__(self, parameters: Dict[str, CairoType]):
+        # NOTE: We store each parameter info property in separate dict in order to optimise
+        #   ``given_strategies`` property.
         self._parameters = parameters
-        self._strategy_descriptors: Dict[str, StrategyDescriptor] = {}
-        self._search_strategies: Dict[str, SearchStrategy[Any]] = {}
+        self._descriptors: Dict[str, StrategyDescriptor] = {}
+        self._strategies: Dict[str, SearchStrategy[Any]] = {}
+
+        for param, cairo_type in parameters.items():
+            with wrap_search_strategy_build_error(param):
+                descriptor = infer_strategy_from_cairo_type(cairo_type)
+                strategy = descriptor.build_strategy(cairo_type)
+
+            self._descriptors[param] = descriptor
+            self._strategies[param] = strategy
 
     @property
-    def parameter_names(self) -> Iterable[str]:
-        return self._parameters.keys()
+    def given_strategies(self) -> Mapping[str, SearchStrategy[Any]]:
+        return self._strategies
 
-    def __contains__(self, param: str) -> bool:
-        return param in self._parameters
+    def learn(self, param: str, descriptor: StrategyDescriptor) -> bool:
+        """
+        :return: ``True`` if selector has changed the strategy for the ``param``
+            (_learned new strategy_); otherwise, ``False``.
+        """
 
-    def get_strategy_descriptor(self, param: str) -> StrategyDescriptor:
         self.check_exists(param)
 
-        if param in self._strategy_descriptors:
-            return self._strategy_descriptors[param]
-
-        cairo_type = self._parameters[param]
+        existing_descriptor = self._descriptors[param]
+        if descriptor == existing_descriptor:
+            return False
 
         with wrap_search_strategy_build_error(param):
-            descriptor = infer_strategy_from_cairo_type(cairo_type)
+            cairo_type = self._parameters[param]
+            strategy = descriptor.build_strategy(cairo_type=cairo_type)
 
-        self._strategy_descriptors[param] = descriptor
-        return descriptor
-
-    def get_search_strategy(self, param: str) -> SearchStrategy[Any]:
-        self.check_exists(param)
-
-        if param in self._search_strategies:
-            return self._search_strategies[param]
-
-        descriptor = self.get_strategy_descriptor(param)
-        cairo_type = self._parameters[param]
-
-        with wrap_search_strategy_build_error(param):
-            strategy = descriptor.build_strategy(cairo_type)
-
-        self._search_strategies[param] = strategy
-        return strategy
-
-    def set_strategy_descriptor(
-        self,
-        param: str,
-        strategy_descriptor: StrategyDescriptor,
-    ):
-        self.check_exists(param)
-
-        # NOTE: Calling `get_strategy_descriptor` may construct default descriptor if not already
-        #   set, which may raise an exception from `infer_strategy_from_cairo_type` if it fails.
-        #   To avoid that, we explicitly look at `_strategy_descriptors` beforehand.
-        if (
-            param not in self._strategy_descriptors
-            or strategy_descriptor != self.get_strategy_descriptor(param)
-        ):
-            self._forget(param)
-            self._strategy_descriptors[param] = strategy_descriptor
+        self._descriptors[param] = descriptor
+        self._strategies[param] = strategy
+        return True
 
     def check_exists(self, param: str):
         if param not in self._parameters:
             raise FuzzingError(f"Unknown fuzzing parameter '{param}'.")
-
-    def _forget(self, param: str):
-        if param in self._strategy_descriptors:
-            del self._strategy_descriptors[param]
-
-        if param in self._search_strategies:
-            del self._search_strategies[param]
 
 
 def infer_strategy_from_cairo_type(cairo_type: CairoType) -> StrategyDescriptor:
