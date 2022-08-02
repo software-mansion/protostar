@@ -147,8 +147,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             with self.state.output_recorder.redirect("test"):
                 await to_thread(test_thread)
         except HypothesisFailureSmugglingError as escape_err:
-            if runs_counter.count > 1:
-                escape_err.error.execution_info["fuzz_runs"] = runs_counter.count
+            escape_err.error.execution_info["fuzz_runs"] = runs_counter.count
             escape_err.error.metadata.append(
                 FuzzInputExceptionMetadata(escape_err.inputs)
             )
