@@ -34,8 +34,7 @@ class ProjectContractsCompiler:
     ) -> ContractClass:
         if isinstance(contract_identifier, Path):
             return self.compile_from_contract_path(contract_path=contract_identifier)
-        else:
-            return self.compile_from_contract_name(contract_identifier)
+        return self.compile_from_contract_name(contract_identifier)
 
     def compile_from_contract_path(self, contract_path: Path) -> ContractClass:
         self._contracts_section.assert_contract_path_exists(contract_path)
