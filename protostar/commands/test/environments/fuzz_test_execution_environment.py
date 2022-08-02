@@ -1,13 +1,8 @@
-import asyncio
-import contextvars
 import dataclasses
-import functools
-import inspect
-import re
 from dataclasses import dataclass, field
-from typing import Any, Awaitable, Callable, Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
-from hypothesis import Verbosity, given, seed, settings
+from hypothesis import given, seed, settings
 from hypothesis.database import InMemoryExampleDatabase
 from hypothesis.reporting import with_reporter
 from hypothesis.strategies import DataObject, data
@@ -31,6 +26,11 @@ from protostar.commands.test.fuzzing.exceptions import HypothesisRejectException
 from protostar.commands.test.fuzzing.fuzz_input_exception_metadata import (
     FuzzInputExceptionMetadata,
 )
+from protostar.commands.test.fuzzing.hypothesis.aio import to_thread, wrap_in_sync
+from protostar.commands.test.fuzzing.hypothesis.reporter import (
+    HYPOTHESIS_VERBOSITY,
+    protostar_reporter,
+)
 from protostar.commands.test.fuzzing.strategies import StrategiesHintLocal
 from protostar.commands.test.fuzzing.strategy_selector import StrategySelector
 from protostar.commands.test.starkware.execution_resources_summary import (
@@ -43,11 +43,6 @@ from protostar.commands.test.testing_seed import TestingSeed
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.utils.abi import get_function_parameters
 from protostar.utils.hook import Hook
-
-HYPOTHESIS_VERBOSITY = Verbosity.normal
-"""
-Change this value to ``Verbosity.verbose`` while debugging Hypothesis adapter code.
-"""
 
 
 def is_fuzz_test(function_name: str, state: TestExecutionState) -> bool:
@@ -197,67 +192,6 @@ class HypothesisFailureSmugglingError(Exception):
 
     error: ReportedException
     inputs: Dict[str, Any]
-
-
-async def to_thread(func, *args, **kwargs):
-    """
-    Asynchronously run function *func* in a separate thread.
-
-    Any *args and **kwargs supplied for this function are directly passed
-    to *func*. Also, the current :class:`contextvars.Context` is propagated,
-    allowing context variables from the main thread to be accessed in the
-    separate thread.
-
-    Return a coroutine that can be awaited to get the eventual result of *func*.
-
-    Borrowed from Python 3.9
-    """
-
-    loop = asyncio.get_running_loop()
-    ctx = contextvars.copy_context()
-    func_call = functools.partial(ctx.run, func, *args, **kwargs)
-    return await loop.run_in_executor(None, func_call)
-
-
-def wrap_in_sync(func: Callable[..., Awaitable[Any]]):
-    """
-    Return a sync wrapper around an async function executing it in separate event loop.
-
-    Separate event loop is used, because Hypothesis engine is running in current executor
-    and is effectively blocking it.
-
-    Partially borrowed from pytest-asyncio.
-    """
-
-    @functools.wraps(func)
-    def inner(*args, **kwargs):
-        coro = func(*args, **kwargs)
-        assert inspect.isawaitable(coro)
-
-        loop = asyncio.new_event_loop()
-        task = asyncio.ensure_future(coro, loop=loop)
-        try:
-            loop.run_until_complete(task)
-        except BaseException:
-            # run_until_complete doesn't get the result from exceptions
-            # that are not subclasses of `Exception`.
-            # Consume all exceptions to prevent asyncio's warning from logging.
-            if task.done() and not task.cancelled():
-                task.exception()
-            raise
-
-    return inner
-
-
-HYPOTHESIS_MSG_JAMMER_PATTERN = re.compile(r"^Draw|^(Trying|Falsifying) example:")
-
-
-def protostar_reporter(message: str):
-    if (
-        HYPOTHESIS_VERBOSITY > Verbosity.normal
-        or not HYPOTHESIS_MSG_JAMMER_PATTERN.match(message)
-    ):
-        print(message)
 
 
 @dataclass
