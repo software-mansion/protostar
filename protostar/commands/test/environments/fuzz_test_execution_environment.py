@@ -11,9 +11,9 @@ from hypothesis import Verbosity, given, seed, settings
 from hypothesis.database import InMemoryExampleDatabase
 from hypothesis.reporting import with_reporter
 from hypothesis.strategies import DataObject, data
-
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
+from protostar.commands.test.cheatcodes import AssumeCheatcode, RejectCheatcode
 from protostar.commands.test.cheatcodes.reflect.cairo_struct import CairoStructHintLocal
 from protostar.commands.test.environments.test_execution_environment import (
     TestCaseCheatcodeFactory,
@@ -34,12 +34,6 @@ from protostar.commands.test.test_environment_exceptions import ReportedExceptio
 from protostar.commands.test.testing_seed import TestingSeed
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.utils.abi import get_function_parameters
-
-from protostar.commands.test.cheatcodes import (
-    RejectCheatcode,
-    AssumeCheatcode,
-)
-
 
 HYPOTHESIS_VERBOSITY = Verbosity.normal
 """
@@ -149,13 +143,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             with self.state.output_recorder.redirect("test"):
                 await to_thread(test_thread)
         except HypothesisFailureSmugglingError as escape_err:
-            if runs_counter.count > 1:
-                escape_err.error.execution_info[
-                    "fuzz_runs"
-                ] = self._fuzz_config.max_examples
-                escape_err.error.execution_info["fuzz_simplification_runs"] = (
-                    runs_counter.count - self._fuzz_config.max_examples
-                )
+            escape_err.error.execution_info["fuzz_runs"] = runs_counter.count
             escape_err.error.metadata.append(
                 FuzzInputExceptionMetadata(escape_err.inputs)
             )
