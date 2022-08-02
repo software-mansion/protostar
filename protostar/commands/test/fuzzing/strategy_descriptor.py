@@ -12,10 +12,10 @@ class SearchStrategyBuildError(FuzzingError):
 
 
 class StrategyDescriptor(ABC):
-    @abstractmethod
-    def build_strategy(self, cairo_type: CairoType) -> SearchStrategy[Any]:
-        ...
+    """
+    Invariant: Strategy descriptors must be equatable (provide ``__eq__`` implementation).
+    """
 
     @abstractmethod
-    def __eq__(self, other: "StrategyDescriptor") -> bool:
+    def build_strategy(self, cairo_type: CairoType) -> SearchStrategy[Any]:
         ...
