@@ -31,6 +31,7 @@ from protostar.commands.test.fuzzing.exceptions import HypothesisRejectException
 from protostar.commands.test.fuzzing.fuzz_input_exception_metadata import (
     FuzzInputExceptionMetadata,
 )
+from protostar.commands.test.fuzzing.strategies import StrategiesHintLocal
 from protostar.commands.test.fuzzing.strategy_selector import StrategySelector
 from protostar.commands.test.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
@@ -92,7 +93,11 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         )
 
         self.set_custom_hint_locals(
-            [TestContextHintLocal(self.state.context), CairoStructHintLocal()]
+            [
+                TestContextHintLocal(self.state.context),
+                CairoStructHintLocal(),
+                StrategiesHintLocal(),
+            ]
         )
 
         execution_resources: List[ExecutionResourcesSummary] = []
