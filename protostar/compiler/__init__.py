@@ -1,1 +1,1 @@
-from .project_contract_compiler import ProjectContractsCompiler
+from .project_compiler import ProjectCompiler

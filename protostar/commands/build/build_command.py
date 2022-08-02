@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 from protostar.cli.command import Command
-from protostar.commands.build.project_compiler import ProjectCompiler
+from protostar.compiler import ProjectCompiler
 
 
 class BuildCommand(Command):

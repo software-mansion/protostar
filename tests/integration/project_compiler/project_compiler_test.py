@@ -6,7 +6,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from protostar.commands.build.build_exceptions import CairoCompilationException
-from protostar.commands.build.project_compiler import ProjectCompiler
+from protostar.compiler import ProjectCompiler
 from protostar.protostar_toml.protostar_contracts_section import (
     ProtostarContractsSection,
 )

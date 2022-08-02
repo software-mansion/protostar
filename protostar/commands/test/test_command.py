@@ -22,7 +22,7 @@ from protostar.utils.protostar_directory import ProtostarDirectory
 from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
 if TYPE_CHECKING:
-    from protostar.commands.build.project_compiler import ProjectCompiler
+    from protostar.compiler import ProjectCompiler
 
 
 class TestCommand(Command):
