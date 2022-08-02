@@ -113,7 +113,7 @@ class TestRunner:
                 )
             )
 
-        # An unexpected exception in a worker should crash nor freeze the whole application
+        # An unexpected exception in a worker should neither crash nor freeze the whole application
         except BaseException as ex:  # pylint: disable=broad-except
             self.shared_tests_state.put_result(
                 UnexpectedExceptionTestSuiteResult(
