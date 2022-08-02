@@ -65,19 +65,21 @@ class UpdateCommand(Command):
 
         if package:
             package = retrieve_real_package_name(
-                package, self._project_root_path, project_section.libs_path
+                package, self._project_root_path, project_section.libs_relative_path
             )
             try:
                 update_package(
-                    package, self._project_root_path, project_section.libs_path
+                    package, self._project_root_path, project_section.libs_relative_path
                 )
             except PackageAlreadyUpToDateException as err:
                 self._logger.info(err.message)
         else:
-            for package_name in listdir(project_section.libs_path):
+            for package_name in listdir(project_section.libs_relative_path):
                 try:
                     update_package(
-                        package_name, self._project_root_path, project_section.libs_path
+                        package_name,
+                        self._project_root_path,
+                        project_section.libs_relative_path,
                     )
                 except PackageAlreadyUpToDateException:
                     continue

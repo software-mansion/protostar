@@ -45,8 +45,12 @@ class BuildCommand(Command):
         ]
 
     async def run(self, args):
-        self._project_compiler.compile(
+        self._project_compiler.set_config(
+            ProjectCompiler.Config(
+                hint_validation_disabled=args.disable_hint_validation,
+                relative_cairo_path=args.cairo_path,
+            )
+        )
+        self._project_compiler.compile_project(
             output_dir=args.output,
-            relative_cairo_path=args.cairo_path,
-            disable_hint_validation=args.disable_hint_validation,
         )

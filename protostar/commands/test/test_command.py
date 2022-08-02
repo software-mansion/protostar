@@ -164,7 +164,7 @@ class TestCommand(Command):
             str(path)
             for path in [
                 self._protostar_directory.protostar_test_only_cairo_packages_path,
-                *self._project_compiler.build_cairo_path(cairo_path or []),
+                *self._project_compiler.build_project_cairo_path_list(cairo_path or []),
             ]
         ]
         factory = (

@@ -23,6 +23,7 @@ from protostar.commands.init.project_creator import (
     NewProjectCreator,
 )
 from protostar.commands.migrate.migrate_command import MigrateCommand
+from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.migrator import Migrator
 from protostar.migrator.migrator_execution_environment import (
     MigratorExecutionEnvironment,
@@ -109,8 +110,11 @@ class ProtostarCLI(CLIApp):
 
         project_compiler = ProjectCompiler(
             project_root_path=project_root_path,
-            project_section_loader=ProtostarProjectSection.Loader(
-                protostar_toml_reader
+            project_cairo_path_builder=ProjectCairoPathBuilder(
+                project_root_path=project_root_path,
+                project_section_loader=ProtostarProjectSection.Loader(
+                    protostar_toml_reader
+                ),
             ),
             contracts_section_loader=ProtostarContractsSection.Loader(
                 protostar_toml_reader
