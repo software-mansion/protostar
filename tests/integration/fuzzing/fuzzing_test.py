@@ -107,7 +107,9 @@ async def test_strategies(
 
     assert_cairo_test_cases(
         testing_summary,
-        expected_passed_test_cases_names=[],
+        expected_passed_test_cases_names=[
+            "test_integers",
+        ],
         expected_failed_test_cases_names=[
             "test_unknown_parameter",
             "test_not_strategy_object",
