@@ -98,7 +98,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         execution_resources: List[ExecutionResourcesSummary] = []
 
         database = InMemoryExampleDatabase()
-        runs_counter = RunsCounter()
+        runs_counter = RunsCounter(budget=self._fuzz_config.max_examples)
 
         # NOTE: Hypothesis' ``reporter`` global is a thread local variable.
         #   Because we are running Hypothesis from separate thread, and the test itself is
@@ -109,10 +109,10 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         @settings(
             database=database,
             deadline=None,
+            max_examples=runs_counter.available_runs,
             print_blob=False,
             report_multiple_bugs=False,
             verbosity=HYPOTHESIS_VERBOSITY,
-            max_examples=self._fuzz_config.max_examples,
         )
         @given(data_object=data())
         async def test(data_object: DataObject):
@@ -201,11 +201,20 @@ class RunsCounter:
     It is used to count fuzz test runs.
     """
 
+    budget: int
     count: int = field(default=0)
 
     def __next__(self) -> int:
         self.count += 1
         return self.count
+
+    @property
+    def balance(self) -> int:
+        return self.budget - self.count
+
+    @property
+    def available_runs(self) -> int:
+        return max(0, self.balance)
 
 
 class FuzzTestCaseCheatcodeFactory(TestCaseCheatcodeFactory):
