@@ -4,7 +4,7 @@ from protostar.starknet.delayed_builder import DelayedBuilder
 
 class CheatableVirtualMachine(VirtualMachine):
     """
-    VirtualMachine with modified step function that captures execution locals of a hint.
+    `VirtualMachine` with modified `step` function that builds cheatcodes created with `DelayedBuilder`.
     """
 
     # pylint: disable=C0103,W0212
@@ -30,9 +30,9 @@ class CheatableVirtualMachine(VirtualMachine):
             for name, value in exec_locals.items():
                 if isinstance(value, DelayedBuilder):
                     exec_locals[name] = value.internal_build(exec_locals)
+            # --- MODIFICATIONS END ---
 
             self.exec_hint(hint.compiled, exec_locals, hint_index=hint_index)
-            # --- MODIFICATIONS END ---
 
             # There are memory leaks in 'exec_scopes'.
             # So, we clear some fields in order to reduce the problem.

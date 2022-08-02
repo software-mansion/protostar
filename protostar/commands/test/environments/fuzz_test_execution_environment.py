@@ -14,9 +14,6 @@ from hypothesis.strategies import DataObject, data
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
 from protostar.commands.test.cheatcodes import AssumeCheatcode, RejectCheatcode
-from protostar.commands.test.cheatcodes.expect_revert_cheatcode import (
-    ExpectRevertContext,
-)
 from protostar.commands.test.cheatcodes.reflect.cairo_struct import CairoStructHintLocal
 from protostar.commands.test.environments.test_execution_environment import (
     TestCaseCheatcodeFactory,
@@ -37,7 +34,6 @@ from protostar.commands.test.test_environment_exceptions import ReportedExceptio
 from protostar.commands.test.testing_seed import TestingSeed
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.utils.abi import get_function_parameters
-from protostar.utils.hook import Hook
 
 HYPOTHESIS_VERBOSITY = Verbosity.normal
 """
@@ -265,14 +261,6 @@ class RunsCounter:
 
 
 class FuzzTestCaseCheatcodeFactory(TestCaseCheatcodeFactory):
-    def __init__(
-        self,
-        state: TestExecutionState,
-        expect_revert_context: ExpectRevertContext,
-        finish_hook: Hook,
-    ):
-        super().__init__(state, expect_revert_context, finish_hook)
-
     def build(
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
