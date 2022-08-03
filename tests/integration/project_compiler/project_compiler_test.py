@@ -5,7 +5,7 @@ from typing import cast
 import pytest
 from pytest_mock import MockerFixture
 
-from protostar.compiler import CairoCompilationException, ProjectCompiler
+from protostar.compiler import CompilationException, ProjectCompiler
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.protostar_toml.protostar_contracts_section import (
     ProtostarContractsSection,
@@ -68,7 +68,7 @@ def test_compiling(tmp_path: Path, datadir: Path, create_loader):
 def test_handling_cairo_errors(tmp_path: Path, datadir: Path, create_loader):
     project_root_path = datadir / "compilation_error"
 
-    with pytest.raises(CairoCompilationException):
+    with pytest.raises(CompilationException):
         ProjectCompiler(
             project_root_path=project_root_path,
             project_cairo_path_builder=ProjectCairoPathBuilder(

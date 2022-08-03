@@ -73,7 +73,7 @@ class ProjectCompiler:
             )
             return self.compile_contract_from_contract_source_paths(contract_paths)
         except (StarkException, VmException, PreprocessorError) as err:
-            raise CairoCompilationException(contract_name, err) from err
+            raise CompilationException(contract_name, err) from err
 
     def compile_contract_from_contract_source_paths(
         self,
@@ -105,7 +105,7 @@ class ProjectCompiler:
     @staticmethod
     def _assert_source_file_exists(source_path: Path) -> None:
         if not source_path.exists():
-            raise ContractFileNotFoundException(source_path)
+            raise SourceFileNotFoundException(source_path)
 
     def _build_str_cairo_path_list(self) -> List[str]:
         return [
@@ -121,15 +121,15 @@ class ProjectCompiler:
         return output_dir
 
 
-class ContractFileNotFoundException(ProtostarException):
+class SourceFileNotFoundException(ProtostarException):
     def __init__(self, contract_path: Path):
         super().__init__(
-            f"Couldn't find the contract file `{contract_path.resolve()}`\n"
+            f"Couldn't find the cairo file `{contract_path.resolve()}`\n"
             'Did you forget to update protostar.toml::["protostar.contracts"]?'
         )
 
 
-class CairoCompilationException(ProtostarException):
+class CompilationException(ProtostarException):
     def __init__(self, contract_name: str, err: Exception):
         super().__init__(
             f"Protostar couldn't compile '{contract_name}' contract\n{str(err)}"

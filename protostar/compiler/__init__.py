@@ -1,6 +1,6 @@
 from .project_compiler import (
-    CairoCompilationException,
-    ContractFileNotFoundException,
+    CompilationException,
+    SourceFileNotFoundException,
     ProjectCairoPathBuilder,
     ProjectCompiler,
 )
