@@ -140,7 +140,7 @@ class ProtostarCLI(CLIApp):
                         version_manager,
                     ),
                 ),
-                BuildCommand(project_compiler),
+                BuildCommand(project_compiler, logger),
                 InstallCommand(
                     log_color_provider=log_color_provider,
                     logger=logger,
@@ -169,7 +169,8 @@ class ProtostarCLI(CLIApp):
                         version_manager,
                         LatestVersionRemoteChecker(),
                         self.logger,
-                    )
+                    ),
+                    logger=logger,
                 ),
                 TestCommand(
                     project_root_path, protostar_directory, project_cairo_path_builder

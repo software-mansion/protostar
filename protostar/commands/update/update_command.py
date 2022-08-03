@@ -58,7 +58,13 @@ class UpdateCommand(Command):
         ]
 
     async def run(self, args):
-        self.update(args.package)
+        self._logger.info("Running dependency update")
+        try:
+            self.update(args.package)
+        except BaseException as exc:
+            self._logger.error("Update command failed")
+            raise exc
+        self._logger.info("Updated successfully")
 
     def update(self, package: Optional[str]) -> None:
         project_section = self._project_section_loader.load()

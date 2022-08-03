@@ -1,35 +1,14 @@
-from protostar.commands.test.cheatcodes.declare_cheatcode import (
-    DeclareCheatcode,
-    DeclaredContract,
-)
-from protostar.commands.test.cheatcodes.deploy_cheatcode import (
-    DeployCheatcode,
-    DeployedContract,
-)
-from protostar.commands.test.cheatcodes.deploy_contract_cheatcode import (
-    DeployContractCheatcode,
-)
-from protostar.commands.test.cheatcodes.expect_events_cheatcode import (
-    ExpectEventsCheatcode,
-)
-from protostar.commands.test.cheatcodes.expect_revert_cheatcode import (
-    ExpectRevertCheatcode,
-)
-from protostar.commands.test.cheatcodes.mock_call_cheatcode import MockCallCheatcode
-from protostar.commands.test.cheatcodes.prepare_cheatcode import (
-    PrepareCheatcode,
-    PreparedContract,
-)
-from protostar.commands.test.cheatcodes.roll_cheatcode import RollCheatcode
-from protostar.commands.test.cheatcodes.start_prank_cheatcode import (
-    StartPrankCheatcode,
-)
-from protostar.commands.test.cheatcodes.warp_cheatcode import WarpCheatcode
-
-from protostar.commands.test.cheatcodes.store_cheatcode import StoreCheatcode
-
-from protostar.commands.test.cheatcodes.reflect_cheatcode import ReflectCheatcode
-
-from protostar.commands.test.cheatcodes.reject_cheatcode import RejectCheatcode
-
-from protostar.commands.test.cheatcodes.assume_cheatcode import AssumeCheatcode
+from .assume_cheatcode import AssumeCheatcode
+from .declare_cheatcode import DeclareCheatcode, DeclaredContract
+from .deploy_cheatcode import DeployCheatcode, DeployedContract
+from .deploy_contract_cheatcode import DeployContractCheatcode
+from .expect_events_cheatcode import ExpectEventsCheatcode
+from .expect_revert_cheatcode import ExpectRevertCheatcode
+from .mock_call_cheatcode import MockCallCheatcode
+from .prepare_cheatcode import PrepareCheatcode, PreparedContract
+from .reflect_cheatcode import ReflectCheatcode
+from .reject_cheatcode import RejectCheatcode
+from .roll_cheatcode import RollCheatcode
+from .start_prank_cheatcode import StartPrankCheatcode
+from .store_cheatcode import StoreCheatcode
+from .warp_cheatcode import WarpCheatcode
