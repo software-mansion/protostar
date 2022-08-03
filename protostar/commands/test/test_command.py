@@ -4,6 +4,9 @@ from typing import TYPE_CHECKING, List, Optional
 
 from protostar.cli.activity_indicator import ActivityIndicator
 from protostar.cli.command import Command
+from protostar.commands.test.environments.fuzz_test_execution_environment import (
+    FuzzConfig,
+)
 from protostar.commands.test.test_collector import TestCollector
 from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.test_scheduler import TestScheduler
@@ -109,6 +112,15 @@ class TestCommand(Command):
                 description="Set a seed to use for all fuzz tests.",
             ),
             Command.Argument(
+                name="fuzz-max-examples",
+                type="int",
+                default=100,
+                description=(
+                    "Once this many satisfying examples have been considered "
+                    "without finding any counter-example, falsification will terminate."
+                ),
+            ),
+            Command.Argument(
                 name="report-slowest-tests",
                 type="int",
                 description="Print slowest tests at the end.",
@@ -126,6 +138,7 @@ class TestCommand(Command):
             safe_collecting=args.safe_collecting,
             exit_first=args.exit_first,
             seed=args.seed,
+            fuzz_max_examples=args.fuzz_max_examples,
             slowest_tests_to_report_count=args.report_slowest_tests,
         )
         summary.assert_all_passed()
@@ -143,6 +156,7 @@ class TestCommand(Command):
         safe_collecting: bool = False,
         exit_first: bool = False,
         seed: Optional[int] = None,
+        fuzz_max_examples: int = 100,
         slowest_tests_to_report_count: int = 0,
     ) -> TestingSummary:
         logger = getLogger()
@@ -193,6 +207,7 @@ class TestCommand(Command):
                 TestScheduler(live_logger, worker=TestRunner.worker).run(
                     include_paths=include_paths,
                     test_collector_result=test_collector_result,
+                    fuzz_config=FuzzConfig(max_examples=fuzz_max_examples),
                     disable_hint_validation=disable_hint_validation,
                     exit_first=exit_first,
                 )
