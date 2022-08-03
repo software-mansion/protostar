@@ -30,7 +30,7 @@ func test_unknown_parameter{syscall_ptr : felt*, range_check_ptr}(a : felt):
     %{
         given(
             a = st.signed(),
-            b = st.integers(min=100, max=200),
+            b = st.integers(min_value=100, max_value=200),
         )
     %}
     return ()
