@@ -58,7 +58,8 @@ class ProtostarProjectSection(ProtostarTOMLSection):
 
         return result
 
-    def get_libs_relative_path(self):
-        if not self.libs_relative_path.is_dir():
-            raise LibsPathIsNotDirectoryException(self.libs_relative_path)
-        return self.libs_relative_path
+    def get_libs_path(self, project_root_path: Path):
+        libs_path = project_root_path / self.libs_relative_path
+        if not libs_path.is_dir():
+            raise LibsPathIsNotDirectoryException(libs_path)
+        return libs_path

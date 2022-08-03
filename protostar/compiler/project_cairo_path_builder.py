@@ -41,6 +41,4 @@ class ProjectCairoPathBuilder:
 
     def _get_libs_path(self) -> Optional[Path]:
         project_section = self._project_section_loader.load()
-        if project_section.libs_relative_path is None:
-            return None
-        return self._project_root_path / project_section.get_libs_relative_path()
+        return project_section.get_libs_path(self._project_root_path)
