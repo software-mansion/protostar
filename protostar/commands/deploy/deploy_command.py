@@ -90,16 +90,6 @@ class DeployCommand(Command):
                 type="str",
             ),
             Command.Argument(
-                name="salt",
-                description=(
-                    "An optional salt controlling where the contract will be deployed. "
-                    "The contract deployment address is determined by the hash "
-                    "of contract, salt and caller. "
-                    "If the salt is not supplied, the contract will be deployed with a random salt."
-                ),
-                type="str",
-            ),
-            Command.Argument(
                 name="wait-for-acceptance",
                 description="Wait until 'Accepted on L2' status.",
                 type="bool",

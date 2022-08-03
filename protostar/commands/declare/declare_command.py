@@ -100,7 +100,6 @@ class DeclareCommand(Command):
 
         response = await self._gateway_facade.declare(
             compiled_contract_path=compiled_contract_path,
-            gateway_url=network_config.gateway_url,
             token=token,
             wait_for_acceptance=wait_for_acceptance
             # signature=signature,

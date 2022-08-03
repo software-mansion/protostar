@@ -37,8 +37,7 @@ from protostar.protostar_toml.protostar_contracts_section import (
     ProtostarContractsSection,
 )
 from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
-from protostar.starknet_gateway import Gate
-from protostar.starknet_gateway.gateway_facade import GatewayFacade
+from protostar.starknet_gateway import GatewayFacade
 from protostar.upgrader import (
     LatestVersionChecker,
     LatestVersionRemoteChecker,

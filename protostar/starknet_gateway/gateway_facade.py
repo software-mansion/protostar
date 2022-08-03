@@ -34,6 +34,8 @@ class GatewayFacade:
             self._gateway_facade = GatewayFacade(project_root_path)
 
         def set_network(self, network: str) -> None:
+            if network == "alpha-goerli":
+                network = "testnet"
             self._gateway_facade._gateway_client = GatewayClient(network)
 
         def set_logger(
@@ -51,6 +53,7 @@ class GatewayFacade:
         self._starknet_requests: List[StarknetRequest] = []
         self._logger: Optional[Logger] = None
         self._log_color_provider: Optional[LogColorProvider] = None
+        self._gateway_client: Optional[GatewayClient] = None
 
     def set_logger(self, logger: Logger, log_color_provider: LogColorProvider) -> None:
         self._logger = logger
@@ -79,9 +82,10 @@ class GatewayFacade:
         )
 
         result = await self._gateway_client.deploy(tx, token)
-        await self._gateway_client.wait_for_tx(
-            result.hash, wait_for_accept=wait_for_acceptance
-        )
+        if wait_for_acceptance:
+            await self._gateway_client.wait_for_tx(
+                result.transaction_hash, wait_for_accept=wait_for_acceptance
+            )
 
         return SuccessfulDeployResponse(
             code=result.code,
@@ -109,9 +113,10 @@ class GatewayFacade:
 
         result = await self._gateway_client.declare(tx, token)
 
-        await self._gateway_client.wait_for_tx(
-            result.hash, wait_for_accept=wait_for_acceptance
-        )
+        if wait_for_acceptance:
+            await self._gateway_client.wait_for_tx(
+                result.hash, wait_for_accept=wait_for_acceptance
+            )
 
         return SuccessfulDeclareResponse(
             code=result.code,
