@@ -114,8 +114,8 @@ async def prepare_suite(
     runner = TestRunner(
         shared_tests_state=tests_state,
         include_paths=[],
-    fuzz_config=FuzzConfig(),
-        )
+        fuzz_config=FuzzConfig(),
+    )
 
     # pylint: disable=protected-access
     execution_state = await runner._build_execution_state(
