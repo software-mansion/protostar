@@ -2,7 +2,7 @@ from logging import Logger
 from typing import List, Optional
 
 from protostar.cli import ActivityIndicator, Command
-from protostar.compiler import ProjectCompiler
+from protostar.compiler import ProjectCompiler, ProjectCompilerConfig
 from protostar.utils import log_color_provider
 
 
@@ -53,7 +53,7 @@ class BuildCommand(Command):
         ):
             try:
                 self._project_compiler.set_config(
-                    ProjectCompiler.Config(
+                    ProjectCompilerConfig(
                         hint_validation_disabled=args.disable_hint_validation,
                         relative_cairo_path=args.cairo_path,
                     )

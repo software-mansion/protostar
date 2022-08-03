@@ -24,26 +24,27 @@ ContractSourcePath = Path
 ContractIdentifier = Union[ContractName, ContractSourcePath]
 
 
-class ProjectCompiler:
-    @dataclass
-    class Config:
-        relative_cairo_path: List[Path]
-        debugging_info_attached: bool = False
-        hint_validation_disabled: bool = False
+@dataclass
+class ProjectCompilerConfig:
+    relative_cairo_path: List[Path]
+    debugging_info_attached: bool = False
+    hint_validation_disabled: bool = False
 
+
+class ProjectCompiler:
     def __init__(
         self,
         project_root_path: Path,
         project_cairo_path_builder: ProjectCairoPathBuilder,
         contracts_section_loader: ProtostarContractsSection.Loader,
-        config: Optional["ProjectCompiler.Config"] = None,
+        config: Optional[ProjectCompilerConfig] = None,
     ):
         self._project_root_path = project_root_path
         self._project_cairo_path_builder = project_cairo_path_builder
         self._contracts_section_loader = contracts_section_loader
-        self._config = config or ProjectCompiler.Config(relative_cairo_path=[])
+        self._config = config or ProjectCompilerConfig(relative_cairo_path=[])
 
-    def set_config(self, config: "ProjectCompiler.Config") -> None:
+    def set_config(self, config: ProjectCompilerConfig) -> None:
         self._config = config
 
     def compile_project(
