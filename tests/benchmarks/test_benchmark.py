@@ -177,9 +177,8 @@ def aio_benchmark_fixture(benchmark):
     def _wrapper(func, *args, **kwargs):
         if asyncio.iscoroutinefunction(func):
             prepared_function = Sync2Async(func, *args, **kwargs)
-            benchmark.pedantic(prepared_function, rounds=ROUNDS_NUMBER)
-        else:
-            benchmark.pedantic(func, rounds=ROUNDS_NUMBER, args=args, kwargs=kwargs)
+            return benchmark.pedantic(prepared_function, rounds=ROUNDS_NUMBER)
+        return benchmark.pedantic(func, rounds=ROUNDS_NUMBER, args=args, kwargs=kwargs)
 
     return _wrapper
 
