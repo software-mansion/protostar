@@ -1,10 +1,10 @@
 import dataclasses
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Dict, List, Optional, cast, Callable
 
 from hypothesis import given, seed, settings
 from hypothesis.core import HypothesisHandle
-from hypothesis.database import InMemoryExampleDatabase
+from hypothesis.database import InMemoryExampleDatabase, ExampleDatabase
 from hypothesis.reporting import with_reporter
 from starkware.starknet.business_logic.execution.objects import CallInfo
 from typing_extensions import Protocol
@@ -116,40 +116,16 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         #   running in a separate thread executor, we must set the ``reporter`` each first time
         #   we invoke Hypothesis code in new thread.
 
-        @seed(TestingSeed.current())
-        @settings(
-            database=database,
-            deadline=None,
-            max_examples=runs_counter.available_runs,
-            print_blob=False,
-            report_multiple_bugs=False,
-            verbosity=HYPOTHESIS_VERBOSITY,
-        )
-        async def test_template(**inputs: Any):
-            self.fork_state_for_test()
-
-            run_no = next(runs_counter)
-            with self.state.output_recorder.redirect(("test", run_no)):
-                with with_reporter(protostar_reporter):
-                    try:
-                        this_run_resources = await self.invoke_test_case(
-                            function_name, **inputs
-                        )
-                        if this_run_resources is not None:
-                            execution_resources.append(this_run_resources)
-                    except HypothesisRejectException as reject_ex:
-                        raise reject_ex.unsatisfied_assumption_exc
-                    except ReportedException as reported_ex:
-                        raise HypothesisFailureSmugglingError(
-                            error=reported_ex,
-                            inputs=inputs,
-                        ) from reported_ex
-
         def test_thread():
             with with_reporter(protostar_reporter):
                 for _ in range(self._fuzz_config.max_strategy_learnings):
-                    test = given(**strategy_selector.given_strategies)(test_template)
-                    test.hypothesis.inner_test = wrap_in_sync(test.hypothesis.inner_test)  # type: ignore
+                    test = self.build_test_function(
+                        function_name=function_name,
+                        database=database,
+                        execution_resources=execution_resources,
+                        runs_counter=runs_counter,
+                        strategy_selector=strategy_selector,
+                    )
 
                     try:
                         test()
@@ -186,6 +162,48 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             self.initial_state.fork(),
             output_recorder=self.initial_state.output_recorder,
         )
+
+    def build_test_function(
+        self,
+        function_name: str,
+        database: ExampleDatabase,
+        execution_resources: List[ExecutionResourcesSummary],
+        runs_counter: RunsCounter,
+        strategy_selector: StrategySelector,
+    ) -> Callable[[], None]:
+        @seed(TestingSeed.current())
+        @settings(
+            database=database,
+            deadline=None,
+            max_examples=runs_counter.available_runs,
+            print_blob=False,
+            report_multiple_bugs=False,
+            verbosity=HYPOTHESIS_VERBOSITY,
+        )
+        @given(**strategy_selector.given_strategies)
+        async def test(**inputs: Any):
+            self.fork_state_for_test()
+
+            run_no = next(runs_counter)
+            with self.state.output_recorder.redirect(("test", run_no)):
+                with with_reporter(protostar_reporter):
+                    try:
+                        this_run_resources = await self.invoke_test_case(
+                            function_name, **inputs
+                        )
+                        if this_run_resources is not None:
+                            execution_resources.append(this_run_resources)
+                    except HypothesisRejectException as reject_ex:
+                        raise reject_ex.unsatisfied_assumption_exc
+                    except ReportedException as reported_ex:
+                        raise HypothesisFailureSmugglingError(
+                            error=reported_ex,
+                            inputs=inputs,
+                        ) from reported_ex
+
+        test.hypothesis.inner_test = wrap_in_sync(test.hypothesis.inner_test)  # type: ignore
+
+        return test
 
 
 @dataclass
