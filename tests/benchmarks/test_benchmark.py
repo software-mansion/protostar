@@ -19,7 +19,6 @@ from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.test_suite import TestSuite
 from protostar.utils.compiler.pass_managers import ProtostarPassMangerFactory
-from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 from protostar.utils.starknet_compilation import StarknetCompiler, CompilerConfig
 from tests.benchmarks.constants import ROUNDS_NUMBER
 
@@ -453,7 +452,7 @@ async def test_unit_testing_perf(aio_benchmark, tmp_path):
         aio_benchmark(run_tests)
 
 
-async def test_collecting_tests_perf(benchmark, tmp_path):
+async def test_collecting_tests_perf(aio_benchmark, tmp_path):
     test_cases, case_names = make_test_file(
         test_body="""
         let var1 = 1
@@ -490,5 +489,5 @@ async def test_collecting_tests_perf(benchmark, tmp_path):
     build_subtree(current_directory=tmp_path)
 
     test_collector = TestCollector(starknet_compiler=get_test_starknet_compiler())
-    result = benchmark(test_collector.collect, [str(tmp_path)])
+    result = aio_benchmark(test_collector.collect, [str(tmp_path)])
     assert result.test_cases_count == 195
