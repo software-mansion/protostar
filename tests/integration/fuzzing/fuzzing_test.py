@@ -120,6 +120,7 @@ async def test_strategies(
         ],
         expected_failed_test_cases_names=[
             "test_flaky_strategies",
+            "test_integers_inverted_range",
             "test_not_strategy_object",
             "test_unknown_parameter",
         ],

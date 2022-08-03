@@ -42,3 +42,9 @@ func test_not_strategy_object{syscall_ptr : felt*, range_check_ptr}(a : felt, b 
     %}
     return ()
 end
+
+@external
+func test_integers_inverted_range{syscall_ptr : felt*, range_check_ptr}(a : felt):
+    %{ given(a = st.integers(200, 100)) %}
+    return ()
+end

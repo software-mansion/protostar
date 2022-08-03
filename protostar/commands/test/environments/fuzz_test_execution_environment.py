@@ -1,13 +1,12 @@
 import dataclasses
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, cast, Callable
+from typing import Any, Dict, List, Optional, Callable
 
 from hypothesis import given, seed, settings
-from hypothesis.core import HypothesisHandle
 from hypothesis.database import InMemoryExampleDatabase, ExampleDatabase
+from hypothesis.errors import InvalidArgument
 from hypothesis.reporting import with_reporter
 from starkware.starknet.business_logic.execution.objects import CallInfo
-from typing_extensions import Protocol
 
 from protostar.commands.test.cheatcodes import (
     AssumeCheatcode,
@@ -132,6 +131,8 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
                         break
                     except StrategyLearnedException:
                         continue
+                    except InvalidArgument as ex:
+                        raise CheatcodeException("given", str(ex)) from ex
                 else:
                     raise CheatcodeException(
                         "given", "Cheatcode was called with changing strategies."
