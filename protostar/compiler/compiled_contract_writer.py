@@ -4,7 +4,7 @@ from pathlib import Path
 from starkware.starknet.services.api.contract_class import ContractClass
 
 
-class ContractWriter:
+class CompiledContractWriter:
     def __init__(self, contract: ContractClass, contract_name: str) -> None:
         self._contract = contract
         self._contract_name = contract_name

@@ -9,7 +9,7 @@ from starkware.cairo.lang.vm.vm_exceptions import VmException
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 
-from protostar.compiler.contract_writer import ContractWriter
+from protostar.compiler.compiled_contract_writer import CompiledContractWriter
 from protostar.protostar_exception import ProtostarException
 from protostar.protostar_toml.protostar_contracts_section import (
     ProtostarContractsSection,
@@ -53,7 +53,7 @@ class ProjectCompiler:
         contracts_section = self._contracts_section_loader.load()
         for contract_name in contracts_section.get_contract_names():
             contract = self.compile_contract_from_contract_name(contract_name)
-            ContractWriter(contract, contract_name).save(
+            CompiledContractWriter(contract, contract_name).save(
                 output_dir=self._get_compilation_output_dir(output_dir)
             )
 
