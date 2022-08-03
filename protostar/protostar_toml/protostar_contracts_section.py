@@ -55,10 +55,10 @@ class ProtostarContractsSection(ProtostarTOMLSection):
     def get_contract_names(self) -> List[str]:
         return list(self.contract_name_to_paths.keys())
 
-    def get_contract_relative_paths(self, contract_name: str) -> List[Path]:
+    def get_relative_contract_source_paths(self, contract_name: str) -> List[Path]:
         self.assert_contract_is_defined(contract_name)
-        contract_paths = self.contract_name_to_paths[contract_name]
-        return contract_paths
+        source_paths = self.contract_name_to_paths[contract_name]
+        return source_paths
 
     def assert_contract_is_defined(self, contract_name: str):
         if contract_name not in self.contract_name_to_paths:

@@ -20,8 +20,8 @@ from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompile
 from .project_cairo_path_builder import ProjectCairoPathBuilder
 
 ContractName = str
-ContractPath = Path
-ContractIdentifier = Union[ContractName, ContractPath]
+ContractSourcePath = Path
+ContractIdentifier = Union[ContractName, ContractSourcePath]
 
 
 class ProjectCompiler:
@@ -61,17 +61,21 @@ class ProjectCompiler:
         self, contract_identifier: ContractIdentifier
     ) -> ContractClass:
         if isinstance(contract_identifier, Path):
-            return self.compile_contract_from_contract_paths([contract_identifier])
+            return self.compile_contract_from_contract_source_paths(
+                [contract_identifier]
+            )
         return self.compile_contract_from_contract_name(contract_identifier)
 
     def compile_contract_from_contract_name(self, contract_name: str) -> ContractClass:
         try:
-            contract_paths = self._get_contract_paths(contract_name)
-            return self.compile_contract_from_contract_paths(contract_paths)
+            contract_paths = self._map_contract_name_to_contract_source_paths(
+                contract_name
+            )
+            return self.compile_contract_from_contract_source_paths(contract_paths)
         except (StarkException, VmException, PreprocessorError) as err:
             raise CairoCompilationException(contract_name, err) from err
 
-    def compile_contract_from_contract_paths(
+    def compile_contract_from_contract_source_paths(
         self,
         contract_paths: List[Path],
     ) -> ContractClass:
@@ -85,21 +89,23 @@ class ProjectCompiler:
             *contract_paths, add_debug_info=self._config.debugging_info_attached
         )
 
-    def _get_contract_paths(self, contract_name: str) -> List[Path]:
+    def _map_contract_name_to_contract_source_paths(
+        self, contract_name: str
+    ) -> List[Path]:
         contracts_section = self._contracts_section_loader.load()
-        contract_relative_paths = contracts_section.get_contract_relative_paths(
+        relative_source_paths = contracts_section.get_relative_contract_source_paths(
             contract_name
         )
-        contract_paths = [
-            self._project_root_path / path for path in contract_relative_paths
+        source_paths = [
+            self._project_root_path / path for path in relative_source_paths
         ]
-        map(self._assert_contract_path_exists, contract_paths)
-        return contract_paths
+        map(self._assert_source_file_exists, source_paths)
+        return source_paths
 
     @staticmethod
-    def _assert_contract_path_exists(contract_path: Path) -> None:
-        if not contract_path.exists():
-            raise ContractFileNotFoundException(contract_path)
+    def _assert_source_file_exists(source_path: Path) -> None:
+        if not source_path.exists():
+            raise ContractFileNotFoundException(source_path)
 
     def _build_str_cairo_path_list(self) -> List[str]:
         return [
