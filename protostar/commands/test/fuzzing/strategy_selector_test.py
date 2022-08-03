@@ -3,12 +3,14 @@ import re
 import pytest
 from starkware.cairo.lang.compiler.ast.cairo_types import TypeFelt, TypePointer
 
-from protostar.commands.test.fuzzing.exceptions import FuzzingError
+from protostar.commands.test.fuzzing.exceptions import (
+    FuzzingError,
+    SearchStrategyBuildError,
+)
 from protostar.commands.test.fuzzing.strategies.felt import (
     UnsignedFeltStrategyDescriptor,
     SignedFeltStrategyDescriptor,
 )
-from protostar.commands.test.fuzzing.strategy_descriptor import SearchStrategyBuildError
 from protostar.commands.test.fuzzing.strategy_selector import (
     StrategySelector,
     infer_strategy_from_cairo_type,

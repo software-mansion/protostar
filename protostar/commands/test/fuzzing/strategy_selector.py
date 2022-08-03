@@ -4,13 +4,15 @@ from typing import Dict, Any, Generator, Mapping
 from hypothesis.strategies import SearchStrategy
 from starkware.cairo.lang.compiler.ast.cairo_types import CairoType, TypeFelt
 
-from protostar.commands.test.fuzzing.exceptions import FuzzingError
+from protostar.commands.test.fuzzing.exceptions import (
+    FuzzingError,
+    SearchStrategyBuildError,
+)
 from protostar.commands.test.fuzzing.strategies.felt import (
     UnsignedFeltStrategyDescriptor,
 )
 from protostar.commands.test.fuzzing.strategy_descriptor import (
     StrategyDescriptor,
-    SearchStrategyBuildError,
 )
 
 
