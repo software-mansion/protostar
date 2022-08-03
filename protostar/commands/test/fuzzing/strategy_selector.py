@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from typing import Dict, Iterable, Any, Generator, Mapping
+from typing import Dict, Any, Generator, Mapping
 
 from hypothesis.strategies import SearchStrategy
 from starkware.cairo.lang.compiler.ast.cairo_types import CairoType, TypeFelt

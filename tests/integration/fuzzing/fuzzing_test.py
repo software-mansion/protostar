@@ -2,7 +2,9 @@ from pathlib import Path
 
 import pytest
 
-from protostar.commands.test.environments.fuzz_test_execution_environment import FuzzConfig
+from protostar.commands.test.environments.fuzz_test_execution_environment import (
+    FuzzConfig,
+)
 from tests.integration.conftest import (
     RunCairoTestRunnerFixture,
     assert_cairo_test_cases,

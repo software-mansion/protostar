@@ -1,6 +1,6 @@
 import dataclasses
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
 from hypothesis import given, seed, settings
 from hypothesis.core import HypothesisHandle
@@ -26,7 +26,6 @@ from protostar.commands.test.environments.test_execution_environment import (
 )
 from protostar.commands.test.fuzzing.exceptions import (
     HypothesisRejectException,
-    FuzzingError,
 )
 from protostar.commands.test.fuzzing.fuzz_input_exception_metadata import (
     FuzzInputExceptionMetadata,
@@ -69,13 +68,6 @@ class FuzzConfig:
 @dataclass
 class FuzzTestExecutionResult(TestExecutionResult):
     fuzz_runs_count: int
-
-
-class TestCallable(Protocol):
-    hypothesis: HypothesisHandle
-
-    def __call__(self):
-        ...
 
 
 class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
@@ -156,12 +148,8 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         def test_thread():
             with with_reporter(protostar_reporter):
                 for _ in range(self._fuzz_config.max_strategy_learnings):
-                    test: TestCallable = given(**strategy_selector.given_strategies)(
-                        test_template
-                    )
-                    test.hypothesis.inner_test = wrap_in_sync(
-                        test.hypothesis.inner_test
-                    )
+                    test = given(**strategy_selector.given_strategies)(test_template)
+                    test.hypothesis.inner_test = wrap_in_sync(test.hypothesis.inner_test)  # type: ignore
 
                     try:
                         test()
