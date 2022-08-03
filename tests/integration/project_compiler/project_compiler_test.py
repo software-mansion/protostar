@@ -5,8 +5,7 @@ from typing import cast
 import pytest
 from pytest_mock import MockerFixture
 
-from protostar.commands.build.build_exceptions import CairoCompilationException
-from protostar.compiler import ProjectCompiler
+from protostar.compiler import CairoCompilationException, ProjectCompiler
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.protostar_toml.protostar_contracts_section import (
     ProtostarContractsSection,
