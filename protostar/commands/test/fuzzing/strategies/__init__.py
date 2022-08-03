@@ -18,7 +18,7 @@ namespace = SimpleNamespace(
 class StrategiesHintLocal(HintLocal):
     @property
     def name(self) -> str:
-        return "st"
+        return "strategies"
 
     def build(self) -> Any:
         return namespace
