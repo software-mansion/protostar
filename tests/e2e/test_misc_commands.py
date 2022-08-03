@@ -1,11 +1,21 @@
 # pylint: disable=redefined-outer-name
+import subprocess
 from os import listdir, path
 from pathlib import Path
 
 import pexpect
 import pytest
 import tomli
+from packaging.version import Version
 
+
+from protostar.protostar_toml import (
+    ProtostarContractsSection,
+    ProtostarConfigSection,
+    ProtostarProjectSection,
+)
+from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
+from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
 from protostar.utils.protostar_directory import ProtostarDirectory, VersionManager
 from tests.e2e.conftest import ACTUAL_CWD, init_project
 
@@ -79,3 +89,38 @@ def test_protostar_version_in_config_file():
         protostar_version = VersionManager.parse(version_str)
 
         assert version_manager.protostar_version == protostar_version
+
+
+@pytest.mark.usefixtures("init")
+def test_protostar_asserts_version_compatibility(protostar):
+    toml_file_path = Path() / "protostar.toml"
+    reader = ProtostarTOMLReader(toml_file_path)
+
+    config_section = ProtostarConfigSection.load(reader)
+    project_section = ProtostarProjectSection.load(reader)
+    contracts_section = ProtostarContractsSection.load(reader)
+
+    config_section.protostar_version = Version("0.1.0")
+    ProtostarTOMLWriter().save(
+        toml_file_path,
+        config_section,
+        project_section,
+        contracts_section,
+    )
+    with pytest.raises(subprocess.CalledProcessError) as error:
+        protostar(["build"])
+
+    assert "You are running a higher version of protostar" in str(error.value.stdout)
+
+    config_section.protostar_version = Version("1000.0.0")
+    ProtostarTOMLWriter().save(
+        toml_file_path,
+        config_section,
+        project_section,
+        contracts_section,
+    )
+
+    with pytest.raises(subprocess.CalledProcessError) as error:
+        protostar(["build"])
+
+    assert "You are running a lower version of protostar" in str(error.value.stdout)
