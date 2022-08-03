@@ -9,7 +9,13 @@ from protostar.starknet.cheatcode import Cheatcode
 
 
 class StrategyLearnedException(BaseException):
-    pass
+    """
+    An exception raised from the ``given`` cheatcode, indicating that the set of fuzzing strategies
+    has changed (fuzzer _learned_ a new strategy).
+
+    The expected behaviour is to let fuzzer catch this exception and restart fuzzing with new
+    set of input parameter strategies.
+    """
 
 
 class GivenCallable(Protocol):
