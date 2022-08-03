@@ -27,19 +27,11 @@ class UpgradeCommand(Command):
     def arguments(self) -> List[Command.Argument]:
         return []
 
-    @property
-    def outputs(self) -> Command.PrintedOutputs:
-        return Command.PrintedOutputs(
-            entry="Running upgrade of protostar",
-            exit_success="Upgraded successfully",
-            exit_error="Upgrade failed",
-        )
-
     async def run(self, _args):
-        self._logger.info(self.outputs.entry)
+        self._logger.info("Running upgrade of protostar")
         try:
             await self._upgrade_manager.upgrade()
         except BaseException as exc:
-            self._logger.error(self.outputs.exit_error)
+            self._logger.error("Upgrade failed")
             raise exc
-        self._logger.info(self.outputs.exit_success)
+        self._logger.info("Upgraded successfully")

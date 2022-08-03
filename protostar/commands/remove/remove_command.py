@@ -53,22 +53,14 @@ class RemoveCommand(Command):
             ),
         ]
 
-    @property
-    def outputs(self) -> Command.PrintedOutputs:
-        return Command.PrintedOutputs(
-            entry="Retrieving package for removal",
-            exit_success="Removed the package successfully",
-            exit_error="Package removal failed",
-        )
-
     async def run(self, args):
-        self._logger.info(self.outputs.entry)
+        self._logger.info("Retrieving package for removal")
         try:
             self.remove(args.package)
         except BaseException as exc:
-            self._logger.error(self.outputs.exit_error)
+            self._logger.error("Package removal failed")
             raise exc
-        self._logger.info(self.outputs.exit_success)
+        self._logger.info("Removed the package successfully")
 
     def remove(self, internal_dependency_reference: str):
         project_section = self._project_section_loader.load()

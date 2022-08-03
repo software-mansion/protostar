@@ -48,16 +48,10 @@ class BuildCommand(Command):
             ),
         ]
 
-    @property
-    def outputs(self) -> Command.PrintedOutputs:
-        return Command.PrintedOutputs(
-            entry="Building projects' contracts",
-            exit_success="Built the project successfully",
-            exit_error="Build failed",
-        )
-
     async def run(self, args):
-        with ActivityIndicator(log_color_provider.colorize("GRAY", self.outputs.entry)):
+        with ActivityIndicator(
+            log_color_provider.colorize("GRAY", "Building projects' contracts")
+        ):
             try:
                 self._project_compiler.compile(
                     output_dir=args.output,
@@ -65,6 +59,6 @@ class BuildCommand(Command):
                     disable_hint_validation=args.disable_hint_validation,
                 )
             except BaseException as exc:
-                self._logger.error(self.outputs.exit_error)
+                self._logger.error("Build failed")
                 raise exc
-        self._logger.info(self.outputs.exit_success)
+        self._logger.info("Built the project successfully")

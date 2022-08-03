@@ -63,23 +63,16 @@ class InstallCommand(Command):
         ]
 
     async def run(self, args):
-        self._logger.info(self.outputs.entry)
+        self._logger.info("Executing install")
         try:
             self.install(
                 package_name=args.package,
                 alias=args.name,
             )
         except BaseException as exc:
-            self._logger.error(self.outputs.exit_error)
+            self._logger.error("Installation failed")
             raise exc
-
-    @property
-    def outputs(self) -> Command.PrintedOutputs:
-        return Command.PrintedOutputs(
-            entry="Executing install",
-            exit_success="Installed successfully",
-            exit_error="Installation failed",
-        )
+        self._logger.info("Installed successfully")
 
     def install(
         self,
@@ -112,4 +105,3 @@ class InstallCommand(Command):
                 repo_dir=self._project_root_path,
                 libs_dir=libs_path,
             )
-        self._logger.info(self.outputs.exit_success)
