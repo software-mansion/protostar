@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     PreprocessorError,
@@ -19,6 +19,10 @@ from protostar.utils.compiler.pass_managers import StarknetPassManagerFactory
 from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
 from .project_cairo_path_builder import ProjectCairoPathBuilder
+
+ContractName = str
+ContractPath = Path
+ContractIdentifier = Union[ContractName, ContractPath]
 
 
 class ProjectCompiler:
@@ -53,6 +57,13 @@ class ProjectCompiler:
             ContractWriter(contract, contract_name).save(
                 output_dir=self._get_compilation_output_dir(output_dir)
             )
+
+    def compile_from_contract_identifier(
+        self, contract_identifier: ContractIdentifier
+    ) -> ContractClass:
+        if isinstance(contract_identifier, Path):
+            return self.compile_contract_from_contract_paths([contract_identifier])
+        return self.compile_contract_from_contract_name(contract_identifier)
 
     def compile_contract_from_contract_name(self, contract_name: str) -> ContractClass:
         try:
