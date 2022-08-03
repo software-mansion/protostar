@@ -1,13 +1,21 @@
+from logging import Logger
 from typing import List, Optional
 
+from protostar.cli import ActivityIndicator
 from protostar.cli.command import Command
 from protostar.commands.build.project_compiler import ProjectCompiler
+from protostar.utils import log_color_provider
 
 
 class BuildCommand(Command):
-    def __init__(self, project_compiler: ProjectCompiler) -> None:
+    def __init__(self, project_compiler: ProjectCompiler, logger: Logger) -> None:
         super().__init__()
         self._project_compiler = project_compiler
+        self._logger = logger
+
+    @property
+    def example(self) -> Optional[str]:
+        return "$ protostar build"
 
     @property
     def name(self) -> str:
@@ -16,10 +24,6 @@ class BuildCommand(Command):
     @property
     def description(self) -> str:
         return "Compile contracts."
-
-    @property
-    def example(self) -> Optional[str]:
-        return "$ protostar build"
 
     @property
     def arguments(self) -> List[Command.Argument]:
@@ -45,8 +49,16 @@ class BuildCommand(Command):
         ]
 
     async def run(self, args):
-        self._project_compiler.compile(
-            output_dir=args.output,
-            relative_cairo_path=args.cairo_path,
-            disable_hint_validation=args.disable_hint_validation,
-        )
+        with ActivityIndicator(
+            log_color_provider.colorize("GRAY", "Building projects' contracts")
+        ):
+            try:
+                self._project_compiler.compile(
+                    output_dir=args.output,
+                    relative_cairo_path=args.cairo_path,
+                    disable_hint_validation=args.disable_hint_validation,
+                )
+            except BaseException as exc:
+                self._logger.error("Build failed")
+                raise exc
+        self._logger.info("Built the project successfully")
