@@ -5,7 +5,11 @@ from typing import cast
 import pytest
 from pytest_mock import MockerFixture
 
-from protostar.compiler import CompilationException, ProjectCompiler
+from protostar.compiler import (
+    CompilationException,
+    ProjectCompiler,
+    ProjectCompilerConfig,
+)
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.protostar_toml.protostar_contracts_section import (
     ProtostarContractsSection,
@@ -84,7 +88,9 @@ def test_handling_cairo_errors(tmp_path: Path, datadir: Path, create_loader):
                     }
                 )
             ),
-            config=ProjectCompiler.Config(relative_cairo_path=[project_root_path]),
+            default_config=ProjectCompilerConfig(
+                relative_cairo_path=[project_root_path]
+            ),
         ).compile_project(output_dir=tmp_path)
 
 
@@ -107,5 +113,7 @@ def test_handling_not_existing_main_files(tmp_path: Path, datadir: Path, create_
                     }
                 )
             ),
-            config=ProjectCompiler.Config(relative_cairo_path=[project_root_path]),
+            default_config=ProjectCompilerConfig(
+                relative_cairo_path=[project_root_path]
+            ),
         ).compile_project(output_dir=tmp_path)

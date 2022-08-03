@@ -37,57 +37,64 @@ class ProjectCompiler:
         project_root_path: Path,
         project_cairo_path_builder: ProjectCairoPathBuilder,
         contracts_section_loader: ProtostarContractsSection.Loader,
-        config: Optional[ProjectCompilerConfig] = None,
+        default_config: Optional[ProjectCompilerConfig] = None,
     ):
         self._project_root_path = project_root_path
         self._project_cairo_path_builder = project_cairo_path_builder
         self._contracts_section_loader = contracts_section_loader
-        self._config = config or ProjectCompilerConfig(relative_cairo_path=[])
-
-    def set_config(self, config: ProjectCompilerConfig) -> None:
-        self._config = config
+        self._default_config = default_config or ProjectCompilerConfig(
+            relative_cairo_path=[]
+        )
 
     def compile_project(
-        self,
-        output_dir: Path,
+        self, output_dir: Path, config: Optional[ProjectCompilerConfig] = None
     ) -> None:
         contracts_section = self._contracts_section_loader.load()
         for contract_name in contracts_section.get_contract_names():
-            contract = self.compile_contract_from_contract_name(contract_name)
+            contract = self.compile_contract_from_contract_name(contract_name, config)
             CompiledContractWriter(contract, contract_name).save(
                 output_dir=self._get_compilation_output_dir(output_dir)
             )
 
     def compile_contract_from_contract_identifier(
-        self, contract_identifier: ContractIdentifier
+        self,
+        contract_identifier: ContractIdentifier,
+        config: Optional[ProjectCompilerConfig] = None,
     ) -> ContractClass:
         if isinstance(contract_identifier, Path):
             return self.compile_contract_from_contract_source_paths(
-                [contract_identifier]
+                [contract_identifier], config
             )
-        return self.compile_contract_from_contract_name(contract_identifier)
+        return self.compile_contract_from_contract_name(contract_identifier, config)
 
-    def compile_contract_from_contract_name(self, contract_name: str) -> ContractClass:
+    def compile_contract_from_contract_name(
+        self, contract_name: str, config: Optional[ProjectCompilerConfig] = None
+    ) -> ContractClass:
         try:
             contract_paths = self._map_contract_name_to_contract_source_paths(
                 contract_name
             )
-            return self.compile_contract_from_contract_source_paths(contract_paths)
+            return self.compile_contract_from_contract_source_paths(
+                contract_paths, config
+            )
         except (StarkException, VmException, PreprocessorError) as err:
             raise CompilationException(contract_name, err) from err
 
     def compile_contract_from_contract_source_paths(
-        self,
-        contract_paths: List[Path],
+        self, contract_paths: List[Path], config: Optional[ProjectCompilerConfig] = None
     ) -> ContractClass:
+        current_config = config or self._default_config
+
         return StarknetCompiler(
             config=CompilerConfig(
-                include_paths=self._build_str_cairo_path_list(),
-                disable_hint_validation=self._config.hint_validation_disabled,
+                include_paths=self._build_str_cairo_path_list(
+                    current_config.relative_cairo_path
+                ),
+                disable_hint_validation=current_config.hint_validation_disabled,
             ),
             pass_manager_factory=StarknetPassManagerFactory,
         ).compile_contract(
-            *contract_paths, add_debug_info=self._config.debugging_info_attached
+            *contract_paths, add_debug_info=current_config.debugging_info_attached
         )
 
     def _map_contract_name_to_contract_source_paths(
@@ -100,19 +107,21 @@ class ProjectCompiler:
         source_paths = [
             self._project_root_path / path for path in relative_source_paths
         ]
-        map(self._assert_source_file_exists, source_paths)
+        map(self._check_source_file_exists, source_paths)
         return source_paths
 
     @staticmethod
-    def _assert_source_file_exists(source_path: Path) -> None:
+    def _check_source_file_exists(source_path: Path) -> None:
         if not source_path.exists():
             raise SourceFileNotFoundException(source_path)
 
-    def _build_str_cairo_path_list(self) -> List[str]:
+    def _build_str_cairo_path_list(
+        self, user_relative_cairo_path: List[Path]
+    ) -> List[str]:
         return [
             str(path)
             for path in self._project_cairo_path_builder.build_project_cairo_path_list(
-                self._config.relative_cairo_path
+                user_relative_cairo_path
             )
         ]
 

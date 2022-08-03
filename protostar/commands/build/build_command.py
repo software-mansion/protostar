@@ -52,13 +52,13 @@ class BuildCommand(Command):
             log_color_provider.colorize("GRAY", "Building projects' contracts")
         ):
             try:
-                self._project_compiler.set_config(
-                    ProjectCompilerConfig(
+                self._project_compiler.compile_project(
+                    output_dir=args.output,
+                    config=ProjectCompilerConfig(
                         hint_validation_disabled=args.disable_hint_validation,
                         relative_cairo_path=args.cairo_path,
-                    )
+                    ),
                 )
-                self._project_compiler.compile_project(output_dir=args.output)
             except BaseException as exc:
                 self._logger.error("Build failed")
                 raise exc
