@@ -11,6 +11,7 @@ from starkware.starkware_utils.error_handling import StarkException
 
 from protostar.commands.build.build_exceptions import CairoCompilationException
 from protostar.compiler.contract_writer import ContractWriter
+from protostar.protostar_exception import ProtostarException
 from protostar.protostar_toml.protostar_contracts_section import (
     ProtostarContractsSection,
 )
@@ -45,7 +46,7 @@ class ProjectCompiler:
     def compile_project(
         self,
         output_dir: Path,
-    ):
+    ) -> None:
         contracts_section = self._contracts_section_loader.load()
         for contract_name in contracts_section.get_contract_names():
             contract = self.compile_contract_from_contract_name(contract_name)
@@ -83,9 +84,21 @@ class ProjectCompiler:
             *contract_paths, add_debug_info=self._config.debugging_info_attached
         )
 
-    def _get_contract_paths(self, contract_name: str):
+    def _get_contract_paths(self, contract_name: str) -> List[Path]:
         contracts_section = self._contracts_section_loader.load()
-        return contracts_section.get_contract_paths(contract_name)
+        contract_relative_paths = contracts_section.get_contract_relative_paths(
+            contract_name
+        )
+        contract_paths = [
+            self._project_root_path / path for path in contract_relative_paths
+        ]
+        map(self._assert_contract_path_exists, contract_paths)
+        return contract_paths
+
+    @staticmethod
+    def _assert_contract_path_exists(contract_path: Path) -> None:
+        if not contract_path.exists():
+            raise ContractFileNotFoundException(contract_path)
 
     def _build_str_cairo_path_list(self) -> List[str]:
         return [
@@ -99,3 +112,8 @@ class ProjectCompiler:
         if not output_dir.is_absolute():
             output_dir = self._project_root_path / output_dir
         return output_dir
+
+
+class ContractFileNotFoundException(ProtostarException):
+    def __init__(self, contract_path: Path):
+        super().__init__(f"Couldn't find the contract file `{contract_path.resolve()}`")

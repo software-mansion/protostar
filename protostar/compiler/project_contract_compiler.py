@@ -37,13 +37,13 @@ class ProjectContractsCompiler:
         return self.compile_from_contract_name(contract_identifier)
 
     def compile_from_contract_path(self, contract_path: Path) -> ContractClass:
-        self._contracts_section.assert_contract_path_exists(contract_path)
+        # self._contracts_section.assert_contract_path_exists(contract_path)
         return self._starknet_compiler.compile_contract(
             contract_path, add_debug_info=self._config.debug_info
         )
 
     def compile_from_contract_name(self, contract_name: str) -> ContractClass:
-        paths = self._contracts_section.get_contract_paths(contract_name)
+        paths = self._contracts_section.get_contract_relative_paths(contract_name)
         return self._starknet_compiler.compile_contract(
             *paths, add_debug_info=self._config.debug_info
         )

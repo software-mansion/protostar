@@ -7,18 +7,6 @@ from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReade
 from protostar.protostar_toml.protostar_toml_section import ProtostarTOMLSection
 
 
-class ContractNameNotFoundException(ProtostarException):
-    def __init__(self, contract_name: str):
-        super().__init__(
-            f"Couldn't find `{contract_name}` in `protostar.toml::[protostar.contracts]`"
-        )
-
-
-class ContractFileNotFoundException(ProtostarException):
-    def __init__(self, contract_path: Path):
-        super().__init__(f"Couldn't find `{contract_path.resolve()}`")
-
-
 @dataclass
 class ProtostarContractsSection(ProtostarTOMLSection):
     contract_name_to_paths: Dict[str, List[Path]]
@@ -67,17 +55,18 @@ class ProtostarContractsSection(ProtostarTOMLSection):
     def get_contract_names(self) -> List[str]:
         return list(self.contract_name_to_paths.keys())
 
-    def get_contract_paths(self, contract_name: str) -> List[Path]:
+    def get_contract_relative_paths(self, contract_name: str) -> List[Path]:
         self.assert_contract_is_defined(contract_name)
         contract_paths = self.contract_name_to_paths[contract_name]
-        map(self.assert_contract_path_exists, contract_paths)
         return contract_paths
 
     def assert_contract_is_defined(self, contract_name: str):
         if contract_name not in self.contract_name_to_paths:
             raise ContractNameNotFoundException(contract_name)
 
-    @staticmethod
-    def assert_contract_path_exists(contract_path: Path) -> None:
-        if not contract_path.exists():
-            raise ContractFileNotFoundException(contract_path)
+
+class ContractNameNotFoundException(ProtostarException):
+    def __init__(self, contract_name: str):
+        super().__init__(
+            f"Couldn't find `{contract_name}` in `protostar.toml::[protostar.contracts]`"
+        )
