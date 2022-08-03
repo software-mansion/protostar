@@ -57,7 +57,7 @@ class ProjectCompiler:
                 output_dir=self._get_compilation_output_dir(output_dir)
             )
 
-    def compile_from_contract_identifier(
+    def compile_contract_from_contract_identifier(
         self, contract_identifier: ContractIdentifier
     ) -> ContractClass:
         if isinstance(contract_identifier, Path):
