@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from typing import Any
 
 from starkware.starknet.services.api.contract_class import ContractClass
 
@@ -15,31 +16,25 @@ class CompiledContractWriter:
 
     def save_compiled_contract(self, output_dir: Path) -> None:
         self._create_output_dir(output_dir)
-        with open(
-            Path(output_dir, f"{self._contract_name}.json"), mode="w", encoding="utf-8"
-        ) as output_file:
-            json.dump(
-                self._contract.Schema().dump(self._contract),
-                output_file,
-                indent=4,
-                sort_keys=True,
-            )
-            output_file.write("\n")
+        serialized_contract = self._contract.Schema().dump(self._contract)
+        self._save_as_json(data=serialized_contract, path=output_dir)
 
     def save_compiled_contract_abi(self, output_dir: Path) -> None:
         if not self._contract.abi:
             return
-
         self._create_output_dir(output_dir)
-        with open(
-            Path(output_dir, f"{self._contract_name}_abi.json"),
-            mode="w",
-            encoding="utf-8",
-        ) as output_abi_file:
-            json.dump(self._contract.abi, output_abi_file, indent=4, sort_keys=True)
-            output_abi_file.write("\n")
+        self._save_as_json(data=self._contract.abi, path=output_dir)
 
     @staticmethod
     def _create_output_dir(output_dir: Path):
-        if not output_dir.exists():
-            output_dir.mkdir(parents=True)
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+    @staticmethod
+    def _save_as_json(data: Any, path: Path):
+        with open(
+            path,
+            mode="w",
+            encoding="utf-8",
+        ) as output_abi_file:
+            json.dump(data, output_abi_file, indent=4, sort_keys=True)
+            output_abi_file.write("\n")
