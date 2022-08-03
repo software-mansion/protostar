@@ -2,9 +2,9 @@ from typing import Any
 
 from typing_extensions import Protocol
 
-from protostar.commands.test.fuzzing.exceptions import FuzzingError
 from protostar.commands.test.fuzzing.strategy_descriptor import StrategyDescriptor
 from protostar.commands.test.fuzzing.strategy_selector import StrategySelector
+from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.starknet.cheatcode import Cheatcode
 
 
@@ -49,9 +49,10 @@ class GivenCheatcode(Cheatcode):
         for param, descriptor in kwargs.items():
             # Raise nice error if got object which is not a strategy descriptor.
             if not isinstance(descriptor, StrategyDescriptor):
-                raise FuzzingError(
+                raise CheatcodeException(
+                    "given",
                     f"Parameter {param} cannot be fuzzed: "
-                    f"Type {type(descriptor)} is not a valid fuzzing strategy."
+                    f"Type {type(descriptor)} is not a valid fuzzing strategy.",
                 )
 
             learned |= self.strategy_selector.learn(param, descriptor)
