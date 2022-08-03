@@ -118,16 +118,15 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         def test_thread():
             with with_reporter(protostar_reporter):
                 for _ in range(self._fuzz_config.max_strategy_learnings):
-                    test = self.build_test_function(
-                        function_name=function_name,
-                        database=database,
-                        execution_resources=execution_resources,
-                        runs_counter=runs_counter,
-                        strategy_selector=strategy_selector,
-                    )
-
                     try:
-                        test()
+                        self.build_and_run_test(
+                            function_name=function_name,
+                            database=database,
+                            execution_resources=execution_resources,
+                            runs_counter=runs_counter,
+                            strategy_selector=strategy_selector,
+                        )
+
                         break
                     except StrategyLearnedException:
                         continue
@@ -164,14 +163,14 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             output_recorder=self.initial_state.output_recorder,
         )
 
-    def build_test_function(
+    def build_and_run_test(
         self,
         function_name: str,
         database: ExampleDatabase,
         execution_resources: List[ExecutionResourcesSummary],
         runs_counter: RunsCounter,
         strategy_selector: StrategySelector,
-    ) -> Callable[[], None]:
+    ):
         @seed(TestingSeed.current())
         @settings(
             database=database,
@@ -204,7 +203,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
 
         test.hypothesis.inner_test = wrap_in_sync(test.hypothesis.inner_test)  # type: ignore
 
-        return test
+        test()
 
 
 @dataclass
