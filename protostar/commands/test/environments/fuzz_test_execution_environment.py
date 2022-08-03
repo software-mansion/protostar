@@ -61,7 +61,6 @@ def is_fuzz_test(function_name: str, state: TestExecutionState) -> bool:
 @dataclass
 class FuzzConfig:
     max_examples: int = 100
-    max_strategy_learnings: int = 10
 
 
 @dataclass
@@ -120,7 +119,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
 
         def test_thread():
             with with_reporter(protostar_reporter):
-                for _ in range(self._fuzz_config.max_strategy_learnings):
+                while runs_counter.available_runs > 0:
                     try:
                         self.build_and_run_test(
                             function_name=function_name,
