@@ -1,6 +1,6 @@
 from logging import getLogger
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Optional
+from typing import List, Optional
 
 from protostar.cli.activity_indicator import ActivityIndicator
 from protostar.cli.command import Command
@@ -13,6 +13,7 @@ from protostar.commands.test.test_scheduler import TestScheduler
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.commands.test.testing_seed import TestingSeed
 from protostar.commands.test.testing_summary import TestingSummary
+from protostar.compiler import ProjectCairoPathBuilder
 from protostar.utils.compiler.pass_managers import (
     StarknetPassManagerFactory,
     TestCollectorPassManagerFactory,
@@ -21,21 +22,18 @@ from protostar.utils.log_color_provider import log_color_provider
 from protostar.utils.protostar_directory import ProtostarDirectory
 from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
-if TYPE_CHECKING:
-    from protostar.compiler import ProjectCompiler
-
 
 class TestCommand(Command):
     def __init__(
         self,
         project_root_path: Path,
         protostar_directory: ProtostarDirectory,
-        project_compiler: "ProjectCompiler",
+        project_cairo_path_builder: ProjectCairoPathBuilder,
     ) -> None:
         super().__init__()
         self._project_root_path = project_root_path
         self._protostar_directory = protostar_directory
-        self._project_compiler = project_compiler
+        self._project_cairo_path_builder = project_cairo_path_builder
 
     @property
     def name(self) -> str:
@@ -164,7 +162,9 @@ class TestCommand(Command):
             str(path)
             for path in [
                 self._protostar_directory.protostar_test_only_cairo_packages_path,
-                *self._project_compiler.build_project_cairo_path_list(cairo_path or []),
+                *self._project_cairo_path_builder.build_project_cairo_path_list(
+                    cairo_path or []
+                ),
             ]
         ]
         factory = (
