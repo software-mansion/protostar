@@ -37,7 +37,8 @@ from protostar.protostar_toml.protostar_contracts_section import (
     ProtostarContractsSection,
 )
 from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
-from protostar.starknet_gateway import GatewayFacade
+from protostar.starknet_gateway import Gate
+from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.upgrader import (
     LatestVersionChecker,
     LatestVersionRemoteChecker,
@@ -98,7 +99,7 @@ class ProtostarCLI(CLIApp):
         requester: InputRequester,
         logger: Logger,
         latest_version_checker: LatestVersionChecker,
-        gateway_facade: GatewayFacade,
+        gateway_facade_builder: GatewayFacade.Builder,
         start_time: float = 0.0,
     ) -> None:
         self.project_root_path = project_root_path
@@ -166,8 +167,8 @@ class ProtostarCLI(CLIApp):
                     )
                 ),
                 TestCommand(project_root_path, protostar_directory, project_compiler),
-                DeployCommand(gateway_facade, logger),
-                DeclareCommand(gateway_facade, logger),
+                DeployCommand(gateway_facade_builder, logger),
+                DeclareCommand(gateway_facade_builder, logger),
                 MigrateCommand(
                     migrator_builder=Migrator.Builder(
                         MigratorExecutionEnvironment.Builder(
@@ -230,7 +231,9 @@ class ProtostarCLI(CLIApp):
             ),
             latest_version_remote_checker=LatestVersionRemoteChecker(),
         )
-        gateway_facade = GatewayFacade(project_root_path=project_root_path)
+        gateway_facade_builder = GatewayFacade.Builder(
+            project_root_path=project_root_path
+        )
 
         return cls(
             script_root=script_root,
@@ -242,7 +245,7 @@ class ProtostarCLI(CLIApp):
             requester=requester,
             logger=logger,
             latest_version_checker=latest_version_checker,
-            gateway_facade=gateway_facade,
+            gateway_facade_builder=gateway_facade_builder,
             start_time=time.perf_counter(),
         )
 

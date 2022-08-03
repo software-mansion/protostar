@@ -9,12 +9,6 @@ from protostar.starknet_gateway.network_config import NetworkConfig
 
 class DeployCommand(Command):
 
-    gateway_url_arg = Command.Argument(
-        name="gateway-url",
-        description="The URL of a StarkNet gateway. It is required unless `--network` is provided.",
-        type="str",
-    )
-
     network_arg = Command.Argument(
         name="network",
         short_name="n",
@@ -34,10 +28,11 @@ class DeployCommand(Command):
 
     def __init__(
         self,
-        gateway_facade: GatewayFacade,
+        gateway_facade_builder: GatewayFacade.Builder,
         logger: Logger,
     ) -> None:
-        self._gateway_facade = gateway_facade
+        self._gateway_facade_builder = gateway_facade_builder
+        self._gateway_facade: Optional[GatewayFacade] = None
         self._logger = logger
 
     @property
@@ -79,6 +74,7 @@ class DeployCommand(Command):
                 is_array=True,
             ),
             Command.Argument(
+                # Note: This will be removed with the mainnet whitelist
                 name="token",
                 description="Used for deploying contracts in Alpha MainNet.",
                 type="str",
@@ -93,26 +89,42 @@ class DeployCommand(Command):
                 ),
                 type="str",
             ),
-            DeployCommand.gateway_url_arg,
+            Command.Argument(
+                name="salt",
+                description=(
+                    "An optional salt controlling where the contract will be deployed. "
+                    "The contract deployment address is determined by the hash "
+                    "of contract, salt and caller. "
+                    "If the salt is not supplied, the contract will be deployed with a random salt."
+                ),
+                type="str",
+            ),
+            Command.Argument(
+                name="wait-for-acceptance",
+                description="Wait until 'Accepted on L2' status.",
+                type="bool",
+                default=False,
+            ),
             DeployCommand.network_arg,
         ]
 
     async def run(self, args):
-        if args.network is None and args.gateway_url is None:
+        if args.network is None:
             raise ProtostarException(
-                f"Argument `{DeployCommand.gateway_url_arg.name}` or `{DeployCommand.network_arg.name}` is required"
+                f"Argument `{DeployCommand.network_arg.name}` is required"
             )
 
-        network_config = NetworkConfig.build(
-            network=args.network, gateway_url=args.gateway_url
-        )
+        network_config = NetworkConfig.build(network=args.network)
+
+        self._gateway_facade_builder.set_network(args.network)
+        self._gateway_facade = self._gateway_facade_builder.build()
 
         response = await self._gateway_facade.deploy(
             compiled_contract_path=args.contract,
-            gateway_url=network_config.gateway_url,
             inputs=args.inputs,
             token=args.token,
             salt=args.salt,
+            wait_for_acceptance=args.wait_for_acceptance,
         )
 
         explorer_url = network_config.get_contract_explorer_url(response.address)

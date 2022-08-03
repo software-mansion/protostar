@@ -23,15 +23,12 @@ class NetworkConfig:
     @classmethod
     def build(
         cls,
-        gateway_url: Optional[str] = None,
         network: Optional[str] = None,
     ) -> "NetworkConfig":
         network_config: Optional[NetworkConfig] = None
 
         if network:
             network_config = cls.from_starknet_network_name(network)
-        if gateway_url:
-            network_config = cls(gateway_url=gateway_url)
 
         if network_config is None:
             raise InvalidNetworkConfigurationException()

@@ -47,7 +47,7 @@ def protostar_cli_fixture(
         requester=mocker.MagicMock(),
         logger=mocker.MagicMock(),
         latest_version_checker=latest_version_checker_mock,
-        gateway_facade=mocker.MagicMock(),
+        gateway_facade_builder=mocker.MagicMock(),
     )
 
 
