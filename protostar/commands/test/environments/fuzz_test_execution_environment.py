@@ -115,6 +115,9 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         #   running in a separate thread executor, we must set the ``reporter`` each first time
         #   we invoke Hypothesis code in new thread.
 
+        # NOTE: We are rebuilding test function on each learning step, because the arguments that
+        #   we pass to the most crucial @given and @settings decorators are changing each time.
+
         def test_thread():
             with with_reporter(protostar_reporter):
                 for _ in range(self._fuzz_config.max_strategy_learnings):
@@ -203,6 +206,8 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
 
         test.hypothesis.inner_test = wrap_in_sync(test.hypothesis.inner_test)  # type: ignore
 
+        # NOTE: The ``test`` function does not expect any arguments at this point,
+        #   because the @given decorator provides all of them behind the scenes.
         test()
 
 

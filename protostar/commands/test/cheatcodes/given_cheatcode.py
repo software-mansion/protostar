@@ -8,16 +8,6 @@ from protostar.commands.test.test_environment_exceptions import CheatcodeExcepti
 from protostar.starknet.cheatcode import Cheatcode
 
 
-class StrategyLearnedException(BaseException):
-    """
-    An exception raised from the ``given`` cheatcode, indicating that the set of fuzzing strategies
-    has changed (fuzzer _learned_ a new strategy).
-
-    The expected behaviour is to let fuzzer catch this exception and restart fuzzing with new
-    set of input parameter strategies.
-    """
-
-
 class GivenCallable(Protocol):
     def __call__(self, **kwargs: StrategyDescriptor):
         ...
@@ -59,3 +49,13 @@ class GivenCheatcode(Cheatcode):
 
         if learned:
             raise StrategyLearnedException
+
+
+class StrategyLearnedException(BaseException):
+    """
+    An exception raised from the ``given`` cheatcode, indicating that the set of fuzzing strategies
+    has changed (fuzzer _learned_ a new strategy).
+
+    The expected behaviour is to let fuzzer catch this exception and restart fuzzing with new
+    set of input parameter strategies.
+    """

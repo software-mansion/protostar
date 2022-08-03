@@ -1,7 +1,5 @@
 from pathlib import Path
 
-import pytest
-
 from protostar.commands.test.environments.fuzz_test_execution_environment import (
     FuzzConfig,
 )
@@ -11,7 +9,6 @@ from tests.integration.conftest import (
 )
 
 
-@pytest.mark.asyncio
 async def test_basic(run_cairo_test_runner: RunCairoTestRunnerFixture):
     seed = 10
 
@@ -35,7 +32,6 @@ async def test_basic(run_cairo_test_runner: RunCairoTestRunnerFixture):
     assert testing_summary.testing_seed.was_used
 
 
-@pytest.mark.asyncio
 async def test_non_felt_parameter(run_cairo_test_runner: RunCairoTestRunnerFixture):
     testing_summary = await run_cairo_test_runner(
         Path(__file__).parent / "non_felt_parameter_test.cairo"
@@ -49,7 +45,6 @@ async def test_non_felt_parameter(run_cairo_test_runner: RunCairoTestRunnerFixtu
     )
 
 
-@pytest.mark.asyncio
 async def test_state_is_isolated(run_cairo_test_runner: RunCairoTestRunnerFixture):
     testing_summary = await run_cairo_test_runner(
         Path(__file__).parent / "state_isolation_test.cairo", fuzz_max_examples=5
@@ -64,7 +59,6 @@ async def test_state_is_isolated(run_cairo_test_runner: RunCairoTestRunnerFixtur
     )
 
 
-@pytest.mark.asyncio
 async def test_hypothesis_multiple_errors(
     run_cairo_test_runner: RunCairoTestRunnerFixture,
 ):
@@ -86,7 +80,6 @@ async def test_hypothesis_multiple_errors(
     )
 
 
-@pytest.mark.asyncio
 async def test_max_fuzz_runs_less_or_equal_than_specified(
     run_cairo_test_runner: RunCairoTestRunnerFixture,
 ):
@@ -102,7 +95,6 @@ async def test_max_fuzz_runs_less_or_equal_than_specified(
     assert testing_summary.passed[0].fuzz_runs_count <= fuzz_max_examples
 
 
-@pytest.mark.asyncio
 async def test_strategies(
     run_cairo_test_runner: RunCairoTestRunnerFixture,
 ):
