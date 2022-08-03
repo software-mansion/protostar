@@ -9,7 +9,6 @@ from starkware.cairo.lang.vm.vm_exceptions import VmException
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 
-from protostar.commands.build.build_exceptions import CairoCompilationException
 from protostar.compiler.contract_writer import ContractWriter
 from protostar.protostar_exception import ProtostarException
 from protostar.protostar_toml.protostar_contracts_section import (
@@ -69,17 +68,8 @@ class ProjectCompiler:
         try:
             contract_paths = self._get_contract_paths(contract_name)
             return self.compile_contract_from_contract_paths(contract_paths)
-        except StarknetCompiler.FileNotFoundException as err:
-            raise StarknetCompiler.FileNotFoundException(
-                message=(
-                    err.message
-                    + '\nDid you forget to update protostar.toml::["protostar.contracts"]?'
-                )
-            ) from err
         except (StarkException, VmException, PreprocessorError) as err:
-            raise CairoCompilationException(
-                f"Protostar couldn't compile '{contract_name}' contract\n{str(err)}"
-            ) from err
+            raise CairoCompilationException(contract_name, err) from err
 
     def compile_contract_from_contract_paths(
         self,
@@ -127,4 +117,14 @@ class ProjectCompiler:
 
 class ContractFileNotFoundException(ProtostarException):
     def __init__(self, contract_path: Path):
-        super().__init__(f"Couldn't find the contract file `{contract_path.resolve()}`")
+        super().__init__(
+            f"Couldn't find the contract file `{contract_path.resolve()}`\n"
+            'Did you forget to update protostar.toml::["protostar.contracts"]?'
+        )
+
+
+class CairoCompilationException(ProtostarException):
+    def __init__(self, contract_name: str, err: Exception):
+        super().__init__(
+            f"Protostar couldn't compile '{contract_name}' contract\n{str(err)}"
+        )
