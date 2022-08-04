@@ -95,10 +95,10 @@ def protostar(
                 else pyproject["tool"]["poetry"]["version"]
             )
 
-            pyproject["tool"]["protostar"]["breaking_versions"] = (
+            pyproject["tool"]["protostar"]["toml_breaking_versions"] = (
                 breaking_protostar_versions
                 if breaking_protostar_versions
-                else pyproject["tool"]["protostar"]["breaking_versions"]
+                else pyproject["tool"]["protostar"]["toml_breaking_versions"]
             )
 
             file.seek(0)

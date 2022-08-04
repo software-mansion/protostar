@@ -79,14 +79,14 @@ class VersionManager:
         return VersionManager.parse(version_s)
 
     @property
-    def breaking_versions(self) -> List[VersionType]:
+    def toml_breaking_versions(self) -> List[VersionType]:
         return [
             VersionManager.parse(v)
-            for v in self.pyproject_toml["tool"]["protostar"]["breaking_versions"]
+            for v in self.pyproject_toml["tool"]["protostar"]["toml_breaking_versions"]
         ]
 
     def version_range_has_breaking_changes(self, low: VersionType, high: VersionType):
-        for breaking_v in self.breaking_versions:
+        for breaking_v in self.toml_breaking_versions:
             if low <= breaking_v <= high:
                 return True
         return False

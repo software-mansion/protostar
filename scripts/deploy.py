@@ -59,9 +59,9 @@ with open(path, "r+", encoding="UTF-8") as file:
     # update version in pyproject.toml
     pyproject["tool"]["poetry"]["version"] = new_protostar_version_str
 
-    breaking_versions = pyproject["tool"]["protostar"]["breaking_versions"]
+    toml_breaking_versions = pyproject["tool"]["protostar"]["toml_breaking_versions"]
     if is_breaking_v:
-        breaking_versions.append(new_protostar_version_str)
+        toml_breaking_versions.append(new_protostar_version_str)
 
     file.seek(0)
     file.truncate()
