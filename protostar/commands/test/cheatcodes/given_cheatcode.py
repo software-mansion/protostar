@@ -30,10 +30,6 @@ class GivenCheatcode(Cheatcode):
         return self.given
 
     def given(self, **kwargs: Any) -> None:
-        # Early check that all parameters names are valid explicitly.
-        for param in kwargs:
-            self.strategy_selector.check_exists(param)
-
         learned = False
 
         for param, descriptor in kwargs.items():
