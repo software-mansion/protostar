@@ -109,6 +109,7 @@ async def test_strategies(
         testing_summary,
         expected_passed_test_cases_names=[
             "test_integers",
+            "test_integers_unbounded",
             "test_multiple_learning_steps",
         ],
         expected_failed_test_cases_names=[
