@@ -1,6 +1,6 @@
 # pylint: disable=redefined-outer-name
 import subprocess
-from os import listdir, path
+from os import listdir
 from pathlib import Path
 
 import pexpect
@@ -44,24 +44,22 @@ def test_init(project_name: str):
 
 def test_init_existing():
     child = pexpect.spawn(
-        f"python {path.join(ACTUAL_CWD, 'binary_entrypoint.py')} init --existing"
+        f"{ACTUAL_CWD / 'dist' / 'protostar' / 'protostar'} init --existing"
     )
     child.expect("libraries directory *", timeout=10)
     child.sendline("lib_test")
     child.expect(pexpect.EOF)
-
     dirs = listdir(".")
+
     assert "protostar.toml" in dirs
     assert "lib_test" in dirs
     assert ".git" in dirs
 
 
 def test_init_ask_existing():
-    open(Path() / "example.cairo", "a").close()
+    open(Path() / "example.cairo", "a", encoding="utf-8").close()
 
-    child = pexpect.spawn(
-        f"python {path.join(ACTUAL_CWD, 'binary_entrypoint.py')} init"
-    )
+    child = pexpect.spawn(f"{ACTUAL_CWD / 'dist' / 'protostar' / 'protostar'} init")
     child.expect("Your current directory.*", timeout=10)
     child.sendline("y")
     child.expect("libraries directory *", timeout=1)

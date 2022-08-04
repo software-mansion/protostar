@@ -80,7 +80,10 @@ def protostar(
 ) -> ProtostarFixture:
     shutil.copytree(ACTUAL_CWD / "dist", tmp_path / "dist")
 
-    if declared_protostar_version is not None:
+    if (
+        declared_protostar_version is not None
+        or breaking_protostar_versions is not None
+    ):
         with open(
             tmp_path / "dist" / "protostar" / "info" / "pyproject.toml",
             "r+",
