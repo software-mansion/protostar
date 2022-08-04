@@ -136,7 +136,10 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
                         raise CheatcodeException("given", str(ex)) from ex
                 else:
                     raise CheatcodeException(
-                        "given", "Cheatcode was called with changing strategies."
+                        "given",
+                        "The set of fuzzing strategies passed to the cheatcode has not converged "
+                        "during fuzzing run. Make sure that fuzzing strategies are not dependent "
+                        "on fuzzing inputs or external state, such as random.",
                     )
 
         try:
