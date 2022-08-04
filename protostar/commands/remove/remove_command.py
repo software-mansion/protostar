@@ -68,7 +68,7 @@ class RemoveCommand(Command):
         package_name = retrieve_real_package_name(
             internal_dependency_reference,
             self._project_root_path,
-            project_section.libs_path,
+            project_section.libs_relative_path,
         )
 
         self._logger.info(
