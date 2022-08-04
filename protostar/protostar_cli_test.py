@@ -57,7 +57,7 @@ async def test_should_fail_due_to_old_git(
     protostar_cli: ProtostarCLI, mocker: MockerFixture
 ):
     logger_mock = mocker.MagicMock(Logger)
-    protostar_cli.logger = logger_mock
+    protostar_cli._logger = logger_mock
     logger_mock.error = mocker.MagicMock()
     # pylint: disable=protected-access
 

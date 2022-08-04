@@ -1,197 +1,38 @@
 # pylint: disable=no-self-use
 import sys
 import time
-from logging import INFO, Logger, StreamHandler, getLogger
-from pathlib import Path
-from typing import Any
+from logging import INFO, Logger, StreamHandler
+from typing import Any, List
 
 from protostar.cli import CLIApp, Command
-from protostar.commands import (
-    BuildCommand,
-    DeployCommand,
-    InitCommand,
-    InstallCommand,
-    RemoveCommand,
-    TestCommand,
-    UpdateCommand,
-    UpgradeCommand,
-)
-from protostar.commands.build import ProjectCompiler
-from protostar.commands.declare.declare_command import DeclareCommand
-from protostar.commands.init.project_creator import (
-    AdaptedProjectCreator,
-    NewProjectCreator,
-)
-from protostar.commands.migrate.migrate_command import MigrateCommand
-from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
-from protostar.migrator import Migrator
-from protostar.migrator.migrator_execution_environment import (
-    MigratorExecutionEnvironment,
-)
+from protostar.configuration_profile_cli import ConfigurationProfileCLI
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
-from protostar.protostar_toml.io.protostar_toml_reader import (
-    ProtostarTOMLReader,
-    search_upwards_protostar_toml_path,
-)
-from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
-from protostar.protostar_toml.protostar_contracts_section import (
-    ProtostarContractsSection,
-)
-from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
-from protostar.starknet_gateway import GatewayFacade
-from protostar.upgrader import (
-    LatestVersionChecker,
-    LatestVersionRemoteChecker,
-    UpgradeManager,
-)
-from protostar.upgrader.latest_version_cache_toml import LatestVersionCacheTOML
-from protostar.utils import (
-    ProtostarDirectory,
-    StandardLogFormatter,
-    VersionManager,
-    log_color_provider,
-)
-from protostar.utils.input_requester import InputRequester
-
-PROFILE_ARG = Command.Argument(
-    name="profile",
-    short_name="p",
-    type="str",
-    description="\n".join(
-        [
-            "Specifies active profile configuration. This argument can't be configured in `protostar.toml`.",
-            "#### CI configuration",
-            '```toml title="protostar.toml"',
-            "[profile.ci.protostar.shared_command_configs]",
-            "no_color=true",
-            "```",
-            "`protostar -p ci test`",
-            "",
-            "#### Deployment configuration",
-            '```toml title="protostar.toml"',
-            "[profile.devnet.protostar.deploy]",
-            'gateway_url="http://127.0.0.1:5050/"',
-            "```",
-            "`protostar -p devnet deploy ...`" "",
-        ]
-    ),
-)
-
-
-class ConfigurationProfileCLISchema(CLIApp):
-    def __init__(self) -> None:
-        super().__init__(
-            commands=[],
-            root_args=[PROFILE_ARG],
-        )
+from protostar.upgrader import LatestVersionChecker
+from protostar.utils import StandardLogFormatter, VersionManager
+from protostar.utils.log_color_provider import LogColorProvider
 
 
 class ProtostarCLI(CLIApp):
     # pylint: disable=too-many-arguments
     def __init__(
         self,
-        script_root: Path,
-        protostar_directory: ProtostarDirectory,
-        project_root_path: Path,
-        version_manager: VersionManager,
-        protostar_toml_writer: ProtostarTOMLWriter,
-        protostar_toml_reader: ProtostarTOMLReader,
-        requester: InputRequester,
         logger: Logger,
+        log_color_provider: LogColorProvider,
         latest_version_checker: LatestVersionChecker,
-        gateway_facade: GatewayFacade,
-        start_time: float = 0.0,
+        version_manager: VersionManager,
+        commands: List[Command],
+        start_time=0.0,
     ) -> None:
-        self.project_root_path = project_root_path
-        self.logger = logger
-        self.latest_version_checker = latest_version_checker
-        self.start_time = start_time
-        self.protostar_toml_reader = protostar_toml_reader
-
-        project_cairo_path_builder = ProjectCairoPathBuilder(
-            project_root_path=project_root_path,
-            project_section_loader=ProtostarProjectSection.Loader(
-                protostar_toml_reader
-            ),
-        )
-
-        project_compiler = ProjectCompiler(
-            project_root_path=project_root_path,
-            project_cairo_path_builder=project_cairo_path_builder,
-            contracts_section_loader=ProtostarContractsSection.Loader(
-                protostar_toml_reader
-            ),
-        )
+        self._logger = logger
+        self._latest_version_checker = latest_version_checker
+        self._start_time = start_time
+        self._log_color_provider = log_color_provider
+        self.version_manager = version_manager
 
         super().__init__(
-            commands=[
-                InitCommand(
-                    requester=requester,
-                    new_project_creator=NewProjectCreator(
-                        script_root,
-                        requester,
-                        protostar_toml_writer,
-                        version_manager,
-                    ),
-                    adapted_project_creator=AdaptedProjectCreator(
-                        script_root,
-                        requester,
-                        protostar_toml_writer,
-                        version_manager,
-                    ),
-                ),
-                BuildCommand(project_compiler, logger),
-                InstallCommand(
-                    log_color_provider=log_color_provider,
-                    logger=logger,
-                    project_root_path=project_root_path,
-                    project_section_loader=ProtostarProjectSection.Loader(
-                        protostar_toml_reader
-                    ),
-                ),
-                RemoveCommand(
-                    logger=logger,
-                    project_root_path=project_root_path,
-                    project_section_loader=ProtostarProjectSection.Loader(
-                        protostar_toml_reader
-                    ),
-                ),
-                UpdateCommand(
-                    logger=logger,
-                    project_root_path=project_root_path,
-                    project_section_loader=ProtostarProjectSection.Loader(
-                        protostar_toml_reader
-                    ),
-                ),
-                UpgradeCommand(
-                    UpgradeManager(
-                        protostar_directory,
-                        version_manager,
-                        LatestVersionRemoteChecker(),
-                        self.logger,
-                    ),
-                    logger=logger,
-                ),
-                TestCommand(
-                    project_root_path, protostar_directory, project_cairo_path_builder
-                ),
-                DeployCommand(gateway_facade, logger),
-                DeclareCommand(gateway_facade, logger),
-                MigrateCommand(
-                    migrator_builder=Migrator.Builder(
-                        MigratorExecutionEnvironment.Builder(
-                            gateway_facade=GatewayFacade(
-                                project_root_path,
-                            ),
-                        )
-                    ),
-                    requester=requester,
-                    logger=self.logger,
-                    log_color_provider=log_color_provider,
-                ),
-            ],
+            commands=commands,
             root_args=[
-                PROFILE_ARG,
+                ConfigurationProfileCLI.PROFILE_ARG,
                 Command.Argument(
                     name="version",
                     short_name="v",
@@ -205,62 +46,29 @@ class ProtostarCLI(CLIApp):
                 ),
             ],
         )
-        self.version_manager = version_manager
 
-    @classmethod
-    def create(cls, script_root: Path):
-        protostar_toml_path = search_upwards_protostar_toml_path(
-            start_path=Path().resolve()
-        )
-        project_root_path = (
-            protostar_toml_path.parent if protostar_toml_path is not None else Path()
-        )
-        protostar_toml_path = (
-            protostar_toml_path or project_root_path / "protostar.toml"
-        )
-        protostar_directory = ProtostarDirectory(script_root)
-        version_manager = VersionManager(protostar_directory)
-        protostar_toml_writer = ProtostarTOMLWriter()
-        protostar_toml_reader = ProtostarTOMLReader(
-            protostar_toml_path=protostar_toml_path
-        )
-        requester = InputRequester(log_color_provider)
-        logger = getLogger()
-        latest_version_checker = LatestVersionChecker(
-            protostar_directory=protostar_directory,
-            version_manager=version_manager,
-            logger=logger,
-            log_color_provider=log_color_provider,
-            latest_version_cache_toml_reader=LatestVersionCacheTOML.Reader(
-                protostar_directory
-            ),
-            latest_version_cache_toml_writer=LatestVersionCacheTOML.Writer(
-                protostar_directory
-            ),
-            latest_version_remote_checker=LatestVersionRemoteChecker(),
-        )
-        gateway_facade = GatewayFacade(project_root_path=project_root_path)
-
-        return cls(
-            script_root=script_root,
-            project_root_path=project_root_path,
-            protostar_directory=protostar_directory,
-            version_manager=version_manager,
-            protostar_toml_writer=protostar_toml_writer,
-            protostar_toml_reader=protostar_toml_reader,
-            requester=requester,
-            logger=logger,
-            latest_version_checker=latest_version_checker,
-            gateway_facade=gateway_facade,
-            start_time=time.perf_counter(),
-        )
+    async def run(self, args: Any) -> None:
+        has_failed = False
+        try:
+            self._setup_logger(args.no_color)
+            self._check_git_version()
+            await self._execute_command(args)
+            await self._latest_version_checker.run()
+        except (ProtostarExceptionSilent, KeyboardInterrupt):
+            has_failed = True
+        except ProtostarException as err:
+            has_failed = True
+            self._print_protostar_exception(err)
+        self._print_execution_time()
+        if has_failed:
+            sys.exit(1)
 
     def _setup_logger(self, is_ci_mode: bool) -> None:
-        log_color_provider.is_ci_mode = is_ci_mode
-        self.logger.setLevel(INFO)
+        self._log_color_provider.is_ci_mode = is_ci_mode
+        self._logger.setLevel(INFO)
         handler = StreamHandler()
-        handler.setFormatter(StandardLogFormatter(log_color_provider))
-        self.logger.addHandler(handler)
+        handler.setFormatter(StandardLogFormatter(self._log_color_provider))
+        self._logger.addHandler(handler)
 
     def _check_git_version(self):
         git_version = self.version_manager.git_version
@@ -269,30 +77,18 @@ class ProtostarCLI(CLIApp):
                 f"Protostar requires version 2.28 or greater of Git (current version: {git_version})"
             )
 
-    async def run(self, args: Any) -> None:
-        self._setup_logger(args.no_color)
-        has_failed = False
-        try:
-            self._check_git_version()
-            if args.version:
-                self.version_manager.print_current_version()
-                return
-            await super().run(args)
-            await self.latest_version_checker.run()
+    async def _execute_command(self, args: Any) -> None:
+        if args.version:
+            self.version_manager.print_current_version()
+            return
+        await super().run(args)
 
-        except ProtostarExceptionSilent:
-            has_failed = True
-        except ProtostarException as err:
-            if err.details:
-                print(err.details)
-            self.logger.error(err.message)
-            sys.exit(1)
-        except KeyboardInterrupt:
-            has_failed = True
+    def _print_protostar_exception(self, err: ProtostarException):
+        if err.details:
+            print(err.details)
+        self._logger.error(err.message)
 
-        self.logger.info(
-            "Execution time: %.2f s", time.perf_counter() - self.start_time
+    def _print_execution_time(self):
+        self._logger.info(
+            "Execution time: %.2f s", time.perf_counter() - self._start_time
         )
-
-        if has_failed:
-            sys.exit(1)
