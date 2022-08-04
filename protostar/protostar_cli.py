@@ -27,7 +27,7 @@ class ProtostarCLI(CLIApp):
         self._latest_version_checker = latest_version_checker
         self._start_time = start_time
         self._log_color_provider = log_color_provider
-        self.version_manager = version_manager
+        self._version_manager = version_manager
 
         super().__init__(
             commands=commands,
@@ -71,7 +71,7 @@ class ProtostarCLI(CLIApp):
         self._logger.addHandler(handler)
 
     def _check_git_version(self):
-        git_version = self.version_manager.git_version
+        git_version = self._version_manager.git_version
         if git_version and git_version < VersionManager.parse("2.28"):
             raise ProtostarException(
                 f"Protostar requires version 2.28 or greater of Git (current version: {git_version})"
@@ -79,7 +79,7 @@ class ProtostarCLI(CLIApp):
 
     async def _execute_command(self, args: Any) -> None:
         if args.version:
-            self.version_manager.print_current_version()
+            self._version_manager.print_current_version()
             return
         await super().run(args)
 

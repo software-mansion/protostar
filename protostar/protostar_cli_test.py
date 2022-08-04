@@ -88,12 +88,12 @@ def test_instance_matches_cli_reference_docs(protostar_cli: ProtostarCLI):
 async def test_should_print_protostar_version(
     protostar_cli: ProtostarCLI, mocker: MockerFixture
 ):
-    protostar_cli.version_manager.print_current_version = mocker.MagicMock()
+    protostar_cli._version_manager.print_current_version = mocker.MagicMock()
     parser = ArgumentParserFacade(protostar_cli)
 
     await protostar_cli.run(parser.parse(["--version"]))
 
-    protostar_cli.version_manager.print_current_version.assert_called_once()
+    protostar_cli._version_manager.print_current_version.assert_called_once()
 
 
 @pytest.mark.asyncio
