@@ -160,8 +160,8 @@ def test_building_account_contract(protostar):
 
 
 @pytest.mark.usefixtures("init")
+@pytest.mark.parametrize("declared_protostar_version", ["0.0.0"])
 def test_building_project_with_modified_protostar_toml(protostar: ProtostarFixture):
-
     with open("./protostar.toml", mode="w", encoding="utf-8") as protostar_toml:
         protostar_toml.write(
             dedent(

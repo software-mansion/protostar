@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Optional
 
 import tomli
+import tomli_w
 from git.repo import Repo
 from packaging import version
 
@@ -47,14 +48,24 @@ with open(path, "r+", encoding="UTF-8") as file:
         print(f"New version must be greater than {protostar_version}")
         sys.exit(1)
 
-    # update version in protostar.toml
+    is_breaking_v = input(
+        "Does this version contain breaking changes to protostar.toml structure? (y/n): "
+    )
+    is_breaking_v = is_breaking_v.lower()
+    if is_breaking_v not in ["y", "n"]:
+        print(f'"{is_breaking_v}" is not a valid option')
+        sys.exit(1)
+
+    # update version in pyproject.toml
+    pyproject["tool"]["poetry"]["version"] = new_protostar_version_str
+
+    breaking_versions = pyproject["tool"]["protostar"]["breaking_versions"]
+    if is_breaking_v:
+        breaking_versions.append(new_protostar_version_str)
+
     file.seek(0)
     file.truncate()
-    file.write(
-        raw_pyproject.replace(
-            f'version = "{protostar_version}"', f'version = "{new_protostar_version}"'
-        )
-    )
+    file.write(tomli_w.dumps(pyproject))
 
 
 # add commit
@@ -71,5 +82,5 @@ origin = repo.remote(name="origin")
 origin.push()
 origin.push(tag.path)
 
-print((f"Created and pushed tag: {tag_name}"))
-print(("It may take some time until GitHub action builds and uploads binaries."))
+print(f"Created and pushed tag: {tag_name}")
+print("It may take some time until GitHub action builds and uploads binaries.")

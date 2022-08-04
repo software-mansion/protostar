@@ -8,6 +8,7 @@ from typing import Callable, List, Optional
 import pexpect
 import pytest
 import tomli
+import tomli_w
 from typing_extensions import Protocol
 
 from tests.conftest import run_devnet
@@ -67,8 +68,15 @@ def declared_protostar_version() -> Optional[str]:
 
 
 @pytest.fixture
+def breaking_protostar_versions() -> Optional[List[str]]:
+    return None
+
+
+@pytest.fixture
 def protostar(
-    tmp_path: Path, declared_protostar_version: Optional[str]
+    tmp_path: Path,
+    declared_protostar_version: Optional[str],
+    breaking_protostar_versions: Optional[List[str]],
 ) -> ProtostarFixture:
     shutil.copytree(ACTUAL_CWD / "dist", tmp_path / "dist")
 
@@ -80,15 +88,22 @@ def protostar(
         ) as file:
             raw_pyproject = file.read()
             pyproject = tomli.loads(raw_pyproject)
-            version_str = pyproject["tool"]["poetry"]["version"]
+
+            pyproject["tool"]["poetry"]["version"] = (
+                declared_protostar_version
+                if declared_protostar_version
+                else pyproject["tool"]["poetry"]["version"]
+            )
+
+            pyproject["tool"]["protostar"]["breaking_versions"] = (
+                breaking_protostar_versions
+                if breaking_protostar_versions
+                else pyproject["tool"]["protostar"]["breaking_versions"]
+            )
+
             file.seek(0)
             file.truncate()
-            file.write(
-                raw_pyproject.replace(
-                    f'version = "{version_str}"',
-                    f'version = "{declared_protostar_version}"',
-                )
-            )
+            file.write(tomli_w.dumps(pyproject))
 
     def _protostar(args: List[str], ignore_exit_code=False) -> str:
         return (

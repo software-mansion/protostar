@@ -1,6 +1,6 @@
 import re
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional, Union, List
 
 import tomli
 from git.cmd import Git
@@ -65,7 +65,6 @@ class VersionManager:
             with open(path, "r", encoding="UTF-8") as file:
                 self._pyproject_toml_dict = tomli.loads(file.read())
                 return self._pyproject_toml_dict
-
         except FileNotFoundError as err:
             raise ProtostarException("Couldn't read Protostar version") from err
 
@@ -78,6 +77,19 @@ class VersionManager:
     def cairo_version(self) -> VersionType:
         version_s = self.pyproject_toml["tool"]["poetry"]["dependencies"]["cairo-lang"]
         return VersionManager.parse(version_s)
+
+    @property
+    def breaking_versions(self) -> List[VersionType]:
+        return [
+            VersionManager.parse(v)
+            for v in self.pyproject_toml["tool"]["protostar"]["breaking_versions"]
+        ]
+
+    def version_range_has_breaking_changes(self, low: VersionType, high: VersionType):
+        for breaking_v in self.breaking_versions:
+            if low <= breaking_v <= high:
+                return True
+        return False
 
     @property
     def git_version(self) -> Optional[VersionType]:

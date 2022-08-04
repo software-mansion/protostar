@@ -8,7 +8,6 @@ import pytest
 import tomli
 from packaging.version import Version
 
-
 from protostar.protostar_toml import (
     ProtostarContractsSection,
     ProtostarConfigSection,
@@ -92,6 +91,8 @@ def test_protostar_version_in_config_file():
 
 
 @pytest.mark.usefixtures("init")
+@pytest.mark.parametrize("declared_protostar_version", ["0.3.0"])
+@pytest.mark.parametrize("breaking_protostar_versions", [["0.1.0", "1000.0.0"]])
 def test_protostar_asserts_version_compatibility(protostar):
     toml_file_path = Path() / "protostar.toml"
     reader = ProtostarTOMLReader(toml_file_path)

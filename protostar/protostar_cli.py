@@ -291,7 +291,7 @@ class ProtostarCLI(CLIApp):
             sys.exit(1)
 
     def _check_protostar_toml_compatibility(self, args: Any):
-        if args.command == "init":
+        if args.command in ["init", "upgrade"]:
             return
 
         declared_version_str = self.protostar_toml_reader.get_attribute(
@@ -301,14 +301,27 @@ class ProtostarCLI(CLIApp):
             raise ProtostarException(
                 "Did not find declared version of protostar (protostar_version) in protostar.toml"
             )
+
         declared_version = VersionManager.parse(declared_version_str)
-        if self.version_manager.protostar_version > declared_version:
+        protostar_version = self.version_manager.protostar_version
+
+        if (
+            protostar_version > declared_version
+            and self.version_manager.version_range_has_breaking_changes(
+                declared_version, protostar_version
+            )
+        ):
             raise ProtostarException(
                 "You are running a higher version of protostar than one declared in the protostar.toml."
                 "Please consider converting your protostar.toml to the newer version."
             )
 
-        if self.version_manager.protostar_version < declared_version:
+        if (
+            protostar_version < declared_version
+            and self.version_manager.version_range_has_breaking_changes(
+                protostar_version, declared_version
+            )
+        ):
             raise ProtostarException(
                 "You are running a lower version of protostar than one declared in the protostar.toml."
                 "Please consider upgrading your local version to the one declared in the file."
