@@ -3,47 +3,46 @@ from logging import getLogger
 from pathlib import Path
 from typing import List
 
-from protostar.cli.command import Command
-from protostar.commands.build.build_command import BuildCommand
-from protostar.commands.declare.declare_command import DeclareCommand
-from protostar.commands.deploy.deploy_command import DeployCommand
-from protostar.commands.init.init_command import InitCommand
-from protostar.commands.init.project_creator.adapted_project_creator import (
-    AdaptedProjectCreator,
+from protostar.cli import Command
+from protostar.commands import (
+    BuildCommand,
+    DeclareCommand,
+    DeployCommand,
+    InitCommand,
+    InstallCommand,
+    MigrateCommand,
+    RemoveCommand,
+    TestCommand,
+    UpdateCommand,
+    UpgradeCommand,
 )
-from protostar.commands.init.project_creator.new_project_creator import (
+from protostar.commands.init.project_creator import (
+    AdaptedProjectCreator,
     NewProjectCreator,
 )
-from protostar.commands.install.install_command import InstallCommand
-from protostar.commands.migrate.migrate_command import MigrateCommand
-from protostar.commands.remove.remove_command import RemoveCommand
-from protostar.commands.test.test_command import TestCommand
-from protostar.commands.update.update_command import UpdateCommand
-from protostar.commands.upgrade.upgrade_command import UpgradeCommand
-from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
-from protostar.compiler.project_compiler import ProjectCompiler
-from protostar.migrator.migrator import Migrator
-from protostar.migrator.migrator_execution_environment import (
-    MigratorExecutionEnvironment,
-)
+from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
+from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_cli import ProtostarCLI
-from protostar.protostar_toml.io.protostar_toml_reader import (
+from protostar.protostar_toml import (
+    ProtostarContractsSection,
+    ProtostarProjectSection,
     ProtostarTOMLReader,
+    ProtostarTOMLWriter,
     search_upwards_protostar_toml_path,
 )
-from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
-from protostar.protostar_toml.protostar_contracts_section import (
-    ProtostarContractsSection,
+from protostar.starknet_gateway import GatewayFacade
+from protostar.upgrader import (
+    LatestVersionCacheTOML,
+    LatestVersionChecker,
+    LatestVersionRemoteChecker,
+    UpgradeManager,
 )
-from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
-from protostar.starknet_gateway.gateway_facade import GatewayFacade
-from protostar.upgrader.latest_version_cache_toml import LatestVersionCacheTOML
-from protostar.upgrader.latest_version_checker import LatestVersionChecker
-from protostar.upgrader.latest_version_remote_checker import LatestVersionRemoteChecker
-from protostar.upgrader.upgrade_manager import UpgradeManager
-from protostar.utils import log_color_provider
-from protostar.utils.input_requester import InputRequester
-from protostar.utils.protostar_directory import ProtostarDirectory, VersionManager
+from protostar.utils import (
+    InputRequester,
+    ProtostarDirectory,
+    VersionManager,
+    log_color_provider,
+)
 
 
 @dataclass
