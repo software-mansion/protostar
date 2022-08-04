@@ -1,9 +1,8 @@
 from logging import Logger
 from typing import List, Optional
 
-from protostar.cli import ActivityIndicator
-from protostar.cli.command import Command
-from protostar.commands.build.project_compiler import ProjectCompiler
+from protostar.cli import ActivityIndicator, Command
+from protostar.compiler import ProjectCompiler, ProjectCompilerConfig
 from protostar.utils import log_color_provider
 
 
@@ -53,10 +52,12 @@ class BuildCommand(Command):
             log_color_provider.colorize("GRAY", "Building projects' contracts")
         ):
             try:
-                self._project_compiler.compile(
+                self._project_compiler.compile_project(
                     output_dir=args.output,
-                    relative_cairo_path=args.cairo_path,
-                    disable_hint_validation=args.disable_hint_validation,
+                    config=ProjectCompilerConfig(
+                        hint_validation_disabled=args.disable_hint_validation,
+                        relative_cairo_path=args.cairo_path,
+                    ),
                 )
             except BaseException as exc:
                 self._logger.error("Build failed")

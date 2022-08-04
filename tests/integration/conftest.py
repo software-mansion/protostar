@@ -98,7 +98,7 @@ def run_cairo_test_runner_fixture(mocker: MockerFixture) -> RunCairoTestRunnerFi
         return await TestCommand(
             project_root_path=Path(),
             protostar_directory=mocker.MagicMock(),
-            project_compiler=mocker.MagicMock(),
+            project_cairo_path_builder=mocker.MagicMock(),
         ).test(targets=[str(path)], seed=seed, fuzz_max_examples=fuzz_max_examples)
 
     return run_cairo_test_runner

@@ -1,6 +1,8 @@
-import asyncio
 import multiprocessing
-import sys
+from contextlib import asynccontextmanager
+import asyncio
+import threading
+from multiprocessing.managers import SyncManager
 from pathlib import Path
 from string import Template
 from typing import List, Optional, Tuple
@@ -11,13 +13,14 @@ from starkware.starknet.services.api.contract_class import ContractClass
 from protostar.commands.test.environments.fuzz_test_execution_environment import (
     FuzzConfig,
 )
-from protostar.commands.test.test_cases import PassedTestCase
+from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_collector import TestCollector
 from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.test_suite import TestSuite
 from protostar.utils.compiler.pass_managers import ProtostarPassMangerFactory
-from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
+from protostar.utils.starknet_compilation import StarknetCompiler, CompilerConfig
+from tests.benchmarks.constants import ROUNDS_NUMBER
 
 SCRIPT_DIRECTORY = Path(__file__).parent
 
@@ -100,45 +103,105 @@ def build_test_suite(
     return contract, suite
 
 
-def run_tests(test_suite: TestSuite, contract: ContractClass):
-    asyncio.run(_run_tests_inner(test_suite, contract))
+async def prepare_suite(
+    manager: SyncManager, test_suite: TestSuite, contract: ContractClass
+) -> Tuple[TestRunner, SharedTestsState, Optional[TestExecutionState]]:
+    tests_state = SharedTestsState(
+        test_collector_result=TestCollector.Result(test_suites=[test_suite]),
+        manager=manager,
+    )
+    runner = TestRunner(
+        shared_tests_state=tests_state,
+        include_paths=[],
+        fuzz_config=FuzzConfig(),
+    )
+
+    # pylint: disable=protected-access
+    execution_state = await runner._build_execution_state(
+        test_contract=contract,
+        test_suite=test_suite,
+    )
+    return runner, tests_state, execution_state
 
 
-async def _run_tests_inner(test_suite: TestSuite, contract: ContractClass):
+def wait_for_completion(test_suite: TestSuite, tests_state: SharedTestsState):
+    tests_left = len(test_suite.test_case_names)
+    while tests_left:
+        tests_state.get_result()
+        tests_left -= 1
+
+    assert (
+        not tests_state.any_failed_or_broken()
+    ), "Tests failed! See logs above for more info"
+
+
+# https://github.com/ionelmc/pytest-benchmark/issues/66#issuecomment-575853801
+@pytest.fixture(scope="function", name="aio_benchmark")
+def aio_benchmark_fixture(benchmark):
+    class Sync2Async:
+        def __init__(self, coro, *args, **kwargs):
+            self.coro = coro
+            self.args = args
+            self.kwargs = kwargs
+            self.custom_loop = None
+            self.thread = None
+
+        def start_background_loop(self) -> None:
+            asyncio.set_event_loop(self.custom_loop)
+            if self.custom_loop:
+                self.custom_loop.run_forever()
+            raise RuntimeError("No custom_loop set!")
+
+        def __call__(self):
+            evloop = None
+            awaitable = self.coro(*self.args, **self.kwargs)
+            try:
+                evloop = asyncio.get_running_loop()
+            except RuntimeError:
+                pass
+
+            if evloop is None:
+                return asyncio.run(awaitable)
+
+            if not self.custom_loop or not self.thread or not self.thread.is_alive():
+                self.custom_loop = asyncio.new_event_loop()
+                self.thread = threading.Thread(
+                    target=self.start_background_loop, daemon=True
+                )
+                self.thread.start()
+
+            return asyncio.run_coroutine_threadsafe(
+                awaitable, self.custom_loop
+            ).result()
+
+    def _wrapper(func, *args, **kwargs):
+        if asyncio.iscoroutinefunction(func):
+            prepared_function = Sync2Async(func, *args, **kwargs)
+            return benchmark.pedantic(prepared_function, rounds=ROUNDS_NUMBER)
+        return benchmark.pedantic(func, rounds=ROUNDS_NUMBER, args=args, kwargs=kwargs)
+
+    return _wrapper
+
+
+@asynccontextmanager
+async def prepare_tests(contract_class: ContractClass, test_suite: TestSuite):
     with multiprocessing.Manager() as manager:
-        tests_state = SharedTestsState(
-            test_collector_result=TestCollector.Result(test_suites=[test_suite]),
-            manager=manager,
+        runner, shared_state, execution_state = await prepare_suite(
+            manager, test_suite, contract_class
         )
-        runner = TestRunner(
-            shared_tests_state=tests_state,
-            include_paths=[],
-            fuzz_config=FuzzConfig(),
-        )
+        if not execution_state:
+            return
 
-        # pylint: disable=protected-access
-        await runner._run_test_suite(
-            test_contract=contract,
-            test_suite=test_suite,
-        )
+        async def run():
+            # pylint: disable=protected-access
+            await runner._invoke_test_cases(test_suite, execution_state)
 
-        tests_left = len(test_suite.test_case_names)
-        while tests_left:
-            test_result = tests_state.get_result()
-            if isinstance(test_result, PassedTestCase):
-                out = sys.stdout
-            else:
-                out = sys.stderr
+        yield run
 
-            print(test_result.format(), file=out)
-            tests_left -= 1
-
-        assert (
-            not tests_state.any_failed_or_broken()
-        ), "Tests failed! See logs above for more info"
+        wait_for_completion(test_suite, shared_state)
 
 
-def test_deploy_perf(benchmark, tmp_path, basic_contract_path):
+async def test_deploy_perf(aio_benchmark, tmp_path, basic_contract_path):
     test_source, case_names = make_test_file(
         Template("%{ deploy_contract('$contractpath') %}").substitute(
             contractpath=basic_contract_path
@@ -150,10 +213,11 @@ def test_deploy_perf(benchmark, tmp_path, basic_contract_path):
         case_names=case_names,
     )
 
-    benchmark(run_tests, contract=contract_class, test_suite=test_suite)
+    async with prepare_tests(contract_class, test_suite) as run_tests:
+        aio_benchmark(run_tests)
 
 
-def test_setup_perf(benchmark, tmp_path, basic_contract_path):
+async def test_setup_perf(aio_benchmark, tmp_path, basic_contract_path):
     test_cases, case_names = make_test_file(
         """
         alloc_locals
@@ -178,10 +242,11 @@ def test_setup_perf(benchmark, tmp_path, basic_contract_path):
         setup_fn_name="__setup__",
     )
 
-    benchmark(run_tests, test_suite=test_suite, contract=contract_class)
+    async with prepare_tests(contract_class, test_suite) as run_tests:
+        aio_benchmark(run_tests)
 
 
-def test_expect_revert_perf(benchmark, tmp_path):
+async def test_expect_revert_perf(aio_benchmark, tmp_path):
     test_cases, case_names = make_test_file(
         """
         %{ expect_revert() %}
@@ -192,10 +257,11 @@ def test_expect_revert_perf(benchmark, tmp_path):
         source_code=test_cases, file_path=tmp_path, case_names=case_names
     )
 
-    benchmark(run_tests, test_suite=test_suite, contract=contract_class)
+    async with prepare_tests(contract_class, test_suite) as run_tests:
+        aio_benchmark(run_tests)
 
 
-def test_expect_events_perf(benchmark, tmp_path):
+async def test_expect_events_perf(aio_benchmark, tmp_path):
     test_cases, case_names = make_test_file(
         """
         %{ expect_events({"name": "increase_balance_called", "data": {"current_balance": 123, "amount": 20} }) %}
@@ -217,10 +283,11 @@ def test_expect_events_perf(benchmark, tmp_path):
         case_names=case_names,
     )
 
-    benchmark(run_tests, test_suite=test_suite, contract=contract_class)
+    async with prepare_tests(contract_class, test_suite) as run_tests:
+        aio_benchmark(run_tests)
 
 
-def test_declare_perf(benchmark, tmp_path, basic_contract_path):
+async def test_declare_perf(aio_benchmark, tmp_path, basic_contract_path):
     test_cases, case_names = make_test_file(
         Template('%{ declare("$contractpath") %}').substitute(
             contractpath=basic_contract_path
@@ -231,10 +298,11 @@ def test_declare_perf(benchmark, tmp_path, basic_contract_path):
         source_code=test_cases, file_path=tmp_path, case_names=case_names
     )
 
-    benchmark(run_tests, test_suite=test_suite, contract=contract_class)
+    async with prepare_tests(contract_class, test_suite) as run_tests:
+        aio_benchmark(run_tests)
 
 
-def test_prepare_perf(benchmark, tmp_path, basic_contract_path):
+async def test_prepare_perf(aio_benchmark, tmp_path, basic_contract_path):
     test_cases, case_names = make_test_file(
         "%{ prepared = prepare(context.declared, [1,2,3]) %}"
     )
@@ -255,15 +323,16 @@ def test_prepare_perf(benchmark, tmp_path, basic_contract_path):
         setup_fn_name="__setup__",
     )
 
-    benchmark(run_tests, test_suite=test_suite, contract=contract_class)
+    async with prepare_tests(contract_class, test_suite) as run_tests:
+        aio_benchmark(run_tests)
 
 
-def test_start_prank_perf(benchmark, tmp_path):
+async def test_start_prank_perf(aio_benchmark, tmp_path):
     test_cases, case_names = make_test_file(
         test_body="""
             %{ start_prank(12) %}
             let (address) = get_caller_address()
-            assert address = 12 
+            assert address = 12
         """,
         imports="""from starkware.starknet.common.syscalls import get_caller_address""",
     )
@@ -274,15 +343,16 @@ def test_start_prank_perf(benchmark, tmp_path):
         case_names=case_names,
     )
 
-    benchmark(run_tests, test_suite=test_suite, contract=contract_class)
+    async with prepare_tests(contract_class, test_suite) as run_tests:
+        aio_benchmark(run_tests)
 
 
-def test_roll_perf(benchmark, tmp_path):
+async def test_roll_perf(aio_benchmark, tmp_path):
     test_cases, case_names = make_test_file(
         test_body="""
             %{ roll(12) %}
             let (address) = get_block_number()
-            assert address = 12 
+            assert address = 12
         """,
         imports="""from starkware.starknet.common.syscalls import get_block_number""",
     )
@@ -293,15 +363,16 @@ def test_roll_perf(benchmark, tmp_path):
         case_names=case_names,
     )
 
-    benchmark(run_tests, test_suite=test_suite, contract=contract_class)
+    async with prepare_tests(contract_class, test_suite) as run_tests:
+        aio_benchmark(run_tests)
 
 
-def test_warp_perf(benchmark, tmp_path):
+async def test_warp_perf(aio_benchmark, tmp_path):
     test_cases, case_names = make_test_file(
         test_body="""
             %{ warp(12) %}
             let (time) = get_block_timestamp()
-            assert time = 12 
+            assert time = 12
         """,
         imports="""from starkware.starknet.common.syscalls import get_block_timestamp""",
     )
@@ -312,10 +383,11 @@ def test_warp_perf(benchmark, tmp_path):
         case_names=case_names,
     )
 
-    benchmark(run_tests, test_suite=test_suite, contract=contract_class)
+    async with prepare_tests(contract_class, test_suite) as run_tests:
+        aio_benchmark(run_tests)
 
 
-def test_assertions_perf(benchmark, tmp_path, protostar_cairo_path):
+async def test_assertions_perf(aio_benchmark, tmp_path, protostar_cairo_path):
     # TODO: Leverage fuzz testing here, when it's implemented
     # TODO: Add cases for both minus values when asserts are fixed
     test_cases, case_names = make_test_file(
@@ -356,10 +428,11 @@ def test_assertions_perf(benchmark, tmp_path, protostar_cairo_path):
         include_paths=[str(protostar_cairo_path)],
     )
 
-    benchmark(run_tests, test_suite=test_suite, contract=contract_class)
+    async with prepare_tests(contract_class, test_suite) as run_tests:
+        aio_benchmark(run_tests)
 
 
-def test_unit_testing_perf(benchmark, tmp_path):
+async def test_unit_testing_perf(aio_benchmark, tmp_path):
     test_cases, case_names = make_test_file(
         test_body="""
         let var1 = 1
@@ -374,10 +447,11 @@ def test_unit_testing_perf(benchmark, tmp_path):
         source_code=test_cases, file_path=tmp_path, case_names=case_names
     )
 
-    benchmark(run_tests, test_suite=test_suite, contract=contract_class)
+    async with prepare_tests(contract_class, test_suite) as run_tests:
+        aio_benchmark(run_tests)
 
 
-async def test_collecting_tests_perf(benchmark, tmp_path):
+async def test_collecting_tests_perf(aio_benchmark, tmp_path):
     test_cases, case_names = make_test_file(
         test_body="""
         let var1 = 1
@@ -414,5 +488,5 @@ async def test_collecting_tests_perf(benchmark, tmp_path):
     build_subtree(current_directory=tmp_path)
 
     test_collector = TestCollector(starknet_compiler=get_test_starknet_compiler())
-    result = benchmark(test_collector.collect, [str(tmp_path)])
+    result = aio_benchmark(test_collector.collect, [str(tmp_path)])
     assert result.test_cases_count == 195

@@ -80,7 +80,8 @@ class InstallCommand(Command):
         alias: Optional[str] = None,
     ) -> None:
         project_section = self._project_section_loader.load()
-        libs_path = self._project_root_path / project_section.libs_path
+        libs_path = self._project_root_path / project_section.libs_relative_path
+
         if package_name:
             package_info = extract_info_from_repo_id(package_name)
 

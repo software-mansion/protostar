@@ -16,7 +16,7 @@ async def test_deploy_contract(mocker: MockerFixture):
 
     testing_summary = await TestCommand(
         project_root_path=Path(),
-        project_compiler=mocker.MagicMock(),
+        project_cairo_path_builder=mocker.MagicMock(),
         protostar_directory=protostar_directory_mock,
     ).test(targets=[f"{Path(__file__).parent}/deploy_contract_test.cairo"])
 

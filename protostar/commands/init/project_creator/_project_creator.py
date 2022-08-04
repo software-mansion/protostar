@@ -32,7 +32,7 @@ class ProjectCreator(ABC):
         self.protostar_toml_writer.save(
             path=project_root / "protostar.toml",
             protostar_config=ProtostarConfigSection.get_default(self.version_manager),
-            protostar_project=ProtostarProjectSection(libs_path=libs_path),
+            protostar_project=ProtostarProjectSection(libs_relative_path=libs_path),
             protostar_contracts=ProtostarContractsSection.get_default(),
         )
 

@@ -80,7 +80,8 @@ test_cairo = "python ./binary_entrypoint.py test"
 test_html = [
     { shell = "coverage html && open ./htmlcov/index.html" },
 ]
-test_performance = "coverage run -a -m pytest tests/performance --benchmark-compare --benchmark-compare-fail=mean:10%"
+benchmark.shell = "pytest tests/benchmarks --benchmark-save-data --benchmark-autosave"
+statistical_test.shell = "python ./tests/benchmarks/statistical_test.py"
 test_report = [
     { shell = "coverage report" },
 ]

@@ -22,7 +22,7 @@ def test_serialization(
 
     section = ProtostarProjectSection.load(protostar_toml_reader_mock)
 
-    assert section.libs_path == Path("lib")
+    assert section.libs_relative_path == Path("lib")
     assert section.to_dict() == section_dict
 
 

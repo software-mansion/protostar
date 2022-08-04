@@ -32,7 +32,10 @@ def test_saving_and_reading(tmpdir, mocker: MockerFixture):
         ProtostarConfigSection.load(reader).protostar_version
         == config_section.protostar_version
     )
-    assert ProtostarProjectSection.load(reader).libs_path == project_section.libs_path
+    assert (
+        ProtostarProjectSection.load(reader).libs_relative_path
+        == project_section.libs_relative_path
+    )
     assert (
         ProtostarContractsSection.load(reader).contract_name_to_paths
         == contracts_section.contract_name_to_paths

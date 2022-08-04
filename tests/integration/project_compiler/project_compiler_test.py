@@ -5,8 +5,12 @@ from typing import cast
 import pytest
 from pytest_mock import MockerFixture
 
-from protostar.commands.build.build_exceptions import CairoCompilationException
-from protostar.commands.build.project_compiler import ProjectCompiler
+from protostar.compiler import (
+    CompilationException,
+    ProjectCompiler,
+    ProjectCompilerConfig,
+)
+from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.protostar_toml.protostar_contracts_section import (
     ProtostarContractsSection,
 )
@@ -29,22 +33,22 @@ def create_loader_fixture(mocker: MockerFixture):
 
 def test_compiling(tmp_path: Path, datadir: Path, create_loader):
     project_root_path = datadir / "importing"
-
-    ProjectCompiler(
+    project_compiler = ProjectCompiler(
         project_root_path,
-        project_section_loader=create_loader(
-            ProtostarProjectSection(libs_path=Path("./modules"))
+        project_cairo_path_builder=ProjectCairoPathBuilder(
+            project_root_path,
+            project_section_loader=create_loader(
+                ProtostarProjectSection(libs_relative_path=Path("./modules"))
+            ),
         ),
         contracts_section_loader=create_loader(
             ProtostarContractsSection(
                 contract_name_to_paths={"main": [Path("./entry_point.cairo")]}
             )
         ),
-    ).compile(
-        output_dir=tmp_path,
-        relative_cairo_path=[],
-        disable_hint_validation=False,
     )
+
+    project_compiler.compile_project(output_dir=tmp_path)
 
     with open(str(tmp_path / "main.json"), mode="r", encoding="utf-8") as file:
         output = json.load(file)
@@ -68,11 +72,14 @@ def test_compiling(tmp_path: Path, datadir: Path, create_loader):
 def test_handling_cairo_errors(tmp_path: Path, datadir: Path, create_loader):
     project_root_path = datadir / "compilation_error"
 
-    with pytest.raises(CairoCompilationException):
+    with pytest.raises(CompilationException):
         ProjectCompiler(
             project_root_path=project_root_path,
-            project_section_loader=create_loader(
-                ProtostarProjectSection(libs_path=project_root_path / "modules")
+            project_cairo_path_builder=ProjectCairoPathBuilder(
+                project_root_path,
+                project_section_loader=create_loader(
+                    ProtostarProjectSection(libs_relative_path=Path("./modules"))
+                ),
             ),
             contracts_section_loader=create_loader(
                 ProtostarContractsSection(
@@ -81,11 +88,10 @@ def test_handling_cairo_errors(tmp_path: Path, datadir: Path, create_loader):
                     }
                 )
             ),
-        ).compile(
-            output_dir=tmp_path,
-            relative_cairo_path=[project_root_path],
-            disable_hint_validation=False,
-        )
+            default_config=ProjectCompilerConfig(
+                relative_cairo_path=[project_root_path]
+            ),
+        ).compile_project(output_dir=tmp_path)
 
 
 def test_handling_not_existing_main_files(tmp_path: Path, datadir: Path, create_loader):
@@ -94,8 +100,11 @@ def test_handling_not_existing_main_files(tmp_path: Path, datadir: Path, create_
     with pytest.raises(StarknetCompiler.FileNotFoundException):
         ProjectCompiler(
             project_root_path=project_root_path,
-            project_section_loader=create_loader(
-                ProtostarProjectSection(libs_path=project_root_path / "modules")
+            project_cairo_path_builder=ProjectCairoPathBuilder(
+                project_root_path,
+                project_section_loader=create_loader(
+                    ProtostarProjectSection(libs_relative_path=Path("./modules"))
+                ),
             ),
             contracts_section_loader=create_loader(
                 ProtostarContractsSection(
@@ -104,8 +113,7 @@ def test_handling_not_existing_main_files(tmp_path: Path, datadir: Path, create_
                     }
                 )
             ),
-        ).compile(
-            output_dir=tmp_path,
-            relative_cairo_path=[project_root_path],
-            disable_hint_validation=False,
-        )
+            default_config=ProjectCompilerConfig(
+                relative_cairo_path=[project_root_path]
+            ),
+        ).compile_project(output_dir=tmp_path)
