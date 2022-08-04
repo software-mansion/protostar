@@ -19,12 +19,18 @@ def project_root_path_fixture(shared_datadir: Path) -> Path:
 
 
 @pytest.fixture(name="migrator_builder")
-def migrator_builder_fixture(project_root_path: Path):
-    return Migrator.Builder(
+def migrator_builder_fixture(devnet_gateway_url: str, project_root_path: Path):
+    migrator = Migrator.Builder(
         migrator_execution_environment_builder=MigratorExecutionEnvironment.Builder(
-            gateway_facade=GatewayFacade(project_root_path)
+            gateway_facade_builder=GatewayFacade.Builder(project_root_path)
         )
     )
+
+    migrator._migrator_execution_environment_builder._gateway_facade_builder.set_network(
+        devnet_gateway_url
+    )
+
+    return migrator
 
 
 async def assert_transaction_accepted(

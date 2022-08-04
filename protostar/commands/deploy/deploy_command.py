@@ -16,7 +16,6 @@ class DeployCommand(Command):
             "\n".join(
                 [
                     "The name of the StarkNet network.",
-                    "It is required unless `--gateway-url` is provided.",
                     "",
                     "Supported StarkNet networks:",
                 ]
@@ -24,6 +23,7 @@ class DeployCommand(Command):
             )
         ),
         type="str",
+        is_required=True,
     )
 
     def __init__(
@@ -70,7 +70,7 @@ class DeployCommand(Command):
                     # pylint: disable=line-too-long
                     "[Read more about representing Cairo data types in the CLI.](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#array-arguments-in-calldata)"
                 ),
-                type="str",
+                type="int",
                 is_array=True,
             ),
             Command.Argument(
@@ -104,7 +104,7 @@ class DeployCommand(Command):
                 f"Argument `{DeployCommand.network_arg.name}` is required"
             )
 
-        network_config = NetworkConfig.build(network=args.network)
+        network_config = NetworkConfig(args.network)
 
         self._gateway_facade_builder.set_network(args.network)
         self._gateway_facade = self._gateway_facade_builder.build()

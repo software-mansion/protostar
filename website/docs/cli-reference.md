@@ -37,19 +37,18 @@ Sends a declare transaction to StarkNet.
 Required.
 
 Path to compiled contract.
-#### `--gateway-url STRING`
-The URL of a StarkNet gateway. It is required unless `--network` is provided.
 #### `-n` `--network STRING`
+Required.
+
 The name of the StarkNet network.
-It is required unless `--gateway-url` is provided.
 
 Supported StarkNet networks:
 - `alpha-goerli`
 - `alpha-mainnet`
-#### `--signature STRING[]`
-Signature information for the declaration.
 #### `--token STRING`
 Used for declaring contracts in Alpha MainNet.
+#### `--wait-for-acceptance`
+Wait until 'Accepted on L2' status.
 ### `deploy`
 ```shell
 protostar deploy ./build/main.json --network alpha-goerli
@@ -59,14 +58,13 @@ Deploys contracts.
 Required.
 
 The path to the compiled contract.
-#### `--gateway-url STRING`
-The URL of a StarkNet gateway. It is required unless `--network` is provided.
-#### `-i` `--inputs STRING[]`
+#### `-i` `--inputs INT[]`
 The inputs to the constructor. Calldata arguments may be of any type that does not contain pointers.
 [Read more about representing Cairo data types in the CLI.](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#array-arguments-in-calldata)
 #### `-n` `--network STRING`
+Required.
+
 The name of the StarkNet network.
-It is required unless `--gateway-url` is provided.
 
 Supported StarkNet networks:
 - `alpha-goerli`
@@ -75,6 +73,8 @@ Supported StarkNet networks:
 An optional salt controlling where the contract will be deployed. The contract deployment address is determined by the hash of contract, salt and caller. If the salt is not supplied, the contract will be deployed with a random salt.
 #### `--token STRING`
 Used for deploying contracts in Alpha MainNet.
+#### `--wait-for-acceptance`
+Wait until 'Accepted on L2' status.
 ### `init`
 ```shell
 $ protostar init
@@ -103,11 +103,10 @@ Run migration file.
 Required.
 
 Path to the migration file.
-#### `--gateway-url STRING`
-The URL of a StarkNet gateway. It is required unless `--network` is provided.
 #### `-n` `--network STRING`
+Required.
+
 The name of the StarkNet network.
-It is required unless `--gateway-url` is provided.
 
 Supported StarkNet networks:
 - `alpha-goerli`

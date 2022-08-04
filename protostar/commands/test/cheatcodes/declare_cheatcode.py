@@ -1,6 +1,7 @@
 import asyncio
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Optional, Dict, Any
 
 from starkware.python.utils import from_bytes
 from starkware.starknet.business_logic.internal_transaction import InternalDeclare
@@ -11,6 +12,7 @@ from typing_extensions import Protocol
 
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.utils.starknet_compilation import StarknetCompiler
+from protostar.commands.test.test_environment_exceptions import CheatcodeException
 
 
 @dataclass
@@ -39,7 +41,17 @@ class DeclareCheatcode(Cheatcode):
     def build(self) -> DeclareCheatcodeProtocol:
         return self.declare
 
-    def declare(self, contract_path_str: str) -> DeclaredContract:
+    def declare(
+        self,
+        contract_path_str: str,
+        *args,
+        config: Optional[Dict[str, Any]] = None,
+    ) -> DeclaredContract:
+        if len(args) > 0:
+            raise CheatcodeException(
+                "deploy_contract", "`config` is a keyword only argument."
+            )
+
         declared_class = asyncio.run(self._declare_contract(Path(contract_path_str)))
         assert declared_class
         class_hash = declared_class.class_hash

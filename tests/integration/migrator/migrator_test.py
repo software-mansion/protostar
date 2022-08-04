@@ -3,12 +3,10 @@ from pathlib import Path
 from protostar.migrator.migrator import Migrator
 
 
-async def test_migrate_up(
-    migrator_builder: Migrator.Builder, devnet_gateway_url: str, project_root_path: Path
-):
+async def test_migrate_up(migrator_builder: Migrator.Builder, project_root_path: Path):
     migrator = await migrator_builder.build(
         project_root_path / "migrations" / "migration_down.cairo",
-        config=Migrator.Config(gateway_url=devnet_gateway_url),
+        config=Migrator.Config(),
     )
 
     result = await migrator.run()
@@ -16,11 +14,11 @@ async def test_migrate_up(
 
 
 async def test_migrate_down(
-    migrator_builder: Migrator.Builder, devnet_gateway_url: str, project_root_path: Path
+    migrator_builder: Migrator.Builder, project_root_path: Path
 ):
     migrator = await migrator_builder.build(
         project_root_path / "migrations" / "migration_down.cairo",
-        config=Migrator.Config(gateway_url=devnet_gateway_url),
+        config=Migrator.Config(),
     )
 
     result = await migrator.run(rollback=True)

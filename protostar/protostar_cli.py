@@ -171,7 +171,7 @@ class ProtostarCLI(CLIApp):
                 MigrateCommand(
                     migrator_builder=Migrator.Builder(
                         MigratorExecutionEnvironment.Builder(
-                            gateway_facade=GatewayFacade(
+                            gateway_facade_builder=GatewayFacade.Builder(
                                 project_root_path,
                             ),
                         )

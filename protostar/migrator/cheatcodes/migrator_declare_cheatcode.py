@@ -1,7 +1,8 @@
 import asyncio
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
+import collections
 
 from protostar.commands.test.cheatcodes.declare_cheatcode import (
     DeclareCheatcodeProtocol,
@@ -16,7 +17,6 @@ from protostar.starknet_gateway.gateway_facade import CompilationOutputNotFoundE
 class MigratorDeclareCheatcode(Cheatcode):
     @dataclass
     class Config:
-        gateway_url: str
         signature: Optional[List[str]] = None
         token: Optional[str] = None
 
@@ -37,14 +37,25 @@ class MigratorDeclareCheatcode(Cheatcode):
     def build(self) -> DeclareCheatcodeProtocol:
         return self._declare
 
-    def _declare(self, contract_path_str: str) -> DeclaredContract:
+    def _declare(
+        self, contract_path_str: str, *args, config: Optional[Dict[str, Any]] = None
+    ) -> DeclaredContract:
+        if len(args) > 0:
+            raise CheatcodeException(
+                "deploy_contract", "`config` is a keyword only argument."
+            )
+
+        if not config:
+            config = {}
+        config = collections.defaultdict(lambda: None, config)
+
         try:
             response = asyncio.run(
                 self._gateway_facade.declare(
                     compiled_contract_path=Path(contract_path_str),
-                    gateway_url=self._config.gateway_url,
-                    signature=self._config.signature,
+                    # signature=self._config.signature,
                     token=self._config.token,
+                    wait_for_acceptance=config["wait_for_acceptance"] or False,
                 )
             )
 

@@ -24,7 +24,7 @@ def test_migrating_base_case(
             "--no-color",
             "migrate",
             "migrations/migration.cairo",
-            "--gateway-url",
+            "--network",
             devnet_gateway_url,
             "--no-confirm",
             "--output-dir",

@@ -96,7 +96,7 @@ class DeclareCommand(Command):
                 f"Argument `{DeployCommand.network_arg.name}` is required"
             )
 
-        network_config = NetworkConfig.build(network=network)
+        network_config = NetworkConfig(network)
 
         response = await self._gateway_facade.declare(
             compiled_contract_path=compiled_contract_path,

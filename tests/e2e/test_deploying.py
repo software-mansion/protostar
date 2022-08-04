@@ -21,7 +21,7 @@ def test_deploying_contract_with_constructor(
             "./build/main.json",
             "--inputs",
             "42",
-            "--gateway-url",
+            "--network",
             devnet_gateway_url,
         ]
     )
@@ -48,7 +48,7 @@ def test_deploying_contract_with_constructor_and_inputs_defined_in_config_file(
             "--no-color",
             "deploy",
             "./build/main.json",
-            "--gateway-url",
+            "--network",
             devnet_gateway_url,
         ]
     )
@@ -69,7 +69,7 @@ def test_declaring_contract(protostar, devnet_gateway_url, datadir: Path):
             "--no-color",
             "declare",
             "./build/main.json",
-            "--gateway-url",
+            "--network",
             devnet_gateway_url,
         ]
     )

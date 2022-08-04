@@ -16,15 +16,16 @@ async def test_deploying_contract(
     compiled_contract_filepath,
 ):
     declare_command = DeclareCommand(
-        gateway_facade=GatewayFacade(project_root_path),
+        gateway_facade_builder=GatewayFacade.Builder(project_root_path),
         logger=mocker.MagicMock(),
     )
     args = SimpleNamespace()
     args.contract = compiled_contract_filepath
-    args.gateway_url = devnet_gateway_url
-    args.network = None
+    # args.gateway_url = devnet_gateway_url
+    args.network = devnet_gateway_url
     args.token = None
     args.signature = None
+    args.wait_for_acceptance = False
 
     response = await declare_command.run(args)
 
