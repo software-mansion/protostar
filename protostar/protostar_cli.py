@@ -297,8 +297,11 @@ class ProtostarCLI(CLIApp):
         declared_version_str = self.protostar_toml_reader.get_attribute(
             "config", "protostar_version"
         )
+        if not declared_version_str:
+            raise ProtostarException(
+                "Did not find declared version of protostar (protostar_version) in protostar.toml"
+            )
         declared_version = VersionManager.parse(declared_version_str)
-
         if self.version_manager.protostar_version > declared_version:
             raise ProtostarException(
                 "You are running a higher version of protostar than one declared in the protostar.toml."
