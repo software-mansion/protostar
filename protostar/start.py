@@ -1,5 +1,7 @@
 import asyncio
+import sys
 from pathlib import Path
+from typing import Any
 
 from protostar.cli import (
     ArgumentParserFacade,
@@ -9,14 +11,21 @@ from protostar.cli import (
 )
 from protostar.composition_root import build_di_container
 from protostar.configuration_profile_cli import ConfigurationProfileCLI
+from protostar.protostar_cli import ProtostarCLI
 from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
+from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 
 
 def main(script_root: Path):
-    di_container = build_di_container(script_root)
-    protostar_cli = di_container.protostar_cli
-    protostar_toml_reader = di_container.protostar_toml_reader
+    container = build_di_container(script_root)
+    arg_parser = _build_parser(container.protostar_cli, container.protostar_toml_reader)
+    args = _parse_args(arg_parser)
+    _run_protostar(container.protostar_cli, args, arg_parser)
 
+
+def _build_parser(
+    protostar_cli: ProtostarCLI, protostar_toml_reader: ProtostarTOMLReader
+) -> ArgumentParserFacade:
     configuration_profile_name = (
         ArgumentParserFacade(ConfigurationProfileCLI(), disable_help=True)
         .parse(ignore_unrecognized=True)
@@ -26,12 +35,22 @@ def main(script_root: Path):
         protostar_toml_reader,
         configuration_profile_name,
     )
-    parser = ArgumentParserFacade(protostar_cli, argument_value_from_config_provider)
+    return ArgumentParserFacade(protostar_cli, argument_value_from_config_provider)
 
+
+def _parse_args(parser: ArgumentParserFacade) -> Any:
     try:
-        asyncio.run(protostar_cli.run(parser.parse()))
+        return parser.parse()
     except MissingRequiredArgumentException as err:
         print(err.message)
+        sys.exit(1)
+
+
+def _run_protostar(
+    protostar_cli: ProtostarCLI, args: Any, parser: ArgumentParserFacade
+):
+    try:
+        asyncio.run(protostar_cli.run(args))
     except CLIApp.CommandNotFoundError:
         parser.print_help()
     except Exception as err:
