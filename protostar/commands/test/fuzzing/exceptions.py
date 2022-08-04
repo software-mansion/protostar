@@ -1,17 +1,23 @@
 from hypothesis.errors import UnsatisfiedAssumption
 
-from protostar.protostar_exception import ProtostarException
 from protostar.commands.test.test_environment_exceptions import ReportedException
+from protostar.protostar_exception import ProtostarException
 
 
 class FuzzingError(ProtostarException):
     pass
 
 
-class HypothesisRejectException(ReportedException):
-    # pylint: disable=pointless-string-statement
+class SearchStrategyBuildError(FuzzingError):
     """
-    Hypothesis uses exceptions to handle `hypothesis.reject()` and `hypothesis.assume()`.
+    Describes an error happening while building a search strategy. Fuzzer catches it and re-raises
+    as ``FuzzingError`` with extra information about causing fuzz parameter.
+    """
+
+
+class HypothesisRejectException(ReportedException):
+    """
+    Hypothesis uses exceptions to handle ``hypothesis.reject()`` and ``hypothesis.assume()``.
     This class is used to smuggle them through the Cairo VM.
     """
 
