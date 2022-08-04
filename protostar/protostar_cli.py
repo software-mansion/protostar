@@ -52,7 +52,7 @@ class ProtostarCLI(CLIApp):
         try:
             self._setup_logger(args.no_color)
             self._check_git_version()
-            await self._execute_command(args)
+            await self._run_command_from_args(args)
             await self._latest_version_checker.run()
         except (ProtostarExceptionSilent, KeyboardInterrupt):
             has_failed = True
@@ -65,9 +65,10 @@ class ProtostarCLI(CLIApp):
 
     def _setup_logger(self, is_ci_mode: bool) -> None:
         self._log_color_provider.is_ci_mode = is_ci_mode
-        self._logger.setLevel(INFO)
         handler = StreamHandler()
-        handler.setFormatter(StandardLogFormatter(self._log_color_provider))
+        standard_log_formatter = StandardLogFormatter(self._log_color_provider)
+        handler.setFormatter(standard_log_formatter)
+        self._logger.setLevel(INFO)
         self._logger.addHandler(handler)
 
     def _check_git_version(self):
@@ -77,7 +78,7 @@ class ProtostarCLI(CLIApp):
                 f"Protostar requires version 2.28 or greater of Git (current version: {git_version})"
             )
 
-    async def _execute_command(self, args: Any) -> None:
+    async def _run_command_from_args(self, args: Any) -> None:
         if args.version:
             self._version_manager.print_current_version()
             return
