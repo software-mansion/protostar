@@ -8,6 +8,9 @@ from protostar.commands.test.environments.fuzz_test_execution_environment import
     FuzzConfig,
 )
 from protostar.commands.test.test_collector import TestCollector
+from protostar.commands.test.test_result_cli_formatter_visitor import (
+    TestResultCLIFormatterVisitor,
+)
 from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.test_scheduler import TestScheduler
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
@@ -29,11 +32,15 @@ class TestCommand(Command):
         project_root_path: Path,
         protostar_directory: ProtostarDirectory,
         project_cairo_path_builder: ProjectCairoPathBuilder,
+        test_result_cli_formatter_visitor_builder: TestResultCLIFormatterVisitor.Builder,
     ) -> None:
         super().__init__()
         self._project_root_path = project_root_path
         self._protostar_directory = protostar_directory
         self._project_cairo_path_builder = project_cairo_path_builder
+        self._test_result_cli_formatter_visitor_builder = (
+            test_result_cli_formatter_visitor_builder
+        )
 
     @property
     def name(self) -> str:
@@ -203,6 +210,7 @@ class TestCommand(Command):
                     no_progress_bar=no_progress_bar,
                     exit_first=exit_first,
                     slowest_tests_to_report_count=slowest_tests_to_report_count,
+                    test_result_cli_formatter_visitor_builder=self._test_result_cli_formatter_visitor_builder,
                 )
                 TestScheduler(live_logger, worker=TestRunner.worker).run(
                     include_paths=include_paths,

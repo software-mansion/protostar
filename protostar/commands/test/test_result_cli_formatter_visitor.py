@@ -1,20 +1,40 @@
-from logging import Logger
 from pathlib import Path
-from typing import Dict, List
+from typing import Callable, Dict, List, Optional
 
 from protostar.commands.test.test_cases import TestResultVisitor
 from protostar.commands.test.test_environment_exceptions import ExceptionMetadata
 from protostar.commands.test.test_output_recorder import OutputName, format_output_name
+from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
 from protostar.utils.log_color_provider import LogColorProvider
+
+LogCallback = Callable[[str], None]
 
 
 class TestResultCLIFormatterVisitor(TestResultVisitor):
-    def __init__(self, logger: Logger, log_color_provider: LogColorProvider) -> None:
+    class Builder:
+        def __init__(self, log_color_provider: LogColorProvider) -> None:
+            self._log_color_provider = log_color_provider
+            self._log_callback: Optional[LogCallback] = None
+
+        def set_log_callback(self, log_callback: LogCallback) -> None:
+            self._log_callback = log_callback
+
+        def build(self) -> "TestResultCLIFormatterVisitor":
+            assert self._log_callback
+            return TestResultCLIFormatterVisitor(
+                log_color_provider=self._log_color_provider, on_log=self._log_callback
+            )
+
+    def __init__(
+        self,
+        on_log: LogCallback,
+        log_color_provider: LogColorProvider,
+    ) -> None:
         super().__init__()
-        self._logger = logger
+        self._on_log = on_log
         self._log_color_provider = log_color_provider
 
-    def visit_passed_test_case_result(self, passed_test_case_result):
+    def visit_passed_test_case_result(self, passed_test_case_result) -> None:
         first_line_elements: List[str] = []
         first_line_elements.append(
             f"[{self._log_color_provider.colorize('GREEN', 'PASS')}]"
@@ -80,11 +100,12 @@ class TestResultCLIFormatterVisitor(TestResultVisitor):
             to_join: List[str] = [first_line, second_line]
             if stdout_elements:
                 to_join.append("".join(stdout_elements))
-            return "\n".join(to_join)
+                self._on_log("\n".join(to_join))
+            return
 
-        return first_line
+        self._on_log(first_line)
 
-    def visit_failed_test_case_result(self, failed_test_case_result):
+    def visit_failed_test_case_result(self, failed_test_case_result) -> None:
         result: List[str] = []
         first_line_items: List[str] = []
 
@@ -122,19 +143,45 @@ class TestResultCLIFormatterVisitor(TestResultVisitor):
             self._get_formatted_stdout(failed_test_case_result.captured_stdout)
         )
 
-        return "".join(result)
+        self._on_log("".join(result))
 
-    def visit_passed_fuzz_test_case_result(self):
-        pass
+    def visit_passed_fuzz_test_case_result(self, passed_fuzz_test_case_result) -> None:
+        self.visit_passed_test_case_result(passed_fuzz_test_case_result)
 
-    def visit_failed_fuzz_test_case_result(self):
-        pass
+    def visit_failed_fuzz_test_case_result(self, failed_fuzz_test_case_result) -> None:
+        self.visit_failed_test_case_result(failed_fuzz_test_case_result)
 
-    def visit_broken_test_suite_result(self):
-        pass
+    def visit_broken_test_suite_result(self, broken_test_suite_result) -> None:
+        first_line: List[str] = []
+        first_line.append(f"[{self._log_color_provider.colorize('RED', 'BROKEN')}]")
+        first_line.append(
+            f"{self._get_formatted_file_path(broken_test_suite_result.file_path)}"
+        )
+        result = [" ".join(first_line)]
+        result.append(str(broken_test_suite_result.exception))
+        self._on_log("\n".join(result))
 
-    def visit_unexpected_exception_test_suite_result(self):
-        pass
+    def visit_unexpected_exception_test_suite_result(
+        self, unexpected_exception_test_suite_result
+    ) -> None:
+        lines: List[str] = []
+        main_line: List[str] = []
+        main_line.append(
+            f"[{self._log_color_provider.colorize('RED', 'UNEXPECTED_EXCEPTION')}]"
+        )
+        main_line.append(
+            self._get_formatted_file_path(
+                unexpected_exception_test_suite_result.file_path
+            )
+        )
+        lines.append(" ".join(main_line))
+
+        if unexpected_exception_test_suite_result.traceback:
+            lines.append(unexpected_exception_test_suite_result.traceback)
+
+        lines.append(UNEXPECTED_PROTOSTAR_ERROR_MSG)
+        lines.append(str(unexpected_exception_test_suite_result.exception))
+        self._on_log("\n".join(lines))
 
     def _get_formatted_file_path(self, file_path: Path) -> str:
         return self._log_color_provider.colorize("GRAY", str(file_path))
