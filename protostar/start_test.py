@@ -6,42 +6,45 @@ import pytest
 from pytest_mock import MockerFixture
 
 from protostar import main
+from protostar.composition_root import DIContainer
+from protostar.protostar_cli import ProtostarCLI
 
 
-@pytest.fixture(name="protostar_cli_create_mock")
-def protostar_cli_create_mock_fixture(mocker: MockerFixture):
-    return mocker.patch("protostar.protostar_cli.ProtostarCLI.create")
+@pytest.fixture(name="protostar_cli")
+def protostar_cli_fixture(mocker: MockerFixture) -> ProtostarCLI:
+    return mocker.MagicMock()
 
 
-@pytest.fixture(name="run_mock")
-def run_fixture(mocker: MockerFixture):
-    mock = mocker.MagicMock()
-    return mock
-
-
-@pytest.fixture(autouse=True)
-def protostar_cli_fixture(
-    mocker: MockerFixture, protostar_cli_create_mock: MagicMock, run_mock: MagicMock
-):
-    mocker.patch("protostar.start.ArgumentParserFacade")
-    protostar_cli_mock = mocker.MagicMock()
-    protostar_cli_create_mock.return_value = protostar_cli_mock
-    mocker.patch.object(
-        protostar_cli_mock, attribute="run", new=asyncio.coroutine(run_mock)
+@pytest.fixture(name="di_container", autouse=True)
+def di_container_patch(mocker: MockerFixture, protostar_cli: ProtostarCLI):
+    build_di_container = mocker.patch("protostar.start.build_di_container")
+    build_di_container.return_value = DIContainer(
+        protostar_cli=protostar_cli, protostar_toml_reader=mocker.MagicMock()
     )
 
 
-def test_should_run_protostar_cli(run_mock: MagicMock):
+@pytest.fixture(name="argument_parser_facade", autouse=True)
+def argument_parser_facade_patch(mocker: MockerFixture):
+    mocker.patch("protostar.start.ArgumentParserFacade")
 
+
+@pytest.fixture(name="protostar_cli_run")
+def protostar_cli_run_fixture(mocker: MockerFixture, protostar_cli: ProtostarCLI):
+    protostar_cli_run_mock = mocker.MagicMock()
+    protostar_cli.run = asyncio.coroutine(protostar_cli_run_mock)
+    return protostar_cli_run_mock
+
+
+def test_should_run_protostar_cli(protostar_cli_run: MagicMock):
     main(Path())
 
-    run_mock.assert_called_once()
+    protostar_cli_run.assert_called_once()
 
 
 def test_should_tell_user_where_to_report_unexpected_errors(
-    capsys, run_mock: MagicMock
+    capsys, protostar_cli_run: MagicMock
 ):
-    run_mock.side_effect = Exception()
+    protostar_cli_run.side_effect = Exception()
 
     with pytest.raises(Exception):
         main(Path())
