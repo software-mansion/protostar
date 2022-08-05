@@ -19,7 +19,6 @@ class DeclareCommand(Command):
         logger: Logger,
     ):
         self._gateway_facade_builder = gateway_facade_builder
-        self._gateway_facade: Optional[GatewayFacade] = None
         self._logger = logger
 
     @property
@@ -55,12 +54,7 @@ class DeclareCommand(Command):
                 description="Used for declaring contracts in Alpha MainNet.",
                 type="str",
             ),
-            Command.Argument(
-                name="wait-for-acceptance",
-                description="Wait until 'Accepted on L2' status.",
-                type="bool",
-                default=False,
-            ),
+            DeployCommand.wait_for_acceptance_arg,
             DeployCommand.gateway_url_arg,
             DeployCommand.network_arg,
         ]
@@ -92,15 +86,15 @@ class DeclareCommand(Command):
     ) -> SuccessfulDeclareResponse:
         if network is None:
             raise ProtostarException(
-                f"Argument `{DeployCommand.network_arg.name}` is required"
+                f"Argument `{DeployCommand.gateway_url_arg.name}` or `{DeployCommand.network_arg.name}` is required"
             )
 
         self._gateway_facade_builder.set_network(network)
-        self._gateway_facade = self._gateway_facade_builder.build()
+        gateway_facade = self._gateway_facade_builder.build()
 
         network_config = NetworkConfig(network)
 
-        response = await self._gateway_facade.declare(
+        response = await gateway_facade.declare(
             compiled_contract_path=compiled_contract_path,
             token=token,
             wait_for_acceptance=wait_for_acceptance,

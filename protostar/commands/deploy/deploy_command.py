@@ -32,13 +32,19 @@ class DeployCommand(Command):
         type="str",
     )
 
+    wait_for_acceptance_arg = Command.Argument(
+        name="wait-for-acceptance",
+        description="Waits for transaction to be accepted on chain.",
+        type="bool",
+        default=False,
+    )
+
     def __init__(
         self,
         gateway_facade_builder: GatewayFacade.Builder,
         logger: Logger,
     ) -> None:
         self._gateway_facade_builder = gateway_facade_builder
-        self._gateway_facade: Optional[GatewayFacade] = None
         self._logger = logger
 
     @property
@@ -95,29 +101,24 @@ class DeployCommand(Command):
                 ),
                 type="int",
             ),
-            Command.Argument(
-                name="wait-for-acceptance",
-                description="Wait until 'Accepted on L2' status.",
-                type="bool",
-                default=False,
-            ),
+            DeployCommand.wait_for_acceptance_arg,
             DeployCommand.gateway_url_arg,
             DeployCommand.network_arg,
         ]
 
     async def run(self, args):
-        args.network = args.network or args.gateway_url
-        if args.network is None:
+        network = args.network or args.gateway_url
+        if network is None:
             raise ProtostarException(
-                f"Argument `{DeployCommand.network_arg.name}` is required"
+                f"Argument `{DeployCommand.gateway_url_arg.name}` or `{DeployCommand.network_arg.name}` is required"
             )
 
-        network_config = NetworkConfig(args.network)
+        network_config = NetworkConfig(network)
 
-        self._gateway_facade_builder.set_network(args.network)
-        self._gateway_facade = self._gateway_facade_builder.build()
+        self._gateway_facade_builder.set_network(network)
+        gateway_facade = self._gateway_facade_builder.build()
 
-        response = await self._gateway_facade.deploy(
+        response = await gateway_facade.deploy(
             compiled_contract_path=args.contract,
             inputs=args.inputs,
             token=args.token,
