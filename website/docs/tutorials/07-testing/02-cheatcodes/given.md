@@ -28,17 +28,12 @@ end
 
 ## Performance caveats
 
-While it is possible to call `given()` multiple times in a test case,
-it is recommended to always do it once in a test case,
-and configure multiple input parameters by passing many arguments to the cheatcode.
-
+While it is possible to call `given` multiple times in a test case, try to always do it once.
+Multiple input parameters should be configured by passing many arguments to the cheatcode.
 Due to Cairo language limitations and resulting therefrom implementation details,
-each call to the `given` cheatcode causes the fuzzer to restart immediately with fresh state
-and newly set strategies,
-with the maximum number of tested examples reduced by the amount used in previous runs.
-Think of this as Protostar _learning a new strategy_ (this terminology is used internally).
-The consequence of this process is that each next _learning step_ effectively reduces a space
-of explored input parameters values, thus making the test less effective.
+each call to the `given` cheatcode causes the fuzzer to restart immediately with a fresh state.
+In consequence, each call effectively reduces a space of explored input parameters values,
+thus making the test less effective.
 
 Avoid binding fuzzing strategies to input parameters values or any other external state,
 such as random data of system time.

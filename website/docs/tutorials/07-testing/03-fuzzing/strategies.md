@@ -1,10 +1,13 @@
 # Strategies
 
-While a felt is a _lingua franca_ of Cairo runtime, its whole value space is rarely covered by
-domain space in tested code.
+While a felt is a basis of all types in Cairo, its whole value space rarely matches what values are
+acceptable in tested code (for example, when using range checks builtin).
 
 Using the [`given`](../02-cheatcodes/given.md) cheatcode,
 one can instruct Protostar how constrained or adjusted the value space of fuzzed inputs should be.
+Such constraints are provided declaratively, by assigning _strategies_ to the input parameters.
+A strategy is an object that is capable of generating next input examples in specific way,
+and also is capable of other internal features, such as simplifying failing examples.
 
 By default, Protostar applies the [`strategy.unsigned()`](#strategyunsigned) strategy to all felt
 parameters.
@@ -23,8 +26,9 @@ func test_integers{syscall_ptr : felt*, range_check_ptr}(a : felt, b : felt):
 end
 ```
 
-This document is a guide to what strategies are available for generating data and how to build them.
-All core strategies are contained in a [`strategy`](../02-cheatcodes/strategy.md)
+This document is a guide to what strategies are available for generating examples and how to build
+them.
+All core strategies are contained in the [`strategy`](../02-cheatcodes/strategy.md)
 cheatcode-namespace.
 
 ## `strategy.integers`
