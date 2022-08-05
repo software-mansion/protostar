@@ -7,7 +7,10 @@ from typing import Any, List
 from protostar.cli import CLIApp, Command
 from protostar.configuration_profile_cli import ConfigurationProfileCLI
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
-from protostar.protostar_toml.protostar_toml_version_validation import check_protostar_toml_compatibility
+
+from protostar.protostar_toml.protostar_toml_version_checker import (
+    ProtostarTOMLVersionChecker,
+)
 from protostar.upgrader import LatestVersionChecker
 from protostar.utils import StandardLogFormatter, VersionManager
 from protostar.utils.log_color_provider import LogColorProvider
@@ -20,6 +23,7 @@ class ProtostarCLI(CLIApp):
         logger: Logger,
         log_color_provider: LogColorProvider,
         latest_version_checker: LatestVersionChecker,
+        toml_version_checker: ProtostarTOMLVersionChecker,
         version_manager: VersionManager,
         commands: List[Command],
         start_time=0.0,
@@ -29,6 +33,7 @@ class ProtostarCLI(CLIApp):
         self._start_time = start_time
         self._log_color_provider = log_color_provider
         self._version_manager = version_manager
+        self._toml_version_checker = toml_version_checker
 
         super().__init__(
             commands=commands,
@@ -53,11 +58,7 @@ class ProtostarCLI(CLIApp):
         try:
             self._setup_logger(args.no_color)
             self._check_git_version()
-            check_protostar_toml_compatibility(
-                command=args.command,
-                version_manager=self._version_manager,
-                protostar_toml_reader=self._protostar_toml_reader, # FIXME
-            )
+            self._toml_version_checker.run(args.command)
             await self._run_command_from_args(args)
             await self._latest_version_checker.run()
         except (ProtostarExceptionSilent, KeyboardInterrupt):
@@ -89,7 +90,6 @@ class ProtostarCLI(CLIApp):
             self._version_manager.print_current_version()
             return
         await super().run(args)
-
 
     def _print_protostar_exception(self, err: ProtostarException):
         if err.details:

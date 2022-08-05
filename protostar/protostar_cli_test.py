@@ -14,6 +14,7 @@ from protostar.utils.log_color_provider import LogColorProvider
 from protostar.utils.protostar_directory import VersionManager
 
 from .protostar_cli import ProtostarCLI
+from .protostar_toml.protostar_toml_version_checker import ProtostarTOMLVersionChecker
 
 
 @pytest.fixture(name="git_version")
@@ -51,12 +52,22 @@ def latest_version_checker_fixture(mocker: MockerFixture) -> LatestVersionChecke
     return latest_version_checker
 
 
+@pytest.fixture(name="toml_version_checker")
+def toml_version_checker_fixture(mocker: MockerFixture) -> ProtostarTOMLVersionChecker:
+    toml_version_checker = cast(ProtostarTOMLVersionChecker, mocker.MagicMock())
+    toml_version_checker.run = mocker.MagicMock()
+    toml_version_checker.run.return_value = Future()
+    toml_version_checker.run.return_value.set_result(None)
+    return toml_version_checker
+
+
 @pytest.fixture(name="protostar_cli")
 def protostar_cli_fixture(
     version_manager: VersionManager,
     logger: Logger,
     commands: List[Command],
     latest_version_checker: LatestVersionChecker,
+    toml_version_checker: ProtostarTOMLVersionChecker,
 ) -> ProtostarCLI:
 
     log_color_provider = LogColorProvider()
@@ -67,6 +78,7 @@ def protostar_cli_fixture(
         logger=logger,
         version_manager=version_manager,
         latest_version_checker=latest_version_checker,
+        toml_version_checker=toml_version_checker,
     )
 
 

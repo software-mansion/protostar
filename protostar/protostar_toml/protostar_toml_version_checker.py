@@ -37,7 +37,8 @@ class ProtostarTOMLVersionChecker:
 
         if last_supported_protostar_toml_version > declared_version:
             raise ProtostarException(
-                f"Protostar v{self._version_manager.protostar_version} is not compatible with provided protostar.toml.\n"
+                f"Protostar v{self._version_manager.protostar_version} "
+                "is not compatible with provided protostar.toml.\n"
                 "Please refer to https://github.com/software-mansion/protostar/releases, "
                 "in order to convert protostar.toml to a newer version."
             )
