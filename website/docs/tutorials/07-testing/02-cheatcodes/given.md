@@ -33,7 +33,7 @@ Multiple input parameters should be configured by passing many arguments to the 
 Due to Cairo language limitations and resulting therefrom implementation details,
 each call to the `given` cheatcode causes the fuzzer to restart immediately with a fresh state.
 In consequence, each call effectively reduces a space of explored input parameters values,
-thus making the test less effective.
+because fuzzer will test previously tested values, thus making the test less effective.
 
 Avoid binding fuzzing strategies to input parameters values or any other external state,
 such as random data of system time.
