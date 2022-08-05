@@ -2,7 +2,7 @@ import ctypes
 from multiprocessing.managers import SyncManager
 from typing import TYPE_CHECKING
 
-from protostar.commands.test.test_cases import TestResult, PassedTestCase
+from protostar.commands.test.test_cases import TestResult, PassedTestCaseResult
 
 if TYPE_CHECKING:
     from protostar.commands.test.test_collector import TestCollector
@@ -24,7 +24,7 @@ class SharedTestsState:
         return self._shared_queue.get(block=True, timeout=1000)
 
     def put_result(self, item: TestResult) -> None:
-        if not isinstance(item, PassedTestCase):
+        if not isinstance(item, PassedTestCaseResult):
             self._any_failed_or_broken_shared_value.value = True
         self._shared_queue.put(item)
 

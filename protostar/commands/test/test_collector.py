@@ -18,7 +18,7 @@ from starkware.starknet.compiler.starknet_preprocessor import (
     StarknetPreprocessedProgram,
 )
 
-from protostar.commands.test.test_cases import BrokenTestSuite
+from protostar.commands.test.test_cases import BrokenTestSuiteResult
 from protostar.commands.test.test_suite import TestSuite
 from protostar.utils.compiler.pass_managers import TestCollectorPreprocessedProgram
 from protostar.utils.starknet_compilation import StarknetCompiler
@@ -97,11 +97,11 @@ class TestCollector:
         def __init__(
             self,
             test_suites: List[TestSuite],
-            broken_test_suites: Optional[List[BrokenTestSuite]] = None,
+            broken_test_suites: Optional[List[BrokenTestSuiteResult]] = None,
             duration: float = 0.0,
         ) -> None:
             self.test_suites = test_suites
-            self.broken_test_suites: List[BrokenTestSuite] = broken_test_suites or []
+            self.broken_test_suites: List[BrokenTestSuiteResult] = broken_test_suites or []
             self.test_cases_count = sum(
                 [len(test_suite.test_case_names) for test_suite in test_suites]
             )
@@ -277,9 +277,9 @@ class TestCollector:
     def _build_test_suites_from_test_suite_info_dict(
         self,
         test_suite_info_dict: TestSuiteInfoDict,
-    ) -> Tuple[List[TestSuite], List[BrokenTestSuite]]:
+    ) -> Tuple[List[TestSuite], List[BrokenTestSuiteResult]]:
         test_suites: List[TestSuite] = []
-        broken_test_suites: List[BrokenTestSuite] = []
+        broken_test_suites: List[BrokenTestSuiteResult] = []
 
         for test_suite_info in test_suite_info_dict.values():
             try:
@@ -290,7 +290,7 @@ class TestCollector:
                 )
             except (PreprocessorError, LocationError) as err:
                 broken_test_suites.append(
-                    BrokenTestSuite(
+                    BrokenTestSuiteResult(
                         file_path=test_suite_info.path,
                         test_case_names=[],
                         exception=err,

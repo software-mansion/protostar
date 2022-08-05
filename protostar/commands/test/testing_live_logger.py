@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 from tqdm import tqdm as bar
 
-from protostar.commands.test.test_cases import BrokenTestSuite, TestResult
+from protostar.commands.test.test_cases import BrokenTestSuiteResult, TestResult
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.testing_summary import TestingSummary
 
@@ -75,7 +75,7 @@ class TestingLiveLogger:
                             tests_left_n = 0
                             return
 
-                        if isinstance(test_result, BrokenTestSuite):
+                        if isinstance(test_result, BrokenTestSuiteResult):
                             tests_in_case_count = len(test_result.test_case_names)
                             progress_bar.update(tests_in_case_count)
                             tests_left_n -= tests_in_case_count

@@ -18,9 +18,9 @@ from protostar.commands.test.environments.factory import (
 )
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_cases import (
-    BrokenTestSuite,
-    FailedTestCase,
-    PassedTestCase,
+    BrokenTestSuiteResult,
+    FailedTestCaseResult,
+    PassedTestCaseResult,
     UnexpectedExceptionTestSuiteResult,
 )
 from protostar.commands.test.test_environment_exceptions import ReportedException
@@ -106,7 +106,7 @@ class TestRunner:
             )
         except ProtostarException as ex:
             self.shared_tests_state.put_result(
-                BrokenTestSuite(
+                BrokenTestSuiteResult(
                     file_path=test_suite.test_path,
                     test_case_names=test_suite.test_case_names,
                     exception=ex,
@@ -115,7 +115,7 @@ class TestRunner:
 
         except ReportedException as ex:
             self.shared_tests_state.put_result(
-                BrokenTestSuite(
+                BrokenTestSuiteResult(
                     file_path=test_suite.test_path,
                     test_case_names=test_suite.test_case_names,
                     exception=ex,
@@ -151,7 +151,7 @@ class TestRunner:
             return execution_state
         except StarkException as ex:
             self.shared_tests_state.put_result(
-                BrokenTestSuite(
+                BrokenTestSuiteResult(
                     file_path=test_suite.test_path,
                     exception=ex,
                     test_case_names=test_suite.test_case_names,
@@ -177,7 +177,7 @@ class TestRunner:
                 )
 
                 self.shared_tests_state.put_result(
-                    PassedTestCase(
+                    PassedTestCaseResult(
                         file_path=test_suite.test_path,
                         test_case_name=test_case_name,
                         execution_resources=execution_result.execution_resources,
@@ -190,7 +190,7 @@ class TestRunner:
                 )
             except ReportedException as ex:
                 self.shared_tests_state.put_result(
-                    FailedTestCase(
+                    FailedTestCaseResult(
                         file_path=test_suite.test_path,
                         test_case_name=test_case_name,
                         exception=ex,

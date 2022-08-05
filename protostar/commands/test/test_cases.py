@@ -32,7 +32,7 @@ class TestCaseResult(TestResult):
 
 
 @dataclass(frozen=True)
-class PassedTestCase(TestCaseResult):
+class PassedTestCaseResult(TestCaseResult):
     execution_resources: Optional[ExecutionResourcesSummary]
     execution_time: float
     fuzz_runs_count: Optional[int] = None
@@ -99,7 +99,7 @@ class PassedTestCase(TestCaseResult):
 
 
 @dataclass(frozen=True)
-class FailedTestCase(TestCaseResult):
+class FailedTestCaseResult(TestCaseResult):
     exception: ReportedException
     execution_time: float
 
@@ -144,17 +144,17 @@ class FuzzResult:
 
 
 @dataclass(frozen=True)
-class PassedFuzzTestCase(PassedTestCase, FuzzResult):
+class PassedFuzzTestCase(PassedTestCaseResult, FuzzResult):
     pass
 
 
 @dataclass(frozen=True)
-class FailedFuzzTestCase(FailedTestCase, FuzzResult):
+class FailedFuzzTestCase(FailedTestCaseResult, FuzzResult):
     pass
 
 
 @dataclass(frozen=True)
-class BrokenTestSuite(TestResult):
+class BrokenTestSuiteResult(TestResult):
     test_case_names: List[str]
     exception: BaseException
 
@@ -168,7 +168,7 @@ class BrokenTestSuite(TestResult):
 
 
 @dataclass(frozen=True)
-class UnexpectedExceptionTestSuiteResult(BrokenTestSuite):
+class UnexpectedExceptionTestSuiteResult(BrokenTestSuiteResult):
     traceback: Optional[str] = None
 
     def format(self) -> str:
