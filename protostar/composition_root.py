@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from logging import getLogger
 from pathlib import Path
 from typing import List
+import time
 
 from protostar.cli import Command
 from protostar.commands import (
@@ -79,7 +80,7 @@ def build_di_container(script_root: Path):
         ),
         latest_version_remote_checker=LatestVersionRemoteChecker(),
     )
-    gateway_facade = GatewayFacade(project_root_path=project_root_path)
+    gateway_facade_builder = GatewayFacade.Builder(project_root_path=project_root_path)
 
     project_cairo_path_builder = ProjectCairoPathBuilder(
         project_root_path=project_root_path,
@@ -143,12 +144,12 @@ def build_di_container(script_root: Path):
             logger=logger,
         ),
         TestCommand(project_root_path, protostar_directory, project_cairo_path_builder),
-        DeployCommand(gateway_facade, logger),
-        DeclareCommand(gateway_facade, logger),
+        DeployCommand(gateway_facade_builder, logger),
+        DeclareCommand(gateway_facade_builder, logger),
         MigrateCommand(
             migrator_builder=Migrator.Builder(
                 MigratorExecutionEnvironment.Builder(
-                    gateway_facade=GatewayFacade(
+                    gateway_facade_builder=GatewayFacade.Builder(
                         project_root_path,
                     ),
                 )
@@ -164,7 +165,7 @@ def build_di_container(script_root: Path):
         latest_version_checker=latest_version_checker,
         log_color_provider=log_color_provider,
         logger=logger,
-        start_time=0.0,
+        start_time=time.perf_counter(),
         version_manager=version_manager,
     )
 
