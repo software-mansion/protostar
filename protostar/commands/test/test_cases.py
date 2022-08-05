@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional
 
+from typing_extensions import Protocol
+
 from protostar.commands.test.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
 )
@@ -20,7 +22,7 @@ class TestResult:
     file_path: Path
 
     @abstractmethod
-    def format(self) -> str:
+    def accept(self, visitor: "TestResultVisitor") -> None:
         ...
 
 
@@ -37,65 +39,8 @@ class PassedTestCaseResult(TestCaseResult):
     execution_time: float
     fuzz_runs_count: Optional[int] = None
 
-    def format(self) -> str:
-        first_line_elements: List[str] = []
-        first_line_elements.append(f"[{log_color_provider.colorize('GREEN', 'PASS')}]")
-        first_line_elements.append(
-            f"{_get_formatted_file_path(self.file_path)} {self.test_case_name}"
-        )
-
-        info_items: List[str] = []
-
-        info_items.append(_get_formatted_execution_time(self.execution_time))
-
-        if self.fuzz_runs_count is not None:
-            info_items.append(
-                f"fuzz_runs={log_color_provider.bold(self.fuzz_runs_count)}"
-            )
-
-        if self.execution_resources:
-            if self.execution_resources.n_steps:
-                info_items.append(
-                    f"steps={log_color_provider.bold(self.execution_resources.n_steps)}"
-                )
-            if self.execution_resources.n_memory_holes:
-                info_items.append(
-                    f"memory_holes={log_color_provider.bold(self.execution_resources.n_memory_holes)}"
-                )
-
-        if len(info_items) > 0:
-            info = ", ".join(info_items)
-            first_line_elements.append(log_color_provider.colorize("GRAY", f"({info})"))
-
-        first_line = " ".join(first_line_elements)
-
-        second_line_elements: List[str] = []
-        if self.execution_resources:
-            for (
-                builtin_name,
-                builtin_count,
-            ) in self.execution_resources.builtin_name_to_count_map.items():
-                if builtin_count:
-                    second_line_elements.append(
-                        log_color_provider.colorize(
-                            "GRAY",
-                            f"{builtin_name}={log_color_provider.bold(builtin_count)}",
-                        )
-                    )
-
-        stdout_elements = _get_formatted_stdout(self.captured_stdout)
-
-        if len(second_line_elements) > 0 or len(stdout_elements) > 0:
-            second_line_elements.insert(0, "      ")
-            second_line = " ".join(second_line_elements)
-
-            # To maintain consistent spacing
-            to_join: List[str] = [first_line, second_line]
-            if stdout_elements:
-                to_join.append("".join(stdout_elements))
-            return "\n".join(to_join)
-
-        return first_line
+    def accept(self, visitor: "TestResultVisitor") -> None:
+        return visitor.visit_passed_test_case_result(self)
 
 
 @dataclass(frozen=True)
@@ -103,39 +48,8 @@ class FailedTestCaseResult(TestCaseResult):
     exception: ReportedException
     execution_time: float
 
-    def format(self) -> str:
-        result: List[str] = []
-        first_line_items: List[str] = []
-
-        first_line_items.append(f"[{log_color_provider.colorize('RED', 'FAIL')}]")
-        first_line_items.append(
-            f"{_get_formatted_file_path(self.file_path)} {self.test_case_name}"
-        )
-
-        info_items = []
-
-        info_items.append(_get_formatted_execution_time(self.execution_time))
-
-        for key, value in self.exception.execution_info.items():
-            info_items.append(f"{key}={log_color_provider.bold(value)}")
-
-        if len(info_items) > 0:
-            info = ", ".join(info_items)
-            first_line_items.append(log_color_provider.colorize("GRAY", f"({info})"))
-
-        result.append(" ".join(first_line_items))
-
-        result.append("\n")
-        result.append(str(self.exception))
-        result.append("\n")
-
-        for metadata in self.exception.metadata:
-            result.append(_get_formatted_metadata(metadata))
-            result.append("\n")
-
-        result.extend(_get_formatted_stdout(self.captured_stdout))
-
-        return "".join(result)
+    def accept(self, visitor: "TestResultVisitor") -> None:
+        return visitor.visit_failed_test_case_result(self)
 
 
 @dataclass(frozen=True)
@@ -144,19 +58,24 @@ class FuzzResult:
 
 
 @dataclass(frozen=True)
-class PassedFuzzTestCase(PassedTestCaseResult, FuzzResult):
-    pass
+class PassedFuzzTestCaseResult(PassedTestCaseResult, FuzzResult):
+    def accept(self, visitor: "TestResultVisitor") -> None:
+        return visitor.visit_passed_fuzz_test_case_result(self)
 
 
 @dataclass(frozen=True)
-class FailedFuzzTestCase(FailedTestCaseResult, FuzzResult):
-    pass
+class FailedFuzzTestCaseResult(FailedTestCaseResult, FuzzResult):
+    def accept(self, visitor: "TestResultVisitor") -> None:
+        return visitor.visit_failed_fuzz_test_case_result(self)
 
 
 @dataclass(frozen=True)
 class BrokenTestSuiteResult(TestResult):
     test_case_names: List[str]
     exception: BaseException
+
+    def accept(self, visitor: "TestResultVisitor") -> None:
+        return visitor.visit_broken_test_suite_result(self)
 
     def format(self) -> str:
         first_line: List[str] = []
@@ -170,6 +89,9 @@ class BrokenTestSuiteResult(TestResult):
 @dataclass(frozen=True)
 class UnexpectedExceptionTestSuiteResult(BrokenTestSuiteResult):
     traceback: Optional[str] = None
+
+    def accept(self, visitor: "TestResultVisitor") -> None:
+        return visitor.visit_unexpected_exception_test_suite_result(self)
 
     def format(self) -> str:
         lines: List[str] = []
@@ -211,9 +133,34 @@ def _get_formatted_stdout(captured_stdout: Dict[OutputName, str]) -> List[str]:
     return result
 
 
-def _get_formatted_file_path(file_path: Path) -> str:
-    return log_color_provider.colorize("GRAY", str(file_path))
+class TestResultVisitor(Protocol):
+    def visit_passed_test_case_result(
+        self, passed_test_case_result: PassedTestCaseResult
+    ):
+        ...
 
+    def visit_failed_test_case_result(
+        self, failed_test_case_result: FailedTestCaseResult
+    ):
+        ...
 
-def _get_formatted_execution_time(execution_time: float) -> str:
-    return f"time={log_color_provider.bold(f'{execution_time:.2f}')}s"
+    def visit_passed_fuzz_test_case_result(
+        self, passed_fuzz_test_case_result: PassedFuzzTestCaseResult
+    ):
+        ...
+
+    def visit_failed_fuzz_test_case_result(
+        self, failed_fuzz_test_case_result: FailedFuzzTestCaseResult
+    ):
+        ...
+
+    def visit_broken_test_suite_result(
+        self, broken_test_suite_result: BrokenTestSuiteResult
+    ):
+        ...
+
+    def visit_unexpected_exception_test_suite_result(
+        self,
+        unexpected_exception_test_suite_result: UnexpectedExceptionTestSuiteResult,
+    ):
+        ...
