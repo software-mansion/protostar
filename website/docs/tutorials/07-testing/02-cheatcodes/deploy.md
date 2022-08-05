@@ -1,18 +1,11 @@
 # `deploy`
-
-```python
-def deploy(
-    prepared: PreparedContract,
-    *args,
-    config: Optional[Dict[str, Any]] = None
-) -> DeployedContract:
+```
+def deploy(prepared: PreparedContract) -> DeployedContract:
 
 class DeployedContract:
     contract_address: int
 ```
 Deploys contract for deployment given `PreparedContract`.
-
-[More information about `config`](../../deploying/network_config).
 
 :::warning
 You can't deploy the same `PreparedContract` twice.
