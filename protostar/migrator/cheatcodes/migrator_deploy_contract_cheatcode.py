@@ -45,7 +45,7 @@ class MigratorDeployContractCheatcode(Cheatcode):
     ) -> DeployedContract:
         if len(args) > 0:
             raise CheatcodeException(
-                "deploy_contract", "`config` is a keyword only argument."
+                "deploy_contract", "`config` is a keyword-only argument."
             )
 
         if isinstance(constructor_args, collections.Mapping):

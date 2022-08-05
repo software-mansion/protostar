@@ -9,6 +9,12 @@ from protostar.starknet_gateway.network_config import NetworkConfig
 
 class DeployCommand(Command):
 
+    gateway_url_arg = Command.Argument(
+        name="gateway-url",
+        description="The URL of a StarkNet gateway. It is required unless `--network` is provided.",
+        type="str",
+    )
+
     network_arg = Command.Argument(
         name="network",
         short_name="n",
@@ -16,6 +22,7 @@ class DeployCommand(Command):
             "\n".join(
                 [
                     "The name of the StarkNet network.",
+                    "It is required unless `--gateway-url` is provided.",
                     "",
                     "Supported StarkNet networks:",
                 ]
@@ -23,7 +30,6 @@ class DeployCommand(Command):
             )
         ),
         type="str",
-        is_required=True,
     )
 
     def __init__(
@@ -87,7 +93,7 @@ class DeployCommand(Command):
                     "of contract, salt and caller. "
                     "If the salt is not supplied, the contract will be deployed with a random salt."
                 ),
-                type="str",
+                type="int",
             ),
             Command.Argument(
                 name="wait-for-acceptance",
@@ -95,10 +101,12 @@ class DeployCommand(Command):
                 type="bool",
                 default=False,
             ),
+            DeployCommand.gateway_url_arg,
             DeployCommand.network_arg,
         ]
 
     async def run(self, args):
+        args.network = args.network or args.gateway_url
         if args.network is None:
             raise ProtostarException(
                 f"Argument `{DeployCommand.network_arg.name}` is required"

@@ -42,7 +42,7 @@ class MigratorDeclareCheatcode(Cheatcode):
     ) -> DeclaredContract:
         if len(args) > 0:
             raise CheatcodeException(
-                "deploy_contract", "`config` is a keyword only argument."
+                "deploy_contract", "`config` is a keyword-only argument."
             )
 
         if not config:

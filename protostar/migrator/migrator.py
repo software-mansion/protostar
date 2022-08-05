@@ -40,6 +40,9 @@ class Migrator:
                 logger, log_color_provider
             )
 
+        def set_network(self, network: str):
+            self._migrator_execution_environment_builder.set_network(network)
+
         async def build(self, migration_file_path: Path, config: "Migrator.Config"):
             migrator_execution_env = (
                 await self._migrator_execution_environment_builder.build(

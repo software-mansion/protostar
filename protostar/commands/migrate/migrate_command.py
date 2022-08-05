@@ -65,6 +65,7 @@ class MigrateCommand(Command):
                 description="Skip confirming building the project.",
                 type="bool",
             ),
+            DeployCommand.gateway_url_arg,
             DeployCommand.network_arg,
         ]
 
@@ -72,7 +73,7 @@ class MigrateCommand(Command):
         await self.migrate(
             migration_file_path=args.path,
             rollback=args.rollback,
-            network=args.network,
+            network=args.network or args.gateway_url,
             output_dir_path=args.output_dir,
             no_confirm=args.no_confirm,
         )
@@ -102,9 +103,7 @@ class MigrateCommand(Command):
 
         self._migrator_builder.set_logger(self._logger, self._log_color_provider)
 
-        self._migrator_builder._migrator_execution_environment_builder.set_network(
-            network
-        )
+        self._migrator_builder.set_network(network)
 
         migrator = await self._migrator_builder.build(
             migration_file_path,

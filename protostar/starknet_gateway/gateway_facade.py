@@ -1,6 +1,6 @@
 from logging import Logger
 from pathlib import Path
-from typing import Callable, List, Optional, cast
+from typing import Callable, List, Optional
 import dataclasses
 
 from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
@@ -34,13 +34,20 @@ class CompilationOutputNotFoundException(ProtostarException):
 
 
 class GatewayFacade:
+    # pylint: disable=protected-access
     class Builder:
         def __init__(self, project_root_path: Path):
             self._gateway_facade = GatewayFacade(project_root_path)
 
         def set_network(self, network: str) -> None:
             self._gateway_facade._gateway_client = GatewayClient(
-                map_to_starknet_py_naming(network), StarknetChainId.TESTNET
+                # Starknet.py ignores chain parameter when
+                # `mainnet` or `testnet` is passed into the client
+                # `StarknetChainId.TESTNET` also works for devnet
+                # chain parameter is going to be removed soon
+                # so we won't have to rely on this behaviour
+                map_to_starknet_py_naming(network),
+                chain=StarknetChainId.TESTNET,
             )
 
         def set_logger(
@@ -73,12 +80,14 @@ class GatewayFacade:
         compiled_contract_path: Path,
         inputs: Optional[List[int]] = None,
         token: Optional[str] = None,
-        salt: Optional[str] = None,
+        salt: Optional[int] = None,
         wait_for_acceptance: bool = False,
     ) -> SuccessfulDeployResponse:
         try:
-            with open(self._project_root_path / compiled_contract_path, "r") as f:
-                compiled_contract = f.read()
+            with open(
+                self._project_root_path / compiled_contract_path, "r", encoding="utf-8"
+            ) as file:
+                compiled_contract = file.read()
         except FileNotFoundError as err:
             raise CompilationOutputNotFoundException(
                 self._project_root_path / compiled_contract_path
@@ -95,7 +104,7 @@ class GatewayFacade:
             action="DEPLOY",
             payload={
                 "contract": str(self._project_root_path / compiled_contract_path),
-                "network": map_from_starknet_py_naming(self._gateway_client.net),
+                "network": map_from_starknet_py_naming(str(self._gateway_client.net)),
                 "constructor_args": inputs,
                 "salt": salt,
                 "token": token,
@@ -112,7 +121,7 @@ class GatewayFacade:
             )
 
         return SuccessfulDeployResponse(
-            code=result.code,
+            code=result.code or "",
             address=result.contract_address,
             transaction_hash=result.transaction_hash,
         )
@@ -121,13 +130,15 @@ class GatewayFacade:
     async def declare(
         self,
         compiled_contract_path: Path,
-        # signature: Optional[List[int]] = None,
         token: Optional[str] = None,
         wait_for_acceptance: bool = False,
+        signature: Optional[List[int]] = None,
     ) -> SuccessfulDeclareResponse:
         try:
-            with open(self._project_root_path / compiled_contract_path, "r") as f:
-                compiled_contract = f.read()
+            with open(
+                self._project_root_path / compiled_contract_path, "r", encoding="utf-8"
+            ) as file:
+                compiled_contract = file.read()
         except FileNotFoundError as err:
             raise CompilationOutputNotFoundException(
                 self._project_root_path / compiled_contract_path
@@ -138,9 +149,6 @@ class GatewayFacade:
         sender = DECLARE_SENDER_ADDRESS
         max_fee = 0
         nonce = 0
-
-        # Simillar but simply unused yet
-        signature = []
 
         tx = make_declare_tx(
             compiled_contract=compiled_contract,
@@ -153,11 +161,12 @@ class GatewayFacade:
                 "sender_address": sender,
                 "max_fee": max_fee,
                 "version": constants.TRANSACTION_VERSION,
-                "signature": signature,
+                "signature": signature or [],
                 "nonce": nonce,
             },
         )
 
+        assert self._gateway_client
         result = await self._gateway_client.declare(tx, token)
         register_response(dataclasses.asdict(result))
         if wait_for_acceptance:
@@ -168,7 +177,7 @@ class GatewayFacade:
             )
 
         return SuccessfulDeclareResponse(
-            code=result.code,
+            code=result.code or "",
             class_hash=result.class_hash,
             transaction_hash=result.transaction_hash,
         )

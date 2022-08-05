@@ -21,8 +21,8 @@ async def test_deploying_contract(
     )
     args = SimpleNamespace()
     args.contract = compiled_contract_filepath
-    # args.gateway_url = devnet_gateway_url
-    args.network = devnet_gateway_url
+    args.gateway_url = devnet_gateway_url
+    args.network = None
     args.token = None
     args.signature = None
     args.wait_for_acceptance = False

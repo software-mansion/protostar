@@ -7,7 +7,7 @@ from typing import List, Optional
 class SuccessfulDeployResponse:
     code: str
     address: int
-    transaction_hash: str
+    transaction_hash: int
 
     def log(self, logger: Logger, extra_msg: Optional[List[str]] = None):
         logger.info(
@@ -26,7 +26,7 @@ class SuccessfulDeployResponse:
 class SuccessfulDeclareResponse:
     code: str
     class_hash: int
-    transaction_hash: str
+    transaction_hash: int
 
     def log(self, logger: Logger, extra_msg: Optional[List[str]] = None):
         logger.info(

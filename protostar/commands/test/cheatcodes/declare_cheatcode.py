@@ -45,11 +45,13 @@ class DeclareCheatcode(Cheatcode):
         self,
         contract_path_str: str,
         *args,
+        # We have to keep it consistent with the migration version
+        # pylint: disable=unused-argument
         config: Optional[Dict[str, Any]] = None,
     ) -> DeclaredContract:
         if len(args) > 0:
             raise CheatcodeException(
-                "deploy_contract", "`config` is a keyword only argument."
+                "deploy_contract", "`config` is a keyword-only argument."
             )
 
         declared_class = asyncio.run(self._declare_contract(Path(contract_path_str)))

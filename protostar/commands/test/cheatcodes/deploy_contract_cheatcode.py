@@ -42,16 +42,20 @@ class DeployContractCheatcode(Cheatcode):
     def build(self) -> DeployContractCheatcodeProtocol:
         return self.deploy_contract
 
+    # pylint bug ?
+    # pylint: disable=keyword-arg-before-vararg
     def deploy_contract(
         self,
         contract_path: str,
         constructor_args: Optional[CairoOrPythonData] = None,
         *args,
+        # We have to keep it consistent with the migration version
+        # pylint: disable=unused-argument
         config: Optional[Dict[str, Any]] = None,
     ) -> DeployedContract:
         if len(args) > 0:
             raise CheatcodeException(
-                "deploy_contract", "`config` is a keyword only argument."
+                "deploy_contract", "`config` is a keyword-only argument."
             )
         declared_contract = self._declare_cheatcode.declare(contract_path)
         prepared_contract = self._prepare_cheatcode.prepare(

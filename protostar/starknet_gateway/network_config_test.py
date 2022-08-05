@@ -1,9 +1,4 @@
-import pytest
-
-from protostar.starknet_gateway.network_config import (
-    NetworkConfig,
-    UnknownStarkwareNetworkException,
-)
+from protostar.starknet_gateway.network_config import NetworkConfig
 
 
 def test_loading_starkware_networks():
