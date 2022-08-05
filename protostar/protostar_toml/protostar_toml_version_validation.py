@@ -15,6 +15,10 @@ def check_protostar_toml_compatibility(
         "config", "protostar_version"
     )
 
+    assert (
+        declared_version_str
+    ), "No protostar_version attribute available in protostar.toml"
+
     # Version from protostar.toml
     declared_version = VersionManager.parse(declared_version_str)
 
