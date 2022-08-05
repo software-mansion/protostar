@@ -139,6 +139,21 @@ class FailedTestCase(TestCaseResult):
 
 
 @dataclass(frozen=True)
+class FuzzResult:
+    fuzz_runs_count: Optional[int]
+
+
+@dataclass(frozen=True)
+class PassedFuzzTestCase(PassedTestCase, FuzzResult):
+    pass
+
+
+@dataclass(frozen=True)
+class FailedFuzzTestCase(FailedTestCase, FuzzResult):
+    pass
+
+
+@dataclass(frozen=True)
 class BrokenTestSuite(TestResult):
     test_case_names: List[str]
     exception: BaseException
