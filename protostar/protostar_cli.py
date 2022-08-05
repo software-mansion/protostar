@@ -88,8 +88,8 @@ class ProtostarCLI(CLIApp):
         if args.version:
             self._version_manager.print_current_version()
             return
-        if args.command in ["init", "upgrade"]:
-            self._toml_version_checker.run(args)
+
+        self._toml_version_checker.run(args)
 
         await super().run(args)
 
