@@ -1,4 +1,5 @@
 from protostar.commands.build import BuildCommand
+from protostar.commands.declare import DeclareCommand
 from protostar.commands.deploy import DeployCommand
 from protostar.commands.init import InitCommand
 from protostar.commands.install import InstallCommand

@@ -92,7 +92,7 @@ update_cli_docs = "python ./scripts/generate_reference_docs.py"
 shell = "pytest tests/e2e"
 
 [tool.poe.tasks.test_integration]
-shell = "coverage run -a -m pytest tests/integration"
+shell = "coverage run -a -m pytest scripts tests/integration"
 
 [tool.poe.tasks.test_unit]
 shell = "coverage run -m pytest protostar/*"
