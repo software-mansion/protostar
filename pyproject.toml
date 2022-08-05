@@ -146,7 +146,7 @@ strictSetInference = true
 useLibraryCodeForTypes = true
 
 [tool.protostar]
-toml_breaking_versions = []
+last_supported_protostar_toml_version = "0.3.0"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"

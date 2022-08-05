@@ -30,7 +30,7 @@ def test_deploying_contract_with_constructor(
 
 
 @pytest.mark.usefixtures("init")
-@pytest.mark.parametrize("declared_protostar_version", ["0.0.0"])
+@pytest.mark.parametrize("protostar_version", ["0.0.0"])
 def test_deploying_contract_with_constructor_and_inputs_defined_in_config_file(
     protostar, devnet_gateway_url, datadir: Path
 ):

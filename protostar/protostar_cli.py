@@ -38,6 +38,9 @@ from protostar.protostar_toml.protostar_contracts_section import (
     ProtostarContractsSection,
 )
 from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
+from protostar.protostar_toml.protostar_toml_version_validation import (
+    check_protostar_toml_compatibility,
+)
 from protostar.starknet_gateway import GatewayFacade
 from protostar.upgrader import (
     LatestVersionChecker,
@@ -277,7 +280,11 @@ class ProtostarCLI(CLIApp):
             if args.version:
                 self.version_manager.print_current_version()
                 return
-            self._check_protostar_toml_compatibility(args)
+            check_protostar_toml_compatibility(
+                command=args.command,
+                version_manager=self.version_manager,
+                protostar_toml_reader=self.protostar_toml_reader,
+            )
             await super().run(args)
             await self.latest_version_checker.run()
 
@@ -297,40 +304,3 @@ class ProtostarCLI(CLIApp):
 
         if has_failed:
             sys.exit(1)
-
-    def _check_protostar_toml_compatibility(self, args: Any):
-        if args.command in ["init", "upgrade"]:
-            return
-
-        declared_version_str = self.protostar_toml_reader.get_attribute(
-            "config", "protostar_version"
-        )
-        if not declared_version_str:
-            raise ProtostarException(
-                "Did not find declared version of protostar (protostar_version) in protostar.toml"
-            )
-
-        declared_version = VersionManager.parse(declared_version_str)
-        protostar_version = self.version_manager.protostar_version
-
-        if (
-            protostar_version > declared_version
-            and self.version_manager.version_range_has_breaking_changes(
-                declared_version, protostar_version
-            )
-        ):
-            raise ProtostarException(
-                "You are running a higher version of protostar than one declared in the protostar.toml."
-                "Please consider converting your protostar.toml to the newer version."
-            )
-
-        if (
-            protostar_version < declared_version
-            and self.version_manager.version_range_has_breaking_changes(
-                protostar_version, declared_version
-            )
-        ):
-            raise ProtostarException(
-                "You are running a lower version of protostar than one declared in the protostar.toml."
-                "Please consider upgrading your local version to the one declared in the file."
-            )

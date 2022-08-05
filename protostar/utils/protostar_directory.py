@@ -1,6 +1,6 @@
 import re
 from pathlib import Path
-from typing import Optional, Union, List
+from typing import Optional, Union
 
 import tomli
 from git.cmd import Git
@@ -79,17 +79,11 @@ class VersionManager:
         return VersionManager.parse(version_s)
 
     @property
-    def toml_breaking_versions(self) -> List[VersionType]:
-        return [
-            VersionManager.parse(v)
-            for v in self.pyproject_toml["tool"]["protostar"]["toml_breaking_versions"]
+    def last_supported_protostar_toml_version(self) -> VersionType:
+        last_supported_v_str = self.pyproject_toml["tool"]["protostar"][
+            "last_supported_protostar_toml_version"
         ]
-
-    def version_range_has_breaking_changes(self, low: VersionType, high: VersionType):
-        for breaking_v in self.toml_breaking_versions:
-            if low <= breaking_v <= high:
-                return True
-        return False
+        return VersionManager.parse(last_supported_v_str)
 
     @property
     def git_version(self) -> Optional[VersionType]:

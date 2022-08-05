@@ -6,15 +6,6 @@ from pathlib import Path
 import pexpect
 import pytest
 import tomli
-from packaging.version import Version
-
-from protostar.protostar_toml import (
-    ProtostarContractsSection,
-    ProtostarConfigSection,
-    ProtostarProjectSection,
-)
-from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
-from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
 from protostar.utils.protostar_directory import ProtostarDirectory, VersionManager
 from tests.e2e.conftest import ACTUAL_CWD, init_project
 
@@ -89,37 +80,22 @@ def test_protostar_version_in_config_file():
 
 
 @pytest.mark.usefixtures("init")
-@pytest.mark.parametrize("declared_protostar_version", ["0.3.0"])
-@pytest.mark.parametrize("breaking_protostar_versions", [["0.1.0", "1000.0.0"]])
-def test_protostar_asserts_version_compatibility(protostar):
-    toml_file_path = Path() / "protostar.toml"
-    reader = ProtostarTOMLReader(toml_file_path)
-
-    config_section = ProtostarConfigSection.load(reader)
-    project_section = ProtostarProjectSection.load(reader)
-    contracts_section = ProtostarContractsSection.load(reader)
-
-    config_section.protostar_version = Version("0.1.0")
-    ProtostarTOMLWriter().save(
-        toml_file_path,
-        config_section,
-        project_section,
-        contracts_section,
-    )
+@pytest.mark.parametrize("protostar_version", ["0.3.0"])
+@pytest.mark.parametrize("protostar_toml_protostar_version", ["0.2.8"])
+@pytest.mark.parametrize("last_supported_protostar_toml_version", ["0.2.9"])
+@pytest.mark.parametrize("command", ["build", "install", "test"])
+def test_protostar_asserts_version_compatibility(protostar, command):
     with pytest.raises(subprocess.CalledProcessError) as error:
-        protostar(["build"])
+        protostar([command])
 
-    assert "You are running a higher version of protostar" in str(error.value.stdout)
+    assert "is not compatible with provided protostar.toml" in str(error.value.output)
 
-    config_section.protostar_version = Version("1000.0.0")
-    ProtostarTOMLWriter().save(
-        toml_file_path,
-        config_section,
-        project_section,
-        contracts_section,
-    )
 
-    with pytest.raises(subprocess.CalledProcessError) as error:
-        protostar(["build"])
-
-    assert "You are running a lower version of protostar" in str(error.value.stdout)
+@pytest.mark.usefixtures("init")
+@pytest.mark.parametrize("protostar_version", ["0.4.0"])
+@pytest.mark.parametrize("protostar_toml_protostar_version", ["0.2.8"])
+@pytest.mark.parametrize("last_supported_protostar_toml_version", ["0.3.0"])
+@pytest.mark.parametrize("command", ["build", "install", "test"])
+def test_protostar_passes_version_check_on_compatible_v(protostar, command):
+    result = protostar([command])
+    print(result)
