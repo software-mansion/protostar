@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -16,7 +16,7 @@ from protostar.utils.log_color_provider import log_color_provider
 
 
 @dataclass(frozen=True)
-class TestCaseResult:
+class TestResult:
     file_path: Path
 
     @abstractmethod
@@ -24,12 +24,17 @@ class TestCaseResult:
         ...
 
 
+# pylint: disable=abstract-method
+@dataclass(frozen=True)
+class TestCaseResult(TestResult):
+    test_case_name: str
+    captured_stdout: Dict[OutputName, str]
+
+
 @dataclass(frozen=True)
 class PassedTestCase(TestCaseResult):
-    test_case_name: str
     execution_resources: Optional[ExecutionResourcesSummary]
     execution_time: float
-    captured_stdout: Dict[OutputName, str] = field(default_factory=dict)
     fuzz_runs_count: Optional[int] = None
 
     def format(self) -> str:
@@ -95,10 +100,8 @@ class PassedTestCase(TestCaseResult):
 
 @dataclass(frozen=True)
 class FailedTestCase(TestCaseResult):
-    test_case_name: str
     exception: ReportedException
     execution_time: float
-    captured_stdout: Dict[OutputName, str] = field(default_factory=dict)
 
     def format(self) -> str:
         result: List[str] = []
@@ -136,7 +139,7 @@ class FailedTestCase(TestCaseResult):
 
 
 @dataclass(frozen=True)
-class BrokenTestSuite(TestCaseResult):
+class BrokenTestSuite(TestResult):
     test_case_names: List[str]
     exception: BaseException
 
