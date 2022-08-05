@@ -36,6 +36,9 @@ class ProtostarTOMLVersionChecker:
             self._version_manager.last_supported_protostar_toml_version
         )
 
+        if not last_supported_protostar_toml_version:
+            return
+
         if last_supported_protostar_toml_version > declared_version:
             raise ProtostarException(
                 f"Protostar v{self._version_manager.protostar_version} "

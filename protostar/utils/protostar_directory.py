@@ -72,17 +72,23 @@ class VersionManager:
         return None
 
     @property
-    def protostar_version(self) -> VersionType:
+    def protostar_version(self) -> Optional[VersionType]:
+        if not self.pyproject_toml:
+            return None
         version_s = self.pyproject_toml["tool"]["poetry"]["version"]
         return VersionManager.parse(version_s)
 
     @property
-    def cairo_version(self) -> VersionType:
+    def cairo_version(self) -> Optional[VersionType]:
+        if not self.pyproject_toml:
+            return None
         version_s = self.pyproject_toml["tool"]["poetry"]["dependencies"]["cairo-lang"]
         return VersionManager.parse(version_s)
 
     @property
-    def last_supported_protostar_toml_version(self) -> VersionType:
+    def last_supported_protostar_toml_version(self) -> Optional[VersionType]:
+        if not self.pyproject_toml:
+            return None
         last_supported_v_str = self.pyproject_toml["tool"]["protostar"][
             "last_supported_protostar_toml_version"
         ]
