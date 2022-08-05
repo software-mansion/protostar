@@ -1,7 +1,7 @@
 # pylint: disable=protected-access
 
 from asyncio import Future
-from logging import Logger
+from logging import Logger, getLogger
 from typing import Any, List, cast
 
 import pytest
@@ -31,8 +31,8 @@ def version_manager_fixture(mocker: MockerFixture, git_version: str):
 
 
 @pytest.fixture(name="logger")
-def logger_fixture(mocker: MockerFixture):
-    return mocker.MagicMock()
+def logger_fixture():
+    return getLogger()
 
 
 @pytest.fixture(name="commands")
