@@ -23,8 +23,8 @@ def git_version_fixture() -> str:
 
 
 @pytest.fixture(name="version_manager")
-def version_manager_fixture(mocker: MockerFixture, git_version: str):
-    version_manager: Any = VersionManager(mocker.MagicMock())
+def version_manager_fixture(mocker: MockerFixture, git_version: str, logger):
+    version_manager: Any = VersionManager(mocker.MagicMock(), logger)
     type(version_manager).git_version = mocker.PropertyMock(
         return_value=VersionManager.parse(git_version)
     )

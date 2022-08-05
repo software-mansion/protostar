@@ -64,9 +64,9 @@ def test_init_ask_existing():
 
 
 @pytest.mark.usefixtures("init")
-def test_protostar_version_in_config_file():
+def test_protostar_version_in_config_file(logger):
     version_manager = VersionManager(
-        ProtostarDirectory(ACTUAL_CWD / "dist" / "protostar")
+        ProtostarDirectory(ACTUAL_CWD / "dist" / "protostar"), logger
     )
     assert version_manager.protostar_version is not None
 
@@ -93,9 +93,8 @@ def test_protostar_asserts_version_compatibility(protostar, command):
 
 @pytest.mark.usefixtures("init")
 @pytest.mark.parametrize("protostar_version", ["0.4.0"])
-@pytest.mark.parametrize("protostar_toml_protostar_version", ["0.2.8"])
+@pytest.mark.parametrize("protostar_toml_protostar_version", ["0.3.0"])
 @pytest.mark.parametrize("last_supported_protostar_toml_version", ["0.3.0"])
 @pytest.mark.parametrize("command", ["build", "install", "test"])
 def test_protostar_passes_version_check_on_compatible_v(protostar, command):
-    result = protostar([command])
-    print(result)
+    protostar([command])

@@ -1,3 +1,4 @@
+import logging
 import re
 from pathlib import Path
 from typing import Optional, Union
@@ -7,8 +8,6 @@ from git.cmd import Git
 from packaging import version
 from packaging.version import LegacyVersion
 from packaging.version import Version as PackagingVersion
-
-from protostar.protostar_exception import ProtostarException
 
 
 class ProtostarDirectory:
@@ -45,12 +44,15 @@ class VersionManager:
     def parse(version_str: str) -> VersionType:
         return version.parse(version_str)
 
-    def __init__(self, protostar_directory: ProtostarDirectory) -> None:
+    def __init__(
+        self, protostar_directory: ProtostarDirectory, logger: logging.Logger
+    ) -> None:
         self._protostar_directory = protostar_directory
         self._pyproject_toml_dict = None
+        self._logger = logger
 
     @property
-    def pyproject_toml(self) -> dict:
+    def pyproject_toml(self) -> Optional[dict]:
         if self._pyproject_toml_dict:
             return self._pyproject_toml_dict
 
@@ -65,8 +67,9 @@ class VersionManager:
             with open(path, "r", encoding="UTF-8") as file:
                 self._pyproject_toml_dict = tomli.loads(file.read())
                 return self._pyproject_toml_dict
-        except FileNotFoundError as err:
-            raise ProtostarException("Couldn't read Protostar version") from err
+        except FileNotFoundError:
+            self._logger.warning("Couldn't read protostar package info")
+        return None
 
     @property
     def protostar_version(self) -> VersionType:

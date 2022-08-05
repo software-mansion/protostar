@@ -65,7 +65,7 @@ def build_di_container(script_root: Path):
     )
     protostar_toml_path = protostar_toml_path or project_root_path / "protostar.toml"
     protostar_directory = ProtostarDirectory(script_root)
-    version_manager = VersionManager(protostar_directory)
+    version_manager = VersionManager(protostar_directory, logger)
     protostar_toml_writer = ProtostarTOMLWriter()
     protostar_toml_reader = ProtostarTOMLReader(protostar_toml_path=protostar_toml_path)
     requester = InputRequester(log_color_provider)

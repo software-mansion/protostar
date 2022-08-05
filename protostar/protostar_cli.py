@@ -58,7 +58,6 @@ class ProtostarCLI(CLIApp):
         try:
             self._setup_logger(args.no_color)
             self._check_git_version()
-            self._toml_version_checker.run(args.command)
             await self._run_command_from_args(args)
             await self._latest_version_checker.run()
         except (ProtostarExceptionSilent, KeyboardInterrupt):
@@ -89,6 +88,9 @@ class ProtostarCLI(CLIApp):
         if args.version:
             self._version_manager.print_current_version()
             return
+        if args.command in ["init", "upgrade"]:
+            self._toml_version_checker.run(args)
+
         await super().run(args)
 
     def _print_protostar_exception(self, err: ProtostarException):

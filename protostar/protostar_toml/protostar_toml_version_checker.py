@@ -12,13 +12,7 @@ class ProtostarTOMLVersionChecker:
         self._protostar_toml_reader = protostar_toml_reader
         self._version_manager = version_manager
 
-    def run(
-        self,
-        command: str,
-    ):
-        if command in ["init", "upgrade"]:
-            return
-
+    def run(self):
         declared_version_str = self._protostar_toml_reader.get_attribute(
             "config", "protostar_version"
         )
