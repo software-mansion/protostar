@@ -1,4 +1,5 @@
 # pylint: disable=redefined-outer-name
+import logging
 import subprocess
 from os import listdir
 from pathlib import Path
@@ -64,9 +65,9 @@ def test_init_ask_existing():
 
 
 @pytest.mark.usefixtures("init")
-def test_protostar_version_in_config_file(logger):
+def test_protostar_version_in_config_file(mocker):
     version_manager = VersionManager(
-        ProtostarDirectory(ACTUAL_CWD / "dist" / "protostar"), logger
+        ProtostarDirectory(ACTUAL_CWD / "dist" / "protostar"), mocker.MagicMock()
     )
     assert version_manager.protostar_version is not None
 
