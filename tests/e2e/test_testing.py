@@ -248,3 +248,9 @@ def test_seed_and_max_fuzz_examples_impact_testing_results(
 
     assert seed in result
     assert f"fuzz_runs={fuzz_max_examples}" in result
+
+
+@pytest.mark.usefixtures("init")
+def test_does_collect_in_cwd_by_default(protostar):
+    result = protostar(["test"])
+    assert "Collected 1 suite, and 2 test cases" in result
