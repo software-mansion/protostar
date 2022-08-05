@@ -1,8 +1,6 @@
-import os
 from collections import deque
 from dataclasses import dataclass
 from enum import Enum
-from pathlib import Path
 from typing import List, Optional, Tuple, Union
 
 from starkware.starknet.business_logic.execution.objects import Event
@@ -10,12 +8,6 @@ from starkware.starknet.public.abi import get_selector_from_name
 from typing_extensions import Literal
 
 from protostar.commands.test.test_suite import TestSuite
-
-
-def collect_immediate_subdirectories(root_dir: Path) -> List[str]:
-    assert root_dir.is_dir(), f"{root_dir} is supposed to be a directory!"
-    (root, dirs, _) = next(os.walk(str(root_dir.resolve())))
-    return [str(Path(root, directory).resolve()) for directory in dirs]
 
 
 @dataclass

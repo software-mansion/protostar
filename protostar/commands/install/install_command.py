@@ -63,10 +63,16 @@ class InstallCommand(Command):
         ]
 
     async def run(self, args):
-        self.install(
-            package_name=args.package,
-            alias=args.name,
-        )
+        self._logger.info("Executing install")
+        try:
+            self.install(
+                package_name=args.package,
+                alias=args.name,
+            )
+        except BaseException as exc:
+            self._logger.error("Installation failed")
+            raise exc
+        self._logger.info("Installed successfully")
 
     def install(
         self,
@@ -74,7 +80,7 @@ class InstallCommand(Command):
         alias: Optional[str] = None,
     ) -> None:
         project_section = self._project_section_loader.load()
-        libs_path = self._project_root_path / project_section.libs_path
+        libs_path = self._project_root_path / project_section.libs_relative_path
 
         if package_name:
             package_info = extract_info_from_repo_id(package_name)

@@ -17,7 +17,7 @@ from tests.integration.conftest import (
 async def test_expect_events(mocker):
     testing_summary = await TestCommand(
         project_root_path=Path(),
-        project_compiler=mocker.MagicMock(),
+        project_cairo_path_builder=mocker.MagicMock(),
         protostar_directory=mocker.MagicMock(),
     ).test(
         targets=[f"{Path(__file__).parent}/expect_events_test.cairo"],

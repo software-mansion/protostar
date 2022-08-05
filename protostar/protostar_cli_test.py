@@ -1,14 +1,16 @@
+# pylint: disable=protected-access
+
 from asyncio import Future
-from logging import Logger
-from pathlib import Path
-from typing import Any, cast
+from logging import Logger, getLogger
+from typing import Any, List, cast
 
 import pytest
 from pytest_mock import MockerFixture
 
-from docs_generator import ReferenceDocsGenerator
-from protostar.cli import ArgumentParserFacade
+from protostar.cli import ArgumentParserFacade, Command
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
+from protostar.upgrader.latest_version_checker import LatestVersionChecker
+from protostar.utils.log_color_provider import LogColorProvider
 from protostar.utils.protostar_directory import VersionManager
 
 from .protostar_cli import ProtostarCLI
@@ -28,94 +30,92 @@ def version_manager_fixture(mocker: MockerFixture, git_version: str):
     return version_manager
 
 
+@pytest.fixture(name="logger")
+def logger_fixture():
+    return getLogger()
+
+
+@pytest.fixture(name="commands")
+def commands_fixture(mocker: MockerFixture) -> List[Command]:
+    command = mocker.MagicMock()
+    command.name = "command-name"
+    return [command]
+
+
+@pytest.fixture(name="latest_version_checker")
+def latest_version_checker_fixture(mocker: MockerFixture) -> LatestVersionChecker:
+    latest_version_checker = cast(LatestVersionChecker, mocker.MagicMock())
+    latest_version_checker.run = mocker.MagicMock()
+    latest_version_checker.run.return_value = Future()
+    latest_version_checker.run.return_value.set_result(None)
+    return latest_version_checker
+
+
 @pytest.fixture(name="protostar_cli")
 def protostar_cli_fixture(
-    mocker: MockerFixture, version_manager: VersionManager
+    version_manager: VersionManager,
+    logger: Logger,
+    commands: List[Command],
+    latest_version_checker: LatestVersionChecker,
 ) -> ProtostarCLI:
-    latest_version_checker_mock = mocker.MagicMock()
-    latest_version_checker_mock.run = mocker.MagicMock()
-    latest_version_checker_mock.run.return_value = Future()
-    latest_version_checker_mock.run.return_value.set_result(None)
 
+    log_color_provider = LogColorProvider()
+    log_color_provider.is_ci_mode = True
     return ProtostarCLI(
-        script_root=Path(),
-        project_root_path=Path(),
-        protostar_directory=mocker.MagicMock(),
+        commands=commands,
+        log_color_provider=log_color_provider,
+        logger=logger,
         version_manager=version_manager,
-        protostar_toml_writer=mocker.MagicMock(),
-        protostar_toml_reader=mocker.MagicMock(),
-        requester=mocker.MagicMock(),
-        logger=mocker.MagicMock(),
-        latest_version_checker=latest_version_checker_mock,
-        gateway_facade_builder=mocker.MagicMock(),
+        latest_version_checker=latest_version_checker,
     )
 
 
 @pytest.mark.parametrize("git_version", ["2.27"])
-@pytest.mark.asyncio
 async def test_should_fail_due_to_old_git(
-    protostar_cli: ProtostarCLI, mocker: MockerFixture
+    protostar_cli: ProtostarCLI, mocker: MockerFixture, logger: Logger
 ):
-    logger_mock = mocker.MagicMock(Logger)
-    protostar_cli.logger = logger_mock
-    logger_mock.error = mocker.MagicMock()
-    # pylint: disable=protected-access
-
+    logger.error = mocker.MagicMock()
     parser = ArgumentParserFacade(protostar_cli)
 
     with pytest.raises(SystemExit) as ex:
         await protostar_cli.run(parser.parse(["--version"]))
         assert cast(SystemExit, ex).code == 1
-    logger_mock.error.assert_called_once()
-    assert "2.28" in logger_mock.error.call_args_list[0][0][0]
+
+    assert "2.28" in logger.error.call_args_list[0][0][0]
+    logger.error.assert_called_once()
 
 
-def test_instance_matches_cli_reference_docs(protostar_cli: ProtostarCLI):
-    new_snapshot = ReferenceDocsGenerator(
-        protostar_cli
-    ).generate_cli_reference_markdown()
-
-    with open(
-        Path(__file__).parent.parent / "website" / "docs" / "cli-reference.md",
-        "r",
-        encoding="utf-8",
-    ) as doc_file:
-        snapshot = doc_file.read()
-        assert snapshot == new_snapshot, "Snapshot mismatch. Run `poe update_cli_docs`."
-
-
-@pytest.mark.asyncio
 async def test_should_print_protostar_version(
-    protostar_cli: ProtostarCLI, mocker: MockerFixture
+    protostar_cli: ProtostarCLI, mocker: MockerFixture, version_manager: VersionManager
 ):
-    protostar_cli.version_manager.print_current_version = mocker.MagicMock()
+    version_manager.print_current_version = mocker.MagicMock()
     parser = ArgumentParserFacade(protostar_cli)
 
     await protostar_cli.run(parser.parse(["--version"]))
 
-    protostar_cli.version_manager.print_current_version.assert_called_once()
+    version_manager.print_current_version.assert_called_once()
 
 
-@pytest.mark.asyncio
 async def test_should_run_expected_command(
-    protostar_cli: ProtostarCLI, mocker: MockerFixture
+    protostar_cli: ProtostarCLI, mocker: MockerFixture, commands: List[Command]
 ):
-    command = protostar_cli.commands[0]
+    command = commands[0]
     command.run = mocker.MagicMock()
     command.run.return_value = Future()
     command.run.return_value.set_result(True)
     parser = ArgumentParserFacade(protostar_cli)
+
+    command.run.assert_not_called()
 
     await protostar_cli.run(parser.parse([command.name]))
 
     command.run.assert_called_once()
 
 
-@pytest.mark.asyncio
 async def test_should_sys_exit_on_keyboard_interrupt(
-    protostar_cli: ProtostarCLI, mocker: MockerFixture
+    protostar_cli: ProtostarCLI, mocker: MockerFixture, commands: List[Command]
 ):
-    command = protostar_cli.commands[0]
+    command = commands[0]
     command.run = mocker.MagicMock()
     command.run.side_effect = KeyboardInterrupt()
     parser = ArgumentParserFacade(protostar_cli)
@@ -125,11 +125,10 @@ async def test_should_sys_exit_on_keyboard_interrupt(
         assert cast(SystemExit, ex).code == 1
 
 
-@pytest.mark.asyncio
 async def test_should_sys_exit_on_protostar_exception(
-    protostar_cli: ProtostarCLI, mocker: MockerFixture
+    protostar_cli: ProtostarCLI, mocker: MockerFixture, commands: List[Command]
 ):
-    command = protostar_cli.commands[0]
+    command = commands[0]
     command.run = mocker.MagicMock()
     command.run.side_effect = ProtostarException("Something")
     parser = ArgumentParserFacade(protostar_cli)
@@ -139,11 +138,10 @@ async def test_should_sys_exit_on_protostar_exception(
         assert cast(SystemExit, ex).code == 1
 
 
-@pytest.mark.asyncio
 async def test_should_sys_exit_on_protostar_silent_exception(
-    protostar_cli: ProtostarCLI, mocker: MockerFixture
+    protostar_cli: ProtostarCLI, mocker: MockerFixture, commands: List[Command]
 ):
-    command = protostar_cli.commands[0]
+    command = commands[0]
     command.run = mocker.MagicMock()
     command.run.side_effect = ProtostarExceptionSilent("Something")
     parser = ArgumentParserFacade(protostar_cli)
@@ -151,13 +149,3 @@ async def test_should_sys_exit_on_protostar_silent_exception(
     with pytest.raises(SystemExit) as ex:
         await protostar_cli.run(parser.parse([command.name]))
         assert cast(SystemExit, ex).code == 1
-
-
-def test_should_create_instance_of_protostar_cli(tmpdir):
-    script_root = Path(tmpdir)
-    protostar_cli = ProtostarCLI.create(script_root)
-    # pylint: disable=protected-access
-    assert (
-        protostar_cli.version_manager._protostar_directory.protostar_binary_dir_path
-        == script_root
-    )

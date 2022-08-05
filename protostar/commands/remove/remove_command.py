@@ -54,7 +54,13 @@ class RemoveCommand(Command):
         ]
 
     async def run(self, args):
-        self.remove(args.package)
+        self._logger.info("Retrieving package for removal")
+        try:
+            self.remove(args.package)
+        except BaseException as exc:
+            self._logger.error("Package removal failed")
+            raise exc
+        self._logger.info("Removed the package successfully")
 
     def remove(self, internal_dependency_reference: str):
         project_section = self._project_section_loader.load()
@@ -62,7 +68,7 @@ class RemoveCommand(Command):
         package_name = retrieve_real_package_name(
             internal_dependency_reference,
             self._project_root_path,
-            project_section.libs_path,
+            project_section.libs_relative_path,
         )
 
         self._logger.info(

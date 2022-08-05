@@ -58,26 +58,34 @@ class UpdateCommand(Command):
         ]
 
     async def run(self, args):
-        self.update(args.package)
+        self._logger.info("Running dependency update")
+        try:
+            self.update(args.package)
+        except BaseException as exc:
+            self._logger.error("Update command failed")
+            raise exc
+        self._logger.info("Updated successfully")
 
     def update(self, package: Optional[str]) -> None:
         project_section = self._project_section_loader.load()
 
         if package:
             package = retrieve_real_package_name(
-                package, self._project_root_path, project_section.libs_path
+                package, self._project_root_path, project_section.libs_relative_path
             )
             try:
                 update_package(
-                    package, self._project_root_path, project_section.libs_path
+                    package, self._project_root_path, project_section.libs_relative_path
                 )
             except PackageAlreadyUpToDateException as err:
                 self._logger.info(err.message)
         else:
-            for package_name in listdir(project_section.libs_path):
+            for package_name in listdir(project_section.libs_relative_path):
                 try:
                     update_package(
-                        package_name, self._project_root_path, project_section.libs_path
+                        package_name,
+                        self._project_root_path,
+                        project_section.libs_relative_path,
                     )
                 except PackageAlreadyUpToDateException:
                     continue
