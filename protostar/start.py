@@ -18,12 +18,12 @@ from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReade
 
 def main(script_root: Path):
     container = build_di_container(script_root)
-    arg_parser = _build_parser(container.protostar_cli, container.protostar_toml_reader)
-    args = _parse_args(arg_parser)
-    _run_protostar(container.protostar_cli, args, arg_parser)
+    arg_parser = build_parser(container.protostar_cli, container.protostar_toml_reader)
+    args = parse_args(arg_parser)
+    run_protostar(container.protostar_cli, args, arg_parser)
 
 
-def _build_parser(
+def build_parser(
     protostar_cli: ProtostarCLI, protostar_toml_reader: ProtostarTOMLReader
 ) -> ArgumentParserFacade:
     configuration_profile_name = (
@@ -38,7 +38,7 @@ def _build_parser(
     return ArgumentParserFacade(protostar_cli, argument_value_from_config_provider)
 
 
-def _parse_args(parser: ArgumentParserFacade) -> Any:
+def parse_args(parser: ArgumentParserFacade) -> Any:
     try:
         return parser.parse()
     except MissingRequiredArgumentException as err:
@@ -46,9 +46,7 @@ def _parse_args(parser: ArgumentParserFacade) -> Any:
         sys.exit(1)
 
 
-def _run_protostar(
-    protostar_cli: ProtostarCLI, args: Any, parser: ArgumentParserFacade
-):
+def run_protostar(protostar_cli: ProtostarCLI, args: Any, parser: ArgumentParserFacade):
     try:
         asyncio.run(protostar_cli.run(args))
     except CLIApp.CommandNotFoundError:
