@@ -1,5 +1,4 @@
 from logging import Logger
-from optparse import Option
 from pathlib import Path
 from typing import Callable, List, Optional
 import dataclasses

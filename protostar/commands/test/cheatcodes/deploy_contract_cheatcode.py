@@ -16,6 +16,8 @@ from protostar.commands.test.test_environment_exceptions import (
 
 
 class DeployContractCheatcodeProtocol(Protocol):
+    # pylint bug ?
+    # pylint: disable=keyword-arg-before-vararg
     def __call__(
         self,
         contract_path: str,

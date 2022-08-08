@@ -79,7 +79,7 @@ class KeywordOnlyArgumentCheatcodeException(CheatcodeException):
         lines: List[str] = []
         lines.append(f"Incorrect usage of `{self.cheatcode_name}` cheatcode")
         lines.append(self.message)
-        lines.append(f"Available kwargs:")
+        lines.append("Available kwargs:")
         lines.extend(f"`{kwarg}`" for kwarg in self.kwargs)
         return "\n".join(lines)
 
