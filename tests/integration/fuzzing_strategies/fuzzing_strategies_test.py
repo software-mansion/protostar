@@ -55,7 +55,7 @@ async def test_flaky_strategy(
         testing_summary,
         expected_passed_test_cases_names=[],
         expected_failed_test_cases_names=[
-            "test_flaky_strategies",
+            "test_flaky_strategy",
         ],
     )
 
