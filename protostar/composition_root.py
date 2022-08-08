@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from logging import getLogger
 from pathlib import Path
 from typing import List
-import time
 
 from protostar.cli import Command
 from protostar.commands import (
@@ -165,7 +164,7 @@ def build_di_container(script_root: Path):
         latest_version_checker=latest_version_checker,
         log_color_provider=log_color_provider,
         logger=logger,
-        start_time=time.perf_counter(),
+        start_time=0.0,
         version_manager=version_manager,
     )
 

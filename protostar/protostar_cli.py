@@ -21,7 +21,7 @@ class ProtostarCLI(CLIApp):
         latest_version_checker: LatestVersionChecker,
         version_manager: VersionManager,
         commands: List[Command],
-        start_time: float = 0.0,
+        start_time=0.0,
     ) -> None:
         self._logger = logger
         self._latest_version_checker = latest_version_checker
