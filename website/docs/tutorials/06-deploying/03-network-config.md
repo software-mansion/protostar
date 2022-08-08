@@ -1,10 +1,8 @@
----
-sidebar_label: Network config
----
 # Network configuration
 ```python
 class NetworkConfig(TypedDict):
-    wait_for_acceptance: bool # Wait for transaction to be accepted on chain
+    wait_for_acceptance: bool
+    "Wait for transaction to be accepted on chain."
 ```
 
 `NetworkConfig` stores configuration used in `declare`, `deploy` and `deploy_contract` cheatcodes.
