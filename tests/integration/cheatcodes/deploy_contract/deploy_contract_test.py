@@ -18,6 +18,8 @@ async def test_deploy_contract(mocker: MockerFixture):
         project_root_path=Path(),
         project_cairo_path_builder=mocker.MagicMock(),
         protostar_directory=protostar_directory_mock,
+        test_collector_result_logger=mocker.MagicMock(),
+        test_result_formatter=mocker.MagicMock(),
     ).test(targets=[f"{Path(__file__).parent}/deploy_contract_test.cairo"])
 
     assert_cairo_test_cases(

@@ -19,6 +19,8 @@ async def test_expect_events(mocker):
         project_root_path=Path(),
         project_cairo_path_builder=mocker.MagicMock(),
         protostar_directory=mocker.MagicMock(),
+        test_collector_result_logger=mocker.MagicMock(),
+        test_result_formatter=mocker.MagicMock(),
     ).test(
         targets=[f"{Path(__file__).parent}/expect_events_test.cairo"],
         ignored_targets=[
