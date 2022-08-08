@@ -5,9 +5,7 @@ from typing import TYPE_CHECKING, Any, cast
 from tqdm import tqdm as bar
 
 from protostar.commands.test.test_cases import BrokenTestSuiteResult, TestResult
-from protostar.commands.test.test_result_cli_formatter_visitor import (
-    TestResultCLIFormatter,
-)
+from protostar.commands.test.test_result_formatter import TestResultFormatter
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.testing_summary import TestingSummary
 
@@ -24,16 +22,14 @@ class TestingLiveLogger:
         no_progress_bar: bool,
         exit_first: bool,
         slowest_tests_to_report_count: int,
-        test_result_cli_formatter_visitor_builder: TestResultCLIFormatter.Builder,
+        test_result_cli_formatter: TestResultFormatter,
     ) -> None:
         self._logger = logger
         self._no_progress_bar = no_progress_bar
         self.testing_summary = testing_summary
         self.exit_first = exit_first
         self.slowest_tests_to_report_count = slowest_tests_to_report_count
-        self._test_result_cli_formatter_visitor_builder = (
-            test_result_cli_formatter_visitor_builder
-        )
+        self._test_result_cli_formatter = test_result_cli_formatter
 
     def log_testing_summary(
         self, test_collector_result: "TestCollector.Result"
@@ -73,13 +69,10 @@ class TestingLiveLogger:
                             else "GREEN"
                         )
 
-                        self._test_result_cli_formatter_visitor_builder.set_log_callback(
-                            progress_bar.write
+                        formatted_test_result = self._test_result_cli_formatter.format(
+                            test_result
                         )
-                        test_result_cli_formatter_visitor = (
-                            self._test_result_cli_formatter_visitor_builder.build()
-                        )
-                        test_result.accept(test_result_cli_formatter_visitor)
+                        progress_bar.write(formatted_test_result)
 
                         if (
                             self.exit_first

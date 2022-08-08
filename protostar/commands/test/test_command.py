@@ -8,9 +8,10 @@ from protostar.commands.test.environments.fuzz_test_execution_environment import
     FuzzConfig,
 )
 from protostar.commands.test.test_collector import TestCollector
-from protostar.commands.test.test_result_cli_formatter_visitor import (
-    TestResultCLIFormatter,
+from protostar.commands.test.test_collector_result_logger import (
+    TestCollectorResultLogger,
 )
+from protostar.commands.test.test_result_formatter import TestResultFormatter
 from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.test_scheduler import TestScheduler
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
@@ -32,15 +33,15 @@ class TestCommand(Command):
         project_root_path: Path,
         protostar_directory: ProtostarDirectory,
         project_cairo_path_builder: ProjectCairoPathBuilder,
-        test_result_cli_formatter_visitor_builder: TestResultCLIFormatter.Builder,
+        test_result_cli_formatter: TestResultFormatter,
+        test_collector_result_logger: TestCollectorResultLogger,
     ) -> None:
         super().__init__()
         self._project_root_path = project_root_path
         self._protostar_directory = protostar_directory
         self._project_cairo_path_builder = project_cairo_path_builder
-        self._test_result_cli_formatter_visitor_builder = (
-            test_result_cli_formatter_visitor_builder
-        )
+        self._test_result_cli_formatter = test_result_cli_formatter
+        self._test_collector_result_logger = test_collector_result_logger
 
     @property
     def name(self) -> str:
@@ -196,7 +197,7 @@ class TestCommand(Command):
                     ignored_targets=ignored_targets,
                     default_test_suite_glob=str(self._project_root_path),
                 )
-            test_collector_result.log(logger)
+            self._test_collector_result_logger.log(test_collector_result)
 
             testing_summary = TestingSummary(
                 case_results=test_collector_result.broken_test_suites,  # type: ignore | pyright bug?
@@ -210,7 +211,7 @@ class TestCommand(Command):
                     no_progress_bar=no_progress_bar,
                     exit_first=exit_first,
                     slowest_tests_to_report_count=slowest_tests_to_report_count,
-                    test_result_cli_formatter_visitor_builder=self._test_result_cli_formatter_visitor_builder,
+                    test_result_cli_formatter=self._test_result_cli_formatter,
                 )
                 TestScheduler(live_logger, worker=TestRunner.worker).run(
                     include_paths=include_paths,

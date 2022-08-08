@@ -2,21 +2,24 @@ from logging import Logger
 from typing import List
 
 from .test_collector import TestCollector
-from .test_result_cli_formatter_visitor import TestResultCLIFormatter
+from .test_result_formatter import TestResultFormatter
 
 
-class TestCollectorCLIFormatter:
+class TestCollectorResultLogger:
     def __init__(
         self,
         logger: Logger,
-        test_result_cli_formatter_visitor: TestResultCLIFormatter,
+        test_result_cli_formatter: TestResultFormatter,
     ) -> None:
         self._logger = logger
-        self._test_result_cli_formatter_visitor = test_result_cli_formatter_visitor
+        self._test_result_cli_formatter = test_result_cli_formatter
 
     def log(self, test_collector_result: TestCollector.Result):
         for broken_test_suite in test_collector_result.broken_test_suites:
-            broken_test_suite.accept(self._test_result_cli_formatter_visitor)
+            formatted_test_result = self._test_result_cli_formatter.format(
+                broken_test_suite
+            )
+            self._logger.info(formatted_test_result)
         if test_collector_result.test_cases_count:
             result: List[str] = ["Collected"]
             suites_count = len(test_collector_result.test_suites)
