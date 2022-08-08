@@ -5,8 +5,8 @@ def deploy_contract(
     self,
     contract_path: str,
     constructor_args: Optional[List[int]] = None,
-    *args,
-    config: Optional[Dict[str, Any]] = None
+    *,
+    config: Optional[NetworkConfig] = None
 ) -> DeployedContract: ...
 
 @dataclass(frozen=True)
@@ -17,7 +17,7 @@ class DeployedContract:
 
 Deploys a **compiled** contract given a path relative to the project root.
 
-[More information about `config`](../network_config).
+The `config` parameter allows passing [network configuration](../03-network-config.md) data. See related documentation for more information.
 
 :::warning
 Don't use `starkware.starknet.common.syscalls.deploy`. It will deploy the contract to the Protostar's local StarkNet.

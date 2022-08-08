@@ -3,8 +3,8 @@
 ```python
 def declare(
     contract_path: str,
-    *args,
-    config: Optional[Dict[str, Any]] = None
+    *,
+    config: Optional[NetworkConfig] = None
 ) -> DeclaredContract:
 
 class DeclaredContract:
@@ -12,7 +12,7 @@ class DeclaredContract:
 ```
 Declares contract given a relative to a project root path to **compiled** contract.
 
-[More information about `config`](../network_config).
+The `config` parameter allows passing [network configuration](../03-network-config.md) data. See related documentation for more information.
 
 ## Example
 

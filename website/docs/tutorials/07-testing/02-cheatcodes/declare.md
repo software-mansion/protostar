@@ -3,8 +3,8 @@
 ```python
 def declare(
     contract_path: str,
-    *args,
-    config: Optional[Dict[str, Any]] = None
+    *,
+    config: Optional[NetworkConfig] = None
 ) -> DeclaredContract:
 
 class DeclaredContract:
@@ -12,4 +12,4 @@ class DeclaredContract:
 ```
 Declares contract given a path relative to a Protostar project root.
 
-[More information about `config`](../../deploying/network_config).
+The `config` parameter allows passing [network configuration](../../06-deploying/03-network-config.md) data. See related documentation for more information.

@@ -4,8 +4,8 @@
 def deploy_contract(
     contract_path: str,
     constructor_calldata: Optional[Union[List[int], Dict]] = None,
-    *args,
-    config: Optional[Dict[str, Any]] = None
+    *,
+    config: Optional[NetworkConfig] = None
 ) -> DeployedContact:
 
 class DeployedContract:
@@ -13,7 +13,7 @@ class DeployedContract:
 ```
 Deploys a contract given a path relative to a Protostar project root. The section [Deploying contracts from tests](../01-deploying-contracts.md) demonstrates a usage of this cheatcode.
 
-[More information about `config`](../../deploying/network_config).
+The `config` parameter allows passing [network configuration](../../06-deploying/03-network-config.md) data. See related documentation for more information.
 
 :::warning
 Deploying a contract is a slow operation. If it's possible try using this cheatcode in the [`__setup__` hook](../README.md#__setup__).

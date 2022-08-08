@@ -3,8 +3,8 @@
 ```python
 def deploy(
     prepared: PreparedContract,
-    *args,
-    config: Optional[Dict[str, Any]] = None
+    *,
+    config: Optional[NetworkConfig] = None
 ) -> DeployedContract:
 
 class DeployedContract:
@@ -12,7 +12,7 @@ class DeployedContract:
 ```
 Deploys contract for deployment given `PreparedContract`.
 
-[More information about `config`](../../deploying/network_config).
+The `config` parameter allows passing [network configuration](../../06-deploying/03-network-config.md) data. See related documentation for more information.
 
 :::warning
 You can't deploy the same `PreparedContract` twice.
