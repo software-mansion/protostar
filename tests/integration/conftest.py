@@ -1,5 +1,6 @@
 # pylint: disable=invalid-name
 from dataclasses import dataclass
+from logging import getLogger
 from pathlib import Path
 from typing import List, Optional, Set, Union
 
@@ -7,8 +8,13 @@ import pytest
 from pytest_mock import MockerFixture
 from typing_extensions import Protocol
 
+from protostar.commands.test.test_collector_result_logger import (
+    TestCollectorResultLogger,
+)
 from protostar.commands.test.test_command import TestCommand
+from protostar.commands.test.test_result_formatter import TestResultFormatter
 from protostar.commands.test.testing_summary import TestingSummary
+from protostar.utils.log_color_provider import LogColorProvider
 from tests.conftest import run_devnet
 
 
@@ -95,10 +101,18 @@ def run_cairo_test_runner_fixture(mocker: MockerFixture) -> RunCairoTestRunnerFi
         seed: Optional[int] = None,
         fuzz_max_examples=100,
     ) -> TestingSummary:
+        log_color_provider = LogColorProvider()
+        log_color_provider.is_ci_mode = False
+        test_result_formatter = TestResultFormatter(log_color_provider)
         return await TestCommand(
             project_root_path=Path(),
             protostar_directory=mocker.MagicMock(),
             project_cairo_path_builder=mocker.MagicMock(),
+            test_collector_result_logger=TestCollectorResultLogger(
+                logger=getLogger(),
+                test_result_formatter=test_result_formatter,
+            ),
+            test_result_formatter=test_result_formatter,
         ).test(targets=[str(path)], seed=seed, fuzz_max_examples=fuzz_max_examples)
 
     return run_cairo_test_runner

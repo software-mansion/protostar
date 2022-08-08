@@ -33,14 +33,14 @@ class TestCommand(Command):
         project_root_path: Path,
         protostar_directory: ProtostarDirectory,
         project_cairo_path_builder: ProjectCairoPathBuilder,
-        test_result_cli_formatter: TestResultFormatter,
+        test_result_formatter: TestResultFormatter,
         test_collector_result_logger: TestCollectorResultLogger,
     ) -> None:
         super().__init__()
         self._project_root_path = project_root_path
         self._protostar_directory = protostar_directory
         self._project_cairo_path_builder = project_cairo_path_builder
-        self._test_result_cli_formatter = test_result_cli_formatter
+        self._test_result_cli_formatter = test_result_formatter
         self._test_collector_result_logger = test_collector_result_logger
 
     @property

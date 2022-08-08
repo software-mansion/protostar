@@ -150,12 +150,12 @@ def build_di_container(script_root: Path):
             project_root_path,
             protostar_directory,
             project_cairo_path_builder,
-            test_result_cli_formatter=TestResultFormatter(
+            test_result_formatter=TestResultFormatter(
                 log_color_provider=log_color_provider,
             ),
             test_collector_result_logger=TestCollectorResultLogger(
                 logger=logger,
-                test_result_cli_formatter=TestResultFormatter(
+                test_result_formatter=TestResultFormatter(
                     log_color_provider=log_color_provider,
                 ),
             ),

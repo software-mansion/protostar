@@ -9,14 +9,14 @@ class TestCollectorResultLogger:
     def __init__(
         self,
         logger: Logger,
-        test_result_cli_formatter: TestResultFormatter,
+        test_result_formatter: TestResultFormatter,
     ) -> None:
         self._logger = logger
-        self._test_result_cli_formatter = test_result_cli_formatter
+        self._test_result_formatter = test_result_formatter
 
     def log(self, test_collector_result: TestCollector.Result):
         for broken_test_suite in test_collector_result.broken_test_suites:
-            formatted_test_result = self._test_result_cli_formatter.format(
+            formatted_test_result = self._test_result_formatter.format(
                 broken_test_suite
             )
             self._logger.info(formatted_test_result)

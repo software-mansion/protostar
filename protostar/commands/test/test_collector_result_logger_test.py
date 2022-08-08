@@ -14,7 +14,7 @@ def test_logging_collected_one_test_suite_and_one_test_case(mocker: MockerFixtur
     logger_mock = mocker.MagicMock()
 
     TestCollectorResultLogger(
-        logger=logger_mock, test_result_cli_formatter=mocker.MagicMock()
+        logger=logger_mock, test_result_formatter=mocker.MagicMock()
     ).log(
         TestCollector.Result(
             test_suites=[
@@ -35,7 +35,7 @@ def test_logging_many_test_suites_and_many_test_cases(mocker: MockerFixture):
     logger_mock = mocker.MagicMock()
 
     TestCollectorResultLogger(
-        logger=logger_mock, test_result_cli_formatter=mocker.MagicMock()
+        logger=logger_mock, test_result_formatter=mocker.MagicMock()
     ).log(
         TestCollector.Result(
             test_suites=[
@@ -60,7 +60,7 @@ def test_logging_no_cases_found(mocker: MockerFixture):
     logger_mock = mocker.MagicMock()
 
     TestCollectorResultLogger(
-        logger=logger_mock, test_result_cli_formatter=mocker.MagicMock()
+        logger=logger_mock, test_result_formatter=mocker.MagicMock()
     ).log(test_collector_result=TestCollector.Result(test_suites=[]))
 
     cast(mocker.MagicMock, logger_mock.warning).assert_called_once_with(

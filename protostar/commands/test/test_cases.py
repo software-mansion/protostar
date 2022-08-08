@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional
 
+from typing_extensions import Self
+
 from protostar.commands.test.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
 )
@@ -40,12 +42,34 @@ class FuzzResult:
 
 @dataclass(frozen=True)
 class PassedFuzzTestCaseResult(PassedTestCaseResult, FuzzResult):
-    pass
+    @classmethod
+    def from_passed_test_case_result(
+        cls, passed_test_case_result: PassedTestCaseResult, fuzz_result: FuzzResult
+    ) -> Self:
+        return cls(
+            file_path=passed_test_case_result.file_path,
+            test_case_name=passed_test_case_result.test_case_name,
+            captured_stdout=passed_test_case_result.captured_stdout,
+            execution_resources=passed_test_case_result.execution_resources,
+            execution_time=passed_test_case_result.execution_time,
+            fuzz_runs_count=fuzz_result.fuzz_runs_count,
+        )
 
 
 @dataclass(frozen=True)
 class FailedFuzzTestCaseResult(FailedTestCaseResult, FuzzResult):
-    pass
+    @classmethod
+    def from_failed_test_case_result(
+        cls, failed_test_case_result: FailedTestCaseResult, fuzz_result: FuzzResult
+    ) -> Self:
+        return cls(
+            file_path=failed_test_case_result.file_path,
+            test_case_name=failed_test_case_result.test_case_name,
+            captured_stdout=failed_test_case_result.captured_stdout,
+            exception=failed_test_case_result.exception,
+            execution_time=failed_test_case_result.execution_time,
+            fuzz_runs_count=fuzz_result.fuzz_runs_count,
+        )
 
 
 @dataclass(frozen=True)

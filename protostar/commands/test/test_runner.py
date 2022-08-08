@@ -8,18 +8,21 @@ from typing import List, Optional
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 
+from protostar.commands.test.environments.factory import invoke_setup, invoke_test_case
 from protostar.commands.test.environments.fuzz_test_execution_environment import (
     FuzzConfig,
     FuzzTestExecutionResult,
 )
-from protostar.commands.test.environments.factory import (
-    invoke_setup,
-    invoke_test_case,
+from protostar.commands.test.fuzzing.fuzz_input_exception_metadata import (
+    FuzzInputExceptionMetadata,
 )
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_cases import (
     BrokenTestSuiteResult,
+    FailedFuzzTestCaseResult,
     FailedTestCaseResult,
+    FuzzResult,
+    PassedFuzzTestCaseResult,
     PassedTestCaseResult,
     UnexpectedExceptionTestSuiteResult,
 )
@@ -170,31 +173,47 @@ class TestRunner:
                 execution_result = await invoke_test_case(
                     test_case_name, new_execution_state, fuzz_config=self._fuzz_config
                 )
-                fuzz_runs_count = (
-                    execution_result.fuzz_runs_count
-                    if isinstance(execution_result, FuzzTestExecutionResult)
-                    else None
+
+                passed_test_case_result = PassedTestCaseResult(
+                    file_path=test_suite.test_path,
+                    test_case_name=test_case_name,
+                    execution_resources=execution_result.execution_resources,
+                    execution_time=time.perf_counter() - start_time,
+                    captured_stdout=new_execution_state.output_recorder.get_captures(),
                 )
 
-                self.shared_tests_state.put_result(
-                    PassedTestCaseResult(
-                        file_path=test_suite.test_path,
-                        test_case_name=test_case_name,
-                        execution_resources=execution_result.execution_resources,
-                        execution_time=time.perf_counter() - start_time,
-                        captured_stdout=new_execution_state.output_recorder.get_captures(),
-                        fuzz_runs_count=fuzz_runs_count
-                        if isinstance(execution_result, FuzzTestExecutionResult)
-                        else None,
+                if isinstance(execution_result, FuzzTestExecutionResult):
+                    fuzz_result = FuzzResult(
+                        fuzz_runs_count=execution_result.fuzz_runs_count
                     )
-                )
+                    passed_fuzz_test_case_result = (
+                        PassedFuzzTestCaseResult.from_passed_test_case_result(
+                            passed_test_case_result, fuzz_result
+                        )
+                    )
+                    self.shared_tests_state.put_result(passed_fuzz_test_case_result)
+                else:
+                    self.shared_tests_state.put_result(passed_test_case_result)
             except ReportedException as ex:
-                self.shared_tests_state.put_result(
-                    FailedTestCaseResult(
-                        file_path=test_suite.test_path,
-                        test_case_name=test_case_name,
-                        exception=ex,
-                        execution_time=time.perf_counter() - start_time,
-                        captured_stdout=new_execution_state.output_recorder.get_captures(),
-                    )
+                failed_test_case_result = FailedTestCaseResult(
+                    file_path=test_suite.test_path,
+                    test_case_name=test_case_name,
+                    exception=ex,
+                    execution_time=time.perf_counter() - start_time,
+                    captured_stdout=new_execution_state.output_recorder.get_captures(),
                 )
+
+                metadata = ex.metadata
+                if len(metadata) > 0 and isinstance(
+                    metadata[0], FuzzInputExceptionMetadata
+                ):
+                    fuzz_runs_count = ex.execution_info["fuzz_runs"]
+                    assert isinstance(fuzz_runs_count, int)
+                    fuzz_result = FuzzResult(fuzz_runs_count=fuzz_runs_count)
+
+                    FailedFuzzTestCaseResult.from_failed_test_case_result(
+                        failed_test_case_result=failed_test_case_result,
+                        fuzz_result=fuzz_result,
+                    )
+
+                self.shared_tests_state.put_result(failed_test_case_result)

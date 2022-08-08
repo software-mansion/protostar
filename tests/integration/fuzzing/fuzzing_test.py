@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from protostar.commands.test.test_cases import PassedFuzzTestCaseResult
 from tests.integration.conftest import (
     RunCairoTestRunnerFixture,
     assert_cairo_test_cases,
@@ -88,6 +89,7 @@ async def test_max_fuzz_runs_less_or_equal_than_specified(
         fuzz_max_examples=fuzz_max_examples,
     )
 
+    assert isinstance(testing_summary.passed[0], PassedFuzzTestCaseResult)
     assert testing_summary.passed[0].fuzz_runs_count is not None
     assert testing_summary.passed[0].fuzz_runs_count <= fuzz_max_examples
 
@@ -119,6 +121,7 @@ async def test_strategies(
     )
 
     for result in testing_summary.passed:
+        assert isinstance(result, PassedFuzzTestCaseResult)
         assert result.fuzz_runs_count == fuzz_max_examples
 
 
