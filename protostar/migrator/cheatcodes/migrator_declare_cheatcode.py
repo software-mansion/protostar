@@ -8,7 +8,10 @@ from protostar.commands.test.cheatcodes.declare_cheatcode import (
     DeclareCheatcodeProtocol,
     DeclaredContract,
 )
-from protostar.commands.test.test_environment_exceptions import CheatcodeException
+from protostar.commands.test.test_environment_exceptions import (
+    CheatcodeException,
+    KeywordOnlyArgumentCheatcodeException,
+)
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet_gateway import GatewayFacade
 from protostar.starknet_gateway.gateway_facade import CompilationOutputNotFoundException
@@ -41,9 +44,7 @@ class MigratorDeclareCheatcode(Cheatcode):
         self, contract_path_str: str, *args, config: Optional[Dict[str, Any]] = None
     ) -> DeclaredContract:
         if len(args) > 0:
-            raise CheatcodeException(
-                "deploy_contract", "`config` is a keyword-only argument."
-            )
+            raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
 
         if not config:
             config = {}

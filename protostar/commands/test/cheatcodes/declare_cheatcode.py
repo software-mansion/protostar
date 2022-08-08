@@ -12,7 +12,9 @@ from typing_extensions import Protocol
 
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.utils.starknet_compilation import StarknetCompiler
-from protostar.commands.test.test_environment_exceptions import CheatcodeException
+from protostar.commands.test.test_environment_exceptions import (
+    KeywordOnlyArgumentCheatcodeException,
+)
 
 
 @dataclass
@@ -21,7 +23,9 @@ class DeclaredContract:
 
 
 class DeclareCheatcodeProtocol(Protocol):
-    def __call__(self, contract_path_str: str) -> DeclaredContract:
+    def __call__(
+        self, contract_path_str: str, *args, config: Optional[Dict[str, Any]]
+    ) -> DeclaredContract:
         ...
 
 
@@ -45,14 +49,11 @@ class DeclareCheatcode(Cheatcode):
         self,
         contract_path_str: str,
         *args,
-        # We have to keep it consistent with the migration version
         # pylint: disable=unused-argument
         config: Optional[Dict[str, Any]] = None,
     ) -> DeclaredContract:
         if len(args) > 0:
-            raise CheatcodeException(
-                "deploy_contract", "`config` is a keyword-only argument."
-            )
+            raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
 
         declared_class = asyncio.run(self._declare_contract(Path(contract_path_str)))
         assert declared_class

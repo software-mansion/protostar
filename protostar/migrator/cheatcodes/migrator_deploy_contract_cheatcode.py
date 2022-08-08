@@ -11,7 +11,9 @@ from protostar.commands.test.cheatcodes.deploy_contract_cheatcode import (
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.utils.data_transformer import CairoOrPythonData
-from protostar.commands.test.test_environment_exceptions import CheatcodeException
+from protostar.commands.test.test_environment_exceptions import (
+    KeywordOnlyArgumentCheatcodeException,
+)
 
 
 class MigratorDeployContractCheatcode(Cheatcode):
@@ -44,9 +46,7 @@ class MigratorDeployContractCheatcode(Cheatcode):
         config: Optional[Dict[str, Any]] = None,
     ) -> DeployedContract:
         if len(args) > 0:
-            raise CheatcodeException(
-                "deploy_contract", "`config` is a keyword-only argument."
-            )
+            raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
 
         if isinstance(constructor_args, collections.Mapping):
             assert False, "Data Transformer is not supported"

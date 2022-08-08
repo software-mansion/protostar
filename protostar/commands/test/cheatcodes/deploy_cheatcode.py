@@ -8,7 +8,9 @@ from starkware.starknet.core.os.syscall_utils import initialize_contract_state
 
 from protostar.commands.test.cheatcodes.prepare_cheatcode import PreparedContract
 from protostar.starknet.cheatcode import Cheatcode
-from protostar.commands.test.test_environment_exceptions import CheatcodeException
+from protostar.commands.test.test_environment_exceptions import (
+    KeywordOnlyArgumentCheatcodeException,
+)
 
 
 @dataclass(frozen=True)
@@ -37,14 +39,11 @@ class DeployCheatcode(Cheatcode):
         self,
         prepared: PreparedContract,
         *args,
-        # We have to keep it consistent with the migration version
         # pylint: disable=unused-argument
         config: Optional[Dict[str, Any]] = None,
     ):
         if len(args) > 0:
-            raise CheatcodeException(
-                "deploy_contract", "`config` is a keyword-only argument."
-            )
+            raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
         class_hash_bytes = to_bytes(prepared.class_hash)
         future = asyncio.run_coroutine_threadsafe(
             coro=initialize_contract_state(

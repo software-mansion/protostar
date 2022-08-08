@@ -89,7 +89,7 @@ class MigrateCommand(Command):
     ):
         if network is None:
             raise ProtostarException(
-                f"Argument `{MigrateCommand.NETWORK_ARG_NAME}` is required"
+                f"Argument `{MigrateCommand.GATEWAY_URL_ARG_NAME}` or `{MigrateCommand.NETWORK_ARG_NAME}` is required"
             )
 
         # mitigates the risk of running migrate on an outdated project

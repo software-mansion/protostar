@@ -10,7 +10,9 @@ from protostar.commands.test.cheatcodes.deploy_cheatcode import (
 from protostar.commands.test.cheatcodes.prepare_cheatcode import PrepareCheatcode
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.utils.data_transformer import CairoOrPythonData
-from protostar.commands.test.test_environment_exceptions import CheatcodeException
+from protostar.commands.test.test_environment_exceptions import (
+    KeywordOnlyArgumentCheatcodeException,
+)
 
 
 class DeployContractCheatcodeProtocol(Protocol):
@@ -18,6 +20,8 @@ class DeployContractCheatcodeProtocol(Protocol):
         self,
         contract_path: str,
         constructor_args: Optional[CairoOrPythonData] = None,
+        *args,
+        config: Optional[Dict[str, Any]],
     ) -> DeployedContract:
         ...
 
@@ -49,14 +53,11 @@ class DeployContractCheatcode(Cheatcode):
         contract_path: str,
         constructor_args: Optional[CairoOrPythonData] = None,
         *args,
-        # We have to keep it consistent with the migration version
         # pylint: disable=unused-argument
         config: Optional[Dict[str, Any]] = None,
     ) -> DeployedContract:
         if len(args) > 0:
-            raise CheatcodeException(
-                "deploy_contract", "`config` is a keyword-only argument."
-            )
+            raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
         declared_contract = self._declare_cheatcode.declare(contract_path)
         prepared_contract = self._prepare_cheatcode.prepare(
             declared_contract, constructor_args

@@ -1,4 +1,5 @@
 from logging import Logger
+from optparse import Option
 from pathlib import Path
 from typing import Callable, List, Optional
 import dataclasses
@@ -46,7 +47,7 @@ class GatewayFacade:
                 # `StarknetChainId.TESTNET` also works for devnet
                 # chain parameter is going to be removed soon
                 # so we won't have to rely on this behaviour
-                map_to_starknet_py_naming(network),
+                GatewayFacade.map_to_starknet_py_naming(network),
                 chain=StarknetChainId.TESTNET,
             )
 
@@ -60,11 +61,16 @@ class GatewayFacade:
             assert self._gateway_facade._gateway_client
             return self._gateway_facade
 
-    def __init__(self, project_root_path: Path) -> None:
+    def __init__(
+        self,
+        project_root_path: Path,
+        logger: Optional[Logger] = None,
+        log_color_provider: Optional[LogColorProvider] = None,
+    ) -> None:
         self._project_root_path = project_root_path
         self._starknet_requests: List[StarknetRequest] = []
-        self._logger: Optional[Logger] = None
-        self._log_color_provider: Optional[LogColorProvider] = None
+        self._logger: Optional[Logger] = logger
+        self._log_color_provider: Optional[LogColorProvider] = log_color_provider
         self._gateway_client: Optional[GatewayClient] = None
 
     def set_logger(self, logger: Logger, log_color_provider: LogColorProvider) -> None:
@@ -104,7 +110,9 @@ class GatewayFacade:
             action="DEPLOY",
             payload={
                 "contract": str(self._project_root_path / compiled_contract_path),
-                "network": map_from_starknet_py_naming(str(self._gateway_client.net)),
+                "network": GatewayFacade.map_from_starknet_py_naming(
+                    str(self._gateway_client.net)
+                ),
                 "constructor_args": inputs,
                 "salt": salt,
                 "token": token,
@@ -226,18 +234,18 @@ class GatewayFacade:
 
         return register_response
 
+    @classmethod
+    def map_to_starknet_py_naming(cls, name: str) -> str:
+        if name == "alpha-goerli":
+            return "testnet"
+        if name == "alpha-mainnet":
+            return "mainnet"
+        return name
 
-def map_to_starknet_py_naming(name: str) -> str:
-    if name == "alpha-goerli":
-        return "testnet"
-    if name == "alpha-mainnet":
-        return "mainnet"
-    return name
-
-
-def map_from_starknet_py_naming(name: str) -> str:
-    if name == "testnet":
-        return "alpha-goerli"
-    if name == "mainnet":
-        return "alpha-mainnet"
-    return name
+    @classmethod
+    def map_from_starknet_py_naming(cls, name: str) -> str:
+        if name == "testnet":
+            return "alpha-goerli"
+        if name == "mainnet":
+            return "alpha-mainnet"
+        return name
