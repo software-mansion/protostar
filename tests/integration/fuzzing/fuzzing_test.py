@@ -12,17 +12,13 @@ async def test_basic(run_cairo_test_runner: RunCairoTestRunnerFixture):
     testing_summary = await run_cairo_test_runner(
         Path(__file__).parent / "basic_test.cairo",
         seed=seed,
-        fuzz_max_examples=25,
+        fuzz_max_examples=5,
     )
 
     assert_cairo_test_cases(
         testing_summary,
-        expected_passed_test_cases_names=[
-            "test_fuzz",
-        ],
-        expected_failed_test_cases_names=[
-            "test_fails_if_big",
-        ],
+        expected_passed_test_cases_names=["test_fuzz_pass"],
+        expected_failed_test_cases_names=["test_fuzz_fails"],
     )
 
     assert testing_summary.testing_seed.value == seed

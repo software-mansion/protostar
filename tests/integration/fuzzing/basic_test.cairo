@@ -1,15 +1,14 @@
 %lang starknet
 
-from starkware.cairo.common.math import assert_nn
-
 @external
-func test_fuzz{syscall_ptr : felt*, range_check_ptr}(a, b : felt):
+func test_fuzz_pass{syscall_ptr : felt*, range_check_ptr}(a, b : felt):
     assert a + b = b + a
     return ()
 end
 
 @external
-func test_fails_if_big{syscall_ptr : felt*, range_check_ptr}(a, b, c):
-    assert_nn(a)
+func test_fuzz_fails{syscall_ptr : felt*, range_check_ptr}(a):
+    # Keep the boundary number low, so that fuzzer shrinking phase does not take a lot of time.
+    %{ assert ids.a < 10 %}
     return ()
 end
