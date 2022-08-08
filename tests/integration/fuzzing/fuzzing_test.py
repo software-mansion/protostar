@@ -27,7 +27,7 @@ async def test_basic(run_cairo_test_runner: RunCairoTestRunnerFixture):
 
 async def test_non_felt_parameter(run_cairo_test_runner: RunCairoTestRunnerFixture):
     testing_summary = await run_cairo_test_runner(
-        Path(__file__).parent / "non_felt_parameter_test.cairo"
+        Path(__file__).parent / "non_felt_parameter_test.cairo", fuzz_max_examples=3
     )
 
     assert_cairo_test_cases(
@@ -40,7 +40,7 @@ async def test_non_felt_parameter(run_cairo_test_runner: RunCairoTestRunnerFixtu
 
 async def test_state_is_isolated(run_cairo_test_runner: RunCairoTestRunnerFixture):
     testing_summary = await run_cairo_test_runner(
-        Path(__file__).parent / "state_isolation_test.cairo", fuzz_max_examples=5
+        Path(__file__).parent / "state_isolation_test.cairo", fuzz_max_examples=3
     )
 
     assert_cairo_test_cases(
@@ -88,34 +88,92 @@ async def test_max_fuzz_runs_less_or_equal_than_specified(
     assert testing_summary.passed[0].fuzz_runs_count <= fuzz_max_examples
 
 
-async def test_strategies(
+async def test_strategy_integers(
     run_cairo_test_runner: RunCairoTestRunnerFixture,
 ):
-    fuzz_max_examples = 100
+    fuzz_max_examples = 5
 
     testing_summary = await run_cairo_test_runner(
-        Path(__file__).parent / "strategies_test.cairo",
+        Path(__file__).parent / "strategy_integers_test.cairo",
         fuzz_max_examples=fuzz_max_examples,
     )
 
     assert_cairo_test_cases(
         testing_summary,
-        expected_passed_test_cases_names=[
-            "test_integers",
-            "test_integers_unbounded",
-            "test_multiple_learning_steps",
-        ],
-        expected_failed_test_cases_names=[
-            "test_flaky_strategies",
-            "test_integers_inverted_range",
-            "test_not_strategy_object",
-            "test_unknown_parameter",
-        ],
-        expected_broken_test_cases_names=[],
+        expected_passed_test_cases_names=["test_integers"],
+        expected_failed_test_cases_names=[],
     )
 
     for result in testing_summary.passed:
         assert result.fuzz_runs_count == fuzz_max_examples
+
+
+async def test_strategy_integers_unbounded(
+    run_cairo_test_runner: RunCairoTestRunnerFixture,
+):
+    fuzz_max_examples = 100
+
+    testing_summary = await run_cairo_test_runner(
+        Path(__file__).parent / "strategy_integers_unbounded_test.cairo",
+        fuzz_max_examples=fuzz_max_examples,
+    )
+
+    assert_cairo_test_cases(
+        testing_summary,
+        expected_passed_test_cases_names=["test_integers_unbounded"],
+        expected_failed_test_cases_names=[],
+    )
+
+
+async def test_flaky_strategy(
+    run_cairo_test_runner: RunCairoTestRunnerFixture,
+):
+    testing_summary = await run_cairo_test_runner(
+        Path(__file__).parent / "flaky_strategy_test.cairo",
+        fuzz_max_examples=5,
+    )
+
+    assert_cairo_test_cases(
+        testing_summary,
+        expected_passed_test_cases_names=[],
+        expected_failed_test_cases_names=[
+            "test_flaky_strategies",
+        ],
+    )
+
+
+async def test_multiple_learning_steps(
+    run_cairo_test_runner: RunCairoTestRunnerFixture,
+):
+    testing_summary = await run_cairo_test_runner(
+        Path(__file__).parent / "multiple_learning_steps_test.cairo",
+        fuzz_max_examples=5,
+    )
+
+    assert_cairo_test_cases(
+        testing_summary,
+        expected_passed_test_cases_names=["test_multiple_learning_steps"],
+        expected_failed_test_cases_names=[],
+    )
+
+
+async def test_strategies_invalid_calls(
+    run_cairo_test_runner: RunCairoTestRunnerFixture,
+):
+    testing_summary = await run_cairo_test_runner(
+        Path(__file__).parent / "strategies_invalid_calls_test.cairo",
+        fuzz_max_examples=3,
+    )
+
+    assert_cairo_test_cases(
+        testing_summary,
+        expected_passed_test_cases_names=[],
+        expected_failed_test_cases_names=[
+            "test_integers_inverted_range",
+            "test_not_strategy_object",
+            "test_unknown_parameter",
+        ],
+    )
 
 
 async def test_issue_590(run_cairo_test_runner: RunCairoTestRunnerFixture):
