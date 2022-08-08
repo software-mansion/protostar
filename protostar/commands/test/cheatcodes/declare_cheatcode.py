@@ -16,7 +16,7 @@ from protostar.commands.test.test_environment_exceptions import (
     KeywordOnlyArgumentCheatcodeException,
 )
 
-from protostar.commands.test.cheatcodes.network_config import NetworkConfig
+from protostar.commands.test.cheatcodes.network_config import CheatcodeNetworkConfig
 
 
 @dataclass
@@ -26,7 +26,7 @@ class DeclaredContract:
 
 class DeclareCheatcodeProtocol(Protocol):
     def __call__(
-        self, contract_path_str: str, *args, config: Optional[NetworkConfig]
+        self, contract_path_str: str, *args, config: Optional[CheatcodeNetworkConfig]
     ) -> DeclaredContract:
         ...
 
@@ -52,7 +52,7 @@ class DeclareCheatcode(Cheatcode):
         contract_path_str: str,
         *args,
         # pylint: disable=unused-argument
-        config: Optional[NetworkConfig] = None,
+        config: Optional[CheatcodeNetworkConfig] = None,
     ) -> DeclaredContract:
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])

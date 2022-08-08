@@ -15,7 +15,10 @@ from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet_gateway import GatewayFacade
 from protostar.starknet_gateway.gateway_facade import CompilationOutputNotFoundException
 
-from protostar.commands.test.cheatcodes import NetworkConfig, get_default_network_config
+from protostar.commands.test.cheatcodes import (
+    CheatcodeNetworkConfig,
+    get_default_network_config,
+)
 
 
 class MigratorDeclareCheatcode(Cheatcode):
@@ -42,7 +45,10 @@ class MigratorDeclareCheatcode(Cheatcode):
         return self._declare
 
     def _declare(
-        self, contract_path_str: str, *args, config: Optional[NetworkConfig] = None
+        self,
+        contract_path_str: str,
+        *args,
+        config: Optional[CheatcodeNetworkConfig] = None,
     ) -> DeclaredContract:
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])

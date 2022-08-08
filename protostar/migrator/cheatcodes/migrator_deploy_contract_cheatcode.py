@@ -15,7 +15,10 @@ from protostar.commands.test.test_environment_exceptions import (
     KeywordOnlyArgumentCheatcodeException,
 )
 
-from protostar.commands.test.cheatcodes import NetworkConfig, get_default_network_config
+from protostar.commands.test.cheatcodes import (
+    CheatcodeNetworkConfig,
+    get_default_network_config,
+)
 
 
 class MigratorDeployContractCheatcode(Cheatcode):
@@ -47,7 +50,7 @@ class MigratorDeployContractCheatcode(Cheatcode):
         contract_path: str,
         constructor_args: Optional[CairoOrPythonData] = None,
         *args,
-        config: Optional[NetworkConfig] = None,
+        config: Optional[CheatcodeNetworkConfig] = None,
     ) -> DeployedContract:
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])

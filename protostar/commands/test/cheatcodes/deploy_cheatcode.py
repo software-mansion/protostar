@@ -12,7 +12,7 @@ from protostar.commands.test.test_environment_exceptions import (
     KeywordOnlyArgumentCheatcodeException,
 )
 
-from protostar.commands.test.cheatcodes.network_config import NetworkConfig
+from protostar.commands.test.cheatcodes.network_config import CheatcodeNetworkConfig
 
 
 @dataclass(frozen=True)
@@ -42,7 +42,7 @@ class DeployCheatcode(Cheatcode):
         prepared: PreparedContract,
         *args,
         # pylint: disable=unused-argument
-        config: Optional[NetworkConfig] = None,
+        config: Optional[CheatcodeNetworkConfig] = None,
     ):
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
