@@ -23,7 +23,7 @@ class ProtostarCLI(CLIApp):
         logger: Logger,
         log_color_provider: LogColorProvider,
         latest_version_checker: LatestVersionChecker,
-        toml_version_checker: ProtostarTOMLVersionChecker,
+        protostar_toml_version_checker: ProtostarTOMLVersionChecker,
         version_manager: VersionManager,
         commands: List[Command],
         start_time=0.0,
@@ -33,7 +33,7 @@ class ProtostarCLI(CLIApp):
         self._start_time = start_time
         self._log_color_provider = log_color_provider
         self._version_manager = version_manager
-        self._toml_version_checker = toml_version_checker
+        self._protostar_toml_version_checker = protostar_toml_version_checker
 
         super().__init__(
             commands=commands,
@@ -89,7 +89,8 @@ class ProtostarCLI(CLIApp):
             self._version_manager.print_current_version()
             return
 
-        self._toml_version_checker.run(args)
+        if args.command not in ["init", "upgrade"]:
+            self._protostar_toml_version_checker.run()
 
         await super().run(args)
 

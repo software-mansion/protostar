@@ -1,13 +1,15 @@
-from typing import Any
-
 from protostar.protostar_exception import ProtostarException
 from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 from protostar.utils import VersionManager
 
 
-class ProtostarTOMLVersionChecker:
-    SKIP_FOR = ["init", "upgrade"]
+REFER_TO = (
+    "Please refer to https://github.com/software-mansion/protostar/releases, "
+    "in order to convert protostar.toml or upgrade protostar to a newer version."
+)
 
+
+class ProtostarTOMLVersionChecker:
     def __init__(
         self,
         protostar_toml_reader: ProtostarTOMLReader,
@@ -16,19 +18,17 @@ class ProtostarTOMLVersionChecker:
         self._protostar_toml_reader = protostar_toml_reader
         self._version_manager = version_manager
 
-    def run(self, args: Any):
-        if args.command in self.SKIP_FOR:
-            return
-
+    def run(self):
         declared_version_str = self._protostar_toml_reader.get_attribute(
             "config", "protostar_version"
         )
 
-        assert (
-            declared_version_str
-        ), "No protostar_version attribute available in protostar.toml"
+        if not declared_version_str:
+            raise ProtostarException(
+                "No protostar_version attribute available in protostar.toml.\n"
+                f"{REFER_TO}"
+            )
 
-        # Version from protostar.toml
         declared_version = VersionManager.parse(declared_version_str)
 
         # Version from pyproject.toml
@@ -43,6 +43,5 @@ class ProtostarTOMLVersionChecker:
             raise ProtostarException(
                 f"Protostar v{self._version_manager.protostar_version} "
                 "is not compatible with provided protostar.toml.\n"
-                "Please refer to https://github.com/software-mansion/protostar/releases, "
-                "in order to convert protostar.toml to a newer version."
+                f"{REFER_TO}"
             )

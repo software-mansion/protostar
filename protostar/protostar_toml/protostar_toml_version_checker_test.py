@@ -18,9 +18,6 @@ from protostar.utils import VersionManager
 def test_failing_checks(
     mocker, last_supported_protostar_toml_version, protostar_toml_version
 ):
-    args = mocker.MagicMock()
-    args.command = "build"
-
     protostar_toml_reader = mocker.MagicMock()
     protostar_toml_reader.get_attribute.return_value = protostar_toml_version
 
@@ -30,7 +27,7 @@ def test_failing_checks(
     )
 
     with pytest.raises(ProtostarException) as exception:
-        ProtostarTOMLVersionChecker(protostar_toml_reader, version_manager).run(args)
+        ProtostarTOMLVersionChecker(protostar_toml_reader, version_manager).run()
     assert "is not compatible with provided protostar.toml" in exception.value.message
 
 
@@ -40,14 +37,13 @@ def test_failing_checks(
         ("1.0", "1.1"),
         ("2.1", "2.2"),
         ("1.0.0", "1.0.1"),
+        ("1.0", "1.0"),
+        ("2.0.1", "2.0.1"),
     ),
 )
 def test_successful_checks(
     mocker, last_supported_protostar_toml_version, protostar_toml_version
 ):
-    args = mocker.MagicMock()
-    args.command = "build"
-
     protostar_toml_reader = mocker.MagicMock()
     protostar_toml_reader.get_attribute.return_value = protostar_toml_version
 
@@ -56,19 +52,4 @@ def test_successful_checks(
         return_value=VersionManager.parse(last_supported_protostar_toml_version)
     )
 
-    ProtostarTOMLVersionChecker(protostar_toml_reader, version_manager).run(args)
-
-
-@pytest.mark.parametrize("command", ("init", "upgrade"))
-def test_skips_on_different_commands(mocker, command):
-    args = mocker.MagicMock()
-    args.command = command
-
-    protostar_toml_reader = mocker.MagicMock()
-    get_attribute_mock = mocker.MagicMock()
-    protostar_toml_reader.get_attribute = get_attribute_mock
-    version_manager = mocker.MagicMock()
-
-    ProtostarTOMLVersionChecker(protostar_toml_reader, version_manager).run(args)
-
-    assert get_attribute_mock.call_count == 0
+    ProtostarTOMLVersionChecker(protostar_toml_reader, version_manager).run()
