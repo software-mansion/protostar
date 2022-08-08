@@ -26,12 +26,15 @@ from starkware.starkware_utils.error_handling import (
     StarkException,
     wrap_with_stark_exception,
 )
+from protostar.profiler.profile import profile_from_tracer_data
 
 from protostar.starknet.cheatable_cairo_function_runner import (
     CheatableCairoFunctionRunner,
 )
 from protostar.starknet.cheatable_syscall_handler import CheatableSysCallHandler
 from protostar.starknet.cheatcode import Cheatcode
+from starkware.cairo.lang.tracer.tracer_data import TracerData
+from starkware.cairo.lang.vm.memory_segments import FIRST_MEMORY_ADDR as PROGRAM_BASE
 
 if TYPE_CHECKING:
     from protostar.starknet.cheatable_state import CheatableCarriedState
@@ -149,6 +152,13 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
                 run_resources=tx_execution_context.run_resources,
                 verify_secure=True,
             )
+            runner.relocate()
+            save_profile(
+                program=contract_class.program,
+                memory=runner.relocated_memory,
+                trace=runner.relocated_trace,
+                debug_info=runner.get_relocated_debug_info()
+            )
         # --- MODIFICATIONS END ---
 
         except VmException as exception:
@@ -201,3 +211,18 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         runner.mark_as_accessed(address=args_ptr, size=len(entry_points_args))
 
         return runner, syscall_handler
+
+
+def save_profile(program, memory, trace, debug_info):
+    tracer_data = TracerData(
+        program=program,
+        memory=memory,
+        trace=trace,
+        program_base=PROGRAM_BASE,
+        air_public_input=None,
+        debug_info=debug_info,
+    )
+    data = profile_from_tracer_data(tracer_data)
+    with open("profile.pb.gz", "wb") as fp:
+        fp.write(data)
+    return 0
