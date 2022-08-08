@@ -4,7 +4,7 @@
 def deploy(
     prepared: PreparedContract,
     *,
-    config: Optional[NetworkConfig] = None
+    config: Optional[CheatcodeNetworkConfig] = None
 ) -> DeployedContract:
 
 class DeployedContract:

@@ -6,7 +6,7 @@ def deploy_contract(
     contract_path: str,
     constructor_args: Optional[List[int]] = None,
     *,
-    config: Optional[NetworkConfig] = None
+    config: Optional[CheatcodeNetworkConfig] = None
 ) -> DeployedContract: ...
 
 @dataclass(frozen=True)

@@ -4,7 +4,7 @@
 def declare(
     contract_path: str,
     *,
-    config: Optional[NetworkConfig] = None
+    config: Optional[CheatcodeNetworkConfig] = None
 ) -> DeclaredContract:
 
 class DeclaredContract:

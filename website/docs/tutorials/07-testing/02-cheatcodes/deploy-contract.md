@@ -5,7 +5,7 @@ def deploy_contract(
     contract_path: str,
     constructor_calldata: Optional[Union[List[int], Dict]] = None,
     *,
-    config: Optional[NetworkConfig] = None
+    config: Optional[CheatcodeNetworkConfig] = None
 ) -> DeployedContact:
 
 class DeployedContract:
