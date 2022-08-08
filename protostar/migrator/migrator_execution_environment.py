@@ -20,7 +20,6 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
             self,
             gateway_facade_builder: GatewayFacade.Builder,
         ) -> None:
-            self._gateway_facade: Optional[GatewayFacade] = None
             self._gateway_facade_builder = gateway_facade_builder
 
         def set_logger(
@@ -38,7 +37,7 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
             config: "MigratorExecutionEnvironment.Config",
         ) -> "MigratorExecutionEnvironment":
 
-            self._gateway_facade = self._gateway_facade_builder.build()
+            gateway_facade = self._gateway_facade_builder.build()
 
             compiler_config = CompilerConfig(
                 disable_hint_validation=True, include_paths=[]
@@ -60,7 +59,7 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
             )
             migration_cheatcode_factory = MigratorCheatcodeFactory(
                 starknet_compiler,
-                self._gateway_facade,
+                gateway_facade,
                 config=config,
             )
 

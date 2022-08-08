@@ -11,7 +11,6 @@ async def test_deploy_contract(
 
     migrator = await migrator_builder.build(
         project_root_path / "migrations" / "migration_deploy_contract.cairo",
-        config=Migrator.Config(),
     )
 
     result = await migrator.run()

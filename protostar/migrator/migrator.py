@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from logging import Logger
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from protostar.migrator.migrator_execution_environment import (
     MigratorExecutionEnvironment,
@@ -43,10 +43,12 @@ class Migrator:
         def set_network(self, network: str):
             self._migrator_execution_environment_builder.set_network(network)
 
-        async def build(self, migration_file_path: Path, config: "Migrator.Config"):
+        async def build(
+            self, migration_file_path: Path, config: "Optional[Migrator.Config]"
+        ):
             migrator_execution_env = (
                 await self._migrator_execution_environment_builder.build(
-                    migration_file_path, config=config
+                    migration_file_path, config=config or Migrator.Config()
                 )
             )
 

@@ -107,7 +107,6 @@ class MigrateCommand(Command):
 
         migrator = await self._migrator_builder.build(
             migration_file_path,
-            config=Migrator.Config(),
         )
 
         try:

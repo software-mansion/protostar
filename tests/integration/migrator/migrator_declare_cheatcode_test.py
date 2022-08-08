@@ -15,7 +15,6 @@ async def test_declare_contract(
 
     migrator = await migrator_builder.build(
         project_root_path / "migrations" / "migration_declare.cairo",
-        config=Migrator.Config(),
     )
 
     result = await migrator.run()
@@ -37,7 +36,6 @@ async def test_descriptive_error_on_file_not_found(
 ):
     migrator = await migrator_builder.build(
         project_root_path / "migrations" / "migration_declare_file_not_found.cairo",
-        config=Migrator.Config(),
     )
 
     with pytest.raises(
