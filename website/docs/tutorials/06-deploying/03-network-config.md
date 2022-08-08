@@ -1,6 +1,6 @@
 # Network configuration
 ```python
-class NetworkConfig(TypedDict):
+class CheatcodeNetworkConfig(TypedDict):
     wait_for_acceptance: bool
     "Wait for transaction to be accepted on chain."
 ```
@@ -11,7 +11,7 @@ It has no effect in the test environment, however it is kept for compatibility.
 
 #### Default configuration:
 ```python
-NetworkConfig(
+CheatcodeNetworkConfig(
     wait_for_acceptance=False
 )
 ```
