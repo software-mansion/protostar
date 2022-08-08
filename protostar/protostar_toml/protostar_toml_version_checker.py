@@ -26,7 +26,7 @@ class ProtostarTOMLVersionChecker:
         if not declared_version_str:
             raise ProtostarException(
                 "Couldn't load `protostar_version`\n"
-                "`protostar.toml` could've been created or modified by a newer version of Protostar".
+                "`protostar.toml` could've been created or modified by a newer version of Protostar.\n"
                 f"{REFER_TO}"
             )
 
