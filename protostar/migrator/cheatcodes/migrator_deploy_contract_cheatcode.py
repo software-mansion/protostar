@@ -15,7 +15,7 @@ from protostar.commands.test.test_environment_exceptions import (
     KeywordOnlyArgumentCheatcodeException,
 )
 
-from protostar.commands.test.cheatcodes import NetworkConfig
+from protostar.commands.test.cheatcodes import NetworkConfig, get_default_network_config
 
 
 class MigratorDeployContractCheatcode(Cheatcode):
@@ -40,6 +40,8 @@ class MigratorDeployContractCheatcode(Cheatcode):
     def build(self) -> DeployContractCheatcodeProtocol:
         return self._deploy_contract
 
+    # pylint bug ?
+    # pylint: disable=keyword-arg-before-vararg
     def _deploy_contract(
         self,
         contract_path: str,
@@ -54,15 +56,14 @@ class MigratorDeployContractCheatcode(Cheatcode):
             assert False, "Data Transformer is not supported"
 
         if not config:
-            config = {}
-        config = collections.defaultdict(lambda: None, config)
+            config = get_default_network_config()
 
         response = asyncio.run(
             self._gateway_facade.deploy(
                 compiled_contract_path=Path(contract_path),
                 inputs=constructor_args,
                 token=self._config.token,
-                wait_for_acceptance=config["wait_for_acceptance"] or False,
+                wait_for_acceptance=config["wait_for_acceptance"],
             )
         )
 

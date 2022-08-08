@@ -16,8 +16,6 @@ from protostar.utils.log_color_provider import LogColorProvider
 
 
 class Migrator:
-    Config = MigratorExecutionEnvironment.Config
-
     @dataclass(frozen=True)
     class History:
         starknet_requests: List[StarknetRequest]
@@ -38,6 +36,9 @@ class Migrator:
             self._gateway_facade_builder = gateway_facade_builder
             self._logger: Optional[Logger] = None
             self._log_color_provider: Optional[LogColorProvider] = None
+            self._migrator_execution_environment_config = (
+                MigratorExecutionEnvironment.Config()
+            )
 
         def set_logger(
             self, logger: Logger, log_color_provider: LogColorProvider
@@ -48,19 +49,24 @@ class Migrator:
         def set_network(self, network: str):
             self._gateway_facade_builder.set_network(network)
 
-        async def build(
-            self, migration_file_path: Path, config: "Optional[Migrator.Config]" = None
+        def set_migration_execution_environemnt_config(
+            self, config: MigratorExecutionEnvironment.Config
         ):
+            self._migrator_execution_environment_config = config
+
+        async def build(self, migration_file_path: Path):
             facade = self._gateway_facade_builder.build()
 
-            if self._logger is not None:
+            if self._logger:
+                assert self._log_color_provider
                 facade.set_logger(self._logger, self._log_color_provider)
 
             self._migrator_execution_environment_builder.set_gateway_facade(facade)
 
             migrator_execution_env = (
                 await self._migrator_execution_environment_builder.build(
-                    migration_file_path, config=config or Migrator.Config()
+                    migration_file_path,
+                    config=self._migrator_execution_environment_config,
                 )
             )
 

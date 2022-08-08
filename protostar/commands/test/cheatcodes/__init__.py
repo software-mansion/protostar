@@ -6,7 +6,7 @@ from .expect_events_cheatcode import ExpectEventsCheatcode
 from .expect_revert_cheatcode import ExpectRevertCheatcode
 from .given_cheatcode import GivenCheatcode
 from .mock_call_cheatcode import MockCallCheatcode
-from .network_config import NetworkConfig
+from .network_config import NetworkConfig, get_default_network_config
 from .prepare_cheatcode import PrepareCheatcode, PreparedContract
 from .reflect_cheatcode import ReflectCheatcode
 from .reject_cheatcode import RejectCheatcode
