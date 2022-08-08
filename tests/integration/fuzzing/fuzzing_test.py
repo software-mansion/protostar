@@ -98,7 +98,7 @@ async def test_max_fuzz_runs_less_or_equal_than_specified(
 async def test_strategies(
     run_cairo_test_runner: RunCairoTestRunnerFixture,
 ):
-    fuzz_max_examples = 10
+    fuzz_max_examples = 100
 
     testing_summary = await run_cairo_test_runner(
         Path(__file__).parent / "strategies_test.cairo",
@@ -109,6 +109,7 @@ async def test_strategies(
         testing_summary,
         expected_passed_test_cases_names=[
             "test_integers",
+            "test_integers_unbounded",
             "test_multiple_learning_steps",
         ],
         expected_failed_test_cases_names=[
