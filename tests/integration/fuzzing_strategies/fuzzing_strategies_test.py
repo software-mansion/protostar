@@ -29,17 +29,15 @@ async def test_integers(
 async def test_integers_unbounded(
     run_cairo_test_runner: RunCairoTestRunnerFixture,
 ):
-    fuzz_max_examples = 100
-
     testing_summary = await run_cairo_test_runner(
         Path(__file__).parent / "integers_unbounded_test.cairo",
-        fuzz_max_examples=fuzz_max_examples,
+        fuzz_max_examples=60,
     )
 
     assert_cairo_test_cases(
         testing_summary,
-        expected_passed_test_cases_names=["test_integers_unbounded"],
-        expected_failed_test_cases_names=[],
+        expected_passed_test_cases_names=[],
+        expected_failed_test_cases_names=["test_integers_unbounded"],
     )
 
 
