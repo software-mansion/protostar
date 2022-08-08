@@ -1,9 +1,9 @@
-from typing import Optional, Dict, Any
+from typing import Optional
 
-from typing_extensions import Protocol
+from typing_extensions import Protocol, TypedDict
 
-from protostar.commands.test.cheatcodes.declare_cheatcode import DeclareCheatcode
-from protostar.commands.test.cheatcodes.deploy_cheatcode import (
+from protostar.commands.test.cheatcodes import (
+    DeclareCheatcode,
     DeployCheatcode,
     DeployedContract,
 )
@@ -15,6 +15,10 @@ from protostar.commands.test.test_environment_exceptions import (
 )
 
 
+class NetworkConfig(TypedDict):
+    wait_for_acceptance: bool
+
+
 class DeployContractCheatcodeProtocol(Protocol):
     # pylint bug ?
     # pylint: disable=keyword-arg-before-vararg
@@ -23,7 +27,7 @@ class DeployContractCheatcodeProtocol(Protocol):
         contract_path: str,
         constructor_args: Optional[CairoOrPythonData] = None,
         *args,
-        config: Optional[Dict[str, Any]],
+        config: Optional[NetworkConfig],
     ) -> DeployedContract:
         ...
 
@@ -56,7 +60,7 @@ class DeployContractCheatcode(Cheatcode):
         constructor_args: Optional[CairoOrPythonData] = None,
         *args,
         # pylint: disable=unused-argument
-        config: Optional[Dict[str, Any]] = None,
+        config: Optional[NetworkConfig] = None,
     ) -> DeployedContract:
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])

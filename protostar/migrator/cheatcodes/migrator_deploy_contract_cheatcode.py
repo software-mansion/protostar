@@ -2,7 +2,7 @@ import asyncio
 import collections
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional
 
 from protostar.commands.test.cheatcodes.deploy_cheatcode import DeployedContract
 from protostar.commands.test.cheatcodes.deploy_contract_cheatcode import (
@@ -14,6 +14,8 @@ from protostar.utils.data_transformer import CairoOrPythonData
 from protostar.commands.test.test_environment_exceptions import (
     KeywordOnlyArgumentCheatcodeException,
 )
+
+from protostar.commands.test.cheatcodes import NetworkConfig
 
 
 class MigratorDeployContractCheatcode(Cheatcode):
@@ -43,7 +45,7 @@ class MigratorDeployContractCheatcode(Cheatcode):
         contract_path: str,
         constructor_args: Optional[CairoOrPythonData] = None,
         *args,
-        config: Optional[Dict[str, Any]] = None,
+        config: Optional[NetworkConfig] = None,
     ) -> DeployedContract:
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])

@@ -1,4 +1,3 @@
-from logging import Logger
 from pathlib import Path
 from typing import Optional
 
@@ -8,7 +7,6 @@ from protostar.starknet.execution_state import ExecutionState
 from protostar.starknet.forkable_starknet import ForkableStarknet
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.utils.compiler.pass_managers import StarknetPassManagerFactory
-from protostar.utils.log_color_provider import LogColorProvider
 from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
 
