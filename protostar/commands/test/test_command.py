@@ -71,7 +71,7 @@ class TestCommand(Command):
                 type="str",
                 is_array=True,
                 is_positional=True,
-                default=["tests"],
+                default=["."],
             ),
             Command.Argument(
                 name="ignore",

@@ -1,8 +1,5 @@
 from pathlib import Path
 
-from protostar.commands.test.environments.fuzz_test_execution_environment import (
-    FuzzConfig,
-)
 from tests.integration.conftest import (
     RunCairoTestRunnerFixture,
     assert_cairo_test_cases,
@@ -98,7 +95,7 @@ async def test_max_fuzz_runs_less_or_equal_than_specified(
 async def test_strategies(
     run_cairo_test_runner: RunCairoTestRunnerFixture,
 ):
-    fuzz_max_examples = 10
+    fuzz_max_examples = 100
 
     testing_summary = await run_cairo_test_runner(
         Path(__file__).parent / "strategies_test.cairo",
@@ -109,6 +106,7 @@ async def test_strategies(
         testing_summary,
         expected_passed_test_cases_names=[
             "test_integers",
+            "test_integers_unbounded",
             "test_multiple_learning_steps",
         ],
         expected_failed_test_cases_names=[
@@ -122,3 +120,19 @@ async def test_strategies(
 
     for result in testing_summary.passed:
         assert result.fuzz_runs_count == fuzz_max_examples
+
+
+async def test_issue_590(run_cairo_test_runner: RunCairoTestRunnerFixture):
+    """
+    https://github.com/software-mansion/protostar/issues/590
+    """
+    testing_summary = await run_cairo_test_runner(
+        Path(__file__).parent / "issue_590_test.cairo",
+        fuzz_max_examples=60,
+    )
+
+    assert_cairo_test_cases(
+        testing_summary,
+        expected_passed_test_cases_names=[],
+        expected_failed_test_cases_names=["test_590"],
+    )

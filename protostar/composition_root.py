@@ -181,7 +181,6 @@ def build_di_container(script_root: Path):
         latest_version_checker=latest_version_checker,
         log_color_provider=log_color_provider,
         logger=logger,
-        start_time=0.0,
         version_manager=version_manager,
     )
 
