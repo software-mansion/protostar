@@ -16,7 +16,7 @@ from protostar.commands.test.test_environment_exceptions import (
     KeywordOnlyArgumentCheatcodeException,
 )
 
-from protostar.commands.test.cheatcodes import NetworkConfig
+from protostar.commands.test.cheatcodes.network_config import NetworkConfig
 
 
 @dataclass

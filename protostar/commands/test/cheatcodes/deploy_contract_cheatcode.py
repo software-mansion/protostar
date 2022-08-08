@@ -1,9 +1,9 @@
 from typing import Optional
 
-from typing_extensions import Protocol, TypedDict
+from typing_extensions import Protocol
 
-from protostar.commands.test.cheatcodes import (
-    DeclareCheatcode,
+from protostar.commands.test.cheatcodes.declare_cheatcode import DeclareCheatcode
+from protostar.commands.test.cheatcodes.deploy_cheatcode import (
     DeployCheatcode,
     DeployedContract,
 )
@@ -14,9 +14,7 @@ from protostar.commands.test.test_environment_exceptions import (
     KeywordOnlyArgumentCheatcodeException,
 )
 
-
-class NetworkConfig(TypedDict):
-    wait_for_acceptance: bool
+from protostar.commands.test.cheatcodes.network_config import NetworkConfig
 
 
 class DeployContractCheatcodeProtocol(Protocol):
