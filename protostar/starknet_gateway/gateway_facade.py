@@ -34,35 +34,33 @@ class CompilationOutputNotFoundException(ProtostarException):
 
 
 class GatewayFacade:
-    # pylint: disable=protected-access
     class Builder:
         def __init__(self, project_root_path: Path):
-            self._gateway_facade = GatewayFacade(project_root_path)
+            self._project_root_path = project_root_path
+            self._network: Optional[str] = None
 
         def set_network(self, network: str) -> None:
-            self._gateway_facade._gateway_client = GatewayClient(
+            self._network = network
+
+        def build(self) -> "GatewayFacade":
+            assert self._network is not None
+
+            client = GatewayClient(
                 # Starknet.py ignores chain parameter when
                 # `mainnet` or `testnet` is passed into the client
                 # `StarknetChainId.TESTNET` also works for devnet
                 # chain parameter is going to be removed soon
                 # so we won't have to rely on this behaviour
-                GatewayFacade.map_to_starknet_py_naming(network),
+                GatewayFacade.map_to_starknet_py_naming(self._network),
                 chain=StarknetChainId.TESTNET,
             )
 
-        def set_logger(
-            self, logger: Logger, log_color_provider: LogColorProvider
-        ) -> None:
-            self._gateway_facade._logger = logger
-            self._gateway_facade._log_color_provider = log_color_provider
-
-        def build(self) -> "GatewayFacade":
-            assert self._gateway_facade._gateway_client
-            return self._gateway_facade
+            return GatewayFacade(self._project_root_path, client)
 
     def __init__(
         self,
         project_root_path: Path,
+        gateway_client: GatewayClient,
         logger: Optional[Logger] = None,
         log_color_provider: Optional[LogColorProvider] = None,
     ) -> None:
@@ -70,7 +68,7 @@ class GatewayFacade:
         self._starknet_requests: List[StarknetRequest] = []
         self._logger: Optional[Logger] = logger
         self._log_color_provider: Optional[LogColorProvider] = log_color_provider
-        self._gateway_client: Optional[GatewayClient] = None
+        self._gateway_client = gateway_client
 
     def set_logger(self, logger: Logger, log_color_provider: LogColorProvider) -> None:
         self._logger = logger
@@ -104,7 +102,6 @@ class GatewayFacade:
             salt=salt,
         )
 
-        assert self._gateway_client
         register_response = self._register_request(
             action="DEPLOY",
             payload={
@@ -173,7 +170,6 @@ class GatewayFacade:
             },
         )
 
-        assert self._gateway_client
         result = await self._gateway_client.declare(tx, token)
         register_response(dataclasses.asdict(result))
         if wait_for_acceptance:

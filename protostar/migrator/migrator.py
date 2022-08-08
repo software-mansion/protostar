@@ -9,6 +9,8 @@ from typing import List, Optional
 from protostar.migrator.migrator_execution_environment import (
     MigratorExecutionEnvironment,
 )
+
+from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.starknet_gateway.starknet_request import StarknetRequest
 from protostar.utils.log_color_provider import LogColorProvider
 
@@ -28,24 +30,34 @@ class Migrator:
         def __init__(
             self,
             migrator_execution_environment_builder: MigratorExecutionEnvironment.Builder,
+            gateway_facade_builder: GatewayFacade.Builder,
         ) -> None:
             self._migrator_execution_environment_builder = (
                 migrator_execution_environment_builder
             )
+            self._gateway_facade_builder = gateway_facade_builder
+            self._logger: Optional[Logger] = None
+            self._log_color_provider: Optional[LogColorProvider] = None
 
         def set_logger(
             self, logger: Logger, log_color_provider: LogColorProvider
         ) -> None:
-            self._migrator_execution_environment_builder.set_logger(
-                logger, log_color_provider
-            )
+            self._logger = logger
+            self._log_color_provider = log_color_provider
 
         def set_network(self, network: str):
-            self._migrator_execution_environment_builder.set_network(network)
+            self._gateway_facade_builder.set_network(network)
 
         async def build(
-            self, migration_file_path: Path, config: "Optional[Migrator.Config]"
+            self, migration_file_path: Path, config: "Optional[Migrator.Config]" = None
         ):
+            facade = self._gateway_facade_builder.build()
+
+            if self._logger is not None:
+                facade.set_logger(self._logger, self._log_color_provider)
+
+            self._migrator_execution_environment_builder.set_gateway_facade(facade)
+
             migrator_execution_env = (
                 await self._migrator_execution_environment_builder.build(
                     migration_file_path, config=config or Migrator.Config()

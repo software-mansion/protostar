@@ -16,28 +16,18 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
     Config = MigratorCheatcodeFactory.Config
 
     class Builder:
-        def __init__(
-            self,
-            gateway_facade_builder: GatewayFacade.Builder,
-        ) -> None:
-            self._gateway_facade_builder = gateway_facade_builder
+        def __init__(self):
+            self._gateway_facade: Optional[GatewayFacade] = None
 
-        def set_logger(
-            self, logger: Logger, log_color_provider: LogColorProvider
-        ) -> None:
-            if logger:
-                self._gateway_facade_builder.set_logger(logger, log_color_provider)
-
-        def set_network(self, network: str):
-            self._gateway_facade_builder.set_network(network)
+        def set_gateway_facade(self, gateway_facade: GatewayFacade):
+            self._gateway_facade = gateway_facade
 
         async def build(
             self,
             migration_file_path: Path,
             config: "MigratorExecutionEnvironment.Config",
         ) -> "MigratorExecutionEnvironment":
-
-            gateway_facade = self._gateway_facade_builder.build()
+            assert self._gateway_facade is not None
 
             compiler_config = CompilerConfig(
                 disable_hint_validation=True, include_paths=[]
@@ -59,7 +49,7 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
             )
             migration_cheatcode_factory = MigratorCheatcodeFactory(
                 starknet_compiler,
-                gateway_facade,
+                self._gateway_facade,
                 config=config,
             )
 

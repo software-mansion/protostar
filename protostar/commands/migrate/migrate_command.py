@@ -105,9 +105,7 @@ class MigrateCommand(Command):
 
         self._migrator_builder.set_network(network)
 
-        migrator = await self._migrator_builder.build(
-            migration_file_path,
-        )
+        migrator = await self._migrator_builder.build(migration_file_path)
 
         try:
             migrator_history = await migrator.run(rollback)

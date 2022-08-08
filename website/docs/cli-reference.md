@@ -51,7 +51,7 @@ Signature information for the declaration.
 #### `--token STRING`
 Used for declaring contracts in Alpha MainNet.
 #### `--wait-for-acceptance`
-Wait until 'Accepted on L2' status.
+Waits for transaction to be accepted on chain.
 ### `deploy`
 ```shell
 protostar deploy ./build/main.json --network alpha-goerli
@@ -78,7 +78,7 @@ An optional salt controlling where the contract will be deployed. The contract d
 #### `--token STRING`
 Used for deploying contracts in Alpha MainNet.
 #### `--wait-for-acceptance`
-Wait until 'Accepted on L2' status.
+Waits for transaction to be accepted on chain.
 ### `init`
 ```shell
 $ protostar init
