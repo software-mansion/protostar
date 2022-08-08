@@ -2,14 +2,14 @@ from logging import Logger
 from typing import List
 
 from .test_collector import TestCollector
-from .test_result_cli_formatter_visitor import TestResultCLIFormatterVisitor
+from .test_result_cli_formatter_visitor import TestResultCLIFormatter
 
 
-class TestCollectorResultLogger:
+class TestCollectorCLIFormatter:
     def __init__(
         self,
         logger: Logger,
-        test_result_cli_formatter_visitor: TestResultCLIFormatterVisitor,
+        test_result_cli_formatter_visitor: TestResultCLIFormatter,
     ) -> None:
         self._logger = logger
         self._test_result_cli_formatter_visitor = test_result_cli_formatter_visitor

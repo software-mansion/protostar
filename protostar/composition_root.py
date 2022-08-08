@@ -21,7 +21,7 @@ from protostar.commands.init.project_creator import (
     NewProjectCreator,
 )
 from protostar.commands.test.test_result_cli_formatter_visitor import (
-    TestResultCLIFormatterVisitor,
+    TestResultCLIFormatter,
 )
 from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
@@ -149,7 +149,7 @@ def build_di_container(script_root: Path):
             project_root_path,
             protostar_directory,
             project_cairo_path_builder,
-            test_result_cli_formatter_visitor_builder=TestResultCLIFormatterVisitor.Builder(
+            test_result_cli_formatter_visitor_builder=TestResultCLIFormatter.Builder(
                 log_color_provider=log_color_provider
             ),
         ),

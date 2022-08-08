@@ -9,7 +9,7 @@ from protostar.commands.test.environments.fuzz_test_execution_environment import
 )
 from protostar.commands.test.test_collector import TestCollector
 from protostar.commands.test.test_result_cli_formatter_visitor import (
-    TestResultCLIFormatterVisitor,
+    TestResultCLIFormatter,
 )
 from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.test_scheduler import TestScheduler
@@ -32,7 +32,7 @@ class TestCommand(Command):
         project_root_path: Path,
         protostar_directory: ProtostarDirectory,
         project_cairo_path_builder: ProjectCairoPathBuilder,
-        test_result_cli_formatter_visitor_builder: TestResultCLIFormatterVisitor.Builder,
+        test_result_cli_formatter_visitor_builder: TestResultCLIFormatter.Builder,
     ) -> None:
         super().__init__()
         self._project_root_path = project_root_path

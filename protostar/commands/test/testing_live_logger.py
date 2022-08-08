@@ -6,7 +6,7 @@ from tqdm import tqdm as bar
 
 from protostar.commands.test.test_cases import BrokenTestSuiteResult, TestResult
 from protostar.commands.test.test_result_cli_formatter_visitor import (
-    TestResultCLIFormatterVisitor,
+    TestResultCLIFormatter,
 )
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.testing_summary import TestingSummary
@@ -24,7 +24,7 @@ class TestingLiveLogger:
         no_progress_bar: bool,
         exit_first: bool,
         slowest_tests_to_report_count: int,
-        test_result_cli_formatter_visitor_builder: TestResultCLIFormatterVisitor.Builder,
+        test_result_cli_formatter_visitor_builder: TestResultCLIFormatter.Builder,
     ) -> None:
         self._logger = logger
         self._no_progress_bar = no_progress_bar

@@ -1,40 +1,46 @@
 from pathlib import Path
 from typing import Callable, Dict, List, Optional
 
-from protostar.commands.test.test_cases import TestResultVisitor
-from protostar.commands.test.test_environment_exceptions import ExceptionMetadata
-from protostar.commands.test.test_output_recorder import OutputName, format_output_name
+from protostar.commands.test.test_environment_exceptions import \
+    ExceptionMetadata
+from protostar.commands.test.test_output_recorder import (OutputName,
+                                                          format_output_name)
 from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
 from protostar.utils.log_color_provider import LogColorProvider
+
+from .test_cases import (BrokenTestSuiteResult, FailedFuzzTestCaseResult,
+                         FailedTestCaseResult, PassedFuzzTestCaseResult,
+                         PassedTestCaseResult, TestResult,
+                         UnexpectedExceptionTestSuiteResult)
 
 LogCallback = Callable[[str], None]
 
 
-class TestResultCLIFormatterVisitor(TestResultVisitor):
-    class Builder:
-        def __init__(self, log_color_provider: LogColorProvider) -> None:
-            self._log_color_provider = log_color_provider
-            self._log_callback: Optional[LogCallback] = None
-
-        def set_log_callback(self, log_callback: LogCallback) -> None:
-            self._log_callback = log_callback
-
-        def build(self) -> "TestResultCLIFormatterVisitor":
-            assert self._log_callback
-            return TestResultCLIFormatterVisitor(
-                log_color_provider=self._log_color_provider, on_log=self._log_callback
-            )
-
+class TestResultCLIFormatter:
     def __init__(
         self,
-        on_log: LogCallback,
         log_color_provider: LogColorProvider,
     ) -> None:
         super().__init__()
-        self._on_log = on_log
         self._log_color_provider = log_color_provider
 
-    def visit_passed_test_case_result(self, passed_test_case_result) -> None:
+    def format(self, test_result: TestResult):
+        if isinstance(test_result, PassedTestCaseResult):
+            self._format_passed_test_case_result(test_result)
+        if isinstance(test_result, FailedTestCaseResult):
+            self._format_failed_test_case_result(test_result)
+        if isinstance(test_result, PassedFuzzTestCaseResult):
+            self._format_passed_fuzz_test_case_result(test_result)
+        if isinstance(test_result, FailedFuzzTestCaseResult):
+            self._format_failed_fuzz_test_case_result(test_result)
+        if isinstance(test_result, BrokenTestSuiteResult):
+            self._format_broken_test_suite_result(test_result)
+        if isinstance(test_result, UnexpectedExceptionTestSuiteResult):
+            self._format_unexpected_exception_test_suite_result(test_result)
+
+    def _format_passed_test_case_result(
+        self, passed_test_case_result: PassedTestCaseResult
+    ) -> None:
         first_line_elements: List[str] = []
         first_line_elements.append(
             f"[{self._log_color_provider.colorize('GREEN', 'PASS')}]"
@@ -105,7 +111,7 @@ class TestResultCLIFormatterVisitor(TestResultVisitor):
 
         self._on_log(first_line)
 
-    def visit_failed_test_case_result(self, failed_test_case_result) -> None:
+    def _format_failed_test_case_result(self, failed_test_case_result) -> None:
         result: List[str] = []
         first_line_items: List[str] = []
 
@@ -145,13 +151,17 @@ class TestResultCLIFormatterVisitor(TestResultVisitor):
 
         self._on_log("".join(result))
 
-    def visit_passed_fuzz_test_case_result(self, passed_fuzz_test_case_result) -> None:
-        self.visit_passed_test_case_result(passed_fuzz_test_case_result)
+    def _format_passed_fuzz_test_case_result(
+        self, passed_fuzz_test_case_result
+    ) -> None:
+        self._format_passed_test_case_result(passed_fuzz_test_case_result)
 
-    def visit_failed_fuzz_test_case_result(self, failed_fuzz_test_case_result) -> None:
-        self.visit_failed_test_case_result(failed_fuzz_test_case_result)
+    def _format_failed_fuzz_test_case_result(
+        self, failed_fuzz_test_case_result
+    ) -> None:
+        self._format_failed_test_case_result(failed_fuzz_test_case_result)
 
-    def visit_broken_test_suite_result(self, broken_test_suite_result) -> None:
+    def _format_broken_test_suite_result(self, broken_test_suite_result) -> None:
         first_line: List[str] = []
         first_line.append(f"[{self._log_color_provider.colorize('RED', 'BROKEN')}]")
         first_line.append(
@@ -161,7 +171,7 @@ class TestResultCLIFormatterVisitor(TestResultVisitor):
         result.append(str(broken_test_suite_result.exception))
         self._on_log("\n".join(result))
 
-    def visit_unexpected_exception_test_suite_result(
+    def _format_unexpected_exception_test_suite_result(
         self, unexpected_exception_test_suite_result
     ) -> None:
         lines: List[str] = []
