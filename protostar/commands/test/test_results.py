@@ -83,5 +83,5 @@ class BrokenTestSuiteResult(TestResult):
 
 
 @dataclass(frozen=True)
-class UnexpectedExceptionTestSuiteResult(BrokenTestSuiteResult):
+class UnexpectedBrokenTestSuiteResult(BrokenTestSuiteResult):
     traceback: Optional[str]

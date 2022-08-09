@@ -1,17 +1,20 @@
 from pathlib import Path
 from typing import Callable, Dict, List
 
-from protostar.commands.test.test_environment_exceptions import \
-    ExceptionMetadata
-from protostar.commands.test.test_output_recorder import (OutputName,
-                                                          format_output_name)
+from protostar.commands.test.test_environment_exceptions import ExceptionMetadata
+from protostar.commands.test.test_output_recorder import OutputName, format_output_name
 from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
 from protostar.utils.log_color_provider import LogColorProvider
 
-from .test_results import (BrokenTestSuiteResult, FailedFuzzTestCaseResult,
-                           FailedTestCaseResult, PassedFuzzTestCaseResult,
-                           PassedTestCaseResult, TestResult,
-                           UnexpectedExceptionTestSuiteResult)
+from .test_results import (
+    BrokenTestSuiteResult,
+    FailedFuzzTestCaseResult,
+    FailedTestCaseResult,
+    PassedFuzzTestCaseResult,
+    PassedTestCaseResult,
+    TestResult,
+    UnexpectedBrokenTestSuiteResult,
+)
 
 LogCallback = Callable[[str], None]
 
@@ -34,7 +37,7 @@ class TestResultFormatter:
             return self._format_passed_test_case_result(test_result)
         if isinstance(test_result, FailedTestCaseResult):
             return self._format_failed_test_case_result(test_result)
-        if isinstance(test_result, UnexpectedExceptionTestSuiteResult):
+        if isinstance(test_result, UnexpectedBrokenTestSuiteResult):
             return self._format_unexpected_exception_test_suite_result(test_result)
         if isinstance(test_result, BrokenTestSuiteResult):
             return self._format_broken_test_suite_result(test_result)
@@ -191,7 +194,7 @@ class TestResultFormatter:
         return "\n".join(result)
 
     def _format_unexpected_exception_test_suite_result(
-        self, unexpected_exception_test_suite_result: UnexpectedExceptionTestSuiteResult
+        self, unexpected_exception_test_suite_result: UnexpectedBrokenTestSuiteResult
     ) -> str:
         lines: List[str] = []
         main_line: List[str] = []

@@ -8,23 +8,26 @@ from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 
 from protostar.commands.test.environments.factory import invoke_setup
-from protostar.commands.test.environments.fuzz_test_execution_environment import \
-    FuzzConfig
-from protostar.commands.test.starkware.test_execution_state import \
-    TestExecutionState
-from protostar.commands.test.test_case_runners.test_case_runner_factory import \
-    TestCaseRunnerFactory
-from protostar.commands.test.test_environment_exceptions import \
-    ReportedException
+from protostar.commands.test.environments.fuzz_test_execution_environment import (
+    FuzzConfig,
+)
+from protostar.commands.test.starkware.test_execution_state import TestExecutionState
+from protostar.commands.test.test_case_runners.test_case_runner_factory import (
+    TestCaseRunnerFactory,
+)
+from protostar.commands.test.test_environment_exceptions import ReportedException
 from protostar.commands.test.test_results import (
-    BrokenTestSuiteResult, UnexpectedExceptionTestSuiteResult)
+    BrokenTestSuiteResult,
+    UnexpectedBrokenTestSuiteResult,
+)
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.test_suite import TestSuite
 from protostar.protostar_exception import ProtostarException
-from protostar.utils.compiler.pass_managers import (ProtostarPassMangerFactory,
-                                                    TestSuitePassMangerFactory)
-from protostar.utils.starknet_compilation import (CompilerConfig,
-                                                  StarknetCompiler)
+from protostar.utils.compiler.pass_managers import (
+    ProtostarPassMangerFactory,
+    TestSuitePassMangerFactory,
+)
+from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
 logger = getLogger()
 
@@ -118,7 +121,7 @@ class TestRunner:
         # An unexpected exception in a worker should neither crash nor freeze the whole application
         except BaseException as ex:  # pylint: disable=broad-except
             self.shared_tests_state.put_result(
-                UnexpectedExceptionTestSuiteResult(
+                UnexpectedBrokenTestSuiteResult(
                     file_path=test_suite.test_path,
                     test_case_names=test_suite.test_case_names,
                     exception=ex,
