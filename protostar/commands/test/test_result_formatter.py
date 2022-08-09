@@ -53,7 +53,7 @@ class TestResultFormatter:
                 file_path=passed_test_case_result.file_path,
                 execution_time=passed_test_case_result.execution_time,
                 test_case_name=passed_test_case_result.test_case_name,
-                fuzz_runs_count=0,
+                fuzz_runs_count=None,
             )
         )
 

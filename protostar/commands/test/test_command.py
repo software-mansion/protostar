@@ -252,4 +252,4 @@ class TestCommand(Command):
 
     def _log_formatted_test_result(self, test_result: TestResult) -> None:
         formatted_test_result = self._test_result_formatter.format(test_result)
-        self._logger.info(formatted_test_result)
+        print(formatted_test_result)
