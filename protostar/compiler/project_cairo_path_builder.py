@@ -2,6 +2,8 @@ import os
 from pathlib import Path
 from typing import List, Optional
 
+from typing_extensions import Protocol
+
 from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
 
 
@@ -11,6 +13,7 @@ class ProjectCairoPathBuilder:
         project_root_path: Path,
         project_section_loader: ProtostarProjectSection.Loader,
     ) -> None:
+        super().__init__()
         self._project_root_path = project_root_path
         self._project_section_loader = project_section_loader
 

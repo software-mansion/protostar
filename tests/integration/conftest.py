@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 from logging import getLogger
 from pathlib import Path
-from typing import List, Optional, Set, Union
+from typing import List, Optional, Set, Union, cast
 
 import pytest
 from pytest_mock import MockerFixture
@@ -14,6 +14,7 @@ from protostar.commands.test.test_collector_result_logger import (
 from protostar.commands.test.test_command import TestCommand
 from protostar.commands.test.test_result_formatter import TestResultFormatter
 from protostar.commands.test.testing_summary import TestingSummary
+from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.utils.log_color_provider import LogColorProvider
 from tests.conftest import run_devnet
 
@@ -90,6 +91,8 @@ class RunCairoTestRunnerFixture(Protocol):
         path: Path,
         seed: Optional[int] = None,
         fuzz_max_examples=100,
+        disable_hint_validation=False,
+        cairo_path: Optional[List[Path]] = None,
     ) -> TestingSummary:
         ...
 
@@ -100,19 +103,36 @@ def run_cairo_test_runner_fixture(mocker: MockerFixture) -> RunCairoTestRunnerFi
         path: Path,
         seed: Optional[int] = None,
         fuzz_max_examples=100,
+        disable_hint_validation=False,
+        cairo_path: Optional[List[Path]] = None,
     ) -> TestingSummary:
         log_color_provider = LogColorProvider()
         log_color_provider.is_ci_mode = False
         test_result_formatter = TestResultFormatter(log_color_provider)
+
+        protostar_directory_mock = mocker.MagicMock()
+        protostar_directory_mock.protostar_test_only_cairo_packages_path = Path()
+
+        project_cairo_path_builder = cast(ProjectCairoPathBuilder, mocker.MagicMock())
+        cast(
+            mocker.MagicMock, project_cairo_path_builder
+        ).build_project_cairo_path_list = lambda paths: paths
+
         return await TestCommand(
             project_root_path=Path(),
-            protostar_directory=mocker.MagicMock(),
-            project_cairo_path_builder=mocker.MagicMock(),
+            protostar_directory=protostar_directory_mock,
+            project_cairo_path_builder=project_cairo_path_builder,
             test_collector_result_logger=TestCollectorResultLogger(
                 logger=getLogger(),
                 test_result_formatter=test_result_formatter,
             ),
             test_result_formatter=test_result_formatter,
-        ).test(targets=[str(path)], seed=seed, fuzz_max_examples=fuzz_max_examples)
+        ).test(
+            targets=[str(path)],
+            seed=seed,
+            fuzz_max_examples=fuzz_max_examples,
+            disable_hint_validation=disable_hint_validation,
+            cairo_path=cairo_path or [],
+        )
 
     return run_cairo_test_runner

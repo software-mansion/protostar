@@ -2,24 +2,18 @@
 from pathlib import Path
 
 import pytest
-from pytest_mock import MockerFixture
 
-from protostar.commands.test import TestCommand
-from tests.integration.conftest import assert_cairo_test_cases
+from tests.integration.conftest import (
+    RunCairoTestRunnerFixture,
+    assert_cairo_test_cases,
+)
 
 
 @pytest.mark.asyncio
-async def test_asserts(mocker: MockerFixture):
-    protostar_directory_mock = mocker.MagicMock()
-    protostar_directory_mock.protostar_test_only_cairo_packages_path = Path() / "cairo"
-
-    testing_summary = await TestCommand(
-        project_root_path=Path(),
-        project_cairo_path_builder=mocker.MagicMock(),
-        protostar_directory=protostar_directory_mock,
-        test_collector_result_logger=mocker.MagicMock(),
-        test_result_formatter=mocker.MagicMock(),
-    ).test(targets=[f"{Path(__file__).parent}/asserts_test.cairo"])
+async def test_asserts(run_cairo_test_runner: RunCairoTestRunnerFixture):
+    testing_summary = await run_cairo_test_runner(
+        Path(__file__).parent / "asserts_test.cairo", cairo_path=[Path() / "cairo"]
+    )
 
     assert_cairo_test_cases(
         testing_summary,
