@@ -17,4 +17,4 @@ Check if your issue is listed on the [Issues](https://github.com/software-mansio
 1. [Create a pull request from a fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork)
 
 ## Contact
-[Protostar Discord channel](https://discord.com/invite/starknet)
+[Protostar Discord channel](https://discord.com/invite/QypNMzkHbc)

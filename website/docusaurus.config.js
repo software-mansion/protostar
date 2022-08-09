@@ -83,7 +83,7 @@ const config = {
             items: [
               {
                 label: "Discord",
-                href: "https://discord.com/invite/starknet",
+                href: "https://discord.com/invite/QypNMzkHbc",
               },
             ],
           },

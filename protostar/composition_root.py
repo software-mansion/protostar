@@ -34,6 +34,9 @@ from protostar.protostar_toml import (
     ProtostarTOMLWriter,
     search_upwards_protostar_toml_path,
 )
+from protostar.protostar_toml.protostar_toml_version_checker import (
+    ProtostarTOMLVersionChecker,
+)
 from protostar.starknet_gateway import GatewayFacade
 from protostar.upgrader import (
     LatestVersionCacheTOML,
@@ -66,7 +69,7 @@ def build_di_container(script_root: Path):
     )
     protostar_toml_path = protostar_toml_path or project_root_path / "protostar.toml"
     protostar_directory = ProtostarDirectory(script_root)
-    version_manager = VersionManager(protostar_directory)
+    version_manager = VersionManager(protostar_directory, logger)
     protostar_toml_writer = ProtostarTOMLWriter()
     protostar_toml_reader = ProtostarTOMLReader(protostar_toml_path=protostar_toml_path)
     requester = InputRequester(log_color_provider)
@@ -175,10 +178,14 @@ def build_di_container(script_root: Path):
             log_color_provider=log_color_provider,
         ),
     ]
+    protostar_toml_version_checker = ProtostarTOMLVersionChecker(
+        protostar_toml_reader=protostar_toml_reader, version_manager=version_manager
+    )
 
     protostar_cli = ProtostarCLI(
         commands=commands,
         latest_version_checker=latest_version_checker,
+        protostar_toml_version_checker=protostar_toml_version_checker,
         log_color_provider=log_color_provider,
         logger=logger,
         version_manager=version_manager,

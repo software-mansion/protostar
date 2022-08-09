@@ -7,6 +7,10 @@ from typing import Any, List
 from protostar.cli import CLIApp, Command
 from protostar.configuration_profile_cli import ConfigurationProfileCLI
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
+
+from protostar.protostar_toml.protostar_toml_version_checker import (
+    ProtostarTOMLVersionChecker,
+)
 from protostar.upgrader import LatestVersionChecker
 from protostar.utils import StandardLogFormatter, VersionManager
 from protostar.utils.log_color_provider import LogColorProvider
@@ -19,6 +23,7 @@ class ProtostarCLI(CLIApp):
         logger: Logger,
         log_color_provider: LogColorProvider,
         latest_version_checker: LatestVersionChecker,
+        protostar_toml_version_checker: ProtostarTOMLVersionChecker,
         version_manager: VersionManager,
         commands: List[Command],
     ) -> None:
@@ -27,6 +32,7 @@ class ProtostarCLI(CLIApp):
         self._start_time = time.perf_counter()
         self._log_color_provider = log_color_provider
         self._version_manager = version_manager
+        self._protostar_toml_version_checker = protostar_toml_version_checker
 
         super().__init__(
             commands=commands,
@@ -81,6 +87,10 @@ class ProtostarCLI(CLIApp):
         if args.version:
             self._version_manager.print_current_version()
             return
+
+        if args.command not in ["init", "upgrade"]:
+            self._protostar_toml_version_checker.run()
+
         await super().run(args)
 
     def _print_protostar_exception(self, err: ProtostarException):

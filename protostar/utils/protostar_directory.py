@@ -1,5 +1,5 @@
+import logging
 import re
-from logging import getLogger
 from pathlib import Path
 from typing import Optional, Union
 
@@ -44,44 +44,55 @@ class VersionManager:
     def parse(version_str: str) -> VersionType:
         return version.parse(version_str)
 
-    def __init__(self, protostar_directory: ProtostarDirectory) -> None:
+    def __init__(
+        self, protostar_directory: ProtostarDirectory, logger: logging.Logger
+    ) -> None:
         self._protostar_directory = protostar_directory
+        self._pyproject_toml_dict = None
+        self._logger = logger
+
+    @property
+    def pyproject_toml(self) -> Optional[dict]:
+        if self._pyproject_toml_dict:
+            return self._pyproject_toml_dict
+
+        path = (
+            self._protostar_directory.directory_root_path
+            / "dist"
+            / "protostar"
+            / "info"
+            / "pyproject.toml"
+        )
+        try:
+            with open(path, "r", encoding="UTF-8") as file:
+                self._pyproject_toml_dict = tomli.loads(file.read())
+                return self._pyproject_toml_dict
+        except FileNotFoundError:
+            self._logger.warning("Couldn't read protostar package info")
+        return None
 
     @property
     def protostar_version(self) -> Optional[VersionType]:
-        path = (
-            self._protostar_directory.directory_root_path
-            / "dist"
-            / "protostar"
-            / "info"
-            / "pyproject.toml"
-        )
-        try:
-            with open(path, "r", encoding="UTF-8") as file:
-                version_s = tomli.loads(file.read())["tool"]["poetry"]["version"]
-                return VersionManager.parse(version_s)
-        except FileNotFoundError:
-            getLogger().warning("Couldn't read Protostar version")
+        if not self.pyproject_toml:
             return None
+        version_s = self.pyproject_toml["tool"]["poetry"]["version"]
+        return VersionManager.parse(version_s)
 
     @property
     def cairo_version(self) -> Optional[VersionType]:
-        path = (
-            self._protostar_directory.directory_root_path
-            / "dist"
-            / "protostar"
-            / "info"
-            / "pyproject.toml"
-        )
-        try:
-            with open(path, "r", encoding="UTF-8") as file:
-                version_s = tomli.loads(file.read())["tool"]["poetry"]["dependencies"][
-                    "cairo-lang"
-                ]
-                return VersionManager.parse(version_s)
-        except FileNotFoundError:
-            getLogger().warning("Couldn't read cairo-lang version")
+        if not self.pyproject_toml:
             return None
+        version_s = self.pyproject_toml["tool"]["poetry"]["dependencies"]["cairo-lang"]
+        return VersionManager.parse(version_s)
+
+    @property
+    def last_supported_protostar_toml_version(self) -> Optional[VersionType]:
+        if not self.pyproject_toml:
+            return None
+        last_supported_v_str = self.pyproject_toml["tool"]["protostar"][
+            "last_supported_protostar_toml_version"
+        ]
+        return VersionManager.parse(last_supported_v_str)
 
     @property
     def git_version(self) -> Optional[VersionType]:
