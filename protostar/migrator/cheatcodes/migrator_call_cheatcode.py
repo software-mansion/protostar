@@ -23,7 +23,12 @@ class MigratorCallCheatcode(Cheatcode):
     def build(self) -> Callable:
         return self.call
 
-    def call(self, address: AddressRepresentation, function_name: str, inputs: Optional[Dict[str, Any]] = None):
+    def call(
+        self,
+        address: AddressRepresentation,
+        function_name: str,
+        inputs: Optional[Dict[str, Any]] = None,
+    ):
 
         output = asyncio.run(
             self._gateway_facade.call(
@@ -32,4 +37,3 @@ class MigratorCallCheatcode(Cheatcode):
                 inputs=inputs,
             )
         )
-

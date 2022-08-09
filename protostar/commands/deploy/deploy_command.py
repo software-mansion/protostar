@@ -86,7 +86,6 @@ class DeployCommand(Command):
                 is_array=True,
             ),
             Command.Argument(
-                # Note: This will be removed with the mainnet whitelist
                 name="token",
                 description="Used by whitelisted users for deploying contracts in Alpha MainNet.",
                 type="str",

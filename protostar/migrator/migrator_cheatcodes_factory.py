@@ -10,7 +10,9 @@ from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import (
     MigratorDeployContractCheatcode,
 )
 from protostar.migrator.cheatcodes.migrator_call_cheatcode import MigratorCallCheatcode
-from protostar.migrator.cheatcodes.migrator_invoke_cheatcode import MigratorInvokeCheatcode
+from protostar.migrator.cheatcodes.migrator_invoke_cheatcode import (
+    MigratorInvokeCheatcode,
+)
 
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.cheatcode_factory import CheatcodeFactory

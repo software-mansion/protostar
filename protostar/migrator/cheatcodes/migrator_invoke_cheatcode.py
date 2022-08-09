@@ -24,14 +24,19 @@ class MigratorInvokeCheatcode(Cheatcode):
         return self.invoke
 
     # TODO: consider CheatcodeNetworkConfig instead of wait_for_acceptance
-    async def invoke(self, address: AddressRepresentation, function_name: str, inputs: Optional[Dict[str, Any]] = None, wait_for_acceptance: bool = False):
+    async def invoke(
+        self,
+        address: AddressRepresentation,
+        function_name: str,
+        inputs: Optional[Dict[str, Any]] = None,
+        wait_for_acceptance: bool = False,
+    ):
 
         asyncio.run(
             self._gateway_facade.invoke(
                 address=address,
                 function_name=function_name,
                 inputs=inputs,
-                wait_for_acceptance=wait_for_acceptance
+                wait_for_acceptance=wait_for_acceptance,
             )
         )
-

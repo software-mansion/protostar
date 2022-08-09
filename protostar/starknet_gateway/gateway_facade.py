@@ -184,7 +184,9 @@ class GatewayFacade:
             transaction_hash=result.transaction_hash,
         )
 
-    async def call(self, address: AddressRepresentation, function_name: str, inputs: Dict[str, Any]):
+    async def call(
+        self, address: AddressRepresentation, function_name: str, inputs: Dict[str, Any]
+    ):
         # TODO:
         # Add registering request
         # Consider returning something other than a NamedTuple
@@ -197,7 +199,13 @@ class GatewayFacade:
         call_output = await contract.functions[function_name].call(**inputs)
         print("CALL OUTPUT: ", call_output)
 
-    async def invoke(self, address: AddressRepresentation, function_name: str, inputs: Dict[str, Any], wait_for_acceptance: bool = False):
+    async def invoke(
+        self,
+        address: AddressRepresentation,
+        function_name: str,
+        inputs: Dict[str, Any],
+        wait_for_acceptance: bool = False,
+    ):
         contract = await Contract.from_address(
             address=address, client=self._gateway_client
         )
@@ -205,7 +213,7 @@ class GatewayFacade:
 
         if wait_for_acceptance:
             result = await result.wait_for_acceptance()
-        
+
         print("INVOKE: ", result)
 
     def _register_request(
