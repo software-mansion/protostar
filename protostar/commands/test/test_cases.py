@@ -60,15 +60,19 @@ class PassedFuzzTestCaseResult(PassedTestCaseResult, FuzzResult):
 class FailedFuzzTestCaseResult(FailedTestCaseResult, FuzzResult):
     @classmethod
     def from_failed_test_case_result(
-        cls, failed_test_case_result: FailedTestCaseResult, fuzz_result: FuzzResult
+        cls,
+        failed_test_case_result: FailedTestCaseResult,
+        fuzz_result: Optional[FuzzResult],
     ) -> Self:
+        fuzz_runs_count = fuzz_result.fuzz_runs_count if fuzz_result else None
+
         return cls(
             file_path=failed_test_case_result.file_path,
             test_case_name=failed_test_case_result.test_case_name,
             captured_stdout=failed_test_case_result.captured_stdout,
             exception=failed_test_case_result.exception,
             execution_time=failed_test_case_result.execution_time,
-            fuzz_runs_count=fuzz_result.fuzz_runs_count,
+            fuzz_runs_count=fuzz_runs_count,
         )
 
 

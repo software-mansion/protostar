@@ -5,9 +5,7 @@ from protostar.commands.test.environments.fuzz_test_execution_environment import
 from protostar.commands.test.fuzzing.fuzz_input_exception_metadata import (
     FuzzInputExceptionMetadata,
 )
-from protostar.commands.test.test_case_runners.test_case_runner import (
-    TestCaseRunner,
-)
+from protostar.commands.test.test_case_runners.test_case_runner import TestCaseRunner
 from protostar.commands.test.test_cases import (
     FailedFuzzTestCaseResult,
     FailedTestCaseResult,
@@ -64,4 +62,6 @@ class FuzzTestCaseRunner(TestCaseRunner[FuzzTestExecutionResult]):
                 fuzz_result=FuzzResult(fuzz_runs_count=fuzz_runs_count),
             )
 
-        assert False, "ReportedException must include fuzz metadata"
+        return FailedFuzzTestCaseResult.from_failed_test_case_result(
+            failed_test_case_result=failed_test_case_result, fuzz_result=None
+        )
