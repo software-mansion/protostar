@@ -3,7 +3,6 @@ from typing import cast
 
 import pytest
 
-from protostar.commands.test.test_command import TestCommand
 from protostar.commands.test.test_environment_exceptions import (
     ExpectedEventMissingException,
 )
@@ -13,19 +12,10 @@ from tests.integration.conftest import (
 )
 
 
-@pytest.mark.asyncio
-async def test_expect_events(mocker):
-    testing_summary = await TestCommand(
-        project_root_path=Path(),
-        project_cairo_path_builder=mocker.MagicMock(),
-        protostar_directory=mocker.MagicMock(),
-        test_collector_result_logger=mocker.MagicMock(),
-        test_result_formatter=mocker.MagicMock(),
-    ).test(
-        targets=[f"{Path(__file__).parent}/expect_events_test.cairo"],
-        ignored_targets=[
-            f"{Path(__file__).parent}/expect_events_test.cairo::test_selector_to_name_mapping"
-        ],
+async def test_expect_events(run_cairo_test_runner: RunCairoTestRunnerFixture):
+    testing_summary = await run_cairo_test_runner(
+        Path(__file__).parent / "expect_events_test.cairo",
+        ignored_test_cases=["test_selector_to_name_mapping"],
     )
 
     assert_cairo_test_cases(

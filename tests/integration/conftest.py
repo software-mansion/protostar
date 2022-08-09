@@ -93,6 +93,7 @@ class RunCairoTestRunnerFixture(Protocol):
         fuzz_max_examples=100,
         disable_hint_validation=False,
         cairo_path: Optional[List[Path]] = None,
+        ignored_test_cases: Optional[List[str]] = None,
     ) -> TestingSummary:
         ...
 
@@ -105,6 +106,7 @@ def run_cairo_test_runner_fixture(mocker: MockerFixture) -> RunCairoTestRunnerFi
         fuzz_max_examples=100,
         disable_hint_validation=False,
         cairo_path: Optional[List[Path]] = None,
+        ignored_test_cases: Optional[List[str]] = None,
     ) -> TestingSummary:
         log_color_provider = LogColorProvider()
         log_color_provider.is_ci_mode = False
@@ -118,6 +120,13 @@ def run_cairo_test_runner_fixture(mocker: MockerFixture) -> RunCairoTestRunnerFi
             mocker.MagicMock, project_cairo_path_builder
         ).build_project_cairo_path_list = lambda paths: paths
 
+        ignored_targets: Optional[List[str]] = None
+        if ignored_test_cases:
+            ignored_targets = [
+                f"{str(path)}::{ignored_test_case}"
+                for ignored_test_case in ignored_test_cases
+            ]
+
         return await TestCommand(
             project_root_path=Path(),
             protostar_directory=protostar_directory_mock,
@@ -129,6 +138,7 @@ def run_cairo_test_runner_fixture(mocker: MockerFixture) -> RunCairoTestRunnerFi
             test_result_formatter=test_result_formatter,
         ).test(
             targets=[str(path)],
+            ignored_targets=ignored_targets,
             seed=seed,
             fuzz_max_examples=fuzz_max_examples,
             disable_hint_validation=disable_hint_validation,
