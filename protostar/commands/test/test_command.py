@@ -240,15 +240,16 @@ class TestCommand(Command):
     def _log_formatted_test_collector_summary(
         self, test_collector_result: TestCollector.Result
     ) -> None:
-        formatted_result = self._test_collector_summary_formatter.format(
+        formatter_view_model = (
             TestCollectorSummaryFormatter.ViewModel.from_test_result_summary(
                 test_collector_result
             )
         )
+        formatted_result = self._test_collector_summary_formatter.format(
+            formatter_view_model
+        )
         self._logger.info(formatted_result)
 
     def _log_formatted_test_result(self, test_result: TestResult) -> None:
-        formatted_broken_test_suite_result = self._test_result_formatter.format(
-            test_result
-        )
-        self._logger.info(formatted_broken_test_suite_result)
+        formatted_test_result = self._test_result_formatter.format(test_result)
+        self._logger.info(formatted_test_result)

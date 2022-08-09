@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import List
 
 from typing_extensions import Self
 
@@ -24,21 +23,23 @@ class TestCollectorSummaryFormatter:
             )
 
     def format(self, view_model: ViewModel):
-        result: List[str] = ["Collected"]
-        result.append(self._format_test_suites_info(view_model.test_suite_count))
-        result.append("and")
-        result.append(self._format_test_case_info(view_model.test_case_count))
-        result.append(f"({view_model.duration_in_sec:.3f} s)")
-        return " ".join(result)
+        n_test_suites = self._format_test_suites_info(view_model.test_suite_count)
+        n_test_cases = self._format_test_case_info(view_model.test_case_count)
+        duration = self._format_duration(view_model.duration_in_sec)
+        return f"Collected {n_test_suites}, and {n_test_cases} ({duration})"
 
     @staticmethod
     def _format_test_suites_info(test_suite_count: int) -> str:
         if test_suite_count == 1:
-            return "1 suite,"
-        return f"{test_suite_count} suites,"
+            return "1 suite"
+        return f"{test_suite_count} suites"
 
     @staticmethod
     def _format_test_case_info(test_case_count: int) -> str:
         if test_case_count == 1:
             return "1 test case"
         return f"{test_case_count} test cases"
+
+    @staticmethod
+    def _format_duration(duration_in_sec: float) -> str:
+        return f"{duration_in_sec:.3f} s"
