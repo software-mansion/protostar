@@ -1,7 +1,7 @@
 import asyncio
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Any
 from typing_extensions import Protocol
 
 from protostar.commands.test.test_environment_exceptions import (
@@ -21,9 +21,7 @@ class DeclaredContract:
 
 
 class DeclareCheatcodeProtocol(Protocol):
-    def __call__(
-        self, contract_path_str: str, *args, config: Optional[CheatcodeNetworkConfig]
-    ) -> DeclaredContract:
+    def __call__(self, contract_path_str: str, *args, config: Any) -> DeclaredContract:
         ...
 
 

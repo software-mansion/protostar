@@ -1,6 +1,6 @@
 import asyncio
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict
 
 from starkware.python.utils import from_bytes
 from starkware.starknet.business_logic.internal_transaction import InternalDeclare
@@ -14,7 +14,6 @@ from protostar.commands.test.test_environment_exceptions import (
     KeywordOnlyArgumentCheatcodeException,
 )
 
-from protostar.migrator.cheatcodes.network_config import CheatcodeNetworkConfig
 from protostar.migrator.cheatcodes.migrator_declare_cheatcode import (
     DeclareCheatcodeProtocol,
     DeclaredContract,
@@ -42,7 +41,7 @@ class DeclareCheatcode(Cheatcode):
         contract_path_str: str,
         *args,
         # pylint: disable=unused-argument
-        config: Optional[CheatcodeNetworkConfig] = None,
+        config: Optional[Dict] = None,
     ) -> DeclaredContract:
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])

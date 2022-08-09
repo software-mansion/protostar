@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Dict
 
 from protostar.commands.test.cheatcodes.declare_cheatcode import DeclareCheatcode
 from protostar.commands.test.cheatcodes.deploy_cheatcode import DeployCheatcode
@@ -9,7 +9,6 @@ from protostar.commands.test.test_environment_exceptions import (
     KeywordOnlyArgumentCheatcodeException,
 )
 
-from protostar.migrator.cheatcodes.network_config import CheatcodeNetworkConfig
 from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import (
     DeployContractCheatcodeProtocol,
     DeployedContract,
@@ -44,7 +43,7 @@ class DeployContractCheatcode(Cheatcode):
         constructor_args: Optional[CairoOrPythonData] = None,
         *args,
         # pylint: disable=unused-argument
-        config: Optional[CheatcodeNetworkConfig] = None,
+        config: Optional[Dict] = None,
     ) -> DeployedContract:
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])

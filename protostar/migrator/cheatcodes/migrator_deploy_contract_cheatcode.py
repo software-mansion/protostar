@@ -2,7 +2,7 @@ import asyncio
 import collections
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Any
 from typing_extensions import Protocol
 
 from protostar.starknet.cheatcode import Cheatcode
@@ -28,7 +28,7 @@ class DeployContractCheatcodeProtocol(Protocol):
         contract_path: str,
         constructor_args: Optional[CairoOrPythonData] = None,
         *args,
-        config: Optional[CheatcodeNetworkConfig],
+        config: Any,
     ) -> DeployedContract:
         ...
 

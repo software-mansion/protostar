@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, Callable, List, Optional
+from typing import Any, Callable, List, Optional, Dict
 
 from starkware.python.utils import to_bytes
 from starkware.starknet.business_logic.execution.objects import CallInfo
@@ -11,7 +11,6 @@ from protostar.commands.test.test_environment_exceptions import (
     KeywordOnlyArgumentCheatcodeException,
 )
 
-from protostar.migrator.cheatcodes.network_config import CheatcodeNetworkConfig
 from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import (
     DeployedContract,
 )
@@ -39,7 +38,7 @@ class DeployCheatcode(Cheatcode):
         prepared: PreparedContract,
         *args,
         # pylint: disable=unused-argument
-        config: Optional[CheatcodeNetworkConfig] = None,
+        config: Optional[Dict] = None,
     ):
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
