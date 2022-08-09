@@ -2,8 +2,6 @@ import os
 from pathlib import Path
 from typing import List, Optional
 
-from typing_extensions import Protocol
-
 from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
 
 
