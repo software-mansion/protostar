@@ -8,10 +8,23 @@ from protostar.commands.test.test_environment_exceptions import (
     CheatcodeException,
     KeywordOnlyArgumentCheatcodeException,
 )
+<<<<<<< HEAD
+from protostar.commands.test.test_environment_exceptions import (
+    CheatcodeException,
+    KeywordOnlyArgumentCheatcodeException,
+)
+=======
+>>>>>>> master
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet_gateway import GatewayFacade
 from protostar.starknet_gateway.gateway_facade import CompilationOutputNotFoundException
 
+<<<<<<< HEAD
+from protostar.commands.test.cheatcodes import (
+    CheatcodeNetworkConfig,
+    get_default_network_config,
+)
+=======
 from .network_config import CheatcodeNetworkConfig, ValidatedCheatcodeNetworkConfig
 
 
@@ -25,6 +38,7 @@ class DeclareCheatcodeProtocol(Protocol):
         self, contract_path_str: str, *args, config: Optional[Any] = None
     ) -> DeclaredContract:
         ...
+>>>>>>> master
 
 
 class MigratorDeclareCheatcode(Cheatcode):
@@ -59,16 +73,25 @@ class MigratorDeclareCheatcode(Cheatcode):
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
 
+<<<<<<< HEAD
+        if not config:
+            config = get_default_network_config()
+=======
         validated_config = ValidatedCheatcodeNetworkConfig.from_dict(
             config or CheatcodeNetworkConfig()
         )
+>>>>>>> master
 
         try:
             response = asyncio.run(
                 self._gateway_facade.declare(
                     compiled_contract_path=Path(contract_path_str),
                     token=self._config.token,
+<<<<<<< HEAD
+                    wait_for_acceptance=config["wait_for_acceptance"],
+=======
                     wait_for_acceptance=validated_config.wait_for_acceptance,
+>>>>>>> master
                 )
             )
 

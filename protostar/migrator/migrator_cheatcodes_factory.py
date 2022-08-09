@@ -9,6 +9,9 @@ from protostar.migrator.cheatcodes.migrator_declare_cheatcode import (
 from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import (
     MigratorDeployContractCheatcode,
 )
+from protostar.migrator.cheatcodes.migrator_call_cheatcode import MigratorCallCheatcode
+from protostar.migrator.cheatcodes.migrator_invoke_cheatcode import MigratorInvokeCheatcode
+
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.cheatcode_factory import CheatcodeFactory
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
@@ -18,6 +21,10 @@ from protostar.utils.starknet_compilation import StarknetCompiler
 class MigratorCheatcodeFactory(CheatcodeFactory):
     @dataclass
     class Config:
+<<<<<<< HEAD
+        signature: Optional[List[str]] = None
+=======
+>>>>>>> master
         token: Optional[str] = None
 
     def __init__(
@@ -43,6 +50,10 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
                 syscall_dependencies,
                 self.gateway_facade,
                 config=MigratorDeclareCheatcode.Config(
+<<<<<<< HEAD
+                    signature=self._config.signature,
+=======
+>>>>>>> master
                     token=self._config.token,
                 ),
             ),
@@ -51,4 +62,6 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
                 self.gateway_facade,
                 config=MigratorDeployContractCheatcode.Config(token=self._config.token),
             ),
+            MigratorInvokeCheatcode(syscall_dependencies, self.gateway_facade),
+            MigratorCallCheatcode(syscall_dependencies, self.gateway_facade),
         ]
