@@ -4,7 +4,6 @@ import time
 from logging import INFO, Logger, StreamHandler
 from typing import Any, List
 
-from protostar import InitCommand, UpgradeCommand
 from protostar.cli import CLIApp, Command
 from protostar.configuration_profile_cli import ConfigurationProfileCLI
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
@@ -90,7 +89,7 @@ class ProtostarCLI(CLIApp):
             self._version_manager.print_current_version()
             return
 
-        if args.command not in [InitCommand.name, UpgradeCommand.name]:
+        if args.command not in ["init", "upgrade"]:
             self._protostar_toml_version_checker.run()
 
         await super().run(args)
