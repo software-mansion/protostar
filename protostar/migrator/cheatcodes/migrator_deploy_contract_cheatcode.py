@@ -28,7 +28,7 @@ class DeployContractCheatcodeProtocol(Protocol):
         contract_path: str,
         constructor_args: Optional[CairoOrPythonData] = None,
         *args,
-        config: Any,
+        config: Optional[Any] = None,
     ) -> DeployedContract:
         ...
 

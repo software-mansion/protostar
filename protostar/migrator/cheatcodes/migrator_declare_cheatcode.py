@@ -21,7 +21,9 @@ class DeclaredContract:
 
 
 class DeclareCheatcodeProtocol(Protocol):
-    def __call__(self, contract_path_str: str, *args, config: Any) -> DeclaredContract:
+    def __call__(
+        self, contract_path_str: str, *args, config: Optional[Any] = None
+    ) -> DeclaredContract:
         ...
 
 
