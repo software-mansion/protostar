@@ -3,16 +3,12 @@
 ```python
 def deploy(
     prepared: PreparedContract,
-    *,
-    config: Optional[CheatcodeNetworkConfig] = None
 ) -> DeployedContract:
 
 class DeployedContract:
     contract_address: int
 ```
 Deploys contract for deployment given `PreparedContract`.
-
-The `config` parameter allows passing [network configuration](../../06-deploying/03-network-config.md) data. See related documentation for more information.
 
 :::warning
 You can't deploy the same `PreparedContract` twice.
