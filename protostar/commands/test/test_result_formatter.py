@@ -1,20 +1,17 @@
 from pathlib import Path
 from typing import Callable, Dict, List
 
-from protostar.commands.test.test_environment_exceptions import ExceptionMetadata
-from protostar.commands.test.test_output_recorder import OutputName, format_output_name
+from protostar.commands.test.test_environment_exceptions import \
+    ExceptionMetadata
+from protostar.commands.test.test_output_recorder import (OutputName,
+                                                          format_output_name)
 from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
 from protostar.utils.log_color_provider import LogColorProvider
 
-from .test_cases import (
-    BrokenTestSuiteResult,
-    FailedFuzzTestCaseResult,
-    FailedTestCaseResult,
-    PassedFuzzTestCaseResult,
-    PassedTestCaseResult,
-    TestResult,
-    UnexpectedExceptionTestSuiteResult,
-)
+from .test_results import (BrokenTestSuiteResult, FailedFuzzTestCaseResult,
+                           FailedTestCaseResult, PassedFuzzTestCaseResult,
+                           PassedTestCaseResult, TestResult,
+                           UnexpectedExceptionTestSuiteResult)
 
 LogCallback = Callable[[str], None]
 

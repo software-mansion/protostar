@@ -6,10 +6,10 @@ from typing import Generic, TypeVar
 from protostar.commands.test.environments.test_execution_environment import (
     TestExecutionResult,
 )
-from protostar.commands.test.test_cases import (
+from protostar.commands.test.test_results import (
     FailedTestCaseResult,
     PassedTestCaseResult,
-    TestResult,
+    TestCaseResult,
 )
 from protostar.commands.test.test_environment_exceptions import ReportedException
 from protostar.commands.test.test_output_recorder import OutputRecorder
@@ -34,7 +34,7 @@ class TestCaseRunner(Generic[TExecutionResult]):
         self._test_suite = dependencies.test_suite
         self._output_recorder = dependencies.output_recorder
 
-    async def run(self, test_case_name: str) -> TestResult:
+    async def run(self, test_case_name: str) -> TestCaseResult:
         start_time = time.perf_counter()
         try:
             execution_result = await self._run_test_case(test_case_name)

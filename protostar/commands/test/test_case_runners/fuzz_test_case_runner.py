@@ -8,7 +8,7 @@ from protostar.commands.test.fuzzing.fuzz_input_exception_metadata import (
     FuzzInputExceptionMetadata,
 )
 from protostar.commands.test.test_case_runners.test_case_runner import TestCaseRunner
-from protostar.commands.test.test_cases import (
+from protostar.commands.test.test_results import (
     FailedFuzzTestCaseResult,
     FailedTestCaseResult,
     FuzzResult,

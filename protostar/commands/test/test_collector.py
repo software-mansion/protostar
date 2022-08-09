@@ -10,16 +10,14 @@ from time import time
 from typing import Dict, List, Optional, Set, Tuple, Union
 
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
-    LocationError,
-    PreprocessorError,
-)
-from starkware.starknet.compiler.starknet_preprocessor import (
-    StarknetPreprocessedProgram,
-)
+    LocationError, PreprocessorError)
+from starkware.starknet.compiler.starknet_preprocessor import \
+    StarknetPreprocessedProgram
 
-from protostar.commands.test.test_cases import BrokenTestSuiteResult
+from protostar.commands.test.test_results import BrokenTestSuiteResult
 from protostar.commands.test.test_suite import TestSuite
-from protostar.utils.compiler.pass_managers import TestCollectorPreprocessedProgram
+from protostar.utils.compiler.pass_managers import \
+    TestCollectorPreprocessedProgram
 from protostar.utils.starknet_compilation import StarknetCompiler
 
 TestSuiteGlob = str

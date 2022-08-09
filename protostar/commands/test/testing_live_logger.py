@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 from tqdm import tqdm as bar
 
-from protostar.commands.test.test_cases import BrokenTestSuiteResult, TestResult
+from protostar.commands.test.test_results import BrokenTestSuiteResult, TestResult
 from protostar.commands.test.test_result_formatter import TestResultFormatter
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.testing_summary import TestingSummary
