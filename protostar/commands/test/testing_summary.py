@@ -3,14 +3,15 @@ from logging import Logger
 from pathlib import Path
 from typing import Dict, List, Union
 
-from protostar.commands.test.test_results import (BrokenTestSuiteResult,
-                                                  FailedTestCaseResult,
-                                                  PassedTestCaseResult,
-                                                  TestResult)
+from protostar.commands.test.test_results import (
+    BrokenTestSuiteResult,
+    FailedTestCaseResult,
+    PassedTestCaseResult,
+    TestResult,
+)
 from protostar.commands.test.testing_seed import TestingSeed
 from protostar.protostar_exception import ProtostarExceptionSilent
-from protostar.utils.log_color_provider import (LogColorProvider,
-                                                log_color_provider)
+from protostar.utils.log_color_provider import LogColorProvider, log_color_provider
 
 
 class TestingSummary:

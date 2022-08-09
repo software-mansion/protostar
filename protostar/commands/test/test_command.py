@@ -6,11 +6,13 @@ from typing import List, Optional
 
 from protostar.cli.activity_indicator import ActivityIndicator
 from protostar.cli.command import Command
-from protostar.commands.test.environments.fuzz_test_execution_environment import \
-    FuzzConfig
+from protostar.commands.test.environments.fuzz_test_execution_environment import (
+    FuzzConfig,
+)
 from protostar.commands.test.test_collector import TestCollector
-from protostar.commands.test.test_collector_summary_formatter import \
-    TestCollectorSummaryFormatter
+from protostar.commands.test.test_collector_summary_formatter import (
+    TestCollectorSummaryFormatter,
+)
 from protostar.commands.test.test_result_formatter import TestResultFormatter
 from protostar.commands.test.test_results import TestResult
 from protostar.commands.test.test_runner import TestRunner
@@ -20,11 +22,12 @@ from protostar.commands.test.testing_seed import TestingSeed
 from protostar.commands.test.testing_summary import TestingSummary
 from protostar.compiler import ProjectCairoPathBuilder
 from protostar.utils.compiler.pass_managers import (
-    StarknetPassManagerFactory, TestCollectorPassManagerFactory)
+    StarknetPassManagerFactory,
+    TestCollectorPassManagerFactory,
+)
 from protostar.utils.log_color_provider import log_color_provider
 from protostar.utils.protostar_directory import ProtostarDirectory
-from protostar.utils.starknet_compilation import (CompilerConfig,
-                                                  StarknetCompiler)
+from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
 
 class TestCommand(Command):
