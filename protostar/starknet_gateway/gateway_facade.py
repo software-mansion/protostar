@@ -49,8 +49,6 @@ class GatewayFacade:
                 # Starknet.py ignores chain parameter when
                 # `mainnet` or `testnet` is passed into the client
                 # `StarknetChainId.TESTNET` also works for devnet
-                # chain parameter is going to be removed soon
-                # so we won't have to rely on this behaviour
                 GatewayFacade.map_to_starknet_py_naming(self._network),
                 chain=StarknetChainId.TESTNET,
             )
@@ -229,16 +227,16 @@ class GatewayFacade:
 
         return register_response
 
-    @classmethod
-    def map_to_starknet_py_naming(cls, name: str) -> str:
+    @staticmethod
+    def map_to_starknet_py_naming(name: str) -> str:
         if name == "alpha-goerli":
             return "testnet"
         if name == "alpha-mainnet":
             return "mainnet"
         return name
 
-    @classmethod
-    def map_from_starknet_py_naming(cls, name: str) -> str:
+    @staticmethod
+    def map_from_starknet_py_naming(name: str) -> str:
         if name == "testnet":
             return "alpha-goerli"
         if name == "mainnet":

@@ -1,12 +1,7 @@
 from typing import Optional
 
-from typing_extensions import Protocol
-
 from protostar.commands.test.cheatcodes.declare_cheatcode import DeclareCheatcode
-from protostar.commands.test.cheatcodes.deploy_cheatcode import (
-    DeployCheatcode,
-    DeployedContract,
-)
+from protostar.commands.test.cheatcodes.deploy_cheatcode import DeployCheatcode
 from protostar.commands.test.cheatcodes.prepare_cheatcode import PrepareCheatcode
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.utils.data_transformer import CairoOrPythonData
@@ -14,20 +9,11 @@ from protostar.commands.test.test_environment_exceptions import (
     KeywordOnlyArgumentCheatcodeException,
 )
 
-from protostar.commands.test.cheatcodes.network_config import CheatcodeNetworkConfig
-
-
-class DeployContractCheatcodeProtocol(Protocol):
-    # pylint bug ?
-    # pylint: disable=keyword-arg-before-vararg
-    def __call__(
-        self,
-        contract_path: str,
-        constructor_args: Optional[CairoOrPythonData] = None,
-        *args,
-        config: Optional[CheatcodeNetworkConfig],
-    ) -> DeployedContract:
-        ...
+from protostar.migrator.cheatcodes.network_config import CheatcodeNetworkConfig
+from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import (
+    DeployContractCheatcodeProtocol,
+    DeployedContract,
+)
 
 
 class DeployContractCheatcode(Cheatcode):

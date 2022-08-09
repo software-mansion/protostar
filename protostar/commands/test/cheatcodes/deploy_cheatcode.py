@@ -1,5 +1,4 @@
 import asyncio
-from dataclasses import dataclass
 from typing import Any, Callable, List, Optional
 
 from starkware.python.utils import to_bytes
@@ -12,12 +11,10 @@ from protostar.commands.test.test_environment_exceptions import (
     KeywordOnlyArgumentCheatcodeException,
 )
 
-from protostar.commands.test.cheatcodes.network_config import CheatcodeNetworkConfig
-
-
-@dataclass(frozen=True)
-class DeployedContract:
-    contract_address: int
+from protostar.migrator.cheatcodes.network_config import CheatcodeNetworkConfig
+from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import (
+    DeployedContract,
+)
 
 
 class DeployCheatcode(Cheatcode):

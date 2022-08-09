@@ -55,13 +55,15 @@ class Migrator:
             self._migrator_execution_environment_config = config
 
         async def build(self, migration_file_path: Path):
-            facade = self._gateway_facade_builder.build()
+            gateway_facade = self._gateway_facade_builder.build()
 
             if self._logger:
                 assert self._log_color_provider
-                facade.set_logger(self._logger, self._log_color_provider)
+                gateway_facade.set_logger(self._logger, self._log_color_provider)
 
-            self._migrator_execution_environment_builder.set_gateway_facade(facade)
+            self._migrator_execution_environment_builder.set_gateway_facade(
+                gateway_facade
+            )
 
             migrator_execution_env = (
                 await self._migrator_execution_environment_builder.build(

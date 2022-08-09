@@ -1,5 +1,4 @@
 import asyncio
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
@@ -8,7 +7,6 @@ from starkware.starknet.business_logic.internal_transaction import InternalDecla
 from starkware.starknet.public.abi import AbiType
 from starkware.starknet.testing.contract import DeclaredClass
 from starkware.starknet.testing.contract_utils import EventManager, get_abi
-from typing_extensions import Protocol
 
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.utils.starknet_compilation import StarknetCompiler
@@ -16,19 +14,11 @@ from protostar.commands.test.test_environment_exceptions import (
     KeywordOnlyArgumentCheatcodeException,
 )
 
-from protostar.commands.test.cheatcodes.network_config import CheatcodeNetworkConfig
-
-
-@dataclass
-class DeclaredContract:
-    class_hash: int
-
-
-class DeclareCheatcodeProtocol(Protocol):
-    def __call__(
-        self, contract_path_str: str, *args, config: Optional[CheatcodeNetworkConfig]
-    ) -> DeclaredContract:
-        ...
+from protostar.migrator.cheatcodes.network_config import CheatcodeNetworkConfig
+from protostar.migrator.cheatcodes.migrator_declare_cheatcode import (
+    DeclareCheatcodeProtocol,
+    DeclaredContract,
+)
 
 
 class DeclareCheatcode(Cheatcode):
