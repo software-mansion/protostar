@@ -29,18 +29,18 @@ class TestResultFormatter:
 
     # pylint: disable=too-many-return-statements
     def format(self, test_result: TestResult) -> str:
-        if isinstance(test_result, PassedTestCaseResult):
-            return self._format_passed_test_case_result(test_result)
-        if isinstance(test_result, FailedTestCaseResult):
-            return self._format_failed_test_case_result(test_result)
         if isinstance(test_result, PassedFuzzTestCaseResult):
             return self._format_passed_fuzz_test_case_result(test_result)
         if isinstance(test_result, FailedFuzzTestCaseResult):
             return self._format_failed_fuzz_test_case_result(test_result)
-        if isinstance(test_result, BrokenTestSuiteResult):
-            return self._format_broken_test_suite_result(test_result)
+        if isinstance(test_result, PassedTestCaseResult):
+            return self._format_passed_test_case_result(test_result)
+        if isinstance(test_result, FailedTestCaseResult):
+            return self._format_failed_test_case_result(test_result)
         if isinstance(test_result, UnexpectedExceptionTestSuiteResult):
             return self._format_unexpected_exception_test_suite_result(test_result)
+        if isinstance(test_result, BrokenTestSuiteResult):
+            return self._format_broken_test_suite_result(test_result)
         return ""
 
     def _format_passed_test_case_result(
