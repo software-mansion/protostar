@@ -57,13 +57,18 @@ class TestResultFormatter:
             )
         )
 
-    def _format_failed_test_case_result(self, failed_test_case_result) -> str:
+    def _format_failed_test_case_result(
+        self, failed_test_case_result: FailedTestCaseResult
+    ) -> str:
         result: List[str] = []
         first_line_items: List[str] = []
 
         first_line_items.append(f"[{self._log_color_provider.colorize('RED', 'FAIL')}]")
+        formatted_file_path = self._get_formatted_file_path(
+            failed_test_case_result.file_path
+        )
         first_line_items.append(
-            f"{self._get_formatted_file_path(failed_test_case_result.file_path)} {failed_test_case_result.test_case_name}"
+            f"{formatted_file_path} {failed_test_case_result.test_case_name}"
         )
 
         info_items = []
@@ -104,8 +109,11 @@ class TestResultFormatter:
         first_line_elements.append(
             f"[{self._log_color_provider.colorize('GREEN', 'PASS')}]"
         )
+        formatted_file_path = self._get_formatted_file_path(
+            passed_fuzz_test_case_result.file_path
+        )
         first_line_elements.append(
-            f"{self._get_formatted_file_path(passed_fuzz_test_case_result.file_path)} {passed_fuzz_test_case_result.test_case_name}"
+            f"{formatted_file_path} {passed_fuzz_test_case_result.test_case_name}"
         )
 
         info_items: List[str] = []
@@ -127,9 +135,10 @@ class TestResultFormatter:
                     f"steps={self._log_color_provider.bold(passed_fuzz_test_case_result.execution_resources.n_steps)}"
                 )
             if passed_fuzz_test_case_result.execution_resources.n_memory_holes:
-                info_items.append(
-                    f"memory_holes={self._log_color_provider.bold(passed_fuzz_test_case_result.execution_resources.n_memory_holes)}"
+                formatted_n_memory_holes = self._log_color_provider.bold(
+                    passed_fuzz_test_case_result.execution_resources.n_memory_holes
                 )
+                info_items.append(f"memory_holes={formatted_n_memory_holes}")
 
         if len(info_items) > 0:
             info = ", ".join(info_items)
@@ -185,7 +194,7 @@ class TestResultFormatter:
         return "\n".join(result)
 
     def _format_unexpected_exception_test_suite_result(
-        self, unexpected_exception_test_suite_result
+        self, unexpected_exception_test_suite_result: UnexpectedExceptionTestSuiteResult
     ) -> str:
         lines: List[str] = []
         main_line: List[str] = []

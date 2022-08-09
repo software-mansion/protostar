@@ -1,3 +1,5 @@
+# pylint: disable=too-many-arguments
+
 from logging import getLogger
 from pathlib import Path
 from typing import List, Optional
@@ -150,7 +152,6 @@ class TestCommand(Command):
         summary.assert_all_passed()
         return summary
 
-    # pylint: disable=too-many-arguments
     # pylint: disable=too-many-locals
     async def test(
         self,
