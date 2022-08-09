@@ -8,8 +8,8 @@ import pytest
 from pytest_mock import MockerFixture
 from typing_extensions import Protocol
 
-from protostar.commands.test.test_collector_result_logger import (
-    TestCollectorResultLogger,
+from protostar.commands.test.test_collector_summary_formatter import (
+    TestCollectorSummaryFormatter,
 )
 from protostar.commands.test.test_command import TestCommand
 from protostar.commands.test.test_result_formatter import TestResultFormatter
@@ -131,11 +131,9 @@ def run_cairo_test_runner_fixture(mocker: MockerFixture) -> RunCairoTestRunnerFi
             project_root_path=Path(),
             protostar_directory=protostar_directory_mock,
             project_cairo_path_builder=project_cairo_path_builder,
-            test_collector_result_logger=TestCollectorResultLogger(
-                logger=getLogger(),
-                test_result_formatter=test_result_formatter,
-            ),
+            test_collector_summary_formatter=TestCollectorSummaryFormatter(),
             test_result_formatter=test_result_formatter,
+            logger=getLogger(),
         ).test(
             targets=[str(path)],
             ignored_targets=ignored_targets,

@@ -1,6 +1,6 @@
 # pylint: disable=too-many-arguments
 
-from logging import getLogger
+from logging import Logger
 from pathlib import Path
 from typing import List, Optional
 
@@ -9,9 +9,10 @@ from protostar.cli.command import Command
 from protostar.commands.test.environments.fuzz_test_execution_environment import (
     FuzzConfig,
 )
+from protostar.commands.test.test_cases import TestResult
 from protostar.commands.test.test_collector import TestCollector
-from protostar.commands.test.test_collector_result_logger import (
-    TestCollectorResultLogger,
+from protostar.commands.test.test_collector_summary_formatter import (
+    TestCollectorSummaryFormatter,
 )
 from protostar.commands.test.test_result_formatter import TestResultFormatter
 from protostar.commands.test.test_runner import TestRunner
@@ -36,14 +37,16 @@ class TestCommand(Command):
         protostar_directory: ProtostarDirectory,
         project_cairo_path_builder: ProjectCairoPathBuilder,
         test_result_formatter: TestResultFormatter,
-        test_collector_result_logger: TestCollectorResultLogger,
+        test_collector_summary_formatter: TestCollectorSummaryFormatter,
+        logger: Logger,
     ) -> None:
         super().__init__()
+        self._logger = logger
         self._project_root_path = project_root_path
         self._protostar_directory = protostar_directory
         self._project_cairo_path_builder = project_cairo_path_builder
-        self._test_result_cli_formatter = test_result_formatter
-        self._test_collector_result_logger = test_collector_result_logger
+        self._test_result_formatter = test_result_formatter
+        self._test_collector_summary_formatter = test_collector_summary_formatter
 
     @property
     def name(self) -> str:
@@ -166,7 +169,6 @@ class TestCommand(Command):
         fuzz_max_examples: int = 100,
         slowest_tests_to_report_count: int = 0,
     ) -> TestingSummary:
-        logger = getLogger()
         include_paths = [
             str(path)
             for path in [
@@ -198,7 +200,8 @@ class TestCommand(Command):
                     ignored_targets=ignored_targets,
                     default_test_suite_glob=str(self._project_root_path),
                 )
-            self._test_collector_result_logger.log(test_collector_result)
+
+            self._log_test_collector_result(test_collector_result)
 
             testing_summary = TestingSummary(
                 case_results=test_collector_result.broken_test_suites,  # type: ignore | pyright bug?
@@ -207,12 +210,12 @@ class TestCommand(Command):
 
             if test_collector_result.test_cases_count > 0:
                 live_logger = TestingLiveLogger(
-                    logger,
+                    self._logger,
                     testing_summary,
                     no_progress_bar=no_progress_bar,
                     exit_first=exit_first,
                     slowest_tests_to_report_count=slowest_tests_to_report_count,
-                    test_result_cli_formatter=self._test_result_cli_formatter,
+                    test_result_cli_formatter=self._test_result_formatter,
                 )
                 TestScheduler(live_logger, worker=TestRunner.worker).run(
                     include_paths=include_paths,
@@ -223,3 +226,29 @@ class TestCommand(Command):
                 )
 
             return testing_summary
+
+    def _log_test_collector_result(
+        self, test_collector_result: TestCollector.Result
+    ) -> None:
+        for broken_test_suite in test_collector_result.broken_test_suites:
+            self._log_formatted_test_result(broken_test_suite)
+        if test_collector_result.test_cases_count:
+            self._log_formatted_test_collector_summary(test_collector_result)
+        else:
+            self._logger.warning("No test cases found")
+
+    def _log_formatted_test_collector_summary(
+        self, test_collector_result: TestCollector.Result
+    ) -> None:
+        formatted_result = self._test_collector_summary_formatter.format(
+            TestCollectorSummaryFormatter.ViewModel.from_test_result_summary(
+                test_collector_result
+            )
+        )
+        self._logger.info(formatted_result)
+
+    def _log_formatted_test_result(self, test_result: TestResult) -> None:
+        formatted_broken_test_suite_result = self._test_result_formatter.format(
+            test_result
+        )
+        self._logger.info(formatted_broken_test_suite_result)
