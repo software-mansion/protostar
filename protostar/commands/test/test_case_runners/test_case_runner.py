@@ -24,6 +24,11 @@ class TestCaseRunner(Generic[TExecutionResult]):
         test_suite: TestSuite
         output_recorder: OutputRecorder
 
+    @dataclass
+    class ExecutionMetadata:
+        test_case_name: str
+        execution_time: float
+
     def __init__(self, dependencies: Dependencies) -> None:
         super().__init__()
         self._test_suite = dependencies.test_suite
@@ -35,12 +40,14 @@ class TestCaseRunner(Generic[TExecutionResult]):
             execution_result = await self._run_test_case(test_case_name)
             execution_time = time.perf_counter() - start_time
             return self._map_execution_result_to_passed_test_result(
-                execution_result, test_case_name, execution_time
+                execution_result,
+                TestCaseRunner.ExecutionMetadata(test_case_name, execution_time),
             )
         except ReportedException as ex:
             execution_time = time.perf_counter() - start_time
             return self._map_reported_exception_to_failed_test_result(
-                ex, test_case_name, execution_time
+                ex,
+                TestCaseRunner.ExecutionMetadata(test_case_name, execution_time),
             )
 
     @abstractmethod
@@ -48,29 +55,25 @@ class TestCaseRunner(Generic[TExecutionResult]):
         ...
 
     def _map_execution_result_to_passed_test_result(
-        self,
-        execution_result: TExecutionResult,
-        test_case_name: str,
-        execution_time: float,
+        self, execution_result: TExecutionResult, execution_metadata: ExecutionMetadata
     ) -> PassedTestCaseResult:
         return PassedTestCaseResult(
             file_path=self._test_suite.test_path,
-            test_case_name=test_case_name,
+            test_case_name=execution_metadata.test_case_name,
             execution_resources=execution_result.execution_resources,
-            execution_time=execution_time,
+            execution_time=execution_metadata.execution_time,
             captured_stdout=self._output_recorder.get_captures(),
         )
 
     def _map_reported_exception_to_failed_test_result(
         self,
         reported_exception: ReportedException,
-        test_case_name: str,
-        execution_time: float,
+        execution_metadata: ExecutionMetadata,
     ) -> FailedTestCaseResult:
         return FailedTestCaseResult(
             file_path=self._test_suite.test_path,
-            test_case_name=test_case_name,
+            test_case_name=execution_metadata.test_case_name,
             exception=reported_exception,
-            execution_time=execution_time,
+            execution_time=execution_metadata.execution_time,
             captured_stdout=self._output_recorder.get_captures(),
         )

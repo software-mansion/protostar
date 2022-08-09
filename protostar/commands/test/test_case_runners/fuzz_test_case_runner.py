@@ -33,11 +33,10 @@ class FuzzTestCaseRunner(TestCaseRunner[FuzzTestExecutionResult]):
     def _map_execution_result_to_passed_test_result(
         self,
         execution_result: FuzzTestExecutionResult,
-        test_case_name: str,
-        execution_time: float,
+        execution_metadata: TestCaseRunner.ExecutionMetadata,
     ) -> TestResult:
         passed_test_case_result = super()._map_execution_result_to_passed_test_result(
-            execution_result, test_case_name, execution_time
+            execution_result, execution_metadata
         )
         return PassedFuzzTestCaseResult.from_passed_test_case_result(
             passed_test_case_result,
@@ -47,11 +46,10 @@ class FuzzTestCaseRunner(TestCaseRunner[FuzzTestExecutionResult]):
     def _map_reported_exception_to_failed_test_result(
         self,
         reported_exception: ReportedException,
-        test_case_name: str,
-        execution_time: float,
+        execution_metadata: TestCaseRunner.ExecutionMetadata,
     ) -> FailedTestCaseResult:
         failed_test_case_result = super()._map_reported_exception_to_failed_test_result(
-            reported_exception, test_case_name, execution_time
+            reported_exception, execution_metadata
         )
         fuzz_result = self._map_reported_exception_to_fuzz_result(reported_exception)
         if fuzz_result:
