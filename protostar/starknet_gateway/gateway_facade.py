@@ -192,6 +192,8 @@ class GatewayFacade:
         # Consider returning something other than a NamedTuple
         # Consider catching exceptions
         # Check whether the awaits make sense
+        # Consider caching contracts
+        # Add None checking to inputs
 
         contract = await Contract.from_address(
             address=address, client=self._gateway_client
