@@ -14,6 +14,7 @@ from protostar.utils.log_color_provider import LogColorProvider
 from protostar.utils.protostar_directory import VersionManager
 
 from .protostar_cli import ProtostarCLI
+from .protostar_toml.protostar_toml_version_checker import ProtostarTOMLVersionChecker
 
 
 @pytest.fixture(name="git_version")
@@ -22,8 +23,8 @@ def git_version_fixture() -> str:
 
 
 @pytest.fixture(name="version_manager")
-def version_manager_fixture(mocker: MockerFixture, git_version: str):
-    version_manager: Any = VersionManager(mocker.MagicMock())
+def version_manager_fixture(mocker: MockerFixture, git_version: str, logger):
+    version_manager: Any = VersionManager(mocker.MagicMock(), logger)
     type(version_manager).git_version = mocker.PropertyMock(
         return_value=VersionManager.parse(git_version)
     )
@@ -51,12 +52,24 @@ def latest_version_checker_fixture(mocker: MockerFixture) -> LatestVersionChecke
     return latest_version_checker
 
 
+@pytest.fixture(name="protostar_toml_version_checker")
+def toml_version_checker_fixture(mocker: MockerFixture) -> ProtostarTOMLVersionChecker:
+    protostar_toml_version_checker = cast(
+        ProtostarTOMLVersionChecker, mocker.MagicMock()
+    )
+    protostar_toml_version_checker.run = mocker.MagicMock()
+    protostar_toml_version_checker.run.return_value = Future()
+    protostar_toml_version_checker.run.return_value.set_result(None)
+    return protostar_toml_version_checker
+
+
 @pytest.fixture(name="protostar_cli")
 def protostar_cli_fixture(
     version_manager: VersionManager,
     logger: Logger,
     commands: List[Command],
     latest_version_checker: LatestVersionChecker,
+    protostar_toml_version_checker: ProtostarTOMLVersionChecker,
 ) -> ProtostarCLI:
 
     log_color_provider = LogColorProvider()
@@ -67,6 +80,7 @@ def protostar_cli_fixture(
         logger=logger,
         version_manager=version_manager,
         latest_version_checker=latest_version_checker,
+        protostar_toml_version_checker=protostar_toml_version_checker,
     )
 
 

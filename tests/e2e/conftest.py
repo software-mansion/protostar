@@ -8,6 +8,7 @@ from typing import Callable, List, Optional
 import pexpect
 import pytest
 import tomli
+import tomli_w
 from typing_extensions import Protocol
 
 from tests.conftest import run_devnet
@@ -43,6 +44,11 @@ def libs_path() -> str:
     return ""
 
 
+@pytest.fixture
+def protostar_toml_protostar_version() -> Optional[str]:
+    return None
+
+
 def init_project(project_name: str, libs_path: str):
     child = pexpect.spawn(
         f"{path.join(ACTUAL_CWD, 'dist', 'protostar', 'protostar')} init"
@@ -62,33 +68,49 @@ class ProtostarFixture(Protocol):
 
 
 @pytest.fixture
-def declared_protostar_version() -> Optional[str]:
+def protostar_version() -> Optional[str]:
+    return None
+
+
+@pytest.fixture
+def last_supported_protostar_toml_version() -> Optional[str]:
     return None
 
 
 @pytest.fixture
 def protostar(
-    tmp_path: Path, declared_protostar_version: Optional[str]
+    tmp_path: Path,
+    protostar_version: Optional[str],
+    last_supported_protostar_toml_version: Optional[str],
 ) -> ProtostarFixture:
     shutil.copytree(ACTUAL_CWD / "dist", tmp_path / "dist")
 
-    if declared_protostar_version is not None:
-        with open(
-            tmp_path / "dist" / "protostar" / "info" / "pyproject.toml",
-            "r+",
-            encoding="UTF-8",
-        ) as file:
-            raw_pyproject = file.read()
-            pyproject = tomli.loads(raw_pyproject)
-            version_str = pyproject["tool"]["poetry"]["version"]
-            file.seek(0)
-            file.truncate()
-            file.write(
-                raw_pyproject.replace(
-                    f'version = "{version_str}"',
-                    f'version = "{declared_protostar_version}"',
-                )
-            )
+    if protostar_version and not last_supported_protostar_toml_version:
+        last_supported_protostar_toml_version = protostar_version
+
+    with open(
+        tmp_path / "dist" / "protostar" / "info" / "pyproject.toml",
+        "r+",
+        encoding="UTF-8",
+    ) as file:
+        raw_pyproject = file.read()
+        pyproject = tomli.loads(raw_pyproject)
+
+        pyproject["tool"]["poetry"]["version"] = (
+            protostar_version
+            if protostar_version
+            else pyproject["tool"]["poetry"]["version"]
+        )
+
+        pyproject["tool"]["protostar"]["last_supported_protostar_toml_version"] = (
+            last_supported_protostar_toml_version
+            if last_supported_protostar_toml_version
+            else pyproject["tool"]["protostar"]["last_supported_protostar_toml_version"]
+        )
+
+        file.seek(0)
+        file.truncate()
+        file.write(tomli_w.dumps(pyproject))
 
     def _protostar(args: List[str], ignore_exit_code=False) -> str:
         return (
@@ -113,9 +135,25 @@ def devnet_gateway_url_fixture(devnet_port: int):
 
 
 @pytest.fixture
-def init(project_name: str, libs_path: str):
+def init(project_name: str, libs_path: str, protostar_toml_protostar_version: str):
     init_project(project_name, libs_path)
-    yield chdir(project_name)
+    chdir(project_name)
+    if protostar_toml_protostar_version:
+        with open(Path() / "protostar.toml", "r+", encoding="UTF-8") as file:
+            raw_protostar_toml = file.read()
+            protostar_toml = tomli.loads(raw_protostar_toml)
+
+            assert (
+                protostar_toml["protostar.config"]["protostar_version"] is not None
+            )  # Sanity check
+
+            protostar_toml["protostar.config"][
+                "protostar_version"
+            ] = protostar_toml_protostar_version
+            file.seek(0)
+            file.truncate()
+            file.write(tomli_w.dumps(protostar_toml))
+    yield
     chdir(ACTUAL_CWD)
 
 

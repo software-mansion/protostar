@@ -1,11 +1,12 @@
 # pylint: disable=redefined-outer-name
-from os import listdir, path
+import logging
+import subprocess
+from os import listdir
 from pathlib import Path
 
 import pexpect
 import pytest
 import tomli
-
 from protostar.utils.protostar_directory import ProtostarDirectory, VersionManager
 from tests.e2e.conftest import ACTUAL_CWD, init_project
 
@@ -35,24 +36,22 @@ def test_init(project_name: str):
 
 def test_init_existing():
     child = pexpect.spawn(
-        f"python {path.join(ACTUAL_CWD, 'binary_entrypoint.py')} init --existing"
+        f"{ACTUAL_CWD / 'dist' / 'protostar' / 'protostar'} init --existing"
     )
     child.expect("libraries directory *", timeout=10)
     child.sendline("lib_test")
     child.expect(pexpect.EOF)
-
     dirs = listdir(".")
+
     assert "protostar.toml" in dirs
     assert "lib_test" in dirs
     assert ".git" in dirs
 
 
 def test_init_ask_existing():
-    open(Path() / "example.cairo", "a").close()
+    open(Path() / "example.cairo", "a", encoding="utf-8").close()
 
-    child = pexpect.spawn(
-        f"python {path.join(ACTUAL_CWD, 'binary_entrypoint.py')} init"
-    )
+    child = pexpect.spawn(f"{ACTUAL_CWD / 'dist' / 'protostar' / 'protostar'} init")
     child.expect("Your current directory.*", timeout=10)
     child.sendline("y")
     child.expect("libraries directory *", timeout=1)
@@ -66,9 +65,9 @@ def test_init_ask_existing():
 
 
 @pytest.mark.usefixtures("init")
-def test_protostar_version_in_config_file():
+def test_protostar_version_in_config_file(mocker):
     version_manager = VersionManager(
-        ProtostarDirectory(ACTUAL_CWD / "dist" / "protostar")
+        ProtostarDirectory(ACTUAL_CWD / "dist" / "protostar"), mocker.MagicMock()
     )
     assert version_manager.protostar_version is not None
 
@@ -79,3 +78,24 @@ def test_protostar_version_in_config_file():
         protostar_version = VersionManager.parse(version_str)
 
         assert version_manager.protostar_version == protostar_version
+
+
+@pytest.mark.usefixtures("init")
+@pytest.mark.parametrize("protostar_version", ["0.3.0"])
+@pytest.mark.parametrize("protostar_toml_protostar_version", ["0.2.8"])
+@pytest.mark.parametrize("last_supported_protostar_toml_version", ["0.2.9"])
+@pytest.mark.parametrize("command", ["build", "install", "test"])
+def test_protostar_asserts_version_compatibility(protostar, command):
+    with pytest.raises(subprocess.CalledProcessError) as error:
+        protostar([command])
+
+    assert "is not compatible with provided protostar.toml" in str(error.value.output)
+
+
+@pytest.mark.usefixtures("init")
+@pytest.mark.parametrize("protostar_version", ["0.4.0"])
+@pytest.mark.parametrize("protostar_toml_protostar_version", ["0.3.0"])
+@pytest.mark.parametrize("last_supported_protostar_toml_version", ["0.3.0"])
+@pytest.mark.parametrize("command", ["build", "install", "test"])
+def test_protostar_passes_version_check_on_compatible_v(protostar, command):
+    protostar([command])
