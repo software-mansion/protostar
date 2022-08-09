@@ -1,10 +1,6 @@
 from logging import Logger
 from pathlib import Path
-<<<<<<< HEAD
 from typing import Callable, List, Optional, Dict, Any
-=======
-from typing import Callable, List, Optional
->>>>>>> master
 import dataclasses
 
 from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
@@ -13,12 +9,8 @@ from starkware.starknet.definitions import constants
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.transactions.declare import make_declare_tx
-<<<<<<< HEAD
 from starknet_py.net.models import StarknetChainId, AddressRepresentation
 from starknet_py.contract import Contract
-=======
-from starknet_py.net.models import StarknetChainId
->>>>>>> master
 
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway.gateway_response import (
@@ -58,11 +50,6 @@ class GatewayFacade:
                 # Starknet.py ignores chain parameter when
                 # `mainnet` or `testnet` is passed into the client
                 # `StarknetChainId.TESTNET` also works for devnet
-<<<<<<< HEAD
-                # chain parameter is going to be removed soon
-                # so we won't have to rely on this behaviour
-=======
->>>>>>> master
                 GatewayFacade.map_to_starknet_py_naming(self._network),
                 chain=StarknetChainId.TESTNET,
             )
@@ -196,7 +183,6 @@ class GatewayFacade:
             class_hash=result.class_hash,
             transaction_hash=result.transaction_hash,
         )
-<<<<<<< HEAD
 
     async def call(self, address: AddressRepresentation, function_name: str, inputs: Dict[str, Any]):
         # TODO:
@@ -221,8 +207,6 @@ class GatewayFacade:
             result = await result.wait_for_acceptance()
         
         print("INVOKE: ", result)
-=======
->>>>>>> master
 
     def _register_request(
         self, action: StarknetRequest.Action, payload: StarknetRequest.Payload
@@ -268,26 +252,16 @@ class GatewayFacade:
 
         return register_response
 
-<<<<<<< HEAD
-    @classmethod
-    def map_to_starknet_py_naming(cls, name: str) -> str:
-=======
     @staticmethod
     def map_to_starknet_py_naming(name: str) -> str:
->>>>>>> master
         if name == "alpha-goerli":
             return "testnet"
         if name == "alpha-mainnet":
             return "mainnet"
         return name
 
-<<<<<<< HEAD
-    @classmethod
-    def map_from_starknet_py_naming(cls, name: str) -> str:
-=======
     @staticmethod
     def map_from_starknet_py_naming(name: str) -> str:
->>>>>>> master
         if name == "testnet":
             return "alpha-goerli"
         if name == "mainnet":

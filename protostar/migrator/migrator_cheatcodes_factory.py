@@ -21,10 +21,6 @@ from protostar.utils.starknet_compilation import StarknetCompiler
 class MigratorCheatcodeFactory(CheatcodeFactory):
     @dataclass
     class Config:
-<<<<<<< HEAD
-        signature: Optional[List[str]] = None
-=======
->>>>>>> master
         token: Optional[str] = None
 
     def __init__(
@@ -50,10 +46,6 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
                 syscall_dependencies,
                 self.gateway_facade,
                 config=MigratorDeclareCheatcode.Config(
-<<<<<<< HEAD
-                    signature=self._config.signature,
-=======
->>>>>>> master
                     token=self._config.token,
                 ),
             ),
