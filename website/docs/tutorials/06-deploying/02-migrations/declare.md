@@ -12,16 +12,16 @@ class DeclaredContract:
 ```
 Declares contract given a relative to a project root path to **compiled** contract.
 
-The `config` parameter allows passing [network configuration](../03-network-config.md) data. See related documentation for more information.
+`config` is a keyword only argument that allows passing [network configuration](../03-network-config.md) data. See related documentation for more information.
 
 ## Example
 
-```python
+```cairo
 %lang starknet
 
 @external
 func up():
-    %{ declare("./build/main.json") %}
+    %{ declare("./build/main.json", config={"wait_for_acceptance": True}) %}
 
     return ()
 end

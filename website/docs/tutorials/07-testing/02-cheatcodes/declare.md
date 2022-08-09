@@ -12,4 +12,4 @@ class DeclaredContract:
 ```
 Declares contract given a path relative to a Protostar project root.
 
-The `config` parameter allows passing [network configuration](../../06-deploying/03-network-config.md) data. See related documentation for more information.
+`config` is a keyword only argument kept for compatibility with the [migration cheatcode](../../06-deploying/02-migrations/declare.md). See related documentation for more information.

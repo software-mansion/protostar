@@ -5,7 +5,7 @@ class CheatcodeNetworkConfig(TypedDict):
     "Wait for transaction to be accepted on chain."
 ```
 
-`CheatcodeNetworkConfig` stores configuration used in `declare`, `deploy` and `deploy_contract` cheatcodes.
+`CheatcodeNetworkConfig` stores configuration used in `declare` and `deploy_contract` cheatcodes.
 
 It has no effect in the test environment, however it is kept for compatibility.
 
