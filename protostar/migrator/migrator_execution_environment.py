@@ -1,5 +1,5 @@
-from logging import Logger
 from pathlib import Path
+from typing import Optional
 
 from protostar.migrator.migrator_cheatcodes_factory import MigratorCheatcodeFactory
 from protostar.starknet.execution_environment import ExecutionEnvironment
@@ -7,7 +7,6 @@ from protostar.starknet.execution_state import ExecutionState
 from protostar.starknet.forkable_starknet import ForkableStarknet
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.utils.compiler.pass_managers import StarknetPassManagerFactory
-from protostar.utils.log_color_provider import LogColorProvider
 from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
 
@@ -15,23 +14,19 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
     Config = MigratorCheatcodeFactory.Config
 
     class Builder:
-        def __init__(
-            self,
-            gateway_facade: GatewayFacade,
-        ) -> None:
-            self._gateway_facade = gateway_facade
+        def __init__(self):
+            self._gateway_facade: Optional[GatewayFacade] = None
 
-        def set_logger(
-            self, logger: Logger, log_color_provider: LogColorProvider
-        ) -> None:
-            if logger:
-                self._gateway_facade.set_logger(logger, log_color_provider)
+        def set_gateway_facade(self, gateway_facade: GatewayFacade):
+            self._gateway_facade = gateway_facade
 
         async def build(
             self,
             migration_file_path: Path,
             config: "MigratorExecutionEnvironment.Config",
         ) -> "MigratorExecutionEnvironment":
+            assert self._gateway_facade is not None
+
             compiler_config = CompilerConfig(
                 disable_hint_validation=True, include_paths=[]
             )

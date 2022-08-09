@@ -82,7 +82,7 @@ def build_di_container(script_root: Path):
         ),
         latest_version_remote_checker=LatestVersionRemoteChecker(),
     )
-    gateway_facade = GatewayFacade(project_root_path=project_root_path)
+    gateway_facade_builder = GatewayFacade.Builder(project_root_path=project_root_path)
 
     project_cairo_path_builder = ProjectCairoPathBuilder(
         project_root_path=project_root_path,
@@ -146,15 +146,12 @@ def build_di_container(script_root: Path):
             logger=logger,
         ),
         TestCommand(project_root_path, protostar_directory, project_cairo_path_builder),
-        DeployCommand(gateway_facade, logger),
-        DeclareCommand(gateway_facade, logger),
+        DeployCommand(gateway_facade_builder, logger),
+        DeclareCommand(gateway_facade_builder, logger),
         MigrateCommand(
             migrator_builder=Migrator.Builder(
-                MigratorExecutionEnvironment.Builder(
-                    gateway_facade=GatewayFacade(
-                        project_root_path,
-                    ),
-                )
+                migrator_execution_environment_builder=MigratorExecutionEnvironment.Builder(),
+                gateway_facade_builder=GatewayFacade.Builder(project_root_path),
             ),
             requester=requester,
             logger=logger,

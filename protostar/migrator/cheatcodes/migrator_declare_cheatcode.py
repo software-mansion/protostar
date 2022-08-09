@@ -1,22 +1,35 @@
 import asyncio
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Any
+from typing_extensions import Protocol
 
-from protostar.commands.test.cheatcodes.declare_cheatcode import (
-    DeclareCheatcodeProtocol,
-    DeclaredContract,
+from protostar.commands.test.test_environment_exceptions import (
+    CheatcodeException,
+    KeywordOnlyArgumentCheatcodeException,
 )
-from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet_gateway import GatewayFacade
 from protostar.starknet_gateway.gateway_facade import CompilationOutputNotFoundException
+
+from .network_config import CheatcodeNetworkConfig, ValidatedCheatcodeNetworkConfig
+
+
+@dataclass
+class DeclaredContract:
+    class_hash: int
+
+
+class DeclareCheatcodeProtocol(Protocol):
+    def __call__(
+        self, contract_path_str: str, *args, config: Optional[Any] = None
+    ) -> DeclaredContract:
+        ...
 
 
 class MigratorDeclareCheatcode(Cheatcode):
     @dataclass
     class Config:
-        gateway_url: str
         signature: Optional[List[str]] = None
         token: Optional[str] = None
 
@@ -37,14 +50,25 @@ class MigratorDeclareCheatcode(Cheatcode):
     def build(self) -> DeclareCheatcodeProtocol:
         return self._declare
 
-    def _declare(self, contract_path_str: str) -> DeclaredContract:
+    def _declare(
+        self,
+        contract_path_str: str,
+        *args,
+        config: Optional[CheatcodeNetworkConfig] = None,
+    ) -> DeclaredContract:
+        if len(args) > 0:
+            raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
+
+        validated_config = ValidatedCheatcodeNetworkConfig.from_dict(
+            config or CheatcodeNetworkConfig()
+        )
+
         try:
             response = asyncio.run(
                 self._gateway_facade.declare(
                     compiled_contract_path=Path(contract_path_str),
-                    gateway_url=self._config.gateway_url,
-                    signature=self._config.signature,
                     token=self._config.token,
+                    wait_for_acceptance=validated_config.wait_for_acceptance,
                 )
             )
 
