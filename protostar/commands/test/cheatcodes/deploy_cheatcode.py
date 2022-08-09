@@ -1,5 +1,4 @@
 import asyncio
-from dataclasses import dataclass
 from typing import Any, Callable, List
 
 from starkware.python.utils import to_bytes
@@ -9,10 +8,9 @@ from starkware.starknet.core.os.syscall_utils import initialize_contract_state
 from protostar.commands.test.cheatcodes.prepare_cheatcode import PreparedContract
 from protostar.starknet.cheatcode import Cheatcode
 
-
-@dataclass(frozen=True)
-class DeployedContract:
-    contract_address: int
+from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import (
+    DeployedContract,
+)
 
 
 class DeployCheatcode(Cheatcode):
@@ -32,7 +30,10 @@ class DeployCheatcode(Cheatcode):
     def build(self) -> Callable[[Any], Any]:
         return self.deploy_prepared
 
-    def deploy_prepared(self, prepared: PreparedContract):
+    def deploy_prepared(
+        self,
+        prepared: PreparedContract,
+    ):
         class_hash_bytes = to_bytes(prepared.class_hash)
         future = asyncio.run_coroutine_threadsafe(
             coro=initialize_contract_state(

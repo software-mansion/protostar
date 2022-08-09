@@ -18,8 +18,6 @@ from protostar.utils.starknet_compilation import StarknetCompiler
 class MigratorCheatcodeFactory(CheatcodeFactory):
     @dataclass
     class Config:
-        gateway_url: str
-        signature: Optional[List[str]] = None
         token: Optional[str] = None
 
     def __init__(
@@ -45,16 +43,12 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
                 syscall_dependencies,
                 self.gateway_facade,
                 config=MigratorDeclareCheatcode.Config(
-                    gateway_url=self._config.gateway_url,
-                    signature=self._config.signature,
                     token=self._config.token,
                 ),
             ),
             MigratorDeployContractCheatcode(
                 syscall_dependencies,
                 self.gateway_facade,
-                config=MigratorDeployContractCheatcode.Config(
-                    gateway_url=self._config.gateway_url, token=self._config.token
-                ),
+                config=MigratorDeployContractCheatcode.Config(token=self._config.token),
             ),
         ]

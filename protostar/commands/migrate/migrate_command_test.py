@@ -41,8 +41,7 @@ def setup_migrate(mocker: MockerFixture):
 
     async def migrate(no_confirm: bool):
         await migrate_command.migrate(
-            gateway_url="http://localhost:3000/",
-            network=None,
+            network="http://localhost:3000/",
             migration_file_path=Path(),
             rollback=False,
             output_dir_path=None,
@@ -67,8 +66,7 @@ async def test_cheatcode_exceptions_are_pretty_printed(mocker: MockerFixture):
 
     with pytest.raises(ProtostarException, match="CHEATCODE_EX_MSG"):
         await migrate_command.migrate(
-            gateway_url="http://localhost:3000/",
-            network=None,
+            network="http://localhost:3000/",
             migration_file_path=Path(),
             rollback=False,
             output_dir_path=None,
