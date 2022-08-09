@@ -1,3 +1,5 @@
+from typing import Optional
+
 from protostar.commands.test.environments.fuzz_test_execution_environment import (
     FuzzTestExecutionEnvironment,
     FuzzTestExecutionResult,
@@ -20,9 +22,9 @@ class FuzzTestCaseRunner(TestCaseRunner[FuzzTestExecutionResult]):
     def __init__(
         self,
         fuzz_test_execution_environment: FuzzTestExecutionEnvironment,
-        dependencies: TestCaseRunner.Dependencies,
+        test_case_runner_deps: TestCaseRunner.Dependencies,
     ) -> None:
-        super().__init__(dependencies)
+        super().__init__(test_case_runner_deps)
         self._fuzz_test_execution_environment = fuzz_test_execution_environment
 
     async def _run_test_case(self, test_case_name: str) -> FuzzTestExecutionResult:
@@ -51,17 +53,23 @@ class FuzzTestCaseRunner(TestCaseRunner[FuzzTestExecutionResult]):
         failed_test_case_result = super()._map_reported_exception_to_failed_test_result(
             reported_exception, test_case_name, execution_time
         )
+        fuzz_result = self._map_reported_exception_to_fuzz_result(reported_exception)
+        if fuzz_result:
+            return FailedFuzzTestCaseResult.from_failed_test_case_result(
+                failed_test_case_result,
+                fuzz_result,
+            )
+        return FailedFuzzTestCaseResult.from_failed_test_case_result(
+            failed_test_case_result, fuzz_result=None
+        )
 
+    @staticmethod
+    def _map_reported_exception_to_fuzz_result(
+        reported_exception: ReportedException,
+    ) -> Optional[FuzzResult]:
         metadata = reported_exception.metadata
         if len(metadata) > 0 and isinstance(metadata[0], FuzzInputExceptionMetadata):
             fuzz_runs_count = reported_exception.execution_info["fuzz_runs"]
             assert isinstance(fuzz_runs_count, int)
-
-            return FailedFuzzTestCaseResult.from_failed_test_case_result(
-                failed_test_case_result=failed_test_case_result,
-                fuzz_result=FuzzResult(fuzz_runs_count=fuzz_runs_count),
-            )
-
-        return FailedFuzzTestCaseResult.from_failed_test_case_result(
-            failed_test_case_result=failed_test_case_result, fuzz_result=None
-        )
+            return FuzzResult(fuzz_runs_count)
+        return None

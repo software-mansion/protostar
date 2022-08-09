@@ -35,21 +35,22 @@ class TestCaseRunnerFactory:
     def _make_standard_test_case_runner(
         self, state: TestExecutionState
     ) -> StandardTestCaseRunner:
-        env = TestExecutionEnvironment(state)
         return StandardTestCaseRunner(
-            env,
-            dependencies=TestCaseRunner.Dependencies(
-                test_suite=self._test_suite, output_recorder=state.output_recorder
-            ),
+            TestExecutionEnvironment(state),
+            test_case_runner_deps=self._build_test_case_runner_deps(state),
         )
 
     def _make_fuzz_test_case_runner(
         self, state: TestExecutionState, fuzz_config: Optional[FuzzConfig] = None
     ) -> FuzzTestCaseRunner:
-        env = FuzzTestExecutionEnvironment(state, fuzz_config=fuzz_config)
         return FuzzTestCaseRunner(
-            env,
-            dependencies=TestCaseRunner.Dependencies(
-                test_suite=self._test_suite, output_recorder=state.output_recorder
-            ),
+            FuzzTestExecutionEnvironment(state, fuzz_config=fuzz_config),
+            test_case_runner_deps=self._build_test_case_runner_deps(state),
+        )
+
+    def _build_test_case_runner_deps(
+        self, state: TestExecutionState
+    ) -> TestCaseRunner.Dependencies:
+        return TestCaseRunner.Dependencies(
+            test_suite=self._test_suite, output_recorder=state.output_recorder
         )

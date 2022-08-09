@@ -9,9 +9,9 @@ class StandardTestCaseRunner(TestCaseRunner[TestExecutionResult]):
     def __init__(
         self,
         test_execution_environment: TestExecutionEnvironment,
-        dependencies: TestCaseRunner.Dependencies,
+        test_case_runner_deps: TestCaseRunner.Dependencies,
     ) -> None:
-        super().__init__(dependencies)
+        super().__init__(test_case_runner_deps)
         self._test_execution_environment = test_execution_environment
 
     async def _run_test_case(self, test_case_name: str) -> TestExecutionResult:
