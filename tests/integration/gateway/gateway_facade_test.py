@@ -6,10 +6,9 @@ from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.utils.log_color_provider import LogColorProvider
 
 
-@pytest.mark.usefixtures("project", "compiled_project")
+@pytest.mark.usefixtures("standard_project", "compiled_project")
 async def test_deploy(gateway_facade: GatewayFacade, compiled_contract_path: Path):
     response = await gateway_facade.deploy(compiled_contract_path)
-
     assert response is not None
 
 
