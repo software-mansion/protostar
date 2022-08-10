@@ -16,6 +16,12 @@ async def test_deploy(gateway_facade: GatewayFacade, compiled_contract_path: Pat
     assert response is not None
 
 
+@pytest.mark.usefixtures(STANDARD_PROJECT_FIXTURE, COMPILED_PROJECT_FIXTURE)
+async def test_declare(gateway_facade: GatewayFacade, compiled_contract_path: Path):
+    response = await gateway_facade.declare(compiled_contract_path)
+    assert response is not None
+
+
 @pytest.fixture(name="gateway_facade")
 def gateway_facade_fixture(devnet_gateway_url: str):
     log_color_provider = LogColorProvider()
