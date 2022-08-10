@@ -26,11 +26,15 @@ class SimpleProjectCreator(ProjectCreator):
     def run(self):
         self.copy_template("default", self._project_root_path)
         self.save_protostar_toml(self._project_root_path, Path("./lib"))
+        self._create_libs_dir()
+
+    def _create_libs_dir(self) -> None:
+        (self._project_root_path / "lib").mkdir(exist_ok=True, parents=True)
 
 
 @pytest.fixture(name="project_root_path")
 def project_root_path_fixture(tmp_path: Path) -> Path:
-    return tmp_path
+    return tmp_path / "default_project"
 
 
 @pytest.fixture(name="version_manager")

@@ -6,6 +6,7 @@ from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.utils.log_color_provider import LogColorProvider
 
 
+@pytest.mark.usefixtures("project", "compiled_project")
 async def test_deploy(gateway_facade: GatewayFacade, compiled_contract_path: Path):
     response = await gateway_facade.deploy(compiled_contract_path)
 
@@ -19,3 +20,8 @@ def gateway_facade_fixture(devnet_gateway_url: str):
     gateway_facade_builder = GatewayFacade.Builder(project_root_path=Path())
     gateway_facade_builder.set_network(devnet_gateway_url)
     return gateway_facade_builder.build()
+
+
+@pytest.fixture(name="compiled_contract_path")
+def compiled_contract_path_fixture(project_compilation_output_path: Path) -> Path:
+    return project_compilation_output_path / "main.json"

@@ -1,5 +1,6 @@
 # pylint: disable=invalid-name
 from dataclasses import dataclass
+from os import listdir
 from pathlib import Path
 from typing import List, Optional, Set, Union
 
@@ -117,14 +118,18 @@ def run_cairo_test_runner_fixture(mocker: MockerFixture) -> RunCairoTestRunnerFi
 
 @pytest.fixture(name="project_compilation_output_path")
 def project_compilation_output_path_fixture(project_root_path: Path):
-    return project_root_path / "build"
+    output_path = project_root_path / "build"
+    output_path.mkdir(exist_ok=True)
+    return output_path
 
 
 @pytest.fixture(name="compiled_project")
 def compiled_project_fixture(
     project_root_path: Path, project_compilation_output_path: Path
 ):
-    protostar_toml_reader = ProtostarTOMLReader(protostar_toml_path=project_root_path)
+    protostar_toml_reader = ProtostarTOMLReader(
+        protostar_toml_path=project_root_path / "protostar.toml"
+    )
     project_compiler = ProjectCompiler(
         project_root_path=project_root_path,
         contracts_section_loader=ProtostarContractsSection.Loader(
@@ -145,3 +150,5 @@ def compiled_project_fixture(
             relative_cairo_path=[],
         ),
     )
+    output_files_count = len(listdir(project_compilation_output_path))
+    assert output_files_count > 0, "Project didn't compile"
