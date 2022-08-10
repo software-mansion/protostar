@@ -19,10 +19,10 @@ from protostar.starknet_gateway import (
 class DeclareCommand(Command, SignableCommandMixin, NetworkCommandMixin):
     def __init__(
         self,
-        gateway_facade: GatewayFacade,
+        gateway_facade_builder: GatewayFacade.Builder,
         logger: Logger,
     ):
-        self._gateway_facade = gateway_facade
+        self._gateway_facade_builder = gateway_facade_builder
         self._logger = logger
 
     @property
@@ -54,21 +54,26 @@ class DeclareCommand(Command, SignableCommandMixin, NetworkCommandMixin):
                 description="Used for declaring contracts in Alpha MainNet.",
                 type="str",
             ),
+            DeployCommand.wait_for_acceptance_arg,
         ]
 
     async def run(self, args) -> SuccessfulDeclareResponse:
         assert isinstance(args.contract, Path)
-        assert args.network is None or isinstance(args.network, str)
         assert args.gateway_url is None or isinstance(args.gateway_url, str)
+        assert args.network is None or isinstance(args.network, str)
         assert args.token is None or isinstance(args.token, str)
+        assert isinstance(args.wait_for_acceptance, bool)
+        assert args.signature is None or isinstance(args.signature, list)
+
         network_config = self.get_network_config(args)
 
         return await self.declare(
             compiled_contract_path=args.contract,
             signer=self.get_signer(args, network_config),
-            network=args.network,
-            gateway_url=args.gateway_url,
+            network_config=network_config,
+            network=args.network or args.gateway_url,
             token=args.token,
+            wait_for_acceptance=args.wait_for_acceptance,
         )
 
     # pylint: disable=too-many-arguments
@@ -76,20 +81,22 @@ class DeclareCommand(Command, SignableCommandMixin, NetworkCommandMixin):
         self,
         compiled_contract_path: Path,
         signer: BaseSigner,
+        network_config: NetworkConfig,
         network: Optional[str] = None,
-        gateway_url: Optional[str] = None,
         token: Optional[str] = None,
+        wait_for_acceptance: bool = False,
     ) -> SuccessfulDeclareResponse:
-        if network is None and gateway_url is None:
+        if network is None:
             raise ProtostarException(
                 f"Argument `{DeployCommand.gateway_url_arg.name}` or `{DeployCommand.network_arg.name}` is required"
             )
 
-        network_config = NetworkConfig.build(network=network, gateway_url=gateway_url)
+        self._gateway_facade_builder.set_network(network)
+        gateway_facade = self._gateway_facade_builder.build()
 
-        response = await self._gateway_facade.declare(
+        response = await gateway_facade.declare(
             compiled_contract_path=compiled_contract_path,
-            gateway_url=network_config.gateway_url,
+            wait_for_acceptance=wait_for_acceptance,
             token=token,
             signer=signer,
         )

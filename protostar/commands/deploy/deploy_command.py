@@ -32,12 +32,19 @@ class DeployCommand(Command):
         type="str",
     )
 
+    wait_for_acceptance_arg = Command.Argument(
+        name="wait-for-acceptance",
+        description="Waits for transaction to be accepted on chain.",
+        type="bool",
+        default=False,
+    )
+
     def __init__(
         self,
-        gateway_facade: GatewayFacade,
+        gateway_facade_builder: GatewayFacade.Builder,
         logger: Logger,
     ) -> None:
-        self._gateway_facade = gateway_facade
+        self._gateway_facade_builder = gateway_facade_builder
         self._logger = logger
 
     @property
@@ -75,12 +82,12 @@ class DeployCommand(Command):
                     # pylint: disable=line-too-long
                     "[Read more about representing Cairo data types in the CLI.](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#array-arguments-in-calldata)"
                 ),
-                type="str",
+                type="int",
                 is_array=True,
             ),
             Command.Argument(
                 name="token",
-                description="Used for deploying contracts in Alpha MainNet.",
+                description="Used by whitelisted users for deploying contracts in Alpha MainNet.",
                 type="str",
             ),
             Command.Argument(
@@ -91,28 +98,31 @@ class DeployCommand(Command):
                     "of contract, salt and caller. "
                     "If the salt is not supplied, the contract will be deployed with a random salt."
                 ),
-                type="str",
+                type="int",
             ),
+            DeployCommand.wait_for_acceptance_arg,
             DeployCommand.gateway_url_arg,
             DeployCommand.network_arg,
         ]
 
     async def run(self, args):
-        if args.network is None and args.gateway_url is None:
+        network = args.network or args.gateway_url
+        if network is None:
             raise ProtostarException(
                 f"Argument `{DeployCommand.gateway_url_arg.name}` or `{DeployCommand.network_arg.name}` is required"
             )
 
-        network_config = NetworkConfig.build(
-            network=args.network, gateway_url=args.gateway_url
-        )
+        network_config = NetworkConfig(network)
 
-        response = await self._gateway_facade.deploy(
+        self._gateway_facade_builder.set_network(network)
+        gateway_facade = self._gateway_facade_builder.build()
+
+        response = await gateway_facade.deploy(
             compiled_contract_path=args.contract,
-            gateway_url=network_config.gateway_url,
             inputs=args.inputs,
             token=args.token,
             salt=args.salt,
+            wait_for_acceptance=args.wait_for_acceptance,
         )
 
         explorer_url = network_config.get_contract_explorer_url(response.address)

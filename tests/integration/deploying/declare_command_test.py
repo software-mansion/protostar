@@ -16,7 +16,7 @@ async def test_deploying_contract(
     compiled_contract_filepath,
 ):
     declare_command = DeclareCommand(
-        gateway_facade=GatewayFacade(project_root_path),
+        gateway_facade_builder=GatewayFacade.Builder(project_root_path),
         logger=mocker.MagicMock(),
     )
     args = SimpleNamespace()
@@ -25,6 +25,7 @@ async def test_deploying_contract(
     args.network = None
     args.token = None
     args.signature = None
+    args.wait_for_acceptance = False
 
     response = await declare_command.run(args)
 

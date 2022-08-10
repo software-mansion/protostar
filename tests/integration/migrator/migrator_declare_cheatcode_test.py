@@ -15,7 +15,6 @@ async def test_declare_contract(
 
     migrator = await migrator_builder.build(
         project_root_path / "migrations" / "migration_declare.cairo",
-        config=Migrator.Config(gateway_url=devnet_gateway_url),
     )
 
     result = await migrator.run()
@@ -33,11 +32,10 @@ async def test_declare_contract(
 
 
 async def test_descriptive_error_on_file_not_found(
-    migrator_builder: Migrator.Builder, devnet_gateway_url: str, project_root_path: Path
+    migrator_builder: Migrator.Builder, project_root_path: Path
 ):
     migrator = await migrator_builder.build(
         project_root_path / "migrations" / "migration_declare_file_not_found.cairo",
-        config=Migrator.Config(gateway_url=devnet_gateway_url),
     )
 
     with pytest.raises(

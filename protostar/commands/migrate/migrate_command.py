@@ -70,6 +70,7 @@ class MigrateCommand(Command, NetworkCommandMixin):
             migration_file_path=args.path,
             rollback=args.rollback,
             network_config=self.get_network_config(args),
+            network=args.network or args.gateway_url,
             output_dir_path=args.output_dir,
             no_confirm=args.no_confirm,
         )
@@ -79,6 +80,7 @@ class MigrateCommand(Command, NetworkCommandMixin):
         self,
         migration_file_path: Path,
         rollback: bool,
+        network: Optional[str],
         network_config: NetworkConfig,
         output_dir_path: Optional[Path],
         no_confirm: bool,
@@ -93,11 +95,8 @@ class MigrateCommand(Command, NetworkCommandMixin):
             return
 
         self._migrator_builder.set_logger(self._logger, self._log_color_provider)
-
-        migrator = await self._migrator_builder.build(
-            migration_file_path,
-            config=Migrator.Config(gateway_url=network_config.gateway_url),
-        )
+        self._migrator_builder.set_network(network)
+        migrator = await self._migrator_builder.build(migration_file_path)
 
         try:
             migrator_history = await migrator.run(rollback)

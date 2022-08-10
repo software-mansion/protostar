@@ -38,7 +38,11 @@ class NetworkConfig:
         if network:
             network_config = cls.from_starknet_network_name(network)
         if gateway_url:
-            network_config = cls(gateway_url=gateway_url, chain_id=chain_id)
+            network_config = cls(
+                gateway_url=gateway_url,
+                chain_id=chain_id,
+                contract_explorer_search_url=None
+            )
 
         if network_config is None:
             raise InvalidNetworkConfigurationException()
@@ -50,8 +54,8 @@ class NetworkConfig:
         return KNOWN_NETWORKS
 
     @classmethod
-    def from_starknet_network_name(cls, starkware_network_name: str) -> "NetworkConfig":
-        if starkware_network_name not in NetworkConfig.get_starknet_networks():
+    def from_starknet_network_name(cls, network: str) -> None:
+        if network not in NetworkConfig.get_starknet_networks():            raise UnknownStarkwareNetworkException()
             raise UnknownStarkwareNetworkException()
 
         contract_explorer_search_url_mapping = {
@@ -59,7 +63,7 @@ class NetworkConfig:
             MAINNET: "https://voyager.online/contract",
         }
 
-        chain_id = chain_from_network(net=starkware_network_name, chain=None)
+        chain_id = chain_from_network(net=network, chain=None)
 
         return cls(
             gateway_url=f"{net_address_from_net(starkware_network_name)}/gateway",

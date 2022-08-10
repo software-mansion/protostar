@@ -70,6 +70,20 @@ class CheatcodeException(ReportedException):
         return type(self), (self.cheatcode_name, self.message), self.__getstate__()
 
 
+class KeywordOnlyArgumentCheatcodeException(CheatcodeException):
+    def __init__(self, cheatcode_name: str, list_of_kwargs: List[str]):
+        self.kwargs = list_of_kwargs
+        super().__init__(cheatcode_name, "Passed keyword-only argument positionally.")
+
+    def __str__(self):
+        lines: List[str] = []
+        lines.append(f"Incorrect usage of `{self.cheatcode_name}` cheatcode")
+        lines.append(self.message)
+        lines.append("Available kwargs:")
+        lines.extend(f"`{kwarg}`" for kwarg in self.kwargs)
+        return "\n".join(lines)
+
+
 class RevertableException(ReportedException):
     """
     This exception is used by `except_revert` logic.

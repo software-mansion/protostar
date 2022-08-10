@@ -82,5 +82,5 @@ async def deploy(
     return SuccessfulDeployResponse(
         address=contract_address,
         code=gateway_response["code"],
-        transaction_hash=gateway_response["transaction_hash"],
+        transaction_hash=int(gateway_response["transaction_hash"]),
     )
