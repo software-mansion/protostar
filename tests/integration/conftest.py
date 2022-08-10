@@ -123,7 +123,10 @@ def project_compilation_output_path_fixture(project_root_path: Path):
     return output_path
 
 
-@pytest.fixture(name="compiled_project")
+COMPILED_PROJECT_FIXTURE = "compiled_project"
+
+
+@pytest.fixture(name=COMPILED_PROJECT_FIXTURE)
 def compiled_project_fixture(
     project_root_path: Path, project_compilation_output_path: Path
 ):

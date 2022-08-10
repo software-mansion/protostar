@@ -45,7 +45,10 @@ def version_manager_fixture(mocker: MagicMock) -> VersionManager:
     return version_manager
 
 
-@pytest.fixture(name="standard_project")
+STANDARD_PROJECT_FIXTURE = "standard_project"
+
+
+@pytest.fixture(name=STANDARD_PROJECT_FIXTURE)
 def standard_project_fixture(project_root_path: Path, version_manager: VersionManager):
     protostar_toml_writer = ProtostarTOMLWriter()
     project_creator = SimpleProjectCreator(
