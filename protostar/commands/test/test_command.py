@@ -25,7 +25,7 @@ from protostar.utils.compiler.pass_managers import (
     StarknetPassManagerFactory,
     TestCollectorPassManagerFactory,
 )
-from protostar.utils.log_color_provider import log_color_provider
+from protostar.utils.log_color_provider import LogColorProvider
 from protostar.utils.protostar_directory import ProtostarDirectory
 from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
@@ -36,17 +36,17 @@ class TestCommand(Command):
         project_root_path: Path,
         protostar_directory: ProtostarDirectory,
         project_cairo_path_builder: ProjectCairoPathBuilder,
-        test_result_formatter: TestResultFormatter,
-        test_collector_summary_formatter: TestCollectorSummaryFormatter,
+        log_color_provider: LogColorProvider,
         logger: Logger,
     ) -> None:
         super().__init__()
         self._logger = logger
+        self._log_color_provider = log_color_provider
         self._project_root_path = project_root_path
         self._protostar_directory = protostar_directory
         self._project_cairo_path_builder = project_cairo_path_builder
-        self._test_result_formatter = test_result_formatter
-        self._test_collector_summary_formatter = test_collector_summary_formatter
+        self._test_result_formatter = TestResultFormatter(log_color_provider)
+        self._test_collector_summary_formatter = TestCollectorSummaryFormatter()
 
     @property
     def name(self) -> str:
@@ -185,7 +185,7 @@ class TestCommand(Command):
         )
         with TestingSeed(seed) as testing_seed:
             with ActivityIndicator(
-                log_color_provider.colorize("GRAY", "Collecting tests")
+                self._log_color_provider.colorize("GRAY", "Collecting tests")
             ):
                 test_collector_result = TestCollector(
                     StarknetCompiler(

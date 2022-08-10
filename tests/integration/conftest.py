@@ -8,11 +8,7 @@ import pytest
 from pytest_mock import MockerFixture
 from typing_extensions import Protocol
 
-from protostar.commands.test.test_collector_summary_formatter import (
-    TestCollectorSummaryFormatter,
-)
 from protostar.commands.test.test_command import TestCommand
-from protostar.commands.test.test_result_formatter import TestResultFormatter
 from protostar.commands.test.testing_summary import TestingSummary
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.utils.log_color_provider import LogColorProvider
@@ -110,15 +106,14 @@ def run_cairo_test_runner_fixture(mocker: MockerFixture) -> RunCairoTestRunnerFi
     ) -> TestingSummary:
         log_color_provider = LogColorProvider()
         log_color_provider.is_ci_mode = False
-        test_result_formatter = TestResultFormatter(log_color_provider)
 
         protostar_directory_mock = mocker.MagicMock()
         protostar_directory_mock.protostar_test_only_cairo_packages_path = Path()
 
         project_cairo_path_builder = cast(ProjectCairoPathBuilder, mocker.MagicMock())
-        cast(
-            mocker.MagicMock, project_cairo_path_builder
-        ).build_project_cairo_path_list = lambda paths: paths
+        project_cairo_path_builder.build_project_cairo_path_list = (
+            lambda relative_cairo_path_list: relative_cairo_path_list
+        )
 
         ignored_targets: Optional[List[str]] = None
         if ignored_test_cases:
@@ -131,9 +126,8 @@ def run_cairo_test_runner_fixture(mocker: MockerFixture) -> RunCairoTestRunnerFi
             project_root_path=Path(),
             protostar_directory=protostar_directory_mock,
             project_cairo_path_builder=project_cairo_path_builder,
-            test_collector_summary_formatter=TestCollectorSummaryFormatter(),
-            test_result_formatter=test_result_formatter,
             logger=getLogger(),
+            log_color_provider=log_color_provider,
         ).test(
             targets=[str(path)],
             ignored_targets=ignored_targets,
