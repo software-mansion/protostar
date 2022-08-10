@@ -19,9 +19,12 @@ from protostar.protostar_toml.protostar_contracts_section import (
 from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
 from tests.conftest import run_devnet
 
-pytest_plugins = [
-    "tests.integration._conftest.project_fixture",
-]
+# pylint: disable=unused-import
+from tests.integration._conftest.standard_project_fixture import (
+    project_root_path_fixture,
+    standard_project_fixture,
+    version_manager_fixture,
+)
 
 
 @dataclass
