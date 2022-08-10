@@ -32,15 +32,16 @@ class SimpleProjectCreator(ProjectCreator):
         (self._project_root_path / "lib").mkdir(exist_ok=True, parents=True)
 
 
-@pytest.fixture(name="project_root_path")
-def project_root_path_fixture(tmp_path: Path) -> Path:
+@pytest.fixture(name="project_root_path", scope="module")
+def project_root_path_fixture(tmp_path_factory) -> Path:
+    tmp_path = tmp_path_factory.mktemp("data")
     return tmp_path / "default_project"
 
 
-@pytest.fixture(name="version_manager")
-def version_manager_fixture(mocker: MagicMock) -> VersionManager:
-    version_manager = mocker.MagicMock()
-    version_manager.protostar_version = mocker.MagicMock()
+@pytest.fixture(name="version_manager", scope="module")
+def version_manager_fixture(module_mocker: MagicMock) -> VersionManager:
+    version_manager = module_mocker.MagicMock()
+    version_manager.protostar_version = module_mocker.MagicMock()
     version_manager.protostar_version = "99.9.9"
     return version_manager
 
@@ -48,7 +49,7 @@ def version_manager_fixture(mocker: MagicMock) -> VersionManager:
 STANDARD_PROJECT_FIXTURE = "standard_project"
 
 
-@pytest.fixture(name=STANDARD_PROJECT_FIXTURE)
+@pytest.fixture(name=STANDARD_PROJECT_FIXTURE, scope="module")
 def standard_project_fixture(project_root_path: Path, version_manager: VersionManager):
     protostar_toml_writer = ProtostarTOMLWriter()
     project_creator = SimpleProjectCreator(

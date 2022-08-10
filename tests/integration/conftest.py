@@ -119,7 +119,7 @@ def run_cairo_test_runner_fixture(mocker: MockerFixture) -> RunCairoTestRunnerFi
     return run_cairo_test_runner
 
 
-@pytest.fixture(name="project_compilation_output_path")
+@pytest.fixture(name="project_compilation_output_path", scope="module")
 def project_compilation_output_path_fixture(project_root_path: Path):
     output_path = project_root_path / "build"
     output_path.mkdir(exist_ok=True)
@@ -129,7 +129,7 @@ def project_compilation_output_path_fixture(project_root_path: Path):
 COMPILED_PROJECT_FIXTURE = "compiled_project"
 
 
-@pytest.fixture(name=COMPILED_PROJECT_FIXTURE)
+@pytest.fixture(name=COMPILED_PROJECT_FIXTURE, scope="module")
 def compiled_project_fixture(
     project_root_path: Path, project_compilation_output_path: Path
 ):
