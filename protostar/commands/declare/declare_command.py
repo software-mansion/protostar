@@ -2,7 +2,11 @@ from logging import Logger
 from pathlib import Path
 from typing import List, Optional
 
+from starknet_py.net.signer import BaseSigner
+
 from protostar.cli.command import Command
+from protostar.cli.network_command_mixin import NetworkCommandMixin
+from protostar.cli.signable_command_mixin import SignableCommandMixin
 from protostar.commands.deploy.deploy_command import DeployCommand
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import (
@@ -12,7 +16,7 @@ from protostar.starknet_gateway import (
 )
 
 
-class DeclareCommand(Command):
+class DeclareCommand(Command, SignableCommandMixin, NetworkCommandMixin):
     def __init__(
         self,
         gateway_facade: GatewayFacade,
@@ -36,26 +40,20 @@ class DeclareCommand(Command):
     @property
     def arguments(self) -> List[Command.Argument]:
         return [
+            *self.signable_arguments,
+            *self.network_arguments,
             Command.Argument(
                 name="contract",
-                description=("Path to compiled contract."),
+                description="Path to compiled contract.",
                 type="path",
                 is_positional=True,
                 is_required=True,
-            ),
-            Command.Argument(
-                name="signature",
-                description=("Signature information for the declaration."),
-                type="str",
-                is_array=True,
             ),
             Command.Argument(
                 name="token",
                 description="Used for declaring contracts in Alpha MainNet.",
                 type="str",
             ),
-            DeployCommand.gateway_url_arg,
-            DeployCommand.network_arg,
         ]
 
     async def run(self, args) -> SuccessfulDeclareResponse:
@@ -63,24 +61,24 @@ class DeclareCommand(Command):
         assert args.network is None or isinstance(args.network, str)
         assert args.gateway_url is None or isinstance(args.gateway_url, str)
         assert args.token is None or isinstance(args.token, str)
-        assert args.signature is None or isinstance(args.signature, list)
+        network_config = self.get_network_config(args)
 
         return await self.declare(
             compiled_contract_path=args.contract,
+            signer=self.get_signer(args, network_config),
             network=args.network,
             gateway_url=args.gateway_url,
             token=args.token,
-            signature=args.signature,
         )
 
     # pylint: disable=too-many-arguments
     async def declare(
         self,
         compiled_contract_path: Path,
+        signer: BaseSigner,
         network: Optional[str] = None,
         gateway_url: Optional[str] = None,
         token: Optional[str] = None,
-        signature: Optional[List[str]] = None,
     ) -> SuccessfulDeclareResponse:
         if network is None and gateway_url is None:
             raise ProtostarException(
@@ -93,7 +91,7 @@ class DeclareCommand(Command):
             compiled_contract_path=compiled_contract_path,
             gateway_url=network_config.gateway_url,
             token=token,
-            signature=signature,
+            signer=signer,
         )
 
         explorer_url = network_config.get_contract_explorer_url(response.class_hash)

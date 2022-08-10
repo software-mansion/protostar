@@ -3,12 +3,13 @@ from pathlib import Path
 from typing import Callable, List, Optional
 
 from services.external_api.client import RetryConfig
+from starknet_py.net.signer import BaseSigner
 from starkware.starknet.definitions import constants
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.services.api.gateway.gateway_client import GatewayClient
 from starkware.starknet.services.api.gateway.transaction import (
-    DECLARE_SENDER_ADDRESS,
     Declare,
+    DECLARE_SENDER_ADDRESS,
 )
 from starkware.starkware_utils.error_handling import StarkErrorCode
 
@@ -101,7 +102,7 @@ class GatewayFacade:
         self,
         compiled_contract_path: Path,
         gateway_url: str,
-        signature: Optional[List[str]] = None,
+        signer: BaseSigner,
         token: Optional[str] = None,
     ):
         """Protostar version of starknet/cli/starknet_cli.py::declare"""
@@ -119,32 +120,41 @@ class GatewayFacade:
                 mode="r",
                 encoding="utf-8",
             ) as compiled_contract_file:
+                compiled_contract = compiled_contract_file.read()
+                contract_cls = ContractClass.loads(compiled_contract)
 
-                tx = Declare(
-                    contract_class=ContractClass.loads(
-                        data=compiled_contract_file.read()
-                    ),
+                unsigned_tx = Declare(
+                    contract_class=contract_cls,
                     sender_address=sender,
                     max_fee=max_fee,
-                    version=constants.TRANSACTION_VERSION,
-                    signature=signature or [],
                     nonce=nonce,
-                )  # type: ignore
+                    version=0,
+                    signature=[],
+                )
+                signature = signer.sign_transaction(unsigned_tx)
+
+                tx = Declare(
+                    **{
+                        **unsigned_tx.__dict__,
+                        "signature": signature,
+                    }
+                )
 
                 register_response = self._register_request(
                     action="DECLARE",
                     payload={
                         "contract": str(compiled_contract_abs_path),
-                        "sender_address": sender,
+                        "sender_address": tx.sender_address,
                         "max_fee": tx.max_fee,
                         "version": constants.TRANSACTION_VERSION,
-                        "signature": tx.signature or [],
+                        "signature": signature,
                         "nonce": tx.nonce,
                     },
                 )
                 gateway_client = GatewayClient(
                     url=gateway_url, retry_config=RetryConfig(n_retries=1)
                 )
+
                 gateway_response = await gateway_client.add_transaction(
                     tx=tx, token=token
                 )

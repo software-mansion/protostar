@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from protostar.cli import Command
+from protostar.cli.network_command_mixin import NetworkCommandMixin
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.migrator import Migrator
 from protostar.protostar_exception import ProtostarException
@@ -11,10 +12,7 @@ from protostar.utils.input_requester import InputRequester
 from protostar.utils.log_color_provider import LogColorProvider
 
 
-class MigrateCommand(Command):
-    GATEWAY_URL_ARG_NAME = "gateway-url"
-    NETWORK_ARG_NAME = "network"
-
+class MigrateCommand(Command, NetworkCommandMixin):
     def __init__(
         self,
         migrator_builder: Migrator.Builder,
@@ -65,35 +63,13 @@ class MigrateCommand(Command):
                 description="Skip confirming building the project.",
                 type="bool",
             ),
-            Command.Argument(
-                name=MigrateCommand.GATEWAY_URL_ARG_NAME,
-                description="The URL of a StarkNet gateway. It is required unless `--network` is provided.",
-                type="str",
-            ),
-            Command.Argument(
-                name=MigrateCommand.NETWORK_ARG_NAME,
-                short_name="n",
-                description=(
-                    "\n".join(
-                        [
-                            "The name of the StarkNet network.",
-                            "It is required unless `--gateway-url` is provided.",
-                            "",
-                            "Supported StarkNet networks:",
-                        ]
-                        + [f"- `{n}`" for n in NetworkConfig.get_starknet_networks()]
-                    )
-                ),
-                type="str",
-            ),
         ]
 
     async def run(self, args):
         await self.migrate(
             migration_file_path=args.path,
             rollback=args.rollback,
-            gateway_url=args.gateway_url,
-            network=args.network,
+            network_config=self.get_network_config(args),
             output_dir_path=args.output_dir,
             no_confirm=args.no_confirm,
         )
@@ -103,18 +79,10 @@ class MigrateCommand(Command):
         self,
         migration_file_path: Path,
         rollback: bool,
-        gateway_url: Optional[str],
-        network: Optional[str],
+        network_config: NetworkConfig,
         output_dir_path: Optional[Path],
         no_confirm: bool,
     ):
-        if network is None and gateway_url is None:
-            raise ProtostarException(
-                f"Argument `{MigrateCommand.GATEWAY_URL_ARG_NAME}` or `{MigrateCommand.NETWORK_ARG_NAME}` is required"
-            )
-
-        network_config = NetworkConfig.build(gateway_url, network)
-
         # mitigates the risk of running migrate on an outdated project
         should_confirm = not no_confirm
         if should_confirm and not self._requester.confirm(
