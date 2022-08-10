@@ -33,7 +33,6 @@ from protostar.protostar_toml import (
 from protostar.protostar_toml.protostar_toml_version_checker import (
     ProtostarTOMLVersionChecker,
 )
-from protostar.starknet_gateway import GatewayFacade
 from protostar.upgrader import (
     LatestVersionCacheTOML,
     LatestVersionChecker,
@@ -82,7 +81,6 @@ def build_di_container(script_root: Path):
         ),
         latest_version_remote_checker=LatestVersionRemoteChecker(),
     )
-    gateway_facade_builder = GatewayFacade.Builder(project_root_path=project_root_path)
 
     project_cairo_path_builder = ProjectCairoPathBuilder(
         project_root_path=project_root_path,
@@ -146,13 +144,13 @@ def build_di_container(script_root: Path):
             logger=logger,
         ),
         TestCommand(project_root_path, protostar_directory, project_cairo_path_builder),
-        DeployCommand(gateway_facade_builder, logger),
-        DeclareCommand(gateway_facade_builder, logger),
+        DeployCommand(logger=logger, project_root_path=project_root_path),
+        DeclareCommand(logger=logger, project_root_path=project_root_path),
         MigrateCommand(
             migrator_builder=Migrator.Builder(
                 migrator_execution_environment_builder=MigratorExecutionEnvironment.Builder(),
-                gateway_facade_builder=GatewayFacade.Builder(project_root_path),
             ),
+            project_root_path=project_root_path,
             requester=requester,
             logger=logger,
             log_color_provider=log_color_provider,

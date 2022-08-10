@@ -3,17 +3,16 @@ from pathlib import Path
 from typing import Callable, List, Optional
 import dataclasses
 
-from starknet_py.net.signer import BaseSigner
 from starkware.starknet.definitions import constants
-
-from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.transactions.deploy import make_deploy_tx
-from starknet_py.net.models import StarknetChainId
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.services.api.gateway.transaction import (
     Declare,
     DECLARE_SENDER_ADDRESS,
 )
+
+from starknet_py.net.signer import BaseSigner
+from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.transactions.deploy import make_deploy_tx
 
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway.gateway_response import (
@@ -38,27 +37,6 @@ class CompilationOutputNotFoundException(ProtostarException):
 
 
 class GatewayFacade:
-    class Builder:
-        def __init__(self, project_root_path: Path):
-            self._project_root_path = project_root_path
-            self._network: Optional[str] = None
-
-        def set_network(self, network: str) -> None:
-            self._network = network
-
-        def build(self) -> "GatewayFacade":
-            assert self._network is not None
-
-            client = GatewayClient(
-                # Starknet.py ignores chain parameter when
-                # `mainnet` or `testnet` is passed into the client
-                # `StarknetChainId.TESTNET` also works for devnet
-                GatewayFacade.map_to_starknet_py_naming(self._network),
-                chain=StarknetChainId.TESTNET,
-            )
-
-            return GatewayFacade(self._project_root_path, client)
-
     def __init__(
         self,
         project_root_path: Path,
@@ -71,10 +49,6 @@ class GatewayFacade:
         self._logger: Optional[Logger] = logger
         self._log_color_provider: Optional[LogColorProvider] = log_color_provider
         self._gateway_client = gateway_client
-
-    def set_logger(self, logger: Logger, log_color_provider: LogColorProvider) -> None:
-        self._logger = logger
-        self._log_color_provider = log_color_provider
 
     def get_starknet_requests(self) -> List[StarknetRequest]:
         return self._starknet_requests.copy()
@@ -108,9 +82,7 @@ class GatewayFacade:
             action="DEPLOY",
             payload={
                 "contract": str(self._project_root_path / compiled_contract_path),
-                "network": GatewayFacade.map_from_starknet_py_naming(
-                    str(self._gateway_client.net)
-                ),
+                "network": self._gateway_client.net,
                 "constructor_args": inputs,
                 "salt": salt,
                 "token": token,
@@ -245,19 +217,3 @@ class GatewayFacade:
             )
 
         return register_response
-
-    @staticmethod
-    def map_to_starknet_py_naming(name: str) -> str:
-        if name == "alpha-goerli":
-            return "testnet"
-        if name == "alpha-mainnet":
-            return "mainnet"
-        return name
-
-    @staticmethod
-    def map_from_starknet_py_naming(name: str) -> str:
-        if name == "testnet":
-            return "alpha-goerli"
-        if name == "mainnet":
-            return "alpha-mainnet"
-        return name

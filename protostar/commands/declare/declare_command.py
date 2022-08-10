@@ -8,7 +8,6 @@ from protostar.cli.command import Command
 from protostar.cli.network_command_mixin import NetworkCommandMixin
 from protostar.cli.signable_command_mixin import SignableCommandMixin
 from protostar.commands.deploy.deploy_command import DeployCommand
-from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import (
     GatewayFacade,
     NetworkConfig,
@@ -19,10 +18,10 @@ from protostar.starknet_gateway import (
 class DeclareCommand(Command, SignableCommandMixin, NetworkCommandMixin):
     def __init__(
         self,
-        gateway_facade_builder: GatewayFacade.Builder,
         logger: Logger,
+        project_root_path: Path,
     ):
-        self._gateway_facade_builder = gateway_facade_builder
+        self._project_root_path = project_root_path
         self._logger = logger
 
     @property
@@ -66,12 +65,16 @@ class DeclareCommand(Command, SignableCommandMixin, NetworkCommandMixin):
         assert args.signature is None or isinstance(args.signature, list)
 
         network_config = self.get_network_config(args)
+        gateway_facade = GatewayFacade(
+            gateway_client=self.get_gateway_client(args),
+            project_root_path=self._project_root_path,
+        )
 
         return await self.declare(
             compiled_contract_path=args.contract,
             signer=self.get_signer(args, network_config),
+            gateway_facade=gateway_facade,
             network_config=network_config,
-            network=args.network or args.gateway_url,
             token=args.token,
             wait_for_acceptance=args.wait_for_acceptance,
         )
@@ -82,18 +85,10 @@ class DeclareCommand(Command, SignableCommandMixin, NetworkCommandMixin):
         compiled_contract_path: Path,
         signer: BaseSigner,
         network_config: NetworkConfig,
-        network: Optional[str] = None,
+        gateway_facade: GatewayFacade,
         token: Optional[str] = None,
         wait_for_acceptance: bool = False,
     ) -> SuccessfulDeclareResponse:
-        if network is None:
-            raise ProtostarException(
-                f"Argument `{DeployCommand.gateway_url_arg.name}` or `{DeployCommand.network_arg.name}` is required"
-            )
-
-        self._gateway_facade_builder.set_network(network)
-        gateway_facade = self._gateway_facade_builder.build()
-
         response = await gateway_facade.declare(
             compiled_contract_path=compiled_contract_path,
             wait_for_acceptance=wait_for_acceptance,

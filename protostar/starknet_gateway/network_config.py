@@ -41,7 +41,7 @@ class NetworkConfig:
             network_config = cls(
                 gateway_url=gateway_url,
                 chain_id=chain_id,
-                contract_explorer_search_url=None
+                contract_explorer_search_url=None,
             )
 
         if network_config is None:
@@ -54,8 +54,8 @@ class NetworkConfig:
         return KNOWN_NETWORKS
 
     @classmethod
-    def from_starknet_network_name(cls, network: str) -> None:
-        if network not in NetworkConfig.get_starknet_networks():            raise UnknownStarkwareNetworkException()
+    def from_starknet_network_name(cls, network: str) -> "NetworkConfig":
+        if network not in NetworkConfig.get_starknet_networks():
             raise UnknownStarkwareNetworkException()
 
         contract_explorer_search_url_mapping = {
@@ -66,9 +66,9 @@ class NetworkConfig:
         chain_id = chain_from_network(net=network, chain=None)
 
         return cls(
-            gateway_url=f"{net_address_from_net(starkware_network_name)}/gateway",
+            gateway_url=f"{net_address_from_net(network)}/gateway",
             contract_explorer_search_url=contract_explorer_search_url_mapping.get(
-                starkware_network_name
+                network
             ),
             chain_id=chain_id.value,
         )

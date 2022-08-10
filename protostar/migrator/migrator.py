@@ -9,8 +9,8 @@ from typing import List, Optional
 from protostar.migrator.migrator_execution_environment import (
     MigratorExecutionEnvironment,
 )
+from protostar.starknet_gateway import GatewayFacade
 
-from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.starknet_gateway.starknet_request import StarknetRequest
 from protostar.utils.log_color_provider import LogColorProvider
 
@@ -28,12 +28,10 @@ class Migrator:
         def __init__(
             self,
             migrator_execution_environment_builder: MigratorExecutionEnvironment.Builder,
-            gateway_facade_builder: GatewayFacade.Builder,
         ) -> None:
             self._migrator_execution_environment_builder = (
                 migrator_execution_environment_builder
             )
-            self._gateway_facade_builder = gateway_facade_builder
             self._logger: Optional[Logger] = None
             self._log_color_provider: Optional[LogColorProvider] = None
             self._migrator_execution_environment_config = (
@@ -46,21 +44,12 @@ class Migrator:
             self._logger = logger
             self._log_color_provider = log_color_provider
 
-        def set_network(self, network: str):
-            self._gateway_facade_builder.set_network(network)
-
         def set_migration_execution_environemnt_config(
             self, config: MigratorExecutionEnvironment.Config
         ):
             self._migrator_execution_environment_config = config
 
-        async def build(self, migration_file_path: Path):
-            gateway_facade = self._gateway_facade_builder.build()
-
-            if self._logger:
-                assert self._log_color_provider
-                gateway_facade.set_logger(self._logger, self._log_color_provider)
-
+        async def build(self, migration_file_path: Path, gateway_facade: GatewayFacade):
             self._migrator_execution_environment_builder.set_gateway_facade(
                 gateway_facade
             )

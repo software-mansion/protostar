@@ -7,15 +7,17 @@ from protostar.cli.network_command_mixin import NetworkCommandMixin
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.migrator import Migrator
 from protostar.protostar_exception import ProtostarException
-from protostar.starknet_gateway import NetworkConfig
+from protostar.starknet_gateway import GatewayFacade
 from protostar.utils.input_requester import InputRequester
 from protostar.utils.log_color_provider import LogColorProvider
 
 
 class MigrateCommand(Command, NetworkCommandMixin):
+    # pylint: disable=too-many-arguments
     def __init__(
         self,
         migrator_builder: Migrator.Builder,
+        project_root_path: Path,
         logger: Logger,
         log_color_provider: LogColorProvider,
         requester: InputRequester,
@@ -25,6 +27,7 @@ class MigrateCommand(Command, NetworkCommandMixin):
         self._logger = logger
         self._log_color_provider = log_color_provider
         self._requester = requester
+        self._project_root_path = project_root_path
 
     @property
     def name(self) -> str:
@@ -69,8 +72,12 @@ class MigrateCommand(Command, NetworkCommandMixin):
         await self.migrate(
             migration_file_path=args.path,
             rollback=args.rollback,
-            network_config=self.get_network_config(args),
-            network=args.network or args.gateway_url,
+            gateway_facade=GatewayFacade(
+                gateway_client=self.get_gateway_client(args),
+                log_color_provider=self._log_color_provider,
+                logger=self._logger,
+                project_root_path=self._project_root_path,
+            ),
             output_dir_path=args.output_dir,
             no_confirm=args.no_confirm,
         )
@@ -80,8 +87,7 @@ class MigrateCommand(Command, NetworkCommandMixin):
         self,
         migration_file_path: Path,
         rollback: bool,
-        network: Optional[str],
-        network_config: NetworkConfig,
+        gateway_facade: GatewayFacade,
         output_dir_path: Optional[Path],
         no_confirm: bool,
     ):
@@ -95,8 +101,10 @@ class MigrateCommand(Command, NetworkCommandMixin):
             return
 
         self._migrator_builder.set_logger(self._logger, self._log_color_provider)
-        self._migrator_builder.set_network(network)
-        migrator = await self._migrator_builder.build(migration_file_path)
+
+        migrator = await self._migrator_builder.build(
+            migration_file_path, gateway_facade
+        )
 
         try:
             migrator_history = await migrator.run(rollback)
