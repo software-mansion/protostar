@@ -1,16 +1,15 @@
+import dataclasses
 from logging import Logger
 from pathlib import Path
-from typing import Callable, List, Optional, Dict, Any
-import dataclasses
+from typing import Any, Callable, Dict, List, Optional
 
-from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
-from starkware.starknet.definitions import constants
-
+from starknet_py.contract import Contract, InvokeResult
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.transactions.deploy import make_deploy_tx
+from starknet_py.net.models import AddressRepresentation, StarknetChainId
 from starknet_py.transactions.declare import make_declare_tx
-from starknet_py.net.models import StarknetChainId, AddressRepresentation
-from starknet_py.contract import Contract
+from starknet_py.transactions.deploy import make_deploy_tx
+from starkware.starknet.definitions import constants
+from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
 
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway.gateway_response import (
@@ -207,16 +206,14 @@ class GatewayFacade:
         function_name: str,
         inputs: Dict[str, Any],
         wait_for_acceptance: bool = False,
-    ):
+    ) -> InvokeResult:
         contract = await Contract.from_address(
             address=address, client=self._gateway_client
         )
-        result = await contract.functions[function_name].invoke(**inputs)
-
+        response = await contract.functions[function_name].invoke(**inputs)
         if wait_for_acceptance:
-            result = await result.wait_for_acceptance()
-
-        print("INVOKE: ", result)
+            return await response.wait_for_acceptance()
+        return response
 
     def _register_request(
         self, action: StarknetRequest.Action, payload: StarknetRequest.Payload

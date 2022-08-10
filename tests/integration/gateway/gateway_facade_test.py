@@ -4,21 +4,46 @@ import pytest
 
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.utils.log_color_provider import LogColorProvider
-from tests.integration._conftest.standard_project_fixture import (
-    STANDARD_PROJECT_FIXTURE,
-)
-from tests.integration.conftest import COMPILED_PROJECT_FIXTURE
 
 
-@pytest.mark.usefixtures(STANDARD_PROJECT_FIXTURE, COMPILED_PROJECT_FIXTURE)
+@pytest.fixture(autouse=True, scope="module")
+# pylint: disable=unused-argument
+def testing_environment(standard_project, compiled_project):
+    pass
+
+
 async def test_deploy(gateway_facade: GatewayFacade, compiled_contract_path: Path):
     response = await gateway_facade.deploy(compiled_contract_path)
     assert response is not None
 
 
-@pytest.mark.usefixtures(STANDARD_PROJECT_FIXTURE, COMPILED_PROJECT_FIXTURE)
 async def test_declare(gateway_facade: GatewayFacade, compiled_contract_path: Path):
     response = await gateway_facade.declare(compiled_contract_path)
+    assert response is not None
+
+
+async def test_invoke(gateway_facade: GatewayFacade, compiled_contract_path: Path):
+    deployed_contract = await gateway_facade.deploy(compiled_contract_path)
+
+    response = await gateway_facade.invoke(
+        deployed_contract.address,
+        function_name="increase_balance",
+        inputs={"amount": 42},
+        wait_for_acceptance=True,
+    )
+
+    assert response is not None
+
+
+async def test_call(gateway_facade: GatewayFacade, compiled_contract_path: Path):
+    deployed_contract = await gateway_facade.deploy(compiled_contract_path)
+
+    response = await gateway_facade.call(
+        deployed_contract.address,
+        function_name="get_balance",
+        inputs={},
+    )
+
     assert response is not None
 
 
