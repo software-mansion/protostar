@@ -63,7 +63,7 @@ class ProtostarFixture:
         for relative_path_str, content in relative_path_str_to_content.items():
             self._save_file(self._project_root_path / relative_path_str, content)
 
-    def create_migration(self, content: str) -> Path:
+    def create_migration(self, hint_content: str) -> Path:
         file_path = self._project_root_path / "migrations" / "migration_01_test.cairo"
         self._save_file(
             file_path,
@@ -73,7 +73,7 @@ class ProtostarFixture:
         @external
         func up():
             %{{
-                {content}
+                {hint_content}
             %}}
 
             return ()
