@@ -1,13 +1,21 @@
+import asyncio
+
 import pytest
 
 from protostar.starknet_gateway.starknet_request import StarknetRequest
+from tests.integration.protostar_fixture import ProtostarFixture
+
+
+@pytest.fixture(scope="module")
+def event_loop():
+    return asyncio.get_event_loop()
 
 
 @pytest.fixture(autouse=True, scope="module")
 # pylint: disable=unused-argument
-def setup(protostar_project):
-    protostar_project.init()
-    protostar_project.setup(
+async def setup(protostar: ProtostarFixture):
+    await protostar.init()
+    protostar.create_files(
         {
             "./src/main.json": """
                 %lang starknet
@@ -19,16 +27,18 @@ def setup(protostar_project):
             """
         }
     )
-    protostar_project.build()
+    await protostar.build()
 
 
-async def test_call_contract(migrate):
-    migration_history = await migrate(
+async def test_call_contract(protostar: ProtostarFixture, devnet_gateway_url: str):
+    file_path = protostar.create_migration(
         """
-        contract_address = deploy("./build/main.json").contract_address
+        contract_address = deploy_contract("./build/main.json").contract_address
         call(contract_address, "identity", [42])
         """
     )
+
+    migration_history = await protostar.migrate(file_path, network=devnet_gateway_url)
 
     contract_address = extract_contract_address_from_deploy_response(
         migration_history.starknet_requests[0].response

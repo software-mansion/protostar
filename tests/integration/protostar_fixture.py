@@ -1,11 +1,15 @@
+from argparse import Namespace
+from logging import getLogger
 from pathlib import Path
+from typing import Dict, cast
 
 from pytest_mock import MockerFixture
-from typing_extensions import Self
 
-from protostar.commands.init.project_creator import ProjectCreator
+from protostar.commands import BuildCommand, InitCommand, MigrateCommand
+from protostar.commands.init.project_creator.new_project_creator import (
+    NewProjectCreator,
+)
 from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
-from protostar.compiler.project_compiler import ProjectCompilerConfig
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_toml import (
     ProtostarContractsSection,
@@ -14,42 +18,84 @@ from protostar.protostar_toml import (
     ProtostarTOMLWriter,
 )
 from protostar.starknet_gateway import GatewayFacade
-from protostar.utils import VersionManager
+from protostar.utils.input_requester import InputRequester
+from protostar.utils.log_color_provider import LogColorProvider
 
 
 class ProtostarFixture:
     def __init__(
         self,
-        simple_project_creator: "SimpleProjectCreator",
-        project_compiler: ProjectCompiler,
-        migrator_builder: Migrator.Builder,
+        project_root_path: Path,
+        init_command: InitCommand,
+        build_command: BuildCommand,
+        migrator_command: MigrateCommand,
     ) -> None:
-        self._simple_project_creator = simple_project_creator
-        self._project_compiler = project_compiler
-        self._migrator_builder = migrator_builder
+        self._project_root_path = project_root_path
+        self._init_command = init_command
+        self._build_command = build_command
+        self._migrator_command = migrator_command
 
-    async def init(self) -> Self:
-        self._simple_project_creator.run()
-        return self
+    async def init(self):
+        args = Namespace()
+        args.existing = False
+        return await self._init_command.run(args)
 
-    async def build(self, output_dir: Path) -> Self:
-        self._project_compiler.compile_project(
-            output_dir=output_dir,
-            config=ProjectCompilerConfig(
-                hint_validation_disabled=False,
-                relative_cairo_path=[],
-            ),
+    async def build(self):
+        args = Namespace()
+        args.output = Path("./build")
+        args.disable_hint_validation = False
+        args.cairo_path = None
+        return await self._build_command.run(args)
+
+    async def migrate(self, path: Path, network: str, rollback=False):
+        args = Namespace()
+        args.path = path
+        args.output_dir = None
+        args.rollback = rollback
+        args.no_confirm = True
+        args.network = None
+        args.gateway_url = network
+        migration_history = await self._migrator_command.run(args)
+        assert migration_history is not None
+        return migration_history
+
+    def create_files(self, relative_path_str_to_content: Dict[str, str]) -> None:
+        for relative_path_str, content in relative_path_str_to_content.items():
+            self._save_file(self._project_root_path / relative_path_str, content)
+
+    def create_migration(self, content: str) -> Path:
+        file_path = self._project_root_path / "migrations" / "migration_01_test.cairo"
+        self._save_file(
+            file_path,
+            f"""
+        %lang starknet
+
+        @external
+        func up():
+            %{{
+                {content}
+            %}}
+
+            return ()
+        end
+        """,
         )
-        return self
+        return file_path
 
-    async def migrate(self, filepath: Path, rollback=False) -> Self:
-        migrator = await self._migrator_builder.build(filepath)
-        await migrator.run(rollback)
-        return self
+    @staticmethod
+    def _save_file(path: Path, content: str) -> None:
+        path.parent.mkdir(exist_ok=True, parents=True)
+        with open(
+            path,
+            mode="w",
+            encoding="utf-8",
+        ) as output_file:
+            output_file.write(content)
 
 
 # pylint: disable=too-many-locals
-def build_protostar_fixture(project_root_path: Path, mocker: MockerFixture):
+def build_protostar_fixture(mocker: MockerFixture, project_root_path: Path):
+
     version_manager = mocker.MagicMock()
     version_manager.protostar_version = mocker.MagicMock()
     version_manager.protostar_version = "99.9.9"
@@ -76,39 +122,64 @@ def build_protostar_fixture(project_root_path: Path, mocker: MockerFixture):
         gateway_facade_builder=GatewayFacade.Builder(project_root_path),
     )
 
-    simple_project_creator = SimpleProjectCreator(
-        project_root_path,
-        Path(__file__).parent / ".." / "..",
-        protostar_toml_writer,
-        version_manager,
+    input_requester = cast(InputRequester, mocker.MagicMock())
+
+    def request_input(message: str) -> str:
+        if message.startswith("project directory name"):
+            return project_root_path.name
+        if message.startswith("libraries directory name"):
+            return "lib"
+        return ""
+
+    input_requester.request_input = request_input
+
+    new_project_creator = NewProjectCreator(
+        script_root=Path(__file__).parent / ".." / "..",
+        requester=input_requester,
+        protostar_toml_writer=protostar_toml_writer,
+        version_manager=version_manager,
+        output_dir_path=project_root_path.parent,
     )
 
-    ProtostarFixture(
-        project_compiler=project_compiler,
+    init_command = InitCommand(
+        input_requester,
+        new_project_creator=new_project_creator,
+        adapted_project_creator=mocker.MagicMock(),
+    )
+
+    project_compiler = ProjectCompiler(
+        project_root_path=project_root_path,
+        project_cairo_path_builder=project_cairo_path_builder,
+        contracts_section_loader=ProtostarContractsSection.Loader(
+            protostar_toml_reader
+        ),
+    )
+
+    logger = getLogger()
+    build_command = BuildCommand(logger=logger, project_compiler=project_compiler)
+
+    log_color_provider = LogColorProvider()
+    log_color_provider.is_ci_mode = True
+
+    gateway_facade_builder = GatewayFacade.Builder(project_root_path=project_root_path)
+
+    migrator_builder = Migrator.Builder(
+        gateway_facade_builder=gateway_facade_builder,
+        migrator_execution_environment_builder=MigratorExecutionEnvironment.Builder(),
+    )
+
+    migrate_command = MigrateCommand(
         migrator_builder=migrator_builder,
-        simple_project_creator=simple_project_creator,
+        log_color_provider=log_color_provider,
+        logger=logger,
+        requester=input_requester,
     )
 
+    protostar_fixture = ProtostarFixture(
+        project_root_path=project_root_path,
+        init_command=init_command,
+        build_command=build_command,
+        migrator_command=migrate_command,
+    )
 
-class SimpleProjectCreator(ProjectCreator):
-    def __init__(
-        self,
-        project_root_path: Path,
-        script_root: Path,
-        protostar_toml_writer: ProtostarTOMLWriter,
-        version_manager: VersionManager,
-    ):
-        super().__init__(
-            script_root,
-            protostar_toml_writer,
-            version_manager,
-        )
-        self._project_root_path = project_root_path
-
-    def run(self):
-        self.copy_template("default", self._project_root_path)
-        self.save_protostar_toml(self._project_root_path, Path("./lib"))
-        self._create_libs_dir()
-
-    def _create_libs_dir(self) -> None:
-        (self._project_root_path / "lib").mkdir(exist_ok=True, parents=True)
+    return protostar_fixture

@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from os import listdir
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Union
+from unittest.mock import MagicMock
 
 import pytest
 from pytest_mock import MockerFixture
@@ -24,6 +25,10 @@ from tests.integration._conftest.standard_project_fixture import (
     project_root_path_fixture,
     standard_project_fixture,
     version_manager_fixture,
+)
+from tests.integration.protostar_fixture import (
+    ProtostarFixture,
+    build_protostar_fixture,
 )
 
 
@@ -135,9 +140,7 @@ class CompileProjectFixture(Protocol):
 
 
 @pytest.fixture(name="compile_project", scope="module")
-def compile_project_fixture(
-    standard_project, project_root_path: Path
-) -> CompileProjectFixture:
+def compile_project_fixture(project_root_path: Path) -> CompileProjectFixture:
     def compile_project(str_path_to_content: Dict[str, str]):
         for relative_str_path, content in str_path_to_content.items():
             save_file(project_root_path / relative_str_path, content)
@@ -183,3 +186,20 @@ def compiled_project_fixture(
     )
     output_files_count = len(listdir(project_compilation_output_path))
     assert output_files_count > 0, "Project didn't compile"
+
+
+@pytest.fixture(name="protostar_project_root_path", scope="module")
+def protostar_project_root_path_fixture(tmp_path_factory) -> Path:
+    tmp_path = tmp_path_factory.mktemp("data")
+    return tmp_path / "tmp_project"
+
+
+@pytest.fixture(name="protostar", scope="module")
+def protostar_fixture(
+    session_mocker: MagicMock,
+    protostar_project_root_path: Path,
+) -> ProtostarFixture:
+    return build_protostar_fixture(
+        mocker=session_mocker,
+        project_root_path=protostar_project_root_path,
+    )

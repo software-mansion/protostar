@@ -1,4 +1,3 @@
-from enum import Enum
 from pathlib import Path
 from typing import Union
 
@@ -6,7 +5,7 @@ import pytest
 from starknet_py.net.client_models import TransactionStatus
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
-from typing_extensions import Literal, Protocol
+from typing_extensions import Literal
 
 from protostar.migrator import Migrator
 from protostar.migrator.migrator_execution_environment import (
