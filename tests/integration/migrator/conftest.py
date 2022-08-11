@@ -1,10 +1,11 @@
 from pathlib import Path
-from typing import Union
+from typing import Protocol, Union
 
 import pytest
 from starknet_py.net.client_models import TransactionStatus
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
+from typing_extensions import Literal
 
 from protostar.migrator import Migrator
 from protostar.migrator.migrator_execution_environment import (
@@ -38,3 +39,33 @@ async def assert_transaction_accepted(
         transaction_hash, wait_for_accept=True
     )
     assert transaction_status == TransactionStatus.ACCEPTED_ON_L2
+
+
+MigrationFileName = Literal[
+    "migration_declare_file_not_found.cairo",
+    "migration_declare.cairo",
+    "migration_deploy_contract.cairo",
+    "migration_down.cairo",
+]
+
+
+class RunMigrateFixture(Protocol):
+    async def __call__(
+        self, migration_file_name: MigrationFileName, rollback=False
+    ) -> Migrator.History:
+        ...
+
+
+@pytest.fixture(name="run_migrate")
+async def run_migrate_fixture(
+    migrator_builder: Migrator.Builder, project_root_path: Path
+) -> RunMigrateFixture:
+    async def run_migrate(
+        migration_file_name: MigrationFileName, rollback=False
+    ) -> Migrator.History:
+        migrator = await migrator_builder.build(
+            migration_file_path=project_root_path / "migrations" / migration_file_name,
+        )
+        return await migrator.run(rollback)
+
+    return run_migrate

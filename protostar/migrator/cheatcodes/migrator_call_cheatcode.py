@@ -1,19 +1,19 @@
 import asyncio
-from typing import Dict, Any, Optional
-from typing_extensions import Protocol
+from typing import Any, Optional
 
-from starknet_py.net.models import AddressRepresentation
+from typing_extensions import Protocol
 
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet_gateway import GatewayFacade
+from protostar.utils.data_transformer import CairoOrPythonData
 
 
 class CallCheatcodeProtocol(Protocol):
     def __call__(
         self,
-        address: AddressRepresentation,
+        contract_address: int,
         function_name: str,
-        inputs: Optional[Dict[str, Any]] = None,
+        inputs: Optional[CairoOrPythonData] = None,
     ) -> Any:
         ...
 
@@ -36,17 +36,14 @@ class MigratorCallCheatcode(Cheatcode):
 
     def call(
         self,
-        address: AddressRepresentation,
+        contract_address: int,
         function_name: str,
-        inputs: Optional[Dict[str, Any]] = None,
+        inputs: Optional[CairoOrPythonData] = None,
     ):
-
-        output = asyncio.run(
+        return asyncio.run(
             self._gateway_facade.call(
-                address=address,
+                address=contract_address,
                 function_name=function_name,
                 inputs=inputs,
             )
         )
-
-        return output

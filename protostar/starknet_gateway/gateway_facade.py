@@ -1,7 +1,7 @@
 import dataclasses
 from logging import Logger
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, NamedTuple, Optional, Union
 
 from starknet_py.contract import Contract, InvokeResult
 from starknet_py.net.gateway_client import GatewayClient
@@ -188,7 +188,7 @@ class GatewayFacade:
         address: AddressRepresentation,
         function_name: str,
         inputs: Optional[Union[List[int], Dict[str, Any]]] = None,
-    ):
+    ) -> NamedTuple:
         if inputs is None:
             inputs = {}
         contract = await Contract.from_address(
