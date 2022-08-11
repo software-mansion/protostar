@@ -1,8 +1,7 @@
 # pylint: disable=invalid-name
 from dataclasses import dataclass
-from os import listdir
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Union
+from typing import List, Optional, Set, Union
 from unittest.mock import MagicMock
 
 import pytest
@@ -11,21 +10,7 @@ from typing_extensions import Protocol
 
 from protostar.commands.test.test_command import TestCommand
 from protostar.commands.test.testing_summary import TestingSummary
-from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
-from protostar.compiler.project_compiler import ProjectCompiler, ProjectCompilerConfig
-from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
-from protostar.protostar_toml.protostar_contracts_section import (
-    ProtostarContractsSection,
-)
-from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
 from tests.conftest import run_devnet
-
-# pylint: disable=unused-import
-from tests.integration._conftest.standard_project_fixture import (
-    project_root_path_fixture,
-    standard_project_fixture,
-    version_manager_fixture,
-)
 from tests.integration.protostar_fixture import (
     ProtostarFixture,
     build_protostar_fixture,
@@ -122,70 +107,6 @@ def run_cairo_test_runner_fixture(mocker: MockerFixture) -> RunCairoTestRunnerFi
         ).test(targets=[str(path)], seed=seed, fuzz_max_examples=fuzz_max_examples)
 
     return run_cairo_test_runner
-
-
-@pytest.fixture(name="project_compilation_output_path", scope="module")
-def project_compilation_output_path_fixture(project_root_path: Path):
-    output_path = project_root_path / "build"
-    output_path.mkdir(exist_ok=True)
-    return output_path
-
-
-COMPILED_PROJECT_FIXTURE = "compiled_project"
-
-
-class CompileProjectFixture(Protocol):
-    def __call__(self, str_path_to_content: Dict[str, str]) -> None:
-        ...
-
-
-@pytest.fixture(name="compile_project", scope="module")
-def compile_project_fixture(project_root_path: Path) -> CompileProjectFixture:
-    def compile_project(str_path_to_content: Dict[str, str]):
-        for relative_str_path, content in str_path_to_content.items():
-            save_file(project_root_path / relative_str_path, content)
-
-    return compile_project
-
-
-def save_file(path: Path, content: str):
-    with open(
-        path,
-        mode="w",
-        encoding="utf-8",
-    ) as output_file:
-        output_file.write(content)
-
-
-@pytest.fixture(name=COMPILED_PROJECT_FIXTURE, scope="module")
-def compiled_project_fixture(
-    project_root_path: Path, project_compilation_output_path: Path
-):
-    protostar_toml_reader = ProtostarTOMLReader(
-        protostar_toml_path=project_root_path / "protostar.toml"
-    )
-    project_compiler = ProjectCompiler(
-        project_root_path=project_root_path,
-        contracts_section_loader=ProtostarContractsSection.Loader(
-            protostar_toml_reader=protostar_toml_reader
-        ),
-        project_cairo_path_builder=ProjectCairoPathBuilder(
-            project_root_path,
-            project_section_loader=ProtostarProjectSection.Loader(
-                protostar_toml_reader
-            ),
-        ),
-    )
-    project_compiler.compile_project(
-        output_dir=project_compilation_output_path,
-        config=ProjectCompilerConfig(
-            debugging_info_attached=True,
-            hint_validation_disabled=True,
-            relative_cairo_path=[],
-        ),
-    )
-    output_files_count = len(listdir(project_compilation_output_path))
-    assert output_files_count > 0, "Project didn't compile"
 
 
 @pytest.fixture(name="protostar_project_root_path", scope="module")
