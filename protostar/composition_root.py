@@ -55,13 +55,11 @@ class DIContainer:
 
 
 # pylint: disable=too-many-locals
-def build_di_container(script_root: Path):
+def build_di_container(script_root: Path, cwd: Path):
     logger = getLogger()
-    protostar_toml_path = search_upwards_protostar_toml_path(
-        start_path=Path().resolve()
-    )
+    protostar_toml_path = search_upwards_protostar_toml_path(start_path=cwd.resolve())
     project_root_path = (
-        protostar_toml_path.parent if protostar_toml_path is not None else Path()
+        protostar_toml_path.parent if protostar_toml_path is not None else cwd
     )
     protostar_toml_path = protostar_toml_path or project_root_path / "protostar.toml"
     protostar_directory = ProtostarDirectory(script_root)
