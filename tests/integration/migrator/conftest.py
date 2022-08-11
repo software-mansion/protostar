@@ -47,31 +47,4 @@ MigrationFileName = Literal[
     "migration_declare.cairo",
     "migration_deploy_contract.cairo",
     "migration_down.cairo",
-    "migration_deploy_and_call.cairo",
 ]
-
-
-class RunMigrateFixture(Protocol):
-    async def __call__(
-        self, migration_file_name: MigrationFileName, rollback=False
-    ) -> Migrator.History:
-        ...
-
-
-@pytest.fixture(name="run_migrate")
-async def run_migrate_fixture(
-    migrator_builder: Migrator.Builder, project_root_path: Path
-) -> RunMigrateFixture:
-    async def run_migrate(
-        migration_file_name: MigrationFileName, rollback=False
-    ) -> Migrator.History:
-        migrator = await migrator_builder.build(
-            migration_file_path=project_root_path / "migrations" / migration_file_name,
-        )
-        return await migrator.run(rollback)
-
-    return run_migrate
-
-
-class ContractMainWithConstructorDefaults(Enum):
-    INITIAL_BALANCE = 0
