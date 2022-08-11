@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+from starknet_py.net.client_errors import ContractNotFoundError
 
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.utils.log_color_provider import LogColorProvider
@@ -22,17 +23,19 @@ async def test_declare(gateway_facade: GatewayFacade, compiled_contract_path: Pa
     assert response is not None
 
 
+@pytest.mark.skip("Protostar needs to support accounts first")
 async def test_invoke(gateway_facade: GatewayFacade, compiled_contract_path: Path):
     deployed_contract = await gateway_facade.deploy(compiled_contract_path)
 
-    response = await gateway_facade.invoke(
-        deployed_contract.address,
-        function_name="increase_balance",
-        inputs={"amount": 42},
-        wait_for_acceptance=True,
-    )
+    with pytest.raises(ValueError, match="You need to use AccountClient for that."):
+        await gateway_facade.invoke(
+            deployed_contract.address,
+            function_name="increase_balance",
+            inputs={"amount": 42},
+            wait_for_acceptance=True,
+        )
 
-    assert response is not None
+    assert False
 
 
 async def test_call(gateway_facade: GatewayFacade, compiled_contract_path: Path):
@@ -44,7 +47,43 @@ async def test_call(gateway_facade: GatewayFacade, compiled_contract_path: Path)
         inputs={},
     )
 
-    assert response is not None
+    initial_balance = 0
+    assert response[0] == initial_balance
+
+
+async def test_call_to_unknown_function(
+    gateway_facade: GatewayFacade, compiled_contract_path: Path
+):
+    deployed_contract = await gateway_facade.deploy(compiled_contract_path)
+
+    with pytest.raises(KeyError):
+        await gateway_facade.call(
+            deployed_contract.address,
+            function_name="UNKNOWN_FUNCTION",
+            inputs={},
+        )
+
+
+async def test_call_to_unknown_contract(gateway_facade: GatewayFacade):
+    with pytest.raises(ContractNotFoundError, match="No contract found for identifier"):
+        await gateway_facade.call(
+            123,
+            function_name="UNKNOWN_FUNCTION",
+        )
+
+
+@pytest.mark.skip("https://github.com/software-mansion/starknet.py/issues/302")
+async def test_call_to_with_incorrect_args(
+    gateway_facade: GatewayFacade, compiled_contract_path: Path
+):
+    deployed_contract = await gateway_facade.deploy(compiled_contract_path)
+
+    with pytest.raises(Exception):
+        await gateway_facade.call(
+            deployed_contract.address,
+            function_name="get_balance",
+            inputs={"UNKNOWN_ARG": 42},
+        )
 
 
 @pytest.fixture(name="gateway_facade")

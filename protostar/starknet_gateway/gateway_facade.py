@@ -1,7 +1,7 @@
 import dataclasses
 from logging import Logger
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Union
 
 from starknet_py.contract import Contract, InvokeResult
 from starknet_py.net.gateway_client import GatewayClient
@@ -184,21 +184,22 @@ class GatewayFacade:
         )
 
     async def call(
-        self, address: AddressRepresentation, function_name: str, inputs: Dict[str, Any]
+        self,
+        address: AddressRepresentation,
+        function_name: str,
+        inputs: Optional[Union[List[int], Dict[str, Any]]] = None,
     ):
-        # TODO:
-        # Add registering request
-        # Consider returning something other than a NamedTuple
-        # Consider catching exceptions
-        # Check whether the awaits make sense
-        # Consider caching contracts
-        # Add None checking to inputs
-
+        if inputs is None:
+            inputs = {}
         contract = await Contract.from_address(
             address=address, client=self._gateway_client
         )
-        call_output = await contract.functions[function_name].call(**inputs)
-        print("CALL OUTPUT: ", call_output)
+        contract_function = contract.functions[function_name]
+        if isinstance(inputs, List):
+            result = await contract_function.call(*inputs)
+        else:
+            result = await contract_function.call(**inputs)
+        return result
 
     async def invoke(
         self,
