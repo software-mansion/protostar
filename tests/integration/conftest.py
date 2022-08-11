@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 from os import listdir
 from pathlib import Path
-from typing import List, Optional, Set, Union
+from typing import Dict, List, Optional, Set, Union
 
 import pytest
 from pytest_mock import MockerFixture
@@ -127,6 +127,31 @@ def project_compilation_output_path_fixture(project_root_path: Path):
 
 
 COMPILED_PROJECT_FIXTURE = "compiled_project"
+
+
+class CompileProjectFixture(Protocol):
+    def __call__(self, str_path_to_content: Dict[str, str]) -> None:
+        ...
+
+
+@pytest.fixture(name="compile_project", scope="module")
+def compile_project_fixture(
+    standard_project, project_root_path: Path
+) -> CompileProjectFixture:
+    def compile_project(str_path_to_content: Dict[str, str]):
+        for relative_str_path, content in str_path_to_content.items():
+            save_file(project_root_path / relative_str_path, content)
+
+    return compile_project
+
+
+def save_file(path: Path, content: str):
+    with open(
+        path,
+        mode="w",
+        encoding="utf-8",
+    ) as output_file:
+        output_file.write(content)
 
 
 @pytest.fixture(name=COMPILED_PROJECT_FIXTURE, scope="module")

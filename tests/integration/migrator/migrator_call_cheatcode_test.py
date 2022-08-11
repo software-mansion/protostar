@@ -5,10 +5,11 @@ from protostar.starknet_gateway.starknet_request import StarknetRequest
 
 @pytest.fixture(autouse=True, scope="module")
 # pylint: disable=unused-argument
-def testing_environment(standard_project, compile_project):
-    compile_project(
+def setup(protostar_project):
+    protostar_project.init()
+    protostar_project.setup(
         {
-            "main.json": """
+            "./src/main.json": """
                 %lang starknet
 
                 @view
@@ -18,6 +19,7 @@ def testing_environment(standard_project, compile_project):
             """
         }
     )
+    protostar_project.build()
 
 
 async def test_call_contract(migrate):
