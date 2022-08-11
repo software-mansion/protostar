@@ -1,3 +1,4 @@
+import asyncio
 from argparse import Namespace
 from logging import getLogger
 from pathlib import Path
@@ -35,19 +36,23 @@ class ProtostarFixture:
         self._build_command = build_command
         self._migrator_command = migrator_command
 
-    async def init(self):
+    @property
+    def project_root_path(self) -> Path:
+        return self._project_root_path
+
+    def init(self):
         args = Namespace()
         args.existing = False
-        return await self._init_command.run(args)
+        return asyncio.run(self._init_command.run(args))
 
-    async def build(self):
+    def build(self):
         args = Namespace()
         args.output = Path("./build")
         args.disable_hint_validation = False
         args.cairo_path = None
-        return await self._build_command.run(args)
+        return asyncio.run(self._build_command.run(args))
 
-    async def migrate(self, path: Path, network: str, rollback=False):
+    def migrate(self, path: Path, network: str, rollback=False):
         args = Namespace()
         args.path = path
         args.output_dir = None
@@ -55,7 +60,7 @@ class ProtostarFixture:
         args.no_confirm = True
         args.network = None
         args.gateway_url = network
-        migration_history = await self._migrator_command.run(args)
+        migration_history = asyncio.run(self._migrator_command.run(args))
         assert migration_history is not None
         return migration_history
 
