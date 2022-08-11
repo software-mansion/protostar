@@ -52,7 +52,7 @@ class ProtostarFixture:
         args.cairo_path = None
         return asyncio.run(self._build_command.run(args))
 
-    def migrate(self, path: Path, network: str, rollback=False):
+    async def migrate(self, path: Path, network: str, rollback=False):
         args = Namespace()
         args.path = path
         args.output_dir = None
@@ -60,7 +60,7 @@ class ProtostarFixture:
         args.no_confirm = True
         args.network = None
         args.gateway_url = network
-        migration_history = asyncio.run(self._migrator_command.run(args))
+        migration_history = await self._migrator_command.run(args)
         assert migration_history is not None
         return migration_history
 
@@ -68,7 +68,7 @@ class ProtostarFixture:
         for relative_path_str, content in relative_path_str_to_content.items():
             self._save_file(self._project_root_path / relative_path_str, content)
 
-    def create_migration(self, hint_content: str) -> Path:
+    def create_migration_file(self, hint_content: str) -> Path:
         file_path = self._project_root_path / "migrations" / "migration_01_test.cairo"
         self._save_file(
             file_path,

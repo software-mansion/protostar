@@ -22,15 +22,15 @@ def setup(protostar: ProtostarFixture):
     protostar.build()
 
 
-def test_call_contract(protostar: ProtostarFixture, devnet_gateway_url: str):
-    file_path = protostar.create_migration(
+async def test_call_contract(protostar: ProtostarFixture, devnet_gateway_url: str):
+    file_path = protostar.create_migration_file(
         """
         contract_address = deploy_contract("./build/main.json").contract_address
         call(contract_address, "identity", [42])
         """
     )
 
-    migration_history = protostar.migrate(file_path, network=devnet_gateway_url)
+    migration_history = await protostar.migrate(file_path, network=devnet_gateway_url)
 
     contract_address = extract_contract_address_from_deploy_response(
         migration_history.starknet_requests[0].response

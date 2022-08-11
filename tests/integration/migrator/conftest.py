@@ -39,11 +39,3 @@ async def assert_transaction_accepted(
         transaction_hash, wait_for_accept=True
     )
     assert transaction_status == TransactionStatus.ACCEPTED_ON_L2
-
-
-MigrationFileName = Literal[
-    "migration_declare_file_not_found.cairo",
-    "migration_declare.cairo",
-    "migration_deploy_contract.cairo",
-    "migration_down.cairo",
-]
