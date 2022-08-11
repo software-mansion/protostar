@@ -9,7 +9,7 @@ def setup(protostar: ProtostarFixture):
     protostar.init()
     protostar.create_files(
         {
-            "./src/main.json": """
+            "./src/main.cairo": """
                 %lang starknet
 
                 @view
@@ -37,9 +37,9 @@ async def test_call_contract(protostar: ProtostarFixture, devnet_gateway_url: st
     )
     call_request = migration_history.starknet_requests[1]
     assert call_request.action == "CALL"
-    assert call_request.payload["inputs"] == "[]"
-    assert call_request.payload["contract_address"] == str(contract_address)
-    assert call_request.response["response"] == "42"
+    assert call_request.payload["inputs"] == "[42]"
+    assert call_request.payload["contract_address"] == contract_address
+    assert call_request.response["response"] == "{'res': 42}"
 
 
 def extract_contract_address_from_deploy_response(

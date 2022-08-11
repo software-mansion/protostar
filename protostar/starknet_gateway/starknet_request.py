@@ -8,7 +8,7 @@ from protostar.utils.log_color_provider import LogColorProvider
 
 @dataclass
 class StarknetRequest:
-    Action = Literal["DEPLOY", "DECLARE"]
+    Action = Literal["DEPLOY", "DECLARE", "CALL"]
     Payload = Dict[str, Union[None, str, int, List[int], List[str]]]
 
     action: Action

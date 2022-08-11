@@ -189,6 +189,14 @@ class GatewayFacade:
         function_name: str,
         inputs: Optional[Union[List[int], Dict[str, Any]]] = None,
     ) -> NamedTuple:
+        register_response = self._register_request(
+            action="CALL",
+            payload={
+                "contract_address": address,
+                "function_name": function_name,
+                "inputs": str(inputs),
+            },
+        )
         if inputs is None:
             inputs = {}
         contract = await Contract.from_address(
@@ -199,6 +207,7 @@ class GatewayFacade:
             result = await contract_function.call(*inputs)
         else:
             result = await contract_function.call(**inputs)
+        register_response({"response": str(result._asdict())})
         return result
 
     async def invoke(
