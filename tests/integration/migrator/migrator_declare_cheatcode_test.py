@@ -1,4 +1,3 @@
-import asyncio
 import re
 from pathlib import Path
 from typing import cast
@@ -10,15 +9,9 @@ from tests.integration.migrator.conftest import assert_transaction_accepted
 from tests.integration.protostar_fixture import ProtostarFixture
 
 
-@pytest.fixture(scope="module")
-def event_loop():
-    return asyncio.get_event_loop()
-
-
 @pytest.fixture(autouse=True, scope="module")
-# pylint: disable=unused-argument
-async def setup(protostar: ProtostarFixture):
-    await protostar.init()
+def setup(protostar: ProtostarFixture):
+    protostar.init()
     protostar.create_files(
         {
             "./src/main.json": """
@@ -31,7 +24,7 @@ async def setup(protostar: ProtostarFixture):
             """
         }
     )
-    await protostar.build()
+    protostar.build()
 
 
 async def test_declare_contract(
@@ -41,7 +34,7 @@ async def test_declare_contract(
 ):
     migration_file_path = protostar.create_migration('declare("./build/main.json")')
 
-    result = await protostar.migrate(migration_file_path, devnet_gateway_url)
+    result = protostar.migrate(migration_file_path, devnet_gateway_url)
 
     assert len(result.starknet_requests) == 1
     assert result.starknet_requests[0].action == "DECLARE"
@@ -55,7 +48,7 @@ async def test_declare_contract(
     await assert_transaction_accepted(devnet_gateway_url, transaction_hash)
 
 
-async def test_descriptive_error_on_file_not_found(
+def test_descriptive_error_on_file_not_found(
     protostar: ProtostarFixture,
     devnet_gateway_url: str,
 ):
@@ -69,4 +62,4 @@ async def test_descriptive_error_on_file_not_found(
             "Couldn't find `.*/NOT_EXISTING_FILE.json`",
         ),
     ):
-        await protostar.migrate(migration_file_path, network=devnet_gateway_url)
+        protostar.migrate(migration_file_path, network=devnet_gateway_url)
