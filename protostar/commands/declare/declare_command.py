@@ -62,7 +62,6 @@ class DeclareCommand(Command, SignableCommandMixin, NetworkCommandMixin):
         assert args.network is None or isinstance(args.network, str)
         assert args.token is None or isinstance(args.token, str)
         assert isinstance(args.wait_for_acceptance, bool)
-        assert args.signature is None or isinstance(args.signature, list)
 
         network_config = self.get_network_config(args)
         gateway_facade = GatewayFacade(

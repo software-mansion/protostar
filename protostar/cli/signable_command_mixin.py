@@ -1,12 +1,11 @@
 import importlib
 import os
-import sys
 from typing import List, Any
-
 from starknet_py.net.signer import BaseSigner
-from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
 
+from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
 from protostar.cli import Command
+
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import NetworkConfig
 
@@ -41,19 +40,27 @@ class SignableCommandMixin:
         }
 
         signer = None
-        if args.pythonpath_ext:
-            sys.path.extend(args.pythonpath_ext)
         if args.signer_class:
             *module_names, class_name = args.signer_class.split(".")
             module = ".".join(module_names)
             signer_module = importlib.import_module(module)
             signer_class = getattr(signer_module, class_name)
+            SignableCommandMixin._validate_signer_interface(signer_class)
 
             signer = signer_class(**signer_args)
         if not signer:
             signer = StarkCurveSigner(**signer_args)
 
         return signer
+
+    @staticmethod
+    def _validate_signer_interface(signer_class):
+        if not issubclass(signer_class, BaseSigner):
+            raise ProtostarException(
+                "Signer class has to extend BaseSigner ABC.\n"
+                "Please refer to the starknet.py docs for more information:\n"
+                "https://starknetpy.readthedocs.io/en/latest/signer.html#starknet_py.net.signer.BaseSigner"
+            )
 
     @property
     def signable_arguments(self) -> List[Command.Argument]:
@@ -75,12 +82,5 @@ class SignableCommandMixin:
                 name="signer-class",
                 description="Custom signer class module path.",
                 type="str",
-            ),
-            Command.Argument(
-                name="pythonpath-ext",
-                description="PYTHONPATH extensions, for custom code roots registration. You can extend PYTHONPATH with "
-                "the same result as well.",
-                type="str",
-                is_array=True,
             ),
         ]

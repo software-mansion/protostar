@@ -167,6 +167,7 @@ def build_di_container(script_root: Path):
         log_color_provider=log_color_provider,
         logger=logger,
         version_manager=version_manager,
+        project_cairo_path_builder=project_cairo_path_builder,
     )
 
     return DIContainer(protostar_cli, protostar_toml_reader)
