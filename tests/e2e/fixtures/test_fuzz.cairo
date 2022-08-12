@@ -4,13 +4,13 @@ from starkware.cairo.common.math import assert_nn
 
 @external
 func test_fuzz{syscall_ptr : felt*, range_check_ptr}(a, b : felt):
+    %{ print("TESTING STDOUT", ids.a) %}
     assert a + b = b + a
     return ()
 end
 
 @external
 func test_fails_if_big_single_input{syscall_ptr : felt*, range_check_ptr}(x):
-    %{ print("TESTING STDOUT", ids.x) %}
     assert_nn(x)
     return ()
 end
