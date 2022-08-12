@@ -12,7 +12,6 @@ from tests.integration.protostar_fixture import ProtostarFixture
 
 
 @pytest.fixture(autouse=True, scope="module")
-# pylint: disable=unused-argument
 def setup(protostar: ProtostarFixture):
     protostar.init_sync()
     protostar.build_sync()

@@ -2,9 +2,9 @@
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional, Set, Union
-from unittest.mock import MagicMock
 
 import pytest
+from pytest import TempPathFactory
 from pytest_mock import MockerFixture
 from typing_extensions import Protocol
 
@@ -110,14 +110,14 @@ def run_cairo_test_runner_fixture(mocker: MockerFixture) -> RunCairoTestRunnerFi
 
 
 @pytest.fixture(name="protostar_project_root_path", scope="module")
-def protostar_project_root_path_fixture(tmp_path_factory) -> Path:
+def protostar_project_root_path_fixture(tmp_path_factory: TempPathFactory) -> Path:
     tmp_path = tmp_path_factory.mktemp("data")
     return tmp_path / "tmp_project"
 
 
 @pytest.fixture(name="protostar", scope="module")
 def protostar_fixture(
-    session_mocker: MagicMock,
+    session_mocker: MockerFixture,
     protostar_project_root_path: Path,
 ) -> ProtostarFixture:
     return build_protostar_fixture(
