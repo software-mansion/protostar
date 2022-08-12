@@ -17,6 +17,7 @@ class NewProjectCreator(ProjectCreator):
         project_dirname: str
         lib_dirname: str
 
+    # pylint: disable=too-many-arguments
     def __init__(
         self,
         script_root: Path,
