@@ -111,6 +111,7 @@ def build_di_container(script_root: Path, cwd: Optional[Path] = None):
                 protostar_toml_writer,
                 version_manager,
             ),
+            cwd=cwd,
         ),
         BuildCommand(project_compiler, logger),
         InstallCommand(

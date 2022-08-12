@@ -151,6 +151,7 @@ def build_protostar_fixture(mocker: MockerFixture, project_root_path: Path):
         input_requester,
         new_project_creator=new_project_creator,
         adapted_project_creator=mocker.MagicMock(),
+        cwd=project_root_path.parent,
     )
 
     project_compiler = ProjectCompiler(
