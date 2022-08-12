@@ -2,16 +2,12 @@ from types import SimpleNamespace
 from typing import Any
 
 from protostar.starknet.hint_local import HintLocal
-from .felt import (
-    SignedFeltStrategyDescriptor,
-    UnsignedFeltStrategyDescriptor,
-)
+from .felts import FeltsStrategyDescriptor
 from .integers import IntegersStrategyDescriptor
 
 namespace = SimpleNamespace(
+    felts=FeltsStrategyDescriptor,
     integers=IntegersStrategyDescriptor,
-    signed=SignedFeltStrategyDescriptor,
-    unsigned=UnsignedFeltStrategyDescriptor,
 )
 
 

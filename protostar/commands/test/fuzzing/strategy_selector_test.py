@@ -14,9 +14,7 @@ from protostar.commands.test.fuzzing.exceptions import (
     FuzzingError,
     SearchStrategyBuildError,
 )
-from protostar.commands.test.fuzzing.strategies.felt import (
-    UnsignedFeltStrategyDescriptor,
-)
+from protostar.commands.test.fuzzing.strategies import FeltsStrategyDescriptor
 from protostar.commands.test.fuzzing.strategy_descriptor import StrategyDescriptor
 from protostar.commands.test.fuzzing.strategy_selector import (
     StrategySelector,
@@ -62,9 +60,7 @@ def test_learn_unknown_parameter():
 
 
 def test_infer_strategy_from_cairo_type_felt():
-    assert (
-        infer_strategy_from_cairo_type(TypeFelt()) == UnsignedFeltStrategyDescriptor()
-    )
+    assert infer_strategy_from_cairo_type(TypeFelt()) == FeltsStrategyDescriptor()
 
 
 def test_infer_strategy_from_cairo_type_pointer():

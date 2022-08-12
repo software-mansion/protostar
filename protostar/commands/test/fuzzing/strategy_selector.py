@@ -8,12 +8,8 @@ from protostar.commands.test.fuzzing.exceptions import (
     FuzzingError,
     SearchStrategyBuildError,
 )
-from protostar.commands.test.fuzzing.strategies.felt import (
-    UnsignedFeltStrategyDescriptor,
-)
-from protostar.commands.test.fuzzing.strategy_descriptor import (
-    StrategyDescriptor,
-)
+from protostar.commands.test.fuzzing.strategies import FeltsStrategyDescriptor
+from protostar.commands.test.fuzzing.strategy_descriptor import StrategyDescriptor
 
 
 class StrategySelector:
@@ -63,7 +59,7 @@ class StrategySelector:
 
 def infer_strategy_from_cairo_type(cairo_type: CairoType) -> StrategyDescriptor:
     if isinstance(cairo_type, TypeFelt):
-        return UnsignedFeltStrategyDescriptor()
+        return FeltsStrategyDescriptor()
 
     raise SearchStrategyBuildError(f"Type {cairo_type.format()} cannot be fuzzed.")
 
