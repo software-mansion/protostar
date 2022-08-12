@@ -4,7 +4,10 @@ from pathlib import Path
 from typing import Dict
 
 import pytest
+from typing_extensions import Protocol
 
+from protostar.commands.test.test_environment_exceptions import ReportedException
+from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway.starknet_request import StarknetRequest
 from tests.data.contracts import IDENTITY_CONTRACT
 from tests.integration.protostar_fixture import ProtostarFixture
@@ -17,7 +20,59 @@ def setup(protostar: ProtostarFixture):
     protostar.build_sync()
 
 
-async def test_call_contract(protostar: ProtostarFixture, devnet_gateway_url: str):
+class MigrateFixture(Protocol):
+    async def __call__(self, migration_hint_content: str) -> None:
+        ...
+
+
+@pytest.fixture(name="migrate")
+async def migrate_fixture(protostar: ProtostarFixture, devnet_gateway_url: str):
+    async def migrate(migration_hint_content: str):
+        migration_file_path = protostar.create_migration_file(migration_hint_content)
+        await protostar.migrate(migration_file_path, network=devnet_gateway_url)
+
+    return migrate
+
+
+async def test_using_dict_to_pass_args(migrate: MigrateFixture):
+    await migrate(
+        """
+        contract_address = deploy_contract("./build/main.json").contract_address
+
+        result = call(contract_address, "identity", {"arg": 42})
+
+        assert result.res == 42
+        """
+    )
+
+
+async def test_failure_on_wrong_args(migrate: MigrateFixture):
+    with pytest.raises(ReportedException, match="Input arg not provided"):
+        await migrate(
+            """
+            contract_address = deploy_contract("./build/main.json").contract_address
+
+            result = call(contract_address, "identity", [])
+            """
+        )
+
+
+async def test_failure_when_calling_not_existing_function(migrate: MigrateFixture):
+    with pytest.raises(
+        ProtostarException, match="unknown function: 'UNKNOWN_FUNCTION'"
+    ):
+        await migrate(
+            """
+            contract_address = deploy_contract("./build/main.json").contract_address
+
+            result = call(contract_address, "UNKNOWN_FUNCTION", [])
+            """
+        )
+
+
+async def test_migration_using_call_creates_output(
+    protostar: ProtostarFixture, devnet_gateway_url: str
+):
     migration_file_path = protostar.create_migration_file(
         """
         contract_address = deploy_contract("./build/main.json").contract_address
@@ -32,12 +87,11 @@ async def test_call_contract(protostar: ProtostarFixture, devnet_gateway_url: st
         output_dir=migration_output_relative_path,
     )
 
-    loaded_migration_output = load_migration_history(
+    loaded_migration_output = load_migration_history_from_output(
         migration_output_path=protostar.project_root_path
         / migration_output_relative_path
     )
     assert loaded_migration_output is not None
-
     output_file_content = str(loaded_migration_output)
     assert "CALL" in output_file_content
     assert "[42]" in output_file_content
@@ -48,7 +102,7 @@ async def test_call_contract(protostar: ProtostarFixture, devnet_gateway_url: st
     assert str(contract_address) in output_file_content
 
 
-def load_migration_history(migration_output_path: Path) -> Dict:
+def load_migration_history_from_output(migration_output_path: Path) -> Dict:
     migration_output_file_names = listdir(migration_output_path)
     assert len(migration_output_file_names) == 1
     migration_output_file_path = migration_output_path / migration_output_file_names[0]

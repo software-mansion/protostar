@@ -100,3 +100,16 @@ async def test_call_to_with_incorrect_args(
             function_name="get_balance",
             inputs={"UNKNOWN_ARG": 42},
         )
+
+
+async def test_call_to_with_positional_incorrect_args(
+    gateway_facade: GatewayFacade, compiled_contract_path: Path
+):
+    deployed_contract = await gateway_facade.deploy(compiled_contract_path)
+
+    with pytest.raises(Exception):
+        await gateway_facade.call(
+            deployed_contract.address,
+            function_name="get_balance",
+            inputs=[42],
+        )

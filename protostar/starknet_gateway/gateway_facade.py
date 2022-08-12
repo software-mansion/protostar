@@ -9,13 +9,12 @@ from starknet_py.net.models import AddressRepresentation, StarknetChainId
 from starknet_py.transactions.declare import make_declare_tx
 from starknet_py.transactions.deploy import make_deploy_tx
 from starkware.starknet.definitions import constants
-from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
+from starkware.starknet.services.api.gateway.transaction import \
+    DECLARE_SENDER_ADDRESS
 
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway.gateway_response import (
-    SuccessfulDeclareResponse,
-    SuccessfulDeployResponse,
-)
+    SuccessfulDeclareResponse, SuccessfulDeployResponse)
 from protostar.starknet_gateway.starknet_request import StarknetRequest
 from protostar.utils.log_color_provider import LogColorProvider
 
@@ -202,7 +201,11 @@ class GatewayFacade:
         contract = await Contract.from_address(
             address=address, client=self._gateway_client
         )
-        contract_function = contract.functions[function_name]
+        try:
+            contract_function = contract.functions[function_name]
+        except KeyError:
+            raise UnknownFunctionException(function_name)
+
         if isinstance(inputs, List):
             result = await contract_function.call(*inputs)
         else:
@@ -284,3 +287,8 @@ class GatewayFacade:
         if name == "mainnet":
             return "alpha-mainnet"
         return name
+
+
+class UnknownFunctionException(ProtostarException):
+    def __init__(self, function_name: str):
+        super().__init__(f"Tried to call unknown function: '{function_name}'")

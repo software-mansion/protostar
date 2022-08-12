@@ -3,8 +3,10 @@ from typing import Any, Optional
 
 from typing_extensions import Protocol
 
+from protostar.commands.test.test_environment_exceptions import \
+    CheatcodeException
 from protostar.starknet.cheatcode import Cheatcode
-from protostar.starknet_gateway import GatewayFacade
+from protostar.starknet_gateway import GatewayFacade, UnknownFunctionException
 from protostar.utils.data_transformer import CairoOrPythonData
 
 
@@ -40,10 +42,16 @@ class MigratorCallCheatcode(Cheatcode):
         function_name: str,
         inputs: Optional[CairoOrPythonData] = None,
     ):
-        return asyncio.run(
-            self._gateway_facade.call(
-                address=contract_address,
-                function_name=function_name,
-                inputs=inputs,
+        try:
+            return asyncio.run(
+                self._gateway_facade.call(
+                    address=contract_address,
+                    function_name=function_name,
+                    inputs=inputs,
+                )
             )
-        )
+        except UnknownFunctionException as err:
+            raise CheatcodeException(
+                self.name,
+                message=err.message,
+            ) from err
