@@ -11,8 +11,8 @@ from tests.integration.protostar_fixture import ProtostarFixture
 
 @pytest.fixture(autouse=True, scope="module")
 def setup(protostar: ProtostarFixture):
-    protostar.init()
-    protostar.build()
+    protostar.init_sync()
+    protostar.build_sync()
 
 
 async def test_declare_contract(

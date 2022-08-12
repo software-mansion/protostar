@@ -40,12 +40,12 @@ class ProtostarFixture:
     def project_root_path(self) -> Path:
         return self._project_root_path
 
-    def init(self):
+    def init_sync(self):
         args = Namespace()
         args.existing = False
         return asyncio.run(self._init_command.run(args))
 
-    def build(self):
+    def build_sync(self):
         args = Namespace()
         args.output = Path("./build")
         args.disable_hint_validation = False

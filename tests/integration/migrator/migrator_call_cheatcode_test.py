@@ -1,25 +1,15 @@
 import pytest
 
 from protostar.starknet_gateway.starknet_request import StarknetRequest
+from tests.data.contracts import IDENTITY_CONTRACT
 from tests.integration.protostar_fixture import ProtostarFixture
 
 
 @pytest.fixture(autouse=True, scope="module")
 def setup(protostar: ProtostarFixture):
-    protostar.init()
-    protostar.create_files(
-        {
-            "./src/main.cairo": """
-                %lang starknet
-
-                @view
-                func identity(arg) -> (res : felt):
-                    return (arg)
-                end
-            """
-        }
-    )
-    protostar.build()
+    protostar.init_sync()
+    protostar.create_files({"./src/main.cairo": IDENTITY_CONTRACT})
+    protostar.build_sync()
 
 
 async def test_call_contract(protostar: ProtostarFixture, devnet_gateway_url: str):
