@@ -4,12 +4,12 @@ from pathlib import Path
 from typing import Dict
 
 import pytest
-from typing_extensions import Protocol
 
 from protostar.commands.test.test_environment_exceptions import ReportedException
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway.starknet_request import StarknetRequest
 from tests.data.contracts import IDENTITY_CONTRACT
+from tests.integration.migrator.conftest import MigrateFixture
 from tests.integration.protostar_fixture import ProtostarFixture
 
 
@@ -18,20 +18,6 @@ def setup(protostar: ProtostarFixture):
     protostar.init_sync()
     protostar.create_files({"./src/main.cairo": IDENTITY_CONTRACT})
     protostar.build_sync()
-
-
-class MigrateFixture(Protocol):
-    async def __call__(self, migration_hint_content: str) -> None:
-        ...
-
-
-@pytest.fixture(name="migrate")
-async def migrate_fixture(protostar: ProtostarFixture, devnet_gateway_url: str):
-    async def migrate(migration_hint_content: str):
-        migration_file_path = protostar.create_migration_file(migration_hint_content)
-        await protostar.migrate(migration_file_path, network=devnet_gateway_url)
-
-    return migrate
 
 
 async def test_using_dict_to_pass_args(migrate: MigrateFixture):
@@ -52,7 +38,7 @@ async def test_failure_on_wrong_args(migrate: MigrateFixture):
             """
             contract_address = deploy_contract("./build/main.json").contract_address
 
-            result = call(contract_address, "identity", [])
+            call(contract_address, "identity", [])
             """
         )
 
@@ -65,9 +51,14 @@ async def test_failure_when_calling_not_existing_function(migrate: MigrateFixtur
             """
             contract_address = deploy_contract("./build/main.json").contract_address
 
-            result = call(contract_address, "UNKNOWN_FUNCTION", [])
+            call(contract_address, "UNKNOWN_FUNCTION")
             """
         )
+
+
+async def test_failure_when_calling_not_existing_contract(migrate: MigrateFixture):
+    with pytest.raises(ProtostarException, match="unknown contract"):
+        await migrate('call(123, "_")')
 
 
 async def test_migration_using_call_creates_output(

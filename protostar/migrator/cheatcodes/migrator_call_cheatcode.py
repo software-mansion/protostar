@@ -3,10 +3,13 @@ from typing import Any, Optional
 
 from typing_extensions import Protocol
 
-from protostar.commands.test.test_environment_exceptions import \
-    CheatcodeException
+from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.starknet.cheatcode import Cheatcode
-from protostar.starknet_gateway import GatewayFacade, UnknownFunctionException
+from protostar.starknet_gateway import (
+    ContractNotFoundException,
+    GatewayFacade,
+    UnknownFunctionException,
+)
 from protostar.utils.data_transformer import CairoOrPythonData
 
 
@@ -50,7 +53,7 @@ class MigratorCallCheatcode(Cheatcode):
                     inputs=inputs,
                 )
             )
-        except UnknownFunctionException as err:
+        except (UnknownFunctionException, ContractNotFoundException) as err:
             raise CheatcodeException(
                 self.name,
                 message=err.message,

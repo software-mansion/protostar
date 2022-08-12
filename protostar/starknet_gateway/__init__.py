@@ -1,4 +1,5 @@
 from protostar.starknet_gateway.gateway_facade import (
+    ContractNotFoundException,
     GatewayFacade,
     UnknownFunctionException,
 )

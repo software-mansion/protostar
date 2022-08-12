@@ -3,20 +3,24 @@ from logging import Logger
 from pathlib import Path
 from typing import Any, Callable, Dict, List, NamedTuple, Optional, Union
 
-from starknet_py.contract import Contract, InvokeResult
+from starknet_py.contract import Contract, ContractFunction, InvokeResult
+from starknet_py.net.client_errors import ContractNotFoundError
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import AddressRepresentation, StarknetChainId
 from starknet_py.transactions.declare import make_declare_tx
 from starknet_py.transactions.deploy import make_deploy_tx
 from starkware.starknet.definitions import constants
-from starkware.starknet.services.api.gateway.transaction import \
-    DECLARE_SENDER_ADDRESS
+from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
 
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway.gateway_response import (
-    SuccessfulDeclareResponse, SuccessfulDeployResponse)
+    SuccessfulDeclareResponse,
+    SuccessfulDeployResponse,
+)
 from protostar.starknet_gateway.starknet_request import StarknetRequest
 from protostar.utils.log_color_provider import LogColorProvider
+
+GatewayFacadeSupportedInputType = Union[List[int], Dict[str, Any]]
 
 
 class TransactionException(ProtostarException):
@@ -186,7 +190,7 @@ class GatewayFacade:
         self,
         address: AddressRepresentation,
         function_name: str,
-        inputs: Optional[Union[List[int], Dict[str, Any]]] = None,
+        inputs: Optional[GatewayFacadeSupportedInputType] = None,
     ) -> NamedTuple:
         register_response = self._register_request(
             action="CALL",
@@ -196,22 +200,35 @@ class GatewayFacade:
                 "inputs": str(inputs),
             },
         )
+        contract_function = await self._create_contract_function(address, function_name)
+        result = await self._call_function(contract_function, inputs)
+        register_response({"result": str(result._asdict())})
+        return result
+
+    async def _create_contract_function(
+        self, contract_address: AddressRepresentation, function_name: str
+    ):
+        try:
+            contract = await Contract.from_address(
+                address=contract_address, client=self._gateway_client
+            )
+        except ContractNotFoundError as err:
+            raise ContractNotFoundException(contract_address) from err
+        try:
+            return contract.functions[function_name]
+        except KeyError:
+            raise UnknownFunctionException(function_name) from KeyError
+
+    @staticmethod
+    async def _call_function(
+        contract_function: ContractFunction,
+        inputs: Optional[GatewayFacadeSupportedInputType] = None,
+    ):
         if inputs is None:
             inputs = {}
-        contract = await Contract.from_address(
-            address=address, client=self._gateway_client
-        )
-        try:
-            contract_function = contract.functions[function_name]
-        except KeyError:
-            raise UnknownFunctionException(function_name)
-
         if isinstance(inputs, List):
-            result = await contract_function.call(*inputs)
-        else:
-            result = await contract_function.call(**inputs)
-        register_response({"response": str(result._asdict())})
-        return result
+            return await contract_function.call(*inputs)
+        return await contract_function.call(**inputs)
 
     async def invoke(
         self,
@@ -292,3 +309,8 @@ class GatewayFacade:
 class UnknownFunctionException(ProtostarException):
     def __init__(self, function_name: str):
         super().__init__(f"Tried to call unknown function: '{function_name}'")
+
+
+class ContractNotFoundException(ProtostarException):
+    def __init__(self, contract_address: AddressRepresentation):
+        super().__init__(f"Tried to call unknown contract:\n{contract_address}")
