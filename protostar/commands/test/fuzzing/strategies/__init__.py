@@ -3,10 +3,10 @@ from typing import Any
 
 from protostar.starknet.hint_local import HintLocal
 from .felt import (
-    IntegersStrategyDescriptor,
     SignedFeltStrategyDescriptor,
     UnsignedFeltStrategyDescriptor,
 )
+from .integers import IntegersStrategyDescriptor
 
 namespace = SimpleNamespace(
     integers=IntegersStrategyDescriptor,
