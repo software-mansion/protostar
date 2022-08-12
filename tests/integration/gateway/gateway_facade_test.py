@@ -1,9 +1,12 @@
 from pathlib import Path
 
 import pytest
-from starknet_py.net.client_errors import ContractNotFoundError
 
-from protostar.starknet_gateway.gateway_facade import GatewayFacade
+from protostar.starknet_gateway.gateway_facade import (
+    ContractNotFoundException,
+    GatewayFacade,
+    UnknownFunctionException,
+)
 from protostar.utils.log_color_provider import LogColorProvider
 from tests.integration.protostar_fixture import ProtostarFixture
 
@@ -72,7 +75,7 @@ async def test_call_to_unknown_function(
 ):
     deployed_contract = await gateway_facade.deploy(compiled_contract_path)
 
-    with pytest.raises(KeyError):
+    with pytest.raises(UnknownFunctionException):
         await gateway_facade.call(
             deployed_contract.address,
             function_name="UNKNOWN_FUNCTION",
@@ -81,7 +84,7 @@ async def test_call_to_unknown_function(
 
 
 async def test_call_to_unknown_contract(gateway_facade: GatewayFacade):
-    with pytest.raises(ContractNotFoundError, match="No contract found for identifier"):
+    with pytest.raises(ContractNotFoundException):
         await gateway_facade.call(
             123,
             function_name="UNKNOWN_FUNCTION",
