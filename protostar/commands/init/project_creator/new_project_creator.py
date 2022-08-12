@@ -23,13 +23,13 @@ class NewProjectCreator(ProjectCreator):
         requester: InputRequester,
         protostar_toml_writer: ProtostarTOMLWriter,
         version_manager: VersionManager,
-        output_dir_path: Optional[Path],
+        output_dir_path: Optional[Path] = None,
     ):
         super().__init__(script_root, protostar_toml_writer, version_manager)
         self._protostar_toml_writer = protostar_toml_writer
         self._version_manager = version_manager
         self._requester = requester
-        self._output_dir_path = output_dir_path
+        self._output_dir_path = output_dir_path or Path()
 
     def run(self):
         self._create_project(self._gather_input())
@@ -49,7 +49,7 @@ class NewProjectCreator(ProjectCreator):
         return NewProjectCreator.UserInput(project_dirname, lib_dirname)
 
     def _create_project(self, user_input: "NewProjectCreator.UserInput") -> None:
-        output_dir_path = self._output_dir_path or Path()
+        output_dir_path = self._output_dir_path
         project_root_path = output_dir_path / user_input.project_dirname
         self.copy_template("default", project_root_path)
 

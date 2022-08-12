@@ -1,3 +1,8 @@
+import json
+from os import listdir
+from pathlib import Path
+from typing import Dict
+
 import pytest
 
 from protostar.starknet_gateway.starknet_request import StarknetRequest
@@ -13,23 +18,46 @@ def setup(protostar: ProtostarFixture):
 
 
 async def test_call_contract(protostar: ProtostarFixture, devnet_gateway_url: str):
-    file_path = protostar.create_migration_file(
+    migration_file_path = protostar.create_migration_file(
         """
         contract_address = deploy_contract("./build/main.json").contract_address
         call(contract_address, "identity", [42])
         """
     )
+    migration_output_relative_path = Path("./migrations/output")
 
-    migration_history = await protostar.migrate(file_path, network=devnet_gateway_url)
+    migration_history = await protostar.migrate(
+        migration_file_path,
+        network=devnet_gateway_url,
+        output_dir=migration_output_relative_path,
+    )
 
+    loaded_migration_output = load_migration_history(
+        migration_output_path=protostar.project_root_path
+        / migration_output_relative_path
+    )
+    assert loaded_migration_output is not None
+
+    output_file_content = str(loaded_migration_output)
+    assert "CALL" in output_file_content
+    assert "[42]" in output_file_content
+    assert "{'res': 42}" in output_file_content
     contract_address = extract_contract_address_from_deploy_response(
         migration_history.starknet_requests[0].response
     )
-    call_request = migration_history.starknet_requests[1]
-    assert call_request.action == "CALL"
-    assert call_request.payload["inputs"] == "[42]"
-    assert call_request.payload["contract_address"] == contract_address
-    assert call_request.response["response"] == "{'res': 42}"
+    assert str(contract_address) in output_file_content
+
+
+def load_migration_history(migration_output_path: Path) -> Dict:
+    migration_output_file_names = listdir(migration_output_path)
+    assert len(migration_output_file_names) == 1
+    migration_output_file_path = migration_output_path / migration_output_file_names[0]
+    return load_json(migration_output_file_path)
+
+
+def load_json(path: Path):
+    with open(path, "r", encoding="utf-8") as file:
+        return json.loads(file.read())
 
 
 def extract_contract_address_from_deploy_response(

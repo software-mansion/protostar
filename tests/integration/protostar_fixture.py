@@ -2,7 +2,7 @@ import asyncio
 from argparse import Namespace
 from logging import getLogger
 from pathlib import Path
-from typing import Dict, cast
+from typing import Dict, Optional, cast
 
 from pytest_mock import MockerFixture
 
@@ -52,10 +52,16 @@ class ProtostarFixture:
         args.cairo_path = None
         return asyncio.run(self._build_command.run(args))
 
-    async def migrate(self, path: Path, network: str, rollback=False):
+    async def migrate(
+        self,
+        path: Path,
+        network: str,
+        rollback=False,
+        output_dir: Optional[Path] = None,
+    ):
         args = Namespace()
         args.path = path
-        args.output_dir = None
+        args.output_dir = output_dir
         args.rollback = rollback
         args.no_confirm = True
         args.network = None
@@ -122,11 +128,6 @@ def build_protostar_fixture(mocker: MockerFixture, project_root_path: Path):
         ),
     )
 
-    migrator_builder = Migrator.Builder(
-        migrator_execution_environment_builder=MigratorExecutionEnvironment.Builder(),
-        gateway_facade_builder=GatewayFacade.Builder(project_root_path),
-    )
-
     input_requester = cast(InputRequester, mocker.MagicMock())
 
     def request_input(message: str) -> str:
@@ -171,6 +172,7 @@ def build_protostar_fixture(mocker: MockerFixture, project_root_path: Path):
     migrator_builder = Migrator.Builder(
         gateway_facade_builder=gateway_facade_builder,
         migrator_execution_environment_builder=MigratorExecutionEnvironment.Builder(),
+        cwd=project_root_path,
     )
 
     migrate_command = MigrateCommand(
