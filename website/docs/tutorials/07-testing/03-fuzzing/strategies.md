@@ -31,6 +31,14 @@ them.
 All core strategies are contained in the [`strategy`](../02-cheatcodes/strategy.md)
 cheatcode-namespace.
 
+## `strategy.felts`
+
+```python
+def felts(): ...
+```
+
+Explores all possible felt values.
+
 ## `strategy.integers`
 
 ```python
@@ -46,11 +54,3 @@ Assuming real numbers comparison semantics,
 if `min_value` is not `None` then all values will be greater than or equal to `min_value`,
 and if `max_value` is not `None` then all values will be less than or equal to `max_value`.
 When applied to field elements, the unbounded values may rarely overflow. 
-
-## `strategy.felts`
-
-```python
-def felts(): ...
-```
-
-Explores all possible felt values.
