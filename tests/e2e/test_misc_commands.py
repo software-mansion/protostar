@@ -33,8 +33,8 @@ def test_init(init_project, project_name: str):
     assert ".git" in dirs
 
 
-def test_init_existing(protostar_bin_path: Path):
-    child = pexpect.spawn(f"{protostar_bin_path} init --existing")
+def test_init_existing(protostar_bin: Path):
+    child = pexpect.spawn(f"{protostar_bin} init --existing")
     child.expect("libraries directory *", timeout=10)
     child.sendline("lib_test")
     child.expect(pexpect.EOF)
@@ -45,10 +45,10 @@ def test_init_existing(protostar_bin_path: Path):
     assert ".git" in dirs
 
 
-def test_init_ask_existing(protostar_bin_path: Path):
+def test_init_ask_existing(protostar_bin: Path):
     open(Path() / "example.cairo", "a", encoding="utf-8").close()
 
-    child = pexpect.spawn(f"{protostar_bin_path} init")
+    child = pexpect.spawn(f"{protostar_bin} init")
     child.expect("Your current directory.*", timeout=10)
     child.sendline("y")
     child.expect("libraries directory *", timeout=1)
@@ -62,9 +62,9 @@ def test_init_ask_existing(protostar_bin_path: Path):
 
 
 @pytest.mark.usefixtures("init")
-def test_protostar_version_in_config_file(mocker, protostar_bin_path: Path):
+def test_protostar_version_in_config_file(mocker, protostar_bin: Path):
     version_manager = VersionManager(
-        ProtostarDirectory(protostar_bin_path.parent), mocker.MagicMock()
+        ProtostarDirectory(protostar_bin.parent), mocker.MagicMock()
     )
     assert version_manager.protostar_version is not None
 

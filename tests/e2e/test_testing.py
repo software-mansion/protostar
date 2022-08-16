@@ -33,9 +33,9 @@ def test_complex(protostar, copy_fixture):
 
 
 @pytest.mark.usefixtures("init")
-def test_expect_revert(actual_cwd: Path, protostar):
+def test_expect_revert(protostar_repo_root: Path, protostar):
     shutil.copy(
-        actual_cwd
+        protostar_repo_root
         / "tests"
         / "integration"
         / "cheatcodes"

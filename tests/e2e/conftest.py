@@ -15,7 +15,7 @@ from tests.conftest import run_devnet
 
 
 @pytest.fixture
-def actual_cwd() -> Path:
+def protostar_repo_root() -> Path:
     file_path = Path(__file__)
     assert file_path.match(
         "tests/e2e/conftest.py"
@@ -24,21 +24,21 @@ def actual_cwd() -> Path:
 
 
 @pytest.fixture
-def protostar_bin_path(actual_cwd: Path) -> Path:
-    return actual_cwd / "dist" / "protostar" / "protostar"
+def protostar_bin(protostar_repo_root: Path) -> Path:
+    return protostar_repo_root / "dist" / "protostar" / "protostar"
 
 
 @pytest.fixture(autouse=True)
-def change_cwd(tmpdir, actual_cwd: Path):
+def change_cwd(tmpdir, protostar_repo_root: Path):
     protostar_project_dir = Path(tmpdir) / "protostar_project"
     mkdir(protostar_project_dir)
     yield chdir(protostar_project_dir)
-    chdir(actual_cwd)
+    chdir(protostar_repo_root)
 
 
 @pytest.fixture
-def cairo_fixtures_dir(actual_cwd: Path):
-    return actual_cwd / "tests" / "e2e" / "fixtures"
+def cairo_fixtures_dir(protostar_repo_root: Path):
+    return protostar_repo_root / "tests" / "e2e" / "fixtures"
 
 
 @pytest.fixture
@@ -72,7 +72,7 @@ class ProjectInitializer(Protocol):
 
 @pytest.fixture
 def init_project(
-    protostar_bin_path: Path, project_name: str, libs_path: str
+    protostar_bin: Path, project_name: str, libs_path: str
 ) -> ProjectInitializer:
     def _init_project(
         override_project_name: Optional[str] = None,
@@ -88,7 +88,7 @@ def init_project(
         else:
             real_libs_path = override_libs_path
 
-        child = pexpect.spawn(f"{protostar_bin_path} init")
+        child = pexpect.spawn(f"{protostar_bin} init")
         child.expect(
             "project directory name:", timeout=30
         )  # the very first run is a bit slow
@@ -117,12 +117,12 @@ def last_supported_protostar_toml_version() -> Optional[str]:
 
 @pytest.fixture
 def protostar(
-    actual_cwd: Path,
+    protostar_repo_root: Path,
     tmp_path: Path,
     protostar_version: Optional[str],
     last_supported_protostar_toml_version: Optional[str],
 ) -> ProtostarFixture:
-    shutil.copytree(actual_cwd / "dist", tmp_path / "dist")
+    shutil.copytree(protostar_repo_root / "dist", tmp_path / "dist")
 
     if protostar_version and not last_supported_protostar_toml_version:
         last_supported_protostar_toml_version = protostar_version
@@ -175,7 +175,7 @@ def devnet_gateway_url_fixture(devnet_port: int):
 
 @pytest.fixture
 def init(
-    actual_cwd: Path,
+    protostar_repo_root: Path,
     project_name: str,
     protostar_toml_protostar_version: str,
     init_project: ProjectInitializer,
@@ -198,7 +198,7 @@ def init(
             file.truncate()
             file.write(tomli_w.dumps(protostar_toml))
     yield
-    chdir(actual_cwd)
+    chdir(protostar_repo_root)
 
 
 # pylint: disable=unused-argument
