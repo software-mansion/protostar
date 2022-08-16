@@ -16,7 +16,7 @@ from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
 from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 
 
-def main(script_root: Path, start_time: float):
+def main(script_root: Path, start_time: float = 0):
     container = build_di_container(script_root, start_time)
     arg_parser = build_parser(container.protostar_cli, container.protostar_toml_reader)
     args = parse_args(arg_parser)

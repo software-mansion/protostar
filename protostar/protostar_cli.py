@@ -25,7 +25,7 @@ class ProtostarCLI(CLIApp):
         protostar_toml_version_checker: ProtostarTOMLVersionChecker,
         version_manager: VersionManager,
         commands: List[Command],
-        start_time: float,
+        start_time: float = 0,
     ) -> None:
         self._logger = logger
         self._latest_version_checker = latest_version_checker
