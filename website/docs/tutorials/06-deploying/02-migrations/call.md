@@ -4,7 +4,7 @@
 def call(
     contract_address: int,
     function_name: str,
-    inputs: Optional[Union[List[int], Dict[str, Any]]] = None,
+    inputs: list[int] | dict[str, Any] | None = None,
 ) -> NamedTuple:
     ...
 ```
