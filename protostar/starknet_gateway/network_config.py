@@ -1,8 +1,8 @@
 from typing import Optional, Union
+from typing_extensions import Literal
 
 from starknet_py.net.models import chain_from_network
 from starknet_py.net.networks import (
-    Network,
     TESTNET,
     MAINNET,
     net_address_from_net,
@@ -15,19 +15,11 @@ from protostar.protostar_exception import ProtostarException
 SIMPLE_NETWORKS = [TESTNET, MAINNET]
 NETWORKS = [*SIMPLE_NETWORKS, *LEGACY_NETWORKS.keys()]
 
-try:
-    # noinspection PyUnresolvedReferences
-    from typing import Literal  # pylint: disable=no-name-in-module
-
-    LegacyNetwork = Literal["alpha-goerli", "alpha-mainnet"]
-except ImportError:
-    LegacyNetwork = str
+LegacyNetwork = Literal["alpha-goerli", "alpha-mainnet"]
+PredefinedNetwork = Union[SimpleNetwork, LegacyNetwork]
 
 
-NetworkParameter = Union[Network, LegacyNetwork]
-
-
-def is_legacy_network_name(network: NetworkParameter):
+def is_legacy_network_name(network: PredefinedNetwork):
     return network in LEGACY_NETWORKS
 
 
@@ -40,7 +32,7 @@ class NetworkConfig:
     def build(
         cls,
         gateway_url: Optional[str] = None,
-        network: Optional[NetworkParameter] = None,
+        network: Optional[PredefinedNetwork] = None,
         chain_id: Optional[int] = None,
     ) -> "NetworkConfig":
         if network:
@@ -63,7 +55,7 @@ class NetworkConfig:
         )
 
     @classmethod
-    def from_starknet_network_name(cls, network: str) -> "NetworkConfig":
+    def from_starknet_network_name(cls, network: SimpleNetwork) -> "NetworkConfig":
         if network not in NETWORKS:
             raise ProtostarException(
                 "\n".join(
