@@ -72,15 +72,15 @@ class MigrateCommand(Command, NetworkCommandMixin, SignableCommandMixin):
         ]
 
     async def run(self, args):
-        network_config = self.get_network_config(args)
+        network_config = self.get_network_config(args, self._logger)
         migrator_config = MigratorExecutionEnvironment.Config(
-            signer=self.get_signer(args, network_config)
+            signer=self.get_signer(args, network_config, self._logger)
         )
         await self.migrate(
             migration_file_path=args.path,
             rollback=args.rollback,
             gateway_facade=GatewayFacade(
-                gateway_client=self.get_gateway_client(args),
+                gateway_client=self.get_gateway_client(args, self._logger),
                 log_color_provider=self._log_color_provider,
                 logger=self._logger,
                 project_root_path=self._project_root_path,

@@ -1,5 +1,6 @@
 import importlib
 import os
+from logging import Logger
 from typing import List, Any, Optional, cast
 
 from starknet_py.net.models import Transaction, AddressRepresentation, parse_address
@@ -73,7 +74,9 @@ class PatchedStarkCurveSigner(BaseSigner):
 class SignableCommandMixin:
     @staticmethod
     def get_signer(
-        args: Any, network_config: NetworkConfig
+        args: Any,
+        network_config: NetworkConfig,
+        logger: Logger,
     ) -> Optional[
         BaseSigner
     ]:  # TODO(arcticae): Make it non-optional in some time in the future
@@ -99,8 +102,12 @@ class SignableCommandMixin:
 
         if (
             not private_key_str or not args.account_address
-        ):  # This is temporary, when the signing is mandatory this should be removed
-            return None  # TODO: Add a warning here
+        ):  # FIXME(arcticae): This is temporary, when the signing is mandatory this should be removed
+            logger.warning(
+                "Private key and account address will be mandatory in future versions, please refer to the docs for "
+                "more details "
+            )
+            return None
 
         private_key = int(private_key_str, 16)
         key_pair = KeyPair.from_private_key(private_key)

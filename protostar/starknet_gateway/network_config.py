@@ -1,11 +1,38 @@
-from typing import List, Optional
+from typing import Optional, Union
 
 from starknet_py.net.models import chain_from_network
-from starknet_py.net.networks import Network, TESTNET, MAINNET, net_address_from_net
-
+from starknet_py.net.networks import (
+    Network,
+    TESTNET,
+    MAINNET,
+    net_address_from_net,
+    PredefinedNetwork as SimpleNetwork,
+)
+from starkware.starknet.cli.starknet_cli import NETWORKS as LEGACY_NETWORKS
 from protostar.protostar_exception import ProtostarException
 
-KNOWN_NETWORKS = [TESTNET, MAINNET]
+
+SIMPLE_NETWORKS = [TESTNET, MAINNET]
+NETWORKS = [*SIMPLE_NETWORKS, *LEGACY_NETWORKS.keys()]
+
+try:
+    # noinspection PyUnresolvedReferences
+    from typing import Literal  # pylint: disable=no-name-in-module
+
+    LegacyNetwork = Literal["alpha-goerli", "alpha-mainnet"]
+except ImportError:
+    LegacyNetwork = str
+
+
+NetworkParameter = Union[Network, LegacyNetwork]
+
+
+def is_legacy_network_name(network: NetworkParameter):
+    return network in LEGACY_NETWORKS
+
+
+def legacy_to_simple_network_name(legacy_name: LegacyNetwork) -> SimpleNetwork:
+    return {"alpha-goerli": "testnet", "alpha-mainnet": "mainnet"}[legacy_name]
 
 
 class NetworkConfig:
@@ -13,10 +40,16 @@ class NetworkConfig:
     def build(
         cls,
         gateway_url: Optional[str] = None,
-        network: Optional[Network] = None,
+        network: Optional[NetworkParameter] = None,
         chain_id: Optional[int] = None,
     ) -> "NetworkConfig":
         if network:
+            network = (
+                legacy_to_simple_network_name(network)
+                if is_legacy_network_name(network)
+                else network
+            )
+
             return cls.from_starknet_network_name(network)
         if gateway_url and chain_id:
             return cls(
@@ -29,22 +62,24 @@ class NetworkConfig:
             "Either network parameter or pair (chain_id, gateway_url) is required"
         )
 
-    @staticmethod
-    def get_starknet_networks() -> List[str]:
-        return KNOWN_NETWORKS
-
     @classmethod
     def from_starknet_network_name(cls, network: str) -> "NetworkConfig":
-        if network not in NetworkConfig.get_starknet_networks():
+        if network not in NETWORKS:
             raise ProtostarException(
                 "\n".join(
                     [
                         "Unknown StarkNet network",
                         "The following StarkNet network names are supported:",
-                        *(f"- {network_name}" for network_name in KNOWN_NETWORKS),
+                        *(f"- {network_name}" for network_name in NETWORKS),
                     ]
                 )
             )
+
+        network = (
+            legacy_to_simple_network_name(network)
+            if is_legacy_network_name(network)
+            else network
+        )
 
         contract_explorer_search_url_mapping = {
             TESTNET: "https://goerli.voyager.online/contract",

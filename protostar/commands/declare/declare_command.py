@@ -63,15 +63,16 @@ class DeclareCommand(Command, SignableCommandMixin, NetworkCommandMixin):
         assert args.token is None or isinstance(args.token, str)
         assert isinstance(args.wait_for_acceptance, bool)
 
-        network_config = self.get_network_config(args)
+        network_config = self.get_network_config(args, self._logger)
         gateway_facade = GatewayFacade(
-            gateway_client=self.get_gateway_client(args),
+            gateway_client=self.get_gateway_client(args, self._logger),
             project_root_path=self._project_root_path,
         )
+        signer = self.get_signer(args, network_config, self._logger)
 
         return await self.declare(
             compiled_contract_path=args.contract,
-            signer=self.get_signer(args, network_config),
+            signer=signer,
             gateway_facade=gateway_facade,
             network_config=network_config,
             token=args.token,

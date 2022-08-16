@@ -80,8 +80,8 @@ class DeployCommand(Command, NetworkCommandMixin):
         ]
 
     async def run(self, args):
-        network_config = self.get_network_config(args)
-        gateway_client = self.get_gateway_client(args)
+        network_config = self.get_network_config(args, self._logger)
+        gateway_client = self.get_gateway_client(args, self._logger)
         gateway_facade = GatewayFacade(
             gateway_client=gateway_client,
             project_root_path=self._project_root_path,

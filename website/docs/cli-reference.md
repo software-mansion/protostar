@@ -50,6 +50,8 @@ It is required unless `--gateway-url` is provided.
 Supported StarkNet networks:
 - `testnet`
 - `mainnet`
+- `alpha-goerli`
+- `alpha-mainnet`
 #### `--private-key-path PATH`
 File which stores your private key (in hex representation) for the account. Value is omitted if ACCOUNT_PRIVATE_KEY env variable is defined, in which case it's used as the private key.
 #### `--signer-class STRING`
@@ -81,6 +83,8 @@ It is required unless `--gateway-url` is provided.
 Supported StarkNet networks:
 - `testnet`
 - `mainnet`
+- `alpha-goerli`
+- `alpha-mainnet`
 #### `--salt INT`
 An optional salt controlling where the contract will be deployed. The contract deployment address is determined by the hash of contract, salt and caller. If the salt is not supplied, the contract will be deployed with a random salt.
 #### `--token STRING`
@@ -128,6 +132,8 @@ It is required unless `--gateway-url` is provided.
 Supported StarkNet networks:
 - `testnet`
 - `mainnet`
+- `alpha-goerli`
+- `alpha-mainnet`
 #### `--no-confirm`
 Skip confirming building the project.
 #### `--output-dir PATH`
