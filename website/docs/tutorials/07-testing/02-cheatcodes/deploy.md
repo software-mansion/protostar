@@ -1,6 +1,9 @@
 # `deploy`
-```
-def deploy(prepared: PreparedContract) -> DeployedContract:
+
+```python
+def deploy(
+    prepared: PreparedContract,
+) -> DeployedContract:
 
 class DeployedContract:
     contract_address: int

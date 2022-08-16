@@ -1,12 +1,19 @@
 # `deploy_contract`
 
 ```python
-def deploy_contract(contract_path: str, constructor_calldata: Optional[Union[List[int], Dict]] = None) -> DeployedContact:
+def deploy_contract(
+    contract_path: str,
+    constructor_calldata: Optional[Union[List[int], Dict]] = None,
+    *,
+    config: Optional[CheatcodeNetworkConfig] = None
+) -> DeployedContact:
 
 class DeployedContract:
     contract_address: int
 ```
 Deploys a contract given a path relative to a Protostar project root. The section [Deploying contracts from tests](../01-deploying-contracts.md) demonstrates a usage of this cheatcode.
+
+`config` is a keyword only argument kept for compatibility with the migration [deploy_contract cheatcode](../../06-deploying/02-migrations/deploy-contract.md). See related documentation for more information.
 
 :::warning
 Deploying a contract is a slow operation. If it's possible try using this cheatcode in the [`__setup__` hook](../README.md#__setup__).
