@@ -5,7 +5,10 @@ def call(
     contract_address: int,
     function_name: str,
     inputs: list[int] | dict[str, Any] | None = None,
-) -> NamedTuple:
+) -> ContractCallResult:
+
+class ContractCallResult(NamedTuple):
+    ...
     ...
 ```
 Calls a StarkNet contract without affecting the state.
