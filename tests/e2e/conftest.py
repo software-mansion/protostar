@@ -3,7 +3,7 @@ import shutil
 from os import chdir, getcwd, mkdir, path
 from pathlib import Path
 from subprocess import PIPE, STDOUT, run
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Union
 
 import pexpect
 import pytest
@@ -30,7 +30,9 @@ def cairo_fixtures_dir():
 
 
 @pytest.fixture
-def copy_fixture(cairo_fixtures_dir) -> Callable[[Path, Path], None]:
+def copy_fixture(
+    cairo_fixtures_dir,
+) -> Callable[[Union[Path, str], Union[Path, str]], None]:
     return lambda file, dst: shutil.copy(cairo_fixtures_dir / file, dst)
 
 
