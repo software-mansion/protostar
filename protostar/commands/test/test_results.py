@@ -24,15 +24,18 @@ class TestCaseResult(TestResult):
 
 
 @dataclass(frozen=True)
-class PassedTestCaseResult(TestCaseResult):
-    execution_resources: Optional[ExecutionResourcesSummary]
+class TimedTestResult:
     execution_time: float
 
 
 @dataclass(frozen=True)
-class FailedTestCaseResult(TestCaseResult):
+class PassedTestCaseResult(TestCaseResult, TimedTestResult):
+    execution_resources: Optional[ExecutionResourcesSummary]
+
+
+@dataclass(frozen=True)
+class FailedTestCaseResult(TestCaseResult, TimedTestResult):
     exception: ReportedException
-    execution_time: float
 
 
 @dataclass(frozen=True)
