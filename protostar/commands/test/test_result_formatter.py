@@ -36,7 +36,7 @@ def format_test_result(test_result: TestResult) -> str:
         return _format_unexpected_exception_test_suite_result(test_result)
     if isinstance(test_result, BrokenTestSuiteResult):
         return _format_broken_test_suite_result(test_result)
-    raise ProtostarException("Unexpected test result: ", str(test_result))
+    raise NotImplementedError("Unreachable")
 
 
 def _format_passed_test_case_result(
