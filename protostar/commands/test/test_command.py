@@ -210,8 +210,8 @@ class TestCommand(Command):
 
             if test_collector_result.test_cases_count > 0:
                 live_logger = TestingLiveLogger(
-                    self._logger,
-                    testing_summary,
+                    logger=self._logger,
+                    testing_summary=testing_summary,
                     no_progress_bar=no_progress_bar,
                     exit_first=exit_first,
                     slowest_tests_to_report_count=slowest_tests_to_report_count,

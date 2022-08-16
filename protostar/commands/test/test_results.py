@@ -16,7 +16,6 @@ class TestResult:
     file_path: Path
 
 
-# pylint: disable=abstract-method
 @dataclass(frozen=True)
 class TestCaseResult(TestResult):
     test_case_name: str
