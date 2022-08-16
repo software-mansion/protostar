@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Optional, Union, cast
 from typing_extensions import Literal
 
 from starknet_py.net.models import chain_from_network
@@ -27,6 +27,14 @@ def legacy_to_simple_network_name(legacy_name: LegacyNetwork) -> SimpleNetwork:
     return {"alpha-goerli": "testnet", "alpha-mainnet": "mainnet"}[legacy_name]
 
 
+def predefined_to_simple_network(network: PredefinedNetwork) -> SimpleNetwork:
+    return (
+        legacy_to_simple_network_name(cast(LegacyNetwork, network))
+        if is_legacy_network_name(network)
+        else network
+    )
+
+
 class NetworkConfig:
     @classmethod
     def build(
@@ -36,12 +44,7 @@ class NetworkConfig:
         chain_id: Optional[int] = None,
     ) -> "NetworkConfig":
         if network:
-            network = (
-                legacy_to_simple_network_name(network)
-                if is_legacy_network_name(network)
-                else network
-            )
-
+            network = predefined_to_simple_network(network)
             return cls.from_starknet_network_name(network)
         if gateway_url and chain_id:
             return cls(
@@ -55,7 +58,7 @@ class NetworkConfig:
         )
 
     @classmethod
-    def from_starknet_network_name(cls, network: SimpleNetwork) -> "NetworkConfig":
+    def from_starknet_network_name(cls, network: PredefinedNetwork) -> "NetworkConfig":
         if network not in NETWORKS:
             raise ProtostarException(
                 "\n".join(
@@ -67,11 +70,7 @@ class NetworkConfig:
                 )
             )
 
-        network = (
-            legacy_to_simple_network_name(network)
-            if is_legacy_network_name(network)
-            else network
-        )
+        network = predefined_to_simple_network(network)
 
         contract_explorer_search_url_mapping = {
             TESTNET: "https://goerli.voyager.online/contract",
