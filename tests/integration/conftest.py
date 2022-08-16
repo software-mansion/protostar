@@ -95,7 +95,7 @@ class RunCairoTestRunnerFixture(Protocol):
 
 
 @pytest.fixture(name="log_color_provider")
-def color_provider_fixture() -> LogColorProvider:
+def log_color_provider_fixture() -> LogColorProvider:
     log_color_provider = LogColorProvider()
     log_color_provider.is_ci_mode = False
     return log_color_provider
