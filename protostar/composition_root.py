@@ -55,7 +55,7 @@ class DIContainer:
 
 
 # pylint: disable=too-many-locals
-def build_di_container(script_root: Path):
+def build_di_container(script_root: Path, start_time: float):
     logger = getLogger()
     protostar_toml_path = search_upwards_protostar_toml_path(
         start_path=Path().resolve()
@@ -169,6 +169,7 @@ def build_di_container(script_root: Path):
         log_color_provider=log_color_provider,
         logger=logger,
         version_manager=version_manager,
+        start_time=start_time,
     )
 
     return DIContainer(protostar_cli, protostar_toml_reader)

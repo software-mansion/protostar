@@ -7,7 +7,6 @@ from typing import Any, List
 from protostar.cli import CLIApp, Command
 from protostar.configuration_profile_cli import ConfigurationProfileCLI
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
-
 from protostar.protostar_toml.protostar_toml_version_checker import (
     ProtostarTOMLVersionChecker,
 )
@@ -26,13 +25,14 @@ class ProtostarCLI(CLIApp):
         protostar_toml_version_checker: ProtostarTOMLVersionChecker,
         version_manager: VersionManager,
         commands: List[Command],
+        start_time: float,
     ) -> None:
         self._logger = logger
         self._latest_version_checker = latest_version_checker
-        self._start_time = time.perf_counter()
         self._log_color_provider = log_color_provider
         self._version_manager = version_manager
         self._protostar_toml_version_checker = protostar_toml_version_checker
+        self._start_time = start_time
 
         super().__init__(
             commands=commands,

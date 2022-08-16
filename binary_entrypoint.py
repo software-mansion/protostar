@@ -4,7 +4,7 @@ from itertools import cycle
 from pathlib import Path
 from shutil import get_terminal_size
 from threading import Thread
-from time import sleep
+from time import perf_counter, sleep
 
 import certifi
 
@@ -41,13 +41,14 @@ class ProtostarInitializingIndicator:
 
 if __name__ == "__main__":
     try:
+        start_time = perf_counter()
         with ProtostarInitializingIndicator():
             from protostar import main
 
             # Use certifi certs to avoid problems on mac os
             os.environ["SSL_CERT_FILE"] = certifi.where()
 
-        main(Path(__file__).parent)
+        main(Path(__file__).parent, start_time)
 
     except ImportError as err:
         # pylint: disable=no-member
