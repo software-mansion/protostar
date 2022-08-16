@@ -4,7 +4,7 @@
 func test_unknown_parameter{syscall_ptr : felt*, range_check_ptr}(a : felt):
     %{
         given(
-            a = strategy.signed(),
+            a = strategy.felts(),
             b = strategy.integers(min_value=100, max_value=200),
         )
     %}

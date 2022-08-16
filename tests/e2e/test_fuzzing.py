@@ -24,7 +24,7 @@ def test_fuzzing(protostar, copy_fixture):
     assert (
         """
 [falsifying example]:
-x = 340282366920938463463374607431768211456
+x = -1
 """
         in result
     )
@@ -35,7 +35,7 @@ x = 340282366920938463463374607431768211456
     assert (
         """
 [falsifying example]:
-a = 340282366920938463463374607431768211456
+a = -1
 b = 0
 c = 0
 """

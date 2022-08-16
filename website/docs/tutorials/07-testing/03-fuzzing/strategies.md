@@ -9,7 +9,7 @@ Such constraints are provided declaratively, by assigning _strategies_ to the in
 A strategy is an object that is capable of generating next input examples in specific way,
 and also is capable of other internal features, such as simplifying failing examples.
 
-By default, Protostar applies the [`strategy.unsigned()`](#strategyunsigned) strategy to all felt
+By default, Protostar applies the [`strategy.felts()`](#strategyfelts) strategy to all felt
 parameters.
 
 ```cairo title="Example"
@@ -31,6 +31,14 @@ them.
 All core strategies are contained in the [`strategy`](../02-cheatcodes/strategy.md)
 cheatcode-namespace.
 
+## `strategy.felts`
+
+```python
+def felts(): ...
+```
+
+Explores all possible felt values.
+
 ## `strategy.integers`
 
 ```python
@@ -46,21 +54,3 @@ Assuming real numbers comparison semantics,
 if `min_value` is not `None` then all values will be greater than or equal to `min_value`,
 and if `max_value` is not `None` then all values will be less than or equal to `max_value`.
 When applied to field elements, the unbounded values may rarely overflow. 
-
-## `strategy.signed`
-
-```python
-def signed(): ...
-```
-
-Explores all felt values, by feeding Cairo VM values from `MIN_FELT` to `MAX_FELT`, where:
-- `MIN_FELT = -FIELD_PRIME / 2`
-- `MAX_FELT = FIELD_PRIME / 2`
-
-## `strategy.unsigned`
-
-```python
-def unsigned(): ...
-```
-
-Explores all felt values, by feeding Cairo VM values from 0 to field prime used in computation.
