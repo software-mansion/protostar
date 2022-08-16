@@ -55,7 +55,9 @@ class NetworkCommandMixin:
     @staticmethod
     def get_network_config(args) -> NetworkConfig:
         NetworkCommandMixin.validate_network_command_args(args)
-        return NetworkConfig.build(args.gateway_url, args.network)
+        return NetworkConfig.build(
+            args.gateway_url, args.network, chain_id=args.chain_id
+        )
 
     @staticmethod
     def get_gateway_client(args) -> GatewayFacade:

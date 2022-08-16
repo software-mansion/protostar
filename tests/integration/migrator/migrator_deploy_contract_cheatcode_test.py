@@ -2,15 +2,20 @@ from pathlib import Path
 from typing import cast
 
 from protostar.migrator import Migrator
+from protostar.starknet_gateway import GatewayFacade
 from tests.integration.migrator.conftest import assert_transaction_accepted
 
 
 async def test_deploy_contract(
-    migrator_builder: Migrator.Builder, devnet_gateway_url: str, project_root_path: Path
+    migrator_builder: Migrator.Builder,
+    devnet_gateway_url: str,
+    project_root_path: Path,
+    gateway_facade: GatewayFacade,
 ):
 
     migrator = await migrator_builder.build(
         project_root_path / "migrations" / "migration_deploy_contract.cairo",
+        gateway_facade=gateway_facade,
     )
 
     result = await migrator.run()

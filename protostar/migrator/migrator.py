@@ -34,9 +34,7 @@ class Migrator:
             )
             self._logger: Optional[Logger] = None
             self._log_color_provider: Optional[LogColorProvider] = None
-            self._migrator_execution_environment_config = (
-                MigratorExecutionEnvironment.Config()
-            )
+            self._migrator_execution_environment_config = None
 
         def set_logger(
             self, logger: Logger, log_color_provider: LogColorProvider
@@ -44,12 +42,14 @@ class Migrator:
             self._logger = logger
             self._log_color_provider = log_color_provider
 
-        def set_migration_execution_environemnt_config(
+        def set_migration_execution_environment_config(
             self, config: MigratorExecutionEnvironment.Config
         ):
             self._migrator_execution_environment_config = config
 
         async def build(self, migration_file_path: Path, gateway_facade: GatewayFacade):
+            assert self._migrator_execution_environment_config is not None
+
             self._migrator_execution_environment_builder.set_gateway_facade(
                 gateway_facade
             )

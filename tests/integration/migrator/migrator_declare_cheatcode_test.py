@@ -6,15 +6,19 @@ import pytest
 
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.migrator import Migrator
+from protostar.starknet_gateway import GatewayFacade
 from tests.integration.migrator.conftest import assert_transaction_accepted
 
 
 async def test_declare_contract(
-    migrator_builder: Migrator.Builder, devnet_gateway_url: str, project_root_path: Path
+    migrator_builder: Migrator.Builder,
+    devnet_gateway_url: str,
+    project_root_path: Path,
+    gateway_facade: GatewayFacade,
 ):
-
     migrator = await migrator_builder.build(
         project_root_path / "migrations" / "migration_declare.cairo",
+        gateway_facade=gateway_facade,
     )
 
     result = await migrator.run()
@@ -32,10 +36,13 @@ async def test_declare_contract(
 
 
 async def test_descriptive_error_on_file_not_found(
-    migrator_builder: Migrator.Builder, project_root_path: Path
+    migrator_builder: Migrator.Builder,
+    project_root_path: Path,
+    gateway_facade: GatewayFacade,
 ):
     migrator = await migrator_builder.build(
         project_root_path / "migrations" / "migration_declare_file_not_found.cairo",
+        gateway_facade=gateway_facade,
     )
 
     with pytest.raises(

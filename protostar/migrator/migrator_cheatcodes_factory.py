@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Optional
 
+from starknet_py.net.signer import BaseSigner
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
 from protostar.migrator.cheatcodes.migrator_declare_cheatcode import (
@@ -18,6 +19,7 @@ from protostar.utils.starknet_compilation import StarknetCompiler
 class MigratorCheatcodeFactory(CheatcodeFactory):
     @dataclass
     class Config:
+        signer: BaseSigner
         token: Optional[str] = None
 
     def __init__(
@@ -37,6 +39,7 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
         internal_calls: List[CallInfo],
     ) -> List[Cheatcode]:
         assert self._starknet_compiler is not None
+        assert self._config is not None
 
         return [
             MigratorDeclareCheatcode(
@@ -44,6 +47,7 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
                 self.gateway_facade,
                 config=MigratorDeclareCheatcode.Config(
                     token=self._config.token,
+                    signer=self._config.signer,
                 ),
             ),
             MigratorDeployContractCheatcode(

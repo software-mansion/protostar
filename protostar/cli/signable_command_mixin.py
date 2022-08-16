@@ -1,9 +1,19 @@
 import importlib
 import os
-from typing import List, Any
+from typing import List, Any, Optional
+
+from starknet_py.net.models import Transaction
 from starknet_py.net.signer import BaseSigner
 
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
+from starknet_py.utils.crypto.facade import message_signature
+from starkware.starknet.core.os.transaction_hash.transaction_hash import (
+    calculate_declare_transaction_hash,
+    calculate_transaction_hash_common,
+    TransactionHashPrefix,
+)
+from starkware.starknet.definitions.transaction_type import TransactionType
+
 from protostar.cli import Command
 
 from protostar.protostar_exception import ProtostarException
@@ -12,23 +22,66 @@ from protostar.starknet_gateway import NetworkConfig
 PRIVATE_KEY_ENV_VAR_NAME = "ACCOUNT_PRIVATE_KEY"
 
 
+class PatchedStarkCurveSigner(StarkCurveSigner):
+    def sign_transaction(
+        self,
+        transaction: Transaction,
+    ) -> List[int]:
+        if transaction.tx_type == TransactionType.DECLARE:
+            tx_hash = calculate_declare_transaction_hash(
+                contract_class=transaction.contract_class,
+                chain_id=self.chain_id,
+                sender_address=self.address,
+                max_fee=transaction.max_fee,
+                version=transaction.version,
+            )
+        else:
+            tx_hash = calculate_transaction_hash_common(
+                tx_hash_prefix=TransactionHashPrefix.INVOKE,
+                version=transaction.version,
+                contract_address=self.address,
+                entry_point_selector=transaction.entry_point_selector,
+                calldata=transaction.calldata,
+                max_fee=transaction.max_fee,
+                chain_id=self.chain_id,
+                additional_data=[],
+            )
+            # pylint: disable=invalid-name
+        r, s = message_signature(msg_hash=tx_hash, priv_key=self.private_key)
+        return [r, s]
+
+
 class SignableCommandMixin:
     @staticmethod
-    def get_signer(args: Any, network_config: NetworkConfig) -> BaseSigner:
+    def get_signer(
+        args: Any, network_config: NetworkConfig
+    ) -> Optional[
+        BaseSigner
+    ]:  # TODO(arcticae): Make it non-optional in some time in the future
         private_key_str = None
 
         if args.private_key_path:
             with open(args.private_key_path, encoding="utf-8") as file:
                 private_key_str = file.read()
 
+        if args.private_key_path and not args.account_address:
+            raise ProtostarException(
+                "account-address option has to be specified when using private key for signing"
+            )
+
         if not private_key_str:
             private_key_str = os.environ.get(PRIVATE_KEY_ENV_VAR_NAME)
 
-        if not private_key_str:
+        if args.account_address and not private_key_str:
             raise ProtostarException(
                 f"Private key has to be specified either with private-key-path option or {PRIVATE_KEY_ENV_VAR_NAME} "
                 "environment variable"
             )
+
+        if (
+            not private_key_str or not args.account_address
+        ):  # This is temporary, when the signing is mandatory this should be removed
+            return None  # TODO: Add a warning here
 
         private_key = int(private_key_str, 16)
         key_pair = KeyPair.from_private_key(private_key)
@@ -49,7 +102,9 @@ class SignableCommandMixin:
 
             signer = signer_class(**signer_args)
         if not signer:
-            signer = StarkCurveSigner(**signer_args)
+            signer = PatchedStarkCurveSigner(
+                **signer_args
+            )  # FIXME(arcticae): Change the default signer to starknet.py one, on 0.10 support
 
         return signer
 
@@ -69,7 +124,6 @@ class SignableCommandMixin:
                 name="account-address",
                 description="Account address",
                 type="str",
-                is_required=True,
             ),
             Command.Argument(
                 name="private-key-path",

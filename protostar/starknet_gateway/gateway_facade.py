@@ -108,7 +108,7 @@ class GatewayFacade:
     async def declare(
         self,
         compiled_contract_path: Path,
-        signer: BaseSigner,
+        signer: Optional[BaseSigner],
         token: Optional[str] = None,
         wait_for_acceptance: bool = False,
     ) -> SuccessfulDeclareResponse:
@@ -138,7 +138,8 @@ class GatewayFacade:
             version=0,
             signature=[],
         )
-        signature = signer.sign_transaction(unsigned_tx)
+
+        signature = signer.sign_transaction(unsigned_tx) if signer else []
 
         tx = Declare(
             **{

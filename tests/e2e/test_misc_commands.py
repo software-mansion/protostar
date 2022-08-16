@@ -1,5 +1,4 @@
 # pylint: disable=redefined-outer-name
-import logging
 import subprocess
 from os import listdir
 from pathlib import Path

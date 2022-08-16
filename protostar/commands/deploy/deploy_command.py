@@ -76,6 +76,7 @@ class DeployCommand(Command, NetworkCommandMixin):
                 type="int",
             ),
             DeployCommand.wait_for_acceptance_arg,
+            *self.network_arguments,
         ]
 
     async def run(self, args):

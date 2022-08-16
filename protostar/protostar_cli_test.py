@@ -65,6 +65,7 @@ def toml_version_checker_fixture(mocker: MockerFixture) -> ProtostarTOMLVersionC
 
 @pytest.fixture(name="protostar_cli")
 def protostar_cli_fixture(
+    mocker,
     version_manager: VersionManager,
     logger: Logger,
     commands: List[Command],
@@ -81,6 +82,7 @@ def protostar_cli_fixture(
         version_manager=version_manager,
         latest_version_checker=latest_version_checker,
         protostar_toml_version_checker=protostar_toml_version_checker,
+        project_cairo_path_builder=mocker.MagicMock(),
     )
 
 

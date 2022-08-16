@@ -4,15 +4,16 @@ from typing import List, Optional
 
 from protostar.cli import Command
 from protostar.cli.network_command_mixin import NetworkCommandMixin
+from protostar.cli.signable_command_mixin import SignableCommandMixin
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
-from protostar.migrator import Migrator
+from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import GatewayFacade
 from protostar.utils.input_requester import InputRequester
 from protostar.utils.log_color_provider import LogColorProvider
 
 
-class MigrateCommand(Command, NetworkCommandMixin):
+class MigrateCommand(Command, NetworkCommandMixin, SignableCommandMixin):
     # pylint: disable=too-many-arguments
     def __init__(
         self,
@@ -44,6 +45,8 @@ class MigrateCommand(Command, NetworkCommandMixin):
     @property
     def arguments(self) -> List[Command.Argument]:
         return [
+            *self.network_arguments,
+            *self.signable_arguments,
             Command.Argument(
                 name="path",
                 description="Path to the migration file.",
@@ -69,6 +72,10 @@ class MigrateCommand(Command, NetworkCommandMixin):
         ]
 
     async def run(self, args):
+        network_config = self.get_network_config(args)
+        migrator_config = MigratorExecutionEnvironment.Config(
+            signer=self.get_signer(args, network_config)
+        )
         await self.migrate(
             migration_file_path=args.path,
             rollback=args.rollback,
@@ -80,6 +87,7 @@ class MigrateCommand(Command, NetworkCommandMixin):
             ),
             output_dir_path=args.output_dir,
             no_confirm=args.no_confirm,
+            migrator_config=migrator_config,
         )
 
     # pylint: disable=too-many-arguments
@@ -89,6 +97,7 @@ class MigrateCommand(Command, NetworkCommandMixin):
         rollback: bool,
         gateway_facade: GatewayFacade,
         output_dir_path: Optional[Path],
+        migrator_config: MigratorExecutionEnvironment.Config,
         no_confirm: bool,
     ):
         # mitigates the risk of running migrate on an outdated project
@@ -102,6 +111,9 @@ class MigrateCommand(Command, NetworkCommandMixin):
 
         self._migrator_builder.set_logger(self._logger, self._log_color_provider)
 
+        self._migrator_builder.set_migration_execution_environment_config(
+            migrator_config
+        )
         migrator = await self._migrator_builder.build(
             migration_file_path, gateway_facade
         )

@@ -2,6 +2,7 @@ from distutils.file_util import copy_file
 from pathlib import Path
 
 import pytest
+from starkware.starknet.definitions.general_config import StarknetChainId
 
 
 @pytest.mark.usefixtures("init")
@@ -23,6 +24,8 @@ def test_deploying_contract_with_constructor(
             "42",
             "--gateway-url",
             devnet_gateway_url,
+            "--chain-id",
+            str(StarknetChainId.TESTNET.value),
         ]
     )
 
@@ -51,6 +54,8 @@ def test_deploying_contract_with_constructor_and_inputs_defined_in_config_file(
             "./build/main.json",
             "--gateway-url",
             devnet_gateway_url,
+            "--chain-id",
+            str(StarknetChainId.TESTNET.value),
         ]
     )
 
@@ -72,6 +77,8 @@ def test_declaring_contract(protostar, devnet_gateway_url, datadir: Path):
             "./build/main.json",
             "--gateway-url",
             devnet_gateway_url,
+            "--chain-id",
+            str(StarknetChainId.TESTNET.value),
         ]
     )
 

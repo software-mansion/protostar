@@ -1,7 +1,9 @@
 import asyncio
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional, Any
+from typing import Optional, Any
+
+from starknet_py.net.signer import BaseSigner
 from typing_extensions import Protocol
 
 from protostar.commands.test.test_environment_exceptions import (
@@ -30,7 +32,7 @@ class DeclareCheatcodeProtocol(Protocol):
 class MigratorDeclareCheatcode(Cheatcode):
     @dataclass
     class Config:
-        signature: Optional[List[str]] = None
+        signer: BaseSigner
         token: Optional[str] = None
 
     def __init__(
@@ -69,6 +71,7 @@ class MigratorDeclareCheatcode(Cheatcode):
                     compiled_contract_path=Path(contract_path_str),
                     token=self._config.token,
                     wait_for_acceptance=validated_config.wait_for_acceptance,
+                    signer=self._config.signer,
                 )
             )
 
