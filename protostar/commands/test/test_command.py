@@ -11,7 +11,7 @@ from protostar.commands.test.environments.fuzz_test_execution_environment import
 )
 from protostar.commands.test.test_collector import TestCollector
 from protostar.commands.test.test_collector_summary_formatter import (
-    TestCollectorSummaryFormatter,
+    format_test_collector_summary,
 )
 from protostar.commands.test.test_result_formatter import TestResultFormatter
 from protostar.commands.test.test_results import TestResult
@@ -46,7 +46,6 @@ class TestCommand(Command):
         self._protostar_directory = protostar_directory
         self._project_cairo_path_builder = project_cairo_path_builder
         self._test_result_formatter = TestResultFormatter(log_color_provider)
-        self._test_collector_summary_formatter = TestCollectorSummaryFormatter()
 
     @property
     def name(self) -> str:
@@ -240,13 +239,10 @@ class TestCommand(Command):
     def _log_formatted_test_collector_summary(
         self, test_collector_result: TestCollector.Result
     ) -> None:
-        formatter_view_model = (
-            TestCollectorSummaryFormatter.ViewModel.from_test_result_summary(
-                test_collector_result
-            )
-        )
-        formatted_result = self._test_collector_summary_formatter.format(
-            formatter_view_model
+        formatted_result = format_test_collector_summary(
+            test_case_count=test_collector_result.test_cases_count,
+            test_suite_count=len(test_collector_result.test_suites),
+            duration_in_sec=test_collector_result.duration,
         )
         self._logger.info(formatted_result)
 
