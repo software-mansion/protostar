@@ -3,7 +3,7 @@ from logging import Logger
 from pathlib import Path
 from typing import Any, Callable, Dict, List, NamedTuple, Optional, Union
 
-from starknet_py.contract import Contract, ContractFunction, InvokeResult
+from starknet_py.contract import Contract, ContractFunction
 from starknet_py.net.client_errors import ContractNotFoundError
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import AddressRepresentation, StarknetChainId
@@ -229,21 +229,6 @@ class GatewayFacade:
         if isinstance(inputs, List):
             return await contract_function.call(*inputs)
         return await contract_function.call(**inputs)
-
-    async def invoke(
-        self,
-        address: AddressRepresentation,
-        function_name: str,
-        inputs: Dict[str, Any],
-        wait_for_acceptance: bool = False,
-    ) -> InvokeResult:
-        contract = await Contract.from_address(
-            address=address, client=self._gateway_client
-        )
-        response = await contract.functions[function_name].invoke(**inputs)
-        if wait_for_acceptance:
-            return await response.wait_for_acceptance()
-        return response
 
     def _register_request(
         self, action: StarknetRequest.Action, payload: StarknetRequest.Payload

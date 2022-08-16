@@ -41,21 +41,6 @@ async def test_declare(gateway_facade: GatewayFacade, compiled_contract_path: Pa
     assert response is not None
 
 
-@pytest.mark.skip("Protostar needs to support accounts first")
-async def test_invoke(gateway_facade: GatewayFacade, compiled_contract_path: Path):
-    deployed_contract = await gateway_facade.deploy(compiled_contract_path)
-
-    with pytest.raises(ValueError, match="You need to use AccountClient for that."):
-        await gateway_facade.invoke(
-            deployed_contract.address,
-            function_name="increase_balance",
-            inputs={"amount": 42},
-            wait_for_acceptance=True,
-        )
-
-    assert False
-
-
 async def test_call(gateway_facade: GatewayFacade, compiled_contract_path: Path):
     deployed_contract = await gateway_facade.deploy(compiled_contract_path)
 
