@@ -13,7 +13,7 @@ from protostar.commands.test.test_collector import TestCollector
 from protostar.commands.test.test_collector_summary_formatter import (
     format_test_collector_summary,
 )
-from protostar.commands.test.test_result_formatter import TestResultFormatter
+from protostar.commands.test.test_result_formatter import format_test_result
 from protostar.commands.test.test_results import TestResult
 from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.test_scheduler import TestScheduler
@@ -45,7 +45,6 @@ class TestCommand(Command):
         self._project_root_path = project_root_path
         self._protostar_directory = protostar_directory
         self._project_cairo_path_builder = project_cairo_path_builder
-        self._test_result_formatter = TestResultFormatter(log_color_provider)
 
     @property
     def name(self) -> str:
@@ -214,7 +213,6 @@ class TestCommand(Command):
                     no_progress_bar=no_progress_bar,
                     exit_first=exit_first,
                     slowest_tests_to_report_count=slowest_tests_to_report_count,
-                    test_result_cli_formatter=self._test_result_formatter,
                 )
                 TestScheduler(live_logger, worker=TestRunner.worker).run(
                     include_paths=include_paths,
@@ -246,6 +244,7 @@ class TestCommand(Command):
         )
         self._logger.info(formatted_result)
 
-    def _log_formatted_test_result(self, test_result: TestResult) -> None:
-        formatted_test_result = self._test_result_formatter.format(test_result)
+    @staticmethod
+    def _log_formatted_test_result(test_result: TestResult) -> None:
+        formatted_test_result = format_test_result(test_result)
         print(formatted_test_result)
