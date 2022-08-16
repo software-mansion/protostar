@@ -3,10 +3,7 @@ from typing import Callable, Dict, List
 
 from protostar.commands.test.test_environment_exceptions import ExceptionMetadata
 from protostar.commands.test.test_output_recorder import OutputName, format_output_name
-from protostar.protostar_exception import (
-    UNEXPECTED_PROTOSTAR_ERROR_MSG,
-    ProtostarException,
-)
+from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
 from protostar.utils.log_color_provider import log_color_provider
 
 from .test_results import (
