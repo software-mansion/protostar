@@ -11,7 +11,7 @@ class ContractCallResult(NamedTuple):
     ...
     ...
 ```
-Calls a StarkNet contract without affecting the state.
+Calls a StarkNet contract without affecting the StarkNet's state.
 
 :::tip
 You can provide `inputs` as a dictionary to use [data transformer](./README.md#data-transformer).
