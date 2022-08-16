@@ -3,7 +3,6 @@ from typing import List, Optional
 
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
-from protostar.migrator.cheatcodes.migrator_call_cheatcode import MigratorCallCheatcode
 from protostar.migrator.cheatcodes.migrator_declare_cheatcode import (
     MigratorDeclareCheatcode,
 )
@@ -52,5 +51,4 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
                 self.gateway_facade,
                 config=MigratorDeployContractCheatcode.Config(token=self._config.token),
             ),
-            MigratorCallCheatcode(syscall_dependencies, self.gateway_facade),
         ]
