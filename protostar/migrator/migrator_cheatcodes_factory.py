@@ -19,7 +19,7 @@ from protostar.utils.starknet_compilation import StarknetCompiler
 class MigratorCheatcodeFactory(CheatcodeFactory):
     @dataclass
     class Config:
-        signer: BaseSigner
+        signer: Optional[BaseSigner] = None
         token: Optional[str] = None
 
     def __init__(

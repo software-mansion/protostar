@@ -1,6 +1,6 @@
 from logging import Logger
 from pathlib import Path
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, cast
 import dataclasses
 
 from starkware.starknet.definitions import constants
@@ -82,7 +82,8 @@ class GatewayFacade:
             action="DEPLOY",
             payload={
                 "contract": str(self._project_root_path / compiled_contract_path),
-                "network": self._gateway_client.net,
+                # FIXME(arcticae): Remove cast when starknet.py removes typings
+                "network": cast(int, self._gateway_client.net),
                 "constructor_args": inputs,
                 "salt": salt,
                 "token": token,
@@ -108,7 +109,7 @@ class GatewayFacade:
     async def declare(
         self,
         compiled_contract_path: Path,
-        signer: Optional[BaseSigner],
+        signer: Optional[BaseSigner] = None,
         token: Optional[str] = None,
         wait_for_acceptance: bool = False,
     ) -> SuccessfulDeclareResponse:
@@ -137,16 +138,17 @@ class GatewayFacade:
             nonce=nonce,
             version=0,
             signature=[],
-        )
+        )  # type: ignore
 
-        signature = signer.sign_transaction(unsigned_tx) if signer else []
+        # TODO(arcticae): Remove the if/else, when signing is made compulsory
+        signature: List[int] = signer.sign_transaction(unsigned_tx) if signer else []
 
         tx = Declare(
             **{
                 **unsigned_tx.__dict__,
                 "signature": signature,
             }
-        )
+        )  # type: ignore
 
         register_response = self._register_request(
             action="DECLARE",

@@ -1,28 +1,11 @@
-from typing import List, Optional, Union
+from typing import List, Optional
 
-from starknet_py.net.models import chain_from_network, StarknetChainId
+from starknet_py.net.models import chain_from_network
 from starknet_py.net.networks import Network, TESTNET, MAINNET, net_address_from_net
 
 from protostar.protostar_exception import ProtostarException
 
 KNOWN_NETWORKS = [TESTNET, MAINNET]
-
-
-class InvalidNetworkConfigurationException(Exception):
-    pass
-
-
-ChainId = Union[StarknetChainId, int]
-
-
-class UnknownStarkwareNetworkException(ProtostarException):
-    def __init__(self):
-        message_lines: List[str] = []
-        message_lines.append("Unknown StarkNet network")
-        message_lines.append("The following StarkNet network names are supported:")
-        for network_name in KNOWN_NETWORKS:
-            message_lines.append(f"- {network_name}")
-        super().__init__("\n".join(message_lines))
 
 
 class NetworkConfig:
@@ -33,21 +16,18 @@ class NetworkConfig:
         network: Optional[Network] = None,
         chain_id: Optional[int] = None,
     ) -> "NetworkConfig":
-        network_config: Optional[NetworkConfig] = None
-
         if network:
-            network_config = cls.from_starknet_network_name(network)
-        if gateway_url:
-            network_config = cls(
+            return cls.from_starknet_network_name(network)
+        if gateway_url and chain_id:
+            return cls(
                 gateway_url=gateway_url,
                 chain_id=chain_id,
                 contract_explorer_search_url=None,
             )
 
-        if network_config is None:
-            raise InvalidNetworkConfigurationException()
-
-        return network_config
+        raise ProtostarException(
+            "Either network parameter or pair (chain_id, gateway_url) is required"
+        )
 
     @staticmethod
     def get_starknet_networks() -> List[str]:
@@ -56,7 +36,15 @@ class NetworkConfig:
     @classmethod
     def from_starknet_network_name(cls, network: str) -> "NetworkConfig":
         if network not in NetworkConfig.get_starknet_networks():
-            raise UnknownStarkwareNetworkException()
+            raise ProtostarException(
+                "\n".join(
+                    [
+                        "Unknown StarkNet network",
+                        "The following StarkNet network names are supported:",
+                        *(f"- {network_name}" for network_name in KNOWN_NETWORKS),
+                    ]
+                )
+            )
 
         contract_explorer_search_url_mapping = {
             TESTNET: "https://goerli.voyager.online/contract",
@@ -76,7 +64,7 @@ class NetworkConfig:
     def __init__(
         self,
         gateway_url: str,
-        chain_id: ChainId,
+        chain_id: int,
         contract_explorer_search_url: Optional[str] = None,
     ):
         self.gateway_url = gateway_url

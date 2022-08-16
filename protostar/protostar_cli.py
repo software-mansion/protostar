@@ -109,5 +109,10 @@ class ProtostarCLI(CLIApp):
         )
 
     def _extend_pythonpath_with_cairo_path(self):
-        cairo_path_list = self._project_cairo_path_builder.build_project_cairo_path_list([])
+        cairo_path_list = (
+            str(path)
+            for path in self._project_cairo_path_builder.build_project_cairo_path_list(
+                []
+            )
+        )
         sys.path.extend(cairo_path_list)

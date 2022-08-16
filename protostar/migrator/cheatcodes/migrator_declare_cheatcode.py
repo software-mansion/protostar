@@ -32,7 +32,7 @@ class DeclareCheatcodeProtocol(Protocol):
 class MigratorDeclareCheatcode(Cheatcode):
     @dataclass
     class Config:
-        signer: BaseSigner
+        signer: Optional[BaseSigner] = None
         token: Optional[str] = None
 
     def __init__(

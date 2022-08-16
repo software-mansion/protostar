@@ -82,9 +82,9 @@ class DeclareCommand(Command, SignableCommandMixin, NetworkCommandMixin):
     async def declare(
         self,
         compiled_contract_path: Path,
-        signer: BaseSigner,
         network_config: NetworkConfig,
         gateway_facade: GatewayFacade,
+        signer: Optional[BaseSigner] = None,
         token: Optional[str] = None,
         wait_for_acceptance: bool = False,
     ) -> SuccessfulDeclareResponse:

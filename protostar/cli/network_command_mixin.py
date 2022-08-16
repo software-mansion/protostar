@@ -2,7 +2,7 @@ from starknet_py.net.gateway_client import GatewayClient
 
 from protostar.cli import Command
 from protostar.protostar_exception import ProtostarException
-from protostar.starknet_gateway import NetworkConfig, GatewayFacade
+from protostar.starknet_gateway import NetworkConfig
 
 GATEWAY_URL_ARG_NAME = "gateway-url"
 NETWORK_ARG_NAME = "network"
@@ -60,9 +60,9 @@ class NetworkCommandMixin:
         )
 
     @staticmethod
-    def get_gateway_client(args) -> GatewayFacade:
+    def get_gateway_client(args) -> GatewayClient:
         network_config = NetworkCommandMixin.get_network_config(args)
         return GatewayClient(
             net=network_config.gateway_url,
-            chain=network_config.chain_id,
+            chain=network_config.chain_id,  # type: ignore
         )

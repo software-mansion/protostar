@@ -1,11 +1,12 @@
 import importlib
 import os
-from typing import List, Any, Optional
+from typing import List, Any, Optional, cast
 
-from starknet_py.net.models import Transaction
+from starknet_py.net.models import Transaction, AddressRepresentation, parse_address
+from starknet_py.net.models.transaction import Declare, InvokeFunction
 from starknet_py.net.signer import BaseSigner
 
-from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
+from starknet_py.net.signer.stark_curve_signer import KeyPair
 from starknet_py.utils.crypto.facade import message_signature
 from starkware.starknet.core.os.transaction_hash.transaction_hash import (
     calculate_declare_transaction_hash,
@@ -22,12 +23,29 @@ from protostar.starknet_gateway import NetworkConfig
 PRIVATE_KEY_ENV_VAR_NAME = "ACCOUNT_PRIVATE_KEY"
 
 
-class PatchedStarkCurveSigner(StarkCurveSigner):
+class PatchedStarkCurveSigner(BaseSigner):
+    def __init__(
+        self, account_address: AddressRepresentation, key_pair: KeyPair, chain_id: int
+    ):
+        self.address = parse_address(account_address)
+        self.key_pair = key_pair
+        self.chain_id = chain_id
+
+    @property
+    def private_key(self) -> int:
+        return self.key_pair.private_key
+
+    @property
+    def public_key(self) -> int:
+        return self.key_pair.public_key
+
     def sign_transaction(
         self,
         transaction: Transaction,
     ) -> List[int]:
         if transaction.tx_type == TransactionType.DECLARE:
+            transaction = cast(Declare, transaction)
+
             tx_hash = calculate_declare_transaction_hash(
                 contract_class=transaction.contract_class,
                 chain_id=self.chain_id,
@@ -36,6 +54,7 @@ class PatchedStarkCurveSigner(StarkCurveSigner):
                 version=transaction.version,
             )
         else:
+            transaction = cast(InvokeFunction, transaction)
             tx_hash = calculate_transaction_hash_common(
                 tx_hash_prefix=TransactionHashPrefix.INVOKE,
                 version=transaction.version,
@@ -86,12 +105,6 @@ class SignableCommandMixin:
         private_key = int(private_key_str, 16)
         key_pair = KeyPair.from_private_key(private_key)
 
-        signer_args = {
-            "account_address": args.account_address,
-            "key_pair": key_pair,
-            "chain_id": network_config.chain_id,
-        }
-
         signer = None
         if args.signer_class:
             *module_names, class_name = args.signer_class.split(".")
@@ -100,10 +113,16 @@ class SignableCommandMixin:
             signer_class = getattr(signer_module, class_name)
             SignableCommandMixin._validate_signer_interface(signer_class)
 
-            signer = signer_class(**signer_args)
+            signer = signer_class(
+                account_address=args.account_address,
+                key_pair=key_pair,
+                chain_id=network_config.chain_id,
+            )
         if not signer:
             signer = PatchedStarkCurveSigner(
-                **signer_args
+                account_address=args.account_address,
+                key_pair=key_pair,
+                chain_id=network_config.chain_id,
             )  # FIXME(arcticae): Change the default signer to starknet.py one, on 0.10 support
 
         return signer
