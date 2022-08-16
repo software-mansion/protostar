@@ -94,8 +94,17 @@ class RunCairoTestRunnerFixture(Protocol):
         ...
 
 
+@pytest.fixture(name="log_color_provider")
+def color_provider_fixture() -> LogColorProvider:
+    log_color_provider = LogColorProvider()
+    log_color_provider.is_ci_mode = False
+    return log_color_provider
+
+
 @pytest.fixture(name="run_cairo_test_runner")
-def run_cairo_test_runner_fixture(mocker: MockerFixture) -> RunCairoTestRunnerFixture:
+def run_cairo_test_runner_fixture(
+    mocker: MockerFixture, log_color_provider: LogColorProvider
+) -> RunCairoTestRunnerFixture:
     async def run_cairo_test_runner(
         path: Path,
         seed: Optional[int] = None,
@@ -104,8 +113,6 @@ def run_cairo_test_runner_fixture(mocker: MockerFixture) -> RunCairoTestRunnerFi
         cairo_path: Optional[List[Path]] = None,
         ignored_test_cases: Optional[List[str]] = None,
     ) -> TestingSummary:
-        log_color_provider = LogColorProvider()
-        log_color_provider.is_ci_mode = False
 
         protostar_directory_mock = mocker.MagicMock()
         protostar_directory_mock.protostar_test_only_cairo_packages_path = Path()

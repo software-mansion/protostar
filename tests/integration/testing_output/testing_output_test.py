@@ -11,7 +11,10 @@ from tests.integration.conftest import (
 
 
 @pytest.mark.asyncio
-async def test_testing_output(run_cairo_test_runner: RunCairoTestRunnerFixture):
+async def test_testing_output(
+    run_cairo_test_runner: RunCairoTestRunnerFixture,
+    log_color_provider: LogColorProvider,
+):
     testing_summary = await run_cairo_test_runner(
         Path(__file__).parent / "testing_output_test.cairo"
     )
@@ -25,8 +28,6 @@ async def test_testing_output(run_cairo_test_runner: RunCairoTestRunnerFixture):
         expected_failed_test_cases_names=[],
     )
 
-    log_color_provider = LogColorProvider()
-    log_color_provider.is_ci_mode = False
     test_result_formatter = TestResultFormatter(log_color_provider=log_color_provider)
 
     for passed_test_case in testing_summary.passed:
