@@ -1,6 +1,6 @@
 # pylint: disable=redefined-outer-name
 import shutil
-from os import chdir, getcwd, mkdir, path
+from os import chdir, mkdir, path
 from pathlib import Path
 from subprocess import PIPE, STDOUT, run
 from typing import Callable, List, Optional
@@ -13,20 +13,32 @@ from typing_extensions import Protocol
 
 from tests.conftest import run_devnet
 
-ACTUAL_CWD = Path(getcwd())
 
-
-@pytest.fixture(autouse=True)
-def change_cwd(tmpdir):
-    protostar_project_dir = Path(tmpdir) / "protostar_project"
-    mkdir(protostar_project_dir)
-    yield chdir(protostar_project_dir)
-    chdir(ACTUAL_CWD)
+@pytest.fixture
+def actual_cwd() -> Path:
+    file_path = Path(__file__)
+    assert file_path.match(
+        "tests/e2e/conftest.py"
+    ), f"{file_path.name} was moved without adjusting path logic"
+    return file_path.parent.parent.parent
 
 
 @pytest.fixture
-def cairo_fixtures_dir():
-    return Path(ACTUAL_CWD, "tests", "e2e", "fixtures")
+def protostar_bin_path(actual_cwd: Path) -> Path:
+    return actual_cwd / "dist" / "protostar" / "protostar"
+
+
+@pytest.fixture(autouse=True)
+def change_cwd(tmpdir, actual_cwd: Path):
+    protostar_project_dir = Path(tmpdir) / "protostar_project"
+    mkdir(protostar_project_dir)
+    yield chdir(protostar_project_dir)
+    chdir(actual_cwd)
+
+
+@pytest.fixture
+def cairo_fixtures_dir(actual_cwd: Path):
+    return actual_cwd / "tests" / "e2e" / "fixtures"
 
 
 @pytest.fixture
@@ -49,17 +61,43 @@ def protostar_toml_protostar_version() -> Optional[str]:
     return None
 
 
-def init_project(project_name: str, libs_path: str):
-    child = pexpect.spawn(
-        f"{path.join(ACTUAL_CWD, 'dist', 'protostar', 'protostar')} init"
-    )
-    child.expect(
-        "project directory name:", timeout=30
-    )  # the very first run is a bit slow
-    child.sendline(project_name)
-    child.expect("libraries directory *", timeout=1)
-    child.sendline(libs_path)
-    child.expect(pexpect.EOF)
+class ProjectInitializer(Protocol):
+    def __call__(
+        self,
+        override_project_name: Optional[str] = None,
+        override_libs_path: Optional[str] = None,
+    ) -> None:
+        ...
+
+
+@pytest.fixture
+def init_project(
+    protostar_bin_path: Path, project_name: str, libs_path: str
+) -> ProjectInitializer:
+    def _init_project(
+        override_project_name: Optional[str] = None,
+        override_libs_path: Optional[str] = None,
+    ) -> None:
+        if override_project_name is None:
+            real_project_name = project_name
+        else:
+            real_project_name = override_project_name
+
+        if override_libs_path is None:
+            real_libs_path = libs_path
+        else:
+            real_libs_path = override_libs_path
+
+        child = pexpect.spawn(f"{protostar_bin_path} init")
+        child.expect(
+            "project directory name:", timeout=30
+        )  # the very first run is a bit slow
+        child.sendline(real_project_name)
+        child.expect("libraries directory *", timeout=1)
+        child.sendline(real_libs_path)
+        child.expect(pexpect.EOF)
+
+    return _init_project
 
 
 class ProtostarFixture(Protocol):
@@ -79,11 +117,12 @@ def last_supported_protostar_toml_version() -> Optional[str]:
 
 @pytest.fixture
 def protostar(
+    actual_cwd: Path,
     tmp_path: Path,
     protostar_version: Optional[str],
     last_supported_protostar_toml_version: Optional[str],
 ) -> ProtostarFixture:
-    shutil.copytree(ACTUAL_CWD / "dist", tmp_path / "dist")
+    shutil.copytree(actual_cwd / "dist", tmp_path / "dist")
 
     if protostar_version and not last_supported_protostar_toml_version:
         last_supported_protostar_toml_version = protostar_version
@@ -135,8 +174,13 @@ def devnet_gateway_url_fixture(devnet_port: int):
 
 
 @pytest.fixture
-def init(project_name: str, libs_path: str, protostar_toml_protostar_version: str):
-    init_project(project_name, libs_path)
+def init(
+    actual_cwd: Path,
+    project_name: str,
+    protostar_toml_protostar_version: str,
+    init_project: ProjectInitializer,
+):
+    init_project()
     chdir(project_name)
     if protostar_toml_protostar_version:
         with open(Path() / "protostar.toml", "r+", encoding="UTF-8") as file:
@@ -154,7 +198,7 @@ def init(project_name: str, libs_path: str, protostar_toml_protostar_version: st
             file.truncate()
             file.write(tomli_w.dumps(protostar_toml))
     yield
-    chdir(ACTUAL_CWD)
+    chdir(actual_cwd)
 
 
 # pylint: disable=unused-argument

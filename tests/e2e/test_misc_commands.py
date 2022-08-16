@@ -1,5 +1,4 @@
 # pylint: disable=redefined-outer-name
-import logging
 import subprocess
 from os import listdir
 from pathlib import Path
@@ -7,8 +6,8 @@ from pathlib import Path
 import pexpect
 import pytest
 import tomli
+
 from protostar.utils.protostar_directory import ProtostarDirectory, VersionManager
-from tests.e2e.conftest import ACTUAL_CWD, init_project
 
 
 def test_help(protostar):
@@ -22,11 +21,11 @@ def test_versions(protostar):
     assert "Cairo-lang" in result
 
 
-def test_init(project_name: str):
+def test_init(init_project, project_name: str):
     with pytest.raises(FileNotFoundError):
         listdir(f"./{project_name}")
 
-    init_project(project_name, "")
+    init_project(override_libs_path="")
 
     dirs = listdir(project_name)
 
@@ -34,10 +33,8 @@ def test_init(project_name: str):
     assert ".git" in dirs
 
 
-def test_init_existing():
-    child = pexpect.spawn(
-        f"{ACTUAL_CWD / 'dist' / 'protostar' / 'protostar'} init --existing"
-    )
+def test_init_existing(protostar_bin_path: Path):
+    child = pexpect.spawn(f"{protostar_bin_path} init --existing")
     child.expect("libraries directory *", timeout=10)
     child.sendline("lib_test")
     child.expect(pexpect.EOF)
@@ -48,10 +45,10 @@ def test_init_existing():
     assert ".git" in dirs
 
 
-def test_init_ask_existing():
+def test_init_ask_existing(protostar_bin_path: Path):
     open(Path() / "example.cairo", "a", encoding="utf-8").close()
 
-    child = pexpect.spawn(f"{ACTUAL_CWD / 'dist' / 'protostar' / 'protostar'} init")
+    child = pexpect.spawn(f"{protostar_bin_path} init")
     child.expect("Your current directory.*", timeout=10)
     child.sendline("y")
     child.expect("libraries directory *", timeout=1)
@@ -65,9 +62,9 @@ def test_init_ask_existing():
 
 
 @pytest.mark.usefixtures("init")
-def test_protostar_version_in_config_file(mocker):
+def test_protostar_version_in_config_file(mocker, protostar_bin_path: Path):
     version_manager = VersionManager(
-        ProtostarDirectory(ACTUAL_CWD / "dist" / "protostar"), mocker.MagicMock()
+        ProtostarDirectory(protostar_bin_path.parent), mocker.MagicMock()
     )
     assert version_manager.protostar_version is not None
 
