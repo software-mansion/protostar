@@ -8,6 +8,38 @@ from time import perf_counter, sleep
 
 import certifi
 
+SCRIPT_ROOT = Path(__file__).parent
+
+
+def init():
+    start_time = perf_counter()
+    fix_ssl_certificate_errors_on_mac_os()
+    main = import_protostar_main()
+    main(SCRIPT_ROOT, start_time)
+
+
+def fix_ssl_certificate_errors_on_mac_os():
+    os.environ["SSL_CERT_FILE"] = certifi.where()
+
+
+def import_protostar_main():
+    try:
+        # pylint: disable="import-outside-toplevel"
+        from protostar import main
+
+        return main
+    except ImportError as err:
+        handle_git_error(err)
+        raise err
+
+
+def handle_git_error(err: ImportError):
+    if err.msg.startswith("Failed to initialize: Bad git executable."):
+        print(
+            "Protostar requires git executable to be specified in $PATH. Did you install git?"
+        )
+        sys.exit()
+
 
 class ProtostarInitializingIndicator:
     def __init__(self):
@@ -40,21 +72,4 @@ class ProtostarInitializingIndicator:
 
 
 if __name__ == "__main__":
-    try:
-        start_time = perf_counter()
-        with ProtostarInitializingIndicator():
-            from protostar import main
-
-            # Use certifi certs to avoid problems on mac os
-            os.environ["SSL_CERT_FILE"] = certifi.where()
-
-        main(Path(__file__).parent, start_time)
-
-    except ImportError as err:
-        # pylint: disable=no-member
-        if err.msg.startswith("Failed to initialize: Bad git executable."):
-            print(
-                "Protostar requires git executable to be specified in $PATH. Did you install git?"
-            )
-            sys.exit()
-        raise err
+    init()
