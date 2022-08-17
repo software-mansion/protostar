@@ -140,7 +140,7 @@ class GatewayFacade:
             signature=[],
         )  # type: ignore
 
-        # TODO(arcticae): Remove the if/else, when signing is made compulsory
+        # TODO(arcticae): Remove the if/else, when signing is made mandatory
         signature: List[int] = signer.sign_transaction(unsigned_tx) if signer else []
 
         tx = Declare(
