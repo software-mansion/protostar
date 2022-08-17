@@ -80,8 +80,15 @@ class SignableCommandMixin:
     ) -> Optional[
         BaseSigner
     ]:  # TODO(arcticae): Make it non-optional in some time in the future
-        private_key_str = None
+        if args.signer_class:
+            *module_names, class_name = args.signer_class.split(".")
+            module = ".".join(module_names)
+            signer_module = importlib.import_module(module)
+            signer_class = getattr(signer_module, class_name)
+            SignableCommandMixin._validate_signer_interface(signer_class)
+            return signer_class()
 
+        private_key_str = None
         if args.private_key_path:
             with open(args.private_key_path, encoding="utf-8") as file:
                 private_key_str = file.read()
@@ -104,33 +111,30 @@ class SignableCommandMixin:
             not private_key_str or not args.account_address
         ):  # FIXME(arcticae): This is temporary, when the signing is mandatory this should be removed
             logger.warning(
-                "Private key and account address will be mandatory in future versions, please refer to the docs for "
+                "Signing declare transactions will be mandatory in future versions, please refer to the docs for "
                 "more details "
             )
             return None
 
-        private_key = int(private_key_str, 16)
+        try:
+            private_key = int(private_key_str, 16)
+        except ValueError as v_err:
+            raise ProtostarException(
+                f"Invalid private key format ({private_key_str}). Please provide hex-encoded number."
+            ) from v_err
+
         key_pair = KeyPair.from_private_key(private_key)
 
-        signer = None
-        if args.signer_class:
-            *module_names, class_name = args.signer_class.split(".")
-            module = ".".join(module_names)
-            signer_module = importlib.import_module(module)
-            signer_class = getattr(signer_module, class_name)
-            SignableCommandMixin._validate_signer_interface(signer_class)
-
-            signer = signer_class(
-                account_address=args.account_address,
-                key_pair=key_pair,
-                chain_id=network_config.chain_id,
-            )
-        if not signer:
+        try:
             signer = PatchedStarkCurveSigner(
                 account_address=args.account_address,
                 key_pair=key_pair,
                 chain_id=network_config.chain_id,
             )  # FIXME(arcticae): Change the default signer to starknet.py one, on 0.10 support
+        except ValueError as v_err:
+            raise ProtostarException(
+                f"Invalid account address format ({args.account_address}). Please provide hex-encoded number."
+            ) from v_err
 
         return signer
 
