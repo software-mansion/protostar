@@ -1,4 +1,4 @@
-import glob
+from glob import glob
 from typing import List, Optional
 
 from protostar.cli import Command
@@ -67,7 +67,7 @@ class InitCommand(Command):
 
     @staticmethod
     def _can_be_protostar_project() -> bool:
-        files_depth_3 = glob.glob("*") + glob.glob("*/*") + glob.glob("*/*/*")
+        files_depth_3 = glob("*") + glob("*/*") + glob("*/*/*")
         return any(
             map(lambda f: f.endswith(".cairo") or f == ".git", files_depth_3)
-        ) and "protostar.toml" not in glob.glob("*")
+        ) and "protostar.toml" not in glob("*")

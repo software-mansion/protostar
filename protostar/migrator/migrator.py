@@ -9,7 +9,6 @@ from typing import List, Optional
 from protostar.migrator.migrator_execution_environment import (
     MigratorExecutionEnvironment,
 )
-
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.starknet_gateway.starknet_request import StarknetRequest
 from protostar.utils.log_color_provider import LogColorProvider
@@ -29,6 +28,7 @@ class Migrator:
             self,
             migrator_execution_environment_builder: MigratorExecutionEnvironment.Builder,
             gateway_facade_builder: GatewayFacade.Builder,
+            project_root_path: Optional[Path] = None,
         ) -> None:
             self._migrator_execution_environment_builder = (
                 migrator_execution_environment_builder
@@ -39,6 +39,7 @@ class Migrator:
             self._migrator_execution_environment_config = (
                 MigratorExecutionEnvironment.Config()
             )
+            self._project_root_path = project_root_path
 
         def set_logger(
             self, logger: Logger, log_color_provider: LogColorProvider
@@ -72,12 +73,17 @@ class Migrator:
                 )
             )
 
-            return Migrator(migrator_execution_environment=migrator_execution_env)
+            return Migrator(
+                migrator_execution_environment=migrator_execution_env,
+                project_root_path=self._project_root_path,
+            )
 
     def __init__(
         self,
         migrator_execution_environment: MigratorExecutionEnvironment,
+        project_root_path: Optional[Path] = None,
     ) -> None:
+        self._project_root_path = project_root_path or Path()
         self._migrator_execution_environment = migrator_execution_environment
 
     async def run(self, rollback=False) -> History:
@@ -90,16 +96,19 @@ class Migrator:
             starknet_requests=self._migrator_execution_environment.cheatcode_factory.gateway_facade.get_starknet_requests()
         )
 
-    @staticmethod
     def save_history(
+        self,
         history: History,
         migration_file_basename: str,
-        output_dir_path: Path,
+        output_dir_relative_path: Path,
     ):
+        output_dir_path = self._project_root_path / output_dir_relative_path
         prefix = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
         output_file_path = output_dir_path / f"{prefix}_{migration_file_basename}.json"
 
         if not output_dir_path.exists():
-            output_dir_path.mkdir(parents=True)
+            output_dir_path.mkdir(
+                parents=True,
+            )
 
         history.save_as_json(output_file_path)

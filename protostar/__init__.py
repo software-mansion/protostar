@@ -1,7 +1,7 @@
 import sys
 
-from starkware.crypto.signature.fast_pedersen_hash import pedersen_hash
 from crypto_cpp_py.cpp_bindings import cpp_hash
+from starkware.crypto.signature.fast_pedersen_hash import pedersen_hash
 
 
 def patched_pedersen_hash(left: int, right: int) -> int:

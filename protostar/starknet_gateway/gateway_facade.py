@@ -1,15 +1,14 @@
+import dataclasses
 from logging import Logger
 from pathlib import Path
 from typing import Callable, List, Optional
-import dataclasses
-
-from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
-from starkware.starknet.definitions import constants
 
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.transactions.deploy import make_deploy_tx
-from starknet_py.transactions.declare import make_declare_tx
 from starknet_py.net.models import StarknetChainId
+from starknet_py.transactions.declare import make_declare_tx
+from starknet_py.transactions.deploy import make_deploy_tx
+from starkware.starknet.definitions import constants
+from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
 
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway.gateway_response import (
