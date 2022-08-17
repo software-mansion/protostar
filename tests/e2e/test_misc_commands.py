@@ -80,7 +80,7 @@ def test_protostar_version_in_config_file(mocker, protostar_bin: Path):
 @pytest.mark.usefixtures("init")
 @pytest.mark.parametrize("protostar_version", ["0.3.0"])
 @pytest.mark.parametrize("protostar_toml_protostar_version", ["0.2.8"])
-@pytest.mark.parametrize("last_supported_protostar_toml_version", ["0.2.9"])
+@pytest.mark.parametrize("latest_supported_protostar_toml_version", ["0.2.9"])
 @pytest.mark.parametrize("command", ["build", "install", "test"])
 def test_protostar_asserts_version_compatibility(protostar, command):
     with pytest.raises(subprocess.CalledProcessError) as error:
@@ -92,7 +92,7 @@ def test_protostar_asserts_version_compatibility(protostar, command):
 @pytest.mark.usefixtures("init")
 @pytest.mark.parametrize("protostar_version", ["0.4.0"])
 @pytest.mark.parametrize("protostar_toml_protostar_version", ["0.3.0"])
-@pytest.mark.parametrize("last_supported_protostar_toml_version", ["0.3.0"])
+@pytest.mark.parametrize("latest_supported_protostar_toml_version", ["0.3.0"])
 @pytest.mark.parametrize("command", ["build", "install", "test"])
 def test_protostar_passes_version_check_on_compatible_v(protostar, command):
     protostar([command])

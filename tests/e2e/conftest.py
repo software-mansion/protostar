@@ -113,7 +113,7 @@ def protostar_version() -> Optional[str]:
 
 
 @pytest.fixture
-def last_supported_protostar_toml_version() -> Optional[str]:
+def latest_supported_protostar_toml_version() -> Optional[str]:
     return None
 
 
@@ -122,12 +122,12 @@ def protostar(
     protostar_repo_root: Path,
     tmp_path: Path,
     protostar_version: Optional[str],
-    last_supported_protostar_toml_version: Optional[str],
+    latest_supported_protostar_toml_version: Optional[str],
 ) -> ProtostarFixture:
     shutil.copytree(protostar_repo_root / "dist", tmp_path / "dist")
 
-    if protostar_version and not last_supported_protostar_toml_version:
-        last_supported_protostar_toml_version = protostar_version
+    if protostar_version and not latest_supported_protostar_toml_version:
+        latest_supported_protostar_toml_version = protostar_version
 
     with open(
         tmp_path / "dist" / "protostar" / "info" / "pyproject.toml",
@@ -143,10 +143,12 @@ def protostar(
             else pyproject["tool"]["poetry"]["version"]
         )
 
-        pyproject["tool"]["protostar"]["last_supported_protostar_toml_version"] = (
-            last_supported_protostar_toml_version
-            if last_supported_protostar_toml_version
-            else pyproject["tool"]["protostar"]["last_supported_protostar_toml_version"]
+        pyproject["tool"]["protostar"]["latest_supported_protostar_toml_version"] = (
+            latest_supported_protostar_toml_version
+            if latest_supported_protostar_toml_version
+            else pyproject["tool"]["protostar"][
+                "latest_supported_protostar_toml_version"
+            ]
         )
 
         file.seek(0)

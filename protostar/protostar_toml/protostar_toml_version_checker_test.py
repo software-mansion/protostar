@@ -8,7 +8,7 @@ from protostar.utils import VersionManager
 
 
 @pytest.mark.parametrize(
-    "last_supported_protostar_toml_version, protostar_toml_version",
+    "latest_supported_protostar_toml_version, protostar_toml_version",
     (
         ("1.0", "0.9"),
         ("2.1", "0.3.2"),
@@ -16,14 +16,14 @@ from protostar.utils import VersionManager
     ),
 )
 def test_failing_checks(
-    mocker, last_supported_protostar_toml_version, protostar_toml_version
+    mocker, latest_supported_protostar_toml_version, protostar_toml_version
 ):
     protostar_toml_reader = mocker.MagicMock()
     protostar_toml_reader.get_attribute.return_value = protostar_toml_version
 
     version_manager = mocker.MagicMock()
-    type(version_manager).last_supported_protostar_toml_version = mocker.PropertyMock(
-        return_value=VersionManager.parse(last_supported_protostar_toml_version)
+    type(version_manager).latest_supported_protostar_toml_version = mocker.PropertyMock(
+        return_value=VersionManager.parse(latest_supported_protostar_toml_version)
     )
 
     with pytest.raises(ProtostarException) as exception:
@@ -32,7 +32,7 @@ def test_failing_checks(
 
 
 @pytest.mark.parametrize(
-    "last_supported_protostar_toml_version, protostar_toml_version",
+    "latest_supported_protostar_toml_version, protostar_toml_version",
     (
         ("1.0", "1.1"),
         ("2.1", "2.2"),
@@ -42,14 +42,14 @@ def test_failing_checks(
     ),
 )
 def test_successful_checks(
-    mocker, last_supported_protostar_toml_version, protostar_toml_version
+    mocker, latest_supported_protostar_toml_version, protostar_toml_version
 ):
     protostar_toml_reader = mocker.MagicMock()
     protostar_toml_reader.get_attribute.return_value = protostar_toml_version
 
     version_manager = mocker.MagicMock()
-    type(version_manager).last_supported_protostar_toml_version = mocker.PropertyMock(
-        return_value=VersionManager.parse(last_supported_protostar_toml_version)
+    type(version_manager).latest_supported_protostar_toml_version = mocker.PropertyMock(
+        return_value=VersionManager.parse(latest_supported_protostar_toml_version)
     )
 
     ProtostarTOMLVersionChecker(protostar_toml_reader, version_manager).run()
