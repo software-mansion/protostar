@@ -79,6 +79,15 @@ An optional salt controlling where the contract will be deployed. The contract d
 Used by whitelisted users for deploying contracts in Alpha MainNet.
 #### `--wait-for-acceptance`
 Waits for transaction to be accepted on chain.
+### `format`
+```shell
+$ protostar format
+```
+Format cairo sourcecode.
+#### `target STRING[]=['.']`
+Directory to format.
+#### `-c` `--check`
+Check whether the sourcecode is formatted.
 ### `init`
 ```shell
 $ protostar init
