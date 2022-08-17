@@ -4,12 +4,17 @@ from pathlib import Path
 from typing import List, Optional, Set, Union
 
 import pytest
+from pytest import TempPathFactory
 from pytest_mock import MockerFixture
 from typing_extensions import Protocol
 
 from protostar.commands.test.test_command import TestCommand
 from protostar.commands.test.testing_summary import TestingSummary
 from tests.conftest import run_devnet
+from tests.integration.protostar_fixture import (
+    ProtostarFixture,
+    build_protostar_fixture,
+)
 
 
 @dataclass
@@ -102,3 +107,20 @@ def run_cairo_test_runner_fixture(mocker: MockerFixture) -> RunCairoTestRunnerFi
         ).test(targets=[str(path)], seed=seed, fuzz_max_examples=fuzz_max_examples)
 
     return run_cairo_test_runner
+
+
+@pytest.fixture(name="protostar_project_root_path", scope="module")
+def protostar_project_root_path_fixture(tmp_path_factory: TempPathFactory) -> Path:
+    tmp_path = tmp_path_factory.mktemp("data")
+    return tmp_path / "tmp_project"
+
+
+@pytest.fixture(name="protostar", scope="module")
+def protostar_fixture(
+    session_mocker: MockerFixture,
+    protostar_project_root_path: Path,
+) -> ProtostarFixture:
+    return build_protostar_fixture(
+        mocker=session_mocker,
+        project_root_path=protostar_project_root_path,
+    )

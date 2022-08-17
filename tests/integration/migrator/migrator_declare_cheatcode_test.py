@@ -4,29 +4,33 @@ from typing import cast
 
 import pytest
 
-from protostar.commands.test.test_environment_exceptions import CheatcodeException
-from protostar.migrator import Migrator
-from protostar.starknet_gateway import GatewayFacade
+from protostar.protostar_exception import ProtostarException
 from tests.integration.migrator.conftest import assert_transaction_accepted
+from tests.integration.protostar_fixture import ProtostarFixture
+
+
+@pytest.fixture(autouse=True, scope="module")
+def setup(protostar: ProtostarFixture):
+    protostar.init_sync()
+    protostar.build_sync()
 
 
 async def test_declare_contract(
-    migrator_builder: Migrator.Builder,
+    protostar: ProtostarFixture,
     devnet_gateway_url: str,
-    project_root_path: Path,
-    gateway_facade: GatewayFacade,
+    protostar_project_root_path: Path,
 ):
-    migrator = await migrator_builder.build(
-        project_root_path / "migrations" / "migration_declare.cairo",
-        gateway_facade=gateway_facade,
+
+    migration_file_path = protostar.create_migration_file(
+        'declare("./build/main.json")'
     )
 
-    result = await migrator.run()
+    result = await protostar.migrate(migration_file_path, devnet_gateway_url)
 
     assert len(result.starknet_requests) == 1
     assert result.starknet_requests[0].action == "DECLARE"
     assert result.starknet_requests[0].payload["contract"] == str(
-        (project_root_path / "build" / "main_with_constructor.json").resolve()
+        (protostar_project_root_path / "build" / "main.json").resolve()
     )
     assert result.starknet_requests[0].response["code"] == "TRANSACTION_RECEIVED"
     transaction_hash = cast(
@@ -36,19 +40,17 @@ async def test_declare_contract(
 
 
 async def test_descriptive_error_on_file_not_found(
-    migrator_builder: Migrator.Builder,
-    project_root_path: Path,
-    gateway_facade: GatewayFacade,
+    protostar: ProtostarFixture,
+    devnet_gateway_url: str,
 ):
-    migrator = await migrator_builder.build(
-        project_root_path / "migrations" / "migration_declare_file_not_found.cairo",
-        gateway_facade=gateway_facade,
+    migration_file_path = protostar.create_migration_file(
+        'declare("./NOT_EXISTING_FILE.json")'
     )
 
     with pytest.raises(
-        CheatcodeException,
+        ProtostarException,
         match=re.compile(
             "Couldn't find `.*/NOT_EXISTING_FILE.json`",
         ),
     ):
-        await migrator.run()
+        await protostar.migrate(migration_file_path, network=devnet_gateway_url)

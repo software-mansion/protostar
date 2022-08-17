@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from protostar.cli import Command
+from protostar.commands.deploy import DeployCommand
 from protostar.cli.network_command_mixin import NetworkCommandMixin
 from protostar.cli.signable_command_mixin import SignableCommandMixin
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
@@ -71,12 +72,12 @@ class MigrateCommand(Command, NetworkCommandMixin, SignableCommandMixin):
             ),
         ]
 
-    async def run(self, args):
+    async def run(self, args) -> Optional[Migrator.History]:
         network_config = self.get_network_config(args, self._logger)
         migrator_config = MigratorExecutionEnvironment.Config(
             signer=self.get_signer(args, network_config, self._logger)
         )
-        await self.migrate(
+        return await self.migrate(
             migration_file_path=args.path,
             rollback=args.rollback,
             gateway_facade=GatewayFacade(
@@ -125,8 +126,10 @@ class MigrateCommand(Command, NetworkCommandMixin, SignableCommandMixin):
                 migrator.save_history(
                     migrator_history,
                     migration_file_basename=Path(migration_file_path).stem,
-                    output_dir_path=output_dir_path,
+                    output_dir_relative_path=output_dir_path,
                 )
             self._logger.info("Migration completed")
+
+            return migrator_history
         except CheatcodeException as ex:
             raise ProtostarException(str(ex)) from ex

@@ -61,7 +61,7 @@ with open(path, "r+", encoding="UTF-8") as file:
 
     if is_breaking_v:
         pyproject["tool"]["protostar"][
-            "last_supported_protostar_toml_version"
+            "latest_supported_protostar_toml_version"
         ] = new_protostar_version_str
 
     file.seek(0)
