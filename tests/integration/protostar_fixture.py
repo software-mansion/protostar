@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Dict, Optional, cast
 
 from pytest_mock import MockerFixture
+from starknet_py.net.models import StarknetChainId
 
 from protostar.commands import BuildCommand, InitCommand, MigrateCommand
 from protostar.commands.init.project_creator.new_project_creator import (
@@ -19,7 +20,6 @@ from protostar.protostar_toml import (
     ProtostarTOMLReader,
     ProtostarTOMLWriter,
 )
-from protostar.starknet_gateway import GatewayFacade
 from protostar.utils.input_requester import InputRequester
 from protostar.utils.log_color_provider import LogColorProvider
 
@@ -71,6 +71,10 @@ class ProtostarFixture:
         args.no_confirm = True
         args.network = None
         args.gateway_url = network
+        args.chain_id = StarknetChainId.TESTNET.value
+        args.signer_class = None
+        args.account_address = None
+        args.private_key_path = None
         migration_history = await self._migrator_command.run(args)
         assert migration_history is not None
         return migration_history
@@ -172,10 +176,7 @@ def build_protostar_fixture(mocker: MockerFixture, project_root_path: Path):
     log_color_provider = LogColorProvider()
     log_color_provider.is_ci_mode = True
 
-    gateway_facade_builder = GatewayFacade.Builder(project_root_path=project_root_path)
-
     migrator_builder = Migrator.Builder(
-        gateway_facade_builder=gateway_facade_builder,
         migrator_execution_environment_builder=MigratorExecutionEnvironment.Builder(),
         project_root_path=project_root_path,
     )
@@ -185,6 +186,7 @@ def build_protostar_fixture(mocker: MockerFixture, project_root_path: Path):
         log_color_provider=log_color_provider,
         logger=logger,
         requester=input_requester,
+        project_root_path=project_root_path,
     )
 
     protostar_fixture = ProtostarFixture(
