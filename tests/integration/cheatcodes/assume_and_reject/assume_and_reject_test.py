@@ -1,4 +1,7 @@
 from pathlib import Path
+
+from starkware.crypto.signature.signature import FIELD_PRIME
+
 from protostar.commands.test.fuzzing.fuzz_input_exception_metadata import (
     FuzzInputExceptionMetadata,
 )
@@ -43,4 +46,4 @@ async def test_assume_and_reject_cheatcodes_together(
     metadata = testing_summary.failed[0].exception.metadata
     assert metadata
     assert isinstance(metadata[0], FuzzInputExceptionMetadata)
-    assert {"a": -1, "b": -2} == metadata[0].inputs
+    assert {"a": FIELD_PRIME - 1, "b": FIELD_PRIME - 2} == metadata[0].inputs
