@@ -33,10 +33,6 @@ def get_filled_summary(check: bool) -> FormatingSummary:
     return summary
 
 
-def is_range_in_result(input_range: range, result: str):
-    return all(str(x) in result for x in input_range)
-
-
 def test_formatting_summary_extending():
     summary = get_filled_summary(False)
     assert len(summary.broken) == 3
@@ -67,42 +63,3 @@ def test_formatting_summary_summary_check():
     assert "1 incorrectly formatted" in result
     assert "6 total" in result
     assert "reformatted" not in result
-
-
-def test_formatting_summary_files_no_check():
-    log_color_provider = get_colorless_provider()
-
-    summary = get_filled_summary(False)
-    result = summary.format_files(log_color_provider)
-
-    assert "BROKEN" in result
-    assert "UNCHANGED" in result
-    assert "REFORMATTED" in result
-    assert "CORRECTLY FORMATTED" not in result
-    assert "INCORRECTLY FORMATTED" not in result
-    assert is_range_in_result(range(5), result)
-
-
-def test_formatting_summary_files_check():
-    log_color_provider = get_colorless_provider()
-
-    summary = get_filled_summary(True)
-    result = summary.format_files(log_color_provider)
-
-    assert "BROKEN" in result
-    assert "UNCHANGED" not in result
-    assert "REFORMATTED" not in result
-    assert "CORRECTLY FORMATTED" in result
-    assert "INCORRECTLY FORMATTED" in result
-    assert is_range_in_result(range(5), result)
-
-
-def test_formatting_summary_files_exceptions():
-    log_color_provider = get_colorless_provider()
-
-    summary = get_filled_summary(False)
-    result = summary.format_files(log_color_provider)
-
-    assert "EXCEPTION(0)" in result
-    assert "EXCEPTION(1)" in result
-    assert "EXCEPTION(2)" in result

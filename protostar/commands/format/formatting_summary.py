@@ -17,9 +17,57 @@ class FormatingSummary:
         self.incorrect: List[IncorrectFormattingResult] = []
         self.correct: List[CorrectFormattingResult] = []
 
-    def log(self, log_color_provider: LogColorProvider):
-        self._logger.info(self.format_files(log_color_provider))
+    def log_summary(self, log_color_provider: LogColorProvider):
         self._logger.info(self.format_summary(log_color_provider))
+
+    def extend_and_log(
+        self, formatting_result: FormattingResult, log_color_provider: LogColorProvider
+    ):
+        self.log_single_result(formatting_result, log_color_provider)
+        self.extend(formatting_result)
+
+    def log_single_result(
+        self, formatting_result: FormattingResult, log_color_provider: LogColorProvider
+    ):
+        result: List[str] = []
+
+        broken_header = f'[{log_color_provider.colorize("RED", "BROKEN")}]'
+
+        correct_text = "CORRECTLY FORMATTED" if self._check_mode else "UNCHANGED"
+        correct_header = f'[{log_color_provider.colorize("CYAN", correct_text)}]'
+
+        incorrect_text = "INCORRECTLY FORMATTED" if self._check_mode else "REFORMATTED"
+        incorrect_color = "YELLOW" if self._check_mode else "GREEN"
+        incorrect_header = (
+            f"[{log_color_provider.colorize(incorrect_color, incorrect_text)}]"
+        )
+
+        max_len = max(len(x) for x in (broken_header, correct_header, incorrect_header))
+        padding = 2
+
+        broken_header = broken_header.ljust(max_len + padding, " ")
+        incorrect_header = incorrect_header.ljust(max_len + padding, " ")
+        correct_header = correct_header.ljust(max_len + padding, " ")
+
+        if isinstance(formatting_result, BrokenFormattingResult):
+            result.append(broken_header)
+            result.append(
+                log_color_provider.colorize("GRAY", str(formatting_result.filepath))
+            )
+            result.append("\n")
+            result.append(str(formatting_result.exception))
+
+        elif isinstance(formatting_result, CorrectFormattingResult):
+            result.append(correct_header)
+            result.append(
+                log_color_provider.colorize("GRAY", str(formatting_result.filepath))
+            )
+
+        elif isinstance(formatting_result, IncorrectFormattingResult):
+            result.append(incorrect_header)
+            result.append(str(formatting_result.filepath))
+
+        print("".join(result))
 
     def extend(self, formatting_result: FormattingResult):
         if isinstance(formatting_result, BrokenFormattingResult):
@@ -31,67 +79,6 @@ class FormatingSummary:
 
     def get_file_count(self):
         return len(self.broken) + len(self.correct) + len(self.incorrect)
-
-    def format_files(self, log_color_provider: LogColorProvider) -> str:
-        result: List[str] = [""]
-
-        # Display correct at the beginning because they are not that important
-
-        if self.correct:
-            subresult: List[str] = []
-            subresult.append("[")
-            subresult.append(
-                log_color_provider.colorize(
-                    "CYAN", "CORRECTLY FORMATTED" if self._check_mode else "UNCHANGED"
-                )
-            )
-            subresult.append("]")
-            result.append("".join(subresult))
-
-            for correct_result in self.correct:
-                result.append(
-                    log_color_provider.colorize("GRAY", str(correct_result.filepath))
-                )
-
-            result.append("")
-
-        if self.broken:
-            subresult: List[str] = []
-            subresult.append("[")
-            subresult.append(log_color_provider.colorize("RED", "BROKEN"))
-            subresult.append("]")
-            result.append("".join(subresult))
-
-            for broken_result in self.broken:
-                subresult: List[str] = []
-                subresult.append(
-                    log_color_provider.colorize("GRAY", str(broken_result.filepath))
-                )
-                subresult.append("\n")
-                subresult.append(str(broken_result.exception))
-                subresult.append("\n")
-                result.append("".join(subresult))
-
-            result.append("")
-
-        if self.incorrect:
-            subresult: List[str] = []
-            subresult.append("[")
-            subresult.append(
-                log_color_provider.colorize(
-                    "YELLOW" if self._check_mode else "GREEN",
-                    "INCORRECTLY FORMATTED" if self._check_mode else "REFORMATTED",
-                )
-            )
-            subresult.append("]")
-            result.append("".join(subresult))
-
-            for incorrect_result in self.incorrect:
-                result.append(str(incorrect_result.filepath))
-
-            result.append("")
-
-        return "\n".join(result)
 
     def format_summary(self, log_color_provider: LogColorProvider) -> str:
         total = self.get_file_count()

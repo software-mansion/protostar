@@ -85,9 +85,9 @@ $ protostar format
 ```
 Format cairo sourcecode.
 #### `target STRING[]=['.']`
-Directory to format.
+Target to format, can be a file or a directory.
 #### `-c` `--check`
-Check whether the sourcecode is formatted.
+Run in 'check' mode. Exits with 0 if input is formatted correctly.Exits with 1 if formatting is required.
 ### `init`
 ```shell
 $ protostar init
