@@ -1,33 +1,20 @@
 from logging import Logger
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from pathlib import Path
-from dataclasses import dataclass
 
 from starkware.cairo.lang.compiler.parser import parse_file
 from starkware.cairo.lang.compiler.parser_transformer import ParserError
 
-from protostar.cli import Command
+from protostar.cli import Command, ActivityIndicator
+from ...protostar_exception import ProtostarExceptionSilent
 from protostar.utils import log_color_provider
 
-
-@dataclass
-class FormatCounts:
-    total = 0
-    broken = 0
-    reformatted = 0
-    incorrectly_formatted = 0
-
-    def format(self, check: bool) -> str:
-        result = "\n"
-        if check:
-            result += (
-                f"{self.incorrectly_formatted}/{self.total} incorrectly formatted\n"
-            )
-            result += f"{self.broken}/{self.total} broken\n"
-        else:
-            result += f"{self.reformatted}/{self.total} reformatted"
-            result += f"{self.broken}/{self.total} broken\n"
-        return result
+from protostar.commands.format.formatting_summary import FormatingSummary
+from protostar.commands.format.formatting_result import (
+    BrokenFormattingResult,
+    CorrectFormattingResult,
+    IncorrectFormattingResult,
+)
 
 
 class FormatCommand(Command):
@@ -69,54 +56,63 @@ class FormatCommand(Command):
         ]
 
     async def run(self, args):
-        try:
-            counts = self.format(args.target, args.check)
-        except BaseException as exc:
-            self._logger.error("Command failed.")
-            raise exc
-        self._logger.info(counts.format(args.check))
+        with ActivityIndicator(
+            log_color_provider.colorize(
+                "GRAY", "Checking formatting" if args.check else "Reformatting files"
+            )
+        ):
+            try:
+                summary, any_unformatted_or_broken = self.format(
+                    args.target, args.check
+                )
+            except BaseException as exc:
+                self._logger.error("Command failed.")
+                raise exc
+        summary.log(log_color_provider)
 
-    def format(self, targets: List[str], check=False) -> FormatCounts:
-        # check if works for single files
+        # set exit code to 1
+        if any_unformatted_or_broken:
+            raise ProtostarExceptionSilent(
+                "Some files were incorrectly formatted or broken."
+            )
 
-        counts = FormatCounts()
-        target_path = Path(*targets)
-        filepaths = [f for f in target_path.resolve().glob("**/*.cairo") if f.is_file()]
+    def format(self, targets: List[str], check=False) -> Tuple[FormatingSummary, int]:
+        summary = FormatingSummary(self._logger, check)
+        filepaths: List[Path] = []
 
-        counts.total = len(filepaths)
+        for target in targets:
+            target_path = Path(target)
+
+            if target_path.is_file():
+                filepaths.append(target_path.resolve())
+            else:
+                filepaths.extend(
+                    [f for f in target_path.resolve().glob("**/*.cairo") if f.is_file()]
+                )
+
+        summary.total = len(filepaths)
+        any_unformatted_or_broken = False
 
         for filepath in filepaths:
             try:
                 content = open(filepath).read()
                 new_content = parse_file(content, filepath).format()
             except ParserError as ex:
-                self._logger.warn(
-                    f"Cannot parse {log_color_provider.colorize('GRAY', str(filepath))}, exception:\n {ex}"
-                )
-                counts.broken += 1
+                summary.extend(BrokenFormattingResult(filepath, ex))
+                any_unformatted_or_broken = 1
 
                 # Cairo formatter fixes some broken files
                 # We want to disable this behaviour
                 continue
 
-            if not check:
-                if content == new_content:
-                    self._logger.info(
-                        log_color_provider.colorize("GRAY", f"Unchanged:\t{filepath}")
-                    )
-
-                else:
-
-                    # TODO: Check if writing fails
-                    open(filepath, "w").write(new_content)
-                    self._logger.info(
-                        log_color_provider.bold(f"Reformatted:\t{filepath}")
-                    )
-                    counts.reformatted += 1
-
+            if content == new_content:
+                summary.extend(CorrectFormattingResult(filepath))
             else:
-                if content != new_content:
-                    self._logger.info(f"Incorrectly formatted:\t{filepath}")
-                    counts.incorrectly_formatted += 1
+                if check:
+                    any_unformatted_or_broken = 1
+                else:
+                    open(filepath, "w").write(new_content)
 
-        return counts
+                summary.extend(IncorrectFormattingResult(filepath))
+
+        return summary, any_unformatted_or_broken
