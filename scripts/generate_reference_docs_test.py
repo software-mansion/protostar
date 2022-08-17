@@ -5,7 +5,7 @@ from protostar.composition_root import build_di_container
 
 
 def test_instance_matches_cli_reference_docs():
-    di_container = build_di_container(script_root=Path(), cwd=Path())
+    di_container = build_di_container(script_root=Path())
     new_snapshot = ReferenceDocsGenerator(
         di_container.protostar_cli
     ).generate_cli_reference_markdown()

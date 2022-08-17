@@ -7,7 +7,6 @@ from protostar.starknet_gateway.gateway_facade import (
     GatewayFacade,
     UnknownFunctionException,
 )
-from protostar.utils.log_color_provider import LogColorProvider
 from tests.integration.protostar_fixture import ProtostarFixture
 
 
@@ -24,8 +23,6 @@ def compiled_contract_path_fixture(protostar: ProtostarFixture) -> Path:
 
 @pytest.fixture(name="gateway_facade")
 def gateway_facade_fixture(devnet_gateway_url: str):
-    log_color_provider = LogColorProvider()
-    log_color_provider.is_ci_mode = False
     gateway_facade_builder = GatewayFacade.Builder(project_root_path=Path())
     gateway_facade_builder.set_network(devnet_gateway_url)
     return gateway_facade_builder.build()

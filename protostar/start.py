@@ -17,7 +17,7 @@ from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReade
 
 
 def main(script_root: Path):
-    container = build_di_container(script_root, cwd=Path())
+    container = build_di_container(script_root)
     arg_parser = build_parser(container.protostar_cli, container.protostar_toml_reader)
     args = parse_args(arg_parser)
     run_protostar(container.protostar_cli, args, arg_parser)

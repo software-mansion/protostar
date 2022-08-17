@@ -20,7 +20,7 @@ from protostar.starknet_gateway.gateway_response import (
 from protostar.starknet_gateway.starknet_request import StarknetRequest
 from protostar.utils.log_color_provider import LogColorProvider
 
-GatewayFacadeSupportedInputType = Union[List[int], Dict[str, Any]]
+ContractFunctionInputType = Union[List[int], Dict[str, Any]]
 
 
 class TransactionException(ProtostarException):
