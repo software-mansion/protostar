@@ -1,4 +1,4 @@
-from typing import Optional, Union, cast
+from typing import Optional, Union, cast, Dict
 from typing_extensions import Literal
 
 from starknet_py.net.models import chain_from_network
@@ -24,14 +24,19 @@ def is_legacy_network_name(network: PredefinedNetwork):
 
 
 def legacy_to_simple_network_name(legacy_name: LegacyNetwork) -> SimpleNetwork:
-    return {"alpha-goerli": "testnet", "alpha-mainnet": "mainnet"}[legacy_name]
+    mapping: Dict[LegacyNetwork, SimpleNetwork] = {
+        "alpha-goerli": "testnet",
+        "alpha-mainnet": "mainnet",
+    }
+
+    return mapping[legacy_name]
 
 
 def predefined_to_simple_network(network: PredefinedNetwork) -> SimpleNetwork:
     return (
         legacy_to_simple_network_name(cast(LegacyNetwork, network))
         if is_legacy_network_name(network)
-        else network
+        else cast(SimpleNetwork, network)
     )
 
 
