@@ -190,7 +190,7 @@ class GatewayFacade:
         self,
         address: AddressRepresentation,
         function_name: str,
-        inputs: Optional[GatewayFacadeSupportedInputType] = None,
+        inputs: Optional[ContractFunctionInputType] = None,
     ) -> NamedTuple:
         register_response = self._register_request(
             action="CALL",
@@ -222,7 +222,7 @@ class GatewayFacade:
     @staticmethod
     async def _call_function(
         contract_function: ContractFunction,
-        inputs: Optional[GatewayFacadeSupportedInputType] = None,
+        inputs: Optional[ContractFunctionInputType] = None,
     ):
         if inputs is None:
             inputs = {}
