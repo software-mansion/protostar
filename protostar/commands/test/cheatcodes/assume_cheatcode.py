@@ -15,7 +15,6 @@ class AssumeCheatcode(Cheatcode):
     def build(self) -> Callable[[bool], None]:
         return self.assume
 
-    # pylint: disable=no-self-use
     def assume(self, condition: bool) -> None:
         try:
             hypothesis.assume(condition)

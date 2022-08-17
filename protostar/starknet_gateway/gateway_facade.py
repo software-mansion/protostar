@@ -1,22 +1,21 @@
 from logging import Logger
 from pathlib import Path
-from typing import cast
 import dataclasses
-from typing import Any, Callable, Dict, List, NamedTuple, Optional, Union
+from typing import Any, Callable, Dict, List, NamedTuple, Optional, Union, cast
 
 from starknet_py.contract import Contract, ContractFunction
 from starknet_py.net.client_errors import ContractNotFoundError
-from starkware.starknet.services.api.contract_class import ContractClass
-from starkware.starknet.services.api.gateway.transaction import (
-    Declare,
-)
-
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import AddressRepresentation
 from starknet_py.transactions.deploy import make_deploy_tx
+
 from starkware.starknet.definitions import constants
 from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
+from starkware.starknet.services.api.contract_class import ContractClass
+from starkware.starknet.services.api.gateway.transaction import (
+    Declare,
+)
 
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway.gateway_response import (

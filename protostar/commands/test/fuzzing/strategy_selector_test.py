@@ -32,7 +32,7 @@ def test_pointer_parameter():
     with pytest.raises(
         FuzzingError,
         match=re.escape(
-            "Parameter 'x' cannot be fuzzed: " "Type felt* cannot be fuzzed."
+            "Parameter 'x' cannot be fuzzed: " + "Type felt* cannot be fuzzed."
         ),
     ):
         StrategySelector({"x": TypePointer(TypeFelt())})

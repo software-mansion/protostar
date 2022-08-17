@@ -19,5 +19,3 @@ class ProtostarException(Exception):
 
 class ProtostarExceptionSilent(ProtostarException):
     """This exception isn't printed but results in non-zero exit code"""
-
-    ...

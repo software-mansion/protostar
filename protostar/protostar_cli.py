@@ -1,4 +1,3 @@
-# pylint: disable=no-self-use
 import sys
 import time
 from logging import INFO, Logger, StreamHandler

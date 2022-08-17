@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import List, Optional
 
 from protostar.cli import Command
-from protostar.commands.deploy import DeployCommand
 from protostar.cli.network_command_mixin import NetworkCommandMixin
 from protostar.cli.signable_command_mixin import SignableCommandMixin
 from protostar.commands.test.test_environment_exceptions import CheatcodeException

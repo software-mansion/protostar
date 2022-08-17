@@ -139,7 +139,6 @@ class TestingSummary:
             )
         )
 
-    # pylint: disable=no-self-use
     def _get_preprocessed_core_testing_summary(
         self,
         broken_count: int = 0,
