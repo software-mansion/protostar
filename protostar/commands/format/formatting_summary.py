@@ -1,6 +1,5 @@
 from logging import Logger
 from typing import List
-from dataclasses import dataclass
 from protostar.utils.log_color_provider import LogColorProvider
 from protostar.commands.format.formatting_result import (
     FormattingResult,

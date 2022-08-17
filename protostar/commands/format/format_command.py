@@ -6,7 +6,7 @@ from starkware.cairo.lang.compiler.parser import parse_file
 from starkware.cairo.lang.compiler.parser_transformer import ParserError
 
 from protostar.cli import Command, ActivityIndicator
-from ...protostar_exception import ProtostarExceptionSilent
+from protostar.protostar_exception import ProtostarExceptionSilent
 from protostar.utils import log_color_provider
 
 from protostar.commands.format.formatting_summary import FormatingSummary
@@ -90,13 +90,13 @@ class FormatCommand(Command):
                     [f for f in target_path.resolve().glob("**/*.cairo") if f.is_file()]
                 )
 
-        summary.total = len(filepaths)
         any_unformatted_or_broken = False
 
         for filepath in filepaths:
             try:
-                content = open(filepath).read()
-                new_content = parse_file(content, filepath).format()
+                with open(filepath, "r", encoding="utf-8") as file:
+                    content = file.read()
+                new_content = parse_file(content, str(filepath)).format()
             except ParserError as ex:
                 summary.extend(BrokenFormattingResult(filepath, ex))
                 any_unformatted_or_broken = 1
@@ -111,7 +111,8 @@ class FormatCommand(Command):
                 if check:
                     any_unformatted_or_broken = 1
                 else:
-                    open(filepath, "w").write(new_content)
+                    with open(filepath, "w", encoding="utf-8") as file:
+                        file.write(new_content)
 
                 summary.extend(IncorrectFormattingResult(filepath))
 
