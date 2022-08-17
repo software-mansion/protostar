@@ -1,5 +1,4 @@
 from glob import glob
-from pathlib import Path
 from typing import List, Optional
 
 from protostar.cli import Command
@@ -18,13 +17,11 @@ class InitCommand(Command):
         requester: InputRequester,
         new_project_creator: NewProjectCreator,
         adapted_project_creator: AdaptedProjectCreator,
-        cwd: Path,
     ) -> None:
         super().__init__()
         self._adapted_project_creator = adapted_project_creator
         self._new_project_creator = new_project_creator
         self._requester = requester
-        self._cwd = cwd
 
     @property
     def name(self) -> str:
@@ -68,13 +65,9 @@ class InitCommand(Command):
         else:
             self._new_project_creator.run()
 
-    def _can_be_protostar_project(self) -> bool:
-
-        files_depth_3 = (
-            glob(str(self._cwd / "*"))
-            + glob(str(self._cwd / "*" / "*"))
-            + glob(str(self._cwd / "*" / "*" / "*"))
-        )
+    @staticmethod
+    def _can_be_protostar_project() -> bool:
+        files_depth_3 = glob("*") + glob("*/*") + glob("*/*/*")
         return any(
             map(lambda f: f.endswith(".cairo") or f == ".git", files_depth_3)
-        ) and "protostar.toml" not in glob(str(self._cwd / "*"))
+        ) and "protostar.toml" not in glob("*")

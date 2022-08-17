@@ -1,4 +1,5 @@
 import asyncio
+import os
 from argparse import Namespace
 from logging import getLogger
 from pathlib import Path
@@ -43,7 +44,11 @@ class ProtostarFixture:
     def init_sync(self):
         args = Namespace()
         args.existing = False
-        return asyncio.run(self._init_command.run(args))
+        cwd = Path().resolve()
+        os.chdir(self._project_root_path.parent)
+        result = asyncio.run(self._init_command.run(args))
+        os.chdir(cwd)
+        return result
 
     def build_sync(self):
         args = Namespace()
@@ -151,7 +156,6 @@ def build_protostar_fixture(mocker: MockerFixture, project_root_path: Path):
         input_requester,
         new_project_creator=new_project_creator,
         adapted_project_creator=mocker.MagicMock(),
-        cwd=project_root_path.parent,
     )
 
     project_compiler = ProjectCompiler(

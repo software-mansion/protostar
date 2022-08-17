@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from logging import getLogger
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 from protostar.cli import Command
 from protostar.commands import (
@@ -55,10 +55,10 @@ class DIContainer:
 
 
 # pylint: disable=too-many-locals
-def build_di_container(script_root: Path, cwd: Optional[Path] = None):
-    cwd = cwd or Path()
+def build_di_container(script_root: Path):
     logger = getLogger()
-    protostar_toml_path = search_upwards_protostar_toml_path(start_path=cwd.resolve())
+    cwd = Path()
+    protostar_toml_path = search_upwards_protostar_toml_path(start_path=cwd)
     project_root_path = (
         protostar_toml_path.parent if protostar_toml_path is not None else cwd
     )
@@ -111,7 +111,6 @@ def build_di_container(script_root: Path, cwd: Optional[Path] = None):
                 protostar_toml_writer,
                 version_manager,
             ),
-            cwd=cwd,
         ),
         BuildCommand(project_compiler, logger),
         InstallCommand(
