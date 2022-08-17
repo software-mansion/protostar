@@ -1,7 +1,7 @@
 import dataclasses
 from logging import Logger
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Callable, List, Optional
 
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
@@ -17,8 +17,6 @@ from protostar.starknet_gateway.gateway_response import (
 )
 from protostar.starknet_gateway.starknet_request import StarknetRequest
 from protostar.utils.log_color_provider import LogColorProvider
-
-ContractFunctionInputType = Union[List[int], Dict[str, Any]]
 
 
 class TransactionException(ProtostarException):
