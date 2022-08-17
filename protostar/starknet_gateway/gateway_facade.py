@@ -95,9 +95,10 @@ class GatewayFacade:
         if wait_for_acceptance:
             if self._logger:
                 self._logger.info("Waiting for acceptance...")
-            await self._gateway_client.wait_for_tx(
+            _, status = await self._gateway_client.wait_for_tx(
                 result.transaction_hash, wait_for_accept=wait_for_acceptance
             )
+            result.code = status
 
         return SuccessfulDeployResponse(
             code=result.code or "",
@@ -167,9 +168,10 @@ class GatewayFacade:
         if wait_for_acceptance:
             if self._logger:
                 self._logger.info("Waiting for acceptance...")
-            await self._gateway_client.wait_for_tx(
+            _, status = await self._gateway_client.wait_for_tx(
                 result.transaction_hash, wait_for_accept=wait_for_acceptance
             )
+            result.code = status
 
         return SuccessfulDeclareResponse(
             code=result.code or "",
