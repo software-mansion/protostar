@@ -177,7 +177,7 @@ def build_protostar_fixture(mocker: MockerFixture, project_root_path: Path):
     migrator_builder = Migrator.Builder(
         gateway_facade_builder=gateway_facade_builder,
         migrator_execution_environment_builder=MigratorExecutionEnvironment.Builder(),
-        cwd=project_root_path,
+        project_root_path=project_root_path,
     )
 
     migrate_command = MigrateCommand(

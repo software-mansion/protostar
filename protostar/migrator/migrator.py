@@ -28,7 +28,7 @@ class Migrator:
             self,
             migrator_execution_environment_builder: MigratorExecutionEnvironment.Builder,
             gateway_facade_builder: GatewayFacade.Builder,
-            cwd: Optional[Path] = None,
+            project_root_path: Optional[Path] = None,
         ) -> None:
             self._migrator_execution_environment_builder = (
                 migrator_execution_environment_builder
@@ -39,7 +39,7 @@ class Migrator:
             self._migrator_execution_environment_config = (
                 MigratorExecutionEnvironment.Config()
             )
-            self._cwd = cwd
+            self._project_root_path = project_root_path
 
         def set_logger(
             self, logger: Logger, log_color_provider: LogColorProvider
@@ -74,15 +74,16 @@ class Migrator:
             )
 
             return Migrator(
-                migrator_execution_environment=migrator_execution_env, cwd=self._cwd
+                migrator_execution_environment=migrator_execution_env,
+                project_root_path=self._project_root_path,
             )
 
     def __init__(
         self,
         migrator_execution_environment: MigratorExecutionEnvironment,
-        cwd: Optional[Path] = None,
+        project_root_path: Optional[Path] = None,
     ) -> None:
-        self._cwd = cwd or Path()
+        self._project_root_path = project_root_path or Path()
         self._migrator_execution_environment = migrator_execution_environment
 
     async def run(self, rollback=False) -> History:
@@ -101,7 +102,7 @@ class Migrator:
         migration_file_basename: str,
         output_dir_relative_path: Path,
     ):
-        output_dir_path = self._cwd / output_dir_relative_path
+        output_dir_path = self._project_root_path / output_dir_relative_path
         prefix = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
         output_file_path = output_dir_path / f"{prefix}_{migration_file_basename}.json"
 
