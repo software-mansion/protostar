@@ -29,6 +29,4 @@ end
 :::tip
 You should use `reject` only for narrow checks, as it can slow down the tests significantly due to
 the need for more specific inputs.
-If you need to restrict example space by a vast range, consider
-using [fuzzing strategies](../03-fuzzing/strategies.md) instead.
 :::
