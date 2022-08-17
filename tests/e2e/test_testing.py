@@ -1,9 +1,10 @@
 import shutil
+from pathlib import Path
 from subprocess import CalledProcessError
 
 import pytest
 
-from tests.e2e.conftest import ACTUAL_CWD, ProtostarFixture
+from tests.e2e.conftest import ProtostarFixture
 
 
 @pytest.mark.usefixtures("init")
@@ -32,9 +33,9 @@ def test_complex(protostar, copy_fixture):
 
 
 @pytest.mark.usefixtures("init")
-def test_expect_revert(protostar):
+def test_expect_revert(protostar_repo_root: Path, protostar):
     shutil.copy(
-        ACTUAL_CWD
+        protostar_repo_root
         / "tests"
         / "integration"
         / "cheatcodes"

@@ -86,11 +86,11 @@ class VersionManager:
         return VersionManager.parse(version_s)
 
     @property
-    def last_supported_protostar_toml_version(self) -> Optional[VersionType]:
+    def latest_supported_protostar_toml_version(self) -> Optional[VersionType]:
         if not self.pyproject_toml:
             return None
         last_supported_v_str = self.pyproject_toml["tool"]["protostar"][
-            "last_supported_protostar_toml_version"
+            "latest_supported_protostar_toml_version"
         ]
         return VersionManager.parse(last_supported_v_str)
 
