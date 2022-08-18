@@ -3,7 +3,7 @@ from pathlib import Path
 
 from protostar.utils.log_color_provider import LogColorProvider
 
-from .formatting_summary import FormatingSummary
+from .formatting_summary import FormattingSummary
 from .formatting_result import (
     BrokenFormattingResult,
     CorrectFormattingResult,
@@ -17,8 +17,8 @@ def get_colorless_provider() -> LogColorProvider:
     return provider
 
 
-def get_filled_summary(check: bool) -> FormatingSummary:
-    summary = FormatingSummary(Logger(""), check)
+def get_filled_summary(check: bool) -> FormattingSummary:
+    summary = FormattingSummary(Logger(""), check)
 
     for i in range(3):
         summary.extend(

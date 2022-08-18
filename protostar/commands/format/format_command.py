@@ -10,7 +10,7 @@ from protostar.cli import Command
 from protostar.protostar_exception import ProtostarExceptionSilent
 from protostar.utils import log_color_provider
 
-from protostar.commands.format.formatting_summary import FormatingSummary
+from protostar.commands.format.formatting_summary import FormattingSummary
 from protostar.commands.format.formatting_result import (
     BrokenFormattingResult,
     CorrectFormattingResult,
@@ -34,7 +34,7 @@ class FormatCommand(Command):
 
     @property
     def description(self) -> str:
-        return "Format cairo sourcecode."
+        return "Format cairo source code."
 
     @property
     def arguments(self) -> List[Command.Argument]:
@@ -93,8 +93,8 @@ class FormatCommand(Command):
     # pylint: disable=too-many-locals
     def format(
         self, targets: List[str], check=False, log_formatted=False, ignore_broken=False
-    ) -> Tuple[FormatingSummary, int]:
-        summary = FormatingSummary(self._logger, check, log_formatted)
+    ) -> Tuple[FormattingSummary, int]:
+        summary = FormattingSummary(self._logger, check, log_formatted)
         filepaths: List[Path] = []
 
         for target in targets:
@@ -126,7 +126,7 @@ class FormatCommand(Command):
                 any_unformatted_or_broken = True
 
                 # Cairo formatter fixes some broken files
-                # We want to disable this behaviour
+                # We want to disable this behavior
                 continue
 
             if content == new_content:

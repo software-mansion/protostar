@@ -9,7 +9,7 @@ from protostar.commands.format.formatting_result import (
 )
 
 
-class FormatingSummary:
+class FormattingSummary:
     def __init__(
         self, logger: Logger, check: bool = False, log_formatted: bool = False
     ):

@@ -83,7 +83,7 @@ Waits for transaction to be accepted on chain.
 ```shell
 $ protostar format
 ```
-Format cairo sourcecode.
+Format cairo source code.
 #### `target STRING[]=['.']`
 Target to format, can be a file or a directory.
 #### `-c` `--check`
