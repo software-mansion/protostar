@@ -170,11 +170,19 @@ def protostar(
     return _protostar
 
 
-@pytest.fixture(name="devnet_gateway_url", scope="session")
-def devnet_gateway_url_fixture(devnet_port: int):
+@pytest.fixture(name="devnet_gateway_instance", scope="session")
+def devnet_gateway_instance_fixture(devnet_port: int):
     proc = run_devnet(["poetry", "run", "starknet-devnet"], devnet_port)
-    yield f"http://localhost:{devnet_port}"
+    yield proc, devnet_port  # Returns the proc, port tuple
     proc.kill()
+
+
+@pytest.fixture(name="devnet_gateway_url")
+def devnet_gateway_url_fixture(devnet_gateway_instance):
+    (devnet_proc, port) = devnet_gateway_instance
+    yield f"http://localhost:{port}"
+    if devnet_proc.poll() and devnet_proc.stdout:
+        raise RuntimeError(f"Test crashed the devnet. Stdout: {devnet_proc.stdout}")
 
 
 @pytest.fixture
