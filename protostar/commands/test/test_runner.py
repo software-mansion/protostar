@@ -1,5 +1,4 @@
 import asyncio
-import time
 import traceback
 from dataclasses import dataclass
 from logging import getLogger
@@ -8,22 +7,19 @@ from typing import List, Optional
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 
+from protostar.commands.test.environments.factory import invoke_setup
 from protostar.commands.test.environments.fuzz_test_execution_environment import (
     FuzzConfig,
-    FuzzTestExecutionResult,
-)
-from protostar.commands.test.environments.factory import (
-    invoke_setup,
-    invoke_test_case,
 )
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
-from protostar.commands.test.test_cases import (
-    BrokenTestSuite,
-    FailedTestCase,
-    PassedTestCase,
-    UnexpectedExceptionTestSuiteResult,
+from protostar.commands.test.test_case_runners.test_case_runner_factory import (
+    TestCaseRunnerFactory,
 )
 from protostar.commands.test.test_environment_exceptions import ReportedException
+from protostar.commands.test.test_results import (
+    BrokenTestSuiteResult,
+    UnexpectedBrokenTestSuiteResult,
+)
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.test_suite import TestSuite
 from protostar.protostar_exception import ProtostarException
@@ -106,7 +102,7 @@ class TestRunner:
             )
         except ProtostarException as ex:
             self.shared_tests_state.put_result(
-                BrokenTestSuite(
+                BrokenTestSuiteResult(
                     file_path=test_suite.test_path,
                     test_case_names=test_suite.test_case_names,
                     exception=ex,
@@ -115,7 +111,7 @@ class TestRunner:
 
         except ReportedException as ex:
             self.shared_tests_state.put_result(
-                BrokenTestSuite(
+                BrokenTestSuiteResult(
                     file_path=test_suite.test_path,
                     test_case_names=test_suite.test_case_names,
                     exception=ex,
@@ -125,7 +121,7 @@ class TestRunner:
         # An unexpected exception in a worker should neither crash nor freeze the whole application
         except BaseException as ex:  # pylint: disable=broad-except
             self.shared_tests_state.put_result(
-                UnexpectedExceptionTestSuiteResult(
+                UnexpectedBrokenTestSuiteResult(
                     file_path=test_suite.test_path,
                     test_case_names=test_suite.test_case_names,
                     exception=ex,
@@ -151,7 +147,7 @@ class TestRunner:
             return execution_state
         except StarkException as ex:
             self.shared_tests_state.put_result(
-                BrokenTestSuite(
+                BrokenTestSuiteResult(
                     file_path=test_suite.test_path,
                     exception=ex,
                     test_case_names=test_suite.test_case_names,
@@ -162,39 +158,13 @@ class TestRunner:
         self,
         test_suite: TestSuite,
         execution_state: TestExecutionState,
-    ):
+    ) -> None:
         for test_case_name in test_suite.test_case_names:
-            new_execution_state = execution_state.fork()
-            start_time = time.perf_counter()
-            try:
-                execution_result = await invoke_test_case(
-                    test_case_name, new_execution_state, fuzz_config=self._fuzz_config
-                )
-                fuzz_runs_count = (
-                    execution_result.fuzz_runs_count
-                    if isinstance(execution_result, FuzzTestExecutionResult)
-                    else None
-                )
-
-                self.shared_tests_state.put_result(
-                    PassedTestCase(
-                        file_path=test_suite.test_path,
-                        test_case_name=test_case_name,
-                        execution_resources=execution_result.execution_resources,
-                        execution_time=time.perf_counter() - start_time,
-                        captured_stdout=new_execution_state.output_recorder.get_captures(),
-                        fuzz_runs_count=fuzz_runs_count
-                        if isinstance(execution_result, FuzzTestExecutionResult)
-                        else None,
-                    )
-                )
-            except ReportedException as ex:
-                self.shared_tests_state.put_result(
-                    FailedTestCase(
-                        file_path=test_suite.test_path,
-                        test_case_name=test_case_name,
-                        exception=ex,
-                        execution_time=time.perf_counter() - start_time,
-                        captured_stdout=new_execution_state.output_recorder.get_captures(),
-                    )
-                )
+            test_case_runner_factory = TestCaseRunnerFactory(
+                execution_state, test_suite
+            )
+            test_case_runner = test_case_runner_factory.make(
+                test_case_name, self._fuzz_config
+            )
+            test_result = await test_case_runner.run(test_case_name)
+            self.shared_tests_state.put_result(test_result)

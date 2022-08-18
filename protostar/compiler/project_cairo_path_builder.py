@@ -11,6 +11,7 @@ class ProjectCairoPathBuilder:
         project_root_path: Path,
         project_section_loader: ProtostarProjectSection.Loader,
     ) -> None:
+        super().__init__()
         self._project_root_path = project_root_path
         self._project_section_loader = project_section_loader
 

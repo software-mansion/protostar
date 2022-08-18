@@ -72,9 +72,7 @@ class ProtostarTOMLReader:
             return self._cache
 
         if not self.path.is_file():
-            raise NoProtostarProjectFoundException(
-                "No protostar.toml found in the working directory"
-            )
+            raise NoProtostarProjectFoundException("`protostar.toml` not found")
 
         with open(self.path, "rb") as protostar_toml_file:
             protostar_toml_dict = tomli.load(protostar_toml_file)

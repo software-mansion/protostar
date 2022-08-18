@@ -33,14 +33,14 @@ class ProtostarTOMLVersionChecker:
         declared_version = VersionManager.parse(declared_version_str)
 
         # Version from pyproject.toml
-        last_supported_protostar_toml_version = (
-            self._version_manager.last_supported_protostar_toml_version
+        latest_supported_protostar_toml_version = (
+            self._version_manager.latest_supported_protostar_toml_version
         )
 
-        if not last_supported_protostar_toml_version:
+        if not latest_supported_protostar_toml_version:
             return
 
-        if last_supported_protostar_toml_version > declared_version:
+        if latest_supported_protostar_toml_version > declared_version:
             raise ProtostarException(
                 f"Protostar v{self._version_manager.protostar_version} "
                 "is not compatible with provided protostar.toml.\n"

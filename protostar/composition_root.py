@@ -56,13 +56,12 @@ class DIContainer:
 
 
 # pylint: disable=too-many-locals
-def build_di_container(script_root: Path):
+def build_di_container(script_root: Path, start_time: float = 0):
     logger = getLogger()
-    protostar_toml_path = search_upwards_protostar_toml_path(
-        start_path=Path().resolve()
-    )
+    cwd = Path().resolve()
+    protostar_toml_path = search_upwards_protostar_toml_path(start_path=cwd)
     project_root_path = (
-        protostar_toml_path.parent if protostar_toml_path is not None else Path()
+        protostar_toml_path.parent if protostar_toml_path is not None else cwd
     )
     protostar_toml_path = protostar_toml_path or project_root_path / "protostar.toml"
     protostar_directory = ProtostarDirectory(script_root)
@@ -146,13 +145,20 @@ def build_di_container(script_root: Path):
             ),
             logger=logger,
         ),
-        TestCommand(project_root_path, protostar_directory, project_cairo_path_builder),
+        TestCommand(
+            project_root_path,
+            protostar_directory,
+            project_cairo_path_builder,
+            logger=logger,
+            log_color_provider=log_color_provider,
+        ),
         DeployCommand(gateway_facade_builder, logger),
         DeclareCommand(gateway_facade_builder, logger),
         MigrateCommand(
             migrator_builder=Migrator.Builder(
                 migrator_execution_environment_builder=MigratorExecutionEnvironment.Builder(),
                 gateway_facade_builder=GatewayFacade.Builder(project_root_path),
+                project_root_path=project_root_path,
             ),
             requester=requester,
             logger=logger,
@@ -171,6 +177,7 @@ def build_di_container(script_root: Path):
         log_color_provider=log_color_provider,
         logger=logger,
         version_manager=version_manager,
+        start_time=start_time,
     )
 
     return DIContainer(protostar_cli, protostar_toml_reader)

@@ -1,4 +1,5 @@
 from logging import Logger
+from pathlib import Path
 from typing import List, Optional
 
 from protostar.cli import ActivityIndicator, Command
@@ -48,15 +49,27 @@ class BuildCommand(Command):
         ]
 
     async def run(self, args):
+        await self.build(
+            output_dir=args.output,
+            disable_hint_validation=args.disable_hint_validation,
+            relative_cairo_path=args.cairo_path,
+        )
+
+    async def build(
+        self,
+        output_dir: Path,
+        disable_hint_validation=False,
+        relative_cairo_path: Optional[List[Path]] = None,
+    ):
         with ActivityIndicator(
             log_color_provider.colorize("GRAY", "Building projects' contracts")
         ):
             try:
                 self._project_compiler.compile_project(
-                    output_dir=args.output,
+                    output_dir=output_dir,
                     config=ProjectCompilerConfig(
-                        hint_validation_disabled=args.disable_hint_validation,
-                        relative_cairo_path=args.cairo_path,
+                        hint_validation_disabled=disable_hint_validation,
+                        relative_cairo_path=relative_cairo_path or [],
                     ),
                 )
             except BaseException as exc:

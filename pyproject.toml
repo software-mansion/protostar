@@ -7,7 +7,7 @@ license = "MIT"
 name = "protostar"
 readme = "README.md"
 repository = "https://github.com/software-mansion/protostar"
-version = "0.3.0"
+version = "0.3.1"
 
 [tool.poetry.dependencies]
 GitPython = "^3.1.26"
@@ -80,13 +80,17 @@ test_cairo = "python ./binary_entrypoint.py test"
 test_html = [
     { shell = "coverage html && open ./htmlcov/index.html" },
 ]
-benchmark.shell = "pytest tests/benchmarks --benchmark-save-data --benchmark-autosave"
-statistical_test.shell = "python ./tests/benchmarks/statistical_test.py"
 test_report = [
     { shell = "coverage report" },
 ]
 type_check = "pyright"
 update_cli_docs = "python ./scripts/generate_reference_docs.py"
+
+[tool.poe.tasks.benchmark]
+shell = "pytest tests/benchmarks --benchmark-save-data --benchmark-autosave"
+
+[tool.poe.tasks.statistical_test]
+shell = "python ./tests/benchmarks/statistical_test.py"
 
 [tool.poe.tasks.test_e2e]
 shell = "pytest tests/e2e"
@@ -132,7 +136,7 @@ reportOverlappingOverload = true
 reportPropertyTypeMismatch = true
 reportTypeCommentUsage = true
 reportUninitializedInstanceVariable = true
-reportUnknownLambdaType = true
+reportUnknownLambdaType = false
 reportUnnecessaryCast = true
 reportUnnecessaryComparison = true
 reportUnnecessaryIsInstance = true
@@ -146,7 +150,7 @@ strictSetInference = true
 useLibraryCodeForTypes = true
 
 [tool.protostar]
-last_supported_protostar_toml_version = "0.3.0"
+latest_supported_protostar_toml_version = "0.3.1"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
