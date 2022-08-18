@@ -50,7 +50,7 @@ def test_formatting_summary_summary_no_check():
     assert "3 broken" in result
     assert "1 reformatted" in result
     assert "6 total" in result
-    assert "incorrectly formatted" not in result
+    assert "unformatted" not in result
 
 
 def test_formatting_summary_summary_check():
@@ -60,6 +60,6 @@ def test_formatting_summary_summary_check():
     result = summary.format_summary(log_color_provider)
 
     assert "3 broken" in result
-    assert "1 incorrectly formatted" in result
+    assert "1 unformatted" in result
     assert "6 total" in result
     assert "reformatted" not in result

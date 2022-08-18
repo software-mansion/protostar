@@ -158,7 +158,7 @@ def build_di_container(script_root: Path):
             logger=logger,
             log_color_provider=log_color_provider,
         ),
-        FormatCommand(logger),
+        FormatCommand(project_root_path, logger),
     ]
     protostar_toml_version_checker = ProtostarTOMLVersionChecker(
         protostar_toml_reader=protostar_toml_reader, version_manager=version_manager

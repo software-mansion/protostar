@@ -32,7 +32,7 @@ def test_formatting_check(protostar, copy_fixture):
 
     result = protostar(["format", "format", "--check"], ignore_exit_code=True)
 
-    assert "1 incorrectly formatted" in result
+    assert "1 unformatted" in result
     assert "1 broken" in result
     assert "3 total" in result
     assert not are_contents_equal(

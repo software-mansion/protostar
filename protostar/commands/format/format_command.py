@@ -4,9 +4,10 @@ from pathlib import Path
 
 from starkware.cairo.lang.compiler.parser import parse_file
 from starkware.cairo.lang.compiler.parser_transformer import ParserError
+from starkware.cairo.lang.compiler.ast.formatting_utils import FormattingError
 
 from protostar.cli import Command
-from protostar.protostar_exception import ProtostarExceptionSilent
+from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
 from protostar.utils import log_color_provider
 
 from protostar.commands.format.formatting_summary import FormatingSummary
@@ -18,8 +19,9 @@ from protostar.commands.format.formatting_result import (
 
 
 class FormatCommand(Command):
-    def __init__(self, logger: Logger) -> None:
+    def __init__(self, project_root_path: Path, logger: Logger) -> None:
         super().__init__()
+        self._project_root_path = project_root_path
         self._logger = logger
 
     @property
@@ -56,13 +58,24 @@ class FormatCommand(Command):
                 default=False,
                 short_name="c",
             ),
+            Command.Argument(
+                name="log-formatted",
+                description=("Log information about already formatted files."),
+                type="bool",
+                is_required=False,
+                default=False,
+            ),
         ]
 
     async def run(self, args):
         try:
-            summary, any_unformatted_or_broken = self.format(args.target, args.check)
+            summary, any_unformatted_or_broken = self.format(
+                args.target, args.check, args.log_formatted
+            )
+        except FormattingError as ex:
+            raise ProtostarException(str(ex))
         except BaseException as exc:
-            self._logger.error("Command failed.")
+            self._logger.fatal("Command failed.")
             raise exc
         summary.log_summary(log_color_provider)
 
@@ -72,8 +85,10 @@ class FormatCommand(Command):
                 "Some files were incorrectly formatted or broken."
             )
 
-    def format(self, targets: List[str], check=False) -> Tuple[FormatingSummary, int]:
-        summary = FormatingSummary(self._logger, check)
+    def format(
+        self, targets: List[str], check=False, log_formatted=False
+    ) -> Tuple[FormatingSummary, int]:
+        summary = FormatingSummary(self._logger, check, log_formatted)
         filepaths: List[Path] = []
 
         for target in targets:
@@ -89,15 +104,17 @@ class FormatCommand(Command):
         any_unformatted_or_broken = False
 
         for filepath in filepaths:
+            relative_filepath = filepath.relative_to(self._project_root_path)
+
             try:
                 with open(filepath, "r", encoding="utf-8") as file:
                     content = file.read()
                 new_content = parse_file(content, str(filepath)).format()
             except ParserError as ex:
                 summary.extend_and_log(
-                    BrokenFormattingResult(filepath, ex), log_color_provider
+                    BrokenFormattingResult(relative_filepath, ex), log_color_provider
                 )
-                any_unformatted_or_broken = 1
+                any_unformatted_or_broken = True
 
                 # Cairo formatter fixes some broken files
                 # We want to disable this behaviour
@@ -105,17 +122,17 @@ class FormatCommand(Command):
 
             if content == new_content:
                 summary.extend_and_log(
-                    CorrectFormattingResult(filepath), log_color_provider
+                    CorrectFormattingResult(relative_filepath), log_color_provider
                 )
             else:
                 if check:
-                    any_unformatted_or_broken = 1
+                    any_unformatted_or_broken = True
                 else:
                     with open(filepath, "w", encoding="utf-8") as file:
                         file.write(new_content)
 
                 summary.extend_and_log(
-                    IncorrectFormattingResult(filepath), log_color_provider
+                    IncorrectFormattingResult(relative_filepath), log_color_provider
                 )
 
         return summary, any_unformatted_or_broken
