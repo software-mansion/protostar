@@ -8,28 +8,12 @@ from starknet_py.net.models import StarknetChainId
 from typing_extensions import Protocol
 
 from protostar.migrator import Migrator
-from protostar.migrator.migrator_execution_environment import (
-    MigratorExecutionEnvironment,
-)
-from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from tests.integration.protostar_fixture import ProtostarFixture
 
 
 @pytest.fixture(name="project_root_path")
 def project_root_path_fixture(shared_datadir: Path) -> Path:
     return shared_datadir
-
-
-@pytest.fixture(name="migrator_builder")
-def migrator_builder_fixture(devnet_gateway_url: str, project_root_path: Path):
-    migrator_builder = Migrator.Builder(
-        migrator_execution_environment_builder=MigratorExecutionEnvironment.Builder(),
-        gateway_facade_builder=GatewayFacade.Builder(project_root_path),
-    )
-
-    migrator_builder.set_network(devnet_gateway_url)
-
-    return migrator_builder
 
 
 async def assert_transaction_accepted(

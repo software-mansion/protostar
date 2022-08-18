@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Optional
 
+from protostar.compiler.project_compiler import ProjectCompiler
 from protostar.migrator.migrator_cheatcodes_factory import MigratorCheatcodeFactory
 from protostar.starknet.execution_environment import ExecutionEnvironment
 from protostar.starknet.execution_state import ExecutionState
@@ -14,11 +15,16 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
     Config = MigratorCheatcodeFactory.Config
 
     class Builder:
-        def __init__(self):
+        def __init__(self, project_compiler: ProjectCompiler):
+            self._project_compiler = project_compiler
             self._gateway_facade: Optional[GatewayFacade] = None
+            self._compilation_output_path: Optional[Path] = None
 
         def set_gateway_facade(self, gateway_facade: GatewayFacade):
             self._gateway_facade = gateway_facade
+
+        def set_compilation_output_path(self, compilation_output_path: Path):
+            self._compilation_output_path = compilation_output_path
 
         async def build(
             self,
@@ -26,6 +32,7 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
             config: "MigratorExecutionEnvironment.Config",
         ) -> "MigratorExecutionEnvironment":
             assert self._gateway_facade is not None
+            assert self._compilation_output_path is not None
 
             compiler_config = CompilerConfig(
                 disable_hint_validation=True, include_paths=[]
@@ -46,8 +53,10 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
                 starknet_compiler=starknet_compiler,
             )
             migration_cheatcode_factory = MigratorCheatcodeFactory(
-                starknet_compiler,
-                self._gateway_facade,
+                starknet_compiler=starknet_compiler,
+                gateway_facade=self._gateway_facade,
+                project_compiler=self._project_compiler,
+                compilation_output_path=self._compilation_output_path,
                 config=config,
             )
 

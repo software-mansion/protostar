@@ -12,7 +12,10 @@ from protostar.starknet_gateway.starknet_request import StarknetRequest
 def test_migrator_saves_result_successfully_with_proper_name(
     mocker: MockerFixture, tmp_path: Path
 ):
-    migrator = Migrator(migrator_execution_environment=mocker.MagicMock())
+    migrator = Migrator(
+        migrator_execution_environment=mocker.MagicMock(),
+        compilation_output_path=mocker.MagicMock(),
+    )
 
     migrator.save_history(
         history=Migrator.History(

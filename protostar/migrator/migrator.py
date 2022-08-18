@@ -13,6 +13,8 @@ from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.starknet_gateway.starknet_request import StarknetRequest
 from protostar.utils.log_color_provider import LogColorProvider
 
+from .maybe_tmp_directory import MaybeTmpDirectory
+
 
 class Migrator:
     @dataclass(frozen=True)
@@ -66,6 +68,13 @@ class Migrator:
                 gateway_facade
             )
 
+            compilation_output_path = (
+                migration_file_path.parent / migration_file_path.stem
+            )
+            self._migrator_execution_environment_builder.set_compilation_output_path(
+                compilation_output_path
+            )
+
             migrator_execution_env = (
                 await self._migrator_execution_environment_builder.build(
                     migration_file_path,
@@ -75,25 +84,31 @@ class Migrator:
 
             return Migrator(
                 migrator_execution_environment=migrator_execution_env,
+                compilation_output_path=compilation_output_path,
                 project_root_path=self._project_root_path,
             )
 
     def __init__(
         self,
         migrator_execution_environment: MigratorExecutionEnvironment,
+        compilation_output_path: Path,
         project_root_path: Optional[Path] = None,
     ) -> None:
         self._project_root_path = project_root_path or Path()
         self._migrator_execution_environment = migrator_execution_environment
+        self._compilation_output_path = compilation_output_path
 
     async def run(self, rollback=False) -> History:
-        await self._migrator_execution_environment.invoke(
-            function_name="down" if rollback else "up"
-        )
+        with MaybeTmpDirectory(self._compilation_output_path):
+            await self._migrator_execution_environment.invoke(
+                function_name="down" if rollback else "up"
+            )
 
-        return Migrator.History(
-            # pylint: disable=line-too-long
-            starknet_requests=self._migrator_execution_environment.cheatcode_factory.gateway_facade.get_starknet_requests()
+        return Migrator.History(starknet_requests=self._get_sent_requests())
+
+    def _get_sent_requests(self):
+        return (
+            self._migrator_execution_environment.cheatcode_factory.gateway_facade.get_starknet_requests()
         )
 
     def save_history(

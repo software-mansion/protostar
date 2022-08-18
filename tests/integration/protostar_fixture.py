@@ -79,7 +79,9 @@ class ProtostarFixture:
         for relative_path_str, content in relative_path_str_to_content.items():
             self._save_file(self._project_root_path / relative_path_str, content)
 
-    def create_migration_file(self, hint_content: str) -> Path:
+    def create_migration_file(
+        self, up_hint_content: str = "", down_hint_content: str = ""
+    ) -> Path:
         file_path = self._project_root_path / "migrations" / "migration_01_test.cairo"
         self._save_file(
             file_path,
@@ -89,7 +91,16 @@ class ProtostarFixture:
         @external
         func up():
             %{{
-                {hint_content}
+                {up_hint_content}
+            %}}
+
+            return ()
+        end
+
+        @external
+        func down():
+            %{{
+                {down_hint_content}
             %}}
 
             return ()
@@ -176,7 +187,9 @@ def build_protostar_fixture(mocker: MockerFixture, project_root_path: Path):
 
     migrator_builder = Migrator.Builder(
         gateway_facade_builder=gateway_facade_builder,
-        migrator_execution_environment_builder=MigratorExecutionEnvironment.Builder(),
+        migrator_execution_environment_builder=MigratorExecutionEnvironment.Builder(
+            project_compiler
+        ),
         project_root_path=project_root_path,
     )
 
