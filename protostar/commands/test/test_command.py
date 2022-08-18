@@ -1,4 +1,6 @@
-from logging import getLogger
+# pylint: disable=too-many-arguments
+
+from logging import Logger
 from pathlib import Path
 from typing import List, Optional
 
@@ -8,6 +10,11 @@ from protostar.commands.test.environments.fuzz_test_execution_environment import
     FuzzConfig,
 )
 from protostar.commands.test.test_collector import TestCollector
+from protostar.commands.test.test_collector_summary_formatter import (
+    format_test_collector_summary,
+)
+from protostar.commands.test.test_result_formatter import format_test_result
+from protostar.commands.test.test_results import TestResult
 from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.test_scheduler import TestScheduler
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
@@ -18,7 +25,7 @@ from protostar.utils.compiler.pass_managers import (
     StarknetPassManagerFactory,
     TestCollectorPassManagerFactory,
 )
-from protostar.utils.log_color_provider import log_color_provider
+from protostar.utils.log_color_provider import LogColorProvider
 from protostar.utils.protostar_directory import ProtostarDirectory
 from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
@@ -29,8 +36,12 @@ class TestCommand(Command):
         project_root_path: Path,
         protostar_directory: ProtostarDirectory,
         project_cairo_path_builder: ProjectCairoPathBuilder,
+        log_color_provider: LogColorProvider,
+        logger: Logger,
     ) -> None:
         super().__init__()
+        self._logger = logger
+        self._log_color_provider = log_color_provider
         self._project_root_path = project_root_path
         self._protostar_directory = protostar_directory
         self._project_cairo_path_builder = project_cairo_path_builder
@@ -142,7 +153,6 @@ class TestCommand(Command):
         summary.assert_all_passed()
         return summary
 
-    # pylint: disable=too-many-arguments
     # pylint: disable=too-many-locals
     async def test(
         self,
@@ -157,7 +167,6 @@ class TestCommand(Command):
         fuzz_max_examples: int = 100,
         slowest_tests_to_report_count: int = 0,
     ) -> TestingSummary:
-        logger = getLogger()
         include_paths = [
             str(path)
             for path in [
@@ -174,7 +183,7 @@ class TestCommand(Command):
         )
         with TestingSeed(seed) as testing_seed:
             with ActivityIndicator(
-                log_color_provider.colorize("GRAY", "Collecting tests")
+                self._log_color_provider.colorize("GRAY", "Collecting tests")
             ):
                 test_collector_result = TestCollector(
                     StarknetCompiler(
@@ -189,7 +198,8 @@ class TestCommand(Command):
                     ignored_targets=ignored_targets,
                     default_test_suite_glob=str(self._project_root_path),
                 )
-            test_collector_result.log(logger)
+
+            self._log_test_collector_result(test_collector_result)
 
             testing_summary = TestingSummary(
                 case_results=test_collector_result.broken_test_suites,  # type: ignore | pyright bug?
@@ -198,8 +208,8 @@ class TestCommand(Command):
 
             if test_collector_result.test_cases_count > 0:
                 live_logger = TestingLiveLogger(
-                    logger,
-                    testing_summary,
+                    logger=self._logger,
+                    testing_summary=testing_summary,
                     no_progress_bar=no_progress_bar,
                     exit_first=exit_first,
                     slowest_tests_to_report_count=slowest_tests_to_report_count,
@@ -213,3 +223,28 @@ class TestCommand(Command):
                 )
 
             return testing_summary
+
+    def _log_test_collector_result(
+        self, test_collector_result: TestCollector.Result
+    ) -> None:
+        for broken_test_suite in test_collector_result.broken_test_suites:
+            self._log_formatted_test_result(broken_test_suite)
+        if test_collector_result.test_cases_count:
+            self._log_formatted_test_collector_summary(test_collector_result)
+        else:
+            self._logger.warning("No test cases found")
+
+    def _log_formatted_test_collector_summary(
+        self, test_collector_result: TestCollector.Result
+    ) -> None:
+        formatted_result = format_test_collector_summary(
+            test_case_count=test_collector_result.test_cases_count,
+            test_suite_count=len(test_collector_result.test_suites),
+            duration_in_sec=test_collector_result.duration,
+        )
+        self._logger.info(formatted_result)
+
+    @staticmethod
+    def _log_formatted_test_result(test_result: TestResult) -> None:
+        formatted_test_result = format_test_result(test_result)
+        print(formatted_test_result)

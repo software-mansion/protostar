@@ -1,9 +1,9 @@
 import dataclasses
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Callable
+from typing import Any, Dict, List, Optional
 
 from hypothesis import given, seed, settings
-from hypothesis.database import InMemoryExampleDatabase, ExampleDatabase
+from hypothesis.database import ExampleDatabase, InMemoryExampleDatabase
 from hypothesis.errors import InvalidArgument
 from hypothesis.reporting import with_reporter
 from starkware.starknet.business_logic.execution.objects import CallInfo
@@ -23,9 +23,7 @@ from protostar.commands.test.environments.test_execution_environment import (
     TestExecutionEnvironment,
     TestExecutionResult,
 )
-from protostar.commands.test.fuzzing.exceptions import (
-    HypothesisRejectException,
-)
+from protostar.commands.test.fuzzing.exceptions import HypothesisRejectException
 from protostar.commands.test.fuzzing.fuzz_input_exception_metadata import (
     FuzzInputExceptionMetadata,
 )
@@ -43,8 +41,8 @@ from protostar.commands.test.starkware.execution_resources_summary import (
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_context import TestContextHintLocal
 from protostar.commands.test.test_environment_exceptions import (
-    ReportedException,
     CheatcodeException,
+    ReportedException,
 )
 from protostar.commands.test.testing_seed import TestingSeed
 from protostar.starknet.cheatcode import Cheatcode
@@ -78,7 +76,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         self.initial_state = state
         self._fuzz_config = fuzz_config or FuzzConfig()
 
-    async def invoke(self, function_name: str) -> TestExecutionResult:
+    async def invoke(self, function_name: str) -> FuzzTestExecutionResult:
         abi = self.state.contract.abi
         parameters = get_function_parameters(abi, function_name)
         assert (

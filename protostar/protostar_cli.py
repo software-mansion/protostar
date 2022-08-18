@@ -7,7 +7,6 @@ from protostar.cli import CLIApp, Command
 from protostar.compiler import ProjectCairoPathBuilder
 from protostar.configuration_profile_cli import ConfigurationProfileCLI
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
-
 from protostar.protostar_toml.protostar_toml_version_checker import (
     ProtostarTOMLVersionChecker,
 )
@@ -27,13 +26,14 @@ class ProtostarCLI(CLIApp):
         protostar_toml_version_checker: ProtostarTOMLVersionChecker,
         version_manager: VersionManager,
         commands: List[Command],
+        start_time: float = 0,
     ) -> None:
         self._logger = logger
         self._latest_version_checker = latest_version_checker
-        self._start_time = time.perf_counter()
         self._log_color_provider = log_color_provider
         self._version_manager = version_manager
         self._protostar_toml_version_checker = protostar_toml_version_checker
+        self._start_time = start_time
         self._project_cairo_path_builder = project_cairo_path_builder
 
         super().__init__(

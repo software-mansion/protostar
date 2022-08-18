@@ -1,7 +1,8 @@
 # pylint: disable=invalid-name
 from dataclasses import dataclass
+from logging import getLogger
 from pathlib import Path
-from typing import List, Optional, Set, Union
+from typing import List, Optional, Set, Union, cast
 
 import pytest
 from pytest import TempPathFactory
@@ -10,6 +11,8 @@ from typing_extensions import Protocol
 
 from protostar.commands.test.test_command import TestCommand
 from protostar.commands.test.testing_summary import TestingSummary
+from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
+from protostar.utils.log_color_provider import LogColorProvider
 from tests.conftest import run_devnet
 from tests.integration.protostar_fixture import (
     ProtostarFixture,
@@ -89,22 +92,62 @@ class RunCairoTestRunnerFixture(Protocol):
         path: Path,
         seed: Optional[int] = None,
         fuzz_max_examples=100,
+        disable_hint_validation=False,
+        cairo_path: Optional[List[Path]] = None,
+        ignored_test_cases: Optional[List[str]] = None,
     ) -> TestingSummary:
         ...
 
 
+@pytest.fixture(name="log_color_provider")
+def log_color_provider_fixture() -> LogColorProvider:
+    log_color_provider = LogColorProvider()
+    log_color_provider.is_ci_mode = False
+    return log_color_provider
+
+
 @pytest.fixture(name="run_cairo_test_runner")
-def run_cairo_test_runner_fixture(mocker: MockerFixture) -> RunCairoTestRunnerFixture:
+def run_cairo_test_runner_fixture(
+    mocker: MockerFixture, log_color_provider: LogColorProvider
+) -> RunCairoTestRunnerFixture:
     async def run_cairo_test_runner(
         path: Path,
         seed: Optional[int] = None,
         fuzz_max_examples=100,
+        disable_hint_validation=False,
+        cairo_path: Optional[List[Path]] = None,
+        ignored_test_cases: Optional[List[str]] = None,
     ) -> TestingSummary:
+
+        protostar_directory_mock = mocker.MagicMock()
+        protostar_directory_mock.protostar_test_only_cairo_packages_path = Path()
+
+        project_cairo_path_builder = cast(ProjectCairoPathBuilder, mocker.MagicMock())
+        project_cairo_path_builder.build_project_cairo_path_list = (
+            lambda relative_cairo_path_list: relative_cairo_path_list
+        )
+
+        ignored_targets: Optional[List[str]] = None
+        if ignored_test_cases:
+            ignored_targets = [
+                f"{str(path)}::{ignored_test_case}"
+                for ignored_test_case in ignored_test_cases
+            ]
+
         return await TestCommand(
             project_root_path=Path(),
-            protostar_directory=mocker.MagicMock(),
-            project_cairo_path_builder=mocker.MagicMock(),
-        ).test(targets=[str(path)], seed=seed, fuzz_max_examples=fuzz_max_examples)
+            protostar_directory=protostar_directory_mock,
+            project_cairo_path_builder=project_cairo_path_builder,
+            logger=getLogger(),
+            log_color_provider=log_color_provider,
+        ).test(
+            targets=[str(path)],
+            ignored_targets=ignored_targets,
+            seed=seed,
+            fuzz_max_examples=fuzz_max_examples,
+            disable_hint_validation=disable_hint_validation,
+            cairo_path=cairo_path or [],
+        )
 
     return run_cairo_test_runner
 

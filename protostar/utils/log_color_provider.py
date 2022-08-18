@@ -10,7 +10,7 @@ SupportedColorName = Literal[
 
 class LogColorProvider:
     def __init__(self):
-        self.is_ci_mode = False
+        self.is_ci_mode = True
 
     def get_color(
         self,

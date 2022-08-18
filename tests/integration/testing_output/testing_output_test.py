@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 
+from protostar.commands.test.test_result_formatter import format_test_result
 from tests.integration.conftest import (
     RunCairoTestRunnerFixture,
     assert_cairo_test_cases,
@@ -9,7 +10,9 @@ from tests.integration.conftest import (
 
 
 @pytest.mark.asyncio
-async def test_testing_output(run_cairo_test_runner: RunCairoTestRunnerFixture):
+async def test_testing_output(
+    run_cairo_test_runner: RunCairoTestRunnerFixture,
+):
     testing_summary = await run_cairo_test_runner(
         Path(__file__).parent / "testing_output_test.cairo"
     )
@@ -24,7 +27,7 @@ async def test_testing_output(run_cairo_test_runner: RunCairoTestRunnerFixture):
     )
 
     for passed_test_case in testing_summary.passed:
-        output = passed_test_case.format()
+        output = format_test_result(passed_test_case)
         assert "steps=" in output
         assert "pedersen_builtin=" in output
         assert "range_check=" not in output

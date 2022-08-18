@@ -54,7 +54,7 @@ class DIContainer:
 
 
 # pylint: disable=too-many-locals
-def build_di_container(script_root: Path):
+def build_di_container(script_root: Path, start_time: float = 0):
     logger = getLogger()
     cwd = Path().resolve()
     protostar_toml_path = search_upwards_protostar_toml_path(start_path=cwd)
@@ -142,7 +142,13 @@ def build_di_container(script_root: Path):
             ),
             logger=logger,
         ),
-        TestCommand(project_root_path, protostar_directory, project_cairo_path_builder),
+        TestCommand(
+            project_root_path,
+            protostar_directory,
+            project_cairo_path_builder,
+            logger=logger,
+            log_color_provider=log_color_provider,
+        ),
         DeployCommand(logger=logger, project_root_path=project_root_path),
         DeclareCommand(logger=logger, project_root_path=project_root_path),
         MigrateCommand(
@@ -168,6 +174,7 @@ def build_di_container(script_root: Path):
         logger=logger,
         version_manager=version_manager,
         project_cairo_path_builder=project_cairo_path_builder,
+        start_time=start_time,
     )
 
     return DIContainer(protostar_cli, protostar_toml_reader)
