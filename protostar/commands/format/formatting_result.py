@@ -15,12 +15,12 @@ class BrokenFormattingResult(FormattingResult):
 @dataclass
 class CorrectFormattingResult(FormattingResult):
     """
-    Indicates that file was already properly formatted when encountered
+    Indicates that file was already properly formatted when encountered.
     """
 
 
 @dataclass
 class IncorrectFormattingResult(FormattingResult):
     """
-    Indicates that file wasn't properly formatted when encountered
+    Indicates that file wasn't properly formatted when encountered.
     """
