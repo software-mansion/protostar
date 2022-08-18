@@ -84,14 +84,14 @@ Waits for transaction to be accepted on chain.
 $ protostar format
 ```
 Format cairo source code.
-#### `target STRING[]=['.']`
+#### `target PATH[]=['.']`
 Target to format, can be a file or a directory.
 #### `-c` `--check`
 Run in 'check' mode. Exits with 0 if input is formatted correctly.Exits with 1 if formatting is required.
 #### `--ignore-broken`
 Ignore broken files.
-#### `--log-formatted`
-Log information about already formatted files.
+#### `--verbose`
+Log information about already formatted files as well.
 ### `init`
 ```shell
 $ protostar init
