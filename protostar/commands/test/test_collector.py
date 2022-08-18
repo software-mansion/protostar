@@ -293,9 +293,22 @@ class TestCollector:
             StarknetPreprocessedProgram, TestCollectorPreprocessedProgram
         ],
     ) -> Iterable[TestCase]:
-        for fn_name in self._starknet_compiler.get_function_names(preprocessed):
-            if fn_name.startswith("test_"):
-                yield TestCase(test_fn_name=fn_name)
+        test_prefix = "test_"
+        setup_prefix = "setup_"
+
+        fn_names = set(self._starknet_compiler.get_function_names(preprocessed))
+        for test_fn_name in fn_names:
+            if test_fn_name.startswith(test_prefix):
+                base_name = test_fn_name[len(test_prefix) :]
+
+                setup_fn_name = setup_prefix + base_name
+                if setup_fn_name not in fn_names:
+                    setup_fn_name = None
+
+                yield TestCase(
+                    test_fn_name=test_fn_name,
+                    setup_fn_name=setup_fn_name,
+                )
 
     def _collect_setup_hook_name(
         self,

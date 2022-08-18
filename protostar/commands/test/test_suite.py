@@ -6,6 +6,7 @@ from typing import List, Optional
 @dataclass(frozen=True)
 class TestCase:
     test_fn_name: str
+    setup_fn_name: Optional[str] = None
 
 
 @dataclass(frozen=True)
