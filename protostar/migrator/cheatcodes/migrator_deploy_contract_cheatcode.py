@@ -6,16 +6,17 @@ from typing import Any, Optional
 
 from typing_extensions import Protocol
 
-from protostar.commands.test.test_environment_exceptions import \
-    KeywordOnlyArgumentCheatcodeException
+from protostar.commands.test.test_environment_exceptions import (
+    KeywordOnlyArgumentCheatcodeException,
+)
 from protostar.compiler import ProjectCompiler
+from protostar.compiler.compiled_contract_writer import CompiledContractWriter
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.utils.data_transformer import CairoOrPythonData
 
 from ...compiler.project_compiler import ContractIdentifier
-from .network_config import (CheatcodeNetworkConfig,
-                             ValidatedCheatcodeNetworkConfig)
+from .network_config import CheatcodeNetworkConfig, ValidatedCheatcodeNetworkConfig
 
 
 @dataclass(frozen=True)
@@ -46,12 +47,14 @@ class MigratorDeployContractCheatcode(Cheatcode):
         syscall_dependencies: Cheatcode.SyscallDependencies,
         gateway_facade: GatewayFacade,
         project_compiler: ProjectCompiler,
+        tmp_compilation_output_path: Path,
         config: Config,
     ):
         super().__init__(syscall_dependencies)
         self._gateway_facade = gateway_facade
         self._config = config
         self._project_compiler = project_compiler
+        self._tmp_compilation_output_path = tmp_compilation_output_path
 
     @property
     def name(self) -> str:
@@ -93,5 +96,13 @@ class MigratorDeployContractCheatcode(Cheatcode):
     ) -> Path:
         if isinstance(contract_identifier, Path):
             return contract_identifier
-        assert False, "Not implemented"
-        
+        return self._compile_contract_by_contract_name(contract_identifier)
+
+    def _compile_contract_by_contract_name(self, contract_name: str) -> Path:
+        contract_class = self._project_compiler.compile_contract_from_contract_name(
+            contract_name
+        )
+        output_file_path = CompiledContractWriter(
+            contract=contract_class, contract_name=contract_name
+        ).save_compiled_contract(output_dir=self._tmp_compilation_output_path)
+        return output_file_path
