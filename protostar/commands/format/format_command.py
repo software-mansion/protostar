@@ -65,12 +65,19 @@ class FormatCommand(Command):
                 is_required=False,
                 default=False,
             ),
+            Command.Argument(
+                name="ignore-broken",
+                description=("Ignore broken files."),
+                type="bool",
+                is_required=False,
+                default=False,
+            ),
         ]
 
     async def run(self, args):
         try:
             summary, any_unformatted_or_broken = self.format(
-                args.target, args.check, args.log_formatted
+                args.target, args.check, args.log_formatted, args.ignore_broken
             )
         except BaseException as exc:
             self._logger.fatal("Command failed.")
@@ -83,8 +90,9 @@ class FormatCommand(Command):
                 "Some files were unformatted, impossible to format or broken."
             )
 
+    # pylint: disable=too-many-locals
     def format(
-        self, targets: List[str], check=False, log_formatted=False
+        self, targets: List[str], check=False, log_formatted=False, ignore_broken=False
     ) -> Tuple[FormatingSummary, int]:
         summary = FormatingSummary(self._logger, check, log_formatted)
         filepaths: List[Path] = []
@@ -109,6 +117,9 @@ class FormatCommand(Command):
                     content = file.read()
                 new_content = parse_file(content, str(filepath)).format()
             except (ParserError, FormattingError) as ex:
+                if ignore_broken:
+                    continue
+
                 summary.extend_and_log(
                     BrokenFormattingResult(relative_filepath, ex), log_color_provider
                 )

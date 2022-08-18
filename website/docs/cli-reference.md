@@ -88,6 +88,10 @@ Format cairo sourcecode.
 Target to format, can be a file or a directory.
 #### `-c` `--check`
 Run in 'check' mode. Exits with 0 if input is formatted correctly.Exits with 1 if formatting is required.
+#### `--ignore-broken`
+Ignore broken files.
+#### `--log-formatted`
+Log information about already formatted files.
 ### `init`
 ```shell
 $ protostar init
