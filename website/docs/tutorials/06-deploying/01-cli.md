@@ -30,6 +30,37 @@ Transaction hash: 0x3c6c...
 https://goerli.voyager.online/contract/0x038cc...
 ```
 
+### Signing a declaration
+
+As of cairo v0.10 you will be able to sign declare transactions. 
+Our CLI will also provide 2 ways of providing the signature:
+
+### 1. Using the default signer from starknet.py - [StarkCurveSigner](https://starknetpy.readthedocs.io/en/latest/signer.html#module-starknet_py.net.signer)
+
+This way requires you to pass a private key (for signing) and account contract's address (to fetch the nonce). 
+
+2 options are used for this:
+- `private-key-path` - a path to the file containing hex-encoded private key
+- `account-address` - your account contract's address (hex-encoded as well) on the appropriate network
+
+Alternatively, if you prefer not to store private key in a file, we check for `ACCOUNT_PRIVATE_KEY` environment variable, and use it if it's available.   
+It should be in the same hex-encoded format, like all the options above.
+
+### 2. Using a custom signer class
+
+You can provide a custom signer class which conforms to [BaseSigner](https://starknetpy.readthedocs.io/en/latest/signer.html#starknet_py.net.signer.BaseSigner) Abstract Base Class specification. 
+This way of signing requires you to write a class in python, which signs the transaction in a way that is suitable to you.
+After writing such class, simply use `signer_class` argument in the CLI for `declare` command to use that class instead of the default one.
+Usage of this way of signing is exclusive with the default signer strategy.
+
+:::caution
+The custom signer class must not take any arguments in the constructor, since we don't pass any args on instantiation.
+:::
+
+You might wonder where you should put this class - we synchronize `PYTHONPATH` with project's `cairo_path`s, so you can put this near to your cairo contracts source code.
+Modules that are dependencies of protostar (like starknet.py or cairo-lang) should be available for importing by default.
+If you want to import other custom modules, you should extend `PYTHONPATH` yourself (https://docs.python.org/3/using/cmdline.html#envvar-PYTHONPATH), when running this command.
+
 ## Deploying
 :::caution
 The deploy transaction will be deprecated in future StarkNet versions. To deploy new contract instances, you can use the deploy syscall. For more information, read [StarkNet's Contract Classes documentation](https://docs.starknet.io/docs/Contracts/contract-classes).
