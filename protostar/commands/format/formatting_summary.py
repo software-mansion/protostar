@@ -21,7 +21,10 @@ class FormatingSummary:
         self.correct: List[CorrectFormattingResult] = []
 
     def log_summary(self, log_color_provider: LogColorProvider):
-        self._logger.info(self.format_summary(log_color_provider))
+        if self.get_file_count() == 0:
+            self._logger.warn("No files found")
+        else:
+            self._logger.info(self.format_summary(log_color_provider))
 
     def extend_and_log(
         self, formatting_result: FormattingResult, log_color_provider: LogColorProvider
