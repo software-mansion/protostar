@@ -17,7 +17,7 @@ from protostar.commands.test.starkware.test_execution_state import TestExecution
 from protostar.commands.test.test_collector import TestCollector
 from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
-from protostar.commands.test.test_suite import TestSuite
+from protostar.commands.test.test_suite import TestSuite, TestCase
 from protostar.utils.compiler.pass_managers import ProtostarPassMangerFactory
 from protostar.utils.starknet_compilation import StarknetCompiler, CompilerConfig
 from tests.benchmarks.constants import ROUNDS_NUMBER
@@ -97,7 +97,7 @@ def build_test_suite(
     contract = compiler.compile_contract(file_path, add_debug_info=True)
     suite = TestSuite(
         test_path=file_path,
-        test_case_names=case_names,
+        test_cases=[TestCase(test_fn_name=case_name) for case_name in case_names],
         setup_fn_name=setup_fn_name,
     )
     return contract, suite
