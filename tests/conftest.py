@@ -37,7 +37,7 @@ def run_devnet(devnet: List[str], port: int) -> subprocess.Popen:
         return proc
 
     appended_stdout = None
-    if proc.poll():
+    if proc.stdout:
         appended_stdout = f"stdout: {proc.stdout.read()}"
 
     raise RuntimeError(
@@ -45,7 +45,7 @@ def run_devnet(devnet: List[str], port: int) -> subprocess.Popen:
     )
 
 
-@pytest.fixture(name="devnet_port")
+@pytest.fixture(name="devnet_port", scope="session")
 def devnet_port_fixture() -> int:
     with Socket() as socket:
         socket.bind(("", 0))

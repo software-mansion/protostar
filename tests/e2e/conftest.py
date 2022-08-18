@@ -170,7 +170,7 @@ def protostar(
     return _protostar
 
 
-@pytest.fixture(name="devnet_gateway_url")
+@pytest.fixture(name="devnet_gateway_url", scope="session")
 def devnet_gateway_url_fixture(devnet_port: int):
     proc = run_devnet(["poetry", "run", "starknet-devnet"], devnet_port)
     yield f"http://localhost:{devnet_port}"

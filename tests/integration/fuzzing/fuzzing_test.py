@@ -1,8 +1,10 @@
 from pathlib import Path
 
 from protostar.commands.test.test_results import PassedFuzzTestCaseResult
-from tests.integration.conftest import (RunCairoTestRunnerFixture,
-                                        assert_cairo_test_cases)
+from tests.integration.conftest import (
+    RunCairoTestRunnerFixture,
+    assert_cairo_test_cases,
+)
 
 
 async def test_basic(run_cairo_test_runner: RunCairoTestRunnerFixture):
