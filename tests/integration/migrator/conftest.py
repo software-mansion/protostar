@@ -43,7 +43,7 @@ async def assert_transaction_accepted(
 
 
 class MigrateFixture(Protocol):
-    async def __call__(self, migration_hint_content: str) -> None:
+    async def __call__(self, migration_hint_content: str) -> Migrator.History:
         ...
 
 
@@ -51,6 +51,6 @@ class MigrateFixture(Protocol):
 async def migrate_fixture(protostar: ProtostarFixture, devnet_gateway_url: str):
     async def migrate(migration_hint_content: str):
         migration_file_path = protostar.create_migration_file(migration_hint_content)
-        await protostar.migrate(migration_file_path, network=devnet_gateway_url)
+        return await protostar.migrate(migration_file_path, network=devnet_gateway_url)
 
     return migrate

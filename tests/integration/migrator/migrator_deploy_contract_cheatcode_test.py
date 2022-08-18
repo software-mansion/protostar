@@ -1,24 +1,31 @@
-from pathlib import Path
 from typing import cast
 
-from protostar.migrator import Migrator
-from tests.integration.migrator.conftest import assert_transaction_accepted
+import pytest
+
+from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR
+from tests.integration.migrator.conftest import (
+    MigrateFixture,
+    assert_transaction_accepted,
+)
+from tests.integration.protostar_fixture import ProtostarFixture
+
+
+@pytest.fixture(autouse=True)
+def setup(protostar: ProtostarFixture):
+    protostar.init_sync()
+    protostar.create_files({"./src/main.cairo": CONTRACT_WITH_CONSTRUCTOR})
+    protostar.build_sync()
 
 
 async def test_deploy_contract(
-    migrator_builder: Migrator.Builder, devnet_gateway_url: str, project_root_path: Path
+    protostar: ProtostarFixture, migrate: MigrateFixture, devnet_gateway_url: str
 ):
-
-    migrator = await migrator_builder.build(
-        project_root_path / "migrations" / "migration_deploy_contract.cairo",
-    )
-
-    result = await migrator.run()
+    result = await migrate('deploy_contract("./build/main.json", [42])')
 
     assert len(result.starknet_requests) == 1
     assert result.starknet_requests[0].action == "DEPLOY"
     assert result.starknet_requests[0].payload["contract"] == str(
-        (project_root_path / "build" / "main_with_constructor.json").resolve()
+        (protostar.project_root_path / "build" / "main.json").resolve()
     )
     assert result.starknet_requests[0].payload["constructor_args"] == [42]
     assert result.starknet_requests[0].response["code"] == "TRANSACTION_RECEIVED"
