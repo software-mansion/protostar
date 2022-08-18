@@ -15,7 +15,6 @@ from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.utils.data_transformer import CairoOrPythonData
 
-from ...compiler.project_compiler import ContractIdentifier
 from .network_config import CheatcodeNetworkConfig, ValidatedCheatcodeNetworkConfig
 
 
@@ -72,30 +71,29 @@ class MigratorDeployContractCheatcode(Cheatcode):
         *args,
         config: Optional[CheatcodeNetworkConfig] = None,
     ) -> DeployedContract:
+        contract_identifier = contract_path
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
-
         if isinstance(constructor_args, collections.Mapping):
             assert False, "Data Transformer is not supported"
 
         validated_config = ValidatedCheatcodeNetworkConfig.from_dict(config)
-
+        compiled_contract_path = self._get_path_to_compiled_contract(
+            contract_identifier
+        )
         response = asyncio.run(
             self._gateway_facade.deploy(
-                compiled_contract_path=Path(contract_path),
+                compiled_contract_path=compiled_contract_path,
                 inputs=constructor_args,
                 token=self._config.token,
                 wait_for_acceptance=validated_config.wait_for_acceptance,
             )
         )
-
         return DeployedContract(contract_address=response.address)
 
-    def _get_compiled_contract_path(
-        self, contract_identifier: ContractIdentifier
-    ) -> Path:
-        if isinstance(contract_identifier, Path):
-            return contract_identifier
+    def _get_path_to_compiled_contract(self, contract_identifier: str) -> Path:
+        if "." in contract_identifier:
+            return Path(contract_identifier)
         return self._compile_contract_by_contract_name(contract_identifier)
 
     def _compile_contract_by_contract_name(self, contract_name: str) -> Path:

@@ -87,7 +87,7 @@ def extract_transaction_hash(starknet_request: StarknetRequest):
 
 
 def create_migration_compilation_output_path(migration_file: Path) -> Path:
-    return migration_file.parent / migration_file.name
+    return migration_file.parent / migration_file.stem
 
 
 def is_directory_empty(directory: Path) -> bool:
