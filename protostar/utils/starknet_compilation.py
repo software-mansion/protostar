@@ -1,6 +1,6 @@
-from pathlib import Path
-from typing import Callable, List, Tuple, Type, Union
 from dataclasses import dataclass
+from pathlib import Path
+from typing import List, Tuple, Type, Union
 
 from starkware.cairo.lang.compiler.constants import MAIN_SCOPE
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
@@ -115,8 +115,4 @@ class StarknetCompiler:
             StarknetPreprocessedProgram, TestCollectorPreprocessedProgram
         ],
     ) -> List[str]:
-        return [
-            el["name"]
-            for el in preprocessed.abi
-            if el["type"] == "function"
-        ]
+        return [el["name"] for el in preprocessed.abi if el["type"] == "function"]

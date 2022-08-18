@@ -308,5 +308,4 @@ class TestCollector:
 
         if function_names.count(hook_name) == 1:
             return hook_name
-        else:
-            return None
+        return None

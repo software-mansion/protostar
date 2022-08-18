@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Callable, List, cast
+from typing import List, cast
 from unittest.mock import MagicMock
 
 import pytest
@@ -9,7 +9,7 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
 )
 
 from protostar.commands.test.test_collector import TestCollector
-from protostar.commands.test.test_suite import TestSuite, TestCase
+from protostar.commands.test.test_suite import TestSuite
 from protostar.utils.starknet_compilation import StarknetCompiler
 
 
