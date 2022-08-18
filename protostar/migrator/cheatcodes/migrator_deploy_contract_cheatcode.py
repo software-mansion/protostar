@@ -41,6 +41,7 @@ class MigratorDeployContractCheatcode(Cheatcode):
     class Config:
         token: Optional[str]
 
+    # pylint: disable=too-many-arguments
     def __init__(
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
