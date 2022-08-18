@@ -5,7 +5,7 @@ from typing import Union
 from protostar.protostar_exception import ProtostarException
 
 
-class TmpDirectoryIfEmpty(AbstractContextManager):
+class MaybeTmpDirectory(AbstractContextManager):
     def __init__(self, path: Path):
         self._path = path
 
