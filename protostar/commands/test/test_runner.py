@@ -7,9 +7,11 @@ from typing import List, Optional
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 
-from protostar.commands.test.environments.factory import invoke_setup
 from protostar.commands.test.environments.fuzz_test_execution_environment import (
     FuzzConfig,
+)
+from protostar.commands.test.environments.setup_execution_environment import (
+    SetupExecutionEnvironment,
 )
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_case_runners.test_case_runner_factory import (
@@ -142,7 +144,8 @@ class TestRunner:
             )
 
             if test_suite.setup_fn_name:
-                await invoke_setup(test_suite.setup_fn_name, execution_state)
+                env = SetupExecutionEnvironment(execution_state)
+                await env.invoke(test_suite.setup_fn_name)
 
             return execution_state
         except StarkException as ex:
@@ -153,6 +156,8 @@ class TestRunner:
                     exception=ex,
                 )
             )
+
+            return None
 
     async def _invoke_test_cases(
         self,
