@@ -1,21 +1,10 @@
 from logging import Logger
-from typing import List, Optional, Tuple
+from typing import List, Optional
 from pathlib import Path
-
-from starkware.cairo.lang.compiler.parser import parse_file
-from starkware.cairo.lang.compiler.parser_transformer import ParserError
-from starkware.cairo.lang.compiler.ast.formatting_utils import FormattingError
 
 from protostar.cli import Command
 from protostar.protostar_exception import ProtostarExceptionSilent
-from protostar.utils import log_color_provider
-
-from protostar.commands.format.formatting_summary import FormattingSummary
-from protostar.commands.format.formatting_result import (
-    BrokenFormattingResult,
-    CorrectFormattingResult,
-    IncorrectFormattingResult,
-)
+from protostar.formatter.formatter import Formatter
 
 
 class FormatCommand(Command):
@@ -42,7 +31,7 @@ class FormatCommand(Command):
             Command.Argument(
                 name="target",
                 description=("Target to format, can be a file or a directory."),
-                type="str",
+                type="path",
                 is_array=True,
                 is_positional=True,
                 default=["."],
@@ -59,8 +48,8 @@ class FormatCommand(Command):
                 short_name="c",
             ),
             Command.Argument(
-                name="log-formatted",
-                description=("Log information about already formatted files."),
+                name="verbose",
+                description=("Log information about already formatted files as well."),
                 type="bool",
                 is_required=False,
                 default=False,
@@ -76,13 +65,12 @@ class FormatCommand(Command):
 
     async def run(self, args):
         try:
-            summary, any_unformatted_or_broken = self.format(
-                args.target, args.check, args.log_formatted, args.ignore_broken
+            any_unformatted_or_broken = self.format(
+                args.target, args.check, args.verbose, args.ignore_broken
             )
         except BaseException as exc:
-            self._logger.fatal("Command failed.")
+            self._logger.error("Command failed.")
             raise exc
-        summary.log_summary(log_color_provider)
 
         # set exit code to 1
         if any_unformatted_or_broken:
@@ -90,58 +78,13 @@ class FormatCommand(Command):
                 "Some files were unformatted, impossible to format or broken."
             )
 
-    # pylint: disable=too-many-locals
     def format(
-        self, targets: List[str], check=False, log_formatted=False, ignore_broken=False
-    ) -> Tuple[FormattingSummary, int]:
-        summary = FormattingSummary(self._logger, check, log_formatted)
-        filepaths: List[Path] = []
+        self, targets: List[Path], check=False, verbose=False, ignore_broken=False
+    ) -> int:
 
-        for target in targets:
-            target_path = Path(target)
+        formatter = Formatter(self._logger, self._project_root_path)
+        any_unformatted_or_broken = formatter.format(
+            targets, check, verbose, ignore_broken
+        )
 
-            if target_path.is_file():
-                filepaths.append(target_path.resolve())
-            else:
-                filepaths.extend(
-                    [f for f in target_path.resolve().glob("**/*.cairo") if f.is_file()]
-                )
-
-        any_unformatted_or_broken = False
-
-        for filepath in filepaths:
-            relative_filepath = filepath.relative_to(self._project_root_path)
-
-            try:
-                with open(filepath, "r", encoding="utf-8") as file:
-                    content = file.read()
-                new_content = parse_file(content, str(filepath)).format()
-            except (ParserError, FormattingError) as ex:
-                if ignore_broken:
-                    continue
-
-                summary.extend_and_log(
-                    BrokenFormattingResult(relative_filepath, ex), log_color_provider
-                )
-                any_unformatted_or_broken = True
-
-                # Cairo formatter fixes some broken files
-                # We want to disable this behavior
-                continue
-
-            if content == new_content:
-                summary.extend_and_log(
-                    CorrectFormattingResult(relative_filepath), log_color_provider
-                )
-            else:
-                if check:
-                    any_unformatted_or_broken = True
-                else:
-                    with open(filepath, "w", encoding="utf-8") as file:
-                        file.write(new_content)
-
-                summary.extend_and_log(
-                    IncorrectFormattingResult(relative_filepath), log_color_provider
-                )
-
-        return summary, any_unformatted_or_broken
+        return any_unformatted_or_broken

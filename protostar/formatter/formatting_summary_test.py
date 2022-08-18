@@ -1,9 +1,6 @@
-from logging import Logger
 from pathlib import Path
 
-from protostar.utils.log_color_provider import LogColorProvider
-
-from .formatting_summary import FormattingSummary
+from .formatting_summary import FormattingSummary, format_summary
 from .formatting_result import (
     BrokenFormattingResult,
     CorrectFormattingResult,
@@ -11,14 +8,8 @@ from .formatting_result import (
 )
 
 
-def get_colorless_provider() -> LogColorProvider:
-    provider = LogColorProvider()
-    provider.is_ci_mode = True
-    return provider
-
-
-def get_filled_summary(check: bool) -> FormattingSummary:
-    summary = FormattingSummary(Logger(""), check)
+def get_filled_summary() -> FormattingSummary:
+    summary = FormattingSummary()
 
     for i in range(3):
         summary.extend(
@@ -34,7 +25,7 @@ def get_filled_summary(check: bool) -> FormattingSummary:
 
 
 def test_formatting_summary_extending():
-    summary = get_filled_summary(False)
+    summary = get_filled_summary()
     assert len(summary.broken) == 3
     assert len(summary.correct) == 2
     assert len(summary.incorrect) == 1
@@ -42,10 +33,8 @@ def test_formatting_summary_extending():
 
 
 def test_formatting_summary_summary_no_check():
-    log_color_provider = get_colorless_provider()
-
-    summary = get_filled_summary(False)
-    result = summary.format_summary(log_color_provider)
+    summary = get_filled_summary()
+    result = format_summary(summary, False)
 
     assert "3 broken" in result
     assert "1 reformatted" in result
@@ -54,10 +43,8 @@ def test_formatting_summary_summary_no_check():
 
 
 def test_formatting_summary_summary_check():
-    log_color_provider = get_colorless_provider()
-
-    summary = get_filled_summary(True)
-    result = summary.format_summary(log_color_provider)
+    summary = get_filled_summary()
+    result = format_summary(summary, True)
 
     assert "3 broken" in result
     assert "1 unformatted" in result

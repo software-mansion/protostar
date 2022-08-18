@@ -1,11 +1,11 @@
 import pytest
 import os
 
+from pathlib import Path
 
-def are_contents_equal(filepath1: str, filepath2: str):
-    with open(filepath1, "r", encoding="utf-8") as f1:
-        with open(filepath2, "r", encoding="utf-8") as f2:
-            return f1.read() == f2.read()
+
+def are_contents_equal(filepath1: str, filepath2: str) -> bool:
+    return Path(filepath1).read_text() == Path(filepath2).read_text()
 
 
 @pytest.mark.usefixtures("init")
