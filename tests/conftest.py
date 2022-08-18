@@ -1,6 +1,7 @@
 import subprocess
 import time
-from socket import socket as Socket
+from contextlib import closing
+import socket
 from typing import List
 
 import pytest
@@ -26,6 +27,7 @@ def run_devnet(devnet: List[str], port: int) -> subprocess.Popen:
 
 @pytest.fixture(name="devnet_port")
 def devnet_port_fixture() -> int:
-    with Socket() as socket:
-        socket.bind(("", 0))
-        return socket.getsockname()[1]
+    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+        sock.bind(("", 0))
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        return sock.getsockname()[1]
