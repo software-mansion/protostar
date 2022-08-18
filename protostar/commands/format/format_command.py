@@ -7,7 +7,7 @@ from starkware.cairo.lang.compiler.parser_transformer import ParserError
 from starkware.cairo.lang.compiler.ast.formatting_utils import FormattingError
 
 from protostar.cli import Command
-from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
+from protostar.protostar_exception import ProtostarExceptionSilent
 from protostar.utils import log_color_provider
 
 from protostar.commands.format.formatting_summary import FormatingSummary
@@ -72,8 +72,6 @@ class FormatCommand(Command):
             summary, any_unformatted_or_broken = self.format(
                 args.target, args.check, args.log_formatted
             )
-        except FormattingError as ex:
-            raise ProtostarException(str(ex))
         except BaseException as exc:
             self._logger.fatal("Command failed.")
             raise exc
@@ -82,7 +80,7 @@ class FormatCommand(Command):
         # set exit code to 1
         if any_unformatted_or_broken:
             raise ProtostarExceptionSilent(
-                "Some files were incorrectly formatted or broken."
+                "Some files were unformatted, impossible to format or broken."
             )
 
     def format(
@@ -110,7 +108,7 @@ class FormatCommand(Command):
                 with open(filepath, "r", encoding="utf-8") as file:
                     content = file.read()
                 new_content = parse_file(content, str(filepath)).format()
-            except ParserError as ex:
+            except (ParserError, FormattingError) as ex:
                 summary.extend_and_log(
                     BrokenFormattingResult(relative_filepath, ex), log_color_provider
                 )
