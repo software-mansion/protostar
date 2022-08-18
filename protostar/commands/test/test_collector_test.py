@@ -147,54 +147,6 @@ def test_finding_setup_function(
     assert suite.setup_fn_name == "__setup__"
 
 
-def test_logging_collected_one_test_suite_and_one_test_case(mocker: MockerFixture):
-    logger_mock = mocker.MagicMock()
-
-    TestCollector.Result(
-        test_suites=[
-            TestSuite(
-                test_case_names=["foo"],
-                test_path=Path(),
-            )
-        ],
-    ).log(logger_mock)
-
-    cast(MagicMock, logger_mock.info).call_args_list[0][0][0].startswith(
-        "Collected 1 suite, and 1 test case"
-    )
-
-
-def test_logging_many_test_suites_and_many_test_cases(mocker: MockerFixture):
-    logger_mock = mocker.MagicMock()
-
-    TestCollector.Result(
-        test_suites=[
-            TestSuite(
-                test_case_names=["foo"],
-                test_path=Path(),
-            ),
-            TestSuite(
-                test_case_names=["foo"],
-                test_path=Path(),
-            ),
-        ],
-    ).log(logger_mock)
-
-    cast(MagicMock, logger_mock.info).call_args_list[0][0][0].startswith(
-        "Collected 2 suites, and 2 test cases"
-    )
-
-
-def test_logging_no_cases_found(mocker: MockerFixture):
-    logger_mock = mocker.MagicMock()
-
-    TestCollector.Result(
-        test_suites=[],
-    ).log(logger_mock)
-
-    cast(MagicMock, logger_mock.warning).assert_called_once_with("No test cases found")
-
-
 def test_collecting_from_directory_globs(starknet_compiler, project_root):
     test_collector = TestCollector(starknet_compiler)
 

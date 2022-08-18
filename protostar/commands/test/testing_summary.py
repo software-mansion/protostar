@@ -3,11 +3,11 @@ from logging import Logger
 from pathlib import Path
 from typing import Dict, List, Union
 
-from protostar.commands.test.test_cases import (
-    BrokenTestSuite,
-    FailedTestCase,
-    PassedTestCase,
-    TestCaseResult,
+from protostar.commands.test.test_results import (
+    BrokenTestSuiteResult,
+    FailedTestCaseResult,
+    PassedTestCaseResult,
+    TestResult,
 )
 from protostar.commands.test.testing_seed import TestingSeed
 from protostar.protostar_exception import ProtostarExceptionSilent
@@ -16,26 +16,26 @@ from protostar.utils.log_color_provider import LogColorProvider, log_color_provi
 
 class TestingSummary:
     def __init__(
-        self, case_results: List[TestCaseResult], testing_seed: TestingSeed
+        self, case_results: List[TestResult], testing_seed: TestingSeed
     ) -> None:
         self.testing_seed = testing_seed
         self.case_results = []
-        self.test_suites_mapping: Dict[Path, List[TestCaseResult]] = defaultdict(list)
-        self.passed: List[PassedTestCase] = []
-        self.failed: List[FailedTestCase] = []
-        self.broken: List[BrokenTestSuite] = []
+        self.test_suites_mapping: Dict[Path, List[TestResult]] = defaultdict(list)
+        self.passed: List[PassedTestCaseResult] = []
+        self.failed: List[FailedTestCaseResult] = []
+        self.broken: List[BrokenTestSuiteResult] = []
         self.extend(case_results)
 
-    def extend(self, case_results: List[TestCaseResult]):
+    def extend(self, case_results: List[TestResult]):
         self.case_results += case_results
         for case_result in case_results:
             self.test_suites_mapping[case_result.file_path].append(case_result)
 
-            if isinstance(case_result, PassedTestCase):
+            if isinstance(case_result, PassedTestCaseResult):
                 self.passed.append(case_result)
-            if isinstance(case_result, FailedTestCase):
+            if isinstance(case_result, FailedTestCaseResult):
                 self.failed.append(case_result)
-            if isinstance(case_result, BrokenTestSuite):
+            if isinstance(case_result, BrokenTestSuiteResult):
                 self.broken.append(case_result)
 
     def log(
@@ -173,9 +173,9 @@ class TestingSummary:
 
     def _get_slowest_test_cases_list(
         self,
-        failed_and_passed_list: List[Union[PassedTestCase, FailedTestCase]],
+        failed_and_passed_list: List[Union[PassedTestCaseResult, FailedTestCaseResult]],
         count: int,
-    ) -> List[Union[PassedTestCase, FailedTestCase]]:
+    ) -> List[Union[PassedTestCaseResult, FailedTestCaseResult]]:
         lst = sorted(
             failed_and_passed_list, key=lambda x: x.execution_time, reverse=True
         )

@@ -4,10 +4,8 @@ from typing import TYPE_CHECKING, Any, cast
 
 from tqdm import tqdm as bar
 
-from protostar.commands.test.test_cases import (
-    BrokenTestSuite,
-    TestCaseResult,
-)
+from protostar.commands.test.test_result_formatter import format_test_result
+from protostar.commands.test.test_results import BrokenTestSuiteResult, TestResult
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.testing_summary import TestingSummary
 
@@ -59,11 +57,9 @@ class TestingLiveLogger:
                 progress_bar.update()
                 try:
                     while tests_left_n > 0:
-                        test_case_result: TestCaseResult = (
-                            shared_tests_state.get_result()
-                        )
+                        test_result: TestResult = shared_tests_state.get_result()
 
-                        self.testing_summary.extend([test_case_result])
+                        self.testing_summary.extend([test_result])
 
                         cast(Any, progress_bar).colour = (
                             "RED"
@@ -71,7 +67,8 @@ class TestingLiveLogger:
                             else "GREEN"
                         )
 
-                        progress_bar.write(test_case_result.format())
+                        formatted_test_result = format_test_result(test_result)
+                        progress_bar.write(formatted_test_result)
 
                         if (
                             self.exit_first
@@ -80,8 +77,8 @@ class TestingLiveLogger:
                             tests_left_n = 0
                             return
 
-                        if isinstance(test_case_result, BrokenTestSuite):
-                            tests_in_case_count = len(test_case_result.test_case_names)
+                        if isinstance(test_result, BrokenTestSuiteResult):
+                            tests_in_case_count = len(test_result.test_case_names)
                             progress_bar.update(tests_in_case_count)
                             tests_left_n -= tests_in_case_count
                         else:

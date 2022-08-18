@@ -144,7 +144,13 @@ def build_di_container(script_root: Path, start_time: float = 0):
             ),
             logger=logger,
         ),
-        TestCommand(project_root_path, protostar_directory, project_cairo_path_builder),
+        TestCommand(
+            project_root_path,
+            protostar_directory,
+            project_cairo_path_builder,
+            logger=logger,
+            log_color_provider=log_color_provider,
+        ),
         DeployCommand(gateway_facade_builder, logger),
         DeclareCommand(gateway_facade_builder, logger),
         MigrateCommand(
