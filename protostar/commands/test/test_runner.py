@@ -104,7 +104,7 @@ class TestRunner:
             self.shared_tests_state.put_result(
                 BrokenTestSuiteResult(
                     file_path=test_suite.test_path,
-                    test_case_names=test_suite.test_case_names,
+                    test_case_names=test_suite.get_test_case_names(),
                     exception=ex,
                 )
             )
@@ -113,7 +113,7 @@ class TestRunner:
             self.shared_tests_state.put_result(
                 BrokenTestSuiteResult(
                     file_path=test_suite.test_path,
-                    test_case_names=test_suite.test_case_names,
+                    test_case_names=test_suite.get_test_case_names(),
                     exception=ex,
                 )
             )
@@ -123,7 +123,7 @@ class TestRunner:
             self.shared_tests_state.put_result(
                 UnexpectedBrokenTestSuiteResult(
                     file_path=test_suite.test_path,
-                    test_case_names=test_suite.test_case_names,
+                    test_case_names=test_suite.get_test_case_names(),
                     exception=ex,
                     traceback=traceback.format_exc(),
                 )
@@ -149,8 +149,8 @@ class TestRunner:
             self.shared_tests_state.put_result(
                 BrokenTestSuiteResult(
                     file_path=test_suite.test_path,
+                    test_case_names=test_suite.get_test_case_names(),
                     exception=ex,
-                    test_case_names=test_suite.test_case_names,
                 )
             )
 
@@ -159,12 +159,12 @@ class TestRunner:
         test_suite: TestSuite,
         execution_state: TestExecutionState,
     ) -> None:
-        for test_case_name in test_suite.test_case_names:
+        for test_case in test_suite.test_cases:
             test_case_runner_factory = TestCaseRunnerFactory(
                 execution_state, test_suite
             )
             test_case_runner = test_case_runner_factory.make(
-                test_case_name, self._fuzz_config
+                test_case.test_fn_name, self._fuzz_config
             )
-            test_result = await test_case_runner.run(test_case_name)
+            test_result = await test_case_runner.run(test_case.test_fn_name)
             self.shared_tests_state.put_result(test_result)

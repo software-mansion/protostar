@@ -125,7 +125,7 @@ async def prepare_suite(
 
 
 def wait_for_completion(test_suite: TestSuite, tests_state: SharedTestsState):
-    tests_left = len(test_suite.test_case_names)
+    tests_left = len(test_suite.test_cases)
     while tests_left:
         tests_state.get_result()
         tests_left -= 1

@@ -114,10 +114,9 @@ class StarknetCompiler:
         preprocessed: Union[
             StarknetPreprocessedProgram, TestCollectorPreprocessedProgram
         ],
-        predicate: Callable[[str], bool],
     ) -> List[str]:
         return [
             el["name"]
             for el in preprocessed.abi
-            if el["type"] == "function" and predicate(el["name"])
+            if el["type"] == "function"
         ]
