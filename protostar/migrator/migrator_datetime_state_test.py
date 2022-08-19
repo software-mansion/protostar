@@ -16,3 +16,16 @@ def test_generating_stem(tmp_path: Path):
     result = state.get_output_stem()
 
     assert result == f"20220402213742_{migration_file_stem}"
+
+
+@freeze_time("2022-04-02 21:37:42")
+def test_generating_output_path(tmp_path: Path):
+    migration_file_stem = "migration_01_init"
+    state = MigratorDateTimeState(
+        migration_file_path=tmp_path / f"{migration_file_stem}.cairo"
+    )
+    state.update_to_now()
+
+    compilation_output_path = state.get_compilation_output_path()
+
+    assert compilation_output_path == tmp_path / f"20220402213742_{migration_file_stem}"
