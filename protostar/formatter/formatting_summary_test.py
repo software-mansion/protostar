@@ -39,7 +39,7 @@ def test_formatting_summary_summary_no_check():
     assert "3 broken" in result
     assert "1 reformatted" in result
     assert "6 total" in result
-    assert "unformatted" not in result
+    assert "[UNFORMATTED]" not in result
 
 
 def test_formatting_summary_summary_check():
@@ -49,4 +49,4 @@ def test_formatting_summary_summary_check():
     assert "3 broken" in result
     assert "1 unformatted" in result
     assert "6 total" in result
-    assert "reformatted" not in result
+    assert "[REFORMATTED]" not in result

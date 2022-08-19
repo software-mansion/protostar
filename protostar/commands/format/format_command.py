@@ -1,10 +1,15 @@
 from logging import Logger
-from typing import List, Optional
+from typing import Callable, List, Optional, Tuple
 from pathlib import Path
 
 from protostar.cli import Command
 from protostar.protostar_exception import ProtostarExceptionSilent
 from protostar.formatter.formatter import Formatter
+from protostar.formatter.formatting_summary import FormattingSummary, format_summary
+from protostar.formatter.formatting_result import (
+    FormattingResult,
+    format_formatting_result,
+)
 
 
 class FormatCommand(Command):
@@ -65,26 +70,42 @@ class FormatCommand(Command):
 
     async def run(self, args):
         try:
-            any_unformatted_or_broken = self.format(
-                args.target, args.check, args.verbose, args.ignore_broken
+            summary = self.format(
+                targets=args.target,
+                check=args.check,
+                verbose=args.verbose,
+                ignore_broken=args.ignore_broken,
             )
         except BaseException as exc:
             self._logger.error("Command failed.")
             raise exc
 
+        if summary.get_file_count() == 0:
+            self._logger.warn("No files found")
+        else:
+            self._logger.info(format_summary(summary, args.check))
+
         # set exit code to 1
-        if any_unformatted_or_broken:
+        if summary.any_unformatted_or_broken(args.check):
             raise ProtostarExceptionSilent(
                 "Some files were unformatted, impossible to format or broken."
             )
 
     def format(
         self, targets: List[Path], check=False, verbose=False, ignore_broken=False
-    ) -> int:
+    ) -> FormattingSummary:
 
-        formatter = Formatter(self._logger, self._project_root_path)
-        any_unformatted_or_broken = formatter.format(
-            targets, check, verbose, ignore_broken
+        callback: Callable[[FormattingResult], None] = lambda result: print(
+            format_formatting_result(result, check)
         )
 
-        return any_unformatted_or_broken
+        formatter = Formatter(self._project_root_path)
+        summary = formatter.format(
+            targets=targets,
+            check=check,
+            verbose=verbose,
+            ignore_broken=ignore_broken,
+            on_formatting_result_callback=callback,
+        )
+
+        return summary

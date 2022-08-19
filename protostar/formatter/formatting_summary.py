@@ -26,6 +26,9 @@ class FormattingSummary:
     def get_file_count(self):
         return len(self.broken) + len(self.correct) + len(self.incorrect)
 
+    def any_unformatted_or_broken(self, check: bool):
+        return bool(len(self.broken) + (len(self.incorrect) if check else 0))
+
 
 def format_summary(summary: FormattingSummary, check: bool) -> str:
     total = summary.get_file_count()
@@ -34,7 +37,7 @@ def format_summary(summary: FormattingSummary, check: bool) -> str:
 
     result: List[str] = [log_color_provider.bold("Summary: ")]
 
-    text = "unformatted" if check else "reformatted"
+    text = "[UNFORMATTED]" if check else "[REFORMATTED]"
     color = "YELLOW" if check else "GREEN"
 
     result.append(log_color_provider.colorize(color, f"{incorrect} {text}"))

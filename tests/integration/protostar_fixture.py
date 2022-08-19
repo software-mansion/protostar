@@ -3,15 +3,18 @@ import os
 from argparse import Namespace
 from logging import getLogger
 from pathlib import Path
-from typing import Dict, Optional, cast
+from typing import Dict, Optional, cast, List, Callable, Any, Tuple
 
 from pytest_mock import MockerFixture
 
-from protostar.commands import BuildCommand, InitCommand, MigrateCommand
+from protostar.commands import BuildCommand, InitCommand, MigrateCommand, FormatCommand
 from protostar.commands.init.project_creator.new_project_creator import (
     NewProjectCreator,
 )
 from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
+from protostar.formatter.formatter import Formatter
+from protostar.formatter.formatting_summary import FormattingSummary, format_summary
+from protostar.formatter.formatting_result import FormattingResult, format_formatting_result
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_toml import (
     ProtostarContractsSection,
@@ -31,11 +34,13 @@ class ProtostarFixture:
         init_command: InitCommand,
         build_command: BuildCommand,
         migrator_command: MigrateCommand,
+        format_command: FormatCommand,
     ) -> None:
         self._project_root_path = project_root_path
         self._init_command = init_command
         self._build_command = build_command
         self._migrator_command = migrator_command
+        self._format_command = format_command
 
     @property
     def project_root_path(self) -> Path:
@@ -75,6 +80,39 @@ class ProtostarFixture:
         assert migration_history is not None
         return migration_history
 
+    def format(
+        self,
+        targets: List[Path],
+        check=False,
+        verbose=False,
+        ignore_broken=False,
+    ) -> FormattingSummary:
+        # We can't use run because it can raise a silent exception thus not returning summary.
+        return self._format_command.format(targets, check, verbose, ignore_broken)
+
+    def format_with_output(
+        self,
+        targets: List[Path],
+        check=False,
+        verbose=False,
+        ignore_broken=False,
+    ) -> Tuple[FormattingSummary, List[str]]:
+
+        formatter = Formatter(self._project_root_path)
+
+        output: List[str] = []
+        callback = lambda result: output.append(format_formatting_result(result, check))
+
+        summary = formatter.format(
+            targets=targets,
+            check=check,
+            verbose=verbose,
+            ignore_broken=ignore_broken,
+            on_formatting_result_callback=callback,
+        )
+
+        return summary, output
+
     def create_files(self, relative_path_str_to_content: Dict[str, str]) -> None:
         for relative_path_str, content in relative_path_str_to_content.items():
             self._save_file(self._project_root_path / relative_path_str, content)
@@ -107,6 +145,9 @@ class ProtostarFixture:
             encoding="utf-8",
         ) as output_file:
             output_file.write(content)
+
+    def realtive_to_absolute_path(self, path_str: str):
+        return self._project_root_path / path_str
 
 
 # pylint: disable=too-many-locals
@@ -187,11 +228,17 @@ def build_protostar_fixture(mocker: MockerFixture, project_root_path: Path):
         requester=input_requester,
     )
 
+    format_command = FormatCommand(
+        project_root_path=project_root_path,
+        logger=logger,
+    )
+
     protostar_fixture = ProtostarFixture(
         project_root_path=project_root_path,
         init_command=init_command,
         build_command=build_command,
         migrator_command=migrate_command,
+        format_command=format_command,
     )
 
     return protostar_fixture
