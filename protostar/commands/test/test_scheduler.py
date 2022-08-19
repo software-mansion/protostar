@@ -29,6 +29,7 @@ class TestScheduler:
     def run(
         self,
         test_collector_result: "TestCollector.Result",
+        # TODO(mkaput): Remove this along with --fuzz-max-examples argument.
         fuzz_config: FuzzConfig,
         include_paths: List[str],
         disable_hint_validation: bool,
@@ -42,6 +43,7 @@ class TestScheduler:
                 TestRunner.WorkerArgs(
                     test_suite,
                     shared_tests_state=shared_tests_state,
+                    # TODO(mkaput): Remove this along with --fuzz-max-examples argument.
                     fuzz_config=fuzz_config,
                     include_paths=include_paths,
                     disable_hint_validation_in_user_contracts=disable_hint_validation,

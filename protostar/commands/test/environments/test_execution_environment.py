@@ -39,6 +39,7 @@ class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
         self._finish_hook = Hook()
 
     async def invoke(self, function_name: str) -> TestExecutionResult:
+        # TODO(mkaput): Raise broken test error if test has any arguments.
         assert not has_function_parameters(
             self.state.contract.abi, function_name
         ), f"{self.__class__.__name__} expects no function parameters."

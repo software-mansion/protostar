@@ -17,6 +17,7 @@ from protostar.commands.test.starkware.test_execution_state import TestExecution
 from protostar.commands.test.test_case_runners.test_case_runner_factory import (
     TestCaseRunnerFactory,
 )
+from protostar.commands.test.test_config import TestConfig
 from protostar.commands.test.test_environment_exceptions import ReportedException
 from protostar.commands.test.test_results import (
     BrokenTestSuiteResult,
@@ -38,12 +39,14 @@ class TestRunner:
     def __init__(
         self,
         shared_tests_state: SharedTestsState,
+        # TODO(mkaput): Remove this along with --fuzz-max-examples argument.
         fuzz_config: FuzzConfig,
         include_paths: Optional[List[str]] = None,
         disable_hint_validation_in_user_contracts=False,
     ):
         self.shared_tests_state = shared_tests_state
         include_paths = include_paths or []
+        # TODO(mkaput): Remove this along with --fuzz-max-examples argument.
         self._fuzz_config = fuzz_config
 
         self.tests_compiler = StarknetCompiler(
@@ -67,6 +70,7 @@ class TestRunner:
         shared_tests_state: SharedTestsState
         include_paths: List[str]
         disable_hint_validation_in_user_contracts: bool
+        # TODO(mkaput): Remove this along with --fuzz-max-examples argument.
         fuzz_config: FuzzConfig
 
     @classmethod
@@ -74,6 +78,7 @@ class TestRunner:
         asyncio.run(
             cls(
                 shared_tests_state=args.shared_tests_state,
+                # TODO(mkaput): Remove this along with --fuzz-max-examples argument.
                 fuzz_config=args.fuzz_config,
                 include_paths=args.include_paths,
                 disable_hint_validation_in_user_contracts=args.disable_hint_validation_in_user_contracts,
@@ -86,6 +91,11 @@ class TestRunner:
         self,
         test_suite: TestSuite,
     ):
+        test_config = TestConfig(
+            # TODO(mkaput): Remove this along with --fuzz-max-examples argument.
+            fuzz_max_examples=self._fuzz_config.max_examples
+        )
+
         try:
             compiled_test = self.tests_compiler.compile_contract(
                 test_suite.test_path,
@@ -95,6 +105,7 @@ class TestRunner:
             execution_state = await self._build_execution_state(
                 test_contract=compiled_test,
                 test_suite=test_suite,
+                test_config=test_config,
             )
             if not execution_state:
                 return
@@ -135,12 +146,15 @@ class TestRunner:
         self,
         test_contract: ContractClass,
         test_suite: TestSuite,
+        test_config: TestConfig,
     ) -> Optional[TestExecutionState]:
         assert self.shared_tests_state, "Uninitialized reporter!"
 
         try:
             execution_state = await TestExecutionState.from_test_suite_definition(
-                self.user_contracts_compiler, test_contract
+                starknet_compiler=self.user_contracts_compiler,
+                test_suite_definition=test_contract,
+                test_config=test_config,
             )
 
             if test_suite.setup_fn_name:
@@ -168,8 +182,6 @@ class TestRunner:
             test_case_runner_factory = TestCaseRunnerFactory(
                 execution_state, test_suite
             )
-            test_case_runner = test_case_runner_factory.make(
-                test_case.test_fn_name, self._fuzz_config
-            )
+            test_case_runner = test_case_runner_factory.make(test_case.test_fn_name)
             test_result = await test_case_runner.run(test_case.test_fn_name)
             self.shared_tests_state.put_result(test_result)

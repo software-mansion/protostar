@@ -15,6 +15,7 @@ from protostar.commands.test.environments.fuzz_test_execution_environment import
 )
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_collector import TestCollector
+from protostar.commands.test.test_config import TestConfig
 from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.test_suite import TestSuite, TestCase
@@ -113,6 +114,7 @@ async def prepare_suite(
     runner = TestRunner(
         shared_tests_state=tests_state,
         include_paths=[],
+        # TODO(mkaput): Remove this along with --fuzz-max-examples argument.
         fuzz_config=FuzzConfig(),
     )
 
@@ -120,6 +122,7 @@ async def prepare_suite(
     execution_state = await runner._build_execution_state(
         test_contract=contract,
         test_suite=test_suite,
+        test_config=TestConfig(),
     )
     return runner, tests_state, execution_state
 
