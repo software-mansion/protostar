@@ -48,7 +48,7 @@ It should be in the same hex-encoded format, like all the options above.
 
 ### 2. Using a custom signer class
 
-You can provide a custom signer class which conforms to [BaseSigner](https://starknetpy.readthedocs.io/en/latest/signer.html#starknet_py.net.signer.BaseSigner) Abstract Base Class specification. 
+You can provide a custom signer class which inherits from [BaseSigner](https://starknetpy.readthedocs.io/en/latest/signer.html#starknet_py.net.signer.BaseSigner) abstract class. 
 This way of signing requires you to write a class in python, which signs the transaction in a way that is suitable to you.
 After writing such class, simply use `signer_class` argument in the CLI for `declare` command to use that class instead of the default one.
 Usage of this way of signing is exclusive with the default signer strategy.
