@@ -19,7 +19,7 @@ def test_formatting_basic(protostar, copy_fixture):
     copy_fixture("unformatted.cairo", "./to_format")
     copy_fixture("test_broken.cairo", "./to_format")
 
-    result = protostar(["format", "format"], ignore_exit_code=True)
+    result = protostar(["format", "to_format"], ignore_exit_code=True)
 
     assert "1 reformatted" in result
     assert "1 broken" in result
@@ -36,7 +36,7 @@ def test_formatting_check(protostar, copy_fixture):
     copy_fixture("unformatted.cairo", "./to_format")
     copy_fixture("test_broken.cairo", "./to_format")
 
-    result = protostar(["format", "format", "--check"], ignore_exit_code=True)
+    result = protostar(["format", "to_format", "--check"], ignore_exit_code=True)
 
     assert "1 unformatted" in result
     assert "1 broken" in result

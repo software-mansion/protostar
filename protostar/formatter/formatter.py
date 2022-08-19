@@ -32,8 +32,6 @@ class Formatter:
         summary = FormattingSummary()
         filepaths = self._get_filepaths(targets)
 
-        print(targets, filepaths)
-
         for filepath in filepaths:
             relative_filepath = filepath.relative_to(self._project_root_path)
 
