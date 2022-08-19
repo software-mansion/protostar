@@ -35,19 +35,19 @@ class TestCaseRunner(Generic[TExecutionResult]):
         self._output_recorder = dependencies.output_recorder
 
     async def run(self, test_case_name: str) -> TestCaseResult:
-        start_time = time.perf_counter()
+        timer = Timer()
         try:
-            execution_result = await self._run_test_case(test_case_name)
-            execution_time = time.perf_counter() - start_time
+            with timer:
+                execution_result = await self._run_test_case(test_case_name)
+
             return self._map_execution_result_to_passed_test_result(
                 execution_result,
-                TestCaseRunner.ExecutionMetadata(test_case_name, execution_time),
+                TestCaseRunner.ExecutionMetadata(test_case_name, timer.elapsed),
             )
         except ReportedException as ex:
-            execution_time = time.perf_counter() - start_time
             return self._map_reported_exception_to_failed_test_result(
                 ex,
-                TestCaseRunner.ExecutionMetadata(test_case_name, execution_time),
+                TestCaseRunner.ExecutionMetadata(test_case_name, timer.elapsed),
             )
 
     @abstractmethod
@@ -77,3 +77,21 @@ class TestCaseRunner(Generic[TExecutionResult]):
             execution_time=execution_metadata.execution_time,
             captured_stdout=self._output_recorder.get_captures(),
         )
+
+
+class Timer:
+    def __init__(self):
+        self._start_time = None
+        self._end_time = None
+
+    def __enter__(self):
+        self._start_time = time.perf_counter()
+        self._end_time = None
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self._end_time = time.perf_counter()
+
+    @property
+    def elapsed(self) -> float:
+        assert self._start_time is not None and self._end_time is not None
+        return self._end_time - self._start_time
