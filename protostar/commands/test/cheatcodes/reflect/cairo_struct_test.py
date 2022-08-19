@@ -1,11 +1,11 @@
-# pylint: disable=invalid-name
-# pylint: disable=unused-variable
 import pytest
 
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 
 from protostar.commands.test.cheatcodes.reflect.cairo_struct import CairoStruct
 from protostar.commands.test.test_environment_exceptions import SimpleReportedException
+
+# pylint: disable=C0103,W0612
 
 
 def test_cairo_struct_equality():
@@ -53,7 +53,7 @@ def test_cairo_struct_immutability():
 
 def test_cairo_struct_type_safety():
     with pytest.raises(SimpleReportedException) as exc:
-        CairoStruct(
+        x = CairoStruct(
             a="""
             I love Cairo
             I love Cairo
@@ -73,7 +73,7 @@ def test_cairo_struct_no_member():
 
 def test_cairo_struct_non_keyword_args():
     with pytest.raises(SimpleReportedException) as exc:
-        CairoStruct(
+        x = CairoStruct(
             0xBAD_C0DE,
             a=14,
             b=16,

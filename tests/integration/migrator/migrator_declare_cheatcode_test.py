@@ -20,7 +20,6 @@ async def test_declare_contract(
     devnet_gateway_url: str,
     protostar_project_root_path: Path,
 ):
-
     migration_file_path = protostar.create_migration_file(
         'declare("./build/main.json")'
     )

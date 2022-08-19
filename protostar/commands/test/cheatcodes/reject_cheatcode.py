@@ -15,6 +15,7 @@ class RejectCheatcode(Cheatcode):
     def build(self) -> Callable[[], None]:
         return self.reject
 
+    # pylint: disable=no-self-use
     def reject(self) -> None:
         try:
             hypothesis.reject()

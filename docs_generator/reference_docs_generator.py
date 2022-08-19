@@ -34,6 +34,7 @@ class ReferenceDocsGenerator:
 
         return "\n".join(result)
 
+    # pylint: disable=no-self-use
     def _generate_args_markdown(self, arguments: List[Command.Argument]) -> List[str]:
         result: List[str] = []
 
