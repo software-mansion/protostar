@@ -114,9 +114,8 @@ class MigrateCommand(Command, NetworkCommandMixin, SignableCommandMixin):
         self._migrator_builder.set_migration_execution_environment_config(
             migrator_config
         )
-        migrator = await self._migrator_builder.build(
-            migration_file_path, gateway_facade
-        )
+        self._migrator_builder.set_gateway_facade(gateway_facade)
+        migrator = await self._migrator_builder.build(migration_file_path)
 
         try:
             migrator_history = await migrator.run(rollback)

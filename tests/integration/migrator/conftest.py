@@ -23,9 +23,10 @@ def project_root_path_fixture(shared_datadir: Path) -> Path:
 
 
 @pytest.fixture(name="migrator_builder")
-def migrator_builder_fixture():
+def migrator_builder_fixture(gateway_facade):
     exc_env_builder = MigratorExecutionEnvironment.Builder()
     builder = Migrator.Builder(migrator_execution_environment_builder=exc_env_builder)
+    builder.set_gateway_facade(gateway_facade)
     builder.set_migration_execution_environment_config(
         MigratorExecutionEnvironment.Config(
             signer=PatchedStarkCurveSigner(1, KeyPair(1, 2), 2), token=None

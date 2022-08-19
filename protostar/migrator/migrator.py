@@ -35,6 +35,7 @@ class Migrator:
             self._logger: Optional[Logger] = None
             self._log_color_provider: Optional[LogColorProvider] = None
             self._migrator_execution_environment_config = None
+            self._gateway_facade = None
             self._project_root_path = project_root_path
 
         def set_logger(
@@ -48,11 +49,14 @@ class Migrator:
         ):
             self._migrator_execution_environment_config = config
 
-        async def build(self, migration_file_path: Path, gateway_facade: GatewayFacade):
-            assert self._migrator_execution_environment_config is not None
+        def set_gateway_facade(self, gateway_facade: GatewayFacade):
+            self._gateway_facade = gateway_facade
 
+        async def build(self, migration_file_path: Path):
+            assert self._migrator_execution_environment_config is not None
+            assert self._gateway_facade is not None
             self._migrator_execution_environment_builder.set_gateway_facade(
-                gateway_facade
+                self._gateway_facade
             )
 
             migrator_execution_env = (
