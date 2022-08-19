@@ -87,7 +87,7 @@ class GatewayFacade:
             action="DEPLOY",
             payload={
                 "contract": str(self._project_root_path / compiled_contract_path),
-                "network": self._gateway_client.net,
+                "network": str(self._gateway_client.net),
                 "constructor_args": inputs,
                 "salt": salt,
                 "token": token,
