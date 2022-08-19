@@ -62,7 +62,6 @@ def test_default_signer_class(pkey_file_factory, mocker):
 
     signer = SignableCommandMixin.get_signer(args, network_config, logger)
     assert isinstance(signer, PatchedStarkCurveSigner)
-    # TODO: Test signing
 
 
 def test_wrong_format_of_private_key_env(monkeypatch, mocker):
