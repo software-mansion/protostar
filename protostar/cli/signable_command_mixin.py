@@ -21,7 +21,7 @@ from protostar.cli import Command
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import NetworkConfig
 
-PRIVATE_KEY_ENV_VAR_NAME = "ACCOUNT_PRIVATE_KEY"
+PRIVATE_KEY_ENV_VAR_NAME = "PROTOSTAR_ACCOUNT_PRIVATE_KEY"
 
 
 class PatchedStarkCurveSigner(BaseSigner):
