@@ -57,12 +57,12 @@ class TestSuiteInfo:
     test_case_globs: Set[TestCaseGlob]
     ignored_test_case_globs: Set[TestCaseGlob]
 
-    def match_test_cases(self, test_cases: Iterable[TestCase]) -> Iterable[TestCase]:
+    def filter_test_cases(self, test_cases: Iterable[TestCase]) -> Iterable[TestCase]:
         for test_case in test_cases:
-            if self.match_test_case(test_case):
+            if self.is_test_case_included(test_case):
                 yield test_case
 
-    def match_test_case(self, test_case: TestCase) -> bool:
+    def is_test_case_included(self, test_case: TestCase) -> bool:
         name = test_case.test_fn_name
         return fnmatch_any(name, self.test_case_globs) and (
             not fnmatch_any(name, self.ignored_test_case_globs)
@@ -278,7 +278,7 @@ class TestCollector:
         setup_fn_name = self._collect_setup_hook_name(preprocessed)
 
         test_cases = list(
-            test_suite_info.match_test_cases(self._collect_test_cases(preprocessed))
+            test_suite_info.filter_test_cases(self._collect_test_cases(preprocessed))
         )
 
         return TestSuite(

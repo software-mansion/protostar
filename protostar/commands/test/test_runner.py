@@ -104,7 +104,7 @@ class TestRunner:
             self.shared_tests_state.put_result(
                 BrokenTestSuiteResult(
                     file_path=test_suite.test_path,
-                    test_case_names=test_suite.get_test_case_names(),
+                    test_case_names=test_suite.collect_test_case_names(),
                     exception=ex,
                 )
             )
@@ -113,7 +113,7 @@ class TestRunner:
             self.shared_tests_state.put_result(
                 BrokenTestSuiteResult(
                     file_path=test_suite.test_path,
-                    test_case_names=test_suite.get_test_case_names(),
+                    test_case_names=test_suite.collect_test_case_names(),
                     exception=ex,
                 )
             )
@@ -123,7 +123,7 @@ class TestRunner:
             self.shared_tests_state.put_result(
                 UnexpectedBrokenTestSuiteResult(
                     file_path=test_suite.test_path,
-                    test_case_names=test_suite.get_test_case_names(),
+                    test_case_names=test_suite.collect_test_case_names(),
                     exception=ex,
                     traceback=traceback.format_exc(),
                 )
@@ -149,7 +149,7 @@ class TestRunner:
             self.shared_tests_state.put_result(
                 BrokenTestSuiteResult(
                     file_path=test_suite.test_path,
-                    test_case_names=test_suite.get_test_case_names(),
+                    test_case_names=test_suite.collect_test_case_names(),
                     exception=ex,
                 )
             )
