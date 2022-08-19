@@ -5,7 +5,7 @@ from fnmatch import fnmatch
 from glob import glob
 from pathlib import Path
 from time import time
-from typing import Dict, List, Optional, Set, Tuple, Union
+from typing import Dict, List, Optional, Set, Tuple, Union, Iterable
 
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     LocationError,
@@ -16,7 +16,7 @@ from starkware.starknet.compiler.starknet_preprocessor import (
 )
 
 from protostar.commands.test.test_results import BrokenTestSuiteResult
-from protostar.commands.test.test_suite import TestSuite
+from protostar.commands.test.test_suite import TestSuite, TestCase
 from protostar.utils.compiler.pass_managers import TestCollectorPreprocessedProgram
 from protostar.utils.starknet_compilation import StarknetCompiler
 
@@ -55,31 +55,24 @@ class TestSuiteInfo:
     test_case_globs: Set[TestCaseGlob]
     ignored_test_case_globs: Set[TestCaseGlob]
 
-    def match_test_case_names(self, test_case_names: List[str]) -> List[str]:
-        matches = self._find_matching_any_test_case_glob(test_case_names)
-        result = self._filter_out_matching_any_ignored_test_case_glob(matches)
-        return list(result)
+    def filter_test_cases(self, test_cases: Iterable[TestCase]) -> Iterable[TestCase]:
+        for test_case in test_cases:
+            if self.is_test_case_included(test_case):
+                yield test_case
 
-    def _find_matching_any_test_case_glob(self, test_case_names: List[str]) -> Set[str]:
-        result: Set[str] = set()
-        for test_case_name in test_case_names:
-            for test_case_glob in self.test_case_globs:
-                if fnmatch(test_case_name, test_case_glob):
-                    result.add(test_case_name)
-        return result
+    def is_test_case_included(self, test_case: TestCase) -> bool:
+        name = test_case.test_fn_name
+        return fnmatch_any(name, self.test_case_globs) and (
+            not fnmatch_any(name, self.ignored_test_case_globs)
+        )
 
-    def _filter_out_matching_any_ignored_test_case_glob(
-        self, test_case_names: Set[str]
-    ) -> Set[str]:
-        result = (
-            test_case_names.copy()
-        )  # copy prevents changing lengths of this collection during loop execution
-        for test_case_name in test_case_names:
-            for ignored_test_case_glob in self.ignored_test_case_globs:
-                if fnmatch(test_case_name, ignored_test_case_glob):
-                    result.remove(test_case_name)
-                    break
-        return result
+
+def fnmatch_any(name: str, pats: Iterable[str]) -> bool:
+    for pat in pats:
+        if fnmatch(name, pat):
+            return True
+
+    return False
 
 
 TestSuiteInfoDict = Dict[TestSuitePath, TestSuiteInfo]
@@ -102,7 +95,7 @@ class TestCollector:
                 broken_test_suites or []
             )
             self.test_cases_count = sum(
-                len(test_suite.test_case_names) for test_suite in test_suites
+                len(test_suite.test_cases) for test_suite in test_suites
             )
             self.duration = duration
 
@@ -157,9 +150,9 @@ class TestCollector:
             broken_test_suites,
         ) = self._build_test_suites_from_test_suite_info_dict(test_suite_info_dict)
 
-        non_empty_test_suites = list(
-            filter(lambda test_file: (test_file.test_case_names) != [], test_suites)
-        )
+        non_empty_test_suites = [
+            test_suite for test_suite in test_suites if test_suite.test_cases
+        ]
 
         end_time = time()
 
@@ -273,37 +266,47 @@ class TestCollector:
                     )
                 )
 
-        return (test_suites, broken_test_suites)
+        return test_suites, broken_test_suites
 
     def _build_test_suite_from_test_suite_info(
         self,
         test_suite_info: TestSuiteInfo,
     ) -> TestSuite:
-        test_case_names: List[str] = []
-        setup_fn_name: Optional[str] = None
         preprocessed = self._starknet_compiler.preprocess_contract(test_suite_info.path)
-        test_case_names = self._collect_test_case_names(preprocessed)
         setup_fn_name = self._collect_setup_hook_name(preprocessed)
 
-        matching_test_case_names = test_suite_info.match_test_case_names(
-            test_case_names
+        test_cases = list(
+            test_suite_info.filter_test_cases(self._collect_test_cases(preprocessed))
         )
 
         return TestSuite(
             test_path=test_suite_info.path,
-            test_case_names=matching_test_case_names,
+            test_cases=test_cases,
             setup_fn_name=setup_fn_name,
         )
 
-    def _collect_test_case_names(
+    def _collect_test_cases(
         self,
         preprocessed: Union[
             StarknetPreprocessedProgram, TestCollectorPreprocessedProgram
         ],
-    ) -> List[str]:
-        return self._starknet_compiler.get_function_names(
-            preprocessed, predicate=lambda fn_name: fn_name.startswith("test_")
-        )
+    ) -> Iterable[TestCase]:
+        test_prefix = "test_"
+        setup_prefix = "setup_"
+
+        fn_names = set(self._starknet_compiler.get_function_names(preprocessed))
+        for test_fn_name in fn_names:
+            if test_fn_name.startswith(test_prefix):
+                base_name = test_fn_name[len(test_prefix) :]
+
+                setup_fn_name = setup_prefix + base_name
+                if setup_fn_name not in fn_names:
+                    setup_fn_name = None
+
+                yield TestCase(
+                    test_fn_name=test_fn_name,
+                    setup_fn_name=setup_fn_name,
+                )
 
     def _collect_setup_hook_name(
         self,
@@ -311,7 +314,9 @@ class TestCollector:
             StarknetPreprocessedProgram, TestCollectorPreprocessedProgram
         ],
     ) -> Optional[str]:
-        function_names = self._starknet_compiler.get_function_names(
-            preprocessed, predicate=lambda fn_name: fn_name == "__setup__"
-        )
-        return function_names[0] if len(function_names) > 0 else None
+        hook_name = "__setup__"
+        function_names = self._starknet_compiler.get_function_names(preprocessed)
+
+        if function_names.count(hook_name) == 1:
+            return hook_name
+        return None

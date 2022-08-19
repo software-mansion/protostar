@@ -7,9 +7,11 @@ from typing import List, Optional
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 
-from protostar.commands.test.environments.factory import invoke_setup
 from protostar.commands.test.environments.fuzz_test_execution_environment import (
     FuzzConfig,
+)
+from protostar.commands.test.environments.setup_execution_environment import (
+    SetupExecutionEnvironment,
 )
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_case_runners.test_case_runner_factory import (
@@ -104,7 +106,7 @@ class TestRunner:
             self.shared_tests_state.put_result(
                 BrokenTestSuiteResult(
                     file_path=test_suite.test_path,
-                    test_case_names=test_suite.test_case_names,
+                    test_case_names=test_suite.collect_test_case_names(),
                     exception=ex,
                 )
             )
@@ -113,7 +115,7 @@ class TestRunner:
             self.shared_tests_state.put_result(
                 BrokenTestSuiteResult(
                     file_path=test_suite.test_path,
-                    test_case_names=test_suite.test_case_names,
+                    test_case_names=test_suite.collect_test_case_names(),
                     exception=ex,
                 )
             )
@@ -123,7 +125,7 @@ class TestRunner:
             self.shared_tests_state.put_result(
                 UnexpectedBrokenTestSuiteResult(
                     file_path=test_suite.test_path,
-                    test_case_names=test_suite.test_case_names,
+                    test_case_names=test_suite.collect_test_case_names(),
                     exception=ex,
                     traceback=traceback.format_exc(),
                 )
@@ -142,29 +144,32 @@ class TestRunner:
             )
 
             if test_suite.setup_fn_name:
-                await invoke_setup(test_suite.setup_fn_name, execution_state)
+                env = SetupExecutionEnvironment(execution_state)
+                await env.invoke(test_suite.setup_fn_name)
 
             return execution_state
         except StarkException as ex:
             self.shared_tests_state.put_result(
                 BrokenTestSuiteResult(
                     file_path=test_suite.test_path,
+                    test_case_names=test_suite.collect_test_case_names(),
                     exception=ex,
-                    test_case_names=test_suite.test_case_names,
                 )
             )
+
+            return None
 
     async def _invoke_test_cases(
         self,
         test_suite: TestSuite,
         execution_state: TestExecutionState,
     ) -> None:
-        for test_case_name in test_suite.test_case_names:
+        for test_case in test_suite.test_cases:
             test_case_runner_factory = TestCaseRunnerFactory(
                 execution_state, test_suite
             )
             test_case_runner = test_case_runner_factory.make(
-                test_case_name, self._fuzz_config
+                test_case.test_fn_name, self._fuzz_config
             )
-            test_result = await test_case_runner.run(test_case_name)
+            test_result = await test_case_runner.run(test_case.test_fn_name)
             self.shared_tests_state.put_result(test_result)
