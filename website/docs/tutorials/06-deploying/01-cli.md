@@ -58,7 +58,7 @@ The custom signer class must not take any arguments in the constructor, since we
 :::
 
 You might wonder where you should put this class - we synchronize `PYTHONPATH` with project's `cairo_path`s, so you can put this near to your cairo contracts source code.
-Modules that are dependencies of protostar (like starknet.py or cairo-lang) should be available for importing by default.
+Modules that are dependencies of Protostar (like `starknet_py` or `cairo-lang`) should be available for importing by default.
 If you want to import other custom modules, you should extend `PYTHONPATH` yourself (https://docs.python.org/3/using/cmdline.html#envvar-PYTHONPATH), when running this command.
 
 ## Deploying
