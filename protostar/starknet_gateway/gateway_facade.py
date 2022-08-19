@@ -1,7 +1,7 @@
 from logging import Logger
 from pathlib import Path
 import dataclasses
-from typing import Any, Callable, Dict, List, NamedTuple, Optional, Union, cast
+from typing import Any, Callable, Dict, List, NamedTuple, Optional, Union
 
 from starknet_py.contract import Contract, ContractFunction
 from starknet_py.net.client_errors import ContractNotFoundError
@@ -87,8 +87,7 @@ class GatewayFacade:
             action="DEPLOY",
             payload={
                 "contract": str(self._project_root_path / compiled_contract_path),
-                # FIXME(arcticae): Remove cast when starknet.py removes typings
-                "network": cast(int, self._gateway_client.net),
+                "network": self._gateway_client.net,
                 "constructor_args": inputs,
                 "salt": salt,
                 "token": token,

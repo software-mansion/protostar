@@ -36,7 +36,6 @@ class Migrator:
             self._log_color_provider: Optional[LogColorProvider] = None
             self._migrator_execution_environment_config = None
             self._project_root_path = project_root_path
-            self._migrator_execution_environment_config = None
 
         def set_logger(
             self, logger: Logger, log_color_provider: LogColorProvider

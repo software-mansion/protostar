@@ -77,9 +77,7 @@ class SignableCommandMixin:
         args: Any,
         network_config: NetworkConfig,
         logger: Logger,
-    ) -> Optional[
-        BaseSigner
-    ]:  # TODO(arcticae): Make it non-optional in some time in the future
+    ) -> Optional[BaseSigner]:
         if args.signer_class:
             *module_names, class_name = args.signer_class.split(".")
             module = ".".join(module_names)
@@ -93,26 +91,15 @@ class SignableCommandMixin:
             with open(args.private_key_path, encoding="utf-8") as file:
                 private_key_str = file.read()
 
-        if args.private_key_path and not args.account_address:
-            raise ProtostarException(
-                "account-address option has to be specified when using private key for signing"
-            )
-
         if not private_key_str:
             private_key_str = os.environ.get(PRIVATE_KEY_ENV_VAR_NAME)
-
-        if args.account_address and not private_key_str:
-            raise ProtostarException(
-                f"Private key has to be specified either with private-key-path option or {PRIVATE_KEY_ENV_VAR_NAME} "
-                "environment variable"
-            )
 
         if (
             not private_key_str or not args.account_address
         ):  # FIXME(arcticae): This is temporary, when the signing is mandatory this should be removed
             logger.warning(
-                "Signing declare transactions will be mandatory in future versions, please refer to the docs for "
-                "more details "
+                "Signing credentials not found. "
+                "Signing transactions will be mandatory in future versions, please refer to the docs for more details"
             )
             return None
 
@@ -130,7 +117,7 @@ class SignableCommandMixin:
                 account_address=args.account_address,
                 key_pair=key_pair,
                 chain_id=network_config.chain_id,
-            )  # FIXME(arcticae): Change the default signer to starknet.py one, on 0.10 support
+            )  # FIXME(arcticae): Change the default signer to starknet.py one, when it supports signing declare txs
         except ValueError as v_err:
             raise ProtostarException(
                 f"Invalid account address format ({args.account_address}). Please provide hex-encoded number."

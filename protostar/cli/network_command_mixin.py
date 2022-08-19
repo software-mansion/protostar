@@ -73,6 +73,7 @@ class NetworkCommandMixin:
     @staticmethod
     def get_gateway_client(args: Any, logger: Logger) -> GatewayClient:
         network_config = NetworkCommandMixin.get_network_config(args, logger)
+        # FIXME(arcticae): Remove ignore of this type when starknet.py implements ChainId as Union[StarknetChainId, int]
         return GatewayClient(
             net=network_config.gateway_url,
             chain=network_config.chain_id,  # type: ignore
