@@ -37,7 +37,7 @@ def format_summary(summary: FormattingSummary, check: bool) -> str:
 
     result: List[str] = [log_color_provider.bold("Summary: ")]
 
-    text = "[UNFORMATTED]" if check else "[REFORMATTED]"
+    text = "unformatted" if check else "reformatted"
     color = "YELLOW" if check else "GREEN"
 
     result.append(log_color_provider.colorize(color, f"{incorrect} {text}"))
