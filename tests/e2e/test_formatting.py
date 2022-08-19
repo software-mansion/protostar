@@ -24,7 +24,9 @@ def test_formatting_basic(protostar, copy_fixture):
     assert "1 reformatted" in result
     assert "1 broken" in result
     assert "3 total" in result
-    assert_contents_equal("./to_format/formatted.cairo", "./to_format/unformatted.cairo")
+    assert_contents_equal(
+        "./to_format/formatted.cairo", "./to_format/unformatted.cairo"
+    )
 
 
 @pytest.mark.usefixtures("init")
@@ -39,4 +41,6 @@ def test_formatting_check(protostar, copy_fixture):
     assert "1 unformatted" in result
     assert "1 broken" in result
     assert "3 total" in result
-    assert_contents_not_equal("./to_format/formatted.cairo", "./to_format/unformatted.cairo")
+    assert_contents_not_equal(
+        "./to_format/formatted.cairo", "./to_format/unformatted.cairo"
+    )

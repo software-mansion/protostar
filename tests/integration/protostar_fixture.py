@@ -14,7 +14,10 @@ from protostar.commands.init.project_creator.new_project_creator import (
 from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
 from protostar.formatter.formatter import Formatter
 from protostar.formatter.formatting_summary import FormattingSummary, format_summary
-from protostar.formatter.formatting_result import FormattingResult, format_formatting_result
+from protostar.formatter.formatting_result import (
+    FormattingResult,
+    format_formatting_result,
+)
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_toml import (
     ProtostarContractsSection,

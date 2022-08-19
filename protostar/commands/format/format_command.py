@@ -1,5 +1,5 @@
 from logging import Logger
-from typing import Callable, List, Optional, Tuple
+from typing import Callable, List, Optional
 from pathlib import Path
 
 from protostar.cli import Command
