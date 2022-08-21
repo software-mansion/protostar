@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from pathlib import Path
 from typing import List, Optional
 
 from starkware.starknet.business_logic.execution.objects import CallInfo
@@ -17,6 +16,8 @@ from protostar.starknet.cheatcode_factory import CheatcodeFactory
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.utils.starknet_compilation import StarknetCompiler
 
+from .migrator_datetime_state import MigratorDateTimeState
+
 
 class MigratorCheatcodeFactory(CheatcodeFactory):
     @dataclass
@@ -29,14 +30,14 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
         starknet_compiler: StarknetCompiler,
         gateway_facade: GatewayFacade,
         project_compiler: ProjectCompiler,
-        compilation_output_path: Path,
+        migrator_datetime_state: MigratorDateTimeState,
         config: "MigratorCheatcodeFactory.Config",
     ) -> None:
         super().__init__()
         self.gateway_facade = gateway_facade
         self._starknet_compiler = starknet_compiler
         self._project_compiler = project_compiler
-        self._compilation_output_path = compilation_output_path
+        self._migrator_datetime_state = migrator_datetime_state
         self._config = config
 
     def build(
@@ -58,7 +59,7 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
                 syscall_dependencies,
                 self.gateway_facade,
                 project_compiler=self._project_compiler,
-                tmp_compilation_output_path=self._compilation_output_path,
+                migrator_datetime_state=self._migrator_datetime_state,
                 config=MigratorDeployContractCheatcode.Config(token=self._config.token),
             ),
             MigratorCallCheatcode(syscall_dependencies, self.gateway_facade),

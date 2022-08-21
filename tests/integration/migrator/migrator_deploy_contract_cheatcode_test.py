@@ -1,9 +1,12 @@
+from datetime import datetime
 from os import listdir
 from pathlib import Path
 from typing import cast
 
 import pytest
+from freezegun import freeze_time
 
+from protostar.migrator.migrator_datetime_state import MigratorDateTimeState
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway.starknet_request import StarknetRequest
 from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR
@@ -21,6 +24,7 @@ def setup(protostar: ProtostarFixture):
     protostar.build_sync()
 
 
+@freeze_time("2022-04-02 21:37:42")
 async def test_deploy_contract(
     protostar: ProtostarFixture, migrate: MigrateFixture, devnet_gateway_url: str
 ):
@@ -38,6 +42,7 @@ async def test_deploy_contract(
     await assert_transaction_accepted(devnet_gateway_url, transaction_hash)
 
 
+@freeze_time("2022-04-02 21:37:42")
 async def test_deploying_by_contract_name(
     protostar: ProtostarFixture, devnet_gateway_url: str
 ):
@@ -49,6 +54,7 @@ async def test_deploying_by_contract_name(
     await assert_transaction_accepted(devnet_gateway_url, transaction_hash)
 
 
+@freeze_time("2022-04-02 21:37:43")
 async def test_compilation_output_when_deployed_by_name(
     protostar: ProtostarFixture, devnet_gateway_url: str
 ):
@@ -60,17 +66,21 @@ async def test_compilation_output_when_deployed_by_name(
     assert not is_directory_empty(compilation_output)
 
 
-async def test_compilation_output_not_created_when_path_provided(
+@freeze_time("2022-04-02 21:37:44")
+async def test_compilation_output_not_created_when_deploying_by_path(
     protostar: ProtostarFixture, devnet_gateway_url: str
 ):
-    file_path = protostar.create_migration_file('deploy_contract("main", [42])')
+    file_path = protostar.create_migration_file(
+        'deploy_contract("./build/main.json", [42])'
+    )
 
     await protostar.migrate(file_path, devnet_gateway_url)
 
     compilation_output = create_migration_compilation_output_path(file_path)
-    assert is_directory_empty(compilation_output)
+    assert not compilation_output.exists()
 
 
+@freeze_time("2022-04-02 21:37:45")
 async def test_compilation_output_dir_overwrite_protection(
     protostar: ProtostarFixture, devnet_gateway_url: str
 ):
@@ -87,8 +97,10 @@ def extract_transaction_hash(starknet_request: StarknetRequest):
 
 
 def create_migration_compilation_output_path(migration_file: Path) -> Path:
-    return migration_file.parent / migration_file.stem
+    datetime_prefix = MigratorDateTimeState.get_datetime_prefix(datetime.now())
+    return migration_file.parent / f"{datetime_prefix}_{migration_file.stem}"
 
 
 def is_directory_empty(directory: Path) -> bool:
-    return len(listdir(directory)) > 0
+    dir_content = listdir(directory)
+    return len(dir_content) == 0

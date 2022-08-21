@@ -11,6 +11,7 @@ from protostar.commands.test.test_environment_exceptions import (
 )
 from protostar.compiler import ProjectCompiler
 from protostar.compiler.compiled_contract_writer import CompiledContractWriter
+from protostar.migrator.migrator_datetime_state import MigratorDateTimeState
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.utils.data_transformer import CairoOrPythonData
@@ -47,14 +48,14 @@ class MigratorDeployContractCheatcode(Cheatcode):
         syscall_dependencies: Cheatcode.SyscallDependencies,
         gateway_facade: GatewayFacade,
         project_compiler: ProjectCompiler,
-        tmp_compilation_output_path: Path,
+        migrator_datetime_state: MigratorDateTimeState,
         config: Config,
     ):
         super().__init__(syscall_dependencies)
         self._gateway_facade = gateway_facade
         self._config = config
         self._project_compiler = project_compiler
-        self._tmp_compilation_output_path = tmp_compilation_output_path
+        self._migrator_datetime_state = migrator_datetime_state
 
     @property
     def name(self) -> str:
@@ -103,5 +104,7 @@ class MigratorDeployContractCheatcode(Cheatcode):
         )
         output_file_path = CompiledContractWriter(
             contract=contract_class, contract_name=contract_name
-        ).save_compiled_contract(output_dir=self._tmp_compilation_output_path)
+        ).save_compiled_contract(
+            output_dir=self._migrator_datetime_state.get_compilation_output_path()
+        )
         return output_file_path

@@ -113,7 +113,6 @@ class MigrateCommand(Command):
             if output_dir_path:
                 migrator.save_history(
                     migrator_history,
-                    migration_file_basename=Path(migration_file_path).stem,
                     output_dir_relative_path=output_dir_path,
                 )
             self._logger.info("Migration completed")

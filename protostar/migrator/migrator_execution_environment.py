@@ -2,13 +2,15 @@ from pathlib import Path
 from typing import Optional
 
 from protostar.compiler.project_compiler import ProjectCompiler
-from protostar.migrator.migrator_cheatcodes_factory import MigratorCheatcodeFactory
 from protostar.starknet.execution_environment import ExecutionEnvironment
 from protostar.starknet.execution_state import ExecutionState
 from protostar.starknet.forkable_starknet import ForkableStarknet
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.utils.compiler.pass_managers import StarknetPassManagerFactory
 from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
+
+from .migrator_cheatcodes_factory import MigratorCheatcodeFactory
+from .migrator_datetime_state import MigratorDateTimeState
 
 
 class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
@@ -18,13 +20,15 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
         def __init__(self, project_compiler: ProjectCompiler):
             self._project_compiler = project_compiler
             self._gateway_facade: Optional[GatewayFacade] = None
-            self._compilation_output_path: Optional[Path] = None
+            self._migrator_datetime_state: Optional[MigratorDateTimeState] = None
 
         def set_gateway_facade(self, gateway_facade: GatewayFacade):
             self._gateway_facade = gateway_facade
 
-        def set_compilation_output_path(self, compilation_output_path: Path):
-            self._compilation_output_path = compilation_output_path
+        def set_migration_datetime_state(
+            self, migrator_datetime_state: MigratorDateTimeState
+        ):
+            self._migrator_datetime_state = migrator_datetime_state
 
         async def build(
             self,
@@ -32,7 +36,7 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
             config: "MigratorExecutionEnvironment.Config",
         ) -> "MigratorExecutionEnvironment":
             assert self._gateway_facade is not None
-            assert self._compilation_output_path is not None
+            assert self._migrator_datetime_state is not None
 
             compiler_config = CompilerConfig(
                 disable_hint_validation=True, include_paths=[]
@@ -56,7 +60,7 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
                 starknet_compiler=starknet_compiler,
                 gateway_facade=self._gateway_facade,
                 project_compiler=self._project_compiler,
-                compilation_output_path=self._compilation_output_path,
+                migrator_datetime_state=self._migrator_datetime_state,
                 config=config,
             )
 

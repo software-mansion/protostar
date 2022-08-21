@@ -1,7 +1,6 @@
 import dataclasses
 import json
 from dataclasses import dataclass
-from datetime import datetime
 from logging import Logger
 from pathlib import Path
 from typing import List, Optional
@@ -69,14 +68,10 @@ class Migrator:
                 gateway_facade
             )
 
-            compilation_output_path = (
-                migration_file_path.parent / migration_file_path.stem
-            )
-            self._migrator_execution_environment_builder.set_compilation_output_path(
-                compilation_output_path
-            )
-
             migrator_datetime_state = MigratorDateTimeState(migration_file_path)
+            self._migrator_execution_environment_builder.set_migration_datetime_state(
+                migrator_datetime_state
+            )
 
             migrator_execution_env = (
                 await self._migrator_execution_environment_builder.build(
