@@ -24,6 +24,7 @@ from protostar.starknet_gateway import NetworkConfig
 PRIVATE_KEY_ENV_VAR_NAME = "PROTOSTAR_ACCOUNT_PRIVATE_KEY"
 
 
+# Adapted from starknet_py.net.signer.stark_curve_signer.StarkCurveSigner
 class PatchedStarkCurveSigner(BaseSigner):
     def __init__(
         self, account_address: AddressRepresentation, key_pair: KeyPair, chain_id: int
