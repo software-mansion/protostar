@@ -82,7 +82,7 @@ class DeployCommand(Command):
                     # pylint: disable=line-too-long
                     "[Read more about representing Cairo data types in the CLI.](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#array-arguments-in-calldata)"
                 ),
-                type="int",
+                type="felt",
                 is_array=True,
             ),
             Command.Argument(

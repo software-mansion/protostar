@@ -232,7 +232,7 @@ def test_seed_and_max_fuzz_examples_impact_testing_results(
     protostar: ProtostarFixture, copy_fixture
 ):
     copy_fixture("test_fuzz.cairo", "./tests")
-    seed = hex(213742)
+    seed = str(213742)
     fuzz_max_examples = 2
 
     result = protostar(

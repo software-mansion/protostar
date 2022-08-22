@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any, List, Optional, Pattern
 
 from typing_extensions import Literal
+from starkware.starknet.utils.api_utils import cast_to_felts
 
 InputAllowedType = Literal[
     "str",
@@ -12,7 +13,8 @@ InputAllowedType = Literal[
     "path",
     "bool",
     "regexp",
-    "int",
+    "int",  # only decimal!
+    "felt",
 ]
 
 
@@ -33,9 +35,12 @@ class Command(ABC):
                 return pth
 
             @staticmethod
-            def int(arg: str) -> int:
-                # Enable hex (and other) int representations
-                return int(arg, 0)
+            def felt(arg: str) -> int:
+                try:
+                    [output] = cast_to_felts([arg])
+                except ValueError as ex:
+                    assert False, str(ex)
+                return output
 
         name: str
         description: str

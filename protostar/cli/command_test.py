@@ -21,8 +21,23 @@ def test_directory_type_checks_existence():
         Command.Argument.Type.directory("!@#$")
 
 
-def test_int_type():
-    ints = ["123", "0xf", "0b001", "0o444", "0xDEADC0DE"]
-    for i in ints:
-        result = Command.Argument.Type.int(i)
-        assert isinstance(result, int)
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        ("123", 123),
+        ("0xf", int("0xf", 16)),
+        ("0xDEADC0DE", int("0xDEADC0DE", 16)),
+    ],
+)
+def test_felt_type(test_input, expected):
+    result = Command.Argument.Type.felt(test_input)
+    assert result == expected
+
+@pytest.mark.parametrize(
+    "input",
+    ["aaaaaaaaa", "0b001", "0o1111", 1<<512, -1<<512],
+)
+def test_felt_type_invalid_input(input):
+    with pytest.raises(AssertionError):
+        Command.Argument.Type.felt(input)
+
