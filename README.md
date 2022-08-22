@@ -49,6 +49,7 @@ curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/inst
 
 1. Install Python version management tool: [pyenv](https://github.com/pyenv/pyenv) or [asdf](https://github.com/asdf-vm/asdf)
 1. Install `Python 3.7.12` using the Python version management tool and activate that version
+   - To be able to build Protostar, set the following environmental variable before installing Python: `PYTHON_CONFIGURE_OPTS="--enable-shared"`
 1. Clone this repository
 1. Verify the active Python version: `python -V`
 1. Create Python virtual environment in the project directory: `python -m venv .venv`
@@ -58,7 +59,7 @@ curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/inst
 1. Install [Poetry](https://python-poetry.org/) — a dependency manager: `pip install poetry`
 1. Install project dependencies: `poetry install`
     - MacBook M1/M2: `CFLAGS=-I/opt/homebrew/opt/gmp/include LDFLAGS=-L/opt/homebrew/opt/gmp/lib poetry install`
-1. Verify the setup by running tests: `poe test`
+1.  Verify the setup by running tests: `poe test`
 
 
 #### Git hooks
