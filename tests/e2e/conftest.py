@@ -223,3 +223,17 @@ def my_private_libs_setup_fixture(init, tmpdir, copy_fixture):
         "test_main_using_simple_function.cairo", Path() / "tests" / "test_main.cairo"
     )
     return (my_private_libs_dir,)
+
+
+@pytest.fixture(name="signing_credentials")
+def signing_credentials_fixture():  # The same account is generated each time
+    testnet_account_private_key = (
+        "0x5d6871223e9d2f6136f3913e8ccb6daae0b6b2a8452b39f92a1ddc5a76eed9a"
+    )
+    testnet_account_address = (
+        "0x7536539dbba2a49ab688a1c86332625f05f660a94908f362d29212e6071432d"
+    )
+    return (
+        testnet_account_private_key,
+        testnet_account_address,
+    )

@@ -85,7 +85,7 @@ class NetworkConfig:
         chain_id = chain_from_network(net=network, chain=None)
 
         return cls(
-            gateway_url=f"{net_address_from_net(network)}/gateway",
+            gateway_url=net_address_from_net(network),
             contract_explorer_search_url=contract_explorer_search_url_mapping.get(
                 network
             ),
