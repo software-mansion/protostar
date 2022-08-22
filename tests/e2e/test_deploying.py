@@ -2,6 +2,9 @@ from distutils.file_util import copy_file
 from pathlib import Path
 
 import pytest
+from starkware.starknet.definitions.general_config import StarknetChainId
+
+from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
 
 
 @pytest.mark.usefixtures("init")
@@ -20,9 +23,11 @@ def test_deploying_contract_with_constructor(
             "deploy",
             "./build/main.json",
             "--inputs",
-            "42",
+            "0x42",
             "--gateway-url",
             devnet_gateway_url,
+            "--chain-id",
+            str(StarknetChainId.TESTNET.value),
         ]
     )
 
@@ -51,6 +56,8 @@ def test_deploying_contract_with_constructor_and_inputs_defined_in_config_file(
             "./build/main.json",
             "--gateway-url",
             devnet_gateway_url,
+            "--chain-id",
+            str(StarknetChainId.TESTNET.value),
         ]
     )
 
@@ -72,6 +79,39 @@ def test_declaring_contract(protostar, devnet_gateway_url, datadir: Path):
             "./build/main.json",
             "--gateway-url",
             devnet_gateway_url,
+            "--chain-id",
+            str(StarknetChainId.TESTNET.value),
+        ]
+    )
+
+    assert "Declare transaction was sent" in result
+
+
+@pytest.mark.usefixtures("init")
+def test_declaring_contract_with_signature(
+    protostar, devnet_gateway_url, datadir: Path, signing_credentials, monkeypatch
+):
+    private_key, account_address = signing_credentials
+
+    copy_file(
+        src=str(datadir / "contract_with_constructor.cairo"),
+        dst="./src/main.cairo",
+    )
+    monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, private_key)
+
+    protostar(["build"])
+
+    result = protostar(
+        [
+            "--no-color",
+            "declare",
+            "./build/main.json",
+            "--gateway-url",
+            devnet_gateway_url,
+            "--chain-id",
+            str(StarknetChainId.TESTNET.value),
+            "--account-address",
+            account_address,
         ]
     )
 

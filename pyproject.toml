@@ -7,7 +7,7 @@ license = "MIT"
 name = "protostar"
 readme = "README.md"
 repository = "https://github.com/software-mansion/protostar"
-version = "0.3.1"
+version = "0.3.2"
 
 [tool.poetry.dependencies]
 GitPython = "^3.1.26"
@@ -72,7 +72,6 @@ show_prof = "snakeviz recent_profiling.prof"
 test = [
     "test_unit",
     "test_integration",
-    "test_performance",
     "build",
     "test_e2e",
 ]
@@ -136,7 +135,7 @@ reportOverlappingOverload = true
 reportPropertyTypeMismatch = true
 reportTypeCommentUsage = true
 reportUninitializedInstanceVariable = true
-reportUnknownLambdaType = false
+reportUnknownLambdaType = true
 reportUnnecessaryCast = true
 reportUnnecessaryComparison = true
 reportUnnecessaryIsInstance = true
@@ -150,7 +149,7 @@ strictSetInference = true
 useLibraryCodeForTypes = true
 
 [tool.protostar]
-latest_supported_protostar_toml_version = "0.3.1"
+latest_supported_protostar_toml_version = "0.3.2"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"

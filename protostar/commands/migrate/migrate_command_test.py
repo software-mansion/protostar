@@ -4,11 +4,14 @@ from typing import cast
 
 import pytest
 from pytest_mock import MockerFixture
+from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.net.models import StarknetChainId
 
 from protostar.commands.migrate.migrate_command import MigrateCommand
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.migrator import Migrator
 from protostar.protostar_exception import ProtostarException
+from protostar.starknet_gateway import GatewayFacade
 from protostar.utils.input_requester import InputRequester
 
 
@@ -32,7 +35,10 @@ def setup_migrate(mocker: MockerFixture):
     migration_result_future.set_result(Migrator.History(starknet_requests=[]))
     migrator_run_mock = cast(mocker.MagicMock, migrator_mock.run)
     migrator_run_mock.return_value = migration_result_future
+    project_root_path = mocker.MagicMock()
+
     migrate_command = MigrateCommand(
+        project_root_path=project_root_path,
         migrator_builder=mock_migrator_builder(mocker, migrator_mock),
         logger=mocker.MagicMock(),
         log_color_provider=mocker.MagicMock(),
@@ -41,14 +47,20 @@ def setup_migrate(mocker: MockerFixture):
 
     async def migrate(no_confirm: bool):
         await migrate_command.migrate(
-            network="http://localhost:3000/",
             migration_file_path=Path(),
             rollback=False,
             output_dir_path=None,
             no_confirm=no_confirm,
+            gateway_facade=GatewayFacade(
+                project_root_path=project_root_path,
+                gateway_client=GatewayClient(
+                    net="http://localhost:3000/", chain=StarknetChainId.TESTNET
+                ),
+            ),
+            migrator_config=mocker.MagicMock(),
         )
 
-    return (migrate, migrator_run_mock, requester_confirm_mock)
+    return migrate, migrator_run_mock, requester_confirm_mock
 
 
 async def test_cheatcode_exceptions_are_pretty_printed(mocker: MockerFixture):
@@ -62,15 +74,17 @@ async def test_cheatcode_exceptions_are_pretty_printed(mocker: MockerFixture):
         logger=mocker.MagicMock(),
         log_color_provider=mocker.MagicMock(),
         requester=mocker.MagicMock(),
+        project_root_path=mocker.MagicMock(),
     )
 
     with pytest.raises(ProtostarException, match="CHEATCODE_EX_MSG"):
         await migrate_command.migrate(
-            network="http://localhost:3000/",
+            gateway_facade=mocker.MagicMock(),
             migration_file_path=Path(),
             rollback=False,
             output_dir_path=None,
             no_confirm=True,
+            migrator_config=mocker.MagicMock(),
         )
 
 
