@@ -33,11 +33,11 @@ def test_felt_type(test_input, expected):
     result = Command.Argument.Type.felt(test_input)
     assert result == expected
 
-@pytest.mark.parametrize(
-    "input",
-    ["aaaaaaaaa", "0b001", "0o1111", 1<<512, -1<<512],
-)
-def test_felt_type_invalid_input(input):
-    with pytest.raises(AssertionError):
-        Command.Argument.Type.felt(input)
 
+@pytest.mark.parametrize(
+    "test_input",
+    ["aaaaaaaaa", "0b001", "0o1111", 1 << 512, -1 << 512],
+)
+def test_felt_type_invalid_input(test_input):
+    with pytest.raises(AssertionError):
+        Command.Argument.Type.felt(test_input)
