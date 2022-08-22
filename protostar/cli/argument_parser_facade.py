@@ -169,7 +169,7 @@ class ArgumentParserFacade:
         elif argument.type == "path":
             arg_type = Path
         elif argument.type == "int":
-            arg_type = int
+            arg_type = Command.Argument.Type.int
 
         default = argument.default
 

@@ -32,6 +32,11 @@ class Command(ABC):
                 assert pth.is_dir(), f'"{str(pth)}" is not a valid directory path'
                 return pth
 
+            @staticmethod
+            def int(arg: str) -> int:
+                # Enable hex (and other) int representations
+                return int(arg, 0)
+
         name: str
         description: str
         type: InputAllowedType
