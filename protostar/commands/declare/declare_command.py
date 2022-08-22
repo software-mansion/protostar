@@ -5,8 +5,8 @@ from typing import List, Optional
 from starknet_py.net.signer import BaseSigner
 
 from protostar.cli.command import Command
-from protostar.cli.network_command_mixin import NetworkCommandMixin
-from protostar.cli.signable_command_mixin import SignableCommandMixin
+from protostar.cli.network_command_util import NetworkCommandUtil
+from protostar.cli.signable_command_util import SignableCommandUtil
 from protostar.commands.deploy.deploy_command import DeployCommand
 from protostar.starknet_gateway import (
     GatewayFacade,
@@ -15,7 +15,7 @@ from protostar.starknet_gateway import (
 )
 
 
-class DeclareCommand(Command, SignableCommandMixin, NetworkCommandMixin):
+class DeclareCommand(Command):
     def __init__(
         self,
         logger: Logger,
@@ -39,8 +39,8 @@ class DeclareCommand(Command, SignableCommandMixin, NetworkCommandMixin):
     @property
     def arguments(self) -> List[Command.Argument]:
         return [
-            *self.signable_arguments,
-            *self.network_arguments,
+            *SignableCommandUtil.signable_arguments,
+            *NetworkCommandUtil.network_arguments,
             Command.Argument(
                 name="contract",
                 description="Path to compiled contract.",
@@ -63,12 +63,14 @@ class DeclareCommand(Command, SignableCommandMixin, NetworkCommandMixin):
         assert args.token is None or isinstance(args.token, str)
         assert isinstance(args.wait_for_acceptance, bool)
 
-        network_config = self.get_network_config(args, self._logger)
+        network_command_util = NetworkCommandUtil(args, self._logger)
+        signable_command_util = SignableCommandUtil(args, self._logger)
+        network_config = network_command_util.get_network_config()
         gateway_facade = GatewayFacade(
-            gateway_client=self.get_gateway_client(args, self._logger),
+            gateway_client=network_command_util.get_gateway_client(),
             project_root_path=self._project_root_path,
         )
-        signer = self.get_signer(args, network_config, self._logger)
+        signer = signable_command_util.get_signer(network_config)
 
         return await self.declare(
             compiled_contract_path=args.contract,

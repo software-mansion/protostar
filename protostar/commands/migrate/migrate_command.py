@@ -3,8 +3,8 @@ from pathlib import Path
 from typing import List, Optional
 
 from protostar.cli import Command
-from protostar.cli.network_command_mixin import NetworkCommandMixin
-from protostar.cli.signable_command_mixin import SignableCommandMixin
+from protostar.cli.network_command_util import NetworkCommandUtil
+from protostar.cli.signable_command_util import SignableCommandUtil
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_exception import ProtostarException
@@ -13,7 +13,7 @@ from protostar.utils.input_requester import InputRequester
 from protostar.utils.log_color_provider import LogColorProvider
 
 
-class MigrateCommand(Command, NetworkCommandMixin, SignableCommandMixin):
+class MigrateCommand(Command):
     # pylint: disable=too-many-arguments
     def __init__(
         self,
@@ -45,8 +45,8 @@ class MigrateCommand(Command, NetworkCommandMixin, SignableCommandMixin):
     @property
     def arguments(self) -> List[Command.Argument]:
         return [
-            *self.network_arguments,
-            *self.signable_arguments,
+            *NetworkCommandUtil.network_arguments,
+            *SignableCommandUtil.signable_arguments,
             Command.Argument(
                 name="path",
                 description="Path to the migration file.",
@@ -72,15 +72,18 @@ class MigrateCommand(Command, NetworkCommandMixin, SignableCommandMixin):
         ]
 
     async def run(self, args) -> Optional[Migrator.History]:
-        network_config = self.get_network_config(args, self._logger)
+        network_command_util = NetworkCommandUtil(args, self._logger)
+        network_config = network_command_util.get_network_config()
+        signable_command_util = SignableCommandUtil(args, self._logger)
+
         migrator_config = MigratorExecutionEnvironment.Config(
-            signer=self.get_signer(args, network_config, self._logger)
+            signer=signable_command_util.get_signer(network_config)
         )
         return await self.migrate(
             migration_file_path=args.path,
             rollback=args.rollback,
             gateway_facade=GatewayFacade(
-                gateway_client=self.get_gateway_client(args, self._logger),
+                gateway_client=network_command_util.get_gateway_client(),
                 log_color_provider=self._log_color_provider,
                 logger=self._logger,
                 project_root_path=self._project_root_path,

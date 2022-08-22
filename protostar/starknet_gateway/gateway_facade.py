@@ -111,6 +111,7 @@ class GatewayFacade:
         )
 
     # pylint: disable=too-many-locals
+    # pylint: disable=unused-argument
     async def declare(
         self,
         compiled_contract_path: Path,
@@ -136,7 +137,7 @@ class GatewayFacade:
 
         contract_cls = ContractClass.loads(compiled_contract)
 
-        unsigned_tx = Declare(
+        tx = Declare(
             contract_class=contract_cls,
             sender_address=sender,
             max_fee=max_fee,
@@ -145,15 +146,14 @@ class GatewayFacade:
             signature=[],
         )  # type: ignore
 
-        # TODO(arcticae): Remove the if/else, when signing is made mandatory
-        signature: List[int] = signer.sign_transaction(unsigned_tx) if signer else []
-
-        tx = Declare(
-            **{
-                **unsigned_tx.__dict__,
-                "signature": signature,
-            }
-        )  # type: ignore
+        # TODO(arcticae): Uncomment, when signing is made possible
+        # signature: List[int] = signer.sign_transaction(unsigned_tx) if signer else []
+        # tx = Declare(
+        #     **{
+        #         **unsigned_tx.__dict__,
+        #         "signature": signature,
+        #     }
+        # )  # type: ignore
 
         register_response = self._register_request(
             action="DECLARE",
@@ -162,7 +162,7 @@ class GatewayFacade:
                 "sender_address": tx.sender_address,
                 "max_fee": max_fee,
                 "version": constants.TRANSACTION_VERSION,
-                "signature": signature,
+                "signature": [],  # TODO: pass signature here, when it's being signed
                 "nonce": nonce,
             },
         )

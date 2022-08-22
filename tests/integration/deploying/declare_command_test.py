@@ -4,7 +4,7 @@ import pytest
 import requests
 from starknet_py.net.models import StarknetChainId
 
-from protostar.cli.signable_command_mixin import PRIVATE_KEY_ENV_VAR_NAME
+from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
 from tests.integration.protostar_fixture import ProtostarFixture
 
 

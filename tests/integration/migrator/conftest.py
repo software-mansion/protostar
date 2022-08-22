@@ -8,7 +8,7 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 from typing_extensions import Protocol
 
-from protostar.cli.signable_command_mixin import PatchedStarkCurveSigner
+from protostar.cli.signable_command_util import PatchedStarkCurveSigner
 from protostar.migrator import Migrator
 from protostar.migrator.migrator_execution_environment import (
     MigratorExecutionEnvironment,

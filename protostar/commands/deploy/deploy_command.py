@@ -2,11 +2,11 @@ from logging import Logger
 from pathlib import Path
 from typing import List, Optional
 from protostar.cli.command import Command
-from protostar.cli.network_command_mixin import NetworkCommandMixin
+from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.starknet_gateway import GatewayFacade
 
 
-class DeployCommand(Command, NetworkCommandMixin):
+class DeployCommand(Command):
     wait_for_acceptance_arg = Command.Argument(
         name="wait-for-acceptance",
         description="Waits for transaction to be accepted on chain.",
@@ -76,12 +76,13 @@ class DeployCommand(Command, NetworkCommandMixin):
                 type="int",
             ),
             DeployCommand.wait_for_acceptance_arg,
-            *self.network_arguments,
+            *NetworkCommandUtil.network_arguments,
         ]
 
     async def run(self, args):
-        network_config = self.get_network_config(args, self._logger)
-        gateway_client = self.get_gateway_client(args, self._logger)
+        network_command_util = NetworkCommandUtil(args, self._logger)
+        network_config = network_command_util.get_network_config()
+        gateway_client = network_command_util.get_gateway_client()
         gateway_facade = GatewayFacade(
             gateway_client=gateway_client,
             project_root_path=self._project_root_path,
