@@ -63,7 +63,7 @@ Required.
 The path to the compiled contract.
 #### `--gateway-url STRING`
 The URL of a StarkNet gateway. It is required unless `--network` is provided.
-#### `-i` `--inputs INT[]`
+#### `-i` `--inputs FELT[]`
 The inputs to the constructor. Calldata arguments may be of any type that does not contain pointers.
 [Read more about representing Cairo data types in the CLI.](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#array-arguments-in-calldata)
 #### `-n` `--network STRING`
