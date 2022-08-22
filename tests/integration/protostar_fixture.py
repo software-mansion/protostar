@@ -8,7 +8,7 @@ from typing import Dict, Optional, cast
 from pytest_mock import MockerFixture
 from starknet_py.net.models import StarknetChainId
 
-from protostar.commands import BuildCommand, InitCommand, MigrateCommand
+from protostar.commands import BuildCommand, InitCommand, MigrateCommand, DeclareCommand
 from protostar.commands.init.project_creator.new_project_creator import (
     NewProjectCreator,
 )
@@ -25,21 +25,49 @@ from protostar.utils.log_color_provider import LogColorProvider
 
 
 class ProtostarFixture:
+    # pylint: disable=too-many-arguments
     def __init__(
         self,
         project_root_path: Path,
         init_command: InitCommand,
         build_command: BuildCommand,
         migrator_command: MigrateCommand,
+        declare_command: DeclareCommand,
     ) -> None:
         self._project_root_path = project_root_path
         self._init_command = init_command
         self._build_command = build_command
         self._migrator_command = migrator_command
+        self._declare_command = declare_command
 
     @property
     def project_root_path(self) -> Path:
         return self._project_root_path
+
+    # pylint: disable=too-many-arguments
+    async def declare(
+        self,
+        chain_id: Optional[int] = None,
+        account_address: Optional[str] = None,
+        contract: Optional[Path] = None,
+        gateway_url: Optional[str] = None,
+        wait_for_acceptance: Optional[bool] = False,
+    ):
+        args = Namespace()
+        args.signer_class = None
+        args.account_address = None
+        args.private_key_path = None
+        args.contract = None
+        args.gateway_url = None
+        args.network = None
+        args.token = None
+        args.wait_for_acceptance = wait_for_acceptance
+        args.chain_id = chain_id
+        args.account_address = account_address
+        args.contract = contract
+        args.gateway_url = gateway_url
+
+        return await self._declare_command.run(args)
 
     def init_sync(self):
         args = Namespace()
@@ -189,11 +217,14 @@ def build_protostar_fixture(mocker: MockerFixture, project_root_path: Path):
         project_root_path=project_root_path,
     )
 
+    declare_command = DeclareCommand(logger=logger, project_root_path=project_root_path)
+
     protostar_fixture = ProtostarFixture(
         project_root_path=project_root_path,
         init_command=init_command,
         build_command=build_command,
         migrator_command=migrate_command,
+        declare_command=declare_command,
     )
 
     return protostar_fixture

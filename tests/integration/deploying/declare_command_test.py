@@ -1,69 +1,48 @@
 from pathlib import Path
-from types import SimpleNamespace
 
 import pytest
 import requests
-from pytest_mock import MockerFixture
 from starknet_py.net.models import StarknetChainId
 
 from protostar.cli.signable_command_mixin import PRIVATE_KEY_ENV_VAR_NAME
-from protostar.commands.declare.declare_command import DeclareCommand
+from tests.integration.protostar_fixture import ProtostarFixture
 
 
 @pytest.mark.parametrize("contract_name", ["main_with_constructor"])
 async def test_declaring_contract(
-    mocker: MockerFixture,
+    protostar: ProtostarFixture,
     devnet_gateway_url: str,
-    project_root_path: Path,
-    compiled_contract_filepath,
+    compiled_contract_filepath: Path,
     monkeypatch,
 ):
-    declare_command = DeclareCommand(
-        logger=mocker.MagicMock(),
-        project_root_path=project_root_path,
-    )
     monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, "123")
-    args = SimpleNamespace()
-    args.chain_id = StarknetChainId.TESTNET.value
-    args.signer_class = None
-    args.account_address = "123"
-    args.private_key_path = None
-    args.contract = compiled_contract_filepath
-    args.gateway_url = devnet_gateway_url
-    args.network = None
-    args.token = None
-    args.wait_for_acceptance = False
 
-    response = await declare_command.run(args)
+    response = await protostar.declare(
+        chain_id=StarknetChainId.TESTNET.value,
+        account_address="123",
+        contract=compiled_contract_filepath,
+        gateway_url=devnet_gateway_url,
+    )
 
     assert response.class_hash is not None
 
 
 @pytest.mark.parametrize("contract_name", ["main_with_constructor"])
 async def test_deploying_contract_with_signing(
-    mocker: MockerFixture,
     devnet_gateway_url: str,
-    project_root_path: Path,
-    compiled_contract_filepath,
+    protostar: ProtostarFixture,
+    compiled_contract_filepath: Path,
     monkeypatch,
 ):
-    declare_command = DeclareCommand(
-        logger=mocker.MagicMock(),
-        project_root_path=project_root_path,
-    )
     monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, "123")
-    args = SimpleNamespace()
-    args.chain_id = StarknetChainId.TESTNET.value
-    args.signer_class = None
-    args.account_address = "123"
-    args.private_key_path = None
-    args.contract = compiled_contract_filepath
-    args.gateway_url = devnet_gateway_url
-    args.network = None
-    args.token = None
-    args.wait_for_acceptance = True
 
-    response = await declare_command.run(args)
+    response = await protostar.declare(
+        chain_id=StarknetChainId.TESTNET.value,
+        account_address="123",
+        contract=compiled_contract_filepath,
+        gateway_url=devnet_gateway_url,
+        wait_for_acceptance=True,
+    )
 
     assert response.class_hash is not None
 
