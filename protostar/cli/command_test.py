@@ -39,5 +39,5 @@ def test_felt_type(test_input, expected):
     ["aaaaaaaaa", "0b001", "0o1111", 1 << 512, -1 << 512],
 )
 def test_felt_type_invalid_input(test_input):
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         Command.Argument.Type.felt(test_input)

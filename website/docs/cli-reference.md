@@ -73,7 +73,7 @@ It is required unless `--gateway-url` is provided.
 Supported StarkNet networks:
 - `alpha-goerli`
 - `alpha-mainnet`
-#### `--salt INT`
+#### `--salt FELT`
 An optional salt controlling where the contract will be deployed. The contract deployment address is determined by the hash of contract, salt and caller. If the salt is not supplied, the contract will be deployed with a random salt.
 #### `--token STRING`
 Used by whitelisted users for deploying contracts in Alpha MainNet.

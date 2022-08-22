@@ -98,7 +98,7 @@ class DeployCommand(Command):
                     "of contract, salt and caller. "
                     "If the salt is not supplied, the contract will be deployed with a random salt."
                 ),
-                type="int",
+                type="felt",
             ),
             DeployCommand.wait_for_acceptance_arg,
             DeployCommand.gateway_url_arg,

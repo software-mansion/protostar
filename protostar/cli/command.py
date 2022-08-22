@@ -36,10 +36,7 @@ class Command(ABC):
 
             @staticmethod
             def felt(arg: str) -> int:
-                try:
-                    [output] = cast_to_felts([arg])
-                except ValueError as ex:
-                    assert False, str(ex)
+                [output] = cast_to_felts([arg])
                 return output
 
         name: str
