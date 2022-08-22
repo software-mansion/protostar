@@ -81,9 +81,8 @@ class SignableCommandUtil:
         ),
         Command.Argument(
             name="private-key-path",
-            description="Path to the file, which stores your private key (in hex representation) for the account. Can be "
-            f"used instead of {PRIVATE_KEY_ENV_VAR_NAME} env variable."
-            "private key.",
+            description="Path to the file, which stores your private key (in hex representation) for the account. \n"
+            f"Can be used instead of {PRIVATE_KEY_ENV_VAR_NAME} env variable.",
             type="path",
         ),
         Command.Argument(
