@@ -53,7 +53,7 @@ Supported StarkNet networks:
 - `alpha-goerli`
 - `alpha-mainnet`
 #### `--private-key-path PATH`
-File which stores your private key (in hex representation) for the account. Value is omitted if PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable is defined, in which case it's used as the private key.
+Path to the file, which stores your private key (in hex representation) for the account. Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.private key.
 #### `--signer-class STRING`
 Custom signer class module path.
 #### `--token STRING`
@@ -139,7 +139,7 @@ Skip confirming building the project.
 #### `--output-dir PATH`
 Migration output directory.
 #### `--private-key-path PATH`
-File which stores your private key (in hex representation) for the account. Value is omitted if PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable is defined, in which case it's used as the private key.
+Path to the file, which stores your private key (in hex representation) for the account. Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.private key.
 #### `--rollback`
 Run `rollback` function in the migration script.
 #### `--signer-class STRING`
