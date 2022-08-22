@@ -137,7 +137,7 @@ class GatewayFacade:
 
         contract_cls = ContractClass.loads(compiled_contract)
 
-        tx = Declare(
+        unsigned_tx = Declare(
             contract_class=contract_cls,
             sender_address=sender,
             max_fee=max_fee,
@@ -147,13 +147,14 @@ class GatewayFacade:
         )  # type: ignore
 
         # TODO(arcticae): Uncomment, when signing is made possible
-        # signature: List[int] = signer.sign_transaction(unsigned_tx) if signer else []
-        # tx = Declare(
-        #     **{
-        #         **unsigned_tx.__dict__,
-        #         "signature": signature,
-        #     }
-        # )  # type: ignore
+        # pylint: disable=unused-variable
+        signature: List[int] = signer.sign_transaction(unsigned_tx) if signer else []
+        tx = Declare(
+            **{
+                **unsigned_tx.__dict__,
+                "signature": [],  # TODO: pass signature here, when it's being signed
+            }
+        )  # type: ignore
 
         register_response = self._register_request(
             action="DECLARE",
