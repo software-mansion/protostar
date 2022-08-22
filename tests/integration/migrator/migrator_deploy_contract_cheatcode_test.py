@@ -6,7 +6,9 @@ from tests.integration.migrator.conftest import assert_transaction_accepted
 
 
 async def test_deploy_contract(
-    migrator_builder: Migrator.Builder, devnet_gateway_url: str, project_root_path: Path
+    migrator_builder: Migrator.Builder,
+    devnet_gateway_url: str,
+    project_root_path: Path,
 ):
 
     migrator = await migrator_builder.build(

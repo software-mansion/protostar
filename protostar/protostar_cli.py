@@ -1,10 +1,10 @@
-# pylint: disable=no-self-use
 import sys
 import time
 from logging import INFO, Logger, StreamHandler
 from typing import Any, List
 
 from protostar.cli import CLIApp, Command
+from protostar.compiler import ProjectCairoPathBuilder
 from protostar.configuration_profile_cli import ConfigurationProfileCLI
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
 from protostar.protostar_toml.protostar_toml_version_checker import (
@@ -21,6 +21,7 @@ class ProtostarCLI(CLIApp):
         self,
         logger: Logger,
         log_color_provider: LogColorProvider,
+        project_cairo_path_builder: ProjectCairoPathBuilder,
         latest_version_checker: LatestVersionChecker,
         protostar_toml_version_checker: ProtostarTOMLVersionChecker,
         version_manager: VersionManager,
@@ -33,6 +34,7 @@ class ProtostarCLI(CLIApp):
         self._version_manager = version_manager
         self._protostar_toml_version_checker = protostar_toml_version_checker
         self._start_time = start_time
+        self._project_cairo_path_builder = project_cairo_path_builder
 
         super().__init__(
             commands=commands,
@@ -88,8 +90,10 @@ class ProtostarCLI(CLIApp):
             self._version_manager.print_current_version()
             return
 
+        # FIXME(arcticae): Those should be run when command is running in project context
         if args.command not in ["init", "upgrade"]:
             self._protostar_toml_version_checker.run()
+            self._extend_pythonpath_with_cairo_path()
 
         await super().run(args)
 
@@ -102,3 +106,12 @@ class ProtostarCLI(CLIApp):
         self._logger.info(
             "Execution time: %.2f s", time.perf_counter() - self._start_time
         )
+
+    def _extend_pythonpath_with_cairo_path(self):
+        cairo_path_list = (
+            str(path)
+            for path in self._project_cairo_path_builder.build_project_cairo_path_list(
+                []
+            )
+        )
+        sys.path.extend(cairo_path_list)

@@ -37,6 +37,10 @@ Sends a declare transaction to StarkNet.
 Required.
 
 Path to compiled contract.
+#### `--account-address STRING`
+Account address
+#### `--chain-id INT`
+The chain id. It is required unless `--network` is provided.
 #### `--gateway-url STRING`
 The URL of a StarkNet gateway. It is required unless `--network` is provided.
 #### `-n` `--network STRING`
@@ -44,10 +48,15 @@ The name of the StarkNet network.
 It is required unless `--gateway-url` is provided.
 
 Supported StarkNet networks:
+- `testnet`
+- `mainnet`
 - `alpha-goerli`
 - `alpha-mainnet`
-#### `--signature INT[]`
-Signature information for the declaration.
+#### `--private-key-path PATH`
+Path to the file, which stores your private key (in hex representation) for the account. 
+Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
+#### `--signer-class STRING`
+Custom signer class module path.
 #### `--token STRING`
 Used for declaring contracts in Alpha MainNet.
 #### `--wait-for-acceptance`
@@ -61,6 +70,8 @@ Deploys contracts.
 Required.
 
 The path to the compiled contract.
+#### `--chain-id INT`
+The chain id. It is required unless `--network` is provided.
 #### `--gateway-url STRING`
 The URL of a StarkNet gateway. It is required unless `--network` is provided.
 #### `-i` `--inputs FELT[]`
@@ -71,6 +82,8 @@ The name of the StarkNet network.
 It is required unless `--gateway-url` is provided.
 
 Supported StarkNet networks:
+- `testnet`
+- `mainnet`
 - `alpha-goerli`
 - `alpha-mainnet`
 #### `--salt FELT`
@@ -107,6 +120,10 @@ Run migration file.
 Required.
 
 Path to the migration file.
+#### `--account-address STRING`
+Account address
+#### `--chain-id INT`
+The chain id. It is required unless `--network` is provided.
 #### `--gateway-url STRING`
 The URL of a StarkNet gateway. It is required unless `--network` is provided.
 #### `-n` `--network STRING`
@@ -114,14 +131,21 @@ The name of the StarkNet network.
 It is required unless `--gateway-url` is provided.
 
 Supported StarkNet networks:
+- `testnet`
+- `mainnet`
 - `alpha-goerli`
 - `alpha-mainnet`
 #### `--no-confirm`
 Skip confirming building the project.
 #### `--output-dir PATH`
 Migration output directory.
+#### `--private-key-path PATH`
+Path to the file, which stores your private key (in hex representation) for the account. 
+Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
 #### `--rollback`
 Run `rollback` function in the migration script.
+#### `--signer-class STRING`
+Custom signer class module path.
 ### `remove`
 ```shell
 $ protostar remove cairo-contracts

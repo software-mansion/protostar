@@ -72,7 +72,6 @@ show_prof = "snakeviz recent_profiling.prof"
 test = [
     "test_unit",
     "test_integration",
-    "test_performance",
     "build",
     "test_e2e",
 ]
@@ -136,7 +135,7 @@ reportOverlappingOverload = true
 reportPropertyTypeMismatch = true
 reportTypeCommentUsage = true
 reportUninitializedInstanceVariable = true
-reportUnknownLambdaType = false
+reportUnknownLambdaType = true
 reportUnnecessaryCast = true
 reportUnnecessaryComparison = true
 reportUnnecessaryIsInstance = true
