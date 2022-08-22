@@ -20,7 +20,7 @@ def test_deploying_contract_with_constructor(
             "deploy",
             "./build/main.json",
             "--inputs",
-            "42",
+            "0x42",
             "--gateway-url",
             devnet_gateway_url,
         ]
