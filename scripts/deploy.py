@@ -48,18 +48,18 @@ with open(path, "r+", encoding="UTF-8") as file:
         print(f"New version must be greater than {protostar_version}")
         sys.exit(1)
 
-    is_breaking_v = input(
+    breaking_protostar_toml_input = input(
         "Does this version contain breaking changes to protostar.toml structure? (y/n): "
     )
-    is_breaking_v = is_breaking_v.lower()
-    if is_breaking_v not in ["y", "n"]:
-        print(f'"{is_breaking_v}" is not a valid option')
+    breaking_protostar_toml_lowercase_input = breaking_protostar_toml_input.lower()
+    if breaking_protostar_toml_lowercase_input not in ["y", "n"]:
+        print(f'"{breaking_protostar_toml_lowercase_input}" is not a valid option')
         sys.exit(1)
 
     # update version in pyproject.toml
     pyproject["tool"]["poetry"]["version"] = new_protostar_version_str
 
-    if is_breaking_v:
+    if breaking_protostar_toml_lowercase_input == "y":
         pyproject["tool"]["protostar"][
             "latest_supported_protostar_toml_version"
         ] = new_protostar_version_str
