@@ -28,7 +28,8 @@ async def test_declaring_contract(
 
 
 @pytest.mark.xfail(
-    "This test is going to fail since sending signed deploy txs is supported only for devnet, and now it's disabled"
+    reason="This test is going to fail since sending signed deploy txs is supported only for devnet, and now it's "
+    "disabled "
 )
 @pytest.mark.parametrize("contract_name", ["main_with_constructor"])
 async def test_deploying_contract_with_signing(
