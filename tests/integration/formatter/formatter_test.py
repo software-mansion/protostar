@@ -1,7 +1,8 @@
-import pytest
-
+import os
 from typing import List, Dict
 from pathlib import Path
+
+import pytest
 
 from tests.integration.protostar_fixture import ProtostarFixture
 from tests.data.contracts import (
@@ -11,77 +12,49 @@ from tests.data.contracts import (
 )
 
 
-def assert_contents_equal(filepath1: Path, filepath2: Path):
-    assert Path(filepath1).read_text() == Path(filepath2).read_text()
-
-
-def assert_contents_not_equal(filepath1: Path, filepath2: Path):
-    assert Path(filepath1).read_text() != Path(filepath2).read_text()
-
-
-def assert_count_in_result(output: List[str], key: str, count: int):
-    # List instead of a Generator allows much clearer output on fail.
-    assert sum([1 if (key in result) else 0 for result in output]) == count
-
-
-def assert_counts_in_result(output: List[str], key_to_count: Dict[str, int]):
-    for key, count in key_to_count.items():
-        assert_count_in_result(output, key, count)
-
-
 @pytest.fixture(autouse=True, scope="function")
-def setup(protostar: ProtostarFixture):
+def setup_function(protostar: ProtostarFixture):
     protostar.init_sync()
+
+    cwd = Path().resolve()
+    os.chdir(protostar.get_project_root_path())
+
     protostar.create_files(
         {
-            "src/formatted.cairo": FORMATTED_CONTRACT,
-            "src/unformatted1.cairo": UNFORMATTED_CONTRACT,
-            "src/unformatted2.cairo": UNFORMATTED_CONTRACT,
-            "src/broken.cairo": BROKEN_CONTRACT,
+            "to_format/formatted.cairo": FORMATTED_CONTRACT,
+            "to_format/unformatted1.cairo": UNFORMATTED_CONTRACT,
+            "to_format/unformatted2.cairo": UNFORMATTED_CONTRACT,
+            "to_format/broken.cairo": BROKEN_CONTRACT,
         }
     )
+    yield
 
-
-def get_testing_file_names(protostar: ProtostarFixture):
-    return list(
-        map(
-            protostar.realtive_to_absolute_path,
-            [
-                "src/formatted.cairo",
-                "src/unformatted1.cairo",
-                "src/unformatted2.cairo",
-                "src/broken.cairo",
-            ],
-        )
-    )
+    os.chdir(cwd)
 
 
 async def test_formatter_formatting(protostar: ProtostarFixture):
-    file_names = get_testing_file_names(protostar)
-    summary = protostar.format(
-        targets=file_names,
-    )
+    summary = protostar.format([Path("to_format")])
 
     assert len(summary.broken) == 1
     assert len(summary.correct) == 1
     assert len(summary.incorrect) == 2
-    assert_contents_equal(file_names[0], file_names[1])
+    assert_contents_equal("to_format/formatted.cairo", "to_format/unformatted1.cairo")
 
 
 async def test_formatter_checking(protostar: ProtostarFixture):
-    file_names = get_testing_file_names(protostar)
-    summary = protostar.format(targets=file_names, check=True)
+    summary = protostar.format([Path("to_format")], check=True)
 
     assert len(summary.broken) == 1
     assert len(summary.correct) == 1
     assert len(summary.incorrect) == 2
-    assert_contents_not_equal(file_names[0], file_names[1])
+    assert_contents_not_equal(
+        "to_format/formatted.cairo", "to_format/unformatted1.cairo"
+    )
 
 
 async def test_formatter_output(protostar: ProtostarFixture):
-    file_names = get_testing_file_names(protostar)
     _, output = protostar.format_with_output(
-        targets=file_names,
+        targets=[Path("to_format")],
     )
 
     assert_counts_in_result(
@@ -97,8 +70,7 @@ async def test_formatter_output(protostar: ProtostarFixture):
 
 
 async def test_formatter_output_verbose(protostar: ProtostarFixture):
-    file_names = get_testing_file_names(protostar)
-    _, output = protostar.format_with_output(targets=file_names, verbose=True)
+    _, output = protostar.format_with_output(targets=[Path("to_format")], verbose=True)
 
     assert_counts_in_result(
         output,
@@ -113,9 +85,8 @@ async def test_formatter_output_verbose(protostar: ProtostarFixture):
 
 
 async def test_formatter_output_check(protostar: ProtostarFixture):
-    file_names = get_testing_file_names(protostar)
     _, output = protostar.format_with_output(
-        targets=file_names,
+        targets=[Path("to_format")],
         check=True,
     )
 
@@ -132,9 +103,8 @@ async def test_formatter_output_check(protostar: ProtostarFixture):
 
 
 async def test_formatter_output_check_verbose(protostar: ProtostarFixture):
-    file_names = get_testing_file_names(protostar)
     _, output = protostar.format_with_output(
-        targets=file_names,
+        targets=[Path("to_format")],
         verbose=True,
         check=True,
     )
@@ -152,9 +122,8 @@ async def test_formatter_output_check_verbose(protostar: ProtostarFixture):
 
 
 async def test_formatter_ignore_broken(protostar: ProtostarFixture):
-    file_names = get_testing_file_names(protostar)
     _, output = protostar.format_with_output(
-        targets=file_names,
+        targets=[Path("to_format")],
         ignore_broken=True,
     )
 
@@ -168,3 +137,21 @@ async def test_formatter_ignore_broken(protostar: ProtostarFixture):
             "[UNCHANGED]": 0,
         },
     )
+
+
+def assert_contents_equal(filepath1: str, filepath2: str):
+    assert Path(filepath1).read_text() == Path(filepath2).read_text()
+
+
+def assert_contents_not_equal(filepath1: str, filepath2: str):
+    assert Path(filepath1).read_text() != Path(filepath2).read_text()
+
+
+def assert_count_in_result(output: List[str], key: str, count: int):
+    # List instead of a Generator allows much clearer output on fail.
+    assert sum([1 if (key in result) else 0 for result in output]) == count
+
+
+def assert_counts_in_result(output: List[str], key_to_count: Dict[str, int]):
+    for key, count in key_to_count.items():
+        assert_count_in_result(output, key, count)

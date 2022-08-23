@@ -111,7 +111,7 @@ class ProtostarFixture:
             check=check,
             verbose=verbose,
             ignore_broken=ignore_broken,
-            on_formatting_result_callback=callback,
+            on_formatting_result=callback,
         )
 
         return summary, output
@@ -149,8 +149,8 @@ class ProtostarFixture:
         ) as output_file:
             output_file.write(content)
 
-    def realtive_to_absolute_path(self, path_str: str):
-        return self._project_root_path / path_str
+    def get_project_root_path(self):
+        return self._project_root_path
 
 
 # pylint: disable=too-many-locals

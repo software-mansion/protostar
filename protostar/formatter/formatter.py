@@ -1,4 +1,4 @@
-from typing import List, Callable, Any
+from typing import List, Callable, Any, Optional
 from pathlib import Path
 
 from starkware.cairo.lang.compiler.parser import parse_file
@@ -25,12 +25,13 @@ class Formatter:
         check=False,
         verbose=False,
         ignore_broken=False,
-        on_formatting_result_callback: Callable[
-            [FormattingResult], Any
-        ] = lambda result: None,
+        on_formatting_result: Optional[Callable[[FormattingResult], Any]] = None,
     ) -> FormattingSummary:
         summary = FormattingSummary()
         filepaths = self._get_filepaths(targets)
+
+        if on_formatting_result is None:
+            on_formatting_result = lambda result: None
 
         for filepath in filepaths:
             relative_filepath = filepath.relative_to(self._project_root_path)
@@ -45,7 +46,7 @@ class Formatter:
 
                 result = BrokenFormattingResult(relative_filepath, ex)
                 summary.extend(result)
-                on_formatting_result_callback(result)
+                on_formatting_result(result)
 
                 # Cairo formatter fixes some broken files
                 # We want to disable this behavior
@@ -62,7 +63,7 @@ class Formatter:
 
             summary.extend(result)
             if not isinstance(result, CorrectFormattingResult) or verbose:
-                on_formatting_result_callback(result)
+                on_formatting_result(result)
 
         return summary
 

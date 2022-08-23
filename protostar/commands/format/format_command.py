@@ -15,7 +15,7 @@ from protostar.formatter.formatting_result import (
 class FormatCommand(Command):
     def __init__(self, project_root_path: Path, logger: Logger) -> None:
         super().__init__()
-        self._project_root_path = project_root_path
+        self._formatter = Formatter(project_root_path)
         self._logger = logger
 
     @property
@@ -69,16 +69,12 @@ class FormatCommand(Command):
         ]
 
     async def run(self, args):
-        try:
-            summary = self.format(
-                targets=args.target,
-                check=args.check,
-                verbose=args.verbose,
-                ignore_broken=args.ignore_broken,
-            )
-        except BaseException as exc:
-            self._logger.error("Command failed.")
-            raise exc
+        summary = self.format(
+            targets=args.target,
+            check=args.check,
+            verbose=args.verbose,
+            ignore_broken=args.ignore_broken,
+        )
 
         if summary.get_file_count() == 0:
             self._logger.warn("No files found")
@@ -99,13 +95,12 @@ class FormatCommand(Command):
             format_formatting_result(result, check)
         )
 
-        formatter = Formatter(self._project_root_path)
-        summary = formatter.format(
+        summary = self._formatter.format(
             targets=targets,
             check=check,
             verbose=verbose,
             ignore_broken=ignore_broken,
-            on_formatting_result_callback=callback,
+            on_formatting_result=callback,
         )
 
         return summary
