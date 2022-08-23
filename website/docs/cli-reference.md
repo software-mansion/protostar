@@ -65,7 +65,7 @@ Waits for transaction to be accepted on chain.
 ```shell
 protostar deploy ./build/main.json --network alpha-goerli
 ```
-Deploys contracts.
+Deploy contracts.
 #### `contract PATH`
 Required.
 
@@ -169,27 +169,24 @@ $ protostar test
 Execute tests.
 #### `target STRING[]=['.']`
 A glob or globs to a directory or a test suite, for example:
-- `tests/**/*_main*::*_balance` — find test cases, which names ends with `_balance` in test suites with the `_main` in filenames in the `tests` directory
-- `::test_increase_balance` — find `test_increase_balance` test_cases in any test suite within the project 
-
+- `tests/**/*_main*::*_balance` — find test cases, which names ends with `_balance` in test suites with the `_main` in filenames in the `tests` directory,
+- `::test_increase_balance` — find `test_increase_balance` test_cases in any test suite within the project.
 #### `--cairo-path DIRECTORY[]`
 Additional directories to look for sources.
 #### `--disable-hint-validation`
 Disable hint validation in contracts declared by the `declare` cheatcode or deployed by `deploy_contract` cheatcode.
-
 #### `-x` `--exit-first`
-Exit immediately on first broken or failed test
+Exit immediately on first broken or failed test.
 #### `--fuzz-max-examples INT=100`
 Once this many satisfying examples have been considered without finding any counter-example, falsification will terminate.
 #### `-i` `--ignore STRING[]`
 A glob or globs to a directory or a test suite, which should be ignored.
-
 #### `--no-progress-bar`
 Disable progress bar.
 #### `--report-slowest-tests INT`
 Print slowest tests at the end.
 #### `--safe-collecting`
-Uses cairo compiler for test collection
+Use Cairo compiler for test collection.
 #### `--seed INT`
 Set a seed to use for all fuzz tests.
 ### `update`

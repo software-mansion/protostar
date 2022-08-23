@@ -70,5 +70,5 @@ There is no type checking for `variable_name`, `value`, `key`, make sure you pro
 :::
 
 :::tip
-`key` is a list of arguments because cairo `@storage_var` maps any number of felt arguments to any number of felt values
+`key` is a list of arguments because Cairo `@storage_var` maps any number of felt arguments to any number of felt values.
 :::
