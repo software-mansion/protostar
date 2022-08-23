@@ -21,7 +21,7 @@ class MaybeTmpDirectory(AbstractContextManager):
 
     def __exit__(self, __exc_type, __exc_value, __traceback) -> Union[bool, None]:
         if self._is_directory_empty():
-            rmdir(self._path)
+            self._path.rmdir()
 
     def _is_directory_empty(self) -> bool:
         return len(listdir(self._path)) == 0
