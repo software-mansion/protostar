@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Callable, List, cast
+from typing import List, cast
 from unittest.mock import MagicMock
 
 import pytest
@@ -9,7 +9,7 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
 )
 
 from protostar.commands.test.test_collector import TestCollector
-from protostar.commands.test.test_suite import TestSuite
+from protostar.commands.test.test_suite import TestSuite, TestCase
 from protostar.utils.starknet_compilation import StarknetCompiler
 
 
@@ -63,12 +63,8 @@ def starknet_compiler_fixture(mocker: MockerFixture):
     starknet_compiler_mock = mocker.MagicMock()
     starknet_compiler_mock.get_function_names = mocker.MagicMock()
 
-    def get_function_names(_, predicate):
-        return [
-            fn_name
-            for fn_name in ["test_case_a", "test_case_b", "run"]
-            if predicate(fn_name)
-        ]
+    def get_function_names(_):
+        return ["test_case_a", "test_case_b", "run"]
 
     starknet_compiler_mock.get_function_names.side_effect = get_function_names
 
@@ -132,8 +128,8 @@ def test_collecting_specific_function(starknet_compiler, project_root: Path):
 def test_finding_setup_function(
     starknet_compiler: StarknetCompiler, project_root: Path
 ):
-    def get_function_names(_, predicate: Callable[[str], bool]) -> List[str]:
-        return list(filter(predicate, ["test_main", "__setup__"]))
+    def get_function_names(_) -> List[str]:
+        return ["test_main", "__setup__"]
 
     cast(
         MagicMock, starknet_compiler.get_function_names
@@ -145,6 +141,26 @@ def test_finding_setup_function(
     ).test_suites
 
     assert suite.setup_fn_name == "__setup__"
+
+
+def test_finding_setup_case_function(
+    starknet_compiler: StarknetCompiler, project_root: Path
+):
+    def get_function_names(_) -> List[str]:
+        return ["test_main", "setup_main", "setup_dangling"]
+
+    cast(
+        MagicMock, starknet_compiler.get_function_names
+    ).side_effect = get_function_names
+    test_collector = TestCollector(starknet_compiler)
+
+    [suite] = test_collector.collect(
+        [str(project_root / "foo" / "test_foo.cairo")]
+    ).test_suites
+
+    [test_case] = suite.test_cases
+
+    assert test_case == TestCase(test_fn_name="test_main", setup_fn_name="setup_main")
 
 
 def test_collecting_from_directory_globs(starknet_compiler, project_root):
@@ -210,7 +226,7 @@ def test_globs_in_test_case_name(starknet_compiler, project_root):
 
     assert_tested_suites(result.test_suites, ["test_foo.cairo"])
     assert result.test_cases_count == 1
-    assert result.test_suites[0].test_case_names[0] == "test_case_b"
+    assert result.test_suites[0].test_cases[0].test_fn_name == "test_case_b"
 
 
 def test_combining_test_suites(starknet_compiler, project_root):
@@ -240,7 +256,7 @@ def test_ignoring_test_cases(starknet_compiler, project_root: Path):
 
     assert_tested_suites(result.test_suites, ["test_foo.cairo"])
     assert result.test_cases_count == 1
-    assert result.test_suites[0].test_case_names[0] == "test_case_b"
+    assert result.test_suites[0].test_cases[0].test_fn_name == "test_case_b"
 
 
 def test_empty_test_suites(starknet_compiler, project_root: Path):

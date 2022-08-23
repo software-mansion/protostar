@@ -3,6 +3,7 @@ from pathlib import Path
 from shutil import copyfile
 
 import pytest
+from starknet_py.net.models import StarknetChainId
 
 from tests.e2e.conftest import ProtostarFixture
 
@@ -26,6 +27,8 @@ def test_migrating_base_case(
             "migrations/migration.cairo",
             "--gateway-url",
             devnet_gateway_url,
+            "--chain-id",
+            str(StarknetChainId.TESTNET.value),
             "--no-confirm",
             "--output-dir",
             "migrations/output",
