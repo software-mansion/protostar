@@ -28,7 +28,7 @@ class FormatCommand(Command):
 
     @property
     def description(self) -> str:
-        return "Format cairo source code."
+        return "Format Cairo source code."
 
     @property
     def arguments(self) -> List[Command.Argument]:
