@@ -31,8 +31,4 @@ function tar() {
     echo "[tar $response]"
 }
 
-function run_script() {
-    source ./install.sh
-}
-
-run_script
+source ./install.sh

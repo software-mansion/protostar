@@ -59,12 +59,6 @@ def setup(protostar_repo_root: Path):
     os.chdir(cwd)
 
 
-@pytest.fixture(name="protostar_package")
-def protostar_package_fixture(datadir: Path):
-    with open(datadir / "protostar.tar.gz", mode="rb") as file_handle:
-        return file_handle.read()
-
-
 @pytest.mark.parametrize(
     "kernel, tar_filename, shell, shell_name, shell_config_path",
     (
