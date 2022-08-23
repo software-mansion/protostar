@@ -1,5 +1,4 @@
 from contextlib import AbstractContextManager
-from os import listdir, rmdir
 from pathlib import Path
 from typing import Union
 
@@ -24,7 +23,7 @@ class MaybeTmpDirectory(AbstractContextManager):
             self._path.rmdir()
 
     def _is_directory_empty(self) -> bool:
-        return len(listdir(self._path)) == 0
+        return any(self._path.iterdir())
 
 
 class DirectoryExistsException(ProtostarException):
