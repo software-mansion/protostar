@@ -38,3 +38,24 @@ func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
     return ()
 end
 """
+
+FORMATTED_CONTRACT = """%lang starknet
+
+@view
+func identity(arg) -> (res : felt):
+    return (arg)
+end
+"""
+
+UNFORMATTED_CONTRACT = """%lang starknet
+
+@view
+func identity(arg
+
+
+) -> (res : felt):
+    return (arg)
+end
+"""
+
+BROKEN_CONTRACT = "I LOVE CAIRO"

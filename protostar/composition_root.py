@@ -15,6 +15,7 @@ from protostar.commands import (
     TestCommand,
     UpdateCommand,
     UpgradeCommand,
+    FormatCommand,
 )
 from protostar.commands.init.project_creator import (
     AdaptedProjectCreator,
@@ -163,6 +164,7 @@ def build_di_container(script_root: Path, start_time: float = 0):
             logger=logger,
             log_color_provider=log_color_provider,
         ),
+        FormatCommand(project_root_path, logger),
     ]
     protostar_toml_version_checker = ProtostarTOMLVersionChecker(
         protostar_toml_reader=protostar_toml_reader, version_manager=version_manager

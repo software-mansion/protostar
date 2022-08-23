@@ -3,18 +3,30 @@ import os
 from argparse import Namespace
 from logging import getLogger
 from pathlib import Path
-from typing import Dict, Optional, cast
+from typing import Any, Callable, Dict, List, Optional, Tuple, cast
 
 from pytest_mock import MockerFixture
 from starknet_py.net import KeyPair
 from starknet_py.net.models import StarknetChainId
 
 from protostar.cli.signable_command_util import PatchedStarkCurveSigner
-from protostar.commands import BuildCommand, DeclareCommand, InitCommand, MigrateCommand
+from protostar.commands import (
+    BuildCommand,
+    DeclareCommand,
+    FormatCommand,
+    InitCommand,
+    MigrateCommand,
+)
 from protostar.commands.init.project_creator.new_project_creator import (
     NewProjectCreator,
 )
 from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
+from protostar.formatter.formatter import Formatter
+from protostar.formatter.formatting_result import (
+    FormattingResult,
+    format_formatting_result,
+)
+from protostar.formatter.formatting_summary import FormattingSummary
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_toml import (
     ProtostarContractsSection,
@@ -34,12 +46,14 @@ class ProtostarFixture:
         init_command: InitCommand,
         build_command: BuildCommand,
         migrator_command: MigrateCommand,
+        format_command: FormatCommand,
         declare_command: DeclareCommand,
     ) -> None:
         self._project_root_path = project_root_path
         self._init_command = init_command
         self._build_command = build_command
         self._migrator_command = migrator_command
+        self._format_command = format_command
         self._declare_command = declare_command
 
     @property
@@ -109,6 +123,41 @@ class ProtostarFixture:
         assert migration_history is not None
         return migration_history
 
+    def format(
+        self,
+        targets: List[Path],
+        check=False,
+        verbose=False,
+        ignore_broken=False,
+    ) -> FormattingSummary:
+        # We can't use run because it can raise a silent exception thus not returning summary.
+        return self._format_command.format(targets, check, verbose, ignore_broken)
+
+    def format_with_output(
+        self,
+        targets: List[Path],
+        check=False,
+        verbose=False,
+        ignore_broken=False,
+    ) -> Tuple[FormattingSummary, List[str]]:
+
+        formatter = Formatter(self._project_root_path)
+
+        output: List[str] = []
+        callback: Callable[[FormattingResult], Any] = lambda result: output.append(
+            format_formatting_result(result, check)
+        )
+
+        summary = formatter.format(
+            targets=targets,
+            check=check,
+            verbose=verbose,
+            ignore_broken=ignore_broken,
+            on_formatting_result=callback,
+        )
+
+        return summary, output
+
     def create_files(self, relative_path_str_to_content: Dict[str, str]) -> None:
         for relative_path_str, content in relative_path_str_to_content.items():
             self._save_file(self._project_root_path / relative_path_str, content)
@@ -152,6 +201,9 @@ class ProtostarFixture:
             encoding="utf-8",
         ) as output_file:
             output_file.write(content)
+
+    def get_project_root_path(self):
+        return self._project_root_path
 
 
 # pylint: disable=too-many-locals
@@ -237,6 +289,10 @@ def build_protostar_fixture(mocker: MockerFixture, project_root_path: Path):
         project_root_path=project_root_path,
     )
 
+    format_command = FormatCommand(
+        project_root_path=project_root_path,
+        logger=logger,
+    )
     declare_command = DeclareCommand(logger=logger, project_root_path=project_root_path)
 
     protostar_fixture = ProtostarFixture(
@@ -244,6 +300,7 @@ def build_protostar_fixture(mocker: MockerFixture, project_root_path: Path):
         init_command=init_command,
         build_command=build_command,
         migrator_command=migrate_command,
+        format_command=format_command,
         declare_command=declare_command,
     )
 
