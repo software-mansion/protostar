@@ -64,16 +64,16 @@ def _get_formatted_path(formatting_result: FormattingResult) -> str:
 
 
 def _get_broken_header() -> str:
-    return f'[{log_color_provider.colorize("RED", "[BROKEN]")}]'
+    return f'[{log_color_provider.colorize("RED", "BROKEN")}]'
 
 
 def _get_correct_header(check: bool) -> str:
-    correct_text = "[FORMATTED]" if check else "[UNCHANGED]"
+    correct_text = "FORMATTED" if check else "UNCHANGED"
     return f'[{log_color_provider.colorize("CYAN", correct_text)}]'
 
 
 def _get_incorrect_header(check: bool) -> str:
-    incorrect_text = "[UNFORMATTED]" if check else "[REFORMATTED]"
+    incorrect_text = "UNFORMATTED" if check else "REFORMATTED"
     incorrect_color = "YELLOW" if check else "GREEN"
     return f"[{log_color_provider.colorize(incorrect_color, incorrect_text)}]"
 
