@@ -55,7 +55,7 @@ class InitCommand(Command):
         else:
             if self._can_be_protostar_project():
                 should_adapt_existing_project = self._requester.confirm(
-                    "Your current directory may be a cairo project.\n"
+                    "Your current directory may be a Cairo project.\n"
                     "Do you want to adapt current working directory "
                     "as a project instead of creating a new project?."
                 )

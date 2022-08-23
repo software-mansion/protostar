@@ -19,4 +19,4 @@ def to_cairo_naming(input_type: Type):
     if input_type == type(None):
         return "None"
 
-    assert False, "Not a valid cairo type"
+    assert False, "Not a valid Cairo type."

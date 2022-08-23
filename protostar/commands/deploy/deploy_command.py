@@ -28,11 +28,7 @@ class DeployCommand(Command):
 
     @property
     def description(self) -> str:
-        return "\n".join(
-            [
-                "Deploys contracts.",
-            ]
-        )
+        return "Deploy contracts."
 
     @property
     def example(self) -> Optional[str]:

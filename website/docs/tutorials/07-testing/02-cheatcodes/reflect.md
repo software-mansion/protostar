@@ -5,7 +5,7 @@ Loads specified Cairo object into a Python type. `reflect` is an instance of the
 - `RelocatableValue` (for pointer)
 - `CairoStruct` (for more complex types)
 
-You can use it to print cairo data and compare complex structures.
+You can use it to print Cairo data and compare complex structures.
 
 ```cairo title=Printing
 %lang starknet

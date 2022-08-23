@@ -63,14 +63,11 @@ class TestCommand(Command):
         return [
             Command.Argument(
                 name="target",
-                description=(
-                    "A glob or globs to a directory or a test suite, for example:\n"
-                    "- `tests/**/*_main*::*_balance` — "
-                    "find test cases, which names ends with `_balance` in test suites with the `_main` "
-                    "in filenames in the `tests` directory\n"
-                    "- `::test_increase_balance` — "
-                    "find `test_increase_balance` test_cases in any test suite within the project \n"
-                ),
+                description="""
+A glob or globs to a directory or a test suite, for example:
+- `tests/**/*_main*::*_balance` — find test cases, which names ends with `_balance` in test suites with the `_main` in filenames in the `tests` directory,
+- `::test_increase_balance` — find `test_increase_balance` test_cases in any test suite within the project.   
+""".strip(),
                 type="str",
                 is_array=True,
                 is_positional=True,
@@ -80,7 +77,7 @@ class TestCommand(Command):
                 name="ignore",
                 short_name="i",
                 description=(
-                    "A glob or globs to a directory or a test suite, which should be ignored.\n"
+                    "A glob or globs to a directory or a test suite, which should be ignored."
                 ),
                 is_array=True,
                 type="str",
@@ -95,7 +92,7 @@ class TestCommand(Command):
                 name="disable-hint-validation",
                 description=(
                     "Disable hint validation in contracts declared by the "
-                    "`declare` cheatcode or deployed by `deploy_contract` cheatcode.\n"
+                    "`declare` cheatcode or deployed by `deploy_contract` cheatcode."
                 ),
                 type="bool",
             ),
@@ -107,13 +104,13 @@ class TestCommand(Command):
             Command.Argument(
                 name="safe-collecting",
                 type="bool",
-                description=("Uses cairo compiler for test collection"),
+                description="Use Cairo compiler for test collection.",
             ),
             Command.Argument(
                 name="exit-first",
                 short_name="x",
                 type="bool",
-                description="Exit immediately on first broken or failed test",
+                description="Exit immediately on first broken or failed test.",
             ),
             Command.Argument(
                 name="seed",
