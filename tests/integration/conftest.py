@@ -79,7 +79,7 @@ def assert_cairo_test_cases(
     assert actual == expected
 
 
-@pytest.fixture(name="devnet_gateway_url", scope="function")
+@pytest.fixture(name="devnet_gateway_url", scope="session")
 def devnet_gateway_url_fixture(devnet_port: int):
     proc = run_devnet(["poetry", "run", "starknet-devnet"], devnet_port)
     yield f"http://localhost:{devnet_port}"

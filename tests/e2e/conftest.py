@@ -14,7 +14,7 @@ from typing_extensions import Protocol
 from tests.conftest import run_devnet
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def protostar_repo_root() -> Path:
     file_path = Path(__file__)
     assert file_path.match(
@@ -170,7 +170,7 @@ def protostar(
     return _protostar
 
 
-@pytest.fixture(name="devnet_gateway_url", scope="function")
+@pytest.fixture(name="devnet_gateway_url", scope="session")
 def devnet_gateway_url_fixture(devnet_port: int, protostar_repo_root):
     prev_cwd = getcwd()
     chdir(protostar_repo_root)
