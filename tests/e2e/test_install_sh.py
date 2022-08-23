@@ -82,16 +82,16 @@ def test_installing_latest_version(
     copytree(src=datadir / "dist", dst=fake_home_path / ".protostar" / "dist")
     harness.expect_detected_shell(shell_name="zsh")
 
-    protostar_path_entry = (
-        f'export PATH="$PATH:{fake_home_path.resolve()}/.protostar/dist/protostar'
-    )
-    assert_file_includes_content(
-        file_path=fake_home_path / ".zshrc", content=protostar_path_entry
+    assert_config_file_includes_path_entry(
+        file_path=fake_home_path / ".zshrc", home_path=fake_home_path
     )
 
 
-def assert_file_includes_content(file_path: Path, content: str):
+def assert_config_file_includes_path_entry(file_path: Path, home_path: Path):
     assert file_path.exists()
+    protostar_path_entry = (
+        f'export PATH="$PATH:{home_path.resolve()}/.protostar/dist/protostar'
+    )
     with open(file_path, encoding="utf-8") as file_handle:
         file_content = file_handle.read()
-        assert content in file_content
+        assert protostar_path_entry in file_content
