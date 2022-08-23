@@ -1,4 +1,3 @@
-# pylint: disable=line-too-long
 # pylint: disable=too-many-arguments
 import os
 from pathlib import Path
@@ -27,7 +26,7 @@ class ScriptTestingHarness:
 
     def expect_download_curl_prompt(self, filename: str, version: str) -> None:
         self.expect(
-            f"\\[curl -L https://github.com/software-mansion/protostar/releases/download/v{version}/{filename}]:"
+            f"\\[curl -L {PROTOSTAR_REPO_URL}/releases/download/v{version}/{filename}]:"
         )
 
     def expect_tar_info(self, data: str) -> None:
