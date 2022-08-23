@@ -12,7 +12,7 @@ from protostar.starknet_gateway import GatewayFacade
 from protostar.starknet_gateway.starknet_request import StarknetRequest
 from protostar.utils.log_color_provider import LogColorProvider
 
-from .maybe_tmp_directory import MaybeTmpDirectory
+from .maybe_tmp_directory import create_maybe_tmp_directory
 from .migrator_datetime_state import MigratorDateTimeState
 
 
@@ -91,7 +91,7 @@ class Migrator:
 
     async def run(self, rollback=False) -> History:
         self._migrator_datetime_state.update_to_now()
-        with MaybeTmpDirectory(
+        with create_maybe_tmp_directory(
             self._migrator_datetime_state.get_compilation_output_path()
         ):
             await self._migrator_execution_environment.invoke(

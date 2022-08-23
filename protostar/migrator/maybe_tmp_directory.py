@@ -1,21 +1,21 @@
-from contextlib import AbstractContextManager, contextmanager
+from contextlib import contextmanager
 from pathlib import Path
-from typing import Union
 
 from protostar.protostar_exception import ProtostarException
 
 
 @contextmanager
-def MaybeTmpDirectory(path: Path):
+def create_maybe_tmp_directory(path: Path):
     if path.exists():
         raise DirectoryExistsException(path)
 
-    path.mkdir()
-    yield path
-
-    is_directory_empty = not any(path.iterdir())
-    if is_directory_empty:
-        path.rmdir()
+    try:
+        path.mkdir()
+        yield path
+    finally:
+        is_directory_empty = not any(path.iterdir())
+        if is_directory_empty:
+            path.rmdir()
 
 
 class DirectoryExistsException(ProtostarException):
