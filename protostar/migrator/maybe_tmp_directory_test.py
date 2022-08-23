@@ -4,9 +4,7 @@ from .maybe_tmp_directory import MaybeTmpDirectory
 
 
 def test_directory_exists_when_if_not_empty(tmp_path: Path):
-    output_dir = tmp_path / "tmp_dir"
-
-    with MaybeTmpDirectory(output_dir):
+    with MaybeTmpDirectory(tmp_path / "tmp_dir") as output_dir:
         _save_file(output_dir / "file.txt")
 
     assert output_dir.exists()
@@ -18,9 +16,7 @@ def _save_file(file_path: Path):
 
 
 def test_directory_not_exists_if_empty(tmp_path: Path):
-    output_dir = tmp_path / "tmp_dir"
-
-    with MaybeTmpDirectory(output_dir):
+    with MaybeTmpDirectory(tmp_path / "tmp_dir") as output_dir:
         pass
 
     assert not output_dir.exists()

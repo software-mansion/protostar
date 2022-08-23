@@ -10,8 +10,9 @@ class MaybeTmpDirectory(AbstractContextManager):
     def __init__(self, path: Path):
         self._path = path
 
-    def __enter__(self) -> None:
+    def __enter__(self) -> Path:
         self._create_dir()
+        return self._path
 
     def _create_dir(self):
         if self._path.exists():
