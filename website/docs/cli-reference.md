@@ -96,7 +96,7 @@ Waits for transaction to be accepted on chain.
 ```shell
 $ protostar format
 ```
-Format cairo source code.
+Format Cairo source code.
 #### `target PATH[]=['.']`
 Target to format, can be a file or a directory.
 #### `-c` `--check`
