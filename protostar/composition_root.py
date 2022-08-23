@@ -154,7 +154,9 @@ def build_di_container(script_root: Path, start_time: float = 0):
         DeclareCommand(logger=logger, project_root_path=project_root_path),
         MigrateCommand(
             migrator_builder=Migrator.Builder(
-                migrator_execution_environment_builder=MigratorExecutionEnvironment.Builder(),
+                migrator_execution_environment_builder=MigratorExecutionEnvironment.Builder(
+                    project_compiler
+                ),
                 project_root_path=project_root_path,
             ),
             project_root_path=project_root_path,

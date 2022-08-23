@@ -14,11 +14,12 @@ class CompiledContractWriter:
         self.save_compiled_contract(output_dir)
         self.save_compiled_contract_abi(output_dir)
 
-    def save_compiled_contract(self, output_dir: Path) -> None:
+    def save_compiled_contract(self, output_dir: Path) -> Path:
         self._create_output_dir(output_dir)
         serialized_contract = self._contract.Schema().dump(self._contract)
         file_path = output_dir / f"{self._contract_name}.json"
         self._save_as_json(data=serialized_contract, path=file_path)
+        return file_path
 
     def save_compiled_contract_abi(self, output_dir: Path) -> None:
         if not self._contract.abi:

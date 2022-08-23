@@ -3,28 +3,30 @@ import os
 from argparse import Namespace
 from logging import getLogger
 from pathlib import Path
-from typing import Dict, Optional, cast, List, Tuple, Callable, Any
+from typing import Any, Callable, Dict, List, Optional, Tuple, cast
 
 from pytest_mock import MockerFixture
+from starknet_py.net import KeyPair
 from starknet_py.net.models import StarknetChainId
 
+from protostar.cli.signable_command_util import PatchedStarkCurveSigner
 from protostar.commands import (
     BuildCommand,
+    DeclareCommand,
+    FormatCommand,
     InitCommand,
     MigrateCommand,
-    FormatCommand,
-    DeclareCommand,
 )
 from protostar.commands.init.project_creator.new_project_creator import (
     NewProjectCreator,
 )
 from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
 from protostar.formatter.formatter import Formatter
-from protostar.formatter.formatting_summary import FormattingSummary
 from protostar.formatter.formatting_result import (
     FormattingResult,
     format_formatting_result,
 )
+from protostar.formatter.formatting_summary import FormattingSummary
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_toml import (
     ProtostarContractsSection,
@@ -160,7 +162,9 @@ class ProtostarFixture:
         for relative_path_str, content in relative_path_str_to_content.items():
             self._save_file(self._project_root_path / relative_path_str, content)
 
-    def create_migration_file(self, hint_content: str) -> Path:
+    def create_migration_file(
+        self, up_hint_content: str = "", down_hint_content: str = ""
+    ) -> Path:
         file_path = self._project_root_path / "migrations" / "migration_01_test.cairo"
         self._save_file(
             file_path,
@@ -170,7 +174,16 @@ class ProtostarFixture:
         @external
         func up():
             %{{
-                {hint_content}
+                {up_hint_content}
+            %}}
+
+            return ()
+        end
+
+        @external
+        func down():
+            %{{
+                {down_hint_content}
             %}}
 
             return ()
@@ -257,8 +270,15 @@ def build_protostar_fixture(mocker: MockerFixture, project_root_path: Path):
     log_color_provider.is_ci_mode = True
 
     migrator_builder = Migrator.Builder(
-        migrator_execution_environment_builder=MigratorExecutionEnvironment.Builder(),
+        migrator_execution_environment_builder=MigratorExecutionEnvironment.Builder(
+            project_compiler
+        ),
         project_root_path=project_root_path,
+    )
+    migrator_builder.set_migration_execution_environment_config(
+        MigratorExecutionEnvironment.Config(
+            signer=PatchedStarkCurveSigner(1, KeyPair(1, 2), 2), token=None
+        )
     )
 
     migrate_command = MigrateCommand(

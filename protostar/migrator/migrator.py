@@ -1,7 +1,6 @@
 import dataclasses
 import json
 from dataclasses import dataclass
-from datetime import datetime
 from logging import Logger
 from pathlib import Path
 from typing import List, Optional
@@ -12,6 +11,9 @@ from protostar.migrator.migrator_execution_environment import (
 from protostar.starknet_gateway import GatewayFacade
 from protostar.starknet_gateway.starknet_request import StarknetRequest
 from protostar.utils.log_color_provider import LogColorProvider
+
+from .output_directory import create_output_directory
+from .migrator_datetime_state import MigratorDateTimeState
 
 
 class Migrator:
@@ -59,6 +61,11 @@ class Migrator:
                 self._gateway_facade
             )
 
+            migrator_datetime_state = MigratorDateTimeState(migration_file_path)
+            self._migrator_execution_environment_builder.set_migration_datetime_state(
+                migrator_datetime_state
+            )
+
             migrator_execution_env = (
                 await self._migrator_execution_environment_builder.build(
                     migration_file_path,
@@ -69,35 +76,45 @@ class Migrator:
             return Migrator(
                 migrator_execution_environment=migrator_execution_env,
                 project_root_path=self._project_root_path,
+                migrator_datetime_state=migrator_datetime_state,
             )
 
     def __init__(
         self,
         migrator_execution_environment: MigratorExecutionEnvironment,
+        migrator_datetime_state: MigratorDateTimeState,
         project_root_path: Optional[Path] = None,
     ) -> None:
         self._project_root_path = project_root_path or Path()
         self._migrator_execution_environment = migrator_execution_environment
+        self._migrator_datetime_state = migrator_datetime_state
 
     async def run(self, rollback=False) -> History:
-        await self._migrator_execution_environment.invoke(
-            function_name="down" if rollback else "up"
-        )
+        self._migrator_datetime_state.update_to_now()
+        with create_output_directory(
+            self._migrator_datetime_state.get_compilation_output_path()
+        ):
+            await self._migrator_execution_environment.invoke(
+                function_name="down" if rollback else "up"
+            )
 
-        return Migrator.History(
-            # pylint: disable=line-too-long
-            starknet_requests=self._migrator_execution_environment.cheatcode_factory.gateway_facade.get_starknet_requests()
+        return Migrator.History(starknet_requests=self._get_sent_requests())
+
+    def _get_sent_requests(self):
+        return (
+            self._migrator_execution_environment.cheatcode_factory.gateway_facade.get_starknet_requests()
         )
 
     def save_history(
         self,
         history: History,
-        migration_file_basename: str,
         output_dir_relative_path: Path,
     ):
         output_dir_path = self._project_root_path / output_dir_relative_path
-        prefix = datetime.strftime(datetime.now(), "%Y%m%d%H%M%S")
-        output_file_path = output_dir_path / f"{prefix}_{migration_file_basename}.json"
+
+        output_file_path = (
+            output_dir_path / f"{self._migrator_datetime_state.get_output_stem()}.json"
+        )
 
         if not output_dir_path.exists():
             output_dir_path.mkdir(

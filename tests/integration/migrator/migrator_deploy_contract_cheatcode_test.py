@@ -1,31 +1,106 @@
+from datetime import datetime
+from os import listdir
 from pathlib import Path
 from typing import cast
 
-from protostar.migrator import Migrator
-from tests.integration.migrator.conftest import assert_transaction_accepted
+import pytest
+from freezegun import freeze_time
+
+from protostar.migrator.migrator_datetime_state import MigratorDateTimeState
+from protostar.protostar_exception import ProtostarException
+from protostar.starknet_gateway.starknet_request import StarknetRequest
+from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR
+from tests.integration.migrator.conftest import (
+    MigrateFixture,
+    assert_transaction_accepted,
+)
+from tests.integration.protostar_fixture import ProtostarFixture
 
 
+@pytest.fixture(autouse=True)
+def setup(protostar: ProtostarFixture):
+    protostar.init_sync()
+    protostar.create_files({"./src/main.cairo": CONTRACT_WITH_CONSTRUCTOR})
+    protostar.build_sync()
+
+
+@freeze_time("2022-04-02 21:37:42")
 async def test_deploy_contract(
-    migrator_builder: Migrator.Builder,
-    devnet_gateway_url: str,
-    project_root_path: Path,
+    protostar: ProtostarFixture, migrate: MigrateFixture, devnet_gateway_url: str
 ):
-
-    migrator = await migrator_builder.build(
-        project_root_path / "migrations" / "migration_deploy_contract.cairo",
-    )
-
-    result = await migrator.run()
+    result = await migrate('deploy_contract("./build/main.json", [42])')
 
     assert len(result.starknet_requests) == 1
     assert result.starknet_requests[0].action == "DEPLOY"
     assert result.starknet_requests[0].payload["contract"] == str(
-        (project_root_path / "build" / "main_with_constructor.json").resolve()
+        (protostar.project_root_path / "build" / "main.json").resolve()
     )
     assert result.starknet_requests[0].payload["constructor_args"] == [42]
     assert result.starknet_requests[0].response["code"] == "TRANSACTION_RECEIVED"
 
-    transaction_hash = cast(
-        int, result.starknet_requests[0].response["transaction_hash"]
-    )
+    transaction_hash = extract_transaction_hash(result.starknet_requests[0])
     await assert_transaction_accepted(devnet_gateway_url, transaction_hash)
+
+
+@freeze_time("2022-04-02 21:37:42")
+async def test_deploying_by_contract_name(
+    protostar: ProtostarFixture, devnet_gateway_url: str
+):
+    file_path = protostar.create_migration_file('deploy_contract("main", [42])')
+
+    result = await protostar.migrate(file_path, devnet_gateway_url)
+
+    transaction_hash = extract_transaction_hash(result.starknet_requests[0])
+    await assert_transaction_accepted(devnet_gateway_url, transaction_hash)
+
+
+@freeze_time("2022-04-02 21:37:43")
+async def test_compilation_output_when_deployed_by_name(
+    protostar: ProtostarFixture, devnet_gateway_url: str
+):
+    file_path = protostar.create_migration_file('deploy_contract("main", [42])')
+
+    await protostar.migrate(file_path, devnet_gateway_url)
+
+    compilation_output = create_migration_compilation_output_path(file_path)
+    assert not is_directory_empty(compilation_output)
+
+
+@freeze_time("2022-04-02 21:37:44")
+async def test_compilation_output_not_created_when_deploying_by_path(
+    protostar: ProtostarFixture, devnet_gateway_url: str
+):
+    file_path = protostar.create_migration_file(
+        'deploy_contract("./build/main.json", [42])'
+    )
+
+    await protostar.migrate(file_path, devnet_gateway_url)
+
+    compilation_output = create_migration_compilation_output_path(file_path)
+    assert not compilation_output.exists()
+
+
+@freeze_time("2022-04-02 21:37:45")
+async def test_compilation_output_dir_overwrite_protection(
+    protostar: ProtostarFixture, devnet_gateway_url: str
+):
+    file_path = protostar.create_migration_file('deploy_contract("main", [42])')
+
+    await protostar.migrate(file_path, devnet_gateway_url)
+
+    with pytest.raises(ProtostarException):
+        await protostar.migrate(file_path, devnet_gateway_url)
+
+
+def extract_transaction_hash(starknet_request: StarknetRequest):
+    return cast(int, starknet_request.response["transaction_hash"])
+
+
+def create_migration_compilation_output_path(migration_file: Path) -> Path:
+    datetime_prefix = MigratorDateTimeState.get_datetime_prefix(datetime.now())
+    return migration_file.parent / f"{datetime_prefix}_{migration_file.stem}"
+
+
+def is_directory_empty(directory: Path) -> bool:
+    dir_content = listdir(directory)
+    return len(dir_content) == 0
