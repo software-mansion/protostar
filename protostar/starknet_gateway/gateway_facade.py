@@ -1,16 +1,21 @@
-import dataclasses
 from logging import Logger
 from pathlib import Path
+import dataclasses
 from typing import Any, Callable, Dict, List, NamedTuple, Optional, Union
 
 from starknet_py.contract import Contract, ContractFunction
 from starknet_py.net.client_errors import ContractNotFoundError
+from starknet_py.net.signer import BaseSigner
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import AddressRepresentation, StarknetChainId
-from starknet_py.transactions.declare import make_declare_tx
+from starknet_py.net.models import AddressRepresentation
 from starknet_py.transactions.deploy import make_deploy_tx
+
 from starkware.starknet.definitions import constants
 from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
+from starkware.starknet.services.api.contract_class import ContractClass
+from starkware.starknet.services.api.gateway.transaction import (
+    Declare,
+)
 
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway.gateway_response import (
@@ -37,27 +42,6 @@ class CompilationOutputNotFoundException(ProtostarException):
 
 
 class GatewayFacade:
-    class Builder:
-        def __init__(self, project_root_path: Path):
-            self._project_root_path = project_root_path
-            self._network: Optional[str] = None
-
-        def set_network(self, network: str) -> None:
-            self._network = network
-
-        def build(self) -> "GatewayFacade":
-            assert self._network is not None
-
-            client = GatewayClient(
-                # Starknet.py ignores chain parameter when
-                # `mainnet` or `testnet` is passed into the client
-                # `StarknetChainId.TESTNET` also works for devnet
-                GatewayFacade.map_to_starknet_py_naming(self._network),
-                chain=StarknetChainId.TESTNET,
-            )
-
-            return GatewayFacade(self._project_root_path, client)
-
     def __init__(
         self,
         project_root_path: Path,
@@ -70,10 +54,6 @@ class GatewayFacade:
         self._logger: Optional[Logger] = logger
         self._log_color_provider: Optional[LogColorProvider] = log_color_provider
         self._gateway_client = gateway_client
-
-    def set_logger(self, logger: Logger, log_color_provider: LogColorProvider) -> None:
-        self._logger = logger
-        self._log_color_provider = log_color_provider
 
     def get_starknet_requests(self) -> List[StarknetRequest]:
         return self._starknet_requests.copy()
@@ -107,9 +87,7 @@ class GatewayFacade:
             action="DEPLOY",
             payload={
                 "contract": str(self._project_root_path / compiled_contract_path),
-                "network": GatewayFacade.map_from_starknet_py_naming(
-                    str(self._gateway_client.net)
-                ),
+                "network": str(self._gateway_client.net),
                 "constructor_args": inputs,
                 "salt": salt,
                 "token": token,
@@ -121,9 +99,10 @@ class GatewayFacade:
         if wait_for_acceptance:
             if self._logger:
                 self._logger.info("Waiting for acceptance...")
-            await self._gateway_client.wait_for_tx(
+            _, status = await self._gateway_client.wait_for_tx(
                 result.transaction_hash, wait_for_accept=wait_for_acceptance
             )
+            result.code = status
 
         return SuccessfulDeployResponse(
             code=result.code or "",
@@ -132,12 +111,13 @@ class GatewayFacade:
         )
 
     # pylint: disable=too-many-locals
+    # pylint: disable=unused-argument
     async def declare(
         self,
         compiled_contract_path: Path,
+        signer: Optional[BaseSigner] = None,
         token: Optional[str] = None,
         wait_for_acceptance: bool = False,
-        signature: Optional[List[int]] = None,
     ) -> SuccessfulDeclareResponse:
         try:
             with open(
@@ -155,18 +135,35 @@ class GatewayFacade:
         max_fee = 0
         nonce = 0
 
-        tx = make_declare_tx(
-            compiled_contract=compiled_contract,
-        )
+        contract_cls = ContractClass.loads(compiled_contract)
+
+        unsigned_tx = Declare(
+            contract_class=contract_cls,
+            sender_address=sender,
+            max_fee=max_fee,
+            nonce=nonce,
+            version=0,
+            signature=[],
+        )  # type: ignore
+
+        # TODO(arcticae): Uncomment, when signing is made possible
+        # pylint: disable=unused-variable
+        signature: List[int] = signer.sign_transaction(unsigned_tx) if signer else []
+        tx = Declare(
+            **{
+                **unsigned_tx.__dict__,
+                "signature": [],  # TODO: pass signature here, when it's being signed
+            }
+        )  # type: ignore
 
         register_response = self._register_request(
             action="DECLARE",
             payload={
                 "contract": str(self._project_root_path / compiled_contract_path),
-                "sender_address": sender,
+                "sender_address": tx.sender_address,
                 "max_fee": max_fee,
                 "version": constants.TRANSACTION_VERSION,
-                "signature": signature or [],
+                "signature": [],  # TODO: pass signature here, when it's being signed
                 "nonce": nonce,
             },
         )
@@ -176,9 +173,10 @@ class GatewayFacade:
         if wait_for_acceptance:
             if self._logger:
                 self._logger.info("Waiting for acceptance...")
-            await self._gateway_client.wait_for_tx(
+            _, status = await self._gateway_client.wait_for_tx(
                 result.transaction_hash, wait_for_accept=wait_for_acceptance
             )
+            result.code = status
 
         return SuccessfulDeclareResponse(
             code=result.code or "",
@@ -273,22 +271,6 @@ class GatewayFacade:
             )
 
         return register_response
-
-    @staticmethod
-    def map_to_starknet_py_naming(name: str) -> str:
-        if name == "alpha-goerli":
-            return "testnet"
-        if name == "alpha-mainnet":
-            return "mainnet"
-        return name
-
-    @staticmethod
-    def map_from_starknet_py_naming(name: str) -> str:
-        if name == "testnet":
-            return "alpha-goerli"
-        if name == "mainnet":
-            return "alpha-mainnet"
-        return name
 
 
 class UnknownFunctionException(ProtostarException):

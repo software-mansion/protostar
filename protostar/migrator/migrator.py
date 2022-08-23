@@ -9,7 +9,7 @@ from typing import List, Optional
 from protostar.migrator.migrator_execution_environment import (
     MigratorExecutionEnvironment,
 )
-from protostar.starknet_gateway.gateway_facade import GatewayFacade
+from protostar.starknet_gateway import GatewayFacade
 from protostar.starknet_gateway.starknet_request import StarknetRequest
 from protostar.utils.log_color_provider import LogColorProvider
 
@@ -27,18 +27,15 @@ class Migrator:
         def __init__(
             self,
             migrator_execution_environment_builder: MigratorExecutionEnvironment.Builder,
-            gateway_facade_builder: GatewayFacade.Builder,
             project_root_path: Optional[Path] = None,
         ) -> None:
             self._migrator_execution_environment_builder = (
                 migrator_execution_environment_builder
             )
-            self._gateway_facade_builder = gateway_facade_builder
             self._logger: Optional[Logger] = None
             self._log_color_provider: Optional[LogColorProvider] = None
-            self._migrator_execution_environment_config = (
-                MigratorExecutionEnvironment.Config()
-            )
+            self._migrator_execution_environment_config = None
+            self._gateway_facade = None
             self._project_root_path = project_root_path
 
         def set_logger(
@@ -47,23 +44,19 @@ class Migrator:
             self._logger = logger
             self._log_color_provider = log_color_provider
 
-        def set_network(self, network: str):
-            self._gateway_facade_builder.set_network(network)
-
-        def set_migration_execution_environemnt_config(
+        def set_migration_execution_environment_config(
             self, config: MigratorExecutionEnvironment.Config
         ):
             self._migrator_execution_environment_config = config
 
+        def set_gateway_facade(self, gateway_facade: GatewayFacade):
+            self._gateway_facade = gateway_facade
+
         async def build(self, migration_file_path: Path):
-            gateway_facade = self._gateway_facade_builder.build()
-
-            if self._logger:
-                assert self._log_color_provider
-                gateway_facade.set_logger(self._logger, self._log_color_provider)
-
+            assert self._migrator_execution_environment_config is not None
+            assert self._gateway_facade is not None
             self._migrator_execution_environment_builder.set_gateway_facade(
-                gateway_facade
+                self._gateway_facade
             )
 
             migrator_execution_env = (

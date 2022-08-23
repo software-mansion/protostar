@@ -1,37 +1,12 @@
 from logging import Logger
+from pathlib import Path
 from typing import List, Optional
-
 from protostar.cli.command import Command
-from protostar.protostar_exception import ProtostarException
+from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.starknet_gateway import GatewayFacade
-from protostar.starknet_gateway.network_config import NetworkConfig
 
 
 class DeployCommand(Command):
-
-    gateway_url_arg = Command.Argument(
-        name="gateway-url",
-        description="The URL of a StarkNet gateway. It is required unless `--network` is provided.",
-        type="str",
-    )
-
-    network_arg = Command.Argument(
-        name="network",
-        short_name="n",
-        description=(
-            "\n".join(
-                [
-                    "The name of the StarkNet network.",
-                    "It is required unless `--gateway-url` is provided.",
-                    "",
-                    "Supported StarkNet networks:",
-                ]
-                + [f"- `{n}`" for n in NetworkConfig.get_starknet_networks()]
-            )
-        ),
-        type="str",
-    )
-
     wait_for_acceptance_arg = Command.Argument(
         name="wait-for-acceptance",
         description="Waits for transaction to be accepted on chain.",
@@ -41,11 +16,11 @@ class DeployCommand(Command):
 
     def __init__(
         self,
-        gateway_facade_builder: GatewayFacade.Builder,
         logger: Logger,
+        project_root_path: Path,
     ) -> None:
-        self._gateway_facade_builder = gateway_facade_builder
         self._logger = logger
+        self._project_root_path = project_root_path
 
     @property
     def name(self) -> str:
@@ -82,7 +57,7 @@ class DeployCommand(Command):
                     # pylint: disable=line-too-long
                     "[Read more about representing Cairo data types in the CLI.](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#array-arguments-in-calldata)"
                 ),
-                type="int",
+                type="felt",
                 is_array=True,
             ),
             Command.Argument(
@@ -98,24 +73,20 @@ class DeployCommand(Command):
                     "of contract, salt and caller. "
                     "If the salt is not supplied, the contract will be deployed with a random salt."
                 ),
-                type="int",
+                type="felt",
             ),
             DeployCommand.wait_for_acceptance_arg,
-            DeployCommand.gateway_url_arg,
-            DeployCommand.network_arg,
+            *NetworkCommandUtil.network_arguments,
         ]
 
     async def run(self, args):
-        network = args.network or args.gateway_url
-        if network is None:
-            raise ProtostarException(
-                f"Argument `{DeployCommand.gateway_url_arg.name}` or `{DeployCommand.network_arg.name}` is required"
-            )
-
-        network_config = NetworkConfig(network)
-
-        self._gateway_facade_builder.set_network(network)
-        gateway_facade = self._gateway_facade_builder.build()
+        network_command_util = NetworkCommandUtil(args, self._logger)
+        network_config = network_command_util.get_network_config()
+        gateway_client = network_command_util.get_gateway_client()
+        gateway_facade = GatewayFacade(
+            gateway_client=gateway_client,
+            project_root_path=self._project_root_path,
+        )
 
         response = await gateway_facade.deploy(
             compiled_contract_path=args.contract,

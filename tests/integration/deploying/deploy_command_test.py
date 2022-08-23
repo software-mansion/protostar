@@ -3,9 +3,9 @@ from types import SimpleNamespace
 
 import pytest
 from pytest_mock import MockerFixture
+from starknet_py.net.models import StarknetChainId
 
 from protostar.commands.deploy.deploy_command import DeployCommand
-from protostar.starknet_gateway import GatewayFacade
 
 
 @pytest.mark.parametrize("contract_name", ["main_with_constructor"])
@@ -16,8 +16,8 @@ async def test_deploying_contract(
     compiled_contract_filepath,
 ):
     deploy_command = DeployCommand(
-        gateway_facade_builder=GatewayFacade.Builder(project_root_path),
         logger=mocker.MagicMock(),
+        project_root_path=project_root_path,
     )
     args = SimpleNamespace()
     args.contract = compiled_contract_filepath
@@ -27,6 +27,7 @@ async def test_deploying_contract(
     args.token = None
     args.salt = None
     args.wait_for_acceptance = False
+    args.chain_id = StarknetChainId.TESTNET
 
     response = await deploy_command.run(args)
 

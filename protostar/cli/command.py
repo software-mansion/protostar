@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any, List, Optional, Pattern
 
 from typing_extensions import Literal
+from starkware.starknet.utils.api_utils import cast_to_felts
 
 InputAllowedType = Literal[
     "str",
@@ -12,7 +13,8 @@ InputAllowedType = Literal[
     "path",
     "bool",
     "regexp",
-    "int",
+    "int",  # only decimal!
+    "felt",
 ]
 
 
@@ -31,6 +33,11 @@ class Command(ABC):
                 pth = Path(arg)
                 assert pth.is_dir(), f'"{str(pth)}" is not a valid directory path'
                 return pth
+
+            @staticmethod
+            def felt(arg: str) -> int:
+                [output] = cast_to_felts([arg])
+                return output
 
         name: str
         description: str
