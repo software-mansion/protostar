@@ -179,9 +179,7 @@ class TestRunner:
         execution_state: TestExecutionState,
     ) -> None:
         for test_case in test_suite.test_cases:
-            test_case_runner_factory = TestCaseRunnerFactory(
-                execution_state, test_suite
-            )
-            test_case_runner = test_case_runner_factory.make(test_case.test_fn_name)
-            test_result = await test_case_runner.run(test_case.test_fn_name)
+            test_case_runner_factory = TestCaseRunnerFactory(execution_state)
+            test_case_runner = test_case_runner_factory.make(test_case)
+            test_result = await test_case_runner.run()
             self.shared_tests_state.put_result(test_result)

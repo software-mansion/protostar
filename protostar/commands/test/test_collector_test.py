@@ -154,13 +154,16 @@ def test_finding_setup_case_function(
     ).side_effect = get_function_names
     test_collector = TestCollector(starknet_compiler)
 
-    [suite] = test_collector.collect(
-        [str(project_root / "foo" / "test_foo.cairo")]
-    ).test_suites
+    test_path = project_root / "foo" / "test_foo.cairo"
+    [suite] = test_collector.collect([str(test_path)]).test_suites
 
     [test_case] = suite.test_cases
 
-    assert test_case == TestCase(test_fn_name="test_main", setup_fn_name="setup_main")
+    assert test_case == TestCase(
+        test_path=test_path,
+        test_fn_name="test_main",
+        setup_fn_name="setup_main",
+    )
 
 
 def test_collecting_from_directory_globs(starknet_compiler, project_root):
