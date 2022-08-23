@@ -1,4 +1,5 @@
 # pylint: disable=line-too-long
+# pylint: disable=too-many-arguments
 import os
 from pathlib import Path
 from shutil import copytree
@@ -47,7 +48,7 @@ def run_testing_harness(home_path: Path, shell: str) -> TestingHarnessAPI:
 
 @pytest.fixture(name="latest_protostar_version")
 def latest_protostar_version_fixture() -> str:
-    return "0.3.2"
+    return "9.9.9"
 
 
 @pytest.fixture(autouse=True)
@@ -64,26 +65,35 @@ def protostar_package_fixture(datadir: Path):
         return file_handle.read()
 
 
+@pytest.mark.parametrize(
+    "kernel, tar_filename, shell, shell_name, shell_config_path",
+    (("Darwin", "protostar-macOS.tar.gz", "/bin/zsh", "zsh", Path("./.zshrc")),),
+)
 def test_installing_latest_version(
-    tmp_path: Path, latest_protostar_version: str, datadir: Path
+    tmp_path: Path,
+    latest_protostar_version: str,
+    datadir: Path,
+    kernel: str,
+    tar_filename: str,
+    shell: str,
+    shell_name: str,
+    shell_config_path: Path,
 ):
     fake_home_path = tmp_path
 
-    harness = run_testing_harness(home_path=fake_home_path, shell="/bin/zsh")
+    harness = run_testing_harness(home_path=fake_home_path, shell=shell)
     harness.expect_kernel_name_uname_prompt()
-    harness.send("Darwin")
+    harness.send(kernel)
     harness.expect_latest_release_response_curl_prompt()
     harness.send(f'"tag_name":"v{latest_protostar_version}"')
-    harness.expect_download_curl_prompt(
-        "protostar-macOS.tar.gz", latest_protostar_version
-    )
+    harness.expect_download_curl_prompt(tar_filename, latest_protostar_version)
     harness.send("DATA")
     harness.expect_tar_info(data="DATA")
     copytree(src=datadir / "dist", dst=fake_home_path / ".protostar" / "dist")
-    harness.expect_detected_shell(shell_name="zsh")
+    harness.expect_detected_shell(shell_name=shell_name)
 
     assert_config_file_includes_path_entry(
-        file_path=fake_home_path / ".zshrc", home_path=fake_home_path
+        file_path=fake_home_path / shell_config_path, home_path=fake_home_path
     )
 
 
