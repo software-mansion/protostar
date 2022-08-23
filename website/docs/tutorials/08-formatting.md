@@ -4,7 +4,7 @@ sidebar_label: Formatting
 
 # Formatting
 
-Protostar comes with a builtin Cairo source code formatter.
+Protostar comes with a built-in Cairo source code formatter.
 
 ```shell
 protostar format
