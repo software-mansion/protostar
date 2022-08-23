@@ -13,22 +13,22 @@ function exit_if_empty() {
 HOME_MOCK=$1
 exit_if_empty "HOME_MOCK" $HOME_MOCK
 
-PLATFORM_MOCK=$2
-exit_if_empty "PLATFORM_MOCK" $PLATFORM_MOCK
-
-SHELL_MOCK=$3
+SHELL_MOCK=$2
 exit_if_empty "SHELL_MOCK" $SHELL_MOCK
 
+function uname_mock() {
+    read -p "[uname::$(printf ' %s' "$@")]: " response
+    echo $response
+}
+
 function curl_mock() {
-    printf "<curl>"
-    printf '%s ' "$@"
-    printf "</curl>"
+    read -p "[curl::$(printf ' %s' "$@")]: " response
+    echo $response
 }
 
 function tar_mock() {
-    printf "<tar>"
-    printf '%s ' "$@"
-    printf "</tar>"
+    read -p "[tar::$(printf ' %s' "$@")]: " response
+    echo $response
 }
 
 function run_script() {
@@ -37,8 +37,8 @@ function run_script() {
 
 function run_mocked_script() {
     HOME=$HOME_MOCK
-    PLATFORM=$PLATFORM_MOCK
     SHELL=$SHELL_MOCK
+    alias uname=uname_mock
     alias curl=curl_mock
     alias tar=tar_mock
     run_script
