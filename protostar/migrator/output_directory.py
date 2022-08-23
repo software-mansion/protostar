@@ -5,7 +5,7 @@ from protostar.protostar_exception import ProtostarException
 
 
 @contextmanager
-def create_maybe_tmp_directory(path: Path):
+def create_output_directory(path: Path):
     if path.exists():
         raise DirectoryExistsException(path)
 
