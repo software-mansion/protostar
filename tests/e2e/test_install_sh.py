@@ -10,7 +10,7 @@ import pytest
 PROTOSTAR_REPO_URL = "https://github.com/software-mansion/protostar"
 
 
-class TestingHarnessAPI:
+class ScriptTestingHarness:
     def __init__(self, process: pexpect.spawn) -> None:
         self._process = process
 
@@ -40,10 +40,10 @@ class TestingHarnessAPI:
         self._process.sendline(value)
 
 
-def run_testing_harness(home_path: Path, shell: str) -> TestingHarnessAPI:
+def run_testing_harness(home_path: Path, shell: str) -> ScriptTestingHarness:
     command = f"sh ./install__testing_harness.sh {home_path} {shell}"
     process = pexpect.spawn(command, timeout=1)
-    return TestingHarnessAPI(process)
+    return ScriptTestingHarness(process)
 
 
 @pytest.fixture(name="latest_protostar_version")
@@ -67,7 +67,10 @@ def protostar_package_fixture(datadir: Path):
 
 @pytest.mark.parametrize(
     "kernel, tar_filename, shell, shell_name, shell_config_path",
-    (("Darwin", "protostar-macOS.tar.gz", "/bin/zsh", "zsh", Path("./.zshrc")),),
+    (
+        ("Darwin", "protostar-macOS.tar.gz", "/bin/zsh", "zsh", Path("./.zshrc")),
+        ("Linux", "protostar-Linux.tar.gz", "/bin/bash", "bash", Path("./.bashrc")),
+    ),
 )
 def test_installing_latest_version(
     tmp_path: Path,
