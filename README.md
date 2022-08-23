@@ -59,7 +59,7 @@ curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/inst
 1. Install [Poetry](https://python-poetry.org/) — a dependency manager: `pip install poetry`
 1. Install project dependencies: `poetry install`
     - MacBook M1/M2: `CFLAGS=-I/opt/homebrew/opt/gmp/include LDFLAGS=-L/opt/homebrew/opt/gmp/lib poetry install`
-1.  Verify the setup by running tests: `poe test`
+1. Verify the setup by running tests: `poe test`
 
 
 #### Git hooks
