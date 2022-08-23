@@ -17,17 +17,12 @@ SHELL_MOCK=$2
 exit_if_empty "SHELL_MOCK" $SHELL_MOCK
 
 function uname_mock() {
-    read -p "[uname::$(printf ' %s' "$@")]: " response
+    read -p "[uname$(printf ' %s' "$@")]: " response
     echo $response
 }
 
 function curl_mock() {
-    read -p "[curl::$(printf ' %s' "$@")]: " response
-    echo $response
-}
-
-function tar_mock() {
-    read -p "[tar::$(printf ' %s' "$@")]: " response
+    read -p "[curl$(printf ' %s' "$@")]: " response
     echo $response
 }
 
@@ -40,8 +35,12 @@ function run_mocked_script() {
     SHELL=$SHELL_MOCK
     alias uname=uname_mock
     alias curl=curl_mock
-    alias tar=tar_mock
     run_script
+}
+
+function tar() {
+    read response
+    echo "[tar $response]"
 }
 
 run_mocked_script
