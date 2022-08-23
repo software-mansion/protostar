@@ -1,5 +1,6 @@
-import pytest
 from pathlib import Path
+
+import pytest
 
 from .formatting_summary import FormattingSummary, format_summary
 from .formatting_result import (
