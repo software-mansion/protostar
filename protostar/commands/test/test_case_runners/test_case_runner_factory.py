@@ -4,13 +4,10 @@ from protostar.commands.test.environments.fuzz_test_execution_environment import
 from protostar.commands.test.environments.test_execution_environment import (
     TestExecutionEnvironment,
 )
+from protostar.commands.test.fuzzing.fuzz_test_case_result_decorator import (
+    FuzzTestCaseResultDecorator,
+)
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
-from protostar.commands.test.test_case_runners.fuzz_test_case_runner import (
-    FuzzTestCaseRunner,
-)
-from protostar.commands.test.test_case_runners.standard_test_case_runner import (
-    StandardTestCaseRunner,
-)
 from protostar.commands.test.test_case_runners.test_case_runner import TestCaseRunner
 from protostar.commands.test.test_config import TestMode
 from protostar.commands.test.test_suite import TestCase
@@ -29,15 +26,16 @@ class TestCaseRunnerFactory:
         )
 
         if state.config.mode is TestMode.FUZZ:
-            return FuzzTestCaseRunner(
-                fuzz_test_execution_environment=FuzzTestExecutionEnvironment(state),
+            return TestCaseRunner(
+                execution_environment=FuzzTestExecutionEnvironment(state),
                 test_case=test_case,
                 output_recorder=state.output_recorder,
+                test_case_result_decorator=FuzzTestCaseResultDecorator(),
             )
 
         if state.config.mode is TestMode.STANDARD:
-            return StandardTestCaseRunner(
-                test_execution_environment=TestExecutionEnvironment(state),
+            return TestCaseRunner(
+                execution_environment=TestExecutionEnvironment(state),
                 test_case=test_case,
                 output_recorder=state.output_recorder,
             )

@@ -1,10 +1,8 @@
 import time
-from abc import abstractmethod
-from dataclasses import dataclass
-from typing import Generic, TypeVar
+from typing import Optional
 
 from protostar.commands.test.environments.test_execution_environment import (
-    TestExecutionResult,
+    TestExecutionEnvironment,
 )
 from protostar.commands.test.test_environment_exceptions import ReportedException
 from protostar.commands.test.test_output_recorder import OutputRecorder
@@ -12,64 +10,55 @@ from protostar.commands.test.test_results import (
     FailedTestCaseResult,
     PassedTestCaseResult,
     TestCaseResult,
+    TestCaseResultDecorator,
 )
 from protostar.commands.test.test_suite import TestCase
 
-TExecutionResult = TypeVar("TExecutionResult", bound=TestExecutionResult)
 
-
-class TestCaseRunner(Generic[TExecutionResult]):
-    @dataclass
-    class ExecutionMetadata:
-        execution_time: float
-
-    def __init__(self, test_case: TestCase, output_recorder: OutputRecorder) -> None:
+class TestCaseRunner:
+    def __init__(
+        self,
+        execution_environment: TestExecutionEnvironment,
+        test_case: TestCase,
+        output_recorder: OutputRecorder,
+        test_case_result_decorator: Optional[TestCaseResultDecorator] = None,
+    ) -> None:
         self._test_case = test_case
+        self._execution_environment = execution_environment
+        self._test_case_result_decorator = (
+            test_case_result_decorator or TestCaseResultDecorator()
+        )
         self._output_recorder = output_recorder
 
     async def run(self) -> TestCaseResult:
         timer = Timer()
         try:
             with timer:
-                execution_result = await self._run_test_case()
+                execution_result = await self._execution_environment.invoke(
+                    self._test_case.test_fn_name
+                )
 
-            return self._map_execution_result_to_passed_test_result(
-                execution_result,
-                TestCaseRunner.ExecutionMetadata(timer.elapsed),
+            return self._test_case_result_decorator.decorate_passed(
+                result=PassedTestCaseResult(
+                    file_path=self._test_case.test_path,
+                    test_case_name=self._test_case.test_fn_name,
+                    execution_resources=execution_result.execution_resources,
+                    execution_time=timer.elapsed,
+                    captured_stdout=self._output_recorder.get_captures(),
+                ),
+                execution_result=execution_result,
             )
         except ReportedException as ex:
-            return self._map_reported_exception_to_failed_test_result(
-                ex,
-                TestCaseRunner.ExecutionMetadata(timer.elapsed),
+            return self._test_case_result_decorator.decorate_failed(
+                result=FailedTestCaseResult(
+                    file_path=self._test_case.test_path,
+                    test_case_name=self._test_case.test_fn_name,
+                    exception=ex,
+                    execution_time=timer.elapsed,
+                    captured_stdout=self._output_recorder.get_captures(),
+                ),
+                exception=ex,
             )
-
-    @abstractmethod
-    async def _run_test_case(self) -> TExecutionResult:
-        ...
-
-    def _map_execution_result_to_passed_test_result(
-        self, execution_result: TExecutionResult, execution_metadata: ExecutionMetadata
-    ) -> PassedTestCaseResult:
-        return PassedTestCaseResult(
-            file_path=self._test_case.test_path,
-            test_case_name=self._test_case.test_fn_name,
-            execution_resources=execution_result.execution_resources,
-            execution_time=execution_metadata.execution_time,
-            captured_stdout=self._output_recorder.get_captures(),
-        )
-
-    def _map_reported_exception_to_failed_test_result(
-        self,
-        reported_exception: ReportedException,
-        execution_metadata: ExecutionMetadata,
-    ) -> FailedTestCaseResult:
-        return FailedTestCaseResult(
-            file_path=self._test_case.test_path,
-            test_case_name=self._test_case.test_fn_name,
-            exception=reported_exception,
-            execution_time=execution_metadata.execution_time,
-            captured_stdout=self._output_recorder.get_captures(),
-        )
 
 
 class Timer:

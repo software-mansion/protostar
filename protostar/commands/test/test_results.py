@@ -87,3 +87,33 @@ class BrokenTestSuiteResult(TestResult):
 @dataclass(frozen=True)
 class UnexpectedBrokenTestSuiteResult(BrokenTestSuiteResult):
     traceback: Optional[str]
+
+
+@dataclass
+class TestExecutionResult:
+    execution_resources: Optional[ExecutionResourcesSummary]
+
+
+@dataclass
+class FuzzTestExecutionResult(TestExecutionResult):
+    fuzz_runs_count: int
+
+
+class TestCaseResultDecorator:
+    # pylint: disable=no-self-use
+    # pylint: disable=unused-argument
+    def decorate_passed(
+        self,
+        result: PassedTestCaseResult,
+        execution_result: TestExecutionResult,
+    ) -> PassedTestCaseResult:
+        return result
+
+    # pylint: disable=no-self-use
+    # pylint: disable=unused-argument
+    def decorate_failed(
+        self,
+        result: FailedTestCaseResult,
+        exception: ReportedException,
+    ) -> FailedTestCaseResult:
+        return result

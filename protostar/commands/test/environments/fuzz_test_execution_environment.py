@@ -21,7 +21,6 @@ from protostar.commands.test.cheatcodes.reflect.cairo_struct import CairoStructH
 from protostar.commands.test.environments.test_execution_environment import (
     TestCaseCheatcodeFactory,
     TestExecutionEnvironment,
-    TestExecutionResult,
 )
 from protostar.commands.test.fuzzing.exceptions import HypothesisRejectException
 from protostar.commands.test.fuzzing.fuzz_input_exception_metadata import (
@@ -44,6 +43,7 @@ from protostar.commands.test.test_environment_exceptions import (
     CheatcodeException,
     ReportedException,
 )
+from protostar.commands.test.test_results import FuzzTestExecutionResult
 from protostar.commands.test.testing_seed import TestingSeed
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.utils.abi import get_function_parameters
@@ -54,11 +54,6 @@ from protostar.utils.hook import Hook
 @dataclass
 class FuzzConfig:
     max_examples: int = 100
-
-
-@dataclass
-class FuzzTestExecutionResult(TestExecutionResult):
-    fuzz_runs_count: int
 
 
 class FuzzTestExecutionEnvironment(TestExecutionEnvironment):

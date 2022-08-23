@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import List, Optional
 
 from starkware.starknet.business_logic.execution.objects import CallInfo
@@ -19,15 +18,11 @@ from protostar.commands.test.starkware.execution_resources_summary import (
 )
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_context import TestContextHintLocal
+from protostar.commands.test.test_results import TestExecutionResult
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.execution_environment import ExecutionEnvironment
 from protostar.utils.abi import has_function_parameters
 from protostar.utils.hook import Hook
-
-
-@dataclass
-class TestExecutionResult:
-    execution_resources: Optional[ExecutionResourcesSummary]
 
 
 class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
