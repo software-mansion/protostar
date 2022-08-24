@@ -27,7 +27,7 @@ class FuzzTestCaseRunner(TestCaseRunner[FuzzTestExecutionResult]):
 
     async def _run_test_case(self) -> FuzzTestExecutionResult:
         return await self._fuzz_test_execution_environment.invoke(
-            self.test_case.test_fn_name
+            self._test_case.test_fn_name
         )
 
     def _map_execution_result_to_passed_test_result(

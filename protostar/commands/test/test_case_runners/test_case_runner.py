@@ -24,8 +24,8 @@ class TestCaseRunner(Generic[TExecutionResult]):
         execution_time: float
 
     def __init__(self, test_case: TestCase, output_recorder: OutputRecorder) -> None:
-        self.test_case = test_case
-        self.output_recorder = output_recorder
+        self._test_case = test_case
+        self._output_recorder = output_recorder
 
     async def run(self) -> TestCaseResult:
         timer = Timer()
@@ -51,11 +51,11 @@ class TestCaseRunner(Generic[TExecutionResult]):
         self, execution_result: TExecutionResult, execution_metadata: ExecutionMetadata
     ) -> PassedTestCaseResult:
         return PassedTestCaseResult(
-            file_path=self.test_case.test_path,
-            test_case_name=self.test_case.test_fn_name,
+            file_path=self._test_case.test_path,
+            test_case_name=self._test_case.test_fn_name,
             execution_resources=execution_result.execution_resources,
             execution_time=execution_metadata.execution_time,
-            captured_stdout=self.output_recorder.get_captures(),
+            captured_stdout=self._output_recorder.get_captures(),
         )
 
     def _map_reported_exception_to_failed_test_result(
@@ -64,11 +64,11 @@ class TestCaseRunner(Generic[TExecutionResult]):
         execution_metadata: ExecutionMetadata,
     ) -> FailedTestCaseResult:
         return FailedTestCaseResult(
-            file_path=self.test_case.test_path,
-            test_case_name=self.test_case.test_fn_name,
+            file_path=self._test_case.test_path,
+            test_case_name=self._test_case.test_fn_name,
             exception=reported_exception,
             execution_time=execution_metadata.execution_time,
-            captured_stdout=self.output_recorder.get_captures(),
+            captured_stdout=self._output_recorder.get_captures(),
         )
 
 

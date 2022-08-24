@@ -14,5 +14,5 @@ class StandardTestCaseRunner(TestCaseRunner[TestExecutionResult]):
 
     async def _run_test_case(self) -> TestExecutionResult:
         return await self._test_execution_environment.invoke(
-            self.test_case.test_fn_name
+            self._test_case.test_fn_name
         )
