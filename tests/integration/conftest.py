@@ -1,8 +1,10 @@
 # pylint: disable=invalid-name
+import os
+from contextlib import contextmanager
 from dataclasses import dataclass
 from logging import getLogger
 from pathlib import Path
-from typing import List, Optional, Set, Union, cast
+from typing import ContextManager, List, Optional, Set, Union, cast
 
 import pytest
 from pytest import TempPathFactory
@@ -163,7 +165,35 @@ def protostar_fixture(
     session_mocker: MockerFixture,
     protostar_project_root_path: Path,
 ) -> ProtostarFixture:
+    """@deprecated: Use `create_protostar_project` fixture instead."""
     return build_protostar_fixture(
         mocker=session_mocker,
         project_root_path=protostar_project_root_path,
     )
+
+
+class CreateProtostarProjectFixture(Protocol):
+    def __call__(self, project_root_path: Path) -> ContextManager[ProtostarFixture]:
+        ...
+
+
+ProtostarProjectFixture = ProtostarFixture
+
+
+@pytest.fixture(name="create_protostar_project", scope="module")
+def create_protostar_project_fixture(
+    session_mocker: MockerFixture,
+):
+    @contextmanager
+    def create_protostar_project(project_root_path: Path):
+        cwd = Path().resolve()
+        protostar = build_protostar_fixture(
+            mocker=session_mocker,
+            project_root_path=project_root_path,
+        )
+        protostar.init_sync()
+        os.chdir(project_root_path)
+        yield protostar
+        os.chdir(cwd)
+
+    return create_protostar_project

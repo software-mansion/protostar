@@ -1,3 +1,6 @@
+# pylint: disable=too-many-locals
+# pylint: disable=too-many-arguments
+
 import asyncio
 import os
 from argparse import Namespace
@@ -206,7 +209,6 @@ class ProtostarFixture:
         return self._project_root_path
 
 
-# pylint: disable=too-many-locals
 def build_protostar_fixture(mocker: MockerFixture, project_root_path: Path):
 
     version_manager = mocker.MagicMock()

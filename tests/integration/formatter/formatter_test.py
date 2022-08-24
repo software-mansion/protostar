@@ -1,39 +1,37 @@
-import os
-from typing import List, Dict
 from pathlib import Path
+from typing import Dict, List
 
 import pytest
 
-from tests.integration.protostar_fixture import ProtostarFixture
 from tests.data.contracts import (
     BROKEN_CONTRACT,
     FORMATTED_CONTRACT,
     UNFORMATTED_CONTRACT,
 )
+from tests.integration.conftest import (
+    CreateProtostarProjectFixture,
+    ProtostarProjectFixture,
+)
 
 
-@pytest.fixture(autouse=True, scope="function")
-def setup_function(protostar: ProtostarFixture):
-    protostar.init_sync()
-
-    cwd = Path().resolve()
-    os.chdir(protostar.get_project_root_path())
-
-    protostar.create_files(
-        {
-            "to_format/formatted.cairo": FORMATTED_CONTRACT,
-            "to_format/unformatted1.cairo": UNFORMATTED_CONTRACT,
-            "to_format/unformatted2.cairo": UNFORMATTED_CONTRACT,
-            "to_format/broken.cairo": BROKEN_CONTRACT,
-        }
-    )
-    yield
-
-    os.chdir(cwd)
+@pytest.fixture(name="protostar_project")
+def protostar_project_fixture(
+    create_protostar_project: CreateProtostarProjectFixture, tmp_path: Path
+):
+    with create_protostar_project(tmp_path / "project_root") as protostar_project:
+        protostar_project.create_files(
+            {
+                "to_format/formatted.cairo": FORMATTED_CONTRACT,
+                "to_format/unformatted1.cairo": UNFORMATTED_CONTRACT,
+                "to_format/unformatted2.cairo": UNFORMATTED_CONTRACT,
+                "to_format/broken.cairo": BROKEN_CONTRACT,
+            }
+        )
+        yield protostar_project
 
 
-async def test_formatter_formatting(protostar: ProtostarFixture):
-    summary = protostar.format([Path("to_format")])
+async def test_formatter_formatting(protostar_project: ProtostarProjectFixture):
+    summary = protostar_project.format([Path("to_format")])
 
     assert len(summary.broken) == 1
     assert len(summary.correct) == 1
@@ -41,8 +39,8 @@ async def test_formatter_formatting(protostar: ProtostarFixture):
     assert_contents_equal("to_format/formatted.cairo", "to_format/unformatted1.cairo")
 
 
-async def test_formatter_checking(protostar: ProtostarFixture):
-    summary = protostar.format([Path("to_format")], check=True)
+async def test_formatter_checking(protostar_project: ProtostarProjectFixture):
+    summary = protostar_project.format([Path("to_format")], check=True)
 
     assert len(summary.broken) == 1
     assert len(summary.correct) == 1
@@ -52,8 +50,8 @@ async def test_formatter_checking(protostar: ProtostarFixture):
     )
 
 
-async def test_formatter_output(protostar: ProtostarFixture):
-    _, output = protostar.format_with_output(
+async def test_formatter_output(protostar_project: ProtostarProjectFixture):
+    _, output = protostar_project.format_with_output(
         targets=[Path("to_format")],
     )
 
@@ -69,8 +67,10 @@ async def test_formatter_output(protostar: ProtostarFixture):
     )
 
 
-async def test_formatter_output_verbose(protostar: ProtostarFixture):
-    _, output = protostar.format_with_output(targets=[Path("to_format")], verbose=True)
+async def test_formatter_output_verbose(protostar_project: ProtostarProjectFixture):
+    _, output = protostar_project.format_with_output(
+        targets=[Path("to_format")], verbose=True
+    )
 
     assert_counts_in_result(
         output,
@@ -84,8 +84,8 @@ async def test_formatter_output_verbose(protostar: ProtostarFixture):
     )
 
 
-async def test_formatter_output_check(protostar: ProtostarFixture):
-    _, output = protostar.format_with_output(
+async def test_formatter_output_check(protostar_project: ProtostarProjectFixture):
+    _, output = protostar_project.format_with_output(
         targets=[Path("to_format")],
         check=True,
     )
@@ -102,8 +102,10 @@ async def test_formatter_output_check(protostar: ProtostarFixture):
     )
 
 
-async def test_formatter_output_check_verbose(protostar: ProtostarFixture):
-    _, output = protostar.format_with_output(
+async def test_formatter_output_check_verbose(
+    protostar_project: ProtostarProjectFixture,
+):
+    _, output = protostar_project.format_with_output(
         targets=[Path("to_format")],
         verbose=True,
         check=True,
@@ -121,8 +123,8 @@ async def test_formatter_output_check_verbose(protostar: ProtostarFixture):
     )
 
 
-async def test_formatter_ignore_broken(protostar: ProtostarFixture):
-    _, output = protostar.format_with_output(
+async def test_formatter_ignore_broken(protostar_project: ProtostarProjectFixture):
+    _, output = protostar_project.format_with_output(
         targets=[Path("to_format")],
         ignore_broken=True,
     )
