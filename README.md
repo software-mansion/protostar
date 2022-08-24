@@ -35,6 +35,12 @@ To install the tool, run:
 curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/install.sh | bash
 ```
 
+If you want to specify a version, run the following command with the requested version:
+
+```console
+curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/install.sh | bash -s -- -v 0.3.2
+```
+
 ---
 
 ## Development
