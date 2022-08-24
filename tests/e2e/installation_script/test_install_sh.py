@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from .conftest import (
+from tests.e2e.installation_script.conftest import (
     GitHubResponse,
     ScriptTestingHarness,
     SimulateUnwrappingFixture,
