@@ -55,7 +55,9 @@ def test_installing_latest_version(
     harness.expect_kernel_name_uname_prompt()
     harness.send(kernel)
 
-    harness.expect_release_response_curl_prompt(requested_ref="latest")
+    harness.expect_release_response_curl_prompt(
+        requested_ref=ProtostarGitHubRepository.get_release_ref(version=None)
+    )
     harness.send(
         ProtostarGitHubRepository.get_release_found_response(latest_protostar_version)
     )

@@ -85,7 +85,7 @@ class ProtostarGitHubRepository:
         return '{"error":"Not Found"}'
 
     @staticmethod
-    def get_release_ref(version: Optional[str] = None) -> str:
+    def get_release_ref(version: Optional[str]) -> str:
         if version is None:
             return "latest"
         return f"tag/v{version}"
