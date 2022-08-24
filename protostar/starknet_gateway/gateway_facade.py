@@ -245,11 +245,11 @@ class GatewayFacade:
         )
 
         response_dict: StarknetRequest.Payload = {
-            "hash": hex(result.hash) if isinstance(result.hash, int) else result.hash,
-            "contract_address": hex(result.contract.address),
+            "hash": result.hash,
+            "contract_address": result.contract.address,
         }
         if result.block_number:
-            response_dict["block_number"] = str(result.block_number)
+            response_dict["block_number"] = result.block_number
 
         if result.status:
             response_dict["status"] = result.status
