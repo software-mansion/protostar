@@ -7,7 +7,7 @@ sidebar_label: Formatting
 Protostar comes with a built-in Cairo source code formatter.
 
 ```shell
-protostar format
+protostar format --help
 ```
 
 For usage specification check [CLI Reference](../cli-reference.md#format).
