@@ -162,8 +162,10 @@ def protostar_project_root_path_fixture(tmp_path_factory: TempPathFactory) -> Pa
 def protostar_fixture(
     session_mocker: MockerFixture,
     protostar_project_root_path: Path,
+    signer,
 ) -> ProtostarFixture:
     return build_protostar_fixture(
         mocker=session_mocker,
         project_root_path=protostar_project_root_path,
+        signer=signer,
     )

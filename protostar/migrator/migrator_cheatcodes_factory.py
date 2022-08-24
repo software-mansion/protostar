@@ -16,6 +16,9 @@ from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.cheatcode_factory import CheatcodeFactory
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.utils.starknet_compilation import StarknetCompiler
+from protostar.migrator.cheatcodes.migrator_invoke_cheatcode import (
+    MigratorInvokeCheatcode,
+)
 
 from .migrator_datetime_state import MigratorDateTimeState
 
@@ -23,6 +26,7 @@ from .migrator_datetime_state import MigratorDateTimeState
 class MigratorCheatcodeFactory(CheatcodeFactory):
     @dataclass
     class Config:
+        account_address: Optional[str] = None
         signer: Optional[BaseSigner] = None
         token: Optional[str] = None
 
@@ -67,4 +71,10 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
                 config=MigratorDeployContractCheatcode.Config(token=self._config.token),
             ),
             MigratorCallCheatcode(syscall_dependencies, self.gateway_facade),
+            MigratorInvokeCheatcode(
+                syscall_dependencies=syscall_dependencies,
+                gateway_facade=self.gateway_facade,
+                global_signer=self._config.signer,
+                global_account_address=self._config.account_address,
+            ),
         ]

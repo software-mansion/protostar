@@ -77,7 +77,8 @@ class MigrateCommand(Command):
         signable_command_util = SignableCommandUtil(args, self._logger)
 
         migrator_config = MigratorExecutionEnvironment.Config(
-            signer=signable_command_util.get_signer(network_config)
+            signer=signable_command_util.get_signer(network_config),
+            account_address=args.account_address,
         )
         return await self.migrate(
             migration_file_path=args.path,
