@@ -113,6 +113,4 @@ def assert_config_file_includes_path_entry(file_path: Path, home_path: Path):
     protostar_path_entry = (
         f'export PATH="$PATH:{home_path.resolve()}/.protostar/dist/protostar'
     )
-    with open(file_path, encoding="utf-8") as file_handle:
-        file_content = file_handle.read()
-        assert protostar_path_entry in file_content
+    assert protostar_path_entry in file_path.read_text()
