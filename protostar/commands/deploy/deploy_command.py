@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import List, Optional
 from protostar.cli.command import Command
 from protostar.cli.network_command_util import NetworkCommandUtil
-from protostar.starknet_gateway import GatewayFacade
+from protostar.starknet_gateway import GatewayFacade, format_successful_deploy_response
 
 
 class DeployCommand(Command):
@@ -97,6 +97,10 @@ class DeployCommand(Command):
         if explorer_url:
             explorer_url_msg_lines = ["", explorer_url]
 
-        response.log(self._logger, extra_msg=explorer_url_msg_lines)
+        self._logger.info(
+            format_successful_deploy_response(
+                response, extra_msg=explorer_url_msg_lines
+            )
+        )
 
         return response

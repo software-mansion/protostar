@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from logging import Logger
 from typing import List, Optional
 
 
@@ -9,17 +8,18 @@ class SuccessfulDeployResponse:
     address: int
     transaction_hash: int
 
-    def log(self, logger: Logger, extra_msg: Optional[List[str]] = None):
-        logger.info(
-            "\n".join(
-                [
-                    "Deploy transaction was sent.",
-                    f"Contract address: 0x{self.address:064x}",
-                    f"Transaction hash: {self.transaction_hash}",
-                ]
-                + (extra_msg or [])
-            )
-        )
+
+def format_successful_deploy_response(
+    response: SuccessfulDeployResponse, extra_msg: Optional[List[str]] = None
+):
+    return "\n".join(
+        [
+            "Deploy transaction was sent.",
+            f"Contract address: 0x{response.address:064x}",
+            f"Transaction hash: 0x{response.transaction_hash:064x}",
+        ]
+        + (extra_msg or [])
+    )
 
 
 @dataclass
@@ -28,14 +28,15 @@ class SuccessfulDeclareResponse:
     class_hash: int
     transaction_hash: int
 
-    def log(self, logger: Logger, extra_msg: Optional[List[str]] = None):
-        logger.info(
-            "\n".join(
-                [
-                    "Declare transaction was sent.",
-                    f"Class hash: 0x{self.class_hash:064x}",
-                    f"Transaction hash: {self.transaction_hash}",
-                ]
-                + (extra_msg or [])
-            )
-        )
+
+def format_successful_declare_response(
+    response: SuccessfulDeclareResponse, extra_msg: Optional[List[str]] = None
+):
+    return "\n".join(
+        [
+            "Declare transaction was sent.",
+            f"Class hash: 0x{response.class_hash:064x}",
+            f"Transaction hash: 0x{response.transaction_hash:064x}",
+        ]
+        + (extra_msg or [])
+    )
