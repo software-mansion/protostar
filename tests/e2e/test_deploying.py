@@ -1,3 +1,4 @@
+import re
 from distutils.file_util import copy_file
 from pathlib import Path
 
@@ -32,6 +33,7 @@ def test_deploying_contract_with_constructor(
     )
 
     assert "Deploy transaction was sent" in result
+    assert count_hex64(result) == 2
 
 
 @pytest.mark.usefixtures("init")
@@ -62,6 +64,7 @@ def test_deploying_contract_with_constructor_and_inputs_defined_in_config_file(
     )
 
     assert "Deploy transaction was sent" in result
+    assert count_hex64(result) == 2
 
 
 @pytest.mark.usefixtures("init")
@@ -85,6 +88,7 @@ def test_declaring_contract(protostar, devnet_gateway_url, datadir: Path):
     )
 
     assert "Declare transaction was sent" in result
+    assert count_hex64(result) == 2
 
 
 @pytest.mark.usefixtures("init")
@@ -116,3 +120,8 @@ def test_declaring_contract_with_signature(
     )
 
     assert "Declare transaction was sent" in result
+    assert count_hex64(result) == 2
+
+
+def count_hex64(x: str) -> int:
+    return len(re.findall(r"0x[0-9a-f]{64}", x))

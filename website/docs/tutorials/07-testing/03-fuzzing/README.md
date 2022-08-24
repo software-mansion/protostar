@@ -250,4 +250,6 @@ Each resource counter presents a summary of observed values across all test runs
 - `max` is the highest value observed.
 
 ## Adjusting fuzzing quality
-By default, Protostar tries to fail a test case within 100 examples. The default value is chosen to suit a workflow where the test will be part of a suite that is regularly executed locally or on a CI server, balancing total running time against the chance of missing a bug. The more complex code, the more examples are needed to find uncommon bugs. Use [`--fuzz-max-examples` parameter](/docs/cli-reference#--fuzz-max-examples-int100) to change the number of examples.
+By default, Protostar tries to fail a test case within 100 examples. The default value is chosen to suit a workflow where the test will be part of a suite that is regularly executed locally or on a CI server, balancing total running time against the chance of missing a bug. The more complex code, the more examples are needed to find uncommon bugs.
+<!-- TODO(mkaput): Remove this along with --fuzz-max-examples argument. -->
+Use [`--fuzz-max-examples` parameter](/docs/cli-reference#--fuzz-max-examples-int100) to change the number of examples.

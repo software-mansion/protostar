@@ -8,6 +8,7 @@ from protostar.utils.log_color_provider import LogColorProvider
 
 @dataclass
 class StarknetRequest:
+    AS_HEX = {"transaction_hash", "contract_address", "class_hash"}
     Action = Literal["DEPLOY", "DECLARE", "CALL", "INVOKE"]
     Payload = Dict[str, Union[None, str, int, List[int], List[str]]]
 
@@ -57,6 +58,9 @@ class StarknetRequest:
 
         first_column_width = max(max_key_length, 20)
         for key, value in payload.items():
+            if key in StarknetRequest.AS_HEX:
+                value = f"0x{value:064x}"
+
             if color_provider:
                 colorize = color_provider.colorize
                 bold = color_provider.bold

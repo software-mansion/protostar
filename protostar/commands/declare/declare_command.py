@@ -12,6 +12,7 @@ from protostar.starknet_gateway import (
     GatewayFacade,
     NetworkConfig,
     SuccessfulDeclareResponse,
+    format_successful_declare_response,
 )
 
 
@@ -103,5 +104,10 @@ class DeclareCommand(Command):
         if explorer_url:
             explorer_url_msg_lines = ["", explorer_url]
 
-        response.log(self._logger, extra_msg=explorer_url_msg_lines)
+        self._logger.info(
+            format_successful_declare_response(
+                response, extra_msg=explorer_url_msg_lines
+            )
+        )
+
         return response

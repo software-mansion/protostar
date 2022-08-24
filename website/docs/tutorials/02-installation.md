@@ -15,6 +15,13 @@ curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/inst
 2. Restart the terminal.
 3. Run `protostar -v` to check Protostar and [cairo-lang](https://pypi.org/project/cairo-lang/) version.
 
+### Specifying version
+
+If you want to specify a version of protostar to install run the following command with the requested version:
+
+```console
+curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/install.sh | bash -s -- -v 0.3.2
+```
 
 ## Windows
 Not supported. 

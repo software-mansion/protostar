@@ -278,7 +278,12 @@ class TestCollector:
         setup_fn_name = self._collect_setup_hook_name(preprocessed)
 
         test_cases = list(
-            test_suite_info.filter_test_cases(self._collect_test_cases(preprocessed))
+            test_suite_info.filter_test_cases(
+                self._collect_test_cases(
+                    preprocessed=preprocessed,
+                    test_path=test_suite_info.path,
+                )
+            )
         )
 
         return TestSuite(
@@ -292,6 +297,7 @@ class TestCollector:
         preprocessed: Union[
             StarknetPreprocessedProgram, TestCollectorPreprocessedProgram
         ],
+        test_path: Path,
     ) -> Iterable[TestCase]:
         test_prefix = "test_"
         setup_prefix = "setup_"
@@ -306,6 +312,7 @@ class TestCollector:
                     setup_fn_name = None
 
                 yield TestCase(
+                    test_path=test_path,
                     test_fn_name=test_fn_name,
                     setup_fn_name=setup_fn_name,
                 )

@@ -21,18 +21,47 @@ case $PLATFORM in
     ;;
 esac
 
+while getopts ":v:" opt; do
+  case $opt in
+    v)
+      VERSION=$OPTARG
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      exit 1
+      ;;
+  esac
+done
+
+if [ -n "$VERSION" ]; then
+  REQUESTED_REF="tag/v${VERSION}"
+else
+  REQUESTED_REF="latest"
+  VERSION="latest"
+fi
+
 PROTOSTAR_REPO="https://github.com/software-mansion/protostar"
 
-echo Retrieving the latest version from $PROTOSTAR_REPO...
+echo Retrieving $VERSION version from $PROTOSTAR_REPO...
 
-LATEST_RELEASE=$(curl -L -s -H 'Accept: application/json' "${PROTOSTAR_REPO}/releases/latest")
-LATEST_VERSION=$(echo $LATEST_RELEASE | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
+REQUESTED_RELEASE=$(curl -L -s -H 'Accept: application/json' "${PROTOSTAR_REPO}/releases/${REQUESTED_REF}")
 
-echo Using version $LATEST_VERSION
+if [ "$REQUESTED_RELEASE" == "{\"error\":\"Not Found\"}" ]; then
+  echo "Version $VERSION not found"
+  exit
+fi
 
-LATEST_RELEASE_URL="${PROTOSTAR_REPO}/releases/download/${LATEST_VERSION}"
+REQUESTED_VERSION=$(echo $REQUESTED_RELEASE | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
+
+echo Using version $REQUESTED_VERSION
+
+REQUESTED_RELEASE_URL="${PROTOSTAR_REPO}/releases/download/${REQUESTED_VERSION}"
 PROTOSTAR_TARBALL_NAME="protostar-${PLATFORM}.tar.gz"
-TARBALL_DOWNLOAD_URL="${LATEST_RELEASE_URL}/${PROTOSTAR_TARBALL_NAME}"
+TARBALL_DOWNLOAD_URL="${REQUESTED_RELEASE_URL}/${PROTOSTAR_TARBALL_NAME}"
 
 echo "Downloading protostar from ${TARBALL_DOWNLOAD_URL}"
 curl -L $TARBALL_DOWNLOAD_URL | tar -xvzC $PROTOSTAR_DIR
