@@ -1,5 +1,8 @@
+from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
 from shutil import copytree
+from typing import Optional
 
 import pexpect
 import pytest
@@ -12,15 +15,39 @@ INSTALL_TESTING_HARNESS_PATH = (
 ).resolve()
 
 
+class SupportedKernel:
+    DARWIN = "Darwin"
+    LINUX = "Linux"
+
+
+class UploadedTarFilename:
+    LINUX = "protostar-Linux.tar.gz"
+    MACOS = "protostar-macOS.tar.gz"
+
+
+@dataclass
+class Shell:
+    interpreter: str
+    name: str
+    config_file_path: Path
+
+
+class SupportedShell:
+    ZSH = Shell(interpreter="/bin/zsh", name="zsh", config_file_path=Path("./.zshrc"))
+    BASH = Shell(
+        interpreter="/bin/bash", name="bash", config_file_path=Path("./.bashrc")
+    )
+
+
 class ScriptTestingHarness:
     def __init__(self, process: pexpect.spawn) -> None:
         self._process = process
 
     @classmethod
     def create(
-        cls, home_path: Path, shell: str, requested_version: str = ""
+        cls, home_path: Path, shell_interpreter: str, requested_version: str = ""
     ) -> "ScriptTestingHarness":
-        command = f"bash {INSTALL_TESTING_HARNESS_PATH} {home_path} {shell} {requested_version}"
+        command = f"bash {INSTALL_TESTING_HARNESS_PATH} {home_path} {shell_interpreter} {requested_version}"
         process = pexpect.spawn(command, timeout=1)
         return cls(process)
 
@@ -53,13 +80,19 @@ class ScriptTestingHarness:
         self._process.sendline(value)
 
 
-class GitHubResponse:
+class ProtostarGitHubRepository:
     @staticmethod
-    def get_release_not_found_response():
+    def get_release_not_found_response() -> str:
         return '{"error":"Not Found"}'
 
     @staticmethod
-    def get_release_found_response(version: str):
+    def get_release_ref(version: Optional[str] = None) -> str:
+        if version is None:
+            return "latest"
+        return f"tag/v{version}"
+
+    @staticmethod
+    def get_release_found_response(version: str) -> str:
         return f'"tag_name":"v{version}"'
 
 

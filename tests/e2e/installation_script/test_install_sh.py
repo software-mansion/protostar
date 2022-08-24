@@ -1,13 +1,16 @@
 # pylint: disable=too-many-arguments
-import os
 from pathlib import Path
 
 import pytest
 
 from tests.e2e.installation_script.conftest import (
-    GitHubResponse,
+    ProtostarGitHubRepository,
     ScriptTestingHarness,
+    Shell,
     SimulateUnwrappingFixture,
+    SupportedKernel,
+    SupportedShell,
+    UploadedTarFilename,
     assert_config_file_includes_path_entry,
 )
 
@@ -23,10 +26,10 @@ def latest_protostar_version_fixture() -> str:
 
 
 @pytest.mark.parametrize(
-    "kernel, tar_filename, shell, shell_name, shell_config_path",
+    "kernel, shell, uploaded_tar_filename",
     (
-        ("Darwin", "protostar-macOS.tar.gz", "/bin/zsh", "zsh", Path("./.zshrc")),
-        ("Linux", "protostar-Linux.tar.gz", "/bin/bash", "bash", Path("./.bashrc")),
+        (SupportedKernel.DARWIN, SupportedShell.ZSH, UploadedTarFilename.MACOS),
+        (SupportedKernel.LINUX, SupportedShell.BASH, UploadedTarFilename.LINUX),
     ),
 )
 def test_installing_latest_version(
@@ -34,102 +37,108 @@ def test_installing_latest_version(
     latest_protostar_version: str,
     simulate_unwrapping: SimulateUnwrappingFixture,
     kernel: str,
-    tar_filename: str,
-    shell: str,
-    shell_name: str,
-    shell_config_path: Path,
+    shell: Shell,
+    uploaded_tar_filename: str,
 ):
 
-    harness = ScriptTestingHarness.create(home_path=home_path, shell=shell)
+    harness = ScriptTestingHarness.create(
+        home_path=home_path, shell_interpreter=shell.interpreter
+    )
 
     harness.expect_kernel_name_uname_prompt()
     harness.send(kernel)
 
     harness.expect_release_response_curl_prompt(requested_ref="latest")
-    harness.send(GitHubResponse.get_release_found_response(latest_protostar_version))
+    harness.send(
+        ProtostarGitHubRepository.get_release_found_response(latest_protostar_version)
+    )
 
-    harness.expect_download_curl_prompt(tar_filename, latest_protostar_version)
+    harness.expect_download_curl_prompt(uploaded_tar_filename, latest_protostar_version)
     harness.send("DATA")
 
     harness.expect_tar_info(data="DATA")
     simulate_unwrapping(output_dir=home_path)
 
-    harness.expect_detected_shell(shell_name=shell_name)
+    harness.expect_detected_shell(shell_name=shell.name)
     harness.expect_eof()
 
     assert_config_file_includes_path_entry(
-        file_path=home_path / shell_config_path, home_path=home_path
+        file_path=home_path / shell.config_file_path, home_path=home_path
     )
 
 
 @pytest.mark.parametrize(
-    "kernel, tar_filename, shell, shell_name, shell_config_path",
+    "kernel, shell, uploaded_tar_filename",
     (
-        ("Darwin", "protostar-macOS.tar.gz", "/bin/zsh", "zsh", Path("./.zshrc")),
-        ("Linux", "protostar-Linux.tar.gz", "/bin/bash", "bash", Path("./.bashrc")),
+        (SupportedKernel.DARWIN, SupportedShell.ZSH, UploadedTarFilename.MACOS),
+        (SupportedKernel.LINUX, SupportedShell.BASH, UploadedTarFilename.LINUX),
     ),
 )
 def test_installing_specific_version(
     home_path: Path,
     simulate_unwrapping: SimulateUnwrappingFixture,
     kernel: str,
-    tar_filename: str,
-    shell: str,
-    shell_name: str,
-    shell_config_path: Path,
+    shell: Shell,
+    uploaded_tar_filename: str,
 ):
     requested_version = "0.1.0"
 
     harness = ScriptTestingHarness.create(
-        home_path=home_path, shell=shell, requested_version=requested_version
+        home_path=home_path,
+        shell_interpreter=shell.interpreter,
+        requested_version=requested_version,
     )
 
     harness.expect_kernel_name_uname_prompt()
     harness.send(kernel)
 
     harness.expect_release_response_curl_prompt(
-        requested_ref=f"tag/v{requested_version}"
+        requested_ref=ProtostarGitHubRepository.get_release_ref(requested_version)
     )
-    harness.send(GitHubResponse.get_release_found_response(requested_version))
+    harness.send(
+        ProtostarGitHubRepository.get_release_found_response(requested_version)
+    )
 
-    harness.expect_download_curl_prompt(tar_filename, requested_version)
+    harness.expect_download_curl_prompt(uploaded_tar_filename, requested_version)
     harness.send("DATA")
 
     harness.expect_tar_info(data="DATA")
     simulate_unwrapping(output_dir=home_path)
 
-    harness.expect_detected_shell(shell_name=shell_name)
+    harness.expect_detected_shell(shell_name=shell.name)
     harness.expect_eof()
 
     assert_config_file_includes_path_entry(
-        file_path=home_path / shell_config_path, home_path=home_path
+        file_path=home_path / shell.config_file_path, home_path=home_path
     )
 
 
 @pytest.mark.parametrize(
     "kernel, shell",
     (
-        ("Darwin", "/bin/zsh"),
-        ("Linux", "/bin/bash"),
+        (SupportedKernel.DARWIN, SupportedShell.ZSH),
+        (SupportedKernel.LINUX, SupportedShell.BASH),
     ),
 )
 def test_installing_specific_but_unreleased_version(
     home_path: Path,
     kernel: str,
-    shell: str,
+    shell: Shell,
 ):
     unreleased_version = "99.9.9"
     harness = ScriptTestingHarness.create(
-        home_path=home_path, shell=shell, requested_version=unreleased_version
+        home_path=home_path,
+        shell_interpreter=shell.interpreter,
+        requested_version=unreleased_version,
     )
 
     harness.expect_kernel_name_uname_prompt()
     harness.send(kernel)
 
     harness.expect_release_response_curl_prompt(
-        requested_ref=f"tag/v{unreleased_version}"
+        requested_ref=ProtostarGitHubRepository.get_release_ref(unreleased_version)
     )
-    harness.send(GitHubResponse.get_release_not_found_response())
+    harness.send(ProtostarGitHubRepository.get_release_not_found_response())
 
     harness.expect(f"Version {unreleased_version} not found")
     harness.expect_eof()
