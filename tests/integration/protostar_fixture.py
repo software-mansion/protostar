@@ -205,9 +205,6 @@ class ProtostarFixture:
         ) as output_file:
             output_file.write(content)
 
-    def get_project_root_path(self):
-        return self._project_root_path
-
 
 def build_protostar_fixture(mocker: MockerFixture, project_root_path: Path):
 
