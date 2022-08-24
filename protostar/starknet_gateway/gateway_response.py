@@ -15,7 +15,7 @@ class SuccessfulDeployResponse:
                 [
                     "Deploy transaction was sent.",
                     f"Contract address: 0x{self.address:064x}",
-                    f"Transaction hash: {self.transaction_hash}",
+                    f"Transaction hash: 0x{self.transaction_hash:064x}",
                 ]
                 + (extra_msg or [])
             )
@@ -34,7 +34,7 @@ class SuccessfulDeclareResponse:
                 [
                     "Declare transaction was sent.",
                     f"Class hash: 0x{self.class_hash:064x}",
-                    f"Transaction hash: {self.transaction_hash}",
+                    f"Transaction hash: 0x{self.transaction_hash:064x}",
                 ]
                 + (extra_msg or [])
             )
