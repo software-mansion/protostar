@@ -7,6 +7,10 @@ from typing_extensions import Protocol
 
 PROTOSTAR_REPO_URL = "https://github.com/software-mansion/protostar"
 
+INSTALL_TESTING_HARNESS_PATH = (
+    Path(__file__).parent / "install_testing_harness.sh"
+).resolve()
+
 
 class ScriptTestingHarness:
     def __init__(self, process: pexpect.spawn) -> None:
@@ -16,9 +20,7 @@ class ScriptTestingHarness:
     def create(
         cls, home_path: Path, shell: str, requested_version: str = ""
     ) -> "ScriptTestingHarness":
-        command = (
-            f"bash ./install_testing_harness.sh {home_path} {shell} {requested_version}"
-        )
+        command = f"bash {INSTALL_TESTING_HARNESS_PATH} {home_path} {shell} {requested_version}"
         process = pexpect.spawn(command, timeout=1)
         return cls(process)
 

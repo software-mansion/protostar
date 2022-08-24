@@ -12,14 +12,6 @@ from tests.e2e.installation_script.conftest import (
 )
 
 
-@pytest.fixture(autouse=True)
-def setup(protostar_repo_root: Path):
-    cwd = Path()
-    os.chdir(protostar_repo_root)
-    yield
-    os.chdir(cwd)
-
-
 @pytest.fixture(name="home_path")
 def home_path_fixture(tmp_path: Path):
     return tmp_path

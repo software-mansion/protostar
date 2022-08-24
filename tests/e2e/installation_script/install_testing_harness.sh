@@ -34,7 +34,8 @@ function tar() {
 }
 
 if [ -n "$VERSION" ]; then
-    source ./install.sh -v $VERSION
+    source "${BASH_SOURCE%/*}/../../../install.sh" -v $VERSION
 else
-    source ./install.sh
+    source "${BASH_SOURCE%/*}/../../../install.sh"
+
 fi
