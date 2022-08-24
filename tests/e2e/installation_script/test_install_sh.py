@@ -48,7 +48,6 @@ def test_installing_latest_version(
     shell: Shell,
     uploaded_installation_filename: str,
 ):
-
     harness = ScriptTestingHarness.create(
         home_path=home_path, shell_interpreter=shell.interpreter
     )
