@@ -40,7 +40,7 @@ class ScriptTestingHarness:
 
 
 def run_testing_harness(home_path: Path, shell: str) -> ScriptTestingHarness:
-    command = f"bash ./install__testing_harness.sh {home_path} {shell}"
+    command = f"bash ./install_testing_harness.sh {home_path} {shell}"
     process = pexpect.spawn(command, timeout=1)
     return ScriptTestingHarness(process)
 
