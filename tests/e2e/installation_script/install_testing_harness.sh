@@ -16,6 +16,8 @@ HOME=$1
 exit_if_empty "SHELL_MOCK" $2
 SHELL=$2
 
+VERSION=$3
+
 function uname() {
     read -p "[uname$(printf ' %s' "$@")]: " response
     echo $response
@@ -31,4 +33,9 @@ function tar() {
     echo "[tar $response]"
 }
 
-source ./install.sh
+if [ -n "$VERSION" ]; then
+    source "${BASH_SOURCE%/*}/../../../install.sh" -v $VERSION
+else
+    source "${BASH_SOURCE%/*}/../../../install.sh"
+
+fi
