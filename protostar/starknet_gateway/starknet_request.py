@@ -55,8 +55,14 @@ class StarknetRequest:
             if len(key) > max_key_length:
                 max_key_length = len(key)
 
+        # Will be converted to hex
+        as_hex = {"transaction_hash", "contract_address", "class_hash"}
+
         first_column_width = max(max_key_length, 20)
         for key, value in payload.items():
+            if key in as_hex:
+                value = f"0x{value:064x}"
+
             if color_provider:
                 colorize = color_provider.colorize
                 bold = color_provider.bold
