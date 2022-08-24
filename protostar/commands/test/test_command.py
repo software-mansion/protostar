@@ -117,6 +117,7 @@ A glob or globs to a directory or a test suite, for example:
                 type="int",
                 description="Set a seed to use for all fuzz tests.",
             ),
+            # TODO(mkaput): Remove this.
             Command.Argument(
                 name="fuzz-max-examples",
                 type="int",
@@ -144,6 +145,7 @@ A glob or globs to a directory or a test suite, for example:
             safe_collecting=args.safe_collecting,
             exit_first=args.exit_first,
             seed=args.seed,
+            # TODO(mkaput): Remove this.
             fuzz_max_examples=args.fuzz_max_examples,
             slowest_tests_to_report_count=args.report_slowest_tests,
         )
@@ -161,6 +163,7 @@ A glob or globs to a directory or a test suite, for example:
         safe_collecting: bool = False,
         exit_first: bool = False,
         seed: Optional[int] = None,
+        # TODO(mkaput): Remove this.
         fuzz_max_examples: int = 100,
         slowest_tests_to_report_count: int = 0,
     ) -> TestingSummary:
@@ -214,6 +217,7 @@ A glob or globs to a directory or a test suite, for example:
                 TestScheduler(live_logger, worker=TestRunner.worker).run(
                     include_paths=include_paths,
                     test_collector_result=test_collector_result,
+                    # TODO(mkaput): Remove this along with --fuzz-max-examples argument.
                     fuzz_config=FuzzConfig(max_examples=fuzz_max_examples),
                     disable_hint_validation=disable_hint_validation,
                     exit_first=exit_first,

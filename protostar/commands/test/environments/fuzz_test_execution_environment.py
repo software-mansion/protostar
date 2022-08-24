@@ -1,6 +1,6 @@
 import dataclasses
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from hypothesis import given, seed, settings
 from hypothesis.database import ExampleDatabase, InMemoryExampleDatabase
@@ -50,12 +50,7 @@ from protostar.utils.abi import get_function_parameters
 from protostar.utils.hook import Hook
 
 
-def is_fuzz_test(function_name: str, state: TestExecutionState) -> bool:
-    abi = state.contract.abi
-    params = get_function_parameters(abi, function_name)
-    return bool(params)
-
-
+# TODO(mkaput): Remove this along with --fuzz-max-examples argument.
 @dataclass
 class FuzzConfig:
     max_examples: int = 100
@@ -70,13 +65,13 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
     def __init__(
         self,
         state: TestExecutionState,
-        fuzz_config: Optional[FuzzConfig] = None,
     ):
         super().__init__(state)
         self.initial_state = state
-        self._fuzz_config = fuzz_config or FuzzConfig()
 
     async def invoke(self, function_name: str) -> FuzzTestExecutionResult:
+        # TODO(mkaput): Raise broken test error if arguments mismatch given() cheatcode
+        #   strategies or if test has no parameters at all.
         abi = self.state.contract.abi
         parameters = get_function_parameters(abi, function_name)
         assert (
@@ -105,7 +100,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         execution_resources: List[ExecutionResourcesSummary] = []
 
         database = InMemoryExampleDatabase()
-        runs_counter = RunsCounter(budget=self._fuzz_config.max_examples)
+        runs_counter = RunsCounter(budget=self.state.config.fuzz_max_examples)
 
         # NOTE: Hypothesis' ``reporter`` global is a thread local variable.
         #   Because we are running Hypothesis from separate thread, and the test itself is
