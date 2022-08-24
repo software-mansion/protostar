@@ -55,6 +55,7 @@ def test_installing_latest_version(
     simulate_unwrapping(output_dir=home_path)
 
     harness.expect_detected_shell(shell_name=shell_name)
+    harness.expect_eof()
 
     assert_config_file_includes_path_entry(
         file_path=home_path / shell_config_path, home_path=home_path
@@ -98,6 +99,7 @@ def test_installing_specific_version(
     simulate_unwrapping(output_dir=home_path)
 
     harness.expect_detected_shell(shell_name=shell_name)
+    harness.expect_eof()
 
     assert_config_file_includes_path_entry(
         file_path=home_path / shell_config_path, home_path=home_path
@@ -130,3 +132,4 @@ def test_installing_specific_but_unreleased_version(
     harness.send(GitHubResponse.get_release_not_found_response())
 
     harness.expect(f"Version {unreleased_version} not found")
+    harness.expect_eof()

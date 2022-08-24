@@ -46,6 +46,9 @@ class ScriptTestingHarness:
     def expect_detected_shell(self, shell_name: str) -> None:
         self.expect(f"Detected your preferred shell is {shell_name}")
 
+    def expect_eof(self) -> None:
+        self._process.expect(pexpect.EOF)
+
     def send(self, value: str) -> None:
         self._process.sendline(value)
 
