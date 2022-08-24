@@ -56,7 +56,7 @@ def test_installing_latest_version(
     harness.expect_download_curl_prompt(uploaded_tar_filename, latest_protostar_version)
     harness.send("DATA")
 
-    harness.expect_tar_info(data="DATA")
+    harness.expect_captured_tar(data="DATA")
     simulate_unwrapping(output_dir=home_path)
 
     harness.expect_detected_shell(shell_name=shell.name)
@@ -102,7 +102,7 @@ def test_installing_specific_version(
     harness.expect_download_curl_prompt(uploaded_tar_filename, requested_version)
     harness.send("DATA")
 
-    harness.expect_tar_info(data="DATA")
+    harness.expect_captured_tar(data="DATA")
     simulate_unwrapping(output_dir=home_path)
 
     harness.expect_detected_shell(shell_name=shell.name)

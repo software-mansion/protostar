@@ -67,7 +67,7 @@ class ScriptTestingHarness:
             f"\\[curl -L {PROTOSTAR_REPO_URL}/releases/download/v{version}/{filename}]:"
         )
 
-    def expect_tar_info(self, data: str) -> None:
+    def expect_captured_tar(self, data: str) -> None:
         self.expect(f"\\[tar {data}]")
 
     def expect_detected_shell(self, shell_name: str) -> None:
