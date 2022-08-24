@@ -76,10 +76,22 @@ If your IDE supports Cairo and doesn't know how to import `protostar`, add the f
 
 You can find all [assert signatures here](https://github.com/software-mansion/protostar/blob/master/cairo/protostar/asserts.cairo).
 
-## `__setup__`
-Often while writing tests you have some setup work that needs to happen before tests run. The hook `__setup__` can simplify and speed up your tests. Use `context` variable to pass data from `__setup__` to test functions as demonstrated on the example below:
+## Setup hooks
 
-```cairo
+Often while writing tests you have some setup work that needs to happen before tests run.
+The `__setup__` and `setup_*` hooks can simplify and speed up your tests.
+
+1. The `__setup__` hook is shared between all test cases in module, and is executed before
+   test case.
+2. The `setup_*` case hook is bound to a matching `test_*` case and is executed between
+   the `__setup__` hook and the test case.
+   Use case hooks to configure the behavior of particular test case,
+   for example, by calling the [`max_examples`](./02-cheatcodes/max-examples.md) cheatcode.
+
+Use `context` variable to pass data from setup hooks to test functions as demonstrated in
+examples below:
+
+```cairo title="Using __setup__ hook"
 %lang starknet
 
 @external
@@ -99,7 +111,25 @@ func test_something():
 end
 ```
 
+```cairo title="Using setup_* case hook"
+%lang starknet
+
+@external
+func setup_test_something():
+    %{ max_examples(500) %}
+    return ()
+end
+
+@external
+func test_something(a : felt):
+    # ...
+
+    return ()
+end
+```
 
 :::info
-Protostar executes `__setup__` only once per a [test suite](https://en.wikipedia.org/wiki/Test_suite). Then, for each test case Protostar copies the StarkNet state and `context` object.
+Protostar executes `__setup__` only once per
+[test suite](https://en.wikipedia.org/wiki/Test_suite).
+Then, for each test case Protostar copies the StarkNet state and `context` object.
 :::
