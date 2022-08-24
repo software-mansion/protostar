@@ -190,8 +190,6 @@ Additional directories to look for sources.
 Disable hint validation in contracts declared by the `declare` cheatcode or deployed by `deploy_contract` cheatcode.
 #### `-x` `--exit-first`
 Exit immediately on first broken or failed test.
-#### `--fuzz-max-examples INT=100`
-Once this many satisfying examples have been considered without finding any counter-example, falsification will terminate.
 #### `-i` `--ignore STRING[]`
 A glob or globs to a directory or a test suite, which should be ignored.
 #### `--no-progress-bar`

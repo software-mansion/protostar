@@ -6,9 +6,6 @@ from typing import List, Optional
 
 from protostar.cli.activity_indicator import ActivityIndicator
 from protostar.cli.command import Command
-from protostar.commands.test.environments.fuzz_test_execution_environment import (
-    FuzzConfig,
-)
 from protostar.commands.test.test_collector import TestCollector
 from protostar.commands.test.test_collector_summary_formatter import (
     format_test_collector_summary,
@@ -117,16 +114,6 @@ A glob or globs to a directory or a test suite, for example:
                 type="int",
                 description="Set a seed to use for all fuzz tests.",
             ),
-            # TODO(mkaput): Remove this.
-            Command.Argument(
-                name="fuzz-max-examples",
-                type="int",
-                default=100,
-                description=(
-                    "Once this many satisfying examples have been considered "
-                    "without finding any counter-example, falsification will terminate."
-                ),
-            ),
             Command.Argument(
                 name="report-slowest-tests",
                 type="int",
@@ -145,8 +132,6 @@ A glob or globs to a directory or a test suite, for example:
             safe_collecting=args.safe_collecting,
             exit_first=args.exit_first,
             seed=args.seed,
-            # TODO(mkaput): Remove this.
-            fuzz_max_examples=args.fuzz_max_examples,
             slowest_tests_to_report_count=args.report_slowest_tests,
         )
         summary.assert_all_passed()
@@ -163,8 +148,6 @@ A glob or globs to a directory or a test suite, for example:
         safe_collecting: bool = False,
         exit_first: bool = False,
         seed: Optional[int] = None,
-        # TODO(mkaput): Remove this.
-        fuzz_max_examples: int = 100,
         slowest_tests_to_report_count: int = 0,
     ) -> TestingSummary:
         include_paths = [
@@ -217,8 +200,6 @@ A glob or globs to a directory or a test suite, for example:
                 TestScheduler(live_logger, worker=TestRunner.worker).run(
                     include_paths=include_paths,
                     test_collector_result=test_collector_result,
-                    # TODO(mkaput): Remove this along with --fuzz-max-examples argument.
-                    fuzz_config=FuzzConfig(max_examples=fuzz_max_examples),
                     disable_hint_validation=disable_hint_validation,
                     exit_first=exit_first,
                 )

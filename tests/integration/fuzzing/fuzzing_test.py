@@ -11,9 +11,7 @@ async def test_basic(run_cairo_test_runner: RunCairoTestRunnerFixture):
     seed = 10
 
     testing_summary = await run_cairo_test_runner(
-        Path(__file__).parent / "basic_test.cairo",
-        seed=seed,
-        fuzz_max_examples=5,
+        Path(__file__).parent / "basic_test.cairo", seed=seed
     )
 
     assert_cairo_test_cases(
@@ -28,7 +26,7 @@ async def test_basic(run_cairo_test_runner: RunCairoTestRunnerFixture):
 
 async def test_non_felt_parameter(run_cairo_test_runner: RunCairoTestRunnerFixture):
     testing_summary = await run_cairo_test_runner(
-        Path(__file__).parent / "non_felt_parameter_test.cairo", fuzz_max_examples=3
+        Path(__file__).parent / "non_felt_parameter_test.cairo"
     )
 
     assert_cairo_test_cases(
@@ -41,7 +39,7 @@ async def test_non_felt_parameter(run_cairo_test_runner: RunCairoTestRunnerFixtu
 
 async def test_state_is_isolated(run_cairo_test_runner: RunCairoTestRunnerFixture):
     testing_summary = await run_cairo_test_runner(
-        Path(__file__).parent / "state_isolation_test.cairo", fuzz_max_examples=3
+        Path(__file__).parent / "state_isolation_test.cairo"
     )
 
     assert_cairo_test_cases(
@@ -74,17 +72,27 @@ async def test_hypothesis_multiple_errors(
     )
 
 
-async def test_max_fuzz_runs_less_or_equal_than_specified(
+async def test_max_examples_in_setup_hook(
     run_cairo_test_runner: RunCairoTestRunnerFixture,
 ):
-    fuzz_max_examples = 10
-
     testing_summary = await run_cairo_test_runner(
-        Path(__file__).parent / "basic_test.cairo",
-        seed=3,
-        fuzz_max_examples=fuzz_max_examples,
+        Path(__file__).parent / "max_examples_in_setup_hook_test.cairo", seed=3
     )
 
-    assert isinstance(testing_summary.passed[0], PassedFuzzTestCaseResult)
-    assert testing_summary.passed[0].fuzz_runs_count is not None
-    assert testing_summary.passed[0].fuzz_runs_count <= fuzz_max_examples
+    [result] = testing_summary.passed
+    assert isinstance(result, PassedFuzzTestCaseResult)
+    assert result.fuzz_runs_count is not None
+    assert result.fuzz_runs_count <= 5
+
+
+async def test_max_examples_in_setup_case(
+    run_cairo_test_runner: RunCairoTestRunnerFixture,
+):
+    testing_summary = await run_cairo_test_runner(
+        Path(__file__).parent / "max_examples_in_setup_case_test.cairo", seed=3
+    )
+
+    [result] = testing_summary.passed
+    assert isinstance(result, PassedFuzzTestCaseResult)
+    assert result.fuzz_runs_count is not None
+    assert result.fuzz_runs_count <= 5

@@ -1,6 +1,12 @@
 %lang starknet
 
 @external
+func __setup__():
+    %{ max_examples(3) %}
+    return ()
+end
+
+@external
 func test_unknown_parameter{syscall_ptr : felt*, range_check_ptr}(a : felt):
     %{
         given(

@@ -51,12 +51,6 @@ from protostar.utils.abi import get_function_parameters
 from protostar.utils.hook import Hook
 
 
-# TODO(mkaput): Remove this along with --fuzz-max-examples argument.
-@dataclass
-class FuzzConfig:
-    max_examples: int = 100
-
-
 @dataclass
 class FuzzTestExecutionResult(TestExecutionResult):
     fuzz_runs_count: int

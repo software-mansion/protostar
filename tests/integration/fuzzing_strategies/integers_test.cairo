@@ -3,6 +3,12 @@
 from starkware.cairo.common.math import assert_le
 
 @external
+func __setup__():
+    %{ max_examples(5) %}
+    return ()
+end
+
+@external
 func test_integers{syscall_ptr : felt*, range_check_ptr}(a : felt, b : felt):
     %{
         given(

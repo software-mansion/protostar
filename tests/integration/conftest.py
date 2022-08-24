@@ -91,7 +91,6 @@ class RunCairoTestRunnerFixture(Protocol):
         self,
         path: Path,
         seed: Optional[int] = None,
-        fuzz_max_examples=100,
         disable_hint_validation=False,
         cairo_path: Optional[List[Path]] = None,
         ignored_test_cases: Optional[List[str]] = None,
@@ -113,12 +112,10 @@ def run_cairo_test_runner_fixture(
     async def run_cairo_test_runner(
         path: Path,
         seed: Optional[int] = None,
-        fuzz_max_examples=100,
         disable_hint_validation=False,
         cairo_path: Optional[List[Path]] = None,
         ignored_test_cases: Optional[List[str]] = None,
     ) -> TestingSummary:
-
         protostar_directory_mock = mocker.MagicMock()
         protostar_directory_mock.protostar_test_only_cairo_packages_path = Path()
 
@@ -144,7 +141,6 @@ def run_cairo_test_runner_fixture(
             targets=[str(path)],
             ignored_targets=ignored_targets,
             seed=seed,
-            fuzz_max_examples=fuzz_max_examples,
             disable_hint_validation=disable_hint_validation,
             cairo_path=cairo_path or [],
         )

@@ -7,6 +7,7 @@ from protostar.commands.test.cheatcodes import (
     DeployCheatcode,
     DeployContractCheatcode,
     LoadCheatcode,
+    MaxExamplesCheatcode,
     MockCallCheatcode,
     PrepareCheatcode,
     ReflectCheatcode,
@@ -68,6 +69,7 @@ class SetupCheatcodeFactory(CheatcodeFactory):
             StoreCheatcode(syscall_dependencies),
             LoadCheatcode(syscall_dependencies),
             ReflectCheatcode(syscall_dependencies),
+            MaxExamplesCheatcode(syscall_dependencies, self._state.config),
         ]
 
     def build_hint_locals(self) -> List[HintLocal]:

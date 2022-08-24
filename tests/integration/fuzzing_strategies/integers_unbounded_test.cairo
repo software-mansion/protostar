@@ -1,5 +1,11 @@
 %lang starknet
 
+@external
+func __setup__():
+    %{ max_examples(60) %}
+    return ()
+end
+
 # This test checks that the `integers` strategy can have one of it's parameters omitted.
 # Because the range will be unlimited at least in one end, the fuzzer is expected to find
 # values that will overflow. Here, we try to ensure that nothing crashes along the way,
