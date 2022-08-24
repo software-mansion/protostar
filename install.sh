@@ -38,9 +38,9 @@ while getopts ":v:" opt; do
 done
 
 if [ -n "$VERSION" ]; then
-  DESIRED_VERSION="tag/v${VERSION}"
+  REQUESTED_REF="tag/v${VERSION}"
 else
-  DESIRED_VERSION="latest"
+  REQUESTED_REF="latest"
   VERSION="latest"
 fi
 
@@ -48,20 +48,20 @@ PROTOSTAR_REPO="https://github.com/software-mansion/protostar"
 
 echo Retrieving $VERSION version from $PROTOSTAR_REPO...
 
-DESIRED_RELEASE=$(curl -L -s -H 'Accept: application/json' "${PROTOSTAR_REPO}/releases/${DESIRED_VERSION}")
+REQUESTED_RELEASE=$(curl -L -s -H 'Accept: application/json' "${PROTOSTAR_REPO}/releases/${REQUESTED_REF}")
 
-if [ "$DESIRED_RELEASE" == "{\"error\":\"Not Found\"}" ]; then
+if [ "$REQUESTED_RELEASE" == "{\"error\":\"Not Found\"}" ]; then
   echo "Version $VERSION not found"
   exit
 fi
 
-DESIRED_VERSION=$(echo $DESIRED_RELEASE | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
+REQUESTED_VERSION=$(echo $REQUESTED_RELEASE | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
 
-echo Using version $DESIRED_VERSION
+echo Using version $REQUESTED_VERSION
 
-DESIRED_RELEASE_URL="${PROTOSTAR_REPO}/releases/download/${DESIRED_VERSION}"
+REQUESTED_RELEASE_URL="${PROTOSTAR_REPO}/releases/download/${REQUESTED_VERSION}"
 PROTOSTAR_TARBALL_NAME="protostar-${PLATFORM}.tar.gz"
-TARBALL_DOWNLOAD_URL="${DESIRED_RELEASE_URL}/${PROTOSTAR_TARBALL_NAME}"
+TARBALL_DOWNLOAD_URL="${REQUESTED_RELEASE_URL}/${PROTOSTAR_TARBALL_NAME}"
 
 echo "Downloading protostar from ${TARBALL_DOWNLOAD_URL}"
 curl -L $TARBALL_DOWNLOAD_URL | tar -xvzC $PROTOSTAR_DIR
