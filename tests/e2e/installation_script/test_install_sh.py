@@ -10,7 +10,7 @@ from tests.e2e.installation_script.conftest import (
     SimulateUnwrappingFixture,
     SupportedKernel,
     SupportedShell,
-    UploadedTarFilename,
+    UploadedInstallationFilename,
     assert_config_file_includes_path_entry,
 )
 
@@ -26,10 +26,18 @@ def latest_protostar_version_fixture() -> str:
 
 
 @pytest.mark.parametrize(
-    "kernel, shell, uploaded_tar_filename",
+    "kernel, shell, uploaded_installation_filename",
     (
-        (SupportedKernel.DARWIN, SupportedShell.ZSH, UploadedTarFilename.MACOS),
-        (SupportedKernel.LINUX, SupportedShell.BASH, UploadedTarFilename.LINUX),
+        (
+            SupportedKernel.DARWIN,
+            SupportedShell.ZSH,
+            UploadedInstallationFilename.MACOS,
+        ),
+        (
+            SupportedKernel.LINUX,
+            SupportedShell.BASH,
+            UploadedInstallationFilename.LINUX,
+        ),
     ),
 )
 def test_installing_latest_version(
@@ -38,7 +46,7 @@ def test_installing_latest_version(
     simulate_unwrapping: SimulateUnwrappingFixture,
     kernel: str,
     shell: Shell,
-    uploaded_tar_filename: str,
+    uploaded_installation_filename: str,
 ):
 
     harness = ScriptTestingHarness.create(
@@ -53,7 +61,9 @@ def test_installing_latest_version(
         ProtostarGitHubRepository.get_release_found_response(latest_protostar_version)
     )
 
-    harness.expect_download_curl_prompt(uploaded_tar_filename, latest_protostar_version)
+    harness.expect_download_curl_prompt(
+        uploaded_installation_filename, latest_protostar_version
+    )
     harness.send("DATA")
 
     harness.expect_captured_tar(data="DATA")
@@ -68,10 +78,18 @@ def test_installing_latest_version(
 
 
 @pytest.mark.parametrize(
-    "kernel, shell, uploaded_tar_filename",
+    "kernel, shell, uploaded_installation_filename",
     (
-        (SupportedKernel.DARWIN, SupportedShell.ZSH, UploadedTarFilename.MACOS),
-        (SupportedKernel.LINUX, SupportedShell.BASH, UploadedTarFilename.LINUX),
+        (
+            SupportedKernel.DARWIN,
+            SupportedShell.ZSH,
+            UploadedInstallationFilename.MACOS,
+        ),
+        (
+            SupportedKernel.LINUX,
+            SupportedShell.BASH,
+            UploadedInstallationFilename.LINUX,
+        ),
     ),
 )
 def test_installing_specific_version(
@@ -79,7 +97,7 @@ def test_installing_specific_version(
     simulate_unwrapping: SimulateUnwrappingFixture,
     kernel: str,
     shell: Shell,
-    uploaded_tar_filename: str,
+    uploaded_installation_filename: str,
 ):
     requested_version = "0.1.0"
 
@@ -99,7 +117,9 @@ def test_installing_specific_version(
         ProtostarGitHubRepository.get_release_found_response(requested_version)
     )
 
-    harness.expect_download_curl_prompt(uploaded_tar_filename, requested_version)
+    harness.expect_download_curl_prompt(
+        uploaded_installation_filename, requested_version
+    )
     harness.send("DATA")
 
     harness.expect_captured_tar(data="DATA")

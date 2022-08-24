@@ -20,7 +20,7 @@ class SupportedKernel:
     LINUX = "Linux"
 
 
-class UploadedTarFilename:
+class UploadedInstallationFilename:
     LINUX = "protostar-Linux.tar.gz"
     MACOS = "protostar-macOS.tar.gz"
 
