@@ -10,44 +10,6 @@ from typing_extensions import Protocol
 PROTOSTAR_REPO_URL = "https://github.com/software-mansion/protostar"
 
 
-class ScriptTestingHarness:
-    def __init__(self, process: pexpect.spawn) -> None:
-        self._process = process
-
-    def expect(self, response: str) -> None:
-        self._process.expect(response)
-
-    def expect_kernel_name_uname_prompt(self) -> None:
-        self.expect("\\[uname -s]:")
-
-    def expect_release_response_curl_prompt(self, requested_ref: str) -> None:
-        self.expect(
-            f"\\[curl -L -s -H Accept: application/json {PROTOSTAR_REPO_URL}/releases/{requested_ref}]:"
-        )
-
-    def expect_download_curl_prompt(self, filename: str, version: str) -> None:
-        self.expect(
-            f"\\[curl -L {PROTOSTAR_REPO_URL}/releases/download/v{version}/{filename}]:"
-        )
-
-    def expect_tar_info(self, data: str) -> None:
-        self.expect(f"\\[tar {data}]")
-
-    def expect_detected_shell(self, shell_name: str) -> None:
-        self.expect(f"Detected your preferred shell is {shell_name}")
-
-    def send(self, value: str) -> None:
-        self._process.sendline(value)
-
-
-def run_testing_harness(
-    home_path: Path, shell: str, version: str = ""
-) -> ScriptTestingHarness:
-    command = f"bash ./install_testing_harness.sh {home_path} {shell} {version}"
-    process = pexpect.spawn(command, timeout=1)
-    return ScriptTestingHarness(process)
-
-
 @pytest.fixture(autouse=True)
 def setup(protostar_repo_root: Path):
     cwd = Path()
@@ -93,7 +55,7 @@ def test_installing_latest_version(
 ):
     fake_home_path = tmp_path
 
-    harness = run_testing_harness(home_path=fake_home_path, shell=shell)
+    harness = ScriptTestingHarness.create(home_path=fake_home_path, shell=shell)
 
     harness.expect_kernel_name_uname_prompt()
     harness.send(kernel)
@@ -116,7 +78,10 @@ def test_installing_latest_version(
 
 @pytest.mark.parametrize(
     "kernel, tar_filename, shell, shell_name, shell_config_path",
-    (("Darwin", "protostar-macOS.tar.gz", "/bin/zsh", "zsh", Path("./.zshrc")),),
+    (
+        ("Darwin", "protostar-macOS.tar.gz", "/bin/zsh", "zsh", Path("./.zshrc")),
+        ("Linux", "protostar-Linux.tar.gz", "/bin/bash", "bash", Path("./.bashrc")),
+    ),
 )
 def test_installing_specific_version(
     tmp_path: Path,
@@ -130,7 +95,7 @@ def test_installing_specific_version(
     requested_version = "0.1.0"
     fake_home_path = tmp_path
 
-    harness = run_testing_harness(
+    harness = ScriptTestingHarness.create(
         home_path=fake_home_path, shell=shell, version=requested_version
     )
 
@@ -163,3 +128,41 @@ def assert_config_file_includes_path_entry(file_path: Path, home_path: Path):
     with open(file_path, encoding="utf-8") as file_handle:
         file_content = file_handle.read()
         assert protostar_path_entry in file_content
+
+
+class ScriptTestingHarness:
+    def __init__(self, process: pexpect.spawn) -> None:
+        self._process = process
+
+    @classmethod
+    def create(
+        cls, home_path: Path, shell: str, version: str = ""
+    ) -> "ScriptTestingHarness":
+        command = f"bash ./install_testing_harness.sh {home_path} {shell} {version}"
+        process = pexpect.spawn(command, timeout=1)
+        return cls(process)
+
+    def expect(self, response: str) -> None:
+        self._process.expect(response)
+
+    def expect_kernel_name_uname_prompt(self) -> None:
+        self.expect("\\[uname -s]:")
+
+    def expect_release_response_curl_prompt(self, requested_ref: str) -> None:
+        self.expect(
+            f"\\[curl -L -s -H Accept: application/json {PROTOSTAR_REPO_URL}/releases/{requested_ref}]:"
+        )
+
+    def expect_download_curl_prompt(self, filename: str, version: str) -> None:
+        self.expect(
+            f"\\[curl -L {PROTOSTAR_REPO_URL}/releases/download/v{version}/{filename}]:"
+        )
+
+    def expect_tar_info(self, data: str) -> None:
+        self.expect(f"\\[tar {data}]")
+
+    def expect_detected_shell(self, shell_name: str) -> None:
+        self.expect(f"Detected your preferred shell is {shell_name}")
+
+    def send(self, value: str) -> None:
+        self._process.sendline(value)
