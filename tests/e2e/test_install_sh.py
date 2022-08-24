@@ -18,6 +18,11 @@ def setup(protostar_repo_root: Path):
     os.chdir(cwd)
 
 
+@pytest.fixture(name="home_path")
+def home_path_fixture(tmp_path: Path):
+    return tmp_path
+
+
 @pytest.fixture(name="latest_protostar_version")
 def latest_protostar_version_fixture() -> str:
     return "9.9.9"
@@ -44,7 +49,7 @@ def simulate_unwrapping_fixture(datadir: Path) -> SimulateUnwrappingFixture:
     ),
 )
 def test_installing_latest_version(
-    tmp_path: Path,
+    home_path: Path,
     latest_protostar_version: str,
     simulate_unwrapping: SimulateUnwrappingFixture,
     kernel: str,
@@ -53,26 +58,25 @@ def test_installing_latest_version(
     shell_name: str,
     shell_config_path: Path,
 ):
-    fake_home_path = tmp_path
 
-    harness = ScriptTestingHarness.create(home_path=fake_home_path, shell=shell)
+    harness = ScriptTestingHarness.create(home_path=home_path, shell=shell)
 
     harness.expect_kernel_name_uname_prompt()
     harness.send(kernel)
 
     harness.expect_release_response_curl_prompt(requested_ref="latest")
-    harness.send(f'"tag_name":"v{latest_protostar_version}"')
+    harness.send(GitHubResponse.get_release_found_response(latest_protostar_version))
 
     harness.expect_download_curl_prompt(tar_filename, latest_protostar_version)
     harness.send("DATA")
 
     harness.expect_tar_info(data="DATA")
-    simulate_unwrapping(output_dir=fake_home_path)
+    simulate_unwrapping(output_dir=home_path)
 
     harness.expect_detected_shell(shell_name=shell_name)
 
     assert_config_file_includes_path_entry(
-        file_path=fake_home_path / shell_config_path, home_path=fake_home_path
+        file_path=home_path / shell_config_path, home_path=home_path
     )
 
 
@@ -84,7 +88,7 @@ def test_installing_latest_version(
     ),
 )
 def test_installing_specific_version(
-    tmp_path: Path,
+    home_path: Path,
     simulate_unwrapping: SimulateUnwrappingFixture,
     kernel: str,
     tar_filename: str,
@@ -93,10 +97,9 @@ def test_installing_specific_version(
     shell_config_path: Path,
 ):
     requested_version = "0.1.0"
-    fake_home_path = tmp_path
 
     harness = ScriptTestingHarness.create(
-        home_path=fake_home_path, shell=shell, version=requested_version
+        home_path=home_path, shell=shell, requested_version=requested_version
     )
 
     harness.expect_kernel_name_uname_prompt()
@@ -105,19 +108,47 @@ def test_installing_specific_version(
     harness.expect_release_response_curl_prompt(
         requested_ref=f"tag/v{requested_version}"
     )
-    harness.send(f'"tag_name":"v{requested_version}"')
+    harness.send(GitHubResponse.get_release_found_response(requested_version))
 
     harness.expect_download_curl_prompt(tar_filename, requested_version)
     harness.send("DATA")
 
     harness.expect_tar_info(data="DATA")
-    simulate_unwrapping(output_dir=fake_home_path)
+    simulate_unwrapping(output_dir=home_path)
 
     harness.expect_detected_shell(shell_name=shell_name)
 
     assert_config_file_includes_path_entry(
-        file_path=fake_home_path / shell_config_path, home_path=fake_home_path
+        file_path=home_path / shell_config_path, home_path=home_path
     )
+
+
+@pytest.mark.parametrize(
+    "kernel, shell",
+    (
+        ("Darwin", "/bin/zsh"),
+        ("Linux", "/bin/bash"),
+    ),
+)
+def test_installing_specific_but_unreleased_version(
+    home_path: Path,
+    kernel: str,
+    shell: str,
+):
+    unreleased_version = "99.9.9"
+    harness = ScriptTestingHarness.create(
+        home_path=home_path, shell=shell, requested_version=unreleased_version
+    )
+
+    harness.expect_kernel_name_uname_prompt()
+    harness.send(kernel)
+
+    harness.expect_release_response_curl_prompt(
+        requested_ref=f"tag/v{unreleased_version}"
+    )
+    harness.send(GitHubResponse.get_release_not_found_response())
+
+    harness.expect(f"Version {unreleased_version} not found")
 
 
 def assert_config_file_includes_path_entry(file_path: Path, home_path: Path):
@@ -130,15 +161,27 @@ def assert_config_file_includes_path_entry(file_path: Path, home_path: Path):
         assert protostar_path_entry in file_content
 
 
+class GitHubResponse:
+    @staticmethod
+    def get_release_not_found_response():
+        return '{"error":"Not Found"}'
+
+    @staticmethod
+    def get_release_found_response(version: str):
+        return f'"tag_name":"v{version}"'
+
+
 class ScriptTestingHarness:
     def __init__(self, process: pexpect.spawn) -> None:
         self._process = process
 
     @classmethod
     def create(
-        cls, home_path: Path, shell: str, version: str = ""
+        cls, home_path: Path, shell: str, requested_version: str = ""
     ) -> "ScriptTestingHarness":
-        command = f"bash ./install_testing_harness.sh {home_path} {shell} {version}"
+        command = (
+            f"bash ./install_testing_harness.sh {home_path} {shell} {requested_version}"
+        )
         process = pexpect.spawn(command, timeout=1)
         return cls(process)
 
