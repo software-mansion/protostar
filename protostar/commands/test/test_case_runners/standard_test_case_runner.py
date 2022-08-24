@@ -7,12 +7,12 @@ from protostar.commands.test.test_case_runners.test_case_runner import TestCaseR
 
 class StandardTestCaseRunner(TestCaseRunner[TestExecutionResult]):
     def __init__(
-        self,
-        test_execution_environment: TestExecutionEnvironment,
-        test_case_runner_deps: TestCaseRunner.Dependencies,
+        self, test_execution_environment: TestExecutionEnvironment, **kwargs
     ) -> None:
-        super().__init__(test_case_runner_deps)
+        super().__init__(**kwargs)
         self._test_execution_environment = test_execution_environment
 
-    async def _run_test_case(self, test_case_name: str) -> TestExecutionResult:
-        return await self._test_execution_environment.invoke(test_case_name)
+    async def _run_test_case(self) -> TestExecutionResult:
+        return await self._test_execution_environment.invoke(
+            self._test_case.test_fn_name
+        )
