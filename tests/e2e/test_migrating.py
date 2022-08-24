@@ -1,3 +1,4 @@
+import re
 from os import listdir
 from pathlib import Path
 from shutil import copyfile
@@ -37,3 +38,8 @@ def test_migrating_base_case(
 
     assert "Migration completed" in result
     assert len(listdir((migrations_dir_path / "output"))) == 1
+    assert count_hex64(result) == 2
+
+
+def count_hex64(x: str) -> int:
+    return len(re.findall(r"0x[0-9a-f]{64}", x))
