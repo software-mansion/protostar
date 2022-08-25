@@ -6,7 +6,7 @@ from starkware.cairo.lang.compiler.ast.cairo_types import TypePointer, TypeCodeo
 
 from protostar.protostar_exception import ProtostarException
 
-from starknet_py.utils.data_transformer.data_transformer import FunctionCallSerializer
+from starknet_py.utils.data_transformer.data_transformer import CairoSerializer
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 
 
@@ -56,8 +56,23 @@ def validate_deploy_input(compiled_contract_json: str, inputs: List[int]) -> Non
     constructor = get_constructor(abi)
     expected_inputs = constructor["inputs"]
 
-    serializer = FunctionCallSerializer(constructor, identifier_manager_from_abi(abi))
-    print(serializer.to_python(inputs)._asdict())
+    serializer = CairoSerializer(identifier_manager_from_abi(abi))
+
+    serializer.to_python()  ## add pr to starknet.py
+
+    type_by_name = serializer._abi_to_types(constructor["inputs"])
+    for name, cairo_type in type_by_name.items():
+        try:
+            _, inputs = serializer.resolve_type(cairo_type).to_python(
+                cairo_type, name, inputs
+            )
+        except ValueError:
+            raise InvalidInputException("Not enough constructor arguments provided.")
+    if len(inputs) > 0:
+        raise InvalidInputException("Too many constructor arguments provided.")
+
+    return
+
     # print(serializer.from_python())
 
     i = 0

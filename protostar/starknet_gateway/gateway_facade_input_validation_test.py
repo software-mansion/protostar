@@ -232,12 +232,7 @@ def test_validating_deploy_inputs_too_many():
 
     with pytest.raises(InvalidInputException) as exc:
         validate_deploy_input(COMPILED_CONTRACT_ABI_ONLY, inputs)
-    assert (
-        f"Too many constructor arguments provided, expected {len(inputs)-2} got {len(inputs)}."
-        in str(exc.value)
-    )
-
-    assert False
+    assert "Too many constructor arguments provided." in str(exc.value)
 
 
 def test_validating_deploy_inputs_empty_not_enough():
@@ -255,9 +250,7 @@ def test_validating_deploy_inputs_too_many_on_empty():
 
     with pytest.raises(InvalidInputException) as exc:
         validate_deploy_input(COMPILED_CONTRACT_ABI_ONLY_NO_INPUTS, inputs)
-    assert "Too many constructor arguments provided, expected 0 got 5." in str(
-        exc.value
-    )
+    assert "Too many constructor arguments provided." in str(exc.value)
 
 
 def test_validating_deploy_no_constructor_no_input():
@@ -269,9 +262,7 @@ def test_validating_deploy_no_constructor_input():
 
     with pytest.raises(InvalidInputException) as exc:
         validate_deploy_input(COMPILED_CONTRACT_ABI_ONLY_NO_CONSTRUCTOR, inputs)
-    assert "Too many constructor arguments provided, expected 0 got 5." in str(
-        exc.value
-    )
+    assert "Too many constructor arguments provided." in str(exc.value)
 
 
 def test_abi_from_json_parsing_error():
