@@ -8,16 +8,13 @@ from tests.data.contracts import (
     FORMATTED_CONTRACT,
     UNFORMATTED_CONTRACT,
 )
-from tests.integration.conftest import (
-    CreateProtostarProjectFixture,
-    ProtostarProjectFixture,
-)
+from tests.integration.conftest import CreateProtostarProjectFixture, ProtostarFixture
 
 
-@pytest.fixture(name="protostar_project")
+@pytest.fixture(name="protostar")
 def protostar_project_fixture(create_protostar_project: CreateProtostarProjectFixture):
-    with create_protostar_project() as protostar_project:
-        protostar_project.create_files(
+    with create_protostar_project() as protostar:
+        protostar.create_files(
             {
                 "to_format/formatted.cairo": FORMATTED_CONTRACT,
                 "to_format/unformatted1.cairo": UNFORMATTED_CONTRACT,
@@ -25,11 +22,11 @@ def protostar_project_fixture(create_protostar_project: CreateProtostarProjectFi
                 "to_format/broken.cairo": BROKEN_CONTRACT,
             }
         )
-        yield protostar_project
+        yield protostar
 
 
-async def test_formatter_formatting(protostar_project: ProtostarProjectFixture):
-    summary = protostar_project.format([Path("to_format")])
+async def test_formatter_formatting(protostar: ProtostarFixture):
+    summary = protostar.format([Path("to_format")])
 
     assert len(summary.broken) == 1
     assert len(summary.correct) == 1
@@ -37,8 +34,8 @@ async def test_formatter_formatting(protostar_project: ProtostarProjectFixture):
     assert_contents_equal("to_format/formatted.cairo", "to_format/unformatted1.cairo")
 
 
-async def test_formatter_checking(protostar_project: ProtostarProjectFixture):
-    summary = protostar_project.format([Path("to_format")], check=True)
+async def test_formatter_checking(protostar: ProtostarFixture):
+    summary = protostar.format([Path("to_format")], check=True)
 
     assert len(summary.broken) == 1
     assert len(summary.correct) == 1
@@ -48,8 +45,8 @@ async def test_formatter_checking(protostar_project: ProtostarProjectFixture):
     )
 
 
-async def test_formatter_output(protostar_project: ProtostarProjectFixture):
-    _, output = protostar_project.format_with_output(
+async def test_formatter_output(protostar: ProtostarFixture):
+    _, output = protostar.format_with_output(
         targets=[Path("to_format")],
     )
 
@@ -65,10 +62,8 @@ async def test_formatter_output(protostar_project: ProtostarProjectFixture):
     )
 
 
-async def test_formatter_output_verbose(protostar_project: ProtostarProjectFixture):
-    _, output = protostar_project.format_with_output(
-        targets=[Path("to_format")], verbose=True
-    )
+async def test_formatter_output_verbose(protostar: ProtostarFixture):
+    _, output = protostar.format_with_output(targets=[Path("to_format")], verbose=True)
 
     assert_counts_in_result(
         output,
@@ -82,8 +77,8 @@ async def test_formatter_output_verbose(protostar_project: ProtostarProjectFixtu
     )
 
 
-async def test_formatter_output_check(protostar_project: ProtostarProjectFixture):
-    _, output = protostar_project.format_with_output(
+async def test_formatter_output_check(protostar: ProtostarFixture):
+    _, output = protostar.format_with_output(
         targets=[Path("to_format")],
         check=True,
     )
@@ -101,9 +96,9 @@ async def test_formatter_output_check(protostar_project: ProtostarProjectFixture
 
 
 async def test_formatter_output_check_verbose(
-    protostar_project: ProtostarProjectFixture,
+    protostar: ProtostarFixture,
 ):
-    _, output = protostar_project.format_with_output(
+    _, output = protostar.format_with_output(
         targets=[Path("to_format")],
         verbose=True,
         check=True,
@@ -121,8 +116,8 @@ async def test_formatter_output_check_verbose(
     )
 
 
-async def test_formatter_ignore_broken(protostar_project: ProtostarProjectFixture):
-    _, output = protostar_project.format_with_output(
+async def test_formatter_ignore_broken(protostar: ProtostarFixture):
+    _, output = protostar.format_with_output(
         targets=[Path("to_format")],
         ignore_broken=True,
     )

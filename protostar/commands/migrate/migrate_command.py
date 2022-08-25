@@ -79,6 +79,7 @@ class MigrateCommand(Command):
         migrator_config = MigratorExecutionEnvironment.Config(
             signer=signable_command_util.get_signer(network_config)
         )
+
         return await self.migrate(
             migration_file_path=args.path,
             rollback=args.rollback,

@@ -154,30 +154,9 @@ def run_cairo_test_runner_fixture(
     return run_cairo_test_runner
 
 
-@pytest.fixture(name="protostar_project_root_path", scope="module")
-def protostar_project_root_path_fixture(tmp_path_factory: TempPathFactory) -> Path:
-    tmp_path = tmp_path_factory.mktemp("data")
-    return tmp_path / "tmp_project"
-
-
-# @pytest.fixture(name="protostar", scope="module")
-# def protostar_fixture(
-#     session_mocker: MockerFixture,
-#     protostar_project_root_path: Path,
-# ) -> ProtostarFixture:
-#     """@deprecated: Use `create_protostar_project` fixture instead."""
-#     return build_protostar_fixture(
-#         mocker=session_mocker,
-#         project_root_path=protostar_project_root_path,
-#     )
-
-
 class CreateProtostarProjectFixture(Protocol):
     def __call__(self) -> ContextManager[ProtostarFixture]:
         ...
-
-
-ProtostarProjectFixture = ProtostarFixture
 
 
 @pytest.fixture(name="create_protostar_project", scope="module")
@@ -193,6 +172,7 @@ def create_protostar_project_fixture(
             mocker=session_mocker,
             project_root_path=project_root_path,
         )
+
         protostar.init_sync()
         os.chdir(project_root_path)
         yield protostar
