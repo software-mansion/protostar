@@ -2,15 +2,16 @@ import pytest
 
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
 from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR
+from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.migrator.conftest import MigrateFixture
-from tests.integration.protostar_fixture import ProtostarFixture
 
 
-@pytest.fixture(autouse=True, scope="module")
-def setup(protostar: ProtostarFixture):
-    protostar.init_sync()
-    protostar.create_files({"./src/main.cairo": CONTRACT_WITH_CONSTRUCTOR})
-    protostar.build_sync()
+@pytest.fixture(autouse=True, scope="module", name="protostar")
+def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
+    with create_protostar_project() as protostar:
+        protostar.create_files({"./src/main.cairo": CONTRACT_WITH_CONSTRUCTOR})
+        protostar.build_sync()
+        yield protostar
 
 
 async def test_no_signature(migrate: MigrateFixture, signing_credentials, monkeypatch):
