@@ -15,10 +15,8 @@ from tests.integration.conftest import (
 
 
 @pytest.fixture(name="protostar_project")
-def protostar_project_fixture(
-    create_protostar_project: CreateProtostarProjectFixture, tmp_path: Path
-):
-    with create_protostar_project(tmp_path / "project_root") as protostar_project:
+def protostar_project_fixture(create_protostar_project: CreateProtostarProjectFixture):
+    with create_protostar_project() as protostar_project:
         protostar_project.create_files(
             {
                 "to_format/formatted.cairo": FORMATTED_CONTRACT,

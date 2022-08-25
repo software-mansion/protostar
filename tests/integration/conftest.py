@@ -173,7 +173,7 @@ def protostar_fixture(
 
 
 class CreateProtostarProjectFixture(Protocol):
-    def __call__(self, project_root_path: Path) -> ContextManager[ProtostarFixture]:
+    def __call__(self) -> ContextManager[ProtostarFixture]:
         ...
 
 
@@ -182,10 +182,12 @@ ProtostarProjectFixture = ProtostarFixture
 
 @pytest.fixture(name="create_protostar_project", scope="module")
 def create_protostar_project_fixture(
-    session_mocker: MockerFixture,
+    session_mocker: MockerFixture, tmp_path_factory: TempPathFactory
 ):
     @contextmanager
-    def create_protostar_project(project_root_path: Path):
+    def create_protostar_project():
+        tmp_path = tmp_path_factory.mktemp("project_name")
+        project_root_path = tmp_path / "project_name"
         cwd = Path().resolve()
         protostar = build_protostar_fixture(
             mocker=session_mocker,
