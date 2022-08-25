@@ -290,22 +290,37 @@ class InvalidInputException(ProtostarException):
     pass
 
 
+class JSONParsingErrorException(ProtostarException):
+    pass
+
+
+AbiType = List[Dict[str, Any]]
+
+
+def get_type_size(abi: AbiType, typename: str):
+    if typename == "felt":
+        return 1
+    [type_definition] = [x for x in abi if x["name"] == typename]
+    return type_definition["size"]
+
+
+def get_abi_from_json(compiled_contract_json: str) -> AbiType:
+    try:
+        abi = json.loads(compiled_contract_json)["abi"]
+    except json.decoder.JSONDecodeError as ex:
+        raise JSONParsingErrorException(
+            "Couldn't parse given contract JSON.", str(ex)
+        ) from ex
+    except KeyError:
+        raise JSONParsingErrorException(
+            "No ABI found in the given compiled contract."
+        ) from KeyError
+    return abi
+
+
 def validate_deploy_input(compiled_contract_json: str, inputs: List[int]) -> None:
-    def constructor_filter(element: Dict):
-        return element["type"] == "constructor"
-
-    def get_type_size(abi: List[Dict], typename: str):
-        if typename == "felt":
-            return 1
-
-        def type_filter(element: Dict):
-            return element["name"] == typename
-
-        [type_definition] = filter(type_filter, abi)
-        return type_definition["size"]
-
-    abi = json.loads(compiled_contract_json)["abi"]
-    [constructor] = filter(constructor_filter, abi)
+    abi = get_abi_from_json(compiled_contract_json)
+    [constructor] = [x for x in abi if x["type"] == "constructor"]
     expected_inputs = constructor["inputs"]
 
     i = 0

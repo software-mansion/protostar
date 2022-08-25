@@ -1,5 +1,10 @@
 import pytest
-from .gateway_facade import validate_deploy_input, InvalidInputException
+from .gateway_facade import (
+    JSONParsingErrorException,
+    validate_deploy_input,
+    InvalidInputException,
+    get_abi_from_json,
+)
 
 COMPILED_CONTRACT_ABI_ONLY = """
 {
@@ -122,6 +127,19 @@ COMPILED_CONTRACT_ABI_ONLY = """
 }
 """
 
+COMPILED_CONTRACT_ABI_ONLY_NO_INPUTS = """
+{
+    "abi": [
+        {
+            "inputs": [],
+            "name": "constructor",
+            "outputs": [],
+            "type": "constructor"
+        }
+    ]
+}
+"""
+
 
 def test_validating_deploy_inputs_pass():
     inputs = [
@@ -212,3 +230,35 @@ def test_validating_deploy_inputs_too_many():
         f"Too many constructor arguments provided, expected {len(inputs)-2} got {len(inputs)}."
         in str(exc.value)
     )
+
+
+def test_validating_deploy_inputs_empty_not_enough():
+    with pytest.raises(InvalidInputException) as exc:
+        validate_deploy_input(COMPILED_CONTRACT_ABI_ONLY, [])
+    assert "Not enough constructor arguments provided." in str(exc.value)
+
+
+def test_validating_deploy_inputs_empty_pass():
+    validate_deploy_input(COMPILED_CONTRACT_ABI_ONLY_NO_INPUTS, [])
+
+
+def test_validating_deploy_inputs_too_many_on_empty():
+    inputs = [1, 2, 3, 4, 5]
+
+    with pytest.raises(InvalidInputException) as exc:
+        validate_deploy_input(COMPILED_CONTRACT_ABI_ONLY_NO_INPUTS, inputs)
+    assert "Too many constructor arguments provided, expected 0 got 5." in str(
+        exc.value
+    )
+
+
+def test_abi_from_json_parsing_error():
+    with pytest.raises(JSONParsingErrorException) as exc:
+        get_abi_from_json("I LOVE CAIRO")
+    assert "Couldn't parse given contract JSON." in str(exc.value)
+
+
+def test_abi_from_json_key_error():
+    with pytest.raises(JSONParsingErrorException) as exc:
+        get_abi_from_json('{"Definitely not ABI": []}')
+    assert "No ABI found in the given compiled contract." in str(exc.value)
