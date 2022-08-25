@@ -6,9 +6,10 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple, cast
 
 from pytest_mock import MockerFixture
+from starknet_py.net import KeyPair
 from starknet_py.net.models import StarknetChainId
-from starknet_py.net.signer import BaseSigner
 
+from protostar.cli.signable_command_util import PatchedStarkCurveSigner
 from protostar.commands import (
     BuildCommand,
     DeclareCommand,
@@ -208,8 +209,14 @@ class ProtostarFixture:
 
 # pylint: disable=too-many-locals
 def build_protostar_fixture(
-    mocker: MockerFixture, project_root_path: Path, signer: BaseSigner
+    mocker: MockerFixture, project_root_path: Path, signing_credentials: Tuple[str, str]
 ):
+    account_address, private_key = signing_credentials
+    signer = PatchedStarkCurveSigner(
+        account_address,
+        KeyPair.from_private_key(int(private_key, 16)),
+        StarknetChainId.TESTNET.value,
+    )
 
     version_manager = mocker.MagicMock()
     version_manager.protostar_version = mocker.MagicMock()
@@ -279,10 +286,11 @@ def build_protostar_fixture(
     )
     migrator_builder.set_migration_execution_environment_config(
         MigratorExecutionEnvironment.Config(
-            signer=signer,
             token=None,
-        )
+        ),
     )
+
+    migrator_builder.set_signer(signer)
 
     migrate_command = MigrateCommand(
         migrator_builder=migrator_builder,

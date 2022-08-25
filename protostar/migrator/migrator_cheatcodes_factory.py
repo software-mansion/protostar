@@ -27,7 +27,6 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
     @dataclass
     class Config:
         account_address: Optional[str] = None
-        signer: Optional[BaseSigner] = None
         token: Optional[str] = None
 
     # pylint: disable=too-many-arguments
@@ -38,12 +37,14 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
         project_compiler: ProjectCompiler,
         migrator_datetime_state: MigratorDateTimeState,
         config: "MigratorCheatcodeFactory.Config",
+        signer: Optional[BaseSigner] = None,
     ) -> None:
         super().__init__()
         self.gateway_facade = gateway_facade
         self._starknet_compiler = starknet_compiler
         self._project_compiler = project_compiler
         self._migrator_datetime_state = migrator_datetime_state
+        self._signer = signer
         self._config = config
 
     def build(
@@ -60,7 +61,7 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
                 self.gateway_facade,
                 config=MigratorDeclareCheatcode.Config(
                     token=self._config.token,
-                    signer=self._config.signer,
+                    signer=self._signer,
                 ),
             ),
             MigratorDeployContractCheatcode(
@@ -74,7 +75,7 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
             MigratorInvokeCheatcode(
                 syscall_dependencies=syscall_dependencies,
                 gateway_facade=self.gateway_facade,
-                global_signer=self._config.signer,
+                global_signer=self._signer,
                 global_account_address=self._config.account_address,
             ),
         ]
