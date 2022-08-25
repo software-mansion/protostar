@@ -266,7 +266,7 @@ def test_validating_deploy_no_constructor_input():
     inputs = [1, 2, 3, 4, 5]
 
     with pytest.raises(InvalidInputException) as exc:
-        validate_deploy_input(COMPILED_CONTRACT_ABI_ONLY_NO_INPUTS, inputs)
+        validate_deploy_input(COMPILED_CONTRACT_ABI_ONLY_NO_CONSTRUCTOR, inputs)
     assert "Too many constructor arguments provided, expected 0 got 5." in str(
         exc.value
     )
