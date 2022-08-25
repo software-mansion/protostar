@@ -17,7 +17,7 @@ from tests.integration.protostar_fixture import ProtostarFixture
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
     with create_protostar_project() as protostar:
         protostar.build_sync()
-        yield
+        yield protostar
 
 
 @pytest.fixture(name="compiled_contract_path")
