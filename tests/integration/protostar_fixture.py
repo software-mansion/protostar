@@ -20,6 +20,7 @@ from protostar.commands import (
     InitCommand,
     MigrateCommand,
 )
+from protostar.commands.deploy.deploy_command import DeployCommand
 from protostar.commands.init.project_creator.new_project_creator import (
     NewProjectCreator,
 )
@@ -51,6 +52,7 @@ class ProtostarFixture:
         migrator_command: MigrateCommand,
         format_command: FormatCommand,
         declare_command: DeclareCommand,
+        deploy_command: DeployCommand,
     ) -> None:
         self._project_root_path = project_root_path
         self._init_command = init_command
@@ -58,6 +60,7 @@ class ProtostarFixture:
         self._migrator_command = migrator_command
         self._format_command = format_command
         self._declare_command = declare_command
+        self._deploy_command = deploy_command
 
     @property
     def project_root_path(self) -> Path:
@@ -87,6 +90,23 @@ class ProtostarFixture:
         args.gateway_url = gateway_url
 
         return await self._declare_command.run(args)
+
+    async def deploy(
+        self,
+        contract: Path,
+        gateway_url: Optional[str] = None,
+        inputs: Optional[List[int]] = None,
+    ):
+        args = Namespace()
+        args.contract = contract
+        args.gateway_url = gateway_url
+        args.inputs = inputs or []
+        args.network = None
+        args.token = None
+        args.salt = None
+        args.wait_for_acceptance = False
+        args.chain_id = StarknetChainId.TESTNET
+        return await self._deploy_command.run(args)
 
     def init_sync(self):
         args = Namespace()
@@ -294,6 +314,8 @@ def build_protostar_fixture(mocker: MockerFixture, project_root_path: Path):
     )
     declare_command = DeclareCommand(logger=logger, project_root_path=project_root_path)
 
+    deploy_command = DeployCommand(logger=logger, project_root_path=project_root_path)
+
     protostar_fixture = ProtostarFixture(
         project_root_path=project_root_path,
         init_command=init_command,
@@ -301,6 +323,7 @@ def build_protostar_fixture(mocker: MockerFixture, project_root_path: Path):
         migrator_command=migrate_command,
         format_command=format_command,
         declare_command=declare_command,
+        deploy_command=deploy_command,
     )
 
     return protostar_fixture
