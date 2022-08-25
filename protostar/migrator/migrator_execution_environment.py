@@ -1,6 +1,8 @@
 from pathlib import Path
 from typing import Optional
 
+from starknet_py.net.signer import BaseSigner
+
 from protostar.compiler.project_compiler import ProjectCompiler
 from protostar.starknet.execution_environment import ExecutionEnvironment
 from protostar.starknet.execution_state import ExecutionState
@@ -21,6 +23,7 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
             self._project_compiler = project_compiler
             self._gateway_facade: Optional[GatewayFacade] = None
             self._migrator_datetime_state: Optional[MigratorDateTimeState] = None
+            self._signer: Optional[BaseSigner] = None
 
         def set_gateway_facade(self, gateway_facade: GatewayFacade):
             self._gateway_facade = gateway_facade
@@ -29,6 +32,9 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
             self, migrator_datetime_state: MigratorDateTimeState
         ):
             self._migrator_datetime_state = migrator_datetime_state
+
+        def set_signer(self, signer: BaseSigner):
+            self._signer = signer
 
         async def build(
             self,
@@ -62,6 +68,7 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
                 project_compiler=self._project_compiler,
                 migrator_datetime_state=self._migrator_datetime_state,
                 config=config,
+                signer=self._signer,
             )
 
             return MigratorExecutionEnvironment(

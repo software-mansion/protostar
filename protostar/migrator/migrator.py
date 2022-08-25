@@ -5,6 +5,8 @@ from logging import Logger
 from pathlib import Path
 from typing import List, Optional
 
+from starknet_py.net.signer import BaseSigner
+
 from protostar.migrator.migrator_execution_environment import (
     MigratorExecutionEnvironment,
 )
@@ -53,6 +55,9 @@ class Migrator:
 
         def set_gateway_facade(self, gateway_facade: GatewayFacade):
             self._gateway_facade = gateway_facade
+
+        def set_signer(self, signer: BaseSigner):
+            self._migrator_execution_environment_builder.set_signer(signer)
 
         async def build(self, migration_file_path: Path):
             assert self._migrator_execution_environment_config is not None

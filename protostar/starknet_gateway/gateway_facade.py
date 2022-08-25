@@ -3,12 +3,15 @@ from pathlib import Path
 import dataclasses
 from typing import Any, Callable, Dict, List, NamedTuple, Optional, Union
 
-from starknet_py.contract import Contract, ContractFunction
+from starknet_py.contract import Contract, ContractFunction, InvokeResult
+from starknet_py.net import AccountClient
+from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ContractNotFoundError
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import AddressRepresentation
 from starknet_py.transactions.deploy import make_deploy_tx
+from starknet_py.transaction_exceptions import TransactionFailedError
 
 from starkware.starknet.definitions import constants
 from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
@@ -23,6 +26,7 @@ from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeployResponse,
 )
 from protostar.starknet_gateway.starknet_request import StarknetRequest
+from protostar.utils.data_transformer import CairoOrPythonData
 from protostar.utils.log_color_provider import LogColorProvider
 
 ContractFunctionInputType = Union[List[int], Dict[str, Any]]
@@ -94,15 +98,18 @@ class GatewayFacade:
             },
         )
 
-        result = await self._gateway_client.deploy(tx, token)
-        register_response(dataclasses.asdict(result))
-        if wait_for_acceptance:
-            if self._logger:
-                self._logger.info("Waiting for acceptance...")
-            _, status = await self._gateway_client.wait_for_tx(
-                result.transaction_hash, wait_for_accept=wait_for_acceptance
-            )
-            result.code = status
+        try:
+            result = await self._gateway_client.deploy(tx, token)
+            register_response(dataclasses.asdict(result))
+            if wait_for_acceptance:
+                if self._logger:
+                    self._logger.info("Waiting for acceptance...")
+                _, status = await self._gateway_client.wait_for_tx(
+                    result.transaction_hash, wait_for_accept=wait_for_acceptance
+                )
+                result.code = status
+        except TransactionFailedError as ex:
+            raise TransactionException(str(ex)) from ex
 
         return SuccessfulDeployResponse(
             code=result.code or "",
@@ -168,15 +175,18 @@ class GatewayFacade:
             },
         )
 
-        result = await self._gateway_client.declare(tx, token)
-        register_response(dataclasses.asdict(result))
-        if wait_for_acceptance:
-            if self._logger:
-                self._logger.info("Waiting for acceptance...")
-            _, status = await self._gateway_client.wait_for_tx(
-                result.transaction_hash, wait_for_accept=wait_for_acceptance
-            )
-            result.code = status
+        try:
+            result = await self._gateway_client.declare(tx, token)
+            register_response(dataclasses.asdict(result))
+            if wait_for_acceptance:
+                if self._logger:
+                    self._logger.info("Waiting for acceptance...")
+                _, status = await self._gateway_client.wait_for_tx(
+                    result.transaction_hash, wait_for_accept=wait_for_acceptance
+                )
+                result.code = status
+        except TransactionFailedError as ex:
+            raise TransactionException(str(ex)) from ex
 
         return SuccessfulDeclareResponse(
             code=result.code or "",
@@ -199,16 +209,79 @@ class GatewayFacade:
             },
         )
         contract_function = await self._create_contract_function(address, function_name)
-        result = await self._call_function(contract_function, inputs)
+
+        try:
+            result = await self._call_function(contract_function, inputs)
+        except TransactionFailedError as ex:
+            raise TransactionException(str(ex)) from ex
+
         register_response({"result": str(result._asdict())})
         return result
 
+    async def invoke(
+        self,
+        contract_address: int,
+        function_name: str,
+        account_address: str,
+        signer: BaseSigner,
+        inputs: Optional[CairoOrPythonData] = None,
+        max_fee: Optional[int] = None,
+        auto_estimate_fee: bool = False,
+    ) -> InvokeResult:
+        register_response = self._register_request(
+            action="INVOKE",
+            payload={
+                "contract_address": contract_address,
+                "function_name": function_name,
+                "max_fee": max_fee,
+                "auto_estimate_fee": auto_estimate_fee,
+                "inputs": str(inputs),
+                "signer": str(signer),
+            },
+        )
+
+        contract_function = await self._create_contract_function(
+            contract_address,
+            function_name,
+            client=AccountClient(
+                address=account_address,
+                client=self._gateway_client,
+                signer=signer,
+            ),
+        )
+        try:
+            result = await self._invoke_function(
+                contract_function,
+                inputs,
+                max_fee=max_fee,
+                auto_estimate=auto_estimate_fee,
+            )
+
+        except TransactionFailedError as ex:
+            raise TransactionException(str(ex)) from ex
+
+        response_dict: StarknetRequest.Payload = {
+            "hash": result.hash,
+            "contract_address": result.contract.address,
+        }
+        if result.block_number:
+            response_dict["block_number"] = result.block_number
+
+        if result.status:
+            response_dict["status"] = result.status
+
+        register_response(response_dict)
+        return result
+
     async def _create_contract_function(
-        self, contract_address: AddressRepresentation, function_name: str
+        self,
+        contract_address: AddressRepresentation,
+        function_name: str,
+        client: Optional[Client] = None,
     ):
         try:
             contract = await Contract.from_address(
-                address=contract_address, client=self._gateway_client
+                address=contract_address, client=client or self._gateway_client
             )
         except ContractNotFoundError as err:
             raise ContractNotFoundException(contract_address) from err
@@ -227,6 +300,24 @@ class GatewayFacade:
         if isinstance(inputs, List):
             return await contract_function.call(*inputs)
         return await contract_function.call(**inputs)
+
+    @staticmethod
+    async def _invoke_function(
+        contract_function: ContractFunction,
+        inputs: Optional[ContractFunctionInputType] = None,
+        max_fee: Optional[int] = None,
+        auto_estimate: bool = False,
+    ) -> InvokeResult:
+        if inputs is None:
+            inputs = {}
+        # TODO: https://github.com/software-mansion/starknet.py/issues/320
+        if isinstance(inputs, List):
+            return await contract_function.invoke(
+                *inputs, max_fee=max_fee, auto_estimate=auto_estimate  # type: ignore
+            )
+        return await contract_function.invoke(
+            **inputs, max_fee=max_fee, auto_estimate=auto_estimate  # type: ignore
+        )
 
     def _register_request(
         self, action: StarknetRequest.Action, payload: StarknetRequest.Payload

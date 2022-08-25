@@ -8,6 +8,7 @@ from protostar.commands.test.fuzzing.fuzz_input_exception_metadata import (
     FuzzInputExceptionMetadata,
 )
 from protostar.commands.test.test_case_runners.test_case_runner import TestCaseRunner
+from protostar.commands.test.test_environment_exceptions import ReportedException
 from protostar.commands.test.test_results import (
     FailedFuzzTestCaseResult,
     FailedTestCaseResult,
@@ -15,20 +16,19 @@ from protostar.commands.test.test_results import (
     PassedFuzzTestCaseResult,
     TestResult,
 )
-from protostar.commands.test.test_environment_exceptions import ReportedException
 
 
 class FuzzTestCaseRunner(TestCaseRunner[FuzzTestExecutionResult]):
     def __init__(
-        self,
-        fuzz_test_execution_environment: FuzzTestExecutionEnvironment,
-        test_case_runner_deps: TestCaseRunner.Dependencies,
+        self, fuzz_test_execution_environment: FuzzTestExecutionEnvironment, **kwargs
     ) -> None:
-        super().__init__(test_case_runner_deps)
+        super().__init__(**kwargs)
         self._fuzz_test_execution_environment = fuzz_test_execution_environment
 
-    async def _run_test_case(self, test_case_name: str) -> FuzzTestExecutionResult:
-        return await self._fuzz_test_execution_environment.invoke(test_case_name)
+    async def _run_test_case(self) -> FuzzTestExecutionResult:
+        return await self._fuzz_test_execution_environment.invoke(
+            self._test_case.test_fn_name
+        )
 
     def _map_execution_result_to_passed_test_result(
         self,

@@ -88,19 +88,3 @@ async def test_max_fuzz_runs_less_or_equal_than_specified(
     assert isinstance(testing_summary.passed[0], PassedFuzzTestCaseResult)
     assert testing_summary.passed[0].fuzz_runs_count is not None
     assert testing_summary.passed[0].fuzz_runs_count <= fuzz_max_examples
-
-
-async def test_issue_590(run_cairo_test_runner: RunCairoTestRunnerFixture):
-    """
-    https://github.com/software-mansion/protostar/issues/590
-    """
-    testing_summary = await run_cairo_test_runner(
-        Path(__file__).parent / "issue_590_test.cairo",
-        fuzz_max_examples=60,
-    )
-
-    assert_cairo_test_cases(
-        testing_summary,
-        expected_passed_test_cases_names=[],
-        expected_failed_test_cases_names=["test_590"],
-    )

@@ -98,7 +98,10 @@ def build_test_suite(
     contract = compiler.compile_contract(file_path, add_debug_info=True)
     suite = TestSuite(
         test_path=file_path,
-        test_cases=[TestCase(test_fn_name=case_name) for case_name in case_names],
+        test_cases=[
+            TestCase(test_path=file_path, test_fn_name=case_name)
+            for case_name in case_names
+        ],
         setup_fn_name=setup_fn_name,
     )
     return contract, suite

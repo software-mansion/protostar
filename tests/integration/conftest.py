@@ -4,7 +4,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from logging import getLogger
 from pathlib import Path
-from typing import ContextManager, List, Optional, Set, Union, cast
+from typing import ContextManager, List, Optional, Set, Tuple, Union, cast
 
 import pytest
 from pytest import TempPathFactory
@@ -161,7 +161,9 @@ class CreateProtostarProjectFixture(Protocol):
 
 @pytest.fixture(name="create_protostar_project", scope="module")
 def create_protostar_project_fixture(
-    session_mocker: MockerFixture, tmp_path_factory: TempPathFactory
+    session_mocker: MockerFixture,
+    tmp_path_factory: TempPathFactory,
+    signing_credentials: Tuple[str, str],
 ):
     @contextmanager
     def create_protostar_project():
@@ -171,6 +173,7 @@ def create_protostar_project_fixture(
         protostar = build_protostar_fixture(
             mocker=session_mocker,
             project_root_path=project_root_path,
+            signing_credentials=signing_credentials,
         )
 
         protostar.init_sync()

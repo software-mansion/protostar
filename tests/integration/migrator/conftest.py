@@ -1,19 +1,13 @@
 from pathlib import Path
-from typing import Union
+from typing import Union, Optional
 
 import pytest
-from starknet_py.net import KeyPair
 from starknet_py.net.client_models import TransactionStatus
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 from typing_extensions import Protocol
 
-from protostar.cli.signable_command_util import PatchedStarkCurveSigner
 from protostar.migrator import Migrator
-from protostar.migrator.migrator_execution_environment import (
-    MigratorExecutionEnvironment,
-)
-from protostar.starknet_gateway import GatewayFacade
 from tests.integration.protostar_fixture import ProtostarFixture
 
 
@@ -33,14 +27,22 @@ async def assert_transaction_accepted(
 
 
 class MigrateFixture(Protocol):
-    async def __call__(self, migration_hint_content: str) -> Migrator.History:
+    async def __call__(
+        self, migration_hint_content: str, account_address: Optional[str] = None
+    ) -> Migrator.History:
         ...
 
 
 @pytest.fixture(name="migrate")
 async def migrate_fixture(protostar: ProtostarFixture, devnet_gateway_url: str):
-    async def migrate(migration_hint_content: str):
+    async def migrate(
+        migration_hint_content: str, account_address: Optional[str] = None
+    ):
         migration_file_path = protostar.create_migration_file(migration_hint_content)
-        return await protostar.migrate(migration_file_path, network=devnet_gateway_url)
+        return await protostar.migrate(
+            migration_file_path,
+            network=devnet_gateway_url,
+            account_address=account_address,
+        )
 
     return migrate
