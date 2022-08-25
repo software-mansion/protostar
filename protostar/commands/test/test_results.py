@@ -4,11 +4,24 @@ from typing import Dict, List, Optional
 
 from typing_extensions import Self
 
+from protostar.commands.test.fuzzing.fuzz_input_exception_metadata import (
+    FuzzInputExceptionMetadata,
+)
 from protostar.commands.test.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
 )
 from protostar.commands.test.test_environment_exceptions import ReportedException
 from protostar.commands.test.test_output_recorder import OutputName
+
+
+@dataclass
+class TestExecutionResult:
+    execution_resources: Optional[ExecutionResourcesSummary]
+
+
+@dataclass
+class FuzzTestExecutionResult(TestExecutionResult):
+    fuzz_runs_count: int
 
 
 @dataclass(frozen=True)
@@ -31,10 +44,32 @@ class TimedTestResult:
 class PassedTestCaseResult(TestCaseResult, TimedTestResult):
     execution_resources: Optional[ExecutionResourcesSummary]
 
+    @classmethod
+    def from_test_execution_result(
+        cls,
+        test_execution_result: TestExecutionResult,
+        **kwargs,
+    ) -> Self:
+        return cls(
+            execution_resources=test_execution_result.execution_resources,
+            **kwargs,
+        )
+
 
 @dataclass(frozen=True)
 class FailedTestCaseResult(TestCaseResult, TimedTestResult):
     exception: ReportedException
+
+    @classmethod
+    def from_reported_exception(
+        cls,
+        exception: ReportedException,
+        **kwargs,
+    ) -> Self:
+        return cls(
+            exception=exception,
+            **kwargs,
+        )
 
 
 @dataclass(frozen=True)
@@ -45,37 +80,43 @@ class FuzzResult:
 @dataclass(frozen=True)
 class PassedFuzzTestCaseResult(PassedTestCaseResult, FuzzResult):
     @classmethod
-    def from_passed_test_case_result(
-        cls, passed_test_case_result: PassedTestCaseResult, fuzz_result: FuzzResult
+    def from_test_execution_result(
+        cls,
+        test_execution_result: FuzzTestExecutionResult,
+        **kwargs,
     ) -> Self:
         return cls(
-            file_path=passed_test_case_result.file_path,
-            test_case_name=passed_test_case_result.test_case_name,
-            captured_stdout=passed_test_case_result.captured_stdout,
-            execution_resources=passed_test_case_result.execution_resources,
-            execution_time=passed_test_case_result.execution_time,
-            fuzz_runs_count=fuzz_result.fuzz_runs_count,
+            execution_resources=test_execution_result.execution_resources,
+            fuzz_runs_count=test_execution_result.fuzz_runs_count,
+            **kwargs,
         )
 
 
 @dataclass(frozen=True)
 class FailedFuzzTestCaseResult(FailedTestCaseResult, FuzzResult):
     @classmethod
-    def from_failed_test_case_result(
-        cls,
-        failed_test_case_result: FailedTestCaseResult,
-        fuzz_result: Optional[FuzzResult],
-    ) -> Self:
+    def from_reported_exception(cls, exception: ReportedException, **kwargs) -> Self:
+        fuzz_result = cls._extract_fuzz_result_from_reported_exception(exception)
         fuzz_runs_count = fuzz_result.fuzz_runs_count if fuzz_result else None
 
         return cls(
-            file_path=failed_test_case_result.file_path,
-            test_case_name=failed_test_case_result.test_case_name,
-            captured_stdout=failed_test_case_result.captured_stdout,
-            exception=failed_test_case_result.exception,
-            execution_time=failed_test_case_result.execution_time,
+            exception=exception,
             fuzz_runs_count=fuzz_runs_count,
+            **kwargs,
         )
+
+    @staticmethod
+    def _extract_fuzz_result_from_reported_exception(
+        reported_exception: ReportedException,
+    ) -> Optional[FuzzResult]:
+        metadata = reported_exception.metadata
+
+        if len(metadata) > 0 and isinstance(metadata[0], FuzzInputExceptionMetadata):
+            fuzz_runs_count = reported_exception.execution_info["fuzz_runs"]
+            assert isinstance(fuzz_runs_count, int)
+            return FuzzResult(fuzz_runs_count)
+
+        return None
 
 
 @dataclass(frozen=True)
@@ -87,33 +128,3 @@ class BrokenTestSuiteResult(TestResult):
 @dataclass(frozen=True)
 class UnexpectedBrokenTestSuiteResult(BrokenTestSuiteResult):
     traceback: Optional[str]
-
-
-@dataclass
-class TestExecutionResult:
-    execution_resources: Optional[ExecutionResourcesSummary]
-
-
-@dataclass
-class FuzzTestExecutionResult(TestExecutionResult):
-    fuzz_runs_count: int
-
-
-class TestCaseResultDecorator:
-    # pylint: disable=no-self-use
-    # pylint: disable=unused-argument
-    def decorate_passed(
-        self,
-        result: PassedTestCaseResult,
-        execution_result: TestExecutionResult,
-    ) -> PassedTestCaseResult:
-        return result
-
-    # pylint: disable=no-self-use
-    # pylint: disable=unused-argument
-    def decorate_failed(
-        self,
-        result: FailedTestCaseResult,
-        exception: ReportedException,
-    ) -> FailedTestCaseResult:
-        return result
