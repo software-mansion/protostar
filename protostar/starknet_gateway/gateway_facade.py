@@ -285,19 +285,21 @@ class ContractNotFoundException(ProtostarException):
     def __init__(self, contract_address: AddressRepresentation):
         super().__init__(f"Tried to call unknown contract:\n{contract_address}")
 
+
 class InvalidInputException(ProtostarException):
     pass
 
+
 def validate_deploy_input(compiled_contract_json: str, inputs: List[int]) -> None:
-    def constructor_filter(x: Dict):
-        return x["type"] == "constructor"
+    def constructor_filter(element: Dict):
+        return element["type"] == "constructor"
 
     def get_type_size(abi: List[Dict], typename: str):
         if typename == "felt":
             return 1
 
-        def type_filter(x: Dict):
-            return x["name"] == typename
+        def type_filter(element: Dict):
+            return element["name"] == typename
 
         [type_definition] = filter(type_filter, abi)
         return type_definition["size"]
@@ -310,14 +312,16 @@ def validate_deploy_input(compiled_contract_json: str, inputs: List[int]) -> Non
     for expected_input in expected_inputs:
         raw_type_size = get_type_size(abi, expected_input["type"].rstrip("*"))
         if expected_input["type"].endswith("*"):
-            size = inputs[i-1] * raw_type_size
+            size = inputs[i - 1] * raw_type_size
         else:
             size = raw_type_size
 
         i += size
 
         if i > len(inputs):
-            raise InvalidInputException(f"Not enough constructor arguments provided.")
+            raise InvalidInputException("Not enough constructor arguments provided.")
 
     if i != len(inputs):
-        raise InvalidInputException(f"Too many constructor arguments provided, expected {i} got {len(inputs)}.")
+        raise InvalidInputException(
+            f"Too many constructor arguments provided, expected {i} got {len(inputs)}."
+        )

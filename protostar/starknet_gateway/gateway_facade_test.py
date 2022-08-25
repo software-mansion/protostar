@@ -122,88 +122,93 @@ COMPILED_CONTRACT_ABI_ONLY = """
 }
 """
 
+
 def test_validating_deploy_inputs_pass():
     inputs = [
-        0x0, # Test.felt_field
-        0xA, # Test.inner_field.a
-        0xB, # Test.inner_field.b
-        0xC, # Test.inner_field.c
-        0x9, # felt_arg
-        0x1, # Uint256.low
-        0x2, # Uint256.high
-        5  , # len(felt_list_arg)
-        0xA, # |
-        0xB, # |
-        0xC, # |
-        0xD, # |
-        0xE, # | felt* (felt_list_arg)
-        2  , # len(inst_list_arg)
-        0xA, # inst_list_arg[0].a
-        0xB, # inst_list_arg[0].b
-        0xC, # inst_list_arg[0].c    
-        0x1, # inst_list_arg[1].a
-        0x2, # inst_list_arg[1].b
-        0x3, # inst_list_arg[1].c   
+        0x0,  # Test.felt_field
+        0xA,  # Test.inner_field.a
+        0xB,  # Test.inner_field.b
+        0xC,  # Test.inner_field.c
+        0x9,  # felt_arg
+        0x1,  # Uint256.low
+        0x2,  # Uint256.high
+        5,  # len(felt_list_arg)
+        0xA,  # |
+        0xB,  # |
+        0xC,  # |
+        0xD,  # |
+        0xE,  # | felt* (felt_list_arg)
+        2,  # len(inst_list_arg)
+        0xA,  # inst_list_arg[0].a
+        0xB,  # inst_list_arg[0].b
+        0xC,  # inst_list_arg[0].c
+        0x1,  # inst_list_arg[1].a
+        0x2,  # inst_list_arg[1].b
+        0x3,  # inst_list_arg[1].c
     ]
 
     validate_deploy_input(COMPILED_CONTRACT_ABI_ONLY, inputs)
 
+
 def test_validating_deploy_inputs_not_enough():
     inputs = [
-        0x0, # Test.felt_field
-        0xA, # Test.inner_field.a
-        0xB, # Test.inner_field.b
-        0xC, # Test.inner_field.c
-        0x9, # felt_arg
-        0x1, # Uint256.low
-        0x2, # Uint256.high
-        999, # len(felt_list_arg) !!!
-        0xA, # |
-        0xB, # |
-        0xC, # |
-        0xD, # |
-        0xE, # | felt* (felt_list_arg)
-        2  , # len(inst_list_arg)
-        0xA, # inst_list_arg[0].a
-        0xB, # inst_list_arg[0].b
-        0xC, # inst_list_arg[0].c    
-        0x1, # inst_list_arg[1].a
-        0x2, # inst_list_arg[1].b
-        0x3, # inst_list_arg[1].c     
+        0x0,  # Test.felt_field
+        0xA,  # Test.inner_field.a
+        0xB,  # Test.inner_field.b
+        0xC,  # Test.inner_field.c
+        0x9,  # felt_arg
+        0x1,  # Uint256.low
+        0x2,  # Uint256.high
+        999,  # len(felt_list_arg) !!!
+        0xA,  # |
+        0xB,  # |
+        0xC,  # |
+        0xD,  # |
+        0xE,  # | felt* (felt_list_arg)
+        2,  # len(inst_list_arg)
+        0xA,  # inst_list_arg[0].a
+        0xB,  # inst_list_arg[0].b
+        0xC,  # inst_list_arg[0].c
+        0x1,  # inst_list_arg[1].a
+        0x2,  # inst_list_arg[1].b
+        0x3,  # inst_list_arg[1].c
     ]
 
     with pytest.raises(InvalidInputException) as exc:
         validate_deploy_input(COMPILED_CONTRACT_ABI_ONLY, inputs)
-    "Not enough constructor arguments provided." in str(exc.value)
+    assert "Not enough constructor arguments provided." in str(exc.value)
+
 
 def test_validating_deploy_inputs_too_many():
     inputs = [
-        0x0, # Test.felt_field
-        0xA, # Test.inner_field.a
-        0xB, # Test.inner_field.b
-        0xC, # Test.inner_field.c
-        0x9, # felt_arg
-        0x1, # Uint256.low
-        0x2, # Uint256.high
-        5  , # len(felt_list_arg)
-        0xA, # |
-        0xB, # |
-        0xC, # |
-        0xD, # |
-        0xE, # | felt* (felt_list_arg)
-        2  , # len(inst_list_arg)
-        0xA, # inst_list_arg[0].a
-        0xB, # inst_list_arg[0].b
-        0xC, # inst_list_arg[0].c    
-        0x1, # inst_list_arg[1].a
-        0x2, # inst_list_arg[1].b
-        0x3, # inst_list_arg[1].c   
-
-        # 
+        0x0,  # Test.felt_field
+        0xA,  # Test.inner_field.a
+        0xB,  # Test.inner_field.b
+        0xC,  # Test.inner_field.c
+        0x9,  # felt_arg
+        0x1,  # Uint256.low
+        0x2,  # Uint256.high
+        5,  # len(felt_list_arg)
+        0xA,  # |
+        0xB,  # |
+        0xC,  # |
+        0xD,  # |
+        0xE,  # | felt* (felt_list_arg)
+        2,  # len(inst_list_arg)
+        0xA,  # inst_list_arg[0].a
+        0xB,  # inst_list_arg[0].b
+        0xC,  # inst_list_arg[0].c
+        0x1,  # inst_list_arg[1].a
+        0x2,  # inst_list_arg[1].b
+        0x3,  # inst_list_arg[1].c
+        #
         0xDDDDDDDDDDDDD,
-        0xDeadBeef,
+        0xDEADBEEF,
     ]
 
     with pytest.raises(InvalidInputException) as exc:
         validate_deploy_input(COMPILED_CONTRACT_ABI_ONLY, inputs)
-    f"Too many constructor arguments provided, expected {len(inputs)-2} got {len(inputs)}." in str(exc.value)
+    assert (
+        f"Too many constructor arguments provided, expected {len(inputs)-2} got {len(inputs)}."
+        in str(exc.value)
+    )
