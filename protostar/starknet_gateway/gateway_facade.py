@@ -249,12 +249,16 @@ class GatewayFacade:
                 signer=signer,
             ),
         )
-        result = await self._invoke_function(
-            contract_function,
-            inputs,
-            max_fee=max_fee,
-            auto_estimate=auto_estimate_fee,
-        )
+        try:
+            result = await self._invoke_function(
+                contract_function,
+                inputs,
+                max_fee=max_fee,
+                auto_estimate=auto_estimate_fee,
+            )
+
+        except TransactionFailedError as ex:
+            raise TransactionException(str(ex)) from ex
 
         response_dict: StarknetRequest.Payload = {
             "hash": result.hash,
