@@ -12,7 +12,7 @@ from tests.integration.conftest import CreateProtostarProjectFixture, ProtostarF
 
 
 @pytest.fixture(name="protostar")
-def protostar_project_fixture(create_protostar_project: CreateProtostarProjectFixture):
+def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
     with create_protostar_project() as protostar:
         protostar.create_files(
             {
