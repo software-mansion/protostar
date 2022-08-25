@@ -82,12 +82,17 @@ class PassedFuzzTestCaseResult(PassedTestCaseResult, FuzzResult):
     @classmethod
     def from_test_execution_result(
         cls,
-        test_execution_result: FuzzTestExecutionResult,
+        test_execution_result: TestExecutionResult,
         **kwargs,
     ) -> Self:
+        if isinstance(test_execution_result, FuzzTestExecutionResult):
+            fuzz_runs_count = test_execution_result.fuzz_runs_count
+        else:
+            fuzz_runs_count = None
+
         return cls(
             execution_resources=test_execution_result.execution_resources,
-            fuzz_runs_count=test_execution_result.fuzz_runs_count,
+            fuzz_runs_count=fuzz_runs_count,
             **kwargs,
         )
 
