@@ -160,16 +160,16 @@ def protostar_project_root_path_fixture(tmp_path_factory: TempPathFactory) -> Pa
     return tmp_path / "tmp_project"
 
 
-@pytest.fixture(name="protostar", scope="module")
-def protostar_fixture(
-    session_mocker: MockerFixture,
-    protostar_project_root_path: Path,
-) -> ProtostarFixture:
-    """@deprecated: Use `create_protostar_project` fixture instead."""
-    return build_protostar_fixture(
-        mocker=session_mocker,
-        project_root_path=protostar_project_root_path,
-    )
+# @pytest.fixture(name="protostar", scope="module")
+# def protostar_fixture(
+#     session_mocker: MockerFixture,
+#     protostar_project_root_path: Path,
+# ) -> ProtostarFixture:
+#     """@deprecated: Use `create_protostar_project` fixture instead."""
+#     return build_protostar_fixture(
+#         mocker=session_mocker,
+#         project_root_path=protostar_project_root_path,
+#     )
 
 
 class CreateProtostarProjectFixture(Protocol):
