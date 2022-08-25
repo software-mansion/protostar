@@ -106,7 +106,7 @@ class GatewayFacade:
                 )
                 result.code = status
         except TransactionFailedError as ex:
-            raise TransactionException(str(ex)) from None
+            raise TransactionException(str(ex)) from ex
 
         return SuccessfulDeployResponse(
             code=result.code or "",
@@ -183,7 +183,7 @@ class GatewayFacade:
                 )
                 result.code = status
         except TransactionFailedError as ex:
-            raise TransactionException(str(ex)) from None
+            raise TransactionException(str(ex)) from ex
 
         return SuccessfulDeclareResponse(
             code=result.code or "",
@@ -210,7 +210,7 @@ class GatewayFacade:
         try:
             result = await self._call_function(contract_function, inputs)
         except TransactionFailedError as ex:
-            raise TransactionException(str(ex)) from None
+            raise TransactionException(str(ex)) from ex
 
         register_response({"result": str(result._asdict())})
         return result
