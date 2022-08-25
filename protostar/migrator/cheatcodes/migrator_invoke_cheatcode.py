@@ -60,7 +60,7 @@ class MigratorInvokeCheatcode(Cheatcode):
         auto_estimate_fee: bool = False,
         signer: Optional[BaseSigner] = None,
     ):
-        if max_fee <= 0:
+        if max_fee is not None and max_fee <= 0:
             raise CheatcodeException(
                 self.name,
                 message="max_fee must be greater than 0.",
