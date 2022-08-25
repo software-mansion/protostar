@@ -26,6 +26,6 @@ invoke(contract_address, "increase_balance", {"amount": 42}, auto_estimate_fee=T
 result = call(contract_address, "get_balance")
 
 assert result.res == 42
-            """,
+""",
         account_address=acc_address,
     )

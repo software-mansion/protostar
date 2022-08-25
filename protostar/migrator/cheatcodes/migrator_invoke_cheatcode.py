@@ -63,14 +63,14 @@ class MigratorInvokeCheatcode(Cheatcode):
         if not max_fee and not auto_estimate_fee:
             raise CheatcodeException(
                 self.name,
-                message="Either max_fee or auto_estimate_fee argument has to be specified",
+                message="Either max_fee or auto_estimate_fee argument is required.",
             )
         account_address = account_address or self._global_account_address
         if not account_address:
             raise CheatcodeException(
                 self.name,
                 message="Account address is required for fetching nonce. "
-                "Please either provide it in the function call, or with global account-address option",
+                "Please either provide it in the function call, or with global account-address option.",
             )
         signer = signer or self._global_signer
 
@@ -78,7 +78,7 @@ class MigratorInvokeCheatcode(Cheatcode):
             raise CheatcodeException(
                 self.name,
                 message="Signing is required when using invoke. "
-                "Please either provide cli credentials, or a custom signer in invoke call",
+                "Please either provide CLI credentials or a custom signer in invoke call.",
             )
         try:
             return asyncio.run(
