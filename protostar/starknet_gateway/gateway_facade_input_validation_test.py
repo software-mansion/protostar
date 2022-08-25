@@ -237,6 +237,8 @@ def test_validating_deploy_inputs_too_many():
         in str(exc.value)
     )
 
+    assert False
+
 
 def test_validating_deploy_inputs_empty_not_enough():
     with pytest.raises(InvalidInputException) as exc:
