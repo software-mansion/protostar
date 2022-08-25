@@ -9,6 +9,7 @@ from starknet_py.net.signer import BaseSigner
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import AddressRepresentation
 from starknet_py.transactions.deploy import make_deploy_tx
+from starknet_py.transaction_exceptions import TransactionFailedError
 
 from starkware.starknet.definitions import constants
 from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
@@ -98,15 +99,18 @@ class GatewayFacade:
             },
         )
 
-        result = await self._gateway_client.deploy(tx, token)
-        register_response(dataclasses.asdict(result))
-        if wait_for_acceptance:
-            if self._logger:
-                self._logger.info("Waiting for acceptance...")
-            _, status = await self._gateway_client.wait_for_tx(
-                result.transaction_hash, wait_for_accept=wait_for_acceptance
-            )
-            result.code = status
+        try:
+            result = await self._gateway_client.deploy(tx, token)
+            register_response(dataclasses.asdict(result))
+            if wait_for_acceptance:
+                if self._logger:
+                    self._logger.info("Waiting for acceptance...")
+                _, status = await self._gateway_client.wait_for_tx(
+                    result.transaction_hash, wait_for_accept=wait_for_acceptance
+                )
+                result.code = status
+        except TransactionFailedError as ex:
+            raise TransactionException(str(ex)) from ex
 
         return SuccessfulDeployResponse(
             code=result.code or "",
@@ -172,15 +176,18 @@ class GatewayFacade:
             },
         )
 
-        result = await self._gateway_client.declare(tx, token)
-        register_response(dataclasses.asdict(result))
-        if wait_for_acceptance:
-            if self._logger:
-                self._logger.info("Waiting for acceptance...")
-            _, status = await self._gateway_client.wait_for_tx(
-                result.transaction_hash, wait_for_accept=wait_for_acceptance
-            )
-            result.code = status
+        try:
+            result = await self._gateway_client.declare(tx, token)
+            register_response(dataclasses.asdict(result))
+            if wait_for_acceptance:
+                if self._logger:
+                    self._logger.info("Waiting for acceptance...")
+                _, status = await self._gateway_client.wait_for_tx(
+                    result.transaction_hash, wait_for_accept=wait_for_acceptance
+                )
+                result.code = status
+        except TransactionFailedError as ex:
+            raise TransactionException(str(ex)) from ex
 
         return SuccessfulDeclareResponse(
             code=result.code or "",
@@ -203,7 +210,12 @@ class GatewayFacade:
             },
         )
         contract_function = await self._create_contract_function(address, function_name)
-        result = await self._call_function(contract_function, inputs)
+
+        try:
+            result = await self._call_function(contract_function, inputs)
+        except TransactionFailedError as ex:
+            raise TransactionException(str(ex)) from ex
+
         register_response({"result": str(result._asdict())})
         return result
 
