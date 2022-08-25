@@ -1,5 +1,5 @@
 import pytest
-from .gateway_facade import (
+from .gateway_facade_input_validation import (
     JSONParsingErrorException,
     validate_deploy_input,
     InvalidInputException,
@@ -140,6 +140,12 @@ COMPILED_CONTRACT_ABI_ONLY_NO_INPUTS = """
 }
 """
 
+COMPILED_CONTRACT_ABI_ONLY_NO_CONSTRUCTOR = """
+{
+    "abi": []
+}
+"""
+
 
 def test_validating_deploy_inputs_pass():
     inputs = [
@@ -243,6 +249,20 @@ def test_validating_deploy_inputs_empty_pass():
 
 
 def test_validating_deploy_inputs_too_many_on_empty():
+    inputs = [1, 2, 3, 4, 5]
+
+    with pytest.raises(InvalidInputException) as exc:
+        validate_deploy_input(COMPILED_CONTRACT_ABI_ONLY_NO_INPUTS, inputs)
+    assert "Too many constructor arguments provided, expected 0 got 5." in str(
+        exc.value
+    )
+
+
+def test_validating_deploy_no_constructor_no_input():
+    validate_deploy_input(COMPILED_CONTRACT_ABI_ONLY_NO_CONSTRUCTOR, [])
+
+
+def test_validating_deploy_no_constructor_input():
     inputs = [1, 2, 3, 4, 5]
 
     with pytest.raises(InvalidInputException) as exc:

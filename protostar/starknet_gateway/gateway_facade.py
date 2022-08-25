@@ -1,4 +1,3 @@
-import json
 from logging import Logger
 from pathlib import Path
 import dataclasses
@@ -25,6 +24,8 @@ from protostar.starknet_gateway.gateway_response import (
 )
 from protostar.starknet_gateway.starknet_request import StarknetRequest
 from protostar.utils.log_color_provider import LogColorProvider
+
+from .gateway_facade_input_validation import validate_deploy_input
 
 ContractFunctionInputType = Union[List[int], Dict[str, Any]]
 
@@ -284,59 +285,3 @@ class UnknownFunctionException(ProtostarException):
 class ContractNotFoundException(ProtostarException):
     def __init__(self, contract_address: AddressRepresentation):
         super().__init__(f"Tried to call unknown contract:\n{contract_address}")
-
-
-class InvalidInputException(ProtostarException):
-    pass
-
-
-class JSONParsingErrorException(ProtostarException):
-    pass
-
-
-AbiType = List[Dict[str, Any]]
-
-
-def get_type_size(abi: AbiType, typename: str):
-    if typename == "felt":
-        return 1
-    [type_definition] = [x for x in abi if x["name"] == typename]
-    return type_definition["size"]
-
-
-def get_abi_from_json(compiled_contract_json: str) -> AbiType:
-    try:
-        abi = json.loads(compiled_contract_json)["abi"]
-    except json.decoder.JSONDecodeError as ex:
-        raise JSONParsingErrorException(
-            "Couldn't parse given contract JSON.", str(ex)
-        ) from ex
-    except KeyError:
-        raise JSONParsingErrorException(
-            "No ABI found in the given compiled contract."
-        ) from KeyError
-    return abi
-
-
-def validate_deploy_input(compiled_contract_json: str, inputs: List[int]) -> None:
-    abi = get_abi_from_json(compiled_contract_json)
-    [constructor] = [x for x in abi if x["type"] == "constructor"]
-    expected_inputs = constructor["inputs"]
-
-    i = 0
-    for expected_input in expected_inputs:
-        raw_type_size = get_type_size(abi, expected_input["type"].rstrip("*"))
-        if expected_input["type"].endswith("*"):
-            size = inputs[i - 1] * raw_type_size
-        else:
-            size = raw_type_size
-
-        i += size
-
-        if i > len(inputs):
-            raise InvalidInputException("Not enough constructor arguments provided.")
-
-    if i != len(inputs):
-        raise InvalidInputException(
-            f"Too many constructor arguments provided, expected {i} got {len(inputs)}."
-        )
