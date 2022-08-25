@@ -107,6 +107,7 @@ class ProtostarFixture:
         network: str,
         rollback=False,
         output_dir: Optional[Path] = None,
+        account_address: Optional[str] = None,
     ):
         args = Namespace()
         args.path = path
@@ -117,7 +118,7 @@ class ProtostarFixture:
         args.gateway_url = network
         args.chain_id = StarknetChainId.TESTNET.value
         args.signer_class = None
-        args.account_address = None
+        args.account_address = account_address
         args.private_key_path = None
         migration_history = await self._migrator_command.run(args)
         assert migration_history is not None
@@ -207,7 +208,15 @@ class ProtostarFixture:
 
 
 # pylint: disable=too-many-locals
-def build_protostar_fixture(mocker: MockerFixture, project_root_path: Path):
+def build_protostar_fixture(
+    mocker: MockerFixture, project_root_path: Path, signing_credentials: Tuple[str, str]
+):
+    account_address, private_key = signing_credentials
+    signer = PatchedStarkCurveSigner(
+        account_address,
+        KeyPair.from_private_key(int(private_key, 16)),
+        StarknetChainId.TESTNET.value,
+    )
 
     version_manager = mocker.MagicMock()
     version_manager.protostar_version = mocker.MagicMock()
@@ -277,9 +286,11 @@ def build_protostar_fixture(mocker: MockerFixture, project_root_path: Path):
     )
     migrator_builder.set_migration_execution_environment_config(
         MigratorExecutionEnvironment.Config(
-            signer=PatchedStarkCurveSigner(1, KeyPair(1, 2), 2), token=None
-        )
+            token=None,
+        ),
     )
+
+    migrator_builder.set_signer(signer)
 
     migrate_command = MigrateCommand(
         migrator_builder=migrator_builder,

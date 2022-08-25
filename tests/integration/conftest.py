@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 from logging import getLogger
 from pathlib import Path
-from typing import List, Optional, Set, Union, cast
+from typing import List, Optional, Set, Union, cast, Tuple
 
 import pytest
 from pytest import TempPathFactory
@@ -162,8 +162,10 @@ def protostar_project_root_path_fixture(tmp_path_factory: TempPathFactory) -> Pa
 def protostar_fixture(
     session_mocker: MockerFixture,
     protostar_project_root_path: Path,
+    signing_credentials: Tuple[str, str],
 ) -> ProtostarFixture:
     return build_protostar_fixture(
         mocker=session_mocker,
         project_root_path=protostar_project_root_path,
+        signing_credentials=signing_credentials,
     )

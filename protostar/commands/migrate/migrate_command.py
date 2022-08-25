@@ -2,6 +2,8 @@ from logging import Logger
 from pathlib import Path
 from typing import List, Optional
 
+from starknet_py.net.signer import BaseSigner
+
 from protostar.cli import Command
 from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.cli.signable_command_util import SignableCommandUtil
@@ -76,8 +78,9 @@ class MigrateCommand(Command):
         network_config = network_command_util.get_network_config()
         signable_command_util = SignableCommandUtil(args, self._logger)
 
+        signer = signable_command_util.get_signer(network_config)
         migrator_config = MigratorExecutionEnvironment.Config(
-            signer=signable_command_util.get_signer(network_config)
+            account_address=args.account_address,
         )
         return await self.migrate(
             migration_file_path=args.path,
@@ -91,6 +94,7 @@ class MigrateCommand(Command):
             output_dir_path=args.output_dir,
             no_confirm=args.no_confirm,
             migrator_config=migrator_config,
+            signer=signer,
         )
 
     # pylint: disable=too-many-arguments
@@ -102,6 +106,7 @@ class MigrateCommand(Command):
         output_dir_path: Optional[Path],
         migrator_config: MigratorExecutionEnvironment.Config,
         no_confirm: bool,
+        signer: Optional[BaseSigner] = None,
     ):
         # mitigates the risk of running migrate on an outdated project
         should_confirm = not no_confirm
@@ -117,6 +122,10 @@ class MigrateCommand(Command):
         self._migrator_builder.set_migration_execution_environment_config(
             migrator_config
         )
+
+        if signer:
+            self._migrator_builder.set_signer(signer)
+
         self._migrator_builder.set_gateway_facade(gateway_facade)
         migrator = await self._migrator_builder.build(migration_file_path)
 
