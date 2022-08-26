@@ -28,6 +28,10 @@ TMetadata = TypeVar("TMetadata", bound=ExceptionMetadata)
 class ReportedException(BaseException):
     """
     The exception used for catching unexpected errors thrown from test cases and as a base class.
+
+    Contract:
+        It is illegal to attach many same-type instances of ExceptionMetadata to the same exception
+        object.
     """
 
     def __init__(self, *args: object) -> None:
