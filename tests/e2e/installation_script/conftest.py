@@ -95,17 +95,19 @@ class ProtostarGitHubRepository:
         return f'"tag_name":"v{version}"'
 
 
-class SimulateUnwrappingFixture(Protocol):
+class CreateFakeProtostarFixture(Protocol):
     def __call__(self, output_dir: Path) -> None:
         ...
 
 
-@pytest.fixture(name="simulate_unwrapping")
-def simulate_unwrapping_fixture(datadir: Path) -> SimulateUnwrappingFixture:
-    def simulate_unwrapping(output_dir: Path):
+@pytest.fixture(name="create_fake_protostar")
+def create_fake_protostar_fixture(
+    datadir: Path,
+) -> CreateFakeProtostarFixture:
+    def create_fake_protostar(output_dir: Path):
         copytree(src=datadir / "dist", dst=output_dir / ".protostar" / "dist")
 
-    return simulate_unwrapping
+    return create_fake_protostar
 
 
 def assert_config_file_includes_path_entry(file_path: Path, home_path: Path):
