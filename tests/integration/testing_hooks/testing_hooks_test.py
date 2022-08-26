@@ -28,7 +28,8 @@ async def test_setup_case(run_cairo_test_runner: RunCairoTestRunnerFixture):
     assert_cairo_test_cases(
         testing_summary,
         expected_passed_test_cases_names=[
-            "test_setup_hooks",
+            "test_setup_case",
+            "test_setup_hook_only",
         ],
         expected_failed_test_cases_names=[],
     )
