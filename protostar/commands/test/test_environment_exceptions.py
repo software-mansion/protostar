@@ -6,6 +6,7 @@ from starkware.starknet.business_logic.execution.objects import Event
 from typing_extensions import Literal
 
 from protostar.commands.test.expected_event import ExpectedEvent
+from protostar.starknet.hint_local import HintLocal
 from protostar.utils.log_color_provider import SupportedColorName, log_color_provider
 
 # NOTE: When adding new exception type, do not forget to include it in ``test_pickle`` test.
@@ -70,9 +71,16 @@ class SimpleReportedException(ReportedException):
         return str(self.message)
 
 
+CheatcodeNameProvider = Union[str, HintLocal]
+
+
 class CheatcodeException(ReportedException):
-    def __init__(self, cheatcode_name: str, message: str):
-        self.cheatcode_name = cheatcode_name
+    def __init__(self, cheatcode: CheatcodeNameProvider, message: str):
+        if isinstance(cheatcode, HintLocal):
+            self.cheatcode_name = cheatcode.name
+        else:
+            self.cheatcode_name = cheatcode
+
         self.message = message
         super().__init__(message)
 
@@ -87,9 +95,9 @@ class CheatcodeException(ReportedException):
 
 
 class KeywordOnlyArgumentCheatcodeException(CheatcodeException):
-    def __init__(self, cheatcode_name: str, list_of_kwargs: List[str]):
+    def __init__(self, cheatcode: CheatcodeNameProvider, list_of_kwargs: List[str]):
         self.kwargs = list_of_kwargs
-        super().__init__(cheatcode_name, "Passed keyword-only argument positionally.")
+        super().__init__(cheatcode, "Passed keyword-only argument positionally.")
 
     def __str__(self):
         lines: List[str] = []
