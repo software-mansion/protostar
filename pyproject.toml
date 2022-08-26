@@ -117,7 +117,6 @@ target-version = [
 lines_between_sections = 1
 profile = "black"
 
-
 [tool.pyright]
 exclude = [
     "**/__pycache__",
