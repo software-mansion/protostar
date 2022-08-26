@@ -1,10 +1,8 @@
 from typing import Optional, Dict
 
-from protostar.commands.test.cheatcodes import (
-    DeclareCheatcode,
-    DeployCheatcode,
-    PrepareCheatcode,
-)
+from protostar.commands.test.cheatcodes.declare_cheatcode import DeclareCheatcode
+from protostar.commands.test.cheatcodes.deploy_cheatcode import DeployCheatcode
+from protostar.commands.test.cheatcodes.prepare_cheatcode import PrepareCheatcode
 from protostar.commands.test.test_environment_exceptions import (
     KeywordOnlyArgumentCheatcodeException,
 )
