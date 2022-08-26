@@ -92,6 +92,18 @@ async def test_compilation_output_dir_overwrite_protection(
         await protostar.migrate(file_path, devnet_gateway_url)
 
 
+async def test_data_transformation(
+    protostar: ProtostarFixture, devnet_gateway_url: str
+):
+    file_path = protostar.create_migration_file(
+        'deploy_contract("./build/main.json", {"initial_balance": 42})'
+    )
+
+    result = await protostar.migrate(file_path, devnet_gateway_url)
+
+    assert result.starknet_requests[0] is not None
+
+
 def extract_transaction_hash(starknet_request: StarknetRequest):
     return cast(int, starknet_request.response["transaction_hash"])
 
