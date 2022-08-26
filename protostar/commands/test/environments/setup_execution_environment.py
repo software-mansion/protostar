@@ -6,15 +6,15 @@ from protostar.commands.test.cheatcodes import (
     DeclareCheatcode,
     DeployCheatcode,
     DeployContractCheatcode,
+    LoadCheatcode,
     MockCallCheatcode,
     PrepareCheatcode,
+    ReflectCheatcode,
     RollCheatcode,
     StartPrankCheatcode,
     StoreCheatcode,
     WarpCheatcode,
-    ReflectCheatcode,
 )
-from protostar.commands.test.cheatcodes.load_cheatcode import LoadCheatcode
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_context import TestContextHintLocal
 from protostar.starknet.cheatcode import Cheatcode
