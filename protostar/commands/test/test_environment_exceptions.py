@@ -50,7 +50,6 @@ class ReportedException(BaseException):
     def get_metadata_by_type(
         self, metadata_type: Type[TMetadata]
     ) -> Optional[TMetadata]:
-        # Note: Typing this function is hard, hence omitted.
         for metadata in self.metadata:
             if isinstance(metadata, metadata_type):
                 return metadata
