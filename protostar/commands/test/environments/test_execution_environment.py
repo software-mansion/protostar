@@ -52,10 +52,6 @@ class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
             )
         )
 
-        self.set_custom_hint_locals(
-            [TestContextHintLocal(self.state.context), CairoStructHintLocal()]
-        )
-
         with self.state.output_recorder.redirect("test"):
             return TestExecutionResult(
                 execution_resources=await self.invoke_test_case(function_name)
@@ -89,13 +85,13 @@ class TestCaseCheatcodeFactory(SetupCheatcodeFactory):
         self._expect_revert_context = expect_revert_context
         self._finish_hook = finish_hook
 
-    def build(
+    def build_cheatcodes(
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
         internal_calls: List[CallInfo],
     ) -> List[Cheatcode]:
         return [
-            *super().build(syscall_dependencies, internal_calls),
+            *super().build_cheatcodes(syscall_dependencies, internal_calls),
             ExpectRevertCheatcode(
                 syscall_dependencies,
                 self._expect_revert_context,

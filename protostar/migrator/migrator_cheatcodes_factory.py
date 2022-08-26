@@ -21,6 +21,7 @@ from protostar.migrator.cheatcodes.migrator_invoke_cheatcode import (
 )
 
 from .migrator_datetime_state import MigratorDateTimeState
+from ..starknet.hint_local import HintLocal
 
 
 class MigratorCheatcodeFactory(CheatcodeFactory):
@@ -47,7 +48,7 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
         self._signer = signer
         self._config = config
 
-    def build(
+    def build_cheatcodes(
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
         internal_calls: List[CallInfo],
@@ -79,3 +80,6 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
                 global_account_address=self._config.account_address,
             ),
         ]
+
+    def build_hint_locals(self) -> List[HintLocal]:
+        return []

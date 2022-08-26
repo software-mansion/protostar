@@ -46,6 +46,7 @@ from protostar.commands.test.test_environment_exceptions import (
 )
 from protostar.commands.test.testing_seed import TestingSeed
 from protostar.starknet.cheatcode import Cheatcode
+from protostar.starknet.hint_local import HintLocal
 from protostar.utils.abi import get_function_parameters
 from protostar.utils.hook import Hook
 
@@ -87,14 +88,6 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
                 finish_hook=self._finish_hook,
                 strategy_selector=strategy_selector,
             )
-        )
-
-        self.set_custom_hint_locals(
-            [
-                TestContextHintLocal(self.state.context),
-                CairoStructHintLocal(),
-                StrategiesHintLocal(),
-            ]
         )
 
         execution_resources: List[ExecutionResourcesSummary] = []
@@ -236,14 +229,20 @@ class FuzzTestCaseCheatcodeFactory(TestCaseCheatcodeFactory):
         super().__init__(state, expect_revert_context, finish_hook)
         self.strategy_selector = strategy_selector
 
-    def build(
+    def build_cheatcodes(
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
         internal_calls: List[CallInfo],
     ) -> List[Cheatcode]:
         return [
-            *super().build(syscall_dependencies, internal_calls),
+            *super().build_cheatcodes(syscall_dependencies, internal_calls),
             RejectCheatcode(syscall_dependencies),
             AssumeCheatcode(syscall_dependencies),
             GivenCheatcode(syscall_dependencies, self.strategy_selector),
+        ]
+
+    def build_hint_locals(self) -> List[HintLocal]:
+        return [
+            *super().build_hint_locals(),
+            StrategiesHintLocal(),
         ]
