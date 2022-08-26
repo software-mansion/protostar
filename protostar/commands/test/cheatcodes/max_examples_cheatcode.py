@@ -23,8 +23,6 @@ class MaxExamplesCheatcode(Cheatcode):
 
     def max_examples(self, max_examples: int) -> None:
         if max_examples <= 0:
-            raise CheatcodeException(
-                "max_examples", "Max examples value must greater than 0."
-            )
+            raise CheatcodeException(self, "Max examples value must greater than 0.")
 
         self.test_config.fuzz_max_examples = max_examples
