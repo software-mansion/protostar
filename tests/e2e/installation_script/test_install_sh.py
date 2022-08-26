@@ -4,15 +4,9 @@ from pathlib import Path
 import pytest
 
 from tests.e2e.installation_script.conftest import (
-    ProtostarGitHubRepository,
-    ScriptTestingHarness,
-    Shell,
-    SimulateUnwrappingFixture,
-    SupportedKernel,
-    SupportedShell,
-    UploadedInstallationFilename,
-    assert_config_file_includes_path_entry,
-)
+    CreateFakeProtostarFixture, ProtostarGitHubRepository,
+    ScriptTestingHarness, Shell, SupportedKernel, SupportedShell,
+    UploadedInstallationFilename, assert_config_file_includes_path_entry)
 
 
 @pytest.fixture(name="home_path")
@@ -43,7 +37,7 @@ def latest_protostar_version_fixture() -> str:
 def test_installing_latest_version(
     home_path: Path,
     latest_protostar_version: str,
-    simulate_unwrapping: SimulateUnwrappingFixture,
+    create_fake_protostar: CreateFakeProtostarFixture,
     kernel: str,
     shell: Shell,
     uploaded_installation_filename: str,
@@ -65,10 +59,10 @@ def test_installing_latest_version(
     harness.expect_download_curl_prompt(
         uploaded_installation_filename, latest_protostar_version
     )
+    create_fake_protostar(output_dir=home_path)
     harness.send("DATA")
 
     harness.expect_tar_call(data="DATA")
-    simulate_unwrapping(output_dir=home_path)
 
     harness.expect_detected_shell(shell_name=shell.name)
     harness.expect_eof()
@@ -95,7 +89,7 @@ def test_installing_latest_version(
 )
 def test_installing_specific_version(
     home_path: Path,
-    simulate_unwrapping: SimulateUnwrappingFixture,
+    create_fake_protostar: CreateFakeProtostarFixture,
     kernel: str,
     shell: Shell,
     uploaded_installation_filename: str,
@@ -121,10 +115,10 @@ def test_installing_specific_version(
     harness.expect_download_curl_prompt(
         uploaded_installation_filename, requested_version
     )
+    create_fake_protostar(output_dir=home_path)
     harness.send("DATA")
 
     harness.expect_tar_call(data="DATA")
-    simulate_unwrapping(output_dir=home_path)
 
     harness.expect_detected_shell(shell_name=shell.name)
     harness.expect_eof()
