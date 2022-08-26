@@ -9,6 +9,7 @@ from protostar.starknet_gateway.gateway_facade import (
     GatewayFacade,
     UnknownFunctionException,
 )
+from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR
 from tests.integration.protostar_fixture import ProtostarFixture
 
 
@@ -102,3 +103,19 @@ async def test_call_to_with_positional_incorrect_args(
             function_name="get_balance",
             inputs=[42],
         )
+
+
+@pytest.fixture(name="compiled_contract_with_contractor_path")
+def compiled_contract_with_contractor_path_fixture(protostar: ProtostarFixture):
+    protostar.init_sync()
+    protostar.create_files({"./src/main.cairo": CONTRACT_WITH_CONSTRUCTOR})
+    protostar.build_sync()
+    yield protostar.project_root_path / "build" / "main.json"
+
+
+async def test_deploy_supports_data_transformer(
+    gateway_facade: GatewayFacade, compiled_contract_with_contractor_path: Path
+):
+    await gateway_facade.deploy(
+        compiled_contract_with_contractor_path, inputs={"initial_balance": 42}
+    )
