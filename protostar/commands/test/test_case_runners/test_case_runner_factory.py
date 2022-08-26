@@ -28,6 +28,7 @@ class TestCaseRunnerFactory:
                 ),
                 test_case=test_case,
                 output_recorder=self._state.output_recorder,
+                stopwatch=self._state.stopwatch,
             )
 
         if self._state.config.mode is TestMode.STANDARD:
@@ -35,6 +36,7 @@ class TestCaseRunnerFactory:
                 test_execution_environment=TestExecutionEnvironment(self._state),
                 test_case=test_case,
                 output_recorder=self._state.output_recorder,
+                stopwatch=self._state.stopwatch,
             )
 
         raise NotImplementedError(f"Unreachable")

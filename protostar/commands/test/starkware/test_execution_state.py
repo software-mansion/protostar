@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from starkware.starknet.services.api.contract_class import ContractClass
 from typing_extensions import Self
 
+from protostar.commands.test.stopwatch import Stopwatch
 from protostar.commands.test.test_config import TestConfig
 from protostar.commands.test.test_context import TestContext
 from protostar.commands.test.test_output_recorder import OutputRecorder
@@ -18,6 +19,7 @@ class TestExecutionState(ExecutionState):
     config: TestConfig
     context: TestContext
     output_recorder: OutputRecorder
+    stopwatch: Stopwatch
 
     @classmethod
     async def from_test_suite_definition(
@@ -40,6 +42,7 @@ class TestExecutionState(ExecutionState):
             context=TestContext(),
             contract=contract,
             output_recorder=OutputRecorder(),
+            stopwatch=Stopwatch(),
             starknet=starknet,
             starknet_compiler=starknet_compiler,
         )
@@ -50,4 +53,5 @@ class TestExecutionState(ExecutionState):
             config=deepcopy(self.config),
             context=deepcopy(self.context),
             output_recorder=self.output_recorder.fork(),
+            stopwatch=self.stopwatch.fork(),
         )
