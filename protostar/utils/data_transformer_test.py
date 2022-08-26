@@ -80,11 +80,13 @@ TEST_ABI = [
         ],
         "name": "constructor_event",
         "type": "event",
+        "from_address": "0",
     },
     {
         "data": [{"name": "input", "type": "(felt, felt)"}],
         "name": "tuple_event",
         "type": "event",
+        "from_address": "0",
     },
 ]
 
