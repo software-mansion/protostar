@@ -21,25 +21,20 @@ class TestCaseRunnerFactory:
         self._state = state
 
     def make(self, test_case: TestCase) -> TestCaseRunner:
-        state: TestExecutionState = self._state.fork()
-
-        # TODO(mkaput): Remove this in favor of setting mode explicitly by cheatcodes in setup hooks.
-        state.config.mode = TestMode.infer_from_contract_function(
-            test_case.test_fn_name, state.contract
-        )
-
-        if state.config.mode is TestMode.FUZZ:
+        if self._state.config.mode is TestMode.FUZZ:
             return FuzzTestCaseRunner(
-                fuzz_test_execution_environment=FuzzTestExecutionEnvironment(state),
+                fuzz_test_execution_environment=FuzzTestExecutionEnvironment(
+                    self._state
+                ),
                 test_case=test_case,
-                output_recorder=state.output_recorder,
+                output_recorder=self._state.output_recorder,
             )
 
-        if state.config.mode is TestMode.STANDARD:
+        if self._state.config.mode is TestMode.STANDARD:
             return StandardTestCaseRunner(
-                test_execution_environment=TestExecutionEnvironment(state),
+                test_execution_environment=TestExecutionEnvironment(self._state),
                 test_case=test_case,
-                output_recorder=state.output_recorder,
+                output_recorder=self._state.output_recorder,
             )
 
         raise NotImplementedError(f"Unreachable")
