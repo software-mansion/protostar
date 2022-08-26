@@ -4,13 +4,18 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 
 @external
 func __setup__():
-    %{ print("F_SETUP") %}
+    %{ print("F __setup__") %}
+    return ()
+end
+
+@external
+func setup_should_fail():
+    %{ print("F setup_should_fail") %}
     return ()
 end
 
 @external
 func test_should_fail{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
-
     %{
         print(
             "According to all known laws of aviation,\n"
@@ -22,7 +27,6 @@ func test_should_fail{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_ch
             "what humans think is impossible.\n"
         )
     %}
-
 
     assert 1 = 0
     return ()

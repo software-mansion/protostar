@@ -79,6 +79,23 @@ class FailedFuzzTestCaseResult(FailedTestCaseResult, FuzzResult):
 
 
 @dataclass(frozen=True)
+class SetupCaseResult(TestResult, TimedTestResult):
+    test_case_name: str
+    setup_case_name: str
+
+
+@dataclass(frozen=True)
+class PassedSetupCaseResult(SetupCaseResult):
+    pass
+
+
+# Note: We rely on the fact that this class inherits from FailedTestCaseResult in formatting code.
+@dataclass(frozen=True)
+class FailedSetupCaseResult(SetupCaseResult, FailedTestCaseResult):
+    pass
+
+
+@dataclass(frozen=True)
 class BrokenTestSuiteResult(TestResult):
     test_case_names: List[str]
     exception: BaseException
