@@ -1,6 +1,6 @@
 import re
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, TypeVar, Type
 
 from starkware.starknet.business_logic.execution.objects import Event
 from typing_extensions import Literal
@@ -22,9 +22,16 @@ class ExceptionMetadata(ABC):
         ...
 
 
+TMetadata = TypeVar("TMetadata", bound=ExceptionMetadata)
+
+
 class ReportedException(BaseException):
     """
     The exception used for catching unexpected errors thrown from test cases and as a base class.
+
+    Contract:
+        It is illegal to attach many same-type instances of ExceptionMetadata to the same exception
+        object.
     """
 
     def __init__(self, *args: object) -> None:
@@ -43,6 +50,15 @@ class ReportedException(BaseException):
 
     def __eq__(self, other):
         return isinstance(other, type(self)) and self.__dict__ == other.__dict__
+
+    def get_metadata_by_type(
+        self, metadata_type: Type[TMetadata]
+    ) -> Optional[TMetadata]:
+        for metadata in self.metadata:
+            if isinstance(metadata, metadata_type):
+                return metadata
+
+        return None
 
 
 class SimpleReportedException(ReportedException):
