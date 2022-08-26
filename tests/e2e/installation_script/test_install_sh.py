@@ -4,9 +4,15 @@ from pathlib import Path
 import pytest
 
 from tests.e2e.installation_script.conftest import (
-    CreateFakeProtostarFixture, ProtostarGitHubRepository,
-    ScriptTestingHarness, Shell, SupportedKernel, SupportedShell,
-    UploadedInstallationFilename, assert_config_file_includes_path_entry)
+    CreateFakeProtostarFixture,
+    ProtostarGitHubRepository,
+    ScriptTestingHarness,
+    Shell,
+    SupportedKernel,
+    SupportedShell,
+    UploadedInstallationFilename,
+    assert_config_file_includes_path_entry,
+)
 
 
 @pytest.fixture(name="home_path")
