@@ -13,20 +13,31 @@ from starknet_py.net import KeyPair
 from starknet_py.net.models import StarknetChainId
 
 from protostar.cli.signable_command_util import PatchedStarkCurveSigner
-from protostar.commands import (BuildCommand, DeclareCommand, FormatCommand,
-                                InitCommand, MigrateCommand)
+from protostar.commands import (
+    BuildCommand,
+    DeclareCommand,
+    FormatCommand,
+    InitCommand,
+    MigrateCommand,
+)
 from protostar.commands.deploy.deploy_command import DeployCommand
-from protostar.commands.init.project_creator.new_project_creator import \
-    NewProjectCreator
+from protostar.commands.init.project_creator.new_project_creator import (
+    NewProjectCreator,
+)
 from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
 from protostar.formatter.formatter import Formatter
-from protostar.formatter.formatting_result import (FormattingResult,
-                                                   format_formatting_result)
+from protostar.formatter.formatting_result import (
+    FormattingResult,
+    format_formatting_result,
+)
 from protostar.formatter.formatting_summary import FormattingSummary
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
-from protostar.protostar_toml import (ProtostarContractsSection,
-                                      ProtostarProjectSection,
-                                      ProtostarTOMLReader, ProtostarTOMLWriter)
+from protostar.protostar_toml import (
+    ProtostarContractsSection,
+    ProtostarProjectSection,
+    ProtostarTOMLReader,
+    ProtostarTOMLWriter,
+)
 from protostar.utils.input_requester import InputRequester
 from protostar.utils.log_color_provider import LogColorProvider
 
@@ -214,7 +225,6 @@ class ProtostarFixture:
             encoding="utf-8",
         ) as output_file:
             output_file.write(content)
-
 
 
 # pylint: disable=too-many-locals
