@@ -39,7 +39,7 @@ class MockCallCheatcode(Cheatcode):
 
         if selector in self.state.mocked_calls_map[contract_address]:
             raise CheatcodeException(
-                self.name,
+                self,
                 f"'{fn_name}' in the contract with address {contract_address} has been already mocked",
             )
         self.state.mocked_calls_map[contract_address][selector] = ret_data
@@ -47,12 +47,12 @@ class MockCallCheatcode(Cheatcode):
         def clear_mock():
             if contract_address not in self.state.mocked_calls_map:
                 raise CheatcodeException(
-                    self.name,
+                    self,
                     f"Contract {contract_address} doesn't have mocked selectors.",
                 )
             if selector not in self.state.mocked_calls_map[contract_address]:
                 raise CheatcodeException(
-                    self.name,
+                    self,
                     f"Couldn't find mocked selector {selector} for an address {contract_address}.",
                 )
             del self.state.mocked_calls_map[contract_address][selector]
@@ -68,7 +68,7 @@ class MockCallCheatcode(Cheatcode):
         contract_abi = self.get_contract_abi_from_contract_address(contract_address)
         if contract_abi is None:
             raise CheatcodeException(
-                self.name,
+                self,
                 (
                     "Couldn't map the `contract_address` to the `contract_abi`.\n"
                     f"Is the `contract_address` ({contract_address}) valid?\n"

@@ -54,7 +54,4 @@ class MigratorCallCheatcode(Cheatcode):
                 )
             )
         except (UnknownFunctionException, ContractNotFoundException) as err:
-            raise CheatcodeException(
-                self.name,
-                message=err.message,
-            ) from err
+            raise CheatcodeException(self, err.message) from err
