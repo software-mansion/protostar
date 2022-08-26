@@ -40,8 +40,8 @@ def from_python_transformer(
 def from_python_events_transformer(
     contract_abi: AbiType, event_name: str
 ) -> FromPythonTransformer:
-    structure_transformer = CairoSerializer(identifier_manager_from_abi(contract_abi))
     event_abi_item = find_abi_item(contract_abi, event_name)
+    structure_transformer = CairoSerializer(identifier_manager_from_abi(contract_abi))
 
     def transform(data: PythonData) -> CairoData:
         try:
@@ -70,8 +70,8 @@ def to_python_transformer(
 def to_python_events_transformer(
     contract_abi: AbiType, event_name: str
 ) -> ToPythonTransformer:
-    structure_transformer = CairoSerializer(identifier_manager_from_abi(contract_abi))
     event_abi_item = find_abi_item(contract_abi, event_name)
+    structure_transformer = CairoSerializer(identifier_manager_from_abi(contract_abi))
 
     def transform(data: CairoData) -> PythonData:
         try:
