@@ -80,6 +80,4 @@ class MigratorDeclareCheatcode(Cheatcode):
             )
 
         except CompilationOutputNotFoundException as ex:
-            raise CheatcodeException(
-                cheatcode_name=self.name, message=ex.message
-            ) from ex
+            raise CheatcodeException(self, ex.message) from ex

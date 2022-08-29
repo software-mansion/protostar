@@ -17,14 +17,15 @@ from protostar.commands.test.starkware.test_execution_state import TestExecution
 from protostar.commands.test.test_case_runners.test_case_runner_factory import (
     TestCaseRunnerFactory,
 )
-from protostar.commands.test.test_config import TestConfig
+from protostar.commands.test.test_config import TestConfig, TestMode
 from protostar.commands.test.test_environment_exceptions import ReportedException
 from protostar.commands.test.test_results import (
     BrokenTestSuiteResult,
+    TestResult,
     UnexpectedBrokenTestSuiteResult,
 )
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
-from protostar.commands.test.test_suite import TestSuite
+from protostar.commands.test.test_suite import TestSuite, TestCase
 from protostar.protostar_exception import ProtostarException
 from protostar.utils.compiler.pass_managers import (
     ProtostarPassMangerFactory,
@@ -179,7 +180,20 @@ class TestRunner:
         execution_state: TestExecutionState,
     ) -> None:
         for test_case in test_suite.test_cases:
-            test_case_runner_factory = TestCaseRunnerFactory(execution_state)
-            test_case_runner = test_case_runner_factory.make(test_case)
-            test_result = await test_case_runner.run()
+            test_result = await self._invoke_test_case(test_case, execution_state)
             self.shared_tests_state.put_result(test_result)
+
+    @staticmethod
+    async def _invoke_test_case(
+        test_case: TestCase, initial_state: TestExecutionState
+    ) -> TestResult:
+        state: TestExecutionState = initial_state.fork()
+
+        # TODO(mkaput): Remove this in favor of setting mode explicitly by cheatcodes in setup hooks.
+        state.config.mode = TestMode.infer_from_contract_function(
+            test_case.test_fn_name, state.contract
+        )
+
+        test_case_runner_factory = TestCaseRunnerFactory(state)
+        test_case_runner = test_case_runner_factory.make(test_case)
+        return await test_case_runner.run()

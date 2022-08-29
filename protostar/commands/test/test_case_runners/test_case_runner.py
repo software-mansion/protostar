@@ -1,4 +1,3 @@
-import time
 from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Generic, TypeVar
@@ -6,6 +5,7 @@ from typing import Generic, TypeVar
 from protostar.commands.test.environments.test_execution_environment import (
     TestExecutionResult,
 )
+from protostar.commands.test.stopwatch import Stopwatch
 from protostar.commands.test.test_environment_exceptions import ReportedException
 from protostar.commands.test.test_output_recorder import OutputRecorder
 from protostar.commands.test.test_results import (
@@ -23,24 +23,29 @@ class TestCaseRunner(Generic[TExecutionResult]):
     class ExecutionMetadata:
         execution_time: float
 
-    def __init__(self, test_case: TestCase, output_recorder: OutputRecorder) -> None:
+    def __init__(
+        self,
+        test_case: TestCase,
+        output_recorder: OutputRecorder,
+        stopwatch: Stopwatch,
+    ) -> None:
         self._test_case = test_case
         self._output_recorder = output_recorder
+        self._stopwatch = stopwatch
 
     async def run(self) -> TestCaseResult:
-        timer = Timer()
         try:
-            with timer:
+            with self._stopwatch.lap(self._test_case.test_fn_name):
                 execution_result = await self._run_test_case()
 
             return self._map_execution_result_to_passed_test_result(
                 execution_result,
-                TestCaseRunner.ExecutionMetadata(timer.elapsed),
+                TestCaseRunner.ExecutionMetadata(self._stopwatch.total_elapsed),
             )
         except ReportedException as ex:
             return self._map_reported_exception_to_failed_test_result(
                 ex,
-                TestCaseRunner.ExecutionMetadata(timer.elapsed),
+                TestCaseRunner.ExecutionMetadata(self._stopwatch.total_elapsed),
             )
 
     @abstractmethod
@@ -70,21 +75,3 @@ class TestCaseRunner(Generic[TExecutionResult]):
             execution_time=execution_metadata.execution_time,
             captured_stdout=self._output_recorder.get_captures(),
         )
-
-
-class Timer:
-    def __init__(self):
-        self._start_time = None
-        self._end_time = None
-
-    def __enter__(self):
-        self._start_time = time.perf_counter()
-        self._end_time = None
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self._end_time = time.perf_counter()
-
-    @property
-    def elapsed(self) -> float:
-        assert self._start_time is not None and self._end_time is not None
-        return self._end_time - self._start_time

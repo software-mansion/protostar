@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, cast
+from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple, cast
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
@@ -27,14 +27,11 @@ from starkware.starkware_utils.error_handling import (
     wrap_with_stark_exception,
 )
 
-from protostar.starknet.cheatable_syscall_handler import (
-    CheatableSysCallHandler,
-)
-from protostar.starknet.cheatcode import Cheatcode
-from protostar.starknet.hint_local import HintLocal
 from protostar.starknet.cheatable_cairo_function_runner import (
     CheatableCairoFunctionRunner,
 )
+from protostar.starknet.cheatable_syscall_handler import CheatableSysCallHandler
+from protostar.starknet.cheatcode import Cheatcode
 
 if TYPE_CHECKING:
     from protostar.starknet.cheatable_state import CheatableCarriedState
@@ -47,7 +44,6 @@ logger = logging.getLogger(__name__)
 # pylint: disable=too-many-statements
 class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     cheatcode_factory: Optional["CheatcodeFactory"] = None
-    custom_hint_locals: Optional[List[HintLocal]] = None
 
     def _run(
         self,
@@ -117,20 +113,20 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             "syscall_handler": syscall_handler,
         }
 
+        cheatcode_factory = CheatableExecuteEntryPoint.cheatcode_factory
         assert (
-            CheatableExecuteEntryPoint.cheatcode_factory is not None
-        ), "Tried to use CheatableExecuteEntryPoint without cheatcodes"
+            cheatcode_factory is not None
+        ), "Tried to use CheatableExecuteEntryPoint without cheatcodes."
 
-        cheatcodes = CheatableExecuteEntryPoint.cheatcode_factory.build(
+        cheatcodes = cheatcode_factory.build_cheatcodes(
             syscall_dependencies=syscall_dependencies,
             internal_calls=syscall_handler.internal_calls,
         )
         for cheatcode in cheatcodes:
             hint_locals[cheatcode.name] = cheatcode.build()
 
-        if CheatableExecuteEntryPoint.custom_hint_locals:
-            for custom_hint_local in CheatableExecuteEntryPoint.custom_hint_locals:
-                hint_locals[custom_hint_local.name] = custom_hint_local.build()
+        for custom_hint_local in cheatcode_factory.build_hint_locals():
+            hint_locals[custom_hint_local.name] = custom_hint_local.build()
 
         # Positional arguments are passed to *args in the 'run_from_entrypoint' function.
         entry_points_args = [

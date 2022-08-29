@@ -22,7 +22,7 @@ class StartPrankCheatcode(Cheatcode):
         )
         if target in self.state.pranked_contracts_map:
             raise CheatcodeException(
-                self.name, f"Contract with address {target} has been already pranked"
+                self, f"Contract with address {target} has been already pranked"
             )
         self.state.pranked_contracts_map[target] = caller_address
 
@@ -35,7 +35,7 @@ class StartPrankCheatcode(Cheatcode):
 
             if target not in self.state.pranked_contracts_map:
                 raise CheatcodeException(
-                    self.name, f"Contract with address {target} has not been pranked"
+                    self, f"Contract with address {target} has not been pranked"
                 )
             del self.state.pranked_contracts_map[target]
 
