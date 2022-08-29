@@ -58,24 +58,24 @@ class MigratorInvokeCheatcode(Cheatcode):
     ):
         if max_fee is not None and max_fee <= 0:
             raise CheatcodeException(
-                self.name,
+                self,
                 message="max_fee must be greater than 0.",
             )
         if not max_fee and not auto_estimate_fee:
             raise CheatcodeException(
-                self.name,
+                self,
                 message="Either max_fee or auto_estimate_fee argument is required.",
             )
         if not self._account_address:
             raise CheatcodeException(
-                self.name,
+                self,
                 message="Account address is required for fetching nonce. "
                 "Please either provide it in the function call, or with global account-address option.",
             )
 
         if not self._signer:
             raise CheatcodeException(
-                self.name,
+                self,
                 message="Signing is required when using invoke. "
                 "Please either provide CLI credentials or a custom signer in invoke call.",
             )
@@ -93,6 +93,6 @@ class MigratorInvokeCheatcode(Cheatcode):
             )
         except (UnknownFunctionException, ContractNotFoundException) as err:
             raise CheatcodeException(
-                self.name,
+                self,
                 message=err.message,
             ) from err
