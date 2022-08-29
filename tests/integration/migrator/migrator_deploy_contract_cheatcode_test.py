@@ -103,7 +103,7 @@ async def test_data_transformation(
 
     result = await protostar.migrate(file_path, devnet_gateway_url)
 
-    assert result.starknet_requests[0] is not None
+    assert result.starknet_requests[0].payload["constructor_args"] == [42]
 
 
 def extract_transaction_hash(starknet_request: StarknetRequest):
