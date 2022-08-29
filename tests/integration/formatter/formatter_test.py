@@ -1,35 +1,28 @@
-import os
-from typing import List, Dict
 from pathlib import Path
+from typing import Dict, List
 
 import pytest
 
-from tests.integration.protostar_fixture import ProtostarFixture
 from tests.data.contracts import (
     BROKEN_CONTRACT,
     FORMATTED_CONTRACT,
     UNFORMATTED_CONTRACT,
 )
+from tests.integration.conftest import CreateProtostarProjectFixture, ProtostarFixture
 
 
-@pytest.fixture(autouse=True, scope="function")
-def setup_function(protostar: ProtostarFixture):
-    protostar.init_sync()
-
-    cwd = Path().resolve()
-    os.chdir(protostar.get_project_root_path())
-
-    protostar.create_files(
-        {
-            "to_format/formatted.cairo": FORMATTED_CONTRACT,
-            "to_format/unformatted1.cairo": UNFORMATTED_CONTRACT,
-            "to_format/unformatted2.cairo": UNFORMATTED_CONTRACT,
-            "to_format/broken.cairo": BROKEN_CONTRACT,
-        }
-    )
-    yield
-
-    os.chdir(cwd)
+@pytest.fixture(name="protostar")
+def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
+    with create_protostar_project() as protostar:
+        protostar.create_files(
+            {
+                "to_format/formatted.cairo": FORMATTED_CONTRACT,
+                "to_format/unformatted1.cairo": UNFORMATTED_CONTRACT,
+                "to_format/unformatted2.cairo": UNFORMATTED_CONTRACT,
+                "to_format/broken.cairo": BROKEN_CONTRACT,
+            }
+        )
+        yield protostar
 
 
 async def test_formatter_formatting(protostar: ProtostarFixture):
@@ -102,7 +95,9 @@ async def test_formatter_output_check(protostar: ProtostarFixture):
     )
 
 
-async def test_formatter_output_check_verbose(protostar: ProtostarFixture):
+async def test_formatter_output_check_verbose(
+    protostar: ProtostarFixture,
+):
     _, output = protostar.format_with_output(
         targets=[Path("to_format")],
         verbose=True,
