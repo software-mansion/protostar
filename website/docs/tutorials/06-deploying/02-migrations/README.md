@@ -21,7 +21,7 @@ You can create a migration file anywhere, but we recommend creating them inside 
 
 
 ## Migration file structure
-Each migration should have 2 functions: `up` and `down`. The `up` function is responsible to migrate your project forward, and the `down`function is executed to rollback changes. These functions must be decorated with `@external` decorator.
+Each migration should have 2 functions: `up` and `down`. The `up` function is responsible to migrate your project forward, and the `down` function is executed to rollback changes. These functions must be decorated with `@external` decorator.
 
 ```python title="Declaring contract in migration file"
 %lang starknet
@@ -81,9 +81,10 @@ If you build the project, Protostar will print migration logs in the command lin
 [INFO] Migration completed
 ```
 ## Signing the migration
-You can sign the migration's transactions by providing appropriate arguments to the CLI of the command. See signing-related documentation [here](../01-cli.md#signing-a-declaration).
+You can sign the migration's transactions by providing appropriate arguments to the CLI of the command. 
+See signing-related documentation [here](../01-cli.md#signing-a-declaration).
 
-<!-- TODO: Add more info when signing invokes in migrations is supported. -->
+For now declare and invoke migration calls are signed automatically, when provided with appropriate arguments. 
 
 ## Available migration cheatcodes
 ```mdx-code-block
