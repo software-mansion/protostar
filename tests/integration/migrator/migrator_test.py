@@ -3,14 +3,16 @@ from pathlib import Path
 import pytest
 
 from tests.data.contracts import IDENTITY_CONTRACT
+from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.protostar_fixture import ProtostarFixture
 
 
-@pytest.fixture(autouse=True)
-def setup(protostar: ProtostarFixture):
-    protostar.init_sync()
-    protostar.create_files({"./src/main.cairo": IDENTITY_CONTRACT})
-    protostar.build_sync()
+@pytest.fixture(name="protostar", scope="module")
+def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
+    with create_protostar_project() as protostar:
+        protostar.create_files({"./src/main.cairo": IDENTITY_CONTRACT})
+        protostar.build_sync()
+        yield protostar
 
 
 @pytest.fixture(name="migration_file_path")

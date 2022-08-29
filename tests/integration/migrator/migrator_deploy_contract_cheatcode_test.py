@@ -10,6 +10,7 @@ from protostar.migrator.migrator_datetime_state import MigratorDateTimeState
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway.starknet_request import StarknetRequest
 from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR
+from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.migrator.conftest import (
     MigrateFixture,
     assert_transaction_accepted,
@@ -17,11 +18,12 @@ from tests.integration.migrator.conftest import (
 from tests.integration.protostar_fixture import ProtostarFixture
 
 
-@pytest.fixture(autouse=True)
-def setup(protostar: ProtostarFixture):
-    protostar.init_sync()
-    protostar.create_files({"./src/main.cairo": CONTRACT_WITH_CONSTRUCTOR})
-    protostar.build_sync()
+@pytest.fixture(autouse=True, name="protostar", scope="module")
+def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
+    with create_protostar_project() as protostar:
+        protostar.create_files({"./src/main.cairo": CONTRACT_WITH_CONSTRUCTOR})
+        protostar.build_sync()
+        yield protostar
 
 
 @freeze_time("2022-04-02 21:37:42")
