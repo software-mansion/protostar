@@ -6,23 +6,22 @@ from protostar.commands.test.cheatcodes import (
     DeclareCheatcode,
     DeployCheatcode,
     DeployContractCheatcode,
+    LoadCheatcode,
     MockCallCheatcode,
     PrepareCheatcode,
+    ReflectCheatcode,
     RollCheatcode,
     StartPrankCheatcode,
     StoreCheatcode,
     WarpCheatcode,
-    ReflectCheatcode,
 )
-from protostar.commands.test.cheatcodes.load_cheatcode import LoadCheatcode
+from protostar.commands.test.cheatcodes.reflect.cairo_struct import CairoStructHintLocal
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_context import TestContextHintLocal
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.cheatcode_factory import CheatcodeFactory
 from protostar.starknet.execution_environment import ExecutionEnvironment
-from protostar.commands.test.cheatcodes.reflect.cairo_struct import (
-    CairoStructHintLocal,
-)
+from protostar.starknet.hint_local import HintLocal
 
 
 class SetupExecutionEnvironment(ExecutionEnvironment[None]):
@@ -33,9 +32,6 @@ class SetupExecutionEnvironment(ExecutionEnvironment[None]):
 
     async def invoke(self, function_name: str):
         self.set_cheatcodes(SetupCheatcodeFactory(self.state))
-        self.set_custom_hint_locals(
-            [TestContextHintLocal(self.state.context), CairoStructHintLocal()]
-        )
 
         with self.state.output_recorder.redirect("setup"):
             await self.perform_invoke(function_name)
@@ -45,7 +41,7 @@ class SetupCheatcodeFactory(CheatcodeFactory):
     def __init__(self, state: TestExecutionState):
         self._state = state
 
-    def build(
+    def build_cheatcodes(
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
         internal_calls: List[CallInfo],
@@ -72,4 +68,10 @@ class SetupCheatcodeFactory(CheatcodeFactory):
             StoreCheatcode(syscall_dependencies),
             LoadCheatcode(syscall_dependencies),
             ReflectCheatcode(syscall_dependencies),
+        ]
+
+    def build_hint_locals(self) -> List[HintLocal]:
+        return [
+            TestContextHintLocal(self._state.context),
+            CairoStructHintLocal(),
         ]

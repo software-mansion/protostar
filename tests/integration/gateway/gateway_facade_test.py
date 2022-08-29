@@ -9,13 +9,15 @@ from protostar.starknet_gateway.gateway_facade import (
     GatewayFacade,
     UnknownFunctionException,
 )
+from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.protostar_fixture import ProtostarFixture
 
 
-@pytest.fixture(autouse=True, scope="module")
-def setup(protostar: ProtostarFixture):
-    protostar.init_sync()
-    protostar.build_sync()
+@pytest.fixture(autouse=True, scope="module", name="protostar")
+def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
+    with create_protostar_project() as protostar:
+        protostar.build_sync()
+        yield protostar
 
 
 @pytest.fixture(name="compiled_contract_path")

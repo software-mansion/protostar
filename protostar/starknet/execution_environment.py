@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, TypeVar, Generic
+from typing import TypeVar, Generic
 
 from starkware.starknet.testing.objects import StarknetTransactionExecutionInfo
 from starkware.starkware_utils.error_handling import StarkException
@@ -12,7 +12,6 @@ from protostar.starknet.cheatable_execute_entry_point import (
 )
 from protostar.starknet.cheatcode_factory import CheatcodeFactory
 from protostar.starknet.execution_state import ExecutionState
-from protostar.starknet.hint_local import HintLocal
 
 InvokeResultT = TypeVar("InvokeResultT")
 
@@ -45,7 +44,3 @@ class ExecutionEnvironment(ABC, Generic[InvokeResultT]):
     @staticmethod
     def set_cheatcodes(cheatcode_factory: CheatcodeFactory):
         CheatableExecuteEntryPoint.cheatcode_factory = cheatcode_factory
-
-    @staticmethod
-    def set_custom_hint_locals(custom_hint_locals: List[HintLocal]):
-        CheatableExecuteEntryPoint.custom_hint_locals = custom_hint_locals

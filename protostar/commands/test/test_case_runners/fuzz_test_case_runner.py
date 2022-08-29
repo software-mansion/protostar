@@ -65,9 +65,10 @@ class FuzzTestCaseRunner(TestCaseRunner[FuzzTestExecutionResult]):
     def _map_reported_exception_to_fuzz_result(
         reported_exception: ReportedException,
     ) -> Optional[FuzzResult]:
-        metadata = reported_exception.metadata
-        if len(metadata) > 0 and isinstance(metadata[0], FuzzInputExceptionMetadata):
+        fuzz_input = reported_exception.get_metadata_by_type(FuzzInputExceptionMetadata)
+        if fuzz_input:
             fuzz_runs_count = reported_exception.execution_info["fuzz_runs"]
             assert isinstance(fuzz_runs_count, int)
-            return FuzzResult(fuzz_runs_count)
+            return FuzzResult(fuzz_runs_count=fuzz_runs_count)
+
         return None

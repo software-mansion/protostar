@@ -9,15 +9,17 @@ from protostar.commands.test.test_environment_exceptions import ReportedExceptio
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway.starknet_request import StarknetRequest
 from tests.data.contracts import IDENTITY_CONTRACT
+from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.migrator.conftest import MigrateFixture
 from tests.integration.protostar_fixture import ProtostarFixture
 
 
-@pytest.fixture(autouse=True, scope="module")
-def setup(protostar: ProtostarFixture):
-    protostar.init_sync()
-    protostar.create_files({"./src/main.cairo": IDENTITY_CONTRACT})
-    protostar.build_sync()
+@pytest.fixture(autouse=True, scope="module", name="protostar")
+def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
+    with create_protostar_project() as protostar:
+        protostar.create_files({"./src/main.cairo": IDENTITY_CONTRACT})
+        protostar.build_sync()
+        yield protostar
 
 
 async def test_using_dict_to_pass_args(migrate: MigrateFixture):

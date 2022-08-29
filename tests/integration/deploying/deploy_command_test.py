@@ -1,34 +1,32 @@
 from pathlib import Path
-from types import SimpleNamespace
 
 import pytest
-from pytest_mock import MockerFixture
-from starknet_py.net.models import StarknetChainId
 
-from protostar.commands.deploy.deploy_command import DeployCommand
+from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR
+from tests.integration.conftest import CreateProtostarProjectFixture
+from tests.integration.protostar_fixture import ProtostarFixture
 
 
-@pytest.mark.parametrize("contract_name", ["main_with_constructor"])
+@pytest.fixture(name="protostar", scope="module")
+def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
+    with create_protostar_project() as protostar:
+        protostar.create_files({"./src/main.cairo": CONTRACT_WITH_CONSTRUCTOR})
+        protostar.build_sync()
+        yield protostar
+
+
+@pytest.fixture(name="compiled_contract_filepath")
+def compiled_contract_filepath_fixture() -> Path:
+    return Path("./build/main.json")
+
+
 async def test_deploying_contract(
-    mocker: MockerFixture,
+    protostar: ProtostarFixture,
     devnet_gateway_url: str,
-    project_root_path: Path,
-    compiled_contract_filepath,
+    compiled_contract_filepath: Path,
 ):
-    deploy_command = DeployCommand(
-        logger=mocker.MagicMock(),
-        project_root_path=project_root_path,
+    response = await protostar.deploy(
+        contract=compiled_contract_filepath, gateway_url=devnet_gateway_url, inputs=[42]
     )
-    args = SimpleNamespace()
-    args.contract = compiled_contract_filepath
-    args.gateway_url = devnet_gateway_url
-    args.inputs = [42]
-    args.network = None
-    args.token = None
-    args.salt = None
-    args.wait_for_acceptance = False
-    args.chain_id = StarknetChainId.TESTNET
-
-    response = await deploy_command.run(args)
 
     assert response.address is not None

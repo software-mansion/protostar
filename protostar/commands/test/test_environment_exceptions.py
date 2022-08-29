@@ -1,11 +1,12 @@
 import re
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, TypeVar, Type
 
 from starkware.starknet.business_logic.execution.objects import Event
 from typing_extensions import Literal
 
 from protostar.commands.test.expected_event import ExpectedEvent
+from protostar.starknet.hint_local import HintLocal
 from protostar.utils.log_color_provider import SupportedColorName, log_color_provider
 
 # NOTE: When adding new exception type, do not forget to include it in ``test_pickle`` test.
@@ -22,9 +23,16 @@ class ExceptionMetadata(ABC):
         ...
 
 
+TMetadata = TypeVar("TMetadata", bound=ExceptionMetadata)
+
+
 class ReportedException(BaseException):
     """
     The exception used for catching unexpected errors thrown from test cases and as a base class.
+
+    Contract:
+        It is illegal to attach many same-type instances of ExceptionMetadata to the same exception
+        object.
     """
 
     def __init__(self, *args: object) -> None:
@@ -44,6 +52,15 @@ class ReportedException(BaseException):
     def __eq__(self, other):
         return isinstance(other, type(self)) and self.__dict__ == other.__dict__
 
+    def get_metadata_by_type(
+        self, metadata_type: Type[TMetadata]
+    ) -> Optional[TMetadata]:
+        for metadata in self.metadata:
+            if isinstance(metadata, metadata_type):
+                return metadata
+
+        return None
+
 
 class SimpleReportedException(ReportedException):
     def __init__(self, message: str) -> None:
@@ -54,9 +71,16 @@ class SimpleReportedException(ReportedException):
         return str(self.message)
 
 
+CheatcodeNameProvider = Union[str, HintLocal]
+
+
 class CheatcodeException(ReportedException):
-    def __init__(self, cheatcode_name: str, message: str):
-        self.cheatcode_name = cheatcode_name
+    def __init__(self, cheatcode: CheatcodeNameProvider, message: str):
+        if isinstance(cheatcode, HintLocal):
+            self.cheatcode_name = cheatcode.name
+        else:
+            self.cheatcode_name = cheatcode
+
         self.message = message
         super().__init__(message)
 
@@ -71,9 +95,9 @@ class CheatcodeException(ReportedException):
 
 
 class KeywordOnlyArgumentCheatcodeException(CheatcodeException):
-    def __init__(self, cheatcode_name: str, list_of_kwargs: List[str]):
+    def __init__(self, cheatcode: CheatcodeNameProvider, list_of_kwargs: List[str]):
         self.kwargs = list_of_kwargs
-        super().__init__(cheatcode_name, "Passed keyword-only argument positionally.")
+        super().__init__(cheatcode, "Passed keyword-only argument positionally.")
 
     def __str__(self):
         lines: List[str] = []

@@ -36,7 +36,7 @@ class GivenCheatcode(Cheatcode):
             # Raise nice error if got object which is not a strategy descriptor.
             if not isinstance(descriptor, StrategyDescriptor):
                 raise CheatcodeException(
-                    "given",
+                    self,
                     f"Parameter {param} cannot be fuzzed: "
                     f"Type {type(descriptor)} is not a valid fuzzing strategy.",
                 )
