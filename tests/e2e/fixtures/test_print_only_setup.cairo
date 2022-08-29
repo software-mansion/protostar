@@ -4,7 +4,7 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 
 @external
 func __setup__():
-    %{ print("O_SETUP") %}
+    %{ print("O __setup__") %}
     return ()
 end
 
