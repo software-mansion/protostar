@@ -96,3 +96,17 @@ async def test_max_examples_in_setup_case(
     assert isinstance(result, PassedFuzzTestCaseResult)
     assert result.fuzz_runs_count is not None
     assert result.fuzz_runs_count <= 5
+
+
+async def test_max_examples_invalid_arguments(
+    run_cairo_test_runner: RunCairoTestRunnerFixture,
+):
+    testing_summary = await run_cairo_test_runner(
+        Path(__file__).parent / "max_examples_invalid_arguments_test.cairo"
+    )
+
+    assert_cairo_test_cases(
+        testing_summary,
+        expected_passed_test_cases_names=[],
+        expected_failed_test_cases_names=["test_zero", "test_negative"],
+    )
