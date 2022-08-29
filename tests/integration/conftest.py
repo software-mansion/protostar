@@ -1,15 +1,17 @@
 # pylint: disable=invalid-name
 import os
+import json
 from contextlib import contextmanager
 from dataclasses import dataclass
 from logging import getLogger
 from pathlib import Path
-from typing import ContextManager, List, Optional, Set, Tuple, Union, cast
+from typing import ContextManager, List, Optional, Set, Tuple, Union, cast, Callable
 
 import pytest
 from pytest import TempPathFactory
 from pytest_mock import MockerFixture
 from typing_extensions import Protocol
+from starkware.starknet.public.abi import AbiType
 
 from protostar.commands.test.test_command import TestCommand
 from protostar.commands.test.testing_summary import TestingSummary
@@ -182,3 +184,17 @@ def create_protostar_project_fixture(
         os.chdir(cwd)
 
     return create_protostar_project
+
+
+@pytest.fixture(name="get_abi_from_contract", scope="module")
+def get_abi_from_contract_fixture(create_protostar_project) -> Callable[[str], AbiType]:
+    def get_abi_from_contract(contract_source_code: str) -> AbiType:
+        with create_protostar_project() as protostar:
+            with open("src/main.cairo", "w") as f:
+                f.write(contract_source_code)
+            protostar.build_sync()
+            with open("build/main_abi.json") as f:
+                abi = json.load(f)
+                return abi
+
+    return get_abi_from_contract
