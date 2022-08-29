@@ -16,13 +16,14 @@ def abi_fixture() -> AbiType:
 
 @pytest.fixture(name="compiled_contract")
 def compiled_contract_fixture(abi: AbiType):
-    abi_fixture = abi
+    _abi = abi
 
     class CompiledContract:
-        abi = abi_fixture
+        abi = _abi
 
         class Schema:
-            def dump(self, contract: Any):
+            # pylint: disable=no-self-use
+            def dump(self, _contract: Any):
                 return ""
 
     return CompiledContract()

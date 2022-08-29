@@ -34,7 +34,7 @@ class CompiledContractWriter:
 
     def save_compiled_contract_abi(self, output_dir: Path) -> Optional[Path]:
         if not self._contract.abi:
-            return
+            return None
         self._create_output_dir(output_dir)
         file_path = output_dir / f"{self._contract_name}_abi.json"
         self._save_as_json(data=self._contract.abi, path=file_path)
