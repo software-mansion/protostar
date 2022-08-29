@@ -33,19 +33,6 @@ from protostar.utils.log_color_provider import LogColorProvider
 ContractFunctionInputType = Union[List[int], Dict[str, Any]]
 
 
-class TransactionException(ProtostarException):
-    pass
-
-
-class CompilationOutputNotFoundException(ProtostarException):
-    def __init__(self, compilation_output_filepath: Path):
-        super().__init__(
-            f"Couldn't find `{str(compilation_output_filepath.resolve())}`\n"
-            "Did you run `protostar build`?"
-        )
-        self._compilation_output_filepath = compilation_output_filepath
-
-
 class GatewayFacade:
     # pylint: disable=too-many-arguments
     def __init__(
@@ -75,20 +62,12 @@ class GatewayFacade:
         salt: Optional[int] = None,
         wait_for_acceptance: bool = False,
     ) -> SuccessfulDeployResponse:
-        try:
-            with open(
-                self._project_root_path / compiled_contract_path, "r", encoding="utf-8"
-            ) as file:
-                compiled_contract = file.read()
-        except FileNotFoundError as err:
-            raise CompilationOutputNotFoundException(
-                self._project_root_path / compiled_contract_path
-            ) from err
-
+        compiled_contract = self._load_compiled_contract(
+            self._project_root_path / compiled_contract_path
+        )
         cairo_inputs = self._transform_constructor_inputs_from_python(
             inputs, compiled_contract_path
         )
-
         tx = make_deploy_tx(
             compiled_contract=compiled_contract,
             constructor_calldata=cairo_inputs,
@@ -124,6 +103,12 @@ class GatewayFacade:
             address=result.contract_address,
             transaction_hash=result.transaction_hash,
         )
+
+    def _load_compiled_contract(self, compiled_contract_path: Path):
+        try:
+            return self._compiled_contract_reader.load_contract(compiled_contract_path)
+        except FileNotFoundError as err:
+            raise CompilationOutputNotFoundException(compiled_contract_path) from err
 
     def _transform_constructor_inputs_from_python(
         self, inputs: Optional[CairoOrPythonData], compiled_contract_path: Path
@@ -395,3 +380,16 @@ class UnknownFunctionException(ProtostarException):
 class ContractNotFoundException(ProtostarException):
     def __init__(self, contract_address: AddressRepresentation):
         super().__init__(f"Tried to call unknown contract:\n{contract_address}")
+
+
+class TransactionException(ProtostarException):
+    pass
+
+
+class CompilationOutputNotFoundException(ProtostarException):
+    def __init__(self, compilation_output_filepath: Path):
+        super().__init__(
+            f"Couldn't find `{str(compilation_output_filepath.resolve())}`\n"
+            "Did you run `protostar build`?"
+        )
+        self._compilation_output_filepath = compilation_output_filepath
