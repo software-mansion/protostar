@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing_extensions import Literal
 
 import pytest
@@ -90,10 +91,16 @@ TEST_ABI = [
     },
 ]
 
+UINT256_SINGLE = 0x00001000000000000000000000000000_00000000000000000000000000000111
+UINT256_DICT = {
+    "high": 0x00001000000000000000000000000000,
+    "low": 0x00000000000000000000000000000111,
+}
+
 VALID_CONSTRUCTOR_PYTHON_INPUT = {
     "arg": {"felt_field": 321, "inner_field": {"a": 0xA, "b": 0xB, "c": 0xC}},
     "felt_arg": 123,
-    "uint256_arg": {"high": 101, "low": 102},
+    "uint256_arg": UINT256_SINGLE,
     #    "felt_list_arg_len": 3,
     "felt_list_arg": [1, 2, 3],
     #    "inst_list_arg_len": 2,
@@ -227,3 +234,39 @@ def test_to_python_event_fail(name: str, data: CairoData):
 )
 def test_to_python_event_pass(name: str, data: CairoData):
     to_python_events_transformer(TEST_ABI, name)(data)
+
+
+def test_data_transformer_from_python():
+    from_python = from_python_transformer(TEST_ABI, "constructor", "inputs")
+    to_python = to_python_transformer(TEST_ABI, "constructor", "inputs")
+
+    python_data = VALID_CONSTRUCTOR_PYTHON_INPUT
+    cairo_data = from_python(python_data)
+    assert_is_int_list(cairo_data)
+    python_data2 = to_python(cairo_data)
+
+    print(python_data2["uint256_arg"], type(python_data2["uint256_arg"]))
+    assert python_data == python_data2
+
+
+def test_data_transformer_to_python():
+    from_python = from_python_transformer(TEST_ABI, "constructor", "inputs")
+    to_python = to_python_transformer(TEST_ABI, "constructor", "inputs")
+
+    cairo_data = VALID_CONSTRUCTOR_CAIRO_INPUT
+    python_data = to_python(cairo_data)
+    assert isinstance(python_data, dict)
+    cairo_data2 = from_python(python_data)
+    assert cairo_data == cairo_data2
+
+
+def test_uint256_as_2_felts():
+    from_python = from_python_transformer(TEST_ABI, "constructor", "inputs")
+    new_input = deepcopy(VALID_CONSTRUCTOR_PYTHON_INPUT)
+    new_input["uint256_arg"] = UINT256_DICT  # type: ignore
+    assert from_python(new_input) == from_python(VALID_CONSTRUCTOR_PYTHON_INPUT)
+
+
+def assert_is_int_list(unknown):
+    assert isinstance(unknown, list)
+    assert all(isinstance(x, int) for x in unknown)
