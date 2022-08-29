@@ -190,8 +190,7 @@ def create_protostar_project_fixture(
 def get_abi_from_contract_fixture(create_protostar_project) -> Callable[[str], AbiType]:
     def get_abi_from_contract(contract_source_code: str) -> AbiType:
         with create_protostar_project() as protostar:
-            with open("src/main.cairo", "w") as f:
-                f.write(contract_source_code)
+            protostar.create_files({"src/main.cairo": contract_source_code})
             protostar.build_sync()
             with open("build/main_abi.json") as f:
                 abi = json.load(f)

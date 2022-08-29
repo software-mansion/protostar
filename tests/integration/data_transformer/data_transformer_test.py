@@ -12,7 +12,7 @@ from protostar.utils.data_transformer import (
     to_python_events_transformer,
 )
 
-from tests.data.contracts import (
+from tests.integration.data_transformer.contracts import (
     DATA_TRANSFORMER_FELT_CONSTRUCTOR_CONTRACT,
     DATA_TRANSFORMER_OUTPUT_FELT_CONTRACT,
     DATA_TRANSFORMER_UINT256_CONTRACT,
@@ -243,20 +243,6 @@ def test_to_python_pass(
 @pytest.mark.parametrize(
     "contract,function_name,mode,data",
     [
-        # AFTER RANGE CHECK
-        # [
-        #     DATA_TRANSFORMER_FELT_CONSTRUCTOR_CONTRACT,
-        #     "constructor",
-        #     "inputs",
-        #     ["very very very very long string"],
-        # ],
-        # AFTER STARKNET.py ADDS EXCEPTION ON TOO MANY VALUES
-        # [
-        #     DATA_TRANSFORMER_FELT_CONSTRUCTOR_CONTRACT,
-        #     "constructor",
-        #     "inputs",
-        #     [0x2342, 0x24],
-        # ],
         [
             DATA_TRANSFORMER_UINT256_CONTRACT,
             "input_uint256",
@@ -281,29 +267,75 @@ def test_to_python_pass(
                 25245,
             ],
         ],
-        # AFTER STARKNET.py ADDS EXCEPTION ON TOO MANY VALUES
-        # [
-        #     DATA_TRANSFORMER_TUPLE_CONTRACT,
-        #     "input_tuple",
-        #     "inputs",
-        #     [535345345, 61231231223, 234234243234],
-        # ],
         [
             DATA_TRANSFORMER_STRUCTS_CONTRACT,
             "input_outer_struct",
             "inputs",
             [13, 3],
         ],
-        # AFTER RANGE CHECK
-        # [
-        #     DATA_TRANSFORMER_OUTPUT_FELT_CONTRACT,
-        #     "output_felt",
-        #     "outputs",
-        #     [1 << 561],
-        # ],
     ],
 )
-def test_to_python_fail(
+def test_to_python_fail_generic(
+    get_abi_from_contract,
+    contract: str,
+    function_name: str,
+    mode: Literal["inputs", "outputs"],
+    data: CairoData,
+):
+    abi = get_abi_from_contract(contract)
+    with pytest.raises(DataTransformerException):
+        to_python_transformer(abi, function_name, mode)(data)
+
+
+@pytest.mark.skip("https://github.com/software-mansion/starknet.py/issues/325")
+@pytest.mark.parametrize(
+    "contract,function_name,mode,data",
+    [
+        [
+            DATA_TRANSFORMER_FELT_CONSTRUCTOR_CONTRACT,
+            "constructor",
+            "inputs",
+            ["very very very very long string"],
+        ],
+        [
+            DATA_TRANSFORMER_OUTPUT_FELT_CONTRACT,
+            "output_felt",
+            "outputs",
+            [1 << 561],
+        ],
+    ],
+)
+def test_to_python_fail_range_check(
+    get_abi_from_contract,
+    contract: str,
+    function_name: str,
+    mode: Literal["inputs", "outputs"],
+    data: CairoData,
+):
+    abi = get_abi_from_contract(contract)
+    with pytest.raises(DataTransformerException):
+        to_python_transformer(abi, function_name, mode)(data)
+
+
+@pytest.mark.skip("https://github.com/software-mansion/starknet.py/pull/323")
+@pytest.mark.parametrize(
+    "contract,function_name,mode,data",
+    [
+        [
+            DATA_TRANSFORMER_FELT_CONSTRUCTOR_CONTRACT,
+            "constructor",
+            "inputs",
+            [0x2342, 0x24],
+        ],
+        [
+            DATA_TRANSFORMER_TUPLE_CONTRACT,
+            "input_tuple",
+            "inputs",
+            [535345345, 61231231223, 234234243234],
+        ],
+    ],
+)
+def test_to_python_fail_too_many_args(
     get_abi_from_contract,
     contract: str,
     function_name: str,
