@@ -31,7 +31,9 @@ async def test_setup_case(run_cairo_test_runner: RunCairoTestRunnerFixture):
             "test_setup_case",
             "test_setup_hook_only",
         ],
-        expected_failed_test_cases_names=[],
+        expected_failed_test_cases_names=[
+            "test_setup_case_fails",
+        ],
     )
 
 

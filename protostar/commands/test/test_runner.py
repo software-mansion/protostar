@@ -194,7 +194,7 @@ class TestRunner:
         if test_case.setup_fn_name:
             setup_case_result = await run_setup_case(test_case, state)
             if isinstance(setup_case_result, FailedSetupCaseResult):
-                return setup_case_result
+                return setup_case_result.into_failed_test_case_result()
 
         # TODO(mkaput): Remove this in favor of setting mode explicitly by cheatcodes in setup hooks.
         state.config.mode = TestMode.infer_from_contract_function(

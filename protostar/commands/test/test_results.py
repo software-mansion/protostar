@@ -89,10 +89,19 @@ class PassedSetupCaseResult(SetupCaseResult):
     pass
 
 
-# Note: We rely on the fact that this class inherits from FailedTestCaseResult in formatting code.
 @dataclass(frozen=True)
-class FailedSetupCaseResult(SetupCaseResult, FailedTestCaseResult):
-    pass
+class FailedSetupCaseResult(SetupCaseResult):
+    captured_stdout: Dict[OutputName, str]
+    exception: ReportedException
+
+    def into_failed_test_case_result(self) -> FailedTestCaseResult:
+        return FailedTestCaseResult(
+            file_path=self.file_path,
+            test_case_name=self.test_case_name,
+            execution_time=self.execution_time,
+            captured_stdout=self.captured_stdout,
+            exception=self.exception,
+        )
 
 
 @dataclass(frozen=True)

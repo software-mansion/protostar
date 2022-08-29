@@ -28,3 +28,15 @@ func test_setup_hook_only():
 
     return ()
 end
+
+
+@external
+func setup_setup_case_fails():
+    %{ assert False %}
+    return ()
+end
+
+@external
+func test_setup_case_fails():
+    return ()
+end
