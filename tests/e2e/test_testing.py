@@ -230,31 +230,6 @@ def test_report_slowest(protostar, copy_fixture):
     assert "Slowest test cases" in result
 
 
-# TODO(mkaput): Remove this along with --fuzz-max-examples argument.
-@pytest.mark.usefixtures("init")
-def test_seed_and_max_fuzz_examples_impact_testing_results(
-    protostar: ProtostarFixture, copy_fixture
-):
-    copy_fixture("test_fuzz.cairo", "./tests")
-    seed = str(213742)
-    fuzz_max_examples = 2
-
-    result = protostar(
-        [
-            "--no-color",
-            "test",
-            "--seed",
-            seed,
-            "--fuzz-max-examples",
-            str(fuzz_max_examples),
-        ],
-        ignore_exit_code=True,
-    )
-
-    assert seed in result
-    assert f"fuzz_runs={fuzz_max_examples}" in result
-
-
 @pytest.mark.usefixtures("init")
 def test_does_collect_in_cwd_by_default(protostar):
     result = protostar(["test"])

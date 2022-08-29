@@ -10,9 +10,6 @@ from typing import List, Optional, Tuple
 import pytest
 from starkware.starknet.services.api.contract_class import ContractClass
 
-from protostar.commands.test.environments.fuzz_test_execution_environment import (
-    FuzzConfig,
-)
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_collector import TestCollector
 from protostar.commands.test.test_config import TestConfig
@@ -117,8 +114,6 @@ async def prepare_suite(
     runner = TestRunner(
         shared_tests_state=tests_state,
         include_paths=[],
-        # TODO(mkaput): Remove this along with --fuzz-max-examples argument.
-        fuzz_config=FuzzConfig(),
     )
 
     # pylint: disable=protected-access

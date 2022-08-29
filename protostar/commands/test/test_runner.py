@@ -7,9 +7,6 @@ from typing import List, Optional
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 
-from protostar.commands.test.environments.fuzz_test_execution_environment import (
-    FuzzConfig,
-)
 from protostar.commands.test.environments.setup_execution_environment import (
     SetupExecutionEnvironment,
 )
@@ -42,15 +39,11 @@ class TestRunner:
     def __init__(
         self,
         shared_tests_state: SharedTestsState,
-        # TODO(mkaput): Remove this along with --fuzz-max-examples argument.
-        fuzz_config: FuzzConfig,
         include_paths: Optional[List[str]] = None,
         disable_hint_validation_in_user_contracts=False,
     ):
         self.shared_tests_state = shared_tests_state
         include_paths = include_paths or []
-        # TODO(mkaput): Remove this along with --fuzz-max-examples argument.
-        self._fuzz_config = fuzz_config
 
         self.tests_compiler = StarknetCompiler(
             config=CompilerConfig(
@@ -73,16 +66,12 @@ class TestRunner:
         shared_tests_state: SharedTestsState
         include_paths: List[str]
         disable_hint_validation_in_user_contracts: bool
-        # TODO(mkaput): Remove this along with --fuzz-max-examples argument.
-        fuzz_config: FuzzConfig
 
     @classmethod
     def worker(cls, args: "TestRunner.WorkerArgs"):
         asyncio.run(
             cls(
                 shared_tests_state=args.shared_tests_state,
-                # TODO(mkaput): Remove this along with --fuzz-max-examples argument.
-                fuzz_config=args.fuzz_config,
                 include_paths=args.include_paths,
                 disable_hint_validation_in_user_contracts=args.disable_hint_validation_in_user_contracts,
             ).run_test_suite(
@@ -94,10 +83,7 @@ class TestRunner:
         self,
         test_suite: TestSuite,
     ):
-        test_config = TestConfig(
-            # TODO(mkaput): Remove this along with --fuzz-max-examples argument.
-            fuzz_max_examples=self._fuzz_config.max_examples
-        )
+        test_config = TestConfig()
 
         try:
             compiled_test = self.tests_compiler.compile_contract(

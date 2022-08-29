@@ -10,11 +10,8 @@ from tests.integration.conftest import (
 async def test_integers(
     run_cairo_test_runner: RunCairoTestRunnerFixture,
 ):
-    fuzz_max_examples = 5
-
     testing_summary = await run_cairo_test_runner(
-        Path(__file__).parent / "integers_test.cairo",
-        fuzz_max_examples=fuzz_max_examples,
+        Path(__file__).parent / "integers_test.cairo"
     )
 
     assert_cairo_test_cases(
@@ -25,15 +22,14 @@ async def test_integers(
 
     for result in testing_summary.passed:
         assert isinstance(result, PassedFuzzTestCaseResult)
-        assert result.fuzz_runs_count == fuzz_max_examples
+        assert result.fuzz_runs_count == 5
 
 
 async def test_integers_unbounded(
     run_cairo_test_runner: RunCairoTestRunnerFixture,
 ):
     testing_summary = await run_cairo_test_runner(
-        Path(__file__).parent / "integers_unbounded_test.cairo",
-        fuzz_max_examples=60,
+        Path(__file__).parent / "integers_unbounded_test.cairo"
     )
 
     assert_cairo_test_cases(
@@ -47,8 +43,7 @@ async def test_flaky_strategy(
     run_cairo_test_runner: RunCairoTestRunnerFixture,
 ):
     testing_summary = await run_cairo_test_runner(
-        Path(__file__).parent / "flaky_strategy_test.cairo",
-        fuzz_max_examples=5,
+        Path(__file__).parent / "flaky_strategy_test.cairo"
     )
 
     assert_cairo_test_cases(
@@ -64,8 +59,7 @@ async def test_multiple_learning_steps(
     run_cairo_test_runner: RunCairoTestRunnerFixture,
 ):
     testing_summary = await run_cairo_test_runner(
-        Path(__file__).parent / "multiple_learning_steps_test.cairo",
-        fuzz_max_examples=5,
+        Path(__file__).parent / "multiple_learning_steps_test.cairo"
     )
 
     assert_cairo_test_cases(
@@ -79,8 +73,7 @@ async def test_invalid_calls(
     run_cairo_test_runner: RunCairoTestRunnerFixture,
 ):
     testing_summary = await run_cairo_test_runner(
-        Path(__file__).parent / "invalid_calls_test.cairo",
-        fuzz_max_examples=3,
+        Path(__file__).parent / "invalid_calls_test.cairo"
     )
 
     assert_cairo_test_cases(
