@@ -79,6 +79,32 @@ class FailedFuzzTestCaseResult(FailedTestCaseResult, FuzzResult):
 
 
 @dataclass(frozen=True)
+class SetupCaseResult(TestResult, TimedTestResult):
+    test_case_name: str
+    setup_case_name: str
+
+
+@dataclass(frozen=True)
+class PassedSetupCaseResult(SetupCaseResult):
+    pass
+
+
+@dataclass(frozen=True)
+class FailedSetupCaseResult(SetupCaseResult):
+    captured_stdout: Dict[OutputName, str]
+    exception: ReportedException
+
+    def into_failed_test_case_result(self) -> FailedTestCaseResult:
+        return FailedTestCaseResult(
+            file_path=self.file_path,
+            test_case_name=self.test_case_name,
+            execution_time=self.execution_time,
+            captured_stdout=self.captured_stdout,
+            exception=self.exception,
+        )
+
+
+@dataclass(frozen=True)
 class BrokenTestSuiteResult(TestResult):
     test_case_names: List[str]
     exception: BaseException

@@ -5,22 +5,36 @@ import requests
 from starknet_py.net.models import StarknetChainId
 
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
+from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR
+from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.protostar_fixture import ProtostarFixture
 
 
-@pytest.mark.parametrize("contract_name", ["main_with_constructor"])
+@pytest.fixture(name="protostar", scope="module")
+def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
+    with create_protostar_project() as protostar:
+        protostar.create_files({"./src/main.cairo": CONTRACT_WITH_CONSTRUCTOR})
+        protostar.build_sync()
+        yield protostar
+
+
+@pytest.fixture(name="compiled_contract_path")
+def compiled_contract_path_fixture() -> Path:
+    return Path("./build/main.json")
+
+
 async def test_declaring_contract(
     protostar: ProtostarFixture,
     devnet_gateway_url: str,
-    compiled_contract_filepath: Path,
-    monkeypatch,
+    monkeypatch: pytest.MonkeyPatch,
+    compiled_contract_path: Path,
 ):
     monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, "123")
 
     response = await protostar.declare(
         chain_id=StarknetChainId.TESTNET.value,
         account_address="123",
-        contract=compiled_contract_filepath,
+        contract=compiled_contract_path,
         gateway_url=devnet_gateway_url,
     )
 
@@ -31,19 +45,18 @@ async def test_declaring_contract(
     reason="This test is going to fail since sending signed deploy txs is supported only for devnet, and now it's "
     "disabled "
 )
-@pytest.mark.parametrize("contract_name", ["main_with_constructor"])
 async def test_deploying_contract_with_signing(
     devnet_gateway_url: str,
     protostar: ProtostarFixture,
-    compiled_contract_filepath: Path,
-    monkeypatch,
+    compiled_contract_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ):
     monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, "123")
 
     response = await protostar.declare(
         chain_id=StarknetChainId.TESTNET.value,
         account_address="123",
-        contract=compiled_contract_filepath,
+        contract=compiled_contract_path,
         gateway_url=devnet_gateway_url,
         wait_for_acceptance=True,
     )

@@ -5,20 +5,21 @@ from typing import cast
 import pytest
 
 from protostar.protostar_exception import ProtostarException
+from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.migrator.conftest import assert_transaction_accepted
 from tests.integration.protostar_fixture import ProtostarFixture
 
 
-@pytest.fixture(autouse=True, scope="module")
-def setup(protostar: ProtostarFixture):
-    protostar.init_sync()
-    protostar.build_sync()
+@pytest.fixture(autouse=True, scope="module", name="protostar")
+def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
+    with create_protostar_project() as protostar:
+        protostar.build_sync()
+        yield protostar
 
 
 async def test_declare_contract(
     protostar: ProtostarFixture,
     devnet_gateway_url: str,
-    protostar_project_root_path: Path,
 ):
     migration_file_path = protostar.create_migration_file(
         'declare("./build/main.json")'
@@ -29,7 +30,7 @@ async def test_declare_contract(
     assert len(result.starknet_requests) == 1
     assert result.starknet_requests[0].action == "DECLARE"
     assert result.starknet_requests[0].payload["contract"] == str(
-        (protostar_project_root_path / "build" / "main.json").resolve()
+        (protostar.project_root_path / "build" / "main.json").resolve()
     )
     assert result.starknet_requests[0].response["code"] == "TRANSACTION_RECEIVED"
     transaction_hash = cast(

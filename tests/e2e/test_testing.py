@@ -195,10 +195,13 @@ def test_print_setup(protostar, copy_fixture):
 
     result = protostar(["test", "tests"], ignore_exit_code=True)
 
-    assert "P_SETUP" in result
-    assert "F_SETUP" in result
+    assert "P __setup__" in result
+    assert "F __setup__" in result
+    assert "P setup_should_pass" in result
+    assert "F setup_should_fail" in result
     assert "[test]:" in result
     assert "[setup]:" in result
+    assert "[setup case]:" in result
 
 
 @pytest.mark.usefixtures("init")
@@ -207,7 +210,7 @@ def test_print_only_setup(protostar, copy_fixture):
 
     result = protostar(["test", "tests"], ignore_exit_code=True)
 
-    assert "O_SETUP" in result
+    assert "O __setup__" in result
     assert "[test]:" not in result
     assert "[setup]:" in result
 

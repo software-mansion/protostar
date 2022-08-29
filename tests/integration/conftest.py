@@ -1,8 +1,10 @@
 # pylint: disable=invalid-name
+import os
+from contextlib import contextmanager
 from dataclasses import dataclass
 from logging import getLogger
 from pathlib import Path
-from typing import List, Optional, Set, Union, cast, Tuple
+from typing import ContextManager, List, Optional, Set, Tuple, Union, cast
 
 import pytest
 from pytest import TempPathFactory
@@ -148,20 +150,31 @@ def run_cairo_test_runner_fixture(
     return run_cairo_test_runner
 
 
-@pytest.fixture(name="protostar_project_root_path", scope="module")
-def protostar_project_root_path_fixture(tmp_path_factory: TempPathFactory) -> Path:
-    tmp_path = tmp_path_factory.mktemp("data")
-    return tmp_path / "tmp_project"
+class CreateProtostarProjectFixture(Protocol):
+    def __call__(self) -> ContextManager[ProtostarFixture]:
+        ...
 
 
-@pytest.fixture(name="protostar", scope="module")
-def protostar_fixture(
+@pytest.fixture(name="create_protostar_project", scope="module")
+def create_protostar_project_fixture(
     session_mocker: MockerFixture,
-    protostar_project_root_path: Path,
+    tmp_path_factory: TempPathFactory,
     signing_credentials: Tuple[str, str],
-) -> ProtostarFixture:
-    return build_protostar_fixture(
-        mocker=session_mocker,
-        project_root_path=protostar_project_root_path,
-        signing_credentials=signing_credentials,
-    )
+):
+    @contextmanager
+    def create_protostar_project():
+        tmp_path = tmp_path_factory.mktemp("project_name")
+        project_root_path = tmp_path / "project_name"
+        cwd = Path().resolve()
+        protostar = build_protostar_fixture(
+            mocker=session_mocker,
+            project_root_path=project_root_path,
+            signing_credentials=signing_credentials,
+        )
+
+        protostar.init_sync()
+        os.chdir(project_root_path)
+        yield protostar
+        os.chdir(cwd)
+
+    return create_protostar_project
