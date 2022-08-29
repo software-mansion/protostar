@@ -10,7 +10,7 @@ from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.cli.signable_command_util import SignableCommandUtil
 from protostar.commands.deploy.deploy_command import DeployCommand
 from protostar.starknet_gateway import (
-    GatewayFacadeBuilder,
+    GatewayFacadeFactory,
     NetworkConfig,
     SuccessfulDeclareResponse,
     format_successful_declare_response,
@@ -21,10 +21,10 @@ class DeclareCommand(Command):
     def __init__(
         self,
         logger: Logger,
-        gateway_facade_builder: GatewayFacadeBuilder,
+        gateway_facade_factory: GatewayFacadeFactory,
     ):
         self._logger = logger
-        self._gateway_facade_builder = gateway_facade_builder
+        self._gateway_facade_factory = gateway_facade_factory
 
     @property
     def name(self) -> str:
@@ -90,8 +90,10 @@ class DeclareCommand(Command):
         token: Optional[str] = None,
         wait_for_acceptance: bool = False,
     ) -> SuccessfulDeclareResponse:
-        self._gateway_facade_builder.set_gateway_client(gateway_client)
-        gateway_facade = self._gateway_facade_builder.build()
+
+        gateway_facade = self._gateway_facade_factory.create(
+            gateway_client=gateway_client, logger=None
+        )
         response = await gateway_facade.declare(
             compiled_contract_path=compiled_contract_path,
             wait_for_acceptance=wait_for_acceptance,

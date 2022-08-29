@@ -4,7 +4,7 @@ from typing import List, Optional
 from protostar.cli.command import Command
 from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.starknet_gateway import (
-    GatewayFacadeBuilder,
+    GatewayFacadeFactory,
     format_successful_deploy_response,
 )
 
@@ -20,10 +20,10 @@ class DeployCommand(Command):
     def __init__(
         self,
         logger: Logger,
-        gateway_facade_builder: GatewayFacadeBuilder,
+        gateway_facade_factory: GatewayFacadeFactory,
     ) -> None:
         self._logger = logger
-        self._gateway_facade_builder = gateway_facade_builder
+        self._gateway_facade_factory = gateway_facade_factory
 
     @property
     def name(self) -> str:
@@ -82,8 +82,9 @@ class DeployCommand(Command):
         network_command_util = NetworkCommandUtil(args, self._logger)
         network_config = network_command_util.get_network_config()
         gateway_client = network_command_util.get_gateway_client()
-        self._gateway_facade_builder.set_gateway_client(gateway_client)
-        gateway_facade = self._gateway_facade_builder.build()
+        gateway_facade = self._gateway_facade_factory.create(
+            gateway_client=gateway_client, logger=None
+        )
 
         response = await gateway_facade.deploy(
             compiled_contract_path=args.contract,

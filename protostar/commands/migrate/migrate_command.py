@@ -11,7 +11,7 @@ from protostar.cli.signable_command_util import SignableCommandUtil
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_exception import ProtostarException
-from protostar.starknet_gateway.gateway_facade_builder import GatewayFacadeBuilder
+from protostar.starknet_gateway.gateway_facade_factory import GatewayFacadeFactory
 from protostar.utils.input_requester import InputRequester
 from protostar.utils.log_color_provider import LogColorProvider
 
@@ -24,14 +24,14 @@ class MigrateCommand(Command):
         logger: Logger,
         log_color_provider: LogColorProvider,
         requester: InputRequester,
-        gateway_facade_builder: GatewayFacadeBuilder,
+        gateway_facade_factory: GatewayFacadeFactory,
     ) -> None:
         super().__init__()
         self._migrator_builder = migrator_builder
         self._logger = logger
         self._log_color_provider = log_color_provider
         self._requester = requester
-        self._gateway_facade_builder = gateway_facade_builder
+        self._gateway_facade_factory = gateway_facade_factory
 
     @property
     def name(self) -> str:
@@ -113,8 +113,9 @@ class MigrateCommand(Command):
             self._logger.info("Migration cancelled")
             return
 
-        self._gateway_facade_builder.set_gateway_client(gateway_client)
-        gateway_facade = self._gateway_facade_builder.build()
+        gateway_facade = self._gateway_facade_factory.create(
+            gateway_client=gateway_client, logger=self._logger
+        )
 
         self._migrator_builder.set_logger(self._logger, self._log_color_provider)
 

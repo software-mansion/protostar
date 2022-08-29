@@ -11,7 +11,7 @@ from protostar.commands.migrate.migrate_command import MigrateCommand
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.migrator import Migrator
 from protostar.protostar_exception import ProtostarException
-from protostar.starknet_gateway import GatewayFacadeBuilder
+from protostar.starknet_gateway import GatewayFacadeFactory
 from protostar.utils.input_requester import InputRequester
 
 
@@ -37,12 +37,12 @@ def setup_migrate(mocker: MockerFixture):
     migrator_run_mock.return_value = migration_result_future
     project_root_path = mocker.MagicMock()
 
-    gateway_facade_builder = GatewayFacadeBuilder(
+    gateway_facade_factory = GatewayFacadeFactory(
         compiled_contract_reader=mocker.MagicMock, project_root_path=project_root_path
     )
 
     migrate_command = MigrateCommand(
-        gateway_facade_builder=gateway_facade_builder,
+        gateway_facade_factory=gateway_facade_factory,
         migrator_builder=mock_migrator_builder(mocker, migrator_mock),
         logger=mocker.MagicMock(),
         log_color_provider=mocker.MagicMock(),
@@ -73,7 +73,7 @@ async def test_cheatcode_exceptions_are_pretty_printed(mocker: MockerFixture):
 
     migrate_command = MigrateCommand(
         migrator_builder=mock_migrator_builder(mocker, migrator_mock),
-        gateway_facade_builder=mocker.MagicMock(),
+        gateway_facade_factory=mocker.MagicMock(),
         logger=mocker.MagicMock(),
         log_color_provider=mocker.MagicMock(),
         requester=mocker.MagicMock(),

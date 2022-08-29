@@ -11,4 +11,4 @@ from protostar.starknet_gateway.gateway_response import (
 )
 from protostar.starknet_gateway.network_config import NetworkConfig
 
-from .gateway_facade_builder import GatewayFacadeBuilder
+from .gateway_facade_factory import GatewayFacadeFactory

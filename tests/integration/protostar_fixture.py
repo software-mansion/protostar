@@ -39,7 +39,7 @@ from protostar.protostar_toml import (
     ProtostarTOMLReader,
     ProtostarTOMLWriter,
 )
-from protostar.starknet_gateway import GatewayFacadeBuilder
+from protostar.starknet_gateway import GatewayFacadeFactory
 from protostar.utils.input_requester import InputRequester
 from protostar.utils.log_color_provider import LogColorProvider
 
@@ -314,7 +314,7 @@ def build_protostar_fixture(
 
     migrator_builder.set_signer(signer)
 
-    gateway_facade_builder = GatewayFacadeBuilder(
+    gateway_facade_factory = GatewayFacadeFactory(
         compiled_contract_reader=CompiledContractReader(),
         project_root_path=project_root_path,
     )
@@ -324,7 +324,7 @@ def build_protostar_fixture(
         log_color_provider=log_color_provider,
         logger=logger,
         requester=input_requester,
-        gateway_facade_builder=gateway_facade_builder,
+        gateway_facade_factory=gateway_facade_factory,
     )
 
     format_command = FormatCommand(
@@ -332,11 +332,11 @@ def build_protostar_fixture(
         logger=logger,
     )
     declare_command = DeclareCommand(
-        logger=logger, gateway_facade_builder=gateway_facade_builder
+        logger=logger, gateway_facade_factory=gateway_facade_factory
     )
 
     deploy_command = DeployCommand(
-        logger=logger, gateway_facade_builder=gateway_facade_builder
+        logger=logger, gateway_facade_factory=gateway_facade_factory
     )
 
     protostar_fixture = ProtostarFixture(
