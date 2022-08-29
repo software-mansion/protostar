@@ -66,7 +66,7 @@ def setup_migrate(mocker: MockerFixture):
 async def test_cheatcode_exceptions_are_pretty_printed(mocker: MockerFixture):
     migrator_mock = cast(Migrator, mocker.MagicMock())
     cast(mocker.MagicMock, migrator_mock.run).side_effect = CheatcodeException(
-        cheatcode_name="CHEATCODE_NAME", message="CHEATCODE_EX_MSG"
+        cheatcode="CHEATCODE_NAME", message="CHEATCODE_EX_MSG"
     )
 
     migrate_command = MigrateCommand(

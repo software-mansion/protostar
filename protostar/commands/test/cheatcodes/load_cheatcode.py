@@ -78,7 +78,7 @@ class LoadCheatcode(Cheatcode):
         abi_type = next((el for el in abi if el["name"] == variable_type), None)
         if not abi_type or not "size" in abi_type:
             raise CheatcodeException(
-                self.name,
+                self,
                 f"Type {variable_type} has not been found in contract {contract_address}",
             )
 

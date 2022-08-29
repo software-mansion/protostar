@@ -44,10 +44,10 @@ def test_cairo_struct_equality():
 
 
 def test_cairo_struct_immutability():
-    x = CairoStruct(a=0b0110, b=0b1001)
+    x = CairoStruct(i=0b0110, j=0b1001)
 
     with pytest.raises(SimpleReportedException) as exc:
-        x.b = 0b1000101
+        x.j = 0b1000101
     assert "CairoStruct is immutable." in str(exc.value)
 
 

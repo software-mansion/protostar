@@ -9,9 +9,6 @@ from protostar.commands.test.test_context import TestContextHintLocal
 class SetupCaseExecutionEnvironment(SetupExecutionEnvironment):
     async def invoke(self, function_name: str):
         self.set_cheatcodes(SetupCaseCheatcodeFactory(self.state))
-        self.set_custom_hint_locals(
-            [TestContextHintLocal(self.state.context), CairoStructHintLocal()]
-        )
 
         with self.state.output_recorder.redirect("setup case"):
             await self.perform_invoke(function_name)

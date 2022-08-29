@@ -66,7 +66,7 @@ class PrepareCheatcode(Cheatcode):
     ) -> List[int]:
         if class_hash not in self.state.class_hash_to_contract_abi_map:
             raise CheatcodeException(
-                self.name, f"Couldn't map `class_hash` ({class_hash}) to ({self})."
+                self, f"Couldn't map `class_hash` ({class_hash}) to ({self})."
             )
         contract_abi = self.state.class_hash_to_contract_abi_map[class_hash]
 
