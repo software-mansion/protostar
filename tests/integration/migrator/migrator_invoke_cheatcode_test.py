@@ -14,7 +14,7 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
         yield protostar
 
 
-async def test_no_signature(migrate: MigrateFixture, signing_credentials, monkeypatch):
+async def test_happy_case(migrate: MigrateFixture, signing_credentials, monkeypatch):
     private_key, acc_address = signing_credentials
     monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, private_key)
 
@@ -23,6 +23,30 @@ async def test_no_signature(migrate: MigrateFixture, signing_credentials, monkey
 contract_address = deploy_contract("./build/main.json", constructor_args=[0]).contract_address
 
 invoke(contract_address, "increase_balance", {"amount": 42}, auto_estimate_fee=True)
+
+result = call(contract_address, "get_balance")
+
+assert result.res == 42
+""",
+        account_address=acc_address,
+    )
+
+
+async def test_waiting_for_acceptance(
+    migrate: MigrateFixture, signing_credentials, monkeypatch
+):
+    private_key, acc_address = signing_credentials
+    monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, private_key)
+
+    await migrate(
+        """
+contract_address = deploy_contract("./build/main.json", constructor_args=[0]).contract_address
+
+invocation = invoke(contract_address, "increase_balance", {"amount": 42}, auto_estimate_fee=True)
+
+invocation = invocation.wait_for_acceptance_sync()
+
+assert invocation.status.value == "ACCEPTED_ON_L2", f"Status is {invocation.status}"
 
 result = call(contract_address, "get_balance")
 

@@ -76,8 +76,8 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
             MigratorInvokeCheatcode(
                 syscall_dependencies=syscall_dependencies,
                 gateway_facade=self.gateway_facade,
-                global_signer=self._signer,
-                global_account_address=self._config.account_address,
+                signer=self._signer,
+                account_address=self._config.account_address,
             ),
         ]
 
