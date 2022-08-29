@@ -70,7 +70,7 @@ class GatewayFacade:
     async def deploy(
         self,
         compiled_contract_path: Path,
-        inputs: Optional[List[int]] = None,
+        inputs: Optional[ContractFunctionInputType] = None,
         token: Optional[str] = None,
         salt: Optional[int] = None,
         wait_for_acceptance: bool = False,

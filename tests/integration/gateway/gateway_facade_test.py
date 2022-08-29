@@ -4,6 +4,7 @@ import pytest
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 
+from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.starknet_gateway.gateway_facade import (
     ContractNotFoundException,
     GatewayFacade,
@@ -32,6 +33,7 @@ def gateway_facade_fixture(devnet_gateway_url: str):
         gateway_client=GatewayClient(
             net=devnet_gateway_url, chain=StarknetChainId.TESTNET
         ),
+        compiled_contract_reader=CompiledContractReader(),
         project_root_path=Path(),
     )
 

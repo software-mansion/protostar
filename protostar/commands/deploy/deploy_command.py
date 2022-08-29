@@ -1,9 +1,12 @@
 from logging import Logger
-from pathlib import Path
 from typing import List, Optional
+
 from protostar.cli.command import Command
 from protostar.cli.network_command_util import NetworkCommandUtil
-from protostar.starknet_gateway import GatewayFacade, format_successful_deploy_response
+from protostar.starknet_gateway import (
+    GatewayFacadeBuilder,
+    format_successful_deploy_response,
+)
 
 
 class DeployCommand(Command):
@@ -17,10 +20,10 @@ class DeployCommand(Command):
     def __init__(
         self,
         logger: Logger,
-        project_root_path: Path,
+        gateway_facade_builder: GatewayFacadeBuilder,
     ) -> None:
         self._logger = logger
-        self._project_root_path = project_root_path
+        self._gateway_facade_builder = gateway_facade_builder
 
     @property
     def name(self) -> str:
@@ -79,10 +82,8 @@ class DeployCommand(Command):
         network_command_util = NetworkCommandUtil(args, self._logger)
         network_config = network_command_util.get_network_config()
         gateway_client = network_command_util.get_gateway_client()
-        gateway_facade = GatewayFacade(
-            gateway_client=gateway_client,
-            project_root_path=self._project_root_path,
-        )
+        self._gateway_facade_builder.set_gateway_client(gateway_client)
+        gateway_facade = self._gateway_facade_builder.build()
 
         response = await gateway_facade.deploy(
             compiled_contract_path=args.contract,
