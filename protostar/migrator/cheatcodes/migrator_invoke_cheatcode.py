@@ -56,11 +56,6 @@ class MigratorInvokeCheatcode(Cheatcode):
         max_fee: Optional[int] = None,
         auto_estimate_fee: bool = False,
     ):
-        if not isinstance(contract_address, int):
-            raise CheatcodeException(
-                self.name,
-                message=f"contract_address must be an integer. got: {type(contract_address)}.",
-            )
         if max_fee is not None and max_fee <= 0:
             raise CheatcodeException(
                 self.name,
