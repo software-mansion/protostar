@@ -153,12 +153,17 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
                 verify_secure=True,
             )
             runner.relocate()
-            save_profile(
-                program=contract_class.program,
-                memory=runner.relocated_memory,
-                trace=runner.relocated_trace,
-                debug_info=runner.get_relocated_debug_info()
-            )
+            try:
+                save_profile(
+                    program=contract_class.program,
+                    memory=runner.relocated_memory,
+                    trace=runner.relocated_trace,
+                    debug_info=runner.get_relocated_debug_info(),
+                    runner=runner
+                )
+            except Exception as e:
+                print(str(e))
+                raise e
         # --- MODIFICATIONS END ---
 
         except VmException as exception:
@@ -213,7 +218,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         return runner, syscall_handler
 
 
-def save_profile(program, memory, trace, debug_info):
+def save_profile(program, memory, trace, debug_info, runner):
     tracer_data = TracerData(
         program=program,
         memory=memory,
@@ -222,7 +227,7 @@ def save_profile(program, memory, trace, debug_info):
         air_public_input=None,
         debug_info=debug_info,
     )
-    data = profile_from_tracer_data(tracer_data)
+    data = profile_from_tracer_data(tracer_data, runner)
     with open("profile.pb.gz", "wb") as fp:
         fp.write(data)
     return 0
