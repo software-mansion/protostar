@@ -4,7 +4,7 @@
 def deploy_contract(
     self,
     contract_path: str,
-    constructor_args: Optional[List[int] | Dict[str, Any]] = None,
+    constructor_args: list[int] | dict[str, Any] | None = None,
     *,
     config: Optional[CheatcodeNetworkConfig] = None
 ) -> DeployedContract: ...
