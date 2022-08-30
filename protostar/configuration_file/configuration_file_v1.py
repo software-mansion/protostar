@@ -1,29 +1,10 @@
 from pathlib import Path
 from typing import List, Optional
 
-from typing_extensions import Protocol
-
-from protostar.protostar_exception import ProtostarException
 from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 from protostar.utils.protostar_directory import VersionManager, VersionType
 
-
-class ConfigurationFile(Protocol):
-    def get_min_protostar_version(self) -> VersionType:
-        ...
-
-    def get_contract_names(self) -> List[str]:
-        ...
-
-    def get_contract_source_paths(self, contract_name: str) -> List[Path]:
-        ...
-
-
-class ContractNameNotFoundException(ProtostarException):
-    def __init__(self, contract_name: str):
-        super().__init__(
-            f"Couldn't find `{contract_name}` in `protostar.toml::[protostar.contracts]`"
-        )
+from .configuration_file import ConfigurationFile, ContractNameNotFoundException
 
 
 class ConfigurationFileV1(ConfigurationFile):
@@ -51,7 +32,10 @@ class ConfigurationFileV1(ConfigurationFile):
     def get_contract_source_paths(self, contract_name: str) -> List[Path]:
         contract_section = self._protostar_toml_reader.get_section("contracts")
         if contract_section is None or contract_name not in contract_section:
-            raise ContractNameNotFoundException(contract_name)
+            raise ContractNameNotFoundException(
+                contract_name,
+                expected_declaration_localization='protostar.toml::["protostar.contracts"]',
+            )
         return [
             self._project_root_path / Path(path_str)
             for path_str in contract_section[contract_name]

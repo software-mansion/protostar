@@ -2,14 +2,14 @@ from pathlib import Path
 
 import pytest
 
+from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 from protostar.utils import VersionManager
 
-from .configuration_file import (
+from .configuration_file_v1 import (
     ConfigurationFile,
     ConfigurationFileV1,
     ContractNameNotFoundException,
 )
-from .io.protostar_toml_reader import ProtostarTOMLReader
 
 
 @pytest.fixture(name="project_root_path")
