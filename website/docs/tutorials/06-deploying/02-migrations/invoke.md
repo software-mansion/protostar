@@ -5,26 +5,37 @@ def invoke(
     contract_address: int,
     function_name: str,
     inputs: list[int] | dict[str, Any] | None = None,
-    max_fee: int | None = None, # in Wei
-    auto_estimate_fee: bool = False,
+    *args,
+    config: SignedCheatcodeConfig | None = None,
 ) -> InvokeResult:
 ```
+
+`SignedCheatcodeConfig` stores configuration used in cheatcodes that can be signed (invoke, deploy).
+
+This cheatcode invokes a StarkNet contract, with possible state changes. Can be useful for initializing proxies, etc.
+
 See full documentation of InvokeResult [here](https://starknetpy.readthedocs.io/en/latest/contract.html#starknet_py.contract.InvokeResult).
 Auto-fee estimation is supported, and `starknet.py`'s estimation logic is used - see [starknet.py docs](https://starknetpy.readthedocs.io/en/latest/guide.html#automatic-fee-estimation).
 
-:::warning
-Only sync methods are allowed inside of hints! For example, use `wait_for_acceptance_sync` instead of `wait_for_acceptance`.
-:::
-
-This cheatcode invokes a StarkNet contract, with possible state changes. Can be useful for initializing proxies, etc.
 
 :::tip
 You can provide `inputs` as a dictionary to use [data transformer](./README.md#data-transformer).
 :::
 
 ## Fees
+`SignedCheatcodeConfig` stores configuration used in cheatcodes that can be signed.
+It's an extension of [NetworkCheatcodeConfig](../03-network-config.md), so it's properties are applicable here as well.
+
+```python
+class SignedCheatcodeConfig(NetworkCheatcodeConfig):
+    max_fee: int # In Wei
+    auto_estimate_fee: int    
+```
+
 Either `max_fee` (in Wei) or `auto_estimate_fee` is required.
-We recommend using `max_fee` to avoid unexpected costs.
+We recommend using `max_fee` to avoid unexpected network costs.
+The config object is passed as a python dictionary.
+This config object also contains properties of `NetworkCheatcodeConfig`, see configuration options in the [related docs](../03-network-config.md).
 
 Wallet used for providing the fee is global, and is provided with signing arguments, as described [here](../01-cli.md#signing-a-declaration).
 
@@ -47,10 +58,13 @@ func up():
         contract_address = deploy_contract("./build/main.json").contract_address
         
         result = invoke(
-            contract_address,
-            "initialize",
-            {"authority": 123213123123},
-            max_fee=10000,
+            contract_address, 
+            "initialize", 
+            {"authority": 123213123123}, 
+            config={
+                "max_fee"=10000,
+                "wait_for_acceptance": True,
+            }
         )
     %}
 
