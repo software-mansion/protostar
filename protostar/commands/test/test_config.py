@@ -70,7 +70,7 @@ class TestMode(Enum):
 
     def __bool__(self) -> bool:
         """
-        Gives ``None``-like semantics to the ``UNDETERMINED`` case.
+        ``UNDETERMINED`` is treated as ``False`` in if statements.
         """
         return self is not self.UNDETERMINED
 
