@@ -13,36 +13,6 @@ from starkware.cairo.lang.vm.vm_core import RunContext, VirtualMachine
 
 from starkware.cairo.lang.compiler.encode import decode_instruction
 
-def get_encoding(memory, pc, prime):
-    instruction_encoding = memory[pc]
-
-    assert isinstance(
-        instruction_encoding, int
-    ), f"Instruction should be an int. Found: {instruction_encoding}"
-
-    imm_addr = (pc + 1) % prime
-    optional_imm = memory.get(imm_addr)
-    if not isinstance(optional_imm, int):
-        optional_imm = None
-    return instruction_encoding, optional_imm
-
-def decode_instruction_in_pc(memory, pc, prime):
-    instruction_encoding, imm = get_encoding(memory, pc, prime)
-    result = decode_instruction(instruction_encoding, imm)
-    # print(result)
-    return result
-
-def compute_operands(instruction, trace_entry, memory, prime, tracer_data: TracerData):
-    context = RunContext(
-        memory=memory,
-        pc=trace_entry.pc,
-        ap=trace_entry.ap,
-        fp=trace_entry.fp,
-        prime=prime
-    )
-    vm = VirtualMachine(tracer_data.program, context, {}, {}, {})
-    return vm.compute_operands(instruction) 
-
 class ProfileBuilder:
     """
     Builds a profile protobuf from trace samples of a specific run.
@@ -163,9 +133,9 @@ class ProfileBuilder:
         # sample.value.append(int(is_builtin(trace_entry)))
         # sample.value.append(1)  # 1 step.
     
-    def memholes(self, traces, assert_oper, memory, prime, tracer_data: TracerData):
+    def memholes(self, tracer_data: TracerData):
         accessed_by = {}
-        for trace_entry, mem_acc in zip(traces, tracer_data.memory_accesses):
+        for trace_entry, mem_acc in zip(tracer_data.trace, tracer_data.memory_accesses):
             frame_pcs = self.get_call_stack(fp=trace_entry.fp, pc=trace_entry.pc)
             for key in ["dst", "op0", "op1"]:
                 accessed_by[mem_acc[key]] = trace_entry.pc
@@ -258,26 +228,12 @@ def profile_from_tracer_data(tracer_data: TracerData, runner):
     # Samples.
     for trace_entry in tracer_data.trace:
         builder.add_sample(trace_entry)
-    asserts_oper = asserts_build(tracer_data)
 
     # for trace_entry in tracer_data.trace:
-    builder.memholes(tracer_data.trace, asserts_oper, tracer_data.memory, tracer_data.program.prime, tracer_data)
+    builder.memholes(tracer_data)
     # builder.add_accesses_aps(tracer_data.trace)
     # breakpoint()
     builder.add_memholes_samples(runner.accessed_addresses, runner.segments, runner)
 
 
     return builder.dump()
-
-def asserts_build(tracer_data):
-    asserts_oper = {}
-    for pc_offset, inst_location in tracer_data.program.debug_info.instruction_locations.items():
-        if pc_offset > 0:
-            try:
-                instr = decode_instruction_in_pc(tracer_data.memory, pc_offset, tracer_data.program.prime)
-                from starkware.cairo.lang.compiler.instruction import Instruction
-                if instr.opcode == Instruction.Opcode.ASSERT_EQ:
-                    asserts_oper[pc_offset] = instr
-            except AssertionError:
-                pass
-    return asserts_oper
