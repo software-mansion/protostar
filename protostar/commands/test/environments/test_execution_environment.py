@@ -10,7 +10,6 @@ from protostar.commands.test.cheatcodes import (
 from protostar.commands.test.cheatcodes.expect_revert_cheatcode import (
     ExpectRevertContext,
 )
-from protostar.commands.test.cheatcodes.reflect.cairo_struct import CairoStructHintLocal
 from protostar.commands.test.environments.setup_execution_environment import (
     SetupCheatcodeFactory,
 )
@@ -18,7 +17,6 @@ from protostar.commands.test.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
 )
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
-from protostar.commands.test.test_context import TestContextHintLocal
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.execution_environment import ExecutionEnvironment
 from protostar.utils.abi import has_function_parameters
@@ -39,7 +37,6 @@ class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
         self._finish_hook = Hook()
 
     async def invoke(self, function_name: str) -> TestExecutionResult:
-        # TODO(mkaput): Raise broken test error if test has any arguments.
         assert not has_function_parameters(
             self.state.contract.abi, function_name
         ), f"{self.__class__.__name__} expects no function parameters."

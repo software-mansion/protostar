@@ -15,7 +15,7 @@ from protostar.commands.test.test_case_runners.setup_case_runner import run_setu
 from protostar.commands.test.test_case_runners.test_case_runner_factory import (
     TestCaseRunnerFactory,
 )
-from protostar.commands.test.test_config import TestConfig, TestMode
+from protostar.commands.test.test_config import TestConfig
 from protostar.commands.test.test_environment_exceptions import ReportedException
 from protostar.commands.test.test_results import (
     BrokenTestSuiteResult,
@@ -182,10 +182,7 @@ class TestRunner:
             if isinstance(setup_case_result, FailedSetupCaseResult):
                 return setup_case_result.into_failed_test_case_result()
 
-        # TODO(mkaput): Remove this in favor of setting mode explicitly by cheatcodes in setup hooks.
-        state.config.mode = TestMode.infer_from_contract_function(
-            test_case.test_fn_name, state.contract
-        )
+        state.determine_test_mode(test_case)
 
         test_case_runner_factory = TestCaseRunnerFactory(state)
         test_case_runner = test_case_runner_factory.make(test_case)
