@@ -22,7 +22,7 @@ async def test_happy_case(migrate: MigrateFixture, signing_credentials, monkeypa
         """
 contract_address = deploy_contract("./build/main.json", constructor_args=[0]).contract_address
 
-invoke(contract_address, "increase_balance", {"amount": 42}, auto_estimate_fee=True)
+invoke(contract_address, "increase_balance", {"amount": 42}, config={"auto_estimate_fee": True})
 
 result = call(contract_address, "get_balance")
 
@@ -42,11 +42,12 @@ async def test_waiting_for_acceptance(
         """
 contract_address = deploy_contract("./build/main.json", constructor_args=[0]).contract_address
 
-invocation = invoke(contract_address, "increase_balance", {"amount": 42}, auto_estimate_fee=True)
-
-invocation = invocation.wait_for_acceptance_sync()
-
-assert invocation.status.value == "ACCEPTED_ON_L2", f"Status is {invocation.status}"
+invoke(
+    contract_address,
+    "increase_balance",
+    {"amount": 42},
+    config={"auto_estimate_fee": True, "wait_for_acceptance": True}
+)
 
 result = call(contract_address, "get_balance")
 
