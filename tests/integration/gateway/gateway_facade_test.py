@@ -7,15 +7,18 @@ from starknet_py.net.models import StarknetChainId
 from protostar.starknet_gateway.gateway_facade import (
     ContractNotFoundException,
     GatewayFacade,
+    InputValidationException,
     UnknownFunctionException,
 )
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.protostar_fixture import ProtostarFixture
+from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR
 
 
 @pytest.fixture(autouse=True, scope="module", name="protostar")
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
     with create_protostar_project() as protostar:
+        protostar.create_files({"src/main.cairo": CONTRACT_WITH_CONSTRUCTOR})
         protostar.build_sync()
         yield protostar
 
@@ -36,8 +39,23 @@ def gateway_facade_fixture(devnet_gateway_url: str):
 
 
 async def test_deploy(gateway_facade: GatewayFacade, compiled_contract_path: Path):
-    response = await gateway_facade.deploy(compiled_contract_path)
+    response = await gateway_facade.deploy(compiled_contract_path, [42])
     assert response is not None
+
+
+async def test_deploy_no_args(
+    gateway_facade: GatewayFacade, compiled_contract_path: Path
+):
+    with pytest.raises(InputValidationException):
+        await gateway_facade.deploy(compiled_contract_path, [])
+
+
+@pytest.mark.skip("https://github.com/software-mansion/starknet.py/pull/323")
+async def test_deploy_too_many_args(
+    gateway_facade: GatewayFacade, compiled_contract_path: Path
+):
+    with pytest.raises(InputValidationException):
+        await gateway_facade.deploy(compiled_contract_path, [42, 24])
 
 
 async def test_declare(gateway_facade: GatewayFacade, compiled_contract_path: Path):
@@ -46,7 +64,10 @@ async def test_declare(gateway_facade: GatewayFacade, compiled_contract_path: Pa
 
 
 async def test_call(gateway_facade: GatewayFacade, compiled_contract_path: Path):
-    deployed_contract = await gateway_facade.deploy(compiled_contract_path)
+    initial_balance = 42
+    deployed_contract = await gateway_facade.deploy(
+        compiled_contract_path, [initial_balance]
+    )
 
     response = await gateway_facade.call(
         deployed_contract.address,
@@ -54,14 +75,13 @@ async def test_call(gateway_facade: GatewayFacade, compiled_contract_path: Path)
         inputs={},
     )
 
-    initial_balance = 0
     assert response[0] == initial_balance
 
 
 async def test_call_to_unknown_function(
     gateway_facade: GatewayFacade, compiled_contract_path: Path
 ):
-    deployed_contract = await gateway_facade.deploy(compiled_contract_path)
+    deployed_contract = await gateway_facade.deploy(compiled_contract_path, [42])
 
     with pytest.raises(UnknownFunctionException):
         await gateway_facade.call(
@@ -79,13 +99,12 @@ async def test_call_to_unknown_contract(gateway_facade: GatewayFacade):
         )
 
 
-@pytest.mark.skip("https://github.com/software-mansion/starknet.py/issues/302")
 async def test_call_to_with_incorrect_args(
     gateway_facade: GatewayFacade, compiled_contract_path: Path
 ):
-    deployed_contract = await gateway_facade.deploy(compiled_contract_path)
+    deployed_contract = await gateway_facade.deploy(compiled_contract_path, [42])
 
-    with pytest.raises(Exception):
+    with pytest.raises(InputValidationException):
         await gateway_facade.call(
             deployed_contract.address,
             function_name="get_balance",
@@ -96,9 +115,9 @@ async def test_call_to_with_incorrect_args(
 async def test_call_to_with_positional_incorrect_args(
     gateway_facade: GatewayFacade, compiled_contract_path: Path
 ):
-    deployed_contract = await gateway_facade.deploy(compiled_contract_path)
+    deployed_contract = await gateway_facade.deploy(compiled_contract_path, [42])
 
-    with pytest.raises(Exception):
+    with pytest.raises(InputValidationException):
         await gateway_facade.call(
             deployed_contract.address,
             function_name="get_balance",

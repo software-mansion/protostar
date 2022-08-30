@@ -4,6 +4,8 @@ from starkware.starknet.compiler.compile import compile_starknet_codes
 from starkware.starknet.public.abi import AbiType
 
 from protostar.utils.abi import (
+    AbiNotFoundException,
+    get_abi_from_compiled_contract,
     get_function_parameters,
     has_function_parameters,
     AbiItemNotFoundException,
@@ -69,3 +71,21 @@ def test_get_function_parameters_raises_when_function_not_found(abi: AbiType):
 def test_get_function_parameters_raises_when_asked_for_struct(abi: AbiType):
     with pytest.raises(AbiItemNotFoundException):
         get_function_parameters(abi, "Point")
+
+
+INVALID_COMPILED_CONTRACT = "I LOVE CAIRO"
+
+
+def test_get_abi_from_compiled_contract_fail_json():
+    with pytest.raises(AbiNotFoundException) as ex:
+        get_abi_from_compiled_contract(INVALID_COMPILED_CONTRACT)
+    assert str(ex.value) == "Couldn't parse given compiled contract JSON."
+
+
+COMPILED_CONTRACT_NO_ABI = "{}"
+
+
+def test_get_abi_from_compiled_contract_fail_no_abi():
+    with pytest.raises(AbiNotFoundException) as ex:
+        get_abi_from_compiled_contract(COMPILED_CONTRACT_NO_ABI)
+    assert str(ex.value) == "Couldn't find ABI of the compiled contract."

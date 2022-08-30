@@ -26,8 +26,13 @@ from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeployResponse,
 )
 from protostar.starknet_gateway.starknet_request import StarknetRequest
-from protostar.utils.data_transformer import CairoOrPythonData
+from protostar.utils.data_transformer import (
+    CairoOrPythonData,
+    DataTransformerException,
+    to_python_transformer,
+)
 from protostar.utils.log_color_provider import LogColorProvider
+from protostar.utils.abi import get_abi_from_compiled_contract, AbiNotFoundException
 
 ContractFunctionInputType = Union[List[int], Dict[str, Any]]
 
@@ -43,6 +48,13 @@ class CompilationOutputNotFoundException(ProtostarException):
             "Did you run `protostar build`?"
         )
         self._compilation_output_filepath = compilation_output_filepath
+
+
+class InputValidationException(ProtostarException):
+    def __init__(self, message: str):
+        super().__init__(
+            "Input validation failed with the following error:\n" + message
+        )
 
 
 class GatewayFacade:
@@ -80,6 +92,8 @@ class GatewayFacade:
             raise CompilationOutputNotFoundException(
                 self._project_root_path / compiled_contract_path
             ) from err
+
+        validate_constructor_inputs(compiled_contract, inputs or [])
 
         tx = make_deploy_tx(
             compiled_contract=compiled_contract,
@@ -297,9 +311,13 @@ class GatewayFacade:
     ):
         if inputs is None:
             inputs = {}
-        if isinstance(inputs, List):
-            return await contract_function.call(*inputs)
-        return await contract_function.call(**inputs)
+
+        try:
+            if isinstance(inputs, List):
+                return await contract_function.call(*inputs)
+            return await contract_function.call(**inputs)
+        except (TypeError, ValueError) as ex:
+            raise InputValidationException(str(ex)) from ex
 
     @staticmethod
     async def _invoke_function(
@@ -311,13 +329,17 @@ class GatewayFacade:
         if inputs is None:
             inputs = {}
         # TODO: https://github.com/software-mansion/starknet.py/issues/320
-        if isinstance(inputs, List):
+
+        try:
+            if isinstance(inputs, List):
+                return await contract_function.invoke(
+                    *inputs, max_fee=max_fee, auto_estimate=auto_estimate  # type: ignore
+                )
             return await contract_function.invoke(
-                *inputs, max_fee=max_fee, auto_estimate=auto_estimate  # type: ignore
+                **inputs, max_fee=max_fee, auto_estimate=auto_estimate  # type: ignore
             )
-        return await contract_function.invoke(
-            **inputs, max_fee=max_fee, auto_estimate=auto_estimate  # type: ignore
-        )
+        except (TypeError, ValueError) as ex:
+            raise InputValidationException(str(ex)) from ex
 
     def _register_request(
         self, action: StarknetRequest.Action, payload: StarknetRequest.Payload
@@ -372,3 +394,11 @@ class UnknownFunctionException(ProtostarException):
 class ContractNotFoundException(ProtostarException):
     def __init__(self, contract_address: AddressRepresentation):
         super().__init__(f"Tried to call unknown contract:\n{contract_address}")
+
+
+def validate_constructor_inputs(compiled_contract: str, inputs: List[int]):
+    try:
+        abi = get_abi_from_compiled_contract(compiled_contract)
+        to_python_transformer(abi, "constructor", "inputs")(inputs)
+    except (DataTransformerException, AbiNotFoundException) as ex:
+        raise InputValidationException(str(ex)) from ex
