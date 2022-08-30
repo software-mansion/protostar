@@ -39,9 +39,16 @@ class TestMode(Enum):
         raise NotImplementedError("Unreachable.")
 
     def can_convert_to(self, to_mode: Self) -> bool:
-        return not self or (self, to_mode) in {
-            (self.STANDARD, self.FUZZ),
-        }
+        return (
+            self is self.UNDETERMINED
+            or self is to_mode
+            or (
+                (self, to_mode)
+                in {
+                    (self.STANDARD, self.FUZZ),
+                }
+            )
+        )
 
     def convert_to(self, to_mode: Self) -> Self:
         if not self.can_convert_to(to_mode):

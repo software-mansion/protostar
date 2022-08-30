@@ -8,7 +8,13 @@ from protostar.commands.test.test_config import TestMode, TestModeConversionExce
     [
         (TestMode.STANDARD, TestMode.FUZZ, True),
         (TestMode.FUZZ, TestMode.STANDARD, False),
+        *[(mode, mode, True) for mode in TestMode],
         *[(TestMode.UNDETERMINED, mode, True) for mode in TestMode],
+        *[
+            (mode, TestMode.UNDETERMINED, False)
+            for mode in TestMode
+            if mode is not TestMode.UNDETERMINED
+        ],
     ],
 )
 def test_mode_conversion(from_mode: TestMode, to_mode: TestMode, expected: bool):
