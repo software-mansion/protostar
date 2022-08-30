@@ -51,10 +51,8 @@ class TestScheduler:
 
             try:
                 with multiprocessing.Pool(
-                    multiprocessing.cpu_count(),
-                    lambda: signal.signal(
-                        signal.SIGINT, signal.SIG_IGN
-                    ),  # prevents showing a stacktrace on cmd/ctrl + c
+                    processes=multiprocessing.cpu_count(),
+                    initializer=_init_worker,
                 ) as pool:
                     results = pool.map_async(self._worker, setups)
 
@@ -67,3 +65,9 @@ class TestScheduler:
                     results.get()
             except KeyboardInterrupt:
                 return
+
+
+# Note: This function has to be top-level function, because it is being Pickled by multiprocessing.
+def _init_worker():
+    # Prevent showing a stacktrace on CMD/CTRL+C.
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
