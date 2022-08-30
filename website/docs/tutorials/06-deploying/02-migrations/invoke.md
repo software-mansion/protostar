@@ -5,7 +5,7 @@ def invoke(
     contract_address: int,
     function_name: str,
     inputs: list[int] | dict[str, Any] | None = None,
-    max_fee: Optional[int] = None, # in Wei
+    max_fee: int | None = None, # in Wei
     auto_estimate_fee: bool = False,
 ) -> InvokeResult:
 ```
