@@ -4,7 +4,7 @@
 def deploy_contract(
     self,
     contract_path: str,
-    constructor_args: Optional[List[int]] = None,
+    constructor_args: list[int] | dict[str, Any] | None = None,
     *,
     config: Optional[CheatcodeNetworkConfig] = None
 ) -> DeployedContract: ...
@@ -19,8 +19,13 @@ Deploys a **compiled** contract given a path relative to the project root.
 
 `config` is a keyword only argument that allows passing [network configuration](../03-network-config.md) data. See related documentation for more information.
 
+:::tip
+You can provide `"data"` as a dictionary to use [data transformer](../../testing/cheatcodes#data-transformer).
+:::
+
+
 :::warning
-Don't use `starkware.starknet.common.syscalls.deploy`. It will deploy the contract to the Protostar's local StarkNet.
+Don't use `starkware.starknet.common.syscalls.deploy` in migration scripts. It will deploy the contract to the Protostar's local StarkNet.
 :::
 
 

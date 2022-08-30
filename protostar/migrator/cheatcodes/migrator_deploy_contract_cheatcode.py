@@ -1,5 +1,4 @@
 import asyncio
-import collections
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Optional
@@ -76,8 +75,6 @@ class MigratorDeployContractCheatcode(Cheatcode):
         contract_identifier = contract_path
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
-        if isinstance(constructor_args, collections.Mapping):
-            assert False, "Data Transformer is not supported"
 
         validated_config = ValidatedCheatcodeNetworkConfig.from_dict(config)
         compiled_contract_path = self._get_path_to_compiled_contract(

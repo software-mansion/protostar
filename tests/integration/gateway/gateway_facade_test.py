@@ -4,11 +4,13 @@ import pytest
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 
+from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.starknet_gateway.gateway_facade import (
     ContractNotFoundException,
     GatewayFacade,
     UnknownFunctionException,
 )
+from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.protostar_fixture import ProtostarFixture
 
@@ -31,6 +33,7 @@ def gateway_facade_fixture(devnet_gateway_url: str):
         gateway_client=GatewayClient(
             net=devnet_gateway_url, chain=StarknetChainId.TESTNET
         ),
+        compiled_contract_reader=CompiledContractReader(),
         project_root_path=Path(),
     )
 
@@ -104,3 +107,19 @@ async def test_call_to_with_positional_incorrect_args(
             function_name="get_balance",
             inputs=[42],
         )
+
+
+@pytest.fixture(name="compiled_contract_with_contractor_path")
+def compiled_contract_with_contractor_path_fixture(protostar: ProtostarFixture):
+    protostar.init_sync()
+    protostar.create_files({"./src/main.cairo": CONTRACT_WITH_CONSTRUCTOR})
+    protostar.build_sync()
+    yield protostar.project_root_path / "build" / "main.json"
+
+
+async def test_deploy_supports_data_transformer(
+    gateway_facade: GatewayFacade, compiled_contract_with_contractor_path: Path
+):
+    await gateway_facade.deploy(
+        compiled_contract_with_contractor_path, inputs={"initial_balance": 42}
+    )

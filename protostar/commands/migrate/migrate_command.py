@@ -2,6 +2,7 @@ from logging import Logger
 from pathlib import Path
 from typing import List, Optional
 
+from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.signer import BaseSigner
 
 from protostar.cli import Command
@@ -10,7 +11,7 @@ from protostar.cli.signable_command_util import SignableCommandUtil
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_exception import ProtostarException
-from protostar.starknet_gateway import GatewayFacade
+from protostar.starknet_gateway.gateway_facade_factory import GatewayFacadeFactory
 from protostar.utils.input_requester import InputRequester
 from protostar.utils.log_color_provider import LogColorProvider
 
@@ -20,17 +21,17 @@ class MigrateCommand(Command):
     def __init__(
         self,
         migrator_builder: Migrator.Builder,
-        project_root_path: Path,
         logger: Logger,
         log_color_provider: LogColorProvider,
         requester: InputRequester,
+        gateway_facade_factory: GatewayFacadeFactory,
     ) -> None:
         super().__init__()
         self._migrator_builder = migrator_builder
         self._logger = logger
         self._log_color_provider = log_color_provider
         self._requester = requester
-        self._project_root_path = project_root_path
+        self._gateway_facade_factory = gateway_facade_factory
 
     @property
     def name(self) -> str:
@@ -77,20 +78,15 @@ class MigrateCommand(Command):
         network_command_util = NetworkCommandUtil(args, self._logger)
         network_config = network_command_util.get_network_config()
         signable_command_util = SignableCommandUtil(args, self._logger)
-
         signer = signable_command_util.get_signer(network_config)
         migrator_config = MigratorExecutionEnvironment.Config(
             account_address=args.account_address,
         )
+
         return await self.migrate(
             migration_file_path=args.path,
             rollback=args.rollback,
-            gateway_facade=GatewayFacade(
-                gateway_client=network_command_util.get_gateway_client(),
-                log_color_provider=self._log_color_provider,
-                logger=self._logger,
-                project_root_path=self._project_root_path,
-            ),
+            gateway_client=network_command_util.get_gateway_client(),
             output_dir_path=args.output_dir,
             no_confirm=args.no_confirm,
             migrator_config=migrator_config,
@@ -102,7 +98,7 @@ class MigrateCommand(Command):
         self,
         migration_file_path: Path,
         rollback: bool,
-        gateway_facade: GatewayFacade,
+        gateway_client: GatewayClient,
         output_dir_path: Optional[Path],
         migrator_config: MigratorExecutionEnvironment.Config,
         no_confirm: bool,
@@ -116,6 +112,10 @@ class MigrateCommand(Command):
             self._logger.info("Please run `protostar build`")
             self._logger.info("Migration cancelled")
             return
+
+        gateway_facade = self._gateway_facade_factory.create(
+            gateway_client=gateway_client, logger=self._logger
+        )
 
         self._migrator_builder.set_logger(self._logger, self._log_color_provider)
 

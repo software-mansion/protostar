@@ -8,6 +8,7 @@ from protostar.commands import (
     BuildCommand,
     DeclareCommand,
     DeployCommand,
+    FormatCommand,
     InitCommand,
     InstallCommand,
     MigrateCommand,
@@ -15,13 +16,13 @@ from protostar.commands import (
     TestCommand,
     UpdateCommand,
     UpgradeCommand,
-    FormatCommand,
 )
 from protostar.commands.init.project_creator import (
     AdaptedProjectCreator,
     NewProjectCreator,
 )
 from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
+from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_cli import ProtostarCLI
 from protostar.protostar_toml import (
@@ -34,6 +35,7 @@ from protostar.protostar_toml import (
 from protostar.protostar_toml.protostar_toml_version_checker import (
     ProtostarTOMLVersionChecker,
 )
+from protostar.starknet_gateway import GatewayFacadeFactory
 from protostar.upgrader import (
     LatestVersionCacheTOML,
     LatestVersionChecker,
@@ -95,6 +97,11 @@ def build_di_container(script_root: Path, start_time: float = 0):
         ),
     )
 
+    gateway_facade_factory = GatewayFacadeFactory(
+        project_root_path=project_root_path,
+        compiled_contract_reader=CompiledContractReader(),
+    )
+
     commands: List[Command] = [
         InitCommand(
             requester=requester,
@@ -150,8 +157,11 @@ def build_di_container(script_root: Path, start_time: float = 0):
             logger=logger,
             log_color_provider=log_color_provider,
         ),
-        DeployCommand(logger=logger, project_root_path=project_root_path),
-        DeclareCommand(logger=logger, project_root_path=project_root_path),
+        DeployCommand(
+            logger=logger,
+            gateway_facade_factory=gateway_facade_factory,
+        ),
+        DeclareCommand(logger=logger, gateway_facade_factory=gateway_facade_factory),
         MigrateCommand(
             migrator_builder=Migrator.Builder(
                 migrator_execution_environment_builder=MigratorExecutionEnvironment.Builder(
@@ -159,10 +169,10 @@ def build_di_container(script_root: Path, start_time: float = 0):
                 ),
                 project_root_path=project_root_path,
             ),
-            project_root_path=project_root_path,
             requester=requester,
             logger=logger,
             log_color_provider=log_color_provider,
+            gateway_facade_factory=gateway_facade_factory,
         ),
         FormatCommand(project_root_path, logger),
     ]

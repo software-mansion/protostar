@@ -2,6 +2,7 @@ from logging import Logger
 from pathlib import Path
 from typing import List, Optional
 
+from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.signer import BaseSigner
 
 from protostar.cli.command import Command
@@ -9,7 +10,7 @@ from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.cli.signable_command_util import SignableCommandUtil
 from protostar.commands.deploy.deploy_command import DeployCommand
 from protostar.starknet_gateway import (
-    GatewayFacade,
+    GatewayFacadeFactory,
     NetworkConfig,
     SuccessfulDeclareResponse,
     format_successful_declare_response,
@@ -20,10 +21,10 @@ class DeclareCommand(Command):
     def __init__(
         self,
         logger: Logger,
-        project_root_path: Path,
+        gateway_facade_factory: GatewayFacadeFactory,
     ):
-        self._project_root_path = project_root_path
         self._logger = logger
+        self._gateway_facade_factory = gateway_facade_factory
 
     @property
     def name(self) -> str:
@@ -67,16 +68,13 @@ class DeclareCommand(Command):
         network_command_util = NetworkCommandUtil(args, self._logger)
         signable_command_util = SignableCommandUtil(args, self._logger)
         network_config = network_command_util.get_network_config()
-        gateway_facade = GatewayFacade(
-            gateway_client=network_command_util.get_gateway_client(),
-            project_root_path=self._project_root_path,
-        )
+        gateway_client = network_command_util.get_gateway_client()
         signer = signable_command_util.get_signer(network_config)
 
         return await self.declare(
             compiled_contract_path=args.contract,
             signer=signer,
-            gateway_facade=gateway_facade,
+            gateway_client=gateway_client,
             network_config=network_config,
             token=args.token,
             wait_for_acceptance=args.wait_for_acceptance,
@@ -87,11 +85,15 @@ class DeclareCommand(Command):
         self,
         compiled_contract_path: Path,
         network_config: NetworkConfig,
-        gateway_facade: GatewayFacade,
+        gateway_client: GatewayClient,
         signer: Optional[BaseSigner] = None,
         token: Optional[str] = None,
         wait_for_acceptance: bool = False,
     ) -> SuccessfulDeclareResponse:
+
+        gateway_facade = self._gateway_facade_factory.create(
+            gateway_client=gateway_client, logger=None
+        )
         response = await gateway_facade.declare(
             compiled_contract_path=compiled_contract_path,
             wait_for_acceptance=wait_for_acceptance,
