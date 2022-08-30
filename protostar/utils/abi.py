@@ -1,4 +1,3 @@
-import json
 from typing import Dict
 
 from starkware.cairo.lang.compiler.ast.cairo_types import CairoType
@@ -7,10 +6,6 @@ from starkware.starknet.testing.contract_utils import parse_arguments
 
 
 class AbiItemNotFoundException(Exception):
-    pass
-
-
-class AbiNotFoundException(Exception):
     pass
 
 
@@ -39,14 +34,8 @@ def find_abi_item(contract_abi: AbiType, name: str) -> Dict:
     raise AbiItemNotFoundException(f"Couldn't find '{name}' ABI")
 
 
-def get_abi_from_compiled_contract(compiled_contract: str) -> AbiType:
-    try:
-        return json.loads(compiled_contract)["abi"]
-    except json.JSONDecodeError as ex:
-        raise AbiNotFoundException(
-            "Couldn't parse given compiled contract JSON."
-        ) from ex
-    except KeyError as ex:
-        raise AbiNotFoundException(
-            "Couldn't find ABI of the compiled contract."
-        ) from ex
+def has_abi_item(contract_abi: AbiType, name: str) -> bool:
+    for item in contract_abi:
+        if item["name"] == name:
+            return True
+    return False

@@ -1,25 +1,26 @@
+import collections
+import dataclasses
 from logging import Logger
 from pathlib import Path
-import dataclasses
 from typing import Any, Callable, Dict, List, NamedTuple, Optional, Union
 
 from starknet_py.contract import Contract, ContractFunction, InvokeResult
 from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ContractNotFoundError
-from starknet_py.net.signer import BaseSigner
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import AddressRepresentation
-from starknet_py.transactions.deploy import make_deploy_tx
+from starknet_py.net.signer import BaseSigner
 from starknet_py.transaction_exceptions import TransactionFailedError
-
+from starknet_py.transactions.deploy import make_deploy_tx
 from starkware.starknet.definitions import constants
-from starkware.starknet.services.api.gateway.transaction import DECLARE_SENDER_ADDRESS
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.services.api.gateway.transaction import (
+    DECLARE_SENDER_ADDRESS,
     Declare,
 )
 
+from protostar.compiler import CompiledContractReader
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeclareResponse,
@@ -30,38 +31,21 @@ from protostar.utils.data_transformer import (
     CairoOrPythonData,
     DataTransformerException,
     to_python_transformer,
+    from_python_transformer,
 )
 from protostar.utils.log_color_provider import LogColorProvider
-from protostar.utils.abi import get_abi_from_compiled_contract, AbiNotFoundException
+from protostar.utils.abi import has_abi_item
 
 ContractFunctionInputType = Union[List[int], Dict[str, Any]]
 
 
-class TransactionException(ProtostarException):
-    pass
-
-
-class CompilationOutputNotFoundException(ProtostarException):
-    def __init__(self, compilation_output_filepath: Path):
-        super().__init__(
-            f"Couldn't find `{str(compilation_output_filepath.resolve())}`\n"
-            "Did you run `protostar build`?"
-        )
-        self._compilation_output_filepath = compilation_output_filepath
-
-
-class InputValidationException(ProtostarException):
-    def __init__(self, message: str):
-        super().__init__(
-            "Input validation failed with the following error:\n" + message
-        )
-
-
 class GatewayFacade:
+    # pylint: disable=too-many-arguments
     def __init__(
         self,
         project_root_path: Path,
         gateway_client: GatewayClient,
+        compiled_contract_reader: CompiledContractReader,
         logger: Optional[Logger] = None,
         log_color_provider: Optional[LogColorProvider] = None,
     ) -> None:
@@ -70,6 +54,7 @@ class GatewayFacade:
         self._logger: Optional[Logger] = logger
         self._log_color_provider: Optional[LogColorProvider] = log_color_provider
         self._gateway_client = gateway_client
+        self._compiled_contract_reader = compiled_contract_reader
 
     def get_starknet_requests(self) -> List[StarknetRequest]:
         return self._starknet_requests.copy()
@@ -78,26 +63,21 @@ class GatewayFacade:
     async def deploy(
         self,
         compiled_contract_path: Path,
-        inputs: Optional[List[int]] = None,
+        inputs: Optional[ContractFunctionInputType] = None,
         token: Optional[str] = None,
         salt: Optional[int] = None,
         wait_for_acceptance: bool = False,
     ) -> SuccessfulDeployResponse:
-        try:
-            with open(
-                self._project_root_path / compiled_contract_path, "r", encoding="utf-8"
-            ) as file:
-                compiled_contract = file.read()
-        except FileNotFoundError as err:
-            raise CompilationOutputNotFoundException(
-                self._project_root_path / compiled_contract_path
-            ) from err
-
-        validate_constructor_inputs(compiled_contract, inputs or [])
+        compiled_contract = self._load_compiled_contract(
+            self._project_root_path / compiled_contract_path
+        )
+        cairo_inputs = self._transform_constructor_inputs_from_python(
+            inputs, compiled_contract_path
+        )
 
         tx = make_deploy_tx(
             compiled_contract=compiled_contract,
-            constructor_calldata=inputs or [],
+            constructor_calldata=cairo_inputs,
             salt=salt,
         )
 
@@ -106,7 +86,7 @@ class GatewayFacade:
             payload={
                 "contract": str(self._project_root_path / compiled_contract_path),
                 "network": str(self._gateway_client.net),
-                "constructor_args": inputs,
+                "constructor_args": cairo_inputs,
                 "salt": salt,
                 "token": token,
             },
@@ -130,6 +110,40 @@ class GatewayFacade:
             address=result.contract_address,
             transaction_hash=result.transaction_hash,
         )
+
+    def _load_compiled_contract(self, compiled_contract_path: Path):
+        try:
+            return self._compiled_contract_reader.load_contract(compiled_contract_path)
+        except FileNotFoundError as err:
+            raise CompilationOutputNotFoundException(compiled_contract_path) from err
+
+    def _transform_constructor_inputs_from_python(
+        self, inputs: Optional[CairoOrPythonData], compiled_contract_path: Path
+    ) -> List[int]:
+        abi = self._compiled_contract_reader.load_abi_from_contract_path(
+            compiled_contract_path
+        )
+        assert abi is not None
+
+        if (not has_abi_item(abi, "constructor")) and inputs:
+            raise InputValidationException(
+                "Inputs provided to a contract with no constructor."
+            )
+
+        try:
+            if not inputs:
+                inputs = []
+            if isinstance(inputs, collections.Mapping):
+                inputs = from_python_transformer(
+                    abi, fn_name="constructor", mode="inputs"
+                )(inputs)
+
+            # Validate inputs
+            to_python_transformer(abi, "constructor", "inputs")
+        except DataTransformerException as ex:
+            raise InputValidationException(str(ex)) from ex
+
+        return inputs
 
     # pylint: disable=too-many-locals
     # pylint: disable=unused-argument
@@ -396,9 +410,21 @@ class ContractNotFoundException(ProtostarException):
         super().__init__(f"Tried to call unknown contract:\n{contract_address}")
 
 
-def validate_constructor_inputs(compiled_contract: str, inputs: List[int]):
-    try:
-        abi = get_abi_from_compiled_contract(compiled_contract)
-        to_python_transformer(abi, "constructor", "inputs")(inputs)
-    except (DataTransformerException, AbiNotFoundException) as ex:
-        raise InputValidationException(str(ex)) from ex
+class InputValidationException(ProtostarException):
+    def __init__(self, message: str):
+        super().__init__(
+            "Input validation failed with the following error:\n" + message
+        )
+
+
+class TransactionException(ProtostarException):
+    pass
+
+
+class CompilationOutputNotFoundException(ProtostarException):
+    def __init__(self, compilation_output_filepath: Path):
+        super().__init__(
+            f"Couldn't find `{str(compilation_output_filepath.resolve())}`\n"
+            "Did you run `protostar build`?"
+        )
+        self._compilation_output_filepath = compilation_output_filepath

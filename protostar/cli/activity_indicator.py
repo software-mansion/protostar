@@ -1,7 +1,10 @@
+import sys
 from itertools import cycle
 from shutil import get_terminal_size
 from threading import Thread
 from time import sleep
+
+from colorama.ansitowin32 import StreamWrapper
 
 
 class ActivityIndicator:
@@ -16,7 +19,8 @@ class ActivityIndicator:
         self.done = False
 
     def start(self):
-        self._thread.start()
+        if is_terminal():
+            self._thread.start()
         return self
 
     def _animate(self):
@@ -36,3 +40,7 @@ class ActivityIndicator:
 
     def __exit__(self, exc_type, exc_value, exc_tb):
         self.stop()
+
+
+def is_terminal() -> bool:
+    return StreamWrapper(sys.stdout, sys.stdin).isatty()
