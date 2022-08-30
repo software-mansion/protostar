@@ -10,7 +10,7 @@ def invoke(
 ) -> InvokeResult:
 ```
 See full documentation of InvokeResult [here](https://starknetpy.readthedocs.io/en/latest/contract.html#starknet_py.contract.InvokeResult).
-Auto-fee estimation is supported, and `starknet.py`'s estimation logic is used - see [starknet.py docs](https://starknetpy.readthedocs.io/en/latest/guide.html?highlight=auto%20estimate#automatic-fee-estimation).
+Auto-fee estimation is supported, and `starknet.py`'s estimation logic is used - see [starknet.py docs](https://starknetpy.readthedocs.io/en/latest/guide.html#automatic-fee-estimation).
 
 :::warning
 Only sync methods are allowed inside of hints! For example, use `wait_for_acceptance_sync` instead of `wait_for_acceptance`.

@@ -84,7 +84,7 @@ If you build the project, Protostar will print migration logs in the command lin
 You can sign the migration's transactions by providing appropriate arguments to the CLI of the command. 
 See signing-related documentation [here](../01-cli.md#signing-a-declaration).
 
-For now declare and invoke migration calls are signed automatically, when provided with appropriate arguments. 
+For now, declare and invoke migration calls are signed automatically when provided with appropriate arguments. 
 
 ## Available migration cheatcodes
 ```mdx-code-block
