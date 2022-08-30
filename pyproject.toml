@@ -110,7 +110,7 @@ skip_empty = true
 
 [tool.black]
 target-version = [
-    "py37",
+    "py39",
 ]
 
 [tool.isort]
