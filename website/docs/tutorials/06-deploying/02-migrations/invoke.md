@@ -7,7 +7,7 @@ def invoke(
     inputs: list[int] | dict[str, Any] | None = None,
     *args,
     config: SignedCheatcodeConfig | None = None,
-) -> InvokeResult:
+):
 ```
 
 `SignedCheatcodeConfig` stores configuration used in cheatcodes that can be signed (invoke, deploy).
@@ -24,18 +24,18 @@ You can provide `inputs` as a dictionary to use [data transformer](./README.md#d
 
 ## Fees
 `SignedCheatcodeConfig` stores configuration used in cheatcodes that can be signed.
-It's an extension of [NetworkCheatcodeConfig](../03-network-config.md), so it's properties are applicable here as well.
+It's an extension of [CheatcodeNetworkConfig](../03-network-config.md), so it's properties are applicable here as well.
 
 ```python
-class SignedCheatcodeConfig(NetworkCheatcodeConfig):
-    max_fee: int # In Wei
+class SignedCheatcodeConfig(CheatcodeNetworkConfig):
+    max_fee: int | None # In Wei
     auto_estimate_fee: int    
 ```
 
 Either `max_fee` (in Wei) or `auto_estimate_fee` is required.
 We recommend using `max_fee` to avoid unexpected network costs.
 The config object is passed as a python dictionary.
-This config object also contains properties of `NetworkCheatcodeConfig`, see configuration options in the [related docs](../03-network-config.md).
+This config object also contains properties of `CheatcodeNetworkConfig`, see configuration options in the [related docs](../03-network-config.md).
 
 Wallet used for providing the fee is global, and is provided with signing arguments, as described [here](../01-cli.md#signing-a-declaration).
 
@@ -62,7 +62,7 @@ func up():
             "initialize", 
             {"authority": 123213123123}, 
             config={
-                "max_fee"=10000,
+                "max_fee": 10000,
                 "wait_for_acceptance": True,
             }
         )
