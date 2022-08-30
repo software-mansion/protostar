@@ -1,10 +1,12 @@
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from typing_extensions import Protocol
 
 from protostar.protostar_exception import ProtostarException
 from protostar.utils.protostar_directory import VersionType
+
+PrimitiveTypesSupportedByConfigurationFile = Union[str, int, bool]
 
 
 class ConfigurationFile(Protocol):
@@ -18,6 +20,16 @@ class ConfigurationFile(Protocol):
         ...
 
     def get_lib_path(self) -> Optional[Path]:
+        ...
+
+    def get_command_argument(
+        self, command_name: str, argument_name: str, profile_name: Optional[str] = None
+    ) -> Optional[
+        Union[
+            PrimitiveTypesSupportedByConfigurationFile,
+            List[PrimitiveTypesSupportedByConfigurationFile],
+        ]
+    ]:
         ...
 
 

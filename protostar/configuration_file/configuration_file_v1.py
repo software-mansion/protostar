@@ -1,10 +1,14 @@
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 from protostar.utils.protostar_directory import VersionManager, VersionType
 
-from .configuration_file import ConfigurationFile, ContractNameNotFoundException
+from .configuration_file import (
+    ConfigurationFile,
+    ContractNameNotFoundException,
+    PrimitiveTypesSupportedByConfigurationFile,
+)
 
 
 class ConfigurationFileV1(ConfigurationFile):
@@ -48,3 +52,17 @@ class ConfigurationFileV1(ConfigurationFile):
         if not lib_relative_path_str:
             return None
         return self._project_root_path / lib_relative_path_str
+
+    def get_command_argument(
+        self, command_name: str, argument_name: str, profile_name: Optional[str] = None
+    ) -> Optional[
+        Union[
+            PrimitiveTypesSupportedByConfigurationFile,
+            List[PrimitiveTypesSupportedByConfigurationFile],
+        ]
+    ]:
+        return self._protostar_toml_reader.get_attribute(
+            section_name=command_name,
+            attribute_name=argument_name,
+            profile_name=profile_name,
+        )

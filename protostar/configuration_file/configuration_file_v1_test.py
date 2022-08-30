@@ -125,3 +125,42 @@ def test_reading_lib_path(
 
     assert lib_path is not None
     assert lib_path == (project_root_path / "lib").resolve()
+
+
+@pytest.mark.parametrize(
+    "protostar_toml_content",
+    [
+        """
+        ["protostar.command_name"]
+        arg_name = 42
+        """
+    ],
+)
+def test_reading_command_argument_attribute(configuration_file: ConfigurationFile):
+    arg_value = configuration_file.get_command_argument(
+        command_name="command_name", argument_name="arg_name"
+    )
+
+    assert arg_value == 42
+
+
+@pytest.mark.parametrize(
+    "protostar_toml_content",
+    [
+        """
+        ["protostar.command_name"]
+        arg_name = 21
+
+        ["profile.devnet.protostar.command_name"]
+        arg_name = 37
+        """
+    ],
+)
+def test_reading_argument_attribute_defined_within_specified_profile(
+    configuration_file: ConfigurationFile,
+):
+    arg_value = configuration_file.get_command_argument(
+        command_name="command_name", argument_name="arg_name", profile_name="devnet"
+    )
+
+    assert arg_value == 37
