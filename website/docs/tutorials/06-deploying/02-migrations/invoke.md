@@ -9,7 +9,7 @@ def invoke(
     auto_estimate_fee: bool = False,
 ) -> InvokeResult:
 ```
-See full documentation of InvokeResult [here](https://starknetpy.readthedocs.io/en/latest/contract.html?highlight=InvokeResult#starknet_py.contract.InvokeResult).
+See full documentation of InvokeResult [here](https://starknetpy.readthedocs.io/en/latest/contract.html#starknet_py.contract.InvokeResult).
 Auto-fee estimation is supported, and `starknet.py`'s estimation logic is used - see [starknet.py docs](https://starknetpy.readthedocs.io/en/latest/guide.html?highlight=auto%20estimate#automatic-fee-estimation).
 
 :::warning
