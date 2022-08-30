@@ -12,7 +12,7 @@ from protostar.utils.abi import has_function_parameters
 class TestModeConversionException(ProtostarException):
     def __init__(self, from_mode: "TestMode", to_mode: "TestMode"):
         super().__init__(
-            f"Cannot convert test case from {from_mode.human_name} to {to_mode.human_name}. "
+            f"Cannot convert test case from {from_mode.pretty_name} to {to_mode.pretty_name}. "
             "Do not mix configuration cheatcodes specific to both modes in single test setup hooks."
         )
 
@@ -23,7 +23,7 @@ class TestMode(Enum):
     FUZZ = 2
 
     @property
-    def human_name(self) -> str:
+    def pretty_name(self) -> str:
         if self is self.UNDETERMINED:
             # Note: This should be an unreachable case, but because this property is used
             #   in exception constructors, a fallback value in exception message would be more
