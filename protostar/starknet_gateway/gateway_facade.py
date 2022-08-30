@@ -2,7 +2,7 @@ import collections
 import dataclasses
 from logging import Logger
 from pathlib import Path
-from typing import Any, Callable, Dict, List, NamedTuple, Optional, Union
+from typing import Any, Callable, Dict, List, NamedTuple, Optional, Union, cast
 
 from starknet_py.contract import Contract, ContractFunction, InvokeResult
 from starknet_py.net import AccountClient
@@ -71,7 +71,7 @@ class GatewayFacade:
         compiled_contract = self._load_compiled_contract(
             self._project_root_path / compiled_contract_path
         )
-        cairo_inputs = self._transform_constructor_inputs_from_python(
+        cairo_inputs = self._transform_and_validate_constructor_inputs_from_python(
             inputs, compiled_contract_path
         )
 
@@ -117,7 +117,7 @@ class GatewayFacade:
         except FileNotFoundError as err:
             raise CompilationOutputNotFoundException(compiled_contract_path) from err
 
-    def _transform_constructor_inputs_from_python(
+    def _transform_and_validate_constructor_inputs_from_python(
         self, inputs: Optional[CairoOrPythonData], compiled_contract_path: Path
     ) -> List[int]:
         abi = self._compiled_contract_reader.load_abi_from_contract_path(
@@ -125,25 +125,26 @@ class GatewayFacade:
         )
         assert abi is not None
 
-        if (not has_abi_item(abi, "constructor")) and inputs:
-            raise InputValidationException(
-                "Inputs provided to a contract with no constructor."
-            )
+        if not has_abi_item(abi, "constructor"):
+            if inputs:
+                raise InputValidationException(
+                    "Inputs provided to a contract with no constructor."
+                )
+        else:
+            try:
+                if not inputs:
+                    inputs = []
+                if isinstance(inputs, collections.Mapping):
+                    inputs = from_python_transformer(
+                        abi, fn_name="constructor", mode="inputs"
+                    )(inputs)
 
-        try:
-            if not inputs:
-                inputs = []
-            if isinstance(inputs, collections.Mapping):
-                inputs = from_python_transformer(
-                    abi, fn_name="constructor", mode="inputs"
-                )(inputs)
+                # Validate inputs
+                to_python_transformer(abi, "constructor", "inputs")
+            except DataTransformerException as ex:
+                raise InputValidationException(str(ex)) from ex
 
-            # Validate inputs
-            to_python_transformer(abi, "constructor", "inputs")
-        except DataTransformerException as ex:
-            raise InputValidationException(str(ex)) from ex
-
-        return inputs
+        return cast(List[int], inputs)
 
     # pylint: disable=too-many-locals
     # pylint: disable=unused-argument
