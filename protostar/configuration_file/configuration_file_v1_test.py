@@ -107,3 +107,21 @@ def test_error_when_retrieving_paths_from_not_defined_contract(
         configuration_file.get_contract_source_paths(
             contract_name="NOT_DEFINED_CONTRACT"
         )
+
+
+@pytest.mark.parametrize(
+    "protostar_toml_content",
+    [
+        """
+        ["protostar.project"]
+        libs_path = "./lib"
+        """
+    ],
+)
+def test_reading_lib_path(
+    configuration_file: ConfigurationFile, project_root_path: Path
+):
+    lib_path = configuration_file.get_lib_path()
+
+    assert lib_path is not None
+    assert lib_path == (project_root_path / "lib").resolve()

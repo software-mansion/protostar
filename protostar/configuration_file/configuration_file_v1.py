@@ -40,3 +40,11 @@ class ConfigurationFileV1(ConfigurationFile):
             self._project_root_path / Path(path_str)
             for path_str in contract_section[contract_name]
         ]
+
+    def get_lib_path(self) -> Optional[Path]:
+        lib_relative_path_str = self._protostar_toml_reader.get_attribute(
+            section_name="project", attribute_name="libs_path"
+        )
+        if not lib_relative_path_str:
+            return None
+        return self._project_root_path / lib_relative_path_str
