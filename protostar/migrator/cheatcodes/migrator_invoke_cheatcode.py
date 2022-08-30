@@ -1,4 +1,5 @@
 import asyncio
+from dataclasses import dataclass
 from typing import Any, Optional
 
 from starknet_py.net.signer import BaseSigner
@@ -21,14 +22,26 @@ from protostar.utils.data_transformer import CairoOrPythonData
 
 class SignedCheatcodeConfig(CheatcodeNetworkConfig):
     max_fee: NotRequired[int]  # In Wei
-    auto_estimate_fee: NotRequired[int]
+    auto_estimate_fee: NotRequired[bool]
 
 
-DEFAULT_CONFIG = {
-    "max_fee": None,
-    "auto_estimate_fee": False,
-    "wait_for_acceptance": False,
-}
+@dataclass
+class ValidatedSignedCheatcodeConfig:
+    max_fee: Optional[int] = None
+    wait_for_acceptance: bool = False
+    auto_estimate_fee: bool = False
+
+    @classmethod
+    def from_dict(
+        cls, config: Optional[SignedCheatcodeConfig]
+    ) -> "ValidatedSignedCheatcodeConfig":
+        if not config:
+            return cls()
+        return cls(
+            wait_for_acceptance=config.get("wait_for_acceptance", False),
+            max_fee=config.get("max_fee", None),
+            auto_estimate_fee=config.get("auto_estimate_fee", False),
+        )
 
 
 class InvokeCheatcodeProtocol(Protocol):
@@ -76,11 +89,10 @@ class MigratorInvokeCheatcode(Cheatcode):
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
 
-        config = {**DEFAULT_CONFIG, **(config or {})}
-
-        max_fee = config["max_fee"]
-        auto_estimate_fee = config["auto_estimate_fee"]
-        wait_for_acceptance = config["wait_for_acceptance"]
+        config = ValidatedSignedCheatcodeConfig.from_dict(config)
+        max_fee = config.max_fee
+        auto_estimate_fee = config.auto_estimate_fee
+        wait_for_acceptance = config.wait_for_acceptance
 
         if max_fee is not None and max_fee <= 0:
             raise CheatcodeException(

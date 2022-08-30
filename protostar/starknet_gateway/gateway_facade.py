@@ -236,7 +236,7 @@ class GatewayFacade:
         max_fee: Optional[int] = None,
         auto_estimate_fee: bool = False,
         wait_for_acceptance: bool = False,
-    ) -> InvokeResult:
+    ):
         register_response = self._register_request(
             action="INVOKE",
             payload={
