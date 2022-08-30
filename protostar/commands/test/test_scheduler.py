@@ -67,7 +67,7 @@ class TestScheduler:
                 return
 
 
-# Note: This function has to be top-level function, because it is being Pickled by multiprocessing.
+# Note: This function has to be top-level function, because it is being pickled by multiprocessing.
 def _init_worker():
     # Prevent showing a stacktrace on CMD/CTRL+C.
     signal.signal(signal.SIGINT, signal.SIG_IGN)
