@@ -4,9 +4,8 @@
 def max_examples(max_examples: int):
 ```
 
-Sets the maximum value of examples to explore by the fuzzer.
-Once this many satisfying input cases have been evaluated without finding any counter-example,
-fuzzer falsification will terminate.
+Sets the maximum number of examples to explore by the fuzzer.
+Fuzzer tries at most this many input examples. If it won't find any failing, test will pass.
 
 :::warning
 This cheatcode is only available in [setup hooks](../README.md#__setup__).
