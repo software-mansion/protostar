@@ -278,7 +278,7 @@ class GatewayFacade:
         if result.block_number:
             response_dict["block_number"] = result.block_number
         if result.status:
-            response_dict["status"] = result.status
+            response_dict["status"] = result.status.value  # type: ignore
 
         register_response(response_dict)
 
