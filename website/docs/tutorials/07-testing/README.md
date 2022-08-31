@@ -79,9 +79,9 @@ You can find all [assert signatures here](https://github.com/software-mansion/pr
 ## Setup hooks
 
 Often while writing tests you have some setup work that needs to happen before tests run.
-The `__setup__` and `setup_*` hooks can simplify and speed up your tests.
+The `__setup__` and `setup_<test_name>` hooks can simplify and speed up your tests.
 
-1. The `__setup__` hook is shared between all test cases in module, and is executed before
+1. The `__setup__` hook is shared between all test cases in a module, and is executed before
    test case.
 2. The `setup_*` case hook is bound to a matching `test_*` case and is executed between
    the `__setup__` hook and the test case.
