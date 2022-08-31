@@ -25,6 +25,7 @@ from protostar.commands.test.test_results import (
 )
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.test_suite import TestSuite, TestCase
+from protostar.commands.test.testing_seed import Seed
 from protostar.protostar_exception import ProtostarException
 from protostar.utils.compiler.pass_managers import (
     ProtostarPassMangerFactory,
@@ -66,6 +67,7 @@ class TestRunner:
         shared_tests_state: SharedTestsState
         include_paths: List[str]
         disable_hint_validation_in_user_contracts: bool
+        testing_seed: Seed
 
     @classmethod
     def worker(cls, args: "TestRunner.WorkerArgs"):
@@ -75,15 +77,17 @@ class TestRunner:
                 include_paths=args.include_paths,
                 disable_hint_validation_in_user_contracts=args.disable_hint_validation_in_user_contracts,
             ).run_test_suite(
-                args.test_suite,
+                test_suite=args.test_suite,
+                testing_seed=args.testing_seed,
             )
         )
 
     async def run_test_suite(
         self,
         test_suite: TestSuite,
+        testing_seed: Seed,
     ):
-        test_config = TestConfig()
+        test_config = TestConfig(seed=testing_seed)
 
         try:
             compiled_test = self.tests_compiler.compile_contract(

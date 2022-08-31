@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Callable, List
 from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
+from protostar.commands.test.testing_seed import Seed
 
 if TYPE_CHECKING:
     from protostar.commands.test.test_collector import TestCollector
@@ -28,6 +29,7 @@ class TestScheduler:
         include_paths: List[str],
         disable_hint_validation: bool,
         exit_first: bool,
+        testing_seed: Seed,
     ):
         with multiprocessing.Manager() as manager:
             shared_tests_state = SharedTestsState(
@@ -39,6 +41,7 @@ class TestScheduler:
                     shared_tests_state=shared_tests_state,
                     include_paths=include_paths,
                     disable_hint_validation_in_user_contracts=disable_hint_validation,
+                    testing_seed=testing_seed,
                 )
                 for test_suite in test_collector_result.test_suites
             ]

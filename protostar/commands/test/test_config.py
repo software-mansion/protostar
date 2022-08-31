@@ -1,10 +1,11 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 
 from starkware.starknet.testing.contract import StarknetContract
 from typing_extensions import Self
 
 from protostar.commands.test.test_suite import TestCase
+from protostar.commands.test.testing_seed import random_seed, Seed
 from protostar.protostar_exception import ProtostarException
 from protostar.utils.abi import has_function_parameters
 
@@ -78,6 +79,7 @@ class TestMode(Enum):
 @dataclass
 class TestConfig:
     mode: TestMode = TestMode.UNDETERMINED
+    seed: Seed = field(default_factory=random_seed)
 
     fuzz_max_examples: int = 100
 

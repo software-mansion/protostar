@@ -17,7 +17,6 @@ from protostar.commands.test.cheatcodes.expect_revert_cheatcode import (
     ExpectRevertContext,
 )
 from protostar.commands.test.cheatcodes.given_cheatcode import StrategyLearnedException
-from protostar.commands.test.cheatcodes.reflect.cairo_struct import CairoStructHintLocal
 from protostar.commands.test.environments.test_execution_environment import (
     TestCaseCheatcodeFactory,
     TestExecutionEnvironment,
@@ -39,12 +38,10 @@ from protostar.commands.test.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
 )
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
-from protostar.commands.test.test_context import TestContextHintLocal
 from protostar.commands.test.test_environment_exceptions import (
     CheatcodeException,
     ReportedException,
 )
-from protostar.commands.test.testing_seed import TestingSeed
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.hint_local import HintLocal
 from protostar.utils.abi import get_function_parameters
@@ -156,7 +153,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         runs_counter: RunsCounter,
         strategy_selector: StrategySelector,
     ):
-        @seed(TestingSeed.current())
+        @seed(self.state.config.seed)
         @settings(
             database=database,
             deadline=None,
