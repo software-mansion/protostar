@@ -27,8 +27,9 @@ You can provide `inputs` as a dictionary to use [data transformer](./README.md#d
 It's an extension of [CheatcodeNetworkConfig](../03-network-config.md), so it's properties are applicable here as well.
 
 ```python
+Wei = int
 class SignedCheatcodeConfig(CheatcodeNetworkConfig):
-    max_fee: int | None # In Wei
+    max_fee: Wei | None
     auto_estimate_fee: int    
 ```
 
