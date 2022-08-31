@@ -124,7 +124,7 @@ async def test_deploy_fail_input_without_constructor(
 ):
     with pytest.raises(InputValidationException) as ex:
         await gateway_facade.deploy(
-            compiled_contract_without_constructor_path, inputs={"initial_balance": 42}
+            compiled_contract_without_constructor_path, inputs={"UNKNOWN_INPUT": 42}
         )
     assert "Inputs provided to a contract with no constructor." in str(ex.value)
 
@@ -144,7 +144,7 @@ async def test_deploy_supports_data_transformer(
     inputs: CairoOrPythonData,
 ):
     await gateway_facade.deploy(
-        compiled_contract_with_contractor_path, inputs={"initial_balance": 42}
+        compiled_contract_with_contractor_path, inputs=inputs
     )
 
 
@@ -152,7 +152,7 @@ async def test_deploy_no_args(
     gateway_facade: GatewayFacade, compiled_contract_with_contractor_path: Path
 ):
     with pytest.raises(InputValidationException):
-        await gateway_facade.deploy(compiled_contract_with_contractor_path, [])
+        await gateway_facade.deploy(compiled_contract_with_contractor_path)
 
 
 @pytest.mark.skip("https://github.com/software-mansion/starknet.py/pull/323")
