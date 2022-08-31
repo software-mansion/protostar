@@ -1,5 +1,3 @@
-# pylint: disable=too-many-locals
-
 import asyncio
 import os
 from argparse import Namespace
@@ -226,7 +224,6 @@ class ProtostarFixture:
             output_file.write(content)
 
 
-# pylint: disable=too-many-locals
 def build_protostar_fixture(
     mocker: MockerFixture, project_root_path: Path, signing_credentials: Tuple[str, str]
 ):

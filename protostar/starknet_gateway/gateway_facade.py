@@ -123,7 +123,6 @@ class GatewayFacade:
             inputs
         )
 
-    # pylint: disable=too-many-locals
     # pylint: disable=unused-argument
     async def declare(
         self,
