@@ -1,6 +1,6 @@
 import re
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Union, TypeVar, Type
+from typing import Dict, List, Optional, Union, TypeVar, Type, Tuple, Any
 
 from starkware.starknet.business_logic.execution.objects import Event
 from typing_extensions import Literal
@@ -158,7 +158,11 @@ class RevertableException(ReportedException):
     def can_pattern_be_found(pattern: str, strings: List[str]) -> bool:
         return any(pattern in string for string in strings)
 
-    def __reduce__(self):
+    def __reduce__(
+        self,
+    ) -> Tuple[
+        Type, Tuple[Union[List[str], Optional[str], Optional[int]], ...], Dict[str, Any]
+    ]:
         return type(self), (self.error_messages, self.error_type), self.__getstate__()
 
 
