@@ -31,9 +31,7 @@ class StubStrategyDescriptor(StrategyDescriptor):
 def test_pointer_parameter():
     with pytest.raises(
         FuzzingError,
-        match=re.escape(
-            "Parameter 'x' cannot be fuzzed: " "Type felt* cannot be fuzzed."
-        ),
+        match=re.escape("Parameter 'x' cannot be fuzzed: Type felt* cannot be fuzzed."),
     ):
         StrategySelector({"x": TypePointer(TypeFelt())})
 

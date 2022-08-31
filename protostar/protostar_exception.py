@@ -7,7 +7,7 @@ UNEXPECTED_PROTOSTAR_ERROR_MSG = (
 
 
 class ProtostarException(Exception):
-    """This exception is nicely printed by protostar and results in non-zero exit code"""
+    """This exception is nicely printed by protostar and results in non-zero exit code."""
 
     # Disabling pylint to narrow down types
     # pylint: disable=useless-super-delegation
@@ -18,6 +18,4 @@ class ProtostarException(Exception):
 
 
 class ProtostarExceptionSilent(ProtostarException):
-    """This exception isn't printed but results in non-zero exit code"""
-
-    ...
+    """This exception isn't printed but results in non-zero exit code."""
