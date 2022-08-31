@@ -1,5 +1,3 @@
-# pylint: disable=too-many-arguments
-
 from logging import Logger
 from pathlib import Path
 from typing import List, Optional
@@ -137,7 +135,6 @@ A glob or globs to a directory or a test suite, for example:
         summary.assert_all_passed()
         return summary
 
-    # pylint: disable=too-many-locals
     async def test(
         self,
         targets: List[str],

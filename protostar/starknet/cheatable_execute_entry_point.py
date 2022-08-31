@@ -40,7 +40,6 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 # pylint: disable=raise-missing-from
-# pylint: disable=too-many-locals
 # pylint: disable=too-many-statements
 class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     cheatcode_factory: Optional["CheatcodeFactory"] = None

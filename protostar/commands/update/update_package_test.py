@@ -70,7 +70,6 @@ def fixture_package_repo(current_tag: Optional[str], package_repo_dir: Path):
 
 
 @pytest.fixture(name="submodule")
-# pylint: disable=too-many-arguments
 def fixture_submodule(
     repo: Repo,
     package_name: str,

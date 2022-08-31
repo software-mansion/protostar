@@ -22,7 +22,6 @@ class TestScheduler:
         self._live_logger = live_logger
         self._worker = worker
 
-    # pylint: disable=too-many-arguments
     def run(
         self,
         test_collector_result: "TestCollector.Result",
