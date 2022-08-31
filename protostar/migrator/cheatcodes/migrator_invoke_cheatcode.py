@@ -55,7 +55,7 @@ class InvokeCheatcodeProtocol(Protocol):
         inputs: Optional[CairoOrPythonData],
         *args,
         config: Optional[SignedCheatcodeConfig],
-    ) -> Any:
+    ) -> None:
         ...
 
 
