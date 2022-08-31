@@ -137,15 +137,13 @@ def compiled_contract_with_contractor_path_fixture(protostar: ProtostarFixture):
     yield protostar.project_root_path / "build" / "main.json"
 
 
-@pytest.mark.parametrize("inputs", [[42], [{"initial_balance": 42}]])
+@pytest.mark.parametrize("inputs", [[42], {"initial_balance": 42}])
 async def test_deploy_supports_data_transformer(
     gateway_facade: GatewayFacade,
     compiled_contract_with_contractor_path: Path,
     inputs: CairoOrPythonData,
 ):
-    await gateway_facade.deploy(
-        compiled_contract_with_contractor_path, inputs=inputs
-    )
+    await gateway_facade.deploy(compiled_contract_with_contractor_path, inputs=inputs)
 
 
 async def test_deploy_no_args(
