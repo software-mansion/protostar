@@ -1,6 +1,11 @@
 # `load`
 ```python
-def load(target_contract_address: int, variable_name: str, variable_type: str, key: Optional[List[int]] = None) -> List[int]:
+def load(
+    target_contract_address: int,
+    variable_name: str,
+    variable_type: str,
+    key: list[int] | None = None
+) -> list[int]:
 ```
 Loads storage variable with name `variable_name` and given `key` and `variable_type` from a contract with `target_contract_address`.
 `variable_type` is provided as a string representation of type name.
