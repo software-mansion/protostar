@@ -1,4 +1,3 @@
-import collections
 import dataclasses
 from logging import Logger
 from pathlib import Path
@@ -19,6 +18,7 @@ from starkware.starknet.services.api.gateway.transaction import (
     DECLARE_SENDER_ADDRESS,
     Declare,
 )
+from starkware.starknet.public.abi import AbiType
 
 from protostar.compiler import CompiledContractReader
 from protostar.protostar_exception import ProtostarException
@@ -71,9 +71,7 @@ class GatewayFacade:
         compiled_contract = self._load_compiled_contract(
             self._project_root_path / compiled_contract_path
         )
-        cairo_inputs = self._transform_and_validate_constructor_inputs_from_python(
-            inputs, compiled_contract_path
-        )
+        cairo_inputs = self._prepare_constructor_inputs(inputs, compiled_contract_path)
 
         tx = make_deploy_tx(
             compiled_contract=compiled_contract,
@@ -117,34 +115,25 @@ class GatewayFacade:
         except FileNotFoundError as err:
             raise CompilationOutputNotFoundException(compiled_contract_path) from err
 
-    def _transform_and_validate_constructor_inputs_from_python(
+    def _prepare_constructor_inputs(
         self, inputs: Optional[CairoOrPythonData], compiled_contract_path: Path
-    ) -> List[int]:
+    ):
+
         abi = self._compiled_contract_reader.load_abi_from_contract_path(
             compiled_contract_path
         )
         assert abi is not None
 
         if not inputs:
-            # Convert empty dict and None into a list
-            inputs = []
-
+            return []
         if not has_abi_item(abi, "constructor"):
             if inputs:
                 raise InputValidationException(
                     "Inputs provided to a contract with no constructor."
                 )
         else:
-            try:
-                if isinstance(inputs, collections.Mapping):
-                    inputs = from_python_transformer(
-                        abi, fn_name="constructor", mode="inputs"
-                    )(inputs)
-
-                # Validate inputs
-                to_python_transformer(abi, "constructor", "inputs")(inputs)
-            except DataTransformerException as ex:
-                raise InputValidationException(str(ex)) from ex
+            inputs = transform_and_validate_constructor_inputs_from_python(abi, inputs)
+            validate_cairo_inputs(abi, inputs)
 
         return cast(List[int], inputs)
 
@@ -431,3 +420,26 @@ class CompilationOutputNotFoundException(ProtostarException):
             "Did you run `protostar build`?"
         )
         self._compilation_output_filepath = compilation_output_filepath
+
+
+def transform_and_validate_constructor_inputs_from_python(
+    abi: AbiType, inputs: Optional[CairoOrPythonData]
+) -> List[int]:
+    if not inputs:
+        return []
+    if isinstance(inputs, List):
+        return inputs
+
+    try:
+        return from_python_transformer(abi, fn_name="constructor", mode="inputs")(
+            inputs
+        )
+    except DataTransformerException as ex:
+        raise InputValidationException(str(ex)) from ex
+
+
+def validate_cairo_inputs(abi: AbiType, inputs: List[int]):
+    try:
+        to_python_transformer(abi, "constructor", "inputs")(inputs)
+    except DataTransformerException as ex:
+        raise InputValidationException(str(ex)) from ex
