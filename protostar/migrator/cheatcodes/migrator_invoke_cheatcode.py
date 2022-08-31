@@ -20,14 +20,16 @@ from protostar.starknet_gateway import (
 from protostar.utils.data_transformer import CairoOrPythonData
 
 
+Wei = int
+
 class SignedCheatcodeConfig(CheatcodeNetworkConfig):
-    max_fee: NotRequired[int]  # In Wei
+    max_fee: NotRequired[Wei]
     auto_estimate_fee: NotRequired[bool]
 
 
 @dataclass
 class ValidatedSignedCheatcodeConfig:
-    max_fee: Optional[int] = None
+    max_fee: Optional[Wei] = None
     wait_for_acceptance: bool = False
     auto_estimate_fee: bool = False
 
