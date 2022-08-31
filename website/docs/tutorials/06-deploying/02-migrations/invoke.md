@@ -58,7 +58,7 @@ func up():
     %{ 
         contract_address = deploy_contract("./build/main.json").contract_address
         
-        result = invoke(
+        invoke(
             contract_address, 
             "initialize", 
             {"authority": 123213123123}, 
