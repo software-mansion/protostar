@@ -15,5 +15,5 @@ examples:
 17:15:36 [INFO] Seed:        3658430058
 ```
 
-You can then recreate fuzzing test suites runs with
+You can then recreate examples with
 the [`--seed` CLI flag](../../../cli-reference.md#--seed-int).
