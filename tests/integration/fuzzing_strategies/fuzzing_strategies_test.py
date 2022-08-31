@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pytest
+
 from protostar.commands.test.test_results import PassedFuzzTestCaseResult
 from tests.integration.conftest import (
     RunCairoTestRunnerFixture,
@@ -39,6 +41,7 @@ async def test_integers_unbounded(
     )
 
 
+@pytest.mark.skip("https://github.com/software-mansion/protostar/issues/711")
 async def test_edge_cases(
     run_cairo_test_runner: RunCairoTestRunnerFixture,
 ):
