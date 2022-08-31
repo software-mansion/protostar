@@ -232,7 +232,8 @@ class GatewayFacade:
         inputs: Optional[CairoOrPythonData] = None,
         max_fee: Optional[int] = None,
         auto_estimate_fee: bool = False,
-    ) -> InvokeResult:
+        wait_for_acceptance: bool = False,
+    ):
         register_response = self._register_request(
             action="INVOKE",
             payload={
@@ -265,18 +266,18 @@ class GatewayFacade:
         except TransactionFailedError as ex:
             raise TransactionException(str(ex)) from ex
 
+        result = await result.wait_for_acceptance(wait_for_accept=wait_for_acceptance)
+
         response_dict: StarknetRequest.Payload = {
             "hash": result.hash,
             "contract_address": result.contract.address,
         }
         if result.block_number:
             response_dict["block_number"] = result.block_number
-
         if result.status:
-            response_dict["status"] = result.status
+            response_dict["status"] = result.status.value  # type: ignore
 
         register_response(response_dict)
-        return result
 
     async def _create_contract_function(
         self,
