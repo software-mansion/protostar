@@ -1,6 +1,6 @@
 import re
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Union, TypeVar, Type, Tuple, Any
+from typing import Dict, List, Optional, Union, TypeVar, Type, Any
 
 from starkware.starknet.business_logic.execution.objects import Event
 from typing_extensions import Literal
