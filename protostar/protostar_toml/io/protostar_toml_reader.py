@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Dict, Optional, cast
+from typing import Any, Dict, List, Optional, cast
 
 import flatdict
 import tomli
@@ -51,6 +51,9 @@ class ProtostarTOMLReader:
         if alternative_attribute_name and alternative_attribute_name in section:
             return section[alternative_attribute_name]
         return None
+
+    def get_profile_names(self) -> List[str]:
+        return []
 
     @staticmethod
     def _find_alternative_key(base_key: str, raw_dict: Dict[str, Any]) -> Optional[str]:
