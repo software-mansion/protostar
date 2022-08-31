@@ -1,6 +1,6 @@
 import asyncio
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Optional
 
 from starknet_py.net.signer import BaseSigner
 from typing_extensions import Protocol, NotRequired
@@ -21,6 +21,7 @@ from protostar.utils.data_transformer import CairoOrPythonData
 
 
 Wei = int
+
 
 class SignedCheatcodeConfig(CheatcodeNetworkConfig):
     max_fee: NotRequired[Wei]
