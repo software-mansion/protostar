@@ -5,7 +5,7 @@ def invoke(
     contract_address: int,
     function_name: str,
     inputs: list[int] | dict[str, Any] | None = None,
-    *args,
+    *,
     config: SignedCheatcodeConfig | None = None,
 ):
 ```
@@ -14,7 +14,6 @@ def invoke(
 
 This cheatcode invokes a StarkNet contract, with possible state changes. Can be useful for initializing proxies, etc.
 
-See full documentation of InvokeResult [here](https://starknetpy.readthedocs.io/en/latest/contract.html#starknet_py.contract.InvokeResult).
 Auto-fee estimation is supported, and `starknet.py`'s estimation logic is used - see [starknet.py docs](https://starknetpy.readthedocs.io/en/latest/guide.html#automatic-fee-estimation).
 
 
