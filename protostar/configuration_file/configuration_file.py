@@ -1,5 +1,6 @@
+from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 from typing_extensions import Protocol
 
@@ -7,6 +8,25 @@ from protostar.protostar_exception import ProtostarException
 from protostar.utils.protostar_directory import VersionType
 
 PrimitiveTypesSupportedByConfigurationFile = Union[str, int, bool]
+
+CommandName = str
+CommandArgName = str
+CommandArgValue = Union[str, int, bool]
+CommandConfig = Dict[CommandArgName, Union[CommandArgValue, List[CommandArgValue]]]
+CommandNameToConfig = Dict[CommandName, CommandConfig]
+ProfileName = str
+ContractName = str
+
+
+@dataclass(frozen=True)
+class ConfigurationFileData:
+    min_protostar_version: Optional[str]
+    contract_name_to_path_str: Dict[ContractName, str]
+    lib_path_str: Optional[str]
+    command_name_to_config: CommandNameToConfig
+    shared_command_config: CommandConfig
+    profile_name_to_commands_config: Dict[ProfileName, CommandNameToConfig]
+    profile_name_to_shared_command_config: Dict[ProfileName, CommandConfig]
 
 
 class ConfigurationFile(Protocol):
@@ -30,6 +50,11 @@ class ConfigurationFile(Protocol):
             List[PrimitiveTypesSupportedByConfigurationFile],
         ]
     ]:
+        ...
+
+    def create_configuration_file_data(
+        self,
+    ) -> ConfigurationFileData:
         ...
 
 
