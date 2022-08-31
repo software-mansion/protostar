@@ -164,3 +164,30 @@ def test_reading_argument_attribute_defined_within_specified_profile(
     )
 
     assert arg_value == 37
+
+
+@pytest.mark.parametrize(
+    "protostar_toml_content",
+    [
+        """
+        ["protostar.deploy"]
+        arg_name = 21
+
+        ["profile.devnet.protostar.deploy"]
+        arg_name = 37
+        """
+    ],
+)
+def test_generating_data_struct(
+    configuration_file: ConfigurationFile,
+):
+    data = configuration_file.create_configuration_file_data()
+
+    assert data.min_protostar_version is None
+    assert data.lib_path_str is None
+    assert data.command_name_to_config == {"deploy": {"arg_name": 21}}
+    assert data.contract_name_to_path_str == {}
+    assert data.shared_command_config == {}
+    assert data.profile_name_to_commands_config == {
+        "devnet": {"deploy": {"arg_name": 37}}
+    }
