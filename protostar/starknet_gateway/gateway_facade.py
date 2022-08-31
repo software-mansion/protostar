@@ -125,6 +125,10 @@ class GatewayFacade:
         )
         assert abi is not None
 
+        if not inputs:
+            # Convert empty dict and None into a list
+            inputs = []
+
         if not has_abi_item(abi, "constructor"):
             if inputs:
                 raise InputValidationException(
@@ -132,15 +136,13 @@ class GatewayFacade:
                 )
         else:
             try:
-                if not inputs:
-                    inputs = []
                 if isinstance(inputs, collections.Mapping):
                     inputs = from_python_transformer(
                         abi, fn_name="constructor", mode="inputs"
                     )(inputs)
 
                 # Validate inputs
-                to_python_transformer(abi, "constructor", "inputs")
+                to_python_transformer(abi, "constructor", "inputs")(inputs)
             except DataTransformerException as ex:
                 raise InputValidationException(str(ex)) from ex
 

@@ -99,9 +99,11 @@ class MigratorDeployContractCheatcode(Cheatcode):
         contract_class = self._project_compiler.compile_contract_from_contract_name(
             contract_name
         )
-        output_file_path = CompiledContractWriter(
-            contract=contract_class, contract_name=contract_name
-        ).save_compiled_contract(
-            output_dir=self._migrator_datetime_state.get_compilation_output_path()
+        output_file_path = (
+            CompiledContractWriter(contract=contract_class, contract_name=contract_name)
+            .save(
+                output_dir=self._migrator_datetime_state.get_compilation_output_path()
+            )
+            .compiled_contract_path
         )
         return output_file_path
