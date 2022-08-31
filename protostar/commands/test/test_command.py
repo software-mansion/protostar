@@ -1,5 +1,3 @@
-# pylint: disable=too-many-arguments
-
 from logging import Logger
 from pathlib import Path
 from typing import List, Optional

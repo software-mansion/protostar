@@ -18,7 +18,7 @@ class Formatter:
     def __init__(self, project_root_path: Path):
         self._project_root_path = project_root_path
 
-    # pylint: disable=too-many-locals,too-many-arguments
+    # pylint: disable=too-many-locals
     def format(
         self,
         targets: List[Path],

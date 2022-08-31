@@ -1,5 +1,4 @@
 # pylint: disable=too-many-locals
-# pylint: disable=too-many-arguments
 
 import asyncio
 import os
@@ -45,7 +44,6 @@ from protostar.utils.log_color_provider import LogColorProvider
 
 
 class ProtostarFixture:
-    # pylint: disable=too-many-arguments
     def __init__(
         self,
         project_root_path: Path,
@@ -68,7 +66,6 @@ class ProtostarFixture:
     def project_root_path(self) -> Path:
         return self._project_root_path
 
-    # pylint: disable=too-many-arguments
     async def declare(
         self,
         chain_id: Optional[int] = None,

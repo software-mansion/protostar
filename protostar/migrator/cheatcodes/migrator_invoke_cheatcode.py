@@ -15,7 +15,6 @@ from protostar.utils.data_transformer import CairoOrPythonData
 
 
 class InvokeCheatcodeProtocol(Protocol):
-    # pylint: disable=too-many-arguments
     def __call__(
         self,
         contract_address: int,
@@ -47,7 +46,6 @@ class MigratorInvokeCheatcode(Cheatcode):
     def build(self) -> InvokeCheatcodeProtocol:
         return self.invoke
 
-    # pylint: disable=too-many-arguments
     def invoke(
         self,
         contract_address: int,

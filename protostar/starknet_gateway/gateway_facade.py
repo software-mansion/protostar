@@ -34,7 +34,6 @@ ContractFunctionInputType = Union[List[int], Dict[str, Any]]
 
 
 class GatewayFacade:
-    # pylint: disable=too-many-arguments
     def __init__(
         self,
         project_root_path: Path,
@@ -53,7 +52,6 @@ class GatewayFacade:
     def get_starknet_requests(self) -> List[StarknetRequest]:
         return self._starknet_requests.copy()
 
-    # pylint: disable=too-many-arguments
     async def deploy(
         self,
         compiled_contract_path: Path,

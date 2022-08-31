@@ -63,7 +63,6 @@ def toml_version_checker_fixture(mocker: MockerFixture) -> ProtostarTOMLVersionC
     return protostar_toml_version_checker
 
 
-# pylint: disable=too-many-arguments
 @pytest.fixture(name="protostar_cli")
 def protostar_cli_fixture(
     mocker,

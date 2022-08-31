@@ -16,7 +16,6 @@ from protostar.utils.log_color_provider import LogColorProvider
 
 
 class ProtostarCLI(CLIApp):
-    # pylint: disable=too-many-arguments
     def __init__(
         self,
         logger: Logger,
