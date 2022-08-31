@@ -37,7 +37,6 @@ from protostar.commands.test.test_environment_exceptions import (
     CheatcodeException,
     ReportedException,
 )
-from protostar.commands.test.testing_seed import TestingSeed
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.utils.abi import get_function_parameters
 
@@ -128,7 +127,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
     ):
         try:
 
-            @seed(TestingSeed.current())
+            @seed(self.state.config.seed)
             @settings(
                 database=database,
                 deadline=None,

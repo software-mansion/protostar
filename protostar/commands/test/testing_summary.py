@@ -9,15 +9,13 @@ from protostar.commands.test.test_results import (
     PassedTestCaseResult,
     TestResult,
 )
-from protostar.commands.test.testing_seed import TestingSeed
+from protostar.commands.test.testing_seed import Seed
 from protostar.protostar_exception import ProtostarExceptionSilent
 from protostar.utils.log_color_provider import LogColorProvider, log_color_provider
 
 
 class TestingSummary:
-    def __init__(
-        self, case_results: List[TestResult], testing_seed: TestingSeed
-    ) -> None:
+    def __init__(self, case_results: List[TestResult], testing_seed: Seed) -> None:
         self.testing_seed = testing_seed
         self.case_results = []
         self.test_suites_mapping: Dict[Path, List[TestResult]] = defaultdict(list)
@@ -57,12 +55,10 @@ class TestingSummary:
             log_color_provider.bold("Tests: ".ljust(header_width))
             + self._get_test_cases_summary(collected_test_cases_count)
         )
-
-        if self.testing_seed.was_used:
-            logger.info(
-                log_color_provider.bold("Seed: ".ljust(header_width))
-                + str(self.testing_seed.value)
-            )
+        logger.info(
+            log_color_provider.bold("Seed: ".ljust(header_width))
+            + str(self.testing_seed)
+        )
 
     def log_slowest_test_cases(
         self,

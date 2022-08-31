@@ -30,7 +30,6 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
         account_address: Optional[str] = None
         token: Optional[str] = None
 
-    # pylint: disable=too-many-arguments
     def __init__(
         self,
         starknet_compiler: StarknetCompiler,
