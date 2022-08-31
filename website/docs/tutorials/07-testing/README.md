@@ -79,19 +79,23 @@ You can find all [assert signatures here](https://github.com/software-mansion/pr
 ## Setup hooks
 
 Often while writing tests you have some setup work that needs to happen before tests run.
-The `__setup__` and `setup_<test_name>` hooks can simplify and speed up your tests.
+The `__setup__` ([setup suite](#setup-suite)) and `setup_<test_name>` ([setup case](#setup-case))
+hooks can simplify and speed up your tests.
 
-1. The `__setup__` hook is shared between all test cases in a module, and is executed before
-   test case.
-2. The `setup_*` case hook is bound to a matching `test_*` case and is executed between
-   the `__setup__` hook and the test case.
-   Use case hooks to configure the behavior of particular test case,
-   for example, by calling the [`max_examples`](./02-cheatcodes/max-examples.md) cheatcode.
+Use the `context` variable to pass data from setup hooks to test functions as demonstrated in
+examples below.
 
-Use `context` variable to pass data from setup hooks to test functions as demonstrated in
-examples below:
+### Setup suite
 
-```cairo title="Using __setup__ hook"
+```cairo
+@external
+func __setup__()
+```
+
+The setup suite hook is shared between all test cases in a test suite (Cairo module),
+and is executed before test cases.
+
+```cairo title="Using setup suite hook"
 %lang starknet
 
 @external
@@ -111,11 +115,31 @@ func test_something():
 end
 ```
 
-```cairo title="Using setup_* case hook"
+:::info
+Protostar executes `__setup__` only once per test suite.
+Then, for each test case Protostar copies the StarkNet state and the `context` object.
+:::
+
+### Setup case
+
+```cairo
+@external
+func setup_tested_property()
+
+@external
+func test_tested_property()
+```
+
+The setup case hook is bound to a matching test case and is executed just before the test case
+itself.
+Use case hooks to configure the behavior of particular test case,
+for example, by calling the [`max_examples`](./02-cheatcodes/max-examples.md) cheatcode.
+
+```cairo title="Using setup case hook"
 %lang starknet
 
 @external
-func setup_test_something():
+func setup_something():
     %{ max_examples(500) %}
     return ()
 end
@@ -127,9 +151,3 @@ func test_something(a : felt):
     return ()
 end
 ```
-
-:::info
-Protostar executes `__setup__` only once per
-[test suite](https://en.wikipedia.org/wiki/Test_suite).
-Then, for each test case Protostar copies the StarkNet state and `context` object.
-:::
