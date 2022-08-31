@@ -7,7 +7,7 @@ def invoke(
     inputs: list[int] | dict[str, Any] | None = None,
     *,
     config: SignedCheatcodeConfig | None = None,
-):
+) -> None:
 ```
 
 This cheatcode invokes a StarkNet contract, with possible state changes. Can be useful for initializing proxies, etc.
