@@ -56,14 +56,17 @@ $ protostar migrate migrations/migration_01.cairo
 @external
 func up():
     %{ 
-        contract_address = deploy_contract("./build/main.json").contract_address
-        
+       contract_address = deploy_contract(
+            "./build/main.json", 
+            config={"wait_for_acceptance": True}
+       ).contract_address
+       
         invoke(
-            contract_address, 
-            "initialize", 
-            {"authority": 123213123123}, 
+            contract_address,
+            "initialize",
+            {"new_authority": 123},
             config={
-                "max_fee": 10000,
+                "auto_estimate_fee": True,
                 "wait_for_acceptance": True,
             }
         )
@@ -82,14 +85,22 @@ end
 
 
 @external
-func initialize(authority: felt):
-    if authority != 0:
+func initialize{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(new_authority: felt):
+    let (authority_now) = authority.read()
+    tempvar syscall_ptr = syscall_ptr
+    tempvar pedersen_ptr = pedersen_ptr
+    tempvar range_check_ptr = range_check_ptr
+
+    if authority_now != 0:
         with_attr error_message("Authority has already been set"):
            assert 1 = 0
         end
+        tempvar syscall_ptr = syscall_ptr
+        tempvar pedersen_ptr = pedersen_ptr
+        tempvar range_check_ptr = range_check_ptr
     end
-    
-    authority.write(authority)
-    return (arg)
+
+    authority.write(new_authority)
+    return ()
 end
 ```
