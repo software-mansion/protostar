@@ -158,11 +158,7 @@ class RevertableException(ReportedException):
     def can_pattern_be_found(pattern: str, strings: List[str]) -> bool:
         return any(pattern in string for string in strings)
 
-    def __reduce__(
-        self,
-    ) -> Tuple[
-        Type, Tuple[Union[List[str], Optional[str], Optional[int]], ...], Dict[str, Any]
-    ]:
+    def __reduce__(self) -> Any:
         return type(self), (self.error_messages, self.error_type), self.__getstate__()
 
 
