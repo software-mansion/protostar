@@ -16,7 +16,7 @@ from starknet_py.transactions.deploy import make_deploy_tx
 from starkware.starknet.definitions import constants
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.services.api.gateway.transaction import (
-    DECLARE_SENDER_ADDRESS,
+    DEFAULT_DECLARE_SENDER_ADDRESS,
     Declare,
 )
 
@@ -143,7 +143,7 @@ class GatewayFacade:
 
         # The following parameters are hardcoded because Starknet CLI have asserts checking if they are equal to these
         # values. Once Starknet removes these asserts, these parameters should be configurable by the user.
-        sender = DECLARE_SENDER_ADDRESS
+        sender = DEFAULT_DECLARE_SENDER_ADDRESS
         max_fee = 0
         nonce = 0
 
