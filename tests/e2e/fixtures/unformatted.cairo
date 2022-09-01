@@ -1,15 +1,15 @@
-# Declare this file as a StarkNet contract and set the required
-# builtins.
+// Declare this file as a StarkNet contract and set the required
+// builtins.
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
-# Define a storage variable.
+// Define a storage variable.
 @storage_var
-func balance() -> (res : felt):
-end
+func balance() -> (res : felt) {
+}
 
-# Increases the balance by the given amount.
+// Increases the balance by the given amount.
 @external
 func increase_balance{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
 
@@ -21,18 +21,18 @@ func increase_balance{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_ch
 
 
     amount : felt
-):
+){
     let (res) = balance.read(
-    
-    
-    
-    
-    )
-    balance.write(res + amount)
-    return ()
-end
 
-# Returns the current balance.
+
+
+
+    );
+    balance.write(res + amount);
+    return ();
+}
+
+// Returns the current balance.
 @view
 func get_balance{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() -> (
 
@@ -41,12 +41,12 @@ func get_balance{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_p
 
 
     res : felt
-):
-    let (res) = balance.read()
-    return (res)
-end
+) {
+    let (res) = balance.read();
+    return (res,);
+}
 
 @constructor
-func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
-    return ()
-end
+func constructor{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}() {
+    return ();
+}
