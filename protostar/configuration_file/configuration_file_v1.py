@@ -17,7 +17,7 @@ from .configuration_file import (
 
 
 @dataclass(frozen=True)
-class ConfigurationFileModel:
+class ConfigurationFileV1Model:
     min_protostar_version: Optional[str]
     contract_name_to_path_str: Dict[ContractName, str]
     lib_path_str: Optional[str]
@@ -27,7 +27,7 @@ class ConfigurationFileModel:
     profile_name_to_shared_command_config: Dict[ProfileName, CommandConfig]
 
 
-class ConfigurationFileV1(ConfigurationFile[ConfigurationFileModel]):
+class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
     def __init__(
         self, protostar_toml_reader: ProtostarTOMLReader, project_root_path: Path
     ) -> None:
@@ -93,8 +93,8 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileModel]):
 
     def create_model(
         self,
-    ) -> ConfigurationFileModel:
-        return ConfigurationFileModel(
+    ) -> ConfigurationFileV1Model:
+        return ConfigurationFileV1Model(
             min_protostar_version=self._get_min_protostar_version_str(),
             lib_path_str=self._get_libs_path_str(),
             contract_name_to_path_str=self._get_contract_name_to_path_str(),
@@ -167,5 +167,5 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileModel]):
             or {}
         )
 
-    def save(self, configuration_file_model: ConfigurationFileModel) -> Path:
+    def save(self, configuration_file_model: ConfigurationFileV1Model) -> Path:
         assert False, "Not implemented"

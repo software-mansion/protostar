@@ -8,6 +8,7 @@ from protostar.utils import VersionManager
 from .configuration_file_v1 import (
     ConfigurationFile,
     ConfigurationFileV1,
+    ConfigurationFileV1Model,
     ContractNameNotFoundException,
 )
 
@@ -179,18 +180,19 @@ def test_reading_argument_attribute_defined_within_specified_profile(
     ],
 )
 def test_generating_data_struct(
-    configuration_file: ConfigurationFile,
+    configuration_file: ConfigurationFileV1,
 ):
-    data = configuration_file.create_model()
+    model = configuration_file.create_model()
 
-    assert data.min_protostar_version is None
-    assert data.lib_path_str is None
-    assert data.command_name_to_config == {"deploy": {"arg_name": 21}}
-    assert data.contract_name_to_path_str == {}
-    assert data.shared_command_config == {}
-    assert data.profile_name_to_commands_config == {
-        "devnet": {"deploy": {"arg_name": 37}}
-    }
+    assert model == ConfigurationFileV1Model(
+        min_protostar_version=None,
+        lib_path_str=None,
+        command_name_to_config={"deploy": {"arg_name": 21}},
+        contract_name_to_path_str={},
+        shared_command_config={},
+        profile_name_to_commands_config={"devnet": {"deploy": {"arg_name": 37}}},
+        profile_name_to_shared_command_config={},
+    )
 
 
 @pytest.mark.parametrize(
@@ -205,7 +207,7 @@ def test_generating_data_struct(
         """
     ],
 )
-def test_save(configuration_file: ConfigurationFile, protostar_toml_content: str):
+def test_save(configuration_file: ConfigurationFileV1, protostar_toml_content: str):
     model = configuration_file.create_model()
     file_path = configuration_file.save(model)
     assert file_path.read_text() == protostar_toml_content
