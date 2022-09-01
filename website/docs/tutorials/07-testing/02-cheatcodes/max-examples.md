@@ -8,7 +8,7 @@ Sets the maximum number of examples to explore by the fuzzer.
 Fuzzer tries at most this many input examples. If it does not find any failing, test will pass.
 
 :::warning
-This cheatcode is only available in [setup hooks](../README.md#__setup__).
+This cheatcode is only available in [setup hooks](../README.md#setup-hooks).
 :::
 
 ```cairo title="Example"
