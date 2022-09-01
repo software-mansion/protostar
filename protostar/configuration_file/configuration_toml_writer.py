@@ -18,12 +18,15 @@ class ConfigurationTOMLContentBuilder:
         data: CommandConfig,
         profile_name: Optional[str] = None,
     ):
-        section_name = (
-            section_name
-            if profile_name is None
-            else f"profile.{profile_name}.{section_name}"
-        )
-        self._content[section_name] = data
+        if profile_name:
+            if "profile" not in self._content:
+                self._content["profile"] = {}
+            if profile_name not in self._content["profile"]:
+                self._content["profile"][profile_name] = {}
+            if section_name not in self._content["profile"][profile_name]:
+                self._content["profile"][profile_name][section_name] = data
+        else:
+            self._content[section_name] = data
 
     def build(self) -> ConfigurationTOMLContent:
         return self._content
