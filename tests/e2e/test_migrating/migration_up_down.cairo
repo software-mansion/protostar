@@ -1,15 +1,15 @@
 %lang starknet
 
 @external
-func up():
+func up() {
     %{ deploy_contract("./build/main.json") %}
 
-    return ()
-end
+    return ();
+}
 
 @external
-func down():
+func down() {
     %{ declare("./build/main.json") %}
 
-    return ()
-end
+    return ();
+}

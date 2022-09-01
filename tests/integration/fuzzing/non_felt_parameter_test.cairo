@@ -1,17 +1,17 @@
 %lang starknet
 
-struct VoterInfo:
-    member a: felt
-    member b: felt
-end
+struct VoterInfo {
+    a: felt,
+    b: felt,
+}
 
 @external
-func __setup__():
+func __setup__() {
     %{ max_examples(3) %}
-    return ()
-end
+    return ();
+}
 
 @external
-func test_fails_on_non_felt_parameter(a : VoterInfo):
-    return ()
-end
+func test_fails_on_non_felt_parameter(a: VoterInfo) {
+    return ();
+}
