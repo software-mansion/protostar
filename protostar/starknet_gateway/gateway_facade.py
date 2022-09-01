@@ -125,7 +125,7 @@ class GatewayFacade:
         assert abi is not None
 
         if not inputs:
-            return []
+            inputs = []
         if not has_abi_item(abi, "constructor"):
             if inputs:
                 raise InputValidationException(
