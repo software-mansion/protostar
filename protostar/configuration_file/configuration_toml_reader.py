@@ -13,18 +13,23 @@ class ConfigurationTOMLReader:
 
     def __init__(
         self,
-        protostar_toml_path: Path,
+        path: Path,
     ):
-        self.path = protostar_toml_path
+        self.path = path
         self._cache: Optional[
             Dict[ConfigurationTOMLReader.FlattenSectionName, Any]
         ] = None
 
     def get_section(
-        self, section_name: str, profile_name: Optional[str] = None
+        self,
+        section_name: str,
+        profile_name: Optional[str] = None,
+        section_namespace: Optional[str] = None,
     ) -> Optional[Dict[str, Any]]:
-        assert not section_name.startswith("protostar.")
-        section_name = f"protostar.{section_name}"
+
+        section_name = (
+            f"{section_namespace}.{section_name}" if section_namespace else section_name
+        )
 
         protostar_toml_dict = self._read_if_cache_miss()
 
@@ -41,8 +46,11 @@ class ConfigurationTOMLReader:
         section_name: str,
         attribute_name: str,
         profile_name: Optional[str] = None,
+        section_namespace: Optional[str] = None,
     ) -> Optional[Any]:
-        section = self.get_section(section_name, profile_name)
+        section = self.get_section(
+            section_name, profile_name, section_namespace=section_namespace
+        )
         if not section:
             return None
 
