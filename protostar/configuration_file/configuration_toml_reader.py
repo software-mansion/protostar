@@ -20,6 +20,9 @@ class ConfigurationTOMLReader:
             Dict[ConfigurationTOMLReader.FlattenSectionName, Any]
         ] = None
 
+    def get_filename(self) -> str:
+        return self.path.name
+
     def get_section(
         self,
         section_name: str,

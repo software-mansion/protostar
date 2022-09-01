@@ -187,7 +187,7 @@ def test_generating_data_struct(
     model = configuration_file.create_model()
 
     assert model == ConfigurationFileV1Model(
-        min_protostar_version=None,
+        protostar_version=None,
         lib_path_str=None,
         command_name_to_config={"deploy": {"arg_name": 21}},
         contract_name_to_path_str={},

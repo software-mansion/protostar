@@ -58,7 +58,7 @@ class ConfigurationFile(Generic[TConfigurationFileModel]):
 
 
 class ContractNameNotFoundException(ProtostarException):
-    def __init__(self, contract_name: str, expected_declaration_localization: str):
+    def __init__(self, contract_name: str, expected_declaration_location: str):
         super().__init__(
-            f"Couldn't find `{contract_name}` in `{expected_declaration_localization}`"
+            f"Couldn't find `{contract_name}` in `{expected_declaration_location}`"
         )
