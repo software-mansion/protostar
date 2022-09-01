@@ -19,7 +19,7 @@ from .configuration_toml_reader import ConfigurationTOMLReader
 @dataclass(frozen=True)
 class ConfigurationFileV1Model:
     protostar_version: Optional[str]
-    contract_name_to_path_str: Dict[ContractName, str]
+    contract_name_to_path_strs: Dict[ContractName, List[str]]
     lib_path_str: Optional[str]
     command_name_to_config: CommandNameToConfig
     shared_command_config: CommandConfig
@@ -109,7 +109,7 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
         return ConfigurationFileV1Model(
             protostar_version=self._get_min_protostar_version_str(),
             lib_path_str=self._get_libs_path_str(),
-            contract_name_to_path_str=self._get_contract_name_to_path_str(),
+            contract_name_to_path_strs=self._get_contract_name_to_path_strs(),
             command_name_to_config=self._get_command_name_to_config(),
             profile_name_to_commands_config=self._get_profile_name_to_commands_config(),
             shared_command_config=self._get_shared_command_config(),
@@ -129,10 +129,13 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
             result = str(lib_path.relative_to(self._project_root_path))
         return result
 
-    def _get_contract_name_to_path_str(self) -> Dict[ContractName, str]:
+    def _get_contract_name_to_path_strs(self) -> Dict[ContractName, List[str]]:
         result = {}
         for contract_name in self.get_contract_names():
-            result[contract_name] = self.get_contract_source_paths(contract_name)
+            result[contract_name] = [
+                str(path.relative_to(self._project_root_path))
+                for path in self.get_contract_source_paths(contract_name)
+            ]
         return result
 
     def _get_profile_name_to_commands_config(
