@@ -53,7 +53,18 @@ class ProtostarTOMLReader:
         return None
 
     def get_profile_names(self) -> List[str]:
-        return []
+        protostar_toml_dict = self._read_if_cache_miss()
+        section_names = list(protostar_toml_dict.keys())
+        profile_section_names = [
+            section_name
+            for section_name in section_names
+            if section_name.startswith("profile")
+        ]
+        profile_names = [
+            profile_section_name.split(".")[1]
+            for profile_section_name in profile_section_names
+        ]
+        return profile_names
 
     @staticmethod
     def _find_alternative_key(base_key: str, raw_dict: Dict[str, Any]) -> Optional[str]:
