@@ -49,7 +49,7 @@ class ConfigurationFile(Generic[TConfigurationFileModel]):
         ...
 
     @abstractmethod
-    def save(self, configuration_file_model: TConfigurationFileModel) -> Path:
+    def save(self, model: TConfigurationFileModel) -> Path:
         ...
 
 

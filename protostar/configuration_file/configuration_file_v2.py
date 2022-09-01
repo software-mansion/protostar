@@ -14,12 +14,13 @@ from .configuration_file import (
     ProfileName,
 )
 from .configuration_toml_reader import ConfigurationTOMLReader
+from .configuration_toml_writer import ConfigurationTOMLWriter
 
 
 @dataclass
 class ConfigurationFileV2Model:
     min_protostar_version: Optional[str]
-    contract_name_to_path_str: Dict[ContractName, str]
+    contract_name_to_path_strs: Dict[ContractName, List[str]]
     project_config: CommandConfig
     command_name_to_config: CommandNameToConfig
     profile_name_to_project_config: Dict[ProfileName, CommandConfig]
@@ -31,10 +32,12 @@ class ConfigurationFileV2(ConfigurationFile[ConfigurationFileV2Model]):
         self,
         project_root_path: Path,
         configuration_toml_reader: ConfigurationTOMLReader,
+        configuration_toml_writer: ConfigurationTOMLWriter,
     ) -> None:
         super().__init__()
         self._project_root_path = project_root_path
         self._configuration_toml_reader = configuration_toml_reader
+        self._configuration_toml_writer = configuration_toml_writer
 
     def get_min_protostar_version(self) -> Optional[VersionType]:
         version_str = self._configuration_toml_reader.get_attribute(
@@ -89,5 +92,32 @@ class ConfigurationFileV2(ConfigurationFile[ConfigurationFileV2Model]):
     ) -> ConfigurationFileV2Model:
         assert False, "Operation not supported"
 
-    def save(self, configuration_file_model: ConfigurationFileV2Model) -> Path:
-        assert False, "Operation not supported"
+    def save(self, model: ConfigurationFileV2Model) -> Path:
+        builder = self._configuration_toml_writer.create_content_builder()
+        project_config_section = {}
+        project_config_section["min-protostar-version"] = str(
+            model.min_protostar_version
+        )
+        project_config_section = model.project_config
+        builder.set_section(section_name="project", data=project_config_section)
+        contracts_config_section = model.contract_name_to_path_strs
+        builder.set_section(section_name="contracts", data=contracts_config_section)  # type: ignore
+        for command_name, command_config in model.command_name_to_config.items():
+            builder.set_section(section_name=command_name, data=command_config)
+        for (
+            profile_name,
+            project_config,
+        ) in model.profile_name_to_project_config.items():
+            builder.set_section(section_name=profile_name, data=project_config)
+        for (
+            profile_name,
+            command_name_to_config,
+        ) in model.profile_name_to_commands_config.items():
+            for command_name, command_config in command_name_to_config.items():
+                builder.set_section(
+                    section_name=command_name,
+                    data=command_config,
+                    profile_name=profile_name,
+                )
+        content = builder.build()
+        return self._configuration_toml_writer.save(content)
