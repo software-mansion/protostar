@@ -61,10 +61,10 @@ class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
 
         async with self._expect_revert_context.test():
             async with self._finish_hook.run_after():
-                tx_info = await self.perform_invoke(function_name, *args, **kwargs)
+                call_info = await self.perform_invoke(function_name, *args, **kwargs)
                 execution_resources = (
                     ExecutionResourcesSummary.from_execution_resources(
-                        tx_info.call_info.execution_resources
+                        call_info.call_info.execution_resources
                     )
                 )
 
