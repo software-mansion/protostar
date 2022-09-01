@@ -183,5 +183,5 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
             or {}
         )
 
-    def save(self, configuration_file_model: ConfigurationFileV1Model) -> Path:
+    def save(self, model: ConfigurationFileV1Model) -> Path:
         assert False, "Operation not supported"
