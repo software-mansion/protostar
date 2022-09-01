@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Dict, List, Optional, Union
 
 from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
-from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
 from protostar.utils.protostar_directory import VersionManager, VersionType
 
 from .configuration_file import (
