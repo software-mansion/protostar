@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
@@ -8,7 +9,6 @@ from .configuration_file import (
     CommandConfig,
     CommandNameToConfig,
     ConfigurationFile,
-    ConfigurationFileData,
     ContractName,
     ContractNameNotFoundException,
     PrimitiveTypesSupportedByConfigurationFile,
@@ -16,7 +16,18 @@ from .configuration_file import (
 )
 
 
-class ConfigurationFileV1(ConfigurationFile):
+@dataclass(frozen=True)
+class ConfigurationFileModel:
+    min_protostar_version: Optional[str]
+    contract_name_to_path_str: Dict[ContractName, str]
+    lib_path_str: Optional[str]
+    command_name_to_config: CommandNameToConfig
+    shared_command_config: CommandConfig
+    profile_name_to_commands_config: Dict[ProfileName, CommandNameToConfig]
+    profile_name_to_shared_command_config: Dict[ProfileName, CommandConfig]
+
+
+class ConfigurationFileV1(ConfigurationFile[ConfigurationFileModel]):
     def __init__(
         self, protostar_toml_reader: ProtostarTOMLReader, project_root_path: Path
     ) -> None:
@@ -80,11 +91,10 @@ class ConfigurationFileV1(ConfigurationFile):
             profile_name=profile_name,
         )
 
-    def create_configuration_file_data(
+    def create_model(
         self,
-    ) -> ConfigurationFileData:
-
-        return ConfigurationFileData(
+    ) -> ConfigurationFileModel:
+        return ConfigurationFileModel(
             min_protostar_version=self._get_min_protostar_version_str(),
             lib_path_str=self._get_libs_path_str(),
             contract_name_to_path_str=self._get_contract_name_to_path_str(),
@@ -156,3 +166,6 @@ class ConfigurationFileV1(ConfigurationFile):
             )
             or {}
         )
+
+    def save(self, configuration_file_model: ConfigurationFileModel) -> Path:
+        assert False, "Not implemented"

@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Union
-
-from typing_extensions import Protocol
+from typing import Dict, Generic, List, Optional, TypeVar, Union
 
 from protostar.protostar_exception import ProtostarException
 from protostar.utils.protostar_directory import VersionType
@@ -17,19 +15,10 @@ CommandNameToConfig = Dict[CommandName, CommandConfig]
 ProfileName = str
 ContractName = str
 
-
-@dataclass(frozen=True)
-class ConfigurationFileData:
-    min_protostar_version: Optional[str]
-    contract_name_to_path_str: Dict[ContractName, str]
-    lib_path_str: Optional[str]
-    command_name_to_config: CommandNameToConfig
-    shared_command_config: CommandConfig
-    profile_name_to_commands_config: Dict[ProfileName, CommandNameToConfig]
-    profile_name_to_shared_command_config: Dict[ProfileName, CommandConfig]
+TConfigurationFileModel = TypeVar("TConfigurationFileModel")
 
 
-class ConfigurationFile(Protocol):
+class ConfigurationFile(Generic[TConfigurationFileModel]):
     def get_min_protostar_version(self) -> Optional[VersionType]:
         ...
 
@@ -52,9 +41,12 @@ class ConfigurationFile(Protocol):
     ]:
         ...
 
-    def create_configuration_file_data(
+    def create_model(
         self,
-    ) -> ConfigurationFileData:
+    ) -> TConfigurationFileModel:
+        ...
+
+    def save(self, configuration_file_model: TConfigurationFileModel) -> Path:
         ...
 
 

@@ -181,7 +181,7 @@ def test_reading_argument_attribute_defined_within_specified_profile(
 def test_generating_data_struct(
     configuration_file: ConfigurationFile,
 ):
-    data = configuration_file.create_configuration_file_data()
+    data = configuration_file.create_model()
 
     assert data.min_protostar_version is None
     assert data.lib_path_str is None
@@ -191,3 +191,21 @@ def test_generating_data_struct(
     assert data.profile_name_to_commands_config == {
         "devnet": {"deploy": {"arg_name": 37}}
     }
+
+
+@pytest.mark.parametrize(
+    "protostar_toml_content",
+    [
+        """
+        ["protostar.deploy"]
+        arg_name = 21
+
+        ["profile.devnet.protostar.deploy"]
+        arg_name = 37
+        """
+    ],
+)
+def test_save(configuration_file: ConfigurationFile, protostar_toml_content: str):
+    model = configuration_file.create_model()
+    file_path = configuration_file.save(model)
+    assert file_path.read_text() == protostar_toml_content
