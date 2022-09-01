@@ -1,3 +1,4 @@
+import textwrap
 from pathlib import Path
 
 import pytest
@@ -14,31 +15,35 @@ from .configuration_toml_reader import ConfigurationTOMLReader
 
 @pytest.fixture(name="protostar_toml_content")
 def protostar_toml_content_fixture() -> str:
-    return """\
-    [project]
-    min-protostar-version="9.9.9"
-    lib-path="./lib"
-    no-color=true
-    network="devnet1"
-    cairo-path=["bar"]
+    return textwrap.dedent(
+        """\
+        [project]
+        min-protostar-version = "9.9.9"
+        lib-path = "./lib"
+        no-color = true
+        network = "devnet1"
+        cairo-path = [
+            "bar",
+        ]
 
-    [profile.release.project]
-    network="mainnet2"
+        [contracts]
+        foo = [
+            "./src/foo.cairo",
+        ]
+        bar = [
+            "./src/bar.cairo",
+        ]
 
-    [declare]
-    network="devnet2"
+        [declare]
+        network = "devnet2"
 
-    [profile.release.declare]
-    network="mainnet"
+        [profile.release.project]
+        network = "mainnet2"
 
-    [contracts]
-    foo = [
-    "./src/foo.cairo",
-    ]
-    bar = [
-    "./src/bar.cairo",
-    ]
+        [profile.release.declare]
+        network = "mainnet"
     """
+    )
 
 
 @pytest.fixture(name="project_root_path")
