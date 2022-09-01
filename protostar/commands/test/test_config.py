@@ -1,9 +1,11 @@
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Dict
 
 from starkware.starknet.testing.contract import StarknetContract
 from typing_extensions import Self
 
+from protostar.commands.test.fuzzing.strategy_descriptor import StrategyDescriptor
 from protostar.commands.test.test_suite import TestCase
 from protostar.commands.test.testing_seed import random_seed, Seed
 from protostar.protostar_exception import ProtostarException
@@ -82,6 +84,9 @@ class TestConfig:
     seed: Seed = field(default_factory=random_seed)
 
     fuzz_max_examples: int = 100
+    fuzz_declared_strategies: Dict[str, StrategyDescriptor] = field(
+        default_factory=dict
+    )
 
     def convert_mode_to(self, to_mode: TestMode):
         self.mode = self.mode.convert_to(to_mode)

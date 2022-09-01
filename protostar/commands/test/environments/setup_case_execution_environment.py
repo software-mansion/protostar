@@ -1,9 +1,15 @@
-from protostar.commands.test.cheatcodes.reflect.cairo_struct import CairoStructHintLocal
+from typing import List
+
+from starkware.starknet.business_logic.execution.objects import CallInfo
+
+from protostar.commands.test.cheatcodes import GivenCheatcode
 from protostar.commands.test.environments.setup_execution_environment import (
     SetupExecutionEnvironment,
     SetupCheatcodeFactory,
 )
-from protostar.commands.test.test_context import TestContextHintLocal
+from protostar.commands.test.fuzzing.strategies import StrategiesHintLocal
+from protostar.starknet.cheatcode import Cheatcode
+from protostar.starknet.hint_local import HintLocal
 
 
 class SetupCaseExecutionEnvironment(SetupExecutionEnvironment):
@@ -15,5 +21,18 @@ class SetupCaseExecutionEnvironment(SetupExecutionEnvironment):
 
 
 class SetupCaseCheatcodeFactory(SetupCheatcodeFactory):
-    # TODO(mkaput): Extend this in the future.
-    pass
+    def build_cheatcodes(
+        self,
+        syscall_dependencies: Cheatcode.SyscallDependencies,
+        internal_calls: List[CallInfo],
+    ) -> List[Cheatcode]:
+        return [
+            *super().build_cheatcodes(syscall_dependencies, internal_calls),
+            GivenCheatcode(syscall_dependencies, self._state.config),
+        ]
+
+    def build_hint_locals(self) -> List[HintLocal]:
+        return [
+            *super().build_hint_locals(),
+            StrategiesHintLocal(),
+        ]
