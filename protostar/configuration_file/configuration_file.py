@@ -32,10 +32,6 @@ class ConfigurationFile(Generic[TConfigurationFileModel]):
         ...
 
     @abstractmethod
-    def get_lib_path(self) -> Optional[Path]:
-        ...
-
-    @abstractmethod
     def get_command_argument(
         self, command_name: str, argument_name: str, profile_name: Optional[str] = None
     ) -> Optional[

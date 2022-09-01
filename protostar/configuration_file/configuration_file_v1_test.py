@@ -122,7 +122,7 @@ def test_error_when_retrieving_paths_from_not_defined_contract(
     ],
 )
 def test_reading_lib_path(
-    configuration_file: ConfigurationFile, project_root_path: Path
+    configuration_file: ConfigurationFileV1, project_root_path: Path
 ):
     lib_path = configuration_file.get_lib_path()
 

@@ -4,7 +4,7 @@ import pytest
 
 from protostar.utils.protostar_directory import VersionManager
 
-from .configuration_file import ConfigurationFile
+from .configuration_file import ConfigurationFile, ContractNameNotFoundException
 from .configuration_file_v2 import ConfigurationFileV2
 from .configuration_toml_reader import ConfigurationTOMLReader
 
@@ -64,11 +64,37 @@ def test_retrieving_contract_names(configuration_file: ConfigurationFile):
 
 
 def test_retrieving_contract_source_paths(
-    configuration_file: ConfigurationFile, project_root_path: Path
+    configuration_file: ConfigurationFileV2, project_root_path: Path
 ):
     paths = configuration_file.get_contract_source_paths(contract_name="foo")
 
     assert paths == [
         (project_root_path / "./src/foo.cairo").resolve(),
-        (project_root_path / "./src/bar.cairo").resolve(),
     ]
+
+
+def test_error_when_retrieving_paths_from_not_defined_contract(
+    configuration_file: ConfigurationFile,
+):
+    with pytest.raises(ContractNameNotFoundException):
+        configuration_file.get_contract_source_paths(
+            contract_name="NOT_DEFINED_CONTRACT"
+        )
+
+
+def test_reading_command_argument_attribute(configuration_file: ConfigurationFile):
+    arg_value = configuration_file.get_command_argument(
+        command_name="declare", argument_name="network"
+    )
+
+    assert arg_value == "devnet2"
+
+
+def test_reading_argument_attribute_defined_within_specified_profile(
+    configuration_file: ConfigurationFile,
+):
+    arg_value = configuration_file.get_command_argument(
+        command_name="declare", argument_name="network", profile_name="release"
+    )
+
+    assert arg_value == "mainnet"
