@@ -1,4 +1,5 @@
 import dataclasses
+from asyncio import to_thread
 from dataclasses import dataclass
 from typing import Any, Dict, List
 
@@ -26,7 +27,7 @@ from protostar.commands.test.fuzzing.exceptions import HypothesisRejectException
 from protostar.commands.test.fuzzing.fuzz_input_exception_metadata import (
     FuzzInputExceptionMetadata,
 )
-from protostar.commands.test.fuzzing.hypothesis.aio import to_thread, wrap_in_sync
+from protostar.commands.test.fuzzing.hypothesis.aio import wrap_in_sync
 from protostar.commands.test.fuzzing.hypothesis.reporter import (
     HYPOTHESIS_VERBOSITY,
     protostar_reporter,
