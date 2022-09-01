@@ -131,7 +131,7 @@ class GatewayFacade:
                 )
             return []
 
-        cairo_inputs = transform_and_constructor_inputs_from_python(abi, inputs)
+        cairo_inputs = transform_constructor_inputs_from_python(abi, inputs)
         validate_cairo_inputs(abi, cairo_inputs)
         return cairo_inputs
 
@@ -420,7 +420,7 @@ class CompilationOutputNotFoundException(ProtostarException):
         self._compilation_output_filepath = compilation_output_filepath
 
 
-def transform_and_constructor_inputs_from_python(
+def transform_constructor_inputs_from_python(
     abi: AbiType, inputs: Optional[CairoOrPythonData]
 ) -> List[int]:
     if not inputs:
