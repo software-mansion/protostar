@@ -19,13 +19,13 @@ flatdict = "^4.0.1"
 hypothesis = "^6.49.1"
 packaging = "^21.3"
 pytest-datadir = "^1.3.1"
-python = ">=3.7.12, <3.10"
+python = ">=3.9.13, <3.10"
 requests = "^2.27.1"
 "starknet.py" = "^0.4.6-alpha.0"
 tomli = "<2.0.0"
 tomli-w = "^1.0.0"
 tqdm = "^4.64.0"
-typing-extensions = "^4.0.1"
+typing-extensions = "^4.3.0"
 
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
@@ -110,7 +110,7 @@ skip_empty = true
 
 [tool.black]
 target-version = [
-    "py37",
+    "py39",
 ]
 
 [tool.isort]
