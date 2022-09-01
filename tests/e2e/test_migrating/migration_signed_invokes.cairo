@@ -1,7 +1,7 @@
 %lang starknet
 
 @external
-func up():
+func up() {
     %{
         contract  = deploy_contract("./build/main.json")
 
@@ -13,12 +13,12 @@ func up():
         assert ret_object.res == 69
     %}
 
-    return ()
-end
+    return ();
+}
 
 @external
-func down():
+func down() {
     %{ declare("./build/main.json") %}
 
-    return ()
-end
+    return ();
+}

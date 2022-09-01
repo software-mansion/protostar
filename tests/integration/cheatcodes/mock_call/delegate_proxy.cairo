@@ -5,46 +5,40 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import library_call
 
 @contract_interface
-namespace IBalanceContract:
-    func increase_balance(amount : felt):
-    end
+namespace IBalanceContract {
+    func increase_balance(amount: felt) {
+    }
 
-    func get_balance() -> (res : felt):
-    end
-end
+    func get_balance() -> (res: felt) {
+    }
+}
 
-# The implementation class hash.
+// The implementation class hash.
 @storage_var
-func implementation_hash() -> (class_hash : felt):
-end
+func implementation_hash() -> (class_hash: felt) {
+}
 
 @constructor
-func constructor{
-    syscall_ptr : felt*,
-    pedersen_ptr : HashBuiltin*,
-    range_check_ptr,
-}(implementation_hash_ : felt):
-    implementation_hash.write(value=implementation_hash_)
-    return ()
-end
+func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    implementation_hash_: felt
+) {
+    implementation_hash.write(value=implementation_hash_);
+    return ();
+}
 
 @external
 @raw_input
 @raw_output
-func __default__{
-    syscall_ptr : felt*,
-    pedersen_ptr : HashBuiltin*,
-    range_check_ptr,
-}(selector : felt, calldata_size : felt, calldata : felt*) -> (
-    retdata_size : felt, retdata : felt*
-):
-    let (class_hash) = implementation_hash.read()
+func __default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    selector: felt, calldata_size: felt, calldata: felt*
+) -> (retdata_size: felt, retdata: felt*) {
+    let (class_hash) = implementation_hash.read();
 
-    let (retdata_size : felt, retdata : felt*) = library_call(
+    let (retdata_size: felt, retdata: felt*) = library_call(
         class_hash=class_hash,
         function_selector=selector,
         calldata_size=calldata_size,
         calldata=calldata,
-    )
-    return (retdata_size=retdata_size, retdata=retdata)
-end
+    );
+    return (retdata_size=retdata_size, retdata=retdata);
+}

@@ -1,13 +1,13 @@
 %lang starknet
 
 @external
-func __setup__():
+func __setup__() {
     %{ max_examples(5) %}
-    return ()
-end
+    return ();
+}
 
 @external
-func test_flaky_strategy{syscall_ptr : felt*, range_check_ptr}(a : felt):
+func test_flaky_strategy{syscall_ptr: felt*, range_check_ptr}(a: felt) {
     %{
         # We use secrets instead of random, because random is seeded by fuzzer on each run.
         #
@@ -17,5 +17,5 @@ func test_flaky_strategy{syscall_ptr : felt*, range_check_ptr}(a : felt):
         import secrets
         given(a = strategy.integers(0, secrets.randbelow(10**9)))
     %}
-    return ()
-end
+    return ();
+}
