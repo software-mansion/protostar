@@ -1,5 +1,3 @@
-# pylint: disable=no-self-use
-
 import re
 from collections import defaultdict
 from dataclasses import dataclass
@@ -97,7 +95,7 @@ class TestCollector:
                 broken_test_suites or []
             )
             self.test_cases_count = sum(
-                [len(test_suite.test_cases) for test_suite in test_suites]
+                len(test_suite.test_cases) for test_suite in test_suites
             )
             self.duration = duration
 

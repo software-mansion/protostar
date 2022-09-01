@@ -23,7 +23,7 @@ class ExceptionMetadata(ABC):
         ...
 
 
-TMetadata = TypeVar("TMetadata", bound=ExceptionMetadata)
+MetadataT = TypeVar("MetadataT", bound=ExceptionMetadata)
 
 
 class ReportedException(BaseException):
@@ -53,8 +53,8 @@ class ReportedException(BaseException):
         return isinstance(other, type(self)) and self.__dict__ == other.__dict__
 
     def get_metadata_by_type(
-        self, metadata_type: Type[TMetadata]
-    ) -> Optional[TMetadata]:
+        self, metadata_type: Type[MetadataT]
+    ) -> Optional[MetadataT]:
         for metadata in self.metadata:
             if isinstance(metadata, metadata_type):
                 return metadata

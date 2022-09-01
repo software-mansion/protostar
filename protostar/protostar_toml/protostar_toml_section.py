@@ -7,13 +7,13 @@ from protostar.protostar_toml.protostar_toml_exceptions import (
 )
 from protostar.utils.protostar_directory import VersionManager, VersionType
 
-TProtostarTOMLSection = TypeVar("TProtostarTOMLSection", bound="ProtostarTOMLSection")
+ProtostarTOMLSectionT = TypeVar("ProtostarTOMLSectionT", bound="ProtostarTOMLSection")
 
 
 class ProtostarTOMLSection(ABC):
-    class Loader(Generic[TProtostarTOMLSection]):
+    class Loader(Generic[ProtostarTOMLSectionT]):
         @abstractmethod
-        def load(self) -> TProtostarTOMLSection:
+        def load(self) -> ProtostarTOMLSectionT:
             ...
 
     ParsedProtostarTOML = Dict[str, Union[str, int, bool, List[str]]]
