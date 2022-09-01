@@ -1,4 +1,4 @@
-func use_signed_int_hint():
+func use_signed_int_hint() {
     %{
         def signed_int(felt: int) -> int:
             modulo = (PRIME // 2 - 1)
@@ -7,5 +7,5 @@ func use_signed_int_hint():
             else:
                 return -(felt % modulo)
     %}
-    return ()
-end
+    return ();
+}

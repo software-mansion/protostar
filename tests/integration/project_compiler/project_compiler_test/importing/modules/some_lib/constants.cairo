@@ -1,3 +1,3 @@
 %lang starknet
 
-const THREE = 3
+const THREE = 3;
