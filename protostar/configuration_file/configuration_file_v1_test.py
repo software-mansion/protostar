@@ -2,7 +2,9 @@ from pathlib import Path
 
 import pytest
 
-from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
+from protostar.configuration_file.configuration_toml_reader import (
+    ConfigurationTOMLReader,
+)
 from protostar.utils import VersionManager
 
 from .configuration_file_v1 import (
@@ -34,9 +36,9 @@ def protostar_toml_path_fixture(protostar_toml_content: str, project_root_path: 
 
 @pytest.fixture(name="configuration_file")
 def configuration_file_fixture(protostar_toml_path: Path, project_root_path: Path):
-    protostar_toml_reader = ProtostarTOMLReader(protostar_toml_path=protostar_toml_path)
     return ConfigurationFileV1(
-        protostar_toml_reader, project_root_path=project_root_path
+        ConfigurationTOMLReader(path=protostar_toml_path),
+        project_root_path=project_root_path,
     )
 
 
