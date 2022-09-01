@@ -1,19 +1,19 @@
 %lang starknet
 
 @external
-func test_reject_not_fuzz{syscall_ptr : felt*, range_check_ptr}():
+func test_reject_not_fuzz{syscall_ptr: felt*, range_check_ptr}() {
     %{ reject() %}
-    return ()
-end
+    return ();
+}
 
 @external
-func test_assume_not_fuzz{syscall_ptr : felt*, range_check_ptr}():
+func test_assume_not_fuzz{syscall_ptr: felt*, range_check_ptr}() {
     %{ assume(True) %}
-    return ()
-end
+    return ();
+}
 
 @external
-func test_passed_assume{syscall_ptr : felt*, range_check_ptr}(a):
+func test_passed_assume{syscall_ptr: felt*, range_check_ptr}(a) {
     %{ assume(True) %}
-    return ()
-end
+    return ();
+}
