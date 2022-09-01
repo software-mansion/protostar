@@ -1,7 +1,7 @@
 import dataclasses
 from logging import Logger
 from pathlib import Path
-from typing import Any, Callable, Dict, List, NamedTuple, Optional, Union, cast
+from typing import Any, Callable, Dict, List, NamedTuple, Optional, Union
 
 from starknet_py.contract import Contract, ContractFunction, InvokeResult
 from starknet_py.net import AccountClient
@@ -124,18 +124,16 @@ class GatewayFacade:
         )
         assert abi is not None
 
-        if not inputs:
-            inputs = []
         if not has_abi_item(abi, "constructor"):
             if inputs:
                 raise InputValidationException(
                     "Inputs provided to a contract with no constructor."
                 )
-        else:
-            inputs = transform_and_validate_constructor_inputs_from_python(abi, inputs)
-            validate_cairo_inputs(abi, inputs)
+            return []
 
-        return cast(List[int], inputs)
+        cairo_inputs = transform_and_constructor_inputs_from_python(abi, inputs)
+        validate_cairo_inputs(abi, cairo_inputs)
+        return cairo_inputs
 
     # pylint: disable=too-many-locals
     # pylint: disable=unused-argument
@@ -422,7 +420,7 @@ class CompilationOutputNotFoundException(ProtostarException):
         self._compilation_output_filepath = compilation_output_filepath
 
 
-def transform_and_validate_constructor_inputs_from_python(
+def transform_and_constructor_inputs_from_python(
     abi: AbiType, inputs: Optional[CairoOrPythonData]
 ) -> List[int]:
     if not inputs:
