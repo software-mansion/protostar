@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import TypeVar, Generic
 
-from starkware.starknet.testing.objects import StarknetTransactionExecutionInfo
+from starkware.starknet.testing.objects import StarknetCallInfo
 from starkware.starkware_utils.error_handling import StarkException
 
 from protostar.commands.test.test_environment_exceptions import (
@@ -26,7 +26,7 @@ class ExecutionEnvironment(ABC, Generic[InvokeResultT]):
 
     async def perform_invoke(
         self, function_name: str, *args, **kwargs
-    ) -> StarknetTransactionExecutionInfo:
+    ) -> StarknetCallInfo:
         try:
             func = getattr(self.state.contract, function_name)
             return await func(*args, **kwargs).invoke()
