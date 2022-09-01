@@ -1,28 +1,16 @@
+
 # `expect_events`
 ```python
- def expect_events(
-            *raw_expected_events: Union[
-                str, # Protostar interprets string as an event's name 
-                TypedDict("ExpectedEvent", {
-                    "name": str,
-                    "data": NotRequired[Union[
-                      List[int],
-                      Dict[
-                        # e.g.
-                        # {"current_balance" : 37, "amount" : 21}
-                        # 
-                        # for the following event signature:
-                        # @event
-                        # func balance_increased(current_balance : felt, amount : felt):
-                        # end
-                        DataTransformer.ArgumentName,
-                        DataTransformer.SupportedType,
-                      ]
-                    ]],
-                    "from_address": NotRequired[int]
-                },
-            )],
-        ) -> None: ...
+class EventExpectationDict(TypedDict):
+    name: str
+    data: NotRequired[list[int] | dict[str, Any]]
+    from_address: NotRequired[int]
+
+EventExpectationName = str
+
+EventExpectation = EventExpectationDict | EventExpectationName
+
+def expect_events(*expectations: EventExpectation) -> None: ...
 ```
 Compares expected events with events in the StarkNet state. You can use this cheatcode to test whether a contract emits specified events. Protostar compares events after a test case is completed. Therefore, you can use this cheatcode in any place within a test case.
 

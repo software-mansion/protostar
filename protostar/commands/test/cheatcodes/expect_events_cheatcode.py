@@ -18,17 +18,18 @@ if TYPE_CHECKING:
     from protostar.starknet.forkable_starknet import ForkableStarknet
 
 
-class ExpectEventsCheatcode(Cheatcode):
-    RawExpectedEventDictType = TypedDict(
-        "ExpectedEvent",
-        {
-            "name": str,
-            "data": NotRequired[CairoOrPythonData],
-            "from_address": NotRequired[int],
-        },
-    )
-    RawExpectedEventType = Union[RawExpectedEventDictType, str]
+class EventExpectationDict(TypedDict):
+    name: str
+    data: NotRequired[CairoOrPythonData]
+    from_address: NotRequired[int]
 
+
+EventExpectationName = str
+
+EventExpectation = Union[EventExpectationDict, EventExpectationName]
+
+
+class ExpectEventsCheatcode(Cheatcode):
     def __init__(
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
@@ -46,16 +47,13 @@ class ExpectEventsCheatcode(Cheatcode):
     def build(self) -> Callable:
         return self.expect_events
 
-    def expect_events(
-        self,
-        *raw_expected_events: RawExpectedEventType,
-    ) -> None:
+    def expect_events(self, *expectations: EventExpectation) -> None:
         def compare_expected_and_emitted_events():
 
             expected_events = list(
                 map(
                     self._convert_raw_expected_event_to_expected_event,
-                    raw_expected_events,
+                    expectations,
                 )
             )
 
@@ -79,7 +77,7 @@ class ExpectEventsCheatcode(Cheatcode):
 
     def _convert_raw_expected_event_to_expected_event(
         self,
-        raw_expected_event: RawExpectedEventType,
+        raw_expected_event: EventExpectation,
     ):
 
         name: str
@@ -91,7 +89,7 @@ class ExpectEventsCheatcode(Cheatcode):
             name = raw_expected_event["name"]
             if "data" in raw_expected_event:
                 raw_data = raw_expected_event["data"]
-                if isinstance(raw_data, collections.Mapping):
+                if isinstance(raw_data, dict):
                     assert (
                         name in self.state.event_name_to_contract_abi_map
                     ), "Couldn't map event name to the contract path with that event"

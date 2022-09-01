@@ -7,8 +7,6 @@ from starkware.starknet.business_logic.execution.objects import Event
 from starkware.starknet.public.abi import get_selector_from_name
 from typing_extensions import Literal
 
-from protostar.commands.test.test_suite import TestSuite
-
 
 @dataclass
 class ExpectedEvent:
@@ -68,6 +66,3 @@ class ExpectedEvent:
                 or self.from_address == state_event.from_address
             )
         )
-
-
-TestSubject = TestSuite
