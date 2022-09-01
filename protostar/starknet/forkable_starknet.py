@@ -36,8 +36,8 @@ class ForkableStarknet(Starknet):
             state=self.cheatable_state,
             abi=copy.deepcopy(deployed_contract.abi),
             contract_address=deployed_contract.contract_address,
-            deploy_execution_info=copy.deepcopy(
-                deployed_contract.deploy_execution_info
+            deploy_call_info=copy.deepcopy(
+                deployed_contract.deploy_call_info
             ),
         )
 
