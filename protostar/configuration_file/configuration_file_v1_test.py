@@ -207,7 +207,7 @@ def test_generating_data_struct(
         """
     ],
 )
-def test_save(configuration_file: ConfigurationFileV1, protostar_toml_content: str):
+def test_saving_v1_is_not_supported(configuration_file: ConfigurationFileV1):
     model = configuration_file.create_model()
-    file_path = configuration_file.save(model)
-    assert file_path.read_text() == protostar_toml_content
+    with pytest.raises(AssertionError):
+        configuration_file.save(model)

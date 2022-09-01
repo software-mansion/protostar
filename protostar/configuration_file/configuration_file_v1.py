@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Union
 
 from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
+from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
 from protostar.utils.protostar_directory import VersionManager, VersionType
 
 from .configuration_file import (
@@ -29,7 +30,9 @@ class ConfigurationFileV1Model:
 
 class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
     def __init__(
-        self, protostar_toml_reader: ProtostarTOMLReader, project_root_path: Path
+        self,
+        protostar_toml_reader: ProtostarTOMLReader,
+        project_root_path: Path,
     ) -> None:
         super().__init__()
         self._protostar_toml_reader = protostar_toml_reader
@@ -168,4 +171,4 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
         )
 
     def save(self, configuration_file_model: ConfigurationFileV1Model) -> Path:
-        assert False, "Not implemented"
+        assert False, "Operation not supported"
