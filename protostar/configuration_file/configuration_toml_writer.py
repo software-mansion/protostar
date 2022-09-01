@@ -1,9 +1,7 @@
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import tomli_w
-
-from protostar.configuration_file.configuration_file import CommandConfig
 
 ConfigurationTOMLContent = Dict
 
@@ -15,7 +13,7 @@ class ConfigurationTOMLContentBuilder:
     def set_section(
         self,
         section_name: str,
-        data: CommandConfig,
+        data: Dict[str, Any],
         profile_name: Optional[str] = None,
     ):
         if profile_name:
