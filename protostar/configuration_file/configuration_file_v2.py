@@ -34,7 +34,10 @@ class ConfigurationFileV2Model:
     def from_v1(cls, v1: ConfigurationFileV1Model, min_protostar_version: str) -> Self:
         project_config = v1.shared_command_config
         if v1.libs_path_str:
-            project_config["libs-path"] = v1.libs_path_str
+            project_config = {
+                **{"libs-path": v1.libs_path_str},
+                **v1.shared_command_config,
+            }
         return cls(
             min_protostar_version=min_protostar_version,
             contract_name_to_path_strs=v1.contract_name_to_path_strs,

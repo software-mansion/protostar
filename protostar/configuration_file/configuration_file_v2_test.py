@@ -6,7 +6,7 @@ import pytest
 from protostar.utils.protostar_directory import VersionManager
 
 from .configuration_file import ConfigurationFile, ContractNameNotFoundException
-from .configuration_file_v1 import ConfigurationFileV1Model
+from .configuration_file_v1 import ConfigurationFileV1, ConfigurationFileV1Model
 from .configuration_file_v2 import ConfigurationFileV2, ConfigurationFileV2Model
 from .configuration_toml_reader import ConfigurationTOMLReader
 from .configuration_toml_writer import ConfigurationTOMLWriter
@@ -18,7 +18,7 @@ def protostar_toml_content_fixture() -> str:
         """\
         [project]
         min-protostar-version = "9.9.9"
-        libs-path = "./lib"
+        libs-path = "lib"
         no-color = true
         network = "devnet1"
         cairo-path = [
@@ -27,10 +27,10 @@ def protostar_toml_content_fixture() -> str:
 
         [contracts]
         foo = [
-            "./src/foo.cairo",
+            "src/foo.cairo",
         ]
         bar = [
-            "./src/bar.cairo",
+            "src/bar.cairo",
         ]
 
         [declare]
@@ -118,7 +118,7 @@ def test_saving_configuration(
     configuration_file_v2_model = ConfigurationFileV2Model(
         min_protostar_version="9.9.9",
         project_config={
-            "libs-path": "./lib",
+            "libs-path": "lib",
             "no-color": True,
             "network": "devnet1",
             "cairo-path": ["bar"],
@@ -126,10 +126,10 @@ def test_saving_configuration(
         command_name_to_config={"declare": {"network": "devnet2"}},
         contract_name_to_path_strs={
             "foo": [
-                "./src/foo.cairo",
+                "src/foo.cairo",
             ],
             "bar": [
-                "./src/bar.cairo",
+                "src/bar.cairo",
             ],
         },
         profile_name_to_commands_config={
@@ -165,3 +165,62 @@ def test_transforming_model_v1_into_v2():
         profile_name_to_commands_config={"devnet": {"deploy": {"arg_name": 37}}},
         profile_name_to_project_config={"devnet": {"arg_name": 24}},
     )
+
+
+def test_transforming_file_v1_into_v2(
+    project_root_path: Path, protostar_toml_content: str
+):
+    old_protostar_toml_content = textwrap.dedent(
+        """\
+        ["protostar.config"]
+        protostar_version = "0.3.0"
+
+        ["protostar.project"]
+        libs_path = "./lib"
+
+        ["protostar.contracts"]
+        foo = [
+            "./src/foo.cairo",
+        ]
+        bar = [
+            "./src/bar.cairo",
+        ]
+
+        ["protostar.shared_command_configs"]
+        no-color = true
+        network = "devnet1"
+        cairo-path = [
+            "bar",
+        ]
+
+        ["protostar.declare"]
+        network = "devnet2"
+
+        ["profile.release.protostar.shared_command_configs"]
+        network = "mainnet2"
+
+        ["profile.release.protostar.declare"]
+        network = "mainnet"
+        """
+    )
+    old_protostar_toml_path = project_root_path / "protostar_v1.toml"
+    old_protostar_toml_path.write_text(old_protostar_toml_content)
+    reader = ConfigurationTOMLReader(path=old_protostar_toml_path)
+    model_v1 = ConfigurationFileV1(
+        project_root_path=project_root_path, configuration_toml_reader=reader
+    ).create_model()
+
+    new_protostar_toml_path = ConfigurationFileV2(
+        project_root_path=project_root_path,
+        configuration_toml_reader=ConfigurationTOMLReader(
+            path=project_root_path / "protostar_v2.toml"
+        ),
+        configuration_toml_writer=ConfigurationTOMLWriter(
+            output_file_path=project_root_path / "new_protostar.toml"
+        ),
+    ).save(
+        ConfigurationFileV2Model.from_v1(model_v1, min_protostar_version="9.9.9"),
+    )
+    transformed_protostar_toml = new_protostar_toml_path.read_text()
+
+    assert transformed_protostar_toml == protostar_toml_content
