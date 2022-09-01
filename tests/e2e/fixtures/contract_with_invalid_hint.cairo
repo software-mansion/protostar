@@ -1,7 +1,7 @@
 %lang starknet
 
 @view
-func main():
+func main() {
     %{ print("42") %}
-    return ()
-end
+    return ();
+}
