@@ -3,14 +3,13 @@ from pathlib import Path
 
 import pytest
 
-from protostar.configuration_file.configuration_toml_writer import (
-    ConfigurationTOMLWriter,
-)
 from protostar.utils.protostar_directory import VersionManager
 
 from .configuration_file import ConfigurationFile, ContractNameNotFoundException
+from .configuration_file_v1 import ConfigurationFileV1Model
 from .configuration_file_v2 import ConfigurationFileV2, ConfigurationFileV2Model
 from .configuration_toml_reader import ConfigurationTOMLReader
+from .configuration_toml_writer import ConfigurationTOMLWriter
 
 
 @pytest.fixture(name="protostar_toml_content")
@@ -19,7 +18,7 @@ def protostar_toml_content_fixture() -> str:
         """\
         [project]
         min-protostar-version = "9.9.9"
-        lib-path = "./lib"
+        libs-path = "./lib"
         no-color = true
         network = "devnet1"
         cairo-path = [
@@ -119,7 +118,7 @@ def test_saving_configuration(
     configuration_file_v2_model = ConfigurationFileV2Model(
         min_protostar_version="9.9.9",
         project_config={
-            "lib-path": "./lib",
+            "libs-path": "./lib",
             "no-color": True,
             "network": "devnet1",
             "cairo-path": ["bar"],
@@ -143,3 +142,26 @@ def test_saving_configuration(
     result = file_path.read_text()
 
     assert result == protostar_toml_content
+
+
+def test_transforming_model_v1_into_v2():
+    model_v1 = ConfigurationFileV1Model(
+        protostar_version="0.3.1",
+        libs_path_str="lib",
+        command_name_to_config={"deploy": {"arg_name": 21}},
+        contract_name_to_path_strs={"main": ["src/main.cairo"]},
+        shared_command_config={"arg_name": 42},
+        profile_name_to_commands_config={"devnet": {"deploy": {"arg_name": 37}}},
+        profile_name_to_shared_command_config={"devnet": {"arg_name": 24}},
+    )
+
+    model_v2 = ConfigurationFileV2Model.from_v1(model_v1, min_protostar_version="0.4.0")
+
+    assert model_v2 == ConfigurationFileV2Model(
+        min_protostar_version="0.4.0",
+        command_name_to_config={"deploy": {"arg_name": 21}},
+        contract_name_to_path_strs={"main": ["src/main.cairo"]},
+        project_config={"arg_name": 42, "libs-path": "lib"},
+        profile_name_to_commands_config={"devnet": {"deploy": {"arg_name": 37}}},
+        profile_name_to_project_config={"devnet": {"arg_name": 24}},
+    )

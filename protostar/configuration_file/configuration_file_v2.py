@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
+from typing_extensions import Self
+
 from protostar.utils.protostar_directory import VersionManager, VersionType
 
 from .configuration_file import (
@@ -13,6 +15,7 @@ from .configuration_file import (
     PrimitiveTypesSupportedByConfigurationFile,
     ProfileName,
 )
+from .configuration_file_v1 import ConfigurationFileV1Model
 from .configuration_toml_reader import ConfigurationTOMLReader
 from .configuration_toml_writer import ConfigurationTOMLWriter
 
@@ -25,6 +28,21 @@ class ConfigurationFileV2Model:
     command_name_to_config: CommandNameToConfig
     profile_name_to_project_config: Dict[ProfileName, CommandConfig]
     profile_name_to_commands_config: Dict[ProfileName, CommandNameToConfig]
+
+    @classmethod
+    # pylint: disable=invalid-name
+    def from_v1(cls, v1: ConfigurationFileV1Model, min_protostar_version: str) -> Self:
+        project_config = v1.shared_command_config
+        if v1.libs_path_str:
+            project_config["libs-path"] = v1.libs_path_str
+        return cls(
+            min_protostar_version=min_protostar_version,
+            contract_name_to_path_strs=v1.contract_name_to_path_strs,
+            command_name_to_config=v1.command_name_to_config,
+            profile_name_to_commands_config=v1.profile_name_to_commands_config,
+            project_config=project_config,
+            profile_name_to_project_config=v1.profile_name_to_shared_command_config,
+        )
 
 
 class ConfigurationFileV2(ConfigurationFile[ConfigurationFileV2Model]):

@@ -205,7 +205,7 @@ def test_generating_data_struct(
 
     assert model == ConfigurationFileV1Model(
         protostar_version="0.3.1",
-        lib_path_str="lib",
+        libs_path_str="lib",
         command_name_to_config={"deploy": {"arg_name": 21}},
         contract_name_to_path_strs={"main": ["src/main.cairo"]},
         shared_command_config={"arg_name": 42},
