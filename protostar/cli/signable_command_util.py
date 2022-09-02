@@ -54,14 +54,21 @@ class PatchedStarkCurveSigner(BaseSigner):
                 sender_address=self.address,
                 max_fee=transaction.max_fee,
                 version=transaction.version,
+                # TODO(#719): Support transactions v1
+                nonce=0,
             )
         else:
             transaction = cast(InvokeFunction, transaction)
+
+            # TODO(#719): Support transactions v1
+            entry_point_selector = transaction.entry_point_selector
+            assert entry_point_selector is not None, "Transactions v1 are not supported yet."
+
             tx_hash = calculate_transaction_hash_common(
                 tx_hash_prefix=TransactionHashPrefix.INVOKE,
                 version=transaction.version,
                 contract_address=self.address,
-                entry_point_selector=transaction.entry_point_selector,
+                entry_point_selector=entry_point_selector,
                 calldata=transaction.calldata,
                 max_fee=transaction.max_fee,
                 chain_id=self.chain_id,
