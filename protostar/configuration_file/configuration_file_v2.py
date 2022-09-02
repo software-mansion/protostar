@@ -84,7 +84,7 @@ class ConfigurationFileV2(ConfigurationFile[ConfigurationFileV2Model]):
             profile_name=profile_name,
         )
 
-    def create_model(
+    def read(
         self,
     ) -> ConfigurationFileV2Model:
         assert False, "Operation not supported"
