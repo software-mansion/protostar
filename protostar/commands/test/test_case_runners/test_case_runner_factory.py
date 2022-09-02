@@ -21,7 +21,11 @@ class TestCaseRunnerFactory:
         self._state = state
 
     def make(self, test_case: TestCase) -> TestCaseRunner:
-        if self._state.config.mode is TestMode.FUZZ:
+        mode = self._state.config.mode
+
+        assert mode, "Test mode should be determined at this point."
+
+        if mode is TestMode.FUZZ:
             return FuzzTestCaseRunner(
                 fuzz_test_execution_environment=FuzzTestExecutionEnvironment(
                     self._state
@@ -31,7 +35,7 @@ class TestCaseRunnerFactory:
                 stopwatch=self._state.stopwatch,
             )
 
-        if self._state.config.mode is TestMode.STANDARD:
+        if mode is TestMode.STANDARD:
             return StandardTestCaseRunner(
                 test_execution_environment=TestExecutionEnvironment(self._state),
                 test_case=test_case,
@@ -39,4 +43,4 @@ class TestCaseRunnerFactory:
                 stopwatch=self._state.stopwatch,
             )
 
-        raise NotImplementedError(f"Unreachable")
+        raise NotImplementedError("Unreachable")

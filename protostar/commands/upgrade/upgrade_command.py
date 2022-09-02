@@ -27,7 +27,7 @@ class UpgradeCommand(Command):
     def arguments(self) -> List[Command.Argument]:
         return []
 
-    async def run(self, _args):
+    async def run(self, args):
         self._logger.info("Running upgrade of protostar")
         try:
             await self._upgrade_manager.upgrade()

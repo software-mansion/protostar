@@ -56,7 +56,6 @@ class DIContainer:
     protostar_toml_reader: ProtostarTOMLReader
 
 
-# pylint: disable=too-many-locals
 def build_di_container(script_root: Path, start_time: float = 0):
     logger = getLogger()
     cwd = Path().resolve()

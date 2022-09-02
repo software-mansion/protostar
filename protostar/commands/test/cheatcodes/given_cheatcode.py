@@ -3,7 +3,7 @@ from typing import Any
 from typing_extensions import Protocol
 
 from protostar.commands.test.fuzzing.strategy_descriptor import StrategyDescriptor
-from protostar.commands.test.fuzzing.strategy_selector import StrategySelector
+from protostar.commands.test.test_config import TestConfig, TestMode
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.starknet.cheatcode import Cheatcode
 
@@ -17,10 +17,10 @@ class GivenCheatcode(Cheatcode):
     def __init__(
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
-        strategy_selector: StrategySelector,
+        test_config: TestConfig,
     ):
         super().__init__(syscall_dependencies)
-        self.strategy_selector = strategy_selector
+        self.test_config = test_config
 
     @property
     def name(self) -> str:
@@ -30,7 +30,7 @@ class GivenCheatcode(Cheatcode):
         return self.given
 
     def given(self, **kwargs: Any) -> None:
-        learned = False
+        self.test_config.convert_mode_to(TestMode.FUZZ)
 
         for param, descriptor in kwargs.items():
             # Raise nice error if got object which is not a strategy descriptor.
@@ -41,17 +41,14 @@ class GivenCheatcode(Cheatcode):
                     f"Type {type(descriptor)} is not a valid fuzzing strategy.",
                 )
 
-            learned |= self.strategy_selector.learn(param, descriptor)
+            # Raise an error if user is trying to reassign a strategy descriptor.
+            # While this is not a big problem for us, it is a rare situation that somebody
+            # might want to do this explicitly, and more often this is just a typo bug.
+            if param in self.test_config.fuzz_declared_strategies:
+                raise CheatcodeException(
+                    self,
+                    f"Parameter {param} has been reassigned a fuzzing strategy. "
+                    "Perhaps there is a typo in test case code?",
+                )
 
-        if learned:
-            raise StrategyLearnedException
-
-
-class StrategyLearnedException(BaseException):
-    """
-    An exception raised from the ``given`` cheatcode, indicating that the set of fuzzing strategies
-    has changed (fuzzer _learned_ a new strategy).
-
-    The expected behaviour is to let fuzzer catch this exception and restart fuzzing with new
-    set of input parameter strategies.
-    """
+            self.test_config.fuzz_declared_strategies[param] = descriptor

@@ -80,7 +80,6 @@ class DeclareCommand(Command):
             wait_for_acceptance=args.wait_for_acceptance,
         )
 
-    # pylint: disable=too-many-arguments
     async def declare(
         self,
         compiled_contract_path: Path,

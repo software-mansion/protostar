@@ -11,7 +11,7 @@ from tests.e2e.conftest import ProtostarFixture
 def test_basic_contract(protostar):
     result = protostar(["test", "tests"])
     assert "1 passed" in result
-    assert "Seed:" not in result
+    assert "Seed:" in result
 
 
 @pytest.mark.usefixtures("init")
