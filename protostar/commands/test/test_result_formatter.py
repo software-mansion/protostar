@@ -7,6 +7,7 @@ from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
 from protostar.utils.log_color_provider import log_color_provider
 
 from .test_results import (
+    BrokenFuzzTestCaseResult,
     BrokenTestSuiteResult,
     FailedFuzzTestCaseResult,
     FailedTestCaseResult,
@@ -26,6 +27,8 @@ def format_test_result(test_result: TestResult) -> str:
         return _format_passed_fuzz_test_case_result(test_result)
     if isinstance(test_result, FailedFuzzTestCaseResult):
         return _format_failed_fuzz_test_case_result(test_result)
+    if isinstance(test_result, BrokenFuzzTestCaseResult):
+        return _format_broken_fuzz_test_case_result(test_result)
     if isinstance(test_result, PassedTestCaseResult):
         return _format_passed_test_case_result(test_result)
     if isinstance(test_result, FailedTestCaseResult):
@@ -209,6 +212,10 @@ def _format_passed_fuzz_test_case_result(
 
 def _format_failed_fuzz_test_case_result(failed_fuzz_test_case_result) -> str:
     return _format_failed_test_case_result(failed_fuzz_test_case_result)
+
+
+def _format_broken_fuzz_test_case_result(broken_fuzz_test_case_result) -> str:
+    return _format_broken_test_case_result(broken_fuzz_test_case_result)
 
 
 def _format_broken_test_suite_result(broken_test_suite_result) -> str:

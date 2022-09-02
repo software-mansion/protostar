@@ -14,7 +14,9 @@ from protostar.commands.test.test_results import (
     FailedTestCaseResult,
     FuzzResult,
     PassedFuzzTestCaseResult,
-    TestResult,
+    BrokenTestCaseResult,
+    BreakingReportedException,
+    BrokenFuzzTestCaseResult,
 )
 
 
@@ -59,6 +61,25 @@ class FuzzTestCaseRunner(TestCaseRunner[FuzzTestExecutionResult]):
             )
         return FailedFuzzTestCaseResult.from_failed_test_case_result(
             failed_test_case_result, fuzz_result=None
+        )
+
+    def _map_reported_exception_to_broken_test_result(
+        self,
+        reported_exception: BreakingReportedException,
+        execution_metadata: TestCaseRunner.ExecutionMetadata,
+    ) -> BrokenTestCaseResult:
+        broken_test_case_result = super()._map_reported_exception_to_broken_test_result(
+            reported_exception, execution_metadata
+        )
+        fuzz_result = self._map_reported_exception_to_fuzz_result(reported_exception)
+        if fuzz_result:
+            return BrokenFuzzTestCaseResult.from_broken_test_case_result(
+                broken_test_case_result,
+                fuzz_result,
+            )
+        return BrokenFuzzTestCaseResult.from_broken_test_case_result(
+            broken_test_case_result,
+            fuzz_result=None,
         )
 
     @staticmethod

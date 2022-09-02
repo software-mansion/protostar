@@ -9,7 +9,7 @@ from protostar.commands.test.test_results import (
     FailedTestCaseResult,
     PassedTestCaseResult,
     TestResult,
-    TimedTestCaseResult,
+    TestCaseResult,
 )
 from protostar.commands.test.testing_seed import Seed
 from protostar.protostar_exception import ProtostarExceptionSilent
@@ -176,9 +176,9 @@ class TestingSummary:
 
     def _get_slowest_test_cases_list(
         self,
-        test_case_list: List[TimedTestCaseResult],
+        test_case_list: List[TestCaseResult],
         count: int,
-    ) -> List[TimedTestCaseResult]:
+    ) -> List[TestCaseResult]:
         lst = sorted(test_case_list, key=lambda x: x.execution_time, reverse=True)
         return lst[: min(count, len(lst))]
 

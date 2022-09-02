@@ -184,7 +184,7 @@ class TestRunner:
         if test_case.setup_fn_name:
             setup_case_result = await run_setup_case(test_case, state)
             if isinstance(setup_case_result, BrokenSetupCaseResult):
-                return setup_case_result.into_failed_test_case_result()
+                return setup_case_result.into_broken_test_case_result()
 
         state.determine_test_mode(test_case)
 

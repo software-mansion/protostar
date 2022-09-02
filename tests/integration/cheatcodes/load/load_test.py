@@ -28,5 +28,5 @@ async def test_load_cheatcode(run_cairo_test_runner: RunCairoTestRunnerFixture):
     )
 
     assert "ValueB has not been found in contract" in str(
-        testing_summary.failed[0].exception
+        testing_summary.broken[0].exception
     )
