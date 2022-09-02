@@ -2,11 +2,11 @@ from hypothesis.errors import UnsatisfiedAssumption
 
 from protostar.commands.test.test_environment_exceptions import (
     ReportedException,
-    BreakingReportedException,
+    SimpleBreakingReportedException,
 )
 
 
-class FuzzingError(BreakingReportedException):
+class FuzzingError(SimpleBreakingReportedException):
     pass
 
 
