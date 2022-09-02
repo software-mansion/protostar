@@ -9,6 +9,7 @@ from protostar.commands.test.stopwatch import Stopwatch
 from protostar.commands.test.test_config import TestConfig
 from protostar.commands.test.test_context import TestContext
 from protostar.commands.test.test_output_recorder import OutputRecorder
+from protostar.commands.test.test_suite import TestCase
 from protostar.starknet.execution_state import ExecutionState
 from protostar.starknet.forkable_starknet import ForkableStarknet
 from protostar.utils.starknet_compilation import StarknetCompiler
@@ -55,3 +56,6 @@ class TestExecutionState(ExecutionState):
             output_recorder=self.output_recorder.fork(),
             stopwatch=self.stopwatch.fork(),
         )
+
+    def determine_test_mode(self, test_case: TestCase):
+        self.config.determine_mode(test_case=test_case, contract=self.contract)

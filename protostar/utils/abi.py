@@ -32,3 +32,10 @@ def find_abi_item(contract_abi: AbiType, name: str) -> Dict:
         if item["name"] == name:
             return item
     raise AbiItemNotFoundException(f"Couldn't find '{name}' ABI")
+
+
+def has_abi_item(contract_abi: AbiType, name: str) -> bool:
+    for item in contract_abi:
+        if item["name"] == name:
+            return True
+    return False

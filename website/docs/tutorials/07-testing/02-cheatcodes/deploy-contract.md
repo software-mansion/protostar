@@ -16,7 +16,7 @@ Deploys a contract given a path relative to a Protostar project root. The sectio
 `config` is a keyword only argument kept for compatibility with the migration [deploy_contract cheatcode](../../06-deploying/02-migrations/deploy-contract.md). See related documentation for more information.
 
 :::warning
-Deploying a contract is a slow operation. If it's possible try using this cheatcode in the [`__setup__` hook](../README.md#__setup__).
+Deploying a contract is a slow operation. If it's possible try using this cheatcode in the [`__setup__` hook](../README.md#setup-hooks).
 :::
 
 :::info

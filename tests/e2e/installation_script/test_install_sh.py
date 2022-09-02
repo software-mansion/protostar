@@ -1,4 +1,3 @@
-# pylint: disable=too-many-arguments
 from pathlib import Path
 
 import pytest

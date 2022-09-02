@@ -13,8 +13,6 @@ from protostar.utils.protostar_directory import ProtostarDirectory, VersionManag
 
 # pylint: disable=too-many-instance-attributes
 class LatestVersionChecker:
-
-    # pylint: disable=too-many-arguments
     def __init__(
         self,
         protostar_directory: ProtostarDirectory,

@@ -211,7 +211,7 @@ class TestCollectorPreprocessor(Visitor):
         for block in elm.code_block.code_elements:
             self.visit(block.code_elm)
 
-    def visit_CodeElementFunction(self, elm: CodeElementFunction):
+    def visit_CodeElementFunction(self, elm: CodeElementFunction):  # type: ignore
         if elm.element_type == "namespace":
             self.visit_namespace_elements(elm)
 
