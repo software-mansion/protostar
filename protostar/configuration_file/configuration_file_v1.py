@@ -170,4 +170,4 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
         )
 
     def save(self, configuration_file_model: ConfigurationFileV1Model) -> Path:
-        assert False, "Operation not supported"
+        raise NotImplementedError("Operation not supported.")
