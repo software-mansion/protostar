@@ -52,7 +52,6 @@ class TestCaseRunner(Generic[TExecutionResult]):
                 TestCaseRunner.ExecutionMetadata(self._stopwatch.total_elapsed),
             )
         except ReportedException as ex:
-            print(f"CAUGHT EXCEPTION: {type(ex)}")
             return self._map_reported_exception_to_failed_test_result(
                 ex,
                 TestCaseRunner.ExecutionMetadata(self._stopwatch.total_elapsed),
