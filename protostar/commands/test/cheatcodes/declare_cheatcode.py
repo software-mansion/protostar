@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Optional, Dict
 
 from starkware.python.utils import from_bytes
-from starkware.starknet.business_logic.internal_transaction import InternalDeclare
+from starkware.starknet.business_logic.transaction.objects import InternalDeclare
 from starkware.starknet.public.abi import AbiType
 from starkware.starknet.testing.contract import DeclaredClass
 from starkware.starknet.testing.contract_utils import EventManager, get_abi
