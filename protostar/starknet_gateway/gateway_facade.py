@@ -1,4 +1,3 @@
-import collections
 import dataclasses
 from logging import Logger
 from pathlib import Path
@@ -19,6 +18,7 @@ from starkware.starknet.services.api.gateway.transaction import (
     DECLARE_SENDER_ADDRESS,
     Declare,
 )
+from starkware.starknet.public.abi import AbiType
 
 from protostar.compiler import CompiledContractReader
 from protostar.protostar_exception import ProtostarException
@@ -27,14 +27,19 @@ from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeployResponse,
 )
 from protostar.starknet_gateway.starknet_request import StarknetRequest
-from protostar.utils.data_transformer import CairoOrPythonData, from_python_transformer
+from protostar.utils.data_transformer import (
+    CairoOrPythonData,
+    DataTransformerException,
+    to_python_transformer,
+    from_python_transformer,
+)
 from protostar.utils.log_color_provider import LogColorProvider
+from protostar.utils.abi import has_abi_item
 
 ContractFunctionInputType = Union[List[int], Dict[str, Any]]
 
 
 class GatewayFacade:
-    # pylint: disable=too-many-arguments
     def __init__(
         self,
         project_root_path: Path,
@@ -53,7 +58,6 @@ class GatewayFacade:
     def get_starknet_requests(self) -> List[StarknetRequest]:
         return self._starknet_requests.copy()
 
-    # pylint: disable=too-many-arguments
     async def deploy(
         self,
         compiled_contract_path: Path,
@@ -65,9 +69,8 @@ class GatewayFacade:
         compiled_contract = self._load_compiled_contract(
             self._project_root_path / compiled_contract_path
         )
-        cairo_inputs = self._transform_constructor_inputs_from_python(
-            inputs, compiled_contract_path
-        )
+        cairo_inputs = self._prepare_constructor_inputs(inputs, compiled_contract_path)
+
         tx = make_deploy_tx(
             compiled_contract=compiled_contract,
             constructor_calldata=cairo_inputs,
@@ -110,22 +113,26 @@ class GatewayFacade:
         except FileNotFoundError as err:
             raise CompilationOutputNotFoundException(compiled_contract_path) from err
 
-    def _transform_constructor_inputs_from_python(
+    def _prepare_constructor_inputs(
         self, inputs: Optional[CairoOrPythonData], compiled_contract_path: Path
-    ) -> List[int]:
-        if not inputs:
-            return []
-        if not isinstance(inputs, collections.Mapping):
-            return inputs
+    ):
+
         abi = self._compiled_contract_reader.load_abi_from_contract_path(
             compiled_contract_path
         )
         assert abi is not None
-        return from_python_transformer(abi, fn_name="constructor", mode="inputs")(
-            inputs
-        )
 
-    # pylint: disable=too-many-locals
+        if not has_abi_item(abi, "constructor"):
+            if inputs:
+                raise InputValidationException(
+                    "Inputs provided to a contract with no constructor."
+                )
+            return []
+
+        cairo_inputs = transform_constructor_inputs_from_python(abi, inputs)
+        validate_cairo_inputs(abi, cairo_inputs)
+        return cairo_inputs
+
     # pylint: disable=unused-argument
     async def declare(
         self,
@@ -235,7 +242,8 @@ class GatewayFacade:
         inputs: Optional[CairoOrPythonData] = None,
         max_fee: Optional[int] = None,
         auto_estimate_fee: bool = False,
-    ) -> InvokeResult:
+        wait_for_acceptance: bool = False,
+    ):
         register_response = self._register_request(
             action="INVOKE",
             payload={
@@ -268,18 +276,18 @@ class GatewayFacade:
         except TransactionFailedError as ex:
             raise TransactionException(str(ex)) from ex
 
+        result = await result.wait_for_acceptance(wait_for_accept=wait_for_acceptance)
+
         response_dict: StarknetRequest.Payload = {
             "hash": result.hash,
             "contract_address": result.contract.address,
         }
         if result.block_number:
             response_dict["block_number"] = result.block_number
-
         if result.status:
-            response_dict["status"] = result.status
+            response_dict["status"] = result.status.value  # type: ignore
 
         register_response(response_dict)
-        return result
 
     async def _create_contract_function(
         self,
@@ -305,9 +313,13 @@ class GatewayFacade:
     ):
         if inputs is None:
             inputs = {}
-        if isinstance(inputs, List):
-            return await contract_function.call(*inputs)
-        return await contract_function.call(**inputs)
+
+        try:
+            if isinstance(inputs, List):
+                return await contract_function.call(*inputs)
+            return await contract_function.call(**inputs)
+        except (TypeError, ValueError) as ex:
+            raise InputValidationException(str(ex)) from ex
 
     @staticmethod
     async def _invoke_function(
@@ -319,13 +331,17 @@ class GatewayFacade:
         if inputs is None:
             inputs = {}
         # TODO: https://github.com/software-mansion/starknet.py/issues/320
-        if isinstance(inputs, List):
+
+        try:
+            if isinstance(inputs, List):
+                return await contract_function.invoke(
+                    *inputs, max_fee=max_fee, auto_estimate=auto_estimate  # type: ignore
+                )
             return await contract_function.invoke(
-                *inputs, max_fee=max_fee, auto_estimate=auto_estimate  # type: ignore
+                **inputs, max_fee=max_fee, auto_estimate=auto_estimate  # type: ignore
             )
-        return await contract_function.invoke(
-            **inputs, max_fee=max_fee, auto_estimate=auto_estimate  # type: ignore
-        )
+        except (TypeError, ValueError) as ex:
+            raise InputValidationException(str(ex)) from ex
 
     def _register_request(
         self, action: StarknetRequest.Action, payload: StarknetRequest.Payload
@@ -382,6 +398,13 @@ class ContractNotFoundException(ProtostarException):
         super().__init__(f"Tried to call unknown contract:\n{contract_address}")
 
 
+class InputValidationException(ProtostarException):
+    def __init__(self, message: str):
+        super().__init__(
+            "Input validation failed with the following error:\n" + message
+        )
+
+
 class TransactionException(ProtostarException):
     pass
 
@@ -393,3 +416,26 @@ class CompilationOutputNotFoundException(ProtostarException):
             "Did you run `protostar build`?"
         )
         self._compilation_output_filepath = compilation_output_filepath
+
+
+def transform_constructor_inputs_from_python(
+    abi: AbiType, inputs: Optional[CairoOrPythonData]
+) -> List[int]:
+    if not inputs:
+        return []
+    if isinstance(inputs, List):
+        return inputs
+
+    try:
+        return from_python_transformer(abi, fn_name="constructor", mode="inputs")(
+            inputs
+        )
+    except DataTransformerException as ex:
+        raise InputValidationException(str(ex)) from ex
+
+
+def validate_cairo_inputs(abi: AbiType, inputs: List[int]):
+    try:
+        to_python_transformer(abi, "constructor", "inputs")(inputs)
+    except DataTransformerException as ex:
+        raise InputValidationException(str(ex)) from ex

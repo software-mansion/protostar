@@ -233,5 +233,5 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
 
 
 class CheatableHintsWhitelist(HintsWhitelist):
-    def verify_hint_secure(self, _hint, _reference_manager):
+    def verify_hint_secure(self, hint, reference_manager):  # type: ignore
         return True

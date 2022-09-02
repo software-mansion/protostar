@@ -76,10 +76,26 @@ If your IDE supports Cairo and doesn't know how to import `protostar`, add the f
 
 You can find all [assert signatures here](https://github.com/software-mansion/protostar/blob/master/cairo/protostar/asserts.cairo).
 
-## `__setup__`
-Often while writing tests you have some setup work that needs to happen before tests run. The hook `__setup__` can simplify and speed up your tests. Use `context` variable to pass data from `__setup__` to test functions as demonstrated on the example below:
+## Setup hooks
+
+Often while writing tests you have some setup work that needs to happen before tests run.
+The `__setup__` ([setup suite](#setup-suite)) and `setup_<test_name>` ([setup case](#setup-case))
+hooks can simplify and speed up your tests.
+
+Use the `context` variable to pass data from setup hooks to test functions as demonstrated in
+examples below.
+
+### Setup suite
 
 ```cairo
+@external
+func __setup__()
+```
+
+The setup suite hook is shared between all test cases in a test suite (Cairo module),
+and is executed before test cases.
+
+```cairo title="Using setup suite hook"
 %lang starknet
 
 @external
@@ -99,7 +115,39 @@ func test_something():
 end
 ```
 
-
 :::info
-Protostar executes `__setup__` only once per a [test suite](https://en.wikipedia.org/wiki/Test_suite). Then, for each test case Protostar copies the StarkNet state and `context` object.
+Protostar executes `__setup__` only once per test suite.
+Then, for each test case Protostar copies the StarkNet state and the `context` object.
 :::
+
+### Setup case
+
+```cairo
+@external
+func setup_tested_property()
+
+@external
+func test_tested_property()
+```
+
+The setup case hook is bound to a matching test case and is executed just before the test case
+itself.
+Use case hooks to configure the behavior of particular test case,
+for example, by calling the [`max_examples`](./02-cheatcodes/max-examples.md) cheatcode.
+
+```cairo title="Using setup case hook"
+%lang starknet
+
+@external
+func setup_something():
+    %{ max_examples(500) %}
+    return ()
+end
+
+@external
+func test_something(a : felt):
+    # ...
+
+    return ()
+end
+```

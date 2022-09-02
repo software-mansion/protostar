@@ -87,10 +87,10 @@ class ConfigurationFileV2(ConfigurationFile[ConfigurationFileV2Model]):
             profile_name=profile_name,
         )
 
-    def create_model(
+    def read(
         self,
     ) -> ConfigurationFileV2Model:
-        assert False, "Operation not supported"
+        raise NotImplementedError("Operation not supported.")
 
     def save(self, model: ConfigurationFileV2Model) -> Path:
         content_builder = self._configuration_toml_writer.create_content_builder()

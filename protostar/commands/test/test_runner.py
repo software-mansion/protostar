@@ -15,7 +15,7 @@ from protostar.commands.test.test_case_runners.setup_case_runner import run_setu
 from protostar.commands.test.test_case_runners.test_case_runner_factory import (
     TestCaseRunnerFactory,
 )
-from protostar.commands.test.test_config import TestConfig, TestMode
+from protostar.commands.test.test_config import TestConfig
 from protostar.commands.test.test_environment_exceptions import ReportedException
 from protostar.commands.test.test_results import (
     BrokenTestSuiteResult,
@@ -25,6 +25,7 @@ from protostar.commands.test.test_results import (
 )
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.test_suite import TestSuite, TestCase
+from protostar.commands.test.testing_seed import Seed
 from protostar.protostar_exception import ProtostarException
 from protostar.utils.compiler.pass_managers import (
     ProtostarPassMangerFactory,
@@ -66,6 +67,7 @@ class TestRunner:
         shared_tests_state: SharedTestsState
         include_paths: List[str]
         disable_hint_validation_in_user_contracts: bool
+        testing_seed: Seed
 
     @classmethod
     def worker(cls, args: "TestRunner.WorkerArgs"):
@@ -75,15 +77,17 @@ class TestRunner:
                 include_paths=args.include_paths,
                 disable_hint_validation_in_user_contracts=args.disable_hint_validation_in_user_contracts,
             ).run_test_suite(
-                args.test_suite,
+                test_suite=args.test_suite,
+                testing_seed=args.testing_seed,
             )
         )
 
     async def run_test_suite(
         self,
         test_suite: TestSuite,
+        testing_seed: Seed,
     ):
-        test_config = TestConfig()
+        test_config = TestConfig(seed=testing_seed)
 
         try:
             compiled_test = self.tests_compiler.compile_contract(
@@ -182,10 +186,7 @@ class TestRunner:
             if isinstance(setup_case_result, FailedSetupCaseResult):
                 return setup_case_result.into_failed_test_case_result()
 
-        # TODO(mkaput): Remove this in favor of setting mode explicitly by cheatcodes in setup hooks.
-        state.config.mode = TestMode.infer_from_contract_function(
-            test_case.test_fn_name, state.contract
-        )
+        state.determine_test_mode(test_case)
 
         test_case_runner_factory = TestCaseRunnerFactory(state)
         test_case_runner = test_case_runner_factory.make(test_case)

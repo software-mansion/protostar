@@ -184,7 +184,7 @@ def test_reading_argument_attribute_defined_within_specified_profile(
 def test_generating_data_struct(
     configuration_file: ConfigurationFileV1,
 ):
-    model = configuration_file.create_model()
+    model = configuration_file.read()
 
     assert model == ConfigurationFileV1Model(
         protostar_version=None,
@@ -210,6 +210,6 @@ def test_generating_data_struct(
     ],
 )
 def test_saving_v1_is_not_supported(configuration_file: ConfigurationFileV1):
-    model = configuration_file.create_model()
-    with pytest.raises(AssertionError):
+    model = configuration_file.read()
+    with pytest.raises(NotImplementedError):
         configuration_file.save(model)

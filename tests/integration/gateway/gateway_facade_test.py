@@ -1,4 +1,5 @@
 from pathlib import Path
+from xml.dom import InvalidAccessErr
 
 import pytest
 from starknet_py.net.gateway_client import GatewayClient
@@ -8,9 +9,11 @@ from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.starknet_gateway.gateway_facade import (
     ContractNotFoundException,
     GatewayFacade,
+    InputValidationException,
     UnknownFunctionException,
 )
-from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR
+from protostar.utils.data_transformer import CairoOrPythonData
+from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR, IDENTITY_CONTRACT
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.protostar_fixture import ProtostarFixture
 
@@ -82,13 +85,12 @@ async def test_call_to_unknown_contract(gateway_facade: GatewayFacade):
         )
 
 
-@pytest.mark.skip("https://github.com/software-mansion/starknet.py/issues/302")
 async def test_call_to_with_incorrect_args(
     gateway_facade: GatewayFacade, compiled_contract_path: Path
 ):
     deployed_contract = await gateway_facade.deploy(compiled_contract_path)
 
-    with pytest.raises(Exception):
+    with pytest.raises(InputValidationException):
         await gateway_facade.call(
             deployed_contract.address,
             function_name="get_balance",
@@ -101,12 +103,30 @@ async def test_call_to_with_positional_incorrect_args(
 ):
     deployed_contract = await gateway_facade.deploy(compiled_contract_path)
 
-    with pytest.raises(Exception):
+    with pytest.raises(InputValidationException):
         await gateway_facade.call(
             deployed_contract.address,
             function_name="get_balance",
             inputs=[42],
         )
+
+
+@pytest.fixture(name="compiled_contract_without_constructor_path")
+def compiled_contract_without_constructor_path_fixture(protostar: ProtostarFixture):
+    protostar.init_sync()
+    protostar.create_files({"./src/main.cairo": IDENTITY_CONTRACT})
+    protostar.build_sync()
+    yield protostar.project_root_path / "build" / "main.json"
+
+
+async def test_deploy_fail_input_without_constructor(
+    gateway_facade: GatewayFacade, compiled_contract_without_constructor_path: Path
+):
+    with pytest.raises(InputValidationException) as ex:
+        await gateway_facade.deploy(
+            compiled_contract_without_constructor_path, inputs={"UNKNOWN_INPUT": 42}
+        )
+    assert "Inputs provided to a contract with no constructor." in str(ex.value)
 
 
 @pytest.fixture(name="compiled_contract_with_contractor_path")
@@ -117,9 +137,25 @@ def compiled_contract_with_contractor_path_fixture(protostar: ProtostarFixture):
     yield protostar.project_root_path / "build" / "main.json"
 
 
+@pytest.mark.parametrize("inputs", [[42], {"initial_balance": 42}])
 async def test_deploy_supports_data_transformer(
+    gateway_facade: GatewayFacade,
+    compiled_contract_with_contractor_path: Path,
+    inputs: CairoOrPythonData,
+):
+    await gateway_facade.deploy(compiled_contract_with_contractor_path, inputs=inputs)
+
+
+async def test_deploy_no_args(
     gateway_facade: GatewayFacade, compiled_contract_with_contractor_path: Path
 ):
-    await gateway_facade.deploy(
-        compiled_contract_with_contractor_path, inputs={"initial_balance": 42}
-    )
+    with pytest.raises(InputValidationException):
+        await gateway_facade.deploy(compiled_contract_with_contractor_path)
+
+
+@pytest.mark.skip("https://github.com/software-mansion/starknet.py/pull/323")
+async def test_deploy_too_many_args(
+    gateway_facade: GatewayFacade, compiled_contract_with_contractor_path: Path
+):
+    with pytest.raises(InputValidationException):
+        await gateway_facade.deploy(compiled_contract_with_contractor_path, [42, 24])
