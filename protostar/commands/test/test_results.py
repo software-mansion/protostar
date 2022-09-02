@@ -22,23 +22,28 @@ class TimedTestResult:
 
 
 @dataclass(frozen=True)
-class TestCaseResult(TestResult, TimedTestResult):
+class TestCaseResult(TestResult):
     test_case_name: str
     captured_stdout: Dict[OutputName, str]
 
 
 @dataclass(frozen=True)
-class PassedTestCaseResult(TestCaseResult):
+class TimedTestCaseResult(TestCaseResult, TimedTestResult):
+    pass
+
+
+@dataclass(frozen=True)
+class PassedTestCaseResult(TimedTestCaseResult):
     execution_resources: Optional[ExecutionResourcesSummary]
 
 
 @dataclass(frozen=True)
-class FailedTestCaseResult(TestCaseResult):
+class FailedTestCaseResult(TimedTestCaseResult):
     exception: ReportedException
 
 
 @dataclass(frozen=True)
-class BrokenTestCaseResult(TestCaseResult):
+class BrokenTestCaseResult(TimedTestCaseResult):
     exception: ReportedException
 
 
