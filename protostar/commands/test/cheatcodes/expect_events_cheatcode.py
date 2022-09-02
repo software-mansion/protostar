@@ -17,15 +17,15 @@ if TYPE_CHECKING:
     from protostar.starknet.forkable_starknet import ForkableStarknet
 
 
-class EventExpectationDict(TypedDict):
+class ExpectedEventData(TypedDict):
     name: str
     data: NotRequired[CairoOrPythonData]
     from_address: NotRequired[int]
 
 
-EventExpectationName = str
+ExpectedEventName = str
 
-EventExpectation = Union[EventExpectationDict, EventExpectationName]
+ExpectedEvent = Union[ExpectedEventData, ExpectedEventName]
 
 
 class ExpectEventsCheatcode(Cheatcode):
@@ -46,13 +46,12 @@ class ExpectEventsCheatcode(Cheatcode):
     def build(self) -> Callable:
         return self.expect_events
 
-    def expect_events(self, *expectations: EventExpectation) -> None:
+    def expect_events(self, *raw_expected_events: ExpectedEvent) -> None:
         def compare_expected_and_emitted_events():
-
             expected_events = list(
                 map(
                     self._convert_raw_expected_event_to_expected_event,
-                    expectations,
+                    raw_expected_events,
                 )
             )
 
@@ -76,7 +75,7 @@ class ExpectEventsCheatcode(Cheatcode):
 
     def _convert_raw_expected_event_to_expected_event(
         self,
-        raw_expected_event: EventExpectation,
+        raw_expected_event: ExpectedEvent,
     ):
 
         name: str
