@@ -209,5 +209,5 @@ def test_generating_data_struct(
 )
 def test_saving_v1_is_not_supported(configuration_file: ConfigurationFileV1):
     model = configuration_file.read()
-    with pytest.raises(AssertionError):
+    with pytest.raises(NotImplementedError):
         configuration_file.save(model)
