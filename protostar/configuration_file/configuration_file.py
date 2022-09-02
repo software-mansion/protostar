@@ -47,9 +47,7 @@ class ConfigurationFile(Generic[ConfigurationFileModelT]):
         ...
 
     @abstractmethod
-    def read(
-        self,
-    ) -> ConfigurationFileModelT:
+    def read(self) -> ConfigurationFileModelT:
         ...
 
     @abstractmethod
