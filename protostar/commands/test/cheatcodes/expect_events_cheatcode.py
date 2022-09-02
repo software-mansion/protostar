@@ -1,4 +1,3 @@
-import collections
 from typing import TYPE_CHECKING, Callable, Optional, Union
 
 from typing_extensions import NotRequired, TypedDict

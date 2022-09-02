@@ -1,4 +1,3 @@
-
 # `expect_events`
 ```python
 class EventExpectationDict(TypedDict):
