@@ -84,7 +84,7 @@ class SimpleBreakingReportedException(
 CheatcodeNameProvider = Union[str, HintLocal]
 
 
-class CheatcodeException(SimpleBreakingReportedException):
+class CheatcodeException(BreakingReportedException):
     def __init__(self, cheatcode: CheatcodeNameProvider, message: str):
         if isinstance(cheatcode, HintLocal):
             self.cheatcode_name = cheatcode.name
