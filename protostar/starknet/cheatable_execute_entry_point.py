@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, cast
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
@@ -33,6 +33,7 @@ from protostar.starknet.cheatable_cairo_function_runner import (
 )
 from protostar.starknet.cheatable_syscall_handler import CheatableSysCallHandler
 from protostar.starknet.cheatcode import Cheatcode
+from protostar.starknet.hint_local import HintLocal
 from starkware.cairo.lang.tracer.tracer_data import TracerData
 from starkware.cairo.lang.vm.memory_segments import FIRST_MEMORY_ADDR as PROGRAM_BASE
 
@@ -46,6 +47,8 @@ logger = logging.getLogger(__name__)
 # pylint: disable=too-many-statements
 class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     cheatcode_factory: Optional["CheatcodeFactory"] = None
+    custom_hint_locals: Optional[List[HintLocal]] = None
+    callstack = 0
 
     def _run(  # type: ignore
         self,
@@ -139,6 +142,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         ]
 
         try:
+            CheatableExecuteEntryPoint.callstack += 1
             runner.run_from_entrypoint(
                 entry_point.offset,
                 *entry_points_args,
@@ -152,18 +156,21 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
                 run_resources=tx_execution_context.run_resources,
                 verify_secure=True,
             )
-            runner.relocate()
-            try:
-                save_profile(
-                    program=contract_class.program,
-                    memory=runner.relocated_memory,
-                    trace=runner.relocated_trace,
-                    debug_info=runner.get_relocated_debug_info(),
-                    runner=runner
-                )
-            except Exception as e:
-                print(str(e))
-                raise e
+            CheatableExecuteEntryPoint.callstack -= 1
+            if CheatableExecuteEntryPoint.callstack == 0:
+                runner.relocate()
+                try:
+                    save_profile(
+                        program=contract_class.program,
+                        memory=runner.relocated_memory,
+                        trace=runner.relocated_trace,
+                        debug_info=runner.get_relocated_debug_info(),
+                        runner=runner
+                    )
+                except Exception as e:
+                    print(str(e))
+                    raise e
+
         # --- MODIFICATIONS END ---
 
         except VmException as exception:
