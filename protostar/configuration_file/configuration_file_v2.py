@@ -86,14 +86,6 @@ class ConfigurationFileV2(ConfigurationFile[ConfigurationFileV2Model]):
             for path_str in contract_section[contract_name]
         ]
 
-    def get_lib_path(self) -> Optional[Path]:
-        lib_relative_path_str = self._configuration_toml_reader.get_attribute(
-            section_name="project", attribute_name="libs_path"
-        )
-        if not lib_relative_path_str:
-            return None
-        return self._project_root_path / lib_relative_path_str
-
     def get_command_argument(
         self, command_name: str, argument_name: str, profile_name: Optional[str] = None
     ) -> Optional[
