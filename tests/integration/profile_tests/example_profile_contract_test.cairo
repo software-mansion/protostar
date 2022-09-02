@@ -24,7 +24,7 @@ end
 func test_deploy_contract_simplified{syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
     local contract_address : felt
-    %{ 
+    %{
         basic_contract = deploy_contract("./tests/integration/profile_tests/basic_contract.cairo")
         ids.contract_address = basic_contract.contract_address 
     %}
