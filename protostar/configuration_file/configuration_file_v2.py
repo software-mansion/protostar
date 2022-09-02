@@ -87,7 +87,7 @@ class ConfigurationFileV2(ConfigurationFile[ConfigurationFileV2Model]):
     def read(
         self,
     ) -> ConfigurationFileV2Model:
-        assert False, "Operation not supported"
+        raise NotImplementedError("Operation not supported.")
 
     def save(self, configuration_file_model: ConfigurationFileV2Model) -> Path:
-        assert False, "Operation not supported"
+        raise NotImplementedError("Operation not supported.")
