@@ -14,7 +14,6 @@ if TYPE_CHECKING:
 
 
 class TestingLiveLogger:
-    # pylint: disable=too-many-arguments
     def __init__(
         self,
         logger: Logger,

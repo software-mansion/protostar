@@ -34,7 +34,7 @@ class FuzzTestCaseRunner(TestCaseRunner[FuzzTestExecutionResult]):
         self,
         execution_result: FuzzTestExecutionResult,
         execution_metadata: TestCaseRunner.ExecutionMetadata,
-    ) -> TestResult:
+    ) -> PassedFuzzTestCaseResult:
         passed_test_case_result = super()._map_execution_result_to_passed_test_result(
             execution_result, execution_metadata
         )

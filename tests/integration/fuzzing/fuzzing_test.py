@@ -20,8 +20,7 @@ async def test_basic(run_cairo_test_runner: RunCairoTestRunnerFixture):
         expected_failed_test_cases_names=["test_fuzz_fails"],
     )
 
-    assert testing_summary.testing_seed.value == seed
-    assert testing_summary.testing_seed.was_used
+    assert testing_summary.testing_seed == seed
 
 
 async def test_non_felt_parameter(run_cairo_test_runner: RunCairoTestRunnerFixture):

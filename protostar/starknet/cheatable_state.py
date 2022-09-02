@@ -34,7 +34,6 @@ from protostar.starknet.types import (
 CastableToAddress = Union[str, int]
 CastableToAddressSalt = Union[str, int]
 
-# pylint: disable=too-many-arguments
 # pylint: disable=too-many-ancestors
 @marshmallow_dataclass.dataclass(frozen=True)
 class CheatableInternalInvokeFunction(InternalInvokeFunction):

@@ -17,7 +17,6 @@ from protostar.utils.log_color_provider import LogColorProvider
 
 
 class MigrateCommand(Command):
-    # pylint: disable=too-many-arguments
     def __init__(
         self,
         migrator_builder: Migrator.Builder,
@@ -93,7 +92,6 @@ class MigrateCommand(Command):
             signer=signer,
         )
 
-    # pylint: disable=too-many-arguments
     async def migrate(
         self,
         migration_file_path: Path,

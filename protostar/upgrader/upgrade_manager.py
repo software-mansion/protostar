@@ -116,7 +116,6 @@ class UpgradeManager:
                 tarball_path=tarball_path,
             )
 
-    # pylint: disable=too-many-arguments
     def _handle_error(
         self,
         err: Any,

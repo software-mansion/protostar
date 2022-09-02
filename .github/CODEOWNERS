@@ -1,0 +1,23 @@
+* @Arcticae @kasperski95
+
+/protostar @kasperski95 @mkaput @MaksymilianDemitraszek
+/protostar/cli @kasperski95
+/protostar/commands @kasperski95 @mkaput
+/protostar/commands/deploy @Arcticae @kasperski95 @Radinyn
+/protostar/commands/declare @Arcticae @kasperski95 @Radinyn
+/protostar/commands/init @kasperski95 @MaksymilianDemitraszek
+/protostar/commands/migrate @Arcticae @kasperski95 @Radinyn
+/protostar/commands/test @mkaput @kasperski95
+/protostar/commands/test/fuzzing @mkaput
+/protostar/compiler @kasperski95
+/protostar/migrator @Arcticae @kasperski95 @Radinyn
+/protostar/formatter @Radinyn
+/protostar/protostar_toml @kasperski95
+/protostar/starknet @MaksymilianDemitraszek
+/protostar/starknet_gateway @Arcticae @kasperski95 @Radinyn
+/protostar/upgrader @kasperski95
+
+/website @kasperski95
+/website/docs @MaksymilianDemitraszek
+README.md @MaksymilianDemitraszek
+/readme/ @MaksymilianDemitraszek

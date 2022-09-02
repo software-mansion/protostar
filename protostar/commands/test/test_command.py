@@ -1,5 +1,3 @@
-# pylint: disable=too-many-arguments
-
 from logging import Logger
 from pathlib import Path
 from typing import List, Optional
@@ -15,7 +13,7 @@ from protostar.commands.test.test_results import TestResult
 from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.test_scheduler import TestScheduler
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
-from protostar.commands.test.testing_seed import TestingSeed
+from protostar.commands.test.testing_seed import determine_testing_seed
 from protostar.commands.test.testing_summary import TestingSummary
 from protostar.compiler import ProjectCairoPathBuilder
 from protostar.utils.compiler.pass_managers import (
@@ -137,7 +135,6 @@ A glob or globs to a directory or a test suite, for example:
         summary.assert_all_passed()
         return summary
 
-    # pylint: disable=too-many-locals
     async def test(
         self,
         targets: List[str],
@@ -164,47 +161,50 @@ A glob or globs to a directory or a test suite, for example:
             if safe_collecting
             else TestCollectorPassManagerFactory
         )
-        with TestingSeed(seed) as testing_seed:
-            with ActivityIndicator(
-                self._log_color_provider.colorize("GRAY", "Collecting tests")
-            ):
-                test_collector_result = TestCollector(
-                    StarknetCompiler(
-                        config=CompilerConfig(
-                            disable_hint_validation=True, include_paths=include_paths
-                        ),
-                        pass_manager_factory=factory,
+
+        testing_seed = determine_testing_seed(seed)
+
+        with ActivityIndicator(
+            self._log_color_provider.colorize("GRAY", "Collecting tests")
+        ):
+            test_collector_result = TestCollector(
+                StarknetCompiler(
+                    config=CompilerConfig(
+                        disable_hint_validation=True, include_paths=include_paths
                     ),
-                    config=TestCollector.Config(safe_collecting=safe_collecting),
-                ).collect(
-                    targets=targets,
-                    ignored_targets=ignored_targets,
-                    default_test_suite_glob=str(self._project_root_path),
-                )
+                    pass_manager_factory=factory,
+                ),
+                config=TestCollector.Config(safe_collecting=safe_collecting),
+            ).collect(
+                targets=targets,
+                ignored_targets=ignored_targets,
+                default_test_suite_glob=str(self._project_root_path),
+            )
 
-            self._log_test_collector_result(test_collector_result)
+        self._log_test_collector_result(test_collector_result)
 
-            testing_summary = TestingSummary(
-                case_results=test_collector_result.broken_test_suites,  # type: ignore | pyright bug?
+        testing_summary = TestingSummary(
+            case_results=test_collector_result.broken_test_suites,  # type: ignore | pyright bug?
+            testing_seed=testing_seed,
+        )
+
+        if test_collector_result.test_cases_count > 0:
+            live_logger = TestingLiveLogger(
+                logger=self._logger,
+                testing_summary=testing_summary,
+                no_progress_bar=no_progress_bar,
+                exit_first=exit_first,
+                slowest_tests_to_report_count=slowest_tests_to_report_count,
+            )
+            TestScheduler(live_logger, worker=TestRunner.worker).run(
+                include_paths=include_paths,
+                test_collector_result=test_collector_result,
+                disable_hint_validation=disable_hint_validation,
+                exit_first=exit_first,
                 testing_seed=testing_seed,
             )
 
-            if test_collector_result.test_cases_count > 0:
-                live_logger = TestingLiveLogger(
-                    logger=self._logger,
-                    testing_summary=testing_summary,
-                    no_progress_bar=no_progress_bar,
-                    exit_first=exit_first,
-                    slowest_tests_to_report_count=slowest_tests_to_report_count,
-                )
-                TestScheduler(live_logger, worker=TestRunner.worker).run(
-                    include_paths=include_paths,
-                    test_collector_result=test_collector_result,
-                    disable_hint_validation=disable_hint_validation,
-                    exit_first=exit_first,
-                )
-
-            return testing_summary
+        return testing_summary
 
     def _log_test_collector_result(
         self, test_collector_result: TestCollector.Result

@@ -6,6 +6,12 @@ def expect_revert(error_type: Optional[str] = None, error_message: Optional[str]
 
 If a code beneath `expect_revert` raises a specified exception, a test will pass. If not, a test will fail.
 
+:::warning
+Protostar always stops test case execution when a revert error is raised.
+The `expect_revert` cheatcode installs an assertion matching the caught error object,
+but it does not resume test execution in `try/except`-fashion.
+:::
+
 :::info
 Protostar displays an error type and a message when a test fails.
 :::

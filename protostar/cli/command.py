@@ -73,5 +73,5 @@ class Command(ABC):
         ...
 
     @abstractmethod
-    async def run(self, args: Any):
+    async def run(self, args: Any) -> Any:
         ...

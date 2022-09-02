@@ -5,6 +5,7 @@ from starkware.starknet.public.abi import AbiType
 
 from protostar.utils.abi import (
     get_function_parameters,
+    has_abi_item,
     has_function_parameters,
     AbiItemNotFoundException,
 )
@@ -69,3 +70,8 @@ def test_get_function_parameters_raises_when_function_not_found(abi: AbiType):
 def test_get_function_parameters_raises_when_asked_for_struct(abi: AbiType):
     with pytest.raises(AbiItemNotFoundException):
         get_function_parameters(abi, "Point")
+
+
+def test_has_abi_tiem(abi: AbiType):
+    assert has_abi_item(abi, "test_fuzz")
+    assert not has_abi_item(abi, "constructor")

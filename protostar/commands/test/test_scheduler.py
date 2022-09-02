@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Callable, List
 from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
+from protostar.commands.test.testing_seed import Seed
 
 if TYPE_CHECKING:
     from protostar.commands.test.test_collector import TestCollector
@@ -22,13 +23,13 @@ class TestScheduler:
         self._live_logger = live_logger
         self._worker = worker
 
-    # pylint: disable=too-many-arguments
     def run(
         self,
         test_collector_result: "TestCollector.Result",
         include_paths: List[str],
         disable_hint_validation: bool,
         exit_first: bool,
+        testing_seed: Seed,
     ):
         with multiprocessing.Manager() as manager:
             shared_tests_state = SharedTestsState(
@@ -40,6 +41,7 @@ class TestScheduler:
                     shared_tests_state=shared_tests_state,
                     include_paths=include_paths,
                     disable_hint_validation_in_user_contracts=disable_hint_validation,
+                    testing_seed=testing_seed,
                 )
                 for test_suite in test_collector_result.test_suites
             ]
@@ -51,10 +53,8 @@ class TestScheduler:
 
             try:
                 with multiprocessing.Pool(
-                    multiprocessing.cpu_count(),
-                    lambda: signal.signal(
-                        signal.SIGINT, signal.SIG_IGN
-                    ),  # prevents showing a stacktrace on cmd/ctrl + c
+                    processes=multiprocessing.cpu_count(),
+                    initializer=_init_worker,
                 ) as pool:
                     results = pool.map_async(self._worker, setups)
 
@@ -67,3 +67,9 @@ class TestScheduler:
                     results.get()
             except KeyboardInterrupt:
                 return
+
+
+# Note: This function has to be top-level function, because it is being pickled by multiprocessing.
+def _init_worker():
+    # Prevent showing a stacktrace on CMD/CTRL+C.
+    signal.signal(signal.SIGINT, signal.SIG_IGN)

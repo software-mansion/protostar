@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pytest
+
 from protostar.commands.test.test_results import PassedFuzzTestCaseResult
 from tests.integration.conftest import (
     RunCairoTestRunnerFixture,
@@ -39,49 +41,25 @@ async def test_integers_unbounded(
     )
 
 
-async def test_flaky_strategy(
+@pytest.mark.skip("https://github.com/software-mansion/protostar/issues/711")
+async def test_edge_cases(
     run_cairo_test_runner: RunCairoTestRunnerFixture,
 ):
     testing_summary = await run_cairo_test_runner(
-        Path(__file__).parent / "flaky_strategy_test.cairo"
+        Path(__file__).parent / "edge_cases_test.cairo"
     )
 
     assert_cairo_test_cases(
         testing_summary,
-        expected_passed_test_cases_names=[],
-        expected_failed_test_cases_names=[
-            "test_flaky_strategy",
+        expected_passed_test_cases_names=[
+            "test_multiple_given_calls",
         ],
-    )
-
-
-async def test_multiple_learning_steps(
-    run_cairo_test_runner: RunCairoTestRunnerFixture,
-):
-    testing_summary = await run_cairo_test_runner(
-        Path(__file__).parent / "multiple_learning_steps_test.cairo"
-    )
-
-    assert_cairo_test_cases(
-        testing_summary,
-        expected_passed_test_cases_names=["test_multiple_learning_steps"],
-        expected_failed_test_cases_names=[],
-    )
-
-
-async def test_invalid_calls(
-    run_cairo_test_runner: RunCairoTestRunnerFixture,
-):
-    testing_summary = await run_cairo_test_runner(
-        Path(__file__).parent / "invalid_calls_test.cairo"
-    )
-
-    assert_cairo_test_cases(
-        testing_summary,
-        expected_passed_test_cases_names=[],
         expected_failed_test_cases_names=[
             "test_integers_inverted_range",
             "test_not_strategy_object",
+            "test_repeated_parameter",
+        ],
+        expected_broken_test_cases_names=[
             "test_unknown_parameter",
         ],
     )

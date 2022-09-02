@@ -40,12 +40,11 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 # pylint: disable=raise-missing-from
-# pylint: disable=too-many-locals
 # pylint: disable=too-many-statements
 class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     cheatcode_factory: Optional["CheatcodeFactory"] = None
 
-    def _run(
+    def _run(  # type: ignore
         self,
         state: "CheatableCarriedState",
         general_config: StarknetGeneralConfig,

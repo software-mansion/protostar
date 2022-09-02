@@ -208,7 +208,7 @@ def test_transforming_file_v1_into_v2(
     reader = ConfigurationTOMLReader(path=old_protostar_toml_path)
     model_v1 = ConfigurationFileV1(
         project_root_path=project_root_path, configuration_toml_reader=reader
-    ).create_model()
+    ).read()
 
     new_protostar_toml_path = ConfigurationFileV2(
         project_root_path=project_root_path,
