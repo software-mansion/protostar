@@ -6,10 +6,14 @@ from protostar.commands.test.test_environment_exceptions import (
 from protostar.starknet.hint_local import HintLocal
 
 
+class CairoStructException(SimpleBreakingReportedException):
+    pass
+
+
 class CairoStruct:
     def __init__(self, *args, **kwargs) -> None:
         if len(args) > 0:  # / syntax not avaliable in py3.7
-            raise SimpleBreakingReportedException(
+            raise CairoStructException(
                 "CairoStruct constructor takes only keyword arguments."
             )
 
@@ -17,7 +21,7 @@ class CairoStruct:
 
         for key, value in kwargs.items():
             if not isinstance(value, VALID_CAIRO_TYPES):
-                raise SimpleBreakingReportedException(
+                raise CairoStructException(
                     f'"{type(value).__name__}" is not a valid CairoType.'
                 )
             self._ordered_dict[key] = value
@@ -25,18 +29,16 @@ class CairoStruct:
     def __getattr__(self, name: str) -> "CairoValueType":
         if name in self._ordered_dict:
             return self._ordered_dict[name]
-        raise SimpleBreakingReportedException(
-            f'"{name}" is not a member of this CairoStruct.'
-        )
+        raise CairoStructException(f'"{name}" is not a member of this CairoStruct.')
 
     def __setattr__(self, name: str, value: Any) -> None:
         if name != "_ordered_dict":
-            raise SimpleBreakingReportedException("CairoStruct is immutable.")
+            raise CairoStructException("CairoStruct is immutable.")
         super().__setattr__(name, value)
 
     def _set(self, name: str, value: "CairoValueType") -> None:
         if not isinstance(value, VALID_CAIRO_TYPES):  # type: ignore
-            raise SimpleBreakingReportedException(
+            raise CairoStructException(
                 f'"{type(value).__name__}" is not a valid CairoType.'
             )
         self._ordered_dict[name] = value

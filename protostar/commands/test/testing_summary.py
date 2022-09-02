@@ -176,10 +176,10 @@ class TestingSummary:
 
     def _get_slowest_test_cases_list(
         self,
-        test_case_list: List[TimedTestCaseResult],
         count: int,
     ) -> List[TimedTestCaseResult]:
-        lst = sorted(test_case_list, key=lambda x: x.execution_time, reverse=True)
+        lst = self.passed + self.failed + self.broken  # type: ignore
+        lst.sort(key=lambda x: x.execution_time, reverse=True)
         return lst[: min(count, len(lst))]
 
     def _format_slow_test_cases_list(
@@ -188,9 +188,7 @@ class TestingSummary:
         local_log_color_provider: LogColorProvider = log_color_provider,
     ) -> str:
 
-        slowest_test_cases = self._get_slowest_test_cases_list(
-            self.failed + self.passed + self.broken, count  # type: ignore
-        )
+        slowest_test_cases = self._get_slowest_test_cases_list(count)
 
         rows: List[List[str]] = []
         for i, test_case in enumerate(slowest_test_cases, 1):
