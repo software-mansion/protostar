@@ -1,8 +1,8 @@
 from pathlib import Path
 from typing import Any, Dict, List, Optional, cast
 
-import flatdict
 import tomli
+from flatdict import FlatDict
 
 from protostar.protostar_exception import ProtostarException
 
@@ -16,9 +16,7 @@ class ConfigurationTOMLReader:
         path: Path,
     ):
         self.path = path
-        self._cache: Optional[
-            Dict[ConfigurationTOMLReader.FlattenSectionName, Any]
-        ] = None
+        self._cache: Optional[FlatDict] = None
 
     def get_filename(self) -> str:
         return self.path.name
@@ -29,20 +27,18 @@ class ConfigurationTOMLReader:
         profile_name: Optional[str] = None,
         section_namespace: Optional[str] = None,
     ) -> Optional[Dict[str, Any]]:
-
         section_name = (
             f"{section_namespace}.{section_name}" if section_namespace else section_name
         )
-
-        protostar_toml_dict = self._read_if_cache_miss()
-
+        protostar_toml_flatdict = self._read_if_cache_miss()
         if profile_name:
             section_name = f"profile.{profile_name}.{section_name}"
-
-        if section_name not in protostar_toml_dict:
+        if section_name not in protostar_toml_flatdict:
             return None
-
-        return protostar_toml_dict[section_name]
+        section = protostar_toml_flatdict[section_name]
+        if isinstance(section, FlatDict):
+            return section.as_dict()
+        return protostar_toml_flatdict[section_name]
 
     def get_attribute(
         self,
@@ -92,7 +88,7 @@ class ConfigurationTOMLReader:
 
         return None
 
-    def _read_if_cache_miss(self) -> Dict[str, Any]:
+    def _read_if_cache_miss(self) -> FlatDict:
         if self._cache is not None:
             return self._cache
 
@@ -101,13 +97,8 @@ class ConfigurationTOMLReader:
 
         with open(self.path, "rb") as protostar_toml_file:
             protostar_toml_dict = tomli.load(protostar_toml_file)
-            protostar_toml_flat_dict = cast(
-                Dict[ConfigurationTOMLReader.FlattenSectionName, Any],
-                flatdict.FlatDict(protostar_toml_dict, delimiter="."),
-            )
-
+            protostar_toml_flat_dict = FlatDict(protostar_toml_dict, delimiter=".")
             self._cache = protostar_toml_flat_dict
-
             return protostar_toml_flat_dict
 
 

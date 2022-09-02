@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
-
-from flatdict import FlatDict
+from typing import Dict, List, Optional, Union
 
 from protostar.utils.protostar_directory import VersionManager, VersionType
 
@@ -156,7 +154,7 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
     ) -> CommandNameToConfig:
         result: CommandNameToConfig = {}
         for command_name in self._command_names:
-            command_config = self._get_section(
+            command_config = self._configuration_toml_reader.get_section(
                 section_name=command_name,
                 profile_name=profile_name,
                 section_namespace="protostar",
@@ -180,28 +178,13 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
         self, profile_name: Optional[str] = None
     ) -> CommandConfig:
         return (
-            self._get_section(
+            self._configuration_toml_reader.get_section(
                 "shared_command_configs",
                 profile_name=profile_name,
                 section_namespace="protostar",
             )
             or {}
         )
-
-    def _get_section(
-        self,
-        section_name: str,
-        profile_name: Optional[str] = None,
-        section_namespace: Optional[str] = None,
-    ) -> Optional[Dict[str, Any]]:
-        section = self._configuration_toml_reader.get_section(
-            section_name=section_name,
-            profile_name=profile_name,
-            section_namespace=section_namespace,
-        )
-        if isinstance(section, FlatDict):
-            section = section.as_dict()
-        return section
 
     def save(self, model: ConfigurationFileV1Model) -> Path:
         assert False, "Operation not supported"

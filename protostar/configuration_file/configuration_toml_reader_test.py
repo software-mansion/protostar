@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+from flatdict import FlatDict
 from pytest_mock import MockerFixture
 
 from .configuration_toml_reader import (
@@ -158,3 +159,12 @@ def test_extracting_profile_names(protostar_toml_path: Path):
     result = ConfigurationTOMLReader(protostar_toml_path).get_profile_names()
 
     assert result == ["ci"]
+
+
+def test_section_is_not_flat_dict(protostar_toml_path: Path):
+    result = ConfigurationTOMLReader(protostar_toml_path).get_section(
+        section_name="config",
+        section_namespace="protostar",
+    )
+
+    assert not isinstance(result, FlatDict)
