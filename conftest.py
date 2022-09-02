@@ -1,4 +1,5 @@
-from typing import List, Optional
+from pathlib import Path
+from typing import Dict, List, Optional, Union
 
 import pytest
 
@@ -79,3 +80,23 @@ def foo_command_fixture() -> FooCommand:
 @pytest.fixture(name="bar_command")
 def bar_command_fixture() -> BarCommand:
     return BarCommand()
+
+
+FolderOrFileName = str
+FileContent = str
+FolderStructureComponent = Dict[
+    FolderOrFileName, Union["FolderStructureComponent", FileContent]
+]
+
+
+def generate_folder_structure(path: Path, composite_map: FolderStructureComponent):
+    for composite_name, composite in composite_map.items():
+        if isinstance(composite, str):
+            file_content = composite
+            file_name = composite_name
+            (path / file_name).write_text(file_content)
+        else:
+            directory_name = composite_name
+            directory_path = path / directory_name
+            directory_path.mkdir()
+            generate_folder_structure(directory_path, composite)

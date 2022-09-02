@@ -1,29 +1,29 @@
 from pathlib import Path
 
+from conftest import generate_folder_structure
+
 from .configuration_file_factory import ConfigurationFileFactory
+from .configuration_file_v1 import ConfigurationFileV1
 
 
 def test_not_finding_protostar_toml(tmp_path: Path):
-    path = ConfigurationFileFactory(tmp_path).search_upwards_protostar_toml_path()
-    assert path is None
+    factory = ConfigurationFileFactory()
+
+    configuration_file = factory.create_configuration_file(cwd=tmp_path)
+
+    assert configuration_file is None
 
 
-def test_searching_protostar_from_cwd(tmp_path: Path):
+def test_creating_configuration_file_v1(tmp_path: Path):
     protostar_toml_path = tmp_path / "protostar.toml"
-    protostar_toml_path.touch()
+    protostar_toml_path.write_text(
+        """
+        ["protostar.config"]
+        protostar_version = 0.3.0
+        """
+    )
+    factory = ConfigurationFileFactory()
 
-    result = ConfigurationFileFactory(tmp_path).search_upwards_protostar_toml_path()
+    configuration_file = factory.create_configuration_file()
 
-    assert result == protostar_toml_path
-
-
-def test_searching_protostar_toml_when_cwd_below_project_root(tmp_path: Path):
-    project_root_path = tmp_path
-    src_path = project_root_path / "src"
-    src_path.mkdir()
-    protostar_toml_path = project_root_path / "protostar.toml"
-    protostar_toml_path.touch()
-
-    result = ConfigurationFileFactory(src_path).search_upwards_protostar_toml_path()
-
-    assert result == protostar_toml_path
+    assert isinstance(configuration_file, ConfigurationFileV1) is None
