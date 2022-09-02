@@ -62,6 +62,10 @@ class ReportedException(BaseException):
         return None
 
 
+class BreakingReportedException(ReportedException):
+    pass
+
+
 class SimpleReportedException(ReportedException):
     def __init__(self, message: str) -> None:
         self.message = message
@@ -74,7 +78,7 @@ class SimpleReportedException(ReportedException):
 CheatcodeNameProvider = Union[str, HintLocal]
 
 
-class CheatcodeException(ReportedException):
+class CheatcodeException(BreakingReportedException):
     def __init__(self, cheatcode: CheatcodeNameProvider, message: str):
         if isinstance(cheatcode, HintLocal):
             self.cheatcode_name = cheatcode.name

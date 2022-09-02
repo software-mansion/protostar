@@ -42,4 +42,4 @@ async def test_invalid_setup(run_cairo_test_runner: RunCairoTestRunnerFixture):
         Path(__file__).parent / "invalid_setup_test.cairo"
     )
 
-    assert len(testing_summary.broken) == 1
+    assert len(testing_summary.broken_suites) == 1

@@ -21,7 +21,7 @@ async def test_reflect_cheatcode(run_cairo_test_runner: RunCairoTestRunnerFixtur
             "test_reflect_passed_repr",
             "test_reflect_passed_full",
         ],
-        expected_failed_test_cases_names=[
+        expected_broken_test_cases_names=[
             "test_reflect_failed_simple",
             "test_reflect_failed_corruption",
             "test_reflect_failed_illegal_arg",

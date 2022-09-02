@@ -10,6 +10,7 @@ from .test_results import (
     BrokenTestSuiteResult,
     FailedFuzzTestCaseResult,
     FailedTestCaseResult,
+    BrokenTestCaseResult,
     PassedFuzzTestCaseResult,
     PassedTestCaseResult,
     TestResult,
@@ -29,6 +30,8 @@ def format_test_result(test_result: TestResult) -> str:
         return _format_passed_test_case_result(test_result)
     if isinstance(test_result, FailedTestCaseResult):
         return _format_failed_test_case_result(test_result)
+    if isinstance(test_result, BrokenTestCaseResult):
+        return _format_broken_test_case_result(test_result)
     if isinstance(test_result, UnexpectedBrokenTestSuiteResult):
         return _format_unexpected_exception_test_suite_result(test_result)
     if isinstance(test_result, BrokenTestSuiteResult):
@@ -87,6 +90,46 @@ def _format_failed_test_case_result(
         result.append("\n")
 
     result.extend(_get_formatted_stdout(failed_test_case_result.captured_stdout))
+
+    return "".join(result)
+
+
+def _format_broken_test_case_result(
+    broken_test_case_result: BrokenTestCaseResult,
+) -> str:
+    result: List[str] = []
+    first_line_items: List[str] = []
+
+    first_line_items.append(f"[{log_color_provider.colorize('RED', 'BROKEN')}]")
+    formatted_file_path = _get_formatted_file_path(broken_test_case_result.file_path)
+    first_line_items.append(
+        f"{formatted_file_path} {broken_test_case_result.test_case_name}"
+    )
+
+    info_items = []
+
+    info_items.append(
+        _get_formatted_execution_time(broken_test_case_result.execution_time)
+    )
+
+    for key, value in broken_test_case_result.exception.execution_info.items():
+        info_items.append(f"{key}={log_color_provider.bold(value)}")
+
+    if len(info_items) > 0:
+        info = ", ".join(info_items)
+        first_line_items.append(log_color_provider.colorize("GRAY", f"({info})"))
+
+    result.append(" ".join(first_line_items))
+
+    result.append("\n")
+    result.append(str(broken_test_case_result.exception))
+    result.append("\n")
+
+    for metadata in broken_test_case_result.exception.metadata:
+        result.append(_get_formatted_metadata(metadata))
+        result.append("\n")
+
+    result.extend(_get_formatted_stdout(broken_test_case_result.captured_stdout))
 
     return "".join(result)
 

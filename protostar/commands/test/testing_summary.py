@@ -1,13 +1,15 @@
 from collections import defaultdict
 from logging import Logger
 from pathlib import Path
-from typing import Dict, List, Union
+from typing import Dict, List
 
 from protostar.commands.test.test_results import (
+    BrokenTestCaseResult,
     BrokenTestSuiteResult,
     FailedTestCaseResult,
     PassedTestCaseResult,
     TestResult,
+    TimedTestCaseResult,
 )
 from protostar.commands.test.testing_seed import Seed
 from protostar.protostar_exception import ProtostarExceptionSilent
@@ -21,7 +23,8 @@ class TestingSummary:
         self.test_suites_mapping: Dict[Path, List[TestResult]] = defaultdict(list)
         self.passed: List[PassedTestCaseResult] = []
         self.failed: List[FailedTestCaseResult] = []
-        self.broken: List[BrokenTestSuiteResult] = []
+        self.broken: List[BrokenTestCaseResult] = []
+        self.broken_suites: List[BrokenTestSuiteResult] = []
         self.extend(case_results)
 
     def extend(self, case_results: List[TestResult]):
@@ -33,8 +36,10 @@ class TestingSummary:
                 self.passed.append(case_result)
             if isinstance(case_result, FailedTestCaseResult):
                 self.failed.append(case_result)
-            if isinstance(case_result, BrokenTestSuiteResult):
+            if isinstance(case_result, BrokenTestCaseResult):
                 self.broken.append(case_result)
+            if isinstance(case_result, BrokenTestSuiteResult):
+                self.broken_suites.append(case_result)
 
     def log(
         self,
@@ -73,15 +78,17 @@ class TestingSummary:
             )
 
     def assert_all_passed(self):
-        if self.failed or self.broken:
+        if self.failed or self.broken_suites:
             raise ProtostarExceptionSilent("Not all test cases passed")
 
     def _get_test_cases_summary(self, collected_test_cases_count: int) -> str:
+        broken_test_cases_count = len(self.broken)
         failed_test_cases_count = len(self.failed)
         passed_test_cases_count = len(self.passed)
 
         return ", ".join(
             self._get_preprocessed_core_testing_summary(
+                broken_count=broken_test_cases_count,
                 failed_count=failed_test_cases_count,
                 passed_count=passed_test_cases_count,
                 total_count=collected_test_cases_count,
@@ -96,7 +103,7 @@ class TestingSummary:
         for suit_case_results in self.test_suites_mapping.values():
             partial_summary = TestingSummary(suit_case_results, self.testing_seed)
 
-            if len(partial_summary.broken) > 0:
+            if len(partial_summary.broken_suites) + len(partial_summary.broken) > 0:
                 broken_test_suites_count += 1
                 continue
 
@@ -169,12 +176,10 @@ class TestingSummary:
 
     def _get_slowest_test_cases_list(
         self,
-        failed_and_passed_list: List[Union[PassedTestCaseResult, FailedTestCaseResult]],
+        test_case_list: List[TimedTestCaseResult],
         count: int,
-    ) -> List[Union[PassedTestCaseResult, FailedTestCaseResult]]:
-        lst = sorted(
-            failed_and_passed_list, key=lambda x: x.execution_time, reverse=True
-        )
+    ) -> List[TimedTestCaseResult]:
+        lst = sorted(test_case_list, key=lambda x: x.execution_time, reverse=True)
         return lst[: min(count, len(lst))]
 
     def _format_slow_test_cases_list(
@@ -183,7 +188,9 @@ class TestingSummary:
         local_log_color_provider: LogColorProvider = log_color_provider,
     ) -> str:
 
-        slowest_test_cases = self._get_slowest_test_cases_list(self.failed + self.passed, count)  # type: ignore
+        slowest_test_cases = self._get_slowest_test_cases_list(
+            self.failed + self.passed + self.broken, count  # type: ignore
+        )
 
         rows: List[List[str]] = []
         for i, test_case in enumerate(slowest_test_cases, 1):

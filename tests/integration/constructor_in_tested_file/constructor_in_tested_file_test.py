@@ -15,4 +15,4 @@ async def test_should_accept_case_with_constructor(
         Path(__file__).parent / "basic_contract_test.cairo"
     )
 
-    assert len(testing_summary.broken) == 0
+    assert len(testing_summary.broken_suites) == 0

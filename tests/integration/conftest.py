@@ -44,10 +44,13 @@ class CairoTestCases:
 
 def assert_cairo_test_cases(
     testing_summary: TestingSummary,
-    expected_passed_test_cases_names: List[str],
-    expected_failed_test_cases_names: List[str],
+    expected_passed_test_cases_names: Optional[List[str]] = None,
+    expected_failed_test_cases_names: Optional[List[str]] = None,
     expected_broken_test_cases_names: Optional[List[str]] = None,
 ):
+    expected_passed_test_cases_names = expected_passed_test_cases_names or []
+    expected_failed_test_cases_names = expected_failed_test_cases_names or []
+
     passed_test_cases_names = set(
         passed_test_case.test_case_name for passed_test_case in testing_summary.passed
     )
@@ -56,10 +59,13 @@ def assert_cairo_test_cases(
     )
 
     if expected_broken_test_cases_names is None:
-        actual_broken = len(testing_summary.broken)
+        actual_broken = len(testing_summary.broken_suites) + len(testing_summary.broken)
     else:
-        actual_broken = set()
-        for broken_test_case in testing_summary.broken:
+        actual_broken = set(
+            broken_test_case.test_case_name
+            for broken_test_case in testing_summary.broken
+        )
+        for broken_test_case in testing_summary.broken_suites:
             for test_case_name in broken_test_case.test_case_names:
                 actual_broken.add(test_case_name)
 

@@ -7,7 +7,10 @@ from typing_extensions import Self
 from protostar.commands.test.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
 )
-from protostar.commands.test.test_environment_exceptions import ReportedException
+from protostar.commands.test.test_environment_exceptions import (
+    ReportedException,
+    BreakingReportedException,
+)
 from protostar.commands.test.test_output_recorder import OutputName
 
 
@@ -28,13 +31,23 @@ class TimedTestResult:
 
 
 @dataclass(frozen=True)
-class PassedTestCaseResult(TestCaseResult, TimedTestResult):
+class TimedTestCaseResult(TestCaseResult, TimedTestResult):
+    pass
+
+
+@dataclass(frozen=True)
+class PassedTestCaseResult(TimedTestCaseResult):
     execution_resources: Optional[ExecutionResourcesSummary]
 
 
 @dataclass(frozen=True)
-class FailedTestCaseResult(TestCaseResult, TimedTestResult):
+class FailedTestCaseResult(TimedTestCaseResult):
     exception: ReportedException
+
+
+@dataclass(frozen=True)
+class BrokenTestCaseResult(TimedTestCaseResult):
+    exception: BreakingReportedException
 
 
 @dataclass(frozen=True)
@@ -90,7 +103,7 @@ class PassedSetupCaseResult(SetupCaseResult):
 
 
 @dataclass(frozen=True)
-class FailedSetupCaseResult(SetupCaseResult):
+class BrokenSetupCaseResult(SetupCaseResult):
     captured_stdout: Dict[OutputName, str]
     exception: ReportedException
 

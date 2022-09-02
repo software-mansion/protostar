@@ -6,7 +6,7 @@ from protostar.commands.test.test_environment_exceptions import ReportedExceptio
 from protostar.commands.test.test_results import (
     SetupCaseResult,
     PassedSetupCaseResult,
-    FailedSetupCaseResult,
+    BrokenSetupCaseResult,
 )
 from protostar.commands.test.test_suite import TestCase
 
@@ -29,7 +29,7 @@ async def run_setup_case(
             execution_time=state.stopwatch.total_elapsed,
         )
     except ReportedException as ex:
-        return FailedSetupCaseResult(
+        return BrokenSetupCaseResult(
             file_path=test_case.test_path,
             test_case_name=test_case.test_fn_name,
             setup_case_name=test_case.setup_fn_name,
