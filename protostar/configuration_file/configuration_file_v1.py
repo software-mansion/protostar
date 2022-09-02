@@ -93,7 +93,7 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
             profile_name=profile_name,
         )
 
-    def create_model(
+    def read(
         self,
     ) -> ConfigurationFileV1Model:
         return ConfigurationFileV1Model(

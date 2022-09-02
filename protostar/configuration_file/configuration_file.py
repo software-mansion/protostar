@@ -15,10 +15,10 @@ CommandNameToConfig = Dict[CommandName, CommandConfig]
 ProfileName = str
 ContractName = str
 
-TConfigurationFileModel = TypeVar("TConfigurationFileModel")
+ConfigurationFileModelT = TypeVar("ConfigurationFileModelT")
 
 
-class ConfigurationFile(Generic[TConfigurationFileModel]):
+class ConfigurationFile(Generic[ConfigurationFileModelT]):
     @abstractmethod
     def get_min_protostar_version(self) -> Optional[VersionType]:
         ...
@@ -47,13 +47,13 @@ class ConfigurationFile(Generic[TConfigurationFileModel]):
         ...
 
     @abstractmethod
-    def create_model(
+    def read(
         self,
-    ) -> TConfigurationFileModel:
+    ) -> ConfigurationFileModelT:
         ...
 
     @abstractmethod
-    def save(self, configuration_file_model: TConfigurationFileModel) -> Path:
+    def save(self, configuration_file_model: ConfigurationFileModelT) -> Path:
         ...
 
 
