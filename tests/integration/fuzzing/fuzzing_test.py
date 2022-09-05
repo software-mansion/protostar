@@ -107,5 +107,5 @@ async def test_max_examples_invalid_arguments(
     assert_cairo_test_cases(
         testing_summary,
         expected_passed_test_cases_names=[],
-        expected_failed_test_cases_names=["test_zero", "test_negative"],
+        expected_broken_test_cases_names=["test_zero", "test_negative"],
     )
