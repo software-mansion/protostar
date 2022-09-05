@@ -193,21 +193,3 @@ def test_generating_data_struct(
         profile_name_to_commands_config={"devnet": {"deploy": {"arg_name": 37}}},
         profile_name_to_shared_command_config={},
     )
-
-
-@pytest.mark.parametrize(
-    "protostar_toml_content",
-    [
-        """
-        ["protostar.deploy"]
-        arg_name = 21
-
-        ["profile.devnet.protostar.deploy"]
-        arg_name = 37
-        """
-    ],
-)
-def test_saving_v1_is_not_supported(configuration_file: ConfigurationFileV1):
-    model = configuration_file.read()
-    with pytest.raises(NotImplementedError):
-        configuration_file.save(model)

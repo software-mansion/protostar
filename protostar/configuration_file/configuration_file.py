@@ -50,10 +50,6 @@ class ConfigurationFile(Generic[ConfigurationFileModelT]):
     def read(self) -> ConfigurationFileModelT:
         ...
 
-    @abstractmethod
-    def save(self, configuration_file_model: ConfigurationFileModelT) -> Path:
-        ...
-
 
 class ContractNameNotFoundException(ProtostarException):
     def __init__(self, contract_name: str, expected_declaration_localization: str):
