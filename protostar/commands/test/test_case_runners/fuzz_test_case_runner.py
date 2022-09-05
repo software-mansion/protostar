@@ -8,13 +8,17 @@ from protostar.commands.test.fuzzing.fuzz_input_exception_metadata import (
     FuzzInputExceptionMetadata,
 )
 from protostar.commands.test.test_case_runners.test_case_runner import TestCaseRunner
-from protostar.commands.test.test_environment_exceptions import ReportedException
+from protostar.commands.test.test_environment_exceptions import (
+    ReportedException,
+    BreakingReportedException,
+)
 from protostar.commands.test.test_results import (
     FailedFuzzTestCaseResult,
     FailedTestCaseResult,
     FuzzResult,
     PassedFuzzTestCaseResult,
-    TestResult,
+    BrokenTestCaseResult,
+    BrokenFuzzTestCaseResult,
 )
 
 
@@ -52,13 +56,24 @@ class FuzzTestCaseRunner(TestCaseRunner[FuzzTestExecutionResult]):
             reported_exception, execution_metadata
         )
         fuzz_result = self._map_reported_exception_to_fuzz_result(reported_exception)
-        if fuzz_result:
-            return FailedFuzzTestCaseResult.from_failed_test_case_result(
-                failed_test_case_result,
-                fuzz_result,
-            )
         return FailedFuzzTestCaseResult.from_failed_test_case_result(
-            failed_test_case_result, fuzz_result=None
+            failed_test_case_result, fuzz_result=fuzz_result or None
+        )
+
+    def _map_breaking_reported_exception_to_broken_test_result(
+        self,
+        reported_exception: BreakingReportedException,
+        execution_metadata: TestCaseRunner.ExecutionMetadata,
+    ) -> BrokenTestCaseResult:
+        broken_test_case_result = (
+            super()._map_breaking_reported_exception_to_broken_test_result(
+                reported_exception, execution_metadata
+            )
+        )
+        fuzz_result = self._map_reported_exception_to_fuzz_result(reported_exception)
+        return BrokenFuzzTestCaseResult.from_broken_test_case_result(
+            broken_test_case_result,
+            fuzz_result=fuzz_result or None,
         )
 
     @staticmethod

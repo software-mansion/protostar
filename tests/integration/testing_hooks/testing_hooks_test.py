@@ -31,7 +31,7 @@ async def test_setup_case(run_cairo_test_runner: RunCairoTestRunnerFixture):
             "test_setup_case",
             "test_setup_hook_only",
         ],
-        expected_failed_test_cases_names=[
+        expected_broken_test_cases_names=[
             "test_setup_case_fails",
         ],
     )
@@ -42,4 +42,4 @@ async def test_invalid_setup(run_cairo_test_runner: RunCairoTestRunnerFixture):
         Path(__file__).parent / "invalid_setup_test.cairo"
     )
 
-    assert len(testing_summary.broken) == 1
+    assert len(testing_summary.broken_suites) == 1
