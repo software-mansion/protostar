@@ -37,6 +37,7 @@ from protostar.starknet.cheatable_syscall_handler import CheatableSysCallHandler
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.hint_local import HintLocal
 
+PROFILER = False
 
 if TYPE_CHECKING:
     from protostar.starknet.cheatable_state import CheatableCarriedState
@@ -158,7 +159,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
                 verify_secure=True,
             )
             CheatableExecuteEntryPoint.callstack -= 1
-            if CheatableExecuteEntryPoint.callstack == 0:
+            if CheatableExecuteEntryPoint.callstack == 0 and PROFILER:
                 runner.relocate()
                 try:
                     save_profile(
