@@ -49,7 +49,6 @@ logger = logging.getLogger(__name__)
 # pylint: disable=too-many-statements
 class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     cheatcode_factory: Optional["CheatcodeFactory"] = None
-    custom_hint_locals: Optional[List[HintLocal]] = None
     callstack = 0
 
     def _run(  # type: ignore
@@ -144,7 +143,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         ]
 
         try:
-            CheatableExecuteEntryPoint.callstack += 1
+            # CheatableExecuteEntryPoint.callstack += 1
             runner.run_from_entrypoint(
                 entry_point.offset,
                 *entry_points_args,
@@ -158,20 +157,20 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
                 run_resources=tx_execution_context.run_resources,
                 verify_secure=True,
             )
-            CheatableExecuteEntryPoint.callstack -= 1
-            if CheatableExecuteEntryPoint.callstack == 0 and PROFILER:
-                runner.relocate()
-                try:
-                    save_profile(
-                        program=contract_class.program,
-                        memory=runner.relocated_memory,
-                        trace=runner.relocated_trace,
-                        debug_info=runner.get_relocated_debug_info(),
-                        runner=runner,
-                    )
-                except Exception as err:
-                    print(str(err))
-                    raise err
+            # CheatableExecuteEntryPoint.callstack -= 1
+            # if CheatableExecuteEntryPoint.callstack == 0 and PROFILER:
+            #     runner.relocate()
+            #     try:
+            #         save_profile(
+            #             program=contract_class.program,
+            #             memory=runner.relocated_memory,
+            #             trace=runner.relocated_trace,
+            #             debug_info=runner.get_relocated_debug_info(),
+            #             runner=runner,
+            #         )
+            #     except Exception as err:
+            #         print(str(err))
+            #         raise err
 
         # --- MODIFICATIONS END ---
 
