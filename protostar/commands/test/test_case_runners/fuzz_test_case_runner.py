@@ -60,13 +60,15 @@ class FuzzTestCaseRunner(TestCaseRunner[FuzzTestExecutionResult]):
             failed_test_case_result, fuzz_result=fuzz_result or None
         )
 
-    def _map_reported_exception_to_broken_test_result(
+    def _map_breaking_reported_exception_to_broken_test_result(
         self,
         reported_exception: BreakingReportedException,
         execution_metadata: TestCaseRunner.ExecutionMetadata,
     ) -> BrokenTestCaseResult:
-        broken_test_case_result = super()._map_reported_exception_to_broken_test_result(
-            reported_exception, execution_metadata
+        broken_test_case_result = (
+            super()._map_breaking_reported_exception_to_broken_test_result(
+                reported_exception, execution_metadata
+            )
         )
         fuzz_result = self._map_reported_exception_to_fuzz_result(reported_exception)
         return BrokenFuzzTestCaseResult.from_broken_test_case_result(

@@ -78,7 +78,7 @@ class TestingSummary:
             )
 
     def assert_all_passed(self):
-        if self.failed or self.broken_suites:
+        if self.failed or self.broken_suites or self.broken:
             raise ProtostarExceptionSilent("Not all test cases passed")
 
     def _get_test_cases_summary(self, collected_test_cases_count: int) -> str:
@@ -178,6 +178,7 @@ class TestingSummary:
         self,
         count: int,
     ) -> List[TimedTestCaseResult]:
+        lst: List[TimedTestCaseResult]
         lst = self.passed + self.failed + self.broken  # type: ignore
         lst.sort(key=lambda x: x.execution_time, reverse=True)
         return lst[: min(count, len(lst))]

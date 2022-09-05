@@ -47,7 +47,7 @@ class TestCaseRunner(Generic[TExecutionResult]):
                 TestCaseRunner.ExecutionMetadata(self._stopwatch.total_elapsed),
             )
         except BreakingReportedException as ex:
-            return self._map_reported_exception_to_broken_test_result(
+            return self._map_breaking_reported_exception_to_broken_test_result(
                 ex,
                 TestCaseRunner.ExecutionMetadata(self._stopwatch.total_elapsed),
             )
@@ -85,7 +85,7 @@ class TestCaseRunner(Generic[TExecutionResult]):
             captured_stdout=self._output_recorder.get_captures(),
         )
 
-    def _map_reported_exception_to_broken_test_result(
+    def _map_breaking_reported_exception_to_broken_test_result(
         self,
         reported_exception: BreakingReportedException,
         execution_metadata: ExecutionMetadata,
