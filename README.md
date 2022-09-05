@@ -27,6 +27,9 @@ Protostar manages your dependencies, compiles your project, and runs tests.
 ## Documentation
 https://docs.swmansion.com/protostar/
 
+### Additional resources
+- [Testing StarkNet contracts made easy with Protostar](https://blog.swmansion.com/testing-starknet-contracts-made-easy-with-protostar-2ecdad3c9133)
+
 ## Installation
 
 To install the tool, run:

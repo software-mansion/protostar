@@ -29,5 +29,5 @@ async def test_mock_call(run_cairo_test_runner: RunCairoTestRunnerFixture):
             "test_data_transformation_with_syscall_deploy",
             "test_library_call_not_affected_by_mock",
         ],
-        expected_failed_test_cases_names=["test_mock_call_twice"],
+        expected_broken_test_cases_names=["test_mock_call_twice"],
     )

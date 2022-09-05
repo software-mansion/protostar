@@ -28,56 +28,50 @@ from tests.integration.protostar_fixture import (
 class CairoTestCases:
     passed: Set[str]
     failed: Set[str]
-    broken: Union[int, Set[str]]
+    broken: Set[str]
 
     def __repr__(self) -> str:
         passed = "[Passed]\n" + "\n".join(sorted(self.passed))
         failed = "[Failed]\n" + "\n".join(sorted(self.failed))
-
-        if isinstance(self.broken, int):
-            broken = f"Broken count: {self.broken}"
-        else:
-            broken = "[Broken]\n" + "\n".join(sorted(self.broken))
+        broken = "[Broken]\n" + "\n".join(sorted(self.broken))
 
         return "\n".join([passed, failed, broken])
 
 
 def assert_cairo_test_cases(
     testing_summary: TestingSummary,
-    expected_passed_test_cases_names: List[str],
-    expected_failed_test_cases_names: List[str],
+    expected_passed_test_cases_names: Optional[List[str]] = None,
+    expected_failed_test_cases_names: Optional[List[str]] = None,
     expected_broken_test_cases_names: Optional[List[str]] = None,
 ):
+    expected_passed_test_cases_names = expected_passed_test_cases_names or []
+    expected_failed_test_cases_names = expected_failed_test_cases_names or []
+    expected_broken_test_cases_names = expected_broken_test_cases_names or []
+
     passed_test_cases_names = set(
         passed_test_case.test_case_name for passed_test_case in testing_summary.passed
     )
     failed_test_cases_names = set(
         failed_test_case.test_case_name for failed_test_case in testing_summary.failed
     )
+    broken_test_cases_names = set(
+        broken_test_case.test_case_name for broken_test_case in testing_summary.broken
+    )
 
-    if expected_broken_test_cases_names is None:
-        actual_broken = len(testing_summary.broken)
-    else:
-        actual_broken = set()
-        for broken_test_case in testing_summary.broken:
-            for test_case_name in broken_test_case.test_case_names:
-                actual_broken.add(test_case_name)
+    for broken_test_case in testing_summary.broken_suites:
+        for test_case_name in broken_test_case.test_case_names:
+            broken_test_cases_names.add(test_case_name)
 
     actual = CairoTestCases(
         passed=passed_test_cases_names,
         failed=failed_test_cases_names,
-        broken=actual_broken,
+        broken=broken_test_cases_names,
     )
-
-    if expected_broken_test_cases_names is None:
-        expected_broken = 0
-    else:
-        expected_broken = set(expected_broken_test_cases_names)
 
     expected = CairoTestCases(
         passed=set(expected_passed_test_cases_names),
         failed=set(expected_failed_test_cases_names),
-        broken=expected_broken,
+        broken=set(expected_broken_test_cases_names),
     )
 
     assert actual == expected

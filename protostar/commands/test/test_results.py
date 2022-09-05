@@ -17,23 +17,33 @@ class TestResult:
 
 
 @dataclass(frozen=True)
+class TimedTestResult:
+    execution_time: float
+
+
+@dataclass(frozen=True)
 class TestCaseResult(TestResult):
     test_case_name: str
     captured_stdout: Dict[OutputName, str]
 
 
 @dataclass(frozen=True)
-class TimedTestResult:
-    execution_time: float
+class TimedTestCaseResult(TestCaseResult, TimedTestResult):
+    pass
 
 
 @dataclass(frozen=True)
-class PassedTestCaseResult(TestCaseResult, TimedTestResult):
+class PassedTestCaseResult(TimedTestCaseResult):
     execution_resources: Optional[ExecutionResourcesSummary]
 
 
 @dataclass(frozen=True)
-class FailedTestCaseResult(TestCaseResult, TimedTestResult):
+class FailedTestCaseResult(TimedTestCaseResult):
+    exception: ReportedException
+
+
+@dataclass(frozen=True)
+class BrokenTestCaseResult(TimedTestCaseResult):
     exception: ReportedException
 
 
@@ -79,6 +89,26 @@ class FailedFuzzTestCaseResult(FailedTestCaseResult, FuzzResult):
 
 
 @dataclass(frozen=True)
+class BrokenFuzzTestCaseResult(BrokenTestCaseResult, FuzzResult):
+    @classmethod
+    def from_broken_test_case_result(
+        cls,
+        broken_test_case_result: BrokenTestCaseResult,
+        fuzz_result: Optional[FuzzResult],
+    ) -> Self:
+        fuzz_runs_count = fuzz_result.fuzz_runs_count if fuzz_result else None
+
+        return cls(
+            file_path=broken_test_case_result.file_path,
+            test_case_name=broken_test_case_result.test_case_name,
+            captured_stdout=broken_test_case_result.captured_stdout,
+            exception=broken_test_case_result.exception,
+            execution_time=broken_test_case_result.execution_time,
+            fuzz_runs_count=fuzz_runs_count,
+        )
+
+
+@dataclass(frozen=True)
 class SetupCaseResult(TestResult, TimedTestResult):
     test_case_name: str
     setup_case_name: str
@@ -90,12 +120,12 @@ class PassedSetupCaseResult(SetupCaseResult):
 
 
 @dataclass(frozen=True)
-class FailedSetupCaseResult(SetupCaseResult):
+class BrokenSetupCaseResult(SetupCaseResult):
     captured_stdout: Dict[OutputName, str]
     exception: ReportedException
 
-    def into_failed_test_case_result(self) -> FailedTestCaseResult:
-        return FailedTestCaseResult(
+    def into_broken_test_case_result(self) -> BrokenTestCaseResult:
+        return BrokenTestCaseResult(
             file_path=self.file_path,
             test_case_name=self.test_case_name,
             execution_time=self.execution_time,

@@ -24,9 +24,9 @@ async def test_load_cheatcode(run_cairo_test_runner: RunCairoTestRunnerFixture):
             "test_load_map_struct_val_in_user_contract",
             "test_map_load_local",
         ],
-        expected_failed_test_cases_names=["test_missing_type_name"],
+        expected_broken_test_cases_names=["test_missing_type_name"],
     )
 
     assert "ValueB has not been found in contract" in str(
-        testing_summary.failed[0].exception
+        testing_summary.broken[0].exception
     )
