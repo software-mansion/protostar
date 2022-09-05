@@ -10,7 +10,7 @@ from .configuration_file import ConfigurationFile
 
 
 class ConfigurationFileFactory:
-    def create_configuration_file(self, cwd: Path) -> Optional[ConfigurationFile]:
+    def create(self, cwd: Path) -> Optional[ConfigurationFile]:
         configuration_file_path = self._find_configuration_file_path(cwd)
         if configuration_file_path is None:
             return None
