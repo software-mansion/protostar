@@ -3,6 +3,7 @@ from typing import Callable, List, Optional
 from pathlib import Path
 
 from protostar.cli import Command
+from protostar.cli.misc import resolve_cairo_targets
 from protostar.protostar_exception import ProtostarExceptionSilent
 from protostar.formatter.formatter import Formatter
 from protostar.formatter.formatting_summary import FormattingSummary, format_summary
@@ -36,7 +37,7 @@ class FormatCommand(Command):
             Command.Argument(
                 name="target",
                 description=("Target to format, can be a file or a directory."),
-                type="path",
+                type="str",
                 is_array=True,
                 is_positional=True,
                 default=["."],
@@ -88,7 +89,7 @@ class FormatCommand(Command):
             )
 
     def format(
-        self, targets: List[Path], check=False, verbose=False, ignore_broken=False
+        self, targets: List[str], check=False, verbose=False, ignore_broken=False
     ) -> FormattingSummary:
 
         callback: Callable[[FormattingResult], None] = lambda result: print(
@@ -96,7 +97,7 @@ class FormatCommand(Command):
         )
 
         summary = self._formatter.format(
-            targets=targets,
+            cairo_targets=resolve_cairo_targets(targets),
             check=check,
             verbose=verbose,
             ignore_broken=ignore_broken,
