@@ -182,6 +182,3 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
             )
             or {}
         )
-
-    def save(self, configuration_file_model: ConfigurationFileV1Model) -> Path:
-        raise NotImplementedError("Operation not supported.")
