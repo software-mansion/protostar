@@ -51,7 +51,7 @@ class PrepareCheatcode(Cheatcode):
             constructor_calldata=constructor_calldata,
             deployer_address=self.contract_address,
         )
-        self.state.contract_address_to_class_hash_map[
+        self.cheatable_state.contract_address_to_class_hash_map[
             contract_address
         ] = declared.class_hash
         PrepareCheatcode.salt_nonce += 1
@@ -64,11 +64,11 @@ class PrepareCheatcode(Cheatcode):
         class_hash: int,
         constructor_calldata: PythonData,
     ) -> List[int]:
-        if class_hash not in self.state.class_hash_to_contract_abi_map:
+        if class_hash not in self.cheatable_state.class_hash_to_contract_abi_map:
             raise CheatcodeException(
                 self, f"Couldn't map `class_hash` ({class_hash}) to ({self})."
             )
-        contract_abi = self.state.class_hash_to_contract_abi_map[class_hash]
+        contract_abi = self.cheatable_state.class_hash_to_contract_abi_map[class_hash]
 
         transformer = from_python_transformer(
             contract_abi,

@@ -50,7 +50,9 @@ class DeclareCheatcode(Cheatcode):
         assert declared_class
         class_hash = declared_class.class_hash
 
-        self.state.class_hash_to_contract_abi_map[class_hash] = declared_class.abi
+        self.cheatable_state.class_hash_to_contract_abi_map[
+            class_hash
+        ] = declared_class.abi
 
         return DeclaredContract(class_hash)
 
@@ -79,10 +81,10 @@ class DeclareCheatcode(Cheatcode):
 
     def _add_event_abi_to_state(self, abi: AbiType):
         event_manager = EventManager(abi=abi)
-        self.state.update_event_selector_to_name_map(
+        self.cheatable_state.update_event_selector_to_name_map(
             # pylint: disable=protected-access
             event_manager._selector_to_name
         )
         # pylint: disable=protected-access
         for event_name in event_manager._selector_to_name.values():
-            self.state.event_name_to_contract_abi_map[event_name] = abi
+            self.cheatable_state.event_name_to_contract_abi_map[event_name] = abi
