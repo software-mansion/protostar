@@ -8,6 +8,7 @@ from protostar.utils import VersionManager
 from .configuration_file_v1 import (
     ConfigurationFile,
     ConfigurationFileV1,
+    ConfigurationFileV1Model,
     ContractNameNotFoundException,
 )
 
@@ -164,3 +165,31 @@ def test_reading_argument_attribute_defined_within_specified_profile(
     )
 
     assert arg_value == 37
+
+
+@pytest.mark.parametrize(
+    "protostar_toml_content",
+    [
+        """
+        ["protostar.deploy"]
+        arg_name = 21
+
+        ["profile.devnet.protostar.deploy"]
+        arg_name = 37
+        """
+    ],
+)
+def test_generating_data_struct(
+    configuration_file: ConfigurationFileV1,
+):
+    model = configuration_file.read()
+
+    assert model == ConfigurationFileV1Model(
+        min_protostar_version=None,
+        lib_path_str=None,
+        command_name_to_config={"deploy": {"arg_name": 21}},
+        contract_name_to_path_str={},
+        shared_command_config={},
+        profile_name_to_commands_config={"devnet": {"deploy": {"arg_name": 37}}},
+        profile_name_to_shared_command_config={},
+    )

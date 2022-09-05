@@ -104,6 +104,16 @@ def test_returning_none_on_section_not_found(protostar_toml_path: Path):
     assert result is None
 
 
+def test_not_finding_protostar_toml(tmp_path: Path):
+    assert search_upwards_protostar_toml_path(tmp_path) is None
+
+
+def test_extracting_profile_names(protostar_toml_path: Path):
+    result = ProtostarTOMLReader(protostar_toml_path).get_profile_names()
+
+    assert result == ["ci"]
+
+
 def test_searching_protostar_from_cwd(tmp_path: Path):
     protostar_toml_path = tmp_path / "protostar.toml"
     protostar_toml_path.touch()
@@ -123,7 +133,3 @@ def test_searching_protostar_toml_from_project(tmp_path: Path):
     result = search_upwards_protostar_toml_path(src_path)
 
     assert result == protostar_toml_path
-
-
-def test_not_finding_protostar_toml(tmp_path: Path):
-    assert search_upwards_protostar_toml_path(tmp_path) is None
