@@ -99,7 +99,7 @@ class Migrator:
         with create_output_directory(
             self._migrator_datetime_state.get_compilation_output_path()
         ):
-            await self._migrator_execution_environment.invoke(
+            await self._migrator_execution_environment.execute(
                 function_name="down" if rollback else "up"
             )
 

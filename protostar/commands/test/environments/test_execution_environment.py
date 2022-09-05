@@ -36,7 +36,7 @@ class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
         self._expect_revert_context = ExpectRevertContext()
         self._finish_hook = Hook()
 
-    async def invoke(self, function_name: str) -> TestExecutionResult:
+    async def execute(self, function_name: str) -> TestExecutionResult:
         assert not has_function_parameters(
             self.state.contract.abi, function_name
         ), f"{self.__class__.__name__} expects no function parameters."
@@ -51,17 +51,17 @@ class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
 
         with self.state.output_recorder.redirect("test"):
             return TestExecutionResult(
-                execution_resources=await self.invoke_test_case(function_name)
+                execution_resources=await self.execute_test_case(function_name)
             )
 
-    async def invoke_test_case(
+    async def execute_test_case(
         self, function_name: str, *args, **kwargs
     ) -> Optional[ExecutionResourcesSummary]:
         execution_resources: Optional[ExecutionResourcesSummary] = None
 
         async with self._expect_revert_context.test():
             async with self._finish_hook.run_after():
-                call_info = await self.perform_invoke(function_name, *args, **kwargs)
+                call_info = await self.perform_execute(function_name, *args, **kwargs)
                 execution_resources = (
                     ExecutionResourcesSummary.from_execution_resources(
                         call_info.call_info.execution_resources
