@@ -26,6 +26,8 @@ from starkware.starkware_utils.error_handling import (
     StarkException,
     wrap_with_stark_exception,
 )
+from starkware.cairo.lang.tracer.tracer_data import TracerData
+from starkware.cairo.lang.vm.memory_segments import FIRST_MEMORY_ADDR as PROGRAM_BASE
 from protostar.profiler.profile import profile_from_tracer_data
 
 from protostar.starknet.cheatable_cairo_function_runner import (
@@ -34,8 +36,7 @@ from protostar.starknet.cheatable_cairo_function_runner import (
 from protostar.starknet.cheatable_syscall_handler import CheatableSysCallHandler
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.hint_local import HintLocal
-from starkware.cairo.lang.tracer.tracer_data import TracerData
-from starkware.cairo.lang.vm.memory_segments import FIRST_MEMORY_ADDR as PROGRAM_BASE
+
 
 if TYPE_CHECKING:
     from protostar.starknet.cheatable_state import CheatableCarriedState
@@ -167,9 +168,9 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
                         debug_info=runner.get_relocated_debug_info(),
                         runner=runner,
                     )
-                except Exception as e:
-                    print(str(e))
-                    raise e
+                except Exception as err:
+                    print(str(err))
+                    raise err
 
         # --- MODIFICATIONS END ---
 
@@ -235,6 +236,6 @@ def save_profile(program, memory, trace, debug_info, runner):
         debug_info=debug_info,
     )
     data = profile_from_tracer_data(tracer_data, runner)
-    with open("profile.pb.gz", "wb") as fp:
-        fp.write(data)
+    with open("profile.pb.gz", "wb") as file:
+        file.write(data)
     return 0

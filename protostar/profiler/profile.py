@@ -2,22 +2,19 @@
 from collections import defaultdict
 from dataclasses import dataclass
 import functools
-import gzip
-import time
-from typing import Callable, List, Dict, Tuple
+import math
+from typing import Callable, List, Dict, Set, cast
 
-from starkware.cairo.lang.compiler.debug_info import InstructionLocation
+from starkware.cairo.lang.vm.memory_dict import MemoryDict
 from starkware.cairo.lang.compiler.identifier_definition import LabelDefinition
-from starkware.cairo.lang.tracer.third_party.profile_pb2 import Profile
 from starkware.cairo.lang.tracer.tracer_data import TracerData
-from starkware.cairo.lang.vm.trace_entry import TraceEntry
+from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.cairo.lang.compiler.identifier_definition import (
     IdentifierDefinition,
 )
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
-
-from starkware.cairo.lang.compiler.encode import decode_instruction
+from protostar.profiler.pprof import serialize, to_protobuf
 
 Address = int
 StringID = int
@@ -58,11 +55,11 @@ class RuntimeProfile:
     instructions: List[Instruction]
     sample_types: List[SampleType]
     step_samples: List[Sample]
-    memhole_samples: List[Tuple[Instruction, Sample]]
+    memhole_samples: List[Sample]
 
 
 class ProfilerContext:
-    def __init__(self, initial_fp: Address, memory):
+    def __init__(self, initial_fp: Address, memory: MemoryDict):
         self._string_table: Dict[str, StringID] = {}
         self.string_list: List[str] = []
         self.initial_fp = initial_fp
@@ -83,13 +80,17 @@ class ProfilerContext:
             SampleType(self.string_id("memory holes"), self.string_id("mem holes")),
         ]
 
-    def get_call_stack(self, fp, pc) -> List[Address]:
+    def get_call_stack(self, fp: Address, pc: Address) -> List[Address]:
         """
         Retrieves the call stack pc values given current fp and pc.
         """
         frame_pcs = [pc]
         while fp > self.initial_fp:
-            fp, pc = self.memory[fp - 2], self.memory[fp - 1]
+            fp_val = self.memory[fp - 2]
+            pc_val = self.memory[fp - 1]
+            assert isinstance(fp_val, Address)
+            assert isinstance(pc_val, Address)
+            fp, pc = fp_val, pc_val
             frame_pcs.append(pc)
         return frame_pcs
 
@@ -103,30 +104,35 @@ class ProfilerContext:
     def build_function_list(self, tracer_data: TracerData) -> List[Function]:
         identifiers_dict = tracer_data.program.identifiers.as_dict()
         assert tracer_data.program.debug_info is not None
-
-        is_function: Callable[[IdentifierDefinition], bool] = lambda ident: isinstance(
+        is_label: Callable[[IdentifierDefinition], bool] = lambda ident: isinstance(
             ident, LabelDefinition
         )
-
-        functions_locations = {
-            str(name): tracer_data.program.debug_info.instruction_locations[ident.pc]
+        labels = {
+            name: cast(LabelDefinition, ident)
             for name, ident in identifiers_dict.items()
-            if is_function(ident)
+            if is_label(ident)
+        }
+
+        instruction_locations = tracer_data.program.debug_info.instruction_locations
+        functions_locations = {
+            str(name): instruction_locations[ident.pc] for name, ident in labels.items()
         }
 
         assert all(
             location.inst.input_file.filename is not None
             for location in functions_locations.values()
         )
-
-        functions = [
-            Function(
-                id=self.string_id(name),
-                filename=self.string_id(location.inst.input_file.filename),
-                start_line=location.inst.start_line,
+        functions: List[Function] = []
+        for name, location in functions_locations.items():
+            assert location.inst.input_file.filename
+            functions.append(
+                Function(
+                    id=self.string_id(name),
+                    filename=self.string_id(location.inst.input_file.filename),
+                    start_line=location.inst.start_line,
+                )
             )
-            for name, location in functions_locations.items()
-        ]
+
         return functions + [self.main_function()]
 
     def find_function(self, functions: List[Function], name: str) -> Function:
@@ -141,6 +147,7 @@ class ProfilerContext:
         """
         Retrieves the id of a location. Adds to the table if not already present.
         """
+        assert tracer_data.program.debug_info
         pc_to_locations = {
             tracer_data.get_pc_from_offset(pc_offset): inst_location
             for pc_offset, inst_location in tracer_data.program.debug_info.instruction_locations.items()
@@ -158,9 +165,8 @@ class ProfilerContext:
         ]
         return instructions
 
-    def find_instruction(
-        self, instructions: List[Instruction], pc: Address
-    ) -> Instruction:
+    @staticmethod
+    def find_instruction(instructions: List[Instruction], pc: Address) -> Instruction:
         for instr in instructions:
             if instr.pc == pc:
                 return instr
@@ -178,8 +184,9 @@ class ProfilerContext:
             step_samples.append((Sample(value=1, callstack=instr_callstack)))
         return step_samples
 
-    def blame_pc(self, max_accesses, hole_address) -> int:
-        min_addr_after = 100000000000000000000
+    @staticmethod
+    def blame_pc(max_accesses, hole_address) -> int:
+        min_addr_after = math.inf
         blamed_pc = -1
         for address, pc in max_accesses.items():
             if address > hole_address:
@@ -189,13 +196,14 @@ class ProfilerContext:
         assert min_addr_after > -1
         return blamed_pc
 
+    @staticmethod
     def not_accessed(
-        self, accessed_addresses, segments: MemorySegmentManager, segment_offsets
-    ) -> List[int]:
-        not_accessed_addr = set()
+        accessed_addresses, segments: MemorySegmentManager, segment_offsets
+    ) -> Set[Address]:
+        not_accessed_addr: Set[Address] = set()
         for idx in range(segments.n_segments):
             size = segments.get_segment_size(segment_index=idx)
-            not_accessed_addr |= set([segment_offsets[idx] + i for i in range(size)])
+            not_accessed_addr |= {segment_offsets[idx] + i for i in range(size)}
 
         accessed_offsets_sets = defaultdict(set)
         for addr in accessed_addresses:
@@ -218,7 +226,7 @@ class ProfilerContext:
         accessed_memory,
         segments: MemorySegmentManager,
         segment_offsets,
-    ):
+    ) -> List[Sample]:
         accessed_by = {}
         pc_to_callstack = {}
         for trace_entry, mem_acc in zip(tracer_data.trace, tracer_data.memory_accesses):
@@ -244,8 +252,8 @@ class ProfilerContext:
 def build_profile(
     tracer_data: TracerData,
     segments: MemorySegmentManager,
-    segment_offsets,
-    accessed_memory,
+    segment_offsets: Dict[int, int],
+    accessed_memory: Set[RelocatableValue],
 ) -> RuntimeProfile:
     builder = ProfilerContext(
         initial_fp=tracer_data.trace[0].fp, memory=tracer_data.memory
@@ -268,60 +276,12 @@ def build_profile(
     return profile
 
 
-def to_protobuf(profile_obj: RuntimeProfile) -> Profile:
-    profile = Profile()
-
-    profile.time_nanos = int(time.time() * 10**9)
-
-    for sample_type in profile_obj.sample_types:
-        sample_tp = profile.sample_type.add()
-        sample_tp.type = sample_type.type
-        sample_tp.unit = sample_type.unit
-
-    for val in profile_obj.strings:
-        profile.string_table.append(val)
-
-    for function in profile_obj.functions:
-        func = profile.function.add()
-        func.id = function.id
-        func.system_name = func.name = function.id
-        func.filename = function.filename
-        func.start_line = function.start_line
-
-    for inst in profile_obj.instructions:
-        location = profile.location.add()
-        location.id = inst.id
-        location.address = inst.pc
-        location.is_folded = False
-        line = location.line.add()
-        line.function_id = inst.function.id
-        line.line = inst.line
-
-    for smp in profile_obj.step_samples:
-        sample = profile.sample.add()
-        for instr in smp.callstack:
-            sample.location_id.append(instr.id)
-        sample.value.append(smp.value)
-        sample.value.append(0)
-
-    for smp in profile_obj.memhole_samples:
-        sample = profile.sample.add()
-        for instr in smp.callstack:
-            sample.location_id.append(instr.id)
-        sample.value.append(0)
-        sample.value.append(smp.value)
-
-    return profile
-
-
-def serialize(profile: Profile) -> bytes:
-    data = profile.SerializeToString()
-    return gzip.compress(data)
-
-
 def profile_from_tracer_data(tracer_data: TracerData, runner: CairoFunctionRunner):
+    assert runner.accessed_addresses
+    assert runner.segment_offsets
     profile = build_profile(
         tracer_data, runner.segments, runner.segment_offsets, runner.accessed_addresses
     )
+
     protobuf = to_protobuf(profile)
     return serialize(protobuf)
