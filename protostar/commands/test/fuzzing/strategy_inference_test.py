@@ -11,8 +11,8 @@ from protostar.commands.test.fuzzing.strategy_inference import (
 
 
 def test_infer_strategy_from_cairo_type_felt():
-    assert (
-        infer_strategy_from_cairo_type("foo", TypeFelt()) == FeltsStrategyDescriptor()
+    assert isinstance(
+        infer_strategy_from_cairo_type("foo", TypeFelt()), FeltsStrategyDescriptor
     )
 
 
