@@ -14,4 +14,3 @@ async def test_testing_output(run_cairo_test_runner: RunCairoTestRunnerFixture):
         Path(__file__).parent / "example_profile_contract_test.cairo"
     )
     assert False
-

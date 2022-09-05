@@ -165,7 +165,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
                         memory=runner.relocated_memory,
                         trace=runner.relocated_trace,
                         debug_info=runner.get_relocated_debug_info(),
-                        runner=runner
+                        runner=runner,
                     )
                 except Exception as e:
                     print(str(e))
