@@ -5,7 +5,6 @@ import time
 from starkware.cairo.lang.tracer.third_party.profile_pb2 import Profile
 
 
-
 def to_protobuf(profile_obj) -> Profile:
     profile = Profile()
 
