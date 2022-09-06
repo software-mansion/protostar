@@ -69,9 +69,12 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
 
         # Run the specified contract entry point with given calldata.
         with wrap_with_stark_exception(code=StarknetErrorCode.SECURITY_ERROR):
-            runner = CheatableCairoFunctionRunner(  # <-- MODIFICATION
+            # region Modified Starknet code.
+            runner = CheatableCairoFunctionRunner(
                 program=contract_class.program, layout="all"
             )
+            # endregion
+
         os_context = os_utils.prepare_os_context(runner=runner)
 
         validate_contract_deployed(state=state, contract_address=self.contract_address)
@@ -80,7 +83,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             RelocatableValue, os_context[starknet_abi.SYSCALL_PTR_OFFSET]
         )
 
-        # --- MODIFICATIONS START --- # TODO
+        # region Modified Starknet code.
         syscall_dependencies = Cheatcode.SyscallDependencies(
             execute_entry_point_cls=CheatableExecuteEntryPoint,
             tx_execution_context=tx_execution_context,
@@ -111,7 +114,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         for custom_hint_local in cheatcode_factory.build_hint_locals():
             hint_locals[custom_hint_local.name] = custom_hint_local.build()
 
-        # --- MODIFICATIONS END ---
+        # endregion
 
         # Positional arguments are passed to *args in the 'run_from_entrypoint' function.
         entry_points_args = [
@@ -129,12 +132,12 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             runner.run_from_entrypoint(
                 entry_point.offset,
                 *entry_points_args,
-                # --- MODIFICATIONS START --- # TODO
+                # region Modified Starknet code.
                 hint_locals={
                     **hint_locals,
                     "syscall_handler": syscall_handler,
                 },
-                # --- MODIFICATIONS END ---
+                # endregion
                 static_locals={
                     "__find_element_max_size": 2**20,
                     "__squash_dict_max_size": 2**20,

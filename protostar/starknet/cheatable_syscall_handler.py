@@ -79,7 +79,7 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
         if syscall_name == "call_contract":
             code_address = cast(int, request.contract_address)
 
-            # --- MODIFICATIONS START --- # TODO
+            # region Modified Starknet code.
             if code_address in self.cheatable_state.mocked_calls_map:
                 if (
                     request.function_selector
@@ -88,7 +88,7 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
                     return self.cheatable_state.mocked_calls_map[code_address][
                         request.function_selector
                     ]
-            # --- MODIFICATIONS END ---
+            # endregion
 
             contract_address = code_address
             caller_address = self.contract_address
@@ -160,11 +160,11 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
             deployer_address=deployer_address,
         )
 
-        # --- MODIFICATIONS START --- # TODO
+        # region Modified Starknet code.
         self.cheatable_state.contract_address_to_class_hash_map[
             contract_address
         ] = class_hash
-        # --- MODIFICATIONS END ---
+        # endregion
 
         # Initialize the contract.
         class_hash_bytes = to_bytes(class_hash)
