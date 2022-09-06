@@ -1,8 +1,6 @@
 %lang starknet
 
-
 from starkware.cairo.common.math import assert_lt
-
 
 @external
 func __setup__():
@@ -29,4 +27,3 @@ end
 func test_one_of(a, b):
     return ()
 end
-

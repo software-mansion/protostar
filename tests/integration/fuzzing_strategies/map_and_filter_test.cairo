@@ -1,8 +1,6 @@
 %lang starknet
 
-
 from starkware.cairo.common.math import assert_in_range
-
 
 @external
 func __setup__():
