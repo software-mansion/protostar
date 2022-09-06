@@ -1,5 +1,4 @@
-from ctypes import cast
-from typing import Any
+from typing import Any, cast
 
 from hypothesis.strategies import SearchStrategy, one_of
 from starkware.cairo.lang.compiler.ast.cairo_types import CairoType
