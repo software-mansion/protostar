@@ -4,8 +4,8 @@ from typing import Callable, Any
 from hypothesis.strategies import SearchStrategy
 from starkware.cairo.lang.compiler.ast.cairo_types import CairoType
 
-MappingFunction = Callable[[Any], Any]
-FilterFunction = Callable[[Any], bool]
+MappingFunction = Callable[[int], int]
+FilterFunction = Callable[[int], bool]
 
 
 class StrategyDescriptor(ABC):
