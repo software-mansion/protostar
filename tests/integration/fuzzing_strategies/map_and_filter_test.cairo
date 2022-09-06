@@ -12,8 +12,11 @@ end
 func setup_chaining():
     %{
         given(
-               a = strategy.felts().filter(lambda x:  17 < x < 100).map(lambda x: -x).filter(lambda x: x < -20) 
-           )
+            a=strategy.felts()
+            .filter(lambda x: 17 < x < 100)
+            .map(lambda x: -x)
+            .filter(lambda x: x < -20)
+        )
     %}
     return ()
 end
@@ -28,8 +31,10 @@ end
 func setup_filtering():
     %{
         given(
-               a = strategy.one_of( strategy.integers().filter(lambda x: 100 <= x <= 1000) ) 
-           )
+            a=strategy.one_of(
+                strategy.integers().filter(lambda x: 100 <= x <= 1000)
+            )
+        )
     %}
     return ()
 end
@@ -44,8 +49,10 @@ end
 func setup_mapping():
     %{
         given(
-               a = strategy.one_of( strategy.integers().map(lambda x: 3) ) 
-           )
+            a=strategy.one_of(
+                strategy.integers().map(lambda x: 3)
+            )
+        )
     %}
     return ()
 end

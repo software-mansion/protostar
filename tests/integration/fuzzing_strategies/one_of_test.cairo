@@ -17,7 +17,7 @@ func setup_one_of():
         assert type(one_of_strategy.build_strategy(TypeFelt())).__name__ == "OneOfStrategy"
 
         given(
-            a = one_of_strategy,
+            a=one_of_strategy,
         )
     %}
     return ()
