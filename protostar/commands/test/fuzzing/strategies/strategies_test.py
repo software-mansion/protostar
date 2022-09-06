@@ -6,7 +6,7 @@ from .felts import FeltsStrategyDescriptor
 
 def test_one_of_constructor_invalid_args():
     with pytest.raises(SearchStrategyBuildError) as ex:
-        OneOfStrategyDescriptor("Not a StrategyDescriptor")  # type: ignore
+        OneOfStrategyDescriptor(NotImplemented)
     assert "Strategy 'one_of' takes only other strategies as arguments." == str(
         ex.value
     )
