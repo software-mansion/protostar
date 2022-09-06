@@ -33,26 +33,6 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
 
         return async_state
 
-    # def _get_block_number(self):
-    #     if (
-    #         self.contract_address
-    #         in self.cheatable_state.contract_address_to_block_number
-    #     ):
-    #         return self.cheatable_state.contract_address_to_block_number[
-    #             self.contract_address
-    #         ]
-    #     return super()._get_block_number()
-    #
-    # def _get_block_timestamp(self):
-    #     if (
-    #         self.contract_address
-    #         in self.cheatable_state.contract_address_to_block_timestamp
-    #     ):
-    #         return self.cheatable_state.contract_address_to_block_timestamp[
-    #             self.contract_address
-    #         ]
-    #     return super()._get_block_timestamp()
-
     def _get_caller_address(
         self,
         segments: MemorySegmentManager,

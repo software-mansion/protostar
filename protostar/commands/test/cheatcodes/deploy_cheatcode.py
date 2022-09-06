@@ -29,20 +29,3 @@ class DeployCheatcode(Cheatcode):
     ):
         # TODO(mkaput): Reimplement this.
         raise NotImplementedError("Deploy cheatcode is not ported to Cairo 10 yet.")
-        # class_hash_bytes = to_bytes(prepared.class_hash)
-        # future = asyncio.run_coroutine_threadsafe(
-        #     coro=initialize_contract_state(
-        #         state=self.state,
-        #         class_hash=class_hash_bytes,
-        #         contract_address=prepared.contract_address,
-        #     ),
-        #     loop=self.loop,
-        # )
-        # future.result()
-        #
-        # self.execute_constructor_entry_point(
-        #     contract_address=prepared.contract_address,
-        #     class_hash_bytes=class_hash_bytes,
-        #     constructor_calldata=prepared.constructor_calldata,
-        # )
-        # return DeployedContract(prepared.contract_address)
