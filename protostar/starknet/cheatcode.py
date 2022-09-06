@@ -39,9 +39,13 @@ class Cheatcode(BusinessLogicSysCallHandler, HintLocal):
         super().__init__(**syscall_dependencies)
 
         # assigning properties to preserve "cheatable" types
-        self.state = syscall_dependencies["state"]
-        self.general_config = syscall_dependencies["general_config"]
-        self.execute_entry_point_cls = syscall_dependencies["execute_entry_point_cls"]
+        self.state: SyncState = syscall_dependencies["state"]
+        self.general_config: StarknetGeneralConfig = syscall_dependencies[
+            "general_config"
+        ]
+        self.execute_entry_point_cls: Type[
+            "CheatableExecuteEntryPoint"
+        ] = syscall_dependencies["execute_entry_point_cls"]
 
     @property
     def cheatable_state(self) -> CheatableCachedState:
