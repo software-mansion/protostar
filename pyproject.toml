@@ -24,7 +24,7 @@ requests = "^2.27.1"
 "starknet.py" = "^0.4.6-alpha.0"
 tomli = "<2.0.0"
 tomli-w = "^1.0.0"
-tqdm = "^4.64.0"
+tqdm = "^4.64.1"
 typing-extensions = "^4.0.1"
 
 [tool.poetry.dev-dependencies]
