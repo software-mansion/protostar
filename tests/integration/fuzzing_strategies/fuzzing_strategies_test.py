@@ -94,7 +94,7 @@ async def test_one_of(
         expected_passed_test_cases_names=[
             "test_one_of",
             "test_one_of_filtering",
-            "test_one_of_mapping_and_filtering"
+            "test_one_of_mapping_and_filtering",
         ],
         expected_failed_test_cases_names=[],
     )
