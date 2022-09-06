@@ -122,6 +122,7 @@ class CheatableCarriedState(CarriedState):
 
         self.event_name_to_contract_abi_map: Dict[str, AbiType] = {}
         self.class_hash_to_contract_abi_map: Dict[ClassHashType, AbiType] = {}
+        self.class_hash_to_contract_path: Dict[ClassHashType, str] = {}
         self.contract_address_to_class_hash_map: Dict[AddressType, ClassHashType] = {}
 
         self.contract_address_to_block_timestamp: Dict[AddressType, int] = {}
@@ -138,6 +139,9 @@ class CheatableCarriedState(CarriedState):
         )
         copied.class_hash_to_contract_abi_map = (
             self.class_hash_to_contract_abi_map.copy()
+        )
+        copied.class_hash_to_contract_path = (
+            self.class_hash_to_contract_path.copy()
         )
         copied.contract_address_to_class_hash_map = (
             self.contract_address_to_class_hash_map.copy()
@@ -184,6 +188,10 @@ class CheatableCarriedState(CarriedState):
             **self.event_name_to_contract_abi_map,
         }
 
+        self.parent_state.class_hash_to_contract_path = {
+            **self.parent_state.class_hash_to_contract_path,
+            **self.class_hash_to_contract_path,
+        }
         self.parent_state.class_hash_to_contract_abi_map = {
             **self.parent_state.class_hash_to_contract_abi_map,
             **self.class_hash_to_contract_abi_map,

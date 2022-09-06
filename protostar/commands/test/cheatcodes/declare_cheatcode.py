@@ -50,6 +50,7 @@ class DeclareCheatcode(Cheatcode):
         assert declared_class
         class_hash = declared_class.class_hash
 
+        self.state.class_hash_to_contract_path[class_hash] = contract_path_str
         self.state.class_hash_to_contract_abi_map[class_hash] = declared_class.abi
 
         return DeclaredContract(class_hash)
