@@ -20,16 +20,15 @@ class Formatter:
 
     def format(
         self,
-        targets: List[Path],
+        file_paths: List[Path],
         check=False,
         verbose=False,
         ignore_broken=False,
         on_formatting_result: Optional[Callable[[FormattingResult], Any]] = None,
     ) -> FormattingSummary:
         summary = FormattingSummary()
-        filepaths = self._get_filepaths(targets)
 
-        for filepath in filepaths:
+        for filepath in file_paths:
             relative_filepath = filepath.relative_to(self._project_root_path)
 
             try:
@@ -65,17 +64,3 @@ class Formatter:
                     on_formatting_result(result)
 
         return summary
-
-    @staticmethod
-    def _get_filepaths(targets: List[Path]):
-        filepaths: List[Path] = []
-
-        for target_path in targets:
-            if target_path.is_file():
-                filepaths.append(target_path.resolve())
-            else:
-                filepaths.extend(
-                    [f for f in target_path.resolve().glob("**/*.cairo") if f.is_file()]
-                )
-
-        return filepaths
