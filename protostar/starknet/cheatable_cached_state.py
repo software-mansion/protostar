@@ -1,6 +1,8 @@
-from typing import Dict, List
+import dataclasses
+from typing import Dict, List, Callable, Optional, Any
 
 from starkware.starknet.business_logic.state.state import CachedState
+from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from starkware.starknet.public.abi import AbiType
 from typing_extensions import Self
 
@@ -11,7 +13,12 @@ from protostar.starknet.types import AddressType, SelectorType, ClassHashType
 # pylint: disable=too-many-instance-attributes
 class CheatableCachedState(CachedState):
     def __init__(self, *args, **kwargs):
+        # Hack: Super constructor will populate this.
+        self._real_block_info: Optional[BlockInfo] = None
+        self._block_info_cheats: dict[str, Any] = {}
+
         super().__init__(*args, **kwargs)
+
         self.pranked_contracts_map: Dict[int, int] = {}
         self.mocked_calls_map: Dict[AddressType, Dict[SelectorType, List[int]]] = {}
         self.event_selector_to_name_map: Dict[int, str] = {}
@@ -20,8 +27,22 @@ class CheatableCachedState(CachedState):
         self.class_hash_to_contract_abi_map: Dict[ClassHashType, AbiType] = {}
         self.contract_address_to_class_hash_map: Dict[AddressType, ClassHashType] = {}
 
-        self.contract_address_to_block_timestamp: Dict[AddressType, int] = {}
-        self.contract_address_to_block_number: Dict[AddressType, int] = {}
+    @property
+    def block_info(self) -> BlockInfo:
+        return dataclasses.replace(self._real_block_info, **self._block_info_cheats)
+
+    @block_info.setter
+    def block_info(self, block_info: BlockInfo):
+        self._real_block_info = block_info
+
+    def cheat_block_info(self, **kwargs: Any) -> Callable[[], None]:
+        self._block_info_cheats |= kwargs
+
+        def stop():
+            for key in kwargs.keys():
+                del self._block_info_cheats[key]
+
+        return stop
 
     def _copy(self):
         copied = self.__class__(block_info=self.block_info, state_reader=self)
@@ -40,12 +61,6 @@ class CheatableCachedState(CachedState):
             self.contract_address_to_class_hash_map.copy()
         )
 
-        copied.contract_address_to_block_timestamp = (
-            self.contract_address_to_block_timestamp.copy()
-        )
-        copied.contract_address_to_block_number = (
-            self.contract_address_to_block_number.copy()
-        )
         return copied
 
     def _apply(self, parent: Self):
@@ -86,16 +101,6 @@ class CheatableCachedState(CachedState):
         parent.contract_address_to_class_hash_map = {
             **parent.contract_address_to_class_hash_map,
             **self.contract_address_to_class_hash_map,
-        }
-
-        parent.contract_address_to_block_timestamp = {
-            **parent.contract_address_to_block_timestamp,
-            **self.contract_address_to_block_timestamp,
-        }
-
-        parent.contract_address_to_block_number = {
-            **parent.contract_address_to_block_number,
-            **self.contract_address_to_block_number,
         }
 
     def update_event_selector_to_name_map(

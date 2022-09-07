@@ -17,14 +17,6 @@ class WarpCheatcode(Cheatcode):
         blk_timestamp: int,
         target_contract_address: Optional[AddressType] = None,
     ) -> Callable[[], None]:
-        target_contract_address = target_contract_address or self.contract_address
-        self.cheatable_state.contract_address_to_block_timestamp[
-            target_contract_address
-        ] = blk_timestamp
-
-        def stop_warp():
-            del self.cheatable_state.contract_address_to_block_timestamp[
-                target_contract_address
-            ]
-
-        return stop_warp
+        # TODO
+        # target_contract_address = target_contract_address or self.contract_address
+        return self.cheatable_state.cheat_block_info(block_timestamp=blk_timestamp)

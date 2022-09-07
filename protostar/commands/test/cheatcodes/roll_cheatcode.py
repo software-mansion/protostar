@@ -13,16 +13,10 @@ class RollCheatcode(Cheatcode):
         return self.roll
 
     def roll(
-        self, blk_number: int, target_contract_address: Optional[AddressType] = None
+        self,
+        blk_number: int,
+        target_contract_address: Optional[AddressType] = None,
     ) -> Callable[[], None]:
-        target_contract_address = target_contract_address or self.contract_address
-        self.cheatable_state.contract_address_to_block_number[
-            target_contract_address
-        ] = blk_number
-
-        def stop_warp():
-            del self.cheatable_state.contract_address_to_block_number[
-                target_contract_address
-            ]
-
-        return stop_warp
+        # TODO
+        # target_contract_address = target_contract_address or self.contract_address
+        return self.cheatable_state.cheat_block_info(block_number=blk_number)

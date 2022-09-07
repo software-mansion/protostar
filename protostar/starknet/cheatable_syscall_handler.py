@@ -5,6 +5,7 @@ from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.python.utils import to_bytes
 from starkware.starknet.business_logic.execution.objects import CallType
 from starkware.starknet.business_logic.state.state import StateSyncifier
+from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
 )
@@ -32,6 +33,18 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
         assert isinstance(async_state, CheatableCachedState)
 
         return async_state
+
+    @property
+    def block_info(self) -> BlockInfo:
+        return self.cheatable_state.block_info
+
+    @block_info.setter
+    def block_info(self, block_info: BlockInfo):
+        # TODO(mkaput): Replace this with passing BlockInfo-specific context to the constructor
+        #   instead of fetching data from CheatableCachedState. This way, this method could assert
+        #   something like `block_info is self.block_info_ctx.block_info`.
+        # Only called in constructor. Ignore.
+        pass
 
     def _get_caller_address(
         self,
