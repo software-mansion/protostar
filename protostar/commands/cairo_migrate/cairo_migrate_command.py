@@ -4,7 +4,7 @@ from typing import Any, List, Optional
 
 from protostar.cairo_migrator import CairoMigrator
 from protostar.cli import Command
-from protostar.cli.misc import resolve_cairo_targets
+from protostar.cli.resolve_cairo_targets import resolve_cairo_targets
 
 
 class CairoMigrateCommand(Command):
@@ -34,7 +34,7 @@ class CairoMigrateCommand(Command):
                 type="str",
                 is_array=True,
                 is_positional=True,
-                default=resolve_cairo_targets([Path()]),
+                default=['.'],
             )
         ]
 

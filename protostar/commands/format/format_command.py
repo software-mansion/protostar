@@ -3,7 +3,7 @@ from typing import Callable, List, Optional
 from pathlib import Path
 
 from protostar.cli import Command
-from protostar.cli.misc import resolve_cairo_targets
+from protostar.cli.resolve_cairo_targets import resolve_cairo_targets
 from protostar.protostar_exception import ProtostarExceptionSilent
 from protostar.formatter.formatter import Formatter
 from protostar.formatter.formatting_summary import FormattingSummary, format_summary
