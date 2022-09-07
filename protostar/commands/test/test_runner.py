@@ -152,7 +152,7 @@ class TestRunner:
 
             if test_suite.setup_fn_name:
                 env = SetupExecutionEnvironment(execution_state)
-                await env.invoke(test_suite.setup_fn_name)
+                await env.execute(test_suite.setup_fn_name)
 
             return execution_state
         except StarkException as ex:

@@ -31,11 +31,11 @@ class SetupExecutionEnvironment(ExecutionEnvironment[None]):
     def __init__(self, state: TestExecutionState):
         super().__init__(state)
 
-    async def invoke(self, function_name: str):
+    async def execute(self, function_name: str):
         self.set_cheatcodes(SetupCheatcodeFactory(self.state))
 
         with self.state.output_recorder.redirect("setup"):
-            await self.perform_invoke(function_name)
+            await self.perform_execute(function_name)
 
 
 class SetupCheatcodeFactory(CheatcodeFactory):
