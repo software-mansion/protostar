@@ -3,13 +3,13 @@
 from starkware.cairo.common.math import assert_in_range
 
 @external
-func __setup__():
+func __setup__() {
     %{ max_examples(3) %}
-    return ()
-end
+    return ();
+}
 
 @external
-func setup_chaining():
+func setup_chaining() {
     %{
         given(
             a=strategy.felts()
@@ -18,17 +18,17 @@ func setup_chaining():
             .filter(lambda x: x < -20)
         )
     %}
-    return ()
-end
+    return ();
+}
 
 @external
-func test_chaining(a):
-    assert a = 3
-    return ()
-end
+func test_chaining(a) {
+    assert a = 3;
+    return ();
+}
 
 @external
-func setup_filtering():
+func setup_filtering() {
     %{
         given(
             a=strategy.one_of(
@@ -36,17 +36,17 @@ func setup_filtering():
             )
         )
     %}
-    return ()
-end
+    return ();
+}
 
 @external
-func test_filtering{range_check_ptr}(a):
-    assert_in_range(a, 100, 1000)
-    return ()
-end
+func test_filtering{range_check_ptr}(a) {
+    assert_in_range(a, 100, 1000);
+    return ();
+}
 
 @external
-func setup_mapping():
+func setup_mapping() {
     %{
         given(
             a=strategy.one_of(
@@ -54,11 +54,11 @@ func setup_mapping():
             )
         )
     %}
-    return ()
-end
+    return ();
+}
 
 @external
-func test_mapping(a):
-    assert a = 3
-    return ()
-end
+func test_mapping(a) {
+    assert a = 3;
+    return ();
+}
