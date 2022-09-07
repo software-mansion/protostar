@@ -2,9 +2,9 @@ from logging import Logger
 from pathlib import Path
 from typing import Any, List, Optional
 
-from protostar.cairo_migrator import CairoMigrator
+from protostar.cairo_migrator import Cairo010Migrator
 from protostar.cli import Command
-from protostar.cli.resolve_cairo_targets import resolve_cairo_targets
+from protostar.cli.map_targets_to_file_paths import map_targets_to_file_paths
 
 
 class CairoMigrateCommand(Command):
@@ -39,9 +39,11 @@ class CairoMigrateCommand(Command):
         ]
 
     async def run(self, args: Any):
-        migrator = CairoMigrator(
-            logger=self._logger,
-            single_return_functions=True
+        formatted_files = Cairo010Migrator.run(
+            file_paths=map_targets_to_file_paths(args.targets)
         )
-        migrator.run(file_paths=resolve_cairo_targets(args.targets))
-        migrator.save()
+
+        for filepath, new_content in formatted_files:
+            with open(filepath, "w", encoding="utf-8") as file:
+                self._logger.info(f"Writing {filepath}")
+                file.write(new_content)

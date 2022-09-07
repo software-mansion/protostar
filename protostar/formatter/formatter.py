@@ -20,7 +20,7 @@ class Formatter:
 
     def format(
         self,
-        cairo_targets: List[Path],
+        file_paths: List[Path],
         check=False,
         verbose=False,
         ignore_broken=False,
@@ -28,7 +28,7 @@ class Formatter:
     ) -> FormattingSummary:
         summary = FormattingSummary()
 
-        for filepath in cairo_targets:
+        for filepath in file_paths:
             relative_filepath = filepath.relative_to(self._project_root_path)
 
             try:

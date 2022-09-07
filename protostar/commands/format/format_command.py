@@ -3,7 +3,7 @@ from typing import Callable, List, Optional
 from pathlib import Path
 
 from protostar.cli import Command
-from protostar.cli.resolve_cairo_targets import resolve_cairo_targets
+from protostar.cli.map_targets_to_file_paths import map_targets_to_file_paths
 from protostar.protostar_exception import ProtostarExceptionSilent
 from protostar.formatter.formatter import Formatter
 from protostar.formatter.formatting_summary import FormattingSummary, format_summary
@@ -97,7 +97,7 @@ class FormatCommand(Command):
         )
 
         summary = self._formatter.format(
-            cairo_targets=resolve_cairo_targets(targets),
+            file_paths=map_targets_to_file_paths(targets),
             check=check,
             verbose=verbose,
             ignore_broken=ignore_broken,
