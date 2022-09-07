@@ -31,6 +31,10 @@ Additional directories to look for sources.
 Disable validation of hints when building the contracts.
 #### `-o` `--output PATH=build`
 An output directory used to put the compiled contracts in.
+### `cairo-migrate`
+Migrates the project sources to be compatible with cairo 0.10
+#### `targets STRING[]=['.']`
+Targets to migrate (a target can be a file or directory)
 ### `declare`
 Sends a declare transaction to StarkNet.
 #### `contract PATH`
@@ -97,7 +101,7 @@ Waits for transaction to be accepted on chain.
 $ protostar format
 ```
 Format Cairo source code.
-#### `target PATH[]=['.']`
+#### `target STRING[]=['.']`
 Target to format, can be a file or a directory.
 #### `-c` `--check`
 Run in 'check' mode. Exits with 0 if input is formatted correctly.Exits with 1 if formatting is required.
