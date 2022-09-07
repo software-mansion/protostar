@@ -30,7 +30,7 @@ class FuzzTestCaseRunner(TestCaseRunner[FuzzTestExecutionResult]):
         self._fuzz_test_execution_environment = fuzz_test_execution_environment
 
     async def _run_test_case(self) -> FuzzTestExecutionResult:
-        return await self._fuzz_test_execution_environment.invoke(
+        return await self._fuzz_test_execution_environment.execute(
             self._test_case.test_fn_name
         )
 
