@@ -13,23 +13,23 @@ from protostar.utils.abi import (
 
 @pytest.fixture(name="abi", scope="module")
 def abi_fixture() -> AbiType:
-    code = """
+    code = """\
 %lang starknet
 
-struct Point:
-    member x : felt
-    member y : felt
-end
+struct Point {
+    x: felt,
+    y: felt,
+}
 
 @external
-func test_no_args():
-    return ()
-end
+func test_no_args() {
+    return ();
+}
 
 @external
-func test_fuzz{syscall_ptr : felt*, range_check_ptr}(a, b : felt):
-    return ()
-end
+func test_fuzz{syscall_ptr: felt*, range_check_ptr}(a, b: felt) {
+    return ();
+}
 """
     abi = compile_starknet_codes([(code, "")]).abi
     assert abi is not None
