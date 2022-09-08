@@ -41,7 +41,6 @@ class StoreCheatcode(Cheatcode):
             # Pass a copy of the carried storage updates (instead of a reference) - note that
             # pending_modifications may be modified during the run as a result of an internal call.
             pending_modifications=dict(pre_run_contract_carried_state.storage_updates),
-            loop=self.loop,
         )
 
         self._write_on_remote_storage(
