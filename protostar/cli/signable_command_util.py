@@ -62,7 +62,9 @@ class PatchedStarkCurveSigner(BaseSigner):
 
             # TODO(#719): Support transactions v1
             entry_point_selector = transaction.entry_point_selector
-            assert entry_point_selector is not None, "Transactions v1 are not supported yet."
+            assert (
+                entry_point_selector is not None
+            ), "Transactions v1 are not supported yet."
 
             tx_hash = calculate_transaction_hash_common(
                 tx_hash_prefix=TransactionHashPrefix.INVOKE,

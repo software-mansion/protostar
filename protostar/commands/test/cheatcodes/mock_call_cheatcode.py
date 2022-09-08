@@ -34,28 +34,28 @@ class MockCallCheatcode(Cheatcode):
                 contract_address, fn_name, ret_data
             )
 
-        if contract_address not in self.state.mocked_calls_map:
-            self.state.mocked_calls_map[contract_address] = {}
+        if contract_address not in self.cheatable_state.mocked_calls_map:
+            self.cheatable_state.mocked_calls_map[contract_address] = {}
 
-        if selector in self.state.mocked_calls_map[contract_address]:
+        if selector in self.cheatable_state.mocked_calls_map[contract_address]:
             raise CheatcodeException(
                 self,
                 f"'{fn_name}' in the contract with address {contract_address} has been already mocked",
             )
-        self.state.mocked_calls_map[contract_address][selector] = ret_data
+        self.cheatable_state.mocked_calls_map[contract_address][selector] = ret_data
 
         def clear_mock():
-            if contract_address not in self.state.mocked_calls_map:
+            if contract_address not in self.cheatable_state.mocked_calls_map:
                 raise CheatcodeException(
                     self,
                     f"Contract {contract_address} doesn't have mocked selectors.",
                 )
-            if selector not in self.state.mocked_calls_map[contract_address]:
+            if selector not in self.cheatable_state.mocked_calls_map[contract_address]:
                 raise CheatcodeException(
                     self,
                     f"Couldn't find mocked selector {selector} for an address {contract_address}.",
                 )
-            del self.state.mocked_calls_map[contract_address][selector]
+            del self.cheatable_state.mocked_calls_map[contract_address][selector]
 
         return clear_mock
 
@@ -81,9 +81,11 @@ class MockCallCheatcode(Cheatcode):
     def get_contract_abi_from_contract_address(
         self, contract_address: AddressType
     ) -> Optional[AbiType]:
-        if contract_address in self.state.contract_address_to_class_hash_map:
-            class_hash = self.state.contract_address_to_class_hash_map[contract_address]
-            if class_hash in self.state.class_hash_to_contract_abi_map:
-                return self.state.class_hash_to_contract_abi_map[class_hash]
+        if contract_address in self.cheatable_state.contract_address_to_class_hash_map:
+            class_hash = self.cheatable_state.contract_address_to_class_hash_map[
+                contract_address
+            ]
+            if class_hash in self.cheatable_state.class_hash_to_contract_abi_map:
+                return self.cheatable_state.class_hash_to_contract_abi_map[class_hash]
 
         return None
