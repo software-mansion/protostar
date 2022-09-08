@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, TypeVar, Union
 
 from protostar.utils.protostar_directory import VersionManager, VersionType
 
@@ -8,13 +8,16 @@ from .configuration_file import (
     CommandConfig,
     CommandNameToConfig,
     ConfigurationFile,
+    ConfigurationFileContentBuilder,
+    ConfigurationFileContentConfigurator,
     ContractName,
     ContractNameNotFoundException,
     PrimitiveTypesSupportedByConfigurationFile,
     ProfileName,
 )
 from .configuration_toml_reader import ConfigurationTOMLReader
-from .configuration_toml_writer import ConfigurationTOMLWriter
+
+FileContentT = TypeVar("FileContentT")
 
 
 @dataclass
@@ -27,17 +30,18 @@ class ConfigurationFileV2Model:
     profile_name_to_commands_config: Dict[ProfileName, CommandNameToConfig]
 
 
-class ConfigurationFileV2(ConfigurationFile[ConfigurationFileV2Model]):
+class ConfigurationFileV2(
+    ConfigurationFile[ConfigurationFileV2Model],
+    ConfigurationFileContentConfigurator[ConfigurationFileV2Model],
+):
     def __init__(
         self,
         project_root_path: Path,
         configuration_toml_reader: ConfigurationTOMLReader,
-        configuration_toml_writer: ConfigurationTOMLWriter,
     ) -> None:
         super().__init__()
         self._project_root_path = project_root_path
         self._configuration_toml_reader = configuration_toml_reader
-        self._configuration_toml_writer = configuration_toml_writer
 
     def get_min_protostar_version(self) -> Optional[VersionType]:
         version_str = self._configuration_toml_reader.get_attribute(
@@ -92,8 +96,11 @@ class ConfigurationFileV2(ConfigurationFile[ConfigurationFileV2Model]):
     ) -> ConfigurationFileV2Model:
         raise NotImplementedError("Operation not supported.")
 
-    def save(self, model: ConfigurationFileV2Model) -> Path:
-        content_builder = self._configuration_toml_writer.create_content_builder()
+    def create_file_content(
+        self,
+        content_builder: ConfigurationFileContentBuilder[FileContentT],
+        model: ConfigurationFileV2Model,
+    ) -> FileContentT:
         content_builder.set_section(
             section_name="project", data=self._prepare_project_section_data(model)
         )
@@ -120,7 +127,7 @@ class ConfigurationFileV2(ConfigurationFile[ConfigurationFileV2Model]):
                     data=command_config,
                 )
         content = content_builder.build()
-        return self._configuration_toml_writer.save(content)
+        return content
 
     @staticmethod
     def _prepare_project_section_data(model: ConfigurationFileV2Model) -> Dict:

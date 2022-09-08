@@ -58,9 +58,6 @@ def configuration_file_fixture(project_root_path: Path, protostar_toml_content: 
     return ConfigurationFileV2(
         project_root_path=project_root_path,
         configuration_toml_reader=ConfigurationTOMLReader(path=protostar_toml_path),
-        configuration_toml_writer=ConfigurationTOMLWriter(
-            output_file_path=project_root_path / "new_protostar.toml"
-        ),
     )
 
 
@@ -114,8 +111,11 @@ def test_reading_argument_attribute_defined_within_specified_profile(
 
 
 def test_saving_configuration(
-    configuration_file: ConfigurationFileV2, protostar_toml_content: str
+    configuration_file: ConfigurationFileV2,
+    protostar_toml_content: str,
+    project_root_path: Path,
 ):
+    configuration_toml_v2_writer = ConfigurationTOMLWriter(configuration_file)
     configuration_file_v2_model = ConfigurationFileV2Model(
         min_protostar_version="9.9.9",
         project_config={
@@ -139,7 +139,8 @@ def test_saving_configuration(
         profile_name_to_project_config={"release": {"network": "mainnet2"}},
     )
 
-    file_path = configuration_file.save(configuration_file_v2_model)
-    result = file_path.read_text()
+    filepath = project_root_path / "new_protostar.toml"
+    configuration_toml_v2_writer.save(configuration_file_v2_model, filepath)
 
+    result = filepath.read_text()
     assert result == protostar_toml_content
