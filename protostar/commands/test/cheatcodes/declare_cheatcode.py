@@ -5,6 +5,7 @@ from typing import Optional, Dict
 from starkware.python.utils import from_bytes
 from starkware.starknet.business_logic.transaction.objects import InternalDeclare
 from starkware.starknet.public.abi import AbiType
+from starkware.starknet.services.api.gateway.transaction import DEFAULT_DECLARE_SENDER_ADDRESS
 from starkware.starknet.testing.contract import DeclaredClass
 from starkware.starknet.testing.contract_utils import EventManager, get_abi
 
@@ -59,21 +60,26 @@ class DeclareCheatcode(Cheatcode):
     async def _declare_contract(self, contract_path: Path):
         contract_class = self._starknet_compiler.compile_contract(contract_path)
 
-        tx = await InternalDeclare.create_for_testing(
-            ffc=self.state.ffc,
+        tx = InternalDeclare.create(
             contract_class=contract_class,
             chain_id=self.general_config.chain_id.value,
+            sender_address=DEFAULT_DECLARE_SENDER_ADDRESS,
+            max_fee=0,
+            version=0,
+            signature=[],
+            nonce=0,
         )
 
-        with self.state.copy_and_apply() as state_copy:
-            tx_execution_info = await tx.apply_state_updates(
-                state=state_copy, general_config=self.general_config
-            )
+        await tx.apply_state_updates(
+            state=self.cheatable_state, general_config=self.general_config
+        )
 
         abi = get_abi(contract_class=contract_class)
         self._add_event_abi_to_state(abi)
-        class_hash = tx_execution_info.call_info.class_hash
+        class_hash = tx.class_hash
         assert class_hash is not None
+        await self.cheatable_state.set_contract_class(class_hash, contract_class)
+
         return DeclaredClass(
             class_hash=from_bytes(class_hash),
             abi=get_abi(contract_class=contract_class),
