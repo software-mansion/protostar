@@ -1,12 +1,17 @@
 from pathlib import Path
 
-from pytest_mock import MockerFixture
-
 from protostar.utils.compiler.pass_managers import (
     ProtostarPassMangerFactory,
     TestCollectorPassManagerFactory,
 )
 from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
+
+
+def preview(abi_entry: dict) -> tuple:
+    """
+    Returns a preview object of ABI entry that is hashable, so it can be added to a set.
+    """
+    return abi_entry["name"], abi_entry["type"]
 
 
 def expected_collected_functions_oracle(path: Path):
@@ -15,10 +20,10 @@ def expected_collected_functions_oracle(path: Path):
         pass_manager_factory=ProtostarPassMangerFactory,
     )
     contract_class = default_compiler.preprocess_contract(path)
-    return [el["name"] for el in contract_class.abi if el["type"] == "function"]
+    return [preview(el) for el in contract_class.abi if el["type"] == "function"]
 
 
-async def test_test_collector_pass_oracle(mocker: MockerFixture):
+async def test_test_collector_pass_oracle():
     compiler = StarknetCompiler(
         config=CompilerConfig(include_paths=[], disable_hint_validation=False),
         pass_manager_factory=TestCollectorPassManagerFactory,
@@ -28,7 +33,6 @@ async def test_test_collector_pass_oracle(mocker: MockerFixture):
     contract_class = compiler.preprocess_contract(file_path)
 
     assert contract_class.abi
-    assert set([el["name"] for el in contract_class.abi]) == set(
+    assert set(preview(el) for el in contract_class.abi) == set(
         expected_collected_functions_oracle(file_path)
     )
-    assert all([el["type"] == "function" for el in contract_class.abi])
