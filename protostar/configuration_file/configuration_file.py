@@ -20,6 +20,7 @@ FileContentT = TypeVar("FileContentT")
 
 
 class ConfigurationFileContentBuilder(Generic[FileContentT]):
+    @abstractmethod
     def set_section(
         self,
         section_name: str,
@@ -28,6 +29,7 @@ class ConfigurationFileContentBuilder(Generic[FileContentT]):
     ) -> None:
         pass
 
+    @abstractmethod
     def build(self) -> FileContentT:
         ...
 

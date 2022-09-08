@@ -4,7 +4,6 @@ from typing import Any, Dict, Generic, Optional, TypeVar
 import tomli_w
 
 from .configuration_file import (
-    ConfigurationFile,
     ConfigurationFileContentBuilder,
     ConfigurationFileContentConfigurator,
 )
