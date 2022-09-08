@@ -1,22 +1,19 @@
-import dataclasses
-from typing import Dict, List, Callable, Optional, Any
+from typing import Dict, List
 
-from starkware.starknet.business_logic.state.state import CachedState
-from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
+from services.everest.business_logic.state_api import StateProxy
+from starkware.starknet.business_logic.fact_state.state import CarriedState
+from starkware.starknet.business_logic.state.state import CachedState, StateSyncifier
 from starkware.starknet.public.abi import AbiType
 from typing_extensions import Self
 
 from protostar.commands.test.test_environment_exceptions import SimpleReportedException
+from protostar.starknet.cheaters import Cheaters, BlockInfoCheater
 from protostar.starknet.types import AddressType, SelectorType, ClassHashType
 
 
 # pylint: disable=too-many-instance-attributes
 class CheatableCachedState(CachedState):
     def __init__(self, *args, **kwargs):
-        # Hack: Super constructor will populate this.
-        self._real_block_info: Optional[BlockInfo] = None
-        self._block_info_cheats: dict[str, Any] = {}
-
         super().__init__(*args, **kwargs)
 
         self.pranked_contracts_map: Dict[int, int] = {}
@@ -27,25 +24,10 @@ class CheatableCachedState(CachedState):
         self.class_hash_to_contract_abi_map: Dict[ClassHashType, AbiType] = {}
         self.contract_address_to_class_hash_map: Dict[AddressType, ClassHashType] = {}
 
-    @property
-    def block_info(self) -> BlockInfo:
-        return dataclasses.replace(self._real_block_info, **self._block_info_cheats)
-
-    @block_info.setter
-    def block_info(self, block_info: BlockInfo):
-        self._real_block_info = block_info
-
-    def cheat_block_info(self, **kwargs: Any) -> Callable[[], None]:
-        self._block_info_cheats |= kwargs
-
-        def stop():
-            for key in kwargs.keys():
-                del self._block_info_cheats[key]
-
-        return stop
+        self.cheaters = Cheaters(block_info=BlockInfoCheater(self.block_info))
 
     def _copy(self):
-        copied = self.__class__(block_info=self.block_info, state_reader=self)
+        copied = CheatableCachedState(block_info=self.block_info, state_reader=self)
 
         copied.pranked_contracts_map = self.pranked_contracts_map.copy()
         copied.mocked_calls_map = self.mocked_calls_map.copy()
@@ -60,6 +42,8 @@ class CheatableCachedState(CachedState):
         copied.contract_address_to_class_hash_map = (
             self.contract_address_to_class_hash_map.copy()
         )
+
+        copied.cheaters = self.cheaters.copy()
 
         return copied
 
@@ -103,6 +87,8 @@ class CheatableCachedState(CachedState):
             **self.contract_address_to_class_hash_map,
         }
 
+        parent.cheaters.apply(self.cheaters)
+
     def update_event_selector_to_name_map(
         self, local_event_selector_to_name_map: Dict[int, str]
     ):
@@ -127,3 +113,42 @@ class CheatableCachedState(CachedState):
             )
 
         return self.class_hash_to_contract_abi_map[class_hash]
+
+
+def cheaters_of(state: StateProxy) -> Cheaters:
+    """
+    Extracts the ``Cheaters`` object from any State structures.
+
+    This function workarounds limitations of the inheritance design of ``State`` classes family,
+    preventing us from exposing the `cheaters` field via state interface classes like ``SyncState``.
+    """
+
+    if isinstance(state, CheatableCachedState):
+        return state.cheaters
+
+    if isinstance(state, CachedState):
+        raise TypeError(
+            f"Protostar should always operate on {CheatableCachedState.__name__}."
+        )
+
+    if isinstance(state, CarriedState):
+        state = state.state
+
+        if not isinstance(state, CheatableCachedState):
+            raise TypeError(
+                f"Carried state is not carrying {CheatableCachedState.__name__}."
+            )
+
+        return state.cheaters
+
+    if isinstance(state, StateSyncifier):
+        state = state.async_state
+
+        if not isinstance(state, CheatableCachedState):
+            raise TypeError(
+                f"State syncifier is not carrying {CheatableCachedState.__name__}."
+            )
+
+        return state.cheaters
+
+    raise TypeError(f"Unknown State class {state.__class__.__name__}.")

@@ -5,6 +5,7 @@ from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.python.utils import to_bytes
 from starkware.starknet.business_logic.execution.objects import CallType
 from starkware.starknet.business_logic.state.state import StateSyncifier
+from starkware.starknet.business_logic.state.state_api import SyncState
 from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
@@ -13,7 +14,7 @@ from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
 from starkware.starknet.security.secure_hints import HintsWhitelist
 from starkware.starknet.services.api.contract_class import EntryPointType
 
-from protostar.starknet.cheatable_cached_state import CheatableCachedState
+from protostar.starknet.cheatable_cached_state import CheatableCachedState, cheaters_of
 from protostar.starknet.types import AddressType, SelectorType
 
 
@@ -24,6 +25,14 @@ class CheatableSysCallHandlerException(Exception):
 
 
 class CheatableSysCallHandler(BusinessLogicSysCallHandler):
+    def __init__(self, state: SyncState, **kwargs):
+        # This field must be set before entering super constructor,
+        # because it calls the setter for the `block_info` property.
+        self.cheaters = cheaters_of(state)
+
+        super().__init__(state=state, **kwargs)
+
+    # TODO(mkaput): Eradicate this property in favor of `cheaters`.
     @property
     def cheatable_state(self) -> CheatableCachedState:
         state_syncifier = self.sync_state
@@ -36,15 +45,12 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
 
     @property
     def block_info(self) -> BlockInfo:
-        return self.cheatable_state.block_info
+        return self.cheaters.block_info.get_for_contract(self.contract_address)
 
     @block_info.setter
     def block_info(self, block_info: BlockInfo):
-        # TODO(mkaput): Replace this with passing BlockInfo-specific context to the constructor
-        #   instead of fetching data from CheatableCachedState. This way, this method could assert
-        #   something like `block_info is self.block_info_ctx.block_info`.
-        # Only called in constructor. Ignore.
-        pass
+        # Only called in constructor.
+        assert block_info == self.cheaters.block_info.base
 
     def _get_caller_address(
         self,
