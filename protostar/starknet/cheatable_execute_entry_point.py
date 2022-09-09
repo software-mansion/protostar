@@ -1,6 +1,9 @@
 import asyncio
+from dataclasses import dataclass
 import logging
-from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple, cast
+from pathlib import Path
+from subprocess import call
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, cast
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
@@ -28,7 +31,10 @@ from starkware.starkware_utils.error_handling import (
 )
 from starkware.cairo.lang.tracer.tracer_data import TracerData
 from starkware.cairo.lang.vm.memory_segments import FIRST_MEMORY_ADDR as PROGRAM_BASE
-from protostar.profiler.profile import profile_from_tracer_data
+from starkware.starknet.services.api.contract_class import ContractEntryPoint
+from starkware.python.utils import from_bytes
+from protostar.profiler.pprof import serialize, to_protobuf
+from protostar.profiler.profile import RuntimeProfile, build_profile, merge_profiles, profile_from_tracer_data
 
 from protostar.starknet.cheatable_cairo_function_runner import (
     CheatableCairoFunctionRunner,
@@ -36,7 +42,9 @@ from protostar.starknet.cheatable_cairo_function_runner import (
 from protostar.starknet.cheatable_syscall_handler import CheatableSysCallHandler
 from protostar.starknet.cheatcode import Cheatcode
 
-PROFILER = False
+
+
+PROFILER = True
 
 if TYPE_CHECKING:
     from protostar.starknet.cheatable_state import CheatableCarriedState
@@ -44,11 +52,20 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+@dataclass(frozen=True)
+class ContractProfile:
+    callstack: List[str]
+    entry_point: ContractEntryPoint
+    profile: RuntimeProfile
+
+
 # pylint: disable=raise-missing-from
 # pylint: disable=too-many-statements
 class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     cheatcode_factory: Optional["CheatcodeFactory"] = None
-    callstack = 0
+
+    samples: List[ContractProfile] = []
+    callstack: List[str] = []
 
     def _run(  # type: ignore
         self,
@@ -142,7 +159,13 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         ]
 
         try:
-            # CheatableExecuteEntryPoint.callstack += 1
+            if PROFILER:
+                if  CheatableExecuteEntryPoint.callstack == []:
+                    CheatableExecuteEntryPoint.callstack.append("MAIN")
+                else:
+                    path = state.class_hash_to_contract_path[from_bytes(class_hash)]
+                    CheatableExecuteEntryPoint.callstack.append(path)
+
             runner.run_from_entrypoint(
                 entry_point.offset,
                 *entry_points_args,
@@ -156,20 +179,27 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
                 run_resources=tx_execution_context.run_resources,
                 verify_secure=True,
             )
-            # CheatableExecuteEntryPoint.callstack -= 1
-            # if CheatableExecuteEntryPoint.callstack == 0 and PROFILER:
-            #     runner.relocate()
-            #     try:
-            #         save_profile(
-            #             program=contract_class.program,
-            #             memory=runner.relocated_memory,
-            #             trace=runner.relocated_trace,
-            #             debug_info=runner.get_relocated_debug_info(),
-            #             runner=runner,
-            #         )
-            #     except Exception as err:
-            #         print(str(err))
-            #         raise err
+            if PROFILER:
+                runner.relocate()
+                try:
+                    profile = get_profile(
+                        program=contract_class.program,
+                        memory=runner.relocated_memory,
+                        trace=runner.relocated_trace,
+                        debug_info=runner.get_relocated_debug_info(),
+                        runner=runner,
+                    )
+                    current_callstack = CheatableExecuteEntryPoint.callstack.copy()
+                    CheatableExecuteEntryPoint.samples.append(ContractProfile(current_callstack, entry_point, profile))
+                    CheatableExecuteEntryPoint.callstack.pop()
+                    if CheatableExecuteEntryPoint.callstack == []:
+                        merge_and_save(CheatableExecuteEntryPoint.samples)
+
+                except Exception as err:                
+                    import traceback
+                    import sys
+                    print(str(err))
+                    raise err
 
         # --- MODIFICATIONS END ---
 
@@ -225,7 +255,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         return runner, syscall_handler
 
 
-def save_profile(program, memory, trace, debug_info, runner):
+def get_profile(program, memory, trace, debug_info, runner):
     tracer_data = TracerData(
         program=program,
         memory=memory,
@@ -234,7 +264,17 @@ def save_profile(program, memory, trace, debug_info, runner):
         air_public_input=None,
         debug_info=debug_info,
     )
-    data = profile_from_tracer_data(tracer_data, runner)
+    assert runner.accessed_addresses
+    assert runner.segment_offsets
+    profile = build_profile(
+        tracer_data, runner.segments, runner.segment_offsets, runner.accessed_addresses
+    )
+    return profile
+
+def merge_and_save(contract_samples: List[ContractProfile]):
+    merged = merge_profiles(contract_samples)
+    proto = to_protobuf(merged)
+    serialized = serialize(proto)
     with open("profile.pb.gz", "wb") as file:
-        file.write(data)
+        file.write(serialized)
     return 0
