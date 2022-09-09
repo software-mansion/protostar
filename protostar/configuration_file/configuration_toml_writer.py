@@ -17,7 +17,8 @@ class ConfigurationTOMLContentBuilder(
 ):
     def __init__(self) -> None:
         self._doc = tomlkit.document()
-        self._profile = tomlkit.table()
+        self._profiles_table = tomlkit.table(is_super_table=True)
+        self._profile_name_profile_table: Dict[str, Table] = {}
 
     def set_section(
         self,
@@ -30,10 +31,19 @@ class ConfigurationTOMLContentBuilder(
         if not profile_name:
             self._doc.add(key=section_name, item=table)
         else:
-            self._doc.add(
-                key=tomlkit.key(["profile", profile_name, section_name]),
-                item=table,
+            profile_table = self._create_profile_table(profile_name)
+            profile_table.add(
+                key=section_name,
+                value=table,
             )
+
+    def _create_profile_table(self, profile_name: str) -> Table:
+        if profile_name in self._profile_name_profile_table:
+            return self._profile_name_profile_table[profile_name]
+        profile_table = tomlkit.table(is_super_table=True)
+        self._profile_name_profile_table[profile_name] = profile_table
+        self._profiles_table.add(profile_name, profile_table)
+        return profile_table
 
     def _map_data_to_table(self, data: Dict) -> Table:
         table = tomlkit.table()
@@ -54,6 +64,7 @@ class ConfigurationTOMLContentBuilder(
         return inline_table
 
     def build(self) -> ConfigurationTOMLContent:
+        self._doc.add("profile", self._profiles_table)
         return tomlkit.dumps(self._doc)
 
 
