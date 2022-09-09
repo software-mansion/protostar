@@ -8,7 +8,7 @@ from protostar.protostar_exception import ProtostarException
 
 
 class ConfigurationTOMLReader:
-    FlattenSectionName = str
+    FlattenedSectionName = str
     """e.g. `profile.ci.protostar.shared_command_configs`"""
 
     def __init__(
@@ -17,7 +17,7 @@ class ConfigurationTOMLReader:
     ):
         self.path = path
         self._cache: Optional[
-            Dict[ConfigurationTOMLReader.FlattenSectionName, Any]
+            Dict[ConfigurationTOMLReader.FlattenedSectionName, Any]
         ] = None
 
     def get_filename(self) -> str:
@@ -102,7 +102,7 @@ class ConfigurationTOMLReader:
         with open(self.path, "rb") as protostar_toml_file:
             protostar_toml_dict = tomli.load(protostar_toml_file)
             protostar_toml_flat_dict = cast(
-                Dict[ConfigurationTOMLReader.FlattenSectionName, Any],
+                Dict[ConfigurationTOMLReader.FlattenedSectionName, Any],
                 flatdict.FlatDict(protostar_toml_dict, delimiter="."),
             )
 
