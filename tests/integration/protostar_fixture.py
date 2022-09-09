@@ -8,6 +8,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, cast
 from pytest_mock import MockerFixture
 from starknet_py.net import KeyPair
 from starknet_py.net.models import StarknetChainId
+from protostar.cli.map_targets_to_file_paths import map_targets_to_file_paths
 
 from protostar.cli.signable_command_util import PatchedStarkCurveSigner
 from protostar.commands import (
@@ -170,7 +171,7 @@ class ProtostarFixture:
         )
 
         summary = formatter.format(
-            targets=targets,
+            file_paths=map_targets_to_file_paths(targets),
             check=check,
             verbose=verbose,
             ignore_broken=ignore_broken,
