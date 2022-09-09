@@ -67,7 +67,7 @@ class ConfigurationTOMLReader:
         profile_section_names = [
             section_name
             for section_name in section_names
-            if section_name.startswith("profile")
+            if section_name.startswith("profile.")
         ]
         profile_names = [
             profile_section_name.split(".")[1]

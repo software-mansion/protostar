@@ -31,6 +31,9 @@ def protostar_toml_content_fixture() -> str:
 
     ["project"]
     lib_path = "./foo"
+
+    ["profiler.abc"]
+    foo = 123
     """
 
 
@@ -171,3 +174,11 @@ def test_extracting_profile_names(protostar_toml_path: Path):
     result = ConfigurationTOMLReader(protostar_toml_path).get_profile_names()
 
     assert result == ["ci"]
+
+
+def test_section_starting_with_profile(
+    protostar_toml_path: Path,
+):
+    result = ConfigurationTOMLReader(protostar_toml_path).get_profile_names()
+
+    assert "abc" not in result
