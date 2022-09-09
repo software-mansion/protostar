@@ -8,16 +8,13 @@ from protostar.protostar_exception import ProtostarException
 
 
 class ConfigurationTOMLReader:
-    FlattenSectionName = str
-    """e.g. `profile.ci.protostar.shared_command_configs`"""
+    QualifiedSectionName = str
 
-    def __init__(
-        self,
-        path: Path,
-    ):
+    def __init__(self, path: Path, ignore_attribute_casing: bool = False):
         self.path = path
+        self._ignore_attribute_casing = ignore_attribute_casing
         self._cache: Optional[
-            Dict[ConfigurationTOMLReader.FlattenSectionName, Any]
+            Dict[ConfigurationTOMLReader.QualifiedSectionName, Any]
         ] = None
 
     def get_filename(self) -> str:
@@ -56,11 +53,12 @@ class ConfigurationTOMLReader:
         )
         if not section:
             return None
-
-        alternative_attribute_name = self._find_alternative_key(attribute_name, section)
-
-        if alternative_attribute_name and alternative_attribute_name in section:
-            return section[alternative_attribute_name]
+        if self._ignore_attribute_casing:
+            attribute_name = (
+                self._find_alternative_key(attribute_name, section) or attribute_name
+            )
+        if attribute_name in section:
+            return section[attribute_name]
         return None
 
     def get_profile_names(self) -> List[str]:
@@ -69,7 +67,7 @@ class ConfigurationTOMLReader:
         profile_section_names = [
             section_name
             for section_name in section_names
-            if section_name.startswith("profile")
+            if section_name.startswith("profile.")
         ]
         profile_names = [
             profile_section_name.split(".")[1]
@@ -102,7 +100,7 @@ class ConfigurationTOMLReader:
         with open(self.path, "rb") as protostar_toml_file:
             protostar_toml_dict = tomli.load(protostar_toml_file)
             protostar_toml_flat_dict = cast(
-                Dict[ConfigurationTOMLReader.FlattenSectionName, Any],
+                Dict[ConfigurationTOMLReader.QualifiedSectionName, Any],
                 flatdict.FlatDict(protostar_toml_dict, delimiter="."),
             )
 
