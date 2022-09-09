@@ -72,10 +72,10 @@ async def test_mapping_and_filtering(
     assert_cairo_test_cases(
         testing_summary,
         expected_passed_test_cases_names=[
+            "test_chaining",
             "test_filtering",
             "test_mapping",
         ],
-        expected_failed_test_cases_names=["test_chaining"],
     )
 
 
