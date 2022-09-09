@@ -138,3 +138,31 @@ def test_saving_configuration(
 
     result = filepath.read_text()
     assert result == protostar_toml_content
+
+
+def test_saving_in_particular_order(
+    configuration_file: ConfigurationFileV2,
+    project_root_path: Path,
+):
+    configuration_toml_v2_writer = ConfigurationTOMLWriter(configuration_file)
+    configuration_file_v2_model = ConfigurationFileV2Model(
+        min_protostar_version="9.9.9",
+        project_config={
+            "lib-path": "./lib",
+            "cairo-path": ["bar"],
+            "no-color": True,
+            "network": "devnet1",
+        },
+        command_name_to_config={},
+        contract_name_to_path_strs={},
+        profile_name_to_commands_config={},
+        profile_name_to_project_config={},
+    )
+    filepath = project_root_path / "new_protostar.toml"
+    configuration_toml_v2_writer.save(configuration_file_v2_model, filepath)
+    result = filepath.read_text()
+
+    assert result.index("[project]") < result.index("[contracts]")
+    assert result.index("lib-path") < result.index("cairo-path")
+    assert result.index("cairo-path") < result.index("no-color")
+    assert result.index("no-color") < result.index("network")
