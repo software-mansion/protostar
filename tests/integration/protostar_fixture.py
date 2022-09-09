@@ -193,22 +193,22 @@ class ProtostarFixture:
         %lang starknet
 
         @external
-        func up():
+        func up(){{
             %{{
                 {up_hint_content}
             %}}
 
-            return ()
-        end
+            return ();
+        }}
 
         @external
-        func down():
+        func down(){{
             %{{
                 {down_hint_content}
             %}}
 
-            return ()
-        end
+            return ();
+        }}
         """,
         )
         return file_path
