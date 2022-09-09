@@ -13,6 +13,7 @@ from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from typing_extensions import TypedDict
 
 from protostar.starknet.cheatable_cached_state import CheatableCachedState
+from protostar.starknet.cheaters import Cheaters
 from protostar.starknet.hint_local import HintLocal
 
 if TYPE_CHECKING:
@@ -47,6 +48,7 @@ class Cheatcode(BusinessLogicSysCallHandler, HintLocal):
             "CheatableExecuteEntryPoint"
         ] = syscall_dependencies["execute_entry_point_cls"]
 
+    # TODO(mkaput): Eradicate this property in favor of `cheaters`.
     @property
     def cheatable_state(self) -> CheatableCachedState:
         state_syncifier = self.state
@@ -56,6 +58,10 @@ class Cheatcode(BusinessLogicSysCallHandler, HintLocal):
         assert isinstance(async_state, CheatableCachedState)
 
         return async_state
+
+    @property
+    def cheaters(self) -> Cheaters:
+        return self.cheatable_state.cheaters
 
     @abstractmethod
     def build(self) -> Any:
