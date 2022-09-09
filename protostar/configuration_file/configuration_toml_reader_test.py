@@ -74,7 +74,7 @@ def test_loading_attribute_from_profile(protostar_toml_path: Path):
 
     non_profiled_attribute = reader.get_attribute(
         section_name="shared_command_configs",
-        attribute_name="no-color",
+        attribute_name="no_color",
         section_namespace="protostar",
     )
     assert non_profiled_attribute is False
