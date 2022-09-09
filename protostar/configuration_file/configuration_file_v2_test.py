@@ -22,17 +22,11 @@ def protostar_toml_content_fixture() -> str:
         lib-path = "./lib"
         no-color = true
         network = "devnet1"
-        cairo-path = [
-            "bar",
-        ]
+        cairo-path = ["bar"]
 
         [contracts]
-        foo = [
-            "./src/foo.cairo",
-        ]
-        bar = [
-            "./src/bar.cairo",
-        ]
+        foo = ["./src/foo.cairo"]
+        bar = ["./src/bar.cairo"]
 
         [declare]
         network = "devnet2"
