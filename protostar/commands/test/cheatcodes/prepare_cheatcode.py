@@ -21,6 +21,7 @@ class PreparedContract:
     constructor_calldata: List[int]
     contract_address: int
     class_hash: int
+    salt: int
 
 
 class PrepareCheatcode(Cheatcode):
@@ -44,9 +45,11 @@ class PrepareCheatcode(Cheatcode):
             constructor_calldata = self.transform_data_to_cairo_format(
                 declared.class_hash, constructor_calldata
             )
+        contract_salt = PrepareCheatcode.salt_nonce
+        PrepareCheatcode.salt_nonce += 1
 
         contract_address: int = calculate_contract_address_from_hash(
-            salt=PrepareCheatcode.salt_nonce,
+            salt=contract_salt,
             class_hash=declared.class_hash,
             constructor_calldata=constructor_calldata,
             deployer_address=self.contract_address,
@@ -54,9 +57,12 @@ class PrepareCheatcode(Cheatcode):
         self.cheatable_state.contract_address_to_class_hash_map[
             contract_address
         ] = declared.class_hash
-        PrepareCheatcode.salt_nonce += 1
+
         return PreparedContract(
-            constructor_calldata, contract_address, declared.class_hash
+            constructor_calldata=constructor_calldata,
+            contract_address=contract_address,
+            class_hash=declared.class_hash,
+            salt=contract_salt,
         )
 
     def transform_data_to_cairo_format(
