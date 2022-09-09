@@ -39,15 +39,15 @@ Protostar creates a git commit after installing a dependency.
 If you use a dependency that uses absolute imports, you have to specify a cairo-path to the project's root directory of that dependency. You can do it in the following way:
 
 ```cairo title="./lib/cairo_contracts/src/openzeppelin/account/Account.cairo"
-# ...
+// ...
 
-from openzeppelin.introspection.ERC165 import ERC165_supports_interface 
+from openzeppelin.introspection.ERC165 import ERC165_supports_interface
 
-# ...
+// ...
 ```
 
 ```shell
-$ protostar build --cairo-path ./lib/cairo_contracts/src
+protostar build --cairo-path ./lib/cairo_contracts/src
 ```
 :::
 
@@ -61,7 +61,7 @@ You can configure your `cairo-path` in [the configuration file](/docs/tutorials/
 Protostar supports the following ways of referencing external dependency:
 
 | Format                                | Example                                           |
-| ------------------------------------- | ------------------------------------------------- |
+|---------------------------------------|---------------------------------------------------|
 | `GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]` | `OpenZeppelin/cairo-contracts@0.1.0`              |
 | `URL_TO_THE_REPOSITORY`               | `https://github.com/OpenZeppelin/cairo-contracts` |
 | `SSH_URI`                             | `git@github.com:OpenZeppelin/cairo-contracts.git` |

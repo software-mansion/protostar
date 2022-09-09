@@ -8,52 +8,52 @@ Changes a caller address returned by `get_caller_address()` until the returned c
 
 ## In unit tests
 ```cairo title="Local assert passes"
-
 @external
-func test_remote_prank{syscall_ptr : felt*, range_check_ptr}():
+func test_remote_prank{syscall_ptr: felt*, range_check_ptr}() {
     %{ stop_prank_callable = start_prank(123) %}
 
-    let (caller_addr) = get_caller_address()
-    # Does not raise error
-    assert caller_addr = 123
+    let (caller_addr) = get_caller_address();
+    // Does not raise error
+    assert caller_addr = 123;
 
     %{ stop_prank_callable() %}
-    return ()
-end
+    return ();
+}
 ``` 
 ## In integration tests
 ```cairo title="./pranked_contract.cairo"
 %lang starknet
 
-from starkware.starknet.common.syscalls import (get_caller_address)
+from starkware.starknet.common.syscalls import get_caller_address
 
 @external
-func assert_pranked{syscall_ptr : felt*}():
-    let (caller_addr) = get_caller_address()
-    with_attr error_message("Not pranked!"):
-        assert caller_addr = 123
-    end
-    return ()
-end
+func assert_pranked{syscall_ptr: felt*}() {
+    let (caller_addr) = get_caller_address();
+    with_attr error_message("Not pranked!") {
+        assert caller_addr = 123;
+    }
+    return ();
+}
 ```
+
 ```cairo title="Remote assert passes"
 @contract_interface
-namespace Pranked:
-    func assert_pranked() -> ():
-    end
-end
+namespace Pranked {
+    func assert_pranked() -> () {
+    }
+}
 
 @external
-func test_remote_prank{syscall_ptr : felt*, range_check_ptr}():
-    alloc_locals
-    local contract_address : felt
-    %{ 
-        ids.contract_address = deploy_contract("./pranked_contract.cairo").contract_address 
+func test_remote_prank{syscall_ptr: felt*, range_check_ptr}() {
+    alloc_locals;
+    local contract_address: felt;
+    %{
+        ids.contract_address = deploy_contract("./pranked_contract.cairo").contract_address
         stop_prank_callable = start_prank(123, target_contract_address=ids.contract_address)
     %}
-    # Does not raise error
-    Pranked.assert_pranked(contract_address=contract_address)
+    // Does not raise error
+    Pranked.assert_pranked(contract_address=contract_address);
     %{ stop_prank_callable() %}
-    return ()
-end
+    return ();
+}
 ``` 

@@ -32,7 +32,7 @@ Disable validation of hints when building the contracts.
 #### `-o` `--output PATH=build`
 An output directory used to put the compiled contracts in.
 ### `cairo-migrate`
-Migrates the project sources to be compatible with cairo 0.10
+Migrate project sources to Cairo 0.10.
 #### `targets STRING[]=['.']`
 Targets to migrate (a target can be a file or directory)
 ### `declare`

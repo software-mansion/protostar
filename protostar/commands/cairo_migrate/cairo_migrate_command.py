@@ -19,7 +19,7 @@ class CairoMigrateCommand(Command):
 
     @property
     def description(self) -> str:
-        return "Migrates the project sources to be compatible with cairo 0.10"
+        return "Migrate project sources to Cairo 0.10."
 
     @property
     def example(self) -> Optional[str]:
