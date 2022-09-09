@@ -70,9 +70,10 @@ class DeclareCheatcode(Cheatcode):
             nonce=0,
         )
 
-        await tx.apply_state_updates(
-            state=self.cheatable_state, general_config=self.general_config
-        )
+        with self.cheatable_state.copy_and_apply() as state_copy:
+            await tx.apply_state_updates(
+                state=state_copy, general_config=self.general_config
+            )
 
         abi = get_abi(contract_class=contract_class)
         self._add_event_abi_to_state(abi)

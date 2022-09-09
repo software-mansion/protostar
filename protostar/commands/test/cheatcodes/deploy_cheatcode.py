@@ -48,10 +48,12 @@ class DeployCheatcode(Cheatcode):
             version=0,
         )
 
-        asyncio.run(self._run_deploy_tx(tx))
+        asyncio.run(self._apply_deploy_tx_updates(tx))
+
         return DeployedContract(contract_address=prepared.contract_address)
 
-    async def _run_deploy_tx(self, tx: InternalDeploy):
-        await tx.apply_state_updates(
-            state=self.cheatable_state, general_config=self.general_config
-        )
+    async def _apply_deploy_tx_updates(self, tx: InternalDeploy):
+        with self.cheatable_state.copy_and_apply() as state_copy:
+            await tx.apply_state_updates(
+                state=state_copy, general_config=self.general_config
+            )
