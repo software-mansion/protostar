@@ -1,21 +1,23 @@
 from pathlib import Path
 from typing import Any, Dict, Generic, Optional, TypeVar
 
-import tomli_w
+import tomlkit
+from tomlkit.items import InlineTable, Table
 
 from .configuration_file import (
     ConfigurationFileContentBuilder,
     ConfigurationFileContentConfigurator,
 )
 
-ConfigurationTOMLContent = Dict
+ConfigurationTOMLContent = str
 
 
 class ConfigurationTOMLContentBuilder(
     ConfigurationFileContentBuilder[ConfigurationTOMLContent]
 ):
     def __init__(self) -> None:
-        self._content = {}
+        self._doc = tomlkit.document()
+        self._profile = tomlkit.table()
 
     def set_section(
         self,
@@ -23,18 +25,36 @@ class ConfigurationTOMLContentBuilder(
         data: Dict[str, Any],
         profile_name: Optional[str] = None,
     ):
-        if profile_name:
-            if "profile" not in self._content:
-                self._content["profile"] = {}
-            if profile_name not in self._content["profile"]:
-                self._content["profile"][profile_name] = {}
-            if section_name not in self._content["profile"][profile_name]:
-                self._content["profile"][profile_name][section_name] = data
+        table = self._map_data_to_table(data)
+
+        if not profile_name:
+            self._doc.add(key=section_name, item=table)
         else:
-            self._content[section_name] = data
+            self._doc.add(
+                key=tomlkit.key(["profile", profile_name, section_name]),
+                item=table,
+            )
+
+    def _map_data_to_table(self, data: Dict) -> Table:
+        table = tomlkit.table()
+        for key, value in data.items():
+            if isinstance(value, Dict):
+                table.add(key, self._map_data_to_inline_table(value))
+            else:
+                table.add(key, value)
+        return table
+
+    def _map_data_to_inline_table(self, data: Dict) -> InlineTable:
+        inline_table = tomlkit.inline_table()
+        for key, value in data.items():
+            if isinstance(value, Dict):
+                inline_table.add(key, self._map_data_to_inline_table(value))
+            else:
+                inline_table.add(key, value)
+        return inline_table
 
     def build(self) -> ConfigurationTOMLContent:
-        return self._content
+        return tomlkit.dumps(self._doc)
 
 
 ConfigurationFileModelT = TypeVar("ConfigurationFileModelT")
@@ -56,5 +76,5 @@ class ConfigurationTOMLWriter(Generic[ConfigurationFileModelT]):
         content = self._content_configurator.create_file_content(
             content_builder, configuration_model
         )
-        with open(filepath, "wb") as file_handle:
-            tomli_w.dump(content, file_handle)
+        with open(filepath, "w", encoding="UTF-8") as file_handle:
+            file_handle.write(content)
