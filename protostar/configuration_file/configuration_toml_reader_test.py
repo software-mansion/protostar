@@ -85,18 +85,7 @@ def test_loading_attribute_from_profile(protostar_toml_path: Path):
     assert profiled_attribute is True
 
 
-def test_supporting_kebab_case(protostar_toml_path: Path):
-    reader = ConfigurationTOMLReader(protostar_toml_path)
-
-    result = reader.get_attribute(
-        section_name="shared_command_configs",
-        attribute_name="no-color",
-        section_namespace="protostar",
-    )
-    assert result is False
-
-
-def test_supporting_snake_case(protostar_toml_path: Path):
+def test_attribute_casing_sensitivity(protostar_toml_path: Path):
     reader = ConfigurationTOMLReader(protostar_toml_path)
 
     result = reader.get_attribute(
@@ -105,7 +94,31 @@ def test_supporting_snake_case(protostar_toml_path: Path):
         profile_name="ci",
         section_namespace="protostar",
     )
+    result2 = reader.get_attribute(
+        section_name="shared_command_configs",
+        attribute_name="no-color",
+        section_namespace="protostar",
+    )
+    assert result is None
+    assert result2 is None
+
+
+def test_ignoring_attribute_casing(protostar_toml_path: Path):
+    reader = ConfigurationTOMLReader(protostar_toml_path, ignore_attribute_casing=True)
+
+    result = reader.get_attribute(
+        section_name="shared_command_configs",
+        attribute_name="no_color",
+        profile_name="ci",
+        section_namespace="protostar",
+    )
+    result2 = reader.get_attribute(
+        section_name="shared_command_configs",
+        attribute_name="no-color",
+        section_namespace="protostar",
+    )
     assert result is True
+    assert result2 is False
 
 
 def test_open_file_only_once(protostar_toml_path: Path, mocker: MockerFixture):

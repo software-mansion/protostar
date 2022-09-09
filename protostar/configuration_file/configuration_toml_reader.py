@@ -11,11 +11,9 @@ class ConfigurationTOMLReader:
     FlattenedSectionName = str
     """e.g. `profile.ci.protostar.shared_command_configs`"""
 
-    def __init__(
-        self,
-        path: Path,
-    ):
+    def __init__(self, path: Path, ignore_attribute_casing: bool = False):
         self.path = path
+        self._ignore_attribute_casing = ignore_attribute_casing
         self._cache: Optional[
             Dict[ConfigurationTOMLReader.FlattenedSectionName, Any]
         ] = None
@@ -56,11 +54,12 @@ class ConfigurationTOMLReader:
         )
         if not section:
             return None
-
-        alternative_attribute_name = self._find_alternative_key(attribute_name, section)
-
-        if alternative_attribute_name and alternative_attribute_name in section:
-            return section[alternative_attribute_name]
+        if self._ignore_attribute_casing:
+            attribute_name = (
+                self._find_alternative_key(attribute_name, section) or attribute_name
+            )
+        if attribute_name in section:
+            return section[attribute_name]
         return None
 
     def get_profile_names(self) -> List[str]:
