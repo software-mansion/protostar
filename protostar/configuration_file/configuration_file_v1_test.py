@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from protostar.configuration_file.configuration_legacy_toml_interpreter import (
-    ConfigurationTOMLInterpreter,
+    ConfigurationLegacyTOMLInterpreter,
 )
 from protostar.utils import VersionManager
 
@@ -39,7 +39,7 @@ def configuration_file_fixture(
     protostar_toml_path: Path, project_root_path: Path, protostar_toml_content: str
 ):
     return ConfigurationFileV1(
-        ConfigurationTOMLInterpreter(
+        ConfigurationLegacyTOMLInterpreter(
             file_content=protostar_toml_content,
         ),
         project_root_path=project_root_path,

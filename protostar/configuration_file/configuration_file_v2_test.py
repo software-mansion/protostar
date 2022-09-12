@@ -6,7 +6,7 @@ from protostar.utils.protostar_directory import VersionManager
 
 from .configuration_file import ConfigurationFile, ContractNameNotFoundException
 from .configuration_file_v2 import ConfigurationFileV2
-from .configuration_legacy_toml_interpreter import ConfigurationTOMLInterpreter
+from .configuration_legacy_toml_interpreter import ConfigurationLegacyTOMLInterpreter
 
 
 @pytest.fixture(name="protostar_toml_content")
@@ -44,7 +44,7 @@ def project_root_path_fixture(tmp_path: Path):
 def configuration_file_fixture(project_root_path: Path, protostar_toml_content: str):
     protostar_toml_path = project_root_path / "protostar.toml"
     protostar_toml_path.write_text(protostar_toml_content)
-    configuration_toml_reader = ConfigurationTOMLInterpreter(
+    configuration_toml_reader = ConfigurationLegacyTOMLInterpreter(
         file_content=protostar_toml_content
     )
     return ConfigurationFileV2(

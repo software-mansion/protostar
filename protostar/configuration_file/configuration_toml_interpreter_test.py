@@ -1,6 +1,6 @@
 import pytest
 
-from .configuration_toml_interpreter import ConfigurationStrictTOMLInterpreter
+from .configuration_toml_interpreter import ConfigurationTOMLInterpreter
 
 
 @pytest.mark.parametrize(
@@ -13,7 +13,7 @@ from .configuration_toml_interpreter import ConfigurationStrictTOMLInterpreter
     ),
 )
 def test_getting_attribute(protostar_toml_content: str):
-    interpreter = ConfigurationStrictTOMLInterpreter(protostar_toml_content)
+    interpreter = ConfigurationTOMLInterpreter(protostar_toml_content)
 
     result = interpreter.get_attribute(
         section_namespace="ns", section_name="section", attribute_name="attr"
@@ -32,7 +32,7 @@ def test_getting_attribute(protostar_toml_content: str):
     ),
 )
 def test_getting_attribute_without_section_namespace(protostar_toml_content: str):
-    interpreter = ConfigurationStrictTOMLInterpreter(protostar_toml_content)
+    interpreter = ConfigurationTOMLInterpreter(protostar_toml_content)
 
     result = interpreter.get_attribute(section_name="section", attribute_name="attr")
 
@@ -49,7 +49,7 @@ def test_getting_attribute_without_section_namespace(protostar_toml_content: str
     ),
 )
 def test_getting_section(protostar_toml_content: str):
-    interpreter = ConfigurationStrictTOMLInterpreter(protostar_toml_content)
+    interpreter = ConfigurationTOMLInterpreter(protostar_toml_content)
 
     result = interpreter.get_section(section_namespace="ns", section_name="section")
 
@@ -67,7 +67,7 @@ def test_getting_section(protostar_toml_content: str):
     ),
 )
 def test_not_ignoring_section_in_quotes(protostar_toml_content: str):
-    interpreter = ConfigurationStrictTOMLInterpreter(protostar_toml_content)
+    interpreter = ConfigurationTOMLInterpreter(protostar_toml_content)
 
     result = interpreter.get_section(section_namespace="ns", section_name="section")
 
@@ -87,7 +87,7 @@ def test_not_ignoring_section_in_quotes(protostar_toml_content: str):
     ),
 )
 def test_getting_profile_names(protostar_toml_content: str):
-    interpreter = ConfigurationStrictTOMLInterpreter(protostar_toml_content)
+    interpreter = ConfigurationTOMLInterpreter(protostar_toml_content)
 
     result = interpreter.get_profile_names()
 
@@ -106,7 +106,7 @@ def test_getting_profile_names(protostar_toml_content: str):
 def test_section_starting_with_profile(
     protostar_toml_content: str,
 ):
-    interpreter = ConfigurationStrictTOMLInterpreter(protostar_toml_content)
+    interpreter = ConfigurationTOMLInterpreter(protostar_toml_content)
 
     result = interpreter.get_profile_names()
 
@@ -114,7 +114,7 @@ def test_section_starting_with_profile(
 
 
 def test_returning_none_on_attribute_not_found():
-    interpreter = ConfigurationStrictTOMLInterpreter("")
+    interpreter = ConfigurationTOMLInterpreter("")
 
     result = interpreter.get_attribute("foo", "undefined_attribute")
 
@@ -122,7 +122,7 @@ def test_returning_none_on_attribute_not_found():
 
 
 def test_returning_none_on_section_not_found():
-    interpreter = ConfigurationStrictTOMLInterpreter("")
+    interpreter = ConfigurationTOMLInterpreter("")
 
     result = interpreter.get_section(section_name="")
 

@@ -6,7 +6,7 @@ import tomli
 from .configuration_file_interpreter import ConfigurationFileInterpreter
 
 
-class ConfigurationTOMLInterpreter(ConfigurationFileInterpreter):
+class ConfigurationLegacyTOMLInterpreter(ConfigurationFileInterpreter):
     QualifiedSectionName = str
 
     def __init__(self, file_content: str):

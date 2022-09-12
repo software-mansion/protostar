@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from .configuration_legacy_toml_interpreter import ConfigurationTOMLInterpreter
+from .configuration_legacy_toml_interpreter import ConfigurationLegacyTOMLInterpreter
 
 
 @pytest.fixture(name="protostar_toml_content")
@@ -44,7 +44,7 @@ def protostar_toml_path_fixture(tmp_path: Path, protostar_toml_content: str) -> 
 
 
 def test_loading_attribute(protostar_toml_content: str):
-    reader = ConfigurationTOMLInterpreter(protostar_toml_content)
+    reader = ConfigurationLegacyTOMLInterpreter(protostar_toml_content)
 
     result = reader.get_attribute(
         section_name="config",
@@ -58,7 +58,7 @@ def test_loading_attribute(protostar_toml_content: str):
 def test_loading_attribute_when_section_namespace_is_not_provided(
     protostar_toml_content: str,
 ):
-    reader = ConfigurationTOMLInterpreter(protostar_toml_content)
+    reader = ConfigurationLegacyTOMLInterpreter(protostar_toml_content)
 
     result = reader.get_attribute(
         section_name="project",
@@ -69,7 +69,7 @@ def test_loading_attribute_when_section_namespace_is_not_provided(
 
 
 def test_loading_attribute_from_profile(protostar_toml_content: str):
-    reader = ConfigurationTOMLInterpreter(protostar_toml_content)
+    reader = ConfigurationLegacyTOMLInterpreter(protostar_toml_content)
 
     non_profiled_attribute = reader.get_attribute(
         section_name="shared_command_configs",
@@ -88,7 +88,7 @@ def test_loading_attribute_from_profile(protostar_toml_content: str):
 
 
 def test_ignoring_attribute_casing(protostar_toml_content: str):
-    reader = ConfigurationTOMLInterpreter(
+    reader = ConfigurationLegacyTOMLInterpreter(
         protostar_toml_content,
     )
 
@@ -108,7 +108,7 @@ def test_ignoring_attribute_casing(protostar_toml_content: str):
 
 
 def test_returning_none_on_attribute_not_found(protostar_toml_content: str):
-    result = ConfigurationTOMLInterpreter(protostar_toml_content).get_attribute(
+    result = ConfigurationLegacyTOMLInterpreter(protostar_toml_content).get_attribute(
         "shared_command_configs", "undefined_attribute"
     )
 
@@ -116,7 +116,7 @@ def test_returning_none_on_attribute_not_found(protostar_toml_content: str):
 
 
 def test_retrieving_section(protostar_toml_content: str):
-    result = ConfigurationTOMLInterpreter(protostar_toml_content).get_section(
+    result = ConfigurationLegacyTOMLInterpreter(protostar_toml_content).get_section(
         "shared_command_configs", section_namespace="protostar"
     )
 
@@ -124,7 +124,7 @@ def test_retrieving_section(protostar_toml_content: str):
 
 
 def test_returning_none_on_section_not_found(protostar_toml_content: str):
-    result = ConfigurationTOMLInterpreter(protostar_toml_content).get_section(
+    result = ConfigurationLegacyTOMLInterpreter(protostar_toml_content).get_section(
         "undefined_section"
     )
 
@@ -132,7 +132,9 @@ def test_returning_none_on_section_not_found(protostar_toml_content: str):
 
 
 def test_extracting_profile_names(protostar_toml_content: str):
-    result = ConfigurationTOMLInterpreter(protostar_toml_content).get_profile_names()
+    result = ConfigurationLegacyTOMLInterpreter(
+        protostar_toml_content
+    ).get_profile_names()
 
     assert result == ["ci"]
 
@@ -140,6 +142,8 @@ def test_extracting_profile_names(protostar_toml_content: str):
 def test_section_starting_with_profile(
     protostar_toml_content: str,
 ):
-    result = ConfigurationTOMLInterpreter(protostar_toml_content).get_profile_names()
+    result = ConfigurationLegacyTOMLInterpreter(
+        protostar_toml_content
+    ).get_profile_names()
 
     assert "abc" not in result

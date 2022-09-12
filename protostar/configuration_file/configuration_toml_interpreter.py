@@ -6,7 +6,7 @@ from tomlkit.toml_document import TOMLDocument
 from .configuration_file_interpreter import ConfigurationFileInterpreter
 
 
-class ConfigurationStrictTOMLInterpreter(ConfigurationFileInterpreter):
+class ConfigurationTOMLInterpreter(ConfigurationFileInterpreter):
     def __init__(self, file_content: str) -> None:
         super().__init__()
         self._content = file_content
