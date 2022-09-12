@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Dict, Generic, List, Optional, TypeVar, Union
 
@@ -54,7 +54,7 @@ class ContractNameNotFoundException(ProtostarException):
         )
 
 
-class ConfigurationFileInterpreter:
+class ConfigurationFileInterpreter(ABC):
     @abstractmethod
     def get_filename(self) -> str:
         ...
