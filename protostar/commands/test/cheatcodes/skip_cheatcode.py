@@ -16,8 +16,6 @@ class SkipCheatcode(Cheatcode):
         return self.skip
 
     # pylint: disable=no-self-use
-    def skip(
-        self, condition: bool = True, reason: str = "No reason for skipping provided."
-    ) -> None:
+    def skip(self, condition: bool = True, reason: str = "") -> None:
         if condition:
             raise SimpleSkippingReportedException(reason)

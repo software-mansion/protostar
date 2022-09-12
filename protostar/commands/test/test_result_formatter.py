@@ -222,9 +222,14 @@ def _format_skipped_test_case_result(skipped_test_case_result: SkippedTestCaseRe
         f"{formatted_file_path} {skipped_test_case_result.test_case_name}"
     )
     result.append(" ".join(first_line))
-    result.append("Reason:")
-    result.append(log_color_provider.colorize("GRAY", skipped_test_case_result.reason))
-    result.append("")
+
+    if skipped_test_case_result.reason:
+        result.append("Reason:")
+        result.append(
+            log_color_provider.colorize("GRAY", skipped_test_case_result.reason)
+        )
+        result.append("")
+
     return "\n".join(result)
 
 
