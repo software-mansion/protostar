@@ -8,12 +8,12 @@ from .configuration_file import (
     CommandConfig,
     CommandNameToConfig,
     ConfigurationFile,
-    ConfigurationFileInterpreter,
     ContractName,
     ContractNameNotFoundException,
     PrimitiveTypesSupportedByConfigurationFile,
     ProfileName,
 )
+from .configuration_file_interpreter import ConfigurationFileInterpreter
 
 
 @dataclass

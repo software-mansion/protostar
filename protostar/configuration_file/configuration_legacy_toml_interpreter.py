@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 import flatdict
 import tomli
 
-from .configuration_file import ConfigurationFileInterpreter
+from .configuration_file_interpreter import ConfigurationFileInterpreter
 
 
 class ConfigurationTOMLInterpreter(ConfigurationFileInterpreter):
