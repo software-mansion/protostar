@@ -6,7 +6,7 @@ from protostar.utils.protostar_directory import VersionManager
 
 from .configuration_file import ConfigurationFile, ContractNameNotFoundException
 from .configuration_file_v2 import ConfigurationFileV2
-from .configuration_toml_interpreter import ConfigurationTOMLInterpreter
+from .configuration_legacy_toml_interpreter import ConfigurationTOMLInterpreter
 
 
 @pytest.fixture(name="protostar_toml_content")

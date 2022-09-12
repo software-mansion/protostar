@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from protostar.configuration_file.configuration_toml_interpreter import (
+from protostar.configuration_file.configuration_legacy_toml_interpreter import (
     ConfigurationTOMLInterpreter,
 )
 from protostar.utils import VersionManager

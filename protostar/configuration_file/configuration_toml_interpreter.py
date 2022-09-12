@@ -1,16 +1,15 @@
 from typing import Any, Dict, List, Optional
 
-import flatdict
-import tomli
+import tomlkit
+from tomlkit.toml_document import TOMLDocument
 
 from .configuration_file import ConfigurationFileInterpreter
 
 
-class ConfigurationTOMLInterpreter(ConfigurationFileInterpreter):
-    QualifiedSectionName = str
-
-    def __init__(self, file_content: str):
-        self._file_content = file_content
+class ConfigurationStrictTOMLInterpreter(ConfigurationFileInterpreter):
+    def __init__(self, file_content: str) -> None:
+        super().__init__()
+        self._content = file_content
 
     def get_section(
         self,
@@ -18,24 +17,36 @@ class ConfigurationTOMLInterpreter(ConfigurationFileInterpreter):
         profile_name: Optional[str] = None,
         section_namespace: Optional[str] = None,
     ) -> Optional[Dict[str, Any]]:
-
-        section_name = (
-            f"{section_namespace}.{section_name}" if section_namespace else section_name
+        doc = self._get_doc()
+        section_parent = self._get_section_parent(
+            dct=doc.value,
+            profile_name=profile_name,
+            section_namespace=section_namespace,
         )
-
-        protostar_toml_dict = self._get_flat_dict_representation()
-
-        if profile_name:
-            section_name = f"profile.{profile_name}.{section_name}"
-
-        if section_name not in protostar_toml_dict:
+        if not section_parent:
             return None
+        if section_name not in section_parent:
+            return None
+        return section_parent[section_name]
 
-        return protostar_toml_dict[section_name]
+    def _get_doc(self) -> TOMLDocument:
+        return tomlkit.loads(self._content)
 
-    def _get_flat_dict_representation(self):
-        protostar_toml_dict = tomli.loads(self._file_content)
-        return flatdict.FlatDict(protostar_toml_dict, delimiter=".")
+    @staticmethod
+    def _get_section_parent(
+        dct: Dict,
+        profile_name: Optional[str] = None,
+        section_namespace: Optional[str] = None,
+    ) -> Optional[Dict]:
+        section_parent = dct
+        if profile_name is not None:
+            if "profile" not in dct:
+                return None
+            if profile_name in dct["profile"]:
+                section_parent = dct["profile"][profile_name]
+        if section_namespace in section_parent:
+            section_parent = section_parent[section_namespace]
+        return section_parent
 
     def get_attribute(
         self,
@@ -45,42 +56,22 @@ class ConfigurationTOMLInterpreter(ConfigurationFileInterpreter):
         section_namespace: Optional[str] = None,
     ) -> Optional[Any]:
         section = self.get_section(
-            section_name, profile_name, section_namespace=section_namespace
+            section_name=section_name,
+            profile_name=profile_name,
+            section_namespace=section_namespace,
         )
-        if not section:
+        if section is None:
             return None
-        attribute_name = (
-            self._find_alternative_key(attribute_name, section) or attribute_name
-        )
-        if attribute_name in section:
-            return section[attribute_name]
-        return None
+        if attribute_name not in section:
+            return None
+        return section[attribute_name]
 
     def get_profile_names(self) -> List[str]:
-        protostar_toml_dict = self._get_flat_dict_representation()
-        section_names = list(protostar_toml_dict.keys())
-        profile_section_names = [
-            section_name
-            for section_name in section_names
-            if section_name.startswith("profile.")
-        ]
-        profile_names = [
-            profile_section_name.split(".")[1]
-            for profile_section_name in profile_section_names
-        ]
-        return profile_names
-
-    @staticmethod
-    def _find_alternative_key(base_key: str, raw_dict: Dict[str, Any]) -> Optional[str]:
-        if base_key in raw_dict:
-            return base_key
-
-        underscored_variant = base_key.replace("-", "_")
-        if underscored_variant in raw_dict:
-            return underscored_variant
-
-        dashed_variant = base_key.replace("_", "-")
-        if dashed_variant in raw_dict:
-            return dashed_variant
-
-        return None
+        doc = self._get_doc()
+        dct = doc.value
+        if "profile" not in dct:
+            return []
+        profile_dct = dct["profile"]
+        if not isinstance(profile_dct, Dict):
+            return []
+        return list(profile_dct)
