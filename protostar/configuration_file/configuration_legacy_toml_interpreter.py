@@ -62,6 +62,7 @@ class ConfigurationTOMLInterpreter(ConfigurationFileInterpreter):
         profile_names = [
             profile_section_name.split(".")[1]
             for profile_section_name in profile_section_names
+            if profile_section_name.split(".")[1]
         ]
         return profile_names
 

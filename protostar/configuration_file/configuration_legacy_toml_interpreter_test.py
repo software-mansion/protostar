@@ -30,6 +30,9 @@ def protostar_toml_content_fixture() -> str:
 
     ["profiler.abc"]
     foo = 123
+
+    ["profile."]
+    foo = 123
     """
 
 
