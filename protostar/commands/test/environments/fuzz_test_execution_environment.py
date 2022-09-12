@@ -58,14 +58,6 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             parameters
         ), f"{self.__class__.__name__} expects at least one function parameter."
 
-        self.set_cheatcodes(
-            FuzzTestCaseCheatcodeFactory(
-                state=self.state,
-                expect_revert_context=self._expect_revert_context,
-                finish_hook=self._finish_hook,
-            )
-        )
-
         execution_resources: List[ExecutionResourcesSummary] = []
 
         database = InMemoryExampleDatabase()
@@ -117,6 +109,19 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             output_recorder=self.initial_state.output_recorder,
         )
 
+    def set_cheatcodes_for_test(self):
+        """
+        Cheatcodes and hint locals have to be built on each fuzz test run to avoid sharing a state.
+        """
+
+        self.set_cheatcodes(
+            FuzzTestCaseCheatcodeFactory(
+                state=self.state,
+                expect_revert_context=self._expect_revert_context,
+                finish_hook=self._finish_hook,
+            )
+        )
+
     def build_and_run_test(
         self,
         function_name: str,
@@ -139,6 +144,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             @given(**given_strategies)
             async def test(**inputs: Any):
                 self.fork_state_for_test()
+                self.set_cheatcodes_for_test()
 
                 run_no = next(runs_counter)
                 with self.state.output_recorder.redirect(("test", run_no)):
