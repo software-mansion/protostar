@@ -18,7 +18,7 @@ def test_migrating_file_to_010(
         ["cairo-migrate", "src"]
     )
 
-    assert (Path(".") / "src" / "main.cairo").read_text() == (datadir / "post_010_file.cairo").read_text()
+    assert Path("src/main.cairo").read_text() == (datadir / "post_010_file.cairo").read_text()
 
 
 @pytest.mark.usefixtures("init")
