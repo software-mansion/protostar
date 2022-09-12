@@ -111,7 +111,7 @@ async def test_max_examples_invalid_arguments(
     )
 
 
-async def test_should_not_shared_state(
+async def test_should_not_share_state(
     run_cairo_test_runner: RunCairoTestRunnerFixture,
 ):
     testing_summary = await run_cairo_test_runner(
