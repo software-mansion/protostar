@@ -1,4 +1,3 @@
-import collections
 from typing import TYPE_CHECKING, Callable, Optional, Union
 
 from typing_extensions import NotRequired, TypedDict
@@ -18,17 +17,18 @@ if TYPE_CHECKING:
     from protostar.starknet.forkable_starknet import ForkableStarknet
 
 
-class ExpectEventsCheatcode(Cheatcode):
-    RawExpectedEventDictType = TypedDict(
-        "ExpectedEvent",
-        {
-            "name": str,
-            "data": NotRequired[CairoOrPythonData],
-            "from_address": NotRequired[int],
-        },
-    )
-    RawExpectedEventType = Union[RawExpectedEventDictType, str]
+class RawExpectedEventData(TypedDict):
+    name: str
+    data: NotRequired[CairoOrPythonData]
+    from_address: NotRequired[int]
 
+
+RawExpectedEventName = str
+
+RawExpectedEvent = Union[RawExpectedEventData, RawExpectedEventName]
+
+
+class ExpectEventsCheatcode(Cheatcode):
     def __init__(
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
@@ -48,10 +48,9 @@ class ExpectEventsCheatcode(Cheatcode):
 
     def expect_events(
         self,
-        *raw_expected_events: RawExpectedEventType,
+        *raw_expected_events: RawExpectedEvent,
     ) -> None:
         def compare_expected_and_emitted_events():
-
             expected_events = list(
                 map(
                     self._convert_raw_expected_event_to_expected_event,
@@ -79,7 +78,7 @@ class ExpectEventsCheatcode(Cheatcode):
 
     def _convert_raw_expected_event_to_expected_event(
         self,
-        raw_expected_event: RawExpectedEventType,
+        raw_expected_event: RawExpectedEvent,
     ):
 
         name: str
@@ -91,7 +90,7 @@ class ExpectEventsCheatcode(Cheatcode):
             name = raw_expected_event["name"]
             if "data" in raw_expected_event:
                 raw_data = raw_expected_event["data"]
-                if isinstance(raw_data, collections.Mapping):
+                if isinstance(raw_data, dict):
                     assert (
                         name in self.state.event_name_to_contract_abi_map
                     ), "Couldn't map event name to the contract path with that event"
