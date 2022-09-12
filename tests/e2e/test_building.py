@@ -1,5 +1,5 @@
 from os import listdir
-from subprocess import CalledProcessError
+from pathlib import Path
 from textwrap import dedent
 
 import pytest
@@ -16,15 +16,17 @@ def test_default_build(protostar):
 
 @pytest.mark.usefixtures("init")
 def test_non_zero_exit_code_if_fails(protostar):
-    with open("./src/main.cairo", mode="w", encoding="utf-8") as my_contract:
-        my_contract.write(
-            """%lang starknet
-@view
-func broken():
-"""
+    Path("./src/main.cairo").write_text(
+        dedent(
+            """
+            %lang starknet
+            @view
+            func broken() {
+            """
         )
-    with pytest.raises(CalledProcessError):
-        protostar(["build"])
+    )
+
+    protostar(["build"], expect_exit_code=1)
 
 
 @pytest.mark.usefixtures("init")
@@ -86,8 +88,7 @@ def test_cairo_path_loaded_from_command_shared_section_in_config_file(
 def test_cairo_path_loaded_from_profile_section(protostar, my_private_libs_setup):
     (my_private_libs_dir,) = my_private_libs_setup
 
-    with pytest.raises(CalledProcessError):
-        protostar(["build"])
+    protostar(["build"], expect_exit_code=1)
 
     with open("./protostar.toml", "a", encoding="utf-8") as protostar_toml:
         protostar_toml.write(
@@ -107,27 +108,25 @@ def test_cairo_path_loaded_from_profile_section(protostar, my_private_libs_setup
 
 @pytest.mark.usefixtures("init")
 def test_disable_hint_validation(protostar):
-
-    with open("./src/main.cairo", mode="w", encoding="utf-8") as my_contract:
-        my_contract.write(
-            "\n".join(
-                [
-                    "%lang starknet",
-                    "",
-                    "@view",
-                    "func use_hint():",
-                    "    tempvar x",
-                    "    %{",
-                    "        from foo import bar",
-                    "        ids.x = 42",
-                    "    %}",
-                    "    assert x = 42",
-                    "",
-                    "    return ()",
-                    "end",
-                ]
-            )
+    Path("./src/main.cairo").write_text(
+        dedent(
+            """
+            %lang starknet
+            
+            @view
+            func use_hint() {
+                tempvar x;
+                %{
+                    from foo import bar
+                    ids.x = 42
+                %}
+                assert x = 42;
+            
+                return ();
+            }
+            """
         )
+    )
 
     result = protostar(["build"], ignore_exit_code=True)
     assert "Hint is not whitelisted." in result
@@ -138,20 +137,28 @@ def test_disable_hint_validation(protostar):
 
 @pytest.mark.usefixtures("init")
 def test_building_account_contract(protostar):
-
-    with open("./src/main.cairo", mode="w", encoding="utf-8") as my_contract:
-        my_contract.write(
-            "\n".join(
-                [
-                    "%lang starknet",
-                    "",
-                    "@external",
-                    "func __execute__():",
-                    "    return ()",
-                    "end",
-                ]
-            )
+    Path("./src/main.cairo").write_text(
+        dedent(
+            """
+            %lang starknet
+            
+            @external
+            func __validate__() {
+                return ();
+            }
+            
+            @external
+            func __validate_declare__(class_hash: felt) {
+                return ();
+            }
+            
+            @external
+            func __execute__() {
+                return ();
+            }
+            """
         )
+    )
 
     protostar(["build"])
 
