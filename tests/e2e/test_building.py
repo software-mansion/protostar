@@ -138,16 +138,24 @@ def test_disable_hint_validation(protostar):
 @pytest.mark.usefixtures("init")
 def test_building_account_contract(protostar):
     Path("./src/main.cairo").write_text(
-        dedent(
-            """
-            %lang starknet
-            
-            @external
-            func __execute__() {
-                return ();
-            }
-            """
-        )
+        """\
+%lang starknet
+
+@external
+func __validate__() {
+    return ();
+}
+
+@external
+func __validate_declare__(class_hash: felt) {
+    return ();
+}
+
+@external
+func __execute__() {
+    return ();
+}
+"""
     )
 
     protostar(["build"])
