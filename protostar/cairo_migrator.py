@@ -11,8 +11,8 @@ class Cairo010Migrator:
     @staticmethod
     def _format_file(filepath: Path) -> str:
         file_contents = filepath.read_text("utf-8")
-        if not file_contents.endswith('\n'):
-            file_contents += '\n'
+        if not file_contents.endswith("\n"):
+            file_contents += "\n"
         ast = parse_and_migrate(
             code=file_contents,
             filename=str(filepath),

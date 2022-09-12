@@ -4,10 +4,14 @@ from typing import Any, Callable, List
 from starkware.python.utils import to_bytes
 from starkware.starknet.business_logic.execution.objects import CallInfo
 from starkware.starknet.business_logic.transaction.objects import InternalDeploy
-from starkware.starknet.core.os.transaction_hash.transaction_hash import calculate_deploy_transaction_hash
+from starkware.starknet.core.os.transaction_hash.transaction_hash import (
+    calculate_deploy_transaction_hash,
+)
 
 from protostar.commands.test.cheatcodes.prepare_cheatcode import PreparedContract
-from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import DeployedContract
+from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import (
+    DeployedContract,
+)
 from protostar.starknet.cheatcode import Cheatcode
 
 

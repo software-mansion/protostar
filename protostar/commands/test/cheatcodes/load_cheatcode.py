@@ -1,10 +1,11 @@
 from typing import Any, Callable, List, Optional
-from starkware.starknet.storage.starknet_storage import BusinessLogicStarknetStorage
-from protostar.commands.test.test_environment_exceptions import CheatcodeException
 
+from starkware.starknet.business_logic.state.state import ContractStorageState
+
+from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.storage_var import calc_address
-from starkware.starknet.business_logic.state.state import ContractStorageState
+
 
 class LoadCheatcode(Cheatcode):
     @property
@@ -41,7 +42,6 @@ class LoadCheatcode(Cheatcode):
         starknet_storage = ContractStorageState(
             state=self.sync_state, contract_address=target_contract_address
         )
-
 
         # Perform syscall on the contract state
         result = self._load_from_remote_storage(
