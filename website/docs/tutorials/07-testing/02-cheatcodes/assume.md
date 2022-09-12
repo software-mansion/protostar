@@ -24,4 +24,6 @@ func test_function_that_takes_nonzero_argument{syscall_ptr: felt*, range_check_p
 :::tip
 You should use `assume` only for narrow checks, as it can slow down the tests significantly due to
 the need for more specific inputs.
+If you need to restrict example space by a vast range, consider
+using [fuzzing strategies](../03-fuzzing/strategies.md) instead.
 :::
