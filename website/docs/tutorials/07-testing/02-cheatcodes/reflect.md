@@ -10,15 +10,15 @@ You can use it to print Cairo data and compare complex structures.
 ```cairo title=Printing
 %lang starknet
 
-struct SimpleStruct:
-    member x: felt
-end
+struct SimpleStruct {
+    x: felt,
+}
 
 @external
-func test_reflect_simple():
-    alloc_locals
+func test_reflect_simple() {
+    alloc_locals;
 
-    local simple_struct: SimpleStruct = SimpleStruct(x=10)
+    local simple_struct: SimpleStruct = SimpleStruct(x=10);
 
     %{
         simple_struct = reflect.simple_struct.get()
@@ -31,8 +31,8 @@ func test_reflect_simple():
         assert simple_struct.x == 10
     %}
 
-    return()
-end
+    return ();
+}
 ```
 
 
@@ -42,15 +42,15 @@ end
 from starkware.cairo.common.registers import get_fp_and_pc
 
 @external
-func test_pointers():
-    alloc_locals
+func test_pointers() {
+    alloc_locals;
 
-    let (__fp__, _) = get_fp_and_pc()
+    let (__fp__, _) = get_fp_and_pc();
 
-    local pointee: felt = 13
-    local ptr1: felt* = &pointee
-    local ptr2: felt* = &pointee
-    
+    local pointee: felt = 13;
+    local ptr1: felt* = &pointee;
+    local ptr2: felt* = &pointee;
+
     %{
         ptr1 = reflect.ptr1.get()
         ptr2 = reflect.ptr2.get()
@@ -59,26 +59,26 @@ func test_pointers():
         print(type(ptr1)) # output: RelocatableValue
         assert ptr1 == ptr2  # Pointers are compared directly using their addresses
     %}
-    return ()
-end
+    return ();
+}
 ```
 
 ```cairo title=Nested comparisons
 %lang starknet
 
-struct InnerStruct:
-    member value: felt
-end
+struct InnerStruct {
+    value: felt,
+}
 
-struct OuterStruct:
-    member inner_struct: InnerStruct
-end
+struct OuterStruct {
+    inner_struct: InnerStruct,
+}
 
 @external
-func test_nesting():
-    alloc_locals
-    local inner_struct: InnerStruct = InnerStruct(value=7)
-    local outer_struct: OuterStruct = OuterStruct(inner_struct=inner_struct)
+func test_nesting() {
+    alloc_locals;
+    local inner_struct: InnerStruct = InnerStruct(value=7);
+    local outer_struct: OuterStruct = OuterStruct(inner_struct=inner_struct);
 
     %{
         outer_struct = reflect.outer_struct.get()
@@ -92,24 +92,23 @@ func test_nesting():
             )
         )
     %}
-    return ()
-end
+    return ();
+}
 ```
-
 
 ```cairo title=Wildcards
 %lang starknet
 
-struct TwoFieldStruct:
-    member value1: felt
-    member value2: felt
-end
+struct TwoFieldStruct {
+    value1: felt,
+    value2: felt,
+}
 
 @external
-func test_wildcards():
-    alloc_locals
-    local two_field_struct: TwoFieldStruct = TwoFieldStruct(value1=23, value2=17)
-    
+func test_wildcards() {
+    alloc_locals;
+    local two_field_struct: TwoFieldStruct = TwoFieldStruct(value1=23, value2=17);
+
     %{
         two_field_struct = reflect.two_field_struct.get()
         assert two_field_struct == CairoStruct(
@@ -118,8 +117,8 @@ func test_wildcards():
             # You can use struct members in comparison to make sure it evaluates to true
         )
     %}
-    return ()
-end
+    return ();
+}
 ```
 
 :::warning

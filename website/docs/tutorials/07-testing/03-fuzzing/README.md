@@ -25,39 +25,39 @@ from starkware.cairo.common.math import assert_nn
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
 @storage_var
-func balance() -> (res : felt):
-end
+func balance() -> (res: felt) {
+}
 
 @external
 func withdraw{
-    syscall_ptr : felt*,
-    pedersen_ptr : HashBuiltin*,
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
     range_check_ptr
-}(amount : felt):
-    if amount == 0:
-        return ()
-    end
+}(amount: felt) {
+    if (amount == 0) {
+        return ();
+    }
 
-    let (res) = balance.read()
-    let new_res = res - amount
+    let (res) = balance.read();
+    let new_res = res - amount;
 
-    with_attr error_message("Cannot withdraw more than stored."):
-        assert_nn(new_res)
-    end
+    with_attr error_message("Cannot withdraw more than stored.") {
+        assert_nn(new_res);
+    }
 
-    balance.write(new_res)
-    return ()
-end
+    balance.write(new_res);
+    return ();
+}
 
 @constructor
 func constructor{
-    syscall_ptr : felt*,
-    pedersen_ptr : HashBuiltin*,
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
     range_check_ptr
-}():
-    balance.write(10000)
-    return ()
-end
+}() {
+    balance.write(10000);
+    return ();
+}
 ```
 
 ### Unit testing
@@ -72,23 +72,23 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 
 @external
 func test_withdraw{
-    syscall_ptr : felt*,
-    pedersen_ptr : HashBuiltin*,
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
     range_check_ptr
-}():
-    alloc_locals
-    let (pre_balance_ref) = balance.read()
-    local pre_balance = pre_balance_ref
+}() {
+    alloc_locals;
+    let (pre_balance_ref) = balance.read();
+    local pre_balance = pre_balance_ref;
 
-    let amount = 1
+    let amount = 1;
 
-    withdraw(amount)
+    withdraw(amount);
 
-    let (post_balance) = balance.read()
-    assert post_balance = pre_balance - amount
+    let (post_balance) = balance.read();
+    assert post_balance = pre_balance - amount;
 
-    return ()
-end
+    return ();
+}
 ```
 
 So far, so good. Running the test, we see it passes:
@@ -115,30 +115,28 @@ test.
 We need to take the `Cannot withdraw more than stored.` error, so we also add a call to
 the [`expect_revert`](../02-cheatcodes/expect-revert.md) cheatcode if needed.
 
-```cairo title="tests/test_main.cairo
+```cairo title="tests/test_main.cairo"
 @external
 func test_withdraw{
-    syscall_ptr : felt*,
-    pedersen_ptr : HashBuiltin*,
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
     range_check_ptr
-}(
-    amount : felt
-):
-    alloc_locals
-    let (pre_balance_ref) = balance.read()
-    local pre_balance = pre_balance_ref
+}(amount: felt) {
+    alloc_locals;
+    let (pre_balance_ref) = balance.read();
+    local pre_balance = pre_balance_ref;
 
     %{
         if ids.amount > ids.pre_balance:
             expect_revert(error_message="Cannot withdraw more than stored.")
     %}
-    withdraw(amount)
+    withdraw(amount);
 
-    let (post_balance) = balance.read()
-    assert post_balance = pre_balance - amount
+    let (post_balance) = balance.read();
+    assert post_balance = pre_balance - amount;
 
-    return ()
-end
+    return ();
+}
 ```
 
 If we run the test now, we can see that Protostar runs a fuzz test, but it fails for high values
@@ -157,15 +155,15 @@ Got an exception while executing a hint.
     ^^
 Cairo traceback (most recent call last):
 tests/test_main.cairo:22:6: (pc=0:141)
-func test_withdraw{syscall_ptr : felt*, range_check_ptr, pedersen_ptr : HashBuiltin*}(
+func test_withdraw(
      ^***********^
 tests/test_main.cairo:36:5: (pc=0:125)
-    withdraw(amount)
-    ^**************^
+    withdraw(amount);
+    ^***************^
 Error message: Cannot withdraw more than stored.
 <REDACTED>/src/main.cairo:23:9: (pc=0:63)
-        assert_nn(new_res)
-        ^****************^
+        assert_nn(new_res);
+        ^*****************^
 
 Traceback (most recent call last):
   File "<REDACTED>/starkware/cairo/common/math.cairo", line 43, in <module>
@@ -179,9 +177,6 @@ amount = 340282366920938463463374607431768211456
 11:41:48 [INFO] Seed:        4258368192
 ```
 
-
-
-
 ### Fixing the bug
 
 The test fails because `amount` has `felt` type so its value can be negative. If smallest possible `felt` value is subtracted from `balance` it causes `felt` overflow.
@@ -190,36 +185,38 @@ appropriately:
 
 ```cairo title="src/main.cairo"
 @external
-func withdraw{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(amount : felt):
-    with_attr error_message("Amount must be positive."):
-        assert_nn(amount)
-    end
-    
-    # ...
-end
+func withdraw{
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
+    range_check_ptr
+}(amount: felt) {
+    with_attr error_message("Amount must be positive.") {
+        assert_nn(amount);
+    }
+
+    // ...
+}
 ```
 
 ```cairo title="tests/test_main.cairo"
 @external
 func test_withdraw{
-    syscall_ptr : felt*,
-    pedersen_ptr : HashBuiltin*,
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
     range_check_ptr
-}(
-    amount : felt
-):
-    # ...
-    
+}(amount: felt) {
+    // ...
+
     %{
         if not (0 <= ids.amount and ids.amount % PRIME < range_check_builtin.bound):
             expect_revert(error_message="Amount must be positive.")
         elif ids.amount > ids.pre_balance:
             expect_revert(error_message="Cannot withdraw more than stored.")
     %}
-    withdraw(amount)
-    
-    # ...
-end
+    withdraw(amount);
+
+    // ...
+}
 ```
 
 And now, the test passes.
