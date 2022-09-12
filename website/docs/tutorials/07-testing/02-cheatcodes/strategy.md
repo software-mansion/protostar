@@ -9,7 +9,7 @@ For a list of available strategies, see the [fuzzing strategies](../03-fuzzing/s
 page.
 
 :::warning
-This cheatcode is only available in [fuzz tests](../fuzzing).
+This cheatcode is only available in [setup cases](../README.md#setup-case).
 :::
 
 

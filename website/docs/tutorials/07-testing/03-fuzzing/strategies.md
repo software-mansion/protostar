@@ -14,16 +14,21 @@ parameters.
 
 ```cairo title="Example"
 @external
-func test_integers{syscall_ptr : felt*, range_check_ptr}(a : felt, b : felt):
+func setup_integers() {
     %{
         given(
             a = strategy.integers(10, 20),
             b = strategy.integers(30, 40),
         )
     %}
-    assert_le(a, b)
-    return ()
-end
+    return ();
+}
+
+@external
+func test_integers{syscall_ptr : felt*, range_check_ptr}(a : felt, b : felt) {
+    assert_le(a, b);
+    return ();
+}
 ```
 
 This document is a guide to what strategies are available for generating examples and how to build
