@@ -30,10 +30,7 @@ def test_failing_migrate_to_010(
         dst="./src/main.cairo",
     )
 
-    with pytest.raises(CalledProcessError) as exc:
-        protostar(
-            ["cairo-migrate", "src"]
-        )
+    output = protostar(["cairo-migrate", "src"], expect_exit_code=1)
 
-    assert "Migrate exception" in str(exc.value.output)
-    assert "Comments inside expressions are not supported" in str(exc.value.output)
+    assert "Migrate exception" in output
+    assert "Comments inside expressions are not supported" in output
