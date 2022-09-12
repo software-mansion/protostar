@@ -7,7 +7,9 @@ from starkware.starknet.services.api.contract_class import EntryPointType
 
 from protostar.commands.test.cheatcodes.prepare_cheatcode import PreparedContract
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
-from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import DeployedContract
+from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import (
+    DeployedContract,
+)
 from protostar.starknet.cheatable_execute_entry_point import CheatableExecuteEntryPoint
 from protostar.starknet.cheatcode import Cheatcode
 
@@ -38,15 +40,19 @@ class DeployCheatcode(Cheatcode):
             class_hash=to_bytes(prepared.class_hash),
         )
 
-        contract_class = self.state.get_contract_class(class_hash=to_bytes(prepared.class_hash))
+        contract_class = self.state.get_contract_class(
+            class_hash=to_bytes(prepared.class_hash)
+        )
 
-        has_constructor = len(contract_class.entry_points_by_type[EntryPointType.CONSTRUCTOR])
+        has_constructor = len(
+            contract_class.entry_points_by_type[EntryPointType.CONSTRUCTOR]
+        )
         if has_constructor and prepared.constructor_calldata:
             self.invoke_constructor(prepared)
         elif not has_constructor and prepared.constructor_calldata:
             raise CheatcodeException(
                 self,
-                "Tried to deploy a contract with constructor calldata, but no constructor was found."
+                "Tried to deploy a contract with constructor calldata, but no constructor was found.",
             )
 
         return DeployedContract(contract_address=prepared.contract_address)

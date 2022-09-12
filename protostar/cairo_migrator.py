@@ -1,7 +1,10 @@
 from pathlib import Path
 from typing import List, Tuple
 
-from starkware.cairo.lang.compiler.ast.formatting_utils import FormattingError
+from starkware.cairo.lang.compiler.ast.formatting_utils import (
+    FormattingError,
+    get_max_line_length,
+)
 from starkware.cairo.lang.migrators.migrator import parse_and_migrate, MIGRATE_FUNCTIONS
 
 from protostar.protostar_exception import ProtostarException
@@ -11,15 +14,18 @@ class Cairo010Migrator:
     @staticmethod
     def _format_file(filepath: Path) -> str:
         file_contents = filepath.read_text("utf-8")
-        if not file_contents.endswith('\n'):
-            file_contents += '\n'
+        if not file_contents.endswith("\n"):
+            file_contents += "\n"
         ast = parse_and_migrate(
             code=file_contents,
             filename=str(filepath),
             migrate_syntax=True,
             single_return_functions=MIGRATE_FUNCTIONS,
         )
-        new_content = ast.format()
+        new_content = ast.format(allowed_line_length=get_max_line_length())
+        assert isinstance(
+            new_content, str
+        ), "Cairo formatter should always return a string."
         return new_content
 
     @staticmethod

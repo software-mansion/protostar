@@ -13,22 +13,20 @@ class BlockInfoCheater(Cheater):
     def __init__(self, base: BlockInfo):
         self.base: BlockInfo = base
 
-        self._contract_address_to_block_timestamp: dict[AddressType, int] = {}
-        self._contract_address_to_block_number: dict[AddressType, int] = {}
+        self.contract_address_to_block_timestamp: dict[AddressType, int] = {}
+        self.contract_address_to_block_number: dict[AddressType, int] = {}
 
     def get_for_contract(self, contract_address: AddressType) -> BlockInfo:
         block_info = self.base
 
-        block_timestamp = self._contract_address_to_block_timestamp.get(
-            contract_address
-        )
+        block_timestamp = self.contract_address_to_block_timestamp.get(contract_address)
         if block_timestamp is not None:
             block_info = dataclasses.replace(
                 block_info,
                 block_timestamp=block_timestamp,
             )
 
-        block_number = self._contract_address_to_block_number.get(contract_address)
+        block_number = self.contract_address_to_block_number.get(contract_address)
         if block_number is not None:
             block_info = dataclasses.replace(
                 block_info,
@@ -44,19 +42,17 @@ class BlockInfoCheater(Cheater):
         block_number: Optional[int] = None,
     ) -> Callable[[], None]:
         if block_timestamp is not None:
-            self._contract_address_to_block_timestamp[
-                contract_address
-            ] = block_timestamp
+            self.contract_address_to_block_timestamp[contract_address] = block_timestamp
 
         if block_number is not None:
-            self._contract_address_to_block_number[contract_address] = block_number
+            self.contract_address_to_block_number[contract_address] = block_number
 
         def stop() -> None:
             if block_timestamp is not None:
-                del self._contract_address_to_block_timestamp[contract_address]
+                del self.contract_address_to_block_timestamp[contract_address]
 
             if block_number is not None:
-                del self._contract_address_to_block_number[contract_address]
+                del self.contract_address_to_block_number[contract_address]
 
         return stop
 
@@ -64,12 +60,12 @@ class BlockInfoCheater(Cheater):
         return copy(self)
 
     def apply(self, parent: Self) -> None:
-        parent._contract_address_to_block_timestamp = {
-            **parent._contract_address_to_block_timestamp,
-            **self._contract_address_to_block_timestamp,
+        parent.contract_address_to_block_timestamp = {
+            **parent.contract_address_to_block_timestamp,
+            **self.contract_address_to_block_timestamp,
         }
 
-        parent._contract_address_to_block_number = {
-            **parent._contract_address_to_block_number,
-            **self._contract_address_to_block_number,
+        parent.contract_address_to_block_number = {
+            **parent.contract_address_to_block_number,
+            **self.contract_address_to_block_number,
         }

@@ -8,8 +8,8 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, cast
 from pytest_mock import MockerFixture
 from starknet_py.net import KeyPair
 from starknet_py.net.models import StarknetChainId
-from protostar.cli.map_targets_to_file_paths import map_targets_to_file_paths
 
+from protostar.cli.map_targets_to_file_paths import map_targets_to_file_paths
 from protostar.cli.signable_command_util import PatchedStarkCurveSigner
 from protostar.commands import (
     BuildCommand,
@@ -147,7 +147,7 @@ class ProtostarFixture:
 
     def format(
         self,
-        targets: List[Path],
+        targets: List[str],
         check=False,
         verbose=False,
         ignore_broken=False,
@@ -157,12 +157,11 @@ class ProtostarFixture:
 
     def format_with_output(
         self,
-        targets: List[Path],
+        targets: List[str],
         check=False,
         verbose=False,
         ignore_broken=False,
     ) -> Tuple[FormattingSummary, List[str]]:
-
         formatter = Formatter(self._project_root_path)
 
         output: List[str] = []
