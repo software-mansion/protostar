@@ -50,7 +50,7 @@ class DeployCheatcode(Cheatcode):
             constructor_calldata=prepared.constructor_calldata,
             hash_value=deploy_tx_hash,
             version=0,
-        )
+        )  # type: ignore
 
         asyncio.run(self._apply_deploy_tx_updates(tx))
 
