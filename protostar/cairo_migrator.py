@@ -1,7 +1,10 @@
 from pathlib import Path
 from typing import List, Tuple
 
-from starkware.cairo.lang.compiler.ast.formatting_utils import FormattingError
+from starkware.cairo.lang.compiler.ast.formatting_utils import (
+    FormattingError,
+    get_max_line_length,
+)
 from starkware.cairo.lang.migrators.migrator import parse_and_migrate, MIGRATE_FUNCTIONS
 
 from protostar.protostar_exception import ProtostarException
@@ -19,7 +22,8 @@ class Cairo010Migrator:
             migrate_syntax=True,
             single_return_functions=MIGRATE_FUNCTIONS,
         )
-        new_content = ast.format()
+        new_content = ast.format(allowed_line_length=get_max_line_length())
+        assert isinstance(new_content, str), "Cairo formatter should always return a string."
         return new_content
 
     @staticmethod
