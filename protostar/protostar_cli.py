@@ -1,7 +1,9 @@
+import os
 import sys
 import time
 from logging import INFO, Logger, StreamHandler
-from typing import Any, List
+from pathlib import Path
+from typing import Any, List, Optional
 
 from protostar.cli import CLIApp, Command
 from protostar.compiler import ProjectCairoPathBuilder
@@ -13,6 +15,13 @@ from protostar.protostar_toml.protostar_toml_version_checker import (
 from protostar.upgrader import LatestVersionChecker
 from protostar.utils import StandardLogFormatter, VersionManager
 from protostar.utils.log_color_provider import LogColorProvider
+
+
+def _consume_pythonpath():
+    pythonpath_env_var = os.environ.get("PYTHONPATH") or ""
+    split_paths = pythonpath_env_var.split(":")
+    if split_paths != [""]:
+        sys.path.extend(split_paths)
 
 
 class ProtostarCLI(CLIApp):
@@ -92,7 +101,8 @@ class ProtostarCLI(CLIApp):
         # FIXME(arcticae): Those should be run when command is running in project context
         if args.command not in ["init", "upgrade"]:
             self._protostar_toml_version_checker.run()
-            self._extend_pythonpath_with_cairo_path()
+            self._extend_pythonpath_with_cairo_path(args.cairo_path)
+            _consume_pythonpath()
 
         await super().run(args)
 
@@ -106,11 +116,11 @@ class ProtostarCLI(CLIApp):
             "Execution time: %.2f s", time.perf_counter() - self._start_time
         )
 
-    def _extend_pythonpath_with_cairo_path(self):
+    def _extend_pythonpath_with_cairo_path(self, cairo_path_arg: Optional[List[Path]] = None):
         cairo_path_list = (
             str(path)
             for path in self._project_cairo_path_builder.build_project_cairo_path_list(
-                []
+                cairo_path_arg or []
             )
         )
         sys.path.extend(cairo_path_list)
