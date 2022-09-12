@@ -41,6 +41,7 @@ def configuration_file_fixture(protostar_toml_path: Path, project_root_path: Pat
             path=protostar_toml_path, ignore_attribute_casing=True
         ),
         project_root_path=project_root_path,
+        filename=protostar_toml_path.name,
     )
 
 
