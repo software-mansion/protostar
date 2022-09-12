@@ -1,6 +1,5 @@
 import shutil
 from pathlib import Path
-from subprocess import CalledProcessError
 
 import pytest
 
