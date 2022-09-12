@@ -6,8 +6,10 @@ import tomli
 
 from protostar.protostar_exception import ProtostarException
 
+from .configuration_file import ConfigurationFileReader
 
-class ConfigurationTOMLReader:
+
+class ConfigurationTOMLReader(ConfigurationFileReader):
     QualifiedSectionName = str
 
     def __init__(self, path: Path, ignore_attribute_casing: bool = False):

@@ -47,7 +47,7 @@ def configuration_file_fixture(project_root_path: Path, protostar_toml_content: 
     configuration_toml_reader = ConfigurationTOMLReader(path=protostar_toml_path)
     return ConfigurationFileV2(
         project_root_path=project_root_path,
-        configuration_toml_reader=configuration_toml_reader,
+        configuration_file_reader=configuration_toml_reader,
     )
 
 

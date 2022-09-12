@@ -8,6 +8,7 @@ from .configuration_file import (
     CommandConfig,
     CommandNameToConfig,
     ConfigurationFile,
+    ConfigurationFileReader,
     ContractName,
     ContractNameNotFoundException,
     PrimitiveTypesSupportedByConfigurationFile,
@@ -30,14 +31,14 @@ class ConfigurationFileV2(ConfigurationFile[ConfigurationFileV2Model]):
     def __init__(
         self,
         project_root_path: Path,
-        configuration_toml_reader: ConfigurationTOMLReader,
+        configuration_file_reader: ConfigurationFileReader,
     ) -> None:
         super().__init__()
         self._project_root_path = project_root_path
-        self._configuration_toml_reader = configuration_toml_reader
+        self._configuration_file_reader = configuration_file_reader
 
     def get_min_protostar_version(self) -> Optional[VersionType]:
-        version_str = self._configuration_toml_reader.get_attribute(
+        version_str = self._configuration_file_reader.get_attribute(
             attribute_name="min-protostar-version", section_name="project"
         )
         if not version_str:
@@ -45,17 +46,17 @@ class ConfigurationFileV2(ConfigurationFile[ConfigurationFileV2Model]):
         return VersionManager.parse(version_str)
 
     def get_contract_names(self) -> List[str]:
-        contract_section = self._configuration_toml_reader.get_section("contracts")
+        contract_section = self._configuration_file_reader.get_section("contracts")
         if not contract_section:
             return []
         return list(contract_section)
 
     def get_contract_source_paths(self, contract_name: str) -> List[Path]:
-        contract_section = self._configuration_toml_reader.get_section("contracts")
+        contract_section = self._configuration_file_reader.get_section("contracts")
         if contract_section is None or contract_name not in contract_section:
             raise ContractNameNotFoundException(
                 contract_name,
-                expected_declaration_location=f"{self._configuration_toml_reader.get_filename()}::[contracts]",
+                expected_declaration_location=f"{self._configuration_file_reader.get_filename()}::[contracts]",
             )
         return [
             self._project_root_path / Path(path_str)
@@ -63,7 +64,7 @@ class ConfigurationFileV2(ConfigurationFile[ConfigurationFileV2Model]):
         ]
 
     def get_lib_path(self) -> Optional[Path]:
-        lib_relative_path_str = self._configuration_toml_reader.get_attribute(
+        lib_relative_path_str = self._configuration_file_reader.get_attribute(
             section_name="project", attribute_name="libs_path"
         )
         if not lib_relative_path_str:
@@ -78,7 +79,7 @@ class ConfigurationFileV2(ConfigurationFile[ConfigurationFileV2Model]):
             List[PrimitiveTypesSupportedByConfigurationFile],
         ]
     ]:
-        return self._configuration_toml_reader.get_attribute(
+        return self._configuration_file_reader.get_attribute(
             section_name=command_name,
             attribute_name=argument_name,
             profile_name=profile_name,
