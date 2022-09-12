@@ -48,6 +48,11 @@ class BrokenTestCaseResult(TimedTestCaseResult):
 
 
 @dataclass(frozen=True)
+class SkippedTestCaseResult(TestCaseResult):
+    reason: str
+
+
+@dataclass(frozen=True)
 class FuzzResult:
     fuzz_runs_count: Optional[int]
 

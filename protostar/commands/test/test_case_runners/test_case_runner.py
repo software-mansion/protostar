@@ -9,12 +9,14 @@ from protostar.commands.test.stopwatch import Stopwatch
 from protostar.commands.test.test_environment_exceptions import (
     ReportedException,
     BreakingReportedException,
+    SkippingReportedException,
 )
 from protostar.commands.test.test_output_recorder import OutputRecorder
 from protostar.commands.test.test_results import (
     FailedTestCaseResult,
     PassedTestCaseResult,
     BrokenTestCaseResult,
+    SkippedTestCaseResult,
     TestCaseResult,
 )
 from protostar.commands.test.test_suite import TestCase
@@ -46,6 +48,8 @@ class TestCaseRunner(Generic[TExecutionResult]):
                 execution_result,
                 TestCaseRunner.ExecutionMetadata(self._stopwatch.total_elapsed),
             )
+        except SkippingReportedException as ex:
+            return self._map_skipping_reported_exception_to_skipped_test_result(ex)
         except BreakingReportedException as ex:
             return self._map_breaking_reported_exception_to_broken_test_result(
                 ex,
@@ -96,4 +100,14 @@ class TestCaseRunner(Generic[TExecutionResult]):
             exception=reported_exception,
             execution_time=execution_metadata.execution_time,
             captured_stdout=self._output_recorder.get_captures(),
+        )
+
+    def _map_skipping_reported_exception_to_skipped_test_result(
+        self, reported_exception: SkippingReportedException
+    ):
+        return SkippedTestCaseResult(
+            file_path=self._test_case.test_path,
+            test_case_name=self._test_case.test_fn_name,
+            captured_stdout=self._output_recorder.get_captures(),
+            reason=str(reported_exception),
         )

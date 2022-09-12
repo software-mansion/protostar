@@ -66,6 +66,10 @@ class BreakingReportedException(ReportedException):
     pass
 
 
+class SkippingReportedException(ReportedException):
+    pass
+
+
 class SimpleReportedException(ReportedException):
     def __init__(self, message: str) -> None:
         self.message = message
@@ -77,6 +81,12 @@ class SimpleReportedException(ReportedException):
 
 class SimpleBreakingReportedException(
     SimpleReportedException, BreakingReportedException
+):
+    pass
+
+
+class SimpleSkippingReportedException(
+    SimpleReportedException, SkippingReportedException
 ):
     pass
 

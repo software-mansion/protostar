@@ -15,6 +15,7 @@ from protostar.commands.test.cheatcodes import (
     StartPrankCheatcode,
     StoreCheatcode,
     WarpCheatcode,
+    SkipCheatcode,
 )
 from protostar.commands.test.cheatcodes.reflect.cairo_struct import CairoStructHintLocal
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
@@ -69,6 +70,7 @@ class SetupCheatcodeFactory(CheatcodeFactory):
             StoreCheatcode(syscall_dependencies),
             LoadCheatcode(syscall_dependencies),
             ReflectCheatcode(syscall_dependencies),
+            SkipCheatcode(syscall_dependencies),
             MaxExamplesCheatcode(syscall_dependencies, self._state.config),
         ]
 
