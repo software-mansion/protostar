@@ -1,4 +1,5 @@
 # pylint: disable=redefined-outer-name
+import shlex
 import shutil
 from os import chdir, mkdir, path, getcwd
 from pathlib import Path
@@ -103,7 +104,12 @@ def init_project(
 
 
 class ProtostarFixture(Protocol):
-    def __call__(self, args: List[str], ignore_exit_code=False) -> str:
+    def __call__(
+        self,
+        args: List[str],
+        expect_exit_code: int = 0,
+        ignore_exit_code: bool = False,
+    ) -> str:
         ...
 
 
@@ -155,17 +161,31 @@ def protostar(
         file.truncate()
         file.write(tomli_w.dumps(pyproject))
 
-    def _protostar(args: List[str], ignore_exit_code=False) -> str:
-        return (
-            run(
-                [path.join(tmp_path, "dist", "protostar", "protostar")] + args,
-                stdout=PIPE,
-                stderr=STDOUT,
-                check=(not ignore_exit_code),
-            )
-            .stdout.decode("utf-8")
-            .strip()
+    def _protostar(
+        args: List[str],
+        expect_exit_code: int = 0,
+        ignore_exit_code: bool = False,
+    ) -> str:
+        completed = run(
+            [path.join(tmp_path, "dist", "protostar", "protostar")] + args,
+            stdout=PIPE,
+            stderr=STDOUT,
+            encoding="utf-8",
         )
+
+        if not ignore_exit_code:
+            if completed.returncode != expect_exit_code:
+                # TODO(mkaput): Report this in nicer Pytest assertion-understandable way.
+                raise AssertionError(
+                    f"""\
+Proces exited with {completed.returncode} while expected {expect_exit_code}.",
+Args: {shlex.join(completed.args)}
+Output:
+{completed.stdout}
+"""
+                )
+
+        return completed.stdout
 
     return _protostar
 
