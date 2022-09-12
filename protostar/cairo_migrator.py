@@ -23,7 +23,9 @@ class Cairo010Migrator:
             single_return_functions=MIGRATE_FUNCTIONS,
         )
         new_content = ast.format(allowed_line_length=get_max_line_length())
-        assert isinstance(new_content, str), "Cairo formatter should always return a string."
+        assert isinstance(
+            new_content, str
+        ), "Cairo formatter should always return a string."
         return new_content
 
     @staticmethod
