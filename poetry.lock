@@ -1346,17 +1346,24 @@ description = "A local testnet for Starknet"
 category = "dev"
 optional = false
 python-versions = ">=3.8,<3.10"
+develop = false
 
 [package.dependencies]
 cairo-lang = "0.10.0"
-cloudpickle = ">=2.1.0,<2.2.0"
-crypto-cpp-py = ">=1.0.4,<1.1.0"
-Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
-flask-cors = ">=3.0.10,<3.1.0"
-gunicorn = ">=20.1.0,<20.2.0"
-marshmallow = ">=3.17.0,<3.18.0"
-typing-extensions = ">=4.3.0,<4.4.0"
-Werkzeug = ">=2.0.3,<2.1.0"
+cloudpickle = "~2.1.0"
+crypto-cpp-py = "~1.0.4"
+Flask = {version = "~2.0.3", extras = ["async"]}
+flask-cors = "~3.0.10"
+gunicorn = "~20.1.0"
+marshmallow = "~3.17.0"
+typing-extensions = "~4.3.0"
+Werkzeug = "~2.0.3"
+
+[package.source]
+type = "git"
+url = "https://github.com/Shard-Labs/starknet-devnet.git"
+reference = "master"
+resolved_reference = "0c57f1692b0444bb23b33bb4d32a6131a211e750"
 
 [[package]]
 name = "starknet-py"
@@ -1579,7 +1586,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9.13, <3.10"
-content-hash = "32f330fb0623bdf3948f8f4c08c9e869dc916d2057d64d698dc5fd066ded0ae0"
+content-hash = "79fadc6044920b26d6848fd855a8577c25c1d74a86be0fff224a6bfc15450ee2"
 
 [metadata.files]
 aiohttp = [
@@ -2437,10 +2444,7 @@ sortedcontainers = [
     {file = "sortedcontainers-2.4.0-py2.py3-none-any.whl", hash = "sha256:a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0"},
     {file = "sortedcontainers-2.4.0.tar.gz", hash = "sha256:25caa5a06cc30b6b83d11423433f65d1f9d76c4c6a0c90e3379eaa43b9bfdb88"},
 ]
-starknet-devnet = [
-    {file = "starknet_devnet-0.3.0-py3-none-any.whl", hash = "sha256:59a622d740edd7b26f9a72556a7e9eb49d313e0eeeaf97fb92551f1bae7d5810"},
-    {file = "starknet_devnet-0.3.0.tar.gz", hash = "sha256:b7ddefb201844b8adb712831b351680f5e37dc27997278875f841726ba91ae49"},
-]
+starknet-devnet = []
 starknet-py = [
     {file = "starknet-py-0.5.2a0.tar.gz", hash = "sha256:c2e5f8563199c911f53a42dc0be60d3464ca130bb63416f1ca3902a3c834c949"},
 ]
