@@ -8,7 +8,7 @@ from .configuration_file import (
     CommandConfig,
     CommandNameToConfig,
     ConfigurationFile,
-    ConfigurationFileReader,
+    ConfigurationFileInterpreter,
     ContractName,
     ContractNameNotFoundException,
     PrimitiveTypesSupportedByConfigurationFile,
@@ -30,7 +30,7 @@ class ConfigurationFileV1Model:
 class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
     def __init__(
         self,
-        configuration_file_reader: ConfigurationFileReader,
+        configuration_file_reader: ConfigurationFileInterpreter,
         project_root_path: Path,
     ) -> None:
         super().__init__()

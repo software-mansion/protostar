@@ -54,7 +54,7 @@ class ContractNameNotFoundException(ProtostarException):
         )
 
 
-class ConfigurationFileReader:
+class ConfigurationFileInterpreter:
     @abstractmethod
     def get_filename(self) -> str:
         ...

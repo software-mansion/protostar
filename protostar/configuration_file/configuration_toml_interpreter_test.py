@@ -3,8 +3,8 @@ from pathlib import Path
 import pytest
 from pytest_mock import MockerFixture
 
-from .configuration_toml_reader import (
-    ConfigurationTOMLReader,
+from .configuration_toml_interpreter import (
+    ConfigurationTOMLInterpreter,
     NoProtostarProjectFoundException,
 )
 
@@ -45,7 +45,7 @@ def protostar_toml_path_fixture(tmp_path: Path, protostar_toml_content: str) -> 
 
 
 def test_loading_attribute(protostar_toml_path: Path):
-    reader = ConfigurationTOMLReader(protostar_toml_path)
+    reader = ConfigurationTOMLInterpreter(protostar_toml_path)
 
     result = reader.get_attribute(
         section_name="config",
@@ -59,7 +59,7 @@ def test_loading_attribute(protostar_toml_path: Path):
 def test_loading_attribute_when_section_namespace_is_not_provided(
     protostar_toml_path: Path,
 ):
-    reader = ConfigurationTOMLReader(protostar_toml_path)
+    reader = ConfigurationTOMLInterpreter(protostar_toml_path)
 
     result = reader.get_attribute(
         section_name="project",
@@ -70,7 +70,7 @@ def test_loading_attribute_when_section_namespace_is_not_provided(
 
 
 def test_loading_attribute_from_profile(protostar_toml_path: Path):
-    reader = ConfigurationTOMLReader(protostar_toml_path)
+    reader = ConfigurationTOMLInterpreter(protostar_toml_path)
 
     non_profiled_attribute = reader.get_attribute(
         section_name="shared_command_configs",
@@ -89,7 +89,7 @@ def test_loading_attribute_from_profile(protostar_toml_path: Path):
 
 
 def test_attribute_casing_sensitivity(protostar_toml_path: Path):
-    reader = ConfigurationTOMLReader(protostar_toml_path)
+    reader = ConfigurationTOMLInterpreter(protostar_toml_path)
 
     result = reader.get_attribute(
         section_name="shared_command_configs",
@@ -107,7 +107,9 @@ def test_attribute_casing_sensitivity(protostar_toml_path: Path):
 
 
 def test_ignoring_attribute_casing(protostar_toml_path: Path):
-    reader = ConfigurationTOMLReader(protostar_toml_path, ignore_attribute_casing=True)
+    reader = ConfigurationTOMLInterpreter(
+        protostar_toml_path, ignore_attribute_casing=True
+    )
 
     result = reader.get_attribute(
         section_name="shared_command_configs",
@@ -131,7 +133,7 @@ def test_open_file_only_once(protostar_toml_path: Path, mocker: MockerFixture):
     tomli_mock.load = mocker.MagicMock()
     tomli_mock.load.return_value = {}
 
-    reader = ConfigurationTOMLReader(protostar_toml_path)
+    reader = ConfigurationTOMLInterpreter(protostar_toml_path)
 
     reader.get_attribute("_", "_", section_namespace="protostar")
     reader.get_attribute("__", "__", section_namespace="protostar")
@@ -141,13 +143,13 @@ def test_open_file_only_once(protostar_toml_path: Path, mocker: MockerFixture):
 
 def test_exception_on_file_not_found(datadir: Path):
     with pytest.raises(NoProtostarProjectFoundException):
-        ConfigurationTOMLReader(datadir / "_.toml").get_attribute(
+        ConfigurationTOMLInterpreter(datadir / "_.toml").get_attribute(
             "_", "_", section_namespace="protostar"
         )
 
 
 def test_returning_none_on_attribute_not_found(protostar_toml_path: Path):
-    result = ConfigurationTOMLReader(protostar_toml_path).get_attribute(
+    result = ConfigurationTOMLInterpreter(protostar_toml_path).get_attribute(
         "shared_command_configs", "undefined_attribute"
     )
 
@@ -155,7 +157,7 @@ def test_returning_none_on_attribute_not_found(protostar_toml_path: Path):
 
 
 def test_retrieving_section(protostar_toml_path: Path):
-    result = ConfigurationTOMLReader(protostar_toml_path).get_section(
+    result = ConfigurationTOMLInterpreter(protostar_toml_path).get_section(
         "shared_command_configs", section_namespace="protostar"
     )
 
@@ -163,7 +165,7 @@ def test_retrieving_section(protostar_toml_path: Path):
 
 
 def test_returning_none_on_section_not_found(protostar_toml_path: Path):
-    result = ConfigurationTOMLReader(protostar_toml_path).get_section(
+    result = ConfigurationTOMLInterpreter(protostar_toml_path).get_section(
         "undefined_section"
     )
 
@@ -171,7 +173,7 @@ def test_returning_none_on_section_not_found(protostar_toml_path: Path):
 
 
 def test_extracting_profile_names(protostar_toml_path: Path):
-    result = ConfigurationTOMLReader(protostar_toml_path).get_profile_names()
+    result = ConfigurationTOMLInterpreter(protostar_toml_path).get_profile_names()
 
     assert result == ["ci"]
 
@@ -179,6 +181,6 @@ def test_extracting_profile_names(protostar_toml_path: Path):
 def test_section_starting_with_profile(
     protostar_toml_path: Path,
 ):
-    result = ConfigurationTOMLReader(protostar_toml_path).get_profile_names()
+    result = ConfigurationTOMLInterpreter(protostar_toml_path).get_profile_names()
 
     assert "abc" not in result

@@ -8,13 +8,12 @@ from .configuration_file import (
     CommandConfig,
     CommandNameToConfig,
     ConfigurationFile,
-    ConfigurationFileReader,
+    ConfigurationFileInterpreter,
     ContractName,
     ContractNameNotFoundException,
     PrimitiveTypesSupportedByConfigurationFile,
     ProfileName,
 )
-from .configuration_toml_reader import ConfigurationTOMLReader
 
 
 @dataclass
@@ -31,7 +30,7 @@ class ConfigurationFileV2(ConfigurationFile[ConfigurationFileV2Model]):
     def __init__(
         self,
         project_root_path: Path,
-        configuration_file_reader: ConfigurationFileReader,
+        configuration_file_reader: ConfigurationFileInterpreter,
     ) -> None:
         super().__init__()
         self._project_root_path = project_root_path
