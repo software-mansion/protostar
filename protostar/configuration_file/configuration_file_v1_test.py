@@ -35,10 +35,12 @@ def protostar_toml_path_fixture(protostar_toml_content: str, project_root_path: 
 
 
 @pytest.fixture(name="configuration_file")
-def configuration_file_fixture(protostar_toml_path: Path, project_root_path: Path):
+def configuration_file_fixture(
+    protostar_toml_path: Path, project_root_path: Path, protostar_toml_content: str
+):
     return ConfigurationFileV1(
         ConfigurationTOMLInterpreter(
-            path=protostar_toml_path, ignore_attribute_casing=True
+            file_content=protostar_toml_content,
         ),
         project_root_path=project_root_path,
         filename=protostar_toml_path.name,

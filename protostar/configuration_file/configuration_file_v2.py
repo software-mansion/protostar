@@ -31,10 +31,12 @@ class ConfigurationFileV2(ConfigurationFile[ConfigurationFileV2Model]):
         self,
         project_root_path: Path,
         configuration_file_reader: ConfigurationFileInterpreter,
+        filename: str,
     ) -> None:
         super().__init__()
         self._project_root_path = project_root_path
         self._configuration_file_reader = configuration_file_reader
+        self._filename = filename
 
     def get_min_protostar_version(self) -> Optional[VersionType]:
         version_str = self._configuration_file_reader.get_attribute(
@@ -55,7 +57,7 @@ class ConfigurationFileV2(ConfigurationFile[ConfigurationFileV2Model]):
         if contract_section is None or contract_name not in contract_section:
             raise ContractNameNotFoundException(
                 contract_name,
-                expected_declaration_location=f"{self._configuration_file_reader.get_filename()}::[contracts]",
+                expected_declaration_location=f"{self._filename}::[contracts]",
             )
         return [
             self._project_root_path / Path(path_str)
@@ -87,7 +89,4 @@ class ConfigurationFileV2(ConfigurationFile[ConfigurationFileV2Model]):
     def read(
         self,
     ) -> ConfigurationFileV2Model:
-        raise NotImplementedError("Operation not supported.")
-
-    def save(self, configuration_file_model: ConfigurationFileV2Model) -> Path:
         raise NotImplementedError("Operation not supported.")

@@ -44,10 +44,13 @@ def project_root_path_fixture(tmp_path: Path):
 def configuration_file_fixture(project_root_path: Path, protostar_toml_content: str):
     protostar_toml_path = project_root_path / "protostar.toml"
     protostar_toml_path.write_text(protostar_toml_content)
-    configuration_toml_reader = ConfigurationTOMLInterpreter(path=protostar_toml_path)
+    configuration_toml_reader = ConfigurationTOMLInterpreter(
+        file_content=protostar_toml_content
+    )
     return ConfigurationFileV2(
         project_root_path=project_root_path,
         configuration_file_reader=configuration_toml_reader,
+        filename=protostar_toml_path.name,
     )
 
 
@@ -74,7 +77,7 @@ def test_retrieving_contract_source_paths(
 
 
 def test_error_when_retrieving_paths_from_not_defined_contract(
-    configuration_file: ConfigurationFile,
+    configuration_file: ConfigurationFileV2,
 ):
     with pytest.raises(ContractNameNotFoundException):
         configuration_file.get_contract_source_paths(

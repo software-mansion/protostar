@@ -1,10 +1,7 @@
-from pathlib import Path
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Dict, List, Optional
 
 import flatdict
 import tomli
-
-from protostar.protostar_exception import ProtostarException
 
 from .configuration_file import ConfigurationFileInterpreter
 
@@ -12,15 +9,8 @@ from .configuration_file import ConfigurationFileInterpreter
 class ConfigurationTOMLInterpreter(ConfigurationFileInterpreter):
     QualifiedSectionName = str
 
-    def __init__(self, path: Path, ignore_attribute_casing: bool = False):
-        self.path = path
-        self._ignore_attribute_casing = ignore_attribute_casing
-        self._cache: Optional[
-            Dict[ConfigurationTOMLInterpreter.QualifiedSectionName, Any]
-        ] = None
-
-    def get_filename(self) -> str:
-        return self.path.name
+    def __init__(self, file_content: str):
+        self._file_content = file_content
 
     def get_section(
         self,
@@ -33,7 +23,7 @@ class ConfigurationTOMLInterpreter(ConfigurationFileInterpreter):
             f"{section_namespace}.{section_name}" if section_namespace else section_name
         )
 
-        protostar_toml_dict = self._read_if_cache_miss()
+        protostar_toml_dict = self._get_flat_dict_representation()
 
         if profile_name:
             section_name = f"profile.{profile_name}.{section_name}"
@@ -42,6 +32,10 @@ class ConfigurationTOMLInterpreter(ConfigurationFileInterpreter):
             return None
 
         return protostar_toml_dict[section_name]
+
+    def _get_flat_dict_representation(self):
+        protostar_toml_dict = tomli.loads(self._file_content)
+        return flatdict.FlatDict(protostar_toml_dict, delimiter=".")
 
     def get_attribute(
         self,
@@ -55,16 +49,15 @@ class ConfigurationTOMLInterpreter(ConfigurationFileInterpreter):
         )
         if not section:
             return None
-        if self._ignore_attribute_casing:
-            attribute_name = (
-                self._find_alternative_key(attribute_name, section) or attribute_name
-            )
+        attribute_name = (
+            self._find_alternative_key(attribute_name, section) or attribute_name
+        )
         if attribute_name in section:
             return section[attribute_name]
         return None
 
     def get_profile_names(self) -> List[str]:
-        protostar_toml_dict = self._read_if_cache_miss()
+        protostar_toml_dict = self._get_flat_dict_representation()
         section_names = list(protostar_toml_dict.keys())
         profile_section_names = [
             section_name
@@ -91,25 +84,3 @@ class ConfigurationTOMLInterpreter(ConfigurationFileInterpreter):
             return dashed_variant
 
         return None
-
-    def _read_if_cache_miss(self) -> Dict[str, Any]:
-        if self._cache is not None:
-            return self._cache
-
-        if not self.path.is_file():
-            raise NoProtostarProjectFoundException("`protostar.toml` not found")
-
-        with open(self.path, "rb") as protostar_toml_file:
-            protostar_toml_dict = tomli.load(protostar_toml_file)
-            protostar_toml_flat_dict = cast(
-                Dict[ConfigurationTOMLInterpreter.QualifiedSectionName, Any],
-                flatdict.FlatDict(protostar_toml_dict, delimiter="."),
-            )
-
-            self._cache = protostar_toml_flat_dict
-
-            return protostar_toml_flat_dict
-
-
-class NoProtostarProjectFoundException(ProtostarException):
-    pass
