@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import tomlkit
@@ -7,28 +6,10 @@ from tomlkit.toml_document import TOMLDocument
 from .configuration_file import ConfigurationFileInterpreter
 
 
-class LazyFileReader:
-    def __init__(self, file_path: Path) -> None:
-        self._file_path = file_path
-        self._cached_file_content: Optional[str] = None
-
-    def get_filename(self) -> str:
-        return self._file_path.name
-
-    def get_file_content(self) -> str:
-        if self._cached_file_content:
-            return self._cached_file_content
-        self._cached_file_content = self._file_path.read_text()
-        return self._cached_file_content
-
-
 class ConfigurationStrictTOMLInterpreter(ConfigurationFileInterpreter):
-    def __init__(self, lazy_file_reader: LazyFileReader) -> None:
+    def __init__(self, file_content: str) -> None:
         super().__init__()
-        self._lazy_file_reader = lazy_file_reader
-
-    def get_filename(self) -> str:
-        return self._lazy_file_reader.get_filename()
+        self._content = file_content
 
     def get_section(
         self,
@@ -49,7 +30,7 @@ class ConfigurationStrictTOMLInterpreter(ConfigurationFileInterpreter):
         return section_parent[section_name]
 
     def _get_doc(self) -> TOMLDocument:
-        return tomlkit.loads(self._lazy_file_reader.get_file_content())
+        return tomlkit.loads(self._content)
 
     @staticmethod
     def _get_section_parent(
