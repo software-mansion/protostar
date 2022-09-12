@@ -224,7 +224,7 @@ def _format_skipped_test_case_result(skipped_test_case_result: SkippedTestCaseRe
     result.append(" ".join(first_line))
 
     if skipped_test_case_result.reason:
-        result.append("Reason:")
+        result.append("[reason]:")
         result.append(
             log_color_provider.colorize("GRAY", skipped_test_case_result.reason)
         )
