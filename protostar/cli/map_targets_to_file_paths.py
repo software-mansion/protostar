@@ -9,11 +9,7 @@ def map_targets_to_file_paths(targets: List[str]) -> List[Path]:
             filepaths.append(target.resolve())
         else:
             filepaths.extend(
-                [
-                    f
-                    for f in target.resolve().glob("**/*.cairo")
-                    if f.is_file()
-                ]
+                [f for f in target.resolve().glob("**/*.cairo") if f.is_file()]
             )
 
     return filepaths

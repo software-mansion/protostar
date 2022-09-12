@@ -34,7 +34,7 @@ class CairoMigrateCommand(Command):
                 type="str",
                 is_array=True,
                 is_positional=True,
-                default=['.'],
+                default=["."],
             )
         ]
 
