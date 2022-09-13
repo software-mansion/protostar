@@ -35,3 +35,24 @@ async def test_deploy_contract(run_cairo_test_runner: RunCairoTestRunnerFixture)
         ],
         expected_failed_test_cases_names=[],
     )
+
+
+@pytest.mark.asyncio
+async def test_internal_calls_emitting_events(
+    run_cairo_test_runner: RunCairoTestRunnerFixture,
+):
+
+    testing_summary = await run_cairo_test_runner(
+        Path(__file__).parent / "deploy_contract_test.cairo",
+        test_cases=[
+            "test_emitting_events_from_user_contract_constructor_and_from_current_contract"
+        ],
+    )
+
+    assert_cairo_test_cases(
+        testing_summary,
+        expected_passed_test_cases_names=[
+            "test_emitting_events_from_user_contract_constructor_and_from_current_contract",
+        ],
+        expected_failed_test_cases_names=[],
+    )
