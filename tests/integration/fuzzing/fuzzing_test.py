@@ -109,3 +109,16 @@ async def test_max_examples_invalid_arguments(
         expected_passed_test_cases_names=[],
         expected_broken_test_cases_names=["test_zero", "test_negative"],
     )
+
+
+async def test_should_not_share_state(
+    run_cairo_test_runner: RunCairoTestRunnerFixture,
+):
+    testing_summary = await run_cairo_test_runner(
+        Path(__file__).parent / "shared_state_test.cairo"
+    )
+
+    assert_cairo_test_cases(
+        testing_summary,
+        expected_passed_test_cases_names=["test_context"],
+    )

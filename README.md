@@ -58,7 +58,7 @@ curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/inst
 ### Setting up environment
 
 1. Install Python version management tool: [pyenv](https://github.com/pyenv/pyenv) or [asdf](https://github.com/asdf-vm/asdf)
-1. Install `Python 3.7.12` using the Python version management tool and activate that version
+1. Install `Python 3.9.13` using the Python version management tool and activate that version
    - To be able to build Protostar, set the following environmental variable before installing Python: `PYTHON_CONFIGURE_OPTS="--enable-shared"`
 1. Clone this repository
 1. Verify the active Python version: `python -V`

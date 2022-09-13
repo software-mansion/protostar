@@ -85,10 +85,10 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
         super().__init__(state)
         self.cheatcode_factory = migrator_cheatcode_factory
 
-    async def invoke(
+    async def execute(
         self,
         function_name: str,
     ) -> None:
 
         self.set_cheatcodes(self.cheatcode_factory)
-        await self.perform_invoke(function_name)
+        await self.perform_execute(function_name)

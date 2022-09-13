@@ -17,6 +17,7 @@ from protostar.commands import (
     UpdateCommand,
     UpgradeCommand,
 )
+from protostar.commands.cairo_migrate.cairo_migrate_command import CairoMigrateCommand
 from protostar.commands.init.project_creator import (
     AdaptedProjectCreator,
     NewProjectCreator,
@@ -174,6 +175,7 @@ def build_di_container(script_root: Path, start_time: float = 0):
             gateway_facade_factory=gateway_facade_factory,
         ),
         FormatCommand(project_root_path, logger),
+        CairoMigrateCommand(script_root, logger),
     ]
     protostar_toml_version_checker = ProtostarTOMLVersionChecker(
         protostar_toml_reader=protostar_toml_reader, version_manager=version_manager

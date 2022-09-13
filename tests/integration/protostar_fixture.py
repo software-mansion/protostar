@@ -9,6 +9,7 @@ from pytest_mock import MockerFixture
 from starknet_py.net import KeyPair
 from starknet_py.net.models import StarknetChainId
 
+from protostar.cli.map_targets_to_file_paths import map_targets_to_file_paths
 from protostar.cli.signable_command_util import PatchedStarkCurveSigner
 from protostar.commands import (
     BuildCommand,
@@ -146,7 +147,7 @@ class ProtostarFixture:
 
     def format(
         self,
-        targets: List[Path],
+        targets: List[str],
         check=False,
         verbose=False,
         ignore_broken=False,
@@ -156,12 +157,11 @@ class ProtostarFixture:
 
     def format_with_output(
         self,
-        targets: List[Path],
+        targets: List[str],
         check=False,
         verbose=False,
         ignore_broken=False,
     ) -> Tuple[FormattingSummary, List[str]]:
-
         formatter = Formatter(self._project_root_path)
 
         output: List[str] = []
@@ -170,7 +170,7 @@ class ProtostarFixture:
         )
 
         summary = formatter.format(
-            targets=targets,
+            file_paths=map_targets_to_file_paths(targets),
             check=check,
             verbose=verbose,
             ignore_broken=ignore_broken,
@@ -193,22 +193,22 @@ class ProtostarFixture:
         %lang starknet
 
         @external
-        func up():
+        func up(){{
             %{{
                 {up_hint_content}
             %}}
 
-            return ()
-        end
+            return ();
+        }}
 
         @external
-        func down():
+        func down(){{
             %{{
                 {down_hint_content}
             %}}
 
-            return ()
-        end
+            return ();
+        }}
         """,
         )
         return file_path

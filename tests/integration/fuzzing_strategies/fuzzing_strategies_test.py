@@ -60,3 +60,38 @@ async def test_edge_cases(
             "test_repeated_parameter",
         ],
     )
+
+
+async def test_mapping_and_filtering(
+    run_cairo_test_runner: RunCairoTestRunnerFixture,
+):
+    testing_summary = await run_cairo_test_runner(
+        Path(__file__).parent / "map_and_filter_test.cairo"
+    )
+
+    assert_cairo_test_cases(
+        testing_summary,
+        expected_passed_test_cases_names=[
+            "test_chaining",
+            "test_filtering",
+            "test_mapping",
+        ],
+    )
+
+
+async def test_one_of(
+    run_cairo_test_runner: RunCairoTestRunnerFixture,
+):
+    testing_summary = await run_cairo_test_runner(
+        Path(__file__).parent / "one_of_test.cairo"
+    )
+
+    assert_cairo_test_cases(
+        testing_summary,
+        expected_passed_test_cases_names=[
+            "test_one_of",
+            "test_one_of_filtering",
+            "test_one_of_mapping_and_filtering",
+        ],
+        expected_failed_test_cases_names=[],
+    )

@@ -150,11 +150,15 @@ class ProtostarPreprocessor(StarknetPreprocessor):
         """
         Adds an entry describing the function to the contract's ABI.
         """
-        args = elm.arguments.identifiers
+        arg_types = []
+
+        for arg in elm.arguments.identifiers:
+            arg_types.append(arg.get_type())
+
         if elm.returns:
-            args.extend(elm.returns.identifiers)
-        for arg in args:
-            unresolved_arg_type = arg.get_type()
+            arg_types.append(elm.returns)
+
+        for unresolved_arg_type in arg_types:
             arg_type = self.resolve_type(unresolved_arg_type)
             abi_type_info = prepare_type_for_abi(arg_type)
             for struct_name in abi_type_info.structs:
@@ -207,15 +211,8 @@ class TestCollectorPreprocessor(Visitor):
             }
         )
 
-    def visit_namespace_elements(self, elm: CodeElementFunction):
-        for block in elm.code_block.code_elements:
-            self.visit(block.code_elm)
-
     def visit_CodeElementFunction(self, elm: CodeElementFunction):  # type: ignore
-        if elm.element_type == "namespace":
-            self.visit_namespace_elements(elm)
-
-        external_decorator, _, _ = parse_entry_point_decorators(elm=elm)
+        external_decorator, _, _, _ = parse_entry_point_decorators(elm=elm)
         if external_decorator is not None:
             # Add a function/constructor entry to the ABI.
             self.add_simple_abi_function_entry(
@@ -242,7 +239,7 @@ class PrepareTestCaseVisitor(Visitor):
     def is_constructor(elm: CodeElement) -> bool:
         if not isinstance(elm, CodeElementFunction):
             return False
-        external_decorator, _, _ = parse_entry_point_decorators(elm=elm)
+        external_decorator, _, _, _ = parse_entry_point_decorators(elm=elm)
         if not external_decorator:
             return False
         return external_decorator.name == CONSTRUCTOR_DECORATOR

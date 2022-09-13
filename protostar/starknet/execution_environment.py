@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import TypeVar, Generic
 
-from starkware.starknet.testing.objects import StarknetTransactionExecutionInfo
+from starkware.starknet.testing.objects import StarknetCallInfo
 from starkware.starkware_utils.error_handling import StarkException
 
 from protostar.commands.test.test_environment_exceptions import (
@@ -21,15 +21,15 @@ class ExecutionEnvironment(ABC, Generic[InvokeResultT]):
         self.state: ExecutionState = state
 
     @abstractmethod
-    async def invoke(self, function_name: str) -> InvokeResultT:
+    async def execute(self, function_name: str) -> InvokeResultT:
         ...
 
-    async def perform_invoke(
+    async def perform_execute(
         self, function_name: str, *args, **kwargs
-    ) -> StarknetTransactionExecutionInfo:
+    ) -> StarknetCallInfo:
         try:
             func = getattr(self.state.contract, function_name)
-            return await func(*args, **kwargs).invoke()
+            return await func(*args, **kwargs).execute()
         except StarkException as ex:
             raise StarknetRevertableException(
                 error_message=StarknetRevertableException.extract_error_messages_from_stark_ex_message(

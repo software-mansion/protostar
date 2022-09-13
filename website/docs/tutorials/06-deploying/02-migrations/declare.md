@@ -20,10 +20,9 @@ Declares contract given a relative to a project root path to **compiled** contra
 %lang starknet
 
 @external
-func up():
+func up() {
     %{ declare("./build/main.json", config={"wait_for_acceptance": True}) %}
 
-    return ()
-end
-
+    return ();
+}
 ```
