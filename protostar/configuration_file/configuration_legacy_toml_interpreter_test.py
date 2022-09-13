@@ -43,7 +43,7 @@ def test_loading_attribute_when_section_namespace_is_not_provided(
         attribute_name="lib_path",
     )
 
-    assert result == "./foo"
+    assert result == None
 
 
 @pytest.mark.parametrize(
