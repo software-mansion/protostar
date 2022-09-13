@@ -7,7 +7,7 @@ license = "MIT"
 name = "protostar"
 readme = "README.md"
 repository = "https://github.com/software-mansion/protostar"
-version = "0.3.3"
+version = "0.4.0"
 
 [tool.poetry.dependencies]
 GitPython = "^3.1.26"
@@ -41,9 +41,12 @@ pytest-datadir = "^1.3.1"
 pytest-mock = "^3.7.0"
 pytest-timeout = "^2.1.0"
 snakeviz = "^2.1.1"
-starknet-devnet = { git = "https://github.com/Shard-Labs/starknet-devnet.git", branch = "master" }
 pytest-benchmark = "^3.4.1"
 freezegun = "^1.2.1"
+
+[tool.poetry.dev-dependencies.starknet-devnet]
+git = "https://github.com/Shard-Labs/starknet-devnet.git"
+branch = "master"
 
 [tool.poe.tasks]
 build = "pyinstaller protostar.spec --noconfirm"
