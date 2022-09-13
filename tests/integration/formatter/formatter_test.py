@@ -26,7 +26,7 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
 
 
 async def test_formatter_formatting(protostar: ProtostarFixture):
-    summary = protostar.format([Path("to_format")])
+    summary = protostar.format(["to_format"])
 
     assert len(summary.broken) == 1
     assert len(summary.correct) == 1
@@ -35,7 +35,7 @@ async def test_formatter_formatting(protostar: ProtostarFixture):
 
 
 async def test_formatter_checking(protostar: ProtostarFixture):
-    summary = protostar.format([Path("to_format")], check=True)
+    summary = protostar.format(["to_format"], check=True)
 
     assert len(summary.broken) == 1
     assert len(summary.correct) == 1
@@ -47,7 +47,7 @@ async def test_formatter_checking(protostar: ProtostarFixture):
 
 async def test_formatter_output(protostar: ProtostarFixture):
     _, output = protostar.format_with_output(
-        targets=[Path("to_format")],
+        targets=["to_format"],
     )
 
     assert_counts_in_result(
@@ -63,7 +63,7 @@ async def test_formatter_output(protostar: ProtostarFixture):
 
 
 async def test_formatter_output_verbose(protostar: ProtostarFixture):
-    _, output = protostar.format_with_output(targets=[Path("to_format")], verbose=True)
+    _, output = protostar.format_with_output(targets=["to_format"], verbose=True)
 
     assert_counts_in_result(
         output,
@@ -79,7 +79,7 @@ async def test_formatter_output_verbose(protostar: ProtostarFixture):
 
 async def test_formatter_output_check(protostar: ProtostarFixture):
     _, output = protostar.format_with_output(
-        targets=[Path("to_format")],
+        targets=["to_format"],
         check=True,
     )
 
@@ -99,7 +99,7 @@ async def test_formatter_output_check_verbose(
     protostar: ProtostarFixture,
 ):
     _, output = protostar.format_with_output(
-        targets=[Path("to_format")],
+        targets=["to_format"],
         verbose=True,
         check=True,
     )
@@ -118,7 +118,7 @@ async def test_formatter_output_check_verbose(
 
 async def test_formatter_ignore_broken(protostar: ProtostarFixture):
     _, output = protostar.format_with_output(
-        targets=[Path("to_format")],
+        targets=["to_format"],
         ignore_broken=True,
     )
 

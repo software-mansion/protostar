@@ -20,49 +20,48 @@ Protostar displays an error type and a message when a test fails.
 %lang starknet
 
 @contract_interface
-namespace BasicContract:
-    func increase_balance(amount : felt):
-    end
+namespace BasicContract {
+    func increase_balance(amount: felt) {
+    }
 
-    func get_balance() -> (res : felt):
-    end
-end
+    func get_balance() -> (res: felt) {
+    }
+}
 
 @external
-func test_failing_to_call_external_contract{syscall_ptr : felt*, range_check_ptr}():
-    alloc_locals
+func test_failing_to_call_external_contract{syscall_ptr: felt*, range_check_ptr}() {
+    alloc_locals;
 
     %{ expect_revert("UNINITIALIZED_CONTRACT") %}
-    BasicContract.increase_balance(contract_address=21, amount=3)
+    BasicContract.increase_balance(contract_address=21, amount=3);
 
-    return ()
-end
+    return ();
+}
 ```
-
 
 ```cairo title="'except_revert' checks if the last error annotation contains 'error_message'."
 %lang starknet
 
-func inverse(x) -> (res):
-    with_attr error_message("x must not be zero. Got x={x}."):
-        return (res=1 / x)
-    end
-end
+func inverse(x) -> (res: felt) {
+    with_attr error_message("x must not be zero. Got x={x}.") {
+        return (res=1 / x);
+    }
+}
 
-func assert_not_equal(a, b):
-    let diff = a - b
-    with_attr error_message("a and b must be distinct."):
-        inverse(diff)
-    end
-    return ()
-end
+func assert_not_equal(a, b) {
+    let diff = a - b;
+    with_attr error_message("a and b must be distinct.") {
+        inverse(diff);
+    }
+    return ();
+}
 
 @external
-func test_error_message{syscall_ptr : felt*, range_check_ptr}():
+func test_error_message{syscall_ptr: felt*, range_check_ptr}() {
     %{ expect_revert(error_message="must be distinct") %}
-    assert_not_equal(0, 0)
-    return ()
-end
+    assert_not_equal(0, 0);
+    return ();
+}
 ```
 
 :::tip

@@ -71,7 +71,7 @@ class ExpectEventsCheatcode(Cheatcode):
                     matches=matches,
                     missing=missing,
                     # pylint: disable=line-too-long
-                    event_selector_to_name_map=self.starknet.cheatable_state.cheatable_carried_state.event_selector_to_name_map,
+                    event_selector_to_name_map=self.cheatable_state.event_selector_to_name_map,
                 )
 
         self.finish_hook.on(compare_expected_and_emitted_events)
@@ -92,10 +92,12 @@ class ExpectEventsCheatcode(Cheatcode):
                 raw_data = raw_expected_event["data"]
                 if isinstance(raw_data, dict):
                     assert (
-                        name in self.state.event_name_to_contract_abi_map
+                        name in self.cheatable_state.event_name_to_contract_abi_map
                     ), "Couldn't map event name to the contract path with that event"
 
-                    contract_abi = self.state.event_name_to_contract_abi_map[name]
+                    contract_abi = self.cheatable_state.event_name_to_contract_abi_map[
+                        name
+                    ]
                     transformer = from_python_events_transformer(contract_abi, name)
                     data = transformer(raw_data)
                 else:

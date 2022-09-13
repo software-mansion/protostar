@@ -6,28 +6,28 @@ It allows to write unit/integration tests with a help of [cheatcodes](02-cheatco
 ## Unit testing
 We will start with a [just created protostar project](../03-project-initialization.md).
 In your `src` directory create a `utils.cairo` file
-```code title="src/utils.cairo"
-func sum_func{syscall_ptr : felt*, range_check_ptr}(a : felt, b : felt) -> (res : felt):
-    return (a+b)
-end
+```cairo title="src/utils.cairo"
+func sum_func{syscall_ptr: felt*, range_check_ptr}(a: felt, b: felt) -> felt {
+    return a + b;
+}
 ```
 This is our target function, which we are going to test.
 Then in the `tests` directory create file `test_utils.cairo`, which contains a single test case.
-```code title="tests/test_utils.cairo"
+```cairo title="tests/test_utils.cairo"
 %lang starknet
 
 from src.utils import sum_func
 
 @external
-func test_sum{syscall_ptr : felt*, range_check_ptr}():
-    let (r) = sum_func(4,3)
-    assert r = 7
-    return ()
-end
+func test_sum{syscall_ptr: felt*, range_check_ptr}() {
+    let r = sum_func(4, 3);
+    assert r = 7;
+    return ();
+}
 ```
 
 Then run your test with
-```
+```shell
 protostar test ./tests
 ```
 
@@ -39,7 +39,7 @@ In the example above, Protostar will run every test case it manages to find in t
 If you experience any errors during test collection phase consider using `--safe-collecting` flag.
 :::
 
-```console title="expected result"
+```console title="Expected result"
 Collected 1 items
 
 test_utils: .
@@ -64,9 +64,17 @@ Protostar ships with its own assert functions. They don't accept [implicit argum
 
 ```cairo title="test_my_contract.cairo"
 from protostar.asserts import (
-    assert_eq, assert_not_eq, assert_signed_lt, assert_signed_le, assert_signed_gt,
-    assert_unsigned_lt, assert_unsigned_le, assert_unsigned_gt, assert_signed_ge,
-    assert_unsigned_ge)
+    assert_eq,
+    assert_not_eq,
+    assert_signed_lt,
+    assert_signed_le,
+    assert_signed_gt,
+    assert_unsigned_lt,
+    assert_unsigned_le,
+    assert_unsigned_gt,
+    assert_signed_ge,
+    assert_unsigned_ge,
+)
 ```
 
 :::info
@@ -99,20 +107,20 @@ and is executed before test cases.
 %lang starknet
 
 @external
-func __setup__():
+func __setup__() {
     %{ context.contract_a_address = deploy_contract("./tests/integration/testing_hooks/basic_contract.cairo").contract_address %}
-    return ()
-end
+    return ();
+}
 
 @external
-func test_something():
-    tempvar contract_address
+func test_something() {
+    tempvar contract_address;
     %{ ids.contract_address = context.contract_a_address %}
 
-    # ...
+    // ...
 
-    return ()
-end
+    return ();
+}
 ```
 
 :::info
@@ -139,15 +147,15 @@ for example, by calling the [`max_examples`](./02-cheatcodes/max-examples.md) ch
 %lang starknet
 
 @external
-func setup_something():
+func setup_something() {
     %{ max_examples(500) %}
-    return ()
-end
+    return ();
+}
 
 @external
-func test_something(a : felt):
-    # ...
+func test_something(a: felt) {
+    // ...
 
-    return ()
-end
+    return ();
+}
 ```

@@ -1,7 +1,8 @@
 from typing import Any, Callable, List, Optional
-from starkware.starknet.storage.starknet_storage import BusinessLogicStarknetStorage
-from protostar.commands.test.test_environment_exceptions import CheatcodeException
 
+from starkware.starknet.business_logic.state.state import ContractStorageState
+
+from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.storage_var import calc_address
 
@@ -38,32 +39,13 @@ class LoadCheatcode(Cheatcode):
         This function closely emulates a behaviour of calling an external method which returns storage_var state.
         """
 
-        # Get target contract state
-        pre_run_contract_carried_state = self.state.contract_states[
-            target_contract_address
-        ]
-        contract_state = pre_run_contract_carried_state.state
-        contract_state.assert_initialized(contract_address=target_contract_address)
-
-        # Build StarknetStorage for target contract
-        starknet_storage = BusinessLogicStarknetStorage(
-            commitment_tree=contract_state.storage_commitment_tree,
-            ffc=self.state.ffc,
-            # Pass a copy of the carried storage updates (instead of a reference) - note that
-            # pending_modifications may be modified during the run as a result of an internal call.
-            pending_modifications=dict(pre_run_contract_carried_state.storage_updates),
-            loop=self.loop,
+        starknet_storage = ContractStorageState(
+            state=self.sync_state, contract_address=target_contract_address
         )
 
         # Perform syscall on the contract state
         result = self._load_from_remote_storage(
             starknet_storage, variable_address, variable_size
-        )
-
-        # Apply modifications to the contract storage (read also modifies state).
-        self.state.update_contract_storage(
-            contract_address=target_contract_address,
-            modifications=starknet_storage.get_modifications(),
         )
         return result
 
@@ -73,7 +55,7 @@ class LoadCheatcode(Cheatcode):
     def variable_size(self, contract_address: int, variable_type: str) -> int:
         if variable_type == "felt":
             return 1
-        abi = self.state.get_abi_from_contract_address(contract_address)
+        abi = self.cheatable_state.get_abi_from_contract_address(contract_address)
 
         abi_type = next((el for el in abi if el["name"] == variable_type), None)
         if not abi_type or not "size" in abi_type:

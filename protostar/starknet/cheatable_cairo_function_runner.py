@@ -8,7 +8,6 @@ class CheatableCairoFunctionRunner(CairoFunctionRunner):
     CairoFunctionRunner which uses CheatableVirtualMachine instead of a regular VirtualMachine
     """
 
-    # MODIFICATION vm_class=VirtualMachine -> vm_class=CheatableVirtualMachine
     def initialize_vm(  # type: ignore
         self,
         hint_locals,

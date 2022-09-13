@@ -22,7 +22,6 @@ def compiled_contract_fixture(abi: AbiType):
         abi = _abi
 
         class Schema:
-            # pylint: disable=no-self-use
             def dump(self, _contract: Any):
                 return ""
 
