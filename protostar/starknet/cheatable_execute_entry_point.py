@@ -1,5 +1,5 @@
 import logging
-from typing import TYPE_CHECKING, Any, List, Optional, Tuple, cast
+from typing import TYPE_CHECKING, Optional, Tuple, cast, Any
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
@@ -14,7 +14,6 @@ from starkware.starknet.business_logic.execution.execute_entry_point import (
     ExecuteEntryPoint,
 )
 from starkware.starknet.business_logic.execution.objects import (
-    CallInfo,
     TransactionExecutionContext,
 )
 from starkware.starknet.business_logic.fact_state.state import ExecutionResourcesManager
@@ -43,10 +42,6 @@ logger = logging.getLogger(__name__)
 
 class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     cheatcode_factory: Optional["CheatcodeFactory"] = None
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.parent_syscall_handler_internal_calls: Optional[List[CallInfo]] = None
 
     def _run(
         self,
@@ -101,9 +96,6 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         )
 
         syscall_handler = CheatableSysCallHandler(**syscall_dependencies)
-
-        if self.parent_syscall_handler_internal_calls is not None:
-            syscall_handler.internal_calls = self.parent_syscall_handler_internal_calls
 
         hint_locals: dict[str, Any] = {}
 

@@ -65,7 +65,6 @@ class DeployCheatcode(Cheatcode):
             calldata=prepared.constructor_calldata,
             caller_address=self.caller_address,
         )
-        call.parent_syscall_handler_internal_calls = self.internal_calls
         call.execute(
             state=self.state,
             resources_manager=self.resources_manager,
