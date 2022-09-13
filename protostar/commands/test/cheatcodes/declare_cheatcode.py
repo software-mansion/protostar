@@ -57,9 +57,9 @@ class DeclareCheatcode(Cheatcode):
             class_hash
         ] = declared_class.abi
 
-        self.cheatable_state.class_hash_to_contract_path_map[
-            class_hash
-        ] = Path(contract_path_str)
+        self.cheatable_state.class_hash_to_contract_path_map[class_hash] = Path(
+            contract_path_str
+        )
 
         return DeclaredContract(class_hash)
 

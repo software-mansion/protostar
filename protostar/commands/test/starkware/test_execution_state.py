@@ -29,7 +29,7 @@ class TestExecutionState(ExecutionState):
         starknet_compiler: StarknetCompiler,
         test_suite_definition: ContractClass,
         test_config: TestConfig,
-        contract_path: Path
+        contract_path: Path,
     ) -> Self:
         starknet = await ForkableStarknet.empty()
         contract = await starknet.deploy(contract_class=test_suite_definition)
