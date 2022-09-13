@@ -55,7 +55,9 @@ class DeclareCheatcode(Cheatcode):
         return DeclaredContract(class_hash)
 
     async def _declare_contract(self, contract_path: Path):
-        contract_class = self._starknet_compiler.compile_contract(contract_path)
+        contract_class = self._starknet_compiler.compile_contract(
+            contract_path, add_debug_info=True
+        )
 
         tx = await InternalDeclare.create_for_testing(
             ffc=self.state.ffc,

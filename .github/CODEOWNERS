@@ -15,6 +15,7 @@
 /protostar/protostar_toml @kasperski95
 /protostar/configuration_file @kasperski95
 /protostar/starknet @MaksymilianDemitraszek
+/protostar/profiler @MaksymilianDemitraszek
 /protostar/starknet_gateway @Arcticae @kasperski95 @Radinyn
 /protostar/upgrader @kasperski95
 

@@ -26,12 +26,17 @@ from starkware.starkware_utils.error_handling import (
     StarkException,
     wrap_with_stark_exception,
 )
+from starkware.cairo.lang.tracer.tracer_data import TracerData
+from starkware.cairo.lang.vm.memory_segments import FIRST_MEMORY_ADDR as PROGRAM_BASE
+from protostar.profiler.profile import profile_from_tracer_data
 
 from protostar.starknet.cheatable_cairo_function_runner import (
     CheatableCairoFunctionRunner,
 )
 from protostar.starknet.cheatable_syscall_handler import CheatableSysCallHandler
 from protostar.starknet.cheatcode import Cheatcode
+
+PROFILER = False
 
 if TYPE_CHECKING:
     from protostar.starknet.cheatable_state import CheatableCarriedState
@@ -43,6 +48,7 @@ logger = logging.getLogger(__name__)
 # pylint: disable=too-many-statements
 class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     cheatcode_factory: Optional["CheatcodeFactory"] = None
+    callstack = 0
 
     def _run(  # type: ignore
         self,
@@ -136,6 +142,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         ]
 
         try:
+            # CheatableExecuteEntryPoint.callstack += 1
             runner.run_from_entrypoint(
                 entry_point.offset,
                 *entry_points_args,
@@ -149,6 +156,21 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
                 run_resources=tx_execution_context.run_resources,
                 verify_secure=True,
             )
+            # CheatableExecuteEntryPoint.callstack -= 1
+            # if CheatableExecuteEntryPoint.callstack == 0 and PROFILER:
+            #     runner.relocate()
+            #     try:
+            #         save_profile(
+            #             program=contract_class.program,
+            #             memory=runner.relocated_memory,
+            #             trace=runner.relocated_trace,
+            #             debug_info=runner.get_relocated_debug_info(),
+            #             runner=runner,
+            #         )
+            #     except Exception as err:
+            #         print(str(err))
+            #         raise err
+
         # --- MODIFICATIONS END ---
 
         except VmException as exception:
@@ -201,3 +223,18 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         runner.mark_as_accessed(address=args_ptr, size=len(entry_points_args))
 
         return runner, syscall_handler
+
+
+def save_profile(program, memory, trace, debug_info, runner):
+    tracer_data = TracerData(
+        program=program,
+        memory=memory,
+        trace=trace,
+        program_base=PROGRAM_BASE,
+        air_public_input=None,
+        debug_info=debug_info,
+    )
+    data = profile_from_tracer_data(tracer_data, runner)
+    with open("profile.pb.gz", "wb") as file:
+        file.write(data)
+    return 0
