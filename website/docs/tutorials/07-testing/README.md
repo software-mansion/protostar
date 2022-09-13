@@ -159,3 +159,53 @@ func test_something(a: felt) {
     return ();
 }
 ```
+
+### Custom python modules in hints
+
+You might want to use some non-standard python code in your hint segments to i.e. verify a signature using an external library.
+
+In order to do that, you should use `PYTHONPATH` env variable (https://docs.python.org/3/using/cmdline.html#envvar-PYTHONPATH), and protostar will consume it to extend `sys.path` accordingly.
+This approach will make it possible to include some packages from your virtual environment (by adding `site_packages` to your `PYTHONPATH`).
+
+Another approach is leveraging that project's `cairo-path` is added to `sys.path`, so you can put your python code alongside your cairo files.
+
+For example, having the standard project file structure:
+
+```
+.
+├── lib
+├── protostar.toml
+├── src
+│   └── main.cairo
+└── tests
+    ├── pymodule.py
+    └── test_main.cairo
+```
+
+In `pymodule.py`:
+
+```python
+def get_three():
+    return 3
+```
+
+In `test_main.cairo` you should be able to do this:
+
+```cairo
+%lang starknet
+from src.main import balance, increase_balance
+from starkware.cairo.common.cairo_builtins import HashBuiltin
+
+@view
+func test_getting_tree(){
+    alloc_locals;
+    local res;
+    %{
+        from tests.pymodule import get_three
+        ids.res = get_three()
+    %}
+
+    assert res = 3;
+    return ();
+}
+```
