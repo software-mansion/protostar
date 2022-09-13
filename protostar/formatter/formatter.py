@@ -20,19 +20,15 @@ class Formatter:
 
     def format(
         self,
-        targets: List[Path],
+        file_paths: List[Path],
         check=False,
         verbose=False,
         ignore_broken=False,
         on_formatting_result: Optional[Callable[[FormattingResult], Any]] = None,
     ) -> FormattingSummary:
         summary = FormattingSummary()
-        filepaths = self._get_filepaths(targets)
 
-        if on_formatting_result is None:
-            on_formatting_result = lambda result: None
-
-        for filepath in filepaths:
+        for filepath in file_paths:
             relative_filepath = filepath.relative_to(self._project_root_path)
 
             try:
@@ -45,7 +41,9 @@ class Formatter:
 
                 result = BrokenFormattingResult(relative_filepath, ex)
                 summary.extend(result)
-                on_formatting_result(result)
+
+                if on_formatting_result is not None:
+                    on_formatting_result(result)
 
                 # Cairo formatter fixes some broken files
                 # We want to disable this behavior
@@ -62,20 +60,7 @@ class Formatter:
 
             summary.extend(result)
             if not isinstance(result, CorrectFormattingResult) or verbose:
-                on_formatting_result(result)
+                if on_formatting_result is not None:
+                    on_formatting_result(result)
 
         return summary
-
-    @staticmethod
-    def _get_filepaths(targets: List[Path]):
-        filepaths: List[Path] = []
-
-        for target_path in targets:
-            if target_path.is_file():
-                filepaths.append(target_path.resolve())
-            else:
-                filepaths.extend(
-                    [f for f in target_path.resolve().glob("**/*.cairo") if f.is_file()]
-                )
-
-        return filepaths

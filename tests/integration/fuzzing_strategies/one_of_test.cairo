@@ -3,13 +3,13 @@
 from starkware.cairo.common.math import assert_lt, assert_in_range
 
 @external
-func __setup__():
+func __setup__() {
     %{ max_examples(3) %}
-    return ()
-end
+    return ();
+}
 
 @external
-func setup_one_of():
+func setup_one_of() {
     %{
         one_of_strategy = strategy.one_of(strategy.integers(0, 25), strategy.integers(75, 100))
 
@@ -20,16 +20,16 @@ func setup_one_of():
             a=one_of_strategy,
         )
     %}
-    return ()
-end
+    return ();
+}
 
 @external
-func test_one_of(a, b):
-    return ()
-end
+func test_one_of(a, b) {
+    return ();
+}
 
 @external
-func setup_one_of_filtering():
+func setup_one_of_filtering() {
     %{
         one_of_strategy = strategy.one_of(
                 strategy.integers(0, 25), strategy.integers(75, 100)
@@ -41,17 +41,17 @@ func setup_one_of_filtering():
             a=one_of_strategy,
         )
     %}
-    return ()
-end
+    return ();
+}
 
 @external
-func test_one_of_filtering{range_check_ptr}(a):
-    assert_in_range(a, 75, 100)
-    return ()
-end
+func test_one_of_filtering{range_check_ptr}(a) {
+    assert_in_range(a, 75, 100);
+    return ();
+}
 
 @external
-func setup_one_of_mapping_and_filtering():
+func setup_one_of_mapping_and_filtering() {
     %{
         one_of_strategy = strategy.one_of(
                 strategy.integers(0, 25), strategy.integers(75, 100)
@@ -65,11 +65,11 @@ func setup_one_of_mapping_and_filtering():
             a=one_of_strategy,
         )
     %}
-    return ()
-end
+    return ();
+}
 
 @external
-func test_one_of_mapping_and_filtering{range_check_ptr}(a):
-    assert_in_range(a, 1, 26)
-    return ()
-end
+func test_one_of_mapping_and_filtering{range_check_ptr}(a) {
+    assert_in_range(a, 1, 26);
+    return ();
+}

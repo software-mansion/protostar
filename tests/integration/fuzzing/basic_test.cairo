@@ -1,20 +1,20 @@
 %lang starknet
 
 @external
-func __setup__():
+func __setup__() {
     %{ max_examples(5) %}
-    return ()
-end
+    return ();
+}
 
 @external
-func test_fuzz_pass{syscall_ptr : felt*, range_check_ptr}(a, b : felt):
-    assert a + b = b + a
-    return ()
-end
+func test_fuzz_pass{syscall_ptr: felt*, range_check_ptr}(a, b: felt) {
+    assert a + b = b + a;
+    return ();
+}
 
 @external
-func test_fuzz_fails{syscall_ptr : felt*, range_check_ptr}(a):
-    # Keep the boundary number low, so that fuzzer shrinking phase does not take a lot of time.
+func test_fuzz_fails{syscall_ptr: felt*, range_check_ptr}(a) {
+    // Keep the boundary number low, so that fuzzer shrinking phase does not take a lot of time.
     %{ assert ids.a < 10 %}
-    return ()
-end
+    return ();
+}

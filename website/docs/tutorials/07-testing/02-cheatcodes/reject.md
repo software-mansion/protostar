@@ -14,16 +14,16 @@ This cheatcode is only available in [fuzz tests](../03-fuzzing/README.md).
 %lang starknet
 
 @external
-func test_function_that_takes_nonzero_argument{syscall_ptr : felt*, range_check_ptr}(value):
-    if value == 0:
+func test_function_that_takes_nonzero_argument{syscall_ptr: felt*, range_check_ptr}(value) {
+    if (value == 0) {
         %{ reject() %}
-        assert 0 = 0
-    end
+        assert 0 = 0;
+    }
 
-    # ...
+    // ...
 
-    return ()
-end
+    return ();
+}
 ```
 
 :::tip

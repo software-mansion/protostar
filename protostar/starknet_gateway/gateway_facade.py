@@ -13,12 +13,12 @@ from starknet_py.net.signer import BaseSigner
 from starknet_py.transaction_exceptions import TransactionFailedError
 from starknet_py.transactions.deploy import make_deploy_tx
 from starkware.starknet.definitions import constants
+from starkware.starknet.public.abi import AbiType
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.services.api.gateway.transaction import (
-    DECLARE_SENDER_ADDRESS,
+    DEFAULT_DECLARE_SENDER_ADDRESS,
     Declare,
 )
-from starkware.starknet.public.abi import AbiType
 
 from protostar.compiler import CompiledContractReader
 from protostar.protostar_exception import ProtostarException
@@ -27,6 +27,7 @@ from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeployResponse,
 )
 from protostar.starknet_gateway.starknet_request import StarknetRequest
+from protostar.utils.abi import has_abi_item
 from protostar.utils.data_transformer import (
     CairoOrPythonData,
     DataTransformerException,
@@ -34,7 +35,6 @@ from protostar.utils.data_transformer import (
     from_python_transformer,
 )
 from protostar.utils.log_color_provider import LogColorProvider
-from protostar.utils.abi import has_abi_item
 
 ContractFunctionInputType = Union[List[int], Dict[str, Any]]
 
@@ -153,30 +153,32 @@ class GatewayFacade:
 
         # The following parameters are hardcoded because Starknet CLI have asserts checking if they are equal to these
         # values. Once Starknet removes these asserts, these parameters should be configurable by the user.
-        sender = DECLARE_SENDER_ADDRESS
+        sender = DEFAULT_DECLARE_SENDER_ADDRESS
         max_fee = 0
         nonce = 0
 
         contract_cls = ContractClass.loads(compiled_contract)
 
         unsigned_tx = Declare(
-            contract_class=contract_cls,
-            sender_address=sender,
+            contract_class=contract_cls,  # type: ignore
+            sender_address=sender,  # type: ignore
             max_fee=max_fee,
             nonce=nonce,
             version=0,
             signature=[],
-        )  # type: ignore
+        )
 
         # TODO(arcticae): Uncomment, when signing is made possible
         # pylint: disable=unused-variable
         signature: List[int] = signer.sign_transaction(unsigned_tx) if signer else []
         tx = Declare(
-            **{
-                **unsigned_tx.__dict__,
-                "signature": [],  # TODO: pass signature here, when it's being signed
-            }
-        )  # type: ignore
+            contract_class=contract_cls,  # type: ignore
+            sender_address=sender,  # type: ignore
+            max_fee=max_fee,
+            nonce=nonce,
+            version=0,
+            signature=[],  # TODO: pass signature here, when it's being signed
+        )
 
         register_response = self._register_request(
             action="DECLARE",

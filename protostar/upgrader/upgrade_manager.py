@@ -156,6 +156,7 @@ class UpgradeManager:
         self._logger.info("Pulling latest binary, version: %s", latest_version)
         # pylint: disable=line-too-long
         tar_url = f"{LatestVersionRemoteChecker.PROTOSTAR_REPO}/releases/download/{latest_version_tag}/{tarball_filename}"
+        # pylint: disable=missing-timeout
         with requests.get(tar_url, stream=True) as request:
             with open(tarball_path, "wb") as file:
                 shutil.copyfileobj(request.raw, file)

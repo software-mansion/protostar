@@ -2,36 +2,36 @@ DATA_TRANSFORMER_UINT256_CONTRACT = """%lang starknet
 from starkware.cairo.common.uint256 import Uint256
     
 @external
-func input_uint256(arg: Uint256):
-    return ()
-end
+func input_uint256(arg: Uint256) {
+    return ();
+}
 """
 
 DATA_TRANSFORMER_FELT_CONSTRUCTOR_CONTRACT = """%lang starknet
 
 @constructor
-func constructor(arg: felt):
-    return ()
-end
+func constructor(arg: felt) {
+    return ();
+}
 """
 
 DATA_TRANSFORMER_STRUCTS_CONTRACT = """%lang starknet
 
-struct InnerStruct:
-    member a: felt
-    member b: felt
-    member c: felt
-end
+struct InnerStruct {
+    a: felt,
+    b: felt,
+    c: felt,
+}
 
-struct OuterStruct:
-    member felt_field: felt
-    member inner_field: InnerStruct
-end
+struct OuterStruct {
+    felt_field: felt,
+    inner_field: InnerStruct,
+}
 
 @external
-func input_outer_struct(arg: OuterStruct):
-    return ()
-end
+func input_outer_struct(arg: OuterStruct) {
+    return ();
+}
 """
 
 DATA_TRANSFORMER_LISTS_CONTRACT = """%lang starknet
@@ -43,30 +43,30 @@ func input_lists(
         felt_list: felt*,
         uint256_list_len: felt,
         uint256_list: Uint256*,
-    ):
-    return ()
-end
+    ) {
+    return ();
+}
 """
 
 DATA_TRANSFORMER_TUPLE_CONTRACT = """%lang starknet
 
 @external
-func input_tuple(arg: (felt, felt)):
-    return ()
-end
+func input_tuple(arg: (felt, felt)) {
+    return ();
+}
 """
 
 DATA_TRANSFORMER_OUTPUT_FELT_CONTRACT = """%lang starknet
 
 @external
-func output_felt() -> (res: felt):
-    return (42)
-end
+func output_felt() -> (res: felt) {
+    return (42,);
+}
 """
 
 DATA_TRANSFORMER_EVENT_CONTRACT = """%lang starknet
 
 @event
-func event1(arg1: felt, arg2: felt):
-end
+func event1(arg1: felt, arg2: felt) {
+}
 """
