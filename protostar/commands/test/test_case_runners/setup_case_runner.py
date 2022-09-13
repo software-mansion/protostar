@@ -20,7 +20,7 @@ async def run_setup_case(
         execution_environment = SetupCaseExecutionEnvironment(state)
 
         with state.stopwatch.lap(test_case.setup_fn_name):
-            await execution_environment.invoke(test_case.setup_fn_name)
+            await execution_environment.execute(test_case.setup_fn_name)
 
         return PassedSetupCaseResult(
             file_path=test_case.test_path,

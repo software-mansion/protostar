@@ -1,3 +1,4 @@
+import multiprocessing
 import os
 import sys
 from itertools import cycle
@@ -13,6 +14,8 @@ SCRIPT_ROOT = Path(__file__).parent
 
 
 def init():
+    multiprocessing.freeze_support()
+
     start_time = perf_counter()
     fix_ssl_certificate_errors_on_macos()
     main = import_protostar_main()

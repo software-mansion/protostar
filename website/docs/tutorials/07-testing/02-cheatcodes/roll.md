@@ -11,15 +11,15 @@ Changes a block number until the returned function is called. If `target_contrac
 from starkware.starknet.common.syscalls import get_block_number
 
 @external
-func test_changing_block_number{syscall_ptr : felt*}():
+func test_changing_block_number{syscall_ptr: felt*}() {
     %{ stop_roll = roll(123) %}
-    let (bn) = get_block_number()
-    assert bn = 123
+    let (bn) = get_block_number();
+    assert bn = 123;
     %{ stop_roll() %}
 
-    let (bn2) = get_block_number()
+    let (bn2) = get_block_number();
     %{ ids.bn2 != 123 %}
 
-    return ()
-end
+    return ();
+}
 ```

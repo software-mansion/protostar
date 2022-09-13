@@ -32,10 +32,10 @@ class TestExecutionState(ExecutionState):
         starknet = await ForkableStarknet.empty()
         contract = await starknet.deploy(contract_class=test_suite_definition)
         assert test_suite_definition.abi is not None
-        starknet.cheatable_state.cheatable_carried_state.class_hash_to_contract_abi_map[
+        starknet.cheatable_state.cheatable_state.class_hash_to_contract_abi_map[
             0
         ] = test_suite_definition.abi
-        starknet.cheatable_state.cheatable_carried_state.contract_address_to_class_hash_map[
+        starknet.cheatable_state.cheatable_state.contract_address_to_class_hash_map[
             contract.contract_address
         ] = 0
         

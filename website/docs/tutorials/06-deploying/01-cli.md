@@ -18,11 +18,7 @@ StarkNet provides a distinction between contract class and instance. To create a
    
 To declare a contract from the Protostar CLI you need to build your project and use the `protostar declare` command.
 
-```text
-$ protostar declare ./build/main.json --network alpha-goerli
-```
-
-```text title="The result of running 'protostar declare'."
+```console title="protostar declare ./build/main.json --network alpha-goerli"
 [INFO] Declare transaction was sent.
 Class hash: 0x038cc...
 Transaction hash: 0x3c6c...
@@ -75,11 +71,7 @@ Protostar supports deploying smart contracts to a given network with the `protos
 ### Example — deploying the default contract
 After [compiling your contract](../04-compiling.md), you can deploy the contract in the following way.
 
-```
-$ protostar deploy ./build/main.json --network alpha-goerli
-```
-  
- ```text title="Deployment output"
+```console title="protostar deploy ./build/main.json --network alpha-goerli"
 [INFO] Deploy transaction was sent.
 Contract address: 0x06a5ea9e42c921bd58e24b8da9d1fc91a488df0700b173f1c6bb0e453f68afec
 Transaction hash: 0x1cbba90ba0d1fbfba09b1f7a0f987134dd9a02a845ca89244b3272374d37ede

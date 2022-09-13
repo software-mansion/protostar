@@ -1,16 +1,17 @@
-import asyncio
 from typing import Any, Callable, List
 
 from starkware.python.utils import to_bytes
 from starkware.starknet.business_logic.execution.objects import CallInfo
-from starkware.starknet.core.os.syscall_utils import initialize_contract_state
+from starkware.starknet.public.abi import CONSTRUCTOR_ENTRY_POINT_SELECTOR
+from starkware.starknet.services.api.contract_class import EntryPointType
 
 from protostar.commands.test.cheatcodes.prepare_cheatcode import PreparedContract
-from protostar.starknet.cheatcode import Cheatcode
-
+from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import (
     DeployedContract,
 )
+from protostar.starknet.cheatable_execute_entry_point import CheatableExecuteEntryPoint
+from protostar.starknet.cheatcode import Cheatcode
 
 
 class DeployCheatcode(Cheatcode):
@@ -34,20 +35,39 @@ class DeployCheatcode(Cheatcode):
         self,
         prepared: PreparedContract,
     ):
-        class_hash_bytes = to_bytes(prepared.class_hash)
-        future = asyncio.run_coroutine_threadsafe(
-            coro=initialize_contract_state(
-                state=self.state,
-                class_hash=class_hash_bytes,
-                contract_address=prepared.contract_address,
-            ),
-            loop=self.loop,
-        )
-        future.result()
-
-        self.execute_constructor_entry_point(
+        self.state.deploy_contract(
             contract_address=prepared.contract_address,
-            class_hash_bytes=class_hash_bytes,
-            constructor_calldata=prepared.constructor_calldata,
+            class_hash=to_bytes(prepared.class_hash),
         )
-        return DeployedContract(prepared.contract_address)
+
+        contract_class = self.state.get_contract_class(
+            class_hash=to_bytes(prepared.class_hash)
+        )
+
+        has_constructor = len(
+            contract_class.entry_points_by_type[EntryPointType.CONSTRUCTOR]
+        )
+        if has_constructor and prepared.constructor_calldata:
+            self.invoke_constructor(prepared)
+        elif not has_constructor and prepared.constructor_calldata:
+            raise CheatcodeException(
+                self,
+                "Tried to deploy a contract with constructor calldata, but no constructor was found.",
+            )
+
+        return DeployedContract(contract_address=prepared.contract_address)
+
+    def invoke_constructor(self, prepared: PreparedContract):
+        call = CheatableExecuteEntryPoint.create(
+            contract_address=prepared.contract_address,
+            entry_point_selector=CONSTRUCTOR_ENTRY_POINT_SELECTOR,
+            entry_point_type=EntryPointType.CONSTRUCTOR,
+            calldata=prepared.constructor_calldata,
+            caller_address=self.caller_address,
+        )
+        call.execute(
+            state=self.state,
+            resources_manager=self.resources_manager,
+            general_config=self.general_config,
+            tx_execution_context=self.tx_execution_context,
+        )
