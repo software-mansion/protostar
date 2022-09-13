@@ -121,7 +121,7 @@ async def prepare_suite(
         test_contract=contract,
         test_suite=test_suite,
         test_config=TestConfig(),
-        contract_path=Path("nothing")
+        contract_path=Path("nothing"),
     )
     return runner, tests_state, execution_state
 

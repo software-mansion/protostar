@@ -47,7 +47,7 @@ class DeployCheatcode(Cheatcode):
         has_constructor = len(
             contract_class.entry_points_by_type[EntryPointType.CONSTRUCTOR]
         )
-        if has_constructor and prepared.constructor_calldata:
+        if has_constructor:
             self.invoke_constructor(prepared)
         elif not has_constructor and prepared.constructor_calldata:
             raise CheatcodeException(

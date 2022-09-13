@@ -38,6 +38,7 @@ async def test_deploy_contract(
             "test_data_transformation",
             "test_passing_constructor_data_as_list",
             "test_deploy_using_syscall_non_zero_flag",
+            "test_constructor_no_args_executed",
         ],
         expected_failed_test_cases_names=[],
     )
