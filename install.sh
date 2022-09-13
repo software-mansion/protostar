@@ -3,8 +3,36 @@ set -e
 
 echo Installing protostar
 
+RESULT=""
 PROTOSTAR_DIR=${PROTOSTAR_DIR-"$HOME/.protostar"}
 mkdir -p "$PROTOSTAR_DIR"
+
+function add_protostar_to_path() {
+    _PROTOSTAR_BINARY_DIR=$1
+
+    case $SHELL in
+    */zsh)
+        PROFILE=$HOME/.zshrc
+        PREF_SHELL=zsh
+        ;;
+    */bash)
+        PROFILE=$HOME/.bashrc
+        PREF_SHELL=bash
+        ;;
+    */fish)
+        PROFILE=$HOME/.config/fish/config.fish
+        PREF_SHELL=fish
+        ;;
+    *)
+        echo "error: could not detect shell, manually add ${_PROTOSTAR_BINARY_DIR} to your PATH."
+        exit 1
+        ;;
+    esac
+
+    if [[ ":$PATH:" != *":${_PROTOSTAR_BINARY_DIR}:"* ]]; then
+        echo >>$PROFILE && echo "export PATH=\"\$PATH:$_PROTOSTAR_BINARY_DIR\"" >>$PROFILE
+    fi
+}
 
 PLATFORM="$(uname -s)"
 case $PLATFORM in
@@ -69,28 +97,7 @@ PROTOSTAR_BINARY_DIR="${PROTOSTAR_DIR}/dist/protostar"
 PROTOSTAR_BINARY="${PROTOSTAR_BINARY_DIR}/protostar"
 chmod +x $PROTOSTAR_BINARY
 
-case $SHELL in
-*/zsh)
-    PROFILE=$HOME/.zshrc
-    PREF_SHELL=zsh
-    ;;
-*/bash)
-    PROFILE=$HOME/.bashrc
-    PREF_SHELL=bash
-    ;;
-*/fish)
-    PROFILE=$HOME/.config/fish/config.fish
-    PREF_SHELL=fish
-    ;;
-*)
-    echo "error: could not detect shell, manually add ${PROTOSTAR_BINARY_DIR} to your PATH."
-    exit 1
-    ;;
-esac
-
-if [[ ":$PATH:" != *":${PROTOSTAR_BINARY_DIR}:"* ]]; then
-    echo >>$PROFILE && echo "export PATH=\"\$PATH:$PROTOSTAR_BINARY_DIR\"" >>$PROFILE
-fi
+add_protostar_to_path $PROTOSTAR_BINARY_DIR
 
 echo && echo "Detected your preferred shell is ${PREF_SHELL} and added protostar to PATH. Run 'source ${PROFILE}' or start a new terminal session to use protostar."
 echo "Then, simply run 'protostar --help' "
