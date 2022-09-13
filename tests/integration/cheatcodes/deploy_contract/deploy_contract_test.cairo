@@ -35,6 +35,15 @@ namespace BasicWithConstructor {
     }
 }
 
+@contract_interface
+namespace BasicWithConstructorNoArgs {
+    func increase_balance(amount: felt) {
+    }
+
+    func get_balance() -> (res: felt) {
+    }
+}
+
 @external
 func __setup__() {
     %{ context.basic_contract = deploy_contract("./tests/integration/cheatcodes/deploy_contract/basic_contract.cairo") %}
@@ -228,6 +237,22 @@ func test_data_transformation{syscall_ptr: felt*, range_check_ptr}() {
 
     assert balance.low = 42;
     assert balance.high = 0;
+
+    return ();
+}
+
+@external
+func test_constructor_no_args_executed{syscall_ptr: felt*, range_check_ptr}() {
+    alloc_locals;
+    local deployed_contract_address: felt;
+
+    %{
+        ids.deployed_contract_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor_no_args.cairo").contract_address
+    %}
+
+    let (balance) = BasicWithConstructorNoArgs.get_balance(deployed_contract_address);
+
+    assert balance = 42;
 
     return ();
 }
