@@ -7,6 +7,7 @@ from tests.e2e.installation_script.conftest import (
     ProtostarGitHubRepository,
     ScriptTestingHarness,
     Shell,
+    SupportedHardwareName,
     SupportedKernel,
     SupportedShell,
     UploadedInstallationFilename,
@@ -25,16 +26,24 @@ def latest_protostar_version_fixture() -> str:
 
 
 @pytest.mark.parametrize(
-    "kernel, shell, uploaded_installation_filename",
+    "kernel, shell, hardware_name, uploaded_installation_filename",
     (
         (
             SupportedKernel.DARWIN,
             SupportedShell.ZSH,
+            SupportedHardwareName.X86_64,
             UploadedInstallationFilename.MACOS,
+        ),
+        (
+            SupportedKernel.DARWIN,
+            SupportedShell.ZSH,
+            SupportedHardwareName.X86_64,
+            UploadedInstallationFilename.MACOS_ARM64,
         ),
         (
             SupportedKernel.LINUX,
             SupportedShell.BASH,
+            "?",
             UploadedInstallationFilename.LINUX,
         ),
     ),
@@ -45,6 +54,7 @@ def test_installing_latest_version(
     create_fake_protostar: CreateFakeProtostarFixture,
     kernel: str,
     shell: Shell,
+    hardware_name: str,
     uploaded_installation_filename: str,
 ):
     harness = ScriptTestingHarness.create(

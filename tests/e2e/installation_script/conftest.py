@@ -19,9 +19,15 @@ class SupportedKernel:
     LINUX = "Linux"
 
 
+class SupportedHardwareName:
+    ARM64 = "arm64"
+    X86_64 = "x86_64"
+
+
 class UploadedInstallationFilename:
     LINUX = "protostar-Linux.tar.gz"
     MACOS = "protostar-macOS.tar.gz"
+    MACOS_ARM64 = "protostar-macOS-arm64.tar.gz"
 
 
 @dataclass
