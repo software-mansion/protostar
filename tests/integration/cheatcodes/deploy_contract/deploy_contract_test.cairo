@@ -256,3 +256,25 @@ func test_constructor_no_args_executed{syscall_ptr: felt*, range_check_ptr}() {
 
     return ();
 }
+
+@contract_interface
+namespace EventEmitterContainer {
+    func increase_balance() {
+    }
+}
+
+@event
+func balance_increased(current_balance: felt, amount: felt) {
+}
+
+
+@external
+func test_emitting_events_from_user_contract_constructor_and_from_current_contract{syscall_ptr: felt*, range_check_ptr}() {
+    alloc_locals;
+    local event_emitter_address: felt;
+    %{
+        ids.event_emitter_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract/event_emitter_contract.cairo").contract_address
+    %}
+    EventEmitterContainer.increase_balance(event_emitter_address);
+    return ();
+}

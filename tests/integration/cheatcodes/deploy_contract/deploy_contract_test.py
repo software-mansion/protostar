@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import pytest
-from pytest_mock import MockerFixture
 
 from tests.integration.conftest import (
     RunCairoTestRunnerFixture,
@@ -10,14 +9,7 @@ from tests.integration.conftest import (
 
 
 @pytest.mark.asyncio
-async def test_deploy_contract(
-    mocker: MockerFixture, run_cairo_test_runner: RunCairoTestRunnerFixture
-):
-    protostar_directory_mock = mocker.MagicMock()
-    protostar_directory_mock.protostar_test_only_cairo_packages_path = (
-        Path() / "tests" / "integration" / "data"
-    )
-
+async def test_deploy_contract(run_cairo_test_runner: RunCairoTestRunnerFixture):
     testing_summary = await run_cairo_test_runner(
         Path(__file__).parent / "deploy_contract_test.cairo",
         cairo_path=[Path() / "tests" / "integration" / "data"],
@@ -39,6 +31,7 @@ async def test_deploy_contract(
             "test_passing_constructor_data_as_list",
             "test_deploy_using_syscall_non_zero_flag",
             "test_constructor_no_args_executed",
+            "test_emitting_events_from_user_contract_constructor_and_from_current_contract",
         ],
         expected_failed_test_cases_names=[],
     )
