@@ -20,11 +20,11 @@ class StartPrankCheatcode(Cheatcode):
             if target_contract_address
             else self.contract_address
         )
-        if target in self.state.pranked_contracts_map:
+        if target in self.cheatable_state.pranked_contracts_map:
             raise CheatcodeException(
                 self, f"Contract with address {target} has been already pranked"
             )
-        self.state.pranked_contracts_map[target] = caller_address
+        self.cheatable_state.pranked_contracts_map[target] = caller_address
 
         def stop_started_prank():
             target = (
@@ -33,10 +33,10 @@ class StartPrankCheatcode(Cheatcode):
                 else self.contract_address
             )
 
-            if target not in self.state.pranked_contracts_map:
+            if target not in self.cheatable_state.pranked_contracts_map:
                 raise CheatcodeException(
                     self, f"Contract with address {target} has not been pranked"
                 )
-            del self.state.pranked_contracts_map[target]
+            del self.cheatable_state.pranked_contracts_map[target]
 
         return stop_started_prank

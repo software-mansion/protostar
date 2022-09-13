@@ -1,5 +1,4 @@
 # pylint: disable=redefined-outer-name
-import subprocess
 from os import listdir
 from pathlib import Path
 
@@ -83,10 +82,8 @@ def test_protostar_version_in_config_file(mocker, protostar_bin: Path):
 @pytest.mark.parametrize("latest_supported_protostar_toml_version", ["0.2.9"])
 @pytest.mark.parametrize("command", ["build", "install", "test"])
 def test_protostar_asserts_version_compatibility(protostar, command):
-    with pytest.raises(subprocess.CalledProcessError) as error:
-        protostar([command])
-
-    assert "is not compatible with provided protostar.toml" in str(error.value.output)
+    output = protostar([command], expect_exit_code=1)
+    assert "is not compatible with provided protostar.toml" in str(output)
 
 
 @pytest.mark.usefixtures("init")

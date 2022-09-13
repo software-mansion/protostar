@@ -16,10 +16,10 @@ You can't deploy the same `PreparedContract` twice.
 
 ```cairo title="./src/main.cairo"
 @constructor
-func constructor(initial_balance : Uint256, contract_id : felt):
-    # ...
-    return ()
-end
+func constructor(initial_balance: Uint256, contract_id: felt) {
+    // ...
+    return ();
+}
 ```
 
 :::info

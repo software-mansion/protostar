@@ -23,30 +23,29 @@ You can create a migration file anywhere, but we recommend creating them inside 
 ## Migration file structure
 Each migration should have 2 functions: `up` and `down`. The `up` function is responsible to migrate your project forward, and the `down` function is executed to rollback changes. These functions must be decorated with `@external` decorator.
 
-```python title="Declaring contract in migration file"
+```cairo title="Declaring contract in migration file"
 %lang starknet
 
 @external
-func up():
+func up() {
     %{ declare("./build/main.json") %}
-    return ()
-end
+    return ();
+}
 
 @external
-func down():
+func down() {
     %{ assert False, "Not implemented" %}
-    return ()
-end
-
+    return ();
+}
 ``` 
 
 ## Running the migration
 To run the migration execute the `migrate` command. We recommend specifying the migration output directory to save class hashes and contract addresses.
 
-```text title="Running the migration to the testnet"
-$ protostar migrate migrations/migration_01_init.cairo
-                    --network alpha-goerli
-                    --output-dir migrations/testnet
+```shell title="Running the migration to the testnet"
+protostar migrate migrations/migration_01_init.cairo
+    --network alpha-goerli
+    --output-dir migrations/testnet
 ```
 
 :::tip

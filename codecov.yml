@@ -3,4 +3,5 @@ github_checks:
 
 coverage:
   status:
-    patch: false
+    project: off
+    patch: off

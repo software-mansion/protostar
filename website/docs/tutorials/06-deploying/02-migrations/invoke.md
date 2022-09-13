@@ -50,17 +50,17 @@ $ protostar migrate migrations/migration_01.cairo
     --account-address 0x1231231212321
 ```
 
-```python title="migrations/migration_01.cairo"
+```cairo title="migrations/migration_01.cairo"
 %lang starknet
 
 @external
-func up():
-    %{ 
-       contract_address = deploy_contract(
-            "./build/main.json", 
-            config={"wait_for_acceptance": True}
-       ).contract_address
-       
+func up() {
+    %{
+        contract_address = deploy_contract(
+             "./build/main.json",
+             config={"wait_for_acceptance": True}
+        ).contract_address
+
         invoke(
             contract_address,
             "initialize",
@@ -72,35 +72,38 @@ func up():
         )
     %}
 
-    return ()
-end
+    return ();
+}
 ```
 
 ```cairo title="src/main.cairo"
 %lang starknet
 
 @storage_var
-func authority() -> (res : felt):
-end
-
+func authority() -> (res: felt) {
+}
 
 @external
-func initialize{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(new_authority: felt):
-    let (authority_now) = authority.read()
-    tempvar syscall_ptr = syscall_ptr
-    tempvar pedersen_ptr = pedersen_ptr
-    tempvar range_check_ptr = range_check_ptr
+func initialize{
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
+    range_check_ptr
+}(new_authority: felt) {
+    let (authority_now) = authority.read();
+    tempvar syscall_ptr = syscall_ptr;
+    tempvar pedersen_ptr = pedersen_ptr;
+    tempvar range_check_ptr = range_check_ptr;
 
-    if authority_now != 0:
-        with_attr error_message("Authority has already been set"):
-           assert 1 = 0
-        end
-        tempvar syscall_ptr = syscall_ptr
-        tempvar pedersen_ptr = pedersen_ptr
-        tempvar range_check_ptr = range_check_ptr
-    end
+    if (authority_now != 0) {
+        with_attr error_message("Authority has already been set") {
+            assert 1 = 0;
+        }
+        tempvar syscall_ptr = syscall_ptr;
+        tempvar pedersen_ptr = pedersen_ptr;
+        tempvar range_check_ptr = range_check_ptr;
+    }
 
-    authority.write(new_authority)
-    return ()
-end
+    authority.write(new_authority);
+    return ();
+}
 ```
