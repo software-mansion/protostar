@@ -6,42 +6,41 @@ echo Installing protostar
 PROTOSTAR_DIR=${PROTOSTAR_DIR-"$HOME/.protostar"}
 mkdir -p "$PROTOSTAR_DIR"
 
-
 PLATFORM="$(uname -s)"
 case $PLATFORM in
-  Linux)
+Linux)
     PLATFORM="Linux"
     ;;
-  Darwin)
+Darwin)
     PLATFORM="macOS"
     ;;
-  *)
+*)
     echo "unsupported platform: $PLATFORM"
     exit 1
     ;;
 esac
 
 while getopts ":v:" opt; do
-  case $opt in
+    case $opt in
     v)
-      VERSION=$OPTARG
-      ;;
+        VERSION=$OPTARG
+        ;;
     \?)
-      echo "Invalid option: -$OPTARG" >&2
-      exit 1
-      ;;
+        echo "Invalid option: -$OPTARG" >&2
+        exit 1
+        ;;
     :)
-      echo "Option -$OPTARG requires an argument." >&2
-      exit 1
-      ;;
-  esac
+        echo "Option -$OPTARG requires an argument." >&2
+        exit 1
+        ;;
+    esac
 done
 
 if [ -n "$VERSION" ]; then
-  REQUESTED_REF="tag/v${VERSION}"
+    REQUESTED_REF="tag/v${VERSION}"
 else
-  REQUESTED_REF="latest"
-  VERSION="latest"
+    REQUESTED_REF="latest"
+    VERSION="latest"
 fi
 
 PROTOSTAR_REPO="https://github.com/software-mansion/protostar"
@@ -51,8 +50,8 @@ echo Retrieving $VERSION version from $PROTOSTAR_REPO...
 REQUESTED_RELEASE=$(curl -L -s -H 'Accept: application/json' "${PROTOSTAR_REPO}/releases/${REQUESTED_REF}")
 
 if [ "$REQUESTED_RELEASE" == "{\"error\":\"Not Found\"}" ]; then
-  echo "Version $VERSION not found"
-  exit
+    echo "Version $VERSION not found"
+    exit
 fi
 
 REQUESTED_VERSION=$(echo $REQUESTED_RELEASE | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
@@ -86,10 +85,11 @@ case $SHELL in
 *)
     echo "error: could not detect shell, manually add ${PROTOSTAR_BINARY_DIR} to your PATH."
     exit 1
+    ;;
 esac
 
 if [[ ":$PATH:" != *":${PROTOSTAR_BINARY_DIR}:"* ]]; then
-    echo >> $PROFILE && echo "export PATH=\"\$PATH:$PROTOSTAR_BINARY_DIR\"" >> $PROFILE
+    echo >>$PROFILE && echo "export PATH=\"\$PATH:$PROTOSTAR_BINARY_DIR\"" >>$PROFILE
 fi
 
 echo && echo "Detected your preferred shell is ${PREF_SHELL} and added protostar to PATH. Run 'source ${PROFILE}' or start a new terminal session to use protostar."
