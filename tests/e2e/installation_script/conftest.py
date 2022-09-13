@@ -62,6 +62,9 @@ class ScriptTestingHarness:
     def expect_kernel_name_uname_prompt(self) -> None:
         self.expect("\\[uname -s]:")
 
+    def expect_hardware_name_uname_prompt(self) -> None:
+        self.expect("\\[uname -m]:")
+
     def expect_release_response_curl_prompt(self, requested_ref: str) -> None:
         self.expect(
             f"\\[curl -L -s -H Accept: application/json {PROTOSTAR_REPO_URL}/releases/{requested_ref}]:"

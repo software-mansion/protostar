@@ -64,6 +64,10 @@ def test_installing_latest_version(
     harness.expect_kernel_name_uname_prompt()
     harness.send(kernel)
 
+    if kernel == SupportedKernel.DARWIN:
+        harness.expect_hardware_name_uname_prompt()
+        harness.send(hardware_name)
+
     harness.expect_release_response_curl_prompt(
         requested_ref=ProtostarGitHubRepository.get_release_ref(version=None)
     )
@@ -172,3 +176,7 @@ def test_installing_specific_but_unreleased_version(
 
     harness.expect(f"Version {unreleased_version} not found")
     harness.expect_eof()
+
+
+def test_fallback_installation():
+    assert False
