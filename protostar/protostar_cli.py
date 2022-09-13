@@ -101,7 +101,7 @@ class ProtostarCLI(CLIApp):
         # FIXME(arcticae): Those should be run when command is running in project context
         if args.command not in ["init", "upgrade"]:
             self._protostar_toml_version_checker.run()
-            cairo_path_arg = vars(args).get('cairo_path')
+            cairo_path_arg = vars(args).get("cairo_path")
             self._extend_pythonpath_with_cairo_path(cairo_path_arg)
             _consume_pythonpath()
 
@@ -117,7 +117,9 @@ class ProtostarCLI(CLIApp):
             "Execution time: %.2f s", time.perf_counter() - self._start_time
         )
 
-    def _extend_pythonpath_with_cairo_path(self, cairo_path_arg: Optional[List[Path]] = None):
+    def _extend_pythonpath_with_cairo_path(
+        self, cairo_path_arg: Optional[List[Path]] = None
+    ):
         cairo_path_list = (
             str(path)
             for path in self._project_cairo_path_builder.build_project_cairo_path_list(
