@@ -46,14 +46,14 @@ def to_protobuf(profile_obj) -> Profile:
             sample.location_id.append(instr.id)
         sample.value.append(smp.value)
         sample.value.append(0)
-
-    # for smp in profile_obj.memhole_samples:
-    #     sample = profile.sample.add()  # type: ignore
-    #     for instr in smp.callstack:
-    #         sample.location_id.append(instr.id)
-    #     sample.value.append(0)
-    #     sample.value.append(smp.value)
     
+    for smp in profile_obj.memhole_samples:
+        sample = profile.sample.add()  # type: ignore
+        for instr in smp.callstack:
+            sample.location_id.append(instr.id)
+        sample.value.append(0)
+        sample.value.append(smp.value)
+
     for val in string_table:
         profile.string_table.append(val)  # type: ignore
 

@@ -15,11 +15,6 @@ func helper{}() {
     ret;
 }
 
-func helper2{}() {
-    [ap + 300] = 555;
-    ret;
-}
-
 @external
 func test_deploy_contract_simplified{syscall_ptr: felt*, range_check_ptr}() {
     alloc_locals;
@@ -29,7 +24,6 @@ func test_deploy_contract_simplified{syscall_ptr: felt*, range_check_ptr}() {
         ids.contract_address = basic_contract.contract_address
     %}
     helper();
-    // helper2()
 
     BasicContract.increase_balance(contract_address, 5);
     let (res) = BasicContract.get_balance(contract_address);
