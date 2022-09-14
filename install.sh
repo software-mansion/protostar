@@ -3,7 +3,7 @@ set -e
 
 PROTOSTAR_REPO="https://github.com/software-mansion/protostar"
 
-function create_protostar_directory() {
+create_protostar_directory() {
     RETVAL=""
 
     local protostar_dir=${protostar_dir-"$HOME/.protostar"}
@@ -12,7 +12,7 @@ function create_protostar_directory() {
     RETVAL=$protostar_dir
 }
 
-function get_platform_name() {
+get_platform_name() {
     RETVAL=""
 
     local platform_name="$(uname -s)"
@@ -30,7 +30,7 @@ function get_platform_name() {
     esac
 }
 
-function get_requested_version() {
+get_requested_version() {
     RETVAL=""
     local version=$1
     local requested_ref=$2
@@ -47,7 +47,7 @@ function get_requested_version() {
     RETVAL=$requested_version
 }
 
-function download_protostar() {
+download_protostar() {
     RETVAL=""
     local version=$1
     local platform=$2
@@ -65,7 +65,7 @@ function download_protostar() {
     RETVAL=$protostar_binary_dir
 }
 
-function add_protostar_to_path() {
+add_protostar_to_path() {
     RETVAL=""
     local protostar_binary_dir=$1
 
@@ -97,7 +97,7 @@ function add_protostar_to_path() {
     echo "Then, run 'protostar --help'."
 }
 
-function main() {
+main() {
     local provided_version_arg=$1
 
     local requested_ref
