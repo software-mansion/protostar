@@ -6,17 +6,17 @@ PROTOSTAR_REPO="https://github.com/software-mansion/protostar"
 function create_protostar_directory() {
     RETVAL=""
 
-    local _protostar_dir=${_protostar_dir-"$HOME/.protostar"}
-    mkdir -p "$_protostar_dir"
+    local protostar_dir=${protostar_dir-"$HOME/.protostar"}
+    mkdir -p "$protostar_dir"
 
-    RETVAL=$_protostar_dir
+    RETVAL=$protostar_dir
 }
 
 function get_platform_name() {
     RETVAL=""
 
-    local _platform_name="$(uname -s)"
-    case $_platform_name in
+    local platform_name="$(uname -s)"
+    case $platform_name in
     Linux)
         RETVAL="Linux"
         ;;
@@ -32,19 +32,19 @@ function get_platform_name() {
 
 function get_requested_version() {
     RETVAL=""
-    local _version=$1
-    local _requested_ref=$2
+    local version=$1
+    local requested_ref=$2
 
-    echo "Retrieving $_version version from $PROTOSTAR_REPO..."
-    _response=$(curl -L -s -H 'Accept: application/json' "${PROTOSTAR_REPO}/releases/${_requested_ref}")
-    if [ "$_response" == "{\"error\":\"Not Found\"}" ]; then
-        echo "Version $_version not found"
+    echo "Retrieving $version version from $PROTOSTAR_REPO..."
+    response=$(curl -L -s -H 'Accept: application/json' "${PROTOSTAR_REPO}/releases/${requested_ref}")
+    if [ "$response" == "{\"error\":\"Not Found\"}" ]; then
+        echo "Version $version not found"
         exit
     fi
-    _requested_version=$(echo $_response | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
-    echo "Using version $_requested_version"
+    requested_version=$(echo $response | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
+    echo "Using version $requested_version"
 
-    RETVAL=$_requested_version
+    RETVAL=$requested_version
 }
 
 function download_protostar() {
