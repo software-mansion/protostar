@@ -68,13 +68,21 @@ def test_installing_latest_version(
         ProtostarGitHubRepository.get_release_found_response(latest_protostar_version)
     )
 
+    create_fake_protostar(output_dir=home_path)
+    harness.expect_release_website_content_curl_prompt(
+        requested_ref=ProtostarGitHubRepository.get_release_ref(version=None)
+    )
+    harness.send(
+        ProtostarGitHubRepository.get_release_website_content(
+            installer_filename=uploaded_installation_filename
+        )
+    )
+    harness.expect(".* found")
+
     harness.expect_download_curl_prompt(
         uploaded_installation_filename, latest_protostar_version
     )
-    create_fake_protostar(output_dir=home_path)
     harness.send("DATA")
-
-    harness.expect_tar_call(data="DATA")
 
     harness.expect_detected_shell(shell_name=shell.name)
     harness.expect_eof()
@@ -101,7 +109,7 @@ def test_installing_latest_version(
         ),
     ),
 )
-def test_package_not_found(
+def test_installer_not_found(
     home_path: Path,
     latest_protostar_version: str,
     kernel: str,
@@ -120,18 +128,20 @@ def test_package_not_found(
     harness.send(hardware_name)
 
     harness.expect_release_response_curl_prompt(
-        requested_ref=ProtostarGitHubRepository.get_release_ref(version="latest")
+        requested_ref=ProtostarGitHubRepository.get_release_ref(version=None)
     )
     harness.send(
         ProtostarGitHubRepository.get_release_found_response(latest_protostar_version)
     )
 
-    harness.expect_release_website_content_curl_prompt(version=latest_protostar_version)
+    harness.expect_release_website_content_curl_prompt(
+        requested_ref=ProtostarGitHubRepository.get_release_ref(version=None)
+    )
     harness.send(
         ProtostarGitHubRepository.get_release_website_content(installer_filename=None)
     )
 
-    harness.expect(f"Could not find {uploaded_installation_filename}")
+    harness.expect(f"{uploaded_installation_filename} not found")
     harness.expect_eof()
 
 
@@ -178,13 +188,20 @@ def test_installing_specific_version(
         ProtostarGitHubRepository.get_release_found_response(requested_version)
     )
 
+    harness.expect_release_website_content_curl_prompt(
+        requested_ref=ProtostarGitHubRepository.get_release_ref(requested_version)
+    )
+    harness.send(
+        ProtostarGitHubRepository.get_release_website_content(
+            installer_filename=uploaded_installation_filename
+        )
+    )
+
     harness.expect_download_curl_prompt(
         uploaded_installation_filename, requested_version
     )
     create_fake_protostar(output_dir=home_path)
     harness.send("DATA")
-
-    harness.expect_tar_call(data="DATA")
 
     harness.expect_detected_shell(shell_name=shell.name)
     harness.expect_eof()

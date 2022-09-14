@@ -70,8 +70,8 @@ class ScriptTestingHarness:
             f"\\[curl -L -s -H Accept: application/json {PROTOSTAR_REPO_URL}/releases/{requested_ref}]:"
         )
 
-    def expect_release_website_content_curl_prompt(self, version: str) -> None:
-        self.expect(f"\\[curl -L {PROTOSTAR_REPO_URL}/releases/tag/{version}]:")
+    def expect_release_website_content_curl_prompt(self, requested_ref: str) -> None:
+        self.expect(f"\\[curl -L -s {PROTOSTAR_REPO_URL}/releases/{requested_ref}]:")
 
     def expect_download_curl_prompt(self, filename: str, version: str) -> None:
         self.expect(

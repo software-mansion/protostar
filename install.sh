@@ -23,16 +23,16 @@ main() {
 
     hardware_name="$(uname -m)"
 
+    create_protostar_directory
+    protostar_dir=$RETVAL
+
     get_requested_version $version $requested_ref
     requested_version=$RETVAL
 
     get_protostar_tarball_filename $platform_name $hardware_name
     protostar_tarball_filename=$RETVAL
 
-    # TODO: check if file exists
-
-    create_protostar_directory
-    protostar_dir=$RETVAL
+    check_protostar_tarball_exists $requested_ref $protostar_tarball_filename
 
     download_protostar $requested_version $protostar_tarball_filename $protostar_dir
     protostar_binary_dir=$RETVAL
@@ -83,6 +83,24 @@ get_protostar_tarball_filename() {
     local protostar_tarball_filename="protostar-${platform_name}.tar.gz"
 
     RETVAL=$protostar_tarball_filename
+}
+
+check_protostar_tarball_exists() {
+    RETVAL=""
+    local requested_ref=$1
+    local protostar_tarball_filename=$2
+
+    echo "Checking if $protostar_tarball_filename is available..."
+    response=$(curl -L -s "${PROTOSTAR_REPO}/releases/${requested_ref}")
+    file_exists=1
+    if [[ $response == *"$protostar_tarball_filename"* ]]; then
+        echo "$protostar_tarball_filename found"
+    else
+        file_exists=0
+        echo "$protostar_tarball_filename not found"
+    fi
+
+    RETVAL=$file_exists
 }
 
 create_protostar_directory() {
