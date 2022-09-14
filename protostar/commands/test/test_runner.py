@@ -1,4 +1,5 @@
 import asyncio
+from pathlib import Path
 import traceback
 from dataclasses import dataclass
 from logging import getLogger
@@ -99,6 +100,7 @@ class TestRunner:
                 test_contract=compiled_test,
                 test_suite=test_suite,
                 test_config=test_config,
+                contract_path=test_suite.test_path,
             )
             if not execution_state:
                 return
@@ -140,6 +142,7 @@ class TestRunner:
         test_contract: ContractClass,
         test_suite: TestSuite,
         test_config: TestConfig,
+        contract_path: Path,
     ) -> Optional[TestExecutionState]:
         assert self.shared_tests_state, "Uninitialized reporter!"
 
@@ -148,6 +151,7 @@ class TestRunner:
                 starknet_compiler=self.user_contracts_compiler,
                 test_suite_definition=test_contract,
                 test_config=test_config,
+                contract_path=contract_path,
             )
 
             if test_suite.setup_fn_name:

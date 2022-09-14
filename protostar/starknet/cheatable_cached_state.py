@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Dict, List
 
 from services.everest.business_logic.state_api import StateProxy
@@ -22,6 +23,7 @@ class CheatableCachedState(CachedState):
 
         self.event_name_to_contract_abi_map: Dict[str, AbiType] = {}
         self.class_hash_to_contract_abi_map: Dict[ClassHashType, AbiType] = {}
+        self.class_hash_to_contract_path_map: Dict[ClassHashType, Path] = {}
         self.contract_address_to_class_hash_map: Dict[AddressType, ClassHashType] = {}
 
         self.cheaters = Cheaters(block_info=BlockInfoCheater(self.block_info))
@@ -38,6 +40,9 @@ class CheatableCachedState(CachedState):
         )
         copied.class_hash_to_contract_abi_map = (
             self.class_hash_to_contract_abi_map.copy()
+        )
+        copied.class_hash_to_contract_path_map = (
+            self.class_hash_to_contract_path_map.copy()
         )
         copied.contract_address_to_class_hash_map = (
             self.contract_address_to_class_hash_map.copy()
@@ -78,6 +83,10 @@ class CheatableCachedState(CachedState):
             **self.event_name_to_contract_abi_map,
         }
 
+        parent.class_hash_to_contract_path_map = {
+            **parent.class_hash_to_contract_path_map,
+            **self.class_hash_to_contract_path_map,
+        }
         parent.class_hash_to_contract_abi_map = {
             **parent.class_hash_to_contract_abi_map,
             **self.class_hash_to_contract_abi_map,
