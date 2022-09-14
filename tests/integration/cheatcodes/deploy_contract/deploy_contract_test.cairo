@@ -256,3 +256,25 @@ func test_constructor_no_args_executed{syscall_ptr: felt*, range_check_ptr}() {
 
     return ();
 }
+
+@contract_interface
+namespace EventEmitterContainer {
+    func emit() {
+    }
+}
+
+@event
+func fake_event() {
+}
+
+
+@external
+func test_emitting_events_from_user_contract_constructor_and_from_current_contract{syscall_ptr: felt*, range_check_ptr}() {
+    // https://github.com/software-mansion/protostar/issues/823
+    alloc_locals;
+    %{
+        deploy_contract("./tests/integration/cheatcodes/deploy_contract/event_emitter_contract.cairo").contract_address
+    %}
+    fake_event.emit();
+    return ();
+}

@@ -2,7 +2,6 @@ from typing import Any, Callable, List
 
 from starkware.python.utils import to_bytes
 from starkware.starknet.business_logic.execution.objects import CallInfo
-from starkware.starknet.public.abi import CONSTRUCTOR_ENTRY_POINT_SELECTOR
 from starkware.starknet.services.api.contract_class import EntryPointType
 
 from protostar.commands.test.cheatcodes.prepare_cheatcode import PreparedContract
@@ -10,7 +9,6 @@ from protostar.commands.test.test_environment_exceptions import CheatcodeExcepti
 from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import (
     DeployedContract,
 )
-from protostar.starknet.cheatable_execute_entry_point import CheatableExecuteEntryPoint
 from protostar.starknet.cheatcode import Cheatcode
 
 
@@ -58,16 +56,8 @@ class DeployCheatcode(Cheatcode):
         return DeployedContract(contract_address=prepared.contract_address)
 
     def invoke_constructor(self, prepared: PreparedContract):
-        call = CheatableExecuteEntryPoint.create(
+        self.execute_constructor_entry_point(
+            class_hash_bytes=to_bytes(prepared.class_hash),
+            constructor_calldata=prepared.constructor_calldata,
             contract_address=prepared.contract_address,
-            entry_point_selector=CONSTRUCTOR_ENTRY_POINT_SELECTOR,
-            entry_point_type=EntryPointType.CONSTRUCTOR,
-            calldata=prepared.constructor_calldata,
-            caller_address=self.caller_address,
-        )
-        call.execute(
-            state=self.state,
-            resources_manager=self.resources_manager,
-            general_config=self.general_config,
-            tx_execution_context=self.tx_execution_context,
         )
