@@ -81,6 +81,33 @@ function add_protostar_to_path() {
     echo "Then, simply run 'protostar --help' "
 }
 
+function main() {
+    _provided_version_arg=$1
+
+    echo "Installing protostar"
+    protostar_dir=${protostar_dir-"$HOME/.protostar"}
+    mkdir -p "$protostar_dir"
+
+    get_platform_name
+    platform_name=$RESULT
+
+    if [ -n "$_provided_version_arg" ]; then
+        REQUESTED_REF="tag/v${_provided_version_arg}"
+        version=$_provided_version_arg
+    else
+        REQUESTED_REF="latest"
+        version="latest"
+    fi
+
+    get_requested_version $version $REQUESTED_REF
+    REQUESTED_VERSION=$RESULT
+
+    download_protostar $REQUESTED_VERSION $platform_name $protostar_dir
+    PROTOSTAR_BINARY_DIR=$RESULT
+
+    add_protostar_to_path $PROTOSTAR_BINARY_DIR
+}
+
 while getopts ":v:" opt; do
     case $opt in
     v)
@@ -97,25 +124,4 @@ while getopts ":v:" opt; do
     esac
 done
 
-echo "Installing protostar"
-PROTOSTAR_DIR=${PROTOSTAR_DIR-"$HOME/.protostar"}
-mkdir -p "$PROTOSTAR_DIR"
-
-get_platform_name
-PLATFORM=$RESULT
-
-if [ -n "$PROVIDED_VERSION" ]; then
-    REQUESTED_REF="tag/v${VERSION}"
-    VERSION=$PROVIDED_VERSION
-else
-    REQUESTED_REF="latest"
-    VERSION="latest"
-fi
-
-get_requested_version $VERSION $REQUESTED_REF
-REQUESTED_VERSION=$RESULT
-
-download_protostar $REQUESTED_VERSION $PLATFORM $PROTOSTAR_DIR
-PROTOSTAR_BINARY_DIR=$RESULT
-
-add_protostar_to_path $PROTOSTAR_BINARY_DIR
+main $PROVIDED_VERSION
