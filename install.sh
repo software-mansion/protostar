@@ -98,33 +98,33 @@ function add_protostar_to_path() {
 }
 
 function main() {
-    local _provided_version_arg=$1
-    local _requested_ref
-    local _version
+    local provided_version_arg=$1
 
-    if [ -n "$_provided_version_arg" ]; then
-        _requested_ref="tag/v${_provided_version_arg}"
-        _version=$_provided_version_arg
+    local requested_ref
+    local version
+    if [ -n "$provided_version_arg" ]; then
+        requested_ref="tag/v${provided_version_arg}"
+        version=$provided_version_arg
     else
-        _requested_ref="latest"
-        _version="latest"
+        requested_ref="latest"
+        version="latest"
     fi
 
     echo "Installing protostar"
 
-    create_protostar_directory
-    _protostar_dir=$RETVAL
-
     get_platform_name
-    _platform_name=$RETVAL
+    platform_name=$RETVAL
 
-    get_requested_version $_version $_requested_ref
-    _requested_version=$RETVAL
+    get_requested_version $version $requested_ref
+    requested_version=$RETVAL
 
-    download_protostar $_requested_version $_platform_name $_protostar_dir
-    _protostar_binary_dir=$RETVAL
+    create_protostar_directory
+    protostar_dir=$RETVAL
 
-    add_protostar_to_path $_protostar_binary_dir
+    download_protostar $requested_version $platform_name $protostar_dir
+    protostar_binary_dir=$RETVAL
+
+    add_protostar_to_path $protostar_binary_dir
 }
 
 while getopts ":v:" opt; do
