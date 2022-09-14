@@ -43,7 +43,6 @@ class ProtostarCLI(CLIApp):
         self._protostar_toml_version_checker = protostar_toml_version_checker
         self._start_time = start_time
         self._project_cairo_path_builder = project_cairo_path_builder
-
         super().__init__(
             commands=commands,
             root_args=[

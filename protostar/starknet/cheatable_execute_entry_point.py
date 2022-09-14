@@ -4,7 +4,6 @@ import logging
 from pathlib import Path
 from subprocess import call
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, cast
-import logging
 from typing import TYPE_CHECKING, Optional, Tuple, cast, Any
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
@@ -40,14 +39,16 @@ from starkware.python.utils import from_bytes
 from protostar.profiler.pprof import serialize, to_protobuf
 from protostar.profiler.profile import RuntimeProfile, build_profile, merge_profiles, profile_from_tracer_data
 from protostar.profiler.profile import profile_from_tracer_data
+from protostar.starknet.cheatable_cached_state import CheatableCachedState
 
 from protostar.starknet.cheatable_cairo_function_runner import (
     CheatableCairoFunctionRunner,
 )
 from protostar.starknet.cheatable_syscall_handler import CheatableSysCallHandler
 from protostar.starknet.cheatcode import Cheatcode
+from starkware.starknet.business_logic.state.state import StateSyncifier
 
-PROFILER = False
+PROFILER = True
 
 if TYPE_CHECKING:
     from protostar.starknet.cheatcode_factory import CheatcodeFactory
@@ -59,6 +60,15 @@ class ContractProfile:
     callstack: List[str]
     entry_point: ContractEntryPoint
     profile: RuntimeProfile
+
+# TODO(mkaput): Eradicate this function in favor of `cheaters`.
+def extract_cheatable_state(state: SyncState) -> CheatableCachedState:
+    assert isinstance(state, StateSyncifier)
+    async_state = state.async_state
+    assert isinstance(async_state, CheatableCachedState)
+
+    return async_state
+
 
 
 # pylint: disable=raise-missing-from
@@ -156,10 +166,11 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         try:
             if PROFILER:
                 if  CheatableExecuteEntryPoint.callstack == []:
-                    CheatableExecuteEntryPoint.callstack.append("MAIN")
+                    CheatableExecuteEntryPoint.callstack.append("TEST_CONTRACT")
                 else:
-                    path = state.class_hash_to_contract_path[from_bytes(class_hash)]
-                    CheatableExecuteEntryPoint.callstack.append(path)
+                    # assert isinstance(state, CheatableCachedState)
+                    path = extract_cheatable_state(state).class_hash_to_contract_path_map[from_bytes(class_hash)]
+                    CheatableExecuteEntryPoint.callstack.append(str(path))
 
             runner.run_from_entrypoint(
                 entry_point.offset,

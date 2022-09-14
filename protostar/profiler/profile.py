@@ -2,6 +2,7 @@
 from collections import defaultdict
 from dataclasses import dataclass
 import functools
+import itertools
 import math
 from re import A, U
 from typing import TYPE_CHECKING, Callable, List, Dict, Set, Tuple, cast
@@ -66,19 +67,8 @@ class RuntimeProfile:
 
 class ProfilerContext:
     def __init__(self, initial_fp: Address, memory: MemoryDict):
-        # self._string_table: Dict[str, StringID] = {}
-        # self.string_list: List[str] = []
         self.initial_fp = initial_fp
         self.memory = memory
-        # self.string_id("")
-
-    # def string_id(self, value: str) -> StringID:
-    #     assert isinstance(value, str)
-    #     if value in self._string_table:
-    #         return self._string_table[value]
-    #     self._string_table[value] = len(self._string_table)
-    #     self.string_list.append(value)
-    #     return self._string_table[value]
 
     def sample_types(self):
         return [
@@ -189,8 +179,8 @@ class ProfilerContext:
                 self.find_instruction(instructions, pc) for pc in callstack
             ]
 
-            # Wait until stack pops
-            if len(instr_callstack) <= stack_len:
+            # Wait until call_contract finishes
+            if len(instr_callstack) >= stack_len and stack_len != -1:
                 continue
             stack_len = -1
 
@@ -325,13 +315,16 @@ def translate_callstack(in_instructions, callstack: List[Instruction]):
         )
     return new_callstack
 
+# def update_callstacks(samples):
+    
+
 def merge_profiles(samples: List["ContractProfile"]):
     sample_types = samples[0].profile.sample_types
     step_samples = []
-    memhole_samples = []
 
     for sample in samples:
         for func in sample.profile.functions:
+            #TODO(maksymiliandemitraszek) test it against contracts with duplicate filenames
             func.id = sample.callstack[-1] + "." + func.id
 
     in_functions: Dict[str, Function] = {}
@@ -352,28 +345,69 @@ def merge_profiles(samples: List["ContractProfile"]):
             instr.id = instr.id + contract_id_offsets[current_contract]
             in_instructions[(instr.function.id, instr.id)] = instr
 
-    
-    for sample in samples:
-        current_contract = sample.callstack[-1]
-        for smp in sample.profile.step_samples:
-            step_samples.append(Sample(
-                value=smp.value,
-                callstack=translate_callstack(in_instructions, smp.callstack)
-            ))
+    # for sample in samples:
+    #     for smp in sample.profile.step_samples:
+    #         step_samples.append(Sample(
+    #             value=smp.value,
+    #             callstack=translate_callstack(in_instructions, smp.callstack)
+    #         ))
 
-    for sample in samples:
-        current_contract = sample.callstack[-1]
-        for smp in sample.profile.memhole_samples:
-            memhole_samples.append(Sample(
-                value=smp.value,
-                callstack=translate_callstack(in_instructions, smp.callstack)
-            ))
+    # for sample in samples:
+    #     for smp in sample.profile.memhole_samples:
+    #         memhole_samples.append(Sample(
+    #             value=smp.value,
+    #             callstack=translate_callstack(in_instructions, smp.callstack)
+    #         ))
+
+    # memhole_samples_merged = []
+    # for smp in samples[-1].profile.memhole_samples:
+    #     memhole_samples_merged.append(Sample(
+    #         value=smp.value,
+    #         callstack=translate_callstack(in_instructions, smp.callstack)
+    #     ))
+
+    # # We build a tree from callstacks
+    # max_clst_len = max(len(s.callstack) for s in samples)
+    # callstacks_from_upper_layer = samples[-1].profile.contract_call_callstacks
+    # for i in range(2, max_clst_len + 1):
+    #     samples_in_layer = [s for s in samples if len(s.callstack) == i]
+    #     new_callstacks_from_upper_layer: List[List[List[Instruction]]] = []
+    #     for upper, sample in zip(callstacks_from_upper_layer, samples_in_layer):
+    #         for smp in sample.profile.memhole_samples:
+    #             memhole_samples_merged.append(Sample(
+    #                 value=smp.value,
+    #                 callstack=translate_callstack(in_instructions, smp.callstack)
+    #             ))
+    #         new_callstacks_from_upper_layer.append(sample.profile.contract_call_callstacks)
+    #     callstacks_from_upper_layer = list(itertools.chain(*new_callstacks_from_upper_layer))
+
+
+    for smp in samples[-1].profile.step_samples:
+        step_samples.append(Sample(
+            value=smp.value,
+            callstack=translate_callstack(in_instructions, smp.callstack)
+        ))
+
+    # We build a tree from callstacks
+    max_clst_len = max(len(s.callstack) for s in samples)
+    callstacks_from_upper_layer = samples[-1].profile.contract_call_callstacks
+    for i in range(2, max_clst_len + 1):
+        samples_in_layer = [s for s in samples if len(s.callstack) == i]
+        new_callstacks_from_upper_layer: List[List[List[Instruction]]] = []
+        for upper, runtime_sample in zip(callstacks_from_upper_layer, samples_in_layer):
+            for smp in runtime_sample.profile.step_samples:
+                step_samples.append(Sample(
+                    value=smp.value,
+                    callstack=translate_callstack(in_instructions, smp.callstack + upper)
+                ))
+            new_callstacks_from_upper_layer.append([c + upper for c in runtime_sample.profile.contract_call_callstacks])
+        callstacks_from_upper_layer = list(itertools.chain(*new_callstacks_from_upper_layer))
 
     return RuntimeProfile(
         functions=list(in_functions.values()),
         instructions=list(in_instructions.values()),
         sample_types=sample_types,
         step_samples=step_samples,
-        memhole_samples=memhole_samples,
+        memhole_samples=[],
         contract_call_callstacks=[]
     )
