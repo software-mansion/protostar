@@ -98,13 +98,7 @@ class ProtostarGitHubRepository:
 
     @staticmethod
     def get_release_website_content(installer_filename: Optional[str]) -> str:
-        return f"""
-            ...
-            <a href="/software-mansion/protostar/releases/download/v0.4.2/{installer_filename}" rel="nofollow" data-turbo="false">
-                <span class="px-1 text-bold">{installer_filename}</span>
-            </a>
-            ...
-        """
+        return f'... <span class="px-1 text-bold">{installer_filename}</span> ...'
 
     @staticmethod
     def get_release_ref(version: Optional[str]) -> str:

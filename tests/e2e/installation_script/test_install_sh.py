@@ -77,7 +77,7 @@ def test_installing_latest_version(
             installer_filename=uploaded_installation_filename
         )
     )
-    harness.expect(".* found")
+    harness.expect(".*gz found")
 
     harness.expect_download_curl_prompt(
         uploaded_installation_filename, latest_protostar_version

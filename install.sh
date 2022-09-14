@@ -33,6 +33,11 @@ main() {
     protostar_tarball_filename=$RETVAL
 
     check_protostar_tarball_exists $requested_ref $protostar_tarball_filename
+    does_protostar_tarball_exist=$RETVAL
+
+    if [ $does_protostar_tarball_exist -eq 0 ]; then
+        exit 1
+    fi
 
     download_protostar $requested_version $protostar_tarball_filename $protostar_dir
     protostar_binary_dir=$RETVAL
