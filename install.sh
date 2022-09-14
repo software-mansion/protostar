@@ -4,8 +4,18 @@ set -e
 PROTOSTAR_REPO="https://github.com/software-mansion/protostar"
 RESULT=""
 
+function create_protostar_directory() {
+    RESULT=""
+
+    _protostar_dir=${_protostar_dir-"$HOME/.protostar"}
+    mkdir -p "$_protostar_dir"
+
+    RESULT=$_protostar_dir
+}
+
 function get_platform_name() {
     RESULT=""
+
     _platform_name="$(uname -s)"
     case $_platform_name in
     Linux)
@@ -32,8 +42,10 @@ function get_requested_version() {
         echo "Version $_version not found"
         exit
     fi
-    RESULT=$(echo $_response | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
-    echo "Using version $RESULT"
+    _requested_version=$(echo $_response | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
+    echo "Using version $_requested_version"
+
+    RESULT=$_requested_version
 }
 
 function download_protostar() {
@@ -50,10 +62,12 @@ function download_protostar() {
     _protostar_binary_dir="${_output}/dist/protostar"
     _protostar_binary="${_protostar_binary_dir}/protostar"
     chmod +x $_protostar_binary
+
     RESULT=$_protostar_binary_dir
 }
 
 function add_protostar_to_path() {
+    RESULT=""
     _protostar_binary_dir=$1
 
     case $SHELL in
@@ -94,8 +108,9 @@ function main() {
     fi
 
     echo "Installing protostar"
-    _protostar_dir=${_protostar_dir-"$HOME/.protostar"}
-    mkdir -p "$_protostar_dir"
+
+    create_protostar_directory
+    _protostar_dir=$RESULT
 
     get_platform_name
     _platform_name=$RESULT
