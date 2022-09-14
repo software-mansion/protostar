@@ -1,6 +1,7 @@
 import dataclasses
 from copy import deepcopy
 from dataclasses import dataclass
+from pathlib import Path
 
 from starkware.starknet.services.api.contract_class import ContractClass
 from typing_extensions import Self
@@ -28,6 +29,7 @@ class TestExecutionState(ExecutionState):
         starknet_compiler: StarknetCompiler,
         test_suite_definition: ContractClass,
         test_config: TestConfig,
+        contract_path: Path,
     ) -> Self:
         starknet = await ForkableStarknet.empty()
         contract = await starknet.deploy(contract_class=test_suite_definition)
@@ -35,6 +37,9 @@ class TestExecutionState(ExecutionState):
         starknet.cheatable_state.cheatable_state.class_hash_to_contract_abi_map[
             0
         ] = test_suite_definition.abi
+        starknet.cheatable_state.cheatable_state.class_hash_to_contract_path_map[
+            0
+        ] = contract_path
         starknet.cheatable_state.cheatable_state.contract_address_to_class_hash_map[
             contract.contract_address
         ] = 0
