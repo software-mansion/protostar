@@ -164,10 +164,10 @@ func test_something(a: felt) {
 
 Protostar allows using external Python code in hint blocks, for example to verify a signature using third party library.
 
+The `cairo-path` is automatically to `sys.path` in executed hints. This includes project root, `src` and `lib` directories. Any Python module files stored there can be imported without any extra configuration.
+
 The `PYTHONPATH` environment variable (https://docs.python.org/3/using/cmdline.html#envvar-PYTHONPATH) is fully supported, and Protostar will extend `sys.path` with this variable's value in executed Cairo code.
 This approach can be used to include some packages from Python virtual environment (by adding `site_packages` to the `PYTHONPATH`).
-
-The `cairo-path` is automatically to `sys.path` in executed hints. This includes project root, `src` and `lib` directories. Any Python module files stored there can be imported without any extra configuration.
 
 For example, having the standard project file structure:
 
