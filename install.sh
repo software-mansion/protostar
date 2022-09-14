@@ -2,27 +2,26 @@
 set -e
 
 PROTOSTAR_REPO="https://github.com/software-mansion/protostar"
-RESULT=""
 
 function create_protostar_directory() {
-    RESULT=""
+    RETVAL=""
 
-    _protostar_dir=${_protostar_dir-"$HOME/.protostar"}
+    local _protostar_dir=${_protostar_dir-"$HOME/.protostar"}
     mkdir -p "$_protostar_dir"
 
-    RESULT=$_protostar_dir
+    RETVAL=$_protostar_dir
 }
 
 function get_platform_name() {
-    RESULT=""
+    RETVAL=""
 
     _platform_name="$(uname -s)"
     case $_platform_name in
     Linux)
-        RESULT="Linux"
+        RETVAL="Linux"
         ;;
     Darwin)
-        RESULT="macOS"
+        RETVAL="macOS"
         ;;
     *)
         echo "unsupported platform: $PLATFORM"
@@ -32,7 +31,7 @@ function get_platform_name() {
 }
 
 function get_requested_version() {
-    RESULT=""
+    RETVAL=""
     _version=$1
     _requested_ref=$2
 
@@ -45,11 +44,11 @@ function get_requested_version() {
     _requested_version=$(echo $_response | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
     echo "Using version $_requested_version"
 
-    RESULT=$_requested_version
+    RETVAL=$_requested_version
 }
 
 function download_protostar() {
-    RESULT=""
+    RETVAL=""
     _version=$1
     _platform=$2
     _output=$3
@@ -63,11 +62,11 @@ function download_protostar() {
     _protostar_binary="${_protostar_binary_dir}/protostar"
     chmod +x $_protostar_binary
 
-    RESULT=$_protostar_binary_dir
+    RETVAL=$_protostar_binary_dir
 }
 
 function add_protostar_to_path() {
-    RESULT=""
+    RETVAL=""
     _protostar_binary_dir=$1
 
     case $SHELL in
@@ -110,16 +109,16 @@ function main() {
     echo "Installing protostar"
 
     create_protostar_directory
-    _protostar_dir=$RESULT
+    _protostar_dir=$RETVAL
 
     get_platform_name
-    _platform_name=$RESULT
+    _platform_name=$RETVAL
 
     get_requested_version $_version $_requested_ref
-    _requested_version=$RESULT
+    _requested_version=$RETVAL
 
     download_protostar $_requested_version $_platform_name $_protostar_dir
-    _protostar_binary_dir=$RESULT
+    _protostar_binary_dir=$RETVAL
 
     add_protostar_to_path $_protostar_binary_dir
 }
