@@ -21,8 +21,7 @@ main() {
     get_platform_name
     platform_name=$RETVAL
 
-    get_hardware_name
-    hardware_name=$RETVAL
+    hardware_name="$(uname -m)"
 
     get_requested_version $version $requested_ref
     requested_version=$RETVAL
@@ -57,14 +56,6 @@ get_platform_name() {
         exit 1
         ;;
     esac
-}
-
-get_hardware_name() {
-    RETVAL=""
-
-    local hardware_name="$(uname -m)"
-
-    RETVAL=hardware_name
 }
 
 get_requested_version() {
