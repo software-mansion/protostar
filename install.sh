@@ -21,9 +21,9 @@ function get_platform_name() {
 }
 
 function get_requested_version() {
+    RESULT=""
     _version=$1
     _requested_ref=$2
-    RESULT=""
 
     echo "Retrieving $_version version from $PROTOSTAR_REPO..."
     _response=$(curl -L -s -H 'Accept: application/json' "${PROTOSTAR_REPO}/releases/${_requested_ref}")
@@ -36,6 +36,7 @@ function get_requested_version() {
 }
 
 function download_protostar() {
+    RESULT=""
     _version=$1
     _platform=$2
     _output=$3
@@ -44,7 +45,11 @@ function download_protostar() {
     _protostar_tarball_name="protostar-${_platform}.tar.gz"
     _tarball_download_url="${_requested_release_url}/${_protostar_tarball_name}"
     echo "Downloading protostar from ${_tarball_download_url}"
-    curl -L $_tarball_download_url | tar -xvzC $PROTOSTAR_DIR
+    curl -L $_tarball_download_url | tar -xvzC $_output
+    _protostar_binary_dir="${_output}/dist/protostar"
+    _protostar_binary="${_protostar_binary_dir}/protostar"
+    chmod +x $_protostar_binary
+    RESULT=$_protostar_binary_dir
 }
 
 while getopts ":v:" opt; do
@@ -83,10 +88,7 @@ get_requested_version $VERSION $REQUESTED_REF
 REQUESTED_VERSION=$RESULT
 
 download_protostar $REQUESTED_VERSION $PLATFORM $PROTOSTAR_DIR
-
-PROTOSTAR_BINARY_DIR="${PROTOSTAR_DIR}/dist/protostar"
-PROTOSTAR_BINARY="${PROTOSTAR_BINARY_DIR}/protostar"
-chmod +x $PROTOSTAR_BINARY
+PROTOSTAR_BINARY_DIR=$RESULT
 
 case $SHELL in
 */zsh)
