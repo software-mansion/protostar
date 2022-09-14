@@ -3,13 +3,34 @@ set -e
 
 PROTOSTAR_REPO="https://github.com/software-mansion/protostar"
 
-create_protostar_directory() {
-    RETVAL=""
+main() {
+    local version_arg=$1
 
-    local protostar_dir=${protostar_dir-"$HOME/.protostar"}
-    mkdir -p "$protostar_dir"
+    local requested_ref
+    local version
+    if [ -n "$version_arg" ]; then
+        requested_ref="tag/v${version_arg}"
+        version=$version_arg
+    else
+        requested_ref="latest"
+        version="latest"
+    fi
 
-    RETVAL=$protostar_dir
+    echo "Installing protostar"
+
+    get_platform_name
+    platform_name=$RETVAL
+
+    get_requested_version $version $requested_ref
+    requested_version=$RETVAL
+
+    create_protostar_directory
+    protostar_dir=$RETVAL
+
+    download_protostar $requested_version $platform_name $protostar_dir
+    protostar_binary_dir=$RETVAL
+
+    add_protostar_to_path $protostar_binary_dir
 }
 
 get_platform_name() {
@@ -45,6 +66,15 @@ get_requested_version() {
     echo "Using version $requested_version"
 
     RETVAL=$requested_version
+}
+
+create_protostar_directory() {
+    RETVAL=""
+
+    local protostar_dir=${protostar_dir-"$HOME/.protostar"}
+    mkdir -p "$protostar_dir"
+
+    RETVAL=$protostar_dir
 }
 
 download_protostar() {
@@ -95,36 +125,6 @@ add_protostar_to_path() {
     fi
     echo && echo "Detected your preferred shell is ${pref_shell} and added Protostar to PATH. Run 'source ${profile}' or start a new terminal session to use Protostar."
     echo "Then, run 'protostar --help'."
-}
-
-main() {
-    local provided_version_arg=$1
-
-    local requested_ref
-    local version
-    if [ -n "$provided_version_arg" ]; then
-        requested_ref="tag/v${provided_version_arg}"
-        version=$provided_version_arg
-    else
-        requested_ref="latest"
-        version="latest"
-    fi
-
-    echo "Installing protostar"
-
-    get_platform_name
-    platform_name=$RETVAL
-
-    get_requested_version $version $requested_ref
-    requested_version=$RETVAL
-
-    create_protostar_directory
-    protostar_dir=$RETVAL
-
-    download_protostar $requested_version $platform_name $protostar_dir
-    protostar_binary_dir=$RETVAL
-
-    add_protostar_to_path $protostar_binary_dir
 }
 
 while getopts ":v:" opt; do
