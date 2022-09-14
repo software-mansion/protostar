@@ -32,6 +32,18 @@ function get_requested_release_response() {
     fi
 }
 
+function download_protostar() {
+    _version=$1
+    _platform=$2
+    _output=$3
+
+    _requested_release_url="${PROTOSTAR_REPO}/releases/download/${_version}"
+    _protostar_tarball_name="protostar-${_platform}.tar.gz"
+    _tarball_download_url="${_requested_release_url}/${_protostar_tarball_name}"
+    echo "Downloading protostar from ${_tarball_download_url}"
+    curl -L $_tarball_download_url | tar -xvzC $PROTOSTAR_DIR
+}
+
 while getopts ":v:" opt; do
     case $opt in
     v)
@@ -68,15 +80,9 @@ get_requested_release_response $VERSION $REQUESTED_REF
 REQUESTED_RELEASE=$RESULT
 
 REQUESTED_VERSION=$(echo $REQUESTED_RELEASE | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
-
 echo "Using version $REQUESTED_VERSION"
 
-REQUESTED_RELEASE_URL="${PROTOSTAR_REPO}/releases/download/${REQUESTED_VERSION}"
-PROTOSTAR_TARBALL_NAME="protostar-${PLATFORM}.tar.gz"
-TARBALL_DOWNLOAD_URL="${REQUESTED_RELEASE_URL}/${PROTOSTAR_TARBALL_NAME}"
-
-echo "Downloading protostar from ${TARBALL_DOWNLOAD_URL}"
-curl -L $TARBALL_DOWNLOAD_URL | tar -xvzC $PROTOSTAR_DIR
+download_protostar $REQUESTED_VERSION $PLATFORM $PROTOSTAR_DIR
 
 PROTOSTAR_BINARY_DIR="${PROTOSTAR_DIR}/dist/protostar"
 PROTOSTAR_BINARY="${PROTOSTAR_BINARY_DIR}/protostar"
