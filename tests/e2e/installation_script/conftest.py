@@ -70,6 +70,9 @@ class ScriptTestingHarness:
             f"\\[curl -L -s -H Accept: application/json {PROTOSTAR_REPO_URL}/releases/{requested_ref}]:"
         )
 
+    def expect_release_website_content_curl_prompt(self, version: str) -> None:
+        self.expect(f"\\[curl -L {PROTOSTAR_REPO_URL}/releases/tag/{version}]:")
+
     def expect_download_curl_prompt(self, filename: str, version: str) -> None:
         self.expect(
             f"\\[curl -L {PROTOSTAR_REPO_URL}/releases/download/v{version}/{filename}]:"
@@ -92,6 +95,16 @@ class ProtostarGitHubRepository:
     @staticmethod
     def get_release_not_found_response() -> str:
         return '{"error":"Not Found"}'
+
+    @staticmethod
+    def get_release_website_content(installer_filename: Optional[str]) -> str:
+        return f"""
+            ...
+            <a href="/software-mansion/protostar/releases/download/v0.4.2/{installer_filename}" rel="nofollow" data-turbo="false">
+                <span class="px-1 text-bold">{installer_filename}</span>
+            </a>
+            ...
+        """
 
     @staticmethod
     def get_release_ref(version: Optional[str]) -> str:

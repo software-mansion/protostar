@@ -85,6 +85,57 @@ def test_installing_latest_version(
 
 
 @pytest.mark.parametrize(
+    "kernel, shell, hardware_name, uploaded_installation_filename",
+    (
+        (
+            SupportedKernel.DARWIN,
+            SupportedShell.ZSH,
+            SupportedHardwareName.X86_64,
+            UploadedInstallationFilename.MACOS,
+        ),
+        (
+            SupportedKernel.LINUX,
+            SupportedShell.BASH,
+            "?",
+            UploadedInstallationFilename.LINUX,
+        ),
+    ),
+)
+def test_package_not_found(
+    home_path: Path,
+    latest_protostar_version: str,
+    kernel: str,
+    shell: Shell,
+    hardware_name: str,
+    uploaded_installation_filename: str,
+):
+    harness = ScriptTestingHarness.create(
+        home_path=home_path, shell_interpreter=shell.interpreter
+    )
+
+    harness.expect_kernel_name_uname_prompt()
+    harness.send(kernel)
+
+    harness.expect_hardware_name_uname_prompt()
+    harness.send(hardware_name)
+
+    harness.expect_release_response_curl_prompt(
+        requested_ref=ProtostarGitHubRepository.get_release_ref(version="latest")
+    )
+    harness.send(
+        ProtostarGitHubRepository.get_release_found_response(latest_protostar_version)
+    )
+
+    harness.expect_release_website_content_curl_prompt(version=latest_protostar_version)
+    harness.send(
+        ProtostarGitHubRepository.get_release_website_content(installer_filename=None)
+    )
+
+    harness.expect(f"Could not find {uploaded_installation_filename}")
+    harness.expect_eof()
+
+
+@pytest.mark.parametrize(
     "kernel, shell, uploaded_installation_filename",
     (
         (
