@@ -5,6 +5,7 @@ PROTOSTAR_REPO="https://github.com/software-mansion/protostar"
 RESULT=""
 
 function get_platform_name() {
+    RESULT=""
     _platform_name="$(uname -s)"
     case $_platform_name in
     Linux)
@@ -84,6 +85,14 @@ function add_protostar_to_path() {
 function main() {
     _provided_version_arg=$1
 
+    if [ -n "$_provided_version_arg" ]; then
+        _requested_ref="tag/v${_provided_version_arg}"
+        version=$_provided_version_arg
+    else
+        _requested_ref="latest"
+        version="latest"
+    fi
+
     echo "Installing protostar"
     protostar_dir=${protostar_dir-"$HOME/.protostar"}
     mkdir -p "$protostar_dir"
@@ -91,21 +100,13 @@ function main() {
     get_platform_name
     platform_name=$RESULT
 
-    if [ -n "$_provided_version_arg" ]; then
-        REQUESTED_REF="tag/v${_provided_version_arg}"
-        version=$_provided_version_arg
-    else
-        REQUESTED_REF="latest"
-        version="latest"
-    fi
+    get_requested_version $version $_requested_ref
+    _requested_version=$RESULT
 
-    get_requested_version $version $REQUESTED_REF
-    REQUESTED_VERSION=$RESULT
+    download_protostar $_requested_version $platform_name $protostar_dir
+    _protostar_binary_dir=$RESULT
 
-    download_protostar $REQUESTED_VERSION $platform_name $protostar_dir
-    PROTOSTAR_BINARY_DIR=$RESULT
-
-    add_protostar_to_path $PROTOSTAR_BINARY_DIR
+    add_protostar_to_path $_protostar_binary_dir
 }
 
 while getopts ":v:" opt; do
