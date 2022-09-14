@@ -1,17 +1,17 @@
 # pylint: disable=invalid-name
-import os
 import json
+import os
 from contextlib import contextmanager
 from dataclasses import dataclass
 from logging import getLogger
 from pathlib import Path
-from typing import ContextManager, List, Optional, Set, Tuple, Union, cast, Callable
+from typing import Callable, ContextManager, List, Optional, Set, Tuple, cast
 
 import pytest
 from pytest import TempPathFactory
 from pytest_mock import MockerFixture
-from typing_extensions import Protocol
 from starkware.starknet.public.abi import AbiType
+from typing_extensions import Protocol
 
 from protostar.commands.test.test_command import TestCommand
 from protostar.commands.test.testing_summary import TestingSummary
@@ -91,6 +91,7 @@ class RunCairoTestRunnerFixture(Protocol):
         seed: Optional[int] = None,
         disable_hint_validation=False,
         cairo_path: Optional[List[Path]] = None,
+        test_cases: Optional[List[str]] = None,
         ignored_test_cases: Optional[List[str]] = None,
     ) -> TestingSummary:
         ...
@@ -112,6 +113,7 @@ def run_cairo_test_runner_fixture(
         seed: Optional[int] = None,
         disable_hint_validation=False,
         cairo_path: Optional[List[Path]] = None,
+        test_cases: Optional[List[str]] = None,
         ignored_test_cases: Optional[List[str]] = None,
     ) -> TestingSummary:
         protostar_directory_mock = mocker.MagicMock()
@@ -121,6 +123,13 @@ def run_cairo_test_runner_fixture(
         project_cairo_path_builder.build_project_cairo_path_list = (
             lambda relative_cairo_path_list: relative_cairo_path_list
         )
+
+        targets: List[str] = []
+        if test_cases is None:
+            targets.append(str(path))
+        else:
+            for test_case in test_cases:
+                targets.append(f"{str(path)}::{test_case}")
 
         ignored_targets: Optional[List[str]] = None
         if ignored_test_cases:
@@ -136,7 +145,7 @@ def run_cairo_test_runner_fixture(
             logger=getLogger(),
             log_color_provider=log_color_provider,
         ).test(
-            targets=[str(path)],
+            targets=targets,
             ignored_targets=ignored_targets,
             seed=seed,
             disable_hint_validation=disable_hint_validation,
