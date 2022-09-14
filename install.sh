@@ -87,23 +87,23 @@ function main() {
 
     if [ -n "$_provided_version_arg" ]; then
         _requested_ref="tag/v${_provided_version_arg}"
-        version=$_provided_version_arg
+        _version=$_provided_version_arg
     else
         _requested_ref="latest"
-        version="latest"
+        _version="latest"
     fi
 
     echo "Installing protostar"
-    protostar_dir=${protostar_dir-"$HOME/.protostar"}
-    mkdir -p "$protostar_dir"
+    _protostar_dir=${_protostar_dir-"$HOME/.protostar"}
+    mkdir -p "$_protostar_dir"
 
     get_platform_name
-    platform_name=$RESULT
+    _platform_name=$RESULT
 
-    get_requested_version $version $_requested_ref
+    get_requested_version $_version $_requested_ref
     _requested_version=$RESULT
 
-    download_protostar $_requested_version $platform_name $protostar_dir
+    download_protostar $_requested_version $_platform_name $_protostar_dir
     _protostar_binary_dir=$RESULT
 
     add_protostar_to_path $_protostar_binary_dir
