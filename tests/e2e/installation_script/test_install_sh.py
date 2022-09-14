@@ -35,12 +35,6 @@ def latest_protostar_version_fixture() -> str:
             UploadedInstallationFilename.MACOS,
         ),
         (
-            SupportedKernel.DARWIN,
-            SupportedShell.ZSH,
-            SupportedHardwareName.X86_64,
-            UploadedInstallationFilename.MACOS_ARM64,
-        ),
-        (
             SupportedKernel.LINUX,
             SupportedShell.BASH,
             "?",
@@ -123,6 +117,9 @@ def test_installing_specific_version(
     harness.expect_kernel_name_uname_prompt()
     harness.send(kernel)
 
+    harness.expect_hardware_name_uname_prompt()
+    harness.send("_")
+
     harness.expect_release_response_curl_prompt(
         requested_ref=ProtostarGitHubRepository.get_release_ref(requested_version)
     )
@@ -168,6 +165,9 @@ def test_installing_specific_but_unreleased_version(
     harness.expect_kernel_name_uname_prompt()
     harness.send(kernel)
 
+    harness.expect_hardware_name_uname_prompt()
+    harness.send("_")
+
     harness.expect_release_response_curl_prompt(
         requested_ref=ProtostarGitHubRepository.get_release_ref(unreleased_version)
     )
@@ -175,7 +175,3 @@ def test_installing_specific_but_unreleased_version(
 
     harness.expect(f"Version {unreleased_version} not found")
     harness.expect_eof()
-
-
-def test_fallback_installation():
-    assert False
