@@ -20,16 +20,19 @@ function get_platform_name() {
     esac
 }
 
-function get_requested_release_response() {
+function get_requested_version() {
     _version=$1
     _requested_ref=$2
     RESULT=""
+
     echo "Retrieving $_version version from $PROTOSTAR_REPO..."
-    RESULT=$(curl -L -s -H 'Accept: application/json' "${PROTOSTAR_REPO}/releases/${_requested_ref}")
-    if [ "$RESULT" == "{\"error\":\"Not Found\"}" ]; then
+    _response=$(curl -L -s -H 'Accept: application/json' "${PROTOSTAR_REPO}/releases/${_requested_ref}")
+    if [ "$_response" == "{\"error\":\"Not Found\"}" ]; then
         echo "Version $_version not found"
         exit
     fi
+    RESULT=$(echo $_response | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
+    echo "Using version $RESULT"
 }
 
 function download_protostar() {
@@ -76,11 +79,8 @@ else
     VERSION="latest"
 fi
 
-get_requested_release_response $VERSION $REQUESTED_REF
-REQUESTED_RELEASE=$RESULT
-
-REQUESTED_VERSION=$(echo $REQUESTED_RELEASE | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
-echo "Using version $REQUESTED_VERSION"
+get_requested_version $VERSION $REQUESTED_REF
+REQUESTED_VERSION=$RESULT
 
 download_protostar $REQUESTED_VERSION $PLATFORM $PROTOSTAR_DIR
 
