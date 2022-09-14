@@ -15,7 +15,7 @@ function create_protostar_directory() {
 function get_platform_name() {
     RETVAL=""
 
-    _platform_name="$(uname -s)"
+    local _platform_name="$(uname -s)"
     case $_platform_name in
     Linux)
         RETVAL="Linux"
@@ -32,8 +32,8 @@ function get_platform_name() {
 
 function get_requested_version() {
     RETVAL=""
-    _version=$1
-    _requested_ref=$2
+    local _version=$1
+    local _requested_ref=$2
 
     echo "Retrieving $_version version from $PROTOSTAR_REPO..."
     _response=$(curl -L -s -H 'Accept: application/json' "${PROTOSTAR_REPO}/releases/${_requested_ref}")
@@ -49,17 +49,17 @@ function get_requested_version() {
 
 function download_protostar() {
     RETVAL=""
-    _version=$1
-    _platform=$2
-    _output=$3
+    local _version=$1
+    local _platform=$2
+    local _output=$3
 
-    _requested_release_url="${PROTOSTAR_REPO}/releases/download/${_version}"
-    _protostar_tarball_name="protostar-${_platform}.tar.gz"
-    _tarball_download_url="${_requested_release_url}/${_protostar_tarball_name}"
+    local _requested_release_url="${PROTOSTAR_REPO}/releases/download/${_version}"
+    local _protostar_tarball_name="protostar-${_platform}.tar.gz"
+    local _tarball_download_url="${_requested_release_url}/${_protostar_tarball_name}"
     echo "Downloading protostar from ${_tarball_download_url}"
     curl -L $_tarball_download_url | tar -xvzC $_output
-    _protostar_binary_dir="${_output}/dist/protostar"
-    _protostar_binary="${_protostar_binary_dir}/protostar"
+    local _protostar_binary_dir="${_output}/dist/protostar"
+    local _protostar_binary="${_protostar_binary_dir}/protostar"
     chmod +x $_protostar_binary
 
     RETVAL=$_protostar_binary_dir
@@ -67,8 +67,10 @@ function download_protostar() {
 
 function add_protostar_to_path() {
     RETVAL=""
-    _protostar_binary_dir=$1
+    local _protostar_binary_dir=$1
 
+    local _profile
+    local _pref_shell
     case $SHELL in
     */zsh)
         _profile=$HOME/.zshrc
@@ -96,7 +98,9 @@ function add_protostar_to_path() {
 }
 
 function main() {
-    _provided_version_arg=$1
+    local _provided_version_arg=$1
+    local _requested_ref
+    local _version
 
     if [ -n "$_provided_version_arg" ]; then
         _requested_ref="tag/v${_provided_version_arg}"
