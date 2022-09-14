@@ -92,8 +92,8 @@ function add_protostar_to_path() {
     if [[ ":$PATH:" != *":${_protostar_binary_dir}:"* ]]; then
         echo >>$_profile && echo "export PATH=\"\$PATH:$_protostar_binary_dir\"" >>$_profile
     fi
-    echo && echo "Detected your preferred shell is ${_pref_shell} and added protostar to PATH. Run 'source ${_profile}' or start a new terminal session to use protostar."
-    echo "Then, simply run 'protostar --help' "
+    echo && echo "Detected your preferred shell is ${_pref_shell} and added Protostar to PATH. Run 'source ${_profile}' or start a new terminal session to use Protostar."
+    echo "Then, run 'protostar --help'."
 }
 
 function main() {
