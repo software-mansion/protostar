@@ -69,7 +69,7 @@ curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/inst
 1. Install project dependencies: `poetry install`
     - MacBook M1/M2: `CFLAGS=-I/opt/homebrew/opt/gmp/include LDFLAGS=-L/opt/homebrew/opt/gmp/lib poetry install`
 1. Verify the setup by running tests: `poe test`
-1. Build Protostar `poe build`
+1. Build Protostar: `poe build`
     - You can find the newly created binary at `dist/protostar/protostar`
 
 
