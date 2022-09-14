@@ -52,6 +52,35 @@ function download_protostar() {
     RESULT=$_protostar_binary_dir
 }
 
+function add_protostar_to_path() {
+    _protostar_binary_dir=$1
+
+    case $SHELL in
+    */zsh)
+        _profile=$HOME/.zshrc
+        _pref_shell=zsh
+        ;;
+    */bash)
+        _profile=$HOME/.bashrc
+        _pref_shell=bash
+        ;;
+    */fish)
+        _profile=$HOME/.config/fish/config.fish
+        _pref_shell=fish
+        ;;
+    *)
+        echo "error: could not detect shell, manually add ${_protostar_binary_dir} to your PATH."
+        exit 1
+        ;;
+    esac
+
+    if [[ ":$PATH:" != *":${_protostar_binary_dir}:"* ]]; then
+        echo >>$_profile && echo "export PATH=\"\$PATH:$_protostar_binary_dir\"" >>$_profile
+    fi
+    echo && echo "Detected your preferred shell is ${_pref_shell} and added protostar to PATH. Run 'source ${_profile}' or start a new terminal session to use protostar."
+    echo "Then, simply run 'protostar --help' "
+}
+
 while getopts ":v:" opt; do
     case $opt in
     v)
@@ -69,7 +98,6 @@ while getopts ":v:" opt; do
 done
 
 echo "Installing protostar"
-
 PROTOSTAR_DIR=${PROTOSTAR_DIR-"$HOME/.protostar"}
 mkdir -p "$PROTOSTAR_DIR"
 
@@ -90,28 +118,4 @@ REQUESTED_VERSION=$RESULT
 download_protostar $REQUESTED_VERSION $PLATFORM $PROTOSTAR_DIR
 PROTOSTAR_BINARY_DIR=$RESULT
 
-case $SHELL in
-*/zsh)
-    PROFILE=$HOME/.zshrc
-    PREF_SHELL=zsh
-    ;;
-*/bash)
-    PROFILE=$HOME/.bashrc
-    PREF_SHELL=bash
-    ;;
-*/fish)
-    PROFILE=$HOME/.config/fish/config.fish
-    PREF_SHELL=fish
-    ;;
-*)
-    echo "error: could not detect shell, manually add ${PROTOSTAR_BINARY_DIR} to your PATH."
-    exit 1
-    ;;
-esac
-
-if [[ ":$PATH:" != *":${PROTOSTAR_BINARY_DIR}:"* ]]; then
-    echo >>$PROFILE && echo "export PATH=\"\$PATH:$PROTOSTAR_BINARY_DIR\"" >>$PROFILE
-fi
-
-echo && echo "Detected your preferred shell is ${PREF_SHELL} and added protostar to PATH. Run 'source ${PROFILE}' or start a new terminal session to use protostar."
-echo "Then, simply run 'protostar --help' "
+add_protostar_to_path $PROTOSTAR_BINARY_DIR
