@@ -17,9 +17,9 @@ from protostar.utils import StandardLogFormatter, VersionManager
 from protostar.utils.log_color_provider import LogColorProvider
 
 
-def _consume_pythonpath():
+def _apply_pythonpath():
     pythonpath_env_var = os.environ.get("PYTHONPATH") or ""
-    split_paths = pythonpath_env_var.split(":")
+    split_paths = pythonpath_env_var.split(os.pathsep)
     if split_paths != [""]:
         sys.path.extend(split_paths)
 
@@ -103,7 +103,7 @@ class ProtostarCLI(CLIApp):
             self._protostar_toml_version_checker.run()
             cairo_path_arg = vars(args).get("cairo_path")
             self._extend_pythonpath_with_cairo_path(cairo_path_arg)
-            _consume_pythonpath()
+            _apply_pythonpath()
 
         await super().run(args)
 
