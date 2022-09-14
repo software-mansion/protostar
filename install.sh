@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
+PROTOSTAR_REPO="https://github.com/software-mansion/protostar"
 RESULT=""
 
 function get_platform_name() {
@@ -19,18 +20,22 @@ function get_platform_name() {
     esac
 }
 
-echo "Installing protostar"
-
-PROTOSTAR_DIR=${PROTOSTAR_DIR-"$HOME/.protostar"}
-mkdir -p "$PROTOSTAR_DIR"
-
-get_platform_name
-PLATFORM=$RESULT
+function get_requested_release_response() {
+    _version=$1
+    _requested_ref=$2
+    RESULT=""
+    echo "Retrieving $_version version from $PROTOSTAR_REPO..."
+    RESULT=$(curl -L -s -H 'Accept: application/json' "${PROTOSTAR_REPO}/releases/${_requested_ref}")
+    if [ "$RESULT" == "{\"error\":\"Not Found\"}" ]; then
+        echo "Version $_version not found"
+        exit
+    fi
+}
 
 while getopts ":v:" opt; do
     case $opt in
     v)
-        VERSION=$OPTARG
+        PROVIDED_VERSION=$OPTARG
         ;;
     \?)
         echo "Invalid option: -$OPTARG" >&2
@@ -43,23 +48,24 @@ while getopts ":v:" opt; do
     esac
 done
 
-if [ -n "$VERSION" ]; then
+echo "Installing protostar"
+
+PROTOSTAR_DIR=${PROTOSTAR_DIR-"$HOME/.protostar"}
+mkdir -p "$PROTOSTAR_DIR"
+
+get_platform_name
+PLATFORM=$RESULT
+
+if [ -n "$PROVIDED_VERSION" ]; then
     REQUESTED_REF="tag/v${VERSION}"
+    VERSION=$PROVIDED_VERSION
 else
     REQUESTED_REF="latest"
     VERSION="latest"
 fi
 
-PROTOSTAR_REPO="https://github.com/software-mansion/protostar"
-
-echo "Retrieving $VERSION version from $PROTOSTAR_REPO..."
-
-REQUESTED_RELEASE=$(curl -L -s -H 'Accept: application/json' "${PROTOSTAR_REPO}/releases/${REQUESTED_REF}")
-
-if [ "$REQUESTED_RELEASE" == "{\"error\":\"Not Found\"}" ]; then
-    echo "Version $VERSION not found"
-    exit
-fi
+get_requested_release_response $VERSION $REQUESTED_REF
+REQUESTED_RELEASE=$RESULT
 
 REQUESTED_VERSION=$(echo $REQUESTED_RELEASE | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
 
