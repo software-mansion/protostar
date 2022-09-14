@@ -63,7 +63,6 @@ curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/inst
 1. Clone this repository
 1. Verify the active Python version: `python -V`
 1. [Install Poetry](https://python-poetry.org/docs/#installation) — a dependency manager
-    - Consider using `brew install poetry`
 1. Create Python virtual environment in the project directory: `poetry env use 3.9`
 1. Activate environment: `poetry shell`
 1. Upgrade pip: `pip install --upgrade pip`
