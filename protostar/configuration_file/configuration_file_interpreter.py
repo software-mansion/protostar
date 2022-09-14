@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 
 class ConfigurationFileInterpreter(ABC):
@@ -9,7 +9,7 @@ class ConfigurationFileInterpreter(ABC):
         section_name: str,
         profile_name: Optional[str] = None,
         section_namespace: Optional[str] = None,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Optional[dict[str, Any]]:
         ...
 
     @abstractmethod
@@ -23,5 +23,5 @@ class ConfigurationFileInterpreter(ABC):
         ...
 
     @abstractmethod
-    def get_profile_names(self) -> List[str]:
+    def get_profile_names(self) -> list[str]:
         ...

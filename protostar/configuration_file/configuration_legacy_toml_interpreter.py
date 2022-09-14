@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import flatdict
 import tomli
@@ -17,7 +17,7 @@ class ConfigurationLegacyTOMLInterpreter(ConfigurationFileInterpreter):
         section_name: str,
         profile_name: Optional[str] = None,
         section_namespace: Optional[str] = None,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Optional[dict[str, Any]]:
         section_name = (
             f"{section_namespace}.{section_name}" if section_namespace else section_name
         )
@@ -51,7 +51,7 @@ class ConfigurationLegacyTOMLInterpreter(ConfigurationFileInterpreter):
             return section[attribute_name]
         return None
 
-    def get_profile_names(self) -> List[str]:
+    def get_profile_names(self) -> list[str]:
         protostar_toml_dict = self._get_flat_dict_representation()
         section_names = list(protostar_toml_dict.keys())
         profile_section_names = [
@@ -67,7 +67,7 @@ class ConfigurationLegacyTOMLInterpreter(ConfigurationFileInterpreter):
         return profile_names
 
     @staticmethod
-    def _find_alternative_key(base_key: str, raw_dict: Dict[str, Any]) -> Optional[str]:
+    def _find_alternative_key(base_key: str, raw_dict: dict[str, Any]) -> Optional[str]:
         if base_key in raw_dict:
             return base_key
         underscored_variant = base_key.replace("-", "_")

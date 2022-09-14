@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import tomlkit
 from tomlkit.toml_document import TOMLDocument
@@ -16,7 +16,7 @@ class ConfigurationTOMLInterpreter(ConfigurationFileInterpreter):
         section_name: str,
         profile_name: Optional[str] = None,
         section_namespace: Optional[str] = None,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Optional[dict[str, Any]]:
         doc = self._get_doc()
         section_parent = self._get_section_parent(
             dct=doc.value,
@@ -34,10 +34,10 @@ class ConfigurationTOMLInterpreter(ConfigurationFileInterpreter):
 
     @staticmethod
     def _get_section_parent(
-        dct: Dict,
+        dct: dict,
         profile_name: Optional[str] = None,
         section_namespace: Optional[str] = None,
-    ) -> Optional[Dict]:
+    ) -> Optional[dict]:
         section_parent = dct
         if profile_name is not None:
             if "profile" not in dct:
@@ -66,12 +66,12 @@ class ConfigurationTOMLInterpreter(ConfigurationFileInterpreter):
             return None
         return section[attribute_name]
 
-    def get_profile_names(self) -> List[str]:
+    def get_profile_names(self) -> list[str]:
         doc = self._get_doc()
         dct = doc.value
         if "profile" not in dct:
             return []
         profile_dct = dct["profile"]
-        if not isinstance(profile_dct, Dict):
+        if not isinstance(profile_dct, dict):
             return []
         return list(profile_dct)

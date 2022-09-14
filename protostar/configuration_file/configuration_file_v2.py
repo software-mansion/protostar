@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Optional, Union
 
 from protostar.utils.protostar_directory import VersionManager, VersionType
 
@@ -19,11 +19,11 @@ from .configuration_file_interpreter import ConfigurationFileInterpreter
 @dataclass
 class ConfigurationFileV2Model:
     min_protostar_version: Optional[str]
-    contract_name_to_path_str: Dict[ContractName, str]
+    contract_name_to_path_str: dict[ContractName, str]
     project_config: CommandConfig
     command_name_to_config: CommandNameToConfig
-    profile_name_to_project_config: Dict[ProfileName, CommandConfig]
-    profile_name_to_commands_config: Dict[ProfileName, CommandNameToConfig]
+    profile_name_to_project_config: dict[ProfileName, CommandConfig]
+    profile_name_to_commands_config: dict[ProfileName, CommandNameToConfig]
 
 
 class ConfigurationFileV2(ConfigurationFile[ConfigurationFileV2Model]):
@@ -46,13 +46,13 @@ class ConfigurationFileV2(ConfigurationFile[ConfigurationFileV2Model]):
             return None
         return VersionManager.parse(version_str)
 
-    def get_contract_names(self) -> List[str]:
+    def get_contract_names(self) -> list[str]:
         contract_section = self._configuration_file_reader.get_section("contracts")
         if not contract_section:
             return []
         return list(contract_section)
 
-    def get_contract_source_paths(self, contract_name: str) -> List[Path]:
+    def get_contract_source_paths(self, contract_name: str) -> list[Path]:
         contract_section = self._configuration_file_reader.get_section("contracts")
         if contract_section is None or contract_name not in contract_section:
             raise ContractNameNotFoundException(
@@ -77,7 +77,7 @@ class ConfigurationFileV2(ConfigurationFile[ConfigurationFileV2Model]):
     ) -> Optional[
         Union[
             PrimitiveTypesSupportedByConfigurationFile,
-            List[PrimitiveTypesSupportedByConfigurationFile],
+            list[PrimitiveTypesSupportedByConfigurationFile],
         ]
     ]:
         return self._configuration_file_reader.get_attribute(
