@@ -27,10 +27,15 @@ main() {
     get_requested_version $version $requested_ref
     requested_version=$RETVAL
 
+    get_protostar_tarball_filename $platform_name $hardware_name
+    protostar_tarball_filename=$RETVAL
+
+    # TODO: check if file exists
+
     create_protostar_directory
     protostar_dir=$RETVAL
 
-    download_protostar $requested_version $platform_name $protostar_dir
+    download_protostar $requested_version $protostar_tarball_filename $protostar_dir
     protostar_binary_dir=$RETVAL
 
     add_protostar_to_path $protostar_binary_dir
@@ -79,6 +84,16 @@ get_requested_version() {
     RETVAL=$requested_version
 }
 
+get_protostar_tarball_filename() {
+    RETVAL=""
+    local platform_name=$1
+    local hardware_name=$2
+
+    local protostar_tarball_filename="protostar-${platform_name}.tar.gz"
+
+    RETVAL=$protostar_tarball_filename
+}
+
 create_protostar_directory() {
     RETVAL=""
 
@@ -91,12 +106,11 @@ create_protostar_directory() {
 download_protostar() {
     RETVAL=""
     local version=$1
-    local platform=$2
+    local protostar_tarball_filename=$2
     local output=$3
 
     local requested_release_url="${PROTOSTAR_REPO}/releases/download/${version}"
-    local protostar_tarball_name="protostar-${platform}.tar.gz"
-    local tarball_download_url="${requested_release_url}/${protostar_tarball_name}"
+    local tarball_download_url="${requested_release_url}/${protostar_tarball_filename}"
     echo "Downloading protostar from ${tarball_download_url}"
     curl -L $tarball_download_url | tar -xvzC $output
     local protostar_binary_dir="${output}/dist/protostar"
