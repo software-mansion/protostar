@@ -64,9 +64,8 @@ def test_installing_latest_version(
     harness.expect_kernel_name_uname_prompt()
     harness.send(kernel)
 
-    if kernel == SupportedKernel.DARWIN:
-        harness.expect_hardware_name_uname_prompt()
-        harness.send(hardware_name)
+    harness.expect_hardware_name_uname_prompt()
+    harness.send(hardware_name)
 
     harness.expect_release_response_curl_prompt(
         requested_ref=ProtostarGitHubRepository.get_release_ref(version=None)
@@ -91,6 +90,29 @@ def test_installing_latest_version(
     )
 
 
+@pytest.mark.parametrize(
+    "kernel, shell, hardware_name, uploaded_installation_filename",
+    (
+        (
+            SupportedKernel.DARWIN,
+            SupportedShell.ZSH,
+            SupportedHardwareName.X86_64,
+            UploadedInstallationFilename.MACOS,
+        ),
+        (
+            SupportedKernel.DARWIN,
+            SupportedShell.ZSH,
+            SupportedHardwareName.X86_64,
+            UploadedInstallationFilename.MACOS_ARM64,
+        ),
+        (
+            SupportedKernel.LINUX,
+            SupportedShell.BASH,
+            "?",
+            UploadedInstallationFilename.LINUX,
+        ),
+    ),
+)
 @pytest.mark.parametrize(
     "kernel, shell, uploaded_installation_filename",
     (
