@@ -19,7 +19,7 @@ function get_platform_name() {
     esac
 }
 
-echo Installing protostar
+echo "Installing protostar"
 
 PROTOSTAR_DIR=${PROTOSTAR_DIR-"$HOME/.protostar"}
 mkdir -p "$PROTOSTAR_DIR"
@@ -52,7 +52,7 @@ fi
 
 PROTOSTAR_REPO="https://github.com/software-mansion/protostar"
 
-echo Retrieving $VERSION version from $PROTOSTAR_REPO...
+echo "Retrieving $VERSION version from $PROTOSTAR_REPO..."
 
 REQUESTED_RELEASE=$(curl -L -s -H 'Accept: application/json' "${PROTOSTAR_REPO}/releases/${REQUESTED_REF}")
 
@@ -63,7 +63,7 @@ fi
 
 REQUESTED_VERSION=$(echo $REQUESTED_RELEASE | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
 
-echo Using version $REQUESTED_VERSION
+echo "Using version $REQUESTED_VERSION"
 
 REQUESTED_RELEASE_URL="${PROTOSTAR_REPO}/releases/download/${REQUESTED_VERSION}"
 PROTOSTAR_TARBALL_NAME="protostar-${PLATFORM}.tar.gz"
