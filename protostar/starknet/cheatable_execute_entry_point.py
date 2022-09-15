@@ -49,7 +49,7 @@ from protostar.starknet.cheatable_syscall_handler import CheatableSysCallHandler
 from protostar.starknet.cheatcode import Cheatcode
 
 
-PROFILER = True
+PROFILER = False
 
 if TYPE_CHECKING:
     from protostar.starknet.cheatcode_factory import CheatcodeFactory
