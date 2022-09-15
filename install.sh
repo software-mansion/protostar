@@ -23,9 +23,6 @@ main() {
 
     hardware_name="$(uname -m)"
 
-    create_protostar_directory
-    protostar_dir=$RETVAL
-
     get_requested_version $version $requested_ref
     requested_version=$RETVAL
 
@@ -37,6 +34,9 @@ main() {
         does_protostar_tarball_exist=$RETVAL
 
         if [ $does_protostar_tarball_exist -eq 1 ]; then
+            create_protostar_directory
+            protostar_dir=$RETVAL
+
             download_protostar $requested_version $protostar_tarball_filename $protostar_dir
             protostar_binary_dir=$RETVAL
 
@@ -51,14 +51,16 @@ main() {
     check_protostar_tarball_exists $requested_ref $protostar_tarball_filename
     does_protostar_tarball_exist=$RETVAL
 
-    if [ $does_protostar_tarball_exist -eq 0 ]; then
-        exit 1
+    if [ $does_protostar_tarball_exist -eq 1 ]; then
+        create_protostar_directory
+        protostar_dir=$RETVAL
+
+        download_protostar $requested_version $protostar_tarball_filename $protostar_dir
+        protostar_binary_dir=$RETVAL
+
+        add_protostar_to_path $protostar_binary_dir
     fi
-
-    download_protostar $requested_version $protostar_tarball_filename $protostar_dir
-    protostar_binary_dir=$RETVAL
-
-    add_protostar_to_path $protostar_binary_dir
+    exit 1
 }
 
 get_platform_name() {
