@@ -21,7 +21,7 @@ echo "[1/4] INSTALLING DEPS" && poetry install &>/dev/null &&
     echo "[4/4] COMPRESSING" && tar -czf $installer_filename ./dist/protostar
 ls -lh $installer_filename
 
-if [ $hardware_name == "arm64" ]; then
+if [ $platform_name == "macOS" ] && [ $hardware_name == "arm64" ]; then
     echo ""
     echo "To publish the installer:"
     echo "1. Go to: https://github.com/software-mansion/protostar/releases/latest"
@@ -29,5 +29,5 @@ if [ $hardware_name == "arm64" ]; then
     echo "3. Drag and drop $installer_filename"
     echo "4. Press 'Update release' button"
     echo ""
-    echo "WARNING: Check if you are on the correct branch, branch is synchronized with remote, and tests are passing."
+    echo "WARNING: Check, if you are on the correct branch, the branch is synchronized, and tests are passing."
 fi
