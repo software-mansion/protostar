@@ -15,7 +15,7 @@ This cheatcode is only available in [setup cases](../README.md#setup-case).
 
 ```cairo title="Example"
 @external
-func setup_integers() {
+func setup_less_equal_compare() {
     %{
         given(
             a = strategy.integers(10, 20),
@@ -26,7 +26,7 @@ func setup_integers() {
 }
 
 @external
-func test_integers{syscall_ptr : felt*, range_check_ptr}(a : felt, b : felt) {
+func test_less_equal_compare{syscall_ptr : felt*, range_check_ptr}(a : felt, b : felt) {
     assert_le(a, b);
     return ();
 }

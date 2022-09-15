@@ -1,13 +1,12 @@
 # Strategies
 
-While a felt is a basis of all types in Cairo, its whole value space rarely matches what values are
-acceptable in tested code (for example, when using range checks builtin).
+Often in code we operate on some assumptions about the possible values of variables. 
+For example we can perform greater than zero validation early in the code, and we can assume that variables are greater than zero in the subsequent code. 
+Fuzzer allows to provide such assumptions to avoid testing against values which are not covered by the code. 
 
-Using the [`given`](../02-cheatcodes/given.md) cheatcode,
-one can instruct Protostar how constrained or adjusted the value space of fuzzed inputs should be.
-Such constraints are provided declaratively, by assigning _strategies_ to the input parameters.
-A strategy is an object that is capable of generating next input examples in specific way,
-and also is capable of other internal features, such as simplifying failing examples.
+Cheatcode [`given`](../02-cheatcodes/given.md) ,
+instructs fuzzer how to constraint set of values code is tested against.
+Such constraints are provided declaratively, by assigning _strategies_ to the input parameters as on the example below.
 
 By default, Protostar applies the [`strategy.felts()`](#strategyfelts) strategy to all felt
 parameters.
@@ -56,10 +55,10 @@ def integers(
 ) -> Strategy: ...
 ```
 
-Generates integer values, possibly bounded to provided range.
+Generates integer values, possibly bounded by provided range.
 
-Assuming real numbers comparison semantics,
-if `min_value` is not `None` then all values will be greater than or equal to `min_value`,
+Fuzzer picks integers from provided range and then converts them to felts.
+If `min_value` is not `None` then all values will be greater than or equal to `min_value`,
 and if `max_value` is not `None` then all values will be less than or equal to `max_value`.
 When applied to field elements, the unbounded values may rarely overflow.
 
@@ -76,8 +75,9 @@ adapt the generated values arise.
 Although this could be done in tests directly, this hurts because adaptation may waste fuzzing
 cycles (by repeatedly testing same values after adaptation) and the code has to be copied in every
 test.
-There are also the [`assume`] and [`reject`] cheatcodes, but this should only be used to discard
-only few unwanted inputs.
+The [`assume`] and [`reject`] cheatcodes provide simple interfaces to adapt a advanced strategy.
+Those are not very good considering the performance.
+Fuzzer can execute test on rejected data anyway and will just ignore failure when it happens.
 
 Protostar provides ways to build strategies by transforming other ones.
 
