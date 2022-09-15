@@ -1,10 +1,7 @@
-import asyncio
 from dataclasses import dataclass
 import logging
 from pathlib import Path
-from subprocess import call
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, cast
-from typing import TYPE_CHECKING, Optional, Tuple, cast, Any
+from typing import TYPE_CHECKING, Any, List, Optional, Tuple, cast
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
@@ -36,9 +33,13 @@ from starkware.cairo.lang.tracer.tracer_data import TracerData
 from starkware.cairo.lang.vm.memory_segments import FIRST_MEMORY_ADDR as PROGRAM_BASE
 from starkware.starknet.services.api.contract_class import ContractEntryPoint
 from starkware.python.utils import from_bytes
+from starkware.starknet.business_logic.state.state import StateSyncifier
 from protostar.profiler.pprof import serialize, to_protobuf
-from protostar.profiler.profile import RuntimeProfile, build_profile, merge_profiles, profile_from_tracer_data
-from protostar.profiler.profile import profile_from_tracer_data
+from protostar.profiler.profile import (
+    RuntimeProfile,
+    build_profile,
+    merge_profiles,
+)
 from protostar.starknet.cheatable_cached_state import CheatableCachedState
 
 from protostar.starknet.cheatable_cairo_function_runner import (
@@ -46,7 +47,7 @@ from protostar.starknet.cheatable_cairo_function_runner import (
 )
 from protostar.starknet.cheatable_syscall_handler import CheatableSysCallHandler
 from protostar.starknet.cheatcode import Cheatcode
-from starkware.starknet.business_logic.state.state import StateSyncifier
+
 
 PROFILER = True
 
@@ -55,11 +56,13 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass(frozen=True)
 class ContractProfile:
     callstack: List[str]
     entry_point: ContractEntryPoint
     profile: RuntimeProfile
+
 
 # TODO(mkaput): Eradicate this function in favor of `cheaters`.
 def extract_cheatable_state(state: SyncState) -> CheatableCachedState:
@@ -70,9 +73,10 @@ def extract_cheatable_state(state: SyncState) -> CheatableCachedState:
     return async_state
 
 
-
 # pylint: disable=raise-missing-from
 # pylint: disable=too-many-statements
+# TODO(maksymiliandemitraszek): Enable it again
+# pylint: disable=too-many-branches
 class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     cheatcode_factory: Optional["CheatcodeFactory"] = None
     samples: List[ContractProfile] = []
@@ -165,11 +169,13 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
 
         try:
             if PROFILER:
-                if  CheatableExecuteEntryPoint.callstack == []:
+                if not CheatableExecuteEntryPoint.callstack:
                     CheatableExecuteEntryPoint.callstack.append("TEST_CONTRACT")
                 else:
                     # assert isinstance(state, CheatableCachedState)
-                    path = extract_cheatable_state(state).class_hash_to_contract_path_map[from_bytes(class_hash)]
+                    path = extract_cheatable_state(
+                        state
+                    ).class_hash_to_contract_path_map[from_bytes(class_hash)]
                     CheatableExecuteEntryPoint.callstack.append(str(path))
 
             runner.run_from_entrypoint(
@@ -202,14 +208,14 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
                         runner=runner,
                     )
                     current_callstack = CheatableExecuteEntryPoint.callstack.copy()
-                    CheatableExecuteEntryPoint.samples.append(ContractProfile(current_callstack, entry_point, profile))
+                    CheatableExecuteEntryPoint.samples.append(
+                        ContractProfile(current_callstack, entry_point, profile)
+                    )
                     CheatableExecuteEntryPoint.callstack.pop()
-                    if CheatableExecuteEntryPoint.callstack == []:
+                    if CheatableExecuteEntryPoint.callstack:
                         merge_and_save(CheatableExecuteEntryPoint.samples)
 
-                except Exception as err:                
-                    import traceback
-                    import sys
+                except Exception as err:
                     print(str(err))
                     raise err
 
@@ -283,10 +289,9 @@ def get_profile(program, memory, trace, debug_info, runner):
     )
     return profile
 
+
 def merge_and_save(contract_samples: List[ContractProfile]):
     merged = merge_profiles(contract_samples)
     proto = to_protobuf(merged)
     serialized = serialize(proto)
-    with open("profile.pb.gz", "wb") as file:
-        file.write(serialized)
-    return 0
+    Path("profile.pb.gz").write_bytes(serialized)

@@ -4,11 +4,13 @@ import gzip
 import time
 from starkware.cairo.lang.tracer.third_party.profile_pb2 import Profile
 
+
 def string_id(string_table, string_ids, val):
     if val not in string_ids:
         string_ids[val] = len(string_table)
         string_table.append(val)
     return string_ids[val]
+
 
 def to_protobuf(profile_obj) -> Profile:
     profile = Profile()
@@ -21,8 +23,6 @@ def to_protobuf(profile_obj) -> Profile:
         sample_tp = profile.sample_type.add()  # type: ignore
         sample_tp.type = string_id(string_table, string_ids, sample_type.type)
         sample_tp.unit = string_id(string_table, string_ids, sample_type.unit)
-
-
 
     for function in profile_obj.functions:
         func = profile.function.add()  # type: ignore
@@ -46,7 +46,7 @@ def to_protobuf(profile_obj) -> Profile:
             sample.location_id.append(instr.id)
         sample.value.append(smp.value)
         sample.value.append(0)
-    
+
     for smp in profile_obj.memhole_samples:
         sample = profile.sample.add()  # type: ignore
         for instr in smp.callstack:
