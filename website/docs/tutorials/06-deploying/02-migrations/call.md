@@ -9,7 +9,6 @@ def call(
 
 class ContractCallResult(NamedTuple):
     ...
-    ...
 ```
 Calls a StarkNet contract without affecting the StarkNet's state.
 
@@ -20,18 +19,18 @@ You can provide `inputs` as a dictionary to use [data transformer](./README.md#d
 
 ## Example
 
-```
-$ protostar migrate migrations/migration_01.cairo
+```shell
+protostar migrate migrations/migration_01.cairo
     --network alpha-goerli
     --output-dir migrations/output
 ```
 
-```python title="migrations/migration_01.cairo"
+```cairo title="migrations/migration_01.cairo"
 %lang starknet
 
 @external
-func up():
-    %{ 
+func up() {
+    %{
         contract_address = deploy_contract("./build/main.json").contract_address
 
         result = call(contract_address, "identity", {"arg": 42})
@@ -39,15 +38,15 @@ func up():
         assert result.res == 42
     %}
 
-    return ()
-end
+    return ();
+}
 ```
 
 ```cairo title="src/main.cairo"
 %lang starknet
 
 @view
-func identity(arg) -> (res : felt):
-    return (arg)
-end
+func identity(arg) -> (res: felt) {
+    return (arg,);
+}
 ```

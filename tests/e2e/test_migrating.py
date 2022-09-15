@@ -3,7 +3,6 @@ import re
 from os import listdir
 from pathlib import Path
 from shutil import copyfile
-from subprocess import CalledProcessError
 
 import pytest
 from starknet_py.net.gateway_client import GatewayClient
@@ -126,20 +125,20 @@ def test_migrating_with_invoke_and_no_account_address(
     )
 
     protostar(["build"])
-    try:
-        protostar(
-            [
-                "--no-color",
-                "migrate",
-                "migrations/migration.cairo",
-                "--gateway-url",
-                devnet_gateway_url,
-                "--chain-id",
-                str(StarknetChainId.TESTNET.value),
-                "--no-confirm",
-                "--output-dir",
-                "migrations/output",
-            ]
-        )
-    except CalledProcessError as exc:
-        assert "Account address is required" in str(exc.output)
+
+    output = protostar(
+        [
+            "--no-color",
+            "migrate",
+            "migrations/migration.cairo",
+            "--gateway-url",
+            devnet_gateway_url,
+            "--chain-id",
+            str(StarknetChainId.TESTNET.value),
+            "--no-confirm",
+            "--output-dir",
+            "migrations/output",
+        ],
+        expect_exit_code=1,
+    )
+    assert "Account address is required" in output

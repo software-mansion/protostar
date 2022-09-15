@@ -13,11 +13,11 @@ from protostar.starknet.hint_local import HintLocal
 
 
 class SetupCaseExecutionEnvironment(SetupExecutionEnvironment):
-    async def invoke(self, function_name: str):
+    async def execute(self, function_name: str):
         self.set_cheatcodes(SetupCaseCheatcodeFactory(self.state))
 
         with self.state.output_recorder.redirect("setup case"):
-            await self.perform_invoke(function_name)
+            await self.perform_execute(function_name)
 
 
 class SetupCaseCheatcodeFactory(SetupCheatcodeFactory):

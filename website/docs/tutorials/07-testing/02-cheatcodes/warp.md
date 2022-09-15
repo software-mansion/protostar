@@ -12,14 +12,14 @@ Changes a block timestamp until the returned function is called. If `target_cont
 from starkware.starknet.common.syscalls import get_block_timestamp
 
 @external
-func test_changing_timestamp{syscall_ptr : felt*}():
+func test_changing_timestamp{syscall_ptr: felt*}() {
     %{ stop_warp = warp(321) %}
-    let (bt) = get_block_timestamp()
-    assert bt = 321
+    let (bt) = get_block_timestamp();
+    assert bt = 321;
 
     %{ stop_warp() %}
-    let (bt2) = get_block_timestamp()
+    let (bt2) = get_block_timestamp();
     %{ assert ids.bt2 != 321 %}
-    return ()
-end
+    return ();
+}
 ```

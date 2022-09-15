@@ -1,6 +1,5 @@
-import asyncio
 import logging
-from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple, cast
+from typing import TYPE_CHECKING, Optional, Tuple, cast, Any
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
@@ -17,11 +16,13 @@ from starkware.starknet.business_logic.execution.execute_entry_point import (
 from starkware.starknet.business_logic.execution.objects import (
     TransactionExecutionContext,
 )
+from starkware.starknet.business_logic.fact_state.state import ExecutionResourcesManager
+from starkware.starknet.business_logic.state.state_api import SyncState
+from starkware.starknet.business_logic.utils import validate_contract_deployed
 from starkware.starknet.core.os import os_utils, syscall_utils
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.public import abi as starknet_abi
-from starkware.starknet.storage.starknet_storage import BusinessLogicStarknetStorage
 from starkware.starkware_utils.error_handling import (
     StarkException,
     wrap_with_stark_exception,
@@ -34,21 +35,19 @@ from protostar.starknet.cheatable_syscall_handler import CheatableSysCallHandler
 from protostar.starknet.cheatcode import Cheatcode
 
 if TYPE_CHECKING:
-    from protostar.starknet.cheatable_state import CheatableCarriedState
     from protostar.starknet.cheatcode_factory import CheatcodeFactory
 
 logger = logging.getLogger(__name__)
 
-# pylint: disable=raise-missing-from
-# pylint: disable=too-many-statements
+
 class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     cheatcode_factory: Optional["CheatcodeFactory"] = None
 
-    def _run(  # type: ignore
+    def _run(
         self,
-        state: "CheatableCarriedState",
+        state: SyncState,
+        resources_manager: ExecutionResourcesManager,
         general_config: StarknetGeneralConfig,
-        loop: asyncio.AbstractEventLoop,
         tx_execution_context: TransactionExecutionContext,
     ) -> Tuple[CairoFunctionRunner, syscall_utils.BusinessLogicSysCallHandler]:
         """
@@ -60,57 +59,45 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         retrieve the execution information.
         """
         # Prepare input for Cairo function runner.
-        class_hash = self._get_class_hash(state=state)
+        class_hash = self._get_code_class_hash(state=state)
         contract_class = state.get_contract_class(class_hash=class_hash)
         contract_class.validate()
 
         entry_point = self._get_selected_entry_point(
-            contract_class=contract_class, state=state
+            contract_class=contract_class, class_hash=class_hash
         )
 
         # Run the specified contract entry point with given calldata.
         with wrap_with_stark_exception(code=StarknetErrorCode.SECURITY_ERROR):
-            runner = CheatableCairoFunctionRunner(  # <-- MODIFICATION
+            # region Modified Starknet code.
+            runner = CheatableCairoFunctionRunner(
                 program=contract_class.program, layout="all"
             )
+            # endregion
+
         os_context = os_utils.prepare_os_context(runner=runner)
 
-        # Extract pre-fetched contract state from carried state.
-        pre_run_contract_carried_state = state.contract_states[self.contract_address]
-        contract_state = pre_run_contract_carried_state.state
-        contract_state.assert_initialized(contract_address=self.contract_address)
-
-        starknet_storage = BusinessLogicStarknetStorage(
-            commitment_tree=contract_state.storage_commitment_tree,
-            ffc=state.ffc,
-            # Pass a copy of the carried storage updates (instead of a reference) - note that
-            # pending_modifications may be modified during the run as a result of an internal call.
-            pending_modifications=dict(pre_run_contract_carried_state.storage_updates),
-            loop=loop,
-        )
+        validate_contract_deployed(state=state, contract_address=self.contract_address)
 
         initial_syscall_ptr = cast(
             RelocatableValue, os_context[starknet_abi.SYSCALL_PTR_OFFSET]
         )
 
-        # --- MODIFICATIONS START --- # TODO
+        # region Modified Starknet code.
         syscall_dependencies = Cheatcode.SyscallDependencies(
             execute_entry_point_cls=CheatableExecuteEntryPoint,
             tx_execution_context=tx_execution_context,
             state=state,
+            resources_manager=resources_manager,
             caller_address=self.caller_address,
             contract_address=self.contract_address,
-            starknet_storage=starknet_storage,
             general_config=general_config,
             initial_syscall_ptr=initial_syscall_ptr,
         )
 
         syscall_handler = CheatableSysCallHandler(**syscall_dependencies)
 
-        hint_locals: Dict[str, Any] = {
-            "__storage": starknet_storage,
-            "syscall_handler": syscall_handler,
-        }
+        hint_locals: dict[str, Any] = {}
 
         cheatcode_factory = CheatableExecuteEntryPoint.cheatcode_factory
         assert (
@@ -127,30 +114,40 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         for custom_hint_local in cheatcode_factory.build_hint_locals():
             hint_locals[custom_hint_local.name] = custom_hint_local.build()
 
+        # endregion
+
         # Positional arguments are passed to *args in the 'run_from_entrypoint' function.
         entry_points_args = [
             self.entry_point_selector,
             os_context,
             len(self.calldata),
-            self.calldata,
+            # Allocate and mark the segment as read-only (to mark every input array as read-only).
+            # pylint: disable=protected-access
+            syscall_handler._allocate_segment(
+                segments=runner.segments, data=self.calldata
+            ),
         ]
 
         try:
             runner.run_from_entrypoint(
                 entry_point.offset,
                 *entry_points_args,
-                hint_locals=hint_locals,
+                # region Modified Starknet code.
+                hint_locals={
+                    **hint_locals,
+                    "syscall_handler": syscall_handler,
+                },
+                # endregion
                 static_locals={
                     "__find_element_max_size": 2**20,
                     "__squash_dict_max_size": 2**20,
                     "__keccak_max_size": 2**20,
                     "__usort_max_size": 2**20,
+                    "__chained_ec_op_max_len": 1000,
                 },
                 run_resources=tx_execution_context.run_resources,
                 verify_secure=True,
             )
-        # --- MODIFICATIONS END ---
-
         except VmException as exception:
             code = StarknetErrorCode.TRANSACTION_FAILED
             if isinstance(exception.inner_exc, HintException):
@@ -169,21 +166,21 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             if isinstance(exception.inner_exc, ResourcesError):
                 code = StarknetErrorCode.OUT_OF_RESOURCES
 
-            raise StarkException(code=code, message=str(exception))
+            raise StarkException(code=code, message=str(exception)) from exception
         except VmExceptionBase as exception:
             raise StarkException(
                 code=StarknetErrorCode.TRANSACTION_FAILED, message=str(exception)
-            )
+            ) from exception
         except SecurityError as exception:
             raise StarkException(
                 code=StarknetErrorCode.SECURITY_ERROR, message=str(exception)
-            )
-        except Exception:
+            ) from exception
+        except Exception as exception:
             logger.error("Got an unexpected exception.", exc_info=True)
             raise StarkException(
                 code=StarknetErrorCode.UNEXPECTED_FAILURE,
                 message="Got an unexpected exception during the execution of the transaction.",
-            )
+            ) from exception
 
         # Complete handler validations.
         os_utils.validate_and_process_os_context(

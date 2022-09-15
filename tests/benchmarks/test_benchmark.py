@@ -33,7 +33,7 @@ def _multiply_cases(test_body: str) -> Tuple[str, List[str]]:
             @external
             func $case_name{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
                 $body
-                return ()
+                return ();
             end
             """
         ).substitute(case_name=case_name, body=test_body)
@@ -121,6 +121,7 @@ async def prepare_suite(
         test_contract=contract,
         test_suite=test_suite,
         test_config=TestConfig(),
+        contract_path=Path("nothing"),
     )
     return runner, tests_state, execution_state
 
@@ -231,7 +232,7 @@ async def test_setup_perf(aio_benchmark, tmp_path, basic_contract_path):
         @external
         func __setup__{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
             %{ context.deployed_contract_addr = deploy_contract("$basic_contract_path").contract_address %}
-            return ()
+            return ();
         end
         """
     ).substitute(basic_contract_path=basic_contract_path)
@@ -312,7 +313,7 @@ async def test_prepare_perf(aio_benchmark, tmp_path, basic_contract_path):
         @external
         func __setup__{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
             %{ context.declared = declare("$contractpath") %}
-            return ()
+            return ();
         end
     """
     ).substitute(contractpath=basic_contract_path)

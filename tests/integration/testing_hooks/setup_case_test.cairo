@@ -1,41 +1,41 @@
 %lang starknet
 
 @external
-func __setup__():
+func __setup__() {
     %{ context.setup_hook_executed = "yes" %}
-    return ()
-end
+    return ();
+}
 
 @external
-func setup_setup_case():
+func setup_setup_case() {
     %{ context.setup_case_executed = "yes" %}
     %{ assert context.setup_hook_executed == "yes" %}
-    return ()
-end
+    return ();
+}
 
 @external
-func test_setup_case():
+func test_setup_case() {
     %{ assert context.setup_hook_executed == "yes" %}
     %{ assert context.setup_case_executed == "yes" %}
 
-    return ()
-end
+    return ();
+}
 
 @external
-func test_setup_hook_only():
+func test_setup_hook_only() {
     %{ assert context.setup_hook_executed == "yes" %}
     %{ assert not hasattr(context, "setup_case_executed") %}
 
-    return ()
-end
+    return ();
+}
 
 @external
-func setup_setup_case_fails():
+func setup_setup_case_fails() {
     %{ assert False %}
-    return ()
-end
+    return ();
+}
 
 @external
-func test_setup_case_fails():
-    return ()
-end
+func test_setup_case_fails() {
+    return ();
+}
