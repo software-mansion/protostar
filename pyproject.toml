@@ -48,8 +48,6 @@ freezegun = "^1.2.1"
 git = "https://github.com/Shard-Labs/starknet-devnet.git"
 branch = "master"
 
-
-
 [tool.poetry.group.dev.dependencies]
 setuptools = "^65.3.0"
 
