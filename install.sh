@@ -165,33 +165,33 @@ add_protostar_to_path() {
     RETVAL=""
     local protostar_binary_dir=$1
 
-    local profile
-    local pref_shell
+    local shell_conf_file_path
+    local shell_name
     case $SHELL in
     */zsh)
-        profile=$HOME/.zshrc
-        pref_shell=zsh
+        shell_conf_file_path=$HOME/.zshrc
+        shell_name=zsh
         ;;
     */bash)
-        profile=$HOME/.bashrc
-        pref_shell=bash
+        shell_conf_file_path=$HOME/.bashrc
+        shell_name=bash
         ;;
     */fish)
-        profile=$HOME/.config/fish/config.fish
-        pref_shell=fish
+        shell_conf_file_path=$HOME/.config/fish/config.fish
+        shell_name=fish
         ;;
     *)
-        echo "Unsupported shell: $SHELL. Add ${protostar_binary_dir} to PATH in the shell configuration file."
+        echo "Unsupported shell: $SHELL. Add ${protostar_binary_dir} to PATH in your shell configuration file."
         exit 1
         ;;
     esac
 
     if [[ ":$PATH:" != *":${protostar_binary_dir}:"* ]]; then
-        echo >>$profile && echo "export PATH=\"\$PATH:$protostar_binary_dir\"" >>$profile
+        echo >>$shell_conf_file_path && echo "export PATH=\"\$PATH:$protostar_binary_dir\"" >>$shell_conf_file_path
     fi
-    echo "Added Protostar to PATH in '$profile'"
+    echo "Added Protostar to PATH in '$shell_conf_file_path'"
     echo ""
-    echo "Run 'source ${profile}' or start a new terminal session to use Protostar."
+    echo "Run 'source ${shell_conf_file_path}' or start a new terminal session to use Protostar."
     echo "Then, run 'protostar --help'. The first run may take a few seconds."
 }
 
