@@ -47,7 +47,7 @@ freezegun = "^1.2.1"
 
 [tool.poetry.dev-dependencies.starknet-devnet]
 git = "https://github.com/Shard-Labs/starknet-devnet.git"
-branch = "master"
+rev = "7a76ee94ca431251820a6803db574c283cce1d10"
 
 [tool.poe.tasks]
 build = "pyinstaller protostar.spec --noconfirm"
