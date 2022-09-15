@@ -9,6 +9,7 @@ from .configuration_file import (
     CommandNameToConfig,
     ConfigurationFile,
     ConfigurationFileContentBuilder,
+    ConfigurationFileContentConfigurator,
     ContractName,
     ContractNameNotFoundException,
     PrimitiveTypesSupportedByConfigurationFile,
@@ -29,7 +30,10 @@ class ConfigurationFileV2Model:
     profile_name_to_commands_config: dict[ProfileName, CommandNameToConfig]
 
 
-class ConfigurationFileV2(ConfigurationFile[ConfigurationFileV2Model]):
+class ConfigurationFileV2(
+    ConfigurationFile[ConfigurationFileV2Model],
+    ConfigurationFileContentConfigurator[ConfigurationFileV2Model],
+):
     def __init__(
         self,
         project_root_path: Path,
