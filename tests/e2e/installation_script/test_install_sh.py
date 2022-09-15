@@ -82,9 +82,7 @@ def test_installing_latest_version(
     harness.expect_download_curl_prompt(installer_filename, latest_protostar_version)
     harness.send("DATA")
 
-    harness.expect_detected_shell(shell_name=shell.name)
     harness.expect_eof()
-
     assert_config_file_includes_path_entry(
         file_path=home_path / shell.config_file_path, home_path=home_path
     )
@@ -199,9 +197,7 @@ def test_installing_specific_version(
     create_fake_protostar(output_dir=home_path)
     harness.send("DATA")
 
-    harness.expect_detected_shell(shell_name=shell.name)
     harness.expect_eof()
-
     assert_config_file_includes_path_entry(
         file_path=home_path / shell.config_file_path, home_path=home_path
     )
@@ -299,9 +295,7 @@ def test_trying_to_install_arm_version_when_is_not_uploaded(
     harness.expect_download_curl_prompt(installer_filename, latest_protostar_version)
     harness.send("DATA")
 
-    harness.expect_detected_shell(shell_name=shell.name)
     harness.expect_eof()
-
     assert_config_file_includes_path_entry(
         file_path=home_path / shell.config_file_path, home_path=home_path
     )
@@ -358,9 +352,7 @@ def test_installing_hardware_specific_version(
     harness.expect_download_curl_prompt(installer_filename, latest_protostar_version)
     harness.send("DATA")
 
-    harness.expect_detected_shell(shell_name=shell.name)
     harness.expect_eof()
-
     assert_config_file_includes_path_entry(
         file_path=home_path / shell.config_file_path, home_path=home_path
     )

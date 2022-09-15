@@ -16,8 +16,6 @@ main() {
         version="latest"
     fi
 
-    echo "Installing protostar"
-
     get_platform_name
     platform_name=$RETVAL
 
@@ -65,14 +63,14 @@ get_requested_version() {
     local version=$1
     local requested_ref=$2
 
-    echo "Retrieving $version version from $PROTOSTAR_REPO..."
+    echo "Retrieving $version version from $PROTOSTAR_REPO"
     response=$(curl -L -s -H 'Accept: application/json' "${PROTOSTAR_REPO}/releases/${requested_ref}")
     if [ "$response" == "{\"error\":\"Not Found\"}" ]; then
         echo "Version $version not found"
         exit
     fi
     requested_version=$(echo $response | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
-    echo "Using version $requested_version"
+    echo "  Using version $requested_version"
 
     RETVAL=$requested_version
 }
@@ -124,14 +122,14 @@ check_installer_exists() {
     local requested_ref=$1
     local installer_filename=$2
 
-    echo "Checking if $installer_filename is available..."
+    echo "Checking if $installer_filename is available"
     response=$(curl -L -s "${PROTOSTAR_REPO}/releases/${requested_ref}")
     file_exists=1
     if [[ $response == *"$installer_filename"* ]]; then
-        echo "$installer_filename found"
+        echo "  $installer_filename found"
     else
         file_exists=0
-        echo "$installer_filename not found"
+        echo "  $installer_filename not found"
     fi
 
     RETVAL=$file_exists
@@ -154,8 +152,8 @@ download_protostar() {
 
     local requested_release_url="${PROTOSTAR_REPO}/releases/download/${version}"
     local tarball_download_url="${requested_release_url}/${installer_filename}"
-    echo "Downloading protostar from ${tarball_download_url}"
-    curl -L $tarball_download_url | tar -xvzC $output
+    echo "Downloading Protostar from ${tarball_download_url}"
+    curl -L $tarball_download_url | tar -xzC $output
     local protostar_binary_dir="${output}/dist/protostar"
     local protostar_binary="${protostar_binary_dir}/protostar"
     chmod +x $protostar_binary
@@ -183,7 +181,7 @@ add_protostar_to_path() {
         pref_shell=fish
         ;;
     *)
-        echo "error: could not detect shell, manually add ${protostar_binary_dir} to your PATH."
+        echo "Unsupported shell: $SHELL. Add ${protostar_binary_dir} to PATH in the shell configuration file."
         exit 1
         ;;
     esac
@@ -191,7 +189,9 @@ add_protostar_to_path() {
     if [[ ":$PATH:" != *":${protostar_binary_dir}:"* ]]; then
         echo >>$profile && echo "export PATH=\"\$PATH:$protostar_binary_dir\"" >>$profile
     fi
-    echo && echo "Detected your preferred shell is ${pref_shell} and added Protostar to PATH. Run 'source ${profile}' or start a new terminal session to use Protostar."
+    echo "Added Protostar to PATH in '$profile'"
+    echo ""
+    echo "Run 'source ${profile}' or start a new terminal session to use Protostar."
     echo "Then, run 'protostar --help'. The first run may take a few seconds."
 }
 

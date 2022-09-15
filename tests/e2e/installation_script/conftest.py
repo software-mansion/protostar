@@ -79,12 +79,6 @@ class ScriptTestingHarness:
             f"[curl -L {PROTOSTAR_REPO_URL}/releases/download/v{version}/{filename}]:"
         )
 
-    def expect_tar_call(self, data: str) -> None:
-        self.expect(f"[tar {data}]")
-
-    def expect_detected_shell(self, shell_name: str) -> None:
-        self.expect(f"Detected your preferred shell is {shell_name}")
-
     def expect_eof(self) -> None:
         self._process.expect(pexpect.EOF)
 
