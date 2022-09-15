@@ -33,11 +33,8 @@ async def test_testing_output(
     assert "REASON" in output
 
 
-def get_formatted_output(
-    skipped_test_case_results: List[SkippedTestCaseResult]
-):
+def get_formatted_output(skipped_test_case_results: List[SkippedTestCaseResult]):
     output = ""
     for test_case_result in skipped_test_case_results:
         output += format_test_result(test_case_result)
     return output
-

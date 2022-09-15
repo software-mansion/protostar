@@ -46,9 +46,11 @@ class FailedTestCaseResult(TimedTestCaseResult):
 class BrokenTestCaseResult(TimedTestCaseResult):
     exception: ReportedException
 
+
 @dataclass(frozen=True)
 class SkippedTestCaseResult(TimedTestCaseResult):
     reason: Optional[str]
+
 
 @dataclass(frozen=True)
 class FuzzResult:
@@ -150,6 +152,7 @@ class SkippedSetupCaseResult(SetupCaseResult):
             captured_stdout=self.captured_stdout,
             reason=self.reason,
         )
+
 
 @dataclass(frozen=True)
 class BrokenTestSuiteResult(TestResult):

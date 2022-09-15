@@ -2,6 +2,7 @@ from typing import Any, Callable, Optional
 
 from protostar.starknet.cheatcode import Cheatcode
 
+
 class SkipCheatcode(Cheatcode):
     @property
     def name(self) -> str:
@@ -12,6 +13,7 @@ class SkipCheatcode(Cheatcode):
 
     def skip(self, reason: Optional[str] = None) -> None:
         raise TestSkipped(reason)
+
 
 class TestSkipped(BaseException):
     def __init__(self, reason: Optional[str] = None) -> None:

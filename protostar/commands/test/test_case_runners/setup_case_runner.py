@@ -37,7 +37,7 @@ async def run_setup_case(
             setup_case_name=test_case.setup_fn_name,
             execution_time=state.stopwatch.total_elapsed,
             captured_stdout=state.output_recorder.get_captures(),
-            reason=ex.reason
+            reason=ex.reason,
         )
     except ReportedException as ex:
         return BrokenSetupCaseResult(
