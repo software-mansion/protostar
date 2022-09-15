@@ -311,3 +311,64 @@ def test_trying_to_install_arm_version_when_is_not_uploaded(
     assert_config_file_includes_path_entry(
         file_path=home_path / shell.config_file_path, home_path=home_path
     )
+
+
+@pytest.mark.parametrize(
+    "kernel, shell, hardware_name, uploaded_installation_filename",
+    (
+        (
+            SupportedKernel.DARWIN,
+            SupportedShell.ZSH,
+            SupportedHardwareName.ARM64,
+            UploadedInstallationFilename.MACOS_ARM64,
+        ),
+    ),
+)
+def test_installing_hardware_specific_version(
+    home_path: Path,
+    latest_protostar_version: str,
+    create_fake_protostar: CreateFakeProtostarFixture,
+    kernel: str,
+    shell: Shell,
+    hardware_name: str,
+    uploaded_installation_filename: str,
+):
+    harness = ScriptTestingHarness.create(
+        home_path=home_path, shell_interpreter=shell.interpreter
+    )
+
+    harness.expect_kernel_name_uname_prompt()
+    harness.send(kernel)
+
+    harness.expect_hardware_name_uname_prompt()
+    harness.send(hardware_name)
+
+    harness.expect_release_response_curl_prompt(
+        requested_ref=ProtostarGitHubRepository.get_release_ref(version=None)
+    )
+    harness.send(
+        ProtostarGitHubRepository.get_release_found_response(latest_protostar_version)
+    )
+
+    harness.expect_release_website_content_curl_prompt(
+        requested_ref=ProtostarGitHubRepository.get_release_ref(version=None)
+    )
+    harness.send(
+        ProtostarGitHubRepository.get_release_website_content(
+            installer_filename=uploaded_installation_filename
+        )
+    )
+    harness.expect(".*gz found")
+
+    create_fake_protostar(output_dir=home_path)
+    harness.expect_download_curl_prompt(
+        uploaded_installation_filename, latest_protostar_version
+    )
+    harness.send("DATA")
+
+    harness.expect_detected_shell(shell_name=shell.name)
+    harness.expect_eof()
+
+    assert_config_file_includes_path_entry(
+        file_path=home_path / shell.config_file_path, home_path=home_path
+    )
