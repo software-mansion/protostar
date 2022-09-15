@@ -29,7 +29,23 @@ main() {
     get_requested_version $version $requested_ref
     requested_version=$RETVAL
 
-    get_protostar_tarball_filename $platform_name $hardware_name
+    if [ "$platform_name" == "macOS" ] && [ "$hardware_name" == "arm64" ]; then
+        get_protostar_tarball_filename $platform_name $hardware_name
+        protostar_tarball_filename=$RETVAL
+
+        check_protostar_tarball_exists $requested_ref $protostar_tarball_filename
+        does_protostar_tarball_exist=$RETVAL
+
+        if [ $does_protostar_tarball_exist -eq 1 ]; then
+            download_protostar $requested_version $protostar_tarball_filename $protostar_dir
+            protostar_binary_dir=$RETVAL
+
+            add_protostar_to_path $protostar_binary_dir
+            exit 0
+        fi
+    fi
+
+    get_protostar_tarball_filename $platform_name
     protostar_tarball_filename=$RETVAL
 
     check_protostar_tarball_exists $requested_ref $protostar_tarball_filename
@@ -85,7 +101,12 @@ get_protostar_tarball_filename() {
     local platform_name=$1
     local hardware_name=$2
 
-    local protostar_tarball_filename="protostar-${platform_name}.tar.gz"
+    local protostar_tarball_filename
+    if [[ -n $hardware_name ]]; then
+        protostar_tarball_filename="protostar-${platform_name}-${hardware_name}.tar.gz"
+    else
+        protostar_tarball_filename="protostar-${platform_name}.tar.gz"
+    fi
 
     RETVAL=$protostar_tarball_filename
 }
