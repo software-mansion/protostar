@@ -192,7 +192,7 @@ add_protostar_to_path() {
         echo >>$profile && echo "export PATH=\"\$PATH:$protostar_binary_dir\"" >>$profile
     fi
     echo && echo "Detected your preferred shell is ${pref_shell} and added Protostar to PATH. Run 'source ${profile}' or start a new terminal session to use Protostar."
-    echo "Then, run 'protostar --help'."
+    echo "Then, run 'protostar --help'. The first run may take a few seconds."
 }
 
 while getopts ":v:" opt; do
