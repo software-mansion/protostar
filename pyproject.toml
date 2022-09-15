@@ -55,7 +55,7 @@ setuptools = "^65.3.0"
 
 [tool.poe.tasks]
 build = "pyinstaller protostar.spec --noconfirm"
-build_installer_arm64 = "sh ./scripts/build_arm64_installer.sh"
+build_installer = "sh ./scripts/build_installer.sh"
 ci = [
     "type_check",
     "lint",
