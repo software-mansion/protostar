@@ -1383,7 +1383,7 @@ Werkzeug = "~2.0.3"
 type = "git"
 url = "https://github.com/Shard-Labs/starknet-devnet.git"
 reference = "master"
-resolved_reference = "7a76ee94ca431251820a6803db574c283cce1d10"
+resolved_reference = "c470cadd471b0c8b061e18f7498d82ae5871df6d"
 
 [[package]]
 name = "starknet-py"
@@ -1606,7 +1606,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9.13, <3.10"
-content-hash = "36f68ef747261f964ad6f411e8f737110eead61b51de00b13f8822657858bcfc"
+content-hash = "6a8e36a2c37c1c9fdbefa1465bca20f6737f33f196a712f6d33b79e9355c5239"
 
 [metadata.files]
 aiohttp = [
