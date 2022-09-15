@@ -27,39 +27,10 @@ main() {
     requested_version=$RETVAL
 
     if [ "$platform_name" == "macOS" ] && [ "$hardware_name" == "arm64" ]; then
-        get_protostar_tarball_filename $platform_name $hardware_name
-        protostar_tarball_filename=$RETVAL
-
-        check_protostar_tarball_exists $requested_ref $protostar_tarball_filename
-        does_protostar_tarball_exist=$RETVAL
-
-        if [ $does_protostar_tarball_exist -eq 1 ]; then
-            create_protostar_directory
-            protostar_dir=$RETVAL
-
-            download_protostar $requested_version $protostar_tarball_filename $protostar_dir
-            protostar_binary_dir=$RETVAL
-
-            add_protostar_to_path $protostar_binary_dir
-            exit 0
-        fi
+        install_protostar $requested_ref $platform_name $hardware_name
     fi
 
-    get_protostar_tarball_filename $platform_name
-    protostar_tarball_filename=$RETVAL
-
-    check_protostar_tarball_exists $requested_ref $protostar_tarball_filename
-    does_protostar_tarball_exist=$RETVAL
-
-    if [ $does_protostar_tarball_exist -eq 1 ]; then
-        create_protostar_directory
-        protostar_dir=$RETVAL
-
-        download_protostar $requested_version $protostar_tarball_filename $protostar_dir
-        protostar_binary_dir=$RETVAL
-
-        add_protostar_to_path $protostar_binary_dir
-    fi
+    install_protostar $requested_ref $platform_name
     exit 1
 }
 
@@ -138,6 +109,30 @@ create_protostar_directory() {
     mkdir -p "$protostar_dir"
 
     RETVAL=$protostar_dir
+}
+
+install_protostar() {
+    RETVAL=""
+    local requested_ref=$1
+    local platform_name=$2
+    local hardware_name=$3
+
+    get_protostar_tarball_filename $platform_name $hardware_name
+    protostar_tarball_filename=$RETVAL
+
+    check_protostar_tarball_exists $requested_ref $protostar_tarball_filename
+    does_protostar_tarball_exist=$RETVAL
+
+    if [ $does_protostar_tarball_exist -eq 1 ]; then
+        create_protostar_directory
+        protostar_dir=$RETVAL
+
+        download_protostar $requested_version $protostar_tarball_filename $protostar_dir
+        protostar_binary_dir=$RETVAL
+
+        add_protostar_to_path $protostar_binary_dir
+        exit 0
+    fi
 }
 
 download_protostar() {
