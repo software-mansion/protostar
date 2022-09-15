@@ -1383,7 +1383,7 @@ Werkzeug = "~2.0.3"
 type = "git"
 url = "https://github.com/Shard-Labs/starknet-devnet.git"
 reference = "master"
-resolved_reference = "c470cadd471b0c8b061e18f7498d82ae5871df6d"
+resolved_reference = "7a76ee94ca431251820a6803db574c283cce1d10"
 
 [[package]]
 name = "starknet-py"
@@ -1443,7 +1443,7 @@ python-versions = ">=3.7"
 name = "tomlkit"
 version = "0.11.4"
 description = "Style preserving TOML library"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6,<4.0"
 
@@ -1606,7 +1606,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9.13, <3.10"
-content-hash = "79fadc6044920b26d6848fd855a8577c25c1d74a86be0fff224a6bfc15450ee2"
+content-hash = "36f68ef747261f964ad6f411e8f737110eead61b51de00b13f8822657858bcfc"
 
 [metadata.files]
 aiohttp = [
