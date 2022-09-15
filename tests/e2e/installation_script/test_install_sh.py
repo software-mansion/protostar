@@ -4,13 +4,13 @@ import pytest
 
 from tests.e2e.installation_script.conftest import (
     CreateFakeProtostarFixture,
+    InstallerFilename,
     ProtostarGitHubRepository,
     ScriptTestingHarness,
     Shell,
     SupportedHardwareName,
     SupportedKernel,
     SupportedShell,
-    InstallerFilename,
     assert_config_file_includes_path_entry,
 )
 
@@ -77,7 +77,7 @@ def test_installing_latest_version(
             installer_filename=installer_filename
         )
     )
-    harness.expect(".*gz found")
+    harness.expect(f"{installer_filename} found")
 
     harness.expect_download_curl_prompt(installer_filename, latest_protostar_version)
     harness.send("DATA")
@@ -286,14 +286,14 @@ def test_trying_to_install_arm_version_when_is_not_uploaded(
             installer_filename=installer_filename
         )
     )
-    harness.expect(".*gz not found")
+    harness.expect(f"{InstallerFilename.MACOS_ARM64} not found")
 
     harness.send(
         ProtostarGitHubRepository.get_release_website_content(
             installer_filename=installer_filename
         )
     )
-    harness.expect(".*gz found")
+    harness.expect(f"{InstallerFilename.MACOS} found")
 
     create_fake_protostar(output_dir=home_path)
     harness.expect_download_curl_prompt(installer_filename, latest_protostar_version)
@@ -352,7 +352,7 @@ def test_installing_hardware_specific_version(
             installer_filename=installer_filename
         )
     )
-    harness.expect(".*gz found")
+    harness.expect(f"{installer_filename} found")
 
     create_fake_protostar(output_dir=home_path)
     harness.expect_download_curl_prompt(installer_filename, latest_protostar_version)

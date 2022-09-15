@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from shutil import copytree
@@ -57,29 +58,29 @@ class ScriptTestingHarness:
         return cls(process)
 
     def expect(self, response: str) -> None:
-        self._process.expect(response)
+        self._process.expect(re.escape(response))
 
     def expect_kernel_name_uname_prompt(self) -> None:
-        self.expect("\\[uname -s]:")
+        self.expect("[uname -s]:")
 
     def expect_hardware_name_uname_prompt(self) -> None:
-        self.expect("\\[uname -m]:")
+        self.expect("[uname -m]:")
 
     def expect_release_response_curl_prompt(self, requested_ref: str) -> None:
         self.expect(
-            f"\\[curl -L -s -H Accept: application/json {PROTOSTAR_REPO_URL}/releases/{requested_ref}]:"
+            f"[curl -L -s -H Accept: application/json {PROTOSTAR_REPO_URL}/releases/{requested_ref}]:"
         )
 
     def expect_release_website_content_curl_prompt(self, requested_ref: str) -> None:
-        self.expect(f"\\[curl -L -s {PROTOSTAR_REPO_URL}/releases/{requested_ref}]:")
+        self.expect(f"[curl -L -s {PROTOSTAR_REPO_URL}/releases/{requested_ref}]:")
 
     def expect_download_curl_prompt(self, filename: str, version: str) -> None:
         self.expect(
-            f"\\[curl -L {PROTOSTAR_REPO_URL}/releases/download/v{version}/{filename}]:"
+            f"[curl -L {PROTOSTAR_REPO_URL}/releases/download/v{version}/{filename}]:"
         )
 
     def expect_tar_call(self, data: str) -> None:
-        self.expect(f"\\[tar {data}]")
+        self.expect(f"[tar {data}]")
 
     def expect_detected_shell(self, shell_name: str) -> None:
         self.expect(f"Detected your preferred shell is {shell_name}")
