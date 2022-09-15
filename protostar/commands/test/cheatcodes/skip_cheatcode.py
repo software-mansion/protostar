@@ -1,11 +1,6 @@
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 
 from protostar.starknet.cheatcode import Cheatcode
-
-from protostar.commands.test.test_environment_exceptions import (
-    SimpleSkippingReportedException,
-)
-
 
 class SkipCheatcode(Cheatcode):
     @property
@@ -15,6 +10,13 @@ class SkipCheatcode(Cheatcode):
     def build(self) -> Callable[..., Any]:
         return self.skip
 
-    def skip(self, condition: bool = True, reason: str = "") -> None:
-        if condition:
-            raise SimpleSkippingReportedException(reason)
+    def skip(self, reason: Optional[str] = None) -> None:
+        raise TestSkipped(reason)
+
+class TestSkipped(BaseException):
+    def __init__(self, reason: Optional[str] = None) -> None:
+        self.reason = reason
+        super().__init__(reason)
+
+    def __str__(self) -> str:
+        return str(self.reason or "No reason specified.")

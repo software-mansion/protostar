@@ -46,11 +46,9 @@ class FailedTestCaseResult(TimedTestCaseResult):
 class BrokenTestCaseResult(TimedTestCaseResult):
     exception: ReportedException
 
-
 @dataclass(frozen=True)
-class SkippedTestCaseResult(TestCaseResult):
-    reason: str
-
+class SkippedTestCaseResult(TimedTestCaseResult):
+    reason: Optional[str]
 
 @dataclass(frozen=True)
 class FuzzResult:
@@ -140,9 +138,29 @@ class BrokenSetupCaseResult(SetupCaseResult):
 
 
 @dataclass(frozen=True)
+class SkippedSetupCaseResult(SetupCaseResult):
+    captured_stdout: Dict[OutputName, str]
+    reason: Optional[str]
+
+    def into_skipped_test_case_result(self) -> SkippedTestCaseResult:
+        return SkippedTestCaseResult(
+            file_path=self.file_path,
+            test_case_name=self.test_case_name,
+            execution_time=self.execution_time,
+            captured_stdout=self.captured_stdout,
+            reason=self.reason,
+        )
+
+@dataclass(frozen=True)
 class BrokenTestSuiteResult(TestResult):
     test_case_names: List[str]
     exception: BaseException
+
+
+@dataclass(frozen=True)
+class SkippedTestSuiteResult(TestResult):
+    test_case_names: List[str]
+    reason: Optional[str]
 
 
 @dataclass(frozen=True)

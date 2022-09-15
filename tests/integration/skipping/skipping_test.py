@@ -22,39 +22,22 @@ async def test_testing_output(
 
     assert_cairo_test_cases(
         testing_summary,
-        expected_passed_test_cases_names=[
-            "test_skip_false",
-        ],
-        expected_failed_test_cases_names=["test_skip_false_failed"],
+        expected_failed_test_cases_names=["test_skip_outside_of_setup"],
         expected_skipped_test_cases_names=[
             "test_skip",
-            "test_skip_failed",
             "test_skip_no_reason",
-            "test_skip_no_input",
         ],
     )
 
-    assert_any_has_key_as_reason(testing_summary.skipped, "AAA")
-    assert_any_has_key_as_reason(testing_summary.skipped, "CCC")
-    assert_none_have_key_as_reason(testing_summary.skipped, "BBB")
-    assert_none_have_key_as_reason(testing_summary.skipped, "DDD")
+    output = get_formatted_output(testing_summary.skipped)
+    assert "REASON" in output
 
 
-def assert_any_has_key_as_reason(
-    skipped_test_case_results: List[SkippedTestCaseResult], key
+def get_formatted_output(
+    skipped_test_case_results: List[SkippedTestCaseResult]
 ):
+    output = ""
     for test_case_result in skipped_test_case_results:
-        output = format_test_result(test_case_result)
-        if key in output:
-            return True
-    return False
+        output += format_test_result(test_case_result)
+    return output
 
-
-def assert_none_have_key_as_reason(
-    skipped_test_case_results: List[SkippedTestCaseResult], key
-):
-    for test_case_result in skipped_test_case_results:
-        output = format_test_result(test_case_result)
-        if key in output:
-            return False
-    return True

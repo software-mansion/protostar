@@ -14,8 +14,8 @@ from .test_results import (
     BrokenTestCaseResult,
     PassedFuzzTestCaseResult,
     PassedTestCaseResult,
-    TestResult,
     SkippedTestCaseResult,
+    TestResult,
     UnexpectedBrokenTestSuiteResult,
 )
 
@@ -36,12 +36,12 @@ def format_test_result(test_result: TestResult) -> str:
         return _format_failed_test_case_result(test_result)
     if isinstance(test_result, BrokenTestCaseResult):
         return _format_broken_test_case_result(test_result)
+    if isinstance(test_result, SkippedTestCaseResult):
+        return _format_skipped_test_case_result(test_result)
     if isinstance(test_result, UnexpectedBrokenTestSuiteResult):
         return _format_unexpected_exception_test_suite_result(test_result)
     if isinstance(test_result, BrokenTestSuiteResult):
         return _format_broken_test_suite_result(test_result)
-    if isinstance(test_result, SkippedTestCaseResult):
-        return _format_skipped_test_case_result(test_result)
     raise NotImplementedError("Unreachable")
 
 
@@ -223,10 +223,11 @@ def _format_skipped_test_case_result(skipped_test_case_result: SkippedTestCaseRe
     )
     result.append(" ".join(first_line))
 
-    if skipped_test_case_result.reason:
+    reason = skipped_test_case_result.reason
+    if reason is not None:
         result.append("[reason]:")
         result.append(
-            log_color_provider.colorize("GRAY", skipped_test_case_result.reason)
+            log_color_provider.colorize("GRAY", reason)
         )
         result.append("")
 

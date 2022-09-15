@@ -2,7 +2,7 @@ from typing import List
 
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
-from protostar.commands.test.cheatcodes import SkipCheatcode
+from protostar.commands.test.cheatcodes import MaxExamplesCheatcode
 from protostar.commands.test.environments.common_test_cheatcode_factory import (
     CommonTestCheatcodeFactory,
 )
@@ -32,5 +32,5 @@ class SetupCheatcodeFactory(CommonTestCheatcodeFactory):
     ) -> List[Cheatcode]:
         return [
             *super().build_cheatcodes(syscall_dependencies, internal_calls),
-            SkipCheatcode(syscall_dependencies),
+            MaxExamplesCheatcode(syscall_dependencies, self._state.config),
         ]

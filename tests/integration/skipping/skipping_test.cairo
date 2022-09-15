@@ -1,39 +1,33 @@
 %lang starknet
 
 @external
+func setup_skip() {
+    %{ skip("REASON") %}
+    return ();
+}
+
+@external
 func test_skip() {
-    %{ skip(True, "AAA") %}
     return ();
 }
 
-@external
-func test_skip_false() {
-    %{ skip(False, "BBB") %}
-    return ();
-}
+///
 
 @external
-func test_skip_no_reason() {
-    %{ skip(True) %}
-    return ();
-}
-
-@external
-func test_skip_no_input() {
+func setup_skip_no_reason() {
     %{ skip() %}
     return ();
 }
 
 @external
-func test_skip_failed() {
-    %{ skip(True, "CCC") %}
-    assert 0 = 1;
+func test_skip_no_reason() {
     return ();
 }
 
+///
+
 @external
-func test_skip_false_failed() {
-    %{ skip(False, "DDD") %}
-    assert 0 = 1;
+func test_skip_outside_of_setup() {
+    %{ skip("INVALID") %}
     return ();
 }
