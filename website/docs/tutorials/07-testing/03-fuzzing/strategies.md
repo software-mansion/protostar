@@ -8,9 +8,6 @@ Cheatcode [`given`](../02-cheatcodes/given.md) ,
 instructs fuzzer how to constraint set of values code is tested against.
 Such constraints are provided declaratively, by assigning _strategies_ to the input parameters as on the example below.
 
-By default, Protostar applies the [`strategy.felts()`](#strategyfelts) strategy to all felt
-parameters.
-
 ```cairo title="Example"
 @external
 func setup_integers() {
@@ -29,6 +26,11 @@ func test_integers{syscall_ptr : felt*, range_check_ptr}(a : felt, b : felt) {
     return ();
 }
 ```
+
+:::note
+By default, Protostar applies the [`strategy.felts()`](#strategyfelts) strategy to all felt
+parameters.
+:::
 
 This document is a guide to what strategies are available for generating examples and how to build
 them.
@@ -57,16 +59,16 @@ def integers(
 
 Generates integer values, possibly bounded by provided range.
 
-Fuzzer picks integers from provided range and then converts them to felts.
-If `min_value` is not `None` then all values will be greater than or equal to `min_value`,
-and if `max_value` is not `None` then all values will be less than or equal to `max_value`.
-When applied to field elements, the unbounded values may rarely overflow.
-
 ```python title="Examples"
 strategy.integers(0, 100)
 strategy.integers(max_value=3000)
 strategy.integers(11)
 ```
+
+Fuzzer picks integers from provided range and then converts them to felts.
+If `min_value` is not `None` then all values will be greater than or equal to `min_value`,
+and if `max_value` is not `None` then all values will be less than or equal to `max_value`.
+When applied to field elements, the unbounded values may rarely overflow.
 
 ## Adapting strategies
 
@@ -103,16 +105,16 @@ class Strategy:
 
 Allows rejecting examples matching a condition.
 
+```python title="Example"
+strategy.felts().filter(lambda x: x not in [3, 5, 8])
+```
+
 The outcome is similar to using the [`assume`] or [`reject`] cheatcodes, but `filter` does not
 require executing tested Cairo function and thus is more performant.
 Try to use `filter` only to avoid unwanted corner cases rather than attempting to cut out a large
 portion of the searched input values.
 
 The `filter` method is not magic and hard to satisfy conditions may cause the fuzzer to fail.
-
-```python title="Example"
-strategy.felts().filter(lambda x: x not in [3, 5, 8])
-```
 
 ### Combining
 
