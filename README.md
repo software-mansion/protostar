@@ -11,6 +11,7 @@
 ## Table of contents <!-- omit in toc -->
 - [About](#about)
 - [Documentation](#documentation)
+  - [Additional resources](#additional-resources)
 - [Installation](#installation)
 - [Development](#development)
   - [Requirements](#requirements)
@@ -91,4 +92,9 @@ Please read [website/README.md](./website/README.md).
 $ poe deploy
 Current Protostar version: 0.1.0
 Provide the new Protostar version:
+```
+
+The ARM version needs to be uploaded manually after the release:
+```
+$ poe build_installer
 ```
