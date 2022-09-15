@@ -1,16 +1,12 @@
 from dataclasses import dataclass
-from pathlib import Path
 from textwrap import dedent
 from typing import Any, Dict, Union
 
-from protostar.configuration_file.configuration_file import (
+from .configuration_file import (
     ConfigurationFileContentBuilder,
     ConfigurationFileContentConfigurator,
 )
-from protostar.configuration_file.configuration_toml_writer import (
-    ConfigurationTOMLContentBuilder,
-    ConfigurationTOMLWriter,
-)
+from .configuration_toml_content_builder import ConfigurationTOMLContentBuilder
 
 
 @dataclass
@@ -36,21 +32,19 @@ class ContentConfiguratorDouble(
         return content_builder.build()
 
 
-def test_saving_sections_without_double_quotes(tmp_path: Path):
-    toml_writer = ConfigurationTOMLWriter(
-        content_configurator=ContentConfiguratorDouble()
-    )
-    output_file_path = tmp_path / "protostar.toml"
+def test_saving_sections_without_double_quotes():
+    content_configurator = ContentConfiguratorDouble()
+
     model = SimpleConfigurationModel(
         profile_name="devnet", section_name="declare", data={"network": "devnet"}
     )
+    content_builder = ConfigurationTOMLContentBuilder()
 
-    toml_writer.save(
-        configuration_model=model,
-        filepath=output_file_path,
+    result = content_configurator.create_file_content(
+        content_builder=content_builder,
+        model=model,
     )
 
-    result = output_file_path.read_text()
     assert "[profile.devnet.declare]" in result
 
 

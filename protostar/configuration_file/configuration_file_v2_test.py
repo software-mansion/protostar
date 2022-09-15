@@ -3,12 +3,16 @@ from pathlib import Path
 
 import pytest
 
-from protostar.configuration_file.configuration_toml_writer import (
-    ConfigurationTOMLWriter,
+from protostar.configuration_file.configuration_toml_content_builder import (
+    ConfigurationTOMLContentBuilder,
 )
 from protostar.utils.protostar_directory import VersionManager
 
-from .configuration_file import ConfigurationFile, ContractNameNotFoundException
+from .configuration_file import (
+    ConfigurationFile,
+    ConfigurationFileContentConfigurator,
+    ContractNameNotFoundException,
+)
 from .configuration_file_v2 import ConfigurationFileV2, ConfigurationFileV2Model
 from .configuration_legacy_toml_interpreter import ConfigurationLegacyTOMLInterpreter
 
@@ -109,11 +113,10 @@ def test_reading_argument_attribute_defined_within_specified_profile(
 
 
 def test_saving_configuration(
-    configuration_file: ConfigurationFileV2,
+    configuration_file: ConfigurationFileContentConfigurator[ConfigurationFileV2Model],
     protostar_toml_content: str,
-    project_root_path: Path,
 ):
-    configuration_toml_v2_writer = ConfigurationTOMLWriter(configuration_file)
+    content_configurator = configuration_file
     configuration_file_v2_model = ConfigurationFileV2Model(
         min_protostar_version="9.9.9",
         project_config={
@@ -137,18 +140,18 @@ def test_saving_configuration(
         profile_name_to_project_config={"release": {"network": "mainnet2"}},
     )
 
-    filepath = project_root_path / "new_protostar.toml"
-    configuration_toml_v2_writer.save(configuration_file_v2_model, filepath)
+    result = content_configurator.create_file_content(
+        model=configuration_file_v2_model,
+        content_builder=ConfigurationTOMLContentBuilder(),
+    )
 
-    result = filepath.read_text()
     assert result == protostar_toml_content
 
 
 def test_saving_in_particular_order(
-    configuration_file: ConfigurationFileV2,
-    project_root_path: Path,
+    configuration_file: ConfigurationFileContentConfigurator[ConfigurationFileV2Model],
 ):
-    configuration_toml_v2_writer = ConfigurationTOMLWriter(configuration_file)
+    content_configurator = configuration_file
     configuration_file_v2_model = ConfigurationFileV2Model(
         min_protostar_version="9.9.9",
         project_config={
@@ -162,9 +165,11 @@ def test_saving_in_particular_order(
         profile_name_to_commands_config={},
         profile_name_to_project_config={},
     )
-    filepath = project_root_path / "new_protostar.toml"
-    configuration_toml_v2_writer.save(configuration_file_v2_model, filepath)
-    result = filepath.read_text()
+
+    result = content_configurator.create_file_content(
+        content_builder=ConfigurationTOMLContentBuilder(),
+        model=configuration_file_v2_model,
+    )
 
     assert result.index("[project]") < result.index("[contracts]")
     assert result.index("lib-path") < result.index("cairo-path")

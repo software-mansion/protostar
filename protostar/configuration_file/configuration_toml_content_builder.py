@@ -1,13 +1,9 @@
-from pathlib import Path
-from typing import Any, Dict, Generic, Optional, TypeVar
+from typing import Any, Dict, Optional
 
 import tomlkit
 from tomlkit.items import InlineTable, Table
 
-from .configuration_file import (
-    ConfigurationFileContentBuilder,
-    ConfigurationFileContentConfigurator,
-)
+from .configuration_file import ConfigurationFileContentBuilder
 
 ConfigurationTOMLContent = str
 
@@ -66,26 +62,3 @@ class ConfigurationTOMLContentBuilder(
     def build(self) -> ConfigurationTOMLContent:
         self._doc.add("profile", self._profiles_table)
         return tomlkit.dumps(self._doc)
-
-
-ConfigurationFileModelT = TypeVar("ConfigurationFileModelT")
-
-
-class ConfigurationTOMLWriter(Generic[ConfigurationFileModelT]):
-    def __init__(
-        self,
-        content_configurator: ConfigurationFileContentConfigurator[
-            ConfigurationFileModelT
-        ],
-    ) -> None:
-        self._content_configurator = content_configurator
-
-    def save(
-        self, configuration_model: ConfigurationFileModelT, filepath: Path
-    ) -> None:
-        content_builder = ConfigurationTOMLContentBuilder()
-        content = self._content_configurator.create_file_content(
-            content_builder, configuration_model
-        )
-        with open(filepath, "w", encoding="UTF-8") as file_handle:
-            file_handle.write(content)
