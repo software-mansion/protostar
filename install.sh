@@ -156,6 +156,7 @@ download_protostar() {
     curl -L $tarball_download_url | tar -xzC $output
     local protostar_binary_dir="${output}/dist/protostar"
     local protostar_binary="${protostar_binary_dir}/protostar"
+    echo "  Downloaded Protostar to '$output'"
     chmod +x $protostar_binary
 
     RETVAL=$protostar_binary_dir
