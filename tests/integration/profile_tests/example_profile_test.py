@@ -7,7 +7,6 @@ from tests.integration.conftest import (
 )
 
 
-@pytest.mark.asyncio
 @pytest.mark.skip
 async def test_testing_output(run_cairo_test_runner: RunCairoTestRunnerFixture):
     await run_cairo_test_runner(

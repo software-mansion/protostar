@@ -1,5 +1,7 @@
+from dataclasses import dataclass
 import logging
-from typing import TYPE_CHECKING, Optional, Tuple, cast, Any
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, List, Optional, Tuple, cast
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
@@ -29,13 +31,23 @@ from starkware.starkware_utils.error_handling import (
 )
 from starkware.cairo.lang.tracer.tracer_data import TracerData
 from starkware.cairo.lang.vm.memory_segments import FIRST_MEMORY_ADDR as PROGRAM_BASE
-from protostar.profiler.profile import profile_from_tracer_data
+from starkware.starknet.services.api.contract_class import ContractEntryPoint
+from starkware.python.utils import from_bytes
+from starkware.starknet.business_logic.state.state import StateSyncifier
+from protostar.profiler.pprof import serialize, to_protobuf
+from protostar.profiler.profile import (
+    RuntimeProfile,
+    build_profile,
+    merge_profiles,
+)
+from protostar.starknet.cheatable_cached_state import CheatableCachedState
 
 from protostar.starknet.cheatable_cairo_function_runner import (
     CheatableCairoFunctionRunner,
 )
 from protostar.starknet.cheatable_syscall_handler import CheatableSysCallHandler
 from protostar.starknet.cheatcode import Cheatcode
+
 
 PROFILER = False
 
@@ -45,11 +57,32 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+@dataclass(frozen=True)
+class ContractProfile:
+    callstack: List[str]
+    entry_point: ContractEntryPoint
+    profile: RuntimeProfile
+
+
+# TODO(mkaput): Eradicate this function in favor of `cheaters`.
+def extract_cheatable_state(state: SyncState) -> CheatableCachedState:
+    assert isinstance(state, StateSyncifier)
+    async_state = state.async_state
+    assert isinstance(async_state, CheatableCachedState)
+
+    return async_state
+
+
+# pylint: disable=raise-missing-from
+# pylint: disable=too-many-statements
+# TODO(maksymiliandemitraszek): Enable it again
+# pylint: disable=too-many-branches
 class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     cheatcode_factory: Optional["CheatcodeFactory"] = None
-    callstack = 0
+    samples: List[ContractProfile] = []
+    callstack: List[str] = []
 
-    def _run(
+    def _run(  # type: ignore
         self,
         state: SyncState,
         resources_manager: ExecutionResourcesManager,
@@ -135,7 +168,16 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         ]
 
         try:
-            # CheatableExecuteEntryPoint.callstack += 1
+            if PROFILER:
+                if not CheatableExecuteEntryPoint.callstack:
+                    CheatableExecuteEntryPoint.callstack.append("TEST_CONTRACT")
+                else:
+                    # assert isinstance(state, CheatableCachedState)
+                    path = extract_cheatable_state(
+                        state
+                    ).class_hash_to_contract_path_map[from_bytes(class_hash)]
+                    CheatableExecuteEntryPoint.callstack.append(str(path))
+
             runner.run_from_entrypoint(
                 entry_point.offset,
                 *entry_points_args,
@@ -155,20 +197,27 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
                 run_resources=tx_execution_context.run_resources,
                 verify_secure=True,
             )
-            # CheatableExecuteEntryPoint.callstack -= 1
-            # if CheatableExecuteEntryPoint.callstack == 0 and PROFILER:
-            #     runner.relocate()
-            #     try:
-            #         save_profile(
-            #             program=contract_class.program,
-            #             memory=runner.relocated_memory,
-            #             trace=runner.relocated_trace,
-            #             debug_info=runner.get_relocated_debug_info(),
-            #             runner=runner,
-            #         )
-            #     except Exception as err:
-            #         print(str(err))
-            #         raise err
+            if PROFILER:
+                runner.relocate()
+                try:
+                    profile = get_profile(
+                        program=contract_class.program,
+                        memory=runner.relocated_memory,
+                        trace=runner.relocated_trace,
+                        debug_info=runner.get_relocated_debug_info(),
+                        runner=runner,
+                    )
+                    current_callstack = CheatableExecuteEntryPoint.callstack.copy()
+                    CheatableExecuteEntryPoint.samples.append(
+                        ContractProfile(current_callstack, entry_point, profile)
+                    )
+                    CheatableExecuteEntryPoint.callstack.pop()
+                    if CheatableExecuteEntryPoint.callstack:
+                        merge_and_save(CheatableExecuteEntryPoint.samples)
+
+                except Exception as err:
+                    print(str(err))
+                    raise err
 
         # --- MODIFICATIONS END ---
 
@@ -224,7 +273,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         return runner, syscall_handler
 
 
-def save_profile(program, memory, trace, debug_info, runner):
+def get_profile(program, memory, trace, debug_info, runner):
     tracer_data = TracerData(
         program=program,
         memory=memory,
@@ -233,7 +282,16 @@ def save_profile(program, memory, trace, debug_info, runner):
         air_public_input=None,
         debug_info=debug_info,
     )
-    data = profile_from_tracer_data(tracer_data, runner)
-    with open("profile.pb.gz", "wb") as file:
-        file.write(data)
-    return 0
+    assert runner.accessed_addresses
+    assert runner.segment_offsets
+    profile = build_profile(
+        tracer_data, runner.segments, runner.segment_offsets, runner.accessed_addresses
+    )
+    return profile
+
+
+def merge_and_save(contract_samples: List[ContractProfile]):
+    merged = merge_profiles(contract_samples)
+    proto = to_protobuf(merged)
+    serialized = serialize(proto)
+    Path("profile.pb.gz").write_bytes(serialized)

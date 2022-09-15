@@ -2,8 +2,10 @@
 from collections import defaultdict
 from dataclasses import dataclass
 import functools
+import itertools
 import math
-from typing import Callable, List, Dict, Set, cast
+import random
+from typing import TYPE_CHECKING, Callable, List, Dict, Set, Tuple, cast
 
 from starkware.cairo.lang.vm.memory_dict import MemoryDict
 from starkware.cairo.lang.compiler.identifier_definition import LabelDefinition
@@ -16,19 +18,26 @@ from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
 from protostar.profiler.pprof import serialize, to_protobuf
 
+if TYPE_CHECKING:
+    from protostar.starknet.cheatable_execute_entry_point import ContractProfile
+
 Address = int
 StringID = int
 FunctionID = int
 
 
-@dataclass(frozen=True)
+def unique_id():
+    return random.randint(0, 10000000000)
+
+
+@dataclass()
 class Function:
-    id: StringID
-    filename: StringID
+    id: str
+    filename: str
     start_line: int
 
 
-@dataclass(frozen=True)
+@dataclass()
 class Instruction:
     id: int
     pc: Address
@@ -44,40 +53,29 @@ class Sample:
 
 @dataclass(frozen=True)
 class SampleType:
-    type: StringID
-    unit: StringID
+    type: str
+    unit: str
 
 
 @dataclass(frozen=True)
 class RuntimeProfile:
-    strings: List[str]
     functions: List[Function]
     instructions: List[Instruction]
     sample_types: List[SampleType]
     step_samples: List[Sample]
     memhole_samples: List[Sample]
+    contract_call_callstacks: List[List[Instruction]]
 
 
 class ProfilerContext:
     def __init__(self, initial_fp: Address, memory: MemoryDict):
-        self._string_table: Dict[str, StringID] = {}
-        self.string_list: List[str] = []
         self.initial_fp = initial_fp
         self.memory = memory
-        self.string_id("")
-
-    def string_id(self, value: str) -> StringID:
-        assert isinstance(value, str)
-        if value in self._string_table:
-            return self._string_table[value]
-        self._string_table[value] = len(self._string_table)
-        self.string_list.append(value)
-        return self._string_table[value]
 
     def sample_types(self):
         return [
-            SampleType(self.string_id("steps count"), self.string_id("steps")),
-            SampleType(self.string_id("memory holes"), self.string_id("mem holes")),
+            SampleType("steps count", "steps"),
+            SampleType("memory holes", "mem holes"),
         ]
 
     def get_call_stack(self, fp: Address, pc: Address) -> List[Address]:
@@ -96,8 +94,8 @@ class ProfilerContext:
 
     def main_function(self):
         return Function(
-            id=self.string_id("__main__"),
-            filename=self.string_id("<dummy_filename>"),
+            id="__main__",
+            filename="<dummy_filename>",
             start_line=0,
         )
 
@@ -127,8 +125,8 @@ class ProfilerContext:
             assert location.inst.input_file.filename
             functions.append(
                 Function(
-                    id=self.string_id(name),
-                    filename=self.string_id(location.inst.input_file.filename),
+                    id=name,
+                    filename=location.inst.input_file.filename,
                     start_line=location.inst.start_line,
                 )
             )
@@ -137,7 +135,7 @@ class ProfilerContext:
 
     def find_function(self, functions: List[Function], name: str) -> Function:
         for func in functions:
-            if func.id == self.string_id(name):
+            if func.id == name:
                 return func
         assert False
 
@@ -171,6 +169,29 @@ class ProfilerContext:
             if instr.pc == pc:
                 return instr
         assert False
+
+    def build_call_callstacks(
+        self, instructions: List[Instruction], tracer_data: TracerData
+    ) -> List:
+        callstacks = []
+        stack_len = math.inf
+        for trace_entry in tracer_data.trace:
+            callstack = self.get_call_stack(fp=trace_entry.fp, pc=trace_entry.pc)
+            instr_callstack = [
+                self.find_instruction(instructions, pc) for pc in callstack
+            ]
+
+            # Wait until call_contract pops from stack
+            if len(instr_callstack) >= stack_len:
+                continue
+            stack_len = math.inf
+
+            top = instr_callstack[0]
+            # TODO make it based on builtin memory access
+            if top.function.id == "starkware.starknet.common.syscalls.call_contract":
+                stack_len = len(instr_callstack)
+                callstacks.append(instr_callstack)
+        return callstacks
 
     def build_step_samples(
         self, instructions: List[Instruction], tracer_data: TracerData
@@ -265,13 +286,14 @@ def build_profile(
         instructions_list, tracer_data, accessed_memory, segments, segment_offsets
     )
     sample_types = builder.sample_types()
+    callstacks_syscall = builder.build_call_callstacks(instructions_list, tracer_data)
     profile = RuntimeProfile(
-        strings=builder.string_list,
         sample_types=sample_types,
         functions=function_list,
         instructions=instructions_list,
         step_samples=step_samples,
         memhole_samples=memhole_samples,
+        contract_call_callstacks=callstacks_syscall,
     )
     return profile
 
@@ -285,3 +307,110 @@ def profile_from_tracer_data(tracer_data: TracerData, runner: CairoFunctionRunne
 
     protobuf = to_protobuf(profile)
     return serialize(protobuf)
+
+
+def translate_callstack(in_instructions, callstack: List[Instruction]):
+    new_callstack = []
+    for instr in callstack:
+        new_callstack.append(in_instructions[(instr.function.id, instr.id)])
+    return new_callstack
+
+
+# TODO(maksymiliandemitraszek): Enable it again
+# pylint: disable=too-many-branches
+def merge_profiles(samples: List["ContractProfile"]):
+    sample_types = samples[0].profile.sample_types
+    step_samples = []
+    memhole_samples = []
+
+    for sample in samples:
+        for func in sample.profile.functions:
+            # TODO(maksymiliandemitraszek) test it against contracts with duplicate filenames
+            func.id = sample.callstack[-1] + "." + func.id
+
+    in_functions: Dict[str, Function] = {}
+    for sample in samples:
+        for func in sample.profile.functions:
+            if func.id not in in_functions:
+                in_functions[func.id] = func
+
+    contract_id_offsets = {}
+    in_instructions: Dict[Tuple[str, int], Instruction] = {}
+    for sample in samples:
+        current_contract = sample.callstack[-1]
+        if current_contract not in contract_id_offsets:
+            contract_id_offsets[current_contract] = unique_id()
+
+        for instr in sample.profile.instructions:
+            instr.id = instr.id + contract_id_offsets[current_contract]
+            in_instructions[(instr.function.id, instr.id)] = instr
+
+    for smp in samples[-1].profile.step_samples:
+        step_samples.append(
+            Sample(
+                value=smp.value,
+                callstack=translate_callstack(in_instructions, smp.callstack),
+            )
+        )
+
+    # We build a tree from callstacks
+    max_clst_len = max(len(s.callstack) for s in samples)
+    callstacks_from_upper_layer = samples[-1].profile.contract_call_callstacks
+    for i in range(2, max_clst_len + 1):
+        samples_in_layer = [s for s in samples if len(s.callstack) == i]
+        new_callstacks_from_upper_layer: List[List[List[Instruction]]] = []
+        for upper, runtime_sample in zip(callstacks_from_upper_layer, samples_in_layer):
+            for smp in runtime_sample.profile.step_samples:
+                step_samples.append(
+                    Sample(
+                        value=smp.value,
+                        callstack=translate_callstack(
+                            in_instructions, smp.callstack + upper
+                        ),
+                    )
+                )
+            new_callstacks_from_upper_layer.append(
+                [c + upper for c in runtime_sample.profile.contract_call_callstacks]
+            )
+        callstacks_from_upper_layer = list(
+            itertools.chain(*new_callstacks_from_upper_layer)
+        )
+
+    for smp in samples[-1].profile.memhole_samples:
+        memhole_samples.append(
+            Sample(
+                value=smp.value,
+                callstack=translate_callstack(in_instructions, smp.callstack),
+            )
+        )
+
+    # We build a tree from callstacks
+    callstacks_from_upper_layer = samples[-1].profile.contract_call_callstacks
+    for i in range(2, max_clst_len + 1):
+        samples_in_layer = [s for s in samples if len(s.callstack) == i]
+        new_callstacks_from_upper_layer: List[List[List[Instruction]]] = []
+        for upper, runtime_sample in zip(callstacks_from_upper_layer, samples_in_layer):
+            for smp in runtime_sample.profile.memhole_samples:
+                memhole_samples.append(
+                    Sample(
+                        value=smp.value,
+                        callstack=translate_callstack(
+                            in_instructions, smp.callstack + upper
+                        ),
+                    )
+                )
+            new_callstacks_from_upper_layer.append(
+                [c + upper for c in runtime_sample.profile.contract_call_callstacks]
+            )
+        callstacks_from_upper_layer = list(
+            itertools.chain(*new_callstacks_from_upper_layer)
+        )
+
+    return RuntimeProfile(
+        functions=list(in_functions.values()),
+        instructions=list(in_instructions.values()),
+        sample_types=sample_types,
+        step_samples=step_samples,
+        memhole_samples=memhole_samples,
+        contract_call_callstacks=[],
+    )
