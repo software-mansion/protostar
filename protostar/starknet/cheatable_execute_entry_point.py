@@ -49,8 +49,6 @@ from protostar.starknet.cheatable_syscall_handler import CheatableSysCallHandler
 from protostar.starknet.cheatcode import Cheatcode
 
 
-PROFILER = False
-
 if TYPE_CHECKING:
     from protostar.starknet.cheatcode_factory import CheatcodeFactory
 
@@ -69,7 +67,6 @@ def extract_cheatable_state(state: SyncState) -> CheatableCachedState:
     assert isinstance(state, StateSyncifier)
     async_state = state.async_state
     assert isinstance(async_state, CheatableCachedState)
-
     return async_state
 
 
@@ -80,7 +77,12 @@ def extract_cheatable_state(state: SyncState) -> CheatableCachedState:
 class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     cheatcode_factory: Optional["CheatcodeFactory"] = None
     samples: List[ContractProfile] = []
-    callstack: List[str] = []
+    contract_callstack: List[str] = []
+
+    def __init__(self, *args, profile=False, **kwargs):
+        self.do_profile = profile
+        self.transaction_profile = None
+        super().__init__(*args, **kwargs)
 
     def _run(  # type: ignore
         self,
@@ -167,17 +169,10 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             ),
         ]
 
-        try:
-            if PROFILER:
-                if not CheatableExecuteEntryPoint.callstack:
-                    CheatableExecuteEntryPoint.callstack.append("TEST_CONTRACT")
-                else:
-                    # assert isinstance(state, CheatableCachedState)
-                    path = extract_cheatable_state(
-                        state
-                    ).class_hash_to_contract_path_map[from_bytes(class_hash)]
-                    CheatableExecuteEntryPoint.callstack.append(str(path))
+        if self.do_profile:
+            self.append_contract_callstack(state, class_hash)
 
+        try:
             runner.run_from_entrypoint(
                 entry_point.offset,
                 *entry_points_args,
@@ -197,27 +192,12 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
                 run_resources=tx_execution_context.run_resources,
                 verify_secure=True,
             )
-            if PROFILER:
-                runner.relocate()
-                try:
-                    profile = get_profile(
-                        program=contract_class.program,
-                        memory=runner.relocated_memory,
-                        trace=runner.relocated_trace,
-                        debug_info=runner.get_relocated_debug_info(),
-                        runner=runner,
-                    )
-                    current_callstack = CheatableExecuteEntryPoint.callstack.copy()
-                    CheatableExecuteEntryPoint.samples.append(
-                        ContractProfile(current_callstack, entry_point, profile)
-                    )
-                    CheatableExecuteEntryPoint.callstack.pop()
-                    if CheatableExecuteEntryPoint.callstack:
-                        merge_and_save(CheatableExecuteEntryPoint.samples)
 
-                except Exception as err:
-                    print(str(err))
-                    raise err
+            if self.do_profile:
+                self.append_runtime_profile(runner, contract_class, entry_point)
+                self.pop_contract_callstack()
+                if not CheatableExecuteEntryPoint.contract_callstack:
+                    merge_and_save(CheatableExecuteEntryPoint.samples)
 
         # --- MODIFICATIONS END ---
 
@@ -271,6 +251,35 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         runner.mark_as_accessed(address=args_ptr, size=len(entry_points_args))
 
         return runner, syscall_handler
+
+    def append_contract_callstack(self, state, class_hash):
+        if not CheatableExecuteEntryPoint.contract_callstack:
+            CheatableExecuteEntryPoint.contract_callstack.append("TEST_CONTRACT")
+        else:
+            path = extract_cheatable_state(
+                state
+            ).class_hash_to_contract_path_map[from_bytes(class_hash)]
+            CheatableExecuteEntryPoint.contract_callstack.append(str(path))
+
+    def pop_contract_callstack(self):
+        CheatableExecuteEntryPoint.contract_callstack.pop()
+
+        pass
+
+    def append_runtime_profile(self, runner: CairoFunctionRunner, contract_class, entry_point):
+        runner.relocate()
+        profile = get_profile(
+            program=contract_class.program,
+            memory=runner.relocated_memory,
+            trace=runner.relocated_trace,
+            debug_info=runner.get_relocated_debug_info(),
+            runner=runner,
+        )
+        current_callstack = CheatableExecuteEntryPoint.contract_callstack.copy()
+        CheatableExecuteEntryPoint.samples.append(
+            ContractProfile(current_callstack, entry_point, profile)
+        )
+
 
 
 def get_profile(program, memory, trace, debug_info, runner):
