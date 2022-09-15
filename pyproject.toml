@@ -50,6 +50,7 @@ branch = "master"
 
 [tool.poe.tasks]
 build = "pyinstaller protostar.spec --noconfirm"
+build_installer_arm64 = "sh ./scripts/build_arm64_installer.sh"
 ci = [
     "type_check",
     "lint",
