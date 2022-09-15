@@ -48,6 +48,11 @@ freezegun = "^1.2.1"
 git = "https://github.com/Shard-Labs/starknet-devnet.git"
 branch = "master"
 
+
+
+[tool.poetry.group.dev.dependencies]
+setuptools = "^65.3.0"
+
 [tool.poe.tasks]
 build = "pyinstaller protostar.spec --noconfirm"
 build_installer_arm64 = "sh ./scripts/build_arm64_installer.sh"
