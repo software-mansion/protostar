@@ -161,11 +161,5 @@ class BrokenTestSuiteResult(TestResult):
 
 
 @dataclass(frozen=True)
-class SkippedTestSuiteResult(TestResult):
-    test_case_names: List[str]
-    reason: Optional[str]
-
-
-@dataclass(frozen=True)
 class UnexpectedBrokenTestSuiteResult(BrokenTestSuiteResult):
     traceback: Optional[str]

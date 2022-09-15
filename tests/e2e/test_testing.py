@@ -231,3 +231,11 @@ def test_report_slowest(protostar, copy_fixture):
 def test_does_collect_in_cwd_by_default(protostar):
     result = protostar(["test"])
     assert "Collected 1 suite, and 2 test cases" in result
+
+
+@pytest.mark.usefixtures("init")
+def test_skipping(protostar, copy_fixture):
+    copy_fixture("test_skip.cairo", "./tests")
+    result = protostar(["test", "tests"])
+    assert "SKIP" in result
+    assert "REASON" in result

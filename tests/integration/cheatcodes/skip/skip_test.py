@@ -12,12 +12,11 @@ from tests.integration.conftest import (
 )
 
 
-@pytest.mark.asyncio
-async def test_testing_output(
+async def test_skip(
     run_cairo_test_runner: RunCairoTestRunnerFixture,
 ):
     testing_summary = await run_cairo_test_runner(
-        Path(__file__).parent / "skipping_test.cairo"
+        Path(__file__).parent / "skip_test.cairo"
     )
 
     assert_cairo_test_cases(
@@ -28,13 +27,3 @@ async def test_testing_output(
             "test_skip_no_reason",
         ],
     )
-
-    output = get_formatted_output(testing_summary.skipped)
-    assert "REASON" in output
-
-
-def get_formatted_output(skipped_test_case_results: List[SkippedTestCaseResult]):
-    output = ""
-    for test_case_result in skipped_test_case_results:
-        output += format_test_result(test_case_result)
-    return output

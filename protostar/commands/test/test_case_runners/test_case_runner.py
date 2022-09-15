@@ -15,7 +15,6 @@ from protostar.commands.test.test_results import (
     FailedTestCaseResult,
     PassedTestCaseResult,
     BrokenTestCaseResult,
-    SkippedTestCaseResult,
     TestCaseResult,
 )
 from protostar.commands.test.test_suite import TestCase
