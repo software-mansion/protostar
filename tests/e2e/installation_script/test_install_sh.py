@@ -10,7 +10,7 @@ from tests.e2e.installation_script.conftest import (
     SupportedHardwareName,
     SupportedKernel,
     SupportedShell,
-    UploadedInstallationFilename,
+    InstallerFilename,
     assert_config_file_includes_path_entry,
 )
 
@@ -26,19 +26,19 @@ def latest_protostar_version_fixture() -> str:
 
 
 @pytest.mark.parametrize(
-    "kernel, shell, hardware_name, uploaded_installation_filename",
+    "kernel, shell, hardware_name, installer_filename",
     (
         (
             SupportedKernel.DARWIN,
             SupportedShell.ZSH,
             SupportedHardwareName.X86_64,
-            UploadedInstallationFilename.MACOS,
+            InstallerFilename.MACOS,
         ),
         (
             SupportedKernel.LINUX,
             SupportedShell.BASH,
             "?",
-            UploadedInstallationFilename.LINUX,
+            InstallerFilename.LINUX,
         ),
     ),
 )
@@ -49,7 +49,7 @@ def test_installing_latest_version(
     kernel: str,
     shell: Shell,
     hardware_name: str,
-    uploaded_installation_filename: str,
+    installer_filename: str,
 ):
     harness = ScriptTestingHarness.create(
         home_path=home_path, shell_interpreter=shell.interpreter
@@ -74,14 +74,12 @@ def test_installing_latest_version(
     )
     harness.send(
         ProtostarGitHubRepository.get_release_website_content(
-            installer_filename=uploaded_installation_filename
+            installer_filename=installer_filename
         )
     )
     harness.expect(".*gz found")
 
-    harness.expect_download_curl_prompt(
-        uploaded_installation_filename, latest_protostar_version
-    )
+    harness.expect_download_curl_prompt(installer_filename, latest_protostar_version)
     harness.send("DATA")
 
     harness.expect_detected_shell(shell_name=shell.name)
@@ -93,19 +91,19 @@ def test_installing_latest_version(
 
 
 @pytest.mark.parametrize(
-    "kernel, shell, hardware_name, uploaded_installation_filename",
+    "kernel, shell, hardware_name, installer_filename",
     (
         (
             SupportedKernel.DARWIN,
             SupportedShell.ZSH,
             SupportedHardwareName.X86_64,
-            UploadedInstallationFilename.MACOS,
+            InstallerFilename.MACOS,
         ),
         (
             SupportedKernel.LINUX,
             SupportedShell.BASH,
             "?",
-            UploadedInstallationFilename.LINUX,
+            InstallerFilename.LINUX,
         ),
     ),
 )
@@ -115,7 +113,7 @@ def test_installer_not_found(
     kernel: str,
     shell: Shell,
     hardware_name: str,
-    uploaded_installation_filename: str,
+    installer_filename: str,
 ):
     harness = ScriptTestingHarness.create(
         home_path=home_path, shell_interpreter=shell.interpreter
@@ -141,22 +139,22 @@ def test_installer_not_found(
         ProtostarGitHubRepository.get_release_website_content(installer_filename=None)
     )
 
-    harness.expect(f"{uploaded_installation_filename} not found")
+    harness.expect(f"{installer_filename} not found")
     harness.expect_eof()
 
 
 @pytest.mark.parametrize(
-    "kernel, shell, uploaded_installation_filename",
+    "kernel, shell, installer_filename",
     (
         (
             SupportedKernel.DARWIN,
             SupportedShell.ZSH,
-            UploadedInstallationFilename.MACOS,
+            InstallerFilename.MACOS,
         ),
         (
             SupportedKernel.LINUX,
             SupportedShell.BASH,
-            UploadedInstallationFilename.LINUX,
+            InstallerFilename.LINUX,
         ),
     ),
 )
@@ -165,7 +163,7 @@ def test_installing_specific_version(
     create_fake_protostar: CreateFakeProtostarFixture,
     kernel: str,
     shell: Shell,
-    uploaded_installation_filename: str,
+    installer_filename: str,
 ):
     requested_version = "0.1.0"
 
@@ -193,13 +191,11 @@ def test_installing_specific_version(
     )
     harness.send(
         ProtostarGitHubRepository.get_release_website_content(
-            installer_filename=uploaded_installation_filename
+            installer_filename=installer_filename
         )
     )
 
-    harness.expect_download_curl_prompt(
-        uploaded_installation_filename, requested_version
-    )
+    harness.expect_download_curl_prompt(installer_filename, requested_version)
     create_fake_protostar(output_dir=home_path)
     harness.send("DATA")
 
@@ -246,13 +242,13 @@ def test_installing_specific_but_unreleased_version(
 
 
 @pytest.mark.parametrize(
-    "kernel, shell, hardware_name, uploaded_installation_filename",
+    "kernel, shell, hardware_name, installer_filename",
     (
         (
             SupportedKernel.DARWIN,
             SupportedShell.ZSH,
             SupportedHardwareName.ARM64,
-            UploadedInstallationFilename.MACOS,
+            InstallerFilename.MACOS,
         ),
     ),
 )
@@ -263,7 +259,7 @@ def test_trying_to_install_arm_version_when_is_not_uploaded(
     kernel: str,
     shell: Shell,
     hardware_name: str,
-    uploaded_installation_filename: str,
+    installer_filename: str,
 ):
     harness = ScriptTestingHarness.create(
         home_path=home_path, shell_interpreter=shell.interpreter
@@ -287,22 +283,20 @@ def test_trying_to_install_arm_version_when_is_not_uploaded(
     )
     harness.send(
         ProtostarGitHubRepository.get_release_website_content(
-            installer_filename=uploaded_installation_filename
+            installer_filename=installer_filename
         )
     )
     harness.expect(".*gz not found")
 
     harness.send(
         ProtostarGitHubRepository.get_release_website_content(
-            installer_filename=uploaded_installation_filename
+            installer_filename=installer_filename
         )
     )
     harness.expect(".*gz found")
 
     create_fake_protostar(output_dir=home_path)
-    harness.expect_download_curl_prompt(
-        uploaded_installation_filename, latest_protostar_version
-    )
+    harness.expect_download_curl_prompt(installer_filename, latest_protostar_version)
     harness.send("DATA")
 
     harness.expect_detected_shell(shell_name=shell.name)
@@ -314,13 +308,13 @@ def test_trying_to_install_arm_version_when_is_not_uploaded(
 
 
 @pytest.mark.parametrize(
-    "kernel, shell, hardware_name, uploaded_installation_filename",
+    "kernel, shell, hardware_name, installer_filename",
     (
         (
             SupportedKernel.DARWIN,
             SupportedShell.ZSH,
             SupportedHardwareName.ARM64,
-            UploadedInstallationFilename.MACOS_ARM64,
+            InstallerFilename.MACOS_ARM64,
         ),
     ),
 )
@@ -331,7 +325,7 @@ def test_installing_hardware_specific_version(
     kernel: str,
     shell: Shell,
     hardware_name: str,
-    uploaded_installation_filename: str,
+    installer_filename: str,
 ):
     harness = ScriptTestingHarness.create(
         home_path=home_path, shell_interpreter=shell.interpreter
@@ -355,15 +349,13 @@ def test_installing_hardware_specific_version(
     )
     harness.send(
         ProtostarGitHubRepository.get_release_website_content(
-            installer_filename=uploaded_installation_filename
+            installer_filename=installer_filename
         )
     )
     harness.expect(".*gz found")
 
     create_fake_protostar(output_dir=home_path)
-    harness.expect_download_curl_prompt(
-        uploaded_installation_filename, latest_protostar_version
-    )
+    harness.expect_download_curl_prompt(installer_filename, latest_protostar_version)
     harness.send("DATA")
 
     harness.expect_detected_shell(shell_name=shell.name)

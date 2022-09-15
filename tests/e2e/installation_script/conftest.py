@@ -24,7 +24,7 @@ class SupportedHardwareName:
     X86_64 = "x86_64"
 
 
-class UploadedInstallationFilename:
+class InstallerFilename:
     LINUX = "protostar-Linux.tar.gz"
     MACOS = "protostar-macOS.tar.gz"
     MACOS_ARM64 = "protostar-macOS-arm64.tar.gz"

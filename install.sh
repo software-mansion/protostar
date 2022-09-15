@@ -84,17 +84,17 @@ install_protostar() {
     local hardware_name=$3
     local is_success=0
 
-    get_protostar_tarball_filename $platform_name $hardware_name
-    protostar_tarball_filename=$RETVAL
+    get_installer_filename $platform_name $hardware_name
+    installer_filename=$RETVAL
 
-    check_protostar_tarball_exists $requested_ref $protostar_tarball_filename
-    does_protostar_tarball_exist=$RETVAL
+    check_installer_exists $requested_ref $installer_filename
+    does_installer_exist=$RETVAL
 
-    if [ $does_protostar_tarball_exist -eq 1 ]; then
+    if [ $does_installer_exist -eq 1 ]; then
         create_protostar_directory
         protostar_dir=$RETVAL
 
-        download_protostar $requested_version $protostar_tarball_filename $protostar_dir
+        download_protostar $requested_version $installer_filename $protostar_dir
         protostar_binary_dir=$RETVAL
 
         add_protostar_to_path $protostar_binary_dir
@@ -104,34 +104,34 @@ install_protostar() {
     RETVAL=$is_success
 }
 
-get_protostar_tarball_filename() {
+get_installer_filename() {
     RETVAL=""
     local platform_name=$1
     local hardware_name=$2
 
-    local protostar_tarball_filename
+    local installer_filename
     if [[ -n $hardware_name ]]; then
-        protostar_tarball_filename="protostar-${platform_name}-${hardware_name}.tar.gz"
+        installer_filename="protostar-${platform_name}-${hardware_name}.tar.gz"
     else
-        protostar_tarball_filename="protostar-${platform_name}.tar.gz"
+        installer_filename="protostar-${platform_name}.tar.gz"
     fi
 
-    RETVAL=$protostar_tarball_filename
+    RETVAL=$installer_filename
 }
 
-check_protostar_tarball_exists() {
+check_installer_exists() {
     RETVAL=""
     local requested_ref=$1
-    local protostar_tarball_filename=$2
+    local installer_filename=$2
 
-    echo "Checking if $protostar_tarball_filename is available..."
+    echo "Checking if $installer_filename is available..."
     response=$(curl -L -s "${PROTOSTAR_REPO}/releases/${requested_ref}")
     file_exists=1
-    if [[ $response == *"$protostar_tarball_filename"* ]]; then
-        echo "$protostar_tarball_filename found"
+    if [[ $response == *"$installer_filename"* ]]; then
+        echo "$installer_filename found"
     else
         file_exists=0
-        echo "$protostar_tarball_filename not found"
+        echo "$installer_filename not found"
     fi
 
     RETVAL=$file_exists
@@ -149,11 +149,11 @@ create_protostar_directory() {
 download_protostar() {
     RETVAL=""
     local version=$1
-    local protostar_tarball_filename=$2
+    local installer_filename=$2
     local output=$3
 
     local requested_release_url="${PROTOSTAR_REPO}/releases/download/${version}"
-    local tarball_download_url="${requested_release_url}/${protostar_tarball_filename}"
+    local tarball_download_url="${requested_release_url}/${installer_filename}"
     echo "Downloading protostar from ${tarball_download_url}"
     curl -L $tarball_download_url | tar -xvzC $output
     local protostar_binary_dir="${output}/dist/protostar"
