@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, TypeVar, Union
+from typing import Optional, Union
 
 from protostar.utils.protostar_directory import VersionManager, VersionType
 
