@@ -1,4 +1,5 @@
 from .test_collector import TestCollector
+from .test_output_recorder import OutputName, format_output_name
 from .test_results import (
     BrokenFuzzTestCaseResult,
     BrokenSetupCaseResult,

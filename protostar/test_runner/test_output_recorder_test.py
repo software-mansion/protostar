@@ -1,8 +1,6 @@
 import pytest
-from protostar.commands.test.test_output_recorder import (
-    format_output_name,
-    OutputRecorder,
-)
+
+from .test_output_recorder import OutputRecorder, format_output_name
 
 
 def test_format_output_name():

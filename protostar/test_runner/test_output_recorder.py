@@ -1,8 +1,8 @@
 from contextlib import contextmanager, redirect_stdout
-from typing import Union, Tuple, Dict, Generator
-from io import StringIO
-from dataclasses import dataclass, field
 from copy import deepcopy
+from dataclasses import dataclass, field
+from io import StringIO
+from typing import Dict, Generator, Tuple, Union
 
 OutputName = Union[str, Tuple[str, int]]
 """

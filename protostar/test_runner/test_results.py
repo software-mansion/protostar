@@ -8,7 +8,8 @@ from protostar.commands.test.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
 )
 from protostar.commands.test.test_environment_exceptions import ReportedException
-from protostar.commands.test.test_output_recorder import OutputName
+
+from .test_output_recorder import OutputName
 
 
 @dataclass(frozen=True)
