@@ -68,7 +68,6 @@ strategy.integers(11)
 Fuzzer picks integers from provided range and then converts them to felts.
 If `min_value` is not `None` then all values will be greater than or equal to `min_value`,
 and if `max_value` is not `None` then all values will be less than or equal to `max_value`.
-When applied to field elements, the unbounded values may rarely overflow.
 
 ## Adapting strategies
 
