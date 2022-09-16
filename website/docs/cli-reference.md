@@ -43,7 +43,7 @@ Required.
 Path to compiled contract.
 #### `--account-address STRING`
 Account address
-#### `--chain-id FELT`
+#### `--chain-id STRING`
 The chain ID. It is required unless `--network` is provided.
 #### `--gateway-url STRING`
 The URL of a StarkNet gateway. It is required unless `--network` is provided.
@@ -74,7 +74,7 @@ Deploy contracts.
 Required.
 
 The path to the compiled contract.
-#### `--chain-id FELT`
+#### `--chain-id STRING`
 The chain ID. It is required unless `--network` is provided.
 #### `--gateway-url STRING`
 The URL of a StarkNet gateway. It is required unless `--network` is provided.
@@ -139,7 +139,7 @@ Required.
 Path to the migration file.
 #### `--account-address STRING`
 Account address
-#### `--chain-id FELT`
+#### `--chain-id STRING`
 The chain ID. It is required unless `--network` is provided.
 #### `--gateway-url STRING`
 The URL of a StarkNet gateway. It is required unless `--network` is provided.
