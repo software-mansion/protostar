@@ -7,19 +7,20 @@ from protostar.commands.test.environments.fuzz_test_execution_environment import
 from protostar.commands.test.fuzzing.fuzz_input_exception_metadata import (
     FuzzInputExceptionMetadata,
 )
-from protostar.commands.test.test_case_runners.test_case_runner import TestCaseRunner
 from protostar.commands.test.test_environment_exceptions import (
-    ReportedException,
     BreakingReportedException,
+    ReportedException,
 )
 from protostar.test_runner.test_results import (
+    BrokenFuzzTestCaseResult,
+    BrokenTestCaseResult,
     FailedFuzzTestCaseResult,
     FailedTestCaseResult,
     FuzzResult,
     PassedFuzzTestCaseResult,
-    BrokenTestCaseResult,
-    BrokenFuzzTestCaseResult,
 )
+
+from .test_case_runner import TestCaseRunner
 
 
 class FuzzTestCaseRunner(TestCaseRunner[FuzzTestExecutionResult]):

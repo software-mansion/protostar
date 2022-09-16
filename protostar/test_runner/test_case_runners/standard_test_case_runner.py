@@ -2,7 +2,8 @@ from protostar.commands.test.environments.test_execution_environment import (
     TestExecutionEnvironment,
     TestExecutionResult,
 )
-from protostar.commands.test.test_case_runners.test_case_runner import TestCaseRunner
+
+from .test_case_runner import TestCaseRunner
 
 
 class StandardTestCaseRunner(TestCaseRunner[TestExecutionResult]):

@@ -5,15 +5,12 @@ from protostar.commands.test.environments.test_execution_environment import (
     TestExecutionEnvironment,
 )
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
-from protostar.commands.test.test_case_runners.fuzz_test_case_runner import (
-    FuzzTestCaseRunner,
-)
-from protostar.commands.test.test_case_runners.standard_test_case_runner import (
-    StandardTestCaseRunner,
-)
-from protostar.commands.test.test_case_runners.test_case_runner import TestCaseRunner
 from protostar.test_runner.test_config import TestMode
 from protostar.test_runner.test_suite import TestCase
+
+from .fuzz_test_case_runner import FuzzTestCaseRunner
+from .standard_test_case_runner import StandardTestCaseRunner
+from .test_case_runner import TestCaseRunner
 
 
 class TestCaseRunnerFactory:
