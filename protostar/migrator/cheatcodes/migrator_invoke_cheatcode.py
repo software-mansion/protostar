@@ -2,13 +2,13 @@ import asyncio
 from dataclasses import dataclass
 from typing import Optional
 
+from starknet_py.net.client_errors import ClientError
 from starknet_py.net.signer import BaseSigner
 from typing_extensions import Protocol, NotRequired
 
-
 from protostar.commands.test.test_environment_exceptions import (
     CheatcodeException,
-    KeywordOnlyArgumentCheatcodeException,
+    KeywordOnlyArgumentCheatcodeException, SimpleReportedException,
 )
 from protostar.migrator.cheatcodes import CheatcodeNetworkConfig
 from protostar.starknet.cheatcode import Cheatcode
@@ -18,7 +18,6 @@ from protostar.starknet_gateway import (
     UnknownFunctionException,
 )
 from protostar.utils.data_transformer import CairoOrPythonData
-
 
 Wei = int
 
@@ -132,7 +131,6 @@ class MigratorInvokeCheatcode(Cheatcode):
                 )
             )
         except (UnknownFunctionException, ContractNotFoundException) as err:
-            raise CheatcodeException(
-                self,
-                message=err.message,
-            ) from err
+            raise CheatcodeException(self, message=err.message) from err
+        except ClientError as err:
+            raise SimpleReportedException(message=err.message) from err
