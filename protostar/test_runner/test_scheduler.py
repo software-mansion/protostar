@@ -3,10 +3,10 @@ import signal
 from typing import TYPE_CHECKING, Callable, List
 
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
-from protostar.commands.test.testing_seed import Seed
 from protostar.test_runner import TestRunner
 
 from .test_shared_tests_state import SharedTestsState
+from .testing_seed import Seed
 
 if TYPE_CHECKING:
     from .test_collector import TestCollector

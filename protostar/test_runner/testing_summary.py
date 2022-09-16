@@ -3,18 +3,20 @@ from logging import Logger
 from pathlib import Path
 from typing import Dict, List
 
+from protostar.protostar_exception import ProtostarExceptionSilent
 from protostar.test_runner.test_results import (
     BrokenTestCaseResult,
     BrokenTestSuiteResult,
     FailedTestCaseResult,
     PassedTestCaseResult,
+    SkippedTestCaseResult,
     TestResult,
     TimedTestCaseResult,
-    SkippedTestCaseResult,
 )
-from protostar.commands.test.testing_seed import Seed
-from protostar.protostar_exception import ProtostarExceptionSilent
 from protostar.utils.log_color_provider import LogColorProvider, log_color_provider
+
+from .testing_seed import Seed
+
 
 # pylint: disable=too-many-instance-attributes
 class TestingSummary:

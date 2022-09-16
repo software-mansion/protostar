@@ -5,6 +5,7 @@ Seed = int
 
 
 def determine_testing_seed(seed: Optional[Seed]) -> Seed:
+
     return seed or random_seed()
 
 

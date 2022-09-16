@@ -22,4 +22,5 @@ from .test_results import (
 from .test_runner import TestRunner
 from .test_scheduler import TestScheduler
 from .test_shared_tests_state import SharedTestsState
+from .testing_seed import determine_testing_seed
 from .testing_summary import TestingSummary

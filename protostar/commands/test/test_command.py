@@ -9,7 +9,6 @@ from protostar.commands.test.test_collector_summary_formatter import (
 )
 from protostar.commands.test.test_result_formatter import format_test_result
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
-from protostar.commands.test.testing_seed import determine_testing_seed
 from protostar.compiler import ProjectCairoPathBuilder
 from protostar.test_runner import (
     TestCollector,
@@ -17,6 +16,7 @@ from protostar.test_runner import (
     TestResult,
     TestRunner,
     TestScheduler,
+    determine_testing_seed,
 )
 from protostar.utils.compiler.pass_managers import (
     StarknetPassManagerFactory,
