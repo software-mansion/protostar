@@ -18,4 +18,5 @@ from .test_results import (
     TimedTestResult,
     UnexpectedBrokenTestSuiteResult,
 )
+from .test_runner import TestRunner
 from .testing_summary import TestingSummary

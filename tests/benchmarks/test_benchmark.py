@@ -12,9 +12,8 @@ from starkware.starknet.services.api.contract_class import ContractClass
 
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_config import TestConfig
-from protostar.commands.test.test_runner import TestRunner
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
-from protostar.test_runner import TestCollector
+from protostar.test_runner import TestCollector, TestRunner
 from protostar.test_runner.test_suite import TestCase, TestSuite
 from protostar.utils.compiler.pass_managers import ProtostarPassMangerFactory
 from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
