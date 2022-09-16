@@ -6,12 +6,12 @@ from pathlib import Path
 from starkware.starknet.services.api.contract_class import ContractClass
 from typing_extensions import Self
 
-from protostar.commands.test.test_context import TestContext
 from protostar.commands.test.test_output_recorder import OutputRecorder
 from protostar.starknet.execution_state import ExecutionState
 from protostar.starknet.forkable_starknet import ForkableStarknet
 from protostar.test_runner.stopwatch import Stopwatch
 from protostar.test_runner.test_config import TestConfig
+from protostar.test_runner.test_context import TestContext
 from protostar.test_runner.test_suite import TestCase
 from protostar.utils.starknet_compilation import StarknetCompiler
 

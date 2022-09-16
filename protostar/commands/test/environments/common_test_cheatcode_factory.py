@@ -17,10 +17,10 @@ from protostar.commands.test.cheatcodes import (
 )
 from protostar.commands.test.cheatcodes.reflect.cairo_struct import CairoStructHintLocal
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
-from protostar.commands.test.test_context import TestContextHintLocal
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.cheatcode_factory import CheatcodeFactory
 from protostar.starknet.hint_local import HintLocal
+from protostar.test_runner.test_context import TestContextHintLocal
 
 
 class CommonTestCheatcodeFactory(CheatcodeFactory):
