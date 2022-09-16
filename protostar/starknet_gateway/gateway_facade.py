@@ -332,15 +332,17 @@ class GatewayFacade:
     ) -> InvokeResult:
         if inputs is None:
             inputs = {}
-        # TODO: https://github.com/software-mansion/starknet.py/issues/320
-
         try:
             if isinstance(inputs, List):
                 return await contract_function.invoke(
-                    *inputs, max_fee=max_fee, auto_estimate=auto_estimate  # type: ignore
+                    *inputs,
+                    max_fee=max_fee,
+                    auto_estimate=auto_estimate,
                 )
             return await contract_function.invoke(
-                **inputs, max_fee=max_fee, auto_estimate=auto_estimate  # type: ignore
+                **inputs,
+                max_fee=max_fee,
+                auto_estimate=auto_estimate,
             )
         except (TypeError, ValueError) as ex:
             raise InputValidationException(str(ex)) from ex
