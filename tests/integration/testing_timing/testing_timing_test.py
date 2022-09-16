@@ -2,7 +2,8 @@ from pathlib import Path
 from typing import Set
 
 import pytest
-from protostar.commands.test.testing_summary import TestingSummary
+
+from protostar.test_runner import TestingSummary
 from protostar.utils.log_color_provider import LogColorProvider
 from tests.integration.conftest import RunCairoTestRunnerFixture
 
