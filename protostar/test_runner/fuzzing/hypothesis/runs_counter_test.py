@@ -1,4 +1,4 @@
-from protostar.commands.test.fuzzing.hypothesis.runs_counter import RunsCounter
+from .runs_counter import RunsCounter
 
 
 def test_available_runs_is_always_non_negative():

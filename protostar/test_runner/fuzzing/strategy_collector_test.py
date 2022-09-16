@@ -4,12 +4,9 @@ import pytest
 from hypothesis.strategies import SearchStrategy
 from starkware.cairo.lang.compiler.ast.cairo_types import TypeFelt
 
-from protostar.commands.test.fuzzing.exceptions import FuzzingError
-from protostar.commands.test.fuzzing.strategies import (
-    FeltsStrategyDescriptor,
-    IntegersStrategyDescriptor,
-)
-from protostar.commands.test.fuzzing.strategy_collector import collect_search_strategies
+from .exceptions import FuzzingError
+from .strategies import FeltsStrategyDescriptor, IntegersStrategyDescriptor
+from .strategy_collector import collect_search_strategies
 
 
 # Note: Order of keys is tested here.

@@ -1,8 +1,8 @@
 from starkware.cairo.lang.compiler.ast.cairo_types import CairoType, TypeFelt
 
-from protostar.commands.test.fuzzing.exceptions import FuzzingError
-from protostar.commands.test.fuzzing.strategies import FeltsStrategyDescriptor
-from protostar.commands.test.fuzzing.strategy_descriptor import StrategyDescriptor
+from .exceptions import FuzzingError
+from .strategies import FeltsStrategyDescriptor
+from .strategy_descriptor import StrategyDescriptor
 
 
 def infer_strategy_from_cairo_type(

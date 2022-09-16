@@ -2,9 +2,9 @@ from typing import Any
 
 from typing_extensions import Protocol
 
-from protostar.commands.test.fuzzing.strategy_descriptor import StrategyDescriptor
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.starknet.cheatcode import Cheatcode
+from protostar.test_runner.fuzzing.strategy_descriptor import StrategyDescriptor
 from protostar.test_runner.test_config import TestConfig, TestMode
 
 

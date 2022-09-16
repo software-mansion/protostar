@@ -4,7 +4,7 @@ import hypothesis
 from hypothesis.errors import UnsatisfiedAssumption
 
 from protostar.starknet.cheatcode import Cheatcode
-from protostar.commands.test.fuzzing.exceptions import HypothesisRejectException
+from protostar.test_runner.fuzzing.exceptions import HypothesisRejectException
 
 
 class RejectCheatcode(Cheatcode):

@@ -10,23 +10,23 @@ from hypothesis.reporting import with_reporter
 from hypothesis.strategies import SearchStrategy
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
-from protostar.commands.test.fuzzing.exceptions import HypothesisRejectException
-from protostar.commands.test.fuzzing.fuzz_input_exception_metadata import (
-    FuzzInputExceptionMetadata,
-)
-from protostar.commands.test.fuzzing.hypothesis.aio import wrap_in_sync
-from protostar.commands.test.fuzzing.hypothesis.reporter import (
-    HYPOTHESIS_VERBOSITY,
-    protostar_reporter,
-)
-from protostar.commands.test.fuzzing.hypothesis.runs_counter import RunsCounter
-from protostar.commands.test.fuzzing.strategy_collector import collect_search_strategies
 from protostar.commands.test.test_environment_exceptions import (
     CheatcodeException,
     ReportedException,
 )
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.test_runner.cheatcodes import AssumeCheatcode, RejectCheatcode
+from protostar.test_runner.fuzzing.exceptions import HypothesisRejectException
+from protostar.test_runner.fuzzing.fuzz_input_exception_metadata import (
+    FuzzInputExceptionMetadata,
+)
+from protostar.test_runner.fuzzing.hypothesis.aio import wrap_in_sync
+from protostar.test_runner.fuzzing.hypothesis.reporter import (
+    HYPOTHESIS_VERBOSITY,
+    protostar_reporter,
+)
+from protostar.test_runner.fuzzing.hypothesis.runs_counter import RunsCounter
+from protostar.test_runner.fuzzing.strategy_collector import collect_search_strategies
 from protostar.test_runner.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
 )

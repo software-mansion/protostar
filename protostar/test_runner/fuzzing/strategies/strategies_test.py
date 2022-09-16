@@ -1,7 +1,9 @@
 import pytest
-from protostar.commands.test.fuzzing.exceptions import SearchStrategyBuildError
-from .one_of import OneOfStrategyDescriptor
+
+from protostar.test_runner.fuzzing.exceptions import SearchStrategyBuildError
+
 from .felts import FeltsStrategyDescriptor
+from .one_of import OneOfStrategyDescriptor
 
 
 def test_one_of_constructor_invalid_args():

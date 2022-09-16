@@ -1,6 +1,4 @@
-from protostar.commands.test.fuzzing.fuzz_input_exception_metadata import (
-    FuzzInputExceptionMetadata,
-)
+from .fuzz_input_exception_metadata import FuzzInputExceptionMetadata
 
 
 def test_display():

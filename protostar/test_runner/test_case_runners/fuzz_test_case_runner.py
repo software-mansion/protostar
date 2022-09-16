@@ -1,8 +1,5 @@
 from typing import Optional
 
-from protostar.commands.test.fuzzing.fuzz_input_exception_metadata import (
-    FuzzInputExceptionMetadata,
-)
 from protostar.commands.test.test_environment_exceptions import (
     BreakingReportedException,
     ReportedException,
@@ -10,6 +7,9 @@ from protostar.commands.test.test_environment_exceptions import (
 from protostar.test_runner.environments.fuzz_test_execution_environment import (
     FuzzTestExecutionEnvironment,
     FuzzTestExecutionResult,
+)
+from protostar.test_runner.fuzzing.fuzz_input_exception_metadata import (
+    FuzzInputExceptionMetadata,
 )
 from protostar.test_runner.test_results import (
     BrokenFuzzTestCaseResult,

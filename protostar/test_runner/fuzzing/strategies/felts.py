@@ -2,8 +2,8 @@ from hypothesis.strategies import SearchStrategy, integers
 from starkware.cairo.lang.compiler.ast.cairo_types import CairoType, TypeFelt
 from starkware.crypto.signature.signature import FIELD_PRIME
 
-from protostar.commands.test.fuzzing.exceptions import SearchStrategyBuildError
-from protostar.commands.test.fuzzing.strategy_descriptor import StrategyDescriptor
+from protostar.test_runner.fuzzing.exceptions import SearchStrategyBuildError
+from protostar.test_runner.fuzzing.strategy_descriptor import StrategyDescriptor
 
 
 class FeltsStrategyDescriptor(StrategyDescriptor):

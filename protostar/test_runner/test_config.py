@@ -5,10 +5,10 @@ from typing import Dict
 from starkware.starknet.testing.contract import StarknetContract
 from typing_extensions import Self
 
-from protostar.commands.test.fuzzing.strategy_descriptor import StrategyDescriptor
 from protostar.protostar_exception import ProtostarException
 from protostar.utils.abi import has_function_parameters
 
+from .fuzzing.strategy_descriptor import StrategyDescriptor
 from .test_suite import TestCase
 from .testing_seed import Seed, random_seed
 

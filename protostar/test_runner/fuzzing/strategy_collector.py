@@ -3,14 +3,9 @@ from typing import Dict
 from hypothesis.strategies import SearchStrategy
 from starkware.cairo.lang.compiler.ast.cairo_types import CairoType
 
-from protostar.commands.test.fuzzing.exceptions import (
-    FuzzingError,
-    SearchStrategyBuildError,
-)
-from protostar.commands.test.fuzzing.strategy_descriptor import StrategyDescriptor
-from protostar.commands.test.fuzzing.strategy_inference import (
-    infer_strategy_from_cairo_type,
-)
+from .exceptions import FuzzingError, SearchStrategyBuildError
+from .strategy_descriptor import StrategyDescriptor
+from .strategy_inference import infer_strategy_from_cairo_type
 
 
 def collect_search_strategies(
