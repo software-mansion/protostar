@@ -74,7 +74,7 @@ When applied to field elements, the unbounded values may rarely overflow.
 
 Often it is the case that a strategy does not produce exactly what is desired and a need to further
 adapt the generated values arise.
-Although this could be done in tests directly, this hurts because fuzzer does not know about the adaptation and may repeatedly test same values.
+Although this could be done in tests directly, this hurts because fuzzer does not know about the adaptation and may repeatedly test the same values.
 The [`assume`] and [`reject`] cheatcodes provide simple interfaces to adapt a advanced strategy.
 Those are not very good considering the performance.
 Fuzzer can execute test on rejected data anyway and will just ignore failure when it happens.
