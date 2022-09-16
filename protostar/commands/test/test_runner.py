@@ -18,7 +18,7 @@ from protostar.commands.test.test_case_runners.test_case_runner_factory import (
 )
 from protostar.commands.test.test_config import TestConfig
 from protostar.commands.test.test_environment_exceptions import ReportedException
-from protostar.commands.test.test_results import (
+from protostar.test_runner.test_results import (
     BrokenTestSuiteResult,
     BrokenSetupCaseResult,
     SkippedSetupCaseResult,

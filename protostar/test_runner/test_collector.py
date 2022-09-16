@@ -5,7 +5,7 @@ from fnmatch import fnmatch
 from glob import glob
 from pathlib import Path
 from time import time
-from typing import Dict, List, Optional, Set, Tuple, Union, Iterable
+from typing import Dict, Iterable, List, Optional, Set, Tuple, Union
 
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     LocationError,
@@ -15,10 +15,11 @@ from starkware.starknet.compiler.starknet_preprocessor import (
     StarknetPreprocessedProgram,
 )
 
-from protostar.commands.test.test_results import BrokenTestSuiteResult
-from protostar.test_runner.test_suite import TestSuite, TestCase
+from protostar.test_runner.test_suite import TestCase, TestSuite
 from protostar.utils.compiler.pass_managers import TestCollectorPreprocessedProgram
 from protostar.utils.starknet_compilation import StarknetCompiler
+
+from .test_results import BrokenTestSuiteResult
 
 TestSuiteGlob = str
 TestSuitePath = Path

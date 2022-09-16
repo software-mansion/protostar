@@ -4,10 +4,10 @@ from protostar.commands.test.environments.setup_case_execution_environment impor
 )
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_environment_exceptions import ReportedException
-from protostar.commands.test.test_results import (
-    SetupCaseResult,
-    PassedSetupCaseResult,
+from protostar.test_runner.test_results import (
     BrokenSetupCaseResult,
+    PassedSetupCaseResult,
+    SetupCaseResult,
     SkippedSetupCaseResult,
 )
 from protostar.test_runner.test_suite import TestCase

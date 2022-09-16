@@ -12,7 +12,7 @@ from protostar.commands.test.test_environment_exceptions import (
     ReportedException,
     BreakingReportedException,
 )
-from protostar.commands.test.test_results import (
+from protostar.test_runner.test_results import (
     FailedFuzzTestCaseResult,
     FailedTestCaseResult,
     FuzzResult,

@@ -7,14 +7,14 @@ from protostar.commands.test.environments.test_execution_environment import (
 )
 from protostar.commands.test.stopwatch import Stopwatch
 from protostar.commands.test.test_environment_exceptions import (
-    ReportedException,
     BreakingReportedException,
+    ReportedException,
 )
 from protostar.commands.test.test_output_recorder import OutputRecorder
-from protostar.commands.test.test_results import (
+from protostar.test_runner.test_results import (
+    BrokenTestCaseResult,
     FailedTestCaseResult,
     PassedTestCaseResult,
-    BrokenTestCaseResult,
     TestCaseResult,
 )
 from protostar.test_runner.test_suite import TestCase

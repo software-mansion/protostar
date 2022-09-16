@@ -2,7 +2,7 @@ import ctypes
 from multiprocessing.managers import SyncManager
 from typing import TYPE_CHECKING
 
-from protostar.commands.test.test_results import PassedTestCaseResult, TestResult
+from protostar.test_runner.test_results import PassedTestCaseResult, TestResult
 
 if TYPE_CHECKING:
     from protostar.test_runner import TestCollector

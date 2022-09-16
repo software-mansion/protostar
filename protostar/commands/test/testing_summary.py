@@ -3,7 +3,7 @@ from logging import Logger
 from pathlib import Path
 from typing import Dict, List
 
-from protostar.commands.test.test_results import (
+from protostar.test_runner.test_results import (
     BrokenTestCaseResult,
     BrokenTestSuiteResult,
     FailedTestCaseResult,
