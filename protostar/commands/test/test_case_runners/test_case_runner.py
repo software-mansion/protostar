@@ -5,12 +5,12 @@ from typing import Generic, TypeVar
 from protostar.commands.test.environments.test_execution_environment import (
     TestExecutionResult,
 )
-from protostar.commands.test.stopwatch import Stopwatch
 from protostar.commands.test.test_environment_exceptions import (
     BreakingReportedException,
     ReportedException,
 )
 from protostar.commands.test.test_output_recorder import OutputRecorder
+from protostar.test_runner.stopwatch import Stopwatch
 from protostar.test_runner.test_results import (
     BrokenTestCaseResult,
     FailedTestCaseResult,

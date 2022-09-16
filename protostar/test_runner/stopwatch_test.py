@@ -1,6 +1,6 @@
 import pytest
 
-from protostar.commands.test.stopwatch import Stopwatch
+from .stopwatch import Stopwatch
 
 
 def test_measures_time():
