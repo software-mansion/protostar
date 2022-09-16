@@ -45,7 +45,12 @@ def test_saving_sections_without_double_quotes():
         model=model,
     )
 
-    assert "[profile.devnet.declare]" in result
+    assert result == dedent(
+        """\
+        [profile.devnet.declare]
+        network = "devnet"
+        """
+    )
 
 
 def test_generating_inline_table():
