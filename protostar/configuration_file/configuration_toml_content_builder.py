@@ -5,12 +5,8 @@ from tomlkit.items import InlineTable, Table
 
 from .configuration_file import ConfigurationFileContentBuilder
 
-ConfigurationTOMLContent = str
 
-
-class ConfigurationTOMLContentBuilder(
-    ConfigurationFileContentBuilder[ConfigurationTOMLContent]
-):
+class ConfigurationTOMLContentBuilder(ConfigurationFileContentBuilder):
     def __init__(self) -> None:
         self._doc = tomlkit.document()
         self._profiles_table = tomlkit.table(is_super_table=True)
@@ -59,6 +55,6 @@ class ConfigurationTOMLContentBuilder(
                 inline_table.add(key, value)
         return inline_table
 
-    def build(self) -> ConfigurationTOMLContent:
+    def build(self) -> str:
         self._doc.add("profile", self._profiles_table)
         return tomlkit.dumps(self._doc)

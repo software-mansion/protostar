@@ -17,8 +17,6 @@ from .configuration_file import (
 )
 from .configuration_file_interpreter import ConfigurationFileInterpreter
 
-FileContentT = TypeVar("FileContentT")
-
 
 @dataclass
 class ConfigurationFileV2Model:
@@ -100,9 +98,9 @@ class ConfigurationFileV2(
 
     def create_file_content(
         self,
-        content_builder: ConfigurationFileContentBuilder[FileContentT],
+        content_builder: ConfigurationFileContentBuilder,
         model: ConfigurationFileV2Model,
-    ) -> FileContentT:
+    ) -> str:
         content_builder.set_section(
             section_name="project", data=self._prepare_project_section_data(model)
         )

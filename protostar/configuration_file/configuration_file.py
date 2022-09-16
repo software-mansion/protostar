@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Generic, Optional, TypeVar, Union
 
@@ -16,10 +16,9 @@ ProfileName = str
 ContractName = str
 
 ConfigurationFileModelT = TypeVar("ConfigurationFileModelT")
-FileContentT = TypeVar("FileContentT")
 
 
-class ConfigurationFileContentBuilder(Generic[FileContentT]):
+class ConfigurationFileContentBuilder(ABC):
     @abstractmethod
     def set_section(
         self,
@@ -30,7 +29,7 @@ class ConfigurationFileContentBuilder(Generic[FileContentT]):
         pass
 
     @abstractmethod
-    def build(self) -> FileContentT:
+    def build(self) -> str:
         ...
 
 
@@ -38,9 +37,9 @@ class ConfigurationFileContentConfigurator(Generic[ConfigurationFileModelT]):
     @abstractmethod
     def create_file_content(
         self,
-        content_builder: ConfigurationFileContentBuilder[FileContentT],
+        content_builder: ConfigurationFileContentBuilder,
         model: ConfigurationFileModelT,
-    ) -> FileContentT:
+    ) -> str:
         ...
 
 
