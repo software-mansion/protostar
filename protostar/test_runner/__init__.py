@@ -19,4 +19,5 @@ from .test_results import (
     UnexpectedBrokenTestSuiteResult,
 )
 from .test_runner import TestRunner
+from .test_scheduler import TestScheduler
 from .testing_summary import TestingSummary
