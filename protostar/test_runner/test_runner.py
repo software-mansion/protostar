@@ -8,12 +8,12 @@ from typing import List, Optional
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 
-from protostar.commands.test.environments.setup_execution_environment import (
-    SetupExecutionEnvironment,
-)
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_environment_exceptions import ReportedException
 from protostar.protostar_exception import ProtostarException
+from protostar.test_runner.environments.setup_execution_environment import (
+    SetupExecutionEnvironment,
+)
 from protostar.utils.compiler.pass_managers import (
     ProtostarPassMangerFactory,
     TestSuitePassMangerFactory,

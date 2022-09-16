@@ -10,11 +10,6 @@ from hypothesis.reporting import with_reporter
 from hypothesis.strategies import SearchStrategy
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
-from protostar.commands.test.environments.test_execution_environment import (
-    TestCaseCheatcodeFactory,
-    TestExecutionEnvironment,
-    TestExecutionResult,
-)
 from protostar.commands.test.fuzzing.exceptions import HypothesisRejectException
 from protostar.commands.test.fuzzing.fuzz_input_exception_metadata import (
     FuzzInputExceptionMetadata,
@@ -37,6 +32,12 @@ from protostar.commands.test.test_environment_exceptions import (
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.test_runner.cheatcodes import AssumeCheatcode, RejectCheatcode
 from protostar.utils.abi import get_function_parameters
+
+from .test_execution_environment import (
+    TestCaseCheatcodeFactory,
+    TestExecutionEnvironment,
+    TestExecutionResult,
+)
 
 
 @dataclass

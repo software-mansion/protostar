@@ -2,14 +2,15 @@ from typing import List
 
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
-from protostar.commands.test.environments.setup_execution_environment import (
-    SetupCheatcodeFactory,
-    SetupExecutionEnvironment,
-)
 from protostar.commands.test.fuzzing.strategies import StrategiesHintLocal
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.hint_local import HintLocal
 from protostar.test_runner.cheatcodes import GivenCheatcode, SkipCheatcode
+
+from .setup_execution_environment import (
+    SetupCheatcodeFactory,
+    SetupExecutionEnvironment,
+)
 
 
 class SetupCaseExecutionEnvironment(SetupExecutionEnvironment):

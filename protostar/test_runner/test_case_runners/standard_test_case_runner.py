@@ -1,4 +1,4 @@
-from protostar.commands.test.environments.test_execution_environment import (
+from protostar.test_runner.environments.test_execution_environment import (
     TestExecutionEnvironment,
     TestExecutionResult,
 )
