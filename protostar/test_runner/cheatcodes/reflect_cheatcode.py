@@ -1,6 +1,7 @@
 from protostar.starknet.cheatcode import Cheatcode
-from protostar.commands.test.cheatcodes.reflect.reflector import Reflector
 from protostar.starknet.delayed_builder import DelayedBuilder
+
+from .reflect.reflector import Reflector
 
 
 class ReflectCheatcode(Cheatcode):

@@ -1,28 +1,22 @@
-from typing import List, Tuple
 from copy import deepcopy
+from typing import List, Tuple
 
-from starkware.cairo.lang.vm.vm_consts import (
-    is_simple_type,
-    VmConstsReference,
-)
-from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.cairo.lang.compiler.ast.cairo_types import (
     CairoType,
-    TypeStruct,
-    TypePointer,
     TypeFelt,
+    TypePointer,
+    TypeStruct,
 )
 from starkware.cairo.lang.compiler.identifier_definition import (
-    StructDefinition,
     MemberDefinition,
+    StructDefinition,
 )
+from starkware.cairo.lang.vm.relocatable import RelocatableValue
+from starkware.cairo.lang.vm.vm_consts import VmConstsReference, is_simple_type
 
-from protostar.commands.test.cheatcodes.reflect.misc import (
-    ReflectInputType,
-    ReflectValueType,
-)
+from .cairo_struct import CairoStruct
+from .misc import ReflectInputType, ReflectValueType
 
-from protostar.commands.test.cheatcodes.reflect.cairo_struct import CairoStruct
 
 # pylint: disable=W0212
 def generate_value_tree(value: ReflectInputType) -> ReflectValueType:

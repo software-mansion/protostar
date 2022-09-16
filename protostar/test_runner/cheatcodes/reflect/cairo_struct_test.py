@@ -1,11 +1,7 @@
 import pytest
-
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 
-from protostar.commands.test.cheatcodes.reflect.cairo_struct import (
-    CairoStruct,
-    CairoStructException,
-)
+from .cairo_struct import CairoStruct, CairoStructException
 
 # pylint: disable=C0103,W0612
 

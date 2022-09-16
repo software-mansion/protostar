@@ -1,31 +1,23 @@
 from copy import deepcopy
-from starkware.cairo.lang.vm.vm_consts import (
-    is_simple_type,
-    VmConstsReference,
-    VmConsts,
-)
-from starkware.cairo.lang.vm.relocatable import RelocatableValue
+
 from starkware.cairo.lang.compiler.ast.cairo_types import (
-    TypeStruct,
-    TypePointer,
     TypeFelt,
+    TypePointer,
+    TypeStruct,
+)
+from starkware.cairo.lang.compiler.identifier_definition import StructDefinition
+from starkware.cairo.lang.vm.relocatable import RelocatableValue
+from starkware.cairo.lang.vm.vm_consts import (
+    VmConsts,
+    VmConstsReference,
+    is_simple_type,
 )
 
-from starkware.cairo.lang.compiler.identifier_definition import StructDefinition
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
 
-from protostar.commands.test.cheatcodes.reflect.misc import (
-    ReflectInputType,
-    to_cairo_naming,
-    ReflectReturnType,
-)
-
-from protostar.commands.test.cheatcodes.reflect.get_from_vm import (
-    get_value_from_vm,
-)
-from protostar.commands.test.cheatcodes.reflect.build_output import (
-    generate_value_tree,
-)
+from .build_output import generate_value_tree
+from .get_from_vm import get_value_from_vm
+from .misc import ReflectInputType, ReflectReturnType, to_cairo_naming
 
 
 class Reflector:

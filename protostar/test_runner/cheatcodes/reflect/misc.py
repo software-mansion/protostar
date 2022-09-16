@@ -1,8 +1,9 @@
-from typing import Union, Type
+from typing import Type, Union
+
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.cairo.lang.vm.vm_consts import VmConstsReference
 
-from protostar.commands.test.cheatcodes.reflect.cairo_struct import CairoStruct
+from .cairo_struct import CairoStruct
 
 ReflectInputType = Union[VmConstsReference, RelocatableValue, None, int]
 ReflectValueType = Union[CairoStruct, RelocatableValue, int]

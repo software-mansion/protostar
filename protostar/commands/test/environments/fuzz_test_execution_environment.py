@@ -10,10 +10,6 @@ from hypothesis.reporting import with_reporter
 from hypothesis.strategies import SearchStrategy
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
-from protostar.commands.test.cheatcodes import (
-    AssumeCheatcode,
-    RejectCheatcode,
-)
 from protostar.commands.test.environments.test_execution_environment import (
     TestCaseCheatcodeFactory,
     TestExecutionEnvironment,
@@ -39,6 +35,7 @@ from protostar.commands.test.test_environment_exceptions import (
     ReportedException,
 )
 from protostar.starknet.cheatcode import Cheatcode
+from protostar.test_runner.cheatcodes import AssumeCheatcode, RejectCheatcode
 from protostar.utils.abi import get_function_parameters
 
 

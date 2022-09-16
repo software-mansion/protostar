@@ -1,29 +1,27 @@
 from typing import Optional
 
-from starkware.cairo.lang.vm.vm_consts import (
-    VmConstsReference,
-    VmConsts,
-    search_identifier_or_scope,
-)
-from starkware.cairo.lang.compiler.ast.cairo_types import (
-    TypeStruct,
-    TypePointer,
-)
-from starkware.cairo.lang.compiler.scoped_name import ScopedName
+from starkware.cairo.lang.compiler.ast.cairo_types import TypePointer, TypeStruct
+from starkware.cairo.lang.compiler.ast.expr import ExprDeref
 from starkware.cairo.lang.compiler.identifier_definition import (
     IdentifierDefinition,
     ReferenceDefinition,
 )
-from starkware.cairo.lang.compiler.ast.expr import ExprDeref
 from starkware.cairo.lang.compiler.identifier_manager import (
     IdentifierScope,
     IdentifierSearchResult,
     MissingIdentifierError,
 )
+from starkware.cairo.lang.compiler.scoped_name import ScopedName
 from starkware.cairo.lang.compiler.type_system_visitor import simplify_type_system
+from starkware.cairo.lang.vm.vm_consts import (
+    VmConsts,
+    VmConstsReference,
+    search_identifier_or_scope,
+)
 
-from protostar.commands.test.cheatcodes.reflect.misc import ReflectInputType
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
+
+from .misc import ReflectInputType
 
 
 def get_value_from_vm(ids: VmConsts, name: str):

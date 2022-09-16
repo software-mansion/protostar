@@ -1,9 +1,9 @@
-from protostar.commands.test.cheatcodes.skip_cheatcode import TestSkipped
 from protostar.commands.test.environments.setup_case_execution_environment import (
     SetupCaseExecutionEnvironment,
 )
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_environment_exceptions import ReportedException
+from protostar.test_runner.cheatcodes.skip_cheatcode import TestSkipped
 from protostar.test_runner.test_results import (
     BrokenSetupCaseResult,
     PassedSetupCaseResult,

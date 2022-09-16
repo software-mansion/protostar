@@ -6,7 +6,6 @@ from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
 )
 
-from protostar.commands.test.cheatcodes.declare_cheatcode import DeclaredContract
 from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.utils.data_transformer import (
@@ -14,6 +13,8 @@ from protostar.utils.data_transformer import (
     PythonData,
     from_python_transformer,
 )
+
+from .declare_cheatcode import DeclaredContract
 
 
 @dataclass(frozen=True)

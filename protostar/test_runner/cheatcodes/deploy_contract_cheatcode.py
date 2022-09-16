@@ -1,8 +1,5 @@
-from typing import Optional, Dict
+from typing import Dict, Optional
 
-from protostar.commands.test.cheatcodes.declare_cheatcode import DeclareCheatcode
-from protostar.commands.test.cheatcodes.deploy_cheatcode import DeployCheatcode
-from protostar.commands.test.cheatcodes.prepare_cheatcode import PrepareCheatcode
 from protostar.commands.test.test_environment_exceptions import (
     KeywordOnlyArgumentCheatcodeException,
 )
@@ -12,6 +9,10 @@ from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import (
 )
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.utils.data_transformer import CairoOrPythonData
+
+from .declare_cheatcode import DeclareCheatcode
+from .deploy_cheatcode import DeployCheatcode
+from .prepare_cheatcode import PrepareCheatcode
 
 
 class DeployContractCheatcode(Cheatcode):

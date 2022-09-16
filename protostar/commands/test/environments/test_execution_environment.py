@@ -3,13 +3,6 @@ from typing import List, Optional
 
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
-from protostar.commands.test.cheatcodes import (
-    ExpectEventsCheatcode,
-    ExpectRevertCheatcode,
-)
-from protostar.commands.test.cheatcodes.expect_revert_cheatcode import (
-    ExpectRevertContext,
-)
 from protostar.commands.test.environments.common_test_cheatcode_factory import (
     CommonTestCheatcodeFactory,
 )
@@ -19,6 +12,11 @@ from protostar.commands.test.starkware.execution_resources_summary import (
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.execution_environment import ExecutionEnvironment
+from protostar.test_runner.cheatcodes import (
+    ExpectEventsCheatcode,
+    ExpectRevertCheatcode,
+)
+from protostar.test_runner.cheatcodes.expect_revert_cheatcode import ExpectRevertContext
 from protostar.utils.abi import has_function_parameters
 from protostar.utils.hook import Hook
 
