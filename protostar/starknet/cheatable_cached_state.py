@@ -9,7 +9,16 @@ from typing_extensions import Self
 
 from protostar.starknet.cheaters import BlockInfoCheater, Cheaters
 from protostar.starknet.types import AddressType, ClassHashType, SelectorType
-from protostar.test_runner.test_environment_exceptions import SimpleReportedException
+
+
+class SimpleReportedException(Exception):
+    # TODO: Use "SimpleReportedException" from test runner without creating cyclic dependency between modules
+    def __init__(self, message: str) -> None:
+        self.message = message
+        super().__init__(message)
+
+    def __str__(self) -> str:
+        return str(self.message)
 
 
 # pylint: disable=too-many-instance-attributes

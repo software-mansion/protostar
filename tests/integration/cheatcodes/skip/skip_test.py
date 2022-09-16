@@ -1,10 +1,4 @@
 from pathlib import Path
-from typing import List
-
-import pytest
-
-from protostar.commands.test.test_result_formatter import format_test_result
-from protostar.test_runner.test_results import SkippedTestCaseResult
 
 from tests.integration.conftest import (
     RunCairoTestRunnerFixture,

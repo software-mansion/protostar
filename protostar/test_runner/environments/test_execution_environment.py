@@ -4,7 +4,6 @@ from typing import List, Optional
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
 from protostar.starknet.cheatcode import Cheatcode
-from protostar.starknet.execution_environment import ExecutionEnvironment
 from protostar.test_runner.cheatcodes import (
     ExpectEventsCheatcode,
     ExpectRevertCheatcode,
@@ -18,6 +17,7 @@ from protostar.utils.abi import has_function_parameters
 from protostar.utils.hook import Hook
 
 from .common_test_cheatcode_factory import CommonTestCheatcodeFactory
+from .execution_environment import ExecutionEnvironment
 
 
 @dataclass

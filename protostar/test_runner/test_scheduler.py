@@ -2,20 +2,20 @@ import multiprocessing
 import signal
 from typing import TYPE_CHECKING, Callable, List
 
-from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.test_runner import TestRunner
 
+from .test_collector import TestCollector
 from .test_shared_tests_state import SharedTestsState
 from .testing_seed import Seed
 
 if TYPE_CHECKING:
-    from .test_collector import TestCollector
+    from protostar.commands.test.testing_live_logger import TestingLiveLogger
 
 
 class TestScheduler:
     def __init__(
         self,
-        live_logger: TestingLiveLogger,
+        live_logger: "TestingLiveLogger",
         worker: Callable[
             [TestRunner.WorkerArgs],
             None,

@@ -1,11 +1,8 @@
 import ctypes
 from multiprocessing.managers import SyncManager
-from typing import TYPE_CHECKING
 
-from protostar.test_runner.test_results import PassedTestCaseResult, TestResult
-
-if TYPE_CHECKING:
-    from protostar.test_runner import TestCollector
+from .test_collector import TestCollector
+from .test_results import PassedTestCaseResult, TestResult
 
 
 class SharedTestsState:
