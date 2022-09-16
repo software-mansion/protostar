@@ -16,6 +16,7 @@ from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.commands.test.testing_seed import determine_testing_seed
 from protostar.commands.test.testing_summary import TestingSummary
 from protostar.compiler import ProjectCairoPathBuilder
+from protostar.protostar_exception import ProtostarException
 from protostar.utils.compiler.pass_managers import (
     StarknetPassManagerFactory,
     TestCollectorPassManagerFactory,
@@ -92,6 +93,13 @@ A glob or globs to a directory or a test suite, for example:
                 type="bool",
             ),
             Command.Argument(
+                name="profile",
+                description=(
+                    "Run profiling for a test contract. Works only for a single test case."
+                ),
+                type="bool",
+            ),
+            Command.Argument(
                 name="no-progress-bar",
                 type="bool",
                 description="Disable progress bar.",
@@ -126,6 +134,7 @@ A glob or globs to a directory or a test suite, for example:
             ignored_targets=args.ignore,
             cairo_path=args.cairo_path,
             disable_hint_validation=args.disable_hint_validation,
+            profile=args.profile,
             no_progress_bar=args.no_progress_bar,
             safe_collecting=args.safe_collecting,
             exit_first=args.exit_first,
@@ -141,6 +150,7 @@ A glob or globs to a directory or a test suite, for example:
         ignored_targets: Optional[List[str]] = None,
         cairo_path: Optional[List[Path]] = None,
         disable_hint_validation: bool = False,
+        profile: bool = False,
         no_progress_bar: bool = False,
         safe_collecting: bool = False,
         exit_first: bool = False,
@@ -180,6 +190,11 @@ A glob or globs to a directory or a test suite, for example:
                 ignored_targets=ignored_targets,
                 default_test_suite_glob=str(self._project_root_path),
             )
+        
+        if profile and test_collector_result.test_cases_count > 1:
+            raise ProtostarException(
+                f"Please specifiy path to a single test case whe running profiling"
+            )
 
         self._log_test_collector_result(test_collector_result)
 
@@ -200,6 +215,7 @@ A glob or globs to a directory or a test suite, for example:
                 include_paths=include_paths,
                 test_collector_result=test_collector_result,
                 disable_hint_validation=disable_hint_validation,
+                profile=profile,
                 exit_first=exit_first,
                 testing_seed=testing_seed,
             )

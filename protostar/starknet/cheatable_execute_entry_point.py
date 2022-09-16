@@ -78,11 +78,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     cheatcode_factory: Optional["CheatcodeFactory"] = None
     samples: List[ContractProfile] = []
     contract_callstack: List[str] = []
-
-    def __init__(self, *args, profile=False, **kwargs):
-        self.do_profile = profile
-        self.transaction_profile = None
-        super().__init__(*args, **kwargs)
+    profile = False
 
     def _run(  # type: ignore
         self,
@@ -169,7 +165,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             ),
         ]
 
-        if self.do_profile:
+        if self.profile:
             self.append_contract_callstack(state, class_hash)
 
         try:
@@ -193,7 +189,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
                 verify_secure=True,
             )
 
-            if self.do_profile:
+            if self.profile:
                 self.append_runtime_profile(runner, contract_class, entry_point)
                 self.pop_contract_callstack()
                 if not CheatableExecuteEntryPoint.contract_callstack:
@@ -263,8 +259,6 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
 
     def pop_contract_callstack(self):
         CheatableExecuteEntryPoint.contract_callstack.pop()
-
-        pass
 
     def append_runtime_profile(self, runner: CairoFunctionRunner, contract_class, entry_point):
         runner.relocate()
