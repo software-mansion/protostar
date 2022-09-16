@@ -4,7 +4,7 @@ Often in code we operate on some assumptions about the possible values of variab
 For example we can perform greater than zero validation early in the code, and we can assume that variables are greater than zero in the subsequent code. 
 Fuzzer allows to provide such assumptions to avoid testing against values which are not covered by the code. 
 
-Cheatcode [`given`](../02-cheatcodes/given.md) ,
+Cheatcode [`given`](../02-cheatcodes/given.md),
 instructs fuzzer how to constraint set of values code is tested against.
 Such constraints are provided declaratively, by assigning _strategies_ to the input parameters as on the example below.
 
@@ -72,8 +72,8 @@ When applied to field elements, the unbounded values may rarely overflow.
 
 ## Adapting strategies
 
-Often it is the case that a strategy does not produce exactly what is desired and a need to further
-adapt the generated values arise.
+Often it is the case that a strategy does not produce exactly what is desired and it is necessary to further
+adapt the generated values.
 Although this could be done in tests directly, this hurts because fuzzer does not know about the adaptation and may repeatedly test the same values.
 The [`assume`] and [`reject`] cheatcodes provide simple interfaces to adapt a advanced strategy.
 Those are not very good considering the performance.
@@ -101,7 +101,7 @@ class Strategy:
     def filter(self, filter_function: Callable[[int], bool]) -> Strategy: ...
 ```
 
-Allows rejecting examples matching a condition.
+Rejects examples not matching a condition.
 
 ```python title="Example"
 strategy.felts().filter(lambda x: x not in [3, 5, 8])
@@ -121,7 +121,7 @@ If too many variables are restricted, fuzzer will reject test execution.
 def one_of(*strategies: Strategy) -> Strategy: ...
 ```
 
-Return a strategy which generates values from any of the argument strategies.
+Returns a strategy which generates values from any of the argument strategies.
 
 ```python title="Example"
 strategy.one_of(
