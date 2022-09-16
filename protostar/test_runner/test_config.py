@@ -6,10 +6,11 @@ from starkware.starknet.testing.contract import StarknetContract
 from typing_extensions import Self
 
 from protostar.commands.test.fuzzing.strategy_descriptor import StrategyDescriptor
-from protostar.test_runner.test_suite import TestCase
-from protostar.commands.test.testing_seed import random_seed, Seed
+from protostar.commands.test.testing_seed import Seed, random_seed
 from protostar.protostar_exception import ProtostarException
 from protostar.utils.abi import has_function_parameters
+
+from .test_suite import TestCase
 
 
 class TestModeConversionException(ProtostarException):

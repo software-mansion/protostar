@@ -12,7 +12,7 @@ from protostar.commands.test.test_case_runners.standard_test_case_runner import 
     StandardTestCaseRunner,
 )
 from protostar.commands.test.test_case_runners.test_case_runner import TestCaseRunner
-from protostar.commands.test.test_config import TestMode
+from protostar.test_runner.test_config import TestMode
 from protostar.test_runner.test_suite import TestCase
 
 

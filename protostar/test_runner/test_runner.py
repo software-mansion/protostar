@@ -1,8 +1,8 @@
 import asyncio
-from pathlib import Path
 import traceback
 from dataclasses import dataclass
 from logging import getLogger
+from pathlib import Path
 from typing import List, Optional
 
 from starkware.starknet.services.api.contract_class import ContractClass
@@ -16,17 +16,8 @@ from protostar.commands.test.test_case_runners.setup_case_runner import run_setu
 from protostar.commands.test.test_case_runners.test_case_runner_factory import (
     TestCaseRunnerFactory,
 )
-from protostar.commands.test.test_config import TestConfig
 from protostar.commands.test.test_environment_exceptions import ReportedException
-from protostar.test_runner.test_results import (
-    BrokenTestSuiteResult,
-    BrokenSetupCaseResult,
-    SkippedSetupCaseResult,
-    TestResult,
-    UnexpectedBrokenTestSuiteResult,
-)
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
-from protostar.test_runner.test_suite import TestSuite, TestCase
 from protostar.commands.test.testing_seed import Seed
 from protostar.protostar_exception import ProtostarException
 from protostar.utils.compiler.pass_managers import (
@@ -34,6 +25,16 @@ from protostar.utils.compiler.pass_managers import (
     TestSuitePassMangerFactory,
 )
 from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
+
+from .test_config import TestConfig
+from .test_results import (
+    BrokenSetupCaseResult,
+    BrokenTestSuiteResult,
+    SkippedSetupCaseResult,
+    TestResult,
+    UnexpectedBrokenTestSuiteResult,
+)
+from .test_suite import TestCase, TestSuite
 
 logger = getLogger()
 

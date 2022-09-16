@@ -1,6 +1,6 @@
 import pytest
 
-from protostar.commands.test.test_config import TestMode, TestModeConversionException
+from .test_config import TestMode, TestModeConversionException
 
 
 @pytest.mark.parametrize(
