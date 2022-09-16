@@ -11,16 +11,6 @@ from protostar.starknet.cheaters import BlockInfoCheater, Cheaters
 from protostar.starknet.types import AddressType, ClassHashType, SelectorType
 
 
-class SimpleReportedException(Exception):
-    # TODO: Use "SimpleReportedException" from test runner without creating cyclic dependency between modules
-    def __init__(self, message: str) -> None:
-        self.message = message
-        super().__init__(message)
-
-    def __str__(self) -> str:
-        return str(self.message)
-
-
 # pylint: disable=too-many-instance-attributes
 class CheatableCachedState(CachedState):
     def __init__(self, *args, **kwargs):
@@ -115,7 +105,7 @@ class CheatableCachedState(CachedState):
 
     def get_abi_from_contract_address(self, contract_address: int) -> AbiType:
         if contract_address not in self.contract_address_to_class_hash_map:
-            raise SimpleReportedException(
+            raise CheatableStateException(
                 (
                     "Couldn't map the `contract_address` to the `class_hash`.\n"
                     f"Is the `contract_address` ({contract_address}) valid?\n"
@@ -123,7 +113,7 @@ class CheatableCachedState(CachedState):
             )
         class_hash = self.contract_address_to_class_hash_map[contract_address]
         if class_hash not in self.class_hash_to_contract_abi_map:
-            raise SimpleReportedException(
+            raise CheatableStateException(
                 (
                     "Couldn't map the `class_hash` to the `contract_abi`.\n"
                     f"Is the `class_hash` ({class_hash}) valid?\n"
@@ -170,3 +160,12 @@ def cheaters_of(state: StateProxy) -> Cheaters:
         return state.cheaters
 
     raise TypeError(f"Unknown State class {state.__class__.__name__}.")
+
+
+class CheatableStateException(Exception):
+    def __init__(self, message: str) -> None:
+        self.message = message
+        super().__init__(message)
+
+    def __str__(self) -> str:
+        return str(self.message)
