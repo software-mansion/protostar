@@ -21,4 +21,5 @@ from .test_results import (
 )
 from .test_runner import TestRunner
 from .test_scheduler import TestScheduler
+from .test_shared_tests_state import SharedTestsState
 from .testing_summary import TestingSummary

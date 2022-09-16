@@ -17,7 +17,6 @@ from protostar.commands.test.test_case_runners.test_case_runner_factory import (
     TestCaseRunnerFactory,
 )
 from protostar.commands.test.test_environment_exceptions import ReportedException
-from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.testing_seed import Seed
 from protostar.protostar_exception import ProtostarException
 from protostar.utils.compiler.pass_managers import (
@@ -34,6 +33,7 @@ from .test_results import (
     TestResult,
     UnexpectedBrokenTestSuiteResult,
 )
+from .test_shared_tests_state import SharedTestsState
 from .test_suite import TestCase, TestSuite
 
 logger = getLogger()

@@ -2,13 +2,14 @@ import multiprocessing
 import signal
 from typing import TYPE_CHECKING, Callable, List
 
-from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.commands.test.testing_seed import Seed
 from protostar.test_runner import TestRunner
 
+from .test_shared_tests_state import SharedTestsState
+
 if TYPE_CHECKING:
-    from protostar.test_runner import TestCollector
+    from .test_collector import TestCollector
 
 
 class TestScheduler:

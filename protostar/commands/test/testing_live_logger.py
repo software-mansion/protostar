@@ -5,8 +5,12 @@ from typing import TYPE_CHECKING, Any, cast
 from tqdm import tqdm as bar
 
 from protostar.commands.test.test_result_formatter import format_test_result
-from protostar.commands.test.test_shared_tests_state import SharedTestsState
-from protostar.test_runner import BrokenTestSuiteResult, TestingSummary, TestResult
+from protostar.test_runner import (
+    BrokenTestSuiteResult,
+    SharedTestsState,
+    TestingSummary,
+    TestResult,
+)
 
 if TYPE_CHECKING:
     from protostar.test_runner import TestCollector
