@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from textwrap import dedent
-from typing import Any, Dict, Union
+from typing import Any, Union
 
 from .configuration_file import (
     ConfigurationFileContentBuilder,
@@ -13,7 +13,7 @@ from .configuration_toml_content_builder import ConfigurationTOMLContentBuilder
 class SimpleConfigurationModel:
     profile_name: str
     section_name: str
-    data: Dict
+    data: dict
 
 
 class ContentConfiguratorDouble(
@@ -51,8 +51,8 @@ def test_saving_sections_without_double_quotes():
 def test_generating_inline_table():
     @dataclass
     class NonTrivialConfigurationModel:
-        dependency_map: Dict[str, Union[str, Dict]]
-        profile_to_dependency_map: Dict[str, Dict[str, Union[str, Dict]]]
+        dependency_map: dict[str, Union[str, dict]]
+        profile_to_dependency_map: dict[str, dict[str, Union[str, dict]]]
 
     builder = ConfigurationTOMLContentBuilder()
     model = NonTrivialConfigurationModel(

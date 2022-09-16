@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 import tomlkit
 from tomlkit.items import InlineTable, Table
@@ -10,12 +10,12 @@ class ConfigurationTOMLContentBuilder(ConfigurationFileContentBuilder):
     def __init__(self) -> None:
         self._doc = tomlkit.document()
         self._profiles_table = tomlkit.table(is_super_table=True)
-        self._profile_name_profile_table: Dict[str, Table] = {}
+        self._profile_name_profile_table: dict[str, Table] = {}
 
     def set_section(
         self,
         section_name: str,
-        data: Dict[str, Any],
+        data: dict[str, Any],
         profile_name: Optional[str] = None,
     ):
         table = self._map_data_to_table(data)
@@ -37,19 +37,19 @@ class ConfigurationTOMLContentBuilder(ConfigurationFileContentBuilder):
         self._profiles_table.add(profile_name, profile_table)
         return profile_table
 
-    def _map_data_to_table(self, data: Dict) -> Table:
+    def _map_data_to_table(self, data: dict) -> Table:
         table = tomlkit.table()
         for key, value in data.items():
-            if isinstance(value, Dict):
+            if isinstance(value, dict):
                 table.add(key, self._map_data_to_inline_table(value))
             else:
                 table.add(key, value)
         return table
 
-    def _map_data_to_inline_table(self, data: Dict) -> InlineTable:
+    def _map_data_to_inline_table(self, data: dict) -> InlineTable:
         inline_table = tomlkit.inline_table()
         for key, value in data.items():
-            if isinstance(value, Dict):
+            if isinstance(value, dict):
                 inline_table.add(key, self._map_data_to_inline_table(value))
             else:
                 inline_table.add(key, value)
