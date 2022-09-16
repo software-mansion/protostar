@@ -4,9 +4,8 @@ from typing import Dict, List, Optional
 
 from typing_extensions import Self
 
-from protostar.commands.test.test_environment_exceptions import ReportedException
-
 from .starkware.execution_resources_summary import ExecutionResourcesSummary
+from .test_environment_exceptions import ReportedException
 from .test_output_recorder import OutputName
 
 

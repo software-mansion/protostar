@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from typing import Dict, Any
+from typing import Any, Dict
 
-from protostar.commands.test.test_environment_exceptions import ExceptionMetadata
+from protostar.test_runner.test_environment_exceptions import ExceptionMetadata
 
 
 @dataclass(frozen=True)

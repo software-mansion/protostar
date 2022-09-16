@@ -4,11 +4,11 @@ from starkware.python.utils import to_bytes
 from starkware.starknet.business_logic.execution.objects import CallInfo
 from starkware.starknet.services.api.contract_class import EntryPointType
 
-from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import (
     DeployedContract,
 )
 from protostar.starknet.cheatcode import Cheatcode
+from protostar.test_runner.test_environment_exceptions import CheatcodeException
 
 from .prepare_cheatcode import PreparedContract
 

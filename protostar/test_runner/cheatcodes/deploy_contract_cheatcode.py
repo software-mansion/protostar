@@ -1,13 +1,13 @@
 from typing import Dict, Optional
 
-from protostar.commands.test.test_environment_exceptions import (
-    KeywordOnlyArgumentCheatcodeException,
-)
 from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import (
     DeployContractCheatcodeProtocol,
     DeployedContract,
 )
 from protostar.starknet.cheatcode import Cheatcode
+from protostar.test_runner.test_environment_exceptions import (
+    KeywordOnlyArgumentCheatcodeException,
+)
 from protostar.utils.data_transformer import CairoOrPythonData
 
 from .declare_cheatcode import DeclareCheatcode

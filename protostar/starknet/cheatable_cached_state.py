@@ -7,9 +7,9 @@ from starkware.starknet.business_logic.state.state import CachedState, StateSync
 from starkware.starknet.public.abi import AbiType
 from typing_extensions import Self
 
-from protostar.commands.test.test_environment_exceptions import SimpleReportedException
-from protostar.starknet.cheaters import Cheaters, BlockInfoCheater
-from protostar.starknet.types import AddressType, SelectorType, ClassHashType
+from protostar.starknet.cheaters import BlockInfoCheater, Cheaters
+from protostar.starknet.types import AddressType, ClassHashType, SelectorType
+from protostar.test_runner.test_environment_exceptions import SimpleReportedException
 
 
 # pylint: disable=too-many-instance-attributes

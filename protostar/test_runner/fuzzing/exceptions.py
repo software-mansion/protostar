@@ -1,6 +1,6 @@
 from hypothesis.errors import UnsatisfiedAssumption
 
-from protostar.commands.test.test_environment_exceptions import (
+from protostar.test_runner.test_environment_exceptions import (
     ReportedException,
     SimpleBreakingReportedException,
 )

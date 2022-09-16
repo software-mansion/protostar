@@ -1,17 +1,15 @@
 from abc import ABC, abstractmethod
-from typing import TypeVar, Generic
+from typing import Generic, TypeVar
 
 from starkware.starknet.testing.objects import StarknetCallInfo
 from starkware.starkware_utils.error_handling import StarkException
 
-from protostar.commands.test.test_environment_exceptions import (
-    StarknetRevertableException,
-)
-from protostar.starknet.cheatable_execute_entry_point import (
-    CheatableExecuteEntryPoint,
-)
+from protostar.starknet.cheatable_execute_entry_point import CheatableExecuteEntryPoint
 from protostar.starknet.cheatcode_factory import CheatcodeFactory
 from protostar.starknet.execution_state import ExecutionState
+from protostar.test_runner.test_environment_exceptions import (
+    StarknetRevertableException,
+)
 
 InvokeResultT = TypeVar("InvokeResultT")
 

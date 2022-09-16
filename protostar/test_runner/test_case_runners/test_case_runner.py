@@ -2,14 +2,14 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Generic, TypeVar
 
-from protostar.commands.test.test_environment_exceptions import (
-    BreakingReportedException,
-    ReportedException,
-)
 from protostar.test_runner.environments.test_execution_environment import (
     TestExecutionResult,
 )
 from protostar.test_runner.stopwatch import Stopwatch
+from protostar.test_runner.test_environment_exceptions import (
+    BreakingReportedException,
+    ReportedException,
+)
 from protostar.test_runner.test_output_recorder import OutputRecorder
 from protostar.test_runner.test_results import (
     BrokenTestCaseResult,

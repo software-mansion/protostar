@@ -3,11 +3,11 @@ from logging import getLogger
 from typing import Callable, Optional
 
 from protostar.starknet.cheatcode import Cheatcode
-from protostar.commands.test.test_environment_exceptions import (
-    RevertableException,
-    SimpleReportedException,
+from protostar.test_runner.test_environment_exceptions import (
     ExpectedRevertException,
     ExpectedRevertMismatchException,
+    RevertableException,
+    SimpleReportedException,
 )
 
 logger = getLogger()

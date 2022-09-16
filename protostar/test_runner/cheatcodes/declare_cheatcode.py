@@ -1,6 +1,6 @@
 import asyncio
 from pathlib import Path
-from typing import Optional, Dict
+from typing import Dict, Optional
 
 from starkware.python.utils import from_bytes
 from starkware.starknet.business_logic.transaction.objects import InternalDeclare
@@ -11,16 +11,15 @@ from starkware.starknet.services.api.gateway.transaction import (
 from starkware.starknet.testing.contract import DeclaredClass
 from starkware.starknet.testing.contract_utils import EventManager, get_abi
 
-from protostar.starknet.cheatcode import Cheatcode
-from protostar.utils.starknet_compilation import StarknetCompiler
-from protostar.commands.test.test_environment_exceptions import (
-    KeywordOnlyArgumentCheatcodeException,
-)
-
 from protostar.migrator.cheatcodes.migrator_declare_cheatcode import (
     DeclareCheatcodeProtocol,
     DeclaredContract,
 )
+from protostar.starknet.cheatcode import Cheatcode
+from protostar.test_runner.test_environment_exceptions import (
+    KeywordOnlyArgumentCheatcodeException,
+)
+from protostar.utils.starknet_compilation import StarknetCompiler
 
 
 class DeclareCheatcode(Cheatcode):

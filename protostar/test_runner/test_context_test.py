@@ -1,8 +1,7 @@
 import pytest
 
-from protostar.commands.test.test_environment_exceptions import ReportedException
-
 from .test_context import TestContext
+from .test_environment_exceptions import ReportedException
 
 
 def test_immutability():

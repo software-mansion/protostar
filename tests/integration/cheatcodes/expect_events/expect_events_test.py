@@ -3,7 +3,7 @@ from typing import cast
 
 import pytest
 
-from protostar.commands.test.test_environment_exceptions import (
+from protostar.test_runner.test_environment_exceptions import (
     ExpectedEventMissingException,
 )
 from tests.integration.conftest import (

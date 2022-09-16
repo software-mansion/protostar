@@ -3,13 +3,8 @@ from dataclasses import dataclass
 from typing import Optional
 
 from starknet_py.net.signer import BaseSigner
-from typing_extensions import Protocol, NotRequired
+from typing_extensions import NotRequired, Protocol
 
-
-from protostar.commands.test.test_environment_exceptions import (
-    CheatcodeException,
-    KeywordOnlyArgumentCheatcodeException,
-)
 from protostar.migrator.cheatcodes import CheatcodeNetworkConfig
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet_gateway import (
@@ -17,8 +12,11 @@ from protostar.starknet_gateway import (
     GatewayFacade,
     UnknownFunctionException,
 )
+from protostar.test_runner.test_environment_exceptions import (
+    CheatcodeException,
+    KeywordOnlyArgumentCheatcodeException,
+)
 from protostar.utils.data_transformer import CairoOrPythonData
-
 
 Wei = int
 

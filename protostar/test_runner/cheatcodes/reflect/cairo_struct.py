@@ -1,9 +1,11 @@
-from typing import OrderedDict, Union, Any, List, Tuple, Type
+from typing import Any, List, OrderedDict, Tuple, Type, Union
+
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
-from protostar.commands.test.test_environment_exceptions import (
+
+from protostar.starknet.hint_local import HintLocal
+from protostar.test_runner.test_environment_exceptions import (
     SimpleBreakingReportedException,
 )
-from protostar.starknet.hint_local import HintLocal
 
 
 class CairoStructException(SimpleBreakingReportedException):
