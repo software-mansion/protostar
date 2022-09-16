@@ -10,12 +10,13 @@ from protostar.commands.test.test_results import (
     PassedTestCaseResult,
     TestResult,
     TimedTestCaseResult,
+    SkippedTestCaseResult,
 )
 from protostar.commands.test.testing_seed import Seed
 from protostar.protostar_exception import ProtostarExceptionSilent
 from protostar.utils.log_color_provider import LogColorProvider, log_color_provider
 
-
+# pylint: disable=too-many-instance-attributes
 class TestingSummary:
     def __init__(self, case_results: List[TestResult], testing_seed: Seed) -> None:
         self.testing_seed = testing_seed
@@ -25,6 +26,7 @@ class TestingSummary:
         self.failed: List[FailedTestCaseResult] = []
         self.broken: List[BrokenTestCaseResult] = []
         self.broken_suites: List[BrokenTestSuiteResult] = []
+        self.skipped: List[SkippedTestCaseResult] = []
         self.extend(case_results)
 
     def extend(self, case_results: List[TestResult]):
@@ -40,6 +42,8 @@ class TestingSummary:
                 self.broken.append(case_result)
             if isinstance(case_result, BrokenTestSuiteResult):
                 self.broken_suites.append(case_result)
+            if isinstance(case_result, SkippedTestCaseResult):
+                self.skipped.append(case_result)
 
     def log(
         self,

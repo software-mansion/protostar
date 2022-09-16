@@ -29,13 +29,15 @@ class CairoTestCases:
     passed: Set[str]
     failed: Set[str]
     broken: Set[str]
+    skipped: Set[str]
 
     def __repr__(self) -> str:
         passed = "[Passed]\n" + "\n".join(sorted(self.passed))
         failed = "[Failed]\n" + "\n".join(sorted(self.failed))
         broken = "[Broken]\n" + "\n".join(sorted(self.broken))
+        skipped = "[Skipped]\n" + "\n".join(sorted(self.skipped))
 
-        return "\n".join([passed, failed, broken])
+        return "\n".join([passed, failed, broken, skipped])
 
 
 def assert_cairo_test_cases(
@@ -43,10 +45,12 @@ def assert_cairo_test_cases(
     expected_passed_test_cases_names: Optional[List[str]] = None,
     expected_failed_test_cases_names: Optional[List[str]] = None,
     expected_broken_test_cases_names: Optional[List[str]] = None,
+    expected_skipped_test_cases_names: Optional[List[str]] = None,  # Explicitly skipped
 ):
     expected_passed_test_cases_names = expected_passed_test_cases_names or []
     expected_failed_test_cases_names = expected_failed_test_cases_names or []
     expected_broken_test_cases_names = expected_broken_test_cases_names or []
+    expected_skipped_test_cases_names = expected_skipped_test_cases_names or []
 
     passed_test_cases_names = set(
         passed_test_case.test_case_name for passed_test_case in testing_summary.passed
@@ -57,6 +61,10 @@ def assert_cairo_test_cases(
     broken_test_cases_names = set(
         broken_test_case.test_case_name for broken_test_case in testing_summary.broken
     )
+    skipped_test_cases_names = set(
+        skipped_test_case.test_case_name
+        for skipped_test_case in testing_summary.skipped
+    )
 
     for broken_test_case in testing_summary.broken_suites:
         for test_case_name in broken_test_case.test_case_names:
@@ -66,12 +74,14 @@ def assert_cairo_test_cases(
         passed=passed_test_cases_names,
         failed=failed_test_cases_names,
         broken=broken_test_cases_names,
+        skipped=skipped_test_cases_names,
     )
 
     expected = CairoTestCases(
         passed=set(expected_passed_test_cases_names),
         failed=set(expected_failed_test_cases_names),
         broken=set(expected_broken_test_cases_names),
+        skipped=set(expected_skipped_test_cases_names),
     )
 
     assert actual == expected

@@ -2,7 +2,7 @@ from typing import List
 
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
-from protostar.commands.test.cheatcodes import GivenCheatcode
+from protostar.commands.test.cheatcodes import GivenCheatcode, SkipCheatcode
 from protostar.commands.test.environments.setup_execution_environment import (
     SetupExecutionEnvironment,
     SetupCheatcodeFactory,
@@ -29,6 +29,7 @@ class SetupCaseCheatcodeFactory(SetupCheatcodeFactory):
         return [
             *super().build_cheatcodes(syscall_dependencies, internal_calls),
             GivenCheatcode(syscall_dependencies, self._state.config),
+            SkipCheatcode(syscall_dependencies),
         ]
 
     def build_hint_locals(self) -> List[HintLocal]:

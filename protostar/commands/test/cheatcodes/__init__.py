@@ -12,6 +12,7 @@ from .prepare_cheatcode import PrepareCheatcode, PreparedContract
 from .reflect_cheatcode import ReflectCheatcode
 from .reject_cheatcode import RejectCheatcode
 from .roll_cheatcode import RollCheatcode
+from .skip_cheatcode import SkipCheatcode
 from .start_prank_cheatcode import StartPrankCheatcode
 from .store_cheatcode import StoreCheatcode
 from .warp_cheatcode import WarpCheatcode
