@@ -19,10 +19,10 @@ from protostar.test_runner.test_results import (
 )
 from protostar.test_runner.test_suite import TestCase
 
-TExecutionResult = TypeVar("TExecutionResult", bound=TestExecutionResult)
+ExecutionResultT = TypeVar("ExecutionResultT", bound=TestExecutionResult)
 
 
-class TestCaseRunner(Generic[TExecutionResult]):
+class TestCaseRunner(Generic[ExecutionResultT]):
     @dataclass
     class ExecutionMetadata:
         execution_time: float
@@ -58,11 +58,11 @@ class TestCaseRunner(Generic[TExecutionResult]):
             )
 
     @abstractmethod
-    async def _run_test_case(self) -> TExecutionResult:
+    async def _run_test_case(self) -> ExecutionResultT:
         ...
 
     def _map_execution_result_to_passed_test_result(
-        self, execution_result: TExecutionResult, execution_metadata: ExecutionMetadata
+        self, execution_result: ExecutionResultT, execution_metadata: ExecutionMetadata
     ) -> PassedTestCaseResult:
         return PassedTestCaseResult(
             file_path=self._test_case.test_path,

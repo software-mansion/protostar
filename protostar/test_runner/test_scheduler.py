@@ -2,9 +2,8 @@ import multiprocessing
 import signal
 from typing import TYPE_CHECKING, Callable, List
 
-from protostar.test_runner import TestRunner
-
 from .test_collector import TestCollector
+from .test_runner import TestRunner
 from .test_shared_tests_state import SharedTestsState
 from .testing_seed import Seed
 
