@@ -9,6 +9,7 @@ from pytest_mock import MockerFixture
 from starknet_py.net import KeyPair
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
+from starkware.python.utils import to_bytes
 
 from protostar.cli.map_targets_to_file_paths import map_targets_to_file_paths
 from protostar.commands import (
@@ -42,6 +43,13 @@ from protostar.utils.input_requester import InputRequester
 from protostar.utils.log_color_provider import LogColorProvider
 
 
+def encode_chain_id(chain_id: Optional[StarknetChainId]) -> Optional[str]:
+    if chain_id is None:
+        return None
+
+    return to_bytes(chain_id.value).decode()
+
+
 class ProtostarFixture:
     def __init__(
         self,
@@ -67,7 +75,7 @@ class ProtostarFixture:
 
     async def declare(
         self,
-        chain_id: Optional[int] = None,
+        chain_id: Optional[StarknetChainId] = None,
         account_address: Optional[str] = None,
         contract: Optional[Path] = None,
         gateway_url: Optional[str] = None,
@@ -82,7 +90,7 @@ class ProtostarFixture:
         args.network = None
         args.token = None
         args.wait_for_acceptance = wait_for_acceptance
-        args.chain_id = chain_id
+        args.chain_id = encode_chain_id(chain_id)
         args.account_address = account_address
         args.contract = contract
         args.gateway_url = gateway_url
@@ -103,7 +111,7 @@ class ProtostarFixture:
         args.token = None
         args.salt = None
         args.wait_for_acceptance = False
-        args.chain_id = StarknetChainId.TESTNET
+        args.chain_id = encode_chain_id(StarknetChainId.TESTNET)
         return await self._deploy_command.run(args)
 
     def init_sync(self):
@@ -137,7 +145,7 @@ class ProtostarFixture:
         args.no_confirm = True
         args.network = None
         args.gateway_url = network
-        args.chain_id = StarknetChainId.TESTNET.value
+        args.chain_id = encode_chain_id(StarknetChainId.TESTNET)
         args.signer_class = None
         args.account_address = account_address
         args.private_key_path = None
@@ -231,7 +239,7 @@ def build_protostar_fixture(
     signer = StarkCurveSigner(
         account_address,
         KeyPair.from_private_key(int(private_key, 16)),
-        StarknetChainId.TESTNET.value,
+        StarknetChainId.TESTNET,
     )
 
     version_manager = mocker.MagicMock()

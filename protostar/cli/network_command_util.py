@@ -1,7 +1,9 @@
 from logging import Logger
-from typing import Any
+from typing import Any, Union
 
 from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.net.models import StarknetChainId
+from starkware.python.utils import from_bytes
 
 from protostar.cli import Command
 from protostar.protostar_exception import ProtostarException
@@ -13,6 +15,22 @@ NETWORK_ARG_NAME = "network"
 CHAIN_ID_ARG_NAME = "chain-id"
 
 
+def get_chain_id(arg: Union[str, StarknetChainId]) -> StarknetChainId:
+    """
+    Adapted from starknet_cli.
+    """
+
+    try:
+        if arg.startswith("0x"):
+            chain_id_int = int(arg, 16)
+        else:
+            chain_id_int = from_bytes(arg.encode())
+
+        return StarknetChainId(chain_id_int)
+    except ValueError:
+        raise ProtostarException("Invalid chain ID value.")
+
+
 class NetworkCommandUtil:
     network_arguments = [
         Command.Argument(
@@ -22,8 +40,8 @@ class NetworkCommandUtil:
         ),
         Command.Argument(
             name=CHAIN_ID_ARG_NAME,
-            description="The chain id. It is required unless `--network` is provided.",
-            type="int",
+            description="The chain ID. It is required unless `--network` is provided.",
+            type="str",
         ),
         Command.Argument(
             name=NETWORK_ARG_NAME,
@@ -67,13 +85,14 @@ class NetworkCommandUtil:
     def get_network_config(self) -> NetworkConfig:
         self.validate_network_command_args()
         return NetworkConfig.build(
-            self._args.gateway_url, self._args.network, chain_id=self._args.chain_id
+            gateway_url=self._args.gateway_url,
+            network=self._args.network,
+            chain_id=get_chain_id(self._args.chain_id),
         )
 
     def get_gateway_client(self) -> GatewayClient:
         network_config = self.get_network_config()
-        # FIXME(arcticae): Remove ignore of this type when starknet.py implements ChainId as Union[StarknetChainId, int]
         return GatewayClient(
             net=network_config.gateway_url,
-            chain=network_config.chain_id,  # type: ignore
+            chain=network_config.chain_id,
         )
