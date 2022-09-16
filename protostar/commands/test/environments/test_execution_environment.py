@@ -10,8 +10,8 @@ from protostar.commands.test.cheatcodes import (
 from protostar.commands.test.cheatcodes.expect_revert_cheatcode import (
     ExpectRevertContext,
 )
-from protostar.commands.test.environments.setup_execution_environment import (
-    SetupCheatcodeFactory,
+from protostar.commands.test.environments.common_test_cheatcode_factory import (
+    CommonTestCheatcodeFactory,
 )
 from protostar.commands.test.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
@@ -71,7 +71,7 @@ class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
         return execution_resources
 
 
-class TestCaseCheatcodeFactory(SetupCheatcodeFactory):
+class TestCaseCheatcodeFactory(CommonTestCheatcodeFactory):
     def __init__(
         self,
         state: TestExecutionState,

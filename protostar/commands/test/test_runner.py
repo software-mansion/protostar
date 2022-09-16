@@ -21,6 +21,7 @@ from protostar.commands.test.test_environment_exceptions import ReportedExceptio
 from protostar.commands.test.test_results import (
     BrokenTestSuiteResult,
     BrokenSetupCaseResult,
+    SkippedSetupCaseResult,
     TestResult,
     UnexpectedBrokenTestSuiteResult,
 )
@@ -189,6 +190,8 @@ class TestRunner:
             setup_case_result = await run_setup_case(test_case, state)
             if isinstance(setup_case_result, BrokenSetupCaseResult):
                 return setup_case_result.into_broken_test_case_result()
+            if isinstance(setup_case_result, SkippedSetupCaseResult):
+                return setup_case_result.into_skipped_test_case_result()
 
         state.determine_test_mode(test_case)
 
