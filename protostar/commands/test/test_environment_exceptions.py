@@ -1,12 +1,12 @@
 import re
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Union, TypeVar, Type, Any
+from typing import Any, Dict, List, Optional, Type, TypeVar, Union
 
 from starkware.starknet.business_logic.execution.objects import Event
 from typing_extensions import Literal
 
-from protostar.commands.test.expected_event import ExpectedEvent
 from protostar.starknet.hint_local import HintLocal
+from protostar.test_runner.expected_event import ExpectedEvent
 from protostar.utils.log_color_provider import SupportedColorName, log_color_provider
 
 # NOTE: When adding new exception type, do not forget to include it in ``test_pickle`` test.
