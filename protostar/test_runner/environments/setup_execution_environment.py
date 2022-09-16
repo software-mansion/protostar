@@ -2,10 +2,10 @@ from typing import List
 
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
-from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.execution_environment import ExecutionEnvironment
 from protostar.test_runner.cheatcodes import MaxExamplesCheatcode
+from protostar.test_runner.starkware.test_execution_state import TestExecutionState
 
 from .common_test_cheatcode_factory import CommonTestCheatcodeFactory
 

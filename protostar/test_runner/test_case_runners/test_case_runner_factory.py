@@ -1,10 +1,10 @@
-from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.test_runner.environments.fuzz_test_execution_environment import (
     FuzzTestExecutionEnvironment,
 )
 from protostar.test_runner.environments.test_execution_environment import (
     TestExecutionEnvironment,
 )
+from protostar.test_runner.starkware.test_execution_state import TestExecutionState
 from protostar.test_runner.test_config import TestMode
 from protostar.test_runner.test_suite import TestCase
 

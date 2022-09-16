@@ -21,16 +21,16 @@ from protostar.commands.test.fuzzing.hypothesis.reporter import (
 )
 from protostar.commands.test.fuzzing.hypothesis.runs_counter import RunsCounter
 from protostar.commands.test.fuzzing.strategy_collector import collect_search_strategies
-from protostar.commands.test.starkware.execution_resources_summary import (
-    ExecutionResourcesSummary,
-)
-from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_environment_exceptions import (
     CheatcodeException,
     ReportedException,
 )
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.test_runner.cheatcodes import AssumeCheatcode, RejectCheatcode
+from protostar.test_runner.starkware.execution_resources_summary import (
+    ExecutionResourcesSummary,
+)
+from protostar.test_runner.starkware.test_execution_state import TestExecutionState
 from protostar.utils.abi import get_function_parameters
 
 from .test_execution_environment import (

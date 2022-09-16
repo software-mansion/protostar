@@ -1,10 +1,10 @@
 import pytest
 
-from protostar.commands.test.starkware.execution_resources_summary import (
-    CountStatistic,
+from .execution_resources_summary import (
     CountSeriesStatistic,
-    Statistic,
+    CountStatistic,
     ExecutionResourcesSummary,
+    Statistic,
 )
 
 

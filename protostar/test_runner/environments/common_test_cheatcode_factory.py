@@ -2,7 +2,6 @@ from typing import List
 
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
-from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.cheatcode_factory import CheatcodeFactory
 from protostar.starknet.hint_local import HintLocal
@@ -20,6 +19,7 @@ from protostar.test_runner.cheatcodes import (
     WarpCheatcode,
 )
 from protostar.test_runner.cheatcodes.reflect.cairo_struct import CairoStructHintLocal
+from protostar.test_runner.starkware.test_execution_state import TestExecutionState
 from protostar.test_runner.test_context import TestContextHintLocal
 
 

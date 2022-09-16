@@ -3,10 +3,6 @@ from typing import List, Optional
 
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
-from protostar.commands.test.starkware.execution_resources_summary import (
-    ExecutionResourcesSummary,
-)
-from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.execution_environment import ExecutionEnvironment
 from protostar.test_runner.cheatcodes import (
@@ -14,6 +10,10 @@ from protostar.test_runner.cheatcodes import (
     ExpectRevertCheatcode,
 )
 from protostar.test_runner.cheatcodes.expect_revert_cheatcode import ExpectRevertContext
+from protostar.test_runner.starkware.execution_resources_summary import (
+    ExecutionResourcesSummary,
+)
+from protostar.test_runner.starkware.test_execution_state import TestExecutionState
 from protostar.utils.abi import has_function_parameters
 from protostar.utils.hook import Hook
 
