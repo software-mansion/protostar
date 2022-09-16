@@ -8,7 +8,7 @@ from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.commands.test.testing_seed import Seed
 
 if TYPE_CHECKING:
-    from protostar.commands.test.test_collector import TestCollector
+    from protostar.test_runner import TestCollector
 
 
 class TestScheduler:

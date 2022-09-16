@@ -10,7 +10,7 @@ from protostar.commands.test.test_shared_tests_state import SharedTestsState
 from protostar.commands.test.testing_summary import TestingSummary
 
 if TYPE_CHECKING:
-    from protostar.commands.test.test_collector import TestCollector
+    from protostar.test_runner import TestCollector
 
 
 class TestingLiveLogger:

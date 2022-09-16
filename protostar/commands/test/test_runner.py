@@ -26,7 +26,7 @@ from protostar.commands.test.test_results import (
     UnexpectedBrokenTestSuiteResult,
 )
 from protostar.commands.test.test_shared_tests_state import SharedTestsState
-from protostar.commands.test.test_suite import TestSuite, TestCase
+from protostar.test_runner.test_suite import TestSuite, TestCase
 from protostar.commands.test.testing_seed import Seed
 from protostar.protostar_exception import ProtostarException
 from protostar.utils.compiler.pass_managers import (

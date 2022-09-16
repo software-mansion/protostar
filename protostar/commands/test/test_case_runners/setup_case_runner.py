@@ -10,7 +10,7 @@ from protostar.commands.test.test_results import (
     BrokenSetupCaseResult,
     SkippedSetupCaseResult,
 )
-from protostar.commands.test.test_suite import TestCase
+from protostar.test_runner.test_suite import TestCase
 
 
 async def run_setup_case(

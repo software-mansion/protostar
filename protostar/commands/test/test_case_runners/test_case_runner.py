@@ -17,7 +17,7 @@ from protostar.commands.test.test_results import (
     BrokenTestCaseResult,
     TestCaseResult,
 )
-from protostar.commands.test.test_suite import TestCase
+from protostar.test_runner.test_suite import TestCase
 
 TExecutionResult = TypeVar("TExecutionResult", bound=TestExecutionResult)
 
