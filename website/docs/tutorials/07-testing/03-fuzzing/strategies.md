@@ -114,7 +114,8 @@ require executing tested Cairo function and thus is more performant.
 Try to use `filter` only to avoid unwanted corner cases rather than attempting to cut out a large
 portion of the searched input values.
 
-The `filter` method is not magic and hard to satisfy conditions may cause the fuzzer to fail.
+Fuzzer draws random data from the original strategy and only afterwards checks if it passes filter conditions.
+If too many variables are restricted, fuzzer will reject test execution.
 
 ### Combining
 
