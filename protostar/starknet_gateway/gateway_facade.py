@@ -265,6 +265,7 @@ class GatewayFacade:
                 address=account_address,
                 client=self._gateway_client,
                 signer=signer,
+                supported_tx_version=1,
             ),
         )
         try:
