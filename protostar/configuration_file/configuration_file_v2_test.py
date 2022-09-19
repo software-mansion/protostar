@@ -3,13 +3,22 @@ from pathlib import Path
 
 import pytest
 
+from protostar.configuration_file.configuration_toml_content_builder import (
+    ConfigurationTOMLContentBuilder,
+)
+from protostar.configuration_file.configuration_toml_interpreter import (
+    ConfigurationTOMLInterpreter,
+)
 from protostar.utils.protostar_directory import VersionManager
 
-from .configuration_file import ConfigurationFile, ContractNameNotFoundException
+from .configuration_file import (
+    ConfigurationFile,
+    ConfigurationFileContentConfigurator,
+    ContractNameNotFoundException,
+)
 from .configuration_file_v1 import ConfigurationFileV1, ConfigurationFileV1Model
 from .configuration_file_v2 import ConfigurationFileV2, ConfigurationFileV2Model
-from .configuration_toml_reader import ConfigurationTOMLReader
-from .configuration_toml_writer import ConfigurationTOMLWriter
+from .configuration_legacy_toml_interpreter import ConfigurationLegacyTOMLInterpreter
 
 
 @pytest.fixture(name="protostar_toml_content")
@@ -18,20 +27,14 @@ def protostar_toml_content_fixture() -> str:
         """\
         [project]
         min-protostar-version = "9.9.9"
-        libs-path = "lib"
+        lib-path = "./lib"
         no-color = true
         network = "devnet1"
-        cairo-path = [
-            "bar",
-        ]
+        cairo-path = ["bar"]
 
         [contracts]
-        foo = [
-            "src/foo.cairo",
-        ]
-        bar = [
-            "src/bar.cairo",
-        ]
+        foo = ["./src/foo.cairo"]
+        bar = ["./src/bar.cairo"]
 
         [declare]
         network = "devnet2"
@@ -54,12 +57,13 @@ def project_root_path_fixture(tmp_path: Path):
 def configuration_file_fixture(project_root_path: Path, protostar_toml_content: str):
     protostar_toml_path = project_root_path / "protostar.toml"
     protostar_toml_path.write_text(protostar_toml_content)
+    configuration_toml_reader = ConfigurationLegacyTOMLInterpreter(
+        file_content=protostar_toml_content
+    )
     return ConfigurationFileV2(
         project_root_path=project_root_path,
-        configuration_toml_reader=ConfigurationTOMLReader(path=protostar_toml_path),
-        configuration_toml_writer=ConfigurationTOMLWriter(
-            output_file_path=project_root_path / "new_protostar.toml"
-        ),
+        configuration_file_reader=configuration_toml_reader,
+        filename=protostar_toml_path.name,
     )
 
 
@@ -86,7 +90,7 @@ def test_retrieving_contract_source_paths(
 
 
 def test_error_when_retrieving_paths_from_not_defined_contract(
-    configuration_file: ConfigurationFile,
+    configuration_file: ConfigurationFileV2,
 ):
     with pytest.raises(ContractNameNotFoundException):
         configuration_file.get_contract_source_paths(
@@ -113,12 +117,14 @@ def test_reading_argument_attribute_defined_within_specified_profile(
 
 
 def test_saving_configuration(
-    configuration_file: ConfigurationFileV2, protostar_toml_content: str
+    configuration_file: ConfigurationFileContentConfigurator[ConfigurationFileV2Model],
+    protostar_toml_content: str,
 ):
+    content_configurator = configuration_file
     configuration_file_v2_model = ConfigurationFileV2Model(
         min_protostar_version="9.9.9",
         project_config={
-            "libs-path": "lib",
+            "lib-path": "./lib",
             "no-color": True,
             "network": "devnet1",
             "cairo-path": ["bar"],
@@ -138,8 +144,10 @@ def test_saving_configuration(
         profile_name_to_project_config={"release": {"network": "mainnet2"}},
     )
 
-    file_path = configuration_file.save(configuration_file_v2_model)
-    result = file_path.read_text()
+    result = content_configurator.create_file_content(
+        model=configuration_file_v2_model,
+        content_builder=ConfigurationTOMLContentBuilder(),
+    )
 
     assert result == protostar_toml_content
 
@@ -203,24 +211,53 @@ def test_transforming_file_v1_into_v2(
         network = "mainnet"
         """
     )
-    old_protostar_toml_path = project_root_path / "protostar_v1.toml"
-    old_protostar_toml_path.write_text(old_protostar_toml_content)
-    reader = ConfigurationTOMLReader(path=old_protostar_toml_path)
+
     model_v1 = ConfigurationFileV1(
-        project_root_path=project_root_path, configuration_toml_reader=reader
+        configuration_file_interpreter=ConfigurationLegacyTOMLInterpreter(
+            file_content=old_protostar_toml_content,
+        ),
+        project_root_path=Path(),
+        filename="_",
     ).read()
 
-    new_protostar_toml_path = ConfigurationFileV2(
-        project_root_path=project_root_path,
-        configuration_toml_reader=ConfigurationTOMLReader(
-            path=project_root_path / "protostar_v2.toml"
+    transformed_protostar_toml = ConfigurationFileV2(
+        configuration_file_reader=ConfigurationTOMLInterpreter(
+            file_content=old_protostar_toml_content,
         ),
-        configuration_toml_writer=ConfigurationTOMLWriter(
-            output_file_path=project_root_path / "new_protostar.toml"
-        ),
-    ).save(
-        ConfigurationFileV2Model.from_v1(model_v1, min_protostar_version="9.9.9"),
+        project_root_path=Path(),
+        filename="_",
+    ).create_file_content(
+        content_builder=ConfigurationTOMLContentBuilder(),
+        model=ConfigurationFileV2Model.from_v1(model_v1, min_protostar_version="9.9.9"),
     )
-    transformed_protostar_toml = new_protostar_toml_path.read_text()
 
     assert transformed_protostar_toml == protostar_toml_content
+
+
+def test_saving_in_particular_order(
+    configuration_file: ConfigurationFileContentConfigurator[ConfigurationFileV2Model],
+):
+    content_configurator = configuration_file
+    configuration_file_v2_model = ConfigurationFileV2Model(
+        min_protostar_version="9.9.9",
+        project_config={
+            "lib-path": "./lib",
+            "cairo-path": ["bar"],
+            "no-color": True,
+            "network": "devnet1",
+        },
+        command_name_to_config={},
+        contract_name_to_path_strs={},
+        profile_name_to_commands_config={},
+        profile_name_to_project_config={},
+    )
+
+    result = content_configurator.create_file_content(
+        content_builder=ConfigurationTOMLContentBuilder(),
+        model=configuration_file_v2_model,
+    )
+
+    assert result.index("[project]") < result.index("[contracts]")
+    assert result.index("lib-path") < result.index("cairo-path")
+    assert result.index("cairo-path") < result.index("no-color")
+    assert result.index("no-color") < result.index("network")

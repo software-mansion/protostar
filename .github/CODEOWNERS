@@ -13,7 +13,10 @@
 /protostar/migrator @Arcticae @kasperski95 @Radinyn
 /protostar/formatter @Radinyn
 /protostar/protostar_toml @kasperski95
+/protostar/configuration_file @kasperski95
 /protostar/starknet @MaksymilianDemitraszek
+/protostar/commands/test/cheatcodes/load_cheatcode.py @MaksymilianDemitraszek
+/protostar/commands/test/cheatcodes/store_cheatcode.py @MaksymilianDemitraszek
 /protostar/starknet_gateway @Arcticae @kasperski95 @Radinyn
 /protostar/upgrader @kasperski95
 

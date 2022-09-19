@@ -1,23 +1,23 @@
 %lang starknet
 
 @external
-func setup_zero():
+func setup_zero() {
     %{ max_examples(0) %}
-    return ()
-end
+    return ();
+}
 
 @external
-func test_zero(a):
-    return ()
-end
+func test_zero(a) {
+    return ();
+}
 
 @external
-func setup_negative():
+func setup_negative() {
     %{ max_examples(-1) %}
-    return ()
-end
+    return ();
+}
 
 @external
-func test_negative(a):
-    return ()
-end
+func test_negative(a) {
+    return ();
+}

@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from protostar.commands.test.test_results import PassedFuzzTestCaseResult
+from protostar.testing.test_results import PassedFuzzTestCaseResult
 from tests.integration.conftest import (
     RunCairoTestRunnerFixture,
     assert_cairo_test_cases,
@@ -41,7 +41,6 @@ async def test_integers_unbounded(
     )
 
 
-@pytest.mark.skip("https://github.com/software-mansion/protostar/issues/711")
 async def test_edge_cases(
     run_cairo_test_runner: RunCairoTestRunnerFixture,
 ):
@@ -54,12 +53,45 @@ async def test_edge_cases(
         expected_passed_test_cases_names=[
             "test_multiple_given_calls",
         ],
-        expected_failed_test_cases_names=[
+        expected_broken_test_cases_names=[
+            "test_unknown_parameter",
             "test_integers_inverted_range",
             "test_not_strategy_object",
             "test_repeated_parameter",
         ],
-        expected_broken_test_cases_names=[
-            "test_unknown_parameter",
+    )
+
+
+async def test_mapping_and_filtering(
+    run_cairo_test_runner: RunCairoTestRunnerFixture,
+):
+    testing_summary = await run_cairo_test_runner(
+        Path(__file__).parent / "map_and_filter_test.cairo"
+    )
+
+    assert_cairo_test_cases(
+        testing_summary,
+        expected_passed_test_cases_names=[
+            "test_chaining",
+            "test_filtering",
+            "test_mapping",
         ],
+    )
+
+
+async def test_one_of(
+    run_cairo_test_runner: RunCairoTestRunnerFixture,
+):
+    testing_summary = await run_cairo_test_runner(
+        Path(__file__).parent / "one_of_test.cairo"
+    )
+
+    assert_cairo_test_cases(
+        testing_summary,
+        expected_passed_test_cases_names=[
+            "test_one_of",
+            "test_one_of_filtering",
+            "test_one_of_mapping_and_filtering",
+        ],
+        expected_failed_test_cases_names=[],
     )

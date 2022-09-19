@@ -1,6 +1,6 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Dict, Generic, List, Optional, TypeVar, Union
+from typing import Any, Generic, Optional, TypeVar, Union
 
 from protostar.protostar_exception import ProtostarException
 from protostar.utils.protostar_directory import VersionType
@@ -10,12 +10,37 @@ PrimitiveTypesSupportedByConfigurationFile = Union[str, int, bool]
 CommandName = str
 CommandArgName = str
 CommandArgValue = Union[str, int, bool]
-CommandConfig = Dict[CommandArgName, Union[CommandArgValue, List[CommandArgValue]]]
-CommandNameToConfig = Dict[CommandName, CommandConfig]
+CommandConfig = dict[CommandArgName, Union[CommandArgValue, list[CommandArgValue]]]
+CommandNameToConfig = dict[CommandName, CommandConfig]
 ProfileName = str
 ContractName = str
 
 ConfigurationFileModelT = TypeVar("ConfigurationFileModelT")
+
+
+class ConfigurationFileContentBuilder(ABC):
+    @abstractmethod
+    def set_section(
+        self,
+        section_name: str,
+        data: dict[str, Any],
+        profile_name: Optional[str] = None,
+    ) -> None:
+        pass
+
+    @abstractmethod
+    def build(self) -> str:
+        ...
+
+
+class ConfigurationFileContentConfigurator(Generic[ConfigurationFileModelT]):
+    @abstractmethod
+    def create_file_content(
+        self,
+        content_builder: ConfigurationFileContentBuilder,
+        model: ConfigurationFileModelT,
+    ) -> str:
+        ...
 
 
 class ConfigurationFile(Generic[ConfigurationFileModelT]):
@@ -24,11 +49,11 @@ class ConfigurationFile(Generic[ConfigurationFileModelT]):
         ...
 
     @abstractmethod
-    def get_contract_names(self) -> List[str]:
+    def get_contract_names(self) -> list[str]:
         ...
 
     @abstractmethod
-    def get_contract_source_paths(self, contract_name: str) -> List[Path]:
+    def get_contract_source_paths(self, contract_name: str) -> list[Path]:
         ...
 
     @abstractmethod
@@ -37,17 +62,13 @@ class ConfigurationFile(Generic[ConfigurationFileModelT]):
     ) -> Optional[
         Union[
             PrimitiveTypesSupportedByConfigurationFile,
-            List[PrimitiveTypesSupportedByConfigurationFile],
+            list[PrimitiveTypesSupportedByConfigurationFile],
         ]
     ]:
         ...
 
     @abstractmethod
     def read(self) -> ConfigurationFileModelT:
-        ...
-
-    @abstractmethod
-    def save(self, model: ConfigurationFileModelT) -> Path:
         ...
 
 

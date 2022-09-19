@@ -36,9 +36,7 @@ class ForkableStarknet(Starknet):
             state=self.cheatable_state,
             abi=copy.deepcopy(deployed_contract.abi),
             contract_address=deployed_contract.contract_address,
-            deploy_execution_info=copy.deepcopy(
-                deployed_contract.deploy_execution_info
-            ),
+            deploy_call_info=copy.deepcopy(deployed_contract.deploy_call_info),
         )
 
     def fork(self):
@@ -62,13 +60,13 @@ class ForkableStarknet(Starknet):
             disable_hint_validation=disable_hint_validation,
         )
 
-        self.cheatable_state.cheatable_carried_state.update_event_selector_to_name_map(
+        self.cheatable_state.cheatable_state.update_event_selector_to_name_map(
             # pylint: disable=protected-access
             starknet_contract.event_manager._selector_to_name
         )
         # pylint: disable=protected-access
         for event_name in starknet_contract.event_manager._selector_to_name.values():
-            self.cheatable_state.cheatable_carried_state.event_name_to_contract_abi_map[
+            self.cheatable_state.cheatable_state.event_name_to_contract_abi_map[
                 event_name
             ] = starknet_contract.abi
 

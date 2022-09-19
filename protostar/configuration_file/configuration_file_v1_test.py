@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from protostar.configuration_file.configuration_toml_reader import (
-    ConfigurationTOMLReader,
+from protostar.configuration_file.configuration_legacy_toml_interpreter import (
+    ConfigurationLegacyTOMLInterpreter,
 )
 from protostar.utils import VersionManager
 
@@ -35,10 +35,15 @@ def protostar_toml_path_fixture(protostar_toml_content: str, project_root_path: 
 
 
 @pytest.fixture(name="configuration_file")
-def configuration_file_fixture(protostar_toml_path: Path, project_root_path: Path):
+def configuration_file_fixture(
+    protostar_toml_path: Path, project_root_path: Path, protostar_toml_content: str
+):
     return ConfigurationFileV1(
-        ConfigurationTOMLReader(path=protostar_toml_path),
+        ConfigurationLegacyTOMLInterpreter(
+            file_content=protostar_toml_content,
+        ),
         project_root_path=project_root_path,
+        filename=protostar_toml_path.name,
     )
 
 
@@ -212,21 +217,3 @@ def test_generating_data_struct(
         profile_name_to_commands_config={"devnet": {"deploy": {"arg_name": 37}}},
         profile_name_to_shared_command_config={"devnet": {"arg_name": 24}},
     )
-
-
-@pytest.mark.parametrize(
-    "protostar_toml_content",
-    [
-        """
-        ["protostar.deploy"]
-        arg_name = 21
-
-        ["profile.devnet.protostar.deploy"]
-        arg_name = 37
-        """
-    ],
-)
-def test_saving_v1_is_not_supported(configuration_file: ConfigurationFileV1):
-    model = configuration_file.read()
-    with pytest.raises(NotImplementedError):
-        configuration_file.save(model)

@@ -1,6 +1,5 @@
 import shutil
 from pathlib import Path
-from subprocess import CalledProcessError
 
 import pytest
 
@@ -84,8 +83,7 @@ def test_expect_revert(protostar_repo_root: Path, protostar):
 def test_loading_cairo_path_from_config_file(protostar, my_private_libs_setup):
     (my_private_libs_dir,) = my_private_libs_setup
 
-    with pytest.raises(CalledProcessError):
-        protostar(["test", "tests"])
+    protostar(["test", "tests"], expect_exit_code=1)
 
     with open("./protostar.toml", "a", encoding="utf-8") as protostar_toml:
         protostar_toml.write(
@@ -103,8 +101,7 @@ cairo_path = ["{str(my_private_libs_dir)}"]
 @pytest.mark.usefixtures("init")
 def test_exit_code_if_any_test_failed(protostar, copy_fixture):
     copy_fixture("test_failed.cairo", "./tests")
-    with pytest.raises(CalledProcessError):
-        protostar(["test", "tests"])
+    protostar(["test", "tests"], expect_exit_code=1)
 
 
 @pytest.mark.usefixtures("init")
@@ -234,3 +231,11 @@ def test_report_slowest(protostar, copy_fixture):
 def test_does_collect_in_cwd_by_default(protostar):
     result = protostar(["test"])
     assert "Collected 1 suite, and 2 test cases" in result
+
+
+@pytest.mark.usefixtures("init")
+def test_skipping(protostar, copy_fixture):
+    copy_fixture("test_skip.cairo", "./tests")
+    result = protostar(["test", "tests"])
+    assert "SKIP" in result
+    assert "REASON" in result

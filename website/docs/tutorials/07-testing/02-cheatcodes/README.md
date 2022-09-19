@@ -40,10 +40,10 @@ The following example demonstrate usage on the [`deploy_contract`](deploy-contra
 from starkware.cairo.common.uint256 import Uint256
 
 @constructor
-func constructor(initial_balance : Uint256, contract_id : felt):
-    # ...
-    return ()
-end
+func constructor(initial_balance: Uint256, contract_id: felt) {
+    // ...
+    return ();
+}
 ```
 
 

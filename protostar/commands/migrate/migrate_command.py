@@ -8,9 +8,9 @@ from starknet_py.net.signer import BaseSigner
 from protostar.cli import Command
 from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.cli.signable_command_util import SignableCommandUtil
-from protostar.commands.test.test_environment_exceptions import CheatcodeException
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_exception import ProtostarException
+from protostar.starknet import CheatcodeException
 from protostar.starknet_gateway.gateway_facade_factory import GatewayFacadeFactory
 from protostar.utils.input_requester import InputRequester
 from protostar.utils.log_color_provider import LogColorProvider

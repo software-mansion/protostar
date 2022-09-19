@@ -4,10 +4,12 @@ from typing import Optional
 from starknet_py.net.signer import BaseSigner
 
 from protostar.compiler.project_compiler import ProjectCompiler
-from protostar.starknet.execution_environment import ExecutionEnvironment
 from protostar.starknet.execution_state import ExecutionState
 from protostar.starknet.forkable_starknet import ForkableStarknet
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
+from protostar.testing.environments.execution_environment import (
+    ExecutionEnvironment,
+)
 from protostar.utils.compiler.pass_managers import StarknetPassManagerFactory
 from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
@@ -85,10 +87,10 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
         super().__init__(state)
         self.cheatcode_factory = migrator_cheatcode_factory
 
-    async def invoke(
+    async def execute(
         self,
         function_name: str,
     ) -> None:
 
         self.set_cheatcodes(self.cheatcode_factory)
-        await self.perform_invoke(function_name)
+        await self.perform_execute(function_name)

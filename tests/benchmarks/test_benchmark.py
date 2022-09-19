@@ -1,7 +1,7 @@
-import multiprocessing
-from contextlib import asynccontextmanager
 import asyncio
+import multiprocessing
 import threading
+from contextlib import asynccontextmanager
 from multiprocessing.managers import SyncManager
 from pathlib import Path
 from string import Template
@@ -10,14 +10,12 @@ from typing import List, Optional, Tuple
 import pytest
 from starkware.starknet.services.api.contract_class import ContractClass
 
-from protostar.commands.test.starkware.test_execution_state import TestExecutionState
-from protostar.commands.test.test_collector import TestCollector
-from protostar.commands.test.test_config import TestConfig
-from protostar.commands.test.test_runner import TestRunner
-from protostar.commands.test.test_shared_tests_state import SharedTestsState
-from protostar.commands.test.test_suite import TestSuite, TestCase
+from protostar.testing import SharedTestsState, TestCollector, TestRunner
+from protostar.testing.starkware.test_execution_state import TestExecutionState
+from protostar.testing.test_config import TestConfig
+from protostar.testing.test_suite import TestCase, TestSuite
 from protostar.utils.compiler.pass_managers import ProtostarPassMangerFactory
-from protostar.utils.starknet_compilation import StarknetCompiler, CompilerConfig
+from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 from tests.benchmarks.constants import ROUNDS_NUMBER
 
 SCRIPT_DIRECTORY = Path(__file__).parent
@@ -33,7 +31,7 @@ def _multiply_cases(test_body: str) -> Tuple[str, List[str]]:
             @external
             func $case_name{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
                 $body
-                return ()
+                return ();
             end
             """
         ).substitute(case_name=case_name, body=test_body)
@@ -121,6 +119,7 @@ async def prepare_suite(
         test_contract=contract,
         test_suite=test_suite,
         test_config=TestConfig(),
+        contract_path=Path("nothing"),
     )
     return runner, tests_state, execution_state
 
@@ -231,7 +230,7 @@ async def test_setup_perf(aio_benchmark, tmp_path, basic_contract_path):
         @external
         func __setup__{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
             %{ context.deployed_contract_addr = deploy_contract("$basic_contract_path").contract_address %}
-            return ()
+            return ();
         end
         """
     ).substitute(basic_contract_path=basic_contract_path)
@@ -312,7 +311,7 @@ async def test_prepare_perf(aio_benchmark, tmp_path, basic_contract_path):
         @external
         func __setup__{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
             %{ context.declared = declare("$contractpath") %}
-            return ()
+            return ();
         end
     """
     ).substitute(contractpath=basic_contract_path)

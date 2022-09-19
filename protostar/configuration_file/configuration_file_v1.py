@@ -13,7 +13,7 @@ from .configuration_file import (
     PrimitiveTypesSupportedByConfigurationFile,
     ProfileName,
 )
-from .configuration_toml_reader import ConfigurationTOMLReader
+from .configuration_file_interpreter import ConfigurationFileInterpreter
 
 
 @dataclass(frozen=True)
@@ -30,12 +30,14 @@ class ConfigurationFileV1Model:
 class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
     def __init__(
         self,
-        configuration_toml_reader: ConfigurationTOMLReader,
+        configuration_file_interpreter: ConfigurationFileInterpreter,
         project_root_path: Path,
+        filename: str,
     ) -> None:
         super().__init__()
-        self._configuration_toml_reader = configuration_toml_reader
+        self._configuration_file_interpreter = configuration_file_interpreter
         self._project_root_path = project_root_path
+        self._filename = filename
         self._command_names = [
             "build",
             "init",
@@ -46,7 +48,7 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
         ]
 
     def get_min_protostar_version(self) -> Optional[VersionType]:
-        version_str = self._configuration_toml_reader.get_attribute(
+        version_str = self._configuration_file_interpreter.get_attribute(
             attribute_name="protostar_version",
             section_name="config",
             section_namespace="protostar",
@@ -55,20 +57,20 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
             return None
         return VersionManager.parse(version_str)
 
-    def get_contract_names(self) -> List[str]:
-        contract_section = self._configuration_toml_reader.get_section(
+    def get_contract_names(self) -> list[str]:
+        contract_section = self._configuration_file_interpreter.get_section(
             "contracts", section_namespace="protostar"
         )
         if not contract_section:
             return []
         return list(contract_section)
 
-    def get_contract_source_paths(self, contract_name: str) -> List[Path]:
-        contract_section = self._configuration_toml_reader.get_section(
+    def get_contract_source_paths(self, contract_name: str) -> list[Path]:
+        contract_section = self._configuration_file_interpreter.get_section(
             "contracts", section_namespace="protostar"
         )
         if contract_section is None or contract_name not in contract_section:
-            contracts_config_location = f'{self._configuration_toml_reader.get_filename()}::["protostar.contracts"]'
+            contracts_config_location = f'{self._filename}::["protostar.contracts"]'
             raise ContractNameNotFoundException(
                 contract_name,
                 expected_declaration_location=contracts_config_location,
@@ -79,7 +81,7 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
         ]
 
     def get_lib_path(self) -> Optional[Path]:
-        lib_relative_path_str = self._configuration_toml_reader.get_attribute(
+        lib_relative_path_str = self._configuration_file_interpreter.get_attribute(
             section_name="project",
             attribute_name="libs_path",
             section_namespace="protostar",
@@ -93,10 +95,10 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
     ) -> Optional[
         Union[
             PrimitiveTypesSupportedByConfigurationFile,
-            List[PrimitiveTypesSupportedByConfigurationFile],
+            list[PrimitiveTypesSupportedByConfigurationFile],
         ]
     ]:
-        return self._configuration_toml_reader.get_attribute(
+        return self._configuration_file_interpreter.get_attribute(
             section_name=command_name,
             attribute_name=argument_name,
             profile_name=profile_name,
@@ -142,7 +144,7 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
         self,
     ) -> Dict[ProfileName, CommandNameToConfig]:
         result: Dict[ProfileName, CommandNameToConfig] = {}
-        profile_names = self._configuration_toml_reader.get_profile_names()
+        profile_names = self._configuration_file_interpreter.get_profile_names()
         for profile_name in profile_names:
             command_name_to_config = self._get_command_name_to_config(profile_name)
             if command_name_to_config:
@@ -154,7 +156,7 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
     ) -> CommandNameToConfig:
         result: CommandNameToConfig = {}
         for command_name in self._command_names:
-            command_config = self._configuration_toml_reader.get_section(
+            command_config = self._configuration_file_interpreter.get_section(
                 section_name=command_name,
                 profile_name=profile_name,
                 section_namespace="protostar",
@@ -167,7 +169,7 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
         self,
     ) -> Dict[ProfileName, CommandConfig]:
         result: Dict[ProfileName, CommandConfig] = {}
-        profile_names = self._configuration_toml_reader.get_profile_names()
+        profile_names = self._configuration_file_interpreter.get_profile_names()
         for profile_name in profile_names:
             shared_command_config = self._get_shared_command_config(profile_name)
             if shared_command_config:
@@ -178,13 +180,10 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
         self, profile_name: Optional[str] = None
     ) -> CommandConfig:
         return (
-            self._configuration_toml_reader.get_section(
+            self._configuration_file_interpreter.get_section(
                 "shared_command_configs",
                 profile_name=profile_name,
                 section_namespace="protostar",
             )
             or {}
         )
-
-    def save(self, model: ConfigurationFileV1Model) -> Path:
-        raise NotImplementedError("Operation not supported.")

@@ -16,29 +16,28 @@ Example:
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
-struct Value:
-    member a : felt
-    member b : felt
-end
+struct Value {
+    a: felt,
+    b: felt,
+}
 
 @storage_var
-func store_val(a: felt, b: felt) -> (res: Value):
-end
+func store_val(a: felt, b: felt) -> (res: Value) {
+}
 
 @storage_var
-func store_felt() -> (res: felt):
-end
+func store_felt() -> (res: felt) {
+}
 ```
 
 ```cairo title="./test/test_store.cairo"
 %lang starknet
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
-
 @external
-func test_store{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
-    alloc_locals
-    local contract_address
+func test_store{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+    alloc_locals;
+    local contract_address;
     %{
         ids.contract_address = deploy_contract("./src/contract.cairo").contract_address
         felt_val = load(ids.contract_address, "store_felt", "felt")
@@ -47,9 +46,8 @@ func test_store{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_pt
         value_val = load(ids.contract_address, "store_val", "Value", key=[1,2])
         assert value_val == [0, 0]
     %}
-    return ()
-end
-
+    return ();
+}
 ```
 
 :::warning

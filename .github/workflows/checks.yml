@@ -19,7 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: 3.9.14
       - name: Install poetry, and dependencies
         run: |
           python -m pip install --upgrade pip
@@ -43,7 +43,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: 3.9.14
       - name: Install poetry
         run: |
           python -m pip install --upgrade pip
@@ -76,7 +76,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: 3.9.14
       - name: Install poetry
         run: |
           python -m pip install --upgrade pip
@@ -111,7 +111,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: 3.9.14
       - name: Install poetry
         run: |
           python -m pip install --upgrade pip
@@ -141,7 +141,7 @@ jobs:
 #      - name: Set up Python
 #        uses: actions/setup-python@v2
 #        with:
-#          python-version: 3.8
+#          python-version: 3.9.14
 #      - name: Install poetry
 #        run: |
 #          python -m pip install --upgrade pip

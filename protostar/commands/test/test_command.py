@@ -4,18 +4,20 @@ from typing import List, Optional
 
 from protostar.cli.activity_indicator import ActivityIndicator
 from protostar.cli.command import Command
-from protostar.commands.test.test_collector import TestCollector
 from protostar.commands.test.test_collector_summary_formatter import (
     format_test_collector_summary,
 )
 from protostar.commands.test.test_result_formatter import format_test_result
-from protostar.commands.test.test_results import TestResult
-from protostar.commands.test.test_runner import TestRunner
-from protostar.commands.test.test_scheduler import TestScheduler
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
-from protostar.commands.test.testing_seed import determine_testing_seed
-from protostar.commands.test.testing_summary import TestingSummary
 from protostar.compiler import ProjectCairoPathBuilder
+from protostar.testing import (
+    TestCollector,
+    TestingSummary,
+    TestResult,
+    TestRunner,
+    TestScheduler,
+    determine_testing_seed,
+)
 from protostar.utils.compiler.pass_managers import (
     StarknetPassManagerFactory,
     TestCollectorPassManagerFactory,
