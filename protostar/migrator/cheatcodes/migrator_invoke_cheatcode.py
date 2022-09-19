@@ -8,7 +8,8 @@ from typing_extensions import Protocol, NotRequired
 
 from protostar.commands.test.test_environment_exceptions import (
     CheatcodeException,
-    KeywordOnlyArgumentCheatcodeException, SimpleReportedException,
+    KeywordOnlyArgumentCheatcodeException,
+    SimpleReportedException,
 )
 from protostar.migrator.cheatcodes import CheatcodeNetworkConfig
 from protostar.starknet.cheatcode import Cheatcode

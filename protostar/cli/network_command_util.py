@@ -1,5 +1,5 @@
 from logging import Logger
-from typing import Any, Union
+from typing import Any, Union, Optional, overload
 
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
@@ -15,10 +15,33 @@ NETWORK_ARG_NAME = "network"
 CHAIN_ID_ARG_NAME = "chain-id"
 
 
-def get_chain_id(arg: Union[str, StarknetChainId]) -> StarknetChainId:
+@overload
+def get_chain_id(arg: None) -> None:
+    ...
+
+
+@overload
+def get_chain_id(arg: StarknetChainId) -> StarknetChainId:
+    ...
+
+
+@overload
+def get_chain_id(arg: str) -> StarknetChainId:
+    ...
+
+
+def get_chain_id(
+    arg: Optional[Union[str, StarknetChainId]]
+) -> Optional[StarknetChainId]:
     """
     Adapted from starknet_cli.
     """
+
+    if arg is None:
+        return None
+
+    if isinstance(arg, StarknetChainId):
+        return arg
 
     try:
         if arg.startswith("0x"):
@@ -27,8 +50,8 @@ def get_chain_id(arg: Union[str, StarknetChainId]) -> StarknetChainId:
             chain_id_int = from_bytes(arg.encode())
 
         return StarknetChainId(chain_id_int)
-    except ValueError:
-        raise ProtostarException("Invalid chain ID value.")
+    except ValueError as ex:
+        raise ProtostarException("Invalid chain ID value.") from ex
 
 
 class NetworkCommandUtil:
