@@ -1,3 +1,4 @@
+from os import listdir
 import shutil
 from pathlib import Path
 
@@ -23,6 +24,7 @@ def test_safe_collecting(protostar):
 def test_basic_contract_profile(protostar):
     result = protostar(["test", "--profiling", "tests/test_main.cairo::test_increase_balance"])
     assert "1 passed" in result
+    assert 'profile.tar.gz' in listdir(".")
 
 @pytest.mark.usefixtures("init")
 def test_basic_contract_profile_multiple(protostar):
