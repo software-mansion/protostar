@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Optional, Union
 
 from protostar.utils.protostar_directory import VersionManager, VersionType
 
@@ -19,12 +19,12 @@ from .configuration_file_interpreter import ConfigurationFileInterpreter
 @dataclass(frozen=True)
 class ConfigurationFileV1Model:
     protostar_version: Optional[str]
-    contract_name_to_path_strs: Dict[ContractName, List[str]]
+    contract_name_to_path_strs: dict[ContractName, list[str]]
     libs_path_str: Optional[str]
     command_name_to_config: CommandNameToConfig
     shared_command_config: CommandConfig
-    profile_name_to_commands_config: Dict[ProfileName, CommandNameToConfig]
-    profile_name_to_shared_command_config: Dict[ProfileName, CommandConfig]
+    profile_name_to_commands_config: dict[ProfileName, CommandNameToConfig]
+    profile_name_to_shared_command_config: dict[ProfileName, CommandConfig]
 
 
 class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
@@ -131,7 +131,7 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
             result = str(lib_path.relative_to(self._project_root_path))
         return result
 
-    def _get_contract_name_to_path_strs(self) -> Dict[ContractName, List[str]]:
+    def _get_contract_name_to_path_strs(self) -> dict[ContractName, list[str]]:
         result = {}
         for contract_name in self.get_contract_names():
             result[contract_name] = [
@@ -142,8 +142,8 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
 
     def _get_profile_name_to_commands_config(
         self,
-    ) -> Dict[ProfileName, CommandNameToConfig]:
-        result: Dict[ProfileName, CommandNameToConfig] = {}
+    ) -> dict[ProfileName, CommandNameToConfig]:
+        result: dict[ProfileName, CommandNameToConfig] = {}
         profile_names = self._configuration_file_interpreter.get_profile_names()
         for profile_name in profile_names:
             command_name_to_config = self._get_command_name_to_config(profile_name)
@@ -167,8 +167,8 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
 
     def _get_profile_name_to_shared_command_config(
         self,
-    ) -> Dict[ProfileName, CommandConfig]:
-        result: Dict[ProfileName, CommandConfig] = {}
+    ) -> dict[ProfileName, CommandConfig]:
+        result: dict[ProfileName, CommandConfig] = {}
         profile_names = self._configuration_file_interpreter.get_profile_names()
         for profile_name in profile_names:
             shared_command_config = self._get_shared_command_config(profile_name)
