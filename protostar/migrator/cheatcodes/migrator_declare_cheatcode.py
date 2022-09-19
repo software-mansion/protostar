@@ -1,16 +1,16 @@
 import asyncio
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Any
+from typing import Any, Optional
 
 from starknet_py.net.signer import BaseSigner
 from typing_extensions import Protocol
 
-from protostar.commands.test.test_environment_exceptions import (
+from protostar.starknet import (
+    Cheatcode,
     CheatcodeException,
     KeywordOnlyArgumentCheatcodeException,
 )
-from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet_gateway import GatewayFacade
 from protostar.starknet_gateway.gateway_facade import CompilationOutputNotFoundException
 

@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from protostar.commands.test.test_results import PassedFuzzTestCaseResult
+from protostar.testing.test_results import PassedFuzzTestCaseResult
 from tests.integration.conftest import (
     RunCairoTestRunnerFixture,
     assert_cairo_test_cases,
