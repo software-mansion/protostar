@@ -2,7 +2,7 @@
 
 ```python
 def declare(
-    contract_path: str,
+    contract_path_str: str,
     *,
     config: Optional[CheatcodeNetworkConfig] = None
 ) -> DeclaredContract:
@@ -10,9 +10,11 @@ def declare(
 class DeclaredContract:
     class_hash: int
 ```
-Declares contract given a relative to a project root path to **compiled** contract.
 
-`config` is a keyword only argument that allows passing [network configuration](../03-network-config.md) data. See related documentation for more information.
+Send a declare transaction.
+
+- `contract_path_str` — A path to the **compiled** contract or a [contract name](../../compiling#contract-name). If you provide a [contract name](../../compiling#contract-name), Protostar will compile the contract to the migration output directory.
+- `config` — A keyword only argument that allows passing [network configuration](../03-network-config.md).
 
 ## Example
 
@@ -21,7 +23,7 @@ Declares contract given a relative to a project root path to **compiled** contra
 
 @external
 func up() {
-    %{ declare("./build/main.json", config={"wait_for_acceptance": True}) %}
+    %{ declare("main", config={"wait_for_acceptance": True}) %}
 
     return ();
 }

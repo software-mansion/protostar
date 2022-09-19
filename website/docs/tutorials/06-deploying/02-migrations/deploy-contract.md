@@ -18,7 +18,7 @@ This cheatcode not be supported in the future. Use [declare](./declare.md) and [
 :::
 
 Deploy a contract to the network.
-- `contract_path` — A path to the **compiled** contract a or a contract name. If you provide a contract name, Protostar will compile the contract to the migration output directory.
+- `contract_path` — A path to the **compiled** contract or a contract name. If you provide a contract name, Protostar will compile the contract to the migration output directory.
 - `constructor_args` — Arguments to the constructor. It can be either a list of felts. To use [data transformer](../../testing/cheatcodes#data-transformer), provide a dictionary.
 - `config` — A keyword only argument that allows passing [network configuration](../03-network-config.md).
 
