@@ -7,7 +7,7 @@ from protostar.compiler.project_compiler import ProjectCompiler
 from protostar.starknet.execution_state import ExecutionState
 from protostar.starknet.forkable_starknet import ForkableStarknet
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
-from protostar.test_runner.environments.execution_environment import (
+from protostar.testing.environments.execution_environment import (
     ExecutionEnvironment,
 )
 from protostar.utils.compiler.pass_managers import StarknetPassManagerFactory

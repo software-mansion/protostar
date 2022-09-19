@@ -9,7 +9,7 @@ from typing_extensions import Protocol
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet_gateway import GatewayFacade
 from protostar.starknet_gateway.gateway_facade import CompilationOutputNotFoundException
-from protostar.test_runner.test_environment_exceptions import (
+from protostar.testing.test_environment_exceptions import (
     CheatcodeException,
     KeywordOnlyArgumentCheatcodeException,
 )

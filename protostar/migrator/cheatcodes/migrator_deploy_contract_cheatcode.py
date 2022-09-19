@@ -10,7 +10,7 @@ from protostar.compiler.compiled_contract_writer import CompiledContractWriter
 from protostar.migrator.migrator_datetime_state import MigratorDateTimeState
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
-from protostar.test_runner.test_environment_exceptions import (
+from protostar.testing.test_environment_exceptions import (
     KeywordOnlyArgumentCheatcodeException,
 )
 from protostar.utils.data_transformer import CairoOrPythonData

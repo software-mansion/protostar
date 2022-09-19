@@ -2,7 +2,7 @@ from pathlib import Path
 
 from starkware.crypto.signature.signature import FIELD_PRIME
 
-from protostar.test_runner.fuzzing.fuzz_input_exception_metadata import (
+from protostar.testing.fuzzing.fuzz_input_exception_metadata import (
     FuzzInputExceptionMetadata,
 )
 from tests.integration.conftest import (

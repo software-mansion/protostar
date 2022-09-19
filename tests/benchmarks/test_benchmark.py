@@ -10,10 +10,10 @@ from typing import List, Optional, Tuple
 import pytest
 from starkware.starknet.services.api.contract_class import ContractClass
 
-from protostar.test_runner import SharedTestsState, TestCollector, TestRunner
-from protostar.test_runner.starkware.test_execution_state import TestExecutionState
-from protostar.test_runner.test_config import TestConfig
-from protostar.test_runner.test_suite import TestCase, TestSuite
+from protostar.testing import SharedTestsState, TestCollector, TestRunner
+from protostar.testing.starkware.test_execution_state import TestExecutionState
+from protostar.testing.test_config import TestConfig
+from protostar.testing.test_suite import TestCase, TestSuite
 from protostar.utils.compiler.pass_managers import ProtostarPassMangerFactory
 from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 from tests.benchmarks.constants import ROUNDS_NUMBER

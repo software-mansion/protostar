@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, cast
 from tqdm import tqdm as bar
 
 from protostar.commands.test.test_result_formatter import format_test_result
-from protostar.test_runner import (
+from protostar.testing import (
     BrokenTestSuiteResult,
     SharedTestsState,
     TestingSummary,
@@ -13,7 +13,7 @@ from protostar.test_runner import (
 )
 
 if TYPE_CHECKING:
-    from protostar.test_runner import TestCollector
+    from protostar.testing import TestCollector
 
 
 class TestingLiveLogger:

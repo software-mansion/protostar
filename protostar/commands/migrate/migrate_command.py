@@ -11,7 +11,7 @@ from protostar.cli.signable_command_util import SignableCommandUtil
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway.gateway_facade_factory import GatewayFacadeFactory
-from protostar.test_runner.test_environment_exceptions import CheatcodeException
+from protostar.testing.test_environment_exceptions import CheatcodeException
 from protostar.utils.input_requester import InputRequester
 from protostar.utils.log_color_provider import LogColorProvider
 

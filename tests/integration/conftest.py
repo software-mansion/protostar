@@ -15,7 +15,7 @@ from typing_extensions import Protocol
 
 from protostar.commands.test.test_command import TestCommand
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
-from protostar.test_runner import TestingSummary
+from protostar.testing import TestingSummary
 from protostar.utils.log_color_provider import LogColorProvider
 from tests.conftest import run_devnet
 from tests.integration.protostar_fixture import (

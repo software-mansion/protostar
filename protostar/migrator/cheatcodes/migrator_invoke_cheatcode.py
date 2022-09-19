@@ -12,7 +12,7 @@ from protostar.starknet_gateway import (
     GatewayFacade,
     UnknownFunctionException,
 )
-from protostar.test_runner.test_environment_exceptions import (
+from protostar.testing.test_environment_exceptions import (
     CheatcodeException,
     KeywordOnlyArgumentCheatcodeException,
 )

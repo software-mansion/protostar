@@ -7,7 +7,7 @@ import pytest
 
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway.starknet_request import StarknetRequest
-from protostar.test_runner.test_environment_exceptions import ReportedException
+from protostar.testing.test_environment_exceptions import ReportedException
 from tests.data.contracts import IDENTITY_CONTRACT
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.migrator.conftest import MigrateFixture

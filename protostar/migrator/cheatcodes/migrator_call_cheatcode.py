@@ -9,7 +9,7 @@ from protostar.starknet_gateway import (
     GatewayFacade,
     UnknownFunctionException,
 )
-from protostar.test_runner.test_environment_exceptions import CheatcodeException
+from protostar.testing.test_environment_exceptions import CheatcodeException
 from protostar.utils.data_transformer import CairoOrPythonData
 
 

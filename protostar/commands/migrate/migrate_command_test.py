@@ -11,7 +11,7 @@ from protostar.commands.migrate.migrate_command import MigrateCommand
 from protostar.migrator import Migrator
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import GatewayFacadeFactory
-from protostar.test_runner.test_environment_exceptions import CheatcodeException
+from protostar.testing.test_environment_exceptions import CheatcodeException
 from protostar.utils.input_requester import InputRequester
 
 

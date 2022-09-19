@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Callable, Dict, List
 
 from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
-from protostar.test_runner import (
+from protostar.testing import (
     BrokenFuzzTestCaseResult,
     BrokenTestCaseResult,
     BrokenTestSuiteResult,
@@ -16,7 +16,7 @@ from protostar.test_runner import (
     UnexpectedBrokenTestSuiteResult,
     format_output_name,
 )
-from protostar.test_runner.test_environment_exceptions import ExceptionMetadata
+from protostar.testing.test_environment_exceptions import ExceptionMetadata
 from protostar.utils.log_color_provider import log_color_provider
 
 LogCallback = Callable[[str], None]
