@@ -252,15 +252,17 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         if not CheatableExecuteEntryPoint.contract_callstack:
             CheatableExecuteEntryPoint.contract_callstack.append("TEST_CONTRACT")
         else:
-            path = extract_cheatable_state(
-                state
-            ).class_hash_to_contract_path_map[from_bytes(class_hash)]
+            path = extract_cheatable_state(state).class_hash_to_contract_path_map[
+                from_bytes(class_hash)
+            ]
             CheatableExecuteEntryPoint.contract_callstack.append(str(path))
 
     def pop_contract_callstack(self):
         CheatableExecuteEntryPoint.contract_callstack.pop()
 
-    def append_runtime_profile(self, runner: CairoFunctionRunner, contract_class, entry_point):
+    def append_runtime_profile(
+        self, runner: CairoFunctionRunner, contract_class, entry_point
+    ):
         runner.relocate()
         profile = get_profile(
             program=contract_class.program,
@@ -273,7 +275,6 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         CheatableExecuteEntryPoint.samples.append(
             ContractProfile(current_callstack, entry_point, profile)
         )
-
 
 
 def get_profile(program, memory, trace, debug_info, runner):

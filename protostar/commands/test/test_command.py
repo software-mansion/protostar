@@ -190,10 +190,10 @@ A glob or globs to a directory or a test suite, for example:
                 ignored_targets=ignored_targets,
                 default_test_suite_glob=str(self._project_root_path),
             )
-        
+
         if profile and test_collector_result.test_cases_count > 1:
             raise ProtostarException(
-                f"Please specifiy path to a single test case whe running profiling"
+                "Please specifiy path to a single test case whe running profiling"
             )
 
         self._log_test_collector_result(test_collector_result)

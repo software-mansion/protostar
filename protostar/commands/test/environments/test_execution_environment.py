@@ -36,7 +36,7 @@ class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
         self._expect_revert_context = ExpectRevertContext()
         self._finish_hook = Hook()
 
-    async def execute(self, function_name: str, profile=False) -> TestExecutionResult:
+    async def execute(self, function_name: str) -> TestExecutionResult:
         assert not has_function_parameters(
             self.state.contract.abi, function_name
         ), f"{self.__class__.__name__} expects no function parameters."
@@ -48,7 +48,6 @@ class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
                 finish_hook=self._finish_hook,
             )
         )
-        self.set_profile_flag(profile)
 
         with self.state.output_recorder.redirect("test"):
             return TestExecutionResult(

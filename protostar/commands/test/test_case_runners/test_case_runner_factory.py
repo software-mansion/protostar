@@ -1,8 +1,8 @@
 from protostar.commands.test.environments.fuzz_test_execution_environment import (
     FuzzTestExecutionEnvironment,
 )
-from protostar.commands.test.environments.test_execution_environment import (
-    TestExecutionEnvironment,
+from protostar.commands.test.environments.standard_test_execution_environment import (
+    StandardTestExecutionEnvironment,
 )
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_case_runners.fuzz_test_case_runner import (
@@ -40,7 +40,9 @@ class TestCaseRunnerFactory:
 
         if mode is TestMode.STANDARD:
             return StandardTestCaseRunner(
-                test_execution_environment=TestExecutionEnvironment(self._state, profile=profile),
+                test_execution_environment=StandardTestExecutionEnvironment(
+                    self._state, profile=profile
+                ),
                 test_case=test_case,
                 output_recorder=self._state.output_recorder,
                 stopwatch=self._state.stopwatch,
