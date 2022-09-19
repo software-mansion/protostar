@@ -19,7 +19,7 @@ from starkware.cairo.lang.vm.vm_consts import (
     search_identifier_or_scope,
 )
 
-from protostar.testing.test_environment_exceptions import CheatcodeException
+from protostar.starknet import CheatcodeException
 
 from .misc import ReflectInputType
 

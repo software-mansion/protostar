@@ -6,15 +6,15 @@ from starknet_py.net.signer import BaseSigner
 from typing_extensions import NotRequired, Protocol
 
 from protostar.migrator.cheatcodes import CheatcodeNetworkConfig
-from protostar.starknet.cheatcode import Cheatcode
+from protostar.starknet import (
+    Cheatcode,
+    CheatcodeException,
+    KeywordOnlyArgumentCheatcodeException,
+)
 from protostar.starknet_gateway import (
     ContractNotFoundException,
     GatewayFacade,
     UnknownFunctionException,
-)
-from protostar.testing.test_environment_exceptions import (
-    CheatcodeException,
-    KeywordOnlyArgumentCheatcodeException,
 )
 from protostar.utils.data_transformer import CairoOrPythonData
 

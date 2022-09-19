@@ -4,10 +4,7 @@ from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import (
     DeployContractCheatcodeProtocol,
     DeployedContract,
 )
-from protostar.starknet.cheatcode import Cheatcode
-from protostar.testing.test_environment_exceptions import (
-    KeywordOnlyArgumentCheatcodeException,
-)
+from protostar.starknet import Cheatcode, KeywordOnlyArgumentCheatcodeException
 from protostar.utils.data_transformer import CairoOrPythonData
 
 from .declare_cheatcode import DeclareCheatcode

@@ -1,6 +1,6 @@
 from typing import Any, Callable, Optional
 
-from protostar.starknet.cheatcode import Cheatcode
+from protostar.starknet import Cheatcode
 
 
 class SkipCheatcode(Cheatcode):

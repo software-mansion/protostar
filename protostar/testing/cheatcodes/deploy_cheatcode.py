@@ -7,8 +7,7 @@ from starkware.starknet.services.api.contract_class import EntryPointType
 from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import (
     DeployedContract,
 )
-from protostar.starknet.cheatcode import Cheatcode
-from protostar.testing.test_environment_exceptions import CheatcodeException
+from protostar.starknet import Cheatcode, CheatcodeException
 
 from .prepare_cheatcode import PreparedContract
 

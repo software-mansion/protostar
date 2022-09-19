@@ -2,15 +2,14 @@ import pickle
 
 import pytest
 
+from protostar.starknet import ExceptionMetadata
+
 from .test_environment_exceptions import (
-    CheatcodeException,
-    ExceptionMetadata,
     ExpectedEventMissingException,
     ExpectedRevertException,
     ExpectedRevertMismatchException,
     ReportedException,
     RevertableException,
-    SimpleReportedException,
     StarknetRevertableException,
 )
 
@@ -102,30 +101,9 @@ def test_matching_by_partial_error_message():
     assert not RevertableException(error_message=["f", "b"]).match(ex)
 
 
-def test_get_metadata_by_type():
-    class UnusedMockMetadata(ExceptionMetadata):
-        @property
-        def name(self) -> str:
-            return "unused"
-
-        def format(self) -> str:
-            return "unused"
-
-    ex = SimpleReportedException("foo")
-
-    metadata = MockMetadata()
-    ex.metadata.append(metadata)
-
-    assert ex.get_metadata_by_type(MockMetadata) is metadata
-    assert ex.get_metadata_by_type(UnusedMockMetadata) is None
-
-
 @pytest.mark.parametrize(
     "exception",
     [
-        ReportedException("x", "y", 123),
-        SimpleReportedException("message"),
-        CheatcodeException("foo", "bar"),
         RevertableException(["foobar"], "TRANSACTION_FAILED"),
         StarknetRevertableException(
             error_message=["message1", "message2"],

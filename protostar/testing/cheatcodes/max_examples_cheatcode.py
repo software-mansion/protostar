@@ -1,8 +1,7 @@
 from typing import Callable
 
-from protostar.starknet.cheatcode import Cheatcode
+from protostar.starknet import Cheatcode, CheatcodeException
 from protostar.testing.test_config import TestConfig
-from protostar.testing.test_environment_exceptions import CheatcodeException
 
 
 class MaxExamplesCheatcode(Cheatcode):

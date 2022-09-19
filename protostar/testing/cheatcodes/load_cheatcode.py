@@ -2,9 +2,8 @@ from typing import Any, Callable, List, Optional
 
 from starkware.starknet.business_logic.state.state import ContractStorageState
 
-from protostar.starknet.cheatcode import Cheatcode
+from protostar.starknet import Cheatcode, CheatcodeException
 from protostar.starknet.storage_var import calc_address
-from protostar.testing.test_environment_exceptions import CheatcodeException
 
 
 class LoadCheatcode(Cheatcode):

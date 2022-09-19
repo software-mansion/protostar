@@ -1,7 +1,6 @@
 from typing import Any, Callable, Optional
 
-from protostar.starknet.cheatcode import Cheatcode
-from protostar.testing.test_environment_exceptions import CheatcodeException
+from protostar.starknet import Cheatcode, CheatcodeException
 
 
 class StartPrankCheatcode(Cheatcode):

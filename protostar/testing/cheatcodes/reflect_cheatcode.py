@@ -1,5 +1,4 @@
-from protostar.starknet.cheatcode import Cheatcode
-from protostar.starknet.delayed_builder import DelayedBuilder
+from protostar.starknet import Cheatcode, DelayedBuilder
 
 from .reflect.reflector import Reflector
 

@@ -1,7 +1,6 @@
 from typing import Any, Callable, Optional
 
-from protostar.starknet.cheatcode import Cheatcode
-from protostar.starknet.types import AddressType
+from protostar.starknet import AddressType, Cheatcode
 
 
 class RollCheatcode(Cheatcode):

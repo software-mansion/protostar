@@ -13,7 +13,7 @@ from starkware.cairo.lang.vm.vm_consts import (
     is_simple_type,
 )
 
-from protostar.testing.test_environment_exceptions import CheatcodeException
+from protostar.starknet import CheatcodeException
 
 from .build_output import generate_value_tree
 from .get_from_vm import get_value_from_vm

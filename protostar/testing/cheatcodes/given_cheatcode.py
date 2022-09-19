@@ -2,10 +2,9 @@ from typing import Any
 
 from typing_extensions import Protocol
 
-from protostar.starknet.cheatcode import Cheatcode
+from protostar.starknet import Cheatcode, CheatcodeException
 from protostar.testing.fuzzing.strategy_descriptor import StrategyDescriptor
 from protostar.testing.test_config import TestConfig, TestMode
-from protostar.testing.test_environment_exceptions import CheatcodeException
 
 
 class GivenCallable(Protocol):

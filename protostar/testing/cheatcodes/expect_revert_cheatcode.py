@@ -2,12 +2,11 @@ from contextlib import asynccontextmanager
 from logging import getLogger
 from typing import Callable, Optional
 
-from protostar.starknet.cheatcode import Cheatcode
+from protostar.starknet import Cheatcode, SimpleReportedException
 from protostar.testing.test_environment_exceptions import (
     ExpectedRevertException,
     ExpectedRevertMismatchException,
     RevertableException,
-    SimpleReportedException,
 )
 
 logger = getLogger()

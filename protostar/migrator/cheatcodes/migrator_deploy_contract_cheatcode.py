@@ -8,11 +8,8 @@ from typing_extensions import Protocol
 from protostar.compiler import ProjectCompiler
 from protostar.compiler.compiled_contract_writer import CompiledContractWriter
 from protostar.migrator.migrator_datetime_state import MigratorDateTimeState
-from protostar.starknet.cheatcode import Cheatcode
+from protostar.starknet import Cheatcode, KeywordOnlyArgumentCheatcodeException
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
-from protostar.testing.test_environment_exceptions import (
-    KeywordOnlyArgumentCheatcodeException,
-)
 from protostar.utils.data_transformer import CairoOrPythonData
 
 from .network_config import CheatcodeNetworkConfig, ValidatedCheatcodeNetworkConfig

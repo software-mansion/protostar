@@ -2,10 +2,7 @@ from typing import Any, List, OrderedDict, Tuple, Type, Union
 
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 
-from protostar.starknet.hint_local import HintLocal
-from protostar.testing.test_environment_exceptions import (
-    SimpleBreakingReportedException,
-)
+from protostar.starknet import HintLocal, SimpleBreakingReportedException
 
 
 class CairoStructException(SimpleBreakingReportedException):
@@ -14,7 +11,7 @@ class CairoStructException(SimpleBreakingReportedException):
 
 class CairoStruct:
     def __init__(self, *args, **kwargs) -> None:
-        if len(args) > 0:  # / syntax not avaliable in py3.7
+        if len(args) > 0:  # / syntax not available in py3.7
             raise CairoStructException(
                 "CairoStruct constructor takes only keyword arguments."
             )

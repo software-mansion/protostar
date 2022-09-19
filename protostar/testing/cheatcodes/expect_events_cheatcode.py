@@ -2,11 +2,9 @@ from typing import TYPE_CHECKING, Callable, Optional, Union
 
 from typing_extensions import NotRequired, TypedDict
 
-from protostar.starknet.cheatcode import Cheatcode
+from protostar.starknet import Cheatcode
 from protostar.testing.expected_event import ExpectedEvent
-from protostar.testing.test_environment_exceptions import (
-    ExpectedEventMissingException,
-)
+from protostar.testing.test_environment_exceptions import ExpectedEventMissingException
 from protostar.utils.data_transformer import (
     CairoOrPythonData,
     from_python_events_transformer,

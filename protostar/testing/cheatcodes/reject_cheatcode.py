@@ -3,7 +3,7 @@ from typing import Callable
 import hypothesis
 from hypothesis.errors import UnsatisfiedAssumption
 
-from protostar.starknet.cheatcode import Cheatcode
+from protostar.starknet import Cheatcode
 from protostar.testing.fuzzing.exceptions import HypothesisRejectException
 
 

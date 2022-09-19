@@ -1,15 +1,12 @@
 from typing import Optional
 
+from protostar.starknet import BreakingReportedException, ReportedException
 from protostar.testing.environments.fuzz_test_execution_environment import (
     FuzzTestExecutionEnvironment,
     FuzzTestExecutionResult,
 )
 from protostar.testing.fuzzing.fuzz_input_exception_metadata import (
     FuzzInputExceptionMetadata,
-)
-from protostar.testing.test_environment_exceptions import (
-    BreakingReportedException,
-    ReportedException,
 )
 from protostar.testing.test_results import (
     BrokenFuzzTestCaseResult,

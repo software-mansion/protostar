@@ -1,9 +1,6 @@
 from hypothesis.errors import UnsatisfiedAssumption
 
-from protostar.testing.test_environment_exceptions import (
-    ReportedException,
-    SimpleBreakingReportedException,
-)
+from protostar.starknet import ReportedException, SimpleBreakingReportedException
 
 
 class FuzzingError(SimpleBreakingReportedException):
