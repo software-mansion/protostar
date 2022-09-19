@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Callable
 
 from attr import dataclass
-from git.repo import Repo
+from protostar.git.git_repository import GitRepository
 
 
 @dataclass
@@ -18,11 +18,13 @@ def pull_package_submodules(
     libs_dir: Path,
 ) -> None:
     submodule_names = listdir(libs_dir)
-    repo = Repo(repo_dir, search_parent_directories=True)
+    repo = GitRepository(repo_dir)
+    submodules = repo.get_submodules()
 
-    for submodule in repo.submodules:
-        if submodule.name in submodule_names:
-            on_submodule_update_start(
-                PackageInfo(name=submodule.name, url=submodule.url)
-            )
-            repo.git.execute(["git", "submodule", "update", "--init", submodule.path])
+    for name in submodules:
+        if name in submodule_names:
+            url = submodules[name].url
+            path = submodules[name].path
+
+            on_submodule_update_start(PackageInfo(name=name, url=url))
+            repo.update_submodule(path, init=True)

@@ -2,13 +2,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-from git import InvalidGitRepositoryError
-from git.repo import Repo
-
 from protostar.commands.init.project_creator._project_creator import ProjectCreator
 from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
 from protostar.utils import InputRequester
 from protostar.utils.protostar_directory import VersionManager
+from protostar.git.git_repository import GitRepository
 
 
 class NewProjectCreator(ProjectCreator):
@@ -62,7 +60,6 @@ class NewProjectCreator(ProjectCreator):
             project_root_path, libs_path=Path(user_input.lib_dirname)
         )
 
-        try:
-            Repo(project_root_path, search_parent_directories=True)
-        except InvalidGitRepositoryError:
-            Repo.init(project_root_path)
+        repo = GitRepository(project_root_path)
+        if not repo.is_initialized():
+            repo.init()

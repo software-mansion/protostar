@@ -3,14 +3,13 @@ from pathlib import Path
 
 import pytest
 from attr import dataclass
-from git.objects import Submodule
-from git.repo import Repo
 from pytest_mock import MockerFixture
 
 from protostar.commands.install import installation_exceptions
 from protostar.commands.install.install_package_from_repo import (
     install_package_from_repo,
 )
+from protostar.git.git_repository import GitRepository
 
 
 @dataclass
@@ -24,18 +23,14 @@ def repo_url():
 
 
 def test_successful_installation(tmpdir: str, repo_url: str, mocker: MockerFixture):
-    Repo.init(tmpdir)
 
-    add_submodule = mocker.patch.object(
-        Submodule,
-        attribute="add",
-        autospec=True,
-    )
-    add_submodule.return_value = SubmoduleMock()
+    repo = GitRepository(tmpdir)
+    repo.init()
 
     install_package_from_repo("foo", repo_url, Path(tmpdir), Path(tmpdir) / "lib")
 
-    add_submodule.assert_called_once()
+    assert repo.is_initialized()
+    assert len(repo.get_submodules()) == 1
 
 
 def test_not_initialized_repo(tmpdir: str, repo_url: str):
