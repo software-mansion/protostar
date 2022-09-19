@@ -36,7 +36,7 @@ class ConfigurationFileV2Model:
         project_config = v1.shared_command_config
         if v1.libs_path_str:
             project_config = {
-                **{"libs-path": v1.libs_path_str},
+                **{"lib-path": v1.libs_path_str},
                 **v1.shared_command_config,
             }
         return cls(

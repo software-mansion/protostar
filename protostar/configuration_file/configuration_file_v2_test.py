@@ -27,14 +27,14 @@ def protostar_toml_content_fixture() -> str:
         """\
         [project]
         min-protostar-version = "9.9.9"
-        lib-path = "./lib"
+        lib-path = "lib"
         no-color = true
         network = "devnet1"
         cairo-path = ["bar"]
 
         [contracts]
-        foo = ["./src/foo.cairo"]
-        bar = ["./src/bar.cairo"]
+        foo = ["src/foo.cairo"]
+        bar = ["src/bar.cairo"]
 
         [declare]
         network = "devnet2"
@@ -124,7 +124,7 @@ def test_saving_configuration(
     configuration_file_v2_model = ConfigurationFileV2Model(
         min_protostar_version="9.9.9",
         project_config={
-            "lib-path": "./lib",
+            "lib-path": "lib",
             "no-color": True,
             "network": "devnet1",
             "cairo-path": ["bar"],
@@ -169,15 +169,13 @@ def test_transforming_model_v1_into_v2():
         min_protostar_version="0.4.0",
         command_name_to_config={"deploy": {"arg_name": 21}},
         contract_name_to_path_strs={"main": ["src/main.cairo"]},
-        project_config={"arg_name": 42, "libs-path": "lib"},
+        project_config={"arg_name": 42, "lib-path": "lib"},
         profile_name_to_commands_config={"devnet": {"deploy": {"arg_name": 37}}},
         profile_name_to_project_config={"devnet": {"arg_name": 24}},
     )
 
 
-def test_transforming_file_v1_into_v2(
-    project_root_path: Path, protostar_toml_content: str
-):
+def test_transforming_file_v1_into_v2(protostar_toml_content: str):
     old_protostar_toml_content = textwrap.dedent(
         """\
         ["protostar.config"]
