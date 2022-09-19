@@ -1,6 +1,5 @@
 import asyncio
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any, Optional
 
 from typing_extensions import Protocol

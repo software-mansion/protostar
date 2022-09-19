@@ -16,12 +16,11 @@ from protostar.migrator.cheatcodes.migrator_invoke_cheatcode import (
 )
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.cheatcode_factory import CheatcodeFactory
+from protostar.starknet.hint_local import HintLocal
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.utils.starknet_compilation import StarknetCompiler
 
-from ..starknet.hint_local import HintLocal
 from .migrator_contract_path_provider import MigratorContractPathProvider
-from .migrator_datetime_state import MigratorDateTimeState
 
 
 class MigratorCheatcodeFactory(CheatcodeFactory):
