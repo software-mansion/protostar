@@ -91,6 +91,6 @@ class NetworkCommandUtil:
             return arg
 
         try:
-            return StarknetChainId(int(arg, 0))
+            return StarknetChainId(arg)
         except ValueError as ex:
             raise ProtostarException("Invalid chain id value.") from ex
