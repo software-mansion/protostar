@@ -1,6 +1,5 @@
 import asyncio
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any, Optional
 
 from starknet_py.net.signer import BaseSigner
@@ -10,12 +9,11 @@ from protostar.commands.test.test_environment_exceptions import (
     CheatcodeException,
     KeywordOnlyArgumentCheatcodeException,
 )
-from protostar.compiler import CompiledContractWriter, ProjectCompiler
-from protostar.migrator.migrator_datetime_state import MigratorDateTimeState
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet_gateway import GatewayFacade
 from protostar.starknet_gateway.gateway_facade import CompilationOutputNotFoundException
 
+from ..migrator_contract_path_provider import MigratorContractPathProvider
 from .network_config import CheatcodeNetworkConfig, ValidatedCheatcodeNetworkConfig
 
 
@@ -41,15 +39,13 @@ class MigratorDeclareCheatcode(Cheatcode):
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
         gateway_facade: GatewayFacade,
-        project_compiler: ProjectCompiler,
-        migrator_datetime_state: MigratorDateTimeState,
+        migrator_contract_path_provider: MigratorContractPathProvider,
         config: "Config",
     ):
         super().__init__(syscall_dependencies)
         self._gateway_facade = gateway_facade
         self._config = config
-        self._project_compiler = project_compiler
-        self._migrator_datetime_state = migrator_datetime_state
+        self._migrator_contract_path_provider = migrator_contract_path_provider
 
     @property
     def name(self) -> str:
@@ -72,8 +68,10 @@ class MigratorDeclareCheatcode(Cheatcode):
             config or CheatcodeNetworkConfig()
         )
 
-        compiled_contract_path = self._get_path_to_compiled_contract(
-            contract_identifier
+        compiled_contract_path = (
+            self._migrator_contract_path_provider.get_path_to_compiled_contract(
+                contract_identifier
+            )
         )
 
         try:
@@ -92,21 +90,3 @@ class MigratorDeclareCheatcode(Cheatcode):
 
         except CompilationOutputNotFoundException as ex:
             raise CheatcodeException(self, ex.message) from ex
-
-    def _get_path_to_compiled_contract(self, contract_identifier: str) -> Path:
-        if "." in contract_identifier:
-            return Path(contract_identifier)
-        return self._compile_contract_by_contract_name(contract_identifier)
-
-    def _compile_contract_by_contract_name(self, contract_name: str) -> Path:
-        contract_class = self._project_compiler.compile_contract_from_contract_name(
-            contract_name
-        )
-        output_file_path = (
-            CompiledContractWriter(contract=contract_class, contract_name=contract_name)
-            .save(
-                output_dir=self._migrator_datetime_state.get_compilation_output_path()
-            )
-            .compiled_contract_path
-        )
-        return output_file_path
