@@ -12,16 +12,16 @@ from protostar.migrator.cheatcodes.migrator_declare_cheatcode import (
 from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import (
     MigratorDeployContractCheatcode,
 )
+from protostar.migrator.cheatcodes.migrator_invoke_cheatcode import (
+    MigratorInvokeCheatcode,
+)
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.cheatcode_factory import CheatcodeFactory
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.utils.starknet_compilation import StarknetCompiler
-from protostar.migrator.cheatcodes.migrator_invoke_cheatcode import (
-    MigratorInvokeCheatcode,
-)
 
-from .migrator_datetime_state import MigratorDateTimeState
 from ..starknet.hint_local import HintLocal
+from .migrator_datetime_state import MigratorDateTimeState
 
 
 class MigratorCheatcodeFactory(CheatcodeFactory):
@@ -59,6 +59,8 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
             MigratorDeclareCheatcode(
                 syscall_dependencies,
                 self.gateway_facade,
+                project_compiler=self._project_compiler,
+                migrator_datetime_state=self._migrator_datetime_state,
                 config=MigratorDeclareCheatcode.Config(
                     token=self._config.token,
                     signer=self._signer,
