@@ -13,18 +13,17 @@ def deploy_contract(
 class DeployedContract:
     contract_address: int
 ```
-
-Deploys a **compiled** contract given a path relative to the project root.
-
-`config` is a keyword only argument that allows passing [network configuration](../03-network-config.md) data. See related documentation for more information.
-
-:::tip
-You can provide `"data"` as a dictionary to use [data transformer](../../testing/cheatcodes#data-transformer).
+:::warning Depreciation warning
+This cheatcode not be supported in the future. Use [declare](./declare.md) and [invoke](./invoke.md) cheatcodes instead.
 :::
 
-:::warning
-Don't use `starkware.starknet.common.syscalls.deploy` in migration scripts. It will deploy the contract to the Protostar's local StarkNet.
-:::
+Deploy a contract to the network.
+- `contract_path` — A path to the **compiled** contract a or a contract name. If you provide a contract name, Protostar will compile the contract to the migration output directory.
+- `constructor_args` — Arguments to the constructor. It can be either a list of felts. To use [data transformer](../../testing/cheatcodes#data-transformer), provide a dictionary.
+- `config` — A keyword only argument that allows passing [network configuration](../03-network-config.md).
+
+
+
 
 ## Example
 
@@ -33,7 +32,7 @@ Don't use `starkware.starknet.common.syscalls.deploy` in migration scripts. It w
 
 @external
 func up() {
-    %{ deploy_contract("./build/main.json", config={"wait_for_acceptance": True}) %}
+    %{ deploy_contract("main", config={"wait_for_acceptance": True}) %}
 
     return ();
 }
