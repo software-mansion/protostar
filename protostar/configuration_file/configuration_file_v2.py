@@ -8,6 +8,8 @@ from .configuration_file import (
     CommandConfig,
     CommandNameToConfig,
     ConfigurationFile,
+    ConfigurationFileContentBuilder,
+    ConfigurationFileContentConfigurator,
     ContractName,
     ContractNameNotFoundException,
     PrimitiveTypesSupportedByConfigurationFile,
@@ -19,14 +21,17 @@ from .configuration_file_interpreter import ConfigurationFileInterpreter
 @dataclass
 class ConfigurationFileV2Model:
     min_protostar_version: Optional[str]
-    contract_name_to_path_str: dict[ContractName, str]
+    contract_name_to_path_strs: dict[ContractName, list[str]]
     project_config: CommandConfig
     command_name_to_config: CommandNameToConfig
     profile_name_to_project_config: dict[ProfileName, CommandConfig]
     profile_name_to_commands_config: dict[ProfileName, CommandNameToConfig]
 
 
-class ConfigurationFileV2(ConfigurationFile[ConfigurationFileV2Model]):
+class ConfigurationFileV2(
+    ConfigurationFile[ConfigurationFileV2Model],
+    ConfigurationFileContentConfigurator[ConfigurationFileV2Model],
+):
     def __init__(
         self,
         project_root_path: Path,
@@ -90,3 +95,49 @@ class ConfigurationFileV2(ConfigurationFile[ConfigurationFileV2Model]):
         self,
     ) -> ConfigurationFileV2Model:
         raise NotImplementedError("Operation not supported.")
+
+    def create_file_content(
+        self,
+        content_builder: ConfigurationFileContentBuilder,
+        model: ConfigurationFileV2Model,
+    ) -> str:
+        content_builder.set_section(
+            section_name="project", data=self._prepare_project_section_data(model)
+        )
+        content_builder.set_section(
+            section_name="contracts", data=model.contract_name_to_path_strs
+        )
+        for command_name, command_config in model.command_name_to_config.items():
+            content_builder.set_section(section_name=command_name, data=command_config)
+        for (
+            profile_name,
+            project_config,
+        ) in model.profile_name_to_project_config.items():
+            content_builder.set_section(
+                profile_name=profile_name, section_name="project", data=project_config
+            )
+        for (
+            profile_name,
+            command_name_to_config,
+        ) in model.profile_name_to_commands_config.items():
+            for command_name, command_config in command_name_to_config.items():
+                content_builder.set_section(
+                    profile_name=profile_name,
+                    section_name=command_name,
+                    data=command_config,
+                )
+        content = content_builder.build()
+        return content
+
+    @staticmethod
+    def _prepare_project_section_data(model: ConfigurationFileV2Model) -> dict:
+        project_config_section = {}
+        project_config_section["min-protostar-version"] = str(
+            model.min_protostar_version
+        )
+        project_config_section: dict = {
+            **project_config_section,
+            **model.project_config,
+        }
+
+        return project_config_section

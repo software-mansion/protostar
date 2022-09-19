@@ -1,38 +1,47 @@
+import textwrap
 from pathlib import Path
 
 import pytest
 
+from protostar.configuration_file.configuration_toml_content_builder import (
+    ConfigurationTOMLContentBuilder,
+)
 from protostar.utils.protostar_directory import VersionManager
 
-from .configuration_file import ConfigurationFile, ContractNameNotFoundException
-from .configuration_file_v2 import ConfigurationFileV2
+from .configuration_file import (
+    ConfigurationFile,
+    ConfigurationFileContentConfigurator,
+    ContractNameNotFoundException,
+)
+from .configuration_file_v2 import ConfigurationFileV2, ConfigurationFileV2Model
 from .configuration_legacy_toml_interpreter import ConfigurationLegacyTOMLInterpreter
 
 
 @pytest.fixture(name="protostar_toml_content")
 def protostar_toml_content_fixture() -> str:
-    return """\
-    [project]
-    min-protostar-version="9.9.9"
-    lib-path="./lib"
-    no-color=true
-    network="devnet1"
-    cairo-path=["bar"]
+    return textwrap.dedent(
+        """\
+        [project]
+        min-protostar-version = "9.9.9"
+        lib-path = "./lib"
+        no-color = true
+        network = "devnet1"
+        cairo-path = ["bar"]
 
-    [declare]
-    network="devnet2"
+        [contracts]
+        foo = ["./src/foo.cairo"]
+        bar = ["./src/bar.cairo"]
 
-    [profile.release.declare]
-    network="mainnet"
+        [declare]
+        network = "devnet2"
 
-    [contracts]
-    foo = [
-    "./src/foo.cairo",
-    ]
-    bar = [
-    "./src/bar.cairo",
-    ]
+        [profile.release.project]
+        network = "mainnet2"
+
+        [profile.release.declare]
+        network = "mainnet"
     """
+    )
 
 
 @pytest.fixture(name="project_root_path")
@@ -101,3 +110,68 @@ def test_reading_argument_attribute_defined_within_specified_profile(
     )
 
     assert arg_value == "mainnet"
+
+
+def test_saving_configuration(
+    configuration_file: ConfigurationFileContentConfigurator[ConfigurationFileV2Model],
+    protostar_toml_content: str,
+):
+    content_configurator = configuration_file
+    configuration_file_v2_model = ConfigurationFileV2Model(
+        min_protostar_version="9.9.9",
+        project_config={
+            "lib-path": "./lib",
+            "no-color": True,
+            "network": "devnet1",
+            "cairo-path": ["bar"],
+        },
+        command_name_to_config={"declare": {"network": "devnet2"}},
+        contract_name_to_path_strs={
+            "foo": [
+                "./src/foo.cairo",
+            ],
+            "bar": [
+                "./src/bar.cairo",
+            ],
+        },
+        profile_name_to_commands_config={
+            "release": {"declare": {"network": "mainnet"}}
+        },
+        profile_name_to_project_config={"release": {"network": "mainnet2"}},
+    )
+
+    result = content_configurator.create_file_content(
+        model=configuration_file_v2_model,
+        content_builder=ConfigurationTOMLContentBuilder(),
+    )
+
+    assert result == protostar_toml_content
+
+
+def test_saving_in_particular_order(
+    configuration_file: ConfigurationFileContentConfigurator[ConfigurationFileV2Model],
+):
+    content_configurator = configuration_file
+    configuration_file_v2_model = ConfigurationFileV2Model(
+        min_protostar_version="9.9.9",
+        project_config={
+            "lib-path": "./lib",
+            "cairo-path": ["bar"],
+            "no-color": True,
+            "network": "devnet1",
+        },
+        command_name_to_config={},
+        contract_name_to_path_strs={},
+        profile_name_to_commands_config={},
+        profile_name_to_project_config={},
+    )
+
+    result = content_configurator.create_file_content(
+        content_builder=ConfigurationTOMLContentBuilder(),
+        model=configuration_file_v2_model,
+    )
+
+    assert result.index("[project]") < result.index("[contracts]")
+    assert result.index("lib-path") < result.index("cairo-path")
+    assert result.index("cairo-path") < result.index("no-color")
+    assert result.index("no-color") < result.index("network")

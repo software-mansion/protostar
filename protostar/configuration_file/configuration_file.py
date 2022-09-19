@@ -1,6 +1,6 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Generic, Optional, TypeVar, Union
+from typing import Any, Generic, Optional, TypeVar, Union
 
 from protostar.protostar_exception import ProtostarException
 from protostar.utils.protostar_directory import VersionType
@@ -16,6 +16,31 @@ ProfileName = str
 ContractName = str
 
 ConfigurationFileModelT = TypeVar("ConfigurationFileModelT")
+
+
+class ConfigurationFileContentBuilder(ABC):
+    @abstractmethod
+    def set_section(
+        self,
+        section_name: str,
+        data: dict[str, Any],
+        profile_name: Optional[str] = None,
+    ) -> None:
+        pass
+
+    @abstractmethod
+    def build(self) -> str:
+        ...
+
+
+class ConfigurationFileContentConfigurator(Generic[ConfigurationFileModelT]):
+    @abstractmethod
+    def create_file_content(
+        self,
+        content_builder: ConfigurationFileContentBuilder,
+        model: ConfigurationFileModelT,
+    ) -> str:
+        ...
 
 
 class ConfigurationFile(Generic[ConfigurationFileModelT]):

@@ -4,13 +4,10 @@ from typing import Any, Optional
 
 from typing_extensions import Protocol
 
-from protostar.commands.test.test_environment_exceptions import (
-    KeywordOnlyArgumentCheatcodeException,
-)
 from protostar.migrator.migrator_contract_identifier_resolver import (
     MigratorContractIdentifierResolver,
 )
-from protostar.starknet.cheatcode import Cheatcode
+from protostar.starknet import Cheatcode, KeywordOnlyArgumentCheatcodeException
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.utils.data_transformer import CairoOrPythonData
 

@@ -7,10 +7,10 @@ from protostar.compiler.project_compiler import ProjectCompiler
 from protostar.migrator.migrator_contract_identifier_resolver import (
     MigratorContractIdentifierResolver,
 )
-from protostar.starknet.execution_environment import ExecutionEnvironment
 from protostar.starknet.execution_state import ExecutionState
 from protostar.starknet.forkable_starknet import ForkableStarknet
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
+from protostar.testing.environments.execution_environment import ExecutionEnvironment
 from protostar.utils.compiler.pass_managers import StarknetPassManagerFactory
 from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
