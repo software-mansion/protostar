@@ -1,9 +1,8 @@
 from logging import Logger
-from typing import Any, Union, Optional, overload
+from typing import Any, Union, Optional
 
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
-from starkware.python.utils import from_bytes
 
 from protostar.cli import Command
 from protostar.protostar_exception import ProtostarException
@@ -15,45 +14,6 @@ NETWORK_ARG_NAME = "network"
 CHAIN_ID_ARG_NAME = "chain-id"
 
 
-@overload
-def get_chain_id(arg: None) -> None:
-    ...
-
-
-@overload
-def get_chain_id(arg: StarknetChainId) -> StarknetChainId:
-    ...
-
-
-@overload
-def get_chain_id(arg: str) -> StarknetChainId:
-    ...
-
-
-def get_chain_id(
-    arg: Optional[Union[str, StarknetChainId]]
-) -> Optional[StarknetChainId]:
-    """
-    Adapted from starknet_cli.
-    """
-
-    if arg is None:
-        return None
-
-    if isinstance(arg, StarknetChainId):
-        return arg
-
-    try:
-        if arg.startswith("0x"):
-            chain_id_int = int(arg, 16)
-        else:
-            chain_id_int = from_bytes(arg.encode())
-
-        return StarknetChainId(chain_id_int)
-    except ValueError as ex:
-        raise ProtostarException("Invalid chain ID value.") from ex
-
-
 class NetworkCommandUtil:
     network_arguments = [
         Command.Argument(
@@ -63,8 +23,8 @@ class NetworkCommandUtil:
         ),
         Command.Argument(
             name=CHAIN_ID_ARG_NAME,
-            description="The chain ID. It is required unless `--network` is provided.",
-            type="str",
+            description="The chain id. It is required unless `--network` is provided.",
+            type="int",
         ),
         Command.Argument(
             name=NETWORK_ARG_NAME,
@@ -110,7 +70,7 @@ class NetworkCommandUtil:
         return NetworkConfig.build(
             gateway_url=self._args.gateway_url,
             network=self._args.network,
-            chain_id=get_chain_id(self._args.chain_id),
+            chain_id=self.normalize_chain_id(self._args.chain_id),
         )
 
     def get_gateway_client(self) -> GatewayClient:
@@ -119,3 +79,18 @@ class NetworkCommandUtil:
             net=network_config.gateway_url,
             chain=network_config.chain_id,
         )
+
+    @staticmethod
+    def normalize_chain_id(
+        arg: Optional[Union[str, StarknetChainId]]
+    ) -> Optional[StarknetChainId]:
+        if arg is None:
+            return None
+
+        if isinstance(arg, StarknetChainId):
+            return arg
+
+        try:
+            return StarknetChainId(int(arg, 0))
+        except ValueError as ex:
+            raise ProtostarException("Invalid chain id value.") from ex
