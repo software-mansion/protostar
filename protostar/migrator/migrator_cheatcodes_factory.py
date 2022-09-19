@@ -20,7 +20,7 @@ from protostar.starknet.hint_local import HintLocal
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.utils.starknet_compilation import StarknetCompiler
 
-from .migrator_contract_path_provider import MigratorContractPathProvider
+from .migrator_contract_identifier_resolver import MigratorContractIdentifierResolver
 
 
 class MigratorCheatcodeFactory(CheatcodeFactory):
@@ -33,14 +33,16 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
         self,
         starknet_compiler: StarknetCompiler,
         gateway_facade: GatewayFacade,
-        migrator_contract_path_provider: MigratorContractPathProvider,
+        migrator_contract_identifier_resolver: MigratorContractIdentifierResolver,
         config: "MigratorCheatcodeFactory.Config",
         signer: Optional[BaseSigner] = None,
     ) -> None:
         super().__init__()
         self.gateway_facade = gateway_facade
         self._starknet_compiler = starknet_compiler
-        self._migrator_contract_path_provider = migrator_contract_path_provider
+        self._migrator_contract_identifier_resolver = (
+            migrator_contract_identifier_resolver
+        )
         self._signer = signer
         self._config = config
 
@@ -56,7 +58,7 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
             MigratorDeclareCheatcode(
                 syscall_dependencies,
                 self.gateway_facade,
-                migrator_contract_path_provider=self._migrator_contract_path_provider,
+                migrator_contract_identifier_resolver=self._migrator_contract_identifier_resolver,
                 config=MigratorDeclareCheatcode.Config(
                     token=self._config.token,
                     signer=self._signer,
@@ -65,7 +67,7 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
             MigratorDeployContractCheatcode(
                 syscall_dependencies,
                 self.gateway_facade,
-                migrator_contract_path_provider=self._migrator_contract_path_provider,
+                migrator_contract_identifier_resolver=self._migrator_contract_identifier_resolver,
                 config=MigratorDeployContractCheatcode.Config(token=self._config.token),
             ),
             MigratorCallCheatcode(syscall_dependencies, self.gateway_facade),

@@ -4,7 +4,7 @@ from protostar.compiler import CompiledContractWriter, ProjectCompiler
 from protostar.migrator.migrator_datetime_state import MigratorDateTimeState
 
 
-class MigratorContractPathProvider:
+class MigratorContractIdentifierResolver:
     def __init__(
         self,
         project_compiler: ProjectCompiler,
@@ -13,7 +13,7 @@ class MigratorContractPathProvider:
         self._project_compiler = project_compiler
         self._migrator_datetime_state = migrator_datetime_state
 
-    def get_path_to_compiled_contract(self, contract_identifier: str) -> Path:
+    def resolve(self, contract_identifier: str) -> Path:
         if "." in contract_identifier:
             return Path(contract_identifier)
         return self._compile_contract_by_contract_name(contract_identifier)

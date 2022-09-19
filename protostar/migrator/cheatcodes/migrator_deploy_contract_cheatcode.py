@@ -7,8 +7,8 @@ from typing_extensions import Protocol
 from protostar.commands.test.test_environment_exceptions import (
     KeywordOnlyArgumentCheatcodeException,
 )
-from protostar.migrator.migrator_contract_path_provider import (
-    MigratorContractPathProvider,
+from protostar.migrator.migrator_contract_identifier_resolver import (
+    MigratorContractIdentifierResolver,
 )
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
@@ -44,13 +44,15 @@ class MigratorDeployContractCheatcode(Cheatcode):
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
         gateway_facade: GatewayFacade,
-        migrator_contract_path_provider: MigratorContractPathProvider,
+        migrator_contract_identifier_resolver: MigratorContractIdentifierResolver,
         config: Config,
     ):
         super().__init__(syscall_dependencies)
         self._gateway_facade = gateway_facade
         self._config = config
-        self._migrator_contract_path_provider = migrator_contract_path_provider
+        self._migrator_contract_identifier_resolver = (
+            migrator_contract_identifier_resolver
+        )
 
     @property
     def name(self) -> str:
@@ -73,10 +75,8 @@ class MigratorDeployContractCheatcode(Cheatcode):
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
 
         validated_config = ValidatedCheatcodeNetworkConfig.from_dict(config)
-        compiled_contract_path = (
-            self._migrator_contract_path_provider.get_path_to_compiled_contract(
-                contract_identifier
-            )
+        compiled_contract_path = self._migrator_contract_identifier_resolver.resolve(
+            contract_identifier
         )
         response = asyncio.run(
             self._gateway_facade.deploy(
