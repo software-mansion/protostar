@@ -20,6 +20,12 @@ def test_safe_collecting(protostar):
 
 
 @pytest.mark.usefixtures("init")
+def test_basic_contract_profile(protostar):
+    result = protostar(["test", "--profiling", "tests"])
+    assert "1 passed" in result
+
+
+@pytest.mark.usefixtures("init")
 def test_complex(protostar, copy_fixture):
     copy_fixture("basic.cairo", "./src")
     copy_fixture("proxy_contract.cairo", "./src")

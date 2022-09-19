@@ -31,7 +31,7 @@ class TestExecutionResult:
 class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
     state: TestExecutionState
 
-    def __init__(self, state: TestExecutionState, profile=False):
+    def __init__(self, state: TestExecutionState):
         super().__init__(state)
         self._expect_revert_context = ExpectRevertContext()
         self._finish_hook = Hook()

@@ -43,10 +43,10 @@ class TestRunner:
         shared_tests_state: SharedTestsState,
         include_paths: Optional[List[str]] = None,
         disable_hint_validation_in_user_contracts=False,
-        profile=False,
+        profiling=False,
     ):
         self.shared_tests_state = shared_tests_state
-        self.profile = profile
+        self.profiling = profiling
         include_paths = include_paths or []
 
         self.tests_compiler = StarknetCompiler(
@@ -70,7 +70,7 @@ class TestRunner:
         shared_tests_state: SharedTestsState
         include_paths: List[str]
         disable_hint_validation_in_user_contracts: bool
-        profile: bool
+        profiling: bool
         testing_seed: Seed
 
     @classmethod
@@ -80,7 +80,7 @@ class TestRunner:
                 shared_tests_state=args.shared_tests_state,
                 include_paths=args.include_paths,
                 disable_hint_validation_in_user_contracts=args.disable_hint_validation_in_user_contracts,
-                profile=args.profile,
+                profiling=args.profiling,
             ).run_test_suite(
                 test_suite=args.test_suite,
                 testing_seed=args.testing_seed,

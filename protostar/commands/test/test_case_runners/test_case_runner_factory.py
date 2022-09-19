@@ -21,11 +21,11 @@ class TestCaseRunnerFactory:
     def __init__(self, state: TestExecutionState) -> None:
         self._state = state
 
-    def make(self, test_case: TestCase, profile=False) -> TestCaseRunner:
+    def make(self, test_case: TestCase, profiling=False) -> TestCaseRunner:
         mode = self._state.config.mode
 
         assert mode, "Test mode should be determined at this point."
-        if mode is TestMode.FUZZ and profile:
+        if mode is TestMode.FUZZ and profiling:
             raise ProtostarException("You cannot profile fuzz tests")
 
         if mode is TestMode.FUZZ:
@@ -41,7 +41,8 @@ class TestCaseRunnerFactory:
         if mode is TestMode.STANDARD:
             return StandardTestCaseRunner(
                 test_execution_environment=StandardTestExecutionEnvironment(
-                    self._state, profile=profile
+                    self._state,
+                    profiling=profiling,
                 ),
                 test_case=test_case,
                 output_recorder=self._state.output_recorder,

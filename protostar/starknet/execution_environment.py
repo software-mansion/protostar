@@ -47,4 +47,4 @@ class ExecutionEnvironment(ABC, Generic[InvokeResultT]):
 
     @staticmethod
     def set_profile_flag(value: bool):
-        CheatableExecuteEntryPoint.profile = value
+        CheatableExecuteEntryPoint.profiling = value

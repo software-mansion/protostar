@@ -78,7 +78,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     cheatcode_factory: Optional["CheatcodeFactory"] = None
     samples: List[ContractProfile] = []
     contract_callstack: List[str] = []
-    profile = False
+    profiling = False
 
     def _run(  # type: ignore
         self,
@@ -165,7 +165,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             ),
         ]
 
-        if self.profile:
+        if self.profiling:
             self.append_contract_callstack(state, class_hash)
 
         try:
@@ -189,7 +189,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
                 verify_secure=True,
             )
 
-            if self.profile:
+            if self.profiling:
                 self.append_runtime_profile(runner, contract_class, entry_point)
                 self.pop_contract_callstack()
                 if not CheatableExecuteEntryPoint.contract_callstack:
