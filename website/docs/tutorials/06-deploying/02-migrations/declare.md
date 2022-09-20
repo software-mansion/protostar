@@ -13,7 +13,7 @@ class DeclaredContract:
 
 Send a declare transaction.
 
-- `contract_path_str` — A path to the **compiled** contract or a [contract name](../../compiling#contract-name). If you provide a [contract name](../../compiling#contract-name), Protostar will compile the contract to the migration output directory.
+- `contract_path_str` — A path to the **compiled** contract or a [contract name](../../compiling#contract-name). If you provide a contract name, Protostar will compile the contract to the migration output directory.
 - `config` — A keyword only argument that allows passing [network configuration](../03-network-config.md).
 
 ## Example
