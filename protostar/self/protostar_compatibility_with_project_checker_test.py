@@ -1,11 +1,11 @@
 import pytest
-from packaging import version
 
 from .protostar_compatibility_with_project_checker import (
     CompatibilityCheckResult,
     DeclaredProtostarVersionProviderProtocol,
     ProtostarCompatibilityWithProjectChecker,
     ProtostarVersionProviderProtocol,
+    parse_protostar_version,
 )
 
 
@@ -14,9 +14,7 @@ class DeclaredProtostarVersionProviderDouble(DeclaredProtostarVersionProviderPro
         self._declared_protostar_version_str = declared_protostar_version_str
 
     def get_declared_protostar_version(self):
-        result = version.parse(self._declared_protostar_version_str)
-        assert isinstance(result, version.Version)
-        return result
+        return parse_protostar_version(self._declared_protostar_version_str)
 
 
 class ProtostarVersionProviderDouble(ProtostarVersionProviderProtocol):
@@ -24,9 +22,7 @@ class ProtostarVersionProviderDouble(ProtostarVersionProviderProtocol):
         self._protostar_version_str = protostar_version_str
 
     def get_protostar_version(self):
-        result = version.parse(self._protostar_version_str)
-        assert isinstance(result, version.Version)
-        return result
+        return parse_protostar_version(self._protostar_version_str)
 
 
 @pytest.fixture(name="declared_protostar_version")

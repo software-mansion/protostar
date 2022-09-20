@@ -4,7 +4,7 @@ from typing import Optional, Union
 
 from typing_extensions import Self
 
-from protostar.utils.protostar_directory import VersionManager, VersionType
+from protostar.self import ProtostarVersion, parse_protostar_version
 
 from .configuration_file import (
     CommandConfig,
@@ -23,7 +23,7 @@ from .configuration_file_v1 import ConfigurationFileV1Model
 
 @dataclass
 class ConfigurationFileV2Model:
-    min_protostar_version: Optional[str]
+    protostar_version: Optional[str]
     contract_name_to_path_strs: dict[ContractName, list[str]]
     project_config: CommandConfig
     command_name_to_config: CommandNameToConfig
@@ -32,7 +32,7 @@ class ConfigurationFileV2Model:
 
     @classmethod
     # pylint: disable=invalid-name
-    def from_v1(cls, v1: ConfigurationFileV1Model, min_protostar_version: str) -> Self:
+    def from_v1(cls, v1: ConfigurationFileV1Model, protostar_version: str) -> Self:
         project_config = v1.shared_command_config
         if v1.libs_path_str:
             project_config = {
@@ -40,7 +40,7 @@ class ConfigurationFileV2Model:
                 **v1.shared_command_config,
             }
         return cls(
-            min_protostar_version=min_protostar_version,
+            protostar_version=protostar_version,
             contract_name_to_path_strs=v1.contract_name_to_path_strs,
             command_name_to_config=v1.command_name_to_config,
             profile_name_to_commands_config=v1.profile_name_to_commands_config,
@@ -64,13 +64,13 @@ class ConfigurationFileV2(
         self._configuration_file_reader = configuration_file_reader
         self._filename = filename
 
-    def get_min_protostar_version(self) -> Optional[VersionType]:
+    def get_declared_protostar_version(self) -> Optional[ProtostarVersion]:
         version_str = self._configuration_file_reader.get_attribute(
             attribute_name="min-protostar-version", section_name="project"
         )
         if not version_str:
             return None
-        return VersionManager.parse(version_str)
+        return parse_protostar_version(version_str)
 
     def get_contract_names(self) -> list[str]:
         contract_section = self._configuration_file_reader.get_section("contracts")
@@ -145,9 +145,7 @@ class ConfigurationFileV2(
     @staticmethod
     def _prepare_project_section_data(model: ConfigurationFileV2Model) -> dict:
         project_config_section = {}
-        project_config_section["min-protostar-version"] = str(
-            model.min_protostar_version
-        )
+        project_config_section["min-protostar-version"] = str(model.protostar_version)
         project_config_section: dict = {
             **project_config_section,
             **model.project_config,
