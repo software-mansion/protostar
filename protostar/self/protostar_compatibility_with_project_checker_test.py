@@ -3,13 +3,13 @@ from packaging import version
 
 from .protostar_compatibility_with_project_checker import (
     CompatibilityCheckResult,
-    DeclaredProtostarVersionProvider,
+    DeclaredProtostarVersionProviderProtocol,
     ProtostarCompatibilityWithProjectChecker,
-    ProtostarVersionProvider,
+    ProtostarVersionProviderProtocol,
 )
 
 
-class DeclaredProtostarVersionProviderDouble(DeclaredProtostarVersionProvider):
+class DeclaredProtostarVersionProviderDouble(DeclaredProtostarVersionProviderProtocol):
     def __init__(self, declared_protostar_version_str: str):
         self._declared_protostar_version_str = declared_protostar_version_str
 
@@ -19,7 +19,7 @@ class DeclaredProtostarVersionProviderDouble(DeclaredProtostarVersionProvider):
         return result
 
 
-class ProtostarVersionProviderDouble(ProtostarVersionProvider):
+class ProtostarVersionProviderDouble(ProtostarVersionProviderProtocol):
     def __init__(self, protostar_version_str: str):
         self._protostar_version_str = protostar_version_str
 
@@ -62,8 +62,8 @@ def protostar_version_provider_fixture(protostar_version: str):
     ),
 )
 def test_compatibility(
-    declared_protostar_version_provider: DeclaredProtostarVersionProvider,
-    protostar_version_provider: ProtostarVersionProvider,
+    declared_protostar_version_provider: DeclaredProtostarVersionProviderProtocol,
+    protostar_version_provider: ProtostarVersionProviderProtocol,
     is_compatible: bool,
 ):
     compatibility_checker = ProtostarCompatibilityWithProjectChecker(

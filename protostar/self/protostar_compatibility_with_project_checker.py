@@ -4,12 +4,12 @@ from typing import Protocol
 from packaging.version import Version
 
 
-class DeclaredProtostarVersionProvider(Protocol):
+class DeclaredProtostarVersionProviderProtocol(Protocol):
     def get_declared_protostar_version(self) -> Version:
         ...
 
 
-class ProtostarVersionProvider(Protocol):
+class ProtostarVersionProviderProtocol(Protocol):
     def get_protostar_version(self) -> Version:
         ...
 
@@ -23,8 +23,8 @@ class CompatibilityCheckResult(Enum):
 class ProtostarCompatibilityWithProjectChecker:
     def __init__(
         self,
-        protostar_version_provider: ProtostarVersionProvider,
-        declared_protostar_version_provider: DeclaredProtostarVersionProvider,
+        protostar_version_provider: ProtostarVersionProviderProtocol,
+        declared_protostar_version_provider: DeclaredProtostarVersionProviderProtocol,
     ) -> None:
         self._protostar_version_provider = protostar_version_provider
         self._declared_protostar_version_provider = declared_protostar_version_provider
