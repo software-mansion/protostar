@@ -11,13 +11,9 @@ In order to compile your project:
 
 # Specifying contracts and their files
 
-Protostar needs to know how to generate contracts from Cairo files. Each Cairo file that contains a function that is part of a contract interface should be included in the `"protostar.contracts"` section of the configuration file. Functions that use the following decorators can be a part of a contract interface:
+Protostar needs to know how to generate contracts from Cairo files. Each Cairo file that contains an [entrypoint](#entrypoint) should be included in the `"protostar.contracts"` section of the configuration file.
 
-- [`@external`](https://starknet.io/docs/hello_starknet/intro.html)
-- [`@view`](https://starknet.io/docs/hello_starknet/intro.html)
-- [`@l1_handler`](https://starknet.io/docs/hello_starknet/l1l2.html?highlight=l1_handler)
-
-The following configuration tells Protostar to create two contracts — 'foo' and 'bar'.
+For example, the following configuration tells Protostar to create two contracts — 'foo' and 'bar'.
 
 ```toml title="protostar.toml"
 # ...
@@ -30,6 +26,17 @@ bar = [
     "./src/main.cairo",
 ]
 ```
+### Entrypoint
+An entrypoint is a function decorated with one of the following decorators:
+
+- [`@constructor`](https://starknet.io/docs/hello_starknet/constructors.html)
+- [`@external`](https://starknet.io/docs/hello_starknet/intro.html)
+- [`@view`](https://starknet.io/docs/hello_starknet/intro.html)
+- [`@l1_handler`](https://starknet.io/docs/hello_starknet/l1l2.html?highlight=l1_handler)
+
+
+
+
 
 ### Contract name
 A contract name refers to an attribute name in this `"protostar.contracts"` section of the configuration file. Some Protostar's features may expect from you providing contract names. In the example above, `foo` and `bar` are contract names.
