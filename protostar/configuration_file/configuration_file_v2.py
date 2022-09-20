@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Union
 
+from typing_extensions import Self
+
 from protostar.utils.protostar_directory import VersionManager, VersionType
 
 from .configuration_file import (
@@ -16,6 +18,7 @@ from .configuration_file import (
     ProfileName,
 )
 from .configuration_file_interpreter import ConfigurationFileInterpreter
+from .configuration_file_v1 import ConfigurationFileV1Model
 
 
 @dataclass
@@ -26,6 +29,24 @@ class ConfigurationFileV2Model:
     command_name_to_config: CommandNameToConfig
     profile_name_to_project_config: dict[ProfileName, CommandConfig]
     profile_name_to_commands_config: dict[ProfileName, CommandNameToConfig]
+
+    @classmethod
+    # pylint: disable=invalid-name
+    def from_v1(cls, v1: ConfigurationFileV1Model, min_protostar_version: str) -> Self:
+        project_config = v1.shared_command_config
+        if v1.libs_path_str:
+            project_config = {
+                **{"lib-path": v1.libs_path_str},
+                **v1.shared_command_config,
+            }
+        return cls(
+            min_protostar_version=min_protostar_version,
+            contract_name_to_path_strs=v1.contract_name_to_path_strs,
+            command_name_to_config=v1.command_name_to_config,
+            profile_name_to_commands_config=v1.profile_name_to_commands_config,
+            project_config=project_config,
+            profile_name_to_project_config=v1.profile_name_to_shared_command_config,
+        )
 
 
 class ConfigurationFileV2(
@@ -68,14 +89,6 @@ class ConfigurationFileV2(
             self._project_root_path / Path(path_str)
             for path_str in contract_section[contract_name]
         ]
-
-    def get_lib_path(self) -> Optional[Path]:
-        lib_relative_path_str = self._configuration_file_reader.get_attribute(
-            section_name="project", attribute_name="libs_path"
-        )
-        if not lib_relative_path_str:
-            return None
-        return self._project_root_path / lib_relative_path_str
 
     def get_command_argument(
         self, command_name: str, argument_name: str, profile_name: Optional[str] = None
