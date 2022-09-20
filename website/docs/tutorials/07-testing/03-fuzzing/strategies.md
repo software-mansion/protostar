@@ -43,10 +43,12 @@ cheatcode-namespace.
 ### `strategy.felts`
 
 ```python
-def felts() -> Strategy: ...
+def felts(*, comparable: bool = False) -> Strategy: ...
 ```
 
-Explores all possible felt values.
+By default, explores all possible felt values.
+
+If `comparable` is true, explores felts which can be range checked, i.e. `assert_le` will not crash.
 
 ### `strategy.integers`
 
