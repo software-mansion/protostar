@@ -31,25 +31,29 @@ class GitRepository:
     def is_initialized(self):
         return (
             subprocess.run(
-                ["cd", str(self.path_to_repo), "&&", "git", "status"],
+                ["git", "status"],
                 stdout=STDOUT_STREAM,
                 stderr=STDERR_STREAM,
+                cwd=self.path_to_repo,
             ).returncode
             == 0
         )
 
     def init(self):
         subprocess.run(
-            ["cd", str(self.path_to_repo), "&&", "git", "init"],
+            ["git", "init"],
             stdout=STDOUT_STREAM,
             stderr=STDERR_STREAM,
+            cwd=self.path_to_repo,
         )
 
     def clone(self, repo_to_clone: str):
+        self.path_to_repo.parent.mkdir(parents=True, exist_ok=True)
         subprocess.run(
-            ["cd", str(self.path_to_repo.parent), "&&", "git", "clone", repo_to_clone],
+            ["git", "clone", repo_to_clone],
             stdout=STDOUT_STREAM,
             stderr=STDERR_STREAM,
+            cwd=self.path_to_repo.parent,
         )
 
     def add_submodule(
@@ -61,7 +65,7 @@ class GitRepository:
         depth: int = 1,
     ):
         subprocess.run(
-            ["cd", str(self.path_to_repo), "&&", "git", "submodule", "add"]
+            ["git", "submodule", "add"]
             + (["-b", branch] if branch else [])  # (tag)
             + [
                 "--name",
@@ -73,50 +77,49 @@ class GitRepository:
             ],
             stdout=STDOUT_STREAM,
             stderr=STDERR_STREAM,
+            cwd=self.path_to_repo,
         )
 
     def update_submodule(self, path_to_submodule: Path, init=False):
         subprocess.run(
-            ["cd", str(self.path_to_repo), "&&", "git", "submodule", "update"]
+            ["git", "submodule", "update"]
             + (["--init"] if init else [])
             + [str(path_to_submodule)],
             stdout=STDOUT_STREAM,
             stderr=STDERR_STREAM,
+            cwd=self.path_to_repo,
         )
 
     def add(self, path_to_item: Path):
         subprocess.run(
             [
-                "cd",
-                str(self.path_to_repo),
-                "&&",
                 "git",
                 "add",
                 str(path_to_item.resolve()),
             ],
             stdout=STDOUT_STREAM,
             stderr=STDERR_STREAM,
+            cwd=self.path_to_repo,
         )
 
     def rm(self, path_to_item: Path):
         subprocess.run(
             [
-                "cd",
-                str(self.path_to_repo),
-                "&&",
                 "git",
                 "rm",
                 str(path_to_item.resolve()),
             ],
             stdout=STDOUT_STREAM,
             stderr=STDERR_STREAM,
+            cwd=self.path_to_repo,
         )
 
     def commit(self, msg: str):
         subprocess.run(
-            ["cd", str(self.path_to_repo), "&&", "git", "commit", "-m", msg],
+            ["git", "commit", "-m", msg],
             stdout=STDOUT_STREAM,
             stderr=STDERR_STREAM,
+            cwd=self.path_to_repo,
         )
 
     def get_submodules(self) -> Dict[str, NamedTuple]:
