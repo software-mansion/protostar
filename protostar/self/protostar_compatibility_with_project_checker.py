@@ -40,7 +40,6 @@ class ProtostarCompatibilityWithProjectChecker:
             and declared_protostar_version.micro <= protostar_version.micro
         ):
             return CompatibilityCheckResult.COMPATIBLE
-        else:
-            if declared_protostar_version < protostar_version:
-                return CompatibilityCheckResult.OUTDATED_DECLARED_VERSION
+        if declared_protostar_version < protostar_version:
+            return CompatibilityCheckResult.OUTDATED_DECLARED_VERSION
         return CompatibilityCheckResult.OUTDATED_PROTOSTAR
