@@ -13,7 +13,7 @@ In order to compile your project:
 
 Protostar needs to know how to generate contracts from Cairo files. Each Cairo file that contains an [entrypoint](#entrypoint) should be included in the `"protostar.contracts"` section of the configuration file.
 
-For example, the following configuration tells Protostar to create two contracts — 'foo' and 'bar'.
+For example, the following configuration tells Protostar to generate two contracts — 'foo' and 'bar'.
 
 ```toml title="protostar.toml"
 # ...
