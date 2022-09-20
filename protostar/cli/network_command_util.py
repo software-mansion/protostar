@@ -75,10 +75,7 @@ class NetworkCommandUtil:
 
     def get_gateway_client(self) -> GatewayClient:
         network_config = self.get_network_config()
-        return GatewayClient(
-            net=network_config.gateway_url,
-            chain=network_config.chain_id,
-        )
+        return GatewayClient(network_config.gateway_url)
 
     @staticmethod
     def normalize_chain_id(
