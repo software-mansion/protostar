@@ -11,7 +11,7 @@ In order to compile your project:
 
 # Specifying contracts and their files
 
-Protostar needs to know how to build contracts from Cairo files. Each Cairo file that contains a function that define a contract interface should be included in the `"protostar.contracts"` section of the configuration file. Functions that use the following decorators define a contract interface:
+Protostar needs to know how to generate contracts from Cairo files. Each Cairo file that contains a function that is part of a contract interface should be included in the `"protostar.contracts"` section of the configuration file. Functions that use the following decorators can be a part of a contract interface:
 
 - [`@external`](https://starknet.io/docs/hello_starknet/intro.html)
 - [`@view`](https://starknet.io/docs/hello_starknet/intro.html)
