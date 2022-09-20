@@ -39,7 +39,7 @@ An entrypoint is a function decorated with one of the following decorators:
 
 
 ### Contract name
-A contract name refers to an attribute name in this `"protostar.contracts"` section of the configuration file. Some Protostar's features may expect from you providing contract names. In the example above, `foo` and `bar` are contract names.
+A contract name refers to an attribute name in this `“protostar.contracts”` section of the configuration file. You can use contract name as a reference to a contract in some Protostar features. In the example above, `foo` and `bar` are contract names.
 
 # Compiling your project
 
