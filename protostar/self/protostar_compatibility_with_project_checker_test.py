@@ -1,8 +1,8 @@
 import pytest
-
-from protostar.utils import VersionManager
+from packaging import version
 
 from .protostar_compatibility_with_project_checker import (
+    CompatibilityCheckResult,
     DeclaredProtostarVersionProvider,
     ProtostarCompatibilityWithProjectChecker,
     ProtostarVersionProvider,
@@ -14,7 +14,9 @@ class DeclaredProtostarVersionProviderDouble(DeclaredProtostarVersionProvider):
         self._declared_protostar_version_str = declared_protostar_version_str
 
     def get_declared_protostar_version(self):
-        return VersionManager.parse(self._declared_protostar_version_str)
+        result = version.parse(self._declared_protostar_version_str)
+        assert isinstance(result, version.Version)
+        return result
 
 
 class ProtostarVersionProviderDouble(ProtostarVersionProvider):
@@ -22,7 +24,9 @@ class ProtostarVersionProviderDouble(ProtostarVersionProvider):
         self._protostar_version_str = protostar_version_str
 
     def get_protostar_version(self):
-        return VersionManager.parse(self._protostar_version_str)
+        result = version.parse(self._protostar_version_str)
+        assert isinstance(result, version.Version)
+        return result
 
 
 @pytest.fixture(name="declared_protostar_version")
@@ -46,21 +50,27 @@ def protostar_version_provider_fixture(protostar_version: str):
 
 
 @pytest.mark.parametrize(
-    "protostar_version, declared_protostar_version",
+    "protostar_version, declared_protostar_version, is_compatible",
     (
-        ("0.1.2", "0.1.2"),
-        ("0.1.2", "0.1.1"),
+        ("0.1.2", "0.1.2", CompatibilityCheckResult.COMPATIBLE),
+        ("0.1.2", "0.1.1", CompatibilityCheckResult.COMPATIBLE),
+        ("1.0.0", "1.0.0", CompatibilityCheckResult.COMPATIBLE),
+        ("0.1.1", "0.1.2", CompatibilityCheckResult.OUTDATED_PROTOSTAR),
+        ("1.0.0", "1.1.0", CompatibilityCheckResult.OUTDATED_PROTOSTAR),
+        ("0.2.0", "0.1.2", CompatibilityCheckResult.OUTDATED_DECLARED_VERSION),
+        ("1.0.0", "0.9.0", CompatibilityCheckResult.OUTDATED_DECLARED_VERSION),
     ),
 )
 def test_compatibility(
     declared_protostar_version_provider: DeclaredProtostarVersionProvider,
     protostar_version_provider: ProtostarVersionProvider,
+    is_compatible: bool,
 ):
     compatibility_checker = ProtostarCompatibilityWithProjectChecker(
         protostar_version_provider,
         declared_protostar_version_provider,
     )
 
-    is_compatible = compatibility_checker.check_backward_and_forward_compatibility()
+    result = compatibility_checker.check_compatibility()
 
-    assert is_compatible
+    assert result == is_compatible
