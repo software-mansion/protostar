@@ -14,7 +14,7 @@ class DeployedContract:
     contract_address: int
 ```
 :::warning Depreciation warning
-This cheatcode not be supported in the future. Use [declare](./declare.md) and [invoke](./invoke.md) cheatcodes instead.
+This cheatcode will not be supported in the future. Use [declare](./declare.md) and [invoke](./invoke.md) cheatcodes instead.
 :::
 
 Deploy a contract to the network.
