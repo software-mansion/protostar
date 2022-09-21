@@ -34,10 +34,6 @@ An entrypoint is a function decorated with one of the following decorators:
 - [`@view`](https://starknet.io/docs/hello_starknet/intro.html)
 - [`@l1_handler`](https://starknet.io/docs/hello_starknet/l1l2.html?highlight=l1_handler)
 
-
-
-
-
 ### Contract name
 A contract name refers to an attribute name in this `“protostar.contracts”` section of the configuration file. You can use contract name as a reference to a contract in some Protostar features. In the example above, `foo` and `bar` are contract names.
 
