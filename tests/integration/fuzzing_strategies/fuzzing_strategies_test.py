@@ -66,7 +66,7 @@ async def test_mapping_and_filtering(
     run_cairo_test_runner: RunCairoTestRunnerFixture,
 ):
     testing_summary = await run_cairo_test_runner(
-        Path(__file__).parent / "map_and_filter_test.cairo"
+        Path(__file__).parent / "map_and_filter_test.cairo", seed=0xDEAD_BEEF
     )
 
     assert_cairo_test_cases(
@@ -83,7 +83,7 @@ async def test_one_of(
     run_cairo_test_runner: RunCairoTestRunnerFixture,
 ):
     testing_summary = await run_cairo_test_runner(
-        Path(__file__).parent / "one_of_test.cairo"
+        Path(__file__).parent / "one_of_test.cairo", seed=0xBAD_C0DE
     )
 
     assert_cairo_test_cases(
