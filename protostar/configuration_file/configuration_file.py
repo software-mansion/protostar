@@ -15,7 +15,7 @@ CommandNameToConfig = dict[CommandName, CommandConfig]
 ProfileName = str
 ContractName = str
 
-ConfigurationFileModelT = TypeVar("ConfigurationFileModelT")
+ConfigurationFileT = TypeVar("ConfigurationFileT")
 
 
 class ConfigurationFileContentBuilder(ABC):
@@ -33,18 +33,18 @@ class ConfigurationFileContentBuilder(ABC):
         ...
 
 
-class ConfigurationFileContentConfigurator(Generic[ConfigurationFileModelT]):
+class ConfigurationFileContentConfigurator(Generic[ConfigurationFileT]):
     @abstractmethod
     def create_file_content(
         self,
         content_builder: ConfigurationFileContentBuilder,
-        model: ConfigurationFileModelT,
+        model: ConfigurationFileT,
     ) -> str:
         ...
 
 
-class ConfigurationFile(
-    DeclaredProtostarVersionProviderProtocol, Generic[ConfigurationFileModelT]
+class ConfigurationFileFacade(
+    DeclaredProtostarVersionProviderProtocol, Generic[ConfigurationFileT]
 ):
     @abstractmethod
     def get_declared_protostar_version(self) -> Optional[ProtostarVersion]:
@@ -70,7 +70,7 @@ class ConfigurationFile(
         ...
 
     @abstractmethod
-    def read(self) -> ConfigurationFileModelT:
+    def read(self) -> ConfigurationFileT:
         ...
 
 

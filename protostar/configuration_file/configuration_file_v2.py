@@ -9,20 +9,20 @@ from protostar.self import ProtostarVersion, parse_protostar_version
 from .configuration_file import (
     CommandConfig,
     CommandNameToConfig,
-    ConfigurationFile,
     ConfigurationFileContentBuilder,
     ConfigurationFileContentConfigurator,
+    ConfigurationFileFacade,
     ContractName,
     ContractNameNotFoundException,
     PrimitiveTypesSupportedByConfigurationFile,
     ProfileName,
 )
 from .configuration_file_interpreter import ConfigurationFileInterpreter
-from .configuration_file_v1 import ConfigurationFileV1Model
+from .configuration_file_v1 import ConfigurationFileV1
 
 
 @dataclass
-class ConfigurationFileV2Model:
+class ConfigurationFileV2:
     protostar_version: Optional[str]
     contract_name_to_path_strs: dict[ContractName, list[str]]
     project_config: CommandConfig
@@ -32,7 +32,7 @@ class ConfigurationFileV2Model:
 
     @classmethod
     # pylint: disable=invalid-name
-    def from_v1(cls, v1: ConfigurationFileV1Model, protostar_version: str) -> Self:
+    def from_v1(cls, v1: ConfigurationFileV1, protostar_version: str) -> Self:
         project_config = v1.shared_command_config
         if v1.libs_path_str:
             project_config = {
@@ -49,9 +49,9 @@ class ConfigurationFileV2Model:
         )
 
 
-class ConfigurationFileV2(
-    ConfigurationFile[ConfigurationFileV2Model],
-    ConfigurationFileContentConfigurator[ConfigurationFileV2Model],
+class ConfigurationFileFacadeV2(
+    ConfigurationFileFacade[ConfigurationFileV2],
+    ConfigurationFileContentConfigurator[ConfigurationFileV2],
 ):
     def __init__(
         self,
@@ -106,13 +106,13 @@ class ConfigurationFileV2(
 
     def read(
         self,
-    ) -> ConfigurationFileV2Model:
+    ) -> ConfigurationFileV2:
         raise NotImplementedError("Operation not supported.")
 
     def create_file_content(
         self,
         content_builder: ConfigurationFileContentBuilder,
-        model: ConfigurationFileV2Model,
+        model: ConfigurationFileV2,
     ) -> str:
         content_builder.set_section(
             section_name="project", data=self._prepare_project_section_data(model)
@@ -143,7 +143,7 @@ class ConfigurationFileV2(
         return content
 
     @staticmethod
-    def _prepare_project_section_data(model: ConfigurationFileV2Model) -> dict:
+    def _prepare_project_section_data(model: ConfigurationFileV2) -> dict:
         project_config_section = {}
         project_config_section["min-protostar-version"] = str(model.protostar_version)
         project_config_section: dict = {

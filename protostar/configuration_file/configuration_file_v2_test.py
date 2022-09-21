@@ -12,12 +12,12 @@ from protostar.configuration_file.configuration_toml_interpreter import (
 from protostar.self import parse_protostar_version
 
 from .configuration_file import (
-    ConfigurationFile,
+    ConfigurationFileFacade,
     ConfigurationFileContentConfigurator,
     ContractNameNotFoundException,
 )
-from .configuration_file_v1 import ConfigurationFileV1, ConfigurationFileV1Model
-from .configuration_file_v2 import ConfigurationFileV2, ConfigurationFileV2Model
+from .configuration_file_v1 import ConfigurationFileFacadeV1, ConfigurationFileV1
+from .configuration_file_v2 import ConfigurationFileFacadeV2, ConfigurationFileV2
 from .configuration_legacy_toml_interpreter import ConfigurationLegacyTOMLInterpreter
 
 
@@ -60,27 +60,29 @@ def configuration_file_fixture(project_root_path: Path, protostar_toml_content: 
     configuration_toml_reader = ConfigurationLegacyTOMLInterpreter(
         file_content=protostar_toml_content
     )
-    return ConfigurationFileV2(
+    return ConfigurationFileFacadeV2(
         project_root_path=project_root_path,
         configuration_file_reader=configuration_toml_reader,
         filename=protostar_toml_path.name,
     )
 
 
-def test_retrieving_declared_protostar_version(configuration_file: ConfigurationFile):
+def test_retrieving_declared_protostar_version(
+    configuration_file: ConfigurationFileFacade,
+):
     declared_protostar_version = configuration_file.get_declared_protostar_version()
 
     assert declared_protostar_version == parse_protostar_version("9.9.9")
 
 
-def test_retrieving_contract_names(configuration_file: ConfigurationFile):
+def test_retrieving_contract_names(configuration_file: ConfigurationFileFacade):
     contract_names = configuration_file.get_contract_names()
 
     assert contract_names == ["foo", "bar"]
 
 
 def test_retrieving_contract_source_paths(
-    configuration_file: ConfigurationFileV2, project_root_path: Path
+    configuration_file: ConfigurationFileFacadeV2, project_root_path: Path
 ):
     paths = configuration_file.get_contract_source_paths(contract_name="foo")
 
@@ -90,7 +92,7 @@ def test_retrieving_contract_source_paths(
 
 
 def test_error_when_retrieving_paths_from_not_defined_contract(
-    configuration_file: ConfigurationFileV2,
+    configuration_file: ConfigurationFileFacadeV2,
 ):
     with pytest.raises(ContractNameNotFoundException):
         configuration_file.get_contract_source_paths(
@@ -98,7 +100,9 @@ def test_error_when_retrieving_paths_from_not_defined_contract(
         )
 
 
-def test_reading_command_argument_attribute(configuration_file: ConfigurationFile):
+def test_reading_command_argument_attribute(
+    configuration_file: ConfigurationFileFacade,
+):
     arg_value = configuration_file.get_command_argument(
         command_name="declare", argument_name="network"
     )
@@ -107,7 +111,7 @@ def test_reading_command_argument_attribute(configuration_file: ConfigurationFil
 
 
 def test_reading_argument_attribute_defined_within_specified_profile(
-    configuration_file: ConfigurationFile,
+    configuration_file: ConfigurationFileFacade,
 ):
     arg_value = configuration_file.get_command_argument(
         command_name="declare", argument_name="network", profile_name="release"
@@ -117,11 +121,11 @@ def test_reading_argument_attribute_defined_within_specified_profile(
 
 
 def test_saving_configuration(
-    configuration_file: ConfigurationFileContentConfigurator[ConfigurationFileV2Model],
+    configuration_file: ConfigurationFileContentConfigurator[ConfigurationFileV2],
     protostar_toml_content: str,
 ):
     content_configurator = configuration_file
-    configuration_file_v2_model = ConfigurationFileV2Model(
+    configuration_file_v2_model = ConfigurationFileV2(
         protostar_version="9.9.9",
         project_config={
             "lib-path": "lib",
@@ -153,7 +157,7 @@ def test_saving_configuration(
 
 
 def test_transforming_model_v1_into_v2():
-    model_v1 = ConfigurationFileV1Model(
+    model_v1 = ConfigurationFileV1(
         protostar_version="0.3.1",
         libs_path_str="lib",
         command_name_to_config={"deploy": {"arg_name": 21}},
@@ -163,9 +167,9 @@ def test_transforming_model_v1_into_v2():
         profile_name_to_shared_command_config={"devnet": {"arg_name": 24}},
     )
 
-    model_v2 = ConfigurationFileV2Model.from_v1(model_v1, protostar_version="0.4.0")
+    model_v2 = ConfigurationFileV2.from_v1(model_v1, protostar_version="0.4.0")
 
-    assert model_v2 == ConfigurationFileV2Model(
+    assert model_v2 == ConfigurationFileV2(
         protostar_version="0.4.0",
         command_name_to_config={"deploy": {"arg_name": 21}},
         contract_name_to_path_strs={"main": ["src/main.cairo"]},
@@ -210,7 +214,7 @@ def test_transforming_file_v1_into_v2(protostar_toml_content: str):
         """
     )
 
-    model_v1 = ConfigurationFileV1(
+    model_v1 = ConfigurationFileFacadeV1(
         configuration_file_interpreter=ConfigurationLegacyTOMLInterpreter(
             file_content=old_protostar_toml_content,
         ),
@@ -218,7 +222,7 @@ def test_transforming_file_v1_into_v2(protostar_toml_content: str):
         filename="_",
     ).read()
 
-    transformed_protostar_toml = ConfigurationFileV2(
+    transformed_protostar_toml = ConfigurationFileFacadeV2(
         configuration_file_reader=ConfigurationTOMLInterpreter(
             file_content=old_protostar_toml_content,
         ),
@@ -226,17 +230,17 @@ def test_transforming_file_v1_into_v2(protostar_toml_content: str):
         filename="_",
     ).create_file_content(
         content_builder=ConfigurationTOMLContentBuilder(),
-        model=ConfigurationFileV2Model.from_v1(model_v1, protostar_version="9.9.9"),
+        model=ConfigurationFileV2.from_v1(model_v1, protostar_version="9.9.9"),
     )
 
     assert transformed_protostar_toml == protostar_toml_content
 
 
 def test_saving_in_particular_order(
-    configuration_file: ConfigurationFileContentConfigurator[ConfigurationFileV2Model],
+    configuration_file: ConfigurationFileContentConfigurator[ConfigurationFileV2],
 ):
     content_configurator = configuration_file
-    configuration_file_v2_model = ConfigurationFileV2Model(
+    configuration_file_v2_model = ConfigurationFileV2(
         protostar_version="9.9.9",
         project_config={
             "lib-path": "./lib",

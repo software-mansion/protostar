@@ -7,7 +7,7 @@ from protostar.self import ProtostarVersion, parse_protostar_version
 from .configuration_file import (
     CommandConfig,
     CommandNameToConfig,
-    ConfigurationFile,
+    ConfigurationFileFacade,
     ContractName,
     ContractNameNotFoundException,
     PrimitiveTypesSupportedByConfigurationFile,
@@ -17,7 +17,7 @@ from .configuration_file_interpreter import ConfigurationFileInterpreter
 
 
 @dataclass(frozen=True)
-class ConfigurationFileV1Model:
+class ConfigurationFileV1:
     protostar_version: Optional[str]
     contract_name_to_path_strs: dict[ContractName, list[str]]
     libs_path_str: Optional[str]
@@ -27,7 +27,7 @@ class ConfigurationFileV1Model:
     profile_name_to_shared_command_config: dict[ProfileName, CommandConfig]
 
 
-class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
+class ConfigurationFileFacadeV1(ConfigurationFileFacade[ConfigurationFileV1]):
     def __init__(
         self,
         configuration_file_interpreter: ConfigurationFileInterpreter,
@@ -107,8 +107,8 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
 
     def read(
         self,
-    ) -> ConfigurationFileV1Model:
-        return ConfigurationFileV1Model(
+    ) -> ConfigurationFileV1:
+        return ConfigurationFileV1(
             protostar_version=self._get_declared_protostar_version_str(),
             libs_path_str=self._get_libs_path_str(),
             contract_name_to_path_strs=self._get_contract_name_to_path_strs(),

@@ -8,9 +8,9 @@ from protostar.configuration_file.configuration_legacy_toml_interpreter import (
 from protostar.self import parse_protostar_version
 
 from .configuration_file_v1 import (
-    ConfigurationFile,
+    ConfigurationFileFacade,
+    ConfigurationFileFacadeV1,
     ConfigurationFileV1,
-    ConfigurationFileV1Model,
     ContractNameNotFoundException,
 )
 
@@ -38,7 +38,7 @@ def protostar_toml_path_fixture(protostar_toml_content: str, project_root_path: 
 def configuration_file_fixture(
     protostar_toml_path: Path, project_root_path: Path, protostar_toml_content: str
 ):
-    return ConfigurationFileV1(
+    return ConfigurationFileFacadeV1(
         ConfigurationLegacyTOMLInterpreter(
             file_content=protostar_toml_content,
         ),
@@ -56,7 +56,9 @@ def configuration_file_fixture(
         """,
     ],
 )
-def test_retrieving_declared_protostar_version(configuration_file: ConfigurationFile):
+def test_retrieving_declared_protostar_version(
+    configuration_file: ConfigurationFileFacade,
+):
     result = configuration_file.get_declared_protostar_version()
 
     assert result == parse_protostar_version("0.1.2")
@@ -76,7 +78,7 @@ def test_retrieving_declared_protostar_version(configuration_file: Configuration
         """
     ],
 )
-def test_retrieving_contract_names(configuration_file: ConfigurationFile):
+def test_retrieving_contract_names(configuration_file: ConfigurationFileFacade):
     contract_names = configuration_file.get_contract_names()
 
     assert contract_names == ["main", "foo"]
@@ -98,7 +100,7 @@ def test_retrieving_contract_names(configuration_file: ConfigurationFile):
     ],
 )
 def test_retrieving_contract_source_paths(
-    configuration_file: ConfigurationFile, project_root_path: Path
+    configuration_file: ConfigurationFileFacade, project_root_path: Path
 ):
     paths = configuration_file.get_contract_source_paths(contract_name="foo")
 
@@ -109,7 +111,7 @@ def test_retrieving_contract_source_paths(
 
 
 def test_error_when_retrieving_paths_from_not_defined_contract(
-    configuration_file: ConfigurationFile,
+    configuration_file: ConfigurationFileFacade,
 ):
     with pytest.raises(ContractNameNotFoundException):
         configuration_file.get_contract_source_paths(
@@ -127,7 +129,7 @@ def test_error_when_retrieving_paths_from_not_defined_contract(
     ],
 )
 def test_reading_lib_path(
-    configuration_file: ConfigurationFileV1, project_root_path: Path
+    configuration_file: ConfigurationFileFacadeV1, project_root_path: Path
 ):
     lib_path = configuration_file.get_lib_path()
 
@@ -144,7 +146,9 @@ def test_reading_lib_path(
         """
     ],
 )
-def test_reading_command_argument_attribute(configuration_file: ConfigurationFile):
+def test_reading_command_argument_attribute(
+    configuration_file: ConfigurationFileFacade,
+):
     arg_value = configuration_file.get_command_argument(
         command_name="command_name", argument_name="arg_name"
     )
@@ -165,7 +169,7 @@ def test_reading_command_argument_attribute(configuration_file: ConfigurationFil
     ],
 )
 def test_reading_argument_attribute_defined_within_specified_profile(
-    configuration_file: ConfigurationFile,
+    configuration_file: ConfigurationFileFacade,
 ):
     arg_value = configuration_file.get_command_argument(
         command_name="command_name", argument_name="arg_name", profile_name="devnet"
@@ -204,11 +208,11 @@ def test_reading_argument_attribute_defined_within_specified_profile(
     ],
 )
 def test_generating_data_struct(
-    configuration_file: ConfigurationFileV1,
+    configuration_file: ConfigurationFileFacadeV1,
 ):
     model = configuration_file.read()
 
-    assert model == ConfigurationFileV1Model(
+    assert model == ConfigurationFileV1(
         protostar_version="0.3.1",
         libs_path_str="lib",
         command_name_to_config={"deploy": {"arg_name": 21}},
