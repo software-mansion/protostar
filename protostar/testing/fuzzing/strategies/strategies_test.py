@@ -9,7 +9,7 @@ from .one_of import OneOfStrategyDescriptor
 
 def test_felts_constructor_valid_args():
     FeltsStrategyDescriptor()
-    FeltsStrategyDescriptor(comparable=True)
+    FeltsStrategyDescriptor(rc_bound=True)
 
 
 def test_felts_constructor_args():

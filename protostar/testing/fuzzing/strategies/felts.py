@@ -28,8 +28,8 @@ assert 0 < CAIRO_FUNCTION_RANGE_CHECK_BOUND < FIELD_PRIME
 
 
 class FeltsStrategyDescriptor(StrategyDescriptor):
-    def __init__(self, *, comparable: bool = False):
-        self.comparable = comparable
+    def __init__(self, *, rc_bound: bool = False):
+        self.rc_bound = rc_bound
 
     def build_strategy(self, cairo_type: CairoType) -> SearchStrategy[int]:
         if not isinstance(cairo_type, TypeFelt):
@@ -37,7 +37,7 @@ class FeltsStrategyDescriptor(StrategyDescriptor):
                 "Strategy 'felts' can only be applied to felt parameters."
             )
 
-        if self.comparable:
+        if self.rc_bound:
             return integers(min_value=0, max_value=CAIRO_FUNCTION_RANGE_CHECK_BOUND - 1)
 
         # NOTE: Hypothesis seems to pick more distinct numbers when allowed to search the space
