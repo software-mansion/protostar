@@ -1,7 +1,8 @@
 from logging import Logger
-from typing import Any
+from typing import Any, Union, Optional
 
 from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.net.models import StarknetChainId
 
 from protostar.cli import Command
 from protostar.protostar_exception import ProtostarException
@@ -67,13 +68,29 @@ class NetworkCommandUtil:
     def get_network_config(self) -> NetworkConfig:
         self.validate_network_command_args()
         return NetworkConfig.build(
-            self._args.gateway_url, self._args.network, chain_id=self._args.chain_id
+            gateway_url=self._args.gateway_url,
+            network=self._args.network,
+            chain_id=self.normalize_chain_id(self._args.chain_id),
         )
 
     def get_gateway_client(self) -> GatewayClient:
         network_config = self.get_network_config()
-        # FIXME(arcticae): Remove ignore of this type when starknet.py implements ChainId as Union[StarknetChainId, int]
         return GatewayClient(
             net=network_config.gateway_url,
-            chain=network_config.chain_id,  # type: ignore
+            chain=network_config.chain_id,
         )
+
+    @staticmethod
+    def normalize_chain_id(
+        arg: Optional[Union[str, StarknetChainId]]
+    ) -> Optional[StarknetChainId]:
+        if arg is None:
+            return None
+
+        if isinstance(arg, StarknetChainId):
+            return arg
+
+        try:
+            return StarknetChainId(arg)
+        except ValueError as ex:
+            raise ProtostarException("Invalid chain id value.") from ex

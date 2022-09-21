@@ -32,7 +32,7 @@ async def test_declaring_contract(
     monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, "123")
 
     response = await protostar.declare(
-        chain_id=StarknetChainId.TESTNET.value,
+        chain_id=StarknetChainId.TESTNET,
         account_address="123",
         contract=compiled_contract_path,
         gateway_url=devnet_gateway_url,
@@ -54,7 +54,7 @@ async def test_deploying_contract_with_signing(
     monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, "123")
 
     response = await protostar.declare(
-        chain_id=StarknetChainId.TESTNET.value,
+        chain_id=StarknetChainId.TESTNET,
         account_address="123",
         contract=compiled_contract_path,
         gateway_url=devnet_gateway_url,

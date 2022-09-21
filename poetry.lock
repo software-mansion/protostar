@@ -1361,29 +1361,22 @@ python-versions = "*"
 
 [[package]]
 name = "starknet-devnet"
-version = "0.3.0"
+version = "0.3.1"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
 python-versions = ">=3.8,<3.10"
-develop = false
 
 [package.dependencies]
 cairo-lang = "0.10.0"
-cloudpickle = "~2.1.0"
-crypto-cpp-py = "~1.0.4"
-Flask = {version = "~2.0.3", extras = ["async"]}
-flask-cors = "~3.0.10"
-gunicorn = "~20.1.0"
-marshmallow = "~3.17.0"
-typing-extensions = "~4.3.0"
-Werkzeug = "~2.0.3"
-
-[package.source]
-type = "git"
-url = "https://github.com/Shard-Labs/starknet-devnet.git"
-reference = "7a76ee94ca431251820a6803db574c283cce1d10"
-resolved_reference = "7a76ee94ca431251820a6803db574c283cce1d10"
+cloudpickle = ">=2.1.0,<2.2.0"
+crypto-cpp-py = ">=1.0.4,<1.1.0"
+Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
+flask-cors = ">=3.0.10,<3.1.0"
+gunicorn = ">=20.1.0,<20.2.0"
+marshmallow = ">=3.17.0,<3.18.0"
+typing-extensions = ">=4.3.0,<4.4.0"
+Werkzeug = ">=2.0.3,<2.1.0"
 
 [[package]]
 name = "starknet-py"
@@ -1606,7 +1599,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9.14, <3.10"
-content-hash = "235b36d69422d0e14ef58c8948f311fd94d7c7a2327ef5e732999a7d3865f2e2"
+content-hash = "7b1e3a5674c678c7c98e4474ad6d4d433d840500d0cfb8480dc2cbb7f29146f7"
 
 [metadata.files]
 aiohttp = [
@@ -2764,7 +2757,10 @@ sortedcontainers = [
     {file = "sortedcontainers-2.4.0-py2.py3-none-any.whl", hash = "sha256:a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0"},
     {file = "sortedcontainers-2.4.0.tar.gz", hash = "sha256:25caa5a06cc30b6b83d11423433f65d1f9d76c4c6a0c90e3379eaa43b9bfdb88"},
 ]
-starknet-devnet = []
+starknet-devnet = [
+    {file = "starknet_devnet-0.3.1-py3-none-any.whl", hash = "sha256:cdb16148e89d2710c3f5b8afa0decf3def4accb6d46a24943f738f5108e074dc"},
+    {file = "starknet_devnet-0.3.1.tar.gz", hash = "sha256:70fba585d00657f7400ead83d96b02c395bc01f45f5da0c791e4ac3c388549f3"},
+]
 starknet-py = [
     {file = "starknet-py-0.5.2a0.tar.gz", hash = "sha256:c2e5f8563199c911f53a42dc0be60d3464ca130bb63416f1ca3902a3c834c949"},
 ]
