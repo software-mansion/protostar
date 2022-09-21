@@ -14,6 +14,7 @@ def test_felts_constructor_valid_args():
 
 def test_felts_constructor_args():
     with pytest.raises(TypeError):
+        # pylint: disable-next=too-many-function-args
         FeltsStrategyDescriptor(True)  # type: ignore
 
 

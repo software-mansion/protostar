@@ -1,4 +1,6 @@
 from hypothesis.strategies import SearchStrategy, integers
+
+# pylint: disable-next=no-name-in-module
 from starkware.cairo.lang.builtins.range_check.range_check_builtin_runner import (
     RangeCheckBuiltinRunner,
 )
