@@ -4,7 +4,7 @@ import pytest
 from starkware.cairo.lang.compiler.ast.cairo_types import TypeFelt, TypePointer
 
 from .exceptions import FuzzingError
-from .strategies import FeltsStrategyDescriptor
+from .strategies.felts import FeltsStrategyDescriptor
 from .strategy_inference import infer_strategy_from_cairo_type
 
 

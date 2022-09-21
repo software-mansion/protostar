@@ -3,36 +3,38 @@ import re
 import pytest
 
 from protostar.testing.fuzzing.exceptions import SearchStrategyBuildError
-from .felts import FeltsStrategyDescriptor
-from .one_of import OneOfStrategyDescriptor
+from . import strategies
 
 
 def test_felts_constructor_valid_args():
-    FeltsStrategyDescriptor()
-    FeltsStrategyDescriptor(rc_bound=True)
+    strategies.felts()
+    strategies.felts(rc_bound=True)
 
 
 def test_felts_constructor_args():
-    with pytest.raises(TypeError):
+    with pytest.raises(
+        SearchStrategyBuildError,
+        match=re.escape("felts() takes 0 positional arguments but 1 was given"),
+    ):
         # pylint: disable-next=too-many-function-args
-        FeltsStrategyDescriptor(True)  # type: ignore
+        strategies.felts(True)  # type: ignore
 
 
 def test_one_of_constructor_invalid_args():
     with pytest.raises(
         SearchStrategyBuildError,
-        match=re.escape("Strategy 'one_of' takes only other strategies as arguments."),
+        match=re.escape("one_of() takes only other strategies as arguments"),
     ):
-        OneOfStrategyDescriptor(NotImplemented)
+        strategies.one_of(NotImplemented)
 
 
 def test_one_of_constructor_no_args():
     with pytest.raises(
         SearchStrategyBuildError,
-        match=re.escape("Strategy 'one_of' takes at least one argument."),
+        match=re.escape("one_of() takes at least 1 positional argument"),
     ):
-        OneOfStrategyDescriptor()
+        strategies.one_of()
 
 
 def test_one_of_constructor_valid_args():
-    OneOfStrategyDescriptor(FeltsStrategyDescriptor(), FeltsStrategyDescriptor())
+    strategies.one_of(strategies.felts(), strategies.felts())

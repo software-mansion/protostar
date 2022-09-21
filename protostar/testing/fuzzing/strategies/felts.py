@@ -1,4 +1,4 @@
-from hypothesis.strategies import SearchStrategy, integers
+from hypothesis.strategies import SearchStrategy, integers as h_integers
 
 # pylint: disable-next=no-name-in-module
 from starkware.cairo.lang.builtins.range_check.range_check_builtin_runner import (
@@ -9,6 +9,11 @@ from starkware.crypto.signature.signature import FIELD_PRIME
 
 from protostar.testing.fuzzing.exceptions import SearchStrategyBuildError
 from protostar.testing.fuzzing.strategy_descriptor import StrategyDescriptor
+
+
+def felts(*, rc_bound: bool = False) -> StrategyDescriptor:
+    return FeltsStrategyDescriptor(rc_bound)
+
 
 CAIRO_FUNCTION_RANGE_CHECK_BOUND: int = RangeCheckBuiltinRunner(
     included=True,
@@ -28,7 +33,7 @@ assert 0 < CAIRO_FUNCTION_RANGE_CHECK_BOUND < FIELD_PRIME
 
 
 class FeltsStrategyDescriptor(StrategyDescriptor):
-    def __init__(self, *, rc_bound: bool = False):
+    def __init__(self, rc_bound: bool):
         self.rc_bound = rc_bound
 
     def build_strategy(self, cairo_type: CairoType) -> SearchStrategy[int]:
@@ -38,7 +43,9 @@ class FeltsStrategyDescriptor(StrategyDescriptor):
             )
 
         if self.rc_bound:
-            return integers(min_value=0, max_value=CAIRO_FUNCTION_RANGE_CHECK_BOUND - 1)
+            return h_integers(
+                min_value=0, max_value=CAIRO_FUNCTION_RANGE_CHECK_BOUND - 1
+            )
 
         # NOTE: Hypothesis seems to pick more distinct numbers when allowed to search the space
         #   of negative numbers. Searching between `-(FIELD_PRIME // 2)` and `FIELD_PRIME // 2`
@@ -52,7 +59,7 @@ class FeltsStrategyDescriptor(StrategyDescriptor):
         #   for cosmetic purposes, Cairo VM would do this anyway.
         max_felt = FIELD_PRIME // 2
         min_felt = -max_felt
-        return integers(min_value=min_felt, max_value=max_felt).map(to_felt)
+        return h_integers(min_value=min_felt, max_value=max_felt).map(to_felt)
 
 
 def to_felt(value: int) -> int:

@@ -5,7 +5,7 @@ from hypothesis.strategies import SearchStrategy
 from starkware.cairo.lang.compiler.ast.cairo_types import TypeFelt
 
 from .exceptions import FuzzingError
-from .strategies import FeltsStrategyDescriptor, IntegersStrategyDescriptor
+from .strategies import strategies
 from .strategy_collector import collect_search_strategies
 
 
@@ -15,11 +15,11 @@ from .strategy_collector import collect_search_strategies
     [
         {},
         {
-            "a": FeltsStrategyDescriptor(),
+            "a": strategies.felts(),
         },
         {
-            "a": FeltsStrategyDescriptor(),
-            "b": IntegersStrategyDescriptor(),
+            "a": strategies.felts(),
+            "b": strategies.integers(),
         },
     ],
 )
@@ -41,8 +41,8 @@ def test_collect_unknown_parameter():
     with pytest.raises(FuzzingError, match=re.escape("Unknown fuzzing parameter b.")):
         collect_search_strategies(
             declared_strategies={
-                "a": FeltsStrategyDescriptor(),
-                "b": FeltsStrategyDescriptor(),
+                "a": strategies.felts(),
+                "b": strategies.felts(),
             },
             parameters={"a": TypeFelt()},
         )
@@ -54,9 +54,9 @@ def test_collect_unknown_parameters():
     ):
         collect_search_strategies(
             declared_strategies={
-                "a": FeltsStrategyDescriptor(),
-                "b": FeltsStrategyDescriptor(),
-                "c": FeltsStrategyDescriptor(),
+                "a": strategies.felts(),
+                "b": strategies.felts(),
+                "c": strategies.felts(),
             },
             parameters={"a": TypeFelt()},
         )
@@ -72,8 +72,8 @@ def test_collect_catches_strategy_build_error():
     ):
         collect_search_strategies(
             declared_strategies={
-                "a": FeltsStrategyDescriptor(),
-                "b": FeltsStrategyDescriptor(),
+                "a": strategies.felts(),
+                "b": strategies.felts(),
             },
             parameters={
                 "a": TypeFelt().get_pointer_type(),
