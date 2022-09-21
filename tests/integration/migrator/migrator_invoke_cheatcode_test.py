@@ -21,7 +21,9 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
         yield protostar
 
 
-async def test_happy_case(migrate: MigrateFixture, signing_credentials, monkeypatch):
+async def test_happy_case(
+    migrate: MigrateFixture, signing_credentials, monkeypatch: pytest.MonkeyPatch
+):
     private_key, acc_address = signing_credentials
     monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, private_key)
 
@@ -40,7 +42,7 @@ assert result.res == 42
 
 
 async def test_waiting_for_acceptance(
-    migrate: MigrateFixture, signing_credentials, monkeypatch
+    migrate: MigrateFixture, signing_credentials, monkeypatch: pytest.MonkeyPatch
 ):
     private_key, acc_address = signing_credentials
     monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, private_key)
@@ -65,7 +67,7 @@ assert result.res == 42
 
 
 async def test_account_with_tx_version_0(
-    devnet_gateway_url: str, migrate: MigrateFixture, monkeypatch
+    devnet_gateway_url: str, migrate: MigrateFixture, monkeypatch: pytest.MonkeyPatch
 ):
     # TODO(mkaput): Remove this when Cairo 0.11 will remove transactions v0.
 
