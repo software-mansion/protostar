@@ -218,7 +218,7 @@ class ProtostarFixture:
         return file_path
 
     async def run_test_case(self, test_case_content: str):
-        file_path = self._project_root_path / "migrations" / "test_tmp.cairo"
+        file_path = self._project_root_path / "tests" / "test_tmp.cairo"
         self._save_file(
             file_path,
             f"""
