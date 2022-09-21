@@ -38,3 +38,23 @@ def test_one_of_constructor_no_args():
 
 def test_one_of_constructor_valid_args():
     strategies.one_of(strategies.felts(), strategies.felts())
+
+
+def test_map_with_kwarg():
+    with pytest.raises(
+        SearchStrategyBuildError,
+        match=re.escape(
+            "map() got some positional-only arguments passed as keyword arguments: 'f'"
+        ),
+    ):
+        strategies.felts().map(f=lambda x: x)  # type: ignore
+
+
+def test_filter_with_kwarg():
+    with pytest.raises(
+        SearchStrategyBuildError,
+        match=re.escape(
+            "filter() got some positional-only arguments passed as keyword arguments: 'f'"
+        ),
+    ):
+        strategies.felts().filter(f=lambda x: x)  # type: ignore

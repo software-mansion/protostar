@@ -90,7 +90,7 @@ Protostar provides ways to build strategies by transforming other ones.
 
 ```python
 class Strategy:
-    def map(self, mapping_function: Callable[[int], int]) -> Strategy: ...
+    def map(self, f: Callable[[int], int], /) -> Strategy: ...
 ```
 
 Applies provided mapping function to all searched inputs values.
@@ -103,7 +103,7 @@ strategy.felts().map(lambda x: x // 2)
 
 ```python
 class Strategy:
-    def filter(self, filter_function: Callable[[int], bool]) -> Strategy: ...
+    def filter(self, f: Callable[[int], bool], /) -> Strategy: ...
 ```
 
 Rejects examples not matching a condition.
