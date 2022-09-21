@@ -1,5 +1,5 @@
 import dataclasses
-from logging import Logger
+from logging import Logger, getLogger
 from pathlib import Path
 from typing import Any, Callable, Dict, List, NamedTuple, Optional, Union
 
@@ -13,9 +13,7 @@ from starknet_py.net.signer import BaseSigner
 from starknet_py.transaction_exceptions import TransactionFailedError
 from starknet_py.transactions.deploy import make_deploy_tx
 from starkware.starknet.definitions import constants
-from starkware.starknet.public.abi import (
-    AbiType,
-)
+from starkware.starknet.public.abi import AbiType
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,
@@ -36,8 +34,8 @@ from protostar.utils.abi import has_abi_item
 from protostar.utils.data_transformer import (
     CairoOrPythonData,
     DataTransformerException,
-    to_python_transformer,
     from_python_transformer,
+    to_python_transformer,
 )
 from protostar.utils.log_color_provider import LogColorProvider
 
@@ -266,6 +264,17 @@ class GatewayFacade:
             },
         )
 
+        supported_by_account_tx_version = (
+            await self._account_tx_version_detector.detect(account_address)
+        )
+        if supported_by_account_tx_version == 0:
+            logger = getLogger()
+            logger.warning(
+                "Provided account doesn't support v1 transactions. "
+                "Transaction version 0 is deprecated and will be removed in a future release of StarkNet. "
+                "Please update your account."
+            )
+
         contract_function = await self._create_contract_function(
             contract_address,
             function_name,
@@ -273,9 +282,7 @@ class GatewayFacade:
                 address=account_address,
                 client=self._gateway_client,
                 signer=signer,
-                supported_tx_version=await self._account_tx_version_detector.detect(
-                    account_address
-                ),
+                supported_tx_version=supported_by_account_tx_version,
             ),
         )
         try:
