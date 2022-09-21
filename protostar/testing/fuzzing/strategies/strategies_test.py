@@ -14,7 +14,7 @@ def test_felts_constructor_valid_args():
 
 def test_felts_constructor_args():
     with pytest.raises(TypeError):
-        FeltsStrategyDescriptor(True)
+        FeltsStrategyDescriptor(True)  # type: ignore
 
 
 def test_one_of_constructor_invalid_args():
