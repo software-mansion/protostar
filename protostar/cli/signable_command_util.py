@@ -1,84 +1,16 @@
 import importlib
 import os
 from logging import Logger
-from typing import List, Any, Optional, cast
+from typing import Any, Optional
 
-from starknet_py.net.models import Transaction, AddressRepresentation, parse_address
-from starknet_py.net.models.transaction import Declare, InvokeFunction
 from starknet_py.net.signer import BaseSigner
-
-from starknet_py.net.signer.stark_curve_signer import KeyPair
-from starknet_py.utils.crypto.facade import message_signature
-from starkware.starknet.core.os.transaction_hash.transaction_hash import (
-    calculate_declare_transaction_hash,
-    calculate_transaction_hash_common,
-    TransactionHashPrefix,
-)
-from starkware.starknet.definitions.transaction_type import TransactionType
+from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 
 from protostar.cli import Command
-
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import NetworkConfig
 
 PRIVATE_KEY_ENV_VAR_NAME = "PROTOSTAR_ACCOUNT_PRIVATE_KEY"
-
-
-# Adapted from starknet_py.net.signer.stark_curve_signer.StarkCurveSigner
-class PatchedStarkCurveSigner(BaseSigner):
-    def __init__(
-        self, account_address: AddressRepresentation, key_pair: KeyPair, chain_id: int
-    ):
-        self.address = parse_address(account_address)
-        self.key_pair = key_pair
-        self.chain_id = chain_id
-
-    @property
-    def private_key(self) -> int:
-        return self.key_pair.private_key
-
-    @property
-    def public_key(self) -> int:
-        return self.key_pair.public_key
-
-    def sign_transaction(
-        self,
-        transaction: Transaction,
-    ) -> List[int]:
-        if transaction.tx_type == TransactionType.DECLARE:
-            transaction = cast(Declare, transaction)
-
-            tx_hash = calculate_declare_transaction_hash(
-                contract_class=transaction.contract_class,
-                chain_id=self.chain_id,
-                sender_address=self.address,
-                max_fee=transaction.max_fee,
-                version=transaction.version,
-                # TODO(#719): Support transactions v1
-                nonce=0,
-            )
-        else:
-            transaction = cast(InvokeFunction, transaction)
-
-            # TODO(#719): Support transactions v1
-            entry_point_selector = transaction.entry_point_selector
-            assert (
-                entry_point_selector is not None
-            ), "Transactions v1 are not supported yet."
-
-            tx_hash = calculate_transaction_hash_common(
-                tx_hash_prefix=TransactionHashPrefix.INVOKE,
-                version=transaction.version,
-                contract_address=self.address,
-                entry_point_selector=entry_point_selector,
-                calldata=transaction.calldata,
-                max_fee=transaction.max_fee,
-                chain_id=self.chain_id,
-                additional_data=[],
-            )
-            # pylint: disable=invalid-name
-        r, s = message_signature(msg_hash=tx_hash, priv_key=self.private_key)
-        return [r, s]
 
 
 class SignableCommandUtil:
@@ -144,14 +76,15 @@ class SignableCommandUtil:
         key_pair = KeyPair.from_private_key(private_key)
 
         try:
-            signer = PatchedStarkCurveSigner(
+            signer = StarkCurveSigner(
                 account_address=self._args.account_address,
                 key_pair=key_pair,
                 chain_id=network_config.chain_id,
-            )  # FIXME(arcticae): Change the default signer to starknet.py one, when it supports signing declare txs
+            )
         except ValueError as v_err:
             raise ProtostarException(
-                f"Invalid account address format ({self._args.account_address}). Please provide hex-encoded number."
+                f"Invalid account address format ({self._args.account_address}). "
+                "Please provide hex-encoded number."
             ) from v_err
 
         return signer

@@ -13,7 +13,9 @@ from starknet_py.net.signer import BaseSigner
 from starknet_py.transaction_exceptions import TransactionFailedError
 from starknet_py.transactions.deploy import make_deploy_tx
 from starkware.starknet.definitions import constants
-from starkware.starknet.public.abi import AbiType
+from starkware.starknet.public.abi import (
+    AbiType,
+)
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,
@@ -22,6 +24,9 @@ from starkware.starknet.services.api.gateway.transaction import (
 
 from protostar.compiler import CompiledContractReader
 from protostar.protostar_exception import ProtostarException
+from protostar.starknet_gateway.account_tx_version_detector import (
+    AccountTxVersionDetector,
+)
 from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeclareResponse,
     SuccessfulDeployResponse,
@@ -54,6 +59,9 @@ class GatewayFacade:
         self._log_color_provider: Optional[LogColorProvider] = log_color_provider
         self._gateway_client = gateway_client
         self._compiled_contract_reader = compiled_contract_reader
+        self._account_tx_version_detector = AccountTxVersionDetector(
+            self._gateway_client
+        )
 
     def get_starknet_requests(self) -> List[StarknetRequest]:
         return self._starknet_requests.copy()
@@ -265,6 +273,9 @@ class GatewayFacade:
                 address=account_address,
                 client=self._gateway_client,
                 signer=signer,
+                supported_tx_version=await self._account_tx_version_detector.detect(
+                    account_address
+                ),
             ),
         )
         try:
@@ -332,15 +343,17 @@ class GatewayFacade:
     ) -> InvokeResult:
         if inputs is None:
             inputs = {}
-        # TODO: https://github.com/software-mansion/starknet.py/issues/320
-
         try:
             if isinstance(inputs, List):
                 return await contract_function.invoke(
-                    *inputs, max_fee=max_fee, auto_estimate=auto_estimate  # type: ignore
+                    *inputs,
+                    max_fee=max_fee,
+                    auto_estimate=auto_estimate,
                 )
             return await contract_function.invoke(
-                **inputs, max_fee=max_fee, auto_estimate=auto_estimate  # type: ignore
+                **inputs,
+                max_fee=max_fee,
+                auto_estimate=auto_estimate,
             )
         except (TypeError, ValueError) as ex:
             raise InputValidationException(str(ex)) from ex
