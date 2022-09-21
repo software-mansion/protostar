@@ -1,7 +1,9 @@
 from protostar.commands.test.environments.fuzz_test_execution_environment import (
     FuzzTestExecutionEnvironment,
 )
-from protostar.commands.test.environments.test_execution_environment import TestExecutionEnvironment
+from protostar.commands.test.environments.test_execution_environment import (
+    TestExecutionEnvironment,
+)
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_case_runners.fuzz_test_case_runner import (
     FuzzTestCaseRunner,

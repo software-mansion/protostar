@@ -33,7 +33,7 @@ class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
 
     def __init__(self, state: TestExecutionState, profiling=False):
         super().__init__(state)
-        self.profiling=profiling 
+        self.profiling = profiling
         self._expect_revert_context = ExpectRevertContext()
         self._finish_hook = Hook()
 
@@ -55,7 +55,6 @@ class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
             return TestExecutionResult(
                 execution_resources=await self.execute_test_case(function_name)
             )
-
 
     async def execute_test_case(
         self, function_name: str, *args, **kwargs

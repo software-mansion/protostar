@@ -15,7 +15,10 @@ async def test_testing_output(run_cairo_test_runner: RunCairoTestRunnerFixture):
     )
     assert False
 
-async def test_failed_profile_multiple_tests(run_cairo_test_runner: RunCairoTestRunnerFixture):
+
+async def test_failed_profile_multiple_tests(
+    run_cairo_test_runner: RunCairoTestRunnerFixture,
+):
     with pytest.raises(
         ProtostarException,
         match=re.escape(
@@ -26,4 +29,3 @@ async def test_failed_profile_multiple_tests(run_cairo_test_runner: RunCairoTest
             Path(__file__).parent,
             profiling=True,
         )
-
