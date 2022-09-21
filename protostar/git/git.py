@@ -1,4 +1,5 @@
 from asyncio.subprocess import DEVNULL
+from os import PathLike
 import subprocess
 import re
 import os.path
@@ -28,22 +29,27 @@ OUTPUT_KWARGS = (
 
 class Git:
     @staticmethod
-    def init(path_to_repo: Path):
-        path_to_repo.mkdir(parents=True, exist_ok=True)
-        repo = GitRepository(path_to_repo)
+    def init(path_to_repo: PathLike):
+        path = Path(path_to_repo)
+        path.mkdir(parents=True, exist_ok=True)
+        repo = GitRepository(path)
         repo.init()
         return repo
 
     @staticmethod
-    def clone(path_to_repo: Path, repo_to_clone: "GitRepository"):
-        path_to_repo.parent.mkdir(parents=True, exist_ok=True)
-        cloned_repo = GitRepository(path_to_repo)
+    def clone(path_to_repo: PathLike, repo_to_clone: "GitRepository"):
+        path = Path(path_to_repo)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        cloned_repo = GitRepository(path)
         cloned_repo.clone(repo_to_clone.path_to_repo)
         return cloned_repo
 
     @staticmethod
-    def from_existing(path_to_repo: Path):
-        return GitRepository(path_to_repo)
+    def from_existing(path_to_repo: PathLike):
+
+        # TODO: CHECK FOR INITIALIZATION HERE AND MAYBE THROW AN EXCEPTION HERE NOT IN INSTALL COMMAND
+        path = Path(path_to_repo)
+        return GitRepository(path)
 
 
 class GitRepository:
@@ -53,6 +59,21 @@ class GitRepository:
         """
         self.path_to_repo = path_to_repo.resolve()
 
+    def is_initialized(self):
+        """
+        Although Git.init works even if repo is already initialized,
+        we use this to prevent the user from initializing repos accidentally.
+        (i.e. with `protostar install` instead of `protostar init`)
+        """
+        return (
+            subprocess.run(
+                ["git", "status"],
+                **OUTPUT_KWARGS,
+                cwd=self.path_to_repo,
+            ).returncode
+            == 0
+        )
+
     def init(self):
         subprocess.run(
             ["git", "init"],
@@ -60,19 +81,14 @@ class GitRepository:
             cwd=self.path_to_repo,
         )
 
-    def clone(self, path_to_repo_to_clone: Path):
-        filepaths = []
-        for target in [self.path_to_repo.parent]:
-            if target.is_file():
-                filepaths.append(target.resolve())
-            else:
-                filepaths.extend(
-                    [f for f in target.resolve().glob("**/*") if f.is_file()]
-                )
-        print(*map(str, filepaths), sep="\n\n")
-
+    def clone(self, path_to_repo_to_clone: PathLike):
         subprocess.run(
-            ["git", "clone", path_to_repo_to_clone],
+            [
+                "git",
+                "clone",
+                path_to_repo_to_clone,
+                self.path_to_repo.name,
+            ],
             **OUTPUT_KWARGS,
             cwd=self.path_to_repo.parent,
         )
@@ -80,11 +96,13 @@ class GitRepository:
     def add_submodule(
         self,
         url: str,
-        path_to_submodule: Path,
+        path_to_submodule: PathLike,
         name: str,
         branch: Optional[str] = None,
         depth: int = 1,
     ):
+        path = Path(path_to_submodule)
+
         subprocess.run(
             ["git", "submodule", "add"]
             + (["-b", branch] if branch else [])  # (tag)
@@ -94,7 +112,7 @@ class GitRepository:
                 "--depth",
                 str(depth),
                 url,
-                str(path_to_submodule),
+                str(path.relative_to(self.path_to_repo)),
             ],
             **OUTPUT_KWARGS,
             cwd=self.path_to_repo,
@@ -155,7 +173,7 @@ class GitRepository:
                 paths = re.finditer(r"path = (.+)\n", data)
                 urls = re.finditer(r"url = (.+)\n", data)
                 return {
-                    name[1]: PackageData(Path(url=url[1], path=path[1]))
+                    name[1]: PackageData(url=url[1], path=Path(path[1]))
                     for name, path, url in zip(names, paths, urls)
                 }
         return {}

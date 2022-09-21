@@ -37,6 +37,6 @@ def install_package_from_repo(
         log_color_provider.get_color("RESET"),
     )
 
-    repo.add_submodule(url, package_dir, tag, name)
+    repo.add_submodule(url, package_dir, name, tag)
     repo.add(package_dir)
     repo.commit(f"add {name}")

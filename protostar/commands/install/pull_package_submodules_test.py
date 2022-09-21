@@ -97,14 +97,6 @@ def repo_clone(
 
     cloned_repo = Git.clone(repo_clone_dir, repo)
 
-    # filepaths = []
-    # for target in [repo_dir.parent.parent]:
-    #     if target.is_file():
-    #         filepaths.append(target.resolve())
-    #     else:
-    #         filepaths.extend([f for f in target.resolve().glob("**/*") if f.is_file()])
-    # print(*map(str, filepaths), sep="\n\n")
-
     assert path.exists(
         repo_clone_dir / packages_dir_name
     ), "./lib exists in the cloned repo directory"
