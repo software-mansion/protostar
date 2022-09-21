@@ -1,15 +1,15 @@
 from protostar.commands.test.environments.test_execution_environment import (
     TestExecutionResult,
 )
-from protostar.commands.test.environments.standard_test_execution_environment import (
-    StandardTestExecutionEnvironment,
+from protostar.commands.test.environments.test_execution_environment import (
+    TestExecutionEnvironment,
 )
 from protostar.commands.test.test_case_runners.test_case_runner import TestCaseRunner
 
 
 class StandardTestCaseRunner(TestCaseRunner[TestExecutionResult]):
     def __init__(
-        self, test_execution_environment: StandardTestExecutionEnvironment, **kwargs
+        self, test_execution_environment: TestExecutionEnvironment, **kwargs
     ) -> None:
         super().__init__(**kwargs)
         self._test_execution_environment = test_execution_environment

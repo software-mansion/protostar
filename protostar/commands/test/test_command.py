@@ -193,7 +193,7 @@ A glob or globs to a directory or a test suite, for example:
 
         if profiling and test_collector_result.test_cases_count > 1:
             raise ProtostarException(
-                "Please specifiy path to a single test case whe running profiling"
+                "Only one test case can be profiled at the time. Please specify path to a single test case." 
             )
 
         self._log_test_collector_result(test_collector_result)

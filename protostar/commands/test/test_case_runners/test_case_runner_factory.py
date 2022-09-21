@@ -1,9 +1,7 @@
 from protostar.commands.test.environments.fuzz_test_execution_environment import (
     FuzzTestExecutionEnvironment,
 )
-from protostar.commands.test.environments.standard_test_execution_environment import (
-    StandardTestExecutionEnvironment,
-)
+from protostar.commands.test.environments.test_execution_environment import TestExecutionEnvironment
 from protostar.commands.test.starkware.test_execution_state import TestExecutionState
 from protostar.commands.test.test_case_runners.fuzz_test_case_runner import (
     FuzzTestCaseRunner,
@@ -25,13 +23,11 @@ class TestCaseRunnerFactory:
         mode = self._state.config.mode
 
         assert mode, "Test mode should be determined at this point."
-        if mode is TestMode.FUZZ and profiling:
-            raise ProtostarException("You cannot profile fuzz tests")
-
         if mode is TestMode.FUZZ:
             return FuzzTestCaseRunner(
                 fuzz_test_execution_environment=FuzzTestExecutionEnvironment(
-                    self._state
+                    self._state,
+                    profiling=profiling,
                 ),
                 test_case=test_case,
                 output_recorder=self._state.output_recorder,
@@ -40,7 +36,7 @@ class TestCaseRunnerFactory:
 
         if mode is TestMode.STANDARD:
             return StandardTestCaseRunner(
-                test_execution_environment=StandardTestExecutionEnvironment(
+                test_execution_environment=TestExecutionEnvironment(
                     self._state,
                     profiling=profiling,
                 ),
