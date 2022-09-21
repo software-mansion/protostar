@@ -475,11 +475,8 @@ class AccountTxVersionDetector:
         cached = self._cache.get(account_address)
         if cached is not None:
             return await cached
-
         future = asyncio.ensure_future(self._do_detect(account_address))
-
         self._cache[account_address] = future
-
         return await future
 
     async def _do_detect(self, account_address: str) -> int:
