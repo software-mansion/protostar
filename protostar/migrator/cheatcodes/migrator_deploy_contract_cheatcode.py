@@ -7,10 +7,9 @@ from typing_extensions import Protocol
 from protostar.migrator.migrator_contract_identifier_resolver import (
     MigratorContractIdentifierResolver,
 )
-from protostar.starknet import Cheatcode, KeywordOnlyArgumentCheatcodeException
+from protostar.starknet import Cheatcode
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.utils.data_transformer import CairoOrPythonData
-
 from .network_config import CheatcodeNetworkConfig, ValidatedCheatcodeNetworkConfig
 
 
@@ -58,18 +57,14 @@ class MigratorDeployContractCheatcode(Cheatcode):
     def build(self) -> DeployContractCheatcodeProtocol:
         return self._deploy_contract
 
-    # pylint bug ?
-    # pylint: disable=keyword-arg-before-vararg
     def _deploy_contract(
         self,
         contract_path: str,
         constructor_args: Optional[CairoOrPythonData] = None,
-        *args,
+        *,
         config: Optional[CheatcodeNetworkConfig] = None,
     ) -> DeployedContract:
         contract_identifier = contract_path
-        if len(args) > 0:
-            raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
 
         validated_config = ValidatedCheatcodeNetworkConfig.from_dict(config)
         compiled_contract_path = self._migrator_contract_identifier_resolver.resolve(

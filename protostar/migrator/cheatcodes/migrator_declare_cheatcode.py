@@ -5,16 +5,11 @@ from typing import Any, Optional
 from starknet_py.net.signer import BaseSigner
 from typing_extensions import Protocol
 
-from protostar.starknet import (
-    Cheatcode,
-    CheatcodeException,
-    KeywordOnlyArgumentCheatcodeException,
-)
+from protostar.starknet import Cheatcode, CheatcodeException
 from protostar.starknet_gateway import GatewayFacade
 from protostar.starknet_gateway.gateway_facade import CompilationOutputNotFoundException
-
-from ..migrator_contract_identifier_resolver import MigratorContractIdentifierResolver
 from .network_config import CheatcodeNetworkConfig, ValidatedCheatcodeNetworkConfig
+from ..migrator_contract_identifier_resolver import MigratorContractIdentifierResolver
 
 
 @dataclass
@@ -59,12 +54,10 @@ class MigratorDeclareCheatcode(Cheatcode):
     def _declare(
         self,
         contract_path_str: str,
-        *args,
+        *,
         config: Optional[CheatcodeNetworkConfig] = None,
     ) -> DeclaredContract:
         contract_identifier = contract_path_str
-        if len(args) > 0:
-            raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
 
         validated_config = ValidatedCheatcodeNetworkConfig.from_dict(
             config or CheatcodeNetworkConfig()

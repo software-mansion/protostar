@@ -4,9 +4,8 @@ from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import (
     DeployContractCheatcodeProtocol,
     DeployedContract,
 )
-from protostar.starknet import Cheatcode, KeywordOnlyArgumentCheatcodeException
+from protostar.starknet import Cheatcode
 from protostar.utils.data_transformer import CairoOrPythonData
-
 from .declare_cheatcode import DeclareCheatcode
 from .deploy_cheatcode import DeployCheatcode
 from .prepare_cheatcode import PrepareCheatcode
@@ -32,18 +31,13 @@ class DeployContractCheatcode(Cheatcode):
     def build(self) -> DeployContractCheatcodeProtocol:
         return self.deploy_contract
 
-    # pylint bug ?
-    # pylint: disable=keyword-arg-before-vararg
     def deploy_contract(
         self,
         contract_path: str,
         constructor_args: Optional[CairoOrPythonData] = None,
-        *args,
-        # pylint: disable=unused-argument
-        config: Optional[Dict] = None,
+        *,
+        config: Optional[Dict] = None,  # pylint: disable=unused-argument
     ) -> DeployedContract:
-        if len(args) > 0:
-            raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
         declared_contract = self._declare_cheatcode.declare(contract_path)
         prepared_contract = self._prepare_cheatcode.prepare(
             declared_contract, constructor_args

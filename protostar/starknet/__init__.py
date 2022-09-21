@@ -2,7 +2,6 @@ from .cheatable_starknet_exceptions import (
     BreakingReportedException,
     CheatcodeException,
     ExceptionMetadata,
-    KeywordOnlyArgumentCheatcodeException,
     ReportedException,
     SimpleBreakingReportedException,
     SimpleReportedException,

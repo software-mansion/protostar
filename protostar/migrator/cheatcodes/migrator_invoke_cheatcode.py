@@ -9,7 +9,6 @@ from protostar.migrator.cheatcodes import CheatcodeNetworkConfig
 from protostar.starknet import (
     Cheatcode,
     CheatcodeException,
-    KeywordOnlyArgumentCheatcodeException,
 )
 from protostar.starknet_gateway import (
     ContractNotFoundException,
@@ -82,12 +81,9 @@ class MigratorInvokeCheatcode(Cheatcode):
         contract_address: int,
         function_name: str,
         inputs: Optional[CairoOrPythonData],
-        *args,
+        *,
         config=None,
     ):
-        if len(args) > 0:
-            raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
-
         config = ValidatedSignedCheatcodeConfig.from_dict(config)
         max_fee = config.max_fee
         auto_estimate_fee = config.auto_estimate_fee

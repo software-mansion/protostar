@@ -94,17 +94,3 @@ class CheatcodeException(BreakingReportedException):
 
     def __reduce__(self):
         return type(self), (self.cheatcode_name, self.message), self.__getstate__()
-
-
-class KeywordOnlyArgumentCheatcodeException(CheatcodeException):
-    def __init__(self, cheatcode: CheatcodeNameProvider, list_of_kwargs: list[str]):
-        self.kwargs = list_of_kwargs
-        super().__init__(cheatcode, "Passed keyword-only argument positionally.")
-
-    def __str__(self):
-        lines: list[str] = []
-        lines.append(f"Incorrect usage of `{self.cheatcode_name}` cheatcode")
-        lines.append(self.message)
-        lines.append("Available kwargs:")
-        lines.extend(f"`{kwarg}`" for kwarg in self.kwargs)
-        return "\n".join(lines)
