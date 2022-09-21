@@ -48,7 +48,11 @@ def felts(*, comparable: bool = False) -> Strategy: ...
 
 By default, explores all possible felt values.
 
-If `comparable` is true, explores felts which can be range checked, i.e. `assert_le` will not crash.
+If keyword argument `comparable` is `True`, explores felts which can be passed to the `range_check`
+builtin.
+This narrows the range of explored values according to the parameters of Cairo runtime.
+Use this functionality, if fuzzed values will be passed to any of the `assert_*` functions from
+`starkware.cairo.common.math` module.
 
 ### `strategy.integers`
 
