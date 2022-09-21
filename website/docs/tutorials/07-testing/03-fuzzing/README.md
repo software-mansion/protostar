@@ -48,16 +48,6 @@ func withdraw{
     balance.write(new_res);
     return ();
 }
-
-@constructor
-func constructor{
-    syscall_ptr: felt*,
-    pedersen_ptr: HashBuiltin*,
-    range_check_ptr
-}() {
-    balance.write(10000);
-    return ();
-}
 ```
 
 ### Unit testing
@@ -69,6 +59,16 @@ testing for:
 %lang starknet
 from src.main import balance, withdraw
 from starkware.cairo.common.cairo_builtins import HashBuiltin
+
+@external
+func setup_withdraw{
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
+    range_check_ptr
+}() {
+    balance.write(10000);
+    return ();
+}
 
 @external
 func test_withdraw{
@@ -94,11 +94,14 @@ func test_withdraw{
 So far, so good. Running the test, we see it passes:
 
 ```text title="$ protostar test"
-[PASS] tests/test_main.cairo test_withdraw (steps=129)
+12:14:47 [INFO] Collected 1 suite, and 1 test case (0.077 s)
+[PASS] tests/test_main.cairo test_withdraw (time=1.19s, steps=129)
        range_check_builtin=1
 
-11:28:43 [INFO] Test suites: 1 passed, 1 total
-11:28:43 [INFO] Tests:       1 passed, 1 total
+12:14:51 [INFO] Test suites: 1 passed, 1 total
+12:14:51 [INFO] Tests:       1 passed, 1 total
+12:14:51 [INFO] Seed:        2917010406
+12:14:51 [INFO] Execution time: 5.34 s
 ```
 
 ### Generalizing the test
@@ -106,14 +109,75 @@ So far, so good. Running the test, we see it passes:
 This unit test performs checks if we can withdraw "some" amount from our safe.
 However, can we be sure that it works for all amounts, not just this particular one?
 
-The general property here is: given a safe balance, when we withdraw some amount from it,
-we should get reduced balance in the safe, and it should not be possible to withdraw more than we
-have.
+The general property here is: given a safe balance, when we withdraw some amount from it, we should
+get reduced balance in the safe, and it should not be possible to withdraw more than we have.
 
 Protostar will run any test that takes parameters in fuzz testing mode, so let's rewrite our unit
-test.
-We need to take the `Cannot withdraw more than stored.` error, so we also add a call to
-the [`expect_revert`](../02-cheatcodes/expect-revert.md) cheatcode if needed.
+test:
+
+```cairo title="tests/test_main.cairo"
+@external
+func test_withdraw{
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
+    range_check_ptr
+}(amount: felt) {
+    alloc_locals;
+    let (pre_balance_ref) = balance.read();
+    local pre_balance = pre_balance_ref;
+
+    withdraw(amount);
+
+    let (post_balance) = balance.read();
+    assert post_balance = pre_balance - amount;
+
+    return ();
+}
+```
+
+When the test is run now, we can see that it fails for values larger than the amount we stored
+in [`setup_withdraw` hook](../README.md#setup-case):
+
+```text title="$ protostar test"
+12:23:55 [INFO] Collected 1 suite, and 1 test case (0.076 s)
+[FAIL] tests/test_main.cairo test_withdraw (time=7.69s, fuzz_runs=77)
+[type] TRANSACTION_FAILED
+[code] 43
+[messages]:
+— Cannot withdraw more than stored.
+[details]:
+<REDACTED>/starkware/cairo/common/math.cairo:42:5: Error at pc=0:0:
+Got an exception while executing a hint.
+    %{
+    ^^
+Cairo traceback (most recent call last):
+tests/test_main.cairo:16:6: (pc=0:141)
+func test_withdraw{
+     ^***********^
+tests/test_main.cairo:25:6: (pc=0:125)
+     withdraw(amount);
+     ^**************^
+Error message: Cannot withdraw more than stored.
+<REDACTED>/src/main.cairo:19:9: (pc=0:63)
+        assert_nn(new_res);
+        ^****************^
+
+Traceback (most recent call last):
+  File "<REDACTED>/starkware/cairo/common/math.cairo", line 45, in <module>
+    assert 0 <= ids.a % PRIME < range_check_builtin.bound, f'a = {ids.a} is out of range.'
+AssertionError: a = 3618502788666131213697322783095070105623107215331596699973092056135872020480 is out of range.
+[falsifying example]:
+amount = 10001
+
+
+12:24:06 [INFO] Test suites: 1 failed, 1 total
+12:24:06 [INFO] Tests:       1 failed, 1 total
+12:24:06 [INFO] Seed:        2965326707
+12:24:06 [INFO] Execution time: 11.95 s
+```
+
+We need to take the `Cannot withdraw more than stored` error into consideration, so we also add a
+call to the [`expect_revert`](../02-cheatcodes/expect-revert.md) cheatcode if needed.
 
 ```cairo title="tests/test_main.cairo"
 @external
@@ -143,92 +207,66 @@ If we run the test now, we can see that Protostar runs a fuzz test, but it fails
 of `amount`:
 
 ```text title="$ protostar test"
-[FAIL] tests/test_main.cairo test_withdraw
-[type] TRANSACTION_FAILED
-[code] 39
-[messages]:
+12:25:23 [INFO] Collected 1 suite, and 1 test case (0.075 s)
+[FAIL] tests/test_main.cairo test_withdraw (time=3.04s, fuzz_runs=21)
+Expected an exception matching the following error:
+[error_messages]:
 — Cannot withdraw more than stored.
-[details]:
-<REDACTED>/starkware/cairo/common/math.cairo:40:5: Error at pc=0:0:
-Got an exception while executing a hint.
-    %{
-    ^^
-Cairo traceback (most recent call last):
-tests/test_main.cairo:22:6: (pc=0:141)
-func test_withdraw(
-     ^***********^
-tests/test_main.cairo:36:5: (pc=0:125)
-    withdraw(amount);
-    ^***************^
-Error message: Cannot withdraw more than stored.
-<REDACTED>/src/main.cairo:23:9: (pc=0:63)
-        assert_nn(new_res);
-        ^*****************^
-
-Traceback (most recent call last):
-  File "<REDACTED>/starkware/cairo/common/math.cairo", line 43, in <module>
-    assert 0 <= ids.a % PRIME < range_check_builtin.bound, f'a = {ids.a} is out of range.'
-AssertionError: a = 3618502788666131213697322783095070105282824848410658236509717448704103819025 is out of range.
 [falsifying example]:
-amount = 340282366920938463463374607431768211456
+amount = 3618502788666131213697322783095070105623107215331596699973092056135872020480
 
-11:41:48 [INFO] Test suites: 1 failed, 1 total
-11:41:48 [INFO] Tests:       1 failed, 1 total
-11:41:48 [INFO] Seed:        4258368192
+
+12:25:29 [INFO] Test suites: 1 failed, 1 total
+12:25:29 [INFO] Tests:       1 failed, 1 total
+12:25:29 [INFO] Seed:        1746010604
+12:25:29 [INFO] Execution time: 7.34 s
 ```
 
 ### Fixing the bug
 
-The test fails because `amount` has `felt` type so its value can be negative. If smallest possible `felt` value is subtracted from `balance` it causes `felt` overflow.
-The solution, is to check if `amount` is a negative number in `withdraw`, and adjust `test_withdraw`
-appropriately:
+The test fails because `amount` has `felt` type, so it can overflow when subtracting.
+In particular, it is certain, that the overflow will happen if you try to
+withdraw `FIELD_PRIME - 1` (which is the number fuzzer found!).
+Although this bug should be fixed within the contract, for the purpose of this tutorial we will do
+it differently:
+we will instruct the fuzzer to avoid numbers outside `range_check` builtin boundary.
+
+Fuzzer input parameters are selected according to a _fuzzing strategy_ associated with each
+parameter.
+Protostar offers various strategies tailored for specific use cases, check out
+the [Strategies](./strategies.md) page for more information.
+Associating a fuzzing strategy to a parameter is done via the [`given`](../02-cheatcodes/given.md)
+cheatcode, which is only available within setup cases.
+The default strategy [`felts`](./strategies.md#strategyfelts) accepts a keyword argument `rc_bound`
+which narrows the range of values to be safe to be passed to range check-based assertions:
 
 ```cairo title="src/main.cairo"
 @external
-func withdraw{
+func setup_withdraw{
     syscall_ptr: felt*,
     pedersen_ptr: HashBuiltin*,
     range_check_ptr
-}(amount: felt) {
-    with_attr error_message("Amount must be positive.") {
-        assert_nn(amount);
-    }
+}() {
+    %{ given(amount = strategy.felts(rc_bound=True)) %}
 
-    // ...
-}
-```
-
-```cairo title="tests/test_main.cairo"
-@external
-func test_withdraw{
-    syscall_ptr: felt*,
-    pedersen_ptr: HashBuiltin*,
-    range_check_ptr
-}(amount: felt) {
-    // ...
-
-    %{
-        if not (0 <= ids.amount and ids.amount % PRIME < range_check_builtin.bound):
-            expect_revert(error_message="Amount must be positive.")
-        elif ids.amount > ids.pre_balance:
-            expect_revert(error_message="Cannot withdraw more than stored.")
-    %}
-    withdraw(amount);
-
-    // ...
+    balance.write(10000);
+    return ();
 }
 ```
 
 And now, the test passes.
-We can also observe the variance of resources usage, caused by the `if amount == 0:` branch in code.
+We can also observe the variance of resources usage, caused by the `if amount == 0:` branch in
+contract code.
 
 ```text title="$ protostar test"
-[PASS] tests/test_main.cairo test_withdraw (fuzz_runs=100, steps=μ: 127, Md: 137, min: 84, max: 137)
-       range_check_builtin=μ: 1.81, Md: 2, min: 1, max: 2
+12:27:23 [INFO] Collected 1 suite, and 1 test case (0.075 s)
+[PASS] tests/test_main.cairo test_withdraw (time=9.49s, fuzz_runs=100, steps=μ: 118.84, Md: 131, min: 78, max: 131)
+       range_check_builtin=μ: 1, Md: 1, min: 1, max: 1
 
-11:55:18 [INFO] Test suites: 1 passed, 1 total
-11:55:18 [INFO] Tests:       1 passed, 1 total
-11:55:18 [INFO] Seed:        3741774783
+12:27:35 [INFO] Test suites: 1 passed, 1 total
+12:27:35 [INFO] Tests:       1 passed, 1 total
+12:27:35 [INFO] Seed:        3287645654
+12:27:35 [INFO] Execution time: 13.46 s
 ```
 
 ## Interpreting results
@@ -241,6 +279,7 @@ In fuzzing mode, the test is executed many times, hence test summaries are exten
 ```
 
 Each resource counter presents a summary of observed values across all test runs:
+
 - `μ` is the mean value of a used resource,
 - `Md` is the median value of this resource,
 - `min` is the lowest value observed,
