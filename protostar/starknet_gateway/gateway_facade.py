@@ -1,24 +1,20 @@
-import asyncio
 import dataclasses
 from logging import Logger
 from pathlib import Path
-from typing import Any, Callable, Dict, List, NamedTuple, Optional, Union, Awaitable
+from typing import Any, Callable, Dict, List, NamedTuple, Optional, Union
 
 from starknet_py.contract import Contract, ContractFunction, InvokeResult
 from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
-from starknet_py.net.client_errors import ContractNotFoundError, ClientError
-from starknet_py.net.client_models import Call
+from starknet_py.net.client_errors import ContractNotFoundError
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import AddressRepresentation, parse_address
+from starknet_py.net.models import AddressRepresentation
 from starknet_py.net.signer import BaseSigner
 from starknet_py.transaction_exceptions import TransactionFailedError
 from starknet_py.transactions.deploy import make_deploy_tx
 from starkware.starknet.definitions import constants
 from starkware.starknet.public.abi import (
     AbiType,
-    get_selector_from_name,
-    VALIDATE_ENTRY_POINT_NAME,
 )
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.services.api.gateway.transaction import (
@@ -28,6 +24,9 @@ from starkware.starknet.services.api.gateway.transaction import (
 
 from protostar.compiler import CompiledContractReader
 from protostar.protostar_exception import ProtostarException
+from protostar.starknet_gateway.account_tx_version_detector import (
+    AccountTxVersionDetector,
+)
 from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeclareResponse,
     SuccessfulDeployResponse,
@@ -455,50 +454,3 @@ def validate_cairo_inputs(abi: AbiType, inputs: List[int]):
         to_python_transformer(abi, "constructor", "inputs")(inputs)
     except DataTransformerException as ex:
         raise InputValidationException(str(ex)) from ex
-
-
-class AccountTxVersionDetector:
-    """
-    Tries to infer what Starknet transaction version an account contract supports,
-    by probing its behaviour via a call.
-
-    This class has a built-in permanent cache, keyed by account address.
-    """
-
-    # TODO(mkaput): Remove this when Cairo 0.11 will remove transactions v0.
-
-    def __init__(self, client: GatewayClient):
-        self._client = client
-        self._cache: dict[str, Awaitable[int]] = {}
-
-    async def detect(self, account_address: str) -> int:
-        cached = self._cache.get(account_address)
-        if cached is not None:
-            return await cached
-        future = asyncio.ensure_future(self._do_detect(account_address))
-        self._cache[account_address] = future
-        return await future
-
-    async def _do_detect(self, account_address: str) -> int:
-        try:
-            await self._client.call_contract(
-                Call(
-                    to_addr=parse_address(account_address),
-                    selector=get_selector_from_name(VALIDATE_ENTRY_POINT_NAME),
-                    calldata=[0, 0, 0, 0],
-                )
-            )
-
-            return 1
-        except ClientError as ex:
-            if (
-                ex.code == "500"
-                and "Entry point" in ex.message
-                and "not found in contract with class hash" in ex.message
-            ):
-                return 0
-
-            if ex.code == "500":
-                return 1
-
-            raise
