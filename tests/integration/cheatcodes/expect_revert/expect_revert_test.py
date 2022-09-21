@@ -3,9 +3,11 @@ from pathlib import Path
 import pytest
 
 from tests.integration.conftest import (
+    CreateProtostarProjectFixture,
     RunCairoTestRunnerFixture,
     assert_cairo_test_cases,
 )
+from tests.integration.protostar_fixture import ProtostarFixture
 
 
 @pytest.mark.asyncio
@@ -31,3 +33,22 @@ async def test_expect_revert(run_cairo_test_runner: RunCairoTestRunnerFixture):
             "test_fail_error_message",
         ],
     )
+
+
+@pytest.fixture(autouse=True, scope="module", name="protostar")
+def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
+    with create_protostar_project() as protostar:
+        protostar.build_sync()
+        yield protostar
+
+
+async def test_error_message_when_no_arguments_were_provided(
+    protostar: ProtostarFixture,
+):
+    (_, formatted_test_result) = await protostar.run_test_case("%{ expect_revert() %}")
+
+    assert (
+        "Expected an exception matching the following error"
+        not in formatted_test_result
+    )
+    assert "Expected revert" in formatted_test_result
