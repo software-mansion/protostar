@@ -7,7 +7,7 @@ from protostar.configuration_file.configuration_legacy_toml_interpreter import (
 )
 from protostar.self import parse_protostar_version
 
-from .configuration_file_v1 import (
+from .configuration_file_facade_v1 import (
     ConfigurationFileFacade,
     ConfigurationFileFacadeV1,
     ConfigurationFileV1,
@@ -34,8 +34,8 @@ def protostar_toml_path_fixture(protostar_toml_content: str, project_root_path: 
     return path
 
 
-@pytest.fixture(name="configuration_file")
-def configuration_file_fixture(
+@pytest.fixture(name="configuration_file_facade")
+def configuration_file_facade_fixture(
     protostar_toml_path: Path, project_root_path: Path, protostar_toml_content: str
 ):
     return ConfigurationFileFacadeV1(
@@ -57,9 +57,9 @@ def configuration_file_fixture(
     ],
 )
 def test_retrieving_declared_protostar_version(
-    configuration_file: ConfigurationFileFacade,
+    configuration_file_facade: ConfigurationFileFacade,
 ):
-    result = configuration_file.get_declared_protostar_version()
+    result = configuration_file_facade.get_declared_protostar_version()
 
     assert result == parse_protostar_version("0.1.2")
 
@@ -78,8 +78,8 @@ def test_retrieving_declared_protostar_version(
         """
     ],
 )
-def test_retrieving_contract_names(configuration_file: ConfigurationFileFacade):
-    contract_names = configuration_file.get_contract_names()
+def test_retrieving_contract_names(configuration_file_facade: ConfigurationFileFacade):
+    contract_names = configuration_file_facade.get_contract_names()
 
     assert contract_names == ["main", "foo"]
 
@@ -100,9 +100,9 @@ def test_retrieving_contract_names(configuration_file: ConfigurationFileFacade):
     ],
 )
 def test_retrieving_contract_source_paths(
-    configuration_file: ConfigurationFileFacade, project_root_path: Path
+    configuration_file_facade: ConfigurationFileFacade, project_root_path: Path
 ):
-    paths = configuration_file.get_contract_source_paths(contract_name="foo")
+    paths = configuration_file_facade.get_contract_source_paths(contract_name="foo")
 
     assert paths == [
         (project_root_path / "./src/foo.cairo").resolve(),
@@ -111,10 +111,10 @@ def test_retrieving_contract_source_paths(
 
 
 def test_error_when_retrieving_paths_from_not_defined_contract(
-    configuration_file: ConfigurationFileFacade,
+    configuration_file_facade: ConfigurationFileFacade,
 ):
     with pytest.raises(ContractNameNotFoundException):
-        configuration_file.get_contract_source_paths(
+        configuration_file_facade.get_contract_source_paths(
             contract_name="NOT_DEFINED_CONTRACT"
         )
 
@@ -129,9 +129,9 @@ def test_error_when_retrieving_paths_from_not_defined_contract(
     ],
 )
 def test_reading_lib_path(
-    configuration_file: ConfigurationFileFacadeV1, project_root_path: Path
+    configuration_file_facade: ConfigurationFileFacadeV1, project_root_path: Path
 ):
-    lib_path = configuration_file.get_lib_path()
+    lib_path = configuration_file_facade.get_lib_path()
 
     assert lib_path is not None
     assert lib_path == (project_root_path / "lib").resolve()
@@ -147,9 +147,9 @@ def test_reading_lib_path(
     ],
 )
 def test_reading_command_argument_attribute(
-    configuration_file: ConfigurationFileFacade,
+    configuration_file_facade: ConfigurationFileFacade,
 ):
-    arg_value = configuration_file.get_command_argument(
+    arg_value = configuration_file_facade.get_command_argument(
         command_name="command_name", argument_name="arg_name"
     )
 
@@ -169,9 +169,9 @@ def test_reading_command_argument_attribute(
     ],
 )
 def test_reading_argument_attribute_defined_within_specified_profile(
-    configuration_file: ConfigurationFileFacade,
+    configuration_file_facade: ConfigurationFileFacade,
 ):
-    arg_value = configuration_file.get_command_argument(
+    arg_value = configuration_file_facade.get_command_argument(
         command_name="command_name", argument_name="arg_name", profile_name="devnet"
     )
 
@@ -208,9 +208,9 @@ def test_reading_argument_attribute_defined_within_specified_profile(
     ],
 )
 def test_generating_data_struct(
-    configuration_file: ConfigurationFileFacadeV1,
+    configuration_file_facade: ConfigurationFileFacadeV1,
 ):
-    model = configuration_file.read()
+    model = configuration_file_facade.read()
 
     assert model == ConfigurationFileV1(
         protostar_version="0.3.1",
