@@ -6,7 +6,7 @@ from protostar.commands.init.project_creator._project_creator import ProjectCrea
 from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
 from protostar.utils import InputRequester
 from protostar.utils.protostar_directory import VersionManager
-from protostar.git.git_repository import GitRepository
+from protostar.git.git import Git
 
 
 class NewProjectCreator(ProjectCreator):
@@ -60,6 +60,4 @@ class NewProjectCreator(ProjectCreator):
             project_root_path, libs_path=Path(user_input.lib_dirname)
         )
 
-        repo = GitRepository(project_root_path)
-        if not repo.is_initialized():
-            repo.init()
+        Git.init(project_root_path)

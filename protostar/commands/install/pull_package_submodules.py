@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Callable
 
 from attr import dataclass
-from protostar.git.git_repository import GitRepository
+from protostar.git.git import Git
 
 
 @dataclass
@@ -18,7 +18,7 @@ def pull_package_submodules(
     libs_dir: Path,
 ) -> None:
     submodule_names = listdir(libs_dir)
-    repo = GitRepository(repo_dir)
+    repo = Git.from_existing(repo_dir)
     submodules = repo.get_submodules()
 
     for name in submodules:

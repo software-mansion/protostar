@@ -8,7 +8,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from protostar.commands.install.pull_package_submodules import pull_package_submodules
-from protostar.git.git_repository import GitRepository
+from protostar.git.git import Git, GitRepository
 
 # - repo
 #   - lib
@@ -51,9 +51,7 @@ def package_repo_dir(tmpdir: str) -> Path:
 
 @pytest.fixture
 def package_repo(package_repo_dir: Path, the_packages_file_name: str) -> GitRepository:
-
-    repo = GitRepository(package_repo_dir)
-    repo.init()
+    repo = Git.init(package_repo_dir)
 
     the_file_path = path.join(package_repo_dir / the_packages_file_name)
     with open(the_file_path, "w", encoding="utf-8") as file:
@@ -73,10 +71,10 @@ def repo(
     package_repo_dir: Path,
     packages_dir_name: str,
     the_package_name: str,
-    # package_repo: Repo,
+    # This is needed because we want the package repo to be initialized
+    package_repo: GitRepository,
 ) -> GitRepository:
-    repo = GitRepository(repo_dir)
-    repo.init()
+    repo = Git.init(repo_dir)
 
     packages_dir = repo_dir / packages_dir_name
     package_dir = packages_dir / the_package_name
@@ -97,10 +95,15 @@ def repo_clone(
     repo_clone_dir: Path, repo_dir: Path, repo: GitRepository, packages_dir_name: str
 ) -> GitRepository:
 
-    cloned_repo = GitRepository(repo_clone_dir)
-    cloned_repo.clone(repo.path_to_repo)
+    cloned_repo = Git.clone(repo_clone_dir, repo)
 
-    cloned_repo = repo.clone(repo_clone_dir)
+    # filepaths = []
+    # for target in [repo_dir.parent.parent]:
+    #     if target.is_file():
+    #         filepaths.append(target.resolve())
+    #     else:
+    #         filepaths.extend([f for f in target.resolve().glob("**/*") if f.is_file()])
+    # print(*map(str, filepaths), sep="\n\n")
 
     assert path.exists(
         repo_clone_dir / packages_dir_name

@@ -9,7 +9,7 @@ from protostar.commands.install import installation_exceptions
 from protostar.commands.install.install_package_from_repo import (
     install_package_from_repo,
 )
-from protostar.git.git_repository import GitRepository
+from protostar.git.git import Git
 
 
 @dataclass
@@ -24,8 +24,7 @@ def repo_url():
 
 def test_successful_installation(tmpdir: str, repo_url: str, mocker: MockerFixture):
 
-    repo = GitRepository(tmpdir)
-    repo.init()
+    repo = Git.init(tmpdir)
 
     install_package_from_repo("foo", repo_url, Path(tmpdir), Path(tmpdir) / "lib")
 

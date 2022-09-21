@@ -4,7 +4,7 @@ from typing import Optional
 
 from protostar.commands.install import installation_exceptions
 from protostar.utils import log_color_provider
-from protostar.git.git_repository import GitRepository
+from protostar.git.git import Git
 
 
 def install_package_from_repo(
@@ -16,7 +16,7 @@ def install_package_from_repo(
 ):
     logger = getLogger()
 
-    repo = GitRepository(repo_dir)
+    repo = Git.from_existing(repo_dir)
 
     if not repo.is_initialized():
         raise installation_exceptions.InvalidLocalRepository(
