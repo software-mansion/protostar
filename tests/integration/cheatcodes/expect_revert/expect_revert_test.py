@@ -46,8 +46,21 @@ async def test_error_message_when_no_arguments_were_provided(
 ):
     (_, formatted_test_result) = await protostar.run_test_case("%{ expect_revert() %}")
 
-    assert (
-        "Expected an exception matching the following error"
-        not in formatted_test_result
-    )
+    assert "matching the following error" not in formatted_test_result
     assert "Expected revert" in formatted_test_result
+
+
+async def test_already_expecting_error_message_when_no_arguments_were_provided(
+    protostar: ProtostarFixture,
+):
+    (_, formatted_test_result) = await protostar.run_test_case(
+        """
+        %{
+            expect_revert()
+            expect_revert()
+        %}
+        """
+    )
+
+    assert "matching the following error" not in formatted_test_result
+    assert "Protostar is already expecting an exception." in formatted_test_result

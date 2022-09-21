@@ -18,6 +18,13 @@ class ExpectRevertContext:
 
     def expect_revert(self, expected_error: RevertableException) -> Callable[[], None]:
         if self._expected_error is not None:
+            if (
+                self._expected_error.error_type is None
+                and not self._expected_error.error_messages
+            ):
+                raise SimpleReportedException(
+                    "Protostar is already expecting an exception."
+                )
             raise SimpleReportedException(
                 f"Protostar is already expecting an exception matching the following error: "
                 f"{self._expected_error}"
