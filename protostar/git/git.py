@@ -26,6 +26,13 @@ OUTPUT_KWARGS = (
     }
 )
 
+TEMP_CONFIG = [
+    "-c",
+    'user.name="Protostar"',
+    "-c",
+    'user.email="protostar@protostar.protostar"',
+]
+
 
 class Git:
     @staticmethod
@@ -62,7 +69,7 @@ class GitRepository:
         """
         return (
             subprocess.run(
-                ["git", "status"],
+                ["git", *TEMP_CONFIG, "status"],
                 **OUTPUT_KWARGS,
                 cwd=self.path_to_repo,
             ).returncode
@@ -71,7 +78,7 @@ class GitRepository:
 
     def init(self):
         subprocess.run(
-            ["git", "init"],
+            ["git", *TEMP_CONFIG, "init"],
             **OUTPUT_KWARGS,
             cwd=self.path_to_repo,
         )
@@ -80,6 +87,7 @@ class GitRepository:
         subprocess.run(
             [
                 "git",
+                *TEMP_CONFIG,
                 "clone",
                 path_to_repo_to_clone,
                 self.path_to_repo.name,
@@ -97,7 +105,7 @@ class GitRepository:
         depth: int = 1,
     ):
         subprocess.run(
-            ["git", "submodule", "add"]
+            ["git", *TEMP_CONFIG, "submodule", "add"]
             + (["-b", branch] if branch else [])  # (tag)
             + [
                 "--name",
@@ -113,7 +121,7 @@ class GitRepository:
 
     def update_submodule(self, path_to_submodule: Path, init=False):
         subprocess.run(
-            ["git", "submodule", "update"]
+            ["git", *TEMP_CONFIG, "submodule", "update"]
             + (["--init"] if init else [])
             + [str(path_to_submodule)],
             **OUTPUT_KWARGS,
@@ -124,6 +132,7 @@ class GitRepository:
         subprocess.run(
             [
                 "git",
+                *TEMP_CONFIG,
                 "add",
                 str(path_to_item),
             ],
@@ -135,6 +144,7 @@ class GitRepository:
         subprocess.run(
             [
                 "git",
+                *TEMP_CONFIG,
                 "rm",
             ]
             + (["--force"] if force else [])
@@ -147,7 +157,7 @@ class GitRepository:
 
     def commit(self, msg: str):
         subprocess.run(
-            ["git", "commit", "-m", msg],
+            ["git", *TEMP_CONFIG, "commit", "-m", msg],
             **OUTPUT_KWARGS,
             cwd=self.path_to_repo,
         )
@@ -160,8 +170,6 @@ class GitRepository:
 
         gitmodules_path = self.path_to_repo / ".gitmodules"
         if os.path.isfile(gitmodules_path):
-
-            PackageData = NamedTuple("PackageData", [("url", str), ("path", Path)])
 
             with open(gitmodules_path, "r") as file:
                 data = file.read()
