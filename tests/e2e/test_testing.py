@@ -32,9 +32,12 @@ def test_basic_contract_profile(protostar):
 @pytest.mark.usefixtures("init")
 def test_profile_fuzz(protostar, copy_fixture):
     copy_fixture("fuzz_test.cairo", "./tests")
-    result = protostar(["test", "--profiling", "tests/fuzz_test.cairo"], ignore_exit_code=True)
+    result = protostar(
+        ["test", "--profiling", "tests/fuzz_test.cairo"], ignore_exit_code=True
+    )
     assert "Fuzz tests cannot be profiled" in result
     assert "profile.pb.gz" not in listdir(".")
+
 
 @pytest.mark.usefixtures("init")
 def test_complex(protostar, copy_fixture):
@@ -248,3 +251,11 @@ def test_report_slowest(protostar, copy_fixture):
 def test_does_collect_in_cwd_by_default(protostar):
     result = protostar(["test"])
     assert "Collected 1 suite, and 2 test cases" in result
+
+
+@pytest.mark.usefixtures("init")
+def test_skipping(protostar, copy_fixture):
+    copy_fixture("test_skip.cairo", "./tests")
+    result = protostar(["test", "tests"])
+    assert "SKIP" in result
+    assert "REASON" in result

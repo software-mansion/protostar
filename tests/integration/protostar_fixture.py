@@ -8,9 +8,9 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, cast
 from pytest_mock import MockerFixture
 from starknet_py.net import KeyPair
 from starknet_py.net.models import StarknetChainId
+from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
 from protostar.cli.map_targets_to_file_paths import map_targets_to_file_paths
-from protostar.cli.signable_command_util import PatchedStarkCurveSigner
 from protostar.commands import (
     BuildCommand,
     DeclareCommand,
@@ -67,7 +67,7 @@ class ProtostarFixture:
 
     async def declare(
         self,
-        chain_id: Optional[int] = None,
+        chain_id: Optional[StarknetChainId] = None,
         account_address: Optional[str] = None,
         contract: Optional[Path] = None,
         gateway_url: Optional[str] = None,
@@ -137,7 +137,7 @@ class ProtostarFixture:
         args.no_confirm = True
         args.network = None
         args.gateway_url = network
-        args.chain_id = StarknetChainId.TESTNET.value
+        args.chain_id = StarknetChainId.TESTNET
         args.signer_class = None
         args.account_address = account_address
         args.private_key_path = None
@@ -228,10 +228,10 @@ def build_protostar_fixture(
     mocker: MockerFixture, project_root_path: Path, signing_credentials: Tuple[str, str]
 ):
     account_address, private_key = signing_credentials
-    signer = PatchedStarkCurveSigner(
+    signer = StarkCurveSigner(
         account_address,
         KeyPair.from_private_key(int(private_key, 16)),
-        StarknetChainId.TESTNET.value,
+        StarknetChainId.TESTNET,
     )
 
     version_manager = mocker.MagicMock()
