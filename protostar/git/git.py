@@ -29,27 +29,22 @@ OUTPUT_KWARGS = (
 
 class Git:
     @staticmethod
-    def init(path_to_repo: PathLike):
-        path = Path(path_to_repo)
-        path.mkdir(parents=True, exist_ok=True)
-        repo = GitRepository(path)
+    def init(path_to_repo: Path):
+        path_to_repo.mkdir(parents=True, exist_ok=True)
+        repo = GitRepository(path_to_repo)
         repo.init()
         return repo
 
     @staticmethod
-    def clone(path_to_repo: PathLike, repo_to_clone: "GitRepository"):
-        path = Path(path_to_repo)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        cloned_repo = GitRepository(path)
+    def clone(path_to_repo: Path, repo_to_clone: "GitRepository"):
+        path_to_repo.parent.mkdir(parents=True, exist_ok=True)
+        cloned_repo = GitRepository(path_to_repo)
         cloned_repo.clone(repo_to_clone.path_to_repo)
         return cloned_repo
 
     @staticmethod
-    def from_existing(path_to_repo: PathLike):
-
-        # TODO: CHECK FOR INITIALIZATION HERE AND MAYBE THROW AN EXCEPTION HERE NOT IN INSTALL COMMAND
-        path = Path(path_to_repo)
-        return GitRepository(path)
+    def from_existing(path_to_repo: Path):
+        return GitRepository(path_to_repo)
 
 
 class GitRepository:
@@ -81,7 +76,7 @@ class GitRepository:
             cwd=self.path_to_repo,
         )
 
-    def clone(self, path_to_repo_to_clone: PathLike):
+    def clone(self, path_to_repo_to_clone: Path):
         subprocess.run(
             [
                 "git",
@@ -96,13 +91,11 @@ class GitRepository:
     def add_submodule(
         self,
         url: str,
-        path_to_submodule: PathLike,
+        path_to_submodule: Path,
         name: str,
         branch: Optional[str] = None,
         depth: int = 1,
     ):
-        path = Path(path_to_submodule)
-
         subprocess.run(
             ["git", "submodule", "add"]
             + (["-b", branch] if branch else [])  # (tag)
@@ -112,7 +105,7 @@ class GitRepository:
                 "--depth",
                 str(depth),
                 url,
-                str(path.relative_to(self.path_to_repo)),
+                str(path_to_submodule.relative_to(self.path_to_repo)),
             ],
             **OUTPUT_KWARGS,
             cwd=self.path_to_repo,
@@ -132,18 +125,21 @@ class GitRepository:
             [
                 "git",
                 "add",
-                str(path_to_item.resolve()),
+                str(path_to_item),
             ],
             **OUTPUT_KWARGS,
             cwd=self.path_to_repo,
         )
 
-    def rm(self, path_to_item: Path):
+    def rm(self, path_to_item: Path, force: bool = False):
         subprocess.run(
             [
                 "git",
                 "rm",
-                str(path_to_item.resolve()),
+            ]
+            + (["--force"] if force else [])
+            + [
+                str(path_to_item),
             ],
             **OUTPUT_KWARGS,
             cwd=self.path_to_repo,
@@ -156,7 +152,7 @@ class GitRepository:
             cwd=self.path_to_repo,
         )
 
-    def get_submodules(self) -> Dict[str, NamedTuple]:
+    def get_submodules(self) -> Dict[str, PackageInfo]:
         """
         Returns a dictionary of form:
         submodule_name: PackageData(url=submodule_url, path=submodule_path)
@@ -173,7 +169,11 @@ class GitRepository:
                 paths = re.finditer(r"path = (.+)\n", data)
                 urls = re.finditer(r"url = (.+)\n", data)
                 return {
-                    name[1]: PackageData(url=url[1], path=Path(path[1]))
+                    name[1]: PackageInfo(
+                        name=name[1],
+                        url=url[1],
+                        path=Path(path[1]),
+                    )
                     for name, path, url in zip(names, paths, urls)
                 }
         return {}

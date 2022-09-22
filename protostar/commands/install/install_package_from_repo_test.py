@@ -2,8 +2,6 @@
 from pathlib import Path
 
 import pytest
-from attr import dataclass
-from pytest_mock import MockerFixture
 
 from protostar.commands.install import installation_exceptions
 from protostar.commands.install.install_package_from_repo import (
@@ -12,19 +10,14 @@ from protostar.commands.install.install_package_from_repo import (
 from protostar.git.git import Git
 
 
-@dataclass
-class SubmoduleMock:
-    path = "-A"
-
-
 @pytest.fixture
 def repo_url():
     return "https://github.com/starkware-libs/cairo-lang"
 
 
-def test_successful_installation(tmpdir: str, repo_url: str, mocker: MockerFixture):
+def test_successful_installation(tmpdir: str, repo_url: str):
 
-    repo = Git.init(tmpdir)
+    repo = Git.init(Path(tmpdir))
 
     install_package_from_repo("foo", repo_url, Path(tmpdir), Path(tmpdir) / "lib")
 

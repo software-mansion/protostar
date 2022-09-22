@@ -81,7 +81,7 @@ def repo(
     mkdir(packages_dir)
 
     repo.add_submodule(
-        url=package_repo_dir, path_to_submodule=package_dir, name=the_package_name
+        url=str(package_repo_dir), path_to_submodule=package_dir, name=the_package_name
     )
     repo.add(Path(repo_dir))
     repo.commit("add submodule")
