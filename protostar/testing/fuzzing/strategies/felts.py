@@ -7,6 +7,7 @@ from starkware.cairo.lang.builtins.range_check.range_check_builtin_runner import
 from starkware.cairo.lang.compiler.ast.cairo_types import CairoType, TypeFelt
 from starkware.crypto.signature.signature import FIELD_PRIME
 
+from protostar.starknet import KeywordOnlyArgumentCheatcodeException
 from protostar.testing.fuzzing.exceptions import SearchStrategyBuildError
 from protostar.testing.fuzzing.strategy_descriptor import StrategyDescriptor
 
@@ -28,7 +29,10 @@ assert 0 < CAIRO_FUNCTION_RANGE_CHECK_BOUND < FIELD_PRIME
 
 
 class FeltsStrategyDescriptor(StrategyDescriptor):
-    def __init__(self, *, rc_bound: bool = False):
+    def __init__(self, *args, rc_bound: bool = False):
+        if len(args) > 0:
+            raise KeywordOnlyArgumentCheatcodeException("strategy.felts", ["rc_bound"])
+
         self.rc_bound = rc_bound
 
     def build_strategy(self, cairo_type: CairoType) -> SearchStrategy[int]:
