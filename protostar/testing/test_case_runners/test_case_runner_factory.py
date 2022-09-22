@@ -4,7 +4,6 @@ from protostar.testing.environments.fuzz_test_execution_environment import (
 from protostar.testing.environments.test_execution_environment import (
     TestExecutionEnvironment,
 )
-from protostar.protostar_exception import ProtostarException
 from protostar.testing.starkware.test_execution_state import TestExecutionState
 from protostar.testing.test_config import TestMode
 from protostar.testing.test_suite import TestCase
@@ -12,6 +11,7 @@ from protostar.testing.test_suite import TestCase
 from .fuzz_test_case_runner import FuzzTestCaseRunner
 from .standard_test_case_runner import StandardTestCaseRunner
 from .test_case_runner import TestCaseRunner
+
 
 class TestCaseRunnerFactory:
     def __init__(self, state: TestExecutionState) -> None:
