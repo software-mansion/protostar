@@ -31,8 +31,9 @@ class TestExecutionResult:
 class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
     state: TestExecutionState
 
-    def __init__(self, state: TestExecutionState):
+    def __init__(self, state: TestExecutionState, profiling=False):
         super().__init__(state)
+        self.profiling = profiling
         self._expect_revert_context = ExpectRevertContext()
         self._finish_hook = Hook()
 
@@ -41,6 +42,7 @@ class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
             self.state.contract.abi, function_name
         ), f"{self.__class__.__name__} expects no function parameters."
 
+        self.set_profile_flag(self.profiling)
         self.set_cheatcodes(
             TestCaseCheatcodeFactory(
                 state=self.state,

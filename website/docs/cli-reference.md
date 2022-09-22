@@ -198,6 +198,8 @@ Exit immediately on first broken or failed test.
 A glob or globs to a directory or a test suite, which should be ignored.
 #### `--no-progress-bar`
 Disable progress bar.
+#### `--profiling`
+Run profiling for a test contract. Works only for a single test case.
 #### `--report-slowest-tests INT`
 Print slowest tests at the end.
 #### `--safe-collecting`

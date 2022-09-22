@@ -40,6 +40,7 @@ from protostar.commands.test.test_environment_exceptions import (
 )
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.utils.abi import get_function_parameters
+from protostar.protostar_exception import ProtostarException
 
 
 @dataclass
@@ -48,8 +49,10 @@ class FuzzTestExecutionResult(TestExecutionResult):
 
 
 class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
-    def __init__(self, state: TestExecutionState):
+    def __init__(self, state: TestExecutionState, profiling=False):
         super().__init__(state)
+        if profiling:
+            raise ProtostarException("Fuzz tests cannot be profiled")
         self.initial_state = state
 
     async def execute(self, function_name: str) -> FuzzTestExecutionResult:

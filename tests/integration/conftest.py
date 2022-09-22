@@ -90,6 +90,7 @@ class RunCairoTestRunnerFixture(Protocol):
         path: Path,
         seed: Optional[int] = None,
         disable_hint_validation=False,
+        profiling=False,
         cairo_path: Optional[List[Path]] = None,
         test_cases: Optional[List[str]] = None,
         ignored_test_cases: Optional[List[str]] = None,
@@ -112,6 +113,7 @@ def run_cairo_test_runner_fixture(
         path: Path,
         seed: Optional[int] = None,
         disable_hint_validation=False,
+        profiling=False,
         cairo_path: Optional[List[Path]] = None,
         test_cases: Optional[List[str]] = None,
         ignored_test_cases: Optional[List[str]] = None,
@@ -149,6 +151,7 @@ def run_cairo_test_runner_fixture(
             ignored_targets=ignored_targets,
             seed=seed,
             disable_hint_validation=disable_hint_validation,
+            profiling=profiling,
             cairo_path=cairo_path or [],
         )
 
