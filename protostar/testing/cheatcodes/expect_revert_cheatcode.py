@@ -38,7 +38,7 @@ class ExpectRevertContext:
                 "The callback returned by the `expect_revert` is deprecated."
             )
             if self._expected_error is not None:
-                raise SimpleReportedException("Expected a transaction to be reverted")
+                raise SimpleReportedException("Expected a transaction to be reverted.")
 
         return stop_expecting_revert
 
