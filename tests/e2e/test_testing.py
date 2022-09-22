@@ -26,16 +26,15 @@ def test_basic_contract_profile(protostar):
         ["test", "--profiling", "tests/test_main.cairo::test_increase_balance"]
     )
     assert "1 passed" in result
-    assert "profile.tar.gz" in listdir(".")
+    assert "profile.pb.gz" in listdir(".")
 
 
 @pytest.mark.usefixtures("init")
 def test_profile_fuzz(protostar, copy_fixture):
-    copy_fixture("fuzz_test.cairo", "./test")
-    result = protostar(["test", "--profiling", "test/fuzz_test.cairo"])
+    copy_fixture("fuzz_test.cairo", "./tests")
+    result = protostar(["test", "--profiling", "tests/fuzz_test.cairo"], ignore_exit_code=True)
     assert "Fuzz tests cannot be profiled" in result
-    assert "profile.tar.gz" not in listdir(".")
-
+    assert "profile.pb.gz" not in listdir(".")
 
 @pytest.mark.usefixtures("init")
 def test_complex(protostar, copy_fixture):
