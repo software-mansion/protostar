@@ -240,7 +240,6 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         assert isinstance(args_ptr, RelocatableValue)  # Downcast.
         runner.mark_as_accessed(address=args_ptr, size=len(entry_points_args))
 
-
         # region Modified Starknet code.
 
         if self.profiling:
