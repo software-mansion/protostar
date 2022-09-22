@@ -25,19 +25,9 @@ class ProtostarVersionProviderDouble(ProtostarVersionProviderProtocol):
         return parse_protostar_version(self._protostar_version_str)
 
 
-@pytest.fixture(name="declared_protostar_version")
-def declared_protostar_version_fixture() -> str:
-    assert False, "Not parametrized"
-
-
 @pytest.fixture(name="declared_protostar_version_provider")
 def declared_protostar_version_provider_fixture(declared_protostar_version: str):
     return DeclaredProtostarVersionProviderDouble(declared_protostar_version)
-
-
-@pytest.fixture(name="protostar_version")
-def protostar_version_fixture() -> str:
-    assert False, "Not parametrized"
 
 
 @pytest.fixture(name="protostar_version_provider")
