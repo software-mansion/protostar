@@ -1,5 +1,6 @@
 import asyncio
 from dataclasses import dataclass
+from logging import getLogger
 from typing import Any, Optional
 
 from typing_extensions import Protocol
@@ -67,6 +68,12 @@ class MigratorDeployContractCheatcode(Cheatcode):
         *args,
         config: Optional[CheatcodeNetworkConfig] = None,
     ) -> DeployedContract:
+        logger = getLogger()
+        logger.warning(
+            "`deploy_contract` migrator cheatcode will be removed in the future release\n"
+            "https://docs.starknet.io/docs/Blocks/transactions/#deploy-transaction"
+        )
+
         contract_identifier = contract_path
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
