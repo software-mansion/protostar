@@ -1,5 +1,5 @@
 import dataclasses
-from logging import Logger
+from logging import Logger, getLogger
 from pathlib import Path
 from typing import Any, Callable, Dict, List, NamedTuple, Optional, Union
 
@@ -22,6 +22,9 @@ from starkware.starknet.services.api.gateway.transaction import (
 
 from protostar.compiler import CompiledContractReader
 from protostar.protostar_exception import ProtostarException
+from protostar.starknet_gateway.account_tx_version_detector import (
+    AccountTxVersionDetector,
+)
 from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeclareResponse,
     SuccessfulDeployResponse,
@@ -31,8 +34,8 @@ from protostar.utils.abi import has_abi_item
 from protostar.utils.data_transformer import (
     CairoOrPythonData,
     DataTransformerException,
-    to_python_transformer,
     from_python_transformer,
+    to_python_transformer,
 )
 from protostar.utils.log_color_provider import LogColorProvider
 
@@ -54,6 +57,9 @@ class GatewayFacade:
         self._log_color_provider: Optional[LogColorProvider] = log_color_provider
         self._gateway_client = gateway_client
         self._compiled_contract_reader = compiled_contract_reader
+        self._account_tx_version_detector = AccountTxVersionDetector(
+            self._gateway_client
+        )
 
     def get_starknet_requests(self) -> List[StarknetRequest]:
         return self._starknet_requests.copy()
@@ -258,6 +264,17 @@ class GatewayFacade:
             },
         )
 
+        supported_by_account_tx_version = (
+            await self._account_tx_version_detector.detect(account_address)
+        )
+        if supported_by_account_tx_version == 0:
+            logger = getLogger()
+            logger.warning(
+                "Provided account doesn't support v1 transactions. "
+                "Transaction version 0 is deprecated and will be removed in a future release of StarkNet. "
+                "Please update your account."
+            )
+
         contract_function = await self._create_contract_function(
             contract_address,
             function_name,
@@ -265,6 +282,7 @@ class GatewayFacade:
                 address=account_address,
                 client=self._gateway_client,
                 signer=signer,
+                supported_tx_version=supported_by_account_tx_version,
             ),
         )
         try:
@@ -332,15 +350,17 @@ class GatewayFacade:
     ) -> InvokeResult:
         if inputs is None:
             inputs = {}
-        # TODO: https://github.com/software-mansion/starknet.py/issues/320
-
         try:
             if isinstance(inputs, List):
                 return await contract_function.invoke(
-                    *inputs, max_fee=max_fee, auto_estimate=auto_estimate  # type: ignore
+                    *inputs,
+                    max_fee=max_fee,
+                    auto_estimate=auto_estimate,
                 )
             return await contract_function.invoke(
-                **inputs, max_fee=max_fee, auto_estimate=auto_estimate  # type: ignore
+                **inputs,
+                max_fee=max_fee,
+                auto_estimate=auto_estimate,
             )
         except (TypeError, ValueError) as ex:
             raise InputValidationException(str(ex)) from ex

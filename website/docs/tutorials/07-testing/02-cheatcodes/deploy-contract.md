@@ -20,7 +20,7 @@ Deploying a contract is a slow operation. If it's possible try using this cheatc
 :::
 
 :::info
-`deploy_contract` is just a syntactic sugar over executing cheatcodes `declare` -> `prepare` -> `deploy` separately, and it's what does it under the hood.
+`deploy_contract` is just a syntactic sugar over executing cheatcodes `declare` -> `prepare` -> `deploy` separately, and it's what it does under the hood.
 :::
 
 :::tip

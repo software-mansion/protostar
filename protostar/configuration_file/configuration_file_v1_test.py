@@ -2,7 +2,9 @@ from pathlib import Path
 
 import pytest
 
-from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
+from protostar.configuration_file.configuration_legacy_toml_interpreter import (
+    ConfigurationLegacyTOMLInterpreter,
+)
 from protostar.utils import VersionManager
 
 from .configuration_file_v1 import (
@@ -33,10 +35,15 @@ def protostar_toml_path_fixture(protostar_toml_content: str, project_root_path: 
 
 
 @pytest.fixture(name="configuration_file")
-def configuration_file_fixture(protostar_toml_path: Path, project_root_path: Path):
-    protostar_toml_reader = ProtostarTOMLReader(protostar_toml_path=protostar_toml_path)
+def configuration_file_fixture(
+    protostar_toml_path: Path, project_root_path: Path, protostar_toml_content: str
+):
     return ConfigurationFileV1(
-        protostar_toml_reader, project_root_path=project_root_path
+        ConfigurationLegacyTOMLInterpreter(
+            file_content=protostar_toml_content,
+        ),
+        project_root_path=project_root_path,
+        filename=protostar_toml_path.name,
     )
 
 
@@ -120,7 +127,7 @@ def test_error_when_retrieving_paths_from_not_defined_contract(
     ],
 )
 def test_reading_lib_path(
-    configuration_file: ConfigurationFile, project_root_path: Path
+    configuration_file: ConfigurationFileV1, project_root_path: Path
 ):
     lib_path = configuration_file.get_lib_path()
 
@@ -171,11 +178,28 @@ def test_reading_argument_attribute_defined_within_specified_profile(
     "protostar_toml_content",
     [
         """
+        ["protostar.config"]
+        protostar_version = "0.3.1"
+
+        ["protostar.project"]
+        libs_path = "./lib"
+
+        ["protostar.contracts"]
+        main = [
+            "./src/main.cairo",
+        ]
+
         ["protostar.deploy"]
         arg_name = 21
 
         ["profile.devnet.protostar.deploy"]
         arg_name = 37
+
+        ["protostar.shared_command_configs"]
+        arg_name = 42
+
+        ["profile.devnet.protostar.shared_command_configs"]
+        arg_name = 24
         """
     ],
 )
@@ -185,11 +209,11 @@ def test_generating_data_struct(
     model = configuration_file.read()
 
     assert model == ConfigurationFileV1Model(
-        min_protostar_version=None,
-        lib_path_str=None,
+        protostar_version="0.3.1",
+        libs_path_str="lib",
         command_name_to_config={"deploy": {"arg_name": 21}},
-        contract_name_to_path_str={},
-        shared_command_config={},
+        contract_name_to_path_strs={"main": ["src/main.cairo"]},
+        shared_command_config={"arg_name": 42},
         profile_name_to_commands_config={"devnet": {"deploy": {"arg_name": 37}}},
-        profile_name_to_shared_command_config={},
+        profile_name_to_shared_command_config={"devnet": {"arg_name": 24}},
     )

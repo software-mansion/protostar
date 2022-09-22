@@ -1,19 +1,19 @@
 import asyncio
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Optional, Any
+from typing import Any, Optional
 
 from starknet_py.net.signer import BaseSigner
 from typing_extensions import Protocol
 
-from protostar.commands.test.test_environment_exceptions import (
+from protostar.starknet import (
+    Cheatcode,
     CheatcodeException,
     KeywordOnlyArgumentCheatcodeException,
 )
-from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet_gateway import GatewayFacade
 from protostar.starknet_gateway.gateway_facade import CompilationOutputNotFoundException
 
+from ..migrator_contract_identifier_resolver import MigratorContractIdentifierResolver
 from .network_config import CheatcodeNetworkConfig, ValidatedCheatcodeNetworkConfig
 
 
@@ -39,11 +39,15 @@ class MigratorDeclareCheatcode(Cheatcode):
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
         gateway_facade: GatewayFacade,
+        migrator_contract_identifier_resolver: MigratorContractIdentifierResolver,
         config: "Config",
     ):
         super().__init__(syscall_dependencies)
         self._gateway_facade = gateway_facade
         self._config = config
+        self._migrator_contract_identifier_resolver = (
+            migrator_contract_identifier_resolver
+        )
 
     @property
     def name(self) -> str:
@@ -58,6 +62,7 @@ class MigratorDeclareCheatcode(Cheatcode):
         *args,
         config: Optional[CheatcodeNetworkConfig] = None,
     ) -> DeclaredContract:
+        contract_identifier = contract_path_str
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
 
@@ -65,10 +70,14 @@ class MigratorDeclareCheatcode(Cheatcode):
             config or CheatcodeNetworkConfig()
         )
 
+        compiled_contract_path = self._migrator_contract_identifier_resolver.resolve(
+            contract_identifier
+        )
+
         try:
             response = asyncio.run(
                 self._gateway_facade.declare(
-                    compiled_contract_path=Path(contract_path_str),
+                    compiled_contract_path=compiled_contract_path,
                     token=self._config.token,
                     wait_for_acceptance=validated_config.wait_for_acceptance,
                     signer=self._config.signer,

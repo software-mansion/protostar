@@ -1,22 +1,23 @@
 from pathlib import Path
 from typing import Callable, Dict, List
 
-from protostar.commands.test.test_environment_exceptions import ExceptionMetadata
-from protostar.commands.test.test_output_recorder import OutputName, format_output_name
 from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
-from protostar.utils.log_color_provider import log_color_provider
-
-from .test_results import (
+from protostar.starknet import ExceptionMetadata
+from protostar.testing import (
     BrokenFuzzTestCaseResult,
+    BrokenTestCaseResult,
     BrokenTestSuiteResult,
     FailedFuzzTestCaseResult,
     FailedTestCaseResult,
-    BrokenTestCaseResult,
+    OutputName,
     PassedFuzzTestCaseResult,
     PassedTestCaseResult,
+    SkippedTestCaseResult,
     TestResult,
     UnexpectedBrokenTestSuiteResult,
+    format_output_name,
 )
+from protostar.utils.log_color_provider import log_color_provider
 
 LogCallback = Callable[[str], None]
 
@@ -35,6 +36,8 @@ def format_test_result(test_result: TestResult) -> str:
         return _format_failed_test_case_result(test_result)
     if isinstance(test_result, BrokenTestCaseResult):
         return _format_broken_test_case_result(test_result)
+    if isinstance(test_result, SkippedTestCaseResult):
+        return _format_skipped_test_case_result(test_result)
     if isinstance(test_result, UnexpectedBrokenTestSuiteResult):
         return _format_unexpected_exception_test_suite_result(test_result)
     if isinstance(test_result, BrokenTestSuiteResult):
@@ -208,6 +211,25 @@ def _format_passed_fuzz_test_case_result(
         return "\n".join(to_join)
 
     return first_line
+
+
+def _format_skipped_test_case_result(skipped_test_case_result: SkippedTestCaseResult):
+    result: List[str] = []
+    first_line: List[str] = []
+    first_line.append(f"[{log_color_provider.colorize('YELLOW', 'SKIP')}]")
+    formatted_file_path = _get_formatted_file_path(skipped_test_case_result.file_path)
+    first_line.append(
+        f"{formatted_file_path} {skipped_test_case_result.test_case_name}"
+    )
+    result.append(" ".join(first_line))
+
+    reason = skipped_test_case_result.reason
+    if reason is not None:
+        result.append("[reason]:")
+        result.append(log_color_provider.colorize("GRAY", reason))
+        result.append("")
+
+    return "\n".join(result)
 
 
 def _format_failed_fuzz_test_case_result(failed_fuzz_test_case_result) -> str:
