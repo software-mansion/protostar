@@ -23,7 +23,7 @@ class ExpectRevertContext:
                 and not self._expected_error.error_messages
             ):
                 raise CheatcodeException(
-                    "expect_revert", "Protostar is already expecting an exception"
+                    "expect_revert", "Protostar is already expecting an exception."
                 )
             raise CheatcodeException(
                 "expect_revert",
