@@ -189,12 +189,6 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
                 verify_secure=True,
             )
 
-            if self.profiling:
-                self.append_runtime_profile(runner, contract_class, entry_point)
-                self.pop_contract_callstack()
-                if not CheatableExecuteEntryPoint.contract_callstack:
-                    merge_and_save(CheatableExecuteEntryPoint.samples)
-
         # --- MODIFICATIONS END ---
 
         except VmException as exception:
@@ -245,6 +239,12 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         # as accessed.
         assert isinstance(args_ptr, RelocatableValue)  # Downcast.
         runner.mark_as_accessed(address=args_ptr, size=len(entry_points_args))
+
+        if self.profiling:
+            self.append_runtime_profile(runner, contract_class, entry_point)
+            self.pop_contract_callstack()
+            if not CheatableExecuteEntryPoint.contract_callstack:
+                merge_and_save(CheatableExecuteEntryPoint.samples)
 
         return runner, syscall_handler
 
