@@ -26,7 +26,7 @@ OUTPUT_KWARGS = (
     }
 )
 
-TEMP_CONFIG = [
+CREDENTIALS = [
     "-c",
     'user.name="Protostar"',
     "-c",
@@ -69,7 +69,7 @@ class GitRepository:
         """
         return (
             subprocess.run(
-                ["git", *TEMP_CONFIG, "status"],
+                ["git", *CREDENTIALS, "status"],
                 **OUTPUT_KWARGS,
                 cwd=self.path_to_repo,
             ).returncode
@@ -78,7 +78,7 @@ class GitRepository:
 
     def init(self):
         subprocess.run(
-            ["git", *TEMP_CONFIG, "init"],
+            ["git", *CREDENTIALS, "init"],
             **OUTPUT_KWARGS,
             cwd=self.path_to_repo,
         )
@@ -87,7 +87,7 @@ class GitRepository:
         subprocess.run(
             [
                 "git",
-                *TEMP_CONFIG,
+                *CREDENTIALS,
                 "clone",
                 path_to_repo_to_clone,
                 self.path_to_repo.name,
@@ -105,7 +105,7 @@ class GitRepository:
         depth: int = 1,
     ):
         subprocess.run(
-            ["git", *TEMP_CONFIG, "submodule", "add"]
+            ["git", *CREDENTIALS, "submodule", "add"]
             + (["-b", branch] if branch else [])  # (tag)
             + [
                 "--name",
@@ -121,7 +121,7 @@ class GitRepository:
 
     def update_submodule(self, path_to_submodule: Path, init=False):
         subprocess.run(
-            ["git", *TEMP_CONFIG, "submodule", "update"]
+            ["git", *CREDENTIALS, "submodule", "update"]
             + (["--init"] if init else [])
             + [str(path_to_submodule)],
             **OUTPUT_KWARGS,
@@ -132,7 +132,7 @@ class GitRepository:
         subprocess.run(
             [
                 "git",
-                *TEMP_CONFIG,
+                *CREDENTIALS,
                 "add",
                 str(path_to_item),
             ],
@@ -144,7 +144,7 @@ class GitRepository:
         subprocess.run(
             [
                 "git",
-                *TEMP_CONFIG,
+                *CREDENTIALS,
                 "rm",
             ]
             + (["--force"] if force else [])
@@ -157,7 +157,7 @@ class GitRepository:
 
     def commit(self, msg: str):
         subprocess.run(
-            ["git", *TEMP_CONFIG, "commit", "-m", msg],
+            ["git", *CREDENTIALS, "commit", "-m", msg],
             **OUTPUT_KWARGS,
             cwd=self.path_to_repo,
         )
