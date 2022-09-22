@@ -9,7 +9,7 @@ from protostar.configuration_file.configuration_toml_content_builder import (
 from protostar.configuration_file.configuration_toml_interpreter import (
     ConfigurationTOMLInterpreter,
 )
-from protostar.utils.protostar_directory import VersionManager
+from protostar.self import parse_protostar_version
 
 from .configuration_file import (
     ConfigurationFile,
@@ -67,10 +67,10 @@ def configuration_file_fixture(project_root_path: Path, protostar_toml_content: 
     )
 
 
-def test_retrieving_min_protostar_version(configuration_file: ConfigurationFile):
-    min_protostar_version = configuration_file.get_min_protostar_version()
+def test_retrieving_declared_protostar_version(configuration_file: ConfigurationFile):
+    declared_protostar_version = configuration_file.get_declared_protostar_version()
 
-    assert min_protostar_version == VersionManager.parse("9.9.9")
+    assert declared_protostar_version == parse_protostar_version("9.9.9")
 
 
 def test_retrieving_contract_names(configuration_file: ConfigurationFile):
@@ -122,7 +122,7 @@ def test_saving_configuration(
 ):
     content_configurator = configuration_file
     configuration_file_v2_model = ConfigurationFileV2Model(
-        min_protostar_version="9.9.9",
+        protostar_version="9.9.9",
         project_config={
             "lib-path": "lib",
             "no-color": True,
@@ -163,10 +163,10 @@ def test_transforming_model_v1_into_v2():
         profile_name_to_shared_command_config={"devnet": {"arg_name": 24}},
     )
 
-    model_v2 = ConfigurationFileV2Model.from_v1(model_v1, min_protostar_version="0.4.0")
+    model_v2 = ConfigurationFileV2Model.from_v1(model_v1, protostar_version="0.4.0")
 
     assert model_v2 == ConfigurationFileV2Model(
-        min_protostar_version="0.4.0",
+        protostar_version="0.4.0",
         command_name_to_config={"deploy": {"arg_name": 21}},
         contract_name_to_path_strs={"main": ["src/main.cairo"]},
         project_config={"arg_name": 42, "lib-path": "lib"},
@@ -226,7 +226,7 @@ def test_transforming_file_v1_into_v2(protostar_toml_content: str):
         filename="_",
     ).create_file_content(
         content_builder=ConfigurationTOMLContentBuilder(),
-        model=ConfigurationFileV2Model.from_v1(model_v1, min_protostar_version="9.9.9"),
+        model=ConfigurationFileV2Model.from_v1(model_v1, protostar_version="9.9.9"),
     )
 
     assert transformed_protostar_toml == protostar_toml_content
@@ -237,7 +237,7 @@ def test_saving_in_particular_order(
 ):
     content_configurator = configuration_file
     configuration_file_v2_model = ConfigurationFileV2Model(
-        min_protostar_version="9.9.9",
+        protostar_version="9.9.9",
         project_config={
             "lib-path": "./lib",
             "cairo-path": ["bar"],

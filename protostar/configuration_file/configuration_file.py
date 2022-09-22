@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Any, Generic, Optional, TypeVar, Union
 
 from protostar.protostar_exception import ProtostarException
-from protostar.utils.protostar_directory import VersionType
+from protostar.self import DeclaredProtostarVersionProviderProtocol, ProtostarVersion
 
 PrimitiveTypesSupportedByConfigurationFile = Union[str, int, bool]
 
@@ -43,9 +43,11 @@ class ConfigurationFileContentConfigurator(Generic[ConfigurationFileModelT]):
         ...
 
 
-class ConfigurationFile(Generic[ConfigurationFileModelT]):
+class ConfigurationFile(
+    DeclaredProtostarVersionProviderProtocol, Generic[ConfigurationFileModelT]
+):
     @abstractmethod
-    def get_min_protostar_version(self) -> Optional[VersionType]:
+    def get_declared_protostar_version(self) -> Optional[ProtostarVersion]:
         ...
 
     @abstractmethod
