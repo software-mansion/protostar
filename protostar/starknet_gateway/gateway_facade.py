@@ -147,15 +147,9 @@ class GatewayFacade:
         token: Optional[str] = None,
         wait_for_acceptance: bool = False,
     ) -> SuccessfulDeclareResponse:
-        try:
-            with open(
-                self._project_root_path / compiled_contract_path, "r", encoding="utf-8"
-            ) as file:
-                compiled_contract = file.read()
-        except FileNotFoundError as err:
-            raise CompilationOutputNotFoundException(
-                self._project_root_path / compiled_contract_path
-            ) from err
+        compiled_contract = self._load_compiled_contract(
+            self._project_root_path / compiled_contract_path
+        )
 
         # The following parameters are hardcoded because Starknet CLI have asserts checking if they are equal to these
         # values. Once Starknet removes these asserts, these parameters should be configurable by the user.
@@ -163,10 +157,8 @@ class GatewayFacade:
         max_fee = 0
         nonce = 0
 
-        contract_cls = ContractClass.loads(compiled_contract)
-
         unsigned_tx = Declare(
-            contract_class=contract_cls,  # type: ignore
+            contract_class=compiled_contract,  # type: ignore
             sender_address=sender,  # type: ignore
             max_fee=max_fee,
             nonce=nonce,
@@ -178,7 +170,7 @@ class GatewayFacade:
         # pylint: disable=unused-variable
         signature: List[int] = signer.sign_transaction(unsigned_tx) if signer else []
         tx = Declare(
-            contract_class=contract_cls,  # type: ignore
+            contract_class=compiled_contract,  # type: ignore
             sender_address=sender,  # type: ignore
             max_fee=max_fee,
             nonce=nonce,
@@ -215,6 +207,47 @@ class GatewayFacade:
             code=result.code or "",
             class_hash=result.class_hash,
             transaction_hash=result.transaction_hash,
+        )
+
+    def _create_declare_tx_v1(
+        self,
+        contract_class: ContractClass,
+        sender_address: int,
+        max_fee: int,
+        signer: BaseSigner,
+        nonce: Optional[int],
+    ) -> Declare:
+        unsigned_tx = Declare(
+            contract_class=contract_class,  # type: ignore
+            sender_address=sender_address,  # type: ignore
+            max_fee=max_fee,
+            nonce=nonce,
+            version=1,
+            signature=[],
+        )
+        signature = signer.sign_transaction(unsigned_tx)
+        signed_tx = Declare(
+            contract_class=contract_class,  # type: ignore
+            sender_address=sender_address,  # type: ignore
+            max_fee=max_fee,
+            nonce=nonce,
+            version=1,
+            signature=signature,
+        )
+        return signed_tx
+
+    def _create_declare_tx_v0(
+        self,
+        contract_class: ContractClass,
+        nonce: Optional[int],
+    ):
+        return Declare(
+            contract_class=contract_class,  # type: ignore
+            sender_address=DEFAULT_DECLARE_SENDER_ADDRESS,  # type: ignore
+            max_fee=0,
+            nonce=nonce,
+            version=0,
+            signature=[],
         )
 
     async def call(
