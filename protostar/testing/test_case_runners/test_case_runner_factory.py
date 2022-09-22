@@ -12,6 +12,7 @@ from .fuzz_test_case_runner import FuzzTestCaseRunner
 from .standard_test_case_runner import StandardTestCaseRunner
 from .test_case_runner import TestCaseRunner
 
+
 class TestCaseRunnerFactory:
     def __init__(self, state: TestExecutionState) -> None:
         self._state = state
