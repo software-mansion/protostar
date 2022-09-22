@@ -2,6 +2,7 @@ import re
 
 import pytest
 
+from protostar.starknet import KeywordOnlyArgumentCheatcodeException
 from protostar.testing.fuzzing.exceptions import SearchStrategyBuildError
 from .felts import FeltsStrategyDescriptor
 from .one_of import OneOfStrategyDescriptor
@@ -13,7 +14,7 @@ def test_felts_constructor_valid_args():
 
 
 def test_felts_constructor_args():
-    with pytest.raises(TypeError):
+    with pytest.raises(KeywordOnlyArgumentCheatcodeException):
         # pylint: disable-next=too-many-function-args
         FeltsStrategyDescriptor(True)  # type: ignore
 
