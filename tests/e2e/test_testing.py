@@ -33,7 +33,7 @@ def test_basic_contract_profile(protostar):
 def test_profile_fuzz(protostar, copy_fixture):
     copy_fixture("fuzz_test.cairo", "./test")
     result = protostar(["test", "--profiling", "test/fuzz_test.cairo"])
-    assert "You cannot profile fuzz tests" in result
+    assert "Fuzz tests cannot be profiled" in result
     assert "profile.tar.gz" not in listdir(".")
 
 

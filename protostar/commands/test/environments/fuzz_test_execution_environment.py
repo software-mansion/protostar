@@ -52,7 +52,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
     def __init__(self, state: TestExecutionState, profiling=False):
         super().__init__(state)
         if profiling:
-            raise ProtostarException("You cannot profile fuzz tests")
+            raise ProtostarException("Fuzz tests cannot be profiled")
         self.initial_state = state
 
     async def execute(self, function_name: str) -> FuzzTestExecutionResult:
