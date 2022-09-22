@@ -229,13 +229,13 @@ In particular, it is certain, that the overflow will happen if you try to
 withdraw `FIELD_PRIME - 1` (which is the number fuzzer found!).
 Although this bug should be fixed within the contract, for the purpose of this tutorial we will do
 it differently:
-we will instruct the fuzzer to avoid numbers outside `range_check` builtin boundary.
+we will instruct the fuzzer to avoid numbers outside of `range_check` builtin boundary.
 
 Fuzzer input parameters are selected according to a _fuzzing strategy_ associated with each
 parameter.
 Protostar offers various strategies tailored for specific use cases, check out
 the [Strategies](./strategies.md) page for more information.
-Associating a fuzzing strategy to a parameter is done via the [`given`](../02-cheatcodes/given.md)
+Associating a fuzzing strategy to a parameter is done using the [`given`](../02-cheatcodes/given.md)
 cheatcode, which is only available within setup cases.
 The default strategy [`felts`](./strategies.md#strategyfelts) accepts a keyword argument `rc_bound`
 which narrows the range of values to be safe to be passed to range check-based assertions:
