@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Callable, ContextManager, List, Optional, Set, Tuple, cast
 
 import pytest
+import requests
 from pytest import TempPathFactory
 from pytest_mock import MockerFixture
 from starkware.starknet.public.abi import AbiType
@@ -92,6 +93,19 @@ def devnet_gateway_url_fixture(devnet_port: int):
     proc = run_devnet(["poetry", "run", "starknet-devnet"], devnet_port)
     yield f"http://localhost:{devnet_port}"
     proc.kill()
+
+
+@dataclass
+class DevnetAccount:
+    address: str
+    private_key: str
+    public_key: str
+
+
+@pytest.fixture(name="devnet_accounts")
+def devnet_accounts_fixture(devnet_gateway_url: str) -> list[DevnetAccount]:
+    response = requests.get(f"{devnet_gateway_url}/predeployed_accounts")
+    return [response]
 
 
 class RunCairoTestRunnerFixture(Protocol):

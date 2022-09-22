@@ -1,5 +1,4 @@
 from pathlib import Path
-from xml.dom import InvalidAccessErr
 
 import pytest
 from starknet_py.net.gateway_client import GatewayClient
@@ -14,7 +13,7 @@ from protostar.starknet_gateway.gateway_facade import (
 )
 from protostar.utils.data_transformer import CairoOrPythonData
 from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR, IDENTITY_CONTRACT
-from tests.integration.conftest import CreateProtostarProjectFixture
+from tests.integration.conftest import CreateProtostarProjectFixture, DevnetAccount
 from tests.integration.protostar_fixture import ProtostarFixture
 
 
@@ -159,3 +158,22 @@ async def test_deploy_too_many_args(
 ):
     with pytest.raises(InputValidationException):
         await gateway_facade.deploy(compiled_contract_with_contractor_path, [42, 24])
+
+
+def test_tmp_accounts(devnet_accounts: list[DevnetAccount]):
+    account = devnet_accounts[0]
+    assert account is not None
+
+
+# async def test_declare_tx_v1(
+#     gateway_facade: GatewayFacade,
+#     compiled_contract_path: Path,
+#     devnet_accounts: list[DevnetAccount],
+# ):
+#     result = await gateway_facade.declare(
+#         compiled_contract_path=compiled_contract_path,
+#         signer=devnet_accounts[0].signer,
+#         wait_for_acceptance=True,
+#     )
+
+#     assert result.code is not None
