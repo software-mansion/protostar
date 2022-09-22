@@ -165,8 +165,10 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             ),
         ]
 
+        # region Modified Starknet code.
         if self.profiling:
             self.append_contract_callstack(state, class_hash)
+        # endregion
 
         try:
             runner.run_from_entrypoint(
@@ -188,8 +190,6 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
                 run_resources=tx_execution_context.run_resources,
                 verify_secure=True,
             )
-
-        # --- MODIFICATIONS END ---
 
         except VmException as exception:
             code = StarknetErrorCode.TRANSACTION_FAILED
@@ -240,11 +240,16 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         assert isinstance(args_ptr, RelocatableValue)  # Downcast.
         runner.mark_as_accessed(address=args_ptr, size=len(entry_points_args))
 
+
+        # region Modified Starknet code.
+
         if self.profiling:
             self.append_runtime_profile(runner, contract_class, entry_point)
             self.pop_contract_callstack()
             if not CheatableExecuteEntryPoint.contract_callstack:
                 merge_and_save(CheatableExecuteEntryPoint.samples)
+
+        # endregion
 
         return runner, syscall_handler
 
