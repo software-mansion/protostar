@@ -63,4 +63,4 @@ async def test_already_expecting_error_message_when_no_arguments_were_provided(
     )
 
     assert "matching the following error" not in formatted_test_result
-    assert "Protostar is already expecting an exception." in formatted_test_result
+    assert "Protostar is already expecting an exception" in formatted_test_result

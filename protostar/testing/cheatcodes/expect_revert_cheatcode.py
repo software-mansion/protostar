@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from logging import getLogger
 from typing import Callable, Optional
 
-from protostar.starknet import Cheatcode, SimpleReportedException
+from protostar.starknet import Cheatcode, CheatcodeException, SimpleReportedException
 from protostar.testing.test_environment_exceptions import (
     ExpectedRevertException,
     ExpectedRevertMismatchException,
@@ -22,12 +22,13 @@ class ExpectRevertContext:
                 self._expected_error.error_type is None
                 and not self._expected_error.error_messages
             ):
-                raise SimpleReportedException(
-                    "Protostar is already expecting an exception."
+                raise CheatcodeException(
+                    "expect_revert", "Protostar is already expecting an exception"
                 )
-            raise SimpleReportedException(
+            raise CheatcodeException(
+                "expect_revert",
                 f"Protostar is already expecting an exception matching the following error: "
-                f"{self._expected_error}"
+                f"{self._expected_error}",
             )
 
         self._expected_error = expected_error
@@ -37,9 +38,7 @@ class ExpectRevertContext:
                 "The callback returned by the `expect_revert` is deprecated."
             )
             if self._expected_error is not None:
-                raise SimpleReportedException(
-                    "Expected a transaction to be reverted before cancelling expect_revert"
-                )
+                raise SimpleReportedException("Expected a transaction to be reverted")
 
         return stop_expecting_revert
 
