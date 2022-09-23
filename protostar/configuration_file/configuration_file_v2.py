@@ -56,12 +56,12 @@ class ConfigurationFileV2(
     def __init__(
         self,
         project_root_path: Path,
-        configuration_file_reader: ConfigurationFileInterpreter,
+        configuration_file_interpreter: ConfigurationFileInterpreter,
         filename: str,
     ) -> None:
         super().__init__()
         self._project_root_path = project_root_path
-        self._configuration_file_reader = configuration_file_reader
+        self._configuration_file_reader = configuration_file_interpreter
         self._filename = filename
 
     def get_declared_protostar_version(self) -> Optional[ProtostarVersion]:
