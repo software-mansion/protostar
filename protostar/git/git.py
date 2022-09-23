@@ -5,6 +5,7 @@ from typing import Dict, Optional
 from pathlib import Path
 
 from protostar.utils.package_info import PackageInfo
+from protostar.protostar_exception import ProtostarException
 
 # set to true when debugging
 GIT_VERBOSE = True
@@ -24,6 +25,9 @@ CREDENTIALS = [
     'user.email="protostar@protostar.protostar"',
 ]
 
+class NotARepositoryException(Exception):
+    pass
+
 
 class Git:
     @staticmethod
@@ -42,7 +46,8 @@ class Git:
 
     @staticmethod
     def from_existing(path_to_repo: Path):
-        return GitRepository(path_to_repo)
+        path = GitRepository.get_repo_root(path_to_repo)
+        return GitRepository(path)
 
 
 class GitRepository:
@@ -51,6 +56,16 @@ class GitRepository:
         This class should not be instantiated directly, use `Git.init/clone/from_existing` instead.
         """
         self.path_to_repo = path_to_repo.resolve()
+
+    @staticmethod
+    def get_repo_root(path_to_repo: Path):
+        process = subprocess.run(['git', *CREDENTIALS, 'rev-parse', '--show-toplevel'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, cwd=path_to_repo)
+
+        if process.returncode:
+            raise NotARepositoryException(f"{path_to_repo} is not a valid git repository.")
+
+        path = Path(process.stdout.decode("utf-8").strip())
+        return path.resolve()
 
     def is_initialized(self):
         """
