@@ -20,20 +20,20 @@ from .testing_seed import Seed
 
 # pylint: disable=too-many-instance-attributes
 class TestingSummary:
-    def __init__(self, case_results: List[TestResult], testing_seed: Seed) -> None:
+    def __init__(self, test_results: List[TestResult], testing_seed: Seed) -> None:
         self.testing_seed = testing_seed
-        self.case_results = []
+        self.test_results: List[TestResult] = []
         self.test_suites_mapping: Dict[Path, List[TestResult]] = defaultdict(list)
         self.passed: List[PassedTestCaseResult] = []
         self.failed: List[FailedTestCaseResult] = []
         self.broken: List[BrokenTestCaseResult] = []
         self.broken_suites: List[BrokenTestSuiteResult] = []
         self.skipped: List[SkippedTestCaseResult] = []
-        self.extend(case_results)
+        self.extend(test_results)
 
-    def extend(self, case_results: List[TestResult]):
-        self.case_results += case_results
-        for case_result in case_results:
+    def extend(self, test_results: List[TestResult]):
+        self.test_results += test_results
+        for case_result in test_results:
             self.test_suites_mapping[case_result.file_path].append(case_result)
 
             if isinstance(case_result, PassedTestCaseResult):

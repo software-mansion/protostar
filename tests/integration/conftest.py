@@ -14,8 +14,10 @@ from starkware.starknet.public.abi import AbiType
 from typing_extensions import Protocol
 
 from protostar.commands.test.test_command import TestCommand
+from protostar.commands.test.test_result_formatter import format_test_result
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.testing import TestingSummary
+from protostar.testing.test_results import TestCaseResult, TestResult
 from protostar.utils.log_color_provider import LogColorProvider
 from tests.conftest import run_devnet
 from tests.integration.protostar_fixture import (
@@ -107,16 +109,16 @@ class RunCairoTestRunnerFixture(Protocol):
         ...
 
 
-@pytest.fixture(name="log_color_provider")
+@pytest.fixture(name="log_color_provider", scope="module")
 def log_color_provider_fixture() -> LogColorProvider:
     log_color_provider = LogColorProvider()
     log_color_provider.is_ci_mode = False
     return log_color_provider
 
 
-@pytest.fixture(name="run_cairo_test_runner")
+@pytest.fixture(name="run_cairo_test_runner", scope="module")
 def run_cairo_test_runner_fixture(
-    mocker: MockerFixture, log_color_provider: LogColorProvider
+    session_mocker: MockerFixture, log_color_provider: LogColorProvider
 ) -> RunCairoTestRunnerFixture:
     async def run_cairo_test_runner(
         path: Path,
@@ -126,10 +128,12 @@ def run_cairo_test_runner_fixture(
         test_cases: Optional[List[str]] = None,
         ignored_test_cases: Optional[List[str]] = None,
     ) -> TestingSummary:
-        protostar_directory_mock = mocker.MagicMock()
+        protostar_directory_mock = session_mocker.MagicMock()
         protostar_directory_mock.protostar_test_only_cairo_packages_path = Path()
 
-        project_cairo_path_builder = cast(ProjectCairoPathBuilder, mocker.MagicMock())
+        project_cairo_path_builder = cast(
+            ProjectCairoPathBuilder, session_mocker.MagicMock()
+        )
         project_cairo_path_builder.build_project_cairo_path_list = (
             lambda relative_cairo_path_list: relative_cairo_path_list
         )
@@ -206,3 +210,15 @@ def get_abi_from_contract_fixture(create_protostar_project) -> Callable[[str], A
                 return abi
 
     return get_abi_from_contract
+
+
+def get_protostar_test_case_result(
+    testing_summary: TestingSummary, protostar_test_case_name: str
+):
+    for test_result in testing_summary.test_results:
+        if (
+            isinstance(test_result, TestCaseResult)
+            and test_result.test_case_name == protostar_test_case_name
+        ):
+            return (test_result, format_test_result(test_result))
+    assert False, f"Couldn't find '{protostar_test_case_name}' test case result."
