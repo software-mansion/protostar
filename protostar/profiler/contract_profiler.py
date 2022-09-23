@@ -204,6 +204,7 @@ class ProfilerContext:
         last_accesses -- Address -> Pc of instruction which accessed the address last
         hole_address -- Address of the memory hole
         """
+        assert hole_address not in last_accesses
         min_addr_after = math.inf
         blamed_pc = -1
         for address, pc in last_accesses.items():
