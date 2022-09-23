@@ -3,7 +3,6 @@ import requests
 from starknet_py.contract import Contract
 from starknet_py.net import KeyPair
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import StarknetChainId
 from starkware.crypto.signature.signature import get_random_private_key
 
 from migrator.compiled_account_contract_tx_v0 import COMPILED_ACCOUNT_CONTRACT_TX_V0
@@ -71,7 +70,7 @@ async def test_account_with_tx_version_0(
 ):
     # TODO(mkaput): Remove this when Cairo 0.11 will remove transactions v0.
 
-    gateway_client = GatewayClient(devnet_gateway_url, chain=StarknetChainId.TESTNET)
+    gateway_client = GatewayClient(devnet_gateway_url)
 
     key_pair = KeyPair.from_private_key(get_random_private_key())
     monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, hex(key_pair.private_key))
