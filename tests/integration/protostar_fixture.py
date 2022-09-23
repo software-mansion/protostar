@@ -1,5 +1,4 @@
 import asyncio
-import multiprocessing
 import os
 from argparse import Namespace
 from logging import getLogger
@@ -23,7 +22,6 @@ from protostar.commands.deploy.deploy_command import DeployCommand
 from protostar.commands.init.project_creator.new_project_creator import (
     NewProjectCreator,
 )
-from protostar.commands.test.test_result_formatter import format_test_result
 from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.formatter.formatter import Formatter
@@ -40,8 +38,6 @@ from protostar.protostar_toml import (
     ProtostarTOMLWriter,
 )
 from protostar.starknet_gateway import GatewayFacadeFactory
-from protostar.testing import SharedTestsState, TestCollector, TestRunner
-from protostar.testing.test_suite import TestCase, TestSuite
 from protostar.utils.input_requester import InputRequester
 from protostar.utils.log_color_provider import LogColorProvider
 
@@ -216,46 +212,6 @@ class ProtostarFixture:
         """,
         )
         return file_path
-
-    async def run_test_case(self, test_case_content: str):
-        file_path = self._project_root_path / "tests" / "test_tmp.cairo"
-        self._save_file(
-            file_path,
-            f"""
-            %lang starknet
-
-            @external
-            func test_template{{syscall_ptr: felt*, range_check_ptr}}() {{
-                alloc_locals;
-                {test_case_content}
-
-                return ();
-            }}
-        """,
-        )
-        test_suite = TestSuite(
-            setup_fn_name=None,
-            test_path=file_path,
-            test_cases=[
-                TestCase(
-                    setup_fn_name=None,
-                    test_fn_name="test_template",
-                    test_path=file_path,
-                )
-            ],
-        )
-        with multiprocessing.Manager() as manager:
-            tests_state = SharedTestsState(
-                test_collector_result=TestCollector.Result(test_suites=[test_suite]),
-                manager=manager,
-            )
-            runner = TestRunner(
-                shared_tests_state=tests_state,
-                include_paths=[],
-            )
-            await runner.run_test_suite(test_suite, testing_seed=0)
-            test_result = tests_state.get_result()
-            return (test_result, format_test_result(test_result))
 
     @staticmethod
     def _save_file(path: Path, content: str) -> None:
