@@ -1,7 +1,8 @@
 import subprocess
 import time
+from pathlib import Path
 from socket import socket as Socket
-from typing import List, NamedTuple
+from typing import List, NamedTuple, Union
 
 import pytest
 import requests
@@ -71,3 +72,19 @@ def signing_credentials_fixture() -> Credentials:  # The same account is generat
         testnet_account_private_key,
         testnet_account_address,
     )
+
+
+PathStr = str
+FileContent = str
+FileStructureSchema = dict[PathStr, Union["FileStructureSchema", FileContent]]
+
+
+def create_file_structure(root_path: Path, file_structure_schema: FileStructureSchema):
+    for path_str, composite in file_structure_schema.items():
+        if isinstance(composite, str):
+            file_content = composite
+            Path(path_str).write_text(file_content)
+        else:
+            new_root_path = root_path / Path(path_str)
+            new_root_path.mkdir()
+            create_file_structure(new_root_path, file_structure_schema=composite)
