@@ -17,8 +17,8 @@ from .configuration_file import (
     PrimitiveTypesSupportedByConfigurationFile,
     ProfileName,
 )
-from .configuration_file_interpreter import ConfigurationFileInterpreter
 from .configuration_file_facade_v1 import ConfigurationFileV1
+from .configuration_file_interpreter import ConfigurationFileInterpreter
 
 
 @dataclass

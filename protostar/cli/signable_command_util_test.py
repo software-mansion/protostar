@@ -4,11 +4,12 @@ from typing import List
 
 import pytest
 from starknet_py.net.models import StarknetChainId, Transaction
+from starknet_py.net.models.typed_data import TypedData
 from starknet_py.net.signer import BaseSigner
+from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
 from protostar.cli.signable_command_util import (
     SignableCommandUtil,
-    PatchedStarkCurveSigner,
     PRIVATE_KEY_ENV_VAR_NAME,
 )
 from protostar.protostar_exception import ProtostarException
@@ -31,6 +32,9 @@ class CustomSigner(BaseSigner):
         return 1
 
     def sign_transaction(self, transaction: Transaction) -> List[int]:
+        return [1, 2]
+
+    def sign_message(self, typed_data: TypedData, account_address: int) -> List[int]:
         return [1, 2]
 
 
@@ -61,7 +65,7 @@ def test_default_signer_class(pkey_file_factory, mocker):
     args.account_address = "0x123"
 
     signer = SignableCommandUtil(args, logger).get_signer(network_config)
-    assert isinstance(signer, PatchedStarkCurveSigner)
+    assert isinstance(signer, StarkCurveSigner)
 
 
 def test_wrong_format_of_private_key_env(monkeypatch, mocker):

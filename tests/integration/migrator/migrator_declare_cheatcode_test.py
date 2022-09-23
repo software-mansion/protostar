@@ -54,3 +54,16 @@ async def test_descriptive_error_on_file_not_found(
         ),
     ):
         await protostar.migrate(migration_file_path, network=devnet_gateway_url)
+
+
+async def test_declaring_by_contract_name(
+    protostar: ProtostarFixture, devnet_gateway_url: str
+):
+    migration_file_path = protostar.create_migration_file('declare("main")')
+
+    result = await protostar.migrate(migration_file_path, devnet_gateway_url)
+
+    transaction_hash = cast(
+        int, result.starknet_requests[0].response["transaction_hash"]
+    )
+    await assert_transaction_accepted(devnet_gateway_url, transaction_hash)

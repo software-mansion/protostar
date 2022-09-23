@@ -1,7 +1,7 @@
+from dataclasses import dataclass
 from typing import Optional, Union, cast, Dict
-from typing_extensions import Literal
 
-from starknet_py.net.models import chain_from_network
+from starknet_py.net.models import chain_from_network, StarknetChainId
 from starknet_py.net.networks import (
     TESTNET,
     MAINNET,
@@ -9,8 +9,9 @@ from starknet_py.net.networks import (
     PredefinedNetwork as SimpleNetwork,
 )
 from starkware.starknet.cli.starknet_cli import NETWORKS as LEGACY_NETWORKS
-from protostar.protostar_exception import ProtostarException
+from typing_extensions import Literal
 
+from protostar.protostar_exception import ProtostarException
 
 SIMPLE_NETWORKS = [TESTNET, MAINNET]
 NETWORKS = [*SIMPLE_NETWORKS, *LEGACY_NETWORKS.keys()]
@@ -40,13 +41,18 @@ def predefined_to_simple_network(network: PredefinedNetwork) -> SimpleNetwork:
     )
 
 
+@dataclass
 class NetworkConfig:
+    gateway_url: str
+    chain_id: StarknetChainId
+    contract_explorer_search_url: Optional[str] = None
+
     @classmethod
     def build(
         cls,
         gateway_url: Optional[str] = None,
         network: Optional[PredefinedNetwork] = None,
-        chain_id: Optional[int] = None,
+        chain_id: Optional[StarknetChainId] = None,
     ) -> "NetworkConfig":
         if network:
             network = predefined_to_simple_network(network)
@@ -89,18 +95,8 @@ class NetworkConfig:
             contract_explorer_search_url=contract_explorer_search_url_mapping.get(
                 network
             ),
-            chain_id=chain_id.value,
+            chain_id=chain_id,
         )
-
-    def __init__(
-        self,
-        gateway_url: str,
-        chain_id: int,
-        contract_explorer_search_url: Optional[str] = None,
-    ):
-        self.gateway_url = gateway_url
-        self.chain_id = chain_id
-        self.contract_explorer_search_url = contract_explorer_search_url
 
     def get_contract_explorer_url(self, contract_address: int) -> Optional[str]:
         if not self.contract_explorer_search_url:

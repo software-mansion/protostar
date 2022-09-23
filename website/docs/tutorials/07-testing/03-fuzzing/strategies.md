@@ -43,10 +43,16 @@ cheatcode-namespace.
 ### `strategy.felts`
 
 ```python
-def felts() -> Strategy: ...
+def felts(*, rc_bound: bool = False) -> Strategy: ...
 ```
 
-Explores all possible felt values.
+By default, explores all possible felt values.
+
+If keyword argument `rc_bound` is `True`, explores felts which can be passed to the `range_check`
+builtin.
+This narrows the range of explored values according to the parameters of Cairo runtime.
+Use this functionality, if fuzzed values will be passed to any of the `assert_*` functions from
+`starkware.cairo.common.math` module.
 
 ### `strategy.integers`
 

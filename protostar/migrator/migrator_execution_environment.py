@@ -4,12 +4,13 @@ from typing import Optional
 from starknet_py.net.signer import BaseSigner
 
 from protostar.compiler.project_compiler import ProjectCompiler
+from protostar.migrator.migrator_contract_identifier_resolver import (
+    MigratorContractIdentifierResolver,
+)
 from protostar.starknet.execution_state import ExecutionState
 from protostar.starknet.forkable_starknet import ForkableStarknet
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
-from protostar.testing.environments.execution_environment import (
-    ExecutionEnvironment,
-)
+from protostar.testing.environments.execution_environment import ExecutionEnvironment
 from protostar.utils.compiler.pass_managers import StarknetPassManagerFactory
 from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
 
@@ -64,11 +65,16 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
                 contract=contract,
                 starknet_compiler=starknet_compiler,
             )
+
+            migrator_contract_identifier_resolver = MigratorContractIdentifierResolver(
+                project_compiler=self._project_compiler,
+                migrator_datetime_state=self._migrator_datetime_state,
+            )
+
             migration_cheatcode_factory = MigratorCheatcodeFactory(
                 starknet_compiler=starknet_compiler,
                 gateway_facade=self._gateway_facade,
-                project_compiler=self._project_compiler,
-                migrator_datetime_state=self._migrator_datetime_state,
+                migrator_contract_identifier_resolver=migrator_contract_identifier_resolver,
                 config=config,
                 signer=self._signer,
             )

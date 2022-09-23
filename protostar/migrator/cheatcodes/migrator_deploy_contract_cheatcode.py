@@ -1,13 +1,13 @@
 import asyncio
 from dataclasses import dataclass
-from pathlib import Path
+from logging import getLogger
 from typing import Any, Optional
 
 from typing_extensions import Protocol
 
-from protostar.compiler import ProjectCompiler
-from protostar.compiler.compiled_contract_writer import CompiledContractWriter
-from protostar.migrator.migrator_datetime_state import MigratorDateTimeState
+from protostar.migrator.migrator_contract_identifier_resolver import (
+    MigratorContractIdentifierResolver,
+)
 from protostar.starknet import Cheatcode, KeywordOnlyArgumentCheatcodeException
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.utils.data_transformer import CairoOrPythonData
@@ -42,15 +42,15 @@ class MigratorDeployContractCheatcode(Cheatcode):
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
         gateway_facade: GatewayFacade,
-        project_compiler: ProjectCompiler,
-        migrator_datetime_state: MigratorDateTimeState,
+        migrator_contract_identifier_resolver: MigratorContractIdentifierResolver,
         config: Config,
     ):
         super().__init__(syscall_dependencies)
         self._gateway_facade = gateway_facade
         self._config = config
-        self._project_compiler = project_compiler
-        self._migrator_datetime_state = migrator_datetime_state
+        self._migrator_contract_identifier_resolver = (
+            migrator_contract_identifier_resolver
+        )
 
     @property
     def name(self) -> str:
@@ -68,12 +68,18 @@ class MigratorDeployContractCheatcode(Cheatcode):
         *args,
         config: Optional[CheatcodeNetworkConfig] = None,
     ) -> DeployedContract:
+        logger = getLogger()
+        logger.warning(
+            "`deploy_contract` migrator cheatcode will be removed in the future release\n"
+            "https://docs.starknet.io/docs/Blocks/transactions/#deploy-transaction"
+        )
+
         contract_identifier = contract_path
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
 
         validated_config = ValidatedCheatcodeNetworkConfig.from_dict(config)
-        compiled_contract_path = self._get_path_to_compiled_contract(
+        compiled_contract_path = self._migrator_contract_identifier_resolver.resolve(
             contract_identifier
         )
         response = asyncio.run(
@@ -85,21 +91,3 @@ class MigratorDeployContractCheatcode(Cheatcode):
             )
         )
         return DeployedContract(contract_address=response.address)
-
-    def _get_path_to_compiled_contract(self, contract_identifier: str) -> Path:
-        if "." in contract_identifier:
-            return Path(contract_identifier)
-        return self._compile_contract_by_contract_name(contract_identifier)
-
-    def _compile_contract_by_contract_name(self, contract_name: str) -> Path:
-        contract_class = self._project_compiler.compile_contract_from_contract_name(
-            contract_name
-        )
-        output_file_path = (
-            CompiledContractWriter(contract=contract_class, contract_name=contract_name)
-            .save(
-                output_dir=self._migrator_datetime_state.get_compilation_output_path()
-            )
-            .compiled_contract_path
-        )
-        return output_file_path
