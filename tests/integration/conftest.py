@@ -210,15 +210,3 @@ def get_abi_from_contract_fixture(create_protostar_project) -> Callable[[str], A
                 return abi
 
     return get_abi_from_contract
-
-
-def get_protostar_test_case_result(
-    testing_summary: TestingSummary, protostar_test_case_name: str
-):
-    for test_result in testing_summary.test_results:
-        if (
-            isinstance(test_result, TestCaseResult)
-            and test_result.test_case_name == protostar_test_case_name
-        ):
-            return (test_result, format_test_result(test_result))
-    assert False, f"Couldn't find '{protostar_test_case_name}' test case result."

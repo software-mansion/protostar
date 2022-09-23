@@ -4,17 +4,18 @@ from pathlib import Path
 from typing import Dict, List
 
 from protostar.protostar_exception import ProtostarExceptionSilent
-from protostar.testing.test_results import (
+from protostar.utils.log_color_provider import LogColorProvider, log_color_provider
+
+from .test_results import (
     BrokenTestCaseResult,
     BrokenTestSuiteResult,
     FailedTestCaseResult,
     PassedTestCaseResult,
     SkippedTestCaseResult,
+    TestCaseResult,
     TestResult,
     TimedTestCaseResult,
 )
-from protostar.utils.log_color_provider import LogColorProvider, log_color_provider
-
 from .testing_seed import Seed
 
 
@@ -220,3 +221,12 @@ class TestingSummary:
             "  ".join((val.ljust(width) for val, width in zip(row, column_widths)))
             for row in rows
         )
+
+    def __getitem__(self, protostar_test_case_name: str):
+        for test_result in self.test_results:
+            if (
+                isinstance(test_result, TestCaseResult)
+                and test_result.test_case_name == protostar_test_case_name
+            ):
+                return test_result
+        assert False, f"Couldn't find '{protostar_test_case_name}' test case result."

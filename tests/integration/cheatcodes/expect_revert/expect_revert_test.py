@@ -3,11 +3,12 @@ from pathlib import Path
 
 import pytest
 
+from protostar.commands.test.test_result_formatter import format_test_result
 from protostar.testing import TestingSummary
+from protostar.testing.test_results import BrokenTestCaseResult
 from tests.integration.conftest import (
     RunCairoTestRunnerFixture,
     assert_cairo_test_cases,
-    get_protostar_test_case_result,
 )
 
 
@@ -46,12 +47,12 @@ async def test_test_result_types(testing_summary: TestingSummary):
 async def test_already_expecting_error_message_when_no_arguments_were_provided(
     testing_summary: TestingSummary,
 ):
-    (_, formatted_protostar_test_result) = get_protostar_test_case_result(
-        testing_summary,
-        "test_already_expecting_error_message_when_no_arguments_were_provided",
-    )
 
-    assert "matching the following error" not in formatted_protostar_test_result
-    assert (
-        "Protostar is already expecting an exception" in formatted_protostar_test_result
-    )
+    test_result = testing_summary[
+        "test_already_expecting_error_message_when_no_arguments_were_provided"
+    ]
+    formatted_test_result = format_test_result(test_result)
+
+    assert isinstance(test_result, BrokenTestCaseResult)
+    assert "matching the following error" not in formatted_test_result
+    assert "Protostar is already expecting an exception" in formatted_test_result
