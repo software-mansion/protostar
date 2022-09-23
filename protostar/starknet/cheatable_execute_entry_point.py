@@ -35,9 +35,8 @@ from starkware.starknet.services.api.contract_class import ContractEntryPoint
 from starkware.python.utils import from_bytes
 from starkware.starknet.business_logic.state.state import StateSyncifier
 from protostar.profiler.pprof import serialize, to_protobuf
+from protostar.profiler.contract_profiler import RuntimeProfile, build_profile
 from protostar.profiler.profile import (
-    RuntimeProfile,
-    build_profile,
     merge_profiles,
 )
 from protostar.starknet.cheatable_cached_state import CheatableCachedState

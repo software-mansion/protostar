@@ -3,7 +3,6 @@ from collections import defaultdict
 from dataclasses import dataclass
 import functools
 import math
-import random
 from typing import Callable, List, Dict, Set, cast
 
 from starkware.cairo.lang.vm.memory_dict import MemoryDict
@@ -77,6 +76,7 @@ class ProfilerContext:
         return frame_pcs
 
     def main_function(self):
+        # TODO(maksymiliandemitraszek) check if this is necessary
         return Function(
             id="__main__",
             filename="<dummy_filename>",
@@ -84,6 +84,9 @@ class ProfilerContext:
         )
 
     def build_function_list(self, tracer_data: TracerData) -> List[Function]:
+        """
+        Collects all of the functions in the compiled contract
+        """
         identifiers_dict = tracer_data.program.identifiers.as_dict()
         assert tracer_data.program.debug_info is not None
         is_label: Callable[[IdentifierDefinition], bool] = lambda ident: isinstance(
@@ -117,9 +120,9 @@ class ProfilerContext:
 
         return functions + [self.main_function()]
 
-    def find_function(self, functions: List[Function], name: str) -> Function:
+    def find_function(self, functions: List[Function], function_id: str) -> Function:
         for func in functions:
-            if func.id == name:
+            if func.id == function_id:
                 return func
         assert False
 
@@ -127,7 +130,7 @@ class ProfilerContext:
         self, functions: List[Function], tracer_data: TracerData
     ) -> List[Instruction]:
         """
-        Retrieves the id of a location. Adds to the table if not already present.
+        Builds a list of instructions in the contract and assings them to functions
         """
         assert tracer_data.program.debug_info
         pc_to_locations = {
@@ -156,8 +159,11 @@ class ProfilerContext:
 
     def build_call_callstacks(
         self, instructions: List[Instruction], tracer_data: TracerData
-    ) -> List:
-        callstacks = []
+    ) -> List[List[Instruction]]:
+        """
+        Searches for the external contract calls, saves the function callstack of each call
+        """
+        callstacks: List[List[Instruction]] = []
         stack_len = math.inf
         for trace_entry in tracer_data.trace:
             callstack = self.get_call_stack(fp=trace_entry.fp, pc=trace_entry.pc)
@@ -179,8 +185,8 @@ class ProfilerContext:
 
     def build_step_samples(
         self, instructions: List[Instruction], tracer_data: TracerData
-    ):
-        step_samples = []
+    ) -> List[Sample]:
+        step_samples: List[Sample] = []
         for trace_entry in tracer_data.trace:
             callstack = self.get_call_stack(fp=trace_entry.fp, pc=trace_entry.pc)
             instr_callstack = [
@@ -190,35 +196,47 @@ class ProfilerContext:
         return step_samples
 
     @staticmethod
-    def blame_pc(max_accesses, hole_address) -> int:
+    def blame_pc(last_accesses: Dict[Address, Address], hole_address: Address) -> int:
+        """
+        Searches for pc under which is placed an intruction which is responsible for the memory hole
+
+        Keyword arguments:
+        last_accesses -- Address -> Pc of instruction which accessed the address last
+        hole_address -- Address of the memory hole
+        """
         min_addr_after = math.inf
         blamed_pc = -1
-        for address, pc in max_accesses.items():
+        for address, pc in last_accesses.items():
             if address > hole_address:
                 if address < min_addr_after:
                     min_addr_after = address
                     blamed_pc = pc
-        assert min_addr_after > -1
+        assert blamed_pc > -1
         return blamed_pc
 
     @staticmethod
     def not_accessed(
-        accessed_addresses, segments: MemorySegmentManager, segment_offsets
+        accessed_memory: Set[RelocatableValue],
+        segments: MemorySegmentManager,
+        segment_offsets,
     ) -> Set[Address]:
+        """
+        Rerturns set of addresses that have never been accessed
+        """
         not_accessed_addr: Set[Address] = set()
         for idx in range(segments.n_segments):
             size = segments.get_segment_size(segment_index=idx)
             not_accessed_addr |= {segment_offsets[idx] + i for i in range(size)}
 
-        accessed_offsets_sets = defaultdict(set)
-        for addr in accessed_addresses:
+        accessed_offsets_sets: defaultdict[int, Set[int]] = defaultdict(set)
+        for addr in accessed_memory:
             index, offset = addr.segment_index, addr.offset
             accessed_offsets_sets[index].add(offset)
 
         for segment_index, accessed_offsets_set in accessed_offsets_sets.items():
             for off in accessed_offsets_set:
                 try:
-                    idx = segment_offsets[segment_index] + off
+                    idx: Address = segment_offsets[segment_index] + off
                     not_accessed_addr.remove(idx)
                 except KeyError:
                     pass
@@ -228,16 +246,20 @@ class ProfilerContext:
         self,
         instructions: List[Instruction],
         tracer_data: TracerData,
-        accessed_memory,
+        accessed_memory: Set[RelocatableValue],
         segments: MemorySegmentManager,
         segment_offsets,
     ) -> List[Sample]:
-        accessed_by = {}
-        pc_to_callstack = {}
+        # Address -> Pc of instruction which accessed the address last
+        accessed_by: Dict[Address, Address] = {}
+        pc_to_callstack: Dict[Address, List[Address]] = {}
         for trace_entry, mem_acc in zip(tracer_data.trace, tracer_data.memory_accesses):
             frame_pcs = self.get_call_stack(fp=trace_entry.fp, pc=trace_entry.pc)
-            for key in ["dst", "op0", "op1"]:
-                accessed_by[mem_acc[key]] = trace_entry.pc
+            addresses: List[Address] = [mem_acc[d] for d in ["dst", "op0", "op1"]]
+            for addr in addresses:
+                # Casting to Addres because adresses have been already relocated
+                # TODO(maksymiliandemitraszek) check if that's correct
+                accessed_by[addr] = cast(Address, trace_entry.pc)
                 pc_to_callstack[trace_entry.pc] = frame_pcs
 
         blame_pc = functools.partial(self.blame_pc, accessed_by)
@@ -252,7 +274,6 @@ class ProfilerContext:
             ]
             samples.append(Sample(value=1, callstack=callstack))
         return samples
-
 
 
 def build_profile(
@@ -279,5 +300,3 @@ def build_profile(
         contract_call_callstacks=callstacks_syscall,
     )
     return profile
-
-

@@ -6,7 +6,13 @@ from typing import TYPE_CHECKING, List, Dict, Tuple
 from starkware.cairo.lang.tracer.tracer_data import TracerData
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from protostar.profiler.pprof import serialize, to_protobuf
-from protostar.profiler.contract_profiler import Instruction, build_profile, Function, Sample, RuntimeProfile
+from protostar.profiler.contract_profiler import (
+    Instruction,
+    build_profile,
+    Function,
+    Sample,
+    RuntimeProfile,
+)
 
 
 if TYPE_CHECKING:
@@ -19,7 +25,6 @@ FunctionID = int
 
 def unique_id():
     return random.randint(0, 10000000000)
-
 
 
 def profile_from_tracer_data(tracer_data: TracerData, runner: CairoFunctionRunner):
