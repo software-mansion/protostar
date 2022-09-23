@@ -219,10 +219,10 @@ class ProfilerContext:
     def not_accessed(
         accessed_memory: Set[RelocatableValue],
         segments: MemorySegmentManager,
-        segment_offsets,
+        segment_offsets: Dict[int, int],
     ) -> Set[Address]:
         """
-        Rerturns set of addresses that have never been accessed
+        Returns set of addresses that have never been accessed
         """
         not_accessed_addr: Set[Address] = set()
         for idx in range(segments.n_segments):
