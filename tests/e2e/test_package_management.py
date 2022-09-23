@@ -78,6 +78,8 @@ def test_updating_package(install_package, protostar, libs_path):
 def test_removing_package(install_package, protostar, libs_path):
     install_package()
 
+    print(f"DIR({getcwd()}): {listdir()}")
+
     result = protostar(["--no-color", "remove", "starknet_py"])
 
     assert "Removing starknet_py" in result

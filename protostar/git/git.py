@@ -1,19 +1,10 @@
-from asyncio.subprocess import DEVNULL
-from os import PathLike
 import subprocess
 import re
 import os.path
-from typing import Dict, NamedTuple, Optional
+from typing import Dict, Optional
 from pathlib import Path
-from dataclasses import dataclass
 
-
-@dataclass
-class PackageInfo:
-    name: str
-    url: str
-    path: Path
-
+from protostar.utils.package_info import PackageInfo
 
 # set to true when debugging
 GIT_VERBOSE = True
@@ -165,7 +156,7 @@ class GitRepository:
     def get_submodules(self) -> Dict[str, PackageInfo]:
         """
         Returns a dictionary of form:
-        submodule_name: PackageData(url=submodule_url, path=submodule_path)
+        submodule_name: PackageInfo
         """
 
         gitmodules_path = self.path_to_repo / ".gitmodules"
