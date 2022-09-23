@@ -46,7 +46,7 @@ func setup_one_of_filtering() {
 
 @external
 func test_one_of_filtering{range_check_ptr}(a) {
-    assert_in_range(a, 75, 100);
+    assert_in_range(a, 75, 101);
     return ();
 }
 
