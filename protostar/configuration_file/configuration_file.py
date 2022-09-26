@@ -1,9 +1,9 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Generic, Optional, TypeVar, Union
+from typing import Any, Generic, Optional, TypeVar, Union
 
 from protostar.protostar_exception import ProtostarException
-from protostar.utils.protostar_directory import VersionType
+from protostar.self import DeclaredProtostarVersionProviderProtocol, ProtostarVersion
 
 PrimitiveTypesSupportedByConfigurationFile = Union[str, int, bool]
 
@@ -18,9 +18,36 @@ ContractName = str
 ConfigurationFileModelT = TypeVar("ConfigurationFileModelT")
 
 
-class ConfigurationFile(Generic[ConfigurationFileModelT]):
+class ConfigurationFileContentBuilder(ABC):
     @abstractmethod
-    def get_min_protostar_version(self) -> Optional[VersionType]:
+    def set_section(
+        self,
+        section_name: str,
+        data: dict[str, Any],
+        profile_name: Optional[str] = None,
+    ) -> None:
+        pass
+
+    @abstractmethod
+    def build(self) -> str:
+        ...
+
+
+class ConfigurationFileContentConfigurator(Generic[ConfigurationFileModelT]):
+    @abstractmethod
+    def create_file_content(
+        self,
+        content_builder: ConfigurationFileContentBuilder,
+        model: ConfigurationFileModelT,
+    ) -> str:
+        ...
+
+
+class ConfigurationFile(
+    DeclaredProtostarVersionProviderProtocol, Generic[ConfigurationFileModelT]
+):
+    @abstractmethod
+    def get_declared_protostar_version(self) -> Optional[ProtostarVersion]:
         ...
 
     @abstractmethod

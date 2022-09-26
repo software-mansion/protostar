@@ -96,7 +96,7 @@ async def test_migrating_with_signed_invoke(
     with migration_file.open("r", encoding="utf-8") as file:
         migration_content = json.load(file)
 
-    gateway_client = GatewayClient(devnet_gateway_url, chain=StarknetChainId.TESTNET)
+    gateway_client = GatewayClient(devnet_gateway_url)
 
     transactions = [
         await gateway_client.get_transaction(action["response"]["hash"])

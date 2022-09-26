@@ -79,6 +79,11 @@ class DeployCommand(Command):
         ]
 
     async def run(self, args):
+        self._logger.warning(
+            "`protostar deploy` will be removed in the future release\n"
+            "https://docs.starknet.io/docs/Blocks/transactions/#deploy-transaction"
+        )
+
         network_command_util = NetworkCommandUtil(args, self._logger)
         network_config = network_command_util.get_network_config()
         gateway_client = network_command_util.get_gateway_client()

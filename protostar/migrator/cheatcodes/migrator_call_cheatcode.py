@@ -3,8 +3,7 @@ from typing import Any, Optional
 
 from typing_extensions import Protocol
 
-from protostar.commands.test.test_environment_exceptions import CheatcodeException
-from protostar.starknet.cheatcode import Cheatcode
+from protostar.starknet import Cheatcode, CheatcodeException
 from protostar.starknet_gateway import (
     ContractNotFoundException,
     GatewayFacade,

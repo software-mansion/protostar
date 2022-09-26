@@ -5,7 +5,7 @@ import pytest
 from protostar.configuration_file.configuration_legacy_toml_interpreter import (
     ConfigurationLegacyTOMLInterpreter,
 )
-from protostar.utils import VersionManager
+from protostar.self import parse_protostar_version
 
 from .configuration_file_v1 import (
     ConfigurationFile,
@@ -56,10 +56,10 @@ def configuration_file_fixture(
         """,
     ],
 )
-def test_retrieving_min_protostar_version(configuration_file: ConfigurationFile):
-    result = configuration_file.get_min_protostar_version()
+def test_retrieving_declared_protostar_version(configuration_file: ConfigurationFile):
+    result = configuration_file.get_declared_protostar_version()
 
-    assert result == VersionManager.parse("0.1.2")
+    assert result == parse_protostar_version("0.1.2")
 
 
 @pytest.mark.parametrize(
@@ -178,11 +178,28 @@ def test_reading_argument_attribute_defined_within_specified_profile(
     "protostar_toml_content",
     [
         """
+        ["protostar.config"]
+        protostar_version = "0.3.1"
+
+        ["protostar.project"]
+        libs_path = "./lib"
+
+        ["protostar.contracts"]
+        main = [
+            "./src/main.cairo",
+        ]
+
         ["protostar.deploy"]
         arg_name = 21
 
         ["profile.devnet.protostar.deploy"]
         arg_name = 37
+
+        ["protostar.shared_command_configs"]
+        arg_name = 42
+
+        ["profile.devnet.protostar.shared_command_configs"]
+        arg_name = 24
         """
     ],
 )
@@ -192,11 +209,11 @@ def test_generating_data_struct(
     model = configuration_file.read()
 
     assert model == ConfigurationFileV1Model(
-        protostar_version=None,
-        lib_path_str=None,
+        protostar_version="0.3.1",
+        libs_path_str="lib",
         command_name_to_config={"deploy": {"arg_name": 21}},
-        contract_name_to_path_str={},
-        shared_command_config={},
+        contract_name_to_path_strs={"main": ["src/main.cairo"]},
+        shared_command_config={"arg_name": 42},
         profile_name_to_commands_config={"devnet": {"deploy": {"arg_name": 37}}},
-        profile_name_to_shared_command_config={},
+        profile_name_to_shared_command_config={"devnet": {"arg_name": 24}},
     )
