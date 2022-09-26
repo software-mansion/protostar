@@ -3,16 +3,20 @@ import re
 import os.path
 from typing import Dict, Optional
 from pathlib import Path
+from functools import wraps
 
 from protostar.utils.package_info import PackageInfo
 from protostar.protostar_exception import ProtostarException
 
+# pylint: disable=subprocess-run-check
+
 # set to true when debugging
-GIT_VERBOSE = True
-OUTPUT_KWARGS = (
-    {}
+GIT_VERBOSE = False
+SHARED_KWARGS = (
+    {"check": True}
     if GIT_VERBOSE
     else {
+        "check": True,
         "stdout": subprocess.DEVNULL,
         "stderr": subprocess.DEVNULL,
     }
@@ -25,8 +29,25 @@ CREDENTIALS = [
     'user.email="protostar@protostar.protostar"',
 ]
 
-class NotARepositoryException(Exception):
+
+class ProtostarGitException(ProtostarException):
+    def __init__(self, message: str, details: Optional[str] = None):
+        super().__init__("Error while executing Git command:\n" + message, details)
+
+
+class NotARepositoryException(ProtostarGitException):
     pass
+
+
+def wrap_git_exception(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            func(*args, **kwargs)
+        except subprocess.CalledProcessError as ex:
+            raise ProtostarGitException(str(ex)) from ex
+
+    return wrapper
 
 
 class Git:
@@ -59,36 +80,31 @@ class GitRepository:
 
     @staticmethod
     def get_repo_root(path_to_repo: Path):
-        process = subprocess.run(['git', *CREDENTIALS, 'rev-parse', '--show-toplevel'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, cwd=path_to_repo)
+        process = subprocess.run(
+            ["git", *CREDENTIALS, "rev-parse", "--show-toplevel"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            cwd=path_to_repo,
+            check=False,
+        )
 
         if process.returncode:
-            raise NotARepositoryException(f"{path_to_repo} is not a valid git repository.")
+            raise NotARepositoryException(
+                f"{path_to_repo} is not a valid git repository."
+            )
 
         path = Path(process.stdout.decode("utf-8").strip())
         return path.resolve()
 
-    def is_initialized(self):
-        """
-        Although Git.init works even if repo is already initialized,
-        we use this to prevent the user from initializing repos accidentally.
-        (i.e. with `protostar install` instead of `protostar init`)
-        """
-        return (
-            subprocess.run(
-                ["git", *CREDENTIALS, "status"],
-                **OUTPUT_KWARGS,
-                cwd=self.path_to_repo,
-            ).returncode
-            == 0
-        )
-
+    @wrap_git_exception
     def init(self):
         subprocess.run(
             ["git", *CREDENTIALS, "init"],
-            **OUTPUT_KWARGS,
+            **SHARED_KWARGS,
             cwd=self.path_to_repo,
         )
 
+    @wrap_git_exception
     def clone(self, path_to_repo_to_clone: Path):
         subprocess.run(
             [
@@ -98,10 +114,11 @@ class GitRepository:
                 path_to_repo_to_clone,
                 self.path_to_repo.name,
             ],
-            **OUTPUT_KWARGS,
+            **SHARED_KWARGS,
             cwd=self.path_to_repo.parent,
         )
 
+    @wrap_git_exception
     def add_submodule(
         self,
         url: str,
@@ -121,19 +138,21 @@ class GitRepository:
                 url,
                 str(path_to_submodule.relative_to(self.path_to_repo)),
             ],
-            **OUTPUT_KWARGS,
+            **SHARED_KWARGS,
             cwd=self.path_to_repo,
         )
 
+    @wrap_git_exception
     def update_submodule(self, path_to_submodule: Path, init=False):
         subprocess.run(
             ["git", *CREDENTIALS, "submodule", "update"]
             + (["--init"] if init else [])
             + [str(path_to_submodule)],
-            **OUTPUT_KWARGS,
+            **SHARED_KWARGS,
             cwd=self.path_to_repo,
         )
 
+    @wrap_git_exception
     def add(self, path_to_item: Path):
         subprocess.run(
             [
@@ -142,10 +161,12 @@ class GitRepository:
                 "add",
                 str(path_to_item),
             ],
-            **OUTPUT_KWARGS,
+            **SHARED_KWARGS,
             cwd=self.path_to_repo,
         )
 
+    # pylint: disable=invalid-name
+    @wrap_git_exception
     def rm(self, path_to_item: Path, force: bool = False):
         subprocess.run(
             [
@@ -157,14 +178,15 @@ class GitRepository:
             + [
                 str(path_to_item),
             ],
-            **OUTPUT_KWARGS,
+            **SHARED_KWARGS,
             cwd=self.path_to_repo,
         )
 
+    @wrap_git_exception
     def commit(self, msg: str):
         subprocess.run(
             ["git", *CREDENTIALS, "commit", "-m", msg],
-            **OUTPUT_KWARGS,
+            **SHARED_KWARGS,
             cwd=self.path_to_repo,
         )
 
@@ -177,7 +199,7 @@ class GitRepository:
         gitmodules_path = self.path_to_repo / ".gitmodules"
         if os.path.isfile(gitmodules_path):
 
-            with open(gitmodules_path, "r") as file:
+            with open(gitmodules_path, "r", encoding="utf-8") as file:
                 data = file.read()
                 names = re.finditer(r"\[submodule \"([^\"]+)\"\]", data)
                 paths = re.finditer(r"path = (.+)\n", data)

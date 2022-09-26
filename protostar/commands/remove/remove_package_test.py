@@ -2,11 +2,10 @@ from os import listdir
 from pathlib import Path
 
 import pytest
-from git.repo import Repo
 
 from protostar.commands.remove import removal_exceptions
 from protostar.commands.remove.remove_package import remove_package
-from protostar.git.git import Git, GitRepository
+from protostar.git import Git, GitRepository
 
 
 @pytest.fixture(name="package_name")

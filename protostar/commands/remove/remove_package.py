@@ -1,6 +1,7 @@
 from pathlib import Path
+from typing import cast
 
-from protostar.git.git import Git, NotARepositoryException
+from protostar.git import Git, NotARepositoryException
 
 from protostar.commands.remove import removal_exceptions
 
@@ -23,4 +24,4 @@ def remove_package(package_name: str, repo_dir: Path):
             f"Protostar couldn't find the following package: {package_name}"
         )
 
-    repo.rm(submodules[package_name].path, force=True)
+    repo.rm(cast(Path, submodules[package_name].path), force=True)

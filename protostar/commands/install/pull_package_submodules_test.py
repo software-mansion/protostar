@@ -8,7 +8,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from protostar.commands.install.pull_package_submodules import pull_package_submodules
-from protostar.git.git import Git, GitRepository
+from protostar.git import Git, GitRepository
 
 # - repo
 #   - lib

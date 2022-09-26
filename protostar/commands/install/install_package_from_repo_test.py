@@ -7,7 +7,7 @@ from protostar.commands.install import installation_exceptions
 from protostar.commands.install.install_package_from_repo import (
     install_package_from_repo,
 )
-from protostar.git.git import Git
+from protostar.git import Git
 
 
 @pytest.fixture
@@ -21,7 +21,6 @@ def test_successful_installation(tmpdir: str, repo_url: str):
 
     install_package_from_repo("foo", repo_url, Path(tmpdir), Path(tmpdir) / "lib")
 
-    assert repo.is_initialized()
     assert len(repo.get_submodules()) == 1
 
 
