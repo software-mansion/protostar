@@ -5,7 +5,7 @@ from hypothesis.strategies import SearchStrategy
 from starkware.cairo.lang.compiler.ast.cairo_types import TypeFelt
 
 from .exceptions import FuzzingError
-from .strategies import FeltsStrategyDescriptor, IntegersStrategyDescriptor
+from .strategies import FeltsStrategyDescriptor, IntegersStrategyDescriptor, ShortStringsStrategyDescriptor
 from .strategy_collector import collect_search_strategies
 
 
@@ -21,6 +21,11 @@ from .strategy_collector import collect_search_strategies
             "a": FeltsStrategyDescriptor(),
             "b": IntegersStrategyDescriptor(),
         },
+        {
+            "a": FeltsStrategyDescriptor(),
+            "b": IntegersStrategyDescriptor(),
+            "c": ShortStringsStrategyDescriptor(),
+        },
     ],
 )
 def test_collect(declared_strategies):
@@ -29,10 +34,11 @@ def test_collect(declared_strategies):
         parameters={
             "a": TypeFelt(),
             "b": TypeFelt(),
+            "c": TypeFelt(),
         },
     )
 
-    assert list(actual.keys()) == ["a", "b"]
+    assert list(actual.keys()) == ["a", "b", "c"]
     for v in actual.values():
         assert isinstance(v, SearchStrategy)
 
