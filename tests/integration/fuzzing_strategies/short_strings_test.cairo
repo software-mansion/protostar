@@ -2,7 +2,10 @@
 
 @external
 func setup_correct_short_string() {
-    %{ given(value=strategy.short_strings()) %}
+    %{
+        max_examples(25)
+        given(value=strategy.short_strings())
+    %}
     return ();
 }
 
