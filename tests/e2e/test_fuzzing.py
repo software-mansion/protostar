@@ -41,3 +41,24 @@ c = 0
 """
         in result
     )
+
+
+@pytest.mark.usefixtures("init")
+def test_fuzzing_changing_seed(protostar, copy_fixture):
+    seeds = []
+    copy_fixture("test_fuzz_single.cairo", "./tests")
+
+    for i in range(0, 5):
+        result = protostar(
+            ["--no-color", "test", "tests/test_fuzz_single.cairo"],
+            ignore_exit_code=True,
+        )
+        seed_pattern = "Seed:"
+
+        seed_lines = [line for line in result.split("\n") if seed_pattern in line]
+        assert len(seed_lines) == 1
+        seed = seed_lines[0].split(seed_pattern)[1].strip()
+
+        seeds.append(seed)
+
+    assert len(seeds) == len(set(seeds))
