@@ -7,6 +7,7 @@ from typing import Any, List, Optional
 
 from protostar.cli import CLIApp, Command
 from protostar.compiler import ProjectCairoPathBuilder
+from protostar.configuration_file import CommandNamesProvider
 from protostar.configuration_profile_cli import ConfigurationProfileCLI
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
 from protostar.protostar_toml.protostar_toml_version_checker import (
@@ -24,7 +25,7 @@ def _apply_pythonpath():
         sys.path.extend(split_paths)
 
 
-class ProtostarCLI(CLIApp):
+class ProtostarCLI(CLIApp, CommandNamesProvider):
     def __init__(
         self,
         logger: Logger,
@@ -77,6 +78,9 @@ class ProtostarCLI(CLIApp):
         self._print_execution_time()
         if has_failed:
             sys.exit(1)
+
+    def get_command_names(self) -> list[str]:
+        return list(self._command_mapping.keys())
 
     def _setup_logger(self, is_ci_mode: bool) -> None:
         self._log_color_provider.is_ci_mode = is_ci_mode
