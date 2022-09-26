@@ -8,11 +8,17 @@ from protostar.configuration_file.configuration_legacy_toml_interpreter import (
 from protostar.self import parse_protostar_version
 
 from .configuration_file_v1 import (
+    CommandNamesProvider,
     ConfigurationFile,
     ConfigurationFileV1,
     ConfigurationFileV1Model,
     ContractNameNotFoundException,
 )
+
+
+class CommandNamesProviderDouble(CommandNamesProvider):
+    def get_command_names(self) -> list[str]:
+        return ["deploy"]
 
 
 @pytest.fixture(name="project_root_path")
@@ -44,6 +50,7 @@ def configuration_file_fixture(
         ),
         project_root_path=project_root_path,
         filename=protostar_toml_path.name,
+        command_names_provider=CommandNamesProviderDouble(),
     )
 
 
