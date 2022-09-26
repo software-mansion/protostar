@@ -58,3 +58,13 @@ def test_not_detecting_configuration_file(tmp_path: Path):
 
     with pytest.raises(ProtostarException, match="protostar-version"):
         configuration_file_factory.create()
+
+
+def test_handling_parsing_error(tmp_path: Path):
+    (tmp_path / "protostar.toml").write_text("[project")
+    configuration_file_factory = ConfigurationFileFactory(cwd=tmp_path)
+
+    with pytest.raises(
+        ProtostarException, match="Couldn't parse the configuration file"
+    ):
+        configuration_file_factory.create()
