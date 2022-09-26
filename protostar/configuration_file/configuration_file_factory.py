@@ -9,9 +9,8 @@ from .configuration_toml_interpreter import ConfigurationTOMLInterpreter
 
 
 class ConfigurationFileFactory:
-    def __init__(self, cwd: Path, project_root_path: Path) -> None:
+    def __init__(self, cwd: Path) -> None:
         self._cwd = cwd
-        self._project_root_path = project_root_path
 
     def create(self) -> Optional[ConfigurationFile]:
         protostar_toml_path = self._search_upwards_protostar_toml_path()
@@ -20,7 +19,8 @@ class ConfigurationFileFactory:
         protostar_toml_content = protostar_toml_path.read_text()
 
         configuration_file_v2 = self._create_configuration_toml_v2(
-            protostar_toml_path, protostar_toml_content
+            protostar_toml_path,
+            protostar_toml_content,
         )
         if configuration_file_v2:
             return configuration_file_v2
@@ -30,10 +30,12 @@ class ConfigurationFileFactory:
         )
 
     def _create_configuration_toml_v2(
-        self, protostar_toml_path: Path, protostar_toml_content: str
+        self,
+        protostar_toml_path: Path,
+        protostar_toml_content: str,
     ):
         configuration_file_v2 = ConfigurationFileV2(
-            project_root_path=self._project_root_path,
+            project_root_path=protostar_toml_path,
             configuration_file_interpreter=ConfigurationTOMLInterpreter(
                 file_content=protostar_toml_content
             ),
@@ -44,10 +46,12 @@ class ConfigurationFileFactory:
         return None
 
     def _create_configuration_toml_v1(
-        self, protostar_toml_path: Path, protostar_toml_content: str
+        self,
+        protostar_toml_path: Path,
+        protostar_toml_content: str,
     ):
         configuration_file_v1 = ConfigurationFileV1(
-            project_root_path=self._project_root_path,
+            project_root_path=protostar_toml_path,
             configuration_file_interpreter=ConfigurationLegacyTOMLInterpreter(
                 file_content=protostar_toml_content
             ),

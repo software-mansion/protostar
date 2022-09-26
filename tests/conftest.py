@@ -83,7 +83,8 @@ def create_file_structure(root_path: Path, file_structure_schema: FileStructureS
     for path_str, composite in file_structure_schema.items():
         if isinstance(composite, str):
             file_content = composite
-            Path(path_str).write_text(file_content)
+            # pylint: disable=unspecified-encoding
+            (root_path / Path(path_str)).write_text(file_content)
         else:
             new_root_path = root_path / Path(path_str)
             new_root_path.mkdir()

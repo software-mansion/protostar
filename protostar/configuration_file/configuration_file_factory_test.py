@@ -7,7 +7,7 @@ from .configuration_file_v1 import ConfigurationFileV1
 
 PROTOSTAR_TOML_V1_CONTENT = """
 ["protostar.config"]
-protostar_version = 0.4.0
+protostar_version = "0.4.0"
 """
 
 
@@ -31,4 +31,4 @@ def test_creating_configuration_file_v1_from_subdirectory(tmp_path: Path):
 
     configuration_file_v1 = configuration_file_factory.create()
 
-    assert configuration_file_v1 is ConfigurationFileV1
+    assert isinstance(configuration_file_v1, ConfigurationFileV1)
