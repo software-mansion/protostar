@@ -65,7 +65,7 @@ Protostar supports the following ways of referencing external dependency:
 
 | Format                                | Example                                           |
 |---------------------------------------|---------------------------------------------------|
-| `GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]` | `OpenZeppelin/cairo-contracts@0.4.0`              |
+| `GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]` | `OpenZeppelin/cairo-contracts@0.3.0`              |
 | `URL_TO_THE_REPOSITORY`               | `https://github.com/OpenZeppelin/cairo-contracts` |
 | `SSH_URI`                             | `git@github.com:OpenZeppelin/cairo-contracts.git` |
 
