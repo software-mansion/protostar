@@ -5,7 +5,11 @@ from hypothesis.strategies import SearchStrategy
 from starkware.cairo.lang.compiler.ast.cairo_types import TypeFelt
 
 from .exceptions import FuzzingError
-from .strategies import FeltsStrategyDescriptor, IntegersStrategyDescriptor, ShortStringsStrategyDescriptor
+from .strategies import (
+    FeltsStrategyDescriptor,
+    IntegersStrategyDescriptor,
+    ShortStringsStrategyDescriptor,
+)
 from .strategy_collector import collect_search_strategies
 
 
