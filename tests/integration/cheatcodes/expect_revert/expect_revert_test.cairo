@@ -115,3 +115,17 @@ func test_error_was_not_raised_before_stopping_expect_revert_fail_expected{
 
     return ();
 }
+
+@external
+func test_already_expecting_error_message_when_no_arguments_were_provided{
+    syscall_ptr: felt*, range_check_ptr
+}() {
+    alloc_locals;
+
+    %{
+        expect_revert()
+        expect_revert()
+    %}
+
+    return ();
+}
