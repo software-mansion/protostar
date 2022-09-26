@@ -4,36 +4,37 @@ from pathlib import Path
 from typing import Dict, List
 
 from protostar.protostar_exception import ProtostarExceptionSilent
-from protostar.testing.test_results import (
+from protostar.utils.log_color_provider import LogColorProvider, log_color_provider
+
+from .test_results import (
     BrokenTestCaseResult,
     BrokenTestSuiteResult,
     FailedTestCaseResult,
     PassedTestCaseResult,
     SkippedTestCaseResult,
+    TestCaseResult,
     TestResult,
     TimedTestCaseResult,
 )
-from protostar.utils.log_color_provider import LogColorProvider, log_color_provider
-
 from .testing_seed import Seed
 
 
 # pylint: disable=too-many-instance-attributes
 class TestingSummary:
-    def __init__(self, case_results: List[TestResult], testing_seed: Seed) -> None:
+    def __init__(self, test_results: List[TestResult], testing_seed: Seed) -> None:
         self.testing_seed = testing_seed
-        self.case_results = []
+        self.test_results: List[TestResult] = []
         self.test_suites_mapping: Dict[Path, List[TestResult]] = defaultdict(list)
         self.passed: List[PassedTestCaseResult] = []
         self.failed: List[FailedTestCaseResult] = []
         self.broken: List[BrokenTestCaseResult] = []
         self.broken_suites: List[BrokenTestSuiteResult] = []
         self.skipped: List[SkippedTestCaseResult] = []
-        self.extend(case_results)
+        self.extend(test_results)
 
-    def extend(self, case_results: List[TestResult]):
-        self.case_results += case_results
-        for case_result in case_results:
+    def extend(self, test_results: List[TestResult]):
+        self.test_results += test_results
+        for case_result in test_results:
             self.test_suites_mapping[case_result.file_path].append(case_result)
 
             if isinstance(case_result, PassedTestCaseResult):
@@ -220,3 +221,12 @@ class TestingSummary:
             "  ".join((val.ljust(width) for val, width in zip(row, column_widths)))
             for row in rows
         )
+
+    def __getitem__(self, protostar_test_case_name: str):
+        for test_result in self.test_results:
+            if (
+                isinstance(test_result, TestCaseResult)
+                and test_result.test_case_name == protostar_test_case_name
+            ):
+                return test_result
+        assert False, f"Couldn't find '{protostar_test_case_name}' test case result."

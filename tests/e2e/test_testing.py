@@ -76,7 +76,7 @@ def test_expect_revert(protostar_repo_root: Path, protostar):
         "[FAIL] tests/expect_revert_test.cairo test_error_was_not_raised_before_stopping_expect_revert_fail_expected"
         in result
     )
-    assert "5 failed, 5 passed, 10 total" in result
+    assert "1 broken, 5 failed, 5 passed, 11 total" in result
     assert "Unknown location" not in result
 
 
