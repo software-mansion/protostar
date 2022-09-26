@@ -87,19 +87,19 @@ type_check = "pyright"
 update_cli_docs = "python ./scripts/generate_reference_docs.py"
 
 [tool.poe.tasks.benchmark]
-shell = "pytest tests/benchmarks --benchmark-save-data --benchmark-autosave"
+shell = "pytest ${PYTEST_ARGS} tests/benchmarks --benchmark-save-data --benchmark-autosave"
 
 [tool.poe.tasks.statistical_test]
 shell = "python ./tests/benchmarks/statistical_test.py"
 
 [tool.poe.tasks.test_e2e]
-shell = "pytest tests/e2e"
+shell = "pytest ${PYTEST_ARGS} tests/e2e"
 
 [tool.poe.tasks.test_integration]
-shell = "coverage run -a -m pytest scripts tests/integration"
+shell = "coverage run -a -m pytest ${PYTEST_ARGS} scripts tests/integration"
 
 [tool.poe.tasks.test_unit]
-shell = "coverage run -m pytest protostar/*"
+shell = "coverage run -m pytest ${PYTEST_ARGS} protostar/*"
 
 [tool.coverage.run]
 source = [
