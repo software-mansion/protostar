@@ -1,6 +1,8 @@
 from pathlib import Path
 from typing import Optional
 
+from protostar.protostar_exception import ProtostarException
+
 from .configuration_file import ConfigurationFile
 from .configuration_file_v1 import ConfigurationFileV1
 from .configuration_file_v2 import ConfigurationFileV2
@@ -25,8 +27,18 @@ class ConfigurationFileFactory:
         if configuration_file_v2:
             return configuration_file_v2
 
-        return self._create_configuration_toml_v1(
+        configuration_file_v1 = self._create_configuration_toml_v1(
             protostar_toml_path, protostar_toml_content
+        )
+        if configuration_file_v1:
+            return configuration_file_v1
+
+        raise ProtostarException(
+            f"{protostar_toml_path} must specify `protostar-version` for example:\n"
+            """
+            [project]
+            protostar-version = ?.?.?
+            """,
         )
 
     def _create_configuration_toml_v2(
