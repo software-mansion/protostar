@@ -13,7 +13,7 @@ protostar_version = "0.4.0"
 
 PROTOSTAR_TOML_V2_CONTENT = """
 [project]
-protostar_version = "0.5.0"
+protostar-version = "0.5.0"
 """
 
 

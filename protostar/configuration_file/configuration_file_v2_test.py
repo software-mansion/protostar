@@ -26,7 +26,7 @@ def protostar_toml_content_fixture() -> str:
     return textwrap.dedent(
         """\
         [project]
-        min-protostar-version = "9.9.9"
+        protostar-version = "9.9.9"
         lib-path = "lib"
         no-color = true
         network = "devnet1"
