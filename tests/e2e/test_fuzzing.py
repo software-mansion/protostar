@@ -48,7 +48,7 @@ def test_fuzzing_changing_seed(protostar, copy_fixture):
     seeds = []
     copy_fixture("test_fuzz_single.cairo", "./tests")
 
-    for i in range(0, 5):
+    for i in range(0, 2):
         result = protostar(
             ["--no-color", "test", "tests/test_fuzz_single.cairo"],
             ignore_exit_code=True,
