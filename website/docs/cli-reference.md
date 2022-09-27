@@ -198,7 +198,7 @@ Disable hint validation in contracts declared by the `declare` cheatcode or depl
 Exit immediately on first broken or failed test.
 #### `-i` `--ignore STRING[]`
 A glob or globs to a directory or a test suite, which should be ignored.
-#### `--last-failed`
+#### `-lf` `--last-failed`
 only re-run the failures.
 #### `--no-progress-bar`
 Disable progress bar.

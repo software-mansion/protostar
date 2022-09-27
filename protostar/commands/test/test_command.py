@@ -127,6 +127,7 @@ A glob or globs to a directory or a test suite, for example:
             ),
             Command.Argument(
                 name="last-failed",
+                short_name="lf",
                 type="bool",
                 description="only re-run the failures.",
             ),
