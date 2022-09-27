@@ -139,6 +139,74 @@ class GatewayFacade:
         validate_cairo_inputs(abi, cairo_inputs)
         return cairo_inputs
 
+    async def declare(
+        self,
+        compiled_contract_path: Path,
+        account_address: str,
+        signer: BaseSigner,
+        wait_for_acceptance: bool = False,
+    ):
+        compiled_contract = self._load_compiled_contract(
+            self._project_root_path / compiled_contract_path
+        )
+        account_client = await self._create_account_client(
+            account_address=account_address, signer=signer
+        )
+        declare_tx = await self._create_declare_tx_v1(
+            compiled_contract=compiled_contract,
+            account_client=account_client,
+            auto_estimate_fee=True,
+            max_fee=None,
+        )
+        register_response = self._register_request(
+            action="DECLARE",
+            payload={
+                "contract": str(self._project_root_path / compiled_contract_path),
+                "sender_address": declare_tx.sender_address,
+                "max_fee": declare_tx.max_fee,
+                "version": declare_tx.version,
+                "nonce": declare_tx.nonce,
+                "signature": declare_tx.signature,
+            },
+        )
+        response = await account_client.declare(declare_tx)
+        if wait_for_acceptance:
+            if self._logger:
+                self._logger.info("Waiting for acceptance...")
+            _, code = await account_client.wait_for_tx(
+                response.transaction_hash, wait_for_accept=True
+            )
+            response.code = code
+        register_response(dataclasses.asdict(response))
+        return SuccessfulDeclareResponse(
+            code=response.code or "?",
+            class_hash=response.class_hash,
+            transaction_hash=response.transaction_hash,
+        )
+
+    async def _create_declare_tx_v1(
+        self,
+        compiled_contract,
+        account_client: AccountClient,
+        max_fee: Optional[int],
+        auto_estimate_fee: bool,
+    ) -> Declare:
+        declare_tx = Declare(
+            contract_class=compiled_contract,  # type: ignore
+            sender_address=account_client.address,  # type: ignore
+            max_fee=0,
+            signature=[],
+            nonce=await account_client.get_contract_nonce(account_client.address),
+            version=1,
+        )
+        # pylint: disable=protected-access
+        max_fee = await account_client._get_max_fee(
+            transaction=declare_tx, max_fee=max_fee, auto_estimate=auto_estimate_fee
+        )
+        declare_tx = dataclasses.replace(declare_tx, max_fee=max_fee)
+        signature = account_client.signer.sign_transaction(declare_tx)
+        return dataclasses.replace(declare_tx, signature=signature, max_fee=max_fee)
+
     async def declare_v0(
         self,
         compiled_contract_path: Path,
