@@ -16,8 +16,6 @@ from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
 
 
 Address = int
-StringID = int
-FunctionID = int
 
 
 @dataclass
