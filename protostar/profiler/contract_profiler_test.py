@@ -119,6 +119,8 @@ def test_not_accessed(
     expected: List[int],
 ):
     assert (
-        profiler_context.not_accessed(not_accessed, memory_segments, segments_offsets)
+        profiler_context.get_not_accessed_addresses(
+            not_accessed, memory_segments, segments_offsets
+        )
         == expected
     )

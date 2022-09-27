@@ -21,11 +21,11 @@ FunctionID = str
 
 @dataclass
 class Function:
-# TODO(maksymiliandemitraszek) freeze this class 
+    # TODO(maksymiliandemitraszek) freeze this class
     """
     Represents a function in a contract
 
-    id -- uniuque name of a function 
+    id -- uniuque name of a function
     filename -- source file of a function
     start_line -- number of line function starts in
     """
@@ -36,14 +36,14 @@ class Function:
 
 @dataclass
 class Instruction:
-# TODO(maksymiliandemitraszek) freeze this class 
+    # TODO(maksymiliandemitraszek) freeze this class
     """
     Represents a instruction under certain pc in a contract
 
     id -- uniuque id of a instruction
     pc -- pc instruction is placed under
-    function -- function from the instuction has been generated 
-    line -- line of code from which instruction has been generated  
+    function -- function from the instuction has been generated
+    line -- line of code from which instruction has been generated
     """
     id: int
     pc: Address
@@ -56,23 +56,22 @@ class Sample:
     """
     Sample of a resource
 
-    value -- value of a sample (for example 1 memory hole) 
-    callstack -- instruction callstack for the reported sample  
-    Each instruction has an function assigned so it is easy to deduce the 
-    calltree of an functions (pprof format requires samples to be assigned to instruction not functions) 
+    value -- value of a sample (for example 1 memory hole)
+    callstack -- instruction callstack for the reported sample
+    Each instruction has an function assigned so it is easy to deduce the
+    calltree of an functions (pprof format requires samples to be assigned to instruction not functions)
     """
+
     value: int
     callstack: List[Instruction]
 
 
 @dataclass(frozen=True)
-class SampleType:
-    type: str
-    unit: str
-
-
-@dataclass(frozen=True)
 class RuntimeProfile:
+    """
+    Calculated profile of a single contract runtime. Can be merged into TransactionProfile.
+    """
+
     functions: List[Function]
     instructions: List[Instruction]
     step_samples: List[Sample]
@@ -281,7 +280,9 @@ class ProfilerContext:
         blame_pc = functools.partial(self.blame_pc, accessed_by)
 
         samples: List[Sample] = []
-        not_acc = self.get_not_accessed_addresses(accessed_memory, segments, segment_offsets)
+        not_acc = self.get_not_accessed_addresses(
+            accessed_memory, segments, segment_offsets
+        )
         for address in not_acc:
             pc = blame_pc(address)
             callstack = [
