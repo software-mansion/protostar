@@ -6,7 +6,6 @@ from protostar.starknet import KeywordOnlyArgumentCheatcodeException
 from protostar.testing.fuzzing.exceptions import SearchStrategyBuildError
 from .felts import FeltsStrategyDescriptor
 from .one_of import OneOfStrategyDescriptor
-from .short_strings import string_to_bytes_int
 
 
 def test_felts_constructor_valid_args():
@@ -38,8 +37,3 @@ def test_one_of_constructor_no_args():
 
 def test_one_of_constructor_valid_args():
     OneOfStrategyDescriptor(FeltsStrategyDescriptor(), FeltsStrategyDescriptor())
-
-
-def test_short_strings_conversion():
-    assert string_to_bytes_int("hello") == 448378203247
-    assert hex(string_to_bytes_int("hello")) == "0x68656c6c6f"
