@@ -202,6 +202,8 @@ A glob or globs to a directory or a test suite, which should be ignored.
 Disable progress bar.
 #### `--report-slowest-tests INT`
 Print slowest tests at the end.
+### `--last-failed`
+Runs only the tests that have failed in the previous run. If there are no such tests, all tests are being run.
 #### `--safe-collecting`
 Use Cairo compiler for test collection.
 #### `--seed INT`
