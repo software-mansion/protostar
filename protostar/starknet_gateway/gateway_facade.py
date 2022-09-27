@@ -144,7 +144,8 @@ class GatewayFacade:
         compiled_contract_path: Path,
         account_address: str,
         signer: BaseSigner,
-        wait_for_acceptance: bool = False,
+        wait_for_acceptance: bool,
+        token: Optional[str],
     ):
         compiled_contract = self._load_compiled_contract(
             self._project_root_path / compiled_contract_path
@@ -169,7 +170,7 @@ class GatewayFacade:
                 "signature": declare_tx.signature,
             },
         )
-        response = await account_client.declare(declare_tx)
+        response = await self._gateway_client.declare(declare_tx, token=token)
         if wait_for_acceptance:
             if self._logger:
                 self._logger.info("Waiting for acceptance...")

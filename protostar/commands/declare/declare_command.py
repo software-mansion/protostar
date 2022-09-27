@@ -74,6 +74,7 @@ class DeclareCommand(Command):
         return await self.declare(
             compiled_contract_path=args.contract,
             signer=signer,
+            account_address=args.account_address,
             gateway_client=gateway_client,
             network_config=network_config,
             token=args.token,
@@ -85,6 +86,7 @@ class DeclareCommand(Command):
         compiled_contract_path: Path,
         network_config: NetworkConfig,
         gateway_client: GatewayClient,
+        account_address: Optional[str] = None,
         signer: Optional[BaseSigner] = None,
         token: Optional[str] = None,
         wait_for_acceptance: bool = False,
@@ -93,11 +95,20 @@ class DeclareCommand(Command):
         gateway_facade = self._gateway_facade_factory.create(
             gateway_client=gateway_client, logger=None
         )
-        response = await gateway_facade.declare_v0(
-            compiled_contract_path=compiled_contract_path,
-            wait_for_acceptance=wait_for_acceptance,
-            token=token,
-        )
+        if signer and account_address is not None:
+            response = await gateway_facade.declare(
+                compiled_contract_path=compiled_contract_path,
+                signer=signer,
+                account_address=account_address,
+                wait_for_acceptance=wait_for_acceptance,
+                token=token,
+            )
+        else:
+            response = await gateway_facade.declare_v0(
+                compiled_contract_path=compiled_contract_path,
+                wait_for_acceptance=wait_for_acceptance,
+                token=token,
+            )
 
         explorer_url = network_config.get_contract_explorer_url(response.class_hash)
         explorer_url_msg_lines: List[str] = []
