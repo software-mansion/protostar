@@ -215,7 +215,7 @@ class ProfilerContext:
     @staticmethod
     def blame_pc(last_accesses: Dict[Address, Address], hole_address: Address) -> int:
         """
-        Searches for pc under which is placed an intruction which is responsible for the memory hole
+        Decides under which pc is placed an intruction which is responsible for the memory hole
 
         Keyword arguments:
         last_accesses -- Address -> Pc of instruction which accessed the address last
