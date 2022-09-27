@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import cast
 
-from protostar.git import Git, NotARepositoryException
+from protostar.git.git import Git, InvalidGitRepositoryException
 
 from protostar.commands.remove import removal_exceptions
 
@@ -9,8 +9,8 @@ from protostar.commands.remove import removal_exceptions
 def remove_package(package_name: str, repo_dir: Path):
 
     try:
-        repo = Git.from_existing(repo_dir)
-    except NotARepositoryException as ex:
+        repo = Git.load_existing_repo(repo_dir)
+    except InvalidGitRepositoryException as ex:
         raise removal_exceptions.InvalidLocalRepository(
             """A git repository must be initialized in order to remove packages.
 - Did you run `protostar init`?
@@ -24,4 +24,4 @@ def remove_package(package_name: str, repo_dir: Path):
             f"Protostar couldn't find the following package: {package_name}"
         )
 
-    repo.rm(cast(Path, submodules[package_name].path), force=True)
+    repo.remove_submodule(cast(Path, submodules[package_name].path))

@@ -4,7 +4,7 @@ from typing import Optional
 
 from protostar.commands.install import installation_exceptions
 from protostar.utils import log_color_provider
-from protostar.git import Git, NotARepositoryException
+from protostar.git.git import Git, InvalidGitRepositoryException
 
 
 def install_package_from_repo(
@@ -17,8 +17,8 @@ def install_package_from_repo(
     logger = getLogger()
 
     try:
-        repo = Git.from_existing(repo_dir)
-    except NotARepositoryException as ex:
+        repo = Git.load_existing_repo(repo_dir)
+    except InvalidGitRepositoryException as ex:
         raise installation_exceptions.InvalidLocalRepository(
             """A git repository must be initialized in order to install packages.
 - Did you run `protostar init`?

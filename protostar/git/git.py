@@ -22,7 +22,7 @@ SHARED_KWARGS = (
     }
 )
 
-CREDENTIALS = [
+DEFAULT_CREDENTIALS = [
     "-c",
     'user.name="Protostar"',
     "-c",
@@ -35,7 +35,11 @@ class ProtostarGitException(ProtostarException):
         super().__init__("Error while executing Git command:\n" + message, details)
 
 
-class NotARepositoryException(ProtostarGitException):
+class InvalidGitRepositoryException(ProtostarGitException):
+    pass
+
+
+class GitNotFoundException(ProtostarGitException):
     pass
 
 
@@ -53,6 +57,7 @@ def wrap_git_exception(func):
 class Git:
     @staticmethod
     def init(path_to_repo: Path):
+        assert_has_git()
         path_to_repo.mkdir(parents=True, exist_ok=True)
         repo = GitRepository(path_to_repo)
         repo.init()
@@ -60,13 +65,15 @@ class Git:
 
     @staticmethod
     def clone(path_to_repo: Path, repo_to_clone: "GitRepository"):
+        assert_has_git()
         path_to_repo.parent.mkdir(parents=True, exist_ok=True)
         cloned_repo = GitRepository(path_to_repo)
         cloned_repo.clone(repo_to_clone.path_to_repo)
         return cloned_repo
 
     @staticmethod
-    def from_existing(path_to_repo: Path):
+    def load_existing_repo(path_to_repo: Path):
+        assert_has_git()
         path = GitRepository.get_repo_root(path_to_repo)
         return GitRepository(path)
 
@@ -80,8 +87,9 @@ class GitRepository:
 
     @staticmethod
     def get_repo_root(path_to_repo: Path):
+        credentials = [] if has_git_credentials() else DEFAULT_CREDENTIALS
         process = subprocess.run(
-            ["git", *CREDENTIALS, "rev-parse", "--show-toplevel"],
+            ["git", *credentials, "rev-parse", "--show-toplevel"],
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
             cwd=path_to_repo,
@@ -89,7 +97,7 @@ class GitRepository:
         )
 
         if process.returncode:
-            raise NotARepositoryException(
+            raise InvalidGitRepositoryException(
                 f"{path_to_repo} is not a valid git repository."
             )
 
@@ -98,18 +106,20 @@ class GitRepository:
 
     @wrap_git_exception
     def init(self):
+        credentials = [] if has_git_credentials() else DEFAULT_CREDENTIALS
         subprocess.run(
-            ["git", *CREDENTIALS, "init"],
+            ["git", *credentials, "init"],
             **SHARED_KWARGS,
             cwd=self.path_to_repo,
         )
 
     @wrap_git_exception
     def clone(self, path_to_repo_to_clone: Path):
+        credentials = [] if has_git_credentials() else DEFAULT_CREDENTIALS
         subprocess.run(
             [
                 "git",
-                *CREDENTIALS,
+                *credentials,
                 "clone",
                 path_to_repo_to_clone,
                 self.path_to_repo.name,
@@ -127,8 +137,9 @@ class GitRepository:
         branch: Optional[str] = None,
         depth: int = 1,
     ):
+        credentials = [] if has_git_credentials() else DEFAULT_CREDENTIALS
         subprocess.run(
-            ["git", *CREDENTIALS, "submodule", "add"]
+            ["git", *credentials, "submodule", "add"]
             + (["-b", branch] if branch else [])  # (tag)
             + [
                 "--name",
@@ -144,8 +155,9 @@ class GitRepository:
 
     @wrap_git_exception
     def update_submodule(self, path_to_submodule: Path, init=False):
+        credentials = [] if has_git_credentials() else DEFAULT_CREDENTIALS
         subprocess.run(
-            ["git", *CREDENTIALS, "submodule", "update"]
+            ["git", *credentials, "submodule", "update"]
             + (["--init"] if init else [])
             + [str(path_to_submodule)],
             **SHARED_KWARGS,
@@ -154,10 +166,11 @@ class GitRepository:
 
     @wrap_git_exception
     def add(self, path_to_item: Path):
+        credentials = [] if has_git_credentials() else DEFAULT_CREDENTIALS
         subprocess.run(
             [
                 "git",
-                *CREDENTIALS,
+                *credentials,
                 "add",
                 str(path_to_item),
             ],
@@ -165,18 +178,16 @@ class GitRepository:
             cwd=self.path_to_repo,
         )
 
-    # pylint: disable=invalid-name
     @wrap_git_exception
-    def rm(self, path_to_item: Path, force: bool = False):
+    def remove_submodule(self, path_to_submodule: Path):
+        credentials = [] if has_git_credentials() else DEFAULT_CREDENTIALS
         subprocess.run(
             [
                 "git",
-                *CREDENTIALS,
+                *credentials,
                 "rm",
-            ]
-            + (["--force"] if force else [])
-            + [
-                str(path_to_item),
+                "--force",
+                str(path_to_submodule),
             ],
             **SHARED_KWARGS,
             cwd=self.path_to_repo,
@@ -184,8 +195,9 @@ class GitRepository:
 
     @wrap_git_exception
     def commit(self, msg: str):
+        credentials = [] if has_git_credentials() else DEFAULT_CREDENTIALS
         subprocess.run(
-            ["git", *CREDENTIALS, "commit", "-m", msg],
+            ["git", *credentials, "commit", "-m", msg],
             **SHARED_KWARGS,
             cwd=self.path_to_repo,
         )
@@ -213,3 +225,18 @@ class GitRepository:
                     for name, path, url in zip(names, paths, urls)
                 }
         return {}
+
+
+def assert_has_git():
+    try:
+        subprocess.run(["git", "--version"], **SHARED_KWARGS)
+    except subprocess.CalledProcessError as ex:
+        raise GitNotFoundException("Git executable not found.") from ex
+
+
+def has_git_credentials():
+    try:
+        subprocess.run(["git", "config", "user.name"], **SHARED_KWARGS)
+    except subprocess.CalledProcessError:
+        return False
+    return True
