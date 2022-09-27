@@ -29,7 +29,7 @@ from protostar.starknet.compiler.starknet_compilation import (
     StarknetCompiler,
 )
 
-import protostar.utils.cache as protostar_cache
+import protostar.self.cache as protostar_cache
 
 
 class TestCommand(Command):
