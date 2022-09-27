@@ -16,12 +16,13 @@ from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
 
 
 Address = int
+FunctionID = str
 
 
 @dataclass
 class Function:
 # TODO(maksymiliandemitraszek) freeze this class 
-    id: str
+    id: FunctionID
     filename: str
     start_line: int
 
@@ -58,17 +59,14 @@ class RuntimeProfile:
 
 class ProfilerContext:
     def __init__(self, initial_fp: Address, memory: MemoryDict):
-        self.initial_fp = initial_fp
-        self.memory = memory
+        self._initial_fp = initial_fp
+        self._memory = memory
 
     def get_call_stack(self, fp: Address, pc: Address) -> List[Address]:
-        """
-        Retrieves the call stack pc values given current fp and pc.
-        """
         frame_pcs = [pc]
-        while fp > self.initial_fp:
-            fp_val = self.memory[fp - 2]
-            pc_val = self.memory[fp - 1]
+        while fp > self._initial_fp:
+            fp_val = self._memory[fp - 2]
+            pc_val = self._memory[fp - 1]
             assert isinstance(fp_val, Address)
             assert isinstance(pc_val, Address)
             fp, pc = fp_val, pc_val
