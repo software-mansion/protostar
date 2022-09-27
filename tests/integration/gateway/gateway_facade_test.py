@@ -191,6 +191,7 @@ async def test_declare_tx_v1(
         account_address=devnet_accounts[0].address,
         signer=devnet_accounts[0].signer,
         wait_for_acceptance=True,
+        token=None,
     )
 
     assert result.code == TransactionStatus.ACCEPTED_ON_L2
