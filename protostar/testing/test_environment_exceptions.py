@@ -131,6 +131,12 @@ class ExpectedRevertException(ReportedException):
         super().__init__()
 
     def __str__(self) -> str:
+        if (
+            self._expected_error.error_type is None
+            and not self._expected_error.error_messages
+        ):
+            return "Expected revert"
+
         result: List[str] = ["Expected an exception matching the following error:"]
         result.append(str(self._expected_error))
 

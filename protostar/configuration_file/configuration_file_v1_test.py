@@ -5,7 +5,7 @@ import pytest
 from protostar.configuration_file.configuration_legacy_toml_interpreter import (
     ConfigurationLegacyTOMLInterpreter,
 )
-from protostar.utils import VersionManager
+from protostar.self import parse_protostar_version
 
 from .configuration_file_v1 import (
     ConfigurationFile,
@@ -56,10 +56,10 @@ def configuration_file_fixture(
         """,
     ],
 )
-def test_retrieving_min_protostar_version(configuration_file: ConfigurationFile):
-    result = configuration_file.get_min_protostar_version()
+def test_retrieving_declared_protostar_version(configuration_file: ConfigurationFile):
+    result = configuration_file.get_declared_protostar_version()
 
-    assert result == VersionManager.parse("0.1.2")
+    assert result == parse_protostar_version("0.1.2")
 
 
 @pytest.mark.parametrize(

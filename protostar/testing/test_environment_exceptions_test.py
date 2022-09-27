@@ -101,6 +101,22 @@ def test_matching_by_partial_error_message():
     assert not RevertableException(error_message=["f", "b"]).match(ex)
 
 
+def test_expected_revert_error_message_when_any_error_is_expected():
+    ex = ExpectedRevertException(RevertableException())
+
+    result = str(ex)
+
+    assert "Expected revert" in result
+
+
+def test_expected_revert_error_message_when_specific_error_is_expected():
+    ex = ExpectedRevertException(RevertableException(error_message="foo"))
+
+    result = str(ex)
+
+    assert "matching the following error" in result
+
+
 @pytest.mark.parametrize(
     "exception",
     [

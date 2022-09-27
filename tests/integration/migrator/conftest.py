@@ -4,7 +4,6 @@ from typing import Union, Optional
 import pytest
 from starknet_py.net.client_models import TransactionStatus
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import StarknetChainId
 from typing_extensions import Protocol
 
 from protostar.migrator import Migrator
@@ -19,7 +18,7 @@ def project_root_path_fixture(shared_datadir: Path) -> Path:
 async def assert_transaction_accepted(
     devnet_gateway_url: str, transaction_hash: Union[str, int]
 ):
-    gateway = GatewayClient(devnet_gateway_url, chain=StarknetChainId.TESTNET)
+    gateway = GatewayClient(devnet_gateway_url)
     (_, transaction_status) = await gateway.wait_for_tx(
         transaction_hash, wait_for_accept=True
     )
