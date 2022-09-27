@@ -77,17 +77,14 @@ and if `max_value` is not `None` then all values will be less than or equal to `
 
 ### `strategy.short_strings`
 ```python
-def text(
-    alphabet: Union[Sequence[str], SearchStrategy[str]] = characters(
-        blacklist_categories=("Cs",)
-    ),
-    min_size: int = 0,
-    max_size: Optional[int] = None,
-) -> Strategy:
+def short_strings() -> Strategy:
 ```
 
-Generates strings with ascii lowercase characters of length that passes the condition `0 <= length <= 31`.
+Generates strings with ascii characters of length that passes the condition `0 <= length <= 31`.
+
+:::info
 Max size `31` comes from [the docs](https://www.cairo-lang.org/docs/how_cairo_works/consts.html#short-string-literals).
+:::
 
 ## Adapting strategies
 
