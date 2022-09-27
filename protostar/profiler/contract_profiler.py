@@ -20,15 +20,17 @@ StringID = int
 FunctionID = int
 
 
-@dataclass()
+@dataclass
 class Function:
+# TODO(maksymiliandemitraszek) freeze this class 
     id: str
     filename: str
     start_line: int
 
 
-@dataclass()
+@dataclass
 class Instruction:
+# TODO(maksymiliandemitraszek) freeze this class 
     id: int
     pc: Address
     function: Function
