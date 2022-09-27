@@ -29,6 +29,8 @@ from protostar.starknet.compiler.starknet_compilation import (
     StarknetCompiler,
 )
 
+import protostar.utils.cache as protostar_cache
+
 
 class TestCommand(Command):
     def __init__(
@@ -123,11 +125,25 @@ A glob or globs to a directory or a test suite, for example:
                 description="Print slowest tests at the end.",
                 default=0,
             ),
+            Command.Argument(
+                name="last-failed",
+                type="bool",
+                description="only re-run the failures.",
+            ),
         ]
 
     async def run(self, args) -> TestingSummary:
+        targets = args.target
+        if args.last_failed:
+            if previous_results := protostar_cache.obtain(
+                self._project_root_path, "test_results"
+            ):
+                if previously_failed_tests := previous_results["failed_tests"]:
+                    targets = previously_failed_tests
+                    protostar_cache.persist(self._project_root_path, "test_results", {})
+                    print("running previously failed tests:", targets)
         summary = await self.test(
-            targets=args.target,
+            targets=targets,
             ignored_targets=args.ignore,
             cairo_path=args.cairo_path,
             disable_hint_validation=args.disable_hint_validation,
@@ -136,6 +152,14 @@ A glob or globs to a directory or a test suite, for example:
             exit_first=args.exit_first,
             seed=args.seed,
             slowest_tests_to_report_count=args.report_slowest_tests,
+        )
+        failed_tests_paths = [
+            str(failed_test.file_path.absolute()) for failed_test in summary.failed
+        ]
+        protostar_cache.persist(
+            self._project_root_path,
+            "test_results",
+            {"failed_tests": failed_tests_paths},
         )
         summary.assert_all_passed()
         return summary
