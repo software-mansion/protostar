@@ -139,57 +139,30 @@ class GatewayFacade:
         validate_cairo_inputs(abi, cairo_inputs)
         return cairo_inputs
 
-    # pylint: disable=unused-argument
-    async def declare(
+    async def declare_v0(
         self,
         compiled_contract_path: Path,
-        signer: Optional[BaseSigner] = None,
         token: Optional[str] = None,
         wait_for_acceptance: bool = False,
     ) -> SuccessfulDeclareResponse:
+        logger = getLogger()
+        logger.warning(
+            "Unsigned declare transactions are depreciated and will be removed in future versions."
+        )
         compiled_contract = self._load_compiled_contract(
             self._project_root_path / compiled_contract_path
         )
-
-        # The following parameters are hardcoded because Starknet CLI have asserts checking if they are equal to these
-        # values. Once Starknet removes these asserts, these parameters should be configurable by the user.
-        sender = DEFAULT_DECLARE_SENDER_ADDRESS
-        max_fee = 0
-        nonce = 0
-
-        unsigned_tx = Declare(
-            contract_class=compiled_contract,  # type: ignore
-            sender_address=sender,  # type: ignore
-            max_fee=max_fee,
-            nonce=nonce,
-            version=0,
-            signature=[],
-        )
-
-        # TODO(arcticae): Uncomment, when signing is made possible
-        # pylint: disable=unused-variable
-        signature: List[int] = signer.sign_transaction(unsigned_tx) if signer else []
-        tx = Declare(
-            contract_class=compiled_contract,  # type: ignore
-            sender_address=sender,  # type: ignore
-            max_fee=max_fee,
-            nonce=nonce,
-            version=0,
-            signature=[],  # TODO: pass signature here, when it's being signed
-        )
-
+        tx = self._create_declare_tx_v0(contract_class=compiled_contract, nonce=None)
         register_response = self._register_request(
             action="DECLARE",
             payload={
                 "contract": str(self._project_root_path / compiled_contract_path),
                 "sender_address": tx.sender_address,
-                "max_fee": max_fee,
+                "max_fee": tx.max_fee,
                 "version": constants.TRANSACTION_VERSION,
-                "signature": [],  # TODO: pass signature here, when it's being signed
-                "nonce": nonce,
+                "nonce": tx.nonce,
             },
         )
-
         try:
             result = await self._gateway_client.declare(tx, token)
             register_response(dataclasses.asdict(result))
@@ -202,39 +175,11 @@ class GatewayFacade:
                 result.code = status
         except TransactionFailedError as ex:
             raise TransactionException(str(ex)) from ex
-
         return SuccessfulDeclareResponse(
             code=result.code or "",
             class_hash=result.class_hash,
             transaction_hash=result.transaction_hash,
         )
-
-    def _create_declare_tx_v1(
-        self,
-        contract_class: ContractClass,
-        sender_address: int,
-        max_fee: int,
-        signer: BaseSigner,
-        nonce: Optional[int],
-    ) -> Declare:
-        unsigned_tx = Declare(
-            contract_class=contract_class,  # type: ignore
-            sender_address=sender_address,  # type: ignore
-            max_fee=max_fee,
-            nonce=nonce,
-            version=1,
-            signature=[],
-        )
-        signature = signer.sign_transaction(unsigned_tx)
-        signed_tx = Declare(
-            contract_class=contract_class,  # type: ignore
-            sender_address=sender_address,  # type: ignore
-            max_fee=max_fee,
-            nonce=nonce,
-            version=1,
-            signature=signature,
-        )
-        return signed_tx
 
     def _create_declare_tx_v0(
         self,
@@ -296,27 +241,13 @@ class GatewayFacade:
                 "signer": str(signer),
             },
         )
-
-        supported_by_account_tx_version = (
-            await self._account_tx_version_detector.detect(account_address)
+        account_client = await self._create_account_client(
+            account_address=account_address, signer=signer
         )
-        if supported_by_account_tx_version == 0:
-            logger = getLogger()
-            logger.warning(
-                "Provided account doesn't support v1 transactions. "
-                "Transaction version 0 is deprecated and will be removed in a future release of StarkNet. "
-                "Please update your account."
-            )
-
         contract_function = await self._create_contract_function(
             contract_address,
             function_name,
-            client=AccountClient(
-                address=account_address,
-                client=self._gateway_client,
-                signer=signer,
-                supported_tx_version=supported_by_account_tx_version,
-            ),
+            client=account_client,
         )
         try:
             result = await self._invoke_function(
@@ -341,6 +272,29 @@ class GatewayFacade:
             response_dict["status"] = result.status.value  # type: ignore
 
         register_response(response_dict)
+
+    async def _create_account_client(
+        self,
+        account_address: str,
+        signer: BaseSigner,
+    ) -> AccountClient:
+        supported_by_account_tx_version = (
+            await self._account_tx_version_detector.detect(account_address)
+        )
+        if supported_by_account_tx_version == 0:
+            logger = getLogger()
+            logger.warning(
+                "Provided account doesn't support v1 transactions. "
+                "Transaction version 0 is deprecated and will be removed in a future release of StarkNet. "
+                "Please update your account."
+            )
+
+        return AccountClient(
+            address=account_address,
+            client=self._gateway_client,
+            signer=signer,
+            supported_tx_version=supported_by_account_tx_version,
+        )
 
     async def _create_contract_function(
         self,

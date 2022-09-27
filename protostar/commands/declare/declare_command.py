@@ -93,11 +93,10 @@ class DeclareCommand(Command):
         gateway_facade = self._gateway_facade_factory.create(
             gateway_client=gateway_client, logger=None
         )
-        response = await gateway_facade.declare(
+        response = await gateway_facade.declare_v0(
             compiled_contract_path=compiled_contract_path,
             wait_for_acceptance=wait_for_acceptance,
             token=token,
-            signer=signer,
         )
 
         explorer_url = network_config.get_contract_explorer_url(response.class_hash)

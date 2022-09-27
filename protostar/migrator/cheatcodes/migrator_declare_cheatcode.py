@@ -76,11 +76,10 @@ class MigratorDeclareCheatcode(Cheatcode):
 
         try:
             response = asyncio.run(
-                self._gateway_facade.declare(
+                self._gateway_facade.declare_v0(
                     compiled_contract_path=compiled_contract_path,
                     token=self._config.token,
                     wait_for_acceptance=validated_config.wait_for_acceptance,
-                    signer=self._config.signer,
                 )
             )
 
