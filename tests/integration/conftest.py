@@ -11,6 +11,8 @@ import pytest
 import requests
 from pytest import TempPathFactory
 from pytest_mock import MockerFixture
+from starknet_py.net.models import StarknetChainId
+from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 from starkware.starknet.public.abi import AbiType
 from typing_extensions import Protocol
 
@@ -102,12 +104,29 @@ class DevnetAccount:
     address: str
     private_key: str
     public_key: str
+    signer: StarkCurveSigner
 
 
 @pytest.fixture(name="devnet_accounts")
 def devnet_accounts_fixture(devnet_gateway_url: str) -> list[DevnetAccount]:
     response = requests.get(f"{devnet_gateway_url}/predeployed_accounts")
-    return [response]
+    devnet_account_dicts = json.loads(response.content)
+    return [
+        DevnetAccount(
+            address=devnet_account_dict["address"],
+            private_key=devnet_account_dict["private_key"],
+            public_key=devnet_account_dict["public_key"],
+            signer=StarkCurveSigner(
+                account_address=devnet_account_dict["address"],
+                key_pair=KeyPair(
+                    private_key=int(devnet_account_dict["private_key"], base=16),
+                    public_key=int(devnet_account_dict["public_key"], base=16),
+                ),
+                chain_id=StarknetChainId.TESTNET,
+            ),
+        )
+        for devnet_account_dict in devnet_account_dicts
+    ]
 
 
 class RunCairoTestRunnerFixture(Protocol):

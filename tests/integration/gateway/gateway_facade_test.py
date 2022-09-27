@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+from starknet_py.net.client_models import TransactionStatus
 from starknet_py.net.gateway_client import GatewayClient
 
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
@@ -157,20 +158,15 @@ async def test_deploy_too_many_args(
         await gateway_facade.deploy(compiled_contract_with_contractor_path, [42, 24])
 
 
-def test_tmp_accounts(devnet_accounts: list[DevnetAccount]):
-    account = devnet_accounts[0]
-    assert account is not None
+async def test_declare_tx_v1(
+    gateway_facade: GatewayFacade,
+    compiled_contract_path: Path,
+    devnet_accounts: list[DevnetAccount],
+):
+    result = await gateway_facade.declare(
+        compiled_contract_path=compiled_contract_path,
+        signer=devnet_accounts[0].signer,
+        wait_for_acceptance=True,
+    )
 
-
-# async def test_declare_tx_v1(
-#     gateway_facade: GatewayFacade,
-#     compiled_contract_path: Path,
-#     devnet_accounts: list[DevnetAccount],
-# ):
-#     result = await gateway_facade.declare(
-#         compiled_contract_path=compiled_contract_path,
-#         signer=devnet_accounts[0].signer,
-#         wait_for_acceptance=True,
-#     )
-
-#     assert result.code is not None
+    assert result.code == TransactionStatus.ACCEPTED_ON_L2
