@@ -81,10 +81,7 @@ class ProfilerContext:
             start_line=0,
         )
 
-    def build_function_list(self, tracer_data: TracerData) -> List[Function]:
-        """
-        Collects all of the functions in the compiled contract
-        """
+    def collect_contract_functions(self, tracer_data: TracerData) -> List[Function]:
         identifiers_dict = tracer_data.program.identifiers.as_dict()
         assert tracer_data.program.debug_info is not None
         is_label: Callable[[IdentifierDefinition], bool] = lambda ident: isinstance(
@@ -124,11 +121,11 @@ class ProfilerContext:
                 return func
         assert False
 
-    def build_instructions_map(
+    def create_instruction_list(
         self, functions: List[Function], tracer_data: TracerData
     ) -> List[Instruction]:
         """
-        Builds a list of instructions in the contract and assings them to functions
+        Builds a list of instructions in the contract and assings them to functions they come from
         """
         assert tracer_data.program.debug_info
         pc_to_locations = {
@@ -214,14 +211,11 @@ class ProfilerContext:
         return blamed_pc
 
     @staticmethod
-    def not_accessed(
+    def get_not_accessed_addresses(
         accessed_memory: Set[RelocatableValue],
         segments: MemorySegmentManager,
         segment_offsets: Dict[int, int],
     ) -> Set[Address]:
-        """
-        Returns set of addresses that have never been accessed
-        """
         not_accessed_addr: Set[Address] = set()
         for idx in range(segments.n_segments):
             size = segments.get_segment_size(segment_index=idx)
@@ -264,7 +258,7 @@ class ProfilerContext:
         blame_pc = functools.partial(self.blame_pc, accessed_by)
 
         samples: List[Sample] = []
-        not_acc = self.not_accessed(accessed_memory, segments, segment_offsets)
+        not_acc = self.get_not_accessed_addresses(accessed_memory, segments, segment_offsets)
         for address in not_acc:
             pc = blame_pc(address)
             callstack = [
@@ -284,8 +278,8 @@ def build_profile(
     builder = ProfilerContext(
         initial_fp=tracer_data.trace[0].fp, memory=tracer_data.memory
     )
-    function_list = builder.build_function_list(tracer_data)
-    instructions_list = builder.build_instructions_map(function_list, tracer_data)
+    function_list = builder.collect_contract_functions(tracer_data)
+    instructions_list = builder.create_instruction_list(function_list, tracer_data)
     step_samples = builder.build_step_samples(instructions_list, tracer_data)
     memhole_samples = builder.build_memhole_samples(
         instructions_list, tracer_data, accessed_memory, segments, segment_offsets
