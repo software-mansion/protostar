@@ -75,6 +75,20 @@ Fuzzer picks integers from provided range and then converts them to felts.
 If `min_value` is not `None` then all values will be greater than or equal to `min_value`,
 and if `max_value` is not `None` then all values will be less than or equal to `max_value`.
 
+### `strategy.short_strings`
+```python
+def text(
+    alphabet: Union[Sequence[str], SearchStrategy[str]] = characters(
+        blacklist_categories=("Cs",)
+    ),
+    min_size: int = 0,
+    max_size: Optional[int] = None,
+) -> Strategy:
+```
+
+Generates strings with ascii lowercase characters of length that passes the condition `0 <= length <= 31`.
+Max size `31` comes from [the docs](https://www.cairo-lang.org/docs/how_cairo_works/consts.html#short-string-literals).
+
 ## Adapting strategies
 
 Often it is the case that a strategy does not produce exactly what is desired and it is necessary to further
