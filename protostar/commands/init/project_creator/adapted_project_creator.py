@@ -5,7 +5,7 @@ from protostar.commands.init.project_creator._project_creator import ProjectCrea
 from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
 from protostar.utils.protostar_directory import VersionManager
 from protostar.utils.input_requester import InputRequester
-from protostar.git.git import Git
+from protostar.git import Git
 
 
 class AdaptedProjectCreator(ProjectCreator):

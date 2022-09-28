@@ -2,7 +2,7 @@ from os import listdir
 from pathlib import Path
 from typing import Callable, cast
 
-from protostar.git.git import Git
+from protostar.git import Git
 from protostar.utils.package_info import PackageInfo
 
 
@@ -18,4 +18,4 @@ def pull_package_submodules(
     for name in submodules:
         if name in submodule_names:
             on_submodule_update_start(submodules[name])
-            repo.update_submodule(cast(Path, submodules[name].path), init=True)
+            repo.update_submodule(cast(Path, submodules[name].path))

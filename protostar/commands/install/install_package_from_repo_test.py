@@ -7,7 +7,7 @@ from protostar.commands.install import installation_exceptions
 from protostar.commands.install.install_package_from_repo import (
     install_package_from_repo,
 )
-from protostar.git.git import Git
+from protostar.git import Git
 
 
 @pytest.fixture

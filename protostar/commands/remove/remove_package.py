@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import cast
 
-from protostar.git.git import Git, InvalidGitRepositoryException
+from protostar.git import Git, InvalidGitRepositoryException
 
 from protostar.commands.remove import removal_exceptions
 

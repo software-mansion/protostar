@@ -4,7 +4,7 @@ from typing import Optional
 
 from protostar.commands.install import installation_exceptions
 from protostar.utils import log_color_provider
-from protostar.git.git import Git, InvalidGitRepositoryException
+from protostar.git import Git, InvalidGitRepositoryException
 
 
 def install_package_from_repo(

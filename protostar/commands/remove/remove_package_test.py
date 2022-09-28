@@ -5,7 +5,7 @@ import pytest
 
 from protostar.commands.remove import removal_exceptions
 from protostar.commands.remove.remove_package import remove_package
-from protostar.git.git import Git, GitRepository
+from protostar.git import Git, GitRepository
 
 
 @pytest.fixture(name="package_name")
@@ -35,7 +35,7 @@ def fixture_submodule(repo: GitRepository, package_name: str, packages_dir: Path
 
     repo.add_submodule(
         url="https://github.com/software-mansion/protostar",
-        path_to_submodule=path_to_package,
+        submodule_path=path_to_package,
         name=package_name,
     )
 
