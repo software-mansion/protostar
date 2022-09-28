@@ -53,6 +53,7 @@ def test_migrate_from_subdirectory(tmp_path: Path):
 def test_no_configuration_file(tmp_path: Path):
     with pytest.raises(ConfigurationFileNotFoundException):
         migrate(tmp_path)
+
     assert_file_count(tmp_path, 0)
 
 
@@ -61,16 +62,17 @@ def test_migrating_migrated_configuration_file(tmp_path: Path):
 
     with pytest.raises(ConfigurationFileAlreadyMigratedException):
         migrate(cwd=tmp_path)
+
     assert (tmp_path / "protostar.toml").read_text() == PROTOSTAR_TOML_V2_CONTENT
     assert_file_count(tmp_path, 1)
 
 
 def test_rollback(tmp_path: Path):
-    create_file_structure(tmp_path, {"protostar.toml": PROTOSTAR_TOML_V1_CONTENT})
-
     class ConfigurationFileContentBuilderTestDouble(ConfigurationTOMLContentBuilder):
         def build(self) -> str:
             raise Exception()
+
+    create_file_structure(tmp_path, {"protostar.toml": PROTOSTAR_TOML_V1_CONTENT})
 
     with pytest.raises(ConfigurationFileMigrationFailed):
         migrate(
