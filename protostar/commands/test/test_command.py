@@ -29,7 +29,7 @@ from protostar.starknet.compiler.starknet_compilation import (
     StarknetCompiler,
 )
 
-import protostar.self.cache as protostar_cache
+from protostar.self.cache import CacheUtil
 
 
 class TestCommand(Command):
@@ -135,13 +135,12 @@ A glob or globs to a directory or a test suite, for example:
 
     async def run(self, args) -> TestingSummary:
         targets = args.target
+        cache_util = CacheUtil(self._project_root_path)
         if args.last_failed:
-            if previous_results := protostar_cache.obtain(
-                self._project_root_path, "test_results"
-            ):
+            if previous_results := cache_util.obtain("test_results"):
                 if previously_failed_tests := previous_results["failed_tests"]:
                     targets = previously_failed_tests
-                    protostar_cache.persist(self._project_root_path, "test_results", {})
+                    cache_util.persist("test_results", {})
                     print("running previously failed tests:", targets)
         summary = await self.test(
             targets=targets,
@@ -157,8 +156,7 @@ A glob or globs to a directory or a test suite, for example:
         failed_tests_paths = [
             str(failed_test.file_path.absolute()) for failed_test in summary.failed
         ]
-        protostar_cache.persist(
-            self._project_root_path,
+        cache_util.persist(
             "test_results",
             {"failed_tests": failed_tests_paths},
         )
