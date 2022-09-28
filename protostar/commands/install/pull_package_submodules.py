@@ -1,15 +1,9 @@
 from os import listdir
 from pathlib import Path
-from typing import Callable
+from typing import Callable, cast
 
-from attr import dataclass
-from git.repo import Repo
-
-
-@dataclass
-class PackageInfo:
-    name: str
-    url: str
+from protostar.git import Git
+from protostar.utils.package_info import PackageInfo
 
 
 def pull_package_submodules(
@@ -18,11 +12,10 @@ def pull_package_submodules(
     libs_dir: Path,
 ) -> None:
     submodule_names = listdir(libs_dir)
-    repo = Repo(repo_dir, search_parent_directories=True)
+    repo = Git.load_existing_repo(repo_dir)
+    submodules = repo.get_submodules()
 
-    for submodule in repo.submodules:
-        if submodule.name in submodule_names:
-            on_submodule_update_start(
-                PackageInfo(name=submodule.name, url=submodule.url)
-            )
-            repo.git.execute(["git", "submodule", "update", "--init", submodule.path])
+    for name in submodules:
+        if name in submodule_names:
+            on_submodule_update_start(submodules[name])
+            repo.update_submodule(cast(Path, submodules[name].path))

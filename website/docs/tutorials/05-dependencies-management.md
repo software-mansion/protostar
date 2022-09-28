@@ -15,9 +15,13 @@ Using Git submodules as a foundation for package management is not an ideal appr
 To add a dependency, inside project directory, run `protostar install EXTERNAL_DEPENDENCY_REFERENCE`:
 
 ```console title="Installing a dependency from link to a repository."
-$ protostar install https://github.com/OpenZeppelin/cairo-contracts
+$ protostar install OpenZeppelin/cairo-contracts@0.3.0
 12:00:00 [INFO] Installing cairo_contracts (https://github.com/OpenZeppelin/cairo-contracts)
 ```
+
+:::warning
+OpenZeppelin Contracts for Cairo strongly discourages installing directly from the `main` branch, therefore we're specifying an official release through one of the [External dependency reference formats](#external-dependency-reference-formats).
+:::
 
 ```console title="'lib' category contains the installed dependency."
 $ tree -L 2
@@ -38,10 +42,10 @@ Protostar creates a git commit after installing a dependency.
 :::warning
 If you use a dependency that uses absolute imports, you have to specify a cairo-path to the project's root directory of that dependency. You can do it in the following way:
 
-```cairo title="./lib/cairo_contracts/src/openzeppelin/account/Account.cairo"
+```cairo title="./lib/cairo_contracts/src/openzeppelin/account/presets/Account.cairo"
 // ...
 
-from openzeppelin.introspection.ERC165 import ERC165_supports_interface
+from openzeppelin.introspection.ERC165.library import ERC165
 
 // ...
 ```
@@ -55,14 +59,13 @@ protostar build --cairo-path ./lib/cairo_contracts/src
 You can configure your `cairo-path` in [the configuration file](/docs/tutorials/project-initialization#protostartoml).
 :::
 
-
 ### External dependency reference formats
 
 Protostar supports the following ways of referencing external dependency:
 
 | Format                                | Example                                           |
 |---------------------------------------|---------------------------------------------------|
-| `GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]` | `OpenZeppelin/cairo-contracts@0.1.0`              |
+| `GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]` | `OpenZeppelin/cairo-contracts@0.3.0`              |
 | `URL_TO_THE_REPOSITORY`               | `https://github.com/OpenZeppelin/cairo-contracts` |
 | `SSH_URI`                             | `git@github.com:OpenZeppelin/cairo-contracts.git` |
 
