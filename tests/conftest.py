@@ -2,8 +2,9 @@ import json
 import subprocess
 import time
 from dataclasses import dataclass
+from pathlib import Path
 from socket import socket as Socket
-from typing import List, NamedTuple
+from typing import List, NamedTuple, Union
 
 import pytest
 import requests
@@ -116,3 +117,20 @@ def alice_devnet_account(
     alice_devnet_account = devnet_accounts[0]
     monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, alice_devnet_account.private_key)
     return alice_devnet_account
+
+
+PathStr = str
+FileContent = str
+FileStructureSchema = dict[PathStr, Union["FileStructureSchema", FileContent]]
+
+
+def create_file_structure(root_path: Path, file_structure_schema: FileStructureSchema):
+    for path_str, composite in file_structure_schema.items():
+        if isinstance(composite, str):
+            file_content = composite
+            # pylint: disable=unspecified-encoding
+            (root_path / Path(path_str)).write_text(file_content)
+        else:
+            new_root_path = root_path / Path(path_str)
+            new_root_path.mkdir()
+            create_file_structure(new_root_path, file_structure_schema=composite)

@@ -1,7 +1,10 @@
 from typing import Any, Optional
 
 import tomlkit
+from tomlkit.exceptions import ParseError
 from tomlkit.toml_document import TOMLDocument
+
+from protostar.protostar_exception import ProtostarException
 
 from .configuration_file_interpreter import ConfigurationFileInterpreter
 
@@ -17,17 +20,22 @@ class ConfigurationTOMLInterpreter(ConfigurationFileInterpreter):
         profile_name: Optional[str] = None,
         section_namespace: Optional[str] = None,
     ) -> Optional[dict[str, Any]]:
-        doc = self._get_doc()
-        section_parent = self._get_section_parent(
-            dct=doc.value,
-            profile_name=profile_name,
-            section_namespace=section_namespace,
-        )
-        if not section_parent:
-            return None
-        if section_name not in section_parent:
-            return None
-        return section_parent[section_name]
+        try:
+            doc = self._get_doc()
+            section_parent = self._get_section_parent(
+                dct=doc.value,
+                profile_name=profile_name,
+                section_namespace=section_namespace,
+            )
+            if not section_parent:
+                return None
+            if section_name not in section_parent:
+                return None
+            return section_parent[section_name]
+        except ParseError as ex:
+            raise ProtostarException(
+                message="Couldn't parse the configuration file", details=str(ex)
+            ) from ex
 
     def _get_doc(self) -> TOMLDocument:
         return tomlkit.loads(self._content)

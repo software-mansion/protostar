@@ -56,17 +56,17 @@ class ConfigurationFileV2(
     def __init__(
         self,
         project_root_path: Path,
-        configuration_file_reader: ConfigurationFileInterpreter,
+        configuration_file_interpreter: ConfigurationFileInterpreter,
         filename: str,
     ) -> None:
         super().__init__()
         self._project_root_path = project_root_path
-        self._configuration_file_reader = configuration_file_reader
+        self._configuration_file_reader = configuration_file_interpreter
         self._filename = filename
 
     def get_declared_protostar_version(self) -> Optional[ProtostarVersion]:
         version_str = self._configuration_file_reader.get_attribute(
-            attribute_name="min-protostar-version", section_name="project"
+            attribute_name="protostar-version", section_name="project"
         )
         if not version_str:
             return None
@@ -145,7 +145,7 @@ class ConfigurationFileV2(
     @staticmethod
     def _prepare_project_section_data(model: ConfigurationFileV2Model) -> dict:
         project_config_section = {}
-        project_config_section["min-protostar-version"] = str(model.protostar_version)
+        project_config_section["protostar-version"] = str(model.protostar_version)
         project_config_section: dict = {
             **project_config_section,
             **model.project_config,
