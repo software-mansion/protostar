@@ -14,8 +14,9 @@ from protostar.starknet_gateway.gateway_facade import (
     UnknownFunctionException,
 )
 from protostar.utils.data_transformer import CairoOrPythonData
+from tests.conftest import DevnetAccount
 from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR, IDENTITY_CONTRACT
-from tests.integration.conftest import CreateProtostarProjectFixture, DevnetAccount
+from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.protostar_fixture import ProtostarFixture
 
 
