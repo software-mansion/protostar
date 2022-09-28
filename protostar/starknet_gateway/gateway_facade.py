@@ -12,7 +12,6 @@ from starknet_py.net.models import AddressRepresentation
 from starknet_py.net.signer import BaseSigner
 from starknet_py.transaction_exceptions import TransactionFailedError
 from starknet_py.transactions.deploy import make_deploy_tx
-from starkware.starknet.definitions import constants
 from starkware.starknet.public.abi import AbiType
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.services.api.gateway.transaction import (
