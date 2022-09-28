@@ -49,7 +49,7 @@ def configuration_file_fixture(
             file_content=protostar_toml_content,
         ),
         project_root_path=project_root_path,
-        filename=protostar_toml_path.name,
+        file_path=protostar_toml_path,
         command_names_provider=CommandNamesProviderDouble(),
     )
 

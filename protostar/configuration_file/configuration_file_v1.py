@@ -37,14 +37,17 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
         self,
         configuration_file_interpreter: ConfigurationFileInterpreter,
         project_root_path: Path,
-        filename: str,
+        file_path: Path,
         command_names_provider: CommandNamesProviderProtocol,
     ) -> None:
         super().__init__()
         self._configuration_file_interpreter = configuration_file_interpreter
         self._project_root_path = project_root_path
-        self._filename = filename
+        self._file_path = file_path
         self._command_names_provider = command_names_provider
+
+    def get_filepath(self) -> Path:
+        return self._file_path
 
     def get_declared_protostar_version(self) -> Optional[ProtostarVersion]:
         version_str = self._configuration_file_interpreter.get_attribute(
@@ -69,7 +72,9 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
             "contracts", section_namespace="protostar"
         )
         if contract_section is None or contract_name not in contract_section:
-            contracts_config_location = f'{self._filename}::["protostar.contracts"]'
+            contracts_config_location = (
+                f'{self._file_path.name}::["protostar.contracts"]'
+            )
             raise ContractNameNotFoundException(
                 contract_name,
                 expected_declaration_location=contracts_config_location,

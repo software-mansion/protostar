@@ -50,6 +50,10 @@ class ConfigurationFile(
         ...
 
     @abstractmethod
+    def get_filepath(self) -> Path:
+        ...
+
+    @abstractmethod
     def get_contract_names(self) -> list[str]:
         ...
 

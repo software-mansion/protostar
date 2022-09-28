@@ -73,7 +73,7 @@ def configuration_file_fixture(project_root_path: Path, protostar_toml_content: 
     return ConfigurationFileV2(
         project_root_path=project_root_path,
         configuration_file_interpreter=configuration_toml_reader,
-        filename=protostar_toml_path.name,
+        file_path=protostar_toml_path,
     )
 
 
@@ -235,7 +235,7 @@ def test_transforming_file_v1_into_v2(
             file_content=old_protostar_toml_content,
         ),
         project_root_path=Path(),
-        filename="_",
+        file_path=Path(),
         command_names_provider=CommandNamesProviderDouble(),
     ).read()
 
