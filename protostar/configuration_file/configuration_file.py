@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Generic, Optional, TypeVar, Union
+from typing import Any, Generic, Optional, Protocol, TypeVar, Union
 
 from protostar.protostar_exception import ProtostarException
 from protostar.self import DeclaredProtostarVersionProviderProtocol, ProtostarVersion
@@ -89,3 +89,8 @@ class ContractNameNotFoundException(ProtostarException):
         super().__init__(
             f"Couldn't find `{contract_name}` in `{expected_declaration_location}`"
         )
+
+
+class ConfigurationFileMigratorProtocol(Protocol):
+    def run(self) -> None:
+        pass

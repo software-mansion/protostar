@@ -3,7 +3,7 @@ from typing import Optional
 from protostar.protostar_exception import ProtostarException
 from protostar.self import ProtostarVersionProviderProtocol
 
-from .configuration_file import ConfigurationFile
+from .configuration_file import ConfigurationFile, ConfigurationFileMigratorProtocol
 from .configuration_file_v1 import ConfigurationFileV1
 from .configuration_file_v2 import (
     ConfigurationFileV2,
@@ -12,7 +12,7 @@ from .configuration_file_v2 import (
 )
 
 
-class ConfigurationFileMigrator:
+class ConfigurationFileV2Migrator(ConfigurationFileMigratorProtocol):
     def __init__(
         self,
         current_configuration_file: Optional[ConfigurationFile],

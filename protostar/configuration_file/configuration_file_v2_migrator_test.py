@@ -17,7 +17,7 @@ from .configuration_file_v2 import (
 from .configuration_file_v2_migrator import (
     ConfigurationFileAlreadyMigratedException,
     ConfigurationFileMigrationFailed,
-    ConfigurationFileMigrator,
+    ConfigurationFileV2Migrator,
     ConfigurationFileNotFoundException,
 )
 from .configuration_toml_content_builder import ConfigurationTOMLContentBuilder
@@ -91,7 +91,7 @@ def migrate(
         command_names_provider=CommandNamesProviderTestDouble(command_names=[]),
     )
     configuration_file_before = configuration_file_factory.create()
-    configuration_file_v2_migrator = ConfigurationFileMigrator(
+    configuration_file_v2_migrator = ConfigurationFileV2Migrator(
         current_configuration_file=configuration_file_before,
         content_configurator=ConfigurationFileV2ContentConfigurator(
             content_builder=content_builder or ConfigurationTOMLContentBuilder()
