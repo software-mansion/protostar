@@ -259,7 +259,7 @@ class GatewayFacade:
             contract_class=contract_class,  # type: ignore
             sender_address=DEFAULT_DECLARE_SENDER_ADDRESS,  # type: ignore
             max_fee=0,
-            nonce=nonce,
+            nonce=nonce or 0,
             version=0,
             signature=[],
         )
