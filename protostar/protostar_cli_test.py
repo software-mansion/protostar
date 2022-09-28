@@ -165,3 +165,12 @@ async def test_should_sys_exit_on_protostar_silent_exception(
     with pytest.raises(SystemExit) as ex:
         await protostar_cli.run(parser.parse([command.name]))
         assert cast(SystemExit, ex).code == 1
+
+
+@pytest.mark.asyncio
+async def test_getting_command_names(
+    protostar_cli: ProtostarCLI, commands: List[Command]
+):
+    command_names = protostar_cli.get_command_names()
+
+    assert command_names == [command.name for command in commands]
