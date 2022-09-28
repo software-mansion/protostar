@@ -5,6 +5,7 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
+from tests.conftest import DevnetAccount
 from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.protostar_fixture import ProtostarFixture
@@ -26,14 +27,12 @@ def compiled_contract_path_fixture() -> Path:
 async def test_declaring_contract(
     protostar: ProtostarFixture,
     devnet_gateway_url: str,
-    monkeypatch: pytest.MonkeyPatch,
+    alice_devnet_account: DevnetAccount,
     compiled_contract_path: Path,
 ):
-    monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, "123")
-
     response = await protostar.declare(
         chain_id=StarknetChainId.TESTNET,
-        account_address="123",
+        account_address=alice_devnet_account.address,
         contract=compiled_contract_path,
         gateway_url=devnet_gateway_url,
     )
