@@ -1,4 +1,5 @@
 # pylint: disable=invalid-name
+from dataclasses import dataclass
 import itertools
 import random
 from typing import TYPE_CHECKING, List, Dict, Tuple
@@ -21,6 +22,13 @@ if TYPE_CHECKING:
 Address = int
 StringID = int
 FunctionID = int
+
+@dataclass(frozen=True)
+class TransactionProfile:
+    functions: List[Function]
+    instructions: List[Instruction]
+    step_samples: List[Sample]
+    memhole_samples: List[Sample]
 
 
 def unique_id():
@@ -47,7 +55,7 @@ def translate_callstack(in_instructions, callstack: List[Instruction]):
 
 # TODO(maksymiliandemitraszek): Enable it again
 # pylint: disable=too-many-branches
-def merge_profiles(samples: List["ContractProfile"]):
+def merge_profiles(samples: List["ContractProfile"]) -> TransactionProfile:
     step_samples = []
     memhole_samples = []
 
@@ -134,10 +142,9 @@ def merge_profiles(samples: List["ContractProfile"]):
             itertools.chain(*new_callstacks_from_upper_layer)
         )
 
-    return RuntimeProfile(
+    return TransactionProfile(
         functions=list(in_functions.values()),
         instructions=list(in_instructions.values()),
         step_samples=step_samples,
         memhole_samples=memhole_samples,
-        contract_call_callstacks=[],
     )
