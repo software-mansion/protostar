@@ -37,7 +37,6 @@ class ConfigurationFileContentConfigurator(Generic[ConfigurationFileModelT]):
     @abstractmethod
     def create_file_content(
         self,
-        content_builder: ConfigurationFileContentBuilder,
         model: ConfigurationFileModelT,
     ) -> str:
         ...

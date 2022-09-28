@@ -51,7 +51,6 @@ class ConfigurationFileV2Model:
 
 class ConfigurationFileV2(
     ConfigurationFile[ConfigurationFileV2Model],
-    ConfigurationFileContentConfigurator[ConfigurationFileV2Model],
 ):
     def __init__(
         self,
@@ -109,24 +108,36 @@ class ConfigurationFileV2(
     ) -> ConfigurationFileV2Model:
         raise NotImplementedError("Operation not supported.")
 
-    def create_file_content(
+
+class ConfigurationFileV2ContentConfigurator(
+    ConfigurationFileContentConfigurator[ConfigurationFileV2Model]
+):
+    def __init__(
         self,
         content_builder: ConfigurationFileContentBuilder,
+    ) -> None:
+        super().__init__()
+        self._content_builder = content_builder
+
+    def create_file_content(
+        self,
         model: ConfigurationFileV2Model,
     ) -> str:
-        content_builder.set_section(
+        self._content_builder.set_section(
             section_name="project", data=self._prepare_project_section_data(model)
         )
-        content_builder.set_section(
+        self._content_builder.set_section(
             section_name="contracts", data=model.contract_name_to_path_strs
         )
         for command_name, command_config in model.command_name_to_config.items():
-            content_builder.set_section(section_name=command_name, data=command_config)
+            self._content_builder.set_section(
+                section_name=command_name, data=command_config
+            )
         for (
             profile_name,
             project_config,
         ) in model.profile_name_to_project_config.items():
-            content_builder.set_section(
+            self._content_builder.set_section(
                 profile_name=profile_name, section_name="project", data=project_config
             )
         for (
@@ -134,12 +145,12 @@ class ConfigurationFileV2(
             command_name_to_config,
         ) in model.profile_name_to_commands_config.items():
             for command_name, command_config in command_name_to_config.items():
-                content_builder.set_section(
+                self._content_builder.set_section(
                     profile_name=profile_name,
                     section_name=command_name,
                     data=command_config,
                 )
-        content = content_builder.build()
+        content = self._content_builder.build()
         return content
 
     @staticmethod

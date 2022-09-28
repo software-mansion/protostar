@@ -6,9 +6,6 @@ import pytest
 from protostar.configuration_file.configuration_toml_content_builder import (
     ConfigurationTOMLContentBuilder,
 )
-from protostar.configuration_file.configuration_toml_interpreter import (
-    ConfigurationTOMLInterpreter,
-)
 from protostar.self import parse_protostar_version
 
 from .configuration_file import (
@@ -21,7 +18,11 @@ from .configuration_file_v1 import (
     ConfigurationFileV1,
     ConfigurationFileV1Model,
 )
-from .configuration_file_v2 import ConfigurationFileV2, ConfigurationFileV2Model
+from .configuration_file_v2 import (
+    ConfigurationFileV2,
+    ConfigurationFileV2ContentConfigurator,
+    ConfigurationFileV2Model,
+)
 from .configuration_legacy_toml_interpreter import ConfigurationLegacyTOMLInterpreter
 
 
@@ -76,6 +77,13 @@ def configuration_file_fixture(project_root_path: Path, protostar_toml_content: 
     )
 
 
+@pytest.fixture(name="content_configurator")
+def content_configurator_fixture():
+    return ConfigurationFileV2ContentConfigurator(
+        content_builder=ConfigurationTOMLContentBuilder()
+    )
+
+
 def test_retrieving_declared_protostar_version(configuration_file: ConfigurationFile):
     declared_protostar_version = configuration_file.get_declared_protostar_version()
 
@@ -126,10 +134,11 @@ def test_reading_argument_attribute_defined_within_specified_profile(
 
 
 def test_saving_configuration(
-    configuration_file: ConfigurationFileContentConfigurator[ConfigurationFileV2Model],
+    content_configurator: ConfigurationFileContentConfigurator[
+        ConfigurationFileV2Model
+    ],
     protostar_toml_content: str,
 ):
-    content_configurator = configuration_file
     configuration_file_v2_model = ConfigurationFileV2Model(
         protostar_version="9.9.9",
         project_config={
@@ -155,7 +164,6 @@ def test_saving_configuration(
 
     result = content_configurator.create_file_content(
         model=configuration_file_v2_model,
-        content_builder=ConfigurationTOMLContentBuilder(),
     )
 
     assert result == protostar_toml_content
@@ -184,7 +192,10 @@ def test_transforming_model_v1_into_v2():
     )
 
 
-def test_transforming_file_v1_into_v2(protostar_toml_content: str):
+def test_transforming_file_v1_into_v2(
+    protostar_toml_content: str,
+    content_configurator: ConfigurationFileV2ContentConfigurator,
+):
     old_protostar_toml_content = textwrap.dedent(
         """\
         ["protostar.config"]
@@ -228,14 +239,7 @@ def test_transforming_file_v1_into_v2(protostar_toml_content: str):
         command_names_provider=CommandNamesProviderDouble(),
     ).read()
 
-    transformed_protostar_toml = ConfigurationFileV2(
-        configuration_file_interpreter=ConfigurationTOMLInterpreter(
-            file_content=old_protostar_toml_content,
-        ),
-        project_root_path=Path(),
-        filename="_",
-    ).create_file_content(
-        content_builder=ConfigurationTOMLContentBuilder(),
+    transformed_protostar_toml = content_configurator.create_file_content(
         model=ConfigurationFileV2Model.from_v1(model_v1, protostar_version="9.9.9"),
     )
 
@@ -243,9 +247,9 @@ def test_transforming_file_v1_into_v2(protostar_toml_content: str):
 
 
 def test_saving_in_particular_order(
-    configuration_file: ConfigurationFileContentConfigurator[ConfigurationFileV2Model],
+    content_configurator: ConfigurationFileV2ContentConfigurator,
 ):
-    content_configurator = configuration_file
+
     configuration_file_v2_model = ConfigurationFileV2Model(
         protostar_version="9.9.9",
         project_config={
@@ -261,7 +265,6 @@ def test_saving_in_particular_order(
     )
 
     result = content_configurator.create_file_content(
-        content_builder=ConfigurationTOMLContentBuilder(),
         model=configuration_file_v2_model,
     )
 
