@@ -80,7 +80,7 @@ and if `max_value` is not `None` then all values will be less than or equal to `
 def short_strings() -> Strategy:
 ```
 
-Generates strings with ascii characters of length that passes the condition `0 <= length <= 31`.
+Generates strings with ASCII characters of length that passes the condition `0 <= length <= 31`.
 
 :::info
 Max size `31` comes from [the docs](https://www.cairo-lang.org/docs/how_cairo_works/consts.html#short-string-literals).
