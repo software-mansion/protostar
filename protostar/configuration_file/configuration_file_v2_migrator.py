@@ -46,7 +46,7 @@ class ConfigurationFileMigrator:
             file_content = self._content_configurator.create_file_content(v2_model)
             (
                 configuration_file_path.parent
-                / f"{configuration_file_path.stem}.{self._content_configurator.get_extension()}"
+                / f"{configuration_file_path.stem}.{self._content_configurator.get_file_extension()}"
             ).write_text(file_content)
             backup_file_path.unlink()
         # pylint: disable=broad-except

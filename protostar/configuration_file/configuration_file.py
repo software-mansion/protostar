@@ -32,6 +32,9 @@ class ConfigurationFileContentBuilder(ABC):
     def build(self) -> str:
         ...
 
+    def get_file_extension(self) -> str:
+        ...
+
 
 class ConfigurationFileContentConfigurator(Generic[ConfigurationFileModelT]):
     @abstractmethod
@@ -39,6 +42,9 @@ class ConfigurationFileContentConfigurator(Generic[ConfigurationFileModelT]):
         self,
         model: ConfigurationFileModelT,
     ) -> str:
+        ...
+
+    def get_file_extension(self) -> str:
         ...
 
 

@@ -166,3 +166,6 @@ class ConfigurationFileV2ContentConfigurator(
         }
 
         return project_config_section
+
+    def get_file_extension(self) -> str:
+        return self._content_builder.get_file_extension()
