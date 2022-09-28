@@ -7,7 +7,7 @@ from typing import Any, List, Optional
 
 from protostar.cli import CLIApp, Command
 from protostar.compiler import ProjectCairoPathBuilder
-from protostar.configuration_file import CommandNamesProvider
+from protostar.configuration_file import CommandNamesProviderProtocol
 from protostar.configuration_profile_cli import ConfigurationProfileCLI
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
 from protostar.protostar_toml.protostar_toml_version_checker import (
@@ -25,7 +25,7 @@ def _apply_pythonpath():
         sys.path.extend(split_paths)
 
 
-class ProtostarCLI(CLIApp, CommandNamesProvider):
+class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
     def __init__(
         self,
         logger: Logger,

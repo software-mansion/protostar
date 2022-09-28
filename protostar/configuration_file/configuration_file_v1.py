@@ -27,7 +27,7 @@ class ConfigurationFileV1Model:
     profile_name_to_shared_command_config: dict[ProfileName, CommandConfig]
 
 
-class CommandNamesProvider(Protocol):
+class CommandNamesProviderProtocol(Protocol):
     def get_command_names(self) -> list[str]:
         ...
 
@@ -38,7 +38,7 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
         configuration_file_interpreter: ConfigurationFileInterpreter,
         project_root_path: Path,
         filename: str,
-        command_names_provider: CommandNamesProvider,
+        command_names_provider: CommandNamesProviderProtocol,
     ) -> None:
         super().__init__()
         self._configuration_file_interpreter = configuration_file_interpreter

@@ -17,7 +17,7 @@ from .configuration_file import (
     ContractNameNotFoundException,
 )
 from .configuration_file_v1 import (
-    CommandNamesProvider,
+    CommandNamesProviderProtocol,
     ConfigurationFileV1,
     ConfigurationFileV1Model,
 )
@@ -25,7 +25,7 @@ from .configuration_file_v2 import ConfigurationFileV2, ConfigurationFileV2Model
 from .configuration_legacy_toml_interpreter import ConfigurationLegacyTOMLInterpreter
 
 
-class CommandNamesProviderDouble(CommandNamesProvider):
+class CommandNamesProviderDouble(CommandNamesProviderProtocol):
     def get_command_names(self) -> list[str]:
         return ["declare"]
 

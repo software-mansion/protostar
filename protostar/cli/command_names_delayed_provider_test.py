@@ -1,18 +1,18 @@
 import pytest
 
-from protostar.configuration_file import CommandNamesProvider
+from protostar.configuration_file import CommandNamesProviderProtocol
 
 from .command_names_delayed_provider import CommandNamesDelayedProvider
 
 
-class CommandNamesProviderDouble(CommandNamesProvider):
+class CommandNamesProviderStub(CommandNamesProviderProtocol):
     def get_command_names(self) -> list[str]:
         return ["foo", "bar"]
 
 
 def test_retrieving_command_names():
     command_names_aggregator = CommandNamesDelayedProvider()
-    command_names_aggregator.set_command_names_provider(CommandNamesProviderDouble())
+    command_names_aggregator.set_command_names_provider(CommandNamesProviderStub())
 
     result = command_names_aggregator.get_command_names()
 

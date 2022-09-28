@@ -1,15 +1,15 @@
 from typing import Optional
 
-from protostar.configuration_file import CommandNamesProvider
+from protostar.configuration_file import CommandNamesProviderProtocol
 
 
-class CommandNamesDelayedProvider(CommandNamesProvider):
+class CommandNamesDelayedProvider(CommandNamesProviderProtocol):
     def __init__(self) -> None:
         super().__init__()
-        self._command_names_provider: Optional[CommandNamesProvider] = None
+        self._command_names_provider: Optional[CommandNamesProviderProtocol] = None
 
     def set_command_names_provider(
-        self, command_names_provider: CommandNamesProvider
+        self, command_names_provider: CommandNamesProviderProtocol
     ) -> None:
         self._command_names_provider = command_names_provider
 

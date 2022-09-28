@@ -8,7 +8,7 @@ from protostar.configuration_file.configuration_legacy_toml_interpreter import (
 from protostar.self import parse_protostar_version
 
 from .configuration_file_v1 import (
-    CommandNamesProvider,
+    CommandNamesProviderProtocol,
     ConfigurationFile,
     ConfigurationFileV1,
     ConfigurationFileV1Model,
@@ -16,7 +16,7 @@ from .configuration_file_v1 import (
 )
 
 
-class CommandNamesProviderDouble(CommandNamesProvider):
+class CommandNamesProviderDouble(CommandNamesProviderProtocol):
     def get_command_names(self) -> list[str]:
         return ["deploy"]
 

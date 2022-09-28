@@ -4,14 +4,16 @@ from typing import Optional
 from protostar.protostar_exception import ProtostarException
 
 from .configuration_file import ConfigurationFile
-from .configuration_file_v1 import CommandNamesProvider, ConfigurationFileV1
+from .configuration_file_v1 import CommandNamesProviderProtocol, ConfigurationFileV1
 from .configuration_file_v2 import ConfigurationFileV2
 from .configuration_legacy_toml_interpreter import ConfigurationLegacyTOMLInterpreter
 from .configuration_toml_interpreter import ConfigurationTOMLInterpreter
 
 
 class ConfigurationFileFactory:
-    def __init__(self, cwd: Path, command_names_provider: CommandNamesProvider) -> None:
+    def __init__(
+        self, cwd: Path, command_names_provider: CommandNamesProviderProtocol
+    ) -> None:
         self._cwd = cwd
         self._command_names_provider = command_names_provider
 

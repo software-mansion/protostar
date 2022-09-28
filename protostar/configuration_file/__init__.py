@@ -1,1 +1,1 @@
-from .configuration_file_v1 import CommandNamesProvider
+from .configuration_file_v1 import CommandNamesProviderProtocol
