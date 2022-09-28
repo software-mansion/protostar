@@ -1,9 +1,7 @@
 from pathlib import Path
-from xml.dom import InvalidAccessErr
 
 import pytest
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import StarknetChainId
 
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.starknet_gateway.gateway_facade import (
@@ -33,9 +31,7 @@ def compiled_contract_path_fixture(protostar: ProtostarFixture) -> Path:
 @pytest.fixture(name="gateway_facade")
 def gateway_facade_fixture(devnet_gateway_url: str):
     return GatewayFacade(
-        gateway_client=GatewayClient(
-            net=devnet_gateway_url, chain=StarknetChainId.TESTNET
-        ),
+        gateway_client=GatewayClient(devnet_gateway_url),
         compiled_contract_reader=CompiledContractReader(),
         project_root_path=Path(),
     )

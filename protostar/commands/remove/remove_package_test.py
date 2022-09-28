@@ -2,10 +2,10 @@ from os import listdir
 from pathlib import Path
 
 import pytest
-from git.repo import Repo
 
 from protostar.commands.remove import removal_exceptions
 from protostar.commands.remove.remove_package import remove_package
+from protostar.git import Git, GitRepository
 
 
 @pytest.fixture(name="package_name")
@@ -25,19 +25,22 @@ def fixture_packages_dir(repo_dir: Path):
 
 @pytest.fixture(name="repo")
 def fixture_repo(repo_dir: Path):
-    return Repo().init(repo_dir)
+    return Git.init(repo_dir)
 
 
 @pytest.fixture(name="submodule")
-def fixture_submodule(repo: Repo, package_name: str, packages_dir: Path):
-    submodule = repo.create_submodule(
-        package_name,
-        packages_dir / package_name,
-        "https://github.com/software-mansion/protostar",
+def fixture_submodule(repo: GitRepository, package_name: str, packages_dir: Path):
+
+    path_to_package = packages_dir / package_name
+
+    repo.add_submodule(
+        url="https://github.com/software-mansion/protostar",
+        submodule_path=path_to_package,
+        name=package_name,
     )
-    repo.git.add(submodule.path)
-    repo.index.commit("add submodule")
-    return submodule
+
+    repo.add(path_to_package)
+    repo.commit("add submodule")
 
 
 @pytest.mark.usefixtures("submodule")

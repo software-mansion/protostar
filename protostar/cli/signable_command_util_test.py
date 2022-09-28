@@ -4,6 +4,7 @@ from typing import List
 
 import pytest
 from starknet_py.net.models import StarknetChainId, Transaction
+from starknet_py.net.models.typed_data import TypedData
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
@@ -31,6 +32,9 @@ class CustomSigner(BaseSigner):
         return 1
 
     def sign_transaction(self, transaction: Transaction) -> List[int]:
+        return [1, 2]
+
+    def sign_message(self, typed_data: TypedData, account_address: int) -> List[int]:
         return [1, 2]
 
 

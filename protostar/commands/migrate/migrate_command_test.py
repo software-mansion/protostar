@@ -5,7 +5,6 @@ from typing import cast
 import pytest
 from pytest_mock import MockerFixture
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import StarknetChainId
 
 from protostar.commands.migrate.migrate_command import MigrateCommand
 from protostar.migrator import Migrator
@@ -55,10 +54,7 @@ def setup_migrate(mocker: MockerFixture):
             rollback=False,
             output_dir_path=None,
             no_confirm=no_confirm,
-            gateway_client=GatewayClient(
-                net="http://localhost:3000/",
-                chain=StarknetChainId.TESTNET,
-            ),
+            gateway_client=GatewayClient("http://localhost:3000/"),
             migrator_config=mocker.MagicMock(),
         )
 

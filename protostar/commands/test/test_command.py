@@ -201,7 +201,7 @@ A glob or globs to a directory or a test suite, for example:
         self._log_test_collector_result(test_collector_result)
 
         testing_summary = TestingSummary(
-            case_results=test_collector_result.broken_test_suites,  # type: ignore | pyright bug?
+            test_results=test_collector_result.broken_test_suites,  # type: ignore | pyright bug?
             testing_seed=testing_seed,
         )
 

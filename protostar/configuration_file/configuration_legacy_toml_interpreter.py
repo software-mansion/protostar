@@ -3,6 +3,8 @@ from typing import Any, Optional
 import flatdict
 import tomli
 
+from protostar.protostar_exception import ProtostarException
+
 from .configuration_file_interpreter import ConfigurationFileInterpreter
 
 
@@ -18,15 +20,22 @@ class ConfigurationLegacyTOMLInterpreter(ConfigurationFileInterpreter):
         profile_name: Optional[str] = None,
         section_namespace: Optional[str] = None,
     ) -> Optional[dict[str, Any]]:
-        section_name = (
-            f"{section_namespace}.{section_name}" if section_namespace else section_name
-        )
-        protostar_toml_dict = self._get_flat_dict_representation()
-        if profile_name:
-            section_name = f"profile.{profile_name}.{section_name}"
-        if section_name not in protostar_toml_dict:
-            return None
-        return protostar_toml_dict[section_name]
+        try:
+            section_name = (
+                f"{section_namespace}.{section_name}"
+                if section_namespace
+                else section_name
+            )
+            protostar_toml_dict = self._get_flat_dict_representation()
+            if profile_name:
+                section_name = f"profile.{profile_name}.{section_name}"
+            if section_name not in protostar_toml_dict:
+                return None
+            return protostar_toml_dict[section_name]
+        except Exception as ex:
+            raise ProtostarException(
+                message="Couldn't parse the configuration file", details=str(ex)
+            ) from ex
 
     def _get_flat_dict_representation(self):
         protostar_toml_dict = tomli.loads(self._file_content)

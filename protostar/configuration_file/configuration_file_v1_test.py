@@ -5,14 +5,20 @@ import pytest
 from protostar.configuration_file.configuration_legacy_toml_interpreter import (
     ConfigurationLegacyTOMLInterpreter,
 )
-from protostar.utils import VersionManager
+from protostar.self import parse_protostar_version
 
 from .configuration_file_v1 import (
+    CommandNamesProviderProtocol,
     ConfigurationFile,
     ConfigurationFileV1,
     ConfigurationFileV1Model,
     ContractNameNotFoundException,
 )
+
+
+class CommandNamesProviderDouble(CommandNamesProviderProtocol):
+    def get_command_names(self) -> list[str]:
+        return ["deploy"]
 
 
 @pytest.fixture(name="project_root_path")
@@ -44,6 +50,7 @@ def configuration_file_fixture(
         ),
         project_root_path=project_root_path,
         filename=protostar_toml_path.name,
+        command_names_provider=CommandNamesProviderDouble(),
     )
 
 
@@ -56,10 +63,10 @@ def configuration_file_fixture(
         """,
     ],
 )
-def test_retrieving_min_protostar_version(configuration_file: ConfigurationFile):
-    result = configuration_file.get_min_protostar_version()
+def test_retrieving_declared_protostar_version(configuration_file: ConfigurationFile):
+    result = configuration_file.get_declared_protostar_version()
 
-    assert result == VersionManager.parse("0.1.2")
+    assert result == parse_protostar_version("0.1.2")
 
 
 @pytest.mark.parametrize(

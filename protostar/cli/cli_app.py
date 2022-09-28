@@ -4,10 +4,6 @@ from protostar.cli.command import Command
 
 
 class CLIApp:
-    """
-    Defines CLI structure and is responsible for executing the proper command.
-    """
-
     class CommandNotFoundError(Exception):
         pass
 

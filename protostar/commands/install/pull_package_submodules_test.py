@@ -5,10 +5,10 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
-from git.repo import Repo
 from pytest_mock import MockerFixture
 
 from protostar.commands.install.pull_package_submodules import pull_package_submodules
+from protostar.git import Git, GitRepository
 
 # - repo
 #   - lib
@@ -50,18 +50,17 @@ def package_repo_dir(tmpdir: str) -> Path:
 
 
 @pytest.fixture
-def package_repo(package_repo_dir: Path, the_packages_file_name: str) -> Repo:
-    repo = Repo.init(package_repo_dir, initial_branch="main")
+def package_repo(package_repo_dir: Path, the_packages_file_name: str) -> GitRepository:
+    repo = Git.init(package_repo_dir)
 
     the_file_path = path.join(package_repo_dir / the_packages_file_name)
     with open(the_file_path, "w", encoding="utf-8") as file:
         file.write("foo")
 
-    repo.git.add("-A")
-    repo.index.commit("add foo")
+    repo.add(Path(package_repo_dir))
+    repo.commit("add foo")
 
     assert path.exists(the_file_path)
-
     return repo
 
 
@@ -72,17 +71,20 @@ def repo(
     package_repo_dir: Path,
     packages_dir_name: str,
     the_package_name: str,
-    package_repo: Repo,
-) -> Repo:
-    repo = Repo.init(repo_dir)
+    # This is needed because we want the package repo to be initialized
+    package_repo: GitRepository,
+) -> GitRepository:
+    repo = Git.init(repo_dir)
 
     packages_dir = repo_dir / packages_dir_name
     package_dir = packages_dir / the_package_name
     mkdir(packages_dir)
-    repo.create_submodule(the_package_name, package_dir, package_repo_dir)
 
-    repo.git.add()
-    repo.index.commit("add submodule")
+    repo.add_submodule(
+        url=str(package_repo_dir), submodule_path=package_dir, name=the_package_name
+    )
+    repo.add(Path(repo_dir))
+    repo.commit("add submodule")
 
     return repo
 
@@ -90,9 +92,10 @@ def repo(
 @pytest.fixture
 # pylint: disable=unused-argument
 def repo_clone(
-    repo_clone_dir: Path, repo_dir: Path, repo: Repo, packages_dir_name: str
-) -> Repo:
-    cloned_repo = repo.clone(repo_clone_dir)
+    repo_clone_dir: Path, repo_dir: Path, repo: GitRepository, packages_dir_name: str
+) -> GitRepository:
+
+    cloned_repo = Git.clone(repo_clone_dir, repo)
 
     assert path.exists(
         repo_clone_dir / packages_dir_name

@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional, Protocol, Union
 
-from protostar.utils.protostar_directory import VersionManager, VersionType
+from protostar.self import ProtostarVersion, parse_protostar_version
 
 from .configuration_file import (
     CommandConfig,
@@ -27,27 +27,26 @@ class ConfigurationFileV1Model:
     profile_name_to_shared_command_config: dict[ProfileName, CommandConfig]
 
 
+class CommandNamesProviderProtocol(Protocol):
+    def get_command_names(self) -> list[str]:
+        ...
+
+
 class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
     def __init__(
         self,
         configuration_file_interpreter: ConfigurationFileInterpreter,
         project_root_path: Path,
         filename: str,
+        command_names_provider: CommandNamesProviderProtocol,
     ) -> None:
         super().__init__()
         self._configuration_file_interpreter = configuration_file_interpreter
         self._project_root_path = project_root_path
         self._filename = filename
-        self._command_names = [
-            "build",
-            "init",
-            "test",
-            "deploy",
-            "declare",
-            "migrate",
-        ]
+        self._command_names_provider = command_names_provider
 
-    def get_min_protostar_version(self) -> Optional[VersionType]:
+    def get_declared_protostar_version(self) -> Optional[ProtostarVersion]:
         version_str = self._configuration_file_interpreter.get_attribute(
             attribute_name="protostar_version",
             section_name="config",
@@ -55,7 +54,7 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
         )
         if not version_str:
             return None
-        return VersionManager.parse(version_str)
+        return parse_protostar_version(version_str)
 
     def get_contract_names(self) -> list[str]:
         contract_section = self._configuration_file_interpreter.get_section(
@@ -109,7 +108,7 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
         self,
     ) -> ConfigurationFileV1Model:
         return ConfigurationFileV1Model(
-            protostar_version=self._get_min_protostar_version_str(),
+            protostar_version=self._get_declared_protostar_version_str(),
             libs_path_str=self._get_libs_path_str(),
             contract_name_to_path_strs=self._get_contract_name_to_path_strs(),
             command_name_to_config=self._get_command_name_to_config(),
@@ -118,8 +117,8 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
             profile_name_to_shared_command_config=self._get_profile_name_to_shared_command_config(),
         )
 
-    def _get_min_protostar_version_str(self) -> Optional[str]:
-        version = self.get_min_protostar_version()
+    def _get_declared_protostar_version_str(self) -> Optional[str]:
+        version = self.get_declared_protostar_version()
         if not version:
             return None
         return str(version)
@@ -155,7 +154,7 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
         self, profile_name: Optional[str] = None
     ) -> CommandNameToConfig:
         result: CommandNameToConfig = {}
-        for command_name in self._command_names:
+        for command_name in self._command_names_provider.get_command_names():
             command_config = self._configuration_file_interpreter.get_section(
                 section_name=command_name,
                 profile_name=profile_name,
