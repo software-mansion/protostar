@@ -1,10 +1,16 @@
+import json
 import subprocess
 import time
+from dataclasses import dataclass
 from socket import socket as Socket
 from typing import List, NamedTuple
 
 import pytest
 import requests
+from starknet_py.net.models import StarknetChainId
+from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
+
+from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
 
 
 def ensure_devnet_alive(port: int, retries=5, base_backoff_time=2) -> bool:
@@ -71,3 +77,42 @@ def signing_credentials_fixture() -> Credentials:  # The same account is generat
         testnet_account_private_key,
         testnet_account_address,
     )
+
+
+@dataclass
+class DevnetAccount:
+    address: str
+    private_key: str
+    public_key: str
+    signer: StarkCurveSigner
+
+
+@pytest.fixture(name="devnet_accounts")
+def devnet_accounts_fixture(devnet_gateway_url: str) -> list[DevnetAccount]:
+    response = requests.get(f"{devnet_gateway_url}/predeployed_accounts")
+    devnet_account_dicts = json.loads(response.content)
+    return [
+        DevnetAccount(
+            address=devnet_account_dict["address"],
+            private_key=devnet_account_dict["private_key"],
+            public_key=devnet_account_dict["public_key"],
+            signer=StarkCurveSigner(
+                account_address=devnet_account_dict["address"],
+                key_pair=KeyPair(
+                    private_key=int(devnet_account_dict["private_key"], base=16),
+                    public_key=int(devnet_account_dict["public_key"], base=16),
+                ),
+                chain_id=StarknetChainId.TESTNET,
+            ),
+        )
+        for devnet_account_dict in devnet_account_dicts
+    ]
+
+
+@pytest.fixture(name="alice_devnet_account")
+def alice_devnet_account(
+    devnet_accounts: list[DevnetAccount], monkeypatch: pytest.MonkeyPatch
+) -> DevnetAccount:
+    alice_devnet_account = devnet_accounts[0]
+    monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, alice_devnet_account.private_key)
+    return alice_devnet_account

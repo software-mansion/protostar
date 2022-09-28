@@ -8,20 +8,14 @@ from pathlib import Path
 from typing import Callable, ContextManager, List, Optional, Set, Tuple, cast
 
 import pytest
-import requests
 from pytest import TempPathFactory
 from pytest_mock import MockerFixture
-from starknet_py.net.models import StarknetChainId
-from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 from starkware.starknet.public.abi import AbiType
 from typing_extensions import Protocol
 
-from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
 from protostar.commands.test.test_command import TestCommand
-from protostar.commands.test.test_result_formatter import format_test_result
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.testing import TestingSummary
-from protostar.testing.test_results import TestCaseResult, TestResult
 from protostar.utils.log_color_provider import LogColorProvider
 from tests.conftest import run_devnet
 from tests.integration.protostar_fixture import (
@@ -98,45 +92,6 @@ def devnet_gateway_url_fixture(devnet_port: int):
     proc = run_devnet(["poetry", "run", "starknet-devnet"], devnet_port)
     yield f"http://localhost:{devnet_port}"
     proc.kill()
-
-
-@dataclass
-class DevnetAccount:
-    address: str
-    private_key: str
-    public_key: str
-    signer: StarkCurveSigner
-
-
-@pytest.fixture(name="devnet_accounts")
-def devnet_accounts_fixture(devnet_gateway_url: str) -> list[DevnetAccount]:
-    response = requests.get(f"{devnet_gateway_url}/predeployed_accounts")
-    devnet_account_dicts = json.loads(response.content)
-    return [
-        DevnetAccount(
-            address=devnet_account_dict["address"],
-            private_key=devnet_account_dict["private_key"],
-            public_key=devnet_account_dict["public_key"],
-            signer=StarkCurveSigner(
-                account_address=devnet_account_dict["address"],
-                key_pair=KeyPair(
-                    private_key=int(devnet_account_dict["private_key"], base=16),
-                    public_key=int(devnet_account_dict["public_key"], base=16),
-                ),
-                chain_id=StarknetChainId.TESTNET,
-            ),
-        )
-        for devnet_account_dict in devnet_account_dicts
-    ]
-
-
-@pytest.fixture(name="alice_devnet_account")
-def alice_devnet_account(
-    devnet_accounts: list[DevnetAccount], monkeypatch: pytest.MonkeyPatch
-) -> DevnetAccount:
-    alice_devnet_account = devnet_accounts[0]
-    monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, alice_devnet_account.private_key)
-    return alice_devnet_account
 
 
 class RunCairoTestRunnerFixture(Protocol):

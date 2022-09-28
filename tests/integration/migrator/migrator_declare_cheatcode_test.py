@@ -1,11 +1,11 @@
 import re
-from pathlib import Path
 from typing import cast
 
 import pytest
 
 from protostar.protostar_exception import ProtostarException
-from tests.integration.conftest import CreateProtostarProjectFixture, DevnetAccount
+from tests.conftest import DevnetAccount
+from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.migrator.conftest import assert_transaction_accepted
 from tests.integration.protostar_fixture import ProtostarFixture
 
