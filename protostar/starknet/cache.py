@@ -8,7 +8,7 @@ from pathlib import Path
 class CacheUtil:
     _CACHE_DIR_NAME = ".protostar_cache"
 
-    def __init__(self, project_path: Path):
+    def __init__(self, project_path: str):
         self._cache_path = path.join(project_path, self._CACHE_DIR_NAME)
         if not path.exists(self._cache_path):
             os.mkdir(self._cache_path)

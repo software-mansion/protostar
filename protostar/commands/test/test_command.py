@@ -135,7 +135,7 @@ A glob or globs to a directory or a test suite, for example:
 
     async def run(self, args) -> TestingSummary:
         targets = args.target
-        cache_util = CacheUtil(self._project_root_path)
+        cache_util = CacheUtil(str(self._project_root_path))
         if args.last_failed:
             if previous_results := cache_util.obtain("test_results"):
                 if previously_failed_tests := previous_results["failed_tests"]:
