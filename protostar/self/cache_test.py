@@ -1,13 +1,14 @@
 import tempfile
 import os
-import pytest
 import shutil
+
+import pytest
 
 from .cache import CacheUtil
 
 
-@pytest.fixture
-def test_wrapper():
+@pytest.fixture(name="test_wrapper")
+def test_wrapper_fixture():
     cache_dir = []
     yield cache_dir
     assert len(cache_dir) == 1
@@ -17,7 +18,9 @@ def test_wrapper():
 def test_cache_simple(test_wrapper):
     cache_name = "test-cache-simple"
     cache_util = CacheUtil(tempfile.gettempdir())
+    # pylint: disable=protected-access
     test_wrapper.append(cache_util._cache_path)
+    # pylint: disable=protected-access
     cache_file_path = os.path.join(cache_util._cache_path, cache_name)
 
     obj = {"a": 1, "b": True, "c": 63464, "z": None}
@@ -38,8 +41,8 @@ def test_cache_simple(test_wrapper):
 def test_cache_override(test_wrapper):
     cache_name = "test-cache-override"
     cache_util = CacheUtil(tempfile.gettempdir())
+    # pylint: disable=protected-access
     test_wrapper.append(cache_util._cache_path)
-    cache_file_path = os.path.join(cache_util._cache_path, cache_name)
 
     obj = {"a": 1, "b": True}
     obj2 = {"a": 2}
