@@ -154,7 +154,8 @@ A glob or globs to a directory or a test suite, for example:
             slowest_tests_to_report_count=args.report_slowest_tests,
         )
         failed_tests_paths = [
-            str(failed_test.file_path.absolute()) for failed_test in summary.failed
+            str(failed_test.file_path.absolute())
+            for failed_test in summary.failed + summary.broken + summary.broken_suites
         ]
         cache_util.persist(
             "test_results",
