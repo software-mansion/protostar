@@ -19,10 +19,13 @@ def to_protobuf(profile_obj) -> Profile:
 
     profile.time_nanos = int(time.time() * 10**9)  # type: ignore
 
-    for sample_type in profile_obj.sample_types:
-        sample_tp = profile.sample_type.add()  # type: ignore
-        sample_tp.type = string_id(string_table, string_ids, sample_type.type)
-        sample_tp.unit = string_id(string_table, string_ids, sample_type.unit)
+    sample_tp = profile.sample_type.add()  # type: ignore
+    sample_tp.type = string_id(string_table, string_ids, "steps count")
+    sample_tp.unit = string_id(string_table, string_ids, "steps")
+
+    sample_tp = profile.sample_type.add()  # type: ignore
+    sample_tp.type = string_id(string_table, string_ids, "memory holes")
+    sample_tp.unit = string_id(string_table, string_ids, "mem holes")
 
     for function in profile_obj.functions:
         func = profile.function.add()  # type: ignore
