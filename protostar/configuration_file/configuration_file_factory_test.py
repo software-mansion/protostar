@@ -9,16 +9,7 @@ from tests.conftest import create_file_structure
 from .configuration_file_factory import ConfigurationFileFactory
 from .configuration_file_v1 import ConfigurationFileV1
 from .configuration_file_v2 import ConfigurationFileV2
-
-PROTOSTAR_TOML_V1_CONTENT = """
-["protostar.config"]
-protostar_version = "0.4.0"
-"""
-
-PROTOSTAR_TOML_V2_CONTENT = """
-[project]
-protostar-version = "0.5.0"
-"""
+from .conftest import PROTOSTAR_TOML_V1_CONTENT, PROTOSTAR_TOML_V2_CONTENT
 
 
 def test_not_finding_configuration_file(mocker: MockerFixture):

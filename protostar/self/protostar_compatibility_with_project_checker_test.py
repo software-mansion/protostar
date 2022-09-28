@@ -1,5 +1,6 @@
 import pytest
 
+from .conftest import ProtostarVersionProviderDouble
 from .protostar_compatibility_with_project_checker import (
     CompatibilityCheckResult,
     DeclaredProtostarVersionProviderProtocol,
@@ -15,14 +16,6 @@ class DeclaredProtostarVersionProviderDouble(DeclaredProtostarVersionProviderPro
 
     def get_declared_protostar_version(self):
         return parse_protostar_version(self._declared_protostar_version_str)
-
-
-class ProtostarVersionProviderDouble(ProtostarVersionProviderProtocol):
-    def __init__(self, protostar_version_str: str):
-        self._protostar_version_str = protostar_version_str
-
-    def get_protostar_version(self):
-        return parse_protostar_version(self._protostar_version_str)
 
 
 @pytest.fixture(name="declared_protostar_version_provider")
