@@ -34,6 +34,7 @@ class MigratorDeclareCheatcode(Cheatcode):
     class Config:
         signer: Optional[BaseSigner] = None
         token: Optional[str] = None
+        account_address: Optional[str] = None
 
     def __init__(
         self,
@@ -75,13 +76,24 @@ class MigratorDeclareCheatcode(Cheatcode):
         )
 
         try:
-            response = asyncio.run(
-                self._gateway_facade.declare_v0(
-                    compiled_contract_path=compiled_contract_path,
-                    token=self._config.token,
-                    wait_for_acceptance=validated_config.wait_for_acceptance,
+            if self._config.signer and self._config.account_address is not None:
+                response = asyncio.run(
+                    self._gateway_facade.declare(
+                        compiled_contract_path=compiled_contract_path,
+                        account_address=self._config.account_address,
+                        signer=self._config.signer,
+                        token=self._config.token,
+                        wait_for_acceptance=validated_config.wait_for_acceptance,
+                    )
                 )
-            )
+            else:
+                response = asyncio.run(
+                    self._gateway_facade.declare_v0(
+                        compiled_contract_path=compiled_contract_path,
+                        token=self._config.token,
+                        wait_for_acceptance=validated_config.wait_for_acceptance,
+                    )
+                )
 
             return DeclaredContract(
                 class_hash=response.class_hash,

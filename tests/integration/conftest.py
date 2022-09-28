@@ -16,6 +16,7 @@ from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 from starkware.starknet.public.abi import AbiType
 from typing_extensions import Protocol
 
+from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
 from protostar.commands.test.test_command import TestCommand
 from protostar.commands.test.test_result_formatter import format_test_result
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
@@ -127,6 +128,15 @@ def devnet_accounts_fixture(devnet_gateway_url: str) -> list[DevnetAccount]:
         )
         for devnet_account_dict in devnet_account_dicts
     ]
+
+
+@pytest.fixture(name="alice_devnet_account")
+def alice_devnet_account(
+    devnet_accounts: list[DevnetAccount], monkeypatch: pytest.MonkeyPatch
+) -> DevnetAccount:
+    alice_devnet_account = devnet_accounts[0]
+    monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, alice_devnet_account.private_key)
+    return alice_devnet_account
 
 
 class RunCairoTestRunnerFixture(Protocol):

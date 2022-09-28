@@ -125,7 +125,7 @@ class ProtostarFixture:
     async def migrate(
         self,
         path: Path,
-        network: str,
+        gateway_url: str,
         rollback=False,
         output_dir: Optional[Path] = None,
         account_address: Optional[str] = None,
@@ -136,7 +136,7 @@ class ProtostarFixture:
         args.rollback = rollback
         args.no_confirm = True
         args.network = None
-        args.gateway_url = network
+        args.gateway_url = gateway_url
         args.chain_id = StarknetChainId.TESTNET
         args.signer_class = None
         args.account_address = account_address
