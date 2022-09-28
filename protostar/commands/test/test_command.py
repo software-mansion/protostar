@@ -129,7 +129,7 @@ A glob or globs to a directory or a test suite, for example:
                 name="last-failed",
                 short_name="lf",
                 type="bool",
-                description="only re-run the failures.",
+                description="Only re-run failed and broken test cases.",
             ),
         ]
 
