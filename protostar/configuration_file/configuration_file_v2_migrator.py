@@ -26,9 +26,9 @@ class ConfigurationFileMigrator:
 
     def run(self) -> None:
         if self._current_configuration_file is None:
-            raise ProtostarException("No configuration file was found.")
+            raise ConfigurationFileNotFoundException()
         if isinstance(self._current_configuration_file, ConfigurationFileV2):
-            raise ProtostarException("Configuration file is already migrated.")
+            raise ConfigurationFileAlreadyMigratedException()
         assert isinstance(self._current_configuration_file, ConfigurationFileV1)
         v1_model = self._current_configuration_file.read()
         v2_model = ConfigurationFileV2Model.from_v1(
@@ -52,6 +52,19 @@ class ConfigurationFileMigrator:
         # pylint: disable=broad-except
         except Exception as ex:
             backup_file_path.rename(configuration_file_path)
-            raise ProtostarException(
-                "Configuration file migration failed", details=str(ex)
-            ) from ex
+            raise ConfigurationFileMigrationFailed(ex) from ex
+
+
+class ConfigurationFileNotFoundException(ProtostarException):
+    def __init__(self) -> None:
+        super().__init__("No configuration file was found.")
+
+
+class ConfigurationFileAlreadyMigratedException(ProtostarException):
+    def __init__(self) -> None:
+        super().__init__("Configuration file is already migrated.")
+
+
+class ConfigurationFileMigrationFailed(ProtostarException):
+    def __init__(self, ex: Exception) -> None:
+        super().__init__("Configuration file migration failed.", details=str(ex))

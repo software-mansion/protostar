@@ -26,12 +26,13 @@ class ConfigurationFileContentBuilder(ABC):
         data: dict[str, Any],
         profile_name: Optional[str] = None,
     ) -> None:
-        pass
+        ...
 
     @abstractmethod
     def build(self) -> str:
         ...
 
+    @abstractmethod
     def get_file_extension(self) -> str:
         ...
 
