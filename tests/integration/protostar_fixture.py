@@ -48,7 +48,7 @@ class ProtostarFixture:
         project_root_path: Path,
         init_command: InitCommand,
         build_command: BuildCommand,
-        migrator_command: MigrateCommand,
+        migrate_command: MigrateCommand,
         format_command: FormatCommand,
         declare_command: DeclareCommand,
         deploy_command: DeployCommand,
@@ -56,7 +56,7 @@ class ProtostarFixture:
         self._project_root_path = project_root_path
         self._init_command = init_command
         self._build_command = build_command
-        self._migrator_command = migrator_command
+        self._migrate_command = migrate_command
         self._format_command = format_command
         self._declare_command = declare_command
         self._deploy_command = deploy_command
@@ -141,7 +141,7 @@ class ProtostarFixture:
         args.signer_class = None
         args.account_address = account_address
         args.private_key_path = None
-        migration_history = await self._migrator_command.run(args)
+        migration_history = await self._migrate_command.run(args)
         assert migration_history is not None
         return migration_history
 
@@ -337,7 +337,7 @@ def build_protostar_fixture(
         project_root_path=project_root_path,
         init_command=init_command,
         build_command=build_command,
-        migrator_command=migrate_command,
+        migrate_command=migrate_command,
         format_command=format_command,
         declare_command=declare_command,
         deploy_command=deploy_command,

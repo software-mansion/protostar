@@ -228,7 +228,7 @@ class GatewayFacade:
                 "contract": str(self._project_root_path / compiled_contract_path),
                 "sender_address": tx.sender_address,
                 "max_fee": tx.max_fee,
-                "version": constants.TRANSACTION_VERSION,
+                "version": tx.version,
                 "nonce": tx.nonce,
             },
         )

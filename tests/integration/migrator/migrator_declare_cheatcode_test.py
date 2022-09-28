@@ -87,3 +87,21 @@ async def test_declare_v1(
     )
     await assert_transaction_accepted(devnet_gateway_url, transaction_hash)
     assert result.starknet_requests[0].payload["version"] == 1
+
+
+async def test_declare_v0(
+    protostar: ProtostarFixture,
+    devnet_gateway_url: str,
+):
+    migration_file_path = protostar.create_migration_file('declare("main")')
+
+    result = await protostar.migrate(
+        migration_file_path,
+        gateway_url=devnet_gateway_url,
+    )
+
+    transaction_hash = cast(
+        int, result.starknet_requests[0].response["transaction_hash"]
+    )
+    await assert_transaction_accepted(devnet_gateway_url, transaction_hash)
+    assert result.starknet_requests[0].payload["version"] == 0
