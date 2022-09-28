@@ -12,8 +12,9 @@ from protostar.protostar_exception import ProtostarException
 @dataclass
 class PackageInfo:
     name: str
-    version: Optional[str]
     url: str
+    version: Optional[str] = None
+    path: Optional[Path] = None
 
 
 class PackageNameRetrievalException(ProtostarException):
