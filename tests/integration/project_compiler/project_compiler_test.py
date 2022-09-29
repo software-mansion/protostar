@@ -1,51 +1,47 @@
 import json
 from pathlib import Path
-from typing import cast
 
 import pytest
-from pytest_mock import MockerFixture
 
-from protostar.compiler import (
-    CompilationException,
-    ProjectCompiler,
-    ProjectCompilerConfig,
-)
+from protostar.compiler import CompilationException, ProjectCompiler
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
-from protostar.protostar_toml.protostar_contracts_section import (
-    ProtostarContractsSection,
+from protostar.configuration_file import (
+    ConfigurationFileV2,
+    ConfigurationTOMLInterpreter,
 )
-from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
-from protostar.protostar_toml.protostar_toml_section import ProtostarTOMLSection
 from protostar.utils.starknet_compilation import StarknetCompiler
 
 
-@pytest.fixture(name="create_loader")
-def create_loader_fixture(mocker: MockerFixture):
-    def create_loader(return_value) -> ProtostarTOMLSection.Loader:
-        load_mock = mocker.MagicMock()
-        load_mock.return_value = return_value
-        loader = mocker.MagicMock()
-        cast(ProtostarTOMLSection.Loader, loader).load = load_mock
-        return loader
+def create_project_compiler(project_root_path: Path, main_file_path_str: str):
+    configuration_file = ConfigurationFileV2(
+        file_path=Path(),
+        project_root_path=project_root_path,
+        configuration_file_interpreter=ConfigurationTOMLInterpreter(
+            file_content=f"""
+            [project]
+            libs-path="./modules"
 
-    return create_loader
-
-
-def test_compiling(tmp_path: Path, datadir: Path, create_loader):
-    project_root_path = datadir / "importing"
+            [contracts]
+            main=["{main_file_path_str}"]
+        """
+        ),
+    )
+    project_cairo_path_builder = ProjectCairoPathBuilder(
+        configuration_file=configuration_file,
+        project_root_path=project_root_path,
+    )
     project_compiler = ProjectCompiler(
         project_root_path,
-        project_cairo_path_builder=ProjectCairoPathBuilder(
-            project_root_path,
-            project_section_loader=create_loader(
-                ProtostarProjectSection(libs_relative_path=Path("./modules"))
-            ),
-        ),
-        contracts_section_loader=create_loader(
-            ProtostarContractsSection(
-                contract_name_to_paths={"main": [Path("./entry_point.cairo")]}
-            )
-        ),
+        configuration_file=configuration_file,
+        project_cairo_path_builder=project_cairo_path_builder,
+    )
+    return project_compiler
+
+
+def test_compiling(tmp_path: Path, datadir: Path):
+    project_compiler = create_project_compiler(
+        project_root_path=datadir / "importing",
+        main_file_path_str="./entry_point.cairo",
     )
 
     project_compiler.compile_project(output_dir=tmp_path)
@@ -69,51 +65,21 @@ def test_compiling(tmp_path: Path, datadir: Path, create_loader):
         assert function_input["type"] == "felt"
 
 
-def test_handling_cairo_errors(tmp_path: Path, datadir: Path, create_loader):
-    project_root_path = datadir / "compilation_error"
+def test_handling_cairo_errors(tmp_path: Path, datadir: Path):
+    project_compiler = create_project_compiler(
+        project_root_path=datadir / "compilation_error",
+        main_file_path_str="./invalid_contract.cairo",
+    )
 
     with pytest.raises(CompilationException):
-        ProjectCompiler(
-            project_root_path=project_root_path,
-            project_cairo_path_builder=ProjectCairoPathBuilder(
-                project_root_path,
-                project_section_loader=create_loader(
-                    ProtostarProjectSection(libs_relative_path=Path("./modules"))
-                ),
-            ),
-            contracts_section_loader=create_loader(
-                ProtostarContractsSection(
-                    contract_name_to_paths={
-                        "main": [project_root_path / "invalid_contract.cairo"]
-                    }
-                )
-            ),
-            default_config=ProjectCompilerConfig(
-                relative_cairo_path=[project_root_path]
-            ),
-        ).compile_project(output_dir=tmp_path)
+        project_compiler.compile_project(output_dir=tmp_path)
 
 
-def test_handling_not_existing_main_files(tmp_path: Path, datadir: Path, create_loader):
-    project_root_path = datadir / "compilation_error"
+def test_handling_not_existing_main_files(tmp_path: Path, datadir: Path):
+    project_compiler = create_project_compiler(
+        project_root_path=datadir / "compilation_error",
+        main_file_path_str="./NOT_EXISTING_FILE.cairo",
+    )
 
     with pytest.raises(StarknetCompiler.FileNotFoundException):
-        ProjectCompiler(
-            project_root_path=project_root_path,
-            project_cairo_path_builder=ProjectCairoPathBuilder(
-                project_root_path,
-                project_section_loader=create_loader(
-                    ProtostarProjectSection(libs_relative_path=Path("./modules"))
-                ),
-            ),
-            contracts_section_loader=create_loader(
-                ProtostarContractsSection(
-                    contract_name_to_paths={
-                        "main": [project_root_path / "NOT_EXISTING_FILE.cairo"]
-                    }
-                )
-            ),
-            default_config=ProjectCompilerConfig(
-                relative_cairo_path=[project_root_path]
-            ),
-        ).compile_project(output_dir=tmp_path)
+        project_compiler.compile_project(output_dir=tmp_path)

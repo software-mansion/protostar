@@ -2,4 +2,6 @@ from .command_names_delayed_provider import CommandNamesDelayedProvider
 from .configuration_file import ConfigurationFile, ConfigurationFileMigratorProtocol
 from .configuration_file_factory import ConfigurationFileFactory
 from .configuration_file_v1 import CommandNamesProviderProtocol
+from .configuration_file_v2 import ConfigurationFileV2, ConfigurationFileV2Model
 from .configuration_file_v2_migrator import ConfigurationFileV2Migrator
+from .configuration_toml_interpreter import ConfigurationTOMLInterpreter
