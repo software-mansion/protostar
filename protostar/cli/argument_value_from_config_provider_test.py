@@ -1,72 +1,82 @@
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 import pytest
 
-from protostar.cli.argument_value_from_config_provider import (
+from .argument_value_from_config_provider import (
     ArgumentValueFromConfigProvider,
+    ArgumentValueProviderProtocol,
 )
-from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 
 
-@pytest.fixture(name="configuration_profile_name")
-def configuration_profile_name_fixture() -> Optional[str]:
-    return None
+class ArgumentValueProviderTestDouble(ArgumentValueProviderProtocol):
+    def __init__(self, ignore_command_scoped_value: bool) -> None:
+        super().__init__()
+        self._ignore_command_scoped_value = ignore_command_scoped_value
+
+    def get_argument_value(
+        self, command_name: str, argument_name: str, profile_name: Optional[str]
+    ) -> Optional[Any]:
+        if self._ignore_command_scoped_value:
+            return None
+        profile_name_prefix = f"{profile_name}::" if profile_name else ""
+        return f"{profile_name_prefix}{command_name}::{argument_name}"
+
+    def get_shared_argument_value(
+        self, argument_name: str, profile_name: Optional[str]
+    ) -> Optional[Any]:
+        profile_name_prefix = f"{profile_name}::" if profile_name else ""
+        return f"{profile_name_prefix}shared::{argument_name}"
 
 
 @pytest.fixture(name="arg_value_provider")
-def arg_value_provider_fixture(datadir: Path, configuration_profile_name):
+def arg_value_provider_fixture(
+    configuration_profile_name: Optional[str],
+    ignore_command_scoped_value: bool,
+):
     return ArgumentValueFromConfigProvider(
-        protostar_toml_reader=ProtostarTOMLReader(
-            protostar_toml_path=datadir / "protostar.toml"
+        argument_value_provider=ArgumentValueProviderTestDouble(
+            ignore_command_scoped_value
         ),
         configuration_profile_name=configuration_profile_name,
     )
 
 
-@pytest.mark.parametrize("configuration_profile_name", [None])
+@pytest.mark.parametrize(
+    "configuration_profile_name, ignore_command_scoped_value", ((None, True),)
+)
 def test_loading_shared_config(arg_value_provider: ArgumentValueFromConfigProvider):
-    val = arg_value_provider.load_value(
-        command_name="not_configured", argument_name="arg"
-    )
+    val = arg_value_provider.load_value(command_name="command", argument_name="arg")
 
-    assert val == "a"
+    assert val == "shared::arg"
 
 
-@pytest.mark.parametrize("configuration_profile_name", ["testnet"])
+@pytest.mark.parametrize(
+    "configuration_profile_name, ignore_command_scoped_value", (("profile", True),)
+)
 def test_loading_shared_profiled_config(
     arg_value_provider: ArgumentValueFromConfigProvider,
 ):
-    val = arg_value_provider.load_value(
-        command_name="not_configured", argument_name="arg"
-    )
+    val = arg_value_provider.load_value(command_name="command", argument_name="arg")
 
-    assert val == "b"
+    assert val == "profile::shared::arg"
 
 
-@pytest.mark.parametrize("configuration_profile_name", [None])
+@pytest.mark.parametrize(
+    "configuration_profile_name, ignore_command_scoped_value", ((None, False),)
+)
 def test_loading_command_config(arg_value_provider: ArgumentValueFromConfigProvider):
-    val = arg_value_provider.load_value(command_name="deploy", argument_name="arg")
+    val = arg_value_provider.load_value(command_name="command", argument_name="arg")
 
-    assert val == "c"
+    assert val == "command::arg"
 
 
-@pytest.mark.parametrize("configuration_profile_name", ["testnet"])
+@pytest.mark.parametrize(
+    "configuration_profile_name, ignore_command_scoped_value", (("profile", True),)
+)
 def test_loading_command_profiled_config(
     arg_value_provider: ArgumentValueFromConfigProvider,
 ):
-    val = arg_value_provider.load_value(command_name="deploy", argument_name="arg")
+    val = arg_value_provider.load_value(command_name="command", argument_name="arg")
 
-    assert val == "d"
-
-
-@pytest.mark.parametrize("configuration_profile_name", [None])
-def test_returning_none_when_file_config_file_does_not_exists(
-    arg_value_provider: ArgumentValueFromConfigProvider,
-):
-    # pylint: disable=protected-access
-    arg_value_provider._protostar_toml_reader.path = Path() / "NOT_EXISTING_DIR"
-
-    val = arg_value_provider.load_value(command_name="deploy", argument_name="arg")
-
-    assert val is None
+    assert val == "profile::shared::arg"
