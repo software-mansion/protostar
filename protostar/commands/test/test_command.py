@@ -180,10 +180,10 @@ A glob or globs to a directory or a test suite, for example:
         for failed_test in summary.failed + summary.broken + summary.broken_suites:
             if hasattr(failed_test, "test_case_name"):
                 failed_test_cases.append(
-                    (str(failed_test.file_path), failed_test.test_case_name)
+                    (str(failed_test.file_path), failed_test.test_case_name)  # type: ignore
                 )
             elif hasattr(failed_test, "test_case_names"):
-                for test_name in failed_test.test_case_names:
+                for test_name in failed_test.test_case_names:  # type: ignore
                     failed_test_cases.append((str(failed_test.file_path), test_name))
         cache_util.persist(
             "test_results",
