@@ -1,3 +1,4 @@
+import os.path
 from logging import Logger
 from pathlib import Path
 from typing import List, Optional
@@ -30,6 +31,27 @@ from protostar.starknet.compiler.starknet_compilation import (
 )
 
 from protostar.self.cache import CacheUtil
+
+
+def read_targets_from_cache(cache_util, targets) -> Optional[list]:
+    previous_results = cache_util.obtain("test_results")
+    if not previous_results:
+        return None
+    previously_failed_tests = previous_results["failed_tests"]
+    if not previously_failed_tests:
+        return None
+    # consider only the tests that are in one of the targets
+    new_targets = []
+    for failed_test in previously_failed_tests:
+        is_in_targets = False
+        for target in targets:
+            if Path(os.path.abspath(target)) in Path(failed_test).parents:
+                is_in_targets = True
+                break
+        if is_in_targets:
+            new_targets.append(failed_test)
+
+    return new_targets
 
 
 class TestCommand(Command):
@@ -134,14 +156,13 @@ A glob or globs to a directory or a test suite, for example:
         ]
 
     async def run(self, args) -> TestingSummary:
-        targets = args.target
+        targets: List[str] = args.target
         cache_util = CacheUtil(str(self._project_root_path))
         if args.last_failed:
-            if previous_results := cache_util.obtain("test_results"):
-                if previously_failed_tests := previous_results["failed_tests"]:
-                    targets = previously_failed_tests
-                    cache_util.persist("test_results", {})
-                    print("running previously failed tests:", targets)
+            targets_from_cache = read_targets_from_cache(cache_util, targets)
+            if targets_from_cache:
+                targets = targets_from_cache
+                print("running previously failed tests:", targets)
         summary = await self.test(
             targets=targets,
             ignored_targets=args.ignore,
