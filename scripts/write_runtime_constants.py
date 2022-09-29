@@ -21,7 +21,9 @@ RUNTIME_CONSTANTS: dict[RuntimeConstant, Union[str, int]] = {
 
 # dump constants into a json file
 with open(
-    project_root / ProtostarDirectory.RUNTIME_CONSTANTS_FILE_NAME, mode="w", encoding="utf-8"
+    project_root / ProtostarDirectory.RUNTIME_CONSTANTS_FILE_NAME,
+    mode="w",
+    encoding="utf-8",
 ) as file:
     constants_json_str = json.dumps(RUNTIME_CONSTANTS, indent=4)
     file.write(constants_json_str)

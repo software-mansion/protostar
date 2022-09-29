@@ -51,7 +51,9 @@ class ProtostarDirectory:
                 self._runtime_constants = json.load(constants_file)
 
                 # Provides safety, for ignoring the type
-                assert self._runtime_constants is not None, "Could not load runtime constants"
+                assert (
+                    self._runtime_constants is not None
+                ), "Could not load runtime constants"
 
     def get_runtime_constant(self, name: RuntimeConstant) -> str:
         if self._runtime_constants is None:
