@@ -4,7 +4,7 @@ import re
 from pathlib import Path
 from typing import Optional, Literal, Union
 
-from git import Git
+from git.cmd import Git
 from packaging import version
 
 from packaging.version import LegacyVersion, Version as PackagingVersion
