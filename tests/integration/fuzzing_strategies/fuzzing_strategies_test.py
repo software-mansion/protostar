@@ -108,3 +108,17 @@ async def test_one_of(
         ],
         expected_failed_test_cases_names=[],
     )
+
+
+async def test_short_strings(
+    run_cairo_test_runner: RunCairoTestRunnerFixture,
+):
+    testing_summary = await run_cairo_test_runner(
+        Path(__file__).parent / "short_strings_test.cairo"
+    )
+
+    assert_cairo_test_cases(
+        testing_summary,
+        expected_passed_test_cases_names=["test_correct_short_string"],
+        expected_failed_test_cases_names=[],
+    )
