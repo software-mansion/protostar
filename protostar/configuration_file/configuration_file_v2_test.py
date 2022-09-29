@@ -133,6 +133,21 @@ def test_reading_argument_attribute_defined_within_specified_profile(
     assert arg_value == "mainnet"
 
 
+def test_reading_shared_value(
+    configuration_file: ConfigurationFile,
+):
+    assert (
+        configuration_file.get_shared_argument_value(argument_name="network")
+        == "devnet1"
+    )
+    assert (
+        configuration_file.get_shared_argument_value(
+            argument_name="network", profile_name="release"
+        )
+        == "mainnet2"
+    )
+
+
 def test_saving_configuration(
     content_configurator: ConfigurationFileContentConfigurator[
         ConfigurationFileV2Model

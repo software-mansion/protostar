@@ -185,6 +185,28 @@ def test_reading_argument_attribute_defined_within_specified_profile(
     "protostar_toml_content",
     [
         """
+        ["protostar.shared_command_configs"]
+        arg_name = 21
+
+        ["profile.profile_name.protostar.shared_command_configs"]
+        arg_name = 37
+        """
+    ],
+)
+def test_reading_shared_argument_value(configuration_file: ConfigurationFileV1):
+    assert configuration_file.get_shared_argument_value(argument_name="arg_name") == 21
+    assert (
+        configuration_file.get_shared_argument_value(
+            argument_name="arg_name", profile_name="profile_name"
+        )
+        == 37
+    )
+
+
+@pytest.mark.parametrize(
+    "protostar_toml_content",
+    [
+        """
         ["protostar.config"]
         protostar_version = "0.3.1"
 
