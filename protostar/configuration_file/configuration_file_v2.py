@@ -73,6 +73,14 @@ class ConfigurationFileV2(
     def get_filepath(self) -> Path:
         return self._file_path
 
+    def get_lib_path(self) -> Optional[Path]:
+        lib_path_str = self._configuration_file_reader.get_attribute(
+            section_name="project", attribute_name="lib-path"
+        )
+        if lib_path_str is None:
+            return None
+        return self._project_root_path / lib_path_str
+
     def get_contract_names(self) -> list[str]:
         contract_section = self._configuration_file_reader.get_section("contracts")
         if not contract_section:

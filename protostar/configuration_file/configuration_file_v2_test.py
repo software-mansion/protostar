@@ -96,6 +96,12 @@ def test_retrieving_contract_names(configuration_file: ConfigurationFile):
     assert contract_names == ["foo", "bar"]
 
 
+def test_retrieving_lib_path(
+    configuration_file: ConfigurationFileV2, project_root_path: Path
+):
+    assert configuration_file.get_lib_path() == project_root_path / "lib"
+
+
 def test_retrieving_contract_source_paths(
     configuration_file: ConfigurationFileV2, project_root_path: Path
 ):

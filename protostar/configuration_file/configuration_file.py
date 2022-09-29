@@ -76,6 +76,10 @@ class ConfigurationFile(
         ...
 
     @abstractmethod
+    def get_lib_path(self) -> Optional[Path]:
+        ...
+
+    @abstractmethod
     def get_contract_names(self) -> list[str]:
         ...
 
