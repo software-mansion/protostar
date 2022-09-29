@@ -200,6 +200,35 @@ class GitRepository:
             cwd=self.repo_path,
         )
 
+    @wrap_git_exception
+    def create_tag(self, name: str):
+        credentials = [] if has_git_credentials() else DEFAULT_CREDENTIALS
+        subprocess.run(
+            ["git", *credentials, "tag", name], **SHARED_KWARGS, cwd=self.repo_path
+        )
+
+    @wrap_git_exception
+    def get_current_tag(self) -> str:
+        process = subprocess.run(
+            ["git", "describe", "--tags"],
+            stderr=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            check=True,
+            cwd=self.repo_path,
+        )
+        return process.stdout.decode("utf-8").strip()
+
+    @wrap_git_exception
+    def get_head(self) -> str:
+        process = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            stderr=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            check=True,
+            cwd=self.repo_path,
+        )
+        return process.stdout.decode("utf-8").strip()
+
     def get_submodules(self) -> Dict[str, PackageInfo]:
         """
         Returns a dictionary of form:
