@@ -1,6 +1,6 @@
 from typing import Optional
 
-from protostar.configuration_file import CommandNamesProviderProtocol
+from .configuration_file_v1 import CommandNamesProviderProtocol
 
 
 class CommandNamesDelayedProvider(CommandNamesProviderProtocol):

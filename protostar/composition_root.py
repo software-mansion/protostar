@@ -3,11 +3,7 @@ from logging import getLogger
 from pathlib import Path
 from typing import List, Optional
 
-from protostar.cli import (
-    ArgumentValueProviderProtocol,
-    Command,
-    CommandNamesDelayedProvider,
-)
+from protostar.cli import ArgumentValueProviderProtocol, Command
 from protostar.commands import (
     BuildCommand,
     DeclareCommand,
@@ -28,7 +24,10 @@ from protostar.commands.init.project_creator import (
 )
 from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
-from protostar.configuration_file import ConfigurationFileFactory
+from protostar.configuration_file import (
+    CommandNamesDelayedProvider,
+    ConfigurationFileFactory,
+)
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_cli import ProtostarCLI
 from protostar.protostar_toml import (
