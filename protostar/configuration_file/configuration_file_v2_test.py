@@ -116,7 +116,7 @@ def test_error_when_retrieving_paths_from_not_defined_contract(
 
 
 def test_reading_command_argument_attribute(configuration_file: ConfigurationFile):
-    arg_value = configuration_file.get_command_argument(
+    arg_value = configuration_file.get_argument_value(
         command_name="declare", argument_name="network"
     )
 
@@ -126,7 +126,7 @@ def test_reading_command_argument_attribute(configuration_file: ConfigurationFil
 def test_reading_argument_attribute_defined_within_specified_profile(
     configuration_file: ConfigurationFile,
 ):
-    arg_value = configuration_file.get_command_argument(
+    arg_value = configuration_file.get_argument_value(
         command_name="declare", argument_name="network", profile_name="release"
     )
 

@@ -152,7 +152,7 @@ def test_reading_lib_path(
     ],
 )
 def test_reading_command_argument_attribute(configuration_file: ConfigurationFile):
-    arg_value = configuration_file.get_command_argument(
+    arg_value = configuration_file.get_argument_value(
         command_name="command_name", argument_name="arg_name"
     )
 
@@ -174,7 +174,7 @@ def test_reading_command_argument_attribute(configuration_file: ConfigurationFil
 def test_reading_argument_attribute_defined_within_specified_profile(
     configuration_file: ConfigurationFile,
 ):
-    arg_value = configuration_file.get_command_argument(
+    arg_value = configuration_file.get_argument_value(
         command_name="command_name", argument_name="arg_name", profile_name="devnet"
     )
 

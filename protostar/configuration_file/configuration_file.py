@@ -61,13 +61,13 @@ class ConfigurationFile(
 
     @abstractmethod
     def get_argument_value(
-        self, command_name: str, argument_name: str, profile_name: Optional[str]
+        self, command_name: str, argument_name: str, profile_name: Optional[str] = None
     ) -> Optional[Any]:
         ...
 
     @abstractmethod
     def get_shared_argument_value(
-        self, argument_name: str, profile_name: Optional[str]
+        self, argument_name: str, profile_name: Optional[str] = None
     ) -> Optional[Any]:
         ...
 
@@ -81,17 +81,6 @@ class ConfigurationFile(
 
     @abstractmethod
     def get_contract_source_paths(self, contract_name: str) -> list[Path]:
-        ...
-
-    @abstractmethod
-    def get_command_argument(
-        self, command_name: str, argument_name: str, profile_name: Optional[str] = None
-    ) -> Optional[
-        Union[
-            PrimitiveTypesSupportedByConfigurationFile,
-            list[PrimitiveTypesSupportedByConfigurationFile],
-        ]
-    ]:
         ...
 
     @abstractmethod

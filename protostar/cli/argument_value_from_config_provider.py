@@ -3,12 +3,12 @@ from typing import Any, Optional, Protocol
 
 class ArgumentValueProviderProtocol(Protocol):
     def get_argument_value(
-        self, command_name: str, argument_name: str, profile_name: Optional[str]
+        self, command_name: str, argument_name: str, profile_name: Optional[str] = None
     ) -> Optional[Any]:
         ...
 
     def get_shared_argument_value(
-        self, argument_name: str, profile_name: Optional[str]
+        self, argument_name: str, profile_name: Optional[str] = None
     ) -> Optional[Any]:
         ...
 

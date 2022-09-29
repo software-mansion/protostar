@@ -15,7 +15,7 @@ class ArgumentValueProviderTestDouble(ArgumentValueProviderProtocol):
         self._ignore_command_scoped_value = ignore_command_scoped_value
 
     def get_argument_value(
-        self, command_name: str, argument_name: str, profile_name: Optional[str]
+        self, command_name: str, argument_name: str, profile_name: Optional[str] = None
     ) -> Optional[Any]:
         if self._ignore_command_scoped_value:
             return None
@@ -23,7 +23,7 @@ class ArgumentValueProviderTestDouble(ArgumentValueProviderProtocol):
         return f"{profile_name_prefix}{command_name}::{argument_name}"
 
     def get_shared_argument_value(
-        self, argument_name: str, profile_name: Optional[str]
+        self, argument_name: str, profile_name: Optional[str] = None
     ) -> Optional[Any]:
         profile_name_prefix = f"{profile_name}::" if profile_name else ""
         return f"{profile_name_prefix}shared::{argument_name}"
