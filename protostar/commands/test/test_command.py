@@ -45,11 +45,14 @@ def read_targets_from_cache(cache_util, targets) -> Optional[list]:
     for failed_test in previously_failed_tests:
         is_in_targets = False
         for target in targets:
-            if Path(os.path.abspath(target)) in Path(failed_test).parents:
+            if (
+                Path(os.path.abspath(target))
+                in Path(os.path.abspath(failed_test[0])).parents
+            ):
                 is_in_targets = True
                 break
         if is_in_targets:
-            new_targets.append(failed_test)
+            new_targets.append(f"{failed_test[0]}::{failed_test[1]}")
 
     return new_targets
 
@@ -159,8 +162,7 @@ A glob or globs to a directory or a test suite, for example:
         targets: List[str] = args.target
         cache_util = CacheUtil(str(self._project_root_path))
         if args.last_failed:
-            targets_from_cache = read_targets_from_cache(cache_util, targets)
-            if targets_from_cache:
+            if targets_from_cache := read_targets_from_cache(cache_util, targets):
                 targets = targets_from_cache
                 print("running previously failed tests:", targets)
         summary = await self.test(
@@ -174,13 +176,18 @@ A glob or globs to a directory or a test suite, for example:
             seed=args.seed,
             slowest_tests_to_report_count=args.report_slowest_tests,
         )
-        failed_tests_paths = [
-            str(failed_test.file_path.absolute())
-            for failed_test in summary.failed + summary.broken + summary.broken_suites
-        ]
+        failed_test_cases = []
+        for failed_test in summary.failed + summary.broken + summary.broken_suites:
+            if hasattr(failed_test, "test_case_name"):
+                failed_test_cases.append(
+                    (str(failed_test.file_path), failed_test.test_case_name)
+                )
+            elif hasattr(failed_test, "test_case_names"):
+                for test_name in failed_test.test_case_names:
+                    failed_test_cases.append((str(failed_test.file_path), test_name))
         cache_util.persist(
             "test_results",
-            {"failed_tests": failed_tests_paths},
+            {"failed_tests": failed_test_cases},
         )
         summary.assert_all_passed()
         return summary
