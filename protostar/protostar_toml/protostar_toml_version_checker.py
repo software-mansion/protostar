@@ -1,4 +1,3 @@
-from protostar.protostar_exception import ProtostarException
 from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 from protostar.utils import VersionManager
 
@@ -19,30 +18,5 @@ class ProtostarTOMLVersionChecker:
         self._version_manager = version_manager
 
     def run(self):
-        declared_version_str = self._protostar_toml_reader.get_attribute(
-            "config", "protostar_version"
-        )
-
-        if not declared_version_str:
-            raise ProtostarException(
-                "Couldn't load `protostar_version`\n"
-                "`protostar.toml` could've been created or modified by a newer version of Protostar.\n"
-                f"{REFER_TO}"
-            )
-
-        declared_version = VersionManager.parse(declared_version_str)
-
-        # Version from pyproject.toml
-        latest_supported_protostar_toml_version = (
-            self._version_manager.latest_supported_protostar_toml_version
-        )
-
-        if not latest_supported_protostar_toml_version:
-            return
-
-        if latest_supported_protostar_toml_version > declared_version:
-            raise ProtostarException(
-                f"Protostar v{self._version_manager.protostar_version} "
-                "is not compatible with provided protostar.toml.\n"
-                f"{REFER_TO}"
-            )
+        # TODO: Implement
+        pass

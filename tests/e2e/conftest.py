@@ -1,4 +1,5 @@
 # pylint: disable=redefined-outer-name
+import json
 import shlex
 import shutil
 from os import chdir, mkdir, path, getcwd
@@ -123,43 +124,31 @@ def latest_supported_protostar_toml_version() -> Optional[str]:
     return None
 
 
+@pytest.fixture(name="info_dir_path")
+def info_dir_path_fixture(tmp_path: Path) -> Path:
+    return tmp_path / "dist" / "protostar" / "info"
+
+
 @pytest.fixture
 def protostar(
     protostar_repo_root: Path,
     tmp_path: Path,
     protostar_version: Optional[str],
-    latest_supported_protostar_toml_version: Optional[str],
+    info_dir_path: Path,
 ) -> ProtostarFixture:
     shutil.copytree(protostar_repo_root / "dist", tmp_path / "dist")
 
-    if protostar_version and not latest_supported_protostar_toml_version:
-        latest_supported_protostar_toml_version = protostar_version
+    runtime_constants_file_path = info_dir_path / "runtime_constant_values.json"
+    if protostar_version:
+        with open(
+            runtime_constants_file_path, mode="r+", encoding="utf-8"
+        ) as runtime_constants_file:
+            constants_dict = json.load(runtime_constants_file)
+            constants_dict["PROTOSTAR_VERSION"] = protostar_version
 
-    with open(
-        tmp_path / "dist" / "protostar" / "info" / "pyproject.toml",
-        "r+",
-        encoding="UTF-8",
-    ) as file:
-        raw_pyproject = file.read()
-        pyproject = tomli.loads(raw_pyproject)
-
-        pyproject["tool"]["poetry"]["version"] = (
-            protostar_version
-            if protostar_version
-            else pyproject["tool"]["poetry"]["version"]
-        )
-
-        pyproject["tool"]["protostar"]["latest_supported_protostar_toml_version"] = (
-            latest_supported_protostar_toml_version
-            if latest_supported_protostar_toml_version
-            else pyproject["tool"]["protostar"][
-                "latest_supported_protostar_toml_version"
-            ]
-        )
-
-        file.seek(0)
-        file.truncate()
-        file.write(tomli_w.dumps(pyproject))
+            runtime_constants_file.seek(0)
+            runtime_constants_file.truncate()
+            runtime_constants_file.write(json.dumps(constants_dict))
 
     def _protostar(
         args: List[str],

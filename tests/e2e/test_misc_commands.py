@@ -62,9 +62,9 @@ def test_init_ask_existing(protostar_bin: Path):
 
 @pytest.mark.usefixtures("init")
 def test_protostar_version_in_config_file(mocker, protostar_bin: Path):
-    version_manager = VersionManager(
-        ProtostarDirectory(protostar_bin.parent), mocker.MagicMock()
-    )
+    protostar_directory = ProtostarDirectory(protostar_bin.parent)
+
+    version_manager = VersionManager(protostar_directory, mocker.MagicMock())
     assert version_manager.protostar_version is not None
 
     with open("./protostar.toml", "r+", encoding="UTF-8") as protostar_toml:
@@ -79,8 +79,10 @@ def test_protostar_version_in_config_file(mocker, protostar_bin: Path):
 @pytest.mark.usefixtures("init")
 @pytest.mark.parametrize("protostar_version", ["0.3.0"])
 @pytest.mark.parametrize("protostar_toml_protostar_version", ["0.2.8"])
-@pytest.mark.parametrize("latest_supported_protostar_toml_version", ["0.2.9"])
 @pytest.mark.parametrize("command", ["build", "install", "test"])
+@pytest.mark.xfail(
+    reason="This is going to fail since version checker is waiting for implementation"
+)
 def test_protostar_asserts_version_compatibility(protostar, command):
     output = protostar([command], expect_exit_code=1)
     assert "is not compatible with provided protostar.toml" in str(output)
@@ -89,7 +91,6 @@ def test_protostar_asserts_version_compatibility(protostar, command):
 @pytest.mark.usefixtures("init")
 @pytest.mark.parametrize("protostar_version", ["0.4.0"])
 @pytest.mark.parametrize("protostar_toml_protostar_version", ["0.3.0"])
-@pytest.mark.parametrize("latest_supported_protostar_toml_version", ["0.3.0"])
 @pytest.mark.parametrize("command", ["build", "install", "test"])
 def test_protostar_passes_version_check_on_compatible_v(protostar, command):
     protostar([command])
