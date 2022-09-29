@@ -1,11 +1,12 @@
 import asyncio
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 from protostar.cli import (
     ArgumentParserFacade,
     ArgumentValueFromConfigProvider,
+    ArgumentValueProviderProtocol,
     CLIApp,
     MissingRequiredArgumentException,
 )
@@ -13,27 +14,33 @@ from protostar.composition_root import build_di_container
 from protostar.configuration_profile_cli import ConfigurationProfileCLI
 from protostar.protostar_cli import ProtostarCLI
 from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
-from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 
 
 def main(script_root: Path, start_time: float = 0):
     container = build_di_container(script_root, start_time)
-    arg_parser = build_parser(container.protostar_cli, container.protostar_toml_reader)
+    arg_parser = build_parser(
+        container.protostar_cli, container.argument_value_provider
+    )
     args = parse_args(arg_parser)
     run_protostar(container.protostar_cli, args, arg_parser)
 
 
 def build_parser(
-    protostar_cli: ProtostarCLI, protostar_toml_reader: ProtostarTOMLReader
+    protostar_cli: ProtostarCLI,
+    argument_value_provider: Optional[ArgumentValueProviderProtocol],
 ) -> ArgumentParserFacade:
     configuration_profile_name = (
         ArgumentParserFacade(ConfigurationProfileCLI(), disable_help=True)
         .parse(ignore_unrecognized=True)
         .profile
     )
-    argument_value_from_config_provider = ArgumentValueFromConfigProvider(
-        protostar_toml_reader,
-        configuration_profile_name,
+    argument_value_from_config_provider = (
+        ArgumentValueFromConfigProvider(
+            argument_value_provider,
+            configuration_profile_name,
+        )
+        if argument_value_provider
+        else None
     )
     return ArgumentParserFacade(protostar_cli, argument_value_from_config_provider)
 

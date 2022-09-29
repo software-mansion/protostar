@@ -1,9 +1,13 @@
 from dataclasses import dataclass
 from logging import getLogger
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
-from protostar.cli import Command
+from protostar.cli import (
+    ArgumentValueProviderProtocol,
+    Command,
+    CommandNamesDelayedProvider,
+)
 from protostar.commands import (
     BuildCommand,
     DeclareCommand,
@@ -24,6 +28,7 @@ from protostar.commands.init.project_creator import (
 )
 from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
+from protostar.configuration_file import ConfigurationFileFactory
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_cli import ProtostarCLI
 from protostar.protostar_toml import (
@@ -54,7 +59,7 @@ from protostar.utils import (
 @dataclass
 class DIContainer:
     protostar_cli: ProtostarCLI
-    protostar_toml_reader: ProtostarTOMLReader
+    argument_value_provider: Optional[ArgumentValueProviderProtocol]
 
 
 def build_di_container(script_root: Path, start_time: float = 0):
@@ -65,6 +70,13 @@ def build_di_container(script_root: Path, start_time: float = 0):
         protostar_toml_path.parent if protostar_toml_path is not None else cwd
     )
     protostar_toml_path = protostar_toml_path or project_root_path / "protostar.toml"
+
+    command_names_delayed_provider = CommandNamesDelayedProvider()
+    configuration_file_factory = ConfigurationFileFactory(
+        cwd, command_names_delayed_provider
+    )
+    configuration_file = configuration_file_factory.create()
+
     protostar_directory = ProtostarDirectory(script_root)
     version_manager = VersionManager(protostar_directory, logger)
     protostar_toml_writer = ProtostarTOMLWriter()
@@ -191,5 +203,6 @@ def build_di_container(script_root: Path, start_time: float = 0):
         project_cairo_path_builder=project_cairo_path_builder,
         start_time=start_time,
     )
+    command_names_delayed_provider.set_command_names_provider(protostar_cli)
 
-    return DIContainer(protostar_cli, protostar_toml_reader)
+    return DIContainer(protostar_cli, configuration_file)
