@@ -228,7 +228,7 @@ class GitRepository:
 def ensure_has_git():
     try:
         subprocess.run(["git", "--version"], **SHARED_KWARGS)
-    except subprocess.CalledProcessError as ex:
+    except FileNotFoundError as ex:
         raise GitNotFoundException("Git executable not found.") from ex
 
 
