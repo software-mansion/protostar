@@ -2,6 +2,7 @@ import os.path
 from logging import Logger
 from pathlib import Path
 from typing import List, Optional
+from argparse import Namespace
 
 from protostar.cli.activity_indicator import ActivityIndicator
 from protostar.cli.command import Command
@@ -158,7 +159,7 @@ A glob or globs to a directory or a test suite, for example:
             ),
         ]
 
-    async def run(self, args) -> TestingSummary:
+    async def run(self, args: Namespace) -> TestingSummary:
         targets: List[str] = args.target
         cache_util = CacheUtil(str(self._project_root_path))
         if args.last_failed:
