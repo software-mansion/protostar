@@ -1,10 +1,14 @@
 # pylint: disable=redefined-outer-name
+import re
 from os import listdir
 from pathlib import Path
 
 import pexpect
 import pytest
 import tomli
+import packaging
+from packaging.version import Version
+
 
 from protostar.utils.protostar_directory import ProtostarDirectory, VersionManager
 
@@ -76,21 +80,15 @@ def test_protostar_version_in_config_file(mocker, protostar_bin: Path):
         assert version_manager.protostar_version == protostar_version
 
 
-@pytest.mark.usefixtures("init")
-@pytest.mark.parametrize("protostar_version", ["0.3.0"])
-@pytest.mark.parametrize("protostar_toml_protostar_version", ["0.2.8"])
-@pytest.mark.parametrize("command", ["build", "install", "test"])
-@pytest.mark.xfail(
-    reason="This is going to fail since version checker is waiting for implementation"
-)
-def test_protostar_asserts_version_compatibility(protostar, command):
-    output = protostar([command], expect_exit_code=1)
-    assert "is not compatible with provided protostar.toml" in str(output)
+def test_protostar_version_in_correct_format(protostar):
+    res = protostar(["--v"])
 
+    match = re.match(r".*Cairo-lang version: (.*?)\n.*", res, flags=re.DOTALL)
+    assert match, "Cairo-lang version string not found"
+    assert len(match.groups()) == 1, f"There should be only one group, found: {match.groups()}"
 
-@pytest.mark.usefixtures("init")
-@pytest.mark.parametrize("protostar_version", ["0.4.0"])
-@pytest.mark.parametrize("protostar_toml_protostar_version", ["0.3.0"])
-@pytest.mark.parametrize("command", ["build", "install", "test"])
-def test_protostar_passes_version_check_on_compatible_v(protostar, command):
-    protostar([command])
+    v_string = match.group(1)
+    v_object = packaging.version.parse(v_string)
+
+    # The v_object is LegacyVersion instead, when regex matching fails (as does in case of ^0.10.0)
+    assert isinstance(v_object, Version), f"Output version ({v_string}) does not meet the format requirements"
