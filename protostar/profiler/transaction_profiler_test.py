@@ -24,8 +24,8 @@ profile = RuntimeProfile(
                 ContractProfile(["c", "b"], ContractEntryPoint(0, 0), replace(profile)),
             ],
             {
-                "b.f1": profile.functions[0],
-                "b.f2": profile.functions[1],
+                "b.f1": replace(profile.functions[0], id="b.f1"),
+                "b.f2": replace(profile.functions[1], id="b.f2"),
             },
         ),
         ([], {}),
@@ -35,10 +35,10 @@ profile = RuntimeProfile(
                 ContractProfile(["a", "c"], ContractEntryPoint(0, 0), replace(profile)),
             ],
             {
-                "b.f1": profile.functions[0],
-                "b.f2": profile.functions[1],
-                "c.f1": profile.functions[0],
-                "c.f2": profile.functions[1],
+                "b.f1": replace(profile.functions[0], id="b.f1"),
+                "b.f2": replace(profile.functions[1], id="b.f2"),
+                "c.f1": replace(profile.functions[0], id="c.f1"),
+                "c.f2": replace(profile.functions[1], id="c.f2")
             },
         ),
     ],
