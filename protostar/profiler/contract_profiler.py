@@ -19,9 +19,8 @@ Address = int
 FunctionID = str
 
 
-@dataclass
+@dataclass(frozen=True)
 class Function:
-    # TODO(maksymiliandemitraszek) freeze this class
     """
     Represents a function in a contract
 
@@ -29,14 +28,14 @@ class Function:
     filename -- source file of a function
     start_line -- number of line function starts in
     """
+
     id: FunctionID
     filename: str
     start_line: int
 
 
-@dataclass
+@dataclass(frozen=True)
 class Instruction:
-    # TODO(maksymiliandemitraszek) freeze this class
     """
     Represents a instruction under certain pc in a contract
 
@@ -45,6 +44,7 @@ class Instruction:
     function -- function from the instuction has been generated
     line -- line of code from which instruction has been generated
     """
+
     id: int
     pc: Address
     function: Function

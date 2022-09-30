@@ -54,9 +54,12 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+ContractFilename = str
+
+
 @dataclass(frozen=True)
 class ContractProfile:
-    callstack: List[str]
+    callstack: List[ContractFilename]
     entry_point: ContractEntryPoint
     profile: RuntimeProfile
 
