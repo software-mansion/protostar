@@ -1,7 +1,6 @@
 # pylint: disable=invalid-name
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import itertools
-import random
 from typing import TYPE_CHECKING, List, Dict, Tuple
 
 from starkware.cairo.lang.tracer.tracer_data import TracerData
@@ -12,16 +11,18 @@ from protostar.profiler.contract_profiler import (
     build_profile,
     Function,
     Sample,
-    RuntimeProfile,
 )
 
 
 if TYPE_CHECKING:
-    from protostar.starknet.cheatable_execute_entry_point import ContractProfile
+    from protostar.starknet.cheatable_execute_entry_point import (
+        ContractProfile,
+        ContractFilename,
+    )
 
 Address = int
-StringID = int
-FunctionID = int
+GlobalFunctionId = str
+
 
 @dataclass(frozen=True)
 class TransactionProfile:
@@ -29,10 +30,6 @@ class TransactionProfile:
     instructions: List[Instruction]
     step_samples: List[Sample]
     memhole_samples: List[Sample]
-
-
-def unique_id():
-    return random.randint(0, 10000000000)
 
 
 def profile_from_tracer_data(tracer_data: TracerData, runner: CairoFunctionRunner):
@@ -46,46 +43,83 @@ def profile_from_tracer_data(tracer_data: TracerData, runner: CairoFunctionRunne
     return serialize(protobuf)
 
 
-def translate_callstack(in_instructions, callstack: List[Instruction]):
-    new_callstack = []
+def translate_callstack(
+    current_contract: "ContractFilename",
+    in_instructions: Dict[Tuple[GlobalFunctionId, int], Instruction],
+    callstack: List[Instruction],
+) -> List[Instruction]:
+    new_callstack: List[Instruction] = []
+    prefix = current_contract + "."
     for instr in callstack:
-        new_callstack.append(in_instructions[(instr.function.id, instr.id)])
+        new_callstack.append(in_instructions[(prefix + instr.function.id, instr.id)])
     return new_callstack
+
+
+def build_global_functions(
+    samples: List["ContractProfile"],
+) -> Dict[GlobalFunctionId, Function]:
+    global_functions: Dict[GlobalFunctionId, Function] = {}
+    for sample in samples:
+        function_id_prefix = sample.callstack[-1] + "."
+        for func in sample.profile.functions:
+            global_name = function_id_prefix + func.id
+            global_functions[global_name] = func
+    return global_functions
+
+
+def get_instruction_id_offsets(
+    samples: List["ContractProfile"],
+) -> Dict["ContractFilename", int]:
+    contract_id_offsets: Dict["ContractFilename", int] = {}
+    for sample in samples:
+        current_contract = sample.callstack[-1]
+        previous = contract_id_offsets.get(current_contract, 0)
+        new = max([instr.id for instr in sample.profile.instructions]) + 1
+        contract_id_offsets[current_contract] = max(
+            new, previous
+        )
+    accumulator = 0
+    for contract_name, size in contract_id_offsets.items():
+        contract_id_offsets[contract_name] = accumulator
+        accumulator += size
+    return contract_id_offsets
+
+
+def build_global_instructions(
+    global_functions: Dict[GlobalFunctionId, Function], samples: List["ContractProfile"]
+) -> Dict[Tuple[GlobalFunctionId, int], Instruction]:
+    in_instructions: Dict[Tuple[GlobalFunctionId, int], Instruction] = {}
+    contract_id_offsets = get_instruction_id_offsets(samples)
+    for sample in samples:
+        function_id_prefix = sample.callstack[-1] + "."
+        current_contract = sample.callstack[-1]
+        for instr in sample.profile.instructions:
+            new_id = instr.id + contract_id_offsets[current_contract]
+            global_function_id = function_id_prefix + instr.function.id
+            in_instructions[(global_function_id, instr.id)] = replace(
+                instr, id=new_id, function=global_functions[global_function_id]
+            )
+    print(in_instructions)
+    return in_instructions
 
 
 # TODO(maksymiliandemitraszek): Enable it again
 # pylint: disable=too-many-branches
 def merge_profiles(samples: List["ContractProfile"]) -> TransactionProfile:
-    step_samples = []
-    memhole_samples = []
+    step_samples: List[Sample] = []
+    memhole_samples: List[Sample] = []
 
-    for sample in samples:
-        for func in sample.profile.functions:
-            # TODO(maksymiliandemitraszek) test it against contracts with duplicate filenames
-            func.id = sample.callstack[-1] + "." + func.id
-
-    in_functions: Dict[str, Function] = {}
-    for sample in samples:
-        for func in sample.profile.functions:
-            if func.id not in in_functions:
-                in_functions[func.id] = func
-
-    contract_id_offsets = {}
-    in_instructions: Dict[Tuple[str, int], Instruction] = {}
-    for sample in samples:
-        current_contract = sample.callstack[-1]
-        if current_contract not in contract_id_offsets:
-            contract_id_offsets[current_contract] = unique_id()
-
-        for instr in sample.profile.instructions:
-            instr.id = instr.id + contract_id_offsets[current_contract]
-            in_instructions[(instr.function.id, instr.id)] = instr
+    global_functions = build_global_functions(samples)
+    global_instructions = build_global_instructions(global_functions, samples)
 
     for smp in samples[-1].profile.step_samples:
+        current_contract = samples[-1].callstack[-1]
         step_samples.append(
             Sample(
                 value=smp.value,
-                callstack=translate_callstack(in_instructions, smp.callstack),
+                callstack=translate_callstack(
+                    current_contract, global_instructions, smp.callstack
+                ),
             )
         )
 
@@ -96,12 +130,13 @@ def merge_profiles(samples: List["ContractProfile"]) -> TransactionProfile:
         samples_in_layer = [s for s in samples if len(s.callstack) == i]
         new_callstacks_from_upper_layer: List[List[List[Instruction]]] = []
         for upper, runtime_sample in zip(callstacks_from_upper_layer, samples_in_layer):
+            current_contract = runtime_sample.callstack[-1]
             for smp in runtime_sample.profile.step_samples:
                 step_samples.append(
                     Sample(
                         value=smp.value,
                         callstack=translate_callstack(
-                            in_instructions, smp.callstack + upper
+                            current_contract, global_instructions, smp.callstack + upper
                         ),
                     )
                 )
@@ -113,10 +148,13 @@ def merge_profiles(samples: List["ContractProfile"]) -> TransactionProfile:
         )
 
     for smp in samples[-1].profile.memhole_samples:
+        current_contract = samples[-1].callstack[-1]
         memhole_samples.append(
             Sample(
                 value=smp.value,
-                callstack=translate_callstack(in_instructions, smp.callstack),
+                callstack=translate_callstack(
+                    current_contract, global_instructions, smp.callstack
+                ),
             )
         )
 
@@ -126,12 +164,13 @@ def merge_profiles(samples: List["ContractProfile"]) -> TransactionProfile:
         samples_in_layer = [s for s in samples if len(s.callstack) == i]
         new_callstacks_from_upper_layer: List[List[List[Instruction]]] = []
         for upper, runtime_sample in zip(callstacks_from_upper_layer, samples_in_layer):
+            current_contract = runtime_sample.callstack[-1]
             for smp in runtime_sample.profile.memhole_samples:
                 memhole_samples.append(
                     Sample(
                         value=smp.value,
                         callstack=translate_callstack(
-                            in_instructions, smp.callstack + upper
+                            current_contract, global_instructions, smp.callstack + upper
                         ),
                     )
                 )
@@ -143,8 +182,8 @@ def merge_profiles(samples: List["ContractProfile"]) -> TransactionProfile:
         )
 
     return TransactionProfile(
-        functions=list(in_functions.values()),
-        instructions=list(in_instructions.values()),
+        functions=list(global_functions.values()),
+        instructions=list(global_instructions.values()),
         step_samples=step_samples,
         memhole_samples=memhole_samples,
     )
