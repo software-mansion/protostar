@@ -20,6 +20,11 @@ from protostar.testing import (
     TestScheduler,
     determine_testing_seed,
 )
+from protostar.testing.test_results import (
+    FailedTestCaseResult,
+    BrokenTestCaseResult,
+    BrokenTestSuiteResult,
+)
 from protostar.starknet.compiler.pass_managers import (
     StarknetPassManagerFactory,
     TestCollectorPassManagerFactory,
@@ -179,12 +184,12 @@ A glob or globs to a directory or a test suite, for example:
         )
         failed_test_cases = []
         for failed_test in summary.failed + summary.broken + summary.broken_suites:
-            if hasattr(failed_test, "test_case_name"):
+            if isinstance(failed_test, (BrokenTestCaseResult, FailedTestCaseResult)):
                 failed_test_cases.append(
-                    (str(failed_test.file_path), failed_test.test_case_name)  # type: ignore
+                    (str(failed_test.file_path), failed_test.test_case_name)
                 )
-            elif hasattr(failed_test, "test_case_names"):
-                for test_name in failed_test.test_case_names:  # type: ignore
+            if isinstance(failed_test, BrokenTestSuiteResult):
+                for test_name in failed_test.test_case_names:
                     failed_test_cases.append((str(failed_test.file_path), test_name))
         cache_util.persist(
             "test_results",
