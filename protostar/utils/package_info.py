@@ -4,9 +4,8 @@ from os import listdir
 from pathlib import Path
 from typing import Dict, Optional
 
-from git.repo import Repo
-
 from protostar.protostar_exception import ProtostarException
+from protostar.git import Git
 
 
 @dataclass
@@ -54,15 +53,17 @@ def retrieve_real_package_name(
 
 
 def load_normalized_to_real_name_map(repo_dir: Path, packages_dir: Path):
-    repo = Repo(repo_dir, search_parent_directories=True)
+    repo = Git.load_existing_repo(repo_dir)
 
     mapping: Dict["str", "str"] = {}
 
     package_names = listdir(packages_dir)
-    for submodule in repo.submodules:
-        if submodule.name in package_names:
-            normalized_package_name = extract_info_from_repo_id(submodule.url).name
-            mapping[normalized_package_name] = submodule.name
+    submodules = repo.get_submodules()
+    for submodule_name in submodules:
+        if submodule_name in package_names:
+            submodule_url = submodules[submodule_name].url
+            normalized_package_name = extract_info_from_repo_id(submodule_url).name
+            mapping[normalized_package_name] = submodule_name
 
     return mapping
 
