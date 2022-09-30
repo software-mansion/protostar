@@ -8,7 +8,7 @@ from protostar.commands.install.install_package_from_repo import (
 )
 from protostar.commands.install.pull_package_submodules import pull_package_submodules
 from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
-from protostar.utils import extract_info_from_repo_id
+from protostar.package_manager import extract_info_from_repo_id
 from protostar.utils.log_color_provider import LogColorProvider
 
 EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = """- `GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]`

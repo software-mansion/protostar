@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Callable, cast
 
 from protostar.git import Git
-from protostar.utils.package_info import PackageInfo
+from protostar.package_manager import PackageInfo
 
 
 def pull_package_submodules(

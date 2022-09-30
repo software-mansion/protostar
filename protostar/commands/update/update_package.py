@@ -23,7 +23,7 @@ def update_package(package_name: str, repo_dir: Path, packages_dir: Path):
 
     current_tag = Optional[str]
     try:
-        current_tag = package_repo.get_current_tag()
+        current_tag = package_repo.get_tag()
     except ProtostarGitException:
         current_tag = None
 
@@ -31,7 +31,8 @@ def update_package(package_name: str, repo_dir: Path, packages_dir: Path):
 
     latest_tag: Any
     try:
-        latest_tag = package_repo.get_current_tag()
+        rev = package_repo.get_tag_rev()
+        latest_tag = package_repo.get_tag(rev)
     except ProtostarGitException:
         latest_tag = None
 
@@ -46,7 +47,7 @@ def update_package(package_name: str, repo_dir: Path, packages_dir: Path):
                 url=package_url,
                 submodule_path=package_dir,
                 name=package_name,
-                branch=latest_tag,
+                tag=latest_tag,
             )
 
             logger.info(

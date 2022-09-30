@@ -4,7 +4,8 @@ import re
 
 import pytest
 
-from .git import Git, GitNotFoundException, InvalidGitRepositoryException
+from .git import Git
+from .git_exceptions import GitNotFoundException, InvalidGitRepositoryException
 
 
 def test_ensure_has_git(tmp_path: Path):

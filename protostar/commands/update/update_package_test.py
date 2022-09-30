@@ -83,7 +83,7 @@ def fixture_submodule(
         url=str(package_repo_dir),
         submodule_path=packages_dir / package_name,
         name=package_name,
-        branch=current_tag,
+        tag=current_tag,
     )
 
     repo.add(packages_dir)
@@ -103,7 +103,7 @@ def test_updating_specific_package_with_tag(
     package_repo: GitRepository,
 ):
     repo = Git.load_existing_repo(packages_dir / package_name)
-    current_tag = repo.get_current_tag()
+    current_tag = repo.get_tag()
     assert current_tag == "0.1.0"
 
     dummy_file_path = package_repo_dir / "bar.txt"
@@ -118,7 +118,7 @@ def test_updating_specific_package_with_tag(
 
     update_package(package_name, repo_dir, packages_dir)
 
-    new_tag = repo.get_current_tag()
+    new_tag = repo.get_tag()
     assert new_tag == "0.1.1"
 
 
@@ -130,13 +130,13 @@ def test_package_already_up_to_date(
     packages_dir: Path,
 ):
     repo = Git.load_existing_repo(packages_dir / package_name)
-    current_tag = repo.get_current_tag()
+    current_tag = repo.get_tag()
     assert current_tag == "0.1.0"
 
     with pytest.raises(PackageAlreadyUpToDateException):
         update_package(package_name, repo_dir, packages_dir)
 
-    new_tag = repo.get_current_tag()
+    new_tag = repo.get_tag()
     assert new_tag == "0.1.0"
 
 

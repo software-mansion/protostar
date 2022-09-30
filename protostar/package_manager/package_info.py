@@ -1,19 +1,13 @@
 import re
-from dataclasses import dataclass, replace
+from dataclasses import replace
 from os import listdir
 from pathlib import Path
 from typing import Dict, Optional
 
 from protostar.protostar_exception import ProtostarException
-from protostar.git import Git
+from protostar.git import Git, Submodule
 
-
-@dataclass
-class PackageInfo:
-    name: str
-    url: str
-    version: Optional[str] = None
-    path: Optional[Path] = None
+PackageInfo = Submodule
 
 
 class PackageNameRetrievalException(ProtostarException):
