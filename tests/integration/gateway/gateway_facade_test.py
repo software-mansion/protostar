@@ -193,6 +193,7 @@ async def test_declare_tx_v1(
         signer=devnet_accounts[0].signer,
         wait_for_acceptance=True,
         token=None,
+        max_fee=213700000000000,
     )
 
     assert result.code == TransactionStatus.ACCEPTED_ON_L2
@@ -200,3 +201,4 @@ async def test_declare_tx_v1(
     declare_tx = gateway_client.intercepted_txs[0]
     assert isinstance(declare_tx, Declare)
     assert declare_tx.signature
+    assert declare_tx.max_fee == 213700000000000

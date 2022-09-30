@@ -40,6 +40,8 @@ from protostar.utils.log_color_provider import LogColorProvider
 
 ContractFunctionInputType = Union[List[int], Dict[str, Any]]
 
+Wei = int
+
 
 class GatewayFacade:
     def __init__(
@@ -145,6 +147,7 @@ class GatewayFacade:
         signer: BaseSigner,
         wait_for_acceptance: bool,
         token: Optional[str],
+        max_fee: Optional[Wei],
     ):
         compiled_contract = self._load_compiled_contract(
             self._project_root_path / compiled_contract_path
@@ -155,8 +158,8 @@ class GatewayFacade:
         declare_tx = await self._create_declare_tx_v1(
             compiled_contract=compiled_contract,
             account_client=account_client,
-            auto_estimate_fee=True,
-            max_fee=None,
+            auto_estimate_fee=max_fee is None,
+            max_fee=max_fee,
         )
         register_response = self._register_request(
             action="DECLARE",
