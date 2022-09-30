@@ -64,10 +64,13 @@ def translate_callstacks(
     global_instructions: Dict[Tuple[GlobalFunctionID, int], Instruction],
     callstacks: List[List[Instruction]],
 ) -> List[List[Instruction]]:
-    translated : List[List[Instruction]]= []
+    translated: List[List[Instruction]] = []
     for call in callstacks:
-        translated.append(translate_callstack(current_contract, global_instructions, call))
+        translated.append(
+            translate_callstack(current_contract, global_instructions, call)
+        )
     return translated
+
 
 def build_global_functions(
     samples: List["ContractProfile"],
@@ -77,7 +80,7 @@ def build_global_functions(
         function_id_prefix = sample.callstack[-1] + "."
         for func in sample.profile.functions:
             global_name = function_id_prefix + func.id
-            global_functions[global_name] = replace(func, id = global_name)
+            global_functions[global_name] = replace(func, id=global_name)
     return global_functions
 
 
@@ -88,16 +91,13 @@ def get_instruction_id_offsets(
     for sample in samples:
         current_contract = sample.callstack[-1]
         previous = contract_id_offsets.get(current_contract, 0)
-        new = max([instr.id for instr in sample.profile.instructions]) + 1
-        contract_id_offsets[current_contract] = max(
-            new, previous
-        )
+        new = max(instr.id for instr in sample.profile.instructions) + 1
+        contract_id_offsets[current_contract] = max(new, previous)
     accumulator = 0
     for contract_name, size in contract_id_offsets.items():
         contract_id_offsets[contract_name] = accumulator
         accumulator += size
     return contract_id_offsets
-
 
 
 def build_global_instructions(
@@ -112,7 +112,9 @@ def build_global_instructions(
             global_instruction_id = instr.id + contract_id_offsets[current_contract]
             global_function_id = function_id_prefix + instr.function.id
             in_instructions[(global_function_id, instr.id)] = replace(
-                instr, id=global_instruction_id, function=global_functions[global_function_id]
+                instr,
+                id=global_instruction_id,
+                function=global_functions[global_function_id],
             )
     return in_instructions
 
@@ -139,7 +141,11 @@ def merge_profiles(samples: List["ContractProfile"]) -> TransactionProfile:
 
     # We build a tree from callstacks
     max_clst_len = max(len(s.callstack) for s in samples)
-    callstacks_from_upper_layer = translate_callstacks(samples[-1].callstack[-1], global_instructions, samples[-1].profile.contract_call_callstacks, )
+    callstacks_from_upper_layer = translate_callstacks(
+        samples[-1].callstack[-1],
+        global_instructions,
+        samples[-1].profile.contract_call_callstacks,
+    )
     for i in range(2, max_clst_len + 1):
         samples_in_layer = [s for s in samples if len(s.callstack) == i]
         new_callstacks_from_upper_layer: List[List[List[Instruction]]] = []
@@ -151,10 +157,15 @@ def merge_profiles(samples: List["ContractProfile"]) -> TransactionProfile:
                         value=smp.value,
                         callstack=translate_callstack(
                             current_contract, global_instructions, smp.callstack
-                        ) + upper,
+                        )
+                        + upper,
                     )
                 )
-            translated_callstacks = translate_callstacks(current_contract, global_instructions, runtime_sample.profile.contract_call_callstacks)
+            translated_callstacks = translate_callstacks(
+                current_contract,
+                global_instructions,
+                runtime_sample.profile.contract_call_callstacks,
+            )
             new_callstacks_from_upper_layer.append(
                 [c + upper for c in translated_callstacks]
             )
@@ -174,7 +185,11 @@ def merge_profiles(samples: List["ContractProfile"]) -> TransactionProfile:
         )
 
     # We build a tree from callstacks
-    callstacks_from_upper_layer = translate_callstacks(samples[-1].callstack[-1], global_instructions, samples[-1].profile.contract_call_callstacks, )
+    callstacks_from_upper_layer = translate_callstacks(
+        samples[-1].callstack[-1],
+        global_instructions,
+        samples[-1].profile.contract_call_callstacks,
+    )
     for i in range(2, max_clst_len + 1):
         samples_in_layer = [s for s in samples if len(s.callstack) == i]
         new_callstacks_from_upper_layer: List[List[List[Instruction]]] = []
@@ -186,11 +201,16 @@ def merge_profiles(samples: List["ContractProfile"]) -> TransactionProfile:
                         value=smp.value,
                         callstack=translate_callstack(
                             current_contract, global_instructions, smp.callstack
-                        ) + upper,
+                        )
+                        + upper,
                     )
                 )
 
-            translated_callstacks = translate_callstacks(current_contract, global_instructions, runtime_sample.profile.contract_call_callstacks)
+            translated_callstacks = translate_callstacks(
+                current_contract,
+                global_instructions,
+                runtime_sample.profile.contract_call_callstacks,
+            )
             new_callstacks_from_upper_layer.append(
                 [c + upper for c in translated_callstacks]
             )
