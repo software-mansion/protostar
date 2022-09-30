@@ -7,7 +7,7 @@ block_cipher = None
 extra_files = [
     ("cairo", "cairo"),
     ('templates', 'templates'),
-    ('runtime_constant_values.json', 'info'),
+    ('constants.json', 'info'),
 ] + collect_data_files('starkware')
 # Extra imports which are necessary for executing hints
 extra_imports = [

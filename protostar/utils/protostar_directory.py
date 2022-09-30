@@ -9,11 +9,13 @@ from packaging import version
 
 from packaging.version import LegacyVersion, Version as PackagingVersion
 
-RuntimeConstant = Literal["PROTOSTAR_VERSION", "CAIRO_VERSION"]
+RuntimeConstantName = Literal["PROTOSTAR_VERSION", "CAIRO_VERSION"]
+RuntimeConstantValue = str
+RuntimeConstantsDict = dict[RuntimeConstantName, RuntimeConstantValue]
 
 
 class ProtostarDirectory:
-    RUNTIME_CONSTANTS_FILE_NAME = "runtime_constant_values.json"
+    RUNTIME_CONSTANTS_FILE_NAME = "constants.json"
 
     def __init__(self, protostar_binary_dir_path: Path) -> None:
         self._protostar_binary_dir_path: Path = protostar_binary_dir_path
@@ -40,25 +42,16 @@ class ProtostarDirectory:
         assert self.protostar_binary_dir_path is not None
         return self.protostar_binary_dir_path / "cairo"
 
-    def _load_runtime_constants(self):
-        if self._runtime_constants is None:
-            with open(
-                file=self.info_dir_path
-                / ProtostarDirectory.RUNTIME_CONSTANTS_FILE_NAME,
-                mode="r",
-                encoding="utf-8",
-            ) as constants_file:
-                self._runtime_constants = json.load(constants_file)
+    def _get_runtime_constants(self) -> RuntimeConstantsDict:
+        constants_str = (
+            self.info_dir_path / ProtostarDirectory.RUNTIME_CONSTANTS_FILE_NAME
+        ).read_text("utf-8")
+        return json.loads(constants_str)
 
-                # Provides safety, for ignoring the type
-                assert (
-                    self._runtime_constants is not None
-                ), "Could not load runtime constants"
-
-    def get_runtime_constant(self, name: RuntimeConstant) -> str:
+    def get_runtime_constant(self, name: RuntimeConstantName) -> RuntimeConstantValue:
         if self._runtime_constants is None:
-            self._load_runtime_constants()
-        return self._runtime_constants[name]  # pyright: ignore
+            self._runtime_constants = self._get_runtime_constants()
+        return self._runtime_constants[name]
 
 
 VersionType = Union[LegacyVersion, PackagingVersion]
