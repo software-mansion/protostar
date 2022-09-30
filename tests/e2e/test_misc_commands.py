@@ -7,6 +7,7 @@ import pexpect
 import pytest
 import tomli
 import packaging
+from packaging.version import parse as parse_version
 from packaging.version import Version
 
 
@@ -85,10 +86,14 @@ def test_protostar_version_in_correct_format(protostar):
 
     match = re.match(r".*Cairo-lang version: (.*?)\n.*", res, flags=re.DOTALL)
     assert match, "Cairo-lang version string not found"
-    assert len(match.groups()) == 1, f"There should be only one group, found: {match.groups()}"
+    assert (
+        len(match.groups()) == 1
+    ), f"There should be only one group, found: {match.groups()}"
 
     v_string = match.group(1)
-    v_object = packaging.version.parse(v_string)
+    v_object = parse_version(v_string)
 
     # The v_object is LegacyVersion instead, when regex matching fails (as does in case of ^0.10.0)
-    assert isinstance(v_object, Version), f"Output version ({v_string}) does not meet the format requirements"
+    assert isinstance(
+        v_object, Version
+    ), f"Output version ({v_string}) does not meet the format requirements"

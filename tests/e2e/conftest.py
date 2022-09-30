@@ -139,7 +139,9 @@ def protostar(
 ) -> ProtostarFixture:
     shutil.copytree(protostar_repo_root / "dist", tmp_path / "dist")
 
-    runtime_constants_file_path = info_dir_path / ProtostarDirectory.RUNTIME_CONSTANTS_FILE_NAME
+    runtime_constants_file_path = (
+        info_dir_path / ProtostarDirectory.RUNTIME_CONSTANTS_FILE_NAME
+    )
     if protostar_version:
         with open(
             runtime_constants_file_path, mode="r+", encoding="utf-8"
