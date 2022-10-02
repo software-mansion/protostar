@@ -8,7 +8,7 @@ from .argument_value_from_config_provider import (
 )
 
 
-class ArgumentValueProviderTestDouble(ArgumentValueProviderProtocol):
+class FakeArgumentValueProvider(ArgumentValueProviderProtocol):
     def __init__(self, ignore_command_scoped_value: bool) -> None:
         super().__init__()
         self._ignore_command_scoped_value = ignore_command_scoped_value
@@ -34,9 +34,7 @@ def arg_value_provider_fixture(
     ignore_command_scoped_value: bool,
 ):
     return ArgumentValueFromConfigProvider(
-        argument_value_provider=ArgumentValueProviderTestDouble(
-            ignore_command_scoped_value
-        ),
+        argument_value_provider=FakeArgumentValueProvider(ignore_command_scoped_value),
         configuration_profile_name=configuration_profile_name,
     )
 
