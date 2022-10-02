@@ -13,7 +13,7 @@ class SimpleConfigurationModel:
     data: dict
 
 
-class ContentConfiguratorDouble(
+class FakeContentConfigurator(
     ConfigurationFileContentConfigurator[SimpleConfigurationModel]
 ):
     def create_file_content(
@@ -30,7 +30,7 @@ class ContentConfiguratorDouble(
 
 
 def test_saving_sections_without_double_quotes():
-    content_configurator = ContentConfiguratorDouble()
+    content_configurator = FakeContentConfigurator()
 
     model = SimpleConfigurationModel(
         profile_name="devnet", section_name="declare", data={"network": "devnet"}

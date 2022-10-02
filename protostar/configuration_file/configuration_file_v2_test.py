@@ -26,7 +26,7 @@ from .configuration_file_v2 import (
 from .configuration_legacy_toml_interpreter import ConfigurationLegacyTOMLInterpreter
 
 
-class CommandNamesProviderDouble(CommandNamesProviderProtocol):
+class CommandNamesProviderStub(CommandNamesProviderProtocol):
     def get_command_names(self) -> list[str]:
         return ["declare"]
 
@@ -236,7 +236,7 @@ def test_transforming_file_v1_into_v2(
         ),
         project_root_path=Path(),
         file_path=Path(),
-        command_names_provider=CommandNamesProviderDouble(),
+        command_names_provider=CommandNamesProviderStub(),
     ).read()
 
     transformed_protostar_toml = content_configurator.create_file_content(

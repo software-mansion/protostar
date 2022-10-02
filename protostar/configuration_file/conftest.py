@@ -13,7 +13,7 @@ protostar-version = "0.5.0"
 """
 
 
-class CommandNamesProviderTestDouble(CommandNamesProviderProtocol):
+class FakeCommandNamesProvider(CommandNamesProviderProtocol):
     def __init__(self, command_names: list[str]) -> None:
         super().__init__()
         self._command_names = command_names

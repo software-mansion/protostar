@@ -4,7 +4,7 @@ from typing import Optional, Tuple
 
 import pytest
 
-from protostar.self.conftest import ProtostarVersionProviderDouble
+from protostar.self.conftest import FakeProtostarVersionProvider
 from tests.conftest import create_file_structure
 
 from .configuration_file import ConfigurationFile, ConfigurationFileContentBuilder
@@ -24,7 +24,7 @@ from .configuration_toml_content_builder import ConfigurationTOMLContentBuilder
 from .conftest import (
     PROTOSTAR_TOML_V1_CONTENT,
     PROTOSTAR_TOML_V2_CONTENT,
-    CommandNamesProviderTestDouble,
+    FakeCommandNamesProvider,
 )
 
 
@@ -68,16 +68,14 @@ def test_migrating_migrated_configuration_file(tmp_path: Path):
 
 
 def test_rollback(tmp_path: Path):
-    class ConfigurationFileContentBuilderTestDouble(ConfigurationTOMLContentBuilder):
+    class ConfigurationFileContentBuilderStub(ConfigurationTOMLContentBuilder):
         def build(self) -> str:
             raise Exception()
 
     create_file_structure(tmp_path, {"protostar.toml": PROTOSTAR_TOML_V1_CONTENT})
 
     with pytest.raises(ConfigurationFileMigrationFailed):
-        migrate(
-            cwd=tmp_path, content_builder=ConfigurationFileContentBuilderTestDouble()
-        )
+        migrate(cwd=tmp_path, content_builder=ConfigurationFileContentBuilderStub())
 
     assert (tmp_path / "protostar.toml").read_text() == PROTOSTAR_TOML_V1_CONTENT
     assert_file_count(tmp_path, 1)
@@ -88,7 +86,7 @@ def migrate(
 ) -> Tuple[Optional[ConfigurationFile], Optional[ConfigurationFile]]:
     configuration_file_factory = ConfigurationFileFactory(
         cwd=cwd,
-        command_names_provider=CommandNamesProviderTestDouble(command_names=[]),
+        command_names_provider=FakeCommandNamesProvider(command_names=[]),
     )
     configuration_file_before = configuration_file_factory.create()
     configuration_file_v2_migrator = ConfigurationFileV2Migrator(
@@ -96,7 +94,7 @@ def migrate(
         content_configurator=ConfigurationFileV2ContentConfigurator(
             content_builder=content_builder or ConfigurationTOMLContentBuilder()
         ),
-        protostar_version_provider=ProtostarVersionProviderDouble("9.9.9"),
+        protostar_version_provider=FakeProtostarVersionProvider("9.9.9"),
     )
 
     configuration_file_v2_migrator.run()
