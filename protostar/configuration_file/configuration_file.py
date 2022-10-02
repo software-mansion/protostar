@@ -33,7 +33,7 @@ class ConfigurationFileContentBuilder(ABC):
         ...
 
     @abstractmethod
-    def get_file_extension(self) -> str:
+    def get_content_format(self) -> str:
         ...
 
 

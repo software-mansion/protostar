@@ -59,5 +59,5 @@ class ConfigurationTOMLContentBuilder(ConfigurationFileContentBuilder):
         self._doc.add("profile", self._profiles_table)
         return tomlkit.dumps(self._doc)
 
-    def get_file_extension(self) -> str:
+    def get_content_format(self) -> str:
         return "toml"
