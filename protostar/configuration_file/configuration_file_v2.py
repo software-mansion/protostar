@@ -11,7 +11,7 @@ from .configuration_file import (
     CommandNameToConfig,
     ConfigurationFile,
     ConfigurationFileContentBuilder,
-    ConfigurationFileContentConfigurator,
+    ConfigurationFileContentFactory,
     ContractName,
     ContractNameNotFoundException,
     ProfileName,
@@ -115,8 +115,8 @@ class ConfigurationFileV2(
         raise NotImplementedError("Operation not supported.")
 
 
-class ConfigurationFileV2ContentConfigurator(
-    ConfigurationFileContentConfigurator[ConfigurationFileV2Model]
+class ConfigurationFileV2ContentFactory(
+    ConfigurationFileContentFactory[ConfigurationFileV2Model]
 ):
     def __init__(
         self,
@@ -171,4 +171,4 @@ class ConfigurationFileV2ContentConfigurator(
         return project_config_section
 
     def get_file_extension(self) -> str:
-        return self._content_builder.get_file_extension()
+        return self._content_builder.get_content_format()

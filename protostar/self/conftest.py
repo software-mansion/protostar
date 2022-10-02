@@ -4,7 +4,7 @@ from .protostar_compatibility_with_project_checker import (
 )
 
 
-class ProtostarVersionProviderDouble(ProtostarVersionProviderProtocol):
+class FakeProtostarVersionProvider(ProtostarVersionProviderProtocol):
     def __init__(self, protostar_version_str: str):
         self._protostar_version_str = protostar_version_str
 
