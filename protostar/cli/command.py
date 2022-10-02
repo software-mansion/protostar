@@ -4,8 +4,8 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any, List, Optional, Pattern
 
-from typing_extensions import Literal
 from starkware.starknet.utils.api_utils import cast_to_felts
+from typing_extensions import Literal
 
 InputAllowedType = Literal[
     "str",
@@ -15,6 +15,7 @@ InputAllowedType = Literal[
     "regexp",
     "int",  # only decimal!
     "felt",
+    "wei",
 ]
 
 
