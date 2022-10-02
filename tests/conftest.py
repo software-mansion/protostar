@@ -111,13 +111,9 @@ def devnet_accounts_fixture(devnet_gateway_url: str) -> list[DevnetAccount]:
     ]
 
 
-@pytest.fixture(name="alice_devnet_account")
-def alice_devnet_account(
-    devnet_accounts: list[DevnetAccount], monkeypatch: pytest.MonkeyPatch
-) -> DevnetAccount:
-    alice_devnet_account = devnet_accounts[0]
-    monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, alice_devnet_account.private_key)
-    return alice_devnet_account
+@pytest.fixture(name="devnet_account")
+def devnet_account(devnet_accounts: list[DevnetAccount]) -> DevnetAccount:
+    return devnet_accounts[0]
 
 
 class SetPrivateKeyEnvVarFixture(Protocol):

@@ -28,14 +28,14 @@ def compiled_contract_path_fixture() -> Path:
 async def test_declaring_contract(
     protostar: ProtostarFixture,
     devnet_gateway_url: str,
-    alice_devnet_account: DevnetAccount,
+    devnet_account: DevnetAccount,
     compiled_contract_path: Path,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
-    with set_private_key_env_var(alice_devnet_account.private_key):
+    with set_private_key_env_var(devnet_account.private_key):
         response = await protostar.declare(
             chain_id=StarknetChainId.TESTNET,
-            account_address=alice_devnet_account.address,
+            account_address=devnet_account.address,
             contract=compiled_contract_path,
             gateway_url=devnet_gateway_url,
         )
@@ -46,15 +46,15 @@ async def test_declaring_contract(
 async def test_max_fee_is_respected(
     protostar: ProtostarFixture,
     devnet_gateway_url: str,
-    alice_devnet_account: DevnetAccount,
+    devnet_account: DevnetAccount,
     compiled_contract_path: Path,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
-    with set_private_key_env_var(alice_devnet_account.private_key):
+    with set_private_key_env_var(devnet_account.private_key):
         with pytest.raises(FeeExceededMaxFeeException):
             await protostar.declare(
                 chain_id=StarknetChainId.TESTNET,
-                account_address=alice_devnet_account.address,
+                account_address=devnet_account.address,
                 contract=compiled_contract_path,
                 gateway_url=devnet_gateway_url,
                 max_fee=1,

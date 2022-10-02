@@ -72,18 +72,18 @@ async def test_declaring_by_contract_name(
 async def test_declare_v1(
     protostar: ProtostarFixture,
     devnet_gateway_url: str,
-    alice_devnet_account: DevnetAccount,
+    devnet_account: DevnetAccount,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
     migration_file_path = protostar.create_migration_file(
         'declare("main", config={"max_fee": 123456789123456789})'
     )
 
-    with set_private_key_env_var(alice_devnet_account.private_key):
+    with set_private_key_env_var(devnet_account.private_key):
         result = await protostar.migrate(
             migration_file_path,
             gateway_url=devnet_gateway_url,
-            account_address=alice_devnet_account.address,
+            account_address=devnet_account.address,
         )
 
         transaction_hash = cast(
