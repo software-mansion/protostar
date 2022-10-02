@@ -7,7 +7,7 @@ from .configuration_file import ConfigurationFile, ConfigurationFileMigratorProt
 from .configuration_file_v1 import ConfigurationFileV1
 from .configuration_file_v2 import (
     ConfigurationFileV2,
-    ConfigurationFileV2ContentConfigurator,
+    ConfigurationFileV2ContentFactory,
     ConfigurationFileV2Model,
 )
 
@@ -16,11 +16,11 @@ class ConfigurationFileV2Migrator(ConfigurationFileMigratorProtocol):
     def __init__(
         self,
         current_configuration_file: Optional[ConfigurationFile],
-        content_configurator: ConfigurationFileV2ContentConfigurator,
+        content_factory: ConfigurationFileV2ContentFactory,
         protostar_version_provider: ProtostarVersionProviderProtocol,
     ) -> None:
         self._current_configuration_file = current_configuration_file
-        self._content_configurator = content_configurator
+        self._content_factory = content_factory
         self._protostar_version_provider = protostar_version_provider
 
     def run(self) -> None:
@@ -37,10 +37,10 @@ class ConfigurationFileV2Migrator(ConfigurationFileMigratorProtocol):
             ccf_path.parent / f"{ccf_path.stem}_backup.{ccf_path.suffix}"
         )
         try:
-            file_content = self._content_configurator.create_file_content(v2_model)
+            file_content = self._content_factory.create_file_content(v2_model)
             (
                 ccf_path.parent
-                / f"{ccf_path.stem}.{self._content_configurator.get_file_extension()}"
+                / f"{ccf_path.stem}.{self._content_factory.get_file_extension()}"
             ).write_text(file_content)
             backup_file_path.unlink()
         # pylint: disable=broad-except

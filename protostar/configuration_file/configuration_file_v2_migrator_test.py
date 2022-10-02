@@ -12,7 +12,7 @@ from .configuration_file_factory import ConfigurationFileFactory
 from .configuration_file_v1 import ConfigurationFileV1
 from .configuration_file_v2 import (
     ConfigurationFileV2,
-    ConfigurationFileV2ContentConfigurator,
+    ConfigurationFileV2ContentFactory,
 )
 from .configuration_file_v2_migrator import (
     ConfigurationFileAlreadyMigratedException,
@@ -91,7 +91,7 @@ def migrate(
     configuration_file_before = configuration_file_factory.create()
     configuration_file_v2_migrator = ConfigurationFileV2Migrator(
         current_configuration_file=configuration_file_before,
-        content_configurator=ConfigurationFileV2ContentConfigurator(
+        content_factory=ConfigurationFileV2ContentFactory(
             content_builder=content_builder or ConfigurationTOMLContentBuilder()
         ),
         protostar_version_provider=FakeProtostarVersionProvider("9.9.9"),

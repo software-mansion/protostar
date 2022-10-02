@@ -10,7 +10,7 @@ from protostar.self import parse_protostar_version
 
 from .configuration_file import (
     ConfigurationFile,
-    ConfigurationFileContentConfigurator,
+    ConfigurationFileContentFactory,
     ContractNameNotFoundException,
 )
 from .configuration_file_v1 import (
@@ -20,7 +20,7 @@ from .configuration_file_v1 import (
 )
 from .configuration_file_v2 import (
     ConfigurationFileV2,
-    ConfigurationFileV2ContentConfigurator,
+    ConfigurationFileV2ContentFactory,
     ConfigurationFileV2Model,
 )
 from .configuration_legacy_toml_interpreter import ConfigurationLegacyTOMLInterpreter
@@ -77,9 +77,9 @@ def configuration_file_fixture(project_root_path: Path, protostar_toml_content: 
     )
 
 
-@pytest.fixture(name="content_configurator")
-def content_configurator_fixture():
-    return ConfigurationFileV2ContentConfigurator(
+@pytest.fixture(name="content_factory")
+def content_factory_fixture():
+    return ConfigurationFileV2ContentFactory(
         content_builder=ConfigurationTOMLContentBuilder()
     )
 
@@ -134,9 +134,7 @@ def test_reading_argument_attribute_defined_within_specified_profile(
 
 
 def test_saving_configuration(
-    content_configurator: ConfigurationFileContentConfigurator[
-        ConfigurationFileV2Model
-    ],
+    content_factory: ConfigurationFileContentFactory[ConfigurationFileV2Model],
     protostar_toml_content: str,
 ):
     configuration_file_v2_model = ConfigurationFileV2Model(
@@ -162,7 +160,7 @@ def test_saving_configuration(
         profile_name_to_project_config={"release": {"network": "mainnet2"}},
     )
 
-    result = content_configurator.create_file_content(
+    result = content_factory.create_file_content(
         model=configuration_file_v2_model,
     )
 
@@ -194,7 +192,7 @@ def test_transforming_model_v1_into_v2():
 
 def test_transforming_file_v1_into_v2(
     protostar_toml_content: str,
-    content_configurator: ConfigurationFileV2ContentConfigurator,
+    content_factory: ConfigurationFileV2ContentFactory,
 ):
     old_protostar_toml_content = textwrap.dedent(
         """\
@@ -239,7 +237,7 @@ def test_transforming_file_v1_into_v2(
         command_names_provider=CommandNamesProviderStub(),
     ).read()
 
-    transformed_protostar_toml = content_configurator.create_file_content(
+    transformed_protostar_toml = content_factory.create_file_content(
         model=ConfigurationFileV2Model.from_v1(model_v1, protostar_version="9.9.9"),
     )
 
@@ -247,7 +245,7 @@ def test_transforming_file_v1_into_v2(
 
 
 def test_saving_in_particular_order(
-    content_configurator: ConfigurationFileV2ContentConfigurator,
+    content_factory: ConfigurationFileV2ContentFactory,
 ):
 
     configuration_file_v2_model = ConfigurationFileV2Model(
@@ -264,7 +262,7 @@ def test_saving_in_particular_order(
         profile_name_to_project_config={},
     )
 
-    result = content_configurator.create_file_content(
+    result = content_factory.create_file_content(
         model=configuration_file_v2_model,
     )
 

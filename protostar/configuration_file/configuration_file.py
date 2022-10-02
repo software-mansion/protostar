@@ -37,7 +37,7 @@ class ConfigurationFileContentBuilder(ABC):
         ...
 
 
-class ConfigurationFileContentConfigurator(Generic[ConfigurationFileModelT]):
+class ConfigurationFileContentFactory(Generic[ConfigurationFileModelT]):
     @abstractmethod
     def create_file_content(
         self,

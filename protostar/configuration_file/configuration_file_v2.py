@@ -11,7 +11,7 @@ from .configuration_file import (
     CommandNameToConfig,
     ConfigurationFile,
     ConfigurationFileContentBuilder,
-    ConfigurationFileContentConfigurator,
+    ConfigurationFileContentFactory,
     ContractName,
     ContractNameNotFoundException,
     PrimitiveTypesSupportedByConfigurationFile,
@@ -112,8 +112,8 @@ class ConfigurationFileV2(
         raise NotImplementedError("Operation not supported.")
 
 
-class ConfigurationFileV2ContentConfigurator(
-    ConfigurationFileContentConfigurator[ConfigurationFileV2Model]
+class ConfigurationFileV2ContentFactory(
+    ConfigurationFileContentFactory[ConfigurationFileV2Model]
 ):
     def __init__(
         self,

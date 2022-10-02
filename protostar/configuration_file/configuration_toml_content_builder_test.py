@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from textwrap import dedent
 from typing import Any, Union
 
-from .configuration_file import ConfigurationFileContentConfigurator
+from .configuration_file import ConfigurationFileContentFactory
 from .configuration_toml_content_builder import ConfigurationTOMLContentBuilder
 
 
@@ -13,9 +13,7 @@ class SimpleConfigurationModel:
     data: dict
 
 
-class FakeContentConfigurator(
-    ConfigurationFileContentConfigurator[SimpleConfigurationModel]
-):
+class FakeContentFactory(ConfigurationFileContentFactory[SimpleConfigurationModel]):
     def create_file_content(
         self,
         model: SimpleConfigurationModel,
@@ -30,13 +28,13 @@ class FakeContentConfigurator(
 
 
 def test_saving_sections_without_double_quotes():
-    content_configurator = FakeContentConfigurator()
+    content_factory = FakeContentFactory()
 
     model = SimpleConfigurationModel(
         profile_name="devnet", section_name="declare", data={"network": "devnet"}
     )
 
-    result = content_configurator.create_file_content(
+    result = content_factory.create_file_content(
         model=model,
     )
 
