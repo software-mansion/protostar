@@ -1,10 +1,11 @@
 import json
 import subprocess
 import time
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from socket import socket as Socket
-from typing import List, NamedTuple, Union
+from typing import ContextManager, List, NamedTuple, Protocol, Union
 
 import pytest
 import requests
@@ -117,6 +118,24 @@ def alice_devnet_account(
     alice_devnet_account = devnet_accounts[0]
     monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, alice_devnet_account.private_key)
     return alice_devnet_account
+
+
+class SetPrivateKeyEnvVarFixture(Protocol):
+    def __call__(self, private_key: str) -> ContextManager[None]:
+        ...
+
+
+@pytest.fixture(name="set_private_key_env_var")
+def set_private_key_env_var_fixture(
+    monkeypatch: pytest.MonkeyPatch,
+) -> SetPrivateKeyEnvVarFixture:
+    @contextmanager
+    def set_private_key_env_var(private_key: str):
+        monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, private_key)
+        yield
+        monkeypatch.delenv(PRIVATE_KEY_ENV_VAR_NAME)
+
+    return set_private_key_env_var
 
 
 PathStr = str

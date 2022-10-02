@@ -6,7 +6,7 @@ from starknet_py.net.models import StarknetChainId
 
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
 from protostar.starknet_gateway import FeeExceededMaxFeeException
-from tests.conftest import DevnetAccount
+from tests.conftest import DevnetAccount, SetPrivateKeyEnvVarFixture
 from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.protostar_fixture import ProtostarFixture
@@ -30,15 +30,17 @@ async def test_declaring_contract(
     devnet_gateway_url: str,
     alice_devnet_account: DevnetAccount,
     compiled_contract_path: Path,
+    set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
-    response = await protostar.declare(
-        chain_id=StarknetChainId.TESTNET,
-        account_address=alice_devnet_account.address,
-        contract=compiled_contract_path,
-        gateway_url=devnet_gateway_url,
-    )
+    with set_private_key_env_var(alice_devnet_account.private_key):
+        response = await protostar.declare(
+            chain_id=StarknetChainId.TESTNET,
+            account_address=alice_devnet_account.address,
+            contract=compiled_contract_path,
+            gateway_url=devnet_gateway_url,
+        )
 
-    assert response.class_hash is not None
+        assert response.class_hash is not None
 
 
 async def test_max_fee_is_respected(
@@ -46,15 +48,17 @@ async def test_max_fee_is_respected(
     devnet_gateway_url: str,
     alice_devnet_account: DevnetAccount,
     compiled_contract_path: Path,
+    set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
-    with pytest.raises(FeeExceededMaxFeeException):
-        await protostar.declare(
-            chain_id=StarknetChainId.TESTNET,
-            account_address=alice_devnet_account.address,
-            contract=compiled_contract_path,
-            gateway_url=devnet_gateway_url,
-            max_fee=1,
-        )
+    with set_private_key_env_var(alice_devnet_account.private_key):
+        with pytest.raises(FeeExceededMaxFeeException):
+            await protostar.declare(
+                chain_id=StarknetChainId.TESTNET,
+                account_address=alice_devnet_account.address,
+                contract=compiled_contract_path,
+                gateway_url=devnet_gateway_url,
+                max_fee=1,
+            )
 
 
 @pytest.mark.xfail(

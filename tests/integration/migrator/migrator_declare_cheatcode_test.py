@@ -4,7 +4,7 @@ from typing import cast
 import pytest
 
 from protostar.protostar_exception import ProtostarException
-from tests.conftest import DevnetAccount
+from tests.conftest import DevnetAccount, SetPrivateKeyEnvVarFixture
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.migrator.conftest import assert_transaction_accepted
 from tests.integration.protostar_fixture import ProtostarFixture
@@ -73,23 +73,25 @@ async def test_declare_v1(
     protostar: ProtostarFixture,
     devnet_gateway_url: str,
     alice_devnet_account: DevnetAccount,
+    set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
     migration_file_path = protostar.create_migration_file(
         'declare("main", config={"max_fee": 123456789123456789})'
     )
 
-    result = await protostar.migrate(
-        migration_file_path,
-        gateway_url=devnet_gateway_url,
-        account_address=alice_devnet_account.address,
-    )
+    with set_private_key_env_var(alice_devnet_account.private_key):
+        result = await protostar.migrate(
+            migration_file_path,
+            gateway_url=devnet_gateway_url,
+            account_address=alice_devnet_account.address,
+        )
 
-    transaction_hash = cast(
-        int, result.starknet_requests[0].response["transaction_hash"]
-    )
-    await assert_transaction_accepted(devnet_gateway_url, transaction_hash)
-    assert result.starknet_requests[0].payload["version"] == 1
-    assert result.starknet_requests[0].payload["max_fee"] == 123456789123456789
+        transaction_hash = cast(
+            int, result.starknet_requests[0].response["transaction_hash"]
+        )
+        await assert_transaction_accepted(devnet_gateway_url, transaction_hash)
+        assert result.starknet_requests[0].payload["version"] == 1
+        assert result.starknet_requests[0].payload["max_fee"] == 123456789123456789
 
 
 async def test_declare_v0(
