@@ -37,7 +37,7 @@ from protostar.protostar_toml import (
     ProtostarTOMLReader,
     ProtostarTOMLWriter,
 )
-from protostar.starknet_gateway import GatewayFacadeFactory
+from protostar.starknet_gateway import GatewayFacadeFactory, Wei
 from protostar.utils.input_requester import InputRequester
 from protostar.utils.log_color_provider import LogColorProvider
 
@@ -72,6 +72,7 @@ class ProtostarFixture:
         contract: Optional[Path] = None,
         gateway_url: Optional[str] = None,
         wait_for_acceptance: Optional[bool] = False,
+        max_fee: Optional[Wei] = None,
     ):
         args = Namespace()
         args.signer_class = None
@@ -86,6 +87,7 @@ class ProtostarFixture:
         args.account_address = account_address
         args.contract = contract
         args.gateway_url = gateway_url
+        args.max_fee = max_fee
 
         return await self._declare_command.run(args)
 

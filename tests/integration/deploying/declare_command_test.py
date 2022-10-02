@@ -5,6 +5,7 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
+from protostar.starknet_gateway import FeeExceededMaxFeeException
 from tests.conftest import DevnetAccount
 from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR
 from tests.integration.conftest import CreateProtostarProjectFixture
@@ -38,6 +39,22 @@ async def test_declaring_contract(
     )
 
     assert response.class_hash is not None
+
+
+async def test_max_fee_is_respected(
+    protostar: ProtostarFixture,
+    devnet_gateway_url: str,
+    alice_devnet_account: DevnetAccount,
+    compiled_contract_path: Path,
+):
+    with pytest.raises(FeeExceededMaxFeeException):
+        await protostar.declare(
+            chain_id=StarknetChainId.TESTNET,
+            account_address=alice_devnet_account.address,
+            contract=compiled_contract_path,
+            gateway_url=devnet_gateway_url,
+            max_fee=1,
+        )
 
 
 @pytest.mark.xfail(

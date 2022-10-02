@@ -13,6 +13,7 @@ from protostar.starknet_gateway import (
     GatewayFacadeFactory,
     NetworkConfig,
     SuccessfulDeclareResponse,
+    Wei,
     format_successful_declare_response,
 )
 
@@ -55,6 +56,11 @@ class DeclareCommand(Command):
                 description="Used for declaring contracts in Alpha MainNet.",
                 type="str",
             ),
+            Command.Argument(
+                name="max-fee",
+                description="The maximum fee that the sender is willing to pay for the transaction.",
+                type="wei",
+            ),
             DeployCommand.wait_for_acceptance_arg,
         ]
 
@@ -79,6 +85,7 @@ class DeclareCommand(Command):
             network_config=network_config,
             token=args.token,
             wait_for_acceptance=args.wait_for_acceptance,
+            max_fee=args.max_fee,
         )
 
     async def declare(
@@ -90,6 +97,7 @@ class DeclareCommand(Command):
         signer: Optional[BaseSigner] = None,
         token: Optional[str] = None,
         wait_for_acceptance: bool = False,
+        max_fee: Optional[Wei] = None,
     ) -> SuccessfulDeclareResponse:
 
         gateway_facade = self._gateway_facade_factory.create(
@@ -102,6 +110,7 @@ class DeclareCommand(Command):
                 account_address=account_address,
                 wait_for_acceptance=wait_for_acceptance,
                 token=token,
+                max_fee=max_fee,
             )
         else:
             response = await gateway_facade.declare_v0(
