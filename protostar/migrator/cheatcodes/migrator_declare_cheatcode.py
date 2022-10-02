@@ -3,14 +3,14 @@ from dataclasses import dataclass
 from typing import Any, Optional
 
 from starknet_py.net.signer import BaseSigner
-from typing_extensions import Protocol
+from typing_extensions import NotRequired, Protocol
 
 from protostar.starknet import (
     Cheatcode,
     CheatcodeException,
     KeywordOnlyArgumentCheatcodeException,
 )
-from protostar.starknet_gateway import GatewayFacade
+from protostar.starknet_gateway import GatewayFacade, Wei
 from protostar.starknet_gateway.gateway_facade import CompilationOutputNotFoundException
 
 from ..migrator_contract_identifier_resolver import MigratorContractIdentifierResolver
@@ -27,6 +27,27 @@ class DeclareCheatcodeProtocol(Protocol):
         self, contract_path_str: str, *args, config: Optional[Any] = None
     ) -> DeclaredContract:
         ...
+
+
+class DeclareCheatcodeNetworkConfig(CheatcodeNetworkConfig):
+    max_fee: NotRequired[Wei]
+
+
+@dataclass
+class ValidatedDeclareCheatcodeNetworkConfig(ValidatedCheatcodeNetworkConfig):
+    @classmethod
+    def from_declare_cheatcode_network_config(
+        cls, config: Optional[DeclareCheatcodeNetworkConfig]
+    ) -> "ValidatedDeclareCheatcodeNetworkConfig":
+        if config is None:
+            return cls()
+        validated_network_config = ValidatedCheatcodeNetworkConfig.from_dict(config)
+        return cls(
+            wait_for_acceptance=validated_network_config.wait_for_acceptance,
+            max_fee=config.get("max_fee", None),
+        )
+
+    max_fee: Optional[Wei] = None
 
 
 class MigratorDeclareCheatcode(Cheatcode):
@@ -61,20 +82,18 @@ class MigratorDeclareCheatcode(Cheatcode):
         self,
         contract_path_str: str,
         *args,
-        config: Optional[CheatcodeNetworkConfig] = None,
+        config: Optional[DeclareCheatcodeNetworkConfig] = None,
     ) -> DeclaredContract:
         contract_identifier = contract_path_str
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
 
-        validated_config = ValidatedCheatcodeNetworkConfig.from_dict(
-            config or CheatcodeNetworkConfig()
+        validated_config = ValidatedDeclareCheatcodeNetworkConfig.from_declare_cheatcode_network_config(
+            config
         )
-
         compiled_contract_path = self._migrator_contract_identifier_resolver.resolve(
             contract_identifier
         )
-
         try:
             if self._config.signer and self._config.account_address is not None:
                 response = asyncio.run(
@@ -84,6 +103,7 @@ class MigratorDeclareCheatcode(Cheatcode):
                         signer=self._config.signer,
                         token=self._config.token,
                         wait_for_acceptance=validated_config.wait_for_acceptance,
+                        max_fee=validated_config.max_fee,
                     )
                 )
             else:
@@ -94,10 +114,8 @@ class MigratorDeclareCheatcode(Cheatcode):
                         wait_for_acceptance=validated_config.wait_for_acceptance,
                     )
                 )
-
             return DeclaredContract(
                 class_hash=response.class_hash,
             )
-
         except CompilationOutputNotFoundException as ex:
             raise CheatcodeException(self, ex.message) from ex

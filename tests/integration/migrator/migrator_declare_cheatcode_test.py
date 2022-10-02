@@ -74,7 +74,9 @@ async def test_declare_v1(
     devnet_gateway_url: str,
     alice_devnet_account: DevnetAccount,
 ):
-    migration_file_path = protostar.create_migration_file('declare("main")')
+    migration_file_path = protostar.create_migration_file(
+        'declare("main", config={"max_fee": 123456789123456789})'
+    )
 
     result = await protostar.migrate(
         migration_file_path,
@@ -87,6 +89,7 @@ async def test_declare_v1(
     )
     await assert_transaction_accepted(devnet_gateway_url, transaction_hash)
     assert result.starknet_requests[0].payload["version"] == 1
+    assert result.starknet_requests[0].payload["max_fee"] == 123456789123456789
 
 
 async def test_declare_v0(
