@@ -6,7 +6,7 @@ from typing import Any, Callable, Dict, List, NamedTuple, Optional, Union
 from starknet_py.contract import Contract, ContractFunction, InvokeResult
 from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
-from starknet_py.net.client_errors import ContractNotFoundError
+from starknet_py.net.client_errors import ClientError, ContractNotFoundError
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import AddressRepresentation
 from starknet_py.net.signer import BaseSigner
@@ -18,6 +18,7 @@ from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,
     Declare,
 )
+from typing_extensions import Self
 
 from protostar.compiler import CompiledContractReader
 from protostar.protostar_exception import ProtostarException
@@ -172,7 +173,13 @@ class GatewayFacade:
                 "signature": declare_tx.signature,
             },
         )
-        response = await self._gateway_client.declare(declare_tx, token=token)
+        try:
+            response = await self._gateway_client.declare(declare_tx, token=token)
+        except ClientError as ex:
+            fee_ex = FeeExceededMaxFeeException.from_client_error(ex)
+            if fee_ex is not None:
+                raise fee_ex from ex
+            raise ex
         if wait_for_acceptance:
             if self._logger:
                 self._logger.info("Waiting for acceptance...")
@@ -496,6 +503,14 @@ class CompilationOutputNotFoundException(ProtostarException):
             "Did you run `protostar build`?"
         )
         self._compilation_output_filepath = compilation_output_filepath
+
+
+class FeeExceededMaxFeeException(ProtostarException):
+    @classmethod
+    def from_client_error(cls, client_error: ClientError) -> Optional[Self]:
+        if "Actual fee exceeded max fee" in client_error.message:
+            return cls(client_error.message)
+        return None
 
 
 def transform_constructor_inputs_from_python(

@@ -9,6 +9,7 @@ from starkware.starknet.services.api.gateway.transaction import Declare
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.starknet_gateway.gateway_facade import (
     ContractNotFoundException,
+    FeeExceededMaxFeeException,
     GatewayFacade,
     InputValidationException,
     UnknownFunctionException,
@@ -202,3 +203,21 @@ async def test_declare_tx_v1(
     assert isinstance(declare_tx, Declare)
     assert declare_tx.signature
     assert declare_tx.max_fee == 213700000000000
+
+
+async def test_fee_exceeded_max_fee(
+    gateway_facade: GatewayFacade,
+    compiled_contract_path: Path,
+    devnet_accounts: list[DevnetAccount],
+):
+    too_small_max_fee = 1
+
+    with pytest.raises(FeeExceededMaxFeeException):
+        await gateway_facade.declare(
+            compiled_contract_path=compiled_contract_path,
+            account_address=devnet_accounts[0].address,
+            signer=devnet_accounts[0].signer,
+            wait_for_acceptance=True,
+            token=None,
+            max_fee=too_small_max_fee,
+        )
