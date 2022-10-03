@@ -1,8 +1,12 @@
 from pathlib import Path
-from typing import Optional
+from typing import Optional, cast
 
 import pytest
-from starknet_py.net.client_models import StarknetTransaction, TransactionStatus
+from starknet_py.net.client_models import (
+    Declare,
+    StarknetTransaction,
+    TransactionStatus,
+)
 from starknet_py.net.gateway_client import GatewayClient, Network
 from starkware.starknet.services.api.gateway.transaction import Declare
 
@@ -221,3 +225,26 @@ async def test_fee_exceeded_max_fee(
             token=None,
             max_fee=too_small_max_fee,
         )
+
+
+async def test_max_fee_estimation(
+    gateway_facade: GatewayFacade,
+    gateway_client: GatewayClientTxInterceptor,
+    compiled_contract_path: Path,
+    devnet_accounts: list[DevnetAccount],
+):
+
+    await gateway_facade.declare(
+        compiled_contract_path=compiled_contract_path,
+        account_address=devnet_accounts[0].address,
+        signer=devnet_accounts[0].signer,
+        wait_for_acceptance=True,
+        token=None,
+        max_fee="auto",
+    )
+
+    tx = cast(Declare, gateway_client.intercepted_txs[0])
+    assert tx is not None
+    assert tx.max_fee is not None
+    assert tx.max_fee is not "auto"
+    assert tx.max_fee > 0

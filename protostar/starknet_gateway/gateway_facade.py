@@ -1,7 +1,7 @@
 import dataclasses
 from logging import Logger, getLogger
 from pathlib import Path
-from typing import Any, Callable, Dict, List, NamedTuple, Optional, Union
+from typing import Any, Callable, Dict, List, Literal, NamedTuple, Optional, Union
 
 from starknet_py.contract import Contract, ContractFunction, InvokeResult
 from starknet_py.net import AccountClient
@@ -42,6 +42,7 @@ from protostar.utils.log_color_provider import LogColorProvider
 ContractFunctionInputType = Union[List[int], Dict[str, Any]]
 
 Wei = int
+Fee = Union[Wei, Literal["auto"]]
 
 
 class GatewayFacade:
@@ -148,7 +149,7 @@ class GatewayFacade:
         signer: BaseSigner,
         wait_for_acceptance: bool,
         token: Optional[str],
-        max_fee: Optional[Wei],
+        max_fee: Fee,
     ):
         compiled_contract = self._load_compiled_contract(
             self._project_root_path / compiled_contract_path
@@ -159,8 +160,8 @@ class GatewayFacade:
         declare_tx = await self._create_declare_tx_v1(
             compiled_contract=compiled_contract,
             account_client=account_client,
-            auto_estimate_fee=max_fee is None,
-            max_fee=max_fee,
+            auto_estimate_fee=max_fee == "auto",
+            max_fee=max_fee if max_fee != "auto" else None,
         )
         register_response = self._register_request(
             action="DECLARE",
