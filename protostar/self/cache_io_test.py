@@ -31,7 +31,6 @@ def test_cache_simple(test_wrapper):
     cache_io.write(cache_name, obj)
 
     assert cache_io.read(cache_name) == obj
-    assert cache_file_path.exists()
 
     os.remove(cache_file_path)
 
