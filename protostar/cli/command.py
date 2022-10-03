@@ -7,6 +7,8 @@ from typing import Any, List, Optional, Pattern
 from starkware.starknet.utils.api_utils import cast_to_felts
 from typing_extensions import Literal
 
+from protostar.starknet_gateway import Fee
+
 InputAllowedType = Literal[
     "str",
     "directory",
@@ -16,6 +18,7 @@ InputAllowedType = Literal[
     "int",  # only decimal!
     "felt",
     "wei",
+    "fee",
 ]
 
 
@@ -39,6 +42,12 @@ class Command(ABC):
             def felt(arg: str) -> int:
                 [output] = cast_to_felts([arg])
                 return output
+
+            @staticmethod
+            def fee(arg: str) -> Fee:
+                if arg == "auto":
+                    return arg
+                return int(arg)
 
         name: str
         description: str

@@ -9,11 +9,12 @@ from protostar.cli.command import Command
 from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.cli.signable_command_util import SignableCommandUtil
 from protostar.commands.deploy.deploy_command import DeployCommand
+from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import (
+    Fee,
     GatewayFacadeFactory,
     NetworkConfig,
     SuccessfulDeclareResponse,
-    Wei,
     format_successful_declare_response,
 )
 
@@ -58,8 +59,11 @@ class DeclareCommand(Command):
             ),
             Command.Argument(
                 name="max-fee",
-                description="The maximum fee that the sender is willing to pay for the transaction.",
-                type="wei",
+                description=(
+                    "The maximum fee that the sender is willing to pay for the transaction. "
+                    'Provide "auto" to auto estimate the fee.'
+                ),
+                type="fee",
             ),
             DeployCommand.wait_for_acceptance_arg,
         ]
@@ -97,13 +101,17 @@ class DeclareCommand(Command):
         signer: Optional[BaseSigner] = None,
         token: Optional[str] = None,
         wait_for_acceptance: bool = False,
-        max_fee: Optional[Wei] = None,
+        max_fee: Optional[Fee] = None,
     ) -> SuccessfulDeclareResponse:
 
         gateway_facade = self._gateway_facade_factory.create(
             gateway_client=gateway_client, logger=None
         )
         if signer and account_address is not None:
+            if max_fee is None:
+                raise ProtostarException(
+                    "Argument `max-fee` is required for transactions V1."
+                )
             response = await gateway_facade.declare(
                 compiled_contract_path=compiled_contract_path,
                 signer=signer,
