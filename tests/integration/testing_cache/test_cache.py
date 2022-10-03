@@ -9,11 +9,13 @@ from tests.data.tests import *
 @pytest.fixture(name="protostar", scope="module")
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
     with create_protostar_project() as protostar:
-        protostar.create_files({"./tests/test_passing.cairo": TEST_PASSING})
         protostar.create_files(
-            {"./tests/test_partially_passing.cairo": TEST_PARTIALLY_PASSING}
+            {
+                "./tests/test_passing.cairo": TEST_PASSING,
+                "./tests/test_partially_passing.cairo": TEST_PARTIALLY_PASSING,
+                "./tests/test_failing.cairo": TEST_FAILING,
+            }
         )
-        protostar.create_files({"./tests/test_failing.cairo": TEST_FAILING})
         protostar.build_sync()
         yield protostar
 
