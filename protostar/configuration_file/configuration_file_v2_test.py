@@ -16,9 +16,18 @@ from .configuration_file import (
     ConfigurationFileContentConfigurator,
     ContractNameNotFoundException,
 )
-from .configuration_file_v1 import ConfigurationFileV1, ConfigurationFileV1Model
+from .configuration_file_v1 import (
+    CommandNamesProviderProtocol,
+    ConfigurationFileV1,
+    ConfigurationFileV1Model,
+)
 from .configuration_file_v2 import ConfigurationFileV2, ConfigurationFileV2Model
 from .configuration_legacy_toml_interpreter import ConfigurationLegacyTOMLInterpreter
+
+
+class CommandNamesProviderDouble(CommandNamesProviderProtocol):
+    def get_command_names(self) -> list[str]:
+        return ["declare"]
 
 
 @pytest.fixture(name="protostar_toml_content")
@@ -216,6 +225,7 @@ def test_transforming_file_v1_into_v2(protostar_toml_content: str):
         ),
         project_root_path=Path(),
         filename="_",
+        command_names_provider=CommandNamesProviderDouble(),
     ).read()
 
     transformed_protostar_toml = ConfigurationFileV2(

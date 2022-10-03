@@ -13,8 +13,7 @@ from protostar.upgrader.latest_version_checker import LatestVersionChecker
 from protostar.utils.log_color_provider import LogColorProvider
 from protostar.utils.protostar_directory import VersionManager
 
-from .protostar_cli import ProtostarCLI
-from .protostar_toml.protostar_toml_version_checker import ProtostarTOMLVersionChecker
+from protostar.protostar_cli import ProtostarCLI
 
 
 @pytest.fixture(name="git_version")
@@ -52,17 +51,6 @@ def latest_version_checker_fixture(mocker: MockerFixture) -> LatestVersionChecke
     return latest_version_checker
 
 
-@pytest.fixture(name="protostar_toml_version_checker")
-def toml_version_checker_fixture(mocker: MockerFixture) -> ProtostarTOMLVersionChecker:
-    protostar_toml_version_checker = cast(
-        ProtostarTOMLVersionChecker, mocker.MagicMock()
-    )
-    protostar_toml_version_checker.run = mocker.MagicMock()
-    protostar_toml_version_checker.run.return_value = Future()
-    protostar_toml_version_checker.run.return_value.set_result(None)
-    return protostar_toml_version_checker
-
-
 @pytest.fixture(name="protostar_cli")
 def protostar_cli_fixture(
     mocker,
@@ -70,7 +58,6 @@ def protostar_cli_fixture(
     logger: Logger,
     commands: List[Command],
     latest_version_checker: LatestVersionChecker,
-    protostar_toml_version_checker: ProtostarTOMLVersionChecker,
 ) -> ProtostarCLI:
 
     log_color_provider = LogColorProvider()
@@ -81,7 +68,6 @@ def protostar_cli_fixture(
         logger=logger,
         version_manager=version_manager,
         latest_version_checker=latest_version_checker,
-        protostar_toml_version_checker=protostar_toml_version_checker,
         project_cairo_path_builder=mocker.MagicMock(),
     )
 
@@ -165,3 +151,12 @@ async def test_should_sys_exit_on_protostar_silent_exception(
     with pytest.raises(SystemExit) as ex:
         await protostar_cli.run(parser.parse([command.name]))
         assert cast(SystemExit, ex).code == 1
+
+
+@pytest.mark.asyncio
+async def test_getting_command_names(
+    protostar_cli: ProtostarCLI, commands: List[Command]
+):
+    command_names = protostar_cli.get_command_names()
+
+    assert command_names == [command.name for command in commands]
