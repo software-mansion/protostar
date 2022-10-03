@@ -25,17 +25,17 @@ def test_cache_simple(test_wrapper):
 
     obj = {"a": 1, "b": True, "c": 63464, "z": None}
 
-    assert cache_util.obtain(cache_name) is None
+    assert cache_util.read(cache_name) is None
 
-    cache_util.persist(cache_name, obj)
+    cache_util.write(cache_name, obj)
 
-    assert cache_util.obtain(cache_name) == obj
+    assert cache_util.read(cache_name) == obj
     assert os.path.exists(cache_file_path)
 
     os.remove(cache_file_path)
 
     assert not os.path.exists(cache_file_path)
-    assert cache_util.obtain(cache_name) is None
+    assert cache_util.read(cache_name) is None
 
 
 def test_cache_override(test_wrapper):
@@ -47,17 +47,17 @@ def test_cache_override(test_wrapper):
     obj = {"a": 1, "b": True}
     obj2 = {"a": 2}
 
-    assert cache_util.obtain(cache_name) is None
+    assert cache_util.read(cache_name) is None
 
-    cache_util.persist(cache_name, obj)
-    cache_util.persist(cache_name, obj2)
+    cache_util.write(cache_name, obj)
+    cache_util.write(cache_name, obj2)
 
-    assert cache_util.obtain(cache_name) == obj2
+    assert cache_util.read(cache_name) == obj2
 
-    cache_util.persist(cache_name, obj, True)
+    cache_util.write(cache_name, obj, True)
 
-    assert cache_util.obtain(cache_name) == obj
+    assert cache_util.read(cache_name) == obj
 
-    cache_util.persist(cache_name, obj2, False)
+    cache_util.write(cache_name, obj2, False)
 
-    assert cache_util.obtain(cache_name) == obj
+    assert cache_util.read(cache_name) == obj

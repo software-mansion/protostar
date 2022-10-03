@@ -47,7 +47,7 @@ async def test_execute_all_tests(
     }
 
     cache_util = CacheUtil(str(protostar.project_root_path))
-    tests_results = cache_util.obtain("test_results")
+    tests_results = cache_util.read("test_results")
 
     assert tests_results is not None
 
@@ -66,7 +66,7 @@ async def test_execute_only_passing_tests(
     )
 
     cache_util = CacheUtil(str(protostar.project_root_path))
-    tests_results = cache_util.obtain("test_results")
+    tests_results = cache_util.read("test_results")
 
     assert tests_results is not None
 

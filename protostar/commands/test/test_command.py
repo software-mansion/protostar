@@ -40,7 +40,7 @@ from protostar.self.cache import CacheUtil
 
 
 def read_targets_from_cache(cache_util, targets) -> Optional[list]:
-    previous_results = cache_util.obtain("test_results")
+    previous_results = cache_util.read("test_results")
     if not previous_results:
         return None
     previously_failed_tests = previous_results["failed_tests"]
@@ -191,7 +191,7 @@ A glob or globs to a directory or a test suite, for example:
             if isinstance(failed_test, BrokenTestSuiteResult):
                 for test_name in failed_test.test_case_names:
                     failed_test_cases.append((str(failed_test.file_path), test_name))
-        cache_util.persist(
+        cache_util.write(
             "test_results",
             {"failed_tests": failed_test_cases},
         )

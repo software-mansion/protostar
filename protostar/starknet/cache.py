@@ -12,15 +12,15 @@ class CacheUtil:
         if not path.exists(self._cache_path):
             os.mkdir(self._cache_path)
 
-    def persist(self, name: str, value: dict, override=True) -> None:
-        if not override and self.obtain(name):
+    def write(self, name: str, value: dict, override=True) -> None:
+        if not override and self.read(name):
             return
 
         file_path = path.join(self._cache_path, name)
         with open(file_path, "w", encoding="utf-8") as file:
             file.write(json.dumps(value))
 
-    def obtain(self, name: str) -> Optional[dict]:
+    def read(self, name: str) -> Optional[dict]:
         if not path.exists(self._cache_path):
             return None
         file_path = path.join(self._cache_path, name)
