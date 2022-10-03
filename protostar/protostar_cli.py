@@ -64,7 +64,10 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
             self._setup_logger(args.no_color)
             self._check_git_version()
             await self._run_command_from_args(args)
-            await self._latest_version_checker.run()
+
+            if args.command != "upgrade":
+                await self._latest_version_checker.run()
+
         except (ProtostarExceptionSilent, KeyboardInterrupt):
             has_failed = True
         except ProtostarException as err:
