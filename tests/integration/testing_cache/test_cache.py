@@ -64,7 +64,6 @@ async def test_execute_only_passing_tests(
         [
             "./tests/test_passing.cairo",
         ],
-        True,
     )
 
     cache_io = CacheIO(protostar.project_root_path)
