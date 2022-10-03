@@ -8,6 +8,14 @@ from protostar.utils import log_color_provider
 
 
 class BuildCommand(Command):
+    COMPILATION_OUTPUT_ARG = Command.Argument(
+        name="output",
+        short_name="o",
+        description="An output directory used to put the compiled contracts in.",
+        type="path",
+        default="build",
+    )
+
     def __init__(self, project_compiler: ProjectCompiler, logger: Logger) -> None:
         super().__init__()
         self._project_compiler = project_compiler
@@ -39,13 +47,7 @@ class BuildCommand(Command):
                 description="Disable validation of hints when building the contracts.",
                 type="bool",
             ),
-            Command.Argument(
-                name="output",
-                short_name="o",
-                description="An output directory used to put the compiled contracts in.",
-                type="path",
-                default="build",
-            ),
+            BuildCommand.COMPILATION_OUTPUT_ARG,
         ]
 
     async def run(self, args):

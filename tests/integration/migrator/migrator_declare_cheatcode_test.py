@@ -1,5 +1,4 @@
 import re
-from pathlib import Path
 from typing import cast
 
 import pytest
@@ -50,7 +49,7 @@ async def test_descriptive_error_on_file_not_found(
     with pytest.raises(
         ProtostarException,
         match=re.compile(
-            "Couldn't find `.*/NOT_EXISTING_FILE.json`",
+            "Couldn't find `.*NOT_EXISTING_FILE.json`",
         ),
     ):
         await protostar.migrate(migration_file_path, network=devnet_gateway_url)

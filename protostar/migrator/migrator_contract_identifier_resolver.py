@@ -1,7 +1,20 @@
 from pathlib import Path
 
-from protostar.compiler import CompiledContractWriter, ProjectCompiler
+from protostar.commands.build import BuildCommand
+from protostar.compiler import ProjectCompiler
 from protostar.migrator.migrator_datetime_state import MigratorDateTimeState
+from protostar.protostar_exception import ProtostarException
+
+
+class ContractIdentificationException(ProtostarException):
+    pass
+
+
+def checked_contract_path(contract_path: Path) -> Path:
+    if contract_path.is_file():
+        return contract_path
+
+    raise ContractIdentificationException(f"Couldn't find `{contract_path}` in the build directory.")
 
 
 class MigratorContractIdentifierResolver:
@@ -15,18 +28,15 @@ class MigratorContractIdentifierResolver:
 
     def resolve(self, contract_identifier: str) -> Path:
         if "." in contract_identifier:
-            return Path(contract_identifier)
-        return self._compile_contract_by_contract_name(contract_identifier)
+            contract_path = Path(contract_identifier)
+            return checked_contract_path(contract_path)
 
-    def _compile_contract_by_contract_name(self, contract_name: str) -> Path:
-        contract_class = self._project_compiler.compile_contract_from_contract_name(
-            contract_name
+        return self._get_built_contract_by_name(contract_identifier)
+
+    def _get_built_contract_by_name(self, contract_name: str) -> Path:
+        compilation_output_dir = self._project_compiler.get_compilation_output_dir(
+            Path(BuildCommand.COMPILATION_OUTPUT_ARG.default)
         )
-        output_file_path = (
-            CompiledContractWriter(contract=contract_class, contract_name=contract_name)
-            .save(
-                output_dir=self._migrator_datetime_state.get_compilation_output_path()
-            )
-            .compiled_contract_path
-        )
-        return output_file_path
+        compiled_contract_path = compilation_output_dir / f"{contract_name}.json"
+
+        return checked_contract_path(compiled_contract_path)

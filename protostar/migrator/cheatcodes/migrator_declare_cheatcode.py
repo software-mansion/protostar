@@ -11,9 +11,8 @@ from protostar.starknet import (
     KeywordOnlyArgumentCheatcodeException,
 )
 from protostar.starknet_gateway import GatewayFacade
-from protostar.starknet_gateway.gateway_facade import CompilationOutputNotFoundException
 
-from ..migrator_contract_identifier_resolver import MigratorContractIdentifierResolver
+from ..migrator_contract_identifier_resolver import MigratorContractIdentifierResolver, ContractIdentificationException
 from .network_config import CheatcodeNetworkConfig, ValidatedCheatcodeNetworkConfig
 
 
@@ -70,11 +69,11 @@ class MigratorDeclareCheatcode(Cheatcode):
             config or CheatcodeNetworkConfig()
         )
 
-        compiled_contract_path = self._migrator_contract_identifier_resolver.resolve(
-            contract_identifier
-        )
-
         try:
+            compiled_contract_path = self._migrator_contract_identifier_resolver.resolve(
+                contract_identifier
+            )
+
             response = asyncio.run(
                 self._gateway_facade.declare(
                     compiled_contract_path=compiled_contract_path,
@@ -87,6 +86,5 @@ class MigratorDeclareCheatcode(Cheatcode):
             return DeclaredContract(
                 class_hash=response.class_hash,
             )
-
-        except CompilationOutputNotFoundException as ex:
+        except ContractIdentificationException as ex:
             raise CheatcodeException(self, ex.message) from ex
