@@ -2,13 +2,14 @@ import os
 from os import path
 from typing import Optional
 import json
+from pathlib import Path
 
 
 class CacheIO:
     _CACHE_DIR_NAME = ".protostar_cache"
 
-    def __init__(self, project_path: str):
-        self._cache_path = path.join(project_path, self._CACHE_DIR_NAME)
+    def __init__(self, project_root_path: Path):
+        self._cache_path = path.join(project_root_path, self._CACHE_DIR_NAME)
         if not path.exists(self._cache_path):
             os.mkdir(self._cache_path)
 

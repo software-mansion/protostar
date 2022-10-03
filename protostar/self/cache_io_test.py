@@ -1,6 +1,7 @@
 import tempfile
 import os
 import shutil
+from pathlib import Path
 
 import pytest
 
@@ -17,7 +18,7 @@ def test_wrapper_fixture():
 
 def test_cache_simple(test_wrapper):
     cache_name = "test-cache-simple"
-    cache_io = CacheIO(tempfile.gettempdir())
+    cache_io = CacheIO(Path(tempfile.gettempdir()))
     # pylint: disable=protected-access
     test_wrapper.append(cache_io._cache_path)
     # pylint: disable=protected-access
@@ -40,7 +41,7 @@ def test_cache_simple(test_wrapper):
 
 def test_cache_override(test_wrapper):
     cache_name = "test-cache-override"
-    cache_io = CacheIO(tempfile.gettempdir())
+    cache_io = CacheIO(Path(tempfile.gettempdir()))
     # pylint: disable=protected-access
     test_wrapper.append(cache_io._cache_path)
 
