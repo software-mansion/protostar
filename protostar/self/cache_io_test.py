@@ -22,7 +22,7 @@ def test_cache_simple(test_wrapper):
     # pylint: disable=protected-access
     test_wrapper.append(cache_io._cache_path)
     # pylint: disable=protected-access
-    cache_file_path = os.path.join(cache_io._cache_path, cache_name)
+    cache_file_path = cache_io._cache_path / (cache_name + cache_io._EXTENSION)
 
     obj = {"a": 1, "b": True, "c": 63464, "z": None}
 
@@ -31,11 +31,11 @@ def test_cache_simple(test_wrapper):
     cache_io.write(cache_name, obj)
 
     assert cache_io.read(cache_name) == obj
-    assert os.path.exists(cache_file_path)
+    assert cache_file_path.exists()
 
     os.remove(cache_file_path)
 
-    assert not os.path.exists(cache_file_path)
+    assert not cache_file_path.exists()
     assert cache_io.read(cache_name) is None
 
 
