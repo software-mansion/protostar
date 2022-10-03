@@ -19,9 +19,9 @@ Sends a declare transaction.
 ## `DeclareCheatcodeNetworkConfig`
 ```python
 class DeclareCheatcodeNetworkConfig(CheatcodeNetworkConfig):
-    max_fee: NotRequired[Wei]
+    max_fee: NotRequired[Wei | "auto"]
 ```
-- `max_fee` — The maximum fee that the sender is willing to pay for the transaction.
+- `max_fee` — The maximum fee that the sender is willing to pay for the transaction. Required for transactions V1.
 
 This dictionary inherits properties from [CheatcodeNetworkConfig](../03-network-config.md).
 
@@ -32,7 +32,7 @@ This dictionary inherits properties from [CheatcodeNetworkConfig](../03-network-
 
 @external
 func up() {
-    %{ declare("main", config={"wait_for_acceptance": True}) %}
+    %{ declare("main", config={"wait_for_acceptance": True, "max_fee": "auto"}) %}
 
     return ();
 }
