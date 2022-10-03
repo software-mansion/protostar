@@ -16,3 +16,8 @@ def test_upgrading(protostar: ProtostarFixture):
 def test_upgrade_notification(protostar: ProtostarFixture):
     protostar(["build"])
     assert "new Protostar version" in protostar(["build"])
+
+
+@pytest.mark.parametrize("protostar_version", ["0.0.0"])
+def test_upgrade_notification_not_on_upgrade(protostar: ProtostarFixture):
+    assert "new Protostar version" not in protostar(["upgrade"])

@@ -47,7 +47,12 @@ snakeviz = "^2.1.1"
 starknet-devnet = "^0.3.1"
 
 [tool.poe.tasks]
-build = "pyinstaller protostar.spec --noconfirm"
+build = [
+    "write_runtime_constants",
+    "pyinstaller"
+]
+write_runtime_constants = "python ./scripts/write_runtime_constants.py"
+pyinstaller = "pyinstaller protostar.spec --noconfirm"
 ci = [
     "type_check",
     "lint",
@@ -150,9 +155,6 @@ strictDictionaryInference = true
 strictListInference = true
 strictSetInference = true
 useLibraryCodeForTypes = true
-
-[tool.protostar]
-latest_supported_protostar_toml_version = "0.3.2"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"

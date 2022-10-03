@@ -10,9 +10,6 @@ from protostar.compiler import ProjectCairoPathBuilder
 from protostar.configuration_file import CommandNamesProviderProtocol
 from protostar.configuration_profile_cli import ConfigurationProfileCLI
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
-from protostar.protostar_toml.protostar_toml_version_checker import (
-    ProtostarTOMLVersionChecker,
-)
 from protostar.upgrader import LatestVersionChecker
 from protostar.utils import StandardLogFormatter, VersionManager
 from protostar.utils.log_color_provider import LogColorProvider
@@ -32,7 +29,6 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
         log_color_provider: LogColorProvider,
         project_cairo_path_builder: ProjectCairoPathBuilder,
         latest_version_checker: LatestVersionChecker,
-        protostar_toml_version_checker: ProtostarTOMLVersionChecker,
         version_manager: VersionManager,
         commands: List[Command],
         start_time: float = 0,
@@ -41,7 +37,6 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
         self._latest_version_checker = latest_version_checker
         self._log_color_provider = log_color_provider
         self._version_manager = version_manager
-        self._protostar_toml_version_checker = protostar_toml_version_checker
         self._start_time = start_time
         self._project_cairo_path_builder = project_cairo_path_builder
 
@@ -69,7 +64,10 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
             self._setup_logger(args.no_color)
             self._check_git_version()
             await self._run_command_from_args(args)
-            await self._latest_version_checker.run()
+
+            if args.command != "upgrade":
+                await self._latest_version_checker.run()
+
         except (ProtostarExceptionSilent, KeyboardInterrupt):
             has_failed = True
         except ProtostarException as err:
@@ -104,7 +102,6 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
 
         # FIXME(arcticae): Those should be run when command is running in project context
         if args.command not in ["init", "upgrade"]:
-            self._protostar_toml_version_checker.run()
             cairo_path_arg = vars(args).get("cairo_path")
             self._extend_pythonpath_with_cairo_path(cairo_path_arg)
             _apply_pythonpath()
