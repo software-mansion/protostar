@@ -14,6 +14,7 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
                 "./tests/test_passing.cairo": TEST_PASSING,
                 "./tests/test_partially_passing.cairo": TEST_PARTIALLY_PASSING,
                 "./tests/test_failing.cairo": TEST_FAILING,
+                "./tests/test_broken.cairo": TEST_BROKEN,
             }
         )
         protostar.build_sync()
@@ -29,6 +30,7 @@ async def test_execute_all_tests(
                 "./tests/test_passing.cairo",
                 "./tests/test_partially_passing.cairo",
                 "./tests/test_failing.cairo",
+                "./tests/test_broken.cairo",
             ]
         )
     except Exception as e:
@@ -40,6 +42,7 @@ async def test_execute_all_tests(
             ("tests/test_partially_passing.cairo", "test_fail1"),
             ("tests/test_failing.cairo", "test_fail2"),
             ("tests/test_partially_passing.cairo", "test_fail2"),
+            ("tests/test_broken.cairo", "test_broken"),
         ]
     }
 

@@ -59,3 +59,14 @@ func test_pass2{syscall_ptr: felt*, range_check_ptr}() {
 }
 
 """
+
+TEST_BROKEN = """\
+%lang starknet
+
+@external
+func test_broken{syscall_ptr: felt*, range_check_ptr}() {
+    %{ declare(1) %}
+    return ();
+}
+
+"""
