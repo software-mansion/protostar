@@ -38,6 +38,7 @@ async def test_declaring_contract(
             account_address=devnet_account.address,
             contract=compiled_contract_path,
             gateway_url=devnet_gateway_url,
+            max_fee="auto",
         )
 
         assert response.class_hash is not None
