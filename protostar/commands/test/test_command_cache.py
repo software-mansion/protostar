@@ -18,8 +18,9 @@ class TestCommandCache:
     def obtain_targets(self, targets: List[str], last_failed=False) -> List[str]:
         if not last_failed:
             return targets
-        if targets_from_cache := self.cache_io.read("test_results"):
-            targets = targets_from_cache["failed_tests"]
+        if targets_from_cache := self.cache_io.read("last-failed-tests"):
+            targets = targets_from_cache["targets"]
+            targets = [f"{target[0]}::{target[1]}" for target in targets]
             print("running previously failed tests:", targets)
         return targets
 
