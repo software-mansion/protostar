@@ -31,7 +31,8 @@ async def test_execute_all_tests(
                 "./tests/test_partially_passing.cairo",
                 "./tests/test_failing.cairo",
                 "./tests/test_broken.cairo",
-            ]
+            ],
+            True,
         )
     except Exception as e:
         assert str(e) == "Not all test cases passed"
@@ -62,7 +63,8 @@ async def test_execute_only_passing_tests(
     await protostar.test(
         [
             "./tests/test_passing.cairo",
-        ]
+        ],
+        True,
     )
 
     cache_io = CacheIO(protostar.project_root_path)

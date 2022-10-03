@@ -4,6 +4,7 @@ from argparse import Namespace
 from logging import getLogger
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple, cast
+from xmlrpc.client import Boolean
 
 from pytest_mock import MockerFixture
 from starknet_py.net import KeyPair
@@ -119,7 +120,9 @@ class ProtostarFixture:
         args.chain_id = StarknetChainId.TESTNET
         return await self._deploy_command.run(args)
 
-    async def test(self, targets: List[str]) -> TestingSummary:
+    async def test(
+        self, targets: List[str], last_failed: Boolean = False
+    ) -> TestingSummary:
         args = Namespace()
         args.target = targets
         args.ignore = []
@@ -130,7 +133,7 @@ class ProtostarFixture:
         args.exit_first = None
         args.seed = None
         args.report_slowest_tests = 0
-        args.last_failed = True
+        args.last_failed = last_failed
 
         return await self._test_command.run(args)
 
