@@ -116,6 +116,7 @@ class GitRepository:
                 name,
                 "--depth",
                 str(depth),
+                "--force",
                 url,
                 str(relative_submodule_path),
             ],
