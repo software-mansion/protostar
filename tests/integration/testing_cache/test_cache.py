@@ -48,7 +48,7 @@ async def test_execute_all_tests(
     }
 
     cache_io = CacheIO(protostar.project_root_path)
-    tests_results = cache_io.read("last-failed-tests")
+    tests_results = cache_io.read("last_failed_tests")
 
     assert tests_results is not None
 
@@ -68,7 +68,7 @@ async def test_execute_only_passing_tests(
     )
 
     cache_io = CacheIO(protostar.project_root_path)
-    tests_results = cache_io.read("last-failed-tests")
+    tests_results = cache_io.read("last_failed_tests")
 
     assert tests_results is not None
 
