@@ -38,7 +38,7 @@ async def test_execute_all_tests(
         assert str(e) == "Not all test cases passed"
 
     expected_tests_results = {
-        "failed_tests": [
+        "targets": [
             ("tests/test_failing.cairo", "test_fail1"),
             ("tests/test_partially_passing.cairo", "test_fail1"),
             ("tests/test_failing.cairo", "test_fail2"),
@@ -48,12 +48,12 @@ async def test_execute_all_tests(
     }
 
     cache_io = CacheIO(protostar.project_root_path)
-    tests_results = cache_io.read("test_results")
+    tests_results = cache_io.read("last-failed-tests")
 
     assert tests_results is not None
 
-    assert {tuple(item) for item in tests_results["failed_tests"]} == set(
-        expected_tests_results["failed_tests"]
+    assert {tuple(item) for item in tests_results["targets"]} == set(
+        expected_tests_results["targets"]
     )
 
 
@@ -68,8 +68,8 @@ async def test_execute_only_passing_tests(
     )
 
     cache_io = CacheIO(protostar.project_root_path)
-    tests_results = cache_io.read("test_results")
+    tests_results = cache_io.read("last-failed-tests")
 
     assert tests_results is not None
 
-    assert tests_results is None or not tests_results["failed_tests"]
+    assert tests_results is None or not tests_results["targets"]
