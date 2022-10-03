@@ -36,11 +36,11 @@ from protostar.starknet.compiler.starknet_compilation import (
     StarknetCompiler,
 )
 
-from protostar.self.cache import CacheUtil
+from protostar.self.cache_io import CacheIO
 
 
-def read_targets_from_cache(cache_util, targets) -> Optional[list]:
-    previous_results = cache_util.read("test_results")
+def read_targets_from_cache(cache_io, targets) -> Optional[list]:
+    previous_results = cache_io.read("test_results")
     if not previous_results:
         return None
     previously_failed_tests = previous_results["failed_tests"]
@@ -166,9 +166,9 @@ A glob or globs to a directory or a test suite, for example:
 
     async def run(self, args: Namespace) -> TestingSummary:
         targets: List[str] = args.target
-        cache_util = CacheUtil(str(self._project_root_path))
+        cache_io = CacheIO(str(self._project_root_path))
         if args.last_failed:
-            if targets_from_cache := read_targets_from_cache(cache_util, targets):
+            if targets_from_cache := read_targets_from_cache(cache_io, targets):
                 targets = targets_from_cache
                 print("running previously failed tests:", targets)
         summary = await self.test(
@@ -191,7 +191,7 @@ A glob or globs to a directory or a test suite, for example:
             if isinstance(failed_test, BrokenTestSuiteResult):
                 for test_name in failed_test.test_case_names:
                     failed_test_cases.append((str(failed_test.file_path), test_name))
-        cache_util.write(
+        cache_io.write(
             "test_results",
             {"failed_tests": failed_test_cases},
         )

@@ -1,6 +1,6 @@
 import pytest
 
-from protostar.self.cache import CacheUtil
+from protostar.self.cache_io import CacheIO
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.protostar_fixture import ProtostarFixture
 from tests.data.tests import *
@@ -46,8 +46,8 @@ async def test_execute_all_tests(
         ]
     }
 
-    cache_util = CacheUtil(str(protostar.project_root_path))
-    tests_results = cache_util.read("test_results")
+    cache_io = CacheIO(str(protostar.project_root_path))
+    tests_results = cache_io.read("test_results")
 
     assert tests_results is not None
 
@@ -65,8 +65,8 @@ async def test_execute_only_passing_tests(
         ]
     )
 
-    cache_util = CacheUtil(str(protostar.project_root_path))
-    tests_results = cache_util.read("test_results")
+    cache_io = CacheIO(str(protostar.project_root_path))
+    tests_results = cache_io.read("test_results")
 
     assert tests_results is not None
 
