@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Generic, Optional, TypeVar, Union
+from typing import Any, Generic, Optional, Protocol, TypeVar, Union
 
 from protostar.protostar_exception import ProtostarException
 from protostar.self import DeclaredProtostarVersionProviderProtocol, ProtostarVersion
@@ -26,20 +26,26 @@ class ConfigurationFileContentBuilder(ABC):
         data: dict[str, Any],
         profile_name: Optional[str] = None,
     ) -> None:
-        pass
+        ...
 
     @abstractmethod
     def build(self) -> str:
         ...
 
+    @abstractmethod
+    def get_content_format(self) -> str:
+        ...
 
-class ConfigurationFileContentConfigurator(Generic[ConfigurationFileModelT]):
+
+class ConfigurationFileContentFactory(Generic[ConfigurationFileModelT]):
     @abstractmethod
     def create_file_content(
         self,
-        content_builder: ConfigurationFileContentBuilder,
         model: ConfigurationFileModelT,
     ) -> str:
+        ...
+
+    def get_file_extension(self) -> str:
         ...
 
 
@@ -48,6 +54,10 @@ class ConfigurationFile(
 ):
     @abstractmethod
     def get_declared_protostar_version(self) -> Optional[ProtostarVersion]:
+        ...
+
+    @abstractmethod
+    def get_filepath(self) -> Path:
         ...
 
     @abstractmethod
@@ -79,3 +89,8 @@ class ContractNameNotFoundException(ProtostarException):
         super().__init__(
             f"Couldn't find `{contract_name}` in `{expected_declaration_location}`"
         )
+
+
+class ConfigurationFileMigratorProtocol(Protocol):
+    def run(self) -> None:
+        pass

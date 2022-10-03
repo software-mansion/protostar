@@ -1,1 +1,3 @@
+from .configuration_file import ConfigurationFileMigratorProtocol
 from .configuration_file_v1 import CommandNamesProviderProtocol
+from .configuration_file_v2_migrator import ConfigurationFileV2Migrator
