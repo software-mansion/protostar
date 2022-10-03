@@ -8,11 +8,11 @@ from packaging import version
 
 from packaging.version import LegacyVersion, Version as PackagingVersion
 
+from protostar.git import Git, ProtostarGitException
+
 RuntimeConstantName = Literal["PROTOSTAR_VERSION", "CAIRO_VERSION"]
 RuntimeConstantValue = str
 RuntimeConstantsDict = dict[RuntimeConstantName, RuntimeConstantValue]
-
-from protostar.git import Git, ProtostarGitException
 
 
 class ProtostarDirectory:
