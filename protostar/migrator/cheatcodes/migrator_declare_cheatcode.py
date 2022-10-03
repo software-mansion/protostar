@@ -10,7 +10,7 @@ from protostar.starknet import (
     CheatcodeException,
     KeywordOnlyArgumentCheatcodeException,
 )
-from protostar.starknet_gateway import GatewayFacade, Wei
+from protostar.starknet_gateway import Fee, GatewayFacade
 from protostar.starknet_gateway.gateway_facade import CompilationOutputNotFoundException
 
 from ..migrator_contract_identifier_resolver import MigratorContractIdentifierResolver
@@ -30,7 +30,7 @@ class DeclareCheatcodeProtocol(Protocol):
 
 
 class DeclareCheatcodeNetworkConfig(CheatcodeNetworkConfig):
-    max_fee: NotRequired[Wei]
+    max_fee: NotRequired[Fee]
 
 
 @dataclass
@@ -47,7 +47,7 @@ class ValidatedDeclareCheatcodeNetworkConfig(ValidatedCheatcodeNetworkConfig):
             max_fee=config.get("max_fee", None),
         )
 
-    max_fee: Optional[Wei] = None
+    max_fee: Optional[Fee] = None
 
 
 class MigratorDeclareCheatcode(Cheatcode):
@@ -96,6 +96,10 @@ class MigratorDeclareCheatcode(Cheatcode):
         )
         try:
             if self._config.signer and self._config.account_address is not None:
+                if validated_config.max_fee is None:
+                    raise CheatcodeException(
+                        self, 'config["max_fee"] is required for transactions V1'
+                    )
                 response = asyncio.run(
                     self._gateway_facade.declare(
                         compiled_contract_path=compiled_contract_path,
