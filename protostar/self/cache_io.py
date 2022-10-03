@@ -1,4 +1,3 @@
-from os import path
 from typing import Optional
 import json
 from pathlib import Path
@@ -12,18 +11,17 @@ class CacheIO:
         self._cache_path.mkdir(exist_ok=True)
 
     def write(self, name: str, value: dict, override=True) -> None:
-        if not override and path.exists(self._cache_path):
+        if not override and self._cache_path.exists():
             return
 
-        file_path = path.join(self._cache_path, name)
-        with open(file_path, "w", encoding="utf-8") as file:
+        with open(self._cache_path / name, "w", encoding="utf-8") as file:
             file.write(json.dumps(value))
 
     def read(self, name: str) -> Optional[dict]:
-        if not path.exists(self._cache_path):
+        if not self._cache_path.exists():
             return None
-        file_path = path.join(self._cache_path, name)
-        if not path.exists(file_path):
+        file_path = self._cache_path / name
+        if not file_path.exists():
             return None
         with open(file_path, "r", encoding="utf-8") as file:
             if file_contents := file.read():
