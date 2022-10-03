@@ -94,6 +94,28 @@ async def test_declare_v1(
         assert result.starknet_requests[0].payload["max_fee"] == 123456789123456789
 
 
+async def test_fee_estimation(
+    protostar: ProtostarFixture,
+    devnet_gateway_url: str,
+    devnet_account: DevnetAccount,
+    set_private_key_env_var: SetPrivateKeyEnvVarFixture,
+):
+    migration_file_path = protostar.create_migration_file(
+        'declare("main", config={"max_fee": "auto"})'
+    )
+
+    with set_private_key_env_var(devnet_account.private_key):
+        result = await protostar.migrate(
+            migration_file_path,
+            gateway_url=devnet_gateway_url,
+            account_address=devnet_account.address,
+        )
+
+        assert result.starknet_requests[0].payload["version"] == 1
+        assert isinstance(result.starknet_requests[0].payload["max_fee"], int)
+        assert result.starknet_requests[0].payload["max_fee"] > 0
+
+
 async def test_declare_v0(
     protostar: ProtostarFixture,
     devnet_gateway_url: str,
