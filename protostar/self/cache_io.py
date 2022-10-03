@@ -1,4 +1,3 @@
-import os
 from os import path
 from typing import Optional
 import json
@@ -9,9 +8,8 @@ class CacheIO:
     _CACHE_DIR_NAME = ".protostar_cache"
 
     def __init__(self, project_root_path: Path):
-        self._cache_path = path.join(project_root_path, self._CACHE_DIR_NAME)
-        if not path.exists(self._cache_path):
-            os.mkdir(self._cache_path)
+        self._cache_path = project_root_path / Path(self._CACHE_DIR_NAME)
+        self._cache_path.mkdir(exist_ok=True)
 
     def write(self, name: str, value: dict, override=True) -> None:
         if not override and self.read(name):
