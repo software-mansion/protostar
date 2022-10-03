@@ -41,3 +41,8 @@ def test_felt_type(test_input, expected):
 def test_felt_type_invalid_input(test_input):
     with pytest.raises(ValueError):
         Command.Argument.Type.felt(test_input)
+
+
+def test_fee_type():
+    assert Command.Argument.Type.fee("auto") == "auto"
+    assert Command.Argument.Type.fee("123") == 123
