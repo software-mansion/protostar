@@ -21,6 +21,7 @@
 /protostar/starknet_gateway @Arcticae @kasperski95 @Radinyn
 /protostar/upgrader @kasperski95
 /protostar/git @Radinyn
+/protostar/package_manager @kasperski95 @Radinyn
 
 /website @kasperski95
 /website/docs @MaksymilianDemitraszek
