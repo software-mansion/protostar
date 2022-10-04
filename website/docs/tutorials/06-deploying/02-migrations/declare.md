@@ -2,7 +2,7 @@
 
 ```python
 def declare(
-    contract_path_str: str,
+    contract: str,
     *,
     config: Optional[DeclareCheatcodeNetworkConfig] = None
 ) -> DeclaredContract:
@@ -13,7 +13,7 @@ class DeclaredContract:
 
 Sends a declare transaction.
 
-- `contract_path_str` — A path to the **compiled** contract or a [contract name](../../compiling#contract-name). If you provide a contract name, Protostar will compile the contract to the migration output directory.
+- `contract` — A path to the **compiled** contract or a [contract name](../../compiling#contract-name). If you provide a contract name, protostar will look for it in the default build output directory (`build` in the project root).
 - `config` — A keyword only argument that allows configuring transaction and network parameters.
 
 ## `DeclareCheatcodeNetworkConfig`

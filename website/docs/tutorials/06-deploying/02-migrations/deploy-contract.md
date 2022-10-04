@@ -3,7 +3,7 @@
 ```python
 def deploy_contract(
     self,
-    contract_path: str,
+    contract: str,
     constructor_args: list[int] | dict[str, Any] | None = None,
     *,
     config: Optional[CheatcodeNetworkConfig] = None
@@ -18,7 +18,7 @@ This cheatcode will not be supported in the future. Use [declare](./declare.md) 
 :::
 
 Deploys a contract to the network.
-- `contract_path` — A path to the **compiled** contract or a contract name. If you provide a contract name, Protostar will compile the contract to the migration output directory.
+- `contract` — A path to the **compiled** contract or a contract name. If you provide a contract name, Protostar will search for the compiled contract in the default build output (which is `build` in the root of the project) directory.
 - `constructor_args` — Arguments to the constructor. It can be either a list of felts or a dictionary. To use [data transformer](../../testing/cheatcodes#data-transformer), provide a dictionary.
 - `config` — A keyword only argument that allows passing [network configuration](../03-network-config.md).
 

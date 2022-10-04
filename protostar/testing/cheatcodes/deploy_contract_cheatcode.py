@@ -36,7 +36,7 @@ class DeployContractCheatcode(Cheatcode):
     # pylint: disable=keyword-arg-before-vararg
     def deploy_contract(
         self,
-        contract_path: str,
+        contract: str,
         constructor_args: Optional[CairoOrPythonData] = None,
         *args,
         # pylint: disable=unused-argument
@@ -44,7 +44,7 @@ class DeployContractCheatcode(Cheatcode):
     ) -> DeployedContract:
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
-        declared_contract = self._declare_cheatcode.declare(contract_path)
+        declared_contract = self._declare_cheatcode.declare(contract)
         prepared_contract = self._prepare_cheatcode.prepare(
             declared_contract, constructor_args
         )
