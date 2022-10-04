@@ -5,20 +5,14 @@ sidebar_label: Migrations
 # Migrations
 
 :::warning
-This feature is actively developed. Many new additions or changes will land in future Protostar releases.
+Breaking changes can be introduced without depreciation.
 :::
 
 
-Migrations are Cairo files that help you manage contracts on the StarkNet. They are especially useful, when your project consists of multiple contracts. Migration code is mainly written in hints. Protostar injects special functions into hints' scope, which you can use to interact with the StarkNet. These functions are similar to cheatcodes used to test contracts, hence in this document we will refer to these functions as migration cheatcodes.
-
-:::info
-Protostar aims to make migration cheatcodes a subset of [testing cheatcodes](/docs/tutorials/testing/cheatcodes) in order to allow testing migration scripts against Protostar's local StarkNet.
-:::
+Migrations are Cairo files that help you manage contracts on the StarkNet. They are especially useful, when your project consists of multiple contracts or your project implements [Proxy Pattern](https://blog.openzeppelin.com/proxy-patterns/). Migration code is mainly written in hints. Protostar injects special functions into hints' scope, which you can use to interact with the StarkNet. These functions are similar to cheatcodes used to test contracts, hence in this document we will refer to these functions as migration cheatcodes.
 
 ## Creating a migration file
 You can create a migration file anywhere, but we recommend creating them inside a `migrations` directory. Currently, Protostar doesn't enforce any naming convention for migration files. In this tutorial we use a naming convention: `migration_NUMBER_TITLE.cairo`, for example `migration_01_init.cairo`.
-
-
 
 ## Migration file structure
 Each migration should have 2 functions: `up` and `down`. The `up` function is responsible to migrate your project forward, and the `down` function is executed to rollback changes. These functions must be decorated with `@external` decorator.
@@ -44,7 +38,7 @@ To run the migration execute the `migrate` command. We recommend specifying the 
 
 ```shell title="Running the migration to the testnet"
 protostar migrate migrations/migration_01_init.cairo
-    --network alpha-goerli
+    --network testnet
     --output-dir migrations/testnet
 ```
 
@@ -79,6 +73,11 @@ If you build the project, Protostar will print migration logs in the command lin
   transaction_hash     0x1234...
 [INFO] Migration completed
 ```
+
+## Lack of Atomicity
+If one of the cheatcode fails (e.g. Invoke Cheatcode), introduced changes won't be reverted. If you need atomicity, move the code to the [Contract Classes](https://docs.starknet.io/documentation/develop/Contracts/contract-classes/).
+
+
 ## Signing the migration
 You can sign the migration's transactions by providing appropriate arguments to the CLI of the command. 
 See signing-related documentation [here](../01-cli.md#signing-a-declaration).
