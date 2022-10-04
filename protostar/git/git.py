@@ -14,7 +14,7 @@ class Git:
         return repo
 
     @staticmethod
-    def clone(repo_path: Path, repo_to_clone: "GitRepository"):
+    def clone(repo_path: Path, repo_to_clone: GitRepository):
         Git.ensure_has_git()
         repo_path.parent.mkdir(parents=True, exist_ok=True)
         cloned_repo = GitRepository(repo_path)
@@ -27,8 +27,8 @@ class Git:
         path = GitRepository.get_repo_root(repo_path)
         return GitRepository(path)
 
-    @wrap_git_exception
     @staticmethod
+    @wrap_git_exception
     def get_version() -> str:
         Git.ensure_has_git()
         process = subprocess.run(
