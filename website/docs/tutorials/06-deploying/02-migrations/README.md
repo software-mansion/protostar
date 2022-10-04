@@ -78,7 +78,22 @@ If you build the project, Protostar will print migration logs in the command lin
 ```
 
 ## Lack of Atomicity
-If one of the cheatcode fails (e.g. Invoke Cheatcode), introduced changes won't be reverted.
+If one of the cheatcode fails (e.g. [invoke cheatcode](migrations/invoke)), introduced changes won't be reverted. 
+
+<!-- ```cairo title="..."
+%lang starknet
+
+@external
+func up() { 
+    %{ 
+        class_hash = declare("./build/main.json", config={"max_fee": "auto"}).class_hash
+        address = invoke(class_hash, "create_contract")
+    %}
+    return ();
+}
+```  -->
+
+
 If you need atomicity, move the code to the [Contract Classes](https://docs.starknet.io/documentation/develop/Contracts/contract-classes/).
 
 
