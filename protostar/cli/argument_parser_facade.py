@@ -172,6 +172,8 @@ class ArgumentParserFacade:
             arg_type = int
         elif argument.type == "felt":
             arg_type = Command.Argument.Type.felt
+        elif argument.type == "wei":
+            arg_type = int
 
         default = argument.default
 

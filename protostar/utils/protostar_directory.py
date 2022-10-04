@@ -1,18 +1,25 @@
+import json
 import logging
 import re
 from pathlib import Path
-from typing import Optional, Union
+from typing import Literal, Optional, Union
 
-import tomli
 from git.cmd import Git
 from packaging import version
 from packaging.version import LegacyVersion
 from packaging.version import Version as PackagingVersion
 
+RuntimeConstantName = Literal["PROTOSTAR_VERSION", "CAIRO_VERSION"]
+RuntimeConstantValue = str
+RuntimeConstantsDict = dict[RuntimeConstantName, RuntimeConstantValue]
+
 
 class ProtostarDirectory:
+    RUNTIME_CONSTANTS_FILE_NAME = "constants.json"
+
     def __init__(self, protostar_binary_dir_path: Path) -> None:
         self._protostar_binary_dir_path: Path = protostar_binary_dir_path
+        self._runtime_constants = None
 
     @property
     def protostar_binary_dir_path(self) -> Optional[Path]:
@@ -35,6 +42,28 @@ class ProtostarDirectory:
         assert self.protostar_binary_dir_path is not None
         return self.protostar_binary_dir_path / "cairo"
 
+    def _read_runtime_constants(self) -> Optional[RuntimeConstantsDict]:
+        constants_str = (
+            self.info_dir_path / ProtostarDirectory.RUNTIME_CONSTANTS_FILE_NAME
+        ).read_text("utf-8")
+        return json.loads(constants_str)
+
+    def get_runtime_constant(
+        self, name: RuntimeConstantName
+    ) -> Optional[RuntimeConstantValue]:
+        if self._runtime_constants is None:
+            try:
+                self._runtime_constants = self._read_runtime_constants()
+            except FileNotFoundError as ex:
+                logging.getLogger().warning(
+                    "Couldn't load constant `%s` from %s", name, ex.filename
+                )
+                return None
+
+        if self._runtime_constants is None:
+            return None
+        return self._runtime_constants[name]
+
 
 VersionType = Union[LegacyVersion, PackagingVersion]
 
@@ -52,47 +81,18 @@ class VersionManager:
         self._logger = logger
 
     @property
-    def pyproject_toml(self) -> Optional[dict]:
-        if self._pyproject_toml_dict:
-            return self._pyproject_toml_dict
-
-        path = (
-            self._protostar_directory.directory_root_path
-            / "dist"
-            / "protostar"
-            / "info"
-            / "pyproject.toml"
-        )
-        try:
-            with open(path, "r", encoding="UTF-8") as file:
-                self._pyproject_toml_dict = tomli.loads(file.read())
-                return self._pyproject_toml_dict
-        except FileNotFoundError:
-            self._logger.warning("Couldn't read protostar package info")
-        return None
-
-    @property
     def protostar_version(self) -> Optional[VersionType]:
-        if not self.pyproject_toml:
-            return None
-        version_s = self.pyproject_toml["tool"]["poetry"]["version"]
+        version_s = self._protostar_directory.get_runtime_constant("PROTOSTAR_VERSION")
+        if version_s is None:
+            return VersionManager.parse("0.0.0")
         return VersionManager.parse(version_s)
 
     @property
     def cairo_version(self) -> Optional[VersionType]:
-        if not self.pyproject_toml:
-            return None
-        version_s = self.pyproject_toml["tool"]["poetry"]["dependencies"]["cairo-lang"]
+        version_s = self._protostar_directory.get_runtime_constant("CAIRO_VERSION")
+        if version_s is None:
+            return VersionManager.parse("0.0.0")
         return VersionManager.parse(version_s)
-
-    @property
-    def latest_supported_protostar_toml_version(self) -> Optional[VersionType]:
-        if not self.pyproject_toml:
-            return None
-        last_supported_v_str = self.pyproject_toml["tool"]["protostar"][
-            "latest_supported_protostar_toml_version"
-        ]
-        return VersionManager.parse(last_supported_v_str)
 
     @property
     def git_version(self) -> Optional[VersionType]:

@@ -14,10 +14,8 @@ from starkware.starknet.public.abi import AbiType
 from typing_extensions import Protocol
 
 from protostar.commands.test.test_command import TestCommand
-from protostar.commands.test.test_result_formatter import format_test_result
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.testing import TestingSummary
-from protostar.testing.test_results import TestCaseResult, TestResult
 from protostar.utils.log_color_provider import LogColorProvider
 from tests.conftest import run_devnet
 from tests.integration.protostar_fixture import (

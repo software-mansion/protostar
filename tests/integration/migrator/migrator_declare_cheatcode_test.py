@@ -4,6 +4,7 @@ from typing import cast
 import pytest
 
 from protostar.protostar_exception import ProtostarException
+from tests.conftest import DevnetAccount, SetPrivateKeyEnvVarFixture
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.migrator.conftest import assert_transaction_accepted
 from tests.integration.protostar_fixture import ProtostarFixture
@@ -52,7 +53,7 @@ async def test_descriptive_error_on_file_not_found(
             "Couldn't find `.*NOT_EXISTING_FILE.json`",
         ),
     ):
-        await protostar.migrate(migration_file_path, network=devnet_gateway_url)
+        await protostar.migrate(migration_file_path, gateway_url=devnet_gateway_url)
 
 
 async def test_declaring_by_contract_name(
@@ -66,3 +67,68 @@ async def test_declaring_by_contract_name(
         int, result.starknet_requests[0].response["transaction_hash"]
     )
     await assert_transaction_accepted(devnet_gateway_url, transaction_hash)
+
+
+async def test_declare_v1(
+    protostar: ProtostarFixture,
+    devnet_gateway_url: str,
+    devnet_account: DevnetAccount,
+    set_private_key_env_var: SetPrivateKeyEnvVarFixture,
+):
+    migration_file_path = protostar.create_migration_file(
+        'declare("main", config={"max_fee": 123456789123456789})'
+    )
+
+    with set_private_key_env_var(devnet_account.private_key):
+        result = await protostar.migrate(
+            migration_file_path,
+            gateway_url=devnet_gateway_url,
+            account_address=devnet_account.address,
+        )
+
+        transaction_hash = cast(
+            int, result.starknet_requests[0].response["transaction_hash"]
+        )
+        await assert_transaction_accepted(devnet_gateway_url, transaction_hash)
+        assert result.starknet_requests[0].payload["version"] == 1
+        assert result.starknet_requests[0].payload["max_fee"] == 123456789123456789
+
+
+async def test_fee_estimation(
+    protostar: ProtostarFixture,
+    devnet_gateway_url: str,
+    devnet_account: DevnetAccount,
+    set_private_key_env_var: SetPrivateKeyEnvVarFixture,
+):
+    migration_file_path = protostar.create_migration_file(
+        'declare("main", config={"max_fee": "auto"})'
+    )
+
+    with set_private_key_env_var(devnet_account.private_key):
+        result = await protostar.migrate(
+            migration_file_path,
+            gateway_url=devnet_gateway_url,
+            account_address=devnet_account.address,
+        )
+
+        assert result.starknet_requests[0].payload["version"] == 1
+        assert isinstance(result.starknet_requests[0].payload["max_fee"], int)
+        assert result.starknet_requests[0].payload["max_fee"] > 0
+
+
+async def test_declare_v0(
+    protostar: ProtostarFixture,
+    devnet_gateway_url: str,
+):
+    migration_file_path = protostar.create_migration_file('declare("main")')
+
+    result = await protostar.migrate(
+        migration_file_path,
+        gateway_url=devnet_gateway_url,
+    )
+
+    transaction_hash = cast(
+        int, result.starknet_requests[0].response["transaction_hash"]
+    )
+    await assert_transaction_accepted(devnet_gateway_url, transaction_hash)
+    assert result.starknet_requests[0].payload["version"] == 0

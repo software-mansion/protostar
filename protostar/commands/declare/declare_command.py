@@ -9,7 +9,9 @@ from protostar.cli.command import Command
 from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.cli.signable_command_util import SignableCommandUtil
 from protostar.commands.deploy.deploy_command import DeployCommand
+from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import (
+    Fee,
     GatewayFacadeFactory,
     NetworkConfig,
     SuccessfulDeclareResponse,
@@ -55,6 +57,14 @@ class DeclareCommand(Command):
                 description="Used for declaring contracts in Alpha MainNet.",
                 type="str",
             ),
+            Command.Argument(
+                name="max-fee",
+                description=(
+                    "The maximum fee that the sender is willing to pay for the transaction. "
+                    'Provide "auto" to auto estimate the fee.'
+                ),
+                type="fee",
+            ),
             DeployCommand.wait_for_acceptance_arg,
         ]
 
@@ -74,10 +84,12 @@ class DeclareCommand(Command):
         return await self.declare(
             compiled_contract_path=args.contract,
             signer=signer,
+            account_address=args.account_address,
             gateway_client=gateway_client,
             network_config=network_config,
             token=args.token,
             wait_for_acceptance=args.wait_for_acceptance,
+            max_fee=args.max_fee,
         )
 
     async def declare(
@@ -85,20 +97,35 @@ class DeclareCommand(Command):
         compiled_contract_path: Path,
         network_config: NetworkConfig,
         gateway_client: GatewayClient,
+        account_address: Optional[str] = None,
         signer: Optional[BaseSigner] = None,
         token: Optional[str] = None,
         wait_for_acceptance: bool = False,
+        max_fee: Optional[Fee] = None,
     ) -> SuccessfulDeclareResponse:
 
         gateway_facade = self._gateway_facade_factory.create(
             gateway_client=gateway_client, logger=None
         )
-        response = await gateway_facade.declare(
-            compiled_contract_path=compiled_contract_path,
-            wait_for_acceptance=wait_for_acceptance,
-            token=token,
-            signer=signer,
-        )
+        if signer and account_address is not None:
+            if max_fee is None:
+                raise ProtostarException(
+                    "Argument `max-fee` is required for transactions V1."
+                )
+            response = await gateway_facade.declare(
+                compiled_contract_path=compiled_contract_path,
+                signer=signer,
+                account_address=account_address,
+                wait_for_acceptance=wait_for_acceptance,
+                token=token,
+                max_fee=max_fee,
+            )
+        else:
+            response = await gateway_facade.declare_v0(
+                compiled_contract_path=compiled_contract_path,
+                wait_for_acceptance=wait_for_acceptance,
+                token=token,
+            )
 
         explorer_url = network_config.get_contract_explorer_url(response.class_hash)
         explorer_url_msg_lines: List[str] = []
