@@ -10,9 +10,9 @@ Breaking changes can be introduced without depreciation.
 
 
 Migrations are Cairo files that help you manage contracts on the StarkNet.
-They are especially useful, when your project consists of multiple contracts or your project implements [Proxy Pattern](https://blog.openzeppelin.com/proxy-patterns/). Migration code is mainly written in hints.
-Protostar injects special functions into hints' scope, which you can use to interact with the StarkNet.
-These functions are similar to cheatcodes used to test contracts, hence in this document we will refer to these functions as migration cheatcodes.
+These files are responsible for staging your deployment tasks, and they're written under the assumption that your project uses [Proxy Pattern](https://blog.openzeppelin.com/proxy-patterns/).
+As your project evolves, you'll create new migration scripts to further this evolution on the blockchain.
+To interact with StarkNet, you can use [migration cheatcodes](#available-migration-cheatcodes). 
 
 ## Creating a migration file
 You can create a migration file anywhere, but we recommend creating them inside a `migrations` directory. Currently, Protostar doesn't enforce any naming convention for migration files. In this tutorial we use a naming convention: `migration_NUMBER_TITLE.cairo`, for example `migration_01_init.cairo`.
