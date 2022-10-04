@@ -21,7 +21,7 @@ class Submodule:
 # pylint: disable=subprocess-run-check
 
 # set to true when debugging
-GIT_VERBOSE = False
+GIT_VERBOSE = True
 SHARED_KWARGS = (
     {"check": True}
     if GIT_VERBOSE
@@ -126,6 +126,7 @@ class GitRepository:
 
         if tag:
             submodule_repo = GitRepository(self.repo_path / relative_submodule_path)
+            submodule_repo.fetch_tags()
             submodule_repo.checkout(tag)
 
     @wrap_git_exception

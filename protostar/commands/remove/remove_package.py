@@ -25,3 +25,4 @@ def remove_package(package_name: str, repo_dir: Path):
         )
 
     repo.remove_submodule(cast(Path, submodules[package_name].path))
+    repo.commit(f"remove {package_name}")
