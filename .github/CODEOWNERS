@@ -17,7 +17,7 @@
 /protostar/configuration_file @kasperski95
 /protostar/starknet @MaksymilianDemitraszek
 /protostar/testing/cheatcodes/load_cheatcode.py @MaksymilianDemitraszek
-/protostar/testing/store_cheatcode.py @MaksymilianDemitraszek
+/protostar/testing/cheatcodes/store_cheatcode.py @MaksymilianDemitraszek
 /protostar/starknet_gateway @Arcticae @kasperski95 @Radinyn
 /protostar/upgrader @kasperski95
 /protostar/git @Radinyn
