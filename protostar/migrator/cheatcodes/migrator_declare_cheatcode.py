@@ -12,7 +12,10 @@ from protostar.starknet import (
 )
 from protostar.starknet_gateway import Fee, GatewayFacade
 
-from ..migrator_contract_identifier_resolver import MigratorContractIdentifierResolver, ContractIdentificationException
+from ..migrator_contract_identifier_resolver import (
+    MigratorContractIdentifierResolver,
+    ContractIdentificationException,
+)
 from .network_config import CheatcodeNetworkConfig, ValidatedCheatcodeNetworkConfig
 
 
@@ -92,8 +95,8 @@ class MigratorDeclareCheatcode(Cheatcode):
         )
 
         try:
-            compiled_contract_path = self._migrator_contract_identifier_resolver.resolve(
-                contract_identifier
+            compiled_contract_path = (
+                self._migrator_contract_identifier_resolver.resolve(contract_identifier)
             )
 
             if self._config.signer and self._config.account_address is not None:

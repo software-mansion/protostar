@@ -14,7 +14,9 @@ def checked_contract_path(contract_path: Path) -> Path:
     if contract_path.is_file():
         return contract_path
 
-    raise ContractIdentificationException(f"Couldn't find `{contract_path}` in the build directory.")
+    raise ContractIdentificationException(
+        f"Couldn't find `{contract_path}` in the build directory."
+    )
 
 
 class MigratorContractIdentifierResolver:
