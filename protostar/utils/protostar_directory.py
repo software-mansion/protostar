@@ -2,11 +2,13 @@ import json
 import logging
 import re
 from pathlib import Path
-from typing import Optional, Literal, Union
+from typing import Literal, Optional, Union
 
 from packaging import version
+from packaging.version import LegacyVersion
+from packaging.version import Version as PackagingVersion
 
-from packaging.version import LegacyVersion, Version as PackagingVersion
+from protostar.git import Git, ProtostarGitException
 
 from protostar.git import Git, ProtostarGitException
 
@@ -43,15 +45,26 @@ class ProtostarDirectory:
         assert self.protostar_binary_dir_path is not None
         return self.protostar_binary_dir_path / "cairo"
 
-    def _get_runtime_constants(self) -> RuntimeConstantsDict:
+    def _read_runtime_constants(self) -> Optional[RuntimeConstantsDict]:
         constants_str = (
             self.info_dir_path / ProtostarDirectory.RUNTIME_CONSTANTS_FILE_NAME
         ).read_text("utf-8")
         return json.loads(constants_str)
 
-    def get_runtime_constant(self, name: RuntimeConstantName) -> RuntimeConstantValue:
+    def get_runtime_constant(
+        self, name: RuntimeConstantName
+    ) -> Optional[RuntimeConstantValue]:
         if self._runtime_constants is None:
-            self._runtime_constants = self._get_runtime_constants()
+            try:
+                self._runtime_constants = self._read_runtime_constants()
+            except FileNotFoundError as ex:
+                logging.getLogger().warning(
+                    "Couldn't load constant `%s` from %s", name, ex.filename
+                )
+                return None
+
+        if self._runtime_constants is None:
+            return None
         return self._runtime_constants[name]
 
 
@@ -73,11 +86,15 @@ class VersionManager:
     @property
     def protostar_version(self) -> Optional[VersionType]:
         version_s = self._protostar_directory.get_runtime_constant("PROTOSTAR_VERSION")
+        if version_s is None:
+            return VersionManager.parse("0.0.0")
         return VersionManager.parse(version_s)
 
     @property
     def cairo_version(self) -> Optional[VersionType]:
         version_s = self._protostar_directory.get_runtime_constant("CAIRO_VERSION")
+        if version_s is None:
+            return VersionManager.parse("0.0.0")
         return VersionManager.parse(version_s)
 
     @property

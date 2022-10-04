@@ -1,9 +1,10 @@
-import subprocess
-import re
 import os.path
+import re
+import subprocess
 from dataclasses import dataclass
-from typing import Dict, Optional
 from pathlib import Path
+from typing import Dict, Optional
+
 from protostar.git.git_exceptions import (
     InvalidGitRepositoryException,
     wrap_git_exception,
@@ -126,6 +127,7 @@ class GitRepository:
 
         if tag:
             submodule_repo = GitRepository(self.repo_path / relative_submodule_path)
+            submodule_repo.fetch_tags()
             submodule_repo.checkout(tag)
 
     @wrap_git_exception
