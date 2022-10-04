@@ -16,7 +16,7 @@ from .configuration_file_v1 import (
 )
 
 
-class CommandNamesProviderDouble(CommandNamesProviderProtocol):
+class CommandNamesProviderStub(CommandNamesProviderProtocol):
     def get_command_names(self) -> list[str]:
         return ["deploy"]
 
@@ -49,8 +49,8 @@ def configuration_file_fixture(
             file_content=protostar_toml_content,
         ),
         project_root_path=project_root_path,
-        filename=protostar_toml_path.name,
-        command_names_provider=CommandNamesProviderDouble(),
+        file_path=protostar_toml_path,
+        command_names_provider=CommandNamesProviderStub(),
     )
 
 

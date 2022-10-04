@@ -62,6 +62,7 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
                 config=MigratorDeclareCheatcode.Config(
                     token=self._config.token,
                     signer=self._signer,
+                    account_address=self._config.account_address,
                 ),
             ),
             MigratorDeployContractCheatcode(

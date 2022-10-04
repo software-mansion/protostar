@@ -54,7 +54,7 @@ class ConfigurationFileFactory:
             configuration_file_interpreter=ConfigurationTOMLInterpreter(
                 file_content=protostar_toml_content
             ),
-            filename=protostar_toml_path.name,
+            file_path=protostar_toml_path,
         )
         if configuration_file_v2.get_declared_protostar_version() is not None:
             return configuration_file_v2
@@ -70,7 +70,7 @@ class ConfigurationFileFactory:
             configuration_file_interpreter=ConfigurationLegacyTOMLInterpreter(
                 file_content=protostar_toml_content
             ),
-            filename=protostar_toml_path.name,
+            file_path=protostar_toml_path,
             command_names_provider=self._command_names_provider,
         )
         if configuration_file_v1.get_declared_protostar_version() is not None:

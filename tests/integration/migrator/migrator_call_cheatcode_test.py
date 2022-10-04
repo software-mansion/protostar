@@ -76,7 +76,7 @@ async def test_migration_using_call_creates_output(
 
     migration_history = await protostar.migrate(
         migration_file_path,
-        network=devnet_gateway_url,
+        gateway_url=devnet_gateway_url,
         output_dir=migration_output_relative_path,
     )
 

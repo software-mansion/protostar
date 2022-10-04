@@ -69,6 +69,18 @@ def test_int_argument():
         parser.parse(["--x", "foo"])
 
 
+def test_wei_argument():
+    app = CLIApp(root_args=[Command.Argument(name="x", description="...", type="wei")])
+    parser = ArgumentParserFacade(app)
+
+    result = parser.parse(["--x", "123"])
+
+    assert result.x == 123
+
+    with pytest.raises(SystemExit):
+        parser.parse(["--x", "foo"])
+
+
 def test_short_name_argument():
     app = CLIApp(
         root_args=[

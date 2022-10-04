@@ -116,6 +116,8 @@ def test_declaring_contract_with_signature(
             str(StarknetChainId.TESTNET.value),
             "--account-address",
             account_address,
+            "--max-fee",
+            "auto",
         ]
     )
 

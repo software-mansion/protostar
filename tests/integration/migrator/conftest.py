@@ -40,7 +40,7 @@ async def migrate_fixture(protostar: ProtostarFixture, devnet_gateway_url: str):
         migration_file_path = protostar.create_migration_file(migration_hint_content)
         return await protostar.migrate(
             migration_file_path,
-            network=devnet_gateway_url,
+            gateway_url=devnet_gateway_url,
             account_address=account_address,
         )
 
