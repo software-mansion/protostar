@@ -26,7 +26,7 @@ class DeclaredContract:
 
 class DeclareCheatcodeProtocol(Protocol):
     def __call__(
-        self, contract_path_str: str, *args, config: Optional[Any] = None
+        self, contract: str, *args, config: Optional[Any] = None
     ) -> DeclaredContract:
         ...
 
@@ -82,11 +82,11 @@ class MigratorDeclareCheatcode(Cheatcode):
 
     def _declare(
         self,
-        contract_path_str: str,
+        contract: str,
         *args,
         config: Optional[DeclareCheatcodeNetworkConfig] = None,
     ) -> DeclaredContract:
-        contract_identifier = contract_path_str
+        contract_identifier = contract
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
 
