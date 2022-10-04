@@ -69,9 +69,8 @@ class InstallCommand(Command):
                 package_name=args.package,
                 on_unknown_version=lambda: self._logger.warning(
                     (
-                        "Fetching from them mainline.\n"
-                        "Installing packages without specific version/tag is strongly discouraged. "
-                        "The mainline could be in the non-releasable state."
+                        "Fetching from the mainline. The mainline can be in the non-releasable state.\n"
+                        "Installing packages without providing specific version/tag is strongly discouraged."
                     )
                 ),
                 alias=args.name,
