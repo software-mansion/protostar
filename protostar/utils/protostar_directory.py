@@ -60,7 +60,7 @@ class ProtostarDirectory:
                 )
                 return None
 
-        if self._runtime_constants is None or name not in self._runtime_constants:
+        if self._runtime_constants is None:
             return None
         return self._runtime_constants[name]
 
