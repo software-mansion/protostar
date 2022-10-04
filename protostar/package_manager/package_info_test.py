@@ -5,11 +5,12 @@ from os import mkdir
 from pathlib import Path
 
 import pytest
-from git.repo import Repo
 from pytest_mock import MockerFixture
 
 from protostar.utils.create_and_commit_sample_file import create_and_commit_sample_file
-from protostar.utils.package_info import (
+from protostar.git import Git
+
+from .package_info import (
     IncorrectURL,
     InvalidPackageName,
     PackageInfo,
@@ -137,7 +138,7 @@ class LoadNormalizedToRealNameMapTest:
 
     @pytest.fixture
     def package_repo(self, package_repo_dir: Path):
-        repo = Repo.init(package_repo_dir)
+        repo = Git.init(package_repo_dir)
 
         create_and_commit_sample_file(repo, package_repo_dir)
 
@@ -152,19 +153,19 @@ class LoadNormalizedToRealNameMapTest:
         packages_dir_name: str,
         package_repo_dir: Path,
     ):
-        repo = Repo.init(repo_with_normal_name_package_dir)
+        repo = Git.init(repo_with_normal_name_package_dir)
 
         packages_dir = repo_with_normal_name_package_dir / packages_dir_name
         mkdir(packages_dir)
 
-        repo.create_submodule(
-            package_normal_name,
-            packages_dir / package_normal_name,
-            package_repo_dir,
+        repo.add_submodule(
+            url=str(package_repo_dir),
+            submodule_path=packages_dir / package_normal_name,
+            name=package_normal_name,
         )
 
-        repo.git.add("-u")
-        repo.index.commit("add package")
+        repo.add(repo.repo_path)
+        repo.commit("add package")
 
     @pytest.fixture
     def repo_with_custom_name_package(
@@ -175,19 +176,19 @@ class LoadNormalizedToRealNameMapTest:
         packages_dir_name: str,
         package_repo_dir: Path,
     ):
-        repo = Repo.init(repo_with_custom_name_package_dir)
+        repo = Git.init(repo_with_custom_name_package_dir)
 
         packages_dir = repo_with_custom_name_package_dir / packages_dir_name
         mkdir(packages_dir)
 
-        repo.create_submodule(
-            package_custom_name,
-            packages_dir / package_custom_name,
-            package_repo_dir,
+        repo.add_submodule(
+            url=str(package_repo_dir),
+            submodule_path=packages_dir / package_custom_name,
+            name=package_custom_name,
         )
 
-        repo.git.add("-u")
-        repo.index.commit("add package")
+        repo.add(repo.repo_path)
+        repo.commit("add package")
 
     @pytest.mark.usefixtures("repo_with_normal_name_package")
     def test_package_installed_without_custom_name(
@@ -199,7 +200,7 @@ class LoadNormalizedToRealNameMapTest:
     ):
 
         mocked_extract_info_from_repo_id = mocker.patch(
-            "protostar.utils.package_info.extract_info_from_repo_id",
+            "protostar.package_manager.package_info.extract_info_from_repo_id",
         )
         mocked_extract_info_from_repo_id.return_value = PackageInfo(
             name=package_normal_name, url="", version=None
@@ -223,7 +224,7 @@ class LoadNormalizedToRealNameMapTest:
     ):
 
         mocked_extract_info_from_repo_id = mocker.patch(
-            "protostar.utils.package_info.extract_info_from_repo_id",
+            "protostar.package_manager.package_info.extract_info_from_repo_id",
         )
         mocked_extract_info_from_repo_id.return_value = PackageInfo(
             name=package_normal_name, url="", version=None
@@ -270,7 +271,7 @@ class RetrieveRealPackageNameTest:
         mocker: MockerFixture,
     ):
         mocked_load_normalized_to_real_name_map = mocker.patch(
-            "protostar.utils.package_info.load_normalized_to_real_name_map",
+            "protostar.package_manager.package_info.load_normalized_to_real_name_map",
         )
         mocked_load_normalized_to_real_name_map.return_value = {
             "starknet_py": "starknet_py",
@@ -293,7 +294,7 @@ class RetrieveRealPackageNameTest:
         mocker: MockerFixture,
     ):
         mocked_load_normalized_to_real_name_map = mocker.patch(
-            "protostar.utils.package_info.load_normalized_to_real_name_map",
+            "protostar.package_manager.package_info.load_normalized_to_real_name_map",
         )
         mocked_load_normalized_to_real_name_map.return_value = {
             "starknet_py": "starknet_py",
@@ -314,7 +315,7 @@ class RetrieveRealPackageNameTest:
         mocker: MockerFixture,
     ):
         mocked_load_normalized_to_real_name_map = mocker.patch(
-            "protostar.utils.package_info.load_normalized_to_real_name_map",
+            "protostar.package_manager.package_info.load_normalized_to_real_name_map",
         )
         mocked_load_normalized_to_real_name_map.return_value = {
             "starknet_py": "sn",
@@ -334,7 +335,7 @@ class RetrieveRealPackageNameTest:
         mocker: MockerFixture,
     ):
         mocked_load_normalized_to_real_name_map = mocker.patch(
-            "protostar.utils.package_info.load_normalized_to_real_name_map",
+            "protostar.package_manager.package_info.load_normalized_to_real_name_map",
         )
         mocked_load_normalized_to_real_name_map.return_value = {
             "starknet_py": "sn",

@@ -1,57 +1,55 @@
 from logging import getLogger
-from os import path
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
-from git.cmd import Git
-from git.exc import GitCommandError
-from git.objects import Submodule
-from git.repo import Repo
 
 from protostar.commands.update.updating_exceptions import (
     PackageAlreadyUpToDateException,
 )
 from protostar.utils import log_color_provider
 
+from protostar.git import Git, ProtostarGitException
+
 
 def update_package(package_name: str, repo_dir: Path, packages_dir: Path):
     logger = getLogger()
 
-    repo = Repo(repo_dir, search_parent_directories=True)
+    repo = Git.load_existing_repo(repo_dir)
 
-    submodule = repo.submodule(package_name)
+    submodules = repo.get_submodules()
+    submodule = submodules[package_name]
 
-    git = Git(path.join(packages_dir, package_name))
+    package_repo = Git.load_existing_repo(packages_dir / package_name)
 
     current_tag = Optional[str]
     try:
-        current_tag = git.execute(["git", "describe", "--tags"])
-    except GitCommandError as _err:
+        current_tag = package_repo.get_tag()
+    except ProtostarGitException:
         current_tag = None
 
-    git.execute(["git", "fetch", "--tags"])
+    package_repo.fetch_tags()
 
     latest_tag: Any
     try:
-        rev = git.execute(["git", "rev-list", "--tags", "--max-count=1"])
-        latest_tag = git.execute(["git", "describe", "--tags", rev])
-    except GitCommandError as _err:
+        rev = package_repo.get_tag_rev()
+        latest_tag = package_repo.get_tag(rev)
+    except ProtostarGitException:
         latest_tag = None
+
+    package_url = submodule.url
+    package_dir = cast(Path, submodule.path)
 
     if current_tag is not None:
         if latest_tag != current_tag:
-            package_url = submodule.url
-            package_dir = submodule.path
 
-            submodule.remove()
-            Submodule.add(
-                repo,
-                package_name,
-                package_dir,
-                package_url,
-                latest_tag,
-                depth=1,
+            repo.remove_submodule(package_dir)
+            repo.add_submodule(
+                url=package_url,
+                submodule_path=package_dir,
+                name=package_name,
+                tag=latest_tag,
             )
+
             logger.info(
                 "Updating %s%s%s (%s -> %s)",
                 log_color_provider.get_color("CYAN"),
@@ -69,4 +67,5 @@ def update_package(package_name: str, repo_dir: Path, packages_dir: Path):
             package_name,
             log_color_provider.get_color("RESET"),
         )
-        submodule.update()
+
+        repo.update_submodule(package_dir)

@@ -8,7 +8,8 @@ from protostar.commands.install.install_command import (
 )
 from protostar.commands.remove.remove_package import remove_package
 from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
-from protostar.utils import log_color_provider, retrieve_real_package_name
+from protostar.utils import log_color_provider
+from protostar.package_manager import retrieve_real_package_name
 
 INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = (
     EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION

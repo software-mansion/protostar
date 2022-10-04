@@ -12,7 +12,7 @@ from protostar.commands.update.updating_exceptions import (
     PackageAlreadyUpToDateException,
 )
 from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
-from protostar.utils import retrieve_real_package_name
+from protostar.package_manager import retrieve_real_package_name
 
 
 class UpdateCommand(Command):
