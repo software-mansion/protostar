@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import List
 
 from protostar.testing import TestingSummary
@@ -12,8 +11,8 @@ from protostar.self.cache_io import CacheIO
 
 
 class TestCommandCache:
-    def __init__(self, cache_path: Path):
-        self.cache_io = CacheIO(cache_path)
+    def __init__(self, cache_io: CacheIO):
+        self.cache_io = cache_io
 
     def obtain_targets(self, targets: List[str], last_failed=False) -> List[str]:
         if not last_failed:

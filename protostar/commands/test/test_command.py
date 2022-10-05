@@ -30,6 +30,7 @@ from protostar.starknet.compiler.starknet_compilation import (
     StarknetCompiler,
 )
 
+from protostar.self.cache_io import CacheIO
 from .test_command_cache import TestCommandCache
 
 
@@ -135,7 +136,7 @@ A glob or globs to a directory or a test suite, for example:
         ]
 
     async def run(self, args: Namespace) -> TestingSummary:
-        cache = TestCommandCache(self._project_root_path)
+        cache = TestCommandCache(CacheIO(self._project_root_path))
         summary = await self.test(
             targets=cache.obtain_targets(args.target, args.last_failed),
             ignored_targets=args.ignore,
