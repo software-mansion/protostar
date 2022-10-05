@@ -2,6 +2,7 @@ import sys
 
 from crypto_cpp_py.cpp_bindings import cpp_hash
 from starkware.crypto.signature.fast_pedersen_hash import pedersen_hash
+import starkware.cairo.lang.vm.crypto
 
 
 def patched_pedersen_hash(left: int, right: int) -> int:
@@ -15,6 +16,11 @@ def patched_pedersen_hash(left: int, right: int) -> int:
 # is used
 setattr(
     sys.modules["starkware.crypto.signature.fast_pedersen_hash"],
+    "pedersen_hash",
+    patched_pedersen_hash,
+)
+setattr(
+    sys.modules["starkware.cairo.lang.vm.crypto"],
     "pedersen_hash",
     patched_pedersen_hash,
 )
