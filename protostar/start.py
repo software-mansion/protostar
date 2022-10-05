@@ -5,8 +5,8 @@ from typing import Any, Optional
 
 from protostar.cli import (
     ArgumentParserFacade,
-    ArgumentValueFromConfigProvider,
-    ArgumentValueProviderProtocol,
+    ArgumentValueFromConfigExtractor,
+    ArgumentValueFromConfigProviderProtocol,
     CLIApp,
     MissingRequiredArgumentException,
 )
@@ -19,7 +19,7 @@ from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
 def main(script_root: Path, start_time: float = 0):
     container = build_di_container(script_root, start_time)
     arg_parser = build_parser(
-        container.protostar_cli, container.argument_value_provider
+        container.protostar_cli, container.argument_value_from_config_provider
     )
     args = parse_args(arg_parser)
     run_protostar(container.protostar_cli, args, arg_parser)
@@ -27,22 +27,24 @@ def main(script_root: Path, start_time: float = 0):
 
 def build_parser(
     protostar_cli: ProtostarCLI,
-    argument_value_provider: Optional[ArgumentValueProviderProtocol],
+    argument_value_from_config_provider: Optional[
+        ArgumentValueFromConfigProviderProtocol
+    ],
 ) -> ArgumentParserFacade:
     configuration_profile_name = (
         ArgumentParserFacade(ConfigurationProfileCLI(), disable_help=True)
         .parse(ignore_unrecognized=True)
         .profile
     )
-    argument_value_from_config_provider = (
-        ArgumentValueFromConfigProvider(
-            argument_value_provider,
+    argument_value_from_config_extractor = (
+        ArgumentValueFromConfigExtractor(
+            argument_value_from_config_provider,
             configuration_profile_name,
         )
-        if argument_value_provider
+        if argument_value_from_config_provider
         else None
     )
-    return ArgumentParserFacade(protostar_cli, argument_value_from_config_provider)
+    return ArgumentParserFacade(protostar_cli, argument_value_from_config_extractor)
 
 
 def parse_args(parser: ArgumentParserFacade) -> Any:

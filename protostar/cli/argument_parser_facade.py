@@ -2,8 +2,8 @@ from argparse import ArgumentParser, Namespace, RawTextHelpFormatter, _SubParser
 from pathlib import Path
 from typing import Any, List, Optional, Sequence, Tuple
 
-from protostar.cli.argument_value_from_config_provider import (
-    ArgumentValueFromConfigProvider,
+from protostar.cli.argument_value_from_config_extractor import (
+    ArgumentValueFromConfigExtractor,
 )
 from protostar.cli.cli_app import CLIApp
 from protostar.cli.command import Command
@@ -23,7 +23,7 @@ class ArgumentParserFacade:
     def __init__(
         self,
         cli_app: CLIApp,
-        default_value_provider: Optional[ArgumentValueFromConfigProvider] = None,
+        argument_value_extractor: Optional[ArgumentValueFromConfigExtractor] = None,
         disable_help=False,
     ) -> None:
         self.argument_parser = ArgumentParser(
@@ -31,7 +31,7 @@ class ArgumentParserFacade:
         )
         self.command_parsers: Optional[_SubParsersAction] = None
         self.cli_app = cli_app
-        self._default_value_provider = default_value_provider
+        self._argument_value_extractor = argument_value_extractor
         self._setup_parser()
 
     def parse(
@@ -128,8 +128,8 @@ class ArgumentParserFacade:
     def _update_from_config(
         self, command: Optional[Command], argument: Command.Argument
     ) -> Command.Argument:
-        if self._default_value_provider:
-            new_default = self._default_value_provider.load_value(
+        if self._argument_value_extractor:
+            new_default = self._argument_value_extractor.load_value(
                 command.name if command else None, argument.name
             )
             if new_default is not None:

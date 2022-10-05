@@ -3,7 +3,7 @@ from logging import getLogger
 from pathlib import Path
 from typing import List, Optional
 
-from protostar.cli import ArgumentValueProviderProtocol, Command
+from protostar.cli import ArgumentValueFromConfigProviderProtocol, Command
 from protostar.commands import (
     BuildCommand,
     DeclareCommand,
@@ -55,7 +55,9 @@ from protostar.utils import (
 @dataclass
 class DIContainer:
     protostar_cli: ProtostarCLI
-    argument_value_provider: Optional[ArgumentValueProviderProtocol]
+    argument_value_from_config_provider: Optional[
+        ArgumentValueFromConfigProviderProtocol
+    ]
 
 
 def build_di_container(script_root: Path, start_time: float = 0):

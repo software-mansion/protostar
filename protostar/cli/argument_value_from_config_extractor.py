@@ -1,7 +1,7 @@
 from typing import Any, Optional, Protocol
 
 
-class ArgumentValueProviderProtocol(Protocol):
+class ArgumentValueFromConfigProviderProtocol(Protocol):
     def get_argument_value(
         self, command_name: str, argument_name: str, profile_name: Optional[str] = None
     ) -> Optional[Any]:
@@ -13,13 +13,13 @@ class ArgumentValueProviderProtocol(Protocol):
         ...
 
 
-class ArgumentValueFromConfigProvider:
+class ArgumentValueFromConfigExtractor:
     def __init__(
         self,
-        argument_value_provider: ArgumentValueProviderProtocol,
+        argument_value_from_config_provider: ArgumentValueFromConfigProviderProtocol,
         configuration_profile_name: Optional[str] = None,
     ) -> None:
-        self._argument_value_provider = argument_value_provider
+        self._argument_value_from_config_provider = argument_value_from_config_provider
         self._configuration_profile_name = configuration_profile_name
         super().__init__()
 
@@ -27,16 +27,18 @@ class ArgumentValueFromConfigProvider:
         self, command_name: Optional[str], argument_name: str
     ) -> Optional[Any]:
         if self._configuration_profile_name and command_name:
-            profile_cmd_arg = self._argument_value_provider.get_argument_value(
-                command_name=command_name,
-                argument_name=argument_name,
-                profile_name=self._configuration_profile_name,
+            profile_cmd_arg = (
+                self._argument_value_from_config_provider.get_argument_value(
+                    command_name=command_name,
+                    argument_name=argument_name,
+                    profile_name=self._configuration_profile_name,
+                )
             )
             if profile_cmd_arg:
                 return profile_cmd_arg
 
         if command_name:
-            cmd_arg = self._argument_value_provider.get_argument_value(
+            cmd_arg = self._argument_value_from_config_provider.get_argument_value(
                 argument_name=argument_name,
                 command_name=command_name,
                 profile_name=self._configuration_profile_name,
@@ -46,7 +48,7 @@ class ArgumentValueFromConfigProvider:
 
         if self._configuration_profile_name:
             profile_shared_arg = (
-                self._argument_value_provider.get_shared_argument_value(
+                self._argument_value_from_config_provider.get_shared_argument_value(
                     argument_name=argument_name,
                     profile_name=self._configuration_profile_name,
                 )
@@ -54,8 +56,10 @@ class ArgumentValueFromConfigProvider:
             if profile_shared_arg:
                 return profile_shared_arg
 
-        shared_arg = self._argument_value_provider.get_shared_argument_value(
-            argument_name=argument_name,
-            profile_name=self._configuration_profile_name,
+        shared_arg = (
+            self._argument_value_from_config_provider.get_shared_argument_value(
+                argument_name=argument_name,
+                profile_name=self._configuration_profile_name,
+            )
         )
         return shared_arg

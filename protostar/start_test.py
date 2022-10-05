@@ -19,7 +19,8 @@ def protostar_cli_fixture(mocker: MockerFixture) -> ProtostarCLI:
 def di_container_patch(mocker: MockerFixture, protostar_cli: ProtostarCLI):
     build_di_container = mocker.patch("protostar.start.build_di_container")
     build_di_container.return_value = DIContainer(
-        protostar_cli=protostar_cli, argument_value_provider=mocker.MagicMock()
+        protostar_cli=protostar_cli,
+        argument_value_from_config_provider=mocker.MagicMock(),
     )
 
 

@@ -9,8 +9,8 @@ from protostar.cli.argument_parser_facade import (
     ArgumentParserFacade,
     MissingRequiredArgumentException,
 )
-from protostar.cli.argument_value_from_config_provider import (
-    ArgumentValueFromConfigProvider,
+from protostar.cli.argument_value_from_config_extractor import (
+    ArgumentValueFromConfigExtractor,
 )
 from protostar.cli.cli_app import CLIApp
 from protostar.cli.command import Command
@@ -185,7 +185,7 @@ def test_loading_default_values_from_provider(
     mocked_get_value = mocker.MagicMock()
     mocked_get_value.return_value = "FOOBAR"
     cast(
-        ArgumentValueFromConfigProvider, mocked_default_value_provider
+        ArgumentValueFromConfigExtractor, mocked_default_value_provider
     ).load_value = mocked_get_value
 
     result = ArgumentParserFacade(app, mocked_default_value_provider).parse(["FOO"])
@@ -225,7 +225,7 @@ def test_loading_required_value_from_provider(mocker: MockerFixture):
         commands=[fake_command],
     )
     default_value_provider_mock = cast(
-        ArgumentValueFromConfigProvider, mocker.MagicMock()
+        ArgumentValueFromConfigExtractor, mocker.MagicMock()
     )
     fake_value = "FAKE_VALUE"
     cast(

@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Generic, Optional, Protocol, TypeVar, Union
 
-from protostar.cli import ArgumentValueProviderProtocol
+from protostar.cli import ArgumentValueFromConfigProviderProtocol
 from protostar.protostar_exception import ProtostarException
 from protostar.self import DeclaredProtostarVersionProviderProtocol, ProtostarVersion
 
@@ -52,7 +52,7 @@ class ConfigurationFileContentFactory(Generic[ConfigurationFileModelT]):
 
 class ConfigurationFile(
     DeclaredProtostarVersionProviderProtocol,
-    ArgumentValueProviderProtocol,
+    ArgumentValueFromConfigProviderProtocol,
     Generic[ConfigurationFileModelT],
 ):
     @abstractmethod
