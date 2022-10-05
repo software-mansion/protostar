@@ -15,10 +15,9 @@ class CacheIO:
         if not override and self._cache_path.exists():
             return
 
-        with open(
-            self._cache_path / (name + self._EXTENSION), "w", encoding="utf-8"
-        ) as file:
-            file.write(json.dumps(value))
+        Path(self._cache_path / (name + self._EXTENSION)).write_text(
+            json.dumps(value), encoding="utf-8"
+        )
 
     def read(self, name: str) -> Optional[dict]:
         if not self._cache_path.exists():
@@ -26,7 +25,10 @@ class CacheIO:
         file_path = self._cache_path / (name + self._EXTENSION)
         if not file_path.exists():
             return None
-        with open(file_path, "r", encoding="utf-8") as file:
-            if file_contents := file.read():
-                return json.loads(file_contents)
+
+        if file_contents := Path(file_path, encodings="utf-8").read_text(
+            encoding="utf-8"
+        ):
+            return json.loads(file_contents)
+
         return None
