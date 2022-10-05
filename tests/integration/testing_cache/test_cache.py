@@ -32,7 +32,7 @@ async def test_execute_all_tests(
                 "./tests/test_failing.cairo",
                 "./tests/test_broken.cairo",
             ],
-            True,
+            last_failed=True,
         )
     except Exception as e:
         assert str(e) == "Not all test cases passed"
