@@ -42,6 +42,7 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
         async def build(
             self,
             migration_file_path: Path,
+            compiled_contracts_dir: Path,
             config: "MigratorExecutionEnvironment.Config",
         ) -> "MigratorExecutionEnvironment":
             assert self._gateway_facade is not None
@@ -77,6 +78,7 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
                 migrator_contract_identifier_resolver=migrator_contract_identifier_resolver,
                 config=config,
                 signer=self._signer,
+                compiled_contracts_dir=compiled_contracts_dir,
             )
 
             return MigratorExecutionEnvironment(

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from pathlib import Path
 from typing import List, Optional
 
 from starknet_py.net.signer import BaseSigner
@@ -34,6 +35,7 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
         starknet_compiler: StarknetCompiler,
         gateway_facade: GatewayFacade,
         migrator_contract_identifier_resolver: MigratorContractIdentifierResolver,
+        compiled_contracts_dir: Path,
         config: "MigratorCheatcodeFactory.Config",
         signer: Optional[BaseSigner] = None,
     ) -> None:
@@ -45,6 +47,7 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
         )
         self._signer = signer
         self._config = config
+        self._compiled_contracts_dir = compiled_contracts_dir
 
     def build_cheatcodes(
         self,
@@ -59,6 +62,7 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
                 syscall_dependencies,
                 self.gateway_facade,
                 migrator_contract_identifier_resolver=self._migrator_contract_identifier_resolver,
+                build_output_dir=self._compiled_contracts_dir,
                 config=MigratorDeclareCheatcode.Config(
                     token=self._config.token,
                     signer=self._signer,
@@ -68,6 +72,7 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
             MigratorDeployContractCheatcode(
                 syscall_dependencies,
                 self.gateway_facade,
+                build_output_dir=self._compiled_contracts_dir,
                 migrator_contract_identifier_resolver=self._migrator_contract_identifier_resolver,
                 config=MigratorDeployContractCheatcode.Config(token=self._config.token),
             ),

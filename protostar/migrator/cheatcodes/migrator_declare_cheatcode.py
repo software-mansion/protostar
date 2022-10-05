@@ -1,5 +1,6 @@
 import asyncio
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Optional
 
 from starknet_py.net.signer import BaseSigner
@@ -65,6 +66,7 @@ class MigratorDeclareCheatcode(Cheatcode):
         gateway_facade: GatewayFacade,
         migrator_contract_identifier_resolver: MigratorContractIdentifierResolver,
         config: "Config",
+        build_output_dir: Path,
     ):
         super().__init__(syscall_dependencies)
         self._gateway_facade = gateway_facade
@@ -72,6 +74,7 @@ class MigratorDeclareCheatcode(Cheatcode):
         self._migrator_contract_identifier_resolver = (
             migrator_contract_identifier_resolver
         )
+        self._build_output_dir = build_output_dir
 
     @property
     def name(self) -> str:
@@ -96,7 +99,9 @@ class MigratorDeclareCheatcode(Cheatcode):
 
         try:
             compiled_contract_path = (
-                self._migrator_contract_identifier_resolver.resolve(contract_identifier)
+                self._migrator_contract_identifier_resolver.resolve(
+                    contract_identifier, self._build_output_dir
+                )
             )
 
             if self._config.signer and self._config.account_address is not None:

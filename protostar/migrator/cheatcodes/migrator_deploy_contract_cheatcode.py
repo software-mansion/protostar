@@ -1,6 +1,7 @@
 import asyncio
 from dataclasses import dataclass
 from logging import getLogger
+from pathlib import Path
 from typing import Any, Optional
 
 from typing_extensions import Protocol
@@ -44,6 +45,7 @@ class MigratorDeployContractCheatcode(Cheatcode):
         gateway_facade: GatewayFacade,
         migrator_contract_identifier_resolver: MigratorContractIdentifierResolver,
         config: Config,
+        build_output_dir: Path,
     ):
         super().__init__(syscall_dependencies)
         self._gateway_facade = gateway_facade
@@ -51,6 +53,7 @@ class MigratorDeployContractCheatcode(Cheatcode):
         self._migrator_contract_identifier_resolver = (
             migrator_contract_identifier_resolver
         )
+        self._build_output_dir = build_output_dir
 
     @property
     def name(self) -> str:
@@ -80,7 +83,8 @@ class MigratorDeployContractCheatcode(Cheatcode):
 
         validated_config = ValidatedCheatcodeNetworkConfig.from_dict(config)
         compiled_contract_path = self._migrator_contract_identifier_resolver.resolve(
-            contract_identifier
+            contract_identifier,
+            self._build_output_dir,
         )
         response = asyncio.run(
             self._gateway_facade.deploy(

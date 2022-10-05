@@ -143,6 +143,8 @@ Path to the migration file.
 Account address
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
+#### `--compiled_contracts_dir PATH=build`
+A directory in which your compiled contracts are located (used for deploys and declares)
 #### `--gateway-url STRING`
 The URL of a StarkNet gateway. It is required unless `--network` is provided.
 #### `-n` `--network STRING`

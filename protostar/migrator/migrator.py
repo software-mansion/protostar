@@ -59,7 +59,7 @@ class Migrator:
         def set_signer(self, signer: BaseSigner):
             self._migrator_execution_environment_builder.set_signer(signer)
 
-        async def build(self, migration_file_path: Path):
+        async def build(self, migration_file_path: Path, compiled_contracts_dir: Path):
             assert self._migrator_execution_environment_config is not None
             assert self._gateway_facade is not None
             self._migrator_execution_environment_builder.set_gateway_facade(
@@ -74,6 +74,7 @@ class Migrator:
             migrator_execution_env = (
                 await self._migrator_execution_environment_builder.build(
                     migration_file_path,
+                    compiled_contracts_dir=compiled_contracts_dir,
                     config=self._migrator_execution_environment_config,
                 )
             )

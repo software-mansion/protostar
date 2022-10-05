@@ -143,6 +143,8 @@ class ProtostarFixture:
         args.signer_class = None
         args.account_address = account_address
         args.private_key_path = None
+        args.compiled_contracts_dir = Path() / "build"
+
         migration_history = await self._migrate_command.run(args)
         assert migration_history is not None
         return migration_history

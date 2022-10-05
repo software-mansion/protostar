@@ -5,6 +5,7 @@ from typing import List, Optional
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.signer import BaseSigner
 
+from protostar.commands.build import BuildCommand
 from protostar.cli import Command
 from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.cli.signable_command_util import SignableCommandUtil
@@ -71,6 +72,12 @@ class MigrateCommand(Command):
                 description="Skip confirming building the project.",
                 type="bool",
             ),
+            Command.Argument(
+                name="compiled_contracts_dir",
+                description="A directory in which your compiled contracts are located (used for deploys and declares)",
+                type="path",
+                default=BuildCommand.COMPILATION_OUTPUT_ARG.default,
+            ),
         ]
 
     async def run(self, args) -> Optional[Migrator.History]:
@@ -90,6 +97,7 @@ class MigrateCommand(Command):
             no_confirm=args.no_confirm,
             migrator_config=migrator_config,
             signer=signer,
+            compiled_contracts_dir=args.compiled_contracts_dir,
         )
 
     async def migrate(
@@ -100,6 +108,7 @@ class MigrateCommand(Command):
         output_dir_path: Optional[Path],
         migrator_config: MigratorExecutionEnvironment.Config,
         no_confirm: bool,
+        compiled_contracts_dir: Path,
         signer: Optional[BaseSigner] = None,
     ):
         # mitigates the risk of running migrate on an outdated project
@@ -125,7 +134,9 @@ class MigrateCommand(Command):
             self._migrator_builder.set_signer(signer)
 
         self._migrator_builder.set_gateway_facade(gateway_facade)
-        migrator = await self._migrator_builder.build(migration_file_path)
+        migrator = await self._migrator_builder.build(
+            migration_file_path, compiled_contracts_dir
+        )
 
         try:
             migrator_history = await migrator.run(rollback)
