@@ -3,16 +3,15 @@ import os
 from pathlib import Path
 from typing import Optional
 
-from attr import dataclass
 from starknet_py.net.models import StarknetChainId
-from starknet_py.net.signer import BaseSigner
-from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 
 from protostar.cli import Command
 from protostar.protostar_exception import ProtostarException
-
-ProtostarBaseSigner = BaseSigner
-ProtostarDefaultSigner = StarkCurveSigner
+from protostar.starknet_gateway import (
+    AccountConfig,
+    ProtostarBaseSigner,
+    create_protostar_default_signer,
+)
 
 PRIVATE_KEY_ENV_VAR_NAME = "PROTOSTAR_ACCOUNT_PRIVATE_KEY"
 
@@ -60,7 +59,7 @@ def create_custom_signer(signer_class_path: str) -> ProtostarBaseSigner:
     signer_module = importlib.import_module(module)
     # pylint: disable=invalid-name
     SignerClass = getattr(signer_module, class_name)
-    if not issubclass(SignerClass, BaseSigner):
+    if not issubclass(SignerClass, ProtostarBaseSigner):
         raise InvalidSignerClassException()
     return SignerClass()
 
@@ -79,32 +78,6 @@ def get_private_key(private_key_path: Optional[Path]) -> int:
         raise ProtostarException(
             f"Invalid private key format ({private_key_str}). Please provide hex-encoded number."
         ) from v_err
-
-
-@dataclass
-class AccountConfig:
-    account_address: str
-    signer_class: Optional[ProtostarBaseSigner]
-
-
-def create_protostar_default_signer(
-    account_address: str,
-    private_key: int,
-    chain_id: StarknetChainId,
-) -> ProtostarDefaultSigner:
-    key_pair = KeyPair.from_private_key(private_key)
-    try:
-        signer = ProtostarDefaultSigner(
-            account_address=account_address,
-            key_pair=key_pair,
-            chain_id=chain_id,
-        )
-    except ValueError as v_err:
-        raise ProtostarException(
-            f"Invalid account address format ({account_address}). "
-            "Please provide hex-encoded number."
-        ) from v_err
-    return signer
 
 
 class SigningCredentialsNotFound(ProtostarException):
