@@ -9,8 +9,8 @@ from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
 from protostar.cli.signable_command_util import (
-    SignableCommandUtil,
     PRIVATE_KEY_ENV_VAR_NAME,
+    SignableCommandUtil,
 )
 from protostar.protostar_exception import ProtostarException
 

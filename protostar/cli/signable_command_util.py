@@ -4,12 +4,15 @@ from pathlib import Path
 from typing import Optional
 
 from attr import dataclass
+from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 
 from protostar.cli import Command
 from protostar.protostar_exception import ProtostarException
-from protostar.starknet_gateway import NetworkConfig
+
+ProtostarBaseSigner = BaseSigner
+ProtostarDefaultSigner = StarkCurveSigner
 
 PRIVATE_KEY_ENV_VAR_NAME = "PROTOSTAR_ACCOUNT_PRIVATE_KEY"
 
@@ -34,22 +37,42 @@ SIGNABLE_ARGUMENTS = [
 ]
 
 
-def create_signer_config_from_args(args):
-    return SignerConfig(
+def create_account_config_from_args(args, chain_id: StarknetChainId) -> AccountConfig:
+    custom_signer: Optional[ProtostarBaseSigner] = None
+    if args.signer_class_module_path:
+        custom_signer = create_custom_signer(args.signer_class_module_path)
+        return AccountConfig(
+            account_address=args.account_address, signer_class=custom_signer
+        )
+    return AccountConfig(
         account_address=args.account_address,
-        signer_class_module_path=args.signer_class_module_path,
-        private_key=get_private_key(args.private_key_path),
+        signer_class=create_protostar_default_signer(
+            account_address=args.account_address,
+            private_key=get_private_key(args.private_key_path),
+            chain_id=chain_id,
+        ),
     )
 
 
-def get_private_key(private_key_path: Optional[Path]) -> Optional[int]:
+def create_custom_signer(signer_class_path: str) -> ProtostarBaseSigner:
+    *module_names, class_name = signer_class_path.split(".")
+    module = ".".join(module_names)
+    signer_module = importlib.import_module(module)
+    # pylint: disable=invalid-name
+    SignerClass = getattr(signer_module, class_name)
+    if not issubclass(SignerClass, BaseSigner):
+        raise InvalidSignerClassException()
+    return SignerClass()
+
+
+def get_private_key(private_key_path: Optional[Path]) -> int:
     private_key_str: Optional[str] = None
     if private_key_path:
         private_key_str = private_key_path.read_text()
     if not private_key_str:
         private_key_str = os.environ.get(PRIVATE_KEY_ENV_VAR_NAME)
     if not private_key_str:
-        return None
+        raise SigningCredentialsNotFound()
     try:
         return int(private_key_str, base=16)
     except ValueError as v_err:
@@ -59,55 +82,29 @@ def get_private_key(private_key_path: Optional[Path]) -> Optional[int]:
 
 
 @dataclass
-class SignerConfig:
-    account_address: Optional[str]
-    private_key: Optional[int]
-    signer_class_module_path: Optional[str]
+class AccountConfig:
+    account_address: str
+    signer_class: Optional[ProtostarBaseSigner]
 
 
-class SignerFactory:
-    def create_signer(
-        self,
-        network_config: NetworkConfig,
-        account_config: SignerConfig,
-    ) -> Optional[BaseSigner]:
-        if account_config.signer_class_module_path:
-            return self._create_custom_signer(
-                signer_class_path=account_config.signer_class_module_path
-            )
-        return self._create_default_signer(network_config, account_config)
-
-    @staticmethod
-    def _create_custom_signer(signer_class_path: str) -> BaseSigner:
-        *module_names, class_name = signer_class_path.split(".")
-        module = ".".join(module_names)
-        signer_module = importlib.import_module(module)
-        # pylint: disable=invalid-name
-        SignerClass = getattr(signer_module, class_name)
-        if not issubclass(SignerClass, BaseSigner):
-            raise UnknownSignerClassException()
-        return SignerClass()
-
-    def _create_default_signer(
-        self,
-        network_config: NetworkConfig,
-        account_config: SignerConfig,
-    ) -> StarkCurveSigner:
-        if not account_config.private_key or not account_config.account_address:
-            raise SigningCredentialsNotFound()
-        key_pair = KeyPair.from_private_key(account_config.private_key)
-        try:
-            signer = StarkCurveSigner(
-                account_address=account_config.account_address,
-                key_pair=key_pair,
-                chain_id=network_config.chain_id,
-            )
-        except ValueError as v_err:
-            raise ProtostarException(
-                f"Invalid account address format ({account_config.account_address}). "
-                "Please provide hex-encoded number."
-            ) from v_err
-        return signer
+def create_protostar_default_signer(
+    account_address: str,
+    private_key: int,
+    chain_id: StarknetChainId,
+) -> ProtostarDefaultSigner:
+    key_pair = KeyPair.from_private_key(private_key)
+    try:
+        signer = ProtostarDefaultSigner(
+            account_address=account_address,
+            key_pair=key_pair,
+            chain_id=chain_id,
+        )
+    except ValueError as v_err:
+        raise ProtostarException(
+            f"Invalid account address format ({account_address}). "
+            "Please provide hex-encoded number."
+        ) from v_err
+    return signer
 
 
 class SigningCredentialsNotFound(ProtostarException):
@@ -120,7 +117,7 @@ class SigningCredentialsNotFound(ProtostarException):
         )
 
 
-class UnknownSignerClassException(ProtostarException):
+class InvalidSignerClassException(ProtostarException):
     def __init__(self):
         super().__init__(
             "Signer class has to extend BaseSigner ABC.\n"
