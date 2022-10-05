@@ -14,7 +14,7 @@ ProtostarDefaultSigner = StarkCurveSigner
 @dataclass
 class AccountConfig:
     account_address: str
-    signer_class: Optional[ProtostarBaseSigner]
+    signer: Optional[ProtostarBaseSigner]
 
 
 def create_protostar_default_signer(

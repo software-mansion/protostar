@@ -38,14 +38,12 @@ SIGNABLE_ARGUMENTS = [
 
 def create_account_config_from_args(args, chain_id: StarknetChainId) -> AccountConfig:
     custom_signer: Optional[ProtostarBaseSigner] = None
-    if args.signer_class_module_path:
-        custom_signer = create_custom_signer(args.signer_class_module_path)
-        return AccountConfig(
-            account_address=args.account_address, signer_class=custom_signer
-        )
+    if args.signer_class:
+        custom_signer = create_custom_signer(args.signer_class)
+        return AccountConfig(account_address=args.account_address, signer=custom_signer)
     return AccountConfig(
         account_address=args.account_address,
-        signer_class=create_protostar_default_signer(
+        signer=create_protostar_default_signer(
             account_address=args.account_address,
             private_key=get_private_key(args.private_key_path),
             chain_id=chain_id,
@@ -67,7 +65,7 @@ def create_custom_signer(signer_class_path: str) -> ProtostarBaseSigner:
 def get_private_key(private_key_path: Optional[Path]) -> int:
     private_key_str: Optional[str] = None
     if private_key_path:
-        private_key_str = private_key_path.read_text()
+        private_key_str = private_key_path.read_text("utf-8")
     if not private_key_str:
         private_key_str = os.environ.get(PRIVATE_KEY_ENV_VAR_NAME)
     if not private_key_str:

@@ -7,7 +7,7 @@ from starknet_py.net.signer import BaseSigner
 
 from protostar.cli.command import Command
 from protostar.cli.network_command_util import NetworkCommandUtil
-from protostar.cli.signable_command_util import SignableCommandUtil
+from protostar.cli.signable_command_util import SIGNABLE_ARGUMENTS
 from protostar.commands.deploy.deploy_command import DeployCommand
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import (
@@ -43,7 +43,7 @@ class DeclareCommand(Command):
     @property
     def arguments(self) -> List[Command.Argument]:
         return [
-            *SignableCommandUtil.signable_arguments,
+            *SIGNABLE_ARGUMENTS,
             *NetworkCommandUtil.network_arguments,
             Command.Argument(
                 name="contract",

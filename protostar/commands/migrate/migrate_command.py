@@ -7,7 +7,7 @@ from starknet_py.net.signer import BaseSigner
 
 from protostar.cli import Command
 from protostar.cli.network_command_util import NetworkCommandUtil
-from protostar.cli.signable_command_util import SignableCommandUtil
+from protostar.cli.signable_command_util import SIGNABLE_ARGUMENTS
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet import CheatcodeException
@@ -48,7 +48,7 @@ class MigrateCommand(Command):
     def arguments(self) -> List[Command.Argument]:
         return [
             *NetworkCommandUtil.network_arguments,
-            *SignableCommandUtil.signable_arguments,
+            *SIGNABLE_ARGUMENTS,
             Command.Argument(
                 name="path",
                 description="Path to the migration file.",
