@@ -1,12 +1,12 @@
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter, _SubParsersAction
 from pathlib import Path
-from typing import Any, List, Optional, Sequence, Tuple
+from typing import Any, Callable, List, Optional, Sequence, Tuple
 
 from protostar.cli.argument_value_from_config_provider import (
     ArgumentValueFromConfigProvider,
 )
 from protostar.cli.cli_app import CLIApp
-from protostar.cli.command import Command
+from protostar.cli.command import Command, InputAllowedType
 
 
 class MissingRequiredArgumentException(Exception):
@@ -107,7 +107,7 @@ class ArgumentParserFacade:
             description=command.description,
         )
         for arg in command.arguments:
-            ArgumentParserFacade._add_argument(
+            self._add_argument(
                 command_parser,
                 self._update_from_config(command, arg),
             )
@@ -119,7 +119,7 @@ class ArgumentParserFacade:
             argument.is_positional is False
         ), f"A root argument ({argument.name}) cannot be positional"
 
-        ArgumentParserFacade._add_argument(
+        self._add_argument(
             self.argument_parser,
             self._update_from_config(None, argument),
         )
@@ -136,9 +136,8 @@ class ArgumentParserFacade:
                 return argument.copy_with(default=new_default)
         return argument
 
-    @staticmethod
     def _add_argument(
-        argument_parser: ArgumentParser, argument: Command.Argument
+        self, argument_parser: ArgumentParser, argument: Command.Argument
     ) -> ArgumentParser:
         name = argument.name if argument.is_positional else f"--{argument.name}"
         short_name = f"-{argument.short_name}" if argument.short_name else None
@@ -160,26 +159,7 @@ class ArgumentParserFacade:
             )
             return argument_parser
 
-        arg_type = str
-
-        if argument.type == "directory":
-            arg_type = Command.Argument.Type.directory
-        elif argument.type == "regexp":
-            arg_type = Command.Argument.Type.regexp
-        elif argument.type == "path":
-            arg_type = Path
-        elif argument.type == "int":
-            arg_type = int
-        elif argument.type == "felt":
-            arg_type = Command.Argument.Type.felt
-        elif argument.type == "wei":
-            arg_type = int
-        elif argument.type == "fee":
-            arg_type = Command.Argument.Type.fee
-        elif argument.type == "str":
-            arg_type = str
-        else:
-            assert False, "Unknown argument type"
+        arg_type = self._map_type_to_arg_type(argument.type)
 
         default = argument.default
 
@@ -202,3 +182,26 @@ class ArgumentParserFacade:
             **kwargs,
         )
         return argument_parser
+
+    @staticmethod
+    def _map_type_to_arg_type(argument_type: InputAllowedType) -> Callable[[str], Any]:
+        result = str
+        if argument_type == "directory":
+            result = Command.Argument.Type.directory
+        elif argument_type == "regexp":
+            result = Command.Argument.Type.regexp
+        elif argument_type == "path":
+            result = Path
+        elif argument_type == "int":
+            result = int
+        elif argument_type == "felt":
+            result = Command.Argument.Type.felt
+        elif argument_type == "wei":
+            result = int
+        elif argument_type == "fee":
+            result = Command.Argument.Type.fee
+        elif argument_type == "str":
+            result = str
+        else:
+            assert False, "Unknown argument type"
+        return result
