@@ -1,13 +1,12 @@
 from logging import Logger
-from typing import Any, Union, Optional
+from typing import Any, Optional, Union
 
-from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 
 from protostar.cli import Command
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import NetworkConfig
-from protostar.starknet_gateway.network_config import is_legacy_network_name, NETWORKS
+from protostar.starknet_gateway.network_config import NETWORKS, is_legacy_network_name
 
 GATEWAY_URL_ARG_NAME = "gateway-url"
 NETWORK_ARG_NAME = "network"
@@ -48,7 +47,15 @@ class NetworkCommandUtil:
         self._args = args
         self._logger = logger
 
-    def validate_network_command_args(self):
+    def get_network_config(self) -> NetworkConfig:
+        self._validate_network_command_args()
+        return NetworkConfig.create(
+            gateway_url=self._args.gateway_url,
+            network=self._args.network,
+            chain_id=self._normalize_chain_id(self._args.chain_id),
+        )
+
+    def _validate_network_command_args(self):
         if self._args.network is None and self._args.gateway_url is None:
             raise ProtostarException(
                 f"Argument `{GATEWAY_URL_ARG_NAME}` or `{NETWORK_ARG_NAME}` is required"
@@ -65,28 +72,14 @@ class NetworkCommandUtil:
                 f"Argument `{CHAIN_ID_ARG_NAME}` is required when `{GATEWAY_URL_ARG_NAME}` is provided"
             )
 
-    def get_network_config(self) -> NetworkConfig:
-        self.validate_network_command_args()
-        return NetworkConfig.build(
-            gateway_url=self._args.gateway_url,
-            network=self._args.network,
-            chain_id=self.normalize_chain_id(self._args.chain_id),
-        )
-
-    def get_gateway_client(self) -> GatewayClient:
-        network_config = self.get_network_config()
-        return GatewayClient(network_config.gateway_url)
-
     @staticmethod
-    def normalize_chain_id(
+    def _normalize_chain_id(
         arg: Optional[Union[str, StarknetChainId]]
     ) -> Optional[StarknetChainId]:
         if arg is None:
             return None
-
         if isinstance(arg, StarknetChainId):
             return arg
-
         try:
             return StarknetChainId(arg)
         except ValueError as ex:
