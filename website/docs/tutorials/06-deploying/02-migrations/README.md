@@ -11,7 +11,7 @@ Breaking changes can be introduced without deprecation. StarkNet [deployment flo
 
 Migrations are Cairo files that help you manage contracts on the StarkNet.
 These files are responsible for staging your deployment tasks, and they're written under the assumption that your project uses [Proxy Pattern](https://blog.openzeppelin.com/proxy-patterns/).
-As your project evolves, you'll create new migration scripts to further this evolution on the blockchain.
+As your project evolves, you'll create new migration scripts to reflect this evolution on the Starknet.
 To interact with StarkNet, you can use [migration cheatcodes](#available-migration-cheatcodes). 
 
 ## Creating a migration file
