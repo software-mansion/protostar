@@ -48,7 +48,7 @@ class NetworkConfig:
     contract_explorer_search_url: Optional[str] = None
 
     @classmethod
-    def create(
+    def build(
         cls,
         gateway_url: Optional[str] = None,
         network: Optional[PredefinedNetwork] = None,
