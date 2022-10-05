@@ -1,9 +1,10 @@
-import subprocess
-import re
 import os.path
+import re
+import subprocess
 from dataclasses import dataclass
-from typing import Dict, Optional
 from pathlib import Path
+from typing import Dict, Optional
+
 from protostar.git.git_exceptions import (
     InvalidGitRepositoryException,
     wrap_git_exception,
