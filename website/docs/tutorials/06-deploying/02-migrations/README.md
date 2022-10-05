@@ -5,7 +5,7 @@ sidebar_label: Migrations
 # Migrations
 
 :::warning
-Breaking changes can be introduced without depreciation.
+Breaking changes can be introduced without depreciation. StarkNet [deployment flow can change](https://community.starknet.io/t/universal-deployer-contract-proposal/1864) so do Protostar.
 :::
 
 
@@ -20,12 +20,15 @@ You can create a migration file anywhere, but we recommend creating them inside 
 ## Migration file structure
 Each migration should have 2 functions: `up` and `down`. The `up` function is responsible to migrate your project forward, and the `down` function is executed to rollback changes. These functions must be decorated with `@external` decorator.
 
-```cairo title="Declaring contract in migration file"
+```cairo title="Deploying storage and logic contracts"
 %lang starknet
 
 @external
 func up() {
-    %{ declare("./build/main.json") %}
+    %{
+        logic_contract_address = deploy_contract("./build/main.json").contract_address
+        storage_contract_address = deploy_contract("./build/proxy.json", [logic_contract_address]).contract_address
+    %}
     return ();
 }
 
@@ -78,30 +81,30 @@ If you build the project, Protostar will print migration logs in the command lin
 ```
 
 ## Lack of Atomicity
-If one of the cheatcode fails (e.g. [invoke cheatcode](migrations/invoke)), introduced changes won't be reverted. 
-
-<!-- ```cairo title="..."
+If one of the cheatcode fails (e.g. [invoke cheatcode](migrations/invoke)), introduced changes won't be reverted.
+```cairo
 %lang starknet
 
 @external
 func up() { 
     %{ 
-        class_hash = declare("./build/main.json", config={"max_fee": "auto"}).class_hash
-        address = invoke(class_hash, "create_contract")
+        # this deploy won't be reverted
+        logic_contract_address = deploy_contract("./build/main.json").contract_address
+
+        # if this deploy fails
+        storage_contract_address = deploy_contract("./build/proxy.json", [logic_contract_address]).contract_address 
     %}
     return ();
 }
-```  -->
 
-
-If you need atomicity, move the code to the [Contract Classes](https://docs.starknet.io/documentation/develop/Contracts/contract-classes/).
-
+If atomicity is essential and you need only to use deploy and invoke transactions, consider using [Contract Classes](https://docs.starknet.io/documentation/develop/Contracts/contract-classes/).
+``` 
 
 ## Signing the migration
 You can sign the migration's transactions by providing appropriate arguments to the CLI of the command. 
 See signing-related documentation [here](../01-cli.md#signing-a-declaration).
 
-For now, declare and invoke migration calls are signed automatically when provided with appropriate arguments. 
+For now, declare and invoke migration calls are signed automatically when provided with appropriate arguments.
 
 ## Available migration cheatcodes
 ```mdx-code-block
