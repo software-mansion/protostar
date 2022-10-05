@@ -174,6 +174,12 @@ class ArgumentParserFacade:
             arg_type = Command.Argument.Type.felt
         elif argument.type == "wei":
             arg_type = int
+        elif argument.type == "fee":
+            arg_type = Command.Argument.Type.fee
+        elif argument.type == "str":
+            arg_type = str
+        else:
+            assert False, "Unknown argument type"
 
         default = argument.default
 
