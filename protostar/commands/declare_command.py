@@ -11,7 +11,7 @@ from protostar.cli.signer_factory import (
     SIGNABLE_ARGUMENTS,
     create_account_config_from_args,
 )
-from protostar.commands.deploy.deploy_command import DeployCommand
+from protostar.commands.deploy_command import DeployCommand
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import (
     Fee,
