@@ -7,7 +7,7 @@ license = "MIT"
 name = "protostar"
 readme = "README.md"
 repository = "https://github.com/software-mansion/protostar"
-version = "0.4.2"
+version = "0.5.0"
 
 [tool.poetry.dependencies]
 GitPython = "^3.1.26"
@@ -49,7 +49,7 @@ starknet-devnet = "^0.3.1"
 [tool.poe.tasks]
 build = [
     "write_runtime_constants",
-    "pyinstaller"
+    "pyinstaller",
 ]
 write_runtime_constants = "python ./scripts/write_runtime_constants.py"
 pyinstaller = "pyinstaller protostar.spec --noconfirm"
