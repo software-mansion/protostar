@@ -5,7 +5,7 @@ sidebar_label: Migrations
 # Migrations
 
 :::warning
-Breaking changes can be introduced without depreciation. StarkNet [deployment flow can change](https://community.starknet.io/t/universal-deployer-contract-proposal/1864) so do Protostar.
+Breaking changes can be introduced without deprecation. StarkNet [deployment flow can change](https://community.starknet.io/t/universal-deployer-contract-proposal/1864), so Protostar will follow in the future.
 :::
 
 
