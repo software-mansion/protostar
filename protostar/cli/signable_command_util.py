@@ -36,8 +36,12 @@ SIGNABLE_ARGUMENTS = [
 ]
 
 
-def create_account_config_from_args(args, chain_id: StarknetChainId) -> AccountConfig:
+def create_account_config_from_args(
+    args, chain_id: StarknetChainId
+) -> Optional[AccountConfig]:
     custom_signer: Optional[ProtostarBaseSigner] = None
+    if args.account_address is None:
+        return None
     if args.signer_class:
         custom_signer = create_custom_signer(args.signer_class)
         return AccountConfig(account_address=args.account_address, signer=custom_signer)

@@ -7,7 +7,10 @@ from starknet_py.net.signer import BaseSigner
 
 from protostar.cli.command import Command
 from protostar.cli.network_command_util import NetworkCommandUtil
-from protostar.cli.signable_command_util import SIGNABLE_ARGUMENTS
+from protostar.cli.signable_command_util import (
+    SIGNABLE_ARGUMENTS,
+    create_account_config_from_args,
+)
 from protostar.commands.deploy.deploy_command import DeployCommand
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import (
@@ -76,10 +79,12 @@ class DeclareCommand(Command):
         assert isinstance(args.wait_for_acceptance, bool)
 
         network_command_util = NetworkCommandUtil(args, self._logger)
-        signable_command_util = SignableCommandUtil(args, self._logger)
         network_config = network_command_util.get_network_config()
         gateway_client = network_command_util.get_gateway_client()
-        signer = signable_command_util.get_signer(network_config)
+        account_config = create_account_config_from_args(
+            args, chain_id=network_config.chain_id
+        )
+        signer = account_config.signer if account_config else None
 
         return await self.declare(
             compiled_contract_path=args.contract,

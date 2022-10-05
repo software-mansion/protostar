@@ -47,9 +47,11 @@ def create_signer(
     args.signer_class = signer_class
     args.private_key_path = private_key_path
     args.account_address = account_address
-    return create_account_config_from_args(
+    account_config = create_account_config_from_args(
         args, chain_id=StarknetChainId.TESTNET
-    ).signer
+    )
+    assert account_config is not None
+    return account_config.signer
 
 
 def test_custom_signer_class():
