@@ -8,7 +8,7 @@ from starknet_py.net.models.typed_data import TypedData
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
-from protostar.cli.signable_command_util import (
+from protostar.cli.signer_factory import (
     PRIVATE_KEY_ENV_VAR_NAME,
     create_account_config_from_args,
 )

@@ -7,7 +7,7 @@ from starknet_py.net.signer import BaseSigner
 
 from protostar.cli import Command
 from protostar.cli.network_command_util import NetworkCommandUtil
-from protostar.cli.signable_command_util import (
+from protostar.cli.signer_factory import (
     SIGNABLE_ARGUMENTS,
     create_account_config_from_args,
 )

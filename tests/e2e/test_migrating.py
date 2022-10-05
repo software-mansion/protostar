@@ -8,7 +8,7 @@ import pytest
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 
-from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
+from protostar.cli.signer_factory import PRIVATE_KEY_ENV_VAR_NAME
 from tests.conftest import Credentials
 from tests.e2e.conftest import ProtostarFixture
 

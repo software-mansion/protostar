@@ -12,7 +12,7 @@ import requests
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 
-from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
+from protostar.cli.signer_factory import PRIVATE_KEY_ENV_VAR_NAME
 
 
 def ensure_devnet_alive(port: int, retries=5, base_backoff_time=2) -> bool:

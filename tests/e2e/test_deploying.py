@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from starkware.starknet.definitions.general_config import StarknetChainId
 
-from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
+from protostar.cli.signer_factory import PRIVATE_KEY_ENV_VAR_NAME
 
 
 @pytest.mark.usefixtures("init")

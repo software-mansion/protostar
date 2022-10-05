@@ -4,7 +4,7 @@ import pytest
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 
-from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
+from protostar.cli.signer_factory import PRIVATE_KEY_ENV_VAR_NAME
 from protostar.starknet_gateway import FeeExceededMaxFeeException
 from tests.conftest import DevnetAccount, SetPrivateKeyEnvVarFixture
 from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR

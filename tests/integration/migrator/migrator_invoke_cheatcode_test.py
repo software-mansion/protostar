@@ -1,12 +1,12 @@
 import pytest
 import requests
+from migrator.compiled_account_contract_tx_v0 import COMPILED_ACCOUNT_CONTRACT_TX_V0
 from starknet_py.contract import Contract
 from starknet_py.net import KeyPair
 from starknet_py.net.gateway_client import GatewayClient
 from starkware.crypto.signature.signature import get_random_private_key
 
-from migrator.compiled_account_contract_tx_v0 import COMPILED_ACCOUNT_CONTRACT_TX_V0
-from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
+from protostar.cli.signer_factory import PRIVATE_KEY_ENV_VAR_NAME
 from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.migrator.conftest import MigrateFixture
