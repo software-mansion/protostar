@@ -4,7 +4,6 @@ from argparse import Namespace
 from logging import getLogger
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple, cast
-from xmlrpc.client import Boolean
 
 from pytest_mock import MockerFixture
 from starknet_py.net import KeyPair
@@ -121,7 +120,7 @@ class ProtostarFixture:
         return await self._deploy_command.run(args)
 
     async def test(
-        self, targets: List[str], last_failed: Boolean = False
+        self, targets: List[str], last_failed: bool = False
     ) -> TestingSummary:
         args = Namespace()
         args.target = targets
