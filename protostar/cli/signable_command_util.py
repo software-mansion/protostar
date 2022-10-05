@@ -1,8 +1,9 @@
 import importlib
 import os
-from logging import Logger
-from typing import Any, Optional
+from pathlib import Path
+from typing import Optional
 
+from attr import dataclass
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 
@@ -13,89 +14,116 @@ from protostar.starknet_gateway import NetworkConfig
 PRIVATE_KEY_ENV_VAR_NAME = "PROTOSTAR_ACCOUNT_PRIVATE_KEY"
 
 
-class SignableCommandUtil:
-    signable_arguments = [
-        Command.Argument(
-            name="account-address",
-            description="Account address",
-            type="str",
-        ),
-        Command.Argument(
-            name="private-key-path",
-            description="Path to the file, which stores your private key (in hex representation) for the account. \n"
-            f"Can be used instead of {PRIVATE_KEY_ENV_VAR_NAME} env variable.",
-            type="path",
-        ),
-        Command.Argument(
-            name="signer-class",
-            description="Custom signer class module path.",
-            type="str",
-        ),
-    ]
+SIGNABLE_ARGUMENTS = [
+    Command.Argument(
+        name="account-address",
+        description="Account address",
+        type="str",
+    ),
+    Command.Argument(
+        name="private-key-path",
+        description="Path to the file, which stores your private key (in hex representation) for the account. \n"
+        f"Can be used instead of {PRIVATE_KEY_ENV_VAR_NAME} env variable.",
+        type="path",
+    ),
+    Command.Argument(
+        name="signer-class",
+        description="Custom signer class module path.",
+        type="str",
+    ),
+]
 
-    def __init__(self, args: Any, logger: Logger):
-        self._args = args
-        self._logger = logger
 
-    def get_signer(
+def create_signer_config_from_args(args):
+    return SignerConfig(
+        account_address=args.account_address,
+        signer_class_module_path=args.signer_class_module_path,
+        private_key=get_private_key(args.private_key_path),
+    )
+
+
+def get_private_key(private_key_path: Optional[Path]) -> Optional[int]:
+    private_key_str: Optional[str] = None
+    if private_key_path:
+        private_key_str = private_key_path.read_text()
+    if not private_key_str:
+        private_key_str = os.environ.get(PRIVATE_KEY_ENV_VAR_NAME)
+    if not private_key_str:
+        return None
+    try:
+        return int(private_key_str, base=16)
+    except ValueError as v_err:
+        raise ProtostarException(
+            f"Invalid private key format ({private_key_str}). Please provide hex-encoded number."
+        ) from v_err
+
+
+@dataclass
+class SignerConfig:
+    account_address: Optional[str]
+    private_key: Optional[int]
+    signer_class_module_path: Optional[str]
+
+
+class SignerFactory:
+    def create_signer(
         self,
         network_config: NetworkConfig,
+        account_config: SignerConfig,
     ) -> Optional[BaseSigner]:
-        if self._args.signer_class:
-            *module_names, class_name = self._args.signer_class.split(".")
-            module = ".".join(module_names)
-            signer_module = importlib.import_module(module)
-            signer_class = getattr(signer_module, class_name)
-            SignableCommandUtil._validate_signer_interface(signer_class)
-            return signer_class()
-
-        private_key_str = None
-        if self._args.private_key_path:
-            with open(self._args.private_key_path, encoding="utf-8") as file:
-                private_key_str = file.read()
-
-        if not private_key_str:
-            private_key_str = os.environ.get(PRIVATE_KEY_ENV_VAR_NAME)
-
-        if (
-            not private_key_str or not self._args.account_address
-        ):  # FIXME(arcticae): This is temporary, when the signing is mandatory this should be removed
-            self._logger.warning(
-                "Signing credentials not found. "
-                "Signing transactions will be mandatory in future versions, "
-                "please refer to the docs for more details:\n"
-                "https://docs.swmansion.com/protostar/docs/tutorials/deploying/cli#signing-a-declaration"
+        if account_config.signer_class_module_path:
+            return self._create_custom_signer(
+                signer_class_path=account_config.signer_class_module_path
             )
-            return None
+        return self._create_default_signer(network_config, account_config)
 
-        try:
-            private_key = int(private_key_str, 16)
-        except ValueError as v_err:
-            raise ProtostarException(
-                f"Invalid private key format ({private_key_str}). Please provide hex-encoded number."
-            ) from v_err
+    @staticmethod
+    def _create_custom_signer(signer_class_path: str) -> BaseSigner:
+        *module_names, class_name = signer_class_path.split(".")
+        module = ".".join(module_names)
+        signer_module = importlib.import_module(module)
+        # pylint: disable=invalid-name
+        SignerClass = getattr(signer_module, class_name)
+        if not issubclass(SignerClass, BaseSigner):
+            raise UnknownSignerClassException()
+        return SignerClass()
 
-        key_pair = KeyPair.from_private_key(private_key)
-
+    def _create_default_signer(
+        self,
+        network_config: NetworkConfig,
+        account_config: SignerConfig,
+    ) -> StarkCurveSigner:
+        if not account_config.private_key or not account_config.account_address:
+            raise SigningCredentialsNotFound()
+        key_pair = KeyPair.from_private_key(account_config.private_key)
         try:
             signer = StarkCurveSigner(
-                account_address=self._args.account_address,
+                account_address=account_config.account_address,
                 key_pair=key_pair,
                 chain_id=network_config.chain_id,
             )
         except ValueError as v_err:
             raise ProtostarException(
-                f"Invalid account address format ({self._args.account_address}). "
+                f"Invalid account address format ({account_config.account_address}). "
                 "Please provide hex-encoded number."
             ) from v_err
-
         return signer
 
-    @staticmethod
-    def _validate_signer_interface(signer_class):
-        if not issubclass(signer_class, BaseSigner):
-            raise ProtostarException(
-                "Signer class has to extend BaseSigner ABC.\n"
-                "Please refer to the starknet.py docs for more information:\n"
-                "https://starknetpy.readthedocs.io/en/latest/signer.html#starknet_py.net.signer.BaseSigner"
-            )
+
+class SigningCredentialsNotFound(ProtostarException):
+    def __init__(self):
+        super().__init__(
+            "Signing credentials not found. "
+            "Signing transactions will be mandatory in future versions, "
+            "please refer to the docs for more details:\n"
+            "https://docs.swmansion.com/protostar/docs/tutorials/deploying/cli#signing-a-declaration"
+        )
+
+
+class UnknownSignerClassException(ProtostarException):
+    def __init__(self):
+        super().__init__(
+            "Signer class has to extend BaseSigner ABC.\n"
+            "Please refer to the starknet.py docs for more information:\n"
+            "https://starknetpy.readthedocs.io/en/latest/signer.html#starknet_py.net.signer.BaseSigner"
+        )
