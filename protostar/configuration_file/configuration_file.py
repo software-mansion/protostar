@@ -2,9 +2,10 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Generic, Optional, Protocol, TypeVar, Union
 
-from protostar.cli import ArgumentValueFromConfigProviderProtocol
 from protostar.protostar_exception import ProtostarException
 from protostar.self import DeclaredProtostarVersionProviderProtocol, ProtostarVersion
+
+from .argument_value_resolver import ArgumentValueResolver
 
 PrimitiveTypesSupportedByConfigurationFile = Union[str, int, bool]
 
@@ -56,24 +57,12 @@ class ConfigurationFileContentFactory(Generic[ConfigurationFileModelT]):
 
 
 class ConfigurationFile(
+    ArgumentValueResolver,
     DeclaredProtostarVersionProviderProtocol,
-    ArgumentValueFromConfigProviderProtocol,
     Generic[ConfigurationFileModelT],
 ):
     @abstractmethod
     def get_declared_protostar_version(self) -> Optional[ProtostarVersion]:
-        ...
-
-    @abstractmethod
-    def get_argument_value(
-        self, command_name: str, argument_name: str, profile_name: Optional[str] = None
-    ) -> Optional[Any]:
-        ...
-
-    @abstractmethod
-    def get_shared_argument_value(
-        self, argument_name: str, profile_name: Optional[str] = None
-    ) -> Optional[Any]:
         ...
 
     @abstractmethod

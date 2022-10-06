@@ -50,6 +50,7 @@ def configuration_file_fixture(
         ),
         project_root_path=project_root_path,
         file_path=protostar_toml_path,
+        active_profile_name=None,
     )
     cfv1.set_command_names_provider(CommandNamesProviderStub())
     return cfv1

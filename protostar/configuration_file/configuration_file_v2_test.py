@@ -74,6 +74,7 @@ def configuration_file_fixture(project_root_path: Path, protostar_toml_content: 
         project_root_path=project_root_path,
         configuration_file_interpreter=configuration_toml_reader,
         file_path=protostar_toml_path,
+        active_profile_name=None,
     )
 
 
@@ -249,6 +250,7 @@ def test_transforming_file_v1_into_v2(
         ),
         project_root_path=Path(),
         file_path=Path(),
+        active_profile_name=None,
     )
     cf_v1.set_command_names_provider(CommandNamesProviderStub())
     model_v1 = cf_v1.read()

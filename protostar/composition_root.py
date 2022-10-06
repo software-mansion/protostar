@@ -4,9 +4,6 @@ from pathlib import Path
 from typing import List, Optional
 
 from protostar.cli import ArgumentParserFacade, Command
-from protostar.cli.argument_value_from_config_extractor import (
-    ArgumentValueFromConfigExtractor,
-)
 from protostar.commands import (
     BuildCommand,
     DeclareCommand,
@@ -59,7 +56,9 @@ class DIContainer:
 
 
 def build_di_container(
-    script_root: Path, profile_name: Optional[str] = None, start_time: float = 0
+    script_root: Path,
+    active_configuration_profile_name: Optional[str] = None,
+    start_time: float = 0,
 ):
     logger = getLogger()
     cwd = Path().resolve()
@@ -69,7 +68,9 @@ def build_di_container(
     )
     protostar_toml_path = protostar_toml_path or project_root_path / "protostar.toml"
 
-    configuration_file_factory = ConfigurationFileFactory(cwd)
+    configuration_file_factory = ConfigurationFileFactory(
+        cwd, active_profile_name=active_configuration_profile_name
+    )
     configuration_file = configuration_file_factory.create()
 
     protostar_directory = ProtostarDirectory(script_root)
@@ -197,17 +198,6 @@ def build_di_container(
     if configuration_file:
         configuration_file.set_command_names_provider(protostar_cli)
 
-    argument_value_from_config_extractor = (
-        ArgumentValueFromConfigExtractor(
-            configuration_file,
-            profile_name,
-        )
-        if configuration_file
-        else None
-    )
-
-    argument_parser_facade = ArgumentParserFacade(
-        protostar_cli, argument_value_from_config_extractor
-    )
+    argument_parser_facade = ArgumentParserFacade(protostar_cli, configuration_file)
 
     return DIContainer(protostar_cli, argument_parser_facade)

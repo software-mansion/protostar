@@ -2,15 +2,14 @@ from typing import Any, Optional
 
 import pytest
 
-from .argument_value_from_config_extractor import (
-    ArgumentValueFromConfigExtractor,
-    ArgumentValueFromConfigProviderProtocol,
-)
+from .argument_value_resolver import ArgumentValueResolver
 
 
-class FakeArgumentValueProvider(ArgumentValueFromConfigProviderProtocol):
-    def __init__(self, ignore_command_scoped_value: bool) -> None:
-        super().__init__()
+class FakeArgumentValueProvider(ArgumentValueResolver):
+    def __init__(
+        self, profile_name: Optional[str], ignore_command_scoped_value: bool
+    ) -> None:
+        super().__init__(profile_name)
         self._ignore_command_scoped_value = ignore_command_scoped_value
 
     def get_argument_value(
@@ -33,19 +32,19 @@ def arg_value_provider_fixture(
     configuration_profile_name: Optional[str],
     ignore_command_scoped_value: bool,
 ):
-    return ArgumentValueFromConfigExtractor(
-        argument_value_from_config_provider=FakeArgumentValueProvider(
-            ignore_command_scoped_value
-        ),
-        configuration_profile_name=configuration_profile_name,
+    return FakeArgumentValueProvider(
+        profile_name=configuration_profile_name,
+        ignore_command_scoped_value=ignore_command_scoped_value,
     )
 
 
 @pytest.mark.parametrize(
     "configuration_profile_name, ignore_command_scoped_value", ((None, True),)
 )
-def test_loading_shared_config(arg_value_provider: ArgumentValueFromConfigExtractor):
-    val = arg_value_provider.load_value(command_name="command", argument_name="arg")
+def test_loading_shared_config(arg_value_provider: ArgumentValueResolver):
+    val = arg_value_provider.resolve_argument(
+        command_name="command", argument_name="arg"
+    )
 
     assert val == "shared::arg"
 
@@ -54,9 +53,11 @@ def test_loading_shared_config(arg_value_provider: ArgumentValueFromConfigExtrac
     "configuration_profile_name, ignore_command_scoped_value", (("profile", True),)
 )
 def test_loading_shared_profiled_config(
-    arg_value_provider: ArgumentValueFromConfigExtractor,
+    arg_value_provider: ArgumentValueResolver,
 ):
-    val = arg_value_provider.load_value(command_name="command", argument_name="arg")
+    val = arg_value_provider.resolve_argument(
+        command_name="command", argument_name="arg"
+    )
 
     assert val == "profile::shared::arg"
 
@@ -64,8 +65,10 @@ def test_loading_shared_profiled_config(
 @pytest.mark.parametrize(
     "configuration_profile_name, ignore_command_scoped_value", ((None, False),)
 )
-def test_loading_command_config(arg_value_provider: ArgumentValueFromConfigExtractor):
-    val = arg_value_provider.load_value(command_name="command", argument_name="arg")
+def test_loading_command_config(arg_value_provider: ArgumentValueResolver):
+    val = arg_value_provider.resolve_argument(
+        command_name="command", argument_name="arg"
+    )
 
     assert val == "command::arg"
 
@@ -74,8 +77,10 @@ def test_loading_command_config(arg_value_provider: ArgumentValueFromConfigExtra
     "configuration_profile_name, ignore_command_scoped_value", (("profile", True),)
 )
 def test_loading_command_profiled_config(
-    arg_value_provider: ArgumentValueFromConfigExtractor,
+    arg_value_provider: ArgumentValueResolver,
 ):
-    val = arg_value_provider.load_value(command_name="command", argument_name="arg")
+    val = arg_value_provider.resolve_argument(
+        command_name="command", argument_name="arg"
+    )
 
     assert val == "profile::shared::arg"

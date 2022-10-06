@@ -56,8 +56,9 @@ class ConfigurationFileV2(
         project_root_path: Path,
         configuration_file_interpreter: ConfigurationFileInterpreter,
         file_path: Path,
+        active_profile_name: Optional[str],
     ) -> None:
-        super().__init__()
+        super().__init__(active_profile_name)
         self._project_root_path = project_root_path
         self._configuration_file_reader = configuration_file_interpreter
         self._file_path = file_path

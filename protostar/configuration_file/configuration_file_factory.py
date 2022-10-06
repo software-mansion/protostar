@@ -11,8 +11,9 @@ from .configuration_toml_interpreter import ConfigurationTOMLInterpreter
 
 
 class ConfigurationFileFactory:
-    def __init__(self, cwd: Path) -> None:
+    def __init__(self, cwd: Path, active_profile_name: Optional[str] = None) -> None:
         self._cwd = cwd
+        self._active_profile_name = active_profile_name
 
     def create(self) -> Optional[ConfigurationFile]:
         protostar_toml_path = self._search_upwards_protostar_toml_path()
@@ -52,6 +53,7 @@ class ConfigurationFileFactory:
                 file_content=protostar_toml_content
             ),
             file_path=protostar_toml_path,
+            active_profile_name=self._active_profile_name,
         )
         if configuration_file_v2.get_declared_protostar_version() is not None:
             return configuration_file_v2
@@ -68,6 +70,7 @@ class ConfigurationFileFactory:
                 file_content=protostar_toml_content
             ),
             file_path=protostar_toml_path,
+            active_profile_name=self._active_profile_name,
         )
         if configuration_file_v1.get_declared_protostar_version() is not None:
             return configuration_file_v1

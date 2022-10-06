@@ -37,8 +37,9 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
         configuration_file_interpreter: ConfigurationFileInterpreter,
         project_root_path: Path,
         file_path: Path,
+        active_profile_name: Optional[str],
     ) -> None:
-        super().__init__()
+        super().__init__(active_profile_name)
         self._configuration_file_interpreter = configuration_file_interpreter
         self._project_root_path = project_root_path
         self._file_path = file_path

@@ -2,11 +2,10 @@ from argparse import ArgumentParser, Namespace, RawTextHelpFormatter, _SubParser
 from pathlib import Path
 from typing import Any, List, Optional, Sequence, Tuple
 
-from protostar.cli.argument_value_from_config_extractor import (
-    ArgumentValueFromConfigExtractor,
-)
 from protostar.cli.cli_app import CLIApp
 from protostar.cli.command import Command
+
+from .config_file_argument_resolver import ConfigFileArgumentResolverProtocol
 
 
 class MissingRequiredArgumentException(Exception):
@@ -23,7 +22,9 @@ class ArgumentParserFacade:
     def __init__(
         self,
         cli_app: CLIApp,
-        argument_value_extractor: Optional[ArgumentValueFromConfigExtractor] = None,
+        config_file_argument_value_resolver: Optional[
+            ConfigFileArgumentResolverProtocol
+        ] = None,
         disable_help=False,
     ) -> None:
         self.argument_parser = ArgumentParser(
@@ -31,7 +32,7 @@ class ArgumentParserFacade:
         )
         self.command_parsers: Optional[_SubParsersAction] = None
         self.cli_app = cli_app
-        self._argument_value_extractor = argument_value_extractor
+        self._config_file_argument_value_resolver = config_file_argument_value_resolver
         self._setup_parser()
 
     def parse(
@@ -128,8 +129,8 @@ class ArgumentParserFacade:
     def _update_from_config(
         self, command: Optional[Command], argument: Command.Argument
     ) -> Command.Argument:
-        if self._argument_value_extractor:
-            new_default = self._argument_value_extractor.load_value(
+        if self._config_file_argument_value_resolver:
+            new_default = self._config_file_argument_value_resolver.resolve_argument(
                 command.name if command else None, argument.name
             )
             if new_default is not None:

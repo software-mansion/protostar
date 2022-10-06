@@ -11,13 +11,13 @@ from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
 
 
 def main(script_root: Path, start_time: float = 0):
-    profile_name = get_profile_name()
+    profile_name = get_active_configuration_profile_name()
     container = build_di_container(script_root, profile_name, start_time)
     args = parse_args(container.argument_parser_facade)
     run_protostar(container.protostar_cli, container.argument_parser_facade, args)
 
 
-def get_profile_name() -> Optional[str]:
+def get_active_configuration_profile_name() -> Optional[str]:
     return (
         ArgumentParserFacade(ConfigurationProfileCLI(), disable_help=True)
         .parse(ignore_unrecognized=True)
