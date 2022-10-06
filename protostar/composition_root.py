@@ -59,7 +59,7 @@ class DIContainer:
 
 
 def build_di_container(
-    script_root: Path, profile_name: Optional[str], start_time: float = 0
+    script_root: Path, profile_name: Optional[str] = None, start_time: float = 0
 ):
     logger = getLogger()
     cwd = Path().resolve()
