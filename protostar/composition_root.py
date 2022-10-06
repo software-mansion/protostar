@@ -3,7 +3,10 @@ from logging import getLogger
 from pathlib import Path
 from typing import List, Optional
 
-from protostar.cli import ArgumentValueFromConfigProviderProtocol, Command
+from protostar.cli import ArgumentParserFacade, Command
+from protostar.cli.argument_value_from_config_extractor import (
+    ArgumentValueFromConfigExtractor,
+)
 from protostar.commands import (
     BuildCommand,
     DeclareCommand,
@@ -55,12 +58,12 @@ from protostar.utils import (
 @dataclass
 class DIContainer:
     protostar_cli: ProtostarCLI
-    argument_value_from_config_provider: Optional[
-        ArgumentValueFromConfigProviderProtocol
-    ]
+    argument_parser_facade: ArgumentParserFacade
 
 
-def build_di_container(script_root: Path, start_time: float = 0):
+def build_di_container(
+    script_root: Path, profile_name: Optional[str], start_time: float = 0
+):
     logger = getLogger()
     cwd = Path().resolve()
     protostar_toml_path = search_upwards_protostar_toml_path(start_path=cwd)
@@ -199,4 +202,17 @@ def build_di_container(script_root: Path, start_time: float = 0):
     )
     command_names_delayed_provider.set_command_names_provider(protostar_cli)
 
-    return DIContainer(protostar_cli, configuration_file)
+    argument_value_from_config_extractor = (
+        ArgumentValueFromConfigExtractor(
+            configuration_file,
+            profile_name,
+        )
+        if configuration_file
+        else None
+    )
+
+    argument_parser_facade = ArgumentParserFacade(
+        protostar_cli, argument_value_from_config_extractor
+    )
+
+    return DIContainer(protostar_cli, argument_parser_facade)
