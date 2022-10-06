@@ -108,7 +108,7 @@ class MigrateCommand(Command):
         output_dir_path: Optional[Path],
         migrator_config: MigratorExecutionEnvironment.Config,
         no_confirm: bool,
-        compiled_contracts_dir: Path,
+        compiled_contracts_dir_path: Path,
         signer: Optional[BaseSigner] = None,
     ):
         # mitigates the risk of running migrate on an outdated project
