@@ -243,14 +243,15 @@ def test_transforming_file_v1_into_v2(
         """
     )
 
-    model_v1 = ConfigurationFileV1(
+    cf_v1 = ConfigurationFileV1(
         configuration_file_interpreter=ConfigurationLegacyTOMLInterpreter(
             file_content=old_protostar_toml_content,
         ),
         project_root_path=Path(),
         file_path=Path(),
-        command_names_provider=CommandNamesProviderStub(),
-    ).read()
+    )
+    cf_v1.set_command_names_provider(CommandNamesProviderStub())
+    model_v1 = cf_v1.read()
 
     transformed_protostar_toml = content_factory.create_file_content(
         model=ConfigurationFileV2Model.from_v1(model_v1, protostar_version="9.9.9"),

@@ -1,4 +1,3 @@
-from .command_names_delayed_provider import CommandNamesDelayedProvider
 from .configuration_file import ConfigurationFile, ConfigurationFileMigratorProtocol
 from .configuration_file_factory import ConfigurationFileFactory
 from .configuration_file_v1 import CommandNamesProviderProtocol

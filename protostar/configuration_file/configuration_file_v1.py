@@ -37,12 +37,16 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
         configuration_file_interpreter: ConfigurationFileInterpreter,
         project_root_path: Path,
         file_path: Path,
-        command_names_provider: CommandNamesProviderProtocol,
     ) -> None:
         super().__init__()
         self._configuration_file_interpreter = configuration_file_interpreter
         self._project_root_path = project_root_path
         self._file_path = file_path
+        self._command_names_provider: Optional[CommandNamesProviderProtocol] = None
+
+    def set_command_names_provider(
+        self, command_names_provider: CommandNamesProviderProtocol
+    ):
         self._command_names_provider = command_names_provider
 
     def get_filepath(self) -> Path:
@@ -163,6 +167,7 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
         self, profile_name: Optional[str] = None
     ) -> CommandNameToConfig:
         result: CommandNameToConfig = {}
+        assert self._command_names_provider is not None
         for command_name in self._command_names_provider.get_command_names():
             command_config = self._configuration_file_interpreter.get_section(
                 section_name=command_name,

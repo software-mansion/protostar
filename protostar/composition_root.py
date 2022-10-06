@@ -27,10 +27,7 @@ from protostar.commands.init.project_creator import (
 )
 from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
-from protostar.configuration_file import (
-    CommandNamesDelayedProvider,
-    ConfigurationFileFactory,
-)
+from protostar.configuration_file import ConfigurationFileFactory
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_cli import ProtostarCLI
 from protostar.protostar_toml import (
@@ -72,10 +69,7 @@ def build_di_container(
     )
     protostar_toml_path = protostar_toml_path or project_root_path / "protostar.toml"
 
-    command_names_delayed_provider = CommandNamesDelayedProvider()
-    configuration_file_factory = ConfigurationFileFactory(
-        cwd, command_names_delayed_provider
-    )
+    configuration_file_factory = ConfigurationFileFactory(cwd)
     configuration_file = configuration_file_factory.create()
 
     protostar_directory = ProtostarDirectory(script_root)
@@ -200,7 +194,8 @@ def build_di_container(
         project_cairo_path_builder=project_cairo_path_builder,
         start_time=start_time,
     )
-    command_names_delayed_provider.set_command_names_provider(protostar_cli)
+    if configuration_file:
+        configuration_file.set_command_names_provider(protostar_cli)
 
     argument_value_from_config_extractor = (
         ArgumentValueFromConfigExtractor(

@@ -4,18 +4,15 @@ from typing import Optional
 from protostar.protostar_exception import ProtostarException
 
 from .configuration_file import ConfigurationFile
-from .configuration_file_v1 import CommandNamesProviderProtocol, ConfigurationFileV1
+from .configuration_file_v1 import ConfigurationFileV1
 from .configuration_file_v2 import ConfigurationFileV2
 from .configuration_legacy_toml_interpreter import ConfigurationLegacyTOMLInterpreter
 from .configuration_toml_interpreter import ConfigurationTOMLInterpreter
 
 
 class ConfigurationFileFactory:
-    def __init__(
-        self, cwd: Path, command_names_provider: CommandNamesProviderProtocol
-    ) -> None:
+    def __init__(self, cwd: Path) -> None:
         self._cwd = cwd
-        self._command_names_provider = command_names_provider
 
     def create(self) -> Optional[ConfigurationFile]:
         protostar_toml_path = self._search_upwards_protostar_toml_path()
@@ -71,7 +68,6 @@ class ConfigurationFileFactory:
                 file_content=protostar_toml_content
             ),
             file_path=protostar_toml_path,
-            command_names_provider=self._command_names_provider,
         )
         if configuration_file_v1.get_declared_protostar_version() is not None:
             return configuration_file_v1

@@ -44,14 +44,15 @@ def protostar_toml_path_fixture(protostar_toml_content: str, project_root_path: 
 def configuration_file_fixture(
     protostar_toml_path: Path, project_root_path: Path, protostar_toml_content: str
 ):
-    return ConfigurationFileV1(
+    cfv1 = ConfigurationFileV1(
         ConfigurationLegacyTOMLInterpreter(
             file_content=protostar_toml_content,
         ),
         project_root_path=project_root_path,
         file_path=protostar_toml_path,
-        command_names_provider=CommandNamesProviderStub(),
     )
+    cfv1.set_command_names_provider(CommandNamesProviderStub())
+    return cfv1
 
 
 @pytest.mark.parametrize(

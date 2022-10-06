@@ -19,6 +19,11 @@ ContractName = str
 ConfigurationFileModelT = TypeVar("ConfigurationFileModelT")
 
 
+class CommandNamesProviderProtocol(Protocol):
+    def get_command_names(self) -> list[str]:
+        ...
+
+
 class ConfigurationFileContentBuilder(ABC):
     @abstractmethod
     def set_section(
@@ -86,6 +91,11 @@ class ConfigurationFile(
     @abstractmethod
     def read(self) -> ConfigurationFileModelT:
         ...
+
+    def set_command_names_provider(
+        self, command_names_provider: CommandNamesProviderProtocol
+    ):
+        pass
 
 
 class ContractNameNotFoundException(ProtostarException):
