@@ -437,7 +437,9 @@ class GatewayFacade:
     ):
         try:
             contract = await Contract.from_address(
-                address=contract_address, client=client or self._gateway_client
+                address=contract_address,
+                client=client or self._gateway_client,
+                proxy_config=True,
             )
         except ContractNotFoundError as err:
             raise ContractNotFoundException(contract_address) from err

@@ -8,6 +8,7 @@ from starknet_py.net.client_models import (
     TransactionStatus,
 )
 from starknet_py.net.gateway_client import GatewayClient, Network
+from starkware.starknet.public.abi import get_selector_from_name
 
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.starknet.data_transformer import CairoOrPythonData
@@ -304,7 +305,7 @@ async def test_calling_through_proxy(
     )
     deploy_result = await gateway_facade.deploy(
         compiled_contract_path=proxy_contract_path,
-        inputs=[declare_result.class_hash],
+        inputs=[declare_result.class_hash, get_selector_from_name("constructor")],
         wait_for_acceptance=True,
     )
 
