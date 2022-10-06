@@ -22,8 +22,8 @@ class SendMessageToL2Cheatcode(Cheatcode):
     def send_message_to_l2(
         self,
         fn_name: str,
+        l1_sender_address: int = 0,
         contract_address: Optional[int] = None,
-        l1_sender_address: Optional[int] = 0,
         calldata: Optional[CairoOrPythonData] = None,
     ) -> None:
         contract_address = (
@@ -33,6 +33,8 @@ class SendMessageToL2Cheatcode(Cheatcode):
 
         class_hash = self.state.get_class_hash_at(contract_address)
         contract_class = self.state.get_contract_class(class_hash)
+
+        assert contract_class.abi, "Contract ABI not available"
 
         if fn_name not in [
             fn["name"] for fn in contract_class.abi if fn["type"] == "l1_handler"

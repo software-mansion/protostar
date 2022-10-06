@@ -3,7 +3,8 @@ from pathlib import Path
 
 from tests.integration.conftest import (
     RunCairoTestRunnerFixture,
-    assert_cairo_test_cases, CreateProtostarProjectFixture,
+    assert_cairo_test_cases,
+    CreateProtostarProjectFixture,
 )
 
 
@@ -18,13 +19,17 @@ def test_l1_to_l2_message_cheatcode(
 
         protostar.create_files(
             {
-                "tests/test_main.cairo": read_contract_file("simple_l1_handler_test.cairo"),
-                "src/main.cairo": read_contract_file("external_contract_with_l1_handler.cairo")
+                "tests/test_main.cairo": read_contract_file(
+                    "simple_l1_handler_test.cairo"
+                ),
+                "src/main.cairo": read_contract_file(
+                    "external_contract_with_l1_handler.cairo"
+                ),
             }
         )
         protostar.build_sync()
 
-        testing_summary = asyncio.run(run_cairo_test_runner('.'))
+        testing_summary = asyncio.run(run_cairo_test_runner(Path(".")))
 
         assert_cairo_test_cases(
             testing_summary,
