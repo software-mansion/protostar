@@ -289,9 +289,29 @@ def proxy_contract_path_fixture(protostar: ProtostarFixture) -> Path:
 
 
 async def test_calling_through_proxy(
-    # gateway_facade: GatewayFacade,
-    # gateway_client: GatewayClientTxInterceptor,
-    # compiled_contract_path: Path,
+    gateway_facade: GatewayFacade,
+    compiled_contract_path: Path,
     proxy_contract_path: Path,
+    devnet_accounts: list[DevnetAccount],
 ):
-    assert proxy_contract_path.exists()
+    declare_result = await gateway_facade.declare(
+        compiled_contract_path=compiled_contract_path,
+        account_address=devnet_accounts[0].address,
+        signer=devnet_accounts[0].signer,
+        wait_for_acceptance=True,
+        token=None,
+        max_fee="auto",
+    )
+    deploy_result = await gateway_facade.deploy(
+        compiled_contract_path=proxy_contract_path,
+        inputs=[declare_result.class_hash],
+        wait_for_acceptance=True,
+    )
+
+    call_result = await gateway_facade.call(
+        address=deploy_result.address,
+        function_name="increase_balance",
+        inputs={"amount": 42},
+    )
+
+    assert call_result is not None
