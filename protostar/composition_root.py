@@ -17,7 +17,7 @@ from protostar.commands import (
     UpdateCommand,
     UpgradeCommand,
 )
-from protostar.commands.cairo_migrate.cairo_migrate_command import CairoMigrateCommand
+from protostar.commands.cairo_migrate_command import CairoMigrateCommand
 from protostar.commands.init.project_creator import (
     AdaptedProjectCreator,
     NewProjectCreator,

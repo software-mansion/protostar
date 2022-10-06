@@ -4,10 +4,11 @@ import re
 from pathlib import Path
 from typing import Literal, Optional, Union
 
-from git.cmd import Git
 from packaging import version
 from packaging.version import LegacyVersion
 from packaging.version import Version as PackagingVersion
+
+from protostar.git import Git, ProtostarGitException
 
 RuntimeConstantName = Literal["PROTOSTAR_VERSION", "CAIRO_VERSION"]
 RuntimeConstantValue = str
@@ -96,12 +97,13 @@ class VersionManager:
 
     @property
     def git_version(self) -> Optional[VersionType]:
-        output = Git().execute(["git", "--version"])
-        # pylint: disable=unidiomatic-typecheck
-        if type(output) is str:
+        try:
+            output = Git.get_version()
             result = re.search(r"\d*\.\d*.\d*", output)
             if result:
                 return version.parse(result.group())
+        except ProtostarGitException:
+            pass
         return None
 
     def print_current_version(self) -> None:

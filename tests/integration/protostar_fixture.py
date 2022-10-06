@@ -18,7 +18,7 @@ from protostar.commands import (
     InitCommand,
     MigrateCommand,
 )
-from protostar.commands.deploy.deploy_command import DeployCommand
+from protostar.commands.deploy_command import DeployCommand
 from protostar.commands.init.project_creator.new_project_creator import (
     NewProjectCreator,
 )

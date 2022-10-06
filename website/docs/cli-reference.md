@@ -125,7 +125,7 @@ $ protostar install https://github.com/OpenZeppelin/cairo-contracts
 Install a dependency as a git submodule.
 #### `package STRING`
 - `GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]`
-    - `OpenZeppelin/cairo-contracts@0.1.0`
+    - `OpenZeppelin/cairo-contracts@v0.4.0`
 - `URL_TO_THE_REPOSITORY`
     - `https://github.com/OpenZeppelin/cairo-contracts`
 - `SSH_URI`
@@ -176,7 +176,7 @@ Remove a dependency.
 Required.
 
 - `GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]`
-    - `OpenZeppelin/cairo-contracts@0.1.0`
+    - `OpenZeppelin/cairo-contracts@v0.4.0`
 - `URL_TO_THE_REPOSITORY`
     - `https://github.com/OpenZeppelin/cairo-contracts`
 - `SSH_URI`
@@ -215,7 +215,7 @@ $ protostar update cairo-contracts
 Update a dependency or dependencies. If the default branch of a dependency's repository uses tags, Protostar will pull a commit marked with the newest tag. Otherwise, Protostar will pull a recent commit from the default branch.
 #### `package STRING`
 - `GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]`
-    - `OpenZeppelin/cairo-contracts@0.1.0`
+    - `OpenZeppelin/cairo-contracts@v0.4.0`
 - `URL_TO_THE_REPOSITORY`
     - `https://github.com/OpenZeppelin/cairo-contracts`
 - `SSH_URI`

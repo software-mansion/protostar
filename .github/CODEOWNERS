@@ -9,16 +9,19 @@
 /protostar/commands/migrate @Arcticae @kasperski95 @Radinyn
 /protostar/commands/test @mkaput @kasperski95
 /protostar/commands/test/fuzzing @mkaput
+/protostar/testing/fuzzing @mkaput
 /protostar/compiler @kasperski95
 /protostar/migrator @Arcticae @kasperski95 @Radinyn
 /protostar/formatter @Radinyn
 /protostar/protostar_toml @kasperski95
 /protostar/configuration_file @kasperski95
 /protostar/starknet @MaksymilianDemitraszek
-/protostar/commands/test/cheatcodes/load_cheatcode.py @MaksymilianDemitraszek
-/protostar/commands/test/cheatcodes/store_cheatcode.py @MaksymilianDemitraszek
+/protostar/testing/cheatcodes/load_cheatcode.py @MaksymilianDemitraszek
+/protostar/testing/cheatcodes/store_cheatcode.py @MaksymilianDemitraszek
 /protostar/starknet_gateway @Arcticae @kasperski95 @Radinyn
 /protostar/upgrader @kasperski95
+/protostar/git @Radinyn
+/protostar/package_manager @kasperski95 @Radinyn
 
 /website @kasperski95
 /website/docs @MaksymilianDemitraszek
