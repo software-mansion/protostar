@@ -119,7 +119,7 @@ class ProtostarFixture:
 
     def build_sync(self):
         args = Namespace()
-        args.output = Path("./build")
+        args.compiled_contracts_dir = Path("./build")
         args.disable_hint_validation = False
         args.cairo_path = None
         return asyncio.run(self._build_command.run(args))
@@ -129,12 +129,10 @@ class ProtostarFixture:
         path: Path,
         gateway_url: str,
         rollback=False,
-        output_dir: Optional[Path] = None,
         account_address: Optional[str] = None,
     ):
         args = Namespace()
         args.path = path
-        args.output_dir = output_dir
         args.rollback = rollback
         args.no_confirm = True
         args.network = None

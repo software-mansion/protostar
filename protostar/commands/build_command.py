@@ -51,7 +51,7 @@ class BuildCommand(Command):
 
     async def run(self, args):
         await self.build(
-            output_dir=args.output,
+            output_dir=args.compiled_contracts_dir,
             disable_hint_validation=args.disable_hint_validation,
             relative_cairo_path=args.cairo_path,
         )

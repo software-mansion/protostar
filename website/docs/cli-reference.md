@@ -158,8 +158,6 @@ Supported StarkNet networks:
 - `alpha-mainnet`
 #### `--no-confirm`
 Skip confirming building the project.
-#### `--output-dir PATH`
-Migration output directory.
 #### `--private-key-path PATH`
 Path to the file, which stores your private key (in hex representation) for the account. 
 Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.

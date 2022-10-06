@@ -58,11 +58,6 @@ class MigrateCommand(Command):
                 is_positional=True,
             ),
             Command.Argument(
-                name="output-dir",
-                description="Migration output directory.",
-                type="path",
-            ),
-            Command.Argument(
                 name="rollback",
                 description="Run `rollback` function in the migration script.",
                 type="bool",
@@ -93,7 +88,6 @@ class MigrateCommand(Command):
             migration_file_path=args.path,
             rollback=args.rollback,
             gateway_client=network_command_util.get_gateway_client(),
-            output_dir_path=args.output_dir,
             no_confirm=args.no_confirm,
             migrator_config=migrator_config,
             signer=signer,
@@ -105,7 +99,6 @@ class MigrateCommand(Command):
         migration_file_path: Path,
         rollback: bool,
         gateway_client: GatewayClient,
-        output_dir_path: Optional[Path],
         migrator_config: MigratorExecutionEnvironment.Config,
         no_confirm: bool,
         compiled_contracts_dir_path: Path,
@@ -141,12 +134,7 @@ class MigrateCommand(Command):
 
         try:
             migrator_history = await migrator.run(rollback)
-
-            if output_dir_path:
-                migrator.save_history(
-                    migrator_history,
-                    output_dir_relative_path=output_dir_path,
-                )
+            migrator.save_history(migrator_history, migration_file_path.parent)
             self._logger.info("Migration completed")
 
             return migrator_history
