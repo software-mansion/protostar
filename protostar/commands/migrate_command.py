@@ -5,7 +5,7 @@ from typing import List, Optional
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.signer import BaseSigner
 
-from protostar.commands.build import BuildCommand
+from protostar.commands import BuildCommand
 from protostar.cli import Command
 from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.cli.signable_command_util import SignableCommandUtil
