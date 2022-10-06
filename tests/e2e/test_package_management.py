@@ -1,5 +1,5 @@
 # pylint: disable=unused-argument
-from os import chdir, listdir, getcwd
+from os import chdir, listdir
 from os import replace as move
 from pathlib import Path
 from typing import Optional
@@ -48,6 +48,7 @@ def test_adding_package(install_package, libs_path: str):
     (result, normalized_package_name) = install_package()
 
     assert f"Installing {normalized_package_name}" in result
+    assert "Fetching from the mainline" in result
     assert normalized_package_name in listdir(libs_path)
 
 

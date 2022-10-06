@@ -2,13 +2,11 @@ from logging import getLogger
 from pathlib import Path
 from typing import Any, Optional, cast
 
-
 from protostar.commands.update.updating_exceptions import (
     PackageAlreadyUpToDateException,
 )
-from protostar.utils import log_color_provider
-
 from protostar.git import Git, ProtostarGitException
+from protostar.utils import log_color_provider
 
 
 def update_package(package_name: str, repo_dir: Path, packages_dir: Path):
@@ -66,6 +64,9 @@ def update_package(package_name: str, repo_dir: Path, packages_dir: Path):
             log_color_provider.get_color("CYAN"),
             package_name,
             log_color_provider.get_color("RESET"),
+        )
+        logger.warning(
+            "Fetching from the mainline. The mainline can be in the non-releasable state.",
         )
 
         repo.update_submodule(package_dir)

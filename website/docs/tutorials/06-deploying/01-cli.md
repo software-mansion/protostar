@@ -86,14 +86,14 @@ Configuration profiles allow you to easily reuse configuration for devnet, testn
 # ...
 
 # https://github.com/Shard-Labs/starknet-devnet
-[profile.devnet.protostar.deploy]
+["profile.devnet.protostar.deploy"]
 gateway-url="http://127.0.0.1:5050/"
 
-[profile.testnet.protostar.deploy]
-network="alpha-goerli"
+["profile.testnet.protostar.deploy"]
+network="testnet"
 
-[profile.mainnet.protostar.deploy]
-network="alpha-mainnet"
+["profile.mainnet.protostar.deploy"]
+network="mainnet"
 ```
 
 Then, run `deploy` command with the `--profile` argument.
