@@ -73,7 +73,7 @@ class MigrateCommand(Command):
                 type="bool",
             ),
             Command.Argument(
-                name="compiled_contracts_dir",
+                name="compiled-contracts-dir",
                 description="A directory in which your compiled contracts are located (used for deploys and declares)",
                 type="path",
                 default=BuildCommand.COMPILATION_OUTPUT_ARG.default,
