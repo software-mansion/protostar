@@ -56,7 +56,8 @@ def create_signer(
 
 def test_custom_signer_class():
     signer = create_signer(
-        signer_class="protostar.cli.signable_command_util_test.CustomSigner"
+        account_address="0x123",
+        signer_class="protostar.cli.signer_factory_test.CustomSigner",
     )
     assert isinstance(signer, CustomSigner)
 
