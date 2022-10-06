@@ -42,7 +42,7 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
         async def build(
             self,
             migration_file_path: Path,
-            compiled_contracts_dir: Path,
+            compiled_contracts_dir_path: Path,
             config: "MigratorExecutionEnvironment.Config",
         ) -> "MigratorExecutionEnvironment":
             assert self._gateway_facade is not None
@@ -70,6 +70,7 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
             migrator_contract_identifier_resolver = MigratorContractIdentifierResolver(
                 project_compiler=self._project_compiler,
                 migrator_datetime_state=self._migrator_datetime_state,
+                build_output_dir_path=compiled_contracts_dir_path,
             )
 
             migration_cheatcode_factory = MigratorCheatcodeFactory(
@@ -78,7 +79,6 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
                 migrator_contract_identifier_resolver=migrator_contract_identifier_resolver,
                 config=config,
                 signer=self._signer,
-                compiled_contracts_dir=compiled_contracts_dir,
             )
 
             return MigratorExecutionEnvironment(

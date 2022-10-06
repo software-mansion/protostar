@@ -27,10 +27,10 @@ $ protostar build
 Compile contracts.
 #### `--cairo-path DIRECTORY[]`
 Additional directories to look for sources.
+#### `--compiled-contracts-dir PATH=build`
+An output directory used to put the compiled contracts in.
 #### `--disable-hint-validation`
 Disable validation of hints when building the contracts.
-#### `-o` `--output PATH=build`
-An output directory used to put the compiled contracts in.
 ### `cairo-migrate`
 Migrate project sources to Cairo 0.10.
 #### `targets STRING[]=['.']`
@@ -143,7 +143,7 @@ Path to the migration file.
 Account address
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
-#### `--compiled_contracts_dir PATH=build`
+#### `--compiled-contracts-dir PATH=build`
 A directory in which your compiled contracts are located (used for deploys and declares)
 #### `--gateway-url STRING`
 The URL of a StarkNet gateway. It is required unless `--network` is provided.

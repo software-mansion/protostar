@@ -97,7 +97,7 @@ class MigrateCommand(Command):
             no_confirm=args.no_confirm,
             migrator_config=migrator_config,
             signer=signer,
-            compiled_contracts_dir=args.compiled_contracts_dir,
+            compiled_contracts_dir_path=args.compiled_contracts_dir,
         )
 
     async def migrate(
@@ -135,7 +135,8 @@ class MigrateCommand(Command):
 
         self._migrator_builder.set_gateway_facade(gateway_facade)
         migrator = await self._migrator_builder.build(
-            migration_file_path, compiled_contracts_dir
+            migration_file_path=migration_file_path,
+            compiled_contracts_dir_path=compiled_contracts_dir_path,
         )
 
         try:

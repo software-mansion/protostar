@@ -9,8 +9,7 @@ from protostar.utils import log_color_provider
 
 class BuildCommand(Command):
     COMPILATION_OUTPUT_ARG = Command.Argument(
-        name="output",
-        short_name="o",
+        name="compiled-contracts-dir",
         description="An output directory used to put the compiled contracts in.",
         type="path",
         default="build",

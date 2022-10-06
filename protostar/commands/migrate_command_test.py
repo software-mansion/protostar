@@ -57,7 +57,7 @@ def setup_migrate(mocker: MockerFixture):
             no_confirm=no_confirm,
             gateway_client=GatewayClient("http://localhost:3000/"),
             migrator_config=mocker.MagicMock(),
-            compiled_contracts_dir=Path(),
+            compiled_contracts_dir_path=Path(),
         )
 
     return migrate, migrator_run_mock, requester_confirm_mock
@@ -85,7 +85,7 @@ async def test_cheatcode_exceptions_are_pretty_printed(mocker: MockerFixture):
             output_dir_path=None,
             no_confirm=True,
             migrator_config=mocker.MagicMock(),
-            compiled_contracts_dir=Path(),
+            compiled_contracts_dir_path=Path(),
         )
 
 
