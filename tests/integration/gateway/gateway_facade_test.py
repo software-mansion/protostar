@@ -305,7 +305,7 @@ async def test_calling_through_proxy(
     )
     deploy_result = await gateway_facade.deploy(
         compiled_contract_path=proxy_contract_path,
-        inputs=[declare_result.class_hash, get_selector_from_name("constructor")],
+        inputs=[declare_result.class_hash],
         wait_for_acceptance=True,
     )
 

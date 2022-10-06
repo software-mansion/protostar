@@ -79,7 +79,6 @@ PROXY_CONTRACT = """\
 %lang starknet
 %builtins pedersen range_check bitwise
 
-
 from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.starknet.common.syscalls import library_call
@@ -90,18 +89,9 @@ func Proxy_implementation_hash() -> (class_hash: felt) {
 
 @constructor
 func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    implementation_hash_: felt, selector: felt
+    implementation_hash_: felt
 ) {
-    alloc_locals;
     Proxy_implementation_hash.write(value=implementation_hash_);
-    let (local calldata: felt*) = alloc();
-
-    library_call(
-        class_hash=implementation_hash_,
-        function_selector=selector,
-        calldata_size=0,
-        calldata=calldata,
-    );
     return ();
 }
 
@@ -112,7 +102,6 @@ func __default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     selector: felt, calldata_size: felt, calldata: felt*
 ) -> (retdata_size: felt, retdata: felt*) {
     let (class_hash) = Proxy_implementation_hash.read();
-
     let (retdata_size: felt, retdata: felt*) = library_call(
         class_hash=class_hash,
         function_selector=selector,
@@ -121,5 +110,4 @@ func __default__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     );
     return (retdata_size=retdata_size, retdata=retdata);
 }
- 
 """
