@@ -8,7 +8,7 @@ from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.services.api.contract_class import EntryPointType, ContractClass
 
 from protostar.starknet import Cheatcode, CheatcodeException
-from protostar.utils.data_transformer import CairoOrPythonData, from_python_transformer
+from protostar.starknet.data_transformer import CairoOrPythonData, from_python_transformer
 
 
 def get_calldata_for_execution(
