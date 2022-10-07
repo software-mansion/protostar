@@ -32,7 +32,7 @@ class MigratorContractIdentifierResolver:
     def resolve(self, contract_identifier: str) -> Path:
         if "." in contract_identifier:
             contract_path = Path(contract_identifier)
-            return checked_contract_path(contract_path)
+            return check_contract_path(contract_path)
 
         return self._get_built_contract_by_name(contract_identifier)
 
@@ -45,4 +45,4 @@ class MigratorContractIdentifierResolver:
         )
         compiled_contract_path = compilation_output_dir / f"{contract_name}.json"
 
-        return checked_contract_path(compiled_contract_path)
+        return check_contract_path(compiled_contract_path)
