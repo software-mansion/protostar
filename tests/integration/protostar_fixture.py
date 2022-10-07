@@ -10,6 +10,7 @@ from starknet_py.net import KeyPair
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
+from protostar.self.protostar_directory import ProtostarDirectory
 from protostar.cli.map_targets_to_file_paths import map_targets_to_file_paths
 from protostar.commands import (
     BuildCommand,
@@ -18,7 +19,9 @@ from protostar.commands import (
     InitCommand,
     MigrateCommand,
 )
+from protostar.testing import TestingSummary
 from protostar.commands.deploy_command import DeployCommand
+from protostar.commands.test import TestCommand
 from protostar.commands.init.project_creator.new_project_creator import (
     NewProjectCreator,
 )
@@ -41,6 +44,11 @@ from protostar.starknet_gateway import Fee, GatewayFacadeFactory
 from protostar.io.input_requester import InputRequester
 from protostar.io.log_color_provider import LogColorProvider
 
+from protostar.compiler import ProjectCairoPathBuilder
+from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
+from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
+from protostar.io.log_color_provider import LogColorProvider
+
 
 class ProtostarFixture:
     def __init__(
@@ -52,6 +60,7 @@ class ProtostarFixture:
         format_command: FormatCommand,
         declare_command: DeclareCommand,
         deploy_command: DeployCommand,
+        test_command: TestCommand,
     ) -> None:
         self._project_root_path = project_root_path
         self._init_command = init_command
@@ -60,6 +69,7 @@ class ProtostarFixture:
         self._format_command = format_command
         self._declare_command = declare_command
         self._deploy_command = deploy_command
+        self._test_command = test_command
 
     @property
     def project_root_path(self) -> Path:
@@ -107,6 +117,23 @@ class ProtostarFixture:
         args.wait_for_acceptance = False
         args.chain_id = StarknetChainId.TESTNET
         return await self._deploy_command.run(args)
+
+    async def test(
+        self, targets: List[str], last_failed: bool = False
+    ) -> TestingSummary:
+        args = Namespace()
+        args.target = targets
+        args.ignore = []
+        args.cairo_path = []
+        args.disable_hint_validation = None
+        args.no_progress_bar = None
+        args.safe_collecting = None
+        args.exit_first = None
+        args.seed = None
+        args.report_slowest_tests = 0
+        args.last_failed = last_failed
+
+        return await self._test_command.run(args)
 
     def init_sync(self):
         args = Namespace()
@@ -335,6 +362,21 @@ def build_protostar_fixture(
         logger=logger, gateway_facade_factory=gateway_facade_factory
     )
 
+    test_command = TestCommand(
+        project_root_path=project_root_path,
+        protostar_directory=ProtostarDirectory(project_root_path),
+        project_cairo_path_builder=ProjectCairoPathBuilder(
+            project_root_path,
+            ProtostarProjectSection.Loader(
+                ProtostarTOMLReader(
+                    Path(project_root_path / "protostar.toml").resolve()
+                )
+            ),
+        ),
+        log_color_provider=LogColorProvider(),
+        logger=logger,
+    )
+
     protostar_fixture = ProtostarFixture(
         project_root_path=project_root_path,
         init_command=init_command,
@@ -343,6 +385,7 @@ def build_protostar_fixture(
         format_command=format_command,
         declare_command=declare_command,
         deploy_command=deploy_command,
+        test_command=test_command,
     )
 
     return protostar_fixture
