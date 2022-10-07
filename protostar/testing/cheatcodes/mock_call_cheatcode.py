@@ -4,7 +4,7 @@ from typing import Any, Callable, List, Optional
 from starkware.starknet.public.abi import AbiType, get_selector_from_name
 
 from protostar.starknet import AddressType, Cheatcode, CheatcodeException
-from protostar.utils.data_transformer import (
+from protostar.starknet.data_transformer import (
     CairoOrPythonData,
     PythonData,
     from_python_transformer,

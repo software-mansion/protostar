@@ -17,7 +17,7 @@ from starkware.starknet.compiler.starknet_preprocessor import (
 from starkware.starknet.services.api.contract_class import ContractClass
 
 from protostar.protostar_exception import ProtostarException
-from protostar.utils.compiler.pass_managers import (
+from protostar.starknet.compiler.pass_managers import (
     PassManagerFactory,
     TestCollectorPreprocessedProgram,
 )

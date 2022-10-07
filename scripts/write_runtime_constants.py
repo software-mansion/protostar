@@ -3,7 +3,7 @@ from pathlib import Path
 import tomli
 from starkware.cairo.lang.version import __version__ as cairo_v
 
-from protostar.utils.protostar_directory import ProtostarDirectory, RuntimeConstantsDict
+from protostar.protostar_directory import ProtostarDirectory, RuntimeConstantsDict
 
 script_path = Path(__file__)
 project_root = Path(script_path).parent.parent

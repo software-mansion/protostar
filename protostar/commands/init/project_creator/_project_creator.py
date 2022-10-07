@@ -10,7 +10,7 @@ from protostar.protostar_toml.protostar_contracts_section import (
     ProtostarContractsSection,
 )
 from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
-from protostar.utils.protostar_directory import VersionManager
+from protostar.protostar_directory import VersionManager
 
 
 class ProjectCreator(ABC):

@@ -7,7 +7,7 @@ from starkware.starknet.core.os.contract_address.contract_address import (
 )
 
 from protostar.starknet import Cheatcode, CheatcodeException
-from protostar.utils.data_transformer import (
+from protostar.starknet.data_transformer import (
     CairoOrPythonData,
     PythonData,
     from_python_transformer,

@@ -9,7 +9,7 @@ from typing import Any
 import requests
 
 from protostar.upgrader.latest_version_remote_checker import LatestVersionRemoteChecker
-from protostar.utils.protostar_directory import (
+from protostar.protostar_directory import (
     ProtostarDirectory,
     VersionManager,
     VersionType,

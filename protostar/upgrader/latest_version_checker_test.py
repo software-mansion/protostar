@@ -8,7 +8,7 @@ from pytest_mock import MockerFixture
 from protostar.upgrader.latest_version_cache_toml import LatestVersionCacheTOML
 from protostar.upgrader.latest_version_checker import LatestVersionChecker
 from protostar.utils.log_color_provider import LogColorProvider
-from protostar.utils.protostar_directory import ProtostarDirectory, VersionManager
+from protostar.protostar_directory import ProtostarDirectory, VersionManager
 
 
 @pytest.fixture(name="log_color_provider_mock")

@@ -10,7 +10,7 @@ from protostar.migrator.migrator_contract_identifier_resolver import (
 )
 from protostar.starknet import Cheatcode, KeywordOnlyArgumentCheatcodeException
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
-from protostar.utils.data_transformer import CairoOrPythonData
+from protostar.starknet.data_transformer import CairoOrPythonData
 
 from .network_config import CheatcodeNetworkConfig, ValidatedCheatcodeNetworkConfig
 

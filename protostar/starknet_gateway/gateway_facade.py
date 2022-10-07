@@ -30,8 +30,8 @@ from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeployResponse,
 )
 from protostar.starknet_gateway.starknet_request import StarknetRequest
-from protostar.utils.abi import has_abi_item
-from protostar.utils.data_transformer import (
+from protostar.starknet.abi import has_abi_item
+from protostar.starknet.data_transformer import (
     CairoOrPythonData,
     DataTransformerException,
     from_python_transformer,

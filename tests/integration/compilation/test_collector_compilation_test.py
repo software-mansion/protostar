@@ -1,10 +1,13 @@
 from pathlib import Path
 
-from protostar.utils.compiler.pass_managers import (
+from protostar.starknet.compiler.pass_managers import (
     ProtostarPassMangerFactory,
     TestCollectorPassManagerFactory,
 )
-from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
+from protostar.starknet.compiler.starknet_compilation import (
+    CompilerConfig,
+    StarknetCompiler,
+)
 
 
 def preview(abi_entry: dict) -> tuple:
