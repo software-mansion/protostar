@@ -19,6 +19,7 @@ from protostar.testing.cheatcodes import (
     WarpCheatcode,
 )
 from protostar.testing.cheatcodes.reflect.cairo_struct import CairoStructHintLocal
+from protostar.testing.cheatcodes.send_message_to_l2 import SendMessageToL2Cheatcode
 from protostar.testing.starkware.test_execution_state import TestExecutionState
 from protostar.testing.test_context import TestContextHintLocal
 
@@ -54,6 +55,7 @@ class CommonTestCheatcodeFactory(CheatcodeFactory):
             StoreCheatcode(syscall_dependencies),
             LoadCheatcode(syscall_dependencies),
             ReflectCheatcode(syscall_dependencies),
+            SendMessageToL2Cheatcode(syscall_dependencies),
         ]
 
     def build_hint_locals(self) -> List[HintLocal]:
