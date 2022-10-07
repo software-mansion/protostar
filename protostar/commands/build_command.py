@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from protostar.cli import ActivityIndicator, Command
 from protostar.compiler import ProjectCompiler, ProjectCompilerConfig
-from protostar.utils import log_color_provider
+from protostar.io import log_color_provider
 
 
 class BuildCommand(Command):

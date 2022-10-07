@@ -5,4 +5,4 @@ from protostar.commands.init.project_creator.adapted_project_creator import (
 from protostar.commands.init.project_creator.new_project_creator import (
     NewProjectCreator,
 )
-from protostar.utils import InputRequester
+from protostar.io import InputRequester

@@ -4,7 +4,7 @@ from typing import Set
 import pytest
 
 from protostar.testing import TestingSummary
-from protostar.utils.log_color_provider import LogColorProvider
+from protostar.io.log_color_provider import LogColorProvider
 from tests.integration.conftest import RunCairoTestRunnerFixture
 
 

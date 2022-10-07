@@ -11,8 +11,8 @@ from protostar.configuration_file import CommandNamesProviderProtocol
 from protostar.configuration_profile_cli import ConfigurationProfileCLI
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
 from protostar.upgrader import LatestVersionChecker
-from protostar.utils import StandardLogFormatter, VersionManager
-from protostar.utils.log_color_provider import LogColorProvider
+from protostar.io import StandardLogFormatter, LogColorProvider
+from protostar.protostar_directory import VersionManager
 
 
 def _apply_pythonpath():

@@ -37,7 +37,7 @@ from protostar.starknet.data_transformer import (
     from_python_transformer,
     to_python_transformer,
 )
-from protostar.utils.log_color_provider import LogColorProvider
+from protostar.io.log_color_provider import LogColorProvider
 
 ContractFunctionInputType = Union[List[int], Dict[str, Any]]
 

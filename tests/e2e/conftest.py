@@ -13,7 +13,7 @@ import tomli
 import tomli_w
 from typing_extensions import Protocol
 
-from protostar.utils import ProtostarDirectory
+from protostar.io import ProtostarDirectory
 from tests.conftest import run_devnet
 
 

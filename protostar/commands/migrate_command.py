@@ -12,8 +12,8 @@ from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet import CheatcodeException
 from protostar.starknet_gateway.gateway_facade_factory import GatewayFacadeFactory
-from protostar.utils.input_requester import InputRequester
-from protostar.utils.log_color_provider import LogColorProvider
+from protostar.io.input_requester import InputRequester
+from protostar.io.log_color_provider import LogColorProvider
 
 
 class MigrateCommand(Command):

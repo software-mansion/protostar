@@ -2,7 +2,7 @@ from typing import List
 from dataclasses import dataclass
 from pathlib import Path
 
-from protostar.utils.log_color_provider import log_color_provider
+from protostar.io.log_color_provider import log_color_provider
 
 
 @dataclass

@@ -6,7 +6,7 @@ from protostar.commands.update.updating_exceptions import (
     PackageAlreadyUpToDateException,
 )
 from protostar.git import Git, ProtostarGitException
-from protostar.utils import log_color_provider
+from protostar.io import log_color_provider
 
 
 def update_package(package_name: str, repo_dir: Path, packages_dir: Path):

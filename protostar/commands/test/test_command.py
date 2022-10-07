@@ -22,7 +22,7 @@ from protostar.starknet.compiler.pass_managers import (
     StarknetPassManagerFactory,
     TestCollectorPassManagerFactory,
 )
-from protostar.utils.log_color_provider import LogColorProvider
+from protostar.io.log_color_provider import LogColorProvider
 from protostar.protostar_directory import ProtostarDirectory
 from protostar.starknet.compiler.starknet_compilation import (
     CompilerConfig,

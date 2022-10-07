@@ -12,7 +12,7 @@ from protostar.migrator.migrator_execution_environment import (
 )
 from protostar.starknet_gateway import GatewayFacade
 from protostar.starknet_gateway.starknet_request import StarknetRequest
-from protostar.utils.log_color_provider import LogColorProvider
+from protostar.io.log_color_provider import LogColorProvider
 
 from .output_directory import create_output_directory
 from .migrator_datetime_state import MigratorDateTimeState

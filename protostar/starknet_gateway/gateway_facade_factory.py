@@ -5,7 +5,7 @@ from typing import Optional
 from starknet_py.net.gateway_client import GatewayClient
 
 from protostar.compiler import CompiledContractReader
-from protostar.utils import log_color_provider
+from protostar.io import log_color_provider
 
 from .gateway_facade import GatewayFacade
 

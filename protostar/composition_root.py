@@ -40,11 +40,13 @@ from protostar.upgrader import (
     LatestVersionRemoteChecker,
     UpgradeManager,
 )
-from protostar.utils import (
+from protostar.io import (
     InputRequester,
+    log_color_provider,
+)
+from protostar.protostar_directory import (
     ProtostarDirectory,
     VersionManager,
-    log_color_provider,
 )
 
 
