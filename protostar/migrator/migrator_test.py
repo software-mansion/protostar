@@ -31,7 +31,6 @@ def test_migrator_saves_result_successfully_with_proper_name(
                 )
             ]
         ),
-        output_dir_relative_path=tmp_path,
+        output_directory_path=tmp_path,
     )
-
     assert "20220402213742_migration_01_init.json" in listdir(tmp_path)

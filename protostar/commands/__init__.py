@@ -1,11 +1,11 @@
-from protostar.commands.build import BuildCommand
-from protostar.commands.declare import DeclareCommand
-from protostar.commands.deploy import DeployCommand
-from protostar.commands.format import FormatCommand
-from protostar.commands.init import InitCommand
-from protostar.commands.install import InstallCommand
-from protostar.commands.migrate import MigrateCommand
-from protostar.commands.remove import RemoveCommand, removal_exceptions
-from protostar.commands.test import TestCommand
-from protostar.commands.update import UpdateCommand
-from protostar.commands.upgrade import UpgradeCommand
+from .build_command import BuildCommand
+from .declare_command import DeclareCommand
+from .deploy_command import DeployCommand
+from .format_command import FormatCommand
+from .init import InitCommand
+from .install import InstallCommand
+from .migrate_command import MigrateCommand
+from .remove import RemoveCommand, removal_exceptions
+from .test import TestCommand
+from .update import UpdateCommand
+from .upgrade_command import UpgradeCommand

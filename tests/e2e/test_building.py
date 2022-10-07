@@ -31,7 +31,7 @@ def test_non_zero_exit_code_if_fails(protostar):
 
 @pytest.mark.usefixtures("init")
 def test_output_dir(protostar):
-    protostar(["build", "--output", "out"])
+    protostar(["build", "--compiled-contracts-dir", "out"])
     dirs = listdir()
     assert "build" not in dirs
     assert "out" in dirs

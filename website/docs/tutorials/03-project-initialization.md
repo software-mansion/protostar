@@ -29,10 +29,10 @@ The result of running `protostar init` is a configuration file `protostar.toml`,
 ### Project configuration
 ```toml title="'protostar.toml' is required"
 ["protostar.config"]
-protostar_version = "0.1.0"
+protostar_version = "0.5.0"
 
 ["protostar.project"]
-libs_path = "./lib"         # a path to the dependency directory
+libs_path = "./lib"         
 
 # This section is explained in the "Project compilation" guide.
 ["protostar.contracts"]

@@ -17,7 +17,7 @@ from starkware.starknet.compiler.starknet_preprocessor import (
 from starkware.starknet.services.api.contract_class import ContractClass
 
 from protostar.protostar_exception import ProtostarException
-from protostar.utils.compiler.pass_managers import (
+from protostar.starknet.compiler.pass_managers import (
     PassManagerFactory,
     TestCollectorPreprocessedProgram,
 )
@@ -38,6 +38,9 @@ class StarknetCompiler:
         self.pass_manager = pass_manager_factory.build(config)
 
     class FileNotFoundException(ProtostarException):
+        pass
+
+    class PreprocessorException(ProtostarException, PreprocessorError):
         pass
 
     @staticmethod
@@ -72,6 +75,8 @@ class StarknetCompiler:
             raise StarknetCompiler.FileNotFoundException(
                 message=(f"Couldn't find file '{err.filename}'")
             ) from err
+        except PreprocessorError as err:
+            raise StarknetCompiler.PreprocessorException(str(err)) from err
 
     @staticmethod
     def compile_preprocessed_contract(

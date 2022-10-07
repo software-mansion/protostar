@@ -18,13 +18,16 @@ from protostar.testing import (
     TestScheduler,
     determine_testing_seed,
 )
-from protostar.utils.compiler.pass_managers import (
+from protostar.starknet.compiler.pass_managers import (
     StarknetPassManagerFactory,
     TestCollectorPassManagerFactory,
 )
-from protostar.utils.log_color_provider import LogColorProvider
-from protostar.utils.protostar_directory import ProtostarDirectory
-from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
+from protostar.io.log_color_provider import LogColorProvider
+from protostar.self.protostar_directory import ProtostarDirectory
+from protostar.starknet.compiler.starknet_compilation import (
+    CompilerConfig,
+    StarknetCompiler,
+)
 
 
 class TestCommand(Command):

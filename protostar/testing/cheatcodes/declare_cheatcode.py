@@ -16,7 +16,7 @@ from protostar.migrator.cheatcodes.migrator_declare_cheatcode import (
     DeclaredContract,
 )
 from protostar.starknet import Cheatcode, KeywordOnlyArgumentCheatcodeException
-from protostar.utils.starknet_compilation import StarknetCompiler
+from protostar.starknet.compiler.starknet_compilation import StarknetCompiler
 
 
 class DeclareCheatcode(Cheatcode):
@@ -37,7 +37,7 @@ class DeclareCheatcode(Cheatcode):
 
     def declare(
         self,
-        contract_path_str: str,
+        contract: str,
         *args,
         # pylint: disable=unused-argument
         config: Optional[Dict] = None,
@@ -45,7 +45,7 @@ class DeclareCheatcode(Cheatcode):
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
 
-        declared_class = asyncio.run(self._declare_contract(Path(contract_path_str)))
+        declared_class = asyncio.run(self._declare_contract(Path(contract)))
         assert declared_class
         class_hash = declared_class.class_hash
 
@@ -54,7 +54,7 @@ class DeclareCheatcode(Cheatcode):
         ] = declared_class.abi
 
         self.cheatable_state.class_hash_to_contract_path_map[class_hash] = Path(
-            contract_path_str
+            contract
         )
 
         return DeclaredContract(class_hash)

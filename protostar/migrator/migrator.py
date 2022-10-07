@@ -12,7 +12,7 @@ from protostar.migrator.migrator_execution_environment import (
 )
 from protostar.starknet_gateway import GatewayFacade
 from protostar.starknet_gateway.starknet_request import StarknetRequest
-from protostar.utils.log_color_provider import LogColorProvider
+from protostar.io.log_color_provider import LogColorProvider
 
 from .output_directory import create_output_directory
 from .migrator_datetime_state import MigratorDateTimeState
@@ -59,7 +59,9 @@ class Migrator:
         def set_signer(self, signer: BaseSigner):
             self._migrator_execution_environment_builder.set_signer(signer)
 
-        async def build(self, migration_file_path: Path):
+        async def build(
+            self, migration_file_path: Path, compiled_contracts_dir_path: Path
+        ):
             assert self._migrator_execution_environment_config is not None
             assert self._gateway_facade is not None
             self._migrator_execution_environment_builder.set_gateway_facade(
@@ -74,6 +76,7 @@ class Migrator:
             migrator_execution_env = (
                 await self._migrator_execution_environment_builder.build(
                     migration_file_path,
+                    compiled_contracts_dir_path=compiled_contracts_dir_path,
                     config=self._migrator_execution_environment_config,
                 )
             )
@@ -110,20 +113,9 @@ class Migrator:
             self._migrator_execution_environment.cheatcode_factory.gateway_facade.get_starknet_requests()
         )
 
-    def save_history(
-        self,
-        history: History,
-        output_dir_relative_path: Path,
-    ):
-        output_dir_path = self._project_root_path / output_dir_relative_path
-
+    def save_history(self, history: History, output_directory_path: Path):
         output_file_path = (
-            output_dir_path / f"{self._migrator_datetime_state.get_output_stem()}.json"
+            output_directory_path
+            / f"{self._migrator_datetime_state.get_output_stem()}.json"
         )
-
-        if not output_dir_path.exists():
-            output_dir_path.mkdir(
-                parents=True,
-            )
-
         history.save_as_json(output_file_path)

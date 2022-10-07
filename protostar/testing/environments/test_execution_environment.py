@@ -13,8 +13,8 @@ from protostar.testing.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
 )
 from protostar.testing.starkware.test_execution_state import TestExecutionState
-from protostar.utils.abi import has_function_parameters
-from protostar.utils.hook import Hook
+from protostar.starknet.abi import has_function_parameters
+from protostar.testing.hook import Hook
 
 from .common_test_cheatcode_factory import CommonTestCheatcodeFactory
 from .execution_environment import ExecutionEnvironment

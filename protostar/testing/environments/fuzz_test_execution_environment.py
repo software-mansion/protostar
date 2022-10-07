@@ -28,7 +28,7 @@ from protostar.testing.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
 )
 from protostar.testing.starkware.test_execution_state import TestExecutionState
-from protostar.utils.abi import get_function_parameters
+from protostar.starknet.abi import get_function_parameters
 
 from .test_execution_environment import (
     TestCaseCheatcodeFactory,

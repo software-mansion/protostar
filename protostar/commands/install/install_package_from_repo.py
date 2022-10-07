@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Optional
 
 from protostar.commands.install import installation_exceptions
-from protostar.utils import log_color_provider
+from protostar.io import log_color_provider
 from protostar.git import Git, InvalidGitRepositoryException
 
 

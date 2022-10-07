@@ -8,7 +8,7 @@ from starknet_py.net.signer import BaseSigner
 from protostar.cli.command import Command
 from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.cli.signable_command_util import SignableCommandUtil
-from protostar.commands.deploy.deploy_command import DeployCommand
+from protostar.commands.deploy_command import DeployCommand
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import (
     Fee,

@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 from pytest_mock import MockerFixture
 
-from protostar.utils.create_and_commit_sample_file import create_and_commit_sample_file
+from protostar.git.create_and_commit_sample_file import create_and_commit_sample_file
 from protostar.git import Git
 
 from .package_info import (

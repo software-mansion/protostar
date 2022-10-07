@@ -3,7 +3,7 @@ from starkware.cairo.lang.compiler.ast.cairo_types import TypeFelt
 from starkware.starknet.compiler.compile import compile_starknet_codes
 from starkware.starknet.public.abi import AbiType
 
-from protostar.utils.abi import (
+from protostar.starknet.abi import (
     get_function_parameters,
     has_abi_item,
     has_function_parameters,

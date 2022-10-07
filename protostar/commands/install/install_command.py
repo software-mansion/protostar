@@ -1,18 +1,18 @@
 from logging import Logger
 from pathlib import Path
-from typing import List, Optional
+from typing import Callable, List, Optional
 
 from protostar.cli import Command
 from protostar.commands.install.install_package_from_repo import (
     install_package_from_repo,
 )
 from protostar.commands.install.pull_package_submodules import pull_package_submodules
-from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
 from protostar.package_manager import extract_info_from_repo_id
-from protostar.utils.log_color_provider import LogColorProvider
+from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
+from protostar.io.log_color_provider import LogColorProvider
 
 EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = """- `GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]`
-    - `OpenZeppelin/cairo-contracts@0.1.0`
+    - `OpenZeppelin/cairo-contracts@v0.4.0`
 - `URL_TO_THE_REPOSITORY`
     - `https://github.com/OpenZeppelin/cairo-contracts`
 - `SSH_URI`
@@ -67,6 +67,12 @@ class InstallCommand(Command):
         try:
             self.install(
                 package_name=args.package,
+                on_unknown_version=lambda: self._logger.warning(
+                    (
+                        "Fetching from the mainline. The mainline can be in the non-releasable state.\n"
+                        "Installing packages without providing specific version/tag is strongly discouraged."
+                    )
+                ),
                 alias=args.name,
             )
         except BaseException as exc:
@@ -77,6 +83,7 @@ class InstallCommand(Command):
     def install(
         self,
         package_name: Optional[str],
+        on_unknown_version: Callable,
         alias: Optional[str] = None,
     ) -> None:
         project_section = self._project_section_loader.load()
@@ -84,7 +91,8 @@ class InstallCommand(Command):
 
         if package_name:
             package_info = extract_info_from_repo_id(package_name)
-
+            if package_info.version is None:
+                on_unknown_version()
             install_package_from_repo(
                 alias or package_info.name,
                 package_info.url,

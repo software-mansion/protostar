@@ -5,7 +5,7 @@ from starkware.starknet.testing.contract import StarknetContract
 from typing_extensions import Self
 
 from protostar.starknet.forkable_starknet import ForkableStarknet
-from protostar.utils.starknet_compilation import StarknetCompiler
+from protostar.starknet.compiler.starknet_compilation import StarknetCompiler
 
 
 @dataclass
