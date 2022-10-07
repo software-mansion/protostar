@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Optional
 
 import pytest
+from protostar.git import Git
 
 
 @pytest.fixture(name="project_new_location")
@@ -74,3 +75,28 @@ def test_removing_package(install_package, protostar, libs_path):
 
     assert "Removing starknet_py" in result
     assert "starknet_py" not in listdir(libs_path)
+
+
+@pytest.mark.parametrize("libs_path", ["lib", "deps"])
+@pytest.mark.parametrize("project_new_location", [None, Path("./subproject")])
+@pytest.mark.usefixtures("project_relocator")
+def test_install_remove_install(install_package, protostar, libs_path):
+    install_package()
+    assert "starknet_py" in listdir(libs_path)
+
+    protostar(["--no-color", "remove", "starknet_py"])
+    assert "starknet_py" not in listdir(libs_path)
+
+    install_package()
+    assert "starknet_py" in listdir(libs_path)
+
+
+@pytest.mark.parametrize("libs_path", ["lib", "deps"])
+@pytest.mark.parametrize("project_new_location", [None, Path("./subproject")])
+@pytest.mark.usefixtures("project_relocator")
+def test_install_specified_tag(protostar, libs_path):
+    protostar(["--no-color", "install", "software-mansion/starknet.py@0.6.2-alpha"])
+    assert "starknet_py" in listdir(libs_path)
+
+    repo = Git.load_existing_repo(Path(libs_path) / "starknet_py")
+    assert repo.get_tag() == "0.6.2-alpha"
