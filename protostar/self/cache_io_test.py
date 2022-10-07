@@ -19,7 +19,6 @@ def test_cache_simple(tmp_path):
 
     os.remove(cache_file_path)
 
-    assert not cache_file_path.exists()
     assert cache_io.read(cache_name) is None
 
 
