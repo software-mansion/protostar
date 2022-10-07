@@ -13,18 +13,12 @@ def test_l1_to_l2_message_cheatcode(
     create_protostar_project: CreateProtostarProjectFixture,
 ):
     with create_protostar_project() as protostar:
-
-        def read_contract_file(file_name: str) -> str:
-            return (Path(__file__).parent / file_name).read_text("utf-8")
+        contracts_sources_path = Path(__file__).parent
 
         protostar.create_files(
             {
-                "tests/test_main.cairo": read_contract_file(
-                    "simple_l1_handler_test.cairo"
-                ),
-                "src/main.cairo": read_contract_file(
-                    "external_contract_with_l1_handler.cairo"
-                ),
+                "tests/test_main.cairo": contracts_sources_path / "simple_l1_handler_test.cairo",
+                "src/main.cairo": contracts_sources_path / "external_contract_with_l1_handler.cairo",
             }
         )
         protostar.build_sync()

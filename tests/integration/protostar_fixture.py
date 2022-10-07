@@ -3,7 +3,7 @@ import os
 from argparse import Namespace
 from logging import getLogger
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, cast
+from typing import Any, Callable, Dict, List, Optional, Tuple, cast, Union
 
 from pytest_mock import MockerFixture
 from starknet_py.net import KeyPair
@@ -181,8 +181,12 @@ class ProtostarFixture:
 
         return summary, output
 
-    def create_files(self, relative_path_str_to_content: Dict[str, str]) -> None:
-        for relative_path_str, content in relative_path_str_to_content.items():
+    def create_files(self, relative_path_str_to_file: Dict[str, Union[str, Path]]) -> None:
+        for relative_path_str, file in relative_path_str_to_file.items():
+            if isinstance(file, Path):
+                content = file.read_text("utf-8")
+            else:
+                content = file
             self._save_file(self._project_root_path / relative_path_str, content)
 
     def create_migration_file(
