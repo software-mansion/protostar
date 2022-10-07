@@ -46,6 +46,7 @@ async def test_protostar_pass(compiler: StarknetCompiler, mocker: MockerFixture)
     assert second_type in contract_class.abi
 
 
+# https://github.com/software-mansion/protostar/issues/900
 async def test_preprocessor_exception(compiler: StarknetCompiler):
     with pytest.raises(StarknetCompiler.PreprocessorException):
         compiler.compile_contract(
