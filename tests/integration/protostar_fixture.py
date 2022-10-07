@@ -10,7 +10,7 @@ from starknet_py.net import KeyPair
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
-from protostar.utils.protostar_directory import ProtostarDirectory
+from protostar.self.protostar_directory import ProtostarDirectory
 from protostar.cli.map_targets_to_file_paths import map_targets_to_file_paths
 from protostar.commands import (
     BuildCommand,
@@ -45,10 +45,9 @@ from protostar.io.input_requester import InputRequester
 from protostar.io.log_color_provider import LogColorProvider
 
 from protostar.compiler import ProjectCairoPathBuilder
-from protostar.utils.log_color_provider import LogColorProvider
 from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
 from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
-from protostar.utils.log_color_provider import LogColorProvider
+from protostar.io.log_color_provider import LogColorProvider
 
 
 class ProtostarFixture:

@@ -19,10 +19,8 @@ from protostar.testing import (
     TestScheduler,
     determine_testing_seed,
 )
-from protostar.testing.test_results import (
-    StarknetPassManagerFactory,
-    TestCollectorPassManagerFactory,
-)
+from protostar.starknet.compiler.pass_managers import StarknetPassManagerFactory
+from protostar.starknet.compiler.pass_managers import TestCollectorPassManagerFactory
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.self.protostar_directory import ProtostarDirectory
 from protostar.starknet.compiler.starknet_compilation import (
