@@ -18,7 +18,7 @@ from protostar.starknet_gateway.gateway_facade import (
     InputValidationException,
     UnknownFunctionException,
 )
-from protostar.utils.data_transformer import CairoOrPythonData
+from protostar.starknet.data_transformer import CairoOrPythonData
 from tests.conftest import DevnetAccount
 from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR, IDENTITY_CONTRACT
 from tests.integration.conftest import CreateProtostarProjectFixture

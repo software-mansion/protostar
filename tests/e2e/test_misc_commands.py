@@ -11,7 +11,7 @@ from packaging.version import parse as parse_version
 from packaging.version import Version
 
 
-from protostar.utils.protostar_directory import ProtostarDirectory, VersionManager
+from protostar.self.protostar_directory import ProtostarDirectory, VersionManager
 
 
 def test_help(protostar):

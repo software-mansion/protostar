@@ -5,11 +5,11 @@ from typing_extensions import NotRequired, TypedDict
 from protostar.starknet import Cheatcode
 from protostar.testing.expected_event import ExpectedEvent
 from protostar.testing.test_environment_exceptions import ExpectedEventMissingException
-from protostar.utils.data_transformer import (
+from protostar.starknet.data_transformer import (
     CairoOrPythonData,
     from_python_events_transformer,
 )
-from protostar.utils.hook import Hook
+from protostar.testing.hook import Hook
 
 if TYPE_CHECKING:
     from protostar.starknet.forkable_starknet import ForkableStarknet

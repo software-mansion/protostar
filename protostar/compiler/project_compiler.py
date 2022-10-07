@@ -14,8 +14,11 @@ from protostar.protostar_exception import ProtostarException
 from protostar.protostar_toml.protostar_contracts_section import (
     ProtostarContractsSection,
 )
-from protostar.utils.compiler.pass_managers import StarknetPassManagerFactory
-from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
+from protostar.starknet.compiler.pass_managers import StarknetPassManagerFactory
+from protostar.starknet.compiler.starknet_compilation import (
+    CompilerConfig,
+    StarknetCompiler,
+)
 
 from .project_cairo_path_builder import ProjectCairoPathBuilder
 

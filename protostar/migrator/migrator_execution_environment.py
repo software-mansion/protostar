@@ -11,8 +11,11 @@ from protostar.starknet.execution_state import ExecutionState
 from protostar.starknet.forkable_starknet import ForkableStarknet
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.testing.environments.execution_environment import ExecutionEnvironment
-from protostar.utils.compiler.pass_managers import StarknetPassManagerFactory
-from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
+from protostar.starknet.compiler.pass_managers import StarknetPassManagerFactory
+from protostar.starknet.compiler.starknet_compilation import (
+    CompilerConfig,
+    StarknetCompiler,
+)
 
 from .migrator_cheatcodes_factory import MigratorCheatcodeFactory
 from .migrator_datetime_state import MigratorDateTimeState

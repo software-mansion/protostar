@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 import requests
 
-from protostar.utils.protostar_directory import VersionManager, VersionType
+from protostar.self.protostar_directory import VersionManager, VersionType
 
 
 class LatestVersionRemoteChecker:

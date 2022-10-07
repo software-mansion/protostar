@@ -38,8 +38,8 @@ from protostar.protostar_toml import (
     ProtostarTOMLWriter,
 )
 from protostar.starknet_gateway import Fee, GatewayFacadeFactory
-from protostar.utils.input_requester import InputRequester
-from protostar.utils.log_color_provider import LogColorProvider
+from protostar.io.input_requester import InputRequester
+from protostar.io.log_color_provider import LogColorProvider
 
 
 class ProtostarFixture:

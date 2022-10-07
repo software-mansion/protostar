@@ -16,7 +16,7 @@ from protostar.migrator.cheatcodes.migrator_declare_cheatcode import (
     DeclaredContract,
 )
 from protostar.starknet import Cheatcode, KeywordOnlyArgumentCheatcodeException
-from protostar.utils.starknet_compilation import StarknetCompiler
+from protostar.starknet.compiler.starknet_compilation import StarknetCompiler
 
 
 class DeclareCheatcode(Cheatcode):

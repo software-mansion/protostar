@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from typing import List
-from protostar.utils.log_color_provider import log_color_provider
+from protostar.io.log_color_provider import log_color_provider
 from protostar.formatter.formatting_result import (
     FormattingResult,
     BrokenFormattingResult,

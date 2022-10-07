@@ -9,7 +9,7 @@ from protostar.protostar_toml import (
     ProtostarTOMLReader,
     ProtostarTOMLWriter,
 )
-from protostar.utils.protostar_directory import VersionManager
+from protostar.self.protostar_directory import VersionManager
 
 
 def test_saving_and_reading(tmpdir, mocker: MockerFixture):

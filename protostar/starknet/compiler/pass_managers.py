@@ -52,7 +52,7 @@ from starkware.starknet.compiler.external_wrapper import (
 from starkware.cairo.lang.compiler.ast.code_elements import CodeBlock
 
 if TYPE_CHECKING:
-    from protostar.utils.starknet_compilation import CompilerConfig
+    from protostar.starknet.compiler.starknet_compilation import CompilerConfig
 
 
 class PassManagerFactory(ABC):

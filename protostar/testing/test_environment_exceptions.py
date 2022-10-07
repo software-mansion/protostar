@@ -5,7 +5,7 @@ from starkware.starknet.business_logic.execution.objects import Event
 from typing_extensions import Literal
 
 from protostar.starknet import ReportedException
-from protostar.utils.log_color_provider import SupportedColorName, log_color_provider
+from protostar.io.log_color_provider import SupportedColorName, log_color_provider
 
 from .expected_event import ExpectedEvent
 
