@@ -24,7 +24,7 @@ class TestCommandCache:
             targets = [f"{target[0]}::{target[1]}" for target in targets]
             if self._logger:
                 self._logger.info(
-                    f"running previously failed tests, found {len(targets)} cases"
+                    f"Running previously failed tests, found {len(targets)} cases"
                 )
         return targets
 
