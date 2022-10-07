@@ -3,7 +3,7 @@ from asyncio import to_thread
 from dataclasses import dataclass
 from typing import Any, Dict, List
 
-from hypothesis import given, seed, settings
+from hypothesis import given, seed, settings, example
 from hypothesis.database import ExampleDatabase, InMemoryExampleDatabase
 from hypothesis.errors import InvalidArgument
 from hypothesis.reporting import with_reporter
@@ -37,6 +37,22 @@ from .test_execution_environment import (
 )
 
 
+def multiply_decorator(other_dec, args):
+    def inner(func):
+        current_fn = func
+        if not args:
+            return current_fn
+        args.reverse()
+        for arg in args:
+            if isinstance(arg, dict):
+                current_fn = other_dec(**arg)(current_fn)
+            else:
+                current_fn = other_dec(*arg)(current_fn)
+        return current_fn
+
+    return inner
+
+
 @dataclass
 class FuzzTestExecutionResult(TestExecutionResult):
     fuzz_runs_count: int
@@ -49,6 +65,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
 
     async def execute(self, function_name: str) -> FuzzTestExecutionResult:
         abi = self.state.contract.abi
+        # here are params
         parameters = get_function_parameters(abi, function_name)
         assert (
             parameters
@@ -127,7 +144,22 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         given_strategies: Dict[str, SearchStrategy],
     ):
         try:
+            functions = [
+                item
+                for item in self.state.contract.abi
+                if item["name"] == function_name
+            ]
+            assert len(functions) == 1
+            function = functions[0]
+            function_inputs_names = [input["name"] for input in function["inputs"]]
+            examples = []
+            for example_item in self.state.config.fuzz_examples:
+                if isinstance(example_item, dict):
+                    examples.append(example_item)
+                    continue
+                examples.append(dict(zip(function_inputs_names, list(example_item))))
 
+            @multiply_decorator(example, examples)
             @seed(self.state.config.seed)
             @settings(
                 database=database,
@@ -167,7 +199,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         except InvalidArgument as ex:
             # This exception is sometimes raised by Hypothesis during runtime when user messes up
             # strategy arguments. For example, invalid range for `integers` strategy is caught here.
-            raise CheatcodeException("given", str(ex)) from ex
+            raise CheatcodeException("unknown", str(ex)) from ex
 
 
 @dataclass
