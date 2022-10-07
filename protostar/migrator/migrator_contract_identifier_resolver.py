@@ -9,7 +9,7 @@ class ContractIdentificationException(ProtostarException):
     pass
 
 
-def checked_contract_path(contract_path: Path) -> Path:
+def check_contract_path(contract_path: Path) -> Path:
     if contract_path.is_file():
         return contract_path
 
