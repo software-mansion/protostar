@@ -85,9 +85,8 @@ def get_private_key(private_key_path: Optional[Path]) -> int:
 class SigningCredentialsNotFound(ProtostarException):
     def __init__(self):
         super().__init__(
-            "Signing credentials not found. "
-            "Signing transactions will be mandatory in future versions, "
-            "please refer to the docs for more details:\n"
+            "Signing credentials not found.\n"
+            "Please refer to the docs for more details:\n"
             "https://docs.swmansion.com/protostar/docs/tutorials/deploying/cli#signing-a-declaration"
         )
 

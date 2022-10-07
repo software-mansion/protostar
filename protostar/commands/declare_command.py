@@ -108,7 +108,6 @@ class DeclareCommand(Command):
         wait_for_acceptance: bool = False,
         max_fee: Optional[Fee] = None,
     ) -> SuccessfulDeclareResponse:
-
         gateway_facade = self._gateway_facade_factory.create(
             gateway_client=gateway_client, logger=None
         )
@@ -126,6 +125,11 @@ class DeclareCommand(Command):
                 max_fee=max_fee,
             )
         else:
+            self._logger.warning(
+                "Signing transactions will be mandatory in future versions, "
+                "please refer to the docs for more details:\n"
+                "https://docs.swmansion.com/protostar/docs/tutorials/deploying/cli#signing-a-declaration"
+            )
             response = await gateway_facade.declare_v0(
                 compiled_contract_path=compiled_contract_path,
                 wait_for_acceptance=wait_for_acceptance,
