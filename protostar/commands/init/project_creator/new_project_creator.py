@@ -5,7 +5,7 @@ from typing import Optional
 from protostar.commands.init.project_creator._project_creator import ProjectCreator
 from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
 from protostar.io import InputRequester
-from protostar.protostar_directory import VersionManager
+from protostar.self.protostar_directory import VersionManager
 from protostar.git import Git
 
 

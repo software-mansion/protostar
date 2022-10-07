@@ -11,7 +11,7 @@ from protostar.cli import ArgumentParserFacade, Command
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
 from protostar.upgrader.latest_version_checker import LatestVersionChecker
 from protostar.io.log_color_provider import LogColorProvider
-from protostar.protostar_directory import VersionManager
+from protostar.self.protostar_directory import VersionManager
 
 from protostar.protostar_cli import ProtostarCLI
 

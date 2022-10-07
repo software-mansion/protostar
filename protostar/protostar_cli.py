@@ -12,7 +12,7 @@ from protostar.configuration_profile_cli import ConfigurationProfileCLI
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
 from protostar.upgrader import LatestVersionChecker
 from protostar.io import StandardLogFormatter, LogColorProvider
-from protostar.protostar_directory import VersionManager
+from protostar.self.protostar_directory import VersionManager
 
 
 def _apply_pythonpath():

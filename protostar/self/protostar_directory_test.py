@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from protostar.protostar_directory import ProtostarDirectory
+from protostar.self.protostar_directory import ProtostarDirectory
 
 
 @pytest.fixture(name="script_root")

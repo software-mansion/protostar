@@ -44,7 +44,7 @@ from protostar.io import (
     InputRequester,
     log_color_provider,
 )
-from protostar.protostar_directory import (
+from protostar.self.protostar_directory import (
     ProtostarDirectory,
     VersionManager,
 )

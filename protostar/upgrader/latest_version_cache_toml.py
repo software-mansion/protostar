@@ -5,7 +5,7 @@ from typing import Optional
 import tomli
 import tomli_w
 
-from protostar.protostar_directory import (
+from protostar.self.protostar_directory import (
     ProtostarDirectory,
     VersionManager,
     VersionType,
