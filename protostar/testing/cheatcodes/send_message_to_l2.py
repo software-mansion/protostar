@@ -29,7 +29,6 @@ class SendMessageToL2Cheatcode(Cheatcode):
         contract_address = (
             contract_address if contract_address else self.contract_address
         )
-        from_address = l1_sender_address
 
         class_hash = self.state.get_class_hash_at(contract_address)
         contract_class = self.state.get_contract_class(class_hash)
@@ -49,18 +48,19 @@ class SendMessageToL2Cheatcode(Cheatcode):
             calldata = transformer(
                 {
                     **calldata,
-                    "from_address": from_address,
+                    "from_address": l1_sender_address,
                 }
             )
         else:
-            calldata = [from_address, *(calldata or [])]
+            calldata = [l1_sender_address, *(calldata or [])]
 
         self.execute_entry_point(
             ExecuteEntryPoint.create(
                 contract_address=contract_address,
                 calldata=calldata,
                 entry_point_selector=get_selector_from_name(fn_name),
-                caller_address=from_address,
+                # FIXME(arcticae): This might be wrong, since the caller might be some starknet OS specific address
+                caller_address=l1_sender_address,
                 entry_point_type=EntryPointType.L1_HANDLER,
                 call_type=CallType.DELEGATE,
                 class_hash=class_hash,

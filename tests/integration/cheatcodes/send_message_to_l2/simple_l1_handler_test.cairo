@@ -29,7 +29,7 @@ func existing_handler_verifying_sender_address{
     return ();
 }
 
-const SOME_VALUE = 'somevalue';
+const PREDEFINED_VALUE = 'somevalue';
 
 @l1_handler
 func existing_handler_no_calldata{
@@ -37,7 +37,7 @@ func existing_handler_no_calldata{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr,
     }(from_address: felt){
-    state.write(SOME_VALUE);
+    state.write(PREDEFINED_VALUE);
     return ();
 }
 
@@ -64,13 +64,11 @@ func test_existing_self_l1_handle_call_no_calldata{
     pedersen_ptr: HashBuiltin*,
     range_check_ptr,
 }(){
-    let STATE_AFTER = 'self_l1_handle_call';
-
     %{ send_message_to_l2("existing_handler_no_calldata") %}
 
     let (state_after_l1_msg) = state.read();
 
-    assert state_after_l1_msg = SOME_VALUE;
+    assert state_after_l1_msg = PREDEFINED_VALUE;
     return ();
 }
 
@@ -99,8 +97,6 @@ func test_non_existing_self_l1_handle_call{
     let STATE_AFTER = 'self_l1_handle_call';
 
     %{ send_message_to_l2("non_existing_handler", calldata={"value": ids.STATE_AFTER}) %}
-
-    let (state_after_l1_msg) = state.read();
     return ();
 }
 
@@ -121,6 +117,7 @@ func test_existing_self_l1_handle_call_custom_l1_sender_address{
     %}
 
     let (state_after_l1_msg) = state.read();
+    assert state_after_l1_msg = STATE_AFTER;
     return ();
 }
 
@@ -142,7 +139,14 @@ func test_existing_external_contract_l1_handle_call{
     local external_contract_address: felt;
     let secret_value = 's3cr3t';
     %{ ids.external_contract_address = deploy_contract("src/main.cairo").contract_address %}
-    %{ send_message_to_l2("existing_handler", ids.external_contract_address, calldata=[ids.secret_value]) %}
+    %{
+        send_message_to_l2(
+            fn_name="existing_handler",
+            l1_sender_address=123,
+            calldata=[ids.secret_value],
+            contract_address=ids.external_contract_address,
+        )
+    %}
 
     let (state) = ExternalContractInterface.get_state(contract_address=external_contract_address);
 
