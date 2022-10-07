@@ -3,23 +3,24 @@ from pathlib import Path
 
 from pytest_mock import MockerFixture
 
-from protostar.starknet.compiler.pass_managers import (
-    ProtostarPassMangerFactory,
-    StarknetPassManagerFactory,
-    TestSuitePassMangerFactory,
-)
+import pytest
+
+from protostar.starknet.compiler.pass_managers import ProtostarPassMangerFactory
 from protostar.starknet.compiler.starknet_compilation import (
     CompilerConfig,
     StarknetCompiler,
 )
 
 
-async def test_protostar_pass(mocker: MockerFixture):
-    compiler = StarknetCompiler(
+@pytest.fixture(name="compiler")
+def compiler_fixture() -> StarknetCompiler:
+    return StarknetCompiler(
         config=CompilerConfig(include_paths=[], disable_hint_validation=False),
         pass_manager_factory=ProtostarPassMangerFactory,
     )
 
+
+async def test_protostar_pass(compiler: StarknetCompiler, mocker: MockerFixture):
     contract_class = compiler.compile_contract(Path(__file__).parent / "contract.cairo")
 
     first_type = {
@@ -43,3 +44,11 @@ async def test_protostar_pass(mocker: MockerFixture):
     assert contract_class.abi
     assert first_type in contract_class.abi
     assert second_type in contract_class.abi
+
+
+# https://github.com/software-mansion/protostar/issues/900
+async def test_preprocessor_exception(compiler: StarknetCompiler):
+    with pytest.raises(StarknetCompiler.PreprocessorException):
+        compiler.compile_contract(
+            Path(__file__).parent / "contract_with_preprocess_error.cairo"
+        )

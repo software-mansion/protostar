@@ -40,6 +40,9 @@ class StarknetCompiler:
     class FileNotFoundException(ProtostarException):
         pass
 
+    class PreprocessorException(ProtostarException, PreprocessorError):
+        pass
+
     @staticmethod
     def build_context(codes: List[Tuple[str, str]]) -> PassManagerContext:
         return PassManagerContext(
@@ -72,6 +75,8 @@ class StarknetCompiler:
             raise StarknetCompiler.FileNotFoundException(
                 message=(f"Couldn't find file '{err.filename}'")
             ) from err
+        except PreprocessorError as err:
+            raise StarknetCompiler.PreprocessorException(str(err)) from err
 
     @staticmethod
     def compile_preprocessed_contract(
