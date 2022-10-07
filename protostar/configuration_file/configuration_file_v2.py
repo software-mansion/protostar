@@ -51,6 +51,8 @@ class ConfigurationFileV2Model:
 class ConfigurationFileV2(
     ConfigurationFile[ConfigurationFileV2Model],
 ):
+    SHARED_ATTRIBUTES_SECTION_NAME = "project"
+
     def __init__(
         self,
         project_root_path: Path,
@@ -65,7 +67,8 @@ class ConfigurationFileV2(
 
     def get_declared_protostar_version(self) -> Optional[ProtostarVersion]:
         version_str = self._configuration_file_reader.get_attribute(
-            attribute_name="protostar-version", section_name="project"
+            attribute_name="protostar-version",
+            section_name=self.SHARED_ATTRIBUTES_SECTION_NAME,
         )
         if not version_str:
             return None
@@ -73,6 +76,16 @@ class ConfigurationFileV2(
 
     def get_filepath(self) -> Path:
         return self._file_path
+
+    def get_lib_path(self) -> Optional[Path]:
+        path_str = self._configuration_file_reader.get_attribute(
+            profile_name=self._profile_name,
+            section_name=self.SHARED_ATTRIBUTES_SECTION_NAME,
+            attribute_name="lib-path",
+        )
+        if path_str is None:
+            return None
+        return self._project_root_path / path_str
 
     def get_contract_names(self) -> list[str]:
         contract_section = self._configuration_file_reader.get_section("contracts")
