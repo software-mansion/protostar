@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Optional
 
 import pytest
+from protostar.git import Git
 
 
 @pytest.fixture(name="project_new_location")
@@ -95,3 +96,6 @@ def test_install_remove_install(install_package, protostar, libs_path):
 def test_install_specified_tag(protostar, libs_path):
     protostar(["--no-color", "install", "software-mansion/starknet.py@0.6.2-alpha"])
     assert "starknet_py" in listdir(libs_path)
+
+    repo = Git.load_existing_repo(Path(libs_path) / "starknet_py")
+    assert repo.get_tag() == "0.6.2-alpha"
