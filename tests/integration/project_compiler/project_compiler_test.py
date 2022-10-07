@@ -11,10 +11,10 @@ from protostar.compiler import (
     ProjectCompilerConfig,
 )
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
+from protostar.configuration_file.conftest import FakeConfigurationFile
 from protostar.protostar_toml.protostar_contracts_section import (
     ProtostarContractsSection,
 )
-from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
 from protostar.protostar_toml.protostar_toml_section import ProtostarTOMLSection
 from protostar.starknet.compiler.starknet_compilation import StarknetCompiler
 
@@ -37,8 +37,8 @@ def test_compiling(tmp_path: Path, datadir: Path, create_loader):
         project_root_path,
         project_cairo_path_builder=ProjectCairoPathBuilder(
             project_root_path,
-            project_section_loader=create_loader(
-                ProtostarProjectSection(libs_relative_path=Path("./modules"))
+            configuration_file=FakeConfigurationFile(
+                lib_path=project_root_path / "modules"
             ),
         ),
         contracts_section_loader=create_loader(
@@ -77,8 +77,8 @@ def test_handling_cairo_errors(tmp_path: Path, datadir: Path, create_loader):
             project_root_path=project_root_path,
             project_cairo_path_builder=ProjectCairoPathBuilder(
                 project_root_path,
-                project_section_loader=create_loader(
-                    ProtostarProjectSection(libs_relative_path=Path("./modules"))
+                configuration_file=FakeConfigurationFile(
+                    lib_path=project_root_path / "modules"
                 ),
             ),
             contracts_section_loader=create_loader(
@@ -102,8 +102,8 @@ def test_handling_not_existing_main_files(tmp_path: Path, datadir: Path, create_
             project_root_path=project_root_path,
             project_cairo_path_builder=ProjectCairoPathBuilder(
                 project_root_path,
-                project_section_loader=create_loader(
-                    ProtostarProjectSection(libs_relative_path=Path("./modules"))
+                configuration_file=FakeConfigurationFile(
+                    lib_path=project_root_path / "modules"
                 ),
             ),
             contracts_section_loader=create_loader(
