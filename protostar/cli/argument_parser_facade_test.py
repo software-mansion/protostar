@@ -1,19 +1,17 @@
 from pathlib import Path
-from typing import Any, List, Optional, Pattern, cast
+from typing import Any, List, Optional, Pattern
 
 import pytest
-from pytest_mock import MockerFixture
 
 from conftest import BaseTestCommand, FooCommand
 from protostar.cli.argument_parser_facade import (
     ArgumentParserFacade,
     MissingRequiredArgumentException,
 )
-from protostar.cli.argument_value_from_config_provider import (
-    ArgumentValueFromConfigProvider,
-)
 from protostar.cli.cli_app import CLIApp
 from protostar.cli.command import Command
+
+from .config_file_argument_resolver import ConfigFileArgumentResolverProtocol
 
 
 def test_bool_argument_parsing(foo_command: FooCommand):
@@ -185,28 +183,32 @@ def test_required_positional_arg():
         ArgumentParserFacade(app).parse(["FOO"])
 
 
-def test_loading_default_values_from_provider(
-    mocker: MockerFixture, foo_command: FooCommand
-):
+class FakeConfigFileArgumentResolver(ConfigFileArgumentResolverProtocol):
+    def __init__(self, argument_value: Optional[Any]) -> None:
+        super().__init__()
+        self._canned_response = argument_value
+
+    def resolve_argument(
+        self, command_name: Optional[str], argument_name: str
+    ) -> Optional[Any]:
+        return self._canned_response
+
+
+def test_loading_default_values_from_provider(foo_command: FooCommand):
     app = CLIApp(
         root_args=[Command.Argument(name="bar", description="...", type="str")],
         commands=[foo_command],
     )
 
-    mocked_default_value_provider = mocker.MagicMock()
-    mocked_get_value = mocker.MagicMock()
-    mocked_get_value.return_value = "FOOBAR"
-    cast(
-        ArgumentValueFromConfigProvider, mocked_default_value_provider
-    ).load_value = mocked_get_value
-
-    result = ArgumentParserFacade(app, mocked_default_value_provider).parse(["FOO"])
+    result = ArgumentParserFacade(
+        app, FakeConfigFileArgumentResolver(argument_value="FOOBAR")
+    ).parse(["FOO"])
 
     assert result.foo == "FOOBAR"
     assert result.bar == "FOOBAR"
 
 
-def test_loading_required_value_from_provider(mocker: MockerFixture):
+def test_loading_required_value_from_provider():
     fake_arg = Command.Argument(
         name="fake-arg", description="...", type="str", is_required=True
     )
@@ -236,14 +238,12 @@ def test_loading_required_value_from_provider(mocker: MockerFixture):
         root_args=[],
         commands=[fake_command],
     )
-    default_value_provider_mock = cast(
-        ArgumentValueFromConfigProvider, mocker.MagicMock()
-    )
+
     fake_value = "FAKE_VALUE"
-    cast(
-        mocker.MagicMock, default_value_provider_mock.load_value
-    ).return_value = fake_value
-    parser = ArgumentParserFacade(app, default_value_provider_mock)
+
+    parser = ArgumentParserFacade(
+        app, FakeConfigFileArgumentResolver(argument_value=fake_value)
+    )
 
     result = parser.parse(["fake-cmd"])
 

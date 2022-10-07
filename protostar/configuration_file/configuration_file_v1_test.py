@@ -44,14 +44,16 @@ def protostar_toml_path_fixture(protostar_toml_content: str, project_root_path: 
 def configuration_file_fixture(
     protostar_toml_path: Path, project_root_path: Path, protostar_toml_content: str
 ):
-    return ConfigurationFileV1(
+    cfv1 = ConfigurationFileV1(
         ConfigurationLegacyTOMLInterpreter(
             file_content=protostar_toml_content,
         ),
         project_root_path=project_root_path,
         file_path=protostar_toml_path,
-        command_names_provider=CommandNamesProviderStub(),
+        active_profile_name=None,
     )
+    cfv1.set_command_names_provider(CommandNamesProviderStub())
+    return cfv1
 
 
 @pytest.mark.parametrize(
@@ -152,7 +154,7 @@ def test_reading_lib_path(
     ],
 )
 def test_reading_command_argument_attribute(configuration_file: ConfigurationFile):
-    arg_value = configuration_file.get_command_argument(
+    arg_value = configuration_file.get_argument_value(
         command_name="command_name", argument_name="arg_name"
     )
 
@@ -174,11 +176,33 @@ def test_reading_command_argument_attribute(configuration_file: ConfigurationFil
 def test_reading_argument_attribute_defined_within_specified_profile(
     configuration_file: ConfigurationFile,
 ):
-    arg_value = configuration_file.get_command_argument(
+    arg_value = configuration_file.get_argument_value(
         command_name="command_name", argument_name="arg_name", profile_name="devnet"
     )
 
     assert arg_value == 37
+
+
+@pytest.mark.parametrize(
+    "protostar_toml_content",
+    [
+        """
+        ["protostar.shared_command_configs"]
+        arg_name = 21
+
+        ["profile.profile_name.protostar.shared_command_configs"]
+        arg_name = 37
+        """
+    ],
+)
+def test_reading_shared_argument_value(configuration_file: ConfigurationFileV1):
+    assert configuration_file.get_shared_argument_value(argument_name="arg_name") == 21
+    assert (
+        configuration_file.get_shared_argument_value(
+            argument_name="arg_name", profile_name="profile_name"
+        )
+        == 37
+    )
 
 
 @pytest.mark.parametrize(

@@ -74,6 +74,7 @@ def configuration_file_fixture(project_root_path: Path, protostar_toml_content: 
         project_root_path=project_root_path,
         configuration_file_interpreter=configuration_toml_reader,
         file_path=protostar_toml_path,
+        active_profile_name=None,
     )
 
 
@@ -116,7 +117,7 @@ def test_error_when_retrieving_paths_from_not_defined_contract(
 
 
 def test_reading_command_argument_attribute(configuration_file: ConfigurationFile):
-    arg_value = configuration_file.get_command_argument(
+    arg_value = configuration_file.get_argument_value(
         command_name="declare", argument_name="network"
     )
 
@@ -126,11 +127,26 @@ def test_reading_command_argument_attribute(configuration_file: ConfigurationFil
 def test_reading_argument_attribute_defined_within_specified_profile(
     configuration_file: ConfigurationFile,
 ):
-    arg_value = configuration_file.get_command_argument(
+    arg_value = configuration_file.get_argument_value(
         command_name="declare", argument_name="network", profile_name="release"
     )
 
     assert arg_value == "mainnet"
+
+
+def test_reading_shared_value(
+    configuration_file: ConfigurationFile,
+):
+    assert (
+        configuration_file.get_shared_argument_value(argument_name="network")
+        == "devnet1"
+    )
+    assert (
+        configuration_file.get_shared_argument_value(
+            argument_name="network", profile_name="release"
+        )
+        == "mainnet2"
+    )
 
 
 def test_saving_configuration(
@@ -228,14 +244,16 @@ def test_transforming_file_v1_into_v2(
         """
     )
 
-    model_v1 = ConfigurationFileV1(
+    cf_v1 = ConfigurationFileV1(
         configuration_file_interpreter=ConfigurationLegacyTOMLInterpreter(
             file_content=old_protostar_toml_content,
         ),
         project_root_path=Path(),
         file_path=Path(),
-        command_names_provider=CommandNamesProviderStub(),
-    ).read()
+        active_profile_name=None,
+    )
+    cf_v1.set_command_names_provider(CommandNamesProviderStub())
+    model_v1 = cf_v1.read()
 
     transformed_protostar_toml = content_factory.create_file_content(
         model=ConfigurationFileV2Model.from_v1(model_v1, protostar_version="9.9.9"),

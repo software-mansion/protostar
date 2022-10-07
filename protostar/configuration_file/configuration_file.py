@@ -5,6 +5,8 @@ from typing import Any, Generic, Optional, Protocol, TypeVar, Union
 from protostar.protostar_exception import ProtostarException
 from protostar.self import DeclaredProtostarVersionProviderProtocol, ProtostarVersion
 
+from .argument_value_resolver import ArgumentValueResolver
+
 PrimitiveTypesSupportedByConfigurationFile = Union[str, int, bool]
 
 CommandName = str
@@ -16,6 +18,11 @@ ProfileName = str
 ContractName = str
 
 ConfigurationFileModelT = TypeVar("ConfigurationFileModelT")
+
+
+class CommandNamesProviderProtocol(Protocol):
+    def get_command_names(self) -> list[str]:
+        ...
 
 
 class ConfigurationFileContentBuilder(ABC):
@@ -50,7 +57,9 @@ class ConfigurationFileContentFactory(Generic[ConfigurationFileModelT]):
 
 
 class ConfigurationFile(
-    DeclaredProtostarVersionProviderProtocol, Generic[ConfigurationFileModelT]
+    ArgumentValueResolver,
+    DeclaredProtostarVersionProviderProtocol,
+    Generic[ConfigurationFileModelT],
 ):
     @abstractmethod
     def get_declared_protostar_version(self) -> Optional[ProtostarVersion]:
@@ -69,19 +78,13 @@ class ConfigurationFile(
         ...
 
     @abstractmethod
-    def get_command_argument(
-        self, command_name: str, argument_name: str, profile_name: Optional[str] = None
-    ) -> Optional[
-        Union[
-            PrimitiveTypesSupportedByConfigurationFile,
-            list[PrimitiveTypesSupportedByConfigurationFile],
-        ]
-    ]:
-        ...
-
-    @abstractmethod
     def read(self) -> ConfigurationFileModelT:
         ...
+
+    def set_command_names_provider(
+        self, command_names_provider: CommandNamesProviderProtocol
+    ):
+        pass
 
 
 class ContractNameNotFoundException(ProtostarException):

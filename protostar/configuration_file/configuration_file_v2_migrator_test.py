@@ -17,8 +17,8 @@ from .configuration_file_v2 import (
 from .configuration_file_v2_migrator import (
     ConfigurationFileAlreadyMigratedException,
     ConfigurationFileMigrationFailed,
-    ConfigurationFileV2Migrator,
     ConfigurationFileNotFoundException,
+    ConfigurationFileV2Migrator,
 )
 from .configuration_toml_content_builder import ConfigurationTOMLContentBuilder
 from .conftest import (
@@ -84,11 +84,11 @@ def test_rollback(tmp_path: Path):
 def migrate(
     cwd: Path, content_builder: Optional[ConfigurationFileContentBuilder] = None
 ) -> Tuple[Optional[ConfigurationFile], Optional[ConfigurationFile]]:
-    configuration_file_factory = ConfigurationFileFactory(
-        cwd=cwd,
-        command_names_provider=FakeCommandNamesProvider(command_names=[]),
-    )
+    command_names_provider = FakeCommandNamesProvider(command_names=[])
+    configuration_file_factory = ConfigurationFileFactory(cwd=cwd)
     configuration_file_before = configuration_file_factory.create()
+    if configuration_file_before:
+        configuration_file_before.set_command_names_provider(command_names_provider)
     configuration_file_v2_migrator = ConfigurationFileV2Migrator(
         current_configuration_file=configuration_file_before,
         content_factory=ConfigurationFileV2ContentFactory(
@@ -100,6 +100,8 @@ def migrate(
     configuration_file_v2_migrator.run()
 
     configuration_file_after = configuration_file_factory.create()
+    if configuration_file_after:
+        configuration_file_after.set_command_names_provider(command_names_provider)
 
     return (configuration_file_before, configuration_file_after)
 

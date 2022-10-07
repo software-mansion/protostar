@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from logging import getLogger
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
-from protostar.cli import Command
+from protostar.cli import ArgumentParserFacade, Command
 from protostar.commands import (
     BuildCommand,
     DeclareCommand,
@@ -24,6 +24,7 @@ from protostar.commands.init.project_creator import (
 )
 from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
+from protostar.configuration_file import ConfigurationFileFactory
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_cli import ProtostarCLI
 from protostar.protostar_toml import (
@@ -53,10 +54,14 @@ from protostar.self.protostar_directory import (
 @dataclass
 class DIContainer:
     protostar_cli: ProtostarCLI
-    protostar_toml_reader: ProtostarTOMLReader
+    argument_parser_facade: ArgumentParserFacade
 
 
-def build_di_container(script_root: Path, start_time: float = 0):
+def build_di_container(
+    script_root: Path,
+    active_configuration_profile_name: Optional[str] = None,
+    start_time: float = 0,
+):
     logger = getLogger()
     cwd = Path().resolve()
     protostar_toml_path = search_upwards_protostar_toml_path(start_path=cwd)
@@ -64,6 +69,12 @@ def build_di_container(script_root: Path, start_time: float = 0):
         protostar_toml_path.parent if protostar_toml_path is not None else cwd
     )
     protostar_toml_path = protostar_toml_path or project_root_path / "protostar.toml"
+
+    configuration_file_factory = ConfigurationFileFactory(
+        cwd, active_profile_name=active_configuration_profile_name
+    )
+    configuration_file = configuration_file_factory.create()
+
     protostar_directory = ProtostarDirectory(script_root)
     version_manager = VersionManager(protostar_directory, logger)
     protostar_toml_writer = ProtostarTOMLWriter()
@@ -186,5 +197,9 @@ def build_di_container(script_root: Path, start_time: float = 0):
         project_cairo_path_builder=project_cairo_path_builder,
         start_time=start_time,
     )
+    if configuration_file:
+        configuration_file.set_command_names_provider(protostar_cli)
 
-    return DIContainer(protostar_cli, protostar_toml_reader)
+    argument_parser_facade = ArgumentParserFacade(protostar_cli, configuration_file)
+
+    return DIContainer(protostar_cli, argument_parser_facade)

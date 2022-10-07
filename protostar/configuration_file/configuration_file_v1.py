@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Protocol, Union
+from typing import Any, Optional, Protocol
 
 from protostar.self import ProtostarVersion, parse_protostar_version
 
@@ -10,7 +10,6 @@ from .configuration_file import (
     ConfigurationFile,
     ContractName,
     ContractNameNotFoundException,
-    PrimitiveTypesSupportedByConfigurationFile,
     ProfileName,
 )
 from .configuration_file_interpreter import ConfigurationFileInterpreter
@@ -38,12 +37,17 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
         configuration_file_interpreter: ConfigurationFileInterpreter,
         project_root_path: Path,
         file_path: Path,
-        command_names_provider: CommandNamesProviderProtocol,
+        active_profile_name: Optional[str],
     ) -> None:
-        super().__init__()
+        super().__init__(active_profile_name)
         self._configuration_file_interpreter = configuration_file_interpreter
         self._project_root_path = project_root_path
         self._file_path = file_path
+        self._command_names_provider: Optional[CommandNamesProviderProtocol] = None
+
+    def set_command_names_provider(
+        self, command_names_provider: CommandNamesProviderProtocol
+    ):
         self._command_names_provider = command_names_provider
 
     def get_filepath(self) -> Path:
@@ -94,19 +98,24 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
             return None
         return self._project_root_path / lib_relative_path_str
 
-    def get_command_argument(
+    def get_argument_value(
         self, command_name: str, argument_name: str, profile_name: Optional[str] = None
-    ) -> Optional[
-        Union[
-            PrimitiveTypesSupportedByConfigurationFile,
-            list[PrimitiveTypesSupportedByConfigurationFile],
-        ]
-    ]:
+    ) -> Optional[Any]:
         return self._configuration_file_interpreter.get_attribute(
             section_name=command_name,
             attribute_name=argument_name,
             profile_name=profile_name,
             section_namespace="protostar",
+        )
+
+    def get_shared_argument_value(
+        self, argument_name: str, profile_name: Optional[str] = None
+    ) -> Optional[Any]:
+        return self._configuration_file_interpreter.get_attribute(
+            profile_name=profile_name,
+            attribute_name=argument_name,
+            section_namespace="protostar",
+            section_name="shared_command_configs",
         )
 
     def read(
@@ -159,6 +168,7 @@ class ConfigurationFileV1(ConfigurationFile[ConfigurationFileV1Model]):
         self, profile_name: Optional[str] = None
     ) -> CommandNameToConfig:
         result: CommandNameToConfig = {}
+        assert self._command_names_provider is not None
         for command_name in self._command_names_provider.get_command_names():
             command_config = self._configuration_file_interpreter.get_section(
                 section_name=command_name,
