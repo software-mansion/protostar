@@ -50,7 +50,7 @@ func test_existing_self_l1_handle_call{
 }(){
     let STATE_AFTER = 'self_l1_handle_call';
 
-    %{ send_message_to_l2("existing_handler", calldata=[ids.STATE_AFTER]) %}
+    %{ send_message_to_l2("existing_handler", payload=[ids.STATE_AFTER]) %}
 
     let (state_after_l1_msg) = state.read();
 
@@ -80,7 +80,7 @@ func test_existing_self_l1_handle_call_w_transformer{
 }(){
     let STATE_AFTER = 'self_l1_handle_call';
 
-    %{ send_message_to_l2("existing_handler", calldata={"value": ids.STATE_AFTER}) %}
+    %{ send_message_to_l2("existing_handler", payload={"value": ids.STATE_AFTER}) %}
 
     let (state_after_l1_msg) = state.read();
 
@@ -96,7 +96,7 @@ func test_non_existing_self_l1_handle_call{
 }(){
     let STATE_AFTER = 'self_l1_handle_call';
 
-    %{ send_message_to_l2("non_existing_handler", calldata={"value": ids.STATE_AFTER}) %}
+    %{ send_message_to_l2("non_existing_handler", payload={"value": ids.STATE_AFTER}) %}
     return ();
 }
 
@@ -111,8 +111,8 @@ func test_existing_self_l1_handle_call_custom_l1_sender_address{
     %{
         send_message_to_l2(
             fn_name="existing_handler_verifying_sender_address",
-            calldata={"value": ids.STATE_AFTER},
-            l1_sender_address=ids.ALLOWED_L1_SENDER_ADDRESS,
+            payload={"value": ids.STATE_AFTER},
+            from_address=ids.ALLOWED_L1_SENDER_ADDRESS,
         )
     %}
 
@@ -142,9 +142,9 @@ func test_existing_external_contract_l1_handle_call{
     %{
         send_message_to_l2(
             fn_name="existing_handler",
-            l1_sender_address=123,
-            calldata=[ids.secret_value],
-            contract_address=ids.external_contract_address,
+            from_address=123,
+            payload=[ids.secret_value],
+            to_address=ids.external_contract_address,
         )
     %}
 
