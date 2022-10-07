@@ -40,7 +40,7 @@ class StarknetCompiler:
     class FileNotFoundException(ProtostarException):
         pass
 
-    class PreprocessorException(ProtostarException):
+    class PreprocessorException(ProtostarException, PreprocessorError):
         pass
 
     @staticmethod

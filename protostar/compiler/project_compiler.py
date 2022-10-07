@@ -80,12 +80,7 @@ class ProjectCompiler:
             return self.compile_contract_from_contract_source_paths(
                 contract_paths, config
             )
-        except (
-            StarkException,
-            VmException,
-            PreprocessorError,
-            StarknetCompiler.PreprocessorException,
-        ) as err:
+        except (StarkException, VmException, PreprocessorError) as err:
             raise CompilationException(contract_name, err) from err
 
     def compile_contract_from_contract_source_paths(
