@@ -37,10 +37,6 @@ def test_cache_override(tmp_path):
 
     assert cache_io.read(cache_name) == obj2
 
-    cache_io.write(cache_name, obj, override=True)
-
-    assert cache_io.read(cache_name) == obj
-
-    cache_io.write(cache_name, obj2, override=False)
+    cache_io.write(cache_name, obj)
 
     assert cache_io.read(cache_name) == obj

@@ -11,10 +11,7 @@ class CacheIO:
         self._cache_path = project_root_path / Path(self._CACHE_DIR_NAME)
         self._cache_path.mkdir(exist_ok=True)
 
-    def write(self, name: str, value: dict, override=True) -> None:
-        if not override and self._cache_path.exists():
-            return
-
+    def write(self, name: str, value: dict) -> None:
         Path(self._cache_path / (name + self._EXTENSION)).write_text(
             json.dumps(value), encoding="utf-8"
         )
