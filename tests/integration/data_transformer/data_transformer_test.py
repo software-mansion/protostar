@@ -2,7 +2,7 @@ from typing_extensions import Literal
 
 import pytest
 
-from protostar.utils.data_transformer import (
+from protostar.starknet.data_transformer import (
     DataTransformerException,
     PythonData,
     CairoData,

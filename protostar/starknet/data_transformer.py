@@ -8,7 +8,7 @@ from starkware.starknet.public.abi import AbiType
 from starkware.starknet.public.abi_structs import identifier_manager_from_abi
 from typing_extensions import Literal
 
-from protostar.utils.abi import find_abi_item
+from protostar.starknet.abi import find_abi_item
 from protostar.protostar_exception import ProtostarException
 
 

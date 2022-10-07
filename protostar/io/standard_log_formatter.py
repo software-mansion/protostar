@@ -1,7 +1,7 @@
 import time
 from logging import Formatter, LogRecord
 
-from protostar.utils.log_color_provider import LogColorProvider
+from protostar.io.log_color_provider import LogColorProvider
 
 
 class StandardLogFormatter(Formatter):

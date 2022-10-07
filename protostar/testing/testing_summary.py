@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Dict, List
 
 from protostar.protostar_exception import ProtostarExceptionSilent
-from protostar.utils.log_color_provider import LogColorProvider, log_color_provider
+from protostar.io.log_color_provider import LogColorProvider, log_color_provider
 
 from .test_results import (
     BrokenTestCaseResult,

@@ -14,8 +14,11 @@ from protostar.testing import SharedTestsState, TestCollector, TestRunner
 from protostar.testing.starkware.test_execution_state import TestExecutionState
 from protostar.testing.test_config import TestConfig
 from protostar.testing.test_suite import TestCase, TestSuite
-from protostar.utils.compiler.pass_managers import ProtostarPassMangerFactory
-from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
+from protostar.starknet.compiler.pass_managers import ProtostarPassMangerFactory
+from protostar.starknet.compiler.starknet_compilation import (
+    CompilerConfig,
+    StarknetCompiler,
+)
 from tests.benchmarks.constants import ROUNDS_NUMBER
 
 SCRIPT_DIRECTORY = Path(__file__).parent

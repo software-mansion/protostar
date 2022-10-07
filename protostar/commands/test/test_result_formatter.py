@@ -17,7 +17,7 @@ from protostar.testing import (
     UnexpectedBrokenTestSuiteResult,
     format_output_name,
 )
-from protostar.utils.log_color_provider import log_color_provider
+from protostar.io.log_color_provider import log_color_provider
 
 LogCallback = Callable[[str], None]
 

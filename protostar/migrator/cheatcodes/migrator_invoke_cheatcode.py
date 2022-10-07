@@ -18,7 +18,7 @@ from protostar.starknet_gateway import (
     GatewayFacade,
     UnknownFunctionException,
 )
-from protostar.utils.data_transformer import CairoOrPythonData
+from protostar.starknet.data_transformer import CairoOrPythonData
 
 Wei = int
 

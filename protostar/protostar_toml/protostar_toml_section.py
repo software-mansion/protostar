@@ -5,7 +5,7 @@ from typing import Any, Dict, Generic, List, TypeVar, Union
 from protostar.protostar_toml.protostar_toml_exceptions import (
     InvalidProtostarTOMLException,
 )
-from protostar.utils.protostar_directory import VersionManager, VersionType
+from protostar.self.protostar_directory import VersionManager, VersionType
 
 ProtostarTOMLSectionT = TypeVar("ProtostarTOMLSectionT", bound="ProtostarTOMLSection")
 

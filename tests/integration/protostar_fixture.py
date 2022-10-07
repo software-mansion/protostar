@@ -38,8 +38,8 @@ from protostar.protostar_toml import (
     ProtostarTOMLWriter,
 )
 from protostar.starknet_gateway import Fee, GatewayFacadeFactory
-from protostar.utils.input_requester import InputRequester
-from protostar.utils.log_color_provider import LogColorProvider
+from protostar.io.input_requester import InputRequester
+from protostar.io.log_color_provider import LogColorProvider
 
 
 class ProtostarFixture:
@@ -119,7 +119,7 @@ class ProtostarFixture:
 
     def build_sync(self):
         args = Namespace()
-        args.output = Path("./build")
+        args.compiled_contracts_dir = Path("./build")
         args.disable_hint_validation = False
         args.cairo_path = None
         return asyncio.run(self._build_command.run(args))
@@ -129,12 +129,10 @@ class ProtostarFixture:
         path: Path,
         gateway_url: str,
         rollback=False,
-        output_dir: Optional[Path] = None,
         account_address: Optional[str] = None,
     ):
         args = Namespace()
         args.path = path
-        args.output_dir = output_dir
         args.rollback = rollback
         args.no_confirm = True
         args.network = None
@@ -143,6 +141,8 @@ class ProtostarFixture:
         args.signer_class = None
         args.account_address = account_address
         args.private_key_path = None
+        args.compiled_contracts_dir = Path() / "build"
+
         migration_history = await self._migrate_command.run(args)
         assert migration_history is not None
         return migration_history

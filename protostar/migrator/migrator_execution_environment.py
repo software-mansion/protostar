@@ -11,8 +11,11 @@ from protostar.starknet.execution_state import ExecutionState
 from protostar.starknet.forkable_starknet import ForkableStarknet
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.testing.environments.execution_environment import ExecutionEnvironment
-from protostar.utils.compiler.pass_managers import StarknetPassManagerFactory
-from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
+from protostar.starknet.compiler.pass_managers import StarknetPassManagerFactory
+from protostar.starknet.compiler.starknet_compilation import (
+    CompilerConfig,
+    StarknetCompiler,
+)
 
 from .migrator_cheatcodes_factory import MigratorCheatcodeFactory
 from .migrator_datetime_state import MigratorDateTimeState
@@ -42,6 +45,7 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
         async def build(
             self,
             migration_file_path: Path,
+            compiled_contracts_dir_path: Path,
             config: "MigratorExecutionEnvironment.Config",
         ) -> "MigratorExecutionEnvironment":
             assert self._gateway_facade is not None
@@ -69,6 +73,7 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
             migrator_contract_identifier_resolver = MigratorContractIdentifierResolver(
                 project_compiler=self._project_compiler,
                 migrator_datetime_state=self._migrator_datetime_state,
+                build_output_dir_path=compiled_contracts_dir_path,
             )
 
             migration_cheatcode_factory = MigratorCheatcodeFactory(

@@ -9,7 +9,7 @@ from protostar.commands.update.update_package import update_package
 from protostar.commands.update.updating_exceptions import (
     PackageAlreadyUpToDateException,
 )
-from protostar.utils.create_and_commit_sample_file import create_and_commit_sample_file
+from protostar.git.create_and_commit_sample_file import create_and_commit_sample_file
 
 from protostar.git import Git, GitRepository
 

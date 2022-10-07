@@ -10,8 +10,8 @@ from pytest_mock import MockerFixture
 from protostar.cli import ArgumentParserFacade, Command
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
 from protostar.upgrader.latest_version_checker import LatestVersionChecker
-from protostar.utils.log_color_provider import LogColorProvider
-from protostar.utils.protostar_directory import VersionManager
+from protostar.io.log_color_provider import LogColorProvider
+from protostar.self.protostar_directory import VersionManager
 
 from protostar.protostar_cli import ProtostarCLI
 

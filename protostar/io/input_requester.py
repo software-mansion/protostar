@@ -1,4 +1,4 @@
-from protostar.utils.log_color_provider import LogColorProvider
+from protostar.io.log_color_provider import LogColorProvider
 
 
 class InputRequester:

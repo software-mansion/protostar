@@ -1,7 +1,7 @@
 import pytest
 from pytest_mock import MockerFixture
 
-from protostar.utils.hook import Hook
+from protostar.testing.hook import Hook
 
 
 @pytest.mark.asyncio

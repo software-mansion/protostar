@@ -1,5 +1,5 @@
 import json
-from os import listdir
+from glob import glob
 from pathlib import Path
 from typing import Dict
 
@@ -11,7 +11,6 @@ from protostar.starknet_gateway.starknet_request import StarknetRequest
 from tests.data.contracts import IDENTITY_CONTRACT
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.migrator.conftest import MigrateFixture
-from tests.integration.protostar_fixture import ProtostarFixture
 
 
 @pytest.fixture(autouse=True, scope="module", name="protostar")
@@ -63,40 +62,8 @@ async def test_failure_when_calling_not_existing_contract(migrate: MigrateFixtur
         await migrate('call(123, "_")')
 
 
-async def test_migration_using_call_creates_output(
-    protostar: ProtostarFixture, devnet_gateway_url: str
-):
-    migration_file_path = protostar.create_migration_file(
-        """
-        contract_address = deploy_contract("./build/main.json").contract_address
-        call(contract_address, "identity", [42])
-        """
-    )
-    migration_output_relative_path = Path("./migrations/output")
-
-    migration_history = await protostar.migrate(
-        migration_file_path,
-        gateway_url=devnet_gateway_url,
-        output_dir=migration_output_relative_path,
-    )
-
-    loaded_migration_output = load_migration_history_from_output(
-        migration_output_path=protostar.project_root_path
-        / migration_output_relative_path
-    )
-    assert loaded_migration_output is not None
-    output_file_content = str(loaded_migration_output)
-    assert "CALL" in output_file_content
-    assert "[42]" in output_file_content
-    assert "{'res': 42}" in output_file_content
-    contract_address = extract_contract_address_from_deploy_response(
-        migration_history.starknet_requests[0].response
-    )
-    assert str(contract_address) in output_file_content
-
-
 def load_migration_history_from_output(migration_output_path: Path) -> Dict:
-    migration_output_file_names = listdir(migration_output_path)
+    migration_output_file_names = glob(f"{migration_output_path}/*.json")
     assert len(migration_output_file_names) == 1
     migration_output_file_path = migration_output_path / migration_output_file_names[0]
     return load_json(migration_output_file_path)

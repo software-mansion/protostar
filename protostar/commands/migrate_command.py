@@ -5,6 +5,7 @@ from typing import List, Optional
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.signer import BaseSigner
 
+from protostar.commands.build_command import BuildCommand
 from protostar.cli import Command
 from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.cli.signable_command_util import SignableCommandUtil
@@ -12,8 +13,8 @@ from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet import CheatcodeException
 from protostar.starknet_gateway.gateway_facade_factory import GatewayFacadeFactory
-from protostar.utils.input_requester import InputRequester
-from protostar.utils.log_color_provider import LogColorProvider
+from protostar.io.input_requester import InputRequester
+from protostar.io.log_color_provider import LogColorProvider
 
 
 class MigrateCommand(Command):
@@ -57,11 +58,6 @@ class MigrateCommand(Command):
                 is_positional=True,
             ),
             Command.Argument(
-                name="output-dir",
-                description="Migration output directory.",
-                type="path",
-            ),
-            Command.Argument(
                 name="rollback",
                 description="Run `rollback` function in the migration script.",
                 type="bool",
@@ -70,6 +66,12 @@ class MigrateCommand(Command):
                 name="no-confirm",
                 description="Skip confirming building the project.",
                 type="bool",
+            ),
+            Command.Argument(
+                name="compiled-contracts-dir",
+                description="A directory in which your compiled contracts are located (used for deploys and declares)",
+                type="path",
+                default=BuildCommand.COMPILATION_OUTPUT_ARG.default,
             ),
         ]
 
@@ -86,10 +88,10 @@ class MigrateCommand(Command):
             migration_file_path=args.path,
             rollback=args.rollback,
             gateway_client=network_command_util.get_gateway_client(),
-            output_dir_path=args.output_dir,
             no_confirm=args.no_confirm,
             migrator_config=migrator_config,
             signer=signer,
+            compiled_contracts_dir_path=args.compiled_contracts_dir,
         )
 
     async def migrate(
@@ -97,9 +99,9 @@ class MigrateCommand(Command):
         migration_file_path: Path,
         rollback: bool,
         gateway_client: GatewayClient,
-        output_dir_path: Optional[Path],
         migrator_config: MigratorExecutionEnvironment.Config,
         no_confirm: bool,
+        compiled_contracts_dir_path: Path,
         signer: Optional[BaseSigner] = None,
     ):
         # mitigates the risk of running migrate on an outdated project
@@ -125,16 +127,14 @@ class MigrateCommand(Command):
             self._migrator_builder.set_signer(signer)
 
         self._migrator_builder.set_gateway_facade(gateway_facade)
-        migrator = await self._migrator_builder.build(migration_file_path)
+        migrator = await self._migrator_builder.build(
+            migration_file_path=migration_file_path,
+            compiled_contracts_dir_path=compiled_contracts_dir_path,
+        )
 
         try:
             migrator_history = await migrator.run(rollback)
-
-            if output_dir_path:
-                migrator.save_history(
-                    migrator_history,
-                    output_dir_relative_path=output_dir_path,
-                )
+            migrator.save_history(migrator_history, migration_file_path.parent)
             self._logger.info("Migration completed")
 
             return migrator_history

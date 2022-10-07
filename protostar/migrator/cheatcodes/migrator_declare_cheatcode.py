@@ -11,9 +11,11 @@ from protostar.starknet import (
     KeywordOnlyArgumentCheatcodeException,
 )
 from protostar.starknet_gateway import Fee, GatewayFacade
-from protostar.starknet_gateway.gateway_facade import CompilationOutputNotFoundException
 
-from ..migrator_contract_identifier_resolver import MigratorContractIdentifierResolver
+from ..migrator_contract_identifier_resolver import (
+    MigratorContractIdentifierResolver,
+    ContractIdentificationException,
+)
 from .network_config import CheatcodeNetworkConfig, ValidatedCheatcodeNetworkConfig
 
 
@@ -24,7 +26,7 @@ class DeclaredContract:
 
 class DeclareCheatcodeProtocol(Protocol):
     def __call__(
-        self, contract_path_str: str, *args, config: Optional[Any] = None
+        self, contract: str, *args, config: Optional[Any] = None
     ) -> DeclaredContract:
         ...
 
@@ -80,21 +82,23 @@ class MigratorDeclareCheatcode(Cheatcode):
 
     def _declare(
         self,
-        contract_path_str: str,
+        contract: str,
         *args,
         config: Optional[DeclareCheatcodeNetworkConfig] = None,
     ) -> DeclaredContract:
-        contract_identifier = contract_path_str
+        contract_identifier = contract
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
 
         validated_config = ValidatedDeclareCheatcodeNetworkConfig.from_declare_cheatcode_network_config(
             config
         )
-        compiled_contract_path = self._migrator_contract_identifier_resolver.resolve(
-            contract_identifier
-        )
+
         try:
+            compiled_contract_path = (
+                self._migrator_contract_identifier_resolver.resolve(contract_identifier)
+            )
+
             if self._config.signer and self._config.account_address is not None:
                 if validated_config.max_fee is None:
                     raise CheatcodeException(
@@ -121,5 +125,5 @@ class MigratorDeclareCheatcode(Cheatcode):
             return DeclaredContract(
                 class_hash=response.class_hash,
             )
-        except CompilationOutputNotFoundException as ex:
+        except ContractIdentificationException as ex:
             raise CheatcodeException(self, ex.message) from ex

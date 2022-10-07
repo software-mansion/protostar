@@ -8,7 +8,7 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     PreprocessorError,
 )
 
-from protostar.utils.starknet_compilation import StarknetCompiler
+from protostar.starknet.compiler.starknet_compilation import StarknetCompiler
 
 from .test_collector import TestCollector
 from .test_suite import TestCase, TestSuite
