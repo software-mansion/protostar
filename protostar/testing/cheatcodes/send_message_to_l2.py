@@ -4,34 +4,35 @@ from starkware.starknet.business_logic.execution.execute_entry_point import (
     ExecuteEntryPoint,
 )
 from starkware.starknet.business_logic.execution.objects import CallType
-from starkware.starknet.public.abi import get_selector_from_name
-from starkware.starknet.services.api.contract_class import EntryPointType, ContractClass
+from starkware.starknet.public.abi import get_selector_from_name, AbiType
+from starkware.starknet.services.api.contract_class import EntryPointType
 
 from protostar.starknet import Cheatcode, CheatcodeException
-from protostar.starknet.data_transformer import CairoOrPythonData, from_python_transformer
+from protostar.starknet.data_transformer import (
+    CairoOrPythonData,
+    from_python_transformer,
+)
 
 
 def get_calldata_for_execution(
-        payload: CairoOrPythonData,
-        l1_sender_address: int,
-        contract_class: ContractClass,
-        fn_name: str,
-    ) -> List[int]:
+    payload: CairoOrPythonData,
+    l1_sender_address: int,
+    abi: AbiType,
+    fn_name: str,
+) -> List[int]:
     if isinstance(payload, Mapping):
-        transformer = from_python_transformer(contract_class.abi, fn_name, "inputs")
+        transformer = from_python_transformer(abi, fn_name, "inputs")
         return transformer(
             {
                 **payload,
                 "from_address": l1_sender_address,
             }
         )
-    return [l1_sender_address, *(payload or [])]
+    return [l1_sender_address, *payload]
 
 
-def get_contract_l1_handlers_names(contract_class: ContractClass) -> List[str]:
-    return [
-        fn["name"] for fn in contract_class.abi if fn["type"] == "l1_handler"
-    ]
+def get_contract_l1_handlers_names(abi: AbiType) -> List[str]:
+    return [fn["name"] for fn in abi if fn["type"] == "l1_handler"]
 
 
 class SendMessageToL2Cheatcode(Cheatcode):
@@ -49,23 +50,26 @@ class SendMessageToL2Cheatcode(Cheatcode):
         to_address: Optional[int] = None,
         payload: Optional[CairoOrPythonData] = None,
     ) -> None:
-        to_address = (
-            to_address if to_address else self.contract_address
-        )
+        to_address = to_address if to_address else self.contract_address
 
         class_hash = self.state.get_class_hash_at(to_address)
         contract_class = self.state.get_contract_class(class_hash)
 
         if not contract_class.abi:
-            raise CheatcodeException(self, "Contract (address: {hex(contract_address)}) doesn't have any entrypoints")
+            raise CheatcodeException(
+                self,
+                "Contract (address: {hex(contract_address)}) doesn't have any entrypoints",
+            )
 
-        if fn_name not in get_contract_l1_handlers_names(contract_class):
+        if fn_name not in get_contract_l1_handlers_names(contract_class.abi):
             raise CheatcodeException(
                 self,
                 f"L1 handler {fn_name} was not found in contract (address: {hex(to_address)}) ABI",
             )
 
-        calldata = get_calldata_for_execution(payload, from_address, contract_class, fn_name)
+        calldata = get_calldata_for_execution(
+            payload or [], from_address, contract_class.abi, fn_name
+        )
 
         self.execute_entry_point(
             ExecuteEntryPoint.create(
