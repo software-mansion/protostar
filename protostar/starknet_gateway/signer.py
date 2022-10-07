@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Optional
 
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer import BaseSigner
@@ -14,7 +13,7 @@ ProtostarDefaultSigner = StarkCurveSigner
 @dataclass
 class AccountConfig:
     account_address: str
-    signer: Optional[ProtostarBaseSigner]
+    signer: ProtostarBaseSigner
 
 
 def create_protostar_default_signer(
