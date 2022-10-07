@@ -25,7 +25,7 @@ class DeployContractCheatcodeProtocol(Protocol):
     # pylint: disable=keyword-arg-before-vararg
     def __call__(
         self,
-        contract_path: str,
+        contract: str,
         constructor_args: Optional[CairoOrPythonData] = None,
         *args,
         config: Optional[Any] = None,
@@ -63,7 +63,7 @@ class MigratorDeployContractCheatcode(Cheatcode):
     # pylint: disable=keyword-arg-before-vararg
     def _deploy_contract(
         self,
-        contract_path: str,
+        contract: str,
         constructor_args: Optional[CairoOrPythonData] = None,
         *args,
         config: Optional[CheatcodeNetworkConfig] = None,
@@ -74,7 +74,7 @@ class MigratorDeployContractCheatcode(Cheatcode):
             "https://docs.starknet.io/docs/Blocks/transactions/#deploy-transaction"
         )
 
-        contract_identifier = contract_path
+        contract_identifier = contract
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
 

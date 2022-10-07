@@ -56,7 +56,7 @@ class ProjectCompiler:
         for contract_name in contracts_section.get_contract_names():
             contract = self.compile_contract_from_contract_name(contract_name, config)
             CompiledContractWriter(contract, contract_name).save(
-                output_dir=self._get_compilation_output_dir(output_dir)
+                output_dir=self.get_compilation_output_dir(output_dir)
             )
 
     def compile_contract_from_contract_identifier(
@@ -128,7 +128,7 @@ class ProjectCompiler:
             )
         ]
 
-    def _get_compilation_output_dir(self, output_dir: Path) -> Path:
+    def get_compilation_output_dir(self, output_dir: Path) -> Path:
         if not output_dir.is_absolute():
             output_dir = self._project_root_path / output_dir
         return output_dir

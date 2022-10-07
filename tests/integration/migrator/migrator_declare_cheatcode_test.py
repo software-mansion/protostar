@@ -50,7 +50,7 @@ async def test_descriptive_error_on_file_not_found(
     with pytest.raises(
         ProtostarException,
         match=re.compile(
-            "Couldn't find `.*/NOT_EXISTING_FILE.json`",
+            "Couldn't find `.*NOT_EXISTING_FILE.json`",
         ),
     ):
         await protostar.migrate(migration_file_path, gateway_url=devnet_gateway_url)
@@ -132,3 +132,35 @@ async def test_declare_v0(
     )
     await assert_transaction_accepted(devnet_gateway_url, transaction_hash)
     assert result.starknet_requests[0].payload["version"] == 0
+
+
+@pytest.mark.parametrize("contract", ("main", "./build/main.json"))
+async def test_declare_by_contract_identifier(
+    protostar: ProtostarFixture,
+    devnet_gateway_url: str,
+    contract: str,
+):
+    migration_file_path = protostar.create_migration_file(f'declare("{contract}")')
+    result = await protostar.migrate(
+        migration_file_path,
+        gateway_url=devnet_gateway_url,
+    )
+    assert result.starknet_requests[0].response["code"] == "TRANSACTION_RECEIVED"
+    transaction_hash = cast(
+        int, result.starknet_requests[0].response["transaction_hash"]
+    )
+    await assert_transaction_accepted(devnet_gateway_url, transaction_hash)
+
+
+@pytest.mark.parametrize("contract", ("contracts/main", "main.json"))
+async def test_declare_incorrect_contract_identifier(
+    protostar: ProtostarFixture,
+    devnet_gateway_url: str,
+    contract: str,
+):
+    migration_file_path = protostar.create_migration_file(f'declare("{contract}")')
+    with pytest.raises(ProtostarException, match=r".*Couldn't find"):
+        await protostar.migrate(
+            migration_file_path,
+            gateway_url=devnet_gateway_url,
+        )
