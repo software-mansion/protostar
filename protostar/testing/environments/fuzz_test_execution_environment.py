@@ -120,6 +120,23 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             )
         )
 
+    def produce_examples(self, function_name):
+        functions = [
+            item for item in self.state.contract.abi if item["name"] == function_name
+        ]
+        assert len(functions) == 1
+        function = functions[0]
+        function_inputs_names = [
+            input_item["name"] for input_item in function["inputs"]
+        ]
+        examples = []
+        for example_item in self.state.config.fuzz_examples:
+            if isinstance(example_item, dict):
+                examples.append(example_item)
+                continue
+            examples.append(dict(zip(function_inputs_names, list(example_item))))
+        return examples
+
     def build_and_run_test(
         self,
         function_name: str,
@@ -129,22 +146,8 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         given_strategies: Dict[str, SearchStrategy],
     ):
         try:
-            functions = [
-                item
-                for item in self.state.contract.abi
-                if item["name"] == function_name
-            ]
-            assert len(functions) == 1
-            function = functions[0]
-            function_inputs_names = [input["name"] for input in function["inputs"]]
-            examples = []
-            for example_item in self.state.config.fuzz_examples:
-                if isinstance(example_item, dict):
-                    examples.append(example_item)
-                    continue
-                examples.append(dict(zip(function_inputs_names, list(example_item))))
 
-            @multiply_decorator(example, examples)
+            @multiply_decorator(example, self.produce_examples(function_name))
             @seed(self.state.config.seed)
             @settings(
                 database=database,
