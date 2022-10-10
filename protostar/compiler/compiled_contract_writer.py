@@ -9,7 +9,7 @@ from starkware.starknet.services.api.contract_class import ContractClass
 @dataclass
 class CompiledContractWriterSaveResult:
     compiled_contract_path: Path
-    compiled_contract_path_abi: Optional[Path]
+    compiled_contract_path_abi: Path
 
 
 class CompiledContractWriter:
@@ -32,12 +32,10 @@ class CompiledContractWriter:
         self._save_as_json(data=serialized_contract, path=file_path)
         return file_path
 
-    def save_compiled_contract_abi(self, output_dir: Path) -> Optional[Path]:
-        if not self._contract.abi:
-            return None
+    def save_compiled_contract_abi(self, output_dir: Path) -> Path:
         self._create_output_dir(output_dir)
         file_path = output_dir / f"{self._contract_name}_abi.json"
-        self._save_as_json(data=self._contract.abi, path=file_path)
+        self._save_as_json(data=self._contract.abi or "", path=file_path)
         return file_path
 
     @staticmethod
