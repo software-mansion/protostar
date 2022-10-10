@@ -1,51 +1,37 @@
 import re
-from abc import abstractmethod
 from pathlib import Path
 from re import Pattern
-from typing import Generic, TypeVar
+from typing import Any, Callable, Literal
 
-ParsingResultT = TypeVar("ParsingResultT")
-
-
-class ArgType(Generic[ParsingResultT]):
-    @abstractmethod
-    def get_name(self) -> str:
-        ...
-
-    @abstractmethod
-    def parse(self, arg: str) -> ParsingResultT:
-        ...
+ArgTypeName = Literal[
+    "str",
+    "directory",
+    "path",
+    "bool",
+    "regexp",
+    "int",
+]
 
 
-class StringArgType(ArgType[str]):
-    def get_name(self):
-        return "str"
-
-    def parse(self, arg: str) -> str:
-        return arg
-
-
-class DirectoryArgType(ArgType[Path]):
-    def get_name(self):
-        return "directory"
-
-    def parse(self, arg: str) -> Path:
-        path = Path(arg)
-        assert path.is_dir(), f'"{str(path)}" is not a valid directory path'
-        return path
+def map_type_name_to_parser(argument_type: str) -> Callable[[str], Any]:
+    type_name_to_parser_mapping: dict[ArgTypeName, Callable[[str], Any]] = {
+        "str": str,
+        "bool": bool,
+        "int": int,
+        "directory": parse_directory_arg_type,
+        "regexp": re.compile,
+        "path": Path,
+    }
+    if argument_type in type_name_to_parser_mapping:
+        return type_name_to_parser_mapping[argument_type]
+    assert False, "Unknown argument type"
 
 
-class PathArgType(ArgType[Path]):
-    def get_name(self) -> str:
-        return "path"
-
-    def parse(self, arg: str) -> Path:
-        return Path(arg)
+def parse_directory_arg_type(arg: str) -> Path:
+    path = Path(arg)
+    assert path.is_dir(), f'"{str(path)}" is not a valid directory path'
+    return path
 
 
-class RegexArgType(ArgType[Pattern]):
-    def get_name(self) -> str:
-        return "regex"
-
-    def parse(self, arg: str) -> Pattern:
-        return re.compile(arg)
+def parse_regex(arg: str) -> Pattern:
+    return re.compile(arg)

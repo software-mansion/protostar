@@ -5,21 +5,8 @@ from pathlib import Path
 from typing import Any, List, Optional, Pattern
 
 from starkware.starknet.utils.api_utils import cast_to_felts
-from typing_extensions import Literal
 
 from protostar.starknet_gateway import Fee
-
-InputAllowedType = Literal[
-    "str",
-    "directory",
-    "path",
-    "bool",
-    "regexp",
-    "int",  # only decimal!
-    "felt",
-    "wei",
-    "fee",
-]
 
 
 class Command(ABC):

@@ -3,49 +3,43 @@ from re import Pattern
 
 import pytest
 
-from .arg_type import DirectoryArgType, PathArgType, RegexArgType, StringArgType
+from .arg_type import (
+    parse_directory_arg_type,
+    parse_path,
+    parse_regex,
+    parse_str_arg_type,
+)
 
 
 def test_string_arg_type():
-    arg_type = StringArgType()
+    result = parse_str_arg_type("123")
 
-    result = arg_type.parse("123")
-
-    assert arg_type.get_name() == "str"
     assert isinstance(result, str)
 
 
 def test_directory_arg_type(tmp_path: Path):
     dir_path = tmp_path / "tmp"
     dir_path.mkdir()
-    arg_type = DirectoryArgType()
 
-    result = arg_type.parse(str(dir_path))
+    result = parse_directory_arg_type(str(dir_path))
 
-    assert arg_type.get_name() == "directory"
     assert isinstance(result, Path)
 
 
 def test_directory_arg_type_fails_when_no_directory(tmp_path: Path):
     dir_path = tmp_path / "tmp"
-    arg_type = DirectoryArgType()
 
     with pytest.raises(AssertionError):
-        arg_type.parse(str(dir_path))
+        parse_directory_arg_type(str(dir_path))
 
 
 def test_path_arg_type(tmp_path: Path):
-    arg_type = PathArgType()
+    result = parse_path(str(tmp_path))
 
-    result = arg_type.parse(str(tmp_path))
-
-    assert arg_type.get_name() == "path"
     assert isinstance(result, Path)
 
 
 def test_regex_arg_type():
-    arg_type = RegexArgType()
-
-    result = arg_type.parse(".*")
+    result = parse_regex(".*")
 
     assert isinstance(result, Pattern)
