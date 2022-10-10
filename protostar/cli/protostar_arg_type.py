@@ -15,12 +15,10 @@ ProtostarArgTypeName = Literal[
 def map_protostar_type_name_to_parser(
     argument_type: Union[ProtostarArgTypeName, ArgTypeName]
 ) -> Callable[[str], Any]:
-    type_name_to_parser_mapping: dict[ProtostarArgTypeName, Callable[[str], Any]] = {
-        "felt": parse_felt_arg_type,
-        "fee": parse_fee_arg_type,
-    }
-    if argument_type in type_name_to_parser_mapping:
-        return type_name_to_parser_mapping[argument_type]
+    if argument_type == "felt":
+        return parse_felt_arg_type
+    if argument_type == "fee":
+        return parse_fee_arg_type
     return map_type_name_to_parser(argument_type)
 
 

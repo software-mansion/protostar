@@ -1,5 +1,15 @@
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter, _SubParsersAction
-from typing import Any, Callable, Generic, List, Optional, Sequence, Tuple, TypeVar
+from typing import (
+    Any,
+    Callable,
+    Generic,
+    List,
+    Optional,
+    Protocol,
+    Sequence,
+    Tuple,
+    TypeVar,
+)
 
 from .arg_type import ArgTypeName, map_type_name_to_parser
 from .argument import Argument
@@ -7,16 +17,26 @@ from .cli_app import CLIApp
 from .command import Command
 from .config_file_argument_resolver import ConfigFileArgumentResolverProtocol
 
-ArgTypeNameT = TypeVar("ArgTypeNameT", bound=ArgTypeName)
+ArgTypeNameT_contra = TypeVar(
+    "ArgTypeNameT_contra", bound=ArgTypeName, contravariant=True
+)
 
 
-class ArgumentParserFacade(Generic[ArgTypeNameT]):
+class ParserResolverProtocol(Protocol, Generic[ArgTypeNameT_contra]):
+    def __call__(self, argument_type: ArgTypeNameT_contra) -> Callable[[str], Any]:
+        ...
+
+
+class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
     def __init__(
         self,
         cli_app: CLIApp,
         config_file_argument_value_resolver: Optional[
             ConfigFileArgumentResolverProtocol
         ] = None,
+        parser_resolver: ParserResolverProtocol[
+            ArgTypeNameT_contra
+        ] = map_type_name_to_parser,
         disable_help=False,
     ) -> None:
         self.argument_parser = ArgumentParser(
@@ -25,6 +45,7 @@ class ArgumentParserFacade(Generic[ArgTypeNameT]):
         self.command_parsers: Optional[_SubParsersAction] = None
         self.cli_app = cli_app
         self._config_file_argument_value_resolver = config_file_argument_value_resolver
+        self._parser_resolver = parser_resolver
         self._setup_parser()
 
     def parse(
@@ -69,8 +90,8 @@ class ArgumentParserFacade(Generic[ArgTypeNameT]):
 
     @staticmethod
     def _find_missing_required_arg(
-        declared_args: List[Argument[ArgTypeNameT]], parsed_args: Namespace
-    ) -> Optional[Argument[ArgTypeNameT]]:
+        declared_args: List[Argument[ArgTypeNameT_contra]], parsed_args: Namespace
+    ) -> Optional[Argument[ArgTypeNameT_contra]]:
         for arg in declared_args:
             if not arg.is_required:
                 continue
@@ -108,7 +129,7 @@ class ArgumentParserFacade(Generic[ArgTypeNameT]):
         return self
 
     def _add_root_argument(
-        self, argument: Argument[ArgTypeNameT]
+        self, argument: Argument[ArgTypeNameT_contra]
     ) -> "ArgumentParserFacade":
         assert (
             argument.is_positional is False
@@ -121,8 +142,8 @@ class ArgumentParserFacade(Generic[ArgTypeNameT]):
         return self
 
     def _update_from_config(
-        self, command: Optional[Command], argument: Argument[ArgTypeNameT]
-    ) -> Argument[ArgTypeNameT]:
+        self, command: Optional[Command], argument: Argument[ArgTypeNameT_contra]
+    ) -> Argument[ArgTypeNameT_contra]:
         if self._config_file_argument_value_resolver:
             new_default = self._config_file_argument_value_resolver.resolve_argument(
                 command.name if command else None, argument.name
@@ -132,7 +153,7 @@ class ArgumentParserFacade(Generic[ArgTypeNameT]):
         return argument
 
     def _add_argument(
-        self, argument_parser: ArgumentParser, argument: Argument[ArgTypeNameT]
+        self, argument_parser: ArgumentParser, argument: Argument[ArgTypeNameT_contra]
     ) -> ArgumentParser:
         name = argument.name if argument.is_positional else f"--{argument.name}"
         short_name = f"-{argument.short_name}" if argument.short_name else None
@@ -154,7 +175,7 @@ class ArgumentParserFacade(Generic[ArgTypeNameT]):
             )
             return argument_parser
 
-        arg_type = self._map_type_to_arg_type(argument.type)
+        arg_type = self._parser_resolver(argument.type)
 
         default = argument.default
 
@@ -177,11 +198,6 @@ class ArgumentParserFacade(Generic[ArgTypeNameT]):
             **kwargs,
         )
         return argument_parser
-
-    def _map_type_to_arg_type(
-        self, argument_type: ArgTypeNameT
-    ) -> Callable[[str], Any]:
-        return map_type_name_to_parser(argument_type)
 
 
 class MissingRequiredArgumentException(Exception):

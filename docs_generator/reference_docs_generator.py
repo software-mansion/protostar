@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List
+from typing import Any, List
 
 from protostar.cli.cli_app import CLIApp
 from protostar.cli.command import Command
@@ -11,7 +11,7 @@ class ReferenceDocsGenerator:
         with open(filepath, "w", encoding="utf_8") as file:
             file.write(content)
 
-    def __init__(self, cli_app: CLIApp) -> None:
+    def __init__(self, cli_app: CLIApp[Any]) -> None:
         self.cli_app = cli_app
 
     def generate_cli_reference_markdown(self) -> str:
