@@ -6,7 +6,7 @@ from starkware.cairo.common.math import assert_le
 func setup_examples() {
     %{
         max_examples(5)
-        # todo test no example
+        
         example(1, 2)
         example(2, 3)
         example(a=3, b=4)
