@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import pytest
-from pytest_mock import MockerFixture
 from starkware.starknet.services.api.contract_class import ContractClass
 
 from .compiled_contract_writer import CompiledContractWriter

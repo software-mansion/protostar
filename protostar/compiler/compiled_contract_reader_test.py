@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Optional
+from typing import Optional
 
 import pytest
 from starkware.starknet.public.abi import AbiType
