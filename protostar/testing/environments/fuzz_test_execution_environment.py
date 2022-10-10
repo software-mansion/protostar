@@ -10,10 +10,10 @@ from hypothesis.reporting import with_reporter
 from hypothesis.strategies import SearchStrategy
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
-from protostar.starknet import CheatcodeException, ReportedException
+from protostar.starknet import ReportedException
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.testing.cheatcodes import AssumeCheatcode, RejectCheatcode
-from protostar.testing.fuzzing.exceptions import HypothesisRejectException
+from protostar.testing.fuzzing.exceptions import HypothesisRejectException, FuzzingError
 from protostar.testing.fuzzing.fuzz_input_exception_metadata import (
     FuzzInputExceptionMetadata,
 )
@@ -170,7 +170,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         except InvalidArgument as ex:
             # This exception is sometimes raised by Hypothesis during runtime when user messes up
             # strategy arguments. For example, invalid range for `integers` strategy is caught here.
-            raise CheatcodeException("given or example", str(ex)) from ex
+            raise FuzzingError(str(ex)) from ex
 
 
 @dataclass
