@@ -1,6 +1,6 @@
 import pytest
 
-from .protostar_arg_type import FeeArgType, FeltArgType
+from .protostar_arg_type import map_protostar_type_name_to_parser
 
 
 @pytest.mark.parametrize(
@@ -12,10 +12,11 @@ from .protostar_arg_type import FeeArgType, FeltArgType
     ],
 )
 def test_felt_type(test_input, expected):
-    result = FeltArgType().parse(test_input)
+    result = map_protostar_type_name_to_parser("felt")(test_input)
     assert result == expected
 
 
 def test_fee_type():
-    assert FeeArgType().parse("auto") == "auto"
-    assert FeeArgType().parse("123") == 123
+    parse_fee = map_protostar_type_name_to_parser("fee")
+    assert parse_fee("auto") == "auto"
+    assert parse_fee("123") == 123
