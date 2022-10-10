@@ -2,7 +2,6 @@ from typing import Any, Optional
 
 import pytest
 from starkware.starknet.public.abi import AbiType
-from starkware.starknet.services.api.contract_class import ContractClass
 
 
 @pytest.fixture(name="abi")
