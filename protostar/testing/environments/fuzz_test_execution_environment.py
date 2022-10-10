@@ -184,7 +184,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         except InvalidArgument as ex:
             # This exception is sometimes raised by Hypothesis during runtime when user messes up
             # strategy arguments. For example, invalid range for `integers` strategy is caught here.
-            raise CheatcodeException("unknown", str(ex)) from ex
+            raise CheatcodeException("given or example", str(ex)) from ex
 
 
 @dataclass
