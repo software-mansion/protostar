@@ -6,10 +6,10 @@ from protostar.cli.arg_type import ArgTypeName
 from .arg_type import ArgTypeName
 from .argument import Argument as GenericArgument
 
-ArgTypeNameT = TypeVar("ArgTypeNameT", covariant=True)
+ArgTypeNameT_co = TypeVar("ArgTypeNameT_co", covariant=True)
 
 
-class Command(Generic[ArgTypeNameT]):
+class Command(Generic[ArgTypeNameT_co]):
     Argument = GenericArgument[ArgTypeName]
 
     @property
@@ -29,7 +29,7 @@ class Command(Generic[ArgTypeNameT]):
 
     @property
     @abstractmethod
-    def arguments(self) -> List[Union[Argument, GenericArgument[ArgTypeNameT]]]:
+    def arguments(self) -> List[Union[Argument, GenericArgument[ArgTypeNameT_co]]]:
         ...
 
     @abstractmethod
