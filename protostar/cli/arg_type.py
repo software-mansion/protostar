@@ -24,7 +24,7 @@ def map_type_name_to_parser(argument_type: ArgTypeName) -> Callable[[str], Any]:
     }
     if argument_type in type_name_to_parser_mapping:
         return type_name_to_parser_mapping[argument_type]
-    assert False, "Unknown argument type"
+    assert False, f"Unknown argument type {argument_type}"
 
 
 def parse_directory_arg_type(arg: str) -> Path:

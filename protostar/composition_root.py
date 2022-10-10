@@ -3,7 +3,11 @@ from logging import getLogger
 from pathlib import Path
 from typing import List, Optional
 
-from protostar.cli import ArgumentParserFacade, Command
+from protostar.cli import (
+    ArgumentParserFacade,
+    Command,
+    map_protostar_type_name_to_parser,
+)
 from protostar.commands import (
     BuildCommand,
     DeclareCommand,
@@ -25,6 +29,7 @@ from protostar.commands.init.project_creator import (
 from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.configuration_file import ConfigurationFileFactory
+from protostar.io import InputRequester, log_color_provider
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_cli import ProtostarCLI
 from protostar.protostar_toml import (
@@ -34,20 +39,13 @@ from protostar.protostar_toml import (
     ProtostarTOMLWriter,
     search_upwards_protostar_toml_path,
 )
+from protostar.self.protostar_directory import ProtostarDirectory, VersionManager
 from protostar.starknet_gateway import GatewayFacadeFactory
 from protostar.upgrader import (
     LatestVersionCacheTOML,
     LatestVersionChecker,
     LatestVersionRemoteChecker,
     UpgradeManager,
-)
-from protostar.io import (
-    InputRequester,
-    log_color_provider,
-)
-from protostar.self.protostar_directory import (
-    ProtostarDirectory,
-    VersionManager,
 )
 
 
@@ -200,6 +198,10 @@ def build_di_container(
     if configuration_file:
         configuration_file.set_command_names_provider(protostar_cli)
 
-    argument_parser_facade = ArgumentParserFacade(protostar_cli, configuration_file)
+    argument_parser_facade = ArgumentParserFacade(
+        protostar_cli,
+        configuration_file,
+        parser_resolver=map_protostar_type_name_to_parser,
+    )
 
     return DIContainer(protostar_cli, argument_parser_facade)
