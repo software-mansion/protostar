@@ -8,6 +8,9 @@ from .test_config import TestMode, TestModeConversionException
     [
         (TestMode.STANDARD, TestMode.FUZZ, True),
         (TestMode.FUZZ, TestMode.STANDARD, False),
+        (TestMode.STANDARD, TestMode.PARAMETERIZED, False),
+        (TestMode.PARAMETERIZED, TestMode.FUZZ, True),
+        (TestMode.FUZZ, TestMode.PARAMETERIZED, True),
         *[(mode, mode, True) for mode in TestMode],
         *[(TestMode.UNDETERMINED, mode, True) for mode in TestMode],
         *[

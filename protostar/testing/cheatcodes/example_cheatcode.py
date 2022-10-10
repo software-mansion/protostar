@@ -29,7 +29,7 @@ class ExampleCheatcode(Cheatcode):
         return self.example
 
     def example(self, *args: Any, **kwargs: Any) -> None:
-        self.test_config.convert_mode_to(TestMode.FUZZ)
+        self.test_config.convert_mode_to(TestMode.PARAMETERIZED)
 
         assert bool(args) != bool(
             kwargs

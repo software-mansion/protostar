@@ -30,6 +30,7 @@ class TestMode(Enum):
     UNDETERMINED = 0
     STANDARD = 1
     FUZZ = 2
+    PARAMETERIZED = 3
 
     @property
     def pretty_name(self) -> str:
@@ -45,6 +46,9 @@ class TestMode(Enum):
         if self is self.FUZZ:
             return "fuzzing mode"
 
+        if self is self.PARAMETERIZED:
+            return "parameterized mode"
+
         raise NotImplementedError("Unreachable.")
 
     def can_convert_to(self, to_mode: Self) -> bool:
@@ -55,6 +59,8 @@ class TestMode(Enum):
                 (self, to_mode)
                 in {
                     (self.STANDARD, self.FUZZ),
+                    (self.FUZZ, self.PARAMETERIZED),
+                    (self.PARAMETERIZED, self.FUZZ),
                 }
             )
         )
