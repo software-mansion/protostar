@@ -35,22 +35,7 @@ from .test_execution_environment import (
     TestExecutionEnvironment,
     TestExecutionResult,
 )
-
-
-def multiply_decorator(other_dec, args):
-    def inner(func):
-        current_fn = func
-        if not args:
-            return current_fn
-        args.reverse()
-        for arg in args:
-            if isinstance(arg, dict):
-                current_fn = other_dec(**arg)(current_fn)
-            else:
-                current_fn = other_dec(*arg)(current_fn)
-        return current_fn
-
-    return inner
+from .multiply_decorator import multiply_decorator
 
 
 @dataclass
