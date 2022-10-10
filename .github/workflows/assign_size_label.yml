@@ -3,7 +3,7 @@ on: pull_request
 jobs:
   size-label:
     runs-on: ubuntu-latest
-    if: ${{ github.repository == 'software-mansion/protostar' }} # do not run on forks
+    if: ${{ github.repository == 'software-mansion/protostar' && github.actor != 'dependabot[bot]' }}
     steps:
       - name: size-label
         uses: "pascalgn/size-label-action@v0.4.3"
