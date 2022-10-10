@@ -6,24 +6,21 @@ from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 
 from protostar.protostar_exception import ProtostarException
 
-ProtostarBaseSigner = BaseSigner
-ProtostarDefaultSigner = StarkCurveSigner
-
 
 @dataclass
 class AccountConfig:
     account_address: str
-    signer: ProtostarBaseSigner
+    signer: BaseSigner
 
 
-def create_protostar_default_signer(
+def create_stark_curve_signer(
     account_address: str,
     private_key: int,
     chain_id: StarknetChainId,
-) -> ProtostarDefaultSigner:
+) -> StarkCurveSigner:
     key_pair = KeyPair.from_private_key(private_key)
     try:
-        signer = ProtostarDefaultSigner(
+        signer = StarkCurveSigner(
             account_address=account_address,
             key_pair=key_pair,
             chain_id=chain_id,

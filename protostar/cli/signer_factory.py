@@ -4,14 +4,11 @@ from pathlib import Path
 from typing import Optional
 
 from starknet_py.net.models import StarknetChainId
+from starknet_py.net.signer import BaseSigner
 
 from protostar.cli import Command
 from protostar.protostar_exception import ProtostarException
-from protostar.starknet_gateway import (
-    AccountConfig,
-    ProtostarBaseSigner,
-    create_protostar_default_signer,
-)
+from protostar.starknet_gateway import AccountConfig, create_stark_curve_signer
 
 PRIVATE_KEY_ENV_VAR_NAME = "PROTOSTAR_ACCOUNT_PRIVATE_KEY"
 
@@ -39,7 +36,7 @@ SIGNABLE_ARGUMENTS = [
 def create_account_config_from_args(
     args, chain_id: StarknetChainId
 ) -> Optional[AccountConfig]:
-    custom_signer: Optional[ProtostarBaseSigner] = None
+    custom_signer: Optional[BaseSigner] = None
     if args.account_address is None:
         return None
     if args.signer_class:
@@ -47,7 +44,7 @@ def create_account_config_from_args(
         return AccountConfig(account_address=args.account_address, signer=custom_signer)
     return AccountConfig(
         account_address=args.account_address,
-        signer=create_protostar_default_signer(
+        signer=create_stark_curve_signer(
             account_address=args.account_address,
             private_key=get_private_key(args.private_key_path),
             chain_id=chain_id,
@@ -55,13 +52,13 @@ def create_account_config_from_args(
     )
 
 
-def create_custom_signer(signer_class_path: str) -> ProtostarBaseSigner:
+def create_custom_signer(signer_class_path: str) -> BaseSigner:
     *module_names, class_name = signer_class_path.split(".")
     module = ".".join(module_names)
     signer_module = importlib.import_module(module)
     # pylint: disable=invalid-name
     SignerClass = getattr(signer_module, class_name)
-    if not issubclass(SignerClass, ProtostarBaseSigner):
+    if not issubclass(SignerClass, BaseSigner):
         raise InvalidSignerClassException()
     return SignerClass()
 
