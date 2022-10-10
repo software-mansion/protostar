@@ -6,12 +6,12 @@ from starkware.cairo.common.math import assert_le
 func setup_examples() {
     %{
         max_examples(5)
-        
+
         example(1, 2)
         example(2, 3)
+        given(a = strategy.integers(10, 20), b = strategy.integers(30, 40))
         example(a=3, b=4)
         example(b=6, a=5)
-        given(a = strategy.integers(15, 20), b = strategy.integers(10, 14))
     %}
     return ();
 }
@@ -20,6 +20,7 @@ func setup_examples() {
 func test_examples{syscall_ptr: felt*, range_check_ptr}(a: felt, b: felt) {
     assert_le(0, a);
     assert_le(0, b);
+    assert_le(a, b);
     return ();
 }
 
