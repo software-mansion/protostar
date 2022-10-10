@@ -1,7 +1,7 @@
 from logging import Logger
 from typing import List, Optional
 
-from protostar.cli.command import Command
+from protostar.argument_parser import Command
 from protostar.upgrader import UpgradeManager
 
 

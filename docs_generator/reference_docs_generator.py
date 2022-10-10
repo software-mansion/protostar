@@ -1,8 +1,7 @@
 from pathlib import Path
 from typing import List
 
-from protostar.cli.cli_app import CLIApp
-from protostar.cli.command import Command
+from protostar.argument_parser import CLIApp, Command
 
 
 class ReferenceDocsGenerator:

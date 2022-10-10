@@ -1,6 +1,6 @@
 from typing import Any, List, Optional
 
-from protostar.cli.command import Command
+from .command import Command
 
 
 class CLIApp:

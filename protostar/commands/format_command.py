@@ -1,16 +1,16 @@
 from logging import Logger
-from typing import Callable, List, Optional
 from pathlib import Path
+from typing import Callable, List, Optional
 
-from protostar.cli import Command
+from protostar.argument_parser import Command
 from protostar.cli.map_targets_to_file_paths import map_targets_to_file_paths
-from protostar.protostar_exception import ProtostarExceptionSilent
 from protostar.formatter.formatter import Formatter
-from protostar.formatter.formatting_summary import FormattingSummary, format_summary
 from protostar.formatter.formatting_result import (
     FormattingResult,
     format_formatting_result,
 )
+from protostar.formatter.formatting_summary import FormattingSummary, format_summary
+from protostar.protostar_exception import ProtostarExceptionSilent
 
 
 class FormatCommand(Command):

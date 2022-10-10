@@ -3,7 +3,7 @@ from os import listdir
 from pathlib import Path
 from typing import List, Optional
 
-from protostar.cli import Command
+from protostar.argument_parser import Command
 from protostar.commands.remove.remove_command import (
     INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
 )
@@ -11,8 +11,8 @@ from protostar.commands.update.update_package import update_package
 from protostar.commands.update.updating_exceptions import (
     PackageAlreadyUpToDateException,
 )
-from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
 from protostar.package_manager import retrieve_real_package_name
+from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
 
 
 class UpdateCommand(Command):

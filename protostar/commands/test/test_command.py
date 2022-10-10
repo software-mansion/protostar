@@ -1,16 +1,27 @@
+from argparse import Namespace
 from logging import Logger
 from pathlib import Path
 from typing import List, Optional
-from argparse import Namespace
 
+from protostar.argument_parser import Command
 from protostar.cli.activity_indicator import ActivityIndicator
-from protostar.cli.command import Command
 from protostar.commands.test.test_collector_summary_formatter import (
     format_test_collector_summary,
 )
 from protostar.commands.test.test_result_formatter import format_test_result
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.compiler import ProjectCairoPathBuilder
+from protostar.io.log_color_provider import LogColorProvider
+from protostar.self.cache_io import CacheIO
+from protostar.self.protostar_directory import ProtostarDirectory
+from protostar.starknet.compiler.pass_managers import (
+    StarknetPassManagerFactory,
+    TestCollectorPassManagerFactory,
+)
+from protostar.starknet.compiler.starknet_compilation import (
+    CompilerConfig,
+    StarknetCompiler,
+)
 from protostar.testing import (
     TestCollector,
     TestingSummary,
@@ -19,16 +30,7 @@ from protostar.testing import (
     TestScheduler,
     determine_testing_seed,
 )
-from protostar.starknet.compiler.pass_managers import StarknetPassManagerFactory
-from protostar.starknet.compiler.pass_managers import TestCollectorPassManagerFactory
-from protostar.io.log_color_provider import LogColorProvider
-from protostar.self.protostar_directory import ProtostarDirectory
-from protostar.starknet.compiler.starknet_compilation import (
-    CompilerConfig,
-    StarknetCompiler,
-)
 
-from protostar.self.cache_io import CacheIO
 from .test_command_cache import TestCommandCache
 
 

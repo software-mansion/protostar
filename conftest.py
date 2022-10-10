@@ -2,7 +2,7 @@ from typing import List, Optional
 
 import pytest
 
-from protostar.cli.command import Command
+from protostar.argument_parser import Command
 
 
 class BaseTestCommand(Command):

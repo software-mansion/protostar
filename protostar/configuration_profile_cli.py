@@ -1,4 +1,4 @@
-from protostar.cli import CLIApp, Command
+from protostar.argument_parser import CLIApp, Command
 
 
 class ConfigurationProfileCLI(CLIApp):

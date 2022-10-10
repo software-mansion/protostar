@@ -2,8 +2,8 @@ from logging import Logger
 from pathlib import Path
 from typing import Any, List, Optional
 
+from protostar.argument_parser import Command
 from protostar.cairo_migrator import Cairo010Migrator
-from protostar.cli import Command
 from protostar.cli.map_targets_to_file_paths import map_targets_to_file_paths
 
 

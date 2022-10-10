@@ -1,7 +1,7 @@
 from glob import glob
 from typing import List, Optional
 
-from protostar.cli import Command
+from protostar.argument_parser import Command
 from protostar.commands.init.project_creator.adapted_project_creator import (
     AdaptedProjectCreator,
 )

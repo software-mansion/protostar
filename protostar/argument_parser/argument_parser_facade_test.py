@@ -4,13 +4,13 @@ from typing import Any, List, Optional, Pattern
 import pytest
 
 from conftest import BaseTestCommand, FooCommand
-from protostar.cli.argument_parser_facade import (
+
+from .argument_parser_facade import (
     ArgumentParserFacade,
     MissingRequiredArgumentException,
 )
-from protostar.cli.cli_app import CLIApp
-from protostar.cli.command import Command
-
+from .cli_app import CLIApp
+from .command import Command
 from .config_file_argument_resolver import ConfigFileArgumentResolverProtocol
 
 

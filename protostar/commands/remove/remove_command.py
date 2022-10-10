@@ -2,14 +2,14 @@ from logging import Logger
 from pathlib import Path
 from typing import List, Optional
 
-from protostar.cli import Command
+from protostar.argument_parser import Command
 from protostar.commands.install.install_command import (
     EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
 )
 from protostar.commands.remove.remove_package import remove_package
-from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
 from protostar.io import log_color_provider
 from protostar.package_manager import retrieve_real_package_name
+from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
 
 INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = (
     EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION

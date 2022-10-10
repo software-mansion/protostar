@@ -1,13 +1,13 @@
 from logging import Logger
-from typing import Any, Union, Optional
+from typing import Any, Optional, Union
 
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 
-from protostar.cli import Command
+from protostar.argument_parser import Command
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import NetworkConfig
-from protostar.starknet_gateway.network_config import is_legacy_network_name, NETWORKS
+from protostar.starknet_gateway.network_config import NETWORKS, is_legacy_network_name
 
 GATEWAY_URL_ARG_NAME = "gateway-url"
 NETWORK_ARG_NAME = "network"

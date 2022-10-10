@@ -6,7 +6,7 @@ from typing import Any, Optional
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 
-from protostar.cli import Command
+from protostar.argument_parser import Command
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import NetworkConfig
 

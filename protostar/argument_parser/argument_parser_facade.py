@@ -2,9 +2,8 @@ from argparse import ArgumentParser, Namespace, RawTextHelpFormatter, _SubParser
 from pathlib import Path
 from typing import Any, Callable, List, Optional, Sequence, Tuple
 
-from protostar.cli.cli_app import CLIApp
-from protostar.cli.command import Command, InputAllowedType
-
+from .cli_app import CLIApp
+from .command import Command, InputAllowedType
 from .config_file_argument_resolver import ConfigFileArgumentResolverProtocol
 
 

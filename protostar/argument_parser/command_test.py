@@ -3,7 +3,7 @@ from typing import Pattern
 
 import pytest
 
-from protostar.cli.command import Command
+from .command import Command
 
 
 def test_regexp_type():

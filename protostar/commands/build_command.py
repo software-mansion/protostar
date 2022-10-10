@@ -2,7 +2,8 @@ from logging import Logger
 from pathlib import Path
 from typing import List, Optional
 
-from protostar.cli import ActivityIndicator, Command
+from protostar.argument_parser import Command
+from protostar.cli import ActivityIndicator
 from protostar.compiler import ProjectCompiler, ProjectCompilerConfig
 from protostar.io import log_color_provider
 

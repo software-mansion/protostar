@@ -4,9 +4,10 @@ import pytest
 from pytest_mock import MockerFixture
 
 from conftest import FooCommand
-from protostar.cli.argument_parser_facade import ArgumentParserFacade
-from protostar.cli.cli_app import CLIApp
-from protostar.cli.command import Command
+
+from .argument_parser_facade import ArgumentParserFacade
+from .cli_app import CLIApp
+from .command import Command
 
 
 @pytest.mark.asyncio

@@ -5,14 +5,14 @@ from logging import INFO, Logger, StreamHandler
 from pathlib import Path
 from typing import Any, List, Optional
 
-from protostar.cli import CLIApp, Command
+from protostar.argument_parser import CLIApp, Command
 from protostar.compiler import ProjectCairoPathBuilder
 from protostar.configuration_file import CommandNamesProviderProtocol
 from protostar.configuration_profile_cli import ConfigurationProfileCLI
+from protostar.io import LogColorProvider, StandardLogFormatter
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
-from protostar.upgrader import LatestVersionChecker
-from protostar.io import StandardLogFormatter, LogColorProvider
 from protostar.self.protostar_directory import VersionManager
+from protostar.upgrader import LatestVersionChecker
 
 
 def _apply_pythonpath():
