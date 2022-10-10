@@ -34,7 +34,6 @@ class StoreCheatcode(Cheatcode):
 
         self._write_on_remote_storage(
             storage=starknet_storage,
-            contract_address=target_contract_address,
             variable_address=variable_address,
             value=value,
         )
@@ -44,9 +43,8 @@ class StoreCheatcode(Cheatcode):
             self._storage_write(address=address + i, value=val)
 
     def _write_on_remote_storage(
-        self, storage, contract_address, variable_address: int, value: List[int]
+        self, storage, variable_address: int, value: List[int]
     ):
         for i, val in enumerate(value):
             storage.read(address=variable_address + i)
             storage.write(address=variable_address + i, value=val)
-            self.resources_manager.modified_contracts[contract_address] = None
