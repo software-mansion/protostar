@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, List, Union
+from typing import Union
 
 from starkware.starknet.testing.contract import StarknetContract
 from typing_extensions import Self
@@ -91,11 +91,11 @@ class TestConfig:
     seed: Seed = field(default_factory=random_seed)
 
     fuzz_max_examples: int = 100
-    fuzz_declared_strategies: Dict[str, StrategyDescriptor] = field(
+    fuzz_declared_strategies: dict[str, StrategyDescriptor] = field(
         default_factory=dict
     )
 
-    fuzz_examples: List[Union[dict, tuple]] = field(default_factory=list)
+    fuzz_examples: list[Union[dict, tuple]] = field(default_factory=list)
 
     def convert_mode_to(self, to_mode: TestMode):
         self.mode = self.mode.convert_to(to_mode)
