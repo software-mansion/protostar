@@ -31,3 +31,6 @@ func test_less_equal_compare{syscall_ptr : felt*, range_check_ptr}(a : felt, b :
     return ();
 }
 ```
+
+Note: There is also the [`example`](./example.md) cheatcode that tests certain cases.
+This may come handy if there is a need to test specific edge cases.
