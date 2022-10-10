@@ -1,12 +1,12 @@
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Union
 
 from starkware.starknet.testing.contract import StarknetContract
 from typing_extensions import Self
 
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet.abi import has_function_parameters
+from protostar.starknet.data_transformer import PythonData
 
 from .fuzzing.strategy_descriptor import StrategyDescriptor
 from .test_suite import TestCase
@@ -95,7 +95,7 @@ class TestConfig:
         default_factory=dict
     )
 
-    fuzz_examples: list[Union[dict, tuple]] = field(default_factory=list)
+    fuzz_examples: list[PythonData] = field(default_factory=list)
 
     def convert_mode_to(self, to_mode: TestMode):
         self.mode = self.mode.convert_to(to_mode)

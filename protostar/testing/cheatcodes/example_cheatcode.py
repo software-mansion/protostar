@@ -2,7 +2,7 @@ from typing import Any
 
 from typing_extensions import Protocol
 
-from protostar.starknet import Cheatcode, CheatcodeException
+from protostar.starknet import Cheatcode
 from protostar.testing.fuzzing.strategy_descriptor import StrategyDescriptor
 from protostar.testing.test_config import TestConfig, TestMode
 
@@ -28,15 +28,7 @@ class ExampleCheatcode(Cheatcode):
     def build(self) -> ExampleCallable:
         return self.example
 
-    def example(self, *args: Any, **kwargs: Any) -> None:
+    def example(self, **kwargs: Any) -> None:
         self.test_config.convert_mode_to(TestMode.PARAMETERIZED)
 
-        if bool(args) == bool(kwargs):
-            raise CheatcodeException(
-                self,
-                "you have to provide either args or kwargs to the example cheatcode",
-            )
-        assign_args = args
-        if kwargs:
-            assign_args = kwargs
-        self.test_config.fuzz_examples.append(assign_args)
+        self.test_config.fuzz_examples.append(kwargs)

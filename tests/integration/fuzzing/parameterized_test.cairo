@@ -7,10 +7,8 @@ func setup_examples() {
     %{
         max_examples(5)
 
-        example(1, 2)
-        example(2, 3)
-        given(a = strategy.integers(10, 20), b = strategy.integers(30, 40))
         example(a=3, b=4)
+        given(a = strategy.integers(10, 20), b = strategy.integers(30, 40))
         example(b=6, a=5)
     %}
     return ();

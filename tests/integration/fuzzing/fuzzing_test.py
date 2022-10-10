@@ -139,4 +139,4 @@ async def test_parameterized_with_examples_tests(
     [result] = testing_summary.passed
     assert isinstance(result, PassedFuzzTestCaseResult)
     assert result.fuzz_runs_count is not None
-    assert result.fuzz_runs_count == 9
+    assert result.fuzz_runs_count == 7
