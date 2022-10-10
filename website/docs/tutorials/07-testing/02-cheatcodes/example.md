@@ -13,7 +13,7 @@ Tests with the data specified in `example` will always be run before applying th
 Multiple `example`s can be used for one test. In such a case, all of them will be run sequentially,
 only after that allowing `given` to run.
 
-`example` can be used either as positional or keyword based (but these cannot be mixed in a single call).
+`example` is not limited by [`max_examples`](./max-examples.md) and is not connected to it in any way.
 
 :::warning
 This cheatcode is only available in [setup cases](../README.md#setup-case).
