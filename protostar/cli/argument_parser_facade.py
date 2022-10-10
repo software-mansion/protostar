@@ -1,24 +1,16 @@
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter, _SubParsersAction
-from pathlib import Path
-from typing import Any, Callable, List, Optional, Sequence, Tuple
+from typing import Any, Callable, Generic, List, Optional, Sequence, Tuple, TypeVar
 
-from protostar.cli.cli_app import CLIApp
-from protostar.cli.command import Command, InputAllowedType
-
+from .arg_type import ArgTypeName, map_type_name_to_parser
+from .argument import Argument
+from .cli_app import CLIApp
+from .command import Command
 from .config_file_argument_resolver import ConfigFileArgumentResolverProtocol
 
-
-class MissingRequiredArgumentException(Exception):
-    def __init__(self, argument_name: str, command_name: Optional[str]) -> None:
-        self.message = (
-            f"Command `{command_name}` expects argument: `{argument_name}`"
-            if command_name
-            else f"Missing required argument: `{argument_name}`"
-        )
-        super().__init__(self.message)
+ArgTypeNameT = TypeVar("ArgTypeNameT", bound=ArgTypeName)
 
 
-class ArgumentParserFacade:
+class ArgumentParserFacade(Generic[ArgTypeNameT]):
     def __init__(
         self,
         cli_app: CLIApp,
@@ -77,8 +69,8 @@ class ArgumentParserFacade:
 
     @staticmethod
     def _find_missing_required_arg(
-        declared_args: List[Command.Argument], parsed_args: Namespace
-    ) -> Optional[Command.Argument]:
+        declared_args: List[Argument[ArgTypeNameT]], parsed_args: Namespace
+    ) -> Optional[Argument[ArgTypeNameT]]:
         for arg in declared_args:
             if not arg.is_required:
                 continue
@@ -115,7 +107,9 @@ class ArgumentParserFacade:
 
         return self
 
-    def _add_root_argument(self, argument: Command.Argument) -> "ArgumentParserFacade":
+    def _add_root_argument(
+        self, argument: Argument[ArgTypeNameT]
+    ) -> "ArgumentParserFacade":
         assert (
             argument.is_positional is False
         ), f"A root argument ({argument.name}) cannot be positional"
@@ -127,8 +121,8 @@ class ArgumentParserFacade:
         return self
 
     def _update_from_config(
-        self, command: Optional[Command], argument: Command.Argument
-    ) -> Command.Argument:
+        self, command: Optional[Command], argument: Argument[ArgTypeNameT]
+    ) -> Argument[ArgTypeNameT]:
         if self._config_file_argument_value_resolver:
             new_default = self._config_file_argument_value_resolver.resolve_argument(
                 command.name if command else None, argument.name
@@ -138,7 +132,7 @@ class ArgumentParserFacade:
         return argument
 
     def _add_argument(
-        self, argument_parser: ArgumentParser, argument: Command.Argument
+        self, argument_parser: ArgumentParser, argument: Argument[ArgTypeNameT]
     ) -> ArgumentParser:
         name = argument.name if argument.is_positional else f"--{argument.name}"
         short_name = f"-{argument.short_name}" if argument.short_name else None
@@ -184,25 +178,17 @@ class ArgumentParserFacade:
         )
         return argument_parser
 
-    @staticmethod
-    def _map_type_to_arg_type(argument_type: InputAllowedType) -> Callable[[str], Any]:
-        result = str
-        if argument_type == "directory":
-            result = Command.Argument.Type.directory
-        elif argument_type == "regexp":
-            result = Command.Argument.Type.regexp
-        elif argument_type == "path":
-            result = Path
-        elif argument_type == "int":
-            result = int
-        elif argument_type == "felt":
-            result = Command.Argument.Type.felt
-        elif argument_type == "wei":
-            result = int
-        elif argument_type == "fee":
-            result = Command.Argument.Type.fee
-        elif argument_type == "str":
-            result = str
-        else:
-            assert False, "Unknown argument type"
-        return result
+    def _map_type_to_arg_type(
+        self, argument_type: ArgTypeNameT
+    ) -> Callable[[str], Any]:
+        return map_type_name_to_parser(argument_type)
+
+
+class MissingRequiredArgumentException(Exception):
+    def __init__(self, argument_name: str, command_name: Optional[str]) -> None:
+        self.message = (
+            f"Command `{command_name}` expects argument: `{argument_name}`"
+            if command_name
+            else f"Missing required argument: `{argument_name}`"
+        )
+        super().__init__(self.message)

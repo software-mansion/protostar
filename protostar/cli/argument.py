@@ -1,7 +1,9 @@
 from dataclasses import dataclass, replace
 from typing import Any, Generic, Optional, TypeVar
 
-ArgTypeNameT = TypeVar("ArgTypeNameT")
+from .arg_type import ArgTypeName
+
+ArgTypeNameT = TypeVar("ArgTypeNameT", bound=ArgTypeName)
 
 # pylint: disable=too-many-instance-attributes
 @dataclass(frozen=True)

@@ -1,16 +1,20 @@
-from typing import Any, List, Optional
+from typing import Any, Generic, Optional, TypeVar
 
-from protostar.cli.command import Command
+from .arg_type import ArgTypeName
+from .argument import Argument
+from .command import Command
+
+ArgTypeNameT = TypeVar("ArgTypeNameT", bound=ArgTypeName)
 
 
-class CLIApp:
+class CLIApp(Generic[ArgTypeNameT]):
     class CommandNotFoundError(Exception):
         pass
 
     def __init__(
         self,
-        commands: Optional[List[Command]] = None,
-        root_args: Optional[List[Command.Argument]] = None,
+        commands: Optional[list[Command[ArgTypeNameT]]] = None,
+        root_args: Optional[list[Argument[ArgTypeNameT]]] = None,
     ) -> None:
         self.commands = commands or []
         self.root_args = root_args or []

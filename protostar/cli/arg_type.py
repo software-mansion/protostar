@@ -13,7 +13,7 @@ ArgTypeName = Literal[
 ]
 
 
-def map_type_name_to_parser(argument_type: str) -> Callable[[str], Any]:
+def map_type_name_to_parser(argument_type: ArgTypeName) -> Callable[[str], Any]:
     type_name_to_parser_mapping: dict[ArgTypeName, Callable[[str], Any]] = {
         "str": str,
         "bool": bool,
