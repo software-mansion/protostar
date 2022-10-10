@@ -1,12 +1,12 @@
 from abc import abstractmethod
-from typing import Any, Generic, List, Optional, TypeVar
+from typing import Any, Generic, List, Optional, TypeVar, Union
 
 from protostar.cli.arg_type import ArgTypeName
 
 from .arg_type import ArgTypeName
 from .argument import Argument as GenericArgument
 
-ArgTypeNameT = TypeVar("ArgTypeNameT", bound=ArgTypeName)
+ArgTypeNameT = TypeVar("ArgTypeNameT", covariant=True)
 
 
 class Command(Generic[ArgTypeNameT]):
@@ -29,7 +29,7 @@ class Command(Generic[ArgTypeNameT]):
 
     @property
     @abstractmethod
-    def arguments(self) -> List[GenericArgument[ArgTypeNameT]]:
+    def arguments(self) -> List[Union[Argument, GenericArgument[ArgTypeNameT]]]:
         ...
 
     @abstractmethod

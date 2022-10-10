@@ -7,3 +7,5 @@ from protostar.cli.cli_app import CLIApp
 from protostar.cli.command import Command
 
 from .config_file_argument_resolver import ConfigFileArgumentResolverProtocol
+from .protostar_argument import ProtostarArgument
+from .protostar_command import ProtostarCommand

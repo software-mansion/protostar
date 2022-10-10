@@ -30,7 +30,7 @@ class ParserResolverProtocol(Protocol, Generic[ArgTypeNameT_contra]):
 class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
     def __init__(
         self,
-        cli_app: CLIApp,
+        cli_app: CLIApp[ArgTypeNameT_contra],
         config_file_argument_value_resolver: Optional[
             ConfigFileArgumentResolverProtocol
         ] = None,
@@ -72,7 +72,7 @@ class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
 
     def _find_missing_required_arg_in_project(
         self, parsed_args: Namespace
-    ) -> Optional[Tuple[Optional[Command], Command.Argument]]:
+    ) -> Optional[Tuple[Optional[Command], Argument]]:
         missing_arg = self._find_missing_required_arg(
             self.cli_app.root_args, parsed_args
         )
@@ -123,7 +123,7 @@ class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
         for arg in command.arguments:
             self._add_argument(
                 command_parser,
-                self._update_from_config(command, arg),
+                self._update_from_config(command, arg),  # type: ignore
             )
 
         return self

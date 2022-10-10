@@ -6,14 +6,16 @@ from protostar.starknet_gateway import Fee
 
 from .arg_type import ArgTypeName, map_type_name_to_parser
 
-ProtostarArgTypeName = Literal[
+CustomProtostarArgTypeName = Literal[
     "felt",
     "fee",
 ]
 
+ProtostarArgTypeName = Union[CustomProtostarArgTypeName, ArgTypeName]
+
 
 def map_protostar_type_name_to_parser(
-    argument_type: Union[ProtostarArgTypeName, ArgTypeName]
+    argument_type: ProtostarArgTypeName,
 ) -> Callable[[str], Any]:
     if argument_type == "felt":
         return parse_felt_arg_type
