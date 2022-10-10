@@ -1,6 +1,6 @@
 import pytest
 
-from .protostar_arg_type import FeltArgType
+from .protostar_arg_type import FeeArgType, FeltArgType
 
 
 @pytest.mark.parametrize(
@@ -14,3 +14,8 @@ from .protostar_arg_type import FeltArgType
 def test_felt_type(test_input, expected):
     result = FeltArgType().parse(test_input)
     assert result == expected
+
+
+def test_fee_type():
+    assert FeeArgType().parse("auto") == "auto"
+    assert FeeArgType().parse("123") == 123
