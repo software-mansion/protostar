@@ -92,7 +92,7 @@ class TestingLiveLogger:
                             return
 
                         if isinstance(test_result, BrokenTestSuiteResult):
-                            tests_in_case_count = len(relative_path_test_result.test_case_names)
+                            tests_in_case_count = len(test_result.test_case_names)
                             progress_bar.update(tests_in_case_count)
                             tests_left_n -= tests_in_case_count
                         else:

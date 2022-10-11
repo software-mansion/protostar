@@ -1,3 +1,4 @@
+import dataclasses
 from logging import Logger
 from pathlib import Path
 from typing import List, Optional
@@ -242,7 +243,12 @@ A glob or globs to a directory or a test suite, for example:
         )
         self._logger.info(formatted_result)
 
-    @staticmethod
-    def _log_formatted_test_result(test_result: TestResult) -> None:
-        formatted_test_result = format_test_result(test_result)
+    def _log_formatted_test_result(self, test_result: TestResult) -> None:
+        relative_path_test_result = dataclasses.replace(
+            test_result,
+            file_path=test_result.file_path.resolve().relative_to(
+                self._project_root_path
+            ),
+        )
+        formatted_test_result = format_test_result(relative_path_test_result)
         print(formatted_test_result)
