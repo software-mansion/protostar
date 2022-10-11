@@ -73,15 +73,18 @@ class TestingLiveLogger:
                             else "GREEN"
                         )
 
-                        relative_path_test_result = dataclasses.replace(
-                            test_result,
-                            file_path=test_result.file_path.resolve().relative_to(
-                                self._project_root_path
-                            ),
-                        )
-                        formatted_test_result = format_test_result(
-                            relative_path_test_result
-                        )
+                        try:
+                            test_result = dataclasses.replace(
+                                test_result,
+                                file_path=test_result.file_path.resolve().relative_to(
+                                    self._project_root_path
+                                ),
+                            )
+                        except ValueError:
+                            # We do this to preserve the functionality of running tests that are outside of the project
+                            pass
+
+                        formatted_test_result = format_test_result(test_result)
                         progress_bar.write(formatted_test_result)
 
                         if (
