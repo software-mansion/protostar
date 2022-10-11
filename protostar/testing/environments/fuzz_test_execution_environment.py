@@ -140,6 +140,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             ):
                 phases = (Phase.explicit,)
 
+            @self.decorate_with_examples
             @seed(self.state.config.seed)
             @settings(
                 database=database,
@@ -176,7 +177,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
 
             # NOTE: The ``test`` function does not expect any arguments at this point,
             #   because the @given decorator provides all of them behind the scenes.
-            self.decorate_with_examples(test)()
+            test()
         except InvalidArgument as ex:
             # This exception is sometimes raised by Hypothesis during runtime when user messes up
             # strategy arguments. For example, invalid range for `integers` strategy is caught here.
