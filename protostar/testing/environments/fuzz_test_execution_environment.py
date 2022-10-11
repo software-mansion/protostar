@@ -49,7 +49,6 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
 
     async def execute(self, function_name: str) -> FuzzTestExecutionResult:
         abi = self.state.contract.abi
-        # here are params
         parameters = get_function_parameters(abi, function_name)
         assert (
             parameters
