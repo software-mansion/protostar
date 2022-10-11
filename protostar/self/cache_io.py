@@ -10,6 +10,10 @@ class CacheIO:
     def __init__(self, project_root_path: Path):
         self._cache_path = project_root_path / Path(self._CACHE_DIR_NAME)
         self._cache_path.mkdir(exist_ok=True)
+        gitignore_path = Path(self._cache_path / ".gitignore")
+        if not gitignore_path.exists():
+            gitignore_path.touch()
+            gitignore_path.write_text("*\n", encoding="utf-8")
 
     def write(self, name: str, value: dict) -> None:
         Path(self._cache_path / (name + self._EXTENSION)).write_text(
