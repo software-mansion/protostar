@@ -30,7 +30,7 @@ class ParserResolverProtocol(Protocol, Generic[ArgTypeNameT_contra]):
 class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
     def __init__(
         self,
-        cli_app: CLIApp[ArgTypeNameT_contra],
+        cli_app: CLIApp,
         config_file_argument_value_resolver: Optional[
             ConfigFileArgumentResolverProtocol
         ] = None,

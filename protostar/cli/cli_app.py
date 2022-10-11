@@ -1,20 +1,17 @@
-from typing import Any, Generic, Optional, TypeVar
+from typing import Any, Optional
 
-from .arg_type import ArgTypeName
 from .argument import Argument
 from .command import Command
 
-ArgTypeNameT = TypeVar("ArgTypeNameT", bound=ArgTypeName)
 
-
-class CLIApp(Generic[ArgTypeNameT]):
+class CLIApp:
     class CommandNotFoundError(Exception):
         pass
 
     def __init__(
         self,
-        commands: Optional[list[Command[ArgTypeNameT]]] = None,
-        root_args: Optional[list[Argument[ArgTypeNameT]]] = None,
+        commands: Optional[list[Command]] = None,
+        root_args: Optional[list[Argument]] = None,
     ) -> None:
         self.commands = commands or []
         self.root_args = root_args or []
