@@ -54,6 +54,7 @@ class TestMode(Enum):
                 (self, to_mode)
                 in {
                     (self.STANDARD, self.FUZZ),
+                    (self.STANDARD, self.PARAMETERIZED),
                     (self.FUZZ, self.PARAMETERIZED),
                     (self.PARAMETERIZED, self.FUZZ),
                 }
