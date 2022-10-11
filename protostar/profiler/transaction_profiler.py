@@ -1,7 +1,7 @@
 # pylint: disable=invalid-name
 from dataclasses import dataclass, replace
 import itertools
-from typing import TYPE_CHECKING, List, Dict, Tuple
+from typing import TYPE_CHECKING, Tuple
 
 from starkware.cairo.lang.tracer.tracer_data import TracerData
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
@@ -30,10 +30,10 @@ GlobalInstruction = Instruction
 
 @dataclass(frozen=True)
 class TransactionProfile:
-    functions: List[GlobalFunction]
-    instructions: List[GlobalInstruction]
-    step_samples: List[Sample]
-    memhole_samples: List[Sample]
+    functions: list[GlobalFunction]
+    instructions: list[GlobalInstruction]
+    step_samples: list[Sample]
+    memhole_samples: list[Sample]
 
 
 def profile_from_tracer_data(tracer_data: TracerData, runner: CairoFunctionRunner):
@@ -49,10 +49,10 @@ def profile_from_tracer_data(tracer_data: TracerData, runner: CairoFunctionRunne
 
 def translate_callstack(
     current_contract: "ContractFilename",
-    in_instructions: Dict[Tuple[GlobalFunctionID, int], Instruction],
-    callstack: List[Instruction],
-) -> List[Instruction]:
-    new_callstack: List[Instruction] = []
+    in_instructions: dict[Tuple[GlobalFunctionID, int], Instruction],
+    callstack: list[Instruction],
+) -> list[Instruction]:
+    new_callstack: list[Instruction] = []
     for instr in callstack:
         prefix = current_contract + "."
         new_callstack.append(in_instructions[(prefix + instr.function.id, instr.id)])
@@ -61,10 +61,10 @@ def translate_callstack(
 
 def translate_callstacks(
     current_contract: "ContractFilename",
-    global_instructions: Dict[Tuple[GlobalFunctionID, int], Instruction],
-    callstacks: List[List[Instruction]],
-) -> List[List[Instruction]]:
-    translated: List[List[Instruction]] = []
+    global_instructions: dict[Tuple[GlobalFunctionID, int], Instruction],
+    callstacks: list[list[Instruction]],
+) -> list[list[Instruction]]:
+    translated: list[list[Instruction]] = []
     for call in callstacks:
         translated.append(
             translate_callstack(current_contract, global_instructions, call)
@@ -73,9 +73,9 @@ def translate_callstacks(
 
 
 def build_global_functions(
-    samples: List["ContractProfile"],
-) -> Dict[GlobalFunctionID, GlobalFunction]:
-    global_functions: Dict[GlobalFunctionID, GlobalFunction] = {}
+    samples: list["ContractProfile"],
+) -> dict[GlobalFunctionID, GlobalFunction]:
+    global_functions: dict[GlobalFunctionID, GlobalFunction] = {}
     for sample in samples:
         function_id_prefix = sample.callstack[-1] + "."
         for func in sample.profile.functions:
@@ -85,9 +85,9 @@ def build_global_functions(
 
 
 def get_instruction_id_offsets(
-    samples: List["ContractProfile"],
-) -> Dict["ContractFilename", int]:
-    contract_id_offsets: Dict["ContractFilename", int] = {}
+    samples: list["ContractProfile"],
+) -> dict["ContractFilename", int]:
+    contract_id_offsets: dict["ContractFilename", int] = {}
     for sample in samples:
         current_contract = sample.callstack[-1]
         previous = contract_id_offsets.get(current_contract, 0)
@@ -101,9 +101,9 @@ def get_instruction_id_offsets(
 
 
 def build_global_instructions(
-    global_functions: Dict[GlobalFunctionID, Function], samples: List["ContractProfile"]
-) -> Dict[Tuple[GlobalFunctionID, int], Instruction]:
-    in_instructions: Dict[Tuple[GlobalFunctionID, int], Instruction] = {}
+    global_functions: dict[GlobalFunctionID, Function], samples: list["ContractProfile"]
+) -> dict[Tuple[GlobalFunctionID, int], Instruction]:
+    in_instructions: dict[Tuple[GlobalFunctionID, int], Instruction] = {}
     contract_id_offsets = get_instruction_id_offsets(samples)
     for sample in samples:
         function_id_prefix = sample.callstack[-1] + "."
@@ -121,9 +121,9 @@ def build_global_instructions(
 
 # TODO(maksymiliandemitraszek): Enable it again
 # pylint: disable=too-many-branches
-def merge_profiles(samples: List["ContractProfile"]) -> TransactionProfile:
-    step_samples: List[Sample] = []
-    memhole_samples: List[Sample] = []
+def merge_profiles(samples: list["ContractProfile"]) -> TransactionProfile:
+    step_samples: list[Sample] = []
+    memhole_samples: list[Sample] = []
 
     global_functions = build_global_functions(samples)
     global_instructions = build_global_instructions(global_functions, samples)
@@ -148,7 +148,7 @@ def merge_profiles(samples: List["ContractProfile"]) -> TransactionProfile:
     )
     for i in range(2, max_clst_len + 1):
         samples_in_layer = [s for s in samples if len(s.callstack) == i]
-        new_callstacks_from_upper_layer: List[List[List[Instruction]]] = []
+        new_callstacks_from_upper_layer: list[list[list[Instruction]]] = []
         for upper, runtime_sample in zip(callstacks_from_upper_layer, samples_in_layer):
             current_contract = runtime_sample.callstack[-1]
             for smp in runtime_sample.profile.step_samples:
@@ -192,7 +192,7 @@ def merge_profiles(samples: List["ContractProfile"]) -> TransactionProfile:
     )
     for i in range(2, max_clst_len + 1):
         samples_in_layer = [s for s in samples if len(s.callstack) == i]
-        new_callstacks_from_upper_layer: List[List[List[Instruction]]] = []
+        new_callstacks_from_upper_layer: list[list[list[Instruction]]] = []
         for upper, runtime_sample in zip(callstacks_from_upper_layer, samples_in_layer):
             current_contract = runtime_sample.callstack[-1]
             for smp in runtime_sample.profile.memhole_samples:
