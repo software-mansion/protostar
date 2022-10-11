@@ -35,7 +35,6 @@ from .test_execution_environment import (
     TestExecutionEnvironment,
     TestExecutionResult,
 )
-from .multiply_decorator import multiply_decorator
 
 
 @dataclass
@@ -120,6 +119,12 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             )
         )
 
+    def decorate_with_examples(self, target_func):
+        func = target_func
+        for ex in reversed(self.state.config.fuzz_examples):
+            func = example(**ex)(func)
+        return func
+
     def build_and_run_test(
         self,
         function_name: str,
@@ -130,7 +135,6 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
     ):
         try:
 
-            @multiply_decorator(example, self.state.config.fuzz_examples)
             @seed(self.state.config.seed)
             @settings(
                 database=database,
@@ -166,7 +170,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
 
             # NOTE: The ``test`` function does not expect any arguments at this point,
             #   because the @given decorator provides all of them behind the scenes.
-            test()
+            self.decorate_with_examples(test)()
         except InvalidArgument as ex:
             # This exception is sometimes raised by Hypothesis during runtime when user messes up
             # strategy arguments. For example, invalid range for `integers` strategy is caught here.
