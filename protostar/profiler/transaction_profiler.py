@@ -23,6 +23,7 @@ GlobalInstructionID = str
 GlobalFunction = Function
 GlobalInstruction = Instruction
 
+
 @dataclass(frozen=True)
 class TransactionProfile:
     functions: list[GlobalFunction]
@@ -137,6 +138,7 @@ def merge_profiles(samples: list["ContractProfile"]) -> TransactionProfile:
         memhole_samples=memhole_samples,
     )
 
+
 def build_global_functions(
     samples: list["ContractProfile"],
 ) -> dict[GlobalFunctionID, GlobalFunction]:
@@ -147,6 +149,7 @@ def build_global_functions(
             global_name = function_id_prefix + func.id
             global_functions[global_name] = replace(func, id=global_name)
     return global_functions
+
 
 def build_global_instructions(
     global_functions: dict[GlobalFunctionID, Function], samples: list["ContractProfile"]
@@ -165,6 +168,7 @@ def build_global_instructions(
                 function=global_functions[global_function_id],
             )
     return in_instructions
+
 
 def get_instruction_id_offsets(
     samples: list["ContractProfile"],
@@ -205,11 +209,3 @@ def translate_callstack(
         prefix = current_contract + "."
         new_callstack.append(in_instructions[(prefix + instr.function.id, instr.id)])
     return new_callstack
-
-
-
-
-
-
-
-
