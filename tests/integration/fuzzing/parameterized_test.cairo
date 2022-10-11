@@ -39,3 +39,20 @@ func test_examples_without_given{syscall_ptr: felt*, range_check_ptr}(a: felt, b
     return ();
 }
 
+@external
+func setup_check_exact_example() {
+    %{
+        example(a=11, b=17)
+    %}
+    return ();
+}
+
+@external
+func test_check_exact_example{syscall_ptr: felt*, range_check_ptr}(a: felt, b: felt) {
+    %{
+        assert ids.a == 11
+        assert ids.b == 17
+    %}
+    return ();
+}
+

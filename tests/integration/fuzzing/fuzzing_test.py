@@ -136,14 +136,14 @@ async def test_parameterized_with_examples_tests(
         expected_passed_test_cases_names=[
             "test_examples",
             "test_examples_without_given",
+            "test_check_exact_example",
         ],
     )
 
-    assert len(testing_summary.passed) == 2
+    assert len(testing_summary.passed) == 3
     passed_set = {
         getattr(passed, "fuzz_runs_count")
         for passed in testing_summary.passed
         if hasattr(passed, "fuzz_runs_count")
     }
-    assert 2 in passed_set
-    assert 7 in passed_set
+    assert passed_set == {1, 2, 7}
