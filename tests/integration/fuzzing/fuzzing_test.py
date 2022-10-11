@@ -140,6 +140,10 @@ async def test_parameterized_with_examples_tests(
     )
 
     assert len(testing_summary.passed) == 2
-    passed_set = {passed.fuzz_runs_count for passed in testing_summary.passed}
+    passed_set = {
+        getattr(passed, "fuzz_runs_count")
+        for passed in testing_summary.passed
+        if hasattr(passed, "fuzz_runs_count")
+    }
     assert 2 in passed_set
     assert 7 in passed_set
