@@ -133,10 +133,13 @@ async def test_parameterized_with_examples_tests(
 
     assert_cairo_test_cases(
         testing_summary,
-        expected_passed_test_cases_names=["test_examples"],
+        expected_passed_test_cases_names=[
+            "test_examples",
+            "test_examples_without_given",
+        ],
     )
 
-    [result] = testing_summary.passed
-    assert isinstance(result, PassedFuzzTestCaseResult)
-    assert result.fuzz_runs_count is not None
-    assert result.fuzz_runs_count == 7
+    assert len(testing_summary.passed) == 2
+    passed_set = {passed.fuzz_runs_count for passed in testing_summary.passed}
+    assert 2 in passed_set
+    assert 7 in passed_set

@@ -3,7 +3,7 @@ from asyncio import to_thread
 from dataclasses import dataclass
 from typing import Any, Dict, List
 
-from hypothesis import given, seed, settings, example
+from hypothesis import given, seed, settings, example, Phase
 from hypothesis.database import ExampleDatabase, InMemoryExampleDatabase
 from hypothesis.errors import InvalidArgument
 from hypothesis.reporting import with_reporter
@@ -133,6 +133,18 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         given_strategies: Dict[str, SearchStrategy],
     ):
         try:
+            phases = (
+                Phase.explicit,
+                Phase.reuse,
+                Phase.generate,
+                Phase.target,
+                Phase.shrink,
+            )
+            if (
+                not self.state.config.fuzz_declared_strategies
+                and self.state.config.fuzz_examples
+            ):
+                phases = (Phase.explicit,)
 
             @seed(self.state.config.seed)
             @settings(
@@ -142,6 +154,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
                 print_blob=False,
                 report_multiple_bugs=False,
                 verbosity=HYPOTHESIS_VERBOSITY,
+                phases=phases,
             )
             @given(**given_strategies)
             async def test(**inputs: Any):

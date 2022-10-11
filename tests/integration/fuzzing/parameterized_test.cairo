@@ -22,3 +22,20 @@ func test_examples{syscall_ptr: felt*, range_check_ptr}(a: felt, b: felt) {
     return ();
 }
 
+@external
+func setup_examples_without_given() {
+    %{
+        example(a=3, b=4)
+        example(b=6, a=5)
+    %}
+    return ();
+}
+
+@external
+func test_examples_without_given{syscall_ptr: felt*, range_check_ptr}(a: felt, b: felt) {
+    assert_le(0, a);
+    assert_le(0, b);
+    assert_le(a, b);
+    return ();
+}
+
