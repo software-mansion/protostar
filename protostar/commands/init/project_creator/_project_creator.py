@@ -36,6 +36,10 @@ class ProjectCreator(ABC):
             protostar_contracts=ProtostarContractsSection.get_default(),
         )
 
+    @property
+    def default_lib_dirname(self) -> str:
+        return "lib"
+
     @abstractmethod
     def run(self) -> None:
         ...
