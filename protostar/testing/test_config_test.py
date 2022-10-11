@@ -10,7 +10,7 @@ from .test_config import TestMode, TestModeConversionException
         (TestMode.FUZZ, TestMode.STANDARD, False),
         (TestMode.STANDARD, TestMode.PARAMETERIZED, True),
         (TestMode.PARAMETERIZED, TestMode.FUZZ, True),
-        (TestMode.FUZZ, TestMode.PARAMETERIZED, True),
+        (TestMode.FUZZ, TestMode.PARAMETERIZED, False),
         *[(mode, mode, True) for mode in TestMode],
         *[(TestMode.UNDETERMINED, mode, True) for mode in TestMode],
         *[
