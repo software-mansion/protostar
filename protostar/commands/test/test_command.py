@@ -210,6 +210,7 @@ A glob or globs to a directory or a test suite, for example:
                 no_progress_bar=no_progress_bar,
                 exit_first=exit_first,
                 slowest_tests_to_report_count=slowest_tests_to_report_count,
+                project_root_path=self._project_root_path,
             )
             TestScheduler(live_logger, worker=TestRunner.worker).run(
                 include_paths=include_paths,

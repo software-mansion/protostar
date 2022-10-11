@@ -1,6 +1,8 @@
+import dataclasses
 import queue
 from logging import Logger
 from typing import TYPE_CHECKING, Any, cast
+from pathlib import Path
 
 from tqdm import tqdm as bar
 
@@ -24,9 +26,11 @@ class TestingLiveLogger:
         no_progress_bar: bool,
         exit_first: bool,
         slowest_tests_to_report_count: int,
+        project_root_path: Path,
     ) -> None:
         self._logger = logger
         self._no_progress_bar = no_progress_bar
+        self._project_root_path = project_root_path
         self.testing_summary = testing_summary
         self.exit_first = exit_first
         self.slowest_tests_to_report_count = slowest_tests_to_report_count
@@ -69,7 +73,15 @@ class TestingLiveLogger:
                             else "GREEN"
                         )
 
-                        formatted_test_result = format_test_result(test_result)
+                        relative_path_test_result = dataclasses.replace(
+                            test_result,
+                            file_path=test_result.file_path.resolve().relative_to(
+                                self._project_root_path
+                            ),
+                        )
+                        formatted_test_result = format_test_result(
+                            relative_path_test_result
+                        )
                         progress_bar.write(formatted_test_result)
 
                         if (
@@ -80,7 +92,7 @@ class TestingLiveLogger:
                             return
 
                         if isinstance(test_result, BrokenTestSuiteResult):
-                            tests_in_case_count = len(test_result.test_case_names)
+                            tests_in_case_count = len(relative_path_test_result.test_case_names)
                             progress_bar.update(tests_in_case_count)
                             tests_left_n -= tests_in_case_count
                         else:
