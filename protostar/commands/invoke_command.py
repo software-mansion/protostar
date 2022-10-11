@@ -1,0 +1,2 @@
+class InvokeCommand(Command):
+    pass
