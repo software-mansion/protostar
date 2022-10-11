@@ -21,7 +21,15 @@ from starkware.starknet.services.api.gateway.transaction import (
 from typing_extensions import Self
 
 from protostar.compiler import CompiledContractReader
+from protostar.io.log_color_provider import LogColorProvider
 from protostar.protostar_exception import ProtostarException
+from protostar.starknet.abi import has_abi_item
+from protostar.starknet.data_transformer import (
+    CairoOrPythonData,
+    DataTransformerException,
+    from_python_transformer,
+    to_python_transformer,
+)
 from protostar.starknet_gateway.account_tx_version_detector import (
     AccountTxVersionDetector,
 )
@@ -30,14 +38,6 @@ from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeployResponse,
 )
 from protostar.starknet_gateway.starknet_request import StarknetRequest
-from protostar.starknet.abi import has_abi_item
-from protostar.starknet.data_transformer import (
-    CairoOrPythonData,
-    DataTransformerException,
-    from_python_transformer,
-    to_python_transformer,
-)
-from protostar.io.log_color_provider import LogColorProvider
 
 ContractFunctionInputType = Union[List[int], Dict[str, Any]]
 
