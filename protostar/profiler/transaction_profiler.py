@@ -3,12 +3,8 @@ from dataclasses import dataclass, replace
 import itertools
 from typing import TYPE_CHECKING, Tuple
 
-from starkware.cairo.lang.tracer.tracer_data import TracerData
-from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
-from protostar.profiler.pprof import serialize, to_protobuf
 from protostar.profiler.contract_profiler import (
     Instruction,
-    build_profile,
     Function,
     Sample,
 )
@@ -27,96 +23,12 @@ GlobalInstructionID = str
 GlobalFunction = Function
 GlobalInstruction = Instruction
 
-
 @dataclass(frozen=True)
 class TransactionProfile:
     functions: list[GlobalFunction]
     instructions: list[GlobalInstruction]
     step_samples: list[Sample]
     memhole_samples: list[Sample]
-
-
-def profile_from_tracer_data(tracer_data: TracerData, runner: CairoFunctionRunner):
-    assert runner.accessed_addresses
-    assert runner.segment_offsets
-    profile = build_profile(
-        tracer_data, runner.segments, runner.segment_offsets, runner.accessed_addresses
-    )
-
-    protobuf = to_protobuf(profile)
-    return serialize(protobuf)
-
-
-def translate_callstack(
-    current_contract: "ContractFilename",
-    in_instructions: dict[Tuple[GlobalFunctionID, int], Instruction],
-    callstack: list[Instruction],
-) -> list[Instruction]:
-    new_callstack: list[Instruction] = []
-    for instr in callstack:
-        prefix = current_contract + "."
-        new_callstack.append(in_instructions[(prefix + instr.function.id, instr.id)])
-    return new_callstack
-
-
-def translate_callstacks(
-    current_contract: "ContractFilename",
-    global_instructions: dict[Tuple[GlobalFunctionID, int], Instruction],
-    callstacks: list[list[Instruction]],
-) -> list[list[Instruction]]:
-    translated: list[list[Instruction]] = []
-    for call in callstacks:
-        translated.append(
-            translate_callstack(current_contract, global_instructions, call)
-        )
-    return translated
-
-
-def build_global_functions(
-    samples: list["ContractProfile"],
-) -> dict[GlobalFunctionID, GlobalFunction]:
-    global_functions: dict[GlobalFunctionID, GlobalFunction] = {}
-    for sample in samples:
-        function_id_prefix = sample.callstack[-1] + "."
-        for func in sample.profile.functions:
-            global_name = function_id_prefix + func.id
-            global_functions[global_name] = replace(func, id=global_name)
-    return global_functions
-
-
-def get_instruction_id_offsets(
-    samples: list["ContractProfile"],
-) -> dict["ContractFilename", int]:
-    contract_id_offsets: dict["ContractFilename", int] = {}
-    for sample in samples:
-        current_contract = sample.callstack[-1]
-        previous = contract_id_offsets.get(current_contract, 0)
-        new = max(instr.id for instr in sample.profile.instructions) + 1
-        contract_id_offsets[current_contract] = max(new, previous)
-    accumulator = 0
-    for contract_name, size in contract_id_offsets.items():
-        contract_id_offsets[contract_name] = accumulator
-        accumulator += size
-    return contract_id_offsets
-
-
-def build_global_instructions(
-    global_functions: dict[GlobalFunctionID, Function], samples: list["ContractProfile"]
-) -> dict[Tuple[GlobalFunctionID, int], Instruction]:
-    in_instructions: dict[Tuple[GlobalFunctionID, int], Instruction] = {}
-    contract_id_offsets = get_instruction_id_offsets(samples)
-    for sample in samples:
-        function_id_prefix = sample.callstack[-1] + "."
-        current_contract = sample.callstack[-1]
-        for instr in sample.profile.instructions:
-            global_instruction_id = instr.id + contract_id_offsets[current_contract]
-            global_function_id = function_id_prefix + instr.function.id
-            in_instructions[(global_function_id, instr.id)] = replace(
-                instr,
-                id=global_instruction_id,
-                function=global_functions[global_function_id],
-            )
-    return in_instructions
 
 
 # TODO(maksymiliandemitraszek): Enable it again
@@ -224,3 +136,80 @@ def merge_profiles(samples: list["ContractProfile"]) -> TransactionProfile:
         step_samples=step_samples,
         memhole_samples=memhole_samples,
     )
+
+def build_global_functions(
+    samples: list["ContractProfile"],
+) -> dict[GlobalFunctionID, GlobalFunction]:
+    global_functions: dict[GlobalFunctionID, GlobalFunction] = {}
+    for sample in samples:
+        function_id_prefix = sample.callstack[-1] + "."
+        for func in sample.profile.functions:
+            global_name = function_id_prefix + func.id
+            global_functions[global_name] = replace(func, id=global_name)
+    return global_functions
+
+def build_global_instructions(
+    global_functions: dict[GlobalFunctionID, Function], samples: list["ContractProfile"]
+) -> dict[Tuple[GlobalFunctionID, int], Instruction]:
+    in_instructions: dict[Tuple[GlobalFunctionID, int], Instruction] = {}
+    contract_id_offsets = get_instruction_id_offsets(samples)
+    for sample in samples:
+        function_id_prefix = sample.callstack[-1] + "."
+        current_contract = sample.callstack[-1]
+        for instr in sample.profile.instructions:
+            global_instruction_id = instr.id + contract_id_offsets[current_contract]
+            global_function_id = function_id_prefix + instr.function.id
+            in_instructions[(global_function_id, instr.id)] = replace(
+                instr,
+                id=global_instruction_id,
+                function=global_functions[global_function_id],
+            )
+    return in_instructions
+
+def get_instruction_id_offsets(
+    samples: list["ContractProfile"],
+) -> dict["ContractFilename", int]:
+    contract_id_offsets: dict["ContractFilename", int] = {}
+    for sample in samples:
+        current_contract = sample.callstack[-1]
+        previous = contract_id_offsets.get(current_contract, 0)
+        new = max(instr.id for instr in sample.profile.instructions) + 1
+        contract_id_offsets[current_contract] = max(new, previous)
+    accumulator = 0
+    for contract_name, size in contract_id_offsets.items():
+        contract_id_offsets[contract_name] = accumulator
+        accumulator += size
+    return contract_id_offsets
+
+
+def translate_callstacks(
+    current_contract: "ContractFilename",
+    global_instructions: dict[Tuple[GlobalFunctionID, int], Instruction],
+    callstacks: list[list[Instruction]],
+) -> list[list[Instruction]]:
+    translated: list[list[Instruction]] = []
+    for call in callstacks:
+        translated.append(
+            translate_callstack(current_contract, global_instructions, call)
+        )
+    return translated
+
+
+def translate_callstack(
+    current_contract: "ContractFilename",
+    in_instructions: dict[Tuple[GlobalFunctionID, int], Instruction],
+    callstack: list[Instruction],
+) -> list[Instruction]:
+    new_callstack: list[Instruction] = []
+    for instr in callstack:
+        prefix = current_contract + "."
+        new_callstack.append(in_instructions[(prefix + instr.function.id, instr.id)])
+    return new_callstack
+
+
+
+
+
+
+
+
