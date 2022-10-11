@@ -133,13 +133,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         given_strategies: Dict[str, SearchStrategy],
     ):
         try:
-            phases = (
-                Phase.explicit,
-                Phase.reuse,
-                Phase.generate,
-                Phase.target,
-                Phase.shrink,
-            )
+            phases = set(Phase) - {Phase.explain}
             if (
                 not self.state.config.fuzz_declared_strategies
                 and self.state.config.fuzz_examples
