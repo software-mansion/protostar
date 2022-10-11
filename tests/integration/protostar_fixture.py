@@ -25,7 +25,7 @@ from protostar.commands.test import TestCommand
 from protostar.commands.init.project_creator.new_project_creator import (
     NewProjectCreator,
 )
-from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
+from protostar.compiler import ProjectCompiler
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.formatter.formatter import Formatter
 from protostar.formatter.formatting_result import (
@@ -36,13 +36,10 @@ from protostar.formatter.formatting_summary import FormattingSummary
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_toml import (
     ProtostarContractsSection,
-    ProtostarProjectSection,
-    ProtostarTOMLReader,
     ProtostarTOMLWriter,
 )
 from protostar.starknet_gateway import Fee, GatewayFacadeFactory
 from protostar.io.input_requester import InputRequester
-from protostar.io.log_color_provider import LogColorProvider
 
 from protostar.compiler import ProjectCairoPathBuilder
 from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
@@ -208,7 +205,9 @@ class ProtostarFixture:
 
         return summary, output
 
-    def create_files(self, relative_path_str_to_file: Dict[str, Union[str, Path]]) -> None:
+    def create_files(
+        self, relative_path_str_to_file: Dict[str, Union[str, Path]]
+    ) -> None:
         for relative_path_str, file in relative_path_str_to_file.items():
             if isinstance(file, Path):
                 content = file.read_text("utf-8")

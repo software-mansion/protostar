@@ -18,6 +18,7 @@ from protostar.testing.hook import Hook
 
 from .common_test_cheatcode_factory import CommonTestCheatcodeFactory
 from .execution_environment import ExecutionEnvironment
+from ...compiler import ProjectCompiler
 
 
 @dataclass
@@ -28,10 +29,11 @@ class TestExecutionResult:
 class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
     state: TestExecutionState
 
-    def __init__(self, state: TestExecutionState):
+    def __init__(self, state: TestExecutionState, project_compiler: ProjectCompiler):
         super().__init__(state)
         self._expect_revert_context = ExpectRevertContext()
         self._finish_hook = Hook()
+        self._project_compiler = project_compiler
 
     async def execute(self, function_name: str) -> TestExecutionResult:
         assert not has_function_parameters(
@@ -43,6 +45,7 @@ class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
                 state=self.state,
                 expect_revert_context=self._expect_revert_context,
                 finish_hook=self._finish_hook,
+                project_compiler=self._project_compiler,
             )
         )
 
@@ -72,10 +75,11 @@ class TestCaseCheatcodeFactory(CommonTestCheatcodeFactory):
     def __init__(
         self,
         state: TestExecutionState,
+        project_compiler: ProjectCompiler,
         expect_revert_context: ExpectRevertContext,
         finish_hook: Hook,
     ):
-        super().__init__(state)
+        super().__init__(state, project_compiler)
         self._expect_revert_context = expect_revert_context
         self._finish_hook = finish_hook
 

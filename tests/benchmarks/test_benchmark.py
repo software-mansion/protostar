@@ -10,15 +10,17 @@ from typing import List, Optional, Tuple
 import pytest
 from starkware.starknet.services.api.contract_class import ContractClass
 
+from protostar.compiler import ProjectCompiler
+from protostar.starknet.compiler.pass_managers import ProtostarPassMangerFactory
+from protostar.starknet.compiler.starknet_compilation import (
+    StarknetCompiler,
+    CompilerConfig,
+)
 from protostar.testing import SharedTestsState, TestCollector, TestRunner
 from protostar.testing.starkware.test_execution_state import TestExecutionState
 from protostar.testing.test_config import TestConfig
 from protostar.testing.test_suite import TestCase, TestSuite
-from protostar.starknet.compiler.pass_managers import ProtostarPassMangerFactory
-from protostar.starknet.compiler.starknet_compilation import (
-    CompilerConfig,
-    StarknetCompiler,
-)
+
 from tests.benchmarks.constants import ROUNDS_NUMBER
 
 SCRIPT_DIRECTORY = Path(__file__).parent
@@ -67,6 +69,20 @@ def protostar_cairo_path_fixture(request) -> Path:
     return (Path(request.node.fspath).parent.parent.parent / "cairo").absolute()
 
 
+def get_test_project_compiler(
+    include_paths: Optional[List[str]] = None,
+) -> ProjectCompiler:
+    # FIXME(arcticae): Build a project compiler with fake protostar.toml in the future if those tests are needed
+    return None  # type: ignore
+    # return ProjectCompiler(
+    #     project_root_path=project_root_path,
+    #     project_cairo_path_builder=project_cairo_path_builder,
+    #     contracts_section_loader=ProtostarContractsSection.Loader(
+    #         protostar_toml_reader
+    #     ),
+    # )
+
+
 def get_test_starknet_compiler(
     include_paths: Optional[List[str]] = None,
 ) -> StarknetCompiler:
@@ -85,7 +101,7 @@ def build_test_suite(
     setup_fn_name: Optional[str] = None,
     include_paths: Optional[List[str]] = None,
 ) -> Tuple[ContractClass, TestSuite]:
-    compiler = get_test_starknet_compiler(include_paths)
+    compiler = get_test_project_compiler(include_paths)
 
     if not file_path.name.endswith(".cairo"):
         file_path = file_path / "tempfile_test.cairo"
@@ -93,7 +109,7 @@ def build_test_suite(
     with open(file_path, mode="w", encoding="utf-8") as file:
         file.write(source_code)
 
-    contract = compiler.compile_contract(file_path, add_debug_info=True)
+    contract = compiler.compile_contract_from_contract_source_paths([file_path])
     suite = TestSuite(
         test_path=file_path,
         test_cases=[
@@ -115,6 +131,8 @@ async def prepare_suite(
     runner = TestRunner(
         shared_tests_state=tests_state,
         include_paths=[],
+        disable_hint_validation_in_user_contracts=False,
+        project_root_path=Path(),
     )
 
     # pylint: disable=protected-access

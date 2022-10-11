@@ -10,7 +10,6 @@ from starkware.starkware_utils.error_handling import StarkException
 
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet.compiler.pass_managers import (
-    ProtostarPassMangerFactory,
     TestSuitePassMangerFactory,
 )
 from protostar.starknet.compiler.starknet_compilation import (
@@ -34,6 +33,9 @@ from .test_results import (
 from .test_shared_tests_state import SharedTestsState
 from .test_suite import TestCase, TestSuite
 from .testing_seed import Seed
+from ..compiler import ProjectCompiler, ProjectCairoPathBuilder, ProjectCompilerConfig
+from ..protostar_toml import ProtostarProjectSection, ProtostarContractsSection
+from ..protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 
 logger = getLogger()
 
@@ -42,8 +44,9 @@ class TestRunner:
     def __init__(
         self,
         shared_tests_state: SharedTestsState,
+        project_root_path: Path,
+        disable_hint_validation_in_user_contracts: bool,
         include_paths: Optional[List[str]] = None,
-        disable_hint_validation_in_user_contracts=False,
     ):
         self.shared_tests_state = shared_tests_state
         include_paths = include_paths or []
@@ -54,13 +57,24 @@ class TestRunner:
             ),
             pass_manager_factory=TestSuitePassMangerFactory,
         )
-
-        self.user_contracts_compiler = StarknetCompiler(
-            config=CompilerConfig(
-                include_paths=include_paths,
-                disable_hint_validation=disable_hint_validation_in_user_contracts,
+        protostar_toml_reader = ProtostarTOMLReader(
+            project_root_path / "protostar.toml"
+        )
+        self.project_compiler = ProjectCompiler(
+            project_root_path=project_root_path,
+            project_cairo_path_builder=ProjectCairoPathBuilder(
+                project_root_path=project_root_path,
+                project_section_loader=ProtostarProjectSection.Loader(
+                    protostar_toml_reader
+                ),
             ),
-            pass_manager_factory=ProtostarPassMangerFactory,
+            contracts_section_loader=ProtostarContractsSection.Loader(
+                protostar_toml_reader
+            ),
+            default_config=ProjectCompilerConfig(
+                relative_cairo_path=[Path(s_pth).resolve() for s_pth in include_paths],
+                hint_validation_disabled=disable_hint_validation_in_user_contracts,
+            ),
         )
 
     @dataclass
@@ -70,6 +84,7 @@ class TestRunner:
         include_paths: List[str]
         disable_hint_validation_in_user_contracts: bool
         testing_seed: Seed
+        project_root_path: Path
 
     @classmethod
     def worker(cls, args: "TestRunner.WorkerArgs"):
@@ -77,6 +92,7 @@ class TestRunner:
             cls(
                 shared_tests_state=args.shared_tests_state,
                 include_paths=args.include_paths,
+                project_root_path=args.project_root_path,
                 disable_hint_validation_in_user_contracts=args.disable_hint_validation_in_user_contracts,
             ).run_test_suite(
                 test_suite=args.test_suite,
@@ -149,14 +165,13 @@ class TestRunner:
 
         try:
             execution_state = await TestExecutionState.from_test_suite_definition(
-                starknet_compiler=self.user_contracts_compiler,
                 test_suite_definition=test_contract,
                 test_config=test_config,
                 contract_path=contract_path,
             )
 
             if test_suite.setup_fn_name:
-                env = SetupExecutionEnvironment(execution_state)
+                env = SetupExecutionEnvironment(execution_state, self.project_compiler)
                 await env.execute(test_suite.setup_fn_name)
 
             return execution_state
@@ -180,14 +195,15 @@ class TestRunner:
             test_result = await self._invoke_test_case(test_case, execution_state)
             self.shared_tests_state.put_result(test_result)
 
-    @staticmethod
     async def _invoke_test_case(
-        test_case: TestCase, initial_state: TestExecutionState
+        self, test_case: TestCase, initial_state: TestExecutionState
     ) -> TestResult:
         state: TestExecutionState = initial_state.fork()
 
         if test_case.setup_fn_name:
-            setup_case_result = await run_setup_case(test_case, state)
+            setup_case_result = await run_setup_case(
+                test_case, state, self.project_compiler
+            )
             if isinstance(setup_case_result, BrokenSetupCaseResult):
                 return setup_case_result.into_broken_test_case_result()
             if isinstance(setup_case_result, SkippedSetupCaseResult):
@@ -195,6 +211,6 @@ class TestRunner:
 
         state.determine_test_mode(test_case)
 
-        test_case_runner_factory = TestCaseRunnerFactory(state)
+        test_case_runner_factory = TestCaseRunnerFactory(state, self.project_compiler)
         test_case_runner = test_case_runner_factory.make(test_case)
         return await test_case_runner.run()

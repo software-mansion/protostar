@@ -149,3 +149,24 @@ def create_file_structure(root_path: Path, file_structure_schema: FileStructureS
             new_root_path = root_path / Path(path_str)
             new_root_path.mkdir()
             create_file_structure(new_root_path, file_structure_schema=composite)
+
+
+@contextmanager
+def base_protostar_toml():
+    toml_path = (Path(".") / "protostar.toml").resolve()
+    lib_dir = (Path(".") / "lib").resolve()
+    lib_dir.mkdir(exist_ok=True)
+    with open(toml_path, mode="w+", encoding="utf-8") as file:
+        file.write(
+            """["protostar.project"]\nlibs_path="lib"\n["protostar.contracts"]"""
+        )
+    yield
+    toml_path.unlink(missing_ok=True)
+    if lib_dir.is_dir():
+        lib_dir.rmdir()
+
+
+@pytest.fixture(scope="function", autouse=True)
+def fake_protostar_toml_fixture():
+    with base_protostar_toml():
+        yield

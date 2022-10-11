@@ -1,3 +1,4 @@
+import asyncio
 from pathlib import Path
 
 import pytest
@@ -34,4 +35,22 @@ async def test_deploy_contract(run_cairo_test_runner: RunCairoTestRunnerFixture)
             "test_emitting_events_from_user_contract_constructor_and_from_current_contract",
         ],
         expected_failed_test_cases_names=[],
+    )
+
+
+@pytest.mark.asyncio
+def test_deploying_contract_by_name(create_protostar_project):
+    with create_protostar_project() as protostar:
+        protostar.create_files(
+            {
+                "./src/main.cairo": Path(__file__).parent / "basic_contract.cairo",
+                "./tests/test_main.cairo": Path(__file__).parent
+                / "deploying_contract_by_name_test.cairo",
+            }
+        )
+        protostar.build_sync()
+        result = asyncio.run(protostar.test(["./tests"]))
+
+    assert_cairo_test_cases(
+        result, expected_passed_test_cases_names=["test_deploy_contract_by_name"]
     )

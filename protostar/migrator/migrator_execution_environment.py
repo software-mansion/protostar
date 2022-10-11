@@ -67,7 +67,6 @@ class MigratorExecutionEnvironment(ExecutionEnvironment[None]):
             state = MigratorExecutionEnvironment.State(
                 starknet=starknet,
                 contract=contract,
-                starknet_compiler=starknet_compiler,
             )
 
             migrator_contract_identifier_resolver = MigratorContractIdentifierResolver(

@@ -10,16 +10,18 @@ from protostar.testing.environments.execution_environment import (
 from protostar.testing.starkware.test_execution_state import TestExecutionState
 
 from .common_test_cheatcode_factory import CommonTestCheatcodeFactory
+from ...compiler import ProjectCompiler
 
 
 class SetupExecutionEnvironment(ExecutionEnvironment[None]):
     state: TestExecutionState
 
-    def __init__(self, state: TestExecutionState):
+    def __init__(self, state: TestExecutionState, project_compiler: ProjectCompiler):
         super().__init__(state)
+        self._project_compiler = project_compiler
 
     async def execute(self, function_name: str):
-        self.set_cheatcodes(SetupCheatcodeFactory(self.state))
+        self.set_cheatcodes(SetupCheatcodeFactory(self.state, self._project_compiler))
 
         with self.state.output_recorder.redirect("setup"):
             await self.perform_execute(function_name)

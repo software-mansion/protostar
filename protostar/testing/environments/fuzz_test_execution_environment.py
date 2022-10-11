@@ -35,6 +35,7 @@ from .test_execution_environment import (
     TestExecutionEnvironment,
     TestExecutionResult,
 )
+from ...compiler import ProjectCompiler
 
 
 @dataclass
@@ -43,9 +44,10 @@ class FuzzTestExecutionResult(TestExecutionResult):
 
 
 class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
-    def __init__(self, state: TestExecutionState):
-        super().__init__(state)
+    def __init__(self, state: TestExecutionState, project_compiler: ProjectCompiler):
+        super().__init__(state, project_compiler)
         self.initial_state = state
+        self._project_compiler = project_compiler
 
     async def execute(self, function_name: str) -> FuzzTestExecutionResult:
         abi = self.state.contract.abi
@@ -115,6 +117,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
                 state=self.state,
                 expect_revert_context=self._expect_revert_context,
                 finish_hook=self._finish_hook,
+                project_compiler=self._project_compiler,
             )
         )
 

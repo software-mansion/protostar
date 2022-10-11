@@ -17,7 +17,7 @@ from protostar.commands.test.test_command import TestCommand
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.testing import TestingSummary
 from protostar.io.log_color_provider import LogColorProvider
-from tests.conftest import run_devnet
+from tests.conftest import run_devnet, base_protostar_toml
 from tests.integration.protostar_fixture import (
     ProtostarFixture,
     build_protostar_fixture,
@@ -89,9 +89,10 @@ def assert_cairo_test_cases(
 
 @pytest.fixture(name="devnet_gateway_url", scope="session")
 def devnet_gateway_url_fixture(devnet_port: int):
-    proc = run_devnet(["poetry", "run", "starknet-devnet"], devnet_port)
-    yield f"http://localhost:{devnet_port}"
-    proc.kill()
+    with base_protostar_toml():
+        proc = run_devnet(["poetry", "run", "starknet-devnet"], devnet_port)
+        yield f"http://localhost:{devnet_port}"
+        proc.kill()
 
 
 class RunCairoTestRunnerFixture(Protocol):

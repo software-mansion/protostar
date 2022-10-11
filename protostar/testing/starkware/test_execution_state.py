@@ -13,7 +13,6 @@ from protostar.testing.test_config import TestConfig
 from protostar.testing.test_context import TestContext
 from protostar.testing.test_output_recorder import OutputRecorder
 from protostar.testing.test_suite import TestCase
-from protostar.starknet.compiler.starknet_compilation import StarknetCompiler
 
 
 @dataclass
@@ -26,7 +25,6 @@ class TestExecutionState(ExecutionState):
     @classmethod
     async def from_test_suite_definition(
         cls,
-        starknet_compiler: StarknetCompiler,
         test_suite_definition: ContractClass,
         test_config: TestConfig,
         contract_path: Path,
@@ -50,7 +48,6 @@ class TestExecutionState(ExecutionState):
             output_recorder=OutputRecorder(),
             stopwatch=Stopwatch(),
             starknet=starknet,
-            starknet_compiler=starknet_compiler,
         )
 
     def fork(self) -> Self:
