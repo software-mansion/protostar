@@ -60,14 +60,8 @@ class DeclareCheatcode(Cheatcode):
         return DeclaredContract(class_hash)
 
     async def _declare_contract(self, contract: str):
-        contract_identifier = (
-            Path(contract).resolve() if contract.endswith(".cairo") else contract
-        )
-
         contract_class = (
-            self._project_compiler.compile_contract_from_contract_identifier(
-                contract_identifier
-            )
+            self._project_compiler.compile_contract_from_contract_identifier(contract)
         )
 
         tx = InternalDeclare.create(
