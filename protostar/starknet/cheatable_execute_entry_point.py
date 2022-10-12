@@ -36,7 +36,7 @@ from starkware.python.utils import from_bytes
 from starkware.starknet.business_logic.state.state import StateSyncifier
 from protostar.profiler.pprof import serialize, to_protobuf
 from protostar.profiler.contract_profiler import RuntimeProfile, build_profile
-from protostar.profiler.profile import (
+from protostar.profiler.transaction_profiler import (
     merge_profiles,
 )
 from protostar.starknet.cheatable_cached_state import CheatableCachedState
@@ -54,9 +54,12 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+ContractFilename = str
+
+
 @dataclass(frozen=True)
 class ContractProfile:
-    callstack: List[str]
+    contract_callstack: List[ContractFilename]
     entry_point: ContractEntryPoint
     profile: RuntimeProfile
 
