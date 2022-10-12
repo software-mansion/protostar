@@ -12,7 +12,6 @@ class CacheIO:
         self._cache_path.mkdir(exist_ok=True)
         gitignore_path = Path(self._cache_path / ".gitignore")
         if not gitignore_path.exists():
-            gitignore_path.touch()
             gitignore_path.write_text("*\n", encoding="utf-8")
 
     def write(self, name: str, value: dict) -> None:
