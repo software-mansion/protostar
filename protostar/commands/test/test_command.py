@@ -1,4 +1,3 @@
-import dataclasses
 from logging import Logger
 from pathlib import Path
 from typing import List, Optional
@@ -9,7 +8,10 @@ from protostar.cli.command import Command
 from protostar.commands.test.test_collector_summary_formatter import (
     format_test_collector_summary,
 )
-from protostar.commands.test.test_result_formatter import format_test_result
+from protostar.commands.test.test_result_formatter import (
+    format_test_result,
+    make_path_relative_if_possible,
+)
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.compiler import ProjectCairoPathBuilder
 from protostar.testing import (
@@ -244,15 +246,8 @@ A glob or globs to a directory or a test suite, for example:
         self._logger.info(formatted_result)
 
     def _log_formatted_test_result(self, test_result: TestResult) -> None:
-        try:
-            test_result = dataclasses.replace(
-                test_result,
-                file_path=test_result.file_path.resolve().relative_to(
-                    self._project_root_path
-                ),
-            )
-        except ValueError:
-            # We do this to preserve the functionality of running tests that are outside of the project
-            pass
+        test_result = make_path_relative_if_possible(
+            test_result, self._project_root_path
+        )
         formatted_test_result = format_test_result(test_result)
         print(formatted_test_result)

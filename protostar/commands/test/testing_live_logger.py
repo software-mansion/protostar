@@ -1,4 +1,3 @@
-import dataclasses
 import queue
 from logging import Logger
 from typing import TYPE_CHECKING, Any, cast
@@ -6,7 +5,10 @@ from pathlib import Path
 
 from tqdm import tqdm as bar
 
-from protostar.commands.test.test_result_formatter import format_test_result
+from protostar.commands.test.test_result_formatter import (
+    format_test_result,
+    make_path_relative_if_possible,
+)
 from protostar.testing import (
     BrokenTestSuiteResult,
     SharedTestsState,
@@ -73,16 +75,9 @@ class TestingLiveLogger:
                             else "GREEN"
                         )
 
-                        try:
-                            test_result = dataclasses.replace(
-                                test_result,
-                                file_path=test_result.file_path.resolve().relative_to(
-                                    self._project_root_path
-                                ),
-                            )
-                        except ValueError:
-                            # We do this to preserve the functionality of running tests that are outside of the project
-                            pass
+                        test_result = make_path_relative_if_possible(
+                            test_result, self._project_root_path
+                        )
 
                         formatted_test_result = format_test_result(test_result)
                         progress_bar.write(formatted_test_result)
