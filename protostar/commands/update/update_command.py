@@ -1,9 +1,9 @@
 from logging import Logger
 from os import listdir
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
-from protostar.cli import Command
+from protostar.cli import ProtostarArgument, ProtostarCommand
 from protostar.commands.remove.remove_command import (
     INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
 )
@@ -11,11 +11,11 @@ from protostar.commands.update.update_package import update_package
 from protostar.commands.update.updating_exceptions import (
     PackageAlreadyUpToDateException,
 )
-from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
 from protostar.package_manager import retrieve_real_package_name
+from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
 
 
-class UpdateCommand(Command):
+class UpdateCommand(ProtostarCommand):
     def __init__(
         self,
         project_root_path: Path,
@@ -47,9 +47,9 @@ class UpdateCommand(Command):
         return "$ protostar update cairo-contracts"
 
     @property
-    def arguments(self) -> List[Command.Argument]:
+    def arguments(self):
         return [
-            Command.Argument(
+            ProtostarArgument(
                 description=INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
                 name="package",
                 type="str",

@@ -1,23 +1,23 @@
 from logging import Logger
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.signer import BaseSigner
 
-from protostar.commands.build_command import BuildCommand
-from protostar.cli import Command
+from protostar.cli import ProtostarArgument, ProtostarCommand
 from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.cli.signable_command_util import SignableCommandUtil
+from protostar.commands.build_command import BuildCommand
+from protostar.io.input_requester import InputRequester
+from protostar.io.log_color_provider import LogColorProvider
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet import CheatcodeException
 from protostar.starknet_gateway.gateway_facade_factory import GatewayFacadeFactory
-from protostar.io.input_requester import InputRequester
-from protostar.io.log_color_provider import LogColorProvider
 
 
-class MigrateCommand(Command):
+class MigrateCommand(ProtostarCommand):
     def __init__(
         self,
         migrator_builder: Migrator.Builder,
@@ -46,28 +46,28 @@ class MigrateCommand(Command):
         return None
 
     @property
-    def arguments(self) -> List[Command.Argument]:
+    def arguments(self):
         return [
             *NetworkCommandUtil.network_arguments,
             *SignableCommandUtil.signable_arguments,
-            Command.Argument(
+            ProtostarArgument(
                 name="path",
                 description="Path to the migration file.",
                 type="path",
                 is_required=True,
                 is_positional=True,
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="rollback",
                 description="Run `rollback` function in the migration script.",
                 type="bool",
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="no-confirm",
                 description="Skip confirming building the project.",
                 type="bool",
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="compiled-contracts-dir",
                 description="A directory in which your compiled contracts are located (used for deploys and declares)",
                 type="path",

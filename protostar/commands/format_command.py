@@ -1,19 +1,19 @@
 from logging import Logger
-from typing import Callable, List, Optional
 from pathlib import Path
+from typing import Callable, List, Optional
 
-from protostar.cli import Command
+from protostar.cli import ProtostarArgument, ProtostarCommand
 from protostar.cli.map_targets_to_file_paths import map_targets_to_file_paths
-from protostar.protostar_exception import ProtostarExceptionSilent
 from protostar.formatter.formatter import Formatter
-from protostar.formatter.formatting_summary import FormattingSummary, format_summary
 from protostar.formatter.formatting_result import (
     FormattingResult,
     format_formatting_result,
 )
+from protostar.formatter.formatting_summary import FormattingSummary, format_summary
+from protostar.protostar_exception import ProtostarExceptionSilent
 
 
-class FormatCommand(Command):
+class FormatCommand(ProtostarCommand):
     def __init__(self, project_root_path: Path, logger: Logger) -> None:
         super().__init__()
         self._formatter = Formatter(project_root_path)
@@ -32,9 +32,9 @@ class FormatCommand(Command):
         return "Format Cairo source code."
 
     @property
-    def arguments(self) -> List[Command.Argument]:
+    def arguments(self):
         return [
-            Command.Argument(
+            ProtostarArgument(
                 name="target",
                 description=("Target to format, can be a file or a directory."),
                 type="str",
@@ -42,7 +42,7 @@ class FormatCommand(Command):
                 is_positional=True,
                 default=["."],
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="check",
                 description=(
                     "Run in 'check' mode. Exits with 0 if input is formatted correctly."
@@ -53,14 +53,14 @@ class FormatCommand(Command):
                 default=False,
                 short_name="c",
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="verbose",
                 description=("Log information about already formatted files as well."),
                 type="bool",
                 is_required=False,
                 default=False,
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="ignore-broken",
                 description=("Ignore broken files."),
                 type="bool",
