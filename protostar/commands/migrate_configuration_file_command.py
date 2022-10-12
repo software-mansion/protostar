@@ -1,11 +1,11 @@
 from logging import Logger
 from typing import List, Optional
 
-from protostar.cli import Command
+from protostar.cli import ProtostarArgument, ProtostarCommand
 from protostar.configuration_file import ConfigurationFileMigratorProtocol
 
 
-class MigrateConfigurationFileCommand(Command):
+class MigrateConfigurationFileCommand(ProtostarCommand):
     def __init__(
         self,
         logger: Logger,
@@ -28,7 +28,7 @@ class MigrateConfigurationFileCommand(Command):
         return None
 
     @property
-    def arguments(self) -> List[Command.Argument]:
+    def arguments(self):
         return []
 
     async def run(self, args) -> None:

@@ -2,7 +2,6 @@ from logging import Logger
 from typing import List, Optional
 
 from protostar.cli import ProtostarArgument, ProtostarCommand
-from protostar.cli.command import Command
 from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.starknet_gateway import (
     GatewayFacadeFactory,
