@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 import pytest
 
@@ -18,6 +18,10 @@ class BaseTestCommand(Command):
     @property
     def example(self) -> Optional[str]:
         return "$ foo"
+
+    @property
+    def arguments(self):
+        return []
 
     async def run(self, args):
         pass
