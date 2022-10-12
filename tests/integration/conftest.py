@@ -17,7 +17,7 @@ from protostar.commands.test.test_command import TestCommand
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.testing import TestingSummary
 from protostar.io.log_color_provider import LogColorProvider
-from tests.conftest import run_devnet, base_protostar_toml
+from tests.conftest import run_devnet
 from tests.integration.protostar_fixture import (
     ProtostarFixture,
     build_protostar_fixture,
@@ -89,10 +89,10 @@ def assert_cairo_test_cases(
 
 @pytest.fixture(name="devnet_gateway_url", scope="session")
 def devnet_gateway_url_fixture(devnet_port: int):
-    with base_protostar_toml():
-        proc = run_devnet(["poetry", "run", "starknet-devnet"], devnet_port)
-        yield f"http://localhost:{devnet_port}"
-        proc.kill()
+    # with base_protostar_toml():
+    proc = run_devnet(["poetry", "run", "starknet-devnet"], devnet_port)
+    yield f"http://localhost:{devnet_port}"
+    proc.kill()
 
 
 class RunCairoTestRunnerFixture(Protocol):
@@ -113,6 +113,21 @@ def log_color_provider_fixture() -> LogColorProvider:
     log_color_provider = LogColorProvider()
     log_color_provider.is_ci_mode = False
     return log_color_provider
+
+
+@contextmanager
+def empty_protostar_toml():
+    toml_path = (Path(".") / "protostar.toml").resolve()
+    lib_dir = (Path(".") / "lib").resolve()
+    lib_dir.mkdir(exist_ok=True)
+    with open(toml_path, mode="w+", encoding="utf-8") as file:
+        file.write(
+            """["protostar.project"]\nlibs_path="lib"\n["protostar.contracts"]"""
+        )
+    yield
+    toml_path.unlink(missing_ok=True)
+    if lib_dir.is_dir():
+        lib_dir.rmdir()
 
 
 @pytest.fixture(name="run_cairo_test_runner", scope="module")
@@ -150,20 +165,20 @@ def run_cairo_test_runner_fixture(
                 f"{str(path)}::{ignored_test_case}"
                 for ignored_test_case in ignored_test_cases
             ]
-
-        return await TestCommand(
-            project_root_path=Path(),
-            protostar_directory=protostar_directory_mock,
-            project_cairo_path_builder=project_cairo_path_builder,
-            logger=getLogger(),
-            log_color_provider=log_color_provider,
-        ).test(
-            targets=targets,
-            ignored_targets=ignored_targets,
-            seed=seed,
-            disable_hint_validation=disable_hint_validation,
-            cairo_path=cairo_path or [],
-        )
+        with empty_protostar_toml():
+            return await TestCommand(
+                project_root_path=Path(),
+                protostar_directory=protostar_directory_mock,
+                project_cairo_path_builder=project_cairo_path_builder,
+                logger=getLogger(),
+                log_color_provider=log_color_provider,
+            ).test(
+                targets=targets,
+                ignored_targets=ignored_targets,
+                seed=seed,
+                disable_hint_validation=disable_hint_validation,
+                cairo_path=cairo_path or [],
+            )
 
     return run_cairo_test_runner
 
