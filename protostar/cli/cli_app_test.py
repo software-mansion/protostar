@@ -3,10 +3,10 @@ from asyncio import Future
 import pytest
 from pytest_mock import MockerFixture
 
-from conftest import FooCommand
-from protostar.cli.argument_parser_facade import ArgumentParserFacade
-from protostar.cli.cli_app import CLIApp
-from protostar.cli.command import Command
+from .argument import Argument
+from .argument_parser_facade import ArgumentParserFacade
+from .cli_app import CLIApp
+from .conftest import FooCommand
 
 
 @pytest.mark.asyncio
@@ -28,7 +28,7 @@ async def test_command_run_method_was_called(
 async def test_fail_when_no_command_was_found(foo_command: FooCommand):
     cli = CLIApp(
         commands=[foo_command],
-        root_args=[Command.Argument(name="version", type="bool", description="...")],
+        root_args=[Argument(name="version", type="bool", description="...")],
     )
     parser = ArgumentParserFacade(cli)
 
