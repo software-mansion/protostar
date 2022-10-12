@@ -1,13 +1,17 @@
 from logging import Logger
 from pathlib import Path
 from typing import List, Optional
+from argparse import Namespace
 
 from protostar.cli.activity_indicator import ActivityIndicator
 from protostar.cli.command import Command
 from protostar.commands.test.test_collector_summary_formatter import (
     format_test_collector_summary,
 )
-from protostar.commands.test.test_result_formatter import format_test_result
+from protostar.commands.test.test_result_formatter import (
+    format_test_result,
+    make_path_relative_if_possible,
+)
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.compiler import ProjectCairoPathBuilder
 from protostar.protostar_exception import ProtostarException
@@ -19,13 +23,17 @@ from protostar.testing import (
     TestScheduler,
     determine_testing_seed,
 )
-from protostar.utils.compiler.pass_managers import (
-    StarknetPassManagerFactory,
-    TestCollectorPassManagerFactory,
+from protostar.starknet.compiler.pass_managers import StarknetPassManagerFactory
+from protostar.starknet.compiler.pass_managers import TestCollectorPassManagerFactory
+from protostar.io.log_color_provider import LogColorProvider
+from protostar.self.protostar_directory import ProtostarDirectory
+from protostar.starknet.compiler.starknet_compilation import (
+    CompilerConfig,
+    StarknetCompiler,
 )
-from protostar.utils.log_color_provider import LogColorProvider
-from protostar.utils.protostar_directory import ProtostarDirectory
-from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
+
+from protostar.self.cache_io import CacheIO
+from .test_command_cache import TestCommandCache
 
 
 class TestCommand(Command):
@@ -128,11 +136,18 @@ A glob or globs to a directory or a test suite, for example:
                 description="Print slowest tests at the end.",
                 default=0,
             ),
+            Command.Argument(
+                name="last-failed",
+                short_name="lf",
+                type="bool",
+                description="Only re-run failed and broken test cases.",
+            ),
         ]
 
-    async def run(self, args) -> TestingSummary:
+    async def run(self, args: Namespace) -> TestingSummary:
+        cache = TestCommandCache(CacheIO(self._project_root_path), self._logger)
         summary = await self.test(
-            targets=args.target,
+            targets=cache.obtain_targets(args.target, args.last_failed),
             ignored_targets=args.ignore,
             cairo_path=args.cairo_path,
             disable_hint_validation=args.disable_hint_validation,
@@ -143,6 +158,7 @@ A glob or globs to a directory or a test suite, for example:
             seed=args.seed,
             slowest_tests_to_report_count=args.report_slowest_tests,
         )
+        cache.write_failed_tests_to_cache(summary)
         summary.assert_all_passed()
         return summary
 
@@ -212,6 +228,7 @@ A glob or globs to a directory or a test suite, for example:
                 no_progress_bar=no_progress_bar,
                 exit_first=exit_first,
                 slowest_tests_to_report_count=slowest_tests_to_report_count,
+                project_root_path=self._project_root_path,
             )
             TestScheduler(live_logger, worker=TestRunner.worker).run(
                 include_paths=include_paths,
@@ -244,7 +261,9 @@ A glob or globs to a directory or a test suite, for example:
         )
         self._logger.info(formatted_result)
 
-    @staticmethod
-    def _log_formatted_test_result(test_result: TestResult) -> None:
+    def _log_formatted_test_result(self, test_result: TestResult) -> None:
+        test_result = make_path_relative_if_possible(
+            test_result, self._project_root_path
+        )
         formatted_test_result = format_test_result(test_result)
         print(formatted_test_result)

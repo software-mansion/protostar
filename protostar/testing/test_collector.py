@@ -15,8 +15,8 @@ from starkware.starknet.compiler.starknet_preprocessor import (
     StarknetPreprocessedProgram,
 )
 
-from protostar.utils.compiler.pass_managers import TestCollectorPreprocessedProgram
-from protostar.utils.starknet_compilation import StarknetCompiler
+from protostar.starknet.compiler.pass_managers import TestCollectorPreprocessedProgram
+from protostar.starknet.compiler.starknet_compilation import StarknetCompiler
 
 from .test_results import BrokenTestSuiteResult
 from .test_suite import TestCase, TestSuite

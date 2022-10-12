@@ -26,7 +26,9 @@ def migration_file_path_fixture(protostar: ProtostarFixture) -> Path:
 async def test_migrate_up(
     protostar: ProtostarFixture, migration_file_path: Path, devnet_gateway_url: str
 ):
-    result = await protostar.migrate(migration_file_path, network=devnet_gateway_url)
+    result = await protostar.migrate(
+        migration_file_path, gateway_url=devnet_gateway_url
+    )
 
     assert result.starknet_requests[0].action == "DEPLOY"
 
@@ -35,7 +37,7 @@ async def test_migrate_down(
     protostar: ProtostarFixture, migration_file_path: Path, devnet_gateway_url: str
 ):
     result = await protostar.migrate(
-        migration_file_path, network=devnet_gateway_url, rollback=True
+        migration_file_path, gateway_url=devnet_gateway_url, rollback=True
     )
 
     assert result.starknet_requests[0].action == "DECLARE"

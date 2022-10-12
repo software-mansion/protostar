@@ -4,7 +4,7 @@ from pathlib import Path
 from pytest_mock import MockerFixture
 
 from protostar.upgrader.latest_version_cache_toml import LatestVersionCacheTOML
-from protostar.utils.protostar_directory import VersionManager
+from protostar.self.protostar_directory import VersionManager
 
 
 def test_latest_version_cache_toml_saving_and_loading(

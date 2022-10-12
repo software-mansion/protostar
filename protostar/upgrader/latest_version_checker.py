@@ -7,8 +7,8 @@ from requests.exceptions import ConnectionError
 
 from protostar.upgrader.latest_version_cache_toml import LatestVersionCacheTOML
 from protostar.upgrader.latest_version_remote_checker import LatestVersionRemoteChecker
-from protostar.utils.log_color_provider import LogColorProvider
-from protostar.utils.protostar_directory import ProtostarDirectory, VersionManager
+from protostar.io.log_color_provider import LogColorProvider
+from protostar.self.protostar_directory import ProtostarDirectory, VersionManager
 
 
 # pylint: disable=too-many-instance-attributes

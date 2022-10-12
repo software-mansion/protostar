@@ -16,7 +16,7 @@ from protostar.protostar_toml.protostar_contracts_section import (
 )
 from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
 from protostar.protostar_toml.protostar_toml_section import ProtostarTOMLSection
-from protostar.utils.starknet_compilation import StarknetCompiler
+from protostar.starknet.compiler.starknet_compilation import StarknetCompiler
 
 
 @pytest.fixture(name="create_loader")

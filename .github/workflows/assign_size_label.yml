@@ -1,0 +1,22 @@
+name: size-label
+on: pull_request
+jobs:
+  size-label:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository == 'software-mansion/protostar' && github.actor != 'dependabot[bot]' }}
+    steps:
+      - name: size-label
+        uses: "pascalgn/size-label-action@v0.4.3"
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          IGNORED: "poetry.lock"
+        with:
+          sizes: >
+            {
+              "0": "XS",
+              "10": "S",
+              "100": "M",
+              "400": "L",
+              "700": "XL",
+              "1000": "XXL"
+            }

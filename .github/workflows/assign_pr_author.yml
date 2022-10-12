@@ -1,0 +1,15 @@
+# .github/workflows/auto-author-assign.yml
+name: Auto Author Assign
+
+on:
+  pull_request:
+
+permissions:
+  pull-requests: write
+
+jobs:
+  assign-author:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository == 'software-mansion/protostar' }} # do not run on forks
+    steps:
+      - uses: toshimaru/auto-author-assign@v1.6.0

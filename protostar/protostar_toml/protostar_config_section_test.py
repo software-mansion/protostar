@@ -5,7 +5,7 @@ from protostar.protostar_toml.protostar_config_section import ProtostarConfigSec
 from protostar.protostar_toml.protostar_toml_exceptions import (
     InvalidProtostarTOMLException,
 )
-from protostar.utils.protostar_directory import VersionManager
+from protostar.self.protostar_directory import VersionManager
 
 
 @pytest.fixture(name="protostar_config_section_dict")

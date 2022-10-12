@@ -1,11 +1,18 @@
+import json
 import subprocess
 import time
+from contextlib import contextmanager
+from dataclasses import dataclass
 from pathlib import Path
 from socket import socket as Socket
-from typing import List, NamedTuple, Union
+from typing import ContextManager, List, NamedTuple, Protocol, Union
 
 import pytest
 import requests
+from starknet_py.net.models import StarknetChainId
+from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
+
+from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
 
 
 def ensure_devnet_alive(port: int, retries=5, base_backoff_time=2) -> bool:
@@ -72,6 +79,59 @@ def signing_credentials_fixture() -> Credentials:  # The same account is generat
         testnet_account_private_key,
         testnet_account_address,
     )
+
+
+@dataclass
+class DevnetAccount:
+    address: str
+    private_key: str
+    public_key: str
+    signer: StarkCurveSigner
+
+
+@pytest.fixture(name="devnet_accounts")
+def devnet_accounts_fixture(devnet_gateway_url: str) -> list[DevnetAccount]:
+    response = requests.get(f"{devnet_gateway_url}/predeployed_accounts")
+    devnet_account_dicts = json.loads(response.content)
+    return [
+        DevnetAccount(
+            address=devnet_account_dict["address"],
+            private_key=devnet_account_dict["private_key"],
+            public_key=devnet_account_dict["public_key"],
+            signer=StarkCurveSigner(
+                account_address=devnet_account_dict["address"],
+                key_pair=KeyPair(
+                    private_key=int(devnet_account_dict["private_key"], base=16),
+                    public_key=int(devnet_account_dict["public_key"], base=16),
+                ),
+                chain_id=StarknetChainId.TESTNET,
+            ),
+        )
+        for devnet_account_dict in devnet_account_dicts
+    ]
+
+
+@pytest.fixture(name="devnet_account")
+def devnet_account(devnet_accounts: list[DevnetAccount]) -> DevnetAccount:
+    return devnet_accounts[0]
+
+
+class SetPrivateKeyEnvVarFixture(Protocol):
+    def __call__(self, private_key: str) -> ContextManager[None]:
+        ...
+
+
+@pytest.fixture(name="set_private_key_env_var")
+def set_private_key_env_var_fixture(
+    monkeypatch: pytest.MonkeyPatch,
+) -> SetPrivateKeyEnvVarFixture:
+    @contextmanager
+    def set_private_key_env_var(private_key: str):
+        monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, private_key)
+        yield
+        monkeypatch.delenv(PRIVATE_KEY_ENV_VAR_NAME)
+
+    return set_private_key_env_var
 
 
 PathStr = str

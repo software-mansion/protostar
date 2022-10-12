@@ -1,5 +1,6 @@
 import pytest
 
+from .conftest import FakeProtostarVersionProvider
 from .protostar_compatibility_with_project_checker import (
     CompatibilityCheckResult,
     DeclaredProtostarVersionProviderProtocol,
@@ -9,7 +10,7 @@ from .protostar_compatibility_with_project_checker import (
 )
 
 
-class DeclaredProtostarVersionProviderDouble(DeclaredProtostarVersionProviderProtocol):
+class FakeDeclaredProtostarVersionProvider(DeclaredProtostarVersionProviderProtocol):
     def __init__(self, declared_protostar_version_str: str):
         self._declared_protostar_version_str = declared_protostar_version_str
 
@@ -17,22 +18,14 @@ class DeclaredProtostarVersionProviderDouble(DeclaredProtostarVersionProviderPro
         return parse_protostar_version(self._declared_protostar_version_str)
 
 
-class ProtostarVersionProviderDouble(ProtostarVersionProviderProtocol):
-    def __init__(self, protostar_version_str: str):
-        self._protostar_version_str = protostar_version_str
-
-    def get_protostar_version(self):
-        return parse_protostar_version(self._protostar_version_str)
-
-
 @pytest.fixture(name="declared_protostar_version_provider")
 def declared_protostar_version_provider_fixture(declared_protostar_version: str):
-    return DeclaredProtostarVersionProviderDouble(declared_protostar_version)
+    return FakeDeclaredProtostarVersionProvider(declared_protostar_version)
 
 
 @pytest.fixture(name="protostar_version_provider")
 def protostar_version_provider_fixture(protostar_version: str):
-    return ProtostarVersionProviderDouble(protostar_version)
+    return FakeProtostarVersionProvider(protostar_version)
 
 
 @pytest.mark.parametrize(

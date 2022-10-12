@@ -1,1 +1,0 @@
-from protostar.commands.migrate.migrate_command import MigrateCommand

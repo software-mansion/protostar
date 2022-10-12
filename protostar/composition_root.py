@@ -1,9 +1,13 @@
 from dataclasses import dataclass
 from logging import getLogger
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
-from protostar.cli import Command
+from protostar.cli import (
+    ArgumentParserFacade,
+    Command,
+    map_protostar_type_name_to_parser,
+)
 from protostar.commands import (
     BuildCommand,
     DeclareCommand,
@@ -17,13 +21,15 @@ from protostar.commands import (
     UpdateCommand,
     UpgradeCommand,
 )
-from protostar.commands.cairo_migrate.cairo_migrate_command import CairoMigrateCommand
+from protostar.commands.cairo_migrate_command import CairoMigrateCommand
 from protostar.commands.init.project_creator import (
     AdaptedProjectCreator,
     NewProjectCreator,
 )
 from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
+from protostar.configuration_file import ConfigurationFileFactory
+from protostar.io import InputRequester, log_color_provider
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_cli import ProtostarCLI
 from protostar.protostar_toml import (
@@ -33,9 +39,7 @@ from protostar.protostar_toml import (
     ProtostarTOMLWriter,
     search_upwards_protostar_toml_path,
 )
-from protostar.protostar_toml.protostar_toml_version_checker import (
-    ProtostarTOMLVersionChecker,
-)
+from protostar.self.protostar_directory import ProtostarDirectory, VersionManager
 from protostar.starknet_gateway import GatewayFacadeFactory
 from protostar.upgrader import (
     LatestVersionCacheTOML,
@@ -43,21 +47,19 @@ from protostar.upgrader import (
     LatestVersionRemoteChecker,
     UpgradeManager,
 )
-from protostar.utils import (
-    InputRequester,
-    ProtostarDirectory,
-    VersionManager,
-    log_color_provider,
-)
 
 
 @dataclass
 class DIContainer:
     protostar_cli: ProtostarCLI
-    protostar_toml_reader: ProtostarTOMLReader
+    argument_parser_facade: ArgumentParserFacade
 
 
-def build_di_container(script_root: Path, start_time: float = 0):
+def build_di_container(
+    script_root: Path,
+    active_configuration_profile_name: Optional[str] = None,
+    start_time: float = 0,
+):
     logger = getLogger()
     cwd = Path().resolve()
     protostar_toml_path = search_upwards_protostar_toml_path(start_path=cwd)
@@ -65,6 +67,12 @@ def build_di_container(script_root: Path, start_time: float = 0):
         protostar_toml_path.parent if protostar_toml_path is not None else cwd
     )
     protostar_toml_path = protostar_toml_path or project_root_path / "protostar.toml"
+
+    configuration_file_factory = ConfigurationFileFactory(
+        cwd, active_profile_name=active_configuration_profile_name
+    )
+    configuration_file = configuration_file_factory.create()
+
     protostar_directory = ProtostarDirectory(script_root)
     version_manager = VersionManager(protostar_directory, logger)
     protostar_toml_writer = ProtostarTOMLWriter()
@@ -177,19 +185,23 @@ def build_di_container(script_root: Path, start_time: float = 0):
         FormatCommand(project_root_path, logger),
         CairoMigrateCommand(script_root, logger),
     ]
-    protostar_toml_version_checker = ProtostarTOMLVersionChecker(
-        protostar_toml_reader=protostar_toml_reader, version_manager=version_manager
-    )
 
     protostar_cli = ProtostarCLI(
         commands=commands,
         latest_version_checker=latest_version_checker,
-        protostar_toml_version_checker=protostar_toml_version_checker,
         log_color_provider=log_color_provider,
         logger=logger,
         version_manager=version_manager,
         project_cairo_path_builder=project_cairo_path_builder,
         start_time=start_time,
     )
+    if configuration_file:
+        configuration_file.set_command_names_provider(protostar_cli)
 
-    return DIContainer(protostar_cli, protostar_toml_reader)
+    argument_parser_facade = ArgumentParserFacade(
+        protostar_cli,
+        configuration_file,
+        parser_resolver=map_protostar_type_name_to_parser,
+    )
+
+    return DIContainer(protostar_cli, argument_parser_facade)

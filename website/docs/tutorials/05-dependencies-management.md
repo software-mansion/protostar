@@ -15,12 +15,12 @@ Using Git submodules as a foundation for package management is not an ideal appr
 To add a dependency, inside project directory, run `protostar install EXTERNAL_DEPENDENCY_REFERENCE`:
 
 ```console title="Installing a dependency from link to a repository."
-$ protostar install OpenZeppelin/cairo-contracts@0.3.0
+$ protostar install OpenZeppelin/cairo-contracts@v0.4.0
 12:00:00 [INFO] Installing cairo_contracts (https://github.com/OpenZeppelin/cairo-contracts)
 ```
 
 :::warning
-OpenZeppelin Contracts for Cairo strongly discourages installing directly from the `main` branch, therefore we're specifying an official release through one of the [External dependency reference formats](#external-dependency-reference-formats).
+OpenZeppelin Contracts for Cairo strongly discourages installing directly from the `main` branch. It is recommended to always include the tag in the [External dependency reference format](#external-dependency-reference-formats).
 :::
 
 ```console title="'lib' category contains the installed dependency."
@@ -64,8 +64,8 @@ You can configure your `cairo-path` in [the configuration file](/docs/tutorials/
 Protostar supports the following ways of referencing external dependency:
 
 | Format                                | Example                                           |
-|---------------------------------------|---------------------------------------------------|
-| `GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]` | `OpenZeppelin/cairo-contracts@0.3.0`              |
+| ------------------------------------- | ------------------------------------------------- |
+| `GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]` | `OpenZeppelin/cairo-contracts@v0.4.0`             |
 | `URL_TO_THE_REPOSITORY`               | `https://github.com/OpenZeppelin/cairo-contracts` |
 | `SSH_URI`                             | `git@github.com:OpenZeppelin/cairo-contracts.git` |
 

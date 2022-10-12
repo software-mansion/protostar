@@ -1,6 +1,6 @@
 import json
 import re
-from os import listdir
+from glob import glob
 from pathlib import Path
 from shutil import copyfile
 
@@ -39,13 +39,11 @@ def test_migrating_base_case(
             "--chain-id",
             str(StarknetChainId.TESTNET.value),
             "--no-confirm",
-            "--output-dir",
-            "migrations/output",
         ]
     )
 
     assert "Migration completed" in result
-    assert len(listdir((migrations_dir_path / "output"))) == 1
+    assert len(glob(f"{migrations_dir_path}/*.json")) == 1
     assert count_hex64(result) == 2
 
 
@@ -85,14 +83,12 @@ async def test_migrating_with_signed_invoke(
             "--chain-id",
             str(StarknetChainId.TESTNET.value),
             "--no-confirm",
-            "--output-dir",
-            "migrations/output",
         ]
     )
 
     assert "Migration completed" in result
 
-    migration_file = next(migrations_dir_path.glob("output/*.json"))
+    migration_file = next(migrations_dir_path.glob("*.json"))
     with migration_file.open("r", encoding="utf-8") as file:
         migration_content = json.load(file)
 
@@ -136,8 +132,6 @@ def test_migrating_with_invoke_and_no_account_address(
             "--chain-id",
             str(StarknetChainId.TESTNET.value),
             "--no-confirm",
-            "--output-dir",
-            "migrations/output",
         ],
         expect_exit_code=1,
     )

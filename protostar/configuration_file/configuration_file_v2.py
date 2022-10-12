@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Union
+from typing import Any, Optional
 
 from typing_extensions import Self
 
@@ -11,10 +11,9 @@ from .configuration_file import (
     CommandNameToConfig,
     ConfigurationFile,
     ConfigurationFileContentBuilder,
-    ConfigurationFileContentConfigurator,
+    ConfigurationFileContentFactory,
     ContractName,
     ContractNameNotFoundException,
-    PrimitiveTypesSupportedByConfigurationFile,
     ProfileName,
 )
 from .configuration_file_interpreter import ConfigurationFileInterpreter
@@ -51,18 +50,18 @@ class ConfigurationFileV2Model:
 
 class ConfigurationFileV2(
     ConfigurationFile[ConfigurationFileV2Model],
-    ConfigurationFileContentConfigurator[ConfigurationFileV2Model],
 ):
     def __init__(
         self,
         project_root_path: Path,
         configuration_file_interpreter: ConfigurationFileInterpreter,
-        filename: str,
+        file_path: Path,
+        active_profile_name: Optional[str],
     ) -> None:
-        super().__init__()
+        super().__init__(active_profile_name)
         self._project_root_path = project_root_path
         self._configuration_file_reader = configuration_file_interpreter
-        self._filename = filename
+        self._file_path = file_path
 
     def get_declared_protostar_version(self) -> Optional[ProtostarVersion]:
         version_str = self._configuration_file_reader.get_attribute(
@@ -71,6 +70,9 @@ class ConfigurationFileV2(
         if not version_str:
             return None
         return parse_protostar_version(version_str)
+
+    def get_filepath(self) -> Path:
+        return self._file_path
 
     def get_contract_names(self) -> list[str]:
         contract_section = self._configuration_file_reader.get_section("contracts")
@@ -83,25 +85,29 @@ class ConfigurationFileV2(
         if contract_section is None or contract_name not in contract_section:
             raise ContractNameNotFoundException(
                 contract_name,
-                expected_declaration_location=f"{self._filename}::[contracts]",
+                expected_declaration_location=f"{self._file_path.name}::[contracts]",
             )
         return [
             self._project_root_path / Path(path_str)
             for path_str in contract_section[contract_name]
         ]
 
-    def get_command_argument(
+    def get_argument_value(
         self, command_name: str, argument_name: str, profile_name: Optional[str] = None
-    ) -> Optional[
-        Union[
-            PrimitiveTypesSupportedByConfigurationFile,
-            list[PrimitiveTypesSupportedByConfigurationFile],
-        ]
-    ]:
+    ) -> Optional[Any]:
         return self._configuration_file_reader.get_attribute(
             section_name=command_name,
             attribute_name=argument_name,
             profile_name=profile_name,
+        )
+
+    def get_shared_argument_value(
+        self, argument_name: str, profile_name: Optional[str] = None
+    ) -> Optional[Any]:
+        return self._configuration_file_reader.get_attribute(
+            attribute_name=argument_name,
+            profile_name=profile_name,
+            section_name="project",
         )
 
     def read(
@@ -109,24 +115,36 @@ class ConfigurationFileV2(
     ) -> ConfigurationFileV2Model:
         raise NotImplementedError("Operation not supported.")
 
-    def create_file_content(
+
+class ConfigurationFileV2ContentFactory(
+    ConfigurationFileContentFactory[ConfigurationFileV2Model]
+):
+    def __init__(
         self,
         content_builder: ConfigurationFileContentBuilder,
+    ) -> None:
+        super().__init__()
+        self._content_builder = content_builder
+
+    def create_file_content(
+        self,
         model: ConfigurationFileV2Model,
     ) -> str:
-        content_builder.set_section(
+        self._content_builder.set_section(
             section_name="project", data=self._prepare_project_section_data(model)
         )
-        content_builder.set_section(
+        self._content_builder.set_section(
             section_name="contracts", data=model.contract_name_to_path_strs
         )
         for command_name, command_config in model.command_name_to_config.items():
-            content_builder.set_section(section_name=command_name, data=command_config)
+            self._content_builder.set_section(
+                section_name=command_name, data=command_config
+            )
         for (
             profile_name,
             project_config,
         ) in model.profile_name_to_project_config.items():
-            content_builder.set_section(
+            self._content_builder.set_section(
                 profile_name=profile_name, section_name="project", data=project_config
             )
         for (
@@ -134,12 +152,12 @@ class ConfigurationFileV2(
             command_name_to_config,
         ) in model.profile_name_to_commands_config.items():
             for command_name, command_config in command_name_to_config.items():
-                content_builder.set_section(
+                self._content_builder.set_section(
                     profile_name=profile_name,
                     section_name=command_name,
                     data=command_config,
                 )
-        content = content_builder.build()
+        content = self._content_builder.build()
         return content
 
     @staticmethod
@@ -152,3 +170,6 @@ class ConfigurationFileV2(
         }
 
         return project_config_section
+
+    def get_file_extension(self) -> str:
+        return self._content_builder.get_content_format()

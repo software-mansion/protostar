@@ -2,11 +2,14 @@ from pathlib import Path
 from starkware.starknet.public.abi import AbiType
 from pytest_mock import MockerFixture
 
-from protostar.utils.compiler.pass_managers import (
+from protostar.starknet.compiler.pass_managers import (
     StarknetPassManagerFactory,
     TestSuitePassMangerFactory,
 )
-from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
+from protostar.starknet.compiler.starknet_compilation import (
+    CompilerConfig,
+    StarknetCompiler,
+)
 
 
 def oracle_abi() -> AbiType:

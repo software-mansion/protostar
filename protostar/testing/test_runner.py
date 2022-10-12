@@ -9,11 +9,14 @@ from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 
 from protostar.protostar_exception import ProtostarException
-from protostar.utils.compiler.pass_managers import (
+from protostar.starknet.compiler.pass_managers import (
     ProtostarPassMangerFactory,
     TestSuitePassMangerFactory,
 )
-from protostar.utils.starknet_compilation import CompilerConfig, StarknetCompiler
+from protostar.starknet.compiler.starknet_compilation import (
+    CompilerConfig,
+    StarknetCompiler,
+)
 
 from .environments.setup_execution_environment import SetupExecutionEnvironment
 from .starkware.test_execution_state import TestExecutionState

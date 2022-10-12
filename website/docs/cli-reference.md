@@ -27,10 +27,10 @@ $ protostar build
 Compile contracts.
 #### `--cairo-path DIRECTORY[]`
 Additional directories to look for sources.
+#### `--compiled-contracts-dir PATH=build`
+An output directory used to put the compiled contracts in.
 #### `--disable-hint-validation`
 Disable validation of hints when building the contracts.
-#### `-o` `--output PATH=build`
-An output directory used to put the compiled contracts in.
 ### `cairo-migrate`
 Migrate project sources to Cairo 0.10.
 #### `targets STRING[]=['.']`
@@ -47,6 +47,8 @@ Account address
 The chain id. It is required unless `--network` is provided.
 #### `--gateway-url STRING`
 The URL of a StarkNet gateway. It is required unless `--network` is provided.
+#### `--max-fee FEE`
+The maximum fee that the sender is willing to pay for the transaction. Provide "auto" to auto estimate the fee.
 #### `-n` `--network STRING`
 The name of the StarkNet network.
 It is required unless `--gateway-url` is provided.
@@ -123,7 +125,7 @@ $ protostar install https://github.com/OpenZeppelin/cairo-contracts
 Install a dependency as a git submodule.
 #### `package STRING`
 - `GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]`
-    - `OpenZeppelin/cairo-contracts@0.1.0`
+    - `OpenZeppelin/cairo-contracts@v0.4.0`
 - `URL_TO_THE_REPOSITORY`
     - `https://github.com/OpenZeppelin/cairo-contracts`
 - `SSH_URI`
@@ -141,6 +143,8 @@ Path to the migration file.
 Account address
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
+#### `--compiled-contracts-dir PATH=build`
+A directory in which your compiled contracts are located (used for deploys and declares)
 #### `--gateway-url STRING`
 The URL of a StarkNet gateway. It is required unless `--network` is provided.
 #### `-n` `--network STRING`
@@ -154,8 +158,6 @@ Supported StarkNet networks:
 - `alpha-mainnet`
 #### `--no-confirm`
 Skip confirming building the project.
-#### `--output-dir PATH`
-Migration output directory.
 #### `--private-key-path PATH`
 Path to the file, which stores your private key (in hex representation) for the account. 
 Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
@@ -172,7 +174,7 @@ Remove a dependency.
 Required.
 
 - `GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]`
-    - `OpenZeppelin/cairo-contracts@0.1.0`
+    - `OpenZeppelin/cairo-contracts@v0.4.0`
 - `URL_TO_THE_REPOSITORY`
     - `https://github.com/OpenZeppelin/cairo-contracts`
 - `SSH_URI`
@@ -196,6 +198,8 @@ Disable hint validation in contracts declared by the `declare` cheatcode or depl
 Exit immediately on first broken or failed test.
 #### `-i` `--ignore STRING[]`
 A glob or globs to a directory or a test suite, which should be ignored.
+#### `-lf` `--last-failed`
+Only re-run failed and broken test cases.
 #### `--no-progress-bar`
 Disable progress bar.
 #### `--profiling`
@@ -213,7 +217,7 @@ $ protostar update cairo-contracts
 Update a dependency or dependencies. If the default branch of a dependency's repository uses tags, Protostar will pull a commit marked with the newest tag. Otherwise, Protostar will pull a recent commit from the default branch.
 #### `package STRING`
 - `GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]`
-    - `OpenZeppelin/cairo-contracts@0.1.0`
+    - `OpenZeppelin/cairo-contracts@v0.4.0`
 - `URL_TO_THE_REPOSITORY`
     - `https://github.com/OpenZeppelin/cairo-contracts`
 - `SSH_URI`

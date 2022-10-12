@@ -26,7 +26,7 @@ jobs:
 
       - name: Build binary
         run: |
-          poetry run pyinstaller protostar.spec
+          poetry run poe build
 
       - name: Pack binary into a tarball
         run: tar -czvf protostar.tar.gz ./dist/protostar

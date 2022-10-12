@@ -3,13 +3,14 @@ import os
 from argparse import Namespace
 from logging import getLogger
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, cast
+from typing import Any, Callable, Dict, List, Optional, Tuple, cast, Union
 
 from pytest_mock import MockerFixture
 from starknet_py.net import KeyPair
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
+from protostar.self.protostar_directory import ProtostarDirectory
 from protostar.cli.map_targets_to_file_paths import map_targets_to_file_paths
 from protostar.commands import (
     BuildCommand,
@@ -18,7 +19,9 @@ from protostar.commands import (
     InitCommand,
     MigrateCommand,
 )
-from protostar.commands.deploy.deploy_command import DeployCommand
+from protostar.testing import TestingSummary
+from protostar.commands.deploy_command import DeployCommand
+from protostar.commands.test import TestCommand
 from protostar.commands.init.project_creator.new_project_creator import (
     NewProjectCreator,
 )
@@ -37,9 +40,14 @@ from protostar.protostar_toml import (
     ProtostarTOMLReader,
     ProtostarTOMLWriter,
 )
-from protostar.starknet_gateway import GatewayFacadeFactory
-from protostar.utils.input_requester import InputRequester
-from protostar.utils.log_color_provider import LogColorProvider
+from protostar.starknet_gateway import Fee, GatewayFacadeFactory
+from protostar.io.input_requester import InputRequester
+from protostar.io.log_color_provider import LogColorProvider
+
+from protostar.compiler import ProjectCairoPathBuilder
+from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
+from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
+from protostar.io.log_color_provider import LogColorProvider
 
 
 class ProtostarFixture:
@@ -48,18 +56,20 @@ class ProtostarFixture:
         project_root_path: Path,
         init_command: InitCommand,
         build_command: BuildCommand,
-        migrator_command: MigrateCommand,
+        migrate_command: MigrateCommand,
         format_command: FormatCommand,
         declare_command: DeclareCommand,
         deploy_command: DeployCommand,
+        test_command: TestCommand,
     ) -> None:
         self._project_root_path = project_root_path
         self._init_command = init_command
         self._build_command = build_command
-        self._migrator_command = migrator_command
+        self._migrate_command = migrate_command
         self._format_command = format_command
         self._declare_command = declare_command
         self._deploy_command = deploy_command
+        self._test_command = test_command
 
     @property
     def project_root_path(self) -> Path:
@@ -72,6 +82,7 @@ class ProtostarFixture:
         contract: Optional[Path] = None,
         gateway_url: Optional[str] = None,
         wait_for_acceptance: Optional[bool] = False,
+        max_fee: Optional[Fee] = None,
     ):
         args = Namespace()
         args.signer_class = None
@@ -86,6 +97,7 @@ class ProtostarFixture:
         args.account_address = account_address
         args.contract = contract
         args.gateway_url = gateway_url
+        args.max_fee = max_fee
 
         return await self._declare_command.run(args)
 
@@ -106,6 +118,23 @@ class ProtostarFixture:
         args.chain_id = StarknetChainId.TESTNET
         return await self._deploy_command.run(args)
 
+    async def test(
+        self, targets: List[str], last_failed: bool = False
+    ) -> TestingSummary:
+        args = Namespace()
+        args.target = targets
+        args.ignore = []
+        args.cairo_path = []
+        args.disable_hint_validation = None
+        args.no_progress_bar = None
+        args.safe_collecting = None
+        args.exit_first = None
+        args.seed = None
+        args.report_slowest_tests = 0
+        args.last_failed = last_failed
+
+        return await self._test_command.run(args)
+
     def init_sync(self):
         args = Namespace()
         args.existing = False
@@ -117,7 +146,7 @@ class ProtostarFixture:
 
     def build_sync(self):
         args = Namespace()
-        args.output = Path("./build")
+        args.compiled_contracts_dir = Path("./build")
         args.disable_hint_validation = False
         args.cairo_path = None
         return asyncio.run(self._build_command.run(args))
@@ -125,23 +154,23 @@ class ProtostarFixture:
     async def migrate(
         self,
         path: Path,
-        network: str,
+        gateway_url: str,
         rollback=False,
-        output_dir: Optional[Path] = None,
         account_address: Optional[str] = None,
     ):
         args = Namespace()
         args.path = path
-        args.output_dir = output_dir
         args.rollback = rollback
         args.no_confirm = True
         args.network = None
-        args.gateway_url = network
+        args.gateway_url = gateway_url
         args.chain_id = StarknetChainId.TESTNET
         args.signer_class = None
         args.account_address = account_address
         args.private_key_path = None
-        migration_history = await self._migrator_command.run(args)
+        args.compiled_contracts_dir = Path() / "build"
+
+        migration_history = await self._migrate_command.run(args)
         assert migration_history is not None
         return migration_history
 
@@ -179,8 +208,14 @@ class ProtostarFixture:
 
         return summary, output
 
-    def create_files(self, relative_path_str_to_content: Dict[str, str]) -> None:
-        for relative_path_str, content in relative_path_str_to_content.items():
+    def create_files(
+        self, relative_path_str_to_file: Dict[str, Union[str, Path]]
+    ) -> None:
+        for relative_path_str, file in relative_path_str_to_file.items():
+            if isinstance(file, Path):
+                content = file.read_text("utf-8")
+            else:
+                content = file
             self._save_file(self._project_root_path / relative_path_str, content)
 
     def create_migration_file(
@@ -333,14 +368,30 @@ def build_protostar_fixture(
         logger=logger, gateway_facade_factory=gateway_facade_factory
     )
 
+    test_command = TestCommand(
+        project_root_path=project_root_path,
+        protostar_directory=ProtostarDirectory(project_root_path),
+        project_cairo_path_builder=ProjectCairoPathBuilder(
+            project_root_path,
+            ProtostarProjectSection.Loader(
+                ProtostarTOMLReader(
+                    Path(project_root_path / "protostar.toml").resolve()
+                )
+            ),
+        ),
+        log_color_provider=LogColorProvider(),
+        logger=logger,
+    )
+
     protostar_fixture = ProtostarFixture(
         project_root_path=project_root_path,
         init_command=init_command,
         build_command=build_command,
-        migrator_command=migrate_command,
+        migrate_command=migrate_command,
         format_command=format_command,
         declare_command=declare_command,
         deploy_command=deploy_command,
+        test_command=test_command,
     )
 
     return protostar_fixture

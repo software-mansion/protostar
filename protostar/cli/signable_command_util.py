@@ -62,7 +62,9 @@ class SignableCommandUtil:
         ):  # FIXME(arcticae): This is temporary, when the signing is mandatory this should be removed
             self._logger.warning(
                 "Signing credentials not found. "
-                "Signing transactions will be mandatory in future versions, please refer to the docs for more details"
+                "Signing transactions will be mandatory in future versions, "
+                "please refer to the docs for more details:\n"
+                "https://docs.swmansion.com/protostar/docs/tutorials/deploying/cli#signing-a-declaration"
             )
             return None
 

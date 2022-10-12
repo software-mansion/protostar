@@ -3,7 +3,7 @@ from typing import Dict, List, Optional, Union
 
 from typing_extensions import Literal
 
-from protostar.utils.log_color_provider import LogColorProvider
+from protostar.io.log_color_provider import LogColorProvider
 
 
 @dataclass

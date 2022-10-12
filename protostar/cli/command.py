@@ -1,56 +1,16 @@
-import re
-from abc import ABC, abstractmethod
-from dataclasses import dataclass, replace
-from pathlib import Path
-from typing import Any, List, Optional, Pattern
+from abc import abstractmethod
+from typing import Any, Generic, List, Optional, TypeVar, Union
 
-from typing_extensions import Literal
-from starkware.starknet.utils.api_utils import cast_to_felts
+from protostar.cli.arg_type import ArgTypeName
 
-InputAllowedType = Literal[
-    "str",
-    "directory",
-    "path",
-    "bool",
-    "regexp",
-    "int",  # only decimal!
-    "felt",
-]
+from .arg_type import ArgTypeName
+from .argument import Argument as GenericArgument
+
+ArgTypeNameT_co = TypeVar("ArgTypeNameT_co", covariant=True)
 
 
-class Command(ABC):
-
-    # pylint: disable=too-many-instance-attributes
-    @dataclass(frozen=True)
-    class Argument:
-        class Type:
-            @staticmethod
-            def regexp(arg: str) -> Pattern:
-                return re.compile(arg)
-
-            @staticmethod
-            def directory(arg: str) -> Path:
-                pth = Path(arg)
-                assert pth.is_dir(), f'"{str(pth)}" is not a valid directory path'
-                return pth
-
-            @staticmethod
-            def felt(arg: str) -> int:
-                [output] = cast_to_felts([arg])
-                return output
-
-        name: str
-        description: str
-        type: InputAllowedType
-        is_positional: bool = False
-        is_required: bool = False
-        is_array: bool = False
-        default: Any = None
-        example: Optional[str] = None
-        short_name: Optional[str] = None
-
-        def copy_with(self, **changes) -> "Command.Argument":
-            return replace(self, **changes)
+class Command(Generic[ArgTypeNameT_co]):
+    Argument = GenericArgument[ArgTypeName]
 
     @property
     @abstractmethod
@@ -69,7 +29,7 @@ class Command(ABC):
 
     @property
     @abstractmethod
-    def arguments(self) -> List[Argument]:
+    def arguments(self) -> List[Union[Argument, GenericArgument[ArgTypeNameT_co]]]:
         ...
 
     @abstractmethod

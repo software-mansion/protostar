@@ -6,14 +6,11 @@ import pytest
 from protostar.configuration_file.configuration_toml_content_builder import (
     ConfigurationTOMLContentBuilder,
 )
-from protostar.configuration_file.configuration_toml_interpreter import (
-    ConfigurationTOMLInterpreter,
-)
 from protostar.self import parse_protostar_version
 
 from .configuration_file import (
     ConfigurationFile,
-    ConfigurationFileContentConfigurator,
+    ConfigurationFileContentFactory,
     ContractNameNotFoundException,
 )
 from .configuration_file_v1 import (
@@ -21,11 +18,15 @@ from .configuration_file_v1 import (
     ConfigurationFileV1,
     ConfigurationFileV1Model,
 )
-from .configuration_file_v2 import ConfigurationFileV2, ConfigurationFileV2Model
+from .configuration_file_v2 import (
+    ConfigurationFileV2,
+    ConfigurationFileV2ContentFactory,
+    ConfigurationFileV2Model,
+)
 from .configuration_legacy_toml_interpreter import ConfigurationLegacyTOMLInterpreter
 
 
-class CommandNamesProviderDouble(CommandNamesProviderProtocol):
+class CommandNamesProviderStub(CommandNamesProviderProtocol):
     def get_command_names(self) -> list[str]:
         return ["declare"]
 
@@ -72,7 +73,15 @@ def configuration_file_fixture(project_root_path: Path, protostar_toml_content: 
     return ConfigurationFileV2(
         project_root_path=project_root_path,
         configuration_file_interpreter=configuration_toml_reader,
-        filename=protostar_toml_path.name,
+        file_path=protostar_toml_path,
+        active_profile_name=None,
+    )
+
+
+@pytest.fixture(name="content_factory")
+def content_factory_fixture():
+    return ConfigurationFileV2ContentFactory(
+        content_builder=ConfigurationTOMLContentBuilder()
     )
 
 
@@ -108,7 +117,7 @@ def test_error_when_retrieving_paths_from_not_defined_contract(
 
 
 def test_reading_command_argument_attribute(configuration_file: ConfigurationFile):
-    arg_value = configuration_file.get_command_argument(
+    arg_value = configuration_file.get_argument_value(
         command_name="declare", argument_name="network"
     )
 
@@ -118,18 +127,32 @@ def test_reading_command_argument_attribute(configuration_file: ConfigurationFil
 def test_reading_argument_attribute_defined_within_specified_profile(
     configuration_file: ConfigurationFile,
 ):
-    arg_value = configuration_file.get_command_argument(
+    arg_value = configuration_file.get_argument_value(
         command_name="declare", argument_name="network", profile_name="release"
     )
 
     assert arg_value == "mainnet"
 
 
+def test_reading_shared_value(
+    configuration_file: ConfigurationFile,
+):
+    assert (
+        configuration_file.get_shared_argument_value(argument_name="network")
+        == "devnet1"
+    )
+    assert (
+        configuration_file.get_shared_argument_value(
+            argument_name="network", profile_name="release"
+        )
+        == "mainnet2"
+    )
+
+
 def test_saving_configuration(
-    configuration_file: ConfigurationFileContentConfigurator[ConfigurationFileV2Model],
+    content_factory: ConfigurationFileContentFactory[ConfigurationFileV2Model],
     protostar_toml_content: str,
 ):
-    content_configurator = configuration_file
     configuration_file_v2_model = ConfigurationFileV2Model(
         protostar_version="9.9.9",
         project_config={
@@ -153,9 +176,8 @@ def test_saving_configuration(
         profile_name_to_project_config={"release": {"network": "mainnet2"}},
     )
 
-    result = content_configurator.create_file_content(
+    result = content_factory.create_file_content(
         model=configuration_file_v2_model,
-        content_builder=ConfigurationTOMLContentBuilder(),
     )
 
     assert result == protostar_toml_content
@@ -184,7 +206,10 @@ def test_transforming_model_v1_into_v2():
     )
 
 
-def test_transforming_file_v1_into_v2(protostar_toml_content: str):
+def test_transforming_file_v1_into_v2(
+    protostar_toml_content: str,
+    content_factory: ConfigurationFileV2ContentFactory,
+):
     old_protostar_toml_content = textwrap.dedent(
         """\
         ["protostar.config"]
@@ -219,23 +244,18 @@ def test_transforming_file_v1_into_v2(protostar_toml_content: str):
         """
     )
 
-    model_v1 = ConfigurationFileV1(
+    cf_v1 = ConfigurationFileV1(
         configuration_file_interpreter=ConfigurationLegacyTOMLInterpreter(
             file_content=old_protostar_toml_content,
         ),
         project_root_path=Path(),
-        filename="_",
-        command_names_provider=CommandNamesProviderDouble(),
-    ).read()
+        file_path=Path(),
+        active_profile_name=None,
+    )
+    cf_v1.set_command_names_provider(CommandNamesProviderStub())
+    model_v1 = cf_v1.read()
 
-    transformed_protostar_toml = ConfigurationFileV2(
-        configuration_file_interpreter=ConfigurationTOMLInterpreter(
-            file_content=old_protostar_toml_content,
-        ),
-        project_root_path=Path(),
-        filename="_",
-    ).create_file_content(
-        content_builder=ConfigurationTOMLContentBuilder(),
+    transformed_protostar_toml = content_factory.create_file_content(
         model=ConfigurationFileV2Model.from_v1(model_v1, protostar_version="9.9.9"),
     )
 
@@ -243,9 +263,9 @@ def test_transforming_file_v1_into_v2(protostar_toml_content: str):
 
 
 def test_saving_in_particular_order(
-    configuration_file: ConfigurationFileContentConfigurator[ConfigurationFileV2Model],
+    content_factory: ConfigurationFileV2ContentFactory,
 ):
-    content_configurator = configuration_file
+
     configuration_file_v2_model = ConfigurationFileV2Model(
         protostar_version="9.9.9",
         project_config={
@@ -260,8 +280,7 @@ def test_saving_in_particular_order(
         profile_name_to_project_config={},
     )
 
-    result = content_configurator.create_file_content(
-        content_builder=ConfigurationTOMLContentBuilder(),
+    result = content_factory.create_file_content(
         model=configuration_file_v2_model,
     )
 
