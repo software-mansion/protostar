@@ -8,9 +8,9 @@ from protostar.testing.environments.execution_environment import (
     ExecutionEnvironment,
 )
 from protostar.testing.starkware.test_execution_state import TestExecutionState
+from protostar.compiler import ProjectCompiler
 
 from .common_test_cheatcode_factory import CommonTestCheatcodeFactory
-from ...compiler import ProjectCompiler
 
 
 class SetupExecutionEnvironment(ExecutionEnvironment[None]):

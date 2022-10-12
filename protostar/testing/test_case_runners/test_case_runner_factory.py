@@ -7,11 +7,11 @@ from protostar.testing.environments.test_execution_environment import (
 from protostar.testing.starkware.test_execution_state import TestExecutionState
 from protostar.testing.test_config import TestMode
 from protostar.testing.test_suite import TestCase
+from protostar.compiler import ProjectCompiler
 
 from .fuzz_test_case_runner import FuzzTestCaseRunner
 from .standard_test_case_runner import StandardTestCaseRunner
 from .test_case_runner import TestCaseRunner
-from ...compiler import ProjectCompiler
 
 
 class TestCaseRunnerFactory:

@@ -15,10 +15,10 @@ from protostar.testing.starkware.execution_resources_summary import (
 from protostar.testing.starkware.test_execution_state import TestExecutionState
 from protostar.starknet.abi import has_function_parameters
 from protostar.testing.hook import Hook
+from protostar.compiler import ProjectCompiler
 
 from .common_test_cheatcode_factory import CommonTestCheatcodeFactory
 from .execution_environment import ExecutionEnvironment
-from ...compiler import ProjectCompiler
 
 
 @dataclass
