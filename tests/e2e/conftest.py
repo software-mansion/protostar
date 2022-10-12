@@ -82,7 +82,7 @@ def init_project(
         else:
             real_project_name = override_project_name
 
-        child = pexpect.spawn(f"{protostar_bin} init --name {real_project_name}")
+        child = pexpect.spawn(f"{protostar_bin} init {real_project_name}")
         child.expect(pexpect.EOF, timeout=30)
 
     return _init_project

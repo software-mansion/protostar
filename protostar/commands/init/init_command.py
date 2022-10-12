@@ -39,15 +39,16 @@ class InitCommand(Command):
     def arguments(self) -> List[Command.Argument]:
         return [
             Command.Argument(
+                name="name",
+                description="Name of the directory a new project will be placed in."
+                "Ignored when `--existing` is passed.",
+                type="str",
+                is_positional=True,
+            ),
+            Command.Argument(
                 name="existing",
                 description="Adapt current directory to a Protostar project.",
                 type="bool",
-            ),
-            Command.Argument(
-                name="name",
-                description="Name of the directory a new project will be placed in. "
-                "Ignored when `--existing` is passed.",
-                type="str",
             ),
         ]
 

@@ -23,6 +23,7 @@ class ProjectCreator(ABC):
         self.script_root = script_root
         self.protostar_toml_writer = protostar_toml_writer
         self.version_manager = version_manager
+        self.default_lib_dirname = "lib"
 
     def copy_template(self, template_name: Literal["default"], project_root_path: Path):
         template_path = self.script_root / "templates" / template_name
@@ -37,10 +38,6 @@ class ProjectCreator(ABC):
             ),
             protostar_contracts=ProtostarContractsSection.get_default(),
         )
-
-    @property
-    def default_lib_dirname(self) -> str:
-        return "lib"
 
     @abstractmethod
     def run(self) -> None:
