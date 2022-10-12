@@ -41,7 +41,7 @@ class InitCommand(ProtostarCommand):
             ProtostarArgument(
                 name="name",
                 description="Name of the directory a new project will be placed in."
-                            "Ignored when `--existing` is passed.",
+                "Ignored when `--existing` is passed.",
                 type="str",
                 is_positional=True,
             ),
