@@ -59,7 +59,7 @@ ContractFilename = str
 
 @dataclass(frozen=True)
 class ContractProfile:
-    callstack: List[ContractFilename]
+    contract_callstack: List[ContractFilename]
     entry_point: ContractEntryPoint
     profile: RuntimeProfile
 

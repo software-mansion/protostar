@@ -42,7 +42,7 @@ def merge_profiles(samples: list["ContractProfile"]) -> TransactionProfile:
     global_instructions = build_global_instructions(global_functions, samples)
 
     for smp in samples[-1].profile.step_samples:
-        current_contract = samples[-1].callstack[-1]
+        current_contract = samples[-1].contract_callstack[-1]
         step_samples.append(
             Sample(
                 value=smp.value,
@@ -53,17 +53,17 @@ def merge_profiles(samples: list["ContractProfile"]) -> TransactionProfile:
         )
 
     # We build a tree from callstacks
-    max_clst_len = max(len(s.callstack) for s in samples)
+    max_clst_len = max(len(s.contract_callstack) for s in samples)
     callstacks_from_upper_layer = translate_callstacks(
-        samples[-1].callstack[-1],
+        samples[-1].contract_callstack[-1],
         global_instructions,
         samples[-1].profile.contract_call_callstacks,
     )
     for i in range(2, max_clst_len + 1):
-        samples_in_layer = [s for s in samples if len(s.callstack) == i]
+        samples_in_layer = [s for s in samples if len(s.contract_callstack) == i]
         new_callstacks_from_upper_layer: list[list[list[Instruction]]] = []
         for upper, runtime_sample in zip(callstacks_from_upper_layer, samples_in_layer):
-            current_contract = runtime_sample.callstack[-1]
+            current_contract = runtime_sample.contract_callstack[-1]
             for smp in runtime_sample.profile.step_samples:
                 step_samples.append(
                     Sample(
@@ -87,7 +87,7 @@ def merge_profiles(samples: list["ContractProfile"]) -> TransactionProfile:
         )
 
     for smp in samples[-1].profile.memhole_samples:
-        current_contract = samples[-1].callstack[-1]
+        current_contract = samples[-1].contract_callstack[-1]
         memhole_samples.append(
             Sample(
                 value=smp.value,
@@ -99,15 +99,15 @@ def merge_profiles(samples: list["ContractProfile"]) -> TransactionProfile:
 
     # We build a tree from callstacks
     callstacks_from_upper_layer = translate_callstacks(
-        samples[-1].callstack[-1],
+        samples[-1].contract_callstack[-1],
         global_instructions,
         samples[-1].profile.contract_call_callstacks,
     )
     for i in range(2, max_clst_len + 1):
-        samples_in_layer = [s for s in samples if len(s.callstack) == i]
+        samples_in_layer = [s for s in samples if len(s.contract_callstack) == i]
         new_callstacks_from_upper_layer: list[list[list[Instruction]]] = []
         for upper, runtime_sample in zip(callstacks_from_upper_layer, samples_in_layer):
-            current_contract = runtime_sample.callstack[-1]
+            current_contract = runtime_sample.contract_callstack[-1]
             for smp in runtime_sample.profile.memhole_samples:
                 memhole_samples.append(
                     Sample(
@@ -144,7 +144,7 @@ def build_global_functions(
 ) -> dict[GlobalFunctionID, GlobalFunction]:
     global_functions: dict[GlobalFunctionID, GlobalFunction] = {}
     for sample in samples:
-        function_id_prefix = sample.callstack[-1] + "."
+        function_id_prefix = sample.contract_callstack[-1] + "."
         for func in sample.profile.functions:
             global_name = function_id_prefix + func.id
             global_functions[global_name] = replace(func, id=global_name)
@@ -157,8 +157,8 @@ def build_global_instructions(
     in_instructions: dict[Tuple[GlobalFunctionID, int], Instruction] = {}
     contract_id_offsets = get_instruction_id_offsets(samples)
     for sample in samples:
-        function_id_prefix = sample.callstack[-1] + "."
-        current_contract = sample.callstack[-1]
+        function_id_prefix = sample.contract_callstack[-1] + "."
+        current_contract = sample.contract_callstack[-1]
         for instr in sample.profile.instructions:
             global_instruction_id = instr.id + contract_id_offsets[current_contract]
             global_function_id = function_id_prefix + instr.function.id
@@ -175,7 +175,7 @@ def get_instruction_id_offsets(
 ) -> dict["ContractFilename", int]:
     contract_id_offsets: dict["ContractFilename", int] = {}
     for sample in samples:
-        current_contract = sample.callstack[-1]
+        current_contract = sample.contract_callstack[-1]
         previous = contract_id_offsets.get(current_contract, 0)
         new = max(instr.id for instr in sample.profile.instructions) + 1
         contract_id_offsets[current_contract] = max(new, previous)
