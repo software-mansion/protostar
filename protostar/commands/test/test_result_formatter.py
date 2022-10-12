@@ -1,3 +1,4 @@
+import dataclasses
 from pathlib import Path
 from typing import Callable, Dict, List
 
@@ -43,6 +44,18 @@ def format_test_result(test_result: TestResult) -> str:
     if isinstance(test_result, BrokenTestSuiteResult):
         return _format_broken_test_suite_result(test_result)
     raise NotImplementedError("Unreachable")
+
+
+def make_path_relative_if_possible(test_result: TestResult, path: Path) -> TestResult:
+    try:
+        test_result = dataclasses.replace(
+            test_result,
+            file_path=test_result.file_path.resolve().relative_to(path.resolve()),
+        )
+    except ValueError:
+        # We do this to preserve the functionality of running tests that are outside of the project
+        pass
+    return test_result
 
 
 def _format_passed_test_case_result(

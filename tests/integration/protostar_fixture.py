@@ -208,7 +208,9 @@ class ProtostarFixture:
 
         return summary, output
 
-    def create_files(self, relative_path_str_to_file: Dict[str, Union[str, Path]]) -> None:
+    def create_files(
+        self, relative_path_str_to_file: Dict[str, Union[str, Path]]
+    ) -> None:
         for relative_path_str, file in relative_path_str_to_file.items():
             if isinstance(file, Path):
                 content = file.read_text("utf-8")

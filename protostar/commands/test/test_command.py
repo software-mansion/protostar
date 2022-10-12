@@ -8,7 +8,10 @@ from protostar.cli.command import Command
 from protostar.commands.test.test_collector_summary_formatter import (
     format_test_collector_summary,
 )
-from protostar.commands.test.test_result_formatter import format_test_result
+from protostar.commands.test.test_result_formatter import (
+    format_test_result,
+    make_path_relative_if_possible,
+)
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.compiler import ProjectCairoPathBuilder
 from protostar.testing import (
@@ -210,6 +213,7 @@ A glob or globs to a directory or a test suite, for example:
                 no_progress_bar=no_progress_bar,
                 exit_first=exit_first,
                 slowest_tests_to_report_count=slowest_tests_to_report_count,
+                project_root_path=self._project_root_path,
             )
             TestScheduler(live_logger, worker=TestRunner.worker).run(
                 include_paths=include_paths,
@@ -241,7 +245,9 @@ A glob or globs to a directory or a test suite, for example:
         )
         self._logger.info(formatted_result)
 
-    @staticmethod
-    def _log_formatted_test_result(test_result: TestResult) -> None:
+    def _log_formatted_test_result(self, test_result: TestResult) -> None:
+        test_result = make_path_relative_if_possible(
+            test_result, self._project_root_path
+        )
         formatted_test_result = format_test_result(test_result)
         print(formatted_test_result)
