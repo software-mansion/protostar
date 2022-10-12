@@ -3,10 +3,10 @@ from asyncio import Future
 import pytest
 from pytest_mock import MockerFixture
 
-from conftest import FooCommand
-from protostar.cli.argument import Argument
-from protostar.cli.argument_parser_facade import ArgumentParserFacade
-from protostar.cli.cli_app import CLIApp
+from .argument import Argument
+from .argument_parser_facade import ArgumentParserFacade
+from .cli_app import CLIApp
+from .conftest import FooCommand
 
 
 @pytest.mark.asyncio
