@@ -25,14 +25,12 @@ Wei = int
 
 class SignedCheatcodeConfig(CheatcodeNetworkConfig):
     max_fee: NotRequired[Wei]
-    auto_estimate_fee: NotRequired[bool]
 
 
 @dataclass
 class ValidatedSignedCheatcodeConfig:
     max_fee: Optional[Wei] = None
     wait_for_acceptance: bool = False
-    auto_estimate_fee: bool = False
 
     @classmethod
     def from_dict(
@@ -43,7 +41,6 @@ class ValidatedSignedCheatcodeConfig:
         return cls(
             wait_for_acceptance=config.get("wait_for_acceptance", False),
             max_fee=config.get("max_fee", None),
-            auto_estimate_fee=config.get("auto_estimate_fee", False),
         )
 
 
@@ -92,18 +89,12 @@ class MigratorInvokeCheatcode(Cheatcode):
 
         config = ValidatedSignedCheatcodeConfig.from_dict(config)
         max_fee = config.max_fee
-        auto_estimate_fee = config.auto_estimate_fee
         wait_for_acceptance = config.wait_for_acceptance
 
         if max_fee is not None and max_fee <= 0:
             raise CheatcodeException(
                 self,
                 message="max_fee must be greater than 0.",
-            )
-        if not max_fee and not auto_estimate_fee:
-            raise CheatcodeException(
-                self,
-                message="Either max_fee or auto_estimate_fee argument is required.",
             )
         if not self._account_address:
             raise CheatcodeException(
@@ -125,7 +116,6 @@ class MigratorInvokeCheatcode(Cheatcode):
                     function_name=function_name,
                     max_fee=max_fee,
                     inputs=inputs,
-                    auto_estimate_fee=auto_estimate_fee,
                     signer=self._signer,
                     account_address=self._account_address,
                     wait_for_acceptance=wait_for_acceptance,

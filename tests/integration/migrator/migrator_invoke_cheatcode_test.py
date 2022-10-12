@@ -30,7 +30,7 @@ async def test_happy_case(
         """
 contract_address = deploy_contract("./build/main.json", constructor_args=[0]).contract_address
 
-invoke(contract_address, "increase_balance", {"amount": 42}, config={"auto_estimate_fee": True})
+invoke(contract_address, "increase_balance", {"amount": 42})
 
 result = call(contract_address, "get_balance")
 
@@ -54,7 +54,7 @@ invoke(
     contract_address,
     "increase_balance",
     {"amount": 42},
-    config={"auto_estimate_fee": True, "wait_for_acceptance": True}
+    config={"wait_for_acceptance": True}
 )
 
 result = call(contract_address, "get_balance")
@@ -98,9 +98,9 @@ async def test_account_with_tx_version_0(
 contract_address = deploy_contract("./build/main.json", constructor_args=[0]).contract_address
 
 # Call 2 times to check caching works.
-invoke(contract_address, "increase_balance", {"amount": 20}, config={"auto_estimate_fee": True})
+invoke(contract_address, "increase_balance", {"amount": 20})
 
-invoke(contract_address, "increase_balance", {"amount": 22}, config={"auto_estimate_fee": True})
+invoke(contract_address, "increase_balance", {"amount": 22})
 
 result = call(contract_address, "get_balance")
 
