@@ -28,11 +28,13 @@ class ProjectCreator(ABC):
         template_path = self.script_root / "templates" / template_name
         shutil.copytree(template_path, project_root_path)
 
-    def save_protostar_toml(self, project_root: Path, libs_path: Path) -> None:
+    def save_protostar_toml(self, project_root: Path) -> None:
         self.protostar_toml_writer.save(
             path=project_root / "protostar.toml",
             protostar_config=ProtostarConfigSection.get_default(self.version_manager),
-            protostar_project=ProtostarProjectSection(libs_relative_path=libs_path),
+            protostar_project=ProtostarProjectSection(
+                libs_relative_path=Path(self.default_lib_dirname),
+            ),
             protostar_contracts=ProtostarContractsSection.get_default(),
         )
 

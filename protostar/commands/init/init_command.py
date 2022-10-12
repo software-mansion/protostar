@@ -61,7 +61,9 @@ class InitCommand(Command):
         self, force_adapting_existing_project: bool, project_name: Optional[str] = None
     ):
         should_adapt_existing_project = False
-        if force_adapting_existing_project:
+        if project_name:
+            should_adapt_existing_project = False
+        elif force_adapting_existing_project:
             should_adapt_existing_project = True
         else:
             if self._can_be_protostar_project():

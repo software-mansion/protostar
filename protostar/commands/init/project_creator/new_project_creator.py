@@ -56,9 +56,6 @@ class NewProjectCreator(ProjectCreator):
         if not libs_path.is_dir():
             libs_path.mkdir(parents=True)
 
-        self.save_protostar_toml(
-            project_root=project_root_path,
-            libs_path=libs_path,
-        )
+        self.save_protostar_toml(project_root=project_root_path)
 
         Git.init(project_root_path)
