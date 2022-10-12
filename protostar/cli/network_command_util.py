@@ -1,5 +1,5 @@
 from logging import Logger
-from typing import Any, Union, Optional
+from typing import Any, Optional, Union
 
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
@@ -7,7 +7,7 @@ from starknet_py.net.models import StarknetChainId
 from protostar.cli import Command
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import NetworkConfig
-from protostar.starknet_gateway.network_config import is_legacy_network_name, NETWORKS
+from protostar.starknet_gateway.network_config import NETWORKS, is_legacy_network_name
 
 GATEWAY_URL_ARG_NAME = "gateway-url"
 NETWORK_ARG_NAME = "network"
@@ -90,4 +90,13 @@ class NetworkCommandUtil:
         try:
             return StarknetChainId(arg)
         except ValueError as ex:
-            raise ProtostarException("Invalid chain id value.") from ex
+            supported_chain_ids = [
+                f"- {chain_id.value} ({chain_id.name})" for chain_id in StarknetChainId
+            ]
+            formatted_chain_ids = "\n".join(supported_chain_ids)
+
+            raise ProtostarException(
+                "Invalid chain id value.\n"
+                "Supported chain ids:\n"
+                f"{formatted_chain_ids}"
+            ) from ex
