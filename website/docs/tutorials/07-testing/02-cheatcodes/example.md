@@ -10,6 +10,7 @@ In such a case, they are run sequentially.
 
 `example` can be used next to the [`given`](./given.md) cheatcode.
 In such a case, first all the `example`s are run and only then the the data from `given` is applied.
+Otherwise, only the data from `example`s is applied.
 
 :::warning
 This cheatcode is only available in [setup cases](../README.md#setup-case).
