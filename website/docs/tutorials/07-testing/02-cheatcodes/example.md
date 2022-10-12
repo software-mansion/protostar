@@ -31,7 +31,8 @@ func setup_less_equal_compare() {
 }
 
 @external
-func test_examples{syscall_ptr: felt*, range_check_ptr}(a: felt, b: felt) {# Tested against:
+func test_examples{syscall_ptr: felt*, range_check_ptr}(a: felt, b: felt) {
+    # Tested against:
     # (1,2)
     # (3,4)
     # fuzzing: a = strategy.integers(15, 20), b = strategy.integers(10, 14) 
