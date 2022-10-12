@@ -117,7 +117,6 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
                 state=self.state,
                 expect_revert_context=self._expect_revert_context,
                 finish_hook=self._finish_hook,
-                project_compiler=self._project_compiler,
             )
         )
 

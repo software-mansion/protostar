@@ -21,7 +21,7 @@ class SetupExecutionEnvironment(ExecutionEnvironment[None]):
         self._project_compiler = project_compiler
 
     async def execute(self, function_name: str):
-        self.set_cheatcodes(SetupCheatcodeFactory(self.state, self._project_compiler))
+        self.set_cheatcodes(SetupCheatcodeFactory(self.state))
 
         with self.state.output_recorder.redirect("setup"):
             await self.perform_execute(function_name)

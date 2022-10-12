@@ -6,6 +6,7 @@ from pathlib import Path
 from starkware.starknet.services.api.contract_class import ContractClass
 from typing_extensions import Self
 
+from protostar.compiler import ProjectCompiler
 from protostar.starknet.execution_state import ExecutionState
 from protostar.starknet.forkable_starknet import ForkableStarknet
 from protostar.testing.stopwatch import Stopwatch
@@ -21,6 +22,7 @@ class TestExecutionState(ExecutionState):
     context: TestContext
     output_recorder: OutputRecorder
     stopwatch: Stopwatch
+    project_compiler: ProjectCompiler
 
     @classmethod
     async def from_test_suite_definition(
@@ -28,6 +30,7 @@ class TestExecutionState(ExecutionState):
         test_suite_definition: ContractClass,
         test_config: TestConfig,
         contract_path: Path,
+        project_compiler: ProjectCompiler,
     ) -> Self:
         starknet = await ForkableStarknet.empty()
         contract = await starknet.deploy(contract_class=test_suite_definition)
@@ -48,6 +51,7 @@ class TestExecutionState(ExecutionState):
             output_recorder=OutputRecorder(),
             stopwatch=Stopwatch(),
             starknet=starknet,
+            project_compiler=project_compiler,
         )
 
     def fork(self) -> Self:

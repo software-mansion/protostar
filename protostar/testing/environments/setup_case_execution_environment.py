@@ -15,9 +15,7 @@ from .setup_execution_environment import (
 
 class SetupCaseExecutionEnvironment(SetupExecutionEnvironment):
     async def execute(self, function_name: str):
-        self.set_cheatcodes(
-            SetupCaseCheatcodeFactory(self.state, self._project_compiler)
-        )
+        self.set_cheatcodes(SetupCaseCheatcodeFactory(self.state))
 
         with self.state.output_recorder.redirect("setup case"):
             await self.perform_execute(function_name)

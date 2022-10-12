@@ -168,6 +168,7 @@ class TestRunner:
                 test_suite_definition=test_contract,
                 test_config=test_config,
                 contract_path=contract_path,
+                project_compiler=self.project_compiler,
             )
 
             if test_suite.setup_fn_name:
