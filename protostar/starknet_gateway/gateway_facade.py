@@ -36,6 +36,7 @@ from protostar.starknet_gateway.account_tx_version_detector import (
 from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeclareResponse,
     SuccessfulDeployResponse,
+    SuccessfulInvokeResponse,
 )
 from protostar.starknet_gateway.starknet_request import StarknetRequest
 
@@ -308,7 +309,7 @@ class GatewayFacade:
         max_fee: Optional[int] = None,
         auto_estimate_fee: bool = False,
         wait_for_acceptance: bool = False,
-    ):
+    ) -> SuccessfulInvokeResponse:
         register_response = self._register_request(
             action="INVOKE",
             payload={
@@ -351,6 +352,13 @@ class GatewayFacade:
             response_dict["status"] = result.status.value  # type: ignore
 
         register_response(response_dict)
+
+        return SuccessfulInvokeResponse(
+            address=result.contract.address,
+            transaction_hash=result.hash
+            if isinstance(result.hash, int)
+            else int(result.hash),
+        )
 
     async def _create_account_client(
         self,

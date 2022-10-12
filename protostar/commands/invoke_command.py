@@ -8,7 +8,7 @@ from protostar.cli import Command
 from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.cli.signable_command_util import SignableCommandUtil
 from protostar.protostar_exception import ProtostarException
-from protostar.starknet_gateway import GatewayFacadeFactory
+from protostar.starknet_gateway import GatewayFacadeFactory, SuccessfulInvokeResponse
 from protostar.starknet_gateway.gateway_facade import Fee
 
 
@@ -127,5 +127,16 @@ class InvokeCommand(Command):
             account_address=account_address,
             wait_for_acceptance=wait_for_acceptance,
         )
+        self._logger.info(self.format_successful_invoke_response(response))
 
         return response
+
+    @staticmethod
+    def format_successful_invoke_response(response: SuccessfulInvokeResponse):
+        return "\n".join(
+            [
+                "Invoke transaction was sent.",
+                f"Contract address: 0x{response.address:064x}",
+                "Transaction hash: {gateway_response['transaction_hash']}",
+            ]
+        )
