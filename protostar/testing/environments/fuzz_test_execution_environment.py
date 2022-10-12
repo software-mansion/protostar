@@ -133,24 +133,25 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         given_strategies: Dict[str, SearchStrategy],
     ):
         try:
-            phases = settings.default.phases  # type: ignore
-            if (
-                not self.state.config.fuzz_declared_strategies
-                and self.state.config.fuzz_examples
-            ):
-                phases = (Phase.explicit,)
-
-            @self.decorate_with_examples
-            @seed(self.state.config.seed)
-            @settings(
+            settings_instance = settings(
                 database=database,
                 deadline=None,
                 max_examples=runs_counter.available_runs,
                 print_blob=False,
                 report_multiple_bugs=False,
                 verbosity=HYPOTHESIS_VERBOSITY,
-                phases=phases,
             )
+            if (
+                not self.state.config.fuzz_declared_strategies
+                and self.state.config.fuzz_examples
+            ):
+                settings_instance = settings(
+                    settings_instance, phases=(Phase.explicit,)
+                )
+
+            @self.decorate_with_examples
+            @seed(self.state.config.seed)
+            @settings_instance
             @given(**given_strategies)
             async def test(**inputs: Any):
                 self.fork_state_for_test()
