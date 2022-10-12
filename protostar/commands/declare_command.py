@@ -46,14 +46,14 @@ class DeclareCommand(ProtostarCommand):
         return [
             *SignableCommandUtil.signable_arguments,
             *NetworkCommandUtil.network_arguments,
-            Command.Argument(
+            ProtostarArgument(
                 name="contract",
                 description="Path to compiled contract.",
                 type="path",
                 is_positional=True,
                 is_required=True,
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="token",
                 description="Used for declaring contracts in Alpha MainNet.",
                 type="str",

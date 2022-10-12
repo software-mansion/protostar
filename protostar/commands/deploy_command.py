@@ -11,7 +11,7 @@ from protostar.starknet_gateway import (
 
 
 class DeployCommand(ProtostarCommand):
-    wait_for_acceptance_arg = Command.Argument(
+    wait_for_acceptance_arg = ProtostarArgument(
         name="wait-for-acceptance",
         description="Waits for transaction to be accepted on chain.",
         type="bool",
@@ -41,7 +41,7 @@ class DeployCommand(ProtostarCommand):
     @property
     def arguments(self):
         return [
-            Command.Argument(
+            ProtostarArgument(
                 name="contract",
                 description="The path to the compiled contract.",
                 type="path",
@@ -60,7 +60,7 @@ class DeployCommand(ProtostarCommand):
                 type="felt",
                 is_array=True,
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="token",
                 description="Used by whitelisted users for deploying contracts in Alpha MainNet.",
                 type="str",

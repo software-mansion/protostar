@@ -10,8 +10,6 @@ ArgTypeNameT_co = TypeVar("ArgTypeNameT_co", covariant=True)
 
 
 class Command(Generic[ArgTypeNameT_co]):
-    Argument = GenericArgument[ArgTypeName]
-
     @property
     @abstractmethod
     def name(self) -> str:
@@ -29,7 +27,7 @@ class Command(Generic[ArgTypeNameT_co]):
 
     @property
     @abstractmethod
-    def arguments(self) -> List[Union[Argument, GenericArgument[ArgTypeNameT_co]]]:
+    def arguments(self) -> List[GenericArgument[ArgTypeNameT_co]]:
         ...
 
     @abstractmethod

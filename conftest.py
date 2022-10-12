@@ -2,6 +2,7 @@ from typing import List, Optional
 
 import pytest
 
+from protostar.cli.argument import Argument
 from protostar.cli.command import Command
 
 
@@ -36,9 +37,9 @@ class FooCommand(Command):
         return "$ foo"
 
     @property
-    def arguments(self) -> List[Command.Argument]:
+    def arguments(self):
         return [
-            Command.Argument(
+            Argument(
                 name="foo",
                 description="foo_desc",
                 example="FOO --foo",
@@ -64,7 +65,7 @@ class BarCommand(Command):
         return None
 
     @property
-    def arguments(self) -> List[Command.Argument]:
+    def arguments(self):
         return []
 
     async def run(self, args):
