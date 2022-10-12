@@ -4,10 +4,11 @@ from typing import Any, Optional, Union
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 
-from protostar.cli import ProtostarArgument
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import NetworkConfig
 from protostar.starknet_gateway.network_config import NETWORKS, is_legacy_network_name
+
+from .protostar_argument import ProtostarArgument
 
 GATEWAY_URL_ARG_NAME = "gateway-url"
 NETWORK_ARG_NAME = "network"

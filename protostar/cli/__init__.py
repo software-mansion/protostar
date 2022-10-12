@@ -1,10 +1,9 @@
-from protostar.cli.activity_indicator import ActivityIndicator
-from protostar.cli.argument_parser_facade import (
+from .activity_indicator import ActivityIndicator
+from .argument_parser_facade import (
     ArgumentParserFacade,
     MissingRequiredArgumentException,
 )
-from protostar.cli.cli_app import CLIApp
-
+from .cli_app import CLIApp
 from .config_file_argument_resolver import ConfigFileArgumentResolverProtocol
 from .network_command_util import NetworkCommandUtil
 from .protostar_arg_type import map_protostar_type_name_to_parser
