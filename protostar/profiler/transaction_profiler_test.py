@@ -60,45 +60,45 @@ ep = ContractEntryPoint(0, 0)
         (
             [
                 ContractProfile(
-                    ["a"],
-                    ep,
-                    RuntimeProfile(
-                        [],
-                        [
+                    contract_callstack=["a"],
+                    entry_point=ep,
+                    profile=RuntimeProfile(
+                        functions=[],
+                        instructions=[
                             Instruction(1000, 0, replace(funct), 0),
                             Instruction(100, 0, replace(funct), 0),
                         ],
-                        [],
-                        [],
-                        [],
+                        step_samples=[],
+                        memhole_samples=[],
+                        contract_call_callstacks=[],
                     ),
                 ),
                 ContractProfile(
-                    ["b"],
-                    ep,
-                    RuntimeProfile(
-                        [],
-                        [
+                    contract_callstack=["b"],
+                    entry_point=ep,
+                    profile=RuntimeProfile(
+                        functions=[],
+                        instructions=[
                             Instruction(150, 0, replace(funct), 0),
                             Instruction(100, 0, replace(funct), 0),
                         ],
-                        [],
-                        [],
-                        [],
+                        step_samples=[],
+                        memhole_samples=[],
+                        contract_call_callstacks=[],
                     ),
                 ),
                 ContractProfile(
                     ["c"],
                     ep,
                     RuntimeProfile(
-                        [],
-                        [
+                        functions=[],
+                        instructions=[
                             Instruction(10, 0, replace(funct), 0),
                             Instruction(100, 0, replace(funct), 0),
                         ],
-                        [],
-                        [],
-                        [],
+                        step_samples=[],
+                        memhole_samples=[],
+                        contract_call_callstacks=[],
                     ),
                 ),
             ],
@@ -130,38 +130,42 @@ ep = ContractEntryPoint(0, 0)
         (
             [
                 ContractProfile(
-                    ["a"],
-                    ep,
-                    RuntimeProfile(
-                        [], [Instruction(1000, 0, glob_func["a.A"], 0)], [], [], []
+                    contract_callstack=["a"],
+                    entry_point=ep,
+                    profile=RuntimeProfile(
+                        functions=[],
+                        instructions=[Instruction(1000, 0, glob_func["a.A"], 0)],
+                        step_samples=[],
+                        memhole_samples=[],
+                        contract_call_callstacks=[],
                     ),
                 ),
                 ContractProfile(
-                    ["b"],
-                    ep,
-                    RuntimeProfile(
-                        [],
-                        [
+                    contract_callstack=["b"],
+                    entry_point=ep,
+                    profile=RuntimeProfile(
+                        functions=[],
+                        instructions=[
                             Instruction(150, 0, glob_func["b.C"], 0),
                             Instruction(100, 0, glob_func["b.C"], 0),
                         ],
-                        [],
-                        [],
-                        [],
+                        step_samples=[],
+                        memhole_samples=[],
+                        contract_call_callstacks=[],
                     ),
                 ),
                 ContractProfile(
-                    ["a"],
-                    ep,
-                    RuntimeProfile(
-                        [],
-                        [
+                    contract_callstack=["a"],
+                    entry_point=ep,
+                    profile=RuntimeProfile(
+                        functions=[],
+                        instructions=[
                             Instruction(1000, 0, glob_func["a.A"], 0),
                             Instruction(100, 0, glob_func["a.B"], 0),
                         ],
-                        [],
-                        [],
-                        [],
+                        step_samples=[],
+                        memhole_samples=[],
+                        contract_call_callstacks=[],
                     ),
                 ),
             ],
