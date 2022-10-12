@@ -21,6 +21,9 @@ def test_cache_simple(tmp_path):
 
     assert cache_io.read(cache_name) is None
 
+    # pylint: disable=protected-access
+    assert cache_io._gitignore_path.read_text(encoding="utf-8") == "*\n"
+
 
 def test_cache_override(tmp_path):
     cache_name = "test-cache-override"
@@ -39,3 +42,6 @@ def test_cache_override(tmp_path):
     cache_io.write(cache_name, obj)
 
     assert cache_io.read(cache_name) == obj
+
+    # pylint: disable=protected-access
+    assert cache_io._gitignore_path.read_text(encoding="utf-8") == "*\n"
