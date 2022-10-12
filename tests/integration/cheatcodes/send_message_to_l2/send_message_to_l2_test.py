@@ -17,8 +17,10 @@ def test_l1_to_l2_message_cheatcode(
 
         protostar.create_files(
             {
-                "tests/test_main.cairo": contracts_sources_path / "simple_l1_handler_test.cairo",
-                "src/main.cairo": contracts_sources_path / "external_contract_with_l1_handler.cairo",
+                "tests/test_main.cairo": contracts_sources_path
+                / "simple_l1_handler_test.cairo",
+                "src/main.cairo": contracts_sources_path
+                / "external_contract_with_l1_handler.cairo",
             }
         )
         protostar.build_sync()

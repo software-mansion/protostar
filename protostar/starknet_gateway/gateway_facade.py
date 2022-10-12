@@ -107,7 +107,7 @@ class GatewayFacade:
                 _, status = await self._gateway_client.wait_for_tx(
                     result.transaction_hash, wait_for_accept=wait_for_acceptance
                 )
-                result.code = status
+                result.code = status.value
         except TransactionFailedError as ex:
             raise TransactionException(str(ex)) from ex
 
@@ -188,7 +188,7 @@ class GatewayFacade:
             _, code = await account_client.wait_for_tx(
                 response.transaction_hash, wait_for_accept=True
             )
-            response.code = code
+            response.code = code.value
         register_response(dataclasses.asdict(response))
         return SuccessfulDeclareResponse(
             code=response.code or "?",
@@ -252,7 +252,7 @@ class GatewayFacade:
                 _, status = await self._gateway_client.wait_for_tx(
                     result.transaction_hash, wait_for_accept=wait_for_acceptance
                 )
-                result.code = status
+                result.code = status.value
         except TransactionFailedError as ex:
             raise TransactionException(str(ex)) from ex
         return SuccessfulDeclareResponse(

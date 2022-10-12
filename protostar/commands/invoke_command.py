@@ -4,15 +4,18 @@ from typing import Any, Optional
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.signer import BaseSigner
 
-from protostar.cli import Command
-from protostar.cli.network_command_util import NetworkCommandUtil
-from protostar.cli.signable_command_util import SignableCommandUtil
+from protostar.cli import (
+    NetworkCommandUtil,
+    ProtostarArgument,
+    ProtostarCommand,
+    SignableCommandUtil,
+)
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import GatewayFacadeFactory, SuccessfulInvokeResponse
 from protostar.starknet_gateway.gateway_facade import Fee
 
 
-class InvokeCommand(Command):
+class InvokeCommand(ProtostarCommand):
     def __init__(
         self,
         logger: Logger,
@@ -34,30 +37,30 @@ class InvokeCommand(Command):
         return None
 
     @property
-    def arguments(self) -> list[Command.Argument]:
+    def arguments(self):
         return [
             *SignableCommandUtil.signable_arguments,
             *NetworkCommandUtil.network_arguments,
-            Command.Argument(
+            ProtostarArgument(
                 name="contract-address",
                 description="The address of the contract being called.",
                 type="int",
                 is_required=True,
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="function",
                 description="The name of the function being called.",
                 type="str",
                 is_required=True,
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="inputs",
                 description="The name of the function being called.",
                 type="felt",
                 is_required=True,
                 is_array=True,
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="max-fee",
                 description=(
                     "The maximum fee that the sender is willing to pay for the transaction. "
@@ -65,7 +68,7 @@ class InvokeCommand(Command):
                 ),
                 type="fee",
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="wait-for-acceptance",
                 description="Waits for transaction to be accepted on chain.",
                 type="bool",

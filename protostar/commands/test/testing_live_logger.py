@@ -1,10 +1,14 @@
 import queue
 from logging import Logger
 from typing import TYPE_CHECKING, Any, cast
+from pathlib import Path
 
 from tqdm import tqdm as bar
 
-from protostar.commands.test.test_result_formatter import format_test_result
+from protostar.commands.test.test_result_formatter import (
+    format_test_result,
+    make_path_relative_if_possible,
+)
 from protostar.testing import (
     BrokenTestSuiteResult,
     SharedTestsState,
@@ -24,9 +28,11 @@ class TestingLiveLogger:
         no_progress_bar: bool,
         exit_first: bool,
         slowest_tests_to_report_count: int,
+        project_root_path: Path,
     ) -> None:
         self._logger = logger
         self._no_progress_bar = no_progress_bar
+        self._project_root_path = project_root_path
         self.testing_summary = testing_summary
         self.exit_first = exit_first
         self.slowest_tests_to_report_count = slowest_tests_to_report_count
@@ -67,6 +73,10 @@ class TestingLiveLogger:
                             "RED"
                             if shared_tests_state.any_failed_or_broken()
                             else "GREEN"
+                        )
+
+                        test_result = make_path_relative_if_possible(
+                            test_result, self._project_root_path
                         )
 
                         formatted_test_result = format_test_result(test_result)
