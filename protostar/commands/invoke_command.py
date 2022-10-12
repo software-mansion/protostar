@@ -73,7 +73,7 @@ class InvokeCommand(Command):
             ),
         ]
 
-    async def run(self, args: Any) -> Any:
+    async def run(self, args: Any):
         network_command_util = NetworkCommandUtil(args, self._logger)
         signable_command_util = SignableCommandUtil(args, self._logger)
         network_config = network_command_util.get_network_config()
@@ -115,7 +115,7 @@ class InvokeCommand(Command):
             )
         if signer is None:
             raise ProtostarException(
-                "Argument `signer` is required for transactions V1 private-key is not detected."
+                "Argument `signer` is required for transactions V1 when private-key is not detected."
             )
 
         response = await gateway_facade.invoke(
