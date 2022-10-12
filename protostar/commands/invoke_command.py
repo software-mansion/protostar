@@ -39,7 +39,7 @@ class InvokeCommand(Command):
             *SignableCommandUtil.signable_arguments,
             *NetworkCommandUtil.network_arguments,
             Command.Argument(
-                name="address",
+                name="contract-address",
                 description="The address of the contract being called.",
                 type="int",
                 is_required=True,
