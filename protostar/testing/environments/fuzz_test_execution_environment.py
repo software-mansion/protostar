@@ -29,6 +29,7 @@ from protostar.testing.starkware.execution_resources_summary import (
 )
 from protostar.testing.starkware.test_execution_state import TestExecutionState
 from protostar.starknet.abi import get_function_parameters
+from protostar.protostar_exception import ProtostarException
 
 
 from .test_execution_environment import (
