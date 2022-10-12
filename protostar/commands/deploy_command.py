@@ -1,6 +1,7 @@
 from logging import Logger
 from typing import List, Optional
 
+from protostar.cli import ProtostarArgument, ProtostarCommand
 from protostar.cli.command import Command
 from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.starknet_gateway import (
@@ -9,7 +10,7 @@ from protostar.starknet_gateway import (
 )
 
 
-class DeployCommand(Command):
+class DeployCommand(ProtostarCommand):
     wait_for_acceptance_arg = Command.Argument(
         name="wait-for-acceptance",
         description="Waits for transaction to be accepted on chain.",
@@ -38,7 +39,7 @@ class DeployCommand(Command):
         return "protostar deploy ./build/main.json --network alpha-goerli"
 
     @property
-    def arguments(self) -> List[Command.Argument]:
+    def arguments(self):
         return [
             Command.Argument(
                 name="contract",
@@ -47,7 +48,7 @@ class DeployCommand(Command):
                 is_required=True,
                 is_positional=True,
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="inputs",
                 short_name="i",
                 description=(
@@ -64,7 +65,7 @@ class DeployCommand(Command):
                 description="Used by whitelisted users for deploying contracts in Alpha MainNet.",
                 type="str",
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="salt",
                 description=(
                     "An optional salt controlling where the contract will be deployed. "
