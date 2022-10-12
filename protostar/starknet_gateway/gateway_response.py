@@ -44,5 +44,4 @@ def format_successful_declare_response(
 
 @dataclass
 class SuccessfulInvokeResponse:
-    address: int
     transaction_hash: int

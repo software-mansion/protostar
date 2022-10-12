@@ -354,7 +354,6 @@ class GatewayFacade:
         register_response(response_dict)
 
         return SuccessfulInvokeResponse(
-            address=result.contract.address,
             transaction_hash=result.hash
             if isinstance(result.hash, int)
             else int(result.hash),

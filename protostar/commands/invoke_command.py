@@ -27,7 +27,7 @@ class InvokeCommand(Command):
 
     @property
     def description(self) -> str:
-        return "Sends a transaction to the StarkNet sequencer."
+        return "Sends a invoke transaction V1 to the StarkNet sequencer."
 
     @property
     def example(self) -> Optional[str]:
@@ -80,8 +80,8 @@ class InvokeCommand(Command):
         gateway_client = network_command_util.get_gateway_client()
         signer = signable_command_util.get_signer(network_config)
 
-        return self.invoke(
-            address=args.address,
+        return await self.invoke(
+            address=args.contract_address,
             function=args.function,
             inputs=args.inputs,
             gateway_client=gateway_client,
@@ -105,10 +105,6 @@ class InvokeCommand(Command):
         gateway_facade = self._gateway_facade_factory.create(
             gateway_client=gateway_client, logger=None
         )
-        if signer is None:
-            raise ProtostarException(
-                "Argument `signer` is required for transactions V1."
-            )
         if account_address is None:
             raise ProtostarException(
                 "Argument `account_address` is required for transactions V1."
@@ -117,6 +113,11 @@ class InvokeCommand(Command):
             raise ProtostarException(
                 "Argument `max-fee` is required for transactions V1."
             )
+        if signer is None:
+            raise ProtostarException(
+                "Argument `signer` is required for transactions V1 private-key is not detected."
+            )
+
         response = await gateway_facade.invoke(
             contract_address=address,
             function_name=function,
@@ -136,7 +137,6 @@ class InvokeCommand(Command):
         return "\n".join(
             [
                 "Invoke transaction was sent.",
-                f"Contract address: 0x{response.address:064x}",
-                "Transaction hash: {gateway_response['transaction_hash']}",
+                f"Transaction hash: 0x{response.transaction_hash:064x}",
             ]
         )
