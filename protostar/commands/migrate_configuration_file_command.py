@@ -1,7 +1,7 @@
 from logging import Logger
-from typing import List, Optional
+from typing import Optional
 
-from protostar.cli import ProtostarArgument, ProtostarCommand
+from protostar.cli import ProtostarCommand
 from protostar.configuration_file import ConfigurationFileMigratorProtocol
 
 
