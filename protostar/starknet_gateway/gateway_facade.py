@@ -304,8 +304,8 @@ class GatewayFacade:
         function_name: str,
         account_address: str,
         signer: BaseSigner,
+        max_fee: Fee,
         inputs: Optional[CairoOrPythonData] = None,
-        max_fee: Fee = "auto",
         wait_for_acceptance: bool = False,
     ):
         register_response = self._register_request(

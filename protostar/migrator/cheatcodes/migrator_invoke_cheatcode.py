@@ -4,7 +4,7 @@ from typing import Optional
 
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.signer import BaseSigner
-from typing_extensions import NotRequired, Protocol
+from typing_extensions import Required, Protocol
 
 from protostar.migrator.cheatcodes import CheatcodeNetworkConfig
 from protostar.starknet import (
@@ -23,23 +23,26 @@ from protostar.starknet.data_transformer import CairoOrPythonData
 
 
 class SignedCheatcodeConfig(CheatcodeNetworkConfig):
-    max_fee: NotRequired[Fee]
+    max_fee: Required[Fee]
 
 
 @dataclass
 class ValidatedSignedCheatcodeConfig:
-    max_fee: Fee = "auto"
+    max_fee: Fee
     wait_for_acceptance: bool = False
 
     @classmethod
     def from_dict(
-        cls, config: Optional[SignedCheatcodeConfig]
+        cls, chatcode_name_provider, config: SignedCheatcodeConfig
     ) -> "ValidatedSignedCheatcodeConfig":
-        if not config:
-            return cls()
+        if "max_fee" not in config.keys():
+            raise CheatcodeException(
+                chatcode_name_provider,
+                "max_fee is required in config but has not been provided",
+            )
         return cls(
             wait_for_acceptance=config.get("wait_for_acceptance", False),
-            max_fee=config.get("max_fee", "auto"),
+            max_fee=config["max_fee"],
         )
 
 
@@ -49,8 +52,8 @@ class InvokeCheatcodeProtocol(Protocol):
         contract_address: int,
         function_name: str,
         inputs: Optional[CairoOrPythonData],
+        config: SignedCheatcodeConfig,
         *args,
-        config: Optional[SignedCheatcodeConfig],
     ) -> None:
         ...
 
@@ -80,15 +83,15 @@ class MigratorInvokeCheatcode(Cheatcode):
         contract_address: int,
         function_name: str,
         inputs: Optional[CairoOrPythonData],
+        config: SignedCheatcodeConfig,
         *args,
-        config=None,
     ):
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
 
-        config = ValidatedSignedCheatcodeConfig.from_dict(config)
-        max_fee = config.max_fee
-        wait_for_acceptance = config.wait_for_acceptance
+        validated_config = ValidatedSignedCheatcodeConfig.from_dict(self, config)
+        max_fee = validated_config.max_fee
+        wait_for_acceptance = validated_config.wait_for_acceptance
 
         if max_fee != "auto" and max_fee <= 0:
             raise CheatcodeException(
