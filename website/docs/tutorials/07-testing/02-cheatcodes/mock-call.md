@@ -8,7 +8,7 @@ Mocks all calls to a `@view` function with the name `fn_name` of a contract with
 Mocked call returns data provided in `ret_data`. 
 
 ## Caveats
-- The cheatcode works only for contract's exposed `@view`s. Doesn't work for internal functions, `@external`'s etc.
+- This cheatcode works only for contract's exposed `@view`s. It does not work for internal functions, `@external`s etc.
 - Mock works globally, for all contracts, not only the testing contract.
 
 :::tip
