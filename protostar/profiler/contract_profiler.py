@@ -39,7 +39,7 @@ class Instruction:
     """
     Represents a instruction under certain pc in a contract
 
-    id -- uniuque id of a instruction
+    id -- unique id of a instruction
     pc -- pc instruction is placed under
     function -- function from the instuction has been generated
     line -- line of code from which instruction has been generated
