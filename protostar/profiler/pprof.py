@@ -6,33 +6,40 @@ from starkware.cairo.lang.tracer.third_party.profile_pb2 import Profile
 from protostar.profiler.transaction_profiler import TransactionProfile
 
 
-def string_id(string_table, string_ids, val):
-    if val not in string_ids:
-        string_ids[val] = len(string_table)
-        string_table.append(val)
-    return string_ids[val]
+class StringIDGenerator:
+    def __init__(self):
+        self.string_table = [""]
+        self.string_ids = {"": 0}
+    
+    def get(self, val: str) -> int:
+        if val not in string_ids:
+            string_ids[val] = len(string_table)
+            string_table.append(val)
+        return string_ids[val]
+
 
 
 def to_protobuf(profile_obj: TransactionProfile) -> Profile:
     profile = Profile()
+    id_generator = StringIDGenerator()
     string_table = [""]
     string_ids = {"": 0}
 
     profile.time_nanos = int(time.time() * 10**9)  # type: ignore
 
     sample_tp = profile.sample_type.add()  # type: ignore
-    sample_tp.type = string_id(string_table, string_ids, "steps count")
-    sample_tp.unit = string_id(string_table, string_ids, "steps")
+    sample_tp.type = id_generator.get("steps count")
+    sample_tp.unit = id_generator.get("steps")
 
     sample_tp = profile.sample_type.add()  # type: ignore
-    sample_tp.type = string_id(string_table, string_ids, "memory holes")
-    sample_tp.unit = string_id(string_table, string_ids, "mem holes")
+    sample_tp.type = id_generator.get("memory holes")
+    sample_tp.unit = id_generator.get("mem holes")
 
     for function in profile_obj.functions:
         func = profile.function.add()  # type: ignore
-        func.id = string_id(string_table, string_ids, function.id)
-        func.system_name = func.name = string_id(string_table, string_ids, function.id)
-        func.filename = string_id(string_table, string_ids, function.filename)
+        func.id = id_generator.get(function.id)
+        func.system_name = func.name = id_generator.get(function.id)
+        func.filename = id_generator.get(function.filename)
         func.start_line = function.start_line
 
     for inst in profile_obj.instructions:
@@ -41,7 +48,7 @@ def to_protobuf(profile_obj: TransactionProfile) -> Profile:
         location.address = inst.pc
         location.is_folded = False
         line = location.line.add()
-        line.function_id = string_id(string_table, string_ids, inst.function.id)
+        line.function_id = id_generator.get(inst.function.id)
         line.line = inst.line
 
     for smp in profile_obj.step_samples:
