@@ -3,6 +3,7 @@
 import gzip
 import time
 from starkware.cairo.lang.tracer.third_party.profile_pb2 import Profile
+from protostar.profiler.transaction_profiler import TransactionProfile
 
 
 def string_id(string_table, string_ids, val):
@@ -12,7 +13,7 @@ def string_id(string_table, string_ids, val):
     return string_ids[val]
 
 
-def to_protobuf(profile_obj) -> Profile:
+def to_protobuf(profile_obj: TransactionProfile) -> Profile:
     profile = Profile()
     string_table = [""]
     string_ids = {"": 0}
