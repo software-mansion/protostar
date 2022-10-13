@@ -3,7 +3,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 import functools
 import math
-from typing import Callable, List, Dict, Set, cast
+from typing import Callable, cast
 
 from starkware.cairo.lang.vm.memory_dict import MemoryDict
 from starkware.cairo.lang.compiler.identifier_definition import LabelDefinition
@@ -63,7 +63,7 @@ class Sample:
     """
 
     value: int
-    callstack: List[Instruction]
+    callstack: list[Instruction]
 
 
 @dataclass(frozen=True)
@@ -72,11 +72,11 @@ class RuntimeProfile:
     Calculated profile of a single contract runtime. Can be merged into TransactionProfile.
     """
 
-    functions: List[Function]
-    instructions: List[Instruction]
-    step_samples: List[Sample]
-    memhole_samples: List[Sample]
-    contract_call_callstacks: List[List[Instruction]]
+    functions: list[Function]
+    instructions: list[Instruction]
+    step_samples: list[Sample]
+    memhole_samples: list[Sample]
+    contract_call_callstacks: list[list[Instruction]]
 
 
 class ProfilerContext:
@@ -84,7 +84,7 @@ class ProfilerContext:
         self._initial_fp = initial_fp
         self._memory = memory
 
-    def get_call_stack(self, fp: Address, pc: Address) -> List[Address]:
+    def get_call_stack(self, fp: Address, pc: Address) -> list[Address]:
         frame_pcs = [pc]
         while fp > self._initial_fp:
             fp_val = self._memory[fp - 2]
@@ -103,7 +103,7 @@ class ProfilerContext:
             start_line=0,
         )
 
-    def collect_contract_functions(self, tracer_data: TracerData) -> List[Function]:
+    def collect_contract_functions(self, tracer_data: TracerData) -> list[Function]:
         identifiers_dict = tracer_data.program.identifiers.as_dict()
         assert tracer_data.program.debug_info is not None
         is_label: Callable[[IdentifierDefinition], bool] = lambda ident: isinstance(
@@ -124,7 +124,7 @@ class ProfilerContext:
             location.inst.input_file.filename is not None
             for location in functions_locations.values()
         )
-        functions: List[Function] = []
+        functions: list[Function] = []
         for name, location in functions_locations.items():
             assert location.inst.input_file.filename
             functions.append(
@@ -137,15 +137,15 @@ class ProfilerContext:
 
         return functions + [self.main_function()]
 
-    def find_function(self, functions: List[Function], function_id: str) -> Function:
+    def find_function(self, functions: list[Function], function_id: str) -> Function:
         for func in functions:
             if func.id == function_id:
                 return func
         assert False
 
     def create_instruction_list(
-        self, functions: List[Function], tracer_data: TracerData
-    ) -> List[Instruction]:
+        self, functions: list[Function], tracer_data: TracerData
+    ) -> list[Instruction]:
         """
         Builds a list of instructions in the contract and assings them to functions they come from
         """
@@ -168,19 +168,19 @@ class ProfilerContext:
         return instructions
 
     @staticmethod
-    def find_instruction(instructions: List[Instruction], pc: Address) -> Instruction:
+    def find_instruction(instructions: list[Instruction], pc: Address) -> Instruction:
         for instr in instructions:
             if instr.pc == pc:
                 return instr
         assert False
 
     def build_call_callstacks(
-        self, instructions: List[Instruction], tracer_data: TracerData
-    ) -> List[List[Instruction]]:
+        self, instructions: list[Instruction], tracer_data: TracerData
+    ) -> list[list[Instruction]]:
         """
         Searches for the external contract calls, saves the function callstack of each call
         """
-        callstacks: List[List[Instruction]] = []
+        callstacks: list[list[Instruction]] = []
         stack_len = math.inf
         for trace_entry in tracer_data.trace:
             callstack = self.get_call_stack(fp=trace_entry.fp, pc=trace_entry.pc)
@@ -201,9 +201,9 @@ class ProfilerContext:
         return callstacks
 
     def build_step_samples(
-        self, instructions: List[Instruction], tracer_data: TracerData
-    ) -> List[Sample]:
-        step_samples: List[Sample] = []
+        self, instructions: list[Instruction], tracer_data: TracerData
+    ) -> list[Sample]:
+        step_samples: list[Sample] = []
         for trace_entry in tracer_data.trace:
             callstack = self.get_call_stack(fp=trace_entry.fp, pc=trace_entry.pc)
             instr_callstack = [
@@ -213,7 +213,7 @@ class ProfilerContext:
         return step_samples
 
     @staticmethod
-    def blame_pc(last_accesses: Dict[Address, Address], hole_address: Address) -> int:
+    def blame_pc(last_accesses: dict[Address, Address], hole_address: Address) -> int:
         """
         Decides under which pc is placed an intruction which is responsible for the memory hole
 
@@ -234,16 +234,16 @@ class ProfilerContext:
 
     @staticmethod
     def get_not_accessed_addresses(
-        accessed_memory: Set[RelocatableValue],
+        accessed_memory: set[RelocatableValue],
         segments: MemorySegmentManager,
-        segment_offsets: Dict[int, int],
-    ) -> Set[Address]:
-        not_accessed_addr: Set[Address] = set()
+        segment_offsets: dict[int, int],
+    ) -> set[Address]:
+        not_accessed_addr: set[Address] = set()
         for idx in range(segments.n_segments):
             size = segments.get_segment_size(segment_index=idx)
             not_accessed_addr |= {segment_offsets[idx] + i for i in range(size)}
 
-        accessed_offsets_sets: defaultdict[int, Set[int]] = defaultdict(set)
+        accessed_offsets_sets: defaultdict[int, set[int]] = defaultdict(set)
         for addr in accessed_memory:
             index, offset = addr.segment_index, addr.offset
             accessed_offsets_sets[index].add(offset)
@@ -259,18 +259,18 @@ class ProfilerContext:
 
     def build_memhole_samples(
         self,
-        instructions: List[Instruction],
+        instructions: list[Instruction],
         tracer_data: TracerData,
-        accessed_memory: Set[RelocatableValue],
+        accessed_memory: set[RelocatableValue],
         segments: MemorySegmentManager,
         segment_offsets,
-    ) -> List[Sample]:
+    ) -> list[Sample]:
         # Address -> Pc of instruction which accessed the address last
-        accessed_by: Dict[Address, Address] = {}
-        pc_to_callstack: Dict[Address, List[Address]] = {}
+        accessed_by: dict[Address, Address] = {}
+        pc_to_callstack: dict[Address, list[Address]] = {}
         for trace_entry, mem_acc in zip(tracer_data.trace, tracer_data.memory_accesses):
             frame_pcs = self.get_call_stack(fp=trace_entry.fp, pc=trace_entry.pc)
-            addresses: List[Address] = [mem_acc[d] for d in ["dst", "op0", "op1"]]
+            addresses: list[Address] = [mem_acc[d] for d in ["dst", "op0", "op1"]]
             for addr in addresses:
                 # Casting to Addres because adresses have been already relocated
                 # TODO(maksymiliandemitraszek) check if that's correct
@@ -279,7 +279,7 @@ class ProfilerContext:
 
         blame_pc = functools.partial(self.blame_pc, accessed_by)
 
-        samples: List[Sample] = []
+        samples: list[Sample] = []
         not_acc = self.get_not_accessed_addresses(
             accessed_memory, segments, segment_offsets
         )
@@ -296,8 +296,8 @@ class ProfilerContext:
 def build_profile(
     tracer_data: TracerData,
     segments: MemorySegmentManager,
-    segment_offsets: Dict[int, int],
-    accessed_memory: Set[RelocatableValue],
+    segment_offsets: dict[int, int],
+    accessed_memory: set[RelocatableValue],
 ) -> RuntimeProfile:
     builder = ProfilerContext(
         initial_fp=tracer_data.trace[0].fp, memory=tracer_data.memory
