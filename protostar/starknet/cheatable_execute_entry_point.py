@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, List, Optional, Tuple, cast
+from typing import TYPE_CHECKING, Any, Optional, Tuple, cast
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
@@ -59,7 +59,7 @@ ContractFilename = str
 
 @dataclass(frozen=True)
 class ContractProfile:
-    contract_callstack: List[ContractFilename]
+    contract_callstack: list[ContractFilename]
     entry_point: ContractEntryPoint
     profile: RuntimeProfile
 
@@ -78,11 +78,11 @@ def extract_cheatable_state(state: SyncState) -> CheatableCachedState:
 # pylint: disable=too-many-branches
 class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     cheatcode_factory: Optional["CheatcodeFactory"] = None
-    samples: List[ContractProfile] = []
-    contract_callstack: List[str] = []
+    samples: list[ContractProfile] = []
+    contract_callstack: list[str] = []
     profiling = False
 
-    def _run(  # type: ignore
+    def _run(
         self,
         state: SyncState,
         resources_manager: ExecutionResourcesManager,
@@ -300,7 +300,7 @@ def get_profile(program, memory, trace, debug_info, runner):
     return profile
 
 
-def merge_and_save(contract_samples: List[ContractProfile]):
+def merge_and_save(contract_samples: list[ContractProfile]):
     merged = merge_profiles(contract_samples)
     proto = to_protobuf(merged)
     serialized = serialize(proto)

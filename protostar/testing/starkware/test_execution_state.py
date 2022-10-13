@@ -43,7 +43,6 @@ class TestExecutionState(ExecutionState):
         starknet.cheatable_state.cheatable_state.contract_address_to_class_hash_map[
             contract.contract_address
         ] = 0
-
         return cls(
             config=test_config,
             context=TestContext(),

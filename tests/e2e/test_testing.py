@@ -36,7 +36,7 @@ def test_profile_fuzz(protostar, copy_fixture):
         ["test", "--profiling", "tests/fuzz_test.cairo"], ignore_exit_code=True
     )
     assert "Fuzz tests cannot be profiled" in result
-    assert "profile.pb.gz" not in listdir(".")
+    assert not Path("profile.pb.gz").exists()
 
 
 @pytest.mark.usefixtures("init")
