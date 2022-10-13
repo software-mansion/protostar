@@ -147,7 +147,7 @@ class ProfilerContext:
         self, functions: List[Function], tracer_data: TracerData
     ) -> List[Instruction]:
         """
-        Builds a list of instructions in the contract and assings them to functions they come from
+        Builds a list of instructions in the contract and assigns them to functions they come from
         """
         assert tracer_data.program.debug_info
         pc_to_locations = {
