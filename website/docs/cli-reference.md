@@ -116,10 +116,10 @@ Log information about already formatted files as well.
 $ protostar init
 ```
 Create a Protostar project.
+#### `name STRING`
+Name of the directory a new project will be placed in.Ignored when `--existing` is passed.
 #### `--existing`
 Adapt current directory to a Protostar project.
-#### `--name STRING`
-Name of the directory a new project will be placed in. Ignored when `--existing` is passed.
 ### `install`
 ```shell
 $ protostar install https://github.com/OpenZeppelin/cairo-contracts
