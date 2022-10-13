@@ -5,11 +5,8 @@ def mock_call(contract_address: int, fn_name: str, ret_data: Union[List[int], Di
 ```
 
 Mocks all calls to a `@view` function with the name `fn_name` of a contract with an address `contract_address` until the returned callable is called. 
-Mocked call returns data provided in `ret_data`. 
-
-## Caveats
-- This cheatcode works only for contract's exposed `@view`s. It does not work for internal functions, `@external`s etc.
-- Mock works globally, for all contracts, not only the testing contract.
+Mocked call returns data provided in `ret_data`.
+Mock works globally, for all contracts, not only the testing contract.
 
 :::tip
 You can provide constructor arguments as a dictionary to leverage [data transformer](README.md#data-transformer).
