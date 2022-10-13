@@ -14,9 +14,8 @@ class CacheIO:
         self._gitignore_checked = False
 
     def write(self, name: str, value: dict) -> None:
-        if not self._gitignore_checked and not self._gitignore_path.exists():
+        if not self._gitignore_path.exists():
             self._gitignore_path.write_text("*\n", encoding="utf-8")
-            self._gitignore_checked = True
         Path(self._cache_path / (name + self._EXTENSION)).write_text(
             json.dumps(value), encoding="utf-8"
         )
