@@ -1,11 +1,9 @@
 # pylint: disable=invalid-name
 from collections import defaultdict
 from dataclasses import dataclass
-import functools
 import math
 from typing import cast
 
-from starkware.cairo.lang.vm.memory_dict import MemoryDict
 from starkware.cairo.lang.compiler.identifier_definition import LabelDefinition
 from starkware.cairo.lang.tracer.tracer_data import TracerData
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
@@ -77,7 +75,19 @@ class RuntimeProfile:
 
 
 class TracerDataManager(TracerData):
-    
+    @staticmethod
+    def from_tracer_data(tracer_data: TracerData) -> "TracerDataManager":
+        tracer_data_manager = TracerDataManager(
+            tracer_data.program,
+            tracer_data.memory,
+            tracer_data.trace,
+            tracer_data.program_base,
+            None,
+            tracer_data.debug_info,
+        )
+        tracer_data_manager.public_memory = tracer_data.public_memory
+        return tracer_data_manager
+
     def get_callstack(self, fp: Address, pc: Address) -> list[Address]:
         """
         func g() {
@@ -297,18 +307,23 @@ def build_memhole_samples(
 
 
 def build_profile(
-    tracer_data: TracerDataManager,
+    tracer_data: TracerData,
     segments: MemorySegmentManager,
     segment_offsets: dict[int, int],
     accessed_memory: set[RelocatableValue],
 ) -> RuntimeProfile:
-    function_list = collect_contract_functions(tracer_data)
-    instructions_list = create_instruction_list(function_list, tracer_data)
-    step_samples = build_step_samples(instructions_list, tracer_data)
+    tracer_data_manager = TracerDataManager.from_tracer_data(tracer_data)
+    function_list = collect_contract_functions(tracer_data_manager)
+    instructions_list = create_instruction_list(function_list, tracer_data_manager)
+    step_samples = build_step_samples(instructions_list, tracer_data_manager)
     memhole_samples = build_memhole_samples(
-        instructions_list, tracer_data, accessed_memory, segments, segment_offsets
+        instructions_list,
+        tracer_data_manager,
+        accessed_memory,
+        segments,
+        segment_offsets,
     )
-    callstacks_syscall = build_call_callstacks(instructions_list, tracer_data)
+    callstacks_syscall = build_call_callstacks(instructions_list, tracer_data_manager)
     profile = RuntimeProfile(
         functions=function_list,
         instructions=instructions_list,

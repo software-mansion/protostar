@@ -1,6 +1,7 @@
 # pylint: disable=invalid-name
 from typing import Dict, List, Set
 import pytest
+from pytest_mock import MockerFixture
 
 from starkware.cairo.lang.vm.memory_dict import (
     MemoryDict,
@@ -10,7 +11,11 @@ from starkware.cairo.lang.vm.memory_dict import (
 from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
 from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
 
-from protostar.profiler.contract_profiler import ProfilerContext
+from protostar.profiler.contract_profiler import (
+    TracerDataManager,
+    blame_pc,
+    get_not_accessed_addresses,
+)
 
 
 @pytest.fixture(name="memory")
@@ -38,9 +43,11 @@ def segments_offsets_fixture(memory_segments: MemorySegmentManager) -> Dict[int,
     return memory_segments.relocate_segments()
 
 
-@pytest.fixture(name="profiler_context")
-def profiler_context_fixture(memory) -> ProfilerContext:
-    return ProfilerContext(0, MemoryDict(values=memory))
+@pytest.fixture(name="tracer_data")
+def tracer_data_fixture(mocker: MockerFixture, memory: MemoryDict) -> TracerDataManager:
+    return TracerDataManager(
+        program=mocker.MagicMock(), memory=memory, trace=[], program_base=111
+    )
 
 
 @pytest.mark.parametrize(
@@ -65,12 +72,11 @@ def profiler_context_fixture(memory) -> ProfilerContext:
     ],
 )
 def test_blame_pc(
-    profiler_context: ProfilerContext,
     last_accesses: Dict[int, int],
     hole_address: int,
     expected,
 ):
-    assert profiler_context.blame_pc(last_accesses, hole_address) == expected
+    assert blame_pc(last_accesses, hole_address) == expected
 
 
 @pytest.mark.parametrize(
@@ -79,10 +85,8 @@ def test_blame_pc(
         ({100: 42, 99: 43, 98: 39, 38: 11, 37: 0}, 100, 101, [101, 43, 11]),
     ],
 )
-def test_get_callstack(
-    profiler_context: ProfilerContext, fp: int, pc: int, expected: List[int]
-):
-    assert profiler_context.get_callstack(fp, pc) == expected
+def test_get_callstack(tracer_data, fp: int, pc: int, expected: List[int]):
+    assert tracer_data.get_callstack(fp, pc) == expected
 
 
 @pytest.mark.parametrize(
@@ -112,15 +116,12 @@ def test_get_callstack(
     ],
 )
 def test_not_accessed(
-    profiler_context: ProfilerContext,
     not_accessed: Set[RelocatableValue],
     memory_segments: MemorySegmentManager,
     segments_offsets: Dict[int, int],
     expected: List[int],
 ):
     assert (
-        profiler_context.get_not_accessed_addresses(
-            not_accessed, memory_segments, segments_offsets
-        )
+        get_not_accessed_addresses(not_accessed, memory_segments, segments_offsets)
         == expected
     )
