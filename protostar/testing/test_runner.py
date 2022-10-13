@@ -93,7 +93,7 @@ class TestRunner:
         test_suite: TestSuite,
         testing_seed: Seed,
     ):
-        test_config = TestConfig(seed=testing_seed)
+        test_config = TestConfig(seed=testing_seed, profiling=self.profiling)
 
         try:
             compiled_test = self.tests_compiler.compile_contract(
@@ -182,13 +182,13 @@ class TestRunner:
     ) -> None:
         for test_case in test_suite.test_cases:
             test_result = await self._invoke_test_case(
-                test_case, execution_state, profiling=self.profiling
+                test_case, execution_state
             )
             self.shared_tests_state.put_result(test_result)
 
     @staticmethod
     async def _invoke_test_case(
-        test_case: TestCase, initial_state: TestExecutionState, profiling=False
+        test_case: TestCase, initial_state: TestExecutionState
     ) -> TestResult:
         state: TestExecutionState = initial_state.fork()
 
@@ -202,5 +202,5 @@ class TestRunner:
         state.determine_test_mode(test_case)
 
         test_case_runner_factory = TestCaseRunnerFactory(state)
-        test_case_runner = test_case_runner_factory.make(test_case, profiling=profiling)
+        test_case_runner = test_case_runner_factory.make(test_case)
         return await test_case_runner.run()

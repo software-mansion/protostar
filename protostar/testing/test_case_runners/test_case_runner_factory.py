@@ -17,7 +17,7 @@ class TestCaseRunnerFactory:
     def __init__(self, state: TestExecutionState) -> None:
         self._state = state
 
-    def make(self, test_case: TestCase, profiling=False) -> TestCaseRunner:
+    def make(self, test_case: TestCase) -> TestCaseRunner:
         mode = self._state.config.mode
 
         assert mode, "Test mode should be determined at this point."
@@ -25,7 +25,6 @@ class TestCaseRunnerFactory:
             return FuzzTestCaseRunner(
                 fuzz_test_execution_environment=FuzzTestExecutionEnvironment(
                     self._state,
-                    profiling=profiling,
                 ),
                 test_case=test_case,
                 output_recorder=self._state.output_recorder,
@@ -36,7 +35,6 @@ class TestCaseRunnerFactory:
             return StandardTestCaseRunner(
                 test_execution_environment=TestExecutionEnvironment(
                     self._state,
-                    profiling=profiling,
                 ),
                 test_case=test_case,
                 output_recorder=self._state.output_recorder,
