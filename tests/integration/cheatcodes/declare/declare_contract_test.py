@@ -36,7 +36,6 @@ def test_declaring_contract_by_name(create_protostar_project):
                 / "declaring_contract_by_name_test.cairo",
             }
         )
-        protostar.build_sync()
         result = asyncio.run(protostar.test(["./tests"]))
 
     assert_cairo_test_cases(
