@@ -31,3 +31,7 @@ func test_less_equal_compare{syscall_ptr : felt*, range_check_ptr}(a : felt, b :
     return ();
 }
 ```
+
+:::info
+There is also the [`example`](./example.md) cheatcode that tests explicitly provided cases. It may come handy if you don't want to rely on randomization.
+:::

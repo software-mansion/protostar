@@ -7,6 +7,9 @@ def max_examples(max_examples: int):
 Sets the maximum number of examples to explore by the fuzzer.
 Fuzzer tries at most this many input examples. If it does not find any failing, test will pass.
 
+`max_examples` does not limit the examples specified by [`example`](./example.md) cheatcode.
+It only affects the [`given`](./given.md) cheatcode and any examples added with `example` will be applied additionally.
+
 :::warning
 This cheatcode is only available in [setup hooks](../README.md#setup-hooks).
 :::

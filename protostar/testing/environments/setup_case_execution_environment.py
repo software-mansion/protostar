@@ -4,7 +4,7 @@ from starkware.starknet.business_logic.execution.objects import CallInfo
 
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.hint_local import HintLocal
-from protostar.testing.cheatcodes import GivenCheatcode, SkipCheatcode
+from protostar.testing.cheatcodes import GivenCheatcode, SkipCheatcode, ExampleCheatcode
 from protostar.testing.fuzzing.strategies import StrategiesHintLocal
 
 from .setup_execution_environment import (
@@ -30,6 +30,7 @@ class SetupCaseCheatcodeFactory(SetupCheatcodeFactory):
         return [
             *super().build_cheatcodes(syscall_dependencies, internal_calls),
             GivenCheatcode(syscall_dependencies, self._state.config),
+            ExampleCheatcode(syscall_dependencies, self._state.config),
             SkipCheatcode(syscall_dependencies),
         ]
 
