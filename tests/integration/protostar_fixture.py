@@ -25,7 +25,7 @@ from protostar.commands.test import TestCommand
 from protostar.commands.init.project_creator.new_project_creator import (
     NewProjectCreator,
 )
-from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
+from protostar.compiler import ProjectCompiler
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.formatter.formatter import Formatter
 from protostar.formatter.formatting_result import (
@@ -36,13 +36,10 @@ from protostar.formatter.formatting_summary import FormattingSummary
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_toml import (
     ProtostarContractsSection,
-    ProtostarProjectSection,
-    ProtostarTOMLReader,
     ProtostarTOMLWriter,
 )
 from protostar.starknet_gateway import Fee, GatewayFacadeFactory
 from protostar.io.input_requester import InputRequester
-from protostar.io.log_color_provider import LogColorProvider
 
 from protostar.compiler import ProjectCairoPathBuilder
 from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
@@ -138,6 +135,7 @@ class ProtostarFixture:
     def init_sync(self):
         args = Namespace()
         args.existing = False
+        args.name = None
         cwd = Path().resolve()
         os.chdir(self._project_root_path.parent)
         result = asyncio.run(self._init_command.run(args))
