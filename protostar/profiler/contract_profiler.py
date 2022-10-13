@@ -84,7 +84,7 @@ class ProfilerContext:
         self._initial_fp = initial_fp
         self._memory = memory
 
-    def get_call_stack(self, fp: Address, pc: Address) -> list[Address]:
+    def get_callstack(self, fp: Address, pc: Address) -> list[Address]:
         frame_pcs = [pc]
         while fp > self._initial_fp:
             fp_val = self._memory[fp - 2]
@@ -183,7 +183,7 @@ class ProfilerContext:
         callstacks: list[list[Instruction]] = []
         stack_len = math.inf
         for trace_entry in tracer_data.trace:
-            callstack = self.get_call_stack(fp=trace_entry.fp, pc=trace_entry.pc)
+            callstack = self.get_callstack(fp=trace_entry.fp, pc=trace_entry.pc)
             instr_callstack = [
                 self.find_instruction(instructions, pc) for pc in callstack
             ]
@@ -205,7 +205,7 @@ class ProfilerContext:
     ) -> list[Sample]:
         step_samples: list[Sample] = []
         for trace_entry in tracer_data.trace:
-            callstack = self.get_call_stack(fp=trace_entry.fp, pc=trace_entry.pc)
+            callstack = self.get_callstack(fp=trace_entry.fp, pc=trace_entry.pc)
             instr_callstack = [
                 self.find_instruction(instructions, pc) for pc in callstack
             ]
@@ -269,7 +269,7 @@ class ProfilerContext:
         accessed_by: dict[Address, Address] = {}
         pc_to_callstack: dict[Address, list[Address]] = {}
         for trace_entry, mem_acc in zip(tracer_data.trace, tracer_data.memory_accesses):
-            frame_pcs = self.get_call_stack(fp=trace_entry.fp, pc=trace_entry.pc)
+            frame_pcs = self.get_callstack(fp=trace_entry.fp, pc=trace_entry.pc)
             addresses: list[Address] = [mem_acc[d] for d in ["dst", "op0", "op1"]]
             for addr in addresses:
                 # Casting to Addres because adresses have been already relocated

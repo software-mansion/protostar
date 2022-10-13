@@ -82,7 +82,7 @@ def test_blame_pc(
 def test_get_callstack(
     profiler_context: ProfilerContext, fp: int, pc: int, expected: List[int]
 ):
-    assert profiler_context.get_call_stack(fp, pc) == expected
+    assert profiler_context.get_callstack(fp, pc) == expected
 
 
 @pytest.mark.parametrize(
