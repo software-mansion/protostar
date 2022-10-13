@@ -17,19 +17,18 @@ from protostar.starknet_gateway import (
     ContractNotFoundException,
     GatewayFacade,
     UnknownFunctionException,
+    Fee,
 )
 from protostar.starknet.data_transformer import CairoOrPythonData
 
-Wei = int
-
 
 class SignedCheatcodeConfig(CheatcodeNetworkConfig):
-    max_fee: NotRequired[Wei]
+    max_fee: NotRequired[Fee]
 
 
 @dataclass
 class ValidatedSignedCheatcodeConfig:
-    max_fee: Optional[Wei] = None
+    max_fee: Fee = "auto"
     wait_for_acceptance: bool = False
 
     @classmethod
@@ -40,7 +39,7 @@ class ValidatedSignedCheatcodeConfig:
             return cls()
         return cls(
             wait_for_acceptance=config.get("wait_for_acceptance", False),
-            max_fee=config.get("max_fee", None),
+            max_fee=config.get("max_fee", "auto"),
         )
 
 
@@ -91,7 +90,7 @@ class MigratorInvokeCheatcode(Cheatcode):
         max_fee = config.max_fee
         wait_for_acceptance = config.wait_for_acceptance
 
-        if max_fee is not None and max_fee <= 0:
+        if max_fee != "auto" and max_fee <= 0:
             raise CheatcodeException(
                 self,
                 message="max_fee must be greater than 0.",

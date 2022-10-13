@@ -18,7 +18,7 @@ It's an extension of [CheatcodeNetworkConfig](../03-network-config.md), so it's 
 ```python
 Wei = int
 class SignedCheatcodeConfig(CheatcodeNetworkConfig):
-    max_fee: Wei | None
+    max_fee: Fee
 ```
 
 Auto-fee estimation is supported, and `starknet.py`'s estimation logic is used - see [starknet.py docs](https://starknetpy.readthedocs.io/en/latest/guide.html#automatic-fee-estimation).
