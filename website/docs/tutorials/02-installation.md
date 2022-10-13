@@ -32,6 +32,13 @@ To upgrade Protostar, run:
 $ protostar upgrade
 ```
 
+# Protostar Versioning
+Protostar version matches following pattern MAJOR.MINOR.PATCH. If MAJOR is 0, we increment:
+
+- PATCH to fix bugs.
+- MINOR to introduce new features, depreciation warnings, bugfixes, and changes to previously deprecated API. We try to release a MINOR every 2 weeks. 
+
+
 # How to build Protostar from source code
 If your platform isn't supported or installation fails, you can try building Protostar from [source code](https://github.com/software-mansion/protostar) in the following way:
 
