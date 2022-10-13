@@ -240,6 +240,7 @@ A glob or globs to a directory or a test suite, for example:
                 profiling=profiling,
                 exit_first=exit_first,
                 testing_seed=testing_seed,
+                project_root_path_str=str(self._project_root_path),
             )
 
         return testing_summary

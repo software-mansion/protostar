@@ -11,22 +11,22 @@ from starkware.starknet.services.api.gateway.transaction import (
 from starkware.starknet.testing.contract import DeclaredClass
 from starkware.starknet.testing.contract_utils import EventManager, get_abi
 
+from protostar.compiler import ProjectCompiler
 from protostar.migrator.cheatcodes.migrator_declare_cheatcode import (
     DeclareCheatcodeProtocol,
     DeclaredContract,
 )
 from protostar.starknet import Cheatcode, KeywordOnlyArgumentCheatcodeException
-from protostar.starknet.compiler.starknet_compilation import StarknetCompiler
 
 
 class DeclareCheatcode(Cheatcode):
     def __init__(
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
-        starknet_compiler: StarknetCompiler,
+        project_compiler: ProjectCompiler,
     ):
         super().__init__(syscall_dependencies)
-        self._starknet_compiler = starknet_compiler
+        self._project_compiler = project_compiler
 
     @property
     def name(self) -> str:
@@ -45,7 +45,7 @@ class DeclareCheatcode(Cheatcode):
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
 
-        declared_class = asyncio.run(self._declare_contract(Path(contract)))
+        declared_class = asyncio.run(self._declare_contract(contract))
         assert declared_class
         class_hash = declared_class.class_hash
 
@@ -59,9 +59,9 @@ class DeclareCheatcode(Cheatcode):
 
         return DeclaredContract(class_hash)
 
-    async def _declare_contract(self, contract_path: Path):
-        contract_class = self._starknet_compiler.compile_contract(
-            contract_path, add_debug_info=True
+    async def _declare_contract(self, contract: str):
+        contract_class = (
+            self._project_compiler.compile_contract_from_contract_identifier(contract)
         )
 
         tx = InternalDeclare.create(
