@@ -21,7 +21,7 @@ class TestCaseRunnerFactory:
         mode = self._state.config.mode
 
         assert mode, "Test mode should be determined at this point."
-        if mode is TestMode.FUZZ:
+        if mode in [TestMode.FUZZ, TestMode.PARAMETERIZED]:
             return FuzzTestCaseRunner(
                 fuzz_test_execution_environment=FuzzTestExecutionEnvironment(
                     self._state,
