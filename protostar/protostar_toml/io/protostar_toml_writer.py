@@ -29,5 +29,6 @@ class ProtostarTOMLWriter:
 
         for section in sections:
             result[f"protostar.{section.get_section_name()}"] = section.to_dict()
+
         with open(path, "wb") as protostar_toml_file:
             tomli_w.dump(result, protostar_toml_file)
