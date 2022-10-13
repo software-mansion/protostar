@@ -84,9 +84,6 @@ class ProfilerContext:
         self._initial_fp = initial_fp
         self._memory = memory
 
-
-
-
     def collect_contract_functions(self, tracer_data: TracerData) -> list[Function]:
         identifiers_dict = tracer_data.program.identifiers.as_dict()
         assert tracer_data.program.debug_info is not None
@@ -222,8 +219,6 @@ class ProfilerContext:
         assert blamed_pc > -1
         return blamed_pc
 
-
-        
     @staticmethod
     def get_not_accessed_addresses(
         accessed_memory: set[RelocatableValue],
@@ -283,7 +278,7 @@ class ProfilerContext:
             ]
             samples.append(Sample(value=1, callstack=callstack))
         return samples
-        
+
     def get_callstack(self, fp: Address, pc: Address) -> list[Address]:
         frame_pcs = [pc]
         while fp > self._initial_fp:
