@@ -8,7 +8,6 @@ from protostar.testing.environments.execution_environment import (
     ExecutionEnvironment,
 )
 from protostar.testing.starkware.test_execution_state import TestExecutionState
-from protostar.compiler import ProjectCompiler
 
 from .common_test_cheatcode_factory import CommonTestCheatcodeFactory
 
@@ -16,9 +15,8 @@ from .common_test_cheatcode_factory import CommonTestCheatcodeFactory
 class SetupExecutionEnvironment(ExecutionEnvironment[None]):
     state: TestExecutionState
 
-    def __init__(self, state: TestExecutionState, project_compiler: ProjectCompiler):
+    def __init__(self, state: TestExecutionState):
         super().__init__(state)
-        self._project_compiler = project_compiler
 
     async def execute(self, function_name: str):
         self.set_cheatcodes(SetupCheatcodeFactory(self.state))

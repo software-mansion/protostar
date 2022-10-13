@@ -172,7 +172,7 @@ class TestRunner:
             )
 
             if test_suite.setup_fn_name:
-                env = SetupExecutionEnvironment(execution_state, self.project_compiler)
+                env = SetupExecutionEnvironment(execution_state)
                 await env.execute(test_suite.setup_fn_name)
 
             return execution_state
@@ -202,9 +202,7 @@ class TestRunner:
         state: TestExecutionState = initial_state.fork()
 
         if test_case.setup_fn_name:
-            setup_case_result = await run_setup_case(
-                test_case, state, self.project_compiler
-            )
+            setup_case_result = await run_setup_case(test_case, state)
             if isinstance(setup_case_result, BrokenSetupCaseResult):
                 return setup_case_result.into_broken_test_case_result()
             if isinstance(setup_case_result, SkippedSetupCaseResult):
@@ -212,6 +210,6 @@ class TestRunner:
 
         state.determine_test_mode(test_case)
 
-        test_case_runner_factory = TestCaseRunnerFactory(state, self.project_compiler)
+        test_case_runner_factory = TestCaseRunnerFactory(state)
         test_case_runner = test_case_runner_factory.make(test_case)
         return await test_case_runner.run()

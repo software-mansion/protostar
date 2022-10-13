@@ -15,7 +15,6 @@ from protostar.testing.starkware.execution_resources_summary import (
 from protostar.testing.starkware.test_execution_state import TestExecutionState
 from protostar.starknet.abi import has_function_parameters
 from protostar.testing.hook import Hook
-from protostar.compiler import ProjectCompiler
 
 from .common_test_cheatcode_factory import CommonTestCheatcodeFactory
 from .execution_environment import ExecutionEnvironment
@@ -29,11 +28,10 @@ class TestExecutionResult:
 class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
     state: TestExecutionState
 
-    def __init__(self, state: TestExecutionState, project_compiler: ProjectCompiler):
+    def __init__(self, state: TestExecutionState):
         super().__init__(state)
         self._expect_revert_context = ExpectRevertContext()
         self._finish_hook = Hook()
-        self._project_compiler = project_compiler
 
     async def execute(self, function_name: str) -> TestExecutionResult:
         assert not has_function_parameters(

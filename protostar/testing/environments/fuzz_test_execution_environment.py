@@ -29,7 +29,6 @@ from protostar.testing.starkware.execution_resources_summary import (
 )
 from protostar.testing.starkware.test_execution_state import TestExecutionState
 from protostar.starknet.abi import get_function_parameters
-from protostar.compiler import ProjectCompiler
 
 from .test_execution_environment import (
     TestCaseCheatcodeFactory,
@@ -44,10 +43,9 @@ class FuzzTestExecutionResult(TestExecutionResult):
 
 
 class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
-    def __init__(self, state: TestExecutionState, project_compiler: ProjectCompiler):
-        super().__init__(state, project_compiler)
+    def __init__(self, state: TestExecutionState):
+        super().__init__(state)
         self.initial_state = state
-        self._project_compiler = project_compiler
 
     async def execute(self, function_name: str) -> FuzzTestExecutionResult:
         abi = self.state.contract.abi

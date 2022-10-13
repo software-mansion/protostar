@@ -1,4 +1,3 @@
-from protostar.compiler import ProjectCompiler
 from protostar.testing.cheatcodes.skip_cheatcode import TestSkipped
 from protostar.testing.environments.setup_case_execution_environment import (
     SetupCaseExecutionEnvironment,
@@ -17,12 +16,11 @@ from protostar.testing.test_suite import TestCase
 async def run_setup_case(
     test_case: TestCase,
     state: TestExecutionState,
-    project_compiler: ProjectCompiler,
 ) -> SetupCaseResult:
     assert test_case.setup_fn_name
 
     try:
-        execution_environment = SetupCaseExecutionEnvironment(state, project_compiler)
+        execution_environment = SetupCaseExecutionEnvironment(state)
 
         with state.stopwatch.lap(test_case.setup_fn_name):
             await execution_environment.execute(test_case.setup_fn_name)

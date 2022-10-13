@@ -7,7 +7,6 @@ from protostar.testing.environments.test_execution_environment import (
 from protostar.testing.starkware.test_execution_state import TestExecutionState
 from protostar.testing.test_config import TestMode
 from protostar.testing.test_suite import TestCase
-from protostar.compiler import ProjectCompiler
 
 from .fuzz_test_case_runner import FuzzTestCaseRunner
 from .standard_test_case_runner import StandardTestCaseRunner
@@ -15,11 +14,8 @@ from .test_case_runner import TestCaseRunner
 
 
 class TestCaseRunnerFactory:
-    def __init__(
-        self, state: TestExecutionState, project_compiler: ProjectCompiler
-    ) -> None:
+    def __init__(self, state: TestExecutionState) -> None:
         self._state = state
-        self._project_compiler = project_compiler
 
     def make(self, test_case: TestCase) -> TestCaseRunner:
         mode = self._state.config.mode
@@ -29,8 +25,7 @@ class TestCaseRunnerFactory:
         if mode is TestMode.FUZZ:
             return FuzzTestCaseRunner(
                 fuzz_test_execution_environment=FuzzTestExecutionEnvironment(
-                    self._state,
-                    self._project_compiler,
+                    self._state
                 ),
                 test_case=test_case,
                 output_recorder=self._state.output_recorder,
@@ -39,9 +34,7 @@ class TestCaseRunnerFactory:
 
         if mode is TestMode.STANDARD:
             return StandardTestCaseRunner(
-                test_execution_environment=TestExecutionEnvironment(
-                    self._state, self._project_compiler
-                ),
+                test_execution_environment=TestExecutionEnvironment(self._state),
                 test_case=test_case,
                 output_recorder=self._state.output_recorder,
                 stopwatch=self._state.stopwatch,
