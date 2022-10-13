@@ -4,8 +4,10 @@
 def mock_call(contract_address: int, fn_name: str, ret_data: Union[List[int], Dict]) -> Callable: ...
 ```
 
-Mocks all calls to a `@view` function with the name `fn_name` of a contract with an address `contract_address` until the returned callable is called. 
+Mocks all calls to function with the name `fn_name` of a contract with an address `contract_address`, until the returned callable is called. 
+
 Mocked call returns data provided in `ret_data`.
+
 Mock works globally, for all contracts, not only the testing contract.
 
 :::tip
