@@ -106,6 +106,7 @@ A glob or globs to a directory or a test suite, for example:
                 name="profiling",
                 description=(
                     "Run profiling for a test contract. Works only for a single test case."
+                    "Protostar generates a file that can be opened with https://github.com/google/pprof"
                 ),
                 type="bool",
             ),
