@@ -24,7 +24,7 @@ class Function:
     """
     Represents a function in a contract
 
-    id -- uniuque name of a function
+    id -- unique name of a function
     filename -- source file of a function
     start_line -- number of line function starts in
     """
@@ -39,9 +39,9 @@ class Instruction:
     """
     Represents a instruction under certain pc in a contract
 
-    id -- uniuque id of a instruction
+    id -- unique id of a instruction
     pc -- pc instruction is placed under
-    function -- function from the instuction has been generated
+    function -- function from the instruction has been generated
     line -- line of code from which instruction has been generated
     """
 
@@ -147,7 +147,7 @@ class ProfilerContext:
         self, functions: list[Function], tracer_data: TracerData
     ) -> list[Instruction]:
         """
-        Builds a list of instructions in the contract and assings them to functions they come from
+        Builds a list of instructions in the contract and assigns them to functions they come from
         """
         assert tracer_data.program.debug_info
         pc_to_locations = {
