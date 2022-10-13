@@ -11,7 +11,6 @@ class CacheIO:
         self._cache_path = project_root_path / Path(self._CACHE_DIR_NAME)
         self._cache_path.mkdir(exist_ok=True)
         self._gitignore_path = Path(self._cache_path / ".gitignore")
-        self._gitignore_checked = False
 
     def write(self, name: str, value: dict) -> None:
         if not self._gitignore_path.exists():
