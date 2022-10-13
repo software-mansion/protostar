@@ -91,9 +91,6 @@ test_report = [
 type_check = "pyright"
 update_cli_docs = "python ./scripts/generate_reference_docs.py"
 
-[tool.poe.tasks.benchmark]
-shell = "pytest tests/benchmarks --benchmark-save-data --benchmark-autosave"
-
 [tool.poe.tasks.statistical_test]
 shell = "python ./tests/benchmarks/statistical_test.py"
 
