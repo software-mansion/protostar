@@ -21,7 +21,7 @@ protostar test --profiling test/test_file.cairo::test_case_name
 You can only run profiling for a single test case
 :::
 
-Protostar will run the test in profiling mode (it may take a little more than ususal) and produce a file `profile.pb.gz`
+Protostar will run the test in the profiling mode (it may take a little more than ususal) and produce a file `profile.pb.gz`
 
 Then you can read the profile using: 
 ```shell
