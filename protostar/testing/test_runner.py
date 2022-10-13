@@ -76,6 +76,7 @@ class TestRunner:
             default_config=ProjectCompilerConfig(
                 relative_cairo_path=[Path(s_pth).resolve() for s_pth in include_paths],
                 hint_validation_disabled=disable_hint_validation_in_user_contracts,
+                debugging_info_attached=profiling,
             ),
         )
 
