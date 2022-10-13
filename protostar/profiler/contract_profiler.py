@@ -84,16 +84,7 @@ class ProfilerContext:
         self._initial_fp = initial_fp
         self._memory = memory
 
-    def get_callstack(self, fp: Address, pc: Address) -> list[Address]:
-        frame_pcs = [pc]
-        while fp > self._initial_fp:
-            fp_val = self._memory[fp - 2]
-            pc_val = self._memory[fp - 1]
-            assert isinstance(fp_val, Address)
-            assert isinstance(pc_val, Address)
-            fp, pc = fp_val, pc_val
-            frame_pcs.append(pc)
-        return frame_pcs
+
 
 
     def collect_contract_functions(self, tracer_data: TracerData) -> list[Function]:
@@ -231,6 +222,8 @@ class ProfilerContext:
         assert blamed_pc > -1
         return blamed_pc
 
+
+        
     @staticmethod
     def get_not_accessed_addresses(
         accessed_memory: set[RelocatableValue],
@@ -290,6 +283,17 @@ class ProfilerContext:
             ]
             samples.append(Sample(value=1, callstack=callstack))
         return samples
+        
+    def get_callstack(self, fp: Address, pc: Address) -> list[Address]:
+        frame_pcs = [pc]
+        while fp > self._initial_fp:
+            fp_val = self._memory[fp - 2]
+            pc_val = self._memory[fp - 1]
+            assert isinstance(fp_val, Address)
+            assert isinstance(pc_val, Address)
+            fp, pc = fp_val, pc_val
+            frame_pcs.append(pc)
+        return frame_pcs
 
 
 def build_profile(
