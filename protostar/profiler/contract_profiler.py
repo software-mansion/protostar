@@ -24,9 +24,9 @@ class Function:
     """
     Represents a function in a contract
 
-    id -- unique name of a function
-    filename -- source file of a function
-    start_line -- number of line function starts in
+    id          Unique name of a function
+    filename    Source file of a function
+    start_line  Number of line function starts in
     """
 
     id: FunctionID
@@ -39,10 +39,10 @@ class Instruction:
     """
     Represents a instruction under certain pc in a contract
 
-    id -- unique id of a instruction
-    pc -- pc instruction is placed under
-    function -- function from the instruction has been generated
-    line -- line of code from which instruction has been generated
+    id          Unique id of a instruction
+    pc          Pc instruction is placed under
+    function    Function from the instruction has been generated
+    line        Line of code from which instruction has been generated
     """
 
     id: int
@@ -55,11 +55,11 @@ class Instruction:
 class Sample:
     """
     Sample of a resource
-
-    value -- value of a sample (for example 1 memory hole)
-    callstack -- instruction callstack for the reported sample
-    Each instruction has an function assigned so it is easy to deduce the
-    calltree of an functions (pprof format requires samples to be assigned to instruction not functions)
+    Attributes:
+        value       Value of a sample (for example 1 memory hole)
+        callstack   Instruction callstack for the reported sample. 
+                    Each instruction has an function assigned so it is easy to deduce the
+                    calltree of an functions (pprof format requires samples to be assigned to instruction not functions)
     """
 
     value: int
