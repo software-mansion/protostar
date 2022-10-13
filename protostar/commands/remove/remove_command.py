@@ -1,15 +1,15 @@
 from logging import Logger
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
-from protostar.cli import Command
+from protostar.cli import ProtostarArgument, ProtostarCommand
 from protostar.commands.install.install_command import (
     EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
 )
 from protostar.commands.remove.remove_package import remove_package
-from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
 from protostar.io import log_color_provider
 from protostar.package_manager import retrieve_real_package_name
+from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
 
 INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = (
     EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION
@@ -18,7 +18,7 @@ INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = (
 )
 
 
-class RemoveCommand(Command):
+class RemoveCommand(ProtostarCommand):
     def __init__(
         self,
         project_root_path: Path,
@@ -43,9 +43,9 @@ class RemoveCommand(Command):
         return "$ protostar remove cairo-contracts"
 
     @property
-    def arguments(self) -> List[Command.Argument]:
+    def arguments(self):
         return [
-            Command.Argument(
+            ProtostarArgument(
                 name="package",
                 description=INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
                 type="str",

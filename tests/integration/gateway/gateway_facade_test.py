@@ -201,7 +201,7 @@ async def test_declare_tx_v1(
         max_fee=213700000000000,
     )
 
-    assert result.code == TransactionStatus.ACCEPTED_ON_L2
+    assert result.code == TransactionStatus.ACCEPTED_ON_L2.value
     assert len(gateway_client.intercepted_txs) == 1
     declare_tx = gateway_client.intercepted_txs[0]
     assert isinstance(declare_tx, Declare)
