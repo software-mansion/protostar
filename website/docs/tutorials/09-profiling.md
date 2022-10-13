@@ -6,7 +6,8 @@ sidebar_label: Profiling
 
 ## Prerequisites
 
-You need pprof installed beforehand. You can learn how to install it [HERE](https://github.com/google/pprof#building-pprof)
+You need pprof installed beforehand.
+You can learn how to install it [in pprof documentation](https://github.com/google/pprof#building-pprof).
 
 ## How to profile a contract?
 
