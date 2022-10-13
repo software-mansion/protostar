@@ -41,7 +41,7 @@ class Instruction:
 
     id -- unique id of a instruction
     pc -- pc instruction is placed under
-    function -- function from the instuction has been generated
+    function -- function from the instruction has been generated
     line -- line of code from which instruction has been generated
     """
 
