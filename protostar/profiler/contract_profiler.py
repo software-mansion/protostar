@@ -24,7 +24,7 @@ class Function:
     """
     Represents a function in a contract
 
-    id -- uniuque name of a function
+    id -- unique name of a function
     filename -- source file of a function
     start_line -- number of line function starts in
     """
