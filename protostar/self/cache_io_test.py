@@ -35,11 +35,16 @@ def test_cache_override(tmp_path):
     assert cache_io.read(cache_name) is None
 
     cache_io.write(cache_name, obj)
+    # pylint: disable=protected-access
+    initial_gitignore_mod_timestamp = os.path.getmtime(cache_io._gitignore_path)
     cache_io.write(cache_name, obj2)
 
     assert cache_io.read(cache_name) == obj2
 
     cache_io.write(cache_name, obj)
+
+    # pylint: disable=protected-access
+    assert os.path.getmtime(cache_io._gitignore_path) == initial_gitignore_mod_timestamp
 
     assert cache_io.read(cache_name) == obj
 
