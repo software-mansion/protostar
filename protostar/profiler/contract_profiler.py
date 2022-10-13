@@ -86,7 +86,8 @@ class ProfilerContext:
 
     def collect_contract_functions(self, tracer_data: TracerData) -> list[Function]:
         identifiers_dict = tracer_data.program.identifiers.as_dict()
-        assert tracer_data.program.debug_info is not None
+        if tracer_data.program.debug_info is None:
+            raise ValueError("Cannot analyze trace without debug information attached.")
         is_label: Callable[[IdentifierDefinition], bool] = lambda ident: isinstance(
             ident, LabelDefinition
         )
