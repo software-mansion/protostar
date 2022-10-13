@@ -95,13 +95,6 @@ class ProfilerContext:
             frame_pcs.append(pc)
         return frame_pcs
 
-    def main_function(self):
-        # TODO(maksymiliandemitraszek) check if this is necessary
-        return Function(
-            id="__main__",
-            filename="<dummy_filename>",
-            start_line=0,
-        )
 
     def collect_contract_functions(self, tracer_data: TracerData) -> list[Function]:
         identifiers_dict = tracer_data.program.identifiers.as_dict()
@@ -135,7 +128,13 @@ class ProfilerContext:
                 )
             )
 
-        return functions + [self.main_function()]
+        # TODO(maksymiliandemitraszek) check if this is necessary
+        main_func = Function(
+            id="__main__",
+            filename="<dummy_filename>",
+            start_line=0,
+        )
+        return functions + [main_func]
 
     def find_function(self, functions: list[Function], function_id: str) -> Function:
         for func in functions:
