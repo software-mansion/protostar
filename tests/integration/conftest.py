@@ -114,6 +114,21 @@ def log_color_provider_fixture() -> LogColorProvider:
     return log_color_provider
 
 
+@contextmanager
+def empty_protostar_toml():
+    toml_path = (Path(".") / "protostar.toml").resolve()
+    lib_dir = (Path(".") / "lib").resolve()
+    lib_dir.mkdir(exist_ok=True)
+    with open(toml_path, mode="w+", encoding="utf-8") as file:
+        file.write(
+            """["protostar.project"]\nlibs_path="lib"\n["protostar.contracts"]"""
+        )
+    yield
+    toml_path.unlink(missing_ok=True)
+    if lib_dir.is_dir():
+        lib_dir.rmdir()
+
+
 @pytest.fixture(name="run_cairo_test_runner", scope="module")
 def run_cairo_test_runner_fixture(
     session_mocker: MockerFixture, log_color_provider: LogColorProvider
@@ -149,20 +164,20 @@ def run_cairo_test_runner_fixture(
                 f"{str(path)}::{ignored_test_case}"
                 for ignored_test_case in ignored_test_cases
             ]
-
-        return await TestCommand(
-            project_root_path=Path(),
-            protostar_directory=protostar_directory_mock,
-            project_cairo_path_builder=project_cairo_path_builder,
-            logger=getLogger(),
-            log_color_provider=log_color_provider,
-        ).test(
-            targets=targets,
-            ignored_targets=ignored_targets,
-            seed=seed,
-            disable_hint_validation=disable_hint_validation,
-            cairo_path=cairo_path or [],
-        )
+        with empty_protostar_toml():
+            return await TestCommand(
+                project_root_path=Path(),
+                protostar_directory=protostar_directory_mock,
+                project_cairo_path_builder=project_cairo_path_builder,
+                logger=getLogger(),
+                log_color_provider=log_color_provider,
+            ).test(
+                targets=targets,
+                ignored_targets=ignored_targets,
+                seed=seed,
+                disable_hint_validation=disable_hint_validation,
+                cairo_path=cairo_path or [],
+            )
 
     return run_cairo_test_runner
 

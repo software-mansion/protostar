@@ -14,7 +14,8 @@ from protostar.testing.test_suite import TestCase
 
 
 async def run_setup_case(
-    test_case: TestCase, state: TestExecutionState
+    test_case: TestCase,
+    state: TestExecutionState,
 ) -> SetupCaseResult:
     assert test_case.setup_fn_name
 
