@@ -23,8 +23,8 @@ You can only run profiling for a single test case
 
 Protostar will run the test in profiling mode (it may take a little more than ususal) and produce a file `profile.pb.gz`
 
-Then you can finally read the profile using: 
-```
+Then you can read the profile using: 
+```shell
 go tool pprof -http=":8000" profile.pb.gz
 ```
 
