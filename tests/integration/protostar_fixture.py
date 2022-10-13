@@ -35,17 +35,15 @@ from protostar.formatter.formatting_summary import FormattingSummary
 from protostar.io.input_requester import InputRequester
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
-from protostar.protostar_toml import (
-    ProtostarContractsSection,
-    ProtostarProjectSection,
-    ProtostarTOMLReader,
-    ProtostarTOMLWriter,
-)
+from protostar.protostar_toml import ProtostarContractsSection, ProtostarTOMLWriter
+from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
+from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
 from protostar.self.protostar_directory import ProtostarDirectory
 from protostar.starknet_gateway import Fee, GatewayFacadeFactory
 from protostar.testing import TestingSummary
 
 
+# pylint: disable=too-many-instance-attributes
 class ProtostarFixture:
     def __init__(
         self,
@@ -136,6 +134,7 @@ class ProtostarFixture:
     def init_sync(self):
         args = Namespace()
         args.existing = False
+        args.name = None
         cwd = Path().resolve()
         os.chdir(self._project_root_path.parent)
         result = asyncio.run(self._init_command.run(args))

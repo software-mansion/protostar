@@ -1,12 +1,12 @@
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict
 
 from starkware.starknet.testing.contract import StarknetContract
 from typing_extensions import Self
 
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet.abi import has_function_parameters
+from protostar.starknet.data_transformer import PythonData
 
 from .fuzzing.strategy_descriptor import StrategyDescriptor
 from .test_suite import TestCase
@@ -25,6 +25,7 @@ class TestMode(Enum):
     UNDETERMINED = 0
     STANDARD = 1
     FUZZ = 2
+    PARAMETERIZED = 3
 
     @property
     def pretty_name(self) -> str:
@@ -40,6 +41,9 @@ class TestMode(Enum):
         if self is self.FUZZ:
             return "fuzzing mode"
 
+        if self is self.PARAMETERIZED:
+            return "parameterized mode"
+
         raise NotImplementedError("Unreachable.")
 
     def can_convert_to(self, to_mode: Self) -> bool:
@@ -50,6 +54,8 @@ class TestMode(Enum):
                 (self, to_mode)
                 in {
                     (self.STANDARD, self.FUZZ),
+                    (self.STANDARD, self.PARAMETERIZED),
+                    (self.PARAMETERIZED, self.FUZZ),
                 }
             )
         )
@@ -85,9 +91,11 @@ class TestConfig:
     seed: Seed = field(default_factory=random_seed)
 
     fuzz_max_examples: int = 100
-    fuzz_declared_strategies: Dict[str, StrategyDescriptor] = field(
+    fuzz_declared_strategies: dict[str, StrategyDescriptor] = field(
         default_factory=dict
     )
+
+    fuzz_examples: list[PythonData] = field(default_factory=list)
 
     def convert_mode_to(self, to_mode: TestMode):
         self.mode = self.mode.convert_to(to_mode)
