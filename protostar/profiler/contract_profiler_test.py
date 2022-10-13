@@ -45,9 +45,10 @@ def segments_offsets_fixture(memory_segments: MemorySegmentManager) -> Dict[int,
 
 @pytest.fixture(name="tracer_data")
 def tracer_data_fixture(mocker: MockerFixture, memory: MemoryDict) -> TracerDataManager:
-    return TracerDataManager(
-        program=mocker.MagicMock(), memory=memory, trace=[], program_base=111
-    )
+    data_mock = mocker.MagicMock()
+    data_mock.memory = memory
+    data_mock.initial_fp = 0
+    return data_mock
 
 
 @pytest.mark.parametrize(
@@ -82,11 +83,11 @@ def test_blame_pc(
 @pytest.mark.parametrize(
     "memory,fp,pc,expected",
     [
-        ({100: 42, 99: 43, 98: 39, 38: 11, 37: 0}, 100, 101, [101, 43, 11]),
+        ({100: 42, 99: 43, 98: 39, 38: 11, 37: 0, 0: 0}, 100, 101, [101, 43, 11]),
     ],
 )
 def test_get_callstack(tracer_data, fp: int, pc: int, expected: List[int]):
-    assert tracer_data.get_callstack(fp, pc) == expected
+    assert TracerDataManager.get_callstack(tracer_data, fp, pc) == expected
 
 
 @pytest.mark.parametrize(

@@ -75,19 +75,6 @@ class RuntimeProfile:
 
 
 class TracerDataManager(TracerData):
-    @staticmethod
-    def from_tracer_data(tracer_data: TracerData) -> "TracerDataManager":
-        tracer_data_manager = TracerDataManager(
-            tracer_data.program,
-            tracer_data.memory,
-            tracer_data.trace,
-            tracer_data.program_base,
-            None,
-            tracer_data.debug_info,
-        )
-        tracer_data_manager.public_memory = tracer_data.public_memory
-        return tracer_data_manager
-
     def get_callstack(self, fp: Address, pc: Address) -> list[Address]:
         """
         func g() {
@@ -250,7 +237,6 @@ def blame_pc(last_accesses: dict[Address, Address], hole_address: Address) -> in
     return blamed_pc
 
 
-@staticmethod
 def get_not_accessed_addresses(
     accessed_memory: set[RelocatableValue],
     segments: MemorySegmentManager,
@@ -307,23 +293,22 @@ def build_memhole_samples(
 
 
 def build_profile(
-    tracer_data: TracerData,
+    tracer_data: TracerDataManager,
     segments: MemorySegmentManager,
     segment_offsets: dict[int, int],
     accessed_memory: set[RelocatableValue],
 ) -> RuntimeProfile:
-    tracer_data_manager = TracerDataManager.from_tracer_data(tracer_data)
-    function_list = collect_contract_functions(tracer_data_manager)
-    instructions_list = create_instruction_list(function_list, tracer_data_manager)
-    step_samples = build_step_samples(instructions_list, tracer_data_manager)
+    function_list = collect_contract_functions(tracer_data)
+    instructions_list = create_instruction_list(function_list, tracer_data)
+    step_samples = build_step_samples(instructions_list, tracer_data)
     memhole_samples = build_memhole_samples(
         instructions_list,
-        tracer_data_manager,
+        tracer_data,
         accessed_memory,
         segments,
         segment_offsets,
     )
-    callstacks_syscall = build_call_callstacks(instructions_list, tracer_data_manager)
+    callstacks_syscall = build_call_callstacks(instructions_list, tracer_data)
     profile = RuntimeProfile(
         functions=function_list,
         instructions=instructions_list,

@@ -29,13 +29,16 @@ from starkware.starkware_utils.error_handling import (
     StarkException,
     wrap_with_stark_exception,
 )
-from starkware.cairo.lang.tracer.tracer_data import TracerData
 from starkware.cairo.lang.vm.memory_segments import FIRST_MEMORY_ADDR as PROGRAM_BASE
 from starkware.starknet.services.api.contract_class import ContractEntryPoint
 from starkware.python.utils import from_bytes
 from starkware.starknet.business_logic.state.state import StateSyncifier
 from protostar.profiler.pprof import serialize, to_protobuf
-from protostar.profiler.contract_profiler import RuntimeProfile, build_profile
+from protostar.profiler.contract_profiler import (
+    RuntimeProfile,
+    TracerDataManager,
+    build_profile,
+)
 from protostar.profiler.transaction_profiler import (
     merge_profiles,
 )
@@ -284,7 +287,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
 
 
 def get_profile(program, memory, trace, debug_info, runner):
-    tracer_data = TracerData(
+    tracer_data = TracerDataManager(
         program=program,
         memory=memory,
         trace=trace,
