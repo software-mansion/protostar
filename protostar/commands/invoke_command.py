@@ -57,7 +57,6 @@ class InvokeCommand(ProtostarCommand):
                 name="inputs",
                 description="Inputs to the function being called, represented by a list of space-delimited values.",
                 type="felt",
-                is_required=True,
                 is_array=True,
             ),
             ProtostarArgument(
@@ -98,8 +97,8 @@ class InvokeCommand(ProtostarCommand):
         self,
         contract_address: int,
         function_name: str,
-        inputs: list[int],
         gateway_client: GatewayClient,
+        inputs: Optional[list[int]] = None,
         signer: Optional[BaseSigner] = None,
         account_address: Optional[str] = None,
         max_fee: Optional[Fee] = None,
