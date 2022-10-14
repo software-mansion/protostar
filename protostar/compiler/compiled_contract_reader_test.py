@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any
+from typing import Optional
 
 import pytest
 from starkware.starknet.public.abi import AbiType
@@ -7,25 +7,6 @@ from starkware.starknet.services.api.contract_class import ContractClass
 
 from .compiled_contract_reader import CompiledContractReader
 from .compiled_contract_writer import CompiledContractWriter
-
-
-@pytest.fixture(name="abi")
-def abi_fixture() -> AbiType:
-    return [{"foo": "bar"}]
-
-
-@pytest.fixture(name="compiled_contract")
-def compiled_contract_fixture(abi: AbiType):
-    _abi = abi
-
-    class CompiledContract:
-        abi = _abi
-
-        class Schema:
-            def dump(self, _contract: Any):
-                return ""
-
-    return CompiledContract()
 
 
 @pytest.fixture(name="compiled_contract_path")
@@ -39,8 +20,9 @@ def compiled_contract_path_fixture(
     return paths_data.compiled_contract_path
 
 
+@pytest.mark.parametrize("abi", [[{"foo": "bar"}]])
 def test_loading_abi_from_compiled_contract_path(
-    compiled_contract_path: Path, abi: AbiType
+    compiled_contract_path: Path, abi: Optional[AbiType]
 ):
     ccr = CompiledContractReader()
 

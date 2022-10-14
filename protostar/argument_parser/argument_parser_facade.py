@@ -1,30 +1,42 @@
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter, _SubParsersAction
-from pathlib import Path
-from typing import Any, Callable, List, Optional, Sequence, Tuple
+from typing import (
+    Any,
+    Callable,
+    Generic,
+    List,
+    Optional,
+    Protocol,
+    Sequence,
+    Tuple,
+    TypeVar,
+)
 
-from protostar.cli.cli_app import CLIApp
-from protostar.cli.command import Command, InputAllowedType
-
+from .arg_type import ArgTypeName, map_type_name_to_parser
+from .argument import Argument
+from .cli_app import CLIApp
+from .command import Command
 from .config_file_argument_resolver import ConfigFileArgumentResolverProtocol
 
-
-class MissingRequiredArgumentException(Exception):
-    def __init__(self, argument_name: str, command_name: Optional[str]) -> None:
-        self.message = (
-            f"Command `{command_name}` expects argument: `{argument_name}`"
-            if command_name
-            else f"Missing required argument: `{argument_name}`"
-        )
-        super().__init__(self.message)
+ArgTypeNameT_contra = TypeVar(
+    "ArgTypeNameT_contra", bound=ArgTypeName, contravariant=True
+)
 
 
-class ArgumentParserFacade:
+class ParserResolverProtocol(Protocol, Generic[ArgTypeNameT_contra]):
+    def __call__(self, argument_type: ArgTypeNameT_contra) -> Callable[[str], Any]:
+        ...
+
+
+class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
     def __init__(
         self,
         cli_app: CLIApp,
         config_file_argument_value_resolver: Optional[
             ConfigFileArgumentResolverProtocol
         ] = None,
+        parser_resolver: ParserResolverProtocol[
+            ArgTypeNameT_contra
+        ] = map_type_name_to_parser,
         disable_help=False,
     ) -> None:
         self.argument_parser = ArgumentParser(
@@ -33,6 +45,7 @@ class ArgumentParserFacade:
         self.command_parsers: Optional[_SubParsersAction] = None
         self.cli_app = cli_app
         self._config_file_argument_value_resolver = config_file_argument_value_resolver
+        self._parser_resolver = parser_resolver
         self._setup_parser()
 
     def parse(
@@ -59,7 +72,7 @@ class ArgumentParserFacade:
 
     def _find_missing_required_arg_in_project(
         self, parsed_args: Namespace
-    ) -> Optional[Tuple[Optional[Command], Command.Argument]]:
+    ) -> Optional[Tuple[Optional[Command], Argument]]:
         missing_arg = self._find_missing_required_arg(
             self.cli_app.root_args, parsed_args
         )
@@ -77,8 +90,8 @@ class ArgumentParserFacade:
 
     @staticmethod
     def _find_missing_required_arg(
-        declared_args: List[Command.Argument], parsed_args: Namespace
-    ) -> Optional[Command.Argument]:
+        declared_args: List[Argument[ArgTypeNameT_contra]], parsed_args: Namespace
+    ) -> Optional[Argument[ArgTypeNameT_contra]]:
         for arg in declared_args:
             if not arg.is_required:
                 continue
@@ -110,12 +123,14 @@ class ArgumentParserFacade:
         for arg in command.arguments:
             self._add_argument(
                 command_parser,
-                self._update_from_config(command, arg),
+                self._update_from_config(command, arg),  # type: ignore
             )
 
         return self
 
-    def _add_root_argument(self, argument: Command.Argument) -> "ArgumentParserFacade":
+    def _add_root_argument(
+        self, argument: Argument[ArgTypeNameT_contra]
+    ) -> "ArgumentParserFacade":
         assert (
             argument.is_positional is False
         ), f"A root argument ({argument.name}) cannot be positional"
@@ -127,8 +142,8 @@ class ArgumentParserFacade:
         return self
 
     def _update_from_config(
-        self, command: Optional[Command], argument: Command.Argument
-    ) -> Command.Argument:
+        self, command: Optional[Command], argument: Argument[ArgTypeNameT_contra]
+    ) -> Argument[ArgTypeNameT_contra]:
         if self._config_file_argument_value_resolver:
             new_default = self._config_file_argument_value_resolver.resolve_argument(
                 command.name if command else None, argument.name
@@ -138,7 +153,7 @@ class ArgumentParserFacade:
         return argument
 
     def _add_argument(
-        self, argument_parser: ArgumentParser, argument: Command.Argument
+        self, argument_parser: ArgumentParser, argument: Argument[ArgTypeNameT_contra]
     ) -> ArgumentParser:
         name = argument.name if argument.is_positional else f"--{argument.name}"
         short_name = f"-{argument.short_name}" if argument.short_name else None
@@ -160,7 +175,7 @@ class ArgumentParserFacade:
             )
             return argument_parser
 
-        arg_type = self._map_type_to_arg_type(argument.type)
+        arg_type = self._parser_resolver(argument.type)
 
         default = argument.default
 
@@ -184,25 +199,12 @@ class ArgumentParserFacade:
         )
         return argument_parser
 
-    @staticmethod
-    def _map_type_to_arg_type(argument_type: InputAllowedType) -> Callable[[str], Any]:
-        result = str
-        if argument_type == "directory":
-            result = Command.Argument.Type.directory
-        elif argument_type == "regexp":
-            result = Command.Argument.Type.regexp
-        elif argument_type == "path":
-            result = Path
-        elif argument_type == "int":
-            result = int
-        elif argument_type == "felt":
-            result = Command.Argument.Type.felt
-        elif argument_type == "wei":
-            result = int
-        elif argument_type == "fee":
-            result = Command.Argument.Type.fee
-        elif argument_type == "str":
-            result = str
-        else:
-            assert False, "Unknown argument type"
-        return result
+
+class MissingRequiredArgumentException(Exception):
+    def __init__(self, argument_name: str, command_name: Optional[str]) -> None:
+        self.message = (
+            f"Command `{command_name}` expects argument: `{argument_name}`"
+            if command_name
+            else f"Missing required argument: `{argument_name}`"
+        )
+        super().__init__(self.message)

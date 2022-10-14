@@ -1,7 +1,7 @@
 from glob import glob
-from typing import List, Optional
+from typing import Optional
 
-from protostar.cli import Command
+from protostar.cli import ProtostarArgument, ProtostarCommand
 from protostar.commands.init.project_creator.adapted_project_creator import (
     AdaptedProjectCreator,
 )
@@ -11,7 +11,7 @@ from protostar.commands.init.project_creator.new_project_creator import (
 from protostar.io.input_requester import InputRequester
 
 
-class InitCommand(Command):
+class InitCommand(ProtostarCommand):
     def __init__(
         self,
         requester: InputRequester,
@@ -36,22 +36,37 @@ class InitCommand(Command):
         return "$ protostar init"
 
     @property
-    def arguments(self) -> List[Command.Argument]:
+    def arguments(self):
         return [
-            Command.Argument(
+            ProtostarArgument(
+                name="name",
+                description="Name of the directory a new project will be placed in."
+                "Ignored when `--existing` is passed.",
+                type="str",
+                is_positional=True,
+            ),
+            ProtostarArgument(
                 name="existing",
                 description="Adapt current directory to a Protostar project.",
                 type="bool",
-            )
+            ),
         ]
 
     async def run(self, args):
-        self.init(force_adapting_existing_project=args.existing)
+        self.init(
+            force_adapting_existing_project=args.existing,
+            project_name=args.name,
+        )
 
-    def init(self, force_adapting_existing_project: bool):
+    def init(
+        self, force_adapting_existing_project: bool, project_name: Optional[str] = None
+    ):
         should_adapt_existing_project = False
+
         if force_adapting_existing_project:
             should_adapt_existing_project = True
+        elif project_name:
+            should_adapt_existing_project = False
         else:
             if self._can_be_protostar_project():
                 should_adapt_existing_project = self._requester.confirm(
@@ -63,7 +78,7 @@ class InitCommand(Command):
         if should_adapt_existing_project:
             self._adapted_project_creator.run()
         else:
-            self._new_project_creator.run()
+            self._new_project_creator.run(project_name)
 
     @staticmethod
     def _can_be_protostar_project() -> bool:

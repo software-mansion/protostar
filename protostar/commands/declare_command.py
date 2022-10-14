@@ -5,7 +5,7 @@ from typing import List, Optional
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.signer import BaseSigner
 
-from protostar.cli.command import Command
+from protostar.cli import ProtostarArgument, ProtostarCommand
 from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.cli.signable_command_util import SignableCommandUtil
 from protostar.commands.deploy_command import DeployCommand
@@ -19,7 +19,7 @@ from protostar.starknet_gateway import (
 )
 
 
-class DeclareCommand(Command):
+class DeclareCommand(ProtostarCommand):
     def __init__(
         self,
         logger: Logger,
@@ -41,23 +41,23 @@ class DeclareCommand(Command):
         return None
 
     @property
-    def arguments(self) -> List[Command.Argument]:
+    def arguments(self):
         return [
             *SignableCommandUtil.signable_arguments,
             *NetworkCommandUtil.network_arguments,
-            Command.Argument(
+            ProtostarArgument(
                 name="contract",
                 description="Path to compiled contract.",
                 type="path",
                 is_positional=True,
                 is_required=True,
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="token",
                 description="Used for declaring contracts in Alpha MainNet.",
                 type="str",
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="max-fee",
                 description=(
                     "The maximum fee that the sender is willing to pay for the transaction. "

@@ -7,13 +7,13 @@ from typing import Any, List, cast
 import pytest
 from pytest_mock import MockerFixture
 
-from protostar.cli import ArgumentParserFacade, Command
-from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
-from protostar.upgrader.latest_version_checker import LatestVersionChecker
+from protostar.argument_parser import ArgumentParserFacade
+from protostar.cli import ProtostarCommand
 from protostar.io.log_color_provider import LogColorProvider
-from protostar.self.protostar_directory import VersionManager
-
 from protostar.protostar_cli import ProtostarCLI
+from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
+from protostar.self.protostar_directory import VersionManager
+from protostar.upgrader.latest_version_checker import LatestVersionChecker
 
 
 @pytest.fixture(name="git_version")
@@ -36,7 +36,7 @@ def logger_fixture():
 
 
 @pytest.fixture(name="commands")
-def commands_fixture(mocker: MockerFixture) -> List[Command]:
+def commands_fixture(mocker: MockerFixture) -> List[ProtostarCommand]:
     command = mocker.MagicMock()
     command.name = "command-name"
     return [command]
@@ -56,7 +56,7 @@ def protostar_cli_fixture(
     mocker,
     version_manager: VersionManager,
     logger: Logger,
-    commands: List[Command],
+    commands: List[ProtostarCommand],
     latest_version_checker: LatestVersionChecker,
 ) -> ProtostarCLI:
 
@@ -99,7 +99,7 @@ async def test_should_print_protostar_version(
 
 
 async def test_should_run_expected_command(
-    protostar_cli: ProtostarCLI, mocker: MockerFixture, commands: List[Command]
+    protostar_cli: ProtostarCLI, mocker: MockerFixture, commands: List[ProtostarCommand]
 ):
     command = commands[0]
     command.run = mocker.MagicMock()
@@ -115,7 +115,7 @@ async def test_should_run_expected_command(
 
 
 async def test_should_sys_exit_on_keyboard_interrupt(
-    protostar_cli: ProtostarCLI, mocker: MockerFixture, commands: List[Command]
+    protostar_cli: ProtostarCLI, mocker: MockerFixture, commands: List[ProtostarCommand]
 ):
     command = commands[0]
     command.run = mocker.MagicMock()
@@ -128,7 +128,7 @@ async def test_should_sys_exit_on_keyboard_interrupt(
 
 
 async def test_should_sys_exit_on_protostar_exception(
-    protostar_cli: ProtostarCLI, mocker: MockerFixture, commands: List[Command]
+    protostar_cli: ProtostarCLI, mocker: MockerFixture, commands: List[ProtostarCommand]
 ):
     command = commands[0]
     command.run = mocker.MagicMock()
@@ -141,7 +141,7 @@ async def test_should_sys_exit_on_protostar_exception(
 
 
 async def test_should_sys_exit_on_protostar_silent_exception(
-    protostar_cli: ProtostarCLI, mocker: MockerFixture, commands: List[Command]
+    protostar_cli: ProtostarCLI, mocker: MockerFixture, commands: List[ProtostarCommand]
 ):
     command = commands[0]
     command.run = mocker.MagicMock()
@@ -155,7 +155,7 @@ async def test_should_sys_exit_on_protostar_silent_exception(
 
 @pytest.mark.asyncio
 async def test_getting_command_names(
-    protostar_cli: ProtostarCLI, commands: List[Command]
+    protostar_cli: ProtostarCLI, commands: List[ProtostarCommand]
 ):
     command_names = protostar_cli.get_command_names()
 

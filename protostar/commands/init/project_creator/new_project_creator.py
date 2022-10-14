@@ -11,9 +11,8 @@ from protostar.git import Git
 
 class NewProjectCreator(ProjectCreator):
     @dataclass
-    class UserInput:
+    class NewProjectConfig:
         project_dirname: str
-        lib_dirname: str
 
     def __init__(
         self,
@@ -29,35 +28,34 @@ class NewProjectCreator(ProjectCreator):
         self._requester = requester
         self._output_dir_path = output_dir_path or Path()
 
-    def run(self):
-        self._create_project(self._gather_input())
+    def run(self, project_name: Optional[str] = None):
+        project_config = (
+            NewProjectCreator.NewProjectConfig(project_name)
+            if project_name
+            else self._gather_input()
+        )
 
-    def _gather_input(self) -> "NewProjectCreator.UserInput":
+        self._create_project(project_config)
 
+    def _gather_input(self) -> "NewProjectCreator.NewProjectConfig":
         project_dirname = self._requester.request_input("project directory name")
         while project_dirname == "":
             project_dirname = self._requester.request_input_again(
                 "Please provide a non-empty project directory name"
             )
 
-        lib_dirname = (
-            self._requester.request_input("libraries directory name (lib)") or "lib"
-        )
+        return NewProjectCreator.NewProjectConfig(project_dirname)
 
-        return NewProjectCreator.UserInput(project_dirname, lib_dirname)
-
-    def _create_project(self, user_input: "NewProjectCreator.UserInput") -> None:
+    def _create_project(self, user_input: "NewProjectCreator.NewProjectConfig") -> None:
         output_dir_path = self._output_dir_path
         project_root_path = output_dir_path / user_input.project_dirname
         self.copy_template("default", project_root_path)
 
-        libs_path = Path(project_root_path, user_input.lib_dirname)
+        libs_path = project_root_path / self.default_lib_dirname
 
         if not libs_path.is_dir():
             libs_path.mkdir(parents=True)
 
-        self.save_protostar_toml(
-            project_root_path, libs_path=Path(user_input.lib_dirname)
-        )
+        self.save_protostar_toml(project_root=project_root_path)
 
         Git.init(project_root_path)

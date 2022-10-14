@@ -1,8 +1,9 @@
-from typing import List, Optional
+from typing import Optional
 
 import pytest
 
-from protostar.cli.command import Command
+from .argument import Argument
+from .command import Command
 
 
 class BaseTestCommand(Command):
@@ -17,6 +18,10 @@ class BaseTestCommand(Command):
     @property
     def example(self) -> Optional[str]:
         return "$ foo"
+
+    @property
+    def arguments(self):
+        return []
 
     async def run(self, args):
         pass
@@ -36,9 +41,9 @@ class FooCommand(Command):
         return "$ foo"
 
     @property
-    def arguments(self) -> List[Command.Argument]:
+    def arguments(self):
         return [
-            Command.Argument(
+            Argument(
                 name="foo",
                 description="foo_desc",
                 example="FOO --foo",
@@ -64,7 +69,7 @@ class BarCommand(Command):
         return None
 
     @property
-    def arguments(self) -> List[Command.Argument]:
+    def arguments(self):
         return []
 
     async def run(self, args):

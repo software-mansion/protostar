@@ -122,3 +122,28 @@ async def test_should_not_share_state(
         testing_summary,
         expected_passed_test_cases_names=["test_context"],
     )
+
+
+async def test_parameterized_with_examples_tests(
+    run_cairo_test_runner: RunCairoTestRunnerFixture,
+):
+    testing_summary = await run_cairo_test_runner(
+        Path(__file__).parent / "parameterized_test.cairo"
+    )
+
+    assert_cairo_test_cases(
+        testing_summary,
+        expected_passed_test_cases_names=[
+            "test_examples",
+            "test_examples_without_given",
+            "test_check_exact_example",
+        ],
+    )
+
+    assert len(testing_summary.passed) == 3
+    passed_set = {
+        getattr(passed, "fuzz_runs_count")
+        for passed in testing_summary.passed
+        if hasattr(passed, "fuzz_runs_count")
+    }
+    assert passed_set == {1, 2, 7}

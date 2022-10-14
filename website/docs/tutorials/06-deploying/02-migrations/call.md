@@ -21,7 +21,7 @@ You can provide `inputs` as a dictionary to use [data transformer](./README.md#d
 
 ```shell
 protostar migrate migrations/migration_01.cairo
-    --network alpha-goerli
+    --network testnet
     --output-dir migrations/output
 ```
 

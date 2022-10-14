@@ -6,7 +6,6 @@ from pathlib import Path
 import pexpect
 import pytest
 import tomli
-import packaging
 from packaging.version import parse as parse_version
 from packaging.version import Version
 
@@ -29,7 +28,7 @@ def test_init(init_project, project_name: str):
     with pytest.raises(FileNotFoundError):
         listdir(f"./{project_name}")
 
-    init_project(override_libs_path="")
+    init_project()
 
     dirs = listdir(project_name)
 
@@ -39,13 +38,11 @@ def test_init(init_project, project_name: str):
 
 def test_init_existing(protostar_bin: Path):
     child = pexpect.spawn(f"{protostar_bin} init --existing")
-    child.expect("libraries directory *", timeout=10)
-    child.sendline("lib_test")
     child.expect(pexpect.EOF)
     dirs = listdir(".")
 
     assert "protostar.toml" in dirs
-    assert "lib_test" in dirs
+    assert "lib" in dirs
     assert ".git" in dirs
 
 
@@ -55,13 +52,11 @@ def test_init_ask_existing(protostar_bin: Path):
     child = pexpect.spawn(f"{protostar_bin} init")
     child.expect("Your current directory.*", timeout=10)
     child.sendline("y")
-    child.expect("libraries directory *", timeout=1)
-    child.sendline("lib_test")
     child.expect(pexpect.EOF)
 
     dirs = listdir(".")
     assert "protostar.toml" in dirs
-    assert "lib_test" in dirs
+    assert "lib" in dirs
     assert ".git" in dirs
 
 

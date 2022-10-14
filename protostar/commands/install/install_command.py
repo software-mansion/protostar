@@ -1,15 +1,15 @@
 from logging import Logger
 from pathlib import Path
-from typing import Callable, List, Optional
+from typing import Callable, Optional
 
-from protostar.cli import Command
+from protostar.cli import ProtostarArgument, ProtostarCommand
 from protostar.commands.install.install_package_from_repo import (
     install_package_from_repo,
 )
 from protostar.commands.install.pull_package_submodules import pull_package_submodules
+from protostar.io.log_color_provider import LogColorProvider
 from protostar.package_manager import extract_info_from_repo_id
 from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
-from protostar.io.log_color_provider import LogColorProvider
 
 EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = """- `GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]`
     - `OpenZeppelin/cairo-contracts@v0.4.0`
@@ -20,7 +20,7 @@ EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = """- `GITHUB_ACCOUNT_NAME/REPO_NAME[
 """
 
 
-class InstallCommand(Command):
+class InstallCommand(ProtostarCommand):
     def __init__(
         self,
         project_root_path: Path,
@@ -47,15 +47,15 @@ class InstallCommand(Command):
         return "$ protostar install https://github.com/OpenZeppelin/cairo-contracts"
 
     @property
-    def arguments(self) -> List[Command.Argument]:
+    def arguments(self):
         return [
-            Command.Argument(
+            ProtostarArgument(
                 name="package",
                 description=EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
                 type="str",
                 is_positional=True,
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="name",
                 description="A custom package name. Use it to resolve name conflicts.",
                 type="str",
