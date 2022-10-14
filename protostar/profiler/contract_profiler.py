@@ -19,6 +19,7 @@ class Function:
     """
     Represents a function in a contract
     """
+
     id: FunctionID
     """ Unique name of a function """
 

@@ -10,13 +10,12 @@ class StringIDGenerator:
     def __init__(self):
         self.string_table = [""]
         self.string_ids = {"": 0}
-    
+
     def get(self, val: str) -> int:
         if val not in self.string_ids:
             self.string_ids[val] = len(self.string_table)
             self.string_table.append(val)
         return self.string_ids[val]
-
 
 
 def to_protobuf(profile_obj: TransactionProfile) -> Profile:
@@ -63,7 +62,7 @@ def to_protobuf(profile_obj: TransactionProfile) -> Profile:
         sample.value.append(0)
         sample.value.append(smp.value)
 
-    for val in string_table:
+    for val in id_generator.string_table:
         profile.string_table.append(val)  # type: ignore
 
     return profile
