@@ -74,7 +74,7 @@ class DeployCheatcode(Cheatcode):
             raise CheatcodeException(
                 self,
                 f"Contract ABI (class_hash: {hex(prepared.class_hash)}) was not found. "
-                "Unable to verify constructor arguments."
+                "Unable to verify constructor arguments.",
             )
 
         transformer = to_python_transformer(contract_class.abi, "constructor", "inputs")
