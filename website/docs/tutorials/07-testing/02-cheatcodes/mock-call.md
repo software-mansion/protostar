@@ -10,6 +10,9 @@ Mocked call returns data provided in `ret_data`.
 
 Mock works globally, for all contracts, not only the testing contract.
 
+## Caveats
+- Mock call only works for functions that are in the contract ABI. It does not mock any internal function calls, even if the function name and parameter types match.
+
 :::tip
 You can provide constructor arguments as a dictionary to leverage [data transformer](README.md#data-transformer).
 :::
