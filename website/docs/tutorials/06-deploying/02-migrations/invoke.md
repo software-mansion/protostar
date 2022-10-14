@@ -5,8 +5,8 @@ def invoke(
     contract_address: int,
     function_name: str,
     inputs: list[int] | dict[str, Any] | None = None,
+    config: SignedCheatcodeConfig,
     *,
-    config: SignedCheatcodeConfig | None = None,
 ) -> None:
 ```
 
@@ -16,7 +16,7 @@ This cheatcode invokes a StarkNet contract, with possible state changes. Can be 
 It's an extension of [CheatcodeNetworkConfig](../03-network-config.md), so it's properties are applicable here as well.
 
 ```python
-Wei = int
+from protostar.starknet_gateway import Fee
 class SignedCheatcodeConfig(CheatcodeNetworkConfig):
     max_fee: Fee
 ```
@@ -64,6 +64,7 @@ func up() {
             {"new_authority": 123},
             config={
                 "wait_for_acceptance": True,
+                "max_fee": "auto",
             }
         )
     %}
