@@ -151,12 +151,20 @@ class ProtostarFixture:
         os.chdir(cwd)
         return result
 
+    async def build(self):
+        args = self._prepare_build_args()
+        return await self._build_command.run(args)
+
     def build_sync(self):
+        args = self._prepare_build_args()
+        return asyncio.run(self._build_command.run(args))
+
+    def _prepare_build_args(self):
         args = Namespace()
         args.compiled_contracts_dir = Path("./build")
         args.disable_hint_validation = False
         args.cairo_path = None
-        return asyncio.run(self._build_command.run(args))
+        return args
 
     async def migrate(
         self,

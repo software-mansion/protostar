@@ -339,6 +339,8 @@ class GatewayFacade:
 
         except TransactionFailedError as ex:
             raise TransactionException(str(ex)) from ex
+        except ClientError as ex:
+            raise TransactionException(message=ex.message) from ex
 
         result = await result.wait_for_acceptance(wait_for_accept=wait_for_acceptance)
 
