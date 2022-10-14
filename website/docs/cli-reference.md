@@ -116,6 +116,8 @@ Log information about already formatted files as well.
 $ protostar init
 ```
 Create a Protostar project.
+#### `name STRING`
+Name of the directory a new project will be placed in.Ignored when `--existing` is passed.
 #### `--existing`
 Adapt current directory to a Protostar project.
 ### `install`
@@ -202,6 +204,8 @@ A glob or globs to a directory or a test suite, which should be ignored.
 Only re-run failed and broken test cases.
 #### `--no-progress-bar`
 Disable progress bar.
+#### `--profiling`
+Run profiling for a test contract. Works only for a single test case.Protostar generates a file that can be opened with https://github.com/google/pprof
 #### `--report-slowest-tests INT`
 Print slowest tests at the end.
 #### `--safe-collecting`

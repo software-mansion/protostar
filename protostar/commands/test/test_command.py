@@ -1,10 +1,10 @@
+from argparse import Namespace
 from logging import Logger
 from pathlib import Path
 from typing import List, Optional
-from argparse import Namespace
 
+from protostar.cli import ProtostarArgument, ProtostarCommand
 from protostar.cli.activity_indicator import ActivityIndicator
-from protostar.cli.command import Command
 from protostar.commands.test.test_collector_summary_formatter import (
     format_test_collector_summary,
 )
@@ -14,6 +14,18 @@ from protostar.commands.test.test_result_formatter import (
 )
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.compiler import ProjectCairoPathBuilder
+from protostar.protostar_exception import ProtostarException
+from protostar.io.log_color_provider import LogColorProvider
+from protostar.self.cache_io import CacheIO
+from protostar.self.protostar_directory import ProtostarDirectory
+from protostar.starknet.compiler.pass_managers import (
+    StarknetPassManagerFactory,
+    TestCollectorPassManagerFactory,
+)
+from protostar.starknet.compiler.starknet_compilation import (
+    CompilerConfig,
+    StarknetCompiler,
+)
 from protostar.testing import (
     TestCollector,
     TestingSummary,
@@ -22,20 +34,11 @@ from protostar.testing import (
     TestScheduler,
     determine_testing_seed,
 )
-from protostar.starknet.compiler.pass_managers import StarknetPassManagerFactory
-from protostar.starknet.compiler.pass_managers import TestCollectorPassManagerFactory
-from protostar.io.log_color_provider import LogColorProvider
-from protostar.self.protostar_directory import ProtostarDirectory
-from protostar.starknet.compiler.starknet_compilation import (
-    CompilerConfig,
-    StarknetCompiler,
-)
 
-from protostar.self.cache_io import CacheIO
 from .test_command_cache import TestCommandCache
 
 
-class TestCommand(Command):
+class TestCommand(ProtostarCommand):
     def __init__(
         self,
         project_root_path: Path,
@@ -64,9 +67,9 @@ class TestCommand(Command):
         return "$ protostar test"
 
     @property
-    def arguments(self) -> List[Command.Argument]:
+    def arguments(self):
         return [
-            Command.Argument(
+            ProtostarArgument(
                 name="target",
                 description="""
 A glob or globs to a directory or a test suite, for example:
@@ -78,7 +81,7 @@ A glob or globs to a directory or a test suite, for example:
                 is_positional=True,
                 default=["."],
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="ignore",
                 short_name="i",
                 description=(
@@ -87,13 +90,13 @@ A glob or globs to a directory or a test suite, for example:
                 is_array=True,
                 type="str",
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="cairo-path",
                 is_array=True,
                 description="Additional directories to look for sources.",
                 type="directory",
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="disable-hint-validation",
                 description=(
                     "Disable hint validation in contracts declared by the "
@@ -101,34 +104,42 @@ A glob or globs to a directory or a test suite, for example:
                 ),
                 type="bool",
             ),
-            Command.Argument(
+            ProtostarArgument(
+                name="profiling",
+                description=(
+                    "Run profiling for a test contract. Works only for a single test case."
+                    "Protostar generates a file that can be opened with https://github.com/google/pprof"
+                ),
+                type="bool",
+            ),
+            ProtostarArgument(
                 name="no-progress-bar",
                 type="bool",
                 description="Disable progress bar.",
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="safe-collecting",
                 type="bool",
                 description="Use Cairo compiler for test collection.",
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="exit-first",
                 short_name="x",
                 type="bool",
                 description="Exit immediately on first broken or failed test.",
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="seed",
                 type="int",
                 description="Set a seed to use for all fuzz tests.",
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="report-slowest-tests",
                 type="int",
                 description="Print slowest tests at the end.",
                 default=0,
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="last-failed",
                 short_name="lf",
                 type="bool",
@@ -143,6 +154,7 @@ A glob or globs to a directory or a test suite, for example:
             ignored_targets=args.ignore,
             cairo_path=args.cairo_path,
             disable_hint_validation=args.disable_hint_validation,
+            profiling=args.profiling,
             no_progress_bar=args.no_progress_bar,
             safe_collecting=args.safe_collecting,
             exit_first=args.exit_first,
@@ -159,6 +171,7 @@ A glob or globs to a directory or a test suite, for example:
         ignored_targets: Optional[List[str]] = None,
         cairo_path: Optional[List[Path]] = None,
         disable_hint_validation: bool = False,
+        profiling: bool = False,
         no_progress_bar: bool = False,
         safe_collecting: bool = False,
         exit_first: bool = False,
@@ -199,6 +212,11 @@ A glob or globs to a directory or a test suite, for example:
                 default_test_suite_glob=str(self._project_root_path),
             )
 
+        if profiling and test_collector_result.test_cases_count > 1:
+            raise ProtostarException(
+                "Only one test case can be profiled at the time. Please specify path to a single test case."
+            )
+
         self._log_test_collector_result(test_collector_result)
 
         testing_summary = TestingSummary(
@@ -219,8 +237,10 @@ A glob or globs to a directory or a test suite, for example:
                 include_paths=include_paths,
                 test_collector_result=test_collector_result,
                 disable_hint_validation=disable_hint_validation,
+                profiling=profiling,
                 exit_first=exit_first,
                 testing_seed=testing_seed,
+                project_root_path_str=str(self._project_root_path),
             )
 
         return testing_summary

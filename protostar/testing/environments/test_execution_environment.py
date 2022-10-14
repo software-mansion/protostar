@@ -38,6 +38,7 @@ class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
             self.state.contract.abi, function_name
         ), f"{self.__class__.__name__} expects no function parameters."
 
+        self.set_profile_flag(self.state.config.profiling)
         self.set_cheatcodes(
             TestCaseCheatcodeFactory(
                 state=self.state,

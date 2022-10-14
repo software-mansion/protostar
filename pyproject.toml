@@ -21,7 +21,7 @@ packaging = "^21.3"
 pytest-datadir = "^1.3.1"
 python = ">=3.9.14, <3.10"
 requests = "^2.27.1"
-starknet-py = "^0.6.0a0"
+starknet-py = "^0.6.2a0"
 tomli = "<2.0.0"
 tomli-w = "^1.0.0"
 tqdm = "^4.64.1"
@@ -90,12 +90,6 @@ test_report = [
 ]
 type_check = "pyright"
 update_cli_docs = "python ./scripts/generate_reference_docs.py"
-
-[tool.poe.tasks.benchmark]
-shell = "pytest tests/benchmarks --benchmark-save-data --benchmark-autosave"
-
-[tool.poe.tasks.statistical_test]
-shell = "python ./tests/benchmarks/statistical_test.py"
 
 [tool.poe.tasks.test_e2e]
 shell = "pytest tests/e2e"

@@ -2,12 +2,10 @@
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
-// Define a storage variable.
 @storage_var
 func balance() -> (res: felt) {
 }
 
-// Increases the balance by the given amount.
 @external
 func increase_balance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     amount: felt
@@ -17,14 +15,8 @@ func increase_balance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
     return ();
 }
 
-// Returns the current balance.
 @view
 func get_balance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (res: felt) {
     let (res) = balance.read();
     return (res,);
-}
-
-@constructor
-func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
-    return ();
 }

@@ -1,8 +1,8 @@
-from protostar.cli import CLIApp, Command
+from protostar.argument_parser import Argument, CLIApp
 
 
 class ConfigurationProfileCLI(CLIApp):
-    PROFILE_ARG = Command.Argument(
+    PROFILE_ARG = Argument(
         name="profile",
         short_name="p",
         type="str",

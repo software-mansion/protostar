@@ -5,7 +5,8 @@ from logging import INFO, Logger, StreamHandler
 from pathlib import Path
 from typing import Any, List, Optional
 
-from protostar.cli import CLIApp, Command
+from protostar.argument_parser import CLIApp
+from protostar.cli import ProtostarArgument, ProtostarCommand
 from protostar.compiler import ProjectCairoPathBuilder
 from protostar.configuration_file import CommandNamesProviderProtocol
 from protostar.configuration_profile_cli import ConfigurationProfileCLI
@@ -30,7 +31,7 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
         project_cairo_path_builder: ProjectCairoPathBuilder,
         latest_version_checker: LatestVersionChecker,
         version_manager: VersionManager,
-        commands: List[Command],
+        commands: List[ProtostarCommand],
         start_time: float = 0,
     ) -> None:
         self._logger = logger
@@ -39,18 +40,17 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
         self._version_manager = version_manager
         self._start_time = start_time
         self._project_cairo_path_builder = project_cairo_path_builder
-
         super().__init__(
             commands=commands,
             root_args=[
                 ConfigurationProfileCLI.PROFILE_ARG,
-                Command.Argument(
+                ProtostarArgument(
                     name="version",
                     short_name="v",
                     type="bool",
                     description="Show Protostar and Cairo-lang version.",
                 ),
-                Command.Argument(
+                ProtostarArgument(
                     name="no-color",
                     type="bool",
                     description="Disable colors.",

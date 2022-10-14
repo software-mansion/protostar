@@ -1,8 +1,7 @@
 from pathlib import Path
 from typing import List
 
-from protostar.cli.cli_app import CLIApp
-from protostar.cli.command import Command
+from protostar.argument_parser import Argument, CLIApp
 
 
 class ReferenceDocsGenerator:
@@ -36,7 +35,7 @@ class ReferenceDocsGenerator:
         return "\n".join(result)
 
     # pylint: disable=no-self-use
-    def _generate_args_markdown(self, arguments: List[Command.Argument]) -> List[str]:
+    def _generate_args_markdown(self, arguments: List[Argument]) -> List[str]:
         result: List[str] = []
 
         sorted_arguments = sorted(

@@ -196,7 +196,7 @@ The `get_three` function can be used in `test_main.cairo` like this:
 from src.main import balance, increase_balance
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
-@view
+@external
 func test_getting_tree() {
     alloc_locals;
     local res;

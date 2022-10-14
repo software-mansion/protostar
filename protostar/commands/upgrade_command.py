@@ -1,11 +1,11 @@
 from logging import Logger
-from typing import List, Optional
+from typing import Optional
 
-from protostar.cli.command import Command
+from protostar.cli import ProtostarCommand
 from protostar.upgrader import UpgradeManager
 
 
-class UpgradeCommand(Command):
+class UpgradeCommand(ProtostarCommand):
     def __init__(self, upgrade_manager: UpgradeManager, logger: Logger) -> None:
         super().__init__()
         self._upgrade_manager = upgrade_manager
@@ -24,7 +24,7 @@ class UpgradeCommand(Command):
         return "$ protostar upgrade"
 
     @property
-    def arguments(self) -> List[Command.Argument]:
+    def arguments(self):
         return []
 
     async def run(self, args):
