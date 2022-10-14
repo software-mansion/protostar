@@ -7,11 +7,7 @@ sidebar_label: Project initialization
 To create a new project run:
 
 ```console
-protostar init
-```
-
-```console title="Protostar configuration step."
-libraries directory name (lib):
+protostar init your-project-name
 ```
 
 ### Adapting an existing project to the Protostar project

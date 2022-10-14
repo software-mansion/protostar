@@ -2,9 +2,8 @@ from typing import Any, Callable, Literal, Union
 
 from starkware.starknet.utils.api_utils import cast_to_felts
 
+from protostar.argument_parser import ArgTypeName, map_type_name_to_parser
 from protostar.starknet_gateway import Fee
-
-from .arg_type import ArgTypeName, map_type_name_to_parser
 
 CustomProtostarArgTypeName = Literal[
     "felt",
