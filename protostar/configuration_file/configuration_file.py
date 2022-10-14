@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Generic, Optional, Protocol, TypeVar, Union
+import tomli
+import tomli_w
 
 from protostar.protostar_exception import ProtostarException
 from protostar.self import DeclaredProtostarVersionProviderProtocol, ProtostarVersion
@@ -85,6 +87,32 @@ class ConfigurationFile(
         self, command_names_provider: CommandNamesProviderProtocol
     ):
         pass
+
+    @classmethod
+    def create_appending_cairo_path_suggestion(
+        cls, logger, project_root_path, libs_path, package_name
+    ):
+        protostar_toml = "protostar.toml"
+        shared_command_configs_key = "protostar.shared_command_configs"
+
+        data = tomli.loads(
+            (project_root_path / protostar_toml).read_text(encoding="utf-8")
+        )
+        shared_command_configs = data.get(shared_command_configs_key)
+        if not shared_command_configs:
+            shared_command_configs = {}
+        shared_command_configs["cairo_path"] = (
+            ["..."] if shared_command_configs.get("cairo_path") else []
+        )
+        shared_command_configs["cairo_path"].append(f"{libs_path}/{package_name}/src")
+
+        logger.info(
+            "You may want to add your new library's path to the 'cairo_path' section of your "
+            f"`{protostar_toml}` file"
+        )
+        logger.info(
+            f"\n[{shared_command_configs_key}]\n{tomli_w.dumps(shared_command_configs)}"
+        )
 
 
 class ContractNameNotFoundException(ProtostarException):

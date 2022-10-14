@@ -1,8 +1,6 @@
 from logging import Logger
 from pathlib import Path
 from typing import Callable, Optional
-import tomli
-import tomli_w
 
 from protostar.cli import ProtostarArgument, ProtostarCommand
 from protostar.commands.install.install_package_from_repo import (
@@ -12,6 +10,7 @@ from protostar.commands.install.pull_package_submodules import pull_package_subm
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.package_manager import extract_info_from_repo_id
 from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
+from protostar.configuration_file import ConfigurationFile
 
 EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = """- `GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]`
     - `OpenZeppelin/cairo-contracts@v0.4.0`
@@ -102,7 +101,9 @@ class InstallCommand(ProtostarCommand):
                 destination=libs_path,
                 tag=package_info.version,
             )
-            self.suggest_adding_cairo_path(libs_path, str(package_info.name))
+            ConfigurationFile.create_appending_cairo_path_suggestion(
+                self._logger, self._project_root_path, libs_path, str(package_info.name)
+            )
         else:
             pull_package_submodules(
                 on_submodule_update_start=lambda package_info: self._logger.info(
@@ -117,26 +118,3 @@ class InstallCommand(ProtostarCommand):
                 repo_dir=self._project_root_path,
                 libs_dir=libs_path,
             )
-
-    def suggest_adding_cairo_path(self, libs_path, package_name):
-        protostar_toml = "protostar.toml"
-        shared_command_configs_key = "protostar.shared_command_configs"
-
-        data = tomli.loads(
-            (self._project_root_path / protostar_toml).read_text(encoding="utf-8")
-        )
-        shared_command_configs = data.get(shared_command_configs_key)
-        if not shared_command_configs:
-            shared_command_configs = {}
-        shared_command_configs["cairo_path"] = (
-            ["..."] if shared_command_configs.get("cairo_path") else []
-        )
-        shared_command_configs["cairo_path"].append(f"{libs_path}/{package_name}/src")
-
-        self._logger.info(
-            "You may want to add your new library's path to the 'cairo_path' section of your "
-            f"`{protostar_toml}` file"
-        )
-        self._logger.info(
-            f"\n[{shared_command_configs_key}]\n{tomli_w.dumps(shared_command_configs)}"
-        )
