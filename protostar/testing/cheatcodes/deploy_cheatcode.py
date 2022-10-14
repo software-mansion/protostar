@@ -8,6 +8,10 @@ from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import (
     DeployedContract,
 )
 from protostar.starknet import Cheatcode, CheatcodeException
+from protostar.starknet.data_transformer import (
+    DataTransformerException,
+    to_python_transformer,
+)
 
 from .prepare_cheatcode import PreparedContract
 
@@ -56,8 +60,27 @@ class DeployCheatcode(Cheatcode):
         return DeployedContract(contract_address=prepared.contract_address)
 
     def invoke_constructor(self, prepared: PreparedContract):
+
+        self.validate_constructor_args(prepared)
         self.execute_constructor_entry_point(
             class_hash_bytes=to_bytes(prepared.class_hash),
             constructor_calldata=prepared.constructor_calldata,
             contract_address=prepared.contract_address,
         )
+
+    def validate_constructor_args(self, prepared: PreparedContract):
+        contract_class = self.state.get_contract_class(to_bytes(prepared.class_hash))
+
+        if not contract_class.abi:
+            raise CheatcodeException(self, "Contract ABI was not found")
+
+        transformer = to_python_transformer(contract_class.abi, "constructor", "inputs")
+        try:
+            transformer(prepared.constructor_calldata)
+        except DataTransformerException as dt_exc:
+            # starknet.py interprets this call as a cairo -> python transformation, so message has to be modified
+            dt_exc.message = dt_exc.message.replace("Output", "Input")
+            raise CheatcodeException(
+                self,
+                f"There was an error while parsing constructor arguments:\n{dt_exc.message}",
+            ) from dt_exc
