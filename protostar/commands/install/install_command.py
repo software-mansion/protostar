@@ -1,6 +1,6 @@
 from logging import Logger
 from pathlib import Path
-from typing import Callable, List, Optional
+from typing import Callable, Optional
 import tomli
 import tomli_w
 
@@ -138,6 +138,5 @@ class InstallCommand(ProtostarCommand):
             f"`{protostar_toml}` file"
         )
         self._logger.info(
-            f"\n[{shared_command_configs_key}]\n"
-            + tomli_w.dumps(shared_command_configs)
+            f"\n[{shared_command_configs_key}]\n{tomli_w.dumps(shared_command_configs)}"
         )
