@@ -71,7 +71,11 @@ class DeployCheatcode(Cheatcode):
         contract_class = self.state.get_contract_class(to_bytes(prepared.class_hash))
 
         if not contract_class.abi:
-            raise CheatcodeException(self, "Contract ABI was not found")
+            raise CheatcodeException(
+                self,
+                f"Contract ABI (class_hash: {hex(prepared.class_hash)}) was not found. "
+                "Unable to verify constructor arguments."
+            )
 
         transformer = to_python_transformer(contract_class.abi, "constructor", "inputs")
         try:
