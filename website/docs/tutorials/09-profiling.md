@@ -10,7 +10,10 @@ You need pprof installed beforehand. You can learn how to install it [HERE](http
 
 ## How to profile a contract?
 
-In case you have a test with high number of steps/memory holes, Protostar can help you diagnose which functions are the most expansive in terms of those resources.
+Protostar can help you diagnose which functions are the most expensive in terms of used resources.
+Protostar currently measures:
+- number of steps
+- memory holes
 
 If you want to generate profile for a test case, run:
 
@@ -27,7 +30,11 @@ Then you can read the profile using:
 ```shell
 go tool pprof -http=":8000" profile.pb.gz
 ```
+### Example results
 
+![Profiler](/img/prof1.jpg)
+![Profiler](/img/prof2.jpg)
+![Profiler](/img/prof3.jpg)
 
 
 
