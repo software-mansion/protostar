@@ -136,7 +136,7 @@ Install a dependency as a git submodule.
 #### `--name STRING`
 A custom package name. Use it to resolve name conflicts.
 ### `invoke`
-Sends an invoke transaction V1 to the StarkNet sequencer.
+Sends an invoke transaction to the StarkNet sequencer.
 #### `--account-address STRING`
 Account address
 #### `--chain-id INT`
@@ -152,8 +152,6 @@ The name of the function being called.
 #### `--gateway-url STRING`
 The URL of a StarkNet gateway. It is required unless `--network` is provided.
 #### `--inputs FELT[]`
-Required.
-
 Inputs to the function being called, represented by a list of space-delimited values.
 #### `--max-fee FEE`
 The maximum fee that the sender is willing to pay for the transaction. Provide "auto" to auto estimate the fee.
