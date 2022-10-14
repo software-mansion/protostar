@@ -84,8 +84,8 @@ class InvokeCommand(ProtostarCommand):
         signer = signable_command_util.get_signer(network_config)
 
         return await self.invoke(
-            address=args.contract_address,
-            function=args.function,
+            contract_address=args.contract_address,
+            function_name=args.function,
             inputs=args.inputs,
             gateway_client=gateway_client,
             signer=signer,
@@ -96,8 +96,8 @@ class InvokeCommand(ProtostarCommand):
 
     async def invoke(
         self,
-        address: int,
-        function: str,
+        contract_address: int,
+        function_name: str,
         inputs: list[int],
         gateway_client: GatewayClient,
         signer: Optional[BaseSigner] = None,
@@ -122,8 +122,8 @@ class InvokeCommand(ProtostarCommand):
             )
 
         response = await gateway_facade.invoke(
-            contract_address=address,
-            function_name=function,
+            contract_address=contract_address,
+            function_name=function_name,
             inputs=inputs,
             max_fee=max_fee if isinstance(max_fee, int) else None,
             auto_estimate_fee=max_fee == "auto",
