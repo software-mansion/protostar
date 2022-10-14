@@ -16,7 +16,8 @@ This cheatcode invokes a StarkNet contract, with possible state changes. Can be 
 It's an extension of [CheatcodeNetworkConfig](../03-network-config.md), so it's properties are applicable here as well.
 
 ```python
-from protostar.starknet_gateway import Fee
+Wei = int
+Fee = "auto" | Wei
 class SignedCheatcodeConfig(CheatcodeNetworkConfig):
     max_fee: Fee
 ```
