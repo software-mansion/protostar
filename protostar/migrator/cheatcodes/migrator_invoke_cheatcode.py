@@ -1,6 +1,7 @@
 import asyncio
 from dataclasses import dataclass
 from typing import Optional
+import logging
 
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.signer import BaseSigner
@@ -70,6 +71,7 @@ class MigratorInvokeCheatcode(Cheatcode):
         self._gateway_facade = gateway_facade
         self._signer = signer
         self._account_address = account_address
+        self._logger = logging.getLogger(__name__)
 
     @property
     def name(self) -> str:
@@ -89,6 +91,10 @@ class MigratorInvokeCheatcode(Cheatcode):
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
 
+        if config.get("auto_estimate_fee"):
+            self._logger.warning(
+                'auto_estimate_fee is deprecated, please use max_fee = "auto" instead'
+            )
         validated_config = ValidatedSignedCheatcodeConfig.from_dict(self, config)
         max_fee = validated_config.max_fee
         wait_for_acceptance = validated_config.wait_for_acceptance
