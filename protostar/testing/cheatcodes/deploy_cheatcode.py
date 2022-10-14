@@ -60,7 +60,6 @@ class DeployCheatcode(Cheatcode):
         return DeployedContract(contract_address=prepared.contract_address)
 
     def invoke_constructor(self, prepared: PreparedContract):
-
         self.validate_constructor_args(prepared)
         self.execute_constructor_entry_point(
             class_hash_bytes=to_bytes(prepared.class_hash),
