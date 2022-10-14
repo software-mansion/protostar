@@ -55,7 +55,7 @@ class InvokeCommand(ProtostarCommand):
             ),
             ProtostarArgument(
                 name="inputs",
-                description="The name of the function being called.",
+                description="Inputs to the function being called, represented by a list of space-delimited values.",
                 type="felt",
                 is_required=True,
                 is_array=True,
