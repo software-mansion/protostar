@@ -5,7 +5,8 @@ from logging import INFO, Logger, StreamHandler
 from pathlib import Path
 from typing import Any, List, Optional
 
-from protostar.cli import CLIApp, ProtostarArgument, ProtostarCommand
+from protostar.argument_parser import CLIApp
+from protostar.cli import ProtostarArgument, ProtostarCommand
 from protostar.compiler import ProjectCairoPathBuilder
 from protostar.configuration_file import CommandNamesProviderProtocol
 from protostar.configuration_profile_cli import ConfigurationProfileCLI

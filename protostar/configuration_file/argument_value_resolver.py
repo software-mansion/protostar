@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
-from protostar.cli import ConfigFileArgumentResolverProtocol
+from protostar.argument_parser import ConfigFileArgumentResolverProtocol
 
 
 class ArgumentValueResolver(ABC, ConfigFileArgumentResolverProtocol):
