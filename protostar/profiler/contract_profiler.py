@@ -114,7 +114,7 @@ def collect_contract_functions(tracer_data: TracerDataManager) -> list[Function]
     identifiers_dict = tracer_data.program.identifiers.as_dict()
     assert tracer_data.program.debug_info is not None
     labels = {
-        name: LabelDefinition
+        name: ident
         for name, ident in identifiers_dict.items()
         if isinstance(ident, LabelDefinition)
     }
