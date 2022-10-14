@@ -122,3 +122,16 @@ async def test_short_strings(
         expected_passed_test_cases_names=["test_correct_short_string"],
         expected_failed_test_cases_names=[],
     )
+
+
+async def test_uint256(
+    run_cairo_test_runner: RunCairoTestRunnerFixture,
+):
+    testing_summary = await run_cairo_test_runner(
+        Path(__file__).parent / "uint256_test.cairo", seed=0xBAD_C0DE
+    )
+
+    assert_cairo_test_cases(
+        testing_summary,
+        expected_failed_test_cases_names=["test_uint256_fail"],
+    )

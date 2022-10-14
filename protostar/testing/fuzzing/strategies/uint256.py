@@ -20,7 +20,9 @@ def _get_high(uint256: int):
 
 class Uint256StrategyDescriptor(StrategyDescriptor):
     def build_strategy(self, cairo_type: CairoType) -> SearchStrategy[int]:
-        if not isinstance(cairo_type, TypeStruct):  # TODO: FIND BETTER CHECK
+        if not isinstance(cairo_type, TypeStruct) and str(cairo_type.scope).endswith(
+            "Uint256"
+        ):
             raise SearchStrategyBuildError(
                 "Strategy 'uint256' can only be applied to Uint256 parameters."
             )
