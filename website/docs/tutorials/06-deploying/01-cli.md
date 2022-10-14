@@ -63,7 +63,7 @@ If you want to import other custom modules, you should extend `PYTHONPATH` yours
 
 ## Sending Invoke Transaction
 Protostar supports invoking contract functions from the CLI level.
-Invoking can be used to invoke [deployer contract](https://community.starknet.io/t/universal-deployer-contract-proposal/1864).
+Invoking can be used to invoke [deployer contracts](https://community.starknet.io/t/universal-deployer-contract-proposal/1864).
 To send an invoke transaction use [`protostar invoke`](/docs/cli-reference#invoke). The transaction can be [signed similarly to the declare transaction](#signing-a-declaration).
 
 ## Deploying
