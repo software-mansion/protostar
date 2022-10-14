@@ -40,7 +40,6 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
         self._version_manager = version_manager
         self._start_time = start_time
         self._project_cairo_path_builder = project_cairo_path_builder
-
         super().__init__(
             commands=commands,
             root_args=[

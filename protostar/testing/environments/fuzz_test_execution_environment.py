@@ -29,6 +29,8 @@ from protostar.testing.starkware.execution_resources_summary import (
 )
 from protostar.testing.starkware.test_execution_state import TestExecutionState
 from protostar.starknet.abi import get_function_parameters
+from protostar.protostar_exception import ProtostarException
+
 
 from .test_execution_environment import (
     TestCaseCheatcodeFactory,
@@ -45,6 +47,8 @@ class FuzzTestExecutionResult(TestExecutionResult):
 class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
     def __init__(self, state: TestExecutionState):
         super().__init__(state)
+        if self.state.config.profiling:
+            raise ProtostarException("Fuzz tests cannot be profiled")
         self.initial_state = state
 
     async def execute(self, function_name: str) -> FuzzTestExecutionResult:

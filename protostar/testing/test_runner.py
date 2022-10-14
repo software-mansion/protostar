@@ -47,8 +47,10 @@ class TestRunner:
         project_root_path: Path,
         disable_hint_validation_in_user_contracts: bool,
         include_paths: Optional[List[str]] = None,
+        profiling=False,
     ):
         self.shared_tests_state = shared_tests_state
+        self.profiling = profiling
         include_paths = include_paths or []
 
         self.tests_compiler = StarknetCompiler(
@@ -74,6 +76,7 @@ class TestRunner:
             default_config=ProjectCompilerConfig(
                 relative_cairo_path=[Path(s_pth).resolve() for s_pth in include_paths],
                 hint_validation_disabled=disable_hint_validation_in_user_contracts,
+                debugging_info_attached=profiling,
             ),
         )
 
@@ -83,6 +86,7 @@ class TestRunner:
         shared_tests_state: SharedTestsState
         include_paths: List[str]
         disable_hint_validation_in_user_contracts: bool
+        profiling: bool
         testing_seed: Seed
         project_root_path: Path
 
@@ -94,6 +98,7 @@ class TestRunner:
                 include_paths=args.include_paths,
                 project_root_path=args.project_root_path,
                 disable_hint_validation_in_user_contracts=args.disable_hint_validation_in_user_contracts,
+                profiling=args.profiling,
             ).run_test_suite(
                 test_suite=args.test_suite,
                 testing_seed=args.testing_seed,
@@ -105,7 +110,7 @@ class TestRunner:
         test_suite: TestSuite,
         testing_seed: Seed,
     ):
-        test_config = TestConfig(seed=testing_seed)
+        test_config = TestConfig(seed=testing_seed, profiling=self.profiling)
 
         try:
             compiled_test = self.tests_compiler.compile_contract(
