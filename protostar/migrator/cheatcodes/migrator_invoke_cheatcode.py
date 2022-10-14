@@ -52,8 +52,8 @@ class InvokeCheatcodeProtocol(Protocol):
         contract_address: int,
         function_name: str,
         inputs: Optional[CairoOrPythonData],
-        config: SignedCheatcodeConfig,
         *args,
+        config: SignedCheatcodeConfig,
     ) -> None:
         ...
 
@@ -83,8 +83,8 @@ class MigratorInvokeCheatcode(Cheatcode):
         contract_address: int,
         function_name: str,
         inputs: Optional[CairoOrPythonData],
-        config: SignedCheatcodeConfig,
         *args,
+        config: SignedCheatcodeConfig,
     ):
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
