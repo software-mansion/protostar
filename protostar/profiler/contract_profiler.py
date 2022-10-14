@@ -18,47 +18,51 @@ FunctionID = str
 class Function:
     """
     Represents a function in a contract
-
-    id          Unique name of a function
-    filename    Source file of a function
-    start_line  Number of line function starts in
     """
-
     id: FunctionID
+    """ Unique name of a function """
+
     filename: str
+    """Source file of a function"""
+
     start_line: int
+    """Number of line function starts in"""
 
 
 @dataclass(frozen=True)
 class Instruction:
     """
     Represents a instruction under certain pc in a contract
-
-    id          Unique id of a instruction
-    pc          Pc instruction is placed under
-    function    Function from the instruction has been generated
-    line        Line of code from which instruction has been generated
     """
 
     id: int
+    """Unique id of a instruction"""
+
     pc: Address
+    """Function from the instruction has been generated"""
+
     function: Function
+    """Function from the instruction has been generated"""
+
     line: int
+    """Line of code from which instruction has been generated"""
 
 
 @dataclass(frozen=True)
 class Sample:
     """
     Sample of a resource
-    Attributes:
-        value       Value of a sample (for example 1 memory hole)
-        callstack   Instruction callstack for the reported sample.
-                    Each instruction has an function assigned so it is easy to deduce the
-                    calltree of an functions (pprof format requires samples to be assigned to instruction not functions)
     """
 
     value: int
+    """Value of a sample (for example 1 memory hole)"""
+
     callstack: list[Instruction]
+    """
+    Instruction callstack for the reported sample.
+    Each instruction has an function assigned so it is easy to deduce the
+    calltree of an functions (pprof format requires samples to be assigned to instruction not functions)
+    """
 
 
 @dataclass(frozen=True)

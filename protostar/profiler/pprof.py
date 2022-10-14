@@ -12,18 +12,16 @@ class StringIDGenerator:
         self.string_ids = {"": 0}
     
     def get(self, val: str) -> int:
-        if val not in string_ids:
-            string_ids[val] = len(string_table)
-            string_table.append(val)
-        return string_ids[val]
+        if val not in self.string_ids:
+            self.string_ids[val] = len(self.string_table)
+            self.string_table.append(val)
+        return self.string_ids[val]
 
 
 
 def to_protobuf(profile_obj: TransactionProfile) -> Profile:
     profile = Profile()
     id_generator = StringIDGenerator()
-    string_table = [""]
-    string_ids = {"": 0}
 
     profile.time_nanos = int(time.time() * 10**9)  # type: ignore
 

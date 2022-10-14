@@ -21,10 +21,11 @@ class TestCaseRunnerFactory:
         mode = self._state.config.mode
 
         assert mode, "Test mode should be determined at this point."
+
         if mode in [TestMode.FUZZ, TestMode.PARAMETERIZED]:
             return FuzzTestCaseRunner(
                 fuzz_test_execution_environment=FuzzTestExecutionEnvironment(
-                    self._state,
+                    self._state
                 ),
                 test_case=test_case,
                 output_recorder=self._state.output_recorder,
@@ -33,9 +34,7 @@ class TestCaseRunnerFactory:
 
         if mode is TestMode.STANDARD:
             return StandardTestCaseRunner(
-                test_execution_environment=TestExecutionEnvironment(
-                    self._state,
-                ),
+                test_execution_environment=TestExecutionEnvironment(self._state),
                 test_case=test_case,
                 output_recorder=self._state.output_recorder,
                 stopwatch=self._state.stopwatch,

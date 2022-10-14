@@ -198,9 +198,7 @@ class TestRunner:
         execution_state: TestExecutionState,
     ) -> None:
         for test_case in test_suite.test_cases:
-            test_result = await self._invoke_test_case(
-                test_case, execution_state
-            )
+            test_result = await self._invoke_test_case(test_case, execution_state)
             self.shared_tests_state.put_result(test_result)
 
     async def _invoke_test_case(
