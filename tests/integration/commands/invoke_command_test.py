@@ -35,3 +35,9 @@ async def test_invoke(
         )
 
         await assert_transaction_accepted(devnet_gateway_url, response.transaction_hash)
+    transaction = protostar.get_intercepted_transaction(
+        index=1, expected_tx_type="invoke"
+    )
+    assert transaction.max_fee != "auto"
+    assert transaction.calldata[6] == 42
+    assert transaction.version == 1
