@@ -7,7 +7,8 @@ from typing import Any, List, cast
 import pytest
 from pytest_mock import MockerFixture
 
-from protostar.cli import ArgumentParserFacade, ProtostarCommand
+from protostar.argument_parser import ArgumentParserFacade
+from protostar.cli import ProtostarCommand
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.protostar_cli import ProtostarCLI
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
