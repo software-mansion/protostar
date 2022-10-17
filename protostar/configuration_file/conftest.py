@@ -1,5 +1,4 @@
 from .configuration_file_v1 import CommandNamesProviderProtocol
-from .fake_configuration_file import FakeConfigurationFile
 
 PROTOSTAR_TOML_V1_CONTENT = """
 ["protostar.config"]

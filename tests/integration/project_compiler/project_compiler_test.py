@@ -11,7 +11,7 @@ from protostar.compiler import (
     ProjectCompilerConfig,
 )
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
-from protostar.configuration_file.conftest import FakeConfigurationFile
+from protostar.configuration_file import FakeConfigurationFile
 from protostar.protostar_toml.protostar_contracts_section import (
     ProtostarContractsSection,
 )
