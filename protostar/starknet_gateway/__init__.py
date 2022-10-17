@@ -13,3 +13,4 @@ from protostar.starknet_gateway.network_config import NetworkConfig
 
 from .gateway_facade import Fee, FeeExceededMaxFeeException, Wei
 from .gateway_facade_factory import GatewayFacadeFactory
+from .gateway_response import SuccessfulInvokeResponse

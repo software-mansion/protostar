@@ -61,6 +61,11 @@ Protostar synchronizes `PYTHONPATH` with project's `cairo_path`.
 Modules that are dependencies of Protostar (like `starknet_py` or `cairo-lang`) should be available for importing by default.
 If you want to import other custom modules, you should extend `PYTHONPATH` yourself (https://docs.python.org/3/using/cmdline.html#envvar-PYTHONPATH), when running this command.
 
+## Sending Invoke Transaction
+Protostar supports invoking contract functions from the CLI level.
+Invoking can be used to invoke [deployer contracts](https://community.starknet.io/t/universal-deployer-contract-proposal/1864).
+To send an invoke transaction use [`protostar invoke`](/docs/cli-reference#invoke). The transaction can be [signed similarly to the declare transaction](#signing-a-declaration).
+
 ## Deploying
 :::caution
 The deploy transaction will be deprecated in future StarkNet versions. To deploy new contract instances, you can use the deploy syscall. For more information, read [StarkNet's Contract Classes documentation](https://docs.starknet.io/docs/Contracts/contract-classes).
