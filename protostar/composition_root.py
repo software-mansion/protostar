@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from logging import getLogger
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
-from protostar.cli import ArgumentParserFacade, Command
+from protostar.argument_parser import ArgumentParserFacade
+from protostar.cli import ProtostarCommand, map_protostar_type_name_to_parser
 from protostar.commands import (
     BuildCommand,
     DeclareCommand,
@@ -106,7 +107,7 @@ def build_di_container(
         compiled_contract_reader=CompiledContractReader(),
     )
 
-    commands: List[Command] = [
+    commands: list[ProtostarCommand] = [
         InitCommand(
             requester=requester,
             new_project_creator=NewProjectCreator(
@@ -194,6 +195,10 @@ def build_di_container(
     if configuration_file:
         configuration_file.set_command_names_provider(protostar_cli)
 
-    argument_parser_facade = ArgumentParserFacade(protostar_cli, configuration_file)
+    argument_parser_facade = ArgumentParserFacade(
+        protostar_cli,
+        configuration_file,
+        parser_resolver=map_protostar_type_name_to_parser,
+    )
 
     return DIContainer(protostar_cli, argument_parser_facade)

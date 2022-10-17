@@ -3,15 +3,15 @@ from typing import Any, List, Optional, Pattern
 
 import pytest
 
-from conftest import BaseTestCommand, FooCommand
-from protostar.cli.argument_parser_facade import (
+from .argument import Argument
+from .argument_parser_facade import (
     ArgumentParserFacade,
     MissingRequiredArgumentException,
 )
-from protostar.cli.cli_app import CLIApp
-from protostar.cli.command import Command
-
+from .cli_app import CLIApp
+from .command import Command
 from .config_file_argument_resolver import ConfigFileArgumentResolverProtocol
+from .conftest import BaseTestCommand, FooCommand
 
 
 def test_bool_argument_parsing(foo_command: FooCommand):
@@ -25,9 +25,7 @@ def test_bool_argument_parsing(foo_command: FooCommand):
 
 
 def test_directory_argument():
-    app = CLIApp(
-        root_args=[Command.Argument(name="dir", description="...", type="directory")]
-    )
+    app = CLIApp(root_args=[Argument(name="dir", description="...", type="directory")])
     parser = ArgumentParserFacade(app)
 
     result = parser.parse(["--dir", "protostar"])
@@ -36,9 +34,7 @@ def test_directory_argument():
 
 
 def test_regexp_argument():
-    app = CLIApp(
-        root_args=[Command.Argument(name="match", description="...", type="regexp")]
-    )
+    app = CLIApp(root_args=[Argument(name="match", description="...", type="regexp")])
     parser = ArgumentParserFacade(app)
 
     result = parser.parse(["--match", ".*"])
@@ -47,7 +43,7 @@ def test_regexp_argument():
 
 
 def test_path_argument():
-    app = CLIApp(root_args=[Command.Argument(name="x", description="...", type="path")])
+    app = CLIApp(root_args=[Argument(name="x", description="...", type="path")])
     parser = ArgumentParserFacade(app)
 
     result = parser.parse(["--x", "foo"])
@@ -56,19 +52,7 @@ def test_path_argument():
 
 
 def test_int_argument():
-    app = CLIApp(root_args=[Command.Argument(name="x", description="...", type="int")])
-    parser = ArgumentParserFacade(app)
-
-    result = parser.parse(["--x", "123"])
-
-    assert result.x == 123
-
-    with pytest.raises(SystemExit):
-        parser.parse(["--x", "foo"])
-
-
-def test_wei_argument():
-    app = CLIApp(root_args=[Command.Argument(name="x", description="...", type="wei")])
+    app = CLIApp(root_args=[Argument(name="x", description="...", type="int")])
     parser = ArgumentParserFacade(app)
 
     result = parser.parse(["--x", "123"])
@@ -82,9 +66,7 @@ def test_wei_argument():
 def test_short_name_argument():
     app = CLIApp(
         root_args=[
-            Command.Argument(
-                name="directory", short_name="d", description="...", type="str"
-            )
+            Argument(name="directory", short_name="d", description="...", type="str")
         ]
     )
     parser = ArgumentParserFacade(app)
@@ -97,7 +79,7 @@ def test_short_name_argument():
 def test_arrays():
     app = CLIApp(
         root_args=[
-            Command.Argument(
+            Argument(
                 name="target",
                 description="...",
                 type="str",
@@ -117,7 +99,7 @@ def test_positional():
         @property
         def arguments(self):
             return [
-                Command.Argument(
+                Argument(
                     name="target", description="...", is_positional=True, type="str"
                 )
             ]
@@ -136,9 +118,7 @@ def test_positional():
 def test_default():
     app = CLIApp(
         root_args=[
-            Command.Argument(
-                name="target", description="...", type="str", default="foo"
-            )
+            Argument(name="target", description="...", type="str", default="foo")
         ]
     )
     parser = ArgumentParserFacade(app)
@@ -151,9 +131,7 @@ def test_default():
 def test_required_non_positional_arg():
     app = CLIApp(
         root_args=[
-            Command.Argument(
-                name="target", description="...", type="str", is_required=True
-            )
+            Argument(name="target", description="...", type="str", is_required=True)
         ]
     )
 
@@ -167,7 +145,7 @@ def test_required_positional_arg():
         @property
         def arguments(self):
             return [
-                Command.Argument(
+                Argument(
                     name="target",
                     description="...",
                     type="str",
@@ -196,7 +174,7 @@ class FakeConfigFileArgumentResolver(ConfigFileArgumentResolverProtocol):
 
 def test_loading_default_values_from_provider(foo_command: FooCommand):
     app = CLIApp(
-        root_args=[Command.Argument(name="bar", description="...", type="str")],
+        root_args=[Argument(name="bar", description="...", type="str")],
         commands=[foo_command],
     )
 
@@ -209,7 +187,7 @@ def test_loading_default_values_from_provider(foo_command: FooCommand):
 
 
 def test_loading_required_value_from_provider():
-    fake_arg = Command.Argument(
+    fake_arg = Argument(
         name="fake-arg", description="...", type="str", is_required=True
     )
 
@@ -227,7 +205,7 @@ def test_loading_required_value_from_provider():
             return None
 
         @property
-        def arguments(self) -> List[Command.Argument]:
+        def arguments(self) -> List[Argument]:
             return [fake_arg]
 
         async def run(self, args: Any):

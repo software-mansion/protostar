@@ -64,6 +64,13 @@ class ProjectCompiler:
         contract_identifier: ContractIdentifier,
         config: Optional[ProjectCompilerConfig] = None,
     ) -> ContractClass:
+        if isinstance(contract_identifier, str):
+            contract_identifier = (
+                Path(contract_identifier).resolve()
+                if contract_identifier.endswith(".cairo")
+                else contract_identifier
+            )
+
         if isinstance(contract_identifier, Path):
             return self.compile_contract_from_contract_source_paths(
                 [contract_identifier], config

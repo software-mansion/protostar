@@ -5,14 +5,12 @@ from starkware.starknet.testing.contract import StarknetContract
 from typing_extensions import Self
 
 from protostar.starknet.forkable_starknet import ForkableStarknet
-from protostar.starknet.compiler.starknet_compilation import StarknetCompiler
 
 
 @dataclass
 class ExecutionState:
     starknet: ForkableStarknet
     contract: StarknetContract
-    starknet_compiler: StarknetCompiler
 
     def fork(self) -> Self:
         starknet_fork = self.starknet.fork()

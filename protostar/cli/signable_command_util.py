@@ -6,27 +6,28 @@ from typing import Any, Optional
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 
-from protostar.cli import Command
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import NetworkConfig
+
+from .protostar_argument import ProtostarArgument
 
 PRIVATE_KEY_ENV_VAR_NAME = "PROTOSTAR_ACCOUNT_PRIVATE_KEY"
 
 
 class SignableCommandUtil:
     signable_arguments = [
-        Command.Argument(
+        ProtostarArgument(
             name="account-address",
             description="Account address",
             type="str",
         ),
-        Command.Argument(
+        ProtostarArgument(
             name="private-key-path",
             description="Path to the file, which stores your private key (in hex representation) for the account. \n"
             f"Can be used instead of {PRIVATE_KEY_ENV_VAR_NAME} env variable.",
             type="path",
         ),
-        Command.Argument(
+        ProtostarArgument(
             name="signer-class",
             description="Custom signer class module path.",
             type="str",

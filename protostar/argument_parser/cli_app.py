@@ -1,6 +1,7 @@
-from typing import Any, List, Optional
+from typing import Any, Optional
 
-from protostar.cli.command import Command
+from .argument import Argument
+from .command import Command
 
 
 class CLIApp:
@@ -9,8 +10,8 @@ class CLIApp:
 
     def __init__(
         self,
-        commands: Optional[List[Command]] = None,
-        root_args: Optional[List[Command.Argument]] = None,
+        commands: Optional[list[Command]] = None,
+        root_args: Optional[list[Argument]] = None,
     ) -> None:
         self.commands = commands or []
         self.root_args = root_args or []

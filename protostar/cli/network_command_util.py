@@ -1,13 +1,14 @@
 from logging import Logger
-from typing import Any, Union, Optional
+from typing import Any, Optional, Union
 
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 
-from protostar.cli import Command
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import NetworkConfig
-from protostar.starknet_gateway.network_config import is_legacy_network_name, NETWORKS
+from protostar.starknet_gateway.network_config import NETWORKS, is_legacy_network_name
+
+from .protostar_argument import ProtostarArgument
 
 GATEWAY_URL_ARG_NAME = "gateway-url"
 NETWORK_ARG_NAME = "network"
@@ -16,17 +17,17 @@ CHAIN_ID_ARG_NAME = "chain-id"
 
 class NetworkCommandUtil:
     network_arguments = [
-        Command.Argument(
+        ProtostarArgument(
             name=GATEWAY_URL_ARG_NAME,
             description="The URL of a StarkNet gateway. It is required unless `--network` is provided.",
             type="str",
         ),
-        Command.Argument(
+        ProtostarArgument(
             name=CHAIN_ID_ARG_NAME,
             description="The chain id. It is required unless `--network` is provided.",
             type="int",
         ),
-        Command.Argument(
+        ProtostarArgument(
             name=NETWORK_ARG_NAME,
             short_name="n",
             description=(

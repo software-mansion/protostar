@@ -2,13 +2,13 @@ from logging import Logger
 from pathlib import Path
 from typing import List, Optional
 
-from protostar.cli import ActivityIndicator, Command
+from protostar.cli import ActivityIndicator, ProtostarArgument, ProtostarCommand
 from protostar.compiler import ProjectCompiler, ProjectCompilerConfig
 from protostar.io import log_color_provider
 
 
-class BuildCommand(Command):
-    COMPILATION_OUTPUT_ARG = Command.Argument(
+class BuildCommand(ProtostarCommand):
+    COMPILATION_OUTPUT_ARG = ProtostarArgument(
         name="compiled-contracts-dir",
         description="An output directory used to put the compiled contracts in.",
         type="path",
@@ -33,15 +33,15 @@ class BuildCommand(Command):
         return "Compile contracts."
 
     @property
-    def arguments(self) -> List[Command.Argument]:
+    def arguments(self):
         return [
-            Command.Argument(
+            ProtostarArgument(
                 name="cairo-path",
                 description="Additional directories to look for sources.",
                 type="directory",
                 is_array=True,
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="disable-hint-validation",
                 description="Disable validation of hints when building the contracts.",
                 type="bool",

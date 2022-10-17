@@ -34,7 +34,8 @@ class CommonTestCheatcodeFactory(CheatcodeFactory):
         internal_calls: List[CallInfo],
     ) -> List[Cheatcode]:
         declare_cheatcode = DeclareCheatcode(
-            syscall_dependencies, self._state.starknet_compiler
+            syscall_dependencies,
+            self._state.project_compiler,
         )
         prepare_cheatcode = PrepareCheatcode(syscall_dependencies)
         deploy_cheatcode = DeployCheatcode(syscall_dependencies, internal_calls)

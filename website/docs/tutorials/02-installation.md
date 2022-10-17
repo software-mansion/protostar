@@ -32,6 +32,13 @@ To upgrade Protostar, run:
 $ protostar upgrade
 ```
 
+# Protostar releases
+
+Protostar follows a biweekly release schedule.
+Each release may include new features, enhancements, bug fixes, deprecations and breaking changes.
+Consult [release notes](https://github.com/software-mansion/protostar/releases) for detailed information about each release.
+Protostar prints a link to new release before upgrading.
+
 # How to build Protostar from source code
 If your platform isn't supported or installation fails, you can try building Protostar from [source code](https://github.com/software-mansion/protostar) in the following way:
 
