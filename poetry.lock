@@ -1116,7 +1116,7 @@ diagrams = ["jinja2", "railroad-diagrams"]
 
 [[package]]
 name = "pyright"
-version = "1.1.274"
+version = "1.1.275"
 description = "Command line wrapper for pyright"
 category = "dev"
 optional = false
@@ -1599,7 +1599,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9.14, <3.10"
-content-hash = "9bc2a308a2ab1d35945c75b0cd8f5982771fc4bfc5657f9cb8b1958d2884d98f"
+content-hash = "f511c2c0b92bea33e0bd33a1318306e4fee9824293f9611bd8f6ea7f3b8f001d"
 
 [metadata.files]
 aiohttp = [
@@ -2626,8 +2626,8 @@ pyparsing = [
     {file = "pyparsing-3.0.9.tar.gz", hash = "sha256:2b020ecf7d21b687f219b71ecad3631f644a47f01403fa1d1036b0c6416d70fb"},
 ]
 pyright = [
-    {file = "pyright-1.1.274-py3-none-any.whl", hash = "sha256:f0f9eb1b26871c5ac8bf3f32de6aafaffbfb252f5d7dc0fda2c6cba37e2c4232"},
-    {file = "pyright-1.1.274.tar.gz", hash = "sha256:2a1a8cc4a9109d0d934b988c0099fc4b9189567d1a258b634f7babe352ba6661"},
+    {file = "pyright-1.1.275-py3-none-any.whl", hash = "sha256:83072f509e18160f2661a2276ac85f471112dbcfc1dadf0cbb0393a4d56db72a"},
+    {file = "pyright-1.1.275.tar.gz", hash = "sha256:f0061ce47c785b9b64745b7648ff9732a99811ef7c7f3f88642aa2cb7868c81e"},
 ]
 pyrsistent = [
     {file = "pyrsistent-0.18.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:df46c854f490f81210870e509818b729db4488e1f30f2a1ce1698b2295a878d1"},
