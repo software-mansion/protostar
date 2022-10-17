@@ -1,3 +1,4 @@
+from os import listdir
 import shutil
 from pathlib import Path
 
@@ -17,6 +18,25 @@ def test_basic_contract(protostar):
 def test_safe_collecting(protostar):
     result = protostar(["test", "--safe-collecting"])
     assert "1 passed" in result
+
+
+@pytest.mark.usefixtures("init")
+def test_basic_contract_profile(protostar):
+    result = protostar(
+        ["test", "--profiling", "tests/test_main.cairo::test_increase_balance"]
+    )
+    assert "1 passed" in result
+    assert "profile.pb.gz" in listdir(".")
+
+
+@pytest.mark.usefixtures("init")
+def test_profile_fuzz(protostar, copy_fixture):
+    copy_fixture("fuzz_test.cairo", "./tests")
+    result = protostar(
+        ["test", "--profiling", "tests/fuzz_test.cairo"], ignore_exit_code=True
+    )
+    assert "Fuzz tests cannot be profiled" in result
+    assert not Path("profile.pb.gz").exists()
 
 
 @pytest.mark.usefixtures("init")

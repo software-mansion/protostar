@@ -135,6 +135,42 @@ Install a dependency as a git submodule.
 
 #### `--name STRING`
 A custom package name. Use it to resolve name conflicts.
+### `invoke`
+Sends an invoke transaction to the StarkNet sequencer.
+#### `--account-address STRING`
+Account address
+#### `--chain-id INT`
+The chain id. It is required unless `--network` is provided.
+#### `--contract-address INT`
+Required.
+
+The address of the contract being called.
+#### `--function STRING`
+Required.
+
+The name of the function being called.
+#### `--gateway-url STRING`
+The URL of a StarkNet gateway. It is required unless `--network` is provided.
+#### `--inputs FELT[]`
+Inputs to the function being called, represented by a list of space-delimited values.
+#### `--max-fee FEE`
+The maximum fee that the sender is willing to pay for the transaction. Provide "auto" to auto estimate the fee.
+#### `-n` `--network STRING`
+The name of the StarkNet network.
+It is required unless `--gateway-url` is provided.
+
+Supported StarkNet networks:
+- `testnet`
+- `mainnet`
+- `alpha-goerli`
+- `alpha-mainnet`
+#### `--private-key-path PATH`
+Path to the file, which stores your private key (in hex representation) for the account. 
+Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
+#### `--signer-class STRING`
+Custom signer class module path.
+#### `--wait-for-acceptance`
+Waits for transaction to be accepted on chain.
 ### `migrate`
 Run migration file.
 #### `path PATH`
@@ -204,6 +240,8 @@ A glob or globs to a directory or a test suite, which should be ignored.
 Only re-run failed and broken test cases.
 #### `--no-progress-bar`
 Disable progress bar.
+#### `--profiling`
+Run profiling for a test contract. Works only for a single test case.Protostar generates a file that can be opened with https://github.com/google/pprof
 #### `--report-slowest-tests INT`
 Print slowest tests at the end.
 #### `--safe-collecting`

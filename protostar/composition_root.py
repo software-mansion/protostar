@@ -3,8 +3,8 @@ from logging import getLogger
 from pathlib import Path
 from typing import Optional
 
-from protostar.cli import ArgumentParserFacade, map_protostar_type_name_to_parser
-from protostar.cli.protostar_command import ProtostarCommand
+from protostar.argument_parser import ArgumentParserFacade
+from protostar.cli import ProtostarCommand, map_protostar_type_name_to_parser
 from protostar.commands import (
     BuildCommand,
     DeclareCommand,
@@ -12,6 +12,7 @@ from protostar.commands import (
     FormatCommand,
     InitCommand,
     InstallCommand,
+    InvokeCommand,
     MigrateCommand,
     RemoveCommand,
     TestCommand,
@@ -181,6 +182,7 @@ def build_di_container(
         ),
         FormatCommand(project_root_path, logger),
         CairoMigrateCommand(script_root, logger),
+        InvokeCommand(gateway_facade_factory=gateway_facade_factory, logger=logger),
     ]
 
     protostar_cli = ProtostarCLI(

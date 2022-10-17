@@ -42,3 +42,7 @@ class ExecutionEnvironment(ABC, Generic[InvokeResultT]):
     @staticmethod
     def set_cheatcodes(cheatcode_factory: CheatcodeFactory):
         CheatableExecuteEntryPoint.cheatcode_factory = cheatcode_factory
+
+    @staticmethod
+    def set_profile_flag(value: bool):
+        CheatableExecuteEntryPoint.profiling = value

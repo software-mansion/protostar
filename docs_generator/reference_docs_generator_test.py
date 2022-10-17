@@ -1,9 +1,9 @@
 from pathlib import Path
 
 from docs_generator import ReferenceDocsGenerator
-from protostar.cli.argument import Argument
-from protostar.cli.cli_app import CLIApp
-from protostar.cli.conftest import BarCommand, FooCommand
+from protostar.argument_parser.argument import Argument
+from protostar.argument_parser.cli_app import CLIApp
+from protostar.argument_parser.conftest import BarCommand, FooCommand
 
 
 def test_generating_markdown_for_commands(

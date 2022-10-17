@@ -29,6 +29,7 @@ class TestScheduler:
         test_collector_result: "TestCollector.Result",
         include_paths: List[str],
         disable_hint_validation: bool,
+        profiling: bool,
         exit_first: bool,
         testing_seed: Seed,
         project_root_path_str: str,
@@ -43,6 +44,7 @@ class TestScheduler:
                     shared_tests_state=shared_tests_state,
                     include_paths=include_paths,
                     disable_hint_validation_in_user_contracts=disable_hint_validation,
+                    profiling=profiling,
                     testing_seed=testing_seed,
                     project_root_path=Path(project_root_path_str),
                 )

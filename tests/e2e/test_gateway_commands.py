@@ -6,6 +6,7 @@ import pytest
 from starkware.starknet.definitions.general_config import StarknetChainId
 
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
+from tests.e2e.conftest import ProtostarFixture
 
 
 @pytest.mark.usefixtures("init")
@@ -123,6 +124,13 @@ def test_declaring_contract_with_signature(
 
     assert "Declare transaction was sent" in result
     assert count_hex64(result) == 2
+
+
+@pytest.mark.usefixtures("init")
+def test_invoke_command_is_available(protostar: ProtostarFixture):
+    assert "Sends an invoke transaction" in protostar(
+        ["--no-color", "invoke", "--help"]
+    )
 
 
 def count_hex64(x: str) -> int:

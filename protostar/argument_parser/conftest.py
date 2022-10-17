@@ -2,8 +2,8 @@ from typing import Optional
 
 import pytest
 
-from protostar.cli.argument import Argument
-from protostar.cli.command import Command
+from .argument import Argument
+from .command import Command
 
 
 class BaseTestCommand(Command):

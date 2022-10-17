@@ -63,3 +63,14 @@ func identity(arg
 """
 
 BROKEN_CONTRACT = "I LOVE CAIRO"
+
+
+RUNTIME_ERROR_CONTRACT = """\
+%lang starknet
+
+@external
+func fail() {
+    assert 0 = 1;
+    return ();
+}    
+"""
