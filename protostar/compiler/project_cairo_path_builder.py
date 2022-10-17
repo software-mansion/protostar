@@ -33,5 +33,6 @@ class ProjectCairoPathBuilder:
         libs_path = self._configuration_file.get_lib_path()
         if libs_path is None:
             return []
+        assert libs_path.is_dir(), f"{libs_path} is not a directory"
         (root, dirs, _) = next(os.walk(str(libs_path.resolve())))
         return [Path(root, directory).resolve() for directory in dirs]

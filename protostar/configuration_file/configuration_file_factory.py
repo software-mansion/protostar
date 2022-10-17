@@ -49,7 +49,7 @@ class ConfigurationFileFactory:
         protostar_toml_content: str,
     ):
         configuration_file_v2 = ConfigurationFileV2(
-            project_root_path=protostar_toml_path,
+            project_root_path=protostar_toml_path.parent,
             configuration_file_interpreter=ConfigurationTOMLInterpreter(
                 file_content=protostar_toml_content
             ),
@@ -66,7 +66,7 @@ class ConfigurationFileFactory:
         protostar_toml_content: str,
     ):
         configuration_file_v1 = ConfigurationFileV1(
-            project_root_path=protostar_toml_path,
+            project_root_path=protostar_toml_path.parent,
             configuration_file_interpreter=ConfigurationLegacyTOMLInterpreter(
                 file_content=protostar_toml_content
             ),
