@@ -2,19 +2,15 @@
 
 from starkware.cairo.common.math import assert_le
 
-////////// no data - broken test
-
 @external
-func setup_no_data() {
+func setup_no_data_broken() {
     return ();
 }
 
 @external
-func test_no_data{syscall_ptr: felt*, range_check_ptr}(a: felt, b: felt) {
+func test_no_data_broken{syscall_ptr: felt*, range_check_ptr}(a: felt, b: felt) {
     return ();
 }
-
-////////// only examples
 
 @external
 func setup_only_examples() {
@@ -33,8 +29,6 @@ func test_only_examples{syscall_ptr: felt*, range_check_ptr}(a: felt, b: felt) {
     return ();
 }
 
-////////// only given
-
 @external
 func setup_only_given() {
     %{
@@ -50,8 +44,6 @@ func test_only_given{syscall_ptr: felt*, range_check_ptr}(a: felt, b: felt) {
     assert_le(a, b);
     return ();
 }
-
-////////// given and examples
 
 @external
 func setup_given_and_examples() {
@@ -72,8 +64,6 @@ func test_given_and_examples{syscall_ptr: felt*, range_check_ptr}(a: felt, b: fe
     assert_le(a, b);
     return ();
 }
-
-////////// check exact example
 
 @external
 func setup_check_exact_example() {

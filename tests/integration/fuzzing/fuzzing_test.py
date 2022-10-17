@@ -139,7 +139,7 @@ async def test_parameterized_with_examples_tests(
             "test_given_and_examples",
             "test_only_examples",
             "test_only_given",
-            "test_no_data",
+            "test_no_data_broken",
         ],
     )
 
