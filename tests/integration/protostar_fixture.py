@@ -386,7 +386,7 @@ def build_protostar_fixture(
     protostar_toml_reader = ProtostarTOMLReader(protostar_toml_path=protostar_toml_path)
 
     configuration_file = ConfigurationFileFactory(
-        active_profile_name=None, cwd=project_root_path
+        active_profile_name=None, cwd=Path()
     ).create()
     project_cairo_path_builder = ProjectCairoPathBuilder(
         project_root_path=project_root_path, configuration_file=configuration_file

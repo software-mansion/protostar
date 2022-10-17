@@ -79,6 +79,7 @@ class ConfigurationFileFactory:
 
     def _search_upwards_protostar_toml_path(self) -> Optional[Path]:
         directory_path = self._cwd
+        assert directory_path.exists()
         root_path = Path(directory_path.root)
         while directory_path != root_path:
             for file_path in directory_path.iterdir():
