@@ -18,7 +18,7 @@ export default function MainWrapper({ children, ...props }) {
             categoryId='DIC_kwDOGw_HxM4CBC8m'
             category='Announcements'
             mapping='title'
-            reactionsEnabled='1'
+            reactionsEnabled='0'
             emitMetadata='0'
             inputPosition='top'
             theme={isDarkTheme ? 'dark' : 'light'}
