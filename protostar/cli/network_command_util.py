@@ -91,13 +91,4 @@ class NetworkCommandUtil:
         try:
             return StarknetChainId(arg)
         except ValueError as ex:
-            supported_chain_ids = [
-                f"- {chain_id.value} ({chain_id.name})" for chain_id in StarknetChainId
-            ]
-            formatted_chain_ids = "\n".join(supported_chain_ids)
-
-            raise ProtostarException(
-                "Invalid chain id value.\n"
-                "Supported chain ids:\n"
-                f"{formatted_chain_ids}"
-            ) from ex
+            raise ProtostarException("Invalid chain id value.") from ex
