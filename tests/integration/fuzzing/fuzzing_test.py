@@ -150,6 +150,4 @@ async def test_parameterized_with_examples_tests(
         if hasattr(passed, "fuzz_runs_count")
     }
     # TestConfig().fuzz_max_examples is a default value for max examples
-    # it is going to be applied for test_only_given
-    # because max_examples is not provided there, so it falls back to the default value
     assert passed_set == {1, 2, 7, TestConfig().fuzz_max_examples}
