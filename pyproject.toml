@@ -29,7 +29,7 @@ typing-extensions = "^4.3.0"
 tomlkit = "^0.11.5"
 
 [tool.poetry.dev-dependencies]
-black = "^22.8.0"
+black = "^22.10.0"
 coverage = "^6.4.4"
 freezegun = "^1.2.1"
 pexpect = "^4.8.0"
