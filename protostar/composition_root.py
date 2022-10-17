@@ -160,6 +160,8 @@ def build_di_container(
             project_cairo_path_builder,
             logger=logger,
             log_color_provider=log_color_provider,
+            active_profile_name=active_configuration_profile_name,
+            cwd=cwd,
         ),
         DeployCommand(
             logger=logger,

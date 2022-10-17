@@ -8,10 +8,18 @@ from typing import List, Optional
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 
-from protostar.protostar_exception import ProtostarException
-from protostar.starknet.compiler.pass_managers import (
-    TestSuitePassMangerFactory,
+from protostar.compiler import (
+    ProjectCairoPathBuilder,
+    ProjectCompiler,
+    ProjectCompilerConfig,
 )
+from protostar.configuration_file.configuration_file_factory import (
+    ConfigurationFileFactory,
+)
+from protostar.protostar_exception import ProtostarException
+from protostar.protostar_toml import ProtostarContractsSection
+from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
+from protostar.starknet.compiler.pass_managers import TestSuitePassMangerFactory
 from protostar.starknet.compiler.starknet_compilation import (
     CompilerConfig,
     StarknetCompiler,
@@ -33,9 +41,6 @@ from .test_results import (
 from .test_shared_tests_state import SharedTestsState
 from .test_suite import TestCase, TestSuite
 from .testing_seed import Seed
-from ..compiler import ProjectCompiler, ProjectCairoPathBuilder, ProjectCompilerConfig
-from ..protostar_toml import ProtostarProjectSection, ProtostarContractsSection
-from ..protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 
 logger = getLogger()
 
@@ -46,6 +51,8 @@ class TestRunner:
         shared_tests_state: SharedTestsState,
         project_root_path: Path,
         disable_hint_validation_in_user_contracts: bool,
+        cwd: Path,
+        active_profile_name: Optional[str],
         include_paths: Optional[List[str]] = None,
         profiling=False,
     ):
@@ -62,13 +69,14 @@ class TestRunner:
         protostar_toml_reader = ProtostarTOMLReader(
             project_root_path / "protostar.toml"
         )
+        configuration_file = ConfigurationFileFactory(
+            cwd=cwd, active_profile_name=active_profile_name
+        ).create()
         self.project_compiler = ProjectCompiler(
             project_root_path=project_root_path,
             project_cairo_path_builder=ProjectCairoPathBuilder(
                 project_root_path=project_root_path,
-                project_section_loader=ProtostarProjectSection.Loader(
-                    protostar_toml_reader
-                ),
+                configuration_file=configuration_file,
             ),
             contracts_section_loader=ProtostarContractsSection.Loader(
                 protostar_toml_reader
@@ -89,6 +97,8 @@ class TestRunner:
         profiling: bool
         testing_seed: Seed
         project_root_path: Path
+        cwd: Path
+        active_profile_name: Optional[str]
 
     @classmethod
     def worker(cls, args: "TestRunner.WorkerArgs"):
@@ -99,6 +109,8 @@ class TestRunner:
                 project_root_path=args.project_root_path,
                 disable_hint_validation_in_user_contracts=args.disable_hint_validation_in_user_contracts,
                 profiling=args.profiling,
+                cwd=args.cwd,
+                active_profile_name=args.active_profile_name,
             ).run_test_suite(
                 test_suite=args.test_suite,
                 testing_seed=args.testing_seed,

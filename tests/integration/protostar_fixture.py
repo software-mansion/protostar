@@ -3,14 +3,13 @@ import os
 from argparse import Namespace
 from logging import getLogger
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, cast, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast
 
 from pytest_mock import MockerFixture
 from starknet_py.net import KeyPair
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
-from protostar.self.protostar_directory import ProtostarDirectory
 from protostar.cli.map_targets_to_file_paths import map_targets_to_file_paths
 from protostar.commands import (
     BuildCommand,
@@ -19,32 +18,29 @@ from protostar.commands import (
     InitCommand,
     MigrateCommand,
 )
-from protostar.testing import TestingSummary
 from protostar.commands.deploy_command import DeployCommand
-from protostar.commands.test import TestCommand
 from protostar.commands.init.project_creator.new_project_creator import (
     NewProjectCreator,
 )
-from protostar.compiler import ProjectCompiler
+from protostar.commands.test import TestCommand
+from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
+from protostar.configuration_file import ConfigurationFileFactory
 from protostar.formatter.formatter import Formatter
 from protostar.formatter.formatting_result import (
     FormattingResult,
     format_formatting_result,
 )
 from protostar.formatter.formatting_summary import FormattingSummary
-from protostar.migrator import Migrator, MigratorExecutionEnvironment
-from protostar.protostar_toml import (
-    ProtostarContractsSection,
-    ProtostarTOMLWriter,
-)
-from protostar.starknet_gateway import Fee, GatewayFacadeFactory
 from protostar.io.input_requester import InputRequester
-
-from protostar.compiler import ProjectCairoPathBuilder
-from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
-from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 from protostar.io.log_color_provider import LogColorProvider
+from protostar.migrator import Migrator, MigratorExecutionEnvironment
+from protostar.protostar_toml import ProtostarContractsSection, ProtostarTOMLWriter
+from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
+from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
+from protostar.self.protostar_directory import ProtostarDirectory
+from protostar.starknet_gateway import Fee, GatewayFacadeFactory
+from protostar.testing import TestingSummary
 
 
 class ProtostarFixture:
@@ -276,9 +272,11 @@ def build_protostar_fixture(
     protostar_toml_writer = ProtostarTOMLWriter()
     protostar_toml_reader = ProtostarTOMLReader(protostar_toml_path=protostar_toml_path)
 
+    configuration_file = ConfigurationFileFactory(
+        active_profile_name=None, cwd=project_root_path
+    ).create()
     project_cairo_path_builder = ProjectCairoPathBuilder(
-        project_root_path=project_root_path,
-        project_section_loader=ProtostarProjectSection.Loader(protostar_toml_reader),
+        project_root_path=project_root_path, configuration_file=configuration_file
     )
 
     project_compiler = ProjectCompiler(
@@ -372,14 +370,12 @@ def build_protostar_fixture(
         protostar_directory=ProtostarDirectory(project_root_path),
         project_cairo_path_builder=ProjectCairoPathBuilder(
             project_root_path,
-            ProtostarProjectSection.Loader(
-                ProtostarTOMLReader(
-                    Path(project_root_path / "protostar.toml").resolve()
-                )
-            ),
+            configuration_file=configuration_file,
         ),
         log_color_provider=LogColorProvider(),
         logger=logger,
+        cwd=project_root_path,
+        active_profile_name=None,
     )
 
     protostar_fixture = ProtostarFixture(

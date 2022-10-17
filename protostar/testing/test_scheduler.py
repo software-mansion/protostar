@@ -1,7 +1,7 @@
 import multiprocessing
 import signal
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, List
+from typing import TYPE_CHECKING, Callable, List, Optional
 
 from .test_collector import TestCollector
 from .test_runner import TestRunner
@@ -33,6 +33,8 @@ class TestScheduler:
         exit_first: bool,
         testing_seed: Seed,
         project_root_path_str: str,
+        cwd: Path,
+        active_profile_name: Optional[str],
     ):
         with multiprocessing.Manager() as manager:
             shared_tests_state = SharedTestsState(
@@ -47,6 +49,8 @@ class TestScheduler:
                     profiling=profiling,
                     testing_seed=testing_seed,
                     project_root_path=Path(project_root_path_str),
+                    active_profile_name=active_profile_name,
+                    cwd=cwd,
                 )
                 for test_suite in test_collector_result.test_suites
             ]

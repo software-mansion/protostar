@@ -15,8 +15,8 @@ from typing_extensions import Protocol
 
 from protostar.commands.test.test_command import TestCommand
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
-from protostar.testing import TestingSummary
 from protostar.io.log_color_provider import LogColorProvider
+from protostar.testing import TestingSummary
 from tests.conftest import run_devnet
 from tests.integration.protostar_fixture import (
     ProtostarFixture,
@@ -173,6 +173,8 @@ def run_cairo_test_runner_fixture(
                 project_cairo_path_builder=project_cairo_path_builder,
                 logger=getLogger(),
                 log_color_provider=log_color_provider,
+                active_profile_name=None,
+                cwd=Path(),
             ).test(
                 targets=targets,
                 ignored_targets=ignored_targets,
