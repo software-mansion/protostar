@@ -13,12 +13,12 @@ from protostar.starknet import (
     KeywordOnlyArgumentCheatcodeException,
     SimpleReportedException,
 )
+from protostar.starknet.data_transformer import CairoOrPythonData
 from protostar.starknet_gateway import (
     ContractNotFoundException,
     GatewayFacade,
     UnknownFunctionException,
 )
-from protostar.starknet.data_transformer import CairoOrPythonData
 
 Wei = int
 
@@ -119,7 +119,7 @@ class MigratorInvokeCheatcode(Cheatcode):
                 "Please either provide CLI credentials or a custom signer in invoke call.",
             )
         try:
-            return asyncio.run(
+            asyncio.run(
                 self._gateway_facade.invoke(
                     contract_address=contract_address,
                     function_name=function_name,

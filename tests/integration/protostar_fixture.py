@@ -1,12 +1,14 @@
 import asyncio
 import os
 from argparse import Namespace
-from logging import getLogger
+from logging import Logger, getLogger
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast
+from typing import Any, Callable, Dict, List, Literal, Optional, Tuple, Union, cast
 
 from pytest_mock import MockerFixture
 from starknet_py.net import KeyPair
+from starknet_py.net.client_models import InvokeFunction, StarknetTransaction
+from starknet_py.net.gateway_client import GatewayClient, Network
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
@@ -16,6 +18,7 @@ from protostar.commands import (
     DeclareCommand,
     FormatCommand,
     InitCommand,
+    InvokeCommand,
     MigrateCommand,
 )
 from protostar.commands.deploy_command import DeployCommand
@@ -32,17 +35,17 @@ from protostar.formatter.formatting_result import (
     format_formatting_result,
 )
 from protostar.formatter.formatting_summary import FormattingSummary
+from protostar.io import log_color_provider
 from protostar.io.input_requester import InputRequester
-from protostar.io.log_color_provider import LogColorProvider
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_toml import ProtostarContractsSection, ProtostarTOMLWriter
 from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
-from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
 from protostar.self.protostar_directory import ProtostarDirectory
-from protostar.starknet_gateway import Fee, GatewayFacadeFactory
+from protostar.starknet_gateway import Fee, GatewayFacade, GatewayFacadeFactory
 from protostar.testing import TestingSummary
 
 
+# pylint: disable=too-many-instance-attributes
 class ProtostarFixture:
     def __init__(
         self,
@@ -54,6 +57,8 @@ class ProtostarFixture:
         declare_command: DeclareCommand,
         deploy_command: DeployCommand,
         test_command: TestCommand,
+        invoke_command: InvokeCommand,
+        transaction_registry: "TransactionRegistry",
     ) -> None:
         self._project_root_path = project_root_path
         self._init_command = init_command
@@ -63,10 +68,18 @@ class ProtostarFixture:
         self._declare_command = declare_command
         self._deploy_command = deploy_command
         self._test_command = test_command
+        self._invoke_command = invoke_command
+        self._transaction_registry = transaction_registry
 
     @property
     def project_root_path(self) -> Path:
         return self._project_root_path
+
+    def get_intercepted_transaction(
+        self, index: int, expected_tx_type: "TransactionRegistry.KnownInterceptedTxType"
+    ):
+        transaction_registry = self._transaction_registry
+        return transaction_registry.get_intercepted_transaction(index, expected_tx_type)
 
     async def declare(
         self,
@@ -139,12 +152,20 @@ class ProtostarFixture:
         os.chdir(cwd)
         return result
 
+    async def build(self):
+        args = self._prepare_build_args()
+        return await self._build_command.run(args)
+
     def build_sync(self):
+        args = self._prepare_build_args()
+        return asyncio.run(self._build_command.run(args))
+
+    def _prepare_build_args(self):
         args = Namespace()
         args.compiled_contracts_dir = Path("./build")
         args.disable_hint_validation = False
         args.cairo_path = None
-        return asyncio.run(self._build_command.run(args))
+        return args
 
     async def migrate(
         self,
@@ -168,6 +189,31 @@ class ProtostarFixture:
         migration_history = await self._migrate_command.run(args)
         assert migration_history is not None
         return migration_history
+
+    async def invoke(
+        self,
+        contract_address: int,
+        function_name: str,
+        inputs: Optional[list[int]],
+        gateway_url: str,
+        account_address: Optional[str] = None,
+        wait_for_acceptance: Optional[bool] = False,
+        max_fee: Optional[Fee] = None,
+    ):
+        args = Namespace()
+        args.contract_address = contract_address
+        args.function = function_name
+        args.inputs = inputs
+        args.network = None
+        args.gateway_url = gateway_url
+        args.chain_id = StarknetChainId.TESTNET
+        args.signer_class = None
+        args.account_address = account_address
+        args.private_key_path = None
+        args.wait_for_acceptance = wait_for_acceptance
+        args.max_fee = max_fee
+
+        return await self._invoke_command.run(args)
 
     def format(
         self,
@@ -254,6 +300,73 @@ class ProtostarFixture:
             output_file.write(content)
 
 
+class TransactionRegistry:
+    KnownInterceptedTxType = Literal["invoke"]
+
+    def __init__(self) -> None:
+        self._intercepted_txs: list[StarknetTransaction] = []
+
+    def add(self, tx: StarknetTransaction):
+        self._intercepted_txs.append(tx)
+
+    def get_intercepted_transaction(
+        self, index: int, expected_tx_type: KnownInterceptedTxType
+    ):
+        tx = self._intercepted_txs[index]
+        if expected_tx_type == "invoke":
+            assert isinstance(tx, InvokeFunction)
+            return tx
+        assert (
+            False
+        ), f"Couldn't find transaction (index={index}, expected_tx_type={expected_tx_type})"
+
+
+class GatewayClientTxInterceptor(GatewayClient):
+    def __init__(
+        self, net: Network, transaction_registry: Optional[TransactionRegistry] = None
+    ):
+        super().__init__(net, session=None)
+        self.intercepted_txs: list[StarknetTransaction] = []
+        self._transaction_registry = transaction_registry
+
+    async def _add_transaction(
+        self,
+        tx: StarknetTransaction,
+        token: Optional[str] = None,
+    ) -> dict:
+        self.intercepted_txs.append(tx)
+        if self._transaction_registry:
+            self._transaction_registry.add(tx)
+        return await super()._add_transaction(tx, token)
+
+
+class TestFriendlyGatewayFacadeFactory(GatewayFacadeFactory):
+    def __init__(
+        self,
+        project_root_path: Path,
+        compiled_contract_reader: CompiledContractReader,
+        transaction_registry: TransactionRegistry,
+    ) -> None:
+        super().__init__(project_root_path, compiled_contract_reader)
+        self.recent_gateway_client: Optional[GatewayClientTxInterceptor] = None
+        self._transaction_registry = transaction_registry
+
+    def create(self, gateway_client: GatewayClient, logger: Optional[Logger]):
+        gateway_client_tx_interceptor = GatewayClientTxInterceptor(
+            # pylint: disable=protected-access
+            net=gateway_client._net,
+            transaction_registry=self._transaction_registry,
+        )
+        self.recent_gateway_client = gateway_client_tx_interceptor
+        return GatewayFacade(
+            project_root_path=self._project_root_path,
+            compiled_contract_reader=self._compiled_contract_reader,
+            gateway_client=gateway_client_tx_interceptor,
+            logger=logger,
+            log_color_provider=log_color_provider,
+        )
+
+
 def build_protostar_fixture(
     mocker: MockerFixture, project_root_path: Path, signing_credentials: Tuple[str, str]
 ):
@@ -323,9 +436,6 @@ def build_protostar_fixture(
     logger = getLogger()
     build_command = BuildCommand(logger=logger, project_compiler=project_compiler)
 
-    log_color_provider = LogColorProvider()
-    log_color_provider.is_ci_mode = True
-
     migrator_builder = Migrator.Builder(
         migrator_execution_environment_builder=MigratorExecutionEnvironment.Builder(
             project_compiler
@@ -340,9 +450,12 @@ def build_protostar_fixture(
 
     migrator_builder.set_signer(signer)
 
-    gateway_facade_factory = GatewayFacadeFactory(
+    transaction_registry = TransactionRegistry()
+
+    gateway_facade_factory = TestFriendlyGatewayFacadeFactory(
         compiled_contract_reader=CompiledContractReader(),
         project_root_path=project_root_path,
+        transaction_registry=transaction_registry,
     )
 
     migrate_command = MigrateCommand(
@@ -372,10 +485,14 @@ def build_protostar_fixture(
             project_root_path,
             configuration_file=configuration_file,
         ),
-        log_color_provider=LogColorProvider(),
+        log_color_provider=log_color_provider,
         logger=logger,
         cwd=project_root_path,
         active_profile_name=None,
+    )
+
+    invoke_command = InvokeCommand(
+        gateway_facade_factory=gateway_facade_factory, logger=logger
     )
 
     protostar_fixture = ProtostarFixture(
@@ -387,6 +504,8 @@ def build_protostar_fixture(
         declare_command=declare_command,
         deploy_command=deploy_command,
         test_command=test_command,
+        invoke_command=invoke_command,
+        transaction_registry=transaction_registry,
     )
 
     return protostar_fixture
