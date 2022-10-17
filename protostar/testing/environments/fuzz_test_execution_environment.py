@@ -70,7 +70,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             and not self.state.config.fuzz_declared_strategies
         ):
             self._logger.warning(
-                "not providing the test data is deprecated and will break test cases in the future releases, "
+                "Not providing the test parameters is deprecated and will break test cases in the future releases, "
                 "please use one of the following cheatcodes in the setup function in order to "
                 "explicitly provide data to be tested: \n- example\n- given"
             )
