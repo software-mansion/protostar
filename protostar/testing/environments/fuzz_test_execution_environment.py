@@ -74,7 +74,6 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
                 "please use one of the following cheatcodes in the setup function in order to "
                 "explicitly provide data to be tested: \n- example\n- given"
             )
-            # todo raise an error in future releases
 
         given_strategies = collect_search_strategies(
             declared_strategies=self.state.config.fuzz_declared_strategies,
