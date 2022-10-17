@@ -36,7 +36,7 @@ Protostar offers two ways of providing the signature:
 By default, Protostar uses the [StarkCurveSigner class](https://starknetpy.readthedocs.io/en/latest/signer.html#starknet_py.net.signer.stark_curve_signer.StarkCurveSigner) from Starknet.py.
 
 This way requires you to pass a private key (for signing) and account contract's address (to fetch the nonce).
-You can obtain the key and account address i.e. from [Argentx](https://chrome.google.com/webstore/detail/argent-x/dlcobpjiigpikoobohmabehhmhfoodbb) or [Braavos](https://chrome.google.com/webstore/detail/braavos-wallet/jnlgamecbpmbajjfhmmmlhejkemejdma) wallets. 
+You can obtain the key and account address e.g. from [Argentx](https://chrome.google.com/webstore/detail/argent-x/dlcobpjiigpikoobohmabehhmhfoodbb) or [Braavos](https://chrome.google.com/webstore/detail/braavos-wallet/jnlgamecbpmbajjfhmmmlhejkemejdma) wallets. 
 
 2 options are used for this:
 - `private-key-path` - a path to the file containing hex-encoded private key
