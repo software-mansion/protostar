@@ -1,5 +1,3 @@
-from typing import Optional
-
 from hypothesis.strategies import SearchStrategy, integers
 from starkware.cairo.lang.compiler.ast.cairo_types import CairoType, TypeStruct
 
@@ -8,10 +6,7 @@ from protostar.testing.fuzzing.strategy_descriptor import StrategyDescriptor
 
 
 def _get_low(uint256: int):
-    mask = (1 << 128) - 1  # 128*"1"
-    mask = mask << 128  # 128*"1"+128*"0"
-    mask = ~mask  # 128*"0"+128*"1"
-    return uint256 & mask
+    return uint256 & ((1 << 128)-1)
 
 
 def _get_high(uint256: int):
@@ -21,7 +16,7 @@ def _get_high(uint256: int):
 class Uint256StrategyDescriptor(StrategyDescriptor):
     def build_strategy(self, cairo_type: CairoType) -> SearchStrategy[int]:
         if not isinstance(cairo_type, TypeStruct) and str(cairo_type.scope).endswith(
-            "Uint256"
+            "starkware.cairo.common.uint256.Uint256"
         ):
             raise SearchStrategyBuildError(
                 "Strategy 'uint256' can only be applied to Uint256 parameters."
