@@ -8,8 +8,7 @@
     "dev": "yarn start",
     "build": "docusaurus build",
     "deploy": "docusaurus deploy",
-    "typecheck": "tsc",
-    "swizzle": "docusaurus swizzle"
+    "typecheck": "tsc"
   },
   "dependencies": {
     "@docusaurus/core": "2.1.0",
