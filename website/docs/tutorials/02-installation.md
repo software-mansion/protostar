@@ -33,10 +33,11 @@ $ protostar upgrade
 ```
 
 # Protostar releases
-The Protostar team tries to release a new minor version every 2 weeks.
-Each minor release may include new features, enhancements, bug fixes, depreciation warnings, and breaking changes.
-Breaking changes can be found in the changelog.
-Protostar shows a link to the changelog when a new release is detected.
+
+Protostar follows a biweekly release schedule.
+Each release may include new features, enhancements, bug fixes, deprecations and breaking changes.
+Consult [release notes](https://github.com/software-mansion/protostar/releases) for detailed information about each release.
+Protostar prints a link to new release before upgrading.
 
 # How to build Protostar from source code
 If your platform isn't supported or installation fails, you can try building Protostar from [source code](https://github.com/software-mansion/protostar) in the following way:
