@@ -1,16 +1,12 @@
 from pathlib import Path
-from typing import Optional, cast
+from typing import cast
 
 import pytest
-from starknet_py.net.client_models import (
-    Declare,
-    StarknetTransaction,
-    TransactionStatus,
-)
-from starknet_py.net.gateway_client import GatewayClient, Network
-from starkware.starknet.services.api.gateway.transaction import Declare
+from starknet_py.net.client_models import Declare, TransactionStatus
+from starknet_py.net.gateway_client import GatewayClient
 
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
+from protostar.starknet.data_transformer import CairoOrPythonData
 from protostar.starknet_gateway.gateway_facade import (
     ContractNotFoundException,
     FeeExceededMaxFeeException,
@@ -18,25 +14,13 @@ from protostar.starknet_gateway.gateway_facade import (
     InputValidationException,
     UnknownFunctionException,
 )
-from protostar.starknet.data_transformer import CairoOrPythonData
 from tests.conftest import DevnetAccount
 from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR, IDENTITY_CONTRACT
 from tests.integration.conftest import CreateProtostarProjectFixture
-from tests.integration.protostar_fixture import ProtostarFixture
-
-
-class GatewayClientTxInterceptor(GatewayClient):
-    def __init__(self, net: Network):
-        super().__init__(net, session=None)
-        self.intercepted_txs: list[StarknetTransaction] = []
-
-    async def _add_transaction(
-        self,
-        tx: StarknetTransaction,
-        token: Optional[str] = None,
-    ) -> dict:
-        self.intercepted_txs.append(tx)
-        return await super()._add_transaction(tx, token)
+from tests.integration.protostar_fixture import (
+    GatewayClientTxInterceptor,
+    ProtostarFixture,
+)
 
 
 @pytest.fixture(autouse=True, scope="module", name="protostar")

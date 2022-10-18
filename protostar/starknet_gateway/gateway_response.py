@@ -40,3 +40,8 @@ def format_successful_declare_response(
         ]
         + (extra_msg or [])
     )
+
+
+@dataclass
+class SuccessfulInvokeResponse:
+    transaction_hash: int

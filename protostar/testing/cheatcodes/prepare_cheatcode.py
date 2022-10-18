@@ -11,6 +11,7 @@ from protostar.starknet.data_transformer import (
     CairoOrPythonData,
     PythonData,
     from_python_transformer,
+    DataTransformerException,
 )
 
 from .declare_cheatcode import DeclaredContract
@@ -81,4 +82,10 @@ class PrepareCheatcode(Cheatcode):
             "constructor",
             "inputs",
         )
-        return transformer(constructor_calldata)
+        try:
+            return transformer(constructor_calldata)
+        except DataTransformerException as dt_exc:
+            raise CheatcodeException(
+                self,
+                f"There was an error while parsing constructor arguments:\n{dt_exc.message}",
+            ) from dt_exc

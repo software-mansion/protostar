@@ -21,15 +21,8 @@ from starkware.starknet.services.api.gateway.transaction import (
 from typing_extensions import Self
 
 from protostar.compiler import CompiledContractReader
+from protostar.io.log_color_provider import LogColorProvider
 from protostar.protostar_exception import ProtostarException
-from protostar.starknet_gateway.account_tx_version_detector import (
-    AccountTxVersionDetector,
-)
-from protostar.starknet_gateway.gateway_response import (
-    SuccessfulDeclareResponse,
-    SuccessfulDeployResponse,
-)
-from protostar.starknet_gateway.starknet_request import StarknetRequest
 from protostar.starknet.abi import has_abi_item
 from protostar.starknet.data_transformer import (
     CairoOrPythonData,
@@ -37,7 +30,15 @@ from protostar.starknet.data_transformer import (
     from_python_transformer,
     to_python_transformer,
 )
-from protostar.io.log_color_provider import LogColorProvider
+from protostar.starknet_gateway.account_tx_version_detector import (
+    AccountTxVersionDetector,
+)
+from protostar.starknet_gateway.gateway_response import (
+    SuccessfulDeclareResponse,
+    SuccessfulDeployResponse,
+    SuccessfulInvokeResponse,
+)
+from protostar.starknet_gateway.starknet_request import StarknetRequest
 
 ContractFunctionInputType = Union[List[int], Dict[str, Any]]
 
@@ -308,7 +309,7 @@ class GatewayFacade:
         max_fee: Optional[int] = None,
         auto_estimate_fee: bool = False,
         wait_for_acceptance: bool = False,
-    ):
+    ) -> SuccessfulInvokeResponse:
         register_response = self._register_request(
             action="INVOKE",
             payload={
@@ -338,6 +339,8 @@ class GatewayFacade:
 
         except TransactionFailedError as ex:
             raise TransactionException(str(ex)) from ex
+        except ClientError as ex:
+            raise TransactionException(message=ex.message) from ex
 
         result = await result.wait_for_acceptance(wait_for_accept=wait_for_acceptance)
 
@@ -351,6 +354,12 @@ class GatewayFacade:
             response_dict["status"] = result.status.value  # type: ignore
 
         register_response(response_dict)
+
+        return SuccessfulInvokeResponse(
+            transaction_hash=result.hash
+            if isinstance(result.hash, int)
+            else int(result.hash),
+        )
 
     async def _create_account_client(
         self,
