@@ -29,6 +29,6 @@ go tool pprof -http=":8000" profile.pb.gz
 ```
 ### Example results
 
-![Profiler](.prof1.jpg)
-![Profiler](.prof2.jpg)
-![Profiler](.prof3.jpg)
+![Profiler](prof1.jpg)
+![Profiler](prof2.jpg)
+![Profiler](prof3.jpg)
