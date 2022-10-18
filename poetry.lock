@@ -142,7 +142,7 @@ python-versions = "~=3.7"
 
 [[package]]
 name = "cairo-lang"
-version = "0.10.0"
+version = "0.10.1"
 description = "Compiler and runner for the Cairo language"
 category = "main"
 optional = false
@@ -155,7 +155,7 @@ ecdsa = "*"
 eth-hash = {version = "*", extras = ["pycryptodome"]}
 fastecdsa = "*"
 frozendict = "1.2"
-lark-parser = "*"
+lark = "*"
 marshmallow = ">=3.2.1"
 marshmallow-dataclass = ">=7.1.0"
 marshmallow-enum = "*"
@@ -691,8 +691,8 @@ format = ["fqdn", "idna", "isoduration", "jsonpointer (>1.13)", "rfc3339-validat
 format-nongpl = ["fqdn", "idna", "isoduration", "jsonpointer (>1.13)", "rfc3339-validator", "rfc3986-validator (>0.1.0)", "uri-template", "webcolors (>=1.11)"]
 
 [[package]]
-name = "lark-parser"
-version = "0.12.0"
+name = "lark"
+version = "1.1.3"
 description = "a modern parsing library"
 category = "main"
 optional = false
@@ -1327,14 +1327,14 @@ python-versions = "*"
 
 [[package]]
 name = "starknet-devnet"
-version = "0.3.1"
+version = "0.3.4"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
 python-versions = ">=3.8,<3.10"
 
 [package.dependencies]
-cairo-lang = "0.10.0"
+cairo-lang = "0.10.1"
 cloudpickle = ">=2.1.0,<2.2.0"
 crypto-cpp-py = ">=1.0.4,<1.1.0"
 Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
@@ -1346,7 +1346,7 @@ Werkzeug = ">=2.0.3,<2.1.0"
 
 [[package]]
 name = "starknet-py"
-version = "0.6.2a0"
+version = "0.8.0a0"
 description = "A python SDK for StarkNet"
 category = "main"
 optional = false
@@ -1354,7 +1354,7 @@ python-versions = ">=3.8,<3.10"
 
 [package.dependencies]
 asgiref = ">=3.4.1,<4.0.0"
-cairo-lang = "0.10.0"
+cairo-lang = "0.10.1"
 crypto-cpp-py = ">=1.0.4,<2.0.0"
 marshmallow = ">=3.15.0,<4.0.0"
 marshmallow-oneofschema = ">=3.0.1,<4.0.0"
@@ -1557,7 +1557,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9.14, <3.10"
-content-hash = "76e13fa3b09a21928f95139d85011cc46256ce3c76c5ee6d1a82ad0518d360a0"
+content-hash = "0a7a6fe2a534f3d9429e235ab8def40dc483eca135e3523166ba3422dc3bd2bd"
 
 [metadata.files]
 aiohttp = [
@@ -1783,7 +1783,7 @@ cachetools = [
     {file = "cachetools-5.2.0.tar.gz", hash = "sha256:6a94c6402995a99c3970cc7e4884bb60b4a8639938157eeed436098bf9831757"},
 ]
 cairo-lang = [
-    {file = "cairo-lang-0.10.0.zip", hash = "sha256:ce823747ee9677416118a0ff715ac1f51096a3fd518107d6b22cd2f84895ed12"},
+    {file = "cairo-lang-0.10.1.zip", hash = "sha256:6ad68e482eb5b8f0f3f5e674973bcba0815ff87fe35bec7e6a3f9b96d8335616"},
 ]
 certifi = [
     {file = "certifi-2022.9.14-py3-none-any.whl", hash = "sha256:e232343de1ab72c2aa521b625c80f699e356830fd0e2c620b465b304b17b0516"},
@@ -1872,9 +1872,7 @@ crypto-cpp-py = [
     {file = "crypto_cpp_py-1.0.4-cp37-cp37m-musllinux_1_1_x86_64.whl", hash = "sha256:4166fbe3ea025c3dfdcbf9269323a24c43af3f92880fbd8008891ea6b9489fc2"},
     {file = "crypto_cpp_py-1.0.4-cp37-cp37m-win32.whl", hash = "sha256:e78d08225bd20d829f119ba2e00c11b69bf6d2a99b655e56181580290392a010"},
     {file = "crypto_cpp_py-1.0.4-cp37-cp37m-win_amd64.whl", hash = "sha256:059e2ba230a22762087032fd508f7e8b5213ea5a18d1b091eb5c796093af9548"},
-    {file = "crypto_cpp_py-1.0.4-cp38-cp38-macosx_10_9_arm64.whl", hash = "sha256:080d64ba98246c9bf4dae595241d5feead2695138318a12fdba309a9a4a192de"},
     {file = "crypto_cpp_py-1.0.4-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:afe891d1a28b4d905257b410563fc4b2fc0c4d536c1d8c9b0bdb7c6d18a7f565"},
-    {file = "crypto_cpp_py-1.0.4-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:556ba5000b5c2bdeccf4c2c053c228d471cac77dd84121145a079930bbd5ff3e"},
     {file = "crypto_cpp_py-1.0.4-cp38-cp38-macosx_11_0_x86_64.whl", hash = "sha256:02520302ebcfa209bb79cb6a70fadffdd090b73e302142e48e1757bb513f2eca"},
     {file = "crypto_cpp_py-1.0.4-cp38-cp38-macosx_12_0_arm64.whl", hash = "sha256:447af208c5e6ff59a9d44c69806d2e3a71f32ec63b9435d7837fefe258a09f0b"},
     {file = "crypto_cpp_py-1.0.4-cp38-cp38-macosx_12_0_x86_64.whl", hash = "sha256:7d128ce933440303706c36eb6f5aa32ee76316138ce17cb12217ad283b030f4f"},
@@ -1888,9 +1886,7 @@ crypto-cpp-py = [
     {file = "crypto_cpp_py-1.0.4-cp38-cp38-musllinux_1_1_x86_64.whl", hash = "sha256:8c94e012a1e591bbe112778ec64576fa5b3dd4856208c0a6ac3c51c5ad62c61d"},
     {file = "crypto_cpp_py-1.0.4-cp38-cp38-win32.whl", hash = "sha256:d7a9889203d9e56cb5f7128c3742b7fc62a36cde8dddd71989570f0db6491c5c"},
     {file = "crypto_cpp_py-1.0.4-cp38-cp38-win_amd64.whl", hash = "sha256:7573420e603b523cec2e8ce26a11bcbc380987c2b68ce64be0e0068e9c0ff515"},
-    {file = "crypto_cpp_py-1.0.4-cp39-cp39-macosx_10_9_arm64.whl", hash = "sha256:fea99dbff0076fb5d02b3e0cdccdf970fba723a2463a122b90958d2b4f4c555b"},
     {file = "crypto_cpp_py-1.0.4-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:31b7a93a34fb444bd8e5540907e83737dcf6ce8d19f770fe1b49c6091cc9a6b9"},
-    {file = "crypto_cpp_py-1.0.4-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:5172dd0239ad6cc2b070ba6f04f4749c00e4ebe98b8f890c7a38e091f4e01686"},
     {file = "crypto_cpp_py-1.0.4-cp39-cp39-macosx_11_0_x86_64.whl", hash = "sha256:a3f4ac6852b5919508cc0218c5ae166afdbff64aa63bf6dfc8602761879706a5"},
     {file = "crypto_cpp_py-1.0.4-cp39-cp39-macosx_12_0_arm64.whl", hash = "sha256:0bad6955111f68e49e6b053171a8ed998a6e8a706464c72c1728497b9e4ebd4c"},
     {file = "crypto_cpp_py-1.0.4-cp39-cp39-macosx_12_0_x86_64.whl", hash = "sha256:88ca995b5a28d5f8e775bd3efa0a6e995decc76866c6fa548df5637729d23c09"},
@@ -2174,9 +2170,9 @@ jsonschema = [
     {file = "jsonschema-4.16.0-py3-none-any.whl", hash = "sha256:9e74b8f9738d6a946d70705dc692b74b5429cd0960d58e79ffecfc43b2221eb9"},
     {file = "jsonschema-4.16.0.tar.gz", hash = "sha256:165059f076eff6971bae5b742fc029a7b4ef3f9bcf04c14e4776a7605de14b23"},
 ]
-lark-parser = [
-    {file = "lark-parser-0.12.0.tar.gz", hash = "sha256:15967db1f1214013dca65b1180745047b9be457d73da224fcda3d9dd4e96a138"},
-    {file = "lark_parser-0.12.0-py2.py3-none-any.whl", hash = "sha256:0eaf30cb5ba787fe404d73a7d6e61df97b21d5a63ac26c5008c78a494373c675"},
+lark = [
+    {file = "lark-1.1.3-py3-none-any.whl", hash = "sha256:45cd8b4d8b0487863f0f4cf3c305a1293db86af576d4a62cfb572e57a9b609e5"},
+    {file = "lark-1.1.3.tar.gz", hash = "sha256:ca0d1aeb57f434c7276d209729e92b0e5017d177dde553134760c35bb4647d11"},
 ]
 lazy-object-proxy = [
     {file = "lazy-object-proxy-1.7.1.tar.gz", hash = "sha256:d609c75b986def706743cdebe5e47553f4a5a1da9c5ff66d76013ef396b5a8a4"},
@@ -2658,13 +2654,6 @@ PyYAML = [
     {file = "PyYAML-6.0-cp310-cp310-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:f84fbc98b019fef2ee9a1cb3ce93e3187a6df0b2538a651bfb890254ba9f90b5"},
     {file = "PyYAML-6.0-cp310-cp310-win32.whl", hash = "sha256:2cd5df3de48857ed0544b34e2d40e9fac445930039f3cfe4bcc592a1f836d513"},
     {file = "PyYAML-6.0-cp310-cp310-win_amd64.whl", hash = "sha256:daf496c58a8c52083df09b80c860005194014c3698698d1a57cbcfa182142a3a"},
-    {file = "PyYAML-6.0-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:d4b0ba9512519522b118090257be113b9468d804b19d63c71dbcf4a48fa32358"},
-    {file = "PyYAML-6.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:81957921f441d50af23654aa6c5e5eaf9b06aba7f0a19c18a538dc7ef291c5a1"},
-    {file = "PyYAML-6.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:afa17f5bc4d1b10afd4466fd3a44dc0e245382deca5b3c353d8b757f9e3ecb8d"},
-    {file = "PyYAML-6.0-cp311-cp311-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:dbad0e9d368bb989f4515da330b88a057617d16b6a8245084f1b05400f24609f"},
-    {file = "PyYAML-6.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:432557aa2c09802be39460360ddffd48156e30721f5e8d917f01d31694216782"},
-    {file = "PyYAML-6.0-cp311-cp311-win32.whl", hash = "sha256:bfaef573a63ba8923503d27530362590ff4f576c626d86a9fed95822a8255fd7"},
-    {file = "PyYAML-6.0-cp311-cp311-win_amd64.whl", hash = "sha256:01b45c0191e6d66c470b6cf1b9531a771a83c1c4208272ead47a3ae4f2f603bf"},
     {file = "PyYAML-6.0-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:897b80890765f037df3403d22bab41627ca8811ae55e9a722fd0392850ec4d86"},
     {file = "PyYAML-6.0-cp36-cp36m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:50602afada6d6cbfad699b0c7bb50d5ccffa7e46a3d738092afddc1f9758427f"},
     {file = "PyYAML-6.0-cp36-cp36m-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:48c346915c114f5fdb3ead70312bd042a953a8ce5c7106d5bfb1a5254e47da92"},
@@ -2721,11 +2710,11 @@ sortedcontainers = [
     {file = "sortedcontainers-2.4.0.tar.gz", hash = "sha256:25caa5a06cc30b6b83d11423433f65d1f9d76c4c6a0c90e3379eaa43b9bfdb88"},
 ]
 starknet-devnet = [
-    {file = "starknet_devnet-0.3.1-py3-none-any.whl", hash = "sha256:cdb16148e89d2710c3f5b8afa0decf3def4accb6d46a24943f738f5108e074dc"},
-    {file = "starknet_devnet-0.3.1.tar.gz", hash = "sha256:70fba585d00657f7400ead83d96b02c395bc01f45f5da0c791e4ac3c388549f3"},
+    {file = "starknet_devnet-0.3.4-py3-none-any.whl", hash = "sha256:2c017f85c278c9032f8eb7bb2c66ef0f45babae2b3f9e93b5f2f12440bd5c97a"},
+    {file = "starknet_devnet-0.3.4.tar.gz", hash = "sha256:aee46f958f00272e8b06ddeb86c7a3cc756187b13ac2b8633a746d0c8e0bd240"},
 ]
 starknet-py = [
-    {file = "starknet-py-0.6.2a0.tar.gz", hash = "sha256:0b08cd70c2d73773a14b474bff6c2786ebc7795e7c9a16acb370f09e5f275dc0"},
+    {file = "starknet_py-0.8.0a0.tar.gz", hash = "sha256:34db3a101444fe7a4f019cb772dee883bfcb9288c935b21d0d19cdd425badae6"},
 ]
 sympy = [
     {file = "sympy-1.11.1-py3-none-any.whl", hash = "sha256:938f984ee2b1e8eae8a07b884c8b7a1146010040fccddc6539c54f401c8f6fcf"},
