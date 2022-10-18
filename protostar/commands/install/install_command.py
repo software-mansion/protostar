@@ -101,8 +101,8 @@ class InstallCommand(ProtostarCommand):
                 destination=libs_path,
                 tag=package_info.version,
             )
-            ConfigurationFile.create_appending_cairo_path_suggestion(
-                self._logger, self._project_root_path, libs_path, str(package_info.name)
+            self._logger.info(
+                ConfigurationFile.create_appending_cairo_path_suggestion()
             )
         else:
             pull_package_submodules(
