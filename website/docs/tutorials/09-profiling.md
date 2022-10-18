@@ -1,12 +1,8 @@
----
-sidebar_label: Profiling
----
-
 # Profiling
 
 ## Prerequisites
 
-You need pprof installed beforehand.
+You need pprof installed to interpret profiling results.
 You can learn how to install it [in pprof documentation](https://github.com/google/pprof#building-pprof).
 
 ## How to profile a contract?
@@ -36,6 +32,3 @@ go tool pprof -http=":8000" profile.pb.gz
 ![Profiler](/img/prof1.jpg)
 ![Profiler](/img/prof2.jpg)
 ![Profiler](/img/prof3.jpg)
-
-
-
