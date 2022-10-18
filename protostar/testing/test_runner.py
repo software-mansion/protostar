@@ -66,9 +66,6 @@ class TestRunner:
             ),
             pass_manager_factory=TestSuitePassMangerFactory,
         )
-        protostar_toml_reader = ProtostarTOMLReader(
-            project_root_path / "protostar.toml"
-        )
         configuration_file = ConfigurationFileFactory(
             cwd=cwd, active_profile_name=active_profile_name
         ).create()
@@ -78,9 +75,7 @@ class TestRunner:
                 project_root_path=project_root_path,
                 configuration_file=configuration_file,
             ),
-            contracts_section_loader=ProtostarContractsSection.Loader(
-                protostar_toml_reader
-            ),
+            configuration_file=configuration_file,
             default_config=ProjectCompilerConfig(
                 relative_cairo_path=[Path(s_pth).resolve() for s_pth in include_paths],
                 hint_validation_disabled=disable_hint_validation_in_user_contracts,
