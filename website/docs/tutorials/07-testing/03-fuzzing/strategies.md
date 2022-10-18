@@ -28,9 +28,7 @@ func test_integers{syscall_ptr : felt*, range_check_ptr}(a : felt, b : felt) {
 ```
 
 :::note
-In the past, Protostar used to apply the [`strategy.felts()`](#strategyfelts) strategy to all felt
-parameters by default.
-This changed, and it is required to either provide a strategy using [`given`](../02-cheatcodes/given.md)
+It is required to either provide a strategy using [`given`](../02-cheatcodes/given.md)
 or specific values for parameters using [`example`](../02-cheatcodes/example.md).
 :::
 

@@ -71,8 +71,8 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         ):
             self._logger.warning(
                 "Not providing the test parameters is deprecated and will break test cases in the future releases, "
-                "please use one of the following cheatcodes in the setup function in order to "
-                "explicitly provide data to be tested: \n- example\n- given"
+                "Please use one of the following cheatcodes in the case setup function in order to "
+                "explicitly provide test data: \n- example\n- given"
             )
 
         given_strategies = collect_search_strategies(

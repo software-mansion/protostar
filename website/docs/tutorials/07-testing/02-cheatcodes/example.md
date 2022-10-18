@@ -19,9 +19,6 @@ This cheatcode is only available in [setup cases](../README.md#setup-case).
 :::info
 `example` is not limited by [`max_examples`](./max-examples.md) and is not connected to it in any way.
 :::
-:::warning
-You have to provide the testing data explicitly either by using `example` or [`given`](./given.md).
-:::
 
 ```cairo title="Example"
 @external
