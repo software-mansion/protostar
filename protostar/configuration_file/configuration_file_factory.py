@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Optional
 
+from protostar.configuration_file.fake_configuration_file import FakeConfigurationFile
 from protostar.protostar_exception import ProtostarException
 
 from .configuration_file import ConfigurationFile
@@ -15,10 +16,10 @@ class ConfigurationFileFactory:
         self._cwd = cwd
         self._active_profile_name = active_profile_name
 
-    def create(self) -> Optional[ConfigurationFile]:
+    def create(self) -> ConfigurationFile:
         protostar_toml_path = self._search_upwards_protostar_toml_path()
         if protostar_toml_path is None:
-            return None
+            return FakeConfigurationFile()
         protostar_toml_content = protostar_toml_path.read_text()
 
         configuration_file_v2 = self._create_configuration_toml_v2(
@@ -48,7 +49,7 @@ class ConfigurationFileFactory:
         protostar_toml_content: str,
     ):
         configuration_file_v2 = ConfigurationFileV2(
-            project_root_path=protostar_toml_path,
+            project_root_path=protostar_toml_path.parent,
             configuration_file_interpreter=ConfigurationTOMLInterpreter(
                 file_content=protostar_toml_content
             ),
@@ -65,7 +66,7 @@ class ConfigurationFileFactory:
         protostar_toml_content: str,
     ):
         configuration_file_v1 = ConfigurationFileV1(
-            project_root_path=protostar_toml_path,
+            project_root_path=protostar_toml_path.parent,
             configuration_file_interpreter=ConfigurationLegacyTOMLInterpreter(
                 file_content=protostar_toml_content
             ),
@@ -78,6 +79,7 @@ class ConfigurationFileFactory:
 
     def _search_upwards_protostar_toml_path(self) -> Optional[Path]:
         directory_path = self._cwd
+        assert directory_path.exists()
         root_path = Path(directory_path.root)
         while directory_path != root_path:
             for file_path in directory_path.iterdir():

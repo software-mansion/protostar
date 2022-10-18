@@ -9,14 +9,15 @@ from .configuration_file_factory import ConfigurationFileFactory
 from .configuration_file_v1 import ConfigurationFileV1
 from .configuration_file_v2 import ConfigurationFileV2
 from .conftest import PROTOSTAR_TOML_V1_CONTENT, PROTOSTAR_TOML_V2_CONTENT
+from .fake_configuration_file import FakeConfigurationFile
 
 
-def test_not_finding_configuration_file():
+def test_null_object_pattern():
     configuration_file_factory = ConfigurationFileFactory(cwd=Path())
 
     configuration_file = configuration_file_factory.create()
 
-    assert configuration_file is None
+    assert isinstance(configuration_file, FakeConfigurationFile)
 
 
 def test_creating_configuration_file_v1_from_subdirectory(tmp_path: Path):
