@@ -11,8 +11,7 @@ export default function MainWrapper({ children, ...props }) {
   return (
     <Main {...props}>
       {children}
-      <div style={{ height: '32px' }} />
-      <div className='row'>
+      <div className='row margin-top--md'>
         <div className='col'>
           <Giscus
             repo='software-mansion/protostar'
