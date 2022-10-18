@@ -15,8 +15,8 @@ export default function MainWrapper({ children, ...props }) {
           <Giscus
             repo='software-mansion/protostar'
             repoId='R_kgDOGw_HxA'
-            categoryId='DIC_kwDOGw_HxM4CBC8m'
-            category='Announcements'
+            categoryId='DIC_kwDOGw_HxM4CSDJD'
+            category='Documentation'
             mapping='title'
             reactionsEnabled='0'
             emitMetadata='0'
