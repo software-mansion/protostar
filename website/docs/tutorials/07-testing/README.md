@@ -104,8 +104,6 @@ The setup suite hook is shared between all test cases in a test suite (Cairo mod
 and is executed before test cases.
 
 ```cairo title="Using setup suite hook"
-%lang starknet
-
 @external
 func __setup__() {
     %{ context.contract_a_address = deploy_contract("./tests/integration/testing_hooks/basic_contract.cairo").contract_address %}
@@ -140,15 +138,74 @@ func test_tested_property()
 
 The setup case hook is bound to a matching test case and is executed just before the test case
 itself.
-Use case hooks to configure the behavior of particular test case,
-for example, by calling the [`max_examples`](./02-cheatcodes/max-examples.md) cheatcode.
+These hooks are executed with a context built by the `__setup__` hook, but in isolation for each
+test separately, before jumping into test case function itself.
+This makes them useful to extract test-specific setup logic from tested code itself.
 
-```cairo title="Using setup case hook"
-%lang starknet
+```cairo title="Using setup case hook to prepare test-specific state"
+@external
+func __setup__{
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
+    range_check_ptr
+}() {
+    balance.write(10);
+    return ();
+}
 
 @external
+func setup_need_more_money{
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
+    range_check_ptr
+}() {
+    balance.write(10000);
+    return ();
+}
+
+@external
+func test_need_more_money{
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
+    range_check_ptr
+}() {
+    alloc_locals;
+    let (amount_ref) = balance.read();
+    local amount = amount_ref;
+
+    assert amount = 10000;
+
+    return ();
+}
+
+@external
+func test_foo{
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
+    range_check_ptr
+}() {
+    alloc_locals;
+    let (amount_ref) = balance.read();
+    local amount = amount_ref;
+
+    assert amount = 10;
+
+    return ();
+}
+```
+
+You can also use case hooks to configure the behavior of a particular test case,
+for example, by calling the [`max_examples`] cheatcode.
+Some configuration-specific cheatcodes are only available within setup cases, like [`example`]
+and [`given`]:
+
+```cairo title="Using setup case hook to configure fuzzing test"
+@external
 func setup_something() {
-    %{ max_examples(500) %}
+    %{
+        max_examples(500)
+        given(a = strategy.felts())
+    %}
     return ();
 }
 
@@ -209,3 +266,7 @@ func test_getting_tree() {
     return ();
 }
 ```
+
+[`example`]: ./02-cheatcodes/example.md
+[`given`]: ./02-cheatcodes/given.md
+[`max_examples`]: ./02-cheatcodes/max-examples.md
