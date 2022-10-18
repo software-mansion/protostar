@@ -1348,7 +1348,7 @@ python-versions = ">=3.8,<3.10"
 develop = false
 
 [package.dependencies]
-cairo-lang = {url = "https://github.com/starkware-libs/cairo-lang/releases/download/v0.10.1-pre/cairo-lang-0.10.1.zip"}
+cairo-lang = "0.10.1"
 cloudpickle = "~2.1.0"
 crypto-cpp-py = "~1.0.4"
 Flask = {version = "~2.0.3", extras = ["async"]}
@@ -1361,8 +1361,8 @@ Werkzeug = "~2.0.3"
 [package.source]
 type = "git"
 url = "https://github.com/Shard-Labs/starknet-devnet.git"
-reference = "373cb165e36cad3edce7d38f9d7ccc9ea516687b"
-resolved_reference = "373cb165e36cad3edce7d38f9d7ccc9ea516687b"
+reference = "722e72a47382937591768b4dffa9b48bc608bb8a"
+resolved_reference = "722e72a47382937591768b4dffa9b48bc608bb8a"
 
 [[package]]
 name = "starknet-py"
@@ -1585,7 +1585,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9.14, <3.10"
-content-hash = "df45f66b3fdc32806051ecd8b7c39f1dc8ba94876bc1a1e688ca8879c3d90c4b"
+content-hash = "f965b70e143c2ee630881abe5727f368ec73a4e90c000b02e62c4ee4a42e7d58"
 
 [metadata.files]
 aiohttp = [

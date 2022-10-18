@@ -43,7 +43,7 @@ pytest-datadir = "^1.3.1"
 pytest-mock = "^3.10.0"
 pytest-timeout = "^2.1.0"
 snakeviz = "^2.1.1"
-starknet-devnet = {git = "https://github.com/Shard-Labs/starknet-devnet.git", rev = "373cb165e36cad3edce7d38f9d7ccc9ea516687b"}
+starknet-devnet = {git = "https://github.com/Shard-Labs/starknet-devnet.git", rev = "722e72a47382937591768b4dffa9b48bc608bb8a"}
 
 [tool.poe.tasks]
 build = [
