@@ -107,6 +107,14 @@ def test_retrieving_contract_source_paths(
     ]
 
 
+def test_retrieving_lib_path(
+    configuration_file: ConfigurationFileV2, project_root_path: Path
+):
+    path = configuration_file.get_lib_path()
+
+    assert path == project_root_path / "lib"
+
+
 def test_error_when_retrieving_paths_from_not_defined_contract(
     configuration_file: ConfigurationFileV2,
 ):

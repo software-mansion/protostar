@@ -10,6 +10,7 @@ from .configuration_file_v2 import (
     ConfigurationFileV2ContentFactory,
     ConfigurationFileV2Model,
 )
+from .fake_configuration_file import FakeConfigurationFile
 
 
 class ConfigurationFileV2Migrator(ConfigurationFileMigratorProtocol):
@@ -49,7 +50,7 @@ class ConfigurationFileV2Migrator(ConfigurationFileMigratorProtocol):
             raise ConfigurationFileMigrationFailed(ex) from ex
 
     def _validate_current_configuration_file(self) -> ConfigurationFileV1:
-        if self._current_configuration_file is None:
+        if isinstance(self._current_configuration_file, FakeConfigurationFile):
             raise ConfigurationFileNotFoundException()
         if isinstance(self._current_configuration_file, ConfigurationFileV2):
             raise ConfigurationFileAlreadyMigratedException()

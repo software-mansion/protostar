@@ -14,8 +14,8 @@ from protostar.commands.test.test_result_formatter import (
 )
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.compiler import ProjectCairoPathBuilder
-from protostar.protostar_exception import ProtostarException
 from protostar.io.log_color_provider import LogColorProvider
+from protostar.protostar_exception import ProtostarException
 from protostar.self.cache_io import CacheIO
 from protostar.self.protostar_directory import ProtostarDirectory
 from protostar.starknet.compiler.pass_managers import (
@@ -46,6 +46,8 @@ class TestCommand(ProtostarCommand):
         project_cairo_path_builder: ProjectCairoPathBuilder,
         log_color_provider: LogColorProvider,
         logger: Logger,
+        cwd: Path,
+        active_profile_name: Optional[str],
     ) -> None:
         super().__init__()
         self._logger = logger
@@ -53,6 +55,8 @@ class TestCommand(ProtostarCommand):
         self._project_root_path = project_root_path
         self._protostar_directory = protostar_directory
         self._project_cairo_path_builder = project_cairo_path_builder
+        self._cwd = cwd
+        self._active_profile_name = active_profile_name
 
     @property
     def name(self) -> str:
@@ -241,6 +245,8 @@ A glob or globs to a directory or a test suite, for example:
                 exit_first=exit_first,
                 testing_seed=testing_seed,
                 project_root_path_str=str(self._project_root_path),
+                active_profile_name=self._active_profile_name,
+                cwd=self._cwd,
             )
 
         return testing_summary

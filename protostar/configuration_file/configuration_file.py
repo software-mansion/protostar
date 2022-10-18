@@ -66,6 +66,10 @@ class ConfigurationFile(
         ...
 
     @abstractmethod
+    def get_lib_path(self) -> Optional[Path]:
+        ...
+
+    @abstractmethod
     def get_filepath(self) -> Path:
         ...
 

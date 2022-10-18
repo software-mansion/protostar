@@ -173,6 +173,8 @@ def run_cairo_test_runner_fixture(
                 project_cairo_path_builder=project_cairo_path_builder,
                 logger=getLogger(),
                 log_color_provider=log_color_provider,
+                active_profile_name=None,
+                cwd=Path(),
             ).test(
                 targets=targets,
                 ignored_targets=ignored_targets,

@@ -91,8 +91,7 @@ def build_di_container(
     )
 
     project_cairo_path_builder = ProjectCairoPathBuilder(
-        project_root_path=project_root_path,
-        project_section_loader=ProtostarProjectSection.Loader(protostar_toml_reader),
+        project_root_path=project_root_path, configuration_file=configuration_file
     )
 
     project_compiler = ProjectCompiler(
@@ -162,6 +161,8 @@ def build_di_container(
             project_cairo_path_builder,
             logger=logger,
             log_color_provider=log_color_provider,
+            active_profile_name=active_configuration_profile_name,
+            cwd=cwd,
         ),
         DeployCommand(
             logger=logger,
