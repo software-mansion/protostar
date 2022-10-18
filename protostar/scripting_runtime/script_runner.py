@@ -4,10 +4,15 @@ import traceback
 from multiprocessing import Process
 from pathlib import Path
 
+from protostar.scripting_runtime.api_context import ApiContext
+from protostar.self.protostar_directory import VersionManager
+
 
 class ScriptRunner:
-    @staticmethod
-    def run(path: Path) -> None:
+    def __init__(self, version_manager: VersionManager):
+        self._version_manager = version_manager
+
+    def run(self, path: Path) -> None:
         """
         Runs a Python script (given by ``path``) in a subprocess forked from Protostar's process.
         The script is **not** interpreted in sandbox mode.
@@ -15,20 +20,32 @@ class ScriptRunner:
 
         path_str = str(path)
 
-        process = Process(target=_bootstrap, args=(path_str,), name=path_str)
+        api_context = ApiContext(
+            protostar_version=str(self._version_manager.protostar_version)
+        )
+
+        process = Process(
+            target=_bootstrap,
+            kwargs={
+                "script_path": path_str,
+                "api_context": api_context,
+            },
+            name=path_str,
+        )
         process.start()
         process.join()
         process.close()
 
 
-def _bootstrap(script_path: str) -> None:
-    try:
-        runpy.run_path(script_path, run_name="__main__")
-    except Exception:  # pylint: disable=broad-except
-        limit = _count_script_traceback_frames(script_path)
+def _bootstrap(script_path: str, api_context: ApiContext) -> None:
+    with api_context.activate():
+        try:
+            runpy.run_path(script_path, run_name="__main__")
+        except Exception:  # pylint: disable=broad-except
+            limit = _count_script_traceback_frames(script_path)
 
-        print(f"Script {script_path}:", file=sys.stderr)
-        traceback.print_exc(limit=-limit, file=sys.stderr)
+            print(f"Script {script_path}:", file=sys.stderr)
+            traceback.print_exc(limit=-limit, file=sys.stderr)
 
 
 def _count_script_traceback_frames(script_path: str) -> int:
