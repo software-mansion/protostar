@@ -161,8 +161,7 @@ class GatewayFacade:
         declare_tx = await self._create_declare_tx_v1(
             compiled_contract=compiled_contract,
             account_client=account_client,
-            auto_estimate_fee=max_fee == "auto",
-            max_fee=max_fee if max_fee != "auto" else None,
+            max_fee=max_fee,
         )
         register_response = self._register_request(
             action="DECLARE",
@@ -200,8 +199,7 @@ class GatewayFacade:
         self,
         compiled_contract,
         account_client: AccountClient,
-        max_fee: Optional[int],
-        auto_estimate_fee: bool,
+        max_fee: Fee,
     ) -> Declare:
         declare_tx = Declare(
             contract_class=compiled_contract,  # type: ignore
@@ -213,7 +211,9 @@ class GatewayFacade:
         )
         # pylint: disable=protected-access
         max_fee = await account_client._get_max_fee(
-            transaction=declare_tx, max_fee=max_fee, auto_estimate=auto_estimate_fee
+            transaction=declare_tx,
+            max_fee=max_fee if max_fee != "auto" else None,
+            auto_estimate=max_fee == "auto",
         )
         declare_tx = dataclasses.replace(declare_tx, max_fee=max_fee)
         signature = account_client.signer.sign_transaction(declare_tx)
@@ -305,9 +305,8 @@ class GatewayFacade:
         function_name: str,
         account_address: str,
         signer: BaseSigner,
+        max_fee: Fee,
         inputs: Optional[CairoOrPythonData] = None,
-        max_fee: Optional[int] = None,
-        auto_estimate_fee: bool = False,
         wait_for_acceptance: bool = False,
     ) -> SuccessfulInvokeResponse:
         register_response = self._register_request(
@@ -316,7 +315,6 @@ class GatewayFacade:
                 "contract_address": contract_address,
                 "function_name": function_name,
                 "max_fee": max_fee,
-                "auto_estimate_fee": auto_estimate_fee,
                 "inputs": str(inputs),
                 "signer": str(signer),
             },
@@ -334,7 +332,7 @@ class GatewayFacade:
                 contract_function,
                 inputs,
                 max_fee=max_fee,
-                auto_estimate=auto_estimate_fee,
+                auto_estimate=max_fee == "auto",
             )
 
         except TransactionFailedError as ex:
@@ -420,7 +418,7 @@ class GatewayFacade:
     async def _invoke_function(
         contract_function: ContractFunction,
         inputs: Optional[ContractFunctionInputType] = None,
-        max_fee: Optional[int] = None,
+        max_fee: Fee = "auto",
         auto_estimate: bool = False,
     ) -> InvokeResult:
         if inputs is None:
@@ -429,12 +427,12 @@ class GatewayFacade:
             if isinstance(inputs, List):
                 return await contract_function.invoke(
                     *inputs,
-                    max_fee=max_fee,
+                    max_fee=max_fee if max_fee != "auto" else None,
                     auto_estimate=auto_estimate,
                 )
             return await contract_function.invoke(
                 **inputs,
-                max_fee=max_fee,
+                max_fee=max_fee if max_fee != "auto" else None,
                 auto_estimate=auto_estimate,
             )
         except (TypeError, ValueError) as ex:
