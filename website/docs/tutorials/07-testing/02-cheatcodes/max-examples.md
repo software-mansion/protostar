@@ -10,7 +10,7 @@ Fuzzer tries at most this many input examples. If it does not find any failing, 
 `max_examples` does not limit the examples specified by [`example`](./example.md) cheatcode.
 It only affects the [`given`](./given.md) cheatcode and any examples added with `example` will be applied additionally.
 
-:::warning
+:::info
 This cheatcode is only available in [setup hooks](../README.md#setup-hooks).
 :::
 
