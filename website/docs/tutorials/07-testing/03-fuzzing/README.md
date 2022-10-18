@@ -4,14 +4,21 @@
 This feature is actively developed and many new additions will land in future Protostar releases.
 :::
 
-Protostar tests can take parameters, which makes such tests to be run in a _fuzzing mode_.
-In this mode, Protostar treats the test case parameters as a specification of the test case,
+In order to use the _fuzzing mode_, you have to use the [`given`](../02-cheatcodes/given.md) cheatcode.
+In the _fuzzing mode_, Protostar treats the test case parameters as a specification of the test case,
 in the form of properties which it should satisfy,
 and tests that these properties hold in numerous randomly generated input data.
 
 This technique is often called _property-based testing_.
 From the perspective of a user, the purpose of property-based testing is to make it easier for the
 user to write better tests.
+
+Fuzzer input parameters are selected according to a _fuzzing strategy_ associated with each
+parameter.
+Protostar offers various strategies tailored for specific use cases, check out
+the [Strategies](./strategies.md) page for more information.
+Associating a fuzzing strategy to a parameter is done using the [`given`](../02-cheatcodes/given.md)
+cheatcode, which is only available within [setup cases][setup-case].
 
 ## Example
 
@@ -116,6 +123,22 @@ Protostar will run any test that takes parameters in fuzz testing mode, so let's
 test:
 
 ```cairo title="tests/test_main.cairo"
+%lang starknet
+from src.main import balance, withdraw
+from starkware.cairo.common.cairo_builtins import HashBuiltin
+
+@external
+func setup_withdraw{
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
+    range_check_ptr
+}() {
+    %{ given(amount = strategy.felts()) %}
+
+    balance.write(10000);
+    return ();
+}
+
 @external
 func test_withdraw{
     syscall_ptr: felt*,
@@ -134,6 +157,9 @@ func test_withdraw{
     return ();
 }
 ```
+
+This test is being run using the [`felts`](./strategies.md#strategyfelts) strategy.
+By default, it tries to apply all possible `felt` values.
 
 When the test is run now, we can see that it fails for values larger than the amount we stored
 in [`setup_withdraw` hook][setup-case]:
@@ -231,12 +257,6 @@ Although this bug should be fixed within the contract, for the purpose of this t
 it differently:
 we will instruct the fuzzer to avoid numbers outside of `range_check` builtin boundary.
 
-Fuzzer input parameters are selected according to a _fuzzing strategy_ associated with each
-parameter.
-Protostar offers various strategies tailored for specific use cases, check out
-the [Strategies](./strategies.md) page for more information.
-Associating a fuzzing strategy to a parameter is done using the [`given`](../02-cheatcodes/given.md)
-cheatcode, which is only available within [setup cases][setup-case].
 The strategy [`felts`](./strategies.md#strategyfelts) accepts a keyword argument `rc_bound`
 which narrows the range of values to be safe to be passed to range check-based assertions:
 
