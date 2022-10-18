@@ -406,7 +406,8 @@ good-names=i,
            w3,
            _,
            on,
-           off
+           off,
+           tb
 
 # Good variable names regexes, separated by a comma. If names match any regex,
 # they will always be accepted
