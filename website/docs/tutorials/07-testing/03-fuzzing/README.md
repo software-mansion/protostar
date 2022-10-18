@@ -257,7 +257,7 @@ Although this bug should be fixed within the contract, for the purpose of this t
 it differently:
 we will instruct the fuzzer to avoid numbers outside of `range_check` builtin boundary.
 
-The strategy [`felts`](./strategies.md#strategyfelts) accepts a keyword argument `rc_bound`
+The [`felts`](./strategies.md#strategyfelts) strategy accepts a keyword argument `rc_bound`
 which narrows the range of values to be safe to be passed to range check-based assertions:
 
 ```cairo title="src/main.cairo"
