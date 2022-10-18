@@ -4,7 +4,14 @@
 def mock_call(contract_address: int, fn_name: str, ret_data: Union[List[int], Dict]) -> Callable: ...
 ```
 
-Mocks all calls to function with the name `fn_name` of a contract with an address `contract_address` until the returned callable is called. Mocked call returns data provided in `ret_data`. Mock works globally, for all of the contracts, not only the testing contract.
+Mocks all calls to function with the name `fn_name` of a contract with an address `contract_address`, until the returned callable is called. 
+
+Mocked call returns data provided in `ret_data`.
+
+Mock works globally, for all contracts, not only the testing contract.
+
+## Caveats
+- Mock call only works for functions that are in the contract ABI. It does not mock any internal function calls, even if the function name and parameter types match.
 
 :::tip
 You can provide constructor arguments as a dictionary to leverage [data transformer](README.md#data-transformer).

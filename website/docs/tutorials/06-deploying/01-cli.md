@@ -36,7 +36,7 @@ Protostar offers two ways of providing the signature:
 By default, Protostar uses the [StarkCurveSigner class](https://starknetpy.readthedocs.io/en/latest/signer.html#starknet_py.net.signer.stark_curve_signer.StarkCurveSigner) from Starknet.py.
 
 This way requires you to pass a private key (for signing) and account contract's address (to fetch the nonce).
-You can obtain the key and account address i.e. from [Argentx](https://chrome.google.com/webstore/detail/argent-x/dlcobpjiigpikoobohmabehhmhfoodbb) or [Braavos](https://chrome.google.com/webstore/detail/braavos-wallet/jnlgamecbpmbajjfhmmmlhejkemejdma) wallets. 
+You can obtain the key and account address e.g. from [Argentx](https://chrome.google.com/webstore/detail/argent-x/dlcobpjiigpikoobohmabehhmhfoodbb) or [Braavos](https://chrome.google.com/webstore/detail/braavos-wallet/jnlgamecbpmbajjfhmmmlhejkemejdma) wallets. 
 
 2 options are used for this:
 - `private-key-path` - a path to the file containing hex-encoded private key
@@ -60,6 +60,11 @@ The Python file containing this class can be put next to Cairo source code.
 Protostar synchronizes `PYTHONPATH` with project's `cairo_path`.
 Modules that are dependencies of Protostar (like `starknet_py` or `cairo-lang`) should be available for importing by default.
 If you want to import other custom modules, you should extend `PYTHONPATH` yourself (https://docs.python.org/3/using/cmdline.html#envvar-PYTHONPATH), when running this command.
+
+## Sending Invoke Transaction
+Protostar supports invoking contract functions from the CLI level.
+Invoking can be used to invoke [deployer contracts](https://community.starknet.io/t/universal-deployer-contract-proposal/1864).
+To send an invoke transaction use [`protostar invoke`](/docs/cli-reference#invoke). The transaction can be [signed similarly to the declare transaction](#signing-a-declaration).
 
 ## Deploying
 :::caution

@@ -5,8 +5,8 @@ def invoke(
     contract_address: int,
     function_name: str,
     inputs: list[int] | dict[str, Any] | None = None,
+    config: SignedCheatcodeConfig,
     *,
-    config: SignedCheatcodeConfig | None = None,
 ) -> None:
 ```
 
@@ -17,9 +17,9 @@ It's an extension of [CheatcodeNetworkConfig](../03-network-config.md), so it's 
 
 ```python
 Wei = int
+Fee = "auto" | Wei
 class SignedCheatcodeConfig(CheatcodeNetworkConfig):
-    max_fee: Wei | None
-    auto_estimate_fee: int
+    max_fee: Fee
 ```
 
 Auto-fee estimation is supported, and `starknet.py`'s estimation logic is used - see [starknet.py docs](https://starknetpy.readthedocs.io/en/latest/guide.html#automatic-fee-estimation).
@@ -30,8 +30,6 @@ You can provide `inputs` as a dictionary to use [data transformer](./README.md#d
 :::
 
 ## Fees
-Either `max_fee` (in Wei) or `auto_estimate_fee` in `config` is required.
-
 We recommend using `max_fee` to avoid unexpected network costs.
 
 The config object is passed as a python dictionary.
@@ -66,8 +64,8 @@ func up() {
             "initialize",
             {"new_authority": 123},
             config={
-                "auto_estimate_fee": True,
                 "wait_for_acceptance": True,
+                "max_fee": "auto",
             }
         )
     %}
