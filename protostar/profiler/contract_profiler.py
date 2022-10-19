@@ -302,7 +302,7 @@ def build_profile(
 ) -> RuntimeProfile:
     function_list = collect_contract_functions(tracer_data)
     instructions_list = create_instruction_list(function_list, tracer_data)
-    instruction_dict = { instr.pc: instr for instr in instructions_list }
+    instruction_dict = {instr.pc: instr for instr in instructions_list}
     step_samples = build_step_samples(instruction_dict, tracer_data)
     memhole_samples = build_memhole_samples(
         instruction_dict,
