@@ -119,8 +119,8 @@ However, can we be sure that it works for all amounts, not just this particular 
 The general property here is: given a safe balance, when we withdraw some amount from it, we should
 get reduced balance in the safe, and it should not be possible to withdraw more than we have.
 
-Protostar will run any test that takes parameters in fuzz testing mode, so let's rewrite our unit
-test:
+In order to run our test in the fuzz testing mode, we need to use the [`given`](../02-cheatcodes/given.md)
+cheatcode. Let's apply this:
 
 ```cairo title="tests/test_main.cairo"
 %lang starknet

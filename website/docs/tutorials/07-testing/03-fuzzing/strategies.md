@@ -89,9 +89,9 @@ Max size `31` comes from [the docs](https://www.cairo-lang.org/docs/how_cairo_wo
 Often it is the case that a strategy does not produce exactly what is desired and it is necessary to further
 adapt the generated values.
 Although this could be done in tests directly, this hurts because fuzzer does not know about the adaptation and may repeatedly test the same values.
-The [`assume`] and [`reject`] cheatcodes provide simple interfaces to adapt a advanced strategy.
+The [`assume`] and [`reject`] cheatcodes provide simple interfaces to adapt an advanced strategy.
 Those are not very good considering the performance.
-Fuzzer can execute test on rejected data anyway and will just ignore failure when it happens.
+Fuzzer can execute tests on rejected data anyway and will just ignore failure when it happens.
 
 Protostar provides ways to build strategies by transforming other ones.
 
