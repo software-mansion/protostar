@@ -14,8 +14,8 @@ def _get_high(uint256: int):
 
 
 class Uint256StrategyDescriptor(StrategyDescriptor):
-    def build_strategy(self, cairo_type: CairoType) -> SearchStrategy[int]:
-        if not isinstance(cairo_type, TypeStruct) and str(cairo_type.scope).endswith(
+    def build_strategy(self, cairo_type: CairoType) -> SearchStrategy[tuple[int, int]]:
+        if not isinstance(cairo_type, TypeStruct) or not str(cairo_type.scope).endswith(
             "starkware.cairo.common.uint256.Uint256"
         ):
             raise SearchStrategyBuildError(
