@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import List, cast
 from unittest.mock import MagicMock
+from py._path.local import LocalPath
 
 import pytest
 from pytest_mock import MockerFixture
@@ -15,7 +16,7 @@ from .test_suite import TestCase, TestSuite
 
 
 @pytest.fixture(name="project_root")
-def project_root_fixture(tmpdir: Path) -> Path:
+def project_root_fixture(tmpdir: LocalPath) -> Path:
     return Path(tmpdir)
 
 

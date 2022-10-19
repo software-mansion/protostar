@@ -1,6 +1,5 @@
-from pathlib import Path
-
 from pytest_mock import MockerFixture
+from py._path.local import LocalPath
 
 from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
 from protostar.protostar_toml.protostar_config_section import ProtostarConfigSection
@@ -10,7 +9,7 @@ from protostar.protostar_toml.protostar_contracts_section import (
 from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
 
 
-def test_saving_configuration_file(tmpdir: Path, mocker: MockerFixture):
+def test_saving_configuration_file(tmpdir: LocalPath, mocker: MockerFixture):
     version_manager_mock = mocker.MagicMock()
     version_manager_mock.protostar_version = "0.1.0"
 

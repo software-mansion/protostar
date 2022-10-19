@@ -12,6 +12,7 @@ import pytest
 import tomli
 import tomli_w
 from typing_extensions import Protocol
+from py._path.local import LocalPath
 
 from protostar.self.protostar_directory import ProtostarDirectory
 from tests.conftest import run_devnet
@@ -32,7 +33,7 @@ def protostar_bin(protostar_repo_root: Path) -> Path:
 
 
 @pytest.fixture(autouse=True)
-def change_cwd(tmpdir: Path, protostar_repo_root: Path):
+def change_cwd(tmpdir: LocalPath, protostar_repo_root: Path):
     protostar_project_dir = Path(tmpdir) / "protostar_project"
     mkdir(protostar_project_dir)
     yield chdir(protostar_project_dir)
@@ -223,7 +224,7 @@ MyPrivateLibsSetupFixture = Tuple[
 # pylint: disable=unused-argument
 @pytest.fixture(name="my_private_libs_setup")
 def my_private_libs_setup_fixture(
-    init: InitFixture, tmpdir: Path, copy_fixture: CopyFixture
+    init: InitFixture, tmpdir: LocalPath, copy_fixture: CopyFixture
 ) -> MyPrivateLibsSetupFixture:
     my_private_libs_dir = Path(tmpdir) / "my_private_libs"
     mkdir(my_private_libs_dir)

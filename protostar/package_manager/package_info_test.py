@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 from pytest_mock import MockerFixture
+from py._path.local import LocalPath
 
 from protostar.git.create_and_commit_sample_file import create_and_commit_sample_file
 from protostar.git import Git, GitRepository
@@ -125,15 +126,15 @@ class LoadNormalizedToRealNameMapTest:
         return "lib"
 
     @pytest.fixture
-    def repo_with_normal_name_package_dir(self, tmpdir: Path) -> Path:
+    def repo_with_normal_name_package_dir(self, tmpdir: LocalPath) -> Path:
         return Path(tmpdir) / "repo_a"
 
     @pytest.fixture
-    def repo_with_custom_name_package_dir(self, tmpdir: Path) -> Path:
+    def repo_with_custom_name_package_dir(self, tmpdir: LocalPath) -> Path:
         return Path(tmpdir) / "repo_b"
 
     @pytest.fixture
-    def package_repo_dir(self, tmpdir: Path) -> Path:
+    def package_repo_dir(self, tmpdir: LocalPath) -> Path:
         return Path(tmpdir) / "package_repo"
 
     @pytest.fixture
@@ -240,7 +241,7 @@ class LoadNormalizedToRealNameMapTest:
 
 class RetrieveRealPackageNameTest:
     @pytest.fixture
-    def repo_root_dir(self, tmpdir: Path) -> Path:
+    def repo_root_dir(self, tmpdir: LocalPath) -> Path:
         repo_dir = Path(tmpdir) / "repo"
         mkdir(repo_dir)
         return repo_dir

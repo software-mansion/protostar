@@ -1,6 +1,7 @@
 from pathlib import Path
 from types import SimpleNamespace
 from typing import List, Callable
+from py._path.local import LocalPath
 
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
@@ -21,7 +22,7 @@ PkeyFileFactoryFixture = Callable[[str], Path]
 
 
 @pytest.fixture(name="pkey_file_factory")
-def pkey_file_factory_fixture(tmpdir: Path) -> PkeyFileFactoryFixture:
+def pkey_file_factory_fixture(tmpdir: LocalPath) -> PkeyFileFactoryFixture:
     def factory(pkey: str) -> Path:
         pkey_file_path = tmpdir / "tmpfile.pkey"
         with open(pkey_file_path, mode="w+", encoding="utf-8") as file:

@@ -4,6 +4,7 @@ from time import sleep
 from typing import Optional
 
 import pytest
+from py._path.local import LocalPath
 
 from protostar.commands.update.update_package import update_package
 from protostar.commands.update.updating_exceptions import (
@@ -26,7 +27,7 @@ def fixture_package_name() -> str:
 
 
 @pytest.fixture(name="repo_dir")
-def fixture_repo_root_dir(tmpdir: Path) -> Path:
+def fixture_repo_root_dir(tmpdir: LocalPath) -> Path:
     return Path(tmpdir) / "repo"
 
 

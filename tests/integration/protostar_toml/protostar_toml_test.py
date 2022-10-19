@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from py._path.local import LocalPath
 from pytest_mock import MockerFixture
 
 from protostar.protostar_toml import (
@@ -12,7 +13,7 @@ from protostar.protostar_toml import (
 from protostar.self.protostar_directory import VersionManager
 
 
-def test_saving_and_reading(tmpdir: Path, mocker: MockerFixture):
+def test_saving_and_reading(tmpdir: LocalPath, mocker: MockerFixture):
     version_manager_mock = mocker.MagicMock()
     version_manager_mock.protostar_version = VersionManager.parse("0.1.0")
     path = Path(tmpdir) / "protostar.toml"
