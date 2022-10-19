@@ -6,7 +6,7 @@ from protostar.testing.fuzzing.strategy_descriptor import StrategyDescriptor
 
 
 def _get_low(uint256: int):
-    return uint256 & ((1 << 128)-1)
+    return uint256 & ((1 << 128) - 1)
 
 
 def _get_high(uint256: int):
