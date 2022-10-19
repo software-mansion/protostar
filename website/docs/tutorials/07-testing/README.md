@@ -139,7 +139,7 @@ func test_tested_property()
 The setup case hook is bound to a matching test case and is executed just before the test case
 itself.
 These hooks are executed with a context built by the `__setup__` hook, but in isolation for each
-test separately, before jumping into test case function itself.
+test separately, before jumping into the test case function itself.
 This makes them useful to extract test-specific setup logic from tested code itself.
 
 ```cairo title="Using setup case hook to prepare test-specific state"
@@ -194,7 +194,7 @@ func test_foo{
 }
 ```
 
-You can also use case hooks to configure the behavior of a particular test case,
+You can also use setup case hooks to configure the behavior of a particular test case,
 for example, by calling the [`max_examples`] cheatcode.
 Some configuration-specific cheatcodes are only available within setup cases, like [`example`]
 and [`given`]:
