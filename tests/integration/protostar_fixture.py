@@ -395,9 +395,7 @@ def build_protostar_fixture(
     project_compiler = ProjectCompiler(
         project_root_path=project_root_path,
         project_cairo_path_builder=project_cairo_path_builder,
-        contracts_section_loader=ProtostarContractsSection.Loader(
-            protostar_toml_reader
-        ),
+        configuration_file=configuration_file,
     )
 
     input_requester = cast(InputRequester, mocker.MagicMock())
@@ -423,14 +421,6 @@ def build_protostar_fixture(
         input_requester,
         new_project_creator=new_project_creator,
         adapted_project_creator=mocker.MagicMock(),
-    )
-
-    project_compiler = ProjectCompiler(
-        project_root_path=project_root_path,
-        project_cairo_path_builder=project_cairo_path_builder,
-        contracts_section_loader=ProtostarContractsSection.Loader(
-            protostar_toml_reader
-        ),
     )
 
     logger = getLogger()
