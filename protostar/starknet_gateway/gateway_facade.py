@@ -520,7 +520,9 @@ class CompilationOutputNotFoundException(ProtostarException):
 
 class FeeExceededMaxFeeException(ProtostarException):
     @classmethod
-    def from_gateway_error(cls, client_error: Union[ClientError, TransactionRejectedError]) -> Optional[Self]:
+    def from_gateway_error(
+        cls, client_error: Union[ClientError, TransactionRejectedError]
+    ) -> Optional[Self]:
         if "Actual fee exceeded max fee" in client_error.message:
             return cls(client_error.message)
         return None
