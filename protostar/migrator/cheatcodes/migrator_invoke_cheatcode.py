@@ -35,7 +35,9 @@ class ValidatedSignedCheatcodeConfig:
 
     @classmethod
     def from_dict(
-        cls, cheatcode_name_provider: CheatcodeNameProvider, config: SignedCheatcodeConfig
+        cls,
+        cheatcode_name_provider: CheatcodeNameProvider,
+        config: SignedCheatcodeConfig,
     ) -> "ValidatedSignedCheatcodeConfig":
         if "max_fee" not in config.keys():
             raise CheatcodeException(

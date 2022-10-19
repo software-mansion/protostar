@@ -245,15 +245,21 @@ def _format_skipped_test_case_result(skipped_test_case_result: SkippedTestCaseRe
     return "\n".join(result)
 
 
-def _format_failed_fuzz_test_case_result(failed_fuzz_test_case_result: FailedFuzzTestCaseResult) -> str:
+def _format_failed_fuzz_test_case_result(
+    failed_fuzz_test_case_result: FailedFuzzTestCaseResult,
+) -> str:
     return _format_failed_test_case_result(failed_fuzz_test_case_result)
 
 
-def _format_broken_fuzz_test_case_result(broken_fuzz_test_case_result: BrokenTestCaseResult) -> str:
+def _format_broken_fuzz_test_case_result(
+    broken_fuzz_test_case_result: BrokenTestCaseResult,
+) -> str:
     return _format_broken_test_case_result(broken_fuzz_test_case_result)
 
 
-def _format_broken_test_suite_result(broken_test_suite_result: BrokenTestSuiteResult) -> str:
+def _format_broken_test_suite_result(
+    broken_test_suite_result: BrokenTestSuiteResult,
+) -> str:
     first_line: List[str] = []
     first_line.append(f"[{log_color_provider.colorize('RED', 'BROKEN')}]")
     first_line.append(f"{_get_formatted_file_path(broken_test_suite_result.file_path)}")

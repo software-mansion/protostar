@@ -71,7 +71,9 @@ def test_compiling(tmp_path: Path, datadir: Path, create_loader: CreateLoaderFix
         assert function_input["type"] == "felt"
 
 
-def test_handling_cairo_errors(tmp_path: Path, datadir: Path, create_loader: CreateLoaderFixture):
+def test_handling_cairo_errors(
+    tmp_path: Path, datadir: Path, create_loader: CreateLoaderFixture
+):
     project_root_path = datadir / "compilation_error"
 
     with pytest.raises(CompilationException):
@@ -96,7 +98,9 @@ def test_handling_cairo_errors(tmp_path: Path, datadir: Path, create_loader: Cre
         ).compile_project(output_dir=tmp_path)
 
 
-def test_handling_not_existing_main_files(tmp_path: Path, datadir: Path, create_loader: CreateLoaderFixture):
+def test_handling_not_existing_main_files(
+    tmp_path: Path, datadir: Path, create_loader: CreateLoaderFixture
+):
     project_root_path = datadir / "compilation_error"
 
     with pytest.raises(StarknetCompiler.FileNotFoundException):
