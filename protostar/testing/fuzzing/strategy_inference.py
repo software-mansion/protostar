@@ -15,9 +15,7 @@ def infer_strategy_from_cairo_type(
 ) -> StrategyDescriptor:
     if isinstance(cairo_type, TypeFelt):
         return FeltsStrategyDescriptor()
-    if isinstance(cairo_type, TypeStruct) and str(cairo_type.scope).endswith(
-        "Uint256"
-    ):
+    if isinstance(cairo_type, TypeStruct) and str(cairo_type.scope).endswith("Uint256"):
         return Uint256StrategyDescriptor()
 
     raise FuzzingError(
