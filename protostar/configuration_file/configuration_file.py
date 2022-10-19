@@ -90,12 +90,9 @@ class ConfigurationFile(
     def create_appending_cairo_path_suggestion() -> str:
         return "\n".join(
             [
-                "You may want to add your new library's path to the 'cairo_path' section of your `protostar.toml` file",
-                "[protostar.shared_command_configs]",
-                "cairo_path = [",
-                '    "...",',
-                '    "path/to/the/library/source/files"',
-                "]",
+                "You may want to add your new library's path to the 'cairo_path' "
+                "section of your configuration file (usually `protostar.toml`).",
+                "For more information you can visit:"
                 "https://docs.swmansion.com/protostar/docs/tutorials/dependencies-management#adding-a-dependency",
             ]
         )
