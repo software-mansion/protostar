@@ -42,7 +42,7 @@ You can obtain the key and account address e.g. from [Argentx](https://chrome.go
 - `private-key-path` - a path to the file containing hex-encoded private key
 - `account-address` - your account contract's address (hex-encoded as well) on the appropriate network
 
-Alternatively, if you prefer not to store private key in a file, we check for `ACCOUNT_PRIVATE_KEY` environment variable, and use it if it's available.   
+Alternatively, if you prefer not to store private key in a file, we check for `PROTOSTAR_ACCOUNT_PRIVATE_KEY` environment variable, and use it if it's available.   
 It should be in the same hex-encoded format, like all the options above.
 
 ### 2. Using a custom signer class

@@ -1,10 +1,11 @@
 import asyncio
 from dataclasses import dataclass
 from typing import Optional
+import logging
 
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.signer import BaseSigner
-from typing_extensions import NotRequired, Protocol
+from typing_extensions import Required, Protocol
 
 from protostar.migrator.cheatcodes import CheatcodeNetworkConfig
 from protostar.starknet import (
@@ -18,32 +19,31 @@ from protostar.starknet_gateway import (
     ContractNotFoundException,
     GatewayFacade,
     UnknownFunctionException,
+    Fee,
 )
-
-Wei = int
 
 
 class SignedCheatcodeConfig(CheatcodeNetworkConfig):
-    max_fee: NotRequired[Wei]
-    auto_estimate_fee: NotRequired[bool]
+    max_fee: Required[Fee]
 
 
 @dataclass
 class ValidatedSignedCheatcodeConfig:
-    max_fee: Optional[Wei] = None
+    max_fee: Fee
     wait_for_acceptance: bool = False
-    auto_estimate_fee: bool = False
 
     @classmethod
     def from_dict(
-        cls, config: Optional[SignedCheatcodeConfig]
+        cls, chatcode_name_provider, config: SignedCheatcodeConfig
     ) -> "ValidatedSignedCheatcodeConfig":
-        if not config:
-            return cls()
+        if "max_fee" not in config.keys():
+            raise CheatcodeException(
+                chatcode_name_provider,
+                "max_fee is required in config but has not been provided",
+            )
         return cls(
             wait_for_acceptance=config.get("wait_for_acceptance", False),
-            max_fee=config.get("max_fee", None),
-            auto_estimate_fee=config.get("auto_estimate_fee", False),
+            max_fee=config["max_fee"],
         )
 
 
@@ -54,7 +54,7 @@ class InvokeCheatcodeProtocol(Protocol):
         function_name: str,
         inputs: Optional[CairoOrPythonData],
         *args,
-        config: Optional[SignedCheatcodeConfig],
+        config: SignedCheatcodeConfig,
     ) -> None:
         ...
 
@@ -71,6 +71,7 @@ class MigratorInvokeCheatcode(Cheatcode):
         self._gateway_facade = gateway_facade
         self._signer = signer
         self._account_address = account_address
+        self._logger = logging.getLogger(__name__)
 
     @property
     def name(self) -> str:
@@ -85,25 +86,23 @@ class MigratorInvokeCheatcode(Cheatcode):
         function_name: str,
         inputs: Optional[CairoOrPythonData],
         *args,
-        config=None,
+        config: SignedCheatcodeConfig,
     ):
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
 
-        config = ValidatedSignedCheatcodeConfig.from_dict(config)
-        max_fee = config.max_fee
-        auto_estimate_fee = config.auto_estimate_fee
-        wait_for_acceptance = config.wait_for_acceptance
+        if config.get("auto_estimate_fee"):
+            self._logger.warning(
+                'auto_estimate_fee is deprecated, please use max_fee = "auto" instead'
+            )
+        validated_config = ValidatedSignedCheatcodeConfig.from_dict(self, config)
+        max_fee = validated_config.max_fee
+        wait_for_acceptance = validated_config.wait_for_acceptance
 
-        if max_fee is not None and max_fee <= 0:
+        if max_fee != "auto" and max_fee <= 0:
             raise CheatcodeException(
                 self,
                 message="max_fee must be greater than 0.",
-            )
-        if not max_fee and not auto_estimate_fee:
-            raise CheatcodeException(
-                self,
-                message="Either max_fee or auto_estimate_fee argument is required.",
             )
         if not self._account_address:
             raise CheatcodeException(
@@ -125,7 +124,6 @@ class MigratorInvokeCheatcode(Cheatcode):
                     function_name=function_name,
                     max_fee=max_fee,
                     inputs=inputs,
-                    auto_estimate_fee=auto_estimate_fee,
                     signer=self._signer,
                     account_address=self._account_address,
                     wait_for_acceptance=wait_for_acceptance,
