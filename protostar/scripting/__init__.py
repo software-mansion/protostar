@@ -1,1 +1,2 @@
-from .version import __version__
+from .build import *
+from .version import *
