@@ -171,7 +171,7 @@ class ProtostarFixture:
         self,
         path: Path,
         gateway_url: str,
-        rollback=False,
+        rollback: bool = False,
         account_address: Optional[str] = None,
     ):
         args = Namespace()
@@ -218,9 +218,9 @@ class ProtostarFixture:
     def format(
         self,
         targets: List[str],
-        check=False,
-        verbose=False,
-        ignore_broken=False,
+        check: bool = False,
+        verbose: bool = False,
+        ignore_broken: bool = False,
     ) -> FormattingSummary:
         # We can't use run because it can raise a silent exception thus not returning summary.
         return self._format_command.format(targets, check, verbose, ignore_broken)
@@ -228,9 +228,9 @@ class ProtostarFixture:
     def format_with_output(
         self,
         targets: List[str],
-        check=False,
-        verbose=False,
-        ignore_broken=False,
+        check: bool = False,
+        verbose: bool = False,
+        ignore_broken: bool = False,
     ) -> Tuple[FormattingSummary, List[str]]:
         formatter = Formatter(self._project_root_path)
 

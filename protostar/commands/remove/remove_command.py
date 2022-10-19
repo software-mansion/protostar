@@ -1,3 +1,4 @@
+from argparse import Namespace
 from logging import Logger
 from pathlib import Path
 from typing import Optional
@@ -54,7 +55,7 @@ class RemoveCommand(ProtostarCommand):
             ),
         ]
 
-    async def run(self, args):
+    async def run(self, args: Namespace):
         self._logger.info("Retrieving package for removal")
         try:
             self.remove(args.package)

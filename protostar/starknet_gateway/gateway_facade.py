@@ -197,7 +197,7 @@ class GatewayFacade:
 
     async def _create_declare_tx_v1(
         self,
-        compiled_contract,
+        compiled_contract: ContractClass,
         account_client: AccountClient,
         max_fee: Fee,
     ) -> Declare:

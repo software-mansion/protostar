@@ -1,3 +1,4 @@
+from argparse import Namespace
 from logging import Logger
 from typing import List, Optional
 
@@ -78,7 +79,7 @@ class DeployCommand(ProtostarCommand):
             *NetworkCommandUtil.network_arguments,
         ]
 
-    async def run(self, args):
+    async def run(self, args: Namespace):
         self._logger.warning(
             "`protostar deploy` will be removed in the future release\n"
             "https://docs.starknet.io/docs/Blocks/transactions/#deploy-transaction"

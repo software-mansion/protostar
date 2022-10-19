@@ -1,6 +1,6 @@
 import asyncio
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 
 from starkware.python.utils import from_bytes
 from starkware.starknet.business_logic.transaction.objects import InternalDeclare
@@ -38,7 +38,7 @@ class DeclareCheatcode(Cheatcode):
     def declare(
         self,
         contract: str,
-        *args,
+        *args: Any,
         # pylint: disable=unused-argument
         config: Optional[Dict] = None,
     ) -> DeclaredContract:

@@ -99,8 +99,8 @@ class RunCairoTestRunnerFixture(Protocol):
         self,
         path: Path,
         seed: Optional[int] = None,
-        disable_hint_validation=False,
-        profiling=False,
+        disable_hint_validation: bool = False,
+        profiling: bool = False,
         cairo_path: Optional[List[Path]] = None,
         test_cases: Optional[List[str]] = None,
         ignored_test_cases: Optional[List[str]] = None,
@@ -137,8 +137,8 @@ def run_cairo_test_runner_fixture(
     async def run_cairo_test_runner(
         path: Path,
         seed: Optional[int] = None,
-        disable_hint_validation=False,
-        profiling=False,
+        disable_hint_validation: bool = False,
+        profiling: bool = False,
         cairo_path: Optional[List[Path]] = None,
         test_cases: Optional[List[str]] = None,
         ignored_test_cases: Optional[List[str]] = None,
@@ -197,7 +197,7 @@ def create_protostar_project_fixture(
     session_mocker: MockerFixture,
     tmp_path_factory: TempPathFactory,
     signing_credentials: Tuple[str, str],
-):
+) -> CreateProtostarProjectFixture:
     @contextmanager
     def create_protostar_project():
         tmp_path = tmp_path_factory.mktemp("project_name")
@@ -217,8 +217,13 @@ def create_protostar_project_fixture(
     return create_protostar_project
 
 
+GetAbiFromContractFixture = Callable[[str], AbiType]
+
+
 @pytest.fixture(name="get_abi_from_contract", scope="module")
-def get_abi_from_contract_fixture(create_protostar_project) -> Callable[[str], AbiType]:
+def get_abi_from_contract_fixture(
+    create_protostar_project: CreateProtostarProjectFixture,
+) -> GetAbiFromContractFixture:
     def get_abi_from_contract(contract_source_code: str) -> AbiType:
         with create_protostar_project() as protostar:
             protostar.create_files({"src/main.cairo": contract_source_code})

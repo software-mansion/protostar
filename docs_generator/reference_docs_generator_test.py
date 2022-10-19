@@ -97,7 +97,7 @@ def test_required_info():
     assert "Required." in result
 
 
-def test_saving_markdown_file(tmpdir):
+def test_saving_markdown_file(tmpdir: Path):
     filepath = Path(tmpdir) / "foo.md"
     ReferenceDocsGenerator.save_to_markdown_file(filepath, "foobar")
 

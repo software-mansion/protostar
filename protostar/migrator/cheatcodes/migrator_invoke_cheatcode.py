@@ -1,6 +1,6 @@
 import asyncio
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Any
 import logging
 
 from starknet_py.net.client_errors import ClientError
@@ -14,6 +14,7 @@ from protostar.starknet import (
     KeywordOnlyArgumentCheatcodeException,
     SimpleReportedException,
 )
+from protostar.starknet.cheatable_starknet_exceptions import CheatcodeNameProvider
 from protostar.starknet.data_transformer import CairoOrPythonData
 from protostar.starknet_gateway import (
     ContractNotFoundException,
@@ -34,11 +35,11 @@ class ValidatedSignedCheatcodeConfig:
 
     @classmethod
     def from_dict(
-        cls, chatcode_name_provider, config: SignedCheatcodeConfig
+        cls, cheatcode_name_provider: CheatcodeNameProvider, config: SignedCheatcodeConfig
     ) -> "ValidatedSignedCheatcodeConfig":
         if "max_fee" not in config.keys():
             raise CheatcodeException(
-                chatcode_name_provider,
+                cheatcode_name_provider,
                 "max_fee is required in config but has not been provided",
             )
         return cls(
@@ -53,7 +54,7 @@ class InvokeCheatcodeProtocol(Protocol):
         contract_address: int,
         function_name: str,
         inputs: Optional[CairoOrPythonData],
-        *args,
+        *args: Any,
         config: SignedCheatcodeConfig,
     ) -> None:
         ...
@@ -85,7 +86,7 @@ class MigratorInvokeCheatcode(Cheatcode):
         contract_address: int,
         function_name: str,
         inputs: Optional[CairoOrPythonData],
-        *args,
+        *args: Any,
         config: SignedCheatcodeConfig,
     ):
         if len(args) > 0:

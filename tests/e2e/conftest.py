@@ -5,7 +5,7 @@ import shutil
 from os import chdir, mkdir, path, getcwd
 from pathlib import Path
 from subprocess import PIPE, STDOUT, run
-from typing import Callable, List, Optional, Union
+from typing import Callable, List, Optional, Union, Tuple, Generator
 
 import pexpect
 import pytest
@@ -32,7 +32,7 @@ def protostar_bin(protostar_repo_root: Path) -> Path:
 
 
 @pytest.fixture(autouse=True)
-def change_cwd(tmpdir, protostar_repo_root: Path):
+def change_cwd(tmpdir: Path, protostar_repo_root: Path):
     protostar_project_dir = Path(tmpdir) / "protostar_project"
     mkdir(protostar_project_dir)
     yield chdir(protostar_project_dir)
@@ -40,14 +40,17 @@ def change_cwd(tmpdir, protostar_repo_root: Path):
 
 
 @pytest.fixture
-def cairo_fixtures_dir(protostar_repo_root: Path):
+def cairo_fixtures_dir(protostar_repo_root: Path) -> Path:
     return protostar_repo_root / "tests" / "e2e" / "fixtures"
+
+
+CopyFixture = Callable[[Union[Path, str], Union[Path, str]], None]
 
 
 @pytest.fixture
 def copy_fixture(
-    cairo_fixtures_dir,
-) -> Callable[[Union[Path, str], Union[Path, str]], None]:
+    cairo_fixtures_dir: Path,
+) -> CopyFixture:
     return lambda file, dst: shutil.copy(cairo_fixtures_dir / file, dst)
 
 
@@ -166,13 +169,16 @@ Output:
 
 
 @pytest.fixture(name="devnet_gateway_url", scope="session")
-def devnet_gateway_url_fixture(devnet_port: int, protostar_repo_root):
+def devnet_gateway_url_fixture(devnet_port: int, protostar_repo_root: Path):
     prev_cwd = getcwd()
     chdir(protostar_repo_root)
     proc = run_devnet(["poetry", "run", "starknet-devnet"], devnet_port)
     chdir(prev_cwd)
     yield f"http://localhost:{devnet_port}"
     proc.kill()
+
+
+InitFixture = Generator[None, None, None]
 
 
 @pytest.fixture
@@ -182,7 +188,7 @@ def init(
     protostar_toml_protostar_version: str,
     init_project: ProjectInitializer,
     libs_path: Optional[str],
-):
+) -> InitFixture:
     init_project()
     chdir(project_name)
     if protostar_toml_protostar_version or libs_path:
@@ -210,9 +216,15 @@ def init(
     chdir(protostar_repo_root)
 
 
+MyPrivateLibsSetupFixture = Tuple[
+    Path,
+]
+
 # pylint: disable=unused-argument
 @pytest.fixture(name="my_private_libs_setup")
-def my_private_libs_setup_fixture(init, tmpdir, copy_fixture):
+def my_private_libs_setup_fixture(
+    init: InitFixture, tmpdir: Path, copy_fixture: CopyFixture
+) -> MyPrivateLibsSetupFixture:
     my_private_libs_dir = Path(tmpdir) / "my_private_libs"
     mkdir(my_private_libs_dir)
 
