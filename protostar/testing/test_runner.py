@@ -17,8 +17,6 @@ from protostar.configuration_file.configuration_file_factory import (
     ConfigurationFileFactory,
 )
 from protostar.protostar_exception import ProtostarException
-from protostar.protostar_toml import ProtostarContractsSection
-from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 from protostar.starknet.compiler.pass_managers import TestSuitePassMangerFactory
 from protostar.starknet.compiler.starknet_compilation import (
     CompilerConfig,
