@@ -138,9 +138,9 @@ func test_tested_property()
 
 The setup case hook is bound to a matching test case and is executed just before the test case
 itself.
-Setup case hook is executed with a context built by the `__setup__` hook,
+The hook is executed within a context built by the `__setup__` hook,
 but in isolation for each test separately.
-After it, Protostar immediately executes the test case function itself.
+Then, Protostar immediately executes the test case function.
 This makes them useful to extract test-specific setup logic from tested code itself.
 
 ```cairo title="Using setup case hook to prepare test-specific state"
