@@ -5,8 +5,8 @@ For example we can perform greater than zero validation early in the code, and w
 Fuzzer allows to provide such assumptions to avoid testing against values which are not covered by the code. 
 
 Cheatcode [`given`](../02-cheatcodes/given.md),
-instructs fuzzer how to constraint set of values code is tested against.
-Such constraints are provided declaratively, by assigning _strategies_ to the input parameters as on the example below.
+instructs the fuzzer to adopt a specific fuzzing strategy for input parameters.
+Such strategies are provided declaratively, by assigning _strategies_ to the input parameters as on the example below.
 
 ```cairo title="Example"
 @external
@@ -27,10 +27,8 @@ func test_integers{syscall_ptr : felt*, range_check_ptr}(a : felt, b : felt) {
 }
 ```
 
-:::note
 It is required to either provide a strategy using [`given`](../02-cheatcodes/given.md)
 or specific values for parameters using [`example`](../02-cheatcodes/example.md).
-:::
 
 This document is a guide to what strategies are available for generating examples and how to build
 them.

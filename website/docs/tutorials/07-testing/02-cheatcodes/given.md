@@ -4,7 +4,7 @@
 def given(**kwargs: StrategyDescriptor) -> None:
 ```
 
-Instructs the fuzzer to adopt a different fuzzing strategy for input parameters.
+Instructs the fuzzer to adopt a specific fuzzing strategy for input parameters.
 The built-in strategies are provided by the [`strategy`](./strategy.md) cheatcode,
 and for a list of available strategies, see the [fuzzing strategies](../03-fuzzing/strategies.md)
 guide page.
