@@ -381,12 +381,10 @@ def build_protostar_fixture(
     version_manager.protostar_version = mocker.MagicMock()
     version_manager.protostar_version = "99.9.9"
 
-    protostar_toml_path = project_root_path / "protostar.toml"
     protostar_toml_writer = ProtostarTOMLWriter()
-    protostar_toml_reader = ProtostarTOMLReader(protostar_toml_path=protostar_toml_path)
 
     configuration_file = ConfigurationFileFactory(
-        active_profile_name=None, cwd=Path()
+        active_profile_name=None, cwd=project_root_path
     ).create()
     project_cairo_path_builder = ProjectCairoPathBuilder(
         project_root_path=project_root_path, configuration_file=configuration_file

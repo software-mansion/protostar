@@ -205,13 +205,16 @@ def create_protostar_project_fixture(
         cwd = Path().resolve()
         protostar = build_protostar_fixture(
             mocker=session_mocker,
+            project_root_path=tmp_path,
+            signing_credentials=signing_credentials,
+        )
+        protostar.init_sync()
+        os.chdir(project_root_path)
+        yield build_protostar_fixture(
+            mocker=session_mocker,
             project_root_path=project_root_path,
             signing_credentials=signing_credentials,
         )
-
-        protostar.init_sync()
-        os.chdir(project_root_path)
-        yield protostar
         os.chdir(cwd)
 
     return create_protostar_project
