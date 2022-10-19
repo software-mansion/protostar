@@ -38,8 +38,7 @@ from protostar.formatter.formatting_summary import FormattingSummary
 from protostar.io import log_color_provider
 from protostar.io.input_requester import InputRequester
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
-from protostar.protostar_toml import ProtostarContractsSection, ProtostarTOMLWriter
-from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
+from protostar.protostar_toml import ProtostarTOMLWriter
 from protostar.self.protostar_directory import ProtostarDirectory
 from protostar.starknet_gateway import Fee, GatewayFacade, GatewayFacadeFactory
 from protostar.testing import TestingSummary
