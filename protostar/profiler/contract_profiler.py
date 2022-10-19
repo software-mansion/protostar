@@ -179,15 +179,12 @@ def create_instruction_list(
     return instructions
 
 
-def find_instruction(instructions: list[Instruction], pc: Address) -> Instruction:
-    for instr in instructions:
-        if instr.pc == pc:
-            return instr
-    assert False
+def find_instruction(instructions: dict[int, Instruction], pc: Address) -> Instruction:
+    return instructions[pc]
 
 
 def build_call_callstacks(
-    instructions: list[Instruction], tracer_data: TracerDataManager
+    instructions: dict[int, Instruction], tracer_data: TracerDataManager
 ) -> list[list[Instruction]]:
     """
     Searches for the external contract calls, saves the function callstack of each call
@@ -212,7 +209,7 @@ def build_call_callstacks(
 
 
 def build_step_samples(
-    instructions: list[Instruction], tracer_data: TracerDataManager
+    instructions: dict[int, Instruction], tracer_data: TracerDataManager
 ) -> list[Sample]:
     step_samples: list[Sample] = []
     for trace_entry in tracer_data.trace:
@@ -268,7 +265,7 @@ def get_not_accessed_addresses(
 
 
 def build_memhole_samples(
-    instructions: list[Instruction],
+    instructions: dict[int, Instruction],
     tracer_data: TracerDataManager,
     accessed_memory: set[RelocatableValue],
     segments: MemorySegmentManager,
@@ -305,15 +302,16 @@ def build_profile(
 ) -> RuntimeProfile:
     function_list = collect_contract_functions(tracer_data)
     instructions_list = create_instruction_list(function_list, tracer_data)
-    step_samples = build_step_samples(instructions_list, tracer_data)
+    instruction_dict = { instr.pc: instr for instr in instructions_list }
+    step_samples = build_step_samples(instruction_dict, tracer_data)
     memhole_samples = build_memhole_samples(
-        instructions_list,
+        instruction_dict,
         tracer_data,
         accessed_memory,
         segments,
         segment_offsets,
     )
-    callstacks_syscall = build_call_callstacks(instructions_list, tracer_data)
+    callstacks_syscall = build_call_callstacks(instruction_dict, tracer_data)
     profile = RuntimeProfile(
         functions=function_list,
         instructions=instructions_list,
