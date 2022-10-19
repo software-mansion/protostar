@@ -252,7 +252,7 @@ def _format_failed_fuzz_test_case_result(
 
 
 def _format_broken_fuzz_test_case_result(
-    broken_fuzz_test_case_result: BrokenTestCaseResult,
+    broken_fuzz_test_case_result: BrokenFuzzTestCaseResult,
 ) -> str:
     return _format_broken_test_case_result(broken_fuzz_test_case_result)
 
