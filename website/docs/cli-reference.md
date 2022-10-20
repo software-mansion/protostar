@@ -35,6 +35,31 @@ Disable validation of hints when building the contracts.
 Migrate project sources to Cairo 0.10.
 #### `targets STRING[]=['.']`
 Targets to migrate (a target can be a file or directory)
+### `call`
+Calls a contract on StarkNet with given parameters
+#### `--chain-id INT`
+The chain id. It is required unless `--network` is provided.
+#### `--contract-address STRING`
+Required.
+
+The address of the contract being called.
+#### `--function STRING`
+Required.
+
+The name of the function being called.
+#### `--gateway-url STRING`
+The URL of a StarkNet gateway. It is required unless `--network` is provided.
+#### `--inputs FELT[]`
+Inputs to the function being called, represented by a list of space-delimited values.
+#### `-n` `--network STRING`
+The name of the StarkNet network.
+It is required unless `--gateway-url` is provided.
+
+Supported StarkNet networks:
+- `testnet`
+- `mainnet`
+- `alpha-goerli`
+- `alpha-mainnet`
 ### `declare`
 Sends a declare transaction to StarkNet.
 #### `contract PATH`
