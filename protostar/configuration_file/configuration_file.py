@@ -91,7 +91,7 @@ class ConfigurationFile(
         return "\n".join(
             [
                 "You may want to add your new library's path to the 'cairo_path' "
-                "section of your configuration file (usually `protostar.toml`).",
+                "section of your configuration file.",
                 "For more information you can visit:"
                 "https://docs.swmansion.com/protostar/docs/tutorials/dependencies-management#adding-a-dependency",
             ]
