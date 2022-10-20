@@ -22,7 +22,7 @@ class Submodule:
 # pylint: disable=subprocess-run-check
 
 # set to true when debugging
-GIT_VERBOSE = False
+GIT_VERBOSE = True
 SHARED_KWARGS = (
     {"check": True}
     if GIT_VERBOSE
