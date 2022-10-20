@@ -21,14 +21,14 @@ export default function MainWrapper({ children, ...props }) {
             repoId='R_kgDOGw_HxA'
             categoryId='DIC_kwDOGw_HxM4CSDJD'
             category='Documentation'
-            mapping='url'
+            mapping='pathname'
             reactionsEnabled='0'
             emitMetadata='0'
             inputPosition='top'
             theme={isDarkTheme ? 'dark' : 'light'}
             lang={siteConfig.i18n.defaultLocale}
             loading='lazy'
-            strict={true}
+            strict
           />
         </div>
         <div className='col col--3' />
