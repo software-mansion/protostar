@@ -10,3 +10,4 @@ from .remove import RemoveCommand, removal_exceptions
 from .test import TestCommand
 from .update import UpdateCommand
 from .upgrade_command import UpgradeCommand
+from .call_command import CallCommand

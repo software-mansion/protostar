@@ -19,7 +19,7 @@ from protostar.commands import (
     FormatCommand,
     InitCommand,
     InvokeCommand,
-    MigrateCommand,
+    MigrateCommand, CallCommand,
 )
 from protostar.commands.deploy_command import DeployCommand
 from protostar.commands.init.project_creator.new_project_creator import (
@@ -58,6 +58,7 @@ class ProtostarFixture:
         deploy_command: DeployCommand,
         test_command: TestCommand,
         invoke_command: InvokeCommand,
+        call_command: CallCommand,
         transaction_registry: "TransactionRegistry",
     ) -> None:
         self._project_root_path = project_root_path
@@ -70,6 +71,7 @@ class ProtostarFixture:
         self._test_command = test_command
         self._invoke_command = invoke_command
         self._transaction_registry = transaction_registry
+        self._call_command = call_command
 
     @property
     def project_root_path(self) -> Path:
@@ -214,6 +216,23 @@ class ProtostarFixture:
         args.max_fee = max_fee
 
         return await self._invoke_command.run(args)
+
+    async def call(
+        self,
+        contract_address: int,
+        function_name: str,
+        inputs: Optional[list[int]],
+        gateway_url: str,
+    ):
+        args = Namespace()
+        args.contract_address = contract_address
+        args.function = function_name
+        args.inputs = inputs
+        args.network = None
+        args.gateway_url = gateway_url
+        args.chain_id = StarknetChainId.TESTNET
+
+        return await self._call_command.run(args)
 
     def format(
         self,
@@ -494,10 +513,14 @@ def build_protostar_fixture(
     invoke_command = InvokeCommand(
         gateway_facade_factory=gateway_facade_factory, logger=logger
     )
+    call_command = CallCommand(
+        gateway_facade_factory=gateway_facade_factory, logger=logger
+    )
 
     protostar_fixture = ProtostarFixture(
         project_root_path=project_root_path,
         init_command=init_command,
+        call_command=call_command,
         build_command=build_command,
         migrate_command=migrate_command,
         format_command=format_command,

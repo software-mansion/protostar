@@ -295,6 +295,8 @@ class GatewayFacade:
             result = await self._call_function(contract_function, inputs)
         except TransactionFailedError as ex:
             raise TransactionException(str(ex)) from ex
+        except ClientError as ex:
+            raise TransactionException(message=ex.message) from ex
 
         register_response({"result": str(result._asdict())})
         return result
