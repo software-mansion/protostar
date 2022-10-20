@@ -7,6 +7,7 @@ from starknet_py.contract import Contract, ContractFunction, InvokeResult
 from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError, ContractNotFoundError
+from starknet_py.net.client_models import DeployAccountTransaction
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import AddressRepresentation
 from starknet_py.net.signer import BaseSigner
@@ -54,7 +55,7 @@ ClassHash = int
 @dataclasses.dataclass
 class DeployAccountTxArgs:
     account_address_salt: Address
-    account_constructor_arguments: Optional[CairoOrPythonData]
+    account_constructor_input: Optional[CairoOrPythonData]
     account_class_hash: ClassHash
     deployer_address: Address
 
@@ -455,8 +456,19 @@ class GatewayFacade:
         except (TypeError, ValueError) as ex:
             raise InputValidationException(str(ex)) from ex
 
-    async def deploy_account(self, args: DeployAccountTxArgs) -> Address:
-        raise NotImplementedError()
+    async def deploy_account(self, args: DeployAccountTxArgs):
+        account_client = await self._create_account_client(
+            account_address=args.account_address, signer=args.signer
+        )
+        DeployAccountTransaction(
+            class_hash=args.account_class_hash,
+            constructor_calldata=args.account_constructor_input,
+            contract_address_salt=args.account_address_salt,
+            version=1,
+            hash=
+        )
+
+        account_client.send_transaction()
 
     def _register_request(
         self, action: StarknetRequest.Action, payload: StarknetRequest.Payload

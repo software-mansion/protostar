@@ -249,7 +249,7 @@ async def test_deploy_account(
     deploy_account_args = DeployAccountTxArgs(
         account_address_salt=0,
         account_class_hash=1,
-        account_constructor_arguments=None,
+        account_constructor_input=None,
         deployer_address=0,
     )
 
