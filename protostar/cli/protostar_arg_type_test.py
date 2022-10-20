@@ -11,7 +11,7 @@ from .protostar_arg_type import map_protostar_type_name_to_parser
         ("0xDEADC0DE", int("0xDEADC0DE", 16)),
     ],
 )
-def test_felt_type(test_input, expected):
+def test_felt_type(test_input: str, expected: int):
     result = map_protostar_type_name_to_parser("felt")(test_input)
     assert result == expected
 

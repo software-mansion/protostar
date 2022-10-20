@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 from starkware.starknet.public.abi_structs import (
     prepare_type_for_abi,
 )
@@ -223,7 +223,7 @@ class TestCollectorPreprocessor(Visitor):
     def get_program(self):
         return TestCollectorPreprocessedProgram(abi=self.abi)
 
-    def _visit_default(self, obj):
+    def _visit_default(self, obj: Any):
         pass
 
 
@@ -252,5 +252,5 @@ class PrepareTestCaseVisitor(Visitor):
 
         return replace(visited, code_elements=removed_constructors)
 
-    def _visit_default(self, obj):
+    def _visit_default(self, obj: Any):
         return obj

@@ -10,7 +10,7 @@ class CairoStructException(SimpleBreakingReportedException):
 
 
 class CairoStruct:
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         if len(args) > 0:  # / syntax not available in py3.7
             raise CairoStructException(
                 "CairoStruct constructor takes only keyword arguments."

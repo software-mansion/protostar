@@ -37,7 +37,7 @@ class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
         parser_resolver: ParserResolverProtocol[
             ArgTypeNameT_contra
         ] = map_type_name_to_parser,
-        disable_help=False,
+        disable_help: bool = False,
     ) -> None:
         self.argument_parser = ArgumentParser(
             formatter_class=RawTextHelpFormatter, add_help=not disable_help
@@ -49,7 +49,9 @@ class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
         self._setup_parser()
 
     def parse(
-        self, input_args: Optional[Sequence[str]] = None, ignore_unrecognized=False
+        self,
+        input_args: Optional[Sequence[str]] = None,
+        ignore_unrecognized: bool = False,
     ) -> Any:
         args: Namespace
         if ignore_unrecognized:

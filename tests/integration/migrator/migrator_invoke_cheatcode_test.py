@@ -7,6 +7,7 @@ from starkware.crypto.signature.signature import get_random_private_key
 
 from migrator.compiled_account_contract_tx_v0 import COMPILED_ACCOUNT_CONTRACT_TX_V0
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
+from tests.conftest import Credentials
 from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.migrator.conftest import MigrateFixture
@@ -21,7 +22,9 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
 
 
 async def test_happy_case(
-    migrate: MigrateFixture, signing_credentials, monkeypatch: pytest.MonkeyPatch
+    migrate: MigrateFixture,
+    signing_credentials: Credentials,
+    monkeypatch: pytest.MonkeyPatch,
 ):
     private_key, acc_address = signing_credentials
     monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, private_key)
@@ -41,7 +44,9 @@ assert result.res == 42
 
 
 async def test_waiting_for_acceptance(
-    migrate: MigrateFixture, signing_credentials, monkeypatch: pytest.MonkeyPatch
+    migrate: MigrateFixture,
+    signing_credentials: Credentials,
+    monkeypatch: pytest.MonkeyPatch,
 ):
     private_key, acc_address = signing_credentials
     monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, private_key)

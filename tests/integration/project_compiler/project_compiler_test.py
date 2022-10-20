@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import cast
+from typing import cast, Any
 
 import pytest
 from pytest_mock import MockerFixture
@@ -18,20 +18,22 @@ from protostar.protostar_toml.protostar_contracts_section import (
 from protostar.protostar_toml.protostar_toml_section import ProtostarTOMLSection
 from protostar.starknet.compiler.starknet_compilation import StarknetCompiler
 
+CreateLoaderFixture = Any  # FIXME(arcticae): Properly type this fixture
+
 
 @pytest.fixture(name="create_loader")
 def create_loader_fixture(mocker: MockerFixture):
-    def create_loader(return_value) -> ProtostarTOMLSection.Loader:
+    def create_loader(return_value: Any) -> Any:
         load_mock = mocker.MagicMock()
         load_mock.return_value = return_value
         loader = mocker.MagicMock()
         cast(ProtostarTOMLSection.Loader, loader).load = load_mock
-        return loader
+        return cast(ProtostarTOMLSection.Loader[Any], loader)
 
     return create_loader
 
 
-def test_compiling(tmp_path: Path, datadir: Path, create_loader):
+def test_compiling(tmp_path: Path, datadir: Path, create_loader: CreateLoaderFixture):
     project_root_path = datadir / "importing"
     project_compiler = ProjectCompiler(
         project_root_path,
@@ -69,7 +71,9 @@ def test_compiling(tmp_path: Path, datadir: Path, create_loader):
         assert function_input["type"] == "felt"
 
 
-def test_handling_cairo_errors(tmp_path: Path, datadir: Path, create_loader):
+def test_handling_cairo_errors(
+    tmp_path: Path, datadir: Path, create_loader: CreateLoaderFixture
+):
     project_root_path = datadir / "compilation_error"
 
     with pytest.raises(CompilationException):
@@ -94,7 +98,9 @@ def test_handling_cairo_errors(tmp_path: Path, datadir: Path, create_loader):
         ).compile_project(output_dir=tmp_path)
 
 
-def test_handling_not_existing_main_files(tmp_path: Path, datadir: Path, create_loader):
+def test_handling_not_existing_main_files(
+    tmp_path: Path, datadir: Path, create_loader: CreateLoaderFixture
+):
     project_root_path = datadir / "compilation_error"
 
     with pytest.raises(StarknetCompiler.FileNotFoundException):

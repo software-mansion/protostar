@@ -6,6 +6,7 @@ import pytest
 from tests.integration.conftest import (
     RunCairoTestRunnerFixture,
     assert_cairo_test_cases,
+    CreateProtostarProjectFixture,
 )
 
 
@@ -27,7 +28,9 @@ async def test_declare_contract(run_cairo_test_runner: RunCairoTestRunnerFixture
 
 
 @pytest.mark.asyncio
-def test_declaring_contract_by_name(create_protostar_project):
+def test_declaring_contract_by_name(
+    create_protostar_project: CreateProtostarProjectFixture,
+):
     with create_protostar_project() as protostar:
         protostar.create_files(
             {

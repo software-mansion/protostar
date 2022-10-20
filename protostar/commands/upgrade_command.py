@@ -1,3 +1,4 @@
+from argparse import Namespace
 from logging import Logger
 from typing import Optional
 
@@ -27,7 +28,7 @@ class UpgradeCommand(ProtostarCommand):
     def arguments(self):
         return []
 
-    async def run(self, args):
+    async def run(self, args: Namespace):
         self._logger.info("Running upgrade of protostar")
         try:
             await self._upgrade_manager.upgrade()

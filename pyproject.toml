@@ -149,6 +149,7 @@ strictDictionaryInference = true
 strictListInference = true
 strictSetInference = true
 useLibraryCodeForTypes = true
+reportMissingParameterType = true
 
 [build-system]
 build-backend = "poetry.core.masonry.api"

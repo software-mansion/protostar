@@ -5,6 +5,7 @@ from pathlib import Path
 from shutil import copyfile
 
 import pytest
+from _pytest.monkeypatch import MonkeyPatch
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 
@@ -19,7 +20,7 @@ def count_hex64(x: str) -> int:
 
 @pytest.mark.usefixtures("init")
 def test_migrating_base_case(
-    protostar: ProtostarFixture, devnet_gateway_url, datadir: Path
+    protostar: ProtostarFixture, devnet_gateway_url: str, datadir: Path
 ):
     protostar(["build"])
     migrations_dir_path = Path("./migrations")
@@ -50,10 +51,10 @@ def test_migrating_base_case(
 @pytest.mark.usefixtures("init")
 async def test_migrating_with_signed_invoke(
     protostar: ProtostarFixture,
-    devnet_gateway_url,
+    devnet_gateway_url: str,
     datadir: Path,
     signing_credentials: Credentials,
-    monkeypatch,
+    monkeypatch: MonkeyPatch,
 ):
     migrations_dir_path = Path("./migrations")
     src_dir_path = Path("./src")
@@ -110,7 +111,7 @@ async def test_migrating_with_signed_invoke(
 @pytest.mark.usefixtures("init")
 def test_migrating_with_invoke_and_no_account_address(
     protostar: ProtostarFixture,
-    devnet_gateway_url,
+    devnet_gateway_url: str,
     datadir: Path,
 ):
     migrations_dir_path = Path("./migrations")

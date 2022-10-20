@@ -21,9 +21,9 @@ class Formatter:
     def format(
         self,
         file_paths: List[Path],
-        check=False,
-        verbose=False,
-        ignore_broken=False,
+        check: bool = False,
+        verbose: bool = False,
+        ignore_broken: bool = False,
         on_formatting_result: Optional[Callable[[FormattingResult], Any]] = None,
     ) -> FormattingSummary:
         summary = FormattingSummary()

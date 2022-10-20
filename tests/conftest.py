@@ -15,7 +15,9 @@ from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
 
 
-def ensure_devnet_alive(port: int, retries=5, base_backoff_time=2) -> bool:
+def ensure_devnet_alive(
+    port: int, retries: int = 5, base_backoff_time: float = 2
+) -> bool:
     for i in range(retries):
         try:
             res = requests.get(f"http://localhost:{port}/is_alive")
