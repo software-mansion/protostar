@@ -47,6 +47,16 @@ ContractFunctionInputType = Union[List[int], Dict[str, Any]]
 
 Wei = int
 Fee = Union[Wei, Literal["auto"]]
+Address = int
+ClassHash = int
+
+
+@dataclasses.dataclass
+class DeployAccountTxArgs:
+    account_address_salt: Address
+    account_constructor_arguments: Optional[CairoOrPythonData]
+    account_class_hash: ClassHash
+    deployer_address: Address
 
 
 class GatewayFacade:
@@ -444,6 +454,9 @@ class GatewayFacade:
             )
         except (TypeError, ValueError) as ex:
             raise InputValidationException(str(ex)) from ex
+
+    async def deploy_account(self, args: DeployAccountTxArgs) -> Address:
+        raise NotImplementedError()
 
     def _register_request(
         self, action: StarknetRequest.Action, payload: StarknetRequest.Payload
