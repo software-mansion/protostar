@@ -19,7 +19,8 @@ from protostar.commands import (
     FormatCommand,
     InitCommand,
     InvokeCommand,
-    MigrateCommand, CallCommand,
+    MigrateCommand,
+    CallCommand,
 )
 from protostar.commands.deploy_command import DeployCommand
 from protostar.commands.init.project_creator.new_project_creator import (

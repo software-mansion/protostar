@@ -10,9 +10,9 @@ from tests.integration.protostar_fixture import ProtostarFixture
 @pytest.fixture(name="protostar")
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
     with create_protostar_project() as protostar:
-        protostar.create_files({
-            "src/main.cairo": Path(__file__).parent / "getter_contract.cairo"
-        })
+        protostar.create_files(
+            {"src/main.cairo": Path(__file__).parent / "getter_contract.cairo"}
+        )
         protostar.build_sync()
         yield protostar
 
@@ -33,7 +33,7 @@ async def test_call(
         gateway_url=devnet_gateway_url,
     )
 
-    assert response.res == 6
+    assert response.res == 6 # type: ignore
 
 
 async def test_call_failure(
