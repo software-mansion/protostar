@@ -6,6 +6,7 @@ from pathlib import Path
 from shutil import get_terminal_size
 from threading import Thread
 from time import perf_counter, sleep
+from typing import Any
 
 import certifi
 from colorama.ansitowin32 import StreamWrapper
@@ -80,7 +81,7 @@ class ProtostarInitializingIndicator:
     def __enter__(self):
         self.start()
 
-    def __exit__(self, exc_type, exc_value, exc_tb):
+    def __exit__(self, *args: Any, **kwargs: Any):
         self.stop()
 
 

@@ -1,3 +1,4 @@
+from argparse import Namespace
 from logging import Logger
 from pathlib import Path
 from typing import List, Optional
@@ -68,7 +69,7 @@ class DeclareCommand(ProtostarCommand):
             DeployCommand.wait_for_acceptance_arg,
         ]
 
-    async def run(self, args) -> SuccessfulDeclareResponse:
+    async def run(self, args: Namespace) -> SuccessfulDeclareResponse:
         assert isinstance(args.contract, Path)
         assert args.gateway_url is None or isinstance(args.gateway_url, str)
         assert args.network is None or isinstance(args.network, str)

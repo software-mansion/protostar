@@ -1,5 +1,6 @@
 from os import listdir
 from pathlib import Path
+from py._path.local import LocalPath
 
 import pytest
 
@@ -14,7 +15,7 @@ def fixture_package_name():
 
 
 @pytest.fixture(name="repo_dir")
-def fixture_path_to_repo_root(tmpdir) -> Path:
+def fixture_path_to_repo_root(tmpdir: LocalPath) -> Path:
     return Path(tmpdir)
 
 

@@ -1,4 +1,5 @@
 from pathlib import Path
+from py._path.local import LocalPath
 
 from docs_generator import ReferenceDocsGenerator
 from protostar.argument_parser.argument import Argument
@@ -97,7 +98,7 @@ def test_required_info():
     assert "Required." in result
 
 
-def test_saving_markdown_file(tmpdir):
+def test_saving_markdown_file(tmpdir: LocalPath):
     filepath = Path(tmpdir) / "foo.md"
     ReferenceDocsGenerator.save_to_markdown_file(filepath, "foobar")
 

@@ -1,3 +1,4 @@
+from argparse import Namespace
 from logging import Logger
 from typing import Optional
 
@@ -31,6 +32,6 @@ class MigrateConfigurationFileCommand(ProtostarCommand):
     def arguments(self):
         return []
 
-    async def run(self, args) -> None:
+    async def run(self, args: Namespace) -> None:
         self._configuration_file_migrator.run()
         self._logger.info("The configuration file was migrated successfully.")

@@ -1,3 +1,4 @@
+from argparse import Namespace
 from logging import Logger
 from pathlib import Path
 from typing import List, Optional
@@ -49,7 +50,7 @@ class BuildCommand(ProtostarCommand):
             BuildCommand.COMPILATION_OUTPUT_ARG,
         ]
 
-    async def run(self, args):
+    async def run(self, args: Namespace):
         await self.build(
             output_dir=args.compiled_contracts_dir,
             disable_hint_validation=args.disable_hint_validation,
@@ -59,7 +60,7 @@ class BuildCommand(ProtostarCommand):
     async def build(
         self,
         output_dir: Path,
-        disable_hint_validation=False,
+        disable_hint_validation: bool = False,
         relative_cairo_path: Optional[List[Path]] = None,
     ):
         with ActivityIndicator(

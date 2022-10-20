@@ -1,12 +1,13 @@
 from distutils.file_util import copy_file
 from pathlib import Path
-from subprocess import CalledProcessError
 
 import pytest
 
+from tests.e2e.conftest import ProtostarFixture
+
 
 @pytest.mark.usefixtures("init")
-def test_migrating_file_to_010(protostar, datadir: Path):
+def test_migrating_file_to_010(protostar: ProtostarFixture, datadir: Path):
     copy_file(
         src=str(datadir / "pre_010_file.cairo09"),
         dst="./src/main.cairo",
@@ -21,7 +22,7 @@ def test_migrating_file_to_010(protostar, datadir: Path):
 
 
 @pytest.mark.usefixtures("init")
-def test_failing_migrate_to_010(protostar, datadir: Path):
+def test_failing_migrate_to_010(protostar: ProtostarFixture, datadir: Path):
     copy_file(
         src=str(datadir / "pre_010_file_unsupported_migrator_syntax.cairo09"),
         dst="./src/main.cairo",

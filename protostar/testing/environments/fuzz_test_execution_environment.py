@@ -1,7 +1,7 @@
 import dataclasses
 from asyncio import to_thread
 from dataclasses import dataclass
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Callable
 
 from hypothesis import given, seed, settings, example, Phase
 from hypothesis.database import ExampleDatabase, InMemoryExampleDatabase
@@ -122,7 +122,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             )
         )
 
-    def decorate_with_examples(self, target_func):
+    def decorate_with_examples(self, target_func: Callable):
         func = target_func
         for ex in reversed(self.state.config.fuzz_examples):
             func = example(**ex)(func)

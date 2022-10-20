@@ -1,3 +1,4 @@
+from argparse import Namespace
 from logging import Logger
 from os import listdir
 from pathlib import Path
@@ -57,7 +58,7 @@ class UpdateCommand(ProtostarCommand):
             ),
         ]
 
-    async def run(self, args):
+    async def run(self, args: Namespace):
         self._logger.info("Running dependency update")
         try:
             self.update(args.package)

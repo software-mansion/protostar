@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Any
 
 from services.everest.business_logic.state_api import StateProxy
 from starkware.starknet.business_logic.fact_state.state import CarriedState
@@ -13,7 +13,7 @@ from protostar.starknet.types import AddressType, ClassHashType, SelectorType
 
 # pylint: disable=too-many-instance-attributes
 class CheatableCachedState(CachedState):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
         self.pranked_contracts_map: Dict[int, int] = {}

@@ -44,7 +44,11 @@ class StoreCheatcode(Cheatcode):
             self._storage_write(address=address + i, value=val)
 
     def _write_on_remote_storage(
-        self, storage, contract_address, variable_address: int, value: List[int]
+        self,
+        storage: ContractStorageState,
+        contract_address: int,
+        variable_address: int,
+        value: List[int],
     ):
         for i, val in enumerate(value):
             storage.read(address=variable_address + i)

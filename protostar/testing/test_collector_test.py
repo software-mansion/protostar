@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import List, cast
 from unittest.mock import MagicMock
+from py._path.local import LocalPath
 
 import pytest
 from pytest_mock import MockerFixture
@@ -15,7 +16,7 @@ from .test_suite import TestCase, TestSuite
 
 
 @pytest.fixture(name="project_root")
-def project_root_fixture(tmpdir) -> Path:
+def project_root_fixture(tmpdir: LocalPath) -> Path:
     return Path(tmpdir)
 
 
@@ -59,8 +60,11 @@ def test_suites_fixture(project_root: Path):
     (tmp_foo_path / "foo.cairo").touch()
 
 
+StarknetCompilerFixture = StarknetCompiler
+
+
 @pytest.fixture(name="starknet_compiler")
-def starknet_compiler_fixture(mocker: MockerFixture):
+def starknet_compiler_fixture(mocker: MockerFixture) -> StarknetCompilerFixture:
     starknet_compiler_mock = mocker.MagicMock()
     starknet_compiler_mock.get_function_names = mocker.MagicMock()
 
@@ -69,7 +73,7 @@ def starknet_compiler_fixture(mocker: MockerFixture):
 
     starknet_compiler_mock.get_function_names.side_effect = get_function_names
 
-    return starknet_compiler_mock
+    return cast(StarknetCompiler, starknet_compiler_mock)
 
 
 def assert_tested_suites(test_suites: List[TestSuite], expected_file_names: List[str]):
@@ -85,7 +89,9 @@ def test_is_test_suite():
     assert not TestCollector.is_test_suite("z_test_ex.cairo")
 
 
-def test_collecting_tests_from_target(starknet_compiler, project_root: Path):
+def test_collecting_tests_from_target(
+    starknet_compiler: StarknetCompilerFixture, project_root: Path
+):
     test_collector = TestCollector(starknet_compiler)
 
     result = test_collector.collect(targets=[str(project_root)])
@@ -96,7 +102,9 @@ def test_collecting_tests_from_target(starknet_compiler, project_root: Path):
     assert result.test_cases_count == 6
 
 
-def test_returning_broken_test_suites(starknet_compiler, project_root):
+def test_returning_broken_test_suites(
+    starknet_compiler: StarknetCompilerFixture, project_root: Path
+):
     test_collector = TestCollector(starknet_compiler)
     cast(
         MagicMock, starknet_compiler.preprocess_contract
@@ -107,7 +115,9 @@ def test_returning_broken_test_suites(starknet_compiler, project_root):
     assert len(result.broken_test_suites) > 0
 
 
-def test_collecting_specific_file(starknet_compiler, project_root: Path):
+def test_collecting_specific_file(
+    starknet_compiler: StarknetCompilerFixture, project_root: Path
+):
     test_collector = TestCollector(starknet_compiler)
 
     result = test_collector.collect([str(project_root / "foo" / "test_foo.cairo")])
@@ -115,7 +125,9 @@ def test_collecting_specific_file(starknet_compiler, project_root: Path):
     assert_tested_suites(result.test_suites, ["test_foo.cairo"])
 
 
-def test_collecting_specific_function(starknet_compiler, project_root: Path):
+def test_collecting_specific_function(
+    starknet_compiler: StarknetCompilerFixture, project_root: Path
+):
     test_collector = TestCollector(starknet_compiler)
 
     result = test_collector.collect(
@@ -167,7 +179,9 @@ def test_finding_setup_case_function(
     )
 
 
-def test_collecting_from_directory_globs(starknet_compiler, project_root):
+def test_collecting_from_directory_globs(
+    starknet_compiler: StarknetCompilerFixture, project_root: Path
+):
     test_collector = TestCollector(starknet_compiler)
 
     result = test_collector.collect([f"{project_root}/b*r", f"{project_root}/f*"])
@@ -175,7 +189,9 @@ def test_collecting_from_directory_globs(starknet_compiler, project_root):
     assert_tested_suites(result.test_suites, ["bar_test.cairo", "test_foo.cairo"])
 
 
-def test_recursive_globs(starknet_compiler, project_root):
+def test_recursive_globs(
+    starknet_compiler: StarknetCompilerFixture, project_root: Path
+):
     test_collector = TestCollector(starknet_compiler)
 
     result = test_collector.collect([f"{project_root}/**/test_foo.cairo"])
@@ -183,7 +199,9 @@ def test_recursive_globs(starknet_compiler, project_root):
     assert_tested_suites(result.test_suites, ["test_foo.cairo", "test_foo.cairo"])
 
 
-def test_collecting_specific_function_in_glob(starknet_compiler, project_root):
+def test_collecting_specific_function_in_glob(
+    starknet_compiler: StarknetCompilerFixture, project_root: Path
+):
     test_collector = TestCollector(starknet_compiler)
 
     result = test_collector.collect([f"{project_root}/**/test_foo.cairo::test_case_a"])
@@ -195,7 +213,9 @@ def test_collecting_specific_function_in_glob(starknet_compiler, project_root):
     assert result.test_cases_count == 2
 
 
-def test_multiple_globs_pointing_to_test_case(starknet_compiler, project_root):
+def test_multiple_globs_pointing_to_test_case(
+    starknet_compiler: StarknetCompilerFixture, project_root: Path
+):
     test_collector = TestCollector(starknet_compiler)
 
     result = test_collector.collect(
@@ -212,7 +232,9 @@ def test_multiple_globs_pointing_to_test_case(starknet_compiler, project_root):
     assert result.test_cases_count == 2
 
 
-def test_omitting_pattern_in_globs(starknet_compiler, project_root):
+def test_omitting_pattern_in_globs(
+    starknet_compiler: StarknetCompilerFixture, project_root: Path
+):
     test_collector = TestCollector(starknet_compiler)
 
     result = test_collector.collect(
@@ -223,7 +245,9 @@ def test_omitting_pattern_in_globs(starknet_compiler, project_root):
     assert result.test_cases_count == 2
 
 
-def test_globs_in_test_case_name(starknet_compiler, project_root):
+def test_globs_in_test_case_name(
+    starknet_compiler: StarknetCompilerFixture, project_root: Path
+):
     test_collector = TestCollector(starknet_compiler)
 
     result = test_collector.collect([f"{project_root}/foo/test_foo.cairo::*b"])
@@ -233,7 +257,9 @@ def test_globs_in_test_case_name(starknet_compiler, project_root):
     assert result.test_suites[0].test_cases[0].test_fn_name == "test_case_b"
 
 
-def test_combining_test_suites(starknet_compiler, project_root):
+def test_combining_test_suites(
+    starknet_compiler: StarknetCompilerFixture, project_root: Path
+):
     test_collector = TestCollector(starknet_compiler)
 
     result = test_collector.collect(
@@ -247,7 +273,9 @@ def test_combining_test_suites(starknet_compiler, project_root):
     assert result.test_cases_count == 2
 
 
-def test_ignoring_test_cases(starknet_compiler, project_root: Path):
+def test_ignoring_test_cases(
+    starknet_compiler: StarknetCompilerFixture, project_root: Path
+):
     test_collector = TestCollector(
         starknet_compiler,
     )
@@ -263,7 +291,9 @@ def test_ignoring_test_cases(starknet_compiler, project_root: Path):
     assert result.test_suites[0].test_cases[0].test_fn_name == "test_case_b"
 
 
-def test_empty_test_suites(starknet_compiler, project_root: Path):
+def test_empty_test_suites(
+    starknet_compiler: StarknetCompilerFixture, project_root: Path
+):
     test_collector = TestCollector(starknet_compiler)
 
     result = test_collector.collect(
@@ -274,7 +304,7 @@ def test_empty_test_suites(starknet_compiler, project_root: Path):
 
 
 def test_testing_all_test_cases_despite_one_of_points_to_specific_test_case(
-    starknet_compiler, project_root: Path
+    starknet_compiler: StarknetCompilerFixture, project_root: Path
 ):
     test_collector = TestCollector(starknet_compiler)
 

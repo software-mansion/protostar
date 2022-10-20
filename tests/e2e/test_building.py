@@ -4,18 +4,18 @@ from textwrap import dedent
 
 import pytest
 
-from tests.e2e.conftest import ProtostarFixture
+from tests.e2e.conftest import ProtostarFixture, MyPrivateLibsSetupFixture
 
 
 @pytest.mark.usefixtures("init")
-def test_default_build(protostar):
+def test_default_build(protostar: ProtostarFixture):
     protostar(["build"])
     dirs = listdir()
     assert "build" in dirs
 
 
 @pytest.mark.usefixtures("init")
-def test_non_zero_exit_code_if_fails(protostar):
+def test_non_zero_exit_code_if_fails(protostar: ProtostarFixture):
     Path("./src/main.cairo").write_text(
         dedent(
             """
@@ -30,24 +30,26 @@ def test_non_zero_exit_code_if_fails(protostar):
 
 
 @pytest.mark.usefixtures("init")
-def test_output_dir(protostar):
+def test_output_dir(protostar: ProtostarFixture):
     protostar(["build", "--compiled-contracts-dir", "out"])
     dirs = listdir()
     assert "build" not in dirs
     assert "out" in dirs
 
 
-def test_cairo_path_argument(protostar, my_private_libs_setup):
+def test_cairo_path_argument(
+    protostar: ProtostarFixture, my_private_libs_setup: MyPrivateLibsSetupFixture
+):
     (my_private_libs_dir,) = my_private_libs_setup
 
-    protostar(["build", "--cairo-path", my_private_libs_dir])
+    protostar(["build", "--cairo-path", str(my_private_libs_dir)])
 
     dirs = listdir()
     assert "build" in dirs
 
 
 def test_cairo_path_loaded_from_command_config_section_in_config_file(
-    protostar, my_private_libs_setup
+    protostar: ProtostarFixture, my_private_libs_setup: MyPrivateLibsSetupFixture
 ):
     (my_private_libs_dir,) = my_private_libs_setup
 
@@ -65,7 +67,7 @@ def test_cairo_path_loaded_from_command_config_section_in_config_file(
 
 
 def test_cairo_path_loaded_from_command_shared_section_in_config_file(
-    protostar, my_private_libs_setup
+    protostar: ProtostarFixture, my_private_libs_setup: MyPrivateLibsSetupFixture
 ):
     (my_private_libs_dir,) = my_private_libs_setup
 
@@ -85,7 +87,9 @@ def test_cairo_path_loaded_from_command_shared_section_in_config_file(
     assert "build" in dirs
 
 
-def test_cairo_path_loaded_from_profile_section(protostar, my_private_libs_setup):
+def test_cairo_path_loaded_from_profile_section(
+    protostar: ProtostarFixture, my_private_libs_setup: MyPrivateLibsSetupFixture
+):
     (my_private_libs_dir,) = my_private_libs_setup
 
     protostar(["build"], expect_exit_code=1)
@@ -107,7 +111,7 @@ def test_cairo_path_loaded_from_profile_section(protostar, my_private_libs_setup
 
 
 @pytest.mark.usefixtures("init")
-def test_disable_hint_validation(protostar):
+def test_disable_hint_validation(protostar: ProtostarFixture):
     Path("./src/main.cairo").write_text(
         dedent(
             """
@@ -136,7 +140,7 @@ def test_disable_hint_validation(protostar):
 
 
 @pytest.mark.usefixtures("init")
-def test_building_account_contract(protostar):
+def test_building_account_contract(protostar: ProtostarFixture):
     Path("./src/main.cairo").write_text(
         dedent(
             """

@@ -22,7 +22,7 @@ def git_version_fixture() -> str:
 
 
 @pytest.fixture(name="version_manager")
-def version_manager_fixture(mocker: MockerFixture, git_version: str, logger):
+def version_manager_fixture(mocker: MockerFixture, git_version: str, logger: Logger):
     version_manager: Any = VersionManager(mocker.MagicMock(), logger)
     type(version_manager).git_version = mocker.PropertyMock(
         return_value=VersionManager.parse(git_version)
@@ -53,7 +53,7 @@ def latest_version_checker_fixture(mocker: MockerFixture) -> LatestVersionChecke
 
 @pytest.fixture(name="protostar_cli")
 def protostar_cli_fixture(
-    mocker,
+    mocker: MockerFixture,
     version_manager: VersionManager,
     logger: Logger,
     commands: List[ProtostarCommand],
