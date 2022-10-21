@@ -32,7 +32,6 @@ from protostar.io import InputRequester, log_color_provider
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_cli import ProtostarCLI
 from protostar.protostar_toml import (
-    ProtostarContractsSection,
     ProtostarProjectSection,
     ProtostarTOMLReader,
     ProtostarTOMLWriter,
@@ -98,9 +97,7 @@ def build_di_container(
     project_compiler = ProjectCompiler(
         project_root_path=project_root_path,
         project_cairo_path_builder=project_cairo_path_builder,
-        contracts_section_loader=ProtostarContractsSection.Loader(
-            protostar_toml_reader
-        ),
+        configuration_file=configuration_file,
     )
 
     gateway_facade_factory = GatewayFacadeFactory(

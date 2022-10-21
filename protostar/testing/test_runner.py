@@ -17,8 +17,6 @@ from protostar.configuration_file.configuration_file_factory import (
     ConfigurationFileFactory,
 )
 from protostar.protostar_exception import ProtostarException
-from protostar.protostar_toml import ProtostarContractsSection
-from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
 from protostar.starknet.compiler.pass_managers import TestSuitePassMangerFactory
 from protostar.starknet.compiler.starknet_compilation import (
     CompilerConfig,
@@ -66,9 +64,6 @@ class TestRunner:
             ),
             pass_manager_factory=TestSuitePassMangerFactory,
         )
-        protostar_toml_reader = ProtostarTOMLReader(
-            project_root_path / "protostar.toml"
-        )
         configuration_file = ConfigurationFileFactory(
             cwd=cwd, active_profile_name=active_profile_name
         ).create()
@@ -78,9 +73,7 @@ class TestRunner:
                 project_root_path=project_root_path,
                 configuration_file=configuration_file,
             ),
-            contracts_section_loader=ProtostarContractsSection.Loader(
-                protostar_toml_reader
-            ),
+            configuration_file=configuration_file,
             default_config=ProjectCompilerConfig(
                 relative_cairo_path=[Path(s_pth).resolve() for s_pth in include_paths],
                 hint_validation_disabled=disable_hint_validation_in_user_contracts,

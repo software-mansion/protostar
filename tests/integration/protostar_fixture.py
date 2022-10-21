@@ -39,8 +39,7 @@ from protostar.formatter.formatting_summary import FormattingSummary
 from protostar.io import log_color_provider
 from protostar.io.input_requester import InputRequester
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
-from protostar.protostar_toml import ProtostarContractsSection, ProtostarTOMLWriter
-from protostar.protostar_toml.io.protostar_toml_reader import ProtostarTOMLReader
+from protostar.protostar_toml import ProtostarTOMLWriter
 from protostar.self.protostar_directory import ProtostarDirectory
 from protostar.starknet_gateway import Fee, GatewayFacade, GatewayFacadeFactory
 from protostar.testing import TestingSummary
@@ -145,14 +144,11 @@ class ProtostarFixture:
 
         return await self._test_command.run(args)
 
-    def init_sync(self):
+    def init_sync(self, project_name: str):
         args = Namespace()
         args.existing = False
-        args.name = None
-        cwd = Path().resolve()
-        os.chdir(self._project_root_path.parent)
+        args.name = project_name
         result = asyncio.run(self._init_command.run(args))
-        os.chdir(cwd)
         return result
 
     async def build(self):
@@ -401,12 +397,10 @@ def build_protostar_fixture(
     version_manager.protostar_version = mocker.MagicMock()
     version_manager.protostar_version = "99.9.9"
 
-    protostar_toml_path = project_root_path / "protostar.toml"
     protostar_toml_writer = ProtostarTOMLWriter()
-    protostar_toml_reader = ProtostarTOMLReader(protostar_toml_path=protostar_toml_path)
 
     configuration_file = ConfigurationFileFactory(
-        active_profile_name=None, cwd=Path()
+        active_profile_name=None, cwd=project_root_path
     ).create()
     project_cairo_path_builder = ProjectCairoPathBuilder(
         project_root_path=project_root_path, configuration_file=configuration_file
@@ -415,9 +409,7 @@ def build_protostar_fixture(
     project_compiler = ProjectCompiler(
         project_root_path=project_root_path,
         project_cairo_path_builder=project_cairo_path_builder,
-        contracts_section_loader=ProtostarContractsSection.Loader(
-            protostar_toml_reader
-        ),
+        configuration_file=configuration_file,
     )
 
     input_requester = cast(InputRequester, mocker.MagicMock())
@@ -436,21 +428,13 @@ def build_protostar_fixture(
         requester=input_requester,
         protostar_toml_writer=protostar_toml_writer,
         version_manager=version_manager,
-        output_dir_path=project_root_path.parent,
+        output_dir_path=project_root_path,
     )
 
     init_command = InitCommand(
         input_requester,
         new_project_creator=new_project_creator,
         adapted_project_creator=mocker.MagicMock(),
-    )
-
-    project_compiler = ProjectCompiler(
-        project_root_path=project_root_path,
-        project_cairo_path_builder=project_cairo_path_builder,
-        contracts_section_loader=ProtostarContractsSection.Loader(
-            protostar_toml_reader
-        ),
     )
 
     logger = getLogger()

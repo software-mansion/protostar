@@ -121,7 +121,6 @@ async def test_call_to_with_positional_incorrect_args(
 
 @pytest.fixture(name="compiled_contract_without_constructor_path")
 def compiled_contract_without_constructor_path_fixture(protostar: ProtostarFixture):
-    protostar.init_sync()
     protostar.create_files({"./src/main.cairo": IDENTITY_CONTRACT})
     protostar.build_sync()
     yield protostar.project_root_path / "build" / "main.json"
@@ -139,7 +138,6 @@ async def test_deploy_fail_input_without_constructor(
 
 @pytest.fixture(name="compiled_contract_with_contractor_path")
 def compiled_contract_with_contractor_path_fixture(protostar: ProtostarFixture):
-    protostar.init_sync()
     protostar.create_files({"./src/main.cairo": CONTRACT_WITH_CONSTRUCTOR})
     protostar.build_sync()
     yield protostar.project_root_path / "build" / "main.json"
