@@ -87,7 +87,9 @@ jobs:
           path: |
             ~/.cache/pypoetry
           key: poetry-${{ hashFiles('poetry.lock') }}
-
+      - name: Patch git config
+        run: /
+          git config --global protocol.file.allow always
       - name: Unit tests
         run: |
           poetry run poe test_unit
