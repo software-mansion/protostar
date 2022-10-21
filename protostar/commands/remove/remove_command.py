@@ -3,12 +3,11 @@ from logging import Logger
 from pathlib import Path
 from typing import Optional
 
-from protostar.cli import ProtostarArgument, ProtostarCommand
+from protostar.cli import LibPathResolver, ProtostarArgument, ProtostarCommand
 from protostar.commands.install.install_command import (
     EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
 )
 from protostar.commands.remove.remove_package import remove_package
-from protostar.configuration_file import ConfigurationFile
 from protostar.io import log_color_provider
 from protostar.package_manager import retrieve_real_package_name
 
@@ -23,12 +22,12 @@ class RemoveCommand(ProtostarCommand):
     def __init__(
         self,
         project_root_path: Path,
-        configuration_file: ConfigurationFile,
+        lib_path_resolver: LibPathResolver,
         logger: Logger,
     ) -> None:
         super().__init__()
         self._project_root_path = project_root_path
-        self._configuration_file = configuration_file
+        self._lib_path_resolver = lib_path_resolver
         self._logger = logger
 
     @property
@@ -58,21 +57,20 @@ class RemoveCommand(ProtostarCommand):
     async def run(self, args: Namespace):
         self._logger.info("Retrieving package for removal")
         try:
-            self.remove(args.package)
+            self.remove(
+                args.package, lib_path=self._lib_path_resolver.resolve(args.lib_path)
+            )
         except BaseException as exc:
             self._logger.error("Package removal failed")
             raise exc
         self._logger.info("Removed the package successfully")
 
-    def remove(self, internal_dependency_reference: str):
-        lib_path = self._configuration_file.get_lib_path()
-
+    def remove(self, internal_dependency_reference: str, lib_path: Path):
         package_name = retrieve_real_package_name(
             internal_dependency_reference,
             self._project_root_path,
             lib_path.relative_to(self._project_root_path) if lib_path else Path("lib"),
         )
-
         self._logger.info(
             "Removing %s%s%s",
             log_color_provider.get_color("RED"),

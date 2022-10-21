@@ -3,8 +3,12 @@ from logging import Logger
 from pathlib import Path
 from typing import Callable, Optional
 
-from protostar.cli import ProtostarArgument, ProtostarCommand
-from protostar.configuration_file import ConfigurationFile
+from protostar.cli import (
+    LibPathResolver,
+    ProtostarArgument,
+    ProtostarCommand,
+    lib_path_arg,
+)
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.package_manager import extract_info_from_repo_id
 
@@ -24,13 +28,13 @@ class InstallCommand(ProtostarCommand):
     def __init__(
         self,
         project_root_path: Path,
-        configuration_file: ConfigurationFile,
+        lib_path_resolver: LibPathResolver,
         logger: Logger,
         log_color_provider: LogColorProvider,
     ) -> None:
         super().__init__()
         self._project_root_path = project_root_path
-        self._configuration_file = configuration_file
+        self._lib_path_resolver = lib_path_resolver
         self._logger = logger
         self._log_color_provider = log_color_provider
 
@@ -49,6 +53,7 @@ class InstallCommand(ProtostarCommand):
     @property
     def arguments(self):
         return [
+            lib_path_arg,
             ProtostarArgument(
                 name="package",
                 description=EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
@@ -67,6 +72,7 @@ class InstallCommand(ProtostarCommand):
         try:
             self.install(
                 package_name=args.package,
+                libs_path=self._lib_path_resolver.resolve(args.lib_path),
                 on_unknown_version=lambda: self._logger.warning(
                     (
                         "Fetching from the mainline. The mainline can be in the non-releasable state.\n"
@@ -83,13 +89,10 @@ class InstallCommand(ProtostarCommand):
     def install(
         self,
         package_name: Optional[str],
+        libs_path: Path,
         on_unknown_version: Callable,
         alias: Optional[str] = None,
     ) -> None:
-        libs_path = (
-            self._configuration_file.get_lib_path() or self._project_root_path / "lib"
-        )
-
         if package_name:
             package_info = extract_info_from_repo_id(package_name)
             if package_info.version is None:

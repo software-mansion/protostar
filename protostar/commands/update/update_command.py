@@ -4,7 +4,12 @@ from os import listdir
 from pathlib import Path
 from typing import Optional
 
-from protostar.cli import ProtostarArgument, ProtostarCommand
+from protostar.cli import (
+    LibPathResolver,
+    ProtostarArgument,
+    ProtostarCommand,
+    lib_path_arg,
+)
 from protostar.commands.remove.remove_command import (
     INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
 )
@@ -12,7 +17,6 @@ from protostar.commands.update.update_package import update_package
 from protostar.commands.update.updating_exceptions import (
     PackageAlreadyUpToDateException,
 )
-from protostar.configuration_file import ConfigurationFile
 from protostar.package_manager import retrieve_real_package_name
 
 
@@ -20,12 +24,12 @@ class UpdateCommand(ProtostarCommand):
     def __init__(
         self,
         project_root_path: Path,
-        configuration_file: ConfigurationFile,
+        lib_path_resolver: LibPathResolver,
         logger: Logger,
     ) -> None:
         super().__init__()
         self._project_root_path = project_root_path
-        self._configuration_file = configuration_file
+        self._lib_path_resolver = lib_path_resolver
         self._logger = logger
 
     @property
@@ -50,6 +54,7 @@ class UpdateCommand(ProtostarCommand):
     @property
     def arguments(self):
         return [
+            lib_path_arg,
             ProtostarArgument(
                 description=INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
                 name="package",
@@ -61,24 +66,21 @@ class UpdateCommand(ProtostarCommand):
     async def run(self, args: Namespace):
         self._logger.info("Running dependency update")
         try:
-            self.update(args.package)
+            self.update(
+                args.package, lib_path=self._lib_path_resolver.resolve(args.lib_path)
+            )
         except BaseException as exc:
             self._logger.error("Update command failed")
             raise exc
         self._logger.info("Updated successfully")
 
-    def update(self, package: Optional[str]) -> None:
-        lib_path = self._configuration_file.get_lib_path()
-        relative_lib_path = (
-            lib_path.relative_to(self._project_root_path) if lib_path else Path("lib")
-        )
-
+    def update(self, package: Optional[str], lib_path: Path) -> None:
         if package:
             package = retrieve_real_package_name(
-                package, self._project_root_path, relative_lib_path
+                package, self._project_root_path, packages_dir=lib_path
             )
             try:
-                update_package(package, self._project_root_path, relative_lib_path)
+                update_package(package, self._project_root_path, packages_dir=lib_path)
             except PackageAlreadyUpToDateException as err:
                 self._logger.info(err.message)
         else:
@@ -87,7 +89,7 @@ class UpdateCommand(ProtostarCommand):
                     update_package(
                         package_name,
                         self._project_root_path,
-                        relative_lib_path,
+                        packages_dir=lib_path,
                     )
                 except PackageAlreadyUpToDateException:
                     continue
