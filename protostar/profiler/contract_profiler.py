@@ -58,7 +58,6 @@ class Instructions(UserDict):
         return cast(Instruction, self.data[pc])
 
 
-
 @dataclass(frozen=True)
 class Sample:
     """
@@ -87,7 +86,6 @@ class RuntimeProfile:
     step_samples: list[Sample]
     memhole_samples: list[Sample]
     contract_call_callstacks: list[list[Instruction]]
-
 
 
 class TracerDataManager(TracerData):
