@@ -1,3 +1,5 @@
+from typing import Optional, NamedTuple
+
 from hypothesis.strategies import SearchStrategy, integers
 from starkware.cairo.lang.compiler.ast.cairo_types import CairoType, TypeStruct
 
@@ -26,12 +28,24 @@ def is_uint256(cairo_type: CairoType):
 
 
 class Uint256StrategyDescriptor(StrategyDescriptor):
+    def __init__(
+        self, min_value: Optional[int] = None, max_value: Optional[int] = None
+    ):
+        min_value = MIN_UINT256 if min_value is None else min_value
+        max_value = MAX_UINT256 if max_value is None else max_value
+        assert MIN_UINT256 <= min_value <= max_value <= MAX_UINT256
+
+        self.min_value = min_value
+        self.max_value = max_value
+
     def build_strategy(self, cairo_type: CairoType) -> SearchStrategy[tuple[int, int]]:
         if not is_uint256(cairo_type):
             raise SearchStrategyBuildError(
                 "Strategy 'uint256' can only be applied to Uint256 parameters."
             )
 
-        return integers(min_value=MIN_UINT256, max_value=MAX_UINT256).map(
-            lambda x: (_get_low(x), _get_high(x))
+        Uint256 = NamedTuple("Uint256", (("low", int), ("high", int)))
+
+        return integers(min_value=self.min_value, max_value=self.max_value).map(
+            lambda x: Uint256(low=_get_low(x), high=_get_high(x))
         )

@@ -18,8 +18,6 @@ def infer_strategy_from_cairo_type(
         return FeltsStrategyDescriptor()
     if is_uint256(cairo_type):
         return Uint256StrategyDescriptor()
-    if isinstance(cairo_type, TypeStruct):
-        print(cairo_type.scope.path)
 
     raise FuzzingError(
         f"Parameter '{parameter_name}' cannot be fuzzed automatically, "
