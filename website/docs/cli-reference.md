@@ -39,7 +39,7 @@ Targets to migrate (a target can be a file or directory)
 Calls a contract on StarkNet with given parameters
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
-#### `--contract-address STRING`
+#### `--contract-address ADDRESS`
 Required.
 
 The address of the contract being called.
@@ -166,7 +166,7 @@ Sends an invoke transaction to the StarkNet sequencer.
 Account address
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
-#### `--contract-address INT`
+#### `--contract-address ADDRESS`
 Required.
 
 The address of the contract being called.
