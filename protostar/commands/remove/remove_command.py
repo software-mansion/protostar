@@ -11,7 +11,6 @@ from protostar.commands.remove.remove_package import remove_package
 from protostar.configuration_file import ConfigurationFile
 from protostar.io import log_color_provider
 from protostar.package_manager import retrieve_real_package_name
-from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
 
 INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = (
     EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION

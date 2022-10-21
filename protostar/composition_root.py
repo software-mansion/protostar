@@ -32,8 +32,6 @@ from protostar.io import InputRequester, log_color_provider
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_cli import ProtostarCLI
 from protostar.protostar_toml import (
-    ProtostarProjectSection,
-    ProtostarTOMLReader,
     ProtostarTOMLWriter,
     search_upwards_protostar_toml_path,
 )
@@ -74,7 +72,6 @@ def build_di_container(
     protostar_directory = ProtostarDirectory(script_root)
     version_manager = VersionManager(protostar_directory, logger)
     protostar_toml_writer = ProtostarTOMLWriter()
-    protostar_toml_reader = ProtostarTOMLReader(protostar_toml_path=protostar_toml_path)
     requester = InputRequester(log_color_provider)
     latest_version_checker = LatestVersionChecker(
         protostar_directory=protostar_directory,
