@@ -11,6 +11,7 @@ from protostar.commands.install.pull_package_submodules import pull_package_subm
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.package_manager import extract_info_from_repo_id
 from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
+from protostar.configuration_file import ConfigurationFile
 
 EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = """- `GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]`
     - `OpenZeppelin/cairo-contracts@v0.4.0`
@@ -100,6 +101,9 @@ class InstallCommand(ProtostarCommand):
                 repo_dir=self._project_root_path,
                 destination=libs_path,
                 tag=package_info.version,
+            )
+            self._logger.info(
+                ConfigurationFile.create_appending_cairo_path_suggestion()
             )
         else:
             pull_package_submodules(
