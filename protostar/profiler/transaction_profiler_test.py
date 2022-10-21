@@ -1,4 +1,6 @@
 from dataclasses import replace
+from typing import Dict, List, Tuple
+
 import pytest
 from starkware.starknet.business_logic.execution.execute_entry_point import (
     ContractEntryPoint,
@@ -9,9 +11,14 @@ from protostar.profiler.transaction_profiler import (
     build_global_instructions,
     get_instruction_id_offsets,
     translate_callstack,
+    GlobalFunctionID,
+    GlobalFunction,
 )
 
-from protostar.starknet.cheatable_execute_entry_point import ContractProfile
+from protostar.starknet.cheatable_execute_entry_point import (
+    ContractProfile,
+    ContractFilename,
+)
 
 profile = RuntimeProfile(
     [Function("f1", "d", 1), Function("f2", "d", 2)], [], [], [], []
@@ -46,7 +53,9 @@ profile = RuntimeProfile(
         ),
     ],
 )
-def test_build_global_functions(samples, result):
+def test_build_global_functions(
+    samples: List["ContractProfile"], result: Dict[GlobalFunctionID, GlobalFunction]
+):
     assert build_global_functions(samples) == result
 
 
@@ -111,7 +120,9 @@ ep = ContractEntryPoint(0, 0)
         ([], {}),
     ],
 )
-def test_get_instructions_id_offsets(samples, result):
+def test_get_instructions_id_offsets(
+    samples: List["ContractProfile"], result: dict[ContractFilename, int]
+):
     assert get_instruction_id_offsets(samples) == result
 
 
@@ -179,7 +190,10 @@ ep = ContractEntryPoint(0, 0)
         ([], {}),
     ],
 )
-def test_build_global_instructions(samples, result):
+def test_build_global_instructions(
+    samples: List["ContractProfile"],
+    result: dict[Tuple[GlobalFunctionID, int], Instruction],
+):
     assert build_global_instructions(glob_func, samples) == result
 
 
@@ -223,5 +237,10 @@ def test_build_global_instructions(samples, result):
         ("z", {}, [], []),
     ],
 )
-def test_translate_callstack(current_contract, in_instructions, callstack, result):
+def test_translate_callstack(
+    current_contract: "ContractFilename",
+    in_instructions: dict[Tuple[GlobalFunctionID, int], Instruction],
+    callstack: list[Instruction],
+    result: list[Instruction],
+):
     assert translate_callstack(current_contract, in_instructions, callstack) == result

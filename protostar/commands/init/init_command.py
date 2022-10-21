@@ -1,3 +1,4 @@
+from argparse import Namespace
 from glob import glob
 from typing import Optional
 
@@ -52,7 +53,7 @@ class InitCommand(ProtostarCommand):
             ),
         ]
 
-    async def run(self, args):
+    async def run(self, args: Namespace):
         self.init(
             force_adapting_existing_project=args.existing,
             project_name=args.name,

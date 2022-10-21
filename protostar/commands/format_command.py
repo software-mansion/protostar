@@ -1,3 +1,4 @@
+from argparse import Namespace
 from logging import Logger
 from pathlib import Path
 from typing import Callable, List, Optional
@@ -69,7 +70,7 @@ class FormatCommand(ProtostarCommand):
             ),
         ]
 
-    async def run(self, args):
+    async def run(self, args: Namespace):
         summary = self.format(
             targets=args.target,
             check=args.check,
@@ -89,7 +90,11 @@ class FormatCommand(ProtostarCommand):
             )
 
     def format(
-        self, targets: List[str], check=False, verbose=False, ignore_broken=False
+        self,
+        targets: List[str],
+        check: bool = False,
+        verbose: bool = False,
+        ignore_broken: bool = False,
     ) -> FormattingSummary:
 
         callback: Callable[[FormattingResult], None] = lambda result: print(

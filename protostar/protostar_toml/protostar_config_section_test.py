@@ -15,7 +15,7 @@ def protostar_config_section_dict_fixture() -> ProtostarConfigSection.ParsedProt
 
 def test_serialization(
     mock_protostar_toml_reader: MockProtostarTOMLReaderFixture,
-    protostar_config_section_dict,
+    protostar_config_section_dict: ProtostarConfigSection.ParsedProtostarTOML,
 ):
     protostar_toml_mock = mock_protostar_toml_reader(protostar_config_section_dict)
 

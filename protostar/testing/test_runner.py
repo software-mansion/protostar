@@ -54,7 +54,7 @@ class TestRunner:
         cwd: Path,
         active_profile_name: Optional[str],
         include_paths: Optional[List[str]] = None,
-        profiling=False,
+        profiling: bool = False,
     ):
         self.shared_tests_state = shared_tests_state
         self.profiling = profiling

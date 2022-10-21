@@ -274,7 +274,7 @@ def build_memhole_samples(
     tracer_data: TracerDataManager,
     accessed_memory: set[RelocatableValue],
     segments: MemorySegmentManager,
-    segment_offsets,
+    segment_offsets: dict[int, int],
 ) -> list[Sample]:
     # Address -> Pc of instruction which accessed the address last
     accessed_by: dict[Address, Address] = {}

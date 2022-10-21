@@ -1,5 +1,5 @@
 from subprocess import CalledProcessError
-from typing import Optional
+from typing import Optional, Callable, Any
 from functools import wraps
 from protostar.protostar_exception import ProtostarException
 
@@ -17,9 +17,9 @@ class GitNotFoundException(ProtostarGitException):
     pass
 
 
-def wrap_git_exception(func):
+def wrap_git_exception(func: Callable):
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args: Any, **kwargs: Any):
         try:
             return func(*args, **kwargs)
         except CalledProcessError as ex:

@@ -1,5 +1,7 @@
-from typing import List, cast, Optional
+from typing import List, cast, Optional, Any
 
+from starkware.cairo.lang.compiler.preprocessor.flow import ReferenceManager
+from starkware.cairo.lang.compiler.program import CairoHint
 from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.python.utils import to_bytes
@@ -25,7 +27,7 @@ class CheatableSysCallHandlerException(Exception):
 
 
 class CheatableSysCallHandler(BusinessLogicSysCallHandler):
-    def __init__(self, state: SyncState, **kwargs):
+    def __init__(self, state: SyncState, **kwargs: Any):
         # This field must be set before entering super constructor,
         # because it calls the setter for the `block_info` property.
         self.cheaters = cheaters_of(state)
@@ -201,5 +203,5 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
 
 
 class CheatableHintsWhitelist(HintsWhitelist):
-    def verify_hint_secure(self, hint, reference_manager):
+    def verify_hint_secure(self, hint: CairoHint, reference_manager: ReferenceManager):
         pass

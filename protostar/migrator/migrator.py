@@ -97,7 +97,7 @@ class Migrator:
         self._migrator_execution_environment = migrator_execution_environment
         self._migrator_datetime_state = migrator_datetime_state
 
-    async def run(self, rollback=False) -> History:
+    async def run(self, rollback: bool = False) -> History:
         self._migrator_datetime_state.update_to_now()
         with create_output_directory(
             self._migrator_datetime_state.get_compilation_output_path()

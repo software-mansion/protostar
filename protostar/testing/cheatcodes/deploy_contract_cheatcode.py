@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 
 from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import (
     DeployContractCheatcodeProtocol,
@@ -38,7 +38,7 @@ class DeployContractCheatcode(Cheatcode):
         self,
         contract: str,
         constructor_args: Optional[CairoOrPythonData] = None,
-        *args,
+        *args: Any,
         # pylint: disable=unused-argument
         config: Optional[Dict] = None,
     ) -> DeployedContract:

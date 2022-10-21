@@ -9,7 +9,7 @@ The built-in strategies are provided by the [`strategy`](./strategy.md) cheatcod
 and for a list of available strategies, see the [fuzzing strategies](../03-fuzzing/strategies.md)
 guide page.
 
-:::warning
+:::info
 This cheatcode is only available in [setup cases](../README.md#setup-case).
 :::
 

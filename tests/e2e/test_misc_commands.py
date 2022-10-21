@@ -8,23 +8,24 @@ import pytest
 import tomli
 from packaging.version import parse as parse_version
 from packaging.version import Version
-
+from pytest_mock import MockerFixture
 
 from protostar.self.protostar_directory import ProtostarDirectory, VersionManager
+from tests.e2e.conftest import ProtostarFixture, ProjectInitializer
 
 
-def test_help(protostar):
+def test_help(protostar: ProtostarFixture):
     result = protostar(["--help"])
     assert "usage:" in result
 
 
-def test_versions(protostar):
+def test_versions(protostar: ProtostarFixture):
     result = protostar(["-v"])
     assert "Protostar" in result
     assert "Cairo-lang" in result
 
 
-def test_init(init_project, project_name: str):
+def test_init(init_project: ProjectInitializer, project_name: str):
     with pytest.raises(FileNotFoundError):
         listdir(f"./{project_name}")
 
@@ -61,7 +62,7 @@ def test_init_ask_existing(protostar_bin: Path):
 
 
 @pytest.mark.usefixtures("init")
-def test_protostar_version_in_config_file(mocker, protostar_bin: Path):
+def test_protostar_version_in_config_file(mocker: MockerFixture, protostar_bin: Path):
     protostar_directory = ProtostarDirectory(protostar_bin.parent)
 
     version_manager = VersionManager(protostar_directory, mocker.MagicMock())
@@ -76,7 +77,7 @@ def test_protostar_version_in_config_file(mocker, protostar_bin: Path):
         assert version_manager.protostar_version == protostar_version
 
 
-def test_protostar_version_in_correct_format(protostar):
+def test_protostar_version_in_correct_format(protostar: ProtostarFixture):
     res = protostar(["--v"])
 
     match = re.match(r".*Cairo-lang version: (.*?)\n.*", res, flags=re.DOTALL)
