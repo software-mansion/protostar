@@ -9,6 +9,7 @@ from protostar.cli import (
     ProtostarCommand,
     lib_path_arg,
 )
+from protostar.configuration_file import ConfigurationFile
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.package_manager import extract_info_from_repo_id
 
@@ -103,6 +104,9 @@ class InstallCommand(ProtostarCommand):
                 repo_dir=self._project_root_path,
                 destination=libs_path,
                 tag=package_info.version,
+            )
+            self._logger.info(
+                ConfigurationFile.create_appending_cairo_path_suggestion()
             )
         else:
             pull_package_submodules(
