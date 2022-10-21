@@ -106,7 +106,6 @@ def build_di_container(
 
     lib_path_resolver = LibPathResolver(
         configuration_file=configuration_file,
-        logger=logger,
         project_root_path=project_root_path,
         legacy_mode=isinstance(configuration_file, ConfigurationFileV1),
     )

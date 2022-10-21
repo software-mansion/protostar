@@ -1,4 +1,4 @@
-from logging import Logger
+from logging import getLogger
 from pathlib import Path
 from typing import Optional
 
@@ -17,20 +17,19 @@ class LibPathResolver:
         self,
         project_root_path: Path,
         configuration_file: ConfigurationFile,
-        logger: Logger,
         legacy_mode: bool,
     ):
         self._project_root_path = project_root_path
         self._configuration_file = configuration_file
-        self._logger = logger
         self._legacy_mode = legacy_mode
 
     def resolve(self, lib_path_provided_as_arg: Optional[Path]) -> Path:
         if self._legacy_mode:
             if lib_path_provided_as_arg:
-                self._logger.warning(
-                    f"Argument '{lib_path_arg.name}' is ignored. "
-                    "Please migrate your configuration file if the command `migrate-configuration-file` is available."
+                getLogger().warning(
+                    "Argument %s is ignored. "
+                    "Please migrate your configuration file if the command `migrate-configuration-file` is available.",
+                    lib_path_arg.name,
                 )
             return (
                 self._configuration_file.get_lib_path()
