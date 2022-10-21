@@ -4,13 +4,12 @@ from pathlib import Path
 from typing import Callable, Optional
 
 from protostar.cli import ProtostarArgument, ProtostarCommand
-from protostar.commands.install.install_package_from_repo import (
-    install_package_from_repo,
-)
-from protostar.commands.install.pull_package_submodules import pull_package_submodules
+from protostar.configuration_file import ConfigurationFile
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.package_manager import extract_info_from_repo_id
-from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
+
+from .install_package_from_repo import install_package_from_repo
+from .pull_package_submodules import pull_package_submodules
 
 EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = """- `GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]`
     - `OpenZeppelin/cairo-contracts@v0.4.0`
@@ -25,13 +24,13 @@ class InstallCommand(ProtostarCommand):
     def __init__(
         self,
         project_root_path: Path,
-        project_section_loader: ProtostarProjectSection.Loader,
+        configuration_file: ConfigurationFile,
         logger: Logger,
         log_color_provider: LogColorProvider,
     ) -> None:
         super().__init__()
         self._project_root_path = project_root_path
-        self._project_section_loader = project_section_loader
+        self._configuration_file = configuration_file
         self._logger = logger
         self._log_color_provider = log_color_provider
 
@@ -87,8 +86,9 @@ class InstallCommand(ProtostarCommand):
         on_unknown_version: Callable,
         alias: Optional[str] = None,
     ) -> None:
-        project_section = self._project_section_loader.load()
-        libs_path = self._project_root_path / project_section.libs_relative_path
+        libs_path = (
+            self._configuration_file.get_lib_path() or self._project_root_path / "lib"
+        )
 
         if package_name:
             package_info = extract_info_from_repo_id(package_name)

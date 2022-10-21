@@ -7,6 +7,7 @@ from protostar.argument_parser import ArgumentParserFacade
 from protostar.cli import ProtostarCommand, map_protostar_type_name_to_parser
 from protostar.commands import (
     BuildCommand,
+    CallCommand,
     DeclareCommand,
     DeployCommand,
     FormatCommand,
@@ -18,7 +19,6 @@ from protostar.commands import (
     TestCommand,
     UpdateCommand,
     UpgradeCommand,
-    CallCommand,
 )
 from protostar.commands.cairo_migrate_command import CairoMigrateCommand
 from protostar.commands.init.project_creator import (
@@ -126,9 +126,7 @@ def build_di_container(
             log_color_provider=log_color_provider,
             logger=logger,
             project_root_path=project_root_path,
-            project_section_loader=ProtostarProjectSection.Loader(
-                protostar_toml_reader
-            ),
+            configuration_file=configuration_file,
         ),
         RemoveCommand(
             logger=logger,
@@ -181,7 +179,10 @@ def build_di_container(
         ),
         FormatCommand(project_root_path, logger),
         CairoMigrateCommand(script_root, logger),
-        InvokeCommand(gateway_facade_factory=gateway_facade_factory, logger=logger),
+        InvokeCommand(
+            gateway_facade_factory=gateway_facade_factory,
+            logger=logger,
+        ),
         CallCommand(gateway_facade_factory=gateway_facade_factory, logger=logger),
     ]
 
