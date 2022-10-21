@@ -3,7 +3,12 @@ from logging import Logger
 from pathlib import Path
 from typing import Optional
 
-from protostar.cli import LibPathResolver, ProtostarArgument, ProtostarCommand
+from protostar.cli import (
+    LibPathResolver,
+    ProtostarArgument,
+    ProtostarCommand,
+    lib_path_arg,
+)
 from protostar.commands.install.install_command import (
     EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
 )
@@ -45,6 +50,7 @@ class RemoveCommand(ProtostarCommand):
     @property
     def arguments(self):
         return [
+            lib_path_arg,
             ProtostarArgument(
                 name="package",
                 description=INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
@@ -69,7 +75,7 @@ class RemoveCommand(ProtostarCommand):
         package_name = retrieve_real_package_name(
             internal_dependency_reference,
             self._project_root_path,
-            lib_path.relative_to(self._project_root_path) if lib_path else Path("lib"),
+            packages_dir=lib_path,
         )
         self._logger.info(
             "Removing %s%s%s",
