@@ -16,7 +16,11 @@ from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
 from starkware.starknet.security.secure_hints import HintsWhitelist
 from starkware.starknet.services.api.contract_class import EntryPointType
 
-from protostar.starknet.cheatable_cached_state import CheatableCachedState, cheaters_of
+from protostar.starknet.cheatable_cached_state import (
+    CheatableCachedState,
+    cheaters_of,
+    CallData,
+)
 from protostar.starknet.types import AddressType, SelectorType
 
 
@@ -91,7 +95,7 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
         request = self._read_and_validate_syscall_request(
             syscall_name=syscall_name, segments=segments, syscall_ptr=syscall_ptr
         )
-        calldata = segments.memory.get_range_as_ints(
+        calldata: CallData = segments.memory.get_range_as_ints(
             addr=request.calldata, size=request.calldata_size
         )
 
@@ -141,6 +145,11 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
             call_type = CallType.DELEGATE
         else:
             raise NotImplementedError(f"Unsupported call type {syscall_name}.")
+
+        if self.cheatable_state.contract_calls.get(contract_address):
+            self.cheatable_state.contract_calls[contract_address].append(calldata)
+        else:
+            self.cheatable_state.contract_calls[contract_address] = [calldata]
 
         call = self.execute_entry_point_cls(
             call_type=call_type,

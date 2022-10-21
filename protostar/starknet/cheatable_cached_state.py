@@ -11,6 +11,8 @@ from protostar.starknet.cheaters import BlockInfoCheater, Cheaters
 from protostar.starknet.types import AddressType, ClassHashType, SelectorType
 
 
+CallData = list[int]
+
 # pylint: disable=too-many-instance-attributes
 class CheatableCachedState(CachedState):
     def __init__(self, *args: Any, **kwargs: Any):
@@ -24,6 +26,7 @@ class CheatableCachedState(CachedState):
         self.class_hash_to_contract_abi_map: Dict[ClassHashType, AbiType] = {}
         self.class_hash_to_contract_path_map: Dict[ClassHashType, Path] = {}
         self.contract_address_to_class_hash_map: Dict[AddressType, ClassHashType] = {}
+        self.contract_calls: dict[AddressType, list[CallData]] = {}
 
         self.cheaters = Cheaters(block_info=BlockInfoCheater(self.block_info))
 

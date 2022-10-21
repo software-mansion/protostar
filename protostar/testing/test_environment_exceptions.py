@@ -281,3 +281,16 @@ class ExpectedEventMissingException(ReportedException):
             ),
             self.__getstate__(),
         )
+
+
+class ExpectedCallException(ReportedException):
+    def __init__(self, address: int, calldata: list[int]) -> None:
+        self._address = address
+        self._calldata = calldata
+        super().__init__()
+
+    def __str__(self) -> str:
+        return f"expected call to address {self._address} with calldata {self._calldata} not fulfilled"
+
+    def __reduce__(self):
+        return type(self), (self._address, self._calldata), self.__getstate__()
