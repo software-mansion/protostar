@@ -131,9 +131,7 @@ def build_di_container(
         RemoveCommand(
             logger=logger,
             project_root_path=project_root_path,
-            project_section_loader=ProtostarProjectSection.Loader(
-                protostar_toml_reader
-            ),
+            configuration_file=configuration_file,
         ),
         UpdateCommand(
             logger=logger,

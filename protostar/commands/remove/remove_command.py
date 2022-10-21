@@ -8,6 +8,7 @@ from protostar.commands.install.install_command import (
     EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
 )
 from protostar.commands.remove.remove_package import remove_package
+from protostar.configuration_file import ConfigurationFile
 from protostar.io import log_color_provider
 from protostar.package_manager import retrieve_real_package_name
 from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
@@ -23,12 +24,12 @@ class RemoveCommand(ProtostarCommand):
     def __init__(
         self,
         project_root_path: Path,
-        project_section_loader: ProtostarProjectSection.Loader,
+        configuration_file: ConfigurationFile,
         logger: Logger,
     ) -> None:
         super().__init__()
         self._project_root_path = project_root_path
-        self._project_section_loader = project_section_loader
+        self._configuration_file = configuration_file
         self._logger = logger
 
     @property
@@ -65,12 +66,12 @@ class RemoveCommand(ProtostarCommand):
         self._logger.info("Removed the package successfully")
 
     def remove(self, internal_dependency_reference: str):
-        project_section = self._project_section_loader.load()
+        lib_path = self._configuration_file.get_lib_path()
 
         package_name = retrieve_real_package_name(
             internal_dependency_reference,
             self._project_root_path,
-            project_section.libs_relative_path,
+            lib_path.relative_to(self._project_root_path) if lib_path else Path("lib"),
         )
 
         self._logger.info(
