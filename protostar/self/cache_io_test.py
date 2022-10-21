@@ -1,9 +1,10 @@
 import os
+from pathlib import Path
 
 from .cache_io import CacheIO
 
 
-def test_cache_simple(tmp_path):
+def test_cache_simple(tmp_path: Path):
     cache_name = "test-cache-simple"
     cache_io = CacheIO(tmp_path)
     # pylint: disable=protected-access
@@ -25,7 +26,7 @@ def test_cache_simple(tmp_path):
     assert cache_io._gitignore_path.read_text(encoding="utf-8") == "*\n"
 
 
-def test_cache_override(tmp_path):
+def test_cache_override(tmp_path: Path):
     cache_name = "test-cache-override"
     cache_io = CacheIO(tmp_path)
     # pylint: disable=protected-access
@@ -51,7 +52,7 @@ def test_cache_override(tmp_path):
     assert gitignore_path.read_text(encoding="utf-8") == "*\n"
 
 
-def test_gitignore_behaviour(tmp_path):
+def test_gitignore_behaviour(tmp_path: Path):
     """
     .gitignore should be created with contents "*\n" only when doesn't exist
     if it exists, it should be neither removed nor modified

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, replace
-from typing import Any, Generic, Optional, TypeVar
+from typing import Any, Generic, Optional, TypeVar, Dict
 
 ArgTypeNameT = TypeVar("ArgTypeNameT")
 
@@ -16,5 +16,5 @@ class Argument(Generic[ArgTypeNameT]):
     example: Optional[str] = None
     short_name: Optional[str] = None
 
-    def copy_with(self, **changes) -> "Argument":
+    def copy_with(self, **changes: Dict[str, Any]) -> "Argument":
         return replace(self, **changes)

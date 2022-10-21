@@ -26,7 +26,7 @@ class DeclaredContract:
 
 class DeclareCheatcodeProtocol(Protocol):
     def __call__(
-        self, contract: str, *args, config: Optional[Any] = None
+        self, contract: str, *args: Any, config: Optional[Any] = None
     ) -> DeclaredContract:
         ...
 
@@ -83,7 +83,7 @@ class MigratorDeclareCheatcode(Cheatcode):
     def _declare(
         self,
         contract: str,
-        *args,
+        *args: Any,
         config: Optional[DeclareCheatcodeNetworkConfig] = None,
     ) -> DeclaredContract:
         contract_identifier = contract

@@ -12,7 +12,7 @@ class CacheIO:
         if not path.exists(self._cache_path):
             os.mkdir(self._cache_path)
 
-    def write(self, name: str, value: dict, override=True) -> None:
+    def write(self, name: str, value: dict, override: bool = True) -> None:
         if not override and self.read(name):
             return
 

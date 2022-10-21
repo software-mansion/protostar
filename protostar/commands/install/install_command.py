@@ -1,3 +1,4 @@
+from argparse import Namespace
 from logging import Logger
 from pathlib import Path
 from typing import Callable, Optional
@@ -62,7 +63,7 @@ class InstallCommand(ProtostarCommand):
             ),
         ]
 
-    async def run(self, args):
+    async def run(self, args: Namespace):
         self._logger.info("Executing install")
         try:
             self.install(

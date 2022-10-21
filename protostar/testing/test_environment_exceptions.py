@@ -189,7 +189,7 @@ class ExpectedEventMissingException(ReportedException):
         matches: ExpectedEvent.MatchesList,
         missing: List[ExpectedEvent],
         event_selector_to_name_map: Dict[int, str],
-        line_prefix="  ",
+        line_prefix: str = "  ",
     ) -> None:
         self.matches = matches
         self.missing = missing

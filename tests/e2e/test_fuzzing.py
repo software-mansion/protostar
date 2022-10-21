@@ -1,8 +1,10 @@
 import pytest
 
+from tests.e2e.conftest import CopyFixture, ProtostarFixture
+
 
 @pytest.mark.usefixtures("init")
-def test_fuzzing(protostar, copy_fixture):
+def test_fuzzing(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     copy_fixture("test_fuzz.cairo", "./tests")
 
     result = protostar(
@@ -44,7 +46,7 @@ c = 0
 
 
 @pytest.mark.usefixtures("init")
-def test_fuzzing_changing_seed(protostar, copy_fixture):
+def test_fuzzing_changing_seed(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     seeds = []
     copy_fixture("test_fuzz_single.cairo", "./tests")
 

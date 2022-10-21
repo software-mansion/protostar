@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Optional, Any
 
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
@@ -53,7 +53,10 @@ class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
             )
 
     async def execute_test_case(
-        self, function_name: str, *args, **kwargs
+        self,
+        function_name: str,
+        *args: Any,
+        **kwargs: Any,
     ) -> Optional[ExecutionResourcesSummary]:
         execution_resources: Optional[ExecutionResourcesSummary] = None
 

@@ -1,3 +1,4 @@
+from argparse import Namespace
 from logging import Logger
 from pathlib import Path
 from typing import Optional
@@ -75,7 +76,7 @@ class MigrateCommand(ProtostarCommand):
             ),
         ]
 
-    async def run(self, args) -> Optional[Migrator.History]:
+    async def run(self, args: Namespace) -> Optional[Migrator.History]:
         network_command_util = NetworkCommandUtil(args, self._logger)
         network_config = network_command_util.get_network_config()
         signable_command_util = SignableCommandUtil(args, self._logger)
