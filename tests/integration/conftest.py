@@ -201,15 +201,19 @@ def create_protostar_project_fixture(
     @contextmanager
     def create_protostar_project():
         tmp_path = tmp_path_factory.mktemp("project_name")
-        project_root_path = tmp_path / "project_name"
+        project_root_path = tmp_path
         cwd = Path().resolve()
         protostar = build_protostar_fixture(
             mocker=session_mocker,
-            project_root_path=project_root_path,
+            project_root_path=tmp_path,
             signing_credentials=signing_credentials,
         )
-        protostar.init_sync()
+        project_name = "project_name"
+        protostar.init_sync(project_name)
+
+        project_root_path = project_root_path / project_name
         os.chdir(project_root_path)
+        # rebuilding protostar fixture to reload configuration file
         yield build_protostar_fixture(
             mocker=session_mocker,
             project_root_path=project_root_path,

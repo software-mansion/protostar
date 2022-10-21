@@ -141,14 +141,11 @@ class ProtostarFixture:
 
         return await self._test_command.run(args)
 
-    def init_sync(self):
+    def init_sync(self, project_name: str):
         args = Namespace()
         args.existing = False
-        args.name = None
-        cwd = Path().resolve()
-        os.chdir(self._project_root_path.parent)
+        args.name = project_name
         result = asyncio.run(self._init_command.run(args))
-        os.chdir(cwd)
         return result
 
     async def build(self):
@@ -411,7 +408,7 @@ def build_protostar_fixture(
         requester=input_requester,
         protostar_toml_writer=protostar_toml_writer,
         version_manager=version_manager,
-        output_dir_path=project_root_path.parent,
+        output_dir_path=project_root_path,
     )
 
     init_command = InitCommand(
