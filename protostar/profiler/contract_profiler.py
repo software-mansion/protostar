@@ -190,10 +190,6 @@ def create_instruction_list(
     return instructions
 
 
-def find_instruction(instructions: dict[int, Instruction], pc: Address) -> Instruction:
-    return instructions[pc]
-
-
 def build_call_callstacks(
     instructions: Instructions, tracer_data: TracerDataManager
 ) -> list[list[Instruction]]:
