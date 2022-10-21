@@ -12,20 +12,20 @@ from protostar.commands.update.update_package import update_package
 from protostar.commands.update.updating_exceptions import (
     PackageAlreadyUpToDateException,
 )
+from protostar.configuration_file import ConfigurationFile
 from protostar.package_manager import retrieve_real_package_name
-from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
 
 
 class UpdateCommand(ProtostarCommand):
     def __init__(
         self,
         project_root_path: Path,
-        project_section_loader: ProtostarProjectSection.Loader,
+        configuration_file: ConfigurationFile,
         logger: Logger,
     ) -> None:
         super().__init__()
         self._project_root_path = project_root_path
-        self._project_section_loader = project_section_loader
+        self._configuration_file = configuration_file
         self._logger = logger
 
     @property
@@ -68,25 +68,26 @@ class UpdateCommand(ProtostarCommand):
         self._logger.info("Updated successfully")
 
     def update(self, package: Optional[str]) -> None:
-        project_section = self._project_section_loader.load()
+        lib_path = self._configuration_file.get_lib_path()
+        relative_lib_path = (
+            lib_path.relative_to(self._project_root_path) if lib_path else Path("lib")
+        )
 
         if package:
             package = retrieve_real_package_name(
-                package, self._project_root_path, project_section.libs_relative_path
+                package, self._project_root_path, relative_lib_path
             )
             try:
-                update_package(
-                    package, self._project_root_path, project_section.libs_relative_path
-                )
+                update_package(package, self._project_root_path, relative_lib_path)
             except PackageAlreadyUpToDateException as err:
                 self._logger.info(err.message)
         else:
-            for package_name in listdir(project_section.libs_relative_path):
+            for package_name in listdir(lib_path or self._project_root_path / "lib"):
                 try:
                     update_package(
                         package_name,
                         self._project_root_path,
-                        project_section.libs_relative_path,
+                        relative_lib_path,
                     )
                 except PackageAlreadyUpToDateException:
                     continue
