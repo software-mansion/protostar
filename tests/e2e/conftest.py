@@ -19,7 +19,10 @@ from protostar.configuration_file import (
 from protostar.configuration_file.configuration_file_factory import (
     ConfigurationFileFactory,
 )
-from protostar.configuration_file.configuration_file_v2 import ConfigurationFileV2
+from protostar.configuration_file.configuration_file_v2 import (
+    ConfigurationFileV2,
+    ConfigurationFileV2Model,
+)
 from protostar.self.protostar_directory import ProtostarDirectory
 from tests.conftest import run_devnet
 
@@ -236,3 +239,10 @@ def my_private_libs_setup_fixture(
         "test_main_using_simple_function.cairo", Path() / "tests" / "test_main.cairo"
     )
     return (my_private_libs_dir,)
+
+
+class UpdateConfigFileV2Fixture(Protocol):
+    def __call__(
+        self, updater: Callable[[ConfigurationFileV2Model], ConfigurationFileV2Model]
+    ) -> None:
+        ...
