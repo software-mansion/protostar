@@ -41,7 +41,7 @@ class ProjectCreator(ABC):
         )
         ext = self._configuration_file_content_factory.get_file_extension()
         Path(project_root_path / f"protostar.{ext}").write_text(
-            configuration_file_content
+            configuration_file_content, encoding="utf-8"
         )
 
     @abstractmethod
