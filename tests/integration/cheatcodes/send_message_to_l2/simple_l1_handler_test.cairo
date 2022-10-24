@@ -153,3 +153,39 @@ func test_existing_external_contract_l1_handle_call{
     assert state = secret_value;
     return ();
 }
+
+@event
+func fake_event() {
+}
+
+
+@external
+func test_tmp{
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
+    range_check_ptr,
+}(){
+    alloc_locals;
+    local external_contract_address: felt;
+    let secret_value = 's3cr3t';
+    fake_event.emit();
+    fake_event.emit();
+    %{ ids.external_contract_address = deploy_contract("tests/integration/cheatcodes/send_message_to_l2/external_contract_with_l1_handler.cairo").contract_address %}
+    %{
+        send_message_to_l2(
+            fn_name="existing_handler",
+            from_address=123,
+            payload=[ids.secret_value],
+            to_address=ids.external_contract_address,
+        )
+    %}
+    fake_event.emit();
+
+    let (state) = ExternalContractInterface.get_state(contract_address=external_contract_address);
+
+
+    
+    assert state = secret_value;
+    return ();
+}
+

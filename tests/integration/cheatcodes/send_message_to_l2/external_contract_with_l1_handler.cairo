@@ -12,6 +12,7 @@ func existing_handler{
         pedersen_ptr: HashBuiltin*,
         range_check_ptr,
     }(from_address: felt, value: felt){
+    fake_event.emit();
     state.write(value);
     return ();
 }
@@ -26,3 +27,14 @@ func get_state{
     return (res=res);
 }
 
+
+@event
+func fake_event() {
+}
+
+@constructor
+func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+) {
+    fake_event.emit();
+    return ();
+}
