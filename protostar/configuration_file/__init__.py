@@ -2,6 +2,7 @@ from .configuration_file import ConfigurationFile, ConfigurationFileMigratorProt
 from .configuration_file_factory import ConfigurationFileFactory
 from .configuration_file_v1 import CommandNamesProviderProtocol, ConfigurationFileV1
 from .configuration_file_v2 import (
+    ConfigurationFileV2,
     ConfigurationFileV2ContentFactory,
     ConfigurationFileV2Model,
 )

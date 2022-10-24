@@ -2,18 +2,24 @@
 import json
 import shlex
 import shutil
-from os import chdir, mkdir, path, getcwd
+from os import chdir, getcwd, mkdir, path
 from pathlib import Path
 from subprocess import PIPE, STDOUT, run
-from typing import Callable, List, Optional, Union, Tuple, Generator
+from typing import Callable, Generator, List, Optional, Tuple, Union
 
 import pexpect
 import pytest
-import tomli
-import tomli_w
-from typing_extensions import Protocol
 from py._path.local import LocalPath
+from typing_extensions import Protocol
 
+from protostar.configuration_file import (
+    ConfigurationFileV2ContentFactory,
+    ConfigurationTOMLContentBuilder,
+)
+from protostar.configuration_file.configuration_file_factory import (
+    ConfigurationFileFactory,
+)
+from protostar.configuration_file.configuration_file_v2 import ConfigurationFileV2
 from protostar.self.protostar_directory import ProtostarDirectory
 from tests.conftest import run_devnet
 
@@ -193,26 +199,18 @@ def init(
     init_project()
     chdir(project_name)
     if protostar_toml_protostar_version or libs_path:
-        with open(Path() / "protostar.toml", "r+", encoding="UTF-8") as file:
-            raw_protostar_toml = file.read()
-            protostar_toml = tomli.loads(raw_protostar_toml)
-
-            assert (
-                protostar_toml["protostar.config"]["protostar_version"] is not None
-            )  # Sanity check
-
-            if protostar_toml_protostar_version:
-                protostar_toml["protostar.config"][
-                    "protostar_version"
-                ] = protostar_toml_protostar_version
-
-            if libs_path:
-                protostar_toml["protostar.project"]["libs_path"] = libs_path
-                Path(libs_path).mkdir(exist_ok=True)
-
-            file.seek(0)
-            file.truncate()
-            file.write(tomli_w.dumps(protostar_toml))
+        configuration_file = ConfigurationFileFactory(cwd=Path()).create()
+        assert isinstance(configuration_file, ConfigurationFileV2)
+        model = configuration_file.read()
+        if protostar_toml_protostar_version:
+            model.protostar_version = protostar_toml_protostar_version
+        if libs_path:
+            model.project_config = {**model.project_config, "lib-path": libs_path}
+        configuration_file_content_factory = ConfigurationFileV2ContentFactory(
+            content_builder=ConfigurationTOMLContentBuilder()
+        )
+        content = configuration_file_content_factory.create_file_content(model)
+        (Path() / "protostar.toml").write_text(content)
     yield
     chdir(protostar_repo_root)
 
