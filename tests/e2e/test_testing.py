@@ -1,10 +1,11 @@
-from os import listdir
 import shutil
+from os import listdir
 from pathlib import Path
+from textwrap import dedent
 
 import pytest
 
-from tests.e2e.conftest import ProtostarFixture, CopyFixture, MyPrivateLibsSetupFixture
+from tests.e2e.conftest import CopyFixture, MyPrivateLibsSetupFixture, ProtostarFixture
 
 
 @pytest.mark.usefixtures("init")
@@ -107,13 +108,19 @@ def test_loading_cairo_path_from_config_file(
 
     protostar(["test", "tests"], expect_exit_code=1)
 
-    with open("./protostar.toml", "a", encoding="utf-8") as protostar_toml:
-        protostar_toml.write(
+    Path("protostar.toml").write_text(
+        dedent(
             f"""
-["protostar.shared_command_configs"]
-cairo_path = ["{str(my_private_libs_dir)}"]
-"""
-        )
+            [project]
+            protostar-version="0.0.0"
+            cairo-path = ["{str(my_private_libs_dir)}"]
+
+            [contracts]
+            main = ["src/main.cairo"]
+        """
+        ),
+        encoding="utf-8",
+    )
 
     result = protostar(["test", "tests"])
     assert "/my_lib/utils.cairo" not in result
