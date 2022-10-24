@@ -72,6 +72,12 @@ class RemoveCommand(ProtostarCommand):
         self._logger.info("Removed the package successfully")
 
     def remove(self, internal_dependency_reference: str, lib_path: Path):
+        if not lib_path.exists():
+            self._logger.warning(
+                f"Directory {lib_path} doesn't exist.\n"
+                "Did you install any package before running this command?"
+            )
+            return
         package_name = retrieve_real_package_name(
             internal_dependency_reference,
             self._project_root_path,

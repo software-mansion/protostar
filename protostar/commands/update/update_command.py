@@ -75,6 +75,13 @@ class UpdateCommand(ProtostarCommand):
         self._logger.info("Updated successfully")
 
     def update(self, package: Optional[str], lib_path: Path) -> None:
+        if not lib_path.exists():
+            self._logger.warning(
+                f"Directory {lib_path} doesn't exist.\n"
+                "Did you install any package before running this command?"
+            )
+            return
+
         if package:
             package = retrieve_real_package_name(
                 package, self._project_root_path, packages_dir=lib_path

@@ -109,6 +109,12 @@ class InstallCommand(ProtostarCommand):
                 ConfigurationFile.create_appending_cairo_path_suggestion()
             )
         else:
+            if not libs_path.exists():
+                self._logger.warning(
+                    f"Directory {libs_path} doesn't exist.\n"
+                    "Did you install any package before running this command?"
+                )
+                return
             pull_package_submodules(
                 on_submodule_update_start=lambda package_info: self._logger.info(
                     "Installing %s%s%s %s(%s)%s",
