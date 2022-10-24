@@ -32,7 +32,7 @@ class ProjectCreator(ABC):
                 ConfigurationFileV2Model(
                     protostar_version=str(self._protostar_version),
                     contract_name_to_path_strs={"main": ["src/main.cairo"]},
-                    project_config={},
+                    project_config={"lib-path": "lib"},
                     command_name_to_config={},
                     profile_name_to_project_config={},
                     profile_name_to_commands_config={},

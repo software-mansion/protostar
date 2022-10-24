@@ -4,7 +4,7 @@ from textwrap import dedent
 
 import pytest
 
-from tests.e2e.conftest import ProtostarFixture, MyPrivateLibsSetupFixture
+from tests.e2e.conftest import MyPrivateLibsSetupFixture, ProtostarFixture
 
 
 @pytest.mark.usefixtures("init")
@@ -23,7 +23,8 @@ def test_non_zero_exit_code_if_fails(protostar: ProtostarFixture):
             @view
             func broken() {
             """
-        )
+        ),
+        encoding="utf-8",
     )
 
     protostar(["build"], expect_exit_code=1)
@@ -98,7 +99,7 @@ def test_cairo_path_loaded_from_profile_section(
         protostar_toml.write(
             "\n".join(
                 [
-                    '["profile.my_profile.protostar.shared_command_configs"]',
+                    "[profile.my_profile.project]",
                     f'cairo_path = ["{str(my_private_libs_dir)}"]',
                 ]
             )
@@ -129,7 +130,8 @@ def test_disable_hint_validation(protostar: ProtostarFixture):
                 return ();
             }
             """
-        )
+        ),
+        encoding="utf-8",
     )
 
     result = protostar(["build"], ignore_exit_code=True)
@@ -161,7 +163,8 @@ def test_building_account_contract(protostar: ProtostarFixture):
                 return ();
             }
             """
-        )
+        ),
+        encoding="utf-8",
     )
 
     protostar(["build"])
@@ -191,7 +194,7 @@ def test_building_project_with_modified_protostar_toml(protostar: ProtostarFixtu
                 "./src/main.cairo",
             ]
             """
-            )
+            ),
         )
 
     protostar(["build"])
