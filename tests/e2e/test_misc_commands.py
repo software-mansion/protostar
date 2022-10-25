@@ -107,5 +107,6 @@ def test_migrate_configuration_file(protostar: ProtostarFixture):
     configuration_file = Path("protostar.toml").read_text(encoding="utf-8")
 
     assert "The configuration file was migrated successfully" in output
+    assert "update your configuration file" not in output
     assert "[project]" in configuration_file
     assert '"src/main.cairo"' in configuration_file

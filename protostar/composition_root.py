@@ -211,6 +211,7 @@ def build_di_container(
         logger=logger,
         version_manager=version_manager,
         project_cairo_path_builder=project_cairo_path_builder,
+        configuration_file=configuration_file,
         start_time=start_time,
     )
     if configuration_file:

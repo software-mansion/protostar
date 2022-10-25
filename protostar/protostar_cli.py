@@ -7,8 +7,13 @@ from typing import Any, List, Optional
 
 from protostar.argument_parser import CLIApp
 from protostar.cli import ProtostarArgument, ProtostarCommand
+from protostar.commands import MigrateConfigurationFileCommand
 from protostar.compiler import ProjectCairoPathBuilder
-from protostar.configuration_file import CommandNamesProviderProtocol
+from protostar.configuration_file import (
+    CommandNamesProviderProtocol,
+    ConfigurationFile,
+    ConfigurationFileV1,
+)
 from protostar.configuration_profile_cli import ConfigurationProfileCLI
 from protostar.io import LogColorProvider, StandardLogFormatter
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
@@ -32,6 +37,7 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
         latest_version_checker: LatestVersionChecker,
         version_manager: VersionManager,
         commands: List[ProtostarCommand],
+        configuration_file: ConfigurationFile,
         start_time: float = 0,
     ) -> None:
         self._logger = logger
@@ -39,6 +45,7 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
         self._log_color_provider = log_color_provider
         self._version_manager = version_manager
         self._start_time = start_time
+        self._configuration_file = configuration_file
         self._project_cairo_path_builder = project_cairo_path_builder
         super().__init__(
             commands=commands,
@@ -67,6 +74,9 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
 
             if args.command != "upgrade":
                 await self._latest_version_checker.run()
+                self._show_configuration_file_depreciation_warning_if_necessary(
+                    args.command
+                )
 
         except (ProtostarExceptionSilent, KeyboardInterrupt):
             has_failed = True
@@ -128,3 +138,18 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
             )
         )
         sys.path.extend(cairo_path_list)
+
+    def _show_configuration_file_depreciation_warning_if_necessary(
+        self, current_command_name: str
+    ):
+        if (
+            isinstance(self._configuration_file, ConfigurationFileV1)
+            and current_command_name != MigrateConfigurationFileCommand.NAME
+        ):
+            instruction = f"protostar {MigrateConfigurationFileCommand.NAME}"
+            instruction = self._log_color_provider.bold(instruction)
+            instruction = self._log_color_provider.colorize("CYAN", instruction)
+            self._logger.warning(
+                "Current configuration file won't be supported in future releases.\n"
+                f"To update your configuration file, run: {instruction}"
+            )

@@ -7,6 +7,8 @@ from protostar.configuration_file import ConfigurationFileMigratorProtocol
 
 
 class MigrateConfigurationFileCommand(ProtostarCommand):
+    NAME = "migrate-configuration-file"
+
     def __init__(
         self,
         logger: Logger,
@@ -18,7 +20,7 @@ class MigrateConfigurationFileCommand(ProtostarCommand):
 
     @property
     def name(self) -> str:
-        return "migrate-configuration-file"
+        return self.NAME
 
     @property
     def description(self) -> str:
