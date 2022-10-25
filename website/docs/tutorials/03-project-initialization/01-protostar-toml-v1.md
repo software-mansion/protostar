@@ -2,7 +2,7 @@
 sidebar_label: protostar.toml V1 (deprecated)
 ---
 
-# `protostar.toml` v1
+# `protostar.toml` V1
 
 :::warning
 This version of the configuration file is deprecated.  [Learn how to migrate the configuration file.](/docs/tutorials/project-initialization/protostar-toml-v2#migrating-from-protostartoml-v1)
