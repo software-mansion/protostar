@@ -1,27 +1,13 @@
 ---
-sidebar_label: Project initialization
+sidebar_label: protostar.toml V1 (deprecated)
 ---
 
-# Project initialization
+# `protostar.toml` v1
 
-To create a new project run:
+:::warning
+This version of the configuration file is deprecated.  [Learn how to migrate the configuration file.](/docs/tutorials/project-initialization/protostar-toml-v2#migrating-from-protostartoml-v1)
+:::
 
-```console
-protostar init your-project-name
-```
-
-### Adapting an existing project to the Protostar project
-Protostar project must be a git repository and have `protostar.toml` file. You can adapt your project manually or by running `protostar init --existing`.
-
-# Project structure
-
-The result of running `protostar init` is a configuration file `protostar.toml`, example files, and the following 3 directories:
-
-- `src` — A directory for your code.
-- `lib` — A default directory for an external dependencies.
-- `tests` — A directory storing tests.
-
-## `protostar.toml`
 ### Project configuration
 ```toml title="'protostar.toml' is required"
 ["protostar.config"]
