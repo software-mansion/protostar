@@ -1346,7 +1346,7 @@ Werkzeug = ">=2.0.3,<2.1.0"
 
 [[package]]
 name = "starknet-py"
-version = "0.6.2a0"
+version = "0.6.3a0"
 description = "A python SDK for StarkNet"
 category = "main"
 optional = false
@@ -1557,7 +1557,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9.14, <3.10"
-content-hash = "76e13fa3b09a21928f95139d85011cc46256ce3c76c5ee6d1a82ad0518d360a0"
+content-hash = "1ad057860fdbc134d79923726be43ab714620591b4a688ca02603a3cedb23932"
 
 [metadata.files]
 aiohttp = [
@@ -2725,7 +2725,7 @@ starknet-devnet = [
     {file = "starknet_devnet-0.3.1.tar.gz", hash = "sha256:70fba585d00657f7400ead83d96b02c395bc01f45f5da0c791e4ac3c388549f3"},
 ]
 starknet-py = [
-    {file = "starknet-py-0.6.2a0.tar.gz", hash = "sha256:0b08cd70c2d73773a14b474bff6c2786ebc7795e7c9a16acb370f09e5f275dc0"},
+    {file = "starknet_py-0.6.3a0.tar.gz", hash = "sha256:f8480fffb44f33448bb5ae2fce341c9e241e01463000e7908ada6dbb58999960"},
 ]
 sympy = [
     {file = "sympy-1.11.1-py3-none-any.whl", hash = "sha256:938f984ee2b1e8eae8a07b884c8b7a1146010040fccddc6539c54f401c8f6fcf"},
