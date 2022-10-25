@@ -1,4 +1,3 @@
-# pylint: disable=invalid-name
 import json
 import os
 from contextlib import contextmanager
