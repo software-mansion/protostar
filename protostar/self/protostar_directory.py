@@ -87,17 +87,10 @@ class VersionManager:
         self._logger = logger
 
     @property
-    def protostar_version(self) -> Optional[VersionType]:
+    def protostar_version(self) -> ProtostarVersion:
         version_s = self._protostar_directory.get_runtime_constant("PROTOSTAR_VERSION")
         if version_s is None:
-            return VersionManager.parse("0.0.0")
-        return VersionManager.parse(version_s)
-
-    def get_protostar_version(self) -> ProtostarVersion:
-        version_s = (
-            self._protostar_directory.get_runtime_constant("PROTOSTAR_VERSION")
-            or "0.0.0"
-        )
+            return parse_protostar_version("0.0.0")
         return parse_protostar_version(version_s)
 
     @property

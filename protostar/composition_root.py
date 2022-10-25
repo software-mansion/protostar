@@ -68,7 +68,7 @@ def build_di_container(
 
     protostar_directory = ProtostarDirectory(script_root)
     version_manager = VersionManager(protostar_directory, logger)
-    protostar_version = version_manager.get_protostar_version()
+    protostar_version = version_manager.protostar_version
     input_requester = InputRequester(log_color_provider)
     latest_version_checker = LatestVersionChecker(
         protostar_directory=protostar_directory,
