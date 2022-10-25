@@ -2,9 +2,9 @@ import asyncio
 from pathlib import Path
 
 from tests.integration.conftest import (
+    CreateProtostarProjectFixture,
     RunCairoTestRunnerFixture,
     assert_cairo_test_cases,
-    CreateProtostarProjectFixture,
 )
 
 
@@ -25,16 +25,22 @@ def test_l1_to_l2_message_cheatcode(
         )
         protostar.build_sync()
 
-        testing_summary = asyncio.run(run_cairo_test_runner(Path(".")))
+        testing_summary = asyncio.run(
+            run_cairo_test_runner(
+                Path("."),
+                test_cases=["test_sending_events_from_test_case_and_l1_handler"],
+            )
+        )
 
         assert_cairo_test_cases(
             testing_summary,
             expected_passed_test_cases_names=[
-                "test_existing_self_l1_handle_call",
-                "test_existing_self_l1_handle_call_w_transformer",
-                "test_existing_self_l1_handle_call_no_calldata",
-                "test_existing_self_l1_handle_call_custom_l1_sender_address",
-                "test_existing_external_contract_l1_handle_call",
+                # "test_existing_self_l1_handle_call",
+                # "test_existing_self_l1_handle_call_w_transformer",
+                # "test_existing_self_l1_handle_call_no_calldata",
+                # "test_existing_self_l1_handle_call_custom_l1_sender_address",
+                # "test_existing_external_contract_l1_handle_call",
+                "test_sending_events_from_test_case_and_l1_handler"
             ],
-            expected_broken_test_cases_names=["test_non_existing_self_l1_handle_call"],
+            # expected_broken_test_cases_names=["test_non_existing_self_l1_handle_call"],
         )
