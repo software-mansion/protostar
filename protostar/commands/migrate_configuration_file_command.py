@@ -22,7 +22,7 @@ class MigrateConfigurationFileCommand(ProtostarCommand):
 
     @property
     def description(self) -> str:
-        return "Migrate protostar.toml to the new version introduced in Protostar v0.5"
+        return "Migrate protostar.toml V1 to V2."
 
     @property
     def example(self) -> Optional[str]:
