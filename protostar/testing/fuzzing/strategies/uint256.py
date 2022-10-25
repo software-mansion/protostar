@@ -6,9 +6,6 @@ from starkware.cairo.lang.compiler.ast.cairo_types import CairoType, TypeStruct
 from protostar.testing.fuzzing.exceptions import SearchStrategyBuildError
 from protostar.testing.fuzzing.strategy_descriptor import StrategyDescriptor
 
-from starknet_py.cairo.felt import is_uint256
-
-
 MIN_UINT256 = 0
 MAX_UINT256 = (1 << 256) - 1
 

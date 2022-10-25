@@ -1,7 +1,6 @@
 from starkware.cairo.lang.compiler.ast.cairo_types import (
     CairoType,
     TypeFelt,
-    TypeStruct,
 )
 
 from .exceptions import FuzzingError
