@@ -266,6 +266,8 @@ Path to the file, which stores your private key (in hex representation) for the 
 Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
 #### `--signer-class STRING`
 Custom signer class module path.
+### `migrate-configuration-file`
+Migrate protostar.toml to the new version introduced in Protostar v0.5
 ### `remove`
 ```shell
 $ protostar remove cairo-contracts
