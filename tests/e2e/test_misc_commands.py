@@ -2,6 +2,7 @@
 import re
 from os import listdir
 from pathlib import Path
+from textwrap import dedent
 
 import pexpect
 import pytest
@@ -81,3 +82,30 @@ def test_protostar_version_in_correct_format(protostar: ProtostarFixture):
     assert isinstance(
         v_object, Version
     ), f"Output version ({v_string}) does not meet the format requirements"
+
+
+def test_migrate_configuration_file(protostar: ProtostarFixture):
+    Path("protostar.toml").write_text(
+        dedent(
+            """
+        ["protostar.config"]
+        protostar_version = "0.5.0"
+
+        ["protostar.project"]
+        libs_path = "./lib"         
+
+        ["protostar.contracts"]
+        main = [
+        "./src/main.cairo",
+        ]
+    """
+        ),
+        encoding="utf-8",
+    )
+
+    output = protostar(["migrate-configuration-file"])
+    configuration_file = Path("protostar.toml").read_text(encoding="utf-8")
+
+    assert "The configuration file was migrated successfully" in output
+    assert "[project]" in configuration_file
+    assert '"src/main.cairo"' in configuration_file
