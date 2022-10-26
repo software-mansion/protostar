@@ -18,7 +18,14 @@ class CompatibilityCheckResult(Enum):
     FAILURE = auto()
 
 
-class ProtostarCompatibilityWithProjectChecker:
+class ProtostarCompatibilityWithProjectCheckerProtocol(Protocol):
+    def check_compatibility(self) -> CompatibilityCheckResult:
+        ...
+
+
+class ProtostarCompatibilityWithProjectChecker(
+    ProtostarCompatibilityWithProjectCheckerProtocol
+):
     def __init__(
         self,
         protostar_version: ProtostarVersion,
