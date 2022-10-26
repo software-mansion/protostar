@@ -33,6 +33,7 @@ def _apply_pythonpath():
 
 
 class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
+    # pylint: disable=too-many-instance-attributes
     def __init__(
         self,
         logger: Logger,
