@@ -76,14 +76,14 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
         try:
             self._setup_logger(args.no_color)
             self._check_git_version()
+            if args.command is not None and args.command != "init":
+                self._warn_if_compatibility_issues_detected()
             await self._run_command_from_args(args)
-
-            if args.command != "upgrade":
+            if args.command is not None and args.command != "upgrade":
                 await self._latest_version_checker.run()
                 self._show_configuration_file_depreciation_warning_if_necessary(
                     args.command
                 )
-                self._warn_if_compatibility_issues_detected()
 
         except (ProtostarExceptionSilent, KeyboardInterrupt):
             has_failed = True
@@ -165,8 +165,8 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
         result = self._compatibility_checker.check_compatibility()
         if result == CompatibilityCheckResult.OUTDATED_DECLARED_VERSION:
             self._logger.warning(
-                "You are using a newer Protostar than declared in the configuration file.\n"
-                "Please update the declared Protostar version in project's configuration file."
+                "This project expects older Protostar version.\n"
+                "Please update the declared Protostar version in the project's configuration file."
             )
         elif result == CompatibilityCheckResult.OUTDATED_PROTOSTAR:
             self._logger.warning(
