@@ -17,6 +17,7 @@ def declared_protostar_version_provider_fixture(declared_protostar_version: str)
 @pytest.mark.parametrize(
     "protostar_version, declared_protostar_version, check_result",
     (
+        ("0.0.0", "0.1.0", CompatibilityCheckResult.FAILURE),
         ("0.1.2", "0.1.2", CompatibilityCheckResult.COMPATIBLE),
         ("0.1.2", "0.1.1", CompatibilityCheckResult.COMPATIBLE),
         ("1.0.0", "1.0.0", CompatibilityCheckResult.COMPATIBLE),

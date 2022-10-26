@@ -39,7 +39,12 @@ class ProtostarCompatibilityWithProjectChecker(
         declared_protostar_version = (
             self._declared_protostar_version_provider.get_declared_protostar_version()
         )
-        if declared_protostar_version is None:
+        if (
+            declared_protostar_version is None
+            or self._protostar_version.major == 0
+            and self._protostar_version.minor == 0
+            and self._protostar_version.micro == 0
+        ):
             return CompatibilityCheckResult.FAILURE
         if (
             declared_protostar_version.major == self._protostar_version.major
