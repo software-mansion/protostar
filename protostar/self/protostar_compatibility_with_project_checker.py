@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Optional, Protocol
 
@@ -11,15 +12,22 @@ class DeclaredProtostarVersionProviderProtocol(Protocol):
         ...
 
 
-class CompatibilityCheckResult(Enum):
+class CompatibilityResult(Enum):
     COMPATIBLE = auto()
     OUTDATED_PROTOSTAR = auto()
     OUTDATED_DECLARED_VERSION = auto()
     FAILURE = auto()
 
 
+@dataclass
+class CompatibilityCheckOutput:
+    compatibility_result: CompatibilityResult
+    protostar_version_str: str
+    declared_protostar_version_str: Optional[str]
+
+
 class ProtostarCompatibilityWithProjectCheckerProtocol(Protocol):
-    def check_compatibility(self) -> CompatibilityCheckResult:
+    def check_compatibility(self) -> CompatibilityCheckOutput:
         ...
 
 
@@ -34,27 +42,37 @@ class ProtostarCompatibilityWithProjectChecker(
         self._protostar_version = protostar_version
         self._declared_protostar_version_provider = declared_protostar_version_provider
 
-    def check_compatibility(self) -> CompatibilityCheckResult:
-
+    def check_compatibility(self) -> CompatibilityCheckOutput:
         declared_protostar_version = (
             self._declared_protostar_version_provider.get_declared_protostar_version()
         )
+        return CompatibilityCheckOutput(
+            compatibility_result=self._check_compatibility(declared_protostar_version),
+            declared_protostar_version_str=str(declared_protostar_version)
+            if declared_protostar_version is not None
+            else None,
+            protostar_version_str=str(self._protostar_version),
+        )
+
+    def _check_compatibility(
+        self, declared_protostar_version: Optional[ProtostarVersion]
+    ) -> CompatibilityResult:
         if (
             declared_protostar_version is None
             or self._protostar_version.major == 0
             and self._protostar_version.minor == 0
             and self._protostar_version.micro == 0
         ):
-            return CompatibilityCheckResult.FAILURE
+            return CompatibilityResult.FAILURE
         if (
             declared_protostar_version.major == self._protostar_version.major
             and declared_protostar_version.minor == self._protostar_version.minor
             and declared_protostar_version.micro <= self._protostar_version.micro
         ):
-            return CompatibilityCheckResult.COMPATIBLE
+            return CompatibilityResult.COMPATIBLE
         if declared_protostar_version < self._protostar_version:
-            return CompatibilityCheckResult.OUTDATED_DECLARED_VERSION
-        return CompatibilityCheckResult.OUTDATED_PROTOSTAR
+            return CompatibilityResult.OUTDATED_DECLARED_VERSION
+        return CompatibilityResult.OUTDATED_PROTOSTAR
 
 
 def parse_protostar_version(value: str) -> ProtostarVersion:

@@ -1,5 +1,5 @@
 from .protostar_compatibility_with_project_checker import (
-    CompatibilityCheckResult,
+    CompatibilityCheckOutput,
     DeclaredProtostarVersionProviderProtocol,
     ProtostarCompatibilityWithProjectCheckerProtocol,
     parse_protostar_version,
@@ -17,8 +17,8 @@ class FakeDeclaredProtostarVersionProvider(DeclaredProtostarVersionProviderProto
 class FakeProtostarCompatibilityWithProjectChecker(
     ProtostarCompatibilityWithProjectCheckerProtocol
 ):
-    def __init__(self, result: CompatibilityCheckResult):
+    def __init__(self, result: CompatibilityCheckOutput):
         self._result = result
 
-    def check_compatibility(self) -> CompatibilityCheckResult:
+    def check_compatibility(self) -> CompatibilityCheckOutput:
         return self._result

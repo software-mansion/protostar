@@ -12,7 +12,7 @@ from protostar.cli import ProtostarCommand
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.protostar_cli import ProtostarCLI
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
-from protostar.self import CompatibilityCheckResult, VersionManager
+from protostar.self import CompatibilityCheckOutput, CompatibilityResult, VersionManager
 from protostar.self.conftest import FakeProtostarCompatibilityWithProjectChecker
 from protostar.upgrader.latest_version_checker import LatestVersionChecker
 
@@ -72,7 +72,11 @@ def protostar_cli_fixture(
         configuration_file=mocker.MagicMock(),
         project_cairo_path_builder=mocker.MagicMock(),
         compatibility_checker=FakeProtostarCompatibilityWithProjectChecker(
-            result=CompatibilityCheckResult.COMPATIBLE
+            result=CompatibilityCheckOutput(
+                compatibility_result=CompatibilityResult.COMPATIBLE,
+                protostar_version_str="0.0.0",
+                declared_protostar_version_str="0.0.0",
+            )
         ),
     )
 
@@ -93,7 +97,7 @@ class RunProtostarCLIResult:
 
 class RunProtostarCLIFixture(Protocol):
     async def __call__(
-        self, compatibility_result: CompatibilityCheckResult
+        self, compatibility_result: CompatibilityResult
     ) -> RunProtostarCLIResult:
         ...
 
@@ -106,7 +110,7 @@ def run_protostar_cli_fixture(
     commands: List[ProtostarCommand],
     logger: Logger,
 ) -> RunProtostarCLIFixture:
-    async def run_protostar_command(compatibility_result: CompatibilityCheckResult):
+    async def run_protostar_command(compatibility_result: CompatibilityResult):
         command = commands[0]
         command.run = mocker.MagicMock()
         command.run.return_value = Future()
@@ -122,7 +126,11 @@ def run_protostar_cli_fixture(
             configuration_file=mocker.MagicMock(),
             project_cairo_path_builder=mocker.MagicMock(),
             compatibility_checker=FakeProtostarCompatibilityWithProjectChecker(
-                result=compatibility_result
+                result=CompatibilityCheckOutput(
+                    compatibility_result=compatibility_result,
+                    protostar_version_str="0.0.0",
+                    declared_protostar_version_str="0.0.0",
+                )
             ),
         )
         parser = ArgumentParserFacade(protostar_cli)
@@ -233,17 +241,17 @@ async def test_getting_command_names(
 @pytest.mark.parametrize(
     "compatibility_result, expected_warning",
     [
-        (CompatibilityCheckResult.COMPATIBLE, None),
+        (CompatibilityResult.COMPATIBLE, None),
         (
-            CompatibilityCheckResult.OUTDATED_DECLARED_VERSION,
+            CompatibilityResult.OUTDATED_DECLARED_VERSION,
             "update the declared Protostar version",
         ),
-        (CompatibilityCheckResult.OUTDATED_PROTOSTAR, "upgrade Protostar"),
+        (CompatibilityResult.OUTDATED_PROTOSTAR, "upgrade Protostar"),
     ],
 )
 async def test_checking_compatibility(
     run_protostar_cli: RunProtostarCLIFixture,
-    compatibility_result: CompatibilityCheckResult,
+    compatibility_result: CompatibilityResult,
     expected_warning: Optional[str],
 ):
     result = await run_protostar_cli(compatibility_result)

@@ -1,5 +1,6 @@
 from .protostar_compatibility_with_project_checker import (
-    CompatibilityCheckResult,
+    CompatibilityCheckOutput,
+    CompatibilityResult,
     DeclaredProtostarVersionProviderProtocol,
     ProtostarCompatibilityWithProjectChecker,
     ProtostarCompatibilityWithProjectCheckerProtocol,
