@@ -17,7 +17,11 @@ from protostar.configuration_file import (
 from protostar.configuration_profile_cli import ConfigurationProfileCLI
 from protostar.io import LogColorProvider, StandardLogFormatter
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
-from protostar.self.protostar_directory import VersionManager
+from protostar.self import (
+    CompatibilityCheckResult,
+    ProtostarCompatibilityWithProjectCheckerProtocol,
+    VersionManager,
+)
 from protostar.upgrader import LatestVersionChecker
 
 
@@ -38,6 +42,7 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
         version_manager: VersionManager,
         commands: List[ProtostarCommand],
         configuration_file: ConfigurationFile,
+        compatibility_checker: ProtostarCompatibilityWithProjectCheckerProtocol,
         start_time: float = 0,
     ) -> None:
         self._logger = logger
@@ -47,6 +52,7 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
         self._start_time = start_time
         self._configuration_file = configuration_file
         self._project_cairo_path_builder = project_cairo_path_builder
+        self._compatibility_checker = compatibility_checker
         super().__init__(
             commands=commands,
             root_args=[
@@ -77,6 +83,7 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
                 self._show_configuration_file_depreciation_warning_if_necessary(
                     args.command
                 )
+                self._warn_if_compatibility_issues_detected()
 
         except (ProtostarExceptionSilent, KeyboardInterrupt):
             has_failed = True
@@ -152,4 +159,17 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
             self._logger.warning(
                 "Current configuration file won't be supported in future releases.\n"
                 f"To update your configuration file, run: {instruction}"
+            )
+
+    def _warn_if_compatibility_issues_detected(self):
+        result = self._compatibility_checker.check_compatibility()
+        if result == CompatibilityCheckResult.OUTDATED_DECLARED_VERSION:
+            self._logger.warning(
+                "You are using a newer Protostar than declared in the configuration file.\n"
+                "Please update the declared Protostar version in project's configuration file."
+            )
+        elif result == CompatibilityCheckResult.OUTDATED_PROTOSTAR:
+            self._logger.warning(
+                "This project expects newer Protostar version.\n"
+                "Please upgrade Protostar."
             )

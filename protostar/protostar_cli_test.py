@@ -1,7 +1,6 @@
 # pylint: disable=protected-access
 
 from asyncio import Future
-from dataclasses import dataclass
 from logging import Logger, getLogger
 from typing import Any, List, Optional, Protocol, cast
 
@@ -14,6 +13,7 @@ from protostar.io.log_color_provider import LogColorProvider
 from protostar.protostar_cli import ProtostarCLI
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
 from protostar.self import CompatibilityCheckResult, VersionManager
+from protostar.self.conftest import FakeProtostarCompatibilityWithProjectChecker
 from protostar.upgrader.latest_version_checker import LatestVersionChecker
 
 
@@ -71,6 +71,9 @@ def protostar_cli_fixture(
         latest_version_checker=latest_version_checker,
         configuration_file=mocker.MagicMock(),
         project_cairo_path_builder=mocker.MagicMock(),
+        compatibility_checker=FakeProtostarCompatibilityWithProjectChecker(
+            result=CompatibilityCheckResult.COMPATIBLE
+        ),
     )
 
 
@@ -118,6 +121,9 @@ def run_protostar_cli_fixture(
             latest_version_checker=latest_version_checker,
             configuration_file=mocker.MagicMock(),
             project_cairo_path_builder=mocker.MagicMock(),
+            compatibility_checker=FakeProtostarCompatibilityWithProjectChecker(
+                result=compatibility_result
+            ),
         )
         parser = ArgumentParserFacade(protostar_cli)
         logger.warning = mocker.MagicMock()
@@ -230,9 +236,9 @@ async def test_getting_command_names(
         (CompatibilityCheckResult.COMPATIBLE, None),
         (
             CompatibilityCheckResult.OUTDATED_DECLARED_VERSION,
-            "update your configuration file",
+            "update the declared Protostar version",
         ),
-        (CompatibilityCheckResult.OUTDATED_PROTOSTAR, "update Protostar"),
+        (CompatibilityCheckResult.OUTDATED_PROTOSTAR, "upgrade Protostar"),
     ],
 )
 async def test_checking_compatibility(
