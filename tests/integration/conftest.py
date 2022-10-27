@@ -10,9 +10,11 @@ import pkg_resources
 import pytest
 from pytest import TempPathFactory
 from pytest_mock import MockerFixture
+from starknet_py.constants import DEVNET_FEE_CONTRACT_ADDRESS
+from starknet_py.contract import Contract
 from starknet_py.net import AccountClient, KeyPair
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import StarknetChainId
+from starknet_py.net.models import StarknetChainId, compute_address
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 from starkware.starknet.public.abi import AbiType
 from typing_extensions import Protocol
@@ -20,7 +22,7 @@ from typing_extensions import Protocol
 from protostar.commands.test.test_command import TestCommand
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.io.log_color_provider import LogColorProvider
-from protostar.starknet_gateway.gateway_facade import AccountAddress
+from protostar.starknet_gateway.gateway_facade import AccountAddress, Wei
 from protostar.testing import TestingSummary
 from tests.conftest import DevnetAccount, run_devnet
 from tests.integration.protostar_fixture import (
@@ -254,18 +256,61 @@ def gateway_client_fixture(devnet_gateway_url: str):
     )
 
 
+class FeeContract:
+    def __init__(self, predeployed_account_client: AccountClient) -> None:
+        self._predeployed_account_client = predeployed_account_client
+
+    async def transfer(self, recipient: AccountAddress, amount: Wei):
+        fee_contract = Contract(
+            address=DEVNET_FEE_CONTRACT_ADDRESS,
+            abi=self._get_abi(),
+            client=self._predeployed_account_client,
+        )
+
+        res = await fee_contract.functions["transfer"].invoke(
+            recipient=recipient, amount=amount, max_fee=int(1e20)
+        )
+        await res.wait_for_acceptance()
+
+    def _get_abi(self):
+        return [
+            {
+                "inputs": [
+                    {"name": "recipient", "type": "felt"},
+                    {"name": "amount", "type": "Uint256"},
+                ],
+                "name": "transfer",
+                "outputs": [{"name": "success", "type": "felt"}],
+                "type": "function",
+            },
+            {
+                "members": [
+                    {"name": "low", "offset": 0, "type": "felt"},
+                    {"name": "high", "offset": 1, "type": "felt"},
+                ],
+                "name": "Uint256",
+                "size": 2,
+                "type": "struct",
+            },
+        ]
+
+
 class DevnetAccountPreparator:
     def __init__(
-        self, gateway_client: GatewayClient, predeployed_account: DevnetAccount
+        self,
+        predeployed_account_client: AccountClient,
+        fee_contract: FeeContract,
     ) -> None:
-        self._gateway_client = gateway_client
-        self._predeployed_account = predeployed_account
+        self._predeployed_account_client = predeployed_account_client
+        self._fee_contract = fee_contract
 
     async def prepare(self) -> DevnetAccount:
         class_hash = await self._declare()
         key_pair = KeyPair.from_private_key(123)
-        address = self._compute_address(class_hash, key_pair)
-        self._prefund(address)
+        address = self._compute_address(
+            class_hash=class_hash, public_key=key_pair.public_key, salt=0
+        )
+        await self._prefund(address)
         return DevnetAccount(
             address=address,
             private_key=str(key_pair.private_key),
@@ -277,37 +322,36 @@ class DevnetAccountPreparator:
             ),
         )
 
-    def _prefund(self, account_address: AccountAddress):
-        pass
+    async def _prefund(self, account_address: AccountAddress):
+        await self._fee_contract.transfer(recipient=account_address, amount=int(1e15))
 
-    def _compute_address(self, class_hash: int, key_pair: KeyPair) -> AccountAddress:
-        return str(class_hash)
+    def _compute_address(
+        self, class_hash: int, public_key: int, salt: int
+    ) -> AccountAddress:
+        return str(
+            compute_address(
+                salt=salt,
+                class_hash=class_hash,
+                constructor_calldata=[public_key],
+                deployer_address=0,
+            )
+        )
 
     async def _declare(self) -> int:
-        account_client = AccountClient(
-            address=self._predeployed_account.address,
-            client=self._gateway_client,
-            key_pair=KeyPair(
-                private_key=int(self._predeployed_account.private_key, base=0),
-                public_key=int(self._predeployed_account.public_key, base=0),
-            ),
-            chain=StarknetChainId.TESTNET,
-            supported_tx_version=1,
-        )
 
         account_contract_path_str = pkg_resources.resource_filename(
             "starknet_devnet",
             "accounts_artifacts/OpenZeppelin/0.4.0b-fork/Account.cairo/Account.json",
         )
 
-        declare_tx = await account_client.sign_declare_transaction(
+        declare_tx = await self._predeployed_account_client.sign_declare_transaction(
             compiled_contract=Path(account_contract_path_str).read_text(
                 encoding="utf-8"
             ),
             max_fee=int(1e16),
         )
-        resp = await account_client.declare(transaction=declare_tx)
-        await account_client.wait_for_tx(resp.transaction_hash)
+        resp = await self._predeployed_account_client.declare(transaction=declare_tx)
+        await self._predeployed_account_client.wait_for_tx(resp.transaction_hash)
         return resp.class_hash
 
 
@@ -315,5 +359,15 @@ class DevnetAccountPreparator:
 def devnet_account_preparator(
     gateway_client: GatewayClient, devnet_account: DevnetAccount
 ):
-
-    return DevnetAccountPreparator(gateway_client, devnet_account)
+    predeployed_account_client = AccountClient(
+        address=devnet_account.address,
+        client=gateway_client,
+        key_pair=KeyPair(
+            private_key=int(devnet_account.private_key, base=0),
+            public_key=int(devnet_account.public_key, base=0),
+        ),
+        chain=StarknetChainId.TESTNET,
+        supported_tx_version=1,
+    )
+    fee_contract = FeeContract(predeployed_account_client=predeployed_account_client)
+    return DevnetAccountPreparator(predeployed_account_client, fee_contract)
