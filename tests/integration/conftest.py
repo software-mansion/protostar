@@ -331,7 +331,7 @@ class DevnetAccountPreparator:
     async def _declare(self) -> int:
         account_contract_path_str = pkg_resources.resource_filename(
             "starknet_devnet",
-            "accounts_artifacts/OpenZeppelin/0.4.0b-fork/Account.cairo/Account.json",
+            "accounts_artifacts/OpenZeppelin/0.5.0/Account.cairo/Account.json",
         )
 
         declare_tx = await self._predeployed_account_client.sign_declare_transaction(
