@@ -6,17 +6,23 @@ from logging import getLogger
 from pathlib import Path
 from typing import Callable, ContextManager, List, Optional, Set, Tuple, cast
 
+import pkg_resources
 import pytest
 from pytest import TempPathFactory
 from pytest_mock import MockerFixture
+from starknet_py.net import AccountClient, KeyPair
+from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.net.models import StarknetChainId
+from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 from starkware.starknet.public.abi import AbiType
 from typing_extensions import Protocol
 
 from protostar.commands.test.test_command import TestCommand
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.io.log_color_provider import LogColorProvider
+from protostar.starknet_gateway.gateway_facade import AccountAddress
 from protostar.testing import TestingSummary
-from tests.conftest import run_devnet
+from tests.conftest import DevnetAccount, run_devnet
 from tests.integration.protostar_fixture import (
     ProtostarFixture,
     build_protostar_fixture,
@@ -239,3 +245,75 @@ def get_abi_from_contract_fixture(
                 return abi
 
     return get_abi_from_contract
+
+
+@pytest.fixture(name="gateway_client")
+def gateway_client_fixture(devnet_gateway_url: str):
+    return GatewayClient(
+        devnet_gateway_url,
+    )
+
+
+class DevnetAccountPreparator:
+    def __init__(
+        self, gateway_client: GatewayClient, predeployed_account: DevnetAccount
+    ) -> None:
+        self._gateway_client = gateway_client
+        self._predeployed_account = predeployed_account
+
+    async def prepare(self) -> DevnetAccount:
+        class_hash = await self._declare()
+        key_pair = KeyPair.from_private_key(123)
+        address = self._compute_address(class_hash, key_pair)
+        self._prefund(address)
+        return DevnetAccount(
+            address=address,
+            private_key=str(key_pair.private_key),
+            public_key=str(key_pair.public_key),
+            signer=StarkCurveSigner(
+                account_address=address,
+                key_pair=key_pair,
+                chain_id=StarknetChainId.TESTNET,
+            ),
+        )
+
+    def _prefund(self, account_address: AccountAddress):
+        pass
+
+    def _compute_address(self, class_hash: int, key_pair: KeyPair) -> AccountAddress:
+        return str(class_hash)
+
+    async def _declare(self) -> int:
+        account_client = AccountClient(
+            address=self._predeployed_account.address,
+            client=self._gateway_client,
+            key_pair=KeyPair(
+                private_key=int(self._predeployed_account.private_key, base=0),
+                public_key=int(self._predeployed_account.public_key, base=0),
+            ),
+            chain=StarknetChainId.TESTNET,
+            supported_tx_version=1,
+        )
+
+        account_contract_path_str = pkg_resources.resource_filename(
+            "starknet_devnet",
+            "accounts_artifacts/OpenZeppelin/0.4.0b-fork/Account.cairo/Account.json",
+        )
+
+        declare_tx = await account_client.sign_declare_transaction(
+            compiled_contract=Path(account_contract_path_str).read_text(
+                encoding="utf-8"
+            ),
+            max_fee=int(1e16),
+        )
+        resp = await account_client.declare(transaction=declare_tx)
+        await account_client.wait_for_tx(resp.transaction_hash)
+        return resp.class_hash
+
+
+@pytest.fixture
+def devnet_account_preparator(
+    gateway_client: GatewayClient, devnet_account: DevnetAccount
+):
+
+    return DevnetAccountPreparator(gateway_client, devnet_account)

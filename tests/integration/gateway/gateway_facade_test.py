@@ -2,14 +2,16 @@ from pathlib import Path
 from typing import cast
 
 import pytest
+from starknet_py.net import AccountClient
 from starknet_py.net.client_models import Declare, TransactionStatus
 from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.net.models import StarknetChainId
 
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.starknet.data_transformer import CairoOrPythonData
 from protostar.starknet_gateway.gateway_facade import (
     ContractNotFoundException,
-    DeployAccountTxArgs,
+    DeployAccountArgs,
     FeeExceededMaxFeeException,
     GatewayFacade,
     InputValidationException,
@@ -17,7 +19,10 @@ from protostar.starknet_gateway.gateway_facade import (
 )
 from tests.conftest import DevnetAccount
 from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR, IDENTITY_CONTRACT
-from tests.integration.conftest import CreateProtostarProjectFixture
+from tests.integration.conftest import (
+    CreateProtostarProjectFixture,
+    DevnetAccountPreparator,
+)
 from tests.integration.protostar_fixture import (
     GatewayClientTxInterceptor,
     ProtostarFixture,
@@ -244,13 +249,21 @@ async def test_max_fee_estimation(
 
 
 async def test_deploy_account(
-    gateway_facade: GatewayFacade, transaction_registry: TransactionRegistry
+    devnet_account_preparator: DevnetAccountPreparator,
+    gateway_facade: GatewayFacade,
+    transaction_registry: TransactionRegistry,
 ):
-    deploy_account_args = DeployAccountTxArgs(
-        account_address_salt=0,
-        account_class_hash=1,
+    salt = 1
+    nonce = 2
+    account: DevnetAccount = await devnet_account_preparator.prepare()  # salt, nonce
+    deploy_account_args = DeployAccountArgs(
+        account_address=account.address,
+        account_address_salt=salt,
+        account_class_hash=nonce,
         account_constructor_input=None,
-        deployer_address=0,
+        max_fee="auto",
+        signer=account.signer,
+        nonce=nonce,
     )
 
     await gateway_facade.deploy_account(deploy_account_args)

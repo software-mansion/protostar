@@ -45,3 +45,10 @@ def format_successful_declare_response(
 @dataclass
 class SuccessfulInvokeResponse:
     transaction_hash: int
+
+
+@dataclass
+class SuccessfulDeployAccountResponse:
+    address: int
+    transaction_hash: int
+    code: str
