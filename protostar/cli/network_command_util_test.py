@@ -101,7 +101,9 @@ def test_printing_invalid_chain_id(
     create_network_command_util: CreateNetworkCommandUtilFixture,
 ):
     network_command_util = create_network_command_util(chain_id=123)
+
     with pytest.raises(ProtostarException) as ex:
         network_command_util.get_network_config()
+
         assert "23448594291968334" in str(ex)
         assert "1536727068981429685321" in str(ex)
