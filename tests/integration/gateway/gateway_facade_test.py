@@ -2,10 +2,8 @@ from pathlib import Path
 from typing import cast
 
 import pytest
-from starknet_py.net import AccountClient
 from starknet_py.net.client_models import Declare, TransactionStatus
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import StarknetChainId
 
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.starknet.data_transformer import CairoOrPythonData
@@ -260,7 +258,7 @@ async def test_deploy_account(
         account_address_salt=salt,
         account_class_hash=account.class_hash,
         account_constructor_input=[int(account.public_key)],
-        max_fee="auto",
+        max_fee=int(1e16),
         signer=account.signer,
         nonce=2,
     )

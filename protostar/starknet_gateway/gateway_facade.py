@@ -70,7 +70,7 @@ class DeployAccountArgs:
     account_address_salt: int
     account_constructor_input: Optional[list[int]]
     account_class_hash: ClassHash
-    max_fee: Fee
+    max_fee: Wei
     signer: BaseSigner
     nonce: int
 
