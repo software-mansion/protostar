@@ -254,16 +254,15 @@ async def test_deploy_account(
     transaction_registry: TransactionRegistry,
 ):
     salt = 1
-    nonce = 2
-    account: DevnetAccount = await devnet_account_preparator.prepare()  # salt, nonce
+    account = await devnet_account_preparator.prepare(salt)
     deploy_account_args = DeployAccountArgs(
         account_address=account.address,
         account_address_salt=salt,
-        account_class_hash=nonce,
-        account_constructor_input=None,
+        account_class_hash=account.class_hash,
+        account_constructor_input=[int(account.public_key)],
         max_fee="auto",
         signer=account.signer,
-        nonce=nonce,
+        nonce=2,
     )
 
     await gateway_facade.deploy_account(deploy_account_args)

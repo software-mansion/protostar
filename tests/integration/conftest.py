@@ -22,7 +22,7 @@ from typing_extensions import Protocol
 from protostar.commands.test.test_command import TestCommand
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.io.log_color_provider import LogColorProvider
-from protostar.starknet_gateway.gateway_facade import AccountAddress, Wei
+from protostar.starknet_gateway.gateway_facade import Wei
 from protostar.testing import TestingSummary
 from tests.conftest import DevnetAccount, run_devnet
 from tests.integration.protostar_fixture import (
@@ -260,7 +260,7 @@ class FeeContract:
     def __init__(self, predeployed_account_client: AccountClient) -> None:
         self._predeployed_account_client = predeployed_account_client
 
-    async def transfer(self, recipient: AccountAddress, amount: Wei):
+    async def transfer(self, recipient: int, amount: Wei):
         fee_contract = Contract(
             address=DEVNET_FEE_CONTRACT_ADDRESS,
             abi=self._get_abi(),
@@ -295,6 +295,11 @@ class FeeContract:
         ]
 
 
+@dataclass
+class PreparedDevnetAccount(DevnetAccount):
+    class_hash: int
+
+
 class DevnetAccountPreparator:
     def __init__(
         self,
@@ -304,15 +309,16 @@ class DevnetAccountPreparator:
         self._predeployed_account_client = predeployed_account_client
         self._fee_contract = fee_contract
 
-    async def prepare(self) -> DevnetAccount:
+    async def prepare(self, salt: int) -> PreparedDevnetAccount:
         class_hash = await self._declare()
         key_pair = KeyPair.from_private_key(123)
         address = self._compute_address(
-            class_hash=class_hash, public_key=key_pair.public_key, salt=0
+            class_hash=class_hash, public_key=key_pair.public_key, salt=salt
         )
         await self._prefund(address)
-        return DevnetAccount(
-            address=address,
+        return PreparedDevnetAccount(
+            class_hash=class_hash,
+            address=str(address),
             private_key=str(key_pair.private_key),
             public_key=str(key_pair.public_key),
             signer=StarkCurveSigner(
@@ -322,23 +328,7 @@ class DevnetAccountPreparator:
             ),
         )
 
-    async def _prefund(self, account_address: AccountAddress):
-        await self._fee_contract.transfer(recipient=account_address, amount=int(1e15))
-
-    def _compute_address(
-        self, class_hash: int, public_key: int, salt: int
-    ) -> AccountAddress:
-        return str(
-            compute_address(
-                salt=salt,
-                class_hash=class_hash,
-                constructor_calldata=[public_key],
-                deployer_address=0,
-            )
-        )
-
     async def _declare(self) -> int:
-
         account_contract_path_str = pkg_resources.resource_filename(
             "starknet_devnet",
             "accounts_artifacts/OpenZeppelin/0.4.0b-fork/Account.cairo/Account.json",
@@ -353,6 +343,17 @@ class DevnetAccountPreparator:
         resp = await self._predeployed_account_client.declare(transaction=declare_tx)
         await self._predeployed_account_client.wait_for_tx(resp.transaction_hash)
         return resp.class_hash
+
+    async def _prefund(self, account_address: int):
+        await self._fee_contract.transfer(recipient=account_address, amount=int(1e15))
+
+    def _compute_address(self, class_hash: int, public_key: int, salt: int) -> int:
+        return compute_address(
+            salt=salt,
+            class_hash=class_hash,
+            constructor_calldata=[public_key],
+            deployer_address=0,
+        )
 
 
 @pytest.fixture
