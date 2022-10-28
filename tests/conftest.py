@@ -170,13 +170,14 @@ def devnet(
     gateway_client = GatewayClient(
         devnet_gateway_url,
     )
+    key_pair = KeyPair(
+        private_key=int(devnet_account.private_key, base=0),
+        public_key=int(devnet_account.public_key, base=0),
+    )
     predeployed_account_client = AccountClient(
         address=devnet_account.address,
         client=gateway_client,
-        key_pair=KeyPair(
-            private_key=int(devnet_account.private_key, base=0),
-            public_key=int(devnet_account.public_key, base=0),
-        ),
+        key_pair=key_pair,
         chain=StarknetChainId.TESTNET,
         supported_tx_version=1,
     )
