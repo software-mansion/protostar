@@ -1,5 +1,6 @@
 import asyncio
 from argparse import Namespace
+from dataclasses import dataclass
 from logging import Logger, getLogger
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Literal, Optional, Tuple, Union, cast
@@ -83,11 +84,8 @@ class ProtostarFixture:
     def project_root_path(self) -> Path:
         return self._project_root_path
 
-    def get_intercepted_transaction(
-        self, index: int, expected_tx_type: "TransactionRegistry.KnownInterceptedTxType"
-    ):
-        transaction_registry = self._transaction_registry
-        return transaction_registry.get_intercepted_transaction(index, expected_tx_type)
+    def get_intercepted_transactions_mapping(self):
+        return self._transaction_registry
 
     async def declare(
         self,
@@ -311,32 +309,16 @@ class ProtostarFixture:
             output_file.write(content)
 
 
+@dataclass
 class TransactionRegistry:
-    KnownInterceptedTxType = Literal["invoke", "deploy_account"]
+    invoke_txs: list[InvokeFunction] = []
+    deploy_account_txs: list[DeployAccount] = []
 
-    def __init__(self) -> None:
-        self._intercepted_txs: list[StarknetTransaction] = []
-
-    def add(self, tx: StarknetTransaction):
-        self._intercepted_txs.append(tx)
-
-    def get_intercepted_transaction(
-        self, index: int, expected_tx_type: KnownInterceptedTxType
-    ):
-        tx = self._intercepted_txs[index]
-        if expected_tx_type == "invoke":
-            assert isinstance(tx, InvokeFunction)
-            return tx
-        assert (
-            False
-        ), f"Couldn't find transaction (index={index}, expected_tx_type={expected_tx_type})"
-
-    def get_intercepted_account_transaction(self, index: int) -> DeployAccount:
-        intercepted_deploy_account_txs: list[DeployAccount] = []
-        for tx in self._intercepted_txs:
-            if isinstance(tx, DeployAccount):
-                intercepted_deploy_account_txs.append(tx)
-        return intercepted_deploy_account_txs[index]
+    def register(self, tx: StarknetTransaction):
+        if isinstance(tx, InvokeFunction):
+            self.invoke_txs.append(tx)
+        if isinstance(tx, DeployAccount):
+            self.deploy_account_txs.append(tx)
 
 
 class GatewayClientTxInterceptor(GatewayClient):
@@ -354,7 +336,7 @@ class GatewayClientTxInterceptor(GatewayClient):
     ) -> dict:
         self.intercepted_txs.append(tx)
         if self._transaction_registry:
-            self._transaction_registry.add(tx)
+            self._transaction_registry.register(tx)
         return await super()._add_transaction(tx, token)
 
 

@@ -24,7 +24,7 @@ async def test_deploying_account(protostar: ProtostarFixture, devnet: DevnetFixt
         signer=account.signer,
         nonce=0,
     )
-    tx = protostar.get_intercepted_transactions_map().deploy_account_txs[0]
+    tx = protostar.get_intercepted_transactions_mapping().deploy_account_txs[0]
 
     assert tx.class_hash == account.class_hash
     assert tx.contract_address_salt == salt

@@ -263,7 +263,7 @@ async def test_deploy_account(
 
     response = await gateway_facade.deploy_account(deploy_account_args)
 
-    tx = transaction_registry.get_intercepted_account_transaction(index=0)
+    tx = transaction_registry.deploy_account_txs[0]
     assert tx.class_hash == deploy_account_args.account_class_hash
     assert tx.contract_address_salt == deploy_account_args.account_address_salt
     await devnet.assert_transaction_accepted(response.transaction_hash)
