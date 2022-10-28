@@ -4,8 +4,7 @@ from starknet_py.net import AccountClient, KeyPair
 from starknet_py.net.models import StarknetChainId, compute_address
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
-from tests.conftest import DevnetAccount
-
+from .devnet_account import DevnetAccount
 from .faucet_contract import FaucetContract
 
 

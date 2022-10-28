@@ -2,12 +2,10 @@ import json
 import subprocess
 import time
 from contextlib import contextmanager
-from dataclasses import dataclass
 from pathlib import Path
 from socket import socket as Socket
 from typing import ContextManager, List, NamedTuple, Protocol, Union
 
-import pkg_resources
 import pytest
 import requests
 from starknet_py.net import AccountClient, KeyPair
@@ -18,9 +16,11 @@ from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
 from tests._conftest.compiled_account import read_compiled_account_contract
 
+from ._conftest import DevnetAccount as _DevnetAccount
 from ._conftest import DevnetAccountPreparator, FaucetContract
 
 MAX_FEE = int(1e20)
+DevnetAccount = _DevnetAccount
 
 
 def ensure_devnet_alive(
@@ -89,14 +89,6 @@ def signing_credentials_fixture() -> Credentials:  # The same account is generat
         testnet_account_private_key,
         testnet_account_address,
     )
-
-
-@dataclass
-class DevnetAccount:
-    address: str
-    private_key: str
-    public_key: str
-    signer: StarkCurveSigner
 
 
 @pytest.fixture(name="devnet_accounts")
