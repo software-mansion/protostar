@@ -59,14 +59,13 @@ ContractFunctionInputType = Union[List[int], Dict[str, Any]]
 
 Wei = int
 Fee = Union[Wei, Literal["auto"]]
-AccountAddress = str
 Address = int
 ClassHash = int
 
 
 @dataclasses.dataclass
 class DeployAccountArgs:
-    account_address: AccountAddress
+    account_address: Address
     account_address_salt: int
     account_constructor_input: Optional[list[int]]
     account_class_hash: ClassHash
@@ -487,7 +486,7 @@ class GatewayFacade:
 
     async def deploy_account(self, args: DeployAccountArgs):
         account_client = await self._create_account_client(
-            account_address=args.account_address, signer=args.signer
+            account_address=str(args.account_address), signer=args.signer
         )
         deploy_account_tx = DeployAccount(
             nonce=args.nonce,  # type: ignore
