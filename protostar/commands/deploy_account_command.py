@@ -72,6 +72,7 @@ class DeployAccountCommand(ProtostarCommand):
     def arguments(self):
         return [
             *NetworkCommandUtil.network_arguments,
+            *SignableCommandUtil.signable_arguments,
         ]
 
     async def run(self, args: Namespace):
@@ -82,6 +83,7 @@ class DeployAccountCommand(ProtostarCommand):
             deploy_account_args=deploy_account_args, typed_args=typed_args
         )
         self._log_response(response)
+        return response
 
     def _validate_cli_args(self, typed_args: DeployAccountCommandArgs):
         if typed_args.max_fee == "auto":
