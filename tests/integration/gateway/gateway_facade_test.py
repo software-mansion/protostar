@@ -258,7 +258,7 @@ async def test_deploy_account(
         account_constructor_input=[int(account.public_key)],
         max_fee=MAX_FEE,
         signer=account.signer,
-        nonce=2,
+        nonce=0,
     )
 
     response = await gateway_facade.deploy_account(deploy_account_args)

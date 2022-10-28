@@ -14,14 +14,13 @@ from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
+from tests._conftest.compiled_account import (
+    compile_account_contract_with_validate_deploy,
+)
 from tests._conftest.devnet.devnet_fixture import DevnetFixture
 
 from ._conftest.devnet import DevnetAccount as _DevnetAccount
-from ._conftest.devnet import (
-    DevnetAccountPreparator,
-    FaucetContract,
-    read_compiled_devnet_account_contract,
-)
+from ._conftest.devnet import DevnetAccountPreparator, FaucetContract
 
 MAX_FEE = int(1e20)
 DevnetAccount = _DevnetAccount
@@ -157,9 +156,17 @@ def create_file_structure(root_path: Path, file_structure_schema: FileStructureS
             create_file_structure(new_root_path, file_structure_schema=composite)
 
 
+@pytest.fixture(name="account_with_validate_deploy_compiled_contract", scope="session")
+def account_with_validate_deploy_compiled_contract_fixture() -> str:
+    return compile_account_contract_with_validate_deploy()
+
+
 @pytest.fixture
-def devnet(devnet_gateway_url: str, devnet_account: DevnetAccount) -> DevnetFixture:
-    compiled_account_contract = read_compiled_devnet_account_contract()
+def devnet(
+    devnet_gateway_url: str,
+    devnet_account: DevnetAccount,
+    account_with_validate_deploy_compiled_contract: str,
+) -> DevnetFixture:
     gateway_client = GatewayClient(
         devnet_gateway_url,
     )
@@ -177,7 +184,7 @@ def devnet(devnet_gateway_url: str, devnet_account: DevnetAccount) -> DevnetFixt
         predeployed_account_client=predeployed_account_client
     )
     account_preparator = DevnetAccountPreparator(
-        compiled_account_contract=compiled_account_contract,
+        compiled_account_contract=account_with_validate_deploy_compiled_contract,
         predeployed_account_client=predeployed_account_client,
         faucet_contract=faucet_contract,
     )

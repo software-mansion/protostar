@@ -1,4 +1,3 @@
-from .compiled_account import read_compiled_devnet_account_contract
 from .devnet_account import DevnetAccount
 from .devnet_account_preparator import DevnetAccountPreparator
 from .devnet_fixture import DevnetFixture
