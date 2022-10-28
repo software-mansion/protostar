@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from logging import Logger
 from typing import Any, Optional, Union
 
@@ -13,6 +14,12 @@ from .protostar_argument import ProtostarArgument
 GATEWAY_URL_ARG_NAME = "gateway-url"
 NETWORK_ARG_NAME = "network"
 CHAIN_ID_ARG_NAME = "chain-id"
+
+
+@dataclass
+class NetworkArgs:
+    chain_id: Optional[int]
+    gateway_client: GatewayClient
 
 
 class NetworkCommandUtil:
