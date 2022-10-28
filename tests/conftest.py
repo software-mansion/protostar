@@ -14,10 +14,14 @@ from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
-from tests._conftest.compiled_account import read_compiled_account_contract
+from tests._conftest.devnet.devnet_fixture import DevnetFixture
 
-from ._conftest import DevnetAccount as _DevnetAccount
-from ._conftest import DevnetAccountPreparator, FaucetContract
+from ._conftest.devnet import DevnetAccount as _DevnetAccount
+from ._conftest.devnet import (
+    DevnetAccountPreparator,
+    FaucetContract,
+    read_compiled_devnet_account_contract,
+)
 
 MAX_FEE = int(1e20)
 DevnetAccount = _DevnetAccount
@@ -154,8 +158,8 @@ def create_file_structure(root_path: Path, file_structure_schema: FileStructureS
 
 
 @pytest.fixture
-def devnet_account_preparator(devnet_gateway_url: str, devnet_account: DevnetAccount):
-    compiled_account_contract = read_compiled_account_contract()
+def devnet(devnet_gateway_url: str, devnet_account: DevnetAccount) -> DevnetFixture:
+    compiled_account_contract = read_compiled_devnet_account_contract()
     gateway_client = GatewayClient(
         devnet_gateway_url,
     )
@@ -172,8 +176,12 @@ def devnet_account_preparator(devnet_gateway_url: str, devnet_account: DevnetAcc
     faucet_contract = FaucetContract(
         predeployed_account_client=predeployed_account_client
     )
-    return DevnetAccountPreparator(
+    account_preparator = DevnetAccountPreparator(
         compiled_account_contract=compiled_account_contract,
         predeployed_account_client=predeployed_account_client,
         faucet_contract=faucet_contract,
+    )
+    return DevnetFixture(
+        devnet_account_preparator=account_preparator,
+        devnet_gateway_url=devnet_gateway_url,
     )

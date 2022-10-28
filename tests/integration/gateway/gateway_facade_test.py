@@ -15,7 +15,8 @@ from protostar.starknet_gateway.gateway_facade import (
     InputValidationException,
     UnknownFunctionException,
 )
-from tests.conftest import MAX_FEE, DevnetAccount, DevnetAccountPreparator
+from tests._conftest.devnet import DevnetAccount, DevnetFixture
+from tests.conftest import MAX_FEE
 from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR, IDENTITY_CONTRACT
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.protostar_fixture import (
@@ -244,12 +245,12 @@ async def test_max_fee_estimation(
 
 
 async def test_deploy_account(
-    devnet_account_preparator: DevnetAccountPreparator,
+    devnet: DevnetFixture,
     gateway_facade: GatewayFacade,
     transaction_registry: TransactionRegistry,
 ):
     salt = 1
-    account = await devnet_account_preparator.prepare(salt=salt, private_key=123)
+    account = await devnet.prepare_account(salt=salt, private_key=123)
     deploy_account_args = DeployAccountArgs(
         account_address=int(account.address),
         account_address_salt=salt,
@@ -260,8 +261,9 @@ async def test_deploy_account(
         nonce=2,
     )
 
-    await gateway_facade.deploy_account(deploy_account_args)
+    response = await gateway_facade.deploy_account(deploy_account_args)
 
     tx = transaction_registry.get_intercepted_account_transaction(index=0)
     assert tx.class_hash == deploy_account_args.account_class_hash
     assert tx.contract_address_salt == deploy_account_args.account_address_salt
+    await devnet.assert_transaction_accepted(response.transaction_hash)
