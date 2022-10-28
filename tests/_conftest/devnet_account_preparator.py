@@ -1,7 +1,5 @@
 from dataclasses import dataclass
-from pathlib import Path
 
-import pkg_resources
 from starknet_py.net import AccountClient, KeyPair
 from starknet_py.net.models import StarknetChainId, compute_address
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
@@ -19,15 +17,17 @@ class PreparedDevnetAccount(DevnetAccount):
 class DevnetAccountPreparator:
     def __init__(
         self,
+        compiled_account_contract: str,
         predeployed_account_client: AccountClient,
         faucet_contract: FaucetContract,
     ) -> None:
+        self._compiled_account_contract = compiled_account_contract
         self._predeployed_account_client = predeployed_account_client
         self._faucet_contract = faucet_contract
 
     async def prepare(self, salt: int, private_key: int) -> PreparedDevnetAccount:
         class_hash = await self._declare()
-        key_pair = KeyPair.from_private_key(123)
+        key_pair = KeyPair.from_private_key(private_key)
         address = self._compute_address(
             class_hash=class_hash, public_key=key_pair.public_key, salt=salt
         )
@@ -45,15 +45,8 @@ class DevnetAccountPreparator:
         )
 
     async def _declare(self) -> int:
-        account_contract_path_str = pkg_resources.resource_filename(
-            "starknet_devnet",
-            "accounts_artifacts/OpenZeppelin/0.5.0/Account.cairo/Account.json",
-        )
-
         declare_tx = await self._predeployed_account_client.sign_declare_transaction(
-            compiled_contract=Path(account_contract_path_str).read_text(
-                encoding="utf-8"
-            ),
+            compiled_contract=self._compiled_account_contract,
             max_fee=int(1e16),
         )
         resp = await self._predeployed_account_client.declare(transaction=declare_tx)

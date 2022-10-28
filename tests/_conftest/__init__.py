@@ -1,2 +1,3 @@
+from .compiled_account import read_compiled_account_contract
 from .devnet_account_preparator import DevnetAccountPreparator
 from .faucet_contract import FaucetContract

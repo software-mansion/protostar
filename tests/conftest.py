@@ -7,6 +7,7 @@ from pathlib import Path
 from socket import socket as Socket
 from typing import ContextManager, List, NamedTuple, Protocol, Union
 
+import pkg_resources
 import pytest
 import requests
 from starknet_py.net import AccountClient, KeyPair
@@ -15,6 +16,7 @@ from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
+from tests._conftest.compiled_account import read_compiled_account_contract
 
 from ._conftest import DevnetAccountPreparator, FaucetContract
 
@@ -161,6 +163,7 @@ def create_file_structure(root_path: Path, file_structure_schema: FileStructureS
 
 @pytest.fixture
 def devnet_account_preparator(devnet_gateway_url: str, devnet_account: DevnetAccount):
+    compiled_account_contract = read_compiled_account_contract()
     gateway_client = GatewayClient(
         devnet_gateway_url,
     )
@@ -177,4 +180,8 @@ def devnet_account_preparator(devnet_gateway_url: str, devnet_account: DevnetAcc
     faucet_contract = FaucetContract(
         predeployed_account_client=predeployed_account_client
     )
-    return DevnetAccountPreparator(predeployed_account_client, faucet_contract)
+    return DevnetAccountPreparator(
+        compiled_account_contract=compiled_account_contract,
+        predeployed_account_client=predeployed_account_client,
+        faucet_contract=faucet_contract,
+    )

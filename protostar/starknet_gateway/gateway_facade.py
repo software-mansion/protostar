@@ -71,6 +71,7 @@ class DeployAccountArgs:
     account_constructor_input: Optional[list[int]]
     account_class_hash: ClassHash
     max_fee: Wei
+    """`Wei` type is used instead of `Fee`. Starknet.py can't estimate fee if the account is not deployed."""
     signer: BaseSigner
     nonce: int
 
