@@ -77,7 +77,6 @@ class DeployAccountCommand(ProtostarCommand):
 
     async def run(self, args: Namespace):
         typed_args = DeployAccountCommandArgs.from_args(args)
-        self._validate_cli_args(typed_args)
         deploy_account_args = self._map_typed_args_to_deploy_account_args(typed_args)
         response = await self._send_deploy_account_tx(
             deploy_account_args=deploy_account_args, typed_args=typed_args
@@ -85,16 +84,14 @@ class DeployAccountCommand(ProtostarCommand):
         self._log_response(response)
         return response
 
-    def _validate_cli_args(self, typed_args: DeployAccountCommandArgs):
-        if typed_args.max_fee == "auto":
-            raise ProtostarException(
-                "Protostar can't auto-estimate max fee for the DeployAccount transaction."
-            )
-
     def _map_typed_args_to_deploy_account_args(
         self,
         typed_args: DeployAccountCommandArgs,
     ) -> DeployAccountArgs:
+        if typed_args.max_fee == "auto":
+            raise ProtostarException(
+                "Protostar can't auto-estimate max fee for the DeployAccount transaction."
+            )
         return DeployAccountArgs(
             account_address=int(typed_args.account_address, base=0),
             account_class_hash=typed_args.account_class_hash,
@@ -102,7 +99,7 @@ class DeployAccountCommand(ProtostarCommand):
             nonce=typed_args.nonce,
             signer=typed_args.signer,
             account_constructor_input=typed_args.account_constructor_input,
-            max_fee=1,
+            max_fee=typed_args.max_fee,
         )
 
     async def _send_deploy_account_tx(
