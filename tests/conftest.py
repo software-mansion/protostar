@@ -9,10 +9,16 @@ from typing import ContextManager, List, NamedTuple, Protocol, Union
 
 import pytest
 import requests
+from starknet_py.net import AccountClient, KeyPair
+from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
+
+from ._conftest import DevnetAccountPreparator, FaucetContract
+
+MAX_FEE = int(1e20)
 
 
 def ensure_devnet_alive(
@@ -151,3 +157,24 @@ def create_file_structure(root_path: Path, file_structure_schema: FileStructureS
             new_root_path = root_path / Path(path_str)
             new_root_path.mkdir()
             create_file_structure(new_root_path, file_structure_schema=composite)
+
+
+@pytest.fixture
+def devnet_account_preparator(devnet_gateway_url: str, devnet_account: DevnetAccount):
+    gateway_client = GatewayClient(
+        devnet_gateway_url,
+    )
+    predeployed_account_client = AccountClient(
+        address=devnet_account.address,
+        client=gateway_client,
+        key_pair=KeyPair(
+            private_key=int(devnet_account.private_key, base=0),
+            public_key=int(devnet_account.public_key, base=0),
+        ),
+        chain=StarknetChainId.TESTNET,
+        supported_tx_version=1,
+    )
+    faucet_contract = FaucetContract(
+        predeployed_account_client=predeployed_account_client
+    )
+    return DevnetAccountPreparator(predeployed_account_client, faucet_contract)

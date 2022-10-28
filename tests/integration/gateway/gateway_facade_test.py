@@ -15,12 +15,9 @@ from protostar.starknet_gateway.gateway_facade import (
     InputValidationException,
     UnknownFunctionException,
 )
-from tests.conftest import DevnetAccount
+from tests.conftest import MAX_FEE, DevnetAccount, DevnetAccountPreparator
 from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR, IDENTITY_CONTRACT
-from tests.integration.conftest import (
-    CreateProtostarProjectFixture,
-    DevnetAccountPreparator,
-)
+from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.protostar_fixture import (
     GatewayClientTxInterceptor,
     ProtostarFixture,
@@ -252,13 +249,13 @@ async def test_deploy_account(
     transaction_registry: TransactionRegistry,
 ):
     salt = 1
-    account = await devnet_account_preparator.prepare(salt)
+    account = await devnet_account_preparator.prepare(salt=salt, private_key=123)
     deploy_account_args = DeployAccountArgs(
         account_address=account.address,
         account_address_salt=salt,
         account_class_hash=account.class_hash,
         account_constructor_input=[int(account.public_key)],
-        max_fee=int(1e16),
+        max_fee=MAX_FEE,
         signer=account.signer,
         nonce=2,
     )
