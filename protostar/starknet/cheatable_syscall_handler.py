@@ -146,10 +146,13 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
         else:
             raise NotImplementedError(f"Unsupported call type {syscall_name}.")
 
+        contract_call_data = (int(str(request.function_selector)), calldata)
         if self.cheatable_state.contract_calls.get(contract_address):
-            self.cheatable_state.contract_calls[contract_address].append(calldata)
+            self.cheatable_state.contract_calls[contract_address].append(
+                contract_call_data
+            )
         else:
-            self.cheatable_state.contract_calls[contract_address] = [calldata]
+            self.cheatable_state.contract_calls[contract_address] = [contract_call_data]
 
         call = self.execute_entry_point_cls(
             call_type=call_type,
