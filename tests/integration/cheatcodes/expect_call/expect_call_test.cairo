@@ -85,3 +85,14 @@ func test_expect_call_partial_fail{syscall_ptr: felt*, range_check_ptr}() {
 
   return ();
 }
+
+@external
+func test_expect_call_expected_but_not_found{syscall_ptr: felt*, range_check_ptr}() {
+  tempvar ctr_addr_a;
+  %{ ids.ctr_addr_a = context.ctr_addr_a %}
+  %{
+    expect_call(ids.ctr_addr_a, "increase_balance", [7, 5, 6])
+  %}
+
+  return ();
+}

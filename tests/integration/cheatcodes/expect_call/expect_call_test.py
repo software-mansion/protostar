@@ -22,5 +22,6 @@ async def test_expect_call(run_cairo_test_runner: RunCairoTestRunnerFixture):
             "test_expect_call_wrong_address",
             "test_expect_call_wrong_calldata",
             "test_expect_call_partial_fail",
+            "test_expect_call_expected_but_not_found",
         ],
     )
