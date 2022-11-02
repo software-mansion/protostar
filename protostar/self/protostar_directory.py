@@ -10,6 +10,12 @@ from packaging.version import Version as PackagingVersion
 
 from protostar.git import Git, ProtostarGitException
 
+from .protostar_compatibility_with_project_checker import (
+    ProtostarVersion,
+    ProtostarVersionProviderProtocol,
+    parse_protostar_version,
+)
+
 RuntimeConstantName = Literal["PROTOSTAR_VERSION", "CAIRO_VERSION"]
 RuntimeConstantValue = str
 RuntimeConstantsDict = dict[RuntimeConstantName, RuntimeConstantValue]
@@ -69,7 +75,7 @@ class ProtostarDirectory:
 VersionType = Union[LegacyVersion, PackagingVersion]
 
 
-class VersionManager:
+class VersionManager(ProtostarVersionProviderProtocol):
     @staticmethod
     def parse(version_str: str) -> VersionType:
         return version.parse(version_str)
@@ -87,6 +93,13 @@ class VersionManager:
         if version_s is None:
             return VersionManager.parse("0.0.0")
         return VersionManager.parse(version_s)
+
+    def get_protostar_version(self) -> ProtostarVersion:
+        version_s = (
+            self._protostar_directory.get_runtime_constant("PROTOSTAR_VERSION")
+            or "0.0.0"
+        )
+        return parse_protostar_version(version_s)
 
     @property
     def cairo_version(self) -> Optional[VersionType]:

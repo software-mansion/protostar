@@ -4,10 +4,10 @@ from pathlib import Path
 from typing import Callable, Optional
 
 from protostar.cli import (
+    LIB_PATH_ARG,
     LibPathResolver,
     ProtostarArgument,
     ProtostarCommand,
-    LIB_PATH_ARG,
 )
 from protostar.configuration_file import ConfigurationFile
 from protostar.io.log_color_provider import LogColorProvider

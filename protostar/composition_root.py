@@ -28,15 +28,15 @@ from protostar.commands.init.project_creator import (
 )
 from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
-from protostar.configuration_file import ConfigurationFileFactory
-from protostar.configuration_file.configuration_file_v1 import ConfigurationFileV1
+from protostar.configuration_file import (
+    ConfigurationFileFactory,
+    ConfigurationFileV1,
+    ConfigurationFileV2ContentFactory,
+    ConfigurationTOMLContentBuilder,
+)
 from protostar.io import InputRequester, log_color_provider
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_cli import ProtostarCLI
-from protostar.protostar_toml import (
-    ProtostarTOMLWriter,
-    search_upwards_protostar_toml_path,
-)
 from protostar.self.protostar_directory import ProtostarDirectory, VersionManager
 from protostar.starknet_gateway import GatewayFacadeFactory
 from protostar.upgrader import (
@@ -60,21 +60,16 @@ def build_di_container(
 ):
     logger = getLogger()
     cwd = Path().resolve()
-    protostar_toml_path = search_upwards_protostar_toml_path(start_path=cwd)
-    project_root_path = (
-        protostar_toml_path.parent if protostar_toml_path is not None else cwd
-    )
-    protostar_toml_path = protostar_toml_path or project_root_path / "protostar.toml"
-
     configuration_file_factory = ConfigurationFileFactory(
         cwd, active_profile_name=active_configuration_profile_name
     )
     configuration_file = configuration_file_factory.create()
+    project_root_path = configuration_file.get_filepath().parent
 
     protostar_directory = ProtostarDirectory(script_root)
     version_manager = VersionManager(protostar_directory, logger)
-    protostar_toml_writer = ProtostarTOMLWriter()
-    requester = InputRequester(log_color_provider)
+    protostar_version = version_manager.get_protostar_version()
+    input_requester = InputRequester(log_color_provider)
     latest_version_checker = LatestVersionChecker(
         protostar_directory=protostar_directory,
         version_manager=version_manager,
@@ -110,21 +105,28 @@ def build_di_container(
         legacy_mode=isinstance(configuration_file, ConfigurationFileV1),
     )
 
+    configuration_file_content_factory = ConfigurationFileV2ContentFactory(
+        content_builder=ConfigurationTOMLContentBuilder()
+    )
+
+    new_project_creator = NewProjectCreator(
+        script_root=script_root,
+        requester=input_requester,
+        configuration_file_content_factory=configuration_file_content_factory,
+        protostar_version=protostar_version,
+    )
+
+    adapted_project_creator = AdaptedProjectCreator(
+        script_root,
+        configuration_file_content_factory=configuration_file_content_factory,
+        protostar_version=protostar_version,
+    )
+
     commands: list[ProtostarCommand] = [
         InitCommand(
-            requester=requester,
-            new_project_creator=NewProjectCreator(
-                script_root,
-                requester,
-                protostar_toml_writer,
-                version_manager,
-            ),
-            adapted_project_creator=AdaptedProjectCreator(
-                script_root,
-                requester,
-                protostar_toml_writer,
-                version_manager,
-            ),
+            requester=input_requester,
+            new_project_creator=new_project_creator,
+            adapted_project_creator=adapted_project_creator,
         ),
         BuildCommand(project_compiler, logger),
         InstallCommand(
@@ -173,7 +175,7 @@ def build_di_container(
                 ),
                 project_root_path=project_root_path,
             ),
-            requester=requester,
+            requester=input_requester,
             logger=logger,
             log_color_provider=log_color_provider,
             gateway_facade_factory=gateway_facade_factory,

@@ -4,10 +4,10 @@ from pathlib import Path
 from typing import Optional
 
 from protostar.cli import (
+    LIB_PATH_ARG,
     LibPathResolver,
     ProtostarArgument,
     ProtostarCommand,
-    LIB_PATH_ARG,
 )
 from protostar.commands.install.install_command import (
     EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
