@@ -33,7 +33,6 @@ from protostar.configuration_file import (
     ConfigurationFileV1,
     ConfigurationFileV2ContentFactory,
     ConfigurationTOMLContentBuilder,
-    FakeConfigurationFile,
 )
 from protostar.io import InputRequester, log_color_provider
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
