@@ -175,12 +175,10 @@ class ProtostarFixture:
         self,
         path: Path,
         gateway_url: str,
-        rollback: bool = False,
         account_address: Optional[str] = None,
     ):
         args = Namespace()
         args.path = path
-        args.rollback = rollback
         args.no_confirm = True
         args.network = None
         args.gateway_url = gateway_url
@@ -293,15 +291,6 @@ class ProtostarFixture:
         func up(){{
             %{{
                 {up_hint_content}
-            %}}
-
-            return ();
-        }}
-
-        @external
-        func down(){{
-            %{{
-                {down_hint_content}
             %}}
 
             return ();

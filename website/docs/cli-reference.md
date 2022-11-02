@@ -226,8 +226,6 @@ Skip confirming building the project.
 #### `--private-key-path PATH`
 Path to the file, which stores your private key (in hex representation) for the account. 
 Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
-#### `--rollback`
-Run `rollback` function in the migration script.
 #### `--signer-class STRING`
 Custom signer class module path.
 ### `remove`
