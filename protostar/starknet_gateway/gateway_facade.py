@@ -18,7 +18,7 @@ from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError, ContractNotFoundError
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import AddressRepresentation, Transaction
+from starknet_py.net.models import AddressRepresentation, Deploy, Transaction
 from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.signer import BaseSigner
 from starknet_py.transaction_exceptions import (
@@ -254,6 +254,7 @@ class GatewayFacade:
         transaction: TransactionT,
     ) -> TransactionT:
         # pylint: disable=protected-access
+        assert transaction is not Deploy
         max_fee = await account_client._get_max_fee(
             transaction=transaction,  # type: ignore
             max_fee=max_fee if max_fee != "auto" else None,
