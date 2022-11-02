@@ -43,7 +43,7 @@ pytest-datadir = "^1.4.1"
 pytest-mock = "^3.10.0"
 pytest-timeout = "^2.1.0"
 snakeviz = "^2.1.1"
-starknet-devnet = "^0.3.1"
+starknet-devnet = "^0.3.3"
 
 [tool.poe.tasks]
 build = [
