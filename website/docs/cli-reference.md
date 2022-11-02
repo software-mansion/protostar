@@ -159,7 +159,7 @@ Install a dependency as a git submodule.
     - `git@github.com:OpenZeppelin/cairo-contracts.git`
 
 #### `--lib-path PATH`
-Directory containing project dependencies. This argument is/will after migrating the configuration file.
+Directory containing project dependencies. This argument is used with the configuration file V2.
 #### `--name STRING`
 A custom package name. Use it to resolve name conflicts.
 ### `invoke`
@@ -247,7 +247,7 @@ Required.
 - `PACKAGE_DIRECTORY_NAME`
     - `cairo_contracts`, if the package location is `lib/cairo_contracts`
 #### `--lib-path PATH`
-Directory containing project dependencies. This argument is/will after migrating the configuration file.
+Directory containing project dependencies. This argument is used with the configuration file V2.
 ### `test`
 ```shell
 $ protostar test
@@ -292,7 +292,7 @@ Update a dependency or dependencies. If the default branch of a dependency's rep
 - `PACKAGE_DIRECTORY_NAME`
     - `cairo_contracts`, if the package location is `lib/cairo_contracts`
 #### `--lib-path PATH`
-Directory containing project dependencies. This argument is/will after migrating the configuration file.
+Directory containing project dependencies. This argument is used with the configuration file V2.
 ### `upgrade`
 ```shell
 $ protostar upgrade
