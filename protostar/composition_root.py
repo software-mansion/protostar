@@ -65,11 +65,7 @@ def build_di_container(
         cwd, active_profile_name=active_configuration_profile_name
     )
     configuration_file = configuration_file_factory.create()
-    project_root_path = (
-        configuration_file.get_filepath().parent
-        if isinstance(configuration_file, FakeConfigurationFile)
-        else cwd
-    )
+    project_root_path = configuration_file.get_filepath().parent
 
     protostar_directory = ProtostarDirectory(script_root)
     version_manager = VersionManager(protostar_directory, logger)
