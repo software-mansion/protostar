@@ -66,7 +66,7 @@ Sends a declare transaction to StarkNet.
 Required.
 
 Path to compiled contract.
-#### `--account-address STRING`
+#### `--account-address ADDRESS`
 Account address
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
@@ -162,7 +162,7 @@ Install a dependency as a git submodule.
 A custom package name. Use it to resolve name conflicts.
 ### `invoke`
 Sends an invoke transaction to the StarkNet sequencer.
-#### `--account-address STRING`
+#### `--account-address ADDRESS`
 Account address
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
@@ -202,7 +202,7 @@ Run migration file.
 Required.
 
 Path to the migration file.
-#### `--account-address STRING`
+#### `--account-address ADDRESS`
 Account address
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
