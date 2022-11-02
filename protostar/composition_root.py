@@ -5,8 +5,10 @@ from typing import Optional
 
 from protostar.argument_parser import ArgumentParserFacade
 from protostar.cli import ProtostarCommand, map_protostar_type_name_to_parser
+from protostar.cli.lib_path_resolver import LibPathResolver
 from protostar.commands import (
     BuildCommand,
+    CallCommand,
     DeclareCommand,
     DeployCommand,
     FormatCommand,
@@ -18,7 +20,6 @@ from protostar.commands import (
     TestCommand,
     UpdateCommand,
     UpgradeCommand,
-    CallCommand,
 )
 from protostar.commands.cairo_migrate_command import CairoMigrateCommand
 from protostar.commands.init.project_creator import (
@@ -28,12 +29,11 @@ from protostar.commands.init.project_creator import (
 from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.configuration_file import ConfigurationFileFactory
+from protostar.configuration_file.configuration_file_v1 import ConfigurationFileV1
 from protostar.io import InputRequester, log_color_provider
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_cli import ProtostarCLI
 from protostar.protostar_toml import (
-    ProtostarProjectSection,
-    ProtostarTOMLReader,
     ProtostarTOMLWriter,
     search_upwards_protostar_toml_path,
 )
@@ -74,7 +74,6 @@ def build_di_container(
     protostar_directory = ProtostarDirectory(script_root)
     version_manager = VersionManager(protostar_directory, logger)
     protostar_toml_writer = ProtostarTOMLWriter()
-    protostar_toml_reader = ProtostarTOMLReader(protostar_toml_path=protostar_toml_path)
     requester = InputRequester(log_color_provider)
     latest_version_checker = LatestVersionChecker(
         protostar_directory=protostar_directory,
@@ -105,6 +104,12 @@ def build_di_container(
         compiled_contract_reader=CompiledContractReader(),
     )
 
+    lib_path_resolver = LibPathResolver(
+        configuration_file=configuration_file,
+        project_root_path=project_root_path,
+        legacy_mode=isinstance(configuration_file, ConfigurationFileV1),
+    )
+
     commands: list[ProtostarCommand] = [
         InitCommand(
             requester=requester,
@@ -126,23 +131,17 @@ def build_di_container(
             log_color_provider=log_color_provider,
             logger=logger,
             project_root_path=project_root_path,
-            project_section_loader=ProtostarProjectSection.Loader(
-                protostar_toml_reader
-            ),
+            lib_path_resolver=lib_path_resolver,
         ),
         RemoveCommand(
             logger=logger,
             project_root_path=project_root_path,
-            project_section_loader=ProtostarProjectSection.Loader(
-                protostar_toml_reader
-            ),
+            lib_path_resolver=lib_path_resolver,
         ),
         UpdateCommand(
             logger=logger,
             project_root_path=project_root_path,
-            project_section_loader=ProtostarProjectSection.Loader(
-                protostar_toml_reader
-            ),
+            lib_path_resolver=lib_path_resolver,
         ),
         UpgradeCommand(
             UpgradeManager(

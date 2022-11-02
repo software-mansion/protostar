@@ -31,7 +31,7 @@ class ProjectCairoPathBuilder:
 
     def _build_packages_cairo_path_list(self) -> list[Path]:
         libs_path = self._configuration_file.get_lib_path()
-        if libs_path is None:
+        if libs_path is None or not libs_path.exists():
             return []
         assert libs_path.is_dir(), f"{libs_path} is not a directory"
         (root, dirs, _) = next(os.walk(str(libs_path.resolve())))
