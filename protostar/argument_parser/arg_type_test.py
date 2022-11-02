@@ -4,6 +4,7 @@ from re import Pattern
 import pytest
 
 from .arg_type import map_type_name_to_parser
+from ..cli import map_protostar_type_name_to_parser
 
 
 def test_string_arg_type():
@@ -38,3 +39,10 @@ def test_regex_arg_type():
     result = map_type_name_to_parser("regexp")(".*")
 
     assert isinstance(result, Pattern)
+
+
+def test_address_arg_type():
+    parser = map_protostar_type_name_to_parser("address")
+    result = parser("0xdeadbeef123")
+    assert isinstance(result, int)
+    assert result == 15302363377955
