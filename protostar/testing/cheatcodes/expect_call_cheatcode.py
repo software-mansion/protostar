@@ -14,12 +14,10 @@ class ExpectCallCheatcode(Cheatcode):
         syscall_dependencies: Cheatcode.SyscallDependencies,
         starknet: "ForkableStarknet",
         finish_hook: Hook,
-        contract_address: int,
     ):
         super().__init__(syscall_dependencies)
         self.starknet = starknet
         self.finish_hook = finish_hook
-        self.contract_address = contract_address
 
     @property
     def name(self) -> str:
@@ -28,21 +26,16 @@ class ExpectCallCheatcode(Cheatcode):
     def build(self) -> Callable[[int, list[int]], None]:
         return self.expect_call
 
-    def expect_call(self, address: int, calldata: list[int]) -> None:
+    def expect_call(self, contract_address: int, calldata: list[int]) -> None:
         def callback():
             exists = False
-            call_entries = self.cheatable_state.contract_calls.get(address)
+            call_entries = self.cheatable_state.contract_calls.get(contract_address)
             if call_entries:
                 for call_entry in call_entries:
-                    # check if calldata matches exactly
                     if call_entry == calldata:
                         exists = True
                         break
-                    # check if calldata matches partially
-                    if call_entry and set(call_entry) <= set(calldata):
-                        exists = True
-                        break
             if not exists:
-                raise ExpectedCallException(address=address, calldata=calldata)
+                raise ExpectedCallException(contract_address=contract_address, calldata=calldata)
 
         self.finish_hook.on(callback)

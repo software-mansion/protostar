@@ -101,6 +101,5 @@ class TestCaseCheatcodeFactory(CommonTestCheatcodeFactory):
                 syscall_dependencies,
                 self._state.starknet,
                 self._finish_hook,
-                self._state.contract.contract_address,
             ),
         ]

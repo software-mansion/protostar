@@ -17,10 +17,10 @@ async def test_expect_call(run_cairo_test_runner: RunCairoTestRunnerFixture):
         testing_summary,
         expected_passed_test_cases_names=[
             "test_expect_call_success",
-            "test_expect_call_partial_success",
         ],
         expected_failed_test_cases_names=[
             "test_expect_call_wrong_address",
             "test_expect_call_wrong_calldata",
+            "test_expect_call_partial_fail",
         ],
     )
