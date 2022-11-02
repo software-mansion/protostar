@@ -11,7 +11,7 @@ import requests
 from starknet_py.net import AccountClient, KeyPair
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
-from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
+from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
 from tests._conftest.compiled_account import (
@@ -117,7 +117,7 @@ def devnet_accounts_fixture(devnet_gateway_url: str) -> list[DevnetAccount]:
 
 
 @pytest.fixture(name="devnet_account")
-def devnet_account(devnet_accounts: list[DevnetAccount]) -> DevnetAccount:
+def devnet_account_fixture(devnet_accounts: list[DevnetAccount]) -> DevnetAccount:
     return devnet_accounts[0]
 
 
@@ -161,8 +161,8 @@ def account_with_validate_deploy_compiled_contract_fixture() -> str:
     return compile_account_contract_with_validate_deploy()
 
 
-@pytest.fixture
-def devnet(
+@pytest.fixture(name="devnet")
+def devnet_fixture(
     devnet_gateway_url: str,
     devnet_account: DevnetAccount,
     account_with_validate_deploy_compiled_contract: str,
