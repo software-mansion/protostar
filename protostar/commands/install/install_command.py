@@ -4,10 +4,10 @@ from pathlib import Path
 from typing import Callable, Optional
 
 from protostar.cli import (
+    LIB_PATH_ARG,
     LibPathResolver,
     ProtostarArgument,
     ProtostarCommand,
-    lib_path_arg,
 )
 from protostar.configuration_file import ConfigurationFile
 from protostar.io.log_color_provider import LogColorProvider
@@ -54,7 +54,7 @@ class InstallCommand(ProtostarCommand):
     @property
     def arguments(self):
         return [
-            lib_path_arg,
+            LIB_PATH_ARG,
             ProtostarArgument(
                 name="package",
                 description=EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,

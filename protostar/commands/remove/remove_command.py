@@ -4,10 +4,10 @@ from pathlib import Path
 from typing import Optional
 
 from protostar.cli import (
+    LIB_PATH_ARG,
     LibPathResolver,
     ProtostarArgument,
     ProtostarCommand,
-    lib_path_arg,
 )
 from protostar.commands.install.install_command import (
     EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
@@ -50,7 +50,7 @@ class RemoveCommand(ProtostarCommand):
     @property
     def arguments(self):
         return [
-            lib_path_arg,
+            LIB_PATH_ARG,
             ProtostarArgument(
                 name="package",
                 description=INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
