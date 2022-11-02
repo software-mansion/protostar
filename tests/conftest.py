@@ -182,7 +182,7 @@ def devnet(
         supported_tx_version=1,
     )
     faucet_contract = FaucetContract(
-        predeployed_account_client=predeployed_account_client
+        devnet_gateway_url=devnet_gateway_url,
     )
     account_preparator = DevnetAccountPreparator(
         compiled_account_contract=account_with_validate_deploy_compiled_contract,
