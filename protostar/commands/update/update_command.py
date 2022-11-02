@@ -8,7 +8,7 @@ from protostar.cli import (
     LibPathResolver,
     ProtostarArgument,
     ProtostarCommand,
-    lib_path_arg,
+    LIB_PATH_ARG,
 )
 from protostar.commands.remove.remove_command import (
     INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
@@ -54,7 +54,7 @@ class UpdateCommand(ProtostarCommand):
     @property
     def arguments(self):
         return [
-            lib_path_arg,
+            LIB_PATH_ARG,
             ProtostarArgument(
                 description=INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
                 name="package",

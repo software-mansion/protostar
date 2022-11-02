@@ -4,7 +4,7 @@ from typing import Optional
 
 from protostar.configuration_file import ConfigurationFile
 
-from .common_arguments import lib_path_arg
+from .common_arguments import LIB_PATH_ARG
 
 
 class LibPathResolver:
@@ -29,7 +29,7 @@ class LibPathResolver:
                 getLogger().warning(
                     "Argument %s is ignored. "
                     "Please migrate your configuration file if the command `migrate-configuration-file` is available.",
-                    lib_path_arg.name,
+                    LIB_PATH_ARG.name,
                 )
             return (
                 self._configuration_file.get_lib_path()

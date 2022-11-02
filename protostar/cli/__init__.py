@@ -1,5 +1,5 @@
 from .activity_indicator import ActivityIndicator
-from .common_arguments import lib_path_arg
+from .common_arguments import LIB_PATH_ARG
 from .lib_path_resolver import LibPathResolver
 from .network_command_util import NetworkCommandUtil
 from .protostar_arg_type import map_protostar_type_name_to_parser
