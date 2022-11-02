@@ -14,12 +14,12 @@ from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 from protostar.cli.map_targets_to_file_paths import map_targets_to_file_paths
 from protostar.commands import (
     BuildCommand,
-    CallCommand,
     DeclareCommand,
     FormatCommand,
     InitCommand,
     InvokeCommand,
     MigrateCommand,
+    CallCommand,
 )
 from protostar.commands.deploy_command import DeployCommand
 from protostar.commands.init.project_creator.new_project_creator import (
