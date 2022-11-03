@@ -55,13 +55,13 @@ Currently, [`protostar build`](/docs/cli-reference#build) requires this section.
 ### `[COMMAND]`
 Configure default command arguments, to avoid passing them manually. CLI can be represented in the configuration file in the following way:
 
-```bash title="CLI"
-protostar command --argument-name "value" --flag
+```console title="CLI"
+protostar format src tests --ignore-broken
 ```
 ```toml title="Configuration File"
-[command]
-argument-name = "value"
-flag = true
+[format]
+target = ["src", "tests"]
+ignore-broken = true
 ```
 
 Check the [CLI Reference](/docs/cli-reference) or run `protostar COMMAND --help` to learn supported arguments.
