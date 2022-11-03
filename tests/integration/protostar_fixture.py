@@ -13,6 +13,8 @@ from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
+from protostar.argument_parser import ArgumentParserFacade, CLIApp
+from protostar.cli import map_protostar_type_name_to_parser
 from protostar.cli.map_targets_to_file_paths import map_targets_to_file_paths
 from protostar.commands import (
     BuildCommand,
@@ -69,6 +71,8 @@ class ProtostarFixture:
         invoke_command: InvokeCommand,
         call_command: CallCommand,
         deploy_account_command: DeployAccountCommand,
+        cli_app: CLIApp,
+        parser: ArgumentParserFacade,
         transaction_registry: "TransactionRegistry",
     ) -> None:
         self._project_root_path = project_root_path
@@ -83,6 +87,8 @@ class ProtostarFixture:
         self._transaction_registry = transaction_registry
         self._call_command = call_command
         self._deploy_account_command = deploy_account_command
+        self._cli_app = cli_app
+        self._parser = parser
 
     @property
     def project_root_path(self) -> Path:
@@ -141,21 +147,36 @@ class ProtostarFixture:
         account_class_hash: int,
         max_fee: Wei,
         nonce: int,
-        gateway_url: Optional[str],
+        gateway_url: str,
         account_constructor_input: Optional[list[int]],
     ):
-        args = Namespace()
-        args.account_address = account_address
-        args.salt = account_address_salt
-        args.account_class_hash = account_class_hash
-        args.account_constructor_input = account_constructor_input
-        args.max_fee = max_fee
-        args.nonce = nonce
-        args.network = None
-        args.signer_class = None
-        args.gateway_url = gateway_url
-        args.private_key_path = None
-        args.chain_id = StarknetChainId.TESTNET
+        args = self._parser.parse(
+            [
+                "deploy-account",
+                "--account-address",
+                account_address,
+                "--gateway-url",
+                gateway_url,
+                "--chain-id",
+                str(StarknetChainId.TESTNET.value),
+                "--nonce",
+                str(nonce),
+                "--account-class-hash",
+                str(account_class_hash),
+                "--max-fee",
+                str(max_fee),
+                "--account-address-salt",
+                str(account_address_salt),
+            ]
+            + (
+                [
+                    "--account-constructor-input",
+                    " ".join(str(i) for i in account_constructor_input),
+                ]
+                if account_constructor_input
+                else []
+            )
+        )
 
         return await self._deploy_account_command.run(args)
 
@@ -521,6 +542,11 @@ def build_protostar_fixture(
         gateway_facade_factory=gateway_facade_factory, logger=logger
     )
 
+    cli_app = CLIApp(commands=[deploy_account_command])
+    parser = ArgumentParserFacade(
+        cli_app, parser_resolver=map_protostar_type_name_to_parser
+    )
+
     protostar_fixture = ProtostarFixture(
         project_root_path=project_root_path,
         init_command=init_command,
@@ -533,6 +559,8 @@ def build_protostar_fixture(
         test_command=test_command,
         invoke_command=invoke_command,
         deploy_account_command=deploy_account_command,
+        cli_app=cli_app,
+        parser=parser,
         transaction_registry=transaction_registry,
     )
 
