@@ -123,6 +123,44 @@ An optional salt controlling where the contract will be deployed. The contract d
 Used by whitelisted users for deploying contracts in Alpha MainNet.
 #### `--wait-for-acceptance`
 Waits for transaction to be accepted on chain.
+### `deploy-account`
+Sends deploy-account transaction. The account contract must be already declared and prefunded.
+#### `--account-address STRING`
+Account address
+#### `--account-address-salt INT`
+Required.
+
+This value is expected by account's `__validate_deploy__` entry point
+#### `--account-class-hash CLASS_HASH`
+Required.
+
+Class hash of the declared account contract.
+#### `--account-constructor-input INT[]`
+Input to the account's constructor
+#### `--chain-id INT`
+The chain id. It is required unless `--network` is provided.
+#### `--gateway-url STRING`
+The URL of a StarkNet gateway. It is required unless `--network` is provided.
+#### `--max-fee WEI`
+Required.
+
+Max amount of Wei you are willing to pay for the transaction
+#### `-n` `--network STRING`
+The name of the StarkNet network.
+It is required unless `--gateway-url` is provided.
+
+Supported StarkNet networks:
+- `testnet`
+- `mainnet`
+- `alpha-goerli`
+- `alpha-mainnet`
+#### `--nonce INT`
+Protects against the replay attacks.
+#### `--private-key-path PATH`
+Path to the file, which stores your private key (in hex representation) for the account. 
+Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
+#### `--signer-class STRING`
+Custom signer class module path.
 ### `format`
 ```shell
 $ protostar format
