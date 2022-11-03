@@ -141,5 +141,12 @@ def test_invoke_command_is_available(protostar: ProtostarFixture):
     )
 
 
+@pytest.mark.usefixtures("init")
+def test_deploy_account_is_available(protostar: ProtostarFixture):
+    assert "Sends deploy-account transaction" in protostar(
+        ["--no-color", "deploy-account", "--help"]
+    )
+
+
 def count_hex64(x: str) -> int:
     return len(re.findall(r"0x[0-9a-f]{64}", x))
