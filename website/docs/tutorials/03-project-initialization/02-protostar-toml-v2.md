@@ -41,7 +41,7 @@ network = "testnet"
 This attribute is used to warn you about compatibility issues between Protostar and a project.
 
 #### Shared Configuration
-You can specify any command argument in this section that you want to be used by every command that accepts such argument.
+You can keep command arguments in the `[project]` to share them across commands. Read the [`[COMMAND]` section](#command) to learn how to configure command arguments in the configuration file.
 
 ### `[contracts]`
 This section allows you to refer to a contract by a contract name across Protostar features. Decoupling contract names from file paths makes the code:
@@ -54,7 +54,7 @@ Currently, [`protostar build`](/docs/cli-reference#build) requires this section.
 :::
 
 ### `[COMMAND]`
-Configure default command arguments, to avoid passing them manually. CLI can be represented in the configuration file in the following way:
+Configure command arguments, to avoid passing them manually. CLI can be represented in the configuration file in the following way:
 
 ```console title="CLI"
 protostar format src tests --ignore-broken
@@ -68,6 +68,7 @@ ignore-broken = true
 Check the [CLI Reference](/docs/cli-reference) or run `protostar COMMAND --help` to learn supported arguments.
 
 Specify arguments in the [`[project]` section](#shared-configuration) to share configuration across commands.
+
 
 
 ### Configuration Profiles
