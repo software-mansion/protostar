@@ -41,13 +41,14 @@ network = "testnet"
 This attribute is used to warn you about compatibility issues between Protostar and a project.
 
 #### Shared Configuration
-You can keep command arguments in the `[project]` to share them across commands. Read the [`[COMMAND]` section](#command) to learn how to configure command arguments in the configuration file.
+You can keep command arguments in the `[project]` to share them across commands. Read the [`[COMMAND]` section](#command) to learn how to configure command arguments in the configuration.
 
 ### `[contracts]`
-This section allows you to refer to a contract by a contract name across Protostar features. Decoupling contract names from file paths makes the code:
-- easier to maintain — e.g. changes to folder or file names don't break your tests
-- easier to read — the code is more focused
-- easier to write — removes the need of mental mapping
+This section allows you to refer to a contract by a contract name across Protostar features. You can also combine many files into one contract.
+```toml
+[contracts]
+my_contract = ["src/feature_a.cairo", "src/feature_b.cairo"]   
+```
 
 :::note
 Currently, [`protostar build`](/docs/cli-reference#build) requires this section.
