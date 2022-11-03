@@ -59,6 +59,7 @@ async def test_max_fee_is_respected(
                 contract=compiled_contract_path,
                 gateway_url=devnet_gateway_url,
                 max_fee=1,
+                wait_for_acceptance=True,
             )
 
 

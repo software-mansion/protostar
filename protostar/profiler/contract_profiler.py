@@ -1,4 +1,3 @@
-# pylint: disable=invalid-name
 from collections import UserDict, defaultdict
 from dataclasses import dataclass
 import math

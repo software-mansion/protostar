@@ -158,6 +158,8 @@ Install a dependency as a git submodule.
 - `SSH_URI`
     - `git@github.com:OpenZeppelin/cairo-contracts.git`
 
+#### `--lib-path PATH`
+Directory containing project dependencies. This argument is used with the configuration file V2.
 #### `--name STRING`
 A custom package name. Use it to resolve name conflicts.
 ### `invoke`
@@ -224,8 +226,6 @@ Skip confirming building the project.
 #### `--private-key-path PATH`
 Path to the file, which stores your private key (in hex representation) for the account. 
 Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
-#### `--rollback`
-Run `rollback` function in the migration script.
 #### `--signer-class STRING`
 Custom signer class module path.
 ### `remove`
@@ -244,6 +244,8 @@ Required.
     - `git@github.com:OpenZeppelin/cairo-contracts.git`
 - `PACKAGE_DIRECTORY_NAME`
     - `cairo_contracts`, if the package location is `lib/cairo_contracts`
+#### `--lib-path PATH`
+Directory containing project dependencies. This argument is used with the configuration file V2.
 ### `test`
 ```shell
 $ protostar test
@@ -287,6 +289,8 @@ Update a dependency or dependencies. If the default branch of a dependency's rep
     - `git@github.com:OpenZeppelin/cairo-contracts.git`
 - `PACKAGE_DIRECTORY_NAME`
     - `cairo_contracts`, if the package location is `lib/cairo_contracts`
+#### `--lib-path PATH`
+Directory containing project dependencies. This argument is used with the configuration file V2.
 ### `upgrade`
 ```shell
 $ protostar upgrade

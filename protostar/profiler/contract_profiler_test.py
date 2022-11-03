@@ -1,4 +1,3 @@
-# pylint: disable=invalid-name
 from typing import Dict, List, Set
 import pytest
 from pytest_mock import MockerFixture
