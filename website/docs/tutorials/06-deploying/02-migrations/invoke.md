@@ -43,7 +43,6 @@ Wallet used for providing the fee is global, and is provided with signing argume
 ```
 $ protostar migrate migrations/migration_01.cairo
     --network testnet
-    --output-dir migrations/output
     --private-key-path ./pkey
     --account-address 0x1231231212321
 ```

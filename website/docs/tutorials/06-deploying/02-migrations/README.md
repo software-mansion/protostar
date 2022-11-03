@@ -40,12 +40,10 @@ func down() {
 ``` 
 
 ## Running the migration
-To run the migration execute the `migrate` command. We recommend specifying the migration output directory to save class hashes and contract addresses.
-
+To run the migration execute the `migrate` command.
 ```shell title="Running the migration to the testnet"
 protostar migrate migrations/migration_01_init.cairo
     --network testnet
-    --output-dir migrations/testnet
 ```
 
 :::tip
