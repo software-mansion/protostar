@@ -1,7 +1,7 @@
 ---
-sidebar_label: protostar.toml V2
+sidebar_label: Configuration file
 ---
-# `protostar.toml` V2
+# Configuration file
 
 ```toml title="protostar.toml example"
 [project]
@@ -87,7 +87,6 @@ In order to migrate your protostar.toml V1, run:
 ```
 protostar migrate-configuration-file
 ```
-
 
 ### Changes
 - removed `protostar` prefix from configuration sections

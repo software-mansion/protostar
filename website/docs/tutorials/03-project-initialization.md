@@ -22,12 +22,3 @@ The result of running `protostar init` is a configuration file `protostar.toml`,
 - `tests` — A directory storing tests.
 
 
-## Configuration file
-
-The configuration file is required for every Protostar project. It defines the project root, contains crucial information about the project and it can be used as alternative to CLI arguments.
-
-```mdx-code-block
-import DocCardList from '@theme/DocCardList';
-import {useCurrentSidebarCategory} from '@docusaurus/theme-common';
-
-<DocCardList items={useCurrentSidebarCategory().items}/>
