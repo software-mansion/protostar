@@ -14,11 +14,9 @@ namespace MainContract {
 
 @external
 func __setup__() {
-  %{ context.ctr_addr_a = deploy_contract("./tests/integration/cheatcodes/expect_call/basic_contract.cairo", [123, 100]).contract_address %}
   %{
-    declared = declare("./tests/integration/cheatcodes/expect_call/basic_contract.cairo")
-    prepared = prepare(declared, [124, 120])
-    context.ctr_addr_b = deploy(prepared).contract_address
+    context.ctr_addr_a = deploy_contract("./tests/integration/cheatcodes/expect_call/basic_contract.cairo", [123, 100]).contract_address
+    context.ctr_addr_b = deploy_contract("./tests/integration/cheatcodes/expect_call/basic_contract.cairo", [124, 120]).contract_address
   %}
 
   return ();
