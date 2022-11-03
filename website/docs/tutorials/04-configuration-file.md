@@ -2,6 +2,7 @@
 sidebar_label: Configuration file
 ---
 # Configuration file
+Protostar can be configured using a configuration file called `protostar.toml`, which is placed in the root of your project.
 
 ```toml title="protostar.toml example"
 [project]
