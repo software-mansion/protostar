@@ -59,11 +59,6 @@ class MigrateCommand(ProtostarCommand):
                 is_positional=True,
             ),
             ProtostarArgument(
-                name="rollback",
-                description="Run `rollback` function in the migration script.",
-                type="bool",
-            ),
-            ProtostarArgument(
                 name="no-confirm",
                 description="Skip confirming building the project.",
                 type="bool",
@@ -87,7 +82,6 @@ class MigrateCommand(ProtostarCommand):
 
         return await self.migrate(
             migration_file_path=args.path,
-            rollback=args.rollback,
             gateway_client=network_command_util.get_gateway_client(),
             no_confirm=args.no_confirm,
             migrator_config=migrator_config,
@@ -98,7 +92,6 @@ class MigrateCommand(ProtostarCommand):
     async def migrate(
         self,
         migration_file_path: Path,
-        rollback: bool,
         gateway_client: GatewayClient,
         migrator_config: MigratorExecutionEnvironment.Config,
         no_confirm: bool,
@@ -134,7 +127,7 @@ class MigrateCommand(ProtostarCommand):
         )
 
         try:
-            migrator_history = await migrator.run(rollback)
+            migrator_history = await migrator.run()
             migrator.save_history(migrator_history, migration_file_path.parent)
             self._logger.info("Migration completed")
 

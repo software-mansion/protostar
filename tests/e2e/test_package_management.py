@@ -2,9 +2,10 @@
 from os import chdir, listdir
 from os import replace as move
 from pathlib import Path
-from typing import Optional, Callable
+from typing import Callable, Optional
 
 import pytest
+
 from protostar.git import Git
 from tests.e2e.conftest import InitFixture, ProtostarFixture
 
@@ -32,12 +33,16 @@ InstallPackageFixture = Callable
 
 
 @pytest.fixture(name="install_package")
-def fixture_install_package(
+def install_package_fixture(
     init: InitFixture, protostar: ProtostarFixture
 ) -> InstallPackageFixture:
     def install_package():
         result = protostar(
-            ["--no-color", "install", "https://github.com/software-mansion/starknet.py"]
+            [
+                "--no-color",
+                "install",
+                "https://github.com/software-mansion/starknet.py",
+            ]
         )
         normalized_package_name = "starknet_py"
         return (result, normalized_package_name)

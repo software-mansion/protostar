@@ -3,14 +3,18 @@ from logging import Logger
 from pathlib import Path
 from typing import Optional
 
-from protostar.cli import ProtostarArgument, ProtostarCommand
+from protostar.cli import (
+    LIB_PATH_ARG,
+    LibPathResolver,
+    ProtostarArgument,
+    ProtostarCommand,
+)
 from protostar.commands.install.install_command import (
     EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
 )
 from protostar.commands.remove.remove_package import remove_package
 from protostar.io import log_color_provider
 from protostar.package_manager import retrieve_real_package_name
-from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
 
 INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = (
     EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION
@@ -23,12 +27,12 @@ class RemoveCommand(ProtostarCommand):
     def __init__(
         self,
         project_root_path: Path,
-        project_section_loader: ProtostarProjectSection.Loader,
+        lib_path_resolver: LibPathResolver,
         logger: Logger,
     ) -> None:
         super().__init__()
         self._project_root_path = project_root_path
-        self._project_section_loader = project_section_loader
+        self._lib_path_resolver = lib_path_resolver
         self._logger = logger
 
     @property
@@ -46,6 +50,7 @@ class RemoveCommand(ProtostarCommand):
     @property
     def arguments(self):
         return [
+            LIB_PATH_ARG,
             ProtostarArgument(
                 name="package",
                 description=INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
@@ -58,21 +63,26 @@ class RemoveCommand(ProtostarCommand):
     async def run(self, args: Namespace):
         self._logger.info("Retrieving package for removal")
         try:
-            self.remove(args.package)
+            self.remove(
+                args.package, lib_path=self._lib_path_resolver.resolve(args.lib_path)
+            )
         except BaseException as exc:
             self._logger.error("Package removal failed")
             raise exc
         self._logger.info("Removed the package successfully")
 
-    def remove(self, internal_dependency_reference: str):
-        project_section = self._project_section_loader.load()
-
+    def remove(self, internal_dependency_reference: str, lib_path: Path):
+        if not lib_path.exists():
+            self._logger.warning(
+                f"Directory {lib_path} doesn't exist.\n"
+                "Did you install any package before running this command?"
+            )
+            return
         package_name = retrieve_real_package_name(
             internal_dependency_reference,
             self._project_root_path,
-            project_section.libs_relative_path,
+            packages_dir=lib_path,
         )
-
         self._logger.info(
             "Removing %s%s%s",
             log_color_provider.get_color("RED"),

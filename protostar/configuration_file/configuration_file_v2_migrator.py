@@ -1,7 +1,7 @@
 from typing import Optional
 
 from protostar.protostar_exception import ProtostarException
-from protostar.self import ProtostarVersionProviderProtocol
+from protostar.self import ProtostarVersion
 
 from .configuration_file import ConfigurationFile, ConfigurationFileMigratorProtocol
 from .configuration_file_v1 import ConfigurationFileV1
@@ -18,20 +18,18 @@ class ConfigurationFileV2Migrator(ConfigurationFileMigratorProtocol):
         self,
         current_configuration_file: Optional[ConfigurationFile],
         content_factory: ConfigurationFileV2ContentFactory,
-        protostar_version_provider: ProtostarVersionProviderProtocol,
+        protostar_version: ProtostarVersion,
     ) -> None:
         self._current_configuration_file = current_configuration_file
         self._content_factory = content_factory
-        self._protostar_version_provider = protostar_version_provider
+        self._protostar_version = protostar_version
 
     def run(self) -> None:
         current_configuration_file = self._validate_current_configuration_file()
         v1_model = current_configuration_file.read()
         v2_model = ConfigurationFileV2Model.from_v1(
             v1_model,
-            protostar_version=str(
-                self._protostar_version_provider.get_protostar_version()
-            ),
+            protostar_version=str(self._protostar_version),
         )
         ccf_path = current_configuration_file.get_filepath()
         backup_file_path = ccf_path.rename(

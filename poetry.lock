@@ -1327,7 +1327,7 @@ python-versions = "*"
 
 [[package]]
 name = "starknet-devnet"
-version = "0.3.1"
+version = "0.3.3"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
@@ -1557,7 +1557,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9.14, <3.10"
-content-hash = "a18744bff3a8e09956bead47935ff836d458a20d75742779f3e46c7c91e24bfb"
+content-hash = "6fec5b1eb7e5b6debd21fab94217f41652a2e2e5647d43ef2f845c52f2152343"
 
 [metadata.files]
 aiohttp = [
@@ -2721,8 +2721,8 @@ sortedcontainers = [
     {file = "sortedcontainers-2.4.0.tar.gz", hash = "sha256:25caa5a06cc30b6b83d11423433f65d1f9d76c4c6a0c90e3379eaa43b9bfdb88"},
 ]
 starknet-devnet = [
-    {file = "starknet_devnet-0.3.1-py3-none-any.whl", hash = "sha256:cdb16148e89d2710c3f5b8afa0decf3def4accb6d46a24943f738f5108e074dc"},
-    {file = "starknet_devnet-0.3.1.tar.gz", hash = "sha256:70fba585d00657f7400ead83d96b02c395bc01f45f5da0c791e4ac3c388549f3"},
+    {file = "starknet_devnet-0.3.3-py3-none-any.whl", hash = "sha256:6a36b63265ff5616a7a970c18bb05b468a4d5d7f55f00e79db4ea15df31cc8e7"},
+    {file = "starknet_devnet-0.3.3.tar.gz", hash = "sha256:6794d9ca421c74ae29140bf5b9008e4fe1642d6596f51a2d853475067652ed09"},
 ]
 starknet-py = [
     {file = "starknet-py-0.6.2a0.tar.gz", hash = "sha256:0b08cd70c2d73773a14b474bff6c2786ebc7795e7c9a16acb370f09e5f275dc0"},
