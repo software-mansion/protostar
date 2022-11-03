@@ -34,7 +34,7 @@ class Uint256StrategyDescriptor(StrategyDescriptor):
         if not MIN_UINT256 <= min_value <= max_value <= MAX_UINT256:
             raise SearchStrategyBuildError(
                 "'Uint256' min and max value have to satisfy:\n"
-                f"0 <= min_value <= max_value <= 2**256 - 1"
+                "0 <= min_value <= max_value <= 2**256 - 1"
             )
 
         self.min_value = min_value
