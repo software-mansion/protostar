@@ -1,4 +1,5 @@
-from typing import Optional, Dict, Any, Type
+from typing import Any, Dict, Optional, Type
+
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.vm.vm_core import VirtualMachine
 
@@ -10,6 +11,7 @@ class CheatableCairoFunctionRunner(CairoFunctionRunner):
     CairoFunctionRunner which uses CheatableVirtualMachine instead of a regular VirtualMachine
     """
 
+    # pyright: reportIncompatibleMethodOverride=false
     def initialize_vm(
         self,
         hint_locals: Dict[str, Any],

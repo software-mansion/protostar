@@ -10,7 +10,10 @@ from starknet_py.net.client_errors import ClientError, ContractNotFoundError
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import AddressRepresentation
 from starknet_py.net.signer import BaseSigner
-from starknet_py.transaction_exceptions import TransactionFailedError
+from starknet_py.transaction_exceptions import (
+    TransactionFailedError,
+    TransactionRejectedError,
+)
 from starknet_py.transactions.deploy import make_deploy_tx
 from starkware.starknet.public.abi import AbiType
 from starkware.starknet.services.api.contract_class import ContractClass
@@ -176,18 +179,20 @@ class GatewayFacade:
         )
         try:
             response = await self._gateway_client.declare(declare_tx, token=token)
-        except ClientError as ex:
-            fee_ex = FeeExceededMaxFeeException.from_client_error(ex)
+
+            if wait_for_acceptance:
+                if self._logger:
+                    self._logger.info("Waiting for acceptance...")
+                _, code = await account_client.wait_for_tx(
+                    response.transaction_hash, wait_for_accept=True
+                )
+                response.code = code.value
+        except (ClientError, TransactionRejectedError) as ex:
+            fee_ex = FeeExceededMaxFeeException.from_gateway_error(ex)
             if fee_ex is not None:
                 raise fee_ex from ex
             raise ex
-        if wait_for_acceptance:
-            if self._logger:
-                self._logger.info("Waiting for acceptance...")
-            _, code = await account_client.wait_for_tx(
-                response.transaction_hash, wait_for_accept=True
-            )
-            response.code = code.value
+
         register_response(dataclasses.asdict(response))
         return SuccessfulDeclareResponse(
             code=response.code or "?",
@@ -517,7 +522,9 @@ class CompilationOutputNotFoundException(ProtostarException):
 
 class FeeExceededMaxFeeException(ProtostarException):
     @classmethod
-    def from_client_error(cls, client_error: ClientError) -> Optional[Self]:
+    def from_gateway_error(
+        cls, client_error: Union[ClientError, TransactionRejectedError]
+    ) -> Optional[Self]:
         if "Actual fee exceeded max fee" in client_error.message:
             return cls(client_error.message)
         return None
