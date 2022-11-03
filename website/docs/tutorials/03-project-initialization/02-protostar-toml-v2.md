@@ -38,7 +38,7 @@ network = "testnet"
 
 ### `[project]`
 #### `protostar-version`
-This attribute is used to check the compatibility between Protostar and the project, which is useful when many developers work on the same project or going back to Protostar project after a long break. 
+This attribute is used to warn you about compatibility issues between Protostar and a project.
 
 #### Shared Configuration
 You can specify any command argument in this section that you want to be used by every command that accepts such argument.
