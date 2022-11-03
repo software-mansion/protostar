@@ -12,7 +12,6 @@ from protostar.git import Git, ProtostarGitException
 
 from .protostar_compatibility_with_project_checker import (
     ProtostarVersion,
-    ProtostarVersionProviderProtocol,
     parse_protostar_version,
 )
 
@@ -75,7 +74,7 @@ class ProtostarDirectory:
 VersionType = Union[LegacyVersion, PackagingVersion]
 
 
-class VersionManager(ProtostarVersionProviderProtocol):
+class VersionManager:
     @staticmethod
     def parse(version_str: str) -> VersionType:
         return version.parse(version_str)
@@ -88,17 +87,10 @@ class VersionManager(ProtostarVersionProviderProtocol):
         self._logger = logger
 
     @property
-    def protostar_version(self) -> Optional[VersionType]:
+    def protostar_version(self) -> ProtostarVersion:
         version_s = self._protostar_directory.get_runtime_constant("PROTOSTAR_VERSION")
         if version_s is None:
-            return VersionManager.parse("0.0.0")
-        return VersionManager.parse(version_s)
-
-    def get_protostar_version(self) -> ProtostarVersion:
-        version_s = (
-            self._protostar_directory.get_runtime_constant("PROTOSTAR_VERSION")
-            or "0.0.0"
-        )
+            return parse_protostar_version("0.0.0")
         return parse_protostar_version(version_s)
 
     @property
