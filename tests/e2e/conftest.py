@@ -2,17 +2,15 @@
 import json
 import shlex
 import shutil
-from os import chdir, mkdir, path, getcwd
+from os import chdir, getcwd, mkdir, path
 from pathlib import Path
 from subprocess import PIPE, STDOUT, run
-from typing import Callable, List, Optional, Union, Tuple, Generator
+from typing import Callable, Generator, List, Optional, Tuple, Union
 
 import pexpect
 import pytest
-import tomli
-import tomli_w
-from typing_extensions import Protocol
 from py._path.local import LocalPath
+from typing_extensions import Protocol
 
 from protostar.self.protostar_directory import ProtostarDirectory
 from tests.conftest import run_devnet
@@ -193,26 +191,25 @@ def init(
     init_project()
     chdir(project_name)
     if protostar_toml_protostar_version or libs_path:
-        with open(Path() / "protostar.toml", "r+", encoding="UTF-8") as file:
-            raw_protostar_toml = file.read()
-            protostar_toml = tomli.loads(raw_protostar_toml)
+        protostar_toml_content = Path("protostar.toml").read_text(encoding="utf-8")
+        protostar_toml_content_lines = protostar_toml_content.splitlines()
+        new_protostar_toml_content_lines: list[str] = []
+        for line in protostar_toml_content_lines:
+            if protostar_toml_protostar_version and line.startswith(
+                "protostar-version"
+            ):
+                new_protostar_toml_content_lines.append(
+                    f'protostar-version="{protostar_toml_protostar_version}"'
+                )
+                continue
+            if libs_path and line.startswith("lib-path"):
+                new_protostar_toml_content_lines.append(f'lib-path="{libs_path}"')
+                continue
+            new_protostar_toml_content_lines.append(line)
 
-            assert (
-                protostar_toml["protostar.config"]["protostar_version"] is not None
-            )  # Sanity check
-
-            if protostar_toml_protostar_version:
-                protostar_toml["protostar.config"][
-                    "protostar_version"
-                ] = protostar_toml_protostar_version
-
-            if libs_path:
-                protostar_toml["protostar.project"]["libs_path"] = libs_path
-                Path(libs_path).mkdir(exist_ok=True)
-
-            file.seek(0)
-            file.truncate()
-            file.write(tomli_w.dumps(protostar_toml))
+        (Path() / "protostar.toml").write_text(
+            "\n".join(new_protostar_toml_content_lines), encoding="utf-8"
+        )
     yield
     chdir(protostar_repo_root)
 

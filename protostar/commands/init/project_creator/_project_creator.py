@@ -4,39 +4,44 @@ from pathlib import Path
 
 from typing_extensions import Literal
 
-from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
-from protostar.protostar_toml.protostar_config_section import ProtostarConfigSection
-from protostar.protostar_toml.protostar_contracts_section import (
-    ProtostarContractsSection,
+from protostar.configuration_file import (
+    ConfigurationFileV2ContentFactory,
+    ConfigurationFileV2Model,
 )
-from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
-from protostar.self.protostar_directory import VersionManager
+from protostar.self import ProtostarVersion
 
 
 class ProjectCreator(ABC):
     def __init__(
         self,
         script_root: Path,
-        protostar_toml_writer: ProtostarTOMLWriter,
-        version_manager: VersionManager,
+        configuration_file_content_factory: ConfigurationFileV2ContentFactory,
+        protostar_version: ProtostarVersion,
     ):
         self.script_root = script_root
-        self.protostar_toml_writer = protostar_toml_writer
-        self.version_manager = version_manager
-        self.default_lib_dirname = "lib"
+        self._configuration_file_content_factory = configuration_file_content_factory
+        self._protostar_version = protostar_version
 
     def copy_template(self, template_name: Literal["default"], project_root_path: Path):
         template_path = self.script_root / "templates" / template_name
         shutil.copytree(template_path, project_root_path)
 
-    def save_protostar_toml(self, project_root: Path) -> None:
-        self.protostar_toml_writer.save(
-            path=project_root / "protostar.toml",
-            protostar_config=ProtostarConfigSection.get_default(self.version_manager),
-            protostar_project=ProtostarProjectSection(
-                libs_relative_path=Path(self.default_lib_dirname),
-            ),
-            protostar_contracts=ProtostarContractsSection.get_default(),
+    def save_protostar_toml(self, project_root_path: Path) -> None:
+        configuration_file_content = (
+            self._configuration_file_content_factory.create_file_content(
+                ConfigurationFileV2Model(
+                    protostar_version=str(self._protostar_version),
+                    contract_name_to_path_strs={"main": ["src/main.cairo"]},
+                    project_config={"lib-path": "lib"},
+                    command_name_to_config={},
+                    profile_name_to_project_config={},
+                    profile_name_to_commands_config={},
+                )
+            )
+        )
+        ext = self._configuration_file_content_factory.get_file_extension()
+        Path(project_root_path / f"protostar.{ext}").write_text(
+            configuration_file_content, encoding="utf-8"
         )
 
     @abstractmethod

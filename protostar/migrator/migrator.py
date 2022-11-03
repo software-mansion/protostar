@@ -7,15 +7,15 @@ from typing import List, Optional
 
 from starknet_py.net.signer import BaseSigner
 
+from protostar.io.log_color_provider import LogColorProvider
 from protostar.migrator.migrator_execution_environment import (
     MigratorExecutionEnvironment,
 )
 from protostar.starknet_gateway import GatewayFacade
 from protostar.starknet_gateway.starknet_request import StarknetRequest
-from protostar.io.log_color_provider import LogColorProvider
 
-from .output_directory import create_output_directory
 from .migrator_datetime_state import MigratorDateTimeState
+from .output_directory import create_output_directory
 
 
 class Migrator:
@@ -97,14 +97,12 @@ class Migrator:
         self._migrator_execution_environment = migrator_execution_environment
         self._migrator_datetime_state = migrator_datetime_state
 
-    async def run(self, rollback: bool = False) -> History:
+    async def run(self) -> History:
         self._migrator_datetime_state.update_to_now()
         with create_output_directory(
             self._migrator_datetime_state.get_compilation_output_path()
         ):
-            await self._migrator_execution_environment.execute(
-                function_name="down" if rollback else "up"
-            )
+            await self._migrator_execution_environment.execute(function_name="up")
 
         return Migrator.History(starknet_requests=self._get_sent_requests())
 

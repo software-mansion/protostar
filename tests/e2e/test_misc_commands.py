@@ -5,13 +5,11 @@ from pathlib import Path
 
 import pexpect
 import pytest
-import tomli
-from packaging.version import parse as parse_version
 from packaging.version import Version
-from pytest_mock import MockerFixture
+from packaging.version import parse as parse_version
 
-from protostar.self.protostar_directory import ProtostarDirectory, VersionManager
-from tests.e2e.conftest import ProtostarFixture, ProjectInitializer
+from protostar.configuration_file import ConfigurationFileFactory, ConfigurationFileV2
+from tests.e2e.conftest import ProjectInitializer, ProtostarFixture
 
 
 def test_help(protostar: ProtostarFixture):
@@ -43,7 +41,6 @@ def test_init_existing(protostar_bin: Path):
     dirs = listdir(".")
 
     assert "protostar.toml" in dirs
-    assert "lib" in dirs
     assert ".git" in dirs
 
 
@@ -57,24 +54,15 @@ def test_init_ask_existing(protostar_bin: Path):
 
     dirs = listdir(".")
     assert "protostar.toml" in dirs
-    assert "lib" in dirs
     assert ".git" in dirs
 
 
 @pytest.mark.usefixtures("init")
-def test_protostar_version_in_config_file(mocker: MockerFixture, protostar_bin: Path):
-    protostar_directory = ProtostarDirectory(protostar_bin.parent)
+def test_creating_configuration_file_v2():
+    configuration_file = ConfigurationFileFactory(cwd=Path().resolve()).create()
 
-    version_manager = VersionManager(protostar_directory, mocker.MagicMock())
-    assert version_manager.protostar_version is not None
-
-    with open("./protostar.toml", "r+", encoding="UTF-8") as protostar_toml:
-        raw_protostar_toml = protostar_toml.read()
-        protostar_toml_dict = tomli.loads(raw_protostar_toml)
-        version_str = protostar_toml_dict["protostar.config"]["protostar_version"]
-        protostar_version = VersionManager.parse(version_str)
-
-        assert version_manager.protostar_version == protostar_version
+    assert isinstance(configuration_file, ConfigurationFileV2)
+    assert configuration_file.get_declared_protostar_version() is not None
 
 
 def test_protostar_version_in_correct_format(protostar: ProtostarFixture):

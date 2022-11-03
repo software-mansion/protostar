@@ -1,5 +1,4 @@
 import asyncio
-import os
 from argparse import Namespace
 from logging import Logger, getLogger
 from pathlib import Path
@@ -15,12 +14,12 @@ from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 from protostar.cli.map_targets_to_file_paths import map_targets_to_file_paths
 from protostar.commands import (
     BuildCommand,
+    CallCommand,
     DeclareCommand,
     FormatCommand,
     InitCommand,
     InvokeCommand,
     MigrateCommand,
-    CallCommand,
 )
 from protostar.commands.deploy_command import DeployCommand
 from protostar.commands.init.project_creator.new_project_creator import (
@@ -29,7 +28,11 @@ from protostar.commands.init.project_creator.new_project_creator import (
 from protostar.commands.test import TestCommand
 from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
-from protostar.configuration_file import ConfigurationFileFactory
+from protostar.configuration_file import (
+    ConfigurationFileFactory,
+    ConfigurationFileV2ContentFactory,
+    ConfigurationTOMLContentBuilder,
+)
 from protostar.formatter.formatter import Formatter
 from protostar.formatter.formatting_result import (
     FormattingResult,
@@ -39,7 +42,9 @@ from protostar.formatter.formatting_summary import FormattingSummary
 from protostar.io import log_color_provider
 from protostar.io.input_requester import InputRequester
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
-from protostar.protostar_toml import ProtostarTOMLWriter
+from protostar.self.protostar_compatibility_with_project_checker import (
+    parse_protostar_version,
+)
 from protostar.self.protostar_directory import ProtostarDirectory
 from protostar.starknet_gateway import Fee, GatewayFacade, GatewayFacadeFactory
 from protostar.testing import TestingSummary
@@ -170,12 +175,10 @@ class ProtostarFixture:
         self,
         path: Path,
         gateway_url: str,
-        rollback: bool = False,
         account_address: Optional[str] = None,
     ):
         args = Namespace()
         args.path = path
-        args.rollback = rollback
         args.no_confirm = True
         args.network = None
         args.gateway_url = gateway_url
@@ -292,15 +295,6 @@ class ProtostarFixture:
 
             return ();
         }}
-
-        @external
-        func down(){{
-            %{{
-                {down_hint_content}
-            %}}
-
-            return ();
-        }}
         """,
         )
         return file_path
@@ -397,8 +391,6 @@ def build_protostar_fixture(
     version_manager.protostar_version = mocker.MagicMock()
     version_manager.protostar_version = "99.9.9"
 
-    protostar_toml_writer = ProtostarTOMLWriter()
-
     configuration_file = ConfigurationFileFactory(
         active_profile_name=None, cwd=project_root_path
     ).create()
@@ -423,11 +415,15 @@ def build_protostar_fixture(
 
     input_requester.request_input = request_input
 
+    configuration_file_content_factory = ConfigurationFileV2ContentFactory(
+        content_builder=ConfigurationTOMLContentBuilder()
+    )
+
     new_project_creator = NewProjectCreator(
         script_root=Path(__file__).parent / ".." / "..",
         requester=input_requester,
-        protostar_toml_writer=protostar_toml_writer,
-        version_manager=version_manager,
+        configuration_file_content_factory=configuration_file_content_factory,
+        protostar_version=parse_protostar_version("0.0.0"),
         output_dir_path=project_root_path,
     )
 

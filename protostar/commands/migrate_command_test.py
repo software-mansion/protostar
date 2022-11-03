@@ -6,11 +6,11 @@ import pytest
 from pytest_mock import MockerFixture
 from starknet_py.net.gateway_client import GatewayClient
 
+from protostar.io.input_requester import InputRequester
 from protostar.migrator import Migrator
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet import CheatcodeException
 from protostar.starknet_gateway import GatewayFacadeFactory
-from protostar.io.input_requester import InputRequester
 
 from .migrate_command import MigrateCommand
 
@@ -52,7 +52,6 @@ def setup_migrate(mocker: MockerFixture):
     async def migrate(no_confirm: bool):
         await migrate_command.migrate(
             migration_file_path=Path(),
-            rollback=False,
             no_confirm=no_confirm,
             gateway_client=GatewayClient("http://localhost:3000/"),
             migrator_config=mocker.MagicMock(),
@@ -80,7 +79,6 @@ async def test_cheatcode_exceptions_are_pretty_printed(mocker: MockerFixture):
         await migrate_command.migrate(
             gateway_client=mocker.MagicMock(),
             migration_file_path=Path(),
-            rollback=False,
             no_confirm=True,
             migrator_config=mocker.MagicMock(),
             compiled_contracts_dir_path=Path(),
