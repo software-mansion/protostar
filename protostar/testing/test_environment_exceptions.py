@@ -295,7 +295,7 @@ class ExpectedCallException(ReportedException):
     def __str__(self) -> str:
         return (
             f"expected call to function {self._fn_name} "
-            f"from the contract of address {self._contract_address} "
+            f"from the contract of address {hex(self._contract_address)} "
             f"with calldata {self._calldata} not fulfilled"
         )
 
