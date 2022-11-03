@@ -11,27 +11,28 @@ protostar-version = "PROTOSTAR_VERSION"     # required
 lib-path = "lib"                            # install, update, remove
 cairo-path = ["lib/cairo-contracts/src"]    # build, test
 
-# Defines contract names. Currently, required by the build command.
+# Defines contract names. Currently, this section is required by the build command.
 [contracts]
 main = ["src/feature_a.cairo", "src/feature_b.cairo"]   
 proxy = ["src/proxy.cairo"]
 account = ["src/account.cairo"]
 
 # Command Configuration
-[format]
-target = ["src", "tests"]
-
-[declare]
-network = "testnet"
+[test]
+target = ["src"]
 
 # Command Configuration Profile
-[profile.mainnet.declare]
-network = "mainnet"
+[profile.integration.test]
+target = ["tests/integration"]
+report-slowest-tests = 5
 
 # Shared Configuration Profile
 [profile.devnet.project]
 gateway-url = "http://127.0.0.1:5050/"
 chain-id = 1536727068981429685321
+
+[profile.testnet.project]
+network = "testnet"
 ```
 
 
