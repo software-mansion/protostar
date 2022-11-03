@@ -14,6 +14,7 @@ from protostar.starknet.data_transformer import CairoOrPythonData
 
 CallData = list[int]
 
+
 # pylint: disable=too-many-instance-attributes
 class CheatableCachedState(CachedState):
     def __init__(self, *args: Any, **kwargs: Any):
@@ -52,6 +53,7 @@ class CheatableCachedState(CachedState):
         copied.contract_address_to_class_hash_map = (
             self.contract_address_to_class_hash_map.copy()
         )
+        copied.contract_calls = self.contract_calls.copy()
 
         copied.cheaters = self.cheaters.copy()
 
@@ -99,6 +101,10 @@ class CheatableCachedState(CachedState):
         parent.contract_address_to_class_hash_map = {
             **parent.contract_address_to_class_hash_map,
             **self.contract_address_to_class_hash_map,
+        }
+        parent.contract_calls = {
+            **parent.contract_calls,
+            **self.contract_calls,
         }
 
         parent.cheaters.apply(self.cheaters)
