@@ -32,13 +32,6 @@ func setup_uint256_mapping{range_check_ptr}() {
 func test_uint256_mapping{range_check_ptr}(a: Uint256) {
     tempvar b: Uint256 = Uint256(0, 1);
     tempvar c: Uint256 = Uint256(100, 0);
-    %{
-        print("---")
-        print(reflect.a.get())
-        print(reflect.b.get())
-        print(reflect.c.get())
-        print("---")
-    %}
     let condition: felt = uint256_le(a, b);
     let condition2: felt = uint256_le(c, a);
     assert condition = 1;
