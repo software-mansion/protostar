@@ -20,3 +20,10 @@ def test_fee_type():
     parse_fee = map_protostar_type_name_to_parser("fee")
     assert parse_fee("auto") == "auto"
     assert parse_fee("123") == 123
+
+
+def test_address_arg_type():
+    parser = map_protostar_type_name_to_parser("address")
+    result = parser("0xdeadbeef123")
+    assert isinstance(result, int)
+    assert result == 15302363377955

@@ -19,7 +19,7 @@ class SignableCommandUtil:
         ProtostarArgument(
             name="account-address",
             description="Account address",
-            type="str",
+            type="address",
         ),
         ProtostarArgument(
             name="private-key-path",

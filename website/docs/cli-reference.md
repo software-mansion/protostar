@@ -39,7 +39,7 @@ Targets to migrate (a target can be a file or directory)
 Calls a contract on StarkNet with given parameters
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
-#### `--contract-address STRING`
+#### `--contract-address ADDRESS`
 Required.
 
 The address of the contract being called.
@@ -66,7 +66,7 @@ Sends a declare transaction to StarkNet.
 Required.
 
 Path to compiled contract.
-#### `--account-address STRING`
+#### `--account-address ADDRESS`
 Account address
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
@@ -164,11 +164,11 @@ Directory containing project dependencies. This argument is used with the config
 A custom package name. Use it to resolve name conflicts.
 ### `invoke`
 Sends an invoke transaction to the StarkNet sequencer.
-#### `--account-address STRING`
+#### `--account-address ADDRESS`
 Account address
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
-#### `--contract-address INT`
+#### `--contract-address ADDRESS`
 Required.
 
 The address of the contract being called.
@@ -204,7 +204,7 @@ Run migration file.
 Required.
 
 Path to the migration file.
-#### `--account-address STRING`
+#### `--account-address ADDRESS`
 Account address
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.

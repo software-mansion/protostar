@@ -8,6 +8,7 @@ from protostar.starknet_gateway import Fee
 CustomProtostarArgTypeName = Literal[
     "felt",
     "fee",
+    "address",
 ]
 
 ProtostarArgTypeName = Union[CustomProtostarArgTypeName, ArgTypeName]
@@ -20,6 +21,9 @@ def map_protostar_type_name_to_parser(
         return parse_felt_arg_type
     if argument_type == "fee":
         return parse_fee_arg_type
+    if argument_type == "address":
+        return parse_address_arg_type
+
     return map_type_name_to_parser(argument_type)
 
 
@@ -32,4 +36,10 @@ def parse_felt_arg_type(arg: str) -> int:
 def parse_fee_arg_type(arg: str) -> Fee:
     if arg == "auto":
         return arg
+    return int(arg)
+
+
+def parse_address_arg_type(arg: str) -> int:
+    if arg.startswith("0x"):
+        return int(arg, 16)
     return int(arg)
