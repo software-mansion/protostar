@@ -1,6 +1,3 @@
----
-sidebar_label: Configuration file
----
 # Configuration file
 Protostar can be configured using a configuration file called `protostar.toml`, which is placed in the root of your project.
 
@@ -69,10 +66,6 @@ ignore-broken = true
 
 Check the [CLI Reference](/docs/cli-reference) or run `protostar COMMAND --help` to learn supported arguments.
 
-Specify arguments in the [`[project]` section](#shared-configuration) to share configuration across commands.
-
-
-
 ### Configuration Profiles
 Configuration profiles provide a way to easily switch between Protostar configurations. Profiles inherit values from non-profiled configuration. In order to create a configuration profile, add a new section in protostar.toml with the following naming convention:
 -  `[profile.PROFILE_NAME.project]` - to create a profile for a [Shared Configuration](#shared-configuration)
@@ -83,17 +76,17 @@ To activate the profile, use the profile argument
 protostar -p integration test
 ```
 
-## Migrating from `protostar.toml` V1
-In order to migrate your protostar.toml V1, run:
+## Migrating from `protostar.toml` from older version
+In order to migrate your `protostar.toml` created by older version of Protostar, run:
 ```
 protostar migrate-configuration-file
 ```
 
 ### Changes
-- removed `protostar` prefix from configuration sections
-- section names cannot be in double quotes
-- merged `["protostar.config"]` and `["protostar.shared_command_configs"]` sections into the project section
-- `snake_case` is no longer supported (use `kebab-case` everywhere)
+- Removed `protostar` prefix from configuration sections.
+- Section names cannot be in double quotes.
+- Merged `["protostar.config"]` and `["protostar.shared_command_configs"]` sections into the project section.
+- `snake_case` in [keys](https://toml.io/en/v1.0.0#table) is no longer supported (use `kebab-case` everywhere)
 
 
 | protostar.toml V1                                    | protostar.toml V2            |
