@@ -1,6 +1,7 @@
 from .build_command import BuildCommand
 from .call_command import CallCommand
 from .declare_command import DeclareCommand
+from .deploy_account_command import DeployAccountCommand
 from .deploy_command import DeployCommand
 from .format_command import FormatCommand
 from .init import InitCommand

@@ -18,7 +18,7 @@ class SignableCommandUtil:
     signable_arguments = [
         ProtostarArgument(
             name="account-address",
-            description="Account address",
+            description="Account address.",
             type="address",
         ),
         ProtostarArgument(

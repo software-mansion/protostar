@@ -12,6 +12,7 @@ class DevnetFixture:
         devnet_gateway_url: str,
         devnet_account_preparator: DevnetAccountPreparator,
     ) -> None:
+        self._devnet_gateway_url = devnet_gateway_url
         self._gateway_client = GatewayClient(devnet_gateway_url)
         self._devnet_account_preparator = devnet_account_preparator
 
@@ -25,3 +26,6 @@ class DevnetFixture:
             transaction_hash, wait_for_accept=True
         )
         assert transaction_status == TransactionStatus.ACCEPTED_ON_L2
+
+    def get_gateway_url(self) -> str:
+        return self._devnet_gateway_url
