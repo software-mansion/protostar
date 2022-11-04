@@ -1,10 +1,12 @@
-# Creating account contract
+# Creating account
 
 ## Overview
 
-There are two ways of creating a new account contract:
+In order to create a new account, you need to deploy an account contract. StarkNet expects a certain interface from an account contract. [OpenZeppelin](https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/account/presets/Account.cairo) and [ArgentX](https://github.com/argentlabs/argent-contracts-starknet/blob/develop/contracts/account/ArgentAccount.cairo) provide account contract implementations that you can use.
+
+There are two ways of deploying a new account contract:
 - sending `DEPLOY_ACCOUNT` transaction
-- using already deployed account contract
+- using already deployed account contract and [UDC](https://community.starknet.io/t/universal-deployer-contract-proposal/1864)
 
 ## Sending `DEPLOY_ACCOUNT` transaction 
 
