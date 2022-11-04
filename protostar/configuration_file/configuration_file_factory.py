@@ -19,7 +19,7 @@ class ConfigurationFileFactory:
     def create(self) -> ConfigurationFile:
         protostar_toml_path = self._search_upwards_protostar_toml_path()
         if protostar_toml_path is None:
-            return FakeConfigurationFile()
+            return FakeConfigurationFile(file_path=self._cwd / "protostar.toml")
         protostar_toml_content = protostar_toml_path.read_text()
 
         configuration_file_v2 = self._create_configuration_toml_v2(

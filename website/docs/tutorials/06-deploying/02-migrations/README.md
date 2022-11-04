@@ -12,13 +12,13 @@ Breaking changes can be introduced without deprecation. StarkNet [deployment flo
 Migrations are Cairo files that help you manage contracts on the StarkNet.
 These files are responsible for staging your deployment tasks, and they're written under the assumption that your project uses [Proxy Pattern](https://blog.openzeppelin.com/proxy-patterns/).
 As your project evolves, you'll create new migration scripts to reflect this evolution on the Starknet.
-To interact with StarkNet, you can use [migration cheatcodes](#available-migration-cheatcodes). 
+
 
 ## Creating a migration file
-You can create a migration file anywhere, but we recommend creating them inside a `migrations` directory. Currently, Protostar doesn't enforce any naming convention for migration files. In this tutorial we use a naming convention: `migration_NUMBER_TITLE.cairo`, for example `migration_01_init.cairo`.
+You can create a migration file anywhere, but we recommend creating them inside a `migrations` directory. Currently, Protostar doesn't enforce any naming convention for migration files. In this document we use a naming convention: `migration_NUMBER_TITLE.cairo`, for example `migration_01_init.cairo`.
 
 ## Migration file structure
-Each migration should have 2 functions: `up` and `down`. The `up` function is responsible to migrate your project forward, and the `down` function is executed to rollback changes. These functions must be decorated with `@external` decorator.
+The migration needs to have a function `up`. This function should be responsible for migrating your project forward. To interact with StarkNet, use [migration cheatcodes](#available-migration-cheatcodes). 
 
 ```cairo title="Deploying storage and logic contracts"
 %lang starknet
@@ -26,8 +26,8 @@ Each migration should have 2 functions: `up` and `down`. The `up` function is re
 @external
 func up() {
     %{
-        logic_contract_address = deploy_contract("./build/main.json").contract_address
-        storage_contract_address = deploy_contract("./build/proxy.json", [logic_contract_address]).contract_address
+        logic_contract_address = deploy_contract("main").contract_address
+        storage_contract_address = deploy_contract("proxy", [logic_contract_address]).contract_address
     %}
     return ();
 }
@@ -40,12 +40,10 @@ func down() {
 ``` 
 
 ## Running the migration
-To run the migration execute the `migrate` command. We recommend specifying the migration output directory to save class hashes and contract addresses.
-
+To run the migration execute the `migrate` command.
 ```shell title="Running the migration to the testnet"
 protostar migrate migrations/migration_01_init.cairo
     --network testnet
-    --output-dir migrations/testnet
 ```
 
 :::tip
