@@ -24,9 +24,9 @@ def map_protostar_type_name_to_parser(
     if argument_type == "fee":
         return parse_fee_arg_type
     if argument_type == "address":
-        return parse_hex
+        return parse_hex_or_decimal
     if argument_type == "class_hash":
-        return parse_hex
+        return parse_hex_or_decimal
     if argument_type == "wei":
         return parse_wei_arg_type
     return map_type_name_to_parser(argument_type)
@@ -48,7 +48,7 @@ def parse_fee_arg_type(arg: str) -> Fee:
     return int(arg)
 
 
-def parse_hex(arg: str) -> int:
+def parse_hex_or_decimal(arg: str) -> int:
     if arg.startswith("0x"):
         return int(arg, 16)
     return int(arg)
