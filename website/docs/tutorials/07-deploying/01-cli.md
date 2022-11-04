@@ -74,7 +74,7 @@ The deploy transaction will be deprecated in future StarkNet versions. To deploy
 Protostar supports deploying smart contracts to a given network with the `protostar deploy` command. It has a similar interface to the `starknet deploy` command. [Read the CLI reference for the deploy command](../../cli-reference.md#deploy) to learn more about all supported arguments.
 
 ### Example — deploying the default contract
-After [compiling your contract](../04-compiling.md), you can deploy the contract in the following way.
+After [compiling your contract](../05-compiling.md), you can deploy the contract in the following way.
 
 ```console title="protostar deploy ./build/main.json --network testnet"
 [INFO] Deploy transaction was sent.
