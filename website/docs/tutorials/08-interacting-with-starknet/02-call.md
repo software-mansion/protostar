@@ -2,7 +2,7 @@
 
 ## Overview
 
-This cheatcode allows you to call any `@view` function without mutating the blockchain state.  
+This command allows you to call any `@view` function without mutating the blockchain state.  
 
 For detailed API description, see [call command reference](../../cli-reference.md#call).
 
