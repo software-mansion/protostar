@@ -1,7 +1,5 @@
 from typing import List
 
-from starkware.starknet.business_logic.execution.objects import CallInfo
-
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.cheatcode_factory import CheatcodeFactory
 from protostar.starknet.hint_local import HintLocal
@@ -31,14 +29,13 @@ class CommonTestCheatcodeFactory(CheatcodeFactory):
     def build_cheatcodes(
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
-        internal_calls: List[CallInfo],
     ) -> List[Cheatcode]:
         declare_cheatcode = DeclareCheatcode(
             syscall_dependencies,
             self._state.project_compiler,
         )
         prepare_cheatcode = PrepareCheatcode(syscall_dependencies)
-        deploy_cheatcode = DeployCheatcode(syscall_dependencies, internal_calls)
+        deploy_cheatcode = DeployCheatcode(syscall_dependencies)
         return [
             declare_cheatcode,
             prepare_cheatcode,
