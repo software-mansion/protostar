@@ -19,7 +19,6 @@ from starkware.starknet.services.api.contract_class import EntryPointType
 from protostar.starknet.cheatable_cached_state import (
     CheatableCachedState,
     cheaters_of,
-    CallData,
 )
 from protostar.starknet.types import AddressType, SelectorType
 
@@ -95,7 +94,7 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
         request = self._read_and_validate_syscall_request(
             syscall_name=syscall_name, segments=segments, syscall_ptr=syscall_ptr
         )
-        calldata: CallData = segments.memory.get_range_as_ints(
+        calldata = segments.memory.get_range_as_ints(
             addr=request.calldata, size=request.calldata_size
         )
 
