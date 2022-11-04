@@ -1,14 +1,25 @@
 import dataclasses
 from logging import Logger, getLogger
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Literal, NamedTuple, Optional, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Literal,
+    NamedTuple,
+    Optional,
+    TypeVar,
+    Union,
+)
 
 from starknet_py.contract import Contract, ContractFunction, InvokeResult
 from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
 from starknet_py.net.client_errors import ClientError, ContractNotFoundError
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import AddressRepresentation
+from starknet_py.net.models import AddressRepresentation, Deploy, Transaction
+from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.signer import BaseSigner
 from starknet_py.transaction_exceptions import (
     TransactionFailedError,
@@ -38,6 +49,7 @@ from protostar.starknet_gateway.account_tx_version_detector import (
 )
 from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeclareResponse,
+    SuccessfulDeployAccountResponse,
     SuccessfulDeployResponse,
     SuccessfulInvokeResponse,
 )
@@ -47,6 +59,23 @@ ContractFunctionInputType = Union[List[int], Dict[str, Any]]
 
 Wei = int
 Fee = Union[Wei, Literal["auto"]]
+Address = int
+ClassHash = int
+
+
+@dataclasses.dataclass
+class DeployAccountArgs:
+    account_address: Address
+    account_address_salt: int
+    account_constructor_input: Optional[list[int]]
+    account_class_hash: ClassHash
+    max_fee: Wei
+    """`Wei` type is used instead of `Fee`. Starknet.py can't estimate fee if the account is not deployed."""
+    signer: BaseSigner
+    nonce: int
+
+
+TransactionT = TypeVar("TransactionT", bound=Transaction)
 
 
 class GatewayFacade:
@@ -211,18 +240,29 @@ class GatewayFacade:
             sender_address=account_client.address,  # type: ignore
             max_fee=0,
             signature=[],
-            nonce=await account_client.get_contract_nonce(account_client.address),
+            nonce=await account_client.get_contract_nonce(
+                account_client.address,
+            ),
             version=1,
         )
+        return await self._sign_transaction(account_client, max_fee, declare_tx)
+
+    async def _sign_transaction(
+        self,
+        account_client: AccountClient,
+        max_fee: Fee,
+        transaction: TransactionT,
+    ) -> TransactionT:
         # pylint: disable=protected-access
+        assert transaction is not Deploy
         max_fee = await account_client._get_max_fee(
-            transaction=declare_tx,
+            transaction=transaction,  # type: ignore
             max_fee=max_fee if max_fee != "auto" else None,
             auto_estimate=max_fee == "auto",
         )
-        declare_tx = dataclasses.replace(declare_tx, max_fee=max_fee)
-        signature = account_client.signer.sign_transaction(declare_tx)
-        return dataclasses.replace(declare_tx, signature=signature, max_fee=max_fee)
+        transaction = dataclasses.replace(transaction, max_fee=max_fee)
+        signature = account_client.signer.sign_transaction(transaction)
+        return dataclasses.replace(transaction, signature=signature, max_fee=max_fee)
 
     async def declare_v0(
         self,
@@ -444,6 +484,29 @@ class GatewayFacade:
             )
         except (TypeError, ValueError) as ex:
             raise InputValidationException(str(ex)) from ex
+
+    async def deploy_account(self, args: DeployAccountArgs):
+        account_client = await self._create_account_client(
+            account_address=str(args.account_address), signer=args.signer
+        )
+        deploy_account_tx = DeployAccount(
+            nonce=args.nonce,  # type: ignore
+            class_hash=args.account_class_hash,  # type: ignore
+            contract_address_salt=args.account_address_salt,  # type: ignore
+            constructor_calldata=args.account_constructor_input or [],  # type: ignore
+            version=1,
+            max_fee=0,
+            signature=[],
+        )
+        signed_deploy_account_tx = await self._sign_transaction(
+            account_client, args.max_fee, deploy_account_tx
+        )
+        response = await account_client.deploy_account(signed_deploy_account_tx)
+        return SuccessfulDeployAccountResponse(
+            code=response.code or "",
+            address=response.address,
+            transaction_hash=response.transaction_hash,
+        )
 
     def _register_request(
         self, action: StarknetRequest.Action, payload: StarknetRequest.Payload

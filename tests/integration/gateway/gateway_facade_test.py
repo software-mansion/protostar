@@ -9,17 +9,20 @@ from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.starknet.data_transformer import CairoOrPythonData
 from protostar.starknet_gateway.gateway_facade import (
     ContractNotFoundException,
+    DeployAccountArgs,
     FeeExceededMaxFeeException,
     GatewayFacade,
     InputValidationException,
     UnknownFunctionException,
 )
-from tests.conftest import DevnetAccount
+from tests._conftest.devnet import DevnetAccount, DevnetFixture
+from tests.conftest import MAX_FEE
 from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR, IDENTITY_CONTRACT
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.protostar_fixture import (
     GatewayClientTxInterceptor,
     ProtostarFixture,
+    TransactionRegistry,
 )
 
 
@@ -35,9 +38,18 @@ def compiled_contract_path_fixture(protostar: ProtostarFixture) -> Path:
     return protostar.project_root_path / "build" / "main.json"
 
 
+@pytest.fixture(name="transaction_registry")
+def transaction_registry_fixture() -> TransactionRegistry:
+    return TransactionRegistry()
+
+
 @pytest.fixture(name="gateway_client")
-def gateway_client_fixture(devnet_gateway_url: str):
-    return GatewayClientTxInterceptor(devnet_gateway_url)
+def gateway_client_fixture(
+    devnet_gateway_url: str, transaction_registry: TransactionRegistry
+):
+    return GatewayClientTxInterceptor(
+        devnet_gateway_url, transaction_registry=transaction_registry
+    )
 
 
 @pytest.fixture(name="gateway_facade")
@@ -228,5 +240,30 @@ async def test_max_fee_estimation(
     tx = cast(Declare, gateway_client.intercepted_txs[0])
     assert tx is not None
     assert tx.max_fee is not None
-    assert tx.max_fee is not "auto"
+    assert tx.max_fee != "auto"
     assert tx.max_fee > 0
+
+
+async def test_deploy_account(
+    devnet: DevnetFixture,
+    gateway_facade: GatewayFacade,
+    transaction_registry: TransactionRegistry,
+):
+    salt = 1
+    account = await devnet.prepare_account(salt=salt, private_key=123)
+    deploy_account_args = DeployAccountArgs(
+        account_address=int(account.address),
+        account_address_salt=salt,
+        account_class_hash=account.class_hash,
+        account_constructor_input=[int(account.public_key)],
+        max_fee=MAX_FEE,
+        signer=account.signer,
+        nonce=0,
+    )
+
+    response = await gateway_facade.deploy_account(deploy_account_args)
+
+    tx = transaction_registry.deploy_account_txs[0]
+    assert tx.class_hash == deploy_account_args.account_class_hash
+    assert tx.contract_address_salt == deploy_account_args.account_address_salt
+    await devnet.assert_transaction_accepted(response.transaction_hash)
