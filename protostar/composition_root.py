@@ -40,6 +40,7 @@ from protostar.configuration_file import (
 from protostar.io import InputRequester, log_color_provider
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_cli import ProtostarCLI
+from protostar.self import ProtostarCompatibilityWithProjectChecker
 from protostar.self.protostar_directory import ProtostarDirectory, VersionManager
 from protostar.starknet_gateway import GatewayFacadeFactory
 from protostar.upgrader import (
@@ -204,6 +205,11 @@ def build_di_container(
         migrate_configuration_file_command,
     ]
 
+    compatibility_checker = ProtostarCompatibilityWithProjectChecker(
+        protostar_version=protostar_version,
+        declared_protostar_version_provider=configuration_file,
+    )
+
     protostar_cli = ProtostarCLI(
         commands=commands,
         latest_version_checker=latest_version_checker,
@@ -212,6 +218,7 @@ def build_di_container(
         version_manager=version_manager,
         project_cairo_path_builder=project_cairo_path_builder,
         configuration_file=configuration_file,
+        compatibility_checker=compatibility_checker,
         start_time=start_time,
     )
     if configuration_file:

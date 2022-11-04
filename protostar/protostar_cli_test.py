@@ -2,7 +2,7 @@
 
 from asyncio import Future
 from logging import Logger, getLogger
-from typing import Any, List, cast
+from typing import Any, List, Optional, Protocol, cast
 
 import pytest
 from pytest_mock import MockerFixture
@@ -12,7 +12,8 @@ from protostar.cli import ProtostarCommand
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.protostar_cli import ProtostarCLI
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
-from protostar.self.protostar_directory import VersionManager
+from protostar.self import CompatibilityCheckOutput, CompatibilityResult, VersionManager
+from protostar.self.conftest import FakeProtostarCompatibilityWithProjectChecker
 from protostar.upgrader.latest_version_checker import LatestVersionChecker
 
 
@@ -70,7 +71,82 @@ def protostar_cli_fixture(
         latest_version_checker=latest_version_checker,
         configuration_file=mocker.MagicMock(),
         project_cairo_path_builder=mocker.MagicMock(),
+        compatibility_checker=FakeProtostarCompatibilityWithProjectChecker(
+            result=CompatibilityCheckOutput(
+                compatibility_result=CompatibilityResult.COMPATIBLE,
+                protostar_version_str="0.0.0",
+                declared_protostar_version_str="0.0.0",
+            )
+        ),
     )
+
+
+class RunProtostarCLIResult:
+    def __init__(self, warnings: list[str]):
+        self._warnings = warnings
+
+    def has_warning(self, warning_pattern: str) -> bool:
+        for warning in self._warnings:
+            if warning_pattern in warning:
+                return True
+        return False
+
+    def has_warnings(self) -> bool:
+        return len(self._warnings) > 0
+
+
+class RunProtostarCLIFixture(Protocol):
+    async def __call__(
+        self, compatibility_result: CompatibilityResult
+    ) -> RunProtostarCLIResult:
+        ...
+
+
+@pytest.fixture(name="run_protostar_cli")
+def run_protostar_cli_fixture(
+    mocker: MockerFixture,
+    version_manager: VersionManager,
+    latest_version_checker: LatestVersionChecker,
+    commands: List[ProtostarCommand],
+    logger: Logger,
+) -> RunProtostarCLIFixture:
+    async def run_protostar_command(compatibility_result: CompatibilityResult):
+        command = commands[0]
+        command.run = mocker.MagicMock()
+        command.run.return_value = Future()
+        command.run.return_value.set_result(True)
+        log_color_provider = LogColorProvider()
+        log_color_provider.is_ci_mode = True
+        protostar_cli = ProtostarCLI(
+            commands=commands,
+            log_color_provider=log_color_provider,
+            logger=logger,
+            version_manager=version_manager,
+            latest_version_checker=latest_version_checker,
+            configuration_file=mocker.MagicMock(),
+            project_cairo_path_builder=mocker.MagicMock(),
+            compatibility_checker=FakeProtostarCompatibilityWithProjectChecker(
+                result=CompatibilityCheckOutput(
+                    compatibility_result=compatibility_result,
+                    protostar_version_str="0.0.0",
+                    declared_protostar_version_str="0.0.0",
+                )
+            ),
+        )
+        parser = ArgumentParserFacade(protostar_cli)
+        logger.warning = mocker.MagicMock()
+
+        await protostar_cli.run(parser.parse([command.name]))
+
+        warnings = []
+        if (
+            len(logger.warning.call_args_list) > 0
+            and len(logger.warning.call_args_list[0]) > 0
+        ):
+            warnings = logger.warning.call_args_list[0][0]
+        return RunProtostarCLIResult(warnings=warnings)
+
+    return run_protostar_command
 
 
 @pytest.mark.parametrize("git_version", ["2.27"])
@@ -154,10 +230,33 @@ async def test_should_sys_exit_on_protostar_silent_exception(
         assert cast(SystemExit, ex).code == 1
 
 
-@pytest.mark.asyncio
 async def test_getting_command_names(
     protostar_cli: ProtostarCLI, commands: List[ProtostarCommand]
 ):
     command_names = protostar_cli.get_command_names()
 
     assert command_names == [command.name for command in commands]
+
+
+@pytest.mark.parametrize(
+    "compatibility_result, expected_warning",
+    [
+        (CompatibilityResult.COMPATIBLE, None),
+        (
+            CompatibilityResult.OUTDATED_DECLARED_VERSION,
+            "update the declared Protostar version",
+        ),
+        (CompatibilityResult.OUTDATED_PROTOSTAR, "upgrade Protostar"),
+    ],
+)
+async def test_checking_compatibility(
+    run_protostar_cli: RunProtostarCLIFixture,
+    compatibility_result: CompatibilityResult,
+    expected_warning: Optional[str],
+):
+    result = await run_protostar_cli(compatibility_result)
+
+    if expected_warning is None:
+        assert not result.has_warnings()
+    else:
+        assert result.has_warning(expected_warning)
