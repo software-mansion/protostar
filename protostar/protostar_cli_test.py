@@ -68,6 +68,7 @@ def protostar_cli_fixture(
         logger=logger,
         version_manager=version_manager,
         latest_version_checker=latest_version_checker,
+        configuration_file=mocker.MagicMock(),
         project_cairo_path_builder=mocker.MagicMock(),
     )
 
