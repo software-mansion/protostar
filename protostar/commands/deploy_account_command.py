@@ -20,7 +20,7 @@ from protostar.starknet_gateway.gateway_response import SuccessfulDeployAccountR
 
 @dataclass
 class DeployAccountCommandArgs(NetworkArgs):
-    account_address: str
+    account_address: int
     account_address_salt: int
     account_constructor_input: Optional[list[int]]
     account_class_hash: ClassHash
@@ -126,7 +126,7 @@ class DeployAccountCommand(ProtostarCommand):
         if typed_args.max_fee == "auto":
             raise AutoEstimateMaxFeeException()
         return DeployAccountArgs(
-            account_address=int(typed_args.account_address, base=0),
+            account_address=typed_args.account_address,
             account_class_hash=typed_args.account_class_hash,
             account_address_salt=typed_args.account_address_salt,
             nonce=typed_args.nonce,
