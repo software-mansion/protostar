@@ -17,7 +17,11 @@ from protostar.configuration_file import (
 from protostar.configuration_profile_cli import ConfigurationProfileCLI
 from protostar.io import LogColorProvider, StandardLogFormatter
 from protostar.protostar_exception import ProtostarException, ProtostarExceptionSilent
-from protostar.self.protostar_directory import VersionManager
+from protostar.self import (
+    CompatibilityResult,
+    ProtostarCompatibilityWithProjectCheckerProtocol,
+    VersionManager,
+)
 from protostar.upgrader import LatestVersionChecker
 
 
@@ -29,6 +33,7 @@ def _apply_pythonpath():
 
 
 class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
+    # pylint: disable=too-many-instance-attributes
     def __init__(
         self,
         logger: Logger,
@@ -38,6 +43,7 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
         version_manager: VersionManager,
         commands: List[ProtostarCommand],
         configuration_file: ConfigurationFile,
+        compatibility_checker: ProtostarCompatibilityWithProjectCheckerProtocol,
         start_time: float = 0,
     ) -> None:
         self._logger = logger
@@ -47,6 +53,7 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
         self._start_time = start_time
         self._configuration_file = configuration_file
         self._project_cairo_path_builder = project_cairo_path_builder
+        self._compatibility_checker = compatibility_checker
         super().__init__(
             commands=commands,
             root_args=[
@@ -70,9 +77,10 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
         try:
             self._setup_logger(args.no_color)
             self._check_git_version()
+            if args.command is not None and args.command != "init":
+                self._warn_if_compatibility_issues_detected()
             await self._run_command_from_args(args)
-
-            if args.command != "upgrade":
+            if args.command is not None and args.command != "upgrade":
                 await self._latest_version_checker.run()
                 self._show_configuration_file_depreciation_warning_if_necessary(
                     args.command
@@ -152,4 +160,21 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
             self._logger.warning(
                 "Current configuration file won't be supported in future releases.\n"
                 f"To update your configuration file, run: {instruction}"
+            )
+
+    def _warn_if_compatibility_issues_detected(self):
+        output = self._compatibility_checker.check_compatibility()
+        compatibility_result = output.compatibility_result
+
+        if compatibility_result == CompatibilityResult.OUTDATED_DECLARED_VERSION:
+            self._logger.warning(
+                f"This project expects older Protostar (v{output.declared_protostar_version_str})\n"
+                "Please update the declared Protostar version in the project's configuration file,\n"
+                f"if the project is compatible with Protostar v{output.protostar_version_str}"
+            )
+        elif compatibility_result == CompatibilityResult.OUTDATED_PROTOSTAR:
+            self._logger.warning(
+                f"This project expects newer Protostar (v{output.declared_protostar_version_str})\n"
+                f"Your Protostar version is v{output.protostar_version_str}\n"
+                "Please upgrade Protostar"
             )
