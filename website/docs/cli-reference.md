@@ -67,7 +67,7 @@ Required.
 
 Path to compiled contract.
 #### `--account-address ADDRESS`
-Account address
+Account address.
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
 #### `--gateway-url STRING`
@@ -125,8 +125,8 @@ Used by whitelisted users for deploying contracts in Alpha MainNet.
 Waits for transaction to be accepted on chain.
 ### `deploy-account`
 Sends deploy-account transaction. The account contract must be already declared and prefunded.
-#### `--account-address STRING`
-Account address
+#### `--account-address ADDRESS`
+Account address.
 #### `--account-address-salt INT`
 Required.
 
@@ -203,7 +203,7 @@ A custom package name. Use it to resolve name conflicts.
 ### `invoke`
 Sends an invoke transaction to the StarkNet sequencer.
 #### `--account-address ADDRESS`
-Account address
+Account address.
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
 #### `--contract-address ADDRESS`
@@ -243,7 +243,7 @@ Required.
 
 Path to the migration file.
 #### `--account-address ADDRESS`
-Account address
+Account address.
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
 #### `--compiled-contracts-dir PATH=build`

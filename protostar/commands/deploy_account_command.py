@@ -124,9 +124,7 @@ class DeployAccountCommand(ProtostarCommand):
         typed_args: DeployAccountCommandArgs,
     ) -> DeployAccountArgs:
         if typed_args.max_fee == "auto":
-            raise ProtostarException(
-                "Protostar can't auto-estimate max fee for the DeployAccount transaction."
-            )
+            raise AutoEstimateMaxFeeException()
         return DeployAccountArgs(
             account_address=int(typed_args.account_address, base=0),
             account_class_hash=typed_args.account_class_hash,
@@ -162,6 +160,6 @@ class DeployAccountCommand(ProtostarCommand):
 class AutoEstimateMaxFeeException(ProtostarException):
     def __init__(self):
         super().__init__(
-            "Protostar can't auto-estimate max fee for the DeployAccount transaction.\n"
-            "Please provide explicit value."
+            "Protostar cannot estimate max fee for the DeployAccount transaction.\n"
+            "Please provide an explicit value."
         )
