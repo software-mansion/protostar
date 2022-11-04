@@ -40,7 +40,7 @@ class CallCommand(ProtostarCommand):
             ProtostarArgument(
                 name="contract-address",
                 description="The address of the contract being called.",
-                type="str",
+                type="address",
                 is_required=True,
             ),
             ProtostarArgument(
