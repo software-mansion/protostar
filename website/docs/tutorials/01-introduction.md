@@ -6,9 +6,9 @@ sidebar_label: Introduction
 
 Protostar is a StarkNet smart contract development [toolchain](https://en.wikipedia.org/wiki/Toolchain), which helps you with the following tasks:
 
-- [dependencies management](05-dependencies-management.md)
-- [project compilation](04-compiling.md)
-- [testing contracts](07-testing/README.md)
+- [dependencies management](06-dependencies-management.md)
+- [project compilation](05-compiling.md)
+- [testing contracts](08-testing/README.md)
 
 :::note
 Protostar takes its inspiration from [Foundry](https://github.com/foundry-rs/foundry).
@@ -26,10 +26,10 @@ After reading this guides, you will know how to do the following:
 - [initialize a new Protostar project](03-project-initialization.md)
 - [configure `protostar.toml`](03-project-initialization.md#protostartoml)
 - [adapt an existing Cairo project to the Protostar project](03-project-initialization.md#adapting-an-existing-project-to-the-protostar-project)
-- [compile project](04-compiling.md)
-- [add, update, and remove dependencies](05-dependencies-management.md)
-- [test contracts with the help of cheatcodes](07-testing/README.md)
-- [deploy contracts using Protostar](06-deploying/README.md)
+- [compile project](05-compiling.md)
+- [add, update, and remove dependencies](06-dependencies-management.md)
+- [test contracts with the help of cheatcodes](08-testing/README.md)
+- [deploy contracts using Protostar](07-deploying/README.md)
 
 ## Reference
 Protostar is designed to be discoverable straight from the terminal. If you want to get the information about available commands and flags, you can always use:

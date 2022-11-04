@@ -64,7 +64,7 @@ protostar build --output out
 
 ### Cairo-lang version
 
-Protostar ships with its own [cairo-lang](https://pypi.org/project/cairo-lang/) and [formatter](./08-formatting.md). You don't have to [set up the environment](https://www.cairo-lang.org/docs/quickstart.html). If you want to check what Cairo version Protostar uses to compile your project, run:
+Protostar ships with its own [cairo-lang](https://pypi.org/project/cairo-lang/) and [formatter](./09-formatting.md). You don't have to [set up the environment](https://www.cairo-lang.org/docs/quickstart.html). If you want to check what Cairo version Protostar uses to compile your project, run:
 
 ```text title="$ protostar -v"
 Protostar version: 0.1.0
