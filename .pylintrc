@@ -24,7 +24,7 @@ ignore=CVS
 
 # Add files or directories matching the regex patterns to the ignore-list. The
 # regex matches against paths and can be in Posix or Windows format.
-ignore-paths=
+ignore-paths=["protostar/commands/_generated_arg_types.py", "protostar/commands/_types_for_generated_arg_types.py"]
 
 # Files or directories matching the regex patterns are skipped. The regex
 # matches against base names, not paths.
@@ -94,6 +94,7 @@ disable=fixme,
         too-many-arguments,
         too-many-locals,
         invalid-name,
+
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
