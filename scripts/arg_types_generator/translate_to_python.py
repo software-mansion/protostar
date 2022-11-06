@@ -28,7 +28,7 @@ def map_construct_to_python_ast(construct: Construct) -> ast.AST:
         return ast.ClassDef(
             name=construct.name,
             decorator_list=[ast.Name(id="dataclass")],
-            bases=[ast.Name(id="SimpleNamespace")],
+            bases=[],
             keywords=[],
             body=[
                 [
