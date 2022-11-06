@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional
+
 from ._types_for_generated_arg_types import *
 
 
@@ -7,7 +8,7 @@ from ._types_for_generated_arg_types import *
 class BuildCommandArgs:
     cairo_path: Optional[list[directory]]
     disable_hint_validation: bool = False
-    compiled_contracts_dir: path = "build"
+    compiled_contracts_dir: path = PosixPath("build")
 
 
 @dataclass
@@ -112,7 +113,7 @@ class MigrateCommandArgs:
     private_key_path: Optional[path]
     signer_class: Optional[str]
     no_confirm: bool = False
-    compiled_contracts_dir: path = "build"
+    compiled_contracts_dir: path = PosixPath("build")
 
 
 @dataclass

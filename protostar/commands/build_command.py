@@ -13,7 +13,7 @@ class BuildCommand(ProtostarCommand):
         name="compiled-contracts-dir",
         description="An output directory used to put the compiled contracts in.",
         type="path",
-        default="build",
+        default=Path("build"),
     )
 
     def __init__(self, project_compiler: ProjectCompiler, logger: Logger) -> None:
