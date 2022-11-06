@@ -28,6 +28,7 @@ def create_module_construct():
                 FromImportConstruct(
                     dotted_path="dataclasses", imports=["dataclass", "field"]
                 ),
+                FromImportConstruct(dotted_path="types", imports=["SimpleNamespace"]),
                 FromImportConstruct(dotted_path="typing", imports=["Optional"]),
                 FromImportConstruct(
                     dotted_path="._types_for_generated_arg_types", imports=["*"]

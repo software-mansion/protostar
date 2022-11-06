@@ -1,22 +1,24 @@
 from dataclasses import dataclass, field
+from types import SimpleNamespace
 from typing import Optional
+
 from ._types_for_generated_arg_types import *
 
 
 @dataclass
-class BuildCommandArgs:
+class BuildCommandArgs(SimpleNamespace):
     cairo_path: Optional[list[directory]]
     disable_hint_validation: bool = False
     compiled_contracts_dir: path = PosixPath("build")
 
 
 @dataclass
-class CairoMigrateCommandArgs:
+class CairoMigrateCommandArgs(SimpleNamespace):
     targets: list[str] = field(default_factory=lambda: ["."])
 
 
 @dataclass
-class CallCommandArgs:
+class CallCommandArgs(SimpleNamespace):
     contract_address: address
     function: str
     gateway_url: Optional[str]
@@ -26,7 +28,7 @@ class CallCommandArgs:
 
 
 @dataclass
-class DeclareCommandArgs:
+class DeclareCommandArgs(SimpleNamespace):
     contract: path
     account_address: Optional[address]
     private_key_path: Optional[path]
@@ -40,7 +42,7 @@ class DeclareCommandArgs:
 
 
 @dataclass
-class DeployCommandArgs:
+class DeployCommandArgs(SimpleNamespace):
     contract: path
     inputs: Optional[list[felt]]
     token: Optional[str]
@@ -52,7 +54,7 @@ class DeployCommandArgs:
 
 
 @dataclass
-class DeployAccountCommandArgs:
+class DeployAccountCommandArgs(SimpleNamespace):
     account_class_hash: class_hash
     max_fee: wei
     account_address_salt: int
@@ -67,7 +69,7 @@ class DeployAccountCommandArgs:
 
 
 @dataclass
-class FormatCommandArgs:
+class FormatCommandArgs(SimpleNamespace):
     target: list[str] = field(default_factory=lambda: ["."])
     check: bool = False
     verbose: bool = False
@@ -75,20 +77,20 @@ class FormatCommandArgs:
 
 
 @dataclass
-class InitCommandArgs:
+class InitCommandArgs(SimpleNamespace):
     name: Optional[str]
     existing: bool = False
 
 
 @dataclass
-class InstallCommandArgs:
+class InstallCommandArgs(SimpleNamespace):
     lib_path: Optional[path]
     package: Optional[str]
     name: Optional[str]
 
 
 @dataclass
-class InvokeCommandArgs:
+class InvokeCommandArgs(SimpleNamespace):
     contract_address: address
     function: str
     account_address: Optional[address]
@@ -103,7 +105,7 @@ class InvokeCommandArgs:
 
 
 @dataclass
-class MigrateCommandArgs:
+class MigrateCommandArgs(SimpleNamespace):
     path: path
     gateway_url: Optional[str]
     chain_id: Optional[int]
@@ -116,18 +118,18 @@ class MigrateCommandArgs:
 
 
 @dataclass
-class MigrateConfigurationFileCommandArgs:
+class MigrateConfigurationFileCommandArgs(SimpleNamespace):
     pass
 
 
 @dataclass
-class RemoveCommandArgs:
+class RemoveCommandArgs(SimpleNamespace):
     package: str
     lib_path: Optional[path]
 
 
 @dataclass
-class TestCommandArgs:
+class TestCommandArgs(SimpleNamespace):
     ignore: Optional[list[str]]
     cairo_path: Optional[list[directory]]
     seed: Optional[int]
@@ -142,11 +144,11 @@ class TestCommandArgs:
 
 
 @dataclass
-class UpdateCommandArgs:
+class UpdateCommandArgs(SimpleNamespace):
     lib_path: Optional[path]
     package: Optional[str]
 
 
 @dataclass
-class UpgradeCommandArgs:
+class UpgradeCommandArgs(SimpleNamespace):
     pass
