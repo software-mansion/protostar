@@ -1,8 +1,6 @@
-from argparse import Namespace
 from dataclasses import dataclass, field
 from types import SimpleNamespace
 from typing import Optional
-
 from ._types_for_generated_arg_types import *
 
 
@@ -78,7 +76,7 @@ class FormatCommandArgs(SimpleNamespace):
 
 
 @dataclass
-class InitCommandArgs(Namespace):
+class InitCommandArgs(SimpleNamespace):
     name: Optional[str]
     existing: bool = False
 
