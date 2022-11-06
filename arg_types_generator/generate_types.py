@@ -1,8 +1,11 @@
 import ast
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Sequence, Union, cast
+from typing import Optional, Sequence, Union, cast
 
+import stringcase
+
+from protostar.argument_parser.argument import Argument
 from protostar.argument_parser.command import Command
 from protostar.composition_root import build_di_container
 
@@ -25,6 +28,7 @@ class FromImportConstruct(Construct):
 class ClassAttributeConstruct(Construct):
     name: str
     type_name: str
+    default: Optional[str] = None
 
 
 @dataclass
@@ -49,19 +53,33 @@ def load_module_construct():
     commands = build_di_container(script_root=Path()).protostar_cli.commands
     dataclasses_to_generate: list[DataclassConstruct] = []
     for command in commands:
-        dataclasses_to_generate.append(map_command_to_type_to_generate(command))
+        dataclasses_to_generate.append(map_command_to_construct(command))
     return ModuleConstruct(dataclasses_to_generate)
 
 
-def map_command_to_type_to_generate(command: Command):
+def map_command_to_construct(command: Command):
     return DataclassConstruct(
-        name=command.name,
-        class_attributes=[
-            ClassAttributeConstruct(
-                name="bar",
-                type_name="baz",
-            )
-        ],
+        name=stringcase.titlecase(command.name).replace(" ", "") + "CommandArgs",
+        class_attributes=[map_argument_to_construct(arg) for arg in command.arguments],
+    )
+
+
+def map_argument_to_construct(argument: Argument):
+    type_name = argument.type
+    default = argument.default
+
+    if type_name == "bool":
+        default = False
+    else:
+        if argument.is_array:
+            type_name = f"list[{type_name}]"
+        if not argument.is_required and argument.default is None:
+            type_name = f"Optional[{type_name}]"
+
+    return ClassAttributeConstruct(
+        name=stringcase.snakecase(argument.name),
+        type_name=type_name,
+        default=repr(default),
     )
 
 
@@ -85,9 +103,11 @@ def map_construct_to_python_ast(construct: Construct) -> ast.AST:
             ],
         )
     if isinstance(construct, ClassAttributeConstruct):
+
         return ast.AnnAssign(
             target=ast.Name(id=construct.name),
             annotation=ast.Name(id=construct.type_name),
+            value=ast.Name(construct.default) if construct.default else None,
             simple=1,
         )
 
