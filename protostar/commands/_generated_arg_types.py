@@ -2,15 +2,18 @@ from dataclasses import dataclass
 from typing import Optional
 from ._types_for_generated_arg_types import *
 
+
 @dataclass
 class BuildCommandArgs:
     cairo_path: Optional[list[directory]]
     disable_hint_validation: bool = False
-    compiled_contracts_dir: path = 'build'
+    compiled_contracts_dir: path = "build"
+
 
 @dataclass
 class CairoMigrateCommandArgs:
-    targets: list[str] = ['.']
+    targets: list[str] = ["."]
+
 
 @dataclass
 class CallCommandArgs:
@@ -20,6 +23,7 @@ class CallCommandArgs:
     chain_id: Optional[int]
     network: Optional[str]
     inputs: Optional[list[felt]]
+
 
 @dataclass
 class DeclareCommandArgs:
@@ -34,6 +38,7 @@ class DeclareCommandArgs:
     max_fee: Optional[fee]
     wait_for_acceptance: bool = False
 
+
 @dataclass
 class DeployCommandArgs:
     contract: path
@@ -44,6 +49,7 @@ class DeployCommandArgs:
     chain_id: Optional[int]
     network: Optional[str]
     wait_for_acceptance: bool = False
+
 
 @dataclass
 class DeployAccountCommandArgs:
@@ -59,23 +65,27 @@ class DeployAccountCommandArgs:
     account_constructor_input: Optional[list[int]]
     nonce: int = 0
 
+
 @dataclass
 class FormatCommandArgs:
-    target: list[str] = ['.']
+    target: list[str] = ["."]
     check: bool = False
     verbose: bool = False
     ignore_broken: bool = False
+
 
 @dataclass
 class InitCommandArgs:
     name: Optional[str]
     existing: bool = False
 
+
 @dataclass
 class InstallCommandArgs:
     lib_path: Optional[path]
     package: Optional[str]
     name: Optional[str]
+
 
 @dataclass
 class InvokeCommandArgs:
@@ -91,6 +101,7 @@ class InvokeCommandArgs:
     max_fee: Optional[fee]
     wait_for_acceptance: bool = False
 
+
 @dataclass
 class MigrateCommandArgs:
     path: path
@@ -101,23 +112,26 @@ class MigrateCommandArgs:
     private_key_path: Optional[path]
     signer_class: Optional[str]
     no_confirm: bool = False
-    compiled_contracts_dir: path = 'build'
+    compiled_contracts_dir: path = "build"
+
 
 @dataclass
 class MigrateConfigurationFileCommandArgs:
     pass
+
 
 @dataclass
 class RemoveCommandArgs:
     package: str
     lib_path: Optional[path]
 
+
 @dataclass
 class TestCommandArgs:
     ignore: Optional[list[str]]
     cairo_path: Optional[list[directory]]
     seed: Optional[int]
-    target: list[str] = ['.']
+    target: list[str] = ["."]
     disable_hint_validation: bool = False
     profiling: bool = False
     no_progress_bar: bool = False
@@ -126,10 +140,12 @@ class TestCommandArgs:
     report_slowest_tests: int = 0
     last_failed: bool = False
 
+
 @dataclass
 class UpdateCommandArgs:
     lib_path: Optional[path]
     package: Optional[str]
+
 
 @dataclass
 class UpgradeCommandArgs:

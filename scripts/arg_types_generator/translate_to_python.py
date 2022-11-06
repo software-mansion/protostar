@@ -1,5 +1,7 @@
 import ast
 
+import black
+
 from .constructs import (
     ClassAttributeConstruct,
     Construct,
@@ -10,7 +12,8 @@ from .constructs import (
 
 
 def unparse(module_construct: ModuleConstruct) -> str:
-    return ast.unparse(map_construct_to_python_ast(module_construct))
+    python_code = ast.unparse(map_construct_to_python_ast(module_construct))
+    return black.format_str(python_code, mode=black.FileMode())
 
 
 def map_construct_to_python_ast(construct: Construct) -> ast.AST:
