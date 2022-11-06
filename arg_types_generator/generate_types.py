@@ -92,7 +92,7 @@ def map_construct_to_python_ast(construct: Construct) -> ast.AST:
     if isinstance(construct, DataclassConstruct):
         return ast.ClassDef(
             name=construct.name,
-            decorator_list=[],
+            decorator_list=[ast.Name(id="dataclass")],
             bases=[],
             keywords=[],
             body=[
@@ -100,6 +100,8 @@ def map_construct_to_python_ast(construct: Construct) -> ast.AST:
                     map_construct_to_python_ast(child)
                     for child in construct.class_attributes
                 ]
+                if len(construct.class_attributes) > 0
+                else ast.Pass()
             ],
         )
     if isinstance(construct, ClassAttributeConstruct):
@@ -116,30 +118,31 @@ def map_construct_to_python_ast(construct: Construct) -> ast.AST:
 
 def run_example():
     code = """
-    from dataclasses import dataclass
-    from . import dataclass
+from dataclasses import dataclass
 
-    @dataclass
-    class Foo:
-        foo: baz
+@dataclass
+class Foo:
+    foo: baz
 
-        def bar(self):
-            pass
+    def bar(self):
+        pass
     """
 
     tree = ast.parse(code)
 
     cls = cast(ast.ClassDef, tree.body[1])
-
+    print(cls.decorator_list)
     for construct in cls.body:
-        if isinstance(construct, ast.AnnAssign):
-            target_node = construct.target
-            if isinstance(target_node, ast.Name):
-                print(target_node.id)
+        print(construct)
+        # if isinstance(construct, ast.AnnAssign):
+        #     target_node = construct.target
+        #     if isinstance(target_node, ast.Name):
+        #         print(target_node.id)
 
-            type_node = construct.annotation
-            if isinstance(type_node, ast.Name):
-                print(type_node.id)
+        #     type_node = construct.annotation
+        #     if isinstance(type_node, ast.Name):
+        #         print(type_node.id)
 
 
+# run_example()
 main()
