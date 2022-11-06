@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Union
 
 DottedPath = str
 Identifier = str
@@ -30,5 +30,4 @@ class DataclassConstruct(Construct):
 
 @dataclass
 class ModuleConstruct(Construct):
-    imports: Sequence[FromImportConstruct]
-    children: Sequence[DataclassConstruct]
+    children: Sequence[Union[DataclassConstruct, FromImportConstruct]]

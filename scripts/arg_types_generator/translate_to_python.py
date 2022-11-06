@@ -17,10 +17,7 @@ def map_construct_to_python_ast(construct: Construct) -> ast.AST:
     if isinstance(construct, ModuleConstruct):
         return ast.Module(
             body=[
-                [
-                    map_construct_to_python_ast(i)
-                    for i in [*construct.imports, *construct.children]
-                ],
+                [map_construct_to_python_ast(child) for child in construct.children],
             ],
             type_ignores=[],
         )

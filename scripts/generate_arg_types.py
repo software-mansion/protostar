@@ -14,18 +14,25 @@ from scripts.arg_types_generator.translate_to_python import (
 )
 
 
-def load_module_construct():
+def create_dataclass_constructs():
     commands = build_di_container(script_root=Path()).protostar_cli.commands
     sorted_commands = sorted(commands, key=lambda cmd: cmd.name)
+    return map_command_to_construct(sorted_commands)
+
+
+def create_module_construct():
+    dataclass_constructs = create_dataclass_constructs()
     return ModuleConstruct(
-        imports=[
-            FromImportConstruct(dotted_path="dataclasses", imports=["dataclass"]),
-            FromImportConstruct(dotted_path="typing", imports=["Optional"]),
-            FromImportConstruct(
-                dotted_path="._types_for_generated_arg_types", imports=["*"]
-            ),
+        children=[
+            *[
+                FromImportConstruct(dotted_path="dataclasses", imports=["dataclass"]),
+                FromImportConstruct(dotted_path="typing", imports=["Optional"]),
+                FromImportConstruct(
+                    dotted_path="._types_for_generated_arg_types", imports=["*"]
+                ),
+            ],
+            *dataclass_constructs,
         ],
-        children=map_command_to_construct(sorted_commands),
     )
 
 
@@ -74,7 +81,7 @@ def map_argument_to_construct(argument: Argument):
     )
 
 
-module_construct = load_module_construct()
+module_construct = create_module_construct()
 result = unparse(module_construct)
 
 (
