@@ -1,5 +1,4 @@
 from abc import abstractmethod
-from argparse import Namespace
 from typing import Any, Generic, List, Optional, TypeVar
 
 from .argument import Argument as GenericArgument

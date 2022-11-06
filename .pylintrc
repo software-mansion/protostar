@@ -24,11 +24,11 @@ ignore=CVS
 
 # Add files or directories matching the regex patterns to the ignore-list. The
 # regex matches against paths and can be in Posix or Windows format.
-ignore-paths=["protostar/commands/_generated_arg_types.py", "protostar/commands/_types_for_generated_arg_types.py"]
+ignore-paths=
 
 # Files or directories matching the regex patterns are skipped. The regex
 # matches against base names, not paths.
-ignore-patterns=
+ignore-patterns=_generated_command_input_types.py,_types_source_generated_command_input_types.py
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
