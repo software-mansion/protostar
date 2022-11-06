@@ -1,4 +1,3 @@
-from argparse import Namespace
 from glob import glob
 from typing import Optional
 
@@ -10,6 +9,8 @@ from protostar.commands.init.project_creator.new_project_creator import (
     NewProjectCreator,
 )
 from protostar.io.input_requester import InputRequester
+
+from .._generated_arg_types import InitCommandArgs
 
 
 class InitCommand(ProtostarCommand):
@@ -53,20 +54,11 @@ class InitCommand(ProtostarCommand):
             ),
         ]
 
-    async def run(self, args: Namespace):
-        self.init(
-            force_adapting_existing_project=args.existing,
-            project_name=args.name,
-        )
-
-    def init(
-        self, force_adapting_existing_project: bool, project_name: Optional[str] = None
-    ):
+    async def run(self, args: InitCommandArgs):
         should_adapt_existing_project = False
-
-        if force_adapting_existing_project:
+        if args.existing:
             should_adapt_existing_project = True
-        elif project_name:
+        elif args.name:
             should_adapt_existing_project = False
         else:
             if self._can_be_protostar_project():
@@ -79,7 +71,7 @@ class InitCommand(ProtostarCommand):
         if should_adapt_existing_project:
             self._adapted_project_creator.run()
         else:
-            self._new_project_creator.run(project_name)
+            self._new_project_creator.run(args.name)
 
     @staticmethod
     def _can_be_protostar_project() -> bool:

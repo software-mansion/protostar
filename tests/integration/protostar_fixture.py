@@ -25,6 +25,7 @@ from protostar.commands import (
     InvokeCommand,
     MigrateCommand,
 )
+from protostar.commands._generated_arg_types import InitCommandArgs
 from protostar.commands.deploy_account_command import DeployAccountCommand
 from protostar.commands.deploy_command import DeployCommand
 from protostar.commands.init.project_creator.new_project_creator import (
@@ -199,10 +200,7 @@ class ProtostarFixture:
         return await self._test_command.run(args)
 
     def init_sync(self, project_name: str):
-        args = Namespace()
-        args.existing = False
-        args.name = project_name
-        result = asyncio.run(self._init_command.run(args))
+        result = asyncio.run(self._init_command.run(InitCommandArgs(name=project_name)))
         return result
 
     async def build(self):

@@ -29,5 +29,5 @@ class Command(Generic[ArgTypeNameT_co]):
         ...
 
     @abstractmethod
-    async def run(self, args: Namespace) -> Any:
+    async def run(self, args: Any) -> Any:
         ...
