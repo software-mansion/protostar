@@ -54,7 +54,7 @@ build = [
     "pyinstaller",
 ]
 codegen = ["codegen_types", "update_cli_docs"]
-codegen_types = "python ./scripts/generate_arg_types.py"
+codegen_types = "python ./scripts/generate_command_input_types.py"
 write_runtime_constants = "python ./scripts/write_runtime_constants.py"
 pyinstaller = "pyinstaller protostar.spec --noconfirm"
 ci = [

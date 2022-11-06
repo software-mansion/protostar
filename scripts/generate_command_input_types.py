@@ -13,6 +13,15 @@ from scripts.arg_types_generator.translate_to_python import (
     generate_code,
 )
 
+TYPES_SOURCE_FOR_GENERATED_FILES_STEM = "_types_source_generated_command_input_types"
+
+OUTPUT_PATH = (
+    Path(__file__).resolve().parent.parent
+    / "protostar"
+    / "commands"
+    / "_generated_command_input_types.py"
+)
+
 
 def create_module_construct():
     dataclass_constructs = create_dataclass_constructs()
@@ -25,7 +34,8 @@ def create_module_construct():
                 FromImportConstruct(dotted_path="types", imports=["SimpleNamespace"]),
                 FromImportConstruct(dotted_path="typing", imports=["Optional"]),
                 FromImportConstruct(
-                    dotted_path="._types_for_generated_arg_types", imports=["*"]
+                    dotted_path=f".{TYPES_SOURCE_FOR_GENERATED_FILES_STEM}",
+                    imports=["*"],
                 ),
             ],
             *dataclass_constructs,
@@ -42,7 +52,7 @@ def create_dataclass_constructs():
 def map_command_to_construct(commands: list[Command]):
     return [
         DataclassConstruct(
-            name=stringcase.titlecase(command.name).replace(" ", "") + "CommandArgs",
+            name=stringcase.titlecase(command.name).replace(" ", "") + "CommandInput",
             class_attributes=[
                 map_argument_to_construct(arg)
                 for arg in sort_arguments(command.arguments)
@@ -87,13 +97,6 @@ def map_argument_to_construct(argument: Argument):
         default=default if default is not None else None,
     )
 
-
-OUTPUT_PATH = (
-    Path(__file__).resolve().parent.parent
-    / "protostar"
-    / "commands"
-    / "_generated_arg_types.py"
-)
 
 if __name__ == "__main__":
     module_construct = create_module_construct()

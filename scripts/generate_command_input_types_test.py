@@ -1,7 +1,11 @@
-from .generate_arg_types import OUTPUT_PATH, create_module_construct, generate_code
+from .generate_command_input_types import (
+    OUTPUT_PATH,
+    create_module_construct,
+    generate_code,
+)
 
 
-def test_arg_types_are_up_to_date():
+def test_input_types_are_up_to_date():
     module_construct = create_module_construct()
 
     result = generate_code(module_construct)

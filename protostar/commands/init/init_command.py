@@ -10,7 +10,7 @@ from protostar.commands.init.project_creator.new_project_creator import (
 )
 from protostar.io.input_requester import InputRequester
 
-from .._generated_arg_types import InitCommandArgs
+from .._generated_command_input_types import InitCommandInput
 
 
 class InitCommand(ProtostarCommand):
@@ -54,7 +54,7 @@ class InitCommand(ProtostarCommand):
             ),
         ]
 
-    async def run(self, args: InitCommandArgs):
+    async def run(self, args: InitCommandInput):
         should_adapt_existing_project = False
         if args.existing:
             should_adapt_existing_project = True
