@@ -11,7 +11,7 @@ from .constructs import (
 )
 
 
-def unparse(module_construct: ModuleConstruct) -> str:
+def generate_code(module_construct: ModuleConstruct) -> str:
     python_code = ast.unparse(map_construct_to_python_ast(module_construct))
     return black.format_str(python_code, mode=black.FileMode())
 

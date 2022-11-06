@@ -10,14 +10,8 @@ from scripts.arg_types_generator.translate_to_python import (
     DataclassConstruct,
     FromImportConstruct,
     ModuleConstruct,
-    unparse,
+    generate_code,
 )
-
-
-def create_dataclass_constructs():
-    commands = build_di_container(script_root=Path()).protostar_cli.commands
-    sorted_commands = sorted(commands, key=lambda cmd: cmd.name)
-    return map_command_to_construct(sorted_commands)
 
 
 def create_module_construct():
@@ -37,6 +31,12 @@ def create_module_construct():
             *dataclass_constructs,
         ],
     )
+
+
+def create_dataclass_constructs():
+    commands = build_di_container(script_root=Path()).protostar_cli.commands
+    sorted_commands = sorted(commands, key=lambda cmd: cmd.name)
+    return map_command_to_construct(sorted_commands)
 
 
 def map_command_to_construct(commands: list[Command]):
@@ -88,12 +88,14 @@ def map_argument_to_construct(argument: Argument):
     )
 
 
-module_construct = create_module_construct()
-result = unparse(module_construct)
-
-(
+OUTPUT_PATH = (
     Path(__file__).resolve().parent.parent
     / "protostar"
     / "commands"
     / "_generated_arg_types.py"
-).write_text(result)
+)
+
+if __name__ == "__main__":
+    module_construct = create_module_construct()
+    result = generate_code(module_construct)
+    OUTPUT_PATH.write_text(result)
