@@ -25,7 +25,9 @@ def create_module_construct():
     return ModuleConstruct(
         children=[
             *[
-                FromImportConstruct(dotted_path="dataclasses", imports=["dataclass"]),
+                FromImportConstruct(
+                    dotted_path="dataclasses", imports=["dataclass", "field"]
+                ),
                 FromImportConstruct(dotted_path="typing", imports=["Optional"]),
                 FromImportConstruct(
                     dotted_path="._types_for_generated_arg_types", imports=["*"]
@@ -74,10 +76,14 @@ def map_argument_to_construct(argument: Argument):
             type_name = f"list[{type_name}]"
         if not argument.is_required and argument.default is None:
             type_name = f"Optional[{type_name}]"
+
+    default = repr(default) if default is not None else None
+    if default is not None and argument.is_array:
+        default = f"field(default_factory=lambda: {default})"
     return ClassAttributeConstruct(
         name=stringcase.snakecase(argument.name),
         type_name=type_name,
-        default=repr(default) if default is not None else None,
+        default=default if default is not None else None,
     )
 
 

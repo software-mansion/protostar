@@ -1,6 +1,5 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
-
 from ._types_for_generated_arg_types import *
 
 
@@ -13,7 +12,7 @@ class BuildCommandArgs:
 
 @dataclass
 class CairoMigrateCommandArgs:
-    targets: list[str] = ["."]
+    targets: list[str] = field(default_factory=lambda: ["."])
 
 
 @dataclass
@@ -69,7 +68,7 @@ class DeployAccountCommandArgs:
 
 @dataclass
 class FormatCommandArgs:
-    target: list[str] = ["."]
+    target: list[str] = field(default_factory=lambda: ["."])
     check: bool = False
     verbose: bool = False
     ignore_broken: bool = False
@@ -132,7 +131,7 @@ class TestCommandArgs:
     ignore: Optional[list[str]]
     cairo_path: Optional[list[directory]]
     seed: Optional[int]
-    target: list[str] = ["."]
+    target: list[str] = field(default_factory=lambda: ["."])
     disable_hint_validation: bool = False
     profiling: bool = False
     no_progress_bar: bool = False
