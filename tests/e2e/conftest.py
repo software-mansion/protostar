@@ -222,7 +222,7 @@ MyPrivateLibsSetupFixture = Tuple[
 def my_private_libs_setup_fixture(
     init: InitFixture, tmp_path: Path, copy_fixture: CopyFixture
 ) -> MyPrivateLibsSetupFixture:
-    my_private_libs_dir = Path(tmp_path) / "my_private_libs"
+    my_private_libs_dir = tmp_path / "my_private_libs"
     mkdir(my_private_libs_dir)
 
     my_lib_dir = my_private_libs_dir / "my_lib"
