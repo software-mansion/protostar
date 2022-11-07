@@ -6,7 +6,7 @@ In order to create a new account, you need to deploy an account contract. StarkN
 
 There are two ways of deploying a new account contract:
 - sending `DEPLOY_ACCOUNT` transaction
-- using already deployed account contract and [UDC](https://community.starknet.io/t/universal-deployer-contract-proposal/1864)
+- using already deployed account contract and deploying new one via [the Universal Deployer Contract](https://community.starknet.io/t/universal-deployer-contract-proposal/1864).
 
 ## Sending `DEPLOY_ACCOUNT` transaction 
 
