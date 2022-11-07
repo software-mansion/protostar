@@ -122,7 +122,7 @@ const config = {
           from: '/docs/tutorials/guides/dependencies-management',
         },
         {
-          to: '/docs/tutorials/deploying',
+          to: '/docs/tutorials/interacting-with-starknet/deploy/',
           from: '/docs/tutorials/guides/deploying',
         },
         {

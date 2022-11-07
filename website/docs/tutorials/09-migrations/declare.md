@@ -13,7 +13,7 @@ class DeclaredContract:
 
 Sends a declare transaction.
 
-- `contract` — A path to the **compiled** contract or a [contract name](../../compiling#contract-name). If you provide a contract name, Protostar will look for it in the [compiled-contracts-dir](../../../cli-reference.md#--compiled-contracts-dir-pathbuild).
+- `contract` — A path to the **compiled** contract or a [contract name](../compiling#contract-name). If you provide a contract name, Protostar will look for it in the [compiled-contracts-dir](../../cli-reference.md#--compiled-contracts-dir-pathbuild).
 - `config` — A keyword only argument that allows configuring transaction and network parameters.
 
 ## `DeclareCheatcodeNetworkConfig`
@@ -23,7 +23,7 @@ class DeclareCheatcodeNetworkConfig(CheatcodeNetworkConfig):
 ```
 - `max_fee` — The maximum fee that the sender is willing to pay for the transaction. Required for transactions V1.
 
-This dictionary inherits properties from [CheatcodeNetworkConfig](../03-network-config.md).
+This dictionary inherits properties from [CheatcodeNetworkConfig](./network-config).
 
 ## Example
 
