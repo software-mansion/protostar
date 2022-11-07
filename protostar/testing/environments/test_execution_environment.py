@@ -1,20 +1,15 @@
 from dataclasses import dataclass
-from typing import List, Optional, Any
+from typing import Any, List, Optional
 
-from starkware.starknet.business_logic.execution.objects import CallInfo
-
+from protostar.starknet.abi import has_function_parameters
 from protostar.starknet.cheatcode import Cheatcode
-from protostar.testing.cheatcodes import (
-    ExpectEventsCheatcode,
-    ExpectRevertCheatcode,
-)
+from protostar.testing.cheatcodes import ExpectEventsCheatcode, ExpectRevertCheatcode
 from protostar.testing.cheatcodes.expect_revert_cheatcode import ExpectRevertContext
+from protostar.testing.hook import Hook
 from protostar.testing.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
 )
 from protostar.testing.starkware.test_execution_state import TestExecutionState
-from protostar.starknet.abi import has_function_parameters
-from protostar.testing.hook import Hook
 
 from .common_test_cheatcode_factory import CommonTestCheatcodeFactory
 from .execution_environment import ExecutionEnvironment
@@ -86,10 +81,9 @@ class TestCaseCheatcodeFactory(CommonTestCheatcodeFactory):
     def build_cheatcodes(
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
-        internal_calls: List[CallInfo],
     ) -> List[Cheatcode]:
         return [
-            *super().build_cheatcodes(syscall_dependencies, internal_calls),
+            *super().build_cheatcodes(syscall_dependencies),
             ExpectRevertCheatcode(
                 syscall_dependencies,
                 self._expect_revert_context,

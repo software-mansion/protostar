@@ -1,20 +1,21 @@
 import dataclasses
+import logging
 from asyncio import to_thread
 from dataclasses import dataclass
-from typing import Any, Dict, List, Callable
-import logging
+from typing import Any, Callable, Dict, List
 
-from hypothesis import given, seed, settings, example, Phase
+from hypothesis import Phase, example, given, seed, settings
 from hypothesis.database import ExampleDatabase, InMemoryExampleDatabase
 from hypothesis.errors import InvalidArgument
 from hypothesis.reporting import with_reporter
 from hypothesis.strategies import SearchStrategy
-from starkware.starknet.business_logic.execution.objects import CallInfo
 
+from protostar.protostar_exception import ProtostarException
 from protostar.starknet import ReportedException
+from protostar.starknet.abi import get_function_parameters
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.testing.cheatcodes import AssumeCheatcode, RejectCheatcode
-from protostar.testing.fuzzing.exceptions import HypothesisRejectException, FuzzingError
+from protostar.testing.fuzzing.exceptions import FuzzingError, HypothesisRejectException
 from protostar.testing.fuzzing.fuzz_input_exception_metadata import (
     FuzzInputExceptionMetadata,
 )
@@ -29,9 +30,6 @@ from protostar.testing.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
 )
 from protostar.testing.starkware.test_execution_state import TestExecutionState
-from protostar.starknet.abi import get_function_parameters
-from protostar.protostar_exception import ProtostarException
-
 
 from .test_execution_environment import (
     TestCaseCheatcodeFactory,
@@ -224,10 +222,9 @@ class FuzzTestCaseCheatcodeFactory(TestCaseCheatcodeFactory):
     def build_cheatcodes(
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
-        internal_calls: List[CallInfo],
     ) -> List[Cheatcode]:
         return [
-            *super().build_cheatcodes(syscall_dependencies, internal_calls),
+            *super().build_cheatcodes(syscall_dependencies),
             RejectCheatcode(syscall_dependencies),
             AssumeCheatcode(syscall_dependencies),
         ]

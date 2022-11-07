@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from typing import List, Optional
 
 from starknet_py.net.signer import BaseSigner
-from starkware.starknet.business_logic.execution.objects import CallInfo
 
 from protostar.migrator.cheatcodes.migrator_call_cheatcode import MigratorCallCheatcode
 from protostar.migrator.cheatcodes.migrator_declare_cheatcode import (
@@ -16,9 +15,9 @@ from protostar.migrator.cheatcodes.migrator_invoke_cheatcode import (
 )
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.cheatcode_factory import CheatcodeFactory
+from protostar.starknet.compiler.starknet_compilation import StarknetCompiler
 from protostar.starknet.hint_local import HintLocal
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
-from protostar.starknet.compiler.starknet_compilation import StarknetCompiler
 
 from .migrator_contract_identifier_resolver import MigratorContractIdentifierResolver
 
@@ -49,7 +48,6 @@ class MigratorCheatcodeFactory(CheatcodeFactory):
     def build_cheatcodes(
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
-        internal_calls: List[CallInfo],
     ) -> List[Cheatcode]:
         assert self._starknet_compiler is not None
         assert self._config is not None

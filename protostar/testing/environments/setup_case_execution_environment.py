@@ -1,10 +1,8 @@
 from typing import List
 
-from starkware.starknet.business_logic.execution.objects import CallInfo
-
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.hint_local import HintLocal
-from protostar.testing.cheatcodes import GivenCheatcode, SkipCheatcode, ExampleCheatcode
+from protostar.testing.cheatcodes import ExampleCheatcode, GivenCheatcode, SkipCheatcode
 from protostar.testing.fuzzing.strategies import StrategiesHintLocal
 
 from .setup_execution_environment import (
@@ -25,10 +23,9 @@ class SetupCaseCheatcodeFactory(SetupCheatcodeFactory):
     def build_cheatcodes(
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
-        internal_calls: List[CallInfo],
     ) -> List[Cheatcode]:
         return [
-            *super().build_cheatcodes(syscall_dependencies, internal_calls),
+            *super().build_cheatcodes(syscall_dependencies),
             GivenCheatcode(syscall_dependencies, self._state.config),
             ExampleCheatcode(syscall_dependencies, self._state.config),
             SkipCheatcode(syscall_dependencies),
