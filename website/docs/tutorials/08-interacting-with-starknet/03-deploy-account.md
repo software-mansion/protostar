@@ -12,6 +12,8 @@ There are two ways of deploying a new account contract:
 
 Protostar allows you to send the `DEPLOY_ACCOUNT` transaction from the CLI by calling the [`deploy-account` command](/docs/cli-reference#deploy-account).
 However, before you send such transaction you need to:
-1. find class hash of the account contract you want to be deployed and supports `DEPLOY_ACCOUNT` transaction
+1. find class hash of the account contract you want to be deployed and supports `DEPLOY_ACCOUNT` transaction. The entity that declared the account contract should make the class hash easily available. It's recommended to check the README.md in the repository with the source of the account contract:
+   - [OpenZeppelin/cairo-contracts](https://github.com/OpenZeppelin/cairo-contracts)
+   - [argentlabs/argent-contracts-starknet](https://github.com/argentlabs/argent-contracts-starknet)
 2. [calculate the account contract address](https://github.com/starkware-libs/cairo-lang/blob/ed6cf8d6cec50a6ad95fa36d1eb4a7f48538019e/src/starkware/starknet/services/api/gateway/contract_address.py#L12)
 3. [prefund the account contract using the Token Bridge](https://docs.starknet.io/documentation/develop/L1-L2_Communication/token-bridge/)
