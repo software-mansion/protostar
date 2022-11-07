@@ -296,8 +296,7 @@ class ExpectedCallException(ReportedException):
         return (
             f"expected call to function {self._fn_name} "
             f"from the contract of address {hex(self._contract_address)} "
-            f"with calldata {self._calldata} not fulfilled.\n"
-            f"Please, keep in mind that you can use expect_call only on deployed contracts"
+            f"with calldata {self._calldata} not fulfilled."
         )
 
     def __reduce__(self):
