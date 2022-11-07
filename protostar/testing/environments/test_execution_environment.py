@@ -99,7 +99,6 @@ class TestCaseCheatcodeFactory(CommonTestCheatcodeFactory):
             ),
             ExpectCallCheatcode(
                 syscall_dependencies,
-                self._state.starknet,
                 self._finish_hook,
             ),
         ]

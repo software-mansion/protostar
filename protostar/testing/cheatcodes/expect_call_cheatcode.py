@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Callable
+from typing import Callable
 
 from starkware.starknet.public.abi import get_selector_from_name
 
@@ -7,19 +7,13 @@ from protostar.testing.hook import Hook
 from protostar.testing.test_environment_exceptions import ExpectedCallException
 
 
-if TYPE_CHECKING:
-    from protostar.starknet.forkable_starknet import ForkableStarknet
-
-
 class ExpectCallCheatcode(Cheatcode):
     def __init__(
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
-        starknet: "ForkableStarknet",
         finish_hook: Hook,
     ):
         super().__init__(syscall_dependencies)
-        self.starknet = starknet
         self.finish_hook = finish_hook
 
     @property
