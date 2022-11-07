@@ -1,7 +1,7 @@
 # Invoking contracts
 
-## Overview
-This command allows you to send an invoke transaction with `@external` function entrypoint.
+The `protostar invoke` command allows you to send an invoke transaction with `@external` function
+entrypoint.
 
 The basic inputs that you need for the commands are:
 - [Signing credentials](#signing)
@@ -11,12 +11,13 @@ The basic inputs that you need for the commands are:
 - Fee specification (concrete amount, or auto-estimation)
 - Network you want to target (i.e. its name or gateway URL)
 
-For detailed API description, see [invoke command reference](../../cli-reference.md#invoke).
+For detailed API description, see [command reference](../../cli-reference.md#invoke).
 
 ## Signing
 Credentials for paying the fee are needed, which are: 
 - Account address (which pays the fee)
-- Private key for that account (from ArgentX, Braavos etc.) - in hex string (i.e. 0xa1c359ef) form. This can be provided with `PROTOSTAR_ACCOUNT_PRIVATE_KEY` env variable or with a file on local filesystem containing that key in plaintext, in which case you should use `--private-key-path`.
+- Private key for that account (from ArgentX, Braavos etc.), as hex string (i.e. `0xa1c359ef`).
+  This can be provided with `PROTOSTAR_ACCOUNT_PRIVATE_KEY` env variable or with a file on local filesystem containing that key in plaintext, in which case you should use `--private-key-path`.
 
 Custom signing logic is made possible by using custom signers - see details [here](../deploying/cli#2-using-a-custom-signer-class).
 
