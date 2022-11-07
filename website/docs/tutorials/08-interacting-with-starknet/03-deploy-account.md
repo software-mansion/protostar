@@ -17,4 +17,11 @@ However, before you send such transaction you need to:
    - [OpenZeppelin/cairo-contracts](https://github.com/OpenZeppelin/cairo-contracts)
    - [argentlabs/argent-contracts-starknet](https://github.com/argentlabs/argent-contracts-starknet)
 2. [Calculate the account contract address.](https://github.com/starkware-libs/cairo-lang/blob/ed6cf8d6cec50a6ad95fa36d1eb4a7f48538019e/src/starkware/starknet/services/api/gateway/contract_address.py#L12)
-3. [Prefund the account contract using the Token Bridge.](https://docs.starknet.io/documentation/develop/L1-L2_Communication/token-bridge/)
+3. Prefund the account contract.
+   
+    | Network | Recommended method                                                                               |
+    | ------- | ------------------------------------------------------------------------------------------------ |
+    | devnet  | [Local Faucet](https://shard-labs.github.io/starknet-devnet/docs/guide/mint-token)               |
+    | testnet | [StarkNet Faucet](https://faucet.goerli.starknet.io/)                                            |
+    | mainnet | [Token Bridge](https://docs.starknet.io/documentation/develop/L1-L2_Communication/token-bridge/) |
+
