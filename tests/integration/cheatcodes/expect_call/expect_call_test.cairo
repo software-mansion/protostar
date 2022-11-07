@@ -41,6 +41,18 @@ func test_expect_call_success{syscall_ptr: felt*, range_check_ptr}() {
 }
 
 @external
+func test_expect_call_after_the_call{syscall_ptr: felt*, range_check_ptr}() {
+  tempvar ctr_addr_a;
+  %{ ids.ctr_addr_a = context.ctr_addr_a %}
+  MainContract.increase_balance(contract_address=ctr_addr_a, amount_1=5, amount_2=6, amount_3=7);
+  %{
+    expect_call(ids.ctr_addr_a, "increase_balance", [5, 6, 7])
+  %}
+
+  return ();
+}
+
+@external
 func test_expect_call_wrong_address{syscall_ptr: felt*, range_check_ptr}() {
   tempvar ctr_addr_a;
   %{ ids.ctr_addr_a = context.ctr_addr_a %}
