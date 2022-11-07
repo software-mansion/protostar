@@ -98,7 +98,7 @@ def test_required_info():
 
 
 def test_saving_markdown_file(tmp_path: Path):
-    filepath = Path(tmp_path) / "foo.md"
+    filepath = tmp_path / "foo.md"
     ReferenceDocsGenerator.save_to_markdown_file(filepath, "foobar")
 
     with open(filepath, "r", encoding="utf-8") as file:
