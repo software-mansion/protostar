@@ -110,6 +110,11 @@ const config = {
   plugins: [
     ['@docusaurus/plugin-client-redirects', {
       redirects: [
+        // NOTE: Old links before 2022-11-07
+        {
+          to: "/docs/tutorials/deploying",
+          from: "/docs/tutorials/deploying/cli",
+        },
         // NOTE: Old links before 2022-07-21
         //   To test, check if links in this blog post work:
         //   https://mirror.xyz/onlydust.eth/uhKk_3p34mE0oFUxkIYlCsjkE7ZvUfSFWU83UM9_w-w
