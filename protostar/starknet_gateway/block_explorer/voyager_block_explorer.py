@@ -1,3 +1,5 @@
+from protostar.starknet_gateway.network_config import PredefinedNetwork
+
 from .block_explorer import (
     URL,
     BlockExplorer,
@@ -8,6 +10,10 @@ from .block_explorer import (
 
 
 class VoyagerBlockExplorer(BlockExplorer):
+    def __init__(self, network: PredefinedNetwork) -> None:
+        super().__init__()
+        self._network = network
+
     def create_link_to_transaction(self, tx_hash: TransactionHash) -> URL:
         ...
 
