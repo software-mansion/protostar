@@ -16,8 +16,6 @@
 /protostar/migrator @Arcticae @kasperski95 @Radinyn
 /protostar/package_manager @kasperski95 @Radinyn
 /protostar/profiler @MaksymilianDemitraszek
-/protostar/scripting @mkaput
-/protostar/scripting_runtime @mkaput
 /protostar/starknet @MaksymilianDemitraszek
 /protostar/starknet_gateway @Arcticae @kasperski95 @Radinyn
 /protostar/testing/cheatcodes/load_cheatcode.py @MaksymilianDemitraszek
