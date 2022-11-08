@@ -14,14 +14,14 @@ class VoyagerBlockExplorer(BlockExplorer):
         super().__init__()
         network_to_domain: dict[PredefinedNetwork, URL] = {
             "mainnet": "https://voyager.online",
-            "testnet": "https://goerli.voyager.online/",
+            "testnet": "https://goerli.voyager.online",
             "alpha-mainnet": "https://voyager.online",
-            "alpha-goerli": "https://goerli.voyager.online/",
+            "alpha-goerli": "https://goerli.voyager.online",
         }
         self._domain = network_to_domain[network]
 
     def create_link_to_transaction(self, tx_hash: TransactionHash) -> URL:
-        return f"{self._domain}/0x{tx_hash:064x}"
+        return f"{self._domain}/tx/0x{tx_hash:064x}"
 
     def create_link_to_contract(self, contract_address: ContractAddress) -> URL:
         ...
