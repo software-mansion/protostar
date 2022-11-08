@@ -3,7 +3,11 @@ from typing import Any, List, Optional
 
 from protostar.starknet.abi import has_function_parameters
 from protostar.starknet.cheatcode import Cheatcode
-from protostar.testing.cheatcodes import ExpectEventsCheatcode, ExpectRevertCheatcode
+from protostar.testing.cheatcodes import (
+    ExpectEventsCheatcode,
+    ExpectCallCheatcode,
+    ExpectRevertCheatcode,
+)
 from protostar.testing.cheatcodes.expect_revert_cheatcode import ExpectRevertContext
 from protostar.testing.hook import Hook
 from protostar.testing.starkware.execution_resources_summary import (
@@ -91,6 +95,10 @@ class TestCaseCheatcodeFactory(CommonTestCheatcodeFactory):
             ExpectEventsCheatcode(
                 syscall_dependencies,
                 self._state.starknet,
+                self._finish_hook,
+            ),
+            ExpectCallCheatcode(
+                syscall_dependencies,
                 self._finish_hook,
             ),
         ]

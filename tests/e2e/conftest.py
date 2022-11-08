@@ -9,7 +9,6 @@ from typing import Callable, Generator, List, Optional, Tuple, Union
 
 import pexpect
 import pytest
-from py._path.local import LocalPath
 from typing_extensions import Protocol
 
 from protostar.self.protostar_directory import ProtostarDirectory
@@ -31,8 +30,8 @@ def protostar_bin(protostar_repo_root: Path) -> Path:
 
 
 @pytest.fixture(autouse=True)
-def change_cwd(tmpdir: LocalPath, protostar_repo_root: Path):
-    protostar_project_dir = Path(tmpdir) / "protostar_project"
+def change_cwd(tmp_path: Path, protostar_repo_root: Path):
+    protostar_project_dir = tmp_path / "protostar_project"
     mkdir(protostar_project_dir)
     yield chdir(protostar_project_dir)
     chdir(protostar_repo_root)
@@ -221,9 +220,9 @@ MyPrivateLibsSetupFixture = Tuple[
 # pylint: disable=unused-argument
 @pytest.fixture(name="my_private_libs_setup")
 def my_private_libs_setup_fixture(
-    init: InitFixture, tmpdir: LocalPath, copy_fixture: CopyFixture
+    init: InitFixture, tmp_path: Path, copy_fixture: CopyFixture
 ) -> MyPrivateLibsSetupFixture:
-    my_private_libs_dir = Path(tmpdir) / "my_private_libs"
+    my_private_libs_dir = tmp_path / "my_private_libs"
     mkdir(my_private_libs_dir)
 
     my_lib_dir = my_private_libs_dir / "my_lib"
