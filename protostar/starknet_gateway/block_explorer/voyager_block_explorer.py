@@ -24,7 +24,7 @@ class VoyagerBlockExplorer(BlockExplorer):
         return f"{self._domain}/tx/0x{tx_hash:064x}"
 
     def create_link_to_contract(self, contract_address: ContractAddress) -> URL:
-        ...
+        return f"{self._domain}/contract/0x{contract_address:064x}"
 
     def create_link_to_class(self, class_hash: ClassHash) -> URL:
-        ...
+        return f"{self._domain}/class/0x{class_hash:064x}"
