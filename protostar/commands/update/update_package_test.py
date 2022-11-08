@@ -4,15 +4,13 @@ from time import sleep
 from typing import Optional
 
 import pytest
-from py._path.local import LocalPath
 
 from protostar.commands.update.update_package import update_package
 from protostar.commands.update.updating_exceptions import (
     PackageAlreadyUpToDateException,
 )
-from protostar.git.create_and_commit_sample_file import create_and_commit_sample_file
-
 from protostar.git import Git, GitRepository
+from protostar.git.create_and_commit_sample_file import create_and_commit_sample_file
 
 # tmpdir
 # - repo
@@ -27,8 +25,8 @@ def fixture_package_name() -> str:
 
 
 @pytest.fixture(name="repo_dir")
-def fixture_repo_root_dir(tmpdir: LocalPath) -> Path:
-    return Path(tmpdir) / "repo"
+def fixture_repo_root_dir(tmp_path: Path) -> Path:
+    return tmp_path / "repo"
 
 
 @pytest.fixture(name="packages_dir")

@@ -1,7 +1,6 @@
 from pathlib import Path
 from types import SimpleNamespace
 from typing import List, Callable
-from py._path.local import LocalPath
 
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
@@ -17,14 +16,13 @@ from protostar.cli.signable_command_util import (
 )
 from protostar.protostar_exception import ProtostarException
 
-
 PkeyFileFactoryFixture = Callable[[str], Path]
 
 
 @pytest.fixture(name="pkey_file_factory")
-def pkey_file_factory_fixture(tmpdir: LocalPath) -> PkeyFileFactoryFixture:
+def pkey_file_factory_fixture(tmp_path: Path) -> PkeyFileFactoryFixture:
     def factory(pkey: str) -> Path:
-        pkey_file_path = tmpdir / "tmpfile.pkey"
+        pkey_file_path = tmp_path / "tmpfile.pkey"
         with open(pkey_file_path, mode="w+", encoding="utf-8") as file:
             file.write(pkey)
         return pkey_file_path
