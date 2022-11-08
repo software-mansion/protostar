@@ -281,3 +281,27 @@ class ExpectedEventMissingException(ReportedException):
             ),
             self.__getstate__(),
         )
+
+
+class ExpectedCallException(ReportedException):
+    def __init__(
+        self, contract_address: int, fn_name: str, calldata: list[int]
+    ) -> None:
+        self._contract_address = contract_address
+        self._calldata = calldata
+        self._fn_name = fn_name
+        super().__init__()
+
+    def __str__(self) -> str:
+        return (
+            f"expected call to function {self._fn_name} "
+            f"from the contract of address {hex(self._contract_address)} "
+            f"with calldata {self._calldata} not fulfilled."
+        )
+
+    def __reduce__(self):
+        return (
+            type(self),
+            (self._contract_address, self._fn_name, self._calldata),
+            self.__getstate__(),
+        )

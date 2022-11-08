@@ -11,6 +11,7 @@ from .test_environment_exceptions import (
     ReportedException,
     RevertableException,
     StarknetRevertableException,
+    ExpectedCallException,
 )
 
 ERROR_DESCRIPTION_WITH_TWO_ERROR_MESSAGES = """
@@ -136,6 +137,11 @@ def test_expected_revert_error_message_when_specific_error_is_expected():
             matches=[],
             missing=[],
             event_selector_to_name_map={},
+        ),
+        ExpectedCallException(
+            contract_address=123,
+            fn_name="foo",
+            calldata=[1, 2, 3],
         ),
     ],
     ids=lambda ex: ex.__class__.__name__,
