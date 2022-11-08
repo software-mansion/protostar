@@ -36,8 +36,8 @@ func setup_less_equal_compare() {
 func test_examples{syscall_ptr: felt*, range_check_ptr}(a: felt, b: felt) {
     # Tested against:
     # (1,2)
-    # (3,4)
-    # fuzzing: a = strategy.integers(15, 20), b = strategy.integers(10, 14) 
+    # (5,6)
+    # fuzzing: a = strategy.integers(15, 20), b = strategy.integers(10, 14)
     assert_le(0, a);
     assert_le(0, b);
     assert_le(a, b);
