@@ -45,8 +45,6 @@ It is required unless `--gateway-url` is provided.
 Supported StarkNet networks:
 - `testnet`
 - `mainnet`
-- `alpha-goerli`
-- `alpha-mainnet`
 ### `declare`
 Sends a declare transaction to StarkNet.
 #### `contract PATH`
@@ -68,8 +66,6 @@ It is required unless `--gateway-url` is provided.
 Supported StarkNet networks:
 - `testnet`
 - `mainnet`
-- `alpha-goerli`
-- `alpha-mainnet`
 #### `--private-key-path PATH`
 Path to the file, which stores your private key (in hex representation) for the account. 
 Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
@@ -81,7 +77,7 @@ Used for declaring contracts in Alpha MainNet.
 Waits for transaction to be accepted on chain.
 ### `deploy`
 ```shell
-protostar deploy ./build/main.json --network alpha-goerli
+protostar deploy ./build/main.json --network testnet
 ```
 Deploy contracts.
 #### `contract PATH`
@@ -102,8 +98,6 @@ It is required unless `--gateway-url` is provided.
 Supported StarkNet networks:
 - `testnet`
 - `mainnet`
-- `alpha-goerli`
-- `alpha-mainnet`
 #### `--salt FELT`
 An optional salt controlling where the contract will be deployed. The contract deployment address is determined by the hash of contract, salt and caller. If the salt is not supplied, the contract will be deployed with a random salt.
 #### `--token STRING`
@@ -139,8 +133,6 @@ It is required unless `--gateway-url` is provided.
 Supported StarkNet networks:
 - `testnet`
 - `mainnet`
-- `alpha-goerli`
-- `alpha-mainnet`
 #### `--nonce INT`
 Protects against the replay attacks.
 #### `--private-key-path PATH`
@@ -214,8 +206,6 @@ It is required unless `--gateway-url` is provided.
 Supported StarkNet networks:
 - `testnet`
 - `mainnet`
-- `alpha-goerli`
-- `alpha-mainnet`
 #### `--private-key-path PATH`
 Path to the file, which stores your private key (in hex representation) for the account. 
 Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
@@ -244,8 +234,6 @@ It is required unless `--gateway-url` is provided.
 Supported StarkNet networks:
 - `testnet`
 - `mainnet`
-- `alpha-goerli`
-- `alpha-mainnet`
 #### `--no-confirm`
 Skip confirming building the project.
 #### `--private-key-path PATH`

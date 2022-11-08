@@ -41,8 +41,6 @@ def create_network_command_util_fixture(
     (
         ("testnet", "https://alpha4.starknet.io"),
         ("mainnet", "https://alpha-mainnet.starknet.io"),
-        ("alpha-goerli", "https://alpha4.starknet.io"),
-        ("alpha-mainnet", "https://alpha-mainnet.starknet.io"),
     ),
 )
 def test_network_config_from_literal(

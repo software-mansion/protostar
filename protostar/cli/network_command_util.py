@@ -7,7 +7,7 @@ from starknet_py.net.models import StarknetChainId
 
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import NetworkConfig
-from protostar.starknet_gateway.network_config import NETWORKS, is_legacy_network_name
+from protostar.starknet_gateway.network_config import NETWORKS
 
 from .protostar_argument import ProtostarArgument
 
@@ -60,12 +60,6 @@ class NetworkCommandUtil:
         if self._args.network is None and self._args.gateway_url is None:
             raise ProtostarException(
                 f"Argument `{GATEWAY_URL_ARG_NAME}` or `{NETWORK_ARG_NAME}` is required"
-            )
-
-        # TODO(arcticae): Remove in the future version, with the legacy names formats support
-        if self._args.network and is_legacy_network_name(self._args.network):
-            self._logger.warning(
-                f"{self._args.network} is a legacy network name parameter and it won't be supported in future versions"
             )
 
         if self._args.gateway_url and not self._args.chain_id:
