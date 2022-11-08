@@ -22,7 +22,7 @@ func __setup__() {
     context.ctr_addr_a = deploy_contract("basic_contract.cairo", []).contract_address
     context.ctr_addr_b = deploy_contract("basic_contract.cairo", []).contract_address
   %}
-  
+
   return ();
 }
 
@@ -33,15 +33,15 @@ func test_expect_call_success{syscall_ptr: felt*, range_check_ptr}() {
   %{ ids.ctr_addr_a = context.ctr_addr_a %}
   tempvar ctr_addr_b;
   %{ ids.ctr_addr_b = context.ctr_addr_b %}
-  
+
   %{
     expect_call(ids.ctr_addr_a, "increase_balance", [5, 6, 7])
     expect_call(ids.ctr_addr_b, "increase_balance", [1, 2, 3])
   %}
-  
+
   MainContract.increase_balance(contract_address=ctr_addr_a, amount_1=5, amount_2=6, amount_3=7);
   MainContract.increase_balance(contract_address=ctr_addr_b, amount_1=1, amount_2=2, amount_3=3);
-  
+
   return ();
 }
 
@@ -52,8 +52,9 @@ func test_expect_call_wrong_args{syscall_ptr: felt*, range_check_ptr}() {
     ids.ctr_addr_a = context.ctr_addr_a
     expect_call(ids.ctr_addr_a, "increase_balance", [1, 3, 2])
   %}
-  
+
   MainContract.increase_balance(contract_address=ctr_addr_a, amount_1=1, amount_2=2, amount_3=3);
+
   return ();
 }
 ```
