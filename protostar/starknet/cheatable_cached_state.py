@@ -12,9 +12,6 @@ from protostar.starknet.types import AddressType, ClassHashType, SelectorType
 from protostar.starknet.data_transformer import CairoOrPythonData
 
 
-CallData = list[int]
-
-
 # pylint: disable=too-many-instance-attributes
 class CheatableCachedState(CachedState):
     def __init__(self, *args: Any, **kwargs: Any):
