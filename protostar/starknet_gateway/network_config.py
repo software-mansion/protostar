@@ -18,6 +18,7 @@ NETWORKS = [TESTNET, MAINNET]
 class NetworkConfig:
     gateway_url: str
     chain_id: StarknetChainId
+    network_name: Optional[PredefinedNetwork] = None
     contract_explorer_search_url: Optional[str] = None
 
     @classmethod
@@ -62,6 +63,7 @@ class NetworkConfig:
                 network
             ),
             chain_id=chain_id,
+            network_name=network,
         )
 
     def get_contract_explorer_url(self, contract_address: int) -> Optional[str]:

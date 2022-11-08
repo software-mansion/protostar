@@ -3,14 +3,15 @@ from typing import Any, Callable, Literal, Union
 from starkware.starknet.utils.api_utils import cast_to_felts
 
 from protostar.argument_parser import ArgTypeName, map_type_name_to_parser
-from protostar.starknet_gateway import Fee, Wei
+from protostar.starknet_gateway import (
+    SUPPORTED_BLOCK_EXPLORER_NAMES,
+    Fee,
+    SupportedBlockExplorerName,
+    Wei,
+)
 
 CustomProtostarArgTypeName = Literal[
-    "felt",
-    "wei",
-    "fee",
-    "address",
-    "class_hash",
+    "felt", "wei", "fee", "address", "class_hash", "block_explorer"
 ]
 
 ProtostarArgTypeName = Union[CustomProtostarArgTypeName, ArgTypeName]
@@ -29,6 +30,8 @@ def map_protostar_type_name_to_parser(
         return parse_hex_or_decimal
     if argument_type == "wei":
         return parse_wei_arg_type
+    if argument_type == "block_explorer":
+        return parse_block_explorer_type
     return map_type_name_to_parser(argument_type)
 
 
@@ -52,3 +55,8 @@ def parse_hex_or_decimal(arg: str) -> int:
     if arg.startswith("0x"):
         return int(arg, 16)
     return int(arg)
+
+
+def parse_block_explorer_type(arg: str) -> SupportedBlockExplorerName:
+    assert arg in SUPPORTED_BLOCK_EXPLORER_NAMES
+    return arg

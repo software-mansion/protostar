@@ -7,6 +7,7 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.signer import BaseSigner
 
 from protostar.cli import ProtostarArgument, ProtostarCommand
+from protostar.cli.common_arguments import BLOCK_EXPLORER_ARG
 from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.cli.signable_command_util import SignableCommandUtil
 from protostar.commands.deploy_command import DeployCommand
@@ -16,7 +17,11 @@ from protostar.starknet_gateway import (
     GatewayFacadeFactory,
     NetworkConfig,
     SuccessfulDeclareResponse,
+    SupportedBlockExplorerName,
     format_successful_declare_response,
+)
+from protostar.starknet_gateway.block_explorer.block_explorer_factory import (
+    create_block_explorer,
 )
 
 
@@ -46,6 +51,7 @@ class DeclareCommand(ProtostarCommand):
         return [
             *SignableCommandUtil.signable_arguments,
             *NetworkCommandUtil.network_arguments,
+            BLOCK_EXPLORER_ARG,
             ProtostarArgument(
                 name="contract",
                 description="Path to compiled contract.",
@@ -85,6 +91,7 @@ class DeclareCommand(ProtostarCommand):
         return await self.declare(
             compiled_contract_path=args.contract,
             signer=signer,
+            block_explorer_name=args.block_explorer,
             account_address=args.account_address,
             gateway_client=gateway_client,
             network_config=network_config,
@@ -98,6 +105,7 @@ class DeclareCommand(ProtostarCommand):
         compiled_contract_path: Path,
         network_config: NetworkConfig,
         gateway_client: GatewayClient,
+        block_explorer_name: SupportedBlockExplorerName,
         account_address: Optional[str] = None,
         signer: Optional[BaseSigner] = None,
         token: Optional[str] = None,

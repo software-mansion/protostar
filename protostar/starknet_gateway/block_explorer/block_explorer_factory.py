@@ -7,6 +7,11 @@ from .viewblock_block_explorer import ViewblockBlockExplorer
 from .voyager_block_explorer import VoyagerBlockExplorer
 
 SupportedBlockExplorerName = Literal["starkscan", "viewblock", "voyager"]
+SUPPORTED_BLOCK_EXPLORER_NAMES: list[SupportedBlockExplorerName] = [
+    "starkscan",
+    "viewblock",
+    "voyager",
+]
 
 
 def create_block_explorer(
