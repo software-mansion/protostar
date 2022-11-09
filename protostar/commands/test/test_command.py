@@ -140,7 +140,7 @@ A glob or globs to a directory or a test suite, for example:
             ProtostarArgument(
                 name="max-steps",
                 type="int",
-                description="Max steps.",
+                description="Set the Cairo step limit.",
             ),
             ProtostarArgument(
                 name="report-slowest-tests",

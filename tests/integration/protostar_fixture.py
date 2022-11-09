@@ -195,6 +195,7 @@ class ProtostarFixture:
         args.report_slowest_tests = 0
         args.last_failed = last_failed
         args.profiling = False
+        args.max_steps = None
 
         return await self._test_command.run(args)
 
