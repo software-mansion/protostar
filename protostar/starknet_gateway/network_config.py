@@ -18,7 +18,7 @@ NETWORKS = [TESTNET, MAINNET]
 class NetworkConfig:
     gateway_url: str
     chain_id: StarknetChainId
-    network_name: Optional[PredefinedNetwork] = None
+    network_name: Optional[PredefinedNetwork]
     contract_explorer_search_url: Optional[str] = None
 
     @classmethod
@@ -35,6 +35,7 @@ class NetworkConfig:
                 gateway_url=gateway_url,
                 chain_id=chain_id,
                 contract_explorer_search_url=None,
+                network_name=None,
             )
         raise ProtostarException(
             "Either network parameter or pair (chain_id, gateway_url) is required"

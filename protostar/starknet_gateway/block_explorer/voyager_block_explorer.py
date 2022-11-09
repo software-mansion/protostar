@@ -15,8 +15,6 @@ class VoyagerBlockExplorer(BlockExplorer):
         network_to_domain: dict[PredefinedNetwork, URL] = {
             "mainnet": "https://voyager.online",
             "testnet": "https://goerli.voyager.online",
-            "alpha-mainnet": "https://voyager.online",
-            "alpha-goerli": "https://goerli.voyager.online",
         }
         self._domain = network_to_domain[network]
 

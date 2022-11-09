@@ -15,8 +15,6 @@ class StarkScanBlockExplorer(BlockExplorer):
         network_to_domain: dict[PredefinedNetwork, URL] = {
             "mainnet": "https://starkscan.co",
             "testnet": "https://testnet.starkscan.co",
-            "alpha-mainnet": "https://starkscan.co",
-            "alpha-goerli": "https://testnet.starkscan.co",
         }
         self._domain = network_to_domain[network]
 
