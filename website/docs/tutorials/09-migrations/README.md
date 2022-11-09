@@ -1,11 +1,11 @@
----
-sidebar_label: Migrations
----
-
 # Migrations
 
 :::warning
-Breaking changes can be introduced without deprecation. StarkNet [deployment flow can change](https://community.starknet.io/t/universal-deployer-contract-proposal/1864), so Protostar will follow in the future.
+Migrations feature is deprecated and is scheduled for removal before Cairo 1.0 release.
+
+Declaring and deploying contracts via [Protostar CLI](../01-cli.md) is the recommended approach.
+Alternatively, one can only build contracts with Protostar and use custom scripts using one
+of [StarkNet's SDKs](https://starknet.io/building-on-starknet/developer-tools/#libraries) available.
 :::
 
 
