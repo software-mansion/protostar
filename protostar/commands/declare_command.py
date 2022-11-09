@@ -1,7 +1,7 @@
 from argparse import Namespace
 from logging import Logger
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.signer import BaseSigner
@@ -18,9 +18,7 @@ from protostar.starknet_gateway import (
     NetworkConfig,
     SuccessfulDeclareResponse,
     SupportedBlockExplorerName,
-    format_successful_declare_response,
-)
-from protostar.starknet_gateway.block_explorer.block_explorer_factory import (
+    BlockExplorer,
     create_block_explorer,
 )
 
@@ -112,7 +110,6 @@ class DeclareCommand(ProtostarCommand):
         wait_for_acceptance: bool = False,
         max_fee: Optional[Fee] = None,
     ) -> SuccessfulDeclareResponse:
-
         gateway_facade = self._gateway_facade_factory.create(
             gateway_client=gateway_client, logger=None
         )
@@ -136,15 +133,29 @@ class DeclareCommand(ProtostarCommand):
                 token=token,
             )
 
-        explorer_url = network_config.get_contract_explorer_url(response.class_hash)
-        explorer_url_msg_lines: List[str] = []
-        if explorer_url:
-            explorer_url_msg_lines = ["", explorer_url]
-
         self._logger.info(
             format_successful_declare_response(
-                response, extra_msg=explorer_url_msg_lines
+                response,
+                block_explorer=create_block_explorer(
+                    block_explorer_name, network=network_config.network_name
+                ),
             )
         )
-
         return response
+
+
+def format_successful_declare_response(
+    response: SuccessfulDeclareResponse, block_explorer: BlockExplorer
+):
+    lines: list[str] = []
+    lines.append("Declare transaction was sent.")
+    lines.append(f"Class hash: 0x{response.class_hash:064x}")
+    class_hash_url = block_explorer.create_link_to_class(response.class_hash)
+    if class_hash_url:
+        lines.append(class_hash_url)
+        lines.append("")
+    lines.append(f"Transaction hash: 0x{response.transaction_hash:064x}")
+    tx_hash_url = block_explorer.create_link_to_transaction(response.transaction_hash)
+    if tx_hash_url:
+        lines.append(tx_hash_url)
+    return "\n".join(lines)

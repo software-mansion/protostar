@@ -29,19 +29,6 @@ class SuccessfulDeclareResponse:
     transaction_hash: int
 
 
-def format_successful_declare_response(
-    response: SuccessfulDeclareResponse, extra_msg: Optional[List[str]] = None
-):
-    return "\n".join(
-        [
-            "Declare transaction was sent.",
-            f"Class hash: 0x{response.class_hash:064x}",
-            f"Transaction hash: 0x{response.transaction_hash:064x}",
-        ]
-        + (extra_msg or [])
-    )
-
-
 @dataclass
 class SuccessfulInvokeResponse:
     transaction_hash: int
