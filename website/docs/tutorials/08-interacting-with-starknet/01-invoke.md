@@ -4,6 +4,7 @@
 This command allows you to send an invoke transaction with `@external` function entrypoint.
 
 The basic inputs that you need for the commands are:
+
 - [Signing credentials](#signing)
 - Contract address
 - Function name
@@ -14,11 +15,12 @@ The basic inputs that you need for the commands are:
 For detailed API description, see [invoke command reference](../../cli-reference.md#invoke).
 
 ## Signing
-Credentials for paying the fee are needed, which are: 
+Credentials for paying the fee are needed, which are:
+
 - Account address (which pays the fee)
 - Private key for that account (from ArgentX, Braavos etc.) - in hex string (i.e. 0xa1c359ef) form. This can be provided with `PROTOSTAR_ACCOUNT_PRIVATE_KEY` env variable or with a file on local filesystem containing that key in plaintext, in which case you should use `--private-key-path`.
 
-Custom signing logic is made possible by using custom signers - see details [here](../deploying/cli#2-using-a-custom-signer-class).
+Custom signing logic is made possible by using custom signers - see details [here](./06-signing.md).
 
 ## Usage example
 
@@ -33,5 +35,7 @@ Setting `max-fee` to `auto` is discouraged, since it may incur extra unexpected 
 :::
 
 :::note
-Inputs have to be passed as list of felts (integers), like cairo calldata. If your function requires structures, arrays, or tuples, you should manually serialize it, as shown [in the cairo-lang docs](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#array-arguments-in-calldata).
+Inputs have to be passed as list of felts (integers), like Cairo calldata.
+If your function requires structures, arrays, or tuples, you should manually serialize it, as
+shown in [Cairo documentation](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#array-arguments-in-calldata).
 :::
