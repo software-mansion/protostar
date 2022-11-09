@@ -3,15 +3,17 @@ from distutils.file_util import copy_file
 from pathlib import Path
 
 import pytest
+from _pytest.monkeypatch import MonkeyPatch
 from starkware.starknet.definitions.general_config import StarknetChainId
 
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
+from tests.conftest import Credentials
 from tests.e2e.conftest import ProtostarFixture
 
 
 @pytest.mark.usefixtures("init")
 def test_deploying_contract_with_constructor(
-    protostar, devnet_gateway_url, datadir: Path
+    protostar: ProtostarFixture, devnet_gateway_url: str, datadir: Path
 ):
     copy_file(
         src=str(datadir / "contract_with_constructor.cairo"),
@@ -40,7 +42,7 @@ def test_deploying_contract_with_constructor(
 @pytest.mark.usefixtures("init")
 @pytest.mark.parametrize("protostar_version", ["0.0.0"])
 def test_deploying_contract_with_constructor_and_inputs_defined_in_config_file(
-    protostar, devnet_gateway_url, datadir: Path
+    protostar: ProtostarFixture, devnet_gateway_url: str, datadir: Path
 ):
     copy_file(
         src=str(datadir / "contract_with_constructor.cairo"),
@@ -69,7 +71,9 @@ def test_deploying_contract_with_constructor_and_inputs_defined_in_config_file(
 
 
 @pytest.mark.usefixtures("init")
-def test_declaring_contract(protostar, devnet_gateway_url, datadir: Path):
+def test_declaring_contract(
+    protostar: ProtostarFixture, devnet_gateway_url: str, datadir: Path
+):
     copy_file(
         src=str(datadir / "contract_with_constructor.cairo"),
         dst="./src/main.cairo",
@@ -94,7 +98,11 @@ def test_declaring_contract(protostar, devnet_gateway_url, datadir: Path):
 
 @pytest.mark.usefixtures("init")
 def test_declaring_contract_with_signature(
-    protostar, devnet_gateway_url, datadir: Path, signing_credentials, monkeypatch
+    protostar: ProtostarFixture,
+    devnet_gateway_url: str,
+    datadir: Path,
+    signing_credentials: Credentials,
+    monkeypatch: MonkeyPatch,
 ):
     private_key, account_address = signing_credentials
 
@@ -130,6 +138,13 @@ def test_declaring_contract_with_signature(
 def test_invoke_command_is_available(protostar: ProtostarFixture):
     assert "Sends an invoke transaction" in protostar(
         ["--no-color", "invoke", "--help"]
+    )
+
+
+@pytest.mark.usefixtures("init")
+def test_deploy_account_is_available(protostar: ProtostarFixture):
+    assert "Sends deploy-account transaction" in protostar(
+        ["--no-color", "deploy-account", "--help"]
     )
 
 

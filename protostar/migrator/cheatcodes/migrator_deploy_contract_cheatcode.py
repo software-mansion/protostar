@@ -27,7 +27,7 @@ class DeployContractCheatcodeProtocol(Protocol):
         self,
         contract: str,
         constructor_args: Optional[CairoOrPythonData] = None,
-        *args,
+        *args: Any,
         config: Optional[Any] = None,
     ) -> DeployedContract:
         ...
@@ -65,7 +65,7 @@ class MigratorDeployContractCheatcode(Cheatcode):
         self,
         contract: str,
         constructor_args: Optional[CairoOrPythonData] = None,
-        *args,
+        *args: Any,
         config: Optional[CheatcodeNetworkConfig] = None,
     ) -> DeployedContract:
         logger = getLogger()

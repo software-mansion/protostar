@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from argparse import Namespace
 from typing import Any, Generic, List, Optional, TypeVar
 
 from .argument import Argument as GenericArgument
@@ -28,5 +29,5 @@ class Command(Generic[ArgTypeNameT_co]):
         ...
 
     @abstractmethod
-    async def run(self, args: Any) -> Any:
+    async def run(self, args: Namespace) -> Any:
         ...

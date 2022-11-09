@@ -3,10 +3,10 @@ from pathlib import Path
 from typing import Optional
 
 from protostar.commands.init.project_creator._project_creator import ProjectCreator
-from protostar.protostar_toml.io.protostar_toml_writer import ProtostarTOMLWriter
-from protostar.io import InputRequester
-from protostar.self.protostar_directory import VersionManager
+from protostar.configuration_file import ConfigurationFileV2ContentFactory
 from protostar.git import Git
+from protostar.io import InputRequester
+from protostar.self import ProtostarVersion
 
 
 class NewProjectCreator(ProjectCreator):
@@ -18,15 +18,19 @@ class NewProjectCreator(ProjectCreator):
         self,
         script_root: Path,
         requester: InputRequester,
-        protostar_toml_writer: ProtostarTOMLWriter,
-        version_manager: VersionManager,
+        protostar_version: ProtostarVersion,
+        configuration_file_content_factory: ConfigurationFileV2ContentFactory,
         output_dir_path: Optional[Path] = None,
     ):
-        super().__init__(script_root, protostar_toml_writer, version_manager)
-        self._protostar_toml_writer = protostar_toml_writer
-        self._version_manager = version_manager
+        super().__init__(
+            script_root,
+            configuration_file_content_factory=configuration_file_content_factory,
+            protostar_version=protostar_version,
+        )
+        self._protostar_version = protostar_version
         self._requester = requester
         self._output_dir_path = output_dir_path or Path()
+        self._configuration_file_content_factory = configuration_file_content_factory
 
     def run(self, project_name: Optional[str] = None):
         project_config = (
@@ -50,12 +54,5 @@ class NewProjectCreator(ProjectCreator):
         output_dir_path = self._output_dir_path
         project_root_path = output_dir_path / user_input.project_dirname
         self.copy_template("default", project_root_path)
-
-        libs_path = project_root_path / self.default_lib_dirname
-
-        if not libs_path.is_dir():
-            libs_path.mkdir(parents=True)
-
-        self.save_protostar_toml(project_root=project_root_path)
-
+        self.save_protostar_toml(project_root_path=project_root_path)
         Git.init(project_root_path)

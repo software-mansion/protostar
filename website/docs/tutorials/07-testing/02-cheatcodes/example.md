@@ -12,10 +12,11 @@ In such a case, they are run sequentially.
 In such a case, first all the `example`s are run and only then the the data from `given` is applied.
 Otherwise, only the data from `example`s is applied.
 
-:::warning
+:::info
 This cheatcode is only available in [setup cases](../README.md#setup-case).
 :::
-:::warning
+
+:::info
 `example` is not limited by [`max_examples`](./max-examples.md) and is not connected to it in any way.
 :::
 
@@ -35,8 +36,8 @@ func setup_less_equal_compare() {
 func test_examples{syscall_ptr: felt*, range_check_ptr}(a: felt, b: felt) {
     # Tested against:
     # (1,2)
-    # (3,4)
-    # fuzzing: a = strategy.integers(15, 20), b = strategy.integers(10, 14) 
+    # (5,6)
+    # fuzzing: a = strategy.integers(15, 20), b = strategy.integers(10, 14)
     assert_le(0, a);
     assert_le(0, b);
     assert_le(a, b);

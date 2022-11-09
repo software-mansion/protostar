@@ -10,10 +10,8 @@ from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 
 from protostar.compiler.compiled_contract_writer import CompiledContractWriter
+from protostar.configuration_file.configuration_file import ConfigurationFile
 from protostar.protostar_exception import ProtostarException
-from protostar.protostar_toml.protostar_contracts_section import (
-    ProtostarContractsSection,
-)
 from protostar.starknet.compiler.pass_managers import StarknetPassManagerFactory
 from protostar.starknet.compiler.starknet_compilation import (
     CompilerConfig,
@@ -39,12 +37,12 @@ class ProjectCompiler:
         self,
         project_root_path: Path,
         project_cairo_path_builder: ProjectCairoPathBuilder,
-        contracts_section_loader: ProtostarContractsSection.Loader,
+        configuration_file: ConfigurationFile,
         default_config: Optional[ProjectCompilerConfig] = None,
     ):
         self._project_root_path = project_root_path
         self._project_cairo_path_builder = project_cairo_path_builder
-        self._contracts_section_loader = contracts_section_loader
+        self._configuration_file = configuration_file
         self._default_config = default_config or ProjectCompilerConfig(
             relative_cairo_path=[]
         )
@@ -52,8 +50,7 @@ class ProjectCompiler:
     def compile_project(
         self, output_dir: Path, config: Optional[ProjectCompilerConfig] = None
     ) -> None:
-        contracts_section = self._contracts_section_loader.load()
-        for contract_name in contracts_section.get_contract_names():
+        for contract_name in self._configuration_file.get_contract_names():
             contract = self.compile_contract_from_contract_name(contract_name, config)
             CompiledContractWriter(contract, contract_name).save(
                 output_dir=self.get_compilation_output_dir(output_dir)
@@ -81,7 +78,7 @@ class ProjectCompiler:
         self, contract_name: str, config: Optional[ProjectCompilerConfig] = None
     ) -> ContractClass:
         try:
-            contract_paths = self._map_contract_name_to_contract_source_paths(
+            contract_paths = self._configuration_file.get_contract_source_paths(
                 contract_name
             )
             return self.compile_contract_from_contract_source_paths(
@@ -106,19 +103,6 @@ class ProjectCompiler:
         ).compile_contract(
             *contract_paths, add_debug_info=current_config.debugging_info_attached
         )
-
-    def _map_contract_name_to_contract_source_paths(
-        self, contract_name: str
-    ) -> List[Path]:
-        contracts_section = self._contracts_section_loader.load()
-        relative_source_paths = contracts_section.get_relative_contract_source_paths(
-            contract_name
-        )
-        source_paths = [
-            self._project_root_path / path for path in relative_source_paths
-        ]
-        map(self._check_source_file_exists, source_paths)
-        return source_paths
 
     @staticmethod
     def _check_source_file_exists(source_path: Path) -> None:

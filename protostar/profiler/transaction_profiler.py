@@ -1,4 +1,3 @@
-# pylint: disable=invalid-name
 from dataclasses import dataclass, replace
 import itertools
 from typing import TYPE_CHECKING, Tuple

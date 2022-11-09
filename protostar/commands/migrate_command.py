@@ -1,3 +1,4 @@
+from argparse import Namespace
 from logging import Logger
 from pathlib import Path
 from typing import Optional
@@ -58,11 +59,6 @@ class MigrateCommand(ProtostarCommand):
                 is_positional=True,
             ),
             ProtostarArgument(
-                name="rollback",
-                description="Run `rollback` function in the migration script.",
-                type="bool",
-            ),
-            ProtostarArgument(
                 name="no-confirm",
                 description="Skip confirming building the project.",
                 type="bool",
@@ -75,7 +71,19 @@ class MigrateCommand(ProtostarCommand):
             ),
         ]
 
-    async def run(self, args) -> Optional[Migrator.History]:
+    async def run(self, args: Namespace) -> Optional[Migrator.History]:
+        self._logger.warning(
+            """\
+Migrations feature is deprecated and is scheduled for removal before Cairo 1.0 release.
+
+Declaring and deploying contracts via Protostar CLI is the recommended approach.
+Alternatively, one can only build contracts with Protostar and use custom scripts using one \
+of StarkNet's SDKs available.
+
+Consult https://docs.swmansion.com/protostar/docs/tutorials/deploying for more information.
+"""
+        )
+
         network_command_util = NetworkCommandUtil(args, self._logger)
         network_config = network_command_util.get_network_config()
         signable_command_util = SignableCommandUtil(args, self._logger)
@@ -86,7 +94,6 @@ class MigrateCommand(ProtostarCommand):
 
         return await self.migrate(
             migration_file_path=args.path,
-            rollback=args.rollback,
             gateway_client=network_command_util.get_gateway_client(),
             no_confirm=args.no_confirm,
             migrator_config=migrator_config,
@@ -97,7 +104,6 @@ class MigrateCommand(ProtostarCommand):
     async def migrate(
         self,
         migration_file_path: Path,
-        rollback: bool,
         gateway_client: GatewayClient,
         migrator_config: MigratorExecutionEnvironment.Config,
         no_confirm: bool,
@@ -133,7 +139,7 @@ class MigrateCommand(ProtostarCommand):
         )
 
         try:
-            migrator_history = await migrator.run(rollback)
+            migrator_history = await migrator.run()
             migrator.save_history(migrator_history, migration_file_path.parent)
             self._logger.info("Migration completed")
 

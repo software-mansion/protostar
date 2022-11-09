@@ -1,19 +1,21 @@
 import dataclasses
+import logging
 from asyncio import to_thread
 from dataclasses import dataclass
-from typing import Any, Dict, List
+from typing import Any, Callable, Dict, List
 
-from hypothesis import given, seed, settings, example, Phase
+from hypothesis import Phase, example, given, seed, settings
 from hypothesis.database import ExampleDatabase, InMemoryExampleDatabase
 from hypothesis.errors import InvalidArgument
 from hypothesis.reporting import with_reporter
 from hypothesis.strategies import SearchStrategy
-from starkware.starknet.business_logic.execution.objects import CallInfo
 
+from protostar.protostar_exception import ProtostarException
 from protostar.starknet import ReportedException
+from protostar.starknet.abi import get_function_parameters
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.testing.cheatcodes import AssumeCheatcode, RejectCheatcode
-from protostar.testing.fuzzing.exceptions import HypothesisRejectException, FuzzingError
+from protostar.testing.fuzzing.exceptions import FuzzingError, HypothesisRejectException
 from protostar.testing.fuzzing.fuzz_input_exception_metadata import (
     FuzzInputExceptionMetadata,
 )
@@ -28,9 +30,6 @@ from protostar.testing.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
 )
 from protostar.testing.starkware.test_execution_state import TestExecutionState
-from protostar.starknet.abi import get_function_parameters
-from protostar.protostar_exception import ProtostarException
-
 
 from .test_execution_environment import (
     TestCaseCheatcodeFactory,
@@ -50,6 +49,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         if self.state.config.profiling:
             raise ProtostarException("Fuzz tests cannot be profiled")
         self.initial_state = state
+        self._logger = logging.getLogger(__name__)
 
     async def execute(self, function_name: str) -> FuzzTestExecutionResult:
         abi = self.state.contract.abi
@@ -62,6 +62,16 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
 
         database = InMemoryExampleDatabase()
         runs_counter = RunsCounter(budget=self.state.config.fuzz_max_examples)
+
+        if (
+            not self.state.config.fuzz_examples
+            and not self.state.config.fuzz_declared_strategies
+        ):
+            self._logger.warning(
+                "Not providing the test parameters is deprecated and will break test cases in the future releases, "
+                "Please use one of the following cheatcodes in the case setup function in order to "
+                "explicitly provide test data: \n- example\n- given"
+            )
 
         given_strategies = collect_search_strategies(
             declared_strategies=self.state.config.fuzz_declared_strategies,
@@ -122,7 +132,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             )
         )
 
-    def decorate_with_examples(self, target_func):
+    def decorate_with_examples(self, target_func: Callable):
         func = target_func
         for ex in reversed(self.state.config.fuzz_examples):
             func = example(**ex)(func)
@@ -212,10 +222,9 @@ class FuzzTestCaseCheatcodeFactory(TestCaseCheatcodeFactory):
     def build_cheatcodes(
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
-        internal_calls: List[CallInfo],
     ) -> List[Cheatcode]:
         return [
-            *super().build_cheatcodes(syscall_dependencies, internal_calls),
+            *super().build_cheatcodes(syscall_dependencies),
             RejectCheatcode(syscall_dependencies),
             AssumeCheatcode(syscall_dependencies),
         ]

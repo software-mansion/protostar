@@ -18,8 +18,7 @@ class FakeConfigurationFile(ConfigurationFile[ConfigurationFileModelT]):
         file_path: Optional[Path] = None,
         declared_protostar_version: Optional[ProtostarVersion] = None,
         lib_path: Optional[Path] = None,
-        contract_names: Optional[list[str]] = None,
-        contract_source_paths: Optional[list[Path]] = None,
+        contract_name_to_source_paths: Optional[dict[str, list[Path]]] = None,
         read_model: Optional[ConfigurationFileModelT] = None,
         argument_value: Optional[Any] = None,
         shared_argument_value: Optional[Any] = None,
@@ -28,8 +27,7 @@ class FakeConfigurationFile(ConfigurationFile[ConfigurationFileModelT]):
         self._file_path = file_path
         self._declared_protostar_version = declared_protostar_version
         self._lib_path = lib_path
-        self._contract_names = contract_names
-        self._contract_source_paths = contract_source_paths
+        self._contract_name_to_source_paths = contract_name_to_source_paths
         self._read_model = read_model
         self._argument_value = argument_value
         self._shared_argument_value = shared_argument_value
@@ -44,10 +42,19 @@ class FakeConfigurationFile(ConfigurationFile[ConfigurationFileModelT]):
         return self._lib_path
 
     def get_contract_names(self) -> list[str]:
-        return self._contract_names or []
+        return (
+            list(self._contract_name_to_source_paths.keys())
+            if self._contract_name_to_source_paths is not None
+            else []
+        )
 
     def get_contract_source_paths(self, contract_name: str) -> list[Path]:
-        return self._contract_source_paths or []
+        if (
+            self._contract_name_to_source_paths is not None
+            and contract_name in self._contract_name_to_source_paths
+        ):
+            return self._contract_name_to_source_paths[contract_name]
+        return []
 
     def get_argument_value(
         self, command_name: str, argument_name: str, profile_name: Optional[str] = None

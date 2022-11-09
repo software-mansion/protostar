@@ -2,15 +2,13 @@
 import json
 import shlex
 import shutil
-from os import chdir, mkdir, path, getcwd
+from os import chdir, getcwd, mkdir, path
 from pathlib import Path
 from subprocess import PIPE, STDOUT, run
-from typing import Callable, List, Optional, Union
+from typing import Callable, Generator, List, Optional, Tuple, Union
 
 import pexpect
 import pytest
-import tomli
-import tomli_w
 from typing_extensions import Protocol
 
 from protostar.self.protostar_directory import ProtostarDirectory
@@ -32,22 +30,25 @@ def protostar_bin(protostar_repo_root: Path) -> Path:
 
 
 @pytest.fixture(autouse=True)
-def change_cwd(tmpdir, protostar_repo_root: Path):
-    protostar_project_dir = Path(tmpdir) / "protostar_project"
+def change_cwd(tmp_path: Path, protostar_repo_root: Path):
+    protostar_project_dir = tmp_path / "protostar_project"
     mkdir(protostar_project_dir)
     yield chdir(protostar_project_dir)
     chdir(protostar_repo_root)
 
 
 @pytest.fixture
-def cairo_fixtures_dir(protostar_repo_root: Path):
+def cairo_fixtures_dir(protostar_repo_root: Path) -> Path:
     return protostar_repo_root / "tests" / "e2e" / "fixtures"
+
+
+CopyFixture = Callable[[Union[Path, str], Union[Path, str]], None]
 
 
 @pytest.fixture
 def copy_fixture(
-    cairo_fixtures_dir,
-) -> Callable[[Union[Path, str], Union[Path, str]], None]:
+    cairo_fixtures_dir: Path,
+) -> CopyFixture:
     return lambda file, dst: shutil.copy(cairo_fixtures_dir / file, dst)
 
 
@@ -166,13 +167,16 @@ Output:
 
 
 @pytest.fixture(name="devnet_gateway_url", scope="session")
-def devnet_gateway_url_fixture(devnet_port: int, protostar_repo_root):
+def devnet_gateway_url_fixture(devnet_port: int, protostar_repo_root: Path):
     prev_cwd = getcwd()
     chdir(protostar_repo_root)
     proc = run_devnet(["poetry", "run", "starknet-devnet"], devnet_port)
     chdir(prev_cwd)
     yield f"http://localhost:{devnet_port}"
     proc.kill()
+
+
+InitFixture = Generator[None, None, None]
 
 
 @pytest.fixture
@@ -182,38 +186,43 @@ def init(
     protostar_toml_protostar_version: str,
     init_project: ProjectInitializer,
     libs_path: Optional[str],
-):
+) -> InitFixture:
     init_project()
     chdir(project_name)
     if protostar_toml_protostar_version or libs_path:
-        with open(Path() / "protostar.toml", "r+", encoding="UTF-8") as file:
-            raw_protostar_toml = file.read()
-            protostar_toml = tomli.loads(raw_protostar_toml)
+        protostar_toml_content = Path("protostar.toml").read_text(encoding="utf-8")
+        protostar_toml_content_lines = protostar_toml_content.splitlines()
+        new_protostar_toml_content_lines: list[str] = []
+        for line in protostar_toml_content_lines:
+            if protostar_toml_protostar_version and line.startswith(
+                "protostar-version"
+            ):
+                new_protostar_toml_content_lines.append(
+                    f'protostar-version="{protostar_toml_protostar_version}"'
+                )
+                continue
+            if libs_path and line.startswith("lib-path"):
+                new_protostar_toml_content_lines.append(f'lib-path="{libs_path}"')
+                continue
+            new_protostar_toml_content_lines.append(line)
 
-            assert (
-                protostar_toml["protostar.config"]["protostar_version"] is not None
-            )  # Sanity check
-
-            if protostar_toml_protostar_version:
-                protostar_toml["protostar.config"][
-                    "protostar_version"
-                ] = protostar_toml_protostar_version
-
-            if libs_path:
-                protostar_toml["protostar.project"]["libs_path"] = libs_path
-                Path(libs_path).mkdir(exist_ok=True)
-
-            file.seek(0)
-            file.truncate()
-            file.write(tomli_w.dumps(protostar_toml))
+        (Path() / "protostar.toml").write_text(
+            "\n".join(new_protostar_toml_content_lines), encoding="utf-8"
+        )
     yield
     chdir(protostar_repo_root)
 
 
+MyPrivateLibsSetupFixture = Tuple[
+    Path,
+]
+
 # pylint: disable=unused-argument
 @pytest.fixture(name="my_private_libs_setup")
-def my_private_libs_setup_fixture(init, tmpdir, copy_fixture):
-    my_private_libs_dir = Path(tmpdir) / "my_private_libs"
+def my_private_libs_setup_fixture(
+    init: InitFixture, tmp_path: Path, copy_fixture: CopyFixture
+) -> MyPrivateLibsSetupFixture:
+    my_private_libs_dir = tmp_path / "my_private_libs"
     mkdir(my_private_libs_dir)
 
     my_lib_dir = my_private_libs_dir / "my_lib"

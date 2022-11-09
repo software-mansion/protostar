@@ -1,4 +1,3 @@
-# pylint: disable=invalid-name
 from typing import Dict, List, Set
 import pytest
 from pytest_mock import MockerFixture
@@ -29,7 +28,9 @@ def n_seg_fixture() -> int:
 
 
 @pytest.fixture(name="memory_segments")
-def memory_segments_fixture(memory, n_seg) -> MemorySegmentManager:
+def memory_segments_fixture(
+    memory: MemoryDictInitializer, n_seg: int
+) -> MemorySegmentManager:
     manager = MemorySegmentManager(MemoryDict(memory), DEFAULT_PRIME)
     for _ in range(n_seg):
         manager.add()
@@ -75,7 +76,7 @@ def tracer_data_fixture(mocker: MockerFixture, memory: MemoryDict) -> TracerData
 def test_blame_pc(
     last_accesses: Dict[int, int],
     hole_address: int,
-    expected,
+    expected: int,
 ):
     assert blame_pc(last_accesses, hole_address) == expected
 
@@ -86,7 +87,9 @@ def test_blame_pc(
         ({100: 42, 99: 43, 98: 39, 38: 11, 37: 0, 0: 0}, 100, 101, [101, 43, 11]),
     ],
 )
-def test_get_callstack(tracer_data, fp: int, pc: int, expected: List[int]):
+def test_get_callstack(
+    tracer_data: TracerDataManager, fp: int, pc: int, expected: List[int]
+):
     assert TracerDataManager.get_callstack(tracer_data, fp, pc) == expected
 
 

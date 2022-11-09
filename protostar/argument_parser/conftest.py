@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Any
 
 import pytest
 
@@ -23,7 +23,7 @@ class BaseTestCommand(Command):
     def arguments(self):
         return []
 
-    async def run(self, args):
+    async def run(self, args: Any):
         pass
 
 
@@ -51,7 +51,7 @@ class FooCommand(Command):
             )
         ]
 
-    async def run(self, args):
+    async def run(self, args: Any):
         pass
 
 
@@ -72,7 +72,7 @@ class BarCommand(Command):
     def arguments(self):
         return []
 
-    async def run(self, args):
+    async def run(self, args: Any):
         pass
 
 

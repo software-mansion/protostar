@@ -1,9 +1,8 @@
 import sys
 from copy import copy
+from typing import Any
 
-import starkware.cairo.lang.vm.crypto
 from crypto_cpp_py.cpp_bindings import cpp_hash
-from starkware.crypto.signature.fast_pedersen_hash import pedersen_hash
 from starkware.starknet.services.api.contract_class import ContractClass
 
 
@@ -28,7 +27,7 @@ setattr(
 )
 
 # Deep copy of a ContractClass takes a lot of time, but it should never be mutated.
-def shallow_copy(self, memo):  # pylint: disable=unused-argument
+def shallow_copy(self: Any, memo: Any):  # pylint: disable=unused-argument
     """
     A dummy implementation of ContractClass.__deepcopy__
     """

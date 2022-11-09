@@ -19,7 +19,7 @@ class ConfigurationFileFactory:
     def create(self) -> ConfigurationFile:
         protostar_toml_path = self._search_upwards_protostar_toml_path()
         if protostar_toml_path is None:
-            return FakeConfigurationFile()
+            return FakeConfigurationFile(file_path=self._cwd / "protostar.toml")
         protostar_toml_content = protostar_toml_path.read_text()
 
         configuration_file_v2 = self._create_configuration_toml_v2(
@@ -79,12 +79,12 @@ class ConfigurationFileFactory:
 
     def _search_upwards_protostar_toml_path(self) -> Optional[Path]:
         directory_path = self._cwd
-        assert directory_path.exists()
         root_path = Path(directory_path.root)
         while directory_path != root_path:
-            for file_path in directory_path.iterdir():
-                if "protostar.toml" == file_path.name:
-                    return directory_path / "protostar.toml"
+            if directory_path.exists():
+                for file_path in directory_path.iterdir():
+                    if "protostar.toml" == file_path.name:
+                        return directory_path / "protostar.toml"
 
             directory_path = directory_path.parent
         return None

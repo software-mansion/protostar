@@ -1,4 +1,3 @@
-# pylint: disable=invalid-name
 # pylint: disable=no-member
 import gzip
 import time

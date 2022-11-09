@@ -3,20 +3,7 @@
 #### `--no-color`
 Disable colors.
 #### `-p` `--profile STRING`
-Specifies active profile configuration. This argument can't be configured in `protostar.toml`.
-#### CI configuration
-```toml title="protostar.toml"
-[profile.ci.protostar.shared_command_configs]
-no_color=true
-```
-`protostar -p ci test`
-
-#### Deployment configuration
-```toml title="protostar.toml"
-[profile.devnet.protostar.deploy]
-gateway_url="http://127.0.0.1:5050/"
-```
-`protostar -p devnet deploy ...`
+Specifies active configuration profile defined in the configuration file.
 #### `-v` `--version`
 Show Protostar and Cairo-lang version.
 ## Commands
@@ -35,14 +22,37 @@ Disable validation of hints when building the contracts.
 Migrate project sources to Cairo 0.10.
 #### `targets STRING[]=['.']`
 Targets to migrate (a target can be a file or directory)
+### `call`
+Calls a contract on StarkNet with given parameters
+#### `--chain-id INT`
+The chain id. It is required unless `--network` is provided.
+#### `--contract-address ADDRESS`
+Required.
+
+The address of the contract being called.
+#### `--function STRING`
+Required.
+
+The name of the function being called.
+#### `--gateway-url STRING`
+The URL of a StarkNet gateway. It is required unless `--network` is provided.
+#### `--inputs FELT[]`
+Inputs to the function being called, represented by a list of space-delimited values.
+#### `-n` `--network STRING`
+The name of the StarkNet network.
+It is required unless `--gateway-url` is provided.
+
+Supported StarkNet networks:
+- `testnet`
+- `mainnet`
 ### `declare`
 Sends a declare transaction to StarkNet.
 #### `contract PATH`
 Required.
 
 Path to compiled contract.
-#### `--account-address STRING`
-Account address
+#### `--account-address ADDRESS`
+Account address.
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
 #### `--gateway-url STRING`
@@ -56,8 +66,6 @@ It is required unless `--gateway-url` is provided.
 Supported StarkNet networks:
 - `testnet`
 - `mainnet`
-- `alpha-goerli`
-- `alpha-mainnet`
 #### `--private-key-path PATH`
 Path to the file, which stores your private key (in hex representation) for the account. 
 Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
@@ -69,7 +77,7 @@ Used for declaring contracts in Alpha MainNet.
 Waits for transaction to be accepted on chain.
 ### `deploy`
 ```shell
-protostar deploy ./build/main.json --network alpha-goerli
+protostar deploy ./build/main.json --network testnet
 ```
 Deploy contracts.
 #### `contract PATH`
@@ -90,14 +98,48 @@ It is required unless `--gateway-url` is provided.
 Supported StarkNet networks:
 - `testnet`
 - `mainnet`
-- `alpha-goerli`
-- `alpha-mainnet`
 #### `--salt FELT`
 An optional salt controlling where the contract will be deployed. The contract deployment address is determined by the hash of contract, salt and caller. If the salt is not supplied, the contract will be deployed with a random salt.
 #### `--token STRING`
 Used by whitelisted users for deploying contracts in Alpha MainNet.
 #### `--wait-for-acceptance`
 Waits for transaction to be accepted on chain.
+### `deploy-account`
+Sends deploy-account transaction. The account contract must be already declared and prefunded.
+#### `--account-address ADDRESS`
+Account address.
+#### `--account-address-salt INT`
+Required.
+
+This value is expected by account's `__validate_deploy__` entry point
+#### `--account-class-hash CLASS_HASH`
+Required.
+
+Class hash of the declared account contract.
+#### `--account-constructor-input INT[]`
+Input to the account's constructor
+#### `--chain-id INT`
+The chain id. It is required unless `--network` is provided.
+#### `--gateway-url STRING`
+The URL of a StarkNet gateway. It is required unless `--network` is provided.
+#### `--max-fee WEI`
+Required.
+
+Max amount of Wei you are willing to pay for the transaction
+#### `-n` `--network STRING`
+The name of the StarkNet network.
+It is required unless `--gateway-url` is provided.
+
+Supported StarkNet networks:
+- `testnet`
+- `mainnet`
+#### `--nonce INT`
+Protects against the replay attacks.
+#### `--private-key-path PATH`
+Path to the file, which stores your private key (in hex representation) for the account. 
+Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
+#### `--signer-class STRING`
+Custom signer class module path.
 ### `format`
 ```shell
 $ protostar format
@@ -133,15 +175,17 @@ Install a dependency as a git submodule.
 - `SSH_URI`
     - `git@github.com:OpenZeppelin/cairo-contracts.git`
 
+#### `--lib-path PATH`
+Directory containing project dependencies. This argument is used with the configuration file V2.
 #### `--name STRING`
 A custom package name. Use it to resolve name conflicts.
 ### `invoke`
 Sends an invoke transaction to the StarkNet sequencer.
-#### `--account-address STRING`
-Account address
+#### `--account-address ADDRESS`
+Account address.
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
-#### `--contract-address INT`
+#### `--contract-address ADDRESS`
 Required.
 
 The address of the contract being called.
@@ -162,8 +206,6 @@ It is required unless `--gateway-url` is provided.
 Supported StarkNet networks:
 - `testnet`
 - `mainnet`
-- `alpha-goerli`
-- `alpha-mainnet`
 #### `--private-key-path PATH`
 Path to the file, which stores your private key (in hex representation) for the account. 
 Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
@@ -177,8 +219,8 @@ Run migration file.
 Required.
 
 Path to the migration file.
-#### `--account-address STRING`
-Account address
+#### `--account-address ADDRESS`
+Account address.
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
 #### `--compiled-contracts-dir PATH=build`
@@ -192,17 +234,15 @@ It is required unless `--gateway-url` is provided.
 Supported StarkNet networks:
 - `testnet`
 - `mainnet`
-- `alpha-goerli`
-- `alpha-mainnet`
 #### `--no-confirm`
 Skip confirming building the project.
 #### `--private-key-path PATH`
 Path to the file, which stores your private key (in hex representation) for the account. 
 Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
-#### `--rollback`
-Run `rollback` function in the migration script.
 #### `--signer-class STRING`
 Custom signer class module path.
+### `migrate-configuration-file`
+Migrate protostar.toml V1 to V2.
 ### `remove`
 ```shell
 $ protostar remove cairo-contracts
@@ -219,6 +259,8 @@ Required.
     - `git@github.com:OpenZeppelin/cairo-contracts.git`
 - `PACKAGE_DIRECTORY_NAME`
     - `cairo_contracts`, if the package location is `lib/cairo_contracts`
+#### `--lib-path PATH`
+Directory containing project dependencies. This argument is used with the configuration file V2.
 ### `test`
 ```shell
 $ protostar test
@@ -262,6 +304,8 @@ Update a dependency or dependencies. If the default branch of a dependency's rep
     - `git@github.com:OpenZeppelin/cairo-contracts.git`
 - `PACKAGE_DIRECTORY_NAME`
     - `cairo_contracts`, if the package location is `lib/cairo_contracts`
+#### `--lib-path PATH`
+Directory containing project dependencies. This argument is used with the configuration file V2.
 ### `upgrade`
 ```shell
 $ protostar upgrade

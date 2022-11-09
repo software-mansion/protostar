@@ -1,5 +1,4 @@
-# pylint: disable=invalid-name
-from collections import defaultdict
+from collections import UserDict, defaultdict
 from dataclasses import dataclass
 import math
 from typing import cast
@@ -47,6 +46,15 @@ class Instruction:
 
     line: int
     """Line of code from which instruction has been generated"""
+
+
+class Instructions(UserDict):
+    @classmethod
+    def from_list(cls, instructions: list[Instruction]):
+        return cls({instr.pc: instr for instr in instructions})
+
+    def get_by_address(self, pc: Address) -> Instruction:
+        return cast(Instruction, self.data[pc])
 
 
 @dataclass(frozen=True)
@@ -179,15 +187,8 @@ def create_instruction_list(
     return instructions
 
 
-def find_instruction(instructions: list[Instruction], pc: Address) -> Instruction:
-    for instr in instructions:
-        if instr.pc == pc:
-            return instr
-    assert False
-
-
 def build_call_callstacks(
-    instructions: list[Instruction], tracer_data: TracerDataManager
+    instructions: Instructions, tracer_data: TracerDataManager
 ) -> list[list[Instruction]]:
     """
     Searches for the external contract calls, saves the function callstack of each call
@@ -196,7 +197,7 @@ def build_call_callstacks(
     stack_len = math.inf
     for trace_entry in tracer_data.trace:
         callstack = tracer_data.get_callstack(fp=trace_entry.fp, pc=trace_entry.pc)
-        instr_callstack = [find_instruction(instructions, pc) for pc in callstack]
+        instr_callstack = [instructions.get_by_address(pc) for pc in callstack]
 
         # Wait until call_contract pops from stack
         if len(instr_callstack) >= stack_len:
@@ -212,12 +213,12 @@ def build_call_callstacks(
 
 
 def build_step_samples(
-    instructions: list[Instruction], tracer_data: TracerDataManager
+    instructions: Instructions, tracer_data: TracerDataManager
 ) -> list[Sample]:
     step_samples: list[Sample] = []
     for trace_entry in tracer_data.trace:
         callstack = tracer_data.get_callstack(fp=trace_entry.fp, pc=trace_entry.pc)
-        instr_callstack = [find_instruction(instructions, pc) for pc in callstack]
+        instr_callstack = [instructions.get_by_address(pc) for pc in callstack]
         step_samples.append((Sample(value=1, callstack=instr_callstack)))
     return step_samples
 
@@ -268,11 +269,11 @@ def get_not_accessed_addresses(
 
 
 def build_memhole_samples(
-    instructions: list[Instruction],
+    instructions: Instructions,
     tracer_data: TracerDataManager,
     accessed_memory: set[RelocatableValue],
     segments: MemorySegmentManager,
-    segment_offsets,
+    segment_offsets: dict[int, int],
 ) -> list[Sample]:
     # Address -> Pc of instruction which accessed the address last
     accessed_by: dict[Address, Address] = {}
@@ -291,7 +292,7 @@ def build_memhole_samples(
     for address in not_acc:
         pc = blame_pc(accessed_by, address)
         callstack = [
-            find_instruction(instructions, frame_pc) for frame_pc in pc_to_callstack[pc]
+            instructions.get_by_address(frame_pc) for frame_pc in pc_to_callstack[pc]
         ]
         samples.append(Sample(value=1, callstack=callstack))
     return samples
@@ -305,15 +306,16 @@ def build_profile(
 ) -> RuntimeProfile:
     function_list = collect_contract_functions(tracer_data)
     instructions_list = create_instruction_list(function_list, tracer_data)
-    step_samples = build_step_samples(instructions_list, tracer_data)
+    instructions = Instructions.from_list(instructions_list)
+    step_samples = build_step_samples(instructions, tracer_data)
     memhole_samples = build_memhole_samples(
-        instructions_list,
+        instructions,
         tracer_data,
         accessed_memory,
         segments,
         segment_offsets,
     )
-    callstacks_syscall = build_call_callstacks(instructions_list, tracer_data)
+    callstacks_syscall = build_call_callstacks(instructions, tracer_data)
     profile = RuntimeProfile(
         functions=function_list,
         instructions=instructions_list,

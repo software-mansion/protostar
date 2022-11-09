@@ -5,15 +5,19 @@ from typing import Optional
 
 from protostar.argument_parser import ArgumentParserFacade
 from protostar.cli import ProtostarCommand, map_protostar_type_name_to_parser
+from protostar.cli.lib_path_resolver import LibPathResolver
 from protostar.commands import (
     BuildCommand,
+    CallCommand,
     DeclareCommand,
+    DeployAccountCommand,
     DeployCommand,
     FormatCommand,
     InitCommand,
     InstallCommand,
     InvokeCommand,
     MigrateCommand,
+    MigrateConfigurationFileCommand,
     RemoveCommand,
     TestCommand,
     UpdateCommand,
@@ -26,17 +30,17 @@ from protostar.commands.init.project_creator import (
 )
 from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
-from protostar.configuration_file import ConfigurationFileFactory
+from protostar.configuration_file import (
+    ConfigurationFileFactory,
+    ConfigurationFileV1,
+    ConfigurationFileV2ContentFactory,
+    ConfigurationFileV2Migrator,
+    ConfigurationTOMLContentBuilder,
+)
 from protostar.io import InputRequester, log_color_provider
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_cli import ProtostarCLI
-from protostar.protostar_toml import (
-    ProtostarContractsSection,
-    ProtostarProjectSection,
-    ProtostarTOMLReader,
-    ProtostarTOMLWriter,
-    search_upwards_protostar_toml_path,
-)
+from protostar.self import ProtostarCompatibilityWithProjectChecker
 from protostar.self.protostar_directory import ProtostarDirectory, VersionManager
 from protostar.starknet_gateway import GatewayFacadeFactory
 from protostar.upgrader import (
@@ -60,22 +64,16 @@ def build_di_container(
 ):
     logger = getLogger()
     cwd = Path().resolve()
-    protostar_toml_path = search_upwards_protostar_toml_path(start_path=cwd)
-    project_root_path = (
-        protostar_toml_path.parent if protostar_toml_path is not None else cwd
-    )
-    protostar_toml_path = protostar_toml_path or project_root_path / "protostar.toml"
-
     configuration_file_factory = ConfigurationFileFactory(
         cwd, active_profile_name=active_configuration_profile_name
     )
     configuration_file = configuration_file_factory.create()
+    project_root_path = configuration_file.get_filepath().parent
 
     protostar_directory = ProtostarDirectory(script_root)
     version_manager = VersionManager(protostar_directory, logger)
-    protostar_toml_writer = ProtostarTOMLWriter()
-    protostar_toml_reader = ProtostarTOMLReader(protostar_toml_path=protostar_toml_path)
-    requester = InputRequester(log_color_provider)
+    protostar_version = version_manager.protostar_version
+    input_requester = InputRequester(log_color_provider)
     latest_version_checker = LatestVersionChecker(
         protostar_directory=protostar_directory,
         version_manager=version_manager,
@@ -97,9 +95,7 @@ def build_di_container(
     project_compiler = ProjectCompiler(
         project_root_path=project_root_path,
         project_cairo_path_builder=project_cairo_path_builder,
-        contracts_section_loader=ProtostarContractsSection.Loader(
-            protostar_toml_reader
-        ),
+        configuration_file=configuration_file,
     )
 
     gateway_facade_factory = GatewayFacadeFactory(
@@ -107,44 +103,62 @@ def build_di_container(
         compiled_contract_reader=CompiledContractReader(),
     )
 
+    lib_path_resolver = LibPathResolver(
+        configuration_file=configuration_file,
+        project_root_path=project_root_path,
+        legacy_mode=isinstance(configuration_file, ConfigurationFileV1),
+    )
+
+    configuration_file_content_factory = ConfigurationFileV2ContentFactory(
+        content_builder=ConfigurationTOMLContentBuilder()
+    )
+
+    new_project_creator = NewProjectCreator(
+        script_root=script_root,
+        requester=input_requester,
+        configuration_file_content_factory=configuration_file_content_factory,
+        protostar_version=protostar_version,
+    )
+
+    adapted_project_creator = AdaptedProjectCreator(
+        script_root,
+        configuration_file_content_factory=configuration_file_content_factory,
+        protostar_version=protostar_version,
+    )
+
+    migrate_configuration_file_command = MigrateConfigurationFileCommand(
+        logger=logger,
+        configuration_file_migrator=ConfigurationFileV2Migrator(
+            protostar_version=protostar_version,
+            current_configuration_file=configuration_file,
+            content_factory=ConfigurationFileV2ContentFactory(
+                content_builder=ConfigurationTOMLContentBuilder()
+            ),
+        ),
+    )
+
     commands: list[ProtostarCommand] = [
         InitCommand(
-            requester=requester,
-            new_project_creator=NewProjectCreator(
-                script_root,
-                requester,
-                protostar_toml_writer,
-                version_manager,
-            ),
-            adapted_project_creator=AdaptedProjectCreator(
-                script_root,
-                requester,
-                protostar_toml_writer,
-                version_manager,
-            ),
+            requester=input_requester,
+            new_project_creator=new_project_creator,
+            adapted_project_creator=adapted_project_creator,
         ),
         BuildCommand(project_compiler, logger),
         InstallCommand(
             log_color_provider=log_color_provider,
             logger=logger,
             project_root_path=project_root_path,
-            project_section_loader=ProtostarProjectSection.Loader(
-                protostar_toml_reader
-            ),
+            lib_path_resolver=lib_path_resolver,
         ),
         RemoveCommand(
             logger=logger,
             project_root_path=project_root_path,
-            project_section_loader=ProtostarProjectSection.Loader(
-                protostar_toml_reader
-            ),
+            lib_path_resolver=lib_path_resolver,
         ),
         UpdateCommand(
             logger=logger,
             project_root_path=project_root_path,
-            project_section_loader=ProtostarProjectSection.Loader(
-                protostar_toml_reader
-            ),
+            lib_path_resolver=lib_path_resolver,
         ),
         UpgradeCommand(
             UpgradeManager(
@@ -176,7 +190,7 @@ def build_di_container(
                 ),
                 project_root_path=project_root_path,
             ),
-            requester=requester,
+            requester=input_requester,
             logger=logger,
             log_color_provider=log_color_provider,
             gateway_facade_factory=gateway_facade_factory,
@@ -184,7 +198,17 @@ def build_di_container(
         FormatCommand(project_root_path, logger),
         CairoMigrateCommand(script_root, logger),
         InvokeCommand(gateway_facade_factory=gateway_facade_factory, logger=logger),
+        CallCommand(gateway_facade_factory=gateway_facade_factory, logger=logger),
+        DeployAccountCommand(
+            gateway_facade_factory=gateway_facade_factory, logger=logger
+        ),
+        migrate_configuration_file_command,
     ]
+
+    compatibility_checker = ProtostarCompatibilityWithProjectChecker(
+        protostar_version=protostar_version,
+        declared_protostar_version_provider=configuration_file,
+    )
 
     protostar_cli = ProtostarCLI(
         commands=commands,
@@ -193,6 +217,8 @@ def build_di_container(
         logger=logger,
         version_manager=version_manager,
         project_cairo_path_builder=project_cairo_path_builder,
+        configuration_file=configuration_file,
+        compatibility_checker=compatibility_checker,
         start_time=start_time,
     )
     if configuration_file:

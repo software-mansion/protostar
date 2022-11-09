@@ -1,7 +1,7 @@
 import importlib
 import os
 from logging import Logger
-from typing import Any, Optional
+from typing import Any, Optional, Type
 
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
@@ -18,8 +18,8 @@ class SignableCommandUtil:
     signable_arguments = [
         ProtostarArgument(
             name="account-address",
-            description="Account address",
-            type="str",
+            description="Account address.",
+            type="address",
         ),
         ProtostarArgument(
             name="private-key-path",
@@ -93,7 +93,7 @@ class SignableCommandUtil:
         return signer
 
     @staticmethod
-    def _validate_signer_interface(signer_class):
+    def _validate_signer_interface(signer_class: Type):
         if not issubclass(signer_class, BaseSigner):
             raise ProtostarException(
                 "Signer class has to extend BaseSigner ABC.\n"

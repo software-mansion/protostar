@@ -1,3 +1,5 @@
+from typing import Any
+
 from typing_extensions import Literal
 
 import pytest
@@ -11,6 +13,7 @@ from protostar.starknet.data_transformer import (
     to_python_transformer,
     to_python_events_transformer,
 )
+from tests.integration.conftest import GetAbiFromContractFixture
 
 from tests.integration.data_transformer.contracts import (
     DATA_TRANSFORMER_FELT_CONSTRUCTOR_CONTRACT,
@@ -80,7 +83,7 @@ from tests.integration.data_transformer.contracts import (
     ],
 )
 def test_from_python_pass(
-    get_abi_from_contract,
+    get_abi_from_contract: GetAbiFromContractFixture,
     contract: str,
     function_name: str,
     mode: Literal["inputs", "outputs"],
@@ -159,7 +162,7 @@ def test_from_python_pass(
     ],
 )
 def test_from_python_fail(
-    get_abi_from_contract,
+    get_abi_from_contract: GetAbiFromContractFixture,
     contract: str,
     function_name: str,
     mode: Literal["inputs", "outputs"],
@@ -230,7 +233,7 @@ def test_from_python_fail(
     ],
 )
 def test_to_python_pass(
-    get_abi_from_contract,
+    get_abi_from_contract: GetAbiFromContractFixture,
     contract: str,
     function_name: str,
     mode: Literal["inputs", "outputs"],
@@ -276,7 +279,7 @@ def test_to_python_pass(
     ],
 )
 def test_to_python_fail_generic(
-    get_abi_from_contract,
+    get_abi_from_contract: GetAbiFromContractFixture,
     contract: str,
     function_name: str,
     mode: Literal["inputs", "outputs"],
@@ -306,7 +309,7 @@ def test_to_python_fail_generic(
     ],
 )
 def test_to_python_fail_range_check(
-    get_abi_from_contract,
+    get_abi_from_contract: GetAbiFromContractFixture,
     contract: str,
     function_name: str,
     mode: Literal["inputs", "outputs"],
@@ -336,7 +339,7 @@ def test_to_python_fail_range_check(
     ],
 )
 def test_to_python_fail_too_many_args(
-    get_abi_from_contract,
+    get_abi_from_contract: GetAbiFromContractFixture,
     contract: str,
     function_name: str,
     mode: Literal["inputs", "outputs"],
@@ -347,29 +350,29 @@ def test_to_python_fail_too_many_args(
         to_python_transformer(abi, function_name, mode)(data)
 
 
-def test_from_python_event_pass(get_abi_from_contract):
+def test_from_python_event_pass(get_abi_from_contract: GetAbiFromContractFixture):
     abi = get_abi_from_contract(DATA_TRANSFORMER_EVENT_CONTRACT)
     from_python_events_transformer(abi, "event1")({"arg1": 1, "arg2": 2})
 
 
-def test_from_python_event_fail(get_abi_from_contract):
+def test_from_python_event_fail(get_abi_from_contract: GetAbiFromContractFixture):
     abi = get_abi_from_contract(DATA_TRANSFORMER_EVENT_CONTRACT)
     with pytest.raises(DataTransformerException):
         from_python_events_transformer(abi, "event1")({"arg1": 1, "arg47": 2})
 
 
-def test_to_python_event_pass(get_abi_from_contract):
+def test_to_python_event_pass(get_abi_from_contract: GetAbiFromContractFixture):
     abi = get_abi_from_contract(DATA_TRANSFORMER_EVENT_CONTRACT)
     to_python_events_transformer(abi, "event1")([1, 2])
 
 
-def test_to_python_event_fail(get_abi_from_contract):
+def test_to_python_event_fail(get_abi_from_contract: GetAbiFromContractFixture):
     abi = get_abi_from_contract(DATA_TRANSFORMER_EVENT_CONTRACT)
     with pytest.raises(DataTransformerException):
         to_python_events_transformer(abi, "event1")([1])
 
 
-def test_data_transformer_from_python(get_abi_from_contract):
+def test_data_transformer_from_python(get_abi_from_contract: GetAbiFromContractFixture):
     abi = get_abi_from_contract(DATA_TRANSFORMER_STRUCTS_CONTRACT)
     from_python = from_python_transformer(abi, "input_outer_struct", "inputs")
     to_python = to_python_transformer(abi, "input_outer_struct", "inputs")
@@ -381,7 +384,7 @@ def test_data_transformer_from_python(get_abi_from_contract):
     assert python_data == python_data2
 
 
-def test_data_transformer_to_python(get_abi_from_contract):
+def test_data_transformer_to_python(get_abi_from_contract: GetAbiFromContractFixture):
     abi = get_abi_from_contract(DATA_TRANSFORMER_STRUCTS_CONTRACT)
     from_python = from_python_transformer(abi, "input_outer_struct", "inputs")
     to_python = to_python_transformer(abi, "input_outer_struct", "inputs")
@@ -393,7 +396,7 @@ def test_data_transformer_to_python(get_abi_from_contract):
     assert cairo_data == cairo_data2
 
 
-def test_uint256_as_2_felts(get_abi_from_contract):
+def test_uint256_as_2_felts(get_abi_from_contract: GetAbiFromContractFixture):
     abi = get_abi_from_contract(DATA_TRANSFORMER_UINT256_CONTRACT)
     from_python = from_python_transformer(abi, "input_uint256", "inputs")
 
@@ -406,6 +409,6 @@ def test_uint256_as_2_felts(get_abi_from_contract):
     assert from_python({"arg": UINT256_SINGLE}) == from_python({"arg": UINT256_DICT})
 
 
-def assert_is_int_list(unknown):
+def assert_is_int_list(unknown: Any):
     assert isinstance(unknown, list)
     assert all(isinstance(x, int) for x in unknown)

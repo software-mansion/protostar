@@ -1,5 +1,7 @@
-from typing import List, cast, Optional
+from typing import List, cast, Optional, Any
 
+from starkware.cairo.lang.compiler.preprocessor.flow import ReferenceManager
+from starkware.cairo.lang.compiler.program import CairoHint
 from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.python.utils import to_bytes
@@ -14,7 +16,10 @@ from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
 from starkware.starknet.security.secure_hints import HintsWhitelist
 from starkware.starknet.services.api.contract_class import EntryPointType
 
-from protostar.starknet.cheatable_cached_state import CheatableCachedState, cheaters_of
+from protostar.starknet.cheatable_cached_state import (
+    CheatableCachedState,
+    cheaters_of,
+)
 from protostar.starknet.types import AddressType, SelectorType
 
 
@@ -25,7 +30,7 @@ class CheatableSysCallHandlerException(Exception):
 
 
 class CheatableSysCallHandler(BusinessLogicSysCallHandler):
-    def __init__(self, state: SyncState, **kwargs):
+    def __init__(self, state: SyncState, **kwargs: Any):
         # This field must be set before entering super constructor,
         # because it calls the setter for the `block_info` property.
         self.cheaters = cheaters_of(state)
@@ -140,6 +145,16 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
         else:
             raise NotImplementedError(f"Unsupported call type {syscall_name}.")
 
+        # region Modified Starknet code.
+        contract_calldata = (int(str(request.function_selector)), calldata)
+        if self.cheatable_state.contract_calls.get(contract_address):
+            self.cheatable_state.contract_calls[contract_address].append(
+                contract_calldata
+            )
+        else:
+            self.cheatable_state.contract_calls[contract_address] = [contract_calldata]
+        # endregion
+
         call = self.execute_entry_point_cls(
             call_type=call_type,
             class_hash=class_hash,
@@ -201,5 +216,5 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
 
 
 class CheatableHintsWhitelist(HintsWhitelist):
-    def verify_hint_secure(self, hint, reference_manager):
+    def verify_hint_secure(self, hint: CairoHint, reference_manager: ReferenceManager):
         pass

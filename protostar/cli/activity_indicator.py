@@ -3,6 +3,7 @@ from itertools import cycle
 from shutil import get_terminal_size
 from threading import Thread
 from time import sleep
+from typing import Any
 
 from colorama.ansitowin32 import StreamWrapper
 
@@ -38,7 +39,7 @@ class ActivityIndicator:
     def __enter__(self):
         self.start()
 
-    def __exit__(self, exc_type, exc_value, exc_tb):
+    def __exit__(self, *args: Any, **kwargs: Any):
         self.stop()
 
 

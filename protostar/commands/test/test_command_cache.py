@@ -16,7 +16,9 @@ class TestCommandCache:
         self.cache_io = cache_io
         self._logger = logger
 
-    def obtain_targets(self, targets: List[str], last_failed=False) -> List[str]:
+    def obtain_targets(
+        self, targets: List[str], last_failed: bool = False
+    ) -> List[str]:
         if not last_failed:
             return targets
         if targets_from_cache := self.cache_io.read("last_failed_tests"):

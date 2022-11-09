@@ -2,10 +2,12 @@
 from os import chdir, listdir
 from os import replace as move
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 import pytest
+
 from protostar.git import Git
+from tests.e2e.conftest import InitFixture, ProtostarFixture
 
 
 @pytest.fixture(name="project_new_location")
@@ -14,7 +16,7 @@ def project_new_location_fixture() -> Optional[Path]:
 
 
 @pytest.fixture(name="project_relocator")
-def project_relocator_fixture(init, project_new_location: Optional[Path]):
+def project_relocator_fixture(init: InitFixture, project_new_location: Optional[Path]):
     if not project_new_location:
         return
 
@@ -27,11 +29,20 @@ def project_relocator_fixture(init, project_new_location: Optional[Path]):
     chdir(project_new_location)
 
 
+InstallPackageFixture = Callable
+
+
 @pytest.fixture(name="install_package")
-def fixture_install_package(init, protostar):
+def install_package_fixture(
+    init: InitFixture, protostar: ProtostarFixture
+) -> InstallPackageFixture:
     def install_package():
         result = protostar(
-            ["--no-color", "install", "https://github.com/software-mansion/starknet.py"]
+            [
+                "--no-color",
+                "install",
+                "https://github.com/software-mansion/starknet.py",
+            ]
         )
         normalized_package_name = "starknet_py"
         return (result, normalized_package_name)
@@ -42,7 +53,7 @@ def fixture_install_package(init, protostar):
 @pytest.mark.parametrize("libs_path", ["lib", "deps"])
 @pytest.mark.parametrize("project_new_location", [None, Path("./subproject")])
 @pytest.mark.usefixtures("project_relocator")
-def test_adding_package(install_package, libs_path: str):
+def test_adding_package(install_package: InstallPackageFixture, libs_path: str):
     with pytest.raises(FileNotFoundError):
         listdir(f"{libs_path}/starknet_py")
 
@@ -56,7 +67,9 @@ def test_adding_package(install_package, libs_path: str):
 @pytest.mark.parametrize("libs_path", ["lib", "deps"])
 @pytest.mark.parametrize("project_new_location", [None, Path("./subproject")])
 @pytest.mark.usefixtures("project_relocator")
-def test_updating_package(install_package, protostar, libs_path):
+def test_updating_package(
+    install_package: InstallPackageFixture, protostar: ProtostarFixture, libs_path: str
+):
     install_package()
 
     result = protostar(["--no-color", "update", "starknet_py"])
@@ -68,7 +81,9 @@ def test_updating_package(install_package, protostar, libs_path):
 @pytest.mark.parametrize("libs_path", ["lib", "deps"])
 @pytest.mark.parametrize("project_new_location", [None, Path("./subproject")])
 @pytest.mark.usefixtures("project_relocator")
-def test_removing_package(install_package, protostar, libs_path):
+def test_removing_package(
+    install_package: InstallPackageFixture, protostar: ProtostarFixture, libs_path: str
+):
     install_package()
 
     result = protostar(["--no-color", "remove", "starknet_py"])
@@ -80,7 +95,9 @@ def test_removing_package(install_package, protostar, libs_path):
 @pytest.mark.parametrize("libs_path", ["lib", "deps"])
 @pytest.mark.parametrize("project_new_location", [None, Path("./subproject")])
 @pytest.mark.usefixtures("project_relocator")
-def test_install_remove_install(install_package, protostar, libs_path):
+def test_install_remove_install(
+    install_package: InstallPackageFixture, protostar: ProtostarFixture, libs_path: str
+):
     install_package()
     assert "starknet_py" in listdir(libs_path)
 
@@ -94,7 +111,7 @@ def test_install_remove_install(install_package, protostar, libs_path):
 @pytest.mark.parametrize("libs_path", ["lib", "deps"])
 @pytest.mark.parametrize("project_new_location", [None, Path("./subproject")])
 @pytest.mark.usefixtures("project_relocator")
-def test_install_specified_tag(protostar, libs_path):
+def test_install_specified_tag(protostar: ProtostarFixture, libs_path: str):
     protostar(["--no-color", "install", "software-mansion/starknet.py@0.6.2-alpha"])
     assert "starknet_py" in listdir(libs_path)
 

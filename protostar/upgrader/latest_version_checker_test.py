@@ -11,8 +11,11 @@ from protostar.io.log_color_provider import LogColorProvider
 from protostar.self.protostar_directory import ProtostarDirectory, VersionManager
 
 
+LogColorProviderFixture = LogColorProvider
+
+
 @pytest.fixture(name="log_color_provider_mock")
-def log_color_provider_mock_fixture(mocker: MockerFixture):
+def log_color_provider_mock_fixture(mocker: MockerFixture) -> LogColorProviderFixture:
     log_color_provider_mock = cast(LogColorProvider, mocker.MagicMock())
 
     def colorize(_: str, content: str) -> str:
@@ -23,7 +26,7 @@ def log_color_provider_mock_fixture(mocker: MockerFixture):
 
 
 async def test_logs_info_about_new_version_when_protostar_is_not_up_to_date(
-    mocker: MockerFixture, log_color_provider_mock
+    mocker: MockerFixture, log_color_provider_mock: LogColorProviderFixture
 ):
     logger_mock = cast(Logger, mocker.MagicMock())
     protostar_directory_mock = cast(ProtostarDirectory, mocker.MagicMock())

@@ -2,20 +2,33 @@ import json
 import subprocess
 import time
 from contextlib import contextmanager
-from dataclasses import dataclass
 from pathlib import Path
 from socket import socket as Socket
 from typing import ContextManager, List, NamedTuple, Protocol, Union
 
 import pytest
 import requests
+from starknet_py.net import AccountClient, KeyPair
+from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
-from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
+from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
+from tests._conftest.compiled_account import (
+    compile_account_contract_with_validate_deploy,
+)
+from tests._conftest.devnet.devnet_fixture import DevnetFixture
+
+from ._conftest.devnet import DevnetAccount as _DevnetAccount
+from ._conftest.devnet import DevnetAccountPreparator, FaucetContract
+
+MAX_FEE = int(1e20)
+DevnetAccount = _DevnetAccount
 
 
-def ensure_devnet_alive(port: int, retries=5, base_backoff_time=2) -> bool:
+def ensure_devnet_alive(
+    port: int, retries: int = 5, base_backoff_time: float = 2
+) -> bool:
     for i in range(retries):
         try:
             res = requests.get(f"http://localhost:{port}/is_alive")
@@ -81,14 +94,6 @@ def signing_credentials_fixture() -> Credentials:  # The same account is generat
     )
 
 
-@dataclass
-class DevnetAccount:
-    address: str
-    private_key: str
-    public_key: str
-    signer: StarkCurveSigner
-
-
 @pytest.fixture(name="devnet_accounts")
 def devnet_accounts_fixture(devnet_gateway_url: str) -> list[DevnetAccount]:
     response = requests.get(f"{devnet_gateway_url}/predeployed_accounts")
@@ -112,7 +117,7 @@ def devnet_accounts_fixture(devnet_gateway_url: str) -> list[DevnetAccount]:
 
 
 @pytest.fixture(name="devnet_account")
-def devnet_account(devnet_accounts: list[DevnetAccount]) -> DevnetAccount:
+def devnet_account_fixture(devnet_accounts: list[DevnetAccount]) -> DevnetAccount:
     return devnet_accounts[0]
 
 
@@ -149,3 +154,42 @@ def create_file_structure(root_path: Path, file_structure_schema: FileStructureS
             new_root_path = root_path / Path(path_str)
             new_root_path.mkdir()
             create_file_structure(new_root_path, file_structure_schema=composite)
+
+
+@pytest.fixture(name="account_with_validate_deploy_compiled_contract", scope="session")
+def account_with_validate_deploy_compiled_contract_fixture() -> str:
+    return compile_account_contract_with_validate_deploy()
+
+
+@pytest.fixture(name="devnet")
+def devnet_fixture(
+    devnet_gateway_url: str,
+    devnet_account: DevnetAccount,
+    account_with_validate_deploy_compiled_contract: str,
+) -> DevnetFixture:
+    gateway_client = GatewayClient(
+        devnet_gateway_url,
+    )
+    key_pair = KeyPair(
+        private_key=int(devnet_account.private_key, base=0),
+        public_key=int(devnet_account.public_key, base=0),
+    )
+    predeployed_account_client = AccountClient(
+        address=devnet_account.address,
+        client=gateway_client,
+        key_pair=key_pair,
+        chain=StarknetChainId.TESTNET,
+        supported_tx_version=1,
+    )
+    faucet_contract = FaucetContract(
+        devnet_gateway_url=devnet_gateway_url,
+    )
+    account_preparator = DevnetAccountPreparator(
+        compiled_account_contract=account_with_validate_deploy_compiled_contract,
+        predeployed_account_client=predeployed_account_client,
+        faucet_contract=faucet_contract,
+    )
+    return DevnetFixture(
+        devnet_account_preparator=account_preparator,
+        devnet_gateway_url=devnet_gateway_url,
+    )

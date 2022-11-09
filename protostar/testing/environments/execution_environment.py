@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, Any
 
 from starkware.starknet.testing.objects import StarknetCallInfo
 from starkware.starkware_utils.error_handling import StarkException
@@ -23,7 +23,10 @@ class ExecutionEnvironment(ABC, Generic[InvokeResultT]):
         ...
 
     async def perform_execute(
-        self, function_name: str, *args, **kwargs
+        self,
+        function_name: str,
+        *args: Any,
+        **kwargs: Any,
     ) -> StarknetCallInfo:
         try:
             func = getattr(self.state.contract, function_name)

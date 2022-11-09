@@ -1,17 +1,23 @@
-from dataclasses import dataclass
 import logging
+from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional, Tuple, cast
+from typing import TYPE_CHECKING, Any, List, Optional, Tuple, cast
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
+from starkware.cairo.lang.compiler.debug_info import DebugInfo
+from starkware.cairo.lang.compiler.program import Program
+from starkware.cairo.lang.vm.memory_dict import MemoryDict
+from starkware.cairo.lang.vm.memory_segments import FIRST_MEMORY_ADDR as PROGRAM_BASE
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.cairo.lang.vm.security import SecurityError
+from starkware.cairo.lang.vm.trace_entry import TraceEntry
 from starkware.cairo.lang.vm.utils import ResourcesError
 from starkware.cairo.lang.vm.vm_exceptions import (
     HintException,
     VmException,
     VmExceptionBase,
 )
+from starkware.python.utils import from_bytes
 from starkware.starknet.business_logic.execution.execute_entry_point import (
     ExecuteEntryPoint,
 )
@@ -19,37 +25,35 @@ from starkware.starknet.business_logic.execution.objects import (
     TransactionExecutionContext,
 )
 from starkware.starknet.business_logic.fact_state.state import ExecutionResourcesManager
+from starkware.starknet.business_logic.state.state import StateSyncifier
 from starkware.starknet.business_logic.state.state_api import SyncState
 from starkware.starknet.business_logic.utils import validate_contract_deployed
 from starkware.starknet.core.os import os_utils, syscall_utils
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.public import abi as starknet_abi
+from starkware.starknet.services.api.contract_class import (
+    ContractClass,
+    ContractEntryPoint,
+)
 from starkware.starkware_utils.error_handling import (
     StarkException,
     wrap_with_stark_exception,
 )
-from starkware.cairo.lang.vm.memory_segments import FIRST_MEMORY_ADDR as PROGRAM_BASE
-from starkware.starknet.services.api.contract_class import ContractEntryPoint
-from starkware.python.utils import from_bytes
-from starkware.starknet.business_logic.state.state import StateSyncifier
-from protostar.profiler.pprof import serialize, to_protobuf
+
 from protostar.profiler.contract_profiler import (
     RuntimeProfile,
     TracerDataManager,
     build_profile,
 )
-from protostar.profiler.transaction_profiler import (
-    merge_profiles,
-)
+from protostar.profiler.pprof import serialize, to_protobuf
+from protostar.profiler.transaction_profiler import merge_profiles
 from protostar.starknet.cheatable_cached_state import CheatableCachedState
-
 from protostar.starknet.cheatable_cairo_function_runner import (
     CheatableCairoFunctionRunner,
 )
 from protostar.starknet.cheatable_syscall_handler import CheatableSysCallHandler
 from protostar.starknet.cheatcode import Cheatcode
-
 
 if TYPE_CHECKING:
     from protostar.starknet.cheatcode_factory import CheatcodeFactory
@@ -126,7 +130,8 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         )
 
         # region Modified Starknet code.
-        syscall_dependencies = Cheatcode.SyscallDependencies(
+
+        syscall_handler = CheatableSysCallHandler(
             execute_entry_point_cls=CheatableExecuteEntryPoint,
             tx_execution_context=tx_execution_context,
             state=state,
@@ -137,8 +142,6 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             initial_syscall_ptr=initial_syscall_ptr,
         )
 
-        syscall_handler = CheatableSysCallHandler(**syscall_dependencies)
-
         hint_locals: dict[str, Any] = {}
 
         cheatcode_factory = CheatableExecuteEntryPoint.cheatcode_factory
@@ -147,8 +150,17 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         ), "Tried to use CheatableExecuteEntryPoint without cheatcodes."
 
         cheatcodes = cheatcode_factory.build_cheatcodes(
-            syscall_dependencies=syscall_dependencies,
-            internal_calls=syscall_handler.internal_calls,
+            syscall_dependencies=Cheatcode.SyscallDependencies(
+                execute_entry_point_cls=CheatableExecuteEntryPoint,
+                tx_execution_context=tx_execution_context,
+                state=state,
+                resources_manager=resources_manager,
+                caller_address=self.caller_address,
+                contract_address=self.contract_address,
+                general_config=general_config,
+                initial_syscall_ptr=initial_syscall_ptr,
+                shared_internal_calls=syscall_handler.internal_calls,
+            )
         )
         for cheatcode in cheatcodes:
             hint_locals[cheatcode.name] = cheatcode.build()
@@ -257,7 +269,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
 
         return runner, syscall_handler
 
-    def append_contract_callstack(self, state, class_hash):
+    def append_contract_callstack(self, state: SyncState, class_hash: bytes):
         if not CheatableExecuteEntryPoint.contract_callstack:
             CheatableExecuteEntryPoint.contract_callstack.append("TEST_CONTRACT")
         else:
@@ -270,7 +282,10 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         CheatableExecuteEntryPoint.contract_callstack.pop()
 
     def append_runtime_profile(
-        self, runner: CairoFunctionRunner, contract_class, entry_point
+        self,
+        runner: CairoFunctionRunner,
+        contract_class: ContractClass,
+        entry_point: ContractEntryPoint,
     ):
         runner.relocate()
         profile = get_profile(
@@ -286,7 +301,13 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         )
 
 
-def get_profile(program, memory, trace, debug_info, runner):
+def get_profile(
+    program: Program,
+    memory: MemoryDict,
+    trace: List[TraceEntry[int]],
+    debug_info: DebugInfo,
+    runner: CairoFunctionRunner,
+):
     tracer_data = TracerDataManager(
         program=program,
         memory=memory,

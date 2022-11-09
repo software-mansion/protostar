@@ -1,15 +1,20 @@
+from argparse import Namespace
 from logging import Logger
 from pathlib import Path
 from typing import Callable, Optional
 
-from protostar.cli import ProtostarArgument, ProtostarCommand
-from protostar.commands.install.install_package_from_repo import (
-    install_package_from_repo,
+from protostar.cli import (
+    LIB_PATH_ARG,
+    LibPathResolver,
+    ProtostarArgument,
+    ProtostarCommand,
 )
-from protostar.commands.install.pull_package_submodules import pull_package_submodules
+from protostar.configuration_file import ConfigurationFile
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.package_manager import extract_info_from_repo_id
-from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
+
+from .install_package_from_repo import install_package_from_repo
+from .pull_package_submodules import pull_package_submodules
 
 EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = """- `GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]`
     - `OpenZeppelin/cairo-contracts@v0.4.0`
@@ -24,13 +29,13 @@ class InstallCommand(ProtostarCommand):
     def __init__(
         self,
         project_root_path: Path,
-        project_section_loader: ProtostarProjectSection.Loader,
+        lib_path_resolver: LibPathResolver,
         logger: Logger,
         log_color_provider: LogColorProvider,
     ) -> None:
         super().__init__()
         self._project_root_path = project_root_path
-        self._project_section_loader = project_section_loader
+        self._lib_path_resolver = lib_path_resolver
         self._logger = logger
         self._log_color_provider = log_color_provider
 
@@ -49,6 +54,7 @@ class InstallCommand(ProtostarCommand):
     @property
     def arguments(self):
         return [
+            LIB_PATH_ARG,
             ProtostarArgument(
                 name="package",
                 description=EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
@@ -62,11 +68,12 @@ class InstallCommand(ProtostarCommand):
             ),
         ]
 
-    async def run(self, args):
+    async def run(self, args: Namespace):
         self._logger.info("Executing install")
         try:
             self.install(
                 package_name=args.package,
+                libs_path=self._lib_path_resolver.resolve(args.lib_path),
                 on_unknown_version=lambda: self._logger.warning(
                     (
                         "Fetching from the mainline. The mainline can be in the non-releasable state.\n"
@@ -83,12 +90,10 @@ class InstallCommand(ProtostarCommand):
     def install(
         self,
         package_name: Optional[str],
+        libs_path: Path,
         on_unknown_version: Callable,
         alias: Optional[str] = None,
     ) -> None:
-        project_section = self._project_section_loader.load()
-        libs_path = self._project_root_path / project_section.libs_relative_path
-
         if package_name:
             package_info = extract_info_from_repo_id(package_name)
             if package_info.version is None:
@@ -100,7 +105,16 @@ class InstallCommand(ProtostarCommand):
                 destination=libs_path,
                 tag=package_info.version,
             )
+            self._logger.info(
+                ConfigurationFile.create_appending_cairo_path_suggestion()
+            )
         else:
+            if not libs_path.exists():
+                self._logger.warning(
+                    f"Directory {libs_path} doesn't exist.\n"
+                    "Did you install any package before running this command?"
+                )
+                return
             pull_package_submodules(
                 on_submodule_update_start=lambda package_info: self._logger.info(
                     "Installing %s%s%s %s(%s)%s",

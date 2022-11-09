@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from logging import Logger
 from typing import Any, Optional, Union
 
@@ -6,13 +7,19 @@ from starknet_py.net.models import StarknetChainId
 
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import NetworkConfig
-from protostar.starknet_gateway.network_config import NETWORKS, is_legacy_network_name
+from protostar.starknet_gateway.network_config import NETWORKS
 
 from .protostar_argument import ProtostarArgument
 
 GATEWAY_URL_ARG_NAME = "gateway-url"
 NETWORK_ARG_NAME = "network"
 CHAIN_ID_ARG_NAME = "chain-id"
+
+
+@dataclass
+class NetworkArgs:
+    chain_id: Optional[int]
+    gateway_client: GatewayClient
 
 
 class NetworkCommandUtil:
@@ -55,12 +62,6 @@ class NetworkCommandUtil:
                 f"Argument `{GATEWAY_URL_ARG_NAME}` or `{NETWORK_ARG_NAME}` is required"
             )
 
-        # TODO(arcticae): Remove in the future version, with the legacy names formats support
-        if self._args.network and is_legacy_network_name(self._args.network):
-            self._logger.warning(
-                f"{self._args.network} is a legacy network name parameter and it won't be supported in future versions"
-            )
-
         if self._args.gateway_url and not self._args.chain_id:
             raise ProtostarException(
                 f"Argument `{CHAIN_ID_ARG_NAME}` is required when `{GATEWAY_URL_ARG_NAME}` is provided"
@@ -71,7 +72,7 @@ class NetworkCommandUtil:
         return NetworkConfig.build(
             gateway_url=self._args.gateway_url,
             network=self._args.network,
-            chain_id=self.normalize_chain_id(self._args.chain_id),
+            chain_id=self._normalize_chain_id(self._args.chain_id),
         )
 
     def get_gateway_client(self) -> GatewayClient:
@@ -79,7 +80,7 @@ class NetworkCommandUtil:
         return GatewayClient(network_config.gateway_url)
 
     @staticmethod
-    def normalize_chain_id(
+    def _normalize_chain_id(
         arg: Optional[Union[str, StarknetChainId]]
     ) -> Optional[StarknetChainId]:
         if arg is None:
@@ -88,7 +89,13 @@ class NetworkCommandUtil:
         if isinstance(arg, StarknetChainId):
             return arg
 
+        supported_chain_ids: list[str] = []
+        for chain_id in StarknetChainId:
+            supported_chain_ids.append(f"- {chain_id.value} ({chain_id.name})")
         try:
             return StarknetChainId(arg)
         except ValueError as ex:
-            raise ProtostarException("Invalid chain id value.") from ex
+            raise ProtostarException(
+                "Invalid chain id value.\n"
+                "Supported chain ids:\n" + "\n".join(supported_chain_ids)
+            ) from ex
