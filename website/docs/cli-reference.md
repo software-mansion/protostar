@@ -53,6 +53,11 @@ Required.
 Path to compiled contract.
 #### `--account-address ADDRESS`
 Account address.
+#### `--block-explorer BLOCK_EXPLORER=starkscan`
+Generated links will point to that block explorer. Available values:
+- starkscan
+- viewblock
+- voyager
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
 #### `--gateway-url STRING`
@@ -84,6 +89,11 @@ Deploy contracts.
 Required.
 
 The path to the compiled contract.
+#### `--block-explorer BLOCK_EXPLORER=starkscan`
+Generated links will point to that block explorer. Available values:
+- starkscan
+- viewblock
+- voyager
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
 #### `--gateway-url STRING`
@@ -183,6 +193,11 @@ A custom package name. Use it to resolve name conflicts.
 Sends an invoke transaction to the StarkNet sequencer.
 #### `--account-address ADDRESS`
 Account address.
+#### `--block-explorer BLOCK_EXPLORER=starkscan`
+Generated links will point to that block explorer. Available values:
+- starkscan
+- viewblock
+- voyager
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
 #### `--contract-address ADDRESS`
