@@ -25,6 +25,7 @@ from protostar.starknet.cheatable_execute_entry_point import CheatableExecuteEnt
 from protostar.starknet.cheatable_invoke_function import (
     create_cheatable_invoke_function,
 )
+from starkware.starknet.business_logic.fact_state.state import ExecutionResourcesManager
 
 
 class CheatableStarknetState(StarknetState):
@@ -69,6 +70,7 @@ class CheatableStarknetState(StarknetState):
         selector: Union[int, str],
         calldata: List[int],
         caller_address: int,
+        resources_manager: Optional[ExecutionResourcesManager] = None,
     ) -> CallInfo:
         if isinstance(contract_address, str):
             contract_address = int(contract_address, 16)
@@ -92,6 +94,7 @@ class CheatableStarknetState(StarknetState):
             call_info = await call.execute_for_testing(
                 state=state_copy,
                 general_config=self.general_config,
+                resources_manager=resources_manager
             )
 
         self.add_messages_and_events(execution_info=call_info)
