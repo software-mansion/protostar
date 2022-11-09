@@ -16,7 +16,7 @@ CustomProtostarArgTypeName = Literal[
 
 ProtostarArgTypeName = Union[CustomProtostarArgTypeName, ArgTypeName]
 
-
+# pylint: disable=too-many-return-statements
 def map_protostar_type_name_to_parser(
     argument_type: ProtostarArgTypeName,
 ) -> Callable[[str], Any]:
