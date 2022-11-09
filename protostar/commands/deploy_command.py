@@ -36,7 +36,7 @@ class DeployCommand(ProtostarCommand):
 
     @property
     def example(self) -> Optional[str]:
-        return "protostar deploy ./build/main.json --network alpha-goerli"
+        return "protostar deploy ./build/main.json --network testnet"
 
     @property
     def arguments(self):

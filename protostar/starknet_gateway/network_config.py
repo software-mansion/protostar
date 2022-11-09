@@ -1,44 +1,17 @@
 from dataclasses import dataclass
-from typing import Optional, Union, cast, Dict
+from typing import Optional
 
-from starknet_py.net.models import chain_from_network, StarknetChainId
+from starknet_py.net.models import StarknetChainId, chain_from_network
 from starknet_py.net.networks import (
-    TESTNET,
     MAINNET,
+    TESTNET,
+    PredefinedNetwork,
     net_address_from_net,
-    PredefinedNetwork as SimpleNetwork,
 )
-from starkware.starknet.cli.starknet_cli import NETWORKS as LEGACY_NETWORKS
-from typing_extensions import Literal
 
 from protostar.protostar_exception import ProtostarException
 
-SIMPLE_NETWORKS = [TESTNET, MAINNET]
-NETWORKS = [*SIMPLE_NETWORKS, *LEGACY_NETWORKS.keys()]
-
-LegacyNetwork = Literal["alpha-goerli", "alpha-mainnet"]
-PredefinedNetwork = Union[SimpleNetwork, LegacyNetwork]
-
-
-def is_legacy_network_name(network: PredefinedNetwork):
-    return network in LEGACY_NETWORKS
-
-
-def legacy_to_simple_network_name(legacy_name: LegacyNetwork) -> SimpleNetwork:
-    mapping: Dict[LegacyNetwork, SimpleNetwork] = {
-        "alpha-goerli": "testnet",
-        "alpha-mainnet": "mainnet",
-    }
-
-    return mapping[legacy_name]
-
-
-def predefined_to_simple_network(network: PredefinedNetwork) -> SimpleNetwork:
-    return (
-        legacy_to_simple_network_name(cast(LegacyNetwork, network))
-        if is_legacy_network_name(network)
-        else cast(SimpleNetwork, network)
-    )
+NETWORKS = [TESTNET, MAINNET]
 
 
 @dataclass
@@ -55,7 +28,6 @@ class NetworkConfig:
         chain_id: Optional[StarknetChainId] = None,
     ) -> "NetworkConfig":
         if network:
-            network = predefined_to_simple_network(network)
             return cls.from_starknet_network_name(network)
         if gateway_url and chain_id:
             return cls(
@@ -63,7 +35,6 @@ class NetworkConfig:
                 chain_id=chain_id,
                 contract_explorer_search_url=None,
             )
-
         raise ProtostarException(
             "Either network parameter or pair (chain_id, gateway_url) is required"
         )
@@ -80,16 +51,11 @@ class NetworkConfig:
                     ]
                 )
             )
-
-        network = predefined_to_simple_network(network)
-
         contract_explorer_search_url_mapping = {
             TESTNET: "https://goerli.voyager.online/contract",
             MAINNET: "https://voyager.online/contract",
         }
-
         chain_id = chain_from_network(net=network, chain=None)
-
         return cls(
             gateway_url=net_address_from_net(network),
             contract_explorer_search_url=contract_explorer_search_url_mapping.get(
@@ -101,5 +67,4 @@ class NetworkConfig:
     def get_contract_explorer_url(self, contract_address: int) -> Optional[str]:
         if not self.contract_explorer_search_url:
             return None
-
         return f"{self.contract_explorer_search_url}/0x{contract_address:064x}"
