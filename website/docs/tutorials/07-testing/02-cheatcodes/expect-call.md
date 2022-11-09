@@ -33,7 +33,7 @@ func test_expect_call_success{syscall_ptr: felt*, range_check_ptr}() {
   %{ ids.ctr_addr_a = context.ctr_addr_a %}
   tempvar ctr_addr_b;
   %{ ids.ctr_addr_b = context.ctr_addr_b %}
-  
+
   %{
     expect_call(ids.ctr_addr_a, "increase_balance", [5, 6, 7])
     expect_call(ids.ctr_addr_b, "increase_balance", [1, 2, 3])
@@ -52,6 +52,7 @@ func test_expect_call_wrong_args{syscall_ptr: felt*, range_check_ptr}() {
     ids.ctr_addr_a = context.ctr_addr_a
     expect_call(ids.ctr_addr_a, "increase_balance", [1, 3, 2])
   %}
+
   MainContract.increase_balance(contract_address=ctr_addr_a, amount_1=1, amount_2=2, amount_3=3);
 
   return ();
