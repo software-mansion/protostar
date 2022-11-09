@@ -15,7 +15,6 @@ from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
 from protostar.argument_parser import ArgumentParserFacade, CLIApp
 from protostar.cli import map_protostar_type_name_to_parser, MessengerFactory
-from protostar.cli.map_targets_to_file_paths import map_targets_to_file_paths
 from protostar.commands import (
     BuildCommand,
     CallCommand,
@@ -38,10 +37,8 @@ from protostar.configuration_file import (
     ConfigurationFileV2ContentFactory,
     ConfigurationTOMLContentBuilder,
 )
-from protostar.formatter.formatter import Formatter
 from protostar.formatter.formatting_result import (
     FormattingResult,
-    format_formatting_result,
 )
 from protostar.formatter.formatting_summary import FormattingSummary
 from protostar.io import log_color_provider
@@ -293,33 +290,16 @@ class ProtostarFixture:
         check: bool = False,
         verbose: bool = False,
         ignore_broken: bool = False,
+        on_formatting_result: Optional[Callable[[FormattingResult], Any]] = None,
     ) -> FormattingSummary:
         # We can't use run because it can raise a silent exception thus not returning summary.
-        return self._format_command.format(targets, check, verbose, ignore_broken)
-
-    def format_with_output(
-        self,
-        targets: List[str],
-        check: bool = False,
-        verbose: bool = False,
-        ignore_broken: bool = False,
-    ) -> Tuple[FormattingSummary, List[str]]:
-        formatter = Formatter(self._project_root_path)
-
-        output: List[str] = []
-        callback: Callable[[FormattingResult], Any] = lambda result: output.append(
-            format_formatting_result(result, check)
-        )
-
-        summary = formatter.format(
-            file_paths=map_targets_to_file_paths(targets),
+        return self._format_command.format(
+            targets=targets,
             check=check,
             verbose=verbose,
             ignore_broken=ignore_broken,
-            on_formatting_result=callback,
+            on_formatting_result=on_formatting_result,
         )
-
-        return summary, output
 
     def create_files(
         self, relative_path_str_to_file: Dict[str, Union[str, Path]]
@@ -518,7 +498,7 @@ def build_protostar_fixture(
 
     format_command = FormatCommand(
         project_root_path=project_root_path,
-        logger=logger,
+        messenger_factory=messenger_factory,
     )
     declare_command = DeclareCommand(
         logger=logger, gateway_facade_factory=gateway_facade_factory
