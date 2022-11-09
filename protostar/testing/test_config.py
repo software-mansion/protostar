@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Optional
 
 from starkware.starknet.testing.contract import StarknetContract
 from typing_extensions import Self
@@ -90,6 +91,7 @@ class TestConfig:
     mode: TestMode = TestMode.UNDETERMINED
     seed: Seed = field(default_factory=random_seed)
     profiling: bool = True
+    max_steps: Optional[int] = None
 
     fuzz_max_examples: int = 100
     fuzz_declared_strategies: dict[str, StrategyDescriptor] = field(

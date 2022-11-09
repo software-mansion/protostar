@@ -2,6 +2,7 @@ import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, List, Optional, Tuple, cast
+from copy import deepcopy
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.compiler.debug_info import DebugInfo
@@ -22,11 +23,12 @@ from starkware.starknet.business_logic.execution.execute_entry_point import (
     ExecuteEntryPoint,
 )
 from starkware.starknet.business_logic.execution.objects import (
+    CallInfo,
     TransactionExecutionContext,
 )
 from starkware.starknet.business_logic.fact_state.state import ExecutionResourcesManager
 from starkware.starknet.business_logic.state.state import StateSyncifier
-from starkware.starknet.business_logic.state.state_api import SyncState
+from starkware.starknet.business_logic.state.state_api import State, SyncState
 from starkware.starknet.business_logic.utils import validate_contract_deployed
 from starkware.starknet.core.os import os_utils, syscall_utils
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
@@ -88,6 +90,9 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     samples: list[ContractProfile] = []
     contract_callstack: list[str] = []
     profiling = False
+
+    # None results in default Cairo value
+    max_steps: Optional[int] = None
 
     def _run(
         self,
@@ -298,6 +303,26 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         current_callstack = CheatableExecuteEntryPoint.contract_callstack.copy()
         CheatableExecuteEntryPoint.samples.append(
             ContractProfile(current_callstack, entry_point, profile)
+        )
+
+    async def execute_for_testing(
+        self,
+        state: State,
+        general_config: StarknetGeneralConfig,
+        resources_manager: Optional[ExecutionResourcesManager] = None,
+        tx_execution_context: Optional[TransactionExecutionContext] = None,
+    ) -> CallInfo:
+
+        new_config = deepcopy(general_config)
+        if self.max_steps is not None:
+
+            # Providing a negative value to Protostar results in infinite steps,
+            # this is here to mimic default Cairo behavior
+            value = None if self.max_steps < 0 else self.max_steps
+            new_config.__dict__["invoke_tx_max_n_steps"] = value
+
+        return await super().execute_for_testing(
+            state, new_config, resources_manager, tx_execution_context
         )
 
 

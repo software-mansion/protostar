@@ -92,6 +92,7 @@ class TestRunner:
         project_root_path: Path
         cwd: Path
         active_profile_name: Optional[str]
+        max_steps: Optional[int]
 
     @classmethod
     def worker(cls, args: "TestRunner.WorkerArgs"):
@@ -107,6 +108,7 @@ class TestRunner:
             ).run_test_suite(
                 test_suite=args.test_suite,
                 testing_seed=args.testing_seed,
+                max_steps=args.max_steps,
             )
         )
 
@@ -114,8 +116,11 @@ class TestRunner:
         self,
         test_suite: TestSuite,
         testing_seed: Seed,
+        max_steps: Optional[int],
     ):
-        test_config = TestConfig(seed=testing_seed, profiling=self.profiling)
+        test_config = TestConfig(
+            seed=testing_seed, profiling=self.profiling, max_steps=max_steps
+        )
 
         try:
             compiled_test = self.tests_compiler.compile_contract(

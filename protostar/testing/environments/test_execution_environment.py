@@ -41,6 +41,7 @@ class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
                 finish_hook=self._finish_hook,
             )
         )
+        self.set_max_steps(self.state.config.max_steps)
 
         with self.state.output_recorder.redirect("test"):
             return TestExecutionResult(
