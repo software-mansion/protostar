@@ -60,13 +60,13 @@ class ProtostarInitializingIndicator:
         self._disabled = disabled
 
     def start(self):
+        if self._disabled:
+            return
+
         self._thread.start()
         return self
 
     def _animate(self):
-        if self._disabled:
-            return
-
         for step in cycle(self.steps):
             if self.done:
                 break
@@ -74,6 +74,9 @@ class ProtostarInitializingIndicator:
             sleep(self.interval)
 
     def stop(self):
+        if self._disabled:
+            return
+
         self.done = True
         cols = get_terminal_size((80, 20)).columns
         print("\r" + " " * cols, end="\r", flush=True)
