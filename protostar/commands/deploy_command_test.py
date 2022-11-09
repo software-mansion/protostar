@@ -1,9 +1,8 @@
 import pytest
 
-from .gateway_response import (
-    SuccessfulDeployResponse,
-    format_successful_deploy_response,
-)
+from protostar.starknet_gateway import FakeBlockExplorer, SuccessfulDeployResponse
+
+from .deploy_command import format_successful_deploy_response
 
 
 @pytest.mark.parametrize(
@@ -15,7 +14,9 @@ from .gateway_response import (
     ],
 )
 def test_deploy_response_formatting(test_input: SuccessfulDeployResponse):
-    formatted_response = format_successful_deploy_response(test_input)
+    formatted_response = format_successful_deploy_response(
+        test_input, block_explorer=FakeBlockExplorer()
+    )
     assert "Deploy transaction was sent." in formatted_response
     assert f"0x{test_input.address:064x}" in formatted_response
     assert f"0x{test_input.transaction_hash:064x}" in formatted_response
