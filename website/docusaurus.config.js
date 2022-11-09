@@ -129,6 +129,14 @@ const config = {
           to: '/docs/tutorials/testing',
           from: '/docs/tutorials/guides/testing',
         },
+        {
+          to: '/docs/tutorials/migrations',
+          from: '/docs/tutorials/deploying/migrations',
+        },
+        {
+          to: '/docs/tutorials/interacting-with-starknet',
+          from: '/docs/tutorials/deploying/cli'
+        },
       ],
     }],
   ],
