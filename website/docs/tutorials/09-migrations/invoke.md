@@ -36,7 +36,7 @@ The config object is passed as a python dictionary.
 
 This config object also contains properties of `CheatcodeNetworkConfig`, see configuration options in the [related docs](./network-config.md).
 
-Wallet used for providing the fee is global, and is provided with signing arguments, as described [here](../09-interacting-with-starknet/06-signing.md).
+Wallet used for providing the fee is global, and is provided with signing arguments, as described [here](../08-interacting-with-starknet/06-signing.md).
 
 ## Example
 

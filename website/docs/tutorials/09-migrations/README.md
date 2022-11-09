@@ -100,7 +100,7 @@ If atomicity is essential and you need only to use deploy and invoke transaction
 
 ## Signing the migration
 You can sign the migration's transactions by providing appropriate arguments to the CLI of the command. 
-See signing-related documentation [here](../09-interacting-with-starknet/06-signing.md).
+See signing-related documentation [here](../08-interacting-with-starknet/06-signing.md).
 
 For now, declare and invoke migration calls are signed automatically when provided with appropriate arguments.
 
