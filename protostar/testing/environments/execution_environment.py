@@ -100,6 +100,7 @@ async def execute_on_state(
     ) -> Tuple[StarknetCallInfo, CallInfo]:
         """
         Executes the function call and apply changes on the given state.
+        custom version of StarknetContractFunctionInvocation._execute_on_given_state()
         """
         call_info = await state.execute_entry_point_raw(
             contract_address=invocation.contract_address,
