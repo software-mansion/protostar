@@ -44,6 +44,7 @@ pytest-mock = "^3.10.0"
 pytest-timeout = "^2.1.0"
 snakeviz = "^2.1.1"
 starknet-devnet = "0.3.5"
+pytest-xdist = "^3.0.2"
 
 [tool.poe.tasks]
 build = [
@@ -92,13 +93,13 @@ type_check = "pyright"
 update_cli_docs = "python ./scripts/generate_reference_docs.py"
 
 [tool.poe.tasks.test_e2e]
-shell = "pytest tests/e2e"
+shell = "pytest -n auto tests/e2e"
 
 [tool.poe.tasks.test_integration]
-shell = "coverage run -a -m pytest scripts tests/integration"
+shell = "coverage run -a -m pytest -n auto scripts tests/integration"
 
 [tool.poe.tasks.test_unit]
-shell = "coverage run -m pytest protostar/*"
+shell = "coverage run -m pytest -n auto protostar/*"
 
 [tool.coverage.run]
 source = [
