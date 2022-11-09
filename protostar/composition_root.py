@@ -4,7 +4,11 @@ from pathlib import Path
 from typing import Optional
 
 from protostar.argument_parser import ArgumentParserFacade
-from protostar.cli import ProtostarCommand, map_protostar_type_name_to_parser
+from protostar.cli import (
+    ProtostarCommand,
+    map_protostar_type_name_to_parser,
+    MessengerFactory,
+)
 from protostar.cli.lib_path_resolver import LibPathResolver
 from protostar.commands import (
     BuildCommand,
@@ -126,6 +130,8 @@ def build_di_container(
         protostar_version=protostar_version,
     )
 
+    messenger_factory = MessengerFactory(log_color_provider=log_color_provider)
+
     migrate_configuration_file_command = MigrateConfigurationFileCommand(
         logger=logger,
         configuration_file_migrator=ConfigurationFileV2Migrator(
@@ -198,7 +204,11 @@ def build_di_container(
         FormatCommand(project_root_path, logger),
         CairoMigrateCommand(script_root, logger),
         InvokeCommand(gateway_facade_factory=gateway_facade_factory, logger=logger),
-        CallCommand(gateway_facade_factory=gateway_facade_factory, logger=logger),
+        CallCommand(
+            gateway_facade_factory=gateway_facade_factory,
+            logger=logger,
+            messenger_factory=messenger_factory,
+        ),
         DeployAccountCommand(
             gateway_facade_factory=gateway_facade_factory, logger=logger
         ),

@@ -14,7 +14,7 @@ from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
 from protostar.argument_parser import ArgumentParserFacade, CLIApp
-from protostar.cli import map_protostar_type_name_to_parser
+from protostar.cli import map_protostar_type_name_to_parser, MessengerFactory
 from protostar.cli.map_targets_to_file_paths import map_targets_to_file_paths
 from protostar.commands import (
     BuildCommand,
@@ -283,6 +283,7 @@ class ProtostarFixture:
         args.network = None
         args.gateway_url = gateway_url
         args.chain_id = StarknetChainId.TESTNET
+        args.json = False
 
         return await self._call_command.run(args)
 
@@ -501,6 +502,8 @@ def build_protostar_fixture(
         transaction_registry=transaction_registry,
     )
 
+    messenger_factory = MessengerFactory(log_color_provider=log_color_provider)
+
     deploy_account_command = DeployAccountCommand(
         gateway_facade_factory=gateway_facade_factory, logger=logger
     )
@@ -542,7 +545,9 @@ def build_protostar_fixture(
         gateway_facade_factory=gateway_facade_factory, logger=logger
     )
     call_command = CallCommand(
-        gateway_facade_factory=gateway_facade_factory, logger=logger
+        gateway_facade_factory=gateway_facade_factory,
+        logger=logger,
+        messenger_factory=messenger_factory,
     )
 
     cli_app = CLIApp(commands=[deploy_account_command])
