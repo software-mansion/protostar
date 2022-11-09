@@ -10,7 +10,8 @@ from protostar.starknet.cheatable_execute_entry_point import CheatableExecuteEnt
 from protostar.starknet.cheatable_state import CheatableStarknetState
 from protostar.starknet.cheatcode_factory import CheatcodeFactory
 from protostar.starknet.execution_state import ExecutionState
-from starkware.starknet.testing.contract import StarknetContract, StarknetContractFunctionInvocation
+from starkware.starknet.testing.contract import StarknetContractFunctionInvocation
+from starkware.starknet.business_logic.transaction.fee import calculate_tx_fee
 from protostar.testing.test_environment_exceptions import (
     StarknetRevertableException,
 )
@@ -50,19 +51,26 @@ class ExecutionEnvironment(ABC, Generic[InvokeResultT]):
             func = getattr(self.state.contract, function_name)
             invoc: StarknetContractFunctionInvocation = func(*args, **kwargs)
             result, call_info = await execute_on_state(invoc, self.state.starknet.cheatable_state, resources_manager=resources_manager) 
-            # loop: asyncio.AbstractEventLoop = asyncio.get_running_loop()
-            # sync_state = StateSyncifier(async_state=self.state.starknet.state.state, loop=loop)
-            # tracker_state = UpdatesTrackerState(state=sync_state)
-            # actual_resources = calculate_tx_resources(
-            #     state=tracker_state,
-            #     resources_manager=resources_manager,
-            #     call_infos=[call_info],
-            #     tx_type=TransactionType.INVOKE_FUNCTION,
-            # )
-            fee_estimation_info = get_fee_estimation_info(
-                execution_info.actual_fee, state.state.block_info.gas_price
+            loop: asyncio.AbstractEventLoop = asyncio.get_running_loop()
+            sync_state = StateSyncifier(async_state=self.state.starknet.state.state, loop=loop)
+            tracker_state = UpdatesTrackerState(state=sync_state)
+            actual_resources = calculate_tx_resources(
+                state=tracker_state,
+                resources_manager=resources_manager,
+                call_infos=[call_info],
+                tx_type=TransactionType.INVOKE_FUNCTION,
             )
+            # sync_state.block_info.gas_price is 0 :(
+            # We can just show estimated gas instead of fee?
+            actual_fee = calculate_tx_fee(
+                actual_resources,
+                1,
+                self.state.starknet.state.general_config,
+            )
+
+            print(sync_state.block_info.gas_price)
             print(actual_resources)
+            print(actual_fee)
             return result
 
         except StarkException as ex:
