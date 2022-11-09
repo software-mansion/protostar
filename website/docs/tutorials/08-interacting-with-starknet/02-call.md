@@ -23,7 +23,6 @@ Response:
 {
     "res": 6
 }
-15:07:35 [INFO] Execution time: 2.20 s
 ```
 
 :::note

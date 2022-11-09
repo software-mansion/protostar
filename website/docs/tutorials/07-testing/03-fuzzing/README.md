@@ -108,7 +108,6 @@ So far, so good. Running the test, we see it passes:
 12:14:51 [INFO] Test suites: 1 passed, 1 total
 12:14:51 [INFO] Tests:       1 passed, 1 total
 12:14:51 [INFO] Seed:        2917010406
-12:14:51 [INFO] Execution time: 5.34 s
 ```
 
 ### Generalizing the test
@@ -199,7 +198,6 @@ amount = 10001
 12:24:06 [INFO] Test suites: 1 failed, 1 total
 12:24:06 [INFO] Tests:       1 failed, 1 total
 12:24:06 [INFO] Seed:        2965326707
-12:24:06 [INFO] Execution time: 11.95 s
 ```
 
 We need to take the `Cannot withdraw more than stored` error into consideration, so we also add a
@@ -245,7 +243,6 @@ amount = 36185027886661312136973227830950701056231072153315966999730920561358720
 12:25:29 [INFO] Test suites: 1 failed, 1 total
 12:25:29 [INFO] Tests:       1 failed, 1 total
 12:25:29 [INFO] Seed:        1746010604
-12:25:29 [INFO] Execution time: 7.34 s
 ```
 
 ### Fixing the bug
@@ -286,7 +283,6 @@ contract code.
 12:27:35 [INFO] Test suites: 1 passed, 1 total
 12:27:35 [INFO] Tests:       1 passed, 1 total
 12:27:35 [INFO] Seed:        3287645654
-12:27:35 [INFO] Execution time: 13.46 s
 ```
 
 ## Interpreting results
