@@ -11,8 +11,16 @@ from protostar.cli import (
     SignableCommandUtil,
 )
 from protostar.protostar_exception import ProtostarException
-from protostar.starknet_gateway import GatewayFacadeFactory, SuccessfulInvokeResponse
+from protostar.starknet_gateway import (
+    GatewayFacadeFactory,
+    SuccessfulInvokeResponse,
+    create_block_explorer,
+    SupportedBlockExplorerName,
+    NetworkConfig,
+    BlockExplorer,
+)
 from protostar.starknet_gateway.gateway_facade import Fee
+from protostar.cli.common_arguments import BLOCK_EXPLORER_ARG
 
 
 class InvokeCommand(ProtostarCommand):
@@ -41,6 +49,7 @@ class InvokeCommand(ProtostarCommand):
         return [
             *SignableCommandUtil.signable_arguments,
             *NetworkCommandUtil.network_arguments,
+            BLOCK_EXPLORER_ARG,
             ProtostarArgument(
                 name="contract-address",
                 description="The address of the contract being called.",
@@ -86,6 +95,8 @@ class InvokeCommand(ProtostarCommand):
             contract_address=args.contract_address,
             function_name=args.function,
             inputs=args.inputs,
+            network_config=network_config,
+            block_explorer_name=args.block_explorer,
             gateway_client=gateway_client,
             signer=signer,
             max_fee=args.max_fee,
@@ -98,6 +109,8 @@ class InvokeCommand(ProtostarCommand):
         contract_address: int,
         function_name: str,
         gateway_client: GatewayClient,
+        network_config: NetworkConfig,
+        block_explorer_name: SupportedBlockExplorerName,
         inputs: Optional[list[int]] = None,
         signer: Optional[BaseSigner] = None,
         account_address: Optional[str] = None,
@@ -129,15 +142,25 @@ class InvokeCommand(ProtostarCommand):
             account_address=account_address,
             wait_for_acceptance=wait_for_acceptance,
         )
-        self._logger.info(self.format_successful_invoke_response(response))
+        self._logger.info(
+            self.format_successful_invoke_response(
+                response,
+                block_explorer=create_block_explorer(
+                    block_explorer_name, network=network_config.network_name
+                ),
+            )
+        )
 
         return response
 
     @staticmethod
-    def format_successful_invoke_response(response: SuccessfulInvokeResponse):
-        return "\n".join(
-            [
-                "Invoke transaction was sent.",
-                f"Transaction hash: 0x{response.transaction_hash:064x}",
-            ]
-        )
+    def format_successful_invoke_response(
+        response: SuccessfulInvokeResponse, block_explorer: BlockExplorer
+    ) -> str:
+        lines: list[str] = []
+        lines.append("Invoke transaction was sent.")
+        lines.append(f"Transaction hash: 0x{response.transaction_hash:064x}")
+        tx_url = block_explorer.create_link_to_transaction(response.transaction_hash)
+        if tx_url:
+            lines.append(tx_url)
+        return "\n".join(lines)
