@@ -114,6 +114,7 @@ class ProtostarFixture:
         args.gateway_url = None
         args.network = None
         args.token = None
+        args.block_explorer = None
         args.wait_for_acceptance = wait_for_acceptance
         args.chain_id = chain_id
         args.account_address = account_address
@@ -136,6 +137,7 @@ class ProtostarFixture:
         args.network = None
         args.token = None
         args.salt = None
+        args.block_explorer = None
         args.wait_for_acceptance = False
         args.chain_id = StarknetChainId.TESTNET
         return await self._deploy_command.run(args)
@@ -261,6 +263,7 @@ class ProtostarFixture:
         args.signer_class = None
         args.account_address = account_address
         args.private_key_path = None
+        args.block_explorer = None
         args.wait_for_acceptance = wait_for_acceptance
         args.max_fee = max_fee
 
