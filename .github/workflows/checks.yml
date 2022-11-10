@@ -96,6 +96,8 @@ jobs:
       - name: Integration tests
         run: |
           poetry run poe test_integration
+        env:
+          PYTEST_XDIST_AUTO_NUM_WORKERS: 4
       - name: Convert coverage to XML
         run: |
           poetry run python -m coverage xml
@@ -131,3 +133,5 @@ jobs:
       - name: E2E tests
         run: |
           poetry run poe test_e2e
+        env:
+          PYTEST_XDIST_AUTO_NUM_WORKERS: 4
