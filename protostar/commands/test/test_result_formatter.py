@@ -69,6 +69,7 @@ def _format_passed_test_case_result(
             execution_time=passed_test_case_result.execution_time,
             test_case_name=passed_test_case_result.test_case_name,
             fuzz_runs_count=None,
+            estimated_fee=passed_test_case_result.estimated_fee,
         )
     )
 
@@ -170,6 +171,11 @@ def _format_passed_fuzz_test_case_result(
     info_items.append(
         _get_formatted_execution_time(passed_fuzz_test_case_result.execution_time)
     )
+
+    if passed_fuzz_test_case_result.estimated_fee:
+        info_items.append(
+            f"estimated_fee={log_color_provider.bold(passed_fuzz_test_case_result.estimated_fee)}"
+        )
 
     if passed_fuzz_test_case_result.fuzz_runs_count is not None:
         info_items.append(
