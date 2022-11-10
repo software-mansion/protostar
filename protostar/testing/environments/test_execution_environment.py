@@ -61,12 +61,16 @@ class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
 
         async with self._expect_revert_context.test():
             async with self._finish_hook.run_after():
-                call_info = await self.perform_execute(function_name, *args, **kwargs)
+                call_info, estimated_fee = await self.perform_execute(
+                    function_name, estimate_fee=True, *args, **kwargs
+                )
                 execution_resources = (
                     ExecutionResourcesSummary.from_execution_resources(
                         call_info.call_info.execution_resources
                     )
                 )
+                if estimated_fee:
+                    execution_resources.estimated_fee = estimated_fee
 
         return execution_resources
 

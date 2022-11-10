@@ -74,6 +74,7 @@ class ExecutionResourcesSummary:
     n_steps: Statistic = field(default_factory=CountStatistic)
     n_memory_holes: Statistic = field(default_factory=CountStatistic)
     builtin_name_to_count_map: Dict[str, Statistic] = field(default_factory=dict)
+    estimated_fee: int = field(default_factory=int)
 
     @classmethod
     def from_execution_resources(cls, execution_resources: ExecutionResources):
@@ -99,6 +100,7 @@ class ExecutionResourcesSummary:
             n_steps=self.n_steps.add_observation(other.n_steps),
             n_memory_holes=self.n_memory_holes.add_observation(other.n_memory_holes),
             builtin_name_to_count_map=dict(builtin_name_to_count_map),
+            estimated_fee=max(self.estimated_fee, other.estimated_fee),
         )
 
     @staticmethod

@@ -19,6 +19,7 @@ from starkware.starknet.services.api.contract_class import EntryPointType
 from starkware.starknet.testing.state import StarknetState, CastableToAddress
 from starkware.storage.dict_storage import DictStorage
 from starkware.storage.storage import FactFetchingContext
+from starkware.starknet.business_logic.fact_state.state import ExecutionResourcesManager
 
 from protostar.starknet.cheatable_cached_state import CheatableCachedState
 from protostar.starknet.cheatable_execute_entry_point import CheatableExecuteEntryPoint
@@ -69,6 +70,7 @@ class CheatableStarknetState(StarknetState):
         selector: Union[int, str],
         calldata: List[int],
         caller_address: int,
+        resources_manager: Optional[ExecutionResourcesManager] = None,
     ) -> CallInfo:
         if isinstance(contract_address, str):
             contract_address = int(contract_address, 16)
@@ -92,6 +94,7 @@ class CheatableStarknetState(StarknetState):
             call_info = await call.execute_for_testing(
                 state=state_copy,
                 general_config=self.general_config,
+                resources_manager=resources_manager,
             )
 
         self.add_messages_and_events(execution_info=call_info)
