@@ -1,9 +1,10 @@
 import asyncio
 from argparse import Namespace
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from logging import Logger, getLogger
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast, Generator
 
 from pytest_mock import MockerFixture
 from starknet_py.net import KeyPair
@@ -217,6 +218,7 @@ class ProtostarFixture:
         args.compiled_contracts_dir = Path("./build")
         args.disable_hint_validation = False
         args.cairo_path = None
+        args.json = False
         return args
 
     async def migrate(
@@ -401,6 +403,11 @@ class TestFriendlyGatewayFacadeFactory(GatewayFacadeFactory):
         )
 
 
+@contextmanager
+def fake_activity_indicator(message: str) -> Generator[None, None, None]:
+    yield
+
+
 def build_protostar_fixture(
     mocker: MockerFixture, project_root_path: Path, signing_credentials: Tuple[str, str]
 ):
@@ -458,7 +465,15 @@ def build_protostar_fixture(
     )
 
     logger = getLogger()
-    build_command = BuildCommand(logger=logger, project_compiler=project_compiler)
+    messenger_factory = MessengerFactory(
+        log_color_provider=log_color_provider,
+        activity_indicator=fake_activity_indicator,
+    )
+
+    build_command = BuildCommand(
+        project_compiler=project_compiler,
+        messenger_factory=messenger_factory,
+    )
 
     migrator_builder = Migrator.Builder(
         migrator_execution_environment_builder=MigratorExecutionEnvironment.Builder(
@@ -481,8 +496,6 @@ def build_protostar_fixture(
         project_root_path=project_root_path,
         transaction_registry=transaction_registry,
     )
-
-    messenger_factory = MessengerFactory(log_color_provider=log_color_provider)
 
     deploy_account_command = DeployAccountCommand(
         gateway_facade_factory=gateway_facade_factory, logger=logger

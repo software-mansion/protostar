@@ -8,6 +8,7 @@ from protostar.cli import (
     ProtostarCommand,
     map_protostar_type_name_to_parser,
     MessengerFactory,
+    ActivityIndicator,
 )
 from protostar.cli.lib_path_resolver import LibPathResolver
 from protostar.commands import (
@@ -130,7 +131,10 @@ def build_di_container(
         protostar_version=protostar_version,
     )
 
-    messenger_factory = MessengerFactory(log_color_provider=log_color_provider)
+    messenger_factory = MessengerFactory(
+        log_color_provider=log_color_provider,
+        activity_indicator=ActivityIndicator,
+    )
 
     migrate_configuration_file_command = MigrateConfigurationFileCommand(
         logger=logger,
@@ -149,7 +153,10 @@ def build_di_container(
             new_project_creator=new_project_creator,
             adapted_project_creator=adapted_project_creator,
         ),
-        BuildCommand(project_compiler, logger),
+        BuildCommand(
+            project_compiler=project_compiler,
+            messenger_factory=messenger_factory,
+        ),
         InstallCommand(
             log_color_provider=log_color_provider,
             logger=logger,
