@@ -67,6 +67,9 @@ class TestCaseRunner(Generic[ExecutionResultT]):
             execution_resources=execution_result.execution_resources,
             execution_time=execution_metadata.execution_time,
             captured_stdout=self._output_recorder.get_captures(),
+            estimated_fee=execution_result.execution_resources.estimated_fee
+            if execution_result.execution_resources is not None
+            else None,
         )
 
     def _map_reported_exception_to_failed_test_result(
