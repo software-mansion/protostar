@@ -59,7 +59,7 @@ You can provide `"data"` as a dictionary to leverage [data transformer](README.m
 :::
 
 
-```cairo title="Emitting a complexly-strucutred event, and expecting it in tests using data-transformer"
+```cairo title="Emitting a complex structured event, and expecting it in tests using data transformer"
 %lang starknet
 
 struct InnerStruct {
