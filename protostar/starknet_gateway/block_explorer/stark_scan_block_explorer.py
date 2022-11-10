@@ -14,6 +14,9 @@ class StarkScanBlockExplorer(BlockExplorer):
         }
         self._domain = network_to_domain[network]
 
+    def get_name(self) -> str:
+        return "StarkScan"
+
     def create_link_to_transaction(self, tx_hash: TransactionHash) -> Optional[str]:
         return f"{self._domain}/tx/0x{tx_hash:064x}"
 

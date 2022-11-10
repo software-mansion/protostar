@@ -11,6 +11,9 @@ class ViewblockBlockExplorer(BlockExplorer):
         self._network: PredefinedNetwork = network
         self._prefix: str = "https://v2.viewblock.io/starknet"
 
+    def get_name(self) -> str:
+        return "ViewBlock"
+
     def create_link_to_transaction(self, tx_hash: TransactionHash) -> Optional[str]:
         return f"{self._prefix}/tx/0x{tx_hash:064x}{self._get_network_query_param()}"
 
