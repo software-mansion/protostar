@@ -74,7 +74,7 @@ class ExecutionResourcesSummary:
     n_steps: Statistic = field(default_factory=CountStatistic)
     n_memory_holes: Statistic = field(default_factory=CountStatistic)
     builtin_name_to_count_map: Dict[str, Statistic] = field(default_factory=dict)
-    estimated_fee: int = field(default_factory=int)
+    estimated_fee: Optional[int] = None
 
     @classmethod
     def from_execution_resources(cls, execution_resources: ExecutionResources):
@@ -95,12 +95,16 @@ class ExecutionResourcesSummary:
                     k
                 ].add_observation(v)
 
+        bigger_fee = None
+        if self.estimated_fee is not None and other.estimated_fee is not None:
+            bigger_fee = max(self.estimated_fee, other.estimated_fee)
+
         return dataclasses.replace(
             self,
             n_steps=self.n_steps.add_observation(other.n_steps),
             n_memory_holes=self.n_memory_holes.add_observation(other.n_memory_holes),
             builtin_name_to_count_map=dict(builtin_name_to_count_map),
-            estimated_fee=max(self.estimated_fee, other.estimated_fee),
+            estimated_fee=bigger_fee,
         )
 
     @staticmethod
