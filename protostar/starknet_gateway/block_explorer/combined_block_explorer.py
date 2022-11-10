@@ -1,5 +1,7 @@
 from typing import Callable, Optional
 
+from protostar.io.log_color_provider import log_color_provider
+
 from .block_explorer import BlockExplorer, ClassHash, ContractAddress, TransactionHash
 
 
@@ -34,9 +36,18 @@ class CombinedBlockExplorer(BlockExplorer):
     def _aggregate_links(
         self, on_picking_link: Callable[[BlockExplorer], Optional[str]]
     ):
+        longest_name = len(
+            max((explorer.get_name() for explorer in self._block_explorers), key=len)
+        )
+
+        def format_name(name: str) -> str:
+            result = name.ljust(longest_name, " ")
+            result = log_color_provider.bold(result)
+            return log_color_provider.colorize("MAGENTA", content=result)
+
         return "\n".join(
             [
-                f"— {explorer.get_name()} {on_picking_link(explorer)}"
+                f"{format_name(explorer.get_name())} {on_picking_link(explorer) or '—'}"
                 for explorer in self._block_explorers
             ]
         )
