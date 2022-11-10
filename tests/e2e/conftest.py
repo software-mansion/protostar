@@ -1,10 +1,11 @@
 # pylint: disable=redefined-outer-name
 import json
+import os
 import shlex
 import shutil
 from os import chdir, getcwd, mkdir, path
 from pathlib import Path
-from subprocess import PIPE, STDOUT, run
+from subprocess import PIPE, STDOUT, run, DEVNULL
 from typing import Callable, Generator, List, Optional, Tuple, Union
 
 import pexpect
@@ -95,6 +96,7 @@ class ProtostarFixture(Protocol):
         args: List[str],
         expect_exit_code: int = 0,
         ignore_exit_code: bool = False,
+        ignore_stderr: bool = False,
     ) -> str:
         ...
 
@@ -141,12 +143,22 @@ def protostar(
         args: List[str],
         expect_exit_code: int = 0,
         ignore_exit_code: bool = False,
+        ignore_stderr: bool = False,
     ) -> str:
+        # HACK(mkaput): When running E2E tests within PyCharm, this environment variable makes
+        #   tested Protostar think that it's running within a TTY which is not expected by tests.
+        #   As a workaround, we forcefully remove this environment variable from the subprocess.
+        #   This problem does not occur in CI.
+        env = dict(os.environ)
+        if "PYCHARM_HOSTED" in env:
+            del env["PYCHARM_HOSTED"]
+
         completed = run(
             [path.join(tmp_path, "dist", "protostar", "protostar")] + args,
             stdout=PIPE,
-            stderr=STDOUT,
+            stderr=DEVNULL if ignore_stderr else STDOUT,
             encoding="utf-8",
+            env=env,
         )
 
         if not ignore_exit_code:
@@ -216,6 +228,7 @@ def init(
 MyPrivateLibsSetupFixture = Tuple[
     Path,
 ]
+
 
 # pylint: disable=unused-argument
 @pytest.fixture(name="my_private_libs_setup")
