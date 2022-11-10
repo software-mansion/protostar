@@ -64,11 +64,5 @@ def parse_hex_or_decimal(arg: str) -> int:
 
 def parse_block_explorer_type(arg: str) -> SupportedBlockExplorerName:
     if arg not in SUPPORTED_BLOCK_EXPLORER_NAMES:
-        block_explorer_list = [
-            f"— {explorer}" for explorer in SUPPORTED_BLOCK_EXPLORER_NAMES
-        ]
-        raise ValueError(
-            "Invalid block explorer. Supported block explorers:\n"
-            + ("\n".join(block_explorer_list))
-        )
+        raise ValueError()
     return arg
