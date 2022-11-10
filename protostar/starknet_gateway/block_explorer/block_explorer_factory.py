@@ -16,7 +16,7 @@ SUPPORTED_BLOCK_EXPLORER_NAMES: list[SupportedBlockExplorerName] = [
 
 
 def create_block_explorer(
-    block_explorer_name: SupportedBlockExplorerName,
+    block_explorer_name: Optional[SupportedBlockExplorerName],
     network: Optional[PredefinedNetwork],
 ) -> BlockExplorer:
     if network:
