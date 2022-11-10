@@ -1,13 +1,13 @@
-from collections import UserDict, defaultdict
+from collections import Counter, UserDict, defaultdict
 from dataclasses import dataclass
 import math
-from typing import cast
+from typing import Dict, cast
 
 from starkware.cairo.lang.compiler.identifier_definition import LabelDefinition
 from starkware.cairo.lang.tracer.tracer_data import TracerData
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
-
+from starkware.cairo.lang.vm.builtin_runner import BuiltinRunner, SimpleBuiltinRunner
 
 Address = int
 FunctionID = str
@@ -84,6 +84,7 @@ class RuntimeProfile:
     instructions: list[Instruction]
     step_samples: list[Sample]
     memhole_samples: list[Sample]
+    builtin_samples: list[Sample]
     contract_call_callstacks: list[list[Instruction]]
 
 
@@ -265,6 +266,7 @@ def get_not_accessed_addresses(
                 not_accessed_addr.remove(idx)
             except KeyError:
                 pass
+    #TODO(maksymiliandemitraszek) does it include some builtin segments memholes?
     return not_accessed_addr
 
 
@@ -276,17 +278,8 @@ def build_memhole_samples(
     segment_offsets: dict[int, int],
 ) -> list[Sample]:
     # Address -> Pc of instruction which accessed the address last
-    accessed_by: dict[Address, Address] = {}
-    pc_to_callstack: dict[Address, list[Address]] = {}
-    for trace_entry, mem_acc in zip(tracer_data.trace, tracer_data.memory_accesses):
-        frame_pcs = tracer_data.get_callstack(fp=trace_entry.fp, pc=trace_entry.pc)
-        addresses: list[Address] = [mem_acc[d] for d in ["dst", "op0", "op1"]]
-        for addr in addresses:
-            # Casting to Addres because adresses have been already relocated
-            # TODO(maksymiliandemitraszek) check if that's correct
-            accessed_by[addr] = cast(Address, trace_entry.pc)
-            pc_to_callstack[trace_entry.pc] = frame_pcs
 
+    accessed_by, pc_to_callstack = get_last_accessed(tracer_data)
     samples: list[Sample] = []
     not_acc = get_not_accessed_addresses(accessed_memory, segments, segment_offsets)
     for address in not_acc:
@@ -298,11 +291,54 @@ def build_memhole_samples(
     return samples
 
 
+def get_last_accessed(tracer_data: TracerDataManager) -> tuple[dict[Address, Address], dict[Address, list[Address]]]:
+    accessed_by: dict[Address, Address] = {}
+    pc_to_callstack: dict[Address, list[Address]] = {}
+    for trace_entry, mem_acc in zip(tracer_data.trace, tracer_data.memory_accesses):
+        frame_pcs = tracer_data.get_callstack(fp=trace_entry.fp, pc=trace_entry.pc)
+        addresses: list[Address] = [mem_acc[d] for d in ["dst", "op0", "op1"]]
+        for addr in addresses:
+            # Casting to Addres because adresses have been already relocated
+            # TODO(maksymiliandemitraszek) check if that's correct
+            accessed_by[addr] = cast(Address, trace_entry.pc)
+            pc_to_callstack[trace_entry.pc] = frame_pcs
+    return accessed_by, pc_to_callstack
+
+
+def build_builtin_samples(
+    instructions: Instructions,
+    tracer_data: TracerDataManager,
+    accessed_memory: set[RelocatableValue],
+    segments: MemorySegmentManager,
+    segment_offsets: dict[int, int],
+    builtins: Dict[str, BuiltinRunner],
+) -> list[Sample]:
+    samples: list[Sample] = []
+    accessed_by, pc_to_callstack = get_last_accessed(tracer_data)
+    simple_builtins = [b for b in builtins.values() if isinstance(b, SimpleBuiltinRunner)]
+    for builtin in simple_builtins:
+        assert builtin._base
+        base_address = builtin._base
+        idx = base_address.segment_index
+        builtin_segment_size = segments.get_segment_size(idx)
+        for addr in range(0, builtin_segment_size, builtin.cells_per_instance):
+            if addr in accessed_by:
+                responsible_pc = accessed_by[addr]
+                callstack = [
+                    instructions.get_by_address(frame_pc) for frame_pc in pc_to_callstack[responsible_pc]
+                ]
+                samples.append(
+                    Sample(value=1, callstack=callstack)
+                )
+    return samples
+
+
 def build_profile(
     tracer_data: TracerDataManager,
     segments: MemorySegmentManager,
     segment_offsets: dict[int, int],
     accessed_memory: set[RelocatableValue],
+    builtins: Dict[str, BuiltinRunner],
 ) -> RuntimeProfile:
     function_list = collect_contract_functions(tracer_data)
     instructions_list = create_instruction_list(function_list, tracer_data)
@@ -315,6 +351,14 @@ def build_profile(
         segments,
         segment_offsets,
     )
+    builtin_samples= build_builtin_samples(
+        instructions,
+        tracer_data,
+        accessed_memory,
+        segments,
+        segment_offsets,
+        builtins
+    )
     callstacks_syscall = build_call_callstacks(instructions, tracer_data)
     profile = RuntimeProfile(
         functions=function_list,
@@ -322,5 +366,6 @@ def build_profile(
         step_samples=step_samples,
         memhole_samples=memhole_samples,
         contract_call_callstacks=callstacks_syscall,
+        builtin_samples=builtin_samples
     )
     return profile

@@ -130,7 +130,6 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         )
 
         # region Modified Starknet code.
-
         syscall_handler = CheatableSysCallHandler(
             execute_entry_point_cls=CheatableExecuteEntryPoint,
             tx_execution_context=tx_execution_context,
@@ -319,7 +318,7 @@ def get_profile(
     assert runner.accessed_addresses
     assert runner.segment_offsets
     profile = build_profile(
-        tracer_data, runner.segments, runner.segment_offsets, runner.accessed_addresses
+        tracer_data, runner.segments, runner.segment_offsets, runner.accessed_addresses, runner.builtin_runners  # type: ignore
     )
     return profile
 
