@@ -17,13 +17,15 @@ class ViewblockBlockExplorer(BlockExplorer):
         self._network: PredefinedNetwork = network
         self._prefix: URL = "https://v2.viewblock.io/starknet"
 
-    def create_link_to_transaction(self, tx_hash: TransactionHash) -> URL:
+    def create_link_to_transaction(self, tx_hash: TransactionHash) -> Optional[URL]:
         return f"{self._prefix}/tx/0x{tx_hash:064x}{self._get_network_query_param()}"
 
-    def create_link_to_contract(self, contract_address: ContractAddress) -> URL:
+    def create_link_to_contract(
+        self, contract_address: ContractAddress
+    ) -> Optional[URL]:
         return f"{self._prefix}/contract/0x{contract_address:064x}{self._get_network_query_param()}"
 
-    def create_link_to_class(self, class_hash: ClassHash) -> URL:
+    def create_link_to_class(self, class_hash: ClassHash) -> Optional[URL]:
         return (
             f"{self._prefix}/class/0x{class_hash:064x}{self._get_network_query_param()}"
         )

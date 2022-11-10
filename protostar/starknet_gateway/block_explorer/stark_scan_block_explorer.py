@@ -1,3 +1,5 @@
+from typing import Optional
+
 from protostar.starknet_gateway.network_config import PredefinedNetwork
 
 from .block_explorer import (
@@ -18,11 +20,13 @@ class StarkScanBlockExplorer(BlockExplorer):
         }
         self._domain = network_to_domain[network]
 
-    def create_link_to_transaction(self, tx_hash: TransactionHash) -> URL:
+    def create_link_to_transaction(self, tx_hash: TransactionHash) -> Optional[URL]:
         return f"{self._domain}/tx/0x{tx_hash:064x}"
 
-    def create_link_to_contract(self, contract_address: ContractAddress) -> URL:
+    def create_link_to_contract(
+        self, contract_address: ContractAddress
+    ) -> Optional[URL]:
         return f"{self._domain}/contract/0x{contract_address:064x}"
 
-    def create_link_to_class(self, class_hash: ClassHash) -> URL:
+    def create_link_to_class(self, class_hash: ClassHash) -> Optional[URL]:
         return f"{self._domain}/class/0x{class_hash:064x}"
