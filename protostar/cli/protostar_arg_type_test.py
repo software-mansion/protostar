@@ -49,5 +49,5 @@ def test_block_explorer_type():
 
 def test_fail_on_wrong_block_explorer():
     parser = map_protostar_type_name_to_parser("block_explorer")
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError, match="Invalid block explorer"):
         parser("abc")

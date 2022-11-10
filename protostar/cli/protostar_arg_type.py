@@ -11,7 +11,12 @@ from protostar.starknet_gateway import (
 )
 
 CustomProtostarArgTypeName = Literal[
-    "felt", "wei", "fee", "address", "class_hash", "block_explorer"
+    "felt",
+    "wei",
+    "fee",
+    "address",
+    "class_hash",
+    "block_explorer",
 ]
 
 ProtostarArgTypeName = Union[CustomProtostarArgTypeName, ArgTypeName]
@@ -58,5 +63,12 @@ def parse_hex_or_decimal(arg: str) -> int:
 
 
 def parse_block_explorer_type(arg: str) -> SupportedBlockExplorerName:
-    assert arg in SUPPORTED_BLOCK_EXPLORER_NAMES
+    if arg not in SUPPORTED_BLOCK_EXPLORER_NAMES:
+        block_explorer_list = [
+            f"— {explorer}" for explorer in SUPPORTED_BLOCK_EXPLORER_NAMES
+        ]
+        raise ValueError(
+            "Invalid block explorer. Supported block explorers:\n"
+            + ("\n".join(block_explorer_list))
+        )
     return arg
