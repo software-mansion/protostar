@@ -1,8 +1,10 @@
 from dataclasses import dataclass
 
 from starknet_py.net import AccountClient, KeyPair
-from starknet_py.net.models import StarknetChainId, compute_address
+from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
+
+from protostar.starknet.account_address import AccountAddress
 
 from .devnet_account import DevnetAccount
 from .faucet_contract import FaucetContract
@@ -58,9 +60,6 @@ class DevnetAccountPreparator:
         )
 
     def _compute_address(self, class_hash: int, public_key: int, salt: int) -> int:
-        return compute_address(
-            salt=salt,
-            class_hash=class_hash,
-            constructor_calldata=[public_key],
-            deployer_address=0,
-        )
+        return AccountAddress.from_class_hash(
+            class_hash=class_hash, constructor_calldata=[public_key], salt=salt
+        ).as_int()
