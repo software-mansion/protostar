@@ -17,6 +17,7 @@ from protostar.argument_parser import ArgumentParserFacade, CLIApp
 from protostar.cli import map_protostar_type_name_to_parser, MessengerFactory
 from protostar.commands import (
     BuildCommand,
+    CalculateAccountAddressCommand,
     CallCommand,
     DeclareCommand,
     FormatCommand,
@@ -68,6 +69,7 @@ class ProtostarFixture:
         invoke_command: InvokeCommand,
         call_command: CallCommand,
         deploy_account_command: DeployAccountCommand,
+        calculate_account_address_command: CalculateAccountAddressCommand,
         cli_app: CLIApp,
         parser: ArgumentParserFacade,
         transaction_registry: "TransactionRegistry",
@@ -81,6 +83,7 @@ class ProtostarFixture:
         self._deploy_command = deploy_command
         self._test_command = test_command
         self._invoke_command = invoke_command
+        self._calculate_account_address_command = calculate_account_address_command
         self._transaction_registry = transaction_registry
         self._call_command = call_command
         self._deploy_account_command = deploy_account_command
@@ -138,6 +141,31 @@ class ProtostarFixture:
         args.wait_for_acceptance = False
         args.chain_id = StarknetChainId.TESTNET
         return await self._deploy_command.run(args)
+
+    async def calculate_account_address(
+        self,
+        account_address_salt: int,
+        account_class_hash: int,
+        account_constructor_input: Optional[list[int]],
+    ):
+        args = self._parser.parse(
+            [
+                "calculate-account-address",
+                "--account-class-hash",
+                str(account_class_hash),
+                "--account-address-salt",
+                str(account_address_salt),
+            ]
+            + (
+                [
+                    "--account-constructor-input",
+                    " ".join(str(i) for i in account_constructor_input),
+                ]
+                if account_constructor_input
+                else []
+            )
+        )
+        return await self._calculate_account_address_command.run(args)
 
     async def deploy_account(
         self,
@@ -530,7 +558,14 @@ def build_protostar_fixture(
         messenger_factory=messenger_factory,
     )
 
-    cli_app = CLIApp(commands=[deploy_account_command])
+    calculate_account_address_command = CalculateAccountAddressCommand(logger=logger)
+
+    cli_app = CLIApp(
+        commands=[
+            deploy_account_command,
+            calculate_account_address_command,
+        ]
+    )
     parser = ArgumentParserFacade(
         cli_app, parser_resolver=map_protostar_type_name_to_parser
     )
@@ -550,6 +585,7 @@ def build_protostar_fixture(
         cli_app=cli_app,
         parser=parser,
         transaction_registry=transaction_registry,
+        calculate_account_address_command=calculate_account_address_command,
     )
 
     return protostar_fixture

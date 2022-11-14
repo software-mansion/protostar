@@ -49,3 +49,4 @@ class CalculateAccountAddressCommand(ProtostarCommand):
             salt=args.account_address_salt,
         )
         self._logger.info(account_address)
+        return account_address
