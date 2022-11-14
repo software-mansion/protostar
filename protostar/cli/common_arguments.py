@@ -37,7 +37,7 @@ ACCOUNT_ADDRESS_SALT_ARG = ProtostarArgument(
 
 ACCOUNT_CONSTRUCTOR_INPUT = ProtostarArgument(
     name="account-constructor-input",
-    description="Input to the account's constructor",
+    description="Input to the account's constructor.",
     type="int",
     is_array=True,
 )

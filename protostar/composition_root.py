@@ -12,6 +12,7 @@ from protostar.cli import (
 from protostar.cli.lib_path_resolver import LibPathResolver
 from protostar.commands import (
     BuildCommand,
+    CalculateAccountAddressCommand,
     CallCommand,
     DeclareCommand,
     DeployAccountCommand,
@@ -143,6 +144,8 @@ def build_di_container(
         ),
     )
 
+    calculate_account_address_command = CalculateAccountAddressCommand(logger=logger)
+
     commands: list[ProtostarCommand] = [
         InitCommand(
             requester=input_requester,
@@ -216,6 +219,7 @@ def build_di_container(
             gateway_facade_factory=gateway_facade_factory, logger=logger
         ),
         migrate_configuration_file_command,
+        calculate_account_address_command,
     ]
 
     compatibility_checker = ProtostarCompatibilityWithProjectChecker(
