@@ -319,7 +319,7 @@ def build_builtin_samples(
     idx = builtin.base.segment_index
     builtin_segment_size = segments.get_segment_used_size(idx)
     builtin_segment_offset = segment_offsets[idx]
-    for addr in range(0, builtin_segment_size, builtin.cells_per_instance):
+    for addr in range(builtin.base.offset, builtin_segment_size, builtin.cells_per_instance):
         if builtin_segment_offset + addr in accessed_by:
             responsible_pc = accessed_by[builtin_segment_offset + addr]
             callstack = [
