@@ -201,7 +201,10 @@ def build_di_container(
             log_color_provider=log_color_provider,
             gateway_facade_factory=gateway_facade_factory,
         ),
-        FormatCommand(project_root_path, logger),
+        FormatCommand(
+            project_root_path=project_root_path,
+            messenger_factory=messenger_factory,
+        ),
         CairoMigrateCommand(script_root, logger),
         InvokeCommand(gateway_facade_factory=gateway_facade_factory, logger=logger),
         CallCommand(
