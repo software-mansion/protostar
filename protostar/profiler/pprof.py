@@ -22,18 +22,14 @@ def to_protobuf(profile_obj: TransactionProfile) -> Profile:
     id_generator = StringIDGenerator()
 
     profile.time_nanos = int(time.time() * 10**9)  # type: ignore
+    sample_types_names = list(profile_obj.samples.keys())
+    sample_types_names.remove("steps")
+    sample_types_names.append("steps")
 
-    sample_tp = profile.sample_type.add()  # type: ignore
-    sample_tp.type = id_generator.get("steps count")
-    sample_tp.unit = id_generator.get("steps")
-
-    sample_tp = profile.sample_type.add()  # type: ignore
-    sample_tp.type = id_generator.get("memory holes")
-    sample_tp.unit = id_generator.get("mem holes")
-
-    sample_tp = profile.sample_type.add()  # type: ignore
-    sample_tp.type = id_generator.get("all builtins")
-    sample_tp.unit = id_generator.get("builtins")
+    for name in sample_types_names:
+        sample_tp = profile.sample_type.add()  # type: ignore
+        sample_tp.type = id_generator.get(name)
+        sample_tp.unit = id_generator.get(name)
 
     for function in profile_obj.functions:
         func = profile.function.add()  # type: ignore
@@ -50,30 +46,18 @@ def to_protobuf(profile_obj: TransactionProfile) -> Profile:
         line = location.line.add()
         line.function_id = id_generator.get(inst.function.id)
         line.line = inst.line
-
-    for smp in profile_obj.step_samples:
-        sample = profile.sample.add()  # type: ignore
-        for instr in smp.callstack:
-            sample.location_id.append(instr.id)
-        sample.value.append(smp.value)
-        sample.value.append(0)
-        sample.value.append(0)
-
-    for smp in profile_obj.memhole_samples:
-        sample = profile.sample.add()  # type: ignore
-        for instr in smp.callstack:
-            sample.location_id.append(instr.id)
-        sample.value.append(0)
-        sample.value.append(smp.value)
-        sample.value.append(0)
     
-    for smp in profile_obj.builtin_samples:
-        sample = profile.sample.add()  # type: ignore
-        for instr in smp.callstack:
-            sample.location_id.append(instr.id)
-        sample.value.append(0)
-        sample.value.append(0)
-        sample.value.append(smp.value)
+    for name, samples in profile_obj.samples.items():
+        for smp in samples:
+            sample = profile.sample.add()  # type: ignore
+            for instr in smp.callstack:
+                sample.location_id.append(instr.id)
+            idx = sample_types_names.index(name)
+            for i in range(len(sample_types_names)):
+                if i == idx:
+                    sample.value.append(smp.value)
+                else:
+                    sample.value.append(0)
 
     for val in id_generator.string_table:
         profile.string_table.append(val)  # type: ignore
