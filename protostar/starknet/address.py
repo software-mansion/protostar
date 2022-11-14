@@ -1,11 +1,13 @@
 from typing import Union
 
+from typing_extensions import Self
+
 from protostar.protostar_exception import ProtostarException
 
 
 class Address:
     @classmethod
-    def from_valid_input(cls, raw_address: Union[str, int]) -> "Address":
+    def from_user_input(cls, raw_address: Union[str, int]) -> Self:
         if isinstance(raw_address, int):
             return cls(hex(raw_address))
         numeric_representation = int(raw_address, base=0)
