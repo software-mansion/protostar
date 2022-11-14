@@ -16,6 +16,6 @@ async def test_calculate_contract_address(protostar: ProtostarFixture):
     )
 
     assert (
-        account_address.as_str()
+        account_address
         == "0x02eb86e468001ec76336865ff416dfc32ba7b002afd3c65b500b9642e1a679fc"
     )

@@ -6,7 +6,7 @@ def test_matches_snapshot():
         class_hash=0,
         salt=0,
         constructor_calldata=[],
-    ).as_str()
+    )
 
     assert (
         account_address
