@@ -38,6 +38,8 @@ The name of the function being called.
 The URL of a StarkNet gateway. It is required unless `--network` is provided.
 #### `--inputs FELT[]`
 Inputs to the function being called, represented by a list of space-delimited values.
+#### `--json`
+Print machine readable output in JSON format.
 #### `-n` `--network STRING`
 The name of the StarkNet network.
 It is required unless `--gateway-url` is provided.

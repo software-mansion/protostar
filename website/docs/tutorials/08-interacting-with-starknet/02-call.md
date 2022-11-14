@@ -18,7 +18,7 @@ For detailed API description, see [call command reference](../../cli-reference.m
 
 ```shell 
 protostar call --contract-address 0x07ee8ac4d0c1b11eca79b347fb47be5a431cf84a854542b9fbe14f11cfba5466 --function "add_3" --network testnet --inputs 3
-15:07:34 [INFO] Call successful.
+Call successful.
 Response:
 {
     "res": 6
