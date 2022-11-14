@@ -17,3 +17,4 @@ from .skip_cheatcode import SkipCheatcode
 from .start_prank_cheatcode import StartPrankCheatcode
 from .store_cheatcode import StoreCheatcode
 from .warp_cheatcode import WarpCheatcode
+from .expect_call_cheatcode import ExpectCallCheatcode

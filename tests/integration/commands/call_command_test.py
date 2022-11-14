@@ -33,7 +33,7 @@ async def test_call(
         gateway_url=devnet_gateway_url,
     )
 
-    assert response.res == 6  # type: ignore
+    assert response.response.res == 6
 
 
 async def test_call_failure(

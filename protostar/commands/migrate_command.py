@@ -72,6 +72,18 @@ class MigrateCommand(ProtostarCommand):
         ]
 
     async def run(self, args: Namespace) -> Optional[Migrator.History]:
+        self._logger.warning(
+            """\
+Migrations feature is deprecated and is scheduled for removal before Cairo 1.0 release.
+
+Declaring and deploying contracts via Protostar CLI is the recommended approach.
+Alternatively, one can only build contracts with Protostar and use custom scripts using one \
+of StarkNet's SDKs available.
+
+Consult https://docs.swmansion.com/protostar/docs/tutorials/deploying for more information.
+"""
+        )
+
         network_command_util = NetworkCommandUtil(args, self._logger)
         network_config = network_command_util.get_network_config()
         signable_command_util = SignableCommandUtil(args, self._logger)

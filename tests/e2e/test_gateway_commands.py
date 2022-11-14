@@ -12,7 +12,7 @@ from tests.e2e.conftest import ProtostarFixture
 
 
 @pytest.mark.usefixtures("init")
-def test_deploying_contract_with_constructor(
+def test_deploying_and_calling_contract(
     protostar: ProtostarFixture, devnet_gateway_url: str, datadir: Path
 ):
     copy_file(
@@ -23,7 +23,6 @@ def test_deploying_contract_with_constructor(
 
     result = protostar(
         [
-            "--no-color",
             "deploy",
             "./build/main.json",
             "--inputs",
@@ -36,7 +35,56 @@ def test_deploying_contract_with_constructor(
     )
 
     assert "Deploy transaction was sent" in result
-    assert count_hex64(result) == 2
+    assert re.search(r"Transaction hash: 0x[0-9a-f]{64}", result), result
+
+    m = re.search(r"Contract address: (0x[0-9a-f]{64})", result)
+    assert m, result
+    contract_address = m[1]
+
+    result = protostar(
+        [
+            "--no-color",
+            "call",
+            "--gateway-url",
+            devnet_gateway_url,
+            "--chain-id",
+            str(StarknetChainId.TESTNET.value),
+            "--contract-address",
+            contract_address,
+            "--function",
+            "get_balance",
+        ],
+        ignore_stderr=True,
+    )
+
+    assert (
+        result
+        == """\
+Call successful.
+Response:
+{
+    "res": 66
+}
+"""
+    )
+
+    result = protostar(
+        [
+            "call",
+            "--gateway-url",
+            devnet_gateway_url,
+            "--chain-id",
+            str(StarknetChainId.TESTNET.value),
+            "--contract-address",
+            contract_address,
+            "--function",
+            "get_balance",
+            "--json",
+        ],
+        ignore_stderr=True,
+    )
+
+    assert result == '{"res":66}\n'
 
 
 @pytest.mark.usefixtures("init")
