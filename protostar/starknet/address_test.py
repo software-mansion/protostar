@@ -5,6 +5,14 @@ from protostar.protostar_exception import ProtostarException
 from .address import Address
 
 
+def test_equality():
+    address = Address.from_user_input("0xF")
+    assert address == 15
+    assert address == "0xf"
+    assert address == "15"
+    assert address == Address.from_user_input("0xF")
+
+
 def test_human_representation():
     assert (
         Address.from_user_input("0xAbCdEf").as_str()

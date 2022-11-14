@@ -9,23 +9,32 @@ class Address:
     @classmethod
     def from_user_input(cls, raw_address: Union[str, int]) -> Self:
         if isinstance(raw_address, int):
-            return cls(hex(raw_address))
+            return cls(raw_address)
         numeric_representation = int(raw_address, base=0)
         if numeric_representation < 0:
             raise AddressValidationError(raw_address)
-        return cls(hex(int(raw_address, base=0)))
+        return cls(int(raw_address, base=0))
 
-    def __init__(self, hex_value: str) -> None:
-        self._hex_value = hex_value
+    def __init__(self, value: int) -> None:
+        self._value = value
 
     def as_int(self) -> int:
-        return int(self._hex_value, base=16)
+        return self._value
 
     def as_str(self) -> str:
-        return f"0x{int(self._hex_value, base=16):064x}"
+        return f"0x{self._value:064x}"
 
     def __str__(self) -> str:
         return self.as_str()
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Address):
+            return self._value == other.as_int()
+        if isinstance(other, str):
+            return self._value == int(other, base=0)
+        if isinstance(other, int):
+            return self._value == other
+        return False
 
 
 class AddressValidationError(ProtostarException):
