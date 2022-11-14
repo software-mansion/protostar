@@ -13,7 +13,7 @@ def invoke(
 This cheatcode invokes a StarkNet contract, with possible state changes. Can be useful for initializing proxies, etc.
 `SignedCheatcodeConfig` stores configuration used in cheatcodes that can be signed.
 
-It's an extension of [CheatcodeNetworkConfig](../03-network-config.md), so it's properties are applicable here as well.
+It's an extension of [CheatcodeNetworkConfig](./network-config.md), so it's properties are applicable here as well.
 
 ```python
 Wei = int
@@ -34,9 +34,9 @@ We recommend using `max_fee` to avoid unexpected network costs.
 
 The config object is passed as a python dictionary.
 
-This config object also contains properties of `CheatcodeNetworkConfig`, see configuration options in the [related docs](../03-network-config.md).
+This config object also contains properties of `CheatcodeNetworkConfig`, see configuration options in the [related docs](./network-config.md).
 
-Wallet used for providing the fee is global, and is provided with signing arguments, as described [here](../01-cli.md#signing-a-declaration).
+Wallet used for providing the fee is global, and is provided with signing arguments, as described [here](../08-interacting-with-starknet/06-signing.md).
 
 ## Example
 

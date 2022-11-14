@@ -1,12 +1,15 @@
 from argparse import Namespace
 from logging import Logger
-from typing import List, Optional
+from typing import Optional
 
 from protostar.cli import ProtostarArgument, ProtostarCommand
+from protostar.cli.common_arguments import BLOCK_EXPLORER_ARG
 from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.starknet_gateway import (
     GatewayFacadeFactory,
-    format_successful_deploy_response,
+    SuccessfulDeployResponse,
+    BlockExplorer,
+    create_block_explorer,
 )
 
 
@@ -36,11 +39,12 @@ class DeployCommand(ProtostarCommand):
 
     @property
     def example(self) -> Optional[str]:
-        return "protostar deploy ./build/main.json --network alpha-goerli"
+        return "protostar deploy ./build/main.json --network testnet"
 
     @property
     def arguments(self):
         return [
+            BLOCK_EXPLORER_ARG,
             ProtostarArgument(
                 name="contract",
                 description="The path to the compiled contract.",
@@ -100,15 +104,31 @@ class DeployCommand(ProtostarCommand):
             wait_for_acceptance=args.wait_for_acceptance,
         )
 
-        explorer_url = network_config.get_contract_explorer_url(response.address)
-        explorer_url_msg_lines: List[str] = []
-        if explorer_url:
-            explorer_url_msg_lines = ["", explorer_url]
-
         self._logger.info(
             format_successful_deploy_response(
-                response, extra_msg=explorer_url_msg_lines
+                response,
+                block_explorer=create_block_explorer(
+                    block_explorer_name=args.block_explorer,
+                    network=network_config.network_name,
+                ),
             )
         )
 
         return response
+
+
+def format_successful_deploy_response(
+    response: SuccessfulDeployResponse, block_explorer: BlockExplorer
+):
+    lines: list[str] = []
+    lines.append("Deploy transaction was sent.")
+    lines.append(f"Contract address: 0x{response.address:064x}")
+    contract_url = block_explorer.create_link_to_contract(response.address)
+    if contract_url:
+        lines.append(contract_url)
+        lines.append("")
+    lines.append(f"Transaction hash: 0x{response.transaction_hash:064x}")
+    tx_url = block_explorer.create_link_to_transaction(response.transaction_hash)
+    if tx_url:
+        lines.append(tx_url)
+    return "\n".join(lines)

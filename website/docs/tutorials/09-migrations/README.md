@@ -1,11 +1,11 @@
----
-sidebar_label: Migrations
----
-
 # Migrations
 
 :::warning
-Breaking changes can be introduced without deprecation. StarkNet [deployment flow can change](https://community.starknet.io/t/universal-deployer-contract-proposal/1864), so Protostar will follow in the future.
+Migrations feature is deprecated and is scheduled for removal before Cairo 1.0 release.
+
+Declaring and deploying contracts via [Protostar CLI](../08-interacting-with-starknet/README.md) is the recommended approach.
+Alternatively, one can only build contracts with Protostar and use custom scripts using one
+of [StarkNet's SDKs](https://starknet.io/building-on-starknet/developer-tools/#libraries) available.
 :::
 
 
@@ -100,7 +100,7 @@ If atomicity is essential and you need only to use deploy and invoke transaction
 
 ## Signing the migration
 You can sign the migration's transactions by providing appropriate arguments to the CLI of the command. 
-See signing-related documentation [here](../01-cli.md#signing-a-declaration).
+See signing-related documentation [here](../08-interacting-with-starknet/06-signing.md).
 
 For now, declare and invoke migration calls are signed automatically when provided with appropriate arguments.
 

@@ -1,9 +1,9 @@
-from typing import List, Callable, Any, Optional
 from pathlib import Path
+from typing import List, Callable, Any, Optional
 
+from starkware.cairo.lang.compiler.ast.formatting_utils import FormattingError
 from starkware.cairo.lang.compiler.parser import parse_file
 from starkware.cairo.lang.compiler.parser_transformer import ParserError
-from starkware.cairo.lang.compiler.ast.formatting_utils import FormattingError
 
 from protostar.formatter.formatting_result import (
     FormattingResult,
@@ -26,7 +26,7 @@ class Formatter:
         ignore_broken: bool = False,
         on_formatting_result: Optional[Callable[[FormattingResult], Any]] = None,
     ) -> FormattingSummary:
-        summary = FormattingSummary()
+        summary = FormattingSummary(checked_only=check)
 
         for filepath in file_paths:
             relative_filepath = filepath.relative_to(self._project_root_path)
@@ -39,7 +39,11 @@ class Formatter:
                 if ignore_broken:
                     continue
 
-                result = BrokenFormattingResult(relative_filepath, ex)
+                result = BrokenFormattingResult(
+                    filepath=relative_filepath,
+                    checked_only=check,
+                    exception=ex,
+                )
                 summary.extend(result)
 
                 if on_formatting_result is not None:
@@ -50,13 +54,19 @@ class Formatter:
                 continue
 
             if content == new_content:
-                result = CorrectFormattingResult(relative_filepath)
+                result = CorrectFormattingResult(
+                    filepath=relative_filepath,
+                    checked_only=check,
+                )
             else:
                 if not check:
                     with open(filepath, "w", encoding="utf-8") as file:
                         file.write(new_content)
 
-                result = IncorrectFormattingResult(relative_filepath)
+                result = IncorrectFormattingResult(
+                    filepath=relative_filepath,
+                    checked_only=check,
+                )
 
             summary.extend(result)
             if not isinstance(result, CorrectFormattingResult) or verbose:

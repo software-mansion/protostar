@@ -16,7 +16,10 @@ from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
 from starkware.starknet.security.secure_hints import HintsWhitelist
 from starkware.starknet.services.api.contract_class import EntryPointType
 
-from protostar.starknet.cheatable_cached_state import CheatableCachedState, cheaters_of
+from protostar.starknet.cheatable_cached_state import (
+    CheatableCachedState,
+    cheaters_of,
+)
 from protostar.starknet.types import AddressType, SelectorType
 
 
@@ -141,6 +144,16 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
             call_type = CallType.DELEGATE
         else:
             raise NotImplementedError(f"Unsupported call type {syscall_name}.")
+
+        # region Modified Starknet code.
+        contract_calldata = (int(str(request.function_selector)), calldata)
+        if self.cheatable_state.contract_calls.get(contract_address):
+            self.cheatable_state.contract_calls[contract_address].append(
+                contract_calldata
+            )
+        else:
+            self.cheatable_state.contract_calls[contract_address] = [contract_calldata]
+        # endregion
 
         call = self.execute_entry_point_cls(
             call_type=call_type,

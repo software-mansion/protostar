@@ -32,9 +32,10 @@ class ActivityIndicator:
             sleep(self.interval)
 
     def stop(self):
-        self.done = True
-        cols = get_terminal_size((80, 20)).columns
-        print("\r" + " " * cols, end="\r", flush=True)
+        if is_terminal():
+            self.done = True
+            cols = get_terminal_size((80, 20)).columns
+            print("\r" + " " * cols, end="\r", flush=True)
 
     def __enter__(self):
         self.start()

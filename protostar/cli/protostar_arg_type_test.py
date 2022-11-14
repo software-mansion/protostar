@@ -39,3 +39,15 @@ def test_address_arg_type():
     result = parser("0xdeadbeef123")
     assert isinstance(result, int)
     assert result == 15302363377955
+
+
+def test_block_explorer_type():
+    parser = map_protostar_type_name_to_parser("block_explorer")
+    result = parser("starkscan")
+    assert result == "starkscan"
+
+
+def test_fail_on_wrong_block_explorer():
+    parser = map_protostar_type_name_to_parser("block_explorer")
+    with pytest.raises(ValueError):
+        parser("abc")

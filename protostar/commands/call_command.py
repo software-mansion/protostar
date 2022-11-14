@@ -1,6 +1,7 @@
 import json
+from dataclasses import dataclass
 from logging import Logger
-from typing import Any, Optional, Dict
+from typing import Any, Optional
 
 from starknet_py.net.gateway_client import GatewayClient
 
@@ -8,17 +9,36 @@ from protostar.cli import (
     NetworkCommandUtil,
     ProtostarArgument,
     ProtostarCommand,
+    MessengerFactory,
 )
+from protostar.io import LogColorProvider, StructuredMessage
 from protostar.starknet_gateway import GatewayFacadeFactory
+
+
+@dataclass
+class SuccessfulCallMessage(StructuredMessage):
+    response: Any
+
+    def format_human(self, fmt: LogColorProvider) -> str:
+        return f"""\
+{fmt.colorize("GREEN", "Call successful.")}
+Response:
+{json.dumps(self.response._asdict(), indent=4)}\
+"""
+
+    def format_dict(self) -> dict:
+        return self.response._asdict()
 
 
 class CallCommand(ProtostarCommand):
     def __init__(
         self,
         logger: Logger,
+        messenger_factory: MessengerFactory,
         gateway_facade_factory: GatewayFacadeFactory,
     ):
         self._logger = logger
+        self._messenger_factory = messenger_factory
         self._gateway_facade_factory = gateway_facade_factory
 
     @property
@@ -37,6 +57,7 @@ class CallCommand(ProtostarCommand):
     def arguments(self):
         return [
             *NetworkCommandUtil.network_arguments,
+            *MessengerFactory.OUTPUT_ARGUMENTS,
             ProtostarArgument(
                 name="contract-address",
                 description="The address of the contract being called.",
@@ -58,15 +79,21 @@ class CallCommand(ProtostarCommand):
         ]
 
     async def run(self, args: Any):
+        write = self._messenger_factory.from_args(args)
+
         network_command_util = NetworkCommandUtil(args, self._logger)
         gateway_client = network_command_util.get_gateway_client()
 
-        return await self.call(
+        response = await self.call(
             contract_address=args.contract_address,
             function_name=args.function,
             inputs=args.inputs,
             gateway_client=gateway_client,
         )
+
+        write(response)
+
+        return response
 
     async def call(
         self,
@@ -74,25 +101,16 @@ class CallCommand(ProtostarCommand):
         function_name: str,
         gateway_client: GatewayClient,
         inputs: Optional[list[int]] = None,
-    ):
+    ) -> SuccessfulCallMessage:
         gateway_facade = self._gateway_facade_factory.create(
-            gateway_client=gateway_client, logger=None
+            gateway_client=gateway_client,
+            logger=self._logger,
         )
+
         response = await gateway_facade.call(
             address=contract_address,
             function_name=function_name,
             inputs=inputs,
         )
-        self._logger.info(self._format_successful_call_response(response._asdict()))
 
-        return response
-
-    @staticmethod
-    def _format_successful_call_response(response: Dict[str, Any]):
-        return "\n".join(
-            [
-                "Call successful.",
-                "Response:",
-                json.dumps(response, indent=4),
-            ]
-        )
+        return SuccessfulCallMessage(response)
