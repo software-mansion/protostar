@@ -8,12 +8,12 @@ from protostar.protostar_exception import ProtostarException
 class Address:
     @classmethod
     def from_user_input(cls, raw_address: Union[str, int]) -> Self:
-        if isinstance(raw_address, int):
-            return cls(raw_address)
-        numeric_representation = int(raw_address, base=0)
-        if numeric_representation < 0:
+        value = (
+            raw_address if isinstance(raw_address, int) else int(raw_address, base=0)
+        )
+        if value < 0:
             raise AddressValidationError(raw_address)
-        return cls(int(raw_address, base=0))
+        return cls(value)
 
     def __init__(self, value: int) -> None:
         self._value = value
