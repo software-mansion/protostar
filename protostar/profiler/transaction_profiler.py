@@ -29,7 +29,12 @@ class TransactionProfile:
     instructions: list[GlobalInstruction]
     samples: dict[str, list[Sample]]
 
-def translate_samples(contract_samples: list["ContractProfile"], global_instructions: dict[Tuple[GlobalFunctionID, int], Instruction], name: str) -> list[Sample]:
+
+def translate_samples(
+    contract_samples: list["ContractProfile"],
+    global_instructions: dict[Tuple[GlobalFunctionID, int], Instruction],
+    name: str,
+) -> list[Sample]:
     samples_new: list[Sample] = []
     for smp in contract_samples[-1].profile.samples[name]:
         current_contract = contract_samples[-1].contract_callstack[-1]
@@ -50,7 +55,9 @@ def translate_samples(contract_samples: list["ContractProfile"], global_instruct
         contract_samples[-1].profile.contract_call_callstacks,
     )
     for i in range(2, max_clst_len + 1):
-        samples_in_layer = [s for s in contract_samples if len(s.contract_callstack) == i]
+        samples_in_layer = [
+            s for s in contract_samples if len(s.contract_callstack) == i
+        ]
         new_callstacks_from_upper_layer: list[list[list[Instruction]]] = []
         for upper, runtime_sample in zip(callstacks_from_upper_layer, samples_in_layer):
             current_contract = runtime_sample.contract_callstack[-1]
@@ -78,24 +85,24 @@ def translate_samples(contract_samples: list["ContractProfile"], global_instruct
     return samples_new
 
 
-
 # TODO(maksymiliandemitraszek): Enable it again
 # pylint: disable=too-many-branches
 def merge_profiles(contract_samples: list["ContractProfile"]) -> TransactionProfile:
     global_functions = build_global_functions(contract_samples)
     global_instructions = build_global_instructions(global_functions, contract_samples)
-    sample_names = {name for cs in contract_samples for name in cs.profile.samples.keys()}
+    sample_names = {
+        name for cs in contract_samples for name in cs.profile.samples.keys()
+    }
 
     samples = {
         name: translate_samples(contract_samples, global_instructions, name)
         for name in sample_names
     }
-    
 
     return TransactionProfile(
         functions=list(global_functions.values()),
         instructions=list(global_instructions.values()),
-        samples=samples
+        samples=samples,
     )
 
 

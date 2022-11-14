@@ -1,4 +1,4 @@
-from collections import Counter, UserDict, defaultdict
+from collections import UserDict, defaultdict
 from dataclasses import dataclass
 import itertools
 import math
@@ -265,7 +265,7 @@ def get_not_accessed_addresses(
                 not_accessed_addr.remove(idx)
             except KeyError:
                 pass
-    #TODO(maksymiliandemitraszek) does it include some builtin segments memholes?
+    # TODO(maksymiliandemitraszek) does it include some builtin segments memholes?
     return not_accessed_addr
 
 
@@ -290,7 +290,9 @@ def build_memhole_samples(
     return samples
 
 
-def get_last_accessed(tracer_data: TracerDataManager) -> tuple[dict[Address, Address], dict[Address, list[Address]]]:
+def get_last_accessed(
+    tracer_data: TracerDataManager,
+) -> tuple[dict[Address, Address], dict[Address, list[Address]]]:
     accessed_by: dict[Address, Address] = {}
     pc_to_callstack: dict[Address, list[Address]] = {}
     for trace_entry, mem_acc in zip(tracer_data.trace, tracer_data.memory_accesses):
@@ -318,14 +320,13 @@ def build_builtin_samples(
     builtin_segment_size = segments.get_segment_used_size(idx)
     builtin_segment_offset = segment_offsets[idx]
     for addr in range(0, builtin_segment_size, builtin.cells_per_instance):
-        if (builtin_segment_offset + addr) in accessed_by:
+        if builtin_segment_offset + addr in accessed_by:
             responsible_pc = accessed_by[builtin_segment_offset + addr]
             callstack = [
-                instructions.get_by_address(frame_pc) for frame_pc in pc_to_callstack[responsible_pc]
+                instructions.get_by_address(frame_pc)
+                for frame_pc in pc_to_callstack[responsible_pc]
             ]
-            samples.append(
-                Sample(value=1, callstack=callstack)
-            )
+            samples.append(Sample(value=1, callstack=callstack))
     return samples
 
 
@@ -348,18 +349,15 @@ def build_profile(
         segment_offsets,
     )
 
-    simple_builtins = [b for b in builtins.values() if isinstance(b, SimpleBuiltinRunner)]
+    simple_builtins = [
+        b for b in builtins.values() if isinstance(b, SimpleBuiltinRunner)
+    ]
     builtin_samples = {
         builtin.name: build_builtin_samples(
-            builtin,
-            instructions,
-            tracer_data,
-            segments,
-            segment_offsets
+            builtin, instructions, tracer_data, segments, segment_offsets
         )
         for builtin in simple_builtins
     }
-
 
     callstacks_syscall = build_call_callstacks(instructions, tracer_data)
     profile = RuntimeProfile(
@@ -368,8 +366,10 @@ def build_profile(
         samples={
             "steps": step_samples,
             "memory holes": memhole_samples,
-            "all builtins": list(itertools.chain.from_iterable(builtin_samples.values())),
-            **builtin_samples
+            "all builtins": list(
+                itertools.chain.from_iterable(builtin_samples.values())
+            ),
+            **builtin_samples,
         },
         contract_call_callstacks=callstacks_syscall,
     )

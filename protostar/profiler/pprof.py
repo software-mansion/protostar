@@ -24,7 +24,7 @@ def to_protobuf(profile_obj: TransactionProfile) -> Profile:
 
     profile.time_nanos = int(time.time() * 10**9)  # type: ignore
     sample_types_names = list(non_empty_samples.keys())
-    
+
     # Move steps at the end of the list
     sample_types_names.remove("steps")
     sample_types_names.append("steps")
@@ -49,7 +49,7 @@ def to_protobuf(profile_obj: TransactionProfile) -> Profile:
         line = location.line.add()
         line.function_id = id_generator.get(inst.function.id)
         line.line = inst.line
-    
+
     for name, samples in non_empty_samples.items():
         for smp in samples:
             sample = profile.sample.add()  # type: ignore
