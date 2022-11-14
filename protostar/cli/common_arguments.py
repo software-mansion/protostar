@@ -19,5 +19,4 @@ BLOCK_EXPLORER_ARG = ProtostarArgument(
     name="block-explorer",
     description=f"Generated links will point to that block explorer. Available values:\n{block_explorer_list}",
     type="block_explorer",
-    default="starkscan",
 )
