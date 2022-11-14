@@ -123,7 +123,7 @@ Account address.
 #### `--account-address-salt INT`
 Required.
 
-This value is expected by account's `__validate_deploy__` entry point
+An arbitrary value used to determine the address of the new contract.
 #### `--account-class-hash CLASS_HASH`
 Required.
 
