@@ -20,9 +20,12 @@ class StringIDGenerator:
 def to_protobuf(profile_obj: TransactionProfile) -> Profile:
     profile = Profile()
     id_generator = StringIDGenerator()
+    non_empty_samples = {k: v for k, v in profile_obj.samples.items() if v != []}
 
     profile.time_nanos = int(time.time() * 10**9)  # type: ignore
-    sample_types_names = list(profile_obj.samples.keys())
+    sample_types_names = list(non_empty_samples.keys())
+    
+    # Move steps at the end of the list
     sample_types_names.remove("steps")
     sample_types_names.append("steps")
 
@@ -47,7 +50,7 @@ def to_protobuf(profile_obj: TransactionProfile) -> Profile:
         line.function_id = id_generator.get(inst.function.id)
         line.line = inst.line
     
-    for name, samples in profile_obj.samples.items():
+    for name, samples in non_empty_samples.items():
         for smp in samples:
             sample = profile.sample.add()  # type: ignore
             for instr in smp.callstack:
