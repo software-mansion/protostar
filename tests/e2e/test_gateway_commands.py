@@ -13,9 +13,16 @@ from tests.e2e.conftest import ProtostarFixture
 
 
 @pytest.mark.usefixtures("init")
-def test_deploying_and_calling_contract(
-    protostar: ProtostarFixture, devnet_gateway_url: str, datadir: Path
+def test_deploying_and_interacting_with_contract(
+    protostar: ProtostarFixture,
+    devnet_gateway_url: str,
+    datadir: Path,
+    signing_credentials: Credentials,
+    monkeypatch: MonkeyPatch,
 ):
+    private_key, account_address = signing_credentials
+    monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, private_key)
+
     copy_file(
         src=str(datadir / "contract_with_constructor.cairo"),
         dst="./src/main.cairo",
@@ -71,6 +78,55 @@ Response:
 
     result = protostar(
         [
+            "--no-color",
+            "invoke",
+            "--gateway-url",
+            devnet_gateway_url,
+            "--chain-id",
+            str(StarknetChainId.TESTNET.value),
+            "--account-address",
+            account_address,
+            "--max-fee",
+            "auto",
+            "--contract-address",
+            contract_address,
+            "--function",
+            "increase_balance",
+            "--inputs",
+            "100",
+        ],
+        ignore_stderr=True,
+    )
+
+    assert "Invoke transaction was sent." in result, result
+
+    result = protostar(
+        [
+            "--no-color",
+            "invoke",
+            "--gateway-url",
+            devnet_gateway_url,
+            "--chain-id",
+            str(StarknetChainId.TESTNET.value),
+            "--account-address",
+            account_address,
+            "--max-fee",
+            "auto",
+            "--contract-address",
+            contract_address,
+            "--function",
+            "increase_balance",
+            "--inputs",
+            "100",
+            "--json",
+        ],
+        ignore_stderr=True,
+    )
+
+    assert '{"transaction_hash":' in result, result
+
+    result = protostar(
+        [
             "call",
             "--gateway-url",
             devnet_gateway_url,
@@ -85,7 +141,7 @@ Response:
         ignore_stderr=True,
     )
 
-    assert result == '{"res":66}\n'
+    assert result == '{"res":266}\n'
 
 
 @pytest.mark.usefixtures("init")
@@ -181,13 +237,6 @@ def test_declaring_contract_with_signature(
 
     assert "Declare transaction was sent" in result
     assert count_hex64(result) == 2
-
-
-@pytest.mark.usefixtures("init")
-def test_invoke_command_is_available(protostar: ProtostarFixture):
-    assert "Sends an invoke transaction" in protostar(
-        ["--no-color", "invoke", "--help"]
-    )
 
 
 @pytest.mark.usefixtures("init")

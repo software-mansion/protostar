@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from logging import Logger
 from typing import Any, Optional
 
@@ -9,18 +10,38 @@ from protostar.cli import (
     ProtostarArgument,
     ProtostarCommand,
     SignableCommandUtil,
+    MessengerFactory,
 )
+from protostar.cli.common_arguments import BLOCK_EXPLORER_ARG
+from protostar.io import StructuredMessage, LogColorProvider
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import (
+    Fee,
     GatewayFacadeFactory,
     SuccessfulInvokeResponse,
     create_block_explorer,
-    SupportedBlockExplorerName,
-    NetworkConfig,
-    BlockExplorer,
 )
-from protostar.starknet_gateway.gateway_facade import Fee
-from protostar.cli.common_arguments import BLOCK_EXPLORER_ARG
+
+
+@dataclass
+class SuccessfulInvokeMessage(StructuredMessage):
+    response: SuccessfulInvokeResponse
+    tx_url: Optional[str]
+
+    def format_human(self, fmt: LogColorProvider) -> str:
+        message = f"""\
+Invoke transaction was sent.
+Transaction hash: 0x{self.response.transaction_hash:064x}
+"""
+        if self.tx_url:
+            message += f"{self.tx_url}\n"
+
+        return message
+
+    def format_dict(self) -> dict:
+        return {
+            "transaction_hash": f"0x{self.response.transaction_hash:064x}",
+        }
 
 
 class InvokeCommand(ProtostarCommand):
@@ -28,9 +49,11 @@ class InvokeCommand(ProtostarCommand):
         self,
         logger: Logger,
         gateway_facade_factory: GatewayFacadeFactory,
+        messenger_factory: MessengerFactory,
     ):
         self._logger = logger
         self._gateway_facade_factory = gateway_facade_factory
+        self._messenger_factory = messenger_factory
 
     @property
     def name(self) -> str:
@@ -49,6 +72,7 @@ class InvokeCommand(ProtostarCommand):
         return [
             *SignableCommandUtil.signable_arguments,
             *NetworkCommandUtil.network_arguments,
+            *MessengerFactory.OUTPUT_ARGUMENTS,
             BLOCK_EXPLORER_ARG,
             ProtostarArgument(
                 name="contract-address",
@@ -85,18 +109,23 @@ class InvokeCommand(ProtostarCommand):
         ]
 
     async def run(self, args: Any):
+        write = self._messenger_factory.from_args(args)
+
         network_command_util = NetworkCommandUtil(args, self._logger)
         signable_command_util = SignableCommandUtil(args, self._logger)
         network_config = network_command_util.get_network_config()
         gateway_client = network_command_util.get_gateway_client()
         signer = signable_command_util.get_signer(network_config)
 
-        return await self.invoke(
+        block_explorer = create_block_explorer(
+            block_explorer_name=args.block_explorer,
+            network=network_config.network_name,
+        )
+
+        response = await self.invoke(
             contract_address=args.contract_address,
             function_name=args.function,
             inputs=args.inputs,
-            network_config=network_config,
-            block_explorer_name=args.block_explorer,
             gateway_client=gateway_client,
             signer=signer,
             max_fee=args.max_fee,
@@ -104,19 +133,28 @@ class InvokeCommand(ProtostarCommand):
             account_address=args.account_address,
         )
 
+        write(
+            SuccessfulInvokeMessage(
+                response=response,
+                tx_url=block_explorer.create_link_to_transaction(
+                    response.transaction_hash
+                ),
+            )
+        )
+
+        return response
+
     async def invoke(
         self,
         contract_address: int,
         function_name: str,
         gateway_client: GatewayClient,
-        network_config: NetworkConfig,
-        block_explorer_name: SupportedBlockExplorerName,
         inputs: Optional[list[int]] = None,
         signer: Optional[BaseSigner] = None,
         account_address: Optional[str] = None,
         max_fee: Optional[Fee] = None,
         wait_for_acceptance: bool = False,
-    ):
+    ) -> SuccessfulInvokeResponse:
         gateway_facade = self._gateway_facade_factory.create(
             gateway_client=gateway_client, logger=None
         )
@@ -142,25 +180,5 @@ class InvokeCommand(ProtostarCommand):
             account_address=account_address,
             wait_for_acceptance=wait_for_acceptance,
         )
-        self._logger.info(
-            self.format_successful_invoke_response(
-                response,
-                block_explorer=create_block_explorer(
-                    block_explorer_name, network=network_config.network_name
-                ),
-            )
-        )
 
         return response
-
-    @staticmethod
-    def format_successful_invoke_response(
-        response: SuccessfulInvokeResponse, block_explorer: BlockExplorer
-    ) -> str:
-        lines: list[str] = []
-        lines.append("Invoke transaction was sent.")
-        lines.append(f"Transaction hash: 0x{response.transaction_hash:064x}")
-        tx_url = block_explorer.create_link_to_transaction(response.transaction_hash)
-        if tx_url:
-            lines.append(tx_url)
-        return "\n".join(lines)

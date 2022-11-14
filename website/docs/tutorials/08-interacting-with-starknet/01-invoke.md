@@ -26,7 +26,7 @@ Custom signing logic is made possible by using custom signers - see details [her
 
 ```shell 
 protostar invoke --contract-address 0x4a739ab73aa3cac01f9da5d55f49fb67baee4919224454a2e3f85b16462a911 --function "setter_tester_success" --network testnet --account-address 0x0481Eed2e02b1ff19Fd32429801f28a59DEa630d81189E39c80F2F60139b381a --max-fee auto --inputs 3 --private-key-path ./.pkey
-16:54:56 [INFO] Invoke transaction was sent.
+Invoke transaction was sent.
 Transaction hash: 0x05d2362b9b5a5aba8a02a41d2f1fcbdc06cde89f90cf33c0ea4957846c86aeef
 ```
 :::warning
