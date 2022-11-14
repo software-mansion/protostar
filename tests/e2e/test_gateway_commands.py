@@ -196,5 +196,12 @@ def test_deploy_account_is_available(protostar: ProtostarFixture):
     )
 
 
+@pytest.mark.usefixtures("init")
+def test_calculate_account_address_is_available(protostar: ProtostarFixture):
+    assert "calculates the account address" in protostar(
+        ["--no-color", "calculate-account-address", "--help"]
+    )
+
+
 def count_hex64(x: str) -> int:
     return len(re.findall(r"0x[0-9a-f]{64}", x))
