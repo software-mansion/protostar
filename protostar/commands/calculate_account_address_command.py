@@ -25,8 +25,7 @@ class AccountAddressMessage(StructuredMessage):
 
 
 class CalculateAccountAddressCommand(ProtostarCommand):
-    def __init__(self, logger: Logger, messenger_factory: MessengerFactory) -> None:
-        self._logger = logger
+    def __init__(self, messenger_factory: MessengerFactory):
         self._messenger_factory = messenger_factory
 
     @property
