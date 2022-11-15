@@ -158,10 +158,12 @@ class GatewayFacade:
     def _prepare_constructor_inputs(
         self, inputs: Optional[CairoOrPythonData], compiled_contract_path: Path
     ):
-
         abi = self._compiled_contract_reader.load_abi_from_contract_path(
             compiled_contract_path
         )
+
+        if abi is None and isinstance(inputs, list):
+            return inputs
         assert abi is not None
 
         if not has_abi_item(abi, "constructor"):

@@ -21,12 +21,8 @@ from protostar.starknet_gateway.gateway_facade import (
     UnknownFunctionException,
 )
 from tests._conftest.devnet import DevnetAccount, DevnetFixture
-from tests.conftest import MAX_FEE
-from tests.data.contracts import (
-    CONTRACT_WITH_CONSTRUCTOR,
-    IDENTITY_CONTRACT,
-    PROXY_CONTRACT,
-)
+from tests.conftest import MAX_FEE, TESTS_ROOT_PATH
+from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR, IDENTITY_CONTRACT
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.protostar_fixture import (
     GatewayClientTxInterceptor,
@@ -278,21 +274,9 @@ async def test_deploy_account(
     await devnet.assert_transaction_accepted(response.transaction_hash)
 
 
-@pytest.fixture(name="proxy_contract_path", scope="module")
-def proxy_contract_path_fixture(protostar: ProtostarFixture) -> Path:
-    protostar.create_files({"./src/proxy.cairo": PROXY_CONTRACT})
-    protostar.append_contract_entry_in_config_file(
-        contract_name="proxy", path_strs=["./src/proxy.cairo"]
-    )
-    protostar.build_sync()
-    result = protostar.project_root_path / "build" / "proxy.json"
-    return result
-
-
 async def test_calling_through_proxy(
     gateway_facade: GatewayFacade,
     compiled_contract_path: Path,
-    proxy_contract_path: Path,
     devnet_accounts: list[DevnetAccount],
 ):
     declare_result = await gateway_facade.declare(
@@ -304,7 +288,9 @@ async def test_calling_through_proxy(
         max_fee="auto",
     )
     deploy_result = await gateway_facade.deploy(
-        compiled_contract_path=proxy_contract_path,
+        compiled_contract_path=TESTS_ROOT_PATH
+        / "data"
+        / "oz_proxy_compiled_contract.json",
         inputs=[declare_result.class_hash],
         wait_for_acceptance=True,
     )
