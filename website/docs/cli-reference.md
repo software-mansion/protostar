@@ -34,6 +34,8 @@ Required.
 Class hash of the declared account contract.
 #### `--account-constructor-input INT[]`
 Input to the account's constructor.
+#### `--json`
+Print machine readable output in JSON format.
 ### `call`
 Calls a contract on StarkNet with given parameters
 #### `--chain-id INT`
