@@ -14,8 +14,8 @@ class Address:
                 if isinstance(raw_address, int)
                 else int(raw_address, base=0)
             )
-        except ValueError:
-            raise AddressValidationError(raw_address)
+        except ValueError as err:
+            raise AddressValidationError(raw_address) from err
         if value < 0:
             raise AddressValidationError(raw_address)
         return cls(value)
