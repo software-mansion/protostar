@@ -10,6 +10,7 @@ from protostar.cli import (
     ProtostarArgument,
     ProtostarCommand,
     SignableCommandUtil,
+    MessengerFactory,
 )
 from protostar.cli.common_arguments import (
     ACCOUNT_CLASS_HASH_ARG,
@@ -17,6 +18,7 @@ from protostar.cli.common_arguments import (
     ACCOUNT_CONSTRUCTOR_INPUT,
 )
 from protostar.cli.network_command_util import NetworkArgs
+from protostar.io import StructuredMessage, LogColorProvider
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import GatewayFacadeFactory
 from protostar.starknet_gateway.gateway_facade import ClassHash, DeployAccountArgs, Fee
@@ -57,14 +59,32 @@ class DeployAccountCommandArgs(NetworkArgs):
         )
 
 
+@dataclass
+class SuccessfulDeployAccountMessage(StructuredMessage):
+    response: SuccessfulDeployAccountResponse
+
+    def format_human(self, fmt: LogColorProvider) -> str:
+        return f"""\
+DeployAccount transaction was sent.
+Transaction hash: 0x{self.response.transaction_hash:064x}
+"""
+
+    def format_dict(self) -> dict:
+        return {
+            "transaction_hash": f"0x{self.response.transaction_hash:064x}",
+        }
+
+
 class DeployAccountCommand(ProtostarCommand):
     def __init__(
         self,
         logger: Logger,
         gateway_facade_factory: GatewayFacadeFactory,
+        messenger_factory: MessengerFactory,
     ) -> None:
         self._logger = logger
         self._gateway_facade_factory = gateway_facade_factory
+        self._messenger_factory = messenger_factory
 
     @property
     def name(self) -> str:
@@ -83,6 +103,7 @@ class DeployAccountCommand(ProtostarCommand):
         return [
             *NetworkCommandUtil.network_arguments,
             *SignableCommandUtil.signable_arguments,
+            *MessengerFactory.OUTPUT_ARGUMENTS,
             ACCOUNT_CLASS_HASH_ARG,
             ACCOUNT_ADDRESS_SALT_ARG,
             ACCOUNT_CONSTRUCTOR_INPUT,
@@ -101,12 +122,17 @@ class DeployAccountCommand(ProtostarCommand):
         ]
 
     async def run(self, args: Namespace):
+        write = self._messenger_factory.from_args(args)
+
         typed_args = DeployAccountCommandArgs.from_args(args)
         deploy_account_args = self._map_typed_args_to_deploy_account_args(typed_args)
+
         response = await self._send_deploy_account_tx(
             deploy_account_args=deploy_account_args, typed_args=typed_args
         )
-        self._log_response(response)
+
+        write(SuccessfulDeployAccountMessage(response))
+
         return response
 
     def _map_typed_args_to_deploy_account_args(
@@ -129,22 +155,11 @@ class DeployAccountCommand(ProtostarCommand):
         self,
         typed_args: DeployAccountCommandArgs,
         deploy_account_args: DeployAccountArgs,
-    ):
-
+    ) -> SuccessfulDeployAccountResponse:
         gateway_facade = self._gateway_facade_factory.create(
-            gateway_client=typed_args.gateway_client, logger=None
+            gateway_client=typed_args.gateway_client, logger=self._logger
         )
         return await gateway_facade.deploy_account(args=deploy_account_args)
-
-    def _log_response(self, response: SuccessfulDeployAccountResponse):
-        return self._logger.info(
-            "\n".join(
-                [
-                    "DeployAccount transaction was sent.",
-                    f"Transaction hash: 0x{response.transaction_hash:064x}",
-                ]
-            )
-        )
 
 
 class AutoEstimateMaxFeeException(ProtostarException):
