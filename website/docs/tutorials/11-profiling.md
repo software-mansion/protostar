@@ -10,6 +10,7 @@ You can learn how to install it [in pprof documentation](https://github.com/goog
 Protostar can help you diagnose which functions are the most expensive in terms of used resources.
 Protostar currently measures:
 - number of steps
+- [builtins](https://www.cairo-lang.org/docs/how_cairo_works/builtins.html)
 - [memory holes](https://www.cairo-lang.org/docs/how_cairo_works/cairo_intro.html#continuous-memory)
 
 If you want to generate profile for a test case, run:

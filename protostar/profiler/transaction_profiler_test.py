@@ -21,7 +21,10 @@ from protostar.starknet.cheatable_execute_entry_point import (
 )
 
 profile = RuntimeProfile(
-    [Function("f1", "d", 1), Function("f2", "d", 2)], [], [], [], []
+    [Function("f1", "d", 1), Function("f2", "d", 2)],
+    [],
+    {},
+    [],
 )
 
 
@@ -77,8 +80,7 @@ ep = ContractEntryPoint(0, 0)
                             Instruction(1000, 0, replace(funct), 0),
                             Instruction(100, 0, replace(funct), 0),
                         ],
-                        step_samples=[],
-                        memhole_samples=[],
+                        samples={},
                         contract_call_callstacks=[],
                     ),
                 ),
@@ -91,8 +93,7 @@ ep = ContractEntryPoint(0, 0)
                             Instruction(150, 0, replace(funct), 0),
                             Instruction(100, 0, replace(funct), 0),
                         ],
-                        step_samples=[],
-                        memhole_samples=[],
+                        samples={},
                         contract_call_callstacks=[],
                     ),
                 ),
@@ -105,8 +106,7 @@ ep = ContractEntryPoint(0, 0)
                             Instruction(10, 0, replace(funct), 0),
                             Instruction(100, 0, replace(funct), 0),
                         ],
-                        step_samples=[],
-                        memhole_samples=[],
+                        samples={},
                         contract_call_callstacks=[],
                     ),
                 ),
@@ -146,8 +146,7 @@ ep = ContractEntryPoint(0, 0)
                     profile=RuntimeProfile(
                         functions=[],
                         instructions=[Instruction(1000, 0, glob_func["a.A"], 0)],
-                        step_samples=[],
-                        memhole_samples=[],
+                        samples={},
                         contract_call_callstacks=[],
                     ),
                 ),
@@ -160,8 +159,7 @@ ep = ContractEntryPoint(0, 0)
                             Instruction(150, 0, glob_func["b.C"], 0),
                             Instruction(100, 0, glob_func["b.C"], 0),
                         ],
-                        step_samples=[],
-                        memhole_samples=[],
+                        samples={},
                         contract_call_callstacks=[],
                     ),
                 ),
@@ -174,8 +172,7 @@ ep = ContractEntryPoint(0, 0)
                             Instruction(1000, 0, glob_func["a.A"], 0),
                             Instruction(100, 0, glob_func["a.B"], 0),
                         ],
-                        step_samples=[],
-                        memhole_samples=[],
+                        samples={},
                         contract_call_callstacks=[],
                     ),
                 ),
