@@ -8,9 +8,14 @@ from protostar.protostar_exception import ProtostarException
 class Address:
     @classmethod
     def from_user_input(cls, raw_address: Union[str, int]) -> Self:
-        value = (
-            raw_address if isinstance(raw_address, int) else int(raw_address, base=0)
-        )
+        try:
+            value = (
+                raw_address
+                if isinstance(raw_address, int)
+                else int(raw_address, base=0)
+            )
+        except ValueError:
+            raise AddressValidationError(raw_address)
         if value < 0:
             raise AddressValidationError(raw_address)
         return cls(value)

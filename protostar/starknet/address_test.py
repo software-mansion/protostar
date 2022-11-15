@@ -24,6 +24,11 @@ def test_numeric_representation():
     assert int(Address.from_user_input("0xF")) == 15
 
 
-def test_handling_invalid_input():
+def test_handling_negative_values():
     with pytest.raises(ProtostarException):
         Address.from_user_input("-1")
+
+
+def test_handling_invalid_input():
+    with pytest.raises(ProtostarException):
+        Address.from_user_input("XYZ")
