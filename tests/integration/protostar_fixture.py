@@ -38,9 +38,7 @@ from protostar.configuration_file import (
     ConfigurationFileV2ContentFactory,
     ConfigurationTOMLContentBuilder,
 )
-from protostar.formatter.formatting_result import (
-    FormattingResult,
-)
+from protostar.formatter.formatting_result import FormattingResult
 from protostar.formatter.formatting_summary import FormattingSummary
 from protostar.io import log_color_provider
 from protostar.io.input_requester import InputRequester
@@ -558,7 +556,9 @@ def build_protostar_fixture(
         messenger_factory=messenger_factory,
     )
 
-    calculate_account_address_command = CalculateAccountAddressCommand(logger=logger)
+    calculate_account_address_command = CalculateAccountAddressCommand(
+        logger=logger, messenger_factory=messenger_factory
+    )
 
     cli_app = CLIApp(
         commands=[
