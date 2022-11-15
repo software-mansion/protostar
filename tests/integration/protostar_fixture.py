@@ -1,3 +1,5 @@
+# pylint: disable=protected-access
+
 import asyncio
 from argparse import Namespace
 from contextlib import contextmanager
@@ -39,6 +41,11 @@ from protostar.configuration_file import (
     ConfigurationFileV2ContentFactory,
     ConfigurationTOMLContentBuilder,
 )
+from protostar.configuration_file.configuration_file import ConfigurationFile
+from protostar.configuration_file.configuration_file_v2 import ConfigurationFileV2
+from protostar.configuration_file.configuration_toml_interpreter import (
+    ConfigurationTOMLInterpreter,
+)
 from protostar.formatter.formatting_result import FormattingResult
 from protostar.formatter.formatting_summary import FormattingSummary
 from protostar.io import log_color_provider
@@ -72,6 +79,7 @@ class ProtostarFixture:
         cli_app: CLIApp,
         parser: ArgumentParserFacade,
         transaction_registry: "TransactionRegistry",
+        configuration_file: ConfigurationFile,
     ) -> None:
         self._project_root_path = project_root_path
         self._init_command = init_command
@@ -88,6 +96,7 @@ class ProtostarFixture:
         self._deploy_account_command = deploy_account_command
         self._cli_app = cli_app
         self._parser = parser
+        self._configuration_file = configuration_file
 
     @property
     def project_root_path(self) -> Path:
@@ -363,12 +372,15 @@ class ProtostarFixture:
     def append_contract_entry_in_config_file(
         self, contract_name: str, path_strs: list[str]
     ) -> None:
-        protostar_toml_path = self._project_root_path / "protostar.toml"
-        protostar_toml_path.write_text(
-            protostar_toml_path.read_text().replace(
-                '["protostar.contracts"]',
-                f'["protostar.contracts"]\n{contract_name} = {str(path_strs)}',
-            )
+        assert isinstance(self._configuration_file, ConfigurationFileV2)
+        configuration_toml_interpreter = (
+            self._configuration_file._configuration_file_reader
+        )
+        assert isinstance(configuration_toml_interpreter, ConfigurationTOMLInterpreter)
+        configuration_file_content = configuration_toml_interpreter._content
+        configuration_toml_interpreter._content = configuration_file_content.replace(
+            "[contracts]",
+            f"[contracts]\n{contract_name} = {str(path_strs)}",
         )
 
     @staticmethod
@@ -610,6 +622,7 @@ def build_protostar_fixture(
         parser=parser,
         transaction_registry=transaction_registry,
         calculate_account_address_command=calculate_account_address_command,
+        configuration_file=configuration_file,
     )
 
     return protostar_fixture
