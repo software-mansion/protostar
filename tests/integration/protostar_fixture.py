@@ -557,7 +557,7 @@ def build_protostar_fixture(
     )
 
     calculate_account_address_command = CalculateAccountAddressCommand(
-        logger=logger, messenger_factory=messenger_factory
+        messenger_factory=messenger_factory
     )
 
     cli_app = CLIApp(

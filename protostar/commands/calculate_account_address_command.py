@@ -1,5 +1,4 @@
 from argparse import Namespace
-from logging import Logger
 from typing import Optional
 
 from protostar.cli import ProtostarCommand, MessengerFactory
@@ -18,7 +17,7 @@ class AccountAddressMessage(StructuredMessage):
         self._account_address = account_address
 
     def format_human(self, fmt: LogColorProvider) -> str:
-        return fmt.colorize("CYAN", str(self._account_address))
+        return f"Address: {self._account_address}"
 
     def format_dict(self) -> dict:
         return {"address": str(self._account_address)}

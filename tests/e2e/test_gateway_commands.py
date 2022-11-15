@@ -1,4 +1,3 @@
-import json
 import re
 from distutils.file_util import copy_file
 from pathlib import Path
@@ -218,11 +217,12 @@ def test_calculate_account_address_is_available(protostar: ProtostarFixture):
     human_output = run(json=False)
     json_output = run(json=True)
 
-    assert "0x033f7162354afe9442cc91d8f62a09613d33558c9fcdaf8a97912895e3f7ce93" in (
-        human_output
+    assert (
+        "Address: 0x033f7162354afe9442cc91d8f62a09613d33558c9fcdaf8a97912895e3f7ce93"
+        in human_output
     )
     assert (
-        '{"account_address":"0x033f7162354afe9442cc91d8f62a09613d33558c9fcdaf8a97912895e3f7ce93"}'
+        '{"address":"0x033f7162354afe9442cc91d8f62a09613d33558c9fcdaf8a97912895e3f7ce93"}'
     ) in json_output
 
 
