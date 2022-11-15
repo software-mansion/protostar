@@ -2,7 +2,8 @@ from argparse import Namespace
 from logging import Logger
 from typing import Optional
 
-from protostar.cli import ProtostarCommand
+from protostar.cli import ProtostarCommand, MessengerFactory
+from protostar.io import LogColorProvider, StructuredMessage
 from protostar.starknet.account_address import AccountAddress
 from protostar.cli.common_arguments import (
     ACCOUNT_CLASS_HASH_ARG,
@@ -11,12 +12,22 @@ from protostar.cli.common_arguments import (
 )
 
 
+class AccountAddressMessage(StructuredMessage):
+    def __init__(self, account_address: AccountAddress) -> None:
+        super().__init__()
+        self._account_address = account_address
+
+    def format_human(self, fmt: LogColorProvider) -> str:
+        return fmt.colorize("CYAN", str(self._account_address))
+
+    def format_dict(self) -> dict:
+        return {"account_address": str(self._account_address)}
+
+
 class CalculateAccountAddressCommand(ProtostarCommand):
-    def __init__(
-        self,
-        logger: Logger,
-    ) -> None:
+    def __init__(self, logger: Logger, messenger_factory: MessengerFactory) -> None:
         self._logger = logger
+        self._messenger_factory = messenger_factory
 
     @property
     def name(self) -> str:
@@ -37,16 +48,18 @@ class CalculateAccountAddressCommand(ProtostarCommand):
     @property
     def arguments(self):
         return [
+            *MessengerFactory.OUTPUT_ARGUMENTS,
             ACCOUNT_CLASS_HASH_ARG,
             ACCOUNT_ADDRESS_SALT_ARG,
             ACCOUNT_CONSTRUCTOR_INPUT,
         ]
 
     async def run(self, args: Namespace):
+        write = self._messenger_factory.from_args(args)
         account_address = AccountAddress.from_class_hash(
             class_hash=args.account_class_hash,
             constructor_calldata=args.account_constructor_input,
             salt=args.account_address_salt,
         )
-        self._logger.info(account_address)
+        write(AccountAddressMessage(account_address))
         return account_address

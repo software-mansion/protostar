@@ -144,7 +144,9 @@ def build_di_container(
         ),
     )
 
-    calculate_account_address_command = CalculateAccountAddressCommand(logger=logger)
+    calculate_account_address_command = CalculateAccountAddressCommand(
+        logger=logger, messenger_factory=messenger_factory
+    )
 
     commands: list[ProtostarCommand] = [
         InitCommand(
