@@ -21,7 +21,7 @@ class AccountAddressMessage(StructuredMessage):
         return fmt.colorize("CYAN", str(self._account_address))
 
     def format_dict(self) -> dict:
-        return {"account_address": str(self._account_address)}
+        return {"address": str(self._account_address)}
 
 
 class CalculateAccountAddressCommand(ProtostarCommand):
