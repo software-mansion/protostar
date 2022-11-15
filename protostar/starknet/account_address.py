@@ -22,4 +22,4 @@ class AccountAddress(Address):
             salt=salt,
             deployer_address=int(deployer_address) if deployer_address else 0,
         )
-        return AccountAddress.from_user_input(address)
+        return cls.from_user_input(address)
