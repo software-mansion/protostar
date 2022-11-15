@@ -2,7 +2,7 @@ from collections import UserDict, defaultdict
 from dataclasses import dataclass
 import itertools
 import math
-from typing import Dict, cast
+from typing import cast
 
 from starkware.cairo.lang.compiler.identifier_definition import LabelDefinition
 from starkware.cairo.lang.tracer.tracer_data import TracerData
@@ -277,7 +277,6 @@ def build_memhole_samples(
     segment_offsets: dict[int, int],
 ) -> list[Sample]:
     # Address -> Pc of instruction which accessed the address last
-
     accessed_by, pc_to_callstack = get_last_accessed(tracer_data)
     samples: list[Sample] = []
     not_acc = get_not_accessed_addresses(accessed_memory, segments, segment_offsets)
@@ -319,7 +318,9 @@ def build_builtin_samples(
     idx = builtin.base.segment_index
     builtin_segment_size = segments.get_segment_used_size(idx)
     builtin_segment_offset = segment_offsets[idx]
-    for addr in range(builtin.base.offset, builtin_segment_size, builtin.cells_per_instance):
+    for addr in range(
+        builtin.base.offset, builtin_segment_size, builtin.cells_per_instance
+    ):
         if builtin_segment_offset + addr in accessed_by:
             responsible_pc = accessed_by[builtin_segment_offset + addr]
             callstack = [
@@ -335,18 +336,18 @@ def build_profile(
     segments: MemorySegmentManager,
     segment_offsets: dict[int, int],
     accessed_memory: set[RelocatableValue],
-    builtins: Dict[str, BuiltinRunner],
+    builtins: dict[str, BuiltinRunner],
 ) -> RuntimeProfile:
     function_list = collect_contract_functions(tracer_data)
     instructions_list = create_instruction_list(function_list, tracer_data)
     instructions = Instructions.from_list(instructions_list)
     step_samples = build_step_samples(instructions, tracer_data)
     memhole_samples = build_memhole_samples(
-        instructions,
-        tracer_data,
-        accessed_memory,
-        segments,
-        segment_offsets,
+        instructions=instructions,
+        tracer_data=tracer_data,
+        accessed_memory=accessed_memory,
+        segments=segments,
+        segment_offsets=segment_offsets,
     )
 
     simple_builtins = [
