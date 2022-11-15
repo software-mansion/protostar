@@ -20,6 +20,6 @@ class AccountAddress(Address):
             class_hash=class_hash,
             constructor_calldata=constructor_calldata,
             salt=salt,
-            deployer_address=deployer_address.as_int() if deployer_address else 0,
+            deployer_address=int(deployer_address) if deployer_address else 0,
         )
         return AccountAddress.from_user_input(address)

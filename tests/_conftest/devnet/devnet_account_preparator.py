@@ -60,6 +60,8 @@ class DevnetAccountPreparator:
         )
 
     def _compute_address(self, class_hash: int, public_key: int, salt: int) -> int:
-        return AccountAddress.from_class_hash(
-            class_hash=class_hash, constructor_calldata=[public_key], salt=salt
-        ).as_int()
+        return int(
+            AccountAddress.from_class_hash(
+                class_hash=class_hash, constructor_calldata=[public_key], salt=salt
+            )
+        )

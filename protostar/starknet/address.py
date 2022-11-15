@@ -18,18 +18,15 @@ class Address:
     def __init__(self, value: int) -> None:
         self._value = value
 
-    def as_int(self) -> int:
-        return self._value
-
-    def as_str(self) -> str:
+    def __str__(self) -> str:
         return f"0x{self._value:064x}"
 
-    def __str__(self) -> str:
-        return self.as_str()
+    def __int__(self) -> int:
+        return self._value
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Address):
-            return self._value == other.as_int()
+            return self._value == int(other)
         if isinstance(other, str):
             return self._value == int(other, base=0)
         if isinstance(other, int):
