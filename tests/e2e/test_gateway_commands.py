@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
+from re_assert import Matches
 from starkware.starknet.definitions.general_config import StarknetChainId
 
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
@@ -29,6 +30,7 @@ def test_deploying_and_interacting_with_contract(
     )
     protostar(["build"])
 
+    # TODO(mkaput): Use structured output when it'll be available in `deploy`.
     result = protostar(
         [
             "deploy",
@@ -52,57 +54,6 @@ def test_deploying_and_interacting_with_contract(
     result = protostar(
         [
             "--no-color",
-            "call",
-            "--gateway-url",
-            devnet_gateway_url,
-            "--chain-id",
-            str(StarknetChainId.TESTNET.value),
-            "--contract-address",
-            contract_address,
-            "--function",
-            "get_balance",
-        ],
-        ignore_stderr=True,
-    )
-
-    assert (
-        result
-        == """\
-Call successful.
-Response:
-{
-    "res": 66
-}
-"""
-    )
-
-    result = protostar(
-        [
-            "--no-color",
-            "invoke",
-            "--gateway-url",
-            devnet_gateway_url,
-            "--chain-id",
-            str(StarknetChainId.TESTNET.value),
-            "--account-address",
-            account_address,
-            "--max-fee",
-            "auto",
-            "--contract-address",
-            contract_address,
-            "--function",
-            "increase_balance",
-            "--inputs",
-            "100",
-        ],
-        ignore_stderr=True,
-    )
-
-    assert "Invoke transaction was sent." in result, result
-
-    result = protostar(
-        [
-            "--no-color",
             "invoke",
             "--gateway-url",
             devnet_gateway_url,
@@ -123,7 +74,9 @@ Response:
         ignore_stderr=True,
     )
 
-    assert '{"transaction_hash":' in result, result
+    assert json.loads(result) == {
+        "transaction_hash": Matches(r"0x[0-9a-f]{64}")
+    }
 
     result = protostar(
         [
@@ -141,7 +94,7 @@ Response:
         ignore_stderr=True,
     )
 
-    assert result == '{"res":266}\n'
+    assert json.loads(result) == {"res": 166}
 
 
 @pytest.mark.usefixtures("init")
