@@ -1,7 +1,5 @@
 from pathlib import Path
 
-import pytest
-
 from protostar.commands.test.test_result_formatter import format_test_result
 from tests.integration.conftest import (
     RunCairoTestRunnerFixture,
@@ -9,7 +7,6 @@ from tests.integration.conftest import (
 )
 
 
-@pytest.mark.asyncio
 async def test_testing_output(
     run_cairo_test_runner: RunCairoTestRunnerFixture,
 ):

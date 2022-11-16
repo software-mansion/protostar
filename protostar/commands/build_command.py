@@ -1,11 +1,18 @@
-from argparse import Namespace
-from logging import Logger
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Any
 
-from protostar.cli import ActivityIndicator, ProtostarArgument, ProtostarCommand
+from protostar.cli import (
+    ProtostarArgument,
+    ProtostarCommand,
+    MessengerFactory,
+)
 from protostar.compiler import ProjectCompiler, ProjectCompilerConfig
-from protostar.io import log_color_provider
+from protostar.io import LogColorProvider, Message
+
+
+class BuildActivityMessageTemplate(Message):
+    def format_human(self, fmt: LogColorProvider) -> str:
+        return "Building projects' contracts"
 
 
 class BuildCommand(ProtostarCommand):
@@ -16,10 +23,14 @@ class BuildCommand(ProtostarCommand):
         default="build",
     )
 
-    def __init__(self, project_compiler: ProjectCompiler, logger: Logger) -> None:
+    def __init__(
+        self,
+        project_compiler: ProjectCompiler,
+        messenger_factory: MessengerFactory,
+    ):
         super().__init__()
         self._project_compiler = project_compiler
-        self._logger = logger
+        self._messenger_factory = messenger_factory
 
     @property
     def example(self) -> Optional[str]:
@@ -50,12 +61,15 @@ class BuildCommand(ProtostarCommand):
             BuildCommand.COMPILATION_OUTPUT_ARG,
         ]
 
-    async def run(self, args: Namespace):
-        await self.build(
-            output_dir=args.compiled_contracts_dir,
-            disable_hint_validation=args.disable_hint_validation,
-            relative_cairo_path=args.cairo_path,
-        )
+    async def run(self, args: Any):
+        write = self._messenger_factory.human()
+
+        with write.activity(BuildActivityMessageTemplate()):
+            await self.build(
+                output_dir=args.compiled_contracts_dir,
+                disable_hint_validation=args.disable_hint_validation,
+                relative_cairo_path=args.cairo_path,
+            )
 
     async def build(
         self,
@@ -63,18 +77,10 @@ class BuildCommand(ProtostarCommand):
         disable_hint_validation: bool = False,
         relative_cairo_path: Optional[List[Path]] = None,
     ):
-        with ActivityIndicator(
-            log_color_provider.colorize("GRAY", "Building projects' contracts")
-        ):
-            try:
-                self._project_compiler.compile_project(
-                    output_dir=output_dir,
-                    config=ProjectCompilerConfig(
-                        hint_validation_disabled=disable_hint_validation,
-                        relative_cairo_path=relative_cairo_path or [],
-                    ),
-                )
-            except BaseException as exc:
-                self._logger.error("Build failed")
-                raise exc
-        self._logger.info("Built the project successfully")
+        self._project_compiler.compile_project(
+            output_dir=output_dir,
+            config=ProjectCompilerConfig(
+                hint_validation_disabled=disable_hint_validation,
+                relative_cairo_path=relative_cairo_path or [],
+            ),
+        )

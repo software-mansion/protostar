@@ -40,6 +40,8 @@ pytest = "^7.2.0"
 pytest-datadir = "^1.4.1"
 pytest-mock = "^3.10.0"
 pytest-timeout = "^2.1.0"
+pytest-xdist = "^3.0.2"
+re-assert = "^1.1.0"
 snakeviz = "^2.1.1"
 starknet-devnet = { git = "https://github.com/Shard-Labs/starknet-devnet.git", rev = "40d5b6f" }
 pytest-xdist = "^3.0.2"

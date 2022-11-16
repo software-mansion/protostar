@@ -8,10 +8,12 @@ from protostar.cli import (
     ProtostarCommand,
     map_protostar_type_name_to_parser,
     MessengerFactory,
+    ActivityIndicator,
 )
 from protostar.cli.lib_path_resolver import LibPathResolver
 from protostar.commands import (
     BuildCommand,
+    CalculateAccountAddressCommand,
     CallCommand,
     DeclareCommand,
     DeployAccountCommand,
@@ -130,7 +132,10 @@ def build_di_container(
         protostar_version=protostar_version,
     )
 
-    messenger_factory = MessengerFactory(log_color_provider=log_color_provider)
+    messenger_factory = MessengerFactory(
+        log_color_provider=log_color_provider,
+        activity_indicator=ActivityIndicator,
+    )
 
     migrate_configuration_file_command = MigrateConfigurationFileCommand(
         logger=logger,
@@ -143,13 +148,20 @@ def build_di_container(
         ),
     )
 
+    calculate_account_address_command = CalculateAccountAddressCommand(
+        messenger_factory=messenger_factory
+    )
+
     commands: list[ProtostarCommand] = [
         InitCommand(
             requester=input_requester,
             new_project_creator=new_project_creator,
             adapted_project_creator=adapted_project_creator,
         ),
-        BuildCommand(project_compiler, logger),
+        BuildCommand(
+            project_compiler=project_compiler,
+            messenger_factory=messenger_factory,
+        ),
         InstallCommand(
             log_color_provider=log_color_provider,
             logger=logger,
@@ -188,7 +200,11 @@ def build_di_container(
             logger=logger,
             gateway_facade_factory=gateway_facade_factory,
         ),
-        DeclareCommand(logger=logger, gateway_facade_factory=gateway_facade_factory),
+        DeclareCommand(
+            logger=logger,
+            gateway_facade_factory=gateway_facade_factory,
+            messenger_factory=messenger_factory,
+        ),
         MigrateCommand(
             migrator_builder=Migrator.Builder(
                 migrator_execution_environment_builder=MigratorExecutionEnvironment.Builder(
@@ -206,7 +222,11 @@ def build_di_container(
             messenger_factory=messenger_factory,
         ),
         CairoMigrateCommand(script_root, logger),
-        InvokeCommand(gateway_facade_factory=gateway_facade_factory, logger=logger),
+        InvokeCommand(
+            gateway_facade_factory=gateway_facade_factory,
+            logger=logger,
+            messenger_factory=messenger_factory,
+        ),
         CallCommand(
             gateway_facade_factory=gateway_facade_factory,
             logger=logger,
@@ -216,6 +236,7 @@ def build_di_container(
             gateway_facade_factory=gateway_facade_factory, logger=logger
         ),
         migrate_configuration_file_command,
+        calculate_account_address_command,
     ]
 
     compatibility_checker = ProtostarCompatibilityWithProjectChecker(

@@ -9,7 +9,6 @@ from .cli_app import CLIApp
 from .conftest import FooCommand
 
 
-@pytest.mark.asyncio
 async def test_command_run_method_was_called(
     foo_command: FooCommand, mocker: MockerFixture
 ):
@@ -24,7 +23,6 @@ async def test_command_run_method_was_called(
     foo_command.run.assert_called_once()
 
 
-@pytest.mark.asyncio
 async def test_fail_when_no_command_was_found(foo_command: FooCommand):
     cli = CLIApp(
         commands=[foo_command],

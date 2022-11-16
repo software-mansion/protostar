@@ -11,6 +11,11 @@ from protostar.cli import (
     ProtostarCommand,
     SignableCommandUtil,
 )
+from protostar.cli.common_arguments import (
+    ACCOUNT_CLASS_HASH_ARG,
+    ACCOUNT_ADDRESS_SALT_ARG,
+    ACCOUNT_CONSTRUCTOR_INPUT,
+)
 from protostar.cli.network_command_util import NetworkArgs
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import GatewayFacadeFactory
@@ -78,6 +83,9 @@ class DeployAccountCommand(ProtostarCommand):
         return [
             *NetworkCommandUtil.network_arguments,
             *SignableCommandUtil.signable_arguments,
+            ACCOUNT_CLASS_HASH_ARG,
+            ACCOUNT_ADDRESS_SALT_ARG,
+            ACCOUNT_CONSTRUCTOR_INPUT,
             ProtostarArgument(
                 name="nonce",
                 description="Protects against the replay attacks.",
@@ -85,28 +93,10 @@ class DeployAccountCommand(ProtostarCommand):
                 default=0,
             ),
             ProtostarArgument(
-                name="account-class-hash",
-                description="Class hash of the declared account contract.",
-                type="class_hash",
-                is_required=True,
-            ),
-            ProtostarArgument(
                 name="max-fee",
                 description="Max amount of Wei you are willing to pay for the transaction",
                 type="wei",
                 is_required=True,
-            ),
-            ProtostarArgument(
-                name="account-address-salt",
-                description="This value is expected by account's `__validate_deploy__` entry point",
-                type="int",
-                is_required=True,
-            ),
-            ProtostarArgument(
-                name="account-constructor-input",
-                description="Input to the account's constructor",
-                type="int",
-                is_array=True,
             ),
         ]
 

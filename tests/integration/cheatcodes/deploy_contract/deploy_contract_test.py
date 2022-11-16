@@ -1,8 +1,6 @@
 import asyncio
 from pathlib import Path
 
-import pytest
-
 from tests.integration.conftest import (
     RunCairoTestRunnerFixture,
     assert_cairo_test_cases,
@@ -12,7 +10,6 @@ from tests.integration.conftest import (
 TEST_CONTRACTS_PATH = Path(__file__).parent
 
 
-@pytest.mark.asyncio
 async def test_deploy_contract(run_cairo_test_runner: RunCairoTestRunnerFixture):
     testing_summary = await run_cairo_test_runner(
         TEST_CONTRACTS_PATH / "deploy_contract_test.cairo",
@@ -41,7 +38,6 @@ async def test_deploy_contract(run_cairo_test_runner: RunCairoTestRunnerFixture)
     )
 
 
-@pytest.mark.asyncio
 def test_deploying_contract_by_name(
     create_protostar_project: CreateProtostarProjectFixture,
 ):
