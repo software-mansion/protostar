@@ -12,6 +12,8 @@ from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
 from tests.conftest import Credentials
 from tests.e2e.conftest import ProtostarFixture
 
+HASH = Matches(r"0x[0-9a-f]{64}")
+
 
 @pytest.mark.usefixtures("init")
 def test_deploying_and_interacting_with_contract(
@@ -74,9 +76,7 @@ def test_deploying_and_interacting_with_contract(
         ignore_stderr=True,
     )
 
-    assert json.loads(result) == {
-        "transaction_hash": Matches(r"0x[0-9a-f]{64}")
-    }
+    assert json.loads(result) == {"transaction_hash": HASH}
 
     result = protostar(
         [
@@ -125,7 +125,7 @@ def test_deploying_contract_with_constructor_and_inputs_defined_in_config_file(
     )
 
     assert "Deploy transaction was sent" in result
-    assert count_hex64(result) == 2
+    assert len(re.findall(r"0x[0-9a-f]{64}", result)) == 2
 
 
 @pytest.mark.usefixtures("init")
@@ -147,11 +147,15 @@ def test_declaring_contract(
             devnet_gateway_url,
             "--chain-id",
             str(StarknetChainId.TESTNET.value),
-        ]
+            "--json",
+        ],
+        ignore_stderr=True,
     )
 
-    assert "Declare transaction was sent" in result
-    assert count_hex64(result) == 2
+    assert json.loads(result) == {
+        "class_hash": HASH,
+        "transaction_hash": HASH,
+    }
 
 
 @pytest.mark.usefixtures("init")
@@ -185,11 +189,15 @@ def test_declaring_contract_with_signature(
             account_address,
             "--max-fee",
             "auto",
-        ]
+            "--json",
+        ],
+        ignore_stderr=True,
     )
 
-    assert "Declare transaction was sent" in result
-    assert count_hex64(result) == 2
+    assert json.loads(result) == {
+        "class_hash": HASH,
+        "transaction_hash": HASH,
+    }
 
 
 @pytest.mark.usefixtures("init")
@@ -229,7 +237,3 @@ def test_calculate_account_address_is_available(protostar: ProtostarFixture):
     assert json.loads(json_output) == {
         "address": "0x033f7162354afe9442cc91d8f62a09613d33558c9fcdaf8a97912895e3f7ce93"
     }
-
-
-def count_hex64(x: str) -> int:
-    return len(re.findall(r"0x[0-9a-f]{64}", x))
