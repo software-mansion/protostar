@@ -51,6 +51,7 @@ from protostar.self.protostar_directory import ProtostarDirectory
 from protostar.starknet_gateway import Fee, GatewayFacade, GatewayFacadeFactory
 from protostar.starknet_gateway.gateway_facade import Wei
 from protostar.testing import TestingSummary
+from protostar.starknet import AccountAddress
 
 
 # pylint: disable=too-many-instance-attributes
@@ -252,7 +253,7 @@ class ProtostarFixture:
         self,
         path: Path,
         gateway_url: str,
-        account_address: Optional[str] = None,
+        account_address: Optional[AccountAddress] = None,
     ):
         args = Namespace()
         args.path = path

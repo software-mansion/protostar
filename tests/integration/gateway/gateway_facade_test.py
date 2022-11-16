@@ -252,7 +252,7 @@ async def test_deploy_account(
     salt = 1
     account = await devnet.prepare_account(salt=salt, private_key=123)
     deploy_account_args = DeployAccountArgs(
-        account_address=int(account.address),
+        account_address=account.address,
         account_address_salt=salt,
         account_class_hash=account.class_hash,
         account_constructor_input=[int(account.public_key)],
