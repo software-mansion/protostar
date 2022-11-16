@@ -9,8 +9,9 @@ from typing_extensions import Self
 
 from protostar.starknet.cheaters import BlockInfoCheater, Cheaters
 from protostar.starknet.types import ClassHashType, SelectorType
-from protostar.starknet import Address
 from protostar.starknet.data_transformer import CairoOrPythonData
+
+from .address import Address
 
 
 # pylint: disable=too-many-instance-attributes
