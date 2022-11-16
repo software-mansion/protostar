@@ -1,6 +1,5 @@
 from argparse import Namespace
 from dataclasses import dataclass
-from logging import Logger, getLogger
 from typing import Optional
 
 from starknet_py.net.signer import BaseSigner
@@ -37,13 +36,10 @@ class DeployAccountCommandArgs(NetworkArgs):
 
     @classmethod
     def from_args(cls, args: Namespace):
-        logger = getLogger()
-        network_util = NetworkCommandUtil(args, logger=logger)
+        network_util = NetworkCommandUtil(args)
         network_config = network_util.get_network_config()
         gateway_client = network_util.get_gateway_client()
-        signer = SignableCommandUtil(args, logger=logger).get_signer(
-            network_config=network_config
-        )
+        signer = SignableCommandUtil(args).get_signer(network_config=network_config)
 
         assert signer is not None
         return cls(
@@ -78,11 +74,9 @@ Transaction hash: 0x{self.response.transaction_hash:064x}
 class DeployAccountCommand(ProtostarCommand):
     def __init__(
         self,
-        logger: Logger,
         gateway_facade_factory: GatewayFacadeFactory,
         messenger_factory: MessengerFactory,
     ) -> None:
-        self._logger = logger
         self._gateway_facade_factory = gateway_facade_factory
         self._messenger_factory = messenger_factory
 
@@ -156,9 +150,7 @@ class DeployAccountCommand(ProtostarCommand):
         typed_args: DeployAccountCommandArgs,
         deploy_account_args: DeployAccountArgs,
     ) -> SuccessfulDeployAccountResponse:
-        gateway_facade = self._gateway_facade_factory.create(
-            gateway_client=typed_args.gateway_client, logger=self._logger
-        )
+        gateway_facade = self._gateway_facade_factory.create(typed_args.gateway_client)
         return await gateway_facade.deploy_account(args=deploy_account_args)
 
 

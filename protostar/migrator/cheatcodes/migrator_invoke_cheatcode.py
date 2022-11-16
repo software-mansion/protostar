@@ -95,7 +95,7 @@ class MigratorInvokeCheatcode(Cheatcode):
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
 
         if config.get("auto_estimate_fee"):
-            self._logger.warning(
+            logging.warning(
                 'auto_estimate_fee is deprecated, please use max_fee = "auto" instead'
             )
         validated_config = ValidatedSignedCheatcodeConfig.from_dict(self, config)

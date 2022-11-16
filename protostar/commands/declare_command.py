@@ -1,6 +1,5 @@
 from argparse import Namespace
 from dataclasses import dataclass
-from logging import Logger
 from pathlib import Path
 from typing import Optional
 
@@ -50,11 +49,9 @@ class SuccessfulDeclareMessage(StructuredMessage):
 class DeclareCommand(ProtostarCommand):
     def __init__(
         self,
-        logger: Logger,
         gateway_facade_factory: GatewayFacadeFactory,
         messenger_factory: MessengerFactory,
     ):
-        self._logger = logger
         self._gateway_facade_factory = gateway_facade_factory
         self._messenger_factory = messenger_factory
 
@@ -109,8 +106,8 @@ class DeclareCommand(ProtostarCommand):
         assert args.token is None or isinstance(args.token, str)
         assert isinstance(args.wait_for_acceptance, bool)
 
-        network_command_util = NetworkCommandUtil(args, self._logger)
-        signable_command_util = SignableCommandUtil(args, self._logger)
+        network_command_util = NetworkCommandUtil(args)
+        signable_command_util = SignableCommandUtil(args)
         network_config = network_command_util.get_network_config()
         gateway_client = network_command_util.get_gateway_client()
         signer = signable_command_util.get_signer(network_config)
@@ -152,9 +149,7 @@ class DeclareCommand(ProtostarCommand):
         wait_for_acceptance: bool = False,
         max_fee: Optional[Fee] = None,
     ) -> SuccessfulDeclareResponse:
-        gateway_facade = self._gateway_facade_factory.create(
-            gateway_client=gateway_client, logger=None
-        )
+        gateway_facade = self._gateway_facade_factory.create(gateway_client)
         if signer and account_address is not None:
             if max_fee is None:
                 raise ProtostarException(

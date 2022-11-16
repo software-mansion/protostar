@@ -1,5 +1,5 @@
+import logging
 from dataclasses import dataclass
-from logging import getLogger
 from pathlib import Path
 from typing import Optional
 
@@ -68,7 +68,6 @@ def build_di_container(
     active_configuration_profile_name: Optional[str] = None,
     start_time: float = 0,
 ):
-    logger = getLogger()
     cwd = Path().resolve()
     configuration_file_factory = ConfigurationFileFactory(
         cwd, active_profile_name=active_configuration_profile_name
@@ -77,13 +76,12 @@ def build_di_container(
     project_root_path = configuration_file.get_filepath().parent
 
     protostar_directory = ProtostarDirectory(script_root)
-    version_manager = VersionManager(protostar_directory, logger)
+    version_manager = VersionManager(protostar_directory)
     protostar_version = version_manager.protostar_version
     input_requester = InputRequester(log_color_provider)
     latest_version_checker = LatestVersionChecker(
         protostar_directory=protostar_directory,
         version_manager=version_manager,
-        logger=logger,
         log_color_provider=log_color_provider,
         latest_version_cache_toml_reader=LatestVersionCacheTOML.Reader(
             protostar_directory
@@ -138,7 +136,6 @@ def build_di_container(
     )
 
     migrate_configuration_file_command = MigrateConfigurationFileCommand(
-        logger=logger,
         configuration_file_migrator=ConfigurationFileV2Migrator(
             protostar_version=protostar_version,
             current_configuration_file=configuration_file,
@@ -164,44 +161,36 @@ def build_di_container(
         ),
         InstallCommand(
             log_color_provider=log_color_provider,
-            logger=logger,
             project_root_path=project_root_path,
             lib_path_resolver=lib_path_resolver,
         ),
         RemoveCommand(
-            logger=logger,
             project_root_path=project_root_path,
             lib_path_resolver=lib_path_resolver,
         ),
         UpdateCommand(
-            logger=logger,
             project_root_path=project_root_path,
             lib_path_resolver=lib_path_resolver,
         ),
         UpgradeCommand(
             UpgradeManager(
-                protostar_directory,
-                version_manager,
-                LatestVersionRemoteChecker(),
-                logger,
+                protostar_directory=protostar_directory,
+                version_manager=version_manager,
+                latest_version_checker=LatestVersionRemoteChecker(),
             ),
-            logger=logger,
         ),
         TestCommand(
             project_root_path,
             protostar_directory,
             project_cairo_path_builder,
-            logger=logger,
             log_color_provider=log_color_provider,
             active_profile_name=active_configuration_profile_name,
             cwd=cwd,
         ),
         DeployCommand(
-            logger=logger,
             gateway_facade_factory=gateway_facade_factory,
         ),
         DeclareCommand(
-            logger=logger,
             gateway_facade_factory=gateway_facade_factory,
             messenger_factory=messenger_factory,
         ),
@@ -213,7 +202,7 @@ def build_di_container(
                 project_root_path=project_root_path,
             ),
             requester=input_requester,
-            logger=logger,
+            logger=logging.getLogger(),
             log_color_provider=log_color_provider,
             gateway_facade_factory=gateway_facade_factory,
         ),
@@ -221,20 +210,17 @@ def build_di_container(
             project_root_path=project_root_path,
             messenger_factory=messenger_factory,
         ),
-        CairoMigrateCommand(script_root, logger),
+        CairoMigrateCommand(script_root=script_root),
         InvokeCommand(
             gateway_facade_factory=gateway_facade_factory,
-            logger=logger,
             messenger_factory=messenger_factory,
         ),
         CallCommand(
             gateway_facade_factory=gateway_facade_factory,
-            logger=logger,
             messenger_factory=messenger_factory,
         ),
         DeployAccountCommand(
             gateway_facade_factory=gateway_facade_factory,
-            logger=logger,
             messenger_factory=messenger_factory,
         ),
         migrate_configuration_file_command,
@@ -250,7 +236,6 @@ def build_di_container(
         commands=commands,
         latest_version_checker=latest_version_checker,
         log_color_provider=log_color_provider,
-        logger=logger,
         version_manager=version_manager,
         project_cairo_path_builder=project_cairo_path_builder,
         configuration_file=configuration_file,

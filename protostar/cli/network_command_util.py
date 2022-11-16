@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from logging import Logger
 from typing import Any, Optional, Union
 
 from starknet_py.net.gateway_client import GatewayClient
@@ -8,7 +7,6 @@ from starknet_py.net.models import StarknetChainId
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import NetworkConfig
 from protostar.starknet_gateway.network_config import NETWORKS
-
 from .protostar_argument import ProtostarArgument
 
 GATEWAY_URL_ARG_NAME = "gateway-url"
@@ -52,9 +50,8 @@ class NetworkCommandUtil:
         ),
     ]
 
-    def __init__(self, args: Any, logger: Logger):
+    def __init__(self, args: Any):
         self._args = args
-        self._logger = logger
 
     def validate_network_command_args(self):
         if self._args.network is None and self._args.gateway_url is None:

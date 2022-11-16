@@ -1,11 +1,10 @@
+import logging
 from collections import defaultdict
-from logging import Logger
 from pathlib import Path
 from typing import Dict, List
 
-from protostar.protostar_exception import ProtostarExceptionSilent
 from protostar.io.log_color_provider import LogColorProvider, log_color_provider
-
+from protostar.protostar_exception import ProtostarExceptionSilent
 from .test_results import (
     BrokenTestCaseResult,
     BrokenTestSuiteResult,
@@ -50,35 +49,34 @@ class TestingSummary:
 
     def log(
         self,
-        logger: Logger,
         collected_test_cases_count: int,
         collected_test_suites_count: int,
         slowest_test_cases_to_report_count: int,
     ):
-        self.log_slowest_test_cases(logger, slowest_test_cases_to_report_count)
+        # pylint: disable=logging-not-lazy
+        self.log_slowest_test_cases(slowest_test_cases_to_report_count)
 
         header_width = len("Test suites: ")
 
-        logger.info(
+        logging.info(
             log_color_provider.bold("Test suites: ".ljust(header_width))
             + self._get_test_suites_summary(collected_test_suites_count)
         )
-        logger.info(
+        logging.info(
             log_color_provider.bold("Tests: ".ljust(header_width))
             + self._get_test_cases_summary(collected_test_cases_count)
         )
-        logger.info(
+        logging.info(
             log_color_provider.bold("Seed: ".ljust(header_width))
             + str(self.testing_seed)
         )
 
     def log_slowest_test_cases(
         self,
-        logger: Logger,
         slowest_tests_to_report_count: int,
     ):
         if slowest_tests_to_report_count and (len(self.failed) + len(self.passed)) > 0:
-            logger.info(log_color_provider.bold("Slowest test cases:"))
+            logging.info(log_color_provider.bold("Slowest test cases:"))
             print(
                 self._format_slow_test_cases_list(slowest_tests_to_report_count),
                 end="\n\n",
