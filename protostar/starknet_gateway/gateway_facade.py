@@ -13,6 +13,7 @@ from typing import (
     Union,
 )
 
+from starknet_py.proxy.contract_abi_resolver import ProxyResolutionError
 from starknet_py.contract import Contract, ContractFunction, InvokeResult
 from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
@@ -438,10 +439,8 @@ class GatewayFacade:
         client: Optional[Client] = None,
     ):
         try:
-            contract = await Contract.from_address(
-                address=contract_address,
-                client=client or self._gateway_client,
-                proxy_config=True,
+            contract = await self._get_resolved_contract_function(
+                contract_address, client
             )
         except ContractNotFoundError as err:
             raise ContractNotFoundException(contract_address) from err
@@ -449,6 +448,26 @@ class GatewayFacade:
             return contract.functions[function_name]
         except KeyError:
             raise UnknownFunctionException(function_name) from KeyError
+
+    async def _get_resolved_contract_function(
+        self,
+        contract_address: AddressRepresentation,
+        client: Optional[Client] = None,
+    ):
+        try:
+            contract = await Contract.from_address(
+                address=contract_address,
+                client=client or self._gateway_client,
+                proxy_config=True,
+            )
+            return contract
+        except ProxyResolutionError:
+            contract = await Contract.from_address(
+                address=contract_address,
+                client=client or self._gateway_client,
+                proxy_config=False,
+            )
+            return contract
 
     @staticmethod
     async def _call_function(
