@@ -220,9 +220,10 @@ def test_calculate_account_address_is_available(protostar: ProtostarFixture):
     json_output = run(json_format=True)
 
     assert (
-        "Address: 0x033f7162354afe9442cc91d8f62a09613d33558c9fcdaf8a97912895e3f7ce93"
-        in human_output
+        "Address: 0x033f7162354afe9442cc91d8f62a09613d33558c9fcdaf8a97912895e3f7ce93\n"
+        == human_output
     )
+
     assert (
         json.loads(json_output)["address"]
         == "0x033f7162354afe9442cc91d8f62a09613d33558c9fcdaf8a97912895e3f7ce93"
