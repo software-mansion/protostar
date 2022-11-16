@@ -4,10 +4,12 @@ from typing_extensions import Self
 
 from protostar.protostar_exception import ProtostarException
 
+RawAddress = Union[str, int]
+
 
 class Address:
     @classmethod
-    def from_user_input(cls, raw_address: Union[str, int]) -> Self:
+    def from_user_input(cls, raw_address: RawAddress) -> Self:
         try:
             value = (
                 raw_address
@@ -37,6 +39,9 @@ class Address:
         if isinstance(other, int):
             return self._value == other
         return False
+
+    def __hash__(self) -> int:
+        return self._value
 
 
 class AddressValidationError(ProtostarException):
