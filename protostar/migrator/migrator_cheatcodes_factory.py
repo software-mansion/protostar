@@ -18,6 +18,7 @@ from protostar.starknet.cheatcode_factory import CheatcodeFactory
 from protostar.starknet.compiler.starknet_compilation import StarknetCompiler
 from protostar.starknet.hint_local import HintLocal
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
+from protostar.starknet import AccountAddress
 
 from .migrator_contract_identifier_resolver import MigratorContractIdentifierResolver
 
@@ -25,7 +26,7 @@ from .migrator_contract_identifier_resolver import MigratorContractIdentifierRes
 class MigratorCheatcodeFactory(CheatcodeFactory):
     @dataclass
     class Config:
-        account_address: Optional[str] = None
+        account_address: Optional[AccountAddress] = None
         token: Optional[str] = None
 
     def __init__(

@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
+from protostar.starknet import Address
+
 TransactionHash = int
-ContractAddress = int
 ClassHash = int
 
 
@@ -16,9 +17,7 @@ class BlockExplorer(ABC):
         ...
 
     @abstractmethod
-    def create_link_to_contract(
-        self, contract_address: ContractAddress
-    ) -> Optional[str]:
+    def create_link_to_contract(self, contract_address: Address) -> Optional[str]:
         ...
 
     @abstractmethod

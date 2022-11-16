@@ -2,7 +2,7 @@ import pickle
 
 import pytest
 
-from protostar.starknet import ExceptionMetadata
+from protostar.starknet import ExceptionMetadata, Address
 
 from .test_environment_exceptions import (
     ExpectedEventMissingException,
@@ -139,7 +139,7 @@ def test_expected_revert_error_message_when_specific_error_is_expected():
             event_selector_to_name_map={},
         ),
         ExpectedCallException(
-            contract_address=123,
+            contract_address=Address(123),
             fn_name="foo",
             calldata=[1, 2, 3],
         ),

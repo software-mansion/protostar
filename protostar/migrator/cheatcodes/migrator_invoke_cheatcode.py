@@ -1,7 +1,7 @@
 import asyncio
+import logging
 from dataclasses import dataclass
 from typing import Optional, Any
-import logging
 
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.signer import BaseSigner
@@ -13,6 +13,9 @@ from protostar.starknet import (
     CheatcodeException,
     KeywordOnlyArgumentCheatcodeException,
     SimpleReportedException,
+    Address,
+    RawAddress,
+    AccountAddress,
 )
 from protostar.starknet.cheatable_starknet_exceptions import CheatcodeNameProvider
 from protostar.starknet.data_transformer import CairoOrPythonData
@@ -67,7 +70,7 @@ class MigratorInvokeCheatcode(Cheatcode):
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
         gateway_facade: GatewayFacade,
-        account_address: Optional[str],
+        account_address: Optional[AccountAddress],
         signer: Optional[BaseSigner],
     ):
         super().__init__(syscall_dependencies)
@@ -85,12 +88,13 @@ class MigratorInvokeCheatcode(Cheatcode):
 
     def invoke(
         self,
-        contract_address: int,
+        contract_address: RawAddress,
         function_name: str,
         inputs: Optional[CairoOrPythonData],
         *args: Any,
         config: SignedCheatcodeConfig,
     ):
+        address = Address.from_user_input(contract_address)
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
 
@@ -123,7 +127,7 @@ class MigratorInvokeCheatcode(Cheatcode):
         try:
             asyncio.run(
                 self._gateway_facade.invoke(
-                    contract_address=contract_address,
+                    contract_address=address,
                     function_name=function_name,
                     max_fee=max_fee,
                     inputs=inputs,

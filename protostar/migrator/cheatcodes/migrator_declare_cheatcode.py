@@ -9,6 +9,7 @@ from protostar.starknet import (
     Cheatcode,
     CheatcodeException,
     KeywordOnlyArgumentCheatcodeException,
+    AccountAddress,
 )
 from protostar.starknet_gateway import Fee, GatewayFacade
 
@@ -57,7 +58,7 @@ class MigratorDeclareCheatcode(Cheatcode):
     class Config:
         signer: Optional[BaseSigner] = None
         token: Optional[str] = None
-        account_address: Optional[str] = None
+        account_address: Optional[AccountAddress] = None
 
     def __init__(
         self,

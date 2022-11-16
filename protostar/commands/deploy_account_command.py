@@ -22,11 +22,12 @@ from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import GatewayFacadeFactory
 from protostar.starknet_gateway.gateway_facade import ClassHash, DeployAccountArgs, Fee
 from protostar.starknet_gateway.gateway_response import SuccessfulDeployAccountResponse
+from protostar.starknet import AccountAddress
 
 
 @dataclass
 class DeployAccountCommandArgs(NetworkArgs):
-    account_address: int
+    account_address: AccountAddress
     account_address_salt: int
     account_constructor_input: Optional[list[int]]
     account_class_hash: ClassHash
@@ -43,7 +44,7 @@ class DeployAccountCommandArgs(NetworkArgs):
 
         assert signer is not None
         return cls(
-            account_address=args.account_address,
+            account_address=AccountAddress(int(args.account_address)),
             nonce=args.nonce,
             account_class_hash=args.account_class_hash,
             account_constructor_input=args.account_constructor_input or [],

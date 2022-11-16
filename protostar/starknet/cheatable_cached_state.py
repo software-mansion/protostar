@@ -8,7 +8,8 @@ from starkware.starknet.public.abi import AbiType
 from typing_extensions import Self
 
 from protostar.starknet.cheaters import BlockInfoCheater, Cheaters
-from protostar.starknet.types import AddressType, ClassHashType, SelectorType
+from protostar.starknet.types import ClassHashType, SelectorType
+from protostar.starknet import Address
 from protostar.starknet.data_transformer import CairoOrPythonData
 
 
@@ -18,15 +19,15 @@ class CheatableCachedState(CachedState):
         super().__init__(*args, **kwargs)
 
         self.pranked_contracts_map: Dict[int, int] = {}
-        self.mocked_calls_map: Dict[AddressType, Dict[SelectorType, List[int]]] = {}
+        self.mocked_calls_map: Dict[Address, Dict[SelectorType, List[int]]] = {}
         self.event_selector_to_name_map: Dict[int, str] = {}
 
         self.event_name_to_contract_abi_map: Dict[str, AbiType] = {}
         self.class_hash_to_contract_abi_map: Dict[ClassHashType, AbiType] = {}
         self.class_hash_to_contract_path_map: Dict[ClassHashType, Path] = {}
-        self.contract_address_to_class_hash_map: Dict[AddressType, ClassHashType] = {}
+        self.contract_address_to_class_hash_map: Dict[Address, ClassHashType] = {}
         self.contract_calls: dict[
-            AddressType, list[tuple[SelectorType, CairoOrPythonData]]
+            Address, list[tuple[SelectorType, CairoOrPythonData]]
         ] = {}
 
         self.cheaters = Cheaters(block_info=BlockInfoCheater(self.block_info))

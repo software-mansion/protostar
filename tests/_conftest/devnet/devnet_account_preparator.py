@@ -29,17 +29,22 @@ class DevnetAccountPreparator:
     async def prepare(self, salt: int, private_key: int) -> PreparedDevnetAccount:
         class_hash = await self._declare()
         key_pair = KeyPair.from_private_key(private_key)
-        address = self._compute_address(
-            class_hash=class_hash, public_key=key_pair.public_key, salt=salt
+
+        address = AccountAddress.from_class_hash(
+            class_hash=class_hash, constructor_calldata=[key_pair.public_key], salt=salt
         )
         await self._prefund(address)
         return PreparedDevnetAccount(
             class_hash=class_hash,
-            address=str(address),
+            address=AccountAddress.from_class_hash(
+                class_hash=class_hash,
+                constructor_calldata=[key_pair.public_key],
+                salt=salt,
+            ),
             private_key=str(key_pair.private_key),
             public_key=str(key_pair.public_key),
             signer=StarkCurveSigner(
-                account_address=address,
+                account_address=str(address),
                 key_pair=key_pair,
                 chain_id=StarknetChainId.TESTNET,
             ),
@@ -54,14 +59,7 @@ class DevnetAccountPreparator:
         await self._predeployed_account_client.wait_for_tx(resp.transaction_hash)
         return resp.class_hash
 
-    async def _prefund(self, account_address: int):
+    async def _prefund(self, account_address: AccountAddress):
         await self._faucet_contract.transfer(
             recipient=account_address, amount=int(1e15)
-        )
-
-    def _compute_address(self, class_hash: int, public_key: int, salt: int) -> int:
-        return int(
-            AccountAddress.from_class_hash(
-                class_hash=class_hash, constructor_calldata=[public_key], salt=salt
-            )
         )

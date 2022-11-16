@@ -149,7 +149,7 @@ class GatewayFacade:
 
         return SuccessfulDeployResponse(
             code=result.code or "",
-            address=result.contract_address,
+            address=Address(result.contract_address),
             transaction_hash=result.transaction_hash,
         )
 
@@ -492,7 +492,7 @@ class GatewayFacade:
         response = await account_client.deploy_account(signed_deploy_account_tx)
         return SuccessfulDeployAccountResponse(
             code=response.code or "",
-            address=response.address,
+            address=AccountAddress(response.address),
             transaction_hash=response.transaction_hash,
         )
 

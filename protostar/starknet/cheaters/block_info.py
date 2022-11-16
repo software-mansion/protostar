@@ -6,17 +6,17 @@ from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from typing_extensions import Self
 
 from protostar.starknet.cheater import Cheater
-from protostar.starknet.types import AddressType
+from protostar.starknet.address import Address
 
 
 class BlockInfoCheater(Cheater):
     def __init__(self, base: BlockInfo):
         self.base: BlockInfo = base
 
-        self.contract_address_to_block_timestamp: dict[AddressType, int] = {}
-        self.contract_address_to_block_number: dict[AddressType, int] = {}
+        self.contract_address_to_block_timestamp: dict[Address, int] = {}
+        self.contract_address_to_block_number: dict[Address, int] = {}
 
-    def get_for_contract(self, contract_address: AddressType) -> BlockInfo:
+    def get_for_contract(self, contract_address: Address) -> BlockInfo:
         block_info = self.base
 
         block_timestamp = self.contract_address_to_block_timestamp.get(contract_address)
@@ -37,7 +37,7 @@ class BlockInfoCheater(Cheater):
 
     def cheat(
         self,
-        contract_address: AddressType,
+        contract_address: Address,
         block_timestamp: Optional[int] = None,
         block_number: Optional[int] = None,
     ) -> Callable[[], None]:

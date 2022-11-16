@@ -80,7 +80,7 @@ async def test_migrating_with_signed_invoke(
             "--gateway-url",
             devnet_gateway_url,
             "--account-address",
-            signing_credentials.account_address,
+            str(signing_credentials.account_address),
             "--chain-id",
             str(StarknetChainId.TESTNET.value),
             "--no-confirm",

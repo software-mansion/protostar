@@ -48,6 +48,7 @@ from protostar.self.protostar_compatibility_with_project_checker import (
     parse_protostar_version,
 )
 from protostar.self.protostar_directory import ProtostarDirectory
+from protostar.starknet.address import Address
 from protostar.starknet_gateway import Fee, GatewayFacade, GatewayFacadeFactory
 from protostar.starknet_gateway.gateway_facade import Wei
 from protostar.testing import TestingSummary
@@ -100,7 +101,7 @@ class ProtostarFixture:
     async def declare(
         self,
         chain_id: Optional[StarknetChainId] = None,
-        account_address: Optional[str] = None,
+        account_address: Optional[AccountAddress] = None,
         contract: Optional[Path] = None,
         gateway_url: Optional[str] = None,
         wait_for_acceptance: Optional[bool] = False,
@@ -169,7 +170,7 @@ class ProtostarFixture:
 
     async def deploy_account(
         self,
-        account_address: str,
+        account_address: AccountAddress,
         account_address_salt: int,
         account_class_hash: int,
         max_fee: Wei,
@@ -181,7 +182,7 @@ class ProtostarFixture:
             [
                 "deploy-account",
                 "--account-address",
-                account_address,
+                str(account_address),
                 "--gateway-url",
                 gateway_url,
                 "--chain-id",
@@ -272,11 +273,11 @@ class ProtostarFixture:
 
     async def invoke(
         self,
-        contract_address: int,
+        contract_address: Address,
         function_name: str,
         inputs: Optional[list[int]],
         gateway_url: str,
-        account_address: Optional[str] = None,
+        account_address: Optional[AccountAddress] = None,
         wait_for_acceptance: Optional[bool] = False,
         max_fee: Optional[Fee] = None,
     ):
@@ -299,7 +300,7 @@ class ProtostarFixture:
 
     async def call(
         self,
-        contract_address: int,
+        contract_address: Address,
         function_name: str,
         inputs: Optional[list[int]],
         gateway_url: str,
