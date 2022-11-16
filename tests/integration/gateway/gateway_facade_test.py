@@ -2,13 +2,8 @@ from pathlib import Path
 from typing import cast
 
 import pytest
-from starknet_py.net.client_models import (
-    Declare,
-    StarknetTransaction,
-    TransactionStatus,
-)
-from starknet_py.net.gateway_client import GatewayClient, Network
-from starkware.starknet.public.abi import get_selector_from_name
+from starknet_py.net.client_models import Declare, TransactionStatus
+from starknet_py.net.gateway_client import GatewayClient
 
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.starknet.data_transformer import CairoOrPythonData
@@ -277,28 +272,22 @@ async def test_deploy_account(
 async def test_calling_through_proxy(
     gateway_facade: GatewayFacade,
     compiled_contract_path: Path,
-    devnet_accounts: list[DevnetAccount],
 ):
-    declare_result = await gateway_facade.declare(
+    contract = await gateway_facade.deploy(
         compiled_contract_path=compiled_contract_path,
-        account_address=devnet_accounts[0].address,
-        signer=devnet_accounts[0].signer,
         wait_for_acceptance=True,
-        token=None,
-        max_fee="auto",
     )
-    deploy_result = await gateway_facade.deploy(
+    proxy = await gateway_facade.deploy(
         compiled_contract_path=TESTS_ROOT_PATH
         / "data"
         / "oz_proxy_compiled_contract.json",
-        inputs=[declare_result.class_hash],
+        inputs=[contract.address],
         wait_for_acceptance=True,
     )
 
     call_result = await gateway_facade.call(
-        address=deploy_result.address,
-        function_name="increase_balance",
-        inputs={"amount": 42},
+        address=proxy.address,
+        function_name="get_balance",
     )
 
-    assert call_result is not None
+    assert call_result.res == 0  # type: ignore
