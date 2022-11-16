@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, ContextManager, Callable
 
 from .protostar_argument import ProtostarArgument
 from ..io import Messenger, JsonMessenger, HumanMessenger, LogColorProvider
@@ -13,8 +13,13 @@ class MessengerFactory:
         )
     ]
 
-    def __init__(self, log_color_provider: LogColorProvider):
+    def __init__(
+        self,
+        log_color_provider: LogColorProvider,
+        activity_indicator: Callable[[str], ContextManager],
+    ):
         self._log_color_provider = log_color_provider
+        self._activity_indicator = activity_indicator
 
     def from_args(self, args: Any) -> Messenger:
         if args.json:
@@ -23,7 +28,11 @@ class MessengerFactory:
         return self.human()
 
     def human(self):
-        return HumanMessenger(self._log_color_provider)
+        return HumanMessenger(
+            log_color_provider=self._log_color_provider,
+            activity_indicator=self._activity_indicator,
+        )
 
-    def json(self):
+    @staticmethod
+    def json():
         return JsonMessenger()
