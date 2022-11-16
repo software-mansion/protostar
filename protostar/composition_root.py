@@ -200,7 +200,11 @@ def build_di_container(
             logger=logger,
             gateway_facade_factory=gateway_facade_factory,
         ),
-        DeclareCommand(logger=logger, gateway_facade_factory=gateway_facade_factory),
+        DeclareCommand(
+            logger=logger,
+            gateway_facade_factory=gateway_facade_factory,
+            messenger_factory=messenger_factory,
+        ),
         MigrateCommand(
             migrator_builder=Migrator.Builder(
                 migrator_execution_environment_builder=MigratorExecutionEnvironment.Builder(

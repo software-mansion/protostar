@@ -18,7 +18,7 @@ For detailed API description, see [declare command reference](../../cli-referenc
 To declare a contract from the Protostar CLI you need to build your project and use the `protostar declare` command.
 
 ```console title="protostar declare ./build/main.json --network testnet"
-[INFO] Declare transaction was sent.
+Declare transaction was sent.
 Class hash: 0x038cc...
 Transaction hash: 0x3c6c...
 

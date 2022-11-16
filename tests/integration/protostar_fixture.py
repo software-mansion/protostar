@@ -120,7 +120,7 @@ class ProtostarFixture:
         args.contract = contract
         args.gateway_url = gateway_url
         args.max_fee = max_fee
-
+        args.json = False
         return await self._declare_command.run(args)
 
     async def deploy(
@@ -541,7 +541,9 @@ def build_protostar_fixture(
         messenger_factory=messenger_factory,
     )
     declare_command = DeclareCommand(
-        logger=logger, gateway_facade_factory=gateway_facade_factory
+        logger=logger,
+        gateway_facade_factory=gateway_facade_factory,
+        messenger_factory=messenger_factory,
     )
 
     deploy_command = DeployCommand(
