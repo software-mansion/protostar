@@ -20,3 +20,24 @@ BLOCK_EXPLORER_ARG = ProtostarArgument(
     description=f"Generated links will point to that block explorer. Available values:\n{block_explorer_list}",
     type="block_explorer",
 )
+
+ACCOUNT_CLASS_HASH_ARG = ProtostarArgument(
+    name="account-class-hash",
+    description="Class hash of the declared account contract.",
+    type="class_hash",
+    is_required=True,
+)
+
+ACCOUNT_ADDRESS_SALT_ARG = ProtostarArgument(
+    name="account-address-salt",
+    description="An arbitrary value used to determine the address of the new contract.",
+    type="int",
+    is_required=True,
+)
+
+ACCOUNT_CONSTRUCTOR_INPUT = ProtostarArgument(
+    name="account-constructor-input",
+    description="Input to the account's constructor.",
+    type="int",
+    is_array=True,
+)

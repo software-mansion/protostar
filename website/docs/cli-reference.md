@@ -22,6 +22,20 @@ Disable validation of hints when building the contracts.
 Migrate project sources to Cairo 0.10.
 #### `targets STRING[]=['.']`
 Targets to migrate (a target can be a file or directory)
+### `calculate-account-address`
+In order to create an account, you need to prefund the account. To prefund the account you need to know its address. This command calculates the account address.
+#### `--account-address-salt INT`
+Required.
+
+An arbitrary value used to determine the address of the new contract.
+#### `--account-class-hash CLASS_HASH`
+Required.
+
+Class hash of the declared account contract.
+#### `--account-constructor-input INT[]`
+Input to the account's constructor.
+#### `--json`
+Print machine readable output in JSON format.
 ### `call`
 Calls a contract on StarkNet with given parameters
 #### `--chain-id INT`
@@ -123,13 +137,13 @@ Account address.
 #### `--account-address-salt INT`
 Required.
 
-This value is expected by account's `__validate_deploy__` entry point
+An arbitrary value used to determine the address of the new contract.
 #### `--account-class-hash CLASS_HASH`
 Required.
 
 Class hash of the declared account contract.
 #### `--account-constructor-input INT[]`
-Input to the account's constructor
+Input to the account's constructor.
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
 #### `--gateway-url STRING`

@@ -1,3 +1,4 @@
+import json
 import re
 from distutils.file_util import copy_file
 from pathlib import Path
@@ -194,6 +195,38 @@ def test_deploy_account_is_available(protostar: ProtostarFixture):
     assert "Sends deploy-account transaction" in protostar(
         ["--no-color", "deploy-account", "--help"]
     )
+
+
+@pytest.mark.usefixtures("init")
+def test_calculate_account_address_is_available(protostar: ProtostarFixture):
+    def run(json_format: bool):
+        optionals = []
+        if json_format:
+            optionals.append("--json")
+        return protostar(
+            [
+                "--no-color",
+                "calculate-account-address",
+                "--account-class-hash",
+                "1",
+                "--account-address-salt",
+                "1",
+                *optionals,
+            ],
+            ignore_stderr=True,
+        )
+
+    human_output = run(json_format=False)
+    json_output = run(json_format=True)
+
+    assert (
+        "Address: 0x033f7162354afe9442cc91d8f62a09613d33558c9fcdaf8a97912895e3f7ce93\n"
+        == human_output
+    )
+
+    assert json.loads(json_output) == {
+        "address": "0x033f7162354afe9442cc91d8f62a09613d33558c9fcdaf8a97912895e3f7ce93"
+    }
 
 
 def count_hex64(x: str) -> int:
