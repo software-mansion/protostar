@@ -291,6 +291,7 @@ class ProtostarFixture:
         args.block_explorer = None
         args.wait_for_acceptance = wait_for_acceptance
         args.max_fee = max_fee
+        args.json = False
 
         return await self._invoke_command.run(args)
 
@@ -561,7 +562,9 @@ def build_protostar_fixture(
     )
 
     invoke_command = InvokeCommand(
-        gateway_facade_factory=gateway_facade_factory, logger=logger
+        gateway_facade_factory=gateway_facade_factory,
+        logger=logger,
+        messenger_factory=messenger_factory,
     )
     call_command = CallCommand(
         gateway_facade_factory=gateway_facade_factory,

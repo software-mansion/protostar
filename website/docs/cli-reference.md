@@ -228,6 +228,8 @@ The name of the function being called.
 The URL of a StarkNet gateway. It is required unless `--network` is provided.
 #### `--inputs FELT[]`
 Inputs to the function being called, represented by a list of space-delimited values.
+#### `--json`
+Print machine readable output in JSON format.
 #### `--max-fee FEE`
 The maximum fee that the sender is willing to pay for the transaction. Provide "auto" to auto estimate the fee.
 #### `-n` `--network STRING`

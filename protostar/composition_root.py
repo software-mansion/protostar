@@ -218,7 +218,11 @@ def build_di_container(
             messenger_factory=messenger_factory,
         ),
         CairoMigrateCommand(script_root, logger),
-        InvokeCommand(gateway_facade_factory=gateway_facade_factory, logger=logger),
+        InvokeCommand(
+            gateway_facade_factory=gateway_facade_factory,
+            logger=logger,
+            messenger_factory=messenger_factory,
+        ),
         CallCommand(
             gateway_facade_factory=gateway_facade_factory,
             logger=logger,
