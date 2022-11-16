@@ -96,9 +96,9 @@ class ProtostarFixture:
 
     async def declare(
         self,
-        chain_id: Optional[StarknetChainId] = None,
+        contract: Path,
         account_address: Optional[str] = None,
-        contract: Optional[Path] = None,
+        chain_id: Optional[StarknetChainId] = None,
         gateway_url: Optional[str] = None,
         wait_for_acceptance: Optional[bool] = False,
         max_fee: Optional[Fee] = None,
@@ -107,13 +107,13 @@ class ProtostarFixture:
         args.signer_class = None
         args.account_address = None
         args.private_key_path = None
-        args.contract = None
+        args.contract = contract
         args.gateway_url = None
         args.network = None
         args.token = None
         args.block_explorer = None
         args.wait_for_acceptance = wait_for_acceptance
-        args.chain_id = chain_id
+        args.chain_id = chain_id or StarknetChainId.TESTNET
         args.account_address = account_address
         args.contract = contract
         args.gateway_url = gateway_url
@@ -123,13 +123,15 @@ class ProtostarFixture:
 
     async def deploy(
         self,
-        contract: Path,
+        class_hash: int,
         gateway_url: Optional[str] = None,
         inputs: Optional[List[int]] = None,
+        max_fee: Optional[Fee] = None,
     ):
         args = Namespace()
-        args.contract = contract
+        args.class_hash = class_hash
         args.gateway_url = gateway_url
+        args.max_fee = max_fee
         args.inputs = inputs or []
         args.network = None
         args.token = None
@@ -137,6 +139,10 @@ class ProtostarFixture:
         args.block_explorer = None
         args.wait_for_acceptance = False
         args.chain_id = StarknetChainId.TESTNET
+        args.signer_class = None
+        args.private_key_path = None
+        args.account_address = None
+
         return await self._deploy_command.run(args)
 
     async def deploy_account(
