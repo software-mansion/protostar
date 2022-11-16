@@ -463,9 +463,11 @@ class GatewayFacade:
                 )
                 return contract
             except ClientError as err:
-                raise ContractNotFoundException(
-                    contract_address=contract_address
-                ) from err
+                if "not deployed" in err.message:
+                    raise ContractNotFoundException(
+                        contract_address=contract_address
+                    ) from err
+                raise err
         except ProxyResolutionError:
             contract = await Contract.from_address(
                 address=contract_address,
