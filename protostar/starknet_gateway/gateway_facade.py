@@ -13,11 +13,11 @@ from typing import (
     Union,
 )
 
+from starknet_py.net.client_errors import ClientError, ContractNotFoundError
 from starknet_py.proxy.contract_abi_resolver import ProxyResolutionError
 from starknet_py.contract import Contract, ContractFunction, InvokeResult
 from starknet_py.net import AccountClient
 from starknet_py.net.client import Client
-from starknet_py.net.client_errors import ClientError, ContractNotFoundError
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import AddressRepresentation, Deploy, Transaction
 from starknet_py.net.models.transaction import DeployAccount
@@ -455,12 +455,17 @@ class GatewayFacade:
         client: Optional[Client] = None,
     ):
         try:
-            contract = await Contract.from_address(
-                address=contract_address,
-                client=client or self._gateway_client,
-                proxy_config=True,
-            )
-            return contract
+            try:
+                contract = await Contract.from_address(
+                    address=contract_address,
+                    client=client or self._gateway_client,
+                    proxy_config=True,
+                )
+                return contract
+            except ClientError as err:
+                raise ContractNotFoundException(
+                    contract_address=contract_address
+                ) from err
         except ProxyResolutionError:
             contract = await Contract.from_address(
                 address=contract_address,

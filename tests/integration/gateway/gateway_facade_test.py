@@ -26,7 +26,7 @@ from tests.integration.protostar_fixture import (
 )
 
 
-@pytest.fixture(autouse=True, scope="module", name="protostar")
+@pytest.fixture(autouse=True, scope="function", name="protostar")
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
     with create_protostar_project() as protostar:
         protostar.build_sync()
@@ -274,8 +274,7 @@ async def test_calling_through_proxy(
     compiled_contract_path: Path,
 ):
     contract = await gateway_facade.deploy(
-        compiled_contract_path=compiled_contract_path,
-        wait_for_acceptance=True,
+        compiled_contract_path=compiled_contract_path, wait_for_acceptance=True, salt=2
     )
     proxy = await gateway_facade.deploy(
         compiled_contract_path=TESTS_ROOT_PATH
