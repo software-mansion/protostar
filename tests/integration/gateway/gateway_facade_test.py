@@ -70,12 +70,11 @@ async def declared_class_hash_fixture(
     response = await gateway_facade.declare_v0(compiled_contract_path)
     return response.class_hash
 
+
 @pytest.fixture(name="contract_abi")
 def contract_abi_fixture(protostar: ProtostarFixture):
     return json.loads(
-        (
-            protostar.project_root_path / "build" / "main_abi.json"
-        ).read_text()
+        (protostar.project_root_path / "build" / "main_abi.json").read_text()
     )
 
 
@@ -149,6 +148,7 @@ async def test_call_to_with_positional_incorrect_args(
             inputs=[42],
         )
 
+
 @pytest.fixture(name="compiled_contract_without_constructor_class_hash")
 async def compiled_contract_without_constructor_class_hash_fixture(
     protostar: ProtostarFixture, devnet_gateway_url: str
@@ -165,11 +165,13 @@ async def compiled_contract_without_constructor_class_hash_fixture(
 async def test_compiled_contract_without_constructor_class_hash(
     gateway_facade: GatewayFacade,
     compiled_contract_without_constructor_class_hash: int,
-    contract_abi: AbiType
+    contract_abi: AbiType,
 ):
     with pytest.raises(InputValidationException) as ex:
         await gateway_facade.deploy_with_udc(
-            class_hash=compiled_contract_without_constructor_class_hash, abi=contract_abi, inputs={"UNKNOWN_INPUT": 42}
+            class_hash=compiled_contract_without_constructor_class_hash,
+            abi=contract_abi,
+            inputs={"UNKNOWN_INPUT": 42},
         )
     assert "Inputs provided to a contract with no constructor." in str(ex.value)
 
@@ -194,13 +196,13 @@ async def test_deploy_supports_data_transformer(
     inputs: CairoOrPythonData,
     protostar: ProtostarFixture,
 ):
-    abi_txt = (protostar.project_root_path / "build" / "main_abi.json").read_text("utf-8")
+    abi_txt = (protostar.project_root_path / "build" / "main_abi.json").read_text(
+        "utf-8"
+    )
     abi = json.loads(abi_txt)
 
     await gateway_facade.deploy_with_udc(
-        class_hash=compiled_contract_with_constructor_class_hash,
-        abi=abi,
-        inputs=inputs
+        class_hash=compiled_contract_with_constructor_class_hash, abi=abi, inputs=inputs
     )
 
 
@@ -208,15 +210,11 @@ async def test_deploy_no_args(
     gateway_facade: GatewayFacade,
     compiled_contract_with_constructor_class_hash: int,
     contract_abi: AbiType,
-    protostar: ProtostarFixture,
 ):
-    abi_txt = (protostar.project_root_path / "build" / "main_abi.json").read_text("utf-8")
-    abi = json.loads(abi_txt)
-
     with pytest.raises(InputValidationException):
         await gateway_facade.deploy_with_udc(
             compiled_contract_with_constructor_class_hash,
-            abi=abi
+            abi=contract_abi
         )
 
 

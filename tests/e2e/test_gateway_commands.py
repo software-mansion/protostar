@@ -11,20 +11,54 @@ from tests.conftest import Credentials
 from tests.e2e.conftest import ProtostarFixture
 
 
+def get_class_hash_from_cmd_output(cmd_output: str) -> str:
+    for line in cmd_output.splitlines():
+        match = re.compile("^Class hash: (.*)$").match(line)
+        if match is not None:
+            return match.group(1)
+
+    raise ValueError(
+        f"Command output does not contain class hash.\n Output: \n{cmd_output}\n"
+    )
+
+
+def assert_declare_successful(cmd_result: str):
+    assert "Declare transaction was sent" in cmd_result
+    assert count_hex64(cmd_result) == 2
+
+
 @pytest.mark.usefixtures("init")
 def test_deploying_and_calling_contract(
-    protostar: ProtostarFixture, devnet_gateway_url: str, datadir: Path
+    protostar: ProtostarFixture,
+    devnet_gateway_url: str,
+    datadir: Path,
 ):
     copy_file(
         src=str(datadir / "contract_with_constructor.cairo"),
         dst="./src/main.cairo",
     )
-    protostar(["build"])
 
+    protostar(["build"])
     result = protostar(
         [
-            "deploy",
+            "--no-color",
+            "declare",
             "./build/main.json",
+            "--gateway-url",
+            devnet_gateway_url,
+            "--chain-id",
+            str(StarknetChainId.TESTNET.value),
+        ]
+    )
+
+    assert_declare_successful(result)
+
+    class_hash = get_class_hash_from_cmd_output(result)
+    result = protostar(
+        [
+            "--no-color",
+            "deploy",
+            class_hash,
             "--inputs",
             "0x42",
             "--gateway-url",
@@ -105,8 +139,23 @@ def test_deploying_contract_with_constructor_and_inputs_defined_in_config_file(
     result = protostar(
         [
             "--no-color",
-            "deploy",
+            "declare",
             "./build/main.json",
+            "--gateway-url",
+            devnet_gateway_url,
+            "--chain-id",
+            str(StarknetChainId.TESTNET.value),
+        ]
+    )
+
+    class_hash = get_class_hash_from_cmd_output(result)
+
+    assert_declare_successful(result)
+    result = protostar(
+        [
+            "--no-color",
+            "deploy",
+            class_hash,
             "--gateway-url",
             devnet_gateway_url,
             "--chain-id",
