@@ -16,7 +16,7 @@ However, before you send such transaction you need to:
 1. Find the class hash of the account contract compatible with `DEPLOY_ACCOUNT` transaction. The entity that declared the account contract should make the class hash easily available. It's recommended to check the README.md in the repository with the source of the account contract:
    - [OpenZeppelin/cairo-contracts](https://github.com/OpenZeppelin/cairo-contracts)
    - [argentlabs/argent-contracts-starknet](https://github.com/argentlabs/argent-contracts-starknet)
-2. Calculate the account contract address with [`protostar calculate-account-address` command](/docs/cli-reference#calculate-account-address)
+2. Calculate an account contract address with [`protostar calculate-account-address` command](/docs/cli-reference#calculate-account-address)
 3. Prefund the account contract.
    
     | Network | Recommended method                                                                               |
