@@ -7,7 +7,7 @@ from starknet_py.net.gateway_client import GatewayClient
 
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.starknet.data_transformer import CairoOrPythonData
-from protostar.starknet_gateway.gateway_facade import (
+from protostar.starknet_gateway import (
     ContractNotFoundException,
     DeployAccountArgs,
     FeeExceededMaxFeeException,
@@ -16,7 +16,7 @@ from protostar.starknet_gateway.gateway_facade import (
     UnknownFunctionException,
 )
 from tests._conftest.devnet import DevnetAccount, DevnetFixture
-from tests.conftest import MAX_FEE
+from tests.conftest import MAX_FEE, TESTS_ROOT_PATH
 from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR, IDENTITY_CONTRACT
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.protostar_fixture import (
@@ -26,7 +26,7 @@ from tests.integration.protostar_fixture import (
 )
 
 
-@pytest.fixture(autouse=True, scope="module", name="protostar")
+@pytest.fixture(autouse=True, scope="function", name="protostar")
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
     with create_protostar_project() as protostar:
         protostar.build_sync()
@@ -267,3 +267,26 @@ async def test_deploy_account(
     assert tx.class_hash == deploy_account_args.account_class_hash
     assert tx.contract_address_salt == deploy_account_args.account_address_salt
     await devnet.assert_transaction_accepted(response.transaction_hash)
+
+
+async def test_calling_through_proxy(
+    gateway_facade: GatewayFacade,
+    compiled_contract_path: Path,
+):
+    contract = await gateway_facade.deploy(
+        compiled_contract_path=compiled_contract_path, wait_for_acceptance=True, salt=2
+    )
+    proxy = await gateway_facade.deploy(
+        compiled_contract_path=TESTS_ROOT_PATH
+        / "data"
+        / "oz_proxy_compiled_contract.json",
+        inputs=[contract.address],
+        wait_for_acceptance=True,
+    )
+
+    call_result = await gateway_facade.call(
+        address=proxy.address,
+        function_name="get_balance",
+    )
+
+    assert call_result.res == 0  # type: ignore

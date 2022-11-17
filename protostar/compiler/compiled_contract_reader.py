@@ -14,6 +14,8 @@ class CompiledContractReader:
 
     def load_abi_from_contract_path(self, contract_path: Path) -> Optional[AbiType]:
         abi_path = self._get_abi_path_from_contract_path(contract_path)
+        if not abi_path.exists():
+            return None
         return self._load_abi(abi_path)
 
     @staticmethod

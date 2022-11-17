@@ -1,7 +1,7 @@
 from protostar.starknet_gateway.gateway_facade import (
-    ContractNotFoundException,
     GatewayFacade,
-    UnknownFunctionException,
+    DeployAccountArgs,
+    InputValidationException,
 )
 from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeclareResponse,
@@ -19,3 +19,7 @@ from .block_explorer import (
 from .gateway_facade import Fee, FeeExceededMaxFeeException, Wei
 from .gateway_facade_factory import GatewayFacadeFactory
 from .gateway_response import SuccessfulInvokeResponse
+from .contract_function_factory import (
+    ContractNotFoundException,
+    UnknownFunctionException,
+)

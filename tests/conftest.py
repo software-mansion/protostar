@@ -193,3 +193,6 @@ def devnet_fixture(
         devnet_account_preparator=account_preparator,
         devnet_gateway_url=devnet_gateway_url,
     )
+
+
+TESTS_ROOT_PATH = Path(__file__).parent
