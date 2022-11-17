@@ -1,15 +1,16 @@
+import logging
 from datetime import datetime, timedelta
-from logging import Logger
 from typing import Any, cast
 
 import pytest
+from pytest import LogCaptureFixture
 from pytest_mock import MockerFixture
+from re_assert import Matches
 
-from protostar.upgrader.latest_version_cache_toml import LatestVersionCacheTOML
-from protostar.upgrader.latest_version_checker import LatestVersionChecker
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.self.protostar_directory import ProtostarDirectory, VersionManager
-
+from protostar.upgrader.latest_version_cache_toml import LatestVersionCacheTOML
+from protostar.upgrader.latest_version_checker import LatestVersionChecker
 
 LogColorProviderFixture = LogColorProvider
 
@@ -26,9 +27,10 @@ def log_color_provider_mock_fixture(mocker: MockerFixture) -> LogColorProviderFi
 
 
 async def test_logs_info_about_new_version_when_protostar_is_not_up_to_date(
-    mocker: MockerFixture, log_color_provider_mock: LogColorProviderFixture
+    mocker: MockerFixture,
+    caplog: LogCaptureFixture,
+    log_color_provider_mock: LogColorProviderFixture,
 ):
-    logger_mock = cast(Logger, mocker.MagicMock())
     protostar_directory_mock = cast(ProtostarDirectory, mocker.MagicMock())
     version_manager_mock = cast(VersionManager, mocker.MagicMock())
     latest_version_cache_toml_reader_mock = cast(
@@ -47,7 +49,6 @@ async def test_logs_info_about_new_version_when_protostar_is_not_up_to_date(
 
     upgrade_local_checker = LatestVersionChecker(
         log_color_provider=log_color_provider_mock,
-        logger=logger_mock,
         protostar_directory=protostar_directory_mock,
         version_manager=version_manager_mock,
         latest_version_cache_toml_reader=latest_version_cache_toml_reader_mock,
@@ -55,9 +56,9 @@ async def test_logs_info_about_new_version_when_protostar_is_not_up_to_date(
         latest_version_cache_toml_writer=mocker.MagicMock(),
     )
 
-    await upgrade_local_checker.run()
+    with caplog.at_level(logging.INFO):
+        await upgrade_local_checker.run()
 
-    assert (
-        "new Protostar version"
-        in cast(mocker.MagicMock, logger_mock.info).call_args_list[0][0][0]
-    )
+        assert caplog.record_tuples == [
+            ("root", logging.INFO, Matches(r"A new Protostar version is available"))
+        ]

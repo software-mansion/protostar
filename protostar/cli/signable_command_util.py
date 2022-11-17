@@ -1,6 +1,6 @@
 import importlib
+import logging
 import os
-from logging import Logger
 from typing import Any, Optional, Type
 
 from starknet_py.net.signer import BaseSigner
@@ -8,7 +8,6 @@ from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
 
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import NetworkConfig
-
 from .protostar_argument import ProtostarArgument
 
 PRIVATE_KEY_ENV_VAR_NAME = "PROTOSTAR_ACCOUNT_PRIVATE_KEY"
@@ -34,9 +33,8 @@ class SignableCommandUtil:
         ),
     ]
 
-    def __init__(self, args: Any, logger: Logger):
+    def __init__(self, args: Any):
         self._args = args
-        self._logger = logger
 
     def get_signer(
         self,
@@ -58,10 +56,10 @@ class SignableCommandUtil:
         if not private_key_str:
             private_key_str = os.environ.get(PRIVATE_KEY_ENV_VAR_NAME)
 
-        if (
-            not private_key_str or not self._args.account_address
-        ):  # FIXME(arcticae): This is temporary, when the signing is mandatory this should be removed
-            self._logger.warning(
+        if not private_key_str or not self._args.account_address:
+            # FIXME(arcticae): This is temporary, when the signing will be mandatory
+            #   this should be removed.
+            logging.warning(
                 "Signing credentials not found. "
                 "Signing transactions will be mandatory in future versions, "
                 "please refer to the docs for more details:\n"

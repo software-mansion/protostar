@@ -72,5 +72,5 @@ RUNTIME_ERROR_CONTRACT = """\
 func fail() {
     assert 0 = 1;
     return ();
-}    
+}
 """

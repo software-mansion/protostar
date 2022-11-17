@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from logging import Logger
 from typing import Any, Optional
 
 from starknet_py.net.gateway_client import GatewayClient
@@ -47,11 +46,9 @@ Transaction hash: 0x{self.response.transaction_hash:064x}
 class InvokeCommand(ProtostarCommand):
     def __init__(
         self,
-        logger: Logger,
         gateway_facade_factory: GatewayFacadeFactory,
         messenger_factory: MessengerFactory,
     ):
-        self._logger = logger
         self._gateway_facade_factory = gateway_facade_factory
         self._messenger_factory = messenger_factory
 
@@ -111,8 +108,8 @@ class InvokeCommand(ProtostarCommand):
     async def run(self, args: Any):
         write = self._messenger_factory.from_args(args)
 
-        network_command_util = NetworkCommandUtil(args, self._logger)
-        signable_command_util = SignableCommandUtil(args, self._logger)
+        network_command_util = NetworkCommandUtil(args)
+        signable_command_util = SignableCommandUtil(args)
         network_config = network_command_util.get_network_config()
         gateway_client = network_command_util.get_gateway_client()
         signer = signable_command_util.get_signer(network_config)
@@ -155,9 +152,7 @@ class InvokeCommand(ProtostarCommand):
         max_fee: Optional[Fee] = None,
         wait_for_acceptance: bool = False,
     ) -> SuccessfulInvokeResponse:
-        gateway_facade = self._gateway_facade_factory.create(
-            gateway_client=gateway_client, logger=None
-        )
+        gateway_facade = self._gateway_facade_factory.create(gateway_client)
         if account_address is None:
             raise ProtostarException(
                 "Argument `account_address` is required for transactions V1."

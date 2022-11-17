@@ -30,7 +30,6 @@ from protostar.testing.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
 )
 from protostar.testing.starkware.test_execution_state import TestExecutionState
-
 from .test_execution_environment import (
     TestCaseCheatcodeFactory,
     TestExecutionEnvironment,
@@ -49,7 +48,6 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         if self.state.config.profiling:
             raise ProtostarException("Fuzz tests cannot be profiled")
         self.initial_state = state
-        self._logger = logging.getLogger(__name__)
 
     async def execute(self, function_name: str) -> FuzzTestExecutionResult:
         abi = self.state.contract.abi
@@ -67,7 +65,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             not self.state.config.fuzz_examples
             and not self.state.config.fuzz_declared_strategies
         ):
-            self._logger.warning(
+            logging.warning(
                 "Not providing the test parameters is deprecated and will break test cases in the future releases, "
                 "Please use one of the following cheatcodes in the case setup function in order to "
                 "explicitly provide test data: \n- example\n- given"
