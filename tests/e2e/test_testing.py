@@ -274,18 +274,3 @@ def test_skipping(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     result = protostar(["test", "tests"])
     assert "SKIP" in result
     assert "REASON" in result
-
-
-@pytest.mark.usefixtures("init")
-def test_max_steps(protostar: ProtostarFixture, copy_fixture: CopyFixture):
-    copy_fixture("test_step.cairo", "./tests")
-
-    result = protostar(["test", "tests", "--max-steps", "10"], ignore_exit_code=True)
-    assert "FAIL" in result
-    assert "OUT_OF_RESOURCES" in result
-
-    result = protostar(["test", "tests", "--max-steps", "-1"])
-    assert "PASS" in result
-
-    result = protostar(["test", "tests", "--max-steps", "1000"])
-    assert "PASS" in result

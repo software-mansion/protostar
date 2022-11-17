@@ -9,7 +9,7 @@ func rec(step: felt) -> felt {
 }
 
 @external
-func test_max_step() {
+func test_max_steps() {
     rec(50);
     return ();
 }

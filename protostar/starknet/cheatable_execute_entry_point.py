@@ -91,8 +91,8 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     contract_callstack: list[str] = []
     profiling = False
 
-    # None results in default Cairo value
     max_steps: Optional[int] = None
+    "``None`` means default Cairo value."
 
     def _run(
         self,
