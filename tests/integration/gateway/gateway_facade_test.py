@@ -7,7 +7,7 @@ from starknet_py.net.gateway_client import GatewayClient
 
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.starknet.data_transformer import CairoOrPythonData
-from protostar.starknet_gateway.gateway_facade import (
+from protostar.starknet_gateway import (
     ContractNotFoundException,
     DeployAccountArgs,
     FeeExceededMaxFeeException,

@@ -13,11 +13,9 @@ from typing import (
     Union,
 )
 
-from starknet_py.net.client_errors import ClientError, ContractNotFoundError
-from starknet_py.proxy.contract_abi_resolver import ProxyResolutionError
-from starknet_py.contract import Contract, ContractFunction, InvokeResult
+from starknet_py.net.client_errors import ClientError
+from starknet_py.contract import ContractFunction, InvokeResult
 from starknet_py.net import AccountClient
-from starknet_py.net.client import Client
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import AddressRepresentation, Deploy, Transaction
 from starknet_py.net.models.transaction import DeployAccount
@@ -55,6 +53,8 @@ from protostar.starknet_gateway.gateway_response import (
     SuccessfulInvokeResponse,
 )
 from protostar.starknet_gateway.starknet_request import StarknetRequest
+
+from .contract_function_factory import ContractFunctionFactory
 
 ContractFunctionInputType = Union[List[int], Dict[str, Any]]
 
@@ -96,6 +96,9 @@ class GatewayFacade:
         self._compiled_contract_reader = compiled_contract_reader
         self._account_tx_version_detector = AccountTxVersionDetector(
             self._gateway_client
+        )
+        self._contract_function_factory = ContractFunctionFactory(
+            default_client=gateway_client
         )
 
     def get_starknet_requests(self) -> List[StarknetRequest]:
@@ -337,8 +340,9 @@ class GatewayFacade:
                 "inputs": str(inputs),
             },
         )
-        contract_function = await self._create_contract_function(address, function_name)
-
+        contract_function = await self._contract_function_factory.create(
+            address=address, function_name=function_name
+        )
         try:
             result = await self._call_function(contract_function, inputs)
         except TransactionFailedError as ex:
@@ -372,10 +376,8 @@ class GatewayFacade:
         account_client = await self._create_account_client(
             account_address=account_address, signer=signer
         )
-        contract_function = await self._create_contract_function(
-            contract_address,
-            function_name,
-            client=account_client,
+        contract_function = await self._contract_function_factory.create(
+            address=contract_address, function_name=function_name, client=account_client
         )
         try:
             result = await self._invoke_function(
@@ -431,53 +433,6 @@ class GatewayFacade:
             signer=signer,
             supported_tx_version=supported_by_account_tx_version,
         )
-
-    async def _create_contract_function(
-        self,
-        contract_address: AddressRepresentation,
-        function_name: str,
-        client: Optional[Client] = None,
-    ):
-        try:
-            contract = await self._get_contract_from_possibly_proxy_address(
-                contract_address, client
-            )
-        except ContractNotFoundError as err:
-            raise ContractNotFoundException(contract_address) from err
-        try:
-            return contract.functions[function_name]
-        except KeyError:
-            raise UnknownFunctionException(function_name) from KeyError
-
-    async def _get_contract_from_possibly_proxy_address(
-        self,
-        contract_address: AddressRepresentation,
-        client: Optional[Client] = None,
-    ) -> Contract:
-        try:
-            return await self._get_contract_from_proxy_address(contract_address, client)
-        except ProxyResolutionError:
-            return await Contract.from_address(
-                address=contract_address,
-                client=client or self._gateway_client,
-                proxy_config=False,
-            )
-
-    async def _get_contract_from_proxy_address(
-        self, contract_address: AddressRepresentation, client: Optional[Client] = None
-    ) -> Contract:
-        try:
-            return await Contract.from_address(
-                address=contract_address,
-                client=client or self._gateway_client,
-                proxy_config=True,
-            )
-        except ClientError as err:
-            if "not deployed" in err.message:
-                raise ContractNotFoundException(
-                    contract_address=contract_address
-                ) from err
-            raise err
 
     @staticmethod
     async def _call_function(
@@ -584,16 +539,6 @@ class GatewayFacade:
             )
 
         return register_response
-
-
-class UnknownFunctionException(ProtostarException):
-    def __init__(self, function_name: str):
-        super().__init__(f"Tried to call unknown function: '{function_name}'")
-
-
-class ContractNotFoundException(ProtostarException):
-    def __init__(self, contract_address: AddressRepresentation):
-        super().__init__(f"Tried to call unknown contract:\n{contract_address}")
 
 
 class InputValidationException(ProtostarException):
