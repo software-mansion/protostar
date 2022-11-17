@@ -18,7 +18,7 @@ class ViewblockBlockExplorer(BlockExplorer):
         return f"{self._prefix}/tx/0x{tx_hash:064x}{self._get_network_query_param()}"
 
     def create_link_to_contract(self, contract_address: Address) -> Optional[str]:
-        return f"{self._prefix}/contract/0x{int(contract_address):064x}{self._get_network_query_param()}"
+        return f"{self._prefix}/contract/{contract_address}{self._get_network_query_param()}"
 
     def create_link_to_class(self, class_hash: ClassHash) -> Optional[str]:
         return (
