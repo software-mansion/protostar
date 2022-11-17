@@ -14,23 +14,6 @@ from tests.e2e.conftest import ProtostarFixture
 
 HASH = Matches(r"0x[0-9a-f]{64}")
 
-
-def get_class_hash_from_cmd_output(cmd_output: str) -> str:
-    for line in cmd_output.splitlines():
-        match = re.compile("^Class hash: (.*)$").match(line)
-        if match is not None:
-            return match.group(1)
-
-    raise ValueError(
-        f"Command output does not contain class hash.\n Output: \n{cmd_output}\n"
-    )
-
-
-def assert_declare_successful(cmd_result: str):
-    assert "Declare transaction was sent" in cmd_result
-    assert count_hex64(cmd_result) == 2
-
-
 @pytest.mark.usefixtures("init")
 def test_deploying_and_interacting_with_contract(
     protostar: ProtostarFixture,
@@ -49,7 +32,6 @@ def test_deploying_and_interacting_with_contract(
 
     protostar(["build"])
 
-    # TODO(mkaput): Use structured output when it'll be available in `deploy`.
     result = protostar(
         [
             "--no-color",
@@ -59,12 +41,12 @@ def test_deploying_and_interacting_with_contract(
             devnet_gateway_url,
             "--chain-id",
             str(StarknetChainId.TESTNET.value),
-        ]
+            "--json",
+        ],
+        ignore_stderr=True,
     )
+    class_hash = json.loads(result)["class_hash"]
 
-    assert_declare_successful(result)
-
-    class_hash = get_class_hash_from_cmd_output(result)
     result = protostar(
         [
             "--no-color",
@@ -154,12 +136,13 @@ def test_deploying_contract_with_constructor_and_inputs_defined_in_config_file(
             devnet_gateway_url,
             "--chain-id",
             str(StarknetChainId.TESTNET.value),
-        ]
+            "--json",
+        ],
+        ignore_stderr=True,
     )
 
-    class_hash = get_class_hash_from_cmd_output(result)
+    class_hash = json.loads(result)["class_hash"]
 
-    assert_declare_successful(result)
     result = protostar(
         [
             "--no-color",
