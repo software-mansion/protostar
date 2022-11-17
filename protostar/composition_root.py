@@ -199,6 +199,7 @@ def build_di_container(
         DeployCommand(
             logger=logger,
             gateway_facade_factory=gateway_facade_factory,
+            messenger_factory=messenger_factory,
         ),
         DeclareCommand(
             logger=logger,

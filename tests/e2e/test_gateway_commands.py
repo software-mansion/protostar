@@ -14,6 +14,7 @@ from tests.e2e.conftest import ProtostarFixture
 
 HASH = Matches(r"0x[0-9a-f]{64}")
 
+
 @pytest.mark.usefixtures("init")
 def test_deploying_and_interacting_with_contract(
     protostar: ProtostarFixture,
@@ -58,15 +59,16 @@ def test_deploying_and_interacting_with_contract(
             devnet_gateway_url,
             "--chain-id",
             str(StarknetChainId.TESTNET.value),
-        ]
+            "--json",
+        ],
+        ignore_stderr=True,
     )
 
-    assert "Deploy transaction was sent" in result
-    assert re.search(r"Transaction hash: 0x[0-9a-f]{64}", result), result
+    response_dict = json.loads(result)
+    assert "contract_address" in response_dict
+    contract_address = response_dict["contract_address"]
 
-    m = re.search(r"Contract address: (0x[0-9a-f]{64})", result)
-    assert m, result
-    contract_address = m[1]
+    assert re.compile(r"0x[0-9a-f]{64}").match(contract_address)
 
     result = protostar(
         [
@@ -155,8 +157,10 @@ def test_deploying_contract_with_constructor_and_inputs_defined_in_config_file(
         ]
     )
 
-    assert "Deploy transaction was sent" in result
-    assert len(re.findall(r"0x[0-9a-f]{64}", result)) == 2
+    assert {
+        "contract_address": HASH,
+        "transaction_hash": HASH,
+    } == json.loads(result)
 
 
 @pytest.mark.usefixtures("init")

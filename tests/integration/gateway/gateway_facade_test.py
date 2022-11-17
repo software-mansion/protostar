@@ -213,8 +213,7 @@ async def test_deploy_no_args(
 ):
     with pytest.raises(InputValidationException):
         await gateway_facade.deploy_via_udc(
-            compiled_contract_with_constructor_class_hash,
-            abi=contract_abi
+            compiled_contract_with_constructor_class_hash, abi=contract_abi
         )
 
 
