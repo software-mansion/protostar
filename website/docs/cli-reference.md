@@ -159,6 +159,8 @@ Input to the account's constructor.
 The chain id. It is required unless `--network` is provided.
 #### `--gateway-url STRING`
 The URL of a StarkNet gateway. It is required unless `--network` is provided.
+#### `--json`
+Print machine readable output in JSON format.
 #### `--max-fee WEI`
 Required.
 

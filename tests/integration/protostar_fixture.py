@@ -531,7 +531,9 @@ def build_protostar_fixture(
     )
 
     deploy_account_command = DeployAccountCommand(
-        gateway_facade_factory=gateway_facade_factory, logger=logger
+        gateway_facade_factory=gateway_facade_factory,
+        logger=logger,
+        messenger_factory=messenger_factory,
     )
 
     migrate_command = MigrateCommand(

@@ -537,7 +537,9 @@ class GatewayFacade:
         except (TypeError, ValueError) as ex:
             raise InputValidationException(str(ex)) from ex
 
-    async def deploy_account(self, args: DeployAccountArgs):
+    async def deploy_account(
+        self, args: DeployAccountArgs
+    ) -> SuccessfulDeployAccountResponse:
         account_client = await self._create_account_client(
             account_address=str(args.account_address), signer=args.signer
         )
