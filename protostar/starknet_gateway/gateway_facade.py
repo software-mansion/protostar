@@ -1,5 +1,5 @@
 import dataclasses
-from logging import Logger, getLogger
+from logging import getLogger, LoggerAdapter
 from pathlib import Path
 from typing import (
     Any,
@@ -84,12 +84,12 @@ class GatewayFacade:
         project_root_path: Path,
         gateway_client: GatewayClient,
         compiled_contract_reader: CompiledContractReader,
-        logger: Optional[Logger] = None,
+        trace: bool = False,
         log_color_provider: Optional[LogColorProvider] = None,
-    ) -> None:
+    ):
         self._project_root_path = project_root_path
         self._starknet_requests: List[StarknetRequest] = []
-        self._logger: Optional[Logger] = logger
+        self._logger = GatewayFacadeLogger(trace)
         self._log_color_provider: Optional[LogColorProvider] = log_color_provider
         self._gateway_client = gateway_client
         self._compiled_contract_reader = compiled_contract_reader
@@ -134,8 +134,7 @@ class GatewayFacade:
             result = await self._gateway_client.deploy(tx, token)
             register_response(dataclasses.asdict(result))
             if wait_for_acceptance:
-                if self._logger:
-                    self._logger.info("Waiting for acceptance...")
+                self._logger.info("Waiting for acceptance...")
                 _, status = await self._gateway_client.wait_for_tx(
                     result.transaction_hash, wait_for_accept=wait_for_acceptance
                 )
@@ -210,8 +209,7 @@ class GatewayFacade:
             response = await self._gateway_client.declare(declare_tx, token=token)
 
             if wait_for_acceptance:
-                if self._logger:
-                    self._logger.info("Waiting for acceptance...")
+                self._logger.info("Waiting for acceptance...")
                 _, code = await account_client.wait_for_tx(
                     response.transaction_hash, wait_for_accept=True
                 )
@@ -292,8 +290,7 @@ class GatewayFacade:
             result = await self._gateway_client.declare(tx, token)
             register_response(dataclasses.asdict(result))
             if wait_for_acceptance:
-                if self._logger:
-                    self._logger.info("Waiting for acceptance...")
+                self._logger.info("Waiting for acceptance...")
                 _, status = await self._gateway_client.wait_for_tx(
                     result.transaction_hash, wait_for_accept=wait_for_acceptance
                 )
@@ -513,40 +510,37 @@ class GatewayFacade:
     def _register_request(
         self, action: StarknetRequest.Action, payload: StarknetRequest.Payload
     ) -> Callable[[StarknetRequest.Payload], None]:
+        self._logger.info(
+            "\n".join(
+                [
+                    StarknetRequest.prettify_data_flow(
+                        color_provider=self._log_color_provider,
+                        action=action,
+                        direction="TO_STARKNET",
+                    ),
+                    StarknetRequest.prettify_payload(
+                        color_provider=self._log_color_provider, payload=payload
+                    ),
+                ]
+            )
+        )
 
-        if self._logger:
+        def register_response(response: StarknetRequest.Payload):
             self._logger.info(
                 "\n".join(
                     [
                         StarknetRequest.prettify_data_flow(
                             color_provider=self._log_color_provider,
                             action=action,
-                            direction="TO_STARKNET",
+                            direction="FROM_STARKNET",
                         ),
                         StarknetRequest.prettify_payload(
-                            color_provider=self._log_color_provider, payload=payload
+                            color_provider=self._log_color_provider,
+                            payload=response,
                         ),
                     ]
                 )
             )
-
-        def register_response(response: StarknetRequest.Payload):
-            if self._logger:
-                self._logger.info(
-                    "\n".join(
-                        [
-                            StarknetRequest.prettify_data_flow(
-                                color_provider=self._log_color_provider,
-                                action=action,
-                                direction="FROM_STARKNET",
-                            ),
-                            StarknetRequest.prettify_payload(
-                                color_provider=self._log_color_provider,
-                                payload=response,
-                            ),
-                        ]
-                    )
-                )
 
             self._starknet_requests.append(
                 StarknetRequest(action=action, payload=payload, response=response)
@@ -593,6 +587,15 @@ class FeeExceededMaxFeeException(ProtostarException):
         if "Actual fee exceeded max fee" in client_error.message:
             return cls(client_error.message)
         return None
+
+
+class GatewayFacadeLogger(LoggerAdapter):
+    def __init__(self, trace: bool):
+        super().__init__(logger=getLogger(), extra={})
+        self._trace = trace
+
+    def isEnabledFor(self, level: int) -> bool:
+        return self._trace and super().isEnabledFor(level)
 
 
 def transform_constructor_inputs_from_python(

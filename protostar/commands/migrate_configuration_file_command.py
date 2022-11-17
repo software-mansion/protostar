@@ -1,5 +1,5 @@
+import logging
 from argparse import Namespace
-from logging import Logger
 from typing import Optional
 
 from protostar.cli import ProtostarCommand
@@ -11,11 +11,9 @@ class MigrateConfigurationFileCommand(ProtostarCommand):
 
     def __init__(
         self,
-        logger: Logger,
         configuration_file_migrator: ConfigurationFileMigratorProtocol,
     ) -> None:
         super().__init__()
-        self._logger = logger
         self._configuration_file_migrator = configuration_file_migrator
 
     @property
@@ -36,4 +34,4 @@ class MigrateConfigurationFileCommand(ProtostarCommand):
 
     async def run(self, args: Namespace) -> None:
         self._configuration_file_migrator.run()
-        self._logger.info("The configuration file was migrated successfully.")
+        logging.info("The configuration file was migrated successfully.")

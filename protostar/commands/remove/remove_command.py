@@ -1,5 +1,5 @@
+import logging
 from argparse import Namespace
-from logging import Logger
 from pathlib import Path
 from typing import Optional
 
@@ -28,12 +28,10 @@ class RemoveCommand(ProtostarCommand):
         self,
         project_root_path: Path,
         lib_path_resolver: LibPathResolver,
-        logger: Logger,
     ) -> None:
         super().__init__()
         self._project_root_path = project_root_path
         self._lib_path_resolver = lib_path_resolver
-        self._logger = logger
 
     @property
     def name(self) -> str:
@@ -61,21 +59,22 @@ class RemoveCommand(ProtostarCommand):
         ]
 
     async def run(self, args: Namespace):
-        self._logger.info("Retrieving package for removal")
+        logging.info("Retrieving package for removal")
         try:
             self.remove(
                 args.package, lib_path=self._lib_path_resolver.resolve(args.lib_path)
             )
         except BaseException as exc:
-            self._logger.error("Package removal failed")
+            logging.error("Package removal failed")
             raise exc
-        self._logger.info("Removed the package successfully")
+        logging.info("Removed the package successfully")
 
     def remove(self, internal_dependency_reference: str, lib_path: Path):
         if not lib_path.exists():
-            self._logger.warning(
-                f"Directory {lib_path} doesn't exist.\n"
-                "Did you install any package before running this command?"
+            logging.warning(
+                "Directory %s doesn't exist.\n"
+                "Did you install any package before running this command?",
+                lib_path,
             )
             return
         package_name = retrieve_real_package_name(
@@ -83,7 +82,7 @@ class RemoveCommand(ProtostarCommand):
             self._project_root_path,
             packages_dir=lib_path,
         )
-        self._logger.info(
+        logging.info(
             "Removing %s%s%s",
             log_color_provider.get_color("RED"),
             package_name,

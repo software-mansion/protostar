@@ -1,11 +1,12 @@
-# pylint: disable=protected-access
-
+import logging
+import re
 from asyncio import Future
-from logging import Logger, getLogger
-from typing import Any, List, Optional, Protocol, cast
+from typing import Any, Protocol, cast
 
 import pytest
+from pytest import LogCaptureFixture
 from pytest_mock import MockerFixture
+from re_assert import Matches
 
 from protostar.argument_parser import ArgumentParserFacade
 from protostar.cli import ProtostarCommand
@@ -23,21 +24,16 @@ def git_version_fixture() -> str:
 
 
 @pytest.fixture(name="version_manager")
-def version_manager_fixture(mocker: MockerFixture, git_version: str, logger: Logger):
-    version_manager: Any = VersionManager(mocker.MagicMock(), logger)
+def version_manager_fixture(mocker: MockerFixture, git_version: str):
+    version_manager: Any = VersionManager(mocker.MagicMock())
     type(version_manager).git_version = mocker.PropertyMock(
         return_value=VersionManager.parse(git_version)
     )
     return version_manager
 
 
-@pytest.fixture(name="logger")
-def logger_fixture():
-    return getLogger()
-
-
 @pytest.fixture(name="commands")
-def commands_fixture(mocker: MockerFixture) -> List[ProtostarCommand]:
+def commands_fixture(mocker: MockerFixture) -> list[ProtostarCommand]:
     command = mocker.MagicMock()
     command.name = "command-name"
     return [command]
@@ -56,17 +52,14 @@ def latest_version_checker_fixture(mocker: MockerFixture) -> LatestVersionChecke
 def protostar_cli_fixture(
     mocker: MockerFixture,
     version_manager: VersionManager,
-    logger: Logger,
-    commands: List[ProtostarCommand],
+    commands: list[ProtostarCommand],
     latest_version_checker: LatestVersionChecker,
 ) -> ProtostarCLI:
-
     log_color_provider = LogColorProvider()
     log_color_provider.is_ci_mode = True
     return ProtostarCLI(
         commands=commands,
         log_color_provider=log_color_provider,
-        logger=logger,
         version_manager=version_manager,
         latest_version_checker=latest_version_checker,
         configuration_file=mocker.MagicMock(),
@@ -81,24 +74,8 @@ def protostar_cli_fixture(
     )
 
 
-class RunProtostarCLIResult:
-    def __init__(self, warnings: list[str]):
-        self._warnings = warnings
-
-    def has_warning(self, warning_pattern: str) -> bool:
-        for warning in self._warnings:
-            if warning_pattern in warning:
-                return True
-        return False
-
-    def has_warnings(self) -> bool:
-        return len(self._warnings) > 0
-
-
 class RunProtostarCLIFixture(Protocol):
-    async def __call__(
-        self, compatibility_result: CompatibilityResult
-    ) -> RunProtostarCLIResult:
+    async def __call__(self, compatibility_result: CompatibilityResult) -> None:
         ...
 
 
@@ -107,8 +84,7 @@ def run_protostar_cli_fixture(
     mocker: MockerFixture,
     version_manager: VersionManager,
     latest_version_checker: LatestVersionChecker,
-    commands: List[ProtostarCommand],
-    logger: Logger,
+    commands: list[ProtostarCommand],
 ) -> RunProtostarCLIFixture:
     async def run_protostar_command(compatibility_result: CompatibilityResult):
         command = commands[0]
@@ -120,7 +96,6 @@ def run_protostar_cli_fixture(
         protostar_cli = ProtostarCLI(
             commands=commands,
             log_color_provider=log_color_provider,
-            logger=logger,
             version_manager=version_manager,
             latest_version_checker=latest_version_checker,
             configuration_file=mocker.MagicMock(),
@@ -134,34 +109,24 @@ def run_protostar_cli_fixture(
             ),
         )
         parser = ArgumentParserFacade(protostar_cli)
-        logger.warning = mocker.MagicMock()
 
         await protostar_cli.run(parser.parse([command.name]))
-
-        warnings = []
-        if (
-            len(logger.warning.call_args_list) > 0
-            and len(logger.warning.call_args_list[0]) > 0
-        ):
-            warnings = logger.warning.call_args_list[0][0]
-        return RunProtostarCLIResult(warnings=warnings)
 
     return run_protostar_command
 
 
 @pytest.mark.parametrize("git_version", ["2.27"])
 async def test_should_fail_due_to_old_git(
-    protostar_cli: ProtostarCLI, mocker: MockerFixture, logger: Logger
+    protostar_cli: ProtostarCLI, caplog: LogCaptureFixture
 ):
-    logger.error = mocker.MagicMock()
     parser = ArgumentParserFacade(protostar_cli)
 
-    with pytest.raises(SystemExit) as ex:
-        await protostar_cli.run(parser.parse(["--version"]))
-        assert cast(SystemExit, ex).code == 1
+    with caplog.at_level(logging.ERROR):
+        with pytest.raises(SystemExit) as ex:
+            await protostar_cli.run(parser.parse(["--version"]))
+            assert cast(SystemExit, ex).code == 1
 
-    assert "2.28" in logger.error.call_args_list[0][0][0]
-    logger.error.assert_called_once()
+        assert caplog.record_tuples == [("root", logging.ERROR, Matches(r".*2\.28.*"))]
 
 
 async def test_should_print_protostar_version(
@@ -176,7 +141,7 @@ async def test_should_print_protostar_version(
 
 
 async def test_should_run_expected_command(
-    protostar_cli: ProtostarCLI, mocker: MockerFixture, commands: List[ProtostarCommand]
+    protostar_cli: ProtostarCLI, mocker: MockerFixture, commands: list[ProtostarCommand]
 ):
     command = commands[0]
     command.run = mocker.MagicMock()
@@ -192,7 +157,7 @@ async def test_should_run_expected_command(
 
 
 async def test_should_sys_exit_on_keyboard_interrupt(
-    protostar_cli: ProtostarCLI, mocker: MockerFixture, commands: List[ProtostarCommand]
+    protostar_cli: ProtostarCLI, mocker: MockerFixture, commands: list[ProtostarCommand]
 ):
     command = commands[0]
     command.run = mocker.MagicMock()
@@ -205,7 +170,7 @@ async def test_should_sys_exit_on_keyboard_interrupt(
 
 
 async def test_should_sys_exit_on_protostar_exception(
-    protostar_cli: ProtostarCLI, mocker: MockerFixture, commands: List[ProtostarCommand]
+    protostar_cli: ProtostarCLI, mocker: MockerFixture, commands: list[ProtostarCommand]
 ):
     command = commands[0]
     command.run = mocker.MagicMock()
@@ -218,7 +183,7 @@ async def test_should_sys_exit_on_protostar_exception(
 
 
 async def test_should_sys_exit_on_protostar_silent_exception(
-    protostar_cli: ProtostarCLI, mocker: MockerFixture, commands: List[ProtostarCommand]
+    protostar_cli: ProtostarCLI, mocker: MockerFixture, commands: list[ProtostarCommand]
 ):
     command = commands[0]
     command.run = mocker.MagicMock()
@@ -231,7 +196,7 @@ async def test_should_sys_exit_on_protostar_silent_exception(
 
 
 async def test_getting_command_names(
-    protostar_cli: ProtostarCLI, commands: List[ProtostarCommand]
+    protostar_cli: ProtostarCLI, commands: list[ProtostarCommand]
 ):
     command_names = protostar_cli.get_command_names()
 
@@ -239,24 +204,32 @@ async def test_getting_command_names(
 
 
 @pytest.mark.parametrize(
-    "compatibility_result, expected_warning",
+    "compatibility_result, expected_warnings",
     [
-        (CompatibilityResult.COMPATIBLE, None),
+        (CompatibilityResult.COMPATIBLE, []),
         (
             CompatibilityResult.OUTDATED_DECLARED_VERSION,
-            "update the declared Protostar version",
+            [
+                (
+                    "root",
+                    logging.WARNING,
+                    Matches(r".*update the declared Protostar version.*", flags=re.S),
+                )
+            ],
         ),
-        (CompatibilityResult.OUTDATED_PROTOSTAR, "upgrade Protostar"),
+        (
+            CompatibilityResult.OUTDATED_PROTOSTAR,
+            [("root", logging.WARNING, Matches(".*upgrade Protostar.*", flags=re.S))],
+        ),
     ],
 )
 async def test_checking_compatibility(
+    caplog: LogCaptureFixture,
     run_protostar_cli: RunProtostarCLIFixture,
     compatibility_result: CompatibilityResult,
-    expected_warning: Optional[str],
+    expected_warnings: list[tuple[str, int, str]],
 ):
-    result = await run_protostar_cli(compatibility_result)
+    with caplog.at_level(logging.WARNING):
+        await run_protostar_cli(compatibility_result)
 
-    if expected_warning is None:
-        assert not result.has_warnings()
-    else:
-        assert result.has_warning(expected_warning)
+        assert caplog.record_tuples == expected_warnings

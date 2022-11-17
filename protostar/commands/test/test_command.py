@@ -1,5 +1,5 @@
+import logging
 from argparse import Namespace
-from logging import Logger
 from pathlib import Path
 from typing import List, Optional
 
@@ -34,7 +34,6 @@ from protostar.testing import (
     TestScheduler,
     determine_testing_seed,
 )
-
 from .test_command_cache import TestCommandCache
 
 
@@ -45,12 +44,10 @@ class TestCommand(ProtostarCommand):
         protostar_directory: ProtostarDirectory,
         project_cairo_path_builder: ProjectCairoPathBuilder,
         log_color_provider: LogColorProvider,
-        logger: Logger,
         cwd: Path,
         active_profile_name: Optional[str],
     ) -> None:
         super().__init__()
-        self._logger = logger
         self._log_color_provider = log_color_provider
         self._project_root_path = project_root_path
         self._protostar_directory = protostar_directory
@@ -152,7 +149,7 @@ A glob or globs to a directory or a test suite, for example:
         ]
 
     async def run(self, args: Namespace) -> TestingSummary:
-        cache = TestCommandCache(CacheIO(self._project_root_path), self._logger)
+        cache = TestCommandCache(CacheIO(self._project_root_path))
         summary = await self.test(
             targets=cache.obtain_targets(args.target, args.last_failed),
             ignored_targets=args.ignore,
@@ -230,14 +227,13 @@ A glob or globs to a directory or a test suite, for example:
 
         if test_collector_result.test_cases_count > 0:
             live_logger = TestingLiveLogger(
-                logger=self._logger,
                 testing_summary=testing_summary,
                 no_progress_bar=no_progress_bar,
                 exit_first=exit_first,
                 slowest_tests_to_report_count=slowest_tests_to_report_count,
                 project_root_path=self._project_root_path,
             )
-            TestScheduler(live_logger, worker=TestRunner.worker).run(
+            TestScheduler(live_logger=live_logger, worker=TestRunner.worker).run(
                 include_paths=include_paths,
                 test_collector_result=test_collector_result,
                 disable_hint_validation=disable_hint_validation,
@@ -259,7 +255,7 @@ A glob or globs to a directory or a test suite, for example:
         if test_collector_result.test_cases_count:
             self._log_formatted_test_collector_summary(test_collector_result)
         else:
-            self._logger.warning("No test cases found")
+            logging.warning("No test cases found")
 
     def _log_formatted_test_collector_summary(
         self, test_collector_result: TestCollector.Result
@@ -269,7 +265,7 @@ A glob or globs to a directory or a test suite, for example:
             test_suite_count=len(test_collector_result.test_suites),
             duration_in_sec=test_collector_result.duration,
         )
-        self._logger.info(formatted_result)
+        logging.info(formatted_result)
 
     def _log_formatted_test_result(self, test_result: TestResult) -> None:
         test_result = make_path_relative_if_possible(

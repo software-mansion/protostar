@@ -1,19 +1,19 @@
 # pylint: disable=broad-except
+import logging
 import os
 import shutil
 import tarfile
-from logging import Logger
 from pathlib import Path
 from typing import Any
 
 import requests
 
-from protostar.upgrader.latest_version_remote_checker import LatestVersionRemoteChecker
 from protostar.self.protostar_directory import (
     ProtostarDirectory,
     VersionManager,
     VersionType,
 )
+from protostar.upgrader.latest_version_remote_checker import LatestVersionRemoteChecker
 
 
 class UpgradeManagerException(Exception):
@@ -30,24 +30,22 @@ class UpgradeManager:
         protostar_directory: ProtostarDirectory,
         version_manager: VersionManager,
         latest_version_checker: LatestVersionRemoteChecker,
-        logger: Logger,
     ):
         self._protostar_directory = protostar_directory
         self._version_manager = version_manager
         self._latest_version_checker = latest_version_checker
-        self._logger = logger
 
     async def upgrade(self):
         assert os.path.isdir(self._protostar_directory.directory_root_path)
         assert os.path.isdir(self._protostar_directory.directory_root_path / "dist")
 
-        self._logger.info("Looking for a new version ...")
+        logging.info("Looking for a new version ...")
         checking_result = await self._latest_version_checker.check()
         is_newer_version_available = checking_result.latest_version > (
             self._version_manager.protostar_version or VersionManager.parse("0.0.0")
         )
         if not is_newer_version_available:
-            self._logger.info("Protostar is up to date")
+            logging.info("Protostar is up to date")
             return
 
         latest_version_tag = checking_result.latest_release_tag
@@ -63,7 +61,7 @@ class UpgradeManager:
             self._version_manager.protostar_version or VersionManager.parse("0.0.0")
         )
 
-        self._logger.info(
+        logging.info(
             "Starting upgrade from version %s to version %s",
             current_version,
             latest_version,
@@ -97,7 +95,7 @@ class UpgradeManager:
                 tarball_path=tarball_path,
             )
         except KeyboardInterrupt:
-            self._logger.info("Interrupting...")
+            logging.info("Interrupting...")
             self._rollback(
                 current_version=current_version,
                 old_version=protostar_dir_backup_path,
@@ -124,7 +122,7 @@ class UpgradeManager:
         protostar_dir_backup_path: Path,
         tarball_path: Path,
     ):
-        self._logger.error(
+        logging.error(
             (
                 "Upgrade failed\n"
                 "You can run the following installation script instead:\n"
@@ -153,7 +151,7 @@ class UpgradeManager:
         tarball_filename: str,
         tarball_path: Path,
     ):
-        self._logger.info("Pulling latest binary, version: %s", latest_version)
+        logging.info("Pulling latest binary, version: %s", latest_version)
         # pylint: disable=line-too-long
         tar_url = f"{LatestVersionRemoteChecker.PROTOSTAR_REPO}/releases/download/{latest_version_tag}/{tarball_filename}"
         # pylint: disable=missing-timeout
@@ -164,19 +162,19 @@ class UpgradeManager:
     def _install_new_version(
         self, latest_version: VersionType, tarball_path: Path, protostar_dir_path: Path
     ):
-        self._logger.info("Installing latest Protostar version: %s", latest_version)
+        logging.info("Installing latest Protostar version: %s", latest_version)
         with tarfile.open(tarball_path, "r:gz") as tar:
             tar.extractall(protostar_dir_path)
 
     def _rollback(
         self, current_version: VersionType, protostar_dir: Path, old_version: Path
     ):
-        self._logger.info("Rolling back to the version %s", current_version)
+        logging.info("Rolling back to the version %s", current_version)
         shutil.rmtree(protostar_dir / "dist", ignore_errors=True)
         shutil.move(str(old_version), protostar_dir / "dist")
 
     def cleanup(self, protostar_dir_backup_path: Path, tarball_path: Path):
-        self._logger.info("Cleaning up after installation")
+        logging.info("Cleaning up after installation")
         shutil.rmtree(protostar_dir_backup_path, ignore_errors=True)
         try:
             os.remove(tarball_path)

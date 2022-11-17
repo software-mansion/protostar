@@ -1,5 +1,5 @@
+import logging
 from argparse import Namespace
-from logging import Logger
 from pathlib import Path
 from typing import Callable, Optional
 
@@ -12,7 +12,6 @@ from protostar.cli import (
 from protostar.configuration_file import ConfigurationFile
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.package_manager import extract_info_from_repo_id
-
 from .install_package_from_repo import install_package_from_repo
 from .pull_package_submodules import pull_package_submodules
 
@@ -30,13 +29,11 @@ class InstallCommand(ProtostarCommand):
         self,
         project_root_path: Path,
         lib_path_resolver: LibPathResolver,
-        logger: Logger,
         log_color_provider: LogColorProvider,
     ) -> None:
         super().__init__()
         self._project_root_path = project_root_path
         self._lib_path_resolver = lib_path_resolver
-        self._logger = logger
         self._log_color_provider = log_color_provider
 
     @property
@@ -69,12 +66,12 @@ class InstallCommand(ProtostarCommand):
         ]
 
     async def run(self, args: Namespace):
-        self._logger.info("Executing install")
+        logging.info("Executing install")
         try:
             self.install(
                 package_name=args.package,
                 libs_path=self._lib_path_resolver.resolve(args.lib_path),
-                on_unknown_version=lambda: self._logger.warning(
+                on_unknown_version=lambda: logging.warning(
                     (
                         "Fetching from the mainline. The mainline can be in the non-releasable state.\n"
                         "Installing packages without providing specific version/tag is strongly discouraged."
@@ -83,9 +80,9 @@ class InstallCommand(ProtostarCommand):
                 alias=args.name,
             )
         except BaseException as exc:
-            self._logger.error("Installation failed")
+            logging.error("Installation failed")
             raise exc
-        self._logger.info("Installed successfully")
+        logging.info("Installed successfully")
 
     def install(
         self,
@@ -105,18 +102,17 @@ class InstallCommand(ProtostarCommand):
                 destination=libs_path,
                 tag=package_info.version,
             )
-            self._logger.info(
-                ConfigurationFile.create_appending_cairo_path_suggestion()
-            )
+            logging.info(ConfigurationFile.create_appending_cairo_path_suggestion())
         else:
             if not libs_path.exists():
-                self._logger.warning(
-                    f"Directory {libs_path} doesn't exist.\n"
-                    "Did you install any package before running this command?"
+                logging.warning(
+                    "Directory %s doesn't exist.\n"
+                    "Did you install any package before running this command?",
+                    libs_path,
                 )
                 return
             pull_package_submodules(
-                on_submodule_update_start=lambda package_info: self._logger.info(
+                on_submodule_update_start=lambda package_info: logging.info(
                     "Installing %s%s%s %s(%s)%s",
                     self._log_color_provider.get_color("CYAN"),
                     package_info.name,

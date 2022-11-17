@@ -1,8 +1,8 @@
 import asyncio
+import logging
 from argparse import Namespace
 from contextlib import contextmanager
 from dataclasses import dataclass, field
-from logging import Logger, getLogger
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast, Generator
 
@@ -414,7 +414,7 @@ class TestFriendlyGatewayFacadeFactory(GatewayFacadeFactory):
         self.recent_gateway_client: Optional[GatewayClientTxInterceptor] = None
         self._transaction_registry = transaction_registry
 
-    def create(self, gateway_client: GatewayClient, logger: Optional[Logger]):
+    def create(self, gateway_client: GatewayClient, trace: bool = True):
         gateway_client_tx_interceptor = GatewayClientTxInterceptor(
             # pylint: disable=protected-access
             net=gateway_client._net,
@@ -425,7 +425,7 @@ class TestFriendlyGatewayFacadeFactory(GatewayFacadeFactory):
             project_root_path=self._project_root_path,
             compiled_contract_reader=self._compiled_contract_reader,
             gateway_client=gateway_client_tx_interceptor,
-            logger=logger,
+            trace=trace,
             log_color_provider=log_color_provider,
         )
 
@@ -491,7 +491,6 @@ def build_protostar_fixture(
         adapted_project_creator=mocker.MagicMock(),
     )
 
-    logger = getLogger()
     messenger_factory = MessengerFactory(
         log_color_provider=log_color_provider,
         activity_indicator=fake_activity_indicator,
@@ -526,14 +525,13 @@ def build_protostar_fixture(
 
     deploy_account_command = DeployAccountCommand(
         gateway_facade_factory=gateway_facade_factory,
-        logger=logger,
         messenger_factory=messenger_factory,
     )
 
     migrate_command = MigrateCommand(
         migrator_builder=migrator_builder,
         log_color_provider=log_color_provider,
-        logger=logger,
+        logger=logging.getLogger(),
         requester=input_requester,
         gateway_facade_factory=gateway_facade_factory,
     )
@@ -543,14 +541,11 @@ def build_protostar_fixture(
         messenger_factory=messenger_factory,
     )
     declare_command = DeclareCommand(
-        logger=logger,
         gateway_facade_factory=gateway_facade_factory,
         messenger_factory=messenger_factory,
     )
 
-    deploy_command = DeployCommand(
-        logger=logger, gateway_facade_factory=gateway_facade_factory
-    )
+    deploy_command = DeployCommand(gateway_facade_factory=gateway_facade_factory)
 
     test_command = TestCommand(
         project_root_path=project_root_path,
@@ -560,19 +555,16 @@ def build_protostar_fixture(
             configuration_file=configuration_file,
         ),
         log_color_provider=log_color_provider,
-        logger=logger,
         cwd=project_root_path,
         active_profile_name=None,
     )
 
     invoke_command = InvokeCommand(
         gateway_facade_factory=gateway_facade_factory,
-        logger=logger,
         messenger_factory=messenger_factory,
     )
     call_command = CallCommand(
         gateway_facade_factory=gateway_facade_factory,
-        logger=logger,
         messenger_factory=messenger_factory,
     )
 

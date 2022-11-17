@@ -84,9 +84,9 @@ Consult https://docs.swmansion.com/protostar/docs/tutorials/deploying for more i
 """
         )
 
-        network_command_util = NetworkCommandUtil(args, self._logger)
+        network_command_util = NetworkCommandUtil(args)
         network_config = network_command_util.get_network_config()
-        signable_command_util = SignableCommandUtil(args, self._logger)
+        signable_command_util = SignableCommandUtil(args)
         signer = signable_command_util.get_signer(network_config)
         migrator_config = MigratorExecutionEnvironment.Config(
             account_address=args.account_address,
@@ -119,9 +119,7 @@ Consult https://docs.swmansion.com/protostar/docs/tutorials/deploying for more i
             self._logger.info("Migration cancelled")
             return
 
-        gateway_facade = self._gateway_facade_factory.create(
-            gateway_client=gateway_client, logger=self._logger
-        )
+        gateway_facade = self._gateway_facade_factory.create(gateway_client, trace=True)
 
         self._migrator_builder.set_logger(self._logger, self._log_color_provider)
 
