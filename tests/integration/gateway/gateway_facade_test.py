@@ -79,7 +79,7 @@ def contract_abi_fixture(protostar: ProtostarFixture):
 
 
 async def test_deploy(gateway_facade: GatewayFacade, declared_class_hash: int):
-    response = await gateway_facade.deploy_with_udc(declared_class_hash)
+    response = await gateway_facade.deploy_via_udc(declared_class_hash)
     assert response is not None
 
 
@@ -89,7 +89,7 @@ async def test_declare(gateway_facade: GatewayFacade, compiled_contract_path: Pa
 
 
 async def test_call(gateway_facade: GatewayFacade, declared_class_hash: int):
-    deployed_contract = await gateway_facade.deploy_with_udc(declared_class_hash)
+    deployed_contract = await gateway_facade.deploy_via_udc(declared_class_hash)
 
     response = await gateway_facade.call(
         deployed_contract.address,
@@ -105,7 +105,7 @@ async def test_call_to_unknown_function(
     gateway_facade: GatewayFacade,
     declared_class_hash: int,
 ):
-    deployed_contract = await gateway_facade.deploy_with_udc(declared_class_hash)
+    deployed_contract = await gateway_facade.deploy_via_udc(declared_class_hash)
 
     with pytest.raises(UnknownFunctionException):
         await gateway_facade.call(
@@ -126,7 +126,7 @@ async def test_call_to_unknown_contract(gateway_facade: GatewayFacade):
 async def test_call_to_with_incorrect_args(
     gateway_facade: GatewayFacade, declared_class_hash: int
 ):
-    deployed_contract = await gateway_facade.deploy_with_udc(declared_class_hash)
+    deployed_contract = await gateway_facade.deploy_via_udc(declared_class_hash)
 
     with pytest.raises(InputValidationException):
         await gateway_facade.call(
@@ -139,7 +139,7 @@ async def test_call_to_with_incorrect_args(
 async def test_call_to_with_positional_incorrect_args(
     gateway_facade: GatewayFacade, declared_class_hash: int
 ):
-    deployed_contract = await gateway_facade.deploy_with_udc(declared_class_hash)
+    deployed_contract = await gateway_facade.deploy_via_udc(declared_class_hash)
 
     with pytest.raises(InputValidationException):
         await gateway_facade.call(
@@ -168,7 +168,7 @@ async def test_compiled_contract_without_constructor_class_hash(
     contract_abi: AbiType,
 ):
     with pytest.raises(InputValidationException) as ex:
-        await gateway_facade.deploy_with_udc(
+        await gateway_facade.deploy_via_udc(
             class_hash=compiled_contract_without_constructor_class_hash,
             abi=contract_abi,
             inputs={"UNKNOWN_INPUT": 42},
@@ -201,7 +201,7 @@ async def test_deploy_supports_data_transformer(
     )
     abi = json.loads(abi_txt)
 
-    await gateway_facade.deploy_with_udc(
+    await gateway_facade.deploy_via_udc(
         class_hash=compiled_contract_with_constructor_class_hash, abi=abi, inputs=inputs
     )
 
@@ -212,7 +212,7 @@ async def test_deploy_no_args(
     contract_abi: AbiType,
 ):
     with pytest.raises(InputValidationException):
-        await gateway_facade.deploy_with_udc(
+        await gateway_facade.deploy_via_udc(
             compiled_contract_with_constructor_class_hash,
             abi=contract_abi
         )
@@ -224,7 +224,7 @@ async def test_deploy_too_many_args(
     compiled_contract_with_constructor_class_hash: int,
 ):
     with pytest.raises(InputValidationException):
-        await gateway_facade.deploy_with_udc(
+        await gateway_facade.deploy_via_udc(
             compiled_contract_with_constructor_class_hash, [42, 24]
         )
 

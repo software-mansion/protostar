@@ -11,7 +11,6 @@ from typing import (
     Optional,
     TypeVar,
     Union,
-    cast,
 )
 
 from starknet_py.contract import Contract, ContractFunction, InvokeResult
@@ -35,7 +34,7 @@ from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,
     Declare,
 )
-from typing_extensions import Self
+from typing_extensions import Self, TypeGuard
 
 from protostar.compiler import CompiledContractReader
 from protostar.io.log_color_provider import LogColorProvider
@@ -96,10 +95,8 @@ def parse_python_constructor_inputs(
     return cairo_inputs
 
 
-def is_cairo_data(inputs: CairoOrPythonData) -> bool:
-    return isinstance(
-        inputs, list
-    )  # Rest of cases should be typesafe, since we don't accept an array of dicts
+def is_cairo_data(inputs: CairoOrPythonData) -> TypeGuard[CairoData]:
+    return isinstance(inputs, list)
 
 
 def prepare_constructor_inputs(
@@ -112,7 +109,7 @@ def prepare_constructor_inputs(
         return []
 
     if is_cairo_data(inputs):
-        return cast(CairoData, inputs)
+        return inputs
 
     raise InputValidationException(
         "Provided structured input arguments, but no abi was found."
@@ -141,7 +138,7 @@ class GatewayFacade:
     def get_starknet_requests(self) -> List[StarknetRequest]:
         return self._starknet_requests.copy()
 
-    async def deploy_with_udc(
+    async def deploy_via_udc(
         self,
         class_hash: int,
         inputs: Optional[CairoOrPythonData] = None,
@@ -152,7 +149,7 @@ class GatewayFacade:
         account_address: Optional[int] = None,
         salt: Optional[int] = None,
         token: Optional[str] = None,
-    ):
+    ) -> SuccessfulDeployResponse:
         cairo_inputs = prepare_constructor_inputs(inputs, abi)
         call = Deployer(account_address=account_address).create_deployment_call_raw(
             class_hash=class_hash,

@@ -102,7 +102,7 @@ class DeployCommand(ProtostarCommand):
         )
         signer = signable_command_util.get_signer(network_config)
 
-        response = await gateway_facade.deploy_with_udc(
+        response = await gateway_facade.deploy_via_udc(
             class_hash=args.class_hash,
             signer=signer,
             max_fee=args.max_fee,
