@@ -1,5 +1,3 @@
-# pylint: disable=protected-access
-
 import asyncio
 from argparse import Namespace
 from contextlib import contextmanager
