@@ -44,7 +44,7 @@ class DeployCommand(ProtostarCommand):
         return [
             BLOCK_EXPLORER_ARG,
             ProtostarArgument(
-                name="class_hash",
+                name="class-hash",
                 description="The hash of the declared contract class.",
                 type="class_hash",
                 is_positional=True,
