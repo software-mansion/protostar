@@ -30,13 +30,29 @@ def test_deploying_and_interacting_with_contract(
         src=str(datadir / "contract_with_constructor.cairo"),
         dst="./src/main.cairo",
     )
+
     protostar(["build"])
 
-    # TODO(mkaput): Use structured output when it'll be available in `deploy`.
     result = protostar(
         [
-            "deploy",
+            "--no-color",
+            "declare",
             "./build/main.json",
+            "--gateway-url",
+            devnet_gateway_url,
+            "--chain-id",
+            str(StarknetChainId.TESTNET.value),
+            "--json",
+        ],
+        ignore_stderr=True,
+    )
+    class_hash = json.loads(result)["class_hash"]
+
+    result = protostar(
+        [
+            "--no-color",
+            "deploy",
+            class_hash,
             "--inputs",
             "0x42",
             "--gateway-url",
@@ -115,8 +131,24 @@ def test_deploying_contract_with_constructor_and_inputs_defined_in_config_file(
     result = protostar(
         [
             "--no-color",
-            "deploy",
+            "declare",
             "./build/main.json",
+            "--gateway-url",
+            devnet_gateway_url,
+            "--chain-id",
+            str(StarknetChainId.TESTNET.value),
+            "--json",
+        ],
+        ignore_stderr=True,
+    )
+
+    class_hash = json.loads(result)["class_hash"]
+
+    result = protostar(
+        [
+            "--no-color",
+            "deploy",
+            class_hash,
             "--gateway-url",
             devnet_gateway_url,
             "--chain-id",

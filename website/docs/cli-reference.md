@@ -100,13 +100,15 @@ Used for declaring contracts in Alpha MainNet.
 Waits for transaction to be accepted on chain.
 ### `deploy`
 ```shell
-protostar deploy ./build/main.json --network testnet
+protostar deploy 0x4221deadbeef123 --network testnet
 ```
 Deploy contracts.
-#### `contract PATH`
+#### `class-hash CLASS_HASH`
 Required.
 
-The path to the compiled contract.
+The hash of the declared contract class.
+#### `--account-address ADDRESS`
+Account address.
 #### `--block-explorer BLOCK_EXPLORER`
 Generated links will point to that block explorer. Available values:
 - starkscan
@@ -119,6 +121,8 @@ The URL of a StarkNet gateway. It is required unless `--network` is provided.
 #### `-i` `--inputs FELT[]`
 The inputs to the constructor. Calldata arguments may be of any type that does not contain pointers.
 [Read more about representing Cairo data types in the CLI.](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#array-arguments-in-calldata)
+#### `--max-fee FEE`
+The maximum fee that the sender is willing to pay for the transaction. Provide "auto" to auto estimate the fee.
 #### `-n` `--network STRING`
 The name of the StarkNet network.
 It is required unless `--gateway-url` is provided.
@@ -126,8 +130,13 @@ It is required unless `--gateway-url` is provided.
 Supported StarkNet networks:
 - `testnet`
 - `mainnet`
+#### `--private-key-path PATH`
+Path to the file, which stores your private key (in hex representation) for the account. 
+Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
 #### `--salt FELT`
 An optional salt controlling where the contract will be deployed. The contract deployment address is determined by the hash of contract, salt and caller. If the salt is not supplied, the contract will be deployed with a random salt.
+#### `--signer-class STRING`
+Custom signer class module path.
 #### `--token STRING`
 Used by whitelisted users for deploying contracts in Alpha MainNet.
 #### `--wait-for-acceptance`

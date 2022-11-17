@@ -25,8 +25,14 @@ async def test_deploying_contract(
     devnet_gateway_url: str,
     compiled_contract_filepath: Path,
 ):
+    declare_response = await protostar.declare(
+        contract=compiled_contract_filepath,
+        gateway_url=devnet_gateway_url,
+    )
     response = await protostar.deploy(
-        contract=compiled_contract_filepath, gateway_url=devnet_gateway_url, inputs=[42]
+        class_hash=declare_response.class_hash,
+        gateway_url=devnet_gateway_url,
+        inputs=[42],
     )
 
     assert response.address is not None

@@ -89,7 +89,7 @@ python-versions = ">=3.5"
 dev = ["cloudpickle", "coverage[toml] (>=5.0.2)", "furo", "hypothesis", "mypy (>=0.900,!=0.940)", "pre-commit", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "sphinx", "sphinx-notfound-page", "zope.interface"]
 docs = ["furo", "sphinx", "sphinx-notfound-page", "zope.interface"]
 tests = ["cloudpickle", "coverage[toml] (>=5.0.2)", "hypothesis", "mypy (>=0.900,!=0.940)", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "zope.interface"]
-tests-no-zope = ["cloudpickle", "coverage[toml] (>=5.0.2)", "hypothesis", "mypy (>=0.900,!=0.940)", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins"]
+tests_no_zope = ["cloudpickle", "coverage[toml] (>=5.0.2)", "hypothesis", "mypy (>=0.900,!=0.940)", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins"]
 
 [[package]]
 name = "base58"
@@ -188,7 +188,7 @@ optional = false
 python-versions = ">=3.6.0"
 
 [package.extras]
-unicode-backport = ["unicodedata2"]
+unicode_backport = ["unicodedata2"]
 
 [[package]]
 name = "click"
@@ -645,9 +645,9 @@ python-versions = ">=3.6.1,<4.0"
 
 [package.extras]
 colors = ["colorama (>=0.4.3,<0.5.0)"]
-pipfile-deprecated-finder = ["pipreqs", "requirementslib"]
+pipfile_deprecated_finder = ["pipreqs", "requirementslib"]
 plugins = ["setuptools"]
-requirements-deprecated-finder = ["pip-api", "pipreqs"]
+requirements_deprecated_finder = ["pip-api", "pipreqs"]
 
 [[package]]
 name = "itsdangerous"
@@ -696,7 +696,7 @@ optional = false
 python-versions = "*"
 
 [package.extras]
-atomic-cache = ["atomicwrites"]
+atomic_cache = ["atomicwrites"]
 nearley = ["js2py"]
 regex = ["regex"]
 
@@ -988,7 +988,7 @@ pastel = ">=0.2.1,<0.3.0"
 tomli = ">=1.2.2"
 
 [package.extras]
-poetry-plugin = ["poetry (>=1.0,<2.0)"]
+poetry_plugin = ["poetry (>=1.0,<2.0)"]
 
 [[package]]
 name = "prometheus-client"
@@ -1043,7 +1043,7 @@ setuptools = "*"
 
 [package.extras]
 encryption = ["tinyaes (>=1.0.0)"]
-hook-testing = ["execnet (>=1.5.0)", "psutil", "pytest (>=2.7.3)"]
+hook_testing = ["execnet (>=1.5.0)", "psutil", "pytest (>=2.7.3)"]
 
 [[package]]
 name = "pyinstaller-hooks-contrib"
@@ -1267,7 +1267,7 @@ urllib3 = ">=1.21.1,<1.27"
 
 [package.extras]
 socks = ["PySocks (>=1.5.6,!=1.5.7)"]
-use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
+use_chardet_on_py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "rlp"
@@ -1342,36 +1342,51 @@ description = "A local testnet for Starknet"
 category = "dev"
 optional = false
 python-versions = ">=3.8,<3.10"
+develop = false
 
 [package.dependencies]
 cairo-lang = "0.10.1"
-cloudpickle = ">=2.1.0,<2.2.0"
-crypto-cpp-py = ">=1.0.4,<1.1.0"
-Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
-flask-cors = ">=3.0.10,<3.1.0"
-gunicorn = ">=20.1.0,<20.2.0"
-marshmallow = ">=3.17.0,<3.18.0"
-typing-extensions = ">=4.3.0,<4.4.0"
-Werkzeug = ">=2.0.3,<2.1.0"
+cloudpickle = "~2.1.0"
+crypto-cpp-py = "~1.0.4"
+Flask = {version = "~2.0.3", extras = ["async"]}
+flask-cors = "~3.0.10"
+gunicorn = "~20.1.0"
+marshmallow = "~3.17.0"
+typing-extensions = "~4.3.0"
+Werkzeug = "~2.0.3"
+
+[package.source]
+type = "git"
+url = "https://github.com/Shard-Labs/starknet-devnet.git"
+reference = "40d5b6f"
+resolved_reference = "40d5b6f75fd80e5adea989e5f45ebb76c5c25cde"
 
 [[package]]
 name = "starknet-py"
-version = "0.9.0a0"
+version = "0.9.0-alpha"
 description = "A python SDK for StarkNet"
 category = "main"
 optional = false
-python-versions = ">=3.8,<3.10"
+python-versions = ">=3.8, <3.10"
+develop = false
 
 [package.dependencies]
-asgiref = ">=3.4.1,<4.0.0"
+asgiref = "^3.4.1"
 cairo-lang = "0.10.1"
-crypto-cpp-py = ">=1.0.4,<2.0.0"
-marshmallow = ">=3.15.0,<4.0.0"
-marshmallow-oneofschema = ">=3.0.1,<4.0.0"
-typing-extensions = ">=4.3.0,<5.0.0"
+crypto-cpp-py = "^1.0.4"
+marshmallow = "^3.15.0"
+marshmallow-oneofschema = "^3.0.1"
+typing-extensions = "^4.3.0"
 
 [package.extras]
 docs = ["enum-tools[sphinx] (==0.9.0.post1)", "sphinx (>=4.3.1,<6.0.0)"]
+eth-tester = []
+
+[package.source]
+type = "git"
+url = "https://github.com/software-mansion/starknet.py"
+reference = "b029de9"
+resolved_reference = "b029de90ef3c5d3bada6c504fbe33e481261d523"
 
 [[package]]
 name = "sympy"
@@ -1567,7 +1582,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9.14, <3.10"
-content-hash = "60d9c6bdb46b18e853e51f0eae772cefaf99a1e7e41a7dbe82231edc8ecd3750"
+content-hash = "0b41be5a67c96f8f2902d6b7c10f7f2f9f6186e60ce94285969a00be9f695652"
 
 [metadata.files]
 aiohttp = [
@@ -1830,7 +1845,9 @@ crypto-cpp-py = [
     {file = "crypto_cpp_py-1.0.4-cp37-cp37m-musllinux_1_1_x86_64.whl", hash = "sha256:4166fbe3ea025c3dfdcbf9269323a24c43af3f92880fbd8008891ea6b9489fc2"},
     {file = "crypto_cpp_py-1.0.4-cp37-cp37m-win32.whl", hash = "sha256:e78d08225bd20d829f119ba2e00c11b69bf6d2a99b655e56181580290392a010"},
     {file = "crypto_cpp_py-1.0.4-cp37-cp37m-win_amd64.whl", hash = "sha256:059e2ba230a22762087032fd508f7e8b5213ea5a18d1b091eb5c796093af9548"},
+    {file = "crypto_cpp_py-1.0.4-cp38-cp38-macosx_10_9_arm64.whl", hash = "sha256:080d64ba98246c9bf4dae595241d5feead2695138318a12fdba309a9a4a192de"},
     {file = "crypto_cpp_py-1.0.4-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:afe891d1a28b4d905257b410563fc4b2fc0c4d536c1d8c9b0bdb7c6d18a7f565"},
+    {file = "crypto_cpp_py-1.0.4-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:556ba5000b5c2bdeccf4c2c053c228d471cac77dd84121145a079930bbd5ff3e"},
     {file = "crypto_cpp_py-1.0.4-cp38-cp38-macosx_11_0_x86_64.whl", hash = "sha256:02520302ebcfa209bb79cb6a70fadffdd090b73e302142e48e1757bb513f2eca"},
     {file = "crypto_cpp_py-1.0.4-cp38-cp38-macosx_12_0_arm64.whl", hash = "sha256:447af208c5e6ff59a9d44c69806d2e3a71f32ec63b9435d7837fefe258a09f0b"},
     {file = "crypto_cpp_py-1.0.4-cp38-cp38-macosx_12_0_x86_64.whl", hash = "sha256:7d128ce933440303706c36eb6f5aa32ee76316138ce17cb12217ad283b030f4f"},
@@ -1844,7 +1861,9 @@ crypto-cpp-py = [
     {file = "crypto_cpp_py-1.0.4-cp38-cp38-musllinux_1_1_x86_64.whl", hash = "sha256:8c94e012a1e591bbe112778ec64576fa5b3dd4856208c0a6ac3c51c5ad62c61d"},
     {file = "crypto_cpp_py-1.0.4-cp38-cp38-win32.whl", hash = "sha256:d7a9889203d9e56cb5f7128c3742b7fc62a36cde8dddd71989570f0db6491c5c"},
     {file = "crypto_cpp_py-1.0.4-cp38-cp38-win_amd64.whl", hash = "sha256:7573420e603b523cec2e8ce26a11bcbc380987c2b68ce64be0e0068e9c0ff515"},
+    {file = "crypto_cpp_py-1.0.4-cp39-cp39-macosx_10_9_arm64.whl", hash = "sha256:fea99dbff0076fb5d02b3e0cdccdf970fba723a2463a122b90958d2b4f4c555b"},
     {file = "crypto_cpp_py-1.0.4-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:31b7a93a34fb444bd8e5540907e83737dcf6ce8d19f770fe1b49c6091cc9a6b9"},
+    {file = "crypto_cpp_py-1.0.4-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:5172dd0239ad6cc2b070ba6f04f4749c00e4ebe98b8f890c7a38e091f4e01686"},
     {file = "crypto_cpp_py-1.0.4-cp39-cp39-macosx_11_0_x86_64.whl", hash = "sha256:a3f4ac6852b5919508cc0218c5ae166afdbff64aa63bf6dfc8602761879706a5"},
     {file = "crypto_cpp_py-1.0.4-cp39-cp39-macosx_12_0_arm64.whl", hash = "sha256:0bad6955111f68e49e6b053171a8ed998a6e8a706464c72c1728497b9e4ebd4c"},
     {file = "crypto_cpp_py-1.0.4-cp39-cp39-macosx_12_0_x86_64.whl", hash = "sha256:88ca995b5a28d5f8e775bd3efa0a6e995decc76866c6fa548df5637729d23c09"},
@@ -2445,7 +2464,6 @@ prometheus-client = [
     {file = "prometheus_client-0.14.1.tar.gz", hash = "sha256:5459c427624961076277fdc6dc50540e2bacb98eebde99886e59ec55ed92093a"},
 ]
 protobuf = [
-    {file = "protobuf-3.20.2-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:9f876a69ca55aed879b43c295a328970306e8e80a263ec91cf6e9189243c613b"},
     {file = "protobuf-3.20.2-cp310-cp310-manylinux2014_aarch64.whl", hash = "sha256:09e25909c4297d71d97612f04f41cea8fa8510096864f2835ad2f3b3df5a5559"},
     {file = "protobuf-3.20.2-cp310-cp310-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:e8fbc522303e09036c752a0afcc5c0603e917222d8bedc02813fd73b4b4ed804"},
     {file = "protobuf-3.20.2-cp310-cp310-win32.whl", hash = "sha256:84a1544252a933ef07bb0b5ef13afe7c36232a774affa673fc3636f7cee1db6c"},
@@ -2769,13 +2787,8 @@ sortedcontainers = [
     {file = "sortedcontainers-2.4.0-py2.py3-none-any.whl", hash = "sha256:a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0"},
     {file = "sortedcontainers-2.4.0.tar.gz", hash = "sha256:25caa5a06cc30b6b83d11423433f65d1f9d76c4c6a0c90e3379eaa43b9bfdb88"},
 ]
-starknet-devnet = [
-    {file = "starknet_devnet-0.3.5-py3-none-any.whl", hash = "sha256:df70777164a800b94cebb1213294a8fc0e09b2cbd7e4939db6efc30c98ef46c2"},
-    {file = "starknet_devnet-0.3.5.tar.gz", hash = "sha256:1e43786b2f5f2a15f4d16e6a0104372f49f6e3e64630e7e8bbc2f1565be31c29"},
-]
-starknet-py = [
-    {file = "starknet_py-0.9.0a0.tar.gz", hash = "sha256:465583fa4215b969cc1fcfc89921de4cf28b840bfca85fe69d5aff5989517838"},
-]
+starknet-devnet = []
+starknet-py = []
 sympy = [
     {file = "sympy-1.11.1-py3-none-any.whl", hash = "sha256:938f984ee2b1e8eae8a07b884c8b7a1146010040fccddc6539c54f401c8f6fcf"},
     {file = "sympy-1.11.1.tar.gz", hash = "sha256:e32380dce63cb7c0108ed525570092fd45168bdae2faa17e528221ef72e88658"},

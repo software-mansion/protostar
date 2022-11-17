@@ -2,7 +2,7 @@ import logging
 from argparse import Namespace
 from typing import Optional
 
-from protostar.cli import ProtostarArgument, ProtostarCommand
+from protostar.cli import ProtostarArgument, ProtostarCommand, SignableCommandUtil
 from protostar.cli.common_arguments import BLOCK_EXPLORER_ARG
 from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.starknet_gateway import (
@@ -37,18 +37,25 @@ class DeployCommand(ProtostarCommand):
 
     @property
     def example(self) -> Optional[str]:
-        return "protostar deploy ./build/main.json --network testnet"
+        return "protostar deploy 0x4221deadbeef123 --network testnet"
 
     @property
     def arguments(self):
         return [
             BLOCK_EXPLORER_ARG,
             ProtostarArgument(
-                name="contract",
-                description="The path to the compiled contract.",
-                type="path",
-                is_required=True,
+                name="class-hash",
+                description="The hash of the declared contract class.",
+                type="class_hash",
                 is_positional=True,
+            ),
+            ProtostarArgument(
+                name="max-fee",
+                description=(
+                    "The maximum fee that the sender is willing to pay for the transaction. "
+                    'Provide "auto" to auto estimate the fee.'
+                ),
+                type="fee",
             ),
             ProtostarArgument(
                 name="inputs",
@@ -79,21 +86,23 @@ class DeployCommand(ProtostarCommand):
             ),
             DeployCommand.wait_for_acceptance_arg,
             *NetworkCommandUtil.network_arguments,
+            *SignableCommandUtil.signable_arguments,
         ]
 
     async def run(self, args: Namespace):
-        logging.warning(
-            "`protostar deploy` will be removed in the future release\n"
-            "https://docs.starknet.io/documentation/develop/Blocks/transactions/#deploy_transaction"
-        )
-
         network_command_util = NetworkCommandUtil(args)
+        signable_command_util = SignableCommandUtil(args)
+
         network_config = network_command_util.get_network_config()
         gateway_client = network_command_util.get_gateway_client()
         gateway_facade = self._gateway_facade_factory.create(gateway_client)
+        signer = signable_command_util.get_signer(network_config)
 
-        response = await gateway_facade.deploy(
-            compiled_contract_path=args.contract,
+        response = await gateway_facade.deploy_via_udc(
+            class_hash=args.class_hash,
+            signer=signer,
+            max_fee=args.max_fee,
+            account_address=args.account_address,
             inputs=args.inputs,
             token=args.token,
             salt=args.salt,
