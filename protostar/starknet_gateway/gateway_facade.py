@@ -439,7 +439,7 @@ class GatewayFacade:
         client: Optional[Client] = None,
     ):
         try:
-            contract = await self._get_resolved_contract_function(
+            contract = await self._get_contract_from_possibly_proxy_address(
                 contract_address, client
             )
         except ContractNotFoundError as err:
@@ -449,32 +449,35 @@ class GatewayFacade:
         except KeyError:
             raise UnknownFunctionException(function_name) from KeyError
 
-    async def _get_resolved_contract_function(
+    async def _get_contract_from_possibly_proxy_address(
         self,
         contract_address: AddressRepresentation,
         client: Optional[Client] = None,
-    ):
+    ) -> Contract:
         try:
-            try:
-                contract = await Contract.from_address(
-                    address=contract_address,
-                    client=client or self._gateway_client,
-                    proxy_config=True,
-                )
-                return contract
-            except ClientError as err:
-                if "not deployed" in err.message:
-                    raise ContractNotFoundException(
-                        contract_address=contract_address
-                    ) from err
-                raise err
+            return await self._get_contract_from_proxy_address(contract_address, client)
         except ProxyResolutionError:
-            contract = await Contract.from_address(
+            return await Contract.from_address(
                 address=contract_address,
                 client=client or self._gateway_client,
                 proxy_config=False,
             )
-            return contract
+
+    async def _get_contract_from_proxy_address(
+        self, contract_address: AddressRepresentation, client: Optional[Client] = None
+    ) -> Contract:
+        try:
+            return await Contract.from_address(
+                address=contract_address,
+                client=client or self._gateway_client,
+                proxy_config=True,
+            )
+        except ClientError as err:
+            if "not deployed" in err.message:
+                raise ContractNotFoundException(
+                    contract_address=contract_address
+                ) from err
+            raise err
 
     @staticmethod
     async def _call_function(
