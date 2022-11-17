@@ -13,11 +13,9 @@ from typing import (
     Union,
 )
 
-from starknet_py.net.client_errors import ClientError
 from starknet_py.contract import ContractFunction, InvokeResult
 from starknet_py.net import AccountClient
-from starknet_py.net.client import Client
-from starknet_py.net.client_errors import ClientError, ContractNotFoundError
+from starknet_py.net.client_errors import ClientError
 from starknet_py.net.client_models import InvokeFunction
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import AddressRepresentation, Deploy, Transaction

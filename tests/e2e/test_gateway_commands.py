@@ -14,6 +14,7 @@ from tests.e2e.conftest import ProtostarFixture
 
 HASH = Matches(r"0x[0-9a-f]{64}")
 
+
 @pytest.mark.usefixtures("init")
 def test_deploying_and_interacting_with_contract(
     protostar: ProtostarFixture,

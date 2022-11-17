@@ -213,8 +213,7 @@ async def test_deploy_no_args(
 ):
     with pytest.raises(InputValidationException):
         await gateway_facade.deploy_via_udc(
-            compiled_contract_with_constructor_class_hash,
-            abi=contract_abi
+            compiled_contract_with_constructor_class_hash, abi=contract_abi
         )
 
 
@@ -322,14 +321,34 @@ async def test_deploy_account(
 async def test_calling_through_proxy(
     gateway_facade: GatewayFacade,
     compiled_contract_path: Path,
+    devnet_accounts: list[DevnetAccount],
 ):
-    contract = await gateway_facade.deploy(
-        compiled_contract_path=compiled_contract_path, wait_for_acceptance=True, salt=2
+    declared = await gateway_facade.declare(
+        compiled_contract_path=compiled_contract_path,
+        wait_for_acceptance=True,
+        account_address=devnet_accounts[0].address,
+        signer=devnet_accounts[0].signer,
+        token=None,
+        max_fee=213700000000000,
     )
-    proxy = await gateway_facade.deploy(
+
+    contract = await gateway_facade.deploy_via_udc(
+        declared.class_hash, wait_for_acceptance=True, salt=2
+    )
+
+    declared_proxy = await gateway_facade.declare(
         compiled_contract_path=TESTS_ROOT_PATH
         / "data"
         / "oz_proxy_compiled_contract.json",
+        wait_for_acceptance=True,
+        account_address=devnet_accounts[0].address,
+        signer=devnet_accounts[0].signer,
+        max_fee=213700000000000,
+        token=None,
+    )
+
+    proxy = await gateway_facade.deploy_via_udc(
+        declared_proxy.class_hash,
         inputs=[contract.address],
         wait_for_acceptance=True,
     )
