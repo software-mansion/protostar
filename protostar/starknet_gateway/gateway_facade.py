@@ -78,7 +78,7 @@ class DeployAccountArgs:
 
 TransactionT = TypeVar("TransactionT", bound=Transaction)
 
-
+# pylint: disable=too-many-instance-attributes
 class GatewayFacade:
     def __init__(
         self,
