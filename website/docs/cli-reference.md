@@ -293,7 +293,7 @@ A glob or globs to a directory or a test suite, which should be ignored.
 #### `-lf` `--last-failed`
 Only re-run failed and broken test cases.
 #### `--max-steps INT`
-Set the Cairo step limit.
+Set Cairo execution step limit.
 #### `--no-progress-bar`
 Disable progress bar.
 #### `--profiling`
