@@ -1,6 +1,5 @@
 import json
 from dataclasses import dataclass
-from logging import Logger
 from typing import Any, Optional
 
 from starknet_py.net.gateway_client import GatewayClient
@@ -33,11 +32,9 @@ Response:
 class CallCommand(ProtostarCommand):
     def __init__(
         self,
-        logger: Logger,
         messenger_factory: MessengerFactory,
         gateway_facade_factory: GatewayFacadeFactory,
     ):
-        self._logger = logger
         self._messenger_factory = messenger_factory
         self._gateway_facade_factory = gateway_facade_factory
 
@@ -81,7 +78,7 @@ class CallCommand(ProtostarCommand):
     async def run(self, args: Any):
         write = self._messenger_factory.from_args(args)
 
-        network_command_util = NetworkCommandUtil(args, self._logger)
+        network_command_util = NetworkCommandUtil(args)
         gateway_client = network_command_util.get_gateway_client()
 
         response = await self.call(
@@ -102,10 +99,7 @@ class CallCommand(ProtostarCommand):
         gateway_client: GatewayClient,
         inputs: Optional[list[int]] = None,
     ) -> SuccessfulCallMessage:
-        gateway_facade = self._gateway_facade_factory.create(
-            gateway_client=gateway_client,
-            logger=self._logger,
-        )
+        gateway_facade = self._gateway_facade_factory.create(gateway_client)
 
         response = await gateway_facade.call(
             address=contract_address,

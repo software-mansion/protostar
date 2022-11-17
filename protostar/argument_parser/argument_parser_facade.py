@@ -60,6 +60,7 @@ class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
         else:
             args = self.argument_parser.parse_args(input_args)
 
+        args = self._replace_dashes_with_underscores(args)
         missing_data = self._find_missing_required_arg_in_project(args)
         if missing_data:
             (command, arg) = missing_data
@@ -71,6 +72,12 @@ class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
 
     def print_help(self):
         self.argument_parser.print_help()
+
+    def _replace_dashes_with_underscores(self, args: Namespace) -> Namespace:
+        new_args = Namespace()
+        for key, value in vars(args).items():
+            setattr(new_args, key.replace("-", "_"), value)
+        return new_args
 
     def _find_missing_required_arg_in_project(
         self, parsed_args: Namespace

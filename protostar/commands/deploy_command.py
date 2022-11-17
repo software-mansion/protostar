@@ -1,5 +1,5 @@
+import logging
 from argparse import Namespace
-from logging import Logger
 from typing import Optional
 
 from protostar.cli import ProtostarArgument, ProtostarCommand, SignableCommandUtil
@@ -23,10 +23,8 @@ class DeployCommand(ProtostarCommand):
 
     def __init__(
         self,
-        logger: Logger,
         gateway_facade_factory: GatewayFacadeFactory,
     ) -> None:
-        self._logger = logger
         self._gateway_facade_factory = gateway_facade_factory
 
     @property
@@ -92,14 +90,12 @@ class DeployCommand(ProtostarCommand):
         ]
 
     async def run(self, args: Namespace):
-        network_command_util = NetworkCommandUtil(args, self._logger)
-        signable_command_util = SignableCommandUtil(args, self._logger)
+        network_command_util = NetworkCommandUtil(args)
+        signable_command_util = SignableCommandUtil(args)
 
         network_config = network_command_util.get_network_config()
         gateway_client = network_command_util.get_gateway_client()
-        gateway_facade = self._gateway_facade_factory.create(
-            gateway_client=gateway_client, logger=None
-        )
+        gateway_facade = self._gateway_facade_factory.create(gateway_client)
         signer = signable_command_util.get_signer(network_config)
 
         response = await gateway_facade.deploy_via_udc(
@@ -113,7 +109,7 @@ class DeployCommand(ProtostarCommand):
             wait_for_acceptance=args.wait_for_acceptance,
         )
 
-        self._logger.info(
+        logging.info(
             format_successful_deploy_response(
                 response,
                 block_explorer=create_block_explorer(

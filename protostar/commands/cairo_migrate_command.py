@@ -1,4 +1,4 @@
-from logging import Logger
+import logging
 from pathlib import Path
 from typing import Any, Optional
 
@@ -8,10 +8,9 @@ from protostar.cli.map_targets_to_file_paths import map_targets_to_file_paths
 
 
 class CairoMigrateCommand(ProtostarCommand):
-    def __init__(self, script_root: Path, logger: Logger):
+    def __init__(self, script_root: Path):
         super().__init__()
         self._script_root = script_root
-        self._logger = logger
 
     @property
     def name(self) -> str:
@@ -45,5 +44,5 @@ class CairoMigrateCommand(ProtostarCommand):
 
         for filepath, new_content in formatted_files:
             with open(filepath, "w", encoding="utf-8") as file:
-                self._logger.info(f"Writing {filepath}")
+                logging.info("Writing %s", filepath)
                 file.write(new_content)

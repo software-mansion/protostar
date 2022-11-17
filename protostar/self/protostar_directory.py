@@ -79,12 +79,9 @@ class VersionManager:
     def parse(version_str: str) -> VersionType:
         return version.parse(version_str)
 
-    def __init__(
-        self, protostar_directory: ProtostarDirectory, logger: logging.Logger
-    ) -> None:
+    def __init__(self, protostar_directory: ProtostarDirectory):
         self._protostar_directory = protostar_directory
         self._pyproject_toml_dict = None
-        self._logger = logger
 
     @property
     def protostar_version(self) -> ProtostarVersion:

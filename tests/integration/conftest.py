@@ -2,7 +2,6 @@ import json
 import os
 from contextlib import contextmanager
 from dataclasses import dataclass
-from logging import getLogger
 from pathlib import Path
 from typing import Callable, ContextManager, List, Optional, Set, Tuple, cast
 
@@ -170,7 +169,6 @@ def run_cairo_test_runner_fixture(
                 project_root_path=Path(),
                 protostar_directory=protostar_directory_mock,
                 project_cairo_path_builder=project_cairo_path_builder,
-                logger=getLogger(),
                 log_color_provider=log_color_provider,
                 active_profile_name=None,
                 cwd=Path(),

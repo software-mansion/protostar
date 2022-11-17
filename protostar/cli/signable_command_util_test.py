@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 from types import SimpleNamespace
 from typing import List, Callable
@@ -45,7 +46,6 @@ class CustomSigner(BaseSigner):
 def test_custom_signer_class(mocker: MockerFixture):
     args = SimpleNamespace()
 
-    logger = mocker.MagicMock()
     network_config = mocker.MagicMock()
     class_path = "protostar.cli.signable_command_util_test.CustomSigner"
 
@@ -53,7 +53,7 @@ def test_custom_signer_class(mocker: MockerFixture):
     args.private_key_path = None
     args.account_address = None
 
-    signer = SignableCommandUtil(args, logger).get_signer(network_config)
+    signer = SignableCommandUtil(args).get_signer(network_config)
     assert isinstance(signer, CustomSigner)
 
 
@@ -62,7 +62,6 @@ def test_default_signer_class(
 ):
     args = SimpleNamespace()
 
-    logger = mocker.MagicMock()
     network_config = mocker.MagicMock()
     network_config.chain_id = StarknetChainId.TESTNET.value
 
@@ -70,7 +69,7 @@ def test_default_signer_class(
     args.private_key_path = str(pkey_file_factory("0x123"))
     args.account_address = "0x123"
 
-    signer = SignableCommandUtil(args, logger).get_signer(network_config)
+    signer = SignableCommandUtil(args).get_signer(network_config)
     assert isinstance(signer, StarkCurveSigner)
 
 
@@ -79,7 +78,6 @@ def test_wrong_format_of_private_key_env(
 ):
     args = SimpleNamespace()
 
-    logger = mocker.MagicMock()
     network_config = mocker.MagicMock()
     network_config.chain_id = StarknetChainId.TESTNET.value
 
@@ -88,10 +86,10 @@ def test_wrong_format_of_private_key_env(
     args.account_address = "0x123"
 
     monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, "thisiswrong")
-    with pytest.raises(ProtostarException) as p_exc:
-        SignableCommandUtil(args, logger).get_signer(network_config)
-
-    assert "Invalid private key format" in p_exc.value.message
+    with pytest.raises(
+        ProtostarException, match=re.escape("Invalid private key format")
+    ):
+        SignableCommandUtil(args).get_signer(network_config)
 
 
 def test_wrong_format_of_private_key_file(
@@ -99,7 +97,6 @@ def test_wrong_format_of_private_key_file(
 ):
     args = SimpleNamespace()
 
-    logger = mocker.MagicMock()
     network_config = mocker.MagicMock()
     network_config.chain_id = StarknetChainId.TESTNET.value
 
@@ -107,10 +104,10 @@ def test_wrong_format_of_private_key_file(
     args.private_key_path = str(pkey_file_factory("thisisplainlywrong"))
     args.account_address = "0x123"
 
-    with pytest.raises(ProtostarException) as p_exc:
-        SignableCommandUtil(args, logger).get_signer(network_config)
-
-    assert "Invalid private key format" in p_exc.value.message
+    with pytest.raises(
+        ProtostarException, match=re.escape("Invalid private key format")
+    ):
+        SignableCommandUtil(args).get_signer(network_config)
 
 
 def test_account_wrong_format(
@@ -118,7 +115,6 @@ def test_account_wrong_format(
 ):
     args = SimpleNamespace()
 
-    logger = mocker.MagicMock()
     network_config = mocker.MagicMock()
     network_config.chain_id = StarknetChainId.TESTNET.value
 
@@ -126,7 +122,7 @@ def test_account_wrong_format(
     args.private_key_path = str(pkey_file_factory("0x123"))
     args.account_address = "thisisplainlywrong"
 
-    with pytest.raises(ProtostarException) as p_exc:
-        SignableCommandUtil(args, logger).get_signer(network_config)
-
-    assert "Invalid account address format" in p_exc.value.message
+    with pytest.raises(
+        ProtostarException, match=re.escape("Invalid account address format")
+    ):
+        SignableCommandUtil(args).get_signer(network_config)
