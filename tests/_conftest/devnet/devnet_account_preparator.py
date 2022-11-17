@@ -4,7 +4,7 @@ from starknet_py.net import AccountClient, KeyPair
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
-from protostar.starknet.account_address import AccountAddress
+from protostar.starknet import Address
 
 from .devnet_account import DevnetAccount
 from .faucet_contract import FaucetContract
@@ -30,13 +30,13 @@ class DevnetAccountPreparator:
         class_hash = await self._declare()
         key_pair = KeyPair.from_private_key(private_key)
 
-        address = AccountAddress.from_class_hash(
+        address = Address.from_class_hash(
             class_hash=class_hash, constructor_calldata=[key_pair.public_key], salt=salt
         )
         await self._prefund(address)
         return PreparedDevnetAccount(
             class_hash=class_hash,
-            address=AccountAddress.from_class_hash(
+            address=Address.from_class_hash(
                 class_hash=class_hash,
                 constructor_calldata=[key_pair.public_key],
                 salt=salt,
@@ -59,7 +59,7 @@ class DevnetAccountPreparator:
         await self._predeployed_account_client.wait_for_tx(resp.transaction_hash)
         return resp.class_hash
 
-    async def _prefund(self, account_address: AccountAddress):
+    async def _prefund(self, account_address: Address):
         await self._faucet_contract.transfer(
             recipient=account_address, amount=int(1e15)
         )

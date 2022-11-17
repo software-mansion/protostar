@@ -7,7 +7,7 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.signer import BaseSigner
 
 from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
-from protostar.starknet import Address, AccountAddress
+from protostar.starknet import Address
 from protostar.cli.common_arguments import BLOCK_EXPLORER_ARG
 from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.cli.signable_command_util import SignableCommandUtil
@@ -159,7 +159,7 @@ class DeclareCommand(ProtostarCommand):
             response = await gateway_facade.declare(
                 compiled_contract_path=compiled_contract_path,
                 signer=signer,
-                account_address=AccountAddress(int(account_address)),
+                account_address=account_address,
                 wait_for_acceptance=wait_for_acceptance,
                 token=token,
                 max_fee=max_fee,

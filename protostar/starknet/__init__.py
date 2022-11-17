@@ -13,4 +13,3 @@ from .hint_local import HintLocal
 from .storage_var import calc_address
 from .types import ClassHashType, SelectorType
 from .address import Address, RawAddress
-from .account_address import AccountAddress

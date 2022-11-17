@@ -14,7 +14,7 @@ from starknet_py.net.models import StarknetChainId
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
-from protostar.starknet.account_address import AccountAddress
+from protostar.starknet import Address
 from tests._conftest.compiled_account import (
     compile_account_contract_with_validate_deploy,
 )
@@ -79,7 +79,7 @@ def devnet_port_fixture() -> int:
 
 
 Credentials = NamedTuple(
-    "Credentials", [("private_key", str), ("account_address", AccountAddress)]
+    "Credentials", [("private_key", str), ("account_address", Address)]
 )
 
 
@@ -91,7 +91,7 @@ def signing_credentials_fixture() -> Credentials:  # The same account is generat
     )
     return Credentials(
         testnet_account_private_key,
-        AccountAddress.from_user_input(testnet_account_address),
+        Address.from_user_input(testnet_account_address),
     )
 
 
@@ -101,7 +101,7 @@ def devnet_accounts_fixture(devnet_gateway_url: str) -> list[DevnetAccount]:
     devnet_account_dicts = json.loads(response.content)
     return [
         DevnetAccount(
-            address=AccountAddress.from_user_input(devnet_account_dict["address"]),
+            address=Address.from_user_input(devnet_account_dict["address"]),
             private_key=devnet_account_dict["private_key"],
             public_key=devnet_account_dict["public_key"],
             signer=StarkCurveSigner(

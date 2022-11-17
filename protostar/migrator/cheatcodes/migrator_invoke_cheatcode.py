@@ -15,7 +15,6 @@ from protostar.starknet import (
     SimpleReportedException,
     Address,
     RawAddress,
-    AccountAddress,
 )
 from protostar.starknet.cheatable_starknet_exceptions import CheatcodeNameProvider
 from protostar.starknet.data_transformer import CairoOrPythonData
@@ -70,7 +69,7 @@ class MigratorInvokeCheatcode(Cheatcode):
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
         gateway_facade: GatewayFacade,
-        account_address: Optional[AccountAddress],
+        account_address: Optional[Address],
         signer: Optional[BaseSigner],
     ):
         super().__init__(syscall_dependencies)

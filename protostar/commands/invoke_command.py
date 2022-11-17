@@ -14,7 +14,7 @@ from protostar.cli import (
 from protostar.cli.common_arguments import BLOCK_EXPLORER_ARG
 from protostar.io import StructuredMessage, LogColorProvider
 from protostar.protostar_exception import ProtostarException
-from protostar.starknet import Address, AccountAddress
+from protostar.starknet import Address
 from protostar.starknet_gateway import (
     Fee,
     GatewayFacadeFactory,
@@ -173,7 +173,7 @@ class InvokeCommand(ProtostarCommand):
             inputs=inputs,
             max_fee=max_fee if max_fee is not None else "auto",
             signer=signer,
-            account_address=AccountAddress(int(account_address)),
+            account_address=account_address,
             wait_for_acceptance=wait_for_acceptance,
         )
 

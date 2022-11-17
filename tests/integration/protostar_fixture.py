@@ -4,7 +4,7 @@ from argparse import Namespace
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast, Generator
+from typing import Any, Callable, Dict, List, Optional, Union, cast, Generator
 
 from pytest_mock import MockerFixture
 from starknet_py.net import KeyPair
@@ -52,7 +52,7 @@ from protostar.starknet.address import Address
 from protostar.starknet_gateway import Fee, GatewayFacade, GatewayFacadeFactory
 from protostar.starknet_gateway.gateway_facade import Wei
 from protostar.testing import TestingSummary
-from protostar.starknet import AccountAddress
+from protostar.starknet import Address
 from tests.conftest import Credentials
 
 
@@ -102,7 +102,7 @@ class ProtostarFixture:
     async def declare(
         self,
         chain_id: Optional[StarknetChainId] = None,
-        account_address: Optional[AccountAddress] = None,
+        account_address: Optional[Address] = None,
         contract: Optional[Path] = None,
         gateway_url: Optional[str] = None,
         wait_for_acceptance: Optional[bool] = False,
@@ -171,7 +171,7 @@ class ProtostarFixture:
 
     async def deploy_account(
         self,
-        account_address: AccountAddress,
+        account_address: Address,
         account_address_salt: int,
         account_class_hash: int,
         max_fee: Wei,
@@ -255,7 +255,7 @@ class ProtostarFixture:
         self,
         path: Path,
         gateway_url: str,
-        account_address: Optional[AccountAddress] = None,
+        account_address: Optional[Address] = None,
     ):
         args = Namespace()
         args.path = path
@@ -278,7 +278,7 @@ class ProtostarFixture:
         function_name: str,
         inputs: Optional[list[int]],
         gateway_url: str,
-        account_address: Optional[AccountAddress] = None,
+        account_address: Optional[Address] = None,
         wait_for_acceptance: Optional[bool] = False,
         max_fee: Optional[Fee] = None,
     ):

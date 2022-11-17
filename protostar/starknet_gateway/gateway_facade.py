@@ -53,7 +53,7 @@ from protostar.starknet_gateway.gateway_response import (
     SuccessfulInvokeResponse,
 )
 from protostar.starknet_gateway.starknet_request import StarknetRequest
-from protostar.starknet import Address, AccountAddress
+from protostar.starknet import Address
 
 from .contract_function_factory import ContractFunctionFactory
 
@@ -67,7 +67,7 @@ ClassHash = int
 
 @dataclasses.dataclass
 class DeployAccountArgs:
-    account_address: AccountAddress
+    account_address: Address
     account_address_salt: int
     account_constructor_input: Optional[list[int]]
     account_class_hash: ClassHash
@@ -184,7 +184,7 @@ class GatewayFacade:
     async def declare(
         self,
         compiled_contract_path: Path,
-        account_address: AccountAddress,
+        account_address: Address,
         signer: BaseSigner,
         wait_for_acceptance: bool,
         token: Optional[str],
@@ -355,7 +355,7 @@ class GatewayFacade:
         self,
         contract_address: Address,
         function_name: str,
-        account_address: AccountAddress,
+        account_address: Address,
         signer: BaseSigner,
         max_fee: Fee,
         inputs: Optional[CairoOrPythonData] = None,
@@ -411,7 +411,7 @@ class GatewayFacade:
 
     async def _create_account_client(
         self,
-        account_address: AccountAddress,
+        account_address: Address,
         signer: BaseSigner,
     ) -> AccountClient:
         supported_by_account_tx_version = (
@@ -492,7 +492,7 @@ class GatewayFacade:
         response = await account_client.deploy_account(signed_deploy_account_tx)
         return SuccessfulDeployAccountResponse(
             code=response.code or "",
-            address=AccountAddress(response.address),
+            address=Address(response.address),
             transaction_hash=response.transaction_hash,
         )
 

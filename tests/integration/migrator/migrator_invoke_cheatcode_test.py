@@ -7,7 +7,7 @@ from starkware.crypto.signature.signature import get_random_private_key
 from migrator.compiled_account_contract_tx_v0 import COMPILED_ACCOUNT_CONTRACT_TX_V0
 
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
-from protostar.starknet.account_address import AccountAddress
+from protostar.starknet import Address
 from tests.conftest import Credentials
 from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR
 from tests.integration.conftest import CreateProtostarProjectFixture
@@ -88,7 +88,7 @@ async def test_account_with_tx_version_0(
     )
     await deployment_result.wait_for_acceptance()
 
-    account_address = AccountAddress.from_user_input(
+    account_address = Address.from_user_input(
         deployment_result.deployed_contract.address
     )
 

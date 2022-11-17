@@ -7,7 +7,7 @@ from starknet_py.net.gateway_client import GatewayClient
 from typing_extensions import Protocol
 
 from protostar.migrator import Migrator
-from protostar.starknet import AccountAddress
+from protostar.starknet import Address
 from tests.integration.protostar_fixture import ProtostarFixture
 
 
@@ -30,7 +30,7 @@ class MigrateFixture(Protocol):
     async def __call__(
         self,
         migration_hint_content: str,
-        account_address: Optional[AccountAddress] = None,
+        account_address: Optional[Address] = None,
     ) -> Migrator.History:
         ...
 
@@ -38,7 +38,7 @@ class MigrateFixture(Protocol):
 @pytest.fixture(name="migrate")
 async def migrate_fixture(protostar: ProtostarFixture, devnet_gateway_url: str):
     async def migrate(
-        migration_hint_content: str, account_address: Optional[AccountAddress] = None
+        migration_hint_content: str, account_address: Optional[Address] = None
     ):
         migration_file_path = protostar.create_migration_file(migration_hint_content)
         return await protostar.migrate(

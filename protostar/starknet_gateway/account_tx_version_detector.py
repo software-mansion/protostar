@@ -9,7 +9,7 @@ from starkware.starknet.public.abi import (
     VALIDATE_ENTRY_POINT_NAME,
 )
 
-from protostar.starknet import AccountAddress
+from protostar.starknet import Address
 
 
 class AccountTxVersionDetector:
@@ -24,9 +24,9 @@ class AccountTxVersionDetector:
 
     def __init__(self, client: GatewayClient):
         self._client = client
-        self._cache: dict[AccountAddress, Awaitable[int]] = {}
+        self._cache: dict[Address, Awaitable[int]] = {}
 
-    async def detect(self, account_address: AccountAddress) -> int:
+    async def detect(self, account_address: Address) -> int:
         cached = self._cache.get(account_address)
         if cached is not None:
             return await cached
@@ -34,7 +34,7 @@ class AccountTxVersionDetector:
         self._cache[account_address] = future
         return await future
 
-    async def _do_detect(self, account_address: AccountAddress) -> int:
+    async def _do_detect(self, account_address: Address) -> int:
         try:
             await self._client.call_contract(
                 Call(
