@@ -53,6 +53,7 @@ from protostar.starknet_gateway import Fee, GatewayFacade, GatewayFacadeFactory
 from protostar.starknet_gateway.gateway_facade import Wei
 from protostar.testing import TestingSummary
 from protostar.starknet import AccountAddress
+from tests.conftest import Credentials
 
 
 # pylint: disable=too-many-instance-attributes
@@ -439,11 +440,13 @@ def fake_activity_indicator(message: str) -> Generator[None, None, None]:
 
 
 def build_protostar_fixture(
-    mocker: MockerFixture, project_root_path: Path, signing_credentials: Tuple[str, str]
+    mocker: MockerFixture,
+    project_root_path: Path,
+    signing_credentials: Credentials,
 ):
-    account_address, private_key = signing_credentials
+    private_key, account_address = signing_credentials
     signer = StarkCurveSigner(
-        account_address,
+        str(account_address),
         KeyPair.from_private_key(int(private_key, 16)),
         StarknetChainId.TESTNET,
     )
