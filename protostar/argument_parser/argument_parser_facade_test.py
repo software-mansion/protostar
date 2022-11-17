@@ -226,3 +226,51 @@ def test_loading_required_value_from_provider():
     result = parser.parse(["fake-cmd"])
 
     assert result.fake_arg == fake_value
+
+
+def create_fake_command(args: list[Argument]):
+    class FakeCommand(Command):
+        @property
+        def name(self) -> str:
+            return "fake-cmd"
+
+        @property
+        def description(self) -> str:
+            return "..."
+
+        @property
+        def example(self) -> Optional[str]:
+            return None
+
+        @property
+        def arguments(self) -> List[Argument]:
+            return args
+
+        async def run(self, args: Any):
+            return await super().run(args)
+
+    return FakeCommand()
+
+
+def test_kebab_case_with_positional_arguments():
+    app = CLIApp(
+        root_args=[],
+        commands=[
+            create_fake_command(
+                [
+                    Argument(
+                        name="kebab-case",
+                        description="...",
+                        type="str",
+                        is_required=True,
+                        is_positional=True,
+                    )
+                ]
+            )
+        ],
+    )
+    parser = ArgumentParserFacade(app)
+
+    args = parser.parse(["fake-cmd", "value"])
+
+    assert args.kebab_case == "value"
