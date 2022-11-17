@@ -41,7 +41,6 @@ from protostar.configuration_file import (
     ConfigurationFileV2ContentFactory,
     ConfigurationTOMLContentBuilder,
 )
-from protostar.configuration_file.configuration_file import ConfigurationFile
 from protostar.formatter.formatting_result import FormattingResult
 from protostar.formatter.formatting_summary import FormattingSummary
 from protostar.io import log_color_provider
@@ -75,7 +74,6 @@ class ProtostarFixture:
         cli_app: CLIApp,
         parser: ArgumentParserFacade,
         transaction_registry: "TransactionRegistry",
-        configuration_file: ConfigurationFile,
     ) -> None:
         self._project_root_path = project_root_path
         self._init_command = init_command
@@ -92,7 +90,6 @@ class ProtostarFixture:
         self._deploy_account_command = deploy_account_command
         self._cli_app = cli_app
         self._parser = parser
-        self._configuration_file = configuration_file
 
     @property
     def project_root_path(self) -> Path:
@@ -604,7 +601,6 @@ def build_protostar_fixture(
         parser=parser,
         transaction_registry=transaction_registry,
         calculate_account_address_command=calculate_account_address_command,
-        configuration_file=configuration_file,
     )
 
     return protostar_fixture
