@@ -42,10 +42,6 @@ from protostar.configuration_file import (
     ConfigurationTOMLContentBuilder,
 )
 from protostar.configuration_file.configuration_file import ConfigurationFile
-from protostar.configuration_file.configuration_file_v2 import ConfigurationFileV2
-from protostar.configuration_file.configuration_toml_interpreter import (
-    ConfigurationTOMLInterpreter,
-)
 from protostar.formatter.formatting_result import FormattingResult
 from protostar.formatter.formatting_summary import FormattingSummary
 from protostar.io import log_color_provider
@@ -368,20 +364,6 @@ class ProtostarFixture:
         """,
         )
         return file_path
-
-    def append_contract_entry_in_config_file(
-        self, contract_name: str, path_strs: list[str]
-    ) -> None:
-        assert isinstance(self._configuration_file, ConfigurationFileV2)
-        configuration_toml_interpreter = (
-            self._configuration_file._configuration_file_reader
-        )
-        assert isinstance(configuration_toml_interpreter, ConfigurationTOMLInterpreter)
-        configuration_file_content = configuration_toml_interpreter._content
-        configuration_toml_interpreter._content = configuration_file_content.replace(
-            "[contracts]",
-            f"[contracts]\n{contract_name} = {str(path_strs)}",
-        )
 
     @staticmethod
     def _save_file(path: Path, content: str) -> None:
