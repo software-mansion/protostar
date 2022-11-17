@@ -8,7 +8,7 @@ from typing_extensions import Protocol
 from protostar.migrator.migrator_contract_identifier_resolver import (
     MigratorContractIdentifierResolver,
 )
-from protostar.starknet import Cheatcode, KeywordOnlyArgumentCheatcodeException, Address
+from protostar.starknet import Cheatcode, KeywordOnlyArgumentCheatcodeException
 from protostar.starknet_gateway.gateway_facade import GatewayFacade
 from protostar.starknet.data_transformer import CairoOrPythonData
 
@@ -17,7 +17,7 @@ from .network_config import CheatcodeNetworkConfig, ValidatedCheatcodeNetworkCon
 
 @dataclass(frozen=True)
 class DeployedContract:
-    contract_address: Address
+    contract_address: int
 
 
 class DeployContractCheatcodeProtocol(Protocol):
@@ -90,4 +90,4 @@ class MigratorDeployContractCheatcode(Cheatcode):
                 wait_for_acceptance=validated_config.wait_for_acceptance,
             )
         )
-        return DeployedContract(contract_address=response.address)
+        return DeployedContract(contract_address=int(response.address))
