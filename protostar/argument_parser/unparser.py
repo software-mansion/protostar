@@ -3,6 +3,8 @@ from typing import Any
 
 def unparse_flag_or_arguments(value: Any):
     """Arguments from external sources need to be unparsed in order to be parsed by custom parsers."""
+    if value is None:
+        return None
     if isinstance(value, bool):
         return value
     return unparse_arguments(value)

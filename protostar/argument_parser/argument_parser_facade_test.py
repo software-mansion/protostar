@@ -278,8 +278,15 @@ def test_kebab_case_with_positional_arguments():
     assert args.kebab_case == "value"
 
 
-@pytest.mark.parametrize("value_in_config_file", ["string_value", 42])
-def test_parsing_extra_arguments_source(value_in_config_file: Any):
+@pytest.mark.parametrize(
+    "value_in_config_file, result",
+    [
+        ("string_value", "string_value"),
+        (42, "42"),
+        (["arr", "ray"], "arr ray"),
+    ],
+)
+def test_parsing_extra_arguments_source(value_in_config_file: Any, result: str):
     parser_called = False
 
     def fake_parser(arg: str):
@@ -304,4 +311,4 @@ def test_parsing_extra_arguments_source(value_in_config_file: Any):
     args = parser.parse("")
 
     assert parser_called
-    assert args.foo is not None
+    assert args.foo == result
