@@ -1,5 +1,4 @@
 import os
-from logging import getLogger
 from pathlib import Path
 
 from protostar.configuration_file import ConfigurationFile
@@ -18,20 +17,11 @@ class ProjectCairoPathBuilder:
     def build_project_cairo_path_list(
         self, relative_cairo_path_list: list[Path]
     ) -> list[Path]:
-        cairo_paths = [
+        return [
             *relative_cairo_path_list,
             self._project_root_path,
             *self._build_libs_cairo_path_list(),
         ]
-        self._warn_if_path_does_not_exist(cairo_paths)
-        return cairo_paths
-
-    def _warn_if_path_does_not_exist(self, cairo_paths: list[Path]):
-        for cairo_path in cairo_paths:
-            if not cairo_path.exists():
-                getLogger().warning(
-                    "The following Cairo Path directory doesn't exist: %s", cairo_path
-                )
 
     def _build_libs_cairo_path_list(self) -> list[Path]:
         libs_path = self._configuration_file.get_lib_path()

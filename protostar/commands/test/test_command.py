@@ -34,6 +34,7 @@ from protostar.testing import (
     TestScheduler,
     determine_testing_seed,
 )
+
 from .test_command_cache import TestCommandCache
 
 
@@ -179,15 +180,14 @@ A glob or globs to a directory or a test suite, for example:
         seed: Optional[int] = None,
         slowest_tests_to_report_count: int = 0,
     ) -> TestingSummary:
-        include_paths = [
-            str(path)
-            for path in [
-                self._protostar_directory.protostar_test_only_cairo_packages_path,
-                *self._project_cairo_path_builder.build_project_cairo_path_list(
-                    cairo_path or []
-                ),
-            ]
+        cairo_paths = [
+            self._protostar_directory.protostar_test_only_cairo_packages_path,
+            *self._project_cairo_path_builder.build_project_cairo_path_list(
+                cairo_path or []
+            ),
         ]
+        self._warn_if_path_does_not_exist(cairo_paths)
+        include_paths = [str(path) for path in cairo_paths]
         factory = (
             StarknetPassManagerFactory
             if safe_collecting
@@ -273,3 +273,11 @@ A glob or globs to a directory or a test suite, for example:
         )
         formatted_test_result = format_test_result(test_result)
         print(formatted_test_result)
+
+    def _warn_if_path_does_not_exist(self, cairo_paths: list[Path]):
+        for cairo_path in cairo_paths:
+            if not cairo_path.exists():
+                logging.getLogger().warning(
+                    "The following Cairo Path directory doesn't exist: %s",
+                    cairo_path.relative_to(self._project_root_path),
+                )
