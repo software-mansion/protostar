@@ -3,6 +3,8 @@ from typing import Any, List, Optional, Pattern
 
 import pytest
 
+from protostar.argument_parser.arg_type import ArgTypeName
+
 from .argument import Argument
 from .argument_parser_facade import (
     ArgumentParserFacade,
@@ -274,3 +276,30 @@ def test_kebab_case_with_positional_arguments():
     args = parser.parse(["fake-cmd", "value"])
 
     assert args.kebab_case == "value"
+
+
+def test_parsing_extra_arguments_source():
+    parser_called = False
+
+    def fake_parser(arg: str):
+        assert isinstance(arg, str)
+        nonlocal parser_called
+        parser_called = True
+        return arg
+
+    def fake_parser_resolver(_argument_type: ArgTypeName):
+        return fake_parser
+
+    parser = ArgumentParserFacade(
+        CLIApp(
+            root_args=[Argument(name="foo", description="", example="", type="str")]
+        ),
+        config_file_argument_value_resolver=FakeConfigFileArgumentResolver(
+            argument_value="FOOBAR"
+        ),
+        parser_resolver=fake_parser_resolver,
+    )
+
+    parser.parse("")
+
+    assert parser_called
