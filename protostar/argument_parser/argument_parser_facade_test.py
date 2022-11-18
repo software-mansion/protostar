@@ -13,7 +13,7 @@ from .argument_parser_facade import (
 from .cli_app import CLIApp
 from .command import Command
 from .config_file_argument_resolver import ConfigFileArgumentResolverProtocol
-from .conftest import BaseTestCommand, FooCommand
+from .conftest import BaseTestCommand, FooCommand, create_fake_command
 
 
 def test_bool_argument_parsing(foo_command: FooCommand):
@@ -174,15 +174,19 @@ class FakeConfigFileArgumentResolver(ConfigFileArgumentResolverProtocol):
         return self._canned_response
 
 
-def test_loading_default_values_from_provider(foo_command: FooCommand):
+def test_loading_default_values_from_provider():
+    fake_cmd = create_fake_command(
+        args=[Argument(name="foo", description="...", type="str")]
+    )
+
     app = CLIApp(
         root_args=[Argument(name="bar", description="...", type="str")],
-        commands=[foo_command],
+        commands=[fake_cmd],
     )
 
     result = ArgumentParserFacade(
         app, FakeConfigFileArgumentResolver(argument_value="FOOBAR")
-    ).parse(["FOO"])
+    ).parse([fake_cmd.name])
 
     assert result.foo == "FOOBAR"
     assert result.bar == "FOOBAR"
@@ -228,30 +232,6 @@ def test_loading_required_value_from_provider():
     result = parser.parse(["fake-cmd"])
 
     assert result.fake_arg == fake_value
-
-
-def create_fake_command(args: list[Argument]):
-    class FakeCommand(Command):
-        @property
-        def name(self) -> str:
-            return "fake-cmd"
-
-        @property
-        def description(self) -> str:
-            return "..."
-
-        @property
-        def example(self) -> Optional[str]:
-            return None
-
-        @property
-        def arguments(self) -> List[Argument]:
-            return args
-
-        async def run(self, args: Any):
-            return await super().run(args)
-
-    return FakeCommand()
 
 
 def test_kebab_case_with_positional_arguments():

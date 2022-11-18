@@ -84,3 +84,27 @@ def foo_command_fixture() -> FooCommand:
 @pytest.fixture(name="bar_command")
 def bar_command_fixture() -> BarCommand:
     return BarCommand()
+
+
+def create_fake_command(args: list[Argument]):
+    class FakeCommand(Command):
+        @property
+        def name(self) -> str:
+            return "fake-cmd"
+
+        @property
+        def description(self) -> str:
+            return "..."
+
+        @property
+        def example(self) -> Optional[str]:
+            return None
+
+        @property
+        def arguments(self) -> list[Argument]:
+            return args
+
+        async def run(self, args: Any):
+            return await super().run(args)
+
+    return FakeCommand()
