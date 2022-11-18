@@ -1,8 +1,5 @@
 from pathlib import Path
 
-import pytest
-
-from protostar.commands.test.test_result_formatter import format_test_result
 from tests.integration.conftest import (
     RunCairoTestRunnerFixture,
     assert_cairo_test_cases,
@@ -20,7 +17,7 @@ async def test_testing_steps(
         testing_summary, expected_failed_test_cases_names=["test_max_steps"]
     )
 
-    assert "OUT_OF_RESOURCES" in format_test_result(testing_summary.failed[0])
+    assert "OUT_OF_RESOURCES" in str(testing_summary.failed[0].exception)
 
     ###
 
