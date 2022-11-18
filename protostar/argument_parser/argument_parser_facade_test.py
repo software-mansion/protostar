@@ -281,22 +281,22 @@ def test_kebab_case_with_positional_arguments():
 @pytest.mark.parametrize(
     "value_in_config_file, result",
     [
-        ("string_value", "string_value"),
-        (42, "42"),
-        (["arr", "ray"], "arr ray"),
+        ("21", 21),
+        (37, 37),
+        (["21", "37"], [21, 37]),
     ],
 )
-def test_parsing_extra_arguments_source(value_in_config_file: Any, result: str):
+def test_parsing_extra_arguments_source(value_in_config_file: Any, result: Any):
     parser_called = False
 
-    def fake_parser(arg: str):
+    def parse_to_int(arg: str):
         assert isinstance(arg, str)
         nonlocal parser_called
         parser_called = True
         return arg
 
     def fake_parser_resolver(_argument_type: ArgTypeName):
-        return fake_parser
+        return parse_to_int
 
     parser = ArgumentParserFacade(
         CLIApp(

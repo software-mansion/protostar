@@ -1,24 +1,24 @@
-from typing import Any
+from typing import Any, Optional
 
 
-def unparse_flag_or_arguments(value: Any):
+def unparse_flag_or_arguments(value: Any) -> Optional[list[str]]:
     """Arguments from external sources need to be unparsed in order to be parsed by custom parsers."""
     if value is None:
         return None
     if isinstance(value, bool):
-        return value
+        return None
     return unparse_arguments(value)
 
 
-def unparse_arguments(value: Any) -> str:
+def unparse_arguments(value: Any) -> list[str]:
     if not isinstance(value, list):
-        return unparse_single_value(value)
+        return [unparse_single_value(value)]
 
     values = value
     unparsed_values: list[str] = []
     for val in values:
-        unparsed_values.append(unparse_arguments(val))
-    return " ".join(unparsed_values)
+        unparsed_values.append(*unparse_arguments(val))
+    return unparsed_values
 
 
 def unparse_single_value(value: Any) -> str:
