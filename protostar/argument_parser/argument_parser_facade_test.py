@@ -289,18 +289,26 @@ def test_kebab_case_with_positional_arguments():
 def test_parsing_extra_arguments_source(value_in_config_file: Any, result: Any):
     parser_called = False
 
-    def parse_to_int(arg: str):
+    def parse_to_int(arg: str) -> int:
         assert isinstance(arg, str)
         nonlocal parser_called
         parser_called = True
-        return arg
+        return int(arg)
 
     def fake_parser_resolver(_argument_type: ArgTypeName):
         return parse_to_int
 
     parser = ArgumentParserFacade(
         CLIApp(
-            root_args=[Argument(name="foo", description="", example="", type="str")]
+            root_args=[
+                Argument(
+                    name="foo",
+                    description="",
+                    example="",
+                    type="str",
+                    is_array=isinstance(value_in_config_file, list),
+                )
+            ]
         ),
         config_file_argument_value_resolver=FakeConfigFileArgumentResolver(
             argument_value=value_in_config_file

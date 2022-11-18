@@ -11,6 +11,8 @@ from typing import (
     TypeVar,
 )
 
+from protostar.argument_parser.unparser import unparse_arguments_from_external_source
+
 from .arg_type import ArgTypeName, map_type_name_to_parser
 from .argument import Argument
 from .cli_app import CLIApp
@@ -154,12 +156,22 @@ class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
         self, command: Optional[Command], argument: Argument[ArgTypeNameT_contra]
     ) -> Argument[ArgTypeNameT_contra]:
         if self._config_file_argument_value_resolver:
-            new_default = self._config_file_argument_value_resolver.resolve_argument(
-                command.name if command else None, argument.name
+            external_source_value = (
+                self._config_file_argument_value_resolver.resolve_argument(
+                    command.name if command else None, argument.name
+                )
             )
-
-            if new_default is not None:
-                return argument.copy_with(default=new_default)
+            unparsed_values = unparse_arguments_from_external_source(
+                external_source_value
+            )
+            if unparsed_values is None:
+                return argument
+            parse_arg = self._parser_resolver(argument.type)
+            parsed_values = [parse_arg(val) for val in unparsed_values]
+            new_default = parsed_values
+            if not argument.is_array:
+                new_default = parsed_values[0] if len(parsed_values) > 0 else None
+            return argument.copy_with(default=new_default)  # type: ignore
         return argument
 
     def _add_argument(

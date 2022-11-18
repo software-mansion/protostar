@@ -2,7 +2,7 @@ from typing import Any
 
 import pytest
 
-from .unparser import unparse_flag_or_arguments
+from .unparser import unparse_arguments_from_external_source
 
 
 @pytest.mark.parametrize(
@@ -16,4 +16,4 @@ from .unparser import unparse_flag_or_arguments
     ],
 )
 def test_unparsing_to_cli_representation(value: Any, result: str):
-    assert unparse_flag_or_arguments(value) == result
+    assert unparse_arguments_from_external_source(value) == result

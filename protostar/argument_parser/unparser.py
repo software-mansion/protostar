@@ -1,7 +1,7 @@
 from typing import Any, Optional
 
 
-def unparse_flag_or_arguments(value: Any) -> Optional[list[str]]:
+def unparse_arguments_from_external_source(value: Any) -> Optional[list[str]]:
     """Arguments from external sources need to be unparsed in order to be parsed by custom parsers."""
     if value is None:
         return None
