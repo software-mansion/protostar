@@ -319,6 +319,8 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             # Providing a negative value to Protostar results in infinite steps,
             # this is here to mimic default Cairo behavior
             value = None if self.max_steps < 0 else self.max_steps
+
+            # NOTE: We are doing it this way to avoid TypeError from typeguard
             new_config.__dict__["invoke_tx_max_n_steps"] = value
 
         return await super().execute_for_testing(
