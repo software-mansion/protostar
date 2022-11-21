@@ -63,8 +63,8 @@ class MigrateCommand(ProtostarCommand):
                 description="Skip confirming building the project.",
                 type="bool",
             ),
-            COMPILED_CONTRACTS_DIR_ARG.copy_with_description(
-                "A directory in which your compiled contracts are located (used for deploys and declares)"
+            COMPILED_CONTRACTS_DIR_ARG.copy_with(
+                description="A directory in which your compiled contracts are located (used for deploys and declares)"
             ),
         ]
 
