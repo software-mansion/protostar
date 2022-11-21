@@ -5,7 +5,7 @@ from typing import Optional
 from protostar.argument_parser import ArgumentParserFacade
 from protostar.cli import (
     ProtostarCommand,
-    map_protostar_type_name_to_parser,
+    create_map_protostar_type_name_to_parser,
     MessengerFactory,
     ActivityIndicator,
 )
@@ -234,7 +234,9 @@ def build_di_container(
     argument_parser_facade = ArgumentParserFacade(
         protostar_cli,
         configuration_file,
-        parser_resolver=map_protostar_type_name_to_parser,
+        parser_resolver=create_map_protostar_type_name_to_parser(
+            configuration_file=configuration_file
+        ),
     )
 
     return DIContainer(protostar_cli, argument_parser_facade)

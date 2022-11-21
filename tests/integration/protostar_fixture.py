@@ -12,7 +12,7 @@ from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import DeployAccount
 
 from protostar.argument_parser import ArgumentParserFacade, CLIApp
-from protostar.cli import map_protostar_type_name_to_parser, MessengerFactory
+from protostar.cli import create_map_protostar_type_name_to_parser, MessengerFactory
 from protostar.commands import (
     BuildCommand,
     CalculateAccountAddressCommand,
@@ -516,7 +516,8 @@ def build_protostar_fixture(
         ]
     )
     parser = ArgumentParserFacade(
-        cli_app, parser_resolver=map_protostar_type_name_to_parser
+        cli_app,
+        parser_resolver=create_map_protostar_type_name_to_parser(configuration_file),
     )
 
     protostar_fixture = ProtostarFixture(

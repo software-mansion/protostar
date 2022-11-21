@@ -1,6 +1,12 @@
 import pytest
 
-from .protostar_arg_type import map_protostar_type_name_to_parser
+from protostar.configuration_file import FakeConfigurationFile
+
+from .protostar_arg_type import create_map_protostar_type_name_to_parser
+
+map_protostar_type_name_to_parser = create_map_protostar_type_name_to_parser(
+    FakeConfigurationFile()
+)
 
 
 @pytest.mark.parametrize(

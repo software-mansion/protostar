@@ -3,7 +3,7 @@ from .common_arguments import LIB_PATH_ARG
 from .lib_path_resolver import LibPathResolver
 from .messenger_factory import MessengerFactory
 from .network_command_util import NetworkCommandUtil
-from .protostar_arg_type import map_protostar_type_name_to_parser
+from .protostar_arg_type import create_map_protostar_type_name_to_parser
 from .protostar_argument import ProtostarArgument
 from .protostar_command import ProtostarCommand
 from .signable_command_util import SignableCommandUtil
