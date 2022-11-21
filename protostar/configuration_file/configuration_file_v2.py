@@ -4,7 +4,7 @@ from typing import Any, Optional
 
 from typing_extensions import Self
 
-from protostar.self import ProtostarVersion, parse_protostar_version
+from protostar.self import ProtostarVersion, parse_protostar_version, ContractName
 
 from .configuration_file import (
     CommandConfig,
@@ -12,7 +12,6 @@ from .configuration_file import (
     ConfigurationFile,
     ConfigurationFileContentBuilder,
     ConfigurationFileContentFactory,
-    ContractName,
     ContractNameNotFoundException,
     ProfileName,
 )

@@ -15,7 +15,6 @@ CommandArgValue = Union[str, int, bool]
 CommandConfig = dict[CommandArgName, Union[CommandArgValue, list[CommandArgValue]]]
 CommandNameToConfig = dict[CommandName, CommandConfig]
 ProfileName = str
-ContractName = str
 
 ConfigurationFileModelT = TypeVar("ConfigurationFileModelT")
 
