@@ -17,7 +17,7 @@ from starknet_py.net.client_errors import ClientError
 from starknet_py.contract import ContractFunction, InvokeResult
 from starknet_py.net import AccountClient
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import AddressRepresentation, Deploy, Transaction
+from starknet_py.net.models import Deploy, Transaction
 from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.signer import BaseSigner
 from starknet_py.transaction_exceptions import (
@@ -53,14 +53,15 @@ from protostar.starknet_gateway.gateway_response import (
     SuccessfulInvokeResponse,
 )
 from protostar.starknet_gateway.starknet_request import StarknetRequest
+from protostar.starknet import Address
 
 from .contract_function_factory import ContractFunctionFactory
 
 ContractFunctionInputType = Union[List[int], Dict[str, Any]]
 
+
 Wei = int
 Fee = Union[Wei, Literal["auto"]]
-Address = int
 ClassHash = int
 
 
@@ -148,7 +149,7 @@ class GatewayFacade:
 
         return SuccessfulDeployResponse(
             code=result.code or "",
-            address=result.contract_address,
+            address=Address(result.contract_address),
             transaction_hash=result.transaction_hash,
         )
 
@@ -183,7 +184,7 @@ class GatewayFacade:
     async def declare(
         self,
         compiled_contract_path: Path,
-        account_address: str,
+        account_address: Address,
         signer: BaseSigner,
         wait_for_acceptance: bool,
         token: Optional[str],
@@ -325,14 +326,14 @@ class GatewayFacade:
 
     async def call(
         self,
-        address: AddressRepresentation,
+        address: Address,
         function_name: str,
         inputs: Optional[ContractFunctionInputType] = None,
     ) -> NamedTuple:
         register_response = self._register_request(
             action="CALL",
             payload={
-                "contract_address": address,
+                "contract_address": str(address),
                 "function_name": function_name,
                 "inputs": str(inputs),
             },
@@ -352,9 +353,9 @@ class GatewayFacade:
 
     async def invoke(
         self,
-        contract_address: int,
+        contract_address: Address,
         function_name: str,
-        account_address: str,
+        account_address: Address,
         signer: BaseSigner,
         max_fee: Fee,
         inputs: Optional[CairoOrPythonData] = None,
@@ -363,7 +364,7 @@ class GatewayFacade:
         register_response = self._register_request(
             action="INVOKE",
             payload={
-                "contract_address": contract_address,
+                "contract_address": str(contract_address),
                 "function_name": function_name,
                 "max_fee": max_fee,
                 "inputs": str(inputs),
@@ -410,7 +411,7 @@ class GatewayFacade:
 
     async def _create_account_client(
         self,
-        account_address: str,
+        account_address: Address,
         signer: BaseSigner,
     ) -> AccountClient:
         supported_by_account_tx_version = (
@@ -425,7 +426,7 @@ class GatewayFacade:
             )
 
         return AccountClient(
-            address=account_address,
+            address=int(account_address),
             client=self._gateway_client,
             signer=signer,
             supported_tx_version=supported_by_account_tx_version,
@@ -474,7 +475,7 @@ class GatewayFacade:
         self, args: DeployAccountArgs
     ) -> SuccessfulDeployAccountResponse:
         account_client = await self._create_account_client(
-            account_address=str(args.account_address), signer=args.signer
+            account_address=args.account_address, signer=args.signer
         )
         deploy_account_tx = DeployAccount(
             nonce=args.nonce,  # type: ignore
@@ -491,7 +492,7 @@ class GatewayFacade:
         response = await account_client.deploy_account(signed_deploy_account_tx)
         return SuccessfulDeployAccountResponse(
             code=response.code or "",
-            address=response.address,
+            address=Address(response.address),
             transaction_hash=response.transaction_hash,
         )
 

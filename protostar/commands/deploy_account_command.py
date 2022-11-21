@@ -22,11 +22,12 @@ from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import GatewayFacadeFactory
 from protostar.starknet_gateway.gateway_facade import ClassHash, DeployAccountArgs, Fee
 from protostar.starknet_gateway.gateway_response import SuccessfulDeployAccountResponse
+from protostar.starknet import Address
 
 
 @dataclass
 class DeployAccountCommandArgs(NetworkArgs):
-    account_address: int
+    account_address: Address
     account_address_salt: int
     account_constructor_input: Optional[list[int]]
     account_class_hash: ClassHash

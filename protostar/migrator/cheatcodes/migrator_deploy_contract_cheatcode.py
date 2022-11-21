@@ -90,4 +90,4 @@ class MigratorDeployContractCheatcode(Cheatcode):
                 wait_for_acceptance=validated_config.wait_for_acceptance,
             )
         )
-        return DeployedContract(contract_address=response.address)
+        return DeployedContract(contract_address=int(response.address))

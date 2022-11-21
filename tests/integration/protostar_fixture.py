@@ -4,7 +4,7 @@ from argparse import Namespace
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast, Generator
+from typing import Any, Callable, Dict, List, Optional, Union, cast, Generator
 
 from pytest_mock import MockerFixture
 from starknet_py.net import KeyPair
@@ -48,9 +48,12 @@ from protostar.self.protostar_compatibility_with_project_checker import (
     parse_protostar_version,
 )
 from protostar.self.protostar_directory import ProtostarDirectory
+from protostar.starknet.address import Address
 from protostar.starknet_gateway import Fee, GatewayFacade, GatewayFacadeFactory
 from protostar.starknet_gateway.gateway_facade import Wei
 from protostar.testing import TestingSummary
+from protostar.starknet import Address
+from tests.conftest import Credentials
 
 
 # pylint: disable=too-many-instance-attributes
@@ -99,7 +102,7 @@ class ProtostarFixture:
     async def declare(
         self,
         chain_id: Optional[StarknetChainId] = None,
-        account_address: Optional[str] = None,
+        account_address: Optional[Address] = None,
         contract: Optional[Path] = None,
         gateway_url: Optional[str] = None,
         wait_for_acceptance: Optional[bool] = False,
@@ -168,7 +171,7 @@ class ProtostarFixture:
 
     async def deploy_account(
         self,
-        account_address: str,
+        account_address: Address,
         account_address_salt: int,
         account_class_hash: int,
         max_fee: Wei,
@@ -180,7 +183,7 @@ class ProtostarFixture:
             [
                 "deploy-account",
                 "--account-address",
-                account_address,
+                str(account_address),
                 "--gateway-url",
                 gateway_url,
                 "--chain-id",
@@ -252,7 +255,7 @@ class ProtostarFixture:
         self,
         path: Path,
         gateway_url: str,
-        account_address: Optional[str] = None,
+        account_address: Optional[Address] = None,
     ):
         args = Namespace()
         args.path = path
@@ -271,11 +274,11 @@ class ProtostarFixture:
 
     async def invoke(
         self,
-        contract_address: int,
+        contract_address: Address,
         function_name: str,
         inputs: Optional[list[int]],
         gateway_url: str,
-        account_address: Optional[str] = None,
+        account_address: Optional[Address] = None,
         wait_for_acceptance: Optional[bool] = False,
         max_fee: Optional[Fee] = None,
     ):
@@ -298,7 +301,7 @@ class ProtostarFixture:
 
     async def call(
         self,
-        contract_address: int,
+        contract_address: Address,
         function_name: str,
         inputs: Optional[list[int]],
         gateway_url: str,
@@ -437,11 +440,13 @@ def fake_activity_indicator(message: str) -> Generator[None, None, None]:
 
 
 def build_protostar_fixture(
-    mocker: MockerFixture, project_root_path: Path, signing_credentials: Tuple[str, str]
+    mocker: MockerFixture,
+    project_root_path: Path,
+    signing_credentials: Credentials,
 ):
-    account_address, private_key = signing_credentials
+    private_key, account_address = signing_credentials
     signer = StarkCurveSigner(
-        account_address,
+        str(account_address),
         KeyPair.from_private_key(int(private_key, 16)),
         StarknetChainId.TESTNET,
     )

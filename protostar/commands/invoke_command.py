@@ -14,6 +14,7 @@ from protostar.cli import (
 from protostar.cli.common_arguments import BLOCK_EXPLORER_ARG
 from protostar.io import StructuredMessage, LogColorProvider
 from protostar.protostar_exception import ProtostarException
+from protostar.starknet import Address
 from protostar.starknet_gateway import (
     Fee,
     GatewayFacadeFactory,
@@ -143,12 +144,12 @@ class InvokeCommand(ProtostarCommand):
 
     async def invoke(
         self,
-        contract_address: int,
+        contract_address: Address,
         function_name: str,
         gateway_client: GatewayClient,
         inputs: Optional[list[int]] = None,
         signer: Optional[BaseSigner] = None,
-        account_address: Optional[str] = None,
+        account_address: Optional[Address] = None,
         max_fee: Optional[Fee] = None,
         wait_for_acceptance: bool = False,
     ) -> SuccessfulInvokeResponse:

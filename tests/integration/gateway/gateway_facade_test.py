@@ -7,6 +7,7 @@ from starknet_py.net.gateway_client import GatewayClient
 
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.starknet.data_transformer import CairoOrPythonData
+from protostar.starknet import Address
 from protostar.starknet_gateway import (
     ContractNotFoundException,
     DeployAccountArgs,
@@ -100,7 +101,7 @@ async def test_call_to_unknown_function(
 async def test_call_to_unknown_contract(gateway_facade: GatewayFacade):
     with pytest.raises(ContractNotFoundException):
         await gateway_facade.call(
-            123,
+            Address.from_user_input(123),
             function_name="UNKNOWN_FUNCTION",
         )
 
@@ -252,7 +253,7 @@ async def test_deploy_account(
     salt = 1
     account = await devnet.prepare_account(salt=salt, private_key=123)
     deploy_account_args = DeployAccountArgs(
-        account_address=int(account.address),
+        account_address=account.address,
         account_address_salt=salt,
         account_class_hash=account.class_hash,
         account_constructor_input=[int(account.public_key)],
@@ -280,7 +281,7 @@ async def test_calling_through_proxy(
         compiled_contract_path=TESTS_ROOT_PATH
         / "data"
         / "oz_proxy_compiled_contract.json",
-        inputs=[contract.address],
+        inputs=[int(contract.address)],
         wait_for_acceptance=True,
     )
 

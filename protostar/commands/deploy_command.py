@@ -118,7 +118,7 @@ def format_successful_deploy_response(
 ):
     lines: list[str] = []
     lines.append("Deploy transaction was sent.")
-    lines.append(f"Contract address: 0x{response.address:064x}")
+    lines.append(f"Contract address: {response.address}")
     contract_url = block_explorer.create_link_to_contract(response.address)
     if contract_url:
         lines.append(contract_url)
