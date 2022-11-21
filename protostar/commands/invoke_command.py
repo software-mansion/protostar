@@ -11,7 +11,11 @@ from protostar.cli import (
     SignableCommandUtil,
     MessengerFactory,
 )
-from protostar.cli.common_arguments import BLOCK_EXPLORER_ARG, MAX_FEE_ARG
+from protostar.cli.common_arguments import (
+    BLOCK_EXPLORER_ARG,
+    MAX_FEE_ARG,
+    WAIT_FOR_ACCEPTANCE_ARG,
+)
 from protostar.io import StructuredMessage, LogColorProvider
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet import Address
@@ -91,12 +95,7 @@ class InvokeCommand(ProtostarCommand):
                 is_array=True,
             ),
             MAX_FEE_ARG,
-            ProtostarArgument(
-                name="wait-for-acceptance",
-                description="Waits for transaction to be accepted on chain.",
-                type="bool",
-                default=False,
-            ),
+            WAIT_FOR_ACCEPTANCE_ARG,
         ]
 
     async def run(self, args: Any):

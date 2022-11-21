@@ -79,3 +79,10 @@ MAX_FEE_ARG = ProtostarArgument(
     ),
     type="fee",
 )
+
+WAIT_FOR_ACCEPTANCE_ARG = ProtostarArgument(
+    name="wait-for-acceptance",
+    description="Waits for transaction to be accepted on chain.",
+    type="bool",
+    default=False,
+)
