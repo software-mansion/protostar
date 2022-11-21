@@ -69,3 +69,13 @@ PACKAGE_ARG = ProtostarArgument(
     type="str",
     is_positional=True,
 )
+
+
+MAX_FEE_ARG = ProtostarArgument(
+    name="max-fee",
+    description=(
+        "The maximum fee that the sender is willing to pay for the transaction. "
+        'Provide "auto" to auto estimate the fee.'
+    ),
+    type="fee",
+)

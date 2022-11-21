@@ -11,7 +11,7 @@ from protostar.cli import (
     SignableCommandUtil,
     MessengerFactory,
 )
-from protostar.cli.common_arguments import BLOCK_EXPLORER_ARG
+from protostar.cli.common_arguments import BLOCK_EXPLORER_ARG, MAX_FEE_ARG
 from protostar.io import StructuredMessage, LogColorProvider
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet import Address
@@ -90,14 +90,7 @@ class InvokeCommand(ProtostarCommand):
                 type="felt",
                 is_array=True,
             ),
-            ProtostarArgument(
-                name="max-fee",
-                description=(
-                    "The maximum fee that the sender is willing to pay for the transaction. "
-                    'Provide "auto" to auto estimate the fee.'
-                ),
-                type="fee",
-            ),
+            MAX_FEE_ARG,
             ProtostarArgument(
                 name="wait-for-acceptance",
                 description="Waits for transaction to be accepted on chain.",
