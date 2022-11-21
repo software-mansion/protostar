@@ -26,18 +26,19 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
 
 
 @freeze_time("2022-04-02 21:37:42")
-async def test_deploy_contract(
-    protostar: ProtostarFixture, migrate: MigrateFixture, devnet_gateway_url: str
-):
-    result = await migrate('deploy_contract("./build/main.json", [42])')
-
-    assert len(result.starknet_requests) == 1
-    assert result.starknet_requests[0].action == "DEPLOY"
-    assert result.starknet_requests[0].payload["contract"] == str(
-        (protostar.project_root_path / "build" / "main.json").resolve()
+async def test_deploy_contract(migrate: MigrateFixture, devnet_gateway_url: str):
+    result = await migrate(
+        """
+        declaration = declare("./build/main.json")
+        deploy_contract(declaration.class_hash, [42])
+        """
     )
-    assert result.starknet_requests[0].payload["constructor_args"] == [42]
-    assert result.starknet_requests[0].response["code"] == "TRANSACTION_RECEIVED"
+
+    assert len(result.starknet_requests) == 2
+    assert result.starknet_requests[1].action == "DEPLOY"
+    assert isinstance(result.starknet_requests[1].payload["class_hash"], int)
+    assert result.starknet_requests[1].payload["constructor_args"] == [42]
+    assert result.starknet_requests[1].response["code"] == "TRANSACTION_RECEIVED"
 
     transaction_hash = extract_transaction_hash(result.starknet_requests[0])
     await assert_transaction_accepted(devnet_gateway_url, transaction_hash)
@@ -47,7 +48,12 @@ async def test_deploy_contract(
 async def test_deploying_by_contract_name(
     protostar: ProtostarFixture, devnet_gateway_url: str
 ):
-    file_path = protostar.create_migration_file('deploy_contract("main", [42])')
+    file_path = protostar.create_migration_file(
+        """
+        declaration = declare("main")
+        deploy_contract(declaration.class_hash, [42])
+        """
+    )
 
     result = await protostar.migrate(file_path, devnet_gateway_url)
 
@@ -59,12 +65,15 @@ async def test_data_transformation(
     protostar: ProtostarFixture, devnet_gateway_url: str
 ):
     file_path = protostar.create_migration_file(
-        'deploy_contract("./build/main.json", {"initial_balance": 42})'
+        """
+        declaration = declare("./build/main.json")
+        deploy_contract(declaration.class_hash, {"initial_balance": 42}, abi_path="./build/main_abi.json")
+        """
     )
 
     result = await protostar.migrate(file_path, devnet_gateway_url)
 
-    assert result.starknet_requests[0].payload["constructor_args"] == [42]
+    assert result.starknet_requests[1].payload["constructor_args"] == [42]
 
 
 def extract_transaction_hash(starknet_request: StarknetRequest):

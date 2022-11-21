@@ -1,7 +1,6 @@
-from typing import Dict, Optional, Any
+from typing import Dict, Optional, Any, Protocol
 
 from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import (
-    DeployContractCheatcodeProtocol,
     DeployedContract,
 )
 from protostar.starknet import Cheatcode, KeywordOnlyArgumentCheatcodeException
@@ -10,6 +9,18 @@ from protostar.starknet.data_transformer import CairoOrPythonData
 from .declare_cheatcode import DeclareCheatcode
 from .deploy_cheatcode import DeployCheatcode
 from .prepare_cheatcode import PrepareCheatcode
+
+
+class DeployContractCheatcodeProtocol(Protocol):
+    # pylint: disable=keyword-arg-before-vararg
+    def __call__(
+            self,
+            contract: str,
+            constructor_args: Optional[CairoOrPythonData] = None,
+            *args: Any,
+            config: Optional[Dict] = None,
+    ) -> DeployedContract:
+        ...
 
 
 class DeployContractCheatcode(Cheatcode):

@@ -24,7 +24,8 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
 async def test_using_dict_to_pass_args(migrate: MigrateFixture):
     await migrate(
         """
-        contract_address = deploy_contract("./build/main.json").contract_address
+        declaration = declare("./build/main.json")
+        contract_address = deploy_contract(declaration.class_hash).contract_address
 
         result = call(contract_address, "identity", {"arg": 42})
 
@@ -37,7 +38,8 @@ async def test_failure_on_wrong_args(migrate: MigrateFixture):
     with pytest.raises(ReportedException, match="Input arg not provided"):
         await migrate(
             """
-            contract_address = deploy_contract("./build/main.json").contract_address
+            declaration = declare("./build/main.json")
+            contract_address = deploy_contract(declaration.class_hash).contract_address
 
             call(contract_address, "identity", [])
             """
@@ -48,12 +50,11 @@ async def test_failure_when_calling_not_existing_function(migrate: MigrateFixtur
     with pytest.raises(
         ProtostarException, match="unknown function: 'UNKNOWN_FUNCTION'"
     ):
-        await migrate(
-            """
-            contract_address = deploy_contract("./build/main.json").contract_address
-
-            call(contract_address, "UNKNOWN_FUNCTION")
-            """
+        await migrate("""
+declaration = declare("./build/main.json") 
+contract_address = deploy_contract(declaration.class_hash).contract_address
+call(contract_address, "UNKNOWN_FUNCTION")
+"""
         )
 
 

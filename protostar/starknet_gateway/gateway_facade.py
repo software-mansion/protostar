@@ -96,21 +96,21 @@ def parse_python_constructor_inputs(
     return cairo_inputs
 
 
-def is_cairo_data(inputs: CairoOrPythonData) -> TypeGuard[CairoData]:
+def is_cairo_data(inputs: Optional[CairoOrPythonData]) -> TypeGuard[CairoData]:
     return isinstance(inputs, list)
 
 
 def prepare_constructor_inputs(
     inputs: Optional[CairoOrPythonData], abi: Optional[AbiType]
 ) -> CairoData:
+    if is_cairo_data(inputs):
+        return inputs
+
     if abi:
         return parse_python_constructor_inputs(inputs, abi)
 
     if not inputs:
         return []
-
-    if is_cairo_data(inputs):
-        return inputs
 
     raise InputValidationException(
         "Provided structured input arguments, but no abi was found."
@@ -156,7 +156,9 @@ class GatewayFacade:
         token: Optional[str] = None,
     ) -> SuccessfulDeployResponse:
         cairo_inputs = prepare_constructor_inputs(inputs, abi)
-        call = Deployer(account_address=account_address).create_deployment_call_raw(
+        call = Deployer(
+            account_address=account_address
+        ).create_deployment_call_raw(
             class_hash=class_hash,
             raw_calldata=cairo_inputs,
             salt=salt,
@@ -166,12 +168,14 @@ class GatewayFacade:
             contract_address=call.udc.to_addr,  # type: ignore
             entry_point_selector=call.udc.selector,  # type: ignore
             calldata=call.udc.calldata,  # type: ignore
-            max_fee=max_fee or 0,
-            nonce=await self._gateway_client.get_contract_nonce(
-                call.udc.to_addr,
-            )
-            if signer
-            else None,
+            max_fee=max_fee if isinstance(max_fee, int) else 0,
+            nonce=(
+                await self._gateway_client.get_contract_nonce(
+                    call.udc.to_addr,
+                )
+                if signer
+                else None
+            ),
             signature=[],
             version=1 if signer else 0,
         )

@@ -18,7 +18,10 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
 @pytest.fixture(name="migration_file_path")
 def migration_file_path_fixture(protostar: ProtostarFixture) -> Path:
     return protostar.create_migration_file(
-        up_hint_content='deploy_contract("./build/main.json")',
+        up_hint_content="""
+        declaration = declare("./build/main.json")
+        deploy_contract(declaration.class_hash)
+        """,
     )
 
 
@@ -29,4 +32,5 @@ async def test_migrate_up(
         migration_file_path, gateway_url=devnet_gateway_url
     )
 
-    assert result.starknet_requests[0].action == "DEPLOY"
+    assert result.starknet_requests[0].action == "DECLARE"
+    assert result.starknet_requests[1].action == "DEPLOY"
