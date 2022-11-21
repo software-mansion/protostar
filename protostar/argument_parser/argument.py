@@ -1,5 +1,5 @@
 from dataclasses import dataclass, replace
-from typing import Any, Generic, Optional, TypeVar, Dict
+from typing import Any, Generic, Optional, TypeVar
 
 from typing_extensions import Self
 

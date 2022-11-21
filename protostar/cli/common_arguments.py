@@ -48,3 +48,24 @@ COMPILED_CONTRACTS_DIR_ARG = ProtostarArgument(
     type="path",
     default="build",
 )
+
+EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = """- `GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]`
+    - `OpenZeppelin/cairo-contracts@v0.4.0`
+- `URL_TO_THE_REPOSITORY`
+    - `https://github.com/OpenZeppelin/cairo-contracts`
+- `SSH_URI`
+    - `git@github.com:OpenZeppelin/cairo-contracts.git`
+"""
+
+INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = (
+    EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION
+    + "- `PACKAGE_DIRECTORY_NAME`\n"
+    + "    - `cairo_contracts`, if the package location is `lib/cairo_contracts`"
+)
+
+PACKAGE_ARG = ProtostarArgument(
+    description=EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
+    name="package",
+    type="str",
+    is_positional=True,
+)
