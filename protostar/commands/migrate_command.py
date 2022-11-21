@@ -7,9 +7,9 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.signer import BaseSigner
 
 from protostar.cli import ProtostarArgument, ProtostarCommand
+from protostar.cli.common_arguments import COMPILED_CONTRACTS_DIR_ARG
 from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.cli.signable_command_util import SignableCommandUtil
-from protostar.commands.build_command import BuildCommand
 from protostar.io.input_requester import InputRequester
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
@@ -63,11 +63,8 @@ class MigrateCommand(ProtostarCommand):
                 description="Skip confirming building the project.",
                 type="bool",
             ),
-            ProtostarArgument(
-                name="compiled-contracts-dir",
-                description="A directory in which your compiled contracts are located (used for deploys and declares)",
-                type="path",
-                default=BuildCommand.COMPILATION_OUTPUT_ARG.default,
+            COMPILED_CONTRACTS_DIR_ARG.copy_with_description(
+                "A directory in which your compiled contracts are located (used for deploys and declares)"
             ),
         ]
 

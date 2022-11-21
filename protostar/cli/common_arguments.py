@@ -41,3 +41,10 @@ ACCOUNT_CONSTRUCTOR_INPUT = ProtostarArgument(
     type="int",
     is_array=True,
 )
+
+COMPILED_CONTRACTS_DIR_ARG = ProtostarArgument(
+    name="compiled-contracts-dir",
+    description="An output directory used to put the compiled contracts in.",
+    type="path",
+    default="build",
+)
