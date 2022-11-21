@@ -10,7 +10,8 @@ from .unparser import unparse_arguments_from_external_source
     [
         ("foo", ["foo"]),
         (42, ["42"]),
-        (True, None),
+        (True, ["true"]),
+        (False, ["false"]),
         (["foo", "bar"], ["foo", "bar"]),
         ([21, 37], ["21", "37"]),
     ],

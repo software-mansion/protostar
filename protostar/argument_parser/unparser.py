@@ -5,8 +5,6 @@ def unparse_arguments_from_external_source(value: Any) -> Optional[list[str]]:
     """Arguments from external sources need to be unparsed in order to be parsed by custom parsers."""
     if value is None:
         return None
-    if isinstance(value, bool):
-        return None
     return unparse_arguments(value)
 
 
@@ -22,7 +20,8 @@ def unparse_arguments(value: Any) -> list[str]:
 
 
 def unparse_single_value(value: Any) -> str:
-    assert not isinstance(value, bool)
+    if isinstance(value, bool):
+        return "true" if value else "false"
     if isinstance(value, int):
         return str(value)
     if isinstance(value, str):
