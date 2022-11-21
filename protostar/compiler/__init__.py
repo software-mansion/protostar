@@ -7,3 +7,7 @@ from .project_compiler import (
     ProjectCompilerConfig,
     SourceFileNotFoundException,
 )
+from .contract_identifier_resolver import (
+    ContractIdentifierResolver,
+    ContractIdentificationException,
+)
