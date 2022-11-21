@@ -144,6 +144,7 @@ class ProtostarFixture:
         args.signer_class = None
         args.private_key_path = None
         args.account_address = None
+        args.json = False
 
         return await self._deploy_command.run(args)
 
@@ -551,7 +552,10 @@ def build_protostar_fixture(
         messenger_factory=messenger_factory,
     )
 
-    deploy_command = DeployCommand(gateway_facade_factory=gateway_facade_factory)
+    deploy_command = DeployCommand(
+        gateway_facade_factory=gateway_facade_factory,
+        messenger_factory=messenger_factory,
+    )
 
     test_command = TestCommand(
         project_root_path=project_root_path,

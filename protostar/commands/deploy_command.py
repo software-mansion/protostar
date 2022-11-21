@@ -1,16 +1,53 @@
-import logging
 from argparse import Namespace
+from dataclasses import dataclass
 from typing import Optional
 
-from protostar.cli import ProtostarArgument, ProtostarCommand, SignableCommandUtil
+from protostar.cli import (
+    ProtostarArgument,
+    ProtostarCommand,
+    SignableCommandUtil,
+    MessengerFactory,
+)
 from protostar.cli.common_arguments import BLOCK_EXPLORER_ARG
 from protostar.cli.network_command_util import NetworkCommandUtil
+from protostar.io import StructuredMessage, LogColorProvider
 from protostar.starknet_gateway import (
     GatewayFacadeFactory,
     SuccessfulDeployResponse,
     BlockExplorer,
     create_block_explorer,
 )
+
+
+@dataclass
+class SuccessfulDeployMessage(StructuredMessage):
+    response: SuccessfulDeployResponse
+    block_explorer: BlockExplorer
+
+    def format_human(self, fmt: LogColorProvider) -> str:
+        lines: list[str] = [
+            "Deploy transaction was sent.",
+            f"Contract address: 0x{self.response.address:064x}",
+        ]
+        contract_url = self.block_explorer.create_link_to_contract(
+            self.response.address
+        )
+        if contract_url:
+            lines.append(contract_url)
+            lines.append("")
+        lines.append(f"Transaction hash: 0x{self.response.transaction_hash:064x}")
+        tx_url = self.block_explorer.create_link_to_transaction(
+            self.response.transaction_hash
+        )
+        if tx_url:
+            lines.append(tx_url)
+        return "\n".join(lines)
+
+    def format_dict(self) -> dict:
+        return {
+            "contract_address": f"0x{self.response.address:064x}",
+            "transaction_hash": f"0x{self.response.transaction_hash:064x}",
+        }
 
 
 class DeployCommand(ProtostarCommand):
@@ -24,8 +61,10 @@ class DeployCommand(ProtostarCommand):
     def __init__(
         self,
         gateway_facade_factory: GatewayFacadeFactory,
+        messenger_factory: MessengerFactory,
     ) -> None:
         self._gateway_facade_factory = gateway_facade_factory
+        self._messenger_factory = messenger_factory
 
     @property
     def name(self) -> str:
@@ -43,6 +82,7 @@ class DeployCommand(ProtostarCommand):
     def arguments(self):
         return [
             BLOCK_EXPLORER_ARG,
+            *MessengerFactory.OUTPUT_ARGUMENTS,
             ProtostarArgument(
                 name="class-hash",
                 description="The hash of the declared contract class.",
@@ -98,6 +138,8 @@ class DeployCommand(ProtostarCommand):
         gateway_facade = self._gateway_facade_factory.create(gateway_client)
         signer = signable_command_util.get_signer(network_config)
 
+        write = self._messenger_factory.from_args(args)
+
         response = await gateway_facade.deploy_via_udc(
             class_hash=args.class_hash,
             signer=signer,
@@ -109,9 +151,9 @@ class DeployCommand(ProtostarCommand):
             wait_for_acceptance=args.wait_for_acceptance,
         )
 
-        logging.info(
-            format_successful_deploy_response(
-                response,
+        write(
+            SuccessfulDeployMessage(
+                response=response,
                 block_explorer=create_block_explorer(
                     block_explorer_name=args.block_explorer,
                     network=network_config.network_name,
@@ -120,20 +162,3 @@ class DeployCommand(ProtostarCommand):
         )
 
         return response
-
-
-def format_successful_deploy_response(
-    response: SuccessfulDeployResponse, block_explorer: BlockExplorer
-):
-    lines: list[str] = []
-    lines.append("Deploy transaction was sent.")
-    lines.append(f"Contract address: 0x{response.address:064x}")
-    contract_url = block_explorer.create_link_to_contract(response.address)
-    if contract_url:
-        lines.append(contract_url)
-        lines.append("")
-    lines.append(f"Transaction hash: 0x{response.transaction_hash:064x}")
-    tx_url = block_explorer.create_link_to_transaction(response.transaction_hash)
-    if tx_url:
-        lines.append(tx_url)
-    return "\n".join(lines)
