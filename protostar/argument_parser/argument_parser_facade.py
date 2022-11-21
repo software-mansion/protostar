@@ -171,7 +171,7 @@ class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
             new_default = parsed_values
             if not argument.is_array:
                 new_default = parsed_values[0] if len(parsed_values) > 0 else None
-            return argument.copy_with(default=new_default)  # type: ignore
+            return argument.copy_with(default=new_default)
         return argument
 
     def _add_argument(

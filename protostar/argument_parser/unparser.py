@@ -21,9 +21,9 @@ def unparse_arguments(value: Any) -> list[str]:
 
 def unparse_single_value(value: Any) -> str:
     if isinstance(value, bool):
-        return "true" if value else "false"
+        return str(bool)
     if isinstance(value, int):
         return str(value)
     if isinstance(value, str):
         return value
-    assert False, f"Value '{value}' couldn't be unparsed"
+    raise ValueError(f"Value '{value!r}' couldn't be unparsed")
