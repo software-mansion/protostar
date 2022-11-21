@@ -21,7 +21,7 @@ def unparse_arguments(value: Any) -> list[str]:
 
 def unparse_single_value(value: Any) -> str:
     if isinstance(value, bool):
-        return str(bool)
+        return "true" if value else "false"
     if isinstance(value, int):
         return str(value)
     if isinstance(value, str):
