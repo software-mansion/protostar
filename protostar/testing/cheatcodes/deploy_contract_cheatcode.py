@@ -14,11 +14,11 @@ from .prepare_cheatcode import PrepareCheatcode
 class DeployContractCheatcodeProtocol(Protocol):
     # pylint: disable=keyword-arg-before-vararg
     def __call__(
-            self,
-            contract: str,
-            constructor_args: Optional[CairoOrPythonData] = None,
-            *args: Any,
-            config: Optional[Dict] = None,
+        self,
+        contract: str,
+        constructor_args: Optional[CairoOrPythonData] = None,
+        *args: Any,
+        config: Optional[Dict] = None,
     ) -> DeployedContract:
         ...
 

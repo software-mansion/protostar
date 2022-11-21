@@ -156,9 +156,7 @@ class GatewayFacade:
         token: Optional[str] = None,
     ) -> SuccessfulDeployResponse:
         cairo_inputs = prepare_constructor_inputs(inputs, abi)
-        call = Deployer(
-            account_address=account_address
-        ).create_deployment_call_raw(
+        call = Deployer(account_address=account_address).create_deployment_call_raw(
             class_hash=class_hash,
             raw_calldata=cairo_inputs,
             salt=salt,

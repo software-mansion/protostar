@@ -154,7 +154,9 @@ def test_deploying_contract_with_constructor_and_inputs_defined_in_config_file(
             devnet_gateway_url,
             "--chain-id",
             str(StarknetChainId.TESTNET.value),
-        ]
+            "--json",
+        ],
+        ignore_stderr=True,
     )
 
     assert {

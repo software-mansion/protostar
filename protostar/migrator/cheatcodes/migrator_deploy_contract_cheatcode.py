@@ -35,7 +35,7 @@ class DeployCheatcodeNetworkConfig(DeclareCheatcodeNetworkConfig):
 class ValidatedDeployCheatcodeNetworkConfig(ValidatedDeclareCheatcodeNetworkConfig):
     @classmethod
     def from_deploy_cheatcode_network_config(
-            cls, config: Optional[DeployCheatcodeNetworkConfig]
+        cls, config: Optional[DeployCheatcodeNetworkConfig]
     ) -> "ValidatedDeclareCheatcodeNetworkConfig":
         return super().from_declare_cheatcode_network_config(config)
 
@@ -102,7 +102,11 @@ class MigratorDeployContractCheatcode(Cheatcode):
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
 
-        validated_config = ValidatedDeployCheatcodeNetworkConfig.from_deploy_cheatcode_network_config(config)
+        validated_config = (
+            ValidatedDeployCheatcodeNetworkConfig.from_deploy_cheatcode_network_config(
+                config
+            )
+        )
 
         if abi_path and not Path(abi_path).is_file():
             raise CheatcodeException(self, f"{abi_path} is not a correct ABI file path")
@@ -110,18 +114,24 @@ class MigratorDeployContractCheatcode(Cheatcode):
         abi = None if not abi_path else json.loads(Path(abi_path).read_text("utf-8"))
 
         try:
-            class_hash = class_hash if isinstance(class_hash, int) else int(class_hash, 16)
+            class_hash = (
+                class_hash if isinstance(class_hash, int) else int(class_hash, 16)
+            )
         except ValueError as v_err:
             raise CheatcodeException(
-                self, f"Class hash has to be an integer or a hexadecimal string. Provided value: {class_hash}"
+                self,
+                f"Class hash has to be an integer or a hexadecimal string. Provided value: {class_hash}",
             ) from v_err
 
         account_address = self._config.account_address
         try:
-            account_address = parse_address(account_address) if account_address is not None else None
+            account_address = (
+                parse_address(account_address) if account_address is not None else None
+            )
         except ValueError as v_err:
             raise CheatcodeException(
-                self, f"Account address has to be an integer or a hexadecimal string. Provided value: {class_hash}"
+                self,
+                f"Account address has to be an integer or a hexadecimal string. Provided value: {class_hash}",
             ) from v_err
 
         try:

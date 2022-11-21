@@ -50,9 +50,11 @@ async def test_failure_when_calling_not_existing_function(migrate: MigrateFixtur
     with pytest.raises(
         ProtostarException, match="unknown function: 'UNKNOWN_FUNCTION'"
     ):
-        await migrate("""
-declaration = declare("./build/main.json") 
+        await migrate(
+            """
+declaration = declare("./build/main.json")
 contract_address = deploy_contract(declaration.class_hash).contract_address
+
 call(contract_address, "UNKNOWN_FUNCTION")
 """
         )
