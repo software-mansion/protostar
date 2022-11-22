@@ -78,7 +78,7 @@ class SignableCommandUtil:
 
         try:
             signer = StarkCurveSigner(
-                account_address=self._args.account_address,
+                account_address=int(self._args.account_address),
                 key_pair=key_pair,
                 chain_id=network_config.chain_id,
             )

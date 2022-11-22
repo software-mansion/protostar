@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 
+from protostar.starknet import Address
+
 
 @dataclass
 class SuccessfulDeployResponse:
     code: str
-    address: int
+    address: Address
     transaction_hash: int
 
 
@@ -22,6 +24,6 @@ class SuccessfulInvokeResponse:
 
 @dataclass
 class SuccessfulDeployAccountResponse:
-    address: int
+    address: Address
     transaction_hash: int
     code: str

@@ -5,6 +5,7 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
+from protostar.starknet import Address
 from protostar.starknet_gateway import FeeExceededMaxFeeException
 from tests.conftest import DevnetAccount, SetPrivateKeyEnvVarFixture
 from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR
@@ -77,7 +78,7 @@ async def test_deploying_contract_with_signing(
 
     response = await protostar.declare(
         chain_id=StarknetChainId.TESTNET,
-        account_address="123",
+        account_address=Address.from_user_input("123"),
         contract=compiled_contract_path,
         gateway_url=devnet_gateway_url,
         wait_for_acceptance=True,

@@ -8,7 +8,7 @@ from protostar.cli import (
     SignableCommandUtil,
     MessengerFactory,
 )
-from protostar.cli.common_arguments import BLOCK_EXPLORER_ARG
+from protostar.cli.common_arguments import BLOCK_EXPLORER_ARG, WAIT_FOR_ACCEPTANCE_ARG
 from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.io import StructuredMessage, LogColorProvider
 from protostar.starknet_gateway import (
@@ -27,7 +27,7 @@ class SuccessfulDeployMessage(StructuredMessage):
     def format_human(self, fmt: LogColorProvider) -> str:
         lines: list[str] = [
             "Invoke transaction was sent to the Universal Deployer Contract.",
-            f"Contract address: 0x{self.response.address:064x}",
+            f"Contract address: {self.response.address}",
         ]
         contract_url = self.block_explorer.create_link_to_contract(
             self.response.address
@@ -35,7 +35,7 @@ class SuccessfulDeployMessage(StructuredMessage):
         if contract_url:
             lines.append(contract_url)
             lines.append("")
-        lines.append(f"Transaction hash: 0x{self.response.transaction_hash:064x}")
+        lines.append(f"Transaction hash: {self.response.transaction_hash}")
         tx_url = self.block_explorer.create_link_to_transaction(
             self.response.transaction_hash
         )
@@ -45,19 +45,12 @@ class SuccessfulDeployMessage(StructuredMessage):
 
     def format_dict(self) -> dict:
         return {
-            "contract_address": f"0x{self.response.address:064x}",
+            "contract_address": str(self.response.address),
             "transaction_hash": f"0x{self.response.transaction_hash:064x}",
         }
 
 
 class DeployCommand(ProtostarCommand):
-    wait_for_acceptance_arg = ProtostarArgument(
-        name="wait-for-acceptance",
-        description="Waits for transaction to be accepted on chain.",
-        type="bool",
-        default=False,
-    )
-
     def __init__(
         self,
         gateway_facade_factory: GatewayFacadeFactory,
@@ -124,7 +117,7 @@ class DeployCommand(ProtostarCommand):
                 ),
                 type="felt",
             ),
-            DeployCommand.wait_for_acceptance_arg,
+            WAIT_FOR_ACCEPTANCE_ARG,
             *NetworkCommandUtil.network_arguments,
             *SignableCommandUtil.signable_arguments,
         ]
@@ -162,3 +155,20 @@ class DeployCommand(ProtostarCommand):
         )
 
         return response
+
+
+def format_successful_deploy_response(
+    response: SuccessfulDeployResponse, block_explorer: BlockExplorer
+):
+    lines: list[str] = []
+    lines.append("Deploy transaction was sent.")
+    lines.append(f"Contract address: 0x{response.address:064x}")
+    contract_url = block_explorer.create_link_to_contract(response.address)
+    if contract_url:
+        lines.append(contract_url)
+        lines.append("")
+    lines.append(f"Transaction hash: 0x{response.transaction_hash:064x}")
+    tx_url = block_explorer.create_link_to_transaction(response.transaction_hash)
+    if tx_url:
+        lines.append(tx_url)
+    return "\n".join(lines)

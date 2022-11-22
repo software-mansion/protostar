@@ -9,7 +9,7 @@ In order to compile your project:
 1. Specify contracts and their files in `protostar.toml`.
 2. Run `protostar build`.
 
-# Specifying contracts and their files
+##  Specifying contracts and their files
 
 Protostar needs to know how to generate contracts from Cairo files. Each Cairo file that contains an [entrypoint](#entrypoint) should be included in the `"protostar.contracts"` section of the configuration file.
 
@@ -37,7 +37,7 @@ An entrypoint is a function decorated with one of the following decorators:
 ### Contract name
 A contract name refers to an attribute name in this `“protostar.contracts”` section of the configuration file. You can use contract name as a reference to a contract in some Protostar features. In the example above, `foo` and `bar` are contract names.
 
-# Compiling your project
+## Compiling your project
 
 Once you specified contract configurations, run:
 

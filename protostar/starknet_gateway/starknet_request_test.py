@@ -1,6 +1,10 @@
 import re
 from typing import cast, Dict, Any
+
 import pytest
+
+from protostar.starknet import Address
+
 from .starknet_request import StarknetRequest
 
 
@@ -9,7 +13,7 @@ from .starknet_request import StarknetRequest
     [
         {"transaction_hash": 123, "not_hex": 0xDEADBEEF, "not_hex2": "foo"},
         {"class_hash": 456, "not_hex": 0xAD0BE_BAD, "not_hex2": "bar"},
-        {"contract_address": 789, "not_hex": 42, "not_hex2": "baz"},
+        {"contract_address": Address(789), "not_hex": 42, "not_hex2": "baz"},
     ],
 )
 def test_payload_converting_to_hex(test_input: Dict[str, Any]):

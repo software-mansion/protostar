@@ -1,8 +1,9 @@
 from typing import Callable, Optional
 
 from protostar.io.log_color_provider import log_color_provider
+from protostar.starknet import Address
 
-from .block_explorer import BlockExplorer, ClassHash, ContractAddress, TransactionHash
+from .block_explorer import BlockExplorer, ClassHash, TransactionHash
 
 
 class CombinedBlockExplorer(BlockExplorer):
@@ -17,9 +18,7 @@ class CombinedBlockExplorer(BlockExplorer):
             on_picking_link=lambda explorer: explorer.create_link_to_class(class_hash)
         )
 
-    def create_link_to_contract(
-        self, contract_address: ContractAddress
-    ) -> Optional[str]:
+    def create_link_to_contract(self, contract_address: Address) -> Optional[str]:
         return self._aggregate_links(
             on_picking_link=lambda explorer: explorer.create_link_to_contract(
                 contract_address

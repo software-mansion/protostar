@@ -15,6 +15,7 @@ from protostar.cli.common_arguments import (
     ACCOUNT_CLASS_HASH_ARG,
     ACCOUNT_ADDRESS_SALT_ARG,
     ACCOUNT_CONSTRUCTOR_INPUT,
+    MAX_FEE_ARG,
 )
 from protostar.cli.network_command_util import NetworkArgs
 from protostar.io import StructuredMessage, LogColorProvider
@@ -22,11 +23,12 @@ from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import GatewayFacadeFactory
 from protostar.starknet_gateway.gateway_facade import ClassHash, DeployAccountArgs, Fee
 from protostar.starknet_gateway.gateway_response import SuccessfulDeployAccountResponse
+from protostar.starknet import Address
 
 
 @dataclass
 class DeployAccountCommandArgs(NetworkArgs):
-    account_address: int
+    account_address: Address
     account_address_salt: int
     account_constructor_input: Optional[list[int]]
     account_class_hash: ClassHash
@@ -108,7 +110,7 @@ class DeployAccountCommand(ProtostarCommand):
                 default=0,
             ),
             ProtostarArgument(
-                name="max-fee",
+                name=MAX_FEE_ARG.name,
                 description="Max amount of Wei you are willing to pay for the transaction",
                 type="wei",
                 is_required=True,

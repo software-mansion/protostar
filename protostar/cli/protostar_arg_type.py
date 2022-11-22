@@ -9,6 +9,7 @@ from protostar.starknet_gateway import (
     SupportedBlockExplorerName,
     Wei,
 )
+from protostar.starknet import Address
 
 CustomProtostarArgTypeName = Literal[
     "felt",
@@ -54,6 +55,10 @@ def parse_fee_arg_type(arg: str) -> Fee:
     if arg == "auto":
         return arg
     return int(arg)
+
+
+def parse_address_arg_type(arg: str) -> Address:
+    return Address.from_user_input(arg)
 
 
 def parse_hex_or_decimal(arg: str) -> int:

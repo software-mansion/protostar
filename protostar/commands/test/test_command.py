@@ -135,6 +135,11 @@ A glob or globs to a directory or a test suite, for example:
                 description="Set a seed to use for all fuzz tests.",
             ),
             ProtostarArgument(
+                name="max-steps",
+                type="int",
+                description="Set Cairo execution step limit.",
+            ),
+            ProtostarArgument(
                 name="report-slowest-tests",
                 type="int",
                 description="Print slowest tests at the end.",
@@ -160,6 +165,7 @@ A glob or globs to a directory or a test suite, for example:
             safe_collecting=args.safe_collecting,
             exit_first=args.exit_first,
             seed=args.seed,
+            max_steps=args.max_steps,
             slowest_tests_to_report_count=args.report_slowest_tests,
         )
         cache.write_failed_tests_to_cache(summary)
@@ -177,6 +183,7 @@ A glob or globs to a directory or a test suite, for example:
         safe_collecting: bool = False,
         exit_first: bool = False,
         seed: Optional[int] = None,
+        max_steps: Optional[int] = None,
         slowest_tests_to_report_count: int = 0,
     ) -> TestingSummary:
         include_paths = [
@@ -240,6 +247,7 @@ A glob or globs to a directory or a test suite, for example:
                 profiling=profiling,
                 exit_first=exit_first,
                 testing_seed=testing_seed,
+                max_steps=max_steps,
                 project_root_path_str=str(self._project_root_path),
                 active_profile_name=self._active_profile_name,
                 cwd=self._cwd,

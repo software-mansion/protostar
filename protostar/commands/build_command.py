@@ -1,11 +1,8 @@
 from pathlib import Path
 from typing import List, Optional, Any
 
-from protostar.cli import (
-    ProtostarArgument,
-    ProtostarCommand,
-    MessengerFactory,
-)
+from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
+from protostar.cli.common_arguments import COMPILED_CONTRACTS_DIR_ARG
 from protostar.compiler import ProjectCompiler, ProjectCompilerConfig
 from protostar.io import LogColorProvider, Message
 
@@ -16,13 +13,6 @@ class BuildActivityMessageTemplate(Message):
 
 
 class BuildCommand(ProtostarCommand):
-    COMPILATION_OUTPUT_ARG = ProtostarArgument(
-        name="compiled-contracts-dir",
-        description="An output directory used to put the compiled contracts in.",
-        type="path",
-        default="build",
-    )
-
     def __init__(
         self,
         project_compiler: ProjectCompiler,
@@ -58,7 +48,7 @@ class BuildCommand(ProtostarCommand):
                 description="Disable validation of hints when building the contracts.",
                 type="bool",
             ),
-            BuildCommand.COMPILATION_OUTPUT_ARG,
+            COMPILED_CONTRACTS_DIR_ARG,
         ]
 
     async def run(self, args: Any):

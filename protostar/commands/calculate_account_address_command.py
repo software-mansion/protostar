@@ -3,7 +3,7 @@ from typing import Optional
 
 from protostar.cli import ProtostarCommand, MessengerFactory
 from protostar.io import LogColorProvider, StructuredMessage
-from protostar.starknet.account_address import AccountAddress
+from protostar.starknet import Address
 from protostar.cli.common_arguments import (
     ACCOUNT_CLASS_HASH_ARG,
     ACCOUNT_ADDRESS_SALT_ARG,
@@ -12,7 +12,7 @@ from protostar.cli.common_arguments import (
 
 
 class AccountAddressMessage(StructuredMessage):
-    def __init__(self, account_address: AccountAddress) -> None:
+    def __init__(self, account_address: Address) -> None:
         super().__init__()
         self._account_address = account_address
 
@@ -54,7 +54,7 @@ class CalculateAccountAddressCommand(ProtostarCommand):
 
     async def run(self, args: Namespace):
         write = self._messenger_factory.from_args(args)
-        account_address = AccountAddress.from_class_hash(
+        account_address = Address.from_class_hash(
             class_hash=args.account_class_hash,
             constructor_calldata=args.account_constructor_input,
             salt=args.account_address_salt,

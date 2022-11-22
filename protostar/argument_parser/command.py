@@ -5,9 +5,10 @@ from typing import Any, Generic, List, Optional, TypeVar
 from .argument import Argument as GenericArgument
 
 ArgTypeNameT_co = TypeVar("ArgTypeNameT_co", covariant=True)
+ArgType = TypeVar("ArgType", bound=GenericArgument)
 
 
-class Command(Generic[ArgTypeNameT_co]):
+class Command(Generic[ArgType]):
     @property
     @abstractmethod
     def name(self) -> str:
@@ -25,7 +26,7 @@ class Command(Generic[ArgTypeNameT_co]):
 
     @property
     @abstractmethod
-    def arguments(self) -> List[GenericArgument[ArgTypeNameT_co]]:
+    def arguments(self) -> List[ArgType]:
         ...
 
     @abstractmethod
