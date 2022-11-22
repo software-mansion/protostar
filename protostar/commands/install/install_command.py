@@ -9,9 +9,11 @@ from protostar.cli import (
     ProtostarArgument,
     ProtostarCommand,
 )
+from protostar.cli.common_arguments import PACKAGE_ARG
 from protostar.configuration_file import ConfigurationFile
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.package_manager import extract_info_from_repo_id
+
 from .install_package_from_repo import install_package_from_repo
 from .pull_package_submodules import pull_package_submodules
 
@@ -52,12 +54,7 @@ class InstallCommand(ProtostarCommand):
     def arguments(self):
         return [
             LIB_PATH_ARG,
-            ProtostarArgument(
-                name="package",
-                description=EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
-                type="str",
-                is_positional=True,
-            ),
+            PACKAGE_ARG,
             ProtostarArgument(
                 name="name",
                 description="A custom package name. Use it to resolve name conflicts.",
