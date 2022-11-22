@@ -16,11 +16,10 @@ from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
 from starkware.starknet.security.secure_hints import HintsWhitelist
 from starkware.starknet.services.api.contract_class import EntryPointType
 
-from protostar.starknet.cheatable_cached_state import (
-    CheatableCachedState,
-    cheaters_of,
-)
-from protostar.starknet.types import AddressType, SelectorType
+from protostar.starknet.cheatable_cached_state import CheatableCachedState, cheaters_of
+from protostar.starknet.types import SelectorType
+
+from .address import Address
 
 
 class CheatableSysCallHandlerException(Exception):
@@ -50,7 +49,7 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
 
     @property
     def block_info(self) -> BlockInfo:
-        return self.cheaters.block_info.get_for_contract(self.contract_address)
+        return self.cheaters.block_info.get_for_contract(Address(self.contract_address))
 
     @block_info.setter
     def block_info(self, block_info: BlockInfo):
@@ -71,9 +70,7 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
 
         return caller_address
 
-    def unregister_mock_call(
-        self, contract_address: AddressType, selector: SelectorType
-    ):
+    def unregister_mock_call(self, contract_address: Address, selector: SelectorType):
         if contract_address not in self.cheatable_state.mocked_calls_map:
             raise CheatableSysCallHandlerException(
                 f"Contract {contract_address} doesn't have mocked selectors."
@@ -147,12 +144,14 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
 
         # region Modified Starknet code.
         contract_calldata = (int(str(request.function_selector)), calldata)
-        if self.cheatable_state.contract_calls.get(contract_address):
-            self.cheatable_state.contract_calls[contract_address].append(
+        if self.cheatable_state.contract_calls.get(Address(contract_address)):
+            self.cheatable_state.contract_calls[Address(contract_address)].append(
                 contract_calldata
             )
         else:
-            self.cheatable_state.contract_calls[contract_address] = [contract_calldata]
+            self.cheatable_state.contract_calls[Address(contract_address)] = [
+                contract_calldata
+            ]
         # endregion
 
         call = self.execute_entry_point_cls(
@@ -196,7 +195,7 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
 
         # region Modified Starknet code.
         self.cheatable_state.contract_address_to_class_hash_map[
-            contract_address
+            Address(contract_address)
         ] = class_hash
         # endregion
 

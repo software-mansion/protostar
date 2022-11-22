@@ -150,4 +150,4 @@ class MigratorDeployContractCheatcode(Cheatcode):
             )
         except InputValidationException as ive:
             raise CheatcodeException(self, ive.message) from ive
-        return DeployedContract(contract_address=response.address)
+        return DeployedContract(contract_address=int(response.address))

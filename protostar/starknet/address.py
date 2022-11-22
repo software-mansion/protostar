@@ -1,13 +1,34 @@
-from typing import Union
+from typing import Optional, Sequence, Union
 
 from typing_extensions import Self
+from starkware.starknet.core.os.contract_address.contract_address import (
+    calculate_contract_address_from_hash,
+)
 
 from protostar.protostar_exception import ProtostarException
+
+RawAddress = Union[str, int]
 
 
 class Address:
     @classmethod
-    def from_user_input(cls, raw_address: Union[str, int]) -> Self:
+    def from_class_hash(
+        cls,
+        class_hash: int,
+        salt: int,
+        constructor_calldata: Sequence[int],
+        deployer_address: Optional["Address"] = None,
+    ) -> Self:
+        address = calculate_contract_address_from_hash(
+            class_hash=class_hash,
+            constructor_calldata=constructor_calldata,
+            salt=salt,
+            deployer_address=int(deployer_address) if deployer_address else 0,
+        )
+        return cls(address)
+
+    @classmethod
+    def from_user_input(cls, raw_address: RawAddress) -> Self:
         try:
             value = (
                 raw_address
@@ -37,6 +58,9 @@ class Address:
         if isinstance(other, int):
             return self._value == other
         return False
+
+    def __hash__(self) -> int:
+        return self._value
 
 
 class AddressValidationError(ProtostarException):

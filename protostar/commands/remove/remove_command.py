@@ -3,24 +3,14 @@ from argparse import Namespace
 from pathlib import Path
 from typing import Optional
 
-from protostar.cli import (
-    LIB_PATH_ARG,
-    LibPathResolver,
-    ProtostarArgument,
-    ProtostarCommand,
-)
-from protostar.commands.install.install_command import (
-    EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
+from protostar.cli import LIB_PATH_ARG, LibPathResolver, ProtostarCommand
+from protostar.cli.common_arguments import (
+    PACKAGE_ARG,
+    INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
 )
 from protostar.commands.remove.remove_package import remove_package
 from protostar.io import log_color_provider
 from protostar.package_manager import retrieve_real_package_name
-
-INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = (
-    EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION
-    + "- `PACKAGE_DIRECTORY_NAME`\n"
-    + "    - `cairo_contracts`, if the package location is `lib/cairo_contracts`"
-)
 
 
 class RemoveCommand(ProtostarCommand):
@@ -49,12 +39,9 @@ class RemoveCommand(ProtostarCommand):
     def arguments(self):
         return [
             LIB_PATH_ARG,
-            ProtostarArgument(
-                name="package",
+            PACKAGE_ARG.copy_with(
                 description=INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
-                type="str",
                 is_required=True,
-                is_positional=True,
             ),
         ]
 

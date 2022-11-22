@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional, Union
 from starkware.starknet.business_logic.execution.objects import Event
 from typing_extensions import Literal
 
-from protostar.starknet import ReportedException
+from protostar.starknet import ReportedException, Address
 from protostar.io.log_color_provider import SupportedColorName, log_color_provider
 
 from .expected_event import ExpectedEvent
@@ -285,7 +285,7 @@ class ExpectedEventMissingException(ReportedException):
 
 class ExpectedCallException(ReportedException):
     def __init__(
-        self, contract_address: int, fn_name: str, calldata: list[int]
+        self, contract_address: Address, fn_name: str, calldata: list[int]
     ) -> None:
         self._contract_address = contract_address
         self._calldata = calldata
@@ -295,7 +295,7 @@ class ExpectedCallException(ReportedException):
     def __str__(self) -> str:
         return (
             f"expected call to function {self._fn_name} "
-            f"from the contract of address {hex(self._contract_address)} "
+            f"from the contract of address {self._contract_address} "
             f"with calldata {self._calldata} not fulfilled."
         )
 

@@ -11,6 +11,7 @@ from starknet_py.net.models.typed_data import TypedData
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
+from protostar.starknet import Address
 from protostar.cli.signable_command_util import (
     SignableCommandUtil,
     PRIVATE_KEY_ENV_VAR_NAME,
@@ -67,7 +68,7 @@ def test_default_signer_class(
 
     args.signer_class = None
     args.private_key_path = str(pkey_file_factory("0x123"))
-    args.account_address = "0x123"
+    args.account_address = Address.from_user_input("0x123")
 
     signer = SignableCommandUtil(args).get_signer(network_config)
     assert isinstance(signer, StarkCurveSigner)

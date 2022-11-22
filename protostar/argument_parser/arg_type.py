@@ -16,7 +16,7 @@ ArgTypeName = Literal[
 def map_type_name_to_parser(argument_type: ArgTypeName) -> Callable[[str], Any]:
     type_name_to_parser_mapping: dict[ArgTypeName, Callable[[str], Any]] = {
         "str": str,
-        "bool": bool,
+        "bool": parse_bool_arg_type,
         "int": int,
         "directory": parse_directory_arg_type,
         "regexp": re.compile,
@@ -25,6 +25,12 @@ def map_type_name_to_parser(argument_type: ArgTypeName) -> Callable[[str], Any]:
     if argument_type in type_name_to_parser_mapping:
         return type_name_to_parser_mapping[argument_type]
     assert False, f"Unknown argument type {argument_type}"
+
+
+def parse_bool_arg_type(arg: str) -> bool:
+    if arg in ["false", "False", "0"]:
+        return False
+    return bool(arg)
 
 
 def parse_directory_arg_type(arg: str) -> Path:

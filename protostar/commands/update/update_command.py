@@ -4,20 +4,16 @@ from os import listdir
 from pathlib import Path
 from typing import Optional
 
-from protostar.cli import (
+from protostar.cli import LibPathResolver, ProtostarCommand
+from protostar.cli.common_arguments import (
+    PACKAGE_ARG,
     LIB_PATH_ARG,
-    LibPathResolver,
-    ProtostarArgument,
-    ProtostarCommand,
-)
-from protostar.commands.remove.remove_command import (
     INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
 )
-from protostar.commands.update.update_package import update_package
-from protostar.commands.update.updating_exceptions import (
-    PackageAlreadyUpToDateException,
-)
 from protostar.package_manager import retrieve_real_package_name
+
+from .update_package import update_package
+from .updating_exceptions import PackageAlreadyUpToDateException
 
 
 class UpdateCommand(ProtostarCommand):
@@ -53,11 +49,8 @@ class UpdateCommand(ProtostarCommand):
     def arguments(self):
         return [
             LIB_PATH_ARG,
-            ProtostarArgument(
+            PACKAGE_ARG.copy_with(
                 description=INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
-                name="package",
-                type="str",
-                is_positional=True,
             ),
         ]
 

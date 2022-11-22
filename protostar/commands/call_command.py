@@ -12,6 +12,7 @@ from protostar.cli import (
 )
 from protostar.io import LogColorProvider, StructuredMessage
 from protostar.starknet_gateway import GatewayFacadeFactory
+from protostar.starknet import Address
 
 
 @dataclass
@@ -94,7 +95,7 @@ class CallCommand(ProtostarCommand):
 
     async def call(
         self,
-        contract_address: int,
+        contract_address: Address,
         function_name: str,
         gateway_client: GatewayClient,
         inputs: Optional[list[int]] = None,

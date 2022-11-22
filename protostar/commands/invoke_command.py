@@ -11,9 +11,14 @@ from protostar.cli import (
     SignableCommandUtil,
     MessengerFactory,
 )
-from protostar.cli.common_arguments import BLOCK_EXPLORER_ARG
+from protostar.cli.common_arguments import (
+    BLOCK_EXPLORER_ARG,
+    MAX_FEE_ARG,
+    WAIT_FOR_ACCEPTANCE_ARG,
+)
 from protostar.io import StructuredMessage, LogColorProvider
 from protostar.protostar_exception import ProtostarException
+from protostar.starknet import Address
 from protostar.starknet_gateway import (
     Fee,
     GatewayFacadeFactory,
@@ -89,20 +94,8 @@ class InvokeCommand(ProtostarCommand):
                 type="felt",
                 is_array=True,
             ),
-            ProtostarArgument(
-                name="max-fee",
-                description=(
-                    "The maximum fee that the sender is willing to pay for the transaction. "
-                    'Provide "auto" to auto estimate the fee.'
-                ),
-                type="fee",
-            ),
-            ProtostarArgument(
-                name="wait-for-acceptance",
-                description="Waits for transaction to be accepted on chain.",
-                type="bool",
-                default=False,
-            ),
+            MAX_FEE_ARG,
+            WAIT_FOR_ACCEPTANCE_ARG,
         ]
 
     async def run(self, args: Any):
@@ -143,12 +136,12 @@ class InvokeCommand(ProtostarCommand):
 
     async def invoke(
         self,
-        contract_address: int,
+        contract_address: Address,
         function_name: str,
         gateway_client: GatewayClient,
         inputs: Optional[list[int]] = None,
         signer: Optional[BaseSigner] = None,
-        account_address: Optional[str] = None,
+        account_address: Optional[Address] = None,
         max_fee: Optional[Fee] = None,
         wait_for_acceptance: bool = False,
     ) -> SuccessfulInvokeResponse:

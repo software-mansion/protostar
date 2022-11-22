@@ -3,7 +3,7 @@ from typing import Any, Optional
 
 from typing_extensions import Protocol
 
-from protostar.starknet import Cheatcode, CheatcodeException
+from protostar.starknet import Cheatcode, CheatcodeException, Address
 from protostar.starknet_gateway import (
     ContractNotFoundException,
     GatewayFacade,
@@ -47,7 +47,7 @@ class MigratorCallCheatcode(Cheatcode):
         try:
             return asyncio.run(
                 self._gateway_facade.call(
-                    address=contract_address,
+                    address=Address.from_user_input(contract_address),
                     function_name=function_name,
                     inputs=inputs,
                 )

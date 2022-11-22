@@ -7,12 +7,16 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.signer import BaseSigner
 
 from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
-from protostar.cli.common_arguments import BLOCK_EXPLORER_ARG
+from protostar.cli.common_arguments import (
+    BLOCK_EXPLORER_ARG,
+    MAX_FEE_ARG,
+    WAIT_FOR_ACCEPTANCE_ARG,
+)
 from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.cli.signable_command_util import SignableCommandUtil
-from protostar.commands.deploy_command import DeployCommand
 from protostar.io import StructuredMessage, LogColorProvider
 from protostar.protostar_exception import ProtostarException
+from protostar.starknet import Address
 from protostar.starknet_gateway import (
     Fee,
     GatewayFacadeFactory,
@@ -86,15 +90,8 @@ class DeclareCommand(ProtostarCommand):
                 description="Used for declaring contracts in Alpha MainNet.",
                 type="str",
             ),
-            ProtostarArgument(
-                name="max-fee",
-                description=(
-                    "The maximum fee that the sender is willing to pay for the transaction. "
-                    'Provide "auto" to auto estimate the fee.'
-                ),
-                type="fee",
-            ),
-            DeployCommand.wait_for_acceptance_arg,
+            MAX_FEE_ARG,
+            WAIT_FOR_ACCEPTANCE_ARG,
         ]
 
     async def run(self, args: Namespace) -> SuccessfulDeclareResponse:
@@ -143,7 +140,7 @@ class DeclareCommand(ProtostarCommand):
         self,
         compiled_contract_path: Path,
         gateway_client: GatewayClient,
-        account_address: Optional[str] = None,
+        account_address: Optional[Address] = None,
         signer: Optional[BaseSigner] = None,
         token: Optional[str] = None,
         wait_for_acceptance: bool = False,
