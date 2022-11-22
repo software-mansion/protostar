@@ -5,6 +5,7 @@ from typing import Dict, List
 
 from protostar.io.log_color_provider import LogColorProvider, log_color_provider
 from protostar.protostar_exception import ProtostarExceptionSilent
+
 from .test_results import (
     BrokenTestCaseResult,
     BrokenTestSuiteResult,
@@ -79,10 +80,12 @@ class TestingSummary:
             ):
                 estimated_fees[result.test_case_name] = result.estimated_fee
         if estimated_fees:
-            logger.info(log_color_provider.bold("Estimated fees:".ljust(header_width)))
+            logging.info(log_color_provider.bold("Estimated fees:".ljust(header_width)))
             for test_name, estimated_fee in estimated_fees.items():
-                logger.info(
-                    f'    - for a single run of the test "{test_name}":  {estimated_fee} gas'
+                logging.info(
+                    '    - for a single run of the test "%s":  %s gas',
+                    test_name,
+                    estimated_fee,
                 )
 
     def log_slowest_test_cases(
