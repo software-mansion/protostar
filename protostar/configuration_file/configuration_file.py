@@ -2,9 +2,13 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Generic, Optional, Protocol, TypeVar, Union
 
-from protostar.compiler import ContractNamesProviderProtocol, ContractName
+from protostar.compiler import ContractNamesProviderProtocol
 from protostar.protostar_exception import ProtostarException
-from protostar.self import DeclaredProtostarVersionProviderProtocol, ProtostarVersion
+from protostar.self import (
+    DeclaredProtostarVersionProviderProtocol,
+    ProtostarVersion,
+    ContractName,
+)
 
 from .argument_value_resolver import ArgumentValueResolver
 
