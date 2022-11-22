@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Generic, Optional, Protocol, TypeVar, Union
 
+from protostar.compiler import ContractNamesProviderProtocol, ContractName
 from protostar.protostar_exception import ProtostarException
 from protostar.self import DeclaredProtostarVersionProviderProtocol, ProtostarVersion
 
@@ -58,6 +59,7 @@ class ConfigurationFileContentFactory(Generic[ConfigurationFileModelT]):
 class ConfigurationFile(
     ArgumentValueResolver,
     DeclaredProtostarVersionProviderProtocol,
+    ContractNamesProviderProtocol,
     Generic[ConfigurationFileModelT],
 ):
     @abstractmethod
@@ -73,11 +75,11 @@ class ConfigurationFile(
         ...
 
     @abstractmethod
-    def get_contract_names(self) -> list[str]:
+    def get_contract_names(self) -> list[ContractName]:
         ...
 
     @abstractmethod
-    def get_contract_source_paths(self, contract_name: str) -> list[Path]:
+    def get_contract_source_paths(self, contract_name: ContractName) -> list[Path]:
         ...
 
     @abstractmethod

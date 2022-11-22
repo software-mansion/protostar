@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Protocol
 
 from protostar.protostar_exception import ProtostarException
 from protostar.self import ContractName
-from protostar.configuration_file import ConfigurationFile
 
 
 @dataclass(eq=True, frozen=True, unsafe_hash=True)
@@ -31,12 +31,22 @@ class ContractSourceIdentifier:
     paths: list[Path]
 
 
-def create_contract_source_identifier_factory(configuration_file: ConfigurationFile):
+class ContractNamesProviderProtocol(Protocol):
+    def get_contract_names(self) -> list[ContractName]:
+        ...
+
+    def get_contract_source_paths(self, contract_name: ContractName) -> list[Path]:
+        ...
+
+
+def create_contract_source_identifier_factory(
+    contract_names_provider: ContractNamesProviderProtocol,
+):
     def create_contract_source_identifier(input_data: str):
         if input_data.endswith(".cairo"):
             return ContractSourceIdentifier.from_contract_path(Path(input_data))
         contract_name = input_data
-        contract_names = configuration_file.get_contract_names()
+        contract_names = contract_names_provider.get_contract_names()
         if contract_name not in contract_names:
             raise InvalidContractSourceIdentifierException(
                 f"Unknown contract: {contract_name}"
@@ -44,7 +54,7 @@ def create_contract_source_identifier_factory(configuration_file: ConfigurationF
 
         return ContractSourceIdentifier.create(
             name=contract_name,
-            paths=configuration_file.get_contract_source_paths(contract_name),
+            paths=contract_names_provider.get_contract_source_paths(contract_name),
         )
 
     return create_contract_source_identifier
