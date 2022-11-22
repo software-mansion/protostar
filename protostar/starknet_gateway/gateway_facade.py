@@ -186,7 +186,7 @@ class GatewayFacade:
                 )
 
             account_client = await self._create_account_client(
-                account_address=hex(account_address),
+                account_address=Address.from_user_input(account_address),
                 signer=signer,
             )
             tx = await self._sign_transaction(
@@ -222,7 +222,7 @@ class GatewayFacade:
             register_response(dataclasses.asdict(result))
             return SuccessfulDeployResponse(
                 code=result.code or "",
-                address=Address(result.contract_address),
+                address=Address(call.address),
                 transaction_hash=result.transaction_hash,
             )
         except TransactionFailedError as ex:

@@ -27,7 +27,7 @@ class SuccessfulDeployMessage(StructuredMessage):
     def format_human(self, fmt: LogColorProvider) -> str:
         lines: list[str] = [
             "Deploy transaction was sent.",
-            f"Contract address: 0x{self.response.address:064x}",
+            f"Contract address: {self.response.address}",
         ]
         contract_url = self.block_explorer.create_link_to_contract(
             self.response.address
@@ -35,7 +35,7 @@ class SuccessfulDeployMessage(StructuredMessage):
         if contract_url:
             lines.append(contract_url)
             lines.append("")
-        lines.append(f"Transaction hash: 0x{self.response.transaction_hash:064x}")
+        lines.append(f"Transaction hash: {self.response.transaction_hash}")
         tx_url = self.block_explorer.create_link_to_transaction(
             self.response.transaction_hash
         )
@@ -45,7 +45,7 @@ class SuccessfulDeployMessage(StructuredMessage):
 
     def format_dict(self) -> dict:
         return {
-            "contract_address": f"0x{self.response.address:064x}",
+            "contract_address": str(self.response.address),
             "transaction_hash": f"0x{self.response.transaction_hash:064x}",
         }
 
