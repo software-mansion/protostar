@@ -11,10 +11,7 @@ from protostar.starknet_gateway import (
 )
 from protostar.starknet import Address
 from protostar.starknet.data_transformer import CairoOrPythonData
-from protostar.configuration_file import ConfigurationFile
-from protostar.compiler.contract_source_identifier import (
-    create_contract_source_identifier_factory,
-)
+from protostar.compiler import ContractSourceIdentifierFactory
 
 CustomProtostarArgTypeName = Literal[
     "felt",
@@ -30,7 +27,9 @@ CustomProtostarArgTypeName = Literal[
 ProtostarArgTypeName = Union[CustomProtostarArgTypeName, ArgTypeName]
 
 # pylint: disable=too-many-return-statements
-def create_map_protostar_type_name_to_parser(configuration_file: ConfigurationFile):
+def create_map_protostar_type_name_to_parser(
+    contract_source_identifier_factory: ContractSourceIdentifierFactory,
+):
     def map_protostar_type_name_to_parser(
         argument_type: ProtostarArgTypeName,
     ) -> Callable[[str], Any]:
@@ -49,7 +48,7 @@ def create_map_protostar_type_name_to_parser(configuration_file: ConfigurationFi
         if argument_type == "input":
             return parse_input_arg_type
         if argument_type == "contract_source_identifier":
-            return create_contract_source_identifier_factory(configuration_file)
+            return contract_source_identifier_factory.create
         return map_type_name_to_parser(argument_type)
 
     return map_protostar_type_name_to_parser

@@ -32,7 +32,11 @@ from protostar.commands.init.project_creator import (
     AdaptedProjectCreator,
     NewProjectCreator,
 )
-from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
+from protostar.compiler import (
+    ProjectCairoPathBuilder,
+    ProjectCompiler,
+    ContractSourceIdentifierFactory,
+)
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.configuration_file import (
     ConfigurationFileFactory,
@@ -234,7 +238,9 @@ def build_di_container(
     argument_parser_facade = ArgumentParserFacade(
         protostar_cli,
         configuration_file,
-        parser_resolver=create_map_protostar_type_name_to_parser(configuration_file),
+        parser_resolver=create_map_protostar_type_name_to_parser(
+            ContractSourceIdentifierFactory(configuration_file)
+        ),
     )
 
     return DIContainer(protostar_cli, argument_parser_facade)

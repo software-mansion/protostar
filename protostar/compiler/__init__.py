@@ -13,6 +13,6 @@ from .contract_identifier_resolver import (
 )
 from .contract_source_identifier import (
     ContractSourceIdentifier,
-    create_contract_source_identifier_factory,
+    ContractSourceIdentifierFactory,
     ContractNamesProviderProtocol,
 )

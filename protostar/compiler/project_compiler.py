@@ -10,7 +10,6 @@ from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 
 from protostar.compiler.compiled_contract_writer import CompiledContractWriter
-from protostar.configuration_file.configuration_file import ConfigurationFile
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet.compiler.pass_managers import StarknetPassManagerFactory
 from protostar.starknet.compiler.starknet_compilation import (
@@ -18,6 +17,7 @@ from protostar.starknet.compiler.starknet_compilation import (
     StarknetCompiler,
 )
 
+from .contract_source_identifier import ContractSourceIdentifier
 from .project_cairo_path_builder import ProjectCairoPathBuilder
 
 ContractName = str
@@ -37,57 +37,34 @@ class ProjectCompiler:
         self,
         project_root_path: Path,
         project_cairo_path_builder: ProjectCairoPathBuilder,
-        configuration_file: ConfigurationFile,
         default_config: Optional[ProjectCompilerConfig] = None,
     ):
         self._project_root_path = project_root_path
         self._project_cairo_path_builder = project_cairo_path_builder
-        self._configuration_file = configuration_file
         self._default_config = default_config or ProjectCompilerConfig(
             relative_cairo_path=[]
         )
 
     def compile_project(
-        self, output_dir: Path, config: Optional[ProjectCompilerConfig] = None
-    ) -> None:
-        for contract_name in self._configuration_file.get_contract_names():
-            contract = self.compile_contract_from_contract_name(contract_name, config)
-            CompiledContractWriter(contract, contract_name).save(
-                output_dir=self.get_compilation_output_dir(output_dir)
-            )
-
-    def compile_contract_from_contract_identifier(
         self,
-        contract_identifier: ContractIdentifier,
+        contract_source_identifiers: list[ContractSourceIdentifier],
+        output_dir: Path,
         config: Optional[ProjectCompilerConfig] = None,
-    ) -> ContractClass:
-        if isinstance(contract_identifier, str):
-            contract_identifier = (
-                Path(contract_identifier).resolve()
-                if contract_identifier.endswith(".cairo")
-                else contract_identifier
-            )
+    ) -> None:
+        for contract_source_identifier in contract_source_identifiers:
+            try:
+                contract = self._compile_contract_from_contract_source_paths(
+                    contract_source_identifier.paths, config
+                )
+                CompiledContractWriter(contract, contract_source_identifier.name).save(
+                    output_dir=self.get_compilation_output_dir(output_dir)
+                )
+            except (StarkException, VmException, PreprocessorError) as err:
+                raise CompilationException(
+                    contract_source_identifier.name, err
+                ) from err
 
-        if isinstance(contract_identifier, Path):
-            return self.compile_contract_from_contract_source_paths(
-                [contract_identifier], config
-            )
-        return self.compile_contract_from_contract_name(contract_identifier, config)
-
-    def compile_contract_from_contract_name(
-        self, contract_name: str, config: Optional[ProjectCompilerConfig] = None
-    ) -> ContractClass:
-        try:
-            contract_paths = self._configuration_file.get_contract_source_paths(
-                contract_name
-            )
-            return self.compile_contract_from_contract_source_paths(
-                contract_paths, config
-            )
-        except (StarkException, VmException, PreprocessorError) as err:
-            raise CompilationException(contract_name, err) from err
-
-    def compile_contract_from_contract_source_paths(
+    def _compile_contract_from_contract_source_paths(
         self, contract_paths: List[Path], config: Optional[ProjectCompilerConfig] = None
     ) -> ContractClass:
         current_config = config or self._default_config

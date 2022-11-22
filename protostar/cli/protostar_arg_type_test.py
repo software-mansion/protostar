@@ -3,12 +3,15 @@ from pathlib import Path
 import pytest
 
 from protostar.compiler import ContractSourceIdentifier
+from protostar.compiler.contract_source_identifier import (
+    ContractSourceIdentifierFactory,
+)
 from protostar.configuration_file import FakeConfigurationFile
 
 from .protostar_arg_type import create_map_protostar_type_name_to_parser
 
 map_protostar_type_name_to_parser = create_map_protostar_type_name_to_parser(
-    FakeConfigurationFile()
+    ContractSourceIdentifierFactory(FakeConfigurationFile())
 )
 
 
@@ -71,8 +74,10 @@ def fake_contract_path_fixture(tmp_path: Path) -> Path:
 
 def test_contract_source_identifier_parser(fake_contract_path: Path):
     parser = create_map_protostar_type_name_to_parser(
-        FakeConfigurationFile(
-            contract_name_to_source_paths={"main": [fake_contract_path]}
+        ContractSourceIdentifierFactory(
+            FakeConfigurationFile(
+                contract_name_to_source_paths={"main": [fake_contract_path]},
+            )
         )
     )("contract_source_identifier")
 

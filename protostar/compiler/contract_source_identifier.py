@@ -31,6 +31,13 @@ class ContractSourceIdentifier:
     paths: list[Path]
 
 
+def check_contract_path_existence(contract_path: Path):
+    if not contract_path.exists():
+        raise InvalidContractSourceIdentifierException(
+            f"The following contract doesn't exist: {contract_path}"
+        )
+
+
 class ContractNamesProviderProtocol(Protocol):
     def get_contract_names(self) -> list[ContractName]:
         ...
@@ -39,14 +46,15 @@ class ContractNamesProviderProtocol(Protocol):
         ...
 
 
-def create_contract_source_identifier_factory(
-    contract_names_provider: ContractNamesProviderProtocol,
-):
-    def create_contract_source_identifier(input_data: str):
+class ContractSourceIdentifierFactory:
+    def __init__(self, contract_names_provider: ContractNamesProviderProtocol) -> None:
+        self._contract_names_provider = contract_names_provider
+
+    def create(self, input_data: str) -> ContractSourceIdentifier:
         if input_data.endswith(".cairo"):
             return ContractSourceIdentifier.from_contract_path(Path(input_data))
         contract_name = input_data
-        contract_names = contract_names_provider.get_contract_names()
+        contract_names = self._contract_names_provider.get_contract_names()
         if contract_name not in contract_names:
             raise InvalidContractSourceIdentifierException(
                 f"Unknown contract: {contract_name}"
@@ -54,16 +62,9 @@ def create_contract_source_identifier_factory(
 
         return ContractSourceIdentifier.create(
             name=contract_name,
-            paths=contract_names_provider.get_contract_source_paths(contract_name),
-        )
-
-    return create_contract_source_identifier
-
-
-def check_contract_path_existence(contract_path: Path):
-    if not contract_path.exists():
-        raise InvalidContractSourceIdentifierException(
-            f"The following contract doesn't exist: {contract_path}"
+            paths=self._contract_names_provider.get_contract_source_paths(
+                contract_name
+            ),
         )
 
 
