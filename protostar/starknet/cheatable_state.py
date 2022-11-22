@@ -74,11 +74,16 @@ class CheatableStarknetState(StarknetState):
             contract_address = int(contract_address, 16)
         assert isinstance(contract_address, int)
 
+        # region Modified Starknet code.
         if isinstance(selector, str):
-            selector = get_selector_from_name(selector)
+            numeric_selector = get_selector_from_name(selector)
+            if isinstance(self.state, CheatableCachedState):
+                self.cheatable_state.entry_points_selectors_to_names[
+                    numeric_selector
+                ] = selector
+            selector = numeric_selector
         assert isinstance(selector, int)
 
-        # region Modified Starknet code.
         call = CheatableExecuteEntryPoint.create(
             contract_address=contract_address,
             entry_point_selector=selector,
@@ -86,13 +91,22 @@ class CheatableStarknetState(StarknetState):
             calldata=calldata,
             caller_address=caller_address,
         )
-        # endregion
 
         with self.state.copy_and_apply() as state_copy:
+            if all(
+                isinstance(item, CheatableCachedState)
+                for item in [self.state, state_copy]
+            ):
+                CheatableCachedState(
+                    state_copy
+                ).entry_points_selectors_to_names = CheatableCachedState(
+                    self.state
+                ).entry_points_selectors_to_names
             call_info = await call.execute_for_testing(
                 state=state_copy,
                 general_config=self.general_config,
             )
+        # endregion
 
         self.add_messages_and_events(execution_info=call_info)
 

@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, List, Optional, Tuple, cast
 from copy import deepcopy
+import json
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.compiler.debug_info import DebugInfo
@@ -42,6 +43,9 @@ from starkware.starkware_utils.error_handling import (
     StarkException,
     wrap_with_stark_exception,
 )
+
+# pylint: disable=no-name-in-module
+from cairo_rs_py import CairoRunner  # type: ignore
 
 from protostar.profiler.contract_profiler import (
     RuntimeProfile,
@@ -192,22 +196,42 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         # endregion
 
         try:
+            hint_locals = {
+                **hint_locals,
+                "syscall_handler": syscall_handler,
+            }
+            static_locals = {
+                "__find_element_max_size": 2**20,
+                "__squash_dict_max_size": 2**20,
+                "__keccak_max_size": 2**20,
+                "__usort_max_size": 2**20,
+                "__chained_ec_op_max_len": 1000,
+            }
+
+            def execute_in_cairo_rs():
+                program_json = json.dumps(contract_class.dump())
+                entry_points_selectors_to_names = extract_cheatable_state(
+                    state
+                ).entry_points_selectors_to_names
+                target_entry_point = entry_points_selectors_to_names.get(
+                    entry_point.selector
+                )
+                assert target_entry_point, "No entry point detected"
+                cairo_rs_runner = CairoRunner(
+                    program_json, target_entry_point, "all", False
+                )
+                cairo_rs_runner.cairo_run(
+                    True, hint_locals=hint_locals, static_locals=static_locals
+                )  # you can only run this once per runner obj
+
+            execute_in_cairo_rs()
             runner.run_from_entrypoint(
                 entry_point.offset,
                 *entry_points_args,
                 # region Modified Starknet code.
-                hint_locals={
-                    **hint_locals,
-                    "syscall_handler": syscall_handler,
-                },
+                hint_locals=hint_locals,
                 # endregion
-                static_locals={
-                    "__find_element_max_size": 2**20,
-                    "__squash_dict_max_size": 2**20,
-                    "__keccak_max_size": 2**20,
-                    "__usort_max_size": 2**20,
-                    "__chained_ec_op_max_len": 1000,
-                },
+                static_locals=static_locals,
                 run_resources=tx_execution_context.run_resources,
                 verify_secure=True,
             )
@@ -239,7 +263,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             raise StarkException(
                 code=StarknetErrorCode.SECURITY_ERROR, message=str(exception)
             ) from exception
-        except Exception as exception:
+        except BaseException as exception:
             logger.error("Got an unexpected exception.", exc_info=True)
             raise StarkException(
                 code=StarknetErrorCode.UNEXPECTED_FAILURE,

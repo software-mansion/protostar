@@ -27,6 +27,7 @@ class CheatableCachedState(CachedState):
         self.class_hash_to_contract_abi_map: Dict[ClassHashType, AbiType] = {}
         self.class_hash_to_contract_path_map: Dict[ClassHashType, Path] = {}
         self.contract_address_to_class_hash_map: Dict[Address, ClassHashType] = {}
+        self.entry_points_selectors_to_names: Dict[SelectorType, str] = {}
         self.contract_calls: dict[
             Address, list[tuple[SelectorType, CairoOrPythonData]]
         ] = {}
