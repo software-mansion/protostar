@@ -4,7 +4,10 @@ import pytest
 
 from protostar.configuration_file import FakeConfigurationFile
 
-from .contract_source_identifier import create_contract_source_identifier_factory
+from .contract_source_identifier import (
+    create_contract_source_identifier_factory,
+    ContractSourceIdentifier,
+)
 
 
 @pytest.fixture(name="fake_contract_path")
@@ -25,6 +28,6 @@ def test_creating_contract_source_identifier_from_contract_name(
 
     contract_source_identifier = create_contract_source_identifier("main")
 
-    assert contract_source_identifier.name == "main"
-    assert fake_contract_path in contract_source_identifier.paths
-    assert len(contract_source_identifier.paths) == 1
+    assert contract_source_identifier == ContractSourceIdentifier(
+        name="main", paths=[fake_contract_path]
+    )
