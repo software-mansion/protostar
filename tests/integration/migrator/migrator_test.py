@@ -33,4 +33,4 @@ async def test_migrate_up(
     )
 
     assert result.starknet_requests[0].action == "DECLARE"
-    assert result.starknet_requests[1].action == "DEPLOY"
+    assert result.starknet_requests[1].action == "INVOKE_UDC"

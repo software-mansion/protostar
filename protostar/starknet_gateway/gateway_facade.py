@@ -196,7 +196,7 @@ class GatewayFacade:
 
         try:
             register_response = self._register_request(
-                action="DEPLOY",
+                action="INVOKE_UDC",
                 payload={
                     "class_hash": class_hash,
                     "signature": tx.signature,

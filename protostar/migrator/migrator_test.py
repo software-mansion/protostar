@@ -27,7 +27,7 @@ def test_migrator_saves_result_successfully_with_proper_name(
         history=Migrator.History(
             starknet_requests=[
                 StarknetRequest(
-                    action="DEPLOY", payload={"foo": "bar"}, response={"bar": "foo"}
+                    action="INVOKE_UDC", payload={"foo": "bar"}, response={"bar": "foo"}
                 )
             ]
         ),

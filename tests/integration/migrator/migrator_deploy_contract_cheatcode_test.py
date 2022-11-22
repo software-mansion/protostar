@@ -35,7 +35,7 @@ async def test_deploy_contract(migrate: MigrateFixture, devnet_gateway_url: str)
     )
 
     assert len(result.starknet_requests) == 2
-    assert result.starknet_requests[1].action == "DEPLOY"
+    assert result.starknet_requests[1].action == "INVOKE_UDC"
     assert isinstance(result.starknet_requests[1].payload["class_hash"], int)
     assert result.starknet_requests[1].payload["constructor_args"] == [42]
     assert result.starknet_requests[1].response["code"] == "TRANSACTION_RECEIVED"
