@@ -5,6 +5,7 @@ import pytest
 
 from protostar.compiler import CompilationException, ProjectCompiler
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
+from protostar.compiler.project_compiler import ProjectCompilerConfig
 from protostar.configuration_file import FakeConfigurationFile
 from protostar.starknet.compiler.starknet_compilation import StarknetCompiler
 
@@ -27,14 +28,18 @@ def test_compiling(tmp_path: Path, datadir: Path):
     project_compiler = create_project_compiler(
         project_root_path=datadir / "importing",
         configuration_file=FakeConfigurationFile(
-            lib_path=project_root_path / "modules",
             contract_name_to_source_paths={
                 "main": [project_root_path / "entry_point.cairo"]
             },
         ),
     )
 
-    project_compiler.compile_project(output_dir=tmp_path)
+    project_compiler.compile_project(
+        output_dir=tmp_path,
+        config=ProjectCompilerConfig(
+            relative_cairo_path=[project_root_path / "modules"]
+        ),
+    )
 
     with open(str(tmp_path / "main.json"), mode="r", encoding="utf-8") as file:
         output = json.load(file)
