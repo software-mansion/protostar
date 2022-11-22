@@ -223,7 +223,9 @@ def build_step_samples(
     return step_samples
 
 
-def blame_callstack(accessed_by_callstack: dict[Address, list[Address]], hole_address: Address) -> list[Address]:
+def blame_callstack(
+    accessed_by_callstack: dict[Address, list[Address]], hole_address: Address
+) -> list[Address]:
     """
     Decides what callstack responsible for the memory hole
 
@@ -300,6 +302,7 @@ def get_last_accessed(
             accessed_by_callstack[addr] = frame_pcs
     return accessed_by_callstack
 
+
 def build_builtin_samples(
     builtin: SimpleBuiltinRunner,
     instructions: Instructions,
@@ -352,7 +355,7 @@ def build_profile(
             builtin, instructions, tracer_data, segments, segment_offsets
         )
         for builtin in simple_builtins
-    }    
+    }
 
     callstacks_syscall = build_call_callstacks(instructions, tracer_data)
     profile = RuntimeProfile(
