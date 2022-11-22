@@ -459,7 +459,7 @@ def build_protostar_fixture(
         active_profile_name=None, cwd=project_root_path
     ).create()
     project_cairo_path_builder = ProjectCairoPathBuilder(
-        project_root_path=project_root_path, configuration_file=configuration_file
+        project_root_path=project_root_path,
     )
 
     project_compiler = ProjectCompiler(
@@ -558,7 +558,6 @@ def build_protostar_fixture(
         protostar_directory=ProtostarDirectory(project_root_path),
         project_cairo_path_builder=ProjectCairoPathBuilder(
             project_root_path,
-            configuration_file=configuration_file,
         ),
         log_color_provider=log_color_provider,
         cwd=project_root_path,
