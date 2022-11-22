@@ -104,8 +104,6 @@ protostar deploy 0x4221deadbeef123 --network testnet
 ```
 Deploy contracts.
 #### `class-hash CLASS_HASH`
-Required.
-
 The hash of the declared contract class.
 #### `--account-address ADDRESS`
 Account address.
@@ -121,6 +119,8 @@ The URL of a StarkNet gateway. It is required unless `--network` is provided.
 #### `-i` `--inputs FELT[]`
 The inputs to the constructor. Calldata arguments may be of any type that does not contain pointers.
 [Read more about representing Cairo data types in the CLI.](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#array-arguments-in-calldata)
+#### `--json`
+Print machine readable output in JSON format.
 #### `--max-fee FEE`
 The maximum fee that the sender is willing to pay for the transaction. Provide "auto" to auto estimate the fee.
 #### `-n` `--network STRING`

@@ -9,7 +9,7 @@ from protostar.io.log_color_provider import LogColorProvider
 @dataclass
 class StarknetRequest:
     AS_HEX = {"transaction_hash", "contract_address", "class_hash"}
-    Action = Literal["DEPLOY", "DECLARE", "CALL", "INVOKE"]
+    Action = Literal["INVOKE_UDC", "DECLARE", "CALL", "INVOKE"]
     Payload = Dict[str, Union[None, str, int, List[int], List[str]]]
 
     action: Action
