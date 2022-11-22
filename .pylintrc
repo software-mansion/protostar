@@ -93,6 +93,7 @@ disable=fixme,
         too-few-public-methods,
         too-many-arguments,
         too-many-locals,
+        too-many-ancestors,
         invalid-name,
         no-member
 
