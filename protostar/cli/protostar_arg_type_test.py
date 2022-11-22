@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from protostar.cli.contract_source_identifier import ContractSourceIdentifier
+from protostar.compiler import ContractSourceIdentifier
 from protostar.configuration_file import FakeConfigurationFile
 
 from .protostar_arg_type import create_map_protostar_type_name_to_parser

@@ -12,8 +12,9 @@ from protostar.starknet_gateway import (
 from protostar.starknet import Address
 from protostar.starknet.data_transformer import CairoOrPythonData
 from protostar.configuration_file import ConfigurationFile
-
-from .contract_source_identifier import create_contract_source_identifier_factory
+from protostar.compiler.contract_source_identifier import (
+    create_contract_source_identifier_factory,
+)
 
 CustomProtostarArgTypeName = Literal[
     "felt",

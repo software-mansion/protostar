@@ -9,9 +9,6 @@ from protostar.cli import (
     MessengerFactory,
     ActivityIndicator,
 )
-from protostar.cli.contract_source_identifier import (
-    create_contract_source_identifier_factory,
-)
 from protostar.cli.lib_path_resolver import LibPathResolver
 from protostar.commands import (
     BuildCommand,
