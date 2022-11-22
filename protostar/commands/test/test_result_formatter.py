@@ -174,7 +174,7 @@ def _format_passed_fuzz_test_case_result(
 
     if passed_fuzz_test_case_result.estimated_fee:
         info_items.append(
-            f"estimated_fee={log_color_provider.bold(passed_fuzz_test_case_result.estimated_fee)}"
+            f"gas={log_color_provider.bold(passed_fuzz_test_case_result.estimated_fee)}"
         )
 
     if passed_fuzz_test_case_result.fuzz_runs_count is not None:
