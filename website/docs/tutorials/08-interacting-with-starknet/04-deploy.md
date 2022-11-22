@@ -20,7 +20,7 @@ Although this command does not require [signing the transaction](./06-signing.md
 After [declaring your contract](./03-declare.md), you can deploy the contract in the following way.
 
 ```console title="protostar deploy 0xdeadbeef --network testnet"
-[INFO] Deploy invoke transaction was sent.
+[INFO] Invoke transaction was sent to the Universal Deployer Contract.
 Contract address: 0x06a5ea9e42c921bd58e24b8da9d1fc91a488df0700b173f1c6bb0e453f68afec
 Transaction hash: 0x1cbba90ba0d1fbfba09b1f7a0f987134dd9a02a845ca89244b3272374d37ede
 
