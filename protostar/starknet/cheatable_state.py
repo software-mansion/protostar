@@ -97,11 +97,7 @@ class CheatableStarknetState(StarknetState):
                 isinstance(item, CheatableCachedState)
                 for item in [self.state, state_copy]
             ):
-                CheatableCachedState(
-                    state_copy
-                ).entry_points_selectors_to_names = CheatableCachedState(
-                    self.state
-                ).entry_points_selectors_to_names
+                state_copy.entry_points_selectors_to_names = self.state.entry_points_selectors_to_names  # type: ignore
             call_info = await call.execute_for_testing(
                 state=state_copy,
                 general_config=self.general_config,
