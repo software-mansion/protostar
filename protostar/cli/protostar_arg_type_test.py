@@ -1,5 +1,8 @@
+from pathlib import Path
+
 import pytest
 
+from protostar.cli.contract_source_identifier import ContractSourceIdentifier
 from protostar.configuration_file import FakeConfigurationFile
 
 from .protostar_arg_type import create_map_protostar_type_name_to_parser
@@ -57,3 +60,22 @@ def test_fail_on_wrong_block_explorer():
     parser = map_protostar_type_name_to_parser("block_explorer")
     with pytest.raises(ValueError):
         parser("abc")
+
+
+@pytest.fixture(name="fake_contract_path")
+def fake_contract_path_fixture(tmp_path: Path) -> Path:
+    contract_path = tmp_path / "main.cairo"
+    contract_path.touch()
+    return contract_path
+
+
+def test_contract_source_identifier_parser(fake_contract_path: Path):
+    parser = create_map_protostar_type_name_to_parser(
+        FakeConfigurationFile(
+            contract_name_to_source_paths={"main": [fake_contract_path]}
+        )
+    )("contract_source_identifier")
+
+    result = parser("main")
+
+    return result == ContractSourceIdentifier(name="main", paths=[fake_contract_path])
