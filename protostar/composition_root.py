@@ -252,4 +252,3 @@ def build_di_container(
     )
 
     return DIContainer(protostar_cli, argument_parser_facade)
-
