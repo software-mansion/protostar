@@ -12,7 +12,7 @@ from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
 
 from protostar.profiler.contract_profiler import (
     TracerDataManager,
-    blame_pc,
+    blame_callstack,
     get_not_accessed_addresses,
 )
 
@@ -55,30 +55,30 @@ def tracer_data_fixture(mocker: MockerFixture, memory: MemoryDict) -> TracerData
 @pytest.mark.parametrize(
     "last_accesses,hole_address,expected",
     [
-        ({19: 0, 18: 1}, 17, 1),
-        ({19: 0, 4: 1}, 17, 0),
-        ({19: 0, 3: 1}, 13, 0),
-        ({19: 0, 4: 1}, 3, 1),
+        ({19: [0], 18: [1]}, 17, [1]),
+        ({19: [0], 4: [1]}, 17, [0]),
+        ({19: [0], 3: [1]}, 13, [0]),
+        ({19: [0], 4: [1]}, 3, [1]),
         (
             {
-                16: 0,
-                14: 0,
+                16: [0],
+                14: [0],
             },
             10,
-            0,
+            [0],
         ),
-        ({16: 0, 14: 0, 12: 1}, 10, 1),
-        ({16: 0, 14: 0, 12: 1}, 13, 0),
-        ({16: 0, 14: 0, 12: 1}, 15, 0),
-        ({16: 15}, 14, 15),
+        ({16: [0], 14: [0], 12: [1]}, 10, [1]),
+        ({16: [0], 14: [0], 12: [1]}, 13, [0]),
+        ({16: [0], 14: [0], 12: [1]}, 15, [0]),
+        ({16: [15]}, 14, [15]),
     ],
 )
 def test_blame_pc(
-    last_accesses: Dict[int, int],
+    last_accesses: Dict[int, list[int]],
     hole_address: int,
     expected: int,
 ):
-    assert blame_pc(last_accesses, hole_address) == expected
+    assert blame_callstack(last_accesses, hole_address) == expected
 
 
 @pytest.mark.parametrize(
