@@ -22,6 +22,7 @@ from protostar.starknet.compiler.starknet_compilation import (
     CompilerConfig,
     StarknetCompiler,
 )
+from protostar.starknet.types import Wei
 
 from .environments.setup_execution_environment import SetupExecutionEnvironment
 from .starkware.test_execution_state import TestExecutionState
@@ -53,7 +54,9 @@ class TestRunner:
         active_profile_name: Optional[str],
         include_paths: Optional[List[str]] = None,
         profiling: bool = False,
+        l1_gas_price: Optional[Wei] = None,
     ):
+        self._l1_gas_price = l1_gas_price
         self.shared_tests_state = shared_tests_state
         self.profiling = profiling
         include_paths = include_paths or []
@@ -92,6 +95,7 @@ class TestRunner:
         cwd: Path
         active_profile_name: Optional[str]
         max_steps: Optional[int]
+        l1_gas_price: Optional[Wei]
 
     @classmethod
     def worker(cls, args: "TestRunner.WorkerArgs"):
@@ -104,6 +108,7 @@ class TestRunner:
                 profiling=args.profiling,
                 cwd=args.cwd,
                 active_profile_name=args.active_profile_name,
+                l1_gas_price=args.l1_gas_price,
             ).run_test_suite(
                 test_suite=args.test_suite,
                 testing_seed=args.testing_seed,
@@ -118,7 +123,10 @@ class TestRunner:
         max_steps: Optional[int],
     ):
         test_config = TestConfig(
-            seed=testing_seed, profiling=self.profiling, max_steps=max_steps
+            seed=testing_seed,
+            profiling=self.profiling,
+            max_steps=max_steps,
+            l1_gas_price=self._l1_gas_price,
         )
 
         try:

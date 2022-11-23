@@ -3,6 +3,8 @@ import signal
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, List, Optional
 
+from protostar.starknet.types import Wei
+
 from .test_collector import TestCollector
 from .test_runner import TestRunner
 from .test_shared_tests_state import SharedTestsState
@@ -36,6 +38,7 @@ class TestScheduler:
         project_root_path_str: str,
         cwd: Path,
         active_profile_name: Optional[str],
+        l1_gas_price: Optional[Wei],
     ):
         with multiprocessing.Manager() as manager:
             shared_tests_state = SharedTestsState(
@@ -53,6 +56,7 @@ class TestScheduler:
                     project_root_path=Path(project_root_path_str),
                     active_profile_name=active_profile_name,
                     cwd=cwd,
+                    l1_gas_price=l1_gas_price,
                 )
                 for test_suite in test_collector_result.test_suites
             ]

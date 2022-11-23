@@ -26,6 +26,7 @@ from protostar.starknet.compiler.starknet_compilation import (
     CompilerConfig,
     StarknetCompiler,
 )
+from protostar.starknet.types import Wei
 from protostar.testing import (
     TestCollector,
     TestingSummary,
@@ -152,6 +153,11 @@ A glob or globs to a directory or a test suite, for example:
                 type="bool",
                 description="Only re-run failed and broken test cases.",
             ),
+            ProtostarArgument(
+                name="gas-price",
+                type="wei",
+                description="Ethereum Gas price. If provided, Protostar will estimate fee for each test case.",
+            ),
         ]
 
     async def run(self, args: Namespace) -> TestingSummary:
@@ -168,6 +174,7 @@ A glob or globs to a directory or a test suite, for example:
             seed=args.seed,
             max_steps=args.max_steps,
             slowest_tests_to_report_count=args.report_slowest_tests,
+            gas_price=args.gas_price,
         )
         cache.write_failed_tests_to_cache(summary)
         summary.assert_all_passed()
@@ -186,6 +193,7 @@ A glob or globs to a directory or a test suite, for example:
         seed: Optional[int] = None,
         max_steps: Optional[int] = None,
         slowest_tests_to_report_count: int = 0,
+        gas_price: Optional[Wei] = None,
     ) -> TestingSummary:
         include_paths = [
             str(path)
@@ -252,6 +260,7 @@ A glob or globs to a directory or a test suite, for example:
                 project_root_path_str=str(self._project_root_path),
                 active_profile_name=self._active_profile_name,
                 cwd=self._cwd,
+                l1_gas_price=gas_price,
             )
 
         return testing_summary

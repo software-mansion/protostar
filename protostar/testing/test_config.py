@@ -8,6 +8,7 @@ from typing_extensions import Self
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet.abi import has_function_parameters
 from protostar.starknet.data_transformer import PythonData
+from protostar.starknet import Wei
 
 from .fuzzing.strategy_descriptor import StrategyDescriptor
 from .test_suite import TestCase
@@ -93,7 +94,7 @@ class TestConfig:
     seed: Seed = field(default_factory=random_seed)
     profiling: bool = True
     max_steps: Optional[int] = None
-    gas_price: Optional[int] = None
+    l1_gas_price: Optional[Wei] = None
     fuzz_max_examples: int = 100
     fuzz_declared_strategies: dict[str, StrategyDescriptor] = field(
         default_factory=dict
