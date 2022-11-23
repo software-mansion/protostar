@@ -93,7 +93,7 @@ def build_di_container(
     )
 
     project_cairo_path_builder = ProjectCairoPathBuilder(
-        project_root_path=project_root_path, configuration_file=configuration_file
+        project_root_path=project_root_path,
     )
 
     project_compiler = ProjectCompiler(
