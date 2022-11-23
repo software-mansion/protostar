@@ -1,18 +1,26 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from typing import Generic, TypeVar, Any, Optional
 
 from starkware.starknet.testing.objects import StarknetCallInfo
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.testing.contract import StarknetContractFunctionInvocation
 from starkware.starknet.business_logic.fact_state.state import ExecutionResourcesManager
+from starkware.starknet.business_logic.execution.objects import CallInfo
 
 from protostar.testing.test_environment_exceptions import StarknetRevertableException
 from protostar.starknet.cheatable_execute_entry_point import CheatableExecuteEntryPoint
 from protostar.starknet.cheatcode_factory import CheatcodeFactory
-from protostar.starknet import estimate_fee as estimate_fee_from_resources_manager
 from protostar.starknet import execute_on_state, ExecutionState
 
 InvokeResultT = TypeVar("InvokeResultT")
+
+
+@dataclass
+class PerformExecuteResult:
+    starknet_call_info: StarknetCallInfo
+    call_info: CallInfo
+    resources_manager: ExecutionResourcesManager
 
 
 class ExecutionEnvironment(ABC, Generic[InvokeResultT]):
@@ -27,27 +35,22 @@ class ExecutionEnvironment(ABC, Generic[InvokeResultT]):
         self,
         function_name: str,
         *args: Any,
-        estimate_fee: bool = False,
         **kwargs: Any,
-    ) -> tuple[StarknetCallInfo, Optional[int]]:
+    ) -> PerformExecuteResult:
         try:
-            func = getattr(self.state.contract, function_name)
-            if not estimate_fee:
-                return await func(*args, **kwargs).execute(), None
-            resources_manager = ExecutionResourcesManager.empty()
+            func = self.state.contract.get_contract_function(function_name)
             invocation: StarknetContractFunctionInvocation = func(*args, **kwargs)
-            result, call_info = await execute_on_state(
+            resources_manager = ExecutionResourcesManager.empty()
+            starknet_call_info, call_info = await execute_on_state(
                 invocation,
                 self.state.starknet.cheatable_state,
                 resources_manager=resources_manager,
             )
-            estimated_fee = estimate_fee_from_resources_manager(
-                state=self.state.starknet.state.state,
+            return PerformExecuteResult(
                 call_info=call_info,
                 resources_manager=resources_manager,
-                starknet_general_config=self.state.starknet.state.general_config,
+                starknet_call_info=starknet_call_info,
             )
-            return result, estimated_fee
         except StarkException as ex:
             raise StarknetRevertableException(
                 error_message=StarknetRevertableException.extract_error_messages_from_stark_ex_message(
