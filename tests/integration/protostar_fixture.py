@@ -32,7 +32,7 @@ from protostar.commands.init.project_creator.new_project_creator import (
     NewProjectCreator,
 )
 from protostar.commands.test import TestCommand
-from protostar.compiler import ProjectCompiler
+from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.configuration_file import (
     ConfigurationFileFactory,
@@ -52,6 +52,7 @@ from protostar.starknet.address import Address
 from protostar.starknet_gateway import Fee, GatewayFacade, GatewayFacadeFactory
 from protostar.starknet_gateway.gateway_facade import Wei
 from protostar.testing import TestingSummary
+from protostar.starknet import Address
 from tests.conftest import Credentials
 
 
@@ -457,9 +458,13 @@ def build_protostar_fixture(
     configuration_file = ConfigurationFileFactory(
         active_profile_name=None, cwd=project_root_path
     ).create()
+    project_cairo_path_builder = ProjectCairoPathBuilder(
+        project_root_path=project_root_path,
+    )
 
     project_compiler = ProjectCompiler(
         project_root_path=project_root_path,
+        project_cairo_path_builder=project_cairo_path_builder,
         configuration_file=configuration_file,
     )
 
@@ -551,6 +556,9 @@ def build_protostar_fixture(
     test_command = TestCommand(
         project_root_path=project_root_path,
         protostar_directory=ProtostarDirectory(project_root_path),
+        project_cairo_path_builder=ProjectCairoPathBuilder(
+            project_root_path,
+        ),
         log_color_provider=log_color_provider,
         cwd=project_root_path,
         active_profile_name=None,

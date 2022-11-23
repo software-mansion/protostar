@@ -8,7 +8,11 @@ from typing import List, Optional
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 
-from protostar.compiler import ProjectCompiler, ProjectCompilerConfig
+from protostar.compiler import (
+    ProjectCairoPathBuilder,
+    ProjectCompiler,
+    ProjectCompilerConfig,
+)
 from protostar.configuration_file.configuration_file_factory import (
     ConfigurationFileFactory,
 )
@@ -65,6 +69,9 @@ class TestRunner:
         ).create()
         self.project_compiler = ProjectCompiler(
             project_root_path=project_root_path,
+            project_cairo_path_builder=ProjectCairoPathBuilder(
+                project_root_path=project_root_path,
+            ),
             configuration_file=configuration_file,
             default_config=ProjectCompilerConfig(
                 relative_cairo_path=[Path(s_pth).resolve() for s_pth in include_paths],

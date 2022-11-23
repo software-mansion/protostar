@@ -34,7 +34,7 @@ from protostar.commands.init.project_creator import (
     AdaptedProjectCreator,
     NewProjectCreator,
 )
-from protostar.compiler import ProjectCompiler
+from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.configuration_file import (
     ConfigurationFileFactory,
@@ -92,8 +92,13 @@ def build_di_container(
         latest_version_remote_checker=LatestVersionRemoteChecker(),
     )
 
+    project_cairo_path_builder = ProjectCairoPathBuilder(
+        project_root_path=project_root_path,
+    )
+
     project_compiler = ProjectCompiler(
         project_root_path=project_root_path,
+        project_cairo_path_builder=project_cairo_path_builder,
         configuration_file=configuration_file,
     )
 
@@ -177,6 +182,7 @@ def build_di_container(
         TestCommand(
             project_root_path,
             protostar_directory,
+            project_cairo_path_builder,
             log_color_provider=log_color_provider,
             active_profile_name=active_configuration_profile_name,
             cwd=cwd,
@@ -227,11 +233,11 @@ def build_di_container(
     )
 
     protostar_cli = ProtostarCLI(
-        project_root_path=project_root_path,
         commands=commands,
         latest_version_checker=latest_version_checker,
         log_color_provider=log_color_provider,
         version_manager=version_manager,
+        project_cairo_path_builder=project_cairo_path_builder,
         configuration_file=configuration_file,
         compatibility_checker=compatibility_checker,
         start_time=start_time,

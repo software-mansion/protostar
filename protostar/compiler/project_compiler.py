@@ -18,6 +18,8 @@ from protostar.starknet.compiler.starknet_compilation import (
     StarknetCompiler,
 )
 
+from .project_cairo_path_builder import ProjectCairoPathBuilder
+
 ContractName = str
 ContractSourcePath = Path
 ContractIdentifier = Union[ContractName, ContractSourcePath]
@@ -34,10 +36,12 @@ class ProjectCompiler:
     def __init__(
         self,
         project_root_path: Path,
+        project_cairo_path_builder: ProjectCairoPathBuilder,
         configuration_file: ConfigurationFile,
         default_config: Optional[ProjectCompilerConfig] = None,
     ):
         self._project_root_path = project_root_path
+        self._project_cairo_path_builder = project_cairo_path_builder
         self._configuration_file = configuration_file
         self._default_config = default_config or ProjectCompilerConfig(
             relative_cairo_path=[]
@@ -109,7 +113,10 @@ class ProjectCompiler:
         self, user_relative_cairo_path: List[Path]
     ) -> List[str]:
         return [
-            str(path) for path in [user_relative_cairo_path, self._project_root_path]
+            str(path)
+            for path in self._project_cairo_path_builder.build_project_cairo_path_list(
+                user_relative_cairo_path
+            )
         ]
 
     def get_compilation_output_dir(self, output_dir: Path) -> Path:

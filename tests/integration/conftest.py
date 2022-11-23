@@ -3,7 +3,7 @@ import os
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, ContextManager, List, Optional, Set
+from typing import Callable, ContextManager, List, Optional, Set, Tuple, cast
 
 import pytest
 from pytest import TempPathFactory
@@ -12,6 +12,7 @@ from starkware.starknet.public.abi import AbiType
 from typing_extensions import Protocol
 
 from protostar.commands.test.test_command import TestCommand
+from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.testing import TestingSummary
 from tests.conftest import Credentials, run_devnet
@@ -145,6 +146,13 @@ def run_cairo_test_runner_fixture(
         protostar_directory_mock = session_mocker.MagicMock()
         protostar_directory_mock.protostar_test_only_cairo_packages_path = Path()
 
+        project_cairo_path_builder = cast(
+            ProjectCairoPathBuilder, session_mocker.MagicMock()
+        )
+        project_cairo_path_builder.build_project_cairo_path_list = (
+            lambda relative_cairo_path_list: relative_cairo_path_list
+        )
+
         targets: List[str] = []
         if test_cases is None:
             targets.append(str(path))
@@ -162,6 +170,7 @@ def run_cairo_test_runner_fixture(
             return await TestCommand(
                 project_root_path=Path(),
                 protostar_directory=protostar_directory_mock,
+                project_cairo_path_builder=project_cairo_path_builder,
                 log_color_provider=log_color_provider,
                 active_profile_name=None,
                 cwd=Path(),
