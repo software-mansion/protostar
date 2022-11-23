@@ -177,7 +177,7 @@ def _format_passed_fuzz_test_case_result(
         )
 
     if passed_fuzz_test_case_result.execution_resources:
-        if passed_fuzz_test_case_result.execution_resources:
+        if passed_fuzz_test_case_result.execution_resources.estimated_fee is not None:
             info_items.append(
                 f"gas={log_color_provider.bold(passed_fuzz_test_case_result.execution_resources.estimated_fee)}"
             )
