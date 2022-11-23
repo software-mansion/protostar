@@ -67,11 +67,10 @@ class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
                 )
                 execution_resources = (
                     ExecutionResourcesSummary.from_execution_resources(
-                        call_info.call_info.execution_resources
+                        call_info.call_info.execution_resources,
+                        estimated_fee=estimated_fee,
                     )
                 )
-                if estimated_fee:
-                    execution_resources.estimated_fee = estimated_fee
 
         return execution_resources
 

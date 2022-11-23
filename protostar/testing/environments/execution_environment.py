@@ -9,7 +9,7 @@ from starkware.starknet.business_logic.fact_state.state import ExecutionResource
 from protostar.testing.test_environment_exceptions import StarknetRevertableException
 from protostar.starknet.cheatable_execute_entry_point import CheatableExecuteEntryPoint
 from protostar.starknet.cheatcode_factory import CheatcodeFactory
-from protostar.starknet import estimate_fee as estimate_fee_from_call_info
+from protostar.starknet import estimate_fee as estimate_fee_from_resources_manager
 from protostar.starknet import execute_on_state, ExecutionState
 
 InvokeResultT = TypeVar("InvokeResultT")
@@ -41,7 +41,7 @@ class ExecutionEnvironment(ABC, Generic[InvokeResultT]):
                 self.state.starknet.cheatable_state,
                 resources_manager=resources_manager,
             )
-            estimated_fee = estimate_fee_from_call_info(
+            estimated_fee = estimate_fee_from_resources_manager(
                 state=self.state.starknet.state.state,
                 call_info=call_info,
                 resources_manager=resources_manager,

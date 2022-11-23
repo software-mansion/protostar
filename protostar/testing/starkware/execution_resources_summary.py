@@ -77,10 +77,13 @@ class ExecutionResourcesSummary:
     estimated_fee: Statistic = field(default_factory=CountStatistic)
 
     @classmethod
-    def from_execution_resources(cls, execution_resources: ExecutionResources):
+    def from_execution_resources(
+        cls, execution_resources: ExecutionResources, estimated_fee: Optional[int]
+    ):
         return cls(
             n_steps=CountStatistic(execution_resources.n_steps),
             n_memory_holes=CountStatistic(execution_resources.n_memory_holes),
+            estimated_fee=CountStatistic(estimated_fee or 0),
             builtin_name_to_count_map={
                 k: CountStatistic(v)
                 for k, v in execution_resources.builtin_instance_counter.items()
