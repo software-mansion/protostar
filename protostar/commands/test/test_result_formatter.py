@@ -69,7 +69,6 @@ def _format_passed_test_case_result(
             execution_time=passed_test_case_result.execution_time,
             test_case_name=passed_test_case_result.test_case_name,
             fuzz_runs_count=None,
-            estimated_fee=passed_test_case_result.estimated_fee,
         )
     )
 
@@ -172,17 +171,16 @@ def _format_passed_fuzz_test_case_result(
         _get_formatted_execution_time(passed_fuzz_test_case_result.execution_time)
     )
 
-    if passed_fuzz_test_case_result.estimated_fee:
-        info_items.append(
-            f"gas={log_color_provider.bold(passed_fuzz_test_case_result.estimated_fee)}"
-        )
-
     if passed_fuzz_test_case_result.fuzz_runs_count is not None:
         info_items.append(
             f"fuzz_runs={log_color_provider.bold(passed_fuzz_test_case_result.fuzz_runs_count)}"
         )
 
     if passed_fuzz_test_case_result.execution_resources:
+        if passed_fuzz_test_case_result.execution_resources:
+            info_items.append(
+                f"gas={log_color_provider.bold(passed_fuzz_test_case_result.execution_resources.estimated_fee)}"
+            )
         if passed_fuzz_test_case_result.execution_resources.n_steps:
             info_items.append(
                 f"steps={log_color_provider.bold(passed_fuzz_test_case_result.execution_resources.n_steps)}"
