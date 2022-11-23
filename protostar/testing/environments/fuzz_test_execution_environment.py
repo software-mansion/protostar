@@ -9,8 +9,8 @@ from hypothesis.errors import InvalidArgument
 from hypothesis.reporting import with_reporter
 from hypothesis.strategies import SearchStrategy
 
+from protostar.starknet import BreakingReportedException, ReportedException
 from protostar.protostar_exception import ProtostarException
-from protostar.starknet import ReportedException
 from protostar.starknet.abi import get_function_parameters
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.testing.cheatcodes import AssumeCheatcode, RejectCheatcode
@@ -64,7 +64,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             not self.state.config.fuzz_examples
             and not self.state.config.fuzz_declared_strategies
         ):
-            raise ProtostarException(
+            raise BreakingReportedException(
                 "Test parameters are required but not found, "
                 "Please use one of the following cheatcodes in the case setup function in order to "
                 "explicitly provide test data: \n- example\n- given"
