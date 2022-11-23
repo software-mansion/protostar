@@ -26,7 +26,7 @@ class SuccessfulDeployMessage(StructuredMessage):
 
     def format_human(self, fmt: LogColorProvider) -> str:
         lines: list[str] = [
-            "Deploy transaction was sent.",
+            "Invoke transaction was sent to the Universal Deployer Contract.",
             f"Contract address: {self.response.address}",
         ]
         contract_url = self.block_explorer.create_link_to_contract(
