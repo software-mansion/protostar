@@ -9,7 +9,6 @@ from typing import Any, List, Optional
 from protostar.argument_parser import CLIApp
 from protostar.cli import ProtostarArgument, ProtostarCommand
 from protostar.commands import MigrateConfigurationFileCommand
-from protostar.compiler import ProjectCairoPathBuilder
 from protostar.configuration_file import (
     CommandNamesProviderProtocol,
     ConfigurationFile,
@@ -38,20 +37,20 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
     def __init__(
         self,
         log_color_provider: LogColorProvider,
-        project_cairo_path_builder: ProjectCairoPathBuilder,
         latest_version_checker: LatestVersionChecker,
         version_manager: VersionManager,
         commands: List[ProtostarCommand],
         configuration_file: ConfigurationFile,
         compatibility_checker: ProtostarCompatibilityWithProjectCheckerProtocol,
+        project_root_path: Path,
         start_time: float = 0,
     ) -> None:
+        self._project_root_path = project_root_path
         self._latest_version_checker = latest_version_checker
         self._log_color_provider = log_color_provider
         self._version_manager = version_manager
         self._start_time = start_time
         self._configuration_file = configuration_file
-        self._project_cairo_path_builder = project_cairo_path_builder
         self._compatibility_checker = compatibility_checker
         super().__init__(
             commands=commands,
@@ -136,10 +135,7 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
         self, cairo_path_arg: Optional[List[Path]] = None
     ):
         cairo_path_list = (
-            str(path)
-            for path in self._project_cairo_path_builder.build_project_cairo_path_list(
-                cairo_path_arg or []
-            )
+            str(path) for path in [self._project_root_path, *(cairo_path_arg or [])]
         )
         sys.path.extend(cairo_path_list)
 

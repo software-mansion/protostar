@@ -1,5 +1,6 @@
 import logging
 import re
+from pathlib import Path
 from asyncio import Future
 from typing import Any, Protocol, cast
 
@@ -58,12 +59,12 @@ def protostar_cli_fixture(
     log_color_provider = LogColorProvider()
     log_color_provider.is_ci_mode = True
     return ProtostarCLI(
+        project_root_path=Path(),
         commands=commands,
         log_color_provider=log_color_provider,
         version_manager=version_manager,
         latest_version_checker=latest_version_checker,
         configuration_file=mocker.MagicMock(),
-        project_cairo_path_builder=mocker.MagicMock(),
         compatibility_checker=FakeProtostarCompatibilityWithProjectChecker(
             result=CompatibilityCheckOutput(
                 compatibility_result=CompatibilityResult.COMPATIBLE,
@@ -94,12 +95,12 @@ def run_protostar_cli_fixture(
         log_color_provider = LogColorProvider()
         log_color_provider.is_ci_mode = True
         protostar_cli = ProtostarCLI(
+            project_root_path=Path(),
             commands=commands,
             log_color_provider=log_color_provider,
             version_manager=version_manager,
             latest_version_checker=latest_version_checker,
             configuration_file=mocker.MagicMock(),
-            project_cairo_path_builder=mocker.MagicMock(),
             compatibility_checker=FakeProtostarCompatibilityWithProjectChecker(
                 result=CompatibilityCheckOutput(
                     compatibility_result=compatibility_result,

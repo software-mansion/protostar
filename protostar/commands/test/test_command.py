@@ -13,7 +13,6 @@ from protostar.commands.test.test_result_formatter import (
     make_path_relative_if_possible,
 )
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
-from protostar.compiler import ProjectCairoPathBuilder
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.protostar_exception import ProtostarException
 from protostar.self.cache_io import CacheIO
@@ -34,6 +33,7 @@ from protostar.testing import (
     TestScheduler,
     determine_testing_seed,
 )
+
 from .test_command_cache import TestCommandCache
 
 
@@ -42,7 +42,6 @@ class TestCommand(ProtostarCommand):
         self,
         project_root_path: Path,
         protostar_directory: ProtostarDirectory,
-        project_cairo_path_builder: ProjectCairoPathBuilder,
         log_color_provider: LogColorProvider,
         cwd: Path,
         active_profile_name: Optional[str],
@@ -51,7 +50,6 @@ class TestCommand(ProtostarCommand):
         self._log_color_provider = log_color_provider
         self._project_root_path = project_root_path
         self._protostar_directory = protostar_directory
-        self._project_cairo_path_builder = project_cairo_path_builder
         self._cwd = cwd
         self._active_profile_name = active_profile_name
 
@@ -190,9 +188,8 @@ A glob or globs to a directory or a test suite, for example:
             str(path)
             for path in [
                 self._protostar_directory.protostar_test_only_cairo_packages_path,
-                *self._project_cairo_path_builder.build_project_cairo_path_list(
-                    cairo_path or []
-                ),
+                self._project_root_path,
+                *(cairo_path or []),
             ]
         ]
         factory = (
