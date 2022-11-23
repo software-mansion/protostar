@@ -41,3 +41,48 @@ ACCOUNT_CONSTRUCTOR_INPUT = ProtostarArgument(
     type="int",
     is_array=True,
 )
+
+COMPILED_CONTRACTS_DIR_ARG = ProtostarArgument(
+    name="compiled-contracts-dir",
+    description="An output directory used to put the compiled contracts in.",
+    type="path",
+    default="build",
+)
+
+EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = """- `GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]`
+    - `OpenZeppelin/cairo-contracts@v0.4.0`
+- `URL_TO_THE_REPOSITORY`
+    - `https://github.com/OpenZeppelin/cairo-contracts`
+- `SSH_URI`
+    - `git@github.com:OpenZeppelin/cairo-contracts.git`
+"""
+
+INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION = (
+    EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION
+    + "- `PACKAGE_DIRECTORY_NAME`\n"
+    + "    - `cairo_contracts`, if the package location is `lib/cairo_contracts`"
+)
+
+PACKAGE_ARG = ProtostarArgument(
+    description=EXTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
+    name="package",
+    type="str",
+    is_positional=True,
+)
+
+
+MAX_FEE_ARG = ProtostarArgument(
+    name="max-fee",
+    description=(
+        "The maximum fee that the sender is willing to pay for the transaction. "
+        'Provide "auto" to auto estimate the fee.'
+    ),
+    type="fee",
+)
+
+WAIT_FOR_ACCEPTANCE_ARG = ProtostarArgument(
+    name="wait-for-acceptance",
+    description="Waits for transaction to be accepted on chain.",
+    type="bool",
+    default=False,
+)

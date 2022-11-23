@@ -11,6 +11,8 @@ from typing import (
     TypeVar,
 )
 
+from protostar.argument_parser.unparser import unparse_arguments_from_external_source
+
 from .arg_type import ArgTypeName, map_type_name_to_parser
 from .argument import Argument
 from .cli_app import CLIApp
@@ -132,7 +134,7 @@ class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
         for arg in command.arguments:
             self._add_argument(
                 command_parser,
-                self._update_from_config(command, arg),  # type: ignore
+                self._set_value_from_external_source(command, arg),  # type: ignore
             )
 
         return self
@@ -146,19 +148,30 @@ class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
 
         self._add_argument(
             self.argument_parser,
-            self._update_from_config(None, argument),
+            self._set_value_from_external_source(None, argument),
         )
         return self
 
-    def _update_from_config(
+    def _set_value_from_external_source(
         self, command: Optional[Command], argument: Argument[ArgTypeNameT_contra]
     ) -> Argument[ArgTypeNameT_contra]:
         if self._config_file_argument_value_resolver:
-            new_default = self._config_file_argument_value_resolver.resolve_argument(
-                command.name if command else None, argument.name
+            external_source_value = (
+                self._config_file_argument_value_resolver.resolve_argument(
+                    command.name if command else None, argument.name
+                )
             )
-            if new_default is not None:
-                return argument.copy_with(default=new_default)
+            unparsed_values = unparse_arguments_from_external_source(
+                external_source_value
+            )
+            if unparsed_values is None:
+                return argument
+            parse_arg = self._parser_resolver(argument.type)
+            parsed_values = [parse_arg(val) for val in unparsed_values]
+            new_default = parsed_values
+            if not argument.is_array:
+                new_default = parsed_values[0] if len(parsed_values) > 0 else None
+            return argument.copy_with(default=new_default)
         return argument
 
     def _add_argument(
@@ -184,7 +197,7 @@ class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
             )
             return argument_parser
 
-        arg_type = self._parser_resolver(argument.type)
+        parse_arg = self._parser_resolver(argument.type)
 
         default = argument.default
 
@@ -201,7 +214,7 @@ class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
 
         argument_parser.add_argument(
             *names,
-            type=arg_type,
+            type=parse_arg,
             default=default,
             help=argument.description,
             **kwargs,

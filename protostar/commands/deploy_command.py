@@ -3,7 +3,7 @@ from argparse import Namespace
 from typing import Optional
 
 from protostar.cli import ProtostarArgument, ProtostarCommand
-from protostar.cli.common_arguments import BLOCK_EXPLORER_ARG
+from protostar.cli.common_arguments import BLOCK_EXPLORER_ARG, WAIT_FOR_ACCEPTANCE_ARG
 from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.starknet_gateway import (
     GatewayFacadeFactory,
@@ -14,13 +14,6 @@ from protostar.starknet_gateway import (
 
 
 class DeployCommand(ProtostarCommand):
-    wait_for_acceptance_arg = ProtostarArgument(
-        name="wait-for-acceptance",
-        description="Waits for transaction to be accepted on chain.",
-        type="bool",
-        default=False,
-    )
-
     def __init__(
         self,
         gateway_facade_factory: GatewayFacadeFactory,
@@ -77,7 +70,7 @@ class DeployCommand(ProtostarCommand):
                 ),
                 type="felt",
             ),
-            DeployCommand.wait_for_acceptance_arg,
+            WAIT_FOR_ACCEPTANCE_ARG,
             *NetworkCommandUtil.network_arguments,
         ]
 

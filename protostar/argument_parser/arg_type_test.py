@@ -38,3 +38,18 @@ def test_regex_arg_type():
     result = map_type_name_to_parser("regexp")(".*")
 
     assert isinstance(result, Pattern)
+
+
+@pytest.mark.parametrize(
+    "input_data, result",
+    [
+        ("false", False),
+        ("False", False),
+        ("0", False),
+        ("true", True),
+        ("True", True),
+        ("1", True),
+    ],
+)
+def test_bool_arg_type(input_data: str, result: bool):
+    assert map_type_name_to_parser("bool")(input_data) == result

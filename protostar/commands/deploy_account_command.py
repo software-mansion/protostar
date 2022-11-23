@@ -15,6 +15,7 @@ from protostar.cli.common_arguments import (
     ACCOUNT_CLASS_HASH_ARG,
     ACCOUNT_ADDRESS_SALT_ARG,
     ACCOUNT_CONSTRUCTOR_INPUT,
+    MAX_FEE_ARG,
 )
 from protostar.cli.network_command_util import NetworkArgs
 from protostar.io import StructuredMessage, LogColorProvider
@@ -109,7 +110,7 @@ class DeployAccountCommand(ProtostarCommand):
                 default=0,
             ),
             ProtostarArgument(
-                name="max-fee",
+                name=MAX_FEE_ARG.name,
                 description="Max amount of Wei you are willing to pay for the transaction",
                 type="wei",
                 is_required=True,
