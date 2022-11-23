@@ -3,6 +3,16 @@
 from starkware.cairo.common.math import assert_le
 
 @external
+func setup_no_data_broken() {
+    return ();
+}
+
+@external
+func test_no_data_broken{syscall_ptr: felt*, range_check_ptr}(a: felt, b: felt) {
+    return ();
+}
+
+@external
 func setup_only_examples() {
     %{
         example(a=3, b=4)
@@ -72,12 +82,3 @@ func test_check_exact_example{syscall_ptr: felt*, range_check_ptr}(a: felt, b: f
     return ();
 }
 
-@external
-func setup_no_data_broken() {
-    return ();
-}
-
-@external
-func test_no_data_broken{syscall_ptr: felt*, range_check_ptr}(a: felt, b: felt) {
-    return ();
-}
