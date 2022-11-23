@@ -1,5 +1,4 @@
 import dataclasses
-import logging
 from asyncio import to_thread
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List
@@ -65,8 +64,8 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             not self.state.config.fuzz_examples
             and not self.state.config.fuzz_declared_strategies
         ):
-            logging.warning(
-                "Not providing the test parameters is deprecated and will break test cases in the future releases, "
+            raise ProtostarException(
+                "Test parameters are required but not found, "
                 "Please use one of the following cheatcodes in the case setup function in order to "
                 "explicitly provide test data: \n- example\n- given"
             )
