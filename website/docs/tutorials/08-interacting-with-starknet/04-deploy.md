@@ -12,7 +12,7 @@ The basic inputs needed for this command are:
 
 [Read the CLI reference for the deploy command](../../cli-reference.md#deploy) to learn more about all supported arguments.
 
-:::note
+:::caution
 Although this command does not require [signing the transaction](./06-signing.md) right now, it is strongly encouraged to do so as it will be required in the future. 
 :::
 

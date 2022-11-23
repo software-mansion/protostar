@@ -7,7 +7,7 @@ class CheatcodeNetworkConfig(TypedDict):
 ```
 
 - `max_fee` - The maximum fee that the sender is willing to pay for the transaction. Required for transactions V1.
-- `wait_for_acceptance` - Wait for transaction to be accepted on chain.
+- `wait_for_acceptance` - Wait synchronously for transaction to be accepted on chain.
 
 `CheatcodeNetworkConfig` stores configuration used in `declare` and `deploy_contract` cheatcodes.
 
