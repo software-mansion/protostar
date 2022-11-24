@@ -78,6 +78,7 @@ MAX_FEE_ARG = ProtostarArgument(
         'Provide "auto" to auto estimate the fee.'
     ),
     type="fee",
+    is_required=True,
 )
 
 WAIT_FOR_ACCEPTANCE_ARG = ProtostarArgument(
@@ -85,4 +86,10 @@ WAIT_FOR_ACCEPTANCE_ARG = ProtostarArgument(
     description="Waits for transaction to be accepted on chain.",
     type="bool",
     default=False,
+)
+
+ABI_ARG = ProtostarArgument(
+    name="abi",
+    description="Path to a json ABI file of the contract.",
+    type="path",
 )
