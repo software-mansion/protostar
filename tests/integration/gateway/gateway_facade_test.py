@@ -1,9 +1,11 @@
+import json
 from pathlib import Path
 from typing import cast
 
 import pytest
 from starknet_py.net.client_models import Declare, TransactionStatus
 from starknet_py.net.gateway_client import GatewayClient
+from starkware.starknet.public.abi import AbiType
 
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.starknet.data_transformer import CairoOrPythonData
@@ -62,8 +64,23 @@ def gateway_facade_fixture(gateway_client: GatewayClient):
     )
 
 
-async def test_deploy(gateway_facade: GatewayFacade, compiled_contract_path: Path):
-    response = await gateway_facade.deploy(compiled_contract_path)
+@pytest.fixture(name="declared_class_hash")
+async def declared_class_hash_fixture(
+    gateway_facade: GatewayFacade, compiled_contract_path: Path
+):
+    response = await gateway_facade.declare_v0(compiled_contract_path)
+    return response.class_hash
+
+
+@pytest.fixture(name="contract_abi")
+def contract_abi_fixture(protostar: ProtostarFixture):
+    return json.loads(
+        (protostar.project_root_path / "build" / "main_abi.json").read_text()
+    )
+
+
+async def test_deploy(gateway_facade: GatewayFacade, declared_class_hash: int):
+    response = await gateway_facade.deploy_via_udc(declared_class_hash)
     assert response is not None
 
 
@@ -72,8 +89,8 @@ async def test_declare(gateway_facade: GatewayFacade, compiled_contract_path: Pa
     assert response is not None
 
 
-async def test_call(gateway_facade: GatewayFacade, compiled_contract_path: Path):
-    deployed_contract = await gateway_facade.deploy(compiled_contract_path)
+async def test_call(gateway_facade: GatewayFacade, declared_class_hash: int):
+    deployed_contract = await gateway_facade.deploy_via_udc(declared_class_hash)
 
     response = await gateway_facade.call(
         deployed_contract.address,
@@ -86,9 +103,10 @@ async def test_call(gateway_facade: GatewayFacade, compiled_contract_path: Path)
 
 
 async def test_call_to_unknown_function(
-    gateway_facade: GatewayFacade, compiled_contract_path: Path
+    gateway_facade: GatewayFacade,
+    declared_class_hash: int,
 ):
-    deployed_contract = await gateway_facade.deploy(compiled_contract_path)
+    deployed_contract = await gateway_facade.deploy_via_udc(declared_class_hash)
 
     with pytest.raises(UnknownFunctionException):
         await gateway_facade.call(
@@ -107,9 +125,9 @@ async def test_call_to_unknown_contract(gateway_facade: GatewayFacade):
 
 
 async def test_call_to_with_incorrect_args(
-    gateway_facade: GatewayFacade, compiled_contract_path: Path
+    gateway_facade: GatewayFacade, declared_class_hash: int
 ):
-    deployed_contract = await gateway_facade.deploy(compiled_contract_path)
+    deployed_contract = await gateway_facade.deploy_via_udc(declared_class_hash)
 
     with pytest.raises(InputValidationException):
         await gateway_facade.call(
@@ -120,9 +138,9 @@ async def test_call_to_with_incorrect_args(
 
 
 async def test_call_to_with_positional_incorrect_args(
-    gateway_facade: GatewayFacade, compiled_contract_path: Path
+    gateway_facade: GatewayFacade, declared_class_hash: int
 ):
-    deployed_contract = await gateway_facade.deploy(compiled_contract_path)
+    deployed_contract = await gateway_facade.deploy_via_udc(declared_class_hash)
 
     with pytest.raises(InputValidationException):
         await gateway_facade.call(
@@ -132,52 +150,83 @@ async def test_call_to_with_positional_incorrect_args(
         )
 
 
-@pytest.fixture(name="compiled_contract_without_constructor_path")
-def compiled_contract_without_constructor_path_fixture(protostar: ProtostarFixture):
+@pytest.fixture(name="compiled_contract_without_constructor_class_hash")
+async def compiled_contract_without_constructor_class_hash_fixture(
+    protostar: ProtostarFixture, devnet_gateway_url: str
+):
     protostar.create_files({"./src/main.cairo": IDENTITY_CONTRACT})
-    protostar.build_sync()
-    yield protostar.project_root_path / "build" / "main.json"
+    await protostar.build()
+    declare_res = await protostar.declare(
+        protostar.project_root_path / "build" / "main.json",
+        gateway_url=devnet_gateway_url,
+    )
+    return declare_res.class_hash
 
 
-async def test_deploy_fail_input_without_constructor(
-    gateway_facade: GatewayFacade, compiled_contract_without_constructor_path: Path
+async def test_compiled_contract_without_constructor_class_hash(
+    gateway_facade: GatewayFacade,
+    compiled_contract_without_constructor_class_hash: int,
+    contract_abi: AbiType,
 ):
     with pytest.raises(InputValidationException) as ex:
-        await gateway_facade.deploy(
-            compiled_contract_without_constructor_path, inputs={"UNKNOWN_INPUT": 42}
+        await gateway_facade.deploy_via_udc(
+            class_hash=compiled_contract_without_constructor_class_hash,
+            abi=contract_abi,
+            inputs={"UNKNOWN_INPUT": 42},
         )
     assert "Inputs provided to a contract with no constructor." in str(ex.value)
 
 
-@pytest.fixture(name="compiled_contract_with_contractor_path")
-def compiled_contract_with_contractor_path_fixture(protostar: ProtostarFixture):
+@pytest.fixture(name="compiled_contract_with_constructor_class_hash")
+async def compiled_contract_with_constructor_class_hash_fixture(
+    protostar: ProtostarFixture, devnet_gateway_url: str
+):
     protostar.create_files({"./src/main.cairo": CONTRACT_WITH_CONSTRUCTOR})
-    protostar.build_sync()
-    yield protostar.project_root_path / "build" / "main.json"
+    await protostar.build()
+    declare_res = await protostar.declare(
+        protostar.project_root_path / "build" / "main.json",
+        gateway_url=devnet_gateway_url,
+    )
+    return declare_res.class_hash
 
 
 @pytest.mark.parametrize("inputs", [[42], {"initial_balance": 42}])
 async def test_deploy_supports_data_transformer(
     gateway_facade: GatewayFacade,
-    compiled_contract_with_contractor_path: Path,
+    compiled_contract_with_constructor_class_hash: int,
     inputs: CairoOrPythonData,
+    protostar: ProtostarFixture,
 ):
-    await gateway_facade.deploy(compiled_contract_with_contractor_path, inputs=inputs)
+    abi_txt = (protostar.project_root_path / "build" / "main_abi.json").read_text(
+        "utf-8"
+    )
+    abi = json.loads(abi_txt)
+
+    await gateway_facade.deploy_via_udc(
+        class_hash=compiled_contract_with_constructor_class_hash, abi=abi, inputs=inputs
+    )
 
 
 async def test_deploy_no_args(
-    gateway_facade: GatewayFacade, compiled_contract_with_contractor_path: Path
+    gateway_facade: GatewayFacade,
+    compiled_contract_with_constructor_class_hash: int,
+    contract_abi: AbiType,
 ):
     with pytest.raises(InputValidationException):
-        await gateway_facade.deploy(compiled_contract_with_contractor_path)
+        await gateway_facade.deploy_via_udc(
+            compiled_contract_with_constructor_class_hash, abi=contract_abi
+        )
 
 
 @pytest.mark.skip("https://github.com/software-mansion/starknet.py/pull/323")
 async def test_deploy_too_many_args(
-    gateway_facade: GatewayFacade, compiled_contract_with_contractor_path: Path
+    gateway_facade: GatewayFacade,
+    compiled_contract_with_constructor_class_hash: int,
 ):
     with pytest.raises(InputValidationException):
-        await gateway_facade.deploy(compiled_contract_with_contractor_path, [42, 24])
+        await gateway_facade.deploy_via_udc(
+            compiled_contract_with_constructor_class_hash, [42, 24]
+        )
 
 
 async def test_declare_tx_v1(
@@ -273,14 +322,34 @@ async def test_deploy_account(
 async def test_calling_through_proxy(
     gateway_facade: GatewayFacade,
     compiled_contract_path: Path,
+    devnet_accounts: list[DevnetAccount],
 ):
-    contract = await gateway_facade.deploy(
-        compiled_contract_path=compiled_contract_path, wait_for_acceptance=True, salt=2
+    declared = await gateway_facade.declare(
+        compiled_contract_path=compiled_contract_path,
+        wait_for_acceptance=True,
+        account_address=devnet_accounts[0].address,
+        signer=devnet_accounts[0].signer,
+        token=None,
+        max_fee=213700000000000,
     )
-    proxy = await gateway_facade.deploy(
+
+    contract = await gateway_facade.deploy_via_udc(
+        declared.class_hash, wait_for_acceptance=True, salt=2
+    )
+
+    declared_proxy = await gateway_facade.declare(
         compiled_contract_path=TESTS_ROOT_PATH
         / "data"
         / "oz_proxy_compiled_contract.json",
+        wait_for_acceptance=True,
+        account_address=devnet_accounts[0].address,
+        signer=devnet_accounts[0].signer,
+        max_fee=213700000000000,
+        token=None,
+    )
+
+    proxy = await gateway_facade.deploy_via_udc(
+        declared_proxy.class_hash,
         inputs=[int(contract.address)],
         wait_for_acceptance=True,
     )

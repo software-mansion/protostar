@@ -20,12 +20,12 @@ packaging = "^21.3"
 pytest-datadir = "^1.4.1"
 python = ">=3.9.14, <3.10"
 requests = "^2.27.1"
+starknet-py = "^0.10.0-a"
 tomli = "<2.0.0"
 tomli-w = "^1.0.0"
 tqdm = "^4.64.1"
 typing-extensions = "^4.3.0"
 tomlkit = "^0.11.6"
-starknet-py = "^0.9.0a0"
 
 [tool.poetry.dev-dependencies]
 GitPython = "^3.1.29"
@@ -43,7 +43,7 @@ pytest-timeout = "^2.1.0"
 pytest-xdist = "^3.0.2"
 re-assert = "^1.1.0"
 snakeviz = "^2.1.1"
-starknet-devnet = "0.3.5"
+starknet-devnet = "^0.4.0"
 
 [tool.poe.tasks]
 build = [

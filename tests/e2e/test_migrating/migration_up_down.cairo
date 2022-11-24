@@ -2,7 +2,10 @@
 
 @external
 func up() {
-    %{ deploy_contract("./build/main.json") %}
+    %{
+        declaration = declare("./build/main.json")
+        deploy_contract(declaration.class_hash)
+    %}
 
     return ();
 }

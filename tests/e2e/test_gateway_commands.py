@@ -30,28 +30,45 @@ def test_deploying_and_interacting_with_contract(
         src=str(datadir / "contract_with_constructor.cairo"),
         dst="./src/main.cairo",
     )
+
     protostar(["build"])
 
-    # TODO(mkaput): Use structured output when it'll be available in `deploy`.
     result = protostar(
         [
-            "deploy",
+            "--no-color",
+            "declare",
             "./build/main.json",
+            "--gateway-url",
+            devnet_gateway_url,
+            "--chain-id",
+            str(StarknetChainId.TESTNET.value),
+            "--json",
+        ],
+        ignore_stderr=True,
+    )
+    class_hash = json.loads(result)["class_hash"]
+
+    result = protostar(
+        [
+            "--no-color",
+            "deploy",
+            class_hash,
             "--inputs",
             "0x42",
             "--gateway-url",
             devnet_gateway_url,
             "--chain-id",
             str(StarknetChainId.TESTNET.value),
-        ]
+            "--json",
+        ],
+        ignore_stderr=True,
     )
 
-    assert "Deploy transaction was sent" in result
-    assert re.search(r"Transaction hash: 0x[0-9a-f]{64}", result), result
+    response_dict = json.loads(result)
+    assert "contract_address" in response_dict
+    contract_address = response_dict["contract_address"]
 
-    m = re.search(r"Contract address: (0x[0-9a-f]{64})", result)
-    assert m, result
-    contract_address = m[1]
+    assert re.compile(r"0x[0-9a-f]{64}").match(contract_address)
 
     result = protostar(
         [
@@ -115,17 +132,37 @@ def test_deploying_contract_with_constructor_and_inputs_defined_in_config_file(
     result = protostar(
         [
             "--no-color",
-            "deploy",
+            "declare",
             "./build/main.json",
             "--gateway-url",
             devnet_gateway_url,
             "--chain-id",
             str(StarknetChainId.TESTNET.value),
-        ]
+            "--json",
+        ],
+        ignore_stderr=True,
     )
 
-    assert "Deploy transaction was sent" in result
-    assert len(re.findall(r"0x[0-9a-f]{64}", result)) == 2
+    class_hash = json.loads(result)["class_hash"]
+
+    result = protostar(
+        [
+            "--no-color",
+            "deploy",
+            class_hash,
+            "--gateway-url",
+            devnet_gateway_url,
+            "--chain-id",
+            str(StarknetChainId.TESTNET.value),
+            "--json",
+        ],
+        ignore_stderr=True,
+    )
+
+    assert {
+        "contract_address": HASH,
+        "transaction_hash": HASH,
+    } == json.loads(result)
 
 
 @pytest.mark.usefixtures("init")

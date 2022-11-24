@@ -2,8 +2,12 @@
 ```python
 class CheatcodeNetworkConfig(TypedDict):
     wait_for_acceptance: bool
-    "Wait for transaction to be accepted on chain."
+    max_fee: NotRequired[Wei | "auto"]
+    
 ```
+
+- `max_fee` - The maximum fee that the sender is willing to pay for the transaction. Required for transactions V1.
+- `wait_for_acceptance` - Wait synchronously for transaction to be accepted on chain.
 
 `CheatcodeNetworkConfig` stores configuration used in `declare` and `deploy_contract` cheatcodes.
 

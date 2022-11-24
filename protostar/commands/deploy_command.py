@@ -1,10 +1,20 @@
-import logging
 from argparse import Namespace
+from dataclasses import dataclass
 from typing import Optional
 
-from protostar.cli import ProtostarArgument, ProtostarCommand
-from protostar.cli.common_arguments import BLOCK_EXPLORER_ARG, WAIT_FOR_ACCEPTANCE_ARG
+from protostar.cli import (
+    ProtostarArgument,
+    ProtostarCommand,
+    SignableCommandUtil,
+    MessengerFactory,
+)
+from protostar.cli.common_arguments import (
+    BLOCK_EXPLORER_ARG,
+    WAIT_FOR_ACCEPTANCE_ARG,
+    MAX_FEE_ARG,
+)
 from protostar.cli.network_command_util import NetworkCommandUtil
+from protostar.io import StructuredMessage, LogColorProvider
 from protostar.starknet_gateway import (
     GatewayFacadeFactory,
     SuccessfulDeployResponse,
@@ -13,12 +23,45 @@ from protostar.starknet_gateway import (
 )
 
 
+@dataclass
+class SuccessfulDeployMessage(StructuredMessage):
+    response: SuccessfulDeployResponse
+    block_explorer: BlockExplorer
+
+    def format_human(self, fmt: LogColorProvider) -> str:
+        lines: list[str] = [
+            "Invoke transaction was sent to the Universal Deployer Contract.",
+            f"Contract address: {self.response.address}",
+        ]
+        contract_url = self.block_explorer.create_link_to_contract(
+            self.response.address
+        )
+        if contract_url:
+            lines.append(contract_url)
+            lines.append("")
+        lines.append(f"Transaction hash: {self.response.transaction_hash}")
+        tx_url = self.block_explorer.create_link_to_transaction(
+            self.response.transaction_hash
+        )
+        if tx_url:
+            lines.append(tx_url)
+        return "\n".join(lines)
+
+    def format_dict(self) -> dict:
+        return {
+            "contract_address": str(self.response.address),
+            "transaction_hash": f"0x{self.response.transaction_hash:064x}",
+        }
+
+
 class DeployCommand(ProtostarCommand):
     def __init__(
         self,
         gateway_facade_factory: GatewayFacadeFactory,
+        messenger_factory: MessengerFactory,
     ) -> None:
         self._gateway_facade_factory = gateway_facade_factory
+        self._messenger_factory = messenger_factory
 
     @property
     def name(self) -> str:
@@ -30,17 +73,21 @@ class DeployCommand(ProtostarCommand):
 
     @property
     def example(self) -> Optional[str]:
-        return "protostar deploy ./build/main.json --network testnet"
+        return "protostar deploy 0x4221deadbeef123 --network testnet"
 
     @property
     def arguments(self):
         return [
             BLOCK_EXPLORER_ARG,
+            MAX_FEE_ARG,
+            WAIT_FOR_ACCEPTANCE_ARG,
+            *MessengerFactory.OUTPUT_ARGUMENTS,
+            *NetworkCommandUtil.network_arguments,
+            *SignableCommandUtil.signable_arguments,
             ProtostarArgument(
-                name="contract",
-                description="The path to the compiled contract.",
-                type="path",
-                is_required=True,
+                name="class-hash",
+                description="The hash of the declared contract class.",
+                type="class_hash",
                 is_positional=True,
             ),
             ProtostarArgument(
@@ -70,32 +117,33 @@ class DeployCommand(ProtostarCommand):
                 ),
                 type="felt",
             ),
-            WAIT_FOR_ACCEPTANCE_ARG,
-            *NetworkCommandUtil.network_arguments,
         ]
 
     async def run(self, args: Namespace):
-        logging.warning(
-            "`protostar deploy` will be removed in the future release\n"
-            "https://docs.starknet.io/documentation/develop/Blocks/transactions/#deploy_transaction"
-        )
-
         network_command_util = NetworkCommandUtil(args)
+        signable_command_util = SignableCommandUtil(args)
+
         network_config = network_command_util.get_network_config()
         gateway_client = network_command_util.get_gateway_client()
         gateway_facade = self._gateway_facade_factory.create(gateway_client)
+        signer = signable_command_util.get_signer(network_config)
 
-        response = await gateway_facade.deploy(
-            compiled_contract_path=args.contract,
+        write = self._messenger_factory.from_args(args)
+
+        response = await gateway_facade.deploy_via_udc(
+            class_hash=args.class_hash,
+            signer=signer,
+            max_fee=args.max_fee,
+            account_address=args.account_address,
             inputs=args.inputs,
             token=args.token,
             salt=args.salt,
             wait_for_acceptance=args.wait_for_acceptance,
         )
 
-        logging.info(
-            format_successful_deploy_response(
-                response,
+        write(
+            SuccessfulDeployMessage(
+                response=response,
                 block_explorer=create_block_explorer(
                     block_explorer_name=args.block_explorer,
                     network=network_config.network_name,
@@ -111,7 +159,7 @@ def format_successful_deploy_response(
 ):
     lines: list[str] = []
     lines.append("Deploy transaction was sent.")
-    lines.append(f"Contract address: {response.address}")
+    lines.append(f"Contract address: 0x{response.address:064x}")
     contract_url = block_explorer.create_link_to_contract(response.address)
     if contract_url:
         lines.append(contract_url)
