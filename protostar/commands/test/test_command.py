@@ -156,7 +156,7 @@ A glob or globs to a directory or a test suite, for example:
                 name="gas-price",
                 type="float",
                 description=(
-                    "If provided, Protostar will estimate a fee for each test case. "
+                    "Gas price per gas unit. If provided, Protostar will estimate a fee for test cases. "
                     "You can find the actual gas price in a block explorer by checking "
                     "the latest transaction block. "
                     "Provide value 1, to get gas estimations."
