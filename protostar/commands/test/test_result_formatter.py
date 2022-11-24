@@ -179,7 +179,7 @@ def _format_passed_fuzz_test_case_result(
     if passed_fuzz_test_case_result.execution_resources:
         if passed_fuzz_test_case_result.execution_resources.estimated_fee is not None:
             info_items.append(
-                f"est_fee={log_color_provider.bold(passed_fuzz_test_case_result.execution_resources.estimated_fee)} Wei"
+                f"est_fee={log_color_provider.bold(passed_fuzz_test_case_result.execution_resources.estimated_fee)}"
             )
         if passed_fuzz_test_case_result.execution_resources.n_steps:
             info_items.append(
