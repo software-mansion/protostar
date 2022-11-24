@@ -1,7 +1,8 @@
 from pathlib import Path
 
-from protostar.compiler import ProjectCompiler
 from protostar.protostar_exception import ProtostarException
+
+from .project_compiler import ProjectCompiler
 
 
 class ContractIdentificationException(ProtostarException):
