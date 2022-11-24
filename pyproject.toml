@@ -7,21 +7,20 @@ license = "MIT"
 name = "protostar"
 readme = "README.md"
 repository = "https://github.com/software-mansion/protostar"
-version = "0.7.0"
+version = "0.8.1"
 
 [tool.poetry.dependencies]
-GitPython = "^3.1.29"
 argparse = "^1.4.0"
 cairo-lang = "0.10.1"
 colorama = "^0.4.6"
 crypto-cpp-py = "^1.0.4"
 flatdict = "^4.0.1"
-hypothesis = "^6.56.4"
+hypothesis = "^6.57.1"
 packaging = "^21.3"
 pytest-datadir = "^1.4.1"
 python = ">=3.9.14, <3.10"
 requests = "^2.27.1"
-starknet-py = "0.8.0-alpha"
+starknet-py = "^0.10.0-a"
 tomli = "<2.0.0"
 tomli-w = "^1.0.0"
 tqdm = "^4.64.1"
@@ -29,21 +28,22 @@ typing-extensions = "^4.3.0"
 tomlkit = "^0.11.6"
 
 [tool.poetry.dev-dependencies]
+GitPython = "^3.1.29"
 black = "^22.10.0"
-coverage = "^6.5.0"
 freezegun = "^1.2.1"
 pexpect = "^4.8.0"
 poethepoet = "^0.16.4"
 pyinstaller = "^5.6"
 pylint = "^2.15.5"
-pyright = "^1.1.278"
+pyright = "^1.1.279"
 pytest = "^7.2.0"
-pytest-cov = "^3.0.0"
 pytest-datadir = "^1.4.1"
 pytest-mock = "^3.10.0"
 pytest-timeout = "^2.1.0"
+pytest-xdist = "^3.0.2"
+re-assert = "^1.1.0"
 snakeviz = "^2.1.1"
-starknet-devnet = "0.3.5"
+starknet-devnet = "^0.4.0"
 
 [tool.poe.tasks]
 build = [
@@ -59,7 +59,6 @@ ci = [
     "custom_checks",
     "test",
 ]
-cov = "pytest --cov-report xml:cov.xml --cov=protostar"
 custom_checks = "sh ./scripts/custom_checks.sh"
 deploy = "python ./scripts/deploy.py"
 deploy_prerelease = "python ./scripts/deploy_prerelease.py"
@@ -82,31 +81,17 @@ test = [
     "test_e2e",
 ]
 test_cairo = "python ./binary_entrypoint.py test"
-test_html = [
-    { shell = "coverage html && open ./htmlcov/index.html" },
-]
-test_report = [
-    { shell = "coverage report" },
-]
 type_check = "pyright"
 update_cli_docs = "python ./scripts/generate_reference_docs.py"
 
 [tool.poe.tasks.test_e2e]
-shell = "pytest tests/e2e"
+shell = "pytest -n auto tests/e2e"
 
 [tool.poe.tasks.test_integration]
-shell = "coverage run -a -m pytest scripts tests/integration"
+shell = "pytest -n auto scripts tests/integration"
 
 [tool.poe.tasks.test_unit]
-shell = "coverage run -m pytest protostar/*"
-
-[tool.coverage.run]
-source = [
-    "protostar",
-]
-
-[tool.coverage.report]
-skip_empty = true
+shell = "pytest -n auto protostar/*"
 
 [tool.black]
 target-version = [

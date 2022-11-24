@@ -6,7 +6,7 @@ from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
 )
 
-from protostar.starknet import Cheatcode, CheatcodeException
+from protostar.starknet import Cheatcode, CheatcodeException, Address
 from protostar.starknet.data_transformer import (
     CairoOrPythonData,
     PythonData,
@@ -49,14 +49,15 @@ class PrepareCheatcode(Cheatcode):
         contract_salt = PrepareCheatcode.salt_nonce
         PrepareCheatcode.salt_nonce += 1
 
-        contract_address: int = calculate_contract_address_from_hash(
+        contract_address = calculate_contract_address_from_hash(
             salt=contract_salt,
             class_hash=declared.class_hash,
             constructor_calldata=constructor_calldata,
             deployer_address=self.contract_address,
         )
+
         self.cheatable_state.contract_address_to_class_hash_map[
-            contract_address
+            Address(contract_address)
         ] = declared.class_hash
 
         return PreparedContract(

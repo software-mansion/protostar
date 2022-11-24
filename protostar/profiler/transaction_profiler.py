@@ -27,114 +27,81 @@ GlobalInstruction = Instruction
 class TransactionProfile:
     functions: list[GlobalFunction]
     instructions: list[GlobalInstruction]
-    step_samples: list[Sample]
-    memhole_samples: list[Sample]
+    samples: dict[str, list[Sample]]
+
+
+def translate_samples(
+    contract_samples: list["ContractProfile"],
+    global_instructions: dict[Tuple[GlobalFunctionID, int], Instruction],
+    name: str,
+) -> list[Sample]:
+    samples_new: list[Sample] = []
+    for smp in contract_samples[-1].profile.samples[name]:
+        current_contract = contract_samples[-1].contract_callstack[-1]
+        samples_new.append(
+            Sample(
+                value=smp.value,
+                callstack=translate_callstack(
+                    current_contract, global_instructions, smp.callstack
+                ),
+            )
+        )
+
+    # We build a tree from callstacks
+    max_clst_len = max(len(s.contract_callstack) for s in contract_samples)
+    callstacks_from_upper_layer = translate_callstacks(
+        contract_samples[-1].contract_callstack[-1],
+        global_instructions,
+        contract_samples[-1].profile.contract_call_callstacks,
+    )
+    for i in range(2, max_clst_len + 1):
+        samples_in_layer = [
+            s for s in contract_samples if len(s.contract_callstack) == i
+        ]
+        new_callstacks_from_upper_layer: list[list[list[Instruction]]] = []
+        for upper, runtime_sample in zip(callstacks_from_upper_layer, samples_in_layer):
+            current_contract = runtime_sample.contract_callstack[-1]
+            for smp in runtime_sample.profile.samples[name]:
+                samples_new.append(
+                    Sample(
+                        value=smp.value,
+                        callstack=translate_callstack(
+                            current_contract, global_instructions, smp.callstack
+                        )
+                        + upper,
+                    )
+                )
+            translated_callstacks = translate_callstacks(
+                current_contract,
+                global_instructions,
+                runtime_sample.profile.contract_call_callstacks,
+            )
+            new_callstacks_from_upper_layer.append(
+                [c + upper for c in translated_callstacks]
+            )
+        callstacks_from_upper_layer = list(
+            itertools.chain(*new_callstacks_from_upper_layer)
+        )
+    return samples_new
 
 
 # TODO(maksymiliandemitraszek): Enable it again
-# pylint: disable=too-many-branches
-def merge_profiles(samples: list["ContractProfile"]) -> TransactionProfile:
-    step_samples: list[Sample] = []
-    memhole_samples: list[Sample] = []
+def merge_profiles(contract_samples: list["ContractProfile"]) -> TransactionProfile:
+    global_functions = build_global_functions(contract_samples)
+    global_instructions = build_global_instructions(global_functions, contract_samples)
+    sample_names = {
+        name for cs in contract_samples for name in cs.profile.samples.keys()
+    }
 
-    global_functions = build_global_functions(samples)
-    global_instructions = build_global_instructions(global_functions, samples)
-
-    for smp in samples[-1].profile.step_samples:
-        current_contract = samples[-1].contract_callstack[-1]
-        step_samples.append(
-            Sample(
-                value=smp.value,
-                callstack=translate_callstack(
-                    current_contract, global_instructions, smp.callstack
-                ),
-            )
-        )
-
-    # We build a tree from callstacks
-    max_clst_len = max(len(s.contract_callstack) for s in samples)
-    callstacks_from_upper_layer = translate_callstacks(
-        samples[-1].contract_callstack[-1],
-        global_instructions,
-        samples[-1].profile.contract_call_callstacks,
-    )
-    for i in range(2, max_clst_len + 1):
-        samples_in_layer = [s for s in samples if len(s.contract_callstack) == i]
-        new_callstacks_from_upper_layer: list[list[list[Instruction]]] = []
-        for upper, runtime_sample in zip(callstacks_from_upper_layer, samples_in_layer):
-            current_contract = runtime_sample.contract_callstack[-1]
-            for smp in runtime_sample.profile.step_samples:
-                step_samples.append(
-                    Sample(
-                        value=smp.value,
-                        callstack=translate_callstack(
-                            current_contract, global_instructions, smp.callstack
-                        )
-                        + upper,
-                    )
-                )
-            translated_callstacks = translate_callstacks(
-                current_contract,
-                global_instructions,
-                runtime_sample.profile.contract_call_callstacks,
-            )
-            new_callstacks_from_upper_layer.append(
-                [c + upper for c in translated_callstacks]
-            )
-        callstacks_from_upper_layer = list(
-            itertools.chain(*new_callstacks_from_upper_layer)
-        )
-
-    for smp in samples[-1].profile.memhole_samples:
-        current_contract = samples[-1].contract_callstack[-1]
-        memhole_samples.append(
-            Sample(
-                value=smp.value,
-                callstack=translate_callstack(
-                    current_contract, global_instructions, smp.callstack
-                ),
-            )
-        )
-
-    # We build a tree from callstacks
-    callstacks_from_upper_layer = translate_callstacks(
-        samples[-1].contract_callstack[-1],
-        global_instructions,
-        samples[-1].profile.contract_call_callstacks,
-    )
-    for i in range(2, max_clst_len + 1):
-        samples_in_layer = [s for s in samples if len(s.contract_callstack) == i]
-        new_callstacks_from_upper_layer: list[list[list[Instruction]]] = []
-        for upper, runtime_sample in zip(callstacks_from_upper_layer, samples_in_layer):
-            current_contract = runtime_sample.contract_callstack[-1]
-            for smp in runtime_sample.profile.memhole_samples:
-                memhole_samples.append(
-                    Sample(
-                        value=smp.value,
-                        callstack=translate_callstack(
-                            current_contract, global_instructions, smp.callstack
-                        )
-                        + upper,
-                    )
-                )
-
-            translated_callstacks = translate_callstacks(
-                current_contract,
-                global_instructions,
-                runtime_sample.profile.contract_call_callstacks,
-            )
-            new_callstacks_from_upper_layer.append(
-                [c + upper for c in translated_callstacks]
-            )
-        callstacks_from_upper_layer = list(
-            itertools.chain(*new_callstacks_from_upper_layer)
-        )
+    samples = {
+        name: translate_samples(contract_samples, global_instructions, name)
+        for name in sample_names
+    }
 
     return TransactionProfile(
         functions=list(global_functions.values()),
         instructions=list(global_instructions.values()),
-        step_samples=step_samples,
-        memhole_samples=memhole_samples,
+        samples=samples,
     )
 
 

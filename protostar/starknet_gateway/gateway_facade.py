@@ -1,5 +1,5 @@
 import dataclasses
-from logging import Logger, getLogger
+from logging import getLogger, LoggerAdapter
 from pathlib import Path
 from typing import (
     Any,
@@ -13,26 +13,27 @@ from typing import (
     Union,
 )
 
-from starknet_py.contract import Contract, ContractFunction, InvokeResult
+from starknet_py.contract import ContractFunction, InvokeResult
 from starknet_py.net import AccountClient
-from starknet_py.net.client import Client
-from starknet_py.net.client_errors import ClientError, ContractNotFoundError
+from starknet_py.net.client_errors import ClientError
+from starknet_py.net.client_models import InvokeFunction
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import AddressRepresentation, Deploy, Transaction
+from starknet_py.net.models import Deploy, Transaction
 from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.signer import BaseSigner
+from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.transaction_exceptions import (
     TransactionFailedError,
     TransactionRejectedError,
 )
-from starknet_py.transactions.deploy import make_deploy_tx
+from starknet_py.utils.data_transformer.data_transformer import CairoData
 from starkware.starknet.public.abi import AbiType
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,
     Declare,
 )
-from typing_extensions import Self
+from typing_extensions import Self, TypeGuard
 
 from protostar.compiler import CompiledContractReader
 from protostar.io.log_color_provider import LogColorProvider
@@ -54,12 +55,15 @@ from protostar.starknet_gateway.gateway_response import (
     SuccessfulInvokeResponse,
 )
 from protostar.starknet_gateway.starknet_request import StarknetRequest
+from protostar.starknet import Address
+
+from .contract_function_factory import ContractFunctionFactory
 
 ContractFunctionInputType = Union[List[int], Dict[str, Any]]
 
+
 Wei = int
 Fee = Union[Wei, Literal["auto"]]
-Address = int
 ClassHash = int
 
 
@@ -78,76 +82,151 @@ class DeployAccountArgs:
 TransactionT = TypeVar("TransactionT", bound=Transaction)
 
 
+def parse_python_constructor_inputs(
+    inputs: Optional[CairoOrPythonData], abi: AbiType
+) -> CairoData:
+    if not has_abi_item(abi, "constructor"):
+        if inputs:
+            raise InputValidationException(
+                "Inputs provided to a contract with no constructor."
+            )
+        return []
+
+    cairo_inputs = transform_constructor_inputs_from_python(abi, inputs)
+    validate_cairo_inputs(abi, cairo_inputs)
+    return cairo_inputs
+
+
+def is_cairo_data(inputs: Optional[CairoOrPythonData]) -> TypeGuard[CairoData]:
+    return isinstance(inputs, list)
+
+
+def prepare_constructor_inputs(
+    inputs: Optional[CairoOrPythonData], abi: Optional[AbiType]
+) -> CairoData:
+    if is_cairo_data(inputs):
+        return inputs
+
+    if abi:
+        return parse_python_constructor_inputs(inputs, abi)
+
+    if not inputs:
+        return []
+
+    raise InputValidationException(
+        "Provided structured input arguments, but no abi was found."
+    )
+
+
+# pylint: disable=too-many-instance-attributes
 class GatewayFacade:
     def __init__(
         self,
         project_root_path: Path,
         gateway_client: GatewayClient,
         compiled_contract_reader: CompiledContractReader,
-        logger: Optional[Logger] = None,
+        trace: bool = False,
         log_color_provider: Optional[LogColorProvider] = None,
-    ) -> None:
+    ):
         self._project_root_path = project_root_path
         self._starknet_requests: List[StarknetRequest] = []
-        self._logger: Optional[Logger] = logger
+        self._logger = GatewayFacadeLogger(trace)
         self._log_color_provider: Optional[LogColorProvider] = log_color_provider
         self._gateway_client = gateway_client
         self._compiled_contract_reader = compiled_contract_reader
         self._account_tx_version_detector = AccountTxVersionDetector(
             self._gateway_client
         )
+        self._contract_function_factory = ContractFunctionFactory(
+            default_client=gateway_client
+        )
 
     def get_starknet_requests(self) -> List[StarknetRequest]:
         return self._starknet_requests.copy()
 
-    async def deploy(
+    async def deploy_via_udc(
         self,
-        compiled_contract_path: Path,
-        inputs: Optional[ContractFunctionInputType] = None,
-        token: Optional[str] = None,
-        salt: Optional[int] = None,
+        class_hash: int,
+        inputs: Optional[CairoOrPythonData] = None,
+        max_fee: Optional[Fee] = None,
+        signer: Optional[BaseSigner] = None,
         wait_for_acceptance: bool = False,
+        abi: Optional[AbiType] = None,
+        account_address: Optional[int] = None,
+        salt: Optional[int] = None,
+        token: Optional[str] = None,
     ) -> SuccessfulDeployResponse:
-        compiled_contract = self._load_compiled_contract(
-            self._project_root_path / compiled_contract_path
-        )
-        cairo_inputs = self._prepare_constructor_inputs(inputs, compiled_contract_path)
-
-        tx = make_deploy_tx(
-            compiled_contract=compiled_contract,
-            constructor_calldata=cairo_inputs,
+        cairo_inputs = prepare_constructor_inputs(inputs, abi)
+        call = Deployer(account_address=account_address).create_deployment_call_raw(
+            class_hash=class_hash,
+            raw_calldata=cairo_inputs,
             salt=salt,
         )
 
-        register_response = self._register_request(
-            action="DEPLOY",
-            payload={
-                "contract": str(self._project_root_path / compiled_contract_path),
-                "network": str(self._gateway_client.net),
-                "constructor_args": cairo_inputs,
-                "salt": salt,
-                "token": token,
-            },
+        tx = InvokeFunction(
+            contract_address=call.udc.to_addr,  # type: ignore
+            entry_point_selector=call.udc.selector,  # type: ignore
+            calldata=call.udc.calldata,  # type: ignore
+            max_fee=max_fee if isinstance(max_fee, int) else 0,
+            nonce=(
+                await self._gateway_client.get_contract_nonce(
+                    call.udc.to_addr,
+                )
+                if signer
+                else None
+            ),
+            signature=[],
+            version=1 if signer else 0,
         )
 
+        if signer and account_address:
+            if not max_fee:
+                raise InputValidationException(
+                    "max_fee argument should be provided when signing a UDC invocation"
+                )
+
+            account_client = await self._create_account_client(
+                account_address=Address.from_user_input(account_address),
+                signer=signer,
+            )
+            tx = await self._sign_transaction(
+                account_client=account_client,
+                max_fee=max_fee,
+                transaction=tx,
+            )
+
         try:
-            result = await self._gateway_client.deploy(tx, token)
-            register_response(dataclasses.asdict(result))
+            register_response = self._register_request(
+                action="INVOKE_UDC",
+                payload={
+                    "class_hash": class_hash,
+                    "signature": tx.signature,
+                    "network": str(self._gateway_client.net),
+                    "constructor_args": cairo_inputs,
+                    "salt": salt,
+                    "token": token,
+                },
+            )
+
+            result = await self._gateway_client.send_transaction(
+                transaction=tx,
+                token=token,
+            )
             if wait_for_acceptance:
-                if self._logger:
-                    self._logger.info("Waiting for acceptance...")
+                self._logger.info("Waiting for acceptance...")
                 _, status = await self._gateway_client.wait_for_tx(
                     result.transaction_hash, wait_for_accept=wait_for_acceptance
                 )
                 result.code = status.value
+
+            register_response(dataclasses.asdict(result))
+            return SuccessfulDeployResponse(
+                code=result.code or "",
+                address=Address(call.address),
+                transaction_hash=result.transaction_hash,
+            )
         except TransactionFailedError as ex:
             raise TransactionException(str(ex)) from ex
-
-        return SuccessfulDeployResponse(
-            code=result.code or "",
-            address=result.contract_address,
-            transaction_hash=result.transaction_hash,
-        )
 
     def _load_compiled_contract(self, compiled_contract_path: Path):
         try:
@@ -178,7 +257,7 @@ class GatewayFacade:
     async def declare(
         self,
         compiled_contract_path: Path,
-        account_address: str,
+        account_address: Address,
         signer: BaseSigner,
         wait_for_acceptance: bool,
         token: Optional[str],
@@ -210,8 +289,7 @@ class GatewayFacade:
             response = await self._gateway_client.declare(declare_tx, token=token)
 
             if wait_for_acceptance:
-                if self._logger:
-                    self._logger.info("Waiting for acceptance...")
+                self._logger.info("Waiting for acceptance...")
                 _, code = await account_client.wait_for_tx(
                     response.transaction_hash, wait_for_accept=True
                 )
@@ -292,8 +370,7 @@ class GatewayFacade:
             result = await self._gateway_client.declare(tx, token)
             register_response(dataclasses.asdict(result))
             if wait_for_acceptance:
-                if self._logger:
-                    self._logger.info("Waiting for acceptance...")
+                self._logger.info("Waiting for acceptance...")
                 _, status = await self._gateway_client.wait_for_tx(
                     result.transaction_hash, wait_for_accept=wait_for_acceptance
                 )
@@ -322,20 +399,21 @@ class GatewayFacade:
 
     async def call(
         self,
-        address: AddressRepresentation,
+        address: Address,
         function_name: str,
         inputs: Optional[ContractFunctionInputType] = None,
     ) -> NamedTuple:
         register_response = self._register_request(
             action="CALL",
             payload={
-                "contract_address": address,
+                "contract_address": str(address),
                 "function_name": function_name,
                 "inputs": str(inputs),
             },
         )
-        contract_function = await self._create_contract_function(address, function_name)
-
+        contract_function = await self._contract_function_factory.create(
+            address=address, function_name=function_name
+        )
         try:
             result = await self._call_function(contract_function, inputs)
         except TransactionFailedError as ex:
@@ -348,9 +426,9 @@ class GatewayFacade:
 
     async def invoke(
         self,
-        contract_address: int,
+        contract_address: Address,
         function_name: str,
-        account_address: str,
+        account_address: Address,
         signer: BaseSigner,
         max_fee: Fee,
         inputs: Optional[CairoOrPythonData] = None,
@@ -359,7 +437,7 @@ class GatewayFacade:
         register_response = self._register_request(
             action="INVOKE",
             payload={
-                "contract_address": contract_address,
+                "contract_address": str(contract_address),
                 "function_name": function_name,
                 "max_fee": max_fee,
                 "inputs": str(inputs),
@@ -369,10 +447,8 @@ class GatewayFacade:
         account_client = await self._create_account_client(
             account_address=account_address, signer=signer
         )
-        contract_function = await self._create_contract_function(
-            contract_address,
-            function_name,
-            client=account_client,
+        contract_function = await self._contract_function_factory.create(
+            address=contract_address, function_name=function_name, client=account_client
         )
         try:
             result = await self._invoke_function(
@@ -408,7 +484,7 @@ class GatewayFacade:
 
     async def _create_account_client(
         self,
-        account_address: str,
+        account_address: Address,
         signer: BaseSigner,
     ) -> AccountClient:
         supported_by_account_tx_version = (
@@ -423,28 +499,11 @@ class GatewayFacade:
             )
 
         return AccountClient(
-            address=account_address,
+            address=int(account_address),
             client=self._gateway_client,
             signer=signer,
             supported_tx_version=supported_by_account_tx_version,
         )
-
-    async def _create_contract_function(
-        self,
-        contract_address: AddressRepresentation,
-        function_name: str,
-        client: Optional[Client] = None,
-    ):
-        try:
-            contract = await Contract.from_address(
-                address=contract_address, client=client or self._gateway_client
-            )
-        except ContractNotFoundError as err:
-            raise ContractNotFoundException(contract_address) from err
-        try:
-            return contract.functions[function_name]
-        except KeyError:
-            raise UnknownFunctionException(function_name) from KeyError
 
     @staticmethod
     async def _call_function(
@@ -485,9 +544,11 @@ class GatewayFacade:
         except (TypeError, ValueError) as ex:
             raise InputValidationException(str(ex)) from ex
 
-    async def deploy_account(self, args: DeployAccountArgs):
+    async def deploy_account(
+        self, args: DeployAccountArgs
+    ) -> SuccessfulDeployAccountResponse:
         account_client = await self._create_account_client(
-            account_address=str(args.account_address), signer=args.signer
+            account_address=args.account_address, signer=args.signer
         )
         deploy_account_tx = DeployAccount(
             nonce=args.nonce,  # type: ignore
@@ -504,63 +565,50 @@ class GatewayFacade:
         response = await account_client.deploy_account(signed_deploy_account_tx)
         return SuccessfulDeployAccountResponse(
             code=response.code or "",
-            address=response.address,
+            address=Address(response.address),
             transaction_hash=response.transaction_hash,
         )
 
     def _register_request(
         self, action: StarknetRequest.Action, payload: StarknetRequest.Payload
     ) -> Callable[[StarknetRequest.Payload], None]:
+        self._logger.info(
+            "\n".join(
+                [
+                    StarknetRequest.prettify_data_flow(
+                        color_provider=self._log_color_provider,
+                        action=action,
+                        direction="TO_STARKNET",
+                    ),
+                    StarknetRequest.prettify_payload(
+                        color_provider=self._log_color_provider, payload=payload
+                    ),
+                ]
+            )
+        )
 
-        if self._logger:
+        def register_response(response: StarknetRequest.Payload):
             self._logger.info(
                 "\n".join(
                     [
                         StarknetRequest.prettify_data_flow(
                             color_provider=self._log_color_provider,
                             action=action,
-                            direction="TO_STARKNET",
+                            direction="FROM_STARKNET",
                         ),
                         StarknetRequest.prettify_payload(
-                            color_provider=self._log_color_provider, payload=payload
+                            color_provider=self._log_color_provider,
+                            payload=response,
                         ),
                     ]
                 )
             )
-
-        def register_response(response: StarknetRequest.Payload):
-            if self._logger:
-                self._logger.info(
-                    "\n".join(
-                        [
-                            StarknetRequest.prettify_data_flow(
-                                color_provider=self._log_color_provider,
-                                action=action,
-                                direction="FROM_STARKNET",
-                            ),
-                            StarknetRequest.prettify_payload(
-                                color_provider=self._log_color_provider,
-                                payload=response,
-                            ),
-                        ]
-                    )
-                )
 
             self._starknet_requests.append(
                 StarknetRequest(action=action, payload=payload, response=response)
             )
 
         return register_response
-
-
-class UnknownFunctionException(ProtostarException):
-    def __init__(self, function_name: str):
-        super().__init__(f"Tried to call unknown function: '{function_name}'")
-
-
-class ContractNotFoundException(ProtostarException):
-    def __init__(self, contract_address: AddressRepresentation):
-        super().__init__(f"Tried to call unknown contract:\n{contract_address}")
 
 
 class InputValidationException(ProtostarException):
@@ -591,6 +639,15 @@ class FeeExceededMaxFeeException(ProtostarException):
         if "Actual fee exceeded max fee" in client_error.message:
             return cls(client_error.message)
         return None
+
+
+class GatewayFacadeLogger(LoggerAdapter):
+    def __init__(self, trace: bool):
+        super().__init__(logger=getLogger(), extra={})
+        self._trace = trace
+
+    def isEnabledFor(self, level: int) -> bool:
+        return self._trace and super().isEnabledFor(level)
 
 
 def transform_constructor_inputs_from_python(

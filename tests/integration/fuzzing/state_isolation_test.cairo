@@ -7,8 +7,9 @@ func balance() -> (res: felt) {
 }
 
 @external
-func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+func setup_storage_var{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
     %{ max_examples(3) %}
+    %{ given(a = strategy.felts()) %}
     balance.write(100);
     return ();
 }

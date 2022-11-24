@@ -45,7 +45,7 @@ def test_migrating_base_case(
 
     assert "Migration completed" in result
     assert len(glob(f"{migrations_dir_path}/*.json")) == 1
-    assert count_hex64(result) == 2
+    assert count_hex64(result) == 4
 
 
 @pytest.mark.usefixtures("init")
@@ -80,7 +80,7 @@ async def test_migrating_with_signed_invoke(
             "--gateway-url",
             devnet_gateway_url,
             "--account-address",
-            signing_credentials.account_address,
+            str(signing_credentials.account_address),
             "--chain-id",
             str(StarknetChainId.TESTNET.value),
             "--no-confirm",

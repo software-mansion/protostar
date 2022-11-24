@@ -1,7 +1,8 @@
+import logging
 import os
 import sys
 import time
-from logging import INFO, Logger, StreamHandler
+from logging import INFO, StreamHandler
 from pathlib import Path
 from typing import Any, List, Optional
 
@@ -36,7 +37,6 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
     # pylint: disable=too-many-instance-attributes
     def __init__(
         self,
-        logger: Logger,
         log_color_provider: LogColorProvider,
         project_cairo_path_builder: ProjectCairoPathBuilder,
         latest_version_checker: LatestVersionChecker,
@@ -46,7 +46,6 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
         compatibility_checker: ProtostarCompatibilityWithProjectCheckerProtocol,
         start_time: float = 0,
     ) -> None:
-        self._logger = logger
         self._latest_version_checker = latest_version_checker
         self._log_color_provider = log_color_provider
         self._version_manager = version_manager
@@ -103,8 +102,7 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
         handler = StreamHandler()
         standard_log_formatter = StandardLogFormatter(self._log_color_provider)
         handler.setFormatter(standard_log_formatter)
-        self._logger.setLevel(INFO)
-        self._logger.addHandler(handler)
+        logging.basicConfig(level=INFO, handlers=[handler])
 
     def _check_git_version(self):
         git_version = self._version_manager.git_version
@@ -129,12 +127,10 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
     def _print_protostar_exception(self, err: ProtostarException):
         if err.details:
             print(err.details)
-        self._logger.error(err.message)
+        logging.error(err.message)
 
     def _print_execution_time(self):
-        self._logger.info(
-            "Execution time: %.2f s", time.perf_counter() - self._start_time
-        )
+        logging.info("Execution time: %.2f s", time.perf_counter() - self._start_time)
 
     def _extend_pythonpath_with_cairo_path(
         self, cairo_path_arg: Optional[List[Path]] = None
@@ -157,9 +153,10 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
             instruction = f"protostar {MigrateConfigurationFileCommand.NAME}"
             instruction = self._log_color_provider.bold(instruction)
             instruction = self._log_color_provider.colorize("CYAN", instruction)
-            self._logger.warning(
+            logging.warning(
                 "Current configuration file won't be supported in future releases.\n"
-                f"To update your configuration file, run: {instruction}"
+                "To update your configuration file, run: %s",
+                instruction,
             )
 
     def _warn_if_compatibility_issues_detected(self):
@@ -167,14 +164,18 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
         compatibility_result = output.compatibility_result
 
         if compatibility_result == CompatibilityResult.OUTDATED_DECLARED_VERSION:
-            self._logger.warning(
-                f"This project expects older Protostar (v{output.declared_protostar_version_str})\n"
+            logging.warning(
+                "This project expects older Protostar (v%s)\n"
                 "Please update the declared Protostar version in the project's configuration file,\n"
-                f"if the project is compatible with Protostar v{output.protostar_version_str}"
+                "if the project is compatible with Protostar v%s",
+                output.declared_protostar_version_str,
+                output.protostar_version_str,
             )
         elif compatibility_result == CompatibilityResult.OUTDATED_PROTOSTAR:
-            self._logger.warning(
-                f"This project expects newer Protostar (v{output.declared_protostar_version_str})\n"
-                f"Your Protostar version is v{output.protostar_version_str}\n"
-                "Please upgrade Protostar"
+            logging.warning(
+                "This project expects newer Protostar (v%s)\n"
+                "Your Protostar version is v%s\n"
+                "Please upgrade Protostar",
+                output.declared_protostar_version_str,
+                output.protostar_version_str,
             )

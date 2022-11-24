@@ -1,4 +1,5 @@
 import pytest
+from starknet_py.net.models import StarknetChainId
 
 from protostar.protostar_exception import ProtostarException
 from tests.conftest import DevnetAccount, SetPrivateKeyEnvVarFixture
@@ -21,8 +22,12 @@ async def test_invoke(
     devnet_account: DevnetAccount,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
-    deploy_response = await protostar.deploy(
+    declare_response = await protostar.declare(
         contract=protostar.project_root_path / "build" / "main.json",
+        gateway_url=devnet_gateway_url,
+    )
+    deploy_response = await protostar.deploy(
+        declare_response.class_hash,
         gateway_url=devnet_gateway_url,
     )
 
@@ -38,7 +43,8 @@ async def test_invoke(
         )
 
         await assert_transaction_accepted(devnet_gateway_url, response.transaction_hash)
-    transaction = protostar.get_intercepted_transactions_mapping().invoke_txs[0]
+    # The one at 0 is actually a UDC Invoke, for deploy
+    transaction = protostar.get_intercepted_transactions_mapping().invoke_txs[1]
     assert transaction.max_fee != "auto"
     assert transaction.calldata[6] == 42
     assert transaction.version == 1
@@ -52,8 +58,12 @@ async def test_handling_invoke_failure(
 ):
     protostar.create_files({"./src/main.cairo": RUNTIME_ERROR_CONTRACT})
     await protostar.build()
-    deploy_response = await protostar.deploy(
+    declare_response = await protostar.declare(
         contract=protostar.project_root_path / "build" / "main.json",
+        gateway_url=devnet_gateway_url,
+    )
+    deploy_response = await protostar.deploy(
+        declare_response.class_hash,
         gateway_url=devnet_gateway_url,
     )
 

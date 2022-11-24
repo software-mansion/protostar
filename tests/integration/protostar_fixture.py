@@ -1,9 +1,10 @@
 import asyncio
+import logging
 from argparse import Namespace
+from contextlib import contextmanager
 from dataclasses import dataclass, field
-from logging import Logger, getLogger
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union, cast
+from typing import Any, Callable, Dict, List, Optional, Union, cast, Generator
 
 from pytest_mock import MockerFixture
 from starknet_py.net import KeyPair
@@ -14,10 +15,10 @@ from starknet_py.net.models.transaction import DeployAccount
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
 from protostar.argument_parser import ArgumentParserFacade, CLIApp
-from protostar.cli import map_protostar_type_name_to_parser
-from protostar.cli.map_targets_to_file_paths import map_targets_to_file_paths
+from protostar.cli import map_protostar_type_name_to_parser, MessengerFactory
 from protostar.commands import (
     BuildCommand,
+    CalculateAccountAddressCommand,
     CallCommand,
     DeclareCommand,
     FormatCommand,
@@ -38,11 +39,7 @@ from protostar.configuration_file import (
     ConfigurationFileV2ContentFactory,
     ConfigurationTOMLContentBuilder,
 )
-from protostar.formatter.formatter import Formatter
-from protostar.formatter.formatting_result import (
-    FormattingResult,
-    format_formatting_result,
-)
+from protostar.formatter.formatting_result import FormattingResult
 from protostar.formatter.formatting_summary import FormattingSummary
 from protostar.io import log_color_provider
 from protostar.io.input_requester import InputRequester
@@ -51,9 +48,12 @@ from protostar.self.protostar_compatibility_with_project_checker import (
     parse_protostar_version,
 )
 from protostar.self.protostar_directory import ProtostarDirectory
+from protostar.starknet.address import Address
 from protostar.starknet_gateway import Fee, GatewayFacade, GatewayFacadeFactory
 from protostar.starknet_gateway.gateway_facade import Wei
 from protostar.testing import TestingSummary
+from protostar.starknet import Address
+from tests.conftest import Credentials
 
 
 # pylint: disable=too-many-instance-attributes
@@ -71,6 +71,7 @@ class ProtostarFixture:
         invoke_command: InvokeCommand,
         call_command: CallCommand,
         deploy_account_command: DeployAccountCommand,
+        calculate_account_address_command: CalculateAccountAddressCommand,
         cli_app: CLIApp,
         parser: ArgumentParserFacade,
         transaction_registry: "TransactionRegistry",
@@ -84,6 +85,7 @@ class ProtostarFixture:
         self._deploy_command = deploy_command
         self._test_command = test_command
         self._invoke_command = invoke_command
+        self._calculate_account_address_command = calculate_account_address_command
         self._transaction_registry = transaction_registry
         self._call_command = call_command
         self._deploy_account_command = deploy_account_command
@@ -99,9 +101,9 @@ class ProtostarFixture:
 
     async def declare(
         self,
+        contract: Path,
+        account_address: Optional[Address] = None,
         chain_id: Optional[StarknetChainId] = None,
-        account_address: Optional[str] = None,
-        contract: Optional[Path] = None,
         gateway_url: Optional[str] = None,
         wait_for_acceptance: Optional[bool] = False,
         max_fee: Optional[Fee] = None,
@@ -110,39 +112,73 @@ class ProtostarFixture:
         args.signer_class = None
         args.account_address = None
         args.private_key_path = None
-        args.contract = None
+        args.contract = contract
         args.gateway_url = None
         args.network = None
         args.token = None
+        args.block_explorer = None
         args.wait_for_acceptance = wait_for_acceptance
-        args.chain_id = chain_id
+        args.chain_id = chain_id or StarknetChainId.TESTNET
         args.account_address = account_address
         args.contract = contract
         args.gateway_url = gateway_url
         args.max_fee = max_fee
-
+        args.json = False
         return await self._declare_command.run(args)
 
     async def deploy(
         self,
-        contract: Path,
+        class_hash: int,
         gateway_url: Optional[str] = None,
         inputs: Optional[List[int]] = None,
+        max_fee: Optional[Fee] = None,
     ):
         args = Namespace()
-        args.contract = contract
+        args.class_hash = class_hash
         args.gateway_url = gateway_url
+        args.max_fee = max_fee
         args.inputs = inputs or []
         args.network = None
         args.token = None
         args.salt = None
+        args.block_explorer = None
         args.wait_for_acceptance = False
         args.chain_id = StarknetChainId.TESTNET
+        args.signer_class = None
+        args.private_key_path = None
+        args.account_address = None
+        args.json = False
+
         return await self._deploy_command.run(args)
+
+    async def calculate_account_address(
+        self,
+        account_address_salt: int,
+        account_class_hash: int,
+        account_constructor_input: Optional[list[int]],
+    ):
+        args = self._parser.parse(
+            [
+                "calculate-account-address",
+                "--account-class-hash",
+                str(account_class_hash),
+                "--account-address-salt",
+                str(account_address_salt),
+            ]
+            + (
+                [
+                    "--account-constructor-input",
+                    " ".join(str(i) for i in account_constructor_input),
+                ]
+                if account_constructor_input
+                else []
+            )
+        )
+        return await self._calculate_account_address_command.run(args)
 
     async def deploy_account(
         self,
-        account_address: str,
+        account_address: Address,
         account_address_salt: int,
         account_class_hash: int,
         max_fee: Wei,
@@ -154,7 +190,7 @@ class ProtostarFixture:
             [
                 "deploy-account",
                 "--account-address",
-                account_address,
+                str(account_address),
                 "--gateway-url",
                 gateway_url,
                 "--chain-id",
@@ -195,6 +231,7 @@ class ProtostarFixture:
         args.report_slowest_tests = 0
         args.last_failed = last_failed
         args.profiling = False
+        args.max_steps = None
 
         return await self._test_command.run(args)
 
@@ -218,13 +255,14 @@ class ProtostarFixture:
         args.compiled_contracts_dir = Path("./build")
         args.disable_hint_validation = False
         args.cairo_path = None
+        args.json = False
         return args
 
     async def migrate(
         self,
         path: Path,
         gateway_url: str,
-        account_address: Optional[str] = None,
+        account_address: Optional[Address] = None,
     ):
         args = Namespace()
         args.path = path
@@ -243,11 +281,11 @@ class ProtostarFixture:
 
     async def invoke(
         self,
-        contract_address: int,
+        contract_address: Address,
         function_name: str,
         inputs: Optional[list[int]],
         gateway_url: str,
-        account_address: Optional[str] = None,
+        account_address: Optional[Address] = None,
         wait_for_acceptance: Optional[bool] = False,
         max_fee: Optional[Fee] = None,
     ):
@@ -261,14 +299,16 @@ class ProtostarFixture:
         args.signer_class = None
         args.account_address = account_address
         args.private_key_path = None
+        args.block_explorer = None
         args.wait_for_acceptance = wait_for_acceptance
         args.max_fee = max_fee
+        args.json = False
 
         return await self._invoke_command.run(args)
 
     async def call(
         self,
-        contract_address: int,
+        contract_address: Address,
         function_name: str,
         inputs: Optional[list[int]],
         gateway_url: str,
@@ -280,6 +320,7 @@ class ProtostarFixture:
         args.network = None
         args.gateway_url = gateway_url
         args.chain_id = StarknetChainId.TESTNET
+        args.json = False
 
         return await self._call_command.run(args)
 
@@ -289,33 +330,16 @@ class ProtostarFixture:
         check: bool = False,
         verbose: bool = False,
         ignore_broken: bool = False,
+        on_formatting_result: Optional[Callable[[FormattingResult], Any]] = None,
     ) -> FormattingSummary:
         # We can't use run because it can raise a silent exception thus not returning summary.
-        return self._format_command.format(targets, check, verbose, ignore_broken)
-
-    def format_with_output(
-        self,
-        targets: List[str],
-        check: bool = False,
-        verbose: bool = False,
-        ignore_broken: bool = False,
-    ) -> Tuple[FormattingSummary, List[str]]:
-        formatter = Formatter(self._project_root_path)
-
-        output: List[str] = []
-        callback: Callable[[FormattingResult], Any] = lambda result: output.append(
-            format_formatting_result(result, check)
-        )
-
-        summary = formatter.format(
-            file_paths=map_targets_to_file_paths(targets),
+        return self._format_command.format(
+            targets=targets,
             check=check,
             verbose=verbose,
             ignore_broken=ignore_broken,
-            on_formatting_result=callback,
+            on_formatting_result=on_formatting_result,
         )
-
-        return summary, output
 
     def create_files(
         self, relative_path_str_to_file: Dict[str, Union[str, Path]]
@@ -401,7 +425,7 @@ class TestFriendlyGatewayFacadeFactory(GatewayFacadeFactory):
         self.recent_gateway_client: Optional[GatewayClientTxInterceptor] = None
         self._transaction_registry = transaction_registry
 
-    def create(self, gateway_client: GatewayClient, logger: Optional[Logger]):
+    def create(self, gateway_client: GatewayClient, trace: bool = True):
         gateway_client_tx_interceptor = GatewayClientTxInterceptor(
             # pylint: disable=protected-access
             net=gateway_client._net,
@@ -412,17 +436,24 @@ class TestFriendlyGatewayFacadeFactory(GatewayFacadeFactory):
             project_root_path=self._project_root_path,
             compiled_contract_reader=self._compiled_contract_reader,
             gateway_client=gateway_client_tx_interceptor,
-            logger=logger,
+            trace=trace,
             log_color_provider=log_color_provider,
         )
 
 
+@contextmanager
+def fake_activity_indicator(message: str) -> Generator[None, None, None]:
+    yield
+
+
 def build_protostar_fixture(
-    mocker: MockerFixture, project_root_path: Path, signing_credentials: Tuple[str, str]
+    mocker: MockerFixture,
+    project_root_path: Path,
+    signing_credentials: Credentials,
 ):
-    account_address, private_key = signing_credentials
+    private_key, account_address = signing_credentials
     signer = StarkCurveSigner(
-        account_address,
+        str(account_address),
         KeyPair.from_private_key(int(private_key, 16)),
         StarknetChainId.TESTNET,
     )
@@ -435,7 +466,7 @@ def build_protostar_fixture(
         active_profile_name=None, cwd=project_root_path
     ).create()
     project_cairo_path_builder = ProjectCairoPathBuilder(
-        project_root_path=project_root_path, configuration_file=configuration_file
+        project_root_path=project_root_path,
     )
 
     project_compiler = ProjectCompiler(
@@ -473,8 +504,15 @@ def build_protostar_fixture(
         adapted_project_creator=mocker.MagicMock(),
     )
 
-    logger = getLogger()
-    build_command = BuildCommand(logger=logger, project_compiler=project_compiler)
+    messenger_factory = MessengerFactory(
+        log_color_provider=log_color_provider,
+        activity_indicator=fake_activity_indicator,
+    )
+
+    build_command = BuildCommand(
+        project_compiler=project_compiler,
+        messenger_factory=messenger_factory,
+    )
 
     migrator_builder = Migrator.Builder(
         migrator_execution_environment_builder=MigratorExecutionEnvironment.Builder(
@@ -499,27 +537,30 @@ def build_protostar_fixture(
     )
 
     deploy_account_command = DeployAccountCommand(
-        gateway_facade_factory=gateway_facade_factory, logger=logger
+        gateway_facade_factory=gateway_facade_factory,
+        messenger_factory=messenger_factory,
     )
 
     migrate_command = MigrateCommand(
         migrator_builder=migrator_builder,
         log_color_provider=log_color_provider,
-        logger=logger,
+        logger=logging.getLogger(),
         requester=input_requester,
         gateway_facade_factory=gateway_facade_factory,
     )
 
     format_command = FormatCommand(
         project_root_path=project_root_path,
-        logger=logger,
+        messenger_factory=messenger_factory,
     )
     declare_command = DeclareCommand(
-        logger=logger, gateway_facade_factory=gateway_facade_factory
+        gateway_facade_factory=gateway_facade_factory,
+        messenger_factory=messenger_factory,
     )
 
     deploy_command = DeployCommand(
-        logger=logger, gateway_facade_factory=gateway_facade_factory
+        gateway_facade_factory=gateway_facade_factory,
+        messenger_factory=messenger_factory,
     )
 
     test_command = TestCommand(
@@ -527,22 +568,31 @@ def build_protostar_fixture(
         protostar_directory=ProtostarDirectory(project_root_path),
         project_cairo_path_builder=ProjectCairoPathBuilder(
             project_root_path,
-            configuration_file=configuration_file,
         ),
         log_color_provider=log_color_provider,
-        logger=logger,
         cwd=project_root_path,
         active_profile_name=None,
     )
 
     invoke_command = InvokeCommand(
-        gateway_facade_factory=gateway_facade_factory, logger=logger
+        gateway_facade_factory=gateway_facade_factory,
+        messenger_factory=messenger_factory,
     )
     call_command = CallCommand(
-        gateway_facade_factory=gateway_facade_factory, logger=logger
+        gateway_facade_factory=gateway_facade_factory,
+        messenger_factory=messenger_factory,
     )
 
-    cli_app = CLIApp(commands=[deploy_account_command])
+    calculate_account_address_command = CalculateAccountAddressCommand(
+        messenger_factory=messenger_factory
+    )
+
+    cli_app = CLIApp(
+        commands=[
+            deploy_account_command,
+            calculate_account_address_command,
+        ]
+    )
     parser = ArgumentParserFacade(
         cli_app, parser_resolver=map_protostar_type_name_to_parser
     )
@@ -562,6 +612,7 @@ def build_protostar_fixture(
         cli_app=cli_app,
         parser=parser,
         transaction_registry=transaction_registry,
+        calculate_account_address_command=calculate_account_address_command,
     )
 
     return protostar_fixture

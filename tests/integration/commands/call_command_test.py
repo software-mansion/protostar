@@ -21,8 +21,12 @@ async def test_call(
     protostar: ProtostarFixture,
     devnet_gateway_url: str,
 ):
+    declare_response = await protostar.declare(
+        protostar.project_root_path / "build" / "main.json",
+        gateway_url=devnet_gateway_url,
+    )
     deploy_response = await protostar.deploy(
-        contract=protostar.project_root_path / "build" / "main.json",
+        class_hash=declare_response.class_hash,
         gateway_url=devnet_gateway_url,
     )
 
@@ -33,7 +37,7 @@ async def test_call(
         gateway_url=devnet_gateway_url,
     )
 
-    assert response.res == 6  # type: ignore
+    assert response.response.res == 6
 
 
 async def test_call_failure(
@@ -41,8 +45,12 @@ async def test_call_failure(
     devnet_gateway_url: str,
 ):
     await protostar.build()
+    declare_response = await protostar.declare(
+        protostar.project_root_path / "build" / "main.json",
+        gateway_url=devnet_gateway_url,
+    )
     deploy_response = await protostar.deploy(
-        contract=protostar.project_root_path / "build" / "main.json",
+        class_hash=declare_response.class_hash,
         gateway_url=devnet_gateway_url,
     )
 

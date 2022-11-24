@@ -28,7 +28,7 @@ class DeployCheatcode(Cheatcode):
         prepared: PreparedContract,
     ):
         self.state.deploy_contract(
-            contract_address=prepared.contract_address,
+            contract_address=int(prepared.contract_address),
             class_hash=to_bytes(prepared.class_hash),
         )
 
@@ -54,7 +54,7 @@ class DeployCheatcode(Cheatcode):
         self.execute_constructor_entry_point(
             class_hash_bytes=to_bytes(prepared.class_hash),
             constructor_calldata=prepared.constructor_calldata,
-            contract_address=prepared.contract_address,
+            contract_address=int(prepared.contract_address),
         )
 
     def validate_constructor_args(self, prepared: PreparedContract):

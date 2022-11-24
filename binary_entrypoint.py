@@ -28,27 +28,15 @@ def fix_ssl_certificate_errors_on_macos():
 
 
 def import_protostar_main():
-    try:
-        with ProtostarInitializingIndicator(disabled=not is_terminal()):
-            # pylint: disable="import-outside-toplevel"
-            from protostar import main
+    with ProtostarInitializingIndicator(disabled=not is_terminal()):
+        # pylint: disable="import-outside-toplevel"
+        from protostar import main
 
-            return main
-    except ImportError as err:
-        handle_git_error(err)
-        raise err
+        return main
 
 
 def is_terminal() -> bool:
     return StreamWrapper(sys.stdout, sys.stdin).isatty()
-
-
-def handle_git_error(err: ImportError):
-    if err.msg.startswith("Failed to initialize: Bad git executable."):
-        print(
-            "Protostar requires git executable to be specified in $PATH. Did you install git?"
-        )
-        sys.exit()
 
 
 class ProtostarInitializingIndicator:
@@ -60,13 +48,13 @@ class ProtostarInitializingIndicator:
         self._disabled = disabled
 
     def start(self):
+        if self._disabled:
+            return
+
         self._thread.start()
         return self
 
     def _animate(self):
-        if self._disabled:
-            return
-
         for step in cycle(self.steps):
             if self.done:
                 break
@@ -74,6 +62,9 @@ class ProtostarInitializingIndicator:
             sleep(self.interval)
 
     def stop(self):
+        if self._disabled:
+            return
+
         self.done = True
         cols = get_terminal_size((80, 20)).columns
         print("\r" + " " * cols, end="\r", flush=True)

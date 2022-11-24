@@ -7,9 +7,9 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.signer import BaseSigner
 
 from protostar.cli import ProtostarArgument, ProtostarCommand
+from protostar.cli.common_arguments import COMPILED_CONTRACTS_DIR_ARG
 from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.cli.signable_command_util import SignableCommandUtil
-from protostar.commands.build_command import BuildCommand
 from protostar.io.input_requester import InputRequester
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.migrator import Migrator, MigratorExecutionEnvironment
@@ -63,11 +63,8 @@ class MigrateCommand(ProtostarCommand):
                 description="Skip confirming building the project.",
                 type="bool",
             ),
-            ProtostarArgument(
-                name="compiled-contracts-dir",
-                description="A directory in which your compiled contracts are located (used for deploys and declares)",
-                type="path",
-                default=BuildCommand.COMPILATION_OUTPUT_ARG.default,
+            COMPILED_CONTRACTS_DIR_ARG.copy_with(
+                description="A directory in which your compiled contracts are located (used for deploys and declares)"
             ),
         ]
 
@@ -84,9 +81,9 @@ Consult https://docs.swmansion.com/protostar/docs/tutorials/deploying for more i
 """
         )
 
-        network_command_util = NetworkCommandUtil(args, self._logger)
+        network_command_util = NetworkCommandUtil(args)
         network_config = network_command_util.get_network_config()
-        signable_command_util = SignableCommandUtil(args, self._logger)
+        signable_command_util = SignableCommandUtil(args)
         signer = signable_command_util.get_signer(network_config)
         migrator_config = MigratorExecutionEnvironment.Config(
             account_address=args.account_address,
@@ -119,9 +116,7 @@ Consult https://docs.swmansion.com/protostar/docs/tutorials/deploying for more i
             self._logger.info("Migration cancelled")
             return
 
-        gateway_facade = self._gateway_facade_factory.create(
-            gateway_client=gateway_client, logger=self._logger
-        )
+        gateway_facade = self._gateway_facade_factory.create(gateway_client, trace=True)
 
         self._migrator_builder.set_logger(self._logger, self._log_color_provider)
 

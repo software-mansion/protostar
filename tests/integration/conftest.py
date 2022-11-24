@@ -2,7 +2,6 @@ import json
 import os
 from contextlib import contextmanager
 from dataclasses import dataclass
-from logging import getLogger
 from pathlib import Path
 from typing import Callable, ContextManager, List, Optional, Set, Tuple, cast
 
@@ -16,7 +15,7 @@ from protostar.commands.test.test_command import TestCommand
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.testing import TestingSummary
-from tests.conftest import run_devnet
+from tests.conftest import Credentials, run_devnet
 from tests.integration.protostar_fixture import (
     ProtostarFixture,
     build_protostar_fixture,
@@ -98,6 +97,7 @@ class RunCairoTestRunnerFixture(Protocol):
         self,
         path: Path,
         seed: Optional[int] = None,
+        max_steps: Optional[int] = None,
         disable_hint_validation: bool = False,
         profiling: bool = False,
         cairo_path: Optional[List[Path]] = None,
@@ -136,6 +136,7 @@ def run_cairo_test_runner_fixture(
     async def run_cairo_test_runner(
         path: Path,
         seed: Optional[int] = None,
+        max_steps: Optional[int] = None,
         disable_hint_validation: bool = False,
         profiling: bool = False,
         cairo_path: Optional[List[Path]] = None,
@@ -170,7 +171,6 @@ def run_cairo_test_runner_fixture(
                 project_root_path=Path(),
                 protostar_directory=protostar_directory_mock,
                 project_cairo_path_builder=project_cairo_path_builder,
-                logger=getLogger(),
                 log_color_provider=log_color_provider,
                 active_profile_name=None,
                 cwd=Path(),
@@ -178,6 +178,7 @@ def run_cairo_test_runner_fixture(
                 targets=targets,
                 ignored_targets=ignored_targets,
                 seed=seed,
+                max_steps=max_steps,
                 profiling=profiling,
                 disable_hint_validation=disable_hint_validation,
                 cairo_path=cairo_path or [],
@@ -195,7 +196,7 @@ class CreateProtostarProjectFixture(Protocol):
 def create_protostar_project_fixture(
     session_mocker: MockerFixture,
     tmp_path_factory: TempPathFactory,
-    signing_credentials: Tuple[str, str],
+    signing_credentials: Credentials,
 ) -> CreateProtostarProjectFixture:
     @contextmanager
     def create_protostar_project():

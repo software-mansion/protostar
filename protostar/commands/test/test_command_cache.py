@@ -1,6 +1,7 @@
-from typing import List, Optional
-from logging import Logger
+import logging
+from typing import List
 
+from protostar.self.cache_io import CacheIO
 from protostar.testing import TestingSummary
 from protostar.testing.test_results import (
     FailedTestCaseResult,
@@ -8,13 +9,10 @@ from protostar.testing.test_results import (
     BrokenTestSuiteResult,
 )
 
-from protostar.self.cache_io import CacheIO
-
 
 class TestCommandCache:
-    def __init__(self, cache_io: CacheIO, logger: Optional[Logger] = None):
+    def __init__(self, cache_io: CacheIO):
         self.cache_io = cache_io
-        self._logger = logger
 
     def obtain_targets(
         self, targets: List[str], last_failed: bool = False
@@ -24,10 +22,9 @@ class TestCommandCache:
         if targets_from_cache := self.cache_io.read("last_failed_tests"):
             targets = targets_from_cache["targets"]
             targets = [f"{target[0]}::{target[1]}" for target in targets]
-            if self._logger:
-                self._logger.info(
-                    f"Running previously failed tests, found {len(targets)} cases"
-                )
+            logging.info(
+                "Running previously failed tests, found %d cases.", len(targets)
+            )
         return targets
 
     def write_failed_tests_to_cache(self, summary: TestingSummary):

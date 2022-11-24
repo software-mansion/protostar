@@ -1,5 +1,6 @@
 from collections import UserDict, defaultdict
 from dataclasses import dataclass
+import itertools
 import math
 from typing import cast
 
@@ -7,7 +8,7 @@ from starkware.cairo.lang.compiler.identifier_definition import LabelDefinition
 from starkware.cairo.lang.tracer.tracer_data import TracerData
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
-
+from starkware.cairo.lang.vm.builtin_runner import BuiltinRunner, SimpleBuiltinRunner
 
 Address = int
 FunctionID = str
@@ -82,8 +83,7 @@ class RuntimeProfile:
 
     functions: list[Function]
     instructions: list[Instruction]
-    step_samples: list[Sample]
-    memhole_samples: list[Sample]
+    samples: dict[str, list[Sample]]
     contract_call_callstacks: list[list[Instruction]]
 
 
@@ -223,24 +223,26 @@ def build_step_samples(
     return step_samples
 
 
-def blame_pc(last_accesses: dict[Address, Address], hole_address: Address) -> int:
+def blame_callstack(
+    accessed_by_callstack: dict[Address, list[Address]], hole_address: Address
+) -> list[Address]:
     """
-    Decides under which pc is placed an intruction which is responsible for the memory hole
+    Decides what callstack responsible for the memory hole
 
     Keyword arguments:
-    last_accesses -- Address -> Pc of instruction which accessed the address last
+    accessed_by_callstack -- Address -> Callstack which accessed the address last
     hole_address -- Address of the memory hole
     """
-    assert hole_address not in last_accesses
+    assert hole_address not in accessed_by_callstack
     min_addr_after = math.inf
-    blamed_pc = -1
-    for address, pc in last_accesses.items():
+    blamed_callstack = None
+    for address, callstack in accessed_by_callstack.items():
         if address > hole_address:
             if address < min_addr_after:
                 min_addr_after = address
-                blamed_pc = pc
-    assert blamed_pc > -1
-    return blamed_pc
+                blamed_callstack = callstack
+    assert blamed_callstack
+    return blamed_callstack
 
 
 def get_not_accessed_addresses(
@@ -265,6 +267,7 @@ def get_not_accessed_addresses(
                 not_accessed_addr.remove(idx)
             except KeyError:
                 pass
+    # TODO(maksymiliandemitraszek) does it include some builtin segments memholes?
     return not_accessed_addr
 
 
@@ -276,25 +279,52 @@ def build_memhole_samples(
     segment_offsets: dict[int, int],
 ) -> list[Sample]:
     # Address -> Pc of instruction which accessed the address last
-    accessed_by: dict[Address, Address] = {}
-    pc_to_callstack: dict[Address, list[Address]] = {}
+    accessed_by_callstack = get_last_accessed(tracer_data)
+    samples: list[Sample] = []
+    not_acc = get_not_accessed_addresses(accessed_memory, segments, segment_offsets)
+    for address in not_acc:
+        blamed_callstack = blame_callstack(accessed_by_callstack, address)
+        callstack = [
+            instructions.get_by_address(frame_pc) for frame_pc in blamed_callstack
+        ]
+        samples.append(Sample(value=1, callstack=callstack))
+    return samples
+
+
+def get_last_accessed(
+    tracer_data: TracerDataManager,
+) -> dict[Address, list[Address]]:
+    accessed_by_callstack: dict[Address, list[Address]] = {}
     for trace_entry, mem_acc in zip(tracer_data.trace, tracer_data.memory_accesses):
         frame_pcs = tracer_data.get_callstack(fp=trace_entry.fp, pc=trace_entry.pc)
         addresses: list[Address] = [mem_acc[d] for d in ["dst", "op0", "op1"]]
         for addr in addresses:
-            # Casting to Addres because adresses have been already relocated
-            # TODO(maksymiliandemitraszek) check if that's correct
-            accessed_by[addr] = cast(Address, trace_entry.pc)
-            pc_to_callstack[trace_entry.pc] = frame_pcs
+            accessed_by_callstack[addr] = frame_pcs
+    return accessed_by_callstack
 
+
+def build_builtin_samples(
+    builtin: SimpleBuiltinRunner,
+    instructions: Instructions,
+    tracer_data: TracerDataManager,
+    segments: MemorySegmentManager,
+    segment_offsets: dict[int, int],
+) -> list[Sample]:
     samples: list[Sample] = []
-    not_acc = get_not_accessed_addresses(accessed_memory, segments, segment_offsets)
-    for address in not_acc:
-        pc = blame_pc(accessed_by, address)
-        callstack = [
-            instructions.get_by_address(frame_pc) for frame_pc in pc_to_callstack[pc]
-        ]
-        samples.append(Sample(value=1, callstack=callstack))
+    accessed_by_callstack = get_last_accessed(tracer_data)
+    assert builtin.base.segment_index
+    idx = builtin.base.segment_index
+    builtin_segment_size = segments.get_segment_used_size(idx)
+    builtin_segment_offset = segment_offsets[idx]
+    for addr in range(
+        builtin.base.offset, builtin_segment_size, builtin.cells_per_instance
+    ):
+        if builtin_segment_offset + addr in accessed_by_callstack:
+            callstack = [
+                instructions.get_by_address(frame_pc)
+                for frame_pc in accessed_by_callstack[builtin_segment_offset + addr]
+            ]
+            samples.append(Sample(value=1, callstack=callstack))
     return samples
 
 
@@ -303,24 +333,42 @@ def build_profile(
     segments: MemorySegmentManager,
     segment_offsets: dict[int, int],
     accessed_memory: set[RelocatableValue],
+    builtins: dict[str, BuiltinRunner],
 ) -> RuntimeProfile:
     function_list = collect_contract_functions(tracer_data)
     instructions_list = create_instruction_list(function_list, tracer_data)
     instructions = Instructions.from_list(instructions_list)
     step_samples = build_step_samples(instructions, tracer_data)
     memhole_samples = build_memhole_samples(
-        instructions,
-        tracer_data,
-        accessed_memory,
-        segments,
-        segment_offsets,
+        instructions=instructions,
+        tracer_data=tracer_data,
+        accessed_memory=accessed_memory,
+        segments=segments,
+        segment_offsets=segment_offsets,
     )
+    simple_builtins = [
+        b for b in builtins.values() if isinstance(b, SimpleBuiltinRunner)
+    ]
+
+    builtin_samples = {
+        builtin.name: build_builtin_samples(
+            builtin, instructions, tracer_data, segments, segment_offsets
+        )
+        for builtin in simple_builtins
+    }
+
     callstacks_syscall = build_call_callstacks(instructions, tracer_data)
     profile = RuntimeProfile(
         functions=function_list,
         instructions=instructions_list,
-        step_samples=step_samples,
-        memhole_samples=memhole_samples,
+        samples={
+            "steps": step_samples,
+            "memory holes": memhole_samples,
+            "all builtins": list(
+                itertools.chain.from_iterable(builtin_samples.values())
+            ),
+            **builtin_samples,
+        },
         contract_call_callstacks=callstacks_syscall,
     )
     return profile

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar, Any
+from typing import Generic, TypeVar, Any, Optional
 
 from starkware.starknet.testing.objects import StarknetCallInfo
 from starkware.starkware_utils.error_handling import StarkException
@@ -49,3 +49,7 @@ class ExecutionEnvironment(ABC, Generic[InvokeResultT]):
     @staticmethod
     def set_profile_flag(value: bool):
         CheatableExecuteEntryPoint.profiling = value
+
+    @staticmethod
+    def set_max_steps(value: Optional[int]):
+        CheatableExecuteEntryPoint.max_steps = value

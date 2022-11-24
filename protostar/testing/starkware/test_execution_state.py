@@ -14,6 +14,7 @@ from protostar.testing.test_config import TestConfig
 from protostar.testing.test_context import TestContext
 from protostar.testing.test_output_recorder import OutputRecorder
 from protostar.testing.test_suite import TestCase
+from protostar.starknet import Address
 
 
 @dataclass
@@ -42,7 +43,7 @@ class TestExecutionState(ExecutionState):
             0
         ] = contract_path
         starknet.cheatable_state.cheatable_state.contract_address_to_class_hash_map[
-            contract.contract_address
+            Address(contract.contract_address)
         ] = 0
         return cls(
             config=test_config,
