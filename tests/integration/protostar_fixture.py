@@ -261,6 +261,7 @@ class ProtostarFixture:
 
     def build_sync(self):
         args = Namespace()
+        args.contracts = None
         args.compiled_contracts_dir = Path("./build")
         args.disable_hint_validation = False
         args.cairo_path = None
