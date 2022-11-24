@@ -4,8 +4,9 @@ from typing import List, Optional, Any
 from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
 from protostar.cli.common_arguments import COMPILED_CONTRACTS_DIR_ARG
 from protostar.compiler import ProjectCompiler, ProjectCompilerConfig
-from protostar.compiler.project_compiler import ContractIdentifier
+from protostar.compiler.contract_source_identifier import ContractSourceIdentifier
 from protostar.io import LogColorProvider, Message
+from protostar.configuration_file import ConfigurationFile
 
 
 class BuildActivityMessageTemplate(Message):
@@ -18,10 +19,12 @@ class BuildCommand(ProtostarCommand):
         self,
         project_compiler: ProjectCompiler,
         messenger_factory: MessengerFactory,
+        configuration_file: ConfigurationFile,
     ):
         super().__init__()
         self._project_compiler = project_compiler
         self._messenger_factory = messenger_factory
+        self._configuration_file = configuration_file
 
     @property
     def example(self) -> Optional[str]:
@@ -67,7 +70,7 @@ class BuildCommand(ProtostarCommand):
 
         with write.activity(BuildActivityMessageTemplate()):
             await self.build(
-                contract_identifiers=args.contracts,
+                contract_source_identifiers=args.contracts,
                 output_dir=args.compiled_contracts_dir,
                 disable_hint_validation=args.disable_hint_validation,
                 relative_cairo_path=args.cairo_path,
@@ -75,14 +78,17 @@ class BuildCommand(ProtostarCommand):
 
     async def build(
         self,
-        contract_identifiers: list[ContractIdentifier],
+        contract_source_identifiers: list[ContractSourceIdentifier],
         output_dir: Path,
         disable_hint_validation: bool = False,
         relative_cairo_path: Optional[List[Path]] = None,
     ):
-        print(contract_identifiers)
-        return
+        contract_source_identifiers = (
+            contract_source_identifiers
+            or self._configuration_file.get_contract_source_identifiers()
+        )
         self._project_compiler.compile_project(
+            contract_source_identifiers=contract_source_identifiers,
             output_dir=output_dir,
             config=ProjectCompilerConfig(
                 hint_validation_disabled=disable_hint_validation,

@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 
 from protostar.compiler import CompilationException, ProjectCompiler
+from protostar.compiler.contract_source_identifier import ContractSourceIdentifier
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.compiler.project_compiler import ProjectCompilerConfig
 from protostar.configuration_file import FakeConfigurationFile
@@ -12,14 +13,12 @@ from protostar.starknet.compiler.starknet_compilation import StarknetCompiler
 
 def create_project_compiler(
     project_root_path: Path,
-    configuration_file: FakeConfigurationFile,
 ) -> ProjectCompiler:
     return ProjectCompiler(
         project_root_path,
         project_cairo_path_builder=ProjectCairoPathBuilder(
             project_root_path,
         ),
-        default_contract_source_identifiers_provider=configuration_file,
     )
 
 
@@ -27,14 +26,15 @@ def test_compiling(tmp_path: Path, datadir: Path):
     project_root_path = datadir / "importing"
     project_compiler = create_project_compiler(
         project_root_path=datadir / "importing",
-        configuration_file=FakeConfigurationFile(
-            contract_name_to_source_paths={
-                "main": [project_root_path / "entry_point.cairo"]
-            },
-        ),
     )
+    contract_source_identifiers = FakeConfigurationFile(
+        contract_name_to_source_paths={
+            "main": [project_root_path / "entry_point.cairo"]
+        },
+    ).get_contract_source_identifiers()
 
     project_compiler.compile_project(
+        contract_source_identifiers=contract_source_identifiers,
         output_dir=tmp_path,
         config=ProjectCompilerConfig(
             relative_cairo_path=[project_root_path / "modules"]
@@ -64,29 +64,33 @@ def test_handling_cairo_errors(tmp_path: Path, datadir: Path):
     project_root_path = datadir / "compilation_error"
     project_compiler = create_project_compiler(
         project_root_path=project_root_path,
-        configuration_file=FakeConfigurationFile(
-            lib_path=project_root_path / "modules",
-            contract_name_to_source_paths={
-                "main": [project_root_path / "invalid_contract.cairo"]
-            },
-        ),
     )
 
+    contract_source_identifiers = FakeConfigurationFile(
+        lib_path=project_root_path / "modules",
+        contract_name_to_source_paths={
+            "main": [project_root_path / "invalid_contract.cairo"]
+        },
+    ).get_contract_source_identifiers()
+
     with pytest.raises(CompilationException):
-        project_compiler.compile_project(output_dir=tmp_path)
+        project_compiler.compile_project(
+            contract_source_identifiers=contract_source_identifiers, output_dir=tmp_path
+        )
 
 
 def test_handling_not_existing_main_files(tmp_path: Path, datadir: Path):
     project_root_path = datadir / "compilation_error"
     project_compiler = create_project_compiler(
         project_root_path=project_root_path,
-        configuration_file=FakeConfigurationFile(
-            lib_path=project_root_path / "modules",
-            contract_name_to_source_paths={
-                "main": [project_root_path / "NOT_EXISTING_FILE.cairo"]
-            },
-        ),
     )
 
     with pytest.raises(StarknetCompiler.FileNotFoundException):
-        project_compiler.compile_project(output_dir=tmp_path)
+        project_compiler.compile_project(
+            contract_source_identifiers=[
+                ContractSourceIdentifier(
+                    name="main", paths=[project_root_path / "NOT_EXISTING_FILE.cairo"]
+                )
+            ],
+            output_dir=tmp_path,
+        )

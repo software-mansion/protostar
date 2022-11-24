@@ -2,11 +2,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Generic, Optional, Protocol, TypeVar, Union
 
-from protostar.compiler import (
-    ContractNamesProviderProtocol,
-    DefaultContractSourceIdentifiersProvider,
-    ContractSourceIdentifier,
-)
+from protostar.compiler import ContractNamesProviderProtocol, ContractSourceIdentifier
 from protostar.protostar_exception import ProtostarException
 from protostar.self import (
     DeclaredProtostarVersionProviderProtocol,
@@ -68,7 +64,6 @@ class ConfigurationFile(
     ArgumentValueResolver,
     DeclaredProtostarVersionProviderProtocol,
     ContractNamesProviderProtocol,
-    DefaultContractSourceIdentifiersProvider,
     Generic[ConfigurationFileModelT],
 ):
     @abstractmethod
