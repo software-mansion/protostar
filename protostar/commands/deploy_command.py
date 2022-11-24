@@ -8,7 +8,7 @@ from protostar.cli import (
     SignableCommandUtil,
     MessengerFactory,
 )
-from protostar.cli.common_arguments import BLOCK_EXPLORER_ARG, WAIT_FOR_ACCEPTANCE_ARG
+from protostar.cli.common_arguments import BLOCK_EXPLORER_ARG, WAIT_FOR_ACCEPTANCE_ARG, MAX_FEE_ARG
 from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.io import StructuredMessage, LogColorProvider
 from protostar.starknet_gateway import (
@@ -75,20 +75,16 @@ class DeployCommand(ProtostarCommand):
     def arguments(self):
         return [
             BLOCK_EXPLORER_ARG,
+            MAX_FEE_ARG,
+            WAIT_FOR_ACCEPTANCE_ARG,
             *MessengerFactory.OUTPUT_ARGUMENTS,
+            *NetworkCommandUtil.network_arguments,
+            *SignableCommandUtil.signable_arguments,
             ProtostarArgument(
                 name="class-hash",
                 description="The hash of the declared contract class.",
                 type="class_hash",
                 is_positional=True,
-            ),
-            ProtostarArgument(
-                name="max-fee",
-                description=(
-                    "The maximum fee that the sender is willing to pay for the transaction. "
-                    'Provide "auto" to auto estimate the fee.'
-                ),
-                type="fee",
             ),
             ProtostarArgument(
                 name="inputs",
@@ -117,9 +113,6 @@ class DeployCommand(ProtostarCommand):
                 ),
                 type="felt",
             ),
-            WAIT_FOR_ACCEPTANCE_ARG,
-            *NetworkCommandUtil.network_arguments,
-            *SignableCommandUtil.signable_arguments,
         ]
 
     async def run(self, args: Namespace):
