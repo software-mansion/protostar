@@ -18,7 +18,6 @@ from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from protostar.starknet.cheatable_state import CheatableStarknetState
 
 from .cheatable_state import CheatableStarknetState
-from .types import Wei
 
 
 async def execute_on_state(
@@ -67,8 +66,8 @@ def estimate_fee(
     starknet_general_config: StarknetGeneralConfig,
     resources_manager: ExecutionResourcesManager,
     call_info: CallInfo,
-    l1_gas_price: Wei,
-) -> Wei:
+    l1_gas_price: float,
+) -> float:
     loop = asyncio.get_running_loop()
     resources_manager = ExecutionResourcesManager.empty()
     sync_state = StateSyncifier(async_state=state, loop=loop)
@@ -81,7 +80,8 @@ def estimate_fee(
     )
     estimated_fee = calculate_tx_fee(
         resources,
-        gas_price=l1_gas_price,
+        gas_price=1,
         general_config=starknet_general_config,
     )
-    return estimated_fee
+
+    return estimated_fee * l1_gas_price

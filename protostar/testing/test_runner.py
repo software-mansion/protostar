@@ -22,7 +22,6 @@ from protostar.starknet.compiler.starknet_compilation import (
     CompilerConfig,
     StarknetCompiler,
 )
-from protostar.starknet.types import Wei
 
 from .environments.setup_execution_environment import SetupExecutionEnvironment
 from .starkware.test_execution_state import TestExecutionState
@@ -54,7 +53,7 @@ class TestRunner:
         active_profile_name: Optional[str],
         include_paths: Optional[List[str]] = None,
         profiling: bool = False,
-        l1_gas_price: Optional[Wei] = None,
+        l1_gas_price: Optional[float] = None,
     ):
         self._l1_gas_price = l1_gas_price
         self.shared_tests_state = shared_tests_state
@@ -95,7 +94,7 @@ class TestRunner:
         cwd: Path
         active_profile_name: Optional[str]
         max_steps: Optional[int]
-        l1_gas_price: Optional[Wei]
+        l1_gas_price: Optional[float]
 
     @classmethod
     def worker(cls, args: "TestRunner.WorkerArgs"):

@@ -3,7 +3,7 @@ import statistics
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import Dict, List, Iterable, Optional
+from typing import Dict, List, Iterable, Optional, Union
 
 from typing_extensions import Self
 from starkware.cairo.lang.vm.cairo_pie import ExecutionResources
@@ -26,7 +26,7 @@ class Statistic(ABC):
 
 @dataclass
 class CountStatistic(Statistic):
-    value: int = field(default=0)
+    value: Union[int, float] = field(default=0)
 
     def __str__(self) -> str:
         return str(self.value)
@@ -37,7 +37,7 @@ class CountStatistic(Statistic):
 
 @dataclass
 class CountSeriesStatistic(Statistic):
-    series: List[int] = field(default_factory=list)
+    series: List[Union[int, float]] = field(default_factory=list)
 
     def __str__(self) -> str:
         if not self.series:
@@ -78,7 +78,7 @@ class ExecutionResourcesSummary:
 
     @classmethod
     def from_execution_resources(
-        cls, execution_resources: ExecutionResources, estimated_fee: Optional[int]
+        cls, execution_resources: ExecutionResources, estimated_fee: Optional[float]
     ):
         return cls(
             n_steps=CountStatistic(execution_resources.n_steps),

@@ -26,7 +26,6 @@ from protostar.starknet.compiler.starknet_compilation import (
     CompilerConfig,
     StarknetCompiler,
 )
-from protostar.starknet.types import Wei
 from protostar.testing import (
     TestCollector,
     TestingSummary,
@@ -155,7 +154,7 @@ A glob or globs to a directory or a test suite, for example:
             ),
             ProtostarArgument(
                 name="gas-price",
-                type="wei",
+                type="float",
                 description="Ethereum Gas price. If provided, Protostar will estimate fee for each test case.",
             ),
         ]
@@ -193,7 +192,7 @@ A glob or globs to a directory or a test suite, for example:
         seed: Optional[int] = None,
         max_steps: Optional[int] = None,
         slowest_tests_to_report_count: int = 0,
-        gas_price: Optional[Wei] = None,
+        gas_price: Optional[float] = None,
     ) -> TestingSummary:
         include_paths = [
             str(path)
