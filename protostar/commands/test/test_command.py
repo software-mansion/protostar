@@ -34,6 +34,7 @@ from protostar.testing import (
     TestScheduler,
     determine_testing_seed,
 )
+
 from .test_command_cache import TestCommandCache
 
 
@@ -95,7 +96,7 @@ A glob or globs to a directory or a test suite, for example:
                 name="cairo-path",
                 is_array=True,
                 description="Additional directories to look for sources.",
-                type="directory",
+                type="path",
             ),
             ProtostarArgument(
                 name="disable-hint-validation",
