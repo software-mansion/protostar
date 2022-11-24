@@ -4,16 +4,19 @@ from starknet_py.net.client_models import TransactionStatus
 from starknet_py.net.gateway_client import GatewayClient
 
 from tests._conftest.devnet.devnet_account import DevnetAccount
+from protostar.starknet_gateway.gateway_facade import Wei
 from tests._conftest.devnet.devnet_account_preparator import DevnetAccountPreparator
 
 
 class DevnetFixture:
     def __init__(
         self,
+        gas_price: Wei,
         devnet_gateway_url: str,
         devnet_account_preparator: DevnetAccountPreparator,
         predeployed_accounts: list[DevnetAccount],
     ) -> None:
+        self._gas_price = gas_price
         self._devnet_gateway_url = devnet_gateway_url
         self._gateway_client = GatewayClient(devnet_gateway_url)
         self._devnet_account_preparator = devnet_account_preparator
@@ -35,3 +38,6 @@ class DevnetFixture:
 
     def get_predeployed_accounts(self) -> list[DevnetAccount]:
         return self._predeployed_accounts
+
+    def get_gas_price(self):
+        return self._gas_price

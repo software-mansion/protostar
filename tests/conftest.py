@@ -15,6 +15,7 @@ from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
 from protostar.starknet import Address
+from protostar.starknet_gateway.gateway_facade import Wei
 from tests._conftest.compiled_account import (
     compile_account_contract_with_validate_deploy,
 )
@@ -148,6 +149,7 @@ def account_with_validate_deploy_compiled_contract_fixture() -> str:
 @pytest.fixture(name="devnet")
 def devnet_fixture(
     devnet_gateway_url: str,
+    devnet_gas_price: Wei,
     devnet_account: DevnetAccount,
     devnet_accounts: list[DevnetAccount],
     account_with_validate_deploy_compiled_contract: str,
@@ -178,6 +180,7 @@ def devnet_fixture(
         devnet_account_preparator=account_preparator,
         devnet_gateway_url=devnet_gateway_url,
         predeployed_accounts=devnet_accounts,
+        gas_price=devnet_gas_price,
     )
 
 
