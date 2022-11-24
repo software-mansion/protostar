@@ -6,6 +6,7 @@ from .project_compiler import (
     ProjectCompiler,
     ProjectCompilerConfig,
     SourceFileNotFoundException,
+    DefaultContractSourceIdentifiersProvider,
 )
 from .contract_identifier_resolver import (
     ContractIdentifierResolver,

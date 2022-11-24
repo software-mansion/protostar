@@ -13,6 +13,9 @@ from protostar.compiler import (
     ProjectCompiler,
     ProjectCompilerConfig,
 )
+from protostar.compiler.contract_source_identifier import (
+    ContractSourceIdentifierFactory,
+)
 from protostar.configuration_file.configuration_file_factory import (
     ConfigurationFileFactory,
 )
@@ -72,12 +75,15 @@ class TestRunner:
             project_cairo_path_builder=ProjectCairoPathBuilder(
                 project_root_path=project_root_path,
             ),
-            configuration_file=configuration_file,
             default_config=ProjectCompilerConfig(
                 relative_cairo_path=[Path(s_pth).resolve() for s_pth in include_paths],
                 hint_validation_disabled=disable_hint_validation_in_user_contracts,
                 debugging_info_attached=profiling,
             ),
+            default_contract_source_identifiers_provider=configuration_file,
+        )
+        self._contract_source_identifier_factory = ContractSourceIdentifierFactory(
+            contract_names_provider=configuration_file
         )
 
     @dataclass
@@ -183,6 +189,7 @@ class TestRunner:
                 test_config=test_config,
                 contract_path=contract_path,
                 project_compiler=self.project_compiler,
+                contract_source_identifier_factory=self._contract_source_identifier_factory,
             )
 
             if test_suite.setup_fn_name:

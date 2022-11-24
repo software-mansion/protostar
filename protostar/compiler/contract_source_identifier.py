@@ -10,8 +10,6 @@ from protostar.self import ContractName
 class ContractSourceIdentifier:
     @classmethod
     def from_contract_path(cls, path: Path):
-        check_contract_path_existence(path)
-
         return cls(
             name=path.stem,
             paths=[path],
@@ -20,8 +18,10 @@ class ContractSourceIdentifier:
     @classmethod
     def create(cls, name: ContractName, paths: list[Path]):
         for contract_path in paths:
-            check_contract_path_existence(contract_path)
-
+            if not contract_path.exists():
+                raise InvalidContractSourceIdentifierException(
+                    f"The following contract doesn't exist: {contract_path}"
+                )
         return cls(
             name=name,
             paths=paths,
@@ -29,13 +29,6 @@ class ContractSourceIdentifier:
 
     name: ContractName
     paths: list[Path]
-
-
-def check_contract_path_existence(contract_path: Path):
-    if not contract_path.exists():
-        raise InvalidContractSourceIdentifierException(
-            f"The following contract doesn't exist: {contract_path}"
-        )
 
 
 class ContractNamesProviderProtocol(Protocol):

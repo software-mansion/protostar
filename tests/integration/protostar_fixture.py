@@ -28,7 +28,11 @@ from protostar.commands.init.project_creator.new_project_creator import (
     NewProjectCreator,
 )
 from protostar.commands.test import TestCommand
-from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
+from protostar.compiler import (
+    ProjectCairoPathBuilder,
+    ProjectCompiler,
+    ContractSourceIdentifierFactory,
+)
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.configuration_file import (
     ConfigurationFileFactory,
@@ -416,7 +420,7 @@ def build_protostar_fixture(
     project_compiler = ProjectCompiler(
         project_root_path=project_root_path,
         project_cairo_path_builder=project_cairo_path_builder,
-        configuration_file=configuration_file,
+        default_contract_source_identifiers_provider=configuration_file,
     )
 
     input_requester = cast(InputRequester, mocker.MagicMock())
@@ -517,7 +521,9 @@ def build_protostar_fixture(
     )
     parser = ArgumentParserFacade(
         cli_app,
-        parser_resolver=create_map_protostar_type_name_to_parser(configuration_file),
+        parser_resolver=create_map_protostar_type_name_to_parser(
+            ContractSourceIdentifierFactory(configuration_file)
+        ),
     )
 
     protostar_fixture = ProtostarFixture(

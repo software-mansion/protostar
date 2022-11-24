@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import List, Optional, Protocol, Union
 
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     PreprocessorError,
@@ -32,11 +32,17 @@ class ProjectCompilerConfig:
     hint_validation_disabled: bool = False
 
 
+class DefaultContractSourceIdentifiersProvider(Protocol):
+    def get_contract_source_identifiers(self) -> list[ContractSourceIdentifier]:
+        ...
+
+
 class ProjectCompiler:
     def __init__(
         self,
         project_root_path: Path,
         project_cairo_path_builder: ProjectCairoPathBuilder,
+        default_contract_source_identifiers_provider: DefaultContractSourceIdentifiersProvider,
         default_config: Optional[ProjectCompilerConfig] = None,
     ):
         self._project_root_path = project_root_path
@@ -44,16 +50,23 @@ class ProjectCompiler:
         self._default_config = default_config or ProjectCompilerConfig(
             relative_cairo_path=[]
         )
+        self._default_contract_source_identifiers_provider = (
+            default_contract_source_identifiers_provider
+        )
 
     def compile_project(
         self,
-        contract_source_identifiers: list[ContractSourceIdentifier],
         output_dir: Path,
+        contract_source_identifiers: Optional[list[ContractSourceIdentifier]] = None,
         config: Optional[ProjectCompilerConfig] = None,
     ) -> None:
+        contract_source_identifiers = (
+            contract_source_identifiers
+            or self._default_contract_source_identifiers_provider.get_contract_source_identifiers()
+        )
         for contract_source_identifier in contract_source_identifiers:
             try:
-                contract = self._compile_contract_from_contract_source_paths(
+                contract = self.compile_contract_from_contract_source_paths(
                     contract_source_identifier.paths, config
                 )
                 CompiledContractWriter(contract, contract_source_identifier.name).save(
@@ -64,7 +77,7 @@ class ProjectCompiler:
                     contract_source_identifier.name, err
                 ) from err
 
-    def _compile_contract_from_contract_source_paths(
+    def compile_contract_from_contract_source_paths(
         self, contract_paths: List[Path], config: Optional[ProjectCompilerConfig] = None
     ) -> ContractClass:
         current_config = config or self._default_config

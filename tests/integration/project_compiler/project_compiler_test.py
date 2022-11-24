@@ -19,7 +19,7 @@ def create_project_compiler(
         project_cairo_path_builder=ProjectCairoPathBuilder(
             project_root_path,
         ),
-        configuration_file=configuration_file,
+        default_contract_source_identifiers_provider=configuration_file,
     )
 
 

@@ -33,6 +33,7 @@ class CommonTestCheatcodeFactory(CheatcodeFactory):
         declare_cheatcode = DeclareCheatcode(
             syscall_dependencies,
             self._state.project_compiler,
+            self._state.contract_source_identifier_factory,
         )
         prepare_cheatcode = PrepareCheatcode(syscall_dependencies)
         deploy_cheatcode = DeployCheatcode(syscall_dependencies)

@@ -12,7 +12,7 @@ from starkware.starknet.services.api.gateway.transaction import (
 from starkware.starknet.testing.contract import DeclaredClass
 from starkware.starknet.testing.contract_utils import EventManager, get_abi
 
-from protostar.compiler import ProjectCompiler
+from protostar.compiler import ProjectCompiler, ContractSourceIdentifierFactory
 from protostar.starknet import Cheatcode, KeywordOnlyArgumentCheatcodeException
 
 
@@ -35,9 +35,11 @@ class DeclareCheatcode(Cheatcode):
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
         project_compiler: ProjectCompiler,
+        contract_source_identifier_factory: ContractSourceIdentifierFactory,
     ):
         super().__init__(syscall_dependencies)
         self._project_compiler = project_compiler
+        self._contract_source_identifier_factory = contract_source_identifier_factory
 
     @property
     def name(self) -> str:
@@ -69,8 +71,13 @@ class DeclareCheatcode(Cheatcode):
         return DeclaredContract(class_hash)
 
     async def _declare_contract(self, contract: str):
+        contract_source_identifier = self._contract_source_identifier_factory.create(
+            contract
+        )
         contract_class = (
-            self._project_compiler.compile_contract_from_contract_identifier(contract)
+            self._project_compiler.compile_contract_from_contract_source_paths(
+                contract_source_identifier.paths
+            )
         )
 
         tx = InternalDeclare.create(

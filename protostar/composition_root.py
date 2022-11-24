@@ -100,7 +100,7 @@ def build_di_container(
     project_compiler = ProjectCompiler(
         project_root_path=project_root_path,
         project_cairo_path_builder=project_cairo_path_builder,
-        configuration_file=configuration_file,
+        default_contract_source_identifiers_provider=configuration_file,
     )
 
     gateway_facade_factory = GatewayFacadeFactory(
