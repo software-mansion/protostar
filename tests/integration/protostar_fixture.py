@@ -255,7 +255,7 @@ class ProtostarFixture:
         result = asyncio.run(self._init_command.run(args))
         return result
 
-    async def build(self, contracts: Optional[list[str]]):
+    async def build(self, contracts: Optional[list[str]] = None):
         args = self._parser.parse(["build", *(contracts or [])])
         return await self._build_command.run(args)
 
