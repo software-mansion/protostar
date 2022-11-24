@@ -9,7 +9,7 @@ protostar-version = "PROTOSTAR_VERSION"     # required
 lib-path = "lib"                            # install, update, remove
 cairo-path = ["lib/cairo-contracts/src"]    # build, test
 
-# Defines contract names. Currently, this section is required by the build command.
+# Defines contract names
 [contracts]
 main = ["src/feature_a.cairo", "src/feature_b.cairo"]   
 proxy = ["src/proxy.cairo"]
@@ -47,10 +47,6 @@ This section allows you to refer to a contract by a contract name across Protost
 [contracts]
 my_contract = ["src/feature_a.cairo", "src/feature_b.cairo"]   
 ```
-
-:::note
-Currently, [`protostar build`](/docs/cli-reference#build) requires this section.
-:::
 
 ### `[COMMAND]`
 Configure command arguments, to avoid passing them manually. CLI can be represented in the configuration file in the following way:
