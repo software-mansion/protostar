@@ -66,7 +66,7 @@ def estimate_fee(
     starknet_general_config: StarknetGeneralConfig,
     resources_manager: ExecutionResourcesManager,
     call_info: CallInfo,
-    l1_gas_price: float,
+    gas_price: float,
 ) -> float:
     loop = asyncio.get_running_loop()
     resources_manager = ExecutionResourcesManager.empty()
@@ -84,4 +84,4 @@ def estimate_fee(
         general_config=starknet_general_config,
     )
 
-    return estimated_fee * l1_gas_price
+    return estimated_fee * gas_price

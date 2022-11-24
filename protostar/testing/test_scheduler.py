@@ -36,7 +36,7 @@ class TestScheduler:
         project_root_path_str: str,
         cwd: Path,
         active_profile_name: Optional[str],
-        l1_gas_price: Optional[float],
+        gas_price: Optional[float],
     ):
         with multiprocessing.Manager() as manager:
             shared_tests_state = SharedTestsState(
@@ -54,7 +54,7 @@ class TestScheduler:
                     project_root_path=Path(project_root_path_str),
                     active_profile_name=active_profile_name,
                     cwd=cwd,
-                    l1_gas_price=l1_gas_price,
+                    gas_price=gas_price,
                 )
                 for test_suite in test_collector_result.test_suites
             ]

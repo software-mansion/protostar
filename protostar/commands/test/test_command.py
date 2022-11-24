@@ -259,7 +259,7 @@ A glob or globs to a directory or a test suite, for example:
                 project_root_path_str=str(self._project_root_path),
                 active_profile_name=self._active_profile_name,
                 cwd=self._cwd,
-                l1_gas_price=gas_price,
+                gas_price=gas_price,
             )
 
         return testing_summary

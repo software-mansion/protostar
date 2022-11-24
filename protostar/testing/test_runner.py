@@ -53,9 +53,9 @@ class TestRunner:
         active_profile_name: Optional[str],
         include_paths: Optional[List[str]] = None,
         profiling: bool = False,
-        l1_gas_price: Optional[float] = None,
+        gas_price: Optional[float] = None,
     ):
-        self._l1_gas_price = l1_gas_price
+        self._gas_price = gas_price
         self.shared_tests_state = shared_tests_state
         self.profiling = profiling
         include_paths = include_paths or []
@@ -94,7 +94,7 @@ class TestRunner:
         cwd: Path
         active_profile_name: Optional[str]
         max_steps: Optional[int]
-        l1_gas_price: Optional[float]
+        gas_price: Optional[float]
 
     @classmethod
     def worker(cls, args: "TestRunner.WorkerArgs"):
@@ -107,7 +107,7 @@ class TestRunner:
                 profiling=args.profiling,
                 cwd=args.cwd,
                 active_profile_name=args.active_profile_name,
-                l1_gas_price=args.l1_gas_price,
+                gas_price=args.gas_price,
             ).run_test_suite(
                 test_suite=args.test_suite,
                 testing_seed=args.testing_seed,
@@ -125,7 +125,7 @@ class TestRunner:
             seed=testing_seed,
             profiling=self.profiling,
             max_steps=max_steps,
-            l1_gas_price=self._l1_gas_price,
+            gas_price=self._gas_price,
         )
 
         try:

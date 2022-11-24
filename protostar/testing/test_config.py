@@ -93,7 +93,7 @@ class TestConfig:
     seed: Seed = field(default_factory=random_seed)
     profiling: bool = True
     max_steps: Optional[int] = None
-    l1_gas_price: Optional[float] = None
+    gas_price: Optional[float] = None
     fuzz_max_examples: int = 100
     fuzz_declared_strategies: dict[str, StrategyDescriptor] = field(
         default_factory=dict

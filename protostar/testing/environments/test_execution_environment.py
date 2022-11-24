@@ -66,13 +66,13 @@ class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
                     function_name, *args, **kwargs
                 )
                 estimated_fee = None
-                if self.state.config.l1_gas_price:
+                if self.state.config.gas_price:
                     estimated_fee = estimate_fee(
                         state=self.state.starknet.state.state,
                         call_info=execution_result.call_info,
                         resources_manager=execution_result.resources_manager,
                         starknet_general_config=self.state.starknet.state.general_config,
-                        l1_gas_price=self.state.config.l1_gas_price,
+                        gas_price=self.state.config.gas_price,
                     )
                 execution_resources = (
                     ExecutionResourcesSummary.from_execution_resources(
