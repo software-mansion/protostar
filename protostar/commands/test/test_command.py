@@ -155,7 +155,12 @@ A glob or globs to a directory or a test suite, for example:
             ProtostarArgument(
                 name="gas-price",
                 type="float",
-                description="Ethereum Gas price. If provided, Protostar will estimate fee for each test case.",
+                description=(
+                    "If provided, Protostar will estimate a fee for each test case. "
+                    "You can find the actual gas price in a block explorer by checking "
+                    "the latest transaction block. "
+                    "Provide value 1, to get gas estimations."
+                ),
             ),
         ]
 
