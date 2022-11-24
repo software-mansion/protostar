@@ -40,7 +40,7 @@ class BuildCommand(ProtostarCommand):
             ProtostarArgument(
                 name="cairo-path",
                 description="Additional directories to look for sources.",
-                type="directory",
+                type="path",
                 is_array=True,
             ),
             ProtostarArgument(

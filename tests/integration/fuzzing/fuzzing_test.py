@@ -139,11 +139,13 @@ async def test_parameterized_with_examples_tests(
             "test_given_and_examples",
             "test_only_examples",
             "test_only_given",
+        ],
+        expected_broken_test_cases_names=[
             "test_no_data_broken",
         ],
     )
 
-    assert len(testing_summary.passed) == 5
+    assert len(testing_summary.passed) == 4
     passed_set = {
         getattr(passed, "fuzz_runs_count")
         for passed in testing_summary.passed
