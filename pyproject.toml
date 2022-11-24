@@ -43,7 +43,7 @@ pytest-timeout = "^2.1.0"
 pytest-xdist = "^3.0.2"
 re-assert = "^1.1.0"
 snakeviz = "^2.1.1"
-starknet-devnet = "0.3.5"
+starknet-devnet = "0.4.0"
 
 [tool.poe.tasks]
 build = [
