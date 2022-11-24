@@ -100,7 +100,6 @@ def build_di_container(
     project_compiler = ProjectCompiler(
         project_root_path=project_root_path,
         project_cairo_path_builder=project_cairo_path_builder,
-        default_contract_source_identifiers_provider=configuration_file,
     )
 
     gateway_facade_factory = GatewayFacadeFactory(
@@ -159,6 +158,7 @@ def build_di_container(
         BuildCommand(
             project_compiler=project_compiler,
             messenger_factory=messenger_factory,
+            configuration_file=configuration_file,
         ),
         InstallCommand(
             log_color_provider=log_color_provider,

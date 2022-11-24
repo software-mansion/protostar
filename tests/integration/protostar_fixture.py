@@ -420,7 +420,6 @@ def build_protostar_fixture(
     project_compiler = ProjectCompiler(
         project_root_path=project_root_path,
         project_cairo_path_builder=project_cairo_path_builder,
-        default_contract_source_identifiers_provider=configuration_file,
     )
 
     input_requester = cast(InputRequester, mocker.MagicMock())
@@ -460,6 +459,7 @@ def build_protostar_fixture(
     build_command = BuildCommand(
         project_compiler=project_compiler,
         messenger_factory=messenger_factory,
+        configuration_file=configuration_file,
     )
 
     transaction_registry = TransactionRegistry()

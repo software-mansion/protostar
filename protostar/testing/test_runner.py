@@ -80,7 +80,6 @@ class TestRunner:
                 hint_validation_disabled=disable_hint_validation_in_user_contracts,
                 debugging_info_attached=profiling,
             ),
-            default_contract_source_identifiers_provider=configuration_file,
         )
         self._contract_source_identifier_factory = ContractSourceIdentifierFactory(
             contract_names_provider=configuration_file
