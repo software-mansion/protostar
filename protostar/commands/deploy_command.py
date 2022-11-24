@@ -8,7 +8,11 @@ from protostar.cli import (
     SignableCommandUtil,
     MessengerFactory,
 )
-from protostar.cli.common_arguments import BLOCK_EXPLORER_ARG, WAIT_FOR_ACCEPTANCE_ARG, MAX_FEE_ARG
+from protostar.cli.common_arguments import (
+    BLOCK_EXPLORER_ARG,
+    WAIT_FOR_ACCEPTANCE_ARG,
+    MAX_FEE_ARG,
+)
 from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.io import StructuredMessage, LogColorProvider
 from protostar.starknet_gateway import (
