@@ -11,6 +11,12 @@ from starknet_py.net.gateway_client import GatewayClient, Network
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import DeployAccount
 
+from protostar.configuration_file import (
+    ConfigurationFileV2Model,
+    ConfigurationFileFactory,
+    ConfigurationFileV2ContentFactory,
+    ConfigurationTOMLContentBuilder,
+)
 from protostar.argument_parser import ArgumentParserFacade, CLIApp
 from protostar.cli import create_map_protostar_type_name_to_parser, MessengerFactory
 from protostar.commands import (
@@ -34,10 +40,13 @@ from protostar.compiler import (
     ContractSourceIdentifierFactory,
 )
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
-from protostar.configuration_file import (
-    ConfigurationFileFactory,
-    ConfigurationFileV2ContentFactory,
-    ConfigurationTOMLContentBuilder,
+from protostar.configuration_file.configuration_file import ConfigurationFile
+from protostar.configuration_file.configuration_file_v2 import (
+    ConfigurationFileV2,
+    ConfigurationFileV2Model,
+)
+from protostar.configuration_file.configuration_toml_interpreter import (
+    ConfigurationTOMLInterpreter,
 )
 from protostar.formatter.formatting_result import FormattingResult
 from protostar.formatter.formatting_summary import FormattingSummary
@@ -73,6 +82,8 @@ class ProtostarFixture:
         cli_app: CLIApp,
         parser: ArgumentParserFacade,
         transaction_registry: "TransactionRegistry",
+        configuration_file: ConfigurationFile,
+        configuration_file_v2_content_factory: ConfigurationFileV2ContentFactory,
     ) -> None:
         self._project_root_path = project_root_path
         self._init_command = init_command
@@ -88,6 +99,10 @@ class ProtostarFixture:
         self._deploy_account_command = deploy_account_command
         self._cli_app = cli_app
         self._parser = parser
+        self._configuration_file = configuration_file
+        self._configuration_file_v2_content_factory = (
+            configuration_file_v2_content_factory
+        )
 
     @property
     def project_root_path(self) -> Path:
@@ -240,21 +255,17 @@ class ProtostarFixture:
         result = asyncio.run(self._init_command.run(args))
         return result
 
-    async def build(self):
-        args = self._prepare_build_args()
+    async def build(self, contracts: Optional[list[str]]):
+        args = self._parser.parse(["build", *(contracts or [])])
         return await self._build_command.run(args)
 
     def build_sync(self):
-        args = self._prepare_build_args()
-        return asyncio.run(self._build_command.run(args))
-
-    def _prepare_build_args(self):
         args = Namespace()
         args.compiled_contracts_dir = Path("./build")
         args.disable_hint_validation = False
         args.cairo_path = None
         args.json = False
-        return args
+        return asyncio.run(self._build_command.run(args))
 
     async def invoke(
         self,
@@ -329,6 +340,28 @@ class ProtostarFixture:
             else:
                 content = file
             self._save_file(self._project_root_path / relative_path_str, content)
+
+    def set_cached_configuration_file(
+        self, contract_name_to_path_strs: dict[str, list[str]]
+    ):
+        assert isinstance(self._configuration_file, ConfigurationFileV2)
+        # pylint: disable=protected-access
+        configuration_file_reader = self._configuration_file._configuration_file_reader
+        assert isinstance(configuration_file_reader, ConfigurationTOMLInterpreter)
+
+        content = self._configuration_file_v2_content_factory.create_file_content(
+            ConfigurationFileV2Model(
+                protostar_version=str(
+                    self._configuration_file.get_declared_protostar_version(),
+                ),
+                command_name_to_config={},
+                contract_name_to_path_strs=contract_name_to_path_strs,
+                profile_name_to_commands_config={},
+                profile_name_to_project_config={},
+                project_config=configuration_file_reader.get_section("project") or {},
+            )
+        )
+        configuration_file_reader._content = content
 
     @staticmethod
     def _save_file(path: Path, content: str) -> None:
@@ -515,6 +548,7 @@ def build_protostar_fixture(
 
     cli_app = CLIApp(
         commands=[
+            build_command,
             deploy_account_command,
             calculate_account_address_command,
         ]
@@ -541,6 +575,8 @@ def build_protostar_fixture(
         parser=parser,
         transaction_registry=transaction_registry,
         calculate_account_address_command=calculate_account_address_command,
+        configuration_file=configuration_file,
+        configuration_file_v2_content_factory=configuration_file_content_factory,
     )
 
     return protostar_fixture
