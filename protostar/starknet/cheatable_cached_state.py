@@ -27,7 +27,7 @@ class CheatableCachedState(CachedState):
         self.class_hash_to_contract_abi_map: Dict[ClassHashType, AbiType] = {}
         self.class_hash_to_contract_path_map: Dict[ClassHashType, Path] = {}
         self.contract_address_to_class_hash_map: Dict[Address, ClassHashType] = {}
-        self.contract_calls: dict[
+        self.expected_contract_calls: dict[
             Address, list[tuple[SelectorType, CairoOrPythonData]]
         ] = {}
 
@@ -52,7 +52,7 @@ class CheatableCachedState(CachedState):
         copied.contract_address_to_class_hash_map = (
             self.contract_address_to_class_hash_map.copy()
         )
-        copied.contract_calls = self.contract_calls.copy()
+        copied.expected_contract_calls = self.expected_contract_calls.copy()
 
         copied.cheaters = self.cheaters.copy()
 
@@ -101,9 +101,9 @@ class CheatableCachedState(CachedState):
             **parent.contract_address_to_class_hash_map,
             **self.contract_address_to_class_hash_map,
         }
-        parent.contract_calls = {
-            **parent.contract_calls,
-            **self.contract_calls,
+        parent.expected_contract_calls = {
+            **parent.expected_contract_calls,
+            **self.expected_contract_calls,
         }
 
         parent.cheaters.apply(self.cheaters)

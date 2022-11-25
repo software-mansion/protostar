@@ -144,14 +144,22 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
 
         # region Modified Starknet code.
         contract_calldata = (int(str(request.function_selector)), calldata)
-        if self.cheatable_state.contract_calls.get(Address(contract_address)):
-            self.cheatable_state.contract_calls[Address(contract_address)].append(
-                contract_calldata
-            )
-        else:
-            self.cheatable_state.contract_calls[Address(contract_address)] = [
-                contract_calldata
-            ]
+
+        data_for_address = self.cheatable_state.expected_contract_calls.get(
+            Address(contract_address)
+        )
+        if data_for_address is not None and contract_calldata in data_for_address:
+            for index, (selector, calldata_item) in enumerate(data_for_address):
+                if (
+                    selector == contract_calldata[0]
+                    and calldata_item == contract_calldata[1]
+                ):
+                    del data_for_address[index]
+            if not data_for_address:
+                del self.cheatable_state.expected_contract_calls[
+                    Address(contract_address)
+                ]
+
         # endregion
 
         call = self.execute_entry_point_cls(
