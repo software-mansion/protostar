@@ -1,24 +1,13 @@
 from typing import Union
 
 import pytest
-from starknet_py.net.client_models import TransactionStatus
-from starknet_py.net.gateway_client import GatewayClient
 
 from protostar.protostar_exception import ProtostarException
+from tests._conftest.devnet import DevnetFixture
 from tests.conftest import DevnetAccount, SetPrivateKeyEnvVarFixture
 from tests.data.contracts import RUNTIME_ERROR_CONTRACT
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.protostar_fixture import ProtostarFixture
-
-
-async def assert_transaction_accepted(
-    devnet_gateway_url: str, transaction_hash: Union[str, int]
-):
-    gateway = GatewayClient(devnet_gateway_url)
-    (_, transaction_status) = await gateway.wait_for_tx(
-        transaction_hash, wait_for_accept=True
-    )
-    assert transaction_status == TransactionStatus.ACCEPTED_ON_L2
 
 
 @pytest.fixture(name="protostar")
@@ -32,6 +21,7 @@ async def test_invoke(
     protostar: ProtostarFixture,
     devnet_gateway_url: str,
     devnet_account: DevnetAccount,
+    devnet: DevnetFixture,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
     declare_response = await protostar.declare(
@@ -54,7 +44,7 @@ async def test_invoke(
             gateway_url=devnet_gateway_url,
         )
 
-        await assert_transaction_accepted(devnet_gateway_url, response.transaction_hash)
+        await devnet.assert_transaction_accepted(response.transaction_hash)
     # The one at 0 is actually a UDC Invoke, for deploy
     transaction = protostar.get_intercepted_transactions_mapping().invoke_txs[1]
     assert transaction.max_fee != "auto"
