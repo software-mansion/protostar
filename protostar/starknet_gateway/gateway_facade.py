@@ -52,7 +52,6 @@ from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeployResponse,
     SuccessfulInvokeResponse,
 )
-from protostar.starknet_gateway.starknet_request import StarknetRequest
 from protostar.starknet import Address
 
 from .contract_function_factory import ContractFunctionFactory
@@ -125,7 +124,6 @@ class GatewayFacade:
         compiled_contract_reader: CompiledContractReader,
     ):
         self._project_root_path = project_root_path
-        self._starknet_requests: List[StarknetRequest] = []
         self._gateway_client = gateway_client
         self._compiled_contract_reader = compiled_contract_reader
         self._account_tx_version_detector = AccountTxVersionDetector(
@@ -134,9 +132,6 @@ class GatewayFacade:
         self._contract_function_factory = ContractFunctionFactory(
             default_client=gateway_client
         )
-
-    def get_starknet_requests(self) -> List[StarknetRequest]:
-        return self._starknet_requests.copy()
 
     async def deploy_via_udc(
         self,
@@ -400,15 +395,6 @@ class GatewayFacade:
             raise TransactionException(message=ex.message) from ex
 
         result = await result.wait_for_acceptance(wait_for_accept=wait_for_acceptance)
-
-        response_dict: StarknetRequest.Payload = {
-            "hash": result.hash,
-            "contract_address": result.contract.address,
-        }
-        if result.block_number:
-            response_dict["block_number"] = result.block_number
-        if result.status:
-            response_dict["status"] = result.status.value  # type: ignore
 
         return SuccessfulInvokeResponse(
             transaction_hash=result.hash
