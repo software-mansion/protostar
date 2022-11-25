@@ -1,7 +1,7 @@
 import asyncio
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Any, Protocol
+from typing import Any, Protocol
 
 from starkware.python.utils import from_bytes
 from starkware.starknet.business_logic.transaction.objects import InternalDeclare
@@ -23,7 +23,9 @@ class DeclaredContract:
 
 class DeclareCheatcodeProtocol(Protocol):
     def __call__(
-        self, contract: str, *args: Any,
+        self,
+        contract: str,
+        *args: Any,
     ) -> DeclaredContract:
         ...
 
