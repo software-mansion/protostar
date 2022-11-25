@@ -39,7 +39,7 @@ class ArgumentValueResolver(ABC, ConfigFileArgumentResolverProtocol):
 
         shared_arg = self.get_shared_argument_value(
             argument_name=argument_name,
-            profile_name=self._profile_name,
+            profile_name=None,
         )
         return shared_arg
 
