@@ -1,5 +1,5 @@
 import dataclasses
-from logging import getLogger, LoggerAdapter
+from logging import getLogger
 from pathlib import Path
 from typing import (
     Any,
@@ -125,12 +125,11 @@ class GatewayFacade:
         project_root_path: Path,
         gateway_client: GatewayClient,
         compiled_contract_reader: CompiledContractReader,
-        trace: bool = False,
         log_color_provider: Optional[LogColorProvider] = None,
     ):
         self._project_root_path = project_root_path
         self._starknet_requests: List[StarknetRequest] = []
-        self._logger = GatewayFacadeLogger(trace)
+        self._logger = getLogger()
         self._log_color_provider: Optional[LogColorProvider] = log_color_provider
         self._gateway_client = gateway_client
         self._compiled_contract_reader = compiled_contract_reader
@@ -639,15 +638,6 @@ class FeeExceededMaxFeeException(ProtostarException):
         if "Actual fee exceeded max fee" in client_error.message:
             return cls(client_error.message)
         return None
-
-
-class GatewayFacadeLogger(LoggerAdapter):
-    def __init__(self, trace: bool):
-        super().__init__(logger=getLogger(), extra={})
-        self._trace = trace
-
-    def isEnabledFor(self, level: int) -> bool:
-        return self._trace and super().isEnabledFor(level)
 
 
 def transform_constructor_inputs_from_python(

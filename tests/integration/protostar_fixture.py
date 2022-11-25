@@ -374,7 +374,7 @@ class TestFriendlyGatewayFacadeFactory(GatewayFacadeFactory):
         self.recent_gateway_client: Optional[GatewayClientTxInterceptor] = None
         self._transaction_registry = transaction_registry
 
-    def create(self, gateway_client: GatewayClient, trace: bool = True):
+    def create(self, gateway_client: GatewayClient):
         gateway_client_tx_interceptor = GatewayClientTxInterceptor(
             # pylint: disable=protected-access
             net=gateway_client._net,
@@ -385,7 +385,6 @@ class TestFriendlyGatewayFacadeFactory(GatewayFacadeFactory):
             project_root_path=self._project_root_path,
             compiled_contract_reader=self._compiled_contract_reader,
             gateway_client=gateway_client_tx_interceptor,
-            trace=trace,
             log_color_provider=log_color_provider,
         )
 
