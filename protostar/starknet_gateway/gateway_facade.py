@@ -1,9 +1,8 @@
 import dataclasses
-from logging import getLogger, LoggerAdapter
+from logging import getLogger
 from pathlib import Path
 from typing import (
     Any,
-    Callable,
     Dict,
     List,
     Literal,
@@ -36,7 +35,6 @@ from starkware.starknet.services.api.gateway.transaction import (
 from typing_extensions import Self, TypeGuard
 
 from protostar.compiler import CompiledContractReader
-from protostar.io.log_color_provider import LogColorProvider
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet.abi import has_abi_item
 from protostar.starknet.data_transformer import (
@@ -54,7 +52,6 @@ from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeployResponse,
     SuccessfulInvokeResponse,
 )
-from protostar.starknet_gateway.starknet_request import StarknetRequest
 from protostar.starknet import Address
 
 from .contract_function_factory import ContractFunctionFactory
@@ -125,13 +122,8 @@ class GatewayFacade:
         project_root_path: Path,
         gateway_client: GatewayClient,
         compiled_contract_reader: CompiledContractReader,
-        trace: bool = False,
-        log_color_provider: Optional[LogColorProvider] = None,
     ):
         self._project_root_path = project_root_path
-        self._starknet_requests: List[StarknetRequest] = []
-        self._logger = GatewayFacadeLogger(trace)
-        self._log_color_provider: Optional[LogColorProvider] = log_color_provider
         self._gateway_client = gateway_client
         self._compiled_contract_reader = compiled_contract_reader
         self._account_tx_version_detector = AccountTxVersionDetector(
@@ -140,9 +132,6 @@ class GatewayFacade:
         self._contract_function_factory = ContractFunctionFactory(
             default_client=gateway_client
         )
-
-    def get_starknet_requests(self) -> List[StarknetRequest]:
-        return self._starknet_requests.copy()
 
     async def deploy_via_udc(
         self,
@@ -196,30 +185,16 @@ class GatewayFacade:
             )
 
         try:
-            register_response = self._register_request(
-                action="INVOKE_UDC",
-                payload={
-                    "class_hash": class_hash,
-                    "signature": tx.signature,
-                    "network": str(self._gateway_client.net),
-                    "constructor_args": cairo_inputs,
-                    "salt": salt,
-                    "token": token,
-                },
-            )
-
             result = await self._gateway_client.send_transaction(
                 transaction=tx,
                 token=token,
             )
             if wait_for_acceptance:
-                self._logger.info("Waiting for acceptance...")
                 _, status = await self._gateway_client.wait_for_tx(
                     result.transaction_hash, wait_for_accept=wait_for_acceptance
                 )
                 result.code = status.value
 
-            register_response(dataclasses.asdict(result))
             return SuccessfulDeployResponse(
                 code=result.code or "",
                 address=Address(call.address),
@@ -274,22 +249,10 @@ class GatewayFacade:
             account_client=account_client,
             max_fee=max_fee,
         )
-        register_response = self._register_request(
-            action="DECLARE",
-            payload={
-                "contract": str(self._project_root_path / compiled_contract_path),
-                "sender_address": declare_tx.sender_address,
-                "max_fee": declare_tx.max_fee,
-                "version": declare_tx.version,
-                "nonce": declare_tx.nonce,
-                "signature": declare_tx.signature,
-            },
-        )
         try:
             response = await self._gateway_client.declare(declare_tx, token=token)
 
             if wait_for_acceptance:
-                self._logger.info("Waiting for acceptance...")
                 _, code = await account_client.wait_for_tx(
                     response.transaction_hash, wait_for_accept=True
                 )
@@ -300,7 +263,6 @@ class GatewayFacade:
                 raise fee_ex from ex
             raise ex
 
-        register_response(dataclasses.asdict(response))
         return SuccessfulDeclareResponse(
             code=response.code or "?",
             class_hash=response.class_hash,
@@ -356,21 +318,9 @@ class GatewayFacade:
             self._project_root_path / compiled_contract_path
         )
         tx = self._create_declare_tx_v0(contract_class=compiled_contract, nonce=None)
-        register_response = self._register_request(
-            action="DECLARE",
-            payload={
-                "contract": str(self._project_root_path / compiled_contract_path),
-                "sender_address": tx.sender_address,
-                "max_fee": tx.max_fee,
-                "version": tx.version,
-                "nonce": tx.nonce,
-            },
-        )
         try:
             result = await self._gateway_client.declare(tx, token)
-            register_response(dataclasses.asdict(result))
             if wait_for_acceptance:
-                self._logger.info("Waiting for acceptance...")
                 _, status = await self._gateway_client.wait_for_tx(
                     result.transaction_hash, wait_for_accept=wait_for_acceptance
                 )
@@ -403,14 +353,6 @@ class GatewayFacade:
         function_name: str,
         inputs: Optional[ContractFunctionInputType] = None,
     ) -> NamedTuple:
-        register_response = self._register_request(
-            action="CALL",
-            payload={
-                "contract_address": str(address),
-                "function_name": function_name,
-                "inputs": str(inputs),
-            },
-        )
         contract_function = await self._contract_function_factory.create(
             address=address, function_name=function_name
         )
@@ -421,7 +363,6 @@ class GatewayFacade:
         except ClientError as ex:
             raise TransactionException(message=ex.message) from ex
 
-        register_response({"result": str(result._asdict())})
         return result
 
     async def invoke(
@@ -434,16 +375,6 @@ class GatewayFacade:
         inputs: Optional[CairoOrPythonData] = None,
         wait_for_acceptance: bool = False,
     ) -> SuccessfulInvokeResponse:
-        register_response = self._register_request(
-            action="INVOKE",
-            payload={
-                "contract_address": str(contract_address),
-                "function_name": function_name,
-                "max_fee": max_fee,
-                "inputs": str(inputs),
-                "signer": str(signer),
-            },
-        )
         account_client = await self._create_account_client(
             account_address=account_address, signer=signer
         )
@@ -464,17 +395,6 @@ class GatewayFacade:
             raise TransactionException(message=ex.message) from ex
 
         result = await result.wait_for_acceptance(wait_for_accept=wait_for_acceptance)
-
-        response_dict: StarknetRequest.Payload = {
-            "hash": result.hash,
-            "contract_address": result.contract.address,
-        }
-        if result.block_number:
-            response_dict["block_number"] = result.block_number
-        if result.status:
-            response_dict["status"] = result.status.value  # type: ignore
-
-        register_response(response_dict)
 
         return SuccessfulInvokeResponse(
             transaction_hash=result.hash
@@ -569,47 +489,6 @@ class GatewayFacade:
             transaction_hash=response.transaction_hash,
         )
 
-    def _register_request(
-        self, action: StarknetRequest.Action, payload: StarknetRequest.Payload
-    ) -> Callable[[StarknetRequest.Payload], None]:
-        self._logger.info(
-            "\n".join(
-                [
-                    StarknetRequest.prettify_data_flow(
-                        color_provider=self._log_color_provider,
-                        action=action,
-                        direction="TO_STARKNET",
-                    ),
-                    StarknetRequest.prettify_payload(
-                        color_provider=self._log_color_provider, payload=payload
-                    ),
-                ]
-            )
-        )
-
-        def register_response(response: StarknetRequest.Payload):
-            self._logger.info(
-                "\n".join(
-                    [
-                        StarknetRequest.prettify_data_flow(
-                            color_provider=self._log_color_provider,
-                            action=action,
-                            direction="FROM_STARKNET",
-                        ),
-                        StarknetRequest.prettify_payload(
-                            color_provider=self._log_color_provider,
-                            payload=response,
-                        ),
-                    ]
-                )
-            )
-
-            self._starknet_requests.append(
-                StarknetRequest(action=action, payload=payload, response=response)
-            )
-
-        return register_response
-
 
 class InputValidationException(ProtostarException):
     def __init__(self, message: str):
@@ -639,15 +518,6 @@ class FeeExceededMaxFeeException(ProtostarException):
         if "Actual fee exceeded max fee" in client_error.message:
             return cls(client_error.message)
         return None
-
-
-class GatewayFacadeLogger(LoggerAdapter):
-    def __init__(self, trace: bool):
-        super().__init__(logger=getLogger(), extra={})
-        self._trace = trace
-
-    def isEnabledFor(self, level: int) -> bool:
-        return self._trace and super().isEnabledFor(level)
 
 
 def transform_constructor_inputs_from_python(

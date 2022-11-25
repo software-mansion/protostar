@@ -1,11 +1,9 @@
+from dataclasses import dataclass
 from typing import Any, Callable
 
 from starkware.python.utils import to_bytes
 from starkware.starknet.services.api.contract_class import EntryPointType
 
-from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import (
-    DeployedContract,
-)
 from protostar.starknet import Cheatcode, CheatcodeException
 from protostar.starknet.data_transformer import (
     DataTransformerException,
@@ -13,6 +11,11 @@ from protostar.starknet.data_transformer import (
 )
 
 from .prepare_cheatcode import PreparedContract
+
+
+@dataclass(frozen=True)
+class DeployedContract:
+    contract_address: int
 
 
 class DeployCheatcode(Cheatcode):

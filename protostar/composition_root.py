@@ -1,4 +1,3 @@
-import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -22,7 +21,6 @@ from protostar.commands import (
     InitCommand,
     InstallCommand,
     InvokeCommand,
-    MigrateCommand,
     MigrateConfigurationFileCommand,
     RemoveCommand,
     TestCommand,
@@ -44,7 +42,6 @@ from protostar.configuration_file import (
     ConfigurationTOMLContentBuilder,
 )
 from protostar.io import InputRequester, log_color_provider
-from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.protostar_cli import ProtostarCLI
 from protostar.self import ProtostarCompatibilityWithProjectChecker
 from protostar.self.protostar_directory import ProtostarDirectory, VersionManager
@@ -194,18 +191,6 @@ def build_di_container(
         DeclareCommand(
             gateway_facade_factory=gateway_facade_factory,
             messenger_factory=messenger_factory,
-        ),
-        MigrateCommand(
-            migrator_builder=Migrator.Builder(
-                migrator_execution_environment_builder=MigratorExecutionEnvironment.Builder(
-                    project_compiler
-                ),
-                project_root_path=project_root_path,
-            ),
-            requester=input_requester,
-            logger=logging.getLogger(),
-            log_color_provider=log_color_provider,
-            gateway_facade_factory=gateway_facade_factory,
         ),
         FormatCommand(
             project_root_path=project_root_path,

@@ -1,5 +1,4 @@
 import asyncio
-import logging
 from argparse import Namespace
 from contextlib import contextmanager
 from dataclasses import dataclass, field
@@ -7,12 +6,10 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Union, cast, Generator
 
 from pytest_mock import MockerFixture
-from starknet_py.net import KeyPair
 from starknet_py.net.client_models import InvokeFunction, StarknetTransaction
 from starknet_py.net.gateway_client import GatewayClient, Network
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import DeployAccount
-from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
 from protostar.argument_parser import ArgumentParserFacade, CLIApp
 from protostar.cli import map_protostar_type_name_to_parser, MessengerFactory
@@ -24,7 +21,6 @@ from protostar.commands import (
     FormatCommand,
     InitCommand,
     InvokeCommand,
-    MigrateCommand,
 )
 from protostar.commands.deploy_account_command import DeployAccountCommand
 from protostar.commands.deploy_command import DeployCommand
@@ -43,17 +39,14 @@ from protostar.formatter.formatting_result import FormattingResult
 from protostar.formatter.formatting_summary import FormattingSummary
 from protostar.io import log_color_provider
 from protostar.io.input_requester import InputRequester
-from protostar.migrator import Migrator, MigratorExecutionEnvironment
 from protostar.self.protostar_compatibility_with_project_checker import (
     parse_protostar_version,
 )
 from protostar.self.protostar_directory import ProtostarDirectory
-from protostar.starknet.address import Address
 from protostar.starknet_gateway import Fee, GatewayFacade, GatewayFacadeFactory
 from protostar.starknet_gateway.gateway_facade import Wei
 from protostar.testing import TestingSummary
 from protostar.starknet import Address
-from tests.conftest import Credentials
 
 
 # pylint: disable=too-many-instance-attributes
@@ -63,7 +56,6 @@ class ProtostarFixture:
         project_root_path: Path,
         init_command: InitCommand,
         build_command: BuildCommand,
-        migrate_command: MigrateCommand,
         format_command: FormatCommand,
         declare_command: DeclareCommand,
         deploy_command: DeployCommand,
@@ -79,7 +71,6 @@ class ProtostarFixture:
         self._project_root_path = project_root_path
         self._init_command = init_command
         self._build_command = build_command
-        self._migrate_command = migrate_command
         self._format_command = format_command
         self._declare_command = declare_command
         self._deploy_command = deploy_command
@@ -258,27 +249,6 @@ class ProtostarFixture:
         args.json = False
         return args
 
-    async def migrate(
-        self,
-        path: Path,
-        gateway_url: str,
-        account_address: Optional[Address] = None,
-    ):
-        args = Namespace()
-        args.path = path
-        args.no_confirm = True
-        args.network = None
-        args.gateway_url = gateway_url
-        args.chain_id = StarknetChainId.TESTNET
-        args.signer_class = None
-        args.account_address = account_address
-        args.private_key_path = None
-        args.compiled_contracts_dir = Path() / "build"
-
-        migration_history = await self._migrate_command.run(args)
-        assert migration_history is not None
-        return migration_history
-
     async def invoke(
         self,
         contract_address: Address,
@@ -351,27 +321,6 @@ class ProtostarFixture:
                 content = file
             self._save_file(self._project_root_path / relative_path_str, content)
 
-    def create_migration_file(
-        self, up_hint_content: str = "", down_hint_content: str = ""
-    ) -> Path:
-        file_path = self._project_root_path / "migrations" / "migration_01_test.cairo"
-        self._save_file(
-            file_path,
-            f"""
-        %lang starknet
-
-        @external
-        func up(){{
-            %{{
-                {up_hint_content}
-            %}}
-
-            return ();
-        }}
-        """,
-        )
-        return file_path
-
     @staticmethod
     def _save_file(path: Path, content: str) -> None:
         path.parent.mkdir(exist_ok=True, parents=True)
@@ -425,7 +374,7 @@ class TestFriendlyGatewayFacadeFactory(GatewayFacadeFactory):
         self.recent_gateway_client: Optional[GatewayClientTxInterceptor] = None
         self._transaction_registry = transaction_registry
 
-    def create(self, gateway_client: GatewayClient, trace: bool = True):
+    def create(self, gateway_client: GatewayClient):
         gateway_client_tx_interceptor = GatewayClientTxInterceptor(
             # pylint: disable=protected-access
             net=gateway_client._net,
@@ -436,8 +385,6 @@ class TestFriendlyGatewayFacadeFactory(GatewayFacadeFactory):
             project_root_path=self._project_root_path,
             compiled_contract_reader=self._compiled_contract_reader,
             gateway_client=gateway_client_tx_interceptor,
-            trace=trace,
-            log_color_provider=log_color_provider,
         )
 
 
@@ -449,15 +396,7 @@ def fake_activity_indicator(message: str) -> Generator[None, None, None]:
 def build_protostar_fixture(
     mocker: MockerFixture,
     project_root_path: Path,
-    signing_credentials: Credentials,
 ):
-    private_key, account_address = signing_credentials
-    signer = StarkCurveSigner(
-        str(account_address),
-        KeyPair.from_private_key(int(private_key, 16)),
-        StarknetChainId.TESTNET,
-    )
-
     version_manager = mocker.MagicMock()
     version_manager.protostar_version = mocker.MagicMock()
     version_manager.protostar_version = "99.9.9"
@@ -514,20 +453,6 @@ def build_protostar_fixture(
         messenger_factory=messenger_factory,
     )
 
-    migrator_builder = Migrator.Builder(
-        migrator_execution_environment_builder=MigratorExecutionEnvironment.Builder(
-            project_compiler
-        ),
-        project_root_path=project_root_path,
-    )
-    migrator_builder.set_migration_execution_environment_config(
-        MigratorExecutionEnvironment.Config(
-            token=None,
-        ),
-    )
-
-    migrator_builder.set_signer(signer)
-
     transaction_registry = TransactionRegistry()
 
     gateway_facade_factory = TestFriendlyGatewayFacadeFactory(
@@ -539,14 +464,6 @@ def build_protostar_fixture(
     deploy_account_command = DeployAccountCommand(
         gateway_facade_factory=gateway_facade_factory,
         messenger_factory=messenger_factory,
-    )
-
-    migrate_command = MigrateCommand(
-        migrator_builder=migrator_builder,
-        log_color_provider=log_color_provider,
-        logger=logging.getLogger(),
-        requester=input_requester,
-        gateway_facade_factory=gateway_facade_factory,
     )
 
     format_command = FormatCommand(
@@ -602,7 +519,6 @@ def build_protostar_fixture(
         init_command=init_command,
         call_command=call_command,
         build_command=build_command,
-        migrate_command=migrate_command,
         format_command=format_command,
         declare_command=declare_command,
         deploy_command=deploy_command,
