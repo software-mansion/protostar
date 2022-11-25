@@ -3,7 +3,7 @@ import os
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, ContextManager, List, Optional, Set, Tuple, cast
+from typing import Callable, ContextManager, List, Optional, Set, cast
 
 import pytest
 from pytest import TempPathFactory
@@ -15,7 +15,7 @@ from protostar.commands.test.test_command import TestCommand
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.testing import TestingSummary
-from tests.conftest import Credentials, run_devnet
+from tests.conftest import run_devnet
 from tests.integration.protostar_fixture import (
     ProtostarFixture,
     build_protostar_fixture,
@@ -196,7 +196,6 @@ class CreateProtostarProjectFixture(Protocol):
 def create_protostar_project_fixture(
     session_mocker: MockerFixture,
     tmp_path_factory: TempPathFactory,
-    signing_credentials: Credentials,
 ) -> CreateProtostarProjectFixture:
     @contextmanager
     def create_protostar_project():
@@ -206,7 +205,6 @@ def create_protostar_project_fixture(
         protostar = build_protostar_fixture(
             mocker=session_mocker,
             project_root_path=tmp_path,
-            signing_credentials=signing_credentials,
         )
         project_name = "project_name"
         protostar.init_sync(project_name)
@@ -217,7 +215,6 @@ def create_protostar_project_fixture(
         yield build_protostar_fixture(
             mocker=session_mocker,
             project_root_path=project_root_path,
-            signing_credentials=signing_credentials,
         )
         os.chdir(cwd)
 
