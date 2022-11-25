@@ -137,7 +137,17 @@ const config = {
           to: '/docs/tutorials/interacting-with-starknet',
           from: '/docs/tutorials/deploying/cli'
         },
-      ],
+        {
+          to: '/docs/tutorials/migrations/',
+          from: [
+              '/docs/tutorials/migrations/call',
+              '/docs/tutorials/migrations/declare',
+              '/docs/tutorials/migrations/deploy-contract',
+              '/docs/tutorials/migrations/invoke',
+              '/docs/tutorials/migrations/network-config'
+          ]
+        }
+      ]
     }],
   ],
 };

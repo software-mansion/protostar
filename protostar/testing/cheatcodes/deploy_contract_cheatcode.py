@@ -1,13 +1,10 @@
 from typing import Dict, Optional, Any, Protocol
 
-from protostar.migrator.cheatcodes.migrator_deploy_contract_cheatcode import (
-    DeployedContract,
-)
 from protostar.starknet import Cheatcode, KeywordOnlyArgumentCheatcodeException
 from protostar.starknet.data_transformer import CairoOrPythonData
 
 from .declare_cheatcode import DeclareCheatcode
-from .deploy_cheatcode import DeployCheatcode
+from .deploy_cheatcode import DeployCheatcode, DeployedContract
 from .prepare_cheatcode import PrepareCheatcode
 
 

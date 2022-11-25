@@ -259,34 +259,6 @@ Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
 Custom signer class module path.
 #### `--wait-for-acceptance`
 Waits for transaction to be accepted on chain.
-### `migrate`
-Run migration file.
-#### `path PATH`
-Required.
-
-Path to the migration file.
-#### `--account-address ADDRESS`
-Account address.
-#### `--chain-id INT`
-The chain id. It is required unless `--network` is provided.
-#### `--compiled-contracts-dir PATH=build`
-A directory in which your compiled contracts are located (used for deploys and declares)
-#### `--gateway-url STRING`
-The URL of a StarkNet gateway. It is required unless `--network` is provided.
-#### `-n` `--network STRING`
-The name of the StarkNet network.
-It is required unless `--gateway-url` is provided.
-
-Supported StarkNet networks:
-- `testnet`
-- `mainnet`
-#### `--no-confirm`
-Skip confirming building the project.
-#### `--private-key-path PATH`
-Path to the file, which stores your private key (in hex representation) for the account. 
-Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
-#### `--signer-class STRING`
-Custom signer class module path.
 ### `migrate-configuration-file`
 Migrate protostar.toml V1 to V2.
 ### `remove`

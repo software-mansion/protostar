@@ -1,12 +1,24 @@
+from typing import Union
+
 import pytest
-from starknet_py.net.models import StarknetChainId
+from starknet_py.net.client_models import TransactionStatus
+from starknet_py.net.gateway_client import GatewayClient
 
 from protostar.protostar_exception import ProtostarException
 from tests.conftest import DevnetAccount, SetPrivateKeyEnvVarFixture
 from tests.data.contracts import RUNTIME_ERROR_CONTRACT
 from tests.integration.conftest import CreateProtostarProjectFixture
-from tests.integration.migrator.conftest import assert_transaction_accepted
 from tests.integration.protostar_fixture import ProtostarFixture
+
+
+async def assert_transaction_accepted(
+    devnet_gateway_url: str, transaction_hash: Union[str, int]
+):
+    gateway = GatewayClient(devnet_gateway_url)
+    (_, transaction_status) = await gateway.wait_for_tx(
+        transaction_hash, wait_for_accept=True
+    )
+    assert transaction_status == TransactionStatus.ACCEPTED_ON_L2
 
 
 @pytest.fixture(name="protostar")

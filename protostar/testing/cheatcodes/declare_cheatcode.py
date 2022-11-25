@@ -1,6 +1,7 @@
 import asyncio
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Optional, Any
+from typing import Optional, Any, Protocol
 
 from starkware.python.utils import from_bytes
 from starkware.starknet.business_logic.transaction.objects import InternalDeclare
@@ -12,11 +13,19 @@ from starkware.starknet.testing.contract import DeclaredClass
 from starkware.starknet.testing.contract_utils import EventManager, get_abi
 
 from protostar.compiler import ProjectCompiler
-from protostar.migrator.cheatcodes.migrator_declare_cheatcode import (
-    DeclareCheatcodeProtocol,
-    DeclaredContract,
-)
 from protostar.starknet import Cheatcode, KeywordOnlyArgumentCheatcodeException
+
+
+@dataclass
+class DeclaredContract:
+    class_hash: int
+
+
+class DeclareCheatcodeProtocol(Protocol):
+    def __call__(
+        self, contract: str, *args: Any, config: Optional[Any] = None
+    ) -> DeclaredContract:
+        ...
 
 
 class DeclareCheatcode(Cheatcode):
@@ -39,8 +48,6 @@ class DeclareCheatcode(Cheatcode):
         self,
         contract: str,
         *args: Any,
-        # pylint: disable=unused-argument
-        config: Optional[Dict] = None,
     ) -> DeclaredContract:
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException(self.name, ["config"])
