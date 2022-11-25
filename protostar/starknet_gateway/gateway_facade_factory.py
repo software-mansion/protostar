@@ -3,7 +3,6 @@ from pathlib import Path
 from starknet_py.net.gateway_client import GatewayClient
 
 from protostar.compiler import CompiledContractReader
-from protostar.io import log_color_provider
 from .gateway_facade import GatewayFacade
 
 
@@ -21,5 +20,4 @@ class GatewayFacadeFactory:
             project_root_path=self._project_root_path,
             compiled_contract_reader=self._compiled_contract_reader,
             gateway_client=gateway_client,
-            log_color_provider=log_color_provider,
         )

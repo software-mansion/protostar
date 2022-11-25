@@ -385,7 +385,6 @@ class TestFriendlyGatewayFacadeFactory(GatewayFacadeFactory):
             project_root_path=self._project_root_path,
             compiled_contract_reader=self._compiled_contract_reader,
             gateway_client=gateway_client_tx_interceptor,
-            log_color_provider=log_color_provider,
         )
 
 
