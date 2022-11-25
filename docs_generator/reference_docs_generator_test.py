@@ -45,7 +45,7 @@ def test_generating_default_type_and_array_info():
                     name="foo",
                     description="...",
                     default="FOO",
-                    is_array=True,
+                    value_parser="list",
                     type="str",
                 )
             ]

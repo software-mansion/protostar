@@ -39,7 +39,7 @@ class FormatCommand(ProtostarCommand):
                 name="target",
                 description="Target to format, can be a file or a directory.",
                 type="str",
-                is_array=True,
+                value_parser="list",
                 is_positional=True,
                 default=["."],
             ),

@@ -41,7 +41,7 @@ class BuildCommand(ProtostarCommand):
                 name="cairo-path",
                 description="Additional directories to look for sources.",
                 type="path",
-                is_array=True,
+                value_parser="list",
             ),
             ProtostarArgument(
                 name="disable-hint-validation",

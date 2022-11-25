@@ -31,7 +31,7 @@ class CairoMigrateCommand(ProtostarCommand):
                 name="targets",
                 description="Targets to migrate (a target can be a file or directory)",
                 type="str",
-                is_array=True,
+                value_parser="list",
                 is_positional=True,
                 default=["."],
             )

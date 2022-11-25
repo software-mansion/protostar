@@ -79,7 +79,7 @@ A glob or globs to a directory or a test suite, for example:
 - `::test_increase_balance` — find `test_increase_balance` test_cases in any test suite within the project.   
 """.strip(),
                 type="str",
-                is_array=True,
+                value_parser="list",
                 is_positional=True,
                 default=["."],
             ),
@@ -89,12 +89,12 @@ A glob or globs to a directory or a test suite, for example:
                 description=(
                     "A glob or globs to a directory or a test suite, which should be ignored."
                 ),
-                is_array=True,
+                value_parser="list",
                 type="str",
             ),
             ProtostarArgument(
                 name="cairo-path",
-                is_array=True,
+                value_parser="list",
                 description="Additional directories to look for sources.",
                 type="path",
             ),
