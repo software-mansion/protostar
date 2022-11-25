@@ -56,7 +56,7 @@ async def test_invoke(
             wait_for_acceptance=True,
             gateway_url=devnet_gateway_url,
         )
-        await assert_transaction_accepted(devnet_gateway_url, response.transaction_hash)
+        await devnet.assert_transaction_accepted(response.transaction_hash)
     # The one at 0 is actually a UDC Invoke, for deploy
     transaction = protostar.get_intercepted_transactions_mapping().invoke_txs[1]
     assert transaction.max_fee != "auto"
@@ -69,6 +69,7 @@ async def test_invoke_args_dict(
     devnet_gateway_url: str,
     devnet_account: DevnetAccount,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
+    devnet: DevnetFixture,
 ):
     deploy_response = await deploy_main_contract(protostar, devnet_gateway_url)
 
@@ -82,7 +83,7 @@ async def test_invoke_args_dict(
             wait_for_acceptance=True,
             gateway_url=devnet_gateway_url,
         )
-        await assert_transaction_accepted(devnet_gateway_url, response.transaction_hash)
+        await devnet.assert_transaction_accepted(response.transaction_hash)
 
 
 async def test_invoke_args_dict_fail(

@@ -47,7 +47,6 @@ from protostar.starknet_gateway import Fee, GatewayFacade, GatewayFacadeFactory
 from protostar.starknet_gateway.gateway_facade import Wei
 from protostar.testing import TestingSummary
 from protostar.starknet import Address
-from tests.conftest import Credentials
 from protostar.starknet.data_transformer import CairoOrPythonData
 from protostar.commands.call_command import SuccessfulCallMessage
 

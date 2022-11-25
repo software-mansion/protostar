@@ -59,6 +59,8 @@ def parse_input_arg_type(arg: str) -> Union[CairoOrPythonData, int]:
     if "=" not in arg:
         return parse_felt_arg_type(arg)
     split_arg = arg.split("=")
+    if len(split_arg) != 2:
+        raise ValueError("Invalid inputs value, multiple `=` signs are not allowed")
     return {split_arg[0]: parse_felt_arg_type(split_arg[1])}
 
 
