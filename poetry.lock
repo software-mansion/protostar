@@ -1055,7 +1055,7 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "pylint"
-version = "2.15.5"
+version = "2.15.6"
 description = "python code static checker"
 category = "dev"
 optional = false
@@ -1567,7 +1567,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.9"
-content-hash = "939b7c74b4d50a5a5e26caab649fb9a7586f8b59f6c886d8b984e81443e8978a"
+content-hash = "8e85e77c4d70d4d5975e03c4ff56cd7877964ff9121d9ffa72b6ac696e03dddc"
 
 [metadata.files]
 aiohttp = [
@@ -2529,8 +2529,8 @@ pyinstaller-hooks-contrib = [
     {file = "pyinstaller_hooks_contrib-2022.10-py2.py3-none-any.whl", hash = "sha256:d1dd6ea059dc30e77813cc12a5efa8b1d228e7da8f5b884fe11775f946db1784"},
 ]
 pylint = [
-    {file = "pylint-2.15.5-py3-none-any.whl", hash = "sha256:c2108037eb074334d9e874dc3c783752cc03d0796c88c9a9af282d0f161a1004"},
-    {file = "pylint-2.15.5.tar.gz", hash = "sha256:3b120505e5af1d06a5ad76b55d8660d44bf0f2fc3c59c2bdd94e39188ee3a4df"},
+    {file = "pylint-2.15.6-py3-none-any.whl", hash = "sha256:15060cc22ed6830a4049cf40bc24977744df2e554d38da1b2657591de5bcd052"},
+    {file = "pylint-2.15.6.tar.gz", hash = "sha256:25b13ddcf5af7d112cf96935e21806c1da60e676f952efb650130f2a4483421c"},
 ]
 pyparsing = [
     {file = "pyparsing-3.0.9-py3-none-any.whl", hash = "sha256:5026bae9a10eeaefb61dab2f09052b9f4307d44aee4eda64b309723d8d206bbc"},
