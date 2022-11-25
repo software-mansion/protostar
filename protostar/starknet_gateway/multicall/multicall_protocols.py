@@ -3,7 +3,8 @@ from dataclasses import dataclass
 
 from typing_extensions import Protocol
 
-from .multicall_input import MulticallInput
+from protostar.starknet.address import Address
+
 from .multicall_output import MulticallOutput
 
 
@@ -13,15 +14,22 @@ class MulticallSignedTransaction:
 
 
 @dataclass
+class ResolvedCall:
+    address: Address
+    function_name: str
+    calldata: list[int]
+
+
+@dataclass
 class MulticallSignerProtocol(Protocol):
     @abstractmethod
     async def sign_multicall_transaction(
-        self, transaction: MulticallInput
+        self, calls: list[ResolvedCall]
     ) -> MulticallSignedTransaction:
         ...
 
 
-class GatewayProtocol(Protocol):
+class MulticallGatewayProtocol(Protocol):
     @abstractmethod
     async def send_multicall_transaction(
         self, transaction: MulticallSignedTransaction

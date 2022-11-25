@@ -3,14 +3,10 @@ from typing import Literal, Union
 
 from protostar.starknet import Address
 
-from ..gateway_facade import Fee
-
 
 @dataclass(frozen=True)
 class CallBase:
-    contract_source: str
     calldata: list[int]
-    max_fee: Fee
 
 
 @dataclass(frozen=True)
@@ -21,7 +17,7 @@ class InvokeCall(CallBase):
 
 @dataclass(frozen=True)
 class DeployCall(CallBase):
-    pass
+    compiled_contract: str
 
 
 @dataclass(frozen=True)
