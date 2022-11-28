@@ -2,7 +2,9 @@
 ```python
 def expect_call(self, contract_address: int, fn_name: str, calldata: list[int]) -> None: ...
 ```
-Allows to specify what calls to contracts' functions are expected in the code. You can use this cheatcode in any place in the code as it checks for the desired calls' existence at the very end of the program's execution.
+Allows to specify what calls to contracts' functions are expected in the code.
+It checks for the expected call's existence until the returned callable is called.
+If the returned callable is not invoked, the expected call is being awaited until the end of the scope.
 
 `calldata` is a list of arguments that are expected for a certain call. The checking mechanism goes for a strict match, which means that the order, as well as the values of each element, have to be exactly the same.
 
@@ -34,13 +36,26 @@ func test_expect_call_success{syscall_ptr: felt*, range_check_ptr}() {
   tempvar ctr_addr_b;
   %{ ids.ctr_addr_b = context.ctr_addr_b %}
 
-  %{
-    expect_call(ids.ctr_addr_a, "increase_balance", [5, 6, 7])
-    expect_call(ids.ctr_addr_b, "increase_balance", [1, 2, 3])
-  %}
+  %{ stop_a = expect_call(ids.ctr_addr_a, "increase_balance", [5, 6, 7]) %}
+  %{ stop_b = expect_call(ids.ctr_addr_b, "increase_balance", [1, 2, 3]) %}
 
   MainContract.increase_balance(contract_address=ctr_addr_a, amount_1=5, amount_2=6, amount_3=7);
+  %{ stop_a() %}
+
   MainContract.increase_balance(contract_address=ctr_addr_b, amount_1=1, amount_2=2, amount_3=3);
+
+  return ();
+}
+
+@external
+func test_expect_call_fail_after_stop{syscall_ptr: felt*, range_check_ptr}() {
+  tempvar ctr_addr_a;
+  %{ ids.ctr_addr_a = context.ctr_addr_a %}
+
+  %{ stop_a = expect_call(ids.ctr_addr_a, "increase_balance", [5, 6, 7]) %}
+  %{ stop_a() %}
+
+  MainContract.increase_balance(contract_address=ctr_addr_a, amount_1=5, amount_2=6, amount_3=7);
 
   return ();
 }
