@@ -3,7 +3,7 @@ from asyncio import to_thread
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List
 
-from hypothesis import Phase, example, given, seed, settings
+from hypothesis import example, given, seed, settings
 from hypothesis.database import ExampleDatabase, InMemoryExampleDatabase
 from hypothesis.errors import InvalidArgument
 from hypothesis.reporting import with_reporter
@@ -158,13 +158,6 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
                 report_multiple_bugs=False,
                 verbosity=HYPOTHESIS_VERBOSITY,
             )
-            if (
-                not self.state.config.fuzz_declared_strategies
-                and self.state.config.fuzz_examples
-            ):
-                settings_instance = settings(
-                    settings_instance, phases=(Phase.explicit,)
-                )
 
             @self.decorate_with_examples
             @seed(self.state.config.seed)
