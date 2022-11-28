@@ -105,7 +105,7 @@ class ExecutionResourcesSummary:
             n_steps=self.n_steps.add_observation(other.n_steps),
             n_memory_holes=self.n_memory_holes.add_observation(other.n_memory_holes),
             builtin_name_to_count_map=dict(builtin_name_to_count_map),
-            estimated_fee=self._add_estimated_fee_observation(other),
+            estimated_gas=self._add_estimated_fee_observation(other),
         )
 
     def _add_estimated_fee_observation(self, other: Self) -> Optional[Statistic]:
