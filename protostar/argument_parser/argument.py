@@ -1,9 +1,10 @@
 from dataclasses import dataclass, replace
-from typing import Any, Generic, Optional, TypeVar
+from typing import Any, Generic, Optional, TypeVar, Literal
 
 from typing_extensions import Self
 
 ArgTypeNameT = TypeVar("ArgTypeNameT")
+
 
 # pylint: disable=too-many-instance-attributes
 @dataclass(frozen=True)
@@ -13,7 +14,7 @@ class Argument(Generic[ArgTypeNameT]):
     type: ArgTypeNameT
     is_positional: bool = False
     is_required: bool = False
-    is_array: bool = False
+    value_parser: Literal["single_element", "list", "list_or_dict"] = "single_element"
     default: Any = None
     example: Optional[str] = None
     short_name: Optional[str] = None

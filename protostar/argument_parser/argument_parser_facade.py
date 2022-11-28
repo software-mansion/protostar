@@ -9,8 +9,10 @@ from typing import (
     Sequence,
     Tuple,
     TypeVar,
+    Union,
 )
 
+from protostar.protostar_exception import ProtostarException
 from protostar.argument_parser.unparser import unparse_arguments_from_external_source
 
 from .arg_type import ArgTypeName, map_type_name_to_parser
@@ -24,12 +26,33 @@ ArgTypeNameT_contra = TypeVar(
 )
 
 
+def parse_collection_arg(arg: list[Union[int, dict[str, Any]]]):
+    arg_type: Optional[type] = None
+    result = arg
+    for input_item in result:
+        if arg_type is None:
+            arg_type = type(input_item)
+            continue
+        if not isinstance(input_item, arg_type):
+            raise InconsistentInputTypesException()
+
+    if arg_type == dict:
+        parsed = {}
+        for arg_item in result:
+            assert isinstance(arg_item, dict)
+            parsed.update(dict(arg_item))
+        result = parsed
+    return result
+
+
 class ParserResolverProtocol(Protocol, Generic[ArgTypeNameT_contra]):
     def __call__(self, argument_type: ArgTypeNameT_contra) -> Callable[[str], Any]:
         ...
 
 
 class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
+    post_parse_actions = {}
+
     def __init__(
         self,
         cli_app: CLIApp,
@@ -71,6 +94,19 @@ class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
             )
 
         return args
+
+    def post_parse(self, parsed_args: Namespace):
+        result = parsed_args
+        if not hasattr(parsed_args, "command"):
+            return result
+        command = self.post_parse_actions.get(parsed_args.command)
+        if command is None:
+            return result
+        for arg_name, action in command.items():
+            if not hasattr(parsed_args, arg_name):
+                continue
+            setattr(result, arg_name, action(getattr(parsed_args, arg_name)))
+        return result
 
     def print_help(self):
         self.argument_parser.print_help()
@@ -136,6 +172,12 @@ class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
                 command_parser,
                 self._set_value_from_external_source(command, arg),  # type: ignore
             )
+            if arg.value_parser == "list_or_dict":
+                if self.post_parse_actions.get(command.name) is None:
+                    self.post_parse_actions[command.name] = {
+                        arg.name: parse_collection_arg
+                    }
+                self.post_parse_actions[command.name][arg.name] = parse_collection_arg
 
         return self
 
@@ -169,7 +211,7 @@ class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
             parse_arg = self._parser_resolver(argument.type)
             parsed_values = [parse_arg(val) for val in unparsed_values]
             new_default = parsed_values
-            if not argument.is_array:
+            if argument.value_parser == "single_element":
                 new_default = parsed_values[0] if len(parsed_values) > 0 else None
             return argument.copy_with(default=new_default)
         return argument
@@ -188,7 +230,9 @@ class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
             assert (
                 argument.is_positional is False
             ), "A boolean can't be positional argument"
-            assert argument.is_array is False, "Array of booleans is not allowed"
+            assert (
+                argument.value_parser == "single_element"
+            ), "Collection of booleans is not allowed"
             argument_parser.add_argument(
                 *names,
                 help=argument.description,
@@ -201,7 +245,7 @@ class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
 
         default = argument.default
 
-        if not default and argument.is_array:
+        if not default and argument.value_parser != "single_element":
             default = []
 
         kwargs = {}
@@ -209,7 +253,7 @@ class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
         if argument.is_positional:
             kwargs["nargs"] = "?"
 
-        if argument.is_array:
+        if argument.value_parser != "single_element":
             kwargs["nargs"] = "*"
 
         argument_parser.add_argument(
@@ -229,4 +273,10 @@ class MissingRequiredArgumentException(Exception):
             if command_name
             else f"Missing required argument: `{argument_name}`"
         )
+        super().__init__(self.message)
+
+
+class InconsistentInputTypesException(ProtostarException):
+    def __init__(self) -> None:
+        self.message = "Mixing positional and keyword arguments is not allowed"
         super().__init__(self.message)

@@ -39,7 +39,7 @@ ACCOUNT_CONSTRUCTOR_INPUT = ProtostarArgument(
     name="account-constructor-input",
     description="Input to the account's constructor.",
     type="int",
-    is_array=True,
+    value_parser="list",
 )
 
 COMPILED_CONTRACTS_DIR_ARG = ProtostarArgument(

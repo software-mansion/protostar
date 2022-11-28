@@ -10,6 +10,7 @@ from protostar.starknet_gateway import (
     Wei,
 )
 from protostar.starknet import Address
+from protostar.starknet.data_transformer import CairoOrPythonData
 
 CustomProtostarArgTypeName = Literal[
     "felt",
@@ -18,6 +19,7 @@ CustomProtostarArgTypeName = Literal[
     "address",
     "class_hash",
     "block_explorer",
+    "input",
 ]
 
 ProtostarArgTypeName = Union[CustomProtostarArgTypeName, ArgTypeName]
@@ -38,6 +40,8 @@ def map_protostar_type_name_to_parser(
         return parse_wei_arg_type
     if argument_type == "block_explorer":
         return parse_block_explorer_type
+    if argument_type == "input":
+        return parse_input_arg_type
     return map_type_name_to_parser(argument_type)
 
 
@@ -49,6 +53,15 @@ def parse_felt_arg_type(arg: str) -> int:
 
 def parse_wei_arg_type(arg: str) -> Wei:
     return int(float(arg))
+
+
+def parse_input_arg_type(arg: str) -> Union[CairoOrPythonData, int]:
+    if "=" not in arg:
+        return parse_felt_arg_type(arg)
+    split_arg = arg.split("=")
+    if len(split_arg) != 2:
+        raise ValueError("Invalid inputs value, multiple `=` signs are not allowed")
+    return {split_arg[0]: parse_felt_arg_type(split_arg[1])}
 
 
 def parse_fee_arg_type(arg: str) -> Fee:
