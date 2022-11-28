@@ -53,7 +53,11 @@ class ExpectCallCheatcode(Cheatcode):
                 contract_address
             )
             if data_for_address and (selector, calldata) in data_for_address:
-                raise Exception("expected call but it didn't happen todo this msg")
+                raise ExpectedCallException(
+                    contract_address=contract_address,
+                    fn_name=fn_name,
+                    calldata=calldata,
+                )
 
         def finish_callback():
             if not self.cheatable_state.expected_contract_calls:
