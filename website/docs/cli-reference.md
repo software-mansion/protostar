@@ -307,10 +307,10 @@ A glob or globs to a directory or a test suite, for example:
 Additional directories to look for sources.
 #### `--disable-hint-validation`
 Disable hint validation in contracts declared by the `declare` cheatcode or deployed by `deploy_contract` cheatcode.
+#### `--estimate-gas`
+Show gas estimation for each test case.
 #### `-x` `--exit-first`
 Exit immediately on first broken or failed test.
-#### `--gas-price FLOAT`
-Gas price per gas unit. If provided, Protostar will estimate a fee for test cases. You can find the actual gas price in a block explorer by checking the latest transaction block. Provide value 1, to get gas estimations.
 #### `-i` `--ignore STRING[]`
 A glob or globs to a directory or a test suite, which should be ignored.
 #### `-lf` `--last-failed`
