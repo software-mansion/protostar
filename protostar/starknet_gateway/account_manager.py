@@ -4,7 +4,6 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.client_models import Call as SNCall
 
 from protostar.starknet import Address
-from protostar.starknet_gateway.network_config import NetworkConfig
 
 from .multicall import MulticallSignerProtocol, MulticallSignedTransaction, ResolvedCall
 

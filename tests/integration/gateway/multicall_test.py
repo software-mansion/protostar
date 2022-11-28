@@ -14,7 +14,7 @@ async def test_multicall_use_case_happy_case(
 ):
     account = devnet.get_predeployed_accounts()[0]
     account_manager = AccountManager(
-        private_key=account.private_key,
+        private_key=int(account.private_key),
         signer=account.signer,
         address=account.address,
         gateway_url=devnet.get_gateway_url(),
