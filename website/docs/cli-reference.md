@@ -50,8 +50,8 @@ Required.
 The name of the function being called.
 #### `--gateway-url STRING`
 The URL of a StarkNet gateway. It is required unless `--network` is provided.
-#### `--inputs FELT[]`
-Inputs to the function being called, represented by a list of space-delimited values.
+#### `--inputs INPUT[]`
+Inputs to the function being called, represented either by a list of space-delimited values (`1 2 3`) or by a mapping of their names to their values (`a=11 b=12 c=13`).
 #### `--json`
 Print machine readable output in JSON format.
 #### `-n` `--network STRING`
@@ -122,8 +122,9 @@ Generated links will point to that block explorer. Available values:
 The chain id. It is required unless `--network` is provided.
 #### `--gateway-url STRING`
 The URL of a StarkNet gateway. It is required unless `--network` is provided.
-#### `-i` `--inputs FELT[]`
-The inputs to the constructor. Calldata arguments may be of any type that does not contain pointers.
+#### `-i` `--inputs INPUT[]`
+Inputs to the constructor, represented either by a list of space-delimited values (`1 2 3`) or by a mapping of their names to their values (`a=11 b=12 c=13`).
+Calldata arguments may be of any type that does not contain pointers.
 [Read more about representing Cairo data types in the CLI.](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#array-arguments-in-calldata)
 #### `--json`
 Print machine readable output in JSON format.
@@ -251,8 +252,8 @@ Required.
 The name of the function being called.
 #### `--gateway-url STRING`
 The URL of a StarkNet gateway. It is required unless `--network` is provided.
-#### `--inputs FELT[]`
-Inputs to the function being called, represented by a list of space-delimited values.
+#### `--inputs INPUT[]`
+Inputs to the function being called, represented either by a list of space-delimited values (`1 2 3`) or by a mapping of their names to their values (`a=11 b=12 c=13`).
 #### `--json`
 Print machine readable output in JSON format.
 #### `--max-fee FEE`

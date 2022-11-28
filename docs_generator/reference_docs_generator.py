@@ -46,7 +46,9 @@ class ReferenceDocsGenerator:
             name = arg.name if arg.is_positional else f"--{arg.name}"
             arg_type = arg.type if arg.type != "bool" else None
             arg_type = "string" if arg.type == "str" else arg_type
-            arg_type = f"{arg_type}[]" if arg.is_array else arg_type
+            arg_type = (
+                f"{arg_type}[]" if arg.value_parser != "single_element" else arg_type
+            )
             arg_type = f" {arg_type.upper()}" if arg_type else ""
             arg_type = f"{arg_type}={arg.default}" if arg.default else arg_type
             short_name = f"`-{arg.short_name}` " if arg.short_name else ""

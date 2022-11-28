@@ -135,3 +135,33 @@ func test_expect_call_wrong_function_name{syscall_ptr: felt*, range_check_ptr}()
 
   return ();
 }
+
+@external
+func test_expect_call_with_stop{syscall_ptr: felt*, range_check_ptr}() {
+  tempvar ctr_addr_a;
+  %{ ids.ctr_addr_a = context.ctr_addr_a %}
+  %{
+    stop_expect = expect_call(ids.ctr_addr_a, "increase_balance", [1, 2, 3])
+  %}
+
+  MainContract.increase_balance(contract_address=ctr_addr_a, amount_1=1, amount_2=2, amount_3=3);
+
+  %{ stop_expect() %}
+
+  return ();
+}
+
+@external
+func test_expect_call_after_stop{syscall_ptr: felt*, range_check_ptr}() {
+  tempvar ctr_addr_a;
+  %{ ids.ctr_addr_a = context.ctr_addr_a %}
+  %{
+    stop_expect = expect_call(ids.ctr_addr_a, "increase_balance", [1, 2, 3])
+  %}
+
+  %{ stop_expect() %}
+
+  MainContract.increase_balance(contract_address=ctr_addr_a, amount_1=1, amount_2=2, amount_3=3);
+
+  return ();
+}

@@ -85,7 +85,7 @@ def test_arrays():
                 name="target",
                 description="...",
                 type="str",
-                is_array=True,
+                value_parser="list",
             )
         ]
     )
@@ -286,7 +286,9 @@ def test_parsing_extra_arguments_source(value_in_config_file: Any, result: Any):
                     description="",
                     example="",
                     type="str",
-                    is_array=isinstance(value_in_config_file, list),
+                    value_parser="list_or_dict"
+                    if isinstance(value_in_config_file, (list, dict))
+                    else "single_element",
                 )
             ]
         ),

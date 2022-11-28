@@ -7,6 +7,8 @@ from tests.conftest import DevnetAccount, SetPrivateKeyEnvVarFixture
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.protostar_fixture import ProtostarFixture
 
+from protostar.starknet_gateway.gateway_facade import InputValidationException
+
 
 @pytest.fixture(name="protostar")
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
@@ -26,7 +28,7 @@ async def test_call(
 ):
     with set_private_key_env_var(devnet_account.private_key):
         declare_response = await protostar.declare(
-            protostar.project_root_path / "build" / "main.json",
+            contract=protostar.project_root_path / "build" / "main.json",
             gateway_url=devnet_gateway_url,
             account_address=devnet_account.address,
             max_fee="auto",
@@ -46,6 +48,64 @@ async def test_call(
     )
 
     assert response.response.res == 6
+
+
+async def deploy_main_contract(protostar: ProtostarFixture, devnet_gateway_url: str):
+    declare_response = await protostar.declare(
+        contract=protostar.project_root_path / "build" / "main.json",
+        gateway_url=devnet_gateway_url,
+    )
+    return await protostar.deploy(
+        class_hash=declare_response.class_hash,
+        gateway_url=devnet_gateway_url,
+    )
+
+
+async def test_call_inputs(
+    protostar: ProtostarFixture,
+    devnet_gateway_url: str,
+):
+    deploy_response = await deploy_main_contract(protostar, devnet_gateway_url)
+
+    response = await protostar.call(
+        contract_address=deploy_response.address,
+        function_name="add_multiple_values",
+        inputs=[3, 2, 5],
+        gateway_url=devnet_gateway_url,
+    )
+
+    assert response.response.res == 10  # type: ignore
+
+
+async def test_call_inputs_args_dict(
+    protostar: ProtostarFixture,
+    devnet_gateway_url: str,
+):
+    deploy_response = await deploy_main_contract(protostar, devnet_gateway_url)
+
+    response = await protostar.call(
+        contract_address=deploy_response.address,
+        function_name="add_multiple_values",
+        inputs={"a": 5, "c": 3, "b": 2},
+        gateway_url=devnet_gateway_url,
+    )
+
+    assert response.response.res == 10  # type: ignore
+
+
+async def test_call_inputs_args_dict_fail(
+    protostar: ProtostarFixture,
+    devnet_gateway_url: str,
+):
+    deploy_response = await deploy_main_contract(protostar, devnet_gateway_url)
+
+    with pytest.raises(InputValidationException):
+        await protostar.call(
+            contract_address=deploy_response.address,
+            function_name="add_multiple_values",
+            inputs={"a": 5, "c": 3, "ba": 2},
+            gateway_url=devnet_gateway_url,
+        )
 
 
 async def test_call_failure(

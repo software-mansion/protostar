@@ -13,3 +13,9 @@ func error_call{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}
     assert 1=0;
     return (res=1);
 }
+
+@view
+func add_multiple_values{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(a: felt, b: felt, c: felt) -> (res: felt) {
+    let x = a + b + c;
+    return (res=x);
+}

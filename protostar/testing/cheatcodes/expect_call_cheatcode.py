@@ -8,6 +8,13 @@ from protostar.testing.test_environment_exceptions import ExpectedCallException
 from protostar.starknet import RawAddress, Address
 
 
+def generate_expected_call_calldata(
+    fn_name: str, calldata: list[int]
+) -> tuple[int, list[int]]:
+    expected_fn_selector = get_selector_from_name(fn_name)
+    return int(str(expected_fn_selector)), calldata
+
+
 class ExpectCallCheatcode(Cheatcode):
     def __init__(
         self,
@@ -21,31 +28,45 @@ class ExpectCallCheatcode(Cheatcode):
     def name(self) -> str:
         return "expect_call"
 
-    def build(self) -> Callable[[int, str, list[int]], None]:
+    def build(self) -> Callable[[int, str, list[int]], Callable]:
         return self.expect_call
 
     def expect_call(
-        self, contract_address: RawAddress, fn_name: str, calldata: list[int]
-    ) -> None:
-        address = Address.from_user_input(contract_address)
+        self, raw_address: RawAddress, fn_name: str, calldata: list[int]
+    ) -> Callable:
+        contract_address = Address.from_user_input(raw_address)
+        selector, calldata = generate_expected_call_calldata(
+            fn_name=fn_name, calldata=calldata
+        )
 
-        def callback():
-            exists = False
-            expected_fn_selector = get_selector_from_name(fn_name)
-            call_entries = self.cheatable_state.contract_calls.get(address)
-            if call_entries:
-                for called_fn_selector, call_entry in call_entries:
-                    if (
-                        call_entry == calldata
-                        and expected_fn_selector == called_fn_selector
-                    ):
-                        exists = True
-                        break
-            if not exists:
+        self.cheatable_state.register_expected_call(
+            contract_address=contract_address, selector=selector, calldata=calldata
+        )
+
+        def stop_callback():
+            data_for_address = self.cheatable_state.expected_contract_calls.get(
+                contract_address
+            )
+            if data_for_address and (selector, calldata) in data_for_address:
                 raise ExpectedCallException(
-                    contract_address=address,
+                    contract_address=contract_address,
                     fn_name=fn_name,
                     calldata=calldata,
                 )
 
-        self.finish_hook.on(callback)
+        def finish_callback():
+            if not self.cheatable_state.expected_contract_calls:
+                return
+            expected_call_item = self.cheatable_state.expected_contract_calls.get(
+                contract_address
+            )
+            if expected_call_item and (selector, calldata) in expected_call_item:
+                raise ExpectedCallException(
+                    contract_address=contract_address,
+                    fn_name=fn_name,
+                    calldata=calldata,
+                )
+
+        self.finish_hook.on(finish_callback)
+
+        return stop_callback

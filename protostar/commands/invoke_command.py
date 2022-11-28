@@ -89,9 +89,10 @@ class InvokeCommand(ProtostarCommand):
             ),
             ProtostarArgument(
                 name="inputs",
-                description="Inputs to the function being called, represented by a list of space-delimited values.",
-                type="felt",
-                is_array=True,
+                # pylint: disable=line-too-long
+                description="Inputs to the function being called, represented either by a list of space-delimited values (`1 2 3`) or by a mapping of their names to their values (`a=11 b=12 c=13`).",
+                type="input",
+                value_parser="list_or_dict",
             ),
             MAX_FEE_ARG,
             WAIT_FOR_ACCEPTANCE_ARG,

@@ -94,13 +94,14 @@ class DeployCommand(ProtostarCommand):
                 name="inputs",
                 short_name="i",
                 description=(
-                    "The inputs to the constructor. "
+                    # pylint: disable=line-too-long
+                    "Inputs to the constructor, represented either by a list of space-delimited values (`1 2 3`) or by a mapping of their names to their values (`a=11 b=12 c=13`).\n"
                     "Calldata arguments may be of any type that does not contain pointers.\n"
                     # pylint: disable=line-too-long
                     "[Read more about representing Cairo data types in the CLI.](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#array-arguments-in-calldata)"
                 ),
-                type="felt",
-                is_array=True,
+                type="input",
+                value_parser="list_or_dict",
             ),
             ProtostarArgument(
                 name="token",

@@ -47,6 +47,8 @@ from protostar.starknet_gateway import Fee, GatewayFacade, GatewayFacadeFactory
 from protostar.starknet_gateway.gateway_facade import Wei
 from protostar.testing import TestingSummary
 from protostar.starknet import Address
+from protostar.starknet.data_transformer import CairoOrPythonData
+from protostar.commands.call_command import SuccessfulCallMessage
 
 
 # pylint: disable=too-many-instance-attributes
@@ -122,7 +124,7 @@ class ProtostarFixture:
         class_hash: int,
         account_address: Optional[Address] = None,
         gateway_url: Optional[str] = None,
-        inputs: Optional[List[int]] = None,
+        inputs: Optional[CairoOrPythonData] = None,
         max_fee: Optional[Fee] = None,
     ):
         args = Namespace()
@@ -254,7 +256,7 @@ class ProtostarFixture:
         self,
         contract_address: Address,
         function_name: str,
-        inputs: Optional[list[int]],
+        inputs: Optional[CairoOrPythonData],
         gateway_url: str,
         resolve_proxies: bool = False,
         account_address: Optional[Address] = None,
@@ -283,11 +285,11 @@ class ProtostarFixture:
         self,
         contract_address: Address,
         function_name: str,
+        inputs: Optional[CairoOrPythonData],
         gateway_url: str,
         resolve_proxies: bool = False,
         abi: Optional[list[Any]] = None,
-        inputs: Optional[list[int]] = None,
-    ):
+    ) -> SuccessfulCallMessage:
         args = Namespace()
         args.contract_address = contract_address
         args.function = function_name
