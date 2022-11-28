@@ -17,8 +17,6 @@ async def test_gas_estimation(
     devnet: DevnetFixture,
     capsys: CaptureFixture[str],
 ):
-    await protostar.test(
-        targets=["::test_increase_balance"], gas_price=devnet.get_gas_price()
-    )
+    await protostar.test(targets=["::test_increase_balance"], gas_price=1)
 
     assert "est_fee=4059" in capsys.readouterr().out

@@ -14,7 +14,6 @@ from typing_extensions import Protocol
 from protostar.commands.test.test_command import TestCommand
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.io.log_color_provider import LogColorProvider
-from protostar.starknet_gateway.gateway_facade import Wei
 from protostar.testing import TestingSummary
 from tests.conftest import run_devnet
 from tests.integration.protostar_fixture import (
@@ -86,15 +85,12 @@ def assert_cairo_test_cases(
     assert actual == expected
 
 
-@pytest.fixture(name="devnet_gas_price", scope="session")
-def devnet_gas_price_fixture() -> Wei:
-    return 1
-
-
 @pytest.fixture(name="devnet_gateway_url", scope="session")
-def devnet_gateway_url_fixture(devnet_port: int, devnet_gas_price: Wei):
+def devnet_gateway_url_fixture(
+    devnet_port: int,
+):
     proc = run_devnet(
-        ["poetry", "run", "starknet-devnet", "--gas-price", str(devnet_gas_price)],
+        ["poetry", "run", "starknet-devnet"],
         devnet_port,
     )
     yield f"http://localhost:{devnet_port}"
