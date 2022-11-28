@@ -36,7 +36,7 @@ class TestScheduler:
         project_root_path_str: str,
         cwd: Path,
         active_profile_name: Optional[str],
-        gas_price: Optional[float],
+        gas_estimation_enabled: bool,
     ):
         with multiprocessing.Manager() as manager:
             shared_tests_state = SharedTestsState(
@@ -54,7 +54,7 @@ class TestScheduler:
                     project_root_path=Path(project_root_path_str),
                     active_profile_name=active_profile_name,
                     cwd=cwd,
-                    gas_price=gas_price,
+                    gas_estimation_enabled=gas_estimation_enabled,
                 )
                 for test_suite in test_collector_result.test_suites
             ]

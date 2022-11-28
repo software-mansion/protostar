@@ -74,17 +74,17 @@ class ExecutionResourcesSummary:
     n_steps: Statistic = field(default_factory=CountStatistic)
     n_memory_holes: Statistic = field(default_factory=CountStatistic)
     builtin_name_to_count_map: Dict[str, Statistic] = field(default_factory=dict)
-    estimated_fee: Optional[Statistic] = None
+    estimated_gas: Optional[Statistic] = None
 
     @classmethod
     def from_execution_resources(
-        cls, execution_resources: ExecutionResources, estimated_fee: Optional[float]
+        cls, execution_resources: ExecutionResources, estimated_gas: Optional[float]
     ):
         return cls(
             n_steps=CountStatistic(execution_resources.n_steps),
             n_memory_holes=CountStatistic(execution_resources.n_memory_holes),
-            estimated_fee=CountStatistic(estimated_fee)
-            if estimated_fee is not None
+            estimated_gas=CountStatistic(estimated_gas)
+            if estimated_gas is not None
             else None,
             builtin_name_to_count_map={
                 k: CountStatistic(v)
@@ -110,9 +110,9 @@ class ExecutionResourcesSummary:
 
     def _add_estimated_fee_observation(self, other: Self) -> Optional[Statistic]:
         new_estimated_fee: Optional[Statistic] = None
-        if self.estimated_fee:
-            assert other.estimated_fee is not None
-            new_estimated_fee = self.estimated_fee.add_observation(other.estimated_fee)
+        if self.estimated_gas:
+            assert other.estimated_gas is not None
+            new_estimated_fee = self.estimated_gas.add_observation(other.estimated_gas)
         return new_estimated_fee
 
     @staticmethod

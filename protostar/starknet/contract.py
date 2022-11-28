@@ -61,13 +61,12 @@ async def execute_on_state(
     )
 
 
-def estimate_fee(
+def estimate_gas(
     state: CachedState,
     starknet_general_config: StarknetGeneralConfig,
     resources_manager: ExecutionResourcesManager,
     call_info: CallInfo,
-    gas_price: float,
-) -> float:
+) -> int:
     loop = asyncio.get_running_loop()
     resources_manager = ExecutionResourcesManager.empty()
     sync_state = StateSyncifier(async_state=state, loop=loop)
@@ -78,10 +77,10 @@ def estimate_fee(
         call_infos=[call_info],
         tx_type=TransactionType.INVOKE_FUNCTION,
     )
-    estimated_fee = calculate_tx_fee(
+    estimated_gas = calculate_tx_fee(
         resources,
         gas_price=1,
         general_config=starknet_general_config,
     )
 
-    return estimated_fee * gas_price
+    return estimated_gas

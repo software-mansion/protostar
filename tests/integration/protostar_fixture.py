@@ -211,10 +211,7 @@ class ProtostarFixture:
         return await self._deploy_account_command.run(args)
 
     async def test(
-        self,
-        targets: List[str],
-        last_failed: bool = False,
-        gas_price: Optional[int] = None,
+        self, targets: List[str], last_failed: bool = False, estimate_gas: bool = False
     ) -> TestingSummary:
         args = Namespace()
         args.target = targets
@@ -229,7 +226,7 @@ class ProtostarFixture:
         args.last_failed = last_failed
         args.profiling = False
         args.max_steps = None
-        args.gas_price = gas_price
+        args.estimate_gas = estimate_gas
 
         return await self._test_command.run(args)
 
