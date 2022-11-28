@@ -39,14 +39,9 @@ class ExpectCallCheatcode(Cheatcode):
             fn_name=fn_name, calldata=calldata
         )
 
-        if self.cheatable_state.expected_contract_calls.get(contract_address):
-            self.cheatable_state.expected_contract_calls[contract_address].append(
-                (selector, calldata)
-            )
-        else:
-            self.cheatable_state.expected_contract_calls[contract_address] = [
-                (selector, calldata)
-            ]
+        self.cheatable_state.register_expected_call(
+            contract_address=contract_address, selector=selector, calldata=calldata
+        )
 
         def stop_callback():
             data_for_address = self.cheatable_state.expected_contract_calls.get(

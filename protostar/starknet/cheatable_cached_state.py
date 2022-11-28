@@ -133,6 +133,25 @@ class CheatableCachedState(CachedState):
 
         return self.class_hash_to_contract_abi_map[class_hash]
 
+    def register_expected_call(
+        self, contract_address: Address, selector: SelectorType, calldata: list[int]
+    ):
+        if self.expected_contract_calls.get(contract_address):
+            self.expected_contract_calls[contract_address].append((selector, calldata))
+        else:
+            self.expected_contract_calls[contract_address] = [(selector, calldata)]
+
+    def unregister_expected_call(
+        self, contract_address: Address, calldata: tuple[int, list[int]]
+    ):
+        data_for_address = self.expected_contract_calls.get(contract_address)
+        if data_for_address is not None and calldata in data_for_address:
+            for index, (selector, calldata_item) in enumerate(data_for_address):
+                if selector == calldata[0] and calldata_item == calldata[1]:
+                    del data_for_address[index]
+            if not data_for_address:
+                del self.expected_contract_calls[contract_address]
+
 
 def cheaters_of(state: StateProxy) -> Cheaters:
     """
