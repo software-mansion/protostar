@@ -27,7 +27,7 @@ class CheatableCachedState(CachedState):
         self.class_hash_to_contract_abi_map: Dict[ClassHashType, AbiType] = {}
         self.class_hash_to_contract_path_map: Dict[ClassHashType, Path] = {}
         self.contract_address_to_class_hash_map: Dict[Address, ClassHashType] = {}
-        self.contract_calls: dict[
+        self.expected_contract_calls: dict[
             Address, list[tuple[SelectorType, CairoOrPythonData]]
         ] = {}
 
@@ -52,7 +52,7 @@ class CheatableCachedState(CachedState):
         copied.contract_address_to_class_hash_map = (
             self.contract_address_to_class_hash_map.copy()
         )
-        copied.contract_calls = self.contract_calls.copy()
+        copied.expected_contract_calls = self.expected_contract_calls.copy()
 
         copied.cheaters = self.cheaters.copy()
 
@@ -101,9 +101,9 @@ class CheatableCachedState(CachedState):
             **parent.contract_address_to_class_hash_map,
             **self.contract_address_to_class_hash_map,
         }
-        parent.contract_calls = {
-            **parent.contract_calls,
-            **self.contract_calls,
+        parent.expected_contract_calls = {
+            **parent.expected_contract_calls,
+            **self.expected_contract_calls,
         }
 
         parent.cheaters.apply(self.cheaters)
@@ -132,6 +132,25 @@ class CheatableCachedState(CachedState):
             )
 
         return self.class_hash_to_contract_abi_map[class_hash]
+
+    def register_expected_call(
+        self, contract_address: Address, selector: SelectorType, calldata: list[int]
+    ):
+        if self.expected_contract_calls.get(contract_address):
+            self.expected_contract_calls[contract_address].append((selector, calldata))
+        else:
+            self.expected_contract_calls[contract_address] = [(selector, calldata)]
+
+    def unregister_expected_call(
+        self, contract_address: Address, calldata: tuple[int, list[int]]
+    ):
+        data_for_address = self.expected_contract_calls.get(contract_address)
+        if data_for_address is not None and calldata in data_for_address:
+            for index, (selector, calldata_item) in enumerate(data_for_address):
+                if selector == calldata[0] and calldata_item == calldata[1]:
+                    del data_for_address[index]
+            if not data_for_address:
+                del self.expected_contract_calls[contract_address]
 
 
 def cheaters_of(state: StateProxy) -> Cheaters:
