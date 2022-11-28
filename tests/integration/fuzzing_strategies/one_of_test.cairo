@@ -24,7 +24,7 @@ func setup_one_of() {
 }
 
 @external
-func test_one_of(a, b) {
+func test_one_of(a) {
     return ();
 }
 
