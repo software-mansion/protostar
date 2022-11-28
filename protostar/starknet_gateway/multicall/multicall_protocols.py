@@ -16,7 +16,7 @@ class MulticallSignedTransaction:
 @dataclass
 class ResolvedCall:
     address: Address
-    function_name: str
+    selector: int
     calldata: list[int]
 
 

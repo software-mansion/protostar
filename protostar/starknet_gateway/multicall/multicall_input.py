@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Literal, Union
+from typing import Optional, Union
 
 from protostar.starknet import Address
 
@@ -9,15 +9,19 @@ class CallBase:
     calldata: list[int]
 
 
+DeployCallName = str
+
+
 @dataclass(frozen=True)
 class InvokeCall(CallBase):
-    address: Union[Literal["FROM_DEPLOY"], Address]
+    address: Union[DeployCallName, Address]
     function_name: str
 
 
 @dataclass(frozen=True)
 class DeployCall(CallBase):
-    compiled_contract: str
+    class_hash: int
+    name: Optional[DeployCallName] = None
 
 
 @dataclass(frozen=True)

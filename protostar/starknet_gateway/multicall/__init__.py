@@ -7,3 +7,4 @@ from .multicall_protocols import (
     MulticallSignedTransaction,
     ResolvedCall,
 )
+from .call_resolver import CallResolver
