@@ -120,6 +120,7 @@ class ProtostarFixture:
     async def deploy(
         self,
         class_hash: int,
+        account_address: Optional[Address] = None,
         gateway_url: Optional[str] = None,
         inputs: Optional[List[int]] = None,
         max_fee: Optional[Fee] = None,
@@ -137,7 +138,7 @@ class ProtostarFixture:
         args.chain_id = StarknetChainId.TESTNET
         args.signer_class = None
         args.private_key_path = None
-        args.account_address = None
+        args.account_address = int(account_address) if account_address else None
         args.json = False
 
         return await self._deploy_command.run(args)
@@ -255,6 +256,7 @@ class ProtostarFixture:
         function_name: str,
         inputs: Optional[list[int]],
         gateway_url: str,
+        resolve_proxies: bool = False,
         account_address: Optional[Address] = None,
         wait_for_acceptance: Optional[bool] = False,
         max_fee: Optional[Fee] = None,
@@ -273,6 +275,7 @@ class ProtostarFixture:
         args.wait_for_acceptance = wait_for_acceptance
         args.max_fee = max_fee
         args.json = False
+        args.resolve_proxies = resolve_proxies
 
         return await self._invoke_command.run(args)
 
@@ -280,17 +283,21 @@ class ProtostarFixture:
         self,
         contract_address: Address,
         function_name: str,
-        inputs: Optional[list[int]],
         gateway_url: str,
+        resolve_proxies: bool = False,
+        abi: Optional[list[Any]] = None,
+        inputs: Optional[list[int]] = None,
     ):
         args = Namespace()
         args.contract_address = contract_address
         args.function = function_name
-        args.inputs = inputs
+        args.inputs = inputs or []
         args.network = None
         args.gateway_url = gateway_url
         args.chain_id = StarknetChainId.TESTNET
         args.json = False
+        args.abi = abi
+        args.resolve_proxies = resolve_proxies
 
         return await self._call_command.run(args)
 

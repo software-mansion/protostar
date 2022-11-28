@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 from protostar.protostar_exception import ProtostarException
+from tests.conftest import DevnetAccount, SetPrivateKeyEnvVarFixture
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.protostar_fixture import ProtostarFixture
 
@@ -20,15 +21,22 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
 async def test_call(
     protostar: ProtostarFixture,
     devnet_gateway_url: str,
+    devnet_account: DevnetAccount,
+    set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
-    declare_response = await protostar.declare(
-        protostar.project_root_path / "build" / "main.json",
-        gateway_url=devnet_gateway_url,
-    )
-    deploy_response = await protostar.deploy(
-        class_hash=declare_response.class_hash,
-        gateway_url=devnet_gateway_url,
-    )
+    with set_private_key_env_var(devnet_account.private_key):
+        declare_response = await protostar.declare(
+            protostar.project_root_path / "build" / "main.json",
+            gateway_url=devnet_gateway_url,
+            account_address=devnet_account.address,
+            max_fee="auto",
+        )
+        deploy_response = await protostar.deploy(
+            class_hash=declare_response.class_hash,
+            gateway_url=devnet_gateway_url,
+            account_address=devnet_account.address,
+            max_fee="auto",
+        )
 
     response = await protostar.call(
         contract_address=deploy_response.address,
@@ -43,16 +51,23 @@ async def test_call(
 async def test_call_failure(
     protostar: ProtostarFixture,
     devnet_gateway_url: str,
+    devnet_account: DevnetAccount,
+    set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
     await protostar.build()
-    declare_response = await protostar.declare(
-        protostar.project_root_path / "build" / "main.json",
-        gateway_url=devnet_gateway_url,
-    )
-    deploy_response = await protostar.deploy(
-        class_hash=declare_response.class_hash,
-        gateway_url=devnet_gateway_url,
-    )
+    with set_private_key_env_var(devnet_account.private_key):
+        declare_response = await protostar.declare(
+            protostar.project_root_path / "build" / "main.json",
+            gateway_url=devnet_gateway_url,
+            account_address=devnet_account.address,
+            max_fee="auto",
+        )
+        deploy_response = await protostar.deploy(
+            class_hash=declare_response.class_hash,
+            gateway_url=devnet_gateway_url,
+            account_address=devnet_account.address,
+            max_fee="auto",
+        )
 
     with pytest.raises(ProtostarException, match="0 != 1"):
         await protostar.call(

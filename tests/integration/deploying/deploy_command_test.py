@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 
+from tests.conftest import DevnetAccount, SetPrivateKeyEnvVarFixture
 from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.protostar_fixture import ProtostarFixture
@@ -24,15 +25,22 @@ async def test_deploying_contract(
     protostar: ProtostarFixture,
     devnet_gateway_url: str,
     compiled_contract_filepath: Path,
+    devnet_account: DevnetAccount,
+    set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
-    declare_response = await protostar.declare(
-        contract=compiled_contract_filepath,
-        gateway_url=devnet_gateway_url,
-    )
-    response = await protostar.deploy(
-        class_hash=declare_response.class_hash,
-        gateway_url=devnet_gateway_url,
-        inputs=[42],
-    )
+    with set_private_key_env_var(devnet_account.private_key):
+        declare_response = await protostar.declare(
+            contract=compiled_contract_filepath,
+            gateway_url=devnet_gateway_url,
+            account_address=devnet_account.address,
+            max_fee="auto",
+        )
+        response = await protostar.deploy(
+            class_hash=declare_response.class_hash,
+            gateway_url=devnet_gateway_url,
+            account_address=devnet_account.address,
+            max_fee="auto",
+            inputs=[42],
+        )
 
     assert response.address is not None

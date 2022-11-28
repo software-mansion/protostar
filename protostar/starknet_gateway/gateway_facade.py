@@ -1,5 +1,4 @@
 import dataclasses
-from logging import getLogger
 from pathlib import Path
 from typing import (
     Any,
@@ -12,7 +11,7 @@ from typing import (
     Union,
 )
 
-from starknet_py.contract import ContractFunction, InvokeResult, Contract
+from starknet_py.contract import ContractFunction, InvokeResult
 from starknet_py.net import AccountClient
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.gateway_client import GatewayClient
@@ -42,6 +41,7 @@ from protostar.starknet_gateway.gateway_response import (
 from protostar.starknet import Address
 
 from .contract_function_factory import ContractFunctionFactory
+from ..starknet.abi import has_abi_item
 
 ContractFunctionInputType = Union[List[int], Dict[str, Any]]
 
@@ -79,29 +79,25 @@ class GatewayFacade:
         self._project_root_path = project_root_path
         self._gateway_client = gateway_client
         self._compiled_contract_reader = compiled_contract_reader
-        self._account_tx_version_detector = AccountTxVersionDetector(
-            self._gateway_client
-        )
-        self._contract_function_factory = ContractFunctionFactory(
-            default_client=gateway_client
-        )
+        self._account_tx_version_detector = AccountTxVersionDetector(self._gateway_client)
 
     async def _create_udc_deployment(
         self,
         class_hash: int,
-        account_address: int,
+        account_address: Address,
         inputs: Optional[CairoOrPythonData] = None,
         abi: Optional[AbiType] = None,
         salt: Optional[int] = None,
     ) -> ContractDeployment:
         if isinstance(inputs, list):
             return Deployer(
-                account_address=account_address
+                account_address=int(account_address)
             ).create_deployment_call_raw(
                 class_hash=class_hash,
                 raw_calldata=inputs,
                 salt=salt,
             )
+
         if not abi:
             abi = (await self._gateway_client.get_class_by_hash(class_hash)).abi
         if not abi:
@@ -110,18 +106,27 @@ class GatewayFacade:
                 "Please provide ABI file manually."
             )
 
-        return Deployer(
-            account_address=account_address
-        ).create_deployment_call(
-            class_hash=class_hash,
-            calldata=inputs,
-            salt=salt,
-        )
+        if not has_abi_item(abi, "constructor") and inputs:
+            raise InputValidationException("Inputs provided to a contract with no constructor.")
+        try:
+            return Deployer(
+                account_address=int(account_address)
+            ).create_deployment_call(
+                class_hash=class_hash,
+                calldata=inputs,
+                salt=salt,
+                abi=abi,
+            )
+        except ValueError as v_err:
+            if "Provided contract has a constructor and no arguments were provided." in str(v_err):
+                raise InputValidationException(
+                    "No inputs provided to a contract with a constructor."
+                ) from v_err
 
     async def deploy_via_udc(
         self,
         class_hash: int,
-        account_address: int,
+        account_address: Address,
         max_fee: Fee,
         signer: BaseSigner,
         inputs: Optional[CairoOrPythonData] = None,
@@ -135,11 +140,11 @@ class GatewayFacade:
             abi=abi,
             account_address=account_address,
             inputs=inputs,
-            salt=salt
+            salt=salt,
         )
 
         account_client = await self._create_account_client(
-            account_address=Address.from_user_input(account_address),
+            account_address=account_address,
             signer=signer,
         )
         try:
@@ -197,9 +202,9 @@ class GatewayFacade:
         compiled_contract_path: Path,
         account_address: Address,
         signer: BaseSigner,
-        wait_for_acceptance: bool,
-        token: Optional[str],
         max_fee: Fee,
+        wait_for_acceptance: bool = False,
+        token: Optional[str] = None,
     ):
         compiled_contract = self._load_compiled_contract(
             self._project_root_path / compiled_contract_path
@@ -237,18 +242,16 @@ class GatewayFacade:
         address: Address,
         function_name: str,
         inputs: Optional[ContractFunctionInputType] = None,
-        abi: Optional[AbiType] = None,
     ) -> NamedTuple:
-        contract = await self._get_contract(
+        contract_function = await self._get_contract_function(
+            function_name=function_name,
             address=address,
-            abi=abi,
         )
 
-        if function_name not in contract.functions:
-            raise ProtostarException(f"Function {function_name} not present in contract at {address}")
-
         try:
-            result = await self._call_function(contract.functions[function_name], inputs)
+            result = await self._call_function(
+                contract_function, inputs
+            )
         except TransactionFailedError as ex:
             raise TransactionException(str(ex)) from ex
         except ClientError as ex:
@@ -263,7 +266,6 @@ class GatewayFacade:
         account_address: Address,
         signer: BaseSigner,
         max_fee: Fee,
-        abi: Optional[AbiType] = None,
         inputs: Optional[CairoOrPythonData] = None,
         wait_for_acceptance: bool = False,
     ) -> SuccessfulInvokeResponse:
@@ -271,13 +273,13 @@ class GatewayFacade:
             account_address=account_address, signer=signer
         )
         try:
-            contract = await self._get_contract(
+            contract_function = await self._get_contract_function(
+                function_name=function_name,
                 address=contract_address,
-                abi=abi,
                 client=account_client,
             )
             result = await self._invoke_function(
-                contract_function=contract.functions[function_name],
+                contract_function=contract_function,
                 inputs=inputs,
                 max_fee=max_fee,
             )
@@ -299,11 +301,11 @@ class GatewayFacade:
         self,
         contract_function: ContractFunction,
         max_fee: Fee,
-        inputs: Optional[CairoOrPythonData] = None
+        inputs: Optional[CairoOrPythonData] = None,
     ) -> InvokeResult:
         fee_params = {
             "max_fee": max_fee if isinstance(max_fee, int) else None,
-            "auto_estimate": max_fee == "auto"
+            "auto_estimate": max_fee == "auto",
         }
 
         if inputs is None:
@@ -352,24 +354,16 @@ class GatewayFacade:
         except (TypeError, ValueError) as ex:
             raise InputValidationException(str(ex)) from ex
 
-    async def _get_contract(
+    async def _get_contract_function(
         self,
         address: Address,
+        function_name: str,
         client: Optional[Union[GatewayClient, AccountClient]] = None,
-        abi: Optional[AbiType] = None
-    ) -> Contract:
+    ) -> ContractFunction:
         if not client:
             client = self._gateway_client
 
-        address_int = int(address)
-
-        if abi:
-            return Contract(
-                address=address_int,
-                abi=abi,
-                client=client,
-            )
-        return await Contract.from_address(address_int, client, proxy_config=True)
+        return await ContractFunctionFactory(client).create(address, function_name)
 
 
 class InputValidationException(ProtostarException):
@@ -400,4 +394,3 @@ class FeeExceededMaxFeeException(ProtostarException):
         if "Actual fee exceeded max fee" in client_error.message:
             return cls(client_error.message)
         return None
-

@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from typing import Any, Optional
 
 from starknet_py.net.gateway_client import GatewayClient
-from starkware.starknet.public.abi import AbiType
 
 from protostar.cli import (
     NetworkCommandUtil,
@@ -11,7 +10,6 @@ from protostar.cli import (
     ProtostarCommand,
     MessengerFactory,
 )
-from protostar.cli.common_arguments import ABI_ARG
 from protostar.io import LogColorProvider, StructuredMessage
 from protostar.starknet_gateway import GatewayFacadeFactory
 from protostar.starknet import Address
@@ -58,7 +56,6 @@ class CallCommand(ProtostarCommand):
         return [
             *NetworkCommandUtil.network_arguments,
             *MessengerFactory.OUTPUT_ARGUMENTS,
-            ABI_ARG,
             ProtostarArgument(
                 name="contract-address",
                 description="The address of the contract being called.",
@@ -85,16 +82,11 @@ class CallCommand(ProtostarCommand):
         network_command_util = NetworkCommandUtil(args)
         gateway_client = network_command_util.get_gateway_client()
 
-        abi = None
-        if args.abi:
-            abi = json.loads(args.abi.read_text("utf-8"))
-
         response = await self.call(
             contract_address=args.contract_address,
             function_name=args.function,
             inputs=args.inputs,
-            abi=abi,
-            gateway_client=gateway_client
+            gateway_client=gateway_client,
         )
 
         write(response)
@@ -106,7 +98,6 @@ class CallCommand(ProtostarCommand):
         contract_address: Address,
         function_name: str,
         gateway_client: GatewayClient,
-        abi: Optional[AbiType] = None,
         inputs: Optional[list[int]] = None,
     ) -> SuccessfulCallMessage:
         gateway_facade = self._gateway_facade_factory.create(gateway_client)
@@ -115,7 +106,6 @@ class CallCommand(ProtostarCommand):
             address=contract_address,
             function_name=function_name,
             inputs=inputs,
-            abi=abi,
         )
 
         return SuccessfulCallMessage(response)

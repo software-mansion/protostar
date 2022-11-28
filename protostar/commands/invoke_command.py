@@ -1,10 +1,8 @@
-import json
 from dataclasses import dataclass
 from typing import Any, Optional
 
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.signer import BaseSigner
-from starkware.starknet.public.abi import AbiType
 
 from protostar.cli import (
     NetworkCommandUtil,
@@ -16,7 +14,7 @@ from protostar.cli import (
 from protostar.cli.common_arguments import (
     BLOCK_EXPLORER_ARG,
     MAX_FEE_ARG,
-    WAIT_FOR_ACCEPTANCE_ARG, ABI_ARG,
+    WAIT_FOR_ACCEPTANCE_ARG,
 )
 from protostar.io import StructuredMessage, LogColorProvider
 from protostar.starknet import Address
@@ -77,7 +75,6 @@ class InvokeCommand(ProtostarCommand):
             *NetworkCommandUtil.network_arguments,
             *MessengerFactory.OUTPUT_ARGUMENTS,
             BLOCK_EXPLORER_ARG,
-            ABI_ARG,
             ProtostarArgument(
                 name="contract-address",
                 description="The address of the contract being called.",
@@ -114,16 +111,11 @@ class InvokeCommand(ProtostarCommand):
             network=network_config.network_name,
         )
 
-        abi = None
-        if args.abi:
-            abi = json.loads(args.abi.read_text("utf-8"))
-
         response = await self.invoke(
             contract_address=args.contract_address,
             function_name=args.function,
             inputs=args.inputs,
             gateway_client=gateway_client,
-            abi=abi,
             signer=signer,
             max_fee=args.max_fee,
             wait_for_acceptance=args.wait_for_acceptance,
@@ -149,7 +141,6 @@ class InvokeCommand(ProtostarCommand):
         max_fee: Fee,
         signer: BaseSigner,
         account_address: Address,
-        abi: Optional[AbiType] = None,
         inputs: Optional[list[int]] = None,
         wait_for_acceptance: bool = False,
     ) -> SuccessfulInvokeResponse:
@@ -160,7 +151,6 @@ class InvokeCommand(ProtostarCommand):
             inputs=inputs,
             max_fee=max_fee,
             signer=signer,
-            abi=abi,
             account_address=account_address,
             wait_for_acceptance=wait_for_acceptance,
         )
