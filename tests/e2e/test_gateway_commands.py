@@ -4,11 +4,9 @@ from distutils.file_util import copy_file
 from pathlib import Path
 
 import pytest
-from _pytest.monkeypatch import MonkeyPatch
 from re_assert import Matches
 from starkware.starknet.definitions.general_config import StarknetChainId
 
-from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
 from tests.conftest import DevnetAccount, SetPrivateKeyEnvVarFixture
 from tests.e2e.conftest import ProtostarFixture
 
@@ -40,6 +38,8 @@ def test_deploying_and_interacting_with_contract(
                 devnet_gateway_url,
                 "--account-address",
                 str(devnet_account.address),
+                "--max-fee",
+                "auto",
                 "--chain-id",
                 str(StarknetChainId.TESTNET.value),
                 "--json",
@@ -59,6 +59,8 @@ def test_deploying_and_interacting_with_contract(
                 devnet_gateway_url,
                 "--account-address",
                 str(devnet_account.address),
+                "--max-fee",
+                "auto",
                 "--chain-id",
                 str(StarknetChainId.TESTNET.value),
                 "--json",
@@ -66,36 +68,36 @@ def test_deploying_and_interacting_with_contract(
             ignore_stderr=True,
         )
 
-    response_dict = json.loads(result)
-    assert "contract_address" in response_dict
-    contract_address = response_dict["contract_address"]
+        response_dict = json.loads(result)
+        assert "contract_address" in response_dict
+        contract_address = response_dict["contract_address"]
 
-    assert re.compile(r"0x[0-9a-f]{64}").match(contract_address)
+        assert re.compile(r"0x[0-9a-f]{64}").match(contract_address)
 
-    result = protostar(
-        [
-            "--no-color",
-            "invoke",
-            "--gateway-url",
-            devnet_gateway_url,
-            "--chain-id",
-            str(StarknetChainId.TESTNET.value),
-            "--account-address",
-            str(devnet_account.address),
-            "--max-fee",
-            "auto",
-            "--contract-address",
-            contract_address,
-            "--function",
-            "increase_balance",
-            "--inputs",
-            "100",
-            "--json",
-        ],
-        ignore_stderr=True,
-    )
+        result = protostar(
+            [
+                "--no-color",
+                "invoke",
+                "--gateway-url",
+                devnet_gateway_url,
+                "--chain-id",
+                str(StarknetChainId.TESTNET.value),
+                "--account-address",
+                str(devnet_account.address),
+                "--max-fee",
+                "auto",
+                "--contract-address",
+                contract_address,
+                "--function",
+                "increase_balance",
+                "--inputs",
+                "100",
+                "--json",
+            ],
+            ignore_stderr=True,
+        )
 
-    assert json.loads(result) == {"transaction_hash": HASH}
+        assert json.loads(result) == {"transaction_hash": HASH}
 
     result = protostar(
         [
