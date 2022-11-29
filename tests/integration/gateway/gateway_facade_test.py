@@ -239,7 +239,6 @@ async def test_compiled_contract_without_constructor_class_hash(
             max_fee="auto",
             wait_for_acceptance=True,
         )
-        print(result)
     assert "Inputs provided to a contract with no constructor." in str(ex.value)
 
 

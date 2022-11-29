@@ -258,7 +258,6 @@ class ProtostarFixture:
         function_name: str,
         inputs: Optional[CairoOrPythonData],
         gateway_url: str,
-        resolve_proxies: bool = False,
         account_address: Optional[Address] = None,
         wait_for_acceptance: Optional[bool] = False,
         max_fee: Optional[Fee] = None,
@@ -277,7 +276,6 @@ class ProtostarFixture:
         args.wait_for_acceptance = wait_for_acceptance
         args.max_fee = max_fee
         args.json = False
-        args.resolve_proxies = resolve_proxies
 
         return await self._invoke_command.run(args)
 
@@ -287,7 +285,6 @@ class ProtostarFixture:
         function_name: str,
         inputs: Optional[CairoOrPythonData],
         gateway_url: str,
-        resolve_proxies: bool = False,
         abi: Optional[list[Any]] = None,
     ) -> SuccessfulCallMessage:
         args = Namespace()
@@ -299,7 +296,6 @@ class ProtostarFixture:
         args.chain_id = StarknetChainId.TESTNET
         args.json = False
         args.abi = abi
-        args.resolve_proxies = resolve_proxies
 
         return await self._call_command.run(args)
 
