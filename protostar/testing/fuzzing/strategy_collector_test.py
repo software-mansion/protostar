@@ -44,7 +44,7 @@ def test_collect(declared_strategies: Dict[str, StrategyDescriptor]):
         },
     )
 
-    assert list(actual.keys()) == ["a", "b", "c"]
+    assert list(actual.keys()) == list(declared_strategies.keys())
     for v in actual.values():
         assert isinstance(v, SearchStrategy)
 
