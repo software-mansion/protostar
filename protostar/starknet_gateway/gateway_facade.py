@@ -157,7 +157,7 @@ class GatewayFacade:
                 max_fee=max_fee if isinstance(max_fee, int) else None,
                 auto_estimate=max_fee == "auto",
             )
-            result = await account_client.send_transaction(tx)
+            result = await self._gateway_client.send_transaction(tx, token)
 
             if wait_for_acceptance:
                 _, status = await self._gateway_client.wait_for_tx(
