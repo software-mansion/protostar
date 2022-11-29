@@ -1,9 +1,5 @@
 # Fuzzing
 
-:::warning
-This feature is actively developed and many new additions will land in future Protostar releases.
-:::
-
 In order to use the _fuzzing mode_, you have to use the [`given`](../02-cheatcodes/given.md) cheatcode.
 In the _fuzzing mode_, Protostar treats the test case parameters as a specification of the test case,
 in the form of properties which it should satisfy,
