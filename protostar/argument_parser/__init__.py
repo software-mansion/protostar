@@ -1,4 +1,4 @@
-from .arg_type import ArgTypeName, map_type_name_to_parser
+from .arg_type import ArgTypeName, StandardParserFactory
 from .argument import Argument
 from .argument_parser_facade import (
     ArgumentParserFacade,

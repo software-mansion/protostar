@@ -3,13 +3,9 @@ from pathlib import Path
 from typing import Optional
 
 from protostar.argument_parser import ArgumentParserFacade
-from protostar.cli import (
-    ProtostarCommand,
-    create_map_protostar_type_name_to_parser,
-    MessengerFactory,
-    ActivityIndicator,
-)
+from protostar.cli import ProtostarCommand, MessengerFactory, ActivityIndicator
 from protostar.cli.lib_path_resolver import LibPathResolver
+from protostar.cli.protostar_arg_type import ProtostarParserFactory
 from protostar.commands import (
     BuildCommand,
     CalculateAccountAddressCommand,
@@ -237,8 +233,8 @@ def build_di_container(
 
     argument_parser_facade = ArgumentParserFacade(
         protostar_cli,
-        configuration_file,
-        parser_resolver=create_map_protostar_type_name_to_parser(
+        config_file_argument_value_resolver=configuration_file,
+        parser_factory=ProtostarParserFactory(
             ContractSourceIdentifierFactory(configuration_file)
         ),
     )
