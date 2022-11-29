@@ -15,7 +15,6 @@ from protostar.cli.common_arguments import (
 from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.cli.signable_command_util import SignableCommandUtil
 from protostar.io import StructuredMessage, LogColorProvider
-from protostar.protostar_exception import ProtostarException
 from protostar.starknet import Address
 from protostar.starknet_gateway import (
     Fee,
@@ -139,32 +138,19 @@ class DeclareCommand(ProtostarCommand):
     async def declare(
         self,
         compiled_contract_path: Path,
+        max_fee: Fee,
+        signer: BaseSigner,
         gateway_client: GatewayClient,
-        account_address: Optional[Address] = None,
-        signer: Optional[BaseSigner] = None,
+        account_address: Address,
         token: Optional[str] = None,
         wait_for_acceptance: bool = False,
-        max_fee: Optional[Fee] = None,
     ) -> SuccessfulDeclareResponse:
         gateway_facade = self._gateway_facade_factory.create(gateway_client)
-        if signer and account_address is not None:
-            if max_fee is None:
-                raise ProtostarException(
-                    "Argument `max-fee` is required for transactions V1."
-                )
-            response = await gateway_facade.declare(
-                compiled_contract_path=compiled_contract_path,
-                signer=signer,
-                account_address=account_address,
-                wait_for_acceptance=wait_for_acceptance,
-                token=token,
-                max_fee=max_fee,
-            )
-        else:
-            response = await gateway_facade.declare_v0(
-                compiled_contract_path=compiled_contract_path,
-                wait_for_acceptance=wait_for_acceptance,
-                token=token,
-            )
-
-        return response
+        return await gateway_facade.declare(
+            compiled_contract_path=compiled_contract_path,
+            signer=signer,
+            account_address=account_address,
+            wait_for_acceptance=wait_for_acceptance,
+            token=token,
+            max_fee=max_fee,
+        )

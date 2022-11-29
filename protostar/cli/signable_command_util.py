@@ -1,7 +1,6 @@
 import importlib
-import logging
 import os
-from typing import Any, Optional, Type
+from typing import Any, Type
 
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
@@ -19,6 +18,7 @@ class SignableCommandUtil:
             name="account-address",
             description="Account address.",
             type="address",
+            is_required=True,
         ),
         ProtostarArgument(
             name="private-key-path",
@@ -39,7 +39,7 @@ class SignableCommandUtil:
     def get_signer(
         self,
         network_config: NetworkConfig,
-    ) -> Optional[BaseSigner]:
+    ) -> BaseSigner:
         if self._args.signer_class:
             *module_names, class_name = self._args.signer_class.split(".")
             module = ".".join(module_names)
@@ -57,15 +57,9 @@ class SignableCommandUtil:
             private_key_str = os.environ.get(PRIVATE_KEY_ENV_VAR_NAME)
 
         if not private_key_str or not self._args.account_address:
-            # FIXME(arcticae): This is temporary, when the signing will be mandatory
-            #   this should be removed.
-            logging.warning(
-                "Signing credentials not found. "
-                "Signing transactions will be mandatory in future versions, "
-                "please refer to the docs for more details:\n"
-                "https://docs.swmansion.com/protostar/docs/tutorials/deploying/cli#signing-a-declaration"
+            raise ProtostarException(
+                "Signing is mandatory, please provide an account and a private key in order to sign transactions."
             )
-            return None
 
         try:
             private_key = int(private_key_str, 16)

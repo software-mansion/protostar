@@ -78,6 +78,7 @@ MAX_FEE_ARG = ProtostarArgument(
         'Provide "auto" to auto estimate the fee.'
     ),
     type="fee",
+    is_required=True,
 )
 
 WAIT_FOR_ACCEPTANCE_ARG = ProtostarArgument(

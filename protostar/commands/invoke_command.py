@@ -17,7 +17,6 @@ from protostar.cli.common_arguments import (
     WAIT_FOR_ACCEPTANCE_ARG,
 )
 from protostar.io import StructuredMessage, LogColorProvider
-from protostar.protostar_exception import ProtostarException
 from protostar.starknet import Address
 from protostar.starknet_gateway import (
     Fee,
@@ -140,34 +139,19 @@ class InvokeCommand(ProtostarCommand):
         contract_address: Address,
         function_name: str,
         gateway_client: GatewayClient,
+        max_fee: Fee,
+        signer: BaseSigner,
+        account_address: Address,
         inputs: Optional[list[int]] = None,
-        signer: Optional[BaseSigner] = None,
-        account_address: Optional[Address] = None,
-        max_fee: Optional[Fee] = None,
         wait_for_acceptance: bool = False,
     ) -> SuccessfulInvokeResponse:
         gateway_facade = self._gateway_facade_factory.create(gateway_client)
-        if account_address is None:
-            raise ProtostarException(
-                "Argument `account_address` is required for transactions V1."
-            )
-        if max_fee is None:
-            raise ProtostarException(
-                "Argument `max-fee` is required for transactions V1."
-            )
-        if signer is None:
-            raise ProtostarException(
-                "Argument `signer` is required for transactions V1 when private-key is not detected."
-            )
-
-        response = await gateway_facade.invoke(
+        return await gateway_facade.invoke(
             contract_address=contract_address,
             function_name=function_name,
             inputs=inputs,
-            max_fee=max_fee if max_fee is not None else "auto",
+            max_fee=max_fee,
             signer=signer,
             account_address=account_address,
             wait_for_acceptance=wait_for_acceptance,
         )
-
-        return response

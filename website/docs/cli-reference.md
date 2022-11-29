@@ -68,6 +68,8 @@ Required.
 
 Path to compiled contract.
 #### `--account-address ADDRESS`
+Required.
+
 Account address.
 #### `--block-explorer BLOCK_EXPLORER`
 Generated links will point to that block explorer. Available values:
@@ -81,6 +83,8 @@ The URL of a StarkNet gateway. It is required unless `--network` is provided.
 #### `--json`
 Print machine readable output in JSON format.
 #### `--max-fee FEE`
+Required.
+
 The maximum fee that the sender is willing to pay for the transaction. Provide "auto" to auto estimate the fee.
 #### `-n` `--network STRING`
 The name of the StarkNet network.
@@ -106,6 +110,8 @@ Deploy contracts.
 #### `class-hash CLASS_HASH`
 The hash of the declared contract class.
 #### `--account-address ADDRESS`
+Required.
+
 Account address.
 #### `--block-explorer BLOCK_EXPLORER`
 Generated links will point to that block explorer. Available values:
@@ -123,6 +129,8 @@ Calldata arguments may be of any type that does not contain pointers.
 #### `--json`
 Print machine readable output in JSON format.
 #### `--max-fee FEE`
+Required.
+
 The maximum fee that the sender is willing to pay for the transaction. Provide "auto" to auto estimate the fee.
 #### `-n` `--network STRING`
 The name of the StarkNet network.
@@ -145,6 +153,8 @@ Waits for transaction to be accepted on chain.
 ### `deploy-account`
 Sends deploy-account transaction. The account contract must be already declared and prefunded.
 #### `--account-address ADDRESS`
+Required.
+
 Account address.
 #### `--account-address-salt INT`
 Required.
@@ -222,6 +232,8 @@ A custom package name. Use it to resolve name conflicts.
 ### `invoke`
 Sends an invoke transaction to the StarkNet sequencer.
 #### `--account-address ADDRESS`
+Required.
+
 Account address.
 #### `--block-explorer BLOCK_EXPLORER`
 Generated links will point to that block explorer. Available values:
@@ -245,6 +257,8 @@ Inputs to the function being called, represented either by a list of space-delim
 #### `--json`
 Print machine readable output in JSON format.
 #### `--max-fee FEE`
+Required.
+
 The maximum fee that the sender is willing to pay for the transaction. Provide "auto" to auto estimate the fee.
 #### `-n` `--network STRING`
 The name of the StarkNet network.

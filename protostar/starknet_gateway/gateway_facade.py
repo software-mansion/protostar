@@ -1,5 +1,4 @@
 import dataclasses
-from logging import getLogger
 from pathlib import Path
 from typing import (
     Any,
@@ -15,34 +14,22 @@ from typing import (
 from starknet_py.contract import ContractFunction, InvokeResult
 from starknet_py.net import AccountClient
 from starknet_py.net.client_errors import ClientError
-from starknet_py.net.client_models import InvokeFunction
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import Deploy, Transaction
-from starknet_py.net.models.transaction import DeployAccount
+from starknet_py.net.models import Transaction
 from starknet_py.net.signer import BaseSigner
-from starknet_py.net.udc_deployer.deployer import Deployer
+from starknet_py.net.udc_deployer.deployer import Deployer, ContractDeployment
 from starknet_py.transaction_exceptions import (
     TransactionFailedError,
     TransactionRejectedError,
 )
 from starknet_py.utils.data_transformer.data_transformer import CairoData
+from starknet_py.utils.data_transformer.errors import CairoSerializerException
 from starkware.starknet.public.abi import AbiType
-from starkware.starknet.services.api.contract_class import ContractClass
-from starkware.starknet.services.api.gateway.transaction import (
-    DEFAULT_DECLARE_SENDER_ADDRESS,
-    Declare,
-)
 from typing_extensions import Self, TypeGuard
 
 from protostar.compiler import CompiledContractReader
 from protostar.protostar_exception import ProtostarException
-from protostar.starknet.abi import has_abi_item
-from protostar.starknet.data_transformer import (
-    CairoOrPythonData,
-    DataTransformerException,
-    from_python_transformer,
-    to_python_transformer,
-)
+from protostar.starknet.data_transformer import CairoOrPythonData
 from protostar.starknet_gateway.account_tx_version_detector import (
     AccountTxVersionDetector,
 )
@@ -55,6 +42,7 @@ from protostar.starknet_gateway.gateway_response import (
 from protostar.starknet import Address
 
 from .contract_function_factory import ContractFunctionFactory
+from ..starknet.abi import has_abi_item
 
 ContractFunctionInputType = Union[List[int], Dict[str, Any]]
 
@@ -70,8 +58,7 @@ class DeployAccountArgs:
     account_address_salt: int
     account_constructor_input: Optional[list[int]]
     account_class_hash: ClassHash
-    max_fee: Wei
-    """`Wei` type is used instead of `Fee`. Starknet.py can't estimate fee if the account is not deployed."""
+    max_fee: Fee
     signer: BaseSigner
     nonce: int
 
@@ -79,40 +66,8 @@ class DeployAccountArgs:
 TransactionT = TypeVar("TransactionT", bound=Transaction)
 
 
-def parse_python_constructor_inputs(
-    inputs: Optional[CairoOrPythonData], abi: AbiType
-) -> CairoData:
-    if not has_abi_item(abi, "constructor"):
-        if inputs:
-            raise InputValidationException(
-                "Inputs provided to a contract with no constructor."
-            )
-        return []
-
-    cairo_inputs = transform_constructor_inputs_from_python(abi, inputs)
-    validate_cairo_inputs(abi, cairo_inputs)
-    return cairo_inputs
-
-
 def is_cairo_data(inputs: Optional[CairoOrPythonData]) -> TypeGuard[CairoData]:
     return isinstance(inputs, list)
-
-
-def prepare_constructor_inputs(
-    inputs: Optional[CairoOrPythonData], abi: Optional[AbiType]
-) -> CairoData:
-    if is_cairo_data(inputs):
-        return inputs
-
-    if abi:
-        return parse_python_constructor_inputs(inputs, abi)
-
-    if not inputs:
-        return []
-
-    raise InputValidationException(
-        "Provided structured input arguments, but no abi was found."
-    )
 
 
 # pylint: disable=too-many-instance-attributes
@@ -129,66 +84,81 @@ class GatewayFacade:
         self._account_tx_version_detector = AccountTxVersionDetector(
             self._gateway_client
         )
-        self._contract_function_factory = ContractFunctionFactory(
-            default_client=gateway_client
-        )
+
+    async def _create_udc_deployment(
+        self,
+        class_hash: int,
+        account_address: Address,
+        inputs: Optional[CairoOrPythonData] = None,
+        abi: Optional[AbiType] = None,
+        salt: Optional[int] = None,
+    ) -> ContractDeployment:
+        if isinstance(inputs, list):
+            return Deployer(
+                account_address=int(account_address)
+            ).create_deployment_call_raw(
+                class_hash=class_hash,
+                raw_calldata=inputs,
+                salt=salt,
+            )
+
+        if not abi:
+            abi = (await self._gateway_client.get_class_by_hash(class_hash)).abi
+        if not abi:
+            raise ProtostarException(
+                "ABI not found neither in arguments nor in API response. \n"
+                "Please provide ABI file manually."
+            )
+
+        if not has_abi_item(abi, "constructor") and inputs:
+            raise InputValidationException(
+                "Inputs provided to a contract with no constructor."
+            )
+
+        try:
+            return Deployer(
+                account_address=int(account_address)
+            ).create_deployment_call(
+                class_hash=class_hash,
+                calldata=inputs,
+                salt=salt,
+                abi=abi,
+            )
+        except (ValueError, TypeError, CairoSerializerException) as v_err:
+            raise InputValidationException(str(v_err)) from v_err
 
     async def deploy_via_udc(
         self,
         class_hash: int,
+        account_address: Address,
+        max_fee: Fee,
+        signer: BaseSigner,
         inputs: Optional[CairoOrPythonData] = None,
-        max_fee: Optional[Fee] = None,
-        signer: Optional[BaseSigner] = None,
         wait_for_acceptance: bool = False,
         abi: Optional[AbiType] = None,
-        account_address: Optional[int] = None,
         salt: Optional[int] = None,
         token: Optional[str] = None,
     ) -> SuccessfulDeployResponse:
-        cairo_inputs = prepare_constructor_inputs(inputs, abi)
-        call = Deployer(account_address=account_address).create_deployment_call_raw(
+        deployment = await self._create_udc_deployment(
             class_hash=class_hash,
-            raw_calldata=cairo_inputs,
+            abi=abi,
+            account_address=account_address,
+            inputs=inputs,
             salt=salt,
         )
 
-        tx = InvokeFunction(
-            contract_address=call.udc.to_addr,  # type: ignore
-            entry_point_selector=call.udc.selector,  # type: ignore
-            calldata=call.udc.calldata,  # type: ignore
-            max_fee=max_fee if isinstance(max_fee, int) else 0,
-            nonce=(
-                await self._gateway_client.get_contract_nonce(
-                    call.udc.to_addr,
-                )
-                if signer
-                else None
-            ),
-            signature=[],
-            version=1 if signer else 0,
+        account_client = await self._create_account_client(
+            account_address=account_address,
+            signer=signer,
         )
-
-        if signer and account_address:
-            if not max_fee:
-                raise InputValidationException(
-                    "max_fee argument should be provided when signing a UDC invocation"
-                )
-
-            account_client = await self._create_account_client(
-                account_address=Address.from_user_input(account_address),
-                signer=signer,
-            )
-            tx = await self._sign_transaction(
-                account_client=account_client,
-                max_fee=max_fee,
-                transaction=tx,
-            )
-
         try:
-            result = await self._gateway_client.send_transaction(
-                transaction=tx,
-                token=token,
+            tx = await account_client.sign_invoke_transaction(
+                deployment.udc,
+                max_fee=max_fee if isinstance(max_fee, int) else None,
+                auto_estimate=max_fee == "auto",
             )
+            result = await self._gateway_client.send_transaction(tx, token)
+
             if wait_for_acceptance:
                 _, status = await self._gateway_client.wait_for_tx(
                     result.transaction_hash, wait_for_accept=wait_for_acceptance
@@ -197,46 +167,48 @@ class GatewayFacade:
 
             return SuccessfulDeployResponse(
                 code=result.code or "",
-                address=Address(call.address),
+                address=Address(deployment.address),
                 transaction_hash=result.transaction_hash,
             )
         except TransactionFailedError as ex:
             raise TransactionException(str(ex)) from ex
 
-    def _load_compiled_contract(self, compiled_contract_path: Path):
+    async def deploy_account(
+        self, args: DeployAccountArgs
+    ) -> SuccessfulDeployAccountResponse:
+        account_client = await self._create_account_client(
+            account_address=args.account_address,
+            signer=args.signer,
+        )
+
+        tx = await account_client.sign_deploy_account_transaction(
+            class_hash=args.account_class_hash,
+            contract_address_salt=args.account_address_salt,
+            constructor_calldata=args.account_constructor_input,
+            max_fee=args.max_fee if isinstance(args.max_fee, int) else None,
+            auto_estimate=args.max_fee == "auto",
+        )
+        response = await account_client.deploy_account(tx)
+        return SuccessfulDeployAccountResponse(
+            code=response.code or "",
+            address=Address(response.address),
+            transaction_hash=response.transaction_hash,
+        )
+
+    def _load_compiled_contract(self, compiled_contract_path: Path) -> str:
         try:
-            return self._compiled_contract_reader.load_contract(compiled_contract_path)
+            return compiled_contract_path.read_text("utf-8")
         except FileNotFoundError as err:
             raise CompilationOutputNotFoundException(compiled_contract_path) from err
-
-    def _prepare_constructor_inputs(
-        self, inputs: Optional[CairoOrPythonData], compiled_contract_path: Path
-    ):
-
-        abi = self._compiled_contract_reader.load_abi_from_contract_path(
-            compiled_contract_path
-        )
-        assert abi is not None
-
-        if not has_abi_item(abi, "constructor"):
-            if inputs:
-                raise InputValidationException(
-                    "Inputs provided to a contract with no constructor."
-                )
-            return []
-
-        cairo_inputs = transform_constructor_inputs_from_python(abi, inputs)
-        validate_cairo_inputs(abi, cairo_inputs)
-        return cairo_inputs
 
     async def declare(
         self,
         compiled_contract_path: Path,
         account_address: Address,
         signer: BaseSigner,
-        wait_for_acceptance: bool,
-        token: Optional[str],
         max_fee: Fee,
+        wait_for_acceptance: bool = False,
+        token: Optional[str] = None,
     ):
         compiled_contract = self._load_compiled_contract(
             self._project_root_path / compiled_contract_path
@@ -244,10 +216,10 @@ class GatewayFacade:
         account_client = await self._create_account_client(
             account_address=account_address, signer=signer
         )
-        declare_tx = await self._create_declare_tx_v1(
+        declare_tx = await account_client.sign_declare_transaction(
             compiled_contract=compiled_contract,
-            account_client=account_client,
-            max_fee=max_fee,
+            max_fee=max_fee if isinstance(max_fee, int) else None,
+            auto_estimate=max_fee == "auto",
         )
         try:
             response = await self._gateway_client.declare(declare_tx, token=token)
@@ -269,93 +241,17 @@ class GatewayFacade:
             transaction_hash=response.transaction_hash,
         )
 
-    async def _create_declare_tx_v1(
-        self,
-        compiled_contract: ContractClass,
-        account_client: AccountClient,
-        max_fee: Fee,
-    ) -> Declare:
-        declare_tx = Declare(
-            contract_class=compiled_contract,  # type: ignore
-            sender_address=account_client.address,  # type: ignore
-            max_fee=0,
-            signature=[],
-            nonce=await account_client.get_contract_nonce(
-                account_client.address,
-            ),
-            version=1,
-        )
-        return await self._sign_transaction(account_client, max_fee, declare_tx)
-
-    async def _sign_transaction(
-        self,
-        account_client: AccountClient,
-        max_fee: Fee,
-        transaction: TransactionT,
-    ) -> TransactionT:
-        # pylint: disable=protected-access
-        assert transaction is not Deploy
-        max_fee = await account_client._get_max_fee(
-            transaction=transaction,  # type: ignore
-            max_fee=max_fee if max_fee != "auto" else None,
-            auto_estimate=max_fee == "auto",
-        )
-        transaction = dataclasses.replace(transaction, max_fee=max_fee)
-        signature = account_client.signer.sign_transaction(transaction)
-        return dataclasses.replace(transaction, signature=signature, max_fee=max_fee)
-
-    async def declare_v0(
-        self,
-        compiled_contract_path: Path,
-        token: Optional[str] = None,
-        wait_for_acceptance: bool = False,
-    ) -> SuccessfulDeclareResponse:
-        logger = getLogger()
-        logger.warning(
-            "Unsigned declare transactions are depreciated and will be removed in future versions."
-        )
-        compiled_contract = self._load_compiled_contract(
-            self._project_root_path / compiled_contract_path
-        )
-        tx = self._create_declare_tx_v0(contract_class=compiled_contract, nonce=None)
-        try:
-            result = await self._gateway_client.declare(tx, token)
-            if wait_for_acceptance:
-                _, status = await self._gateway_client.wait_for_tx(
-                    result.transaction_hash, wait_for_accept=wait_for_acceptance
-                )
-                result.code = status.value
-        except TransactionFailedError as ex:
-            raise TransactionException(str(ex)) from ex
-        return SuccessfulDeclareResponse(
-            code=result.code or "",
-            class_hash=result.class_hash,
-            transaction_hash=result.transaction_hash,
-        )
-
-    def _create_declare_tx_v0(
-        self,
-        contract_class: ContractClass,
-        nonce: Optional[int],
-    ):
-        return Declare(
-            contract_class=contract_class,  # type: ignore
-            sender_address=DEFAULT_DECLARE_SENDER_ADDRESS,  # type: ignore
-            max_fee=0,
-            nonce=nonce or 0,
-            version=0,
-            signature=[],
-        )
-
     async def call(
         self,
         address: Address,
         function_name: str,
         inputs: Optional[ContractFunctionInputType] = None,
     ) -> NamedTuple:
-        contract_function = await self._contract_function_factory.create(
-            address=address, function_name=function_name
+        contract_function = await self._get_contract_function(
+            function_name=function_name,
+            address=address,
         )
+
         try:
             result = await self._call_function(contract_function, inputs)
         except TransactionFailedError as ex:
@@ -378,15 +274,16 @@ class GatewayFacade:
         account_client = await self._create_account_client(
             account_address=account_address, signer=signer
         )
-        contract_function = await self._contract_function_factory.create(
-            address=contract_address, function_name=function_name, client=account_client
-        )
         try:
+            contract_function = await self._get_contract_function(
+                function_name=function_name,
+                address=contract_address,
+                client=account_client,
+            )
             result = await self._invoke_function(
-                contract_function,
-                inputs,
+                contract_function=contract_function,
+                inputs=inputs,
                 max_fee=max_fee,
-                auto_estimate=max_fee == "auto",
             )
 
         except TransactionFailedError as ex:
@@ -402,6 +299,27 @@ class GatewayFacade:
             else int(result.hash),
         )
 
+    async def _invoke_function(
+        self,
+        contract_function: ContractFunction,
+        max_fee: Fee,
+        inputs: Optional[CairoOrPythonData] = None,
+    ) -> InvokeResult:
+        fee_params = {
+            "max_fee": max_fee if isinstance(max_fee, int) else None,
+            "auto_estimate": max_fee == "auto",
+        }
+
+        if inputs is None:
+            inputs = {}
+
+        try:
+            if isinstance(inputs, list):  # List of felts, raw input
+                return await contract_function.invoke(*inputs, **fee_params)
+            return await contract_function.invoke(**inputs, **fee_params)
+        except (TypeError, ValueError) as ex:
+            raise InputValidationException(str(ex)) from ex
+
     async def _create_account_client(
         self,
         account_address: Address,
@@ -411,10 +329,8 @@ class GatewayFacade:
             await self._account_tx_version_detector.detect(account_address)
         )
         if supported_by_account_tx_version == 0:
-            logger = getLogger()
-            logger.warning(
-                "Provided account doesn't support v1 transactions. "
-                "Transaction version 0 is deprecated and will be removed in a future release of StarkNet. "
+            raise ProtostarException(
+                "Provided account doesn't support v1 transactions.\n"
                 "Please update your account."
             )
 
@@ -434,60 +350,22 @@ class GatewayFacade:
             inputs = {}
 
         try:
-            if isinstance(inputs, List):
+            if isinstance(inputs, list):
                 return await contract_function.call(*inputs)
             return await contract_function.call(**inputs)
         except (TypeError, ValueError) as ex:
             raise InputValidationException(str(ex)) from ex
 
-    @staticmethod
-    async def _invoke_function(
-        contract_function: ContractFunction,
-        inputs: Optional[ContractFunctionInputType] = None,
-        max_fee: Fee = "auto",
-        auto_estimate: bool = False,
-    ) -> InvokeResult:
-        if inputs is None:
-            inputs = {}
-        try:
-            if isinstance(inputs, List):
-                return await contract_function.invoke(
-                    *inputs,
-                    max_fee=max_fee if max_fee != "auto" else None,
-                    auto_estimate=auto_estimate,
-                )
-            return await contract_function.invoke(
-                **inputs,
-                max_fee=max_fee if max_fee != "auto" else None,
-                auto_estimate=auto_estimate,
-            )
-        except (TypeError, ValueError) as ex:
-            raise InputValidationException(str(ex)) from ex
+    async def _get_contract_function(
+        self,
+        address: Address,
+        function_name: str,
+        client: Optional[Union[GatewayClient, AccountClient]] = None,
+    ) -> ContractFunction:
+        if not client:
+            client = self._gateway_client
 
-    async def deploy_account(
-        self, args: DeployAccountArgs
-    ) -> SuccessfulDeployAccountResponse:
-        account_client = await self._create_account_client(
-            account_address=args.account_address, signer=args.signer
-        )
-        deploy_account_tx = DeployAccount(
-            nonce=args.nonce,  # type: ignore
-            class_hash=args.account_class_hash,  # type: ignore
-            contract_address_salt=args.account_address_salt,  # type: ignore
-            constructor_calldata=args.account_constructor_input or [],  # type: ignore
-            version=1,
-            max_fee=0,
-            signature=[],
-        )
-        signed_deploy_account_tx = await self._sign_transaction(
-            account_client, args.max_fee, deploy_account_tx
-        )
-        response = await account_client.deploy_account(signed_deploy_account_tx)
-        return SuccessfulDeployAccountResponse(
-            code=response.code or "",
-            address=Address(response.address),
-            transaction_hash=response.transaction_hash,
-        )
+        return await ContractFunctionFactory(client).create(address, function_name)
 
 
 class InputValidationException(ProtostarException):
@@ -518,26 +396,3 @@ class FeeExceededMaxFeeException(ProtostarException):
         if "Actual fee exceeded max fee" in client_error.message:
             return cls(client_error.message)
         return None
-
-
-def transform_constructor_inputs_from_python(
-    abi: AbiType, inputs: Optional[CairoOrPythonData]
-) -> List[int]:
-    if not inputs:
-        return []
-    if isinstance(inputs, List):
-        return inputs
-
-    try:
-        return from_python_transformer(abi, fn_name="constructor", mode="inputs")(
-            inputs
-        )
-    except DataTransformerException as ex:
-        raise InputValidationException(str(ex)) from ex
-
-
-def validate_cairo_inputs(abi: AbiType, inputs: List[int]):
-    try:
-        to_python_transformer(abi, "constructor", "inputs")(inputs)
-    except DataTransformerException as ex:
-        raise InputValidationException(str(ex)) from ex

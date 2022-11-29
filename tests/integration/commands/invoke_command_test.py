@@ -1,5 +1,3 @@
-from typing import Union
-
 import pytest
 
 from protostar.protostar_exception import ProtostarException
@@ -19,14 +17,20 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
         yield protostar
 
 
-async def deploy_main_contract(protostar: ProtostarFixture, devnet_gateway_url: str):
+async def deploy_main_contract(
+    protostar: ProtostarFixture, devnet_gateway_url: str, devnet_account: DevnetAccount
+):
     declare_response = await protostar.declare(
         contract=protostar.project_root_path / "build" / "main.json",
         gateway_url=devnet_gateway_url,
+        account_address=devnet_account.address,
+        max_fee="auto",
     )
     return await protostar.deploy(
         class_hash=declare_response.class_hash,
         gateway_url=devnet_gateway_url,
+        account_address=devnet_account.address,
+        max_fee="auto",
     )
 
 
@@ -37,14 +41,19 @@ async def test_invoke(
     devnet: DevnetFixture,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
-    declare_response = await protostar.declare(
-        contract=protostar.project_root_path / "build" / "main.json",
-        gateway_url=devnet_gateway_url,
-    )
-    deploy_response = await protostar.deploy(
-        class_hash=declare_response.class_hash,
-        gateway_url=devnet_gateway_url,
-    )
+    with set_private_key_env_var(devnet_account.private_key):
+        declare_response = await protostar.declare(
+            contract=protostar.project_root_path / "build" / "main.json",
+            gateway_url=devnet_gateway_url,
+            max_fee="auto",
+            account_address=devnet_account.address,
+        )
+        deploy_response = await protostar.deploy(
+            class_hash=declare_response.class_hash,
+            gateway_url=devnet_gateway_url,
+            max_fee="auto",
+            account_address=devnet_account.address,
+        )
 
     with set_private_key_env_var(devnet_account.private_key):
         response = await protostar.invoke(
@@ -71,9 +80,10 @@ async def test_invoke_args_dict(
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
     devnet: DevnetFixture,
 ):
-    deploy_response = await deploy_main_contract(protostar, devnet_gateway_url)
-
     with set_private_key_env_var(devnet_account.private_key):
+        deploy_response = await deploy_main_contract(
+            protostar, devnet_gateway_url, devnet_account
+        )
         response = await protostar.invoke(
             contract_address=deploy_response.address,
             function_name="increase_balance",
@@ -92,9 +102,10 @@ async def test_invoke_args_dict_fail(
     devnet_account: DevnetAccount,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
-    deploy_response = await deploy_main_contract(protostar, devnet_gateway_url)
-
     with set_private_key_env_var(devnet_account.private_key):
+        deploy_response = await deploy_main_contract(
+            protostar, devnet_gateway_url, devnet_account
+        )
         with pytest.raises(InputValidationException):
             await protostar.invoke(
                 contract_address=deploy_response.address,
@@ -115,14 +126,19 @@ async def test_handling_invoke_failure(
 ):
     protostar.create_files({"./src/main.cairo": RUNTIME_ERROR_CONTRACT})
     await protostar.build()
-    declare_response = await protostar.declare(
-        contract=protostar.project_root_path / "build" / "main.json",
-        gateway_url=devnet_gateway_url,
-    )
-    deploy_response = await protostar.deploy(
-        class_hash=declare_response.class_hash,
-        gateway_url=devnet_gateway_url,
-    )
+    with set_private_key_env_var(devnet_account.private_key):
+        declare_response = await protostar.declare(
+            contract=protostar.project_root_path / "build" / "main.json",
+            gateway_url=devnet_gateway_url,
+            max_fee="auto",
+            account_address=devnet_account.address,
+        )
+        deploy_response = await protostar.deploy(
+            class_hash=declare_response.class_hash,
+            gateway_url=devnet_gateway_url,
+            max_fee="auto",
+            account_address=devnet_account.address,
+        )
 
     with pytest.raises(ProtostarException, match="1 != 0"):
         with set_private_key_env_var(devnet_account.private_key):
