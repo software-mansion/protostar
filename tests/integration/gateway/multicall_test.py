@@ -64,7 +64,6 @@ async def test_multicall_use_case_happy_case(
             account_manager=account_manager,
             client=starknet_client,
             call_resolver=CallResolver(),
-            resolved_calls_to_calldata_converter=ResolvedCallsToCalldataConverter(),
         )
         deploy_call = DeployCall(
             name="A",

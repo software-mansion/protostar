@@ -3,10 +3,10 @@ from starknet_py.net import AccountClient, KeyPair
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.client_models import Call as SNCall
 
-from protostar.starknet import Address
+from protostar.starknet import Address, Selector
 from protostar.starknet_gateway.gateway_facade import Fee
 from protostar.starknet_gateway.multicall.multicall_protocols import (
-    InvokeUnsignedTransaction,
+    UnsignedMulticallTransaction,
 )
 
 from .multicall import InvokeSignedTransaction, AccountManagerProtocol
@@ -37,21 +37,26 @@ class AccountManager(AccountManagerProtocol):
         return Address(self._account_client.address)
 
     async def sign_invoke_transaction(
-        self, unsigned_transaction: InvokeUnsignedTransaction
+        self, unsigned_transaction: UnsignedMulticallTransaction
     ) -> InvokeSignedTransaction:
         tx = await self._account_client.sign_invoke_transaction(
-            calls=SNCall(
-                calldata=unsigned_transaction.calldata,
-                to_addr=int(unsigned_transaction.contract_address),
-                selector=int(unsigned_transaction.selector),
-            ),
+            calls=[
+                SNCall(
+                    to_addr=int(call.address),
+                    selector=int(call.selector),
+                    calldata=call.calldata,
+                )
+                for call in unsigned_transaction.calls
+            ],
             max_fee=self._max_fee if isinstance(self._max_fee, int) else None,
             auto_estimate=self._max_fee == "auto",
             version=self._account_client.supported_tx_version,
         )
         assert tx.nonce is not None
-        return InvokeSignedTransaction.from_unsigned(
-            unsigned_transaction,
+        return InvokeSignedTransaction(
+            contract_address=Address(tx.contract_address),
+            # selector=Selector(tx.entry_point_selector),
+            calldata=tx.calldata,
             max_fee=tx.max_fee,
             nonce=tx.nonce,
             signature=tx.signature,
