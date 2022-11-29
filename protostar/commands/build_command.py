@@ -48,7 +48,7 @@ class BuildCommand(ProtostarCommand):
                     "If not provided, all contracts defined in the configuration file are going to be built."
                 ),
                 type="contract_source_identifier",
-                is_array=True,
+                value_parser="list",
                 is_positional=True,
             ),
             ProtostarArgument(
