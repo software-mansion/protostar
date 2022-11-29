@@ -9,12 +9,12 @@ from .multicall_output import MulticallOutput
 
 
 @dataclass
-class MulticallUnsignedTransaction:
+class InvokeUnsignedTransaction:
     calldata: list[int]
 
 
 @dataclass
-class MulticallSignedTransaction(MulticallUnsignedTransaction):
+class InvokeSignedTransaction(InvokeUnsignedTransaction):
     pass
 
 
@@ -28,15 +28,15 @@ class ResolvedCall:
 @dataclass
 class MulticallSignerProtocol(Protocol):
     @abstractmethod
-    async def sign_multicall_transaction(
-        self, unsigned_transaction: MulticallUnsignedTransaction
-    ) -> MulticallSignedTransaction:
+    async def sign_invoke_transaction(
+        self, unsigned_transaction: InvokeUnsignedTransaction
+    ) -> InvokeSignedTransaction:
         ...
 
 
 class MulticallGatewayProtocol(Protocol):
     @abstractmethod
     async def send_multicall_transaction(
-        self, transaction: MulticallSignedTransaction
+        self, transaction: InvokeSignedTransaction
     ) -> MulticallOutput:
         ...

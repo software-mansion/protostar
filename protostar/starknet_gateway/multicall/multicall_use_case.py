@@ -5,7 +5,7 @@ from .multicall_output import MulticallOutput
 from .multicall_protocols import (
     MulticallGatewayProtocol,
     MulticallSignerProtocol,
-    MulticallUnsignedTransaction,
+    InvokeUnsignedTransaction,
 )
 from .call_resolver import CallResolver
 from .resolved_calls_to_calldata_converter import ResolvedCallsToCalldataConverter
@@ -30,6 +30,6 @@ class MulticallUseCase(UseCase[MulticallInput, MulticallOutput]):
     async def execute(self, data: MulticallInput):
         resolved_calls = await self._call_resolver.resolve(data.calls)
         calldata = self._resolved_calls_to_calldata_converter.convert(resolved_calls)
-        unsigned_tx = MulticallUnsignedTransaction(calldata=calldata)
-        signed_transaction = await self._signer.sign_multicall_transaction(unsigned_tx)
+        unsigned_tx = InvokeUnsignedTransaction(calldata=calldata)
+        signed_transaction = await self._signer.sign_invoke_transaction(unsigned_tx)
         return await self._gateway.send_multicall_transaction(signed_transaction)

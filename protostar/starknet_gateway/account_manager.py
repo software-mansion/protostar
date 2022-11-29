@@ -5,7 +5,7 @@ from starknet_py.net.client_models import Call as SNCall
 
 from protostar.starknet import Address
 
-from .multicall import MulticallSignerProtocol, MulticallSignedTransaction, ResolvedCall
+from .multicall import MulticallSignerProtocol, InvokeSignedTransaction, ResolvedCall
 
 
 class AccountManager(MulticallSignerProtocol):
@@ -22,10 +22,10 @@ class AccountManager(MulticallSignerProtocol):
             key_pair=KeyPair.from_private_key(private_key),
         )
 
-    async def sign_multicall_transaction(
+    async def sign_invoke_transaction(
         self,
         calls: list[ResolvedCall],
-    ) -> MulticallSignedTransaction:
+    ) -> InvokeSignedTransaction:
         await self._account_client.sign_invoke_transaction(
             calls=[
                 SNCall(
@@ -39,4 +39,4 @@ class AccountManager(MulticallSignerProtocol):
             auto_estimate=True,
             version=1,
         )
-        return MulticallSignedTransaction()
+        return InvokeSignedTransaction()

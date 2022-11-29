@@ -4,7 +4,8 @@ from .multicall_output import MulticallOutput
 from .multicall_protocols import (
     MulticallGatewayProtocol,
     MulticallSignerProtocol,
-    MulticallSignedTransaction,
+    InvokeSignedTransaction,
     ResolvedCall,
 )
 from .call_resolver import CallResolver
+from .resolved_calls_to_calldata_converter import ResolvedCallsToCalldataConverter
