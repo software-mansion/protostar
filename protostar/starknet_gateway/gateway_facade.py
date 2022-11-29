@@ -23,6 +23,7 @@ from starknet_py.transaction_exceptions import (
     TransactionRejectedError,
 )
 from starknet_py.utils.data_transformer.data_transformer import CairoData
+from starknet_py.utils.data_transformer.errors import CairoSerializerException
 from starkware.starknet.public.abi import AbiType
 from typing_extensions import Self, TypeGuard
 
@@ -68,6 +69,7 @@ TransactionT = TypeVar("TransactionT", bound=Transaction)
 def is_cairo_data(inputs: Optional[CairoOrPythonData]) -> TypeGuard[CairoData]:
     return isinstance(inputs, list)
 
+
 # pylint: disable=too-many-instance-attributes
 class GatewayFacade:
     def __init__(
@@ -79,7 +81,9 @@ class GatewayFacade:
         self._project_root_path = project_root_path
         self._gateway_client = gateway_client
         self._compiled_contract_reader = compiled_contract_reader
-        self._account_tx_version_detector = AccountTxVersionDetector(self._gateway_client)
+        self._account_tx_version_detector = AccountTxVersionDetector(
+            self._gateway_client
+        )
 
     async def _create_udc_deployment(
         self,
@@ -107,7 +111,10 @@ class GatewayFacade:
             )
 
         if not has_abi_item(abi, "constructor") and inputs:
-            raise InputValidationException("Inputs provided to a contract with no constructor.")
+            raise InputValidationException(
+                "Inputs provided to a contract with no constructor."
+            )
+
         try:
             return Deployer(
                 account_address=int(account_address)
@@ -117,11 +124,8 @@ class GatewayFacade:
                 salt=salt,
                 abi=abi,
             )
-        except ValueError as v_err:
-            if "Provided contract has a constructor and no arguments were provided." in str(v_err):
-                raise InputValidationException(
-                    "No inputs provided to a contract with a constructor."
-                ) from v_err
+        except (ValueError, TypeError, CairoSerializerException) as v_err:
+            raise InputValidationException(str(v_err)) from v_err
 
     async def deploy_via_udc(
         self,
@@ -249,9 +253,7 @@ class GatewayFacade:
         )
 
         try:
-            result = await self._call_function(
-                contract_function, inputs
-            )
+            result = await self._call_function(contract_function, inputs)
         except TransactionFailedError as ex:
             raise TransactionException(str(ex)) from ex
         except ClientError as ex:

@@ -20,10 +20,9 @@ def test_deploying_and_interacting_with_contract(
     protostar: ProtostarFixture,
     devnet_gateway_url: str,
     datadir: Path,
-    monkeypatch: MonkeyPatch,
-    account: DevnetAccount,
+    devnet_account: DevnetAccount,
+    set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
-    monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, account.private_key)
 
     copy_file(
         src=str(datadir / "contract_with_constructor.cairo"),
@@ -31,37 +30,41 @@ def test_deploying_and_interacting_with_contract(
     )
 
     protostar(["build"])
+    with set_private_key_env_var(devnet_account.private_key):
+        result = protostar(
+            [
+                "--no-color",
+                "declare",
+                "./build/main.json",
+                "--gateway-url",
+                devnet_gateway_url,
+                "--account-address",
+                devnet_account.address,
+                "--chain-id",
+                str(StarknetChainId.TESTNET.value),
+                "--json",
+            ],
+            ignore_stderr=True,
+        )
+        class_hash = json.loads(result)["class_hash"]
 
-    result = protostar(
-        [
-            "--no-color",
-            "declare",
-            "./build/main.json",
-            "--gateway-url",
-            devnet_gateway_url,
-            "--chain-id",
-            str(StarknetChainId.TESTNET.value),
-            "--json",
-        ],
-        ignore_stderr=True,
-    )
-    class_hash = json.loads(result)["class_hash"]
-
-    result = protostar(
-        [
-            "--no-color",
-            "deploy",
-            class_hash,
-            "--inputs",
-            "0x42",
-            "--gateway-url",
-            devnet_gateway_url,
-            "--chain-id",
-            str(StarknetChainId.TESTNET.value),
-            "--json",
-        ],
-        ignore_stderr=True,
-    )
+        result = protostar(
+            [
+                "--no-color",
+                "deploy",
+                class_hash,
+                "--inputs",
+                "0x42",
+                "--gateway-url",
+                devnet_gateway_url,
+                "--account-address",
+                devnet_account.address,
+                "--chain-id",
+                str(StarknetChainId.TESTNET.value),
+                "--json",
+            ],
+            ignore_stderr=True,
+        )
 
     response_dict = json.loads(result)
     assert "contract_address" in response_dict

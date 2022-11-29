@@ -14,7 +14,9 @@ from protostar.starknet_gateway import (
     DeployAccountArgs,
     FeeExceededMaxFeeException,
     GatewayFacade,
-    InputValidationException, UnknownFunctionException, ContractNotFoundException,
+    InputValidationException,
+    UnknownFunctionException,
+    ContractNotFoundException,
 )
 from tests._conftest.devnet import DevnetAccount, DevnetFixture
 from tests.conftest import MAX_FEE, TESTS_ROOT_PATH, SetPrivateKeyEnvVarFixture

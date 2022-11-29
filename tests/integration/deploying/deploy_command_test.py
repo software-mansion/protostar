@@ -47,35 +47,25 @@ async def test_deploying_contract(
     assert response.address is not None
 
 
-async def test_deploying_contract_arg_dict(
-    protostar: ProtostarFixture,
-    devnet_gateway_url: str,
-    compiled_contract_filepath: Path,
-):
-    declare_response = await protostar.declare(
-        contract=compiled_contract_filepath,
-        gateway_url=devnet_gateway_url,
-    )
-    with pytest.raises(InputValidationException):
-        response = await protostar.deploy(
-            class_hash=declare_response.class_hash,
-            gateway_url=devnet_gateway_url,
-            inputs={"initial_balance": 42},
-        )
-
-
 async def test_deploying_contract_fail(
     protostar: ProtostarFixture,
     devnet_gateway_url: str,
     compiled_contract_filepath: Path,
+    set_private_key_env_var: SetPrivateKeyEnvVarFixture,
+    devnet_account: DevnetAccount,
 ):
-    with pytest.raises(InputValidationException):
-        declare_response = await protostar.declare(
-            contract=compiled_contract_filepath,
-            gateway_url=devnet_gateway_url,
-        )
-        await protostar.deploy(
-            class_hash=declare_response.class_hash,
-            gateway_url=devnet_gateway_url,
-            inputs={"initial_balanceee": 42},
-        )
+    with set_private_key_env_var(devnet_account.private_key):
+        with pytest.raises(InputValidationException):
+            declare_response = await protostar.declare(
+                contract=compiled_contract_filepath,
+                gateway_url=devnet_gateway_url,
+                max_fee="auto",
+                account_address=devnet_account.address,
+            )
+            await protostar.deploy(
+                class_hash=declare_response.class_hash,
+                gateway_url=devnet_gateway_url,
+                inputs={"initial_balanceee": 42},
+                max_fee="auto",
+                account_address=devnet_account.address,
+            )

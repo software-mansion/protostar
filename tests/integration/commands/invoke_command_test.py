@@ -17,14 +17,20 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
         yield protostar
 
 
-async def deploy_main_contract(protostar: ProtostarFixture, devnet_gateway_url: str):
+async def deploy_main_contract(
+    protostar: ProtostarFixture, devnet_gateway_url: str, devnet_account: DevnetAccount
+):
     declare_response = await protostar.declare(
         contract=protostar.project_root_path / "build" / "main.json",
         gateway_url=devnet_gateway_url,
+        account_address=devnet_account.address,
+        max_fee="auto",
     )
     return await protostar.deploy(
         class_hash=declare_response.class_hash,
         gateway_url=devnet_gateway_url,
+        account_address=devnet_account.address,
+        max_fee="auto",
     )
 
 
@@ -74,9 +80,10 @@ async def test_invoke_args_dict(
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
     devnet: DevnetFixture,
 ):
-    deploy_response = await deploy_main_contract(protostar, devnet_gateway_url)
-
     with set_private_key_env_var(devnet_account.private_key):
+        deploy_response = await deploy_main_contract(
+            protostar, devnet_gateway_url, devnet_account
+        )
         response = await protostar.invoke(
             contract_address=deploy_response.address,
             function_name="increase_balance",
@@ -95,9 +102,10 @@ async def test_invoke_args_dict_fail(
     devnet_account: DevnetAccount,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
-    deploy_response = await deploy_main_contract(protostar, devnet_gateway_url)
-
     with set_private_key_env_var(devnet_account.private_key):
+        deploy_response = await deploy_main_contract(
+            protostar, devnet_gateway_url, devnet_account
+        )
         with pytest.raises(InputValidationException):
             await protostar.invoke(
                 contract_address=deploy_response.address,
