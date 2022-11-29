@@ -3,10 +3,10 @@ from pathlib import Path
 from re import Pattern
 from typing import Any, Callable
 
-from .argument_parser_facade import ParserFactory, ArgTypeName
+from .types import ParserFactoryProtocol, ArgTypeName
 
 
-class StandardParserFactory(ParserFactory[ArgTypeName]):
+class StandardParserFactory(ParserFactoryProtocol[ArgTypeName]):
     def create(self, argument_type: ArgTypeName) -> Callable[[str], Any]:
         type_name_to_parser_mapping: dict[ArgTypeName, Callable[[str], Any]] = {
             "str": str,

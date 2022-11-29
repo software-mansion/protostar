@@ -1,44 +1,15 @@
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter, _SubParsersAction
-from typing import (
-    Any,
-    Callable,
-    Generic,
-    List,
-    Literal,
-    Optional,
-    Protocol,
-    Sequence,
-    Tuple,
-    TypeVar,
-    Union,
-)
+from typing import Any, Generic, List, Optional, Sequence, Tuple, Union
 
 from protostar.protostar_exception import ProtostarException
-from protostar.argument_parser.unparser import unparse_arguments_from_external_source
 
+from .unparser import unparse_arguments_from_external_source
+from .types import ParserFactoryProtocol, ArgTypeNameT_contra
 from .arg_type import StandardParserFactory
 from .argument import Argument
 from .cli_app import CLIApp
 from .command import Command
 from .config_file_argument_resolver import ConfigFileArgumentResolverProtocol
-
-ArgTypeName = Literal[
-    "str",
-    "directory",
-    "path",
-    "bool",
-    "regexp",
-    "int",
-]
-
-ArgTypeNameT_contra = TypeVar(
-    "ArgTypeNameT_contra", contravariant=True, bound=ArgTypeName
-)
-
-
-class ParserFactory(Protocol, Generic[ArgTypeNameT_contra]):
-    def create(self, argument_type: ArgTypeNameT_contra) -> Callable[[str], Any]:
-        ...
 
 
 class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
@@ -47,7 +18,7 @@ class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
     def __init__(
         self,
         cli_app: CLIApp,
-        parser_factory: Optional[ParserFactory[ArgTypeNameT_contra]] = None,
+        parser_factory: Optional[ParserFactoryProtocol[ArgTypeNameT_contra]] = None,
         config_file_argument_value_resolver: Optional[
             ConfigFileArgumentResolverProtocol
         ] = None,

@@ -2,9 +2,11 @@ from typing import Any, Callable, Literal, Union
 
 from starkware.starknet.utils.api_utils import cast_to_felts
 
-from protostar.argument_parser import ArgTypeName
-from protostar.argument_parser.arg_type import StandardParserFactory
-from protostar.argument_parser.argument_parser_facade import ParserFactory
+from protostar.argument_parser import (
+    ArgTypeName,
+    StandardParserFactory,
+    ParserFactoryProtocol,
+)
 from protostar.starknet_gateway import (
     SUPPORTED_BLOCK_EXPLORER_NAMES,
     Fee,
@@ -29,7 +31,7 @@ CustomProtostarArgTypeName = Literal[
 ProtostarArgTypeName = Union[CustomProtostarArgTypeName, ArgTypeName]
 
 
-class ProtostarParserFactory(ParserFactory[ProtostarArgTypeName]):  # type: ignore
+class ProtostarParserFactory(ParserFactoryProtocol[ProtostarArgTypeName]):  # type: ignore
     def __init__(
         self, contract_source_identifier_factory: ContractSourceIdentifierFactory
     ) -> None:
