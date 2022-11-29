@@ -15,7 +15,7 @@ class ResolvedCallsToCalldataConverter:
         calls = [
             Call(
                 to_addr=int(call.address),
-                selector=call.selector,
+                selector=int(call.selector),
                 calldata=call.calldata,
             )
             for call in resolved_calls

@@ -1,4 +1,4 @@
-from protostar.starknet import Address
+from protostar.starknet import Address, Selector
 
 from .multicall_protocols import ResolvedCall
 from .resolved_calls_to_calldata_converter import ResolvedCallsToCalldataConverter
@@ -9,12 +9,12 @@ def test_happy_case():
     resolved_calls = [
         ResolvedCall(
             address=Address(1),
-            selector=2,
+            selector=Selector(2),
             calldata=[3, 4],
         ),
         ResolvedCall(
             address=Address(5),
-            selector=6,
+            selector=Selector(6),
             calldata=[7, 8],
         ),
     ]

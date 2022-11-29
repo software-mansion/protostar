@@ -1,15 +1,6 @@
 import dataclasses
 from pathlib import Path
-from typing import (
-    Any,
-    Dict,
-    List,
-    Literal,
-    NamedTuple,
-    Optional,
-    TypeVar,
-    Union,
-)
+from typing import Any, Dict, List, Literal, NamedTuple, Optional, TypeVar, Union
 
 from starknet_py.contract import ContractFunction, InvokeResult
 from starknet_py.net import AccountClient
@@ -18,6 +9,7 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import Transaction
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.udc_deployer.deployer import Deployer, ContractDeployment
+from starknet_py.net.client_models import InvokeFunction
 from starknet_py.transaction_exceptions import (
     TransactionFailedError,
     TransactionRejectedError,
@@ -40,6 +32,11 @@ from protostar.starknet_gateway.gateway_response import (
     SuccessfulInvokeResponse,
 )
 from protostar.starknet import Address
+from protostar.starknet_gateway.multicall.multicall_output import MulticallOutput
+from protostar.starknet_gateway.multicall.multicall_protocols import (
+    InvokeSignedTransaction,
+    MulticallClientProtocol,
+)
 
 from .contract_function_factory import ContractFunctionFactory
 from ..starknet.abi import has_abi_item
@@ -71,7 +68,7 @@ def is_cairo_data(inputs: Optional[CairoOrPythonData]) -> TypeGuard[CairoData]:
 
 
 # pylint: disable=too-many-instance-attributes
-class GatewayFacade:
+class GatewayFacade(MulticallClientProtocol):
     def __init__(
         self,
         project_root_path: Path,
@@ -366,6 +363,21 @@ class GatewayFacade:
             client = self._gateway_client
 
         return await ContractFunctionFactory(client).create(address, function_name)
+
+    async def send_multicall_transaction(
+        self, transaction: InvokeSignedTransaction
+    ) -> MulticallOutput:
+        result = await self._gateway_client.send_transaction(
+            transaction=InvokeFunction(
+                version=1,
+                contract_address=int(transaction.contract_address),  # type: ignore
+                calldata=transaction.calldata,  # type: ignore
+                max_fee=transaction.max_fee,
+                nonce=transaction.nonce,
+                signature=transaction.signature,
+            )
+        )
+        return MulticallOutput(transaction_hash=result.transaction_hash)
 
 
 class InputValidationException(ProtostarException):
