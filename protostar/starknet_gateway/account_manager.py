@@ -30,6 +30,7 @@ class AccountManager(AccountManagerProtocol):
             client=gateway_client,
             signer=signer,
             key_pair=KeyPair.from_private_key(private_key),
+            supported_tx_version=1,
         )
 
     def get_account_address(self):
