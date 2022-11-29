@@ -3,7 +3,7 @@ from asyncio import to_thread
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List
 
-from hypothesis import Phase, example, given, seed, settings
+from hypothesis import example, given, seed, settings
 from hypothesis.database import ExampleDatabase, InMemoryExampleDatabase
 from hypothesis.errors import InvalidArgument
 from hypothesis.reporting import with_reporter
@@ -47,6 +47,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         if self.state.config.profiling:
             raise ProtostarException("Fuzz tests cannot be profiled")
         self.initial_state = state
+        self.given_strategies: dict[str, SearchStrategy] = {}
 
     async def execute(self, function_name: str) -> FuzzTestExecutionResult:
         abi = self.state.contract.abi
@@ -70,7 +71,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
                 "explicitly provide test data: \n- example\n- given"
             )
 
-        given_strategies = collect_search_strategies(
+        self.given_strategies = collect_search_strategies(
             declared_strategies=self.state.config.fuzz_declared_strategies,
             parameters=parameters,
         )
@@ -87,7 +88,6 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
                     database=database,
                     execution_resources=execution_resources,
                     runs_counter=runs_counter,
-                    given_strategies=given_strategies,
                 )
 
         try:
@@ -135,13 +135,19 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             func = example(**ex)(func)
         return func
 
+    def decorate_with_given(self, target_func: Callable):
+        func = target_func
+        if not self.given_strategies:
+            return func
+        func = given(**self.given_strategies)(func)
+        return func
+
     def build_and_run_test(
         self,
         function_name: str,
         database: ExampleDatabase,
         execution_resources: List[ExecutionResourcesSummary],
         runs_counter: RunsCounter,
-        given_strategies: Dict[str, SearchStrategy],
     ):
         try:
             settings_instance = settings(
@@ -152,18 +158,11 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
                 report_multiple_bugs=False,
                 verbosity=HYPOTHESIS_VERBOSITY,
             )
-            if (
-                not self.state.config.fuzz_declared_strategies
-                and self.state.config.fuzz_examples
-            ):
-                settings_instance = settings(
-                    settings_instance, phases=(Phase.explicit,)
-                )
 
             @self.decorate_with_examples
             @seed(self.state.config.seed)
             @settings_instance
-            @given(**given_strategies)
+            @self.decorate_with_given
             async def test(**inputs: Any):
                 self.fork_state_for_test()
                 self.set_cheatcodes_for_test()
@@ -185,11 +184,17 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
                                 inputs=inputs,
                             ) from reported_ex
 
-            test.hypothesis.inner_test = wrap_in_sync(test.hypothesis.inner_test)  # type: ignore
+            if hasattr(test, "hypothesis"):
+                test.hypothesis.inner_test = wrap_in_sync(test.hypothesis.inner_test)  # type: ignore
 
-            # NOTE: The ``test`` function does not expect any arguments at this point,
-            #   because the @given decorator provides all of them behind the scenes.
-            test()
+            if self.given_strategies:
+                # NOTE: The ``test`` function does not expect any arguments at this point,
+                #   because the @given decorator provides all of them behind the scenes.
+                test()
+            elif self.state.config.fuzz_examples:
+                for ex in reversed(self.state.config.fuzz_examples):
+                    test(**ex)
+
         except InvalidArgument as ex:
             # This exception is sometimes raised by Hypothesis during runtime when user messes up
             # strategy arguments. For example, invalid range for `integers` strategy is caught here.
