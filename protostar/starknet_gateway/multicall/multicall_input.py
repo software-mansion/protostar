@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional, Union
 
-from protostar.starknet import Address
+from protostar.starknet import Address, Selector
 
 
 @dataclass(frozen=True)
@@ -15,7 +15,7 @@ DeployCallName = str
 @dataclass(frozen=True)
 class InvokeCall(CallBase):
     address: Union[DeployCallName, Address]
-    function_name: str
+    selector: Selector
 
 
 @dataclass(frozen=True)

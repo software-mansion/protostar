@@ -1,6 +1,6 @@
 import pytest
 
-from protostar.starknet.address import Address
+from protostar.starknet import Address, Selector
 
 from .call_resolver import CallResolver, UnknownNameException
 from .multicall_input import DeployCall, InvokeCall
@@ -12,8 +12,8 @@ async def test_resolving_deploy_and_invoke():
     result = await resolver.resolve(
         [
             DeployCall(name="A", calldata=[1], class_hash=1),
-            InvokeCall(address="A", calldata=[], function_name="foo"),
-            InvokeCall(address=Address(0), calldata=[], function_name="bar"),
+            InvokeCall(address="A", calldata=[], selector=Selector("foo")),
+            InvokeCall(address=Address(0), calldata=[], selector=Selector("bar")),
         ]
     )
 
@@ -25,5 +25,5 @@ async def test_raising_error_when_name_is_undefined():
 
     with pytest.raises(UnknownNameException):
         await resolver.resolve(
-            [InvokeCall(address="A", calldata=[], function_name="foo")]
+            [InvokeCall(address="A", calldata=[], selector=Selector("foo"))]
         )

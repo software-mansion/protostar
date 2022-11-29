@@ -5,6 +5,7 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
+from protostar.starknet import Selector
 from protostar.starknet_gateway.multicall import (
     MulticallUseCase,
     DeployCall,
@@ -73,7 +74,7 @@ async def test_multicall_use_case_happy_case(
         invoke_call = InvokeCall(
             address="A",
             calldata=[42],
-            function_name="increase_balance",
+            selector=Selector("increase_balance"),
         )
         calls = MulticallInput(calls=[deploy_call, invoke_call])
 

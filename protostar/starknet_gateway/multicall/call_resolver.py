@@ -1,10 +1,10 @@
 from typing import Union
 
 from starknet_py.net.udc_deployer.deployer import Deployer
-from starkware.starknet.public.abi import get_selector_from_name
 
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet import Address
+from protostar.starknet.selector import Selector
 
 from .multicall_input import CallBase, InvokeCall, DeployCall, DeployCallName
 from .multicall_protocols import ResolvedCall
@@ -36,16 +36,14 @@ class CallResolver:
         return ResolvedCall(
             address=Address(deployment_call.udc.to_addr),
             calldata=deployment_call.udc.calldata,
-            selector=deployment_call.udc.selector,
+            selector=Selector(deployment_call.udc.selector),
         )
 
     def _resolve_invoke_call(self, invoke_call: InvokeCall) -> ResolvedCall:
         return ResolvedCall(
             address=self._resolve_address(invoke_call.address),
             calldata=invoke_call.calldata,
-            selector=get_selector_from_name(
-                invoke_call.function_name,
-            ),
+            selector=invoke_call.selector,
         )
 
     def _resolve_address(
