@@ -13,7 +13,7 @@ $ protostar build
 ```
 Compile contracts.
 #### `contracts CONTRACT_SOURCE_IDENTIFIER[]`
-Path or contract name defined in the configuration file. If not provided, all contracts defined in the configuration file are going to be build.
+Path or contract name defined in the configuration file. If not provided, all contracts defined in the configuration file are going to be built.
 #### `--cairo-path PATH[]`
 Additional directories to look for sources.
 #### `--compiled-contracts-dir PATH=build`

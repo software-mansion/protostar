@@ -45,7 +45,7 @@ class BuildCommand(ProtostarCommand):
                 name="contracts",
                 description=(
                     "Path or contract name defined in the configuration file. "
-                    "If not provided, all contracts defined in the configuration file are going to be build."
+                    "If not provided, all contracts defined in the configuration file are going to be built."
                 ),
                 type="contract_source_identifier",
                 is_array=True,
