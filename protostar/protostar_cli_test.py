@@ -115,20 +115,6 @@ def run_protostar_cli_fixture(
     return run_protostar_command
 
 
-@pytest.mark.parametrize("git_version", ["2.27"])
-async def test_should_fail_due_to_old_git(
-    protostar_cli: ProtostarCLI, caplog: LogCaptureFixture
-):
-    parser = ArgumentParserFacade(protostar_cli)
-
-    with caplog.at_level(logging.ERROR):
-        with pytest.raises(SystemExit) as ex:
-            await protostar_cli.run(parser.parse(["--version"]))
-            assert cast(SystemExit, ex).code == 1
-
-        assert caplog.record_tuples == [("root", logging.ERROR, Matches(r".*2\.28.*"))]
-
-
 async def test_should_print_protostar_version(
     protostar_cli: ProtostarCLI, mocker: MockerFixture, version_manager: VersionManager
 ):
