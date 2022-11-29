@@ -81,6 +81,8 @@ def test_contract_source_identifier_parser(fake_contract_path: Path):
         )
     )("contract_source_identifier")
 
-    result = parser("main")
+    result: ContractSourceIdentifier = parser("main")
 
-    return result == ContractSourceIdentifier(name="main", paths=[fake_contract_path])
+    assert result.name == "main"
+    assert result.paths == [fake_contract_path]
+    assert result == ContractSourceIdentifier(name="main", paths=[fake_contract_path])
