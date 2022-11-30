@@ -88,7 +88,7 @@ update_cli_docs = "python ./scripts/generate_reference_docs.py"
 shell = "pytest -n auto tests/e2e"
 
 [tool.poe.tasks.test_integration]
-shell = "pytest scripts tests/integration"
+shell = "pytest -n auto scripts tests/integration"
 
 [tool.poe.tasks.test_unit]
 shell = "pytest -n auto protostar/*"
