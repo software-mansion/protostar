@@ -52,7 +52,6 @@ class AccountManager(MulticallAccountManagerProtocol):
             auto_estimate=self._max_fee == "auto",
             version=1,
         )
-        assert tx.nonce is not None
         return SignedMulticallTransaction(
             contract_address=Address(tx.contract_address),
             calldata=tx.calldata,

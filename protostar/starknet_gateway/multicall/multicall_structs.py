@@ -42,7 +42,7 @@ class SignedMulticallTransaction:
     contract_address: Address
     calldata: list[int]
     max_fee: int
-    nonce: int
+    nonce: Optional[int]
     signature: list[int]
 
 
