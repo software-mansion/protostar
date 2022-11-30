@@ -50,7 +50,7 @@ class AccountManager(MulticallAccountManagerProtocol):
             ],
             max_fee=self._max_fee if isinstance(self._max_fee, int) else None,
             auto_estimate=self._max_fee == "auto",
-            version=self._account_client.supported_tx_version,
+            version=1,
         )
         assert tx.nonce is not None
         return SignedMulticallTransaction(
