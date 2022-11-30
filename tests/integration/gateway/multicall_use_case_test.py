@@ -79,3 +79,12 @@ async def test_multicall_use_case_happy_case(
         result = await multicall.execute(calls)
 
         await devnet.assert_transaction_accepted(result.transaction_hash)
+
+        contract_a_address = result.deployed_contract_address["A"]
+        call_result = await protostar.call(
+            contract_address=contract_a_address,
+            function_name="get_balance",
+            gateway_url=devnet.get_gateway_url(),
+            inputs=[],
+        )
+        assert call_result.response.res == 42
