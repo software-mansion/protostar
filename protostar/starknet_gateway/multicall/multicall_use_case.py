@@ -1,5 +1,4 @@
-from protostar.starknet_gateway.multicall.call_resolver import CallResolver
-
+from .call_resolver import CallResolver
 from .multicall_structs import MulticallInput, MulticallOutput
 from .multicall_protocols import (
     MulticallClientProtocol,
