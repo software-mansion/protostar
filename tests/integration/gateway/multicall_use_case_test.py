@@ -11,7 +11,6 @@ from protostar.starknet_gateway.multicall import (
     DeployCall,
     InvokeCall,
     MulticallInput,
-    CallResolver,
 )
 from protostar.starknet_gateway import AccountManager, GatewayFacade
 from tests._conftest.devnet import DevnetFixture
@@ -62,7 +61,6 @@ async def test_multicall_use_case_happy_case(
         multicall = MulticallUseCase(
             account_manager=account_manager,
             client=starknet_client,
-            call_resolver=CallResolver(),
         )
         deploy_call = DeployCall(
             name="A",

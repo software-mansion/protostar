@@ -1,10 +1,11 @@
+from protostar.starknet_gateway.multicall.call_resolver import CallResolver
+
 from .multicall_structs import MulticallInput, MulticallOutput
 from .multicall_protocols import (
     MulticallClientProtocol,
     UnsignedMulticallTransaction,
     MulticallAccountManagerProtocol,
 )
-from .call_resolver import CallResolver
 
 
 class MulticallUseCase:
@@ -12,12 +13,11 @@ class MulticallUseCase:
         self,
         client: MulticallClientProtocol,
         account_manager: MulticallAccountManagerProtocol,
-        call_resolver: CallResolver,
     ) -> None:
         super().__init__()
         self._account_manager = account_manager
         self._client = client
-        self._call_resolver = call_resolver
+        self._call_resolver = CallResolver()
 
     async def execute(self, data: MulticallInput) -> MulticallOutput:
         resolved_calls = await self._call_resolver.resolve(data.calls)
