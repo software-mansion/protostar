@@ -32,10 +32,7 @@ from protostar.starknet_gateway.gateway_response import (
     SuccessfulInvokeResponse,
 )
 from protostar.starknet import Address
-from protostar.starknet_gateway.multicall import (
-    MulticallOutput,
-    MulticallClientResponse,
-)
+from protostar.starknet_gateway.multicall import MulticallClientResponse
 from protostar.starknet_gateway.multicall.multicall_protocols import (
     SignedMulticallTransaction,
     MulticallClientProtocol,
