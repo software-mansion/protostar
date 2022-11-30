@@ -3,9 +3,7 @@ from re import Pattern
 
 import pytest
 
-from .arg_type import StandardParserFactory
-
-map_type_name_to_parser = StandardParserFactory().create
+from .arg_type import map_type_name_to_parser
 
 
 def test_string_arg_type():

@@ -11,7 +11,6 @@ from starknet_py.net.gateway_client import GatewayClient, Network
 from starknet_py.net.models import StarknetChainId
 from starknet_py.net.models.transaction import DeployAccount
 
-from protostar.cli.protostar_arg_type import ProtostarParserFactory
 from protostar.configuration_file import (
     ConfigurationFileV2Model,
     ConfigurationFileFactory,
@@ -19,7 +18,7 @@ from protostar.configuration_file import (
     ConfigurationTOMLContentBuilder,
 )
 from protostar.argument_parser import ArgumentParserFacade, CLIApp
-from protostar.cli import MessengerFactory
+from protostar.cli import create_map_protostar_type_name_to_parser, MessengerFactory
 from protostar.commands import (
     BuildCommand,
     CalculateAccountAddressCommand,
@@ -557,7 +556,7 @@ def build_protostar_fixture(
     )
     parser = ArgumentParserFacade(
         cli_app,
-        parser_factory=ProtostarParserFactory(
+        parser_resolver=create_map_protostar_type_name_to_parser(
             ContractSourceIdentifierFactory(configuration_file)
         ),
     )

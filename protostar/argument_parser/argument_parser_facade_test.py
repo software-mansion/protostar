@@ -185,10 +185,7 @@ def test_loading_default_values_from_provider():
     )
 
     result = ArgumentParserFacade(
-        app,
-        config_file_argument_value_resolver=FakeConfigFileArgumentResolver(
-            argument_value="FOOBAR"
-        ),
+        app, FakeConfigFileArgumentResolver(argument_value="FOOBAR")
     ).parse([fake_cmd.name])
 
     assert result.foo == "FOOBAR"
@@ -229,10 +226,7 @@ def test_loading_required_value_from_provider():
     fake_value = "FAKE_VALUE"
 
     parser = ArgumentParserFacade(
-        app,
-        config_file_argument_value_resolver=FakeConfigFileArgumentResolver(
-            argument_value=fake_value
-        ),
+        app, FakeConfigFileArgumentResolver(argument_value=fake_value)
     )
 
     result = parser.parse(["fake-cmd"])
@@ -281,9 +275,8 @@ def test_parsing_extra_arguments_source(value_in_config_file: Any, result: Any):
         parser_called = True
         return int(arg)
 
-    class FakeParserFactory:
-        def create(self, _argument_type: ArgTypeName):
-            return parse_to_int
+    def fake_parser_resolver(_argument_type: ArgTypeName):
+        return parse_to_int
 
     parser = ArgumentParserFacade(
         CLIApp(
@@ -302,7 +295,7 @@ def test_parsing_extra_arguments_source(value_in_config_file: Any, result: Any):
         config_file_argument_value_resolver=FakeConfigFileArgumentResolver(
             argument_value=value_in_config_file
         ),
-        parser_factory=FakeParserFactory(),
+        parser_resolver=fake_parser_resolver,
     )
 
     args = parser.parse("")

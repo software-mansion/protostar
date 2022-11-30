@@ -1,15 +1,53 @@
 from argparse import ArgumentParser, Namespace, RawTextHelpFormatter, _SubParsersAction
-from typing import Any, Generic, List, Optional, Sequence, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Generic,
+    List,
+    Optional,
+    Protocol,
+    Sequence,
+    Tuple,
+    TypeVar,
+    Union,
+)
 
 from protostar.protostar_exception import ProtostarException
 
 from .unparser import unparse_arguments_from_external_source
-from .types import ParserFactoryProtocol, ArgTypeNameT_contra
-from .arg_type import StandardParserFactory
+from .arg_type import ArgTypeName, map_type_name_to_parser
 from .argument import Argument
 from .cli_app import CLIApp
 from .command import Command
 from .config_file_argument_resolver import ConfigFileArgumentResolverProtocol
+
+ArgTypeNameT_contra = TypeVar(
+    "ArgTypeNameT_contra", bound=ArgTypeName, contravariant=True
+)
+
+
+def parse_collection_arg(arg: list[Union[int, dict[str, Any]]]):
+    arg_type: Optional[type] = None
+    result = arg
+    for input_item in result:
+        if arg_type is None:
+            arg_type = type(input_item)
+            continue
+        if not isinstance(input_item, arg_type):
+            raise InconsistentInputTypesException()
+
+    if arg_type == dict:
+        parsed = {}
+        for arg_item in result:
+            assert isinstance(arg_item, dict)
+            parsed.update(dict(arg_item))
+        result = parsed
+    return result
+
+
+class ParserResolverProtocol(Protocol, Generic[ArgTypeNameT_contra]):
+    def __call__(self, argument_type: ArgTypeNameT_contra) -> Callable[[str], Any]:
+        ...
 
 
 class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
@@ -18,10 +56,12 @@ class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
     def __init__(
         self,
         cli_app: CLIApp,
-        parser_factory: Optional[ParserFactoryProtocol[ArgTypeNameT_contra]] = None,
         config_file_argument_value_resolver: Optional[
             ConfigFileArgumentResolverProtocol
         ] = None,
+        parser_resolver: ParserResolverProtocol[
+            ArgTypeNameT_contra
+        ] = map_type_name_to_parser,
         disable_help: bool = False,
     ) -> None:
         self.argument_parser = ArgumentParser(
@@ -30,7 +70,7 @@ class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
         self.command_parsers: Optional[_SubParsersAction] = None
         self.cli_app = cli_app
         self._config_file_argument_value_resolver = config_file_argument_value_resolver
-        self._parser_factory = parser_factory or StandardParserFactory()
+        self._parser_resolver = parser_resolver
         self._setup_parser()
 
     def parse(
@@ -168,7 +208,7 @@ class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
             )
             if unparsed_values is None:
                 return argument
-            parse_arg = self._parser_factory.create(argument.type)
+            parse_arg = self._parser_resolver(argument.type)
             parsed_values = [parse_arg(val) for val in unparsed_values]
             new_default = parsed_values
             if argument.value_parser == "single_element":
@@ -201,7 +241,7 @@ class ArgumentParserFacade(Generic[ArgTypeNameT_contra]):
             )
             return argument_parser
 
-        parse_arg = self._parser_factory.create(argument.type)
+        parse_arg = self._parser_resolver(argument.type)
 
         default = argument.default
 
@@ -240,22 +280,3 @@ class InconsistentInputTypesException(ProtostarException):
     def __init__(self) -> None:
         self.message = "Mixing positional and keyword arguments is not allowed"
         super().__init__(self.message)
-
-
-def parse_collection_arg(arg: list[Union[int, dict[str, Any]]]):
-    arg_type: Optional[type] = None
-    result = arg
-    for input_item in result:
-        if arg_type is None:
-            arg_type = type(input_item)
-            continue
-        if not isinstance(input_item, arg_type):
-            raise InconsistentInputTypesException()
-
-    if arg_type == dict:
-        parsed = {}
-        for arg_item in result:
-            assert isinstance(arg_item, dict)
-            parsed.update(dict(arg_item))
-        result = parsed
-    return result

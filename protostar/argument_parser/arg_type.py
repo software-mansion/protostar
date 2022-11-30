@@ -1,24 +1,30 @@
 import re
 from pathlib import Path
 from re import Pattern
-from typing import Any, Callable
+from typing import Any, Callable, Literal
 
-from .types import ParserFactoryProtocol, ArgTypeName
+ArgTypeName = Literal[
+    "str",
+    "directory",
+    "path",
+    "bool",
+    "regexp",
+    "int",
+]
 
 
-class StandardParserFactory(ParserFactoryProtocol[ArgTypeName]):
-    def create(self, argument_type: ArgTypeName) -> Callable[[str], Any]:
-        type_name_to_parser_mapping: dict[ArgTypeName, Callable[[str], Any]] = {
-            "str": str,
-            "bool": parse_bool_arg_type,
-            "int": int,
-            "directory": parse_directory_arg_type,
-            "regexp": re.compile,
-            "path": Path,
-        }
-        if argument_type in type_name_to_parser_mapping:
-            return type_name_to_parser_mapping[argument_type]
-        assert False, f"Unknown argument type {argument_type}"
+def map_type_name_to_parser(argument_type: ArgTypeName) -> Callable[[str], Any]:
+    type_name_to_parser_mapping: dict[ArgTypeName, Callable[[str], Any]] = {
+        "str": str,
+        "bool": parse_bool_arg_type,
+        "int": int,
+        "directory": parse_directory_arg_type,
+        "regexp": re.compile,
+        "path": Path,
+    }
+    if argument_type in type_name_to_parser_mapping:
+        return type_name_to_parser_mapping[argument_type]
+    assert False, f"Unknown argument type {argument_type}"
 
 
 def parse_bool_arg_type(arg: str) -> bool:
