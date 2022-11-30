@@ -75,7 +75,6 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
         has_failed = False
         try:
             self._setup_logger(args.no_color)
-            self._check_git_version()
             if args.command is not None and args.command != "init":
                 self._warn_if_compatibility_issues_detected()
             await self._run_command_from_args(args)
@@ -103,13 +102,6 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
         standard_log_formatter = StandardLogFormatter(self._log_color_provider)
         handler.setFormatter(standard_log_formatter)
         logging.basicConfig(level=INFO, handlers=[handler])
-
-    def _check_git_version(self):
-        git_version = self._version_manager.git_version
-        if git_version and git_version < VersionManager.parse("2.28"):
-            raise ProtostarException(
-                f"Protostar requires version 2.28 or greater of Git (current version: {git_version})"
-            )
 
     async def _run_command_from_args(self, args: Any) -> None:
         if args.version:

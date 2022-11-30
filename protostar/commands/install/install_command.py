@@ -95,7 +95,7 @@ class InstallCommand(ProtostarCommand):
             install_package_from_repo(
                 alias or package_info.name,
                 package_info.url,
-                repo_dir=self._project_root_path,
+                project_root_path=self._project_root_path,
                 destination=libs_path,
                 tag=package_info.version,
             )

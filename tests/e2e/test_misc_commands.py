@@ -33,7 +33,6 @@ def test_init(init_project: ProjectInitializer, project_name: str):
     dirs = listdir(project_name)
 
     assert "protostar.toml" in dirs
-    assert ".git" in dirs
 
 
 def test_init_existing(protostar_bin: Path):
@@ -42,7 +41,6 @@ def test_init_existing(protostar_bin: Path):
     dirs = listdir(".")
 
     assert "protostar.toml" in dirs
-    assert ".git" in dirs
 
 
 def test_init_ask_existing(protostar_bin: Path):
@@ -55,7 +53,6 @@ def test_init_ask_existing(protostar_bin: Path):
 
     dirs = listdir(".")
     assert "protostar.toml" in dirs
-    assert ".git" in dirs
 
 
 @pytest.mark.usefixtures("init")
