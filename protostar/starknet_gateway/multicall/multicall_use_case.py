@@ -1,5 +1,3 @@
-from protostar.architecture import UseCase
-
 from .multicall_input import MulticallInput
 from .multicall_output import MulticallOutput
 from .multicall_protocols import (
@@ -10,7 +8,7 @@ from .multicall_protocols import (
 from .call_resolver import CallResolver
 
 
-class MulticallUseCase(UseCase[MulticallInput, MulticallOutput]):
+class MulticallUseCase:
     def __init__(
         self,
         client: MulticallClientProtocol,
@@ -22,7 +20,7 @@ class MulticallUseCase(UseCase[MulticallInput, MulticallOutput]):
         self._client = client
         self._call_resolver = call_resolver
 
-    async def execute(self, data: MulticallInput):
+    async def execute(self, data: MulticallInput) -> MulticallOutput:
         resolved_calls = await self._call_resolver.resolve(data.calls)
         unsigned_tx = UnsignedMulticallTransaction(calls=resolved_calls)
         signed_transaction = await self._account_manager.sign_invoke_transaction(
