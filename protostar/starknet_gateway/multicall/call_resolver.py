@@ -11,6 +11,7 @@ from .multicall_structs import (
     InvokeCall,
     DeployCall,
     DeployCallName,
+    MulticallInputCalldata,
     ResolvedCall,
 )
 
@@ -50,7 +51,7 @@ class CallResolver:
     def _resolve_invoke_call(self, invoke_call: InvokeCall) -> ResolvedCall:
         return ResolvedCall(
             address=self._resolve_address(invoke_call.address),
-            calldata=invoke_call.calldata,
+            calldata=self._resolve_calldata(invoke_call.calldata),
             selector=invoke_call.selector,
         )
 
@@ -63,6 +64,17 @@ class CallResolver:
         if name not in self._deploy_call_name_to_address:
             raise UnknownNameException(message=f"Couldn't resolve name: {name}")
         return self._deploy_call_name_to_address[name]
+
+    def _resolve_calldata(self, calldata: MulticallInputCalldata) -> list[int]:
+        result: list[int] = []
+        for value in calldata:
+            if isinstance(value, int):
+                result.append(value)
+                continue
+            if value not in self._deploy_call_name_to_address:
+                raise UnknownNameException(message=f"Couldn't resolve name: {value}")
+            result.append(int(self._deploy_call_name_to_address[value]))
+        return result
 
 
 class UnknownNameException(ProtostarException):

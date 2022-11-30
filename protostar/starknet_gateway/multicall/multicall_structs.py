@@ -3,13 +3,14 @@ from typing import Optional, Union
 
 from protostar.starknet import Address, Selector
 
+DeployCallName = str
+
+MulticallInputCalldata = list[Union[int, DeployCallName]]
+
 
 @dataclass(frozen=True)
 class CallBase:
-    calldata: list[int]
-
-
-DeployCallName = str
+    calldata: MulticallInputCalldata
 
 
 @dataclass(frozen=True)
