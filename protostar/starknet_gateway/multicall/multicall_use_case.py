@@ -1,5 +1,4 @@
-from .multicall_input import MulticallInput
-from .multicall_output import MulticallOutput
+from .multicall_structs import MulticallInput, MulticallOutput
 from .multicall_protocols import (
     MulticallClientProtocol,
     UnsignedMulticallTransaction,
@@ -26,4 +25,8 @@ class MulticallUseCase:
         signed_transaction = await self._account_manager.sign_multicall_transaction(
             unsigned_tx
         )
-        return await self._client.send_multicall_transaction(signed_transaction)
+        response = await self._client.send_multicall_transaction(signed_transaction)
+        return MulticallOutput(
+            transaction_hash=response.transaction_hash,
+            deployed_contract_addresses=self._call_resolver.get_deploy_call_name_to_address(),
+        )

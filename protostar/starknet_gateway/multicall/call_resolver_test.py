@@ -3,7 +3,7 @@ import pytest
 from protostar.starknet import Address, Selector
 
 from .call_resolver import CallResolver, UnknownNameException
-from .multicall_input import DeployCall, InvokeCall
+from .multicall_structs import DeployCall, InvokeCall
 
 
 async def test_resolving_deploy_and_invoke():

@@ -1,32 +1,14 @@
 from abc import abstractmethod
-from dataclasses import dataclass
 
 from typing_extensions import Protocol
 
-from protostar.starknet import Address, Selector
+from protostar.starknet import Address
 
-from .multicall_output import MulticallOutput
-
-
-@dataclass
-class ResolvedCall:
-    address: Address
-    selector: Selector
-    calldata: list[int]
-
-
-@dataclass
-class UnsignedMulticallTransaction:
-    calls: list[ResolvedCall]
-
-
-@dataclass
-class SignedMulticallTransaction:
-    contract_address: Address
-    calldata: list[int]
-    max_fee: int
-    nonce: int
-    signature: list[int]
+from .multicall_structs import (
+    SignedMulticallTransaction,
+    MulticallClientResponse,
+    UnsignedMulticallTransaction,
+)
 
 
 class MulticallAccountManagerProtocol(Protocol):
@@ -45,5 +27,5 @@ class MulticallClientProtocol(Protocol):
     @abstractmethod
     async def send_multicall_transaction(
         self, transaction: SignedMulticallTransaction
-    ) -> MulticallOutput:
+    ) -> MulticallClientResponse:
         ...
