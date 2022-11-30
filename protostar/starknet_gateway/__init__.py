@@ -23,4 +23,4 @@ from .contract_function_factory import (
     ContractNotFoundException,
     UnknownFunctionException,
 )
-from .account_manager import AccountManager
+from .account_manager import AccountManager, Account

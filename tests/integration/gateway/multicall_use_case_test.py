@@ -6,13 +6,13 @@ from starknet_py.net.models import StarknetChainId
 
 from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.starknet import Selector
+from protostar.starknet_gateway import Account, AccountManager, GatewayFacade
 from protostar.starknet_gateway.multicall import (
     MulticallUseCase,
     DeployCall,
     InvokeCall,
     MulticallInput,
 )
-from protostar.starknet_gateway import AccountManager, GatewayFacade
 from tests._conftest.devnet import DevnetFixture
 from tests.conftest import SetPrivateKeyEnvVarFixture
 from tests.integration.conftest import CreateProtostarProjectFixture
@@ -43,9 +43,11 @@ async def test_multicall_use_case_happy_case(
 ):
     account = devnet.get_predeployed_accounts()[0]
     account_manager = AccountManager(
-        private_key=int(account.private_key, base=0),
-        signer=account.signer,
-        address=account.address,
+        account=Account(
+            address=account.address,
+            signer=account.signer,
+            private_key=int(account.private_key, base=0),
+        ),
         gateway_url=devnet.get_gateway_url(),
         max_fee="auto",
     )
