@@ -2,8 +2,12 @@ import sys
 from copy import copy
 from typing import Any
 
+from protostar.rust_monkey import monkeypatch_rust_vm
+monkeypatch_rust_vm()
+
 from crypto_cpp_py.cpp_bindings import cpp_hash
 from starkware.starknet.services.api.contract_class import ContractClass
+
 
 
 def patched_pedersen_hash(left: int, right: int) -> int:

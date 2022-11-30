@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, List, Optional, Tuple, cast
 from copy import deepcopy
 
+import cairo_rs_py
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.compiler.debug_info import DebugInfo
 from starkware.cairo.lang.compiler.program import Program
@@ -50,6 +51,7 @@ from protostar.profiler.contract_profiler import (
 )
 from protostar.profiler.pprof import serialize, to_protobuf
 from protostar.profiler.transaction_profiler import merge_profiles
+from protostar.rust_monkey import monkeypatch_rust_vm
 from protostar.starknet.cheatable_cached_state import CheatableCachedState
 from protostar.starknet.cheatable_cairo_function_runner import (
     CheatableCairoFunctionRunner,
@@ -121,9 +123,11 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         # Run the specified contract entry point with given calldata.
         with wrap_with_stark_exception(code=StarknetErrorCode.SECURITY_ERROR):
             # region Modified Starknet code.
-            runner = CheatableCairoFunctionRunner(
-                program=contract_class.program, layout="all"
-            )
+            # runner = CheatableCairoFunctionRunner(
+            #     program=contract_class.program, layout="all"
+            # )
+            runner = cairo_rs_py.CairoRunner(program=contract_class.program.dumps(), entrypoint=None, layout="all", proof_mode=False) #type: ignore
+            runner.initialize_function_runner()
             # endregion
 
         os_context = os_utils.prepare_os_context(runner=runner)
@@ -181,9 +185,10 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             len(self.calldata),
             # Allocate and mark the segment as read-only (to mark every input array as read-only).
             # pylint: disable=protected-access
-            syscall_handler._allocate_segment(
-                segments=runner.segments, data=self.calldata
-            ),
+            # syscall_handler._allocate_segment(
+            #     segments=runner.segments, data=self.calldata
+            # ),
+            syscall_handler._allocate_segment(segments=runner, data=self.calldata),
         ]
 
         # region Modified Starknet code.
@@ -194,21 +199,22 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         try:
             runner.run_from_entrypoint(
                 entry_point.offset,
-                *entry_points_args,
+                # *entry_points_args,
+                entry_points_args,
                 # region Modified Starknet code.
                 hint_locals={
                     **hint_locals,
                     "syscall_handler": syscall_handler,
                 },
                 # endregion
-                static_locals={
-                    "__find_element_max_size": 2**20,
-                    "__squash_dict_max_size": 2**20,
-                    "__keccak_max_size": 2**20,
-                    "__usort_max_size": 2**20,
-                    "__chained_ec_op_max_len": 1000,
-                },
-                run_resources=tx_execution_context.run_resources,
+                # static_locals={
+                #     "__find_element_max_size": 2**20,
+                #     "__squash_dict_max_size": 2**20,
+                #     "__keccak_max_size": 2**20,
+                #     "__usort_max_size": 2**20,
+                #     "__chained_ec_op_max_len": 1000,
+                # },
+                # run_resources=tx_execution_context.run_resources,
                 verify_secure=True,
             )
 
@@ -254,11 +260,12 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         )
 
         # When execution starts the stack holds entry_points_args + [ret_fp, ret_pc].
-        args_ptr = runner.initial_fp - (len(entry_points_args) + 2)
+        # args_ptr = runner.initial_fp - (len(entry_points_args) + 2)
+        args_ptr = runner.get_initial_fp() - (len(entry_points_args) + 2)
 
         # The arguments are touched by the OS and should not be counted as holes, mark them
         # as accessed.
-        assert isinstance(args_ptr, RelocatableValue)  # Downcast.
+        # assert isinstance(args_ptr, RelocatableValue)  # Downcast.
         runner.mark_as_accessed(address=args_ptr, size=len(entry_points_args))
 
         # region Modified Starknet code.
