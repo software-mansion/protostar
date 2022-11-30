@@ -1,5 +1,4 @@
 from protostar.architecture import UseCase
-from protostar.starknet.selector import Selector
 
 from .multicall_input import MulticallInput
 from .multicall_output import MulticallOutput

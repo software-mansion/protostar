@@ -8,4 +8,3 @@ from .multicall_protocols import (
     ResolvedCall,
 )
 from .call_resolver import CallResolver
-from .resolved_calls_to_calldata_converter import ResolvedCallsToCalldataConverter

@@ -12,7 +12,6 @@ from protostar.starknet_gateway.multicall import (
     InvokeCall,
     MulticallInput,
     CallResolver,
-    ResolvedCallsToCalldataConverter,
 )
 from protostar.starknet_gateway import AccountManager, GatewayFacade
 from tests._conftest.devnet import DevnetFixture
