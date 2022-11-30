@@ -34,7 +34,7 @@ from protostar.starknet_gateway.gateway_response import (
 from protostar.starknet import Address
 from protostar.starknet_gateway.multicall.multicall_output import MulticallOutput
 from protostar.starknet_gateway.multicall.multicall_protocols import (
-    InvokeSignedTransaction,
+    SignedMulticallTransaction,
     MulticallClientProtocol,
 )
 
@@ -365,7 +365,7 @@ class GatewayFacade(MulticallClientProtocol):
         return await ContractFunctionFactory(client).create(address, function_name)
 
     async def send_multicall_transaction(
-        self, transaction: InvokeSignedTransaction
+        self, transaction: SignedMulticallTransaction
     ) -> MulticallOutput:
         result = await self._gateway_client.send_transaction(
             transaction=InvokeFunction(

@@ -21,30 +21,29 @@ class UnsignedMulticallTransaction:
 
 
 @dataclass
-class InvokeSignedTransaction:
+class SignedMulticallTransaction:
     contract_address: Address
-    # selector: Selector
     calldata: list[int]
     max_fee: int
     nonce: int
     signature: list[int]
 
 
-class AccountManagerProtocol(Protocol):
+class MulticallAccountManagerProtocol(Protocol):
     @abstractmethod
     def get_account_address(self) -> Address:
         ...
 
     @abstractmethod
-    async def sign_invoke_transaction(
+    async def sign_multicall_transaction(
         self, unsigned_transaction: UnsignedMulticallTransaction
-    ) -> InvokeSignedTransaction:
+    ) -> SignedMulticallTransaction:
         ...
 
 
 class MulticallClientProtocol(Protocol):
     @abstractmethod
     async def send_multicall_transaction(
-        self, transaction: InvokeSignedTransaction
+        self, transaction: SignedMulticallTransaction
     ) -> MulticallOutput:
         ...

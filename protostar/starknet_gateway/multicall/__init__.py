@@ -3,8 +3,8 @@ from .multicall_input import InvokeCall, DeployCall, CallBase, MulticallInput
 from .multicall_output import MulticallOutput
 from .multicall_protocols import (
     MulticallClientProtocol,
-    AccountManagerProtocol,
-    InvokeSignedTransaction,
+    MulticallAccountManagerProtocol,
+    SignedMulticallTransaction,
     ResolvedCall,
 )
 from .call_resolver import CallResolver

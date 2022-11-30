@@ -3,16 +3,16 @@ from starknet_py.net import AccountClient, KeyPair
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.client_models import Call as SNCall
 
-from protostar.starknet import Address, Selector
+from protostar.starknet import Address
 from protostar.starknet_gateway.gateway_facade import Fee
 from protostar.starknet_gateway.multicall.multicall_protocols import (
     UnsignedMulticallTransaction,
 )
 
-from .multicall import InvokeSignedTransaction, AccountManagerProtocol
+from .multicall import SignedMulticallTransaction, MulticallAccountManagerProtocol
 
 
-class AccountManager(AccountManagerProtocol):
+class AccountManager(MulticallAccountManagerProtocol):
     def __init__(
         self,
         private_key: int,
@@ -36,9 +36,9 @@ class AccountManager(AccountManagerProtocol):
     def get_account_address(self):
         return Address(self._account_client.address)
 
-    async def sign_invoke_transaction(
+    async def sign_multicall_transaction(
         self, unsigned_transaction: UnsignedMulticallTransaction
-    ) -> InvokeSignedTransaction:
+    ) -> SignedMulticallTransaction:
         tx = await self._account_client.sign_invoke_transaction(
             calls=[
                 SNCall(
@@ -53,9 +53,8 @@ class AccountManager(AccountManagerProtocol):
             version=self._account_client.supported_tx_version,
         )
         assert tx.nonce is not None
-        return InvokeSignedTransaction(
+        return SignedMulticallTransaction(
             contract_address=Address(tx.contract_address),
-            # selector=Selector(tx.entry_point_selector),
             calldata=tx.calldata,
             max_fee=tx.max_fee,
             nonce=tx.nonce,
