@@ -149,6 +149,7 @@ def account_with_validate_deploy_compiled_contract_fixture() -> str:
 def devnet_fixture(
     devnet_gateway_url: str,
     devnet_account: DevnetAccount,
+    devnet_accounts: list[DevnetAccount],
     account_with_validate_deploy_compiled_contract: str,
 ) -> DevnetFixture:
     gateway_client = GatewayClient(
@@ -176,6 +177,7 @@ def devnet_fixture(
     return DevnetFixture(
         devnet_account_preparator=account_preparator,
         devnet_gateway_url=devnet_gateway_url,
+        predeployed_accounts=devnet_accounts,
     )
 
 
