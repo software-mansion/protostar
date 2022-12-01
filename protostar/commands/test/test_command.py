@@ -155,7 +155,7 @@ A glob or globs to a directory or a test suite, for example:
             ProtostarArgument(
                 name="estimate-gas",
                 type="bool",
-                description=("Show gas estimation for each test case."),
+                description="Show gas estimation for each test case. Estimations might be inaccurate.",
             ),
         ]
 
