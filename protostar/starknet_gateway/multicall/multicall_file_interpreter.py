@@ -1,31 +1,43 @@
-from dataclasses import dataclass
-from typing import Literal, cast
+from typing import Literal, Union, cast
 
 import tomlkit as toml
 from typing_extensions import TypedDict
 from tomlkit.items import AoT
 
+from protostar.starknet import Address, RawAddress, Selector
+
 from .multicall_structs import CallBase, InvokeCall, DeployCall
 
-
-@dataclass
-class RawCall(TypedDict):
-    type: Literal["invoke", "deploy"]
+Variable = str
 
 
-@dataclass
-class DeployRawCall(RawCall):
-    id: str
+DeployRawCall = TypedDict(
+    "DeployRawCall",
+    {
+        "type": Literal["deploy"],
+        "id": str,
+        "calldata": list[Union[int, Variable]],
+        "class-hash": int,
+    },
+)
+
+InvokeRawCall = TypedDict(
+    "InvokeRawCall",
+    {
+        "type": Literal["invoke"],
+        "calldata": list[Union[int, Variable]],
+        "contract-address": Union[RawAddress, Variable],
+        "entrypoint-name": str,
+    },
+)
 
 
-@dataclass
-class InvokeRawCall(RawCall):
-    pass
+RawCall = Union[DeployRawCall, InvokeRawCall]
 
 
 def interpret_multicall_file_content(toml_content: str) -> list[CallBase]:
     raw_calls = parse_toml_multicall(toml_content)
-    return []
+    return [map_raw_call_to_call_base(raw_call) for raw_call in raw_calls]
 
 
 def parse_toml_multicall(toml_content: str) -> list[RawCall]:
@@ -37,7 +49,15 @@ def parse_toml_multicall(toml_content: str) -> list[RawCall]:
 
 def map_raw_call_to_call_base(raw_call: RawCall) -> CallBase:
     if raw_call["type"] == "invoke":
-        return InvokeCall(address=Address())
+        return InvokeCall(
+            address=Address.from_user_input(raw_call["contract-address"]),
+            calldata=raw_call["calldata"],
+            selector=Selector(raw_call["entrypoint-name"]),
+        )
     if raw_call["type"] == "deploy":
-        return DeployCall()
+        return DeployCall(
+            name=raw_call["id"],
+            calldata=raw_call["calldata"],
+            class_hash=raw_call["class-hash"],
+        )
     assert False, "Unknown call type"

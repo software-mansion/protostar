@@ -8,14 +8,14 @@ def test_foo():
     file_content = dedent(
         """
         [[call]]
+        id = "A"
         type = "deploy"
-        name = "A"
         class-hash = 0x123
         calldata = [1]
 
         [[call]]
         type = "invoke"
-        contract-address = "A"
+        contract-address = "$A"
         entrypoint-name = "increase_balance"
         calldata = [42]
     """

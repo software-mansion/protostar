@@ -5,7 +5,6 @@ from protostar.starknet import Address, Selector
 from protostar.starknet_gateway.types import Fee
 
 DeployCallName = str
-
 MulticallInputCalldata = list[Union[int, DeployCallName]]
 
 
