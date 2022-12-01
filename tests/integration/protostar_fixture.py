@@ -43,8 +43,7 @@ from protostar.self.protostar_compatibility_with_project_checker import (
     parse_protostar_version,
 )
 from protostar.self.protostar_directory import ProtostarDirectory
-from protostar.starknet_gateway import Fee, GatewayFacade, GatewayFacadeFactory
-from protostar.starknet_gateway.gateway_facade import Wei
+from protostar.starknet_gateway import Fee, GatewayFacade, GatewayFacadeFactory, Wei
 from protostar.testing import TestingSummary
 from protostar.starknet import Address
 from protostar.starknet.data_transformer import CairoOrPythonData

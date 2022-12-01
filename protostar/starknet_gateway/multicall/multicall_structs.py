@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Optional, Union
 
 from protostar.starknet import Address, Selector
-from protostar.starknet_gateway.gateway_facade import Fee
+from protostar.starknet_gateway.types import Fee
 
 DeployCallName = str
 

@@ -1,6 +1,6 @@
 import dataclasses
 from pathlib import Path
-from typing import Any, Dict, List, Literal, NamedTuple, Optional, TypeVar, Union
+from typing import NamedTuple, Optional, TypeVar, Union
 
 from starknet_py.contract import ContractFunction, InvokeResult
 from starknet_py.net import AccountClient
@@ -40,13 +40,7 @@ from protostar.starknet_gateway.multicall.multicall_protocols import (
 
 from .contract_function_factory import ContractFunctionFactory
 from ..starknet.abi import has_abi_item
-
-ContractFunctionInputType = Union[List[int], Dict[str, Any]]
-
-
-Wei = int
-Fee = Union[Wei, Literal["auto"]]
-ClassHash = int
+from .types import ClassHash, ContractFunctionInputType, Fee, Wei
 
 
 @dataclasses.dataclass

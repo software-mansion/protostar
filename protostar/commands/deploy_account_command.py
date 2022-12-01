@@ -21,7 +21,8 @@ from protostar.cli.network_command_util import NetworkArgs
 from protostar.io import StructuredMessage, LogColorProvider
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway import GatewayFacadeFactory
-from protostar.starknet_gateway.gateway_facade import ClassHash, DeployAccountArgs, Fee
+from protostar.starknet_gateway.gateway_facade import DeployAccountArgs
+from protostar.starknet_gateway.types import ClassHash, Fee
 from protostar.starknet_gateway.gateway_response import SuccessfulDeployAccountResponse
 from protostar.starknet import Address
 
