@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Optional, Union
 
 from protostar.starknet import Address, Selector
-from protostar.starknet_gateway.types import Fee
+from protostar.starknet_gateway import Fee
 
 
 @dataclass(frozen=True, eq=True)

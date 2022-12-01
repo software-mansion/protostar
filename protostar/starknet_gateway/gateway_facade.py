@@ -19,6 +19,7 @@ from starknet_py.utils.data_transformer.errors import CairoSerializerException
 from starkware.starknet.public.abi import AbiType
 from typing_extensions import Self, TypeGuard
 
+from protostar.starknet.abi import has_abi_item
 from protostar.compiler import CompiledContractReader
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet.data_transformer import CairoOrPythonData
@@ -39,8 +40,7 @@ from protostar.starknet_gateway.multicall.multicall_protocols import (
 )
 
 from .contract_function_factory import ContractFunctionFactory
-from ..starknet.abi import has_abi_item
-from .types import ClassHash, ContractFunctionInputType, Fee, Wei
+from .type import ClassHash, ContractFunctionInputType, Fee
 
 
 @dataclasses.dataclass

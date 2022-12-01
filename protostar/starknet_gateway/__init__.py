@@ -10,7 +10,7 @@ from .gateway_facade import (
     InputValidationException,
     FeeExceededMaxFeeException,
 )
-from .types import Wei, ClassHash, ContractFunctionInputType, Fee
+from .type import Wei, ClassHash, ContractFunctionInputType, Fee
 from .block_explorer import (
     SUPPORTED_BLOCK_EXPLORER_NAMES,
     SupportedBlockExplorerName,
