@@ -6,7 +6,7 @@ from tomlkit.items import AoT
 
 from protostar.starknet import Address, RawAddress, Selector
 
-from .multicall_structs import CallBase, InvokeCall, DeployCall
+from .multicall_structs import Call, InvokeCall, DeployCall
 
 Variable = str
 
@@ -35,7 +35,7 @@ InvokeRawCall = TypedDict(
 RawCall = Union[DeployRawCall, InvokeRawCall]
 
 
-def interpret_multicall_file_content(toml_content: str) -> list[CallBase]:
+def interpret_multicall_file_content(toml_content: str) -> list[Call]:
     raw_calls = parse_toml_multicall(toml_content)
     return [map_raw_call_to_call_base(raw_call) for raw_call in raw_calls]
 
@@ -47,7 +47,7 @@ def parse_toml_multicall(toml_content: str) -> list[RawCall]:
     return cast(list[RawCall], call_aot.value)
 
 
-def map_raw_call_to_call_base(raw_call: RawCall) -> CallBase:
+def map_raw_call_to_call_base(raw_call: RawCall) -> Call:
     if raw_call["type"] == "invoke":
         return InvokeCall(
             address=Address.from_user_input(raw_call["contract-address"]),

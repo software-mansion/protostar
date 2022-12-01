@@ -9,20 +9,20 @@ MulticallInputCalldata = list[Union[int, DeployCallName]]
 
 
 @dataclass(frozen=True)
-class CallBase:
+class InvokeCall:
+    address: Union[DeployCallName, Address]
+    selector: Selector
     calldata: MulticallInputCalldata
 
 
 @dataclass(frozen=True)
-class InvokeCall(CallBase):
-    address: Union[DeployCallName, Address]
-    selector: Selector
-
-
-@dataclass(frozen=True)
-class DeployCall(CallBase):
+class DeployCall:
     class_hash: int
+    calldata: MulticallInputCalldata
     name: Optional[DeployCallName] = None
+
+
+Call = Union[DeployCall, InvokeCall]
 
 
 @dataclass(frozen=True)
@@ -54,7 +54,7 @@ class MulticallClientResponse:
 
 @dataclass(frozen=True)
 class MulticallInput:
-    calls: list[CallBase]
+    calls: list[Call]
     max_fee: Fee
 
 

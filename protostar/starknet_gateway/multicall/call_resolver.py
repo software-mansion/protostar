@@ -7,7 +7,7 @@ from protostar.starknet import Address
 from protostar.starknet.selector import Selector
 
 from .multicall_structs import (
-    CallBase,
+    Call,
     InvokeCall,
     DeployCall,
     DeployCallName,
@@ -21,13 +21,13 @@ class CallResolver:
         self._deploy_call_name_to_address: dict[DeployCallName, Address] = {}
         self._deployer = Deployer()
 
-    async def resolve(self, calls: list[CallBase]) -> list[ResolvedCall]:
+    async def resolve(self, calls: list[Call]) -> list[ResolvedCall]:
         return [self._resolve_single_call(call) for call in calls]
 
     def get_deploy_call_name_to_address(self) -> dict[DeployCallName, Address]:
         return self._deploy_call_name_to_address
 
-    def _resolve_single_call(self, call: CallBase) -> ResolvedCall:
+    def _resolve_single_call(self, call: Call) -> ResolvedCall:
         if isinstance(call, DeployCall):
             return self._resolve_deploy_call(call)
         if isinstance(call, InvokeCall):
