@@ -5,7 +5,7 @@ sidebar_label: Installation
 # Installation
 
 ## Requirements
-Protostar requires a [git](https://git-scm.com/) executable (>= 2.28) to be specified in the `$PATH`.
+Protostar requires a [git](https://git-scm.com/) executable to be specified in the `$PATH`.
 
 ## Linux and Mac
 1. Copy and run in a terminal the following command:
