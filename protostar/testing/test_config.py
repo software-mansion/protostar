@@ -87,17 +87,17 @@ class TestMode(Enum):
 
 
 @dataclass
+# pylint: disable=too-many-instance-attributes
 class TestConfig:
     mode: TestMode = TestMode.UNDETERMINED
     seed: Seed = field(default_factory=random_seed)
     profiling: bool = True
     max_steps: Optional[int] = None
-
+    gas_estimation_enabled: Optional[bool] = False
     fuzz_max_examples: int = 100
     fuzz_declared_strategies: dict[str, StrategyDescriptor] = field(
         default_factory=dict
     )
-
     fuzz_examples: list[PythonData] = field(default_factory=list)
 
     def convert_mode_to(self, to_mode: TestMode):

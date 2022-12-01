@@ -14,3 +14,5 @@ from .storage_var import calc_address
 from .types import ClassHashType, SelectorType
 from .address import Address, RawAddress
 from .selector import Selector
+from .contract import estimate_gas, execute_on_state
+from .execution_state import ExecutionState

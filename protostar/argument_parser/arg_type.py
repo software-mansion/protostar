@@ -10,6 +10,7 @@ ArgTypeName = Literal[
     "bool",
     "regexp",
     "int",
+    "float",
 ]
 
 
@@ -18,6 +19,7 @@ def map_type_name_to_parser(argument_type: ArgTypeName) -> Callable[[str], Any]:
         "str": str,
         "bool": parse_bool_arg_type,
         "int": int,
+        "float": float,
         "directory": parse_directory_arg_type,
         "regexp": re.compile,
         "path": Path,

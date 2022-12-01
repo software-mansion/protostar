@@ -177,6 +177,10 @@ def _format_passed_fuzz_test_case_result(
         )
 
     if passed_fuzz_test_case_result.execution_resources:
+        if passed_fuzz_test_case_result.execution_resources.estimated_gas is not None:
+            info_items.append(
+                f"gas={log_color_provider.bold(passed_fuzz_test_case_result.execution_resources.estimated_gas)}"
+            )
         if passed_fuzz_test_case_result.execution_resources.n_steps:
             info_items.append(
                 f"steps={log_color_provider.bold(passed_fuzz_test_case_result.execution_resources.n_steps)}"

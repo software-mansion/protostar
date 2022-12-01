@@ -5,6 +5,7 @@ from typing import Dict, List
 
 from protostar.io.log_color_provider import LogColorProvider, log_color_provider
 from protostar.protostar_exception import ProtostarExceptionSilent
+
 from .test_results import (
     BrokenTestCaseResult,
     BrokenTestSuiteResult,

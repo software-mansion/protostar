@@ -152,6 +152,11 @@ A glob or globs to a directory or a test suite, for example:
                 type="bool",
                 description="Only re-run failed and broken test cases.",
             ),
+            ProtostarArgument(
+                name="estimate-gas",
+                type="bool",
+                description="Show gas estimation for each test case. Estimations might be inaccurate.",
+            ),
         ]
 
     async def run(self, args: Namespace) -> TestingSummary:
@@ -168,6 +173,7 @@ A glob or globs to a directory or a test suite, for example:
             seed=args.seed,
             max_steps=args.max_steps,
             slowest_tests_to_report_count=args.report_slowest_tests,
+            gas_estimation_enabled=args.estimate_gas,
         )
         cache.write_failed_tests_to_cache(summary)
         summary.assert_all_passed()
@@ -186,6 +192,7 @@ A glob or globs to a directory or a test suite, for example:
         seed: Optional[int] = None,
         max_steps: Optional[int] = None,
         slowest_tests_to_report_count: int = 0,
+        gas_estimation_enabled: bool = False,
     ) -> TestingSummary:
         include_paths = [
             str(path)
@@ -252,6 +259,7 @@ A glob or globs to a directory or a test suite, for example:
                 project_root_path_str=str(self._project_root_path),
                 active_profile_name=self._active_profile_name,
                 cwd=self._cwd,
+                gas_estimation_enabled=gas_estimation_enabled,
             )
 
         return testing_summary

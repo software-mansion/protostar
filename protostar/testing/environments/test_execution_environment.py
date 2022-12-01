@@ -14,6 +14,7 @@ from protostar.testing.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
 )
 from protostar.testing.starkware.test_execution_state import TestExecutionState
+from protostar.starknet import estimate_gas
 
 from .common_test_cheatcode_factory import CommonTestCheatcodeFactory
 from .execution_environment import ExecutionEnvironment
@@ -59,16 +60,25 @@ class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
         **kwargs: Any,
     ) -> Optional[ExecutionResourcesSummary]:
         execution_resources: Optional[ExecutionResourcesSummary] = None
-
         async with self._expect_revert_context.test():
             async with self._finish_hook.run_after():
-                call_info = await self.perform_execute(function_name, *args, **kwargs)
+                execution_result = await self.perform_execute(
+                    function_name, *args, **kwargs
+                )
+                estimated_fee = None
+                if self.state.config.gas_estimation_enabled:
+                    estimated_fee = estimate_gas(
+                        state=self.state.starknet.state.state,
+                        call_info=execution_result.call_info,
+                        resources_manager=execution_result.resources_manager,
+                        starknet_general_config=self.state.starknet.state.general_config,
+                    )
                 execution_resources = (
                     ExecutionResourcesSummary.from_execution_resources(
-                        call_info.call_info.execution_resources
+                        execution_result.call_info.execution_resources,
+                        estimated_gas=estimated_fee,
                     )
                 )
-
         return execution_resources
 
 
