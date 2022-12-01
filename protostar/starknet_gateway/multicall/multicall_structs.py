@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Optional, Union
 
 from protostar.starknet import Address, Selector
+from protostar.starknet_gateway.gateway_facade import Fee
 
 DeployCallName = str
 
@@ -25,19 +26,20 @@ class DeployCall(CallBase):
     name: Optional[DeployCallName] = None
 
 
-@dataclass
+@dataclass(frozen=True)
 class ResolvedCall:
     address: Address
     selector: Selector
     calldata: list[int]
 
 
-@dataclass
+@dataclass(frozen=True)
 class UnsignedMulticallTransaction:
     calls: list[ResolvedCall]
+    max_fee: Fee
 
 
-@dataclass
+@dataclass(frozen=True)
 class SignedMulticallTransaction:
     contract_address: Address
     calldata: list[int]
@@ -46,7 +48,7 @@ class SignedMulticallTransaction:
     signature: list[int]
 
 
-@dataclass
+@dataclass(frozen=True)
 class MulticallClientResponse:
     transaction_hash: int
 
@@ -54,6 +56,7 @@ class MulticallClientResponse:
 @dataclass(frozen=True)
 class MulticallInput:
     calls: list[CallBase]
+    max_fee: Fee
 
 
 @dataclass(frozen=True)

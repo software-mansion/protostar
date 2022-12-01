@@ -28,5 +28,5 @@ class MulticallCommand(ProtostarCommand):
         return []
 
     async def run(self, args: Namespace) -> None:
-        multicall_input = MulticallInput(calls=[])
+        multicall_input = MulticallInput(calls=[], max_fee="auto")
         # await self._multicall_use_case.execute(multicall_input)

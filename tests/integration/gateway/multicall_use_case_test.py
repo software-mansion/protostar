@@ -49,7 +49,6 @@ async def test_multicall_use_case_happy_case(
             private_key=int(account.private_key, base=0),
         ),
         gateway_url=devnet.get_gateway_url(),
-        max_fee="auto",
     )
     with set_private_key_env_var(account.private_key):
         declare_result = await protostar.declare(
@@ -74,7 +73,7 @@ async def test_multicall_use_case_happy_case(
             calldata=[42],
             selector=Selector("increase_balance"),
         )
-        calls = MulticallInput(calls=[deploy_call, invoke_call])
+        calls = MulticallInput(calls=[deploy_call, invoke_call], max_fee="auto")
 
         result = await multicall.execute(calls)
 

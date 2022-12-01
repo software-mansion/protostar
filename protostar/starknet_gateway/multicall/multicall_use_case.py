@@ -20,7 +20,10 @@ class MulticallUseCase:
 
     async def execute(self, data: MulticallInput) -> MulticallOutput:
         resolved_calls = await self._call_resolver.resolve(data.calls)
-        unsigned_tx = UnsignedMulticallTransaction(calls=resolved_calls)
+        unsigned_tx = UnsignedMulticallTransaction(
+            calls=resolved_calls,
+            max_fee=data.max_fee,
+        )
         signed_transaction = await self._account_manager.sign_multicall_transaction(
             unsigned_tx
         )

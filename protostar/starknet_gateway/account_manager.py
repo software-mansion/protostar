@@ -8,7 +8,6 @@ from starknet_py.net.client_models import Call as SNCall
 from protostar.starknet import Address
 from protostar.protostar_exception import ProtostarException
 
-from .gateway_facade import Fee
 from .multicall.multicall_protocols import UnsignedMulticallTransaction
 from .multicall import SignedMulticallTransaction, MulticallAccountManagerProtocol
 from .account_tx_version_detector import AccountTxVersionDetector
@@ -25,11 +24,9 @@ class AccountManager(MulticallAccountManagerProtocol):
     def __init__(
         self,
         account: Account,
-        max_fee: Fee,
         gateway_url: str,
     ):
         self._account = account
-        self._max_fee = max_fee
         gateway_client = GatewayClient(gateway_url)
         self._account_tx_version_detector = AccountTxVersionDetector(gateway_client)
         self._account_client = AccountClient(
@@ -56,8 +53,10 @@ class AccountManager(MulticallAccountManagerProtocol):
                 )
                 for call in unsigned_transaction.calls
             ],
-            max_fee=self._max_fee if isinstance(self._max_fee, int) else None,
-            auto_estimate=self._max_fee == "auto",
+            max_fee=unsigned_transaction.max_fee
+            if isinstance(unsigned_transaction.max_fee, int)
+            else None,
+            auto_estimate=unsigned_transaction.max_fee == "auto",
             version=1,
         )
         return SignedMulticallTransaction(
