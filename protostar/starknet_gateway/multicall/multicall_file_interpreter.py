@@ -49,8 +49,11 @@ def parse_toml_multicall(toml_content: str) -> list[RawCall]:
 
 def map_raw_call_to_call_base(raw_call: RawCall) -> Call:
     if raw_call["type"] == "invoke":
+        address = parse_potential_identifier(raw_call["contract-address"])
+        if not isinstance(address, Identifier):
+            address = Address.from_user_input(address)
         return InvokeCall(
-            address=Address.from_user_input(raw_call["contract-address"]),
+            address=address,
             calldata=[parse_potential_identifier(i) for i in raw_call["calldata"]],
             selector=Selector(raw_call["entrypoint-name"]),
         )

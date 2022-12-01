@@ -1,10 +1,15 @@
 from dataclasses import dataclass
-from typing import Optional, Union, NewType
+from typing import Optional, Union
 
 from protostar.starknet import Address, Selector
 from protostar.starknet_gateway.types import Fee
 
-Identifier = NewType("Identifier", str)
+
+@dataclass(frozen=True, eq=True)
+class Identifier:
+    value: str
+
+
 MulticallInputCalldata = list[Union[int, Identifier]]
 
 
