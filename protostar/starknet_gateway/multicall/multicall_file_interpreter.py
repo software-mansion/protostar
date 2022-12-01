@@ -1,4 +1,4 @@
-from typing import Literal, Union, cast
+from typing import Literal, TypeVar, Union, cast
 
 import tomlkit as toml
 from typing_extensions import TypedDict
@@ -6,7 +6,7 @@ from tomlkit.items import AoT
 
 from protostar.starknet import Address, RawAddress, Selector
 
-from .multicall_structs import Call, InvokeCall, DeployCall
+from .multicall_structs import Call, InvokeCall, DeployCall, VariableName
 
 Variable = str
 
@@ -51,13 +51,23 @@ def map_raw_call_to_call_base(raw_call: RawCall) -> Call:
     if raw_call["type"] == "invoke":
         return InvokeCall(
             address=Address.from_user_input(raw_call["contract-address"]),
-            calldata=raw_call["calldata"],
+            calldata=[parse_potential_identifier(i) for i in raw_call["calldata"]],
             selector=Selector(raw_call["entrypoint-name"]),
         )
     if raw_call["type"] == "deploy":
         return DeployCall(
-            name=raw_call["id"],
-            calldata=raw_call["calldata"],
+            name=VariableName(raw_call["id"]),
+            calldata=[parse_potential_identifier(i) for i in raw_call["calldata"]],
             class_hash=raw_call["class-hash"],
         )
     assert False, "Unknown call type"
+
+
+T = TypeVar("T")
+
+
+def parse_potential_identifier(value: Union[T, str]) -> Union[T, VariableName]:
+    if isinstance(value, str):
+        value.startswith("$")
+        return VariableName(value[1:])
+    return value

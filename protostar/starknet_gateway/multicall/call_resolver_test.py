@@ -3,7 +3,7 @@ import pytest
 from protostar.starknet import Address, Selector
 
 from .call_resolver import CallResolver, UnknownNameException
-from .multicall_structs import DeployCall, InvokeCall
+from .multicall_structs import DeployCall, InvokeCall, VariableName
 
 
 async def test_resolving_deploy_and_invoke():
@@ -11,9 +11,21 @@ async def test_resolving_deploy_and_invoke():
 
     resolved_calls = await resolver.resolve(
         [
-            DeployCall(name="A", calldata=[1], class_hash=1),
-            InvokeCall(address="A", calldata=[], selector=Selector("foo")),
-            InvokeCall(address=Address(0), calldata=[], selector=Selector("bar")),
+            DeployCall(
+                name=VariableName("A"),
+                calldata=[1],
+                class_hash=1,
+            ),
+            InvokeCall(
+                address=VariableName("A"),
+                calldata=[],
+                selector=Selector("foo"),
+            ),
+            InvokeCall(
+                address=Address(0),
+                calldata=[],
+                selector=Selector("bar"),
+            ),
         ]
     )
 
@@ -25,8 +37,16 @@ async def test_resolving_calldata():
 
     resolved_calls = await resolver.resolve(
         [
-            DeployCall(name="A", calldata=[1], class_hash=1),
-            InvokeCall(address=Address(0), calldata=["A"], selector=Selector("foo")),
+            DeployCall(
+                name=VariableName("A"),
+                calldata=[1],
+                class_hash=1,
+            ),
+            InvokeCall(
+                address=Address(0),
+                calldata=[VariableName("A")],
+                selector=Selector("foo"),
+            ),
         ]
     )
 
@@ -38,5 +58,11 @@ async def test_raising_error_when_name_is_undefined():
 
     with pytest.raises(UnknownNameException):
         await resolver.resolve(
-            [InvokeCall(address="A", calldata=[], selector=Selector("foo"))]
+            [
+                InvokeCall(
+                    address=VariableName("A"),
+                    calldata=[],
+                    selector=Selector("foo"),
+                )
+            ]
         )
