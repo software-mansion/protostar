@@ -10,7 +10,7 @@ from .multicall_structs import (
     Call,
     InvokeCall,
     DeployCall,
-    VariableName,
+    Identifier,
     MulticallInputCalldata,
     ResolvedCall,
 )
@@ -18,13 +18,13 @@ from .multicall_structs import (
 
 class CallResolver:
     def __init__(self) -> None:
-        self._deploy_call_name_to_address: dict[VariableName, Address] = {}
+        self._deploy_call_name_to_address: dict[Identifier, Address] = {}
         self._deployer = Deployer()
 
     async def resolve(self, calls: list[Call]) -> list[ResolvedCall]:
         return [self._resolve_single_call(call) for call in calls]
 
-    def get_deploy_call_name_to_address(self) -> dict[VariableName, Address]:
+    def get_deploy_call_name_to_address(self) -> dict[Identifier, Address]:
         return self._deploy_call_name_to_address
 
     def _resolve_single_call(self, call: Call) -> ResolvedCall:
@@ -36,8 +36,8 @@ class CallResolver:
         deployment_call = self._deployer.create_deployment_call_raw(
             class_hash=deploy_call.class_hash
         )
-        if deploy_call.name:
-            self._deploy_call_name_to_address[deploy_call.name] = Address(
+        if deploy_call.address_alias:
+            self._deploy_call_name_to_address[deploy_call.address_alias] = Address(
                 deployment_call.address
             )
         return ResolvedCall(
@@ -53,9 +53,7 @@ class CallResolver:
             selector=invoke_call.selector,
         )
 
-    def _resolve_address(
-        self, name_or_address: Union[VariableName, Address]
-    ) -> Address:
+    def _resolve_address(self, name_or_address: Union[Identifier, Address]) -> Address:
         if isinstance(name_or_address, Address):
             return name_or_address
         name = name_or_address

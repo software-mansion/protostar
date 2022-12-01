@@ -24,7 +24,7 @@ def test_foo():
     calls = interpret_multicall_file_content(file_content)
 
     assert isinstance(calls[0], DeployCall)
-    assert calls[0].name == "A"
+    assert calls[0].address_alias == "A"
     assert calls[0].class_hash == 0x123
     assert calls[0].calldata == 1
 

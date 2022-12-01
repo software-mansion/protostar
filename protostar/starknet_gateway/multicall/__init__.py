@@ -7,7 +7,7 @@ from .multicall_structs import (
     MulticallOutput,
     ResolvedCall,
     MulticallClientResponse,
-    VariableName,
+    Identifier,
 )
 from .multicall_protocols import (
     MulticallClientProtocol,

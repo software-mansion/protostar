@@ -4,22 +4,22 @@ from typing import Optional, Union, NewType
 from protostar.starknet import Address, Selector
 from protostar.starknet_gateway.types import Fee
 
-VariableName = NewType("VariableName", str)
-MulticallInputCalldata = list[Union[int, VariableName]]
+Identifier = NewType("Identifier", str)
+MulticallInputCalldata = list[Union[int, Identifier]]
 
 
 @dataclass(frozen=True)
 class InvokeCall:
-    address: Union[VariableName, Address]
+    address: Union[Identifier, Address]
     selector: Selector
     calldata: MulticallInputCalldata
 
 
 @dataclass(frozen=True)
 class DeployCall:
+    address_alias: Identifier
     class_hash: int
     calldata: MulticallInputCalldata
-    name: Optional[VariableName] = None
 
 
 Call = Union[DeployCall, InvokeCall]
@@ -61,4 +61,4 @@ class MulticallInput:
 @dataclass(frozen=True)
 class MulticallOutput:
     transaction_hash: int
-    deployed_contract_addresses: dict[VariableName, Address]
+    deployed_contract_addresses: dict[Identifier, Address]

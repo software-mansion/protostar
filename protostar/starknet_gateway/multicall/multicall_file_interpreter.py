@@ -6,7 +6,7 @@ from tomlkit.items import AoT
 
 from protostar.starknet import Address, RawAddress, Selector
 
-from .multicall_structs import Call, InvokeCall, DeployCall, VariableName
+from .multicall_structs import Call, InvokeCall, DeployCall, Identifier
 
 Variable = str
 
@@ -56,7 +56,7 @@ def map_raw_call_to_call_base(raw_call: RawCall) -> Call:
         )
     if raw_call["type"] == "deploy":
         return DeployCall(
-            name=VariableName(raw_call["id"]),
+            address_alias=Identifier(raw_call["id"]),
             calldata=[parse_potential_identifier(i) for i in raw_call["calldata"]],
             class_hash=raw_call["class-hash"],
         )
@@ -66,8 +66,8 @@ def map_raw_call_to_call_base(raw_call: RawCall) -> Call:
 T = TypeVar("T")
 
 
-def parse_potential_identifier(value: Union[T, str]) -> Union[T, VariableName]:
+def parse_potential_identifier(value: Union[T, str]) -> Union[T, Identifier]:
     if isinstance(value, str):
         value.startswith("$")
-        return VariableName(value[1:])
+        return Identifier(value[1:])
     return value

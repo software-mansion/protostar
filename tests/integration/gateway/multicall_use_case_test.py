@@ -12,7 +12,7 @@ from protostar.starknet_gateway.multicall import (
     DeployCall,
     InvokeCall,
     MulticallInput,
-    VariableName,
+    Identifier,
 )
 from tests._conftest.devnet import DevnetFixture
 from tests.conftest import SetPrivateKeyEnvVarFixture
@@ -65,12 +65,12 @@ async def test_multicall_use_case_happy_case(
             client=starknet_client,
         )
         deploy_call = DeployCall(
-            name=VariableName("A"),
+            address_alias=Identifier("A"),
             class_hash=declare_result.class_hash,
             calldata=[],
         )
         invoke_call = InvokeCall(
-            address=VariableName("A"),
+            address=Identifier("A"),
             calldata=[42],
             selector=Selector("increase_balance"),
         )
@@ -80,7 +80,7 @@ async def test_multicall_use_case_happy_case(
 
         await devnet.assert_transaction_accepted(result.transaction_hash)
 
-        contract_a_address = result.deployed_contract_addresses[VariableName("A")]
+        contract_a_address = result.deployed_contract_addresses[Identifier("A")]
         call_result = await protostar.call(
             contract_address=contract_a_address,
             function_name="get_balance",

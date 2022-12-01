@@ -3,7 +3,7 @@ import pytest
 from protostar.starknet import Address, Selector
 
 from .call_resolver import CallResolver, UnknownNameException
-from .multicall_structs import DeployCall, InvokeCall, VariableName
+from .multicall_structs import DeployCall, InvokeCall, Identifier
 
 
 async def test_resolving_deploy_and_invoke():
@@ -12,12 +12,12 @@ async def test_resolving_deploy_and_invoke():
     resolved_calls = await resolver.resolve(
         [
             DeployCall(
-                name=VariableName("A"),
+                address_alias=Identifier("A"),
                 calldata=[1],
                 class_hash=1,
             ),
             InvokeCall(
-                address=VariableName("A"),
+                address=Identifier("A"),
                 calldata=[],
                 selector=Selector("foo"),
             ),
@@ -38,13 +38,13 @@ async def test_resolving_calldata():
     resolved_calls = await resolver.resolve(
         [
             DeployCall(
-                name=VariableName("A"),
+                address_alias=Identifier("A"),
                 calldata=[1],
                 class_hash=1,
             ),
             InvokeCall(
                 address=Address(0),
-                calldata=[VariableName("A")],
+                calldata=[Identifier("A")],
                 selector=Selector("foo"),
             ),
         ]
@@ -60,7 +60,7 @@ async def test_raising_error_when_name_is_undefined():
         await resolver.resolve(
             [
                 InvokeCall(
-                    address=VariableName("A"),
+                    address=Identifier("A"),
                     calldata=[],
                     selector=Selector("foo"),
                 )
