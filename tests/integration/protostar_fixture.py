@@ -329,7 +329,11 @@ class ProtostarFixture:
         file_path: Path,
         account: DevnetAccount,
         gateway_url: str,
+        json: bool = False,
     ):
+        json_args: list[str] = []
+        if json:
+            json_args.append("--json")
         args = self._parser.parse(
             [
                 "multicall",
@@ -340,6 +344,7 @@ class ProtostarFixture:
                 gateway_url,
                 "--chain-id",
                 str(StarknetChainId.TESTNET.value),
+                *json_args,
             ]
         )
         self._monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, account.private_key)

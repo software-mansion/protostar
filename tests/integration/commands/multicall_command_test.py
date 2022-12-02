@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 from textwrap import dedent
 
@@ -18,13 +19,14 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
         yield protostar
 
 
-@pytest.fixture(name="standard_contract_class_hash")
-async def standard_contract_class_hash_fixture(
+@pytest.fixture(name="multicall_file_path")
+async def multicall_file_path_fixture(
     protostar: ProtostarFixture,
     devnet: DevnetFixture,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
     capsys: CaptureFixture[str],
-) -> int:
+    tmp_path: Path,
+) -> Path:
     account = devnet.get_predeployed_accounts()[0]
     with set_private_key_env_var(account.private_key):
         declare_result = await protostar.declare(
@@ -36,16 +38,6 @@ async def standard_contract_class_hash_fixture(
             max_fee="auto",
         )
     capsys.readouterr()
-    return declare_result.class_hash
-
-
-async def test_multicall_command(
-    protostar: ProtostarFixture,
-    devnet: DevnetFixture,
-    tmp_path: Path,
-    capsys: CaptureFixture[str],
-    standard_contract_class_hash: int,
-):
     multicall_doc_path = tmp_path / "multicall.toml"
     multicall_doc_path.write_text(
         dedent(
@@ -53,7 +45,7 @@ async def test_multicall_command(
         [[call]]
         id = "A"
         type = "deploy"
-        class-hash = {standard_contract_class_hash}
+        class-hash = {declare_result.class_hash}
         calldata = []
 
         [[call]]
@@ -64,9 +56,17 @@ async def test_multicall_command(
     """
         )
     )
+    return multicall_doc_path
 
+
+async def test_happy_case(
+    protostar: ProtostarFixture,
+    devnet: DevnetFixture,
+    capsys: CaptureFixture[str],
+    multicall_file_path: Path,
+):
     result = await protostar.multicall(
-        file_path=multicall_doc_path,
+        file_path=multicall_file_path,
         account=devnet.get_predeployed_accounts()[0],
         gateway_url=devnet.get_gateway_url(),
     )
@@ -75,3 +75,23 @@ async def test_multicall_command(
     await devnet.assert_transaction_accepted(result.transaction_hash)
     assert result.deployed_contract_addresses[Identifier("A")] is not None
     assert f"0x{result.transaction_hash:064x}" in logged_result
+
+
+async def test_json(
+    protostar: ProtostarFixture,
+    devnet: DevnetFixture,
+    capsys: CaptureFixture[str],
+    multicall_file_path: Path,
+):
+    result = await protostar.multicall(
+        file_path=multicall_file_path,
+        account=devnet.get_predeployed_accounts()[0],
+        gateway_url=devnet.get_gateway_url(),
+        json=True,
+    )
+    logged_result = capsys.readouterr().out
+    parsed_json = json.loads(logged_result)
+
+    await devnet.assert_transaction_accepted(result.transaction_hash)
+    assert result.deployed_contract_addresses[Identifier("A")] is not None
+    assert parsed_json["transaction_hash"] == f"0x{result.transaction_hash:064x}"
