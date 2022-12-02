@@ -260,8 +260,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         )
 
         # When execution starts the stack holds entry_points_args + [ret_fp, ret_pc].
-        # args_ptr = runner.initial_fp - (len(entry_points_args) + 2)
-        args_ptr = runner.get_initial_fp() - (len(entry_points_args) + 2)
+        args_ptr = runner.initial_fp - (len(entry_points_args) + 2)
 
         # The arguments are touched by the OS and should not be counted as holes, mark them
         # as accessed.
