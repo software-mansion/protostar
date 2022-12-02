@@ -1,5 +1,7 @@
 from argparse import Namespace
+from dataclasses import dataclass
 from pathlib import Path
+from textwrap import dedent
 from typing import Optional
 
 from starknet_py.net.gateway_client import GatewayClient
@@ -9,20 +11,55 @@ from protostar.cli import (
     ProtostarArgument,
     NetworkCommandUtil,
     SignableCommandUtil,
+    MessengerFactory,
 )
-from protostar.starknet_gateway import AccountManager, GatewayFacadeFactory
-from protostar.starknet_gateway.account_manager import Account
+from protostar.cli.common_arguments import BLOCK_EXPLORER_ARG
+from protostar.io import Messenger, StructuredMessage
+from protostar.io.log_color_provider import LogColorProvider
+from protostar.starknet_gateway import (
+    AccountManager,
+    GatewayFacadeFactory,
+    BlockExplorer,
+    Account,
+    create_block_explorer,
+)
 from protostar.starknet_gateway.multicall import (
     MulticallUseCase,
     MulticallInput,
+    MulticallOutput,
     interpret_multicall_file_content,
 )
 
 
+@dataclass
+class MulticallOutputMessage(StructuredMessage):
+    multicall_output: MulticallOutput
+    url: Optional[str]
+
+    def format_human(self, fmt: LogColorProvider) -> str:
+        message = f"""
+            Multicall was sent.
+            Transaction hash: 0x{self.multicall_output.transaction_hash:064x}
+        """
+        if self.url:
+            message += f"{self.url}\n"
+        return dedent(message)
+
+    def format_dict(self) -> dict:
+        return {
+            "transaction_hash": f"0x{self.multicall_output.transaction_hash:064x}",
+        }
+
+
 class MulticallCommand(ProtostarCommand):
-    def __init__(self, gateway_facade_factory: GatewayFacadeFactory) -> None:
+    def __init__(
+        self,
+        gateway_facade_factory: GatewayFacadeFactory,
+        messenger_factory: MessengerFactory,
+    ) -> None:
         super().__init__()
         self._gateway_facade_factory = gateway_facade_factory
+        self._messenger_factory = messenger_factory
 
     @property
     def name(self) -> str:
@@ -41,6 +78,8 @@ class MulticallCommand(ProtostarCommand):
         return [
             *NetworkCommandUtil.network_arguments,
             *SignableCommandUtil.signable_arguments,
+            *MessengerFactory.OUTPUT_ARGUMENTS,
+            BLOCK_EXPLORER_ARG,
             ProtostarArgument(
                 name="file",
                 description="Path to the file declaring calls.",
@@ -51,15 +90,22 @@ class MulticallCommand(ProtostarCommand):
         ]
 
     async def run(self, args: Namespace):
+        write = self._messenger_factory.from_args(args)
         network_util = NetworkCommandUtil(args)
         network_config = network_util.get_network_config()
         gateway_client = network_util.get_gateway_client()
         signer = SignableCommandUtil(args).get_signer(network_config=network_config)
+        block_explorer = create_block_explorer(
+            block_explorer_name=args.block_explorer,
+            network=network_config.network_name,
+        )
         return await self.multicall(
             file=args.file,
             gateway_client=gateway_client,
             gateway_url=network_config.gateway_url,
             account=Account(address=args.account_address, signer=signer),
+            write=write,
+            explorer=block_explorer,
         )
 
     async def multicall(
@@ -68,6 +114,8 @@ class MulticallCommand(ProtostarCommand):
         gateway_client: GatewayClient,
         account: Account,
         gateway_url: str,
+        write: Messenger,
+        explorer: BlockExplorer,
     ):
         account_manager = AccountManager(account, gateway_url=gateway_url)
         gateway_facade = self._gateway_facade_factory.create(gateway_client)
@@ -77,4 +125,7 @@ class MulticallCommand(ProtostarCommand):
         file_content = file.read_text()
         calls = interpret_multicall_file_content(file_content)
         multicall_input = MulticallInput(calls=calls, max_fee="auto")
-        return await multicall_use_case.execute(multicall_input)
+        result = await multicall_use_case.execute(multicall_input)
+        tx_url = explorer.create_link_to_transaction(result.transaction_hash)
+        write(MulticallOutputMessage(multicall_output=result, url=tx_url))
+        return result

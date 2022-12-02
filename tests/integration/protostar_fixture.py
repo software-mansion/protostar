@@ -325,7 +325,10 @@ class ProtostarFixture:
         )
 
     async def multicall(
-        self, file_path: Path, account: DevnetAccount, gateway_url: str
+        self,
+        file_path: Path,
+        account: DevnetAccount,
+        gateway_url: str,
     ):
         args = self._parser.parse(
             [
@@ -536,7 +539,10 @@ def build_protostar_fixture(
     calculate_account_address_command = CalculateAccountAddressCommand(
         messenger_factory=messenger_factory
     )
-    multicall_command = MulticallCommand(gateway_facade_factory=gateway_facade_factory)
+    multicall_command = MulticallCommand(
+        gateway_facade_factory=gateway_facade_factory,
+        messenger_factory=messenger_factory,
+    )
 
     cli_app = CLIApp(
         commands=[

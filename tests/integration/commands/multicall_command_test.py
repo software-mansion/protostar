@@ -3,6 +3,7 @@ from textwrap import dedent
 
 import pytest
 from starknet_py.net.models import StarknetChainId
+from pytest import CaptureFixture
 
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.protostar_fixture import ProtostarFixture
@@ -22,6 +23,7 @@ async def test_multicall_command(
     devnet: DevnetFixture,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
     tmp_path: Path,
+    capsys: CaptureFixture[str],
 ):
     account = devnet.get_predeployed_accounts()[0]
     with set_private_key_env_var(account.private_key):
@@ -51,12 +53,15 @@ async def test_multicall_command(
     """
         )
     )
+    capsys.readouterr()
 
     result = await protostar.multicall(
         file_path=multicall_doc_path,
         account=devnet.get_predeployed_accounts()[0],
         gateway_url=devnet.get_gateway_url(),
     )
+    logged_result = capsys.readouterr().out
 
     assert devnet.assert_transaction_accepted(result.transaction_hash)
     assert result.deployed_contract_addresses[Identifier("A")] is not None
+    assert f"0x{result.transaction_hash:064x}" in logged_result
