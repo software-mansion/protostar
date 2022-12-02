@@ -2,7 +2,6 @@ from argparse import Namespace
 from pathlib import Path
 from typing import Optional
 
-from starknet_py.net.signer import BaseSigner
 from starknet_py.net.gateway_client import GatewayClient
 
 from protostar.cli import (
@@ -51,19 +50,26 @@ class MulticallCommand(ProtostarCommand):
             ),
         ]
 
-    async def run(self, args: Namespace) -> None:
+    async def run(self, args: Namespace):
         network_util = NetworkCommandUtil(args)
         network_config = network_util.get_network_config()
         gateway_client = network_util.get_gateway_client()
         signer = SignableCommandUtil(args).get_signer(network_config=network_config)
-        await self.multicall(
-            file=args.file, gateway_client=gateway_client, signer=signer
+        return await self.multicall(
+            file=args.file,
+            gateway_client=gateway_client,
+            gateway_url=network_config.gateway_url,
+            account=Account(address=args.account_address, signer=signer),
         )
 
     async def multicall(
-        self, file: Path, gateway_client: GatewayClient, signer: BaseSigner
+        self,
+        file: Path,
+        gateway_client: GatewayClient,
+        account: Account,
+        gateway_url: str,
     ):
-        account_manager = AccountManager(Account())
+        account_manager = AccountManager(account, gateway_url=gateway_url)
         gateway_facade = self._gateway_facade_factory.create(gateway_client)
         multicall_use_case = MulticallUseCase(
             account_manager=account_manager, client=gateway_facade
@@ -71,4 +77,4 @@ class MulticallCommand(ProtostarCommand):
         file_content = file.read_text()
         calls = interpret_multicall_file_content(file_content)
         multicall_input = MulticallInput(calls=calls, max_fee="auto")
-        await multicall_use_case.execute(multicall_input)
+        return await multicall_use_case.execute(multicall_input)

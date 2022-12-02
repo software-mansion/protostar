@@ -15,7 +15,6 @@ from .account_tx_version_detector import AccountTxVersionDetector
 
 @dataclass
 class Account:
-    private_key: int
     address: Address
     signer: BaseSigner
 
@@ -33,7 +32,6 @@ class AccountManager(MulticallAccountManagerProtocol):
             address=int(account.address),
             client=gateway_client,
             signer=account.signer,
-            key_pair=KeyPair.from_private_key(account.private_key),
             supported_tx_version=1,
         )
 

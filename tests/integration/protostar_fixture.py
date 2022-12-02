@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Union, cast, Generator
 
+import pytest
 from pytest_mock import MockerFixture
 from starknet_py.net.client_models import InvokeFunction, StarknetTransaction
 from starknet_py.net.gateway_client import GatewayClient, Network
@@ -13,6 +14,7 @@ from starknet_py.net.models.transaction import DeployAccount
 
 from protostar.argument_parser import ArgumentParserFacade, CLIApp
 from protostar.cli import map_protostar_type_name_to_parser, MessengerFactory
+from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
 from protostar.commands import (
     BuildCommand,
     CalculateAccountAddressCommand,
@@ -21,6 +23,7 @@ from protostar.commands import (
     FormatCommand,
     InitCommand,
     InvokeCommand,
+    MulticallCommand,
 )
 from protostar.commands.deploy_account_command import DeployAccountCommand
 from protostar.commands.deploy_command import DeployCommand
@@ -48,6 +51,7 @@ from protostar.testing import TestingSummary
 from protostar.starknet import Address
 from protostar.starknet.data_transformer import CairoOrPythonData
 from protostar.commands.call_command import SuccessfulCallMessage
+from tests.conftest import DevnetAccount
 
 
 # pylint: disable=too-many-instance-attributes
@@ -65,9 +69,11 @@ class ProtostarFixture:
         call_command: CallCommand,
         deploy_account_command: DeployAccountCommand,
         calculate_account_address_command: CalculateAccountAddressCommand,
+        multicall_command: MulticallCommand,
         cli_app: CLIApp,
         parser: ArgumentParserFacade,
         transaction_registry: "TransactionRegistry",
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         self._project_root_path = project_root_path
         self._init_command = init_command
@@ -81,8 +87,10 @@ class ProtostarFixture:
         self._transaction_registry = transaction_registry
         self._call_command = call_command
         self._deploy_account_command = deploy_account_command
+        self._multicall_command = multicall_command
         self._cli_app = cli_app
         self._parser = parser
+        self._monkeypatch = monkeypatch
 
     @property
     def project_root_path(self) -> Path:
@@ -316,6 +324,27 @@ class ProtostarFixture:
             on_formatting_result=on_formatting_result,
         )
 
+    async def multicall(
+        self, file_path: Path, account: DevnetAccount, gateway_url: str
+    ):
+        args = self._parser.parse(
+            [
+                "multicall",
+                str(file_path),
+                "--account-address",
+                str(account.address),
+                "--gateway-url",
+                gateway_url,
+                "--chain-id",
+                str(StarknetChainId.TESTNET.value),
+            ]
+        )
+        self._monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, account.private_key)
+        result = await self._multicall_command.run(args)
+        self._monkeypatch.delenv(PRIVATE_KEY_ENV_VAR_NAME)
+
+        return result
+
     def create_files(
         self, relative_path_str_to_file: Dict[str, Union[str, Path]]
     ) -> None:
@@ -504,15 +533,16 @@ def build_protostar_fixture(
         gateway_facade_factory=gateway_facade_factory,
         messenger_factory=messenger_factory,
     )
-
     calculate_account_address_command = CalculateAccountAddressCommand(
         messenger_factory=messenger_factory
     )
+    multicall_command = MulticallCommand(gateway_facade_factory=gateway_facade_factory)
 
     cli_app = CLIApp(
         commands=[
             deploy_account_command,
             calculate_account_address_command,
+            multicall_command,
         ]
     )
     parser = ArgumentParserFacade(
@@ -534,6 +564,8 @@ def build_protostar_fixture(
         parser=parser,
         transaction_registry=transaction_registry,
         calculate_account_address_command=calculate_account_address_command,
+        multicall_command=multicall_command,
+        monkeypatch=pytest.MonkeyPatch(),
     )
 
     return protostar_fixture
