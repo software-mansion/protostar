@@ -93,5 +93,5 @@ async def test_json(
     parsed_json = json.loads(logged_result)
 
     await devnet.assert_transaction_accepted(result.transaction_hash)
-    assert result.deployed_contract_addresses[Identifier("A")] is not None
     assert parsed_json["transaction_hash"] == f"0x{result.transaction_hash:064x}"
+    assert parsed_json["A"] == str(result.deployed_contract_addresses[Identifier("A")])

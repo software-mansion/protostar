@@ -14,7 +14,7 @@ from protostar.cli import (
     MessengerFactory,
 )
 from protostar.cli.common_arguments import BLOCK_EXPLORER_ARG
-from protostar.io import Messenger, StructuredMessage
+from protostar.io import Messenger, StructuredMessage, format_as_table
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.starknet_gateway import (
     AccountManager,
@@ -37,18 +37,31 @@ class MulticallOutputMessage(StructuredMessage):
     url: Optional[str]
 
     def format_human(self, fmt: LogColorProvider) -> str:
-        message = f"""
-            Multicall was sent.
-            Transaction hash: 0x{self.multicall_output.transaction_hash:064x}
-        """
+        lines: list[str] = []
+        lines.append("Multicall has been sent.")
+        table_lines = format_as_table(
+            {
+                "transaction hash": f"0x{self.multicall_output.transaction_hash:064x}",
+                **self._get_json_friendly_contract_address_map(),
+            }
+        )
+        lines += table_lines
         if self.url:
-            message += f"{self.url}\n"
-        return dedent(message)
+            lines.append(self.url)
+        return dedent("\n".join(lines))
 
     def format_dict(self) -> dict:
         return {
             "transaction_hash": f"0x{self.multicall_output.transaction_hash:064x}",
+            **self._get_json_friendly_contract_address_map(),
         }
+
+    def _get_json_friendly_contract_address_map(self):
+        result = {}
+        for key, value in self.multicall_output.deployed_contract_addresses.items():
+            key_str = key.value
+            result[key_str] = str(value)
+        return result
 
 
 class MulticallCommand(ProtostarCommand):

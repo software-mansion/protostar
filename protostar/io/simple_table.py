@@ -1,12 +1,10 @@
-from typing import Any
-
-
-def format_as_table(data: dict[str, Any]) -> str:
+def format_as_table(data: dict) -> list[str]:
     max_key_length = 0
     for key in data:
-        if len(key) > max_key_length:
-            max_key_length = len(key)
+        key_str = str(key)
+        if len(key_str) > max_key_length:
+            max_key_length = len(key_str)
     lines = [
-        f"{key.ljust(max_key_length)}: {str(value)}" for key, value in data.items()
+        f"{str(key).ljust(max_key_length)}: {str(value)}" for key, value in data.items()
     ]
-    return "\n".join(lines)
+    return lines
