@@ -276,6 +276,39 @@ Custom signer class module path.
 Waits for transaction to be accepted on chain.
 ### `migrate-configuration-file`
 Migrate protostar.toml V1 to V2.
+### `multicall`
+Execute multiple deploy (via UDC) and invoke calls ensuring atomicity.
+#### `file PATH`
+Required.
+
+Path to the file declaring calls.
+#### `--account-address ADDRESS`
+Required.
+
+Account address.
+#### `--block-explorer BLOCK_EXPLORER`
+Generated links will point to that block explorer. Available values:
+- starkscan
+- viewblock
+- voyager
+#### `--chain-id INT`
+The chain id. It is required unless `--network` is provided.
+#### `--gateway-url STRING`
+The URL of a StarkNet gateway. It is required unless `--network` is provided.
+#### `--json`
+Print machine readable output in JSON format.
+#### `-n` `--network STRING`
+The name of the StarkNet network.
+It is required unless `--gateway-url` is provided.
+
+Supported StarkNet networks:
+- `testnet`
+- `mainnet`
+#### `--private-key-path PATH`
+Path to the file, which stores your private key (in hex representation) for the account. 
+Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
+#### `--signer-class STRING`
+Custom signer class module path.
 ### `remove`
 ```shell
 $ protostar remove cairo-contracts
