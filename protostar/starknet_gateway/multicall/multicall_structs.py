@@ -2,42 +2,48 @@ from dataclasses import dataclass
 from typing import Optional, Union
 
 from protostar.starknet import Address, Selector
+from protostar.starknet_gateway.type import Fee
 
-DeployCallName = str
 
-MulticallInputCalldata = list[Union[int, DeployCallName]]
+@dataclass(frozen=True, eq=True)
+class Identifier:
+    value: str
+
+
+MulticallInputCalldata = list[Union[int, Identifier]]
 
 
 @dataclass(frozen=True)
-class CallBase:
+class InvokeCall:
+    address: Union[Identifier, Address]
+    selector: Selector
     calldata: MulticallInputCalldata
 
 
 @dataclass(frozen=True)
-class InvokeCall(CallBase):
-    address: Union[DeployCallName, Address]
-    selector: Selector
+class DeployCall:
+    address_alias: Identifier
+    class_hash: int
+    calldata: MulticallInputCalldata
+
+
+Call = Union[DeployCall, InvokeCall]
 
 
 @dataclass(frozen=True)
-class DeployCall(CallBase):
-    class_hash: int
-    name: Optional[DeployCallName] = None
-
-
-@dataclass
 class ResolvedCall:
     address: Address
     selector: Selector
     calldata: list[int]
 
 
-@dataclass
+@dataclass(frozen=True)
 class UnsignedMulticallTransaction:
     calls: list[ResolvedCall]
+    max_fee: Fee
 
 
-@dataclass
+@dataclass(frozen=True)
 class SignedMulticallTransaction:
     contract_address: Address
     calldata: list[int]
@@ -46,17 +52,18 @@ class SignedMulticallTransaction:
     signature: list[int]
 
 
-@dataclass
+@dataclass(frozen=True)
 class MulticallClientResponse:
     transaction_hash: int
 
 
 @dataclass(frozen=True)
 class MulticallInput:
-    calls: list[CallBase]
+    calls: list[Call]
+    max_fee: Fee
 
 
 @dataclass(frozen=True)
 class MulticallOutput:
     transaction_hash: int
-    deployed_contract_addresses: dict[DeployCallName, Address]
+    deployed_contract_addresses: dict[Identifier, Address]

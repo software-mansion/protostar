@@ -1,6 +1,6 @@
 import dataclasses
 from pathlib import Path
-from typing import Any, Dict, List, Literal, NamedTuple, Optional, TypeVar, Union
+from typing import NamedTuple, Optional, TypeVar, Union
 
 from starknet_py.contract import ContractFunction, InvokeResult
 from starknet_py.net import AccountClient
@@ -19,6 +19,7 @@ from starknet_py.utils.data_transformer.errors import CairoSerializerException
 from starkware.starknet.public.abi import AbiType
 from typing_extensions import Self, TypeGuard
 
+from protostar.starknet.abi import has_abi_item
 from protostar.compiler import CompiledContractReader
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet.data_transformer import CairoOrPythonData
@@ -39,14 +40,7 @@ from protostar.starknet_gateway.multicall.multicall_protocols import (
 )
 
 from .contract_function_factory import ContractFunctionFactory
-from ..starknet.abi import has_abi_item
-
-ContractFunctionInputType = Union[List[int], Dict[str, Any]]
-
-
-Wei = int
-Fee = Union[Wei, Literal["auto"]]
-ClassHash = int
+from .type import ClassHash, ContractFunctionInputType, Fee
 
 
 @dataclasses.dataclass
