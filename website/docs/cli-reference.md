@@ -281,7 +281,27 @@ Execute multiple deploy (via UDC) and invoke calls ensuring atomicity.
 #### `file PATH`
 Required.
 
-Path to the file declaring calls.
+Path to a TOML file with call declarations. File example:
+
+```toml
+[[call]]
+# defines an contract address identifier
+id = "my_contract"
+type = "deploy"
+class-hash = CONTRACT_CLASS_HASH
+calldata = []
+
+[[call]]
+type = "invoke"
+entrypoint-name = "increase_balance"
+
+# contract-address accepts a contract address or an identifier
+contract-address = "$my_contract"
+
+# calldata accepts felts or identifiers
+calldata = [42]
+
+```
 #### `--account-address ADDRESS`
 Required.
 

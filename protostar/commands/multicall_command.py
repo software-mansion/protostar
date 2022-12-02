@@ -28,6 +28,7 @@ from protostar.starknet_gateway.multicall import (
     MulticallInput,
     MulticallOutput,
     interpret_multicall_file_content,
+    MULTICALL_FILE_EXAMPLE,
 )
 
 
@@ -95,7 +96,10 @@ class MulticallCommand(ProtostarCommand):
             BLOCK_EXPLORER_ARG,
             ProtostarArgument(
                 name="file",
-                description="Path to the file declaring calls.",
+                description=(
+                    "Path to a TOML file with call declarations. File example:\n\n"
+                    f"```toml\n{MULTICALL_FILE_EXAMPLE}\n```"
+                ),
                 type="path",
                 is_required=True,
                 is_positional=True,

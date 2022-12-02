@@ -1,12 +1,14 @@
 import json
 from pathlib import Path
-from textwrap import dedent
 
 import pytest
 from starknet_py.net.models import StarknetChainId
 from pytest import CaptureFixture
 
-from protostar.starknet_gateway.multicall.multicall_structs import Identifier
+from protostar.starknet_gateway.multicall import (
+    prepare_multicall_file_example,
+    Identifier,
+)
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.protostar_fixture import ProtostarFixture
 from tests.conftest import DevnetFixture, SetPrivateKeyEnvVarFixture
@@ -39,23 +41,8 @@ async def multicall_file_path_fixture(
         )
     capsys.readouterr()
     multicall_doc_path = tmp_path / "multicall.toml"
-    multicall_doc_path.write_text(
-        dedent(
-            f"""
-        [[call]]
-        id = "A"
-        type = "deploy"
-        class-hash = {declare_result.class_hash}
-        calldata = []
-
-        [[call]]
-        type = "invoke"
-        contract-address = "$A"
-        entrypoint-name = "increase_balance"
-        calldata = [42]
-    """
-        )
-    )
+    file_content = prepare_multicall_file_example(class_hash=declare_result.class_hash)
+    multicall_doc_path.write_text(file_content)
     return multicall_doc_path
 
 
@@ -73,7 +60,7 @@ async def test_happy_case(
     logged_result = capsys.readouterr().out
 
     await devnet.assert_transaction_accepted(result.transaction_hash)
-    assert result.deployed_contract_addresses[Identifier("A")] is not None
+    assert result.deployed_contract_addresses[Identifier("my_contract")] is not None
     assert f"0x{result.transaction_hash:064x}" in logged_result
 
 
@@ -94,4 +81,6 @@ async def test_json(
 
     await devnet.assert_transaction_accepted(result.transaction_hash)
     assert parsed_json["transaction_hash"] == f"0x{result.transaction_hash:064x}"
-    assert parsed_json["A"] == str(result.deployed_contract_addresses[Identifier("A")])
+    assert parsed_json["my_contract"] == str(
+        result.deployed_contract_addresses[Identifier("my_contract")]
+    )
