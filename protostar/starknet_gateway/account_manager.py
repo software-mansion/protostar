@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from starknet_py.net.signer import BaseSigner
-from starknet_py.net import AccountClient, KeyPair
+from starknet_py.net import AccountClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.client_models import Call as SNCall
 
