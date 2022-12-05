@@ -13,7 +13,7 @@ from protostar.cli import (
     SignableCommandUtil,
     MessengerFactory,
 )
-from protostar.cli.common_arguments import BLOCK_EXPLORER_ARG
+from protostar.cli.common_arguments import BLOCK_EXPLORER_ARG, MAX_FEE_ARG
 from protostar.io import Messenger, StructuredMessage, format_as_table
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.starknet_gateway import (
@@ -95,6 +95,7 @@ class MulticallCommand(ProtostarCommand):
             *SignableCommandUtil.signable_arguments,
             *MessengerFactory.OUTPUT_ARGUMENTS,
             BLOCK_EXPLORER_ARG,
+            MAX_FEE_ARG,
             ProtostarArgument(
                 name="file",
                 description=(
