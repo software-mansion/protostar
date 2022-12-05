@@ -21,14 +21,13 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
         yield protostar
 
 
-@pytest.fixture(name="multicall_file_path")
-async def multicall_file_path_fixture(
+@pytest.fixture(name="standard_contract_class_hash")
+async def standard_contract_class_hash_fixture(
     protostar: ProtostarFixture,
     devnet: DevnetFixture,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
     capsys: CaptureFixture[str],
-    tmp_path: Path,
-) -> Path:
+):
     account = devnet.get_predeployed_accounts()[0]
     with set_private_key_env_var(account.private_key):
         declare_result = await protostar.declare(
@@ -39,9 +38,20 @@ async def multicall_file_path_fixture(
             gateway_url=devnet.get_gateway_url(),
             max_fee="auto",
         )
-    capsys.readouterr()
+        capsys.readouterr()
+        return declare_result.class_hash
+
+
+@pytest.fixture(name="multicall_file_path")
+async def multicall_file_path_fixture(
+    standard_contract_class_hash: int,
+    tmp_path: Path,
+) -> Path:
+
     multicall_doc_path = tmp_path / "multicall.toml"
-    file_content = prepare_multicall_file_example(class_hash=declare_result.class_hash)
+    file_content = prepare_multicall_file_example(
+        class_hash=standard_contract_class_hash
+    )
     multicall_doc_path.write_text(file_content)
     return multicall_doc_path
 
