@@ -277,7 +277,7 @@ Waits for transaction to be accepted on chain.
 ### `migrate-configuration-file`
 Migrate protostar.toml V1 to V2.
 ### `multicall`
-Execute multiple deploy (via UDC) and invoke calls ensuring atomicity.
+Execute multiple deploy (via UDC) or invoke calls in a single transaction ensuring atomicity.
 #### `file PATH`
 Required.
 

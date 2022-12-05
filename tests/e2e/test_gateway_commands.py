@@ -301,6 +301,6 @@ def test_calculate_account_address_is_available(protostar: ProtostarFixture):
 
 def test_multicall_command_is_available(protostar: ProtostarFixture):
     assert (
-        "Execute multiple deploy (via UDC) and invoke calls ensuring atomicity"
+        "Execute multiple deploy (via UDC) or invoke calls in a single transaction ensuring atomicity"
         in protostar(["--no-color", "multicall", "--help"])
     )
