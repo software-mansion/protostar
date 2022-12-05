@@ -5,17 +5,17 @@ MULTICALL_FILE_EXAMPLE = """[[call]]
 id = "my_contract"
 type = "deploy"
 class-hash = CONTRACT_CLASS_HASH
-calldata = []
+inputs = []
 
 [[call]]
 type = "invoke"
-entrypoint-name = "increase_balance"
+function = "increase_balance"
 
 # contract-address accepts a contract address or an identifier
 contract-address = "$my_contract"
 
 # calldata accepts felts or identifiers
-calldata = [42]
+inputs = [42]
 """
 
 
