@@ -44,7 +44,7 @@ class MulticallOutputMessage(StructuredMessage):
         table_lines = format_as_table(
             {
                 "transaction hash": f"0x{self.multicall_output.transaction_hash:064x}",
-                **self._get_json_friendly_contract_address_map(),
+                **self._get_serializable_deployed_addresses_map(),
             }
         )
         lines += table_lines
@@ -55,10 +55,10 @@ class MulticallOutputMessage(StructuredMessage):
     def format_dict(self) -> dict:
         return {
             "transaction_hash": f"0x{self.multicall_output.transaction_hash:064x}",
-            **self._get_json_friendly_contract_address_map(),
+            **self._get_serializable_deployed_addresses_map(),
         }
 
-    def _get_json_friendly_contract_address_map(self):
+    def _get_serializable_deployed_addresses_map(self) -> dict[str, str]:
         result = {}
         for key, value in self.multicall_output.deployed_contract_addresses.items():
             key_str = key.value
