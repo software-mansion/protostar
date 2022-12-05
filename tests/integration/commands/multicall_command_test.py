@@ -1,10 +1,12 @@
 import json
 from pathlib import Path
+from textwrap import dedent
 
 import pytest
 from starknet_py.net.models import StarknetChainId
 from pytest import CaptureFixture
 
+from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway.multicall import (
     prepare_multicall_file_example,
     Identifier,
@@ -94,3 +96,53 @@ async def test_json(
     assert parsed_json["my_contract"] == str(
         result.deployed_contract_addresses[Identifier("my_contract")]
     )
+
+
+async def test_atomicity(
+    protostar: ProtostarFixture,
+    devnet: DevnetFixture,
+    standard_contract_class_hash: int,
+    set_private_key_env_var: SetPrivateKeyEnvVarFixture,
+    tmp_path: Path,
+):
+    account = devnet.get_predeployed_accounts()[0]
+    with set_private_key_env_var(account.private_key):
+        deploy_result = await protostar.deploy(
+            class_hash=standard_contract_class_hash,
+            account_address=account.address,
+            max_fee="auto",
+            gateway_url=devnet.get_gateway_url(),
+        )
+        multicall_file_path = tmp_path / "calls.toml"
+        multicall_file_path.write_text(
+            dedent(
+                f"""
+            [[call]]
+            type = "invoke"
+            function = "increase_balance"
+            contract-address = {deploy_result.address}
+            inputs = [42]
+
+            [[call]]
+            type = "invoke"
+            function = "increase_balance"
+            contract-address = {deploy_result.address}
+            inputs = [3618502788666131213697322783095070105623107215331596699973092056135872020480]
+        """
+            )
+        )
+
+        with pytest.raises(ProtostarException):
+            await protostar.multicall(
+                file_path=multicall_file_path,
+                account=devnet.get_predeployed_accounts()[0],
+                gateway_url=devnet.get_gateway_url(),
+            )
+
+        result = await protostar.call(
+            contract_address=deploy_result.address,
+            function_name="get_balance",
+            gateway_url=devnet.get_gateway_url(),
+            inputs=[],
+        )
+        assert result.response.res == 0
