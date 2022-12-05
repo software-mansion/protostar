@@ -15,14 +15,14 @@ Then, create a toml file containing call [array of tables](https://toml.io/en/v1
 [[call]]
 type = "deploy"
 class-hash = 0xDEADBEEF
-calldata = []
+inputs = []
 id = "my_contract"
 
 [[call]]
 type = "invoke"
 contract-address = "$my_contract"
-entrypoint-name = "increase_balance"
-calldata = [42]
+function = "increase_balance"
+inputs = [42]
 ```
 
-Protostar supports two types of calls — `deploy` and `invoke` which are similar to [`deploy command`](/docs/cli-reference#deploy) and [`invoke command`](/docs/cli-reference#invoke).
+Protostar supports two types of calls — `deploy` and `invoke`, which accept similar arguments to [`deploy command`](/docs/cli-reference#deploy) and [`invoke command`](/docs/cli-reference#invoke).
