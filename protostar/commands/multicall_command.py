@@ -30,6 +30,7 @@ from protostar.starknet_gateway.multicall import (
     interpret_multicall_file_content,
     MULTICALL_FILE_EXAMPLE,
 )
+from protostar.starknet_gateway.type import Fee
 
 
 @dataclass
@@ -123,6 +124,7 @@ class MulticallCommand(ProtostarCommand):
             account=Account(address=args.account_address, signer=signer),
             write=write,
             explorer=block_explorer,
+            max_fee=args.max_fee,
         )
 
     async def multicall(
@@ -133,6 +135,7 @@ class MulticallCommand(ProtostarCommand):
         gateway_url: str,
         write: Messenger,
         explorer: BlockExplorer,
+        max_fee: Fee,
     ):
         account_manager = AccountManager(account, gateway_url=gateway_url)
         gateway_facade = self._gateway_facade_factory.create(gateway_client)
@@ -141,7 +144,7 @@ class MulticallCommand(ProtostarCommand):
         )
         file_content = file.read_text()
         calls = interpret_multicall_file_content(file_content)
-        multicall_input = MulticallInput(calls=calls, max_fee="auto")
+        multicall_input = MulticallInput(calls=calls, max_fee=max_fee)
         result = await multicall_use_case.execute(multicall_input)
         tx_url = explorer.create_link_to_transaction(result.transaction_hash)
         write(MulticallOutputMessage(multicall_output=result, url=tx_url))
