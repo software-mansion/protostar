@@ -81,7 +81,7 @@ class MulticallCommand(ProtostarCommand):
 
     @property
     def description(self) -> str:
-        return "Execute multiple deploy (via UDC) and invoke calls ensuring atomicity."
+        return "Execute multiple deploy (via UDC) or invoke calls in a single transaction ensuring atomicity."
 
     @property
     def example(self) -> Optional[str]:
