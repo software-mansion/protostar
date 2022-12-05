@@ -30,8 +30,9 @@ class UpgradeCommand(ProtostarCommand):
     async def run(self, args: Namespace):
         logging.info("Running upgrade of protostar")
         try:
-            await self._upgrade_manager.upgrade()
+            upgraded = await self._upgrade_manager.upgrade()
         except BaseException as exc:
             logging.error("Upgrade failed")
             raise exc
-        logging.info("Upgraded successfully")
+        if upgraded:
+            logging.info("Upgraded successfully")

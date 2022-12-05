@@ -35,7 +35,7 @@ class UpgradeManager:
         self._version_manager = version_manager
         self._latest_version_checker = latest_version_checker
 
-    async def upgrade(self):
+    async def upgrade(self) -> bool:
         assert os.path.isdir(self._protostar_directory.directory_root_path)
         assert os.path.isdir(self._protostar_directory.directory_root_path / "dist")
 
@@ -46,7 +46,7 @@ class UpgradeManager:
         )
         if not is_newer_version_available:
             logging.info("Protostar is up to date")
-            return
+            return False
 
         latest_version_tag = checking_result.latest_release_tag
         latest_version = checking_result.latest_version
@@ -94,6 +94,7 @@ class UpgradeManager:
                 protostar_dir_backup_path=protostar_dir_backup_path,
                 tarball_path=tarball_path,
             )
+            return True
         except KeyboardInterrupt:
             logging.info("Interrupting...")
             self._rollback(
@@ -105,6 +106,7 @@ class UpgradeManager:
                 protostar_dir_backup_path=protostar_dir_backup_path,
                 tarball_path=tarball_path,
             )
+            return False
         except (Exception, SystemExit) as err:
             self._handle_error(
                 err,
