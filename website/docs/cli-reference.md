@@ -37,7 +37,7 @@ Class hash of the declared account contract.
 #### `--account-constructor-input INT[]`
 Input to the account's constructor.
 #### `--json`
-Print machine readable output in JSON format.
+Print machine-readable output in JSON format.
 ### `call`
 Calls a contract on StarkNet with given parameters
 #### `--chain-id INT`
@@ -55,7 +55,7 @@ The URL of a StarkNet gateway. It is required unless `--network` is provided.
 #### `--inputs INPUT[]`
 Inputs to the function being called, represented either by a list of space-delimited values (`1 2 3`) or by a mapping of their names to their values (`a=11 b=12 c=13`).
 #### `--json`
-Print machine readable output in JSON format.
+Print machine-readable output in JSON format.
 #### `-n` `--network STRING`
 The name of the StarkNet network.
 It is required unless `--gateway-url` is provided.
@@ -83,7 +83,7 @@ The chain id. It is required unless `--network` is provided.
 #### `--gateway-url STRING`
 The URL of a StarkNet gateway. It is required unless `--network` is provided.
 #### `--json`
-Print machine readable output in JSON format.
+Print machine-readable output in JSON format.
 #### `--max-fee FEE`
 Required.
 
@@ -129,7 +129,7 @@ Inputs to the constructor, represented either by a list of space-delimited value
 Calldata arguments may be of any type that does not contain pointers.
 [Read more about representing Cairo data types in the CLI.](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#array-arguments-in-calldata)
 #### `--json`
-Print machine readable output in JSON format.
+Print machine-readable output in JSON format.
 #### `--max-fee FEE`
 Required.
 
@@ -173,7 +173,7 @@ The chain id. It is required unless `--network` is provided.
 #### `--gateway-url STRING`
 The URL of a StarkNet gateway. It is required unless `--network` is provided.
 #### `--json`
-Print machine readable output in JSON format.
+Print machine-readable output in JSON format.
 #### `--max-fee WEI`
 Required.
 
@@ -257,7 +257,7 @@ The URL of a StarkNet gateway. It is required unless `--network` is provided.
 #### `--inputs INPUT[]`
 Inputs to the function being called, represented either by a list of space-delimited values (`1 2 3`) or by a mapping of their names to their values (`a=11 b=12 c=13`).
 #### `--json`
-Print machine readable output in JSON format.
+Print machine-readable output in JSON format.
 #### `--max-fee FEE`
 Required.
 
