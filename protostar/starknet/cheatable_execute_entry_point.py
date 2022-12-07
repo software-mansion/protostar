@@ -51,9 +51,6 @@ from protostar.profiler.contract_profiler import (
 from protostar.profiler.pprof import serialize, to_protobuf
 from protostar.profiler.transaction_profiler import merge_profiles
 from protostar.starknet.cheatable_cached_state import CheatableCachedState
-from protostar.starknet.cheatable_cairo_function_runner import (
-    CheatableCairoFunctionRunner,
-)
 from protostar.starknet.cheatable_syscall_handler import CheatableSysCallHandler
 from protostar.starknet.cheatcode import Cheatcode
 
@@ -120,11 +117,9 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
 
         # Run the specified contract entry point with given calldata.
         with wrap_with_stark_exception(code=StarknetErrorCode.SECURITY_ERROR):
-            # region Modified Starknet code.
-            runner = CheatableCairoFunctionRunner(
+            runner = CairoFunctionRunner(
                 program=contract_class.program, layout="all"
             )
-            # endregion
 
         os_context = os_utils.prepare_os_context(runner=runner)
 
