@@ -307,8 +307,6 @@ A glob or globs to a directory or a test suite, for example:
 Additional directories to look for sources.
 #### `--disable-hint-validation`
 Disable hint validation in contracts declared by the `declare` cheatcode or deployed by `deploy_contract` cheatcode.
-#### `--estimate-gas`
-Show gas estimation for each test case. Estimations might be inaccurate.
 #### `-x` `--exit-first`
 Exit immediately on first broken or failed test.
 #### `-i` `--ignore STRING[]`
