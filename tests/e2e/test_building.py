@@ -4,18 +4,18 @@ from textwrap import dedent
 
 import pytest
 
-from tests.e2e.conftest import ProtostarFixture
+from tests.e2e.conftest import MyPrivateLibsSetupFixture, ProtostarFixture
 
 
 @pytest.mark.usefixtures("init")
-def test_default_build(protostar):
+def test_default_build(protostar: ProtostarFixture):
     protostar(["build"])
     dirs = listdir()
     assert "build" in dirs
 
 
 @pytest.mark.usefixtures("init")
-def test_non_zero_exit_code_if_fails(protostar):
+def test_non_zero_exit_code_if_fails(protostar: ProtostarFixture):
     Path("./src/main.cairo").write_text(
         dedent(
             """
@@ -23,39 +23,40 @@ def test_non_zero_exit_code_if_fails(protostar):
             @view
             func broken() {
             """
-        )
+        ),
+        encoding="utf-8",
     )
 
     protostar(["build"], expect_exit_code=1)
 
 
 @pytest.mark.usefixtures("init")
-def test_output_dir(protostar):
+def test_output_dir(protostar: ProtostarFixture):
     protostar(["build", "--compiled-contracts-dir", "out"])
     dirs = listdir()
     assert "build" not in dirs
     assert "out" in dirs
 
 
-def test_cairo_path_argument(protostar, my_private_libs_setup):
+def test_cairo_path_argument(
+    protostar: ProtostarFixture, my_private_libs_setup: MyPrivateLibsSetupFixture
+):
     (my_private_libs_dir,) = my_private_libs_setup
 
-    protostar(["build", "--cairo-path", my_private_libs_dir])
+    protostar(["build", "--cairo-path", str(my_private_libs_dir)])
 
     dirs = listdir()
     assert "build" in dirs
 
 
 def test_cairo_path_loaded_from_command_config_section_in_config_file(
-    protostar, my_private_libs_setup
+    protostar: ProtostarFixture, my_private_libs_setup: MyPrivateLibsSetupFixture
 ):
     (my_private_libs_dir,) = my_private_libs_setup
 
     with open("./protostar.toml", "a", encoding="utf-8") as protostar_toml:
         protostar_toml.write(
-            "\n".join(
-                ['["protostar.build"]', f'cairo_path = ["{str(my_private_libs_dir)}"]']
-            )
+            "\n".join(["[build]", f'cairo-path = ["{str(my_private_libs_dir)}"]'])
         )
 
     protostar(["build"])
@@ -64,20 +65,26 @@ def test_cairo_path_loaded_from_command_config_section_in_config_file(
     assert "build" in dirs
 
 
+@pytest.mark.usefixtures("init")
 def test_cairo_path_loaded_from_command_shared_section_in_config_file(
-    protostar, my_private_libs_setup
+    protostar: ProtostarFixture,
+    my_private_libs_setup: MyPrivateLibsSetupFixture,
 ):
     (my_private_libs_dir,) = my_private_libs_setup
 
-    with open("./protostar.toml", "a", encoding="utf-8") as protostar_toml:
-        protostar_toml.write(
-            "\n".join(
-                [
-                    '["protostar.shared_command_configs"]',
-                    f'cairo_path = ["{str(my_private_libs_dir)}"]',
-                ]
-            )
-        )
+    Path("protostar.toml").write_text(
+        dedent(
+            f"""
+            [project]
+            protostar-version="0.0.0"
+            cairo-path=["{str(my_private_libs_dir)}"]
+
+            [contracts]
+            main=["src/main.cairo"]
+            """
+        ),
+        encoding="utf-8",
+    )
 
     protostar(["build"])
 
@@ -85,20 +92,28 @@ def test_cairo_path_loaded_from_command_shared_section_in_config_file(
     assert "build" in dirs
 
 
-def test_cairo_path_loaded_from_profile_section(protostar, my_private_libs_setup):
+def test_cairo_path_loaded_from_profile_section(
+    protostar: ProtostarFixture, my_private_libs_setup: MyPrivateLibsSetupFixture
+):
     (my_private_libs_dir,) = my_private_libs_setup
 
     protostar(["build"], expect_exit_code=1)
 
-    with open("./protostar.toml", "a", encoding="utf-8") as protostar_toml:
-        protostar_toml.write(
-            "\n".join(
-                [
-                    '["profile.my_profile.protostar.shared_command_configs"]',
-                    f'cairo_path = ["{str(my_private_libs_dir)}"]',
-                ]
-            )
-        )
+    Path("protostar.toml").write_text(
+        dedent(
+            f"""
+            [project]
+            protostar-version="0.0.0"
+
+            [contracts]
+            main=["src/main.cairo"]
+
+            [profile.my_profile.build]
+            cairo-path=["{str(my_private_libs_dir)}"]
+            """
+        ),
+        encoding="utf-8",
+    )
 
     protostar(["-p", "my_profile", "build"])
 
@@ -107,7 +122,7 @@ def test_cairo_path_loaded_from_profile_section(protostar, my_private_libs_setup
 
 
 @pytest.mark.usefixtures("init")
-def test_disable_hint_validation(protostar):
+def test_disable_hint_validation(protostar: ProtostarFixture):
     Path("./src/main.cairo").write_text(
         dedent(
             """
@@ -125,7 +140,8 @@ def test_disable_hint_validation(protostar):
                 return ();
             }
             """
-        )
+        ),
+        encoding="utf-8",
     )
 
     result = protostar(["build"], ignore_exit_code=True)
@@ -136,7 +152,7 @@ def test_disable_hint_validation(protostar):
 
 
 @pytest.mark.usefixtures("init")
-def test_building_account_contract(protostar):
+def test_building_account_contract(protostar: ProtostarFixture):
     Path("./src/main.cairo").write_text(
         dedent(
             """
@@ -157,7 +173,8 @@ def test_building_account_contract(protostar):
                 return ();
             }
             """
-        )
+        ),
+        encoding="utf-8",
     )
 
     protostar(["build"])
@@ -173,13 +190,11 @@ def test_building_project_with_modified_protostar_toml(protostar: ProtostarFixtu
         protostar_toml.write(
             dedent(
                 """
-            ["protostar.config"]
-            protostar_version = "0.0.0"
+            [project]
+            protostar-version = "0.0.0"
+            lib-path = "lib"
 
-            ["protostar.project"]
-            libs_path = "lib"
-
-            ["protostar.contracts"]
+            [contracts]
             foo = [
                 "./src/main.cairo",
             ]
@@ -187,7 +202,7 @@ def test_building_project_with_modified_protostar_toml(protostar: ProtostarFixtu
                 "./src/main.cairo",
             ]
             """
-            )
+            ),
         )
 
     protostar(["build"])

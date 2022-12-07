@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Type, TypeVar, Union
+from typing import Optional, Type, TypeVar, Union, Dict, Any
 
 from .hint_local import HintLocal
 
@@ -38,10 +38,11 @@ class ReportedException(BaseException):
     def __getstate__(self):
         return self.__dict__.copy()
 
-    def __setstate__(self, state):
-        self.__dict__.update(state)
+    def __setstate__(self, state: Union[Dict[str, Any], None]):
+        if state:
+            self.__dict__.update(state)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any):
         return isinstance(other, type(self)) and self.__dict__ == other.__dict__
 
     def get_metadata_by_type(

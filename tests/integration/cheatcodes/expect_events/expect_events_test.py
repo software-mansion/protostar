@@ -1,8 +1,6 @@
 from pathlib import Path
 from typing import cast
 
-import pytest
-
 from protostar.testing.test_environment_exceptions import (
     ExpectedEventMissingException,
 )
@@ -40,7 +38,6 @@ async def test_expect_events(run_cairo_test_runner: RunCairoTestRunnerFixture):
     )
 
 
-@pytest.mark.asyncio
 async def test_event_selector_to_name_mapping(
     run_cairo_test_runner: RunCairoTestRunnerFixture,
 ):

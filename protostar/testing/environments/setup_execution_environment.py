@@ -1,12 +1,8 @@
 from typing import List
 
-from starkware.starknet.business_logic.execution.objects import CallInfo
-
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.testing.cheatcodes import MaxExamplesCheatcode
-from protostar.testing.environments.execution_environment import (
-    ExecutionEnvironment,
-)
+from protostar.testing.environments.execution_environment import ExecutionEnvironment
 from protostar.testing.starkware.test_execution_state import TestExecutionState
 
 from .common_test_cheatcode_factory import CommonTestCheatcodeFactory
@@ -29,9 +25,8 @@ class SetupCheatcodeFactory(CommonTestCheatcodeFactory):
     def build_cheatcodes(
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
-        internal_calls: List[CallInfo],
     ) -> List[Cheatcode]:
         return [
-            *super().build_cheatcodes(syscall_dependencies, internal_calls),
+            *super().build_cheatcodes(syscall_dependencies),
             MaxExamplesCheatcode(syscall_dependencies, self._state.config),
         ]

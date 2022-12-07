@@ -1,9 +1,13 @@
 from protostar.protostar_exception import ProtostarException
 
 
-class InvalidLocalRepository(ProtostarException):
+class RemovalException(ProtostarException):
     pass
 
 
-class PackageNotFound(ProtostarException):
+class InvalidLocalRepository(RemovalException):
+    pass
+
+
+class PackageNotFound(RemovalException):
     pass

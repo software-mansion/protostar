@@ -1,24 +1,26 @@
-from logging import Logger
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Any
 
-from protostar.cli import ActivityIndicator, Command
+from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
+from protostar.cli.common_arguments import COMPILED_CONTRACTS_DIR_ARG
 from protostar.compiler import ProjectCompiler, ProjectCompilerConfig
-from protostar.io import log_color_provider
+from protostar.io import LogColorProvider, Message
 
 
-class BuildCommand(Command):
-    COMPILATION_OUTPUT_ARG = Command.Argument(
-        name="compiled-contracts-dir",
-        description="An output directory used to put the compiled contracts in.",
-        type="path",
-        default="build",
-    )
+class BuildActivityMessageTemplate(Message):
+    def format_human(self, fmt: LogColorProvider) -> str:
+        return "Building projects' contracts"
 
-    def __init__(self, project_compiler: ProjectCompiler, logger: Logger) -> None:
+
+class BuildCommand(ProtostarCommand):
+    def __init__(
+        self,
+        project_compiler: ProjectCompiler,
+        messenger_factory: MessengerFactory,
+    ):
         super().__init__()
         self._project_compiler = project_compiler
-        self._logger = logger
+        self._messenger_factory = messenger_factory
 
     @property
     def example(self) -> Optional[str]:
@@ -33,47 +35,42 @@ class BuildCommand(Command):
         return "Compile contracts."
 
     @property
-    def arguments(self) -> List[Command.Argument]:
+    def arguments(self):
         return [
-            Command.Argument(
+            ProtostarArgument(
                 name="cairo-path",
                 description="Additional directories to look for sources.",
-                type="directory",
-                is_array=True,
+                type="path",
+                value_parser="list",
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="disable-hint-validation",
                 description="Disable validation of hints when building the contracts.",
                 type="bool",
             ),
-            BuildCommand.COMPILATION_OUTPUT_ARG,
+            COMPILED_CONTRACTS_DIR_ARG,
         ]
 
-    async def run(self, args):
-        await self.build(
-            output_dir=args.compiled_contracts_dir,
-            disable_hint_validation=args.disable_hint_validation,
-            relative_cairo_path=args.cairo_path,
-        )
+    async def run(self, args: Any):
+        write = self._messenger_factory.human()
+
+        with write.activity(BuildActivityMessageTemplate()):
+            await self.build(
+                output_dir=args.compiled_contracts_dir,
+                disable_hint_validation=args.disable_hint_validation,
+                relative_cairo_path=args.cairo_path,
+            )
 
     async def build(
         self,
         output_dir: Path,
-        disable_hint_validation=False,
+        disable_hint_validation: bool = False,
         relative_cairo_path: Optional[List[Path]] = None,
     ):
-        with ActivityIndicator(
-            log_color_provider.colorize("GRAY", "Building projects' contracts")
-        ):
-            try:
-                self._project_compiler.compile_project(
-                    output_dir=output_dir,
-                    config=ProjectCompilerConfig(
-                        hint_validation_disabled=disable_hint_validation,
-                        relative_cairo_path=relative_cairo_path or [],
-                    ),
-                )
-            except BaseException as exc:
-                self._logger.error("Build failed")
-                raise exc
-        self._logger.info("Built the project successfully")
+        self._project_compiler.compile_project(
+            output_dir=output_dir,
+            config=ProjectCompilerConfig(
+                hint_validation_disabled=disable_hint_validation,
+                relative_cairo_path=relative_cairo_path or [],
+            ),
+        )

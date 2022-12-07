@@ -1,17 +1,20 @@
 # Fuzzing
 
-:::warning
-This feature is actively developed and many new additions will land in future Protostar releases.
-:::
-
-Protostar tests can take parameters, which makes such tests to be run in a _fuzzing mode_.
-In this mode, Protostar treats the test case parameters as a specification of the test case,
+In order to use the _fuzzing mode_, you have to use the [`given`](../02-cheatcodes/given.md) cheatcode.
+In the _fuzzing mode_, Protostar treats the test case parameters as a specification of the test case,
 in the form of properties which it should satisfy,
 and tests that these properties hold in numerous randomly generated input data.
 
 This technique is often called _property-based testing_.
 From the perspective of a user, the purpose of property-based testing is to make it easier for the
 user to write better tests.
+
+Fuzzer input parameters are selected according to a _fuzzing strategy_ associated with each
+parameter.
+Protostar offers various strategies tailored for specific use cases, check out
+the [Strategies](./strategies.md) page for more information.
+Associating a fuzzing strategy to a parameter is done using the [`given`](../02-cheatcodes/given.md)
+cheatcode, which is only available within [setup cases][setup-case].
 
 ## Example
 
@@ -101,7 +104,6 @@ So far, so good. Running the test, we see it passes:
 12:14:51 [INFO] Test suites: 1 passed, 1 total
 12:14:51 [INFO] Tests:       1 passed, 1 total
 12:14:51 [INFO] Seed:        2917010406
-12:14:51 [INFO] Execution time: 5.34 s
 ```
 
 ### Generalizing the test
@@ -112,10 +114,26 @@ However, can we be sure that it works for all amounts, not just this particular 
 The general property here is: given a safe balance, when we withdraw some amount from it, we should
 get reduced balance in the safe, and it should not be possible to withdraw more than we have.
 
-Protostar will run any test that takes parameters in fuzz testing mode, so let's rewrite our unit
-test:
+In order to run our test in the fuzz testing mode, we need to use the [`given`](../02-cheatcodes/given.md)
+cheatcode. Let's apply this:
 
 ```cairo title="tests/test_main.cairo"
+%lang starknet
+from src.main import balance, withdraw
+from starkware.cairo.common.cairo_builtins import HashBuiltin
+
+@external
+func setup_withdraw{
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
+    range_check_ptr
+}() {
+    %{ given(amount = strategy.felts()) %}
+
+    balance.write(10000);
+    return ();
+}
+
 @external
 func test_withdraw{
     syscall_ptr: felt*,
@@ -134,6 +152,9 @@ func test_withdraw{
     return ();
 }
 ```
+
+This test is being run using the [`felts`](./strategies.md#strategyfelts) strategy.
+By default, it tries to apply all possible `felt` values.
 
 When the test is run now, we can see that it fails for values larger than the amount we stored
 in [`setup_withdraw` hook][setup-case]:
@@ -173,7 +194,6 @@ amount = 10001
 12:24:06 [INFO] Test suites: 1 failed, 1 total
 12:24:06 [INFO] Tests:       1 failed, 1 total
 12:24:06 [INFO] Seed:        2965326707
-12:24:06 [INFO] Execution time: 11.95 s
 ```
 
 We need to take the `Cannot withdraw more than stored` error into consideration, so we also add a
@@ -219,7 +239,6 @@ amount = 36185027886661312136973227830950701056231072153315966999730920561358720
 12:25:29 [INFO] Test suites: 1 failed, 1 total
 12:25:29 [INFO] Tests:       1 failed, 1 total
 12:25:29 [INFO] Seed:        1746010604
-12:25:29 [INFO] Execution time: 7.34 s
 ```
 
 ### Fixing the bug
@@ -231,13 +250,7 @@ Although this bug should be fixed within the contract, for the purpose of this t
 it differently:
 we will instruct the fuzzer to avoid numbers outside of `range_check` builtin boundary.
 
-Fuzzer input parameters are selected according to a _fuzzing strategy_ associated with each
-parameter.
-Protostar offers various strategies tailored for specific use cases, check out
-the [Strategies](./strategies.md) page for more information.
-Associating a fuzzing strategy to a parameter is done using the [`given`](../02-cheatcodes/given.md)
-cheatcode, which is only available within [setup cases][setup-case].
-The default strategy [`felts`](./strategies.md#strategyfelts) accepts a keyword argument `rc_bound`
+The [`felts`](./strategies.md#strategyfelts) strategy accepts a keyword argument `rc_bound`
 which narrows the range of values to be safe to be passed to range check-based assertions:
 
 ```cairo title="src/main.cairo"
@@ -266,7 +279,6 @@ contract code.
 12:27:35 [INFO] Test suites: 1 passed, 1 total
 12:27:35 [INFO] Tests:       1 passed, 1 total
 12:27:35 [INFO] Seed:        3287645654
-12:27:35 [INFO] Execution time: 13.46 s
 ```
 
 ## Interpreting results
@@ -291,6 +303,7 @@ By default, Protostar tries to fail a test case within 100 examples.
 The default value is chosen to suit a workflow where the test will be part of a suite that is
 regularly executed locally or on a CI server,
 balancing total running time against the chance of missing a bug.
+
 The more complex code, the more examples are needed to find uncommon bugs.
 To adjust number of input cases generated by the fuzzer,
 call the [`max_examples`](../02-cheatcodes/max-examples.md) cheatcode within a

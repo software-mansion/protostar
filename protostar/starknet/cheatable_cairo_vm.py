@@ -8,7 +8,9 @@ class CheatableVirtualMachine(VirtualMachine):
     `VirtualMachine` with modified `step` function that builds cheatcodes created with `DelayedBuilder`.
     """
 
-    def exec_hint(self, code, globals_, hint_index):
+    def exec_hint(
+        self, code, globals_, hint_index
+    ):  # pyright: reportMissingParameterType=false
         for name, value in globals_.items():
             if isinstance(value, DelayedBuilder):
                 globals_[name] = value.internal_build(globals_)

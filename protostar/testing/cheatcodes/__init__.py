@@ -5,6 +5,7 @@ from .deploy_contract_cheatcode import DeployContractCheatcode
 from .expect_events_cheatcode import ExpectEventsCheatcode
 from .expect_revert_cheatcode import ExpectRevertCheatcode
 from .given_cheatcode import GivenCheatcode
+from .example_cheatcode import ExampleCheatcode
 from .load_cheatcode import LoadCheatcode
 from .max_examples_cheatcode import MaxExamplesCheatcode
 from .mock_call_cheatcode import MockCallCheatcode
@@ -16,3 +17,4 @@ from .skip_cheatcode import SkipCheatcode
 from .start_prank_cheatcode import StartPrankCheatcode
 from .store_cheatcode import StoreCheatcode
 from .warp_cheatcode import WarpCheatcode
+from .expect_call_cheatcode import ExpectCallCheatcode

@@ -8,7 +8,7 @@ def get_contract_class(
     source: Optional[str] = None,
     contract_class: Optional[ContractClass] = None,
     cairo_path: Optional[List[str]] = None,
-    disable_hint_validation=False,
+    disable_hint_validation: bool = False,
 ) -> ContractClass:
     """
     This function (compared to the original) allows disabling hint validation.

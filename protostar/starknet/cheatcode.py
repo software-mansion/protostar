@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any, Type
 
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.starknet.business_logic.execution.objects import (
+    CallInfo,
     TransactionExecutionContext,
 )
 from starkware.starknet.business_logic.fact_state.state import ExecutionResourcesManager
@@ -32,12 +33,23 @@ class Cheatcode(BusinessLogicSysCallHandler, HintLocal):
         contract_address: int
         general_config: StarknetGeneralConfig
         initial_syscall_ptr: RelocatableValue
+        shared_internal_calls: list[CallInfo]
 
     def __init__(
         self,
         syscall_dependencies: SyscallDependencies,
     ):
-        super().__init__(**syscall_dependencies)
+        super().__init__(
+            execute_entry_point_cls=syscall_dependencies["execute_entry_point_cls"],
+            tx_execution_context=syscall_dependencies["tx_execution_context"],
+            state=syscall_dependencies["state"],
+            resources_manager=syscall_dependencies["resources_manager"],
+            caller_address=syscall_dependencies["caller_address"],
+            contract_address=syscall_dependencies["contract_address"],
+            general_config=syscall_dependencies["general_config"],
+            initial_syscall_ptr=syscall_dependencies["initial_syscall_ptr"],
+        )
+        self.internal_calls = syscall_dependencies["shared_internal_calls"]
 
         # assigning properties to preserve "cheatable" types
         self.state: SyncState = syscall_dependencies["state"]

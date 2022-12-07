@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from protostar.testing.test_results import PassedFuzzTestCaseResult
+from protostar.testing.test_config import TestConfig
 from tests.integration.conftest import (
     RunCairoTestRunnerFixture,
     assert_cairo_test_cases,
@@ -122,3 +123,34 @@ async def test_should_not_share_state(
         testing_summary,
         expected_passed_test_cases_names=["test_context"],
     )
+
+
+async def test_parameterized_with_examples_tests(
+    run_cairo_test_runner: RunCairoTestRunnerFixture,
+):
+    testing_summary = await run_cairo_test_runner(
+        Path(__file__).parent / "parameterized_test.cairo"
+    )
+
+    assert_cairo_test_cases(
+        testing_summary,
+        expected_passed_test_cases_names=[
+            "test_check_exact_example",
+            "test_given_and_examples",
+            "test_only_examples",
+            "test_only_given",
+        ],
+        expected_broken_test_cases_names=[
+            "test_no_data_broken",
+        ],
+    )
+
+    assert len(testing_summary.passed) == 4
+    passed_list = [
+        getattr(passed, "fuzz_runs_count")
+        for passed in testing_summary.passed
+        if hasattr(passed, "fuzz_runs_count")
+    ]
+    passed_list.sort()
+    # TestConfig().fuzz_max_examples is a default value for max examples
+    assert passed_list == [0, 0, 7, TestConfig().fuzz_max_examples]

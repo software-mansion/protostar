@@ -1,23 +1,24 @@
-from logging import Logger
-from typing import Callable, List, Optional
+from argparse import Namespace
 from pathlib import Path
+from typing import Callable, List, Optional, Any
 
-from protostar.cli import Command
+from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
 from protostar.cli.map_targets_to_file_paths import map_targets_to_file_paths
-from protostar.protostar_exception import ProtostarExceptionSilent
 from protostar.formatter.formatter import Formatter
-from protostar.formatter.formatting_summary import FormattingSummary, format_summary
-from protostar.formatter.formatting_result import (
-    FormattingResult,
-    format_formatting_result,
-)
+from protostar.formatter.formatting_result import FormattingResult
+from protostar.formatter.formatting_summary import FormattingSummary
+from protostar.protostar_exception import ProtostarExceptionSilent
 
 
-class FormatCommand(Command):
-    def __init__(self, project_root_path: Path, logger: Logger) -> None:
+class FormatCommand(ProtostarCommand):
+    def __init__(
+        self,
+        project_root_path: Path,
+        messenger_factory: MessengerFactory,
+    ) -> None:
         super().__init__()
         self._formatter = Formatter(project_root_path)
-        self._logger = logger
+        self._messenger_factory = messenger_factory
 
     @property
     def example(self) -> Optional[str]:
@@ -32,17 +33,17 @@ class FormatCommand(Command):
         return "Format Cairo source code."
 
     @property
-    def arguments(self) -> List[Command.Argument]:
+    def arguments(self):
         return [
-            Command.Argument(
+            ProtostarArgument(
                 name="target",
-                description=("Target to format, can be a file or a directory."),
+                description="Target to format, can be a file or a directory.",
                 type="str",
-                is_array=True,
+                value_parser="list",
                 is_positional=True,
                 default=["."],
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="check",
                 description=(
                     "Run in 'check' mode. Exits with 0 if input is formatted correctly."
@@ -53,34 +54,34 @@ class FormatCommand(Command):
                 default=False,
                 short_name="c",
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="verbose",
-                description=("Log information about already formatted files as well."),
+                description="Log information about already formatted files as well.",
                 type="bool",
                 is_required=False,
                 default=False,
             ),
-            Command.Argument(
+            ProtostarArgument(
                 name="ignore-broken",
-                description=("Ignore broken files."),
+                description="Ignore broken files.",
                 type="bool",
                 is_required=False,
                 default=False,
             ),
         ]
 
-    async def run(self, args):
+    async def run(self, args: Namespace):
+        write = self._messenger_factory.human()
+
         summary = self.format(
             targets=args.target,
             check=args.check,
             verbose=args.verbose,
             ignore_broken=args.ignore_broken,
+            on_formatting_result=write,
         )
 
-        if summary.get_file_count() == 0:
-            self._logger.warn("No files found")
-        else:
-            self._logger.info(format_summary(summary, args.check))
+        write(summary)
 
         # set exit code to 1
         if summary.any_unformatted_or_broken(args.check):
@@ -89,19 +90,19 @@ class FormatCommand(Command):
             )
 
     def format(
-        self, targets: List[str], check=False, verbose=False, ignore_broken=False
+        self,
+        targets: List[str],
+        check: bool = False,
+        verbose: bool = False,
+        ignore_broken: bool = False,
+        on_formatting_result: Optional[Callable[[FormattingResult], Any]] = None,
     ) -> FormattingSummary:
-
-        callback: Callable[[FormattingResult], None] = lambda result: print(
-            format_formatting_result(result, check)
-        )
-
         summary = self._formatter.format(
             file_paths=map_targets_to_file_paths(targets),
             check=check,
             verbose=verbose,
             ignore_broken=ignore_broken,
-            on_formatting_result=callback,
+            on_formatting_result=on_formatting_result,
         )
 
         return summary

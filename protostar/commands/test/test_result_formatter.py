@@ -177,6 +177,10 @@ def _format_passed_fuzz_test_case_result(
         )
 
     if passed_fuzz_test_case_result.execution_resources:
+        if passed_fuzz_test_case_result.execution_resources.estimated_gas is not None:
+            info_items.append(
+                f"gas={log_color_provider.bold(passed_fuzz_test_case_result.execution_resources.estimated_gas)}"
+            )
         if passed_fuzz_test_case_result.execution_resources.n_steps:
             info_items.append(
                 f"steps={log_color_provider.bold(passed_fuzz_test_case_result.execution_resources.n_steps)}"
@@ -245,15 +249,21 @@ def _format_skipped_test_case_result(skipped_test_case_result: SkippedTestCaseRe
     return "\n".join(result)
 
 
-def _format_failed_fuzz_test_case_result(failed_fuzz_test_case_result) -> str:
+def _format_failed_fuzz_test_case_result(
+    failed_fuzz_test_case_result: FailedFuzzTestCaseResult,
+) -> str:
     return _format_failed_test_case_result(failed_fuzz_test_case_result)
 
 
-def _format_broken_fuzz_test_case_result(broken_fuzz_test_case_result) -> str:
+def _format_broken_fuzz_test_case_result(
+    broken_fuzz_test_case_result: BrokenFuzzTestCaseResult,
+) -> str:
     return _format_broken_test_case_result(broken_fuzz_test_case_result)
 
 
-def _format_broken_test_suite_result(broken_test_suite_result) -> str:
+def _format_broken_test_suite_result(
+    broken_test_suite_result: BrokenTestSuiteResult,
+) -> str:
     first_line: List[str] = []
     first_line.append(f"[{log_color_provider.colorize('RED', 'BROKEN')}]")
     first_line.append(f"{_get_formatted_file_path(broken_test_suite_result.file_path)}")

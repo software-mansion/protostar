@@ -1,11 +1,9 @@
-# pylint: disable=invalid-name
 import json
 import os
 from contextlib import contextmanager
 from dataclasses import dataclass
-from logging import getLogger
 from pathlib import Path
-from typing import Callable, ContextManager, List, Optional, Set, Tuple, cast
+from typing import Callable, ContextManager, List, Optional, Set, cast
 
 import pytest
 from pytest import TempPathFactory
@@ -15,8 +13,8 @@ from typing_extensions import Protocol
 
 from protostar.commands.test.test_command import TestCommand
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
-from protostar.testing import TestingSummary
 from protostar.io.log_color_provider import LogColorProvider
+from protostar.testing import TestingSummary
 from tests.conftest import run_devnet
 from tests.integration.protostar_fixture import (
     ProtostarFixture,
@@ -88,8 +86,13 @@ def assert_cairo_test_cases(
 
 
 @pytest.fixture(name="devnet_gateway_url", scope="session")
-def devnet_gateway_url_fixture(devnet_port: int):
-    proc = run_devnet(["poetry", "run", "starknet-devnet"], devnet_port)
+def devnet_gateway_url_fixture(
+    devnet_port: int,
+):
+    proc = run_devnet(
+        ["poetry", "run", "starknet-devnet"],
+        devnet_port,
+    )
     yield f"http://localhost:{devnet_port}"
     proc.kill()
 
@@ -99,7 +102,9 @@ class RunCairoTestRunnerFixture(Protocol):
         self,
         path: Path,
         seed: Optional[int] = None,
-        disable_hint_validation=False,
+        max_steps: Optional[int] = None,
+        disable_hint_validation: bool = False,
+        profiling: bool = False,
         cairo_path: Optional[List[Path]] = None,
         test_cases: Optional[List[str]] = None,
         ignored_test_cases: Optional[List[str]] = None,
@@ -114,6 +119,21 @@ def log_color_provider_fixture() -> LogColorProvider:
     return log_color_provider
 
 
+@contextmanager
+def empty_protostar_toml():
+    toml_path = (Path(".") / "protostar.toml").resolve()
+    lib_dir = (Path(".") / "lib").resolve()
+    lib_dir.mkdir(exist_ok=True)
+    with open(toml_path, mode="w+", encoding="utf-8") as file:
+        file.write(
+            """["protostar.project"]\nlibs_path="lib"\n["protostar.contracts"]"""
+        )
+    yield
+    toml_path.unlink(missing_ok=True)
+    if lib_dir.is_dir():
+        lib_dir.rmdir()
+
+
 @pytest.fixture(name="run_cairo_test_runner", scope="module")
 def run_cairo_test_runner_fixture(
     session_mocker: MockerFixture, log_color_provider: LogColorProvider
@@ -121,7 +141,9 @@ def run_cairo_test_runner_fixture(
     async def run_cairo_test_runner(
         path: Path,
         seed: Optional[int] = None,
-        disable_hint_validation=False,
+        max_steps: Optional[int] = None,
+        disable_hint_validation: bool = False,
+        profiling: bool = False,
         cairo_path: Optional[List[Path]] = None,
         test_cases: Optional[List[str]] = None,
         ignored_test_cases: Optional[List[str]] = None,
@@ -149,20 +171,23 @@ def run_cairo_test_runner_fixture(
                 f"{str(path)}::{ignored_test_case}"
                 for ignored_test_case in ignored_test_cases
             ]
-
-        return await TestCommand(
-            project_root_path=Path(),
-            protostar_directory=protostar_directory_mock,
-            project_cairo_path_builder=project_cairo_path_builder,
-            logger=getLogger(),
-            log_color_provider=log_color_provider,
-        ).test(
-            targets=targets,
-            ignored_targets=ignored_targets,
-            seed=seed,
-            disable_hint_validation=disable_hint_validation,
-            cairo_path=cairo_path or [],
-        )
+        with empty_protostar_toml():
+            return await TestCommand(
+                project_root_path=Path(),
+                protostar_directory=protostar_directory_mock,
+                project_cairo_path_builder=project_cairo_path_builder,
+                log_color_provider=log_color_provider,
+                active_profile_name=None,
+                cwd=Path(),
+            ).test(
+                targets=targets,
+                ignored_targets=ignored_targets,
+                seed=seed,
+                max_steps=max_steps,
+                profiling=profiling,
+                disable_hint_validation=disable_hint_validation,
+                cairo_path=cairo_path or [],
+            )
 
     return run_cairo_test_runner
 
@@ -176,29 +201,38 @@ class CreateProtostarProjectFixture(Protocol):
 def create_protostar_project_fixture(
     session_mocker: MockerFixture,
     tmp_path_factory: TempPathFactory,
-    signing_credentials: Tuple[str, str],
-):
+) -> CreateProtostarProjectFixture:
     @contextmanager
     def create_protostar_project():
         tmp_path = tmp_path_factory.mktemp("project_name")
-        project_root_path = tmp_path / "project_name"
+        project_root_path = tmp_path
         cwd = Path().resolve()
         protostar = build_protostar_fixture(
             mocker=session_mocker,
-            project_root_path=project_root_path,
-            signing_credentials=signing_credentials,
+            project_root_path=tmp_path,
         )
+        project_name = "project_name"
+        protostar.init_sync(project_name)
 
-        protostar.init_sync()
+        project_root_path = project_root_path / project_name
         os.chdir(project_root_path)
-        yield protostar
+        # rebuilding protostar fixture to reload configuration file
+        yield build_protostar_fixture(
+            mocker=session_mocker,
+            project_root_path=project_root_path,
+        )
         os.chdir(cwd)
 
     return create_protostar_project
 
 
+GetAbiFromContractFixture = Callable[[str], AbiType]
+
+
 @pytest.fixture(name="get_abi_from_contract", scope="module")
-def get_abi_from_contract_fixture(create_protostar_project) -> Callable[[str], AbiType]:
+def get_abi_from_contract_fixture(
+    create_protostar_project: CreateProtostarProjectFixture,
+) -> GetAbiFromContractFixture:
     def get_abi_from_contract(contract_source_code: str) -> AbiType:
         with create_protostar_project() as protostar:
             protostar.create_files({"src/main.cairo": contract_source_code})

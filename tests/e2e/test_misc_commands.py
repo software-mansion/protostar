@@ -2,51 +2,45 @@
 import re
 from os import listdir
 from pathlib import Path
+from textwrap import dedent
 
 import pexpect
 import pytest
-import tomli
-import packaging
-from packaging.version import parse as parse_version
 from packaging.version import Version
+from packaging.version import parse as parse_version
+
+from protostar.configuration_file import ConfigurationFileFactory, ConfigurationFileV2
+from tests.e2e.conftest import ProjectInitializer, ProtostarFixture
 
 
-from protostar.self.protostar_directory import ProtostarDirectory, VersionManager
-
-
-def test_help(protostar):
+def test_help(protostar: ProtostarFixture):
     result = protostar(["--help"])
     assert "usage:" in result
 
 
-def test_versions(protostar):
+def test_versions(protostar: ProtostarFixture):
     result = protostar(["-v"])
     assert "Protostar" in result
     assert "Cairo-lang" in result
 
 
-def test_init(init_project, project_name: str):
+def test_init(init_project: ProjectInitializer, project_name: str):
     with pytest.raises(FileNotFoundError):
         listdir(f"./{project_name}")
 
-    init_project(override_libs_path="")
+    init_project()
 
     dirs = listdir(project_name)
 
     assert "protostar.toml" in dirs
-    assert ".git" in dirs
 
 
 def test_init_existing(protostar_bin: Path):
     child = pexpect.spawn(f"{protostar_bin} init --existing")
-    child.expect("libraries directory *", timeout=10)
-    child.sendline("lib_test")
     child.expect(pexpect.EOF)
     dirs = listdir(".")
 
     assert "protostar.toml" in dirs
-    assert "lib_test" in dirs
-    assert ".git" in dirs
 
 
 def test_init_ask_existing(protostar_bin: Path):
@@ -55,33 +49,21 @@ def test_init_ask_existing(protostar_bin: Path):
     child = pexpect.spawn(f"{protostar_bin} init")
     child.expect("Your current directory.*", timeout=10)
     child.sendline("y")
-    child.expect("libraries directory *", timeout=1)
-    child.sendline("lib_test")
     child.expect(pexpect.EOF)
 
     dirs = listdir(".")
     assert "protostar.toml" in dirs
-    assert "lib_test" in dirs
-    assert ".git" in dirs
 
 
 @pytest.mark.usefixtures("init")
-def test_protostar_version_in_config_file(mocker, protostar_bin: Path):
-    protostar_directory = ProtostarDirectory(protostar_bin.parent)
+def test_creating_configuration_file_v2():
+    configuration_file = ConfigurationFileFactory(cwd=Path().resolve()).create()
 
-    version_manager = VersionManager(protostar_directory, mocker.MagicMock())
-    assert version_manager.protostar_version is not None
-
-    with open("./protostar.toml", "r+", encoding="UTF-8") as protostar_toml:
-        raw_protostar_toml = protostar_toml.read()
-        protostar_toml_dict = tomli.loads(raw_protostar_toml)
-        version_str = protostar_toml_dict["protostar.config"]["protostar_version"]
-        protostar_version = VersionManager.parse(version_str)
-
-        assert version_manager.protostar_version == protostar_version
+    assert isinstance(configuration_file, ConfigurationFileV2)
+    assert configuration_file.get_declared_protostar_version() is not None
 
 
-def test_protostar_version_in_correct_format(protostar):
+def test_protostar_version_in_correct_format(protostar: ProtostarFixture):
     res = protostar(["--v"])
 
     match = re.match(r".*Cairo-lang version: (.*?)\n.*", res, flags=re.DOTALL)
@@ -97,3 +79,31 @@ def test_protostar_version_in_correct_format(protostar):
     assert isinstance(
         v_object, Version
     ), f"Output version ({v_string}) does not meet the format requirements"
+
+
+def test_migrate_configuration_file(protostar: ProtostarFixture):
+    Path("protostar.toml").write_text(
+        dedent(
+            """
+        ["protostar.config"]
+        protostar_version = "0.5.0"
+
+        ["protostar.project"]
+        libs_path = "./lib"         
+
+        ["protostar.contracts"]
+        main = [
+        "./src/main.cairo",
+        ]
+    """
+        ),
+        encoding="utf-8",
+    )
+
+    output = protostar(["migrate-configuration-file"])
+    configuration_file = Path("protostar.toml").read_text(encoding="utf-8")
+
+    assert "The configuration file was migrated successfully" in output
+    assert "update your configuration file" not in output
+    assert "[project]" in configuration_file
+    assert '"src/main.cairo"' in configuration_file

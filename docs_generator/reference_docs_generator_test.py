@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from conftest import BarCommand, FooCommand
 from docs_generator import ReferenceDocsGenerator
-from protostar.cli.cli_app import CLIApp
-from protostar.cli.command import Command
+from protostar.argument_parser.argument import Argument
+from protostar.argument_parser.cli_app import CLIApp
+from protostar.argument_parser.conftest import BarCommand, FooCommand
 
 
 def test_generating_markdown_for_commands(
@@ -41,11 +41,11 @@ def test_generating_default_type_and_array_info():
     docs_generator = ReferenceDocsGenerator(
         CLIApp(
             root_args=[
-                Command.Argument(
+                Argument(
                     name="foo",
                     description="...",
                     default="FOO",
-                    is_array=True,
+                    value_parser="list",
                     type="str",
                 )
             ]
@@ -61,7 +61,7 @@ def test_generating_short_name_info():
     docs_generator = ReferenceDocsGenerator(
         CLIApp(
             root_args=[
-                Command.Argument(
+                Argument(
                     name="foo",
                     short_name="f",
                     description="...",
@@ -81,7 +81,7 @@ def test_required_info():
     docs_generator = ReferenceDocsGenerator(
         CLIApp(
             root_args=[
-                Command.Argument(
+                Argument(
                     name="foo",
                     short_name="f",
                     description="...",
@@ -97,8 +97,8 @@ def test_required_info():
     assert "Required." in result
 
 
-def test_saving_markdown_file(tmpdir):
-    filepath = Path(tmpdir) / "foo.md"
+def test_saving_markdown_file(tmp_path: Path):
+    filepath = tmp_path / "foo.md"
     ReferenceDocsGenerator.save_to_markdown_file(filepath, "foobar")
 
     with open(filepath, "r", encoding="utf-8") as file:
@@ -119,11 +119,9 @@ def test_args_order_by_is_positional_and_name():
     docs_generator = ReferenceDocsGenerator(
         CLIApp(
             root_args=[
-                Command.Argument(name="foo", description="...", type="str"),
-                Command.Argument(name="bar", description="...", type="str"),
-                Command.Argument(
-                    name="baz", description="...", type="str", is_positional=True
-                ),
+                Argument(name="foo", description="...", type="str"),
+                Argument(name="bar", description="...", type="str"),
+                Argument(name="baz", description="...", type="str", is_positional=True),
             ]
         )
     )

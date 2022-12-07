@@ -5,8 +5,8 @@ For example we can perform greater than zero validation early in the code, and w
 Fuzzer allows to provide such assumptions to avoid testing against values which are not covered by the code. 
 
 Cheatcode [`given`](../02-cheatcodes/given.md),
-instructs fuzzer how to constraint set of values code is tested against.
-Such constraints are provided declaratively, by assigning _strategies_ to the input parameters as on the example below.
+instructs the fuzzer to adopt a specific fuzzing strategy for input parameters.
+Such strategies are provided declaratively, by assigning _strategies_ to the input parameters as on the example below.
 
 ```cairo title="Example"
 @external
@@ -26,11 +26,6 @@ func test_integers{syscall_ptr : felt*, range_check_ptr}(a : felt, b : felt) {
     return ();
 }
 ```
-
-:::note
-By default, Protostar applies the [`strategy.felts()`](#strategyfelts) strategy to all felt
-parameters.
-:::
 
 This document is a guide to what strategies are available for generating examples and how to build
 them.
@@ -91,9 +86,9 @@ Max size `31` comes from [the docs](https://www.cairo-lang.org/docs/how_cairo_wo
 Often it is the case that a strategy does not produce exactly what is desired and it is necessary to further
 adapt the generated values.
 Although this could be done in tests directly, this hurts because fuzzer does not know about the adaptation and may repeatedly test the same values.
-The [`assume`] and [`reject`] cheatcodes provide simple interfaces to adapt a advanced strategy.
+The [`assume`] and [`reject`] cheatcodes provide simple interfaces to adapt an advanced strategy.
 Those are not very good considering the performance.
-Fuzzer can execute test on rejected data anyway and will just ignore failure when it happens.
+Fuzzer can execute tests on rejected data anyway and will just ignore failure when it happens.
 
 Protostar provides ways to build strategies by transforming other ones.
 

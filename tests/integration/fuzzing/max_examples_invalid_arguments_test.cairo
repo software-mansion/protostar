@@ -3,6 +3,7 @@
 @external
 func setup_zero() {
     %{ max_examples(0) %}
+    %{ given(a = strategy.felts()) %}
     return ();
 }
 
@@ -14,6 +15,7 @@ func test_zero(a) {
 @external
 func setup_negative() {
     %{ max_examples(-1) %}
+    %{ given(a = strategy.felts()) %}
     return ();
 }
 

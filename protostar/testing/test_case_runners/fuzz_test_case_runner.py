@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Any
 
 from protostar.starknet import BreakingReportedException, ReportedException
 from protostar.testing.environments.fuzz_test_execution_environment import (
@@ -22,7 +22,9 @@ from .test_case_runner import TestCaseRunner
 
 class FuzzTestCaseRunner(TestCaseRunner[FuzzTestExecutionResult]):
     def __init__(
-        self, fuzz_test_execution_environment: FuzzTestExecutionEnvironment, **kwargs
+        self,
+        fuzz_test_execution_environment: FuzzTestExecutionEnvironment,
+        **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
         self._fuzz_test_execution_environment = fuzz_test_execution_environment

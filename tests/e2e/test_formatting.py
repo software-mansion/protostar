@@ -3,6 +3,8 @@ import os
 
 from pathlib import Path
 
+from tests.e2e.conftest import ProtostarFixture, CopyFixture
+
 
 def assert_contents_equal(filepath1: str, filepath2: str):
     assert Path(filepath1).read_text() == Path(filepath2).read_text()
@@ -13,7 +15,7 @@ def assert_contents_not_equal(filepath1: str, filepath2: str):
 
 
 @pytest.mark.usefixtures("init")
-def test_formatting_basic(protostar, copy_fixture):
+def test_formatting_basic(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     os.mkdir("./to_format")
     copy_fixture("formatted.cairo", "./to_format")
     copy_fixture("unformatted.cairo", "./to_format")
@@ -30,7 +32,7 @@ def test_formatting_basic(protostar, copy_fixture):
 
 
 @pytest.mark.usefixtures("init")
-def test_formatting_check(protostar, copy_fixture):
+def test_formatting_check(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     os.mkdir("./to_format")
     copy_fixture("formatted.cairo", "./to_format")
     copy_fixture("unformatted.cairo", "./to_format")

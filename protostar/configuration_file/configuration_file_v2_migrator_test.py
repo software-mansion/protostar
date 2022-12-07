@@ -4,7 +4,7 @@ from typing import Optional, Tuple
 
 import pytest
 
-from protostar.self.conftest import FakeProtostarVersionProvider
+from protostar.self import parse_protostar_version
 from tests.conftest import create_file_structure
 
 from .configuration_file import ConfigurationFile, ConfigurationFileContentBuilder
@@ -94,7 +94,7 @@ def migrate(
         content_factory=ConfigurationFileV2ContentFactory(
             content_builder=content_builder or ConfigurationTOMLContentBuilder()
         ),
-        protostar_version_provider=FakeProtostarVersionProvider("9.9.9"),
+        protostar_version=parse_protostar_version("9.9.9"),
     )
 
     configuration_file_v2_migrator.run()

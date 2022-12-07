@@ -1,8 +1,11 @@
 %lang starknet
 
 @external
-func __setup__() {
+func setup_max_examples() {
+    %{ given(a = strategy.felts()) %}
+    %{ given(b = strategy.felts()) %}
     %{ max_examples(5) %}
+
     return ();
 }
 

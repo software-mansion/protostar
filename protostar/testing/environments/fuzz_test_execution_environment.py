@@ -1,19 +1,20 @@
 import dataclasses
 from asyncio import to_thread
 from dataclasses import dataclass
-from typing import Any, Dict, List
+from typing import Any, Callable, Dict, List
 
-from hypothesis import given, seed, settings
+from hypothesis import example, given, seed, settings
 from hypothesis.database import ExampleDatabase, InMemoryExampleDatabase
 from hypothesis.errors import InvalidArgument
 from hypothesis.reporting import with_reporter
 from hypothesis.strategies import SearchStrategy
-from starkware.starknet.business_logic.execution.objects import CallInfo
 
-from protostar.starknet import CheatcodeException, ReportedException
+from protostar.starknet import BreakingReportedException, ReportedException
+from protostar.protostar_exception import ProtostarException
+from protostar.starknet.abi import get_function_parameters
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.testing.cheatcodes import AssumeCheatcode, RejectCheatcode
-from protostar.testing.fuzzing.exceptions import HypothesisRejectException
+from protostar.testing.fuzzing.exceptions import FuzzingError, HypothesisRejectException
 from protostar.testing.fuzzing.fuzz_input_exception_metadata import (
     FuzzInputExceptionMetadata,
 )
@@ -28,8 +29,6 @@ from protostar.testing.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
 )
 from protostar.testing.starkware.test_execution_state import TestExecutionState
-from protostar.starknet.abi import get_function_parameters
-
 from .test_execution_environment import (
     TestCaseCheatcodeFactory,
     TestExecutionEnvironment,
@@ -45,7 +44,10 @@ class FuzzTestExecutionResult(TestExecutionResult):
 class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
     def __init__(self, state: TestExecutionState):
         super().__init__(state)
+        if self.state.config.profiling:
+            raise ProtostarException("Fuzz tests cannot be profiled")
         self.initial_state = state
+        self.given_strategies: dict[str, SearchStrategy] = {}
 
     async def execute(self, function_name: str) -> FuzzTestExecutionResult:
         abi = self.state.contract.abi
@@ -59,7 +61,17 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         database = InMemoryExampleDatabase()
         runs_counter = RunsCounter(budget=self.state.config.fuzz_max_examples)
 
-        given_strategies = collect_search_strategies(
+        if (
+            not self.state.config.fuzz_examples
+            and not self.state.config.fuzz_declared_strategies
+        ):
+            raise BreakingReportedException(
+                "Test parameters are required but not found, "
+                "Please use one of the following cheatcodes in the case setup function in order to "
+                "explicitly provide test data: \n- example\n- given"
+            )
+
+        self.given_strategies = collect_search_strategies(
             declared_strategies=self.state.config.fuzz_declared_strategies,
             parameters=parameters,
         )
@@ -76,7 +88,6 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
                     database=database,
                     execution_resources=execution_resources,
                     runs_counter=runs_counter,
-                    given_strategies=given_strategies,
                 )
 
         try:
@@ -118,18 +129,28 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             )
         )
 
+    def decorate_with_examples(self, target_func: Callable):
+        func = target_func
+        for ex in reversed(self.state.config.fuzz_examples):
+            func = example(**ex)(func)
+        return func
+
+    def decorate_with_given(self, target_func: Callable):
+        func = target_func
+        if not self.given_strategies:
+            return func
+        func = given(**self.given_strategies)(func)
+        return func
+
     def build_and_run_test(
         self,
         function_name: str,
         database: ExampleDatabase,
         execution_resources: List[ExecutionResourcesSummary],
         runs_counter: RunsCounter,
-        given_strategies: Dict[str, SearchStrategy],
     ):
         try:
-
-            @seed(self.state.config.seed)
-            @settings(
+            settings_instance = settings(
                 database=database,
                 deadline=None,
                 max_examples=runs_counter.available_runs,
@@ -137,7 +158,11 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
                 report_multiple_bugs=False,
                 verbosity=HYPOTHESIS_VERBOSITY,
             )
-            @given(**given_strategies)
+
+            @self.decorate_with_examples
+            @seed(self.state.config.seed)
+            @settings_instance
+            @self.decorate_with_given
             async def test(**inputs: Any):
                 self.fork_state_for_test()
                 self.set_cheatcodes_for_test()
@@ -159,15 +184,21 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
                                 inputs=inputs,
                             ) from reported_ex
 
-            test.hypothesis.inner_test = wrap_in_sync(test.hypothesis.inner_test)  # type: ignore
+            if hasattr(test, "hypothesis"):
+                test.hypothesis.inner_test = wrap_in_sync(test.hypothesis.inner_test)  # type: ignore
 
-            # NOTE: The ``test`` function does not expect any arguments at this point,
-            #   because the @given decorator provides all of them behind the scenes.
-            test()
+            if self.given_strategies:
+                # NOTE: The ``test`` function does not expect any arguments at this point,
+                #   because the @given decorator provides all of them behind the scenes.
+                test()
+            elif self.state.config.fuzz_examples:
+                for ex in reversed(self.state.config.fuzz_examples):
+                    test(**ex)
+
         except InvalidArgument as ex:
             # This exception is sometimes raised by Hypothesis during runtime when user messes up
             # strategy arguments. For example, invalid range for `integers` strategy is caught here.
-            raise CheatcodeException("given", str(ex)) from ex
+            raise FuzzingError(str(ex)) from ex
 
 
 @dataclass
@@ -193,10 +224,9 @@ class FuzzTestCaseCheatcodeFactory(TestCaseCheatcodeFactory):
     def build_cheatcodes(
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
-        internal_calls: List[CallInfo],
     ) -> List[Cheatcode]:
         return [
-            *super().build_cheatcodes(syscall_dependencies, internal_calls),
+            *super().build_cheatcodes(syscall_dependencies),
             RejectCheatcode(syscall_dependencies),
             AssumeCheatcode(syscall_dependencies),
         ]

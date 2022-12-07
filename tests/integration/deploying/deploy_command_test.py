@@ -2,9 +2,12 @@ from pathlib import Path
 
 import pytest
 
+from tests.conftest import DevnetAccount, SetPrivateKeyEnvVarFixture
 from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.protostar_fixture import ProtostarFixture
+
+from protostar.starknet_gateway.gateway_facade import InputValidationException
 
 
 @pytest.fixture(name="protostar", scope="module")
@@ -24,9 +27,45 @@ async def test_deploying_contract(
     protostar: ProtostarFixture,
     devnet_gateway_url: str,
     compiled_contract_filepath: Path,
+    devnet_account: DevnetAccount,
+    set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
-    response = await protostar.deploy(
-        contract=compiled_contract_filepath, gateway_url=devnet_gateway_url, inputs=[42]
-    )
-
+    with set_private_key_env_var(devnet_account.private_key):
+        declare_response = await protostar.declare(
+            contract=compiled_contract_filepath,
+            gateway_url=devnet_gateway_url,
+            account_address=devnet_account.address,
+            max_fee="auto",
+        )
+        response = await protostar.deploy(
+            class_hash=declare_response.class_hash,
+            gateway_url=devnet_gateway_url,
+            account_address=devnet_account.address,
+            max_fee="auto",
+            inputs=[42],
+        )
     assert response.address is not None
+
+
+async def test_deploying_contract_fail(
+    protostar: ProtostarFixture,
+    devnet_gateway_url: str,
+    compiled_contract_filepath: Path,
+    set_private_key_env_var: SetPrivateKeyEnvVarFixture,
+    devnet_account: DevnetAccount,
+):
+    with set_private_key_env_var(devnet_account.private_key):
+        with pytest.raises(InputValidationException):
+            declare_response = await protostar.declare(
+                contract=compiled_contract_filepath,
+                gateway_url=devnet_gateway_url,
+                max_fee="auto",
+                account_address=devnet_account.address,
+            )
+            await protostar.deploy(
+                class_hash=declare_response.class_hash,
+                gateway_url=devnet_gateway_url,
+                inputs={"initial_balanceee": 42},
+                max_fee="auto",
+                account_address=devnet_account.address,
+            )

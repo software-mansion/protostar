@@ -1,10 +1,8 @@
-import pytest
 from pytest_mock import MockerFixture
 
 from protostar.testing.hook import Hook
 
 
-@pytest.mark.asyncio
 async def test_run_after(mocker: MockerFixture):
     handler = mocker.Mock()
 

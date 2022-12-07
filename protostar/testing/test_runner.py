@@ -8,11 +8,16 @@ from typing import List, Optional
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 
-from protostar.protostar_exception import ProtostarException
-from protostar.starknet.compiler.pass_managers import (
-    ProtostarPassMangerFactory,
-    TestSuitePassMangerFactory,
+from protostar.compiler import (
+    ProjectCairoPathBuilder,
+    ProjectCompiler,
+    ProjectCompilerConfig,
 )
+from protostar.configuration_file.configuration_file_factory import (
+    ConfigurationFileFactory,
+)
+from protostar.protostar_exception import ProtostarException
+from protostar.starknet.compiler.pass_managers import TestSuitePassMangerFactory
 from protostar.starknet.compiler.starknet_compilation import (
     CompilerConfig,
     StarknetCompiler,
@@ -37,15 +42,22 @@ from .testing_seed import Seed
 
 logger = getLogger()
 
-
+# pylint: disable=too-many-instance-attributes
 class TestRunner:
     def __init__(
         self,
         shared_tests_state: SharedTestsState,
+        project_root_path: Path,
+        disable_hint_validation_in_user_contracts: bool,
+        cwd: Path,
+        active_profile_name: Optional[str],
         include_paths: Optional[List[str]] = None,
-        disable_hint_validation_in_user_contracts=False,
+        profiling: bool = False,
+        gas_estimation_enabled: bool = False,
     ):
+        self._gas_estimation_enabled = gas_estimation_enabled
         self.shared_tests_state = shared_tests_state
+        self.profiling = profiling
         include_paths = include_paths or []
 
         self.tests_compiler = StarknetCompiler(
@@ -54,13 +66,20 @@ class TestRunner:
             ),
             pass_manager_factory=TestSuitePassMangerFactory,
         )
-
-        self.user_contracts_compiler = StarknetCompiler(
-            config=CompilerConfig(
-                include_paths=include_paths,
-                disable_hint_validation=disable_hint_validation_in_user_contracts,
+        configuration_file = ConfigurationFileFactory(
+            cwd=cwd, active_profile_name=active_profile_name
+        ).create()
+        self.project_compiler = ProjectCompiler(
+            project_root_path=project_root_path,
+            project_cairo_path_builder=ProjectCairoPathBuilder(
+                project_root_path=project_root_path,
             ),
-            pass_manager_factory=ProtostarPassMangerFactory,
+            configuration_file=configuration_file,
+            default_config=ProjectCompilerConfig(
+                relative_cairo_path=[Path(s_pth).resolve() for s_pth in include_paths],
+                hint_validation_disabled=disable_hint_validation_in_user_contracts,
+                debugging_info_attached=profiling,
+            ),
         )
 
     @dataclass
@@ -69,7 +88,13 @@ class TestRunner:
         shared_tests_state: SharedTestsState
         include_paths: List[str]
         disable_hint_validation_in_user_contracts: bool
+        profiling: bool
         testing_seed: Seed
+        project_root_path: Path
+        cwd: Path
+        active_profile_name: Optional[str]
+        max_steps: Optional[int]
+        gas_estimation_enabled: bool
 
     @classmethod
     def worker(cls, args: "TestRunner.WorkerArgs"):
@@ -77,10 +102,16 @@ class TestRunner:
             cls(
                 shared_tests_state=args.shared_tests_state,
                 include_paths=args.include_paths,
+                project_root_path=args.project_root_path,
                 disable_hint_validation_in_user_contracts=args.disable_hint_validation_in_user_contracts,
+                profiling=args.profiling,
+                cwd=args.cwd,
+                active_profile_name=args.active_profile_name,
+                gas_estimation_enabled=args.gas_estimation_enabled,
             ).run_test_suite(
                 test_suite=args.test_suite,
                 testing_seed=args.testing_seed,
+                max_steps=args.max_steps,
             )
         )
 
@@ -88,8 +119,14 @@ class TestRunner:
         self,
         test_suite: TestSuite,
         testing_seed: Seed,
+        max_steps: Optional[int],
     ):
-        test_config = TestConfig(seed=testing_seed)
+        test_config = TestConfig(
+            seed=testing_seed,
+            profiling=self.profiling,
+            max_steps=max_steps,
+            gas_estimation_enabled=self._gas_estimation_enabled,
+        )
 
         try:
             compiled_test = self.tests_compiler.compile_contract(
@@ -149,10 +186,10 @@ class TestRunner:
 
         try:
             execution_state = await TestExecutionState.from_test_suite_definition(
-                starknet_compiler=self.user_contracts_compiler,
                 test_suite_definition=test_contract,
                 test_config=test_config,
                 contract_path=contract_path,
+                project_compiler=self.project_compiler,
             )
 
             if test_suite.setup_fn_name:
@@ -180,9 +217,8 @@ class TestRunner:
             test_result = await self._invoke_test_case(test_case, execution_state)
             self.shared_tests_state.put_result(test_result)
 
-    @staticmethod
     async def _invoke_test_case(
-        test_case: TestCase, initial_state: TestExecutionState
+        self, test_case: TestCase, initial_state: TestExecutionState
     ) -> TestResult:
         state: TestExecutionState = initial_state.fork()
 

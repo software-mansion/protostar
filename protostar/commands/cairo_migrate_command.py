@@ -1,17 +1,16 @@
-from logging import Logger
+import logging
 from pathlib import Path
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 from protostar.cairo_migrator import Cairo010Migrator
-from protostar.cli import Command
+from protostar.cli import ProtostarArgument, ProtostarCommand
 from protostar.cli.map_targets_to_file_paths import map_targets_to_file_paths
 
 
-class CairoMigrateCommand(Command):
-    def __init__(self, script_root: Path, logger: Logger):
+class CairoMigrateCommand(ProtostarCommand):
+    def __init__(self, script_root: Path):
         super().__init__()
         self._script_root = script_root
-        self._logger = logger
 
     @property
     def name(self) -> str:
@@ -26,13 +25,13 @@ class CairoMigrateCommand(Command):
         return None
 
     @property
-    def arguments(self) -> List[Command.Argument]:
+    def arguments(self):
         return [
-            Command.Argument(
+            ProtostarArgument(
                 name="targets",
                 description="Targets to migrate (a target can be a file or directory)",
                 type="str",
-                is_array=True,
+                value_parser="list",
                 is_positional=True,
                 default=["."],
             )
@@ -45,5 +44,5 @@ class CairoMigrateCommand(Command):
 
         for filepath, new_content in formatted_files:
             with open(filepath, "w", encoding="utf-8") as file:
-                self._logger.info(f"Writing {filepath}")
+                logging.info("Writing %s", filepath)
                 file.write(new_content)

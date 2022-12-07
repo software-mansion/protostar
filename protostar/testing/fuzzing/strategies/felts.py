@@ -1,3 +1,5 @@
+from typing import Any
+
 from hypothesis.strategies import SearchStrategy, integers
 
 # pylint: disable-next=no-name-in-module
@@ -29,7 +31,7 @@ assert 0 < CAIRO_FUNCTION_RANGE_CHECK_BOUND < FIELD_PRIME
 
 
 class FeltsStrategyDescriptor(StrategyDescriptor):
-    def __init__(self, *args, rc_bound: bool = False):
+    def __init__(self, *args: Any, rc_bound: bool = False):
         if len(args) > 0:
             raise KeywordOnlyArgumentCheatcodeException("strategy.felts", ["rc_bound"])
 

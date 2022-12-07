@@ -1,7 +1,6 @@
 import queue
-from logging import Logger
-from typing import TYPE_CHECKING, Any, cast
 from pathlib import Path
+from typing import TYPE_CHECKING, Any, cast
 
 from tqdm import tqdm as bar
 
@@ -23,14 +22,12 @@ if TYPE_CHECKING:
 class TestingLiveLogger:
     def __init__(
         self,
-        logger: Logger,
         testing_summary: TestingSummary,
         no_progress_bar: bool,
         exit_first: bool,
         slowest_tests_to_report_count: int,
         project_root_path: Path,
     ) -> None:
-        self._logger = logger
         self._no_progress_bar = no_progress_bar
         self._project_root_path = project_root_path
         self.testing_summary = testing_summary
@@ -41,7 +38,6 @@ class TestingLiveLogger:
         self, test_collector_result: "TestCollector.Result"
     ) -> None:
         self.testing_summary.log(
-            logger=self._logger,
             collected_test_cases_count=test_collector_result.test_cases_count,
             collected_test_suites_count=len(test_collector_result.test_suites),
             slowest_test_cases_to_report_count=self.slowest_tests_to_report_count,

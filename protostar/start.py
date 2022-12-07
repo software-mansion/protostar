@@ -3,7 +3,11 @@ import sys
 from pathlib import Path
 from typing import Any, Optional
 
-from protostar.cli import ArgumentParserFacade, CLIApp, MissingRequiredArgumentException
+from protostar.argument_parser import (
+    ArgumentParserFacade,
+    CLIApp,
+    MissingRequiredArgumentException,
+)
 from protostar.composition_root import build_di_container
 from protostar.configuration_profile_cli import ConfigurationProfileCLI
 from protostar.protostar_cli import ProtostarCLI
@@ -27,7 +31,7 @@ def get_active_configuration_profile_name() -> Optional[str]:
 
 def parse_args(parser: ArgumentParserFacade) -> Any:
     try:
-        return parser.parse()
+        return parser.post_parse(parser.parse())
     except MissingRequiredArgumentException as err:
         print(err.message)
         sys.exit(1)

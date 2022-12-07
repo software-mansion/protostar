@@ -1,6 +1,4 @@
-from protostar.configuration_file.configuration_file_v1 import (
-    CommandNamesProviderProtocol,
-)
+from .configuration_file_v1 import CommandNamesProviderProtocol
 
 PROTOSTAR_TOML_V1_CONTENT = """
 ["protostar.config"]

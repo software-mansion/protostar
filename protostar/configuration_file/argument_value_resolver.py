@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
-from protostar.cli import ConfigFileArgumentResolverProtocol
+from protostar.argument_parser import ConfigFileArgumentResolverProtocol
 
 
 class ArgumentValueResolver(ABC, ConfigFileArgumentResolverProtocol):
@@ -39,7 +39,7 @@ class ArgumentValueResolver(ABC, ConfigFileArgumentResolverProtocol):
 
         shared_arg = self.get_shared_argument_value(
             argument_name=argument_name,
-            profile_name=self._profile_name,
+            profile_name=None,
         )
         return shared_arg
 

@@ -15,7 +15,7 @@ def wrap_in_sync(func: Callable[..., Awaitable[Any]]):
     """
 
     @functools.wraps(func)
-    def inner(*args, **kwargs):
+    def inner(*args: Any, **kwargs: Any):
         coro = func(*args, **kwargs)
         assert inspect.isawaitable(coro)
 

@@ -66,5 +66,7 @@ class LoadCheatcode(Cheatcode):
         return abi_type["size"]
 
     @staticmethod
-    def _load_from_remote_storage(storage, address: int, size: int) -> List[int]:
+    def _load_from_remote_storage(
+        storage: ContractStorageState, address: int, size: int
+    ) -> List[int]:
         return [storage.read(address=address + i) for i in range(size)]

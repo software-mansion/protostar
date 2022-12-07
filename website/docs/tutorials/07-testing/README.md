@@ -104,8 +104,6 @@ The setup suite hook is shared between all test cases in a test suite (Cairo mod
 and is executed before test cases.
 
 ```cairo title="Using setup suite hook"
-%lang starknet
-
 @external
 func __setup__() {
     %{ context.contract_a_address = deploy_contract("./tests/integration/testing_hooks/basic_contract.cairo").contract_address %}
@@ -140,15 +138,75 @@ func test_tested_property()
 
 The setup case hook is bound to a matching test case and is executed just before the test case
 itself.
-Use case hooks to configure the behavior of particular test case,
-for example, by calling the [`max_examples`](./02-cheatcodes/max-examples.md) cheatcode.
+The hook is executed within a context built by the `__setup__` hook,
+but it does not influence other test cases' contexts.
+Then, Protostar immediately executes the test case function.
+This makes them useful to extract test-specific setup logic from test code.
 
-```cairo title="Using setup case hook"
-%lang starknet
+```cairo title="Using setup case hook to prepare test-specific state"
+@external
+func __setup__{
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
+    range_check_ptr
+}() {
+    balance.write(10);
+    return ();
+}
 
 @external
+func setup_need_more_money{
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
+    range_check_ptr
+}() {
+    balance.write(10000);
+    return ();
+}
+
+@external
+func test_need_more_money{
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
+    range_check_ptr
+}() {
+    alloc_locals;
+    let (amount_ref) = balance.read();
+    local amount = amount_ref;
+
+    assert amount = 10000;
+
+    return ();
+}
+
+@external
+func test_foo{
+    syscall_ptr: felt*,
+    pedersen_ptr: HashBuiltin*,
+    range_check_ptr
+}() {
+    alloc_locals;
+    let (amount_ref) = balance.read();
+    local amount = amount_ref;
+
+    assert amount = 10;
+
+    return ();
+}
+```
+
+You can also use setup case hooks to configure the behavior of a particular test case,
+for example, by calling the [`max_examples`] cheatcode.
+Some configuration-specific cheatcodes are only available within setup cases, like [`example`]
+and [`given`]:
+
+```cairo title="Using setup case hook to configure fuzzing test"
+@external
 func setup_something() {
-    %{ max_examples(500) %}
+    %{
+        max_examples(500)
+        given(a = strategy.felts())
+    %}
     return ();
 }
 
@@ -164,9 +222,9 @@ func test_something(a: felt) {
 
 Protostar allows using external Python code in hint blocks, for example to verify a signature using third party library.
 
-The `cairo-path` is automatically to `sys.path` in executed hints. This includes project root, `src` and `lib` directories. Any Python module files stored there can be imported without any extra configuration.
+The `cairo-path` is automatically added to `sys.path` in executed hints. This includes project root, `src` and `lib` directories. Any Python module files stored there can be imported without any extra configuration.
 
-The `PYTHONPATH` environment variable (https://docs.python.org/3/using/cmdline.html#envvar-PYTHONPATH) is fully supported, and Protostar will extend `sys.path` with this variable's value in executed Cairo code.
+The [`PYTHONPATH` environment variable ](https://docs.python.org/3/using/cmdline.html#envvar-PYTHONPATH) is fully supported, and Protostar will extend `sys.path` with this variable's value in executed Cairo code.
 This approach can be used to include some packages from Python virtual environment (by adding `site_packages` to the `PYTHONPATH`).
 
 For example, having the standard project file structure:
@@ -196,7 +254,7 @@ The `get_three` function can be used in `test_main.cairo` like this:
 from src.main import balance, increase_balance
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
-@view
+@external
 func test_getting_tree() {
     alloc_locals;
     local res;
@@ -209,3 +267,7 @@ func test_getting_tree() {
     return ();
 }
 ```
+
+[`example`]: ./02-cheatcodes/example.md
+[`given`]: ./02-cheatcodes/given.md
+[`max_examples`]: ./02-cheatcodes/max-examples.md

@@ -2,7 +2,6 @@ from logging import getLogger
 from pathlib import Path
 from typing import Optional
 
-from protostar.commands.install import installation_exceptions
 from protostar.io import log_color_provider
 from protostar.git import Git, InvalidGitRepositoryException
 
@@ -10,20 +9,17 @@ from protostar.git import Git, InvalidGitRepositoryException
 def install_package_from_repo(
     name: str,
     url: str,
-    repo_dir: Path,
+    project_root_path: Path,
     destination: Path,
     tag: Optional[str] = None,
 ):
     logger = getLogger()
 
     try:
-        repo = Git.load_existing_repo(repo_dir)
-    except InvalidGitRepositoryException as ex:
-        raise installation_exceptions.InvalidLocalRepository(
-            """A git repository must be initialized in order to install packages.
-- Did you run `protostar init`?
-- Are you in the right directory?"""
-        ) from ex
+        repo = Git.load_existing_repo(project_root_path)
+    except InvalidGitRepositoryException:
+        logger.info("Initializing git repository.")
+        repo = Git.init(project_root_path)
 
     package_dir = destination / name
 

@@ -2,7 +2,6 @@
 
 If you want to help develop this project, and you don't know where to start, consider:
 - checking issues with the label [`good first issue`](https://github.com/software-mansion/protostar/labels/good%20first%20issue)
-- increasing test coverage
 - fixing small bugs or adding small features
 ## Documentation fixes
 If you spot a typo, broken link, a mistake in the documentation, feel free to [create a PR](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork).

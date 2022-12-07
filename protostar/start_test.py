@@ -3,6 +3,7 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
+from _pytest.capture import CaptureFixture
 from pytest_mock import MockerFixture
 
 from protostar import main
@@ -43,7 +44,7 @@ def test_should_run_protostar_cli(protostar_cli_run: MagicMock):
 
 
 def test_should_tell_user_where_to_report_unexpected_errors(
-    capsys, protostar_cli_run: MagicMock
+    capsys: CaptureFixture[str], protostar_cli_run: MagicMock
 ):
     protostar_cli_run.side_effect = Exception()
 

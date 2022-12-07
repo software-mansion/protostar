@@ -66,6 +66,10 @@ class ConfigurationFile(
         ...
 
     @abstractmethod
+    def get_lib_path(self) -> Optional[Path]:
+        ...
+
+    @abstractmethod
     def get_filepath(self) -> Path:
         ...
 
@@ -85,6 +89,16 @@ class ConfigurationFile(
         self, command_names_provider: CommandNamesProviderProtocol
     ):
         pass
+
+    @staticmethod
+    def create_appending_cairo_path_suggestion() -> str:
+        return "\n".join(
+            [
+                "You may want to update your cairo-path configuration in your configuration file.",
+                "For more information you can visit:"
+                "https://docs.swmansion.com/protostar/docs/tutorials/dependencies-management#adding-a-dependency",
+            ]
+        )
 
 
 class ContractNameNotFoundException(ProtostarException):

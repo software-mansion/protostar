@@ -18,7 +18,7 @@ class SharedTestsState:
         )
 
     def get_result(self) -> TestResult:
-        return self._shared_queue.get(block=True, timeout=1000)
+        return self._shared_queue.get(block=True, timeout=20000)
 
     def put_result(self, item: TestResult) -> None:
         if not isinstance(item, PassedTestCaseResult):

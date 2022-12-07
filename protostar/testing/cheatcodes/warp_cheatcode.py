@@ -1,6 +1,6 @@
 from typing import Any, Callable, Optional
 
-from protostar.starknet import AddressType, Cheatcode
+from protostar.starknet import Cheatcode, RawAddress, Address
 
 
 class WarpCheatcode(Cheatcode):
@@ -14,10 +14,10 @@ class WarpCheatcode(Cheatcode):
     def warp(
         self,
         blk_timestamp: int,
-        target_contract_address: Optional[AddressType] = None,
+        target_contract_address: Optional[RawAddress] = None,
     ) -> Callable[[], None]:
         target_contract_address = target_contract_address or self.contract_address
         return self.cheaters.block_info.cheat(
-            contract_address=target_contract_address,
+            contract_address=Address.from_user_input(target_contract_address),
             block_timestamp=blk_timestamp,
         )

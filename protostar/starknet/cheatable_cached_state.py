@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Any
 
 from services.everest.business_logic.state_api import StateProxy
 from starkware.starknet.business_logic.fact_state.state import CarriedState
@@ -8,22 +8,28 @@ from starkware.starknet.public.abi import AbiType
 from typing_extensions import Self
 
 from protostar.starknet.cheaters import BlockInfoCheater, Cheaters
-from protostar.starknet.types import AddressType, ClassHashType, SelectorType
+from protostar.starknet.types import ClassHashType, SelectorType
+from protostar.starknet.data_transformer import CairoOrPythonData
+
+from .address import Address
 
 
 # pylint: disable=too-many-instance-attributes
 class CheatableCachedState(CachedState):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
         self.pranked_contracts_map: Dict[int, int] = {}
-        self.mocked_calls_map: Dict[AddressType, Dict[SelectorType, List[int]]] = {}
+        self.mocked_calls_map: Dict[Address, Dict[SelectorType, List[int]]] = {}
         self.event_selector_to_name_map: Dict[int, str] = {}
 
         self.event_name_to_contract_abi_map: Dict[str, AbiType] = {}
         self.class_hash_to_contract_abi_map: Dict[ClassHashType, AbiType] = {}
         self.class_hash_to_contract_path_map: Dict[ClassHashType, Path] = {}
-        self.contract_address_to_class_hash_map: Dict[AddressType, ClassHashType] = {}
+        self.contract_address_to_class_hash_map: Dict[Address, ClassHashType] = {}
+        self.expected_contract_calls: dict[
+            Address, list[tuple[SelectorType, CairoOrPythonData]]
+        ] = {}
 
         self.cheaters = Cheaters(block_info=BlockInfoCheater(self.block_info))
 
@@ -46,6 +52,7 @@ class CheatableCachedState(CachedState):
         copied.contract_address_to_class_hash_map = (
             self.contract_address_to_class_hash_map.copy()
         )
+        copied.expected_contract_calls = self.expected_contract_calls.copy()
 
         copied.cheaters = self.cheaters.copy()
 
@@ -94,6 +101,10 @@ class CheatableCachedState(CachedState):
             **parent.contract_address_to_class_hash_map,
             **self.contract_address_to_class_hash_map,
         }
+        parent.expected_contract_calls = {
+            **parent.expected_contract_calls,
+            **self.expected_contract_calls,
+        }
 
         parent.cheaters.apply(self.cheaters)
 
@@ -121,6 +132,25 @@ class CheatableCachedState(CachedState):
             )
 
         return self.class_hash_to_contract_abi_map[class_hash]
+
+    def register_expected_call(
+        self, contract_address: Address, selector: SelectorType, calldata: list[int]
+    ):
+        if self.expected_contract_calls.get(contract_address):
+            self.expected_contract_calls[contract_address].append((selector, calldata))
+        else:
+            self.expected_contract_calls[contract_address] = [(selector, calldata)]
+
+    def unregister_expected_call(
+        self, contract_address: Address, calldata: tuple[int, list[int]]
+    ):
+        data_for_address = self.expected_contract_calls.get(contract_address)
+        if data_for_address is not None and calldata in data_for_address:
+            for index, (selector, calldata_item) in enumerate(data_for_address):
+                if selector == calldata[0] and calldata_item == calldata[1]:
+                    del data_for_address[index]
+            if not data_for_address:
+                del self.expected_contract_calls[contract_address]
 
 
 def cheaters_of(state: StateProxy) -> Cheaters:

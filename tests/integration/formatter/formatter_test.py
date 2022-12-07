@@ -1,8 +1,14 @@
+from collections import UserList, defaultdict
 from pathlib import Path
-from typing import Dict, List
 
 import pytest
 
+from protostar.formatter.formatting_result import (
+    FormattingResult,
+    CorrectFormattingResult,
+    IncorrectFormattingResult,
+    BrokenFormattingResult,
+)
 from tests.data.contracts import (
     BROKEN_CONTRACT,
     FORMATTED_CONTRACT,
@@ -25,6 +31,19 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
         yield protostar
 
 
+class FormattingResultCollector(UserList[FormattingResult]):
+    def __call__(self, result: FormattingResult):
+        self.append(result)
+
+    def count_by_type_and_check(self) -> dict[type[tuple[FormattingResult, bool]], int]:
+        counts = defaultdict(lambda: 0)
+
+        for result in self:
+            counts[(type(result), result.checked_only)] += 1
+
+        return dict(counts)
+
+
 async def test_formatter_formatting(protostar: ProtostarFixture):
     summary = protostar.format(["to_format"])
 
@@ -45,93 +64,77 @@ async def test_formatter_checking(protostar: ProtostarFixture):
     )
 
 
-async def test_formatter_output(protostar: ProtostarFixture):
-    _, output = protostar.format_with_output(
+async def test_formatter_results(protostar: ProtostarFixture):
+    results = FormattingResultCollector()
+    protostar.format(
         targets=["to_format"],
+        on_formatting_result=results,
     )
 
-    assert_counts_in_result(
-        output,
-        {
-            "[UNFORMATTED]": 0,
-            "[FORMATTED]": 0,
-            "[BROKEN]": 1,
-            "[REFORMATTED]": 2,
-            "[UNCHANGED]": 0,
-        },
+    assert results.count_by_type_and_check() == {
+        (BrokenFormattingResult, False): 1,
+        (IncorrectFormattingResult, False): 2,
+    }
+
+
+async def test_formatter_results_verbose(protostar: ProtostarFixture):
+    results = FormattingResultCollector()
+    protostar.format(
+        targets=["to_format"],
+        verbose=True,
+        on_formatting_result=results,
     )
 
-
-async def test_formatter_output_verbose(protostar: ProtostarFixture):
-    _, output = protostar.format_with_output(targets=["to_format"], verbose=True)
-
-    assert_counts_in_result(
-        output,
-        {
-            "[UNFORMATTED]": 0,
-            "[FORMATTED]": 0,
-            "[BROKEN]": 1,
-            "[REFORMATTED]": 2,
-            "[UNCHANGED]": 1,
-        },
-    )
+    assert results.count_by_type_and_check() == {
+        (BrokenFormattingResult, False): 1,
+        (IncorrectFormattingResult, False): 2,
+        (CorrectFormattingResult, False): 1,
+    }
 
 
-async def test_formatter_output_check(protostar: ProtostarFixture):
-    _, output = protostar.format_with_output(
+async def test_formatter_results_check(protostar: ProtostarFixture):
+    results = FormattingResultCollector()
+    protostar.format(
         targets=["to_format"],
         check=True,
+        on_formatting_result=results,
     )
 
-    assert_counts_in_result(
-        output,
-        {
-            "[UNFORMATTED]": 2,
-            "[FORMATTED]": 0,
-            "[BROKEN]": 1,
-            "[REFORMATTED]": 0,
-            "[UNCHANGED]": 0,
-        },
-    )
+    assert results.count_by_type_and_check() == {
+        (IncorrectFormattingResult, True): 2,
+        (BrokenFormattingResult, True): 1,
+    }
 
 
-async def test_formatter_output_check_verbose(
+async def test_formatter_results_check_verbose(
     protostar: ProtostarFixture,
 ):
-    _, output = protostar.format_with_output(
+    results = FormattingResultCollector()
+    protostar.format(
         targets=["to_format"],
         verbose=True,
         check=True,
+        on_formatting_result=results,
     )
 
-    assert_counts_in_result(
-        output,
-        {
-            "[UNFORMATTED]": 2,
-            "[FORMATTED]": 1,
-            "[BROKEN]": 1,
-            "[REFORMATTED]": 0,
-            "[UNCHANGED]": 0,
-        },
-    )
+    assert results.count_by_type_and_check() == {
+        (IncorrectFormattingResult, True): 2,
+        (CorrectFormattingResult, True): 1,
+        (BrokenFormattingResult, True): 1,
+    }
 
 
 async def test_formatter_ignore_broken(protostar: ProtostarFixture):
-    _, output = protostar.format_with_output(
+    results = FormattingResultCollector()
+    protostar.format(
         targets=["to_format"],
         ignore_broken=True,
+        on_formatting_result=results,
     )
 
-    assert_counts_in_result(
-        output,
-        {
-            "[UNFORMATTED]": 0,
-            "[FORMATTED]": 0,
-            "[BROKEN]": 0,
-            "[REFORMATTED]": 2,
-            "[UNCHANGED]": 0,
-        },
-    )
+    assert results.count_by_type_and_check() == {
+        (IncorrectFormattingResult, False): 2,
+    }
 
 
 def assert_contents_equal(filepath1: str, filepath2: str):
@@ -140,13 +143,3 @@ def assert_contents_equal(filepath1: str, filepath2: str):
 
 def assert_contents_not_equal(filepath1: str, filepath2: str):
     assert Path(filepath1).read_text() != Path(filepath2).read_text()
-
-
-def assert_count_in_result(output: List[str], key: str, count: int):
-    # List instead of a Generator allows much clearer output on fail.
-    assert sum([1 if (key in result) else 0 for result in output]) == count
-
-
-def assert_counts_in_result(output: List[str], key_to_count: Dict[str, int]):
-    for key, count in key_to_count.items():
-        assert_count_in_result(output, key, count)

@@ -1,3 +1,5 @@
+from typing import Any
+
 from protostar.testing.environments.test_execution_environment import (
     TestExecutionEnvironment,
     TestExecutionResult,
@@ -8,9 +10,12 @@ from .test_case_runner import TestCaseRunner
 
 class StandardTestCaseRunner(TestCaseRunner[TestExecutionResult]):
     def __init__(
-        self, test_execution_environment: TestExecutionEnvironment, **kwargs
+        self,
+        test_execution_environment: TestExecutionEnvironment,
+        *args: Any,
+        **kwargs: Any,
     ) -> None:
-        super().__init__(**kwargs)
+        super().__init__(*args, **kwargs)
         self._test_execution_environment = test_execution_environment
 
     async def _run_test_case(self) -> TestExecutionResult:

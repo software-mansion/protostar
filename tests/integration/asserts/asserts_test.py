@@ -1,7 +1,4 @@
-# pylint: disable=invalid-name
 from pathlib import Path
-
-import pytest
 
 from tests.integration.conftest import (
     RunCairoTestRunnerFixture,
@@ -9,7 +6,6 @@ from tests.integration.conftest import (
 )
 
 
-@pytest.mark.asyncio
 async def test_asserts(run_cairo_test_runner: RunCairoTestRunnerFixture):
     testing_summary = await run_cairo_test_runner(
         Path(__file__).parent / "asserts_test.cairo", cairo_path=[Path() / "cairo"]

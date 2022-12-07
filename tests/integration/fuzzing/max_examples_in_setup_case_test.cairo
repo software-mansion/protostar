@@ -10,6 +10,8 @@ func __setup__() {
 @external
 func setup_max_examples() {
     %{ max_examples(5) %}
+    %{ given(a = strategy.felts()) %}
+    %{ given(b = strategy.felts()) %}
     return ();
 }
 

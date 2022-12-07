@@ -14,8 +14,8 @@ def fixture_package_name():
 
 
 @pytest.fixture(name="repo_dir")
-def fixture_path_to_repo_root(tmpdir) -> Path:
-    return Path(tmpdir)
+def fixture_path_to_repo_root(tmp_path: Path) -> Path:
+    return tmp_path
 
 
 @pytest.fixture(name="packages_dir")

@@ -1,4 +1,5 @@
-from .command import Command
-from .protostar_arg_type import ProtostarArgTypeName
+from protostar.argument_parser import Command
 
-ProtostarCommand = Command[ProtostarArgTypeName]
+from .protostar_argument import ProtostarArgument
+
+ProtostarCommand = Command[ProtostarArgument]

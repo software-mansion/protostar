@@ -71,3 +71,4 @@ func test_deploy_declared_contract_in_proxy{syscall_ptr: felt*, range_check_ptr}
     assert balance = 12;
     return ();
 }
+

@@ -1,4 +1,5 @@
 import re
+from typing import Dict
 
 import pytest
 from hypothesis.strategies import SearchStrategy
@@ -11,6 +12,7 @@ from .strategies import (
     ShortStringsStrategyDescriptor,
 )
 from .strategy_collector import collect_search_strategies
+from .strategy_descriptor import StrategyDescriptor
 
 
 # Note: Order of keys is tested here.
@@ -32,7 +34,7 @@ from .strategy_collector import collect_search_strategies
         },
     ],
 )
-def test_collect(declared_strategies):
+def test_collect(declared_strategies: Dict[str, StrategyDescriptor]):
     actual = collect_search_strategies(
         declared_strategies=declared_strategies,
         parameters={
@@ -42,7 +44,7 @@ def test_collect(declared_strategies):
         },
     )
 
-    assert list(actual.keys()) == ["a", "b", "c"]
+    assert list(actual.keys()) == list(declared_strategies.keys())
     for v in actual.values():
         assert isinstance(v, SearchStrategy)
 

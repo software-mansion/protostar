@@ -1,31 +1,30 @@
-from logging import Logger
+import logging
+from argparse import Namespace
 from os import listdir
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
-from protostar.cli import Command
-from protostar.commands.remove.remove_command import (
+from protostar.cli import LibPathResolver, ProtostarCommand
+from protostar.cli.common_arguments import (
+    PACKAGE_ARG,
+    LIB_PATH_ARG,
     INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
 )
-from protostar.commands.update.update_package import update_package
-from protostar.commands.update.updating_exceptions import (
-    PackageAlreadyUpToDateException,
-)
-from protostar.protostar_toml.protostar_project_section import ProtostarProjectSection
 from protostar.package_manager import retrieve_real_package_name
 
+from .update_package import update_package
+from .updating_exceptions import PackageAlreadyUpToDateException
 
-class UpdateCommand(Command):
+
+class UpdateCommand(ProtostarCommand):
     def __init__(
         self,
         project_root_path: Path,
-        project_section_loader: ProtostarProjectSection.Loader,
-        logger: Logger,
+        lib_path_resolver: LibPathResolver,
     ) -> None:
         super().__init__()
         self._project_root_path = project_root_path
-        self._project_section_loader = project_section_loader
-        self._logger = logger
+        self._lib_path_resolver = lib_path_resolver
 
     @property
     def name(self) -> str:
@@ -47,45 +46,49 @@ class UpdateCommand(Command):
         return "$ protostar update cairo-contracts"
 
     @property
-    def arguments(self) -> List[Command.Argument]:
+    def arguments(self):
         return [
-            Command.Argument(
+            LIB_PATH_ARG,
+            PACKAGE_ARG.copy_with(
                 description=INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
-                name="package",
-                type="str",
-                is_positional=True,
             ),
         ]
 
-    async def run(self, args):
-        self._logger.info("Running dependency update")
+    async def run(self, args: Namespace):
+        logging.info("Running dependency update")
         try:
-            self.update(args.package)
+            self.update(
+                args.package, lib_path=self._lib_path_resolver.resolve(args.lib_path)
+            )
         except BaseException as exc:
-            self._logger.error("Update command failed")
+            logging.error("Update command failed")
             raise exc
-        self._logger.info("Updated successfully")
+        logging.info("Updated successfully")
 
-    def update(self, package: Optional[str]) -> None:
-        project_section = self._project_section_loader.load()
+    def update(self, package: Optional[str], lib_path: Path) -> None:
+        if not lib_path.exists():
+            logging.warning(
+                "Directory %s doesn't exist.\n"
+                "Did you install any package before running this command?",
+                lib_path,
+            )
+            return
 
         if package:
             package = retrieve_real_package_name(
-                package, self._project_root_path, project_section.libs_relative_path
+                package, self._project_root_path, packages_dir=lib_path
             )
             try:
-                update_package(
-                    package, self._project_root_path, project_section.libs_relative_path
-                )
+                update_package(package, self._project_root_path, packages_dir=lib_path)
             except PackageAlreadyUpToDateException as err:
-                self._logger.info(err.message)
+                logging.info(err.message)
         else:
-            for package_name in listdir(project_section.libs_relative_path):
+            for package_name in listdir(lib_path or self._project_root_path / "lib"):
                 try:
                     update_package(
                         package_name,
                         self._project_root_path,
-                        project_section.libs_relative_path,
+                        packages_dir=lib_path,
                     )
                 except PackageAlreadyUpToDateException:
                     continue
