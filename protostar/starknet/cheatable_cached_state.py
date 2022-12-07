@@ -1,11 +1,13 @@
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Dict, List
 
 from services.everest.business_logic.state_api import StateProxy
 from starkware.starknet.business_logic.fact_state.state import CarriedState
 from starkware.starknet.business_logic.state.state import CachedState, StateSyncifier
 from starkware.starknet.public.abi import AbiType
 from typing_extensions import Self
+from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
+from starkware.starknet.business_logic.state.state_api import StateReader
 
 from protostar.starknet.cheaters import BlockInfoCheater, Cheaters
 from protostar.starknet.types import ClassHashType, SelectorType
@@ -16,8 +18,16 @@ from .address import Address
 
 # pylint: disable=too-many-instance-attributes
 class CheatableCachedState(CachedState):
-    def __init__(self, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
+    def __init__(
+        self,
+        block_info: BlockInfo,
+        state_reader: StateReader,
+    ):
+        super().__init__(
+            block_info=block_info,
+            state_reader=state_reader,
+            contract_class_cache={},
+        )
 
         self.pranked_contracts_map: Dict[int, int] = {}
         self.mocked_calls_map: Dict[Address, Dict[SelectorType, List[int]]] = {}
@@ -34,7 +44,10 @@ class CheatableCachedState(CachedState):
         self.cheaters = Cheaters(block_info=BlockInfoCheater(self.block_info))
 
     def _copy(self):
-        copied = CheatableCachedState(block_info=self.block_info, state_reader=self)
+        copied = CheatableCachedState(
+            block_info=self.block_info,
+            state_reader=self,
+        )
 
         copied.pranked_contracts_map = self.pranked_contracts_map.copy()
         copied.mocked_calls_map = self.mocked_calls_map.copy()
