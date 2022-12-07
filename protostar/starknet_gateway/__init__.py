@@ -1,6 +1,7 @@
 from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeclareResponse,
     SuccessfulDeployResponse,
+    SuccessfulBuildResponse,
 )
 from protostar.starknet_gateway.network_config import NetworkConfig
 
