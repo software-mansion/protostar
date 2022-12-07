@@ -11,7 +11,7 @@ version = "0.8.1"
 
 [tool.poetry.dependencies]
 argparse = "^1.4.0"
-cairo-lang = "0.10.1"
+cairo-lang = "0.10.3"
 colorama = "^0.4.6"
 crypto-cpp-py = "^1.0.4"
 flatdict = "^4.0.1"
@@ -20,7 +20,7 @@ packaging = "^21.3"
 pytest-datadir = "^1.4.1"
 python = ">=3.9.14, <3.10"
 requests = "^2.27.1"
-starknet-py = "^0.10.1a0"
+starknet-py = "0.12.0a0"
 tomli = "<2.0.0"
 tomli-w = "^1.0.0"
 tqdm = "^4.64.1"
@@ -43,7 +43,7 @@ pytest-timeout = "^2.1.0"
 pytest-xdist = "^3.1.0"
 re-assert = "^1.1.0"
 snakeviz = "^2.1.1"
-starknet-devnet = "^0.4.0"
+starknet-devnet = "^0.4.2"
 
 [tool.poe.tasks]
 build = [
