@@ -48,15 +48,15 @@ async def test_multicall_use_case_happy_case(
         ),
         gateway_url=devnet.get_gateway_url(),
     )
-    with set_private_key_env_var(account.private_key):
-        declare_result = await protostar.declare(
-            contract=Path() / "build" / "main.json",
-            account_address=account.address,
-            chain_id=StarknetChainId.TESTNET,
-            wait_for_acceptance=True,
-            gateway_url=devnet.get_gateway_url(),
-            max_fee="auto",
-        )
+    # with set_private_key_env_var(account.private_key):
+    #     declare_result = await protostar.declare(
+    #         contract=Path() / "build" / "main.json",
+    #         account_address=account.address,
+    #         chain_id=StarknetChainId.TESTNET,
+    #         wait_for_acceptance=True,
+    #         gateway_url=devnet.get_gateway_url(),
+    #         max_fee="auto",
+    #     )
         # multicall = MulticallUseCase(
         #     account_manager=account_manager,
         #     client=starknet_client,
