@@ -25,7 +25,7 @@ function = "increase_balance"
 inputs = [42]
 ```
 
-Protostar supports two types of calls — `deploy` and `invoke`, which accept similar arguments to [`deploy command`](/docs/cli-reference#deploy) and [`invoke command`](/docs/cli-reference#invoke).
+Protostar supports two types of calls — `deploy` and `invoke`, which take similar arguments to [`deploy command`](/docs/cli-reference#deploy) and [`invoke command`](/docs/cli-reference#invoke).
 
 You can use contract address from a previous call by using references (`$DEPLOY_CALL_ID`). References can be used in `contract-address` and `inputs` attributes as demonstrated in the example above.
 
