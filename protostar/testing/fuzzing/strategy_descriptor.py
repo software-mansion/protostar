@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
-from typing import Callable
+from typing import Callable, Any
 
 from hypothesis.strategies import SearchStrategy
 from starkware.cairo.lang.compiler.ast.cairo_types import CairoType
 
-MappingFunction = Callable[[int], int]
-FilterFunction = Callable[[int], bool]
+MappingFunction = Callable[[Any], Any]
+FilterFunction = Callable[[Any], bool]
 
 
 class StrategyDescriptor(ABC):

@@ -344,6 +344,8 @@ class ProtostarFixture:
                 gateway_url,
                 "--chain-id",
                 str(StarknetChainId.TESTNET.value),
+                "--max-fee",
+                "auto",
                 *json_args,
             ]
         )

@@ -39,6 +39,7 @@ class PrepareCheatcode(Cheatcode):
         self,
         declared: DeclaredContract,
         constructor_calldata: Optional[CairoOrPythonData] = None,
+        salt: Optional[int] = None,
     ) -> PreparedContract:
         constructor_calldata = constructor_calldata or []
 
@@ -48,12 +49,14 @@ class PrepareCheatcode(Cheatcode):
             )
         contract_salt = PrepareCheatcode.salt_nonce
         PrepareCheatcode.salt_nonce += 1
+        if salt is not None:
+            contract_salt = salt
 
         contract_address = calculate_contract_address_from_hash(
             salt=contract_salt,
             class_hash=declared.class_hash,
             constructor_calldata=constructor_calldata,
-            deployer_address=self.contract_address,
+            deployer_address=0,
         )
 
         self.cheatable_state.contract_address_to_class_hash_map[

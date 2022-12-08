@@ -1,6 +1,10 @@
 # `prepare`
 ```python
-def prepare(declared: DeclaredContract, constructor_calldata: Optional[Union[List[int], Dict]]] = None) -> PreparedContract:
+def prepare(
+    declared: DeclaredContract,
+    constructor_calldata: list[int] | dict | None = None,
+    salt: int | None = None
+) -> PreparedContract:
 
 class PreparedContract:
     constructor_calldata: List[int]
@@ -8,7 +12,6 @@ class PreparedContract:
     class_hash: int
 ```
 Prepares contract for deployment given `DeclaredContract` and constructor_calldata. The cheatcode is useful when you want to know contract address before deploying it to affect constructor with a targeted cheatcode. Example:
-
 ```
 @external
 func test_prank_constructor{syscall_ptr : felt*, range_check_ptr}():

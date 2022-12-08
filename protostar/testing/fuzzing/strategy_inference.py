@@ -1,8 +1,12 @@
-from starkware.cairo.lang.compiler.ast.cairo_types import CairoType, TypeFelt
+from starkware.cairo.lang.compiler.ast.cairo_types import (
+    CairoType,
+    TypeFelt,
+)
 
 from .exceptions import FuzzingError
-from .strategies import FeltsStrategyDescriptor
+from .strategies import FeltsStrategyDescriptor, Uint256StrategyDescriptor
 from .strategy_descriptor import StrategyDescriptor
+from .strategies.uint256 import is_uint256
 
 
 def infer_strategy_from_cairo_type(
@@ -11,6 +15,8 @@ def infer_strategy_from_cairo_type(
 ) -> StrategyDescriptor:
     if isinstance(cairo_type, TypeFelt):
         return FeltsStrategyDescriptor()
+    if is_uint256(cairo_type):
+        return Uint256StrategyDescriptor()
 
     raise FuzzingError(
         f"Parameter '{parameter_name}' cannot be fuzzed automatically, "
