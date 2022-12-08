@@ -1,4 +1,8 @@
-from protostar.starknet import Cheatcode, DelayedBuilder
+from typing import Callable
+
+from starkware.cairo.lang.vm.vm_consts import VmConsts
+
+from protostar.starknet import Cheatcode
 
 from .reflect.reflector import Reflector
 
@@ -8,5 +12,8 @@ class ReflectCheatcode(Cheatcode):
     def name(self) -> str:
         return "reflect"
 
-    def build(self) -> DelayedBuilder:
-        return DelayedBuilder(lambda exec_locals: Reflector(exec_locals["ids"]))
+    def build(self) -> Callable[[VmConsts], Reflector]:
+        return self.reflect
+
+    def reflect(self, ids: VmConsts) -> Reflector:
+        return Reflector(ids)
