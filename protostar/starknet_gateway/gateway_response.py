@@ -27,8 +27,3 @@ class SuccessfulDeployAccountResponse:
     address: Address
     transaction_hash: int
     code: str
-
-
-@dataclass
-class SuccessfulBuildResponse:
-    class_hashes: dict[str, int]

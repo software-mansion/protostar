@@ -4,14 +4,17 @@ from dataclasses import dataclass
 
 from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
 from protostar.cli.common_arguments import COMPILED_CONTRACTS_DIR_ARG
-from protostar.compiler import ProjectCompiler, ProjectCompilerConfig
-from protostar.starknet_gateway import SuccessfulBuildResponse
+from protostar.compiler import (
+    ProjectCompiler,
+    ProjectCompilerConfig,
+    ProjectCompilationResult,
+)
 from protostar.io import StructuredMessage, LogColorProvider
 
 
 @dataclass
 class SuccessfulBuildMessage(StructuredMessage):
-    response: SuccessfulBuildResponse
+    response: ProjectCompilationResult
 
     def format_human(self, fmt: LogColorProvider) -> str:
         lines: list[str] = ["Building projects' contracts"]
@@ -64,7 +67,7 @@ class BuildCommand(ProtostarCommand):
             COMPILED_CONTRACTS_DIR_ARG,
         ]
 
-    async def run(self, args: Any) -> SuccessfulBuildResponse:
+    async def run(self, args: Any) -> ProjectCompilationResult:
         write = self._messenger_factory.from_args(args)
 
         response = await self.build(
@@ -82,7 +85,7 @@ class BuildCommand(ProtostarCommand):
         output_dir: Path,
         disable_hint_validation: bool = False,
         relative_cairo_path: Optional[List[Path]] = None,
-    ) -> SuccessfulBuildResponse:
+    ) -> ProjectCompilationResult:
         class_hashes = self._project_compiler.compile_project(
             output_dir=output_dir,
             config=ProjectCompilerConfig(
@@ -90,4 +93,4 @@ class BuildCommand(ProtostarCommand):
                 relative_cairo_path=relative_cairo_path or [],
             ),
         )
-        return SuccessfulBuildResponse(class_hashes=class_hashes)
+        return ProjectCompilationResult(class_hashes=class_hashes)
