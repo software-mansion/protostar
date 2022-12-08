@@ -220,6 +220,7 @@ A glob or globs to a directory or a test suite, for example:
 
     async def run(self, args: Namespace) -> TestingSummary:
         cache = TestCommandCache(CacheIO(self._project_root_path))
+        json_format = args.json if hasattr(args, "json") else False
         summary, test_collector_result = await self.test(
             targets=cache.obtain_targets(args.target, args.last_failed),
             ignored_targets=args.ignore,
@@ -233,10 +234,10 @@ A glob or globs to a directory or a test suite, for example:
             max_steps=args.max_steps,
             slowest_tests_to_report_count=args.report_slowest_tests,
             gas_estimation_enabled=args.estimate_gas,
-            json_format=args.json,
+            json_format=json_format,
         )
         cache.write_failed_tests_to_cache(summary)
-        if args.json:
+        if json_format:
             if self._messenger_factory is None:
                 raise ProtostarException(
                     "Messanger factory has to be provided in order to format the output"
