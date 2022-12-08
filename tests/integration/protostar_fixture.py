@@ -535,6 +535,7 @@ def build_protostar_fixture(
         log_color_provider=log_color_provider,
         cwd=project_root_path,
         active_profile_name=None,
+        messenger_factory=None,
     )
 
     invoke_command = InvokeCommand(

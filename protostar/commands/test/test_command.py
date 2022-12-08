@@ -2,16 +2,18 @@ import logging
 from argparse import Namespace
 from pathlib import Path
 from typing import List, Optional
+from dataclasses import dataclass
 
-from protostar.cli import ProtostarArgument, ProtostarCommand
+from protostar.io import StructuredMessage
+from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
 from protostar.cli.activity_indicator import ActivityIndicator
 from protostar.commands.test.test_collector_summary_formatter import (
     format_test_collector_summary,
 )
 from protostar.commands.test.test_result_formatter import (
     format_test_result,
-    make_path_relative_if_possible,
 )
+from protostar.testing.test_scheduler import make_path_relative_if_possible
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.compiler import ProjectCairoPathBuilder
 from protostar.io.log_color_provider import LogColorProvider
@@ -40,6 +42,58 @@ from protostar.testing.cairo_test_runner import CairoTestRunner
 from .test_command_cache import TestCommandCache
 
 
+@dataclass
+class SuccessfulTestMessage(StructuredMessage):
+    summary: TestingSummary
+    test_collector_result: TestCollector.Result
+
+    def format_human(self, fmt: LogColorProvider) -> str:
+        assert False, "Tests should use live logging for the human-readable output"
+
+    def format_dict(self) -> dict:
+        test_cases = 0
+        for test_suite in self.test_collector_result.test_suites:
+            test_cases += len(test_suite.test_cases)
+        failed_tests = len(self.summary.failed)
+        passed_tests = len(self.summary.passed)
+        execution_times = [
+            test.execution_time for test in self.summary.passed + self.summary.failed
+        ]
+
+        failed_tests_paths = {str(item.file_path) for item in self.summary.failed}
+        passed_test_suites = failed_test_suites = 0
+        for test_suite in self.test_collector_result.test_suites:
+            if str(test_suite.test_path) in failed_tests_paths:
+                failed_test_suites += 1
+            else:
+                passed_test_suites += 1
+
+        return {
+            "collected_tests": {
+                "broken_test_suites": len(
+                    self.test_collector_result.broken_test_suites
+                ),
+                "test_suites": len(self.test_collector_result.test_suites),
+                "test_cases": test_cases,
+                "duration": self.test_collector_result.duration,
+            },
+            "summary": {
+                "test_suites": {
+                    "total": failed_test_suites + passed_test_suites,
+                    "failed": failed_test_suites,
+                    "passed": passed_test_suites,
+                },
+                "tests": {
+                    "total": failed_tests + passed_tests,
+                    "failed": failed_tests,
+                    "passed": passed_tests,
+                },
+                "seed": self.summary.testing_seed,
+                "execution_time": f"{sum(execution_times):0.2f}",
+            },
+        }
+
+
 class TestCommand(ProtostarCommand):
     def __init__(
         self,
@@ -49,6 +103,7 @@ class TestCommand(ProtostarCommand):
         log_color_provider: LogColorProvider,
         cwd: Path,
         active_profile_name: Optional[str],
+        messenger_factory: Optional[MessengerFactory],
     ) -> None:
         super().__init__()
         self._log_color_provider = log_color_provider
@@ -57,6 +112,7 @@ class TestCommand(ProtostarCommand):
         self._project_cairo_path_builder = project_cairo_path_builder
         self._cwd = cwd
         self._active_profile_name = active_profile_name
+        self._messenger_factory = messenger_factory
 
     @property
     def name(self) -> str:
@@ -73,6 +129,7 @@ class TestCommand(ProtostarCommand):
     @property
     def arguments(self):
         return [
+            *MessengerFactory.OUTPUT_ARGUMENTS,
             ProtostarArgument(
                 name="target",
                 description="""
@@ -163,7 +220,7 @@ A glob or globs to a directory or a test suite, for example:
 
     async def run(self, args: Namespace) -> TestingSummary:
         cache = TestCommandCache(CacheIO(self._project_root_path))
-        summary = await self.test(
+        summary, test_collector_result = await self.test(
             targets=cache.obtain_targets(args.target, args.last_failed),
             ignored_targets=args.ignore,
             cairo_path=args.cairo_path,
@@ -176,8 +233,16 @@ A glob or globs to a directory or a test suite, for example:
             max_steps=args.max_steps,
             slowest_tests_to_report_count=args.report_slowest_tests,
             gas_estimation_enabled=args.estimate_gas,
+            json_format=args.json,
         )
         cache.write_failed_tests_to_cache(summary)
+        if args.json:
+            if self._messenger_factory is None:
+                raise ProtostarException(
+                    "Messanger factory has to be provided in order to format the output"
+                )
+            write = self._messenger_factory.json()
+            write(SuccessfulTestMessage(summary, test_collector_result))
         summary.assert_all_passed()
         return summary
 
@@ -196,7 +261,8 @@ A glob or globs to a directory or a test suite, for example:
         max_steps: Optional[int] = None,
         slowest_tests_to_report_count: int = 0,
         gas_estimation_enabled: bool = False,
-    ) -> TestingSummary:
+        json_format: bool = False,
+    ) -> tuple[TestingSummary, TestCollector.Result]:
         include_paths = [
             str(path)
             for path in [
@@ -245,7 +311,8 @@ A glob or globs to a directory or a test suite, for example:
                 "Only one test case can be profiled at the time. Please specify path to a single test case."
             )
 
-        self._log_test_collector_result(test_collector_result)
+        if not json_format:
+            self._log_test_collector_result(test_collector_result)
 
         testing_summary = TestingSummary(
             test_results=test_collector_result.broken_test_suites,  # type: ignore | pyright bug?
@@ -272,13 +339,15 @@ A glob or globs to a directory or a test suite, for example:
                 exit_first=exit_first,
                 testing_seed=testing_seed,
                 max_steps=max_steps,
-                project_root_path_str=str(self._project_root_path),
+                project_root_path=self._project_root_path,
                 active_profile_name=self._active_profile_name,
                 cwd=self._cwd,
                 gas_estimation_enabled=gas_estimation_enabled,
+                testing_summary=testing_summary,
+                json_format=json_format,
             )
 
-        return testing_summary
+        return testing_summary, test_collector_result
 
     def _log_test_collector_result(
         self, test_collector_result: TestCollector.Result

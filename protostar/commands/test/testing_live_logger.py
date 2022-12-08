@@ -4,10 +4,8 @@ from typing import TYPE_CHECKING, Any, cast
 
 from tqdm import tqdm as bar
 
-from protostar.commands.test.test_result_formatter import (
-    format_test_result,
-    make_path_relative_if_possible,
-)
+from protostar.commands.test.test_result_formatter import format_test_result
+from protostar.testing.test_scheduler import make_path_relative_if_possible
 from protostar.testing import (
     BrokenTestSuiteResult,
     SharedTestsState,
