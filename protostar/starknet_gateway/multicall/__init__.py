@@ -15,3 +15,8 @@ from .multicall_protocols import (
     SignedMulticallTransaction,
 )
 from .call_resolver import CallResolver
+from .multicall_file_interpreter import interpret_multicall_file_content
+from .multicall_file_example import (
+    MULTICALL_FILE_EXAMPLE,
+    prepare_multicall_file_example,
+)

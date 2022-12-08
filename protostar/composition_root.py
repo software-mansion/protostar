@@ -26,6 +26,7 @@ from protostar.commands import (
     TestCommand,
     UpdateCommand,
     UpgradeCommand,
+    MulticallCommand,
 )
 from protostar.commands.cairo_migrate_command import CairoMigrateCommand
 from protostar.commands.init.project_creator import (
@@ -145,7 +146,10 @@ def build_di_container(
     calculate_account_address_command = CalculateAccountAddressCommand(
         messenger_factory=messenger_factory
     )
-
+    multicall_command = MulticallCommand(
+        gateway_facade_factory=gateway_facade_factory,
+        messenger_factory=messenger_factory,
+    )
     commands: list[ProtostarCommand] = [
         InitCommand(
             requester=input_requester,
@@ -211,6 +215,7 @@ def build_di_container(
         ),
         migrate_configuration_file_command,
         calculate_account_address_command,
+        multicall_command,
     ]
 
     compatibility_checker = ProtostarCompatibilityWithProjectChecker(

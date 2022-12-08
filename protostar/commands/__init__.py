@@ -9,6 +9,7 @@ from .init import InitCommand
 from .install import InstallCommand
 from .invoke_command import InvokeCommand
 from .migrate_configuration_file_command import MigrateConfigurationFileCommand
+from .multicall_command import MulticallCommand
 from .remove import RemoveCommand, removal_exceptions
 from .test import TestCommand
 from .update import UpdateCommand
