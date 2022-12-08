@@ -24,7 +24,7 @@ class SuccessfulBuildMessage(StructuredMessage):
         return "\n".join(lines)
 
     def format_dict(self) -> dict:
-        return self.response.class_hashes
+        return {key: hex(int(ch)) for key, ch in self.response.class_hashes.items()}
 
 
 class BuildCommand(ProtostarCommand):
