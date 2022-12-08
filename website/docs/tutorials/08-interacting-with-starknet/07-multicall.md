@@ -10,6 +10,8 @@ Before you run [`protostar multicall`](/docs/cli-reference#multicall), you need 
 
 
 Then, create a toml file containing the multicall [array of tables](https://toml.io/en/v1.0.0#array-of-tables).
+In that file, you can use contract address of a contract to be deployed by using references (`$DEPLOY_CALL_ID`).
+References can be used in `contract-address` and `inputs` attributes as demonstrated in the example below.
 
 ```toml title="calls.toml"
 [[call]]
@@ -27,7 +29,6 @@ inputs = [42]
 
 Protostar supports two types of calls — `deploy` and `invoke`, which take similar arguments to [`deploy command`](/docs/cli-reference#deploy) and [`invoke command`](/docs/cli-reference#invoke).
 
-You can use contract address from a previous call by using references (`$DEPLOY_CALL_ID`). References can be used in `contract-address` and `inputs` attributes as demonstrated in the example above.
 
 ```toml title="protostar.toml"
 [project]
