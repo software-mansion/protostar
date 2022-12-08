@@ -74,3 +74,12 @@ func fail() {
     return ();
 }
 """
+
+EMPTY_TEST = """\
+%lang starknet
+
+@external
+func test_nothing() {
+    return ();
+}
+"""

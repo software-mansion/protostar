@@ -68,7 +68,6 @@ def estimate_gas(
     call_info: CallInfo,
 ) -> int:
     loop = asyncio.get_running_loop()
-    resources_manager = ExecutionResourcesManager.empty()
     sync_state = StateSyncifier(async_state=state, loop=loop)
     tracker_state = UpdatesTrackerState(state=sync_state)
     resources = calculate_tx_resources(
