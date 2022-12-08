@@ -1,7 +1,7 @@
 # Multicall
 
 ## Overview
-Multicall allows executing multiple calls while providing [atomicity](https://en.wikipedia.org/wiki/Atomicity_(database_systems)). If one call fails, the entire operation is aborted. Use it to prevent leaving your system in an inconsistent state. 
+Multicall executes multiple calls as a single transaction. If one call fails, the entire operation is aborted. Use it to prevent leaving your system in an inconsistent state. 
 
 
 ## Usage example
