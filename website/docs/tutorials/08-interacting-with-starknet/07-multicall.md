@@ -9,7 +9,7 @@ Multicall executes multiple calls as a single transaction. If one call fails, th
 Before you run [`protostar multicall`](/docs/cli-reference#multicall), you need to [create an account](./05-deploy-account.md) in order to [sign the transaction](./06-signing.md). If you want to deploy contract within a multicall, you need to [declare](./03-declare.md) it first.
 
 
-Then, create a toml file containing the multicall [array of tables](https://toml.io/en/v1.0.0#array-of-tables).
+Then, create a toml file containing calls defined as[array of tables](https://toml.io/en/v1.0.0#array-of-tables).
 In that file, you can use contract address of a contract to be deployed by using references (`$DEPLOY_CALL_ID`).
 References can be used in `contract-address` and `inputs` attributes as demonstrated in the example below.
 
