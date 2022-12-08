@@ -40,7 +40,8 @@ class ForkableStarknet(Starknet):
         )
 
     def fork(self):
-        return ForkableStarknet(state=self.cheatable_state.copy())
+        state_copy = self.cheatable_state.copy()
+        return ForkableStarknet(state=state_copy)
 
     async def deploy(
         self,
