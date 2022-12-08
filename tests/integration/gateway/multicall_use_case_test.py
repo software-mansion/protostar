@@ -34,12 +34,7 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
         protostar.build_sync()
         yield protostar
 
-async def test_multicall_use_case_happy_case(
-    protostar: ProtostarFixture,
-    starknet_client: GatewayFacade,
-    devnet: DevnetFixture,
-    set_private_key_env_var: SetPrivateKeyEnvVarFixture,
-):
+async def test_multicall_use_case_happy_case():
     assert True
     # account = devnet.get_predeployed_accounts()[0]
     # account_manager = AccountManager(
