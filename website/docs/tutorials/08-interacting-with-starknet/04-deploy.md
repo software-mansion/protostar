@@ -31,4 +31,6 @@ https://goerli.voyager.online/contract/0x06a5ea9e42c921bd58e24b8da9d1fc91a488df0
 If you need to print machine-readable output in JSON format, you should use `--json` flag.
 
 This may come in handy for writing scripts that include protostar commands.
+
+For more information, go to [this page](./scripting.md)
 :::
