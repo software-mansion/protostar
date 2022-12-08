@@ -16,7 +16,7 @@ DeployRawCall = TypedDict(
     {
         "type": Literal["deploy"],
         "id": str,
-        "inputs": list[Union[int, Variable]],
+        "calldata": list[Union[int, Variable]],
         "class-hash": int,
     },
 )
@@ -25,9 +25,9 @@ InvokeRawCall = TypedDict(
     "InvokeRawCall",
     {
         "type": Literal["invoke"],
-        "inputs": list[Union[int, Variable]],
+        "calldata": list[Union[int, Variable]],
         "contract-address": Union[RawAddress, Variable],
-        "function": str,
+        "entrypoint-name": str,
     },
 )
 
@@ -54,13 +54,13 @@ def map_raw_call_to_call_base(raw_call: RawCall) -> Call:
             address = Address.from_user_input(address)
         return InvokeCall(
             address=address,
-            calldata=[parse_potential_identifier(i) for i in raw_call["inputs"]],
-            selector=Selector(raw_call["function"]),
+            calldata=[parse_potential_identifier(i) for i in raw_call["calldata"]],
+            selector=Selector(raw_call["entrypoint-name"]),
         )
     if raw_call["type"] == "deploy":
         return DeployCall(
             address_alias=Identifier(raw_call["id"]),
-            calldata=[parse_potential_identifier(i) for i in raw_call["inputs"]],
+            calldata=[parse_potential_identifier(i) for i in raw_call["calldata"]],
             class_hash=raw_call["class-hash"],
         )
     assert False, "Unknown call type"
