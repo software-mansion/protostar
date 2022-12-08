@@ -40,14 +40,15 @@ async def test_multicall_use_case_happy_case(
     devnet: DevnetFixture,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
-    account = devnet.get_predeployed_accounts()[0]
-    account_manager = AccountManager(
-        account=Account(
-            address=account.address,
-            signer=account.signer,
-        ),
-        gateway_url=devnet.get_gateway_url(),
-    )
+    assert True
+    # account = devnet.get_predeployed_accounts()[0]
+    # account_manager = AccountManager(
+    #     account=Account(
+    #         address=account.address,
+    #         signer=account.signer,
+    #     ),
+    #     gateway_url=devnet.get_gateway_url(),
+    # )
     # with set_private_key_env_var(account.private_key):
     #     declare_result = await protostar.declare(
     #         contract=Path() / "build" / "main.json",
