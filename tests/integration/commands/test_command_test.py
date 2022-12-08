@@ -20,7 +20,7 @@ async def test_gas_estimation(
     assert "gas=4356" in capsys.readouterr().out
 
 
-async def test_gas_estimation_for_identity_function(
+async def test_gas_estimation_for_empty_function(
     protostar: ProtostarFixture,
     capsys: CaptureFixture[str],
 ):
