@@ -13,13 +13,13 @@ def test_parsing():
         id = "A"
         type = "deploy"
         class-hash = 0x20
-        inputs = [3]
+        calldata = [3]
 
         [[call]]
         type = "invoke"
         contract-address = "$A"
-        function = "increase_balance"
-        inputs = [42]
+        entrypoint-name = "increase_balance"
+        calldata = [42]
     """
     )
 

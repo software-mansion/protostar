@@ -5,12 +5,9 @@ from protostar.starknet import Address, Selector
 from protostar.starknet_gateway.type import Fee
 
 
-@dataclass(eq=True, frozen=True)
+@dataclass(frozen=True, eq=True)
 class Identifier:
     value: str
-
-    def __str__(self) -> str:
-        return self.value
 
 
 MulticallInputCalldata = list[Union[int, Identifier]]
