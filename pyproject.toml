@@ -44,6 +44,7 @@ pytest-xdist = "^3.1.0"
 re-assert = "^1.1.0"
 snakeviz = "^2.1.1"
 starknet-devnet = "^0.4.2"
+pytest-random-order = "^1.1.0"
 
 [tool.poe.tasks]
 build = [
