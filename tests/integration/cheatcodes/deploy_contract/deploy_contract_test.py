@@ -10,22 +10,6 @@ from tests.integration.conftest import (
 TEST_CONTRACTS_PATH = Path(__file__).parent
 
 
-async def test_tmp(run_cairo_test_runner: RunCairoTestRunnerFixture):
-    testing_summary = await run_cairo_test_runner(
-        TEST_CONTRACTS_PATH / "deploy_contract_test.cairo",
-        cairo_path=[Path() / "tests" / "integration" / "data"],
-        test_cases=["test_deploy_contract_simplified"],
-    )
-
-    assert_cairo_test_cases(
-        testing_summary,
-        expected_passed_test_cases_names=[
-            "test_deploy_contract_simplified",
-        ],
-        expected_failed_test_cases_names=[],
-    )
-
-
 async def test_deploy_contract(run_cairo_test_runner: RunCairoTestRunnerFixture):
     testing_summary = await run_cairo_test_runner(
         TEST_CONTRACTS_PATH / "deploy_contract_test.cairo",

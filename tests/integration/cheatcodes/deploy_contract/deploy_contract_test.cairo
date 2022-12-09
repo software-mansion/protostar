@@ -74,10 +74,7 @@ func test_deploy_contract_simplified{syscall_ptr: felt*, range_check_ptr}() {
     alloc_locals;
 
     local contract_address: felt;
-    %{ 
-        ids.contract_address = context.basic_contract.contract_address
-        # ids.contract_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract/basic_contract.cairo").contract_address
-     %}
+    %{ ids.contract_address = context.basic_contract.contract_address %}
 
     BasicContract.increase_balance(contract_address, 5);
     let (res) = BasicContract.get_balance(contract_address);
@@ -249,9 +246,7 @@ func test_constructor_no_args_executed{syscall_ptr: felt*, range_check_ptr}() {
     alloc_locals;
     local deployed_contract_address: felt;
 
-    %{
-        ids.deployed_contract_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor_no_args.cairo").contract_address
-    %}
+    %{ ids.deployed_contract_address = deploy_contract("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor_no_args.cairo").contract_address %}
 
     let (balance) = BasicWithConstructorNoArgs.get_balance(deployed_contract_address);
 
@@ -270,14 +265,13 @@ namespace EventEmitterContainer {
 func fake_event() {
 }
 
-
 @external
-func test_emitting_events_from_user_contract_constructor_and_from_current_contract{syscall_ptr: felt*, range_check_ptr}() {
+func test_emitting_events_from_user_contract_constructor_and_from_current_contract{
+    syscall_ptr: felt*, range_check_ptr
+}() {
     // https://github.com/software-mansion/protostar/issues/823
     alloc_locals;
-    %{
-        deploy_contract("./tests/integration/cheatcodes/deploy_contract/event_emitter_contract.cairo").contract_address
-    %}
+    %{ deploy_contract("./tests/integration/cheatcodes/deploy_contract/event_emitter_contract.cairo").contract_address %}
     fake_event.emit();
     return ();
 }
