@@ -3,102 +3,36 @@ In order to automate a process of your desire that includes protostar operations
 
 This tutorial shows a simple example of how to do such a thing using scripting in bash.
 
+We are going to write a script that builds, tests, declares, deploys and, in the end, calls the contract. We are also going to make use of the protostar's structured output so we can use previous' commands outputs in the following ones.
+
 ### File Structure
 
-Let's create the following file structure:
+First, let's create a basic protostar file structure. You can generate it by calling `protostar init`. It looks like this:
 
 ```
 - src
-  - basic_contract.cairo
+  - main.cairo
 - tests
-  - test_basic_contract.cairo
+  - test_main.cairo
 - protostar.toml
 ```
 
-#### Basic contract
+#### The contract
 
-```cairo
-%lang starknet
-
-from starkware.cairo.common.cairo_builtins import HashBuiltin
-
-@storage_var
-func balance() -> (res: felt) {
-}
-
-@constructor
-func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    initial_balance: felt
-) {
-    balance.write(initial_balance);
-    return ();
-}
-
-
-@external
-func increase_balance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    amount: felt
-) {
-    let (res) = balance.read();
-    balance.write(res + amount);
-    return ();
-}
-
-@view
-func get_balance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (res: felt) {
-    let (res) = balance.read();
-    return (res,);
-}
-```
-
-#### Test for the contract
-
-```cairo
-%lang starknet
-
-from starkware.cairo.common.math import assert_le
-
-@contract_interface
-namespace BasicContract {
-  func increase_balance(amount: felt) -> () {
-  }
-  func get_balance() -> (res: felt) {
-  }
-}
-
-@external
-func setup_basic() {
-    %{
-      context.contract_address = deploy_contract("./src/basic_contract.cairo", [100]).contract_address
-    %}
-    return ();
-}
-
-@external
-func test_basic{syscall_ptr: felt*, range_check_ptr}() {
-    alloc_locals;
-
-    local contract_address: felt;
-    %{ ids.contract_address = context.contract_address %}
-
-    let (res,) = BasicContract.get_balance(contract_address=contract_address);
-    assert res = 100;
-
-    BasicContract.increase_balance(contract_address=contract_address, amount=50);
-    let (res,) = BasicContract.get_balance(contract_address=contract_address);
-    assert res = 150;
-
-    return ();
-}
-```
+`protostar init` automatically fills generated files with a sample content. We're not going to change them, because the example contract is sufficient for us and it is not important for this tutorial what it does exactly.
 
 #### protostar.toml file
 
 You can read about how to compose the protostar configuration file [here](../04-configuration-file.md). The point is to keep protostar commands clean and simple and leave such things as the network configuration away from them.
 
-### Bash script
+In this file, you should declare following sections:
+- `declare`
+- `deploy`
+- `call`
 
-Let's assume we want to automate deploying our contract. But before we deploy, we want to first run the tests and check if everything is alright. Instead of manually invoking all the necessary commands, we could write a bash script for that.
+In these sections, you can specify properties like `network`, `account-address` or `private-key-path`.
+
+### Bash script
 
 #### Setup the script
 
@@ -120,8 +54,6 @@ The `set -e` instruction tells the interpreter to exit the script immediately if
 protostar build
 protostar test
 ```
-
-In order to be able to use this, you have to have protostar installed. You can see how to do this [here](../02-installation.md).
 
 These two instructions assure that the contract builds properly and all tests pass.
 
