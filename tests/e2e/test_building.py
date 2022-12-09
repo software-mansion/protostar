@@ -1,6 +1,7 @@
 from os import listdir
 from pathlib import Path
 from textwrap import dedent
+import json
 
 import pytest
 
@@ -9,9 +10,24 @@ from tests.e2e.conftest import MyPrivateLibsSetupFixture, ProtostarFixture
 
 @pytest.mark.usefixtures("init")
 def test_default_build(protostar: ProtostarFixture):
-    protostar(["build"])
+    r = protostar(["build"])
     dirs = listdir()
     assert "build" in dirs
+
+
+@pytest.mark.usefixtures("init")
+def test_class_hash_output(protostar: ProtostarFixture):
+    output = protostar(["build"])
+    assert 'Class hash for contract "main": ' in output
+    assert output.split('Class hash for contract "main": ')[1].strip()[:2] == "0x"
+    numeric_value = int(
+        output.split('Class hash for contract "main": ')[1].strip()[2:], 16
+    )
+
+    output_json = protostar(["build", "--json"])
+    output_json_parsed = json.loads(output_json.split("\n")[0])
+    assert output_json_parsed["main"][:2] == "0x"
+    assert numeric_value == int(output_json_parsed["main"][2:], 16)
 
 
 @pytest.mark.usefixtures("init")
