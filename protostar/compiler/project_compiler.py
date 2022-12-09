@@ -27,11 +27,6 @@ ContractIdentifier = Union[ContractName, ContractSourcePath]
 
 
 @dataclass
-class ProjectCompilationResult:
-    class_hashes: dict[str, int]
-
-
-@dataclass
 class ProjectCompilerConfig:
     relative_cairo_path: List[Path]
     debugging_info_attached: bool = False

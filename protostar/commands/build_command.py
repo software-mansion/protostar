@@ -7,24 +7,23 @@ from protostar.cli.common_arguments import COMPILED_CONTRACTS_DIR_ARG
 from protostar.compiler import (
     ProjectCompiler,
     ProjectCompilerConfig,
-    ProjectCompilationResult,
 )
 from protostar.io import StructuredMessage, LogColorProvider
 
 
 @dataclass
 class SuccessfulBuildMessage(StructuredMessage):
-    response: ProjectCompilationResult
+    class_hashes: dict[str, int]
 
     def format_human(self, fmt: LogColorProvider) -> str:
         lines: list[str] = ["Building projects' contracts"]
-        for contract_name, class_hash in self.response.class_hashes.items():
+        for contract_name, class_hash in self.class_hashes.items():
             lines.append(f"Class hash for contract {contract_name}: {class_hash}")
 
         return "\n".join(lines)
 
     def format_dict(self) -> dict:
-        return {key: hex(int(ch)) for key, ch in self.response.class_hashes.items()}
+        return {key: hex(int(ch)) for key, ch in self.class_hashes.items()}
 
 
 class BuildCommand(ProtostarCommand):
@@ -67,25 +66,23 @@ class BuildCommand(ProtostarCommand):
             COMPILED_CONTRACTS_DIR_ARG,
         ]
 
-    async def run(self, args: Any) -> ProjectCompilationResult:
+    async def run(self, args: Any):
         write = self._messenger_factory.from_args(args)
 
-        response = await self.build(
+        class_hashes = await self.build(
             output_dir=args.compiled_contracts_dir,
             disable_hint_validation=args.disable_hint_validation,
             relative_cairo_path=args.cairo_path,
         )
 
-        write(SuccessfulBuildMessage(response=response))
-
-        return response
+        write(SuccessfulBuildMessage(class_hashes=class_hashes))
 
     async def build(
         self,
         output_dir: Path,
         disable_hint_validation: bool = False,
         relative_cairo_path: Optional[List[Path]] = None,
-    ) -> ProjectCompilationResult:
+    ) -> dict[str, int]:
         class_hashes = self._project_compiler.compile_project(
             output_dir=output_dir,
             config=ProjectCompilerConfig(
@@ -93,4 +90,4 @@ class BuildCommand(ProtostarCommand):
                 relative_cairo_path=relative_cairo_path or [],
             ),
         )
-        return ProjectCompilationResult(class_hashes=class_hashes)
+        return class_hashes
