@@ -3,7 +3,7 @@ In order to automate a process of your desire that includes protostar operations
 
 This tutorial shows a simple example of how to do such a thing using scripting in bash.
 
-We are going to write a script that builds, tests, declares, deploys and, in the end, calls the contract. We are also going to make use of the protostar's structured output so we can use previous' commands outputs in the following ones.
+We are going to write a script that builds, tests, declares, deploys, and, in the end, calls the contract. We are also going to make use of the protostar's structured output so we can use previous' commands outputs in the following ones.
 
 ### File Structure
 
@@ -19,18 +19,18 @@ First, let's create a basic protostar file structure. You can generate it by cal
 
 #### The contract
 
-`protostar init` automatically fills generated files with a sample content. We're not going to change them, because the example contract is sufficient for us and it is not important for this tutorial what it does exactly.
+`protostar init` automatically fills generated files with sample content. We're not going to change them, because the example contract is sufficient for us and it is not important for this tutorial what it does exactly.
 
 #### protostar.toml file
 
 You can read about how to compose the protostar configuration file [here](../04-configuration-file.md). The point is to keep protostar commands clean and simple and leave such things as the network configuration away from them.
 
-In this file, you should declare following sections:
+In this file, you should declare the following sections:
 - `declare`
 - `deploy`
 - `call`
 
-In these sections, you can specify properties like `network`, `account-address` or `private-key-path`.
+In these sections, you can specify properties like `network`, `account-address`, or `private-key-path`.
 
 ### Bash script
 
@@ -67,7 +67,7 @@ Normally, we would start with something like this:
 protostar declare ./build/main.json
 ```
 
-But `deploy` command needs the contract's class hash that comes from the `declare`'s command output. Therefore we need to get this output in a standardized way. That's when the `--json` flag comes into play.
+But the `deploy` command needs the contract's class hash that comes from the `declare`'s command output. Therefore we need to get this output in a standardized way. That's when the `--json` flag comes into play.
 
 By doing:
 
@@ -131,4 +131,4 @@ protostar call --contract-address $CONTRACT_ADDRESS --function get_balance
 
 Of course, we could exclude pulling a specific field from the output to a separate bash function but that's not important.
 
-Using `--json` flag is also good if you prefer the more compressed output from protostar commands.
+Using the `--json` flag is also good if you prefer the more compressed output from protostar commands.
