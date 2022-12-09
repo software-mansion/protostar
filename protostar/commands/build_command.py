@@ -18,12 +18,17 @@ class SuccessfulBuildMessage(StructuredMessage):
     def format_human(self, fmt: LogColorProvider) -> str:
         lines: list[str] = ["Building projects' contracts"]
         for contract_name, class_hash in self.class_hashes.items():
-            lines.append(f"Class hash for contract {contract_name}: {class_hash}")
+            lines.append(
+                f'Class hash for contract "{contract_name}": {hex(int(class_hash))}'
+            )
 
         return "\n".join(lines)
 
     def format_dict(self) -> dict:
-        return {key: hex(int(ch)) for key, ch in self.class_hashes.items()}
+        return {
+            contract_name: hex(int(class_hash))
+            for contract_name, class_hash in self.class_hashes.items()
+        }
 
 
 class BuildCommand(ProtostarCommand):
