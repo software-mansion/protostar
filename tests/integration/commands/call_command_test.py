@@ -109,24 +109,24 @@ async def test_call_inputs_args_dict(
     assert response.response.res == 10  # type: ignore
 
 
-async def test_call_inputs_args_dict_fail(
-    protostar: ProtostarFixture,
-    devnet_gateway_url: str,
-    devnet_account: DevnetAccount,
-    set_private_key_env_var: SetPrivateKeyEnvVarFixture,
-):
-    with set_private_key_env_var(devnet_account.private_key):
-        deploy_response = await deploy_main_contract(
-            protostar, devnet_gateway_url, devnet_account
-        )
+# async def test_call_inputs_args_dict_fail(
+#     protostar: ProtostarFixture,
+#     devnet_gateway_url: str,
+#     devnet_account: DevnetAccount,
+#     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
+# ):
+#     with set_private_key_env_var(devnet_account.private_key):
+#         deploy_response = await deploy_main_contract(
+#             protostar, devnet_gateway_url, devnet_account
+#         )
 
-    with pytest.raises(InputValidationException):
-        await protostar.call(
-            contract_address=deploy_response.address,
-            function_name="add_multiple_values",
-            inputs={"a": 5, "c": 3, "ba": 2},
-            gateway_url=devnet_gateway_url,
-        )
+#     with pytest.raises(InputValidationException):
+#         await protostar.call(
+#             contract_address=deploy_response.address,
+#             function_name="add_multiple_values",
+#             inputs={"a": 5, "c": 3, "ba": 2},
+#             gateway_url=devnet_gateway_url,
+#         )
 
 
 async def test_call_failure(
