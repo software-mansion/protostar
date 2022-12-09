@@ -10,6 +10,7 @@ from starkware.starknet.business_logic.fact_state.patricia_state import (
 )
 from starkware.starknet.business_logic.fact_state.state import (
     SharedState,
+    ExecutionResourcesManager,
 )
 from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from starkware.starknet.definitions import constants
@@ -19,7 +20,6 @@ from starkware.starknet.services.api.contract_class import EntryPointType
 from starkware.starknet.testing.state import StarknetState, CastableToAddress
 from starkware.storage.dict_storage import DictStorage
 from starkware.storage.storage import FactFetchingContext
-from starkware.starknet.business_logic.fact_state.state import ExecutionResourcesManager
 
 from protostar.starknet.cheatable_cached_state import CheatableCachedState
 from protostar.starknet.cheatable_execute_entry_point import CheatableExecuteEntryPoint
@@ -113,7 +113,9 @@ class CheatableStarknetState(StarknetState):
             ffc=ffc, general_config=general_config
         )
         state_reader = PatriciaStateReader(
-            global_state_root=empty_shared_state.contract_states, ffc=ffc
+            global_state_root=empty_shared_state.contract_states,
+            ffc=ffc,
+            contract_class_storage=ffc.storage,
         )
         # region Modified Starknet code.
         state = CheatableCachedState(
@@ -121,6 +123,7 @@ class CheatableStarknetState(StarknetState):
                 sequencer_address=general_config.sequencer_address
             ),
             state_reader=state_reader,
+            contract_class_cache={},
         )
         # endregion
 
