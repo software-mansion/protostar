@@ -29,7 +29,7 @@ def gateway_facade_fixture(devnet: DevnetFixture):
     )
 
 
-@pytest.fixture(name="protostar")
+@pytest.fixture(autouse=True, scope="function", name="protostar")
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
     with create_protostar_project() as protostar:
         protostar.build_sync()
@@ -47,7 +47,6 @@ async def test_multicall_use_case_happy_case(
         account=Account(
             address=account.address,
             signer=account.signer,
-            private_key=int(account.private_key, base=0),
         ),
         gateway_url=devnet.get_gateway_url(),
     )

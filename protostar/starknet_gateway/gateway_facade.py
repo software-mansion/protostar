@@ -361,17 +361,20 @@ class GatewayFacade(MulticallClientProtocol):
     async def send_multicall_transaction(
         self, transaction: SignedMulticallTransaction
     ) -> MulticallClientResponse:
-        result = await self._gateway_client.send_transaction(
-            transaction=InvokeFunction(
-                version=1,
-                contract_address=int(transaction.contract_address),  # type: ignore
-                calldata=transaction.calldata,  # type: ignore
-                max_fee=transaction.max_fee,
-                nonce=transaction.nonce,
-                signature=transaction.signature,
+        try:
+            result = await self._gateway_client.send_transaction(
+                transaction=InvokeFunction(
+                    version=1,
+                    contract_address=int(transaction.contract_address),  # type: ignore
+                    calldata=transaction.calldata,  # type: ignore
+                    max_fee=transaction.max_fee,
+                    nonce=transaction.nonce,
+                    signature=transaction.signature,
+                )
             )
-        )
-        return MulticallClientResponse(transaction_hash=result.transaction_hash)
+            return MulticallClientResponse(transaction_hash=result.transaction_hash)
+        except ClientError as ex:
+            raise TransactionException(message=ex.message) from ex
 
 
 class InputValidationException(ProtostarException):
