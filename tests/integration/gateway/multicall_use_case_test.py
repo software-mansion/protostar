@@ -34,9 +34,9 @@
 #         protostar.build_sync()
 #         yield protostar
 
-async def test_multicall_use_case_happy_case():
-    assert True
-    # account = devnet.get_predeployed_accounts()[0]
+# async def test_multicall_use_case_happy_case():
+#     assert True
+#     # account = devnet.get_predeployed_accounts()[0]
     # account_manager = AccountManager(
     #     account=Account(
     #         address=account.address,
