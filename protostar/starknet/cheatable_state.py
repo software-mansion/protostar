@@ -123,6 +123,7 @@ class CheatableStarknetState(StarknetState):
                 sequencer_address=general_config.sequencer_address
             ),
             state_reader=state_reader,
+            contract_class_cache={},
         )
         # endregion
 

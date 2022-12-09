@@ -3,11 +3,15 @@ from typing import Dict, List
 
 from services.everest.business_logic.state_api import StateProxy
 from starkware.starknet.business_logic.fact_state.state import CarriedState
-from starkware.starknet.business_logic.state.state import CachedState, StateSyncifier
+from starkware.starknet.business_logic.state.state import (
+    CachedState,
+    StateSyncifier,
+    ContractClassCache,
+)
 from starkware.starknet.public.abi import AbiType
-from typing_extensions import Self
 from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from starkware.starknet.business_logic.state.state_api import StateReader
+from typing_extensions import Self
 
 from protostar.starknet.cheaters import BlockInfoCheater, Cheaters
 from protostar.starknet.types import ClassHashType, SelectorType
@@ -22,11 +26,12 @@ class CheatableCachedState(CachedState):
         self,
         block_info: BlockInfo,
         state_reader: StateReader,
+        contract_class_cache: ContractClassCache,
     ):
         super().__init__(
             block_info=block_info,
             state_reader=state_reader,
-            contract_class_cache={},
+            contract_class_cache=contract_class_cache,
         )
 
         self.pranked_contracts_map: Dict[int, int] = {}
@@ -47,6 +52,7 @@ class CheatableCachedState(CachedState):
         copied = CheatableCachedState(
             block_info=self.block_info,
             state_reader=self,
+            contract_class_cache=self.contract_classes,
         )
 
         copied.pranked_contracts_map = self.pranked_contracts_map.copy()
