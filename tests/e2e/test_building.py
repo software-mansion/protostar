@@ -19,14 +19,14 @@ def test_default_build(protostar: ProtostarFixture):
 def test_class_hash_output(protostar: ProtostarFixture):
     output = protostar(["build"])
     assert 'Class hash for contract "main": ' in output
-    assert output.split('Class hash for contract "main": ')[1].strip()[:2] == "0x"
+    assert output.split('Class hash for contract "main": ')[1].strip().startswith("0x")
     numeric_value = int(
         output.split('Class hash for contract "main": ')[1].strip()[2:], 16
     )
 
     output_json = protostar(["build", "--json"])
     output_json_parsed = json.loads(output_json.split("\n")[0])
-    assert output_json_parsed["main"][:2] == "0x"
+    assert output_json_parsed["main"].startswith("0x")
     assert numeric_value == int(output_json_parsed["main"][2:], 16)
 
 
