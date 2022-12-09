@@ -90,7 +90,7 @@ def devnet_gateway_url_fixture(
     devnet_port: int,
 ):
     proc = run_devnet(
-        ["poetry", "run", "starknet-devnet", "--timeout", "120"],
+        ["poetry", "run", "starknet-devnet"],
         devnet_port,
     )
     yield f"http://localhost:{devnet_port}"

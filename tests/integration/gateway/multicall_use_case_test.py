@@ -34,53 +34,50 @@
 #         protostar.build_sync()
 #         yield protostar
 
-
-async def test_multicall_use_case_happy_case():
-    assert True
-
-
+# async def test_multicall_use_case_happy_case():
+#     assert True
 #     # account = devnet.get_predeployed_accounts()[0]
-# account_manager = AccountManager(
-#     account=Account(
-#         address=account.address,
-#         signer=account.signer,
-#     ),
-#     gateway_url=devnet.get_gateway_url(),
-# )
-# with set_private_key_env_var(account.private_key):
-#     declare_result = await protostar.declare(
-#         contract=Path() / "build" / "main.json",
-#         account_address=account.address,
-#         chain_id=StarknetChainId.TESTNET,
-#         wait_for_acceptance=True,
-#         gateway_url=devnet.get_gateway_url(),
-#         max_fee="auto",
-#     )
-# multicall = MulticallUseCase(
-#     account_manager=account_manager,
-#     client=starknet_client,
-# )
-# deploy_call = DeployCall(
-#     address_alias=Identifier("A"),
-#     class_hash=declare_result.class_hash,
-#     calldata=[],
-# )
-# invoke_call = InvokeCall(
-#     address=Identifier("A"),
-#     calldata=[42],
-#     selector=Selector("increase_balance"),
-# )
-# calls = MulticallInput(calls=[deploy_call, invoke_call], max_fee="auto")
+    # account_manager = AccountManager(
+    #     account=Account(
+    #         address=account.address,
+    #         signer=account.signer,
+    #     ),
+    #     gateway_url=devnet.get_gateway_url(),
+    # )
+    # with set_private_key_env_var(account.private_key):
+    #     declare_result = await protostar.declare(
+    #         contract=Path() / "build" / "main.json",
+    #         account_address=account.address,
+    #         chain_id=StarknetChainId.TESTNET,
+    #         wait_for_acceptance=True,
+    #         gateway_url=devnet.get_gateway_url(),
+    #         max_fee="auto",
+    #     )
+        # multicall = MulticallUseCase(
+        #     account_manager=account_manager,
+        #     client=starknet_client,
+        # )
+        # deploy_call = DeployCall(
+        #     address_alias=Identifier("A"),
+        #     class_hash=declare_result.class_hash,
+        #     calldata=[],
+        # )
+        # invoke_call = InvokeCall(
+        #     address=Identifier("A"),
+        #     calldata=[42],
+        #     selector=Selector("increase_balance"),
+        # )
+        # calls = MulticallInput(calls=[deploy_call, invoke_call], max_fee="auto")
 
-# result = await multicall.execute(calls)
+        # result = await multicall.execute(calls)
 
-# await devnet.assert_transaction_accepted(result.transaction_hash)
+        # await devnet.assert_transaction_accepted(result.transaction_hash)
 
-# contract_a_address = result.deployed_contract_addresses[Identifier("A")]
-# call_result = await protostar.call(
-#     contract_address=contract_a_address,
-#     function_name="get_balance",
-#     gateway_url=devnet.get_gateway_url(),
-#     inputs=[],
-# )
-# assert call_result.response.res == 42
+        # contract_a_address = result.deployed_contract_addresses[Identifier("A")]
+        # call_result = await protostar.call(
+        #     contract_address=contract_a_address,
+        #     function_name="get_balance",
+        #     gateway_url=devnet.get_gateway_url(),
+        #     inputs=[],
+        # )
+        # assert call_result.response.res == 42
