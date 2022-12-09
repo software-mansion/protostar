@@ -44,6 +44,7 @@ pytest-xdist = "^3.1.0"
 re-assert = "^1.1.0"
 snakeviz = "^2.1.1"
 starknet-devnet = "^0.4.0"
+pytest-random-order = "^1.1.0"
 
 [tool.poe.tasks]
 build = [
@@ -88,7 +89,7 @@ update_cli_docs = "python ./scripts/generate_reference_docs.py"
 shell = "pytest -n auto tests/e2e"
 
 [tool.poe.tasks.test_integration]
-shell = "pytest -n auto scripts tests/integration"
+shell = "pytest -n --random-order auto scripts tests/integration"
 
 [tool.poe.tasks.test_unit]
 shell = "pytest -n auto protostar/*"
