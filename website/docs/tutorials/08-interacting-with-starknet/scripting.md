@@ -91,6 +91,14 @@ CLASS_HASH=$(python -c "import sys, json; print(json.loads(sys.argv[1])['class_h
 protostar deploy $CLASS_HASH --inputs 100
 ```
 
+You can use any alternative to python that will parse the json for you. This is how it would work with [jq](https://stedolan.github.io/jq/):
+
+```
+OUTPUT=$(protostar declare ./build/main.json --json)
+CLASS_HASH=$(echo $OUT | jq -r ".class_hash")
+protostar deploy $CLASS_HASH --inputs 100
+```
+
 #### Call the contract
 
 Now, let's say we want to call our contract. In this case, we need the contract address that is being returned from the `deploy` command call.
