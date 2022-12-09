@@ -22,13 +22,12 @@ func test_data_transformation{syscall_ptr: felt*, range_check_ptr}() {
     return ();
 }
 
-
 @external
 func test_address_can_be_created_deterministically{syscall_ptr: felt*, range_check_ptr}() {
     %{
         declaration = declare("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor_uint256.cairo")
         contract_address = prepare(declaration, { "initial_balance": 42 }, salt=1).contract_address
-        assert contract_address == 2817539553677678999115006446979078392971354750909103470606277416588805704243        
+        assert contract_address == 2612897297833067071062735507743035650885316539559209937860767275225818293203
     %}
 
     return ();
