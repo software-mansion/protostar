@@ -1,5 +1,5 @@
 # Scripting
-In order to automate a process of your desire that includes protostar operations, you may want to assemble some protostar commands and put them in a single script.
+In order to automate a process that includes protostar operations, you may want to build a script in language of your choice.
 
 This tutorial shows a simple example of how to do such a thing using scripting in bash.
 
