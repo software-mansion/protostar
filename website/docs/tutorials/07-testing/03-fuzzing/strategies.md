@@ -72,7 +72,7 @@ and if `max_value` is not `None` then all values will be less than or equal to `
 
 ### `strategy.short_strings`
 ```python
-def short_strings() -> Strategy:
+def short_strings() -> Strategy: ...
 ```
 
 Generates strings with ASCII characters of length that passes the condition `0 <= length <= 31`.
@@ -80,6 +80,20 @@ Generates strings with ASCII characters of length that passes the condition `0 <
 :::info
 Max size `31` comes from [the docs](https://www.cairo-lang.org/docs/how_cairo_works/consts.html#short-string-literals).
 :::
+
+### `strategy.uint256`
+
+```python
+def uint256() -> Strategy: ...
+```
+
+Generates UInt256's. They can be used by `map` and `filter` as (named) tuples.
+
+```python title="Example"
+strategy.uint256().map(lambda x: (x.low // 30, x.high)).filter(lambda x: x[1] > 0)
+
+```
+
 
 ## Adapting strategies
 
