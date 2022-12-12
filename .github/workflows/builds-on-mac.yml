@@ -6,7 +6,7 @@ on:
 jobs:
   build-on-mac:
     name: Builds on MacOS
-    runs-on: macos-11
+    runs-on: macos-10.15
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.9.14
