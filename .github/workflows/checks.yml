@@ -128,22 +128,3 @@ jobs:
         run: |
           poetry run poe test_e2e
 
-  build-on-mac:
-    name: Builds on MacOS
-    runs-on: macos-12
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.9.14
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9.14
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry
-          poetry install
-
-      - name: Build binary
-        run: |
-          poetry run poe build
