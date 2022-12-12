@@ -39,12 +39,16 @@ def _update_summary(
     test_collector_result: "TestCollector.Result",
     testing_summary: TestingSummary,
     project_root_path: Path,
+    exit_first: bool,
 ):
     tests_left_n = test_collector_result.test_cases_count
     while tests_left_n > 0:
         test_result: TestResult = shared_tests_state.get_result()
         testing_summary.extend([test_result])
         test_result = make_path_relative_if_possible(test_result, project_root_path)
+        if exit_first and shared_tests_state.any_failed_or_broken():
+            tests_left_n = 0
+            return
         if isinstance(test_result, BrokenTestSuiteResult):
             tests_in_case_count = len(test_result.test_case_names)
             tests_left_n -= tests_in_case_count
@@ -119,6 +123,7 @@ class TestScheduler:
                             test_collector_result=test_collector_result,
                             project_root_path=project_root_path,
                             testing_summary=testing_summary,
+                            exit_first=exit_first,
                         )
                     else:
                         self._live_logger.log(shared_tests_state, test_collector_result)
