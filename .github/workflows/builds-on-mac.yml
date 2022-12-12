@@ -15,14 +15,13 @@ jobs:
 
       - name: Setup package manager
         run: |
-          pip install fastecdsa
           python -m pip install --upgrade pip
-          pip install poetry
           poetry config virtualenvs.create false
           poetry env info
       - name: Install dependencies
         run: |
-          pip install fastecdsa
+          poetry export -o requirements.txt
+          pip install -r requirements.txt
           poetry install
 
       - name: Build binary
