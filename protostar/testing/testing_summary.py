@@ -19,6 +19,12 @@ from .test_results import (
 from .testing_seed import Seed
 
 
+def calculate_skipped(
+    total_count: int, broken_count: int, failed_count: int, passed_count: int
+):
+    return total_count - (broken_count + failed_count + passed_count)
+
+
 # pylint: disable=too-many-instance-attributes
 class TestingSummary:
     def __init__(self, test_results: List[TestResult], testing_seed: Seed) -> None:
@@ -155,7 +161,12 @@ class TestingSummary:
         passed_count: int = 0,
         total_count: int = 0,
     ) -> List[str]:
-        skipped_count = total_count - (broken_count + failed_count + passed_count)
+        skipped_count = calculate_skipped(
+            total_count=total_count,
+            broken_count=broken_count,
+            failed_count=failed_count,
+            passed_count=passed_count,
+        )
         test_suites_result: List[str] = []
 
         if broken_count > 0:

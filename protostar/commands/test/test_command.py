@@ -3,6 +3,7 @@ from argparse import Namespace
 from pathlib import Path
 from typing import List, Optional
 from dataclasses import dataclass
+import math
 
 from protostar.io import StructuredMessage
 from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
@@ -36,6 +37,7 @@ from protostar.testing import (
     TestRunner,
     TestScheduler,
     determine_testing_seed,
+    calculate_skipped,
 )
 from protostar.testing.cairo_test_runner import CairoTestRunner
 
@@ -70,26 +72,39 @@ class SuccessfulTestMessage(StructuredMessage):
 
         return {
             "collected_tests": {
-                "broken_test_suites": len(
+                "broken_test_suites_count": len(
                     self.test_collector_result.broken_test_suites
                 ),
                 "test_suites": len(self.test_collector_result.test_suites),
                 "test_cases": test_cases,
-                "duration": self.test_collector_result.duration,
+                "duration_in_seconds": self.test_collector_result.duration,
             },
             "summary": {
-                "test_suites": {
+                "test_suite_counts": {
                     "total": failed_test_suites + passed_test_suites,
                     "failed": failed_test_suites,
                     "passed": passed_test_suites,
+                    "skipped": calculate_skipped(
+                        total_count=len(self.test_collector_result.test_suites),
+                        broken_count=len(self.summary.broken_suites),
+                        failed_count=failed_test_suites,
+                        passed_count=passed_test_suites,
+                    ),
                 },
-                "tests": {
-                    "total": failed_tests + passed_tests,
+                "test_case_counts": {
+                    "total": self.test_collector_result.test_cases_count,
                     "failed": failed_tests,
                     "passed": passed_tests,
+                    "skipped": calculate_skipped(
+                        total_count=self.test_collector_result.test_cases_count,
+                        broken_count=len(self.summary.broken),
+                        failed_count=failed_tests,
+                        passed_count=passed_tests,
+                    ),
                 },
                 "seed": self.summary.testing_seed,
-                "execution_time": f"{sum(execution_times):0.2f}",
+                "execution_time_in_seconds": math.floor(sum(execution_times) * 100)
+                / 100,
             },
         }
 
