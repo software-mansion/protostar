@@ -131,7 +131,6 @@ jobs:
   build-on-mac:
     name: Builds on MacOS
     runs-on: mac-12
-    needs: setup
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.9.14
