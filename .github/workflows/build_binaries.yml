@@ -10,7 +10,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-latest, macos-latest ]  # TODO: Fix windows gmp.h not found issue, and add a windows binary
+        os: [ ubuntu-latest, macos-10.15 ]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.9.14
