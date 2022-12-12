@@ -8,6 +8,7 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
 from starkware.cairo.lang.vm.vm_exceptions import VmException
 from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
+from starkware.starknet.core.os.class_hash import compute_class_hash
 
 from protostar.compiler.compiled_contract_writer import CompiledContractWriter
 from protostar.configuration_file.configuration_file import ConfigurationFile
@@ -49,12 +50,16 @@ class ProjectCompiler:
 
     def compile_project(
         self, output_dir: Path, config: Optional[ProjectCompilerConfig] = None
-    ) -> None:
+    ) -> dict[str, int]:
+        class_hashes = {}
         for contract_name in self._configuration_file.get_contract_names():
             contract = self.compile_contract_from_contract_name(contract_name, config)
+            class_hash = compute_class_hash(contract_class=contract)
+            class_hashes[contract_name] = class_hash
             CompiledContractWriter(contract, contract_name).save(
                 output_dir=self.get_compilation_output_dir(output_dir)
             )
+        return class_hashes
 
     def compile_contract_from_contract_identifier(
         self,

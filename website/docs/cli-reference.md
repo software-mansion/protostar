@@ -18,6 +18,8 @@ Additional directories to look for sources.
 An output directory used to put the compiled contracts in.
 #### `--disable-hint-validation`
 Disable validation of hints when building the contracts.
+#### `--json`
+Print machine readable output in JSON format.
 ### `cairo-migrate`
 Migrate project sources to Cairo 0.10.
 #### `targets STRING[]=['.']`
