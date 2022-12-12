@@ -2,8 +2,6 @@ name: Builds on MacOS
 on:
   pull_request:
   workflow_dispatch:
-env:
-  PIP_NO_BINARY: fastecdsa
 jobs:
   build-on-mac:
     name: Builds on MacOS
