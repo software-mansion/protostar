@@ -23,7 +23,6 @@ jobs:
         run: |
           poetry export -o requirements.txt
           pip install -r requirements.txt
-          poetry install
 
       - name: Build binary
         run: |
