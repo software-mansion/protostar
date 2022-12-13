@@ -7,8 +7,11 @@ from tests.data.contracts import CONTRACT_WITH_UINT256_CONSTRUCTOR
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.protostar_fixture import ProtostarFixture
 
+from starknet_py.net.client_errors import ClientError
+
 from protostar.starknet.data_transformer import CairoOrPythonData
 from protostar.starknet_gateway import InputValidationException
+
 
 @pytest.fixture(name="protostar", scope="module")
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
@@ -55,13 +58,12 @@ async def test_uint256_as_input(
             contract_address=response.address,
             function_name="get_balance",
             inputs=None,
-            gateway_url=devnet_gateway_url
+            gateway_url=devnet_gateway_url,
         )
 
         assert response.response.res == (24 << 128) + 42
 
 
-@pytest.mark.skip("starknet.py doesn't seem to catch this invalid input and the transaction fails")
 async def test_uint256_as_input_fail(
     protostar: ProtostarFixture,
     devnet_gateway_url: str,
@@ -77,7 +79,7 @@ async def test_uint256_as_input_fail(
             max_fee="auto",
         )
 
-        with pytest.raises(InputValidationException):
+        with pytest.raises(ClientError):
             response = await protostar.deploy(
                 class_hash=declare_response.class_hash,
                 gateway_url=devnet_gateway_url,
