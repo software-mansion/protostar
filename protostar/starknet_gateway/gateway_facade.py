@@ -163,6 +163,8 @@ class GatewayFacade(MulticallClientProtocol):
             )
         except TransactionFailedError as ex:
             raise TransactionException(str(ex)) from ex
+        except ClientError as ex:
+            raise TransactionException(str(ex)) from ex
 
     async def deploy_account(
         self, args: DeployAccountArgs
