@@ -119,3 +119,13 @@ func test_nothing() {
     return ();
 }
 """
+
+UINT256_IDENTITY_CONTRACT = """\
+%lang starknet
+from starkware.cairo.common.uint256 import Uint256
+
+@view
+func identity(arg: Uint256) -> (res: Uint256) {
+    return (arg,);
+}
+"""
