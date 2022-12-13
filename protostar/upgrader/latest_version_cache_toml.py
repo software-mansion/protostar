@@ -8,7 +8,7 @@ import tomli_w
 from protostar.self.protostar_directory import (
     ProtostarDirectory,
     VersionManager,
-    VersionType,
+    Version,
 )
 
 
@@ -18,7 +18,7 @@ class LatestVersionCacheTOML:
     Pythonic representation of the latest_version_cache.toml.
     """
 
-    version: VersionType
+    version: Version
     changelog_url: str
     next_check_datetime: datetime
 

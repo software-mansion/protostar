@@ -11,7 +11,7 @@ import requests
 from protostar.self.protostar_directory import (
     ProtostarDirectory,
     VersionManager,
-    VersionType,
+    Version,
 )
 from protostar.upgrader.latest_version_remote_checker import LatestVersionRemoteChecker
 
@@ -119,7 +119,7 @@ class UpgradeManager:
     def _handle_error(
         self,
         err: Any,
-        current_version: VersionType,
+        current_version: Version,
         protostar_dir_path: Path,
         protostar_dir_backup_path: Path,
         tarball_path: Path,
@@ -148,7 +148,7 @@ class UpgradeManager:
 
     def _pull_tarball(
         self,
-        latest_version: VersionType,
+        latest_version: Version,
         latest_version_tag: str,
         tarball_filename: str,
         tarball_path: Path,
@@ -162,14 +162,14 @@ class UpgradeManager:
                 shutil.copyfileobj(request.raw, file)
 
     def _install_new_version(
-        self, latest_version: VersionType, tarball_path: Path, protostar_dir_path: Path
+        self, latest_version: Version, tarball_path: Path, protostar_dir_path: Path
     ):
         logging.info("Installing latest Protostar version: %s", latest_version)
         with tarfile.open(tarball_path, "r:gz") as tar:
             tar.extractall(protostar_dir_path)
 
     def _rollback(
-        self, current_version: VersionType, protostar_dir: Path, old_version: Path
+        self, current_version: Version, protostar_dir: Path, old_version: Path
     ):
         logging.info("Rolling back to the version %s", current_version)
         shutil.rmtree(protostar_dir / "dist", ignore_errors=True)
