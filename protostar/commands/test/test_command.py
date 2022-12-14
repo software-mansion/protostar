@@ -23,9 +23,10 @@ from protostar.starknet.compiler.pass_managers import (
     TestCollectorPassManagerFactory,
 )
 from protostar.starknet.compiler.starknet_compilation import (
-    CompilerConfig,
     StarknetCompiler,
 )
+from protostar.starknet.compiler.cairo_compilation import CairoCompiler
+from protostar.starknet.compiler.common import CompilerConfig
 from protostar.testing import (
     TestCollector,
     TestingSummary,
@@ -34,6 +35,7 @@ from protostar.testing import (
     TestScheduler,
     determine_testing_seed,
 )
+from protostar.testing.pure_cairo_test_runner import PureCairoTestRunner
 
 from .test_command_cache import TestCommandCache
 
@@ -182,6 +184,7 @@ A glob or globs to a directory or a test suite, for example:
     async def test(
         self,
         targets: List[str],
+        pure_cairo_vm: bool = False,
         ignored_targets: Optional[List[str]] = None,
         cairo_path: Optional[List[Path]] = None,
         disable_hint_validation: bool = False,
@@ -214,15 +217,24 @@ A glob or globs to a directory or a test suite, for example:
         with ActivityIndicator(
             self._log_color_provider.colorize("GRAY", "Collecting tests")
         ):
-            test_collector_result = TestCollector(
-                StarknetCompiler(
-                    config=CompilerConfig(
-                        disable_hint_validation=True, include_paths=include_paths
-                    ),
+            compiler_config = CompilerConfig(
+                disable_hint_validation=True, include_paths=include_paths
+            )
+            if pure_cairo_vm:
+                cairo_compiler = CairoCompiler(compiler_config)
+                test_collector = TestCollector(
+                    get_suite_function_names=cairo_compiler.get_function_names,
+                )
+            else:
+                starknet_compiler = StarknetCompiler(
+                    config=compiler_config,
                     pass_manager_factory=factory,
-                ),
-                config=TestCollector.Config(safe_collecting=safe_collecting),
-            ).collect(
+                )
+                test_collector = TestCollector(
+                    get_suite_function_names=starknet_compiler.get_function_names
+                )
+
+            test_collector_result = test_collector.collect(
                 targets=targets,
                 ignored_targets=ignored_targets,
                 default_test_suite_glob=str(self._project_root_path),
@@ -248,7 +260,9 @@ A glob or globs to a directory or a test suite, for example:
                 slowest_tests_to_report_count=slowest_tests_to_report_count,
                 project_root_path=self._project_root_path,
             )
-            TestScheduler(live_logger=live_logger, worker=TestRunner.worker).run(
+            worker = PureCairoTestRunner.worker if pure_cairo_vm else TestRunner.worker
+
+            TestScheduler(live_logger=live_logger, worker=worker).run(
                 include_paths=include_paths,
                 test_collector_result=test_collector_result,
                 disable_hint_validation=disable_hint_validation,
