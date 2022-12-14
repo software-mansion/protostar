@@ -18,6 +18,8 @@ Additional directories to look for sources.
 An output directory used to put the compiled contracts in.
 #### `--disable-hint-validation`
 Disable validation of hints when building the contracts.
+#### `--json`
+Print machine readable output in JSON format.
 ### `cairo-migrate`
 Migrate project sources to Cairo 0.10.
 #### `targets STRING[]=['.']`
@@ -276,6 +278,63 @@ Custom signer class module path.
 Waits for transaction to be accepted on chain.
 ### `migrate-configuration-file`
 Migrate protostar.toml V1 to V2.
+### `multicall`
+Execute multiple deploy (via UDC) or invoke calls in a single transaction ensuring atomicity.
+#### `file PATH`
+Required.
+
+Path to a TOML file with call declarations. File example:
+
+```toml
+[[call]]
+# defines an contract address identifier
+id = "my_contract"
+type = "deploy"
+class-hash = CONTRACT_CLASS_HASH
+inputs = []
+
+[[call]]
+type = "invoke"
+function = "increase_balance"
+
+# contract-address accepts a contract address or an identifier
+contract-address = "$my_contract"
+
+# calldata accepts felts or identifiers
+inputs = [42]
+
+```
+#### `--account-address ADDRESS`
+Required.
+
+Account address.
+#### `--block-explorer BLOCK_EXPLORER`
+Generated links will point to that block explorer. Available values:
+- starkscan
+- viewblock
+- voyager
+#### `--chain-id INT`
+The chain id. It is required unless `--network` is provided.
+#### `--gateway-url STRING`
+The URL of a StarkNet gateway. It is required unless `--network` is provided.
+#### `--json`
+Print machine readable output in JSON format.
+#### `--max-fee FEE`
+Required.
+
+The maximum fee that the sender is willing to pay for the transaction. Provide "auto" to auto estimate the fee.
+#### `-n` `--network STRING`
+The name of the StarkNet network.
+It is required unless `--gateway-url` is provided.
+
+Supported StarkNet networks:
+- `testnet`
+- `mainnet`
+#### `--private-key-path PATH`
+Path to the file, which stores your private key (in hex representation) for the account. 
+Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
+#### `--signer-class STRING`
+Custom signer class module path.
 ### `remove`
 ```shell
 $ protostar remove cairo-contracts

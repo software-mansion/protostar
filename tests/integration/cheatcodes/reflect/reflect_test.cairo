@@ -32,7 +32,7 @@ func test_reflect_passed_simple() {
         );
 
     %{
-        structA = reflect.structA.get()
+        structA = reflect(ids).structA.get()
 
         StructB = CairoStruct
         other = StructB(e=42, f=24)
@@ -60,7 +60,7 @@ func test_reflect_failed_simple() {
         );
 
     %{
-        structA = reflect.structA.get()
+        structA = reflect(ids).structA.get()
         assert structA.a.f == 42
     %}
     return ();
@@ -85,7 +85,7 @@ func test_reflect_passed_pointer() {
 
     local ptrB: StructB* = &structB;
 
-    %{ assert reflect.structA.c.get() == reflect.ptrB.get() %}
+    %{ assert reflect(ids).structA.c.get() == reflect(ids).ptrB.get() %}
     return ();
 }
 
@@ -102,7 +102,7 @@ func test_reflect_passed_pointer_loop() {
 
     assert node.next = &node;
 
-    %{ print(reflect.node.get()) %}
+    %{ print(reflect(ids).node.get()) %}
 
     return ();
 }
@@ -113,7 +113,7 @@ func test_reflect_failed_corruption() {
     local structB: StructB = StructB(e=42, f=24);
 
     %{
-        structB = reflect.structB.get()
+        structB = reflect(ids).structB.get()
         structB.f = 69
     %}
 
@@ -138,7 +138,7 @@ func test_reflect_passed_repr() {
         );
 
     %{
-        value = reflect.structA.get()
+        value = reflect(ids).structA.get()
 
         print(str(value))
 
@@ -168,9 +168,9 @@ func test_reflect_passed_type_pointer() {
     local ptrA: felt* = &a;
 
     %{
-        # ids.T* -> T, reflect.T* -> T*
+        # ids.T* -> T, reflect(ids).T* -> T*
         # pointers (RelocatableValue) are not type safe
-        assert type(reflect.ptrB.get()) == type(reflect.ptrA.get())
+        assert type(reflect(ids).ptrB.get()) == type(reflect(ids).ptrA.get())
     %}
     return ();
 }
@@ -195,10 +195,10 @@ func test_reflect_passed_full() {
     local ptrB: StructB* = &structB;
 
     %{
-        structA = reflect.structA.get()
-        ptrB = reflect.ptrB.get()
-        structB = reflect.structB.get()
-        f = reflect.structB.f.get()
+        structA = reflect(ids).structA.get()
+        ptrB = reflect(ids).ptrB.get()
+        structB = reflect(ids).structB.get()
+        f = reflect(ids).structB.f.get()
 
         StructB = CairoStruct
         StructA = CairoStruct
@@ -218,7 +218,7 @@ func test_reflect_passed_full() {
 @external
 func test_reflect_failed_illegal_arg() {
     %{
-        structC = reflect.structC.get()
+        structC = reflect(ids).structC.get()
         print(structC)
     %}
     return ();
@@ -230,7 +230,7 @@ func test_reflect_failed_getattr_felt() {
 
     let f: felt = 1010101;
 
-    %{ invalid = reflect.f.invalid.get() %}
+    %{ invalid = reflect(ids).f.invalid.get() %}
     return ();
 }
 
@@ -243,7 +243,7 @@ func test_reflect_failed_getattr_pointer() {
     local structB: StructB = StructB(e=42, f=24);
     local ptrB: StructB* = &structB;
 
-    %{ invalid = reflect.ptrB.f.get() %}
+    %{ invalid = reflect(ids).ptrB.f.get() %}
     return ();
 }
 
@@ -252,12 +252,31 @@ func test_reflect_failed_invalid_member() {
     alloc_locals;
     local structB: StructB = StructB(e=42, f=24);
 
-    %{ invalid = reflect.structB.g.get() %}
+    %{ invalid = reflect(ids).structB.g.get() %}
     return ();
 }
 
 @external
 func test_reflect_failed_get_on_none() {
-    %{ invalid = reflect.get() %}
+    %{ invalid = reflect(ids).get() %}
+    return ();
+}
+
+@external
+func test_reflect_passed_two_hints{syscall_ptr: felt*, range_check_ptr}() {
+    alloc_locals;
+
+    let res1 = 1;
+
+    %{
+        print(reflect(ids).res1.get())
+    %}
+
+    local res2 = 2;
+
+    %{
+        print(reflect(ids).res2.get())
+    %}
+
     return ();
 }

@@ -20,6 +20,7 @@ async def test_reflect_cheatcode(run_cairo_test_runner: RunCairoTestRunnerFixtur
             "test_reflect_passed_type_pointer",
             "test_reflect_passed_repr",
             "test_reflect_passed_full",
+            "test_reflect_passed_two_hints",
         ],
         expected_broken_test_cases_names=[
             "test_reflect_failed_illegal_arg",

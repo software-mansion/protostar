@@ -18,7 +18,7 @@ from starkware.cairo.lang.vm.vm_exceptions import (
     VmException,
     VmExceptionBase,
 )
-from starkware.python.utils import from_bytes
+from starkware.python.utils import from_bytes, to_bytes
 from starkware.starknet.business_logic.execution.execute_entry_point import (
     ExecuteEntryPoint,
 )
@@ -51,9 +51,6 @@ from protostar.profiler.contract_profiler import (
 from protostar.profiler.pprof import serialize, to_protobuf
 from protostar.profiler.transaction_profiler import merge_profiles
 from protostar.starknet.cheatable_cached_state import CheatableCachedState
-from protostar.starknet.cheatable_cairo_function_runner import (
-    CheatableCairoFunctionRunner,
-)
 from protostar.starknet.cheatable_syscall_handler import CheatableSysCallHandler
 from protostar.starknet.cheatcode import Cheatcode
 
@@ -64,6 +61,10 @@ logger = logging.getLogger(__name__)
 
 
 ContractFilename = str
+
+FAULTY_CLASS_HASH = to_bytes(
+    0x1A7820094FEAF82D53F53F214B81292D717E7BB9A92BB2488092CD306F3993F
+)
 
 
 @dataclass(frozen=True)
@@ -111,6 +112,14 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         """
         # Prepare input for Cairo function runner.
         class_hash = self._get_code_class_hash(state=state)
+
+        # Hack to prevent version 0 attack on argent accounts.
+        if (tx_execution_context.version == 0) and (class_hash == FAULTY_CLASS_HASH):
+            raise StarkException(
+                code=StarknetErrorCode.TRANSACTION_FAILED,
+                message="Fraud attempt blocked.",
+            )
+
         contract_class = state.get_contract_class(class_hash=class_hash)
         contract_class.validate()
 
@@ -120,11 +129,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
 
         # Run the specified contract entry point with given calldata.
         with wrap_with_stark_exception(code=StarknetErrorCode.SECURITY_ERROR):
-            # region Modified Starknet code.
-            runner = CheatableCairoFunctionRunner(
-                program=contract_class.program, layout="all"
-            )
-            # endregion
+            runner = CairoFunctionRunner(program=contract_class.program, layout="all")
 
         os_context = os_utils.prepare_os_context(runner=runner)
 

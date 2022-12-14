@@ -2,11 +2,10 @@ import json
 import logging
 import re
 from pathlib import Path
-from typing import Literal, Optional, Union
+from typing import Literal, Optional
 
 from packaging import version
-from packaging.version import LegacyVersion
-from packaging.version import Version as PackagingVersion
+from packaging.version import Version
 
 from protostar.git import Git, ProtostarGitException
 
@@ -71,12 +70,9 @@ class ProtostarDirectory:
         return self._runtime_constants[name]
 
 
-VersionType = Union[LegacyVersion, PackagingVersion]
-
-
 class VersionManager:
     @staticmethod
-    def parse(version_str: str) -> VersionType:
+    def parse(version_str: str) -> Version:
         return version.parse(version_str)
 
     def __init__(self, protostar_directory: ProtostarDirectory):
@@ -91,14 +87,14 @@ class VersionManager:
         return parse_protostar_version(version_s)
 
     @property
-    def cairo_version(self) -> Optional[VersionType]:
+    def cairo_version(self) -> Optional[Version]:
         version_s = self._protostar_directory.get_runtime_constant("CAIRO_VERSION")
         if version_s is None:
             return VersionManager.parse("0.0.0")
         return VersionManager.parse(version_s)
 
     @property
-    def git_version(self) -> Optional[VersionType]:
+    def git_version(self) -> Optional[Version]:
         try:
             output = Git.get_version()
             result = re.search(r"\d*\.\d*.\d*", output)

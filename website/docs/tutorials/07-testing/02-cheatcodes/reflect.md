@@ -1,5 +1,10 @@
 # `reflect`
-Loads specified Cairo object into a Python type. `reflect` is an instance of the `Reflector` object that works simillarly to `ids`. To retrieve the value use `get()` method which can return:
+
+```python
+def reflect(ids) -> Reflector:
+```
+
+Loads specified Cairo object into a Python type. `reflect` is a function that takes in `ids` and returns `Reflector` object that behaves simillarly. To retrieve the value use `get()` method which can return:
 
 - `int` (for felt)
 - `RelocatableValue` (for pointer)
@@ -21,7 +26,7 @@ func test_reflect_simple() {
     local simple_struct: SimpleStruct = SimpleStruct(x=10);
 
     %{
-        simple_struct = reflect.simple_struct.get()
+        simple_struct = reflect(ids).simple_struct.get()
         print(simple_struct)
         # output:
         # CairoStruct(
@@ -52,8 +57,8 @@ func test_pointers() {
     local ptr2: felt* = &pointee;
 
     %{
-        ptr1 = reflect.ptr1.get()
-        ptr2 = reflect.ptr2.get()
+        ptr1 = reflect(ids).ptr1.get()
+        ptr2 = reflect(ids).ptr2.get()
 
         print(ptr1) # output: 1:8
         print(type(ptr1)) # output: RelocatableValue
@@ -81,7 +86,7 @@ func test_nesting() {
     local outer_struct: OuterStruct = OuterStruct(inner_struct=inner_struct);
 
     %{
-        outer_struct = reflect.outer_struct.get()
+        outer_struct = reflect(ids).outer_struct.get()
         OuterStruct = CairoStruct #
         InnerStruct = CairoStruct # This way you can add aliases for readability
 
@@ -110,7 +115,7 @@ func test_wildcards() {
     local two_field_struct: TwoFieldStruct = TwoFieldStruct(value1=23, value2=17);
 
     %{
-        two_field_struct = reflect.two_field_struct.get()
+        two_field_struct = reflect(ids).two_field_struct.get()
         assert two_field_struct == CairoStruct(
             value1=23,
             value2=two_field_struct.value2
@@ -123,8 +128,4 @@ func test_wildcards() {
 
 :::warning
 Unlike `ids`, `reflect` does not automatically dereference pointers. Currently you have to dereference them in Cairo.
-:::
-
-:::warning
-`reflect` does not work for references created with `let`.
 :::

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 import requests
 
-from protostar.self.protostar_directory import VersionManager, VersionType
+from protostar.self.protostar_directory import VersionManager, Version
 
 
 class LatestVersionRemoteChecker:
@@ -15,7 +15,7 @@ class LatestVersionRemoteChecker:
     @dataclass
     class Result:
         latest_release_tag: str
-        latest_version: VersionType
+        latest_version: Version
         changelog_url: str
 
     @staticmethod

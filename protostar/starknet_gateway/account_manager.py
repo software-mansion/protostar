@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 
 from starknet_py.net.signer import BaseSigner
-from starknet_py.net import AccountClient, KeyPair
+from starknet_py.net import AccountClient
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.client_models import Call as SNCall
+from starknet_py.net.client_errors import ClientError
 
 from protostar.starknet import Address
 from protostar.protostar_exception import ProtostarException
@@ -15,7 +16,6 @@ from .account_tx_version_detector import AccountTxVersionDetector
 
 @dataclass
 class Account:
-    private_key: int
     address: Address
     signer: BaseSigner
 
@@ -33,7 +33,6 @@ class AccountManager(MulticallAccountManagerProtocol):
             address=int(account.address),
             client=gateway_client,
             signer=account.signer,
-            key_pair=KeyPair.from_private_key(account.private_key),
             supported_tx_version=1,
         )
 
@@ -44,28 +43,31 @@ class AccountManager(MulticallAccountManagerProtocol):
         self, unsigned_transaction: UnsignedMulticallTransaction
     ) -> SignedMulticallTransaction:
         await self._ensure_account_is_valid()
-        tx = await self._account_client.sign_invoke_transaction(
-            calls=[
-                SNCall(
-                    to_addr=int(call.address),
-                    selector=int(call.selector),
-                    calldata=call.calldata,
-                )
-                for call in unsigned_transaction.calls
-            ],
-            max_fee=unsigned_transaction.max_fee
-            if isinstance(unsigned_transaction.max_fee, int)
-            else None,
-            auto_estimate=unsigned_transaction.max_fee == "auto",
-            version=1,
-        )
-        return SignedMulticallTransaction(
-            contract_address=Address(tx.contract_address),
-            calldata=tx.calldata,
-            max_fee=tx.max_fee,
-            nonce=tx.nonce,
-            signature=tx.signature,
-        )
+        try:
+            tx = await self._account_client.sign_invoke_transaction(
+                calls=[
+                    SNCall(
+                        to_addr=int(call.address),
+                        selector=int(call.selector),
+                        calldata=call.calldata,
+                    )
+                    for call in unsigned_transaction.calls
+                ],
+                max_fee=unsigned_transaction.max_fee
+                if isinstance(unsigned_transaction.max_fee, int)
+                else None,
+                auto_estimate=unsigned_transaction.max_fee == "auto",
+                version=1,
+            )
+            return SignedMulticallTransaction(
+                contract_address=Address(tx.contract_address),
+                calldata=tx.calldata,
+                max_fee=tx.max_fee,
+                nonce=tx.nonce,
+                signature=tx.signature,
+            )
+        except ClientError as ex:
+            raise SigningException(message=ex.message) from ex
 
     async def _ensure_account_is_valid(self):
         actual_account_version = await self._account_tx_version_detector.detect(
@@ -78,3 +80,7 @@ class AccountManager(MulticallAccountManagerProtocol):
 class UnsupportedAccountVersionException(ProtostarException):
     def __init__(self, version: int):
         super().__init__(message=f"Unsupported account version: {version}")
+
+
+class SigningException(ProtostarException):
+    pass

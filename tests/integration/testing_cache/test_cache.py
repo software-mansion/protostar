@@ -6,7 +6,7 @@ from tests.integration.protostar_fixture import ProtostarFixture
 from tests.data.tests import *
 
 
-@pytest.fixture(name="protostar", scope="module")
+@pytest.fixture(name="protostar")
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
     with create_protostar_project() as protostar:
         protostar.create_files(
