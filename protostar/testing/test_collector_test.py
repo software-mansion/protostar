@@ -1,6 +1,7 @@
+# pylint: disable=unused-argument
+
 from pathlib import Path
-from typing import List, cast
-from unittest.mock import MagicMock
+from typing import List
 
 import pytest
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
@@ -126,9 +127,7 @@ def test_collecting_specific_function(
     assert result.test_cases_count == 1
 
 
-def test_finding_setup_function(
-    project_root: Path
-):
+def test_finding_setup_function(project_root: Path):
     def get_function_names(file_path: Path) -> List[str]:
         return ["test_main", "__setup__"]
 
@@ -141,9 +140,7 @@ def test_finding_setup_function(
     assert suite.setup_fn_name == "__setup__"
 
 
-def test_finding_setup_case_function(
-    project_root: Path
-):
+def test_finding_setup_case_function(project_root: Path):
     def get_function_names(file_path: Path) -> List[str]:
         return ["test_main", "setup_main", "setup_dangling"]
 

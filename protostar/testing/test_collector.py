@@ -5,19 +5,12 @@ from fnmatch import fnmatch
 from glob import glob
 from pathlib import Path
 from time import time
-from typing import Dict, Iterable, List, Optional, Set, Tuple, Union, Protocol
+from typing import Dict, Iterable, List, Optional, Set, Tuple, Protocol
 
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     LocationError,
     PreprocessorError,
 )
-from starkware.starknet.compiler.starknet_preprocessor import (
-    StarknetPreprocessedProgram,
-)
-
-from protostar.starknet.compiler.pass_managers import TestCollectorPreprocessedProgram
-from protostar.starknet.compiler.starknet_compilation import StarknetCompiler
-
 from .test_results import BrokenTestSuiteResult
 from .test_suite import TestCase, TestSuite
 

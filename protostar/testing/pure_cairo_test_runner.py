@@ -71,8 +71,10 @@ class PureCairoTestRunner:
             project_cairo_path_builder=self.project_cairo_path_builder,
         )
 
-        project_cairo_path = self.project_cairo_path_builder.build_project_cairo_path_list(
-            relative_cairo_path
+        project_cairo_path = (
+            self.project_cairo_path_builder.build_project_cairo_path_list(
+                relative_cairo_path
+            )
         )
 
         compiler_config = CompilerConfig(
@@ -105,7 +107,7 @@ class PureCairoTestRunner:
         testing_seed: Seed,
         max_steps: Optional[int],
     ):
-        test_config = TestConfig(
+        test_config = TestConfig( # pylint: disable=unused-variable
             seed=testing_seed,
             profiling=self.profiling,
             max_steps=max_steps,
