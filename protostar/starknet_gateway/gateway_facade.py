@@ -26,6 +26,7 @@ from protostar.starknet.data_transformer import CairoOrPythonData
 from protostar.starknet_gateway.account_tx_version_detector import (
     AccountTxVersionDetector,
 )
+from protostar.starknet_gateway.call import AbiResolverProtocol
 from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeclareResponse,
     SuccessfulDeployAccountResponse,
@@ -62,7 +63,7 @@ def is_cairo_data(inputs: Optional[CairoOrPythonData]) -> TypeGuard[CairoData]:
 
 
 # pylint: disable=too-many-instance-attributes
-class GatewayFacade(MulticallClientProtocol):
+class GatewayFacade(MulticallClientProtocol, AbiResolverProtocol):
     def __init__(
         self,
         project_root_path: Path,
