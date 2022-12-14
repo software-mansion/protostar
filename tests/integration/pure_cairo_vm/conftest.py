@@ -22,7 +22,7 @@ class RunPureCairoTestRunnerFixture(Protocol):
         ...
 
 
-@pytest.fixture(name="run_pure_cairo_test_runner")
+@pytest.fixture(name="run_pure_cairo_test_runner", scope="module")
 def run_pure_cairo_test_runner_fixture(
     run_cairo_test_runner: RunCairoTestRunnerFixture,
 ) -> RunPureCairoTestRunnerFixture:

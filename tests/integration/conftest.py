@@ -159,23 +159,23 @@ def run_cairo_test_runner_fixture(
                 for ignored_test_case in ignored_test_cases
             ]
 
-            return await TestCommand(
-                project_root_path=Path(),
-                protostar_directory=protostar_directory_mock,
-                project_cairo_path_builder=project_cairo_path_builder,
-                log_color_provider=log_color_provider,
-                active_profile_name=None,
-                cwd=Path(),
-            ).test(
-                targets=targets,
-                ignored_targets=ignored_targets,
-                seed=seed,
-                max_steps=max_steps,
-                profiling=profiling,
-                disable_hint_validation=disable_hint_validation,
-                cairo_path=cairo_path or [],
-                pure_cairo_vm=pure_cairo_vm,
-            )
+        return await TestCommand(
+            project_root_path=Path(),
+            protostar_directory=protostar_directory_mock,
+            project_cairo_path_builder=project_cairo_path_builder,
+            log_color_provider=log_color_provider,
+            active_profile_name=None,
+            cwd=Path(),
+        ).test(
+            targets=targets,
+            ignored_targets=ignored_targets,
+            seed=seed,
+            max_steps=max_steps,
+            profiling=profiling,
+            disable_hint_validation=disable_hint_validation,
+            cairo_path=cairo_path or [],
+            pure_cairo_vm=pure_cairo_vm,
+        )
 
     return run_cairo_test_runner
 
