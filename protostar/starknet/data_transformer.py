@@ -30,6 +30,16 @@ def from_python_transformer(
 
     def transform(data: PythonData) -> CairoData:
         try:
+            for data_item_name, data_item_value in data.items():
+                for item in fn_abi_item[mode]:
+                    if (
+                        data_item_name == item["name"]
+                        and isinstance(data_item_value, dict)
+                        and item["type"] == "felt*"
+                    ):
+                        raise TypeError(
+                            f"invalid type 'dict' for felt* used for argument {data_item_name}"
+                        )
             return structure_transformer.from_python(fn_abi_item[mode], **data)[0]
         except (TypeError, ValueError) as ex:
             raise DataTransformerException(str(ex)) from ex

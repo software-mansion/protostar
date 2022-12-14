@@ -23,30 +23,13 @@ from tests.integration.data_transformer.contracts import (
     DATA_TRANSFORMER_LISTS_CONTRACT,
     DATA_TRANSFORMER_STRUCTS_CONTRACT,
     DATA_TRANSFORMER_TUPLE_CONTRACT,
+    DATA_TRANSFORMER_LIST_CONTRACT,
 )
 
 
 @pytest.mark.parametrize(
     "contract,function_name,mode,data",
     [
-        [
-            DATA_TRANSFORMER_FELT_CONSTRUCTOR_CONTRACT,
-            "constructor",
-            "inputs",
-            {"arg": 0xD00D00},
-        ],
-        [
-            DATA_TRANSFORMER_UINT256_CONTRACT,
-            "input_uint256",
-            "inputs",
-            {"arg": 1 << 237},
-        ],
-        [
-            DATA_TRANSFORMER_UINT256_CONTRACT,
-            "input_uint256",
-            "inputs",
-            {"arg": {"high": 101, "low": 102}},
-        ],
         [
             DATA_TRANSFORMER_LISTS_CONTRACT,
             "input_lists",
@@ -55,30 +38,6 @@ from tests.integration.data_transformer.contracts import (
                 "felt_list": [1, 2, 3, 4, 5],
                 "uint256_list": [1 << 217, {"high": 1, "low": 0x47}, 7],
             },
-        ],
-        [
-            DATA_TRANSFORMER_TUPLE_CONTRACT,
-            "input_tuple",
-            "inputs",
-            {"arg": (535345345, 61231231223)},
-        ],
-        [
-            DATA_TRANSFORMER_STRUCTS_CONTRACT,
-            "input_outer_struct",
-            "inputs",
-            {"arg": {"felt_field": 13, "inner_field": {"a": 0x1, "b": 0x2, "c": 0x3}}},
-        ],
-        [
-            DATA_TRANSFORMER_OUTPUT_FELT_CONTRACT,
-            "output_felt",
-            "outputs",
-            {"res": 3732423423423},
-        ],
-        [
-            DATA_TRANSFORMER_OUTPUT_FELT_CONTRACT,
-            "output_felt",
-            "inputs",
-            {},
         ],
     ],
 )
@@ -384,6 +343,17 @@ def test_data_transformer_from_python(get_abi_from_contract: GetAbiFromContractF
     assert python_data == python_data2
 
 
+def test_use_felt_pointer_for_dict_fail(
+    get_abi_from_contract: GetAbiFromContractFixture,
+):
+    abi = get_abi_from_contract(DATA_TRANSFORMER_LIST_CONTRACT)
+    from_python = from_python_transformer(abi, "input_lists", "inputs")
+
+    python_data = {"felt_list": {"a": 1, "b": 2, "c": 3}}
+    with pytest.raises(DataTransformerException):
+        from_python(python_data)
+
+
 def test_data_transformer_to_python(get_abi_from_contract: GetAbiFromContractFixture):
     abi = get_abi_from_contract(DATA_TRANSFORMER_STRUCTS_CONTRACT)
     from_python = from_python_transformer(abi, "input_outer_struct", "inputs")
@@ -394,19 +364,6 @@ def test_data_transformer_to_python(get_abi_from_contract: GetAbiFromContractFix
     assert isinstance(python_data, dict)
     cairo_data2 = from_python(python_data)
     assert cairo_data == cairo_data2
-
-
-def test_uint256_as_2_felts(get_abi_from_contract: GetAbiFromContractFixture):
-    abi = get_abi_from_contract(DATA_TRANSFORMER_UINT256_CONTRACT)
-    from_python = from_python_transformer(abi, "input_uint256", "inputs")
-
-    UINT256_SINGLE = 0x00001000000000000000000000000000_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-    UINT256_DICT = {
-        "high": 0x00001000000000000000000000000000,
-        "low": 0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA,
-    }
-
-    assert from_python({"arg": UINT256_SINGLE}) == from_python({"arg": UINT256_DICT})
 
 
 def assert_is_int_list(unknown: Any):
