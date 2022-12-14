@@ -1,13 +1,11 @@
 from typing import Any
 
+from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.compiler.program import Program
 from starkware.cairo.lang.vm.vm_exceptions import VmException
 
 from protostar.testing.environments.test_execution_environment import (
     TestExecutionResult,
-)
-from protostar.starknet.cheatable_cairo_function_runner import (
-    CheatableCairoFunctionRunner,
 )
 from protostar.starknet import SimpleReportedException
 
@@ -20,7 +18,7 @@ class PureCairoTestCaseRunner(TestCaseRunner[TestExecutionResult]):
         self._program = program
 
     async def _run_test_case(self) -> TestExecutionResult:
-        runner = CheatableCairoFunctionRunner(program=self._program, layout="all")
+        runner = CairoFunctionRunner(program=self._program, layout="all")
         try:
             runner.run(self._test_case.test_fn_name)
         except VmException as exc:  # TODO: debug traces for clearer output?
