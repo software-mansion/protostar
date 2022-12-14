@@ -107,7 +107,7 @@ class PureCairoTestRunner:
         testing_seed: Seed,
         max_steps: Optional[int],
     ):
-        test_config = TestConfig( # pylint: disable=unused-variable
+        test_config = TestConfig(  # pylint: disable=unused-variable
             seed=testing_seed,
             profiling=self.profiling,
             max_steps=max_steps,
