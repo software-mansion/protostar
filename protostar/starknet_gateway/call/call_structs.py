@@ -1,11 +1,11 @@
 from dataclasses import dataclass
-from typing import Union
+from typing import Optional, Union
 
-from protostar.starknet import Address, Selector
+from protostar.starknet import Address, Selector, AbiType
 
-CairoCalldata = list[int]
-PythonCalldata = dict
-Calldata = Union[CairoCalldata, PythonCalldata]
+CairoDataRepresentation = list[int]
+HumanDataRepresentation = dict
+Calldata = Union[CairoDataRepresentation, HumanDataRepresentation]
 
 
 @dataclass
@@ -13,20 +13,22 @@ class CallInput:
     address: Address
     selector: Selector
     inputs: Calldata
+    abi: Optional[AbiType]
+
+
+@dataclass
+class CallPayload:
+    address: Address
+    selector: Selector
+    cairo_calldata: CairoDataRepresentation
+
+
+@dataclass
+class CallResponse:
+    cairo_data: CairoDataRepresentation
 
 
 @dataclass
 class CallOutput:
-    data: list[int]
-
-
-@dataclass
-class CallClientPayload:
-    address: Address
-    selector: Selector
-    cairo_calldata: CairoCalldata
-
-
-@dataclass
-class CallClientResponse:
-    data: CairoCalldata
+    cairo_data: CairoDataRepresentation
+    human_data: Optional[HumanDataRepresentation]
