@@ -9,7 +9,7 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import Transaction
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.udc_deployer.deployer import Deployer, ContractDeployment
-from starknet_py.net.client_models import InvokeFunction
+from starknet_py.net.client_models import InvokeFunction, Call
 from starknet_py.transaction_exceptions import (
     TransactionFailedError,
     TransactionRejectedError,
@@ -26,7 +26,8 @@ from protostar.starknet.data_transformer import CairoOrPythonData
 from protostar.starknet_gateway.account_tx_version_detector import (
     AccountTxVersionDetector,
 )
-from protostar.starknet_gateway.call import AbiResolverProtocol
+from protostar.starknet_gateway.call import ClientProtocol as CallClientProtocol
+from protostar.starknet_gateway.call import CallResponse, CallPayload
 from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeclareResponse,
     SuccessfulDeployAccountResponse,
@@ -63,7 +64,7 @@ def is_cairo_data(inputs: Optional[CairoOrPythonData]) -> TypeGuard[CairoData]:
 
 
 # pylint: disable=too-many-instance-attributes
-class GatewayFacade(MulticallClientProtocol, AbiResolverProtocol):
+class GatewayFacade(MulticallClientProtocol, CallClientProtocol):
     def __init__(
         self,
         project_root_path: Path,
@@ -378,6 +379,16 @@ class GatewayFacade(MulticallClientProtocol, AbiResolverProtocol):
             return MulticallClientResponse(transaction_hash=result.transaction_hash)
         except ClientError as ex:
             raise TransactionException(message=ex.message) from ex
+
+    async def send_call(self, payload: CallPayload) -> CallResponse:
+        data = await self._gateway_client.call_contract(
+            call=Call(
+                to_addr=int(payload.address),
+                selector=int(payload.selector),
+                calldata=payload.cairo_calldata,
+            )
+        )
+        return CallResponse(cairo_data=data)
 
 
 class InputValidationException(ProtostarException):

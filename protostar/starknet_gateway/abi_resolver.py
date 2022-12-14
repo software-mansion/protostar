@@ -13,7 +13,6 @@ from starknet_py.proxy.proxy_check import (
 )
 
 from protostar.starknet import AbiType, Address
-from protostar.protostar_exception import ProtostarException
 
 from .call import AbiResolverProtocol
 
@@ -22,7 +21,7 @@ class AbiResolver(AbiResolverProtocol):
     def __init__(self, client: Client) -> None:
         self._client = client
 
-    async def resolve(self, address: Address) -> AbiType:
+    async def resolve(self, address: Address) -> Optional[AbiType]:
         abi = await self._resolve(
             address=address,
             proxy_checks=[
@@ -35,7 +34,6 @@ class AbiResolver(AbiResolverProtocol):
         abi = await self._resolve(address)
         if abi:
             return abi
-        raise AbiNotFoundException(address)
 
     async def _resolve(
         self,
@@ -53,8 +51,3 @@ class AbiResolver(AbiResolverProtocol):
             ).resolve()
         except ProxyResolutionError:
             return None
-
-
-class AbiNotFoundException(ProtostarException):
-    def __init__(self, address: Address):
-        super().__init__(message=f"Couldn't resolve ABI for address: {address}")

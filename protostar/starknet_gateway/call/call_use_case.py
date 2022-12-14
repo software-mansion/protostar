@@ -1,13 +1,17 @@
-from protostar.starknet import from_python_transformer
+from typing import Optional
+
+from protostar.starknet import from_python_transformer, to_python_transformer
+from protostar.starknet.address import Address
 
 from .call_structs import (
     CallInput,
     CallOutput,
-    CallClientPayload,
-    PythonCalldata,
-    CairoCalldata,
+    CallPayload,
+    HumanDataRepresentation,
+    CairoDataRepresentation,
 )
 from .call_protocols import ClientProtocol, AbiResolverProtocol
+from .call_exceptions import AbiNotFoundException
 
 
 class CallUseCase:
@@ -19,22 +23,59 @@ class CallUseCase:
         self._client = client
         self._contract_address_to_abi_converter = contract_address_to_abi_converter
 
-    async def execute(self, data: CallInput) -> CallOutput:
-        cairo_calldata = await self._transform_calldata_if_necessary(data)
-        payload = CallClientPayload(
-            address=data.address,
-            selector=data.selector,
+    async def execute(self, input_data: CallInput) -> CallOutput:
+        cairo_calldata = await self._transform_calldata_if_necessary(input_data)
+        payload = CallPayload(
+            address=input_data.address,
+            selector=input_data.selector,
             cairo_calldata=cairo_calldata,
         )
-        response = await self._client.call(payload)
-        return CallOutput(data=response.data)
+        response = await self._client.send_call(payload)
+        response_human_data = await self._try_transforming_response_data(
+            response_data=response.cairo_data,
+            input_data=input_data,
+        )
+        return CallOutput(
+            cairo_data=response.cairo_data,
+            human_data=response_human_data,
+        )
 
-    async def _transform_calldata_if_necessary(self, data: CallInput) -> CairoCalldata:
-        calldata = data.inputs
-        if isinstance(calldata, PythonCalldata):
-            abi = await self._contract_address_to_abi_converter.resolve(data.address)
+    async def _transform_calldata_if_necessary(
+        self, input_data: CallInput
+    ) -> CairoDataRepresentation:
+        calldata = input_data.inputs
+        if isinstance(calldata, HumanDataRepresentation):
+            abi = input_data.abi or await self._resolve_abi_or_fail(
+                address=input_data.address
+            )
             transform = from_python_transformer(
-                contract_abi=abi, fn_name=str(data.selector), mode="inputs"
+                contract_abi=abi, fn_name=str(input_data.selector), mode="inputs"
             )
             return transform(calldata)
         return calldata
+
+    async def _resolve_abi_or_fail(self, address: Address):
+        abi = await self._contract_address_to_abi_converter.resolve(address)
+        if abi is None:
+            raise AbiNotFoundException(
+                message=(
+                    f"Couldn't resolve ABI for address: {address}.\n"
+                    "Provide ABI to use data transformer."
+                )
+            )
+        return abi
+
+    async def _try_transforming_response_data(
+        self, response_data: CairoDataRepresentation, input_data: CallInput
+    ) -> Optional[HumanDataRepresentation]:
+        abi = input_data.abi or await self._contract_address_to_abi_converter.resolve(
+            input_data.address
+        )
+        if abi is None:
+            return None
+        transform = to_python_transformer(
+            contract_abi=abi,
+            fn_name=str(input_data.selector),
+            mode="outputs",
+        )
+        return transform(response_data)

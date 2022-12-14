@@ -1,17 +1,17 @@
 from abc import abstractmethod
-from typing import Protocol
+from typing import Optional, Protocol
 
 from protostar.starknet import Address, AbiType
 
-from .call_structs import CallClientPayload, CallClientResponse
+from .call_structs import CallPayload, CallResponse
 
 
 class ClientProtocol(Protocol):
     @abstractmethod
-    async def call(self, payload: CallClientPayload) -> CallClientResponse:
+    async def send_call(self, payload: CallPayload) -> CallResponse:
         ...
 
 
 class AbiResolverProtocol(Protocol):
-    async def resolve(self, address: Address) -> AbiType:
+    async def resolve(self, address: Address) -> Optional[AbiType]:
         ...
