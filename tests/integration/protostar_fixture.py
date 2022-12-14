@@ -50,7 +50,6 @@ from protostar.starknet_gateway import Fee, GatewayFacade, GatewayFacadeFactory,
 from protostar.testing import TestingSummary
 from protostar.starknet import Address
 from protostar.starknet.data_transformer import CairoOrPythonData
-from protostar.commands.call_command import SuccessfulCallMessage
 from tests.conftest import DevnetAccount
 
 
@@ -294,7 +293,7 @@ class ProtostarFixture:
         inputs: Optional[CairoOrPythonData],
         gateway_url: str,
         abi: Optional[list[Any]] = None,
-    ) -> SuccessfulCallMessage:
+    ):
         args = Namespace()
         args.contract_address = contract_address
         args.function = function_name
