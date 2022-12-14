@@ -17,11 +17,11 @@ from .call_exceptions import AbiNotFoundException
 class CallUseCase:
     def __init__(
         self,
-        contract_address_to_abi_converter: AbiResolverProtocol,
+        abi_resolver: AbiResolverProtocol,
         client: ClientProtocol,
     ) -> None:
         self._client = client
-        self._contract_address_to_abi_converter = contract_address_to_abi_converter
+        self._abi_resolver = abi_resolver
 
     async def execute(self, input_data: CallInput) -> CallOutput:
         cairo_calldata = await self._transform_calldata_if_necessary(input_data)
@@ -44,6 +44,8 @@ class CallUseCase:
         self, input_data: CallInput
     ) -> CairoDataRepresentation:
         calldata = input_data.inputs
+        if calldata is None:
+            return []
         if isinstance(calldata, HumanDataRepresentation):
             abi = input_data.abi or await self._resolve_abi_or_fail(
                 address=input_data.address
@@ -55,7 +57,7 @@ class CallUseCase:
         return calldata
 
     async def _resolve_abi_or_fail(self, address: Address):
-        abi = await self._contract_address_to_abi_converter.resolve(address)
+        abi = await self._abi_resolver.resolve(address)
         if abi is None:
             raise AbiNotFoundException(
                 message=(
@@ -68,9 +70,7 @@ class CallUseCase:
     async def _try_transforming_response_data(
         self, response_data: CairoDataRepresentation, input_data: CallInput
     ) -> Optional[HumanDataRepresentation]:
-        abi = input_data.abi or await self._contract_address_to_abi_converter.resolve(
-            input_data.address
-        )
+        abi = input_data.abi or await self._abi_resolver.resolve(input_data.address)
         if abi is None:
             return None
         transform = to_python_transformer(

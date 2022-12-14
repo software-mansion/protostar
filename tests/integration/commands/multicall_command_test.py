@@ -145,4 +145,4 @@ async def test_atomicity(
             gateway_url=devnet.get_gateway_url(),
             inputs=[],
         )
-        assert result.response.res == 0
+        assert result.call_output.cairo_data == [0]

@@ -12,7 +12,7 @@ Calldata = Union[CairoDataRepresentation, HumanDataRepresentation]
 class CallInput:
     address: Address
     selector: Selector
-    inputs: Calldata
+    inputs: Optional[Calldata]
     abi: Optional[AbiType]
 
 

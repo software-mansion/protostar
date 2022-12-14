@@ -4,7 +4,7 @@ from protostar.protostar_exception import ProtostarException
 from protostar.starknet_gateway.gateway_facade import InputValidationException
 from tests._conftest.devnet import DevnetFixture
 from tests.conftest import DevnetAccount, SetPrivateKeyEnvVarFixture
-from tests.data.contracts import RUNTIME_ERROR_CONTRACT, UINT256_IDENTITY_CONTRACT
+from tests.data.contracts import RUNTIME_ERROR_CONTRACT
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.protostar_fixture import ProtostarFixture
 
@@ -150,35 +150,3 @@ async def test_handling_invoke_failure(
                 wait_for_acceptance=True,
                 gateway_url=devnet_gateway_url,
             )
-
-
-async def test_uint256(
-    protostar: ProtostarFixture,
-    devnet_gateway_url: str,
-    devnet_account: DevnetAccount,
-    set_private_key_env_var: SetPrivateKeyEnvVarFixture,
-):
-    protostar.create_files({"./src/main.cairo": UINT256_IDENTITY_CONTRACT})
-    await protostar.build()
-    with set_private_key_env_var(devnet_account.private_key):
-        declare_response = await protostar.declare(
-            contract=protostar.project_root_path / "build" / "main.json",
-            gateway_url=devnet_gateway_url,
-            max_fee="auto",
-            account_address=devnet_account.address,
-        )
-        deploy_response = await protostar.deploy(
-            class_hash=declare_response.class_hash,
-            gateway_url=devnet_gateway_url,
-            max_fee="auto",
-            account_address=devnet_account.address,
-        )
-
-        result = await protostar.call(
-            contract_address=deploy_response.address,
-            function_name="identity",
-            inputs=[21, 37],
-            gateway_url=devnet_gateway_url,
-        )
-
-        assert result.response.res > 0

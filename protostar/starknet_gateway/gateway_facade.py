@@ -381,14 +381,17 @@ class GatewayFacade(MulticallClientProtocol, CallClientProtocol):
             raise TransactionException(message=ex.message) from ex
 
     async def send_call(self, payload: CallPayload) -> CallResponse:
-        data = await self._gateway_client.call_contract(
-            call=Call(
-                to_addr=int(payload.address),
-                selector=int(payload.selector),
-                calldata=payload.cairo_calldata,
+        try:
+            data = await self._gateway_client.call_contract(
+                call=Call(
+                    to_addr=int(payload.address),
+                    selector=int(payload.selector),
+                    calldata=payload.cairo_calldata,
+                )
             )
-        )
-        return CallResponse(cairo_data=data)
+            return CallResponse(cairo_data=data)
+        except ClientError as ex:
+            raise TransactionException(message=ex.message) from ex
 
 
 class InputValidationException(ProtostarException):
