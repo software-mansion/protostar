@@ -62,6 +62,9 @@ class SignableCommandUtil:
             )
 
         try:
+            private_key_str = private_key_str.strip()
+            if not private_key_str.startswith("0x"):
+                private_key_str = hex(int(private_key_str))
             private_key = int(private_key_str, 16)
         except ValueError as v_err:
             raise ProtostarException(
