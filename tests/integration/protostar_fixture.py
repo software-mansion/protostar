@@ -293,6 +293,7 @@ class ProtostarFixture:
         inputs: Optional[CairoOrPythonData],
         gateway_url: str,
         abi: Optional[list[Any]] = None,
+        json: bool = False,
     ):
         args = Namespace()
         args.contract_address = contract_address
@@ -301,7 +302,7 @@ class ProtostarFixture:
         args.network = None
         args.gateway_url = gateway_url
         args.chain_id = StarknetChainId.TESTNET
-        args.json = False
+        args.json = json
         args.abi = abi
 
         return await self._call_command.run(args)

@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import pytest
@@ -165,6 +166,7 @@ async def test_uint256(
     devnet_gateway_url: str,
     devnet_account: DevnetAccount,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
+    capsys: pytest.CaptureFixture[str],
 ):
     protostar.create_files({"./src/main.cairo": UINT256_IDENTITY_CONTRACT})
     await protostar.build()
@@ -182,14 +184,52 @@ async def test_uint256(
             account_address=devnet_account.address,
         )
 
-        result = await protostar.call(
+        capsys.readouterr()
+        await protostar.call(
             contract_address=deploy_response.address,
             function_name="identity",
             inputs=[21, 37],
             gateway_url=devnet_gateway_url,
         )
+        logged_result = capsys.readouterr().out
 
-        assert result.call_output.cairo_data == [21, 37]
-        assert result.call_output.human_data == {
-            "res": 12590447576074723148144860474975423823893
-        }
+        assert "[21, 37]" in logged_result
+        assert '"res": 12590447576074723148144860474975423823893' in logged_result
+
+
+async def test_json(
+    protostar: ProtostarFixture,
+    devnet_gateway_url: str,
+    devnet_account: DevnetAccount,
+    set_private_key_env_var: SetPrivateKeyEnvVarFixture,
+    capsys: pytest.CaptureFixture[str],
+):
+    protostar.create_files({"./src/main.cairo": UINT256_IDENTITY_CONTRACT})
+    await protostar.build()
+    with set_private_key_env_var(devnet_account.private_key):
+        declare_response = await protostar.declare(
+            contract=protostar.project_root_path / "build" / "main.json",
+            gateway_url=devnet_gateway_url,
+            max_fee="auto",
+            account_address=devnet_account.address,
+        )
+        deploy_response = await protostar.deploy(
+            class_hash=declare_response.class_hash,
+            gateway_url=devnet_gateway_url,
+            max_fee="auto",
+            account_address=devnet_account.address,
+        )
+
+        capsys.readouterr()
+        await protostar.call(
+            contract_address=deploy_response.address,
+            function_name="identity",
+            inputs=[21, 37],
+            gateway_url=devnet_gateway_url,
+            json=True,
+        )
+        logged_result = capsys.readouterr().out
+
+    result = json.loads(logged_result)
+    assert result["raw"] == [21, 37]
+    assert result["transformed"]["res"] == 12590447576074723148144860474975423823893
