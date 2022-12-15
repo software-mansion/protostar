@@ -25,9 +25,7 @@ def get_test_indices(logs: str) -> Set[int]:
 async def testing_summary_fixture(
     run_test_runner: RunTestRunnerFixture,
 ) -> TestingSummary:
-    return await run_test_runner(
-        Path(__file__).parent / "testing_timing_test.cairo"
-    )
+    return await run_test_runner(Path(__file__).parent / "testing_timing_test.cairo")
 
 
 @pytest.fixture(name="no_color_log_color_provider")

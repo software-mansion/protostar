@@ -44,9 +44,7 @@ async def test_integers_unbounded(
 async def test_felts(
     run_test_runner: RunTestRunnerFixture,
 ):
-    testing_summary = await run_test_runner(
-        Path(__file__).parent / "felts_test.cairo"
-    )
+    testing_summary = await run_test_runner(Path(__file__).parent / "felts_test.cairo")
 
     assert_cairo_test_cases(
         testing_summary,
@@ -95,9 +93,7 @@ async def test_mapping_and_filtering(
 async def test_one_of(
     run_test_runner: RunTestRunnerFixture,
 ):
-    testing_summary = await run_test_runner(
-        Path(__file__).parent / "one_of_test.cairo"
-    )
+    testing_summary = await run_test_runner(Path(__file__).parent / "one_of_test.cairo")
 
     assert_cairo_test_cases(
         testing_summary,

@@ -7,9 +7,7 @@ from tests.integration.conftest import (
 
 
 async def test_roll_cheatcode(run_test_runner: RunTestRunnerFixture):
-    testing_summary = await run_test_runner(
-        Path(__file__).parent / "roll_test.cairo"
-    )
+    testing_summary = await run_test_runner(Path(__file__).parent / "roll_test.cairo")
 
     assert_cairo_test_cases(
         testing_summary,

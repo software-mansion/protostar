@@ -260,7 +260,9 @@ A glob or globs to a directory or a test suite, for example:
                 slowest_tests_to_report_count=slowest_tests_to_report_count,
                 project_root_path=self._project_root_path,
             )
-            worker = CairoTestRunner.worker if use_cairo_test_runner else TestRunner.worker
+            worker = (
+                CairoTestRunner.worker if use_cairo_test_runner else TestRunner.worker
+            )
 
             TestScheduler(live_logger=live_logger, worker=worker).run(
                 include_paths=include_paths,
