@@ -85,7 +85,7 @@ def assert_cairo_test_cases(
     assert actual == expected
 
 
-@pytest.fixture(name="devnet_gateway_url", scope="session")
+@pytest.fixture(name="devnet_gateway_url", scope="module")
 def devnet_gateway_url_fixture(
     devnet_port: int,
 ):
