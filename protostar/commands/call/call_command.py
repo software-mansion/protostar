@@ -8,7 +8,11 @@ from protostar.cli import (
     ProtostarCommand,
     MessengerFactory,
 )
-from protostar.starknet_gateway import GatewayFacadeFactory, AbiResolver
+from protostar.starknet_gateway import (
+    GatewayFacadeFactory,
+    AbiResolver,
+    DataTransformer,
+)
 from protostar.starknet import Address, Selector
 from protostar.starknet_gateway.call import CallUseCase, CallInput, Calldata
 
@@ -84,7 +88,11 @@ class CallCommand(ProtostarCommand):
     ) -> SuccessfulCallMessage:
         gateway_facade = self._gateway_facade_factory.create(gateway_client)
         abi_resolver = AbiResolver(client=gateway_client)
-        call_use_case = CallUseCase(client=gateway_facade, abi_resolver=abi_resolver)
+        data_transformer = DataTransformer(abi_resolver=abi_resolver)
+        call_use_case = CallUseCase(
+            client=gateway_facade,
+            data_transformer=data_transformer,
+        )
         response = await call_use_case.execute(
             CallInput(
                 address=contract_address,
