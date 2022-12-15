@@ -64,19 +64,15 @@ class CallCommand(ProtostarCommand):
 
     async def run(self, args: Any) -> SuccessfulCallMessage:
         write = self._messenger_factory.from_args(args)
-
         network_command_util = NetworkCommandUtil(args)
         gateway_client = network_command_util.get_gateway_client()
-
         response = await self.call(
             contract_address=args.contract_address,
             function_name=args.function,
             inputs=args.inputs,
             gateway_client=gateway_client,
         )
-
         write(response)
-
         return response
 
     async def call(
