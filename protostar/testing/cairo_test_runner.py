@@ -20,8 +20,8 @@ from protostar.starknet.compiler.starknet_compilation import (
     CompilerConfig,
 )
 from . import TestRunner
-from .starkware.pure_cairo_test_execution_state import CairoTestExecutionState
-from .test_case_runners.pure_cairo_test_case_runner import CairoTestCaseRunner
+from .starkware.cairo_test_execution_state import CairoTestExecutionState
+from .test_case_runners.cairo_test_case_runner import CairoTestCaseRunner
 
 from .test_config import TestConfig
 from .test_environment_exceptions import ReportedException

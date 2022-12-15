@@ -35,7 +35,7 @@ from protostar.testing import (
     TestScheduler,
     determine_testing_seed,
 )
-from protostar.testing.pure_cairo_test_runner import CairoTestRunner
+from protostar.testing.cairo_test_runner import CairoTestRunner
 
 from .test_command_cache import TestCommandCache
 
