@@ -5,7 +5,7 @@ import pytest
 
 from protostar.testing import TestingSummary
 from protostar.io.log_color_provider import LogColorProvider
-from tests.integration.conftest import RunCairoTestRunnerFixture
+from tests.integration.conftest import RunTestRunnerFixture
 
 
 def assert_exec_times_in_desc_order(logs: str) -> None:
@@ -23,9 +23,9 @@ def get_test_indices(logs: str) -> Set[int]:
 
 @pytest.fixture(name="testing_summary")
 async def testing_summary_fixture(
-    run_cairo_test_runner: RunCairoTestRunnerFixture,
+    run_test_runner: RunTestRunnerFixture,
 ) -> TestingSummary:
-    return await run_cairo_test_runner(
+    return await run_test_runner(
         Path(__file__).parent / "testing_timing_test.cairo"
     )
 

@@ -3,13 +3,13 @@ from pathlib import Path
 
 from tests.integration.conftest import (
     CreateProtostarProjectFixture,
-    RunCairoTestRunnerFixture,
+    RunTestRunnerFixture,
     assert_cairo_test_cases,
 )
 
 
 def test_l1_to_l2_message_cheatcode(
-    run_cairo_test_runner: RunCairoTestRunnerFixture,
+    run_test_runner: RunTestRunnerFixture,
     create_protostar_project: CreateProtostarProjectFixture,
 ):
     with create_protostar_project() as protostar:
@@ -26,7 +26,7 @@ def test_l1_to_l2_message_cheatcode(
         protostar.build_sync()
 
         testing_summary = asyncio.run(
-            run_cairo_test_runner(
+            run_test_runner(
                 Path("."),
             )
         )

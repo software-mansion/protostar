@@ -20,8 +20,8 @@ from protostar.starknet.compiler.starknet_compilation import (
     CompilerConfig,
 )
 from . import TestRunner
-from .starkware.pure_cairo_test_execution_state import PureCairoTestExecutionState
-from .test_case_runners.pure_cairo_test_case_runner import PureCairoTestCaseRunner
+from .starkware.pure_cairo_test_execution_state import CairoTestExecutionState
+from .test_case_runners.pure_cairo_test_case_runner import CairoTestCaseRunner
 
 from .test_config import TestConfig
 from .test_environment_exceptions import ReportedException
@@ -38,7 +38,7 @@ from .testing_seed import Seed
 logger = getLogger()
 
 # pylint: disable=too-many-instance-attributes
-class PureCairoTestRunner:
+class CairoTestRunner:
     def __init__(
         self,
         project_root_path: Path,
@@ -113,7 +113,7 @@ class PureCairoTestRunner:
             max_steps=max_steps,
             gas_estimation_enabled=self._gas_estimation_enabled,
         )
-        test_execution_state = PureCairoTestExecutionState()
+        test_execution_state = CairoTestExecutionState()
 
         try:
             preprocessed = self.cairo_compiler.preprocess(test_suite.test_path)
@@ -158,7 +158,7 @@ class PureCairoTestRunner:
         self,
         test_suite: TestSuite,
         program: Program,
-        test_execution_state: PureCairoTestExecutionState,
+        test_execution_state: CairoTestExecutionState,
     ) -> None:
         for test_case in test_suite.test_cases:
             test_result = await self._invoke_test_case(
@@ -170,7 +170,7 @@ class PureCairoTestRunner:
         self,
         test_case: TestCase,
         program: Program,
-        test_execution_state: PureCairoTestExecutionState,
+        test_execution_state: CairoTestExecutionState,
     ) -> TestResult:
         # state: TestExecutionState = initial_state.fork()
 
@@ -185,7 +185,7 @@ class PureCairoTestRunner:
         # TODO: Plug in other test modes (fuzzing, parametrized)
         # state.determine_test_mode(test_case)
 
-        return await PureCairoTestCaseRunner(
+        return await CairoTestCaseRunner(
             program=program,
             test_case=test_case,
             output_recorder=test_execution_state.output_recorder,

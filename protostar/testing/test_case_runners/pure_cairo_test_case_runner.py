@@ -12,7 +12,7 @@ from protostar.starknet import SimpleReportedException
 from .test_case_runner import TestCaseRunner
 
 
-class PureCairoTestCaseRunner(TestCaseRunner[TestExecutionResult]):
+class CairoTestCaseRunner(TestCaseRunner[TestExecutionResult]):
     def __init__(self, program: Program, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self._program = program

@@ -3,13 +3,13 @@ from pathlib import Path
 import pytest
 
 from tests.integration.conftest import (
-    RunCairoTestRunnerFixture,
+    RunTestRunnerFixture,
     assert_cairo_test_cases,
 )
 
 
-async def test_expect_call(run_cairo_test_runner: RunCairoTestRunnerFixture):
-    testing_summary = await run_cairo_test_runner(
+async def test_expect_call(run_test_runner: RunTestRunnerFixture):
+    testing_summary = await run_test_runner(
         Path(__file__).parent / "expect_call_test.cairo",
     )
 

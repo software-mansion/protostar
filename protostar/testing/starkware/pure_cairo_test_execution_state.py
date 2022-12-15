@@ -5,7 +5,7 @@ from protostar.testing.test_output_recorder import OutputRecorder
 
 
 @dataclass
-class PureCairoTestExecutionState:
+class CairoTestExecutionState:
     # TODO: Should be extended with state of VM
     output_recorder: OutputRecorder
     stopwatch: Stopwatch

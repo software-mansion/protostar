@@ -1,11 +1,11 @@
 from pathlib import Path
 
 from tests.integration.conftest import assert_cairo_test_cases
-from tests.integration.pure_cairo_vm.conftest import RunPureCairoTestRunnerFixture
+from tests.integration.pure_cairo_vm.conftest import RunCairoTestRunnerFixture
 
 
 async def test_pure_cairo_testing(
-    run_pure_cairo_test_runner: RunPureCairoTestRunnerFixture,
+    run_pure_cairo_test_runner: RunCairoTestRunnerFixture,
 ):
     testing_summary = await run_pure_cairo_test_runner(
         Path(__file__).parent / "pure_cairo_test.cairo",
@@ -23,7 +23,7 @@ async def test_pure_cairo_testing(
 
 
 async def test_pure_cairo_broken_test(
-    run_pure_cairo_test_runner: RunPureCairoTestRunnerFixture,
+    run_pure_cairo_test_runner: RunCairoTestRunnerFixture,
 ):
     testing_summary = await run_pure_cairo_test_runner(
         Path(__file__).parent / "pure_cairo_broken_test.cairo",

@@ -1,13 +1,13 @@
 from pathlib import Path
 
 from tests.integration.conftest import (
-    RunCairoTestRunnerFixture,
+    RunTestRunnerFixture,
     assert_cairo_test_cases,
 )
 
 
-async def test_testing_hooks(run_cairo_test_runner: RunCairoTestRunnerFixture):
-    testing_summary = await run_cairo_test_runner(
+async def test_testing_hooks(run_test_runner: RunTestRunnerFixture):
+    testing_summary = await run_test_runner(
         Path(__file__).parent / "testing_hooks_test.cairo"
     )
 
@@ -20,8 +20,8 @@ async def test_testing_hooks(run_cairo_test_runner: RunCairoTestRunnerFixture):
     )
 
 
-async def test_setup_case(run_cairo_test_runner: RunCairoTestRunnerFixture):
-    testing_summary = await run_cairo_test_runner(
+async def test_setup_case(run_test_runner: RunTestRunnerFixture):
+    testing_summary = await run_test_runner(
         Path(__file__).parent / "setup_case_test.cairo"
     )
 
@@ -37,8 +37,8 @@ async def test_setup_case(run_cairo_test_runner: RunCairoTestRunnerFixture):
     )
 
 
-async def test_invalid_setup(run_cairo_test_runner: RunCairoTestRunnerFixture):
-    testing_summary = await run_cairo_test_runner(
+async def test_invalid_setup(run_test_runner: RunTestRunnerFixture):
+    testing_summary = await run_test_runner(
         Path(__file__).parent / "invalid_setup_test.cairo"
     )
 

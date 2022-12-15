@@ -35,7 +35,7 @@ from protostar.testing import (
     TestScheduler,
     determine_testing_seed,
 )
-from protostar.testing.pure_cairo_test_runner import PureCairoTestRunner
+from protostar.testing.pure_cairo_test_runner import CairoTestRunner
 
 from .test_command_cache import TestCommandCache
 
@@ -184,7 +184,7 @@ A glob or globs to a directory or a test suite, for example:
     async def test(
         self,
         targets: List[str],
-        pure_cairo_vm: bool = False,
+        use_cairo_test_runner: bool = False,
         ignored_targets: Optional[List[str]] = None,
         cairo_path: Optional[List[Path]] = None,
         disable_hint_validation: bool = False,
@@ -220,7 +220,7 @@ A glob or globs to a directory or a test suite, for example:
             compiler_config = CompilerConfig(
                 disable_hint_validation=True, include_paths=include_paths
             )
-            if pure_cairo_vm:
+            if use_cairo_test_runner:
                 cairo_compiler = CairoCompiler(compiler_config)
                 test_collector = TestCollector(
                     get_suite_function_names=cairo_compiler.get_function_names,
@@ -260,7 +260,7 @@ A glob or globs to a directory or a test suite, for example:
                 slowest_tests_to_report_count=slowest_tests_to_report_count,
                 project_root_path=self._project_root_path,
             )
-            worker = PureCairoTestRunner.worker if pure_cairo_vm else TestRunner.worker
+            worker = CairoTestRunner.worker if use_cairo_test_runner else TestRunner.worker
 
             TestScheduler(live_logger=live_logger, worker=worker).run(
                 include_paths=include_paths,
