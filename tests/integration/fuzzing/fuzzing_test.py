@@ -3,15 +3,15 @@ from pathlib import Path
 from protostar.testing.test_results import PassedFuzzTestCaseResult
 from protostar.testing.test_config import TestConfig
 from tests.integration.conftest import (
-    RunCairoTestRunnerFixture,
+    RunTestRunnerFixture,
     assert_cairo_test_cases,
 )
 
 
-async def test_basic(run_cairo_test_runner: RunCairoTestRunnerFixture):
+async def test_basic(run_test_runner: RunTestRunnerFixture):
     seed = 10
 
-    testing_summary = await run_cairo_test_runner(
+    testing_summary = await run_test_runner(
         Path(__file__).parent / "basic_test.cairo", seed=seed
     )
 
@@ -24,8 +24,8 @@ async def test_basic(run_cairo_test_runner: RunCairoTestRunnerFixture):
     assert testing_summary.testing_seed == seed
 
 
-async def test_non_felt_parameter(run_cairo_test_runner: RunCairoTestRunnerFixture):
-    testing_summary = await run_cairo_test_runner(
+async def test_non_felt_parameter(run_test_runner: RunTestRunnerFixture):
+    testing_summary = await run_test_runner(
         Path(__file__).parent / "non_felt_parameter_test.cairo"
     )
 
@@ -37,8 +37,8 @@ async def test_non_felt_parameter(run_cairo_test_runner: RunCairoTestRunnerFixtu
     )
 
 
-async def test_state_is_isolated(run_cairo_test_runner: RunCairoTestRunnerFixture):
-    testing_summary = await run_cairo_test_runner(
+async def test_state_is_isolated(run_test_runner: RunTestRunnerFixture):
+    testing_summary = await run_test_runner(
         Path(__file__).parent / "state_isolation_test.cairo"
     )
 
@@ -52,14 +52,14 @@ async def test_state_is_isolated(run_cairo_test_runner: RunCairoTestRunnerFixtur
 
 
 async def test_hypothesis_multiple_errors(
-    run_cairo_test_runner: RunCairoTestRunnerFixture,
+    run_test_runner: RunTestRunnerFixture,
 ):
     """
     This test potentially raises ``hypothesis.errors.MultipleFailures``
     when ``report_multiple_bugs`` setting is set to ``True``.
     """
 
-    testing_summary = await run_cairo_test_runner(
+    testing_summary = await run_test_runner(
         Path(__file__).parent / "hypothesis_multiple_errors_test.cairo", seed=10
     )
 
@@ -73,9 +73,9 @@ async def test_hypothesis_multiple_errors(
 
 
 async def test_max_examples_in_setup_hook(
-    run_cairo_test_runner: RunCairoTestRunnerFixture,
+    run_test_runner: RunTestRunnerFixture,
 ):
-    testing_summary = await run_cairo_test_runner(
+    testing_summary = await run_test_runner(
         Path(__file__).parent / "max_examples_in_setup_hook_test.cairo", seed=3
     )
 
@@ -86,9 +86,9 @@ async def test_max_examples_in_setup_hook(
 
 
 async def test_max_examples_in_setup_case(
-    run_cairo_test_runner: RunCairoTestRunnerFixture,
+    run_test_runner: RunTestRunnerFixture,
 ):
-    testing_summary = await run_cairo_test_runner(
+    testing_summary = await run_test_runner(
         Path(__file__).parent / "max_examples_in_setup_case_test.cairo", seed=3
     )
 
@@ -99,9 +99,9 @@ async def test_max_examples_in_setup_case(
 
 
 async def test_max_examples_invalid_arguments(
-    run_cairo_test_runner: RunCairoTestRunnerFixture,
+    run_test_runner: RunTestRunnerFixture,
 ):
-    testing_summary = await run_cairo_test_runner(
+    testing_summary = await run_test_runner(
         Path(__file__).parent / "max_examples_invalid_arguments_test.cairo"
     )
 
@@ -113,9 +113,9 @@ async def test_max_examples_invalid_arguments(
 
 
 async def test_should_not_share_state(
-    run_cairo_test_runner: RunCairoTestRunnerFixture,
+    run_test_runner: RunTestRunnerFixture,
 ):
-    testing_summary = await run_cairo_test_runner(
+    testing_summary = await run_test_runner(
         Path(__file__).parent / "shared_state_test.cairo"
     )
 
@@ -126,9 +126,9 @@ async def test_should_not_share_state(
 
 
 async def test_parameterized_with_examples_tests(
-    run_cairo_test_runner: RunCairoTestRunnerFixture,
+    run_test_runner: RunTestRunnerFixture,
 ):
-    testing_summary = await run_cairo_test_runner(
+    testing_summary = await run_test_runner(
         Path(__file__).parent / "parameterized_test.cairo"
     )
 

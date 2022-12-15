@@ -5,19 +5,12 @@ from fnmatch import fnmatch
 from glob import glob
 from pathlib import Path
 from time import time
-from typing import Dict, Iterable, List, Optional, Set, Tuple, Union
+from typing import Dict, Iterable, List, Optional, Set, Tuple, Protocol
 
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     LocationError,
     PreprocessorError,
 )
-from starkware.starknet.compiler.starknet_preprocessor import (
-    StarknetPreprocessedProgram,
-)
-
-from protostar.starknet.compiler.pass_managers import TestCollectorPreprocessedProgram
-from protostar.starknet.compiler.starknet_compilation import StarknetCompiler
-
 from .test_results import BrokenTestSuiteResult
 from .test_suite import TestCase, TestSuite
 
@@ -79,11 +72,12 @@ def fnmatch_any(name: str, pats: Iterable[str]) -> bool:
 TestSuiteInfoDict = Dict[TestSuitePath, TestSuiteInfo]
 
 
-class TestCollector:
-    @dataclass
-    class Config:
-        safe_collecting: bool = False
+class FunctionNameGetter(Protocol):
+    def __call__(self, file_path: Path) -> List[str]:
+        ...
 
+
+class TestCollector:
     class Result:
         def __init__(
             self,
@@ -101,10 +95,10 @@ class TestCollector:
             self.duration = duration
 
     def __init__(
-        self, starknet_compiler: StarknetCompiler, config: Optional[Config] = None
+        self,
+        get_suite_function_names: FunctionNameGetter,
     ) -> None:
-        self._starknet_compiler = starknet_compiler
-        self._config = config or TestCollector.Config()
+        self._get_suite_function_names = get_suite_function_names
 
     supported_test_suite_filename_patterns = [
         re.compile(r"^test_.*\.cairo"),
@@ -273,13 +267,13 @@ class TestCollector:
         self,
         test_suite_info: TestSuiteInfo,
     ) -> TestSuite:
-        preprocessed = self._starknet_compiler.preprocess_contract(test_suite_info.path)
-        setup_fn_name = self._collect_setup_hook_name(preprocessed)
+        function_names = self._get_suite_function_names(test_suite_info.path)
+        setup_fn_name = self._collect_setup_hook_name(function_names)
 
         test_cases = list(
             test_suite_info.filter_test_cases(
                 self._collect_test_cases(
-                    preprocessed=preprocessed,
+                    function_names=function_names,
                     test_path=test_suite_info.path,
                 )
             )
@@ -293,15 +287,13 @@ class TestCollector:
 
     def _collect_test_cases(
         self,
-        preprocessed: Union[
-            StarknetPreprocessedProgram, TestCollectorPreprocessedProgram
-        ],
+        function_names: List[str],
         test_path: Path,
     ) -> Iterable[TestCase]:
         test_prefix = "test_"
         setup_prefix = "setup_"
 
-        fn_names = set(self._starknet_compiler.get_function_names(preprocessed))
+        fn_names = set(function_names)
         for test_fn_name in fn_names:
             if test_fn_name.startswith(test_prefix):
                 base_name = test_fn_name[len(test_prefix) :]
@@ -318,12 +310,9 @@ class TestCollector:
 
     def _collect_setup_hook_name(
         self,
-        preprocessed: Union[
-            StarknetPreprocessedProgram, TestCollectorPreprocessedProgram
-        ],
+        function_names: List[str],
     ) -> Optional[str]:
         hook_name = "__setup__"
-        function_names = self._starknet_compiler.get_function_names(preprocessed)
 
         if function_names.count(hook_name) == 1:
             return hook_name

@@ -1,13 +1,13 @@
 from pathlib import Path
 
 from tests.integration.conftest import (
-    RunCairoTestRunnerFixture,
+    RunTestRunnerFixture,
     assert_cairo_test_cases,
 )
 
 
-async def test_prepare_cheatcode(run_cairo_test_runner: RunCairoTestRunnerFixture):
-    testing_summary = await run_cairo_test_runner(
+async def test_prepare_cheatcode(run_test_runner: RunTestRunnerFixture):
+    testing_summary = await run_test_runner(
         Path(__file__).parent / "prepare_test.cairo",
     )
 
