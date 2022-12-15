@@ -115,7 +115,7 @@ def test_deploying_and_interacting_with_contract(
         ignore_stderr=True,
     )
 
-    assert json.loads(result) == {"res": 166}
+    assert json.loads(result) == {"raw": [166], "transformed": {"res": 166}}
 
 
 @pytest.mark.usefixtures("init")

@@ -224,7 +224,7 @@ async def test_json(
         await protostar.call(
             contract_address=deploy_response.address,
             function_name="identity",
-            inputs=[21, 37],
+            inputs={"arg": {"low": 21, "high": 37}},
             gateway_url=devnet_gateway_url,
             json=True,
         )
