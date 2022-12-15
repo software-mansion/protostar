@@ -178,7 +178,7 @@ Output:
     return _protostar
 
 
-@pytest.fixture(name="devnet_gateway_url", scope="session")
+@pytest.fixture(name="devnet_gateway_url", scope="module")
 def devnet_gateway_url_fixture(devnet_port: int, protostar_repo_root: Path):
     prev_cwd = getcwd()
     chdir(protostar_repo_root)
