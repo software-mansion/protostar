@@ -71,7 +71,7 @@ def run_devnet(devnet: List[str], port: int) -> subprocess.Popen:
     )
 
 
-@pytest.fixture(name="devnet_port", scope="session")
+@pytest.fixture(name="devnet_port", scope="module")
 def devnet_port_fixture() -> int:
     with Socket() as socket:
         socket.bind(("", 0))
