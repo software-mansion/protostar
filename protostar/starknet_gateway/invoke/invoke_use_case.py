@@ -30,10 +30,14 @@ class InvokeUseCase:
             calldata=cairo_calldata,
             max_fee=input_data.max_fee,
         )
-        signed_invoke_tx = await self._account_manager.sign_invoke_transaction(
-            unsigned_invoke_tx
+        invoke_tx_to_account = (
+            await self._account_manager.prepare_invoke_transaction_to_account(
+                unsigned_invoke_tx
+            )
         )
-        client_response = await self._client.send_invoke_transaction(signed_invoke_tx)
+        client_response = await self._client.send_invoke_transaction(
+            invoke_tx_to_account
+        )
         return InvokeOutput(
             transaction_hash=client_response.transaction_hash,
         )

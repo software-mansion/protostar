@@ -8,7 +8,7 @@ from .invoke_structs import (
 
 
 class InvokeAccountManagerProtocol(Protocol):
-    async def sign_invoke_transaction(
+    async def prepare_invoke_transaction_to_account(
         self,
         unsigned_tx: UnsignedInvokeTransaction,
     ) -> SignedInvokeTransaction:

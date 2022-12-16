@@ -401,12 +401,13 @@ class GatewayFacade(MulticallClientProtocol, InvokeClientProtocol):
         self, signed_tx: SignedInvokeTransaction
     ) -> InvokeClientResponse:
         try:
+            contract_address = int(signed_tx.account_address)
+            calldata = signed_tx.account_execute_calldata
             result = await self._gateway_client.send_transaction(
                 transaction=InvokeFunction(
                     version=1,
-                    contract_address=int(signed_tx.contract_address),  # type: ignore
-                    entry_point_selector=int(signed_tx.selector),  # type: ignore
-                    calldata=signed_tx.calldata,  # type: ignore
+                    contract_address=contract_address,  # type: ignore
+                    calldata=calldata,  # type: ignore
                     max_fee=signed_tx.max_fee,
                     nonce=signed_tx.nonce,
                     signature=signed_tx.signature,

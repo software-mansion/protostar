@@ -31,8 +31,8 @@ class UnsignedInvokeTransaction:
 
 @dataclass
 class SignedInvokeTransaction:
-    address: Address
-    selector: Selector
+    account_address: Address
+    account_execute_calldata: CairoDataRepresentation
     max_fee: Wei
     nonce: Optional[int]
     signature: list[int]

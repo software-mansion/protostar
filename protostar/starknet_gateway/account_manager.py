@@ -77,29 +77,32 @@ class AccountManager(MulticallAccountManagerProtocol, InvokeAccountManagerProtoc
         except ClientError as ex:
             raise SigningException(message=ex.message) from ex
 
-    async def sign_invoke_transaction(
+    async def prepare_invoke_transaction_to_account(
         self, unsigned_tx: UnsignedInvokeTransaction
     ) -> SignedInvokeTransaction:
         await self._ensure_account_is_valid()
-        tx = await self._account_client.sign_invoke_transaction(
-            calls=SNCall(
-                to_addr=int(unsigned_tx.address),
-                selector=int(unsigned_tx.selector),
-                calldata=unsigned_tx.calldata,
-            ),
-            max_fee=unsigned_tx.max_fee
-            if isinstance(unsigned_tx.max_fee, int)
-            else None,
-            auto_estimate=unsigned_tx.max_fee == "auto",
-            version=1,
-        )
-        return SignedInvokeTransaction(
-            address=unsigned_tx.address,
-            max_fee=tx.max_fee,
-            selector=unsigned_tx.selector,
-            nonce=tx.nonce,
-            signature=tx.signature,
-        )
+        try:
+            signed_tx = await self._account_client.sign_invoke_transaction(
+                calls=SNCall(
+                    to_addr=int(unsigned_tx.address),
+                    selector=int(unsigned_tx.selector),
+                    calldata=unsigned_tx.calldata,
+                ),
+                max_fee=unsigned_tx.max_fee
+                if isinstance(unsigned_tx.max_fee, int)
+                else None,
+                auto_estimate=unsigned_tx.max_fee == "auto",
+                version=1,
+            )
+            return SignedInvokeTransaction(
+                account_address=Address(signed_tx.contract_address),
+                account_execute_calldata=signed_tx.calldata,
+                max_fee=signed_tx.max_fee,
+                nonce=signed_tx.nonce,
+                signature=signed_tx.signature,
+            )
+        except ClientError as ex:
+            raise SigningException(message=ex.message) from ex
 
     async def _ensure_account_is_valid(self):
         actual_account_version = await self._account_tx_version_detector.detect(

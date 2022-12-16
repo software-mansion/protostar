@@ -1,7 +1,6 @@
 import pytest
 
 from protostar.protostar_exception import ProtostarException
-from protostar.starknet_gateway.gateway_facade import InputValidationException
 from tests._conftest.devnet import DevnetFixture
 from tests.conftest import DevnetAccount, SetPrivateKeyEnvVarFixture
 from tests.data.contracts import RUNTIME_ERROR_CONTRACT
@@ -105,7 +104,7 @@ async def test_invoke_args_dict_fail(
         deploy_response = await deploy_main_contract(
             protostar, devnet_gateway_url, devnet_account
         )
-        with pytest.raises(InputValidationException):
+        with pytest.raises(ProtostarException):
             await protostar.invoke(
                 contract_address=deploy_response.address,
                 function_name="increase_balance",
