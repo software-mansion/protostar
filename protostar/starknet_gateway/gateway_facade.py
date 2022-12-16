@@ -416,6 +416,9 @@ class GatewayFacade(MulticallClientProtocol, InvokeClientProtocol):
         except ClientError as ex:
             raise TransactionException(message=ex.message) from ex
 
+    async def wait_for_acceptance(self, tx_hash: int):
+        await self._gateway_client.wait_for_tx(tx_hash=tx_hash, wait_for_accept=True)
+
 
 class InputValidationException(ProtostarException):
     def __init__(self, message: str):

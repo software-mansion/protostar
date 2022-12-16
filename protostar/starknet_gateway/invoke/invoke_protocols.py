@@ -20,3 +20,6 @@ class InvokeClientProtocol(Protocol):
         self, signed_tx: SignedInvokeTransaction
     ) -> InvokeClientResponse:
         ...
+
+    async def wait_for_acceptance(self, tx_hash: int) -> None:
+        ...

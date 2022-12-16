@@ -37,3 +37,6 @@ class InvokeUseCase:
         return InvokeOutput(
             transaction_hash=client_response.transaction_hash,
         )
+
+    async def wait_for_acceptance(self, tx_hash: int) -> None:
+        await self._client.wait_for_acceptance(tx_hash)

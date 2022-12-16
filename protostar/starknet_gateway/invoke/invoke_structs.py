@@ -16,9 +16,9 @@ from protostar.starknet import (
 class InvokeInput:
     address: Address
     selector: Selector
-    calldata: Calldata
+    calldata: Optional[Calldata]
     max_fee: Fee
-    abi: AbiType
+    abi: Optional[AbiType]
 
 
 @dataclass
