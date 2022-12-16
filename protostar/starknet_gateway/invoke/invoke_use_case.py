@@ -1,4 +1,4 @@
-from protostar.starknet_gateway.use_case import DataTransformerProtocol
+from protostar.starknet_gateway.core import DataTransformerProtocol
 
 from .invoke_structs import InvokeInput, InvokeOutput, UnsignedInvokeTransaction
 from .invoke_protocols import InvokeAccountManagerProtocol, InvokeClientProtocol

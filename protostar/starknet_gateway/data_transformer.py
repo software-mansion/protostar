@@ -12,7 +12,7 @@ from protostar.starknet import (
     Selector,
 )
 
-from .use_case import DataTransformerProtocol
+from .core import DataTransformerProtocol
 from .abi_resolver import AbiResolver
 
 

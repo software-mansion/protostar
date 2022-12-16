@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from protostar.starknet_gateway.use_case import DataTransformerProtocol
+from protostar.starknet_gateway.core import DataTransformerProtocol
 
 from .call_structs import CallInput, CallOutput, CallPayload
 
