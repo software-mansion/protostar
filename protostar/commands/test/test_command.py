@@ -3,10 +3,7 @@ import logging
 from argparse import Namespace
 from pathlib import Path
 from typing import List, Optional
-from dataclasses import dataclass
-import math
 
-from protostar.io import StructuredMessage
 from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
 from protostar.cli.activity_indicator import ActivityIndicator
 from protostar.commands.test.test_collector_summary_formatter import (
@@ -38,64 +35,11 @@ from protostar.testing import (
     TestRunner,
     TestScheduler,
     determine_testing_seed,
-    calculate_skipped,
 )
 from protostar.testing.cairo_test_runner import CairoTestRunner
 from .test_result_structured_formatter import get_formatted_execution_time
 
 from .test_command_cache import TestCommandCache
-
-
-@dataclass
-class SuccessfulTestMessage(StructuredMessage):
-    summary: TestingSummary
-    test_collector_result: TestCollector.Result
-
-    def format_human(self, fmt: LogColorProvider) -> str:
-        assert False, "Tests should use live logging for the human-readable output"
-
-    def format_dict(self) -> dict:
-        failed_tests = len(self.summary.failed)
-        passed_tests = len(self.summary.passed)
-        execution_times = [
-            test.execution_time for test in self.summary.passed + self.summary.failed
-        ]
-
-        failed_tests_paths = {str(item.file_path) for item in self.summary.failed}
-        passed_test_suites = failed_test_suites = 0
-        for test_suite in self.test_collector_result.test_suites:
-            if str(test_suite.test_path) in failed_tests_paths:
-                failed_test_suites += 1
-            else:
-                passed_test_suites += 1
-
-        return {
-            "type": "test_summary",
-            "test_suite_counts": {
-                "total": failed_test_suites + passed_test_suites,
-                "failed": failed_test_suites,
-                "passed": passed_test_suites,
-                "skipped": calculate_skipped(
-                    total_count=len(self.test_collector_result.test_suites),
-                    broken_count=len(self.summary.broken_suites),
-                    failed_count=failed_test_suites,
-                    passed_count=passed_test_suites,
-                ),
-            },
-            "test_case_counts": {
-                "total": self.test_collector_result.test_cases_count,
-                "failed": failed_tests,
-                "passed": passed_tests,
-                "skipped": calculate_skipped(
-                    total_count=self.test_collector_result.test_cases_count,
-                    broken_count=len(self.summary.broken),
-                    failed_count=failed_tests,
-                    passed_count=passed_tests,
-                ),
-            },
-            "seed": self.summary.testing_seed,
-            "execution_time_in_seconds": math.floor(sum(execution_times) * 100) / 100,
-        }
 
 
 class TestCommand(ProtostarCommand):
@@ -225,7 +169,7 @@ A glob or globs to a directory or a test suite, for example:
     async def run(self, args: Namespace) -> TestingSummary:
         cache = TestCommandCache(CacheIO(self._project_root_path))
         json_format = args.json if hasattr(args, "json") else False
-        summary, test_collector_result = await self.test(
+        summary = await self.test(
             targets=cache.obtain_targets(args.target, args.last_failed),
             ignored_targets=args.ignore,
             cairo_path=args.cairo_path,
@@ -241,13 +185,7 @@ A glob or globs to a directory or a test suite, for example:
             json_format=json_format,
         )
         cache.write_failed_tests_to_cache(summary)
-        if json_format:
-            if self._messenger_factory is None:
-                raise ProtostarException(
-                    "Messanger factory has to be provided in order to format the output"
-                )
-            write = self._messenger_factory.json()
-            write(SuccessfulTestMessage(summary, test_collector_result))
+
         summary.assert_all_passed()
         return summary
 
@@ -267,7 +205,7 @@ A glob or globs to a directory or a test suite, for example:
         slowest_tests_to_report_count: int = 0,
         gas_estimation_enabled: bool = False,
         json_format: bool = False,
-    ) -> tuple[TestingSummary, TestCollector.Result]:
+    ) -> TestingSummary:
         include_paths = [
             str(path)
             for path in [
@@ -367,7 +305,7 @@ A glob or globs to a directory or a test suite, for example:
                 json_format=json_format,
             )
 
-        return testing_summary, test_collector_result
+        return testing_summary
 
     def _log_test_collector_result(
         self, test_collector_result: TestCollector.Result
