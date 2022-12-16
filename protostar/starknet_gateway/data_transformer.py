@@ -20,7 +20,7 @@ class DataTransformer(DataTransformerProtocol):
     def __init__(self, abi_resolver: AbiResolver) -> None:
         self._abi_resolver = abi_resolver
 
-    async def transform_calldata_if_necessary(
+    async def transform_entrypoint_input_to_cairo(
         self,
         calldata: Optional[Calldata],
         address: Address,
@@ -48,7 +48,7 @@ class DataTransformer(DataTransformerProtocol):
             )
         return abi
 
-    async def try_transforming_entrypoint_output(
+    async def try_transforming_entrypoint_output_to_human(
         self,
         data: CairoDataRepresentation,
         address: Address,

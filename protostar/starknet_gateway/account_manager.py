@@ -8,9 +8,17 @@ from starknet_py.net.client_errors import ClientError
 
 from protostar.starknet import Address
 from protostar.protostar_exception import ProtostarException
+from protostar.starknet_gateway.multicall import (
+    SignedMulticallTransaction,
+    MulticallAccountManagerProtocol,
+    UnsignedMulticallTransaction,
+)
+from protostar.starknet_gateway.invoke import (
+    InvokeAccountManagerProtocol,
+    UnsignedInvokeTransaction,
+    SignedInvokeTransaction,
+)
 
-from .multicall.multicall_protocols import UnsignedMulticallTransaction
-from .multicall import SignedMulticallTransaction, MulticallAccountManagerProtocol
 from .account_tx_version_detector import AccountTxVersionDetector
 
 
@@ -20,7 +28,7 @@ class Account:
     signer: BaseSigner
 
 
-class AccountManager(MulticallAccountManagerProtocol):
+class AccountManager(MulticallAccountManagerProtocol, InvokeAccountManagerProtocol):
     def __init__(
         self,
         account: Account,
@@ -68,6 +76,30 @@ class AccountManager(MulticallAccountManagerProtocol):
             )
         except ClientError as ex:
             raise SigningException(message=ex.message) from ex
+
+    async def sign_invoke_transaction(
+        self, unsigned_tx: UnsignedInvokeTransaction
+    ) -> SignedInvokeTransaction:
+        await self._ensure_account_is_valid()
+        tx = await self._account_client.sign_invoke_transaction(
+            calls=SNCall(
+                to_addr=int(unsigned_tx.address),
+                selector=int(unsigned_tx.selector),
+                calldata=unsigned_tx.calldata,
+            ),
+            max_fee=unsigned_tx.max_fee
+            if isinstance(unsigned_tx.max_fee, int)
+            else None,
+            auto_estimate=unsigned_tx.max_fee == "auto",
+            version=1,
+        )
+        return SignedInvokeTransaction(
+            address=unsigned_tx.address,
+            max_fee=tx.max_fee,
+            selector=unsigned_tx.selector,
+            nonce=tx.nonce,
+            signature=tx.signature,
+        )
 
     async def _ensure_account_is_valid(self):
         actual_account_version = await self._account_tx_version_detector.detect(

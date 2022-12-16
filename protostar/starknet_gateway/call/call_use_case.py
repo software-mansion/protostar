@@ -18,11 +18,13 @@ class CallUseCase:
         self._data_transformer = data_transformer
 
     async def execute(self, input_data: CallInput) -> CallOutput:
-        cairo_calldata = await self._data_transformer.transform_calldata_if_necessary(
-            address=input_data.address,
-            selector=input_data.selector,
-            calldata=input_data.inputs,
-            abi=input_data.abi,
+        cairo_calldata = (
+            await self._data_transformer.transform_entrypoint_input_to_cairo(
+                address=input_data.address,
+                selector=input_data.selector,
+                calldata=input_data.inputs,
+                abi=input_data.abi,
+            )
         )
         payload = CallPayload(
             address=input_data.address,
@@ -31,7 +33,7 @@ class CallUseCase:
         )
         response = await self._client.send_call(payload)
         response_human_data = (
-            await self._data_transformer.try_transforming_entrypoint_output(
+            await self._data_transformer.try_transforming_entrypoint_output_to_human(
                 data=response.cairo_data,
                 address=input_data.address,
                 selector=input_data.selector,

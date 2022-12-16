@@ -39,6 +39,11 @@ from protostar.starknet_gateway.multicall.multicall_protocols import (
     SignedMulticallTransaction,
     MulticallClientProtocol,
 )
+from protostar.starknet_gateway.invoke import (
+    InvokeClientProtocol,
+    InvokeClientResponse,
+    SignedInvokeTransaction,
+)
 
 from .contract_function_factory import ContractFunctionFactory
 from .type import ClassHash, ContractFunctionInputType, Fee
@@ -63,7 +68,7 @@ def is_cairo_data(inputs: Optional[CairoOrPythonData]) -> TypeGuard[CairoData]:
 
 
 # pylint: disable=too-many-instance-attributes
-class GatewayFacade(MulticallClientProtocol):
+class GatewayFacade(MulticallClientProtocol, InvokeClientProtocol):
     def __init__(
         self,
         project_root_path: Path,
@@ -389,6 +394,25 @@ class GatewayFacade(MulticallClientProtocol):
                 )
             )
             return CallResponse(cairo_data=data)
+        except ClientError as ex:
+            raise TransactionException(message=ex.message) from ex
+
+    async def send_invoke_transaction(
+        self, signed_tx: SignedInvokeTransaction
+    ) -> InvokeClientResponse:
+        try:
+            result = await self._gateway_client.send_transaction(
+                transaction=InvokeFunction(
+                    version=1,
+                    contract_address=int(signed_tx.contract_address),  # type: ignore
+                    entry_point_selector=int(signed_tx.selector),  # type: ignore
+                    calldata=signed_tx.calldata,  # type: ignore
+                    max_fee=signed_tx.max_fee,
+                    nonce=signed_tx.nonce,
+                    signature=signed_tx.signature,
+                )
+            )
+            return InvokeClientResponse(transaction_hash=result.transaction_hash)
         except ClientError as ex:
             raise TransactionException(message=ex.message) from ex
 

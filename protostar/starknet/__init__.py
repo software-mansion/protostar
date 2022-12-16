@@ -16,6 +16,7 @@ from .types import (
     CairoDataRepresentation,
     Calldata,
     HumanDataRepresentation,
+    Wei,
 )
 from .address import Address, RawAddress
 from .selector import Selector

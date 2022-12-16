@@ -1,28 +1,48 @@
 from dataclasses import dataclass
+from typing import Optional
 
-from protostar.starknet import Calldata
+from protostar.starknet_gateway import Fee
+from protostar.starknet import (
+    Calldata,
+    Address,
+    Selector,
+    Wei,
+    AbiType,
+    CairoDataRepresentation,
+)
 
 
 @dataclass
 class InvokeInput:
+    address: Address
+    selector: Selector
     calldata: Calldata
+    max_fee: Fee
+    abi: AbiType
 
 
 @dataclass
 class UnsignedInvokeTransaction:
-    pass
+    address: Address
+    selector: Selector
+    calldata: CairoDataRepresentation
+    max_fee: Fee
 
 
 @dataclass
 class SignedInvokeTransaction:
-    pass
+    address: Address
+    selector: Selector
+    max_fee: Wei
+    nonce: Optional[int]
+    signature: list[int]
 
 
 @dataclass
-class ClientResponse:
-    pass
+class InvokeClientResponse:
+    transaction_hash: int
 
 
 @dataclass
 class InvokeOutput:
-    pass
+    transaction_hash: int

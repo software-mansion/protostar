@@ -11,7 +11,7 @@ from protostar.starknet import (
 
 
 class DataTransformerProtocol(Protocol):
-    async def transform_calldata_if_necessary(
+    async def transform_entrypoint_input_to_cairo(
         self,
         calldata: Optional[Calldata],
         address: Address,
@@ -20,7 +20,7 @@ class DataTransformerProtocol(Protocol):
     ) -> CairoDataRepresentation:
         ...
 
-    async def try_transforming_entrypoint_output(
+    async def try_transforming_entrypoint_output_to_human(
         self,
         data: CairoDataRepresentation,
         address: Address,
