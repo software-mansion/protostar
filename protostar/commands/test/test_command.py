@@ -168,7 +168,7 @@ A glob or globs to a directory or a test suite, for example:
 
     async def run(self, args: Namespace) -> TestingSummary:
         cache = TestCommandCache(CacheIO(self._project_root_path))
-        json_format = args.json if hasattr(args, "json") else False
+        structured_format = args.json if hasattr(args, "json") else False
         summary = await self.test(
             targets=cache.obtain_targets(args.target, args.last_failed),
             ignored_targets=args.ignore,
@@ -182,7 +182,7 @@ A glob or globs to a directory or a test suite, for example:
             max_steps=args.max_steps,
             slowest_tests_to_report_count=args.report_slowest_tests,
             gas_estimation_enabled=args.estimate_gas,
-            json_format=json_format,
+            structured_format=structured_format,
         )
         cache.write_failed_tests_to_cache(summary)
 
@@ -204,7 +204,7 @@ A glob or globs to a directory or a test suite, for example:
         max_steps: Optional[int] = None,
         slowest_tests_to_report_count: int = 0,
         gas_estimation_enabled: bool = False,
-        json_format: bool = False,
+        structured_format: bool = False,
     ) -> TestingSummary:
         include_paths = [
             str(path)
@@ -254,7 +254,7 @@ A glob or globs to a directory or a test suite, for example:
                 "Only one test case can be profiled at the time. Please specify path to a single test case."
             )
 
-        if json_format:
+        if structured_format:
             test_cases = 0
             for test_suite in test_collector_result.test_suites:
                 test_cases += len(test_suite.test_cases)
@@ -302,7 +302,7 @@ A glob or globs to a directory or a test suite, for example:
                 active_profile_name=self._active_profile_name,
                 cwd=self._cwd,
                 gas_estimation_enabled=gas_estimation_enabled,
-                json_format=json_format,
+                structured_format=structured_format,
             )
 
         return testing_summary

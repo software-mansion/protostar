@@ -100,7 +100,7 @@ class TestingLiveLogger:
         self,
         shared_tests_state: SharedTestsState,
         test_collector_result: "TestCollector.Result",
-        json_format: bool,
+        structured_format: bool,
     ):
 
         try:
@@ -129,7 +129,7 @@ class TestingLiveLogger:
                             test_result, self._project_root_path
                         )
 
-                        if json_format:
+                        if structured_format:
                             formatter = format_test_result_structured
                         else:
                             formatter = format_test_result
@@ -152,7 +152,7 @@ class TestingLiveLogger:
                             progress_bar.update(1)
                             tests_left_n -= 1
                 finally:
-                    if json_format:
+                    if structured_format:
                         print(
                             json.dumps(
                                 self.get_structured_testing_summary(

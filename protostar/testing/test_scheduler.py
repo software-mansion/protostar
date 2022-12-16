@@ -81,7 +81,7 @@ class TestScheduler:
         cwd: Path,
         active_profile_name: Optional[str],
         gas_estimation_enabled: bool,
-        json_format: bool = False,
+        structured_format: bool = False,
     ):
         with multiprocessing.Manager() as manager:
             shared_tests_state = SharedTestsState(
@@ -117,7 +117,7 @@ class TestScheduler:
                     results = pool.map_async(self._worker, setups)
 
                     self._live_logger.log(
-                        shared_tests_state, test_collector_result, json_format
+                        shared_tests_state, test_collector_result, structured_format
                     )
 
                     if exit_first and shared_tests_state.any_failed_or_broken():
