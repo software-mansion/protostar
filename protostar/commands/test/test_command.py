@@ -1,3 +1,4 @@
+import json
 import logging
 from argparse import Namespace
 from pathlib import Path
@@ -40,6 +41,7 @@ from protostar.testing import (
     calculate_skipped,
 )
 from protostar.testing.cairo_test_runner import CairoTestRunner
+from .test_result_structured_formatter import get_formatted_execution_time
 
 from .test_command_cache import TestCommandCache
 
@@ -53,9 +55,6 @@ class SuccessfulTestMessage(StructuredMessage):
         assert False, "Tests should use live logging for the human-readable output"
 
     def format_dict(self) -> dict:
-        test_cases = 0
-        for test_suite in self.test_collector_result.test_suites:
-            test_cases += len(test_suite.test_cases)
         failed_tests = len(self.summary.failed)
         passed_tests = len(self.summary.passed)
         execution_times = [
@@ -71,41 +70,31 @@ class SuccessfulTestMessage(StructuredMessage):
                 passed_test_suites += 1
 
         return {
-            "collected_tests": {
-                "broken_test_suites_count": len(
-                    self.test_collector_result.broken_test_suites
+            "type": "test_summary",
+            "test_suite_counts": {
+                "total": failed_test_suites + passed_test_suites,
+                "failed": failed_test_suites,
+                "passed": passed_test_suites,
+                "skipped": calculate_skipped(
+                    total_count=len(self.test_collector_result.test_suites),
+                    broken_count=len(self.summary.broken_suites),
+                    failed_count=failed_test_suites,
+                    passed_count=passed_test_suites,
                 ),
-                "test_suites": len(self.test_collector_result.test_suites),
-                "test_cases": test_cases,
-                "duration_in_seconds": self.test_collector_result.duration,
             },
-            "summary": {
-                "test_suite_counts": {
-                    "total": failed_test_suites + passed_test_suites,
-                    "failed": failed_test_suites,
-                    "passed": passed_test_suites,
-                    "skipped": calculate_skipped(
-                        total_count=len(self.test_collector_result.test_suites),
-                        broken_count=len(self.summary.broken_suites),
-                        failed_count=failed_test_suites,
-                        passed_count=passed_test_suites,
-                    ),
-                },
-                "test_case_counts": {
-                    "total": self.test_collector_result.test_cases_count,
-                    "failed": failed_tests,
-                    "passed": passed_tests,
-                    "skipped": calculate_skipped(
-                        total_count=self.test_collector_result.test_cases_count,
-                        broken_count=len(self.summary.broken),
-                        failed_count=failed_tests,
-                        passed_count=passed_tests,
-                    ),
-                },
-                "seed": self.summary.testing_seed,
-                "execution_time_in_seconds": math.floor(sum(execution_times) * 100)
-                / 100,
+            "test_case_counts": {
+                "total": self.test_collector_result.test_cases_count,
+                "failed": failed_tests,
+                "passed": passed_tests,
+                "skipped": calculate_skipped(
+                    total_count=self.test_collector_result.test_cases_count,
+                    broken_count=len(self.summary.broken),
+                    failed_count=failed_tests,
+                    passed_count=passed_tests,
+                ),
             },
+            "seed": self.summary.testing_seed,
+            "execution_time_in_seconds": math.floor(sum(execution_times) * 100) / 100,
         }
 
 
@@ -327,7 +316,23 @@ A glob or globs to a directory or a test suite, for example:
                 "Only one test case can be profiled at the time. Please specify path to a single test case."
             )
 
-        if not json_format:
+        if json_format:
+            test_cases = 0
+            for test_suite in test_collector_result.test_suites:
+                test_cases += len(test_suite.test_cases)
+            collected_tests = {
+                "type": "test_collector_result",
+                "broken_test_suites_count": len(
+                    test_collector_result.broken_test_suites
+                ),
+                "test_suites": len(test_collector_result.test_suites),
+                "test_cases": test_cases,
+                "duration_in_seconds": get_formatted_execution_time(
+                    test_collector_result.duration
+                ),
+            }
+            print(json.dumps(collected_tests))
+        else:
             self._log_test_collector_result(test_collector_result)
 
         testing_summary = TestingSummary(
@@ -359,7 +364,6 @@ A glob or globs to a directory or a test suite, for example:
                 active_profile_name=self._active_profile_name,
                 cwd=self._cwd,
                 gas_estimation_enabled=gas_estimation_enabled,
-                testing_summary=testing_summary,
                 json_format=json_format,
             )
 

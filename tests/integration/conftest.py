@@ -169,6 +169,7 @@ def run_test_runner_fixture(
             log_color_provider=log_color_provider,
             active_profile_name=None,
             cwd=Path(),
+            messenger_factory=None,
         ).test(
             targets=targets,
             ignored_targets=ignored_targets,
