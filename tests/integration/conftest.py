@@ -162,7 +162,7 @@ def run_test_runner_fixture(
                 for ignored_test_case in ignored_test_cases
             ]
 
-        result = await TestCommand(
+        return await TestCommand(
             project_root_path=Path(),
             protostar_directory=protostar_directory_mock,
             project_cairo_path_builder=project_cairo_path_builder,
@@ -180,7 +180,6 @@ def run_test_runner_fixture(
             cairo_path=cairo_path or [],
             use_cairo_test_runner=use_cairo_test_runner,
         )
-        return result[0]
 
     return run_test_runner
 
