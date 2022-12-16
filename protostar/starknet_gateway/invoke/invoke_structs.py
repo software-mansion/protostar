@@ -6,7 +6,6 @@ from protostar.starknet import (
     Calldata,
     Address,
     Selector,
-    Wei,
     AbiType,
     CairoDataRepresentation,
 )
@@ -27,20 +26,6 @@ class UnsignedInvokeTransaction:
     selector: Selector
     calldata: CairoDataRepresentation
     max_fee: Fee
-
-
-@dataclass
-class SignedInvokeTransaction:
-    account_address: Address
-    account_execute_calldata: CairoDataRepresentation
-    max_fee: Wei
-    nonce: Optional[int]
-    signature: list[int]
-
-
-@dataclass
-class InvokeClientResponse:
-    transaction_hash: int
 
 
 @dataclass

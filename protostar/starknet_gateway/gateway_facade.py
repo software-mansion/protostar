@@ -39,10 +39,10 @@ from protostar.starknet_gateway.multicall.multicall_protocols import (
     SignedMulticallTransaction,
     MulticallClientProtocol,
 )
-from protostar.starknet_gateway.invoke import (
-    InvokeClientProtocol,
-    InvokeClientResponse,
-    SignedInvokeTransaction,
+from protostar.starknet_gateway.invoke import InvokeClientProtocol
+from protostar.starknet_gateway.core import (
+    TransactionSentResponse,
+    PayloadToAccountExecuteInvokeTx,
 )
 
 from .contract_function_factory import ContractFunctionFactory
@@ -397,23 +397,23 @@ class GatewayFacade(MulticallClientProtocol, InvokeClientProtocol):
         except ClientError as ex:
             raise TransactionException(message=ex.message) from ex
 
-    async def send_invoke_transaction(
-        self, signed_tx: SignedInvokeTransaction
-    ) -> InvokeClientResponse:
+    async def send_payload_to_account_execute(
+        self, payload: PayloadToAccountExecuteInvokeTx
+    ) -> TransactionSentResponse:
         try:
-            contract_address = int(signed_tx.account_address)
-            calldata = signed_tx.account_execute_calldata
+            contract_address = int(payload.account_address)
+            calldata = payload.account_execute_calldata
             result = await self._gateway_client.send_transaction(
                 transaction=InvokeFunction(
                     version=1,
                     contract_address=contract_address,  # type: ignore
                     calldata=calldata,  # type: ignore
-                    max_fee=signed_tx.max_fee,
-                    nonce=signed_tx.nonce,
-                    signature=signed_tx.signature,
+                    max_fee=payload.max_fee,
+                    nonce=payload.nonce,
+                    signature=payload.signature,
                 )
             )
-            return InvokeClientResponse(transaction_hash=result.transaction_hash)
+            return TransactionSentResponse(transaction_hash=result.transaction_hash)
         except ClientError as ex:
             raise TransactionException(message=ex.message) from ex
 

@@ -8,6 +8,10 @@ from starknet_py.net.client_errors import ClientError
 
 from protostar.starknet import Address
 from protostar.protostar_exception import ProtostarException
+from protostar.starknet_gateway.core import (
+    TransactionSentResponse,
+    PayloadToAccountExecuteInvokeTx,
+)
 from protostar.starknet_gateway.multicall import (
     SignedMulticallTransaction,
     MulticallAccountManagerProtocol,
@@ -16,10 +20,10 @@ from protostar.starknet_gateway.multicall import (
 from protostar.starknet_gateway.invoke import (
     InvokeAccountManagerProtocol,
     UnsignedInvokeTransaction,
-    SignedInvokeTransaction,
 )
 
 from .account_tx_version_detector import AccountTxVersionDetector
+from .gateway_facade import GatewayFacade
 
 
 @dataclass
@@ -33,10 +37,12 @@ class AccountManager(MulticallAccountManagerProtocol, InvokeAccountManagerProtoc
         self,
         account: Account,
         gateway_url: str,
+        client: GatewayFacade,
     ):
         self._account = account
         gateway_client = GatewayClient(gateway_url)
         self._account_tx_version_detector = AccountTxVersionDetector(gateway_client)
+        self._client = client
         self._account_client = AccountClient(
             address=int(account.address),
             client=gateway_client,
@@ -77,9 +83,9 @@ class AccountManager(MulticallAccountManagerProtocol, InvokeAccountManagerProtoc
         except ClientError as ex:
             raise SigningException(message=ex.message) from ex
 
-    async def prepare_invoke_transaction_to_account(
+    async def prepare_execute_payload_from_unsigned_invoke_tx(
         self, unsigned_tx: UnsignedInvokeTransaction
-    ) -> SignedInvokeTransaction:
+    ) -> PayloadToAccountExecuteInvokeTx:
         await self._ensure_account_is_valid()
         try:
             signed_tx = await self._account_client.sign_invoke_transaction(
@@ -94,7 +100,7 @@ class AccountManager(MulticallAccountManagerProtocol, InvokeAccountManagerProtoc
                 auto_estimate=unsigned_tx.max_fee == "auto",
                 version=1,
             )
-            return SignedInvokeTransaction(
+            return PayloadToAccountExecuteInvokeTx(
                 account_address=Address(signed_tx.contract_address),
                 account_execute_calldata=signed_tx.calldata,
                 max_fee=signed_tx.max_fee,
@@ -110,6 +116,11 @@ class AccountManager(MulticallAccountManagerProtocol, InvokeAccountManagerProtoc
         )
         if actual_account_version != self._account_client.supported_tx_version:
             raise UnsupportedAccountVersionException(actual_account_version)
+
+    async def execute(
+        self, payload: PayloadToAccountExecuteInvokeTx
+    ) -> TransactionSentResponse:
+        return await self._client.send_payload_to_account_execute(payload)
 
 
 class UnsupportedAccountVersionException(ProtostarException):

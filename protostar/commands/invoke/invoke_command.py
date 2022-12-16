@@ -135,6 +135,7 @@ class InvokeCommand(ProtostarCommand):
                 address=account_address,
                 signer=signer,
             ),
+            client=gateway_facade,
             gateway_url=gateway_url,
         )
         abi_resolver = AbiResolver(client=gateway_client)

@@ -8,7 +8,7 @@ from protostar.starknet_gateway.invoke import InvokeOutput
 
 class SendingInvokeTransactionMessage(StructuredMessage):
     def format_human(self, fmt: LogColorProvider) -> str:
-        return "Sending Invoke Transaction"
+        return "Sending invoke transaction..."
 
     def format_dict(self) -> dict:
         return {

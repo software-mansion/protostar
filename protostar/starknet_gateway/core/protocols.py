@@ -9,6 +9,8 @@ from protostar.starknet import (
     CairoDataRepresentation,
 )
 
+from .structs import PayloadToAccountExecuteInvokeTx, TransactionSentResponse
+
 
 class DataTransformerProtocol(Protocol):
     async def transform_entrypoint_input_to_cairo(
@@ -27,4 +29,11 @@ class DataTransformerProtocol(Protocol):
         selector: Selector,
         abi: Optional[AbiType],
     ) -> Optional[HumanDataRepresentation]:
+        ...
+
+
+class AccountManagerProtocol(Protocol):
+    async def execute(
+        self, payload: PayloadToAccountExecuteInvokeTx
+    ) -> TransactionSentResponse:
         ...
