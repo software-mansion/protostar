@@ -1,18 +1,16 @@
 from typing import TYPE_CHECKING
 
-from protostar.starknet_gateway.core import DataTransformerProtocol
-
 from .call_structs import CallInput, CallOutput, CallPayload
 
 if TYPE_CHECKING:
-    from protostar.starknet_gateway import GatewayFacade
+    from protostar.starknet_gateway import GatewayFacade, DataTransformer
 
 
 class CallUseCase:
     def __init__(
         self,
         client: "GatewayFacade",
-        data_transformer: DataTransformerProtocol,
+        data_transformer: "DataTransformer",
     ) -> None:
         self._client = client
         self._data_transformer = data_transformer

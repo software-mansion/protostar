@@ -1,15 +1,21 @@
-from protostar.starknet_gateway.core import DataTransformerProtocol
+from typing import TYPE_CHECKING
 
 from .invoke_structs import InvokeInput, InvokeOutput, UnsignedInvokeTransaction
-from .invoke_protocols import InvokeAccountManagerProtocol, InvokeClientProtocol
+
+if TYPE_CHECKING:
+    from protostar.starknet_gateway import (
+        GatewayFacade,
+        AccountManager,
+        DataTransformer,
+    )
 
 
 class InvokeUseCase:
     def __init__(
         self,
-        client: InvokeClientProtocol,
-        account_manager: InvokeAccountManagerProtocol,
-        data_transformer: DataTransformerProtocol,
+        client: "GatewayFacade",
+        account_manager: "AccountManager",
+        data_transformer: "DataTransformer",
     ) -> None:
         self._client = client
         self._account_manager = account_manager

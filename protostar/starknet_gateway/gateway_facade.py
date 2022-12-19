@@ -39,7 +39,6 @@ from protostar.starknet_gateway.multicall.multicall_protocols import (
     SignedMulticallTransaction,
     MulticallClientProtocol,
 )
-from protostar.starknet_gateway.invoke import InvokeClientProtocol
 from protostar.starknet_gateway.core import (
     TransactionSentResponse,
     PayloadToAccountExecuteInvokeTx,
@@ -68,7 +67,7 @@ def is_cairo_data(inputs: Optional[CairoOrPythonData]) -> TypeGuard[CairoData]:
 
 
 # pylint: disable=too-many-instance-attributes
-class GatewayFacade(MulticallClientProtocol, InvokeClientProtocol):
+class GatewayFacade(MulticallClientProtocol):
     def __init__(
         self,
         project_root_path: Path,

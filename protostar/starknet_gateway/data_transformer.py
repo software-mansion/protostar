@@ -12,11 +12,10 @@ from protostar.starknet import (
     Selector,
 )
 
-from .core import DataTransformerProtocol
 from .abi_resolver import AbiResolver
 
 
-class DataTransformer(DataTransformerProtocol):
+class DataTransformer:
     def __init__(self, abi_resolver: AbiResolver) -> None:
         self._abi_resolver = abi_resolver
 

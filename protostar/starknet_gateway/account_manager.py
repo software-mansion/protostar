@@ -17,10 +17,7 @@ from protostar.starknet_gateway.multicall import (
     MulticallAccountManagerProtocol,
     UnsignedMulticallTransaction,
 )
-from protostar.starknet_gateway.invoke import (
-    InvokeAccountManagerProtocol,
-    UnsignedInvokeTransaction,
-)
+from protostar.starknet_gateway.invoke import UnsignedInvokeTransaction
 
 from .account_tx_version_detector import AccountTxVersionDetector
 from .gateway_facade import GatewayFacade
@@ -32,7 +29,7 @@ class Account:
     signer: BaseSigner
 
 
-class AccountManager(MulticallAccountManagerProtocol, InvokeAccountManagerProtocol):
+class AccountManager(MulticallAccountManagerProtocol):
     def __init__(
         self,
         account: Account,
