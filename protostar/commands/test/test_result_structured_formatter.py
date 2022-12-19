@@ -1,5 +1,4 @@
 from typing import Any, Literal, Optional
-import math
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -57,8 +56,8 @@ class TestCaseResult(StructuredMessage):
         if self.test_case_name:
             result["test_case_name"] = self.test_case_name
         if self.execution_time_in_seconds:
-            result["execution_time_in_seconds"] = str(
-                get_formatted_execution_time(self.execution_time_in_seconds)
+            result["execution_time_in_seconds"] = get_formatted_execution_time(
+                self.execution_time_in_seconds
             )
         if self.exception:
             result["exception"] = self.exception
@@ -221,5 +220,5 @@ def _format_unexpected_exception_test_suite_result(
     )
 
 
-def get_formatted_execution_time(execution_time: float) -> float:
-    return math.floor(execution_time * 100) / 100
+def get_formatted_execution_time(execution_time: float) -> str:
+    return f"{execution_time:.2f}"

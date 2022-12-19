@@ -4,13 +4,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Callable, List, Optional
 import dataclasses
 
-from protostar.testing import (
-    TestingSummary,
-)
-from protostar.testing import (
-    BrokenTestSuiteResult,
-    TestResult,
-)
+from protostar.testing import TestResult
 from protostar.io.output import Messenger
 
 from .test_collector import TestCollector
@@ -33,28 +27,6 @@ def make_path_relative_if_possible(test_result: TestResult, path: Path) -> TestR
         # We do this to preserve the functionality of running tests that are outside of the project
         pass
     return test_result
-
-
-def _update_summary(
-    shared_tests_state: SharedTestsState,
-    test_collector_result: "TestCollector.Result",
-    testing_summary: TestingSummary,
-    project_root_path: Path,
-    exit_first: bool,
-):
-    tests_left_n = test_collector_result.test_cases_count
-    while tests_left_n > 0:
-        test_result: TestResult = shared_tests_state.get_result()
-        testing_summary.extend([test_result])
-        test_result = make_path_relative_if_possible(test_result, project_root_path)
-        if exit_first and shared_tests_state.any_failed_or_broken():
-            tests_left_n = 0
-            return
-        if isinstance(test_result, BrokenTestSuiteResult):
-            tests_in_case_count = len(test_result.test_case_names)
-            tests_left_n -= tests_in_case_count
-        else:
-            tests_left_n -= 1
 
 
 class TestScheduler:
