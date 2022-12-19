@@ -88,7 +88,7 @@ class AccountManager(MulticallAccountManagerProtocol, InvokeAccountManagerProtoc
     ) -> PayloadToAccountExecuteInvokeTx:
         await self._ensure_account_is_valid()
         try:
-            signed_tx = await self._account_client.sign_invoke_transaction(
+            payload = await self._account_client.sign_invoke_transaction(
                 calls=SNCall(
                     to_addr=int(unsigned_tx.address),
                     selector=int(unsigned_tx.selector),
@@ -101,11 +101,11 @@ class AccountManager(MulticallAccountManagerProtocol, InvokeAccountManagerProtoc
                 version=1,
             )
             return PayloadToAccountExecuteInvokeTx(
-                account_address=Address(signed_tx.contract_address),
-                account_execute_calldata=signed_tx.calldata,
-                max_fee=signed_tx.max_fee,
-                nonce=signed_tx.nonce,
-                signature=signed_tx.signature,
+                account_address=Address(payload.contract_address),
+                account_execute_calldata=payload.calldata,
+                max_fee=payload.max_fee,
+                nonce=payload.nonce,
+                signature=payload.signature,
             )
         except ClientError as ex:
             raise SigningException(message=ex.message) from ex

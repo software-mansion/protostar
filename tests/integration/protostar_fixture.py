@@ -131,6 +131,7 @@ class ProtostarFixture:
         account_address: Optional[Address] = None,
         gateway_url: Optional[str] = None,
         inputs: Optional[CairoOrPythonData] = None,
+        wait_for_acceptance: bool = False,
         max_fee: Optional[Fee] = None,
     ):
         args = Namespace()
@@ -142,7 +143,7 @@ class ProtostarFixture:
         args.token = None
         args.salt = None
         args.block_explorer = None
-        args.wait_for_acceptance = False
+        args.wait_for_acceptance = wait_for_acceptance
         args.chain_id = StarknetChainId.TESTNET
         args.signer_class = None
         args.private_key_path = None

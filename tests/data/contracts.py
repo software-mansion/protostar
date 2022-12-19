@@ -61,6 +61,15 @@ func increase_balance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
     return ();
 }
 
+@external
+func set_balance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    amount: Uint256
+) {
+    balance.write(amount);
+    return ();
+}
+
+
 @view
 func get_balance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (res: Uint256) {
     let (res) = balance.read();
