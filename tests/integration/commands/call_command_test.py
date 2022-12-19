@@ -231,5 +231,7 @@ async def test_json(
         logged_result = capsys.readouterr().out
 
     result = json.loads(logged_result)
-    assert result["raw"] == [21, 37]
-    assert result["transformed"]["res"] == 12590447576074723148144860474975423823893
+    assert result["raw_output"] == [21, 37]
+    assert (
+        result["transformed_output"]["res"] == 12590447576074723148144860474975423823893
+    )
