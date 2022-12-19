@@ -2,6 +2,7 @@ from typing import Optional, TYPE_CHECKING
 
 from protostar.starknet import from_python_transformer, to_python_transformer
 from protostar.starknet.address import Address
+from protostar.protostar_exception import ProtostarException
 
 from .call_structs import (
     CallInput,
@@ -10,7 +11,6 @@ from .call_structs import (
     HumanDataRepresentation,
     CairoDataRepresentation,
 )
-from .call_exceptions import AbiNotFoundException
 
 if TYPE_CHECKING:
     from protostar.starknet_gateway import GatewayFacade, AbiResolver
@@ -61,7 +61,7 @@ class CallUseCase:
     async def _resolve_abi_or_fail(self, address: Address):
         abi = await self._abi_resolver.resolve(address)
         if abi is None:
-            raise AbiNotFoundException(
+            raise ProtostarException(
                 message=(
                     f"Couldn't resolve ABI for address: {address}.\n"
                     "Provide ABI to use data transformer."
