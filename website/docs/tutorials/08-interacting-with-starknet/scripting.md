@@ -81,6 +81,10 @@ we get an output like this:
 {"class_hash":"0x07a70656b5612a2f87bd98af477c0be5fa2113d13fe1069e55ad326a3e6f4fe6","transaction_hash":"0x01f6a2c391d1bd0a51322ba73037ada20e0b30da8232bb86028f813a0d4c1fdb"} 
 ```
 
+:::note
+The `--json` output is, in fact, formatted in [NDJSON](https://github.com/ndjson/ndjson-spec), but here we operate on commands that return single outputs, therefore we can treat them as JSONs.
+:::
+
 Now, we can parse the json and pull all the desired information from it easily as json is a format that is widely supported.
 
 We could do something like this in our bash script:
