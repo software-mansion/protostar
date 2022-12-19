@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Any
 import json
 import math
 
@@ -15,9 +15,8 @@ from protostar.testing import (
     TestResult,
     UnexpectedBrokenTestSuiteResult,
 )
-from protostar.starknet.data_transformer import PythonData
 
-LogCallback = Callable[[str], None]
+JsonData = dict[str, Any]
 
 
 # pylint: disable=too-many-return-statements
@@ -61,7 +60,7 @@ def _format_passed_test_case_result(
 def _format_failed_test_case_result(
     failed_test_case_result: FailedTestCaseResult,
 ) -> str:
-    result: PythonData = {
+    result: JsonData = {
         "type": "test_case_result",
         "status": "failed",
         "test_suite_path": str(failed_test_case_result.file_path),
@@ -79,7 +78,7 @@ def _format_failed_test_case_result(
 def _format_broken_test_case_result(
     broken_test_case_result: BrokenTestCaseResult,
 ) -> str:
-    result: PythonData = {
+    result: JsonData = {
         "type": "test_case_result",
         "status": "broken",
         "test_suite_path": str(broken_test_case_result.file_path),
@@ -97,7 +96,7 @@ def _format_broken_test_case_result(
 def _format_passed_fuzz_test_case_result(
     passed_fuzz_test_case_result: PassedFuzzTestCaseResult,
 ) -> str:
-    result: PythonData = {
+    result: JsonData = {
         "type": "test_case_result",
         "status": "passed",
         "test_suite_path": str(passed_fuzz_test_case_result.file_path),
@@ -135,7 +134,7 @@ def _format_passed_fuzz_test_case_result(
 
 
 def _format_skipped_test_case_result(skipped_test_case_result: SkippedTestCaseResult):
-    result: PythonData = {
+    result: JsonData = {
         "type": "test_case_result",
         "status": "skipped",
         "test_suite_path": str(skipped_test_case_result.file_path),
@@ -164,7 +163,7 @@ def _format_broken_fuzz_test_case_result(
 def _format_broken_test_suite_result(
     broken_test_suite_result: BrokenTestSuiteResult,
 ) -> str:
-    result: PythonData = {
+    result: JsonData = {
         "type": "test_case_result",
         "status": "broken",
         "test_suite_path": str(broken_test_suite_result.file_path),
@@ -177,7 +176,7 @@ def _format_broken_test_suite_result(
 def _format_unexpected_exception_test_suite_result(
     unexpected_exception_test_suite_result: UnexpectedBrokenTestSuiteResult,
 ) -> str:
-    result: PythonData = {
+    result: JsonData = {
         "type": "test_case_result",
         "status": "unexpected_exception",
         "test_suite_path": str(unexpected_exception_test_suite_result.file_path),
