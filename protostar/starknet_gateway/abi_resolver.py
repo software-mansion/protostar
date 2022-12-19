@@ -14,10 +14,8 @@ from starknet_py.proxy.proxy_check import (
 
 from protostar.starknet import AbiType, Address
 
-from .call import AbiResolverProtocol
 
-
-class AbiResolver(AbiResolverProtocol):
+class AbiResolver:
     def __init__(self, client: Client) -> None:
         self._client = client
 
