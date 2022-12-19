@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from protostar.starknet import from_python_transformer, to_python_transformer
 from protostar.starknet.address import Address
@@ -10,15 +10,17 @@ from .call_structs import (
     HumanDataRepresentation,
     CairoDataRepresentation,
 )
-from .call_protocols import ClientProtocol, AbiResolverProtocol
 from .call_exceptions import AbiNotFoundException
+
+if TYPE_CHECKING:
+    from protostar.starknet_gateway import GatewayFacade, AbiResolver
 
 
 class CallUseCase:
     def __init__(
         self,
-        abi_resolver: AbiResolverProtocol,
-        client: ClientProtocol,
+        abi_resolver: "AbiResolver",
+        client: "GatewayFacade",
     ) -> None:
         self._client = client
         self._abi_resolver = abi_resolver
