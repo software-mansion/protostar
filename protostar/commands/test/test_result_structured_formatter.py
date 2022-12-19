@@ -1,6 +1,7 @@
-from typing import Any
-import json
+from typing import Any, Literal, Optional
 import math
+from dataclasses import dataclass
+from pathlib import Path
 
 from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
 from protostar.testing import (
@@ -15,12 +16,71 @@ from protostar.testing import (
     TestResult,
     UnexpectedBrokenTestSuiteResult,
 )
+from protostar.io import StructuredMessage, LogColorProvider
+from protostar.testing import OutputName
 
 JsonData = dict[str, Any]
 
 
+@dataclass
+# pylint: disable=too-many-instance-attributes
+class TestCaseResult(StructuredMessage):
+    status: Literal["passed", "failed", "broken", "skipped", "unexpected_exception"]
+    test_suite_path: Path
+
+    test_case_name: Optional[str] = None
+    execution_time_in_seconds: Optional[float] = None
+    exception: Optional[str] = None
+    stdout: Optional[dict[OutputName, str]] = None
+    traceback: Optional[str] = None
+    protostar_message: Optional[str] = None
+
+    fuzz_runs: Optional[int] = None
+    gas: Optional[str] = None
+    steps: Optional[str] = None
+    memory_holes: Optional[str] = None
+    builtins: Optional[list[JsonData]] = None
+
+    reason: Optional[str] = None
+
+    type: str = "test_case_result"
+
+    def format_human(self, fmt: LogColorProvider) -> str:
+        assert False, "Tests should use live logging for the human-readable output"
+
+    def format_dict(self) -> dict:
+        result = {
+            "type": self.type,
+            "status": self.status,
+            "test_suite_path": str(self.test_suite_path),
+        }
+        if self.test_case_name:
+            result["test_case_name"] = self.test_case_name
+        if self.execution_time_in_seconds:
+            result["execution_time_in_seconds"] = str(
+                get_formatted_execution_time(self.execution_time_in_seconds)
+            )
+        if self.exception:
+            result["exception"] = self.exception
+        if self.stdout:
+            result["stdout"] = str(self.stdout)
+        if self.traceback:
+            result["traceback"] = self.traceback
+        if self.fuzz_runs:
+            result["fuzz_runs"] = str(self.fuzz_runs)
+        if self.gas:
+            result["gas"] = self.gas
+        if self.steps:
+            result["steps"] = self.steps
+        if self.memory_holes:
+            result["memory_holes"] = self.memory_holes
+        if self.builtins:
+            result["builtins"] = str(self.builtins)
+        return result
+
+
 # pylint: disable=too-many-return-statements
-def format_test_result_structured(test_result: TestResult) -> str:
+def format_test_result_structured(test_result: TestResult) -> TestCaseResult:
     if isinstance(test_result, PassedFuzzTestCaseResult):
         return _format_passed_fuzz_test_case_result(test_result)
     if isinstance(test_result, FailedFuzzTestCaseResult):
@@ -44,7 +104,7 @@ def format_test_result_structured(test_result: TestResult) -> str:
 
 def _format_passed_test_case_result(
     passed_test_case_result: PassedTestCaseResult,
-) -> str:
+) -> TestCaseResult:
     return _format_passed_fuzz_test_case_result(
         PassedFuzzTestCaseResult(
             captured_stdout=passed_test_case_result.captured_stdout,
@@ -59,133 +119,106 @@ def _format_passed_test_case_result(
 
 def _format_failed_test_case_result(
     failed_test_case_result: FailedTestCaseResult,
-) -> str:
-    result: JsonData = {
-        "type": "test_case_result",
-        "status": "failed",
-        "test_suite_path": str(failed_test_case_result.file_path),
-        "test_case_name": failed_test_case_result.test_case_name,
-        "execution_time_in_seconds": get_formatted_execution_time(
-            failed_test_case_result.execution_time
-        ),
-        "exception": {"message": str(failed_test_case_result.exception)},
-        "stdout": failed_test_case_result.captured_stdout,
-    }
-
-    return json.dumps(result)
+) -> TestCaseResult:
+    return TestCaseResult(
+        status="failed",
+        test_suite_path=failed_test_case_result.file_path,
+        test_case_name=failed_test_case_result.test_case_name,
+        execution_time_in_seconds=failed_test_case_result.execution_time,
+        exception=str(failed_test_case_result.exception),
+        stdout=failed_test_case_result.captured_stdout,
+    )
 
 
 def _format_broken_test_case_result(
     broken_test_case_result: BrokenTestCaseResult,
-) -> str:
-    result: JsonData = {
-        "type": "test_case_result",
-        "status": "broken",
-        "test_suite_path": str(broken_test_case_result.file_path),
-        "test_case_name": broken_test_case_result.test_case_name,
-        "execution_time_in_seconds": get_formatted_execution_time(
-            broken_test_case_result.execution_time
-        ),
-        "exception": {"message": broken_test_case_result.exception},
-        "stdout": broken_test_case_result.captured_stdout,
-    }
-
-    return json.dumps(result)
+) -> TestCaseResult:
+    return TestCaseResult(
+        status="broken",
+        test_suite_path=broken_test_case_result.file_path,
+        test_case_name=broken_test_case_result.test_case_name,
+        execution_time_in_seconds=broken_test_case_result.execution_time,
+        exception=str(broken_test_case_result.exception),
+        stdout=broken_test_case_result.captured_stdout,
+    )
 
 
 def _format_passed_fuzz_test_case_result(
     passed_fuzz_test_case_result: PassedFuzzTestCaseResult,
-) -> str:
-    result: JsonData = {
-        "type": "test_case_result",
-        "status": "passed",
-        "test_suite_path": str(passed_fuzz_test_case_result.file_path),
-        "test_case_name": passed_fuzz_test_case_result.test_case_name,
-        "execution_time_in_seconds": get_formatted_execution_time(
-            passed_fuzz_test_case_result.execution_time
-        ),
-        "stdout": passed_fuzz_test_case_result.captured_stdout,
-    }
-
-    if passed_fuzz_test_case_result.fuzz_runs_count is not None:
-        result["fuzz_runs"] = passed_fuzz_test_case_result.fuzz_runs_count
+) -> TestCaseResult:
+    result = TestCaseResult(
+        status="passed",
+        test_suite_path=passed_fuzz_test_case_result.file_path,
+        test_case_name=passed_fuzz_test_case_result.test_case_name,
+        execution_time_in_seconds=passed_fuzz_test_case_result.execution_time,
+        stdout=passed_fuzz_test_case_result.captured_stdout,
+        fuzz_runs=passed_fuzz_test_case_result.fuzz_runs_count,
+    )
 
     if passed_fuzz_test_case_result.execution_resources:
         if passed_fuzz_test_case_result.execution_resources.estimated_gas is not None:
-            result[
-                "gas"
-            ] = passed_fuzz_test_case_result.execution_resources.estimated_gas
-        if passed_fuzz_test_case_result.execution_resources.n_steps:
-            result["steps"] = str(
-                passed_fuzz_test_case_result.execution_resources.n_steps
+            result.gas = str(
+                passed_fuzz_test_case_result.execution_resources.estimated_gas
             )
+        if passed_fuzz_test_case_result.execution_resources.n_steps:
+            result.steps = str(passed_fuzz_test_case_result.execution_resources.n_steps)
         if passed_fuzz_test_case_result.execution_resources.n_memory_holes:
-            result[
-                "memory_holes"
-            ] = passed_fuzz_test_case_result.execution_resources.n_memory_holes
+            result.memory_holes = str(
+                passed_fuzz_test_case_result.execution_resources.n_memory_holes
+            )
 
     if passed_fuzz_test_case_result.execution_resources:
-        result["builtins"] = [
-            {"name": name, "count": count}
+        result.builtins = [
+            {"name": name, "count": str(count)}
             for name, count in passed_fuzz_test_case_result.execution_resources.builtin_name_to_count_map.items()
         ]
 
-    return json.dumps(result)
+    return result
 
 
-def _format_skipped_test_case_result(skipped_test_case_result: SkippedTestCaseResult):
-    result: JsonData = {
-        "type": "test_case_result",
-        "status": "skipped",
-        "test_suite_path": str(skipped_test_case_result.file_path),
-        "test_case_name": skipped_test_case_result.test_case_name,
-    }
-
-    reason = skipped_test_case_result.reason
-    if reason is not None:
-        result["reason"] = reason
-
-    return json.dumps(result)
+def _format_skipped_test_case_result(
+    skipped_test_case_result: SkippedTestCaseResult,
+) -> TestCaseResult:
+    return TestCaseResult(
+        status="skipped",
+        test_suite_path=skipped_test_case_result.file_path,
+        test_case_name=skipped_test_case_result.test_case_name,
+        reason=skipped_test_case_result.reason,
+    )
 
 
 def _format_failed_fuzz_test_case_result(
     failed_fuzz_test_case_result: FailedFuzzTestCaseResult,
-) -> str:
+) -> TestCaseResult:
     return _format_failed_test_case_result(failed_fuzz_test_case_result)
 
 
 def _format_broken_fuzz_test_case_result(
     broken_fuzz_test_case_result: BrokenFuzzTestCaseResult,
-) -> str:
+) -> TestCaseResult:
     return _format_broken_test_case_result(broken_fuzz_test_case_result)
 
 
 def _format_broken_test_suite_result(
     broken_test_suite_result: BrokenTestSuiteResult,
-) -> str:
-    result: JsonData = {
-        "type": "test_case_result",
-        "status": "broken",
-        "test_suite_path": str(broken_test_suite_result.file_path),
-        "exception": broken_test_suite_result.exception,
-    }
-
-    return json.dumps(result)
+) -> TestCaseResult:
+    return TestCaseResult(
+        status="broken",
+        test_suite_path=broken_test_suite_result.file_path,
+        exception=str(broken_test_suite_result.exception),
+    )
 
 
 def _format_unexpected_exception_test_suite_result(
     unexpected_exception_test_suite_result: UnexpectedBrokenTestSuiteResult,
-) -> str:
-    result: JsonData = {
-        "type": "test_case_result",
-        "status": "unexpected_exception",
-        "test_suite_path": str(unexpected_exception_test_suite_result.file_path),
-        "traceback": unexpected_exception_test_suite_result.traceback,
-        "exception": str(unexpected_exception_test_suite_result.exception),
-        "protostar_message": UNEXPECTED_PROTOSTAR_ERROR_MSG,
-    }
-
-    return json.dumps(result)
+) -> TestCaseResult:
+    return TestCaseResult(
+        status="unexpected_exception",
+        test_suite_path=unexpected_exception_test_suite_result.file_path,
+        traceback=unexpected_exception_test_suite_result.traceback,
+        exception=str(unexpected_exception_test_suite_result.exception),
+        protostar_message=UNEXPECTED_PROTOSTAR_ERROR_MSG,
+    )
 
 
 def get_formatted_execution_time(execution_time: float) -> float:

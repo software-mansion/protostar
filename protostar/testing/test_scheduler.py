@@ -11,6 +11,7 @@ from protostar.testing import (
     BrokenTestSuiteResult,
     TestResult,
 )
+from protostar.io.output import Messenger
 
 from .test_collector import TestCollector
 from .test_runner import TestRunner
@@ -81,6 +82,7 @@ class TestScheduler:
         cwd: Path,
         active_profile_name: Optional[str],
         gas_estimation_enabled: bool,
+        messenger: Optional[Messenger] = None,
         structured_format: bool = False,
     ):
         with multiprocessing.Manager() as manager:
@@ -117,7 +119,10 @@ class TestScheduler:
                     results = pool.map_async(self._worker, setups)
 
                     self._live_logger.log(
-                        shared_tests_state, test_collector_result, structured_format
+                        shared_tests_state,
+                        test_collector_result,
+                        structured_format,
+                        messenger,
                     )
 
                     if exit_first and shared_tests_state.any_failed_or_broken():

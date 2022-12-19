@@ -15,6 +15,8 @@ from protostar.commands.test.test_command import TestCommand
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.testing import TestingSummary
+from protostar.cli import MessengerFactory
+
 from tests.conftest import TESTS_ROOT_PATH, run_devnet
 from tests.integration.protostar_fixture import (
     ProtostarFixture,
@@ -162,6 +164,14 @@ def run_test_runner_fixture(
                 for ignored_test_case in ignored_test_cases
             ]
 
+        def fake_indicator(s: str) -> ContextManager:
+            ...
+
+        messenger_factory = MessengerFactory(
+            log_color_provider=log_color_provider,
+            activity_indicator=fake_indicator,
+        )
+
         return await TestCommand(
             project_root_path=Path(),
             protostar_directory=protostar_directory_mock,
@@ -169,7 +179,7 @@ def run_test_runner_fixture(
             log_color_provider=log_color_provider,
             active_profile_name=None,
             cwd=Path(),
-            messenger_factory=None,
+            messenger_factory=messenger_factory,
         ).test(
             targets=targets,
             ignored_targets=ignored_targets,
@@ -179,6 +189,7 @@ def run_test_runner_fixture(
             disable_hint_validation=disable_hint_validation,
             cairo_path=cairo_path or [],
             use_cairo_test_runner=use_cairo_test_runner,
+            messenger=None,
         )
 
     return run_test_runner

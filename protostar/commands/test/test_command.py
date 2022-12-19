@@ -37,6 +37,7 @@ from protostar.testing import (
     determine_testing_seed,
 )
 from protostar.testing.cairo_test_runner import CairoTestRunner
+from protostar.io.output import Messenger
 from .test_result_structured_formatter import get_formatted_execution_time
 
 from .test_command_cache import TestCommandCache
@@ -51,7 +52,7 @@ class TestCommand(ProtostarCommand):
         log_color_provider: LogColorProvider,
         cwd: Path,
         active_profile_name: Optional[str],
-        messenger_factory: Optional[MessengerFactory],
+        messenger_factory: MessengerFactory,
     ) -> None:
         super().__init__()
         self._log_color_provider = log_color_provider
@@ -167,8 +168,9 @@ A glob or globs to a directory or a test suite, for example:
         ]
 
     async def run(self, args: Namespace) -> TestingSummary:
+        messenger = self._messenger_factory.from_args(args)
         cache = TestCommandCache(CacheIO(self._project_root_path))
-        structured_format = args.json if hasattr(args, "json") else False
+        structured_format = bool(args.json)
         summary = await self.test(
             targets=cache.obtain_targets(args.target, args.last_failed),
             ignored_targets=args.ignore,
@@ -183,6 +185,7 @@ A glob or globs to a directory or a test suite, for example:
             slowest_tests_to_report_count=args.report_slowest_tests,
             gas_estimation_enabled=args.estimate_gas,
             structured_format=structured_format,
+            messenger=messenger,
         )
         cache.write_failed_tests_to_cache(summary)
 
@@ -205,6 +208,7 @@ A glob or globs to a directory or a test suite, for example:
         slowest_tests_to_report_count: int = 0,
         gas_estimation_enabled: bool = False,
         structured_format: bool = False,
+        messenger: Optional[Messenger] = None,
     ) -> TestingSummary:
         include_paths = [
             str(path)
@@ -303,6 +307,7 @@ A glob or globs to a directory or a test suite, for example:
                 cwd=self._cwd,
                 gas_estimation_enabled=gas_estimation_enabled,
                 structured_format=structured_format,
+                messenger=messenger,
             )
 
         return testing_summary

@@ -1,7 +1,7 @@
 import json
 import queue
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, cast, Optional
 import math
 from tqdm import tqdm as bar
 
@@ -18,6 +18,7 @@ from protostar.testing import (
     calculate_skipped,
 )
 from protostar.starknet.data_transformer import PythonData
+from protostar.io.output import Messenger
 
 if TYPE_CHECKING:
     from protostar.testing import TestCollector
@@ -101,8 +102,8 @@ class TestingLiveLogger:
         shared_tests_state: SharedTestsState,
         test_collector_result: "TestCollector.Result",
         structured_format: bool,
+        messanger: Optional[Messenger] = None,
     ):
-
         try:
             with bar(
                 total=test_collector_result.test_cases_count,
@@ -129,13 +130,11 @@ class TestingLiveLogger:
                             test_result, self._project_root_path
                         )
 
-                        if structured_format:
-                            formatter = format_test_result_structured
+                        if structured_format and messanger:
+                            messanger(format_test_result_structured(test_result))
                         else:
-                            formatter = format_test_result
-
-                        formatted_test_result = formatter(test_result)
-                        progress_bar.write(formatted_test_result)
+                            formatted_test_result = format_test_result(test_result)
+                            progress_bar.write(formatted_test_result)
 
                         if (
                             self.exit_first
