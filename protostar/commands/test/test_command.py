@@ -262,16 +262,16 @@ A glob or globs to a directory or a test suite, for example:
             )
 
         if structured_format:
-            test_cases_count = 0
-            for test_suite in test_collector_result.test_suites:
-                test_cases_count += len(test_suite.test_cases)
             collected_tests = {
                 "type": "test_collector_result",
                 "broken_test_suites_count": len(
                     test_collector_result.broken_test_suites
                 ),
                 "test_suites_count": len(test_collector_result.test_suites),
-                "test_cases_count": test_cases_count,
+                "test_cases_count": sum(
+                    len(test_suite.test_cases)
+                    for test_suite in test_collector_result.test_suites
+                ),
                 "duration_in_seconds": get_formatted_execution_time(
                     test_collector_result.duration
                 ),
