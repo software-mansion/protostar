@@ -10,6 +10,7 @@ from protostar.starknet_gateway.gateway_facade import TransactionException
 from protostar.starknet.data_transformer import CairoOrPythonData
 
 
+
 @pytest.fixture(name="protostar", scope="module")
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
     with create_protostar_project() as protostar:
