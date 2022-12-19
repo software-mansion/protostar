@@ -168,9 +168,12 @@ A glob or globs to a directory or a test suite, for example:
         ]
 
     async def run(self, args: Namespace) -> TestingSummary:
-        messenger = self._messenger_factory.from_args(args)
+        messenger = None
+        structured_format = False
+        if vars(args).get("json"):
+            messenger = self._messenger_factory.from_args(args)
+            structured_format = args.json
         cache = TestCommandCache(CacheIO(self._project_root_path))
-        structured_format = bool(args.json)
         summary = await self.test(
             targets=cache.obtain_targets(args.target, args.last_failed),
             ignored_targets=args.ignore,
