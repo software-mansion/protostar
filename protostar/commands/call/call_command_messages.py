@@ -21,8 +21,8 @@ class SuccessfulCallMessage(StructuredMessage):
 
     def format_dict(self) -> dict:
         return {
-            "raw": self.call_output.cairo_data,
-            "transformed": self.call_output.human_data,
+            "raw_output": self.call_output.cairo_data,
+            "transformed_output": self.call_output.human_data,
         }
 
     def _get_response_as_json(self) -> str:
