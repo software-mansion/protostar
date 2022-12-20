@@ -21,63 +21,6 @@ from protostar.testing import OutputName
 JsonData = dict[str, Any]
 
 
-@dataclass
-# pylint: disable=too-many-instance-attributes
-class TestCaseResultMessage(StructuredMessage):
-    status: Literal["passed", "failed", "broken", "skipped", "unexpected_exception"]
-    test_suite_path: Path
-
-    test_case_name: Optional[str] = None
-    execution_time_in_seconds: Optional[float] = None
-    exception: Optional[str] = None
-    stdout: Optional[dict[OutputName, str]] = None
-    traceback: Optional[str] = None
-    protostar_message: Optional[str] = None
-
-    fuzz_runs: Optional[int] = None
-    gas: Optional[str] = None
-    steps: Optional[str] = None
-    memory_holes: Optional[str] = None
-    builtins: Optional[list[JsonData]] = None
-
-    reason: Optional[str] = None
-
-    type: str = "test_case_result"
-
-    def format_human(self, fmt: LogColorProvider) -> str:
-        assert False, "Tests should use live logging for the human-readable output"
-
-    def format_dict(self) -> dict:
-        result = {
-            "type": self.type,
-            "status": self.status,
-            "test_suite_path": str(self.test_suite_path),
-        }
-        if self.test_case_name:
-            result["test_case_name"] = self.test_case_name
-        if self.execution_time_in_seconds:
-            result["execution_time_in_seconds"] = get_formatted_execution_time(
-                self.execution_time_in_seconds
-            )
-        if self.exception:
-            result["exception"] = self.exception
-        if self.stdout:
-            result["stdout"] = str(self.stdout)
-        if self.traceback:
-            result["traceback"] = self.traceback
-        if self.fuzz_runs:
-            result["fuzz_runs"] = str(self.fuzz_runs)
-        if self.gas:
-            result["gas"] = self.gas
-        if self.steps:
-            result["steps"] = self.steps
-        if self.memory_holes:
-            result["memory_holes"] = self.memory_holes
-        if self.builtins:
-            result["builtins"] = str(self.builtins)
-        return result
-
-
 # pylint: disable=too-many-return-statements
 def format_test_result_structured(test_result: TestResult) -> TestCaseResultMessage:
     if isinstance(test_result, PassedFuzzTestCaseResult):
@@ -219,6 +162,3 @@ def _format_unexpected_exception_test_suite_result(
         protostar_message=UNEXPECTED_PROTOSTAR_ERROR_MSG,
     )
 
-
-def get_formatted_execution_time(execution_time: float) -> str:
-    return f"{execution_time:.2f}"

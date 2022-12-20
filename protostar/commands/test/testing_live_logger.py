@@ -129,7 +129,7 @@ class TestingLiveLogger:
                         test_result = make_path_relative_if_possible(
                             test_result, self._project_root_path
                         )
-
+                        # here tutaj
                         if structured_format and messanger:
                             messanger(format_test_result_structured(test_result))
                         else:
