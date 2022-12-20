@@ -130,6 +130,7 @@ class TestSuitePassMangerFactory(ProtostarPassMangerFactory):
         )
         return manager
 
+
 # pylint: disable=abstract-method
 class ProtostarPreprocessor(StarknetPreprocessor):
     """
@@ -182,6 +183,7 @@ class TestCollectorPreprocessor(Visitor):
     This preprocessor generates simpler and more limited ABI in exchange for performance.
     ABI includes only function types with only names.
     """
+
     # pylint: disable=unused-argument
     def __init__(self, context: PassManagerContext):
         super().__init__()
