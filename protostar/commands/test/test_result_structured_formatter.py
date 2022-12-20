@@ -23,7 +23,7 @@ JsonData = dict[str, Any]
 
 @dataclass
 # pylint: disable=too-many-instance-attributes
-class TestCaseResult(StructuredMessage):
+class TestCaseResultMessage(StructuredMessage):
     status: Literal["passed", "failed", "broken", "skipped", "unexpected_exception"]
     test_suite_path: Path
 
@@ -79,7 +79,7 @@ class TestCaseResult(StructuredMessage):
 
 
 # pylint: disable=too-many-return-statements
-def format_test_result_structured(test_result: TestResult) -> TestCaseResult:
+def format_test_result_structured(test_result: TestResult) -> TestCaseResultMessage:
     if isinstance(test_result, PassedFuzzTestCaseResult):
         return _format_passed_fuzz_test_case_result(test_result)
     if isinstance(test_result, FailedFuzzTestCaseResult):
@@ -103,7 +103,7 @@ def format_test_result_structured(test_result: TestResult) -> TestCaseResult:
 
 def _format_passed_test_case_result(
     passed_test_case_result: PassedTestCaseResult,
-) -> TestCaseResult:
+) -> TestCaseResultMessage:
     return _format_passed_fuzz_test_case_result(
         PassedFuzzTestCaseResult(
             captured_stdout=passed_test_case_result.captured_stdout,
@@ -118,8 +118,8 @@ def _format_passed_test_case_result(
 
 def _format_failed_test_case_result(
     failed_test_case_result: FailedTestCaseResult,
-) -> TestCaseResult:
-    return TestCaseResult(
+) -> TestCaseResultMessage:
+    return TestCaseResultMessage(
         status="failed",
         test_suite_path=failed_test_case_result.file_path,
         test_case_name=failed_test_case_result.test_case_name,
@@ -131,8 +131,8 @@ def _format_failed_test_case_result(
 
 def _format_broken_test_case_result(
     broken_test_case_result: BrokenTestCaseResult,
-) -> TestCaseResult:
-    return TestCaseResult(
+) -> TestCaseResultMessage:
+    return TestCaseResultMessage(
         status="broken",
         test_suite_path=broken_test_case_result.file_path,
         test_case_name=broken_test_case_result.test_case_name,
@@ -144,8 +144,8 @@ def _format_broken_test_case_result(
 
 def _format_passed_fuzz_test_case_result(
     passed_fuzz_test_case_result: PassedFuzzTestCaseResult,
-) -> TestCaseResult:
-    result = TestCaseResult(
+) -> TestCaseResultMessage:
+    result = TestCaseResultMessage(
         status="passed",
         test_suite_path=passed_fuzz_test_case_result.file_path,
         test_case_name=passed_fuzz_test_case_result.test_case_name,
@@ -177,8 +177,8 @@ def _format_passed_fuzz_test_case_result(
 
 def _format_skipped_test_case_result(
     skipped_test_case_result: SkippedTestCaseResult,
-) -> TestCaseResult:
-    return TestCaseResult(
+) -> TestCaseResultMessage:
+    return TestCaseResultMessage(
         status="skipped",
         test_suite_path=skipped_test_case_result.file_path,
         test_case_name=skipped_test_case_result.test_case_name,
@@ -188,20 +188,20 @@ def _format_skipped_test_case_result(
 
 def _format_failed_fuzz_test_case_result(
     failed_fuzz_test_case_result: FailedFuzzTestCaseResult,
-) -> TestCaseResult:
+) -> TestCaseResultMessage:
     return _format_failed_test_case_result(failed_fuzz_test_case_result)
 
 
 def _format_broken_fuzz_test_case_result(
     broken_fuzz_test_case_result: BrokenFuzzTestCaseResult,
-) -> TestCaseResult:
+) -> TestCaseResultMessage:
     return _format_broken_test_case_result(broken_fuzz_test_case_result)
 
 
 def _format_broken_test_suite_result(
     broken_test_suite_result: BrokenTestSuiteResult,
-) -> TestCaseResult:
-    return TestCaseResult(
+) -> TestCaseResultMessage:
+    return TestCaseResultMessage(
         status="broken",
         test_suite_path=broken_test_suite_result.file_path,
         exception=str(broken_test_suite_result.exception),
@@ -210,8 +210,8 @@ def _format_broken_test_suite_result(
 
 def _format_unexpected_exception_test_suite_result(
     unexpected_exception_test_suite_result: UnexpectedBrokenTestSuiteResult,
-) -> TestCaseResult:
-    return TestCaseResult(
+) -> TestCaseResultMessage:
+    return TestCaseResultMessage(
         status="unexpected_exception",
         test_suite_path=unexpected_exception_test_suite_result.file_path,
         traceback=unexpected_exception_test_suite_result.traceback,
