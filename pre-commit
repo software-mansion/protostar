@@ -1,5 +1,12 @@
 #!/bin/sh
 
-poetry run poe type_check
-poetry run poe format_check
-poetry run poe lint
+STAGED_FILES=$(git diff --name-only --cached)
+
+if [ -z "${STAGED_FILES}" ]; then
+  echo "no staged files, exiting";
+  exit 0;
+fi
+
+poetry run poe type_check $STAGED_FILES
+poetry run poe format_check_selected $STAGED_FILES
+poetry run poe lint_selected $STAGED_FILES

@@ -66,7 +66,9 @@ deploy_prerelease = "python ./scripts/deploy_prerelease.py"
 devnet = "starknet-devnet"
 format = "black ."
 format_check = "black --check protostar"
-lint = "pylint **/*.py"
+lint = "pylint protostar"
+format_check_selected = "black --check"
+lint_selected = "pylint"
 local_static_check = [
     "format",
     "lint",
