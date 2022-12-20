@@ -5,8 +5,7 @@ import pytest
 from tests.conftest import DevnetAccount, SetPrivateKeyEnvVarFixture
 from tests.data.contracts import CONTRACT_WITH_UINT256_CONSTRUCTOR
 from tests.integration.conftest import CreateProtostarProjectFixture
-from tests.integration.protostar_fixture import ProtostarFixture
-
+from tests.integration._conftest import ProtostarFixture
 from protostar.starknet_gateway.gateway_facade import TransactionException
 from protostar.starknet.data_transformer import CairoOrPythonData
 

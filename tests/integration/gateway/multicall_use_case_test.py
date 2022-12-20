@@ -17,7 +17,7 @@ from protostar.starknet_gateway.multicall import (
 from tests._conftest.devnet import DevnetFixture
 from tests.conftest import SetPrivateKeyEnvVarFixture
 from tests.integration.conftest import CreateProtostarProjectFixture
-from tests.integration.protostar_fixture import ProtostarFixture
+from tests.integration._conftest import ProtostarFixture
 
 
 @pytest.fixture(name="starknet_client")

@@ -22,7 +22,7 @@ from tests._conftest.devnet import DevnetAccount, DevnetFixture
 from tests.conftest import MAX_FEE, TESTS_ROOT_PATH, SetPrivateKeyEnvVarFixture
 from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR, IDENTITY_CONTRACT
 from tests.integration.conftest import CreateProtostarProjectFixture
-from tests.integration.protostar_fixture import (
+from tests.integration._conftest import (
     GatewayClientTxInterceptor,
     ProtostarFixture,
     TransactionRegistry,

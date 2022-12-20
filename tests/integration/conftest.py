@@ -16,10 +16,7 @@ from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilde
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.testing import TestingSummary
 from tests.conftest import TESTS_ROOT_PATH, run_devnet
-from tests.integration.protostar_fixture import (
-    ProtostarFixture,
-    build_protostar_fixture,
-)
+from tests.integration._conftest import ProtostarFixture, build_protostar_fixture
 
 
 @dataclass
