@@ -7,7 +7,6 @@ from protostar.protostar_exception import ProtostarException
 from .call_structs import (
     CallInput,
     CallOutput,
-    CallPayload,
     HumanDataRepresentation,
     CairoDataRepresentation,
 )
@@ -27,18 +26,17 @@ class CallUseCase:
 
     async def execute(self, input_data: CallInput) -> CallOutput:
         cairo_calldata = await self._transform_calldata_if_necessary(input_data)
-        payload = CallPayload(
+        response_data = await self._client.send_call(
             address=input_data.address,
             selector=input_data.selector,
             cairo_calldata=cairo_calldata,
         )
-        response = await self._client.send_call(payload)
         response_human_data = await self._try_transforming_response_data(
-            response_data=response.cairo_data,
+            response_data=response_data,
             input_data=input_data,
         )
         return CallOutput(
-            cairo_data=response.cairo_data,
+            cairo_data=response_data,
             human_data=response_human_data,
         )
 
