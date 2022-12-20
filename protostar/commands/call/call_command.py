@@ -84,7 +84,9 @@ class CallCommand(ProtostarCommand):
     ) -> SuccessfulCallMessage:
         gateway_facade = self._gateway_facade_factory.create(gateway_client)
         abi_resolver = AbiResolver(client=gateway_client)
-        call_use_case = CallUseCase(client=gateway_facade, abi_resolver=abi_resolver)
+        call_use_case = CallUseCase(
+            gateway_facade=gateway_facade, abi_resolver=abi_resolver
+        )
         response = await call_use_case.execute(
             CallInput(
                 address=contract_address,

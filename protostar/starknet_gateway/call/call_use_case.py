@@ -19,14 +19,14 @@ class CallUseCase:
     def __init__(
         self,
         abi_resolver: "AbiResolver",
-        client: "GatewayFacade",
+        gateway_facade: "GatewayFacade",
     ) -> None:
-        self._client = client
+        self._gateway_facade = gateway_facade
         self._abi_resolver = abi_resolver
 
     async def execute(self, input_data: CallInput) -> CallOutput:
         cairo_calldata = await self._transform_calldata_if_necessary(input_data)
-        response_data = await self._client.send_call(
+        response_data = await self._gateway_facade.send_call(
             address=input_data.address,
             selector=input_data.selector,
             cairo_calldata=cairo_calldata,
