@@ -159,6 +159,7 @@ def protostar(
             stderr=DEVNULL if ignore_stderr else STDOUT,
             encoding="utf-8",
             env=env,
+            check=False,
         )
 
         if not ignore_exit_code:

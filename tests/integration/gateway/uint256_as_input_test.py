@@ -6,7 +6,6 @@ from tests.conftest import DevnetAccount, SetPrivateKeyEnvVarFixture
 from tests.data.contracts import CONTRACT_WITH_UINT256_CONSTRUCTOR
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.protostar_fixture import ProtostarFixture
-
 from protostar.starknet_gateway.gateway_facade import TransactionException
 from protostar.starknet.data_transformer import CairoOrPythonData
 
@@ -78,7 +77,7 @@ async def test_uint256_as_input_fail(
         )
 
         with pytest.raises(TransactionException):
-            response = await protostar.deploy(
+            await protostar.deploy(
                 class_hash=declare_response.class_hash,
                 gateway_url=devnet_gateway_url,
                 account_address=devnet_account.address,

@@ -433,6 +433,7 @@ class TestFriendlyGatewayFacadeFactory(GatewayFacadeFactory):
 
 
 @contextmanager
+# pylint: disable=unused-argument
 def fake_activity_indicator(message: str) -> Generator[None, None, None]:
     yield
 

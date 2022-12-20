@@ -1,9 +1,15 @@
 import pytest
 
 from protostar.self.cache_io import CacheIO
+from protostar.protostar_exception import ProtostarException
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.protostar_fixture import ProtostarFixture
-from tests.data.tests import *
+from tests.data.tests import (
+    TEST_BROKEN,
+    TEST_FAILING,
+    TEST_PARTIALLY_PASSING,
+    TEST_PASSING,
+)
 
 
 @pytest.fixture(name="protostar")
@@ -34,7 +40,7 @@ async def test_execute_all_tests(
             ],
             last_failed=True,
         )
-    except Exception as e:
+    except ProtostarException as e:
         assert str(e) == "Not all test cases passed"
 
     expected_tests_results = {

@@ -1,56 +1,35 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING, Any
-from starkware.starknet.public.abi_structs import (
-    prepare_type_for_abi,
-)
+
+from starkware.starknet.public.abi_structs import prepare_type_for_abi
 from starkware.cairo.lang.compiler.ast.code_elements import (
     CodeElementFunction,
+    CodeElement,
+    CodeBlock,
 )
 from starkware.starknet.compiler.starknet_preprocessor import StarknetPreprocessor
-
 from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
-from starkware.cairo.lang.compiler.ast.code_elements import CodeElementFunction
 from starkware.cairo.lang.compiler.cairo_compile import get_module_reader
 from starkware.cairo.lang.compiler.preprocessor.pass_manager import (
     PassManager,
     PassManagerContext,
+    VisitorStage,
 )
 from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_manager
-
-
 from starkware.cairo.lang.compiler.preprocessor.default_pass_manager import (
     PreprocessorStage,
     default_pass_manager,
-)
-from starkware.starknet.security.hints_whitelist import get_hints_whitelist
-
-
-from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
-from starkware.cairo.lang.compiler.cairo_compile import get_module_reader
-from starkware.cairo.lang.compiler.preprocessor.pass_manager import (
-    PassManager,
-    VisitorStage,
-)
-from starkware.cairo.lang.compiler.preprocessor.default_pass_manager import (
     ModuleCollector,
 )
+from starkware.starknet.security.hints_whitelist import get_hints_whitelist
 from starkware.starknet.compiler.external_wrapper import (
     parse_entry_point_decorators,
-)
-from starkware.starknet.public.abi import AbiType
-
-from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_manager
-from starkware.cairo.lang.compiler.ast.code_elements import (
-    CodeElementFunction,
-    CodeElement,
-)
-from starkware.cairo.lang.compiler.ast.visitor import Visitor
-from starkware.starknet.compiler.external_wrapper import (
     get_abi_entry_type,
     CONSTRUCTOR_DECORATOR,
 )
-from starkware.cairo.lang.compiler.ast.code_elements import CodeBlock
+from starkware.starknet.public.abi import AbiType
+from starkware.cairo.lang.compiler.ast.visitor import Visitor
 
 if TYPE_CHECKING:
     from protostar.starknet.compiler.common import CompilerConfig
@@ -151,7 +130,7 @@ class TestSuitePassMangerFactory(ProtostarPassMangerFactory):
         )
         return manager
 
-
+# pylint: disable=abstract-method
 class ProtostarPreprocessor(StarknetPreprocessor):
     """
     This preprocessor includes types used in contracts storage variables in ABI
@@ -203,7 +182,7 @@ class TestCollectorPreprocessor(Visitor):
     This preprocessor generates simpler and more limited ABI in exchange for performance.
     ABI includes only function types with only names.
     """
-
+    # pylint: disable=unused-argument
     def __init__(self, context: PassManagerContext):
         super().__init__()
         self.abi: AbiType = []
@@ -243,6 +222,7 @@ class PrepareTestCaseVisitor(Visitor):
     This preprocessor removes constructors from module.
     """
 
+    # pylint: disable=unused-argument
     def __init__(self, context: PassManagerContext):
         super().__init__()
 

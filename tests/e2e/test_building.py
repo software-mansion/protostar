@@ -1,7 +1,7 @@
+import json
 from os import listdir
 from pathlib import Path
 from textwrap import dedent
-import json
 
 import pytest
 
@@ -10,7 +10,7 @@ from tests.e2e.conftest import MyPrivateLibsSetupFixture, ProtostarFixture
 
 @pytest.mark.usefixtures("init")
 def test_default_build(protostar: ProtostarFixture):
-    r = protostar(["build"])
+    protostar(["build"])
     dirs = listdir()
     assert "build" in dirs
 
@@ -143,7 +143,7 @@ def test_disable_hint_validation(protostar: ProtostarFixture):
         dedent(
             """
             %lang starknet
-            
+
             @view
             func use_hint() {
                 tempvar x;
@@ -152,7 +152,7 @@ def test_disable_hint_validation(protostar: ProtostarFixture):
                     ids.x = 42
                 %}
                 assert x = 42;
-            
+
                 return ();
             }
             """
@@ -173,17 +173,17 @@ def test_building_account_contract(protostar: ProtostarFixture):
         dedent(
             """
             %lang starknet
-            
+
             @external
             func __validate__() {
                 return ();
             }
-            
+
             @external
             func __validate_declare__(class_hash: felt) {
                 return ();
             }
-            
+
             @external
             func __execute__() {
                 return ();

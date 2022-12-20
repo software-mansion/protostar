@@ -1,12 +1,7 @@
 from pathlib import Path
 
-import pytest
-
 from protostar.testing.test_results import PassedFuzzTestCaseResult
-from tests.integration.conftest import (
-    RunTestRunnerFixture,
-    assert_cairo_test_cases,
-)
+from tests.integration.conftest import RunTestRunnerFixture, assert_cairo_test_cases
 
 
 async def test_integers(

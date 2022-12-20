@@ -1,11 +1,6 @@
 from pathlib import Path
 
-import pytest
-
-from tests.integration.conftest import (
-    RunTestRunnerFixture,
-    assert_cairo_test_cases,
-)
+from tests.integration.conftest import RunTestRunnerFixture, assert_cairo_test_cases
 
 
 async def test_expect_call(run_test_runner: RunTestRunnerFixture):
