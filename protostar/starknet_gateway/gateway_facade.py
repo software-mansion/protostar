@@ -164,6 +164,15 @@ class GatewayFacade(MulticallClientProtocol):
         except TransactionFailedError as ex:
             raise TransactionException(str(ex)) from ex
         except ClientError as ex:
+            account_address_hex = hex(int(account_address))
+            if (
+                ex.code == "500"
+                and f"Requested contract address {account_address_hex} is not deployed"
+                in ex.message
+            ):
+                raise TransactionException(
+                    f"Account {account_address_hex} is not deployed"
+                ) from ex
             raise TransactionException(str(ex)) from ex
 
     async def deploy_account(
