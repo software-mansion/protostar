@@ -30,17 +30,13 @@ class InvokeUseCase:
                 abi=input_data.abi,
             )
         )
-        payload_to_account_execute = (
-            await self._account_manager.prepare_execute_payload_from_unsigned_invoke_tx(
-                address=input_data.address,
-                selector=input_data.selector,
-                calldata=cairo_calldata,
-                max_fee=input_data.max_fee,
-            )
+        prepared_invoke_tx = await self._account_manager.prepare_invoke_transaction(
+            address=input_data.address,
+            selector=input_data.selector,
+            calldata=cairo_calldata,
+            max_fee=input_data.max_fee,
         )
-        transaction_hash = await self._account_manager.execute(
-            payload_to_account_execute
-        )
+        transaction_hash = await self._account_manager.execute(prepared_invoke_tx)
         return InvokeOutput(
             transaction_hash=transaction_hash,
         )

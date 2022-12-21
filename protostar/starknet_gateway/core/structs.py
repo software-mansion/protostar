@@ -7,7 +7,7 @@ from .types import Wei
 
 
 @dataclass
-class PayloadToAccountExecuteInvokeTx:
+class PreparedInvokeTransaction:
     account_address: Address
     account_execute_calldata: CairoDataRepresentation
     max_fee: Wei

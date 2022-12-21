@@ -10,7 +10,7 @@ from protostar.starknet import Address, TransactionHash
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet.selector import Selector
 from protostar.starknet.types import CairoDataRepresentation
-from protostar.starknet_gateway.core import PayloadToAccountExecuteInvokeTx
+from protostar.starknet_gateway.core import PreparedInvokeTransaction
 from protostar.starknet_gateway.multicall import (
     SignedMulticallTransaction,
     MulticallAccountManagerProtocol,
@@ -79,16 +79,16 @@ class AccountManager(MulticallAccountManagerProtocol):
         except ClientError as ex:
             raise SigningException(message=ex.message) from ex
 
-    async def prepare_execute_payload_from_unsigned_invoke_tx(
+    async def prepare_invoke_transaction(
         self,
         address: Address,
         selector: Selector,
         calldata: CairoDataRepresentation,
         max_fee: Fee,
-    ) -> PayloadToAccountExecuteInvokeTx:
+    ) -> PreparedInvokeTransaction:
         await self._ensure_account_is_valid()
         try:
-            payload = await self._account_client.sign_invoke_transaction(
+            signed_tx = await self._account_client.sign_invoke_transaction(
                 calls=SNCall(
                     to_addr=int(address),
                     selector=int(selector),
@@ -98,12 +98,12 @@ class AccountManager(MulticallAccountManagerProtocol):
                 auto_estimate=max_fee == "auto",
                 version=1,
             )
-            return PayloadToAccountExecuteInvokeTx(
-                account_address=Address(payload.contract_address),
-                account_execute_calldata=payload.calldata,
-                max_fee=payload.max_fee,
-                nonce=payload.nonce,
-                signature=payload.signature,
+            return PreparedInvokeTransaction(
+                account_address=Address(signed_tx.contract_address),
+                account_execute_calldata=signed_tx.calldata,
+                max_fee=signed_tx.max_fee,
+                nonce=signed_tx.nonce,
+                signature=signed_tx.signature,
             )
         except ClientError as ex:
             raise SigningException(message=ex.message) from ex
@@ -118,9 +118,9 @@ class AccountManager(MulticallAccountManagerProtocol):
             )
 
     async def execute(
-        self, payload: PayloadToAccountExecuteInvokeTx
+        self, prepared_invoke_tx: PreparedInvokeTransaction
     ) -> TransactionHash:
-        return await self._client.send_payload_to_account_execute(payload)
+        return await self._client.send_payload_to_account_execute(prepared_invoke_tx)
 
 
 class UnsupportedAccountVersionException(ProtostarException):
