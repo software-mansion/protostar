@@ -1,10 +1,13 @@
 import pytest
 
 from protostar.protostar_exception import ProtostarException
-from protostar.starknet_gateway.gateway_facade import InputValidationException
+from protostar.starknet.data_transformer import CairoOrPythonData
 from tests._conftest.devnet import DevnetFixture
 from tests.conftest import DevnetAccount, SetPrivateKeyEnvVarFixture
-from tests.data.contracts import RUNTIME_ERROR_CONTRACT
+from tests.data.contracts import (
+    RUNTIME_ERROR_CONTRACT,
+    CONTRACT_WITH_UINT256_CONSTRUCTOR,
+)
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration._conftest import ProtostarFixture
 
@@ -72,6 +75,55 @@ async def test_invoke(
     assert transaction.version == 1
 
 
+@pytest.mark.parametrize("new_value", [[42, 0], {"amount": 42}])
+async def test_invoke_uint256_(
+    protostar: ProtostarFixture,
+    devnet_account: DevnetAccount,
+    devnet: DevnetFixture,
+    set_private_key_env_var: SetPrivateKeyEnvVarFixture,
+    new_value: CairoOrPythonData,
+):
+    protostar.create_files({"src/main.cairo": CONTRACT_WITH_UINT256_CONSTRUCTOR})
+    await protostar.build()
+    with set_private_key_env_var(devnet_account.private_key):
+        declare_response = await protostar.declare(
+            contract=protostar.project_root_path / "build" / "main.json",
+            gateway_url=devnet.get_gateway_url(),
+            max_fee="auto",
+            account_address=devnet_account.address,
+            wait_for_acceptance=True,
+        )
+        deploy_response = await protostar.deploy(
+            class_hash=declare_response.class_hash,
+            gateway_url=devnet.get_gateway_url(),
+            max_fee="auto",
+            account_address=devnet_account.address,
+            inputs=[0, 0],
+            wait_for_acceptance=True,
+        )
+
+        await protostar.invoke(
+            contract_address=deploy_response.address,
+            function_name="set_balance",
+            inputs=new_value,
+            max_fee="auto",
+            account_address=devnet_account.address,
+            wait_for_acceptance=True,
+            gateway_url=devnet.get_gateway_url(),
+        )
+
+    result = await protostar.call(
+        contract_address=deploy_response.address,
+        function_name="get_balance",
+        gateway_url=devnet.get_gateway_url(),
+        inputs=[],
+    )
+
+    assert result.call_output.cairo_data == [42, 0]
+    assert result.call_output.human_data is not None
+    assert result.call_output.human_data["res"] == 42
+
+
 async def test_invoke_args_dict(
     protostar: ProtostarFixture,
     devnet_gateway_url: str,
@@ -105,7 +157,7 @@ async def test_invoke_args_dict_fail(
         deploy_response = await deploy_main_contract(
             protostar, devnet_gateway_url, devnet_account
         )
-        with pytest.raises(InputValidationException):
+        with pytest.raises(ProtostarException):
             await protostar.invoke(
                 contract_address=deploy_response.address,
                 function_name="increase_balance",
