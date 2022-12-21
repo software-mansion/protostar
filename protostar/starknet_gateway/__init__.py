@@ -19,11 +19,6 @@ from .block_explorer import (
     FakeBlockExplorer,
 )
 from .gateway_facade_factory import GatewayFacadeFactory
-from .gateway_response import SuccessfulInvokeResponse
-from .contract_function_factory import (
-    ContractNotFoundException,
-    UnknownFunctionException,
-)
 from .account_manager import AccountManager, Account
 from .abi_resolver import AbiResolver
 from .data_transformer_policy import DataTransformerPolicy

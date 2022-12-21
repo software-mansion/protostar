@@ -284,17 +284,25 @@ class GatewayFacade(MulticallClientProtocol):
         self,
         address: Address,
         selector: Selector,
-        cairo_calldata: CairoData,
+        cairo_calldata: Optional[CairoData] = None,
     ) -> CairoData:
         try:
             return await self._gateway_client.call_contract(
                 call=Call(
                     to_addr=int(address),
                     selector=int(selector),
-                    calldata=cairo_calldata,
+                    calldata=cairo_calldata or [],
                 )
             )
         except ClientError as ex:
+            if "ENTRY_POINT_NOT_FOUND_IN_CONTRACT" in ex.message:
+                raise TransactionException(
+                    message=f'Entry point "{selector}" not found in the contract with address "{address}"'
+                ) from ex
+            if "UNINITIALIZED_CONTRACT" in ex.message:
+                raise TransactionException(
+                    message=f'Contract with address "{address}" not found'
+                ) from ex
             raise TransactionException(message=ex.message) from ex
 
     async def send_payload_to_account_execute(

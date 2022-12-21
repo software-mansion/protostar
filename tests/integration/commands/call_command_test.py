@@ -235,3 +235,7 @@ async def test_json(
     assert (
         result["transformed_output"]["res"] == 12590447576074723148144860474975423823893
     )
+
+
+def test_calling_through_proxy():
+    assert False, "Write test"
