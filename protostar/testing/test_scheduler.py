@@ -54,7 +54,7 @@ class TestScheduler:
         cwd: Path,
         active_profile_name: Optional[str],
         gas_estimation_enabled: bool,
-        messenger: Optional[Messenger] = None,
+        messenger: Messenger,
         structured_format: bool = False,
     ):
         with multiprocessing.Manager() as manager:

@@ -1,7 +1,7 @@
 import json
 import queue
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast, Optional
+from typing import TYPE_CHECKING, Any, cast
 import math
 from tqdm import tqdm as bar
 
@@ -100,7 +100,7 @@ class TestingLiveLogger:
         shared_tests_state: SharedTestsState,
         test_collector_result: "TestCollector.Result",
         structured_format: bool,
-        messenger: Optional[Messenger] = None,
+        messenger: Messenger,
     ):
         try:
             with bar(
@@ -130,7 +130,6 @@ class TestingLiveLogger:
 
                         formatted_test_result = format_test_result(test_result)
                         if structured_format:
-                            assert messenger is not None
                             messenger(formatted_test_result)
                         else:
                             progress_bar.write(

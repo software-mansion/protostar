@@ -189,7 +189,7 @@ def run_test_runner_fixture(
             disable_hint_validation=disable_hint_validation,
             cairo_path=cairo_path or [],
             use_cairo_test_runner=use_cairo_test_runner,
-            messenger=None,
+            messenger=messenger_factory.human(),
         )
 
     return run_test_runner

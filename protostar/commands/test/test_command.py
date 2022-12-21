@@ -168,10 +168,9 @@ A glob or globs to a directory or a test suite, for example:
         ]
 
     async def run(self, args: Namespace) -> TestingSummary:
-        messenger = None
+        messenger = self._messenger_factory.from_args(args)
         structured_format = False
         if vars(args).get("json"):
-            messenger = self._messenger_factory.from_args(args)
             structured_format = args.json
         cache = TestCommandCache(CacheIO(self._project_root_path))
         summary = await self.test(
@@ -198,6 +197,7 @@ A glob or globs to a directory or a test suite, for example:
     async def test(
         self,
         targets: List[str],
+        messenger: Messenger,
         use_cairo_test_runner: bool = False,
         ignored_targets: Optional[List[str]] = None,
         cairo_path: Optional[List[Path]] = None,
@@ -211,7 +211,6 @@ A glob or globs to a directory or a test suite, for example:
         slowest_tests_to_report_count: int = 0,
         gas_estimation_enabled: bool = False,
         structured_format: bool = False,
-        messenger: Optional[Messenger] = None,
     ) -> TestingSummary:
         include_paths = [
             str(path)
