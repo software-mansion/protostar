@@ -38,6 +38,8 @@ from protostar.self.protostar_compatibility_with_project_checker import (
 from protostar.self.protostar_directory import ProtostarDirectory
 
 from .protostar_fixture import ProtostarFixture
+from .transaction_registry import TransactionRegistry
+from .spying_gateway_facade_factory import SpyingGatewayFacadeFactory
 
 
 @contextmanager
@@ -45,7 +47,7 @@ def fake_activity_indicator(message: str) -> Generator[None, None, None]:
     yield
 
 
-def build_protostar_fixture(
+def create_protostar_fixture(
     mocker: MockerFixture,
     project_root_path: Path,
 ):
@@ -107,7 +109,7 @@ def build_protostar_fixture(
 
     transaction_registry = TransactionRegistry()
 
-    gateway_facade_factory = TestFriendlyGatewayFacadeFactory(
+    gateway_facade_factory = SpyingGatewayFacadeFactory(
         compiled_contract_reader=CompiledContractReader(),
         project_root_path=project_root_path,
         transaction_registry=transaction_registry,

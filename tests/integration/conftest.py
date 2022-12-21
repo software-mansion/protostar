@@ -16,7 +16,7 @@ from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilde
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.testing import TestingSummary
 from tests.conftest import TESTS_ROOT_PATH, run_devnet
-from tests.integration._conftest import ProtostarFixture, build_protostar_fixture
+from tests.integration._conftest import ProtostarFixture, create_protostar_fixture
 
 
 @dataclass
@@ -195,7 +195,7 @@ def create_protostar_project_fixture(
         tmp_path = tmp_path_factory.mktemp("project_name")
         project_root_path = tmp_path
         cwd = Path().resolve()
-        protostar = build_protostar_fixture(
+        protostar = create_protostar_fixture(
             mocker=session_mocker,
             project_root_path=tmp_path,
         )
@@ -205,7 +205,7 @@ def create_protostar_project_fixture(
         project_root_path = project_root_path / project_name
         os.chdir(project_root_path)
         # rebuilding protostar fixture to reload configuration file
-        yield build_protostar_fixture(
+        yield create_protostar_fixture(
             mocker=session_mocker,
             project_root_path=project_root_path,
         )

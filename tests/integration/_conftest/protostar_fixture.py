@@ -33,6 +33,7 @@ from protostar.commands.call_command import SuccessfulCallMessage
 from tests.conftest import DevnetAccount
 
 from .gateway_client_tx_interceptor import GatewayClientTxInterceptor
+from .transaction_registry import TransactionRegistry
 
 
 # pylint: disable=too-many-instance-attributes
@@ -53,7 +54,7 @@ class ProtostarFixture:
         multicall_command: MulticallCommand,
         cli_app: CLIApp,
         parser: ArgumentParserFacade,
-        transaction_registry: "TransactionRegistry",
+        transaction_registry: TransactionRegistry,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         self._project_root_path = project_root_path

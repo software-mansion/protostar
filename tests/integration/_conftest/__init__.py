@@ -1,6 +1,4 @@
-from .protostar_fixture import (
-    ProtostarFixture,
-    GatewayClientTxInterceptor,
-    TransactionRegistry,
-    build_protostar_fixture,
-)
+from .protostar_fixture import ProtostarFixture
+from .transaction_registry import TransactionRegistry
+from .gateway_client_tx_interceptor import GatewayClientTxInterceptor
+from .protostar_fixture_factory import create_protostar_fixture

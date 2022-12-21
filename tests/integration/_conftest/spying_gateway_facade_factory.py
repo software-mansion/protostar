@@ -1,5 +1,3 @@
-import asyncio
-from argparse import Namespace
 from pathlib import Path
 from typing import Optional
 
@@ -12,7 +10,7 @@ from .gateway_client_tx_interceptor import GatewayClientTxInterceptor
 from .transaction_registry import TransactionRegistry
 
 
-class TestFriendlyGatewayFacadeFactory(GatewayFacadeFactory):
+class SpyingGatewayFacadeFactory(GatewayFacadeFactory):
     def __init__(
         self,
         project_root_path: Path,
