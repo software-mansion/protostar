@@ -14,10 +14,10 @@ fi
 poetry run poe type_check "${STAGED_FILES}"
 
 if [ -n "${STAGED_FILES_FOR_FORMAT}" ]; then
-  poetry run poe format_check_selected "${STAGED_FILES_FOR_LINT}"
+  echo "${STAGED_FILES_FOR_LINT}" | xargs poetry run poe format_check_selected
 fi
 
 if [ -n "${STAGED_FILES_FOR_LINT}" ]; then
-  poetry run poe lint_selected "${STAGED_FILES_FOR_LINT}"
+  echo "${STAGED_FILES_FOR_LINT}" | xargs poetry run poe lint_selected
 fi
 
