@@ -8,6 +8,8 @@ from starknet_py.net.client_errors import ClientError
 
 from protostar.starknet import Address
 from protostar.protostar_exception import ProtostarException
+from protostar.starknet.selector import Selector
+from protostar.starknet.types import CairoDataRepresentation
 from protostar.starknet_gateway.core import (
     TransactionSentResponse,
     PayloadToAccountExecuteInvokeTx,
@@ -17,7 +19,7 @@ from protostar.starknet_gateway.multicall import (
     MulticallAccountManagerProtocol,
     UnsignedMulticallTransaction,
 )
-from protostar.starknet_gateway.invoke import UnsignedInvokeTransaction
+from protostar.starknet_gateway.type import Fee
 
 from .account_tx_version_detector import AccountTxVersionDetector
 from .gateway_facade import GatewayFacade
@@ -81,20 +83,22 @@ class AccountManager(MulticallAccountManagerProtocol):
             raise SigningException(message=ex.message) from ex
 
     async def prepare_execute_payload_from_unsigned_invoke_tx(
-        self, unsigned_tx: UnsignedInvokeTransaction
+        self,
+        address: Address,
+        selector: Selector,
+        calldata: CairoDataRepresentation,
+        max_fee: Fee,
     ) -> PayloadToAccountExecuteInvokeTx:
         await self._ensure_account_is_valid()
         try:
             payload = await self._account_client.sign_invoke_transaction(
                 calls=SNCall(
-                    to_addr=int(unsigned_tx.address),
-                    selector=int(unsigned_tx.selector),
-                    calldata=unsigned_tx.calldata,
+                    to_addr=int(address),
+                    selector=int(selector),
+                    calldata=calldata,
                 ),
-                max_fee=unsigned_tx.max_fee
-                if isinstance(unsigned_tx.max_fee, int)
-                else None,
-                auto_estimate=unsigned_tx.max_fee == "auto",
+                max_fee=max_fee if isinstance(max_fee, int) else None,
+                auto_estimate=max_fee == "auto",
                 version=1,
             )
             return PayloadToAccountExecuteInvokeTx(

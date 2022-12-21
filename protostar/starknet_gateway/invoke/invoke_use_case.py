@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from .invoke_structs import InvokeInput, InvokeOutput, UnsignedInvokeTransaction
+from .invoke_structs import InvokeInput, InvokeOutput
 
 if TYPE_CHECKING:
     from protostar.starknet_gateway import (
@@ -30,15 +30,12 @@ class InvokeUseCase:
                 abi=input_data.abi,
             )
         )
-        unsigned_invoke_tx = UnsignedInvokeTransaction(
-            address=input_data.address,
-            selector=input_data.selector,
-            calldata=cairo_calldata,
-            max_fee=input_data.max_fee,
-        )
         payload_to_account_execute = (
             await self._account_manager.prepare_execute_payload_from_unsigned_invoke_tx(
-                unsigned_invoke_tx
+                address=input_data.address,
+                selector=input_data.selector,
+                calldata=cairo_calldata,
+                max_fee=input_data.max_fee,
             )
         )
         response = await self._account_manager.execute(payload_to_account_execute)
