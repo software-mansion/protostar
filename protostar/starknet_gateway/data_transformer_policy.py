@@ -28,7 +28,7 @@ class DataTransformerPolicy:
     ) -> CairoData:
         if calldata is None:
             return []
-        if isinstance(calldata, PythonData):
+        if isinstance(calldata, dict):
             abi = abi or await self._resolve_abi_or_fail(address=address)
             transform = from_python_transformer(
                 contract_abi=abi, fn_name=str(selector), mode="inputs"
