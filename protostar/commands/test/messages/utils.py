@@ -1,28 +1,12 @@
-from typing import Any
-from dataclasses import dataclass
 from pathlib import Path
-from abc import abstractmethod
 
-from protostar.io import StructuredMessage, LogColorProvider
+from protostar.io import LogColorProvider
 from protostar.testing import (
     OutputName,
     format_output_name,
 )
 
 from protostar.starknet import ExceptionMetadata
-
-JsonData = dict[str, Any]
-
-
-@dataclass
-class TestCaseResultMessage(StructuredMessage):
-    @abstractmethod
-    def format_human(self, fmt: LogColorProvider) -> str:
-        assert False
-
-    @abstractmethod
-    def format_dict(self) -> dict:
-        assert False
 
 
 def get_formatted_file_path(

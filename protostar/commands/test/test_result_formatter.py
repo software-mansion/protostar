@@ -12,9 +12,9 @@ from protostar.testing import (
     TestResult,
     UnexpectedBrokenTestSuiteResult,
 )
+from protostar.io import StructuredMessage
 
 from .messages import (
-    TestCaseResultMessage,
     BrokenTestSuiteResultMessage,
     BrokenTestCaseResultMessage,
     FailedTestCaseResultMessage,
@@ -27,7 +27,7 @@ LogCallback = Callable[[str], None]
 
 
 # pylint: disable=too-many-return-statements
-def format_test_result(test_result: TestResult) -> TestCaseResultMessage:
+def format_test_result(test_result: TestResult) -> StructuredMessage:
     if isinstance(test_result, PassedFuzzTestCaseResult):
         return _format_passed_fuzz_test_case_result(test_result)
     if isinstance(test_result, FailedFuzzTestCaseResult):

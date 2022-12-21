@@ -1,16 +1,13 @@
 from dataclasses import dataclass
 
-from protostar.io import LogColorProvider
+from protostar.io import StructuredMessage, LogColorProvider
 from protostar.testing import SkippedTestCaseResult
 
-from .test_case_result_message import (
-    TestCaseResultMessage,
-    get_formatted_file_path,
-)
+from .utils import get_formatted_file_path
 
 
 @dataclass
-class SkippedTestCaseResultMessage(TestCaseResultMessage):
+class SkippedTestCaseResultMessage(StructuredMessage):
     skipped_test_case_result: SkippedTestCaseResult
 
     def format_human(self, fmt: LogColorProvider) -> str:

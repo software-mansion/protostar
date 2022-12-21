@@ -1,11 +1,10 @@
 from dataclasses import dataclass
 
-from protostar.io import LogColorProvider
+from protostar.io import StructuredMessage, LogColorProvider
 
 from protostar.testing import PassedFuzzTestCaseResult
 
-from .test_case_result_message import (
-    TestCaseResultMessage,
+from .utils import (
     get_formatted_execution_time_human,
     get_formatted_execution_time_structured,
     get_formatted_file_path,
@@ -14,7 +13,7 @@ from .test_case_result_message import (
 
 
 @dataclass
-class PassedFuzzTestCaseResultMessage(TestCaseResultMessage):
+class PassedFuzzTestCaseResultMessage(StructuredMessage):
     passed_fuzz_test_case_result: PassedFuzzTestCaseResult
 
     def format_human(self, fmt: LogColorProvider) -> str:

@@ -1,17 +1,14 @@
 from dataclasses import dataclass
 
-from protostar.io import LogColorProvider
+from protostar.io import StructuredMessage, LogColorProvider
 from protostar.testing import UnexpectedBrokenTestSuiteResult
 from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
 
-from .test_case_result_message import (
-    TestCaseResultMessage,
-    get_formatted_file_path,
-)
+from .utils import get_formatted_file_path
 
 
 @dataclass
-class UnexpectedBrokenTestSuiteResultMessage(TestCaseResultMessage):
+class UnexpectedBrokenTestSuiteResultMessage(StructuredMessage):
     unexpected_exception_test_suite_result: UnexpectedBrokenTestSuiteResult
 
     def format_human(self, fmt: LogColorProvider) -> str:

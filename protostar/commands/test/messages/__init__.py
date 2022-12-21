@@ -1,5 +1,4 @@
-from .test_case_result_message import (
-    TestCaseResultMessage,
+from .utils import (
     get_formatted_execution_time_human,
     get_formatted_execution_time_structured,
 )
