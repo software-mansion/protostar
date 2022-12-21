@@ -230,7 +230,7 @@ async def test_compiled_contract_without_constructor_class_hash(
     devnet_account: DevnetAccount,
 ):
     with pytest.raises(InputValidationException) as ex:
-        result = await gateway_facade.deploy_via_udc(
+        await gateway_facade.deploy_via_udc(
             class_hash=compiled_contract_without_constructor_class_hash,
             abi=contract_abi,
             inputs={"UNKNOWN_INPUT": 42},

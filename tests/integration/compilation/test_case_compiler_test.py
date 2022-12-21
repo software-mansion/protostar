@@ -1,6 +1,6 @@
 from pathlib import Path
+
 from starkware.starknet.public.abi import AbiType
-from pytest_mock import MockerFixture
 
 from protostar.starknet.compiler.pass_managers import (
     StarknetPassManagerFactory,
@@ -24,7 +24,7 @@ def oracle_abi() -> AbiType:
     return abi
 
 
-async def test_case_compile_pass_removes_constructor_oracle(mocker: MockerFixture):
+async def test_case_compile_pass_removes_constructor_oracle():
     compiler = StarknetCompiler(
         config=CompilerConfig(include_paths=[], disable_hint_validation=False),
         pass_manager_factory=TestSuitePassMangerFactory,
@@ -39,9 +39,7 @@ async def test_case_compile_pass_removes_constructor_oracle(mocker: MockerFixtur
     ] == contract_class.abi
 
 
-async def test_case_compile_pass_removes_namespace_constructor_oracle(
-    mocker: MockerFixture,
-):
+async def test_case_compile_pass_removes_namespace_constructor_oracle():
     compiler = StarknetCompiler(
         config=CompilerConfig(include_paths=[], disable_hint_validation=False),
         pass_manager_factory=TestSuitePassMangerFactory,

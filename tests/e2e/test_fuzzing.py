@@ -30,8 +30,8 @@ x = 3618502788666131213697322783095070105623107215331596699973092056135872020480
 """
         in result
     )
-    assert f"[test:1]:\nTESTING STDOUT" in result
-    assert f"[test:100]:\nTESTING STDOUT" in result
+    assert "[test:1]:\nTESTING STDOUT" in result
+    assert "[test:100]:\nTESTING STDOUT" in result
 
     assert "[FAIL] tests/test_fuzz.cairo test_fails_if_big_many_inputs" in result
     assert (
@@ -50,7 +50,7 @@ def test_fuzzing_changing_seed(protostar: ProtostarFixture, copy_fixture: CopyFi
     seeds = []
     copy_fixture("test_fuzz_single.cairo", "./tests")
 
-    for i in range(0, 2):
+    for _ in range(0, 2):
         result = protostar(
             ["--no-color", "test", "tests/test_fuzz_single.cairo"],
             ignore_exit_code=True,

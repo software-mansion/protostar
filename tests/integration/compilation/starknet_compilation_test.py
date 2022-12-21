@@ -1,8 +1,6 @@
 # pylint: disable=invalid-name
 from pathlib import Path
 
-from pytest_mock import MockerFixture
-
 import pytest
 
 from protostar.starknet.compiler.pass_managers import ProtostarPassMangerFactory
@@ -20,7 +18,7 @@ def compiler_fixture() -> StarknetCompiler:
     )
 
 
-async def test_protostar_pass(compiler: StarknetCompiler, mocker: MockerFixture):
+async def test_protostar_pass(compiler: StarknetCompiler):
     contract_class = compiler.compile_contract(Path(__file__).parent / "contract.cairo")
 
     first_type = {

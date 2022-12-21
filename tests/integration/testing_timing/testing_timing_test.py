@@ -1,3 +1,4 @@
+# pylint: disable=protected-access
 from pathlib import Path
 from typing import Set
 
@@ -18,7 +19,7 @@ def assert_exec_times_in_desc_order(logs: str) -> None:
 
 def get_test_indices(logs: str) -> Set[int]:
     # "{NUMBER}." -> {NUMBER}
-    return set([int(row.split()[0][:-1]) for row in logs.split("\n")])
+    return set({int(row.split()[0][:-1]) for row in logs.split("\n")})
 
 
 @pytest.fixture(name="testing_summary")

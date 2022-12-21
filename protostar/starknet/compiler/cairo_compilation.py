@@ -1,8 +1,7 @@
 from pathlib import Path
-from typing import List, cast
+from typing import List
 
 from starkware.cairo.lang.compiler.assembler import assemble
-from starkware.cairo.lang.compiler.identifier_definition import TIdentifierDefinition
 from starkware.cairo.lang.compiler.preprocessor.preprocessor import PreprocessedProgram
 from starkware.cairo.lang.compiler.preprocessor.preprocess_codes import preprocess_codes
 from starkware.cairo.lang.compiler.program import Program
