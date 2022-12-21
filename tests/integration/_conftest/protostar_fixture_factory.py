@@ -43,6 +43,7 @@ from .spying_gateway_facade_factory import SpyingGatewayFacadeFactory
 
 
 @contextmanager
+# pylint: disable=unused-argument
 def fake_activity_indicator(message: str) -> Generator[None, None, None]:
     yield
 
