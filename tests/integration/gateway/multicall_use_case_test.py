@@ -49,6 +49,7 @@ async def test_multicall_use_case_happy_case(
             signer=account.signer,
         ),
         gateway_url=devnet.get_gateway_url(),
+        client=starknet_client,
     )
     with set_private_key_env_var(account.private_key):
         declare_result = await protostar.declare(

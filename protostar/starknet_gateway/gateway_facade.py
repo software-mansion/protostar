@@ -14,7 +14,6 @@ from starknet_py.transaction_exceptions import (
     TransactionFailedError,
     TransactionRejectedError,
 )
-from starknet_py.utils.data_transformer.data_transformer import CairoData
 from starknet_py.utils.data_transformer.errors import CairoSerializerException
 from starkware.starknet.public.abi import AbiType
 from typing_extensions import Self, TypeGuard
@@ -27,19 +26,19 @@ from protostar.starknet.selector import Selector
 from protostar.starknet_gateway.account_tx_version_detector import (
     AccountTxVersionDetector,
 )
-from protostar.starknet_gateway.call.call_structs import CairoDataRepresentation
 from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeclareResponse,
     SuccessfulDeployAccountResponse,
     SuccessfulDeployResponse,
     SuccessfulInvokeResponse,
 )
-from protostar.starknet import Address
+from protostar.starknet import Address, CairoData, TransactionHash
 from protostar.starknet_gateway.multicall import MulticallClientResponse
 from protostar.starknet_gateway.multicall.multicall_protocols import (
     SignedMulticallTransaction,
     MulticallClientProtocol,
 )
+from protostar.starknet_gateway.core import PreparedInvokeTransaction
 
 from .contract_function_factory import ContractFunctionFactory
 from .type import ClassHash, ContractFunctionInputType, Fee
@@ -384,8 +383,8 @@ class GatewayFacade(MulticallClientProtocol):
         self,
         address: Address,
         selector: Selector,
-        cairo_calldata: CairoDataRepresentation,
-    ) -> CairoDataRepresentation:
+        cairo_calldata: CairoData,
+    ) -> CairoData:
         try:
             return await self._gateway_client.call_contract(
                 call=Call(
@@ -396,6 +395,29 @@ class GatewayFacade(MulticallClientProtocol):
             )
         except ClientError as ex:
             raise TransactionException(message=ex.message) from ex
+
+    async def send_payload_to_account_execute(
+        self, prepared_invoke_tx: PreparedInvokeTransaction
+    ) -> TransactionHash:
+        try:
+            contract_address = int(prepared_invoke_tx.account_address)
+            calldata = prepared_invoke_tx.account_execute_calldata
+            result = await self._gateway_client.send_transaction(
+                transaction=InvokeFunction(
+                    version=1,
+                    contract_address=contract_address,  # type: ignore
+                    calldata=calldata,  # type: ignore
+                    max_fee=prepared_invoke_tx.max_fee,
+                    nonce=prepared_invoke_tx.nonce,
+                    signature=prepared_invoke_tx.signature,
+                )
+            )
+            return result.transaction_hash
+        except ClientError as ex:
+            raise TransactionException(message=ex.message) from ex
+
+    async def wait_for_acceptance(self, tx_hash: int):
+        await self._gateway_client.wait_for_tx(tx_hash=tx_hash, wait_for_accept=True)
 
 
 class InputValidationException(ProtostarException):

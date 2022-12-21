@@ -138,8 +138,10 @@ class MulticallCommand(ProtostarCommand):
         explorer: BlockExplorer,
         max_fee: Fee,
     ):
-        account_manager = AccountManager(account, gateway_url=gateway_url)
         gateway_facade = self._gateway_facade_factory.create(gateway_client)
+        account_manager = AccountManager(
+            account, client=gateway_facade, gateway_url=gateway_url
+        )
         multicall_use_case = MulticallUseCase(
             account_manager=account_manager, client=gateway_facade
         )

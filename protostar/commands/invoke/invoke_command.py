@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import Any, Optional
 
 from starknet_py.net.gateway_client import GatewayClient
@@ -16,35 +15,26 @@ from protostar.cli.common_arguments import (
     MAX_FEE_ARG,
     WAIT_FOR_ACCEPTANCE_ARG,
 )
-from protostar.io import StructuredMessage, LogColorProvider
-from protostar.starknet import Address
+from protostar.io.output import Messenger
+from protostar.starknet import Address, CairoOrPythonData, Selector
 from protostar.starknet_gateway import (
     Fee,
     GatewayFacadeFactory,
-    SuccessfulInvokeResponse,
     create_block_explorer,
+    AccountManager,
+    DataTransformerPolicy,
+    AbiResolver,
+    Account,
 )
+from protostar.starknet_gateway.block_explorer.block_explorer import BlockExplorer
+from protostar.starknet_gateway.invoke import InvokeUseCase, InvokeInput, InvokeOutput
 
-
-@dataclass
-class SuccessfulInvokeMessage(StructuredMessage):
-    response: SuccessfulInvokeResponse
-    tx_url: Optional[str]
-
-    def format_human(self, fmt: LogColorProvider) -> str:
-        message = f"""\
-Invoke transaction was sent.
-Transaction hash: 0x{self.response.transaction_hash:064x}
-"""
-        if self.tx_url:
-            message += f"{self.tx_url}\n"
-
-        return message
-
-    def format_dict(self) -> dict:
-        return {
-            "transaction_hash": f"0x{self.response.transaction_hash:064x}",
-        }
+from .messages import (
+    SendingInvokeTransactionMessage,
+    InvokeTransactionSentMessage,
+    TransactionAcceptedOnL2Message,
+    WaitingForAcceptanceMessage,
+)
 
 
 class InvokeCommand(ProtostarCommand):
@@ -89,8 +79,10 @@ class InvokeCommand(ProtostarCommand):
             ),
             ProtostarArgument(
                 name="inputs",
-                # pylint: disable=line-too-long
-                description="Inputs to the function being called, represented either by a list of space-delimited values (`1 2 3`) or by a mapping of their names to their values (`a=11 b=12 c=13`).",
+                description=(
+                    "Inputs to the function being called, represented either by a list of space-delimited "
+                    "values (`1 2 3`) or by a mapping of their names to their values (`a=11 b=12 c=13`)."
+                ),
                 type="input",
                 value_parser="list_or_dict",
             ),
@@ -100,58 +92,79 @@ class InvokeCommand(ProtostarCommand):
 
     async def run(self, args: Any):
         write = self._messenger_factory.from_args(args)
-
         network_command_util = NetworkCommandUtil(args)
         signable_command_util = SignableCommandUtil(args)
         network_config = network_command_util.get_network_config()
         gateway_client = network_command_util.get_gateway_client()
         signer = signable_command_util.get_signer(network_config)
-
         block_explorer = create_block_explorer(
             block_explorer_name=args.block_explorer,
             network=network_config.network_name,
         )
-
-        response = await self.invoke(
+        return await self.invoke(
             contract_address=args.contract_address,
             function_name=args.function,
             inputs=args.inputs,
             gateway_client=gateway_client,
+            gateway_url=network_config.gateway_url,
             signer=signer,
             max_fee=args.max_fee,
+            write=write,
+            block_explorer=block_explorer,
             wait_for_acceptance=args.wait_for_acceptance,
             account_address=args.account_address,
         )
-
-        write(
-            SuccessfulInvokeMessage(
-                response=response,
-                tx_url=block_explorer.create_link_to_transaction(
-                    response.transaction_hash
-                ),
-            )
-        )
-
-        return response
 
     async def invoke(
         self,
         contract_address: Address,
         function_name: str,
         gateway_client: GatewayClient,
+        gateway_url: str,
         max_fee: Fee,
         signer: BaseSigner,
         account_address: Address,
-        inputs: Optional[list[int]] = None,
+        write: Messenger,
+        block_explorer: BlockExplorer,
+        inputs: Optional[CairoOrPythonData] = None,
         wait_for_acceptance: bool = False,
-    ) -> SuccessfulInvokeResponse:
+    ) -> InvokeOutput:
         gateway_facade = self._gateway_facade_factory.create(gateway_client)
-        return await gateway_facade.invoke(
-            contract_address=contract_address,
-            function_name=function_name,
-            inputs=inputs,
-            max_fee=max_fee,
-            signer=signer,
-            account_address=account_address,
-            wait_for_acceptance=wait_for_acceptance,
+        account_manager = AccountManager(
+            account=Account(
+                address=account_address,
+                signer=signer,
+            ),
+            client=gateway_facade,
+            gateway_url=gateway_url,
         )
+        abi_resolver = AbiResolver(client=gateway_client)
+        data_transformer_policy = DataTransformerPolicy(abi_resolver=abi_resolver)
+        use_case_input = InvokeInput(
+            address=contract_address,
+            selector=Selector(function_name),
+            calldata=inputs,
+            max_fee=max_fee,
+            abi=None,
+        )
+        use_case = InvokeUseCase(
+            account_manager=account_manager,
+            client=gateway_facade,
+            data_transformer_policy=data_transformer_policy,
+        )
+
+        write(SendingInvokeTransactionMessage())
+        invoke_output = await use_case.execute(use_case_input)
+        write(
+            InvokeTransactionSentMessage(
+                tx_url=block_explorer.create_link_to_transaction(
+                    invoke_output.transaction_hash
+                ),
+                response=invoke_output,
+            )
+        )
+        if wait_for_acceptance:
+            write(WaitingForAcceptanceMessage())
+            await use_case.wait_for_acceptance(tx_hash=invoke_output.transaction_hash)
+            write(TransactionAcceptedOnL2Message())
+        return invoke_output

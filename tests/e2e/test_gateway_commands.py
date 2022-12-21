@@ -96,8 +96,8 @@ def test_deploying_and_interacting_with_contract(
             ],
             ignore_stderr=True,
         )
-
-        assert json.loads(result) == {"transaction_hash": HASH}
+        messages = [json.loads(msg) for msg in result.splitlines()]
+        assert {"type": "INVOKE_TRANSACTION_SENT", "transaction_hash": HASH} in messages
 
     result = protostar(
         [

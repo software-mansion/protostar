@@ -8,6 +8,7 @@ from .multicall_structs import (
     ResolvedCall,
     MulticallClientResponse,
     Identifier,
+    UnsignedMulticallTransaction,
 )
 from .multicall_protocols import (
     MulticallClientProtocol,
