@@ -47,7 +47,7 @@ class WaitingForAcceptanceMessage(StructuredMessage):
         }
 
 
-class TransactionAcceptedMessage(StructuredMessage):
+class TransactionAcceptedOnL2Message(StructuredMessage):
     def format_human(self, fmt: LogColorProvider) -> str:
         return "Transaction accepted on L2."
 

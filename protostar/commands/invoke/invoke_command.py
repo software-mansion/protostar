@@ -32,7 +32,7 @@ from protostar.starknet_gateway.invoke import InvokeUseCase, InvokeInput, Invoke
 from .messages import (
     SendingInvokeTransactionMessage,
     InvokeTransactionSentMessage,
-    TransactionAcceptedMessage,
+    TransactionAcceptedOnL2Message,
     WaitingForAcceptanceMessage,
 )
 
@@ -166,5 +166,5 @@ class InvokeCommand(ProtostarCommand):
         if wait_for_acceptance:
             write(WaitingForAcceptanceMessage())
             await use_case.wait_for_acceptance(tx_hash=invoke_output.transaction_hash)
-            write(TransactionAcceptedMessage())
+            write(TransactionAcceptedOnL2Message())
         return invoke_output
