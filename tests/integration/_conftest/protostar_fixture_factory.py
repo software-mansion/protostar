@@ -85,7 +85,7 @@ def create_protostar_fixture(
     )
 
     new_project_creator = NewProjectCreator(
-        script_root=Path(__file__).parent / ".." / "..",
+        script_root=Path(__file__).parent / ".." / ".." / "..",
         requester=input_requester,
         configuration_file_content_factory=configuration_file_content_factory,
         protostar_version=parse_protostar_version("0.0.0"),
