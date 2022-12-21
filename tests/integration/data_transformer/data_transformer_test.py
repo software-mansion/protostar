@@ -23,6 +23,7 @@ from tests.integration.data_transformer.contracts import (
     DATA_TRANSFORMER_LISTS_CONTRACT,
     DATA_TRANSFORMER_STRUCTS_CONTRACT,
     DATA_TRANSFORMER_TUPLE_CONTRACT,
+    DATA_TRANSFORMER_LIST_CONTRACT,
 )
 
 
@@ -382,6 +383,17 @@ def test_data_transformer_from_python(get_abi_from_contract: GetAbiFromContractF
     assert_is_int_list(cairo_data)
     python_data2 = to_python(cairo_data)
     assert python_data == python_data2
+
+
+def test_use_felt_pointer_for_dict_fail(
+    get_abi_from_contract: GetAbiFromContractFixture,
+):
+    abi = get_abi_from_contract(DATA_TRANSFORMER_LIST_CONTRACT)
+    from_python = from_python_transformer(abi, "input_lists", "inputs")
+
+    python_data = {"felt_list": {"a": 1, "b": 2, "c": 3}}
+    with pytest.raises(DataTransformerException):
+        from_python(python_data)
 
 
 def test_data_transformer_to_python(get_abi_from_contract: GetAbiFromContractFixture):

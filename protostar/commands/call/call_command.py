@@ -90,7 +90,7 @@ class CallCommand(ProtostarCommand):
         abi_resolver = AbiResolver(client=gateway_client)
         data_transformer = DataTransformer(abi_resolver=abi_resolver)
         call_use_case = CallUseCase(
-            client=gateway_facade,
+            gateway_facade=gateway_facade,
             data_transformer=data_transformer,
         )
         response = await call_use_case.execute(

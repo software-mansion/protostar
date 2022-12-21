@@ -34,6 +34,18 @@ func input_outer_struct(arg: OuterStruct) {
 }
 """
 
+DATA_TRANSFORMER_LIST_CONTRACT = """%lang starknet
+from starkware.cairo.common.uint256 import Uint256
+
+@external
+func input_lists(
+        felt_list_len: felt,
+        felt_list: felt*,
+    ) {
+    return ();
+}
+"""
+
 DATA_TRANSFORMER_LISTS_CONTRACT = """%lang starknet
 from starkware.cairo.common.uint256 import Uint256
 

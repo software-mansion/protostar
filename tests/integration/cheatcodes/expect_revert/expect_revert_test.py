@@ -7,17 +7,17 @@ from protostar.commands.test.test_result_formatter import format_test_result
 from protostar.testing import TestingSummary
 from protostar.testing.test_results import BrokenTestCaseResult
 from tests.integration.conftest import (
-    RunCairoTestRunnerFixture,
+    RunTestRunnerFixture,
     assert_cairo_test_cases,
 )
 
 
 @pytest.fixture(name="testing_summary", scope="module")
 def testing_summary_fixture(
-    run_cairo_test_runner: RunCairoTestRunnerFixture,
+    run_test_runner: RunTestRunnerFixture,
 ) -> TestingSummary:
     return asyncio.run(
-        run_cairo_test_runner(Path(__file__).parent / "expect_revert_test.cairo")
+        run_test_runner(Path(__file__).parent / "expect_revert_test.cairo")
     )
 
 

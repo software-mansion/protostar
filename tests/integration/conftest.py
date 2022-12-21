@@ -100,7 +100,7 @@ def devnet_gateway_url_fixture(
     proc.kill()
 
 
-class RunCairoTestRunnerFixture(Protocol):
+class RunTestRunnerFixture(Protocol):
     async def __call__(
         self,
         path: Path,
@@ -111,6 +111,7 @@ class RunCairoTestRunnerFixture(Protocol):
         cairo_path: Optional[List[Path]] = None,
         test_cases: Optional[List[str]] = None,
         ignored_test_cases: Optional[List[str]] = None,
+        use_cairo_test_runner: bool = False,
     ) -> TestingSummary:
         ...
 
@@ -122,11 +123,11 @@ def log_color_provider_fixture() -> LogColorProvider:
     return log_color_provider
 
 
-@pytest.fixture(name="run_cairo_test_runner", scope="module")
-def run_cairo_test_runner_fixture(
+@pytest.fixture(name="run_test_runner", scope="module")
+def run_test_runner_fixture(
     session_mocker: MockerFixture, log_color_provider: LogColorProvider
-) -> RunCairoTestRunnerFixture:
-    async def run_cairo_test_runner(
+) -> RunTestRunnerFixture:
+    async def run_test_runner(
         path: Path,
         seed: Optional[int] = None,
         max_steps: Optional[int] = None,
@@ -135,6 +136,7 @@ def run_cairo_test_runner_fixture(
         cairo_path: Optional[List[Path]] = None,
         test_cases: Optional[List[str]] = None,
         ignored_test_cases: Optional[List[str]] = None,
+        use_cairo_test_runner: bool = False,
     ) -> TestingSummary:
         protostar_directory_mock = session_mocker.MagicMock()
         protostar_directory_mock.protostar_test_only_cairo_packages_path = Path()
@@ -175,9 +177,10 @@ def run_cairo_test_runner_fixture(
             profiling=profiling,
             disable_hint_validation=disable_hint_validation,
             cairo_path=cairo_path or [],
+            use_cairo_test_runner=use_cairo_test_runner,
         )
 
-    return run_cairo_test_runner
+    return run_test_runner
 
 
 class CreateProtostarProjectFixture(Protocol):

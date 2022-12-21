@@ -21,6 +21,7 @@ from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_mana
 
 from starkware.cairo.lang.compiler.preprocessor.default_pass_manager import (
     PreprocessorStage,
+    default_pass_manager,
 )
 from starkware.starknet.security.hints_whitelist import get_hints_whitelist
 
@@ -52,7 +53,7 @@ from starkware.starknet.compiler.external_wrapper import (
 from starkware.cairo.lang.compiler.ast.code_elements import CodeBlock
 
 if TYPE_CHECKING:
-    from protostar.starknet.compiler.starknet_compilation import CompilerConfig
+    from protostar.starknet.compiler.common import CompilerConfig
 
 
 class PassManagerFactory(ABC):
@@ -60,6 +61,16 @@ class PassManagerFactory(ABC):
     @abstractmethod
     def build(config: "CompilerConfig") -> PassManager:
         ...
+
+
+class CairoPassManagerFactory(PassManagerFactory):
+    @staticmethod
+    def build(config: "CompilerConfig") -> PassManager:
+        read_module = get_module_reader(cairo_path=config.include_paths).read
+        return default_pass_manager(
+            prime=DEFAULT_PRIME,
+            read_module=read_module,
+        )
 
 
 class StarknetPassManagerFactory(PassManagerFactory):

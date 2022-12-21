@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Tuple, Type, Union
 
@@ -17,16 +16,11 @@ from starkware.starknet.compiler.starknet_preprocessor import (
 from starkware.starknet.services.api.contract_class import ContractClass
 
 from protostar.protostar_exception import ProtostarException
+from protostar.starknet.compiler.common import CompilerConfig
 from protostar.starknet.compiler.pass_managers import (
     PassManagerFactory,
     TestCollectorPreprocessedProgram,
 )
-
-
-@dataclass(frozen=True)
-class CompilerConfig:
-    include_paths: List[str]
-    disable_hint_validation: bool
 
 
 class StarknetCompiler:
@@ -61,7 +55,9 @@ class StarknetCompiler:
 
     def preprocess_contract(
         self, *cairo_file_paths: Path
-    ) -> Union[StarknetPreprocessedProgram, TestCollectorPreprocessedProgram]:
+    ) -> Union[
+        StarknetPreprocessedProgram, TestCollectorPreprocessedProgram
+    ]:  # TODO: Cache result
         try:
             codes = self.build_codes(*cairo_file_paths)
             context = self.build_context(codes)
@@ -108,16 +104,15 @@ class StarknetCompiler:
         self,
         *sources: Path,
         add_debug_info: bool = False,
-    ) -> ContractClass:
+    ) -> ContractClass:  # TODO: Cache result
         preprocessed = self.preprocess_contract(*sources)
         assert isinstance(preprocessed, StarknetPreprocessedProgram)
         assembled = self.compile_preprocessed_contract(preprocessed, add_debug_info)
         return assembled
 
-    @staticmethod
     def get_function_names(
-        preprocessed: Union[
-            StarknetPreprocessedProgram, TestCollectorPreprocessedProgram
-        ],
+        self,
+        file_path: Path,
     ) -> List[str]:
+        preprocessed = self.preprocess_contract(file_path)
         return [el["name"] for el in preprocessed.abi if el["type"] == "function"]

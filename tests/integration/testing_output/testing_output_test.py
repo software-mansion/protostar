@@ -2,15 +2,15 @@ from pathlib import Path
 
 from protostar.commands.test.test_result_formatter import format_test_result
 from tests.integration.conftest import (
-    RunCairoTestRunnerFixture,
+    RunTestRunnerFixture,
     assert_cairo_test_cases,
 )
 
 
 async def test_testing_output(
-    run_cairo_test_runner: RunCairoTestRunnerFixture,
+    run_test_runner: RunTestRunnerFixture,
 ):
-    testing_summary = await run_cairo_test_runner(
+    testing_summary = await run_test_runner(
         Path(__file__).parent / "testing_output_test.cairo"
     )
 
