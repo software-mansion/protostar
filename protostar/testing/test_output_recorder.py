@@ -2,9 +2,9 @@ from contextlib import contextmanager, redirect_stdout
 from copy import deepcopy
 from dataclasses import dataclass, field
 from io import StringIO
-from typing import Dict, Generator, Tuple, Union, Type
+from typing import Dict, Generator, Tuple, Union
 
-OutputName: Type[Union[str, tuple]] = Union[str, Tuple[str, int]]
+OutputName = Union[str, Tuple[str, int]]
 """
 Output name is a sequence of atomic strings, like ``"setup"`` or ``"test"``,
 or ``("test", 1)``.

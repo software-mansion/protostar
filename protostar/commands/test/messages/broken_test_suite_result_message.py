@@ -1,27 +1,30 @@
-from pathlib import Path
 from dataclasses import dataclass
 
 from protostar.io import LogColorProvider
+from protostar.testing import BrokenTestSuiteResult
 
-from .test_case_result_message import TestCaseResultMessage
-
+from .test_case_result_message import (
+    TestCaseResultMessage,
+    get_formatted_file_path,
+)
 
 
 @dataclass
-class BrokenTestSuiteResult(TestCaseResultMessage):
-    test_suite_path: Path
-    exception: str
-
-    status = "broken"
-    type = "test_case_result"
+class BrokenTestSuiteResultMessage(TestCaseResultMessage):
+    broken_test_suite_result: BrokenTestSuiteResult
 
     def format_human(self, fmt: LogColorProvider) -> str:
-        pass
+        first_line: list[str] = [
+            f"[{fmt.colorize('RED', 'BROKEN')}]",
+            f"{get_formatted_file_path(file_path=self.broken_test_suite_result.file_path, log_color_provider=fmt)}",
+        ]
+        result = [" ".join(first_line), str(self.broken_test_suite_result.exception)]
+        return "\n".join(result)
 
     def format_dict(self) -> dict:
         return {
-          "type": self.type,
-          "status": self.status,
-          "test_suite_path": str(self.test_suite_path),
-          "exception": self.exception,
+            "type": "test_case_result",
+            "status": "broken",
+            "test_suite_path": str(self.broken_test_suite_result.file_path),
+            "exception": self.broken_test_suite_result.exception,
         }

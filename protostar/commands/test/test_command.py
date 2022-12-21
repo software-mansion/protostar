@@ -38,8 +38,8 @@ from protostar.testing import (
 )
 from protostar.testing.cairo_test_runner import CairoTestRunner
 from protostar.io.output import Messenger
-from .test_result_structured_formatter import get_formatted_execution_time
 
+from .messages import get_formatted_execution_time_structured
 from .test_command_cache import TestCommandCache
 
 
@@ -272,7 +272,7 @@ A glob or globs to a directory or a test suite, for example:
                     len(test_suite.test_cases)
                     for test_suite in test_collector_result.test_suites
                 ),
-                "duration_in_seconds": get_formatted_execution_time(
+                "duration_in_seconds": get_formatted_execution_time_structured(
                     test_collector_result.duration
                 ),
             }

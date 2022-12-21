@@ -6,9 +6,6 @@ import math
 from tqdm import tqdm as bar
 
 from protostar.commands.test.test_result_formatter import format_test_result
-from protostar.commands.test.test_result_structured_formatter import (
-    format_test_result_structured,
-)
 from protostar.testing.test_scheduler import make_path_relative_if_possible
 from protostar.testing import (
     BrokenTestSuiteResult,
@@ -19,6 +16,7 @@ from protostar.testing import (
 )
 from protostar.starknet.data_transformer import PythonData
 from protostar.io.output import Messenger
+from protostar.io.log_color_provider import log_color_provider
 
 if TYPE_CHECKING:
     from protostar.testing import TestCollector
@@ -129,12 +127,17 @@ class TestingLiveLogger:
                         test_result = make_path_relative_if_possible(
                             test_result, self._project_root_path
                         )
-                        # here tutaj
-                        if structured_format and messanger:
-                            messanger(format_test_result_structured(test_result))
+
+                        formatted_test_result = format_test_result(test_result)
+                        if structured_format:
+                            assert messanger is not None
+                            messanger(formatted_test_result)  # ???
                         else:
-                            formatted_test_result = format_test_result(test_result)
-                            progress_bar.write(formatted_test_result)
+                            progress_bar.write(
+                                formatted_test_result.format_human(
+                                    fmt=log_color_provider
+                                )
+                            )
 
                         if (
                             self.exit_first

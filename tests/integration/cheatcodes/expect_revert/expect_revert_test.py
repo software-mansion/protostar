@@ -10,6 +10,7 @@ from tests.integration.conftest import (
     RunTestRunnerFixture,
     assert_cairo_test_cases,
 )
+from protostar.io.log_color_provider import log_color_provider
 
 
 @pytest.fixture(name="testing_summary", scope="module")
@@ -51,7 +52,9 @@ async def test_already_expecting_error_message_when_no_arguments_were_provided(
     test_result = testing_summary[
         "test_already_expecting_error_message_when_no_arguments_were_provided"
     ]
-    formatted_test_result = format_test_result(test_result)
+    formatted_test_result = format_test_result(test_result).format_human(
+        fmt=log_color_provider
+    )
 
     assert isinstance(test_result, BrokenTestCaseResult)
     assert "matching the following error" not in formatted_test_result

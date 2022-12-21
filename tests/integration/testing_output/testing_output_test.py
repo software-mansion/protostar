@@ -5,6 +5,7 @@ from tests.integration.conftest import (
     RunTestRunnerFixture,
     assert_cairo_test_cases,
 )
+from protostar.io.log_color_provider import log_color_provider
 
 
 async def test_testing_output(
@@ -24,7 +25,9 @@ async def test_testing_output(
     )
 
     for passed_test_case in testing_summary.passed:
-        output = format_test_result(passed_test_case)
+        output = format_test_result(passed_test_case).format_human(
+            fmt=log_color_provider
+        )
         assert "steps=" in output
         assert "pedersen_builtin=" in output
         assert "range_check=" not in output

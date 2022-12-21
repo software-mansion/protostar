@@ -1,30 +1,45 @@
-from pathlib import Path
 from dataclasses import dataclass
 
 from protostar.io import LogColorProvider
+from protostar.testing import UnexpectedBrokenTestSuiteResult
+from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
 
-from .test_case_result_message import TestCaseResultMessage
+from .test_case_result_message import (
+    TestCaseResultMessage,
+    get_formatted_file_path,
+)
 
 
 @dataclass
-class UnexpectedBrokenTestSuiteResult(TestCaseResultMessage):
-    test_suite_path: Path
-    exception: str
-    traceback: str
-    protostar_message: str
-
-    status = "unexpected_exception"
-    type = "test_case_result"
+class UnexpectedBrokenTestSuiteResultMessage(TestCaseResultMessage):
+    unexpected_exception_test_suite_result: UnexpectedBrokenTestSuiteResult
 
     def format_human(self, fmt: LogColorProvider) -> str:
-        pass
+        lines: list[str] = []
+        main_line: list[str] = [
+            f"[{fmt.colorize('RED', 'UNEXPECTED_EXCEPTION')}]",
+            get_formatted_file_path(
+                file_path=self.unexpected_exception_test_suite_result.file_path,
+                log_color_provider=fmt,
+            ),
+        ]
+        lines.append(" ".join(main_line))
+
+        if self.unexpected_exception_test_suite_result.traceback:
+            lines.append(self.unexpected_exception_test_suite_result.traceback)
+
+        lines.append(UNEXPECTED_PROTOSTAR_ERROR_MSG)
+        lines.append(str(self.unexpected_exception_test_suite_result.exception))
+        return "\n".join(lines)
 
     def format_dict(self) -> dict:
         return {
-          "type": self.type,
-          "status": self.status,
-          "test_suite_path": str(self.test_suite_path),
-          "exception": self.exception,
-          "traceback": self.traceback,
-          "protostar_message": self.protostar_message,
+            "type": "test_case_result",
+            "status": "unexpected_exception",
+            "test_suite_path": str(
+                self.unexpected_exception_test_suite_result.file_path
+            ),
+            "exception": self.unexpected_exception_test_suite_result.exception,
+            "traceback": self.unexpected_exception_test_suite_result.traceback,
+            "protostar_message": UNEXPECTED_PROTOSTAR_ERROR_MSG,
         }
