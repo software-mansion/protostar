@@ -59,7 +59,7 @@ async def test_uint256_as_input(
             gateway_url=devnet_gateway_url,
         )
 
-        assert response.response.res == (24 << 128) + 42
+        assert response.call_output.cairo_data == [42, 24]
 
 
 async def test_uint256_as_input_fail(

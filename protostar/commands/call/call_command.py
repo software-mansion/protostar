@@ -1,5 +1,3 @@
-import json
-from dataclasses import dataclass
 from typing import Any, Optional
 
 from starknet_py.net.gateway_client import GatewayClient
@@ -10,24 +8,11 @@ from protostar.cli import (
     ProtostarCommand,
     MessengerFactory,
 )
-from protostar.io import LogColorProvider, StructuredMessage
-from protostar.starknet_gateway import GatewayFacadeFactory
-from protostar.starknet import Address
+from protostar.starknet_gateway import GatewayFacadeFactory, AbiResolver
+from protostar.starknet import Address, Selector
+from protostar.starknet_gateway.call import CallUseCase, CallInput, Calldata
 
-
-@dataclass
-class SuccessfulCallMessage(StructuredMessage):
-    response: Any
-
-    def format_human(self, fmt: LogColorProvider) -> str:
-        return f"""\
-{fmt.colorize("GREEN", "Call successful.")}
-Response:
-{json.dumps(self.response._asdict(), indent=4)}\
-"""
-
-    def format_dict(self) -> dict:
-        return self.response._asdict()
+from .call_command_messages import SuccessfulCallMessage
 
 
 class CallCommand(ProtostarCommand):
@@ -79,19 +64,15 @@ class CallCommand(ProtostarCommand):
 
     async def run(self, args: Any) -> SuccessfulCallMessage:
         write = self._messenger_factory.from_args(args)
-
         network_command_util = NetworkCommandUtil(args)
         gateway_client = network_command_util.get_gateway_client()
-
         response = await self.call(
             contract_address=args.contract_address,
             function_name=args.function,
             inputs=args.inputs,
             gateway_client=gateway_client,
         )
-
         write(response)
-
         return response
 
     async def call(
@@ -99,14 +80,19 @@ class CallCommand(ProtostarCommand):
         contract_address: Address,
         function_name: str,
         gateway_client: GatewayClient,
-        inputs: Optional[list[int]] = None,
+        inputs: Optional[Calldata] = None,
     ) -> SuccessfulCallMessage:
         gateway_facade = self._gateway_facade_factory.create(gateway_client)
-
-        response = await gateway_facade.call(
-            address=contract_address,
-            function_name=function_name,
-            inputs=inputs,
+        abi_resolver = AbiResolver(client=gateway_client)
+        call_use_case = CallUseCase(
+            gateway_facade=gateway_facade, abi_resolver=abi_resolver
         )
-
+        response = await call_use_case.execute(
+            CallInput(
+                address=contract_address,
+                selector=Selector(function_name),
+                inputs=inputs,
+                abi=None,
+            )
+        )
         return SuccessfulCallMessage(response)
