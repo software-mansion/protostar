@@ -66,11 +66,8 @@ deploy_prerelease = "python ./scripts/deploy_prerelease.py"
 devnet = "starknet-devnet"
 format = "black ."
 
-show_format_check_path = "echo protostar"
-show_lint_path = "echo protostar"
-
-format_check = "poetry run poe show_format_check_path | xargs black --check"
-lint = "poetry run poe show_lint_path | xargs pylint"
+format_check = "./scripts/run_format_check.sh"
+lint = "./scripts/run_lint.sh"
 
 format_check_selected = "black --check"
 lint_selected = "pylint"
