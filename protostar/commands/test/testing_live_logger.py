@@ -131,7 +131,7 @@ class TestingLiveLogger:
                         formatted_test_result = format_test_result(test_result)
                         if structured_format:
                             assert messanger is not None
-                            messanger(formatted_test_result)  # ???
+                            messanger(formatted_test_result)
                         else:
                             progress_bar.write(
                                 formatted_test_result.format_human(

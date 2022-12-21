@@ -1,6 +1,7 @@
 from typing import Any
 from dataclasses import dataclass
 from pathlib import Path
+from abc import abstractmethod
 
 from protostar.io import StructuredMessage, LogColorProvider
 from protostar.testing import (
@@ -15,9 +16,11 @@ JsonData = dict[str, Any]
 
 @dataclass
 class TestCaseResultMessage(StructuredMessage):
+    @abstractmethod
     def format_human(self, fmt: LogColorProvider) -> str:
         assert False
 
+    @abstractmethod
     def format_dict(self) -> dict:
         assert False
 
