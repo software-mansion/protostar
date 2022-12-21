@@ -34,6 +34,9 @@ class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
         self._finish_hook = Hook()
 
     async def execute(self, function_name: str) -> TestExecutionResult:
+        assert (
+            self.state.contract
+        ), "Tried to use legacy execution flow with no test contract provided!"
         assert not has_function_parameters(
             self.state.contract.abi, function_name
         ), f"{self.__class__.__name__} expects no function parameters."

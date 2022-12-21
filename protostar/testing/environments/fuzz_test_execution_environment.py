@@ -50,6 +50,9 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
         self.given_strategies: dict[str, SearchStrategy] = {}
 
     async def execute(self, function_name: str) -> FuzzTestExecutionResult:
+        assert (
+            self.state.contract
+        ), "Tried to use legacy execution flow with no test contract provided!"
         abi = self.state.contract.abi
         parameters = get_function_parameters(abi, function_name)
         assert (

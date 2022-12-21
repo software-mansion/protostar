@@ -55,6 +55,22 @@ class TestExecutionState(ExecutionState):
             project_compiler=project_compiler,
         )
 
+    @classmethod
+    async def for_cairo_execution(
+        cls,
+        test_config: TestConfig,
+        project_compiler: ProjectCompiler,
+    ):
+        return cls(
+            config=test_config,
+            context=TestContext(),
+            contract=None,
+            output_recorder=OutputRecorder(),
+            stopwatch=Stopwatch(),
+            starknet=await ForkableStarknet.empty(),
+            project_compiler=project_compiler,
+        )
+
     def fork(self) -> Self:
         return dataclasses.replace(
             super().fork(),
@@ -65,4 +81,7 @@ class TestExecutionState(ExecutionState):
         )
 
     def determine_test_mode(self, test_case: TestCase):
+        assert (
+            self.contract
+        ), "Tried to use legacy execution flow with no test contract provided!"
         self.config.determine_mode(test_case=test_case, contract=self.contract)

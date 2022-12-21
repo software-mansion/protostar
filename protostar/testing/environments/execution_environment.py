@@ -38,6 +38,9 @@ class ExecutionEnvironment(ABC, Generic[InvokeResultT]):
         **kwargs: Any,
     ) -> PerformExecuteResult:
         try:
+            assert (
+                self.state.contract
+            ), "Tried to use legacy execution flow with no test contract provided!"
             func = self.state.contract.get_contract_function(function_name)
             invocation: StarknetContractFunctionInvocation = func(*args, **kwargs)
             resources_manager = ExecutionResourcesManager.empty()
