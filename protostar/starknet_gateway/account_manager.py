@@ -113,7 +113,9 @@ class AccountManager(MulticallAccountManagerProtocol):
             self._account.address
         )
         if actual_account_version != self._account_client.supported_tx_version:
-            raise UnsupportedAccountVersionException(actual_account_version)
+            raise ProtostarException(
+                f"Unsupported account version: {actual_account_version}"
+            )
 
     async def execute(
         self, payload: PayloadToAccountExecuteInvokeTx
