@@ -1,18 +1,9 @@
-import json
-import logging
 from argparse import Namespace
 from pathlib import Path
 from typing import List, Optional
 
 from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
 from protostar.cli.activity_indicator import ActivityIndicator
-from protostar.commands.test.test_collector_summary_formatter import (
-    format_test_collector_summary,
-)
-from protostar.commands.test.test_result_formatter import (
-    format_test_result,
-)
-from protostar.testing.test_scheduler import make_path_relative_if_possible
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.compiler import ProjectCairoPathBuilder
 from protostar.io.log_color_provider import LogColorProvider
@@ -31,7 +22,6 @@ from protostar.starknet.compiler.common import CompilerConfig
 from protostar.testing import (
     TestCollector,
     TestingSummary,
-    TestResult,
     TestRunner,
     TestScheduler,
     determine_testing_seed,
@@ -39,7 +29,7 @@ from protostar.testing import (
 from protostar.testing.cairo_test_runner import CairoTestRunner
 from protostar.io.output import Messenger
 
-from .messages import get_formatted_execution_time_structured
+from .messages import TestCollectorResultMessage
 from .test_command_cache import TestCommandCache
 
 
@@ -262,27 +252,10 @@ A glob or globs to a directory or a test suite, for example:
                 "Only one test case can be profiled at the time. Please specify path to a single test case."
             )
 
-        if structured_format:
-            collected_tests = {
-                "type": "test_collector_result",
-                "broken_test_suites_count": len(
-                    test_collector_result.broken_test_suites
-                ),
-                "test_suites_count": len(test_collector_result.test_suites),
-                "test_cases_count": sum(
-                    len(test_suite.test_cases)
-                    for test_suite in test_collector_result.test_suites
-                ),
-                "duration_in_seconds": get_formatted_execution_time_structured(
-                    test_collector_result.duration
-                ),
-            }
-            print(json.dumps(collected_tests))
-        else:
-            self._log_test_collector_result(test_collector_result)
+        messenger(TestCollectorResultMessage(test_collector_result))
 
         testing_summary = TestingSummary(
-            test_results=test_collector_result.broken_test_suites,  # type: ignore | pyright bug?
+            test_results=test_collector_result.broken_test_suites,  # type: ignore
             testing_seed=testing_seed,
         )
 
@@ -315,30 +288,3 @@ A glob or globs to a directory or a test suite, for example:
             )
 
         return testing_summary
-
-    def _log_test_collector_result(
-        self, test_collector_result: TestCollector.Result
-    ) -> None:
-        for broken_test_suite in test_collector_result.broken_test_suites:
-            self._log_formatted_test_result(broken_test_suite)
-        if test_collector_result.test_cases_count:
-            self._log_formatted_test_collector_summary(test_collector_result)
-        else:
-            logging.warning("No test cases found")
-
-    def _log_formatted_test_collector_summary(
-        self, test_collector_result: TestCollector.Result
-    ) -> None:
-        formatted_result = format_test_collector_summary(
-            test_case_count=test_collector_result.test_cases_count,
-            test_suite_count=len(test_collector_result.test_suites),
-            duration_in_sec=test_collector_result.duration,
-        )
-        logging.info(formatted_result)
-
-    def _log_formatted_test_result(self, test_result: TestResult) -> None:
-        test_result = make_path_relative_if_possible(
-            test_result, self._project_root_path
-        )
-        formatted_test_result = format_test_result(test_result)
-        print(formatted_test_result)
