@@ -17,6 +17,8 @@ from .types import (
     Calldata,
     HumanDataRepresentation,
     Wei,
+    Hash,
+    TransactionHash,
 )
 from .address import Address, RawAddress
 from .selector import Selector

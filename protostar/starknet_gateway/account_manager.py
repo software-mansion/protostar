@@ -6,14 +6,11 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.client_models import Call as SNCall
 from starknet_py.net.client_errors import ClientError
 
-from protostar.starknet import Address
+from protostar.starknet import Address, TransactionHash
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet.selector import Selector
 from protostar.starknet.types import CairoDataRepresentation
-from protostar.starknet_gateway.core import (
-    TransactionSentResponse,
-    PayloadToAccountExecuteInvokeTx,
-)
+from protostar.starknet_gateway.core import PayloadToAccountExecuteInvokeTx
 from protostar.starknet_gateway.multicall import (
     SignedMulticallTransaction,
     MulticallAccountManagerProtocol,
@@ -120,7 +117,7 @@ class AccountManager(MulticallAccountManagerProtocol):
 
     async def execute(
         self, payload: PayloadToAccountExecuteInvokeTx
-    ) -> TransactionSentResponse:
+    ) -> TransactionHash:
         return await self._client.send_payload_to_account_execute(payload)
 
 

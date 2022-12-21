@@ -7,11 +7,6 @@ from .types import Wei
 
 
 @dataclass
-class TransactionSentResponse:
-    transaction_hash: int
-
-
-@dataclass
 class PayloadToAccountExecuteInvokeTx:
     account_address: Address
     account_execute_calldata: CairoDataRepresentation

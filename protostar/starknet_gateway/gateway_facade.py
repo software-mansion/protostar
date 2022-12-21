@@ -33,16 +33,13 @@ from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeployResponse,
     SuccessfulInvokeResponse,
 )
-from protostar.starknet import Address, CairoDataRepresentation
+from protostar.starknet import Address, CairoDataRepresentation, TransactionHash
 from protostar.starknet_gateway.multicall import MulticallClientResponse
 from protostar.starknet_gateway.multicall.multicall_protocols import (
     SignedMulticallTransaction,
     MulticallClientProtocol,
 )
-from protostar.starknet_gateway.core import (
-    TransactionSentResponse,
-    PayloadToAccountExecuteInvokeTx,
-)
+from protostar.starknet_gateway.core import PayloadToAccountExecuteInvokeTx
 
 from .contract_function_factory import ContractFunctionFactory
 from .type import ClassHash, ContractFunctionInputType, Fee
@@ -402,7 +399,7 @@ class GatewayFacade(MulticallClientProtocol):
 
     async def send_payload_to_account_execute(
         self, payload: PayloadToAccountExecuteInvokeTx
-    ) -> TransactionSentResponse:
+    ) -> TransactionHash:
         try:
             contract_address = int(payload.account_address)
             calldata = payload.account_execute_calldata
@@ -416,7 +413,7 @@ class GatewayFacade(MulticallClientProtocol):
                     signature=payload.signature,
                 )
             )
-            return TransactionSentResponse(transaction_hash=result.transaction_hash)
+            return result.transaction_hash
         except ClientError as ex:
             raise TransactionException(message=ex.message) from ex
 

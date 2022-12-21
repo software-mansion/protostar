@@ -7,3 +7,5 @@ CairoDataRepresentation = list[int]
 HumanDataRepresentation = dict
 Calldata = Union[CairoDataRepresentation, HumanDataRepresentation]
 Wei = int
+Hash = int
+TransactionHash = Hash
