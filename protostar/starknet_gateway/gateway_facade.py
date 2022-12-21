@@ -1,8 +1,7 @@
 import dataclasses
 from pathlib import Path
-from typing import NamedTuple, Optional, TypeVar, Union
+from typing import Optional, TypeVar, Union
 
-from starknet_py.contract import ContractFunction, InvokeResult
 from starknet_py.net import AccountClient
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.gateway_client import GatewayClient
@@ -30,7 +29,6 @@ from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeclareResponse,
     SuccessfulDeployAccountResponse,
     SuccessfulDeployResponse,
-    SuccessfulInvokeResponse,
 )
 from protostar.starknet import Address, CairoData, TransactionHash
 from protostar.starknet_gateway.multicall import MulticallClientResponse
@@ -40,8 +38,7 @@ from protostar.starknet_gateway.multicall.multicall_protocols import (
 )
 from protostar.starknet_gateway.core import PreparedInvokeTransaction
 
-from .contract_function_factory import ContractFunctionFactory
-from .type import ClassHash, ContractFunctionInputType, Fee
+from .type import ClassHash, Fee
 
 
 @dataclasses.dataclass
@@ -244,85 +241,6 @@ class GatewayFacade(MulticallClientProtocol):
             transaction_hash=response.transaction_hash,
         )
 
-    async def call(
-        self,
-        address: Address,
-        function_name: str,
-        inputs: Optional[ContractFunctionInputType] = None,
-    ) -> NamedTuple:
-        contract_function = await self._get_contract_function(
-            function_name=function_name,
-            address=address,
-        )
-
-        try:
-            result = await self._call_function(contract_function, inputs)
-        except TransactionFailedError as ex:
-            raise TransactionException(str(ex)) from ex
-        except ClientError as ex:
-            raise TransactionException(message=ex.message) from ex
-
-        return result
-
-    async def invoke(
-        self,
-        contract_address: Address,
-        function_name: str,
-        account_address: Address,
-        signer: BaseSigner,
-        max_fee: Fee,
-        inputs: Optional[CairoOrPythonData] = None,
-        wait_for_acceptance: bool = False,
-    ) -> SuccessfulInvokeResponse:
-        account_client = await self._create_account_client(
-            account_address=account_address, signer=signer
-        )
-        try:
-            contract_function = await self._get_contract_function(
-                function_name=function_name,
-                address=contract_address,
-                client=account_client,
-            )
-            result = await self._invoke_function(
-                contract_function=contract_function,
-                inputs=inputs,
-                max_fee=max_fee,
-            )
-
-        except TransactionFailedError as ex:
-            raise TransactionException(str(ex)) from ex
-        except ClientError as ex:
-            raise TransactionException(message=ex.message) from ex
-
-        result = await result.wait_for_acceptance(wait_for_accept=wait_for_acceptance)
-
-        return SuccessfulInvokeResponse(
-            transaction_hash=result.hash
-            if isinstance(result.hash, int)
-            else int(result.hash),
-        )
-
-    async def _invoke_function(
-        self,
-        contract_function: ContractFunction,
-        max_fee: Fee,
-        inputs: Optional[CairoOrPythonData] = None,
-    ) -> InvokeResult:
-        fee_params = {
-            "max_fee": max_fee if isinstance(max_fee, int) else None,
-            "auto_estimate": max_fee == "auto",
-        }
-
-        if inputs is None:
-            inputs = {}
-
-        try:
-            if isinstance(inputs, list):  # List of felts, raw input
-                return await contract_function.invoke(*inputs, **fee_params)
-            return await contract_function.invoke(**inputs, **fee_params)
-        except (TypeError, ValueError) as ex:
-            raise InputValidationException(str(ex)) from ex
-
     async def _create_account_client(
         self,
         account_address: Address,
@@ -343,32 +261,6 @@ class GatewayFacade(MulticallClientProtocol):
             signer=signer,
             supported_tx_version=supported_by_account_tx_version,
         )
-
-    @staticmethod
-    async def _call_function(
-        contract_function: ContractFunction,
-        inputs: Optional[ContractFunctionInputType] = None,
-    ):
-        if inputs is None:
-            inputs = {}
-
-        try:
-            if isinstance(inputs, list):
-                return await contract_function.call(*inputs)
-            return await contract_function.call(**inputs)
-        except (TypeError, ValueError) as ex:
-            raise InputValidationException(str(ex)) from ex
-
-    async def _get_contract_function(
-        self,
-        address: Address,
-        function_name: str,
-        client: Optional[Union[GatewayClient, AccountClient]] = None,
-    ) -> ContractFunction:
-        if not client:
-            client = self._gateway_client
-
-        return await ContractFunctionFactory(client).create(address, function_name)
 
     async def send_multicall_transaction(
         self, transaction: SignedMulticallTransaction
