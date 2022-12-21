@@ -44,7 +44,7 @@ def test_init_existing(protostar_bin: Path):
 
 
 def test_init_ask_existing(protostar_bin: Path):
-    open(Path() / "example.cairo", "a", encoding="utf-8").close()
+    Path("example.cairo").touch()
 
     child = pexpect.spawn(f"{protostar_bin} init")
     child.expect("Your current directory.*", timeout=10)
@@ -89,7 +89,7 @@ def test_migrate_configuration_file(protostar: ProtostarFixture):
         protostar_version = "0.5.0"
 
         ["protostar.project"]
-        libs_path = "./lib"         
+        libs_path = "./lib"
 
         ["protostar.contracts"]
         main = [
