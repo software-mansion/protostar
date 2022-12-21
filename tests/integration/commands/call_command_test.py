@@ -4,7 +4,6 @@ from pathlib import Path
 import pytest
 
 from protostar.protostar_exception import ProtostarException
-from protostar.starknet_gateway.gateway_facade import InputValidationException
 from tests.conftest import DevnetAccount, SetPrivateKeyEnvVarFixture
 from tests.data.contracts import UINT256_IDENTITY_CONTRACT
 from tests.integration.conftest import CreateProtostarProjectFixture
