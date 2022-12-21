@@ -100,7 +100,7 @@ class TestingLiveLogger:
         shared_tests_state: SharedTestsState,
         test_collector_result: "TestCollector.Result",
         structured_format: bool,
-        messanger: Optional[Messenger] = None,
+        messenger: Optional[Messenger] = None,
     ):
         try:
             with bar(
@@ -130,8 +130,8 @@ class TestingLiveLogger:
 
                         formatted_test_result = format_test_result(test_result)
                         if structured_format:
-                            assert messanger is not None
-                            messanger(formatted_test_result)
+                            assert messenger is not None
+                            messenger(formatted_test_result)
                         else:
                             progress_bar.write(
                                 formatted_test_result.format_human(
