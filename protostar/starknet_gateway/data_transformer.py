@@ -39,7 +39,7 @@ class DataTransformer:
     async def _resolve_abi_or_fail(self, address: Address):
         abi = await self._abi_resolver.resolve(address)
         if abi is None:
-            raise AbiNotFoundException(
+            raise ProtostarException(
                 message=(
                     f"Couldn't resolve ABI for address: {address}.\n"
                     "Provide ABI to use data transformer."
@@ -63,8 +63,3 @@ class DataTransformer:
             mode="outputs",
         )
         return transform(data)
-
-
-class AbiNotFoundException(ProtostarException):
-    def __init__(self, message: str):
-        super().__init__(message=message)
