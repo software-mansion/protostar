@@ -15,7 +15,7 @@ from protostar.starknet import (
 from .abi_resolver import AbiResolver
 
 
-class DataTransformer:
+class DataTransformerPolicy:
     def __init__(self, abi_resolver: AbiResolver) -> None:
         self._abi_resolver = abi_resolver
 

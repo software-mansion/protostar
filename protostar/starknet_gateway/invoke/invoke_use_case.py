@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from protostar.starknet_gateway import (
         GatewayFacade,
         AccountManager,
-        DataTransformer,
+        DataTransformerPolicy,
     )
 
 
@@ -15,15 +15,15 @@ class InvokeUseCase:
         self,
         client: "GatewayFacade",
         account_manager: "AccountManager",
-        data_transformer: "DataTransformer",
+        data_transformer_policy: "DataTransformerPolicy",
     ) -> None:
         self._client = client
         self._account_manager = account_manager
-        self._data_transformer = data_transformer
+        self._data_transformer_policy = data_transformer_policy
 
     async def execute(self, input_data: InvokeInput) -> InvokeOutput:
         cairo_calldata = (
-            await self._data_transformer.transform_entrypoint_input_to_cairo(
+            await self._data_transformer_policy.transform_entrypoint_input_to_cairo(
                 address=input_data.address,
                 selector=input_data.selector,
                 calldata=input_data.calldata,

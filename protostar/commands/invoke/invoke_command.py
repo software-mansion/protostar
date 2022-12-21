@@ -22,7 +22,7 @@ from protostar.starknet_gateway import (
     GatewayFacadeFactory,
     create_block_explorer,
     AccountManager,
-    DataTransformer,
+    DataTransformerPolicy,
     AbiResolver,
     Account,
 )
@@ -139,7 +139,7 @@ class InvokeCommand(ProtostarCommand):
             gateway_url=gateway_url,
         )
         abi_resolver = AbiResolver(client=gateway_client)
-        data_transformer = DataTransformer(abi_resolver=abi_resolver)
+        data_transformer_policy = DataTransformerPolicy(abi_resolver=abi_resolver)
         use_case_input = InvokeInput(
             address=contract_address,
             selector=Selector(function_name),
@@ -150,7 +150,7 @@ class InvokeCommand(ProtostarCommand):
         use_case = InvokeUseCase(
             account_manager=account_manager,
             client=gateway_facade,
-            data_transformer=data_transformer,
+            data_transformer_policy=data_transformer_policy,
         )
 
         write(SendingInvokeTransactionMessage())
