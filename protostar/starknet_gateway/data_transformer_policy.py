@@ -4,9 +4,9 @@ from protostar.protostar_exception import ProtostarException
 from protostar.starknet import (
     to_python_transformer,
     from_python_transformer,
-    CairoDataRepresentation,
-    HumanDataRepresentation,
-    Calldata,
+    CairoData,
+    PythonData,
+    CairoOrPythonData,
     AbiType,
     Address,
     Selector,
@@ -21,14 +21,14 @@ class DataTransformerPolicy:
 
     async def transform_entrypoint_input_to_cairo(
         self,
-        calldata: Optional[Calldata],
+        calldata: Optional[CairoOrPythonData],
         address: Address,
         selector: Selector,
         abi: Optional[AbiType],
-    ) -> CairoDataRepresentation:
+    ) -> CairoData:
         if calldata is None:
             return []
-        if isinstance(calldata, HumanDataRepresentation):
+        if isinstance(calldata, PythonData):
             abi = abi or await self._resolve_abi_or_fail(address=address)
             transform = from_python_transformer(
                 contract_abi=abi, fn_name=str(selector), mode="inputs"
@@ -49,11 +49,11 @@ class DataTransformerPolicy:
 
     async def transform_entrypoint_output_to_human_if_abi_found(
         self,
-        data: CairoDataRepresentation,
+        data: CairoData,
         address: Address,
         selector: Selector,
         abi: Optional[AbiType],
-    ) -> Optional[HumanDataRepresentation]:
+    ) -> Optional[PythonData]:
         abi = abi or await self._abi_resolver.resolve(address)
         if abi is None:
             return None

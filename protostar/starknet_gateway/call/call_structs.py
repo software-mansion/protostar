@@ -5,9 +5,9 @@ from protostar.starknet import (
     Address,
     Selector,
     AbiType,
-    HumanDataRepresentation,
-    Calldata,
-    CairoDataRepresentation,
+    PythonData,
+    CairoOrPythonData,
+    CairoData,
 )
 
 
@@ -15,11 +15,11 @@ from protostar.starknet import (
 class CallInput:
     address: Address
     selector: Selector
-    inputs: Optional[Calldata]
+    inputs: Optional[CairoOrPythonData]
     abi: Optional[AbiType]
 
 
 @dataclass
 class CallOutput:
-    cairo_data: CairoDataRepresentation
-    human_data: Optional[HumanDataRepresentation]
+    cairo_data: CairoData
+    human_data: Optional[PythonData]

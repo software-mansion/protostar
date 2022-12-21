@@ -14,7 +14,7 @@ from protostar.starknet_gateway import (
     DataTransformerPolicy,
 )
 from protostar.starknet import Address, Selector
-from protostar.starknet_gateway.call import CallUseCase, CallInput, Calldata
+from protostar.starknet_gateway.call import CallUseCase, CallInput, CairoOrPythonData
 
 from .call_command_messages import SuccessfulCallMessage
 
@@ -84,7 +84,7 @@ class CallCommand(ProtostarCommand):
         contract_address: Address,
         function_name: str,
         gateway_client: GatewayClient,
-        inputs: Optional[Calldata] = None,
+        inputs: Optional[CairoOrPythonData] = None,
     ) -> SuccessfulCallMessage:
         gateway_facade = self._gateway_facade_factory.create(gateway_client)
         abi_resolver = AbiResolver(client=gateway_client)

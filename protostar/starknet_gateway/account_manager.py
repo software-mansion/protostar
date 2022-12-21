@@ -6,18 +6,16 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.client_models import Call as SNCall
 from starknet_py.net.client_errors import ClientError
 
-from protostar.starknet import Address, TransactionHash
+from protostar.starknet import Address, TransactionHash, Selector, CairoData
 from protostar.protostar_exception import ProtostarException
-from protostar.starknet.selector import Selector
-from protostar.starknet.types import CairoDataRepresentation
 from protostar.starknet_gateway.core import PreparedInvokeTransaction
 from protostar.starknet_gateway.multicall import (
     SignedMulticallTransaction,
     MulticallAccountManagerProtocol,
     UnsignedMulticallTransaction,
 )
-from protostar.starknet_gateway.type import Fee
 
+from .type import Fee
 from .account_tx_version_detector import AccountTxVersionDetector
 from .gateway_facade import GatewayFacade
 
@@ -83,7 +81,7 @@ class AccountManager(MulticallAccountManagerProtocol):
         self,
         address: Address,
         selector: Selector,
-        calldata: CairoDataRepresentation,
+        calldata: CairoData,
         max_fee: Fee,
     ) -> PreparedInvokeTransaction:
         await self._ensure_account_is_valid()

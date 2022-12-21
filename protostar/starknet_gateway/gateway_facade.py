@@ -14,7 +14,6 @@ from starknet_py.transaction_exceptions import (
     TransactionFailedError,
     TransactionRejectedError,
 )
-from starknet_py.utils.data_transformer.data_transformer import CairoData
 from starknet_py.utils.data_transformer.errors import CairoSerializerException
 from starkware.starknet.public.abi import AbiType
 from typing_extensions import Self, TypeGuard
@@ -33,7 +32,7 @@ from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeployResponse,
     SuccessfulInvokeResponse,
 )
-from protostar.starknet import Address, CairoDataRepresentation, TransactionHash
+from protostar.starknet import Address, CairoData, TransactionHash
 from protostar.starknet_gateway.multicall import MulticallClientResponse
 from protostar.starknet_gateway.multicall.multicall_protocols import (
     SignedMulticallTransaction,
@@ -384,8 +383,8 @@ class GatewayFacade(MulticallClientProtocol):
         self,
         address: Address,
         selector: Selector,
-        cairo_calldata: CairoDataRepresentation,
-    ) -> CairoDataRepresentation:
+        cairo_calldata: CairoData,
+    ) -> CairoData:
         try:
             return await self._gateway_client.call_contract(
                 call=Call(

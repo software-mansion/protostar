@@ -16,7 +16,7 @@ from protostar.cli.common_arguments import (
     WAIT_FOR_ACCEPTANCE_ARG,
 )
 from protostar.io.output import Messenger
-from protostar.starknet import Address, Calldata, Selector
+from protostar.starknet import Address, CairoOrPythonData, Selector
 from protostar.starknet_gateway import (
     Fee,
     GatewayFacadeFactory,
@@ -126,7 +126,7 @@ class InvokeCommand(ProtostarCommand):
         account_address: Address,
         write: Messenger,
         block_explorer: BlockExplorer,
-        inputs: Optional[Calldata] = None,
+        inputs: Optional[CairoOrPythonData] = None,
         wait_for_acceptance: bool = False,
     ) -> InvokeOutput:
         gateway_facade = self._gateway_facade_factory.create(gateway_client)
