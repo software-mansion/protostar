@@ -38,9 +38,11 @@ class InvokeUseCase:
                 max_fee=input_data.max_fee,
             )
         )
-        response = await self._account_manager.execute(payload_to_account_execute)
+        transaction_hash = await self._account_manager.execute(
+            payload_to_account_execute
+        )
         return InvokeOutput(
-            transaction_hash=response.transaction_hash,
+            transaction_hash=transaction_hash,
         )
 
     async def wait_for_acceptance(self, tx_hash: int) -> None:

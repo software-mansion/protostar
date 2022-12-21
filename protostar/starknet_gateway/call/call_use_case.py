@@ -29,13 +29,11 @@ class CallUseCase:
             selector=input_data.selector,
             cairo_calldata=cairo_calldata,
         )
-        response_human_data = (
-            await self._data_transformer.try_transforming_entrypoint_output_to_human(
-                data=response_cairo_data,
-                address=input_data.address,
-                selector=input_data.selector,
-                abi=input_data.abi,
-            )
+        response_human_data = await self._data_transformer.transform_entrypoint_output_to_human_if_abi_found(
+            data=response_cairo_data,
+            address=input_data.address,
+            selector=input_data.selector,
+            abi=input_data.abi,
         )
         return CallOutput(
             cairo_data=response_cairo_data,

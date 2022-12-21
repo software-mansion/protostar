@@ -47,7 +47,7 @@ class DataTransformer:
             )
         return abi
 
-    async def try_transforming_entrypoint_output_to_human(
+    async def transform_entrypoint_output_to_human_if_abi_found(
         self,
         data: CairoDataRepresentation,
         address: Address,
