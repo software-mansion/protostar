@@ -3,11 +3,11 @@
 set -e
 
 STAGED_FILES=$(git diff --name-only --cached)
-STAGED_FILES_FOR_FORMAT=$(poetry run poe show_format_check_path | tail -n 1 | xargs git diff --name-only --staged)
-STAGED_FILES_FOR_LINT=$(poetry run poe show_lint_path | tail -n 1 | xargs git diff --name-only --staged)
+STAGED_FILES_FOR_FORMAT=$(./scripts/get_code_check_paths.sh format | xargs git diff --name-only --staged)
+STAGED_FILES_FOR_LINT=$(./scripts/get_code_check_paths.sh lint | xargs git diff --name-only --staged)
 
 if [ -z "${STAGED_FILES}" ]; then
-  echo "no staged files, exiting";
+  echo "pre-commit hook: no staged files, exiting";
   exit 0;
 fi
 

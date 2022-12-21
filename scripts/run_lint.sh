@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-find . -name '*.py' | xargs pylint
+./scripts/get_code_check_paths.sh lint | xargs pylint

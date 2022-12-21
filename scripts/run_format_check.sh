@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-find protostar -name '*.py' | xargs black --check
+./scripts/get_code_check_paths.sh format | xargs black --check
