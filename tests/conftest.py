@@ -32,7 +32,7 @@ def ensure_devnet_alive(
 ) -> bool:
     for i in range(retries):
         try:
-            res = requests.get(f"http://localhost:{port}/is_alive")
+            res = requests.get(f"http://localhost:{port}/is_alive", timeout=30)
             if res.status_code == 200:
                 return True
         except requests.exceptions.ConnectionError:
@@ -80,7 +80,7 @@ def devnet_port_fixture() -> int:
 
 @pytest.fixture(name="devnet_accounts")
 def devnet_accounts_fixture(devnet_gateway_url: str) -> list[DevnetAccount]:
-    response = requests.get(f"{devnet_gateway_url}/predeployed_accounts")
+    response = requests.get(f"{devnet_gateway_url}/predeployed_accounts", timeout=30)
     devnet_account_dicts = json.loads(response.content)
     return [
         DevnetAccount(

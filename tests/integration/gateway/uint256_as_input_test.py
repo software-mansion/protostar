@@ -58,7 +58,7 @@ async def test_uint256_as_input(
             gateway_url=devnet_gateway_url,
         )
 
-        assert response.response.res == (24 << 128) + 42
+        assert response.call_output.cairo_data == [42, 24]
 
 
 async def test_uint256_as_input_fail(
@@ -77,7 +77,7 @@ async def test_uint256_as_input_fail(
         )
 
         with pytest.raises(TransactionException):
-            response = await protostar.deploy(
+            await protostar.deploy(
                 class_hash=declare_response.class_hash,
                 gateway_url=devnet_gateway_url,
                 account_address=devnet_account.address,

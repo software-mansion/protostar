@@ -1,12 +1,12 @@
 import pytest
 
 from protostar.protostar_exception import ProtostarException
+from protostar.starknet_gateway.gateway_facade import InputValidationException
 from tests._conftest.devnet import DevnetFixture
 from tests.conftest import DevnetAccount, SetPrivateKeyEnvVarFixture
 from tests.data.contracts import RUNTIME_ERROR_CONTRACT
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration._conftest import ProtostarFixture
-from protostar.starknet_gateway.gateway_facade import InputValidationException
 
 
 @pytest.fixture(name="protostar")

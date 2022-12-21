@@ -52,7 +52,6 @@ class ProtostarInitializingIndicator:
             return
 
         self._thread.start()
-        return self
 
     def _animate(self):
         for step in cycle(self.steps):

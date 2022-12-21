@@ -25,3 +25,4 @@ from .contract_function_factory import (
     UnknownFunctionException,
 )
 from .account_manager import AccountManager, Account
+from .abi_resolver import AbiResolver

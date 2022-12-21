@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import pytest
-from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 
 from protostar.argument_parser import ArgumentParserFacade, CLIApp
@@ -22,17 +21,14 @@ from protostar.commands import (
 from protostar.commands.deploy_account_command import DeployAccountCommand
 from protostar.commands.deploy_command import DeployCommand
 from protostar.commands.test import TestCommand
-from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.formatter.formatting_result import FormattingResult
 from protostar.formatter.formatting_summary import FormattingSummary
-from protostar.starknet_gateway import Fee, GatewayFacade, GatewayFacadeFactory, Wei
+from protostar.starknet_gateway import Fee, Wei
 from protostar.testing import TestingSummary
 from protostar.starknet import Address
 from protostar.starknet.data_transformer import CairoOrPythonData
-from protostar.commands.call_command import SuccessfulCallMessage
 from tests.conftest import DevnetAccount
 
-from .gateway_client_tx_interceptor import GatewayClientTxInterceptor
 from .transaction_registry import TransactionRegistry
 
 
@@ -276,7 +272,8 @@ class ProtostarFixture:
         inputs: Optional[CairoOrPythonData],
         gateway_url: str,
         abi: Optional[list[Any]] = None,
-    ) -> SuccessfulCallMessage:
+        json: bool = False,
+    ):
         args = Namespace()
         args.contract_address = contract_address
         args.function = function_name
@@ -284,7 +281,7 @@ class ProtostarFixture:
         args.network = None
         args.gateway_url = gateway_url
         args.chain_id = StarknetChainId.TESTNET
-        args.json = False
+        args.json = json
         args.abi = abi
 
         return await self._call_command.run(args)
@@ -356,28 +353,3 @@ class ProtostarFixture:
             encoding="utf-8",
         ) as output_file:
             output_file.write(content)
-
-
-class TestFriendlyGatewayFacadeFactory(GatewayFacadeFactory):
-    def __init__(
-        self,
-        project_root_path: Path,
-        compiled_contract_reader: CompiledContractReader,
-        transaction_registry: TransactionRegistry,
-    ) -> None:
-        super().__init__(project_root_path, compiled_contract_reader)
-        self.recent_gateway_client: Optional[GatewayClientTxInterceptor] = None
-        self._transaction_registry = transaction_registry
-
-    def create(self, gateway_client: GatewayClient):
-        gateway_client_tx_interceptor = GatewayClientTxInterceptor(
-            # pylint: disable=protected-access
-            net=gateway_client._net,
-            transaction_registry=self._transaction_registry,
-        )
-        self.recent_gateway_client = gateway_client_tx_interceptor
-        return GatewayFacade(
-            project_root_path=self._project_root_path,
-            compiled_contract_reader=self._compiled_contract_reader,
-            gateway_client=gateway_client_tx_interceptor,
-        )

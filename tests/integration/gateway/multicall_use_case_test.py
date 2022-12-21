@@ -86,4 +86,4 @@ async def test_multicall_use_case_happy_case(
             gateway_url=devnet.get_gateway_url(),
             inputs=[],
         )
-        assert call_result.response.res == 42
+        assert call_result.call_output.cairo_data == [42]

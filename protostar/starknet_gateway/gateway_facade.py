@@ -9,7 +9,7 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import Transaction
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.udc_deployer.deployer import Deployer, ContractDeployment
-from starknet_py.net.client_models import InvokeFunction
+from starknet_py.net.client_models import InvokeFunction, Call
 from starknet_py.transaction_exceptions import (
     TransactionFailedError,
     TransactionRejectedError,
@@ -23,9 +23,11 @@ from protostar.starknet.abi import has_abi_item
 from protostar.compiler import CompiledContractReader
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet.data_transformer import CairoOrPythonData
+from protostar.starknet.selector import Selector
 from protostar.starknet_gateway.account_tx_version_detector import (
     AccountTxVersionDetector,
 )
+from protostar.starknet_gateway.call.call_structs import CairoDataRepresentation
 from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeclareResponse,
     SuccessfulDeployAccountResponse,
@@ -375,6 +377,23 @@ class GatewayFacade(MulticallClientProtocol):
                 )
             )
             return MulticallClientResponse(transaction_hash=result.transaction_hash)
+        except ClientError as ex:
+            raise TransactionException(message=ex.message) from ex
+
+    async def send_call(
+        self,
+        address: Address,
+        selector: Selector,
+        cairo_calldata: CairoDataRepresentation,
+    ) -> CairoDataRepresentation:
+        try:
+            return await self._gateway_client.call_contract(
+                call=Call(
+                    to_addr=int(address),
+                    selector=int(selector),
+                    calldata=cairo_calldata,
+                )
+            )
         except ClientError as ex:
             raise TransactionException(message=ex.message) from ex
 
