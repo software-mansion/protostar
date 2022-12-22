@@ -160,7 +160,7 @@ async def test_call_to_unknown_function(
 async def test_call_to_unknown_contract(gateway_facade: GatewayFacade):
     with pytest.raises(
         ProtostarException,
-        match="Contract not found",
+        match="Contract .* not found",
     ):
         await gateway_facade.send_call(
             address=Address.from_user_input(123),
