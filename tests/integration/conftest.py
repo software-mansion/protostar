@@ -164,7 +164,7 @@ def run_test_runner_fixture(
                 for ignored_test_case in ignored_test_cases
             ]
 
-        def fake_indicator(s: str) -> ContextManager:
+        def fake_indicator(_: str) -> ContextManager:
             ...
 
         messenger_factory = MessengerFactory(

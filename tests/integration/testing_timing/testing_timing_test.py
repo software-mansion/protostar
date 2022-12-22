@@ -6,10 +6,9 @@ import pytest
 
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.commands.test.messages.testing_summary_message import (
-    TestingSummaryResultMessage,
     _format_slow_test_cases_list,
 )
-from protostar.testing import TestCollector, TestingSummary
+from protostar.testing import TestingSummary
 
 from tests.integration.conftest import RunTestRunnerFixture
 
