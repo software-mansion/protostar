@@ -221,6 +221,7 @@ class TestingSummaryResultMessage(StructuredMessage):
             },
             "test_case_counts": {
                 "total": self.test_collector_result.test_cases_count,
+                "broken": len(self.testing_summary.broken),
                 "failed": failed_tests,
                 "passed": passed_tests,
                 "skipped": calculate_skipped(
