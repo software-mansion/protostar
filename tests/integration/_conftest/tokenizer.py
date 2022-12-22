@@ -1,7 +1,7 @@
 from typing import Any
 
 
-def untokenize(positional_args: list[Any], named_args: dict[str, Any]):
+def tokenize(positional_args: list[Any], named_args: dict[str, Any]):
     tokens: list[str] = []
     for value in positional_args:
         if value is not None:

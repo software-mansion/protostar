@@ -51,7 +51,7 @@ from protostar.testing import TestingSummary
 from protostar.starknet import Address
 from protostar.starknet.data_transformer import CairoOrPythonData
 from tests.conftest import DevnetAccount
-from tests.integration._conftest import untokenize
+from tests.integration._conftest import tokenize
 
 
 # pylint: disable=too-many-instance-attributes
@@ -346,7 +346,7 @@ class ProtostarFixture:
         named_args: Optional[dict[str, Any]] = None,
     ) -> Namespace:
         return self._parser.parse(
-            [command_name] + untokenize(positional_args or [], named_args or {})
+            [command_name] + tokenize(positional_args or [], named_args or {})
         )
 
     @staticmethod

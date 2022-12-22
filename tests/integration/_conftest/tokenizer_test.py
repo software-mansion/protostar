@@ -1,8 +1,8 @@
-from .untokenizer import untokenize
+from .tokenizer import tokenize
 
 
-def test_unparsing():
-    result = untokenize(
+def test_tokenization():
+    result = tokenize(
         ["positional", None, 42],
         {
             "string": "foobar",
