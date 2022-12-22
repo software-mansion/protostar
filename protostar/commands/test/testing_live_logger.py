@@ -35,11 +35,47 @@ class TestingLiveLogger:
         self.exit_first = exit_first
         self.slowest_tests_to_report_count = slowest_tests_to_report_count
 
-    def log(
+    def log_json(
         self,
         shared_tests_state: SharedTestsState,
         test_collector_result: "TestCollector.Result",
-        structured_format: bool,
+        messenger: Messenger,
+    ):
+        try:
+            tests_left_n = test_collector_result.test_cases_count
+            while tests_left_n > 0:
+                test_result: TestResult = shared_tests_state.get_result()
+
+                self.testing_summary.extend([test_result])
+
+                test_result = make_path_relative_if_possible(
+                    test_result, self._project_root_path
+                )
+
+                messenger(format_test_result(test_result))
+
+                if self.exit_first and shared_tests_state.any_failed_or_broken():
+                    tests_left_n = 0
+                    return
+
+                if isinstance(test_result, BrokenTestSuiteResult):
+                    tests_in_case_count = len(test_result.test_case_names)
+                    tests_left_n -= tests_in_case_count
+                else:
+                    tests_left_n -= 1
+        finally:
+            messenger(
+                TestingSummaryResultMessage(
+                    test_collector_result=test_collector_result,
+                    testing_summary=self.testing_summary,
+                    slowest_tests_to_report_count=self.slowest_tests_to_report_count,
+                )
+            )
+
+    def log_human(
+        self,
+        shared_tests_state: SharedTestsState,
+        test_collector_result: "TestCollector.Result",
         messenger: Messenger,
     ):
         try:
@@ -69,14 +105,9 @@ class TestingLiveLogger:
                         )
 
                         formatted_test_result = format_test_result(test_result)
-                        if structured_format:
-                            messenger(formatted_test_result)
-                        else:
-                            progress_bar.write(
-                                formatted_test_result.format_human(
-                                    fmt=log_color_provider
-                                )
-                            )
+                        progress_bar.write(
+                            formatted_test_result.format_human(fmt=log_color_provider)
+                        )
 
                         if (
                             self.exit_first

@@ -158,11 +158,6 @@ A glob or globs to a directory or a test suite, for example:
         ]
 
     async def run(self, args: Namespace) -> TestingSummary:
-        structured_format = False
-        if vars(args).get("json"):
-            structured_format = args.json
-        else:
-            args.json = None
         messenger = self._messenger_factory.from_args(args)
         cache = TestCommandCache(CacheIO(self._project_root_path))
         summary = await self.test(
@@ -178,7 +173,6 @@ A glob or globs to a directory or a test suite, for example:
             max_steps=args.max_steps,
             slowest_tests_to_report_count=args.report_slowest_tests,
             gas_estimation_enabled=args.estimate_gas,
-            structured_format=structured_format,
             messenger=messenger,
         )
         cache.write_failed_tests_to_cache(summary)
@@ -202,7 +196,6 @@ A glob or globs to a directory or a test suite, for example:
         max_steps: Optional[int] = None,
         slowest_tests_to_report_count: int = 0,
         gas_estimation_enabled: bool = False,
-        structured_format: bool = False,
     ) -> TestingSummary:
         include_paths = [
             str(path)
@@ -283,7 +276,6 @@ A glob or globs to a directory or a test suite, for example:
                 active_profile_name=self._active_profile_name,
                 cwd=self._cwd,
                 gas_estimation_enabled=gas_estimation_enabled,
-                structured_format=structured_format,
                 messenger=messenger,
                 testing_summary=testing_summary,
                 slowest_tests_to_report_count=slowest_tests_to_report_count,

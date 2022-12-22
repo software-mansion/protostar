@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Callable, List, Optional
 import dataclasses
 
-from protostar.io.output import Messenger
+from protostar.io.output import Messenger, HumanMessenger
 from protostar.commands.test.messages import TestingSummaryResultMessage
 from protostar.testing import (
     TestResult,
@@ -61,7 +61,6 @@ class TestScheduler:
         messenger: Messenger,
         slowest_tests_to_report_count: int,
         testing_summary: TestingSummary,
-        structured_format: bool = False,
     ):
         with multiprocessing.Manager() as manager:
             shared_tests_state = SharedTestsState(
@@ -102,12 +101,18 @@ class TestScheduler:
                 ) as pool:
                     results = pool.map_async(self._worker, setups)
 
-                    self._live_logger.log(
-                        shared_tests_state,
-                        test_collector_result,
-                        structured_format,
-                        messenger,
-                    )
+                    if isinstance(messenger, HumanMessenger):
+                        self._live_logger.log_human(
+                            shared_tests_state,
+                            test_collector_result,
+                            messenger,
+                        )
+                    else:
+                        self._live_logger.log_json(
+                            shared_tests_state,
+                            test_collector_result,
+                            messenger,
+                        )
 
                     if exit_first and shared_tests_state.any_failed_or_broken():
                         pool.terminate()
