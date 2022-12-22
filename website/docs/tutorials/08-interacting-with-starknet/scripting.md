@@ -7,7 +7,7 @@ We are going to write a script that builds, tests, declares, deploys, and, in th
 
 ### File Structure
 
-First, let's create a basic protostar file structure. You can generate it by calling `protostar init`. It looks like this:
+First, let's create a basic protostar file structure. You can generate it by calling [`protostar init`](../03-project-initialization.md). It looks like this:
 
 ```
 - src
@@ -82,7 +82,7 @@ we get an output like this:
 ```
 
 :::note
-The `--json` output is, in fact, formatted in [NDJSON](https://github.com/ndjson/ndjson-spec), but here we operate on commands that return single outputs, therefore we can treat them as JSONs.
+The `--json` output is, in fact, formatted in [NDJSON](https://github.com/ndjson/ndjson-spec), but here we operate on commands that return a single message, therefore we can treat them as JSONs.
 :::
 
 Now, we can parse the json and pull all the desired information from it easily as json is a format that is widely supported.
@@ -135,11 +135,11 @@ protostar call --contract-address $CONTRACT_ADDRESS --function get_balance
 
 Of course, we could exclude pulling a specific field from the output to a separate bash function but that's not important.
 
-Using the `--json` flag is also good if you prefer the more compressed output from protostar commands.
+Using the `--json` flag may also be good if you prefer the more compressed output from protostar commands.
 
 ### Python script
 
-The main advantage of using the JSON format is that the users may automate protostar operations easily no matter what languages and technologies they use.
+The main advantage of using the JSON format is that the user may automate protostar operations easily no matter what languages and technologies they use.
 
 We can achieve the same result as above writing the equivalent python script:
 
