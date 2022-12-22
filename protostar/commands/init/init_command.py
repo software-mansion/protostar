@@ -1,5 +1,6 @@
 from argparse import Namespace
 from glob import glob
+from logging import getLogger
 from typing import Optional
 
 from protostar.cli import ProtostarArgument, ProtostarCommand
@@ -62,6 +63,7 @@ class InitCommand(ProtostarCommand):
     def init(
         self, force_adapting_existing_project: bool, project_name: Optional[str] = None
     ):
+        logger = getLogger()
         should_adapt_existing_project = False
 
         if force_adapting_existing_project:
@@ -73,12 +75,16 @@ class InitCommand(ProtostarCommand):
                 should_adapt_existing_project = self._requester.confirm(
                     "Your current directory may be a Cairo project.\n"
                     "Do you want to adapt current working directory "
-                    "as a project instead of creating a new project?."
+                    "as a project instead of creating a new project?"
                 )
 
         if should_adapt_existing_project:
             self._adapted_project_creator.run()
         else:
+            logger.info(
+                "Consider using OpenZeppelin Contracts Wizard to kickstart your project.\n"
+                "https://wizard.openzeppelin.com/cairo"
+            )
             self._new_project_creator.run(project_name)
 
     @staticmethod
