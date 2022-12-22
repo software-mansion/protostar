@@ -305,7 +305,7 @@ class GatewayFacade(MulticallClientProtocol):
                 ) from ex
             raise TransactionException(message=ex.message) from ex
 
-    async def send_payload_to_account_execute(
+    async def send_prepared_invoke_tx(
         self, prepared_invoke_tx: PreparedInvokeTransaction
     ) -> TransactionHash:
         try:

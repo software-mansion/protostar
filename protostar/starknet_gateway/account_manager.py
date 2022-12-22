@@ -118,7 +118,7 @@ class AccountManager(MulticallAccountManagerProtocol):
     async def execute(
         self, prepared_invoke_tx: PreparedInvokeTransaction
     ) -> TransactionHash:
-        return await self._client.send_payload_to_account_execute(prepared_invoke_tx)
+        return await self._client.send_prepared_invoke_tx(prepared_invoke_tx)
 
 
 class UnsupportedAccountVersionException(ProtostarException):
