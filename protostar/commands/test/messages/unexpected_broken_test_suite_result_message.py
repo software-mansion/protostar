@@ -36,7 +36,7 @@ class UnexpectedBrokenTestSuiteResultMessage(StructuredMessage):
             "test_suite_path": str(
                 self.unexpected_exception_test_suite_result.file_path
             ),
-            "exception": self.unexpected_exception_test_suite_result.exception,
+            "exception": str(self.unexpected_exception_test_suite_result.exception),
             "traceback": self.unexpected_exception_test_suite_result.traceback,
             "protostar_message": UNEXPECTED_PROTOSTAR_ERROR_MSG,
         }

@@ -69,6 +69,6 @@ class BrokenTestCaseResultMessage(StructuredMessage):
             "execution_time_in_seconds": get_formatted_execution_time_structured(
                 self.broken_test_case_result.execution_time
             ),
-            "exception": self.broken_test_case_result.exception,
+            "exception": str(self.broken_test_case_result.exception),
             "stdout": str(self.broken_test_case_result.captured_stdout),
         }

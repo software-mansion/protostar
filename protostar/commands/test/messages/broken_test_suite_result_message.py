@@ -23,5 +23,5 @@ class BrokenTestSuiteResultMessage(StructuredMessage):
             "type": "test_case_result",
             "status": "broken",
             "test_suite_path": str(self.broken_test_suite_result.file_path),
-            "exception": self.broken_test_suite_result.exception,
+            "exception": str(self.broken_test_suite_result.exception),
         }
