@@ -103,7 +103,7 @@ class CairoTestRunner:
         )
 
     async def _build_execution_state(self, test_config: TestConfig):
-        state = await TestExecutionState.for_cairo_execution(
+        state = await TestExecutionState.from_test_config(
             test_config=test_config,
             project_compiler=self.project_compiler,
         )

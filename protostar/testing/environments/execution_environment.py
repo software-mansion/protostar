@@ -8,10 +8,13 @@ from starkware.starknet.testing.contract import StarknetContractFunctionInvocati
 from starkware.starknet.business_logic.fact_state.state import ExecutionResourcesManager
 from starkware.starknet.business_logic.execution.objects import CallInfo
 
+from protostar.testing.starkware.contract_based_test_execution_state import (
+    ContractBasedTestExecutionState,
+)
 from protostar.testing.test_environment_exceptions import StarknetRevertableException
 from protostar.starknet.cheatable_execute_entry_point import CheatableExecuteEntryPoint
 from protostar.starknet.cheatcode_factory import CheatcodeFactory
-from protostar.starknet import execute_on_state, ExecutionState
+from protostar.starknet import execute_on_state
 
 InvokeResultT = TypeVar("InvokeResultT")
 
@@ -24,8 +27,8 @@ class PerformExecuteResult:
 
 
 class ExecutionEnvironment(ABC, Generic[InvokeResultT]):
-    def __init__(self, state: ExecutionState):
-        self.state: ExecutionState = state
+    def __init__(self, state: ContractBasedTestExecutionState):
+        self.state: ContractBasedTestExecutionState = state
 
     @abstractmethod
     async def execute(self, function_name: str) -> InvokeResultT:
@@ -38,9 +41,6 @@ class ExecutionEnvironment(ABC, Generic[InvokeResultT]):
         **kwargs: Any,
     ) -> PerformExecuteResult:
         try:
-            assert (
-                self.state.contract
-            ), "Tried to use legacy execution flow with no test contract provided!"
             func = self.state.contract.get_contract_function(function_name)
             invocation: StarknetContractFunctionInvocation = func(*args, **kwargs)
             resources_manager = ExecutionResourcesManager.empty()
