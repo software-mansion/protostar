@@ -4,8 +4,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Callable, List, Optional
 import dataclasses
 
-from protostar.testing import TestResult
 from protostar.io.output import Messenger
+from protostar.commands.test.messages import TestingSummaryResultMessage
+from protostar.testing import (
+    TestResult,
+    TestingSummary,
+)
 
 from .test_collector import TestCollector
 from .test_runner import TestRunner
@@ -55,6 +59,8 @@ class TestScheduler:
         active_profile_name: Optional[str],
         gas_estimation_enabled: bool,
         messenger: Messenger,
+        slowest_tests_to_report_count: int,
+        testing_summary: TestingSummary,
         structured_format: bool = False,
     ):
         with multiprocessing.Manager() as manager:
@@ -80,7 +86,13 @@ class TestScheduler:
 
             # A test case was broken
             if exit_first and shared_tests_state.any_failed_or_broken():
-                self._live_logger.log_testing_summary(test_collector_result)
+                messenger(
+                    TestingSummaryResultMessage(
+                        test_collector_result=test_collector_result,
+                        testing_summary=testing_summary,
+                        slowest_tests_to_report_count=slowest_tests_to_report_count,
+                    )
+                )
                 return
 
             try:

@@ -4,8 +4,13 @@ from typing import Set
 
 import pytest
 
-from protostar.testing import TestingSummary
 from protostar.io.log_color_provider import LogColorProvider
+from protostar.commands.test.messages.testing_summary_message import (
+    TestingSummaryResultMessage,
+    _format_slow_test_cases_list,
+)
+from protostar.testing import TestCollector, TestingSummary
+
 from tests.integration.conftest import RunTestRunnerFixture
 
 
@@ -39,7 +44,9 @@ def no_color_log_color_provider_fixture() -> LogColorProvider:
 async def test_output_when_slowest_tests_count_less_than_tests(
     testing_summary: TestingSummary, no_color_log_color_provider: LogColorProvider
 ):
-    test3 = testing_summary._format_slow_test_cases_list(3, no_color_log_color_provider)
+    test3 = _format_slow_test_cases_list(
+        testing_summary, 3, no_color_log_color_provider
+    )
     assert_exec_times_in_desc_order(test3)
     assert {1, 2, 3} == get_test_indices(test3)
 
@@ -47,7 +54,9 @@ async def test_output_when_slowest_tests_count_less_than_tests(
 async def test_output_when_slowest_tests_count_equal_to_the_number_of_tests(
     testing_summary: TestingSummary, no_color_log_color_provider: LogColorProvider
 ):
-    test4 = testing_summary._format_slow_test_cases_list(4, no_color_log_color_provider)
+    test4 = _format_slow_test_cases_list(
+        testing_summary, 4, no_color_log_color_provider
+    )
     assert_exec_times_in_desc_order(test4)
     assert {1, 2, 3, 4} == get_test_indices(test4)
 
@@ -56,12 +65,14 @@ async def test_output_when_slowest_tests_count_more_than_tests(
     testing_summary: TestingSummary, no_color_log_color_provider: LogColorProvider
 ):
     # Specyfing a number too big should have no effect, because of potential skipped tests.
-    test5 = testing_summary._format_slow_test_cases_list(5, no_color_log_color_provider)
+    test5 = _format_slow_test_cases_list(
+        testing_summary, 5, no_color_log_color_provider
+    )
     assert_exec_times_in_desc_order(test5)
     assert {1, 2, 3, 4} == get_test_indices(test5)
 
 
 async def test_output_when_slowest_tests_count_is_zero(testing_summary: TestingSummary):
     # Zero should yield no result
-    test0 = testing_summary._format_slow_test_cases_list(0)
+    test0 = _format_slow_test_cases_list(testing_summary, 0)
     assert test0 == ""

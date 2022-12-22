@@ -29,11 +29,19 @@ class TestCollectorResultMessage(StructuredMessage):
     def format_human(self, fmt: LogColorProvider) -> str:
         result = []
         for broken_test_suite in self.test_collector_result.broken_test_suites:
-            result.append(BrokenTestSuiteResultMessage(broken_test_suite).format_human(fmt))
+            result.append(
+                BrokenTestSuiteResultMessage(broken_test_suite).format_human(fmt)
+            )
         if self.test_collector_result.test_cases_count:
-            n_test_suites = _format_test_suites_info(self.test_collector_result.test_cases_count)
-            n_test_cases = _format_test_case_info(len(self.test_collector_result.test_suites))
-            duration = get_formatted_execution_time_structured(self.test_collector_result.duration)
+            n_test_suites = _format_test_suites_info(
+                self.test_collector_result.test_cases_count
+            )
+            n_test_cases = _format_test_case_info(
+                len(self.test_collector_result.test_suites)
+            )
+            duration = get_formatted_execution_time_structured(
+                self.test_collector_result.duration
+            )
             result.append(f"Collected {n_test_suites}, and {n_test_cases} ({duration})")
         elif not result:
             result.append("No test cases found")

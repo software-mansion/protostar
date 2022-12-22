@@ -12,3 +12,4 @@ from .unexpected_broken_test_suite_result_message import (
     UnexpectedBrokenTestSuiteResultMessage,
 )
 from .test_collector_result_message import TestCollectorResultMessage
+from .testing_summary_message import TestingSummaryResultMessage

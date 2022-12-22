@@ -285,6 +285,8 @@ A glob or globs to a directory or a test suite, for example:
                 gas_estimation_enabled=gas_estimation_enabled,
                 structured_format=structured_format,
                 messenger=messenger,
+                testing_summary=testing_summary,
+                slowest_tests_to_report_count=slowest_tests_to_report_count,
             )
 
         return testing_summary
