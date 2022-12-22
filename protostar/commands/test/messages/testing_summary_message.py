@@ -149,9 +149,6 @@ class TestingSummaryResultMessage(StructuredMessage):
     testing_summary: TestingSummary
     slowest_tests_to_report_count: int
 
-    _bold_begin = "\033[1m"
-    _bold_end = "\033[0m"
-
     def format_human(self, fmt: LogColorProvider) -> str:
         result_arr = []
         if (
@@ -159,14 +156,14 @@ class TestingSummaryResultMessage(StructuredMessage):
             and (len(self.testing_summary.failed) + len(self.testing_summary.passed))
             > 0
         ):
-            item = self._bold_begin + "Slowest test cases:" + self._bold_end
+            item = fmt.bold("Slowest test cases:")
             item += _format_slow_test_cases_list(
                 testing_summary=self.testing_summary,
                 count=self.slowest_tests_to_report_count,
             )
             result_arr.append(item)
 
-        header = self._bold_begin + "Test suites: " + self._bold_end
+        header = fmt.bold("Test suites: ")
         header_size = len(header)
 
         collected_test_suites_count = len(self.test_collector_result.test_suites)
@@ -178,14 +175,14 @@ class TestingSummaryResultMessage(StructuredMessage):
         result_arr.append(item)
 
         collected_test_cases_count = self.test_collector_result.test_cases_count
-        item = (self._bold_begin + "Tests: " + self._bold_end).ljust(header_size)
+        item = fmt.bold("Tests: ").ljust(header_size)
         item += _get_test_cases_summary(
             testing_summary=self.testing_summary,
             collected_test_cases_count=collected_test_cases_count,
         )
         result_arr.append(item)
 
-        item = (self._bold_begin + "Seed: " + self._bold_end).ljust(header_size)
+        item = fmt.bold("Seed: ").ljust(header_size)
         item += str(self.testing_summary.testing_seed)
         result_arr.append(item)
 
