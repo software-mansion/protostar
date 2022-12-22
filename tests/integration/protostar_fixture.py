@@ -51,6 +51,7 @@ from protostar.testing import TestingSummary
 from protostar.starknet import Address
 from protostar.starknet.data_transformer import CairoOrPythonData
 from tests.conftest import DevnetAccount
+from tests.integration._conftest import untokenize
 
 
 # pylint: disable=too-many-instance-attributes
@@ -158,22 +159,13 @@ class ProtostarFixture:
         account_class_hash: int,
         account_constructor_input: Optional[list[int]],
     ):
-        args = self._parser.parse(
-            [
-                "calculate-account-address",
-                "--account-class-hash",
-                str(account_class_hash),
-                "--account-address-salt",
-                str(account_address_salt),
-            ]
-            + (
-                [
-                    "--account-constructor-input",
-                    " ".join(str(i) for i in account_constructor_input),
-                ]
-                if account_constructor_input
-                else []
-            )
+        args = self._parse(
+            command_name="calculate-account-address",
+            named_args={
+                "account-class-hash": account_class_hash,
+                "account-address-salt": account_address_salt,
+                "account-constructor-input": account_constructor_input,
+            },
         )
         return await self._calculate_account_address_command.run(args)
 
@@ -187,32 +179,18 @@ class ProtostarFixture:
         gateway_url: str,
         account_constructor_input: Optional[list[int]],
     ):
-        args = self._parser.parse(
-            [
-                "deploy-account",
-                "--account-address",
-                str(account_address),
-                "--gateway-url",
-                gateway_url,
-                "--chain-id",
-                str(StarknetChainId.TESTNET.value),
-                "--nonce",
-                str(nonce),
-                "--account-class-hash",
-                str(account_class_hash),
-                "--max-fee",
-                str(max_fee),
-                "--account-address-salt",
-                str(account_address_salt),
-            ]
-            + (
-                [
-                    "--account-constructor-input",
-                    " ".join(str(i) for i in account_constructor_input),
-                ]
-                if account_constructor_input
-                else []
-            )
+        args = self._parse(
+            command_name="deploy-account",
+            named_args={
+                "account-address": account_address,
+                "gateway-url": gateway_url,
+                "chain-id": StarknetChainId.TESTNET.value,
+                "account-class-hash": account_class_hash,
+                "max-fee": max_fee,
+                "nonce": nonce,
+                "account-address-salt": account_address_salt,
+                "account-constructor-input": account_constructor_input,
+            },
         )
 
         return await self._deploy_account_command.run(args)
@@ -332,26 +310,21 @@ class ProtostarFixture:
         gateway_url: str,
         json: bool = False,
     ):
-        json_args: list[str] = []
-        if json:
-            json_args.append("--json")
-        args = self._parser.parse(
-            [
-                "multicall",
-                str(file_path),
-                "--account-address",
-                str(account.address),
-                "--gateway-url",
-                gateway_url,
-                "--chain-id",
-                str(StarknetChainId.TESTNET.value),
-                "--max-fee",
-                "auto",
-                *json_args,
-            ]
-        )
+
         self._monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, account.private_key)
-        result = await self._multicall_command.run(args)
+        result = await self._multicall_command.run(
+            self._parse(
+                command_name="multicall",
+                positional_args=[file_path],
+                named_args={
+                    "account-address": account.address,
+                    "gateway-url": gateway_url,
+                    "chain-id": StarknetChainId.TESTNET.value,
+                    "max-fee": "auto",
+                    "json": json,
+                },
+            )
+        )
         self._monkeypatch.delenv(PRIVATE_KEY_ENV_VAR_NAME)
 
         return result
@@ -365,6 +338,16 @@ class ProtostarFixture:
             else:
                 content = file
             self._save_file(self._project_root_path / relative_path_str, content)
+
+    def _parse(
+        self,
+        command_name: str,
+        positional_args: Optional[list[Any]] = None,
+        named_args: Optional[dict[str, Any]] = None,
+    ) -> Namespace:
+        return self._parser.parse(
+            [command_name] + untokenize(positional_args or [], named_args or {})
+        )
 
     @staticmethod
     def _save_file(path: Path, content: str) -> None:
