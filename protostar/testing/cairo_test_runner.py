@@ -107,7 +107,7 @@ class CairoTestRunner:
             test_config=test_config,
             project_compiler=self.project_compiler,
         )
-        # TODO: Execute __setup__ using test_execution_state & cairo_setup_execution_environment
+        # TODO #1281: Execute __setup__ using test_execution_state & cairo_setup_execution_environment
         return state
 
     async def run_test_suite(
@@ -184,7 +184,7 @@ class CairoTestRunner:
     ) -> TestResult:
         state: TestExecutionState = initial_state.fork()
 
-        # TODO: Invoke setup case
+        # TODO #1281: Invoke setup case
         # if test_case.setup_fn_name:
         #     setup_case_result = await run_setup_case(test_case, state)
         #     if isinstance(setup_case_result, BrokenSetupCaseResult):
@@ -192,7 +192,7 @@ class CairoTestRunner:
         #     if isinstance(setup_case_result, SkippedSetupCaseResult):
         #         return setup_case_result.into_skipped_test_case_result()
 
-        # TODO: Plug in other test modes (fuzzing, parametrized)
+        # TODO #1283, #1282: Plug in other test modes (fuzzing, parametrized)
         # state.determine_test_mode(test_case)
 
         test_execution_environment = CairoTestExecutionEnvironment(

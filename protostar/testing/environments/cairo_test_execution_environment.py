@@ -26,17 +26,12 @@ class CairoTestExecutionEnvironment(TestExecutionEnvironment):
         self._profiling = self.state.config.profiling
 
     async def execute(self, function_name: str) -> TestExecutionResult:
-        assert (
-            not self.state.config.profiling
-        ), "Profiling is not supported yet"  # TODO: Plug in profiling
-
         with self.state.output_recorder.redirect("test"):
             return TestExecutionResult(
                 execution_resources=await self.execute_test_case(function_name)
             )
 
-    # TODO: Extract execution resources from function run
-    # TODO: Estimate gas if self.state.config.gas_estimation_enabled
+    # TODO #1303: Estimate gas if self.state.config.gas_estimation_enabled
     async def execute_test_case(
         self,
         function_name: str,
