@@ -38,7 +38,7 @@ In these sections, you can specify properties like `network`, `account-address`,
 
 Let's start with something like this:
 
-```shell
+```shell title="automate_protostar_operations.sh"
 #!/bin/bash
 
 set -e
@@ -50,7 +50,7 @@ The `set -e` instruction tells the interpreter to exit the script immediately if
 
 #### Make sure the contract is correct
 
-```shell
+```shell title="automate_protostar_operations.sh"
 protostar build
 protostar test
 ```
@@ -89,7 +89,7 @@ Now, we can parse the json and pull all the desired information from it easily a
 
 We could do something like this in our bash script:
 
-```shell
+```shell title="automate_protostar_operations.sh"
 OUTPUT=$(protostar declare ./build/main.json --json)
 CLASS_HASH=$(python -c "import sys, json; print(json.loads(sys.argv[1])['class_hash'])" $OUTPUT)
 protostar deploy $CLASS_HASH --inputs 100
@@ -97,7 +97,7 @@ protostar deploy $CLASS_HASH --inputs 100
 
 You can use any alternative to python that will parse the json for you. This is how it would work with [jq](https://stedolan.github.io/jq/):
 
-```
+``` title="automate_protostar_operations.sh"
 OUTPUT=$(protostar declare ./build/main.json --json)
 CLASS_HASH=$(echo $OUT | jq -r ".class_hash")
 protostar deploy $CLASS_HASH --inputs 100
@@ -109,7 +109,7 @@ Now, let's say we want to call our contract. In this case, we need the contract 
 
 We are basically going to do the same thing as previously to pass the contract address from `deploy` to `call`:
 
-```shell
+```shell title="automate_protostar_operations.sh"
 OUT=$(protostar deploy $CLASS_HASH --inputs 100 --json)
 CONTRACT_ADDRESS=$(python -c "import sys, json; print(json.loads(sys.argv[1])['contract_address'])" $OUT)
 protostar call --contract-address $CONTRACT_ADDRESS --function get_balance
@@ -117,7 +117,7 @@ protostar call --contract-address $CONTRACT_ADDRESS --function get_balance
 
 In the end, our bash script looks like this:
 
-```shell
+```shell title="automate_protostar_operations.sh"
 #!/bin/bash
 
 set -e
@@ -143,7 +143,7 @@ The main advantage of using the JSON format is that the users may automate proto
 
 We can achieve the same result as above writing the equivalent python script:
 
-```python
+```python title="automate_protostar_operations.py"
 import subprocess, json
 
 def run_command(cmd):
