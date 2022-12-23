@@ -6,9 +6,10 @@ def tokenize(positional_args: list[Any], named_args: dict[str, Any]):
     for name, value in named_args.items():
         if value is None:
             continue
-        if isinstance(value, bool):
-            if value:
-                tokens.append(f"--{name}")
+        if value is False:
+            continue
+        if value is True:
+            tokens.append(f"--{name}")
             continue
         tokens.append(f"--{name}")
         if isinstance(value, list):
