@@ -24,3 +24,11 @@ Transaction hash: 0x3c6c...
 
 https://goerli.voyager.online/contract/0x038cc...
 ```
+
+:::note
+If you need to print machine-readable output in JSON format, you should use `--json` flag.
+
+This may come in handy for writing scripts that include protostar commands.
+
+For more information, go to [this page](./scripting.md)
+:::

@@ -26,3 +26,11 @@ Transaction hash: 0x1cbba90ba0d1fbfba09b1f7a0f987134dd9a02a845ca89244b3272374d37
 
 https://goerli.voyager.online/contract/0x06a5ea9e42c921bd58e24b8da9d1fc91a488df0700b173f1c6bb0e453f68afec
 ```
+
+:::note
+If you need to print machine-readable output in JSON format, you should use `--json` flag.
+
+This may come in handy for writing scripts that include protostar commands.
+
+For more information, go to [this page](./scripting.md)
+:::
