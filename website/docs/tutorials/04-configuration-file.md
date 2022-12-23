@@ -40,14 +40,19 @@ network = "testnet"
 ### `[project]`
 The `[project]` section of the `protostar.toml` file allows you to specify global options and settings for your project.
 #### `protostar-version`
-This attribute is used to manifest what Protostar version should be used with your project. It should be set to the version of Protostar that you are using. If you try to use a different version of Protostar with your project, you will receive a warning and you may experience unexpected errors.
+This attribute is used to manifest what Protostar version should be used with your project.
+It should be set to the version of Protostar that you are using.
+If you try to use a different version of Protostar with your project, you will receive a warning and you may experience unexpected errors.
 
 #### Shared Configuration
 You can specify options that are shared by multiple Protostar commands in the `[project]` section.
 For example, the [`lib-path`](/docs/cli-reference#--lib-path-path) option is used by the [`install`](/docs/cli-reference#install), [`update`](/docs/cli-reference#update), and [`remove`](/docs/cli-reference#remove) commands, and [`cairo-path`](/docs/cli-reference#--cairo-path-path) is used by the [`build`](/docs/cli-reference#build) and [`test`](/docs/cli-reference#test) commands.
 
 ### `[contracts]`
-The `[contracts]` section allows you to define contract names and the corresponding files that make up each contract. This is useful because it allows you to refer to contracts by name rather than having to specify the full file path each time. You can also combine multiple files into a single contract.  Currently, the `[contracts]` section is required by the [`protostar build`](/docs/cli-reference#build) command.
+The `[contracts]` section allows you to define contract names and the corresponding files that make up each contract.
+This is useful because it allows you to refer to contracts by name rather than having to specify the full file path each time.
+You can also combine multiple files into a single contract.
+Currently, the `[contracts]` section is required by the [`protostar build`](/docs/cli-reference#build) command.
 
 Here is an example of how to define a contract in the [contracts] section:
 
