@@ -1,5 +1,8 @@
 # Configuration file
-Protostar can be configured using a configuration file called `protostar.toml`, which is placed in the root of your project.
+Protostar can be configured using a configuration file called `protostar.toml`, which is placed in the root of your project. The file is written in the [TOML](https://toml.io/en/) format and allows you to specify various options and settings for Protostar.
+
+Here is an example `protostar.toml` file:
+
 
 ```toml title="protostar.toml example"
 [project]
@@ -35,65 +38,93 @@ network = "testnet"
 
 
 ### `[project]`
+The `[project]` section of the `protostar.toml` file allows you to specify global options and settings for your project.
 #### `protostar-version`
-This attribute is used to warn you about compatibility issues between Protostar and a project.
+This attribute is used to manifest what Protostar version should be used with your project. It should be set to the version of Protostar that you are using. If you try to use a different version of Protostar with your project, you will receive a warning and you may experience unexpected errors.
 
 #### Shared Configuration
-You can keep command arguments in the `[project]` to share them across commands. Read the [`[COMMAND]` section](#command) to learn how to configure command arguments in the configuration.
+You can specify options that are shared by multiple Protostar commands in the `[project]` section.
+For example, the [`lib-path`](/docs/cli-reference#--lib-path-path) option is used by the [`install`](/docs/cli-reference#install), [`update`](/docs/cli-reference#update), and [`remove`](/docs/cli-reference#remove) commands, and [`cairo-path`](/docs/cli-reference#--cairo-path-path) is used by the [`build`](/docs/cli-reference#build) and [`test`](/docs/cli-reference#test) commands.
 
 ### `[contracts]`
-This section allows you to refer to a contract by a contract name across Protostar features. You can also combine many files into one contract.
+The `[contracts]` section allows you to define contract names and the corresponding files that make up each contract. This is useful because it allows you to refer to contracts by name rather than having to specify the full file path each time. You can also combine multiple files into a single contract.  Currently, the `[contracts]` section is required by the [`protostar build`](/docs/cli-reference#build) command.
+
+Here is an example of how to define a contract in the [contracts] section:
+
 ```toml
 [contracts]
 my_contract = ["src/feature_a.cairo", "src/feature_b.cairo"]   
 ```
 
-:::note
-Currently, [`protostar build`](/docs/cli-reference#build) requires this section.
-:::
-
 ### `[COMMAND]`
-Configure command arguments, to avoid passing them manually. CLI can be represented in the configuration file in the following way:
+The `[COMMAND]` section of the `protostar.toml` file allows you to specify options and settings for a specific Protostar command.
 
-```console title="CLI"
-protostar format src tests --ignore-broken
+To configure command arguments in the `protostar.toml` file, you can specify them in a `[COMMAND]` section using the following format:
+
+```toml
+[COMMAND]
+flag = true
+list = [1, 2, 3]
+path = "./src"
 ```
+
+For example, the following configuration file specifies the [`target`](/docs/cli-reference#target-string) and [`ignore-broken`](/docs/cli-reference#--ignore-broken) arguments for the [`protostar format` command](/docs/cli-reference#format):
+
 ```toml title="Configuration File"
 [format]
 target = ["src", "tests"]
 ignore-broken = true
 ```
 
-Check the [CLI Reference](/docs/cli-reference) or run `protostar COMMAND --help` to learn supported arguments.
+You can then run the [`protostar format`](/docs/cli-reference#format) command without specifying the [`target`](/docs/cli-reference#target-string) and [`ignore-broken`](/docs/cli-reference#--ignore-broken) arguments in the console:
+
+```console title="CLI"
+protostar format
+```
+
+To learn more about the available options and arguments for each Protostar command, refer to the [CLI Reference](/docs/cli-reference) or run `protostar COMMAND --help` to see the list of supported arguments.
 
 ### Configuration Profiles
-Configuration profiles provide a way to easily switch between Protostar configurations. Profiles inherit values from non-profiled configuration. In order to create a configuration profile, add a new section in protostar.toml with the following naming convention:
--  `[profile.PROFILE_NAME.project]` - to create a profile for a [Shared Configuration](#shared-configuration)
--  `[profile.PROFILE_NAME.COMMAND]` - to create a profile for a [Command Configuration](#command)
+Configuration profiles allow you to easily switch between different Protostar configurations. 
+When you activate a profile, it will override the default settings specified in the `protostar.toml` file with the settings specified in the profile.
 
-To activate the profile, use the profile argument
+To create a configuration profile, add a new section to the `protostar.toml` file with the following naming convention:
+-  `[profile.PROFILE_NAME.project]` - to create a [Shared Configuration](#shared-configuration) profile
+-  `[profile.PROFILE_NAME.COMMAND]` - to create a [Command Configuration](#command) profile
+
+To activate a profile, use the [-p or --profile argument](/docs/cli-reference#-p---profile-string) followed by the name of the profile:
+
+```console
+protostar -p PROFILE_NAME COMMAND
+```
+
+For example, to use the [`test` command](/docs/cli-reference#test) with the `smoke_tests` profile, run:
 ```console title="Run the test command with the 'integration' profile"
-protostar -p integration test
+protostar -p smoke_tests test
 ```
 
-## Migrating from `protostar.toml` from older version
-In order to migrate your `protostar.toml` created by older version of Protostar, run:
-```
+## Migrating from an Older Version of `protostar.toml`
+If you have a `protostar.toml` file created by an older version of Protostar, you can use the [`protostar migrate-configuration-file` command](/docs/cli-reference#migrate-configuration-file) to update it to the latest format.
+
+This command makes the following changes to your protostar.toml file:
+
+- Removes the `protostar` prefix from configuration sections
+- Changes section names to not be in double quotes
+- Merges the `["protostar.config"]` and `["protostar.shared_command_configs"]` sections into the `[project]` section
+- Changes all keys to use `kebab-case` instead of `snake_case`
+
+Here is a table showing the changes between the old and new configuration files:
+
+| protostar.toml V1                                  | protostar.toml V2          |
+| -------------------------------------------------- | -------------------------- |
+| `["protostar.config"]`                             | `[project]`                |
+| `["protostar.project"]`                            | `[project]`                |
+| `["protostar.shared_command_configs"]`             | `[project]`                |
+| `["protostar.contracts"]`, `["protostar.COMMAND"]` | `[contracts]`, `[COMMAND]` |
+| `cairo_path = ...`, `cairo-path = ...`             | `cairo-path = ...`         |
+
+To migrate your protostar.toml file, run the following command:
+
+```console
 protostar migrate-configuration-file
 ```
-
-### Changes
-- Removed `protostar` prefix from configuration sections.
-- Section names cannot be in double quotes.
-- Merged `["protostar.config"]` and `["protostar.shared_command_configs"]` sections into the project section.
-- `snake_case` in [keys](https://toml.io/en/v1.0.0#table) is no longer supported (use `kebab-case` everywhere)
-
-
-| protostar.toml V1                                    | protostar.toml V2            |
-| ---------------------------------------------------- | ---------------------------- |
-| `["protostar.config"]`                               | `[project]`                  |
-| `["protostar.project"]`                              | `[project]`                  |
-| `["protostar.shared_command_configs"]`               | `[project]`                  |
-| `["protostar.contracts"]`, `["protostar.<COMMAND>"]` | `[contracts]`, `[<COMMAND>]` |
-| `cairo_path = ...`, `cairo-path = ...`               | `cairo-path = ...`           |
-
