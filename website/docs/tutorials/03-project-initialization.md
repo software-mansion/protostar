@@ -4,21 +4,33 @@ sidebar_label: Project initialization
 
 # Project initialization
 
-To create a new project run:
+To create a new Protostar project, you will need to run the `protostar init` command followed by the name of your project. For example:
 
 ```console
 protostar init your-project-name
 ```
 
-### Adapting an existing project to the Protostar project
-Protostar project must be a git repository and have `protostar.toml` file. You can adapt your project manually or by running `protostar init --existing`.
+This will create a new directory with the specified name, generate a [configuration file named `protostar.toml`](/docs/tutorials/configuration-file), and create example contract and test files in the `src` and `tests` directories, respectively.
 
-# Project structure
+The resulting project structure will be as follows:
+```
+your-project-name/
+├── src/
+│   └── main.cairo
+├── tests/
+│   └── test_main.cairo
+└── protostar.toml
+```
 
-The result of running `protostar init` is a configuration file `protostar.toml`, example files, and the following 3 directories:
+The example contract file, `main.cairo`, and the example test file, `test_main.cairo`, serve as templates for your project.
+You can modify these files or add additional files as needed to meet the requirements of your project.
 
-- `src` — A directory for your code.
-- `lib` — A default directory for an external dependencies.
-- `tests` — A directory storing tests.
+The configuration file, `protostar.toml`, defines the root directory of your Protostar project.
+
+### Adapting an existing project to a Protostar project
+If you already have an existing project that you want to adapt to a Protostar project, you can do so by adding a valid `protostar.toml` configuration file to the root of the project.
+
+Alternatively, you can use the `protostar init --existing` command to create a `protostar.toml` in your existing project.
+This command will create the `protostar.toml` file in the current directory, which should be the root of your existing project.
 
 
