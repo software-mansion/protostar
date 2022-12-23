@@ -21,6 +21,7 @@ from protostar.starknet_gateway import (
     BlockExplorer,
     create_block_explorer,
 )
+from protostar.starknet import Address
 
 
 @dataclass
@@ -135,7 +136,7 @@ class DeployCommand(ProtostarCommand):
             class_hash=args.class_hash,
             signer=signer,
             max_fee=args.max_fee,
-            account_address=args.account_address,
+            account_address=Address(args.account_address),
             inputs=args.inputs,
             token=args.token,
             salt=args.salt,
