@@ -2,10 +2,7 @@ from typing import Any
 
 
 def tokenize(positional_args: list[Any], named_args: dict[str, Any]):
-    tokens: list[str] = []
-    for value in positional_args:
-        if value is not None:
-            tokens.append(str(value))
+    tokens = [str(item) for item in positional_args if item is not None]
     for name, value in named_args.items():
         if value is None:
             continue
@@ -15,8 +12,7 @@ def tokenize(positional_args: list[Any], named_args: dict[str, Any]):
             continue
         tokens.append(f"--{name}")
         if isinstance(value, list):
-            for val in value:
-                tokens.append(str(val))
+            tokens += [str(item) for item in value]
             continue
         tokens.append(str(value))
     return tokens
