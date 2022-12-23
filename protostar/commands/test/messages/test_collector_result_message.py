@@ -34,10 +34,10 @@ class TestCollectorResultMessage(StructuredMessage):
             )
         if self.test_collector_result.test_cases_count:
             n_test_suites = _format_test_suites_info(
-                self.test_collector_result.test_cases_count
+                len(self.test_collector_result.test_suites)
             )
             n_test_cases = _format_test_case_info(
-                len(self.test_collector_result.test_suites)
+                self.test_collector_result.test_cases_count
             )
             duration = get_formatted_execution_time_structured(
                 self.test_collector_result.duration
