@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from protostar.io import StructuredMessage, LogColorProvider
 from protostar.testing import SkippedTestCaseResult
 
-from .utils import get_formatted_file_path
+from .formatters import get_formatted_file_path
 
 
 @dataclass

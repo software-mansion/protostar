@@ -9,7 +9,7 @@ from protostar.testing import (
 from protostar.testing import TestingSummary
 from protostar.io.log_color_provider import log_color_provider
 
-from .utils import get_formatted_execution_time_structured
+from .formatters import get_formatted_execution_time_structured
 
 
 def _format_slow_test_cases_list(

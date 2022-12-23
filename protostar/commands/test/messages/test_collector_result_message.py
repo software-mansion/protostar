@@ -6,7 +6,7 @@ from protostar.testing import (
     TestCollector,
 )
 
-from .utils import get_formatted_execution_time_structured
+from .formatters import get_formatted_execution_time_structured
 from .broken_test_suite_result_message import BrokenTestSuiteResultMessage
 
 

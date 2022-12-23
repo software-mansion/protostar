@@ -4,7 +4,7 @@ from protostar.io import StructuredMessage, LogColorProvider
 from protostar.testing import UnexpectedBrokenTestSuiteResult
 from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
 
-from .utils import get_formatted_file_path
+from .formatters import get_formatted_file_path
 
 
 @dataclass

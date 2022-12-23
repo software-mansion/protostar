@@ -4,7 +4,7 @@ from protostar.io import StructuredMessage, LogColorProvider
 
 from protostar.testing import PassedFuzzTestCaseResult
 
-from .utils import (
+from .formatters import (
     get_formatted_execution_time_human,
     get_formatted_execution_time_structured,
     get_formatted_file_path,

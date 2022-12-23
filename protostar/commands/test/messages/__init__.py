@@ -1,4 +1,4 @@
-from .utils import (
+from .formatters import (
     get_formatted_execution_time_human,
     get_formatted_execution_time_structured,
 )
