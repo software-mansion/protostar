@@ -373,7 +373,7 @@ Exit immediately on first broken or failed test.
 #### `-i` `--ignore STRING[]`
 A glob or globs to a directory or a test suite, which should be ignored.
 #### `--json`
-Print machine readable output in JSON format.
+Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec) format.
 #### `-lf` `--last-failed`
 Only re-run failed and broken test cases.
 #### `--max-steps INT`
