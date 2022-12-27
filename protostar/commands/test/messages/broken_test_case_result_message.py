@@ -62,8 +62,8 @@ class BrokenTestCaseResultMessage(StructuredMessage):
 
     def format_dict(self) -> dict:
         return {
-            "type": "test_case_result",
-            "status": "broken",
+            "message_type": "test_case_result",
+            "test_type": "broken_test_case",
             "test_suite_path": str(self.broken_test_case_result.file_path),
             "test_case_name": self.broken_test_case_result.test_case_name,
             "execution_time_in_seconds": get_formatted_execution_time_structured(

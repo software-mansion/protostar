@@ -207,7 +207,7 @@ class TestingSummaryResultMessage(StructuredMessage):
                 passed_test_suites += 1
 
         return {
-            "type": "testing_summary",
+            "message_type": "testing_summary",
             "test_suite_counts": {
                 "total": failed_test_suites + passed_test_suites,
                 "failed": failed_test_suites,
