@@ -98,13 +98,15 @@ class PassedFuzzTestCaseResultMessage(StructuredMessage):
     def format_dict(self) -> dict:
         result = {
             "message_type": "test_case_result",
-            "test_type": "passed_fuzz_test_case",
+            "test_type": "passed_test_case"
+            if self.passed_fuzz_test_case_result.fuzz_runs_count is None
+            else "passed_fuzz_test_case",
             "test_suite_path": str(self.passed_fuzz_test_case_result.file_path),
             "test_case_name": self.passed_fuzz_test_case_result.test_case_name,
             "execution_time_in_seconds": get_formatted_execution_time_structured(
                 self.passed_fuzz_test_case_result.execution_time
             ),
-            # "stdout": str(self.passed_fuzz_test_case_result.captured_stdout),
+            "stdout": str(self.passed_fuzz_test_case_result.captured_stdout),
         }
         if self.passed_fuzz_test_case_result.fuzz_runs_count:
             result["fuzz_runs"] = str(self.passed_fuzz_test_case_result.fuzz_runs_count)
