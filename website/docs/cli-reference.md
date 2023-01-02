@@ -63,6 +63,7 @@ It is required unless `--gateway-url` is provided.
 Supported StarkNet networks:
 - `testnet`
 - `mainnet`
+- `testnet2`
 ### `declare`
 Sends a declare transaction to StarkNet.
 #### `contract PATH`
@@ -95,6 +96,7 @@ It is required unless `--gateway-url` is provided.
 Supported StarkNet networks:
 - `testnet`
 - `mainnet`
+- `testnet2`
 #### `--private-key-path PATH`
 Path to the file, which stores your private key (in hex representation) for the account. 
 Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
@@ -141,6 +143,7 @@ It is required unless `--gateway-url` is provided.
 Supported StarkNet networks:
 - `testnet`
 - `mainnet`
+- `testnet2`
 #### `--private-key-path PATH`
 Path to the file, which stores your private key (in hex representation) for the account. 
 Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
@@ -185,6 +188,7 @@ It is required unless `--gateway-url` is provided.
 Supported StarkNet networks:
 - `testnet`
 - `mainnet`
+- `testnet2`
 #### `--nonce INT`
 Protects against the replay attacks.
 #### `--private-key-path PATH`
@@ -269,6 +273,7 @@ It is required unless `--gateway-url` is provided.
 Supported StarkNet networks:
 - `testnet`
 - `mainnet`
+- `testnet2`
 #### `--private-key-path PATH`
 Path to the file, which stores your private key (in hex representation) for the account. 
 Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
@@ -330,6 +335,7 @@ It is required unless `--gateway-url` is provided.
 Supported StarkNet networks:
 - `testnet`
 - `mainnet`
+- `testnet2`
 #### `--private-key-path PATH`
 Path to the file, which stores your private key (in hex representation) for the account. 
 Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
