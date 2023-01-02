@@ -12,10 +12,9 @@ fi
 
 poetry run poe type_check $(echo "${STAGED_FILES}")
 
-STAGED_FILES_SELECTED_ARR=($STAGED_FILES_SELECTED)
-
 if [ -n "${STAGED_FILES_SELECTED}" ]; then
   echo "${STAGED_FILES_SELECTED}" | xargs poetry run poe format_check_selected
+  STAGED_FILES_SELECTED_ARR=($STAGED_FILES_SELECTED)
   for FILE in "${STAGED_FILES_SELECTED_ARR[@]}"; do
     echo "${FILE}" | xargs poetry run poe lint_selected
   done;
