@@ -10,10 +10,14 @@ if [ -z "${STAGED_FILES}" ]; then
   exit 0;
 fi
 
-poetry run poe type_check "${STAGED_FILES}"
+poetry run poe type_check $(echo "${STAGED_FILES}")
+
+STAGED_FILES_SELECTED_ARR=($STAGED_FILES_SELECTED)
 
 if [ -n "${STAGED_FILES_SELECTED}" ]; then
   echo "${STAGED_FILES_SELECTED}" | xargs poetry run poe format_check_selected
-  echo "${STAGED_FILES_SELECTED}" | xargs poetry run poe lint_selected
+  for FILE in "${STAGED_FILES_SELECTED_ARR[@]}"; do
+    echo "${FILE}" | xargs poetry run poe lint_selected
+  done;
 fi
 
