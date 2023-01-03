@@ -5,13 +5,14 @@ from starknet_py.net.models import StarknetChainId, chain_from_network
 from starknet_py.net.networks import (
     MAINNET,
     TESTNET,
+    TESTNET2,
     PredefinedNetwork,
     net_address_from_net,
 )
 
 from protostar.protostar_exception import ProtostarException
 
-NETWORKS = [TESTNET, MAINNET]
+NETWORKS = [TESTNET, MAINNET, TESTNET2]
 
 
 @dataclass
@@ -56,6 +57,7 @@ class NetworkConfig:
         contract_explorer_search_url_mapping = {
             TESTNET: "https://goerli.voyager.online/contract",
             MAINNET: "https://voyager.online/contract",
+            TESTNET2: "https://goerli-2.voyager.online/contract",
         }
         chain_id = chain_from_network(net=network, chain=None)
         return cls(
