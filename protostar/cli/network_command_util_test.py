@@ -38,6 +38,7 @@ def create_network_command_util_fixture() -> CreateNetworkCommandUtilFixture:
     (
         ("testnet", "https://alpha4.starknet.io"),
         ("mainnet", "https://alpha-mainnet.starknet.io"),
+        ("testnet2", "https://alpha4-2.starknet.io"),
     ),
 )
 def test_network_config_from_literal(network: str, result_gateway_url: str):
