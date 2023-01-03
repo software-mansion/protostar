@@ -30,7 +30,7 @@ class DeclareCheatcodeProtocol(Protocol):
         ...
 
 
-class DeclareContractCairoCheatcode(CairoCheatcode):
+class DeclareCairoCheatcode(CairoCheatcode):
     def __init__(self, project_compiler: ProjectCompiler, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self._project_compiler = project_compiler

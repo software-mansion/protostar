@@ -14,7 +14,7 @@ from protostar.starknet.data_transformer import (
     DataTransformerException,
 )
 from protostar.testing.cairo_cheatcodes.cairo_cheatcode import CairoCheatcode
-from protostar.testing.cairo_cheatcodes.declare_contract_cairo_cheatcode import (
+from protostar.testing.cairo_cheatcodes.declare_cairo_cheatcode import (
     DeclaredContract,
 )
 
@@ -27,7 +27,7 @@ class PreparedContract:
     salt: int
 
 
-class PrepareDeploymentCairoCheatcode(CairoCheatcode):
+class PrepareCairoCheatcode(CairoCheatcode):
     salt_nonce = 1
 
     @property
@@ -49,8 +49,8 @@ class PrepareDeploymentCairoCheatcode(CairoCheatcode):
             constructor_calldata = self.transform_data_to_cairo_format(
                 declared.class_hash, constructor_calldata
             )
-        contract_salt = PrepareDeploymentCairoCheatcode.salt_nonce
-        PrepareDeploymentCairoCheatcode.salt_nonce += 1
+        contract_salt = PrepareCairoCheatcode.salt_nonce
+        PrepareCairoCheatcode.salt_nonce += 1
         if salt is not None:
             contract_salt = salt
 

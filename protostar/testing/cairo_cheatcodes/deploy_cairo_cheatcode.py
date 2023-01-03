@@ -18,7 +18,7 @@ from protostar.starknet.data_transformer import (
 )
 from protostar.testing.cairo_cheatcodes.cairo_cheatcode import CairoCheatcode
 
-from protostar.testing.cairo_cheatcodes.prepare_deployment_cairo_cheatcode import (
+from protostar.testing.cairo_cheatcodes.prepare_cairo_cheatcode import (
     PreparedContract,
 )
 

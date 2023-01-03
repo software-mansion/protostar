@@ -1,8 +1,8 @@
 from typing import List
 
 from protostar.testing.cairo_cheatcodes.cairo_cheatcode import CairoCheatcode
-from protostar.testing.cairo_cheatcodes.declare_contract_cairo_cheatcode import (
-    DeclareContractCairoCheatcode,
+from protostar.testing.cairo_cheatcodes.declare_cairo_cheatcode import (
+    DeclareCairoCheatcode,
 )
 from protostar.testing.cairo_cheatcodes.deploy_cairo_cheatcode import (
     DeployCairoCheatcode,
@@ -10,8 +10,8 @@ from protostar.testing.cairo_cheatcodes.deploy_cairo_cheatcode import (
 from protostar.testing.cairo_cheatcodes.deploy_contract_cairo_cheatcode import (
     DeployContractCairoCheatcode,
 )
-from protostar.testing.cairo_cheatcodes.prepare_deployment_cairo_cheatcode import (
-    PrepareDeploymentCairoCheatcode,
+from protostar.testing.cairo_cheatcodes.prepare_cairo_cheatcode import (
+    PrepareCairoCheatcode,
 )
 from protostar.testing.cairo_cheatcodes.roll_cairo_cheatcode import RollCairoCheatcode
 from protostar.testing.cairo_cheatcodes.warp_cairo_cheatcode import WarpCairoCheatcode
@@ -26,11 +26,11 @@ class CairoTestCheatcodeFactory:
         self.state = state
 
     def build_cheatcodes(self) -> List[CairoCheatcode]:
-        declare_cheatcode = DeclareContractCairoCheatcode(
+        declare_cheatcode = DeclareCairoCheatcode(
             starknet=self.state.starknet,
             project_compiler=self.state.project_compiler,
         )
-        prepare_cheatcode = PrepareDeploymentCairoCheatcode(
+        prepare_cheatcode = PrepareCairoCheatcode(
             starknet=self.state.starknet,
         )
         deploy_cheatcode = DeployCairoCheatcode(

@@ -2,23 +2,23 @@ from typing import Optional, Any
 
 from protostar.starknet.data_transformer import CairoOrPythonData
 from protostar.testing.cairo_cheatcodes.cairo_cheatcode import CairoCheatcode
-from protostar.testing.cairo_cheatcodes.declare_contract_cairo_cheatcode import (
-    DeclareContractCairoCheatcode,
+from protostar.testing.cairo_cheatcodes.declare_cairo_cheatcode import (
+    DeclareCairoCheatcode,
 )
 from protostar.testing.cairo_cheatcodes.deploy_cairo_cheatcode import (
     DeployCairoCheatcode,
     DeployedContract,
 )
-from protostar.testing.cairo_cheatcodes.prepare_deployment_cairo_cheatcode import (
-    PrepareDeploymentCairoCheatcode,
+from protostar.testing.cairo_cheatcodes.prepare_cairo_cheatcode import (
+    PrepareCairoCheatcode,
 )
 
 
 class DeployContractCairoCheatcode(CairoCheatcode):
     def __init__(
         self,
-        declare_cheatcode: DeclareContractCairoCheatcode,
-        prepare_cheatcode: PrepareDeploymentCairoCheatcode,
+        declare_cheatcode: DeclareCairoCheatcode,
+        prepare_cheatcode: PrepareCairoCheatcode,
         deploy_cheatcode: DeployCairoCheatcode,
         *args: Any,
         **kwargs: Any,
