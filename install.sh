@@ -106,6 +106,10 @@ add_protostar_to_path() {
         profile=$HOME/.zshrc
         pref_shell=zsh
         ;;
+    */ash)
+        profile=$HOME/.profile
+        pref_shell=ash
+        ;;
     */bash)
         profile=$HOME/.bashrc
         pref_shell=bash
