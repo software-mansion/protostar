@@ -40,7 +40,7 @@ class SuccessfulDeployMessage(StructuredMessage):
         if contract_url:
             lines.append(contract_url)
             lines.append("")
-        lines.append(f"Transaction hash: {self.response.transaction_hash}")
+        lines.append(f"Transaction hash: 0x{self.response.transaction_hash:064x}")
         tx_url = self.block_explorer.create_link_to_transaction(
             self.response.transaction_hash
         )
