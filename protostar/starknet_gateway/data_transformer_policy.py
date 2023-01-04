@@ -29,14 +29,14 @@ class DataTransformerPolicy:
         if calldata is None:
             return []
         if isinstance(calldata, dict):
-            abi = abi or await self._resolve_abi_or_fail(address=address)
+            abi = abi or await self.resolve_abi_or_fail(address=address)
             transform = from_python_transformer(
                 contract_abi=abi, fn_name=str(selector), mode="inputs"
             )
             return transform(calldata)
         return calldata
 
-    async def _resolve_abi_or_fail(self, address: Address):
+    async def resolve_abi_or_fail(self, address: Address):
         abi = await self._abi_resolver.resolve(address)
         if abi is None:
             raise ProtostarException(

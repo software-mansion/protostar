@@ -27,20 +27,29 @@ ArgTypeNameT_contra = TypeVar(
 
 
 def parse_collection_arg(arg: list[Union[int, dict[str, Any]]]):
-    arg_type: Optional[type] = None
+    dict_present = False
     result = arg
     for input_item in result:
-        if arg_type is None:
-            arg_type = type(input_item)
-            continue
-        if not isinstance(input_item, arg_type):
-            raise InconsistentInputTypesException()
+        if isinstance(input_item, dict):
+            dict_present = True
+            break
+    if not isinstance(arg[0], dict) and dict_present:
+        raise InconsistentInputTypesException()
 
-    if arg_type == dict:
+    if isinstance(arg[0], dict):
         parsed = {}
+        last_key = None
         for arg_item in result:
-            assert isinstance(arg_item, dict)
-            parsed.update(dict(arg_item))
+            if isinstance(arg_item, dict):
+                keys = list(arg_item.keys())
+                assert len(keys) == 1
+                last_key = keys[0]
+                parsed.update(dict(arg_item))
+            else:
+                if isinstance(parsed[last_key], list):
+                    parsed[last_key].append(arg_item)
+                else:
+                    parsed[last_key] = [parsed[last_key], arg_item]
         result = parsed
     return result
 

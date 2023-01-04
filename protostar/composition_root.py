@@ -59,6 +59,7 @@ from protostar.upgrader import (
 class DIContainer:
     protostar_cli: ProtostarCLI
     argument_parser_facade: ArgumentParserFacade
+    gateway_facade_factory: Optional[GatewayFacadeFactory] = None
 
 
 def build_di_container(
@@ -242,4 +243,4 @@ def build_di_container(
         parser_resolver=map_protostar_type_name_to_parser,
     )
 
-    return DIContainer(protostar_cli, argument_parser_facade)
+    return DIContainer(protostar_cli, argument_parser_facade, gateway_facade_factory)
