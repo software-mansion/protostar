@@ -161,3 +161,12 @@ class BrokenTestSuiteResult(TestResult):
 @dataclass(frozen=True)
 class UnexpectedBrokenTestSuiteResult(BrokenTestSuiteResult):
     traceback: Optional[str]
+
+
+NONNEGATIVE_RESULTS = (
+    PassedTestCaseResult,
+    SkippedTestCaseResult,
+    PassedSetupCaseResult,
+    SkippedSetupCaseResult,
+    PassedFuzzTestCaseResult,
+)

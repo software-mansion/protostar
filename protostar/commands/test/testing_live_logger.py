@@ -9,6 +9,7 @@ from protostar.commands.test.test_result_formatter import (
     make_path_relative_if_possible,
 )
 from protostar.testing import (
+    NONNEGATIVE_RESULTS,
     BrokenTestSuiteResult,
     SharedTestsState,
     TestingSummary,
@@ -81,9 +82,10 @@ class TestingLiveLogger:
                         if (
                             self.exit_first
                             and shared_tests_state.any_failed_or_broken()
+                            and not isinstance(test_result, NONNEGATIVE_RESULTS)
                         ):
                             tests_left_n = 0
-                            return
+                            continue
 
                         if isinstance(test_result, BrokenTestSuiteResult):
                             tests_in_case_count = len(test_result.test_case_names)
@@ -95,6 +97,7 @@ class TestingLiveLogger:
                 finally:
                     progress_bar.write("")
                     progress_bar.clear()
+                    progress_bar.update()
                     self.log_testing_summary(test_collector_result)
 
         except queue.Empty:

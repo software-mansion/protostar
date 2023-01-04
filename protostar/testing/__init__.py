@@ -18,6 +18,7 @@ from .test_results import (
     TimedTestCaseResult,
     TimedTestResult,
     UnexpectedBrokenTestSuiteResult,
+    NONNEGATIVE_RESULTS,
 )
 from .test_runner import TestRunner
 from .test_scheduler import TestScheduler
