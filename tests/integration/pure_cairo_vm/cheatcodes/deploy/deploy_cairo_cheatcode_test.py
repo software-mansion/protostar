@@ -33,5 +33,9 @@ async def test_deploy_pipeline(
     )
 
     assert_cairo_test_cases(
-        testing_summary, expected_passed_test_cases_names=["test_deploying_pipeline"]
+        testing_summary,
+        expected_passed_test_cases_names=[
+            "test_deploying_pipeline",
+            "test_two_interleaving_flows",
+        ],
     )
