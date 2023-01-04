@@ -7,7 +7,7 @@ license = "MIT"
 name = "protostar"
 readme = "README.md"
 repository = "https://github.com/software-mansion/protostar"
-version = "0.9.0"
+version = "0.9.1"
 
 [tool.poetry.dependencies]
 argparse = "^1.4.0"
@@ -65,8 +65,13 @@ deploy = "python ./scripts/deploy.py"
 deploy_prerelease = "python ./scripts/deploy_prerelease.py"
 devnet = "starknet-devnet --seed 0"
 format = "black ."
-format_check = "black --check protostar"
-lint = "pylint **/*.py"
+
+format_check = "./scripts/run_format_check.sh"
+lint = "./scripts/run_lint.sh"
+
+format_check_selected = "black --check"
+lint_selected = "pylint"
+
 local_static_check = [
     "format",
     "lint",
@@ -100,6 +105,7 @@ target-version = [
 ]
 
 [tool.isort]
+profile = "black"
 lines_between_sections = 1
 only_sections = true
 

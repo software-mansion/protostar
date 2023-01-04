@@ -29,6 +29,7 @@ class ViewblockBlockExplorer(BlockExplorer):
         predefined_network_to_query_value: dict[PredefinedNetwork, Optional[str]] = {
             "mainnet": None,
             "testnet": "goerli",
+            "testnet2": "goerli2",
         }
         param_value = predefined_network_to_query_value[self._network]
         if param_value is None:
