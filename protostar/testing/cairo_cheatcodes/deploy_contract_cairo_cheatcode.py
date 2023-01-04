@@ -7,11 +7,11 @@ from protostar.testing.cairo_cheatcodes.declare_cairo_cheatcode import (
 )
 from protostar.testing.cairo_cheatcodes.deploy_cairo_cheatcode import (
     DeployCairoCheatcode,
-    DeployedContract,
 )
 from protostar.testing.cairo_cheatcodes.prepare_cairo_cheatcode import (
     PrepareCairoCheatcode,
 )
+from protostar.contract_types import DeployedContract
 
 
 class DeployContractCairoCheatcode(CairoCheatcode):
