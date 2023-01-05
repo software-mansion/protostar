@@ -38,6 +38,7 @@ async def test_deploy_contract(
         testing_summary,
         expected_passed_test_cases_names=[
             "test_deploying_contract",
+            "test_deploying_contract_by_name",
             "test_deploying_contract_with_constructor",
         ],
     )
