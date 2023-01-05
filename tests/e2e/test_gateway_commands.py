@@ -120,6 +120,30 @@ def test_deploying_and_interacting_with_contract(
         "transformed_output": {"res": 166},
     }
 
+    cmd = [
+        "call",
+        "--gateway-url",
+        devnet_gateway_url,
+        "--chain-id",
+        str(StarknetChainId.TESTNET.value),
+        "--contract-address",
+        contract_address,
+        "--function",
+        "sum_array",
+        "--inputs",
+        "arr_len=3",
+        "arr=4",
+        "5",
+        "1",
+        "--json",
+    ]
+    result = protostar(cmd, ignore_stderr=True)
+
+    assert json.loads(result) == {
+        "raw_output": [10],
+        "transformed_output": {"result": 10},
+    }
+
 
 @pytest.mark.usefixtures("init")
 @pytest.mark.parametrize("protostar_version", ["0.0.0"])

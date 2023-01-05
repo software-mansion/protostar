@@ -32,3 +32,15 @@ func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     balance.write(initial_balance);
     return ();
 }
+
+@external
+func sum_array{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    arr_len: felt, arr: felt*
+) -> (result: felt) {
+    if (arr_len == 0) {
+        return (result=0);
+    }
+
+    let (sum_of_rest) = sum_array(arr_len=arr_len - 1, arr=arr + 1);
+    return (result=arr[0] + sum_of_rest);
+}
