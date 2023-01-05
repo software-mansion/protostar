@@ -93,6 +93,6 @@ class NetworkCommandUtil:
             return StarknetChainId(arg)
         except ValueError as ex:
             raise ProtostarException(
-                "Invalid chain id value.\n"
+                f"Invalid chain id value: {arg}.\n"
                 "Supported chain ids:\n" + "\n".join(supported_chain_ids)
             ) from ex
