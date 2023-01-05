@@ -27,6 +27,9 @@ ArgTypeNameT_contra = TypeVar(
 
 
 def parse_collection_arg(arg: list[Union[int, dict[str, Any]]]):
+    if not arg:
+        return arg
+
     dict_present = False
     result = arg
     for input_item in result:
