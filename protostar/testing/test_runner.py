@@ -24,7 +24,9 @@ from protostar.starknet.compiler.starknet_compilation import (
 )
 
 from .environments.setup_execution_environment import SetupExecutionEnvironment
-from .starkware.test_execution_state import TestExecutionState
+from .starkware.contract_based_test_execution_state import (
+    ContractBasedTestExecutionState,
+)
 from .test_case_runners.setup_case_runner import run_setup_case
 from .test_case_runners.test_case_runner_factory import TestCaseRunnerFactory
 from .test_config import TestConfig
@@ -181,15 +183,16 @@ class TestRunner:
         test_suite: TestSuite,
         test_config: TestConfig,
         contract_path: Path,
-    ) -> Optional[TestExecutionState]:
+    ) -> Optional[ContractBasedTestExecutionState]:
         assert self.shared_tests_state, "Uninitialized reporter!"
-
         try:
-            execution_state = await TestExecutionState.from_test_suite_definition(
-                test_suite_definition=test_contract,
-                test_config=test_config,
-                contract_path=contract_path,
-                project_compiler=self.project_compiler,
+            execution_state = (
+                await ContractBasedTestExecutionState.from_test_suite_definition(
+                    test_suite_definition=test_contract,
+                    test_config=test_config,
+                    contract_path=contract_path,
+                    project_compiler=self.project_compiler,
+                )
             )
 
             if test_suite.setup_fn_name:
@@ -211,16 +214,16 @@ class TestRunner:
     async def _invoke_test_cases(
         self,
         test_suite: TestSuite,
-        execution_state: TestExecutionState,
+        execution_state: ContractBasedTestExecutionState,
     ) -> None:
         for test_case in test_suite.test_cases:
             test_result = await self._invoke_test_case(test_case, execution_state)
             self.shared_tests_state.put_result(test_result)
 
     async def _invoke_test_case(
-        self, test_case: TestCase, initial_state: TestExecutionState
+        self, test_case: TestCase, initial_state: ContractBasedTestExecutionState
     ) -> TestResult:
-        state: TestExecutionState = initial_state.fork()
+        state: ContractBasedTestExecutionState = initial_state.fork()
 
         if test_case.setup_fn_name:
             setup_case_result = await run_setup_case(test_case, state)

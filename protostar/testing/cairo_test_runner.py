@@ -20,8 +20,9 @@ from protostar.starknet.compiler.starknet_compilation import (
     CompilerConfig,
 )
 from . import TestRunner
-from .starkware.cairo_test_execution_state import CairoTestExecutionState
-from .test_case_runners.cairo_test_case_runner import CairoTestCaseRunner
+from .environments.cairo_test_execution_environment import CairoTestExecutionEnvironment
+from .starkware.test_execution_state import TestExecutionState
+from .test_case_runners.standard_test_case_runner import StandardTestCaseRunner
 
 from .test_config import TestConfig
 from .test_environment_exceptions import ReportedException
@@ -101,6 +102,14 @@ class CairoTestRunner:
             )
         )
 
+    async def _build_execution_state(self, test_config: TestConfig):
+        state = await TestExecutionState.from_test_config(
+            test_config=test_config,
+            project_compiler=self.project_compiler,
+        )
+        # TODO #1281: Execute __setup__ using test_execution_state & cairo_setup_execution_environment
+        return state
+
     async def run_test_suite(
         self,
         test_suite: TestSuite,
@@ -113,13 +122,12 @@ class CairoTestRunner:
             max_steps=max_steps,
             gas_estimation_enabled=self._gas_estimation_enabled,
         )
-        test_execution_state = CairoTestExecutionState()
+        test_execution_state = await self._build_execution_state(test_config)
 
         try:
             preprocessed = self.cairo_compiler.preprocess(test_suite.test_path)
             compiled_program = self.cairo_compiler.compile_preprocessed(preprocessed)
 
-            # TODO: Execute __setup__
             await self._invoke_test_cases(
                 test_suite=test_suite,
                 program=compiled_program,
@@ -158,23 +166,25 @@ class CairoTestRunner:
         self,
         test_suite: TestSuite,
         program: Program,
-        test_execution_state: CairoTestExecutionState,
+        test_execution_state: TestExecutionState,
     ) -> None:
         for test_case in test_suite.test_cases:
             test_result = await self._invoke_test_case(
-                test_case, program, test_execution_state
+                test_case=test_case,
+                program=program,
+                initial_state=test_execution_state,
             )
             self.shared_tests_state.put_result(test_result)
 
     async def _invoke_test_case(
         self,
+        initial_state: TestExecutionState,
         test_case: TestCase,
         program: Program,
-        test_execution_state: CairoTestExecutionState,
     ) -> TestResult:
-        # state: TestExecutionState = initial_state.fork()
+        state: TestExecutionState = initial_state.fork()
 
-        # TODO: Invoke setup case
+        # TODO #1281: Invoke setup case
         # if test_case.setup_fn_name:
         #     setup_case_result = await run_setup_case(test_case, state)
         #     if isinstance(setup_case_result, BrokenSetupCaseResult):
@@ -182,12 +192,16 @@ class CairoTestRunner:
         #     if isinstance(setup_case_result, SkippedSetupCaseResult):
         #         return setup_case_result.into_skipped_test_case_result()
 
-        # TODO: Plug in other test modes (fuzzing, parametrized)
+        # TODO #1283, #1282: Plug in other test modes (fuzzing, parametrized)
         # state.determine_test_mode(test_case)
 
-        return await CairoTestCaseRunner(
+        test_execution_environment = CairoTestExecutionEnvironment(
             program=program,
+            state=state,
+        )
+        return await StandardTestCaseRunner(
+            test_execution_environment=test_execution_environment,
             test_case=test_case,
-            output_recorder=test_execution_state.output_recorder,
-            stopwatch=test_execution_state.stopwatch,
+            output_recorder=state.output_recorder,
+            stopwatch=state.stopwatch,
         ).run()
