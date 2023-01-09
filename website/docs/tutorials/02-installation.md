@@ -16,7 +16,7 @@ To use Protostar's dependency management commands, you must have git installed a
 curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/install.sh | bash
 ```
 2. Close and reopen the terminal.
-3. To check the version of Protostar and Cairo that you have installed, run `protostar -v`.
+3. To check if the Protostar is installed correctly, run `protostar -v`.
 
 ### Specifying version
 
