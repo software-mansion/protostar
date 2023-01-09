@@ -6,8 +6,10 @@ from typing import Dict, List, Optional, TYPE_CHECKING
 from typing_extensions import Self
 
 from starkware.python.utils import to_bytes, from_bytes
-from starkware.starknet.business_logic.transaction.objects import InternalDeclare
-from starkware.starknet.public.abi import AbiType
+from starkware.starknet.business_logic.transaction.objects import (
+    InternalDeclare,
+)
+from starkware.starknet.public.abi import AbiType, get_selector_from_name
 from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,
 )
@@ -91,11 +93,8 @@ class ContractsCheater(Cheater):
     async def declare_contract(
         self,
         contract_class: ContractClass,
-        starknet_config: Optional[StarknetGeneralConfig] = None,
     ):
-        if not starknet_config:
-            starknet_config = StarknetGeneralConfig()  # We use the defaults anyway
-
+        starknet_config = StarknetGeneralConfig()
         tx = InternalDeclare.create(
             contract_class=contract_class,
             chain_id=starknet_config.chain_id.value,
@@ -263,3 +262,40 @@ class ContractsCheater(Cheater):
             raise ConstructorInputTransformationException(
                 f"There was an error while parsing constructor arguments:\n{dt_exc.message}",
             ) from dt_exc
+
+    async def get_contract_class_at(self, contract_address: int) -> ContractClass:
+        class_hash_bytes = await self.cheatable_state.get_class_hash_at(
+            int(contract_address)
+        )
+        return await self.cheatable_state.get_contract_class(class_hash_bytes)
+
+    async def invoke(
+        self,
+        function_name: str,
+        contract_address: Address,
+        calldata: Optional[CairoOrPythonData] = None,
+    ):
+        contract_address_int = int(contract_address)
+        if isinstance(calldata, collections.Mapping):
+            contract_class = await self.get_contract_class_at(contract_address_int)
+            assert (
+                contract_class.abi
+            ), f"No abi found for the contract at {contract_address}"
+
+            transformer = from_python_transformer(
+                contract_class.abi, function_name, "inputs"
+            )
+            cairo_calldata = transformer(calldata)
+        else:
+            cairo_calldata = calldata or []
+
+        entry_point = ExecuteEntryPoint.create_for_testing(
+            contract_address=contract_address_int,
+            calldata=cairo_calldata,
+            entry_point_selector=get_selector_from_name(function_name),
+        )
+        with self.cheatable_state.copy_and_apply() as state_copy:
+            await entry_point.execute_for_testing(
+                state=state_copy,
+                general_config=StarknetGeneralConfig(),
+            )
