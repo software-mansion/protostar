@@ -132,7 +132,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             )
         )
 
-    def decorate_with_examples(self, target_func: Callable):
+    def decorate_with_examples(self, target_func: Callable) -> Callable:
         func = target_func
         for ex in reversed(self.state.config.fuzz_examples):
             func = example(**ex)(func)
