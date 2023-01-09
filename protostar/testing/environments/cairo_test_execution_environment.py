@@ -68,7 +68,7 @@ class CairoTestExecutionEnvironment(TestExecutionEnvironment):
     def _get_hint_locals(self) -> dict[str, Any]:
         hint_locals: dict[str, Any] = {}
         cheatcode_factory = CairoTestCheatcodeFactory(state=self.state)
-        cheatcodes = cheatcode_factory.build_cheatcodes()
+        cheatcodes = cheatcode_factory.build_cheatcodes(self._expect_revert_context)
         for cheatcode in cheatcodes:
             hint_locals[cheatcode.name] = cheatcode.build()
 

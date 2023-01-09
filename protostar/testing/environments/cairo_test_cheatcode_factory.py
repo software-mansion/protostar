@@ -15,7 +15,9 @@ from protostar.testing.cairo_cheatcodes.prepare_cairo_cheatcode import (
 )
 from protostar.testing.cairo_cheatcodes.roll_cairo_cheatcode import RollCairoCheatcode
 from protostar.testing.cairo_cheatcodes.warp_cairo_cheatcode import WarpCairoCheatcode
+from protostar.testing.cairo_cheatcodes import ExpectRevertCairoCheatcode
 from protostar.testing.starkware.test_execution_state import TestExecutionState
+from protostar.testing.cheatcodes import ExpectRevertContext
 
 
 class CairoTestCheatcodeFactory:
@@ -25,7 +27,9 @@ class CairoTestCheatcodeFactory:
     ):
         self.state = state
 
-    def build_cheatcodes(self) -> List[CairoCheatcode]:
+    def build_cheatcodes(
+        self, expect_revert_context: ExpectRevertContext
+    ) -> List[CairoCheatcode]:
         declare_cheatcode = DeclareCairoCheatcode(
             starknet=self.state.starknet,
             project_compiler=self.state.project_compiler,
@@ -49,4 +53,5 @@ class CairoTestCheatcodeFactory:
                 prepare_cheatcode=prepare_cheatcode,
                 deploy_cheatcode=deploy_cheatcode,
             ),
+            ExpectRevertCairoCheatcode(self.state.starknet, expect_revert_context),
         ]

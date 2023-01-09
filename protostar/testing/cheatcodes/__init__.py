@@ -3,7 +3,7 @@ from .declare_cheatcode import DeclareCheatcode
 from .deploy_cheatcode import DeployCheatcode
 from .deploy_contract_cheatcode import DeployContractCheatcode
 from .expect_events_cheatcode import ExpectEventsCheatcode
-from .expect_revert_cheatcode import ExpectRevertCheatcode
+from .expect_revert_cheatcode import ExpectRevertCheatcode, ExpectRevertContext
 from .given_cheatcode import GivenCheatcode
 from .example_cheatcode import ExampleCheatcode
 from .load_cheatcode import LoadCheatcode

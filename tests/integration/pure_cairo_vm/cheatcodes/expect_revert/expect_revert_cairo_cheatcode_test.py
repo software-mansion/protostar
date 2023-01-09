@@ -25,14 +25,11 @@ async def test_test_result_types(testing_summary: TestingSummary):
         testing_summary,
         expected_passed_test_cases_names=[
             "test_partial_error_message",
-            "test_call_not_existing_contract_err_message",
-            "test_call_not_existing_contract",
             "test_error_message",
             "test_with_except_revert",
         ],
         expected_failed_test_cases_names=[
             "test_error_was_not_raised_before_stopping_expect_revert_fail_expected",
-            "test_call_not_existing_contract_fail_expected",
             "test_with_except_out_of_scope_revert_fail_expected",
             "test_with_except_revert_fail_expected",
             "test_fail_error_message",
