@@ -13,31 +13,31 @@ func assert_not_equal(a, b) {
 }
 
 func test_error_message() {
-    %{ expect_revert(error_message="a and b must be distinct.") %}
+    %{ expect_revert("a and b must be distinct.") %}
     assert_not_equal(0, 0);
     return ();
 }
 
 func test_partial_error_message() {
-    %{ expect_revert(error_message="must be distinct") %}
+    %{ expect_revert("must be distinct") %}
     assert_not_equal(0, 0);
     return ();
 }
 
 func test_fail_error_message() {
-    %{ expect_revert(error_message="a and b must be distinct. FOO") %}
+    %{ expect_revert("a and b must be distinct. FOO") %}
     assert_not_equal(0, 0);
     return ();
 }
 
 func test_with_except_revert_fail_expected() {
-    %{ expect_revert("TRANSACTION_FAILED") %}
+    %{ expect_revert() %}
     assert 0 = 0;
     return ();
 }
 
 func test_with_except_revert() {
-    %{ expect_revert("TRANSACTION_FAILED") %}
+    %{ expect_revert() %}
     assert 0 = 1;
     return ();
 }
@@ -52,7 +52,7 @@ func test_with_except_out_of_scope_revert_fail_expected() {
 func test_error_was_not_raised_before_stopping_expect_revert_fail_expected() {
     alloc_locals;
 
-    %{ stop_expecting_revert = expect_revert("UNINITIALIZED_CONTRACT") %}
+    %{ stop_expecting_revert = expect_revert() %}
     local contract_a_address = 42;
     %{ stop_expecting_revert() %}
 

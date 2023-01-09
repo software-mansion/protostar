@@ -23,9 +23,7 @@ class ExpectRevertCairoCheatcode(CairoCheatcode):
     def build(self) -> Callable:
         return self.expect_revert
 
-    def expect_revert(
-        self, error_type: Optional[str] = None, error_message: Optional[str] = None
-    ):
+    def expect_revert(self, error_message: Optional[str] = None):
         return self._context.expect_revert(
-            RevertableException(error_type=error_type, error_message=error_message)
+            RevertableException(error_type=None, error_message=error_message)
         )

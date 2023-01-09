@@ -22,9 +22,7 @@ from protostar.starknet.compiler.pass_managers import (
     StarknetPassManagerFactory,
     TestCollectorPassManagerFactory,
 )
-from protostar.starknet.compiler.starknet_compilation import (
-    StarknetCompiler,
-)
+from protostar.starknet.compiler.starknet_compilation import StarknetCompiler
 from protostar.starknet.compiler.cairo_compilation import CairoCompiler
 from protostar.starknet.compiler.common import CompilerConfig
 from protostar.testing import (
@@ -176,6 +174,7 @@ A glob or globs to a directory or a test suite, for example:
             max_steps=args.max_steps,
             slowest_tests_to_report_count=args.report_slowest_tests,
             gas_estimation_enabled=args.estimate_gas,
+            use_cairo_test_runner=True,
         )
         cache.write_failed_tests_to_cache(summary)
         summary.assert_all_passed()
