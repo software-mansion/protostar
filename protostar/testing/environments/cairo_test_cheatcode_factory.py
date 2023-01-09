@@ -15,6 +15,7 @@ from protostar.testing.cairo_cheatcodes.prepare_cairo_cheatcode import (
 )
 from protostar.testing.cairo_cheatcodes.roll_cairo_cheatcode import RollCairoCheatcode
 from protostar.testing.cairo_cheatcodes.warp_cairo_cheatcode import WarpCairoCheatcode
+from protostar.testing.cairo_cheatcodes.call_cairo_cheatcode import CallCairoCheatcode
 from protostar.testing.starkware.test_execution_state import TestExecutionState
 
 
@@ -49,4 +50,5 @@ class CairoTestCheatcodeFactory:
                 prepare_cheatcode=prepare_cheatcode,
                 deploy_cheatcode=deploy_cheatcode,
             ),
+            CallCairoCheatcode(starknet=self.state.starknet),
         ]

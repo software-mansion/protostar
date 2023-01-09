@@ -19,9 +19,12 @@ from starkware.starknet.business_logic.execution.execute_entry_point import (
 from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
 )
-from starkware.starknet.business_logic.execution.objects import CallType
+from starkware.starknet.business_logic.execution.objects import CallType, CallInfo
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
-from starkware.starknet.public.abi import CONSTRUCTOR_ENTRY_POINT_SELECTOR
+from starkware.starknet.public.abi import (
+    CONSTRUCTOR_ENTRY_POINT_SELECTOR,
+    get_selector_from_name,
+)
 from starkware.starknet.services.api.contract_class import EntryPointType, ContractClass
 
 from protostar.contract_types import (
@@ -142,7 +145,7 @@ class ContractsCheater(Cheater):
         for event_name in event_manager._selector_to_name.values():
             self.event_name_to_contract_abi_map[event_name] = abi
 
-    async def deploy_prepared(self, prepared: PreparedContract):
+    async def deploy_prepared(self, prepared: PreparedContract) -> DeployedContract:
         await self.cheatable_state.deploy_contract(
             contract_address=int(prepared.contract_address),
             class_hash=to_bytes(prepared.class_hash),
@@ -263,3 +266,30 @@ class ContractsCheater(Cheater):
             raise ConstructorInputTransformationException(
                 f"There was an error while parsing constructor arguments:\n{dt_exc.message}",
             ) from dt_exc
+
+    async def call(
+        self,
+        deployed: DeployedContract,
+        class_hash: bytes,
+        fn_name: str,
+        inputs: Optional[CairoOrPythonData] = None,
+    ) -> CallInfo:
+        class_hash_int = int.from_bytes(class_hash, "big")
+        ep = ExecuteEntryPoint.create(
+            contract_address=deployed.contract_address,
+            calldata=inputs,
+            entry_point_selector=get_selector_from_name(fn_name),
+            caller_address=0,
+            entry_point_type=EntryPointType.EXTERNAL,
+        )
+        ept = ExecuteEntryPoint.create_for_testing(
+            contract_address=deployed.contract_address,
+            calldata=inputs,
+            entry_point_selector=get_selector_from_name(fn_name),
+            caller_address=0,
+        )
+        result = await ep.execute_for_testing(
+            state=self.cheatable_state,
+            general_config=StarknetGeneralConfig(),
+        )
+        return result

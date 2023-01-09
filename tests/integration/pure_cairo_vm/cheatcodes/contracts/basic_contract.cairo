@@ -7,6 +7,11 @@ func balance() -> (res: felt) {
 }
 
 @external
+func double_fn{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(a: felt) -> (result: felt) {
+    return (result=a*2);
+}
+
+@external
 func increase_balance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     amount: felt
 ) {
