@@ -1075,7 +1075,7 @@ testutils = ["gitpython (>3)"]
 
 [[package]]
 name = "pyright"
-version = "1.1.284"
+version = "1.1.287"
 description = "Command line wrapper for pyright"
 category = "dev"
 optional = false
@@ -1564,7 +1564,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.9"
-content-hash = "2986f665a8065d005bdbae692ab44526eba8a236a36c61a5653ec5118f044055"
+content-hash = "104cc106e02a0f5f68ebef295e0e555420e02be944d4bac0800116fc9e95a29f"
 
 [metadata.files]
 aiohttp = [
@@ -2522,8 +2522,8 @@ pylint = [
     {file = "pylint-2.15.10.tar.gz", hash = "sha256:b3dc5ef7d33858f297ac0d06cc73862f01e4f2e74025ec3eff347ce0bc60baf5"},
 ]
 pyright = [
-    {file = "pyright-1.1.284-py3-none-any.whl", hash = "sha256:e3bfbd33c20af48eed9d20138767265161ba8a4b55c740476a36ce822bd482d1"},
-    {file = "pyright-1.1.284.tar.gz", hash = "sha256:ef7c0e46e38be95687f5a0633e55c5171ca166048b9560558168a976162e287c"},
+    {file = "pyright-1.1.287-py3-none-any.whl", hash = "sha256:0c760edbd40eb4f763027f742de2cb29c1d8320880e5f6ad85fc89db43fe6871"},
+    {file = "pyright-1.1.287.tar.gz", hash = "sha256:806a4af328dc1f2b6688147528c71393f0cf241eb1214d6e9a7fb1ef5caa2327"},
 ]
 pyrsistent = [
     {file = "pyrsistent-0.18.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:df46c854f490f81210870e509818b729db4488e1f30f2a1ce1698b2295a878d1"},
