@@ -9,7 +9,6 @@ Protostar is easy to install on Linux and Mac systems. In this section, we will 
 ## Requirements
 To use Protostar's dependency management commands, you must have git installed and added to your `$PATH` environment variable.
 
-The `$PATH` is an environment variable that specifies a list of directories in which the system looks for executables.
 If you do not have git in your `$PATH`, you will need to add the directory where git is installed in order to use Protostar.
 
 ## Linux and Mac
