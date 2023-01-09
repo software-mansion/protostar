@@ -4,7 +4,7 @@ sidebar_label: Installation
 
 # Installation
 
-Protostar is a valuable tool for developing StarkNet smart contracts, and it is easy to install on Linux and Mac systems. In this section, we will walk through the process of installing and upgrading Protostar, as well as the requirements for using the tool.
+Protostar is easy to install on Linux and Mac systems. In this section, we will walk through the process of installing and upgrading Protostar.
 
 ## Requirements
 To use Protostar's dependency management commands, you must have git installed and added to your `$PATH` environment variable.
