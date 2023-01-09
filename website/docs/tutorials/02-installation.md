@@ -40,7 +40,7 @@ protostar upgrade
 Protostar follows a biweekly release schedule.
 Each release may include new features, enhancements, bug fixes, deprecations and breaking changes.
 For detailed information about each release, consult the [release notes](https://github.com/software-mansion/protostar/releases).
-A link to the release notes for the latest version of Protostar will be displayed when a new release is available.
+Protostar will inform you when a new release is available.
 
 # How to build Protostar from source code
 If you are unable to install Protostar using the instructions above, you can try building it from the [source code](https://github.com/software-mansion/protostar) as follows:
