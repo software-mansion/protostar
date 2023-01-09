@@ -4,6 +4,7 @@ from typing import Any, Protocol
 from protostar.compiler import ProjectCompiler
 from protostar.testing.cairo_cheatcodes.cairo_cheatcode import CairoCheatcode
 from protostar.contract_types import DeclaredContract
+from protostar.starknet.forkable_starknet import ForkableStarknet
 
 
 class DeclareCheatcodeProtocol(Protocol):
@@ -16,8 +17,8 @@ class DeclareCheatcodeProtocol(Protocol):
 
 
 class DeclareCairoCheatcode(CairoCheatcode):
-    def __init__(self, project_compiler: ProjectCompiler, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
+    def __init__(self, starknet: ForkableStarknet, project_compiler: ProjectCompiler):
+        self._starknet = starknet
         self._project_compiler = project_compiler
 
     @property
@@ -32,13 +33,13 @@ class DeclareCairoCheatcode(CairoCheatcode):
             self._project_compiler.compile_contract_from_contract_identifier(contract)
         )
         declared_class = asyncio.run(
-            self.cheaters.contracts.declare_contract(compiled_contract)
+            self._starknet.cheaters.contracts.declare_contract(compiled_contract)
         )
 
         assert declared_class
         class_hash = declared_class.class_hash
 
-        self.cheaters.contracts.bind_class_hash_to_contract_identifier(
+        self._starknet.cheaters.contracts.bind_class_hash_to_contract_identifier(
             class_hash=class_hash,
             contract_identifier=contract,
         )

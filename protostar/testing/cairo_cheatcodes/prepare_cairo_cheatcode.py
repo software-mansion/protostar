@@ -2,15 +2,18 @@ from typing import Any, Callable, Optional
 
 from protostar.starknet import CheatcodeException
 from protostar.starknet.cheaters.contracts import ContractsCheaterException
-from protostar.starknet.data_transformer import (
-    CairoOrPythonData,
-)
+from protostar.starknet.data_transformer import CairoOrPythonData
 from protostar.testing.cairo_cheatcodes.cairo_cheatcode import CairoCheatcode
 from protostar.contract_types import DeclaredContract, PreparedContract
+from protostar.starknet.forkable_starknet import ForkableStarknet
 
 
 class PrepareCairoCheatcode(CairoCheatcode):
     salt_nonce = 1
+
+    def __init__(self, starknet: ForkableStarknet) -> None:
+        super().__init__()
+        self._starknet = starknet
 
     @property
     def name(self) -> str:
@@ -31,7 +34,7 @@ class PrepareCairoCheatcode(CairoCheatcode):
         constructor_calldata = constructor_calldata or []
 
         try:
-            return self.cheaters.contracts.prepare(
+            return self._starknet.cheaters.contracts.prepare(
                 declared=declared, constructor_calldata=constructor_calldata, salt=salt
             )
         except ContractsCheaterException as exc:

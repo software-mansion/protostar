@@ -7,6 +7,7 @@ from starkware.starknet.testing.contract import StarknetContract
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starknet.testing.state import CastableToAddressSalt
 
+from protostar.starknet.cheaters import Cheaters
 from protostar.starknet.cheatable_state import CheatableStarknetState
 
 
@@ -22,6 +23,10 @@ class ForkableStarknet(Starknet):
     @property
     def cheatable_state(self) -> CheatableStarknetState:
         return cast(CheatableStarknetState, self.state)
+
+    @property
+    def cheaters(self) -> Cheaters:
+        return self.cheatable_state.cheatable_state.cheaters
 
     @classmethod
     async def empty(
