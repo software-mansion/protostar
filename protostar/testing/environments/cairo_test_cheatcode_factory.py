@@ -44,7 +44,6 @@ class CairoTestCheatcodeFactory:
             declare_cheatcode,
             prepare_cheatcode,
             DeployContractCairoCheatcode(
-                starknet=self.state.starknet,
                 declare_cheatcode=declare_cheatcode,
                 prepare_cheatcode=prepare_cheatcode,
                 deploy_cheatcode=deploy_cheatcode,

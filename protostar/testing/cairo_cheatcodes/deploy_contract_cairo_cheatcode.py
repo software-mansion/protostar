@@ -1,4 +1,4 @@
-from typing import Optional, Any
+from typing import Optional
 
 from protostar.starknet.data_transformer import CairoOrPythonData
 from protostar.testing.cairo_cheatcodes.cairo_cheatcode import CairoCheatcode
@@ -20,10 +20,8 @@ class DeployContractCairoCheatcode(CairoCheatcode):
         declare_cheatcode: DeclareCairoCheatcode,
         prepare_cheatcode: PrepareCairoCheatcode,
         deploy_cheatcode: DeployCairoCheatcode,
-        *args: Any,
-        **kwargs: Any,
     ):
-        super().__init__(*args, **kwargs)
+        super().__init__()
         self._declare_cheatcode = declare_cheatcode
         self._prepare_cheatcode = prepare_cheatcode
         self._deploy_cheatcode = deploy_cheatcode
