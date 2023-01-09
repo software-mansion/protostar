@@ -24,7 +24,7 @@ async def test_call_pipeline(
 ):
     protostar.create_files(
         {
-            "src/main.cairo": CONTRACTS_PATH / "basic_contract.cairo",
+            "src/basic.cairo": CONTRACTS_PATH / "basic_contract.cairo",
         }
     )
 

@@ -19,7 +19,7 @@ from starkware.starknet.business_logic.execution.execute_entry_point import (
 from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
 )
-from starkware.starknet.business_logic.execution.objects import CallType, CallInfo
+from starkware.starknet.business_logic.execution.objects import CallType
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.public.abi import (
     CONSTRUCTOR_ENTRY_POINT_SELECTOR,
@@ -269,27 +269,48 @@ class ContractsCheater(Cheater):
 
     async def call(
         self,
-        deployed: DeployedContract,
-        class_hash: bytes,
-        fn_name: str,
-        inputs: Optional[CairoOrPythonData] = None,
-    ) -> CallInfo:
-        class_hash_int = int.from_bytes(class_hash, "big")
-        ep = ExecuteEntryPoint.create(
-            contract_address=deployed.contract_address,
-            calldata=inputs,
-            entry_point_selector=get_selector_from_name(fn_name),
-            caller_address=0,
-            entry_point_type=EntryPointType.EXTERNAL,
+        contract_address: Address,
+        function_name: str,
+        calldata: Optional[CairoOrPythonData] = None,
+    ) -> CairoOrPythonData:
+        contract_address_int = int(contract_address)
+        cairo_calldata = await self.adjust_calldata(
+            contract_address=contract_address,
+            function_name=function_name,
+            calldata=calldata,
         )
-        ept = ExecuteEntryPoint.create_for_testing(
-            contract_address=deployed.contract_address,
-            calldata=inputs,
-            entry_point_selector=get_selector_from_name(fn_name),
-            caller_address=0,
+        entry_point = ExecuteEntryPoint.create_for_testing(
+            contract_address=contract_address_int,
+            calldata=cairo_calldata,
+            entry_point_selector=get_selector_from_name(function_name),
         )
-        result = await ep.execute_for_testing(
-            state=self.cheatable_state,
-            general_config=StarknetGeneralConfig(),
-        )
-        return result
+        with self.cheatable_state.copy_and_apply() as state_copy:
+            result = await entry_point.execute_for_testing(
+                state=state_copy,
+                general_config=StarknetGeneralConfig(),
+            )
+        return result.retdata
+
+    async def adjust_calldata(
+        self,
+        contract_address: Address,
+        function_name: str,
+        calldata: Optional[CairoOrPythonData] = None,
+    ):
+        contract_address_int = int(contract_address)
+        if isinstance(calldata, collections.Mapping):
+            class_hash = await self.cheatable_state.get_class_hash_at(
+                contract_address_int
+            )
+            contract_class = await self.cheatable_state.get_contract_class(
+                class_hash=class_hash
+            )
+            assert (
+                contract_class.abi
+            ), f"No abi found for the contract at {contract_address}"
+
+            transformer = from_python_transformer(
+                contract_class.abi, function_name, "inputs"
+            )
+            return transformer(calldata)
+        return calldata or []

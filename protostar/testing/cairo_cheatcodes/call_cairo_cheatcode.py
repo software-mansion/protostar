@@ -1,12 +1,11 @@
 import asyncio
-from typing import Any, Callable, Optional
+from typing import Callable, Optional
 
 from protostar.starknet import CheatcodeException
 from protostar.starknet.cheaters.contracts import ContractsCheaterException
 from protostar.testing.cairo_cheatcodes.cairo_cheatcode import CairoCheatcode
 from protostar.starknet.data_transformer import CairoOrPythonData
-
-from protostar.contract_types import DeployedContract
+from protostar.starknet import RawAddress, Address
 
 
 class CallCairoCheatcode(CairoCheatcode):
@@ -14,35 +13,36 @@ class CallCairoCheatcode(CairoCheatcode):
     def name(self) -> str:
         return "call"
 
-    def build(self) -> Callable[[Any], Any]:
-        return self.call_deployed
-
-    def call_deployed(
+    def build(
         self,
-        deployed: DeployedContract,
-        class_hash: int,
-        fn_name: str,
-        inputs: Optional[CairoOrPythonData] = None,
+    ) -> Callable[[RawAddress, str, Optional[CairoOrPythonData]], CairoOrPythonData]:
+        return self.call
+
+    def call(
+        self,
+        contract_address: RawAddress,
+        function_name: str,
+        calldata: Optional[CairoOrPythonData] = None,
     ):
         return asyncio.run(
             self._call(
-                deployed=deployed, class_hash=class_hash, fn_name=fn_name, inputs=inputs
+                contract_address=Address.from_user_input(contract_address),
+                function_name=function_name,
+                calldata=calldata,
             )
         )
 
     async def _call(
         self,
-        deployed: DeployedContract,
-        class_hash: int,
-        fn_name: str,
-        inputs: Optional[CairoOrPythonData] = None,
+        contract_address: Address,
+        function_name: str,
+        calldata: Optional[CairoOrPythonData] = None,
     ):
         try:
             return await self.cheaters.contracts.call(
-                deployed=deployed,
-                class_hash=class_hash.to_bytes(32, "big"),
-                fn_name=fn_name,
-                inputs=inputs,
+                contract_address=contract_address,
+                function_name=function_name,
+                calldata=calldata,
             )
         except ContractsCheaterException as exc:
             raise CheatcodeException(self, exc.message) from exc
