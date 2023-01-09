@@ -50,4 +50,4 @@ If you are unable to install Protostar using the instructions above, you can try
 1. [Set up a development environment.](https://github.com/software-mansion/protostar#setting-up-environment)
 1. Run `poe build`. This will create a `dist` directory.
 1. Move the `dist` directory to the desired location (e.g. `~/.protostar`).
-1. Add `DESIRED_LOCATION/dist/protostar` to your `PATH`.
+1. Add `DESIRED_LOCATION/dist/protostar` to the `PATH`.
