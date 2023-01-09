@@ -8,11 +8,11 @@ Protostar is a toolchain for developing StarkNet smart contracts that helps with
 It is inspired by [Foundry](https://github.com/foundry-rs/foundry).
 
 ## Target audience
-This guide assumes that you have basic knowledge of [Cairo, StarkNet](https://www.cairo-lang.org/docs/), and Git.
+These guides assume that you have basic knowledge of [Cairo, StarkNet](https://www.cairo-lang.org/docs/), and Git.
 
 ## Learning objectives
 
-After reading this guide, you will be able to:
+After reading these guides, you will know how to:
 - [Install and upgrade Protostar](02-installation.md)
 - [Initialize a new Protostar project](03-project-initialization.md)
 - [Configure `protostar.toml`](03-project-initialization.md#protostartoml)
