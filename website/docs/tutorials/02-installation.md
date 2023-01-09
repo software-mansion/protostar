@@ -13,7 +13,7 @@ The `$PATH` is an environment variable that specifies a list of directories in w
 If you do not have git in your `$PATH`, you will need to add the directory where git is installed in order to use Protostar.
 
 ## Linux and Mac
-1. Open a terminal and enter the following command:
+1. Open a terminal and run the following command:
 ```console
 curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/install.sh | bash
 ```
