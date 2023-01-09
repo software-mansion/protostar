@@ -36,6 +36,7 @@ async def test_deploy_pipeline(
         testing_summary,
         expected_passed_test_cases_names=[
             "test_deploying_pipeline",
+            "test_deploying_pipeline_with_path",
             "test_two_interleaving_flows",
         ],
     )
