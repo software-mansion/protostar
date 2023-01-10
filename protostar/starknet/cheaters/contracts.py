@@ -1,5 +1,5 @@
 import collections
-from copy import copy
+import copy
 from pathlib import Path
 from typing import Dict, List, Optional, TYPE_CHECKING
 
@@ -39,9 +39,11 @@ from protostar.starknet.data_transformer import (
     DataTransformerException,
     to_python_transformer,
     CairoOrPythonData,
+    CairoData,
     from_python_transformer,
     PythonData,
 )
+
 
 if TYPE_CHECKING:
     from protostar.starknet.cheatable_cached_state import CheatableCachedState
@@ -70,7 +72,7 @@ class ContractsCheater(Cheater):
         self.cheatable_state = state
 
     def copy(self) -> Self:
-        return copy(self)
+        return copy.copy(self)
 
     def apply(self, parent: Self) -> None:
         parent.event_name_to_contract_abi_map = {
@@ -274,7 +276,7 @@ class ContractsCheater(Cheater):
         calldata: Optional[CairoOrPythonData] = None,
     ) -> CairoOrPythonData:
         contract_address_int = int(contract_address)
-        cairo_calldata = await self.adjust_calldata(
+        cairo_calldata = await self.calldata_as_cairo_data(
             contract_address=contract_address,
             function_name=function_name,
             calldata=calldata,
@@ -284,19 +286,18 @@ class ContractsCheater(Cheater):
             calldata=cairo_calldata,
             entry_point_selector=get_selector_from_name(function_name),
         )
-        with self.cheatable_state.copy_and_apply() as state_copy:
-            result = await entry_point.execute_for_testing(
-                state=state_copy,
-                general_config=StarknetGeneralConfig(),
-            )
+        result = await entry_point.execute_for_testing(
+            state=copy.deepcopy(self.cheatable_state),
+            general_config=StarknetGeneralConfig(),
+        )
         return result.retdata
 
-    async def adjust_calldata(
+    async def calldata_as_cairo_data(
         self,
         contract_address: Address,
         function_name: str,
         calldata: Optional[CairoOrPythonData] = None,
-    ):
+    ) -> CairoData:
         contract_address_int = int(contract_address)
         if isinstance(calldata, collections.Mapping):
             class_hash = await self.cheatable_state.get_class_hash_at(
