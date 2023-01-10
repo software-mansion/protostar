@@ -274,7 +274,7 @@ class ContractsCheater(Cheater):
         contract_address: Address,
         function_name: str,
         calldata: Optional[CairoOrPythonData] = None,
-    ) -> CairoOrPythonData:
+    ) -> CairoData:
         contract_address_int = int(contract_address)
         cairo_calldata = await self.calldata_as_cairo_data(
             contract_address=contract_address,
