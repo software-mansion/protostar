@@ -4,11 +4,11 @@ from protostar.io import StructuredMessage, LogColorProvider
 from protostar.testing import BrokenTestCaseResult
 
 from .formatters import (
-    get_formatted_execution_time_human,
-    get_formatted_execution_time_structured,
-    get_formatted_file_path,
-    get_formatted_stdout,
-    get_formatted_metadata,
+    format_execution_time_human,
+    format_execution_time_structured,
+    format_file_path,
+    format_stdout,
+    format_metadata,
 )
 
 
@@ -20,7 +20,7 @@ class BrokenTestCaseResultMessage(StructuredMessage):
         result: list[str] = []
         first_line_items: list[str] = [f"[{fmt.colorize('RED', 'BROKEN')}]"]
 
-        formatted_file_path = get_formatted_file_path(
+        formatted_file_path = format_file_path(
             file_path=self.broken_test_case_result.file_path, log_color_provider=fmt
         )
         first_line_items.append(
@@ -28,7 +28,7 @@ class BrokenTestCaseResultMessage(StructuredMessage):
         )
 
         info_items = [
-            get_formatted_execution_time_human(
+            format_execution_time_human(
                 execution_time=self.broken_test_case_result.execution_time,
                 log_color_provider=fmt,
             )
@@ -48,11 +48,11 @@ class BrokenTestCaseResultMessage(StructuredMessage):
         result.append("\n")
 
         for metadata in self.broken_test_case_result.exception.metadata:
-            result.append(get_formatted_metadata(metadata))
+            result.append(format_metadata(metadata))
             result.append("\n")
 
         result.extend(
-            get_formatted_stdout(
+            format_stdout(
                 captured_stdout=self.broken_test_case_result.captured_stdout,
                 log_color_provider=fmt,
             )
@@ -66,7 +66,7 @@ class BrokenTestCaseResultMessage(StructuredMessage):
             "test_type": "broken_test_case",
             "test_suite_path": str(self.broken_test_case_result.file_path),
             "test_case_name": self.broken_test_case_result.test_case_name,
-            "execution_time_in_seconds": get_formatted_execution_time_structured(
+            "execution_time_in_seconds": format_execution_time_structured(
                 self.broken_test_case_result.execution_time
             ),
             "exception": str(self.broken_test_case_result.exception),

@@ -9,7 +9,7 @@ from protostar.testing import (
 from protostar.testing import TestingSummary
 from protostar.io.log_color_provider import log_color_provider
 
-from .formatters import get_formatted_execution_time_structured
+from .formatters import format_execution_time_structured
 
 
 def _format_slow_test_cases_list(
@@ -232,7 +232,7 @@ class TestingSummaryResultMessage(StructuredMessage):
                 ),
             },
             "seed": self.testing_summary.testing_seed,
-            "execution_time_in_seconds": get_formatted_execution_time_structured(
+            "execution_time_in_seconds": format_execution_time_structured(
                 sum(execution_times)
             ),
         }

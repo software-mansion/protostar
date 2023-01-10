@@ -6,7 +6,7 @@ from protostar.testing import (
     TestCollector,
 )
 
-from .formatters import get_formatted_execution_time_structured
+from .formatters import format_execution_time_structured
 from .broken_test_suite_result_message import BrokenTestSuiteResultMessage
 
 
@@ -39,7 +39,7 @@ class TestCollectorResultMessage(StructuredMessage):
             n_test_cases = _format_test_case_info(
                 self.test_collector_result.test_cases_count
             )
-            duration = get_formatted_execution_time_structured(
+            duration = format_execution_time_structured(
                 self.test_collector_result.duration
             )
             result.append(f"Collected {n_test_suites}, and {n_test_cases} ({duration})")
@@ -58,7 +58,7 @@ class TestCollectorResultMessage(StructuredMessage):
                 len(test_suite.test_cases)
                 for test_suite in self.test_collector_result.test_suites
             ),
-            "duration_in_seconds": get_formatted_execution_time_structured(
+            "duration_in_seconds": format_execution_time_structured(
                 self.test_collector_result.duration
             ),
         }

@@ -1,6 +1,6 @@
 from .formatters import (
-    get_formatted_execution_time_human,
-    get_formatted_execution_time_structured,
+    format_execution_time_human,
+    format_execution_time_structured,
 )
 
 from .broken_test_suite_result_message import BrokenTestSuiteResultMessage

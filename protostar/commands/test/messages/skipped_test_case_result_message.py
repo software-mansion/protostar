@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from protostar.io import StructuredMessage, LogColorProvider
 from protostar.testing import SkippedTestCaseResult
 
-from .formatters import get_formatted_file_path
+from .formatters import format_file_path
 
 
 @dataclass
@@ -13,7 +13,7 @@ class SkippedTestCaseResultMessage(StructuredMessage):
     def format_human(self, fmt: LogColorProvider) -> str:
         result: list[str] = []
         first_line: list[str] = [f"[{fmt.colorize('YELLOW', 'SKIP')}]"]
-        formatted_file_path = get_formatted_file_path(
+        formatted_file_path = format_file_path(
             file_path=self.skipped_test_case_result.file_path, log_color_provider=fmt
         )
         first_line.append(

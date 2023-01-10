@@ -9,23 +9,21 @@ from protostar.testing import (
 from protostar.starknet import ExceptionMetadata
 
 
-def get_formatted_file_path(
-    file_path: Path, log_color_provider: LogColorProvider
-) -> str:
+def format_file_path(file_path: Path, log_color_provider: LogColorProvider) -> str:
     return log_color_provider.colorize("GRAY", str(file_path))
 
 
-def get_formatted_execution_time_human(
+def format_execution_time_human(
     execution_time: float, log_color_provider: LogColorProvider
 ) -> str:
     return f"time={log_color_provider.bold(f'{execution_time:.2f}')}s"
 
 
-def get_formatted_execution_time_structured(execution_time: float) -> str:
+def format_execution_time_structured(execution_time: float) -> str:
     return f"{execution_time:.2f}"
 
 
-def get_formatted_stdout(
+def format_stdout(
     captured_stdout: dict[OutputName, str], log_color_provider: LogColorProvider
 ) -> list[str]:
     result: list[str] = []
@@ -45,5 +43,5 @@ def get_formatted_stdout(
     return result
 
 
-def get_formatted_metadata(metadata: ExceptionMetadata) -> str:
+def format_metadata(metadata: ExceptionMetadata) -> str:
     return f"[{metadata.name}]:\n{metadata.format()}"

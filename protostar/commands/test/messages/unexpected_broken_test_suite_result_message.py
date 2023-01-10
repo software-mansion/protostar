@@ -4,7 +4,7 @@ from protostar.io import StructuredMessage, LogColorProvider
 from protostar.testing import UnexpectedBrokenTestSuiteResult
 from protostar.protostar_exception import UNEXPECTED_PROTOSTAR_ERROR_MSG
 
-from .formatters import get_formatted_file_path
+from .formatters import format_file_path
 
 
 @dataclass
@@ -15,7 +15,7 @@ class UnexpectedBrokenTestSuiteResultMessage(StructuredMessage):
         lines: list[str] = []
         main_line: list[str] = [
             f"[{fmt.colorize('RED', 'UNEXPECTED_EXCEPTION')}]",
-            get_formatted_file_path(
+            format_file_path(
                 file_path=self.unexpected_exception_test_suite_result.file_path,
                 log_color_provider=fmt,
             ),

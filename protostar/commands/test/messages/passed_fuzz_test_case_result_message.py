@@ -5,10 +5,10 @@ from protostar.io import StructuredMessage, LogColorProvider
 from protostar.testing import PassedFuzzTestCaseResult
 
 from .formatters import (
-    get_formatted_execution_time_human,
-    get_formatted_execution_time_structured,
-    get_formatted_file_path,
-    get_formatted_stdout,
+    format_execution_time_human,
+    format_execution_time_structured,
+    format_file_path,
+    format_stdout,
 )
 
 
@@ -18,7 +18,7 @@ class PassedFuzzTestCaseResultMessage(StructuredMessage):
 
     def format_human(self, fmt: LogColorProvider) -> str:
         first_line_elements: list[str] = [f"[{fmt.colorize('GREEN', 'PASS')}]"]
-        formatted_file_path = get_formatted_file_path(
+        formatted_file_path = format_file_path(
             file_path=self.passed_fuzz_test_case_result.file_path,
             log_color_provider=fmt,
         )
@@ -27,7 +27,7 @@ class PassedFuzzTestCaseResultMessage(StructuredMessage):
         )
 
         info_items: list[str] = [
-            get_formatted_execution_time_human(
+            format_execution_time_human(
                 execution_time=self.passed_fuzz_test_case_result.execution_time,
                 log_color_provider=fmt,
             )
@@ -78,7 +78,7 @@ class PassedFuzzTestCaseResultMessage(StructuredMessage):
                         )
                     )
 
-        stdout_elements = get_formatted_stdout(
+        stdout_elements = format_stdout(
             captured_stdout=self.passed_fuzz_test_case_result.captured_stdout,
             log_color_provider=fmt,
         )
@@ -103,7 +103,7 @@ class PassedFuzzTestCaseResultMessage(StructuredMessage):
             else "passed_fuzz_test_case",
             "test_suite_path": str(self.passed_fuzz_test_case_result.file_path),
             "test_case_name": self.passed_fuzz_test_case_result.test_case_name,
-            "execution_time_in_seconds": get_formatted_execution_time_structured(
+            "execution_time_in_seconds": format_execution_time_structured(
                 self.passed_fuzz_test_case_result.execution_time
             ),
             "stdout": str(self.passed_fuzz_test_case_result.captured_stdout),
