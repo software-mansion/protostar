@@ -101,7 +101,7 @@ class ContractsCheater(Cheater):
         contract_address_int = int(contract_address)
         class_hash = await self.cheatable_state.get_class_hash_at(contract_address_int)
         return await self._transform_calldata_to_cairo_data(
-            class_hash=int.from_bytes(class_hash, "big"),
+            class_hash=from_bytes(class_hash, "big"),
             function_name=function_name,
             calldata=calldata,
         )
@@ -114,7 +114,7 @@ class ContractsCheater(Cheater):
     ) -> CairoData:
         if isinstance(calldata, collections.Mapping):
             contract_class = await self.cheatable_state.get_contract_class(
-                class_hash=int.to_bytes(class_hash, 32, "big")
+                class_hash=to_bytes(class_hash, 32, "big")
             )
             assert contract_class.abi, f"No abi found for the contract at {class_hash}"
 
