@@ -2,48 +2,47 @@ import asyncio
 from typing import Callable, Optional
 
 from protostar.starknet import CheatcodeException
-from protostar.starknet.cheater import CheaterException
-from protostar.testing.cairo_cheatcodes.cairo_cheatcode import CairoCheatcode
-from protostar.starknet.data_transformer import CairoOrPythonData, CairoData
 from protostar.starknet import RawAddress, Address
+from protostar.starknet.cheater import CheaterException
+from protostar.starknet.data_transformer import CairoOrPythonData
+from protostar.testing.cairo_cheatcodes.cairo_cheatcode import CairoCheatcode
 
 
-class CallCairoCheatcode(CairoCheatcode):
+class ExpectCallCairoCheatcode(CairoCheatcode):
     @property
     def name(self) -> str:
-        return "call"
+        return "expect_call"
 
     def build(
         self,
-    ) -> Callable[[RawAddress, str, Optional[CairoOrPythonData]], CairoOrPythonData]:
-        return self.call
+    ) -> Callable[[RawAddress, str, Optional[CairoOrPythonData]], Callable]:
+        return self.expect_call
 
-    def call(
+    def expect_call(
         self,
         contract_address: RawAddress,
         function_name: str,
         calldata: Optional[CairoOrPythonData] = None,
-    ) -> CairoData:
+    ) -> Callable:
         return asyncio.run(
-            self._call(
+            self._expect_call(
                 contract_address=Address.from_user_input(contract_address),
                 function_name=function_name,
                 calldata=calldata,
             )
         )
 
-    async def _call(
+    async def _expect_call(
         self,
         contract_address: Address,
         function_name: str,
         calldata: Optional[CairoOrPythonData] = None,
-    ) -> CairoData:
+    ) -> Callable:
         try:
-            return await self.cheaters.contracts.call(
+            return await self.cheaters.expects.expect_call(
                 contract_address=contract_address,
                 function_name=function_name,
                 calldata=calldata,
-                cheaters=self.cheaters,
             )
         except CheaterException as exc:
             raise CheatcodeException(self, exc.message) from exc

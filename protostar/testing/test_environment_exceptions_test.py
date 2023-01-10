@@ -140,7 +140,7 @@ def test_expected_revert_error_message_when_specific_error_is_expected():
         ),
         ExpectedCallException(
             contract_address=Address(123),
-            fn_name="foo",
+            function_name="foo",
             calldata=[1, 2, 3],
         ),
     ],

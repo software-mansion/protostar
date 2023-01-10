@@ -236,4 +236,4 @@ class TestRunner:
 
         test_case_runner_factory = TestCaseRunnerFactory(state)
         test_case_runner = test_case_runner_factory.make(test_case)
-        return await test_case_runner.run()
+        return await test_case_runner.run(state)

@@ -142,9 +142,11 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
             raise NotImplementedError(f"Unsupported call type {syscall_name}.")
 
         # region Modified Starknet code.
-        contract_calldata = (int(str(request.function_selector)), calldata)
+        selector = int(str(request.function_selector))
         self.cheatable_state.unregister_expected_call(
-            contract_address=Address(contract_address), calldata=contract_calldata
+            contract_address=Address(contract_address),
+            function_selector=selector,
+            calldata=calldata,
         )
 
         # endregion

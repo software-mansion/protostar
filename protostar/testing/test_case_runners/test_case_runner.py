@@ -13,6 +13,10 @@ from protostar.testing.test_results import (
     TestCaseResult,
 )
 from protostar.testing.test_suite import TestCase
+from protostar.starknet.cheaters.expects import assert_no_expected_calls
+from protostar.protostar_exception import ProtostarException
+from protostar.testing.starkware.test_execution_state import TestExecutionState
+from protostar.starknet.cheater import CheaterException
 
 ExecutionResultT = TypeVar("ExecutionResultT", bound=TestExecutionResult)
 
@@ -32,10 +36,17 @@ class TestCaseRunner(Generic[ExecutionResultT]):
         self._output_recorder = output_recorder
         self._stopwatch = stopwatch
 
-    async def run(self) -> TestCaseResult:
+    async def run(self, state: TestExecutionState) -> TestCaseResult:
         try:
             with self._stopwatch.lap(self._test_case.test_fn_name):
                 execution_result = await self._run_test_case()
+
+            try:
+                assert_no_expected_calls(
+                    state.starknet.cheatable_state.cheatable_state.expected_contract_calls
+                )
+            except (ProtostarException, CheaterException) as e:
+                raise ReportedException from e
 
             return self._map_execution_result_to_passed_test_result(
                 execution_result,

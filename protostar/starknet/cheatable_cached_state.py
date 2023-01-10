@@ -13,9 +13,14 @@ from starkware.starknet.business_logic.fact_state.state import CarriedState
 from starkware.starknet.business_logic.state.state import CachedState, StateSyncifier
 from typing_extensions import Self
 
-from protostar.starknet.cheaters import BlockInfoCheater, Cheaters
+from protostar.starknet.cheaters import (
+    BlockInfoCheater,
+    Cheaters,
+    ContractsCheater,
+    ExpectsCheater,
+)
 from protostar.starknet.types import ClassHashType, SelectorType
-from protostar.starknet.data_transformer import CairoOrPythonData
+from protostar.starknet.data_transformer import CairoOrPythonData, CairoData
 
 from protostar.starknet.address import Address
 
@@ -155,23 +160,38 @@ class CheatableCachedState(CachedState):
         return self.class_hash_to_contract_abi_map[class_hash]
 
     def register_expected_call(
-        self, contract_address: Address, selector: SelectorType, calldata: list[int]
+        self,
+        contract_address: Address,
+        function_selector: SelectorType,
+        calldata: CairoData,
     ):
         if self.expected_contract_calls.get(contract_address):
-            self.expected_contract_calls[contract_address].append((selector, calldata))
+            self.expected_contract_calls[contract_address].append(
+                (function_selector, calldata)
+            )
         else:
-            self.expected_contract_calls[contract_address] = [(selector, calldata)]
+            self.expected_contract_calls[contract_address] = [
+                (function_selector, calldata)
+            ]
 
     def unregister_expected_call(
-        self, contract_address: Address, calldata: tuple[int, list[int]]
+        self,
+        contract_address: Address,
+        function_selector: SelectorType,
+        calldata: CairoData,
     ):
-        data_for_address = self.expected_contract_calls.get(contract_address)
-        if data_for_address is not None and calldata in data_for_address:
-            for index, (selector, calldata_item) in enumerate(data_for_address):
-                if selector == calldata[0] and calldata_item == calldata[1]:
-                    del data_for_address[index]
-            if not data_for_address:
-                del self.expected_contract_calls[contract_address]
+        if contract_address not in self.expected_contract_calls:
+            return
+        self.expected_contract_calls[contract_address] = [
+            (stored_function_name, stored_calldata)
+            for (
+                stored_function_name,
+                stored_calldata,
+            ) in self.expected_contract_calls[contract_address]
+            if stored_function_name != function_selector or stored_calldata != calldata
+        ]
+        if not self.expected_contract_calls[contract_address]:
+            del self.expected_contract_calls[contract_address]
 
 
 class CheatableStateException(Exception):
