@@ -41,7 +41,7 @@ network = "testnet"
 The `[project]` section of the `protostar.toml` file allows you to specify global options and settings for your project.
 #### `protostar-version`
 This attribute is used to manifest what Protostar version should be used with your project.
-It should be set to the version of Protostar that you are using.
+It should be set to the latest compatible Protostar version.
 If you try to use a different version of Protostar with your project, you will receive a warning and you may experience unexpected errors.
 
 #### Shared Configuration
