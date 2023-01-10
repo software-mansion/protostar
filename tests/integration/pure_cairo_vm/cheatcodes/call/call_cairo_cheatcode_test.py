@@ -35,6 +35,6 @@ async def test_call_pipeline(
     assert_cairo_test_cases(
         testing_summary,
         expected_passed_test_cases_names=[
-            "test_calling_pipeline",
+            "test_call",
         ],
     )
