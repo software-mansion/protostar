@@ -34,7 +34,7 @@ async def test_test_result_types(testing_summary: TestingSummary):
         expected_failed_test_cases_names=[
             "test_error_was_not_raised_before_stopping_expect_revert_fail_expected",
             "test_with_except_out_of_scope_revert_fail_expected",
-            "test_with_except_revert_fail_expected",
+            "test_fail_when_expected_panic",
             "test_fail_error_message",
         ],
         expected_broken_test_cases_names=[
