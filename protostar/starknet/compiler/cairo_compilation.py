@@ -25,7 +25,7 @@ class CairoCompiler:
     def compile_preprocessed(
         preprocessed: PreprocessedProgram,
     ) -> Program:  # TODO #1280: Cache result
-        return assemble(preprocessed)
+        return assemble(preprocessed, add_debug_info=True)
 
     def get_function_names(self, file_path: Path) -> List[str]:
         preprocessed = self.preprocess(file_path)
