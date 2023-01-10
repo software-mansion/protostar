@@ -15,7 +15,7 @@ from protostar.testing.cairo_cheatcodes.prepare_cairo_cheatcode import (
 )
 from protostar.testing.cairo_cheatcodes.roll_cairo_cheatcode import RollCairoCheatcode
 from protostar.testing.cairo_cheatcodes.warp_cairo_cheatcode import WarpCairoCheatcode
-from protostar.testing.cairo_cheatcodes import ExpectRevertCairoCheatcode
+from protostar.testing.cairo_cheatcodes import ExpectPanicCairoCheatcode
 from protostar.testing.starkware.test_execution_state import TestExecutionState
 from protostar.testing.cheatcodes import ExpectRevertContext
 
@@ -53,5 +53,5 @@ class CairoTestCheatcodeFactory:
                 prepare_cheatcode=prepare_cheatcode,
                 deploy_cheatcode=deploy_cheatcode,
             ),
-            ExpectRevertCairoCheatcode(self.state.starknet, expect_revert_context),
+            ExpectPanicCairoCheatcode(self.state.starknet, expect_revert_context),
         ]

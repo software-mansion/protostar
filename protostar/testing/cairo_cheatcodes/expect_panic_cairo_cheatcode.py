@@ -7,7 +7,7 @@ from protostar.testing.test_environment_exceptions import RevertableException
 from .cairo_cheatcode import CairoCheatcode
 
 
-class ExpectRevertCairoCheatcode(CairoCheatcode):
+class ExpectPanicCairoCheatcode(CairoCheatcode):
     def __init__(
         self,
         starknet: ForkableStarknet,
@@ -18,12 +18,12 @@ class ExpectRevertCairoCheatcode(CairoCheatcode):
 
     @property
     def name(self) -> str:
-        return "expect_revert"
+        return "expect_panic"
 
     def build(self) -> Callable:
-        return self.expect_revert
+        return self.expect_panic
 
-    def expect_revert(self, error_message: Optional[str] = None):
+    def expect_panic(self, error_message: Optional[str] = None):
         return self._context.expect_revert(
             RevertableException(error_type=None, error_message=error_message)
         )
