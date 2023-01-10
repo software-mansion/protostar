@@ -4,7 +4,8 @@ from pathlib import Path
 import pytest
 
 from protostar.protostar_exception import ProtostarException
-from tests.conftest import DevnetAccount, SetPrivateKeyEnvVarFixture
+from tests._conftest.devnet.devnet_fixture import DevnetFixture
+from tests.conftest import TESTS_ROOT_PATH, DevnetAccount, SetPrivateKeyEnvVarFixture
 from tests.data.contracts import UINT256_IDENTITY_CONTRACT
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.protostar_fixture import ProtostarFixture
@@ -235,3 +236,50 @@ async def test_json(
     assert (
         result["transformed_output"]["res"] == 12590447576074723148144860474975423823893
     )
+
+
+async def test_calling_through_proxy(
+    protostar: ProtostarFixture,
+    devnet: DevnetFixture,
+    devnet_account: DevnetAccount,
+    set_private_key_env_var: SetPrivateKeyEnvVarFixture,
+):
+    with set_private_key_env_var(devnet_account.private_key):
+        declared = await protostar.declare(
+            contract=protostar.project_root_path / "build" / "main.json",
+            gateway_url=devnet.get_gateway_url(),
+            max_fee="auto",
+            account_address=devnet_account.address,
+        )
+        contract = await protostar.deploy(
+            class_hash=declared.class_hash,
+            account_address=devnet_account.address,
+            max_fee="auto",
+            gateway_url=devnet.get_gateway_url(),
+            wait_for_acceptance=True,
+        )
+        declared_proxy = await protostar.declare(
+            contract=TESTS_ROOT_PATH / "data" / "oz_proxy_compiled_contract.json",
+            wait_for_acceptance=True,
+            account_address=devnet_account.address,
+            gateway_url=devnet.get_gateway_url(),
+            max_fee="auto",
+        )
+        proxy = await protostar.deploy(
+            class_hash=declared_proxy.class_hash,
+            inputs=[int(contract.address)],
+            account_address=devnet_account.address,
+            max_fee="auto",
+            gateway_url=devnet.get_gateway_url(),
+            wait_for_acceptance=True,
+        )
+
+        call_result = await protostar.call(
+            contract_address=proxy.address,
+            gateway_url=devnet.get_gateway_url(),
+            function_name="add_multiple_values",
+            inputs={"a": 1, "b": 2, "c": 3},
+        )
+
+    assert call_result.call_output.human_data is not None
+    assert call_result.call_output.human_data["res"] == 6
