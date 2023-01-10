@@ -23,7 +23,7 @@ class ExpectPanicCairoCheatcode(CairoCheatcode):
     def build(self) -> Callable:
         return self.expect_panic
 
-    def expect_panic(self, error_message: Optional[str] = None):
-        return self._context.expect_revert(
+    def expect_panic(self, error_message: Optional[str] = None) -> None:
+        self._context.expect_revert(
             RevertableException(error_type=None, error_message=error_message)
         )
