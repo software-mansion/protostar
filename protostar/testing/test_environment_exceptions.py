@@ -79,15 +79,23 @@ class VmRevertableException(RevertableException):
             )
             error_messages.append(error_message_without_prefix)
         error_messages = [err_msg.replace("\n", "") for err_msg in error_messages]
-        return cls(error_messages)
+        return cls(error_str=str(ex), error_message=error_messages)
 
-    def __init__(self, error_message: Optional[Union[str, List[str]]] = None) -> None:
+    def __init__(
+        self,
+        error_str: str,
+        error_message: Optional[Union[str, List[str]]] = None,
+    ) -> None:
         super().__init__(error_message, error_type=None)
+        self._error_str = error_str
+
+    def __str__(self) -> str:
+        return log_color_provider.colorize("GRAY", content=self._error_str)
 
     def __reduce__(self):
         return (
             type(self),
-            (self.error_messages,),
+            (self.error_messages, self._error_str),
             self.__getstate__(),
         )
 

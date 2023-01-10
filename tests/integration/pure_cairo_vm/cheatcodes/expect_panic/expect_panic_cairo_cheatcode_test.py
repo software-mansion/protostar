@@ -35,7 +35,8 @@ async def test_test_result_types(testing_summary: TestingSummary):
         expected_failed_test_cases_names=[
             "test_fail_when_expected_panic",
             "test_fail_error_message",
-            "test_fail",
+            "test_fail_when_error_is_annotated",
+            "test_fail_when_error_is_not_annotated",
         ],
         expected_broken_test_cases_names=["test_broken_when_panic_is_already_expected"],
     )

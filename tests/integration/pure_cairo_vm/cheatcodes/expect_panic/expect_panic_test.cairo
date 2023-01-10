@@ -54,8 +54,13 @@ func test_fail_when_expected_panic() {
     return ();
 }
 
-func test_fail() {
+func test_fail_when_error_is_annotated() {
     assert_not_equal(0, 0);
+    return ();
+}
+
+func test_fail_when_error_is_not_annotated() {
+    assert 1 = 0;
     return ();
 }
 
