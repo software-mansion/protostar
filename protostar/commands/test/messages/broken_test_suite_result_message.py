@@ -20,6 +20,7 @@ class BrokenTestSuiteResultMessage(StructuredMessage):
 
     def format_dict(self) -> dict:
         return {
+            "type": "test",
             "message_type": "test_case_result",
             "test_type": "broken_test_suite",
             "test_suite_path": str(self.broken_test_suite_result.file_path),

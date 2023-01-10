@@ -49,6 +49,7 @@ class TestCollectorResultMessage(StructuredMessage):
 
     def format_dict(self) -> dict:
         return {
+            "type": "test",
             "message_type": "test_collector_result",
             "broken_test_suites_count": len(
                 self.test_collector_result.broken_test_suites

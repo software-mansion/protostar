@@ -97,6 +97,7 @@ class PassedFuzzTestCaseResultMessage(StructuredMessage):
 
     def format_dict(self) -> dict:
         result = {
+            "type": "test",
             "message_type": "test_case_result",
             "test_type": "passed_test_case"
             if self.passed_fuzz_test_case_result.fuzz_runs_count is None

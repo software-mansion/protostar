@@ -63,6 +63,7 @@ class FailedTestCaseResultMessage(StructuredMessage):
 
     def format_dict(self) -> dict:
         return {
+            "type": "test",
             "message_type": "test_case_result",
             "test_type": "failed_test_case",
             "test_suite_path": str(self.failed_test_case_result.file_path),

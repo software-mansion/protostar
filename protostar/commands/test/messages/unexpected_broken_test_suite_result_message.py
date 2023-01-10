@@ -31,6 +31,7 @@ class UnexpectedBrokenTestSuiteResultMessage(StructuredMessage):
 
     def format_dict(self) -> dict:
         return {
+            "type": "test",
             "message_type": "test_case_result",
             "test_type": "unexpected_broken_test_suite",
             "test_suite_path": str(

@@ -31,6 +31,7 @@ class SkippedTestCaseResultMessage(StructuredMessage):
 
     def format_dict(self) -> dict:
         return {
+            "type": "test",
             "message_type": "test_case_result",
             "test_type": "skipped_test_case",
             "test_suite_path": str(self.skipped_test_case_result.file_path),
