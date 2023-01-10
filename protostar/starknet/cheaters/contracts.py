@@ -37,7 +37,6 @@ from protostar.starknet.cheater import Cheater
 from protostar.starknet.address import Address
 from protostar.starknet.data_transformer import (
     DataTransformerException,
-    to_python_transformer,
     CairoOrPythonData,
     CairoData,
     from_python_transformer,
@@ -207,33 +206,16 @@ class ContractsCheater(Cheater):
         return DeployedContract(contract_address=prepared.contract_address)
 
     async def invoke_constructor(self, prepared: PreparedContract):
-        await self.validate_constructor_args(prepared)
+        await self._transform_calldata_to_cairo_data(
+            class_hash=prepared.class_hash,
+            function_name="constructor",
+            calldata=prepared.constructor_calldata,
+        )
         await self.execute_constructor_entry_point(
             class_hash_bytes=to_bytes(prepared.class_hash),
             constructor_calldata=prepared.constructor_calldata,
             contract_address=int(prepared.contract_address),
         )
-
-    async def validate_constructor_args(self, prepared: PreparedContract):
-        contract_class = await self.cheatable_state.get_contract_class(
-            to_bytes(prepared.class_hash)
-        )
-
-        if not contract_class.abi:
-            raise ConstructorInvocationException(
-                f"Contract ABI (class_hash: {hex(prepared.class_hash)}) was not found. "
-                "Unable to verify constructor arguments.",
-            )
-
-        transformer = to_python_transformer(contract_class.abi, "constructor", "inputs")
-        try:
-            transformer(prepared.constructor_calldata)
-        except DataTransformerException as dt_exc:
-            # starknet.py interprets this call as a cairo -> python transformation, so message has to be modified
-            dt_exc.message = dt_exc.message.replace("Output", "Input")
-            raise ConstructorInvocationException(
-                f"There was an error while parsing constructor arguments:\n{dt_exc.message}",
-            ) from dt_exc
 
     async def execute_constructor_entry_point(
         self,
