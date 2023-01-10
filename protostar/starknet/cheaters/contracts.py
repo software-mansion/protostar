@@ -4,11 +4,8 @@ from pathlib import Path
 from typing import Dict, List, Optional, TYPE_CHECKING
 
 from typing_extensions import Self
-
 from starkware.python.utils import to_bytes, from_bytes
-from starkware.starknet.business_logic.transaction.objects import (
-    InternalDeclare,
-)
+from starkware.starknet.business_logic.transaction.objects import InternalDeclare
 from starkware.starknet.public.abi import (
     AbiType,
     get_selector_from_name,
@@ -47,7 +44,6 @@ from protostar.starknet.data_transformer import (
     from_python_transformer,
 )
 
-
 if TYPE_CHECKING:
     from protostar.starknet.cheatable_cached_state import CheatableCachedState
 
@@ -72,6 +68,7 @@ class ContractsCheater(Cheater):
         self.class_hash_to_contract_abi_map: Dict[ClassHashType, AbiType] = {}
         self.class_hash_to_contract_path_map: Dict[ClassHashType, Path] = {}
         self.contract_address_to_class_hash_map: Dict[Address, ClassHashType] = {}
+        self.pranked_contracts_map: dict[Address, Address] = {}
         self.cheatable_state = state
 
     def copy(self) -> Self:
@@ -82,7 +79,6 @@ class ContractsCheater(Cheater):
             **parent.event_name_to_contract_abi_map,
             **self.event_name_to_contract_abi_map,
         }
-
         parent.class_hash_to_contract_path_map = {
             **parent.class_hash_to_contract_path_map,
             **self.class_hash_to_contract_path_map,
@@ -94,6 +90,10 @@ class ContractsCheater(Cheater):
         parent.contract_address_to_class_hash_map = {
             **parent.contract_address_to_class_hash_map,
             **self.contract_address_to_class_hash_map,
+        }
+        parent.pranked_contracts_map = {
+            **parent.pranked_contracts_map,
+            **self.pranked_contracts_map,
         }
 
     async def _transform_calldata_to_cairo_data_by_addr(
@@ -314,3 +314,11 @@ class ContractsCheater(Cheater):
                 state=state_copy,
                 general_config=StarknetGeneralConfig(),
             )
+
+    async def prank(self, caller_address: Address, target_address: Address):
+        self.pranked_contracts_map[target_address] = caller_address
+
+        def stop_started_prank():
+            del self.pranked_contracts_map[target_address]
+
+        return stop_started_prank
