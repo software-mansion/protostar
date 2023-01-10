@@ -12,8 +12,14 @@ func assert_not_equal(a, b) {
     return ();
 }
 
-func test_error_message() {
+func test_outer_error_message() {
     %{ expect_panic("a and b must be distinct.") %}
+    assert_not_equal(0, 0);
+    return ();
+}
+
+func test_inner_error_message() {
+    %{ expect_panic("x must not be zero. Got x=0.") %}
     assert_not_equal(0, 0);
     return ();
 }

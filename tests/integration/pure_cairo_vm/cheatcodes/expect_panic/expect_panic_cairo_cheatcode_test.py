@@ -26,8 +26,9 @@ async def test_test_result_types(testing_summary: TestingSummary):
     assert_cairo_test_cases(
         testing_summary,
         expected_passed_test_cases_names=[
+            "test_inner_error_message",
+            "test_outer_error_message",
             "test_partial_error_message",
-            "test_error_message",
             "test_with_except_revert",
         ],
         expected_failed_test_cases_names=[
