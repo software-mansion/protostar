@@ -1,4 +1,5 @@
 from typing import Any, Callable, Optional
+import asyncio
 
 from protostar.starknet import CheatcodeException
 from protostar.starknet.cheaters.contracts import ContractsCheaterException
@@ -25,13 +26,25 @@ class PrepareCairoCheatcode(CairoCheatcode):
         constructor_calldata: Optional[CairoOrPythonData] = None,
         salt: Optional[int] = None,
     ) -> PreparedContract:
+        return asyncio.run(
+            self._prepare(
+                declared=declared, constructor_calldata=constructor_calldata, salt=salt
+            )
+        )
+
+    async def _prepare(
+        self,
+        declared: DeclaredContract,
+        constructor_calldata: Optional[CairoOrPythonData] = None,
+        salt: Optional[int] = None,
+    ) -> PreparedContract:
         contract_salt = PrepareCairoCheatcode.salt_nonce
         PrepareCairoCheatcode.salt_nonce += 1
         salt = salt or contract_salt
         constructor_calldata = constructor_calldata or []
 
         try:
-            return self.cheaters.contracts.prepare(
+            return await self.cheaters.contracts.prepare(
                 declared=declared, constructor_calldata=constructor_calldata, salt=salt
             )
         except ContractsCheaterException as exc:

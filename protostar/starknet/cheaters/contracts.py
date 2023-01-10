@@ -41,7 +41,6 @@ from protostar.starknet.data_transformer import (
     CairoOrPythonData,
     CairoData,
     from_python_transformer,
-    PythonData,
 )
 
 
@@ -92,6 +91,44 @@ class ContractsCheater(Cheater):
             **parent.contract_address_to_class_hash_map,
             **self.contract_address_to_class_hash_map,
         }
+
+    async def _transform_calldata_to_cairo_data_by_addr(
+        self,
+        contract_address: Address,
+        function_name: str,
+        calldata: Optional[CairoOrPythonData] = None,
+    ) -> CairoData:
+        contract_address_int = int(contract_address)
+        class_hash = await self.cheatable_state.get_class_hash_at(contract_address_int)
+        return await self._transform_calldata_to_cairo_data(
+            class_hash=int.from_bytes(class_hash, "big"),
+            function_name=function_name,
+            calldata=calldata,
+        )
+
+    async def _transform_calldata_to_cairo_data(
+        self,
+        class_hash: int,
+        function_name: str,
+        calldata: Optional[CairoOrPythonData] = None,
+    ) -> CairoData:
+        if isinstance(calldata, collections.Mapping):
+            contract_class = await self.cheatable_state.get_contract_class(
+                class_hash=int.to_bytes(class_hash, 32, "big")
+            )
+            assert contract_class.abi, f"No abi found for the contract at {class_hash}"
+
+            transformer = from_python_transformer(
+                contract_class.abi, function_name, "inputs"
+            )
+            try:
+                return transformer(calldata)
+            except DataTransformerException as dt_exc:
+                raise ConstructorInputTransformationException(
+                    f"There was an error while parsing the arguments for the function {function_name}:\n"
+                    + f"{dt_exc.message}",
+                ) from dt_exc
+        return calldata or []
 
     async def declare_contract(
         self,
@@ -217,16 +254,17 @@ class ContractsCheater(Cheater):
             general_config=StarknetGeneralConfig(),
         )
 
-    def prepare(
+    async def prepare(
         self,
         declared: DeclaredContract,
         constructor_calldata: CairoOrPythonData,
         salt: int,
     ) -> PreparedContract:
-        if isinstance(constructor_calldata, collections.Mapping):
-            constructor_calldata = self._transform_data_to_cairo_format(
-                declared.class_hash, constructor_calldata
-            )
+        constructor_calldata = await self._transform_calldata_to_cairo_data(
+            class_hash=declared.class_hash,
+            function_name="constructor",
+            calldata=constructor_calldata,
+        )
 
         contract_address = calculate_contract_address_from_hash(
             salt=salt,
@@ -246,29 +284,6 @@ class ContractsCheater(Cheater):
             salt=salt,
         )
 
-    def _transform_data_to_cairo_format(
-        self,
-        class_hash: int,
-        constructor_calldata: PythonData,
-    ) -> List[int]:
-        if class_hash not in self.class_hash_to_contract_abi_map:
-            raise ConstructorInputTransformationException(
-                f"Couldn't map `class_hash` ({class_hash}) to an ABI."
-            )
-        contract_abi = self.class_hash_to_contract_abi_map[class_hash]
-
-        transformer = from_python_transformer(
-            contract_abi,
-            "constructor",
-            "inputs",
-        )
-        try:
-            return transformer(constructor_calldata)
-        except DataTransformerException as dt_exc:
-            raise ConstructorInputTransformationException(
-                f"There was an error while parsing constructor arguments:\n{dt_exc.message}",
-            ) from dt_exc
-
     async def call(
         self,
         contract_address: Address,
@@ -276,7 +291,7 @@ class ContractsCheater(Cheater):
         calldata: Optional[CairoOrPythonData] = None,
     ) -> CairoData:
         contract_address_int = int(contract_address)
-        cairo_calldata = await self.calldata_as_cairo_data(
+        cairo_calldata = await self._transform_calldata_to_cairo_data_by_addr(
             contract_address=contract_address,
             function_name=function_name,
             calldata=calldata,
@@ -291,27 +306,3 @@ class ContractsCheater(Cheater):
             general_config=StarknetGeneralConfig(),
         )
         return result.retdata
-
-    async def calldata_as_cairo_data(
-        self,
-        contract_address: Address,
-        function_name: str,
-        calldata: Optional[CairoOrPythonData] = None,
-    ) -> CairoData:
-        contract_address_int = int(contract_address)
-        if isinstance(calldata, collections.Mapping):
-            class_hash = await self.cheatable_state.get_class_hash_at(
-                contract_address_int
-            )
-            contract_class = await self.cheatable_state.get_contract_class(
-                class_hash=class_hash
-            )
-            assert (
-                contract_class.abi
-            ), f"No abi found for the contract at {contract_address}"
-
-            transformer = from_python_transformer(
-                contract_class.abi, function_name, "inputs"
-            )
-            return transformer(calldata)
-        return calldata or []
