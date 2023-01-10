@@ -35,6 +35,11 @@ async def test_call_pipeline(
     assert_cairo_test_cases(
         testing_summary,
         expected_passed_test_cases_names=[
-            "test_call",
+            "test_call_simple",
+            "test_call_not_mutating_state",
+            "test_call_named_args",
+        ],
+        expected_broken_test_cases_names=[
+            "test_call_named_args_invalid_fail",
         ],
     )
