@@ -4,7 +4,7 @@ from typing import Callable, Optional
 from protostar.starknet import CheatcodeException
 from protostar.starknet.cheaters.contracts import ContractsCheaterException
 from protostar.testing.cairo_cheatcodes.cairo_cheatcode import CairoCheatcode
-from protostar.starknet.data_transformer import CairoOrPythonData
+from protostar.starknet.data_transformer import CairoOrPythonData, CairoData
 from protostar.starknet import RawAddress, Address
 
 
@@ -23,7 +23,7 @@ class CallCairoCheatcode(CairoCheatcode):
         contract_address: RawAddress,
         function_name: str,
         calldata: Optional[CairoOrPythonData] = None,
-    ):
+    ) -> CairoData:
         return asyncio.run(
             self._call(
                 contract_address=Address.from_user_input(contract_address),
@@ -37,7 +37,7 @@ class CallCairoCheatcode(CairoCheatcode):
         contract_address: Address,
         function_name: str,
         calldata: Optional[CairoOrPythonData] = None,
-    ):
+    ) -> CairoData:
         try:
             return await self.cheaters.contracts.call(
                 contract_address=contract_address,
