@@ -15,7 +15,7 @@ from protostar.testing.environments.test_execution_environment import (
 from protostar.testing.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
 )
-from protostar.testing.test_environment_exceptions import RevertableException
+from protostar.testing.test_environment_exceptions import VmRevertableException
 
 
 class CairoTestExecutionEnvironment(TestExecutionEnvironment):
@@ -58,12 +58,8 @@ class CairoTestExecutionEnvironment(TestExecutionEnvironment):
             hint_locals = self._get_hint_locals()
             runner = CairoFunctionRunner(program=self._program, layout="all")
             runner.run(function_name, *args, hint_locals=hint_locals, **kwargs)
-        except VmException as vm_ex:
-            error_message = vm_ex.message
-            if hasattr(vm_ex.inner_exc, "exception_str"):
-                error_message += vm_ex.inner_exc.exception_str
-
-            raise RevertableException(error_message) from vm_ex
+        except VmException as ex:
+            raise VmRevertableException.from_vm_exception(ex) from ex
 
     def _get_hint_locals(self) -> dict[str, Any]:
         hint_locals: dict[str, Any] = {}

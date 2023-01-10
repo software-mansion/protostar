@@ -2,6 +2,7 @@ import re
 from typing import Any, Dict, List, Optional, Union
 
 from starkware.starknet.business_logic.execution.objects import Event
+from starkware.cairo.lang.vm.vm_exceptions import VmException
 from typing_extensions import Literal
 
 from protostar.starknet import ReportedException, Address
@@ -64,6 +65,31 @@ class RevertableException(ReportedException):
 
     def __reduce__(self) -> Any:
         return type(self), (self.error_messages, self.error_type), self.__getstate__()
+
+
+class VmRevertableException(RevertableException):
+    @classmethod
+    def from_vm_exception(cls, ex: VmException):
+        error_messages: list[str] = []
+        if ex.traceback:
+            error_messages = re.findall("Error message: (.*)", ex.traceback)
+        if ex.error_attr_value:
+            error_message_without_prefix = ex.error_attr_value.removeprefix(
+                "Error message: "
+            )
+            error_messages.append(error_message_without_prefix)
+        error_messages = [err_msg.replace("\n", "") for err_msg in error_messages]
+        return cls(error_messages)
+
+    def __init__(self, error_message: Optional[Union[str, List[str]]] = None) -> None:
+        super().__init__(error_message, error_type=None)
+
+    def __reduce__(self):
+        return (
+            type(self),
+            (self.error_messages,),
+            self.__getstate__(),
+        )
 
 
 class StarknetRevertableException(RevertableException):

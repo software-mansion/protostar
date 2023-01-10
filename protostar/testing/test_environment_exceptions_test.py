@@ -12,6 +12,7 @@ from .test_environment_exceptions import (
     RevertableException,
     StarknetRevertableException,
     ExpectedCallException,
+    VmRevertableException,
 )
 
 ERROR_DESCRIPTION_WITH_TWO_ERROR_MESSAGES = """
@@ -127,6 +128,9 @@ def test_expected_revert_error_message_when_specific_error_is_expected():
             error_type="TRANSACTION_FAILED",
             code=400,
             details="details",
+        ),
+        VmRevertableException(
+            error_message=["message1", "message2"],
         ),
         ExpectedRevertException(RevertableException(["foo"], "BAR")),
         ExpectedRevertMismatchException(

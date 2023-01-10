@@ -16,7 +16,9 @@ def testing_summary_fixture(
 ) -> TestingSummary:
 
     return asyncio.run(
-        run_cairo_test_runner(Path(__file__).parent / "expect_revert_test.cairo")
+        run_cairo_test_runner(
+            Path(__file__).parent / "expect_panic_test.cairo",
+        )
     )
 
 
