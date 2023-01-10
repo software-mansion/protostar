@@ -29,25 +29,23 @@ async def test_test_result_types(testing_summary: TestingSummary):
             "test_inner_error_message",
             "test_outer_error_message",
             "test_partial_error_message",
-            "test_with_except_revert",
+            "test_no_error_message_when_error_is_annotated",
+            "test_no_error_message_when_error_is_not_annotated",
         ],
         expected_failed_test_cases_names=[
             "test_fail_when_expected_panic",
             "test_fail_error_message",
+            "test_fail",
         ],
-        expected_broken_test_cases_names=[
-            "test_already_expecting_error_message_when_no_arguments_were_provided"
-        ],
+        expected_broken_test_cases_names=["test_broken_when_panic_is_already_expected"],
     )
 
 
-async def test_already_expecting_error_message_when_no_arguments_were_provided(
+async def test_broken_when_panic_is_already_expected(
     testing_summary: TestingSummary,
 ):
 
-    test_result = testing_summary[
-        "test_already_expecting_error_message_when_no_arguments_were_provided"
-    ]
+    test_result = testing_summary["test_broken_when_panic_is_already_expected"]
     formatted_test_result = format_test_result(test_result)
 
     assert isinstance(test_result, BrokenTestCaseResult)
