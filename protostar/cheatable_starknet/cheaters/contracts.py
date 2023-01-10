@@ -1,4 +1,3 @@
-import collections
 import copy
 from pathlib import Path
 from typing import List, Optional, TYPE_CHECKING
@@ -34,12 +33,12 @@ from protostar.cheatable_starknet.cheatable_entry_point import (
     CheatableExecuteEntryPoint,
 )
 from protostar.starknet.types import ClassHashType
+from protostar.starknet.cheater import CheaterException
 from protostar.starknet.address import Address
 from protostar.starknet.data_transformer import (
-    DataTransformerException,
     CairoOrPythonData,
     CairoData,
-    from_python_transformer,
+    transform_calldata_to_cairo_data,
 )
 
 if TYPE_CHECKING:
@@ -48,10 +47,8 @@ if TYPE_CHECKING:
     from . import CairoCheaters
 
 
-class ContractsCheaterException(Exception):
-    def __init__(self, message: str):
-        super().__init__(message)
-        self.message = message
+class ContractsCheaterException(CheaterException):
+    pass
 
 
 class ConstructorInputTransformationException(ContractsCheaterException):
@@ -65,44 +62,6 @@ class ConstructorInvocationException(ContractsCheaterException):
 class ContractsCairoCheater:
     def __init__(self, cheatable_state: "CheatableCachedState"):
         self.cheatable_state = cheatable_state
-
-    async def _transform_calldata_to_cairo_data_by_addr(
-        self,
-        contract_address: Address,
-        function_name: str,
-        calldata: Optional[CairoOrPythonData] = None,
-    ) -> CairoData:
-        contract_address_int = int(contract_address)
-        class_hash = await self.cheatable_state.get_class_hash_at(contract_address_int)
-        return await self._transform_calldata_to_cairo_data(
-            class_hash=from_bytes(class_hash, "big"),
-            function_name=function_name,
-            calldata=calldata,
-        )
-
-    async def _transform_calldata_to_cairo_data(
-        self,
-        class_hash: int,
-        function_name: str,
-        calldata: Optional[CairoOrPythonData] = None,
-    ) -> CairoData:
-        if isinstance(calldata, collections.Mapping):
-            contract_class = await self.cheatable_state.get_contract_class(
-                class_hash=to_bytes(class_hash, 32, "big")
-            )
-            assert contract_class.abi, f"No abi found for the contract at {class_hash}"
-
-            transformer = from_python_transformer(
-                contract_class.abi, function_name, "inputs"
-            )
-            try:
-                return transformer(calldata)
-            except DataTransformerException as dt_exc:
-                raise ConstructorInputTransformationException(
-                    f"There was an error while parsing the arguments for the function {function_name}:\n"
-                    + f"{dt_exc.message}",
-                ) from dt_exc
-        return calldata or []
 
     async def declare_contract(
         self,
@@ -182,8 +141,10 @@ class ContractsCairoCheater:
         return DeployedContract(contract_address=prepared.contract_address)
 
     async def invoke_constructor(self, prepared: PreparedContract):
-        await self._transform_calldata_to_cairo_data(
-            class_hash=prepared.class_hash,
+        await transform_calldata_to_cairo_data(
+            contract_class=await self.cheatable_state.get_contract_class_by_address(
+                contract_address=prepared.contract_address
+            ),
             function_name="constructor",
             calldata=prepared.constructor_calldata,
         )
@@ -218,8 +179,10 @@ class ContractsCairoCheater:
         constructor_calldata: CairoOrPythonData,
         salt: int,
     ) -> PreparedContract:
-        constructor_calldata = await self._transform_calldata_to_cairo_data(
-            class_hash=declared.class_hash,
+        constructor_calldata = await transform_calldata_to_cairo_data(
+            contract_class=await self.cheatable_state.get_contract_class(
+                class_hash=to_bytes(declared.class_hash)
+            ),
             function_name="constructor",
             calldata=constructor_calldata,
         )
@@ -250,8 +213,10 @@ class ContractsCairoCheater:
         calldata: Optional[CairoOrPythonData] = None,
     ) -> CairoData:
         contract_address_int = int(contract_address)
-        cairo_calldata = await self._transform_calldata_to_cairo_data_by_addr(
-            contract_address=contract_address,
+        cairo_calldata = await transform_calldata_to_cairo_data(
+            contract_class=await self.cheatable_state.get_contract_class_by_address(
+                contract_address=contract_address_int
+            ),
             function_name=function_name,
             calldata=calldata,
         )
@@ -276,8 +241,10 @@ class ContractsCairoCheater:
     ):
         contract_address_int = int(contract_address)
 
-        cairo_calldata = await self._transform_calldata_to_cairo_data_by_addr(
-            contract_address=contract_address,
+        cairo_calldata = await transform_calldata_to_cairo_data(
+            contract_class=await self.cheatable_state.get_contract_class_by_address(
+                contract_address=contract_address_int
+            ),
             function_name=function_name,
             calldata=calldata,
         )

@@ -40,6 +40,7 @@ from starkware.starkware_utils.error_handling import (
 from protostar.cheatable_starknet.cheaters.transaction_revert_exception import (
     TransactionRevertException,
 )
+from protostar.starknet import Address
 
 from .cheatable_syscall_handler import CheatableSysCallHandler
 
@@ -255,6 +256,11 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         general_config: StarknetGeneralConfig,
         tx_execution_context: TransactionExecutionContext,
     ):
+        self.cheaters.expects.unregister_expected_call(
+            contract_address=Address.from_user_input(self.contract_address),
+            function_selector=self.entry_point_selector,
+            calldata=self.calldata,
+        )
         try:
             return super().execute(
                 state,

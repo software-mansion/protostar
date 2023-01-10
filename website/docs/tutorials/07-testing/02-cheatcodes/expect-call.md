@@ -1,6 +1,6 @@
 # `expect_call`
 ```python
-def expect_call(self, contract_address: int, fn_name: str, calldata: list[int]) -> None: ...
+def expect_call(self, contract_address: int, fn_name: str, calldata: list[int]) -> Callable: ...
 ```
 Allows to specify what calls to contracts' functions are expected in the code.
 It sets an expectation for a specific call that is then checked either when the returned callable is called or at the end of the current scope.
