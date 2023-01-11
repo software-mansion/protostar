@@ -10,6 +10,9 @@ from protostar.testing.cairo_cheatcodes.deploy_cairo_cheatcode import (
 from protostar.testing.cairo_cheatcodes.deploy_contract_cairo_cheatcode import (
     DeployContractCairoCheatcode,
 )
+from protostar.testing.cairo_cheatcodes.invoke_cairo_cheatcode import (
+    InvokeCairoCheatcode,
+)
 from protostar.testing.cairo_cheatcodes.prepare_cairo_cheatcode import (
     PrepareCairoCheatcode,
 )
@@ -51,4 +54,7 @@ class CairoTestCheatcodeFactory:
                 deploy_cheatcode=deploy_cheatcode,
             ),
             CallCairoCheatcode(starknet=self.state.starknet),
+            InvokeCairoCheatcode(
+                starknet=self.state.starknet,
+            ),
         ]
