@@ -154,28 +154,25 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         hint_locals: dict[str, Any] = {}
 
         cheatcode_factory = CheatableExecuteEntryPoint.cheatcode_factory
-        assert (
-            cheatcode_factory is not None
-        ), "Tried to use CheatableExecuteEntryPoint without cheatcodes."
-
-        cheatcodes = cheatcode_factory.build_cheatcodes(
-            syscall_dependencies=Cheatcode.SyscallDependencies(
-                execute_entry_point_cls=CheatableExecuteEntryPoint,
-                tx_execution_context=tx_execution_context,
-                state=state,
-                resources_manager=resources_manager,
-                caller_address=self.caller_address,
-                contract_address=self.contract_address,
-                general_config=general_config,
-                initial_syscall_ptr=initial_syscall_ptr,
-                shared_internal_calls=syscall_handler.internal_calls,
+        if cheatcode_factory:
+            cheatcodes = cheatcode_factory.build_cheatcodes(
+                syscall_dependencies=Cheatcode.SyscallDependencies(
+                    execute_entry_point_cls=CheatableExecuteEntryPoint,
+                    tx_execution_context=tx_execution_context,
+                    state=state,
+                    resources_manager=resources_manager,
+                    caller_address=self.caller_address,
+                    contract_address=self.contract_address,
+                    general_config=general_config,
+                    initial_syscall_ptr=initial_syscall_ptr,
+                    shared_internal_calls=syscall_handler.internal_calls,
+                )
             )
-        )
-        for cheatcode in cheatcodes:
-            hint_locals[cheatcode.name] = cheatcode.build()
+            for cheatcode in cheatcodes:
+                hint_locals[cheatcode.name] = cheatcode.build()
 
-        for custom_hint_local in cheatcode_factory.build_hint_locals():
-            hint_locals[custom_hint_local.name] = custom_hint_local.build()
+            for custom_hint_local in cheatcode_factory.build_hint_locals():
+                hint_locals[custom_hint_local.name] = custom_hint_local.build()
 
         # endregion
 

@@ -1,9 +1,15 @@
 import asyncio
 from typing import Callable, Optional
 
-from protostar.starknet import RawAddress, Address
-from protostar.starknet.forkable_starknet import ForkableStarknet
-from protostar.starknet.data_transformer import CairoOrPythonData, CairoData
+from protostar.starknet import (
+    RawAddress,
+    Address,
+    CheatcodeException,
+    ForkableStarknet,
+    CairoOrPythonData,
+    CairoData,
+    DataTransformerException,
+)
 from protostar.testing.use_cases import CallTestingUseCase
 
 from .cairo_cheatcode import CairoCheatcode
@@ -21,18 +27,25 @@ class CallCairoCheatcode(CairoCheatcode):
     def build(
         self,
     ) -> Callable[[RawAddress, str, Optional[CairoOrPythonData]], CairoOrPythonData]:
-        return self.call
+        return self._call
 
-    def call(
+    def _call(
         self,
         contract_address: RawAddress,
         function_name: str,
         calldata: Optional[CairoOrPythonData] = None,
     ) -> CairoData:
-        return asyncio.run(
-            self._use_case.execute(
-                Address.from_user_input(contract_address),
-                function_name,
-                calldata,
+        try:
+            return asyncio.run(
+                self._use_case.execute(
+                    Address.from_user_input(contract_address),
+                    function_name,
+                    calldata,
+                )
             )
-        )
+        except DataTransformerException as ex:
+            raise CheatcodeException(
+                self,
+                f"There was an error while parsing the arguments for the function {function_name}:\n"
+                + f"{ex.message}",
+            ) from ex
