@@ -8,7 +8,7 @@ from .data_transformer import CairoOrPythonData, CairoData, from_python_transfor
 from .cheatable_state import CheatableCachedState
 
 
-class LocalDataTransformerPolicy:
+class LocalDataTransformationPolicy:
     def __init__(self, cheatable_cached_state: CheatableCachedState) -> None:
         self._cheatable_cached_state = cheatable_cached_state
 

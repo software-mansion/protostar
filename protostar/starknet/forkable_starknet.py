@@ -6,8 +6,12 @@ from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starknet.testing.state import CastableToAddressSalt
+from starkware.starknet.public.abi import get_selector_from_name
 
-from protostar.starknet.cheatable_state import CheatableStarknetState
+from .cheatable_execute_entry_point import CheatableExecuteEntryPoint
+from .address import Address
+from .cheatable_state import CheatableStarknetState
+from .data_transformer import CairoData
 
 
 class ForkableStarknet(Starknet):
@@ -71,3 +75,21 @@ class ForkableStarknet(Starknet):
             ] = starknet_contract.abi
 
         return starknet_contract
+
+    async def call(
+        self,
+        contract_address: Address,
+        function_name: str,
+        calldata: Optional[CairoData] = None,
+    ) -> CairoData:
+        contract_address_int = int(contract_address)
+        entry_point = CheatableExecuteEntryPoint.create_for_testing(
+            contract_address=contract_address_int,
+            calldata=calldata or [],
+            entry_point_selector=get_selector_from_name(function_name),
+        )
+        result = await entry_point.execute_for_testing(
+            state=copy.deepcopy(self.cheatable_state.cheatable_state),
+            general_config=StarknetGeneralConfig(),
+        )
+        return result.retdata

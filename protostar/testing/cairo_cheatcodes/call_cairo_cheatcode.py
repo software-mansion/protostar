@@ -1,14 +1,19 @@
 import asyncio
 from typing import Callable, Optional
 
-from protostar.starknet import CheatcodeException
-from protostar.starknet.cheaters.contracts import ContractsCheaterException
-from protostar.testing.cairo_cheatcodes.cairo_cheatcode import CairoCheatcode
-from protostar.starknet.data_transformer import CairoOrPythonData, CairoData
 from protostar.starknet import RawAddress, Address
+from protostar.starknet.forkable_starknet import ForkableStarknet
+from protostar.starknet.data_transformer import CairoOrPythonData, CairoData
+from protostar.testing.use_cases import CallTestingUseCase
+
+from .cairo_cheatcode import CairoCheatcode
 
 
 class CallCairoCheatcode(CairoCheatcode):
+    def __init__(self, starknet: ForkableStarknet, use_case: CallTestingUseCase):
+        super().__init__(starknet)
+        self._use_case = use_case
+
     @property
     def name(self) -> str:
         return "call"
@@ -25,24 +30,9 @@ class CallCairoCheatcode(CairoCheatcode):
         calldata: Optional[CairoOrPythonData] = None,
     ) -> CairoData:
         return asyncio.run(
-            self._call(
-                contract_address=Address.from_user_input(contract_address),
-                function_name=function_name,
-                calldata=calldata,
+            self._use_case.execute(
+                Address.from_user_input(contract_address),
+                function_name,
+                calldata,
             )
         )
-
-    async def _call(
-        self,
-        contract_address: Address,
-        function_name: str,
-        calldata: Optional[CairoOrPythonData] = None,
-    ) -> CairoData:
-        try:
-            return await self.cheaters.contracts.call(
-                contract_address=contract_address,
-                function_name=function_name,
-                calldata=calldata,
-            )
-        except ContractsCheaterException as exc:
-            raise CheatcodeException(self, exc.message) from exc
