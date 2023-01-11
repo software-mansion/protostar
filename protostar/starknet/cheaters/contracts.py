@@ -6,8 +6,14 @@ from typing import Dict, List, Optional, TYPE_CHECKING
 from typing_extensions import Self
 
 from starkware.python.utils import to_bytes, from_bytes
-from starkware.starknet.business_logic.transaction.objects import InternalDeclare
-from starkware.starknet.public.abi import AbiType
+from starkware.starknet.business_logic.transaction.objects import (
+    InternalDeclare,
+)
+from starkware.starknet.public.abi import (
+    AbiType,
+    get_selector_from_name,
+    CONSTRUCTOR_ENTRY_POINT_SELECTOR,
+)
 from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,
 )
@@ -21,10 +27,6 @@ from starkware.starknet.core.os.contract_address.contract_address import (
 )
 from starkware.starknet.business_logic.execution.objects import CallType
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
-from starkware.starknet.public.abi import (
-    CONSTRUCTOR_ENTRY_POINT_SELECTOR,
-    get_selector_from_name,
-)
 from starkware.starknet.services.api.contract_class import EntryPointType, ContractClass
 
 from protostar.contract_types import (
@@ -135,11 +137,8 @@ class ContractsCheater(Cheater):
     async def declare_contract(
         self,
         contract_class: ContractClass,
-        starknet_config: Optional[StarknetGeneralConfig] = None,
     ):
-        if not starknet_config:
-            starknet_config = StarknetGeneralConfig()  # We use the defaults anyway
-
+        starknet_config = StarknetGeneralConfig()
         tx = InternalDeclare.create(
             contract_class=contract_class,
             chain_id=starknet_config.chain_id.value,
@@ -296,3 +295,27 @@ class ContractsCheater(Cheater):
             general_config=StarknetGeneralConfig(),
         )
         return result.retdata
+
+    async def invoke(
+        self,
+        function_name: str,
+        contract_address: Address,
+        calldata: Optional[CairoOrPythonData] = None,
+    ):
+        contract_address_int = int(contract_address)
+
+        cairo_calldata = await self._transform_calldata_to_cairo_data_by_addr(
+            contract_address=contract_address,
+            function_name=function_name,
+            calldata=calldata,
+        )
+        entry_point = ExecuteEntryPoint.create_for_testing(
+            contract_address=contract_address_int,
+            calldata=cairo_calldata,
+            entry_point_selector=get_selector_from_name(function_name),
+        )
+        with self.cheatable_state.copy_and_apply() as state_copy:
+            await entry_point.execute_for_testing(
+                state=state_copy,
+                general_config=StarknetGeneralConfig(),
+            )
