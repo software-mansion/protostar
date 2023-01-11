@@ -32,6 +32,9 @@ from protostar.contract_types import (
     DeclaredContract,
     DeployedContract,
 )
+from protostar.starknet.cheatable_cairo_entry_point import (
+    CheatableCairoExecuteEntryPoint,
+)
 from protostar.starknet.types import ClassHashType
 from protostar.starknet.cheater import Cheater
 from protostar.starknet.address import Address
@@ -278,10 +281,15 @@ class ContractsCheater(Cheater):
             function_name=function_name,
             calldata=calldata,
         )
-        entry_point = ExecuteEntryPoint.create_for_testing(
+        entry_point = CheatableCairoExecuteEntryPoint(
             contract_address=contract_address_int,
             calldata=cairo_calldata,
             entry_point_selector=get_selector_from_name(function_name),
+            call_type=CallType.CALL,
+            code_address=None,
+            class_hash=None,
+            entry_point_type=EntryPointType.EXTERNAL,
+            caller_address=0,
         )
         result = await entry_point.execute_for_testing(
             state=copy.deepcopy(self.cheatable_state),

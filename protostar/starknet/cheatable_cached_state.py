@@ -1,11 +1,8 @@
 from pathlib import Path
 from typing import Dict, List
 
-from services.everest.business_logic.state_api import StateProxy
-from starkware.starknet.business_logic.fact_state.state import CarriedState
 from starkware.starknet.business_logic.state.state import (
     CachedState,
-    StateSyncifier,
     ContractClassCache,
 )
 from starkware.starknet.public.abi import AbiType
@@ -173,45 +170,6 @@ class CheatableCachedState(CachedState):
                     del data_for_address[index]
             if not data_for_address:
                 del self.expected_contract_calls[contract_address]
-
-
-def cheaters_of(state: StateProxy) -> Cheaters:
-    """
-    Extracts the ``Cheaters`` object from any State structures.
-
-    This function workarounds limitations of the inheritance design of ``State`` classes family,
-    preventing us from exposing the `cheaters` field via state interface classes like ``SyncState``.
-    """
-
-    if isinstance(state, CheatableCachedState):
-        return state.cheaters
-
-    if isinstance(state, CachedState):
-        raise TypeError(
-            f"Protostar should always operate on {CheatableCachedState.__name__}."
-        )
-
-    if isinstance(state, CarriedState):
-        state = state.state
-
-        if not isinstance(state, CheatableCachedState):
-            raise TypeError(
-                f"Carried state is not carrying {CheatableCachedState.__name__}."
-            )
-
-        return state.cheaters
-
-    if isinstance(state, StateSyncifier):
-        state = state.async_state
-
-        if not isinstance(state, CheatableCachedState):
-            raise TypeError(
-                f"State syncifier is not carrying {CheatableCachedState.__name__}."
-            )
-
-        return state.cheaters
-
-    raise TypeError(f"Unknown State class {state.__class__.__name__}.")
 
 
 class CheatableStateException(Exception):

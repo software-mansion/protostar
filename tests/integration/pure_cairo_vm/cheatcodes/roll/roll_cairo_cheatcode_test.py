@@ -24,13 +24,12 @@ async def test_roll_cheatcode(
 ):
     protostar.create_files(
         {
-            "src/main.cairo": CONTRACTS_PATH / "basic_contract.cairo",
+            "src/main.cairo": CONTRACTS_PATH / "roll_warp_tester.cairo",
         }
     )
 
     testing_summary = await run_cairo_test_runner(
-        TEST_PATH
-        / "roll_test.cairo",  # TODO #1330: Add assertions after a "call" cheatcode is available
+        TEST_PATH / "roll_test.cairo",
     )
 
     assert_cairo_test_cases(

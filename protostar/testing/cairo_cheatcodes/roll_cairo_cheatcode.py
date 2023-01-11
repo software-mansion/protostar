@@ -14,8 +14,8 @@ class RollCairoCheatcode(CairoCheatcode):
 
     def roll(
         self,
-        blk_number: int,
         target_contract_address: RawAddress,
+        blk_number: int,
     ) -> Callable[[], None]:
         return self.cheaters.block_info.cheat(
             contract_address=Address.from_user_input(target_contract_address),
