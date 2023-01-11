@@ -36,5 +36,6 @@ async def test_roll_cheatcode(
         testing_summary,
         expected_passed_test_cases_names=[
             "test_roll",
+            "test_roll_with_invoke",
         ],
     )
