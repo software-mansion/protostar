@@ -1,3 +1,4 @@
+import asyncio
 from typing import Callable
 
 from protostar.starknet.address import Address
@@ -13,7 +14,9 @@ class PrankCairoCheatcode(CairoCheatcode):
         return self.prank
 
     def prank(self, caller_address: int, target_contract_address: int):
-        return self.cheaters.contracts.prank(
-            caller_address=Address.from_user_input(caller_address),
-            target_address=Address.from_user_input(target_contract_address),
+        return asyncio.run(
+            self.cheaters.contracts.prank(
+                caller_address=Address.from_user_input(caller_address),
+                target_address=Address.from_user_input(target_contract_address),
+            )
         )

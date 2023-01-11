@@ -1,101 +1,53 @@
 from starkware.starknet.common.syscalls import (
-    get_block_number,
     get_block_timestamp,
     get_caller_address,
+    get_block_number,
 )
 from starkware.cairo.common.math import assert_not_equal
 from starkware.starknet.common.syscalls import storage_read, storage_write
 from starkware.cairo.common.uint256 import Uint256
 
-func test_remote_prank{syscall_ptr: felt*, range_check_ptr}() {
-    alloc_locals;
-
-    local contract_address: felt;
+func test_fails_when_not_pranked() {
     %{
-        ids.contract_address = deploy_contract("./tests/integration/cheatcodes/prank/pranked.cairo").contract_address 
-        stop_prank = start_prank(123, target_contract_address=ids.contract_address)
-    %}
-    Pranked.assert_pranked(contract_address=contract_address);
+        contract_address = deploy_contract("./tests/integration/cheatcodes/prank/pranked.cairo").contract_address
 
+        call(contract_address, "assert_pranked")
+    %}
+    return ();
+}
+
+func test_not_fails_when_pranked() {
     %{
-        stop_prank()
-        expect_revert("TRANSACTION_FAILED", "Not pranked")
+        EXPECTED_PRANKED_ADDRESS = 123
+        contract_address = deploy_contract("./tests/integration/cheatcodes/prank/pranked.cairo").contract_address
+
+        prank(EXPECTED_PRANKED_ADDRESS, contract_address)
+        call(contract_address, "assert_pranked")
     %}
-
-    Pranked.assert_pranked(contract_address=contract_address);
     return ();
 }
 
-func test_local_prank{syscall_ptr: felt*, range_check_ptr}() {
-    alloc_locals;
-
-    %{ stop_prank = start_prank(345) %}
-    let (caller_addr) = get_caller_address();
-    assert caller_addr = 345;
-
-    %{ stop_prank() %}
-    let (caller_addr) = get_caller_address();
-    assert_not_equal(caller_addr, 345);
-    return ();
-}
-
-func test_pranks_only_target{syscall_ptr: felt*, range_check_ptr}() {
-    alloc_locals;
-
-    local contract_a_address: felt;
-    local contract_b_address: felt;
+func test_fails_when_different_target_is_pranked() {
     %{
-        ids.contract_a_address = deploy_contract("./tests/integration/cheatcodes/prank/pranked.cairo").contract_address 
-        ids.contract_b_address = deploy_contract("./tests/integration/cheatcodes/prank/pranked.cairo").contract_address 
-        stop_prank = start_prank(123, target_contract_address=ids.contract_a_address)
+        PRANKED_ADDRESS = 123
+        contact_address = deploy_contract("./tests/integration/cheatcodes/prank/pranked.cairo").contract_address
+        another_contract_address = deploy_contract("./tests/integration/cheatcodes/prank/pranked.cairo").contract_address 
+
+        prank(PRANKED_ADDRESS, target_contract_address=another_contract_address)
+        call(contract_address, "assert_pranked")
     %}
-
-    Pranked.assert_pranked(contract_address=contract_a_address);
-
-    %{ expect_revert("TRANSACTION_FAILED", "Not pranked") %}
-    Pranked.assert_pranked(contract_address=contract_b_address);
     return ();
 }
 
-func test_syscall_counter_correct{syscall_ptr: felt*, range_check_ptr}() {
-    %{ stop_prank = start_prank(345) %}
-    let (caller_addr) = get_caller_address();
-    assert caller_addr = 345;
-    // We check if syscall counter has been correctly incremented
-    // It will throw an error if it hasn't been incremented
-    let (bn) = get_block_number();
+func test_prank_wrong_target() {
+    %{ prank(123, target_contract_address=123) %}
     return ();
 }
 
-func test_missing_remote_prank{syscall_ptr: felt*, range_check_ptr}() {
-    alloc_locals;
-
-    local contract_address: felt;
+func test_fails_but_cannot_freeze_when_cheatcode_exception_is_raised() {
     %{
-        ids.contract_address = deploy_contract("./tests/integration/cheatcodes/prank/pranked.cairo").contract_address
-        expect_revert("TRANSACTION_FAILED", "Not pranked")
+        prank(123, target_contract_address=123)
+        prank(123, target_contract_address=123)
     %}
-    Pranked.assert_pranked(contract_address=contract_address);
-    return ();
-}
-
-func test_missing_local_prank{syscall_ptr: felt*, range_check_ptr}() {
-    alloc_locals;
-    %{ expect_revert("TRANSACTION_FAILED") %}
-    let (caller_addr) = get_caller_address();
-    assert caller_addr = 123;
-    return ();
-}
-
-func test_prank_wrong_target{syscall_ptr: felt*, range_check_ptr}() {
-    %{ stop_prank = start_prank(123, target_contract_address=123) %}
-    return ();
-}
-
-func test_fails_but_cannot_freeze_when_cheatcode_exception_is_raised{
-    syscall_ptr: felt*, range_check_ptr
-}() {
-    %{ start_prank(123, target_contract_address=123) %}
-    %{ start_prank(123, target_contract_address=123) %}
     return ();
 }
