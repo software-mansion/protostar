@@ -9,7 +9,7 @@ from protostar.commands.test.test_result_formatter import (
     make_path_relative_if_possible,
 )
 from protostar.testing import (
-    NONNEGATIVE_RESULTS,
+    AcceptableResult,
     BrokenTestSuiteResult,
     SharedTestsState,
     TestingSummary,
@@ -79,13 +79,8 @@ class TestingLiveLogger:
                         formatted_test_result = format_test_result(test_result)
                         progress_bar.write(formatted_test_result)
 
-                        if (
-                            self.exit_first
-                            and shared_tests_state.any_failed_or_broken()
-                            and not isinstance(test_result, NONNEGATIVE_RESULTS)
-                        ):
-                            tests_left_n = 0
-                            continue
+                        if self.should_exit(test_result):
+                            break
 
                         if isinstance(test_result, BrokenTestSuiteResult):
                             tests_in_case_count = len(test_result.test_case_names)
@@ -95,12 +90,16 @@ class TestingLiveLogger:
                             progress_bar.update(1)
                             tests_left_n -= 1
                 finally:
-                    progress_bar.write("")
-                    progress_bar.clear()
-                    progress_bar.update()
+                    progress_bar.close()
                     self.log_testing_summary(test_collector_result)
 
         except queue.Empty:
             # https://docs.python.org/3/library/queue.html#queue.Queue.get
             # We skip it to prevent deadlock, but this error should never happen
             pass
+
+    def should_exit(self, test_result: TestResult):
+        """
+        Check whether we have encountered the first failed, broken or unexpected error test case on the queue.
+        """
+        return self.exit_first and not isinstance(test_result, AcceptableResult)
