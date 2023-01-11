@@ -9,7 +9,7 @@ from .example_cheatcode import ExampleCheatcode
 from .load_cheatcode import LoadCheatcode
 from .max_examples_cheatcode import MaxExamplesCheatcode
 from .mock_call_cheatcode import MockCallCheatcode
-from .prepare_cheatcode import PrepareCheatcode, PreparedContract
+from .prepare_cheatcode import PrepareCheatcode
 from .reflect_cheatcode import ReflectCheatcode
 from .reject_cheatcode import RejectCheatcode
 from .roll_cheatcode import RollCheatcode

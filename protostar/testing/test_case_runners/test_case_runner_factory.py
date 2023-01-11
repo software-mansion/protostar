@@ -4,7 +4,9 @@ from protostar.testing.environments.fuzz_test_execution_environment import (
 from protostar.testing.environments.test_execution_environment import (
     TestExecutionEnvironment,
 )
-from protostar.testing.starkware.test_execution_state import TestExecutionState
+from protostar.testing.starkware.contract_based_test_execution_state import (
+    ContractBasedTestExecutionState,
+)
 from protostar.testing.test_config import TestMode
 from protostar.testing.test_suite import TestCase
 
@@ -14,7 +16,7 @@ from .test_case_runner import TestCaseRunner
 
 
 class TestCaseRunnerFactory:
-    def __init__(self, state: TestExecutionState) -> None:
+    def __init__(self, state: ContractBasedTestExecutionState) -> None:
         self._state = state
 
     def make(self, test_case: TestCase) -> TestCaseRunner:

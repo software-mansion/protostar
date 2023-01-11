@@ -22,8 +22,8 @@ class RunCairoTestRunnerFixture(Protocol):
         ...
 
 
-@pytest.fixture(name="run_pure_cairo_test_runner", scope="module")
-def run_pure_cairo_test_runner_fixture(
+@pytest.fixture(name="run_cairo_test_runner", scope="module")
+def run_cairo_test_runner_fixture(
     run_test_runner: RunTestRunnerFixture,
 ) -> RunCairoTestRunnerFixture:
     async def wrapped(*args: Any, **kwargs: Any):

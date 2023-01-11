@@ -28,7 +28,10 @@ from protostar.testing.fuzzing.strategy_collector import collect_search_strategi
 from protostar.testing.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
 )
-from protostar.testing.starkware.test_execution_state import TestExecutionState
+from protostar.testing.starkware.contract_based_test_execution_state import (
+    ContractBasedTestExecutionState,
+)
+
 from .test_execution_environment import (
     TestCaseCheatcodeFactory,
     TestExecutionEnvironment,
@@ -42,7 +45,7 @@ class FuzzTestExecutionResult(TestExecutionResult):
 
 
 class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
-    def __init__(self, state: TestExecutionState):
+    def __init__(self, state: ContractBasedTestExecutionState):
         super().__init__(state)
         if self.state.config.profiling:
             raise ProtostarException("Fuzz tests cannot be profiled")
@@ -129,7 +132,7 @@ class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
             )
         )
 
-    def decorate_with_examples(self, target_func: Callable):
+    def decorate_with_examples(self, target_func: Callable) -> Callable:
         func = target_func
         for ex in reversed(self.state.config.fuzz_examples):
             func = example(**ex)(func)

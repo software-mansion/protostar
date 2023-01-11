@@ -57,7 +57,7 @@ class StarknetCompiler:
         self, *cairo_file_paths: Path
     ) -> Union[
         StarknetPreprocessedProgram, TestCollectorPreprocessedProgram
-    ]:  # TODO: Cache result
+    ]:  # TODO #1280: Cache result
         try:
             codes = self.build_codes(*cairo_file_paths)
             context = self.build_context(codes)
@@ -104,7 +104,7 @@ class StarknetCompiler:
         self,
         *sources: Path,
         add_debug_info: bool = False,
-    ) -> ContractClass:  # TODO: Cache result
+    ) -> ContractClass:  # TODO #1280: Cache result
         preprocessed = self.preprocess_contract(*sources)
         assert isinstance(preprocessed, StarknetPreprocessedProgram)
         assembled = self.compile_preprocessed_contract(preprocessed, add_debug_info)

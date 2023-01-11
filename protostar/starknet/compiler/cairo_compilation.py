@@ -14,7 +14,7 @@ class CairoCompiler:
     def __init__(self, config: CompilerConfig):
         self.compiler_config = config
 
-    def preprocess(self, file: Path) -> PreprocessedProgram:  # TODO: Cache result
+    def preprocess(self, file: Path) -> PreprocessedProgram:  # TODO #1280: Cache result
         pass_manager = CairoPassManagerFactory.build(self.compiler_config)
         return preprocess_codes(
             codes=[(file.read_text("utf-8"), str(file))],
@@ -24,7 +24,7 @@ class CairoCompiler:
     @staticmethod
     def compile_preprocessed(
         preprocessed: PreprocessedProgram,
-    ) -> Program:  # TODO: Cache result
+    ) -> Program:  # TODO #1280: Cache result
         return assemble(preprocessed)
 
     def get_function_names(self, file_path: Path) -> List[str]:

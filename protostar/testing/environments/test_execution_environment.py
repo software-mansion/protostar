@@ -13,7 +13,9 @@ from protostar.testing.hook import Hook
 from protostar.testing.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
 )
-from protostar.testing.starkware.test_execution_state import TestExecutionState
+from protostar.testing.starkware.contract_based_test_execution_state import (
+    ContractBasedTestExecutionState,
+)
 from protostar.starknet import estimate_gas
 
 from .common_test_cheatcode_factory import CommonTestCheatcodeFactory
@@ -26,9 +28,9 @@ class TestExecutionResult:
 
 
 class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
-    state: TestExecutionState
+    state: ContractBasedTestExecutionState
 
-    def __init__(self, state: TestExecutionState):
+    def __init__(self, state: ContractBasedTestExecutionState):
         super().__init__(state)
         self._expect_revert_context = ExpectRevertContext()
         self._finish_hook = Hook()
@@ -85,7 +87,7 @@ class TestExecutionEnvironment(ExecutionEnvironment[TestExecutionResult]):
 class TestCaseCheatcodeFactory(CommonTestCheatcodeFactory):
     def __init__(
         self,
-        state: TestExecutionState,
+        state: ContractBasedTestExecutionState,
         expect_revert_context: ExpectRevertContext,
         finish_hook: Hook,
     ):
