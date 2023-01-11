@@ -1,7 +1,7 @@
 import collections
 import copy
 from pathlib import Path
-from typing import Dict, List, Optional, TYPE_CHECKING
+from typing import Dict, List, Optional, TYPE_CHECKING, Any
 
 from typing_extensions import Self
 
@@ -288,3 +288,9 @@ class ContractsCheater(Cheater):
             general_config=StarknetGeneralConfig(),
         )
         return result.retdata
+
+    def store(self, name: str, value: Any) -> None:
+        self.cheatable_state.storage[name] = value
+
+    def load(self, name: str) -> Any:
+        return self.cheatable_state.storage.get(name)
