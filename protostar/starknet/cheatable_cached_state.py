@@ -45,7 +45,7 @@ class CheatableCachedState(CachedState):
         self.expected_contract_calls: dict[
             Address, list[tuple[SelectorType, CairoOrPythonData]]
         ] = {}
-        self.storage: dict[str, Any] = {}
+        self.cairo_storage: dict[str, Any] = {}
 
         self.cheaters = Cheaters(
             block_info=BlockInfoCheater(self.block_info),

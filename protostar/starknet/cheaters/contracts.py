@@ -290,7 +290,7 @@ class ContractsCheater(Cheater):
         return result.retdata
 
     def store(self, name: str, value: Any) -> None:
-        self.cheatable_state.storage[name] = value
+        self.cheatable_state.cairo_storage[name] = value
 
     def load(self, name: str) -> Any:
-        return self.cheatable_state.storage.get(name)
+        return self.cheatable_state.cairo_storage.get(name)
