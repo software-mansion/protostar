@@ -33,7 +33,7 @@ class InvokeCairoCheatcode(CairoCheatcode):
 
     def _invoke(
         self,
-        contract_address: RawAddress,
+        contract_address: Address,
         function_name: str,
         calldata: Optional[CairoOrPythonData] = None,
     ):
