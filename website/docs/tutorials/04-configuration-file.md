@@ -86,8 +86,8 @@ Configuration profiles allow you to easily switch between different Protostar co
 When you use a profile, it will override the default settings specified in the `protostar.toml` file with the settings specified in the profile.
 
 To create a configuration profile, add a new section to the `protostar.toml`. For example:
-- to create a [Shared Configuration](#shared-configuration) named `devnet`, add `[profile.devnet.project]` section
-- to create a [Command Configuration](#command) named `testnet` for the [`declare` command](/docs/cli-reference#declare), add `[profile.testnet.declare]` section
+- to create a [Command Configuration](#command) named `mainnet` for the [`declare` command](/docs/cli-reference#declare), add `[profile.mainnet.declare]` section
+- to create a [Shared Configuration](#shared-configuration) named `testnet`, add `[profile.testnet.project]` section
 
 To use a profile, specify the [-p or --profile argument](/docs/cli-reference#-p---profile-string) followed by the name of the profile.
 For example, to use the [`declare` command](/docs/cli-reference#declare) with the `testnet` profile, run:
