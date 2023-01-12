@@ -18,6 +18,7 @@ from .test_results import (
     TimedTestCaseResult,
     TimedTestResult,
     UnexpectedBrokenTestSuiteResult,
+    AcceptableResult,
 )
 from .test_runner import TestRunner
 from .testing_summary import TestingSummary, calculate_skipped
