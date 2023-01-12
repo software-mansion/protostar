@@ -1,5 +1,5 @@
 # Configuration file
-Protostar can be configured using a configuration file called `protostar.toml`, which is placed in the root of your project. The file is written in the [TOML](https://toml.io/en/) format and allows you to specify various options and settings for Protostar.
+Protostar can be configured with file `protostar.toml`, which is located in the root of your project. The file uses the [TOML](https://toml.io/en/) format and allows you to specify various options and settings for Protostar.
 
 Here is an example `protostar.toml` file:
 
