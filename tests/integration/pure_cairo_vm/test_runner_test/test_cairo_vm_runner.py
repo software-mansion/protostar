@@ -5,9 +5,9 @@ from tests.integration.pure_cairo_vm.conftest import RunCairoTestRunnerFixture
 
 
 async def test_pure_cairo_testing(
-    run_pure_cairo_test_runner: RunCairoTestRunnerFixture,
+    run_cairo_test_runner: RunCairoTestRunnerFixture,
 ):
-    testing_summary = await run_pure_cairo_test_runner(
+    testing_summary = await run_cairo_test_runner(
         Path(__file__).parent / "pure_cairo_test.cairo",
     )
 
@@ -23,9 +23,9 @@ async def test_pure_cairo_testing(
 
 
 async def test_pure_cairo_broken_test(
-    run_pure_cairo_test_runner: RunCairoTestRunnerFixture,
+    run_cairo_test_runner: RunCairoTestRunnerFixture,
 ):
-    testing_summary = await run_pure_cairo_test_runner(
+    testing_summary = await run_cairo_test_runner(
         Path(__file__).parent / "pure_cairo_broken_test.cairo",
     )
 

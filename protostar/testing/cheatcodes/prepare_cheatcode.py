@@ -1,5 +1,4 @@
 import collections
-from dataclasses import dataclass
 from typing import Any, Callable, List, Optional
 
 from starkware.starknet.core.os.contract_address.contract_address import (
@@ -13,16 +12,7 @@ from protostar.starknet.data_transformer import (
     from_python_transformer,
     DataTransformerException,
 )
-
-from .declare_cheatcode import DeclaredContract
-
-
-@dataclass(frozen=True)
-class PreparedContract:
-    constructor_calldata: List[int]
-    contract_address: int
-    class_hash: int
-    salt: int
+from protostar.contract_types import DeclaredContract, PreparedContract
 
 
 class PrepareCheatcode(Cheatcode):

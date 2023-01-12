@@ -187,6 +187,7 @@ def build_di_container(
             log_color_provider=log_color_provider,
             active_profile_name=active_configuration_profile_name,
             cwd=cwd,
+            messenger_factory=messenger_factory,
         ),
         DeployCommand(
             gateway_facade_factory=gateway_facade_factory,

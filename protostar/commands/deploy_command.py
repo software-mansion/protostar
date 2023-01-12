@@ -21,6 +21,7 @@ from protostar.starknet_gateway import (
     BlockExplorer,
     create_block_explorer,
 )
+from protostar.starknet import Address
 
 
 @dataclass
@@ -39,7 +40,7 @@ class SuccessfulDeployMessage(StructuredMessage):
         if contract_url:
             lines.append(contract_url)
             lines.append("")
-        lines.append(f"Transaction hash: {self.response.transaction_hash}")
+        lines.append(f"Transaction hash: 0x{self.response.transaction_hash:064x}")
         tx_url = self.block_explorer.create_link_to_transaction(
             self.response.transaction_hash
         )
@@ -135,7 +136,7 @@ class DeployCommand(ProtostarCommand):
             class_hash=args.class_hash,
             signer=signer,
             max_fee=args.max_fee,
-            account_address=args.account_address,
+            account_address=Address(args.account_address),
             inputs=args.inputs,
             token=args.token,
             salt=args.salt,

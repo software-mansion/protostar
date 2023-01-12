@@ -76,13 +76,10 @@ curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/inst
 
 #### Git hooks
 
-Run the following snippet to enable lint checks and automatic formatting before commit/push.
+Run the following script to enable lint checks and automatic formatting before commit/push.
 
 ```shell
-cp pre-push ./.git/hooks/
-cp pre-commit ./.git/hooks/
-chmod +x ./.git/hooks/pre-commit
-chmod +x ./.git/hooks/pre-push
+./scripts/apply-hooks.sh
 ```
 
 ## Updating website/docs

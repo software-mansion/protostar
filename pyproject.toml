@@ -7,7 +7,7 @@ license = "MIT"
 name = "protostar"
 readme = "README.md"
 repository = "https://github.com/software-mansion/protostar"
-version = "0.9.0"
+version = "0.9.1"
 
 [tool.poetry.dependencies]
 argparse = "^1.4.0"
@@ -15,8 +15,8 @@ cairo-lang = "0.10.3"
 colorama = "^0.4.6"
 crypto-cpp-py = "^1.0.4"
 flatdict = "^4.0.1"
-hypothesis = "^6.61.0"
-packaging = "^22.0"
+hypothesis = "^6.62.0"
+packaging = "^23.0"
 pytest-datadir = "^1.4.1"
 python = ">=3.9.14, <3.10"
 requests = "^2.27.1"
@@ -34,8 +34,8 @@ freezegun = "^1.2.1"
 pexpect = "^4.8.0"
 poethepoet = "^0.16.5"
 pyinstaller = "^5.7"
-pylint = "^2.15.9"
-pyright = "^1.1.284"
+pylint = "^2.15.10"
+pyright = "^1.1.287"
 pytest = "^7.2.0"
 pytest-datadir = "^1.4.1"
 pytest-mock = "^3.10.0"
@@ -43,7 +43,7 @@ pytest-timeout = "^2.1.0"
 pytest-xdist = "^3.1.0"
 re-assert = "^1.1.0"
 snakeviz = "^2.1.1"
-starknet-devnet = "^0.4.2"
+starknet-devnet = "^0.4.3"
 pytest-random-order = "^1.1.0"
 
 [tool.poe.tasks]
@@ -65,8 +65,13 @@ deploy = "python ./scripts/deploy.py"
 deploy_prerelease = "python ./scripts/deploy_prerelease.py"
 devnet = "starknet-devnet --seed 0"
 format = "black ."
-format_check = "black --check protostar"
-lint = "pylint **/*.py"
+
+format_check = "./scripts/run_format_check.sh"
+lint = "./scripts/run_lint.sh"
+
+format_check_selected = "black --check"
+lint_selected = "pylint"
+
 local_static_check = [
     "format",
     "lint",
@@ -100,6 +105,7 @@ target-version = [
 ]
 
 [tool.isort]
+profile = "black"
 lines_between_sections = 1
 only_sections = true
 

@@ -4,30 +4,38 @@ sidebar_label: Dependencies
 
 # Dependencies
 
-Protostar manages dependencies (packages) using [git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules) ([similarly to Foundry](https://onbjerg.github.io/foundry-book/projects/dependencies.html)). This is the reason Protostar expects [git](https://git-scm.com/) to be installed. Keep this in mind, especially if your project uses git submodules.
+ Protostar uses [git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules) to manage dependencies in your project. In order to manage dependencies with Protostar, you must have git installed on your system and have the git executable added to the `PATH` environment variable. The `PATH` variable is a list of directories that your system searches for executables.
 
 :::note
-Using Git submodules as a foundation for package management is not an ideal approach. Therefore, [Starkware](https://starkware.co/) plans to create a proper package manager.
+As a temporary solution, Protostar is using git submodules to manage dependencies. A proper package manager unrelated to Protostar is being developed.
 :::
 
 ## Adding a dependency
 
-To add a dependency, inside project directory, run `protostar install EXTERNAL_DEPENDENCY_REFERENCE`:
-
-```console title="Installing a dependency from link to a repository."
-$ protostar install OpenZeppelin/cairo-contracts@v0.4.0
-12:00:00 [INFO] Installing cairo_contracts (https://github.com/OpenZeppelin/cairo-contracts)
+To add a dependency to your Protostar project, run the following command from the project directory:
+```
+protostar install EXTERNAL_DEPENDENCY_REFERENCE
 ```
 
-:::warning
-OpenZeppelin Contracts for Cairo strongly discourages installing directly from the `main` branch. It is recommended to always include the tag in the [External dependency reference format](#external-dependency-reference-formats).
+For example:
+
+```
+protostar install OpenZeppelin/cairo-contracts@vX.Y.Z
+```
+
+
+:::danger
+It is strongly discouraged to install the dependencies directly from the main branch, because the branch might be in unreleasable state. It is recommended to always include a tag in the [External Dependency Reference format](#external-dependency-reference-formats).
 :::
 
-```console title="'lib' category contains the installed dependency."
-$ tree -L 2
+After running the install command, the dependency will be added by default to the `lib` directory in your project:
+
+```console
+
 .
 ├── lib
 │   └── cairo_contracts
+│      └── src
 ├── protostar.toml
 ├── src
 │   └── main.cairo
@@ -36,28 +44,20 @@ $ tree -L 2
 ```
 
 :::warning
-Protostar creates a git commit after installing a dependency.
+Protostar will create a git commit after installing a dependency.
 :::
 
-:::warning
-If you use a dependency that uses absolute imports, you have to specify a cairo-path to the project's root directory of that dependency. You can do it in the following way:
 
-```cairo title="./lib/cairo_contracts/src/openzeppelin/account/presets/Account.cairo"
-// ...
+If you use a dependency that uses absolute imports, you will need to specify a [`cairo-path`](/docs/cli-reference#--cairo-path-path) to the root directory of that dependency in your project.
+It is recommended to specify the `cairo-path` in the configuration file, as this setting can be reused by the [`build`](/docs/cli-reference#build) and [`test`](/docs/cli-reference#test) commands.
 
-from openzeppelin.introspection.ERC165.library import ERC165
 
-// ...
+For example:
+```toml title="protostar.toml"
+[project]
+protostar-version = "X.Y.Z"
+cairo-path = ["lib/cairo-contracts/src"]
 ```
-
-```shell
-protostar build --cairo-path ./lib/cairo_contracts/src
-```
-:::
-
-:::info
-You can configure your `cairo-path` in [the configuration file](/docs/tutorials/project-initialization#protostartoml).
-:::
 
 ### External dependency reference formats
 
@@ -65,49 +65,61 @@ Protostar supports the following ways of referencing external dependency:
 
 | Format                                | Example                                           |
 | ------------------------------------- | ------------------------------------------------- |
-| `GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]` | `OpenZeppelin/cairo-contracts@v0.4.0`             |
+| `GITHUB_ACCOUNT_NAME/REPO_NAME[@TAG]` | `OpenZeppelin/cairo-contracts@vX.Y.Z`             |
 | `URL_TO_THE_REPOSITORY`               | `https://github.com/OpenZeppelin/cairo-contracts` |
 | `SSH_URI`                             | `git@github.com:OpenZeppelin/cairo-contracts.git` |
 
 ### Aliases
 
-Protostar supports installing dependencies under a different name. This allows you to resolve a name conflict, in case of two GitHub users use the same name for their library. In order to install a package under a custom name, run `protostar install EXTERNAL_DEPENDENCY_REFERENCE --name CUSTOM_NAME`. [Updating dependencies](#updating-dependencies) section explains how to refer to installed dependency.
+Protostar allows you to install dependencies under a different name, in case of a name conflict between two GitHub users using the same library name. To install a package under a custom name, use [name](/docs/cli-reference#--name-string) argument:
 
-```console title="Installing a dependency under different name."
-$ protostar install https://github.com/OpenZeppelin/cairo-contracts --name open_zeppelin
-10:09:51 [INFO] Installing open_zeppelin (https://github.com/OpenZeppelin/cairo-contracts)
+```
+protostar install EXTERNAL_DEPENDENCY_REFERENCE --name CUSTOM_NAME
+```
+
+For example:
+
+```
+protostar install OpenZeppelin/cairo-contracts@vX.Y.Z --name open_zeppelin
 ```
 
 ## Installing dependencies after cloning a repository
 
-If you [clone](https://git-scm.com/docs/git-clone) Protostar project using dependencies without `--recurse-submodules` flag, you need to install dependencies using Protostar. Otherwise, your project won't compile and tests will fail. To do so, run `protostar install` in the project directory.
+If you `git clone` a Protostar project with dependencies without using the `--recurse-submodules` flag, you will need to install the dependencies using Protostar. Otherwise, your project will not compile and tests will fail. To do this, run `protostar install` in the project directory.
 
-```console title="Protostar will install all submodules from the dependencies directory."
-$ protostar install
-09:37:42 [INFO] Installing cairo_contracts (https://github.com/OpenZeppelin/cairo-contracts)
+```console
+protostar install
 ```
 
 ## Updating dependencies
 
-To update:
+If the default branch of a dependency's repository uses [tags](https://git-scm.com/book/en/v2/Git-Basics-Tagging), Protostar will update the dependency by pulling a commit marked with the newest tag. If the repository does not use tags, Protostar will pull the most recent commit from the default branch.
 
-- a single dependency, run `protostar update LOCAL_DEPENDENCY_REFERENCE/EXTERNAL_DEPENDENCY_REFERENCE`
-- all dependencies, run `protostar update`
+To update a single dependency, run:
 
-`LOCAL_DEPENDENCY_REFERENCE` is a directory name of a dependency, for example:
-
-```console title="Updating a previously installed dependency."
-$ protostar update cairo_contracts
-10:03:52 [INFO] Package already up to date.
+```
+protostar update LOCAL_DEPENDENCY_REFERENCE/EXTERNAL_DEPENDENCY_REFERENCE
 ```
 
-If the default branch of a dependency's repository uses [tags](https://git-scm.com/book/en/v2/Git-Basics-Tagging), Protostar will pull a commit marked with the newest tag. Otherwise, Protostar will pull a recent commit from the default branch.
+`LOCAL_DEPENDENCY_REFERENCE` is a directory name of a dependency.
+
+To update all dependencies, run:
+```
+protostar update
+```
+
 
 ## Removing dependencies
 
-To remove a dependency, run `protostar remove LOCAL_DEPENDENCY_REFERENCE/EXTERNAL_DEPENDENCY_REFERENCE`.
+To remove a dependency from your Protostar project, use the [`protostar remove`](/docs/cli-reference#remove) command and specify the `LOCAL_DEPENDENCY_REFERENCE` or `EXTERNAL_DEPENDENCY_REFERENCE` of the dependency.
 
-```console title="Removing a dependency."
-$ protostar remove cairo_contracts
-10:04:26 [INFO] Removing cairo_contracts
 ```
+protostar remove LOCAL_DEPENDENCY_REFERENCE/EXTERNAL_DEPENDENCY_REFERENCE
+```
+
+For example, to remove the cairo_contracts dependency, run:
+```
+protostar remove `cairo_contracts`
+```
+
+This command will remove the dependency and all its associated files from your project. Protostar will also create a git commit due to reliance on git submodules.

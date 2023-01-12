@@ -1,5 +1,22 @@
 #!/bin/sh
 
-poetry run poe type_check
-poetry run poe format_check
-poetry run poe lint
+set -e
+
+STAGED_FILES=$(git diff --name-only --cached)
+STAGED_FILES_SELECTED=$(./scripts/get_code_check_paths.sh | xargs git diff --name-only --staged)
+
+if [ -z "${STAGED_FILES}" ]; then
+  echo "pre-commit hook: no staged files, exiting";
+  exit 0;
+fi
+
+poetry run poe type_check $(echo "${STAGED_FILES}")
+
+if [ -n "${STAGED_FILES_SELECTED}" ]; then
+  echo "${STAGED_FILES_SELECTED}" | xargs poetry run poe format_check_selected
+  STAGED_FILES_SELECTED_ARR=($STAGED_FILES_SELECTED)
+  for FILE in "${STAGED_FILES_SELECTED_ARR[@]}"; do
+    echo "${FILE}" | xargs poetry run poe lint_selected
+  done;
+fi
+

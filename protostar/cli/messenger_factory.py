@@ -8,7 +8,7 @@ class MessengerFactory:
     OUTPUT_ARGUMENTS = [
         ProtostarArgument(
             name="json",
-            description="Print machine readable output in JSON format.",
+            description="Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec) format.",
             type="bool",
         )
     ]

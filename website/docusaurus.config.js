@@ -8,7 +8,7 @@ const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 const config = {
   title: "Protostar",
   tagline: "StarkNet smart contract development toolchain",
-  url: "https://your-docusaurus-test-site.com",
+  url: "https://docs.swmansion.com",
   baseUrl: "/protostar/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",

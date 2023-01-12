@@ -2,7 +2,7 @@ from pathlib import Path
 import pytest
 
 from protostar.testing.test_results import TestResult
-from .test_result_formatter import make_path_relative_if_possible
+from protostar.testing.test_scheduler import make_path_relative_if_possible
 
 
 @pytest.mark.parametrize(
