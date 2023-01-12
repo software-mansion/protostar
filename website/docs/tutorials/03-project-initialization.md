@@ -29,5 +29,5 @@ The configuration file, `protostar.toml`, defines the root directory of your Pro
 ### Adapting an existing project to a Protostar project
 If you already have an existing project that you want to adapt to a Protostar project, you can do so by adding a valid `protostar.toml` configuration file to the root of the project.
 
-Alternatively, you can use the `protostar init --existing` command to generate a `protostar.toml` in your current working directory, which should be the root of your existing project.
+Alternatively, you can use the `protostar init --existing` command to generate a `protostar.toml` in your current working directory.
 
