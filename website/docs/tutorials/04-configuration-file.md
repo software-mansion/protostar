@@ -43,6 +43,7 @@ The `[project]` section of the `protostar.toml` file allows you to specify globa
 This attribute is defines what Protostar version should be used with your project.
 It should be set to the latest compatible Protostar version.
 If you try to use a different version of Protostar with your project, you will receive a warning and you may experience unexpected errors.
+This attribute should be updated manually.
 
 #### Shared Configuration
 You can specify options that are shared by multiple Protostar commands in the `[project]` section.
