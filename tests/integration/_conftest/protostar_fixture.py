@@ -28,8 +28,8 @@ from protostar.testing import TestingSummary
 from protostar.starknet import Address
 from protostar.starknet.data_transformer import CairoOrPythonData
 from tests.conftest import DevnetAccount
-from tests.integration._conftest import tokenize
 
+from .tokenizer import tokenize
 from .transaction_registry import TransactionRegistry
 
 
