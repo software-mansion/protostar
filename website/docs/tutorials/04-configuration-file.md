@@ -89,7 +89,7 @@ To create a configuration profile, add a new section to the `protostar.toml`. Fo
 - to create a [Command Configuration](#command) named `mainnet` for the [`declare` command](/docs/cli-reference#declare), add `[profile.mainnet.declare]` section
 - to create a [Shared Configuration](#shared-configuration) named `testnet`, add `[profile.testnet.project]` section
 
-To use a profile, specify the [-p or --profile argument](/docs/cli-reference#-p---profile-string) followed by the name of the profile.
+To use a profile, add the [-p or --profile argument](/docs/cli-reference#-p---profile-string) followed by the name of the profile.
 For example, to use the [`declare` command](/docs/cli-reference#declare) with the `testnet` profile, run:
 ```console
 protostar -p devnet declare
