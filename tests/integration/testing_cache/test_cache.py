@@ -3,7 +3,7 @@ import pytest
 from protostar.self.cache_io import CacheIO
 from protostar.protostar_exception import ProtostarException
 from tests.integration.conftest import CreateProtostarProjectFixture
-from tests.integration.protostar_fixture import ProtostarFixture
+from tests.integration._conftest import ProtostarFixture
 from tests.data.tests import (
     TEST_BROKEN,
     TEST_FAILING,

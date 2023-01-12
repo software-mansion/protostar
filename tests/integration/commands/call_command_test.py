@@ -8,7 +8,7 @@ from tests._conftest.devnet.devnet_fixture import DevnetFixture
 from tests.conftest import TESTS_ROOT_PATH, DevnetAccount, SetPrivateKeyEnvVarFixture
 from tests.data.contracts import UINT256_IDENTITY_CONTRACT
 from tests.integration.conftest import CreateProtostarProjectFixture
-from tests.integration.protostar_fixture import ProtostarFixture
+from tests.integration._conftest import ProtostarFixture
 
 
 @pytest.fixture(name="protostar")
