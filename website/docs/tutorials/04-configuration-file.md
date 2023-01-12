@@ -71,7 +71,7 @@ Configuration profiles provide a way to easily switch between Protostar configur
 -  `[profile.PROFILE_NAME.project]` - to create a profile for a [Shared Configuration](#shared-configuration)
 -  `[profile.PROFILE_NAME.COMMAND]` - to create a profile for a [Command Configuration](#command)
 
-To use the profile, specify the profile argument
+To activate the profile, use the profile argument
 ```console title="Run the test command with the 'integration' profile"
 protostar -p integration test
 ```
