@@ -23,7 +23,6 @@ your-project-name/
 ```
 
 The example contract file, `main.cairo`, and the example test file, `test_main.cairo`, serve as templates for your project.
-You can modify these files or add additional files as needed to meet the requirements of your project.
 
 The configuration file, `protostar.toml`, defines the root directory of your Protostar project.
 
