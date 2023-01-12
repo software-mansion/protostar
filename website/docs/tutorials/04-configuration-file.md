@@ -91,13 +91,13 @@ To learn more about the available options and arguments for each Protostar comma
 
 ### Configuration Profiles
 Configuration profiles allow you to easily switch between different Protostar configurations. 
-When you activate a profile, it will override the default settings specified in the `protostar.toml` file with the settings specified in the profile.
+When you use a profile, it will override the default settings specified in the `protostar.toml` file with the settings specified in the profile.
 
 To create a configuration profile, add a new section to the `protostar.toml` file with the following naming convention:
 -  `[profile.PROFILE_NAME.project]` - to create a [Shared Configuration](#shared-configuration) profile
 -  `[profile.PROFILE_NAME.COMMAND]` - to create a [Command Configuration](#command) profile
 
-To activate a profile, use the [-p or --profile argument](/docs/cli-reference#-p---profile-string) followed by the name of the profile:
+To use a profile, specify the [-p or --profile argument](/docs/cli-reference#-p---profile-string) followed by the name of the profile:
 
 ```console
 protostar -p PROFILE_NAME COMMAND
