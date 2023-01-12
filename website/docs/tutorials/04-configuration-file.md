@@ -65,15 +65,6 @@ my_contract = ["src/feature_a.cairo", "src/feature_b.cairo"]
 ### `[COMMAND]`
 The `[COMMAND]` section of the `protostar.toml` file allows you to specify options and settings for a specific Protostar command.
 
-To configure command arguments in the `protostar.toml` file, you can specify them in a `[COMMAND]` section using the following format:
-
-```toml
-[COMMAND]
-flag = true
-list = [1, 2, 3]
-path = "./src"
-```
-
 For example, the following configuration file specifies the [`target`](/docs/cli-reference#target-string) and [`ignore-broken`](/docs/cli-reference#--ignore-broken) arguments for the [`protostar format` command](/docs/cli-reference#format):
 
 ```toml title="Configuration File"
@@ -94,20 +85,16 @@ To learn more about the available options and arguments for each Protostar comma
 Configuration profiles allow you to easily switch between different Protostar configurations. 
 When you use a profile, it will override the default settings specified in the `protostar.toml` file with the settings specified in the profile.
 
-To create a configuration profile, add a new section to the `protostar.toml` file with the following naming convention:
--  `[profile.PROFILE_NAME.project]` - to create a [Shared Configuration](#shared-configuration) profile
--  `[profile.PROFILE_NAME.COMMAND]` - to create a [Command Configuration](#command) profile
+To create a configuration profile, add a new section to the `protostar.toml`. For example:
+- to create a [Shared Configuration](#shared-configuration) named `devnet`, add `[profile.devnet.project]` section
+- to create a [Command Configuration](#command) named `testnet` for the [`declare` command](/docs/cli-reference#declare), add `[profile.testnet.declare]` section
 
-To use a profile, specify the [-p or --profile argument](/docs/cli-reference#-p---profile-string) followed by the name of the profile:
-
+To use a profile, specify the [-p or --profile argument](/docs/cli-reference#-p---profile-string) followed by the name of the profile.
+For example, to use the [`declare` command](/docs/cli-reference#declare) with the `testnet` profile, run:
 ```console
-protostar -p PROFILE_NAME COMMAND
+protostar -p devnet declare
 ```
 
-For example, to use the [`test` command](/docs/cli-reference#test) with the `smoke_tests` profile, run:
-```console title="Run the test command with the 'integration' profile"
-protostar -p smoke_tests test
-```
 
 ## Migrating from an Older Version of `protostar.toml`
 If you have a `protostar.toml` file created by an older version of Protostar, you can use the [`protostar migrate-configuration-file` command](/docs/cli-reference#migrate-configuration-file) to update it to the latest format.
