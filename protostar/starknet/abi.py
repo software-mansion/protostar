@@ -4,8 +4,10 @@ from starkware.cairo.lang.compiler.ast.cairo_types import CairoType
 from starkware.starknet.public.abi import AbiType
 from starkware.starknet.testing.contract_utils import parse_arguments
 
+from protostar.protostar_exception import ProtostarException
 
-class AbiItemNotFoundException(Exception):
+
+class AbiItemNotFoundException(ProtostarException):
     pass
 
 
@@ -28,10 +30,13 @@ def get_function_parameters(contract_abi: AbiType, name: str) -> Dict[str, Cairo
 
 
 def find_abi_item(contract_abi: AbiType, name: str) -> Dict:
-    for item in contract_abi:
-        if item["name"] == name:
-            return item
-    raise AbiItemNotFoundException(f"Couldn't find '{name}' ABI")
+    try:
+        for item in contract_abi:
+            if item["name"] == name:
+                return item
+        raise AbiItemNotFoundException(f"Couldn't find '{name}' ABI")
+    except TypeError as ex:
+        raise AbiItemNotFoundException(str(ex)) from ex
 
 
 def has_abi_item(contract_abi: AbiType, name: str) -> bool:

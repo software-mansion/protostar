@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any, Optional
 
 from starknet_py.net.gateway_client import GatewayClient
@@ -9,6 +10,7 @@ from protostar.cli import (
     MessengerFactory,
 )
 from protostar.cli.common_arguments import ABI_PATH_ARG
+from protostar.compiler import load_abi
 from protostar.starknet_gateway import (
     GatewayFacadeFactory,
     AbiResolver,
@@ -23,9 +25,11 @@ from .call_command_messages import SuccessfulCallMessage
 class CallCommand(ProtostarCommand):
     def __init__(
         self,
+        project_root_path: Path,
         messenger_factory: MessengerFactory,
         gateway_facade_factory: GatewayFacadeFactory,
     ):
+        self._project_root_path = project_root_path
         self._messenger_factory = messenger_factory
         self._gateway_facade_factory = gateway_facade_factory
 
@@ -77,6 +81,7 @@ class CallCommand(ProtostarCommand):
             function_name=args.function,
             inputs=args.inputs,
             gateway_client=gateway_client,
+            abi_path=args.abi,
         )
         write(response)
         return response
@@ -86,8 +91,10 @@ class CallCommand(ProtostarCommand):
         contract_address: Address,
         function_name: str,
         gateway_client: GatewayClient,
+        abi_path: Optional[Path] = None,
         inputs: Optional[CairoOrPythonData] = None,
     ) -> SuccessfulCallMessage:
+        custom_abi = load_abi(self._project_root_path / abi_path) if abi_path else None
         gateway_facade = self._gateway_facade_factory.create(gateway_client)
         abi_resolver = AbiResolver(client=gateway_client)
         data_transformer_policy = DataTransformerPolicy(abi_resolver=abi_resolver)
@@ -100,7 +107,7 @@ class CallCommand(ProtostarCommand):
                 address=contract_address,
                 selector=Selector(function_name),
                 inputs=inputs,
-                abi=None,
+                abi=custom_abi,
             )
         )
         return SuccessfulCallMessage(response)
