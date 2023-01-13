@@ -40,6 +40,8 @@ Input to the account's constructor.
 Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec) format.
 ### `call`
 Calls a contract on StarkNet with given parameters
+#### `--abi PATH`
+Path to the ABI file to be used by Data Transformer. If not provided, Protostar will get the ABI from the StarkNet.
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
 #### `--contract-address ADDRESS`
