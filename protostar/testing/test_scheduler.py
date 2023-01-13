@@ -4,10 +4,7 @@ import dataclasses
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, List, Optional
 
-from protostar.io.output import Messenger
-from protostar.commands.test.messages import TestingSummaryResultMessage
-from protostar.testing import TestResult, TestingSummary
-
+from .test_results import TestResult
 from .test_collector import TestCollector
 from .test_runner import TestRunner
 from .test_shared_tests_state import SharedTestsState
@@ -54,9 +51,7 @@ class TestScheduler:
         cwd: Path,
         active_profile_name: Optional[str],
         gas_estimation_enabled: bool,
-        messenger: Messenger,
-        slowest_tests_to_report_count: int,
-        testing_summary: TestingSummary,
+        on_exit_first: Callable[[], None],
     ):
         with multiprocessing.Manager() as manager:
             shared_tests_state = SharedTestsState(
@@ -81,13 +76,7 @@ class TestScheduler:
 
             # A test case was broken
             if exit_first and shared_tests_state.any_failed_or_broken():
-                messenger(
-                    TestingSummaryResultMessage(
-                        test_collector_result=test_collector_result,
-                        testing_summary=testing_summary,
-                        slowest_tests_to_report_count=slowest_tests_to_report_count,
-                    )
-                )
+                on_exit_first()
                 return
 
             try:
