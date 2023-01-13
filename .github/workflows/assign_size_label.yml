@@ -2,7 +2,7 @@ name: size-label
 on: pull_request
 jobs:
   size-label:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     if: ${{ github.repository == 'software-mansion/protostar' && github.actor != 'dependabot[bot]' }}
     steps:
       - name: size-label
