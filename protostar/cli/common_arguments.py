@@ -87,3 +87,12 @@ WAIT_FOR_ACCEPTANCE_ARG = ProtostarArgument(
     type="bool",
     default=False,
 )
+
+ABI_PATH_ARG = ProtostarArgument(
+    name="abi",
+    description=(
+        "Path to the ABI file to be used by Data Transformer. "
+        "If not provided, Protostar will get the ABI from the StarkNet."
+    ),
+    type="path",
+)

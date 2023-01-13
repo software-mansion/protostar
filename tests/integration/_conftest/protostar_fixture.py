@@ -250,7 +250,7 @@ class ProtostarFixture:
         function_name: str,
         inputs: Optional[CairoOrPythonData],
         gateway_url: str,
-        abi: Optional[list[Any]] = None,
+        abi_path: Optional[Path] = None,
         json: bool = False,
     ):
         args = Namespace()
@@ -261,7 +261,7 @@ class ProtostarFixture:
         args.gateway_url = gateway_url
         args.chain_id = StarknetChainId.TESTNET
         args.json = json
-        args.abi = abi
+        args.abi = abi_path
 
         return await self._call_command.run(args)
 

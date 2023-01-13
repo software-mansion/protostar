@@ -8,6 +8,7 @@ from protostar.cli import (
     ProtostarCommand,
     MessengerFactory,
 )
+from protostar.cli.common_arguments import ABI_PATH_ARG
 from protostar.starknet_gateway import (
     GatewayFacadeFactory,
     AbiResolver,
@@ -45,6 +46,7 @@ class CallCommand(ProtostarCommand):
         return [
             *NetworkCommandUtil.network_arguments,
             *MessengerFactory.OUTPUT_ARGUMENTS,
+            ABI_PATH_ARG,
             ProtostarArgument(
                 name="contract-address",
                 description="The address of the contract being called.",
