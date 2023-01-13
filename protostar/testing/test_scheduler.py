@@ -1,21 +1,17 @@
 import multiprocessing
 import signal
+import dataclasses
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, List, Optional
-import dataclasses
 
-from protostar.io.output import Messenger, HumanMessenger
+from protostar.io.output import Messenger
 from protostar.commands.test.messages import TestingSummaryResultMessage
-from protostar.testing import (
-    TestResult,
-    TestingSummary,
-)
+from protostar.testing import TestResult, TestingSummary
 
 from .test_collector import TestCollector
 from .test_runner import TestRunner
 from .test_shared_tests_state import SharedTestsState
 from .testing_seed import Seed
-
 
 if TYPE_CHECKING:
     from protostar.commands.test.testing_live_logger import TestingLiveLogger
@@ -100,20 +96,10 @@ class TestScheduler:
                     initializer=_init_worker,
                 ) as pool:
                     results = pool.map_async(self._worker, setups)
-
-                    if isinstance(messenger, HumanMessenger):
-                        self._live_logger.log_human(
-                            shared_tests_state,
-                            test_collector_result,
-                            messenger,
-                        )
-                    else:
-                        self._live_logger.log_json(
-                            shared_tests_state,
-                            test_collector_result,
-                            messenger,
-                        )
-
+                    self._live_logger.log(
+                        shared_tests_state,
+                        test_collector_result,
+                    )
                     if exit_first and shared_tests_state.any_failed_or_broken():
                         pool.terminate()
                         return

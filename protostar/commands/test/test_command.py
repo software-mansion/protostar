@@ -14,9 +14,7 @@ from protostar.starknet.compiler.pass_managers import (
     StarknetPassManagerFactory,
     TestCollectorPassManagerFactory,
 )
-from protostar.starknet.compiler.starknet_compilation import (
-    StarknetCompiler,
-)
+from protostar.starknet.compiler.starknet_compilation import StarknetCompiler
 from protostar.starknet.compiler.cairo_compilation import CairoCompiler
 from protostar.starknet.compiler.common import CompilerConfig
 from protostar.testing import (
@@ -261,6 +259,7 @@ A glob or globs to a directory or a test suite, for example:
                 exit_first=exit_first,
                 slowest_tests_to_report_count=slowest_tests_to_report_count,
                 project_root_path=self._project_root_path,
+                write=messenger,
             )
             worker = (
                 CairoTestRunner.worker if use_cairo_test_runner else TestRunner.worker

@@ -1,6 +1,7 @@
 import queue
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
+
 from tqdm import tqdm as bar
 
 from protostar.commands.test.test_result_formatter import format_test_result
@@ -12,7 +13,7 @@ from protostar.testing import (
     TestingSummary,
     TestResult,
 )
-from protostar.io.output import Messenger
+from protostar.io.output import Messenger, HumanMessenger, JsonMessenger
 from protostar.io.log_color_provider import log_color_provider
 
 from .messages import TestingSummaryResultMessage
@@ -29,19 +30,31 @@ class TestingLiveLogger:
         exit_first: bool,
         slowest_tests_to_report_count: int,
         project_root_path: Path,
+        write: Messenger,
     ) -> None:
+        self._write = write
         self._no_progress_bar = no_progress_bar
         self._project_root_path = project_root_path
         self.testing_summary = testing_summary
         self.exit_first = exit_first
         self.slowest_tests_to_report_count = slowest_tests_to_report_count
 
-    def log_json(
+    def log(
         self,
         shared_tests_state: SharedTestsState,
         test_collector_result: "TestCollector.Result",
-        messenger: Messenger,
+    ) -> None:
+        if isinstance(self._write, HumanMessenger):
+            self._log_human(shared_tests_state, test_collector_result)
+        else:
+            self._log_json(shared_tests_state, test_collector_result)
+
+    def _log_json(
+        self,
+        shared_tests_state: SharedTestsState,
+        test_collector_result: "TestCollector.Result",
     ):
+        assert isinstance(self._write, JsonMessenger)
         try:
             tests_left_n = test_collector_result.test_cases_count
             while tests_left_n > 0:
@@ -53,7 +66,7 @@ class TestingLiveLogger:
                     test_result, self._project_root_path
                 )
 
-                messenger(format_test_result(test_result))
+                self._write(format_test_result(test_result))
 
                 if self.exit_first and shared_tests_state.any_failed_or_broken():
                     tests_left_n = 0
@@ -65,7 +78,7 @@ class TestingLiveLogger:
                 else:
                     tests_left_n -= 1
         finally:
-            messenger(
+            self._write(
                 TestingSummaryResultMessage(
                     test_collector_result=test_collector_result,
                     testing_summary=self.testing_summary,
@@ -73,12 +86,12 @@ class TestingLiveLogger:
                 )
             )
 
-    def log_human(
+    def _log_human(
         self,
         shared_tests_state: SharedTestsState,
         test_collector_result: "TestCollector.Result",
-        messenger: Messenger,
     ):
+        assert isinstance(self._write, HumanMessenger)
         try:
             with bar(
                 total=test_collector_result.test_cases_count,
@@ -122,7 +135,7 @@ class TestingLiveLogger:
                             tests_left_n -= 1
                 finally:
                     progress_bar.close()
-                    messenger(
+                    self._write(
                         TestingSummaryResultMessage(
                             test_collector_result=test_collector_result,
                             testing_summary=self.testing_summary,
