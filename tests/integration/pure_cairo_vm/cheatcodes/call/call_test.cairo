@@ -53,7 +53,7 @@ func test_call_named_args_invalid_fail() {
     return ();
 }
 
-func test_call_with_proxy(){
+func test_call_with_proxy_simple(){
     alloc_locals;
 
     %{
@@ -72,3 +72,32 @@ func test_call_with_proxy(){
     return ();
 }
 
+func test_call_with_proxy_named_args_success(){
+    alloc_locals;
+
+    %{
+        target_addr = deploy_contract("./src/basic.cairo").contract_address
+        proxy_addr = deploy_contract("./src/proxy.cairo").contract_address
+
+        invoke(proxy_addr, "set_target", [target_addr])
+
+        call(proxy_addr, "increase_twice", {"amount": 50})
+    %}
+
+    return ();
+}
+
+func test_call_with_proxy_named_args_fail(){
+    alloc_locals;
+
+    %{
+        target_addr = deploy_contract("./src/basic.cairo").contract_address
+        proxy_addr = deploy_contract("./src/proxy.cairo").contract_address
+
+        invoke(proxy_addr, "set_target", [target_addr])
+
+        call(proxy_addr, "increase_twice", {"amount_": 50})
+    %}
+
+    return ();
+}

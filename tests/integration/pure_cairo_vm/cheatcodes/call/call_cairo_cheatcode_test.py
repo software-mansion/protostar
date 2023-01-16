@@ -39,9 +39,11 @@ async def test_call_pipeline(
             "test_call_simple",
             "test_call_not_mutating_state",
             "test_call_named_args",
-            "test_call_with_proxy",
+            "test_call_with_proxy_simple",
+            "test_call_with_proxy_named_args_success",
         ],
         expected_broken_test_cases_names=[
             "test_call_named_args_invalid_fail",
+            "test_call_with_proxy_named_args_fail",
         ],
     )
