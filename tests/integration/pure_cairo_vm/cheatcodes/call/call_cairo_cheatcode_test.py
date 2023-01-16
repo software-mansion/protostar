@@ -25,6 +25,7 @@ async def test_call_pipeline(
     protostar.create_files(
         {
             "src/basic.cairo": CONTRACTS_PATH / "basic_contract.cairo",
+            "src/proxy.cairo": CONTRACTS_PATH / "proxy_for_basic_contract.cairo",
         }
     )
 
@@ -38,6 +39,7 @@ async def test_call_pipeline(
             "test_call_simple",
             "test_call_not_mutating_state",
             "test_call_named_args",
+            "test_call_with_proxy",
         ],
         expected_broken_test_cases_names=[
             "test_call_named_args_invalid_fail",

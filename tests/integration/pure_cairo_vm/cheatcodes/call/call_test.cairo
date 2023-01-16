@@ -52,3 +52,23 @@ func test_call_named_args_invalid_fail() {
     %{ call(ids.deployed_contract_address, "increase_balance", {"xxx": 50}) %}
     return ();
 }
+
+func test_call_with_proxy(){
+    alloc_locals;
+
+    %{
+        target_addr = deploy_contract("./src/basic.cairo").contract_address
+        proxy_addr = deploy_contract("./src/proxy.cairo").contract_address
+
+        invoke(proxy_addr, "set_target", [target_addr])
+
+        assert call(proxy_addr, "get_balance") == [100]
+        call(proxy_addr, "increase_twice", [50])
+        call(target_addr, "increase_balance", [50])
+        assert call(proxy_addr, "get_balance") == [100]
+    %}
+
+
+    return ();
+}
+
