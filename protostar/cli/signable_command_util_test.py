@@ -1,15 +1,15 @@
 import re
 from pathlib import Path
 from types import SimpleNamespace
-from typing import List, Callable
+from typing import List, Callable, Union
 
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
 from pytest_mock import MockerFixture
 from starknet_py.net.models import StarknetChainId, Transaction
-from starknet_py.net.models.typed_data import TypedData
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
+from starknet_py.utils.typed_data import TypedData
 
 from protostar.starknet import Address
 from protostar.cli.signable_command_util import (
@@ -40,7 +40,9 @@ class CustomSigner(BaseSigner):
     def sign_transaction(self, transaction: Transaction) -> List[int]:
         return [1, 2]
 
-    def sign_message(self, typed_data: TypedData, account_address: int) -> List[int]:
+    def sign_message(
+        self, typed_data: Union[dict, TypedData], account_address: int
+    ) -> List[int]:
         return [1, 2]
 
 
