@@ -30,7 +30,7 @@ func test_not_fails_when_pranked() {
 func test_fails_when_different_target_is_pranked() {
     %{
         PRANKED_ADDRESS = 123
-        contact_address = deploy_contract("./tests/integration/cheatcodes/prank/pranked.cairo").contract_address
+        contract_address = deploy_contract("./tests/integration/cheatcodes/prank/pranked.cairo").contract_address
         another_contract_address = deploy_contract("./tests/integration/cheatcodes/prank/pranked.cairo").contract_address 
 
         prank(PRANKED_ADDRESS, target_contract_address=another_contract_address)

@@ -15,7 +15,6 @@ from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
 from starkware.starknet.security.secure_hints import HintsWhitelist
 from starkware.starknet.services.api.contract_class import EntryPointType
 
-
 from .address import Address
 from .cheaters_of import cheaters_of
 
@@ -41,21 +40,6 @@ class CheatableCairoSysCallHandler(BusinessLogicSysCallHandler):
     def block_info(self, block_info: BlockInfo):
         # Only called in constructor.
         assert block_info == self.cheaters.block_info.base
-
-    def _get_caller_address(
-        self,
-        segments: MemorySegmentManager,
-        syscall_ptr: RelocatableValue,
-    ) -> int:
-        caller_address = super()._get_caller_address(
-            segments=segments, syscall_ptr=syscall_ptr
-        )
-
-        # TODO
-        # if self.contract_address in self.cheatable_state.pranked_contracts_map:
-        #     return self.cheatable_state.pranked_contracts_map[self.contract_address]
-
-        return caller_address
 
     # def unregister_mock_call(self, contract_address: Address, selector: SelectorType):
     #     if contract_address not in self.cheaters.?.mocked_calls_map:
@@ -197,6 +181,25 @@ class CheatableCairoSysCallHandler(BusinessLogicSysCallHandler):
         )
 
         return contract_address
+
+    def _get_caller_address(
+        self,
+        segments: MemorySegmentManager,
+        syscall_ptr: RelocatableValue,
+    ) -> int:
+        caller_address = super()._get_caller_address(
+            segments=segments, syscall_ptr=syscall_ptr
+        )
+        if (
+            Address(self.contract_address)
+            in self.cheaters.contracts.pranked_contracts_map
+        ):
+            return int(
+                self.cheaters.contracts.pranked_contracts_map[
+                    Address(self.contract_address)
+                ]
+            )
+        return caller_address
 
 
 class CheatableHintsWhitelist(HintsWhitelist):
