@@ -24,7 +24,6 @@ from protostar.commands.init.project_creator.new_project_creator import (
 )
 from protostar.commands.test import TestCommand
 from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
-from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.configuration_file import (
     ConfigurationFileFactory,
     ConfigurationFileV2ContentFactory,
@@ -111,7 +110,6 @@ def create_protostar_fixture(
     transaction_registry = TransactionRegistry()
 
     gateway_facade_factory = SpyingGatewayFacadeFactory(
-        compiled_contract_reader=CompiledContractReader(),
         project_root_path=project_root_path,
         transaction_registry=transaction_registry,
     )
