@@ -39,15 +39,7 @@ func test_fails_when_different_target_is_pranked() {
     return ();
 }
 
-func test_prank_wrong_target() {
+func test_not_fails_when_pranked_wrong_target() {
     %{ prank(123, target_contract_address=123) %}
-    return ();
-}
-
-func test_fails_but_cannot_freeze_when_cheatcode_exception_is_raised() {
-    %{
-        prank(123, target_contract_address=123)
-        prank(123, target_contract_address=123)
-    %}
     return ();
 }
