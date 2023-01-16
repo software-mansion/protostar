@@ -150,6 +150,7 @@ def create_protostar_fixture(
         messenger_factory=messenger_factory,
     )
     call_command = CallCommand(
+        project_root_path=project_root_path,
         gateway_facade_factory=gateway_facade_factory,
         messenger_factory=messenger_factory,
     )

@@ -14,7 +14,7 @@ from .types import ClassHashType, SelectorType, Wei, Hash, TransactionHash
 from .address import Address, RawAddress
 from .selector import Selector
 from .contract import estimate_gas, execute_on_state
-from .abi import AbiType
+from .abi import AbiType, load_abi
 from .data_transformer import (
     from_python_transformer,
     to_python_transformer,

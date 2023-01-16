@@ -112,6 +112,49 @@ async def test_call_inputs_args_dict(
     assert result.call_output.cairo_data == [10]
 
 
+async def test_call_inputs_args_dict_with_custom_abi(
+    protostar: ProtostarFixture,
+    devnet_gateway_url: str,
+    devnet_account: DevnetAccount,
+    set_private_key_env_var: SetPrivateKeyEnvVarFixture,
+):
+    with set_private_key_env_var(devnet_account.private_key):
+        deploy_response = await deploy_main_contract(
+            protostar, devnet_gateway_url, devnet_account
+        )
+
+    result = await protostar.call(
+        contract_address=deploy_response.address,
+        function_name="add_multiple_values",
+        inputs={"a": 5, "c": 3, "b": 2},
+        gateway_url=devnet_gateway_url,
+        abi_path=protostar.project_root_path / "build" / "main_abi.json",
+    )
+
+    assert result.call_output.cairo_data == [10]
+
+
+async def test_error_when_custom_abi_is_invalid(
+    protostar: ProtostarFixture,
+    devnet_gateway_url: str,
+    devnet_account: DevnetAccount,
+    set_private_key_env_var: SetPrivateKeyEnvVarFixture,
+):
+    with set_private_key_env_var(devnet_account.private_key):
+        deploy_response = await deploy_main_contract(
+            protostar, devnet_gateway_url, devnet_account
+        )
+
+    with pytest.raises(ProtostarException):
+        await protostar.call(
+            contract_address=deploy_response.address,
+            function_name="add_multiple_values",
+            inputs={"a": 5, "c": 3, "b": 2},
+            gateway_url=devnet_gateway_url,
+            abi_path=protostar.project_root_path / "build" / "main.json",
+        )
+
+
 async def test_call_inputs_args_dict_fail(
     protostar: ProtostarFixture,
     devnet_gateway_url: str,
