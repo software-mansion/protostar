@@ -28,7 +28,6 @@ from starkware.starknet.business_logic.execution.objects import (
 )
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.services.api.contract_class import EntryPointType, ContractClass
-from starkware.starknet.public.abi import get_selector_from_name
 
 from protostar.contract_types import (
     PreparedContract,
