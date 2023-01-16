@@ -1,4 +1,6 @@
-from typing import Dict
+import json
+from pathlib import Path
+from typing import Any, Dict
 
 from starkware.cairo.lang.compiler.ast.cairo_types import CairoType
 from starkware.starknet.public.abi import AbiType
@@ -44,3 +46,15 @@ def has_abi_item(contract_abi: AbiType, name: str) -> bool:
         if item["name"] == name:
             return True
     return False
+
+
+def load_abi(abi_path: Path) -> AbiType:
+    assert abi_path.suffix == ".json"
+    potential_abi = json.loads(abi_path.read_text())
+    panic_if_invalid_abi(potential_abi)
+    return potential_abi
+
+
+def panic_if_invalid_abi(abi: Any):
+    if not isinstance(abi, list):
+        raise ProtostarException("Invalid ABI.")

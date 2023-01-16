@@ -10,13 +10,12 @@ from protostar.cli import (
     MessengerFactory,
 )
 from protostar.cli.common_arguments import ABI_PATH_ARG
-from protostar.compiler import load_abi
+from protostar.starknet import load_abi, Address, Selector
 from protostar.starknet_gateway import (
     GatewayFacadeFactory,
     AbiResolver,
     DataTransformerPolicy,
 )
-from protostar.starknet import Address, Selector
 from protostar.starknet_gateway.call import CallUseCase, CallInput, CairoOrPythonData
 
 from .call_command_messages import SuccessfulCallMessage
