@@ -92,7 +92,7 @@ ABI_PATH_ARG = ProtostarArgument(
     name="abi",
     description=(
         "Path to the ABI file to be used by Data Transformer. "
-        "If not provided, Protostar will get the ABI from the StarkNet."
+        "If not provided, Protostar will get the ABI from StarkNet."
     ),
     type="path",
 )
