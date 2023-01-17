@@ -25,6 +25,7 @@ async def test_expect_call(
     protostar.create_files(
         {
             "src/basic.cairo": CONTRACTS_PATH / "basic_contract.cairo",
+            "src/proxy.cairo": CONTRACTS_PATH / "proxy_for_basic_contract.cairo",
         }
     )
 
@@ -37,6 +38,8 @@ async def test_expect_call(
         expected_passed_test_cases_names=[
             "test_expect_call_success",
             "test_expect_call_before_stop_success",
+            "test_expect_call_with_proxy_simple",
+            "test_expect_call_with_proxy_deeper",
         ],
         expected_failed_test_cases_names=[
             "test_expect_call_wrong_arg_fail",
