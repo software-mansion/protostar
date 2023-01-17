@@ -17,7 +17,7 @@ def test_l1_to_l2_message_cheatcode(
         protostar.create_files(
             {
                 "tests/test_main.cairo": contracts_sources_path
-                / "simple_l1_handler_test.cairo",
+                / "send_message_to_l2_cairo_cheatcode_test.cairo",
                 "src/main.cairo": contracts_sources_path
                 / "external_contract_with_l1_handler.cairo",
             }
@@ -30,5 +30,6 @@ def test_l1_to_l2_message_cheatcode(
             testing_summary,
             expected_passed_test_cases_names=[
                 "test_happy_case",
+                "test_data_transformer",
             ],
         )

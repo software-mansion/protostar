@@ -316,14 +316,15 @@ class ContractsCheater(Cheater):
         to_l2_address: Address,
         payload: Optional[CairoOrPythonData] = None,
     ) -> None:
-        cairo_calldata = await self._transform_calldata_to_cairo_data_by_addr(
-            function_name=str(selector),
-            calldata=payload,
+        cairo_calldata = await self._transform_payload_from_l1_to_cairo_data_by_addr(
+            l1_address=from_l1_address,
             contract_address=to_l2_address,
+            payload=payload,
+            selector=selector,
         )
         entry_point = ExecuteEntryPoint.create_for_testing(
             contract_address=int(to_l2_address),
-            calldata=[int(from_l1_address), *cairo_calldata],
+            calldata=cairo_calldata,
             caller_address=int(from_l1_address),
             entry_point_selector=int(selector),
             entry_point_type=EntryPointType.L1_HANDLER,
@@ -335,3 +336,21 @@ class ContractsCheater(Cheater):
                 state=state_copy,
                 general_config=StarknetGeneralConfig(),
             )
+
+    async def _transform_payload_from_l1_to_cairo_data_by_addr(
+        self,
+        contract_address: Address,
+        l1_address: Address,
+        selector: Selector,
+        payload: Optional[CairoOrPythonData] = None,
+    ) -> CairoData:
+        if payload is None:
+            return []
+        if isinstance(payload, collections.Mapping):
+            python_payload = {"from_address": int(l1_address), **payload}
+            return await self._transform_calldata_to_cairo_data_by_addr(
+                function_name=str(selector),
+                calldata=python_payload,
+                contract_address=contract_address,
+            )
+        return [int(l1_address), *payload]

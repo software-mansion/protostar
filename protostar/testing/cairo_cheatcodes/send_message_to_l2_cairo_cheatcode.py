@@ -13,7 +13,7 @@ class SendMessageToL2CairoCheatcode(CairoCheatcode):
 
     def build(self):
         def send_message_to_l2(
-            fn_name: str,
+            function_name: str,
             from_address: RawAddress,
             to_address: RawAddress,
             payload: Optional[CairoOrPythonData] = None,
@@ -22,7 +22,7 @@ class SendMessageToL2CairoCheatcode(CairoCheatcode):
                 self.cheaters.contracts.send_message_to_l2(
                     from_l1_address=Address.from_user_input(from_address),
                     to_l2_address=Address.from_user_input(to_address),
-                    selector=Selector(fn_name),
+                    selector=Selector(function_name),
                     payload=payload,
                 )
             )
