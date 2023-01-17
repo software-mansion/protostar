@@ -1,21 +1,14 @@
 import multiprocessing
 import signal
+import dataclasses
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, List, Optional
-import dataclasses
 
-from protostar.io.output import Messenger, HumanMessenger
-from protostar.commands.test.messages import TestingSummaryResultMessage
-from protostar.testing import (
-    TestResult,
-    TestingSummary,
-)
-
+from .test_results import TestResult
 from .test_collector import TestCollector
 from .test_runner import TestRunner
 from .test_shared_tests_state import SharedTestsState
 from .testing_seed import Seed
-
 
 if TYPE_CHECKING:
     from protostar.commands.test.testing_live_logger import TestingLiveLogger
@@ -58,9 +51,7 @@ class TestScheduler:
         cwd: Path,
         active_profile_name: Optional[str],
         gas_estimation_enabled: bool,
-        messenger: Messenger,
-        slowest_tests_to_report_count: int,
-        testing_summary: TestingSummary,
+        on_exit_first: Callable[[], None],
     ):
         with multiprocessing.Manager() as manager:
             shared_tests_state = SharedTestsState(
@@ -85,13 +76,7 @@ class TestScheduler:
 
             # A test case was broken
             if exit_first and shared_tests_state.any_failed_or_broken():
-                messenger(
-                    TestingSummaryResultMessage(
-                        test_collector_result=test_collector_result,
-                        testing_summary=testing_summary,
-                        slowest_tests_to_report_count=slowest_tests_to_report_count,
-                    )
-                )
+                on_exit_first()
                 return
 
             try:
@@ -100,20 +85,10 @@ class TestScheduler:
                     initializer=_init_worker,
                 ) as pool:
                     results = pool.map_async(self._worker, setups)
-
-                    if isinstance(messenger, HumanMessenger):
-                        self._live_logger.log_human(
-                            shared_tests_state,
-                            test_collector_result,
-                            messenger,
-                        )
-                    else:
-                        self._live_logger.log_json(
-                            shared_tests_state,
-                            test_collector_result,
-                            messenger,
-                        )
-
+                    self._live_logger.log(
+                        shared_tests_state,
+                        test_collector_result,
+                    )
                     if exit_first and shared_tests_state.any_failed_or_broken():
                         pool.terminate()
                         return

@@ -4,6 +4,9 @@ from typing import List, Optional
 
 from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
 from protostar.cli.activity_indicator import ActivityIndicator
+from protostar.commands.test.messages.testing_summary_message import (
+    TestingSummaryResultMessage,
+)
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.compiler import ProjectCairoPathBuilder
 from protostar.io.log_color_provider import LogColorProvider
@@ -14,9 +17,7 @@ from protostar.starknet.compiler.pass_managers import (
     StarknetPassManagerFactory,
     TestCollectorPassManagerFactory,
 )
-from protostar.starknet.compiler.starknet_compilation import (
-    StarknetCompiler,
-)
+from protostar.starknet.compiler.starknet_compilation import StarknetCompiler
 from protostar.starknet.compiler.cairo_compilation import CairoCompiler
 from protostar.starknet.compiler.common import CompilerConfig
 from protostar.testing import (
@@ -262,6 +263,7 @@ A glob or globs to a directory or a test suite, for example:
                 exit_first=exit_first,
                 slowest_tests_to_report_count=slowest_tests_to_report_count,
                 project_root_path=self._project_root_path,
+                write=messenger,
             )
             worker = (
                 CairoTestRunner.worker if use_cairo_test_runner else TestRunner.worker
@@ -279,9 +281,13 @@ A glob or globs to a directory or a test suite, for example:
                 active_profile_name=self._active_profile_name,
                 cwd=self._cwd,
                 gas_estimation_enabled=gas_estimation_enabled,
-                messenger=messenger,
-                testing_summary=testing_summary,
-                slowest_tests_to_report_count=slowest_tests_to_report_count,
+                on_exit_first=lambda: messenger(
+                    TestingSummaryResultMessage(
+                        test_collector_result=test_collector_result,
+                        testing_summary=testing_summary,
+                        slowest_tests_to_report_count=slowest_tests_to_report_count,
+                    )
+                ),
             )
 
         return testing_summary
