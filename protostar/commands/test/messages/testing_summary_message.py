@@ -130,14 +130,14 @@ class TestingSummaryResultMessage(StructuredMessage):
                 "total": failed_test_suites + passed_test_suites,
                 "failed": failed_test_suites,
                 "passed": passed_test_suites,
-                "skipped": self.testing_summary.get_skipped_test_suites(),
+                "skipped": self.testing_summary.get_skipped_test_suites_count(),
             },
             "test_case_counts": {
                 "total": self.test_collector_result.test_cases_count,
                 "broken": len(self.testing_summary.broken),
                 "failed": failed_tests,
                 "passed": passed_tests,
-                "skipped": self.testing_summary.get_skipped_test_cases(),
+                "skipped": self.testing_summary.get_skipped_test_cases_count(),
             },
             "seed": self.testing_summary.testing_seed,
             "execution_time_in_seconds": format_execution_time_structured(
@@ -192,7 +192,7 @@ class TestingSummaryResultMessage(StructuredMessage):
                 broken_count=broken_test_suites_count,
                 failed_count=failed_test_suites_count,
                 passed_count=passed_test_suites_count,
-                skipped_count=self.testing_summary.get_skipped_test_suites(),
+                skipped_count=self.testing_summary.get_skipped_test_suites_count(),
                 total_count=total_test_suites_count,
             )
         )
@@ -203,7 +203,7 @@ class TestingSummaryResultMessage(StructuredMessage):
                 broken_count=len(self.testing_summary.broken),
                 failed_count=len(self.testing_summary.failed),
                 passed_count=len(self.testing_summary.passed),
-                skipped_count=self.testing_summary.get_skipped_test_cases(),
+                skipped_count=self.testing_summary.get_skipped_test_cases_count(),
                 total_count=self.test_collector_result.test_cases_count,
             )
         )

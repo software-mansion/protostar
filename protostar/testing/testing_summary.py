@@ -59,7 +59,7 @@ class TestingSummary:
             if isinstance(case_result, SkippedTestCaseResult):
                 self.explicitly_skipped.append(case_result)
 
-    def get_skipped_test_cases(self) -> int:
+    def get_skipped_test_cases_count(self) -> int:
         return _calculate_skipped(
             broken_count=len(self.broken),
             failed_count=len(self.failed),
@@ -67,7 +67,7 @@ class TestingSummary:
             total_count=self.test_collector_result.test_cases_count,
         )
 
-    def get_skipped_test_suites(self) -> int:
+    def get_skipped_test_suites_count(self) -> int:
         failed_tests_paths = {str(item.file_path) for item in self.failed}
         passed_tests_paths = {str(item.file_path) for item in self.passed}
         passed_test_suites = failed_test_suites = 0
