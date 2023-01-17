@@ -6,6 +6,7 @@ from tqdm import tqdm as bar
 from protostar.commands.test.test_result_formatter import format_test_result
 from protostar.testing.test_scheduler import make_path_relative_if_possible
 from protostar.testing import (
+    AcceptableResult,
     BrokenTestSuiteResult,
     SharedTestsState,
     TestingSummary,
@@ -109,12 +110,8 @@ class TestingLiveLogger:
                             formatted_test_result.format_human(fmt=log_color_provider)
                         )
 
-                        if (
-                            self.exit_first
-                            and shared_tests_state.any_failed_or_broken()
-                        ):
-                            tests_left_n = 0
-                            return
+                        if self.should_exit(test_result):
+                            break
 
                         if isinstance(test_result, BrokenTestSuiteResult):
                             tests_in_case_count = len(test_result.test_case_names)
@@ -124,8 +121,7 @@ class TestingLiveLogger:
                             progress_bar.update(1)
                             tests_left_n -= 1
                 finally:
-                    progress_bar.write("")
-                    progress_bar.clear()
+                    progress_bar.close()
                     messenger(
                         TestingSummaryResultMessage(
                             test_collector_result=test_collector_result,
@@ -133,7 +129,14 @@ class TestingLiveLogger:
                             slowest_tests_to_report_count=self.slowest_tests_to_report_count,
                         )
                     )
+
         except queue.Empty:
             # https://docs.python.org/3/library/queue.html#queue.Queue.get
             # We skip it to prevent deadlock, but this error should never happen
             pass
+
+    def should_exit(self, test_result: TestResult):
+        """
+        Check whether we have encountered the first failed, broken or unexpected error test case on the queue.
+        """
+        return self.exit_first and not isinstance(test_result, AcceptableResult)

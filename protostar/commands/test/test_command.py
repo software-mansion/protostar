@@ -250,8 +250,9 @@ A glob or globs to a directory or a test suite, for example:
         messenger(TestCollectorResultMessage(test_collector_result))
 
         testing_summary = TestingSummary(
-            test_results=test_collector_result.broken_test_suites,  # type: ignore
+            initial_test_results=test_collector_result.broken_test_suites,  # type: ignore
             testing_seed=testing_seed,
+            test_collector_result=test_collector_result,
         )
 
         if test_collector_result.test_cases_count > 0:
