@@ -4,11 +4,8 @@ from pathlib import Path
 from typing import Dict, List, Optional, TYPE_CHECKING
 
 from typing_extensions import Self
-
 from starkware.python.utils import to_bytes, from_bytes
-from starkware.starknet.business_logic.transaction.objects import (
-    InternalDeclare,
-)
+from starkware.starknet.business_logic.transaction.objects import InternalDeclare
 from starkware.starknet.public.abi import (
     AbiType,
     get_selector_from_name,
@@ -36,14 +33,13 @@ from protostar.contract_types import (
 )
 from protostar.starknet.types import ClassHashType
 from protostar.starknet.cheater import Cheater
-from protostar.starknet.address import Address
+from protostar.starknet import Address, Selector
 from protostar.starknet.data_transformer import (
     DataTransformerException,
     CairoOrPythonData,
     CairoData,
     from_python_transformer,
 )
-
 
 if TYPE_CHECKING:
     from protostar.starknet.cheatable_cached_state import CheatableCachedState
@@ -305,6 +301,32 @@ class ContractsCheater(Cheater):
             contract_address=contract_address_int,
             calldata=cairo_calldata,
             entry_point_selector=get_selector_from_name(function_name),
+        )
+        with self.cheatable_state.copy_and_apply() as state_copy:
+            await entry_point.execute_for_testing(
+                state=state_copy,
+                general_config=StarknetGeneralConfig(),
+            )
+
+    async def send_message_to_l2(
+        self,
+        selector: Selector,
+        from_l1_address: Address,
+        to_l2_address: Address,
+        payload: Optional[CairoOrPythonData] = None,
+    ) -> None:
+        cairo_calldata = await self._transform_calldata_to_cairo_data_by_addr(
+            function_name=str(selector),
+            calldata=payload,
+            contract_address=to_l2_address,
+        )
+        entry_point = ExecuteEntryPoint.create_for_testing(
+            contract_address=int(to_l2_address),
+            calldata=cairo_calldata,
+            caller_address=int(from_l1_address),
+            entry_point_selector=int(selector),
+            entry_point_type=EntryPointType.L1_HANDLER,
+            class_hash=await self.cheatable_state.get_class_hash_at(int(to_l2_address)),
         )
         with self.cheatable_state.copy_and_apply() as state_copy:
             await entry_point.execute_for_testing(
