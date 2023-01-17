@@ -2,11 +2,13 @@ from typing import List
 
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.testing.cheatcodes import MaxExamplesCheatcode
-from protostar.testing.environments.execution_environment import ExecutionEnvironment
 from .common_test_cheatcode_factory import CommonTestCheatcodeFactory
+from .contract_based_test_execution_environment import (
+    ContractBasedTestExecutionEnvironment,
+)
 
 
-class SetupExecutionEnvironment(ExecutionEnvironment[None]):
+class SetupExecutionEnvironment(ContractBasedTestExecutionEnvironment):
     async def execute(self, function_name: str):
         self.set_cheatcodes(SetupCheatcodeFactory(self.state))
 

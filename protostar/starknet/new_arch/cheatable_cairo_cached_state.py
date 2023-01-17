@@ -1,27 +1,25 @@
 from pathlib import Path
 from typing import Dict, List
 
-from services.everest.business_logic.state_api import StateProxy
 from starkware.starknet.business_logic.state.state import (
     ContractClassCache,
+    CachedState,
 )
 from starkware.starknet.public.abi import AbiType
 from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
-from starkware.starknet.business_logic.state.state_api import StateReader
-
-from starkware.starknet.business_logic.fact_state.state import CarriedState
-from starkware.starknet.business_logic.state.state import CachedState, StateSyncifier
+from starkware.starknet.business_logic.state.state_api import (
+    StateReader,
+)
 from typing_extensions import Self
 
-from protostar.starknet.cheaters import BlockInfoCheater, Cheaters
+from protostar.starknet.address import Address
+from protostar.starknet.new_arch.cheaters import BlockInfoCairoCheater
 from protostar.starknet.types import ClassHashType, SelectorType
 from protostar.starknet.data_transformer import CairoOrPythonData
 
-from protostar.starknet.address import Address
-
 
 # pylint: disable=too-many-instance-attributes
-class CheatableCachedState(CachedState):
+class CheatableCairoCachedState(CachedState):
     def __init__(
         self,
         block_info: BlockInfo,
@@ -46,12 +44,14 @@ class CheatableCachedState(CachedState):
             Address, list[tuple[SelectorType, CairoOrPythonData]]
         ] = {}
 
-        self.cheaters = Cheaters(
-            block_info=BlockInfoCheater(self.block_info),
-        )
+        self.contract_address_to_block_timestamp: dict[Address, int] = {}
+        self.contract_address_to_block_number: dict[Address, int] = {}
+
+    def get_block_info(self, contract_address: int) -> BlockInfo:
+        return BlockInfoCairoCheater(self).get_for_contract(Address(contract_address))
 
     def _copy(self):
-        copied = CheatableCachedState(
+        copied = CheatableCairoCachedState(
             block_info=self.block_info,
             state_reader=self,
             contract_class_cache=self.contract_classes,
@@ -75,7 +75,12 @@ class CheatableCachedState(CachedState):
         )
         copied.expected_contract_calls = self.expected_contract_calls.copy()
 
-        copied.cheaters = self.cheaters.copy()
+        copied.contract_address_to_block_timestamp = (
+            self.contract_address_to_block_timestamp.copy()
+        )
+        copied.contract_address_to_block_number = (
+            self.contract_address_to_block_number.copy()
+        )
 
         return copied
 
@@ -126,8 +131,15 @@ class CheatableCachedState(CachedState):
             **parent.expected_contract_calls,
             **self.expected_contract_calls,
         }
+        parent.contract_address_to_block_timestamp = {
+            **parent.contract_address_to_block_timestamp,
+            **self.contract_address_to_block_timestamp,
+        }
 
-        parent.cheaters.apply(self.cheaters)
+        parent.contract_address_to_block_number = {
+            **parent.contract_address_to_block_number,
+            **self.contract_address_to_block_number,
+        }
 
     def update_event_selector_to_name_map(
         self, local_event_selector_to_name_map: Dict[int, str]
@@ -154,25 +166,6 @@ class CheatableCachedState(CachedState):
 
         return self.class_hash_to_contract_abi_map[class_hash]
 
-    def register_expected_call(
-        self, contract_address: Address, selector: SelectorType, calldata: list[int]
-    ):
-        if self.expected_contract_calls.get(contract_address):
-            self.expected_contract_calls[contract_address].append((selector, calldata))
-        else:
-            self.expected_contract_calls[contract_address] = [(selector, calldata)]
-
-    def unregister_expected_call(
-        self, contract_address: Address, calldata: tuple[int, list[int]]
-    ):
-        data_for_address = self.expected_contract_calls.get(contract_address)
-        if data_for_address is not None and calldata in data_for_address:
-            for index, (selector, calldata_item) in enumerate(data_for_address):
-                if selector == calldata[0] and calldata_item == calldata[1]:
-                    del data_for_address[index]
-            if not data_for_address:
-                del self.expected_contract_calls[contract_address]
-
 
 class CheatableStateException(Exception):
     def __init__(self, message: str) -> None:
@@ -181,36 +174,3 @@ class CheatableStateException(Exception):
 
     def __str__(self) -> str:
         return str(self.message)
-
-
-def cheaters_of(state: StateProxy) -> "Cheaters":
-    """
-    Extracts the ``Cheaters`` object from any State structures.
-
-    This function workarounds limitations of the inheritance design of ``State`` classes family,
-    preventing us from exposing the `cheaters` field via state interface classes like ``SyncState``.
-    """
-
-    if isinstance(state, CheatableCachedState):
-        return state.cheaters
-
-    if isinstance(state, CachedState):
-        raise TypeError("Protostar should always operate on CheatableCachedState.")
-
-    if isinstance(state, CarriedState):
-        state = state.state
-
-        if not isinstance(state, CheatableCachedState):
-            raise TypeError("Carried state is not carrying CheatableCachedState.")
-
-        return state.cheaters
-
-    if isinstance(state, StateSyncifier):
-        state = state.async_state
-
-        if not isinstance(state, CheatableCachedState):
-            raise TypeError("State syncifier is not carrying CheatableCachedState.")
-
-        return state.cheaters
-
-    raise TypeError(f"Unknown State class {state.__class__.__name__}.")

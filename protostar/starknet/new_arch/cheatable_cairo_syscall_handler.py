@@ -6,7 +6,7 @@ from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.python.utils import to_bytes
 from starkware.starknet.business_logic.execution.objects import CallType
-from starkware.starknet.business_logic.state.state_api import SyncState
+from starkware.starknet.business_logic.state.state import StateSyncifier
 from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
@@ -15,9 +15,9 @@ from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
 from starkware.starknet.security.secure_hints import HintsWhitelist
 from starkware.starknet.services.api.contract_class import EntryPointType
 
-
-from .address import Address
-from .cheaters_of import cheaters_of
+from protostar.starknet.new_arch.cheatable_cairo_cached_state import (
+    CheatableCairoCachedState,
+)
 
 
 class CheatableSysCallHandlerException(Exception):
@@ -27,20 +27,23 @@ class CheatableSysCallHandlerException(Exception):
 
 
 class CheatableCairoSysCallHandler(BusinessLogicSysCallHandler):
-    def __init__(self, state: SyncState, **kwargs: Any):
-        # This field must be set before entering super constructor,
-        # because it calls the setter for the `block_info` property.
-        self.cheaters = cheaters_of(state)
+    def __init__(self, state: StateSyncifier, **kwargs: Any):
+        if not isinstance(state.async_state, CheatableCairoCachedState):
+            raise TypeError(
+                f"Cannot instantiate cheatable syscall handler with {state.async_state.__class__.__name__} state"
+            )
+        self.cheatable_state: CheatableCairoCachedState = state.async_state
+
         super().__init__(state=state, **kwargs)
 
     @property
     def block_info(self) -> BlockInfo:
-        return self.cheaters.block_info.get_for_contract(Address(self.contract_address))
+        return self.cheatable_state.get_block_info(self.contract_address)
 
     @block_info.setter
     def block_info(self, block_info: BlockInfo):
         # Only called in constructor.
-        assert block_info == self.cheaters.block_info.base
+        assert block_info == self.cheatable_state.block_info
 
     def _get_caller_address(
         self,
@@ -50,23 +53,11 @@ class CheatableCairoSysCallHandler(BusinessLogicSysCallHandler):
         caller_address = super()._get_caller_address(
             segments=segments, syscall_ptr=syscall_ptr
         )
-
-        # TODO
+        # TODO: Add prank logic through cheatable state
         # if self.contract_address in self.cheatable_state.pranked_contracts_map:
         #     return self.cheatable_state.pranked_contracts_map[self.contract_address]
 
         return caller_address
-
-    # def unregister_mock_call(self, contract_address: Address, selector: SelectorType):
-    #     if contract_address not in self.cheaters.?.mocked_calls_map:
-    #         raise CheatableSysCallHandlerException(
-    #             f"Contract {contract_address} doesn't have mocked selectors."
-    #         )
-    #     if selector not in self.cheaters.?.mocked_calls_map[contract_address]:
-    #         raise CheatableSysCallHandlerException(
-    #             f"Couldn't find mocked selector {selector} for an address {contract_address}."
-    #         )
-    #     del self.cheaters.?.mocked_calls_map[contract_address][selector]
 
     def _call_contract(
         self,
@@ -88,13 +79,13 @@ class CheatableCairoSysCallHandler(BusinessLogicSysCallHandler):
             code_address = cast(int, request.contract_address)
 
             # region Modified Starknet code.
-            # TODO
-            # if code_address in self.cheaters.?.mocked_calls_map:
+            # TODO: Add mock logic through cheatable state
+            # if code_address in self.cheatable_state.mocked_calls_map:
             #     if (
             #         request.function_selector
-            #         in self.cheaters.?.mocked_calls_map[code_address]
+            #         in self.cheatable_state.mocked_calls_map[code_address]
             #     ):
-            #         return self.cheaters.?.mocked_calls_map[code_address][
+            #         return self.cheatable_state.mocked_calls_map[code_address][
             #             request.function_selector
             #         ]
             # endregion
@@ -179,9 +170,10 @@ class CheatableCairoSysCallHandler(BusinessLogicSysCallHandler):
         )
 
         # region Modified Starknet code.
-        self.cheaters.contracts.contract_address_to_class_hash_map[
-            Address(contract_address)
-        ] = class_hash
+        # TODO: Add logic through cheatable state
+        # self.cheatable_state.contract_address_to_class_hash_map[
+        #     Address(contract_address)
+        # ] = class_hash
         # endregion
 
         # Initialize the contract.

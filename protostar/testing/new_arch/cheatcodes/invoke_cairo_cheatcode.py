@@ -7,8 +7,8 @@ from protostar.starknet import (
     CairoOrPythonData,
     CheatcodeException,
 )
-from protostar.starknet.cheaters.contracts import ContractsCheaterException
-from protostar.testing.cairo_cheatcodes.cairo_cheatcode import CairoCheatcode
+from protostar.starknet.new_arch.cheaters.contracts import ContractsCheaterException
+from protostar.testing.new_arch.cheatcodes.cairo_cheatcode import CairoCheatcode
 
 
 class InvokeCairoCheatcode(CairoCheatcode):
@@ -43,6 +43,7 @@ class InvokeCairoCheatcode(CairoCheatcode):
                     contract_address=contract_address,
                     function_name=function_name,
                     calldata=calldata,
+                    cheaters=self.cheaters,
                 )
             )
         except ContractsCheaterException as exc:

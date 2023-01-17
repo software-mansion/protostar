@@ -2,7 +2,7 @@ import asyncio
 import traceback
 from logging import getLogger
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, TYPE_CHECKING
 
 from starkware.cairo.lang.compiler.program import Program
 
@@ -11,6 +11,7 @@ from protostar.compiler import (
     ProjectCompilerConfig,
 )
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
+from protostar.starknet import ReportedException
 from protostar.starknet.compiler.cairo_compilation import CairoCompiler
 from protostar.configuration_file.configuration_file_factory import (
     ConfigurationFileFactory,
@@ -19,24 +20,30 @@ from protostar.protostar_exception import ProtostarException
 from protostar.starknet.compiler.starknet_compilation import (
     CompilerConfig,
 )
-from . import TestRunner
-from .environments.cairo_test_execution_environment import CairoTestExecutionEnvironment
-from .starkware.test_execution_state import TestExecutionState
-from .test_case_runners.standard_test_case_runner import StandardTestCaseRunner
-
-from .test_config import TestConfig
-from .test_environment_exceptions import ReportedException
-from .test_results import (
-    BrokenTestSuiteResult,
-    TestResult,
+from protostar.testing import (
     UnexpectedBrokenTestSuiteResult,
+    BrokenTestSuiteResult,
+    SharedTestsState,
+    TestResult,
 )
-from .test_shared_tests_state import SharedTestsState
-from .test_suite import TestCase, TestSuite
-from .testing_seed import Seed
+from protostar.testing.new_arch.cairo_test_execution_environment import (
+    CairoTestExecutionEnvironment,
+)
+from protostar.testing.new_arch.cairo_test_execution_state import (
+    CairoTestExecutionState,
+)
+from protostar.testing.test_case_runners.standard_test_case_runner import (
+    StandardTestCaseRunner,
+)
+from protostar.testing.test_config import TestConfig
+from protostar.testing.test_suite import TestSuite, TestCase
+from protostar.testing.testing_seed import Seed
 
+if TYPE_CHECKING:
+    from protostar.testing.test_runner import TestRunner
 
 logger = getLogger()
+
 
 # pylint: disable=too-many-instance-attributes
 class CairoTestRunner:
@@ -103,7 +110,7 @@ class CairoTestRunner:
         )
 
     async def _build_execution_state(self, test_config: TestConfig):
-        state = await TestExecutionState.from_test_config(
+        state = await CairoTestExecutionState.from_test_config(
             test_config=test_config,
             project_compiler=self.project_compiler,
         )
@@ -166,7 +173,7 @@ class CairoTestRunner:
         self,
         test_suite: TestSuite,
         program: Program,
-        test_execution_state: TestExecutionState,
+        test_execution_state: CairoTestExecutionState,
     ) -> None:
         for test_case in test_suite.test_cases:
             test_result = await self._invoke_test_case(
@@ -178,11 +185,11 @@ class CairoTestRunner:
 
     async def _invoke_test_case(
         self,
-        initial_state: TestExecutionState,
+        initial_state: CairoTestExecutionState,
         test_case: TestCase,
         program: Program,
     ) -> TestResult:
-        state: TestExecutionState = initial_state.fork()
+        state: CairoTestExecutionState = initial_state.fork()
 
         # TODO #1281: Invoke setup case
         # if test_case.setup_fn_name:

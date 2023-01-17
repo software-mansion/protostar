@@ -17,8 +17,7 @@ from starkware.starknet.security.secure_hints import HintsWhitelist
 from starkware.starknet.services.api.contract_class import EntryPointType
 
 from protostar.starknet.types import SelectorType
-from .cheatable_cached_state import CheatableCachedState
-from .cheaters_of import cheaters_of
+from .cheatable_cached_state import CheatableCachedState, cheaters_of
 from .address import Address
 
 

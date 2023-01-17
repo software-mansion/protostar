@@ -2,11 +2,11 @@ from typing import Any, Callable, Optional
 import asyncio
 
 from protostar.starknet import CheatcodeException
-from protostar.starknet.cheaters.contracts import ContractsCheaterException
 from protostar.starknet.data_transformer import (
     CairoOrPythonData,
 )
-from protostar.testing.cairo_cheatcodes.cairo_cheatcode import CairoCheatcode
+from protostar.starknet.new_arch.cheaters.contracts import ContractsCheaterException
+from protostar.testing.new_arch.cheatcodes.cairo_cheatcode import CairoCheatcode
 from protostar.contract_types import DeclaredContract, PreparedContract
 
 

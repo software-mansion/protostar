@@ -14,6 +14,11 @@ from protostar.protostar_exception import ProtostarException
 from protostar.starknet.abi import get_function_parameters
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.testing.cheatcodes import AssumeCheatcode, RejectCheatcode
+from protostar.testing.environments.contract_based_test_execution_environment import (
+    ContractBasedTestExecutionEnvironment,
+    TestCaseCheatcodeFactory,
+)
+from protostar.testing.environments.execution_environment import TestExecutionResult
 from protostar.testing.fuzzing.exceptions import FuzzingError, HypothesisRejectException
 from protostar.testing.fuzzing.fuzz_input_exception_metadata import (
     FuzzInputExceptionMetadata,
@@ -32,19 +37,13 @@ from protostar.testing.starkware.contract_based_test_execution_state import (
     ContractBasedTestExecutionState,
 )
 
-from .test_execution_environment import (
-    TestCaseCheatcodeFactory,
-    TestExecutionEnvironment,
-    TestExecutionResult,
-)
-
 
 @dataclass
 class FuzzTestExecutionResult(TestExecutionResult):
     fuzz_runs_count: int
 
 
-class FuzzTestExecutionEnvironment(TestExecutionEnvironment):
+class FuzzTestExecutionEnvironment(ContractBasedTestExecutionEnvironment):
     def __init__(self, state: ContractBasedTestExecutionState):
         super().__init__(state)
         if self.state.config.profiling:

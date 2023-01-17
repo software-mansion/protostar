@@ -1,9 +1,8 @@
 import collections
 import copy
 from pathlib import Path
-from typing import Dict, List, Optional, TYPE_CHECKING
+from typing import List, Optional, TYPE_CHECKING
 
-from typing_extensions import Self
 
 from starkware.python.utils import to_bytes, from_bytes
 from starkware.starknet.business_logic.transaction.objects import (
@@ -25,7 +24,9 @@ from starkware.starknet.business_logic.execution.execute_entry_point import (
 from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
 )
-from starkware.starknet.business_logic.execution.objects import CallType
+from starkware.starknet.business_logic.execution.objects import (
+    CallType,
+)
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.services.api.contract_class import EntryPointType, ContractClass
 
@@ -34,11 +35,13 @@ from protostar.contract_types import (
     DeclaredContract,
     DeployedContract,
 )
-from protostar.starknet.cheatable_cairo_entry_point import (
+from protostar.starknet.new_arch.cheatable_cairo_entry_point import (
     CheatableCairoExecuteEntryPoint,
 )
+from protostar.starknet.new_arch.cheatable_cairo_cached_state import (
+    CheatableCairoCachedState,
+)
 from protostar.starknet.types import ClassHashType
-from protostar.starknet.cheater import Cheater
 from protostar.starknet.address import Address
 from protostar.starknet.data_transformer import (
     DataTransformerException,
@@ -47,9 +50,8 @@ from protostar.starknet.data_transformer import (
     from_python_transformer,
 )
 
-
 if TYPE_CHECKING:
-    from protostar.starknet.cheatable_cached_state import CheatableCachedState
+    from . import CairoCheaters
 
 
 class ContractsCheaterException(Exception):
@@ -66,35 +68,9 @@ class ConstructorInvocationException(ContractsCheaterException):
     pass
 
 
-class ContractsCheater(Cheater):
-    def __init__(self, state: "CheatableCachedState"):
-        self.event_name_to_contract_abi_map: Dict[str, AbiType] = {}
-        self.class_hash_to_contract_abi_map: Dict[ClassHashType, AbiType] = {}
-        self.class_hash_to_contract_path_map: Dict[ClassHashType, Path] = {}
-        self.contract_address_to_class_hash_map: Dict[Address, ClassHashType] = {}
-        self.cheatable_state = state
-
-    def copy(self) -> Self:
-        return copy.copy(self)
-
-    def apply(self, parent: Self) -> None:
-        parent.event_name_to_contract_abi_map = {
-            **parent.event_name_to_contract_abi_map,
-            **self.event_name_to_contract_abi_map,
-        }
-
-        parent.class_hash_to_contract_path_map = {
-            **parent.class_hash_to_contract_path_map,
-            **self.class_hash_to_contract_path_map,
-        }
-        parent.class_hash_to_contract_abi_map = {
-            **parent.class_hash_to_contract_abi_map,
-            **self.class_hash_to_contract_abi_map,
-        }
-        parent.contract_address_to_class_hash_map = {
-            **parent.contract_address_to_class_hash_map,
-            **self.contract_address_to_class_hash_map,
-        }
+class ContractsCairoCheater:
+    def __init__(self, cheatable_state: CheatableCairoCachedState):
+        self.cheatable_state = cheatable_state
 
     async def _transform_calldata_to_cairo_data_by_addr(
         self,
@@ -163,7 +139,9 @@ class ContractsCheater(Cheater):
         class_hash = from_bytes(class_hash)
 
         if contract_class.abi:
-            self.class_hash_to_contract_abi_map[class_hash] = contract_class.abi
+            self.cheatable_state.class_hash_to_contract_abi_map[
+                class_hash
+            ] = contract_class.abi
 
         return DeclaredClass(
             class_hash=class_hash,
@@ -173,7 +151,9 @@ class ContractsCheater(Cheater):
     def bind_class_hash_to_contract_identifier(
         self, class_hash: ClassHashType, contract_identifier: str
     ):
-        self.class_hash_to_contract_path_map[class_hash] = Path(contract_identifier)
+        self.cheatable_state.class_hash_to_contract_path_map[class_hash] = Path(
+            contract_identifier
+        )
 
     def _add_event_abi_to_state(self, abi: AbiType):
         event_manager = EventManager(abi=abi)
@@ -183,7 +163,7 @@ class ContractsCheater(Cheater):
         )
         # pylint: disable=protected-access
         for event_name in event_manager._selector_to_name.values():
-            self.event_name_to_contract_abi_map[event_name] = abi
+            self.cheatable_state.event_name_to_contract_abi_map[event_name] = abi
 
     async def deploy_prepared(self, prepared: PreparedContract) -> DeployedContract:
         await self.cheatable_state.deploy_contract(
@@ -257,7 +237,7 @@ class ContractsCheater(Cheater):
             deployer_address=0,
         )
 
-        self.contract_address_to_class_hash_map[
+        self.cheatable_state.contract_address_to_class_hash_map[
             Address(contract_address)
         ] = declared.class_hash
 
@@ -272,6 +252,7 @@ class ContractsCheater(Cheater):
         self,
         contract_address: Address,
         function_name: str,
+        cheaters: "CairoCheaters",
         calldata: Optional[CairoOrPythonData] = None,
     ) -> CairoData:
         contract_address_int = int(contract_address)
@@ -280,10 +261,11 @@ class ContractsCheater(Cheater):
             function_name=function_name,
             calldata=calldata,
         )
-        entry_point = CheatableCairoExecuteEntryPoint.create_for_testing(
+        entry_point = CheatableCairoExecuteEntryPoint.create_with_cheaters(
             contract_address=contract_address_int,
             calldata=cairo_calldata,
             entry_point_selector=get_selector_from_name(function_name),
+            cheaters=cheaters,
         )
         result = await entry_point.execute_for_testing(
             state=copy.deepcopy(self.cheatable_state),
@@ -295,6 +277,7 @@ class ContractsCheater(Cheater):
         self,
         function_name: str,
         contract_address: Address,
+        cheaters: "CairoCheaters",
         calldata: Optional[CairoOrPythonData] = None,
     ):
         contract_address_int = int(contract_address)
@@ -304,10 +287,11 @@ class ContractsCheater(Cheater):
             function_name=function_name,
             calldata=calldata,
         )
-        entry_point = CheatableCairoExecuteEntryPoint.create_for_testing(
+        entry_point = CheatableCairoExecuteEntryPoint.create_with_cheaters(
             contract_address=contract_address_int,
             calldata=cairo_calldata,
             entry_point_selector=get_selector_from_name(function_name),
+            cheaters=cheaters,
         )
         with self.cheatable_state.copy_and_apply() as state_copy:
             await entry_point.execute_for_testing(

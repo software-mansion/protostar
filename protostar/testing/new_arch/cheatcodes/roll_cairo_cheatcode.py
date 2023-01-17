@@ -1,7 +1,7 @@
 from typing import Any, Callable
 
 from protostar.starknet import RawAddress, Address
-from protostar.testing.cairo_cheatcodes.cairo_cheatcode import CairoCheatcode
+from protostar.testing.new_arch.cheatcodes.cairo_cheatcode import CairoCheatcode
 
 
 class RollCairoCheatcode(CairoCheatcode):

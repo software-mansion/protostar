@@ -1,5 +1,7 @@
 import logging
-from typing import Optional, Tuple, cast
+from asyncio import get_running_loop
+from dataclasses import dataclass
+from typing import Optional, Tuple, cast, List, TYPE_CHECKING, Any
 from copy import deepcopy
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
@@ -18,20 +20,26 @@ from starkware.starknet.business_logic.execution.execute_entry_point import (
 from starkware.starknet.business_logic.execution.objects import (
     CallInfo,
     TransactionExecutionContext,
+    CallType,
 )
 from starkware.starknet.business_logic.fact_state.state import ExecutionResourcesManager
+from starkware.starknet.business_logic.state.state import StateSyncifier
 from starkware.starknet.business_logic.state.state_api import State, SyncState
 from starkware.starknet.business_logic.utils import validate_contract_deployed
 from starkware.starknet.core.os import os_utils, syscall_utils
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.public import abi as starknet_abi
+from starkware.starknet.services.api.contract_class import EntryPointType
 from starkware.starkware_utils.error_handling import (
     StarkException,
     wrap_with_stark_exception,
 )
 
-from .cairo_cheatcode_syscall_handler import CheatableCairoSysCallHandler
+from .cheatable_cairo_syscall_handler import CheatableCairoSysCallHandler
+
+if TYPE_CHECKING:
+    from .cheaters import CairoCheaters
 
 FAULTY_CLASS_HASH = to_bytes(
     0x1A7820094FEAF82D53F53F214B81292D717E7BB9A92BB2488092CD306F3993F
@@ -40,7 +48,9 @@ FAULTY_CLASS_HASH = to_bytes(
 logger = logging.getLogger(__name__)
 
 
+@dataclass(frozen=True)
 class CheatableCairoExecuteEntryPoint(ExecuteEntryPoint):
+    cheaters: "CairoCheaters"
     max_steps: Optional[int] = None
     "``None`` means default Cairo value."
 
@@ -89,8 +99,13 @@ class CheatableCairoExecuteEntryPoint(ExecuteEntryPoint):
         )
 
         # region Modified Starknet code.
+        assert isinstance(
+            state, StateSyncifier
+        ), "Sync state is not a state syncifier!"  # This should always be true
         syscall_handler = CheatableCairoSysCallHandler(
-            execute_entry_point_cls=CheatableCairoExecuteEntryPoint,
+            execute_entry_point_cls=CheatableCairoExecuteEntryPoint.factory(
+                cheaters=self.cheaters,
+            ),
             tx_execution_context=tx_execution_context,
             state=state,
             resources_manager=resources_manager,
@@ -203,5 +218,64 @@ class CheatableCairoExecuteEntryPoint(ExecuteEntryPoint):
             new_config.__dict__["invoke_tx_max_n_steps"] = value
 
         return await super().execute_for_testing(
-            state, new_config, resources_manager, tx_execution_context
+            state=state,
+            general_config=new_config,
+            resources_manager=resources_manager,
+            tx_execution_context=tx_execution_context,
         )
+
+    def execute(
+        self,
+        state: SyncState,
+        resources_manager: ExecutionResourcesManager,
+        general_config: StarknetGeneralConfig,
+        tx_execution_context: TransactionExecutionContext,
+    ) -> CallInfo:
+        new_config = deepcopy(general_config)
+        if self.max_steps is not None:
+
+            # Providing a negative value to Protostar results in infinite steps,
+            # this is here to mimic default Cairo behavior
+            value = None if self.max_steps < 0 else self.max_steps
+
+            # NOTE: We are doing it this way to avoid TypeError from typeguard
+            new_config.__dict__["invoke_tx_max_n_steps"] = value
+
+        if not isinstance(state, StateSyncifier):
+            sync_state = StateSyncifier(async_state=state, loop=get_running_loop())  # type: ignore
+        else:
+            sync_state = state
+
+        return super().execute(
+            state=sync_state,
+            resources_manager=resources_manager,
+            general_config=general_config,
+            tx_execution_context=tx_execution_context,
+        )
+
+    @classmethod
+    def create_with_cheaters(
+        cls,
+        contract_address: int,
+        calldata: List[int],
+        entry_point_selector: int,
+        cheaters: "CairoCheaters",
+    ) -> "CheatableCairoExecuteEntryPoint":
+        return cls(
+            entry_point_selector=entry_point_selector,
+            calldata=calldata,
+            contract_address=contract_address,
+            cheaters=cheaters,
+            code_address=None,
+            class_hash=None,
+            call_type=CallType.CALL,
+            entry_point_type=EntryPointType.EXTERNAL,
+            caller_address=0,
+        )
+
+    @classmethod
+    def factory(cls, cheaters: "CairoCheaters") -> type[ExecuteEntryPoint]:
+        def factory_function(*args: Any, **kwargs: Any) -> ExecuteEntryPoint:
+            return cls(*args, cheaters=cheaters, **kwargs)
+
+        return cast(type[ExecuteEntryPoint], factory_function)
