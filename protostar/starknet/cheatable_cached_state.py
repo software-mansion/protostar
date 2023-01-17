@@ -1,7 +1,9 @@
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Union
 
 from services.everest.business_logic.state_api import StateProxy
+
+from starkware.starknet.business_logic.fact_state.state import CarriedState
 from starkware.starknet.business_logic.state.state import (
     ContractClassCache,
 )
@@ -11,6 +13,8 @@ from starkware.starknet.business_logic.state.state_api import StateReader
 
 from starkware.starknet.business_logic.fact_state.state import CarriedState
 from starkware.starknet.business_logic.state.state import CachedState, StateSyncifier
+from starkware.starknet.services.api.contract_class import ContractClass
+
 from typing_extensions import Self
 
 from protostar.starknet.cheaters import (
@@ -192,6 +196,14 @@ class CheatableCachedState(CachedState):
         ]
         if not self.expected_contract_calls[contract_address]:
             del self.expected_contract_calls[contract_address]
+
+    async def get_contract_class_by_address(
+        self, contract_address: Union[Address, int]
+    ) -> ContractClass:
+        if isinstance(contract_address, Address):
+            contract_address = int(contract_address)
+        class_hash = await self.get_class_hash_at(contract_address)
+        return await self.get_contract_class(class_hash=class_hash)
 
 
 class CheatableStateException(Exception):

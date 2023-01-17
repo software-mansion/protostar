@@ -5,7 +5,10 @@ from starkware.starknet.public.abi import get_selector_from_name
 
 from protostar.starknet.cheater import CheaterException
 from protostar.starknet.address import Address
-from protostar.starknet.data_transformer import CairoOrPythonData
+from protostar.starknet.data_transformer import (
+    CairoOrPythonData,
+    transform_calldata_to_cairo_data,
+)
 from protostar.starknet.types import SelectorType
 
 from .stateful import StatefulCheater
@@ -35,8 +38,10 @@ class ExpectsCheater(StatefulCheater):
         function_name: str,
         calldata: Optional[CairoOrPythonData] = None,
     ) -> Callable:
-        cairo_calldata = await self._transform_calldata_to_cairo_data_by_addr(
-            contract_address=contract_address,
+        cairo_calldata = await transform_calldata_to_cairo_data(
+            contract_class=await self.cheatable_state.get_contract_class_by_address(
+                contract_address=contract_address
+            ),
             function_name=function_name,
             calldata=calldata,
         )
