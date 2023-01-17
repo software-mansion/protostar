@@ -1,4 +1,4 @@
-from typing import List, cast, Optional, Any
+from typing import List, cast, Optional, Any, TYPE_CHECKING
 
 from starkware.cairo.lang.compiler.preprocessor.flow import ReferenceManager
 from starkware.cairo.lang.compiler.program import CairoHint
@@ -15,9 +15,10 @@ from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
 from starkware.starknet.security.secure_hints import HintsWhitelist
 from starkware.starknet.services.api.contract_class import EntryPointType
 
-from protostar.starknet.new_arch.cheatable_cairo_cached_state import (
-    CheatableCairoCachedState,
-)
+if TYPE_CHECKING:
+    from protostar.starknet.new_arch.cheatable_cairo_cached_state import (
+        CheatableCairoCachedState,
+    )
 
 
 class CheatableSysCallHandlerException(Exception):
@@ -28,11 +29,9 @@ class CheatableSysCallHandlerException(Exception):
 
 class CheatableCairoSysCallHandler(BusinessLogicSysCallHandler):
     def __init__(self, state: StateSyncifier, **kwargs: Any):
-        if not isinstance(state.async_state, CheatableCairoCachedState):
-            raise TypeError(
-                f"Cannot instantiate cheatable syscall handler with {state.async_state.__class__.__name__} state"
-            )
-        self.cheatable_state: CheatableCairoCachedState = state.async_state
+        self.cheatable_state: "CheatableCairoCachedState" = cast(
+            "CheatableCairoCachedState", state.async_state
+        )
 
         super().__init__(state=state, **kwargs)
 

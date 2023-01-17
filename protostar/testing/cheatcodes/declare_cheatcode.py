@@ -79,7 +79,7 @@ class DeclareCheatcode(Cheatcode):
         )
 
         with self.cheatable_state.copy_and_apply() as state_copy:
-            tx.sync_apply_state_updates(
+            await tx.apply_state_updates(
                 state=state_copy, general_config=self.general_config
             )
 

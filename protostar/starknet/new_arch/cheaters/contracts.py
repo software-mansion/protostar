@@ -38,9 +38,6 @@ from protostar.contract_types import (
 from protostar.starknet.new_arch.cheatable_cairo_entry_point import (
     CheatableCairoExecuteEntryPoint,
 )
-from protostar.starknet.new_arch.cheatable_cairo_cached_state import (
-    CheatableCairoCachedState,
-)
 from protostar.starknet.types import ClassHashType
 from protostar.starknet.address import Address
 from protostar.starknet.data_transformer import (
@@ -52,6 +49,9 @@ from protostar.starknet.data_transformer import (
 
 if TYPE_CHECKING:
     from . import CairoCheaters
+    from protostar.starknet.new_arch.cheatable_cairo_cached_state import (
+        CheatableCairoCachedState,
+    )
 
 
 class ContractsCheaterException(Exception):
@@ -69,7 +69,7 @@ class ConstructorInvocationException(ContractsCheaterException):
 
 
 class ContractsCairoCheater:
-    def __init__(self, cheatable_state: CheatableCairoCachedState):
+    def __init__(self, cheatable_state: "CheatableCairoCachedState"):
         self.cheatable_state = cheatable_state
 
     async def _transform_calldata_to_cairo_data_by_addr(
