@@ -1,4 +1,4 @@
-func test_happy_case() {
+func test_happy_path() {
     %{
         msg_from_l1 = 530437
         contract_address = deploy_contract("src/main.cairo").contract_address

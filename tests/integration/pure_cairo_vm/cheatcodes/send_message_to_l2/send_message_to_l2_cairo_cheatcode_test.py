@@ -29,7 +29,7 @@ def test_l1_to_l2_message_cheatcode(
         assert_cairo_test_cases(
             testing_summary,
             expected_passed_test_cases_names=[
-                "test_happy_case",
+                "test_happy_path",
                 "test_data_transformer",
             ],
         )
