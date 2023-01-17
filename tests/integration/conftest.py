@@ -60,7 +60,7 @@ def assert_cairo_test_cases(
     )
     skipped_test_cases_names = set(
         skipped_test_case.test_case_name
-        for skipped_test_case in testing_summary.skipped
+        for skipped_test_case in testing_summary.explicitly_skipped
     )
 
     for broken_test_case in testing_summary.broken_suites:
