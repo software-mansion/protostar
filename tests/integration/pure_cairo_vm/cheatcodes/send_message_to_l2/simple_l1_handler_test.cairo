@@ -9,7 +9,7 @@ func test_happy_case() {
             to_address=contract_address,
         )
         result = call(contract_address, "get_state")
-        assert result == msg_from_l1, "State is updated by the L1 handler"
+        assert [msg_from_l1] == result, f"Expected '{[msg_from_l1]}', but got: '{result}'"
     %}
     return ();
 }
