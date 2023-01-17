@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, TYPE_CHECKING
 
 from typing_extensions import Self
+from starkware.starknet.business_logic.execution.objects import CallType
 from starkware.python.utils import to_bytes, from_bytes
 from starkware.starknet.business_logic.transaction.objects import InternalDeclare
 from starkware.starknet.public.abi import (
@@ -22,7 +23,6 @@ from starkware.starknet.business_logic.execution.execute_entry_point import (
 from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
 )
-from starkware.starknet.business_logic.execution.objects import CallType
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.services.api.contract_class import EntryPointType, ContractClass
 
@@ -33,7 +33,8 @@ from protostar.contract_types import (
 )
 from protostar.starknet.types import ClassHashType
 from protostar.starknet.cheater import Cheater
-from protostar.starknet import Address, Selector
+from protostar.starknet.address import Address
+from protostar.starknet.selector import Selector
 from protostar.starknet.data_transformer import (
     DataTransformerException,
     CairoOrPythonData,
@@ -322,10 +323,11 @@ class ContractsCheater(Cheater):
         )
         entry_point = ExecuteEntryPoint.create_for_testing(
             contract_address=int(to_l2_address),
-            calldata=cairo_calldata,
+            calldata=[int(from_l1_address), *cairo_calldata],
             caller_address=int(from_l1_address),
             entry_point_selector=int(selector),
             entry_point_type=EntryPointType.L1_HANDLER,
+            call_type=CallType.DELEGATE,
             class_hash=await self.cheatable_state.get_class_hash_at(int(to_l2_address)),
         )
         with self.cheatable_state.copy_and_apply() as state_copy:
