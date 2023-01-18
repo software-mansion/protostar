@@ -68,7 +68,6 @@ class TestingLiveLogger:
                 test_collector_result=test_collector_result,
             )
 
-    # pylint: disable=too-many-branches
     def _log(
         self,
         shared_tests_state: SharedTestsState,
@@ -84,16 +83,14 @@ class TestingLiveLogger:
 
                 self.testing_summary.extend([test_result])
 
-                if progress_bar:
-                    cast(Any, progress_bar).colour = (
-                        "RED" if shared_tests_state.any_failed_or_broken() else "GREEN"
-                    )
-
                 test_result = make_path_relative_if_possible(
                     test_result, self._project_root_path
                 )
 
                 if progress_bar:
+                    cast(Any, progress_bar).colour = (
+                        "RED" if shared_tests_state.any_failed_or_broken() else "GREEN"
+                    )
                     formatted_test_result = format_test_result(test_result)
                     progress_bar.write(
                         formatted_test_result.format_human(fmt=log_color_provider)
