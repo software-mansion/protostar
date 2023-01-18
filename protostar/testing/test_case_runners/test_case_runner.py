@@ -3,9 +3,7 @@ from dataclasses import dataclass
 from typing import Generic, TypeVar
 
 from protostar.starknet import BreakingReportedException, ReportedException
-from protostar.testing.environments.test_execution_environment import (
-    TestExecutionResult,
-)
+from protostar.testing.environments.execution_environment import TestExecutionResult
 from protostar.testing.stopwatch import Stopwatch
 from protostar.testing.test_output_recorder import OutputRecorder
 from protostar.testing.test_results import (

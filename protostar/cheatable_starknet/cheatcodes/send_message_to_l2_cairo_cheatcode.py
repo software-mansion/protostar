@@ -3,7 +3,8 @@ from typing import Optional
 
 from protostar.starknet import RawAddress, Address, CairoOrPythonData
 from protostar.starknet.selector import Selector
-from protostar.testing.cairo_cheatcodes.cairo_cheatcode import CairoCheatcode
+
+from .cairo_cheatcode import CairoCheatcode
 
 
 class SendMessageToL2CairoCheatcode(CairoCheatcode):

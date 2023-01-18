@@ -1,7 +1,7 @@
 from typing import Any, Callable
 
+from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
 from protostar.starknet import RawAddress, Address
-from protostar.testing.cairo_cheatcodes.cairo_cheatcode import CairoCheatcode
 
 
 class RollCairoCheatcode(CairoCheatcode):
@@ -14,8 +14,8 @@ class RollCairoCheatcode(CairoCheatcode):
 
     def roll(
         self,
-        blk_number: int,
         target_contract_address: RawAddress,
+        blk_number: int,
     ) -> Callable[[], None]:
         return self.cheaters.block_info.cheat(
             contract_address=Address.from_user_input(target_contract_address),

@@ -1,17 +1,16 @@
 from typing import Any
 
-from protostar.testing.environments.test_execution_environment import (
-    TestExecutionEnvironment,
+from .test_case_runner import TestCaseRunner
+from ..environments.execution_environment import (
+    ExecutionEnvironment,
     TestExecutionResult,
 )
-
-from .test_case_runner import TestCaseRunner
 
 
 class StandardTestCaseRunner(TestCaseRunner[TestExecutionResult]):
     def __init__(
         self,
-        test_execution_environment: TestExecutionEnvironment,
+        test_execution_environment: ExecutionEnvironment,
         *args: Any,
         **kwargs: Any,
     ) -> None:
