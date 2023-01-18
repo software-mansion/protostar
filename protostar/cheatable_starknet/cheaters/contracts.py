@@ -307,7 +307,7 @@ class ContractsCairoCheater:
             payload=payload,
             selector=selector,
         )
-        entry_point = ExecuteEntryPoint.create_for_testing(
+        entry_point = CheatableExecuteEntryPoint.create_for_testing(
             contract_address=int(to_l2_address),
             calldata=cairo_calldata,
             caller_address=int(from_l1_address),
