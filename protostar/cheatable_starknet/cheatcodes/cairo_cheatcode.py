@@ -5,7 +5,7 @@ from protostar.starknet import HintLocal
 
 
 if TYPE_CHECKING:
-    from protostar.starknet.new_arch.cheaters import CairoCheaters
+    from protostar.cheatable_starknet.cheaters import CairoCheaters
 
 
 class CairoCheatcode(HintLocal, ABC):

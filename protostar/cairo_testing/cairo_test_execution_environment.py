@@ -9,17 +9,17 @@ from protostar.testing.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
 )
 from protostar.testing.test_environment_exceptions import RevertableException
+from protostar.testing.environments.execution_environment import (
+    ExecutionEnvironment,
+    TestExecutionResult,
+)
+from protostar.testing.cheatcodes.expect_revert_cheatcode import ExpectRevertContext
+from protostar.testing.hook import Hook
 
 from .cairo_test_cheatcode_factory import (
     CairoTestCheatcodeFactory,
 )
 from .cairo_test_execution_state import CairoTestExecutionState
-from ..cheatcodes.expect_revert_cheatcode import ExpectRevertContext
-from ..environments.execution_environment import (
-    ExecutionEnvironment,
-    TestExecutionResult,
-)
-from ..hook import Hook
 
 
 class CairoTestExecutionEnvironment(ExecutionEnvironment):

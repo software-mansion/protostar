@@ -36,7 +36,7 @@ from starkware.starkware_utils.error_handling import (
     wrap_with_stark_exception,
 )
 
-from .cheatable_cairo_syscall_handler import CheatableCairoSysCallHandler
+from .cheatable_syscall_handler import CheatableSysCallHandler
 
 if TYPE_CHECKING:
     from .cheaters import CairoCheaters
@@ -49,10 +49,37 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
-class CheatableCairoExecuteEntryPoint(ExecuteEntryPoint):
+class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     cheaters: "CairoCheaters"
     max_steps: Optional[int] = None
     "``None`` means default Cairo value."
+
+    @classmethod
+    def create_with_cheaters(
+        cls,
+        contract_address: int,
+        calldata: List[int],
+        entry_point_selector: int,
+        cheaters: "CairoCheaters",
+    ) -> "CheatableExecuteEntryPoint":
+        return cls(
+            entry_point_selector=entry_point_selector,
+            calldata=calldata,
+            contract_address=contract_address,
+            cheaters=cheaters,
+            code_address=None,
+            class_hash=None,
+            call_type=CallType.CALL,
+            entry_point_type=EntryPointType.EXTERNAL,
+            caller_address=0,
+        )
+
+    @classmethod
+    def factory(cls, cheaters: "CairoCheaters") -> type[ExecuteEntryPoint]:
+        def factory_function(*args: Any, **kwargs: Any) -> ExecuteEntryPoint:
+            return cls(*args, cheaters=cheaters, **kwargs)
+
+        return cast(type[ExecuteEntryPoint], factory_function)
 
     def _run(
         self,
@@ -102,8 +129,8 @@ class CheatableCairoExecuteEntryPoint(ExecuteEntryPoint):
         assert isinstance(
             state, StateSyncifier
         ), "Sync state is not a state syncifier!"  # This should always be true
-        syscall_handler = CheatableCairoSysCallHandler(
-            execute_entry_point_cls=CheatableCairoExecuteEntryPoint.factory(
+        syscall_handler = CheatableSysCallHandler(
+            execute_entry_point_cls=CheatableExecuteEntryPoint.factory(
                 cheaters=self.cheaters,
             ),
             tx_execution_context=tx_execution_context,
@@ -252,30 +279,3 @@ class CheatableCairoExecuteEntryPoint(ExecuteEntryPoint):
             general_config=general_config,
             tx_execution_context=tx_execution_context,
         )
-
-    @classmethod
-    def create_with_cheaters(
-        cls,
-        contract_address: int,
-        calldata: List[int],
-        entry_point_selector: int,
-        cheaters: "CairoCheaters",
-    ) -> "CheatableCairoExecuteEntryPoint":
-        return cls(
-            entry_point_selector=entry_point_selector,
-            calldata=calldata,
-            contract_address=contract_address,
-            cheaters=cheaters,
-            code_address=None,
-            class_hash=None,
-            call_type=CallType.CALL,
-            entry_point_type=EntryPointType.EXTERNAL,
-            caller_address=0,
-        )
-
-    @classmethod
-    def factory(cls, cheaters: "CairoCheaters") -> type[ExecuteEntryPoint]:
-        def factory_function(*args: Any, **kwargs: Any) -> ExecuteEntryPoint:
-            return cls(*args, cheaters=cheaters, **kwargs)
-
-        return cast(type[ExecuteEntryPoint], factory_function)

@@ -6,13 +6,13 @@ from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from protostar.starknet.address import Address
 
 if TYPE_CHECKING:
-    from protostar.starknet.new_arch.cheatable_cairo_cached_state import (
-        CheatableCairoCachedState,
+    from protostar.cheatable_starknet.cheatable_cached_state import (
+        CheatableCachedState,
     )
 
 
 class BlockInfoCairoCheater:
-    def __init__(self, cheatable_state: "CheatableCairoCachedState"):
+    def __init__(self, cheatable_state: "CheatableCachedState"):
         self.cheatable_state = cheatable_state
 
     def get_for_contract(self, contract_address: Address) -> BlockInfo:

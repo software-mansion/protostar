@@ -26,10 +26,10 @@ from protostar.testing import (
     SharedTestsState,
     TestResult,
 )
-from protostar.testing.new_arch.cairo_test_execution_environment import (
+from protostar.cairo_testing.cairo_test_execution_environment import (
     CairoTestExecutionEnvironment,
 )
-from protostar.testing.new_arch.cairo_test_execution_state import (
+from protostar.cairo_testing.cairo_test_execution_state import (
     CairoTestExecutionState,
 )
 from protostar.testing.test_case_runners.standard_test_case_runner import (

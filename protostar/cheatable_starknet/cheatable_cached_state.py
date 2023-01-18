@@ -13,13 +13,13 @@ from starkware.starknet.business_logic.state.state_api import (
 from typing_extensions import Self
 
 from protostar.starknet.address import Address
-from protostar.starknet.new_arch.cheaters import BlockInfoCairoCheater
+from protostar.cheatable_starknet.cheaters.block_info import BlockInfoCairoCheater
 from protostar.starknet.types import ClassHashType, SelectorType
 from protostar.starknet.data_transformer import CairoOrPythonData
 
 
 # pylint: disable=too-many-instance-attributes
-class CheatableCairoCachedState(CachedState):
+class CheatableCachedState(CachedState):
     def __init__(
         self,
         block_info: BlockInfo,
@@ -51,7 +51,7 @@ class CheatableCairoCachedState(CachedState):
         return BlockInfoCairoCheater(self).get_for_contract(Address(contract_address))
 
     def _copy(self):
-        copied = CheatableCairoCachedState(
+        copied = CheatableCachedState(
             block_info=self.block_info,
             state_reader=self,
             contract_class_cache=self.contract_classes,

@@ -2,8 +2,8 @@ import asyncio
 from typing import Any, Callable
 
 from protostar.starknet import CheatcodeException
-from protostar.starknet.new_arch.cheaters.contracts import ContractsCheaterException
-from protostar.testing.new_arch.cheatcodes.cairo_cheatcode import CairoCheatcode
+from protostar.cheatable_starknet.cheaters.contracts import ContractsCheaterException
+from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
 
 from protostar.contract_types import PreparedContract
 

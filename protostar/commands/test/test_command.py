@@ -26,7 +26,7 @@ from protostar.testing import (
     TestScheduler,
     determine_testing_seed,
 )
-from protostar.testing.new_arch.cairo_test_runner import CairoTestRunner
+from protostar.cairo_testing.cairo_test_runner import CairoTestRunner
 from protostar.io.output import Messenger
 
 from .messages import TestCollectorResultMessage

@@ -1,16 +1,16 @@
 from typing import Optional, Any
 
-from protostar.starknet.data_transformer import CairoOrPythonData
-from protostar.testing.new_arch.cheatcodes.cairo_cheatcode import CairoCheatcode
-from protostar.testing.new_arch.cheatcodes.declare_cairo_cheatcode import (
+from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
+from protostar.cheatable_starknet.cheatcodes.declare_cairo_cheatcode import (
     DeclareCairoCheatcode,
 )
-from protostar.testing.new_arch.cheatcodes.deploy_cairo_cheatcode import (
+from protostar.cheatable_starknet.cheatcodes.deploy_cairo_cheatcode import (
     DeployCairoCheatcode,
 )
-from protostar.testing.new_arch.cheatcodes.prepare_cairo_cheatcode import (
+from protostar.cheatable_starknet.cheatcodes.prepare_cairo_cheatcode import (
     PrepareCairoCheatcode,
 )
+from protostar.starknet.data_transformer import CairoOrPythonData
 from protostar.contract_types import DeployedContract
 
 

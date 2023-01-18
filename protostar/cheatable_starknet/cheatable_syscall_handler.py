@@ -16,8 +16,8 @@ from starkware.starknet.security.secure_hints import HintsWhitelist
 from starkware.starknet.services.api.contract_class import EntryPointType
 
 if TYPE_CHECKING:
-    from protostar.starknet.new_arch.cheatable_cairo_cached_state import (
-        CheatableCairoCachedState,
+    from protostar.cheatable_starknet.cheatable_cached_state import (
+        CheatableCachedState,
     )
 
 
@@ -27,10 +27,10 @@ class CheatableSysCallHandlerException(Exception):
         super().__init__(message)
 
 
-class CheatableCairoSysCallHandler(BusinessLogicSysCallHandler):
+class CheatableSysCallHandler(BusinessLogicSysCallHandler):
     def __init__(self, state: StateSyncifier, **kwargs: Any):
-        self.cheatable_state: "CheatableCairoCachedState" = cast(
-            "CheatableCairoCachedState", state.async_state
+        self.cheatable_state: "CheatableCachedState" = cast(
+            "CheatableCachedState", state.async_state
         )
 
         super().__init__(state=state, **kwargs)

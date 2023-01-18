@@ -16,8 +16,8 @@ from starkware.storage.storage import FactFetchingContext
 from typing_extensions import Self
 
 from protostar.compiler import ProjectCompiler
-from protostar.starknet.new_arch.cheatable_cairo_cached_state import (
-    CheatableCairoCachedState,
+from protostar.cheatable_starknet.cheatable_cached_state import (
+    CheatableCachedState,
 )
 from protostar.testing.stopwatch import Stopwatch
 from protostar.testing.test_config import TestConfig
@@ -64,7 +64,7 @@ class CairoTestExecutionState:
             starknet=Starknet(
                 state=StarknetState(
                     general_config=general_config,
-                    state=CheatableCairoCachedState(
+                    state=CheatableCachedState(
                         block_info=BlockInfo.empty(
                             sequencer_address=general_config.sequencer_address
                         ),
