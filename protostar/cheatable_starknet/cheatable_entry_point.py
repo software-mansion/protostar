@@ -37,6 +37,9 @@ from starkware.starkware_utils.error_handling import (
     wrap_with_stark_exception,
 )
 
+from protostar.starknet.address import Address
+from protostar.starknet.selector import Selector
+
 from .cheatable_syscall_handler import CheatableSysCallHandler
 
 if TYPE_CHECKING:
@@ -58,21 +61,27 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     @classmethod
     def create_with_cheaters(
         cls,
-        contract_address: int,
-        calldata: List[int],
-        entry_point_selector: int,
         cheaters: "CairoCheaters",
+        contract_address: Address,
+        calldata: List[int],
+        entry_point_selector: Selector,
+        entry_point_type: Optional[EntryPointType] = None,
+        caller_address: Optional[Address] = None,
+        call_type: Optional[CallType] = None,
+        class_hash: Optional[bytes] = None,
     ) -> "CheatableExecuteEntryPoint":
         return cls(
-            entry_point_selector=entry_point_selector,
+            entry_point_selector=int(entry_point_selector),
             calldata=calldata,
-            contract_address=contract_address,
+            contract_address=int(contract_address),
             cheaters=cheaters,
             code_address=None,
-            class_hash=None,
-            call_type=CallType.CALL,
-            entry_point_type=EntryPointType.EXTERNAL,
-            caller_address=0,
+            class_hash=class_hash,
+            call_type=call_type if call_type else CallType.CALL,
+            entry_point_type=entry_point_type
+            if entry_point_type
+            else EntryPointType.EXTERNAL,
+            caller_address=0 if caller_address is None else int(caller_address),
         )
 
     @classmethod

@@ -6,11 +6,7 @@ from typing import List, Optional, TYPE_CHECKING
 from starkware.starknet.business_logic.execution.objects import CallType
 from starkware.python.utils import to_bytes, from_bytes
 from starkware.starknet.business_logic.transaction.objects import InternalDeclare
-from starkware.starknet.public.abi import (
-    AbiType,
-    get_selector_from_name,
-    CONSTRUCTOR_ENTRY_POINT_SELECTOR,
-)
+from starkware.starknet.public.abi import AbiType, CONSTRUCTOR_ENTRY_POINT_SELECTOR
 from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,
 )
@@ -246,20 +242,19 @@ class ContractsCairoCheater:
     async def call(
         self,
         contract_address: Address,
-        function_name: str,
+        entry_point_selector: Selector,
         cheaters: "CairoCheaters",
         calldata: Optional[CairoOrPythonData] = None,
     ) -> CairoData:
-        contract_address_int = int(contract_address)
         cairo_calldata = await self._transform_calldata_to_cairo_data_by_addr(
             contract_address=contract_address,
-            function_name=function_name,
+            function_name=str(entry_point_selector),
             calldata=calldata,
         )
         entry_point = CheatableExecuteEntryPoint.create_with_cheaters(
-            contract_address=contract_address_int,
+            contract_address=contract_address,
             calldata=cairo_calldata,
-            entry_point_selector=get_selector_from_name(function_name),
+            entry_point_selector=entry_point_selector,
             cheaters=cheaters,
         )
         result = await entry_point.execute_for_testing(
@@ -270,22 +265,20 @@ class ContractsCairoCheater:
 
     async def invoke(
         self,
-        function_name: str,
+        entry_point_selector: Selector,
         contract_address: Address,
         cheaters: "CairoCheaters",
         calldata: Optional[CairoOrPythonData] = None,
     ):
-        contract_address_int = int(contract_address)
-
         cairo_calldata = await self._transform_calldata_to_cairo_data_by_addr(
             contract_address=contract_address,
-            function_name=function_name,
+            function_name=str(entry_point_selector),
             calldata=calldata,
         )
         entry_point = CheatableExecuteEntryPoint.create_with_cheaters(
-            contract_address=contract_address_int,
+            contract_address=contract_address,
             calldata=cairo_calldata,
-            entry_point_selector=get_selector_from_name(function_name),
+            entry_point_selector=entry_point_selector,
             cheaters=cheaters,
         )
         with self.cheatable_state.copy_and_apply() as state_copy:
