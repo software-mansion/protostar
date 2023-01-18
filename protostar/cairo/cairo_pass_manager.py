@@ -1,6 +1,3 @@
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
-
 from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
 from starkware.cairo.lang.compiler.cairo_compile import get_module_reader
 from starkware.cairo.lang.compiler.preprocessor.pass_manager import PassManager
@@ -8,18 +5,7 @@ from starkware.cairo.lang.compiler.preprocessor.default_pass_manager import (
     default_pass_manager,
 )
 
-
-@dataclass(frozen=True)
-class PassManagerConfig:
-    include_paths: list[str]
-    disable_hint_validation: bool
-
-
-class PassManagerFactory(ABC):
-    @staticmethod
-    @abstractmethod
-    def build(config: PassManagerConfig) -> PassManager:
-        ...
+from .pass_manager import PassManagerConfig, PassManagerFactory
 
 
 class CairoPassManagerFactory(PassManagerFactory):

@@ -7,7 +7,8 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor import Preprocessed
 from starkware.cairo.lang.compiler.preprocessor.preprocess_codes import preprocess_codes
 from starkware.cairo.lang.compiler.program import Program
 
-from .cairo_pass_manager import CairoPassManagerFactory, PassManagerConfig
+from .cairo_pass_manager import CairoPassManagerFactory
+from .pass_manager import PassManagerConfig
 
 
 @dataclass(frozen=True)
