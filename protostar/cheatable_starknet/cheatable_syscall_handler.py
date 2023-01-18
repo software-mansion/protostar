@@ -1,3 +1,4 @@
+# pylint: disable=duplicate-code
 from typing import List, cast, Optional, Any, TYPE_CHECKING
 
 from starkware.cairo.lang.compiler.preprocessor.flow import ReferenceManager
