@@ -21,6 +21,7 @@ from .cairo_test_cheatcode_factory import (
     CairoTestCheatcodeFactory,
 )
 from .cairo_test_execution_state import CairoTestExecutionState
+from ..testing.test_context import TestContextHintLocal
 
 
 class CairoTestExecutionEnvironment(ExecutionEnvironment):
@@ -83,5 +84,10 @@ class CairoTestExecutionEnvironment(ExecutionEnvironment):
         cheatcodes = cheatcode_factory.build_cheatcodes()
         for cheatcode in cheatcodes:
             hint_locals[cheatcode.name] = cheatcode.build()
+
+        custom_hint_locals = [TestContextHintLocal(self.state.context)]
+
+        for custom_hint_local in custom_hint_locals:
+            hint_locals[custom_hint_local.name] = custom_hint_local.build()
 
         return hint_locals
