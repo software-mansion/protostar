@@ -1,6 +1,6 @@
 import queue
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, cast, Optional
 
 from tqdm import tqdm as bar
 
@@ -13,7 +13,7 @@ from protostar.testing import (
     TestingSummary,
     TestResult,
 )
-from protostar.io.output import Messenger, HumanMessenger, JsonMessenger
+from protostar.io.output import Messenger, HumanMessenger
 from protostar.io.log_color_provider import log_color_provider
 
 from .messages import TestingSummaryResultMessage
@@ -45,18 +45,39 @@ class TestingLiveLogger:
         test_collector_result: "TestCollector.Result",
     ) -> None:
         if isinstance(self._write, HumanMessenger):
-            self._log_human(shared_tests_state, test_collector_result)
+            try:
+                with bar(
+                    total=test_collector_result.test_cases_count,
+                    bar_format="{l_bar}{bar}[{n_fmt}/{total_fmt}]",
+                    dynamic_ncols=True,
+                    leave=False,
+                    disable=self._no_progress_bar,
+                ) as progress_bar:
+                    self._log(
+                        shared_tests_state=shared_tests_state,
+                        test_collector_result=test_collector_result,
+                        progress_bar=progress_bar,
+                    )
+            except queue.Empty:
+                # https://docs.python.org/3/library/queue.html#queue.Queue.get
+                # We skip it to prevent deadlock, but this error should never happen
+                pass
         else:
-            self._log_json(shared_tests_state, test_collector_result)
+            self._log(
+                shared_tests_state=shared_tests_state,
+                test_collector_result=test_collector_result,
+            )
 
-    def _log_json(
+    def _log(
         self,
         shared_tests_state: SharedTestsState,
         test_collector_result: "TestCollector.Result",
+        progress_bar: Optional[bar] = None,
     ):
-        assert isinstance(self._write, JsonMessenger)
+        tests_left_n = test_collector_result.test_cases_count
+        if progress_bar:
+            progress_bar.update()
         try:
-            tests_left_n = test_collector_result.test_cases_count
             while tests_left_n > 0:
                 test_result: TestResult = shared_tests_state.get_result()
 
@@ -66,18 +87,32 @@ class TestingLiveLogger:
                     test_result, self._project_root_path
                 )
 
-                self._write(format_test_result(test_result))
+                if progress_bar:
+                    cast(Any, progress_bar).colour = (
+                        "RED" if shared_tests_state.any_failed_or_broken() else "GREEN"
+                    )
+                    formatted_test_result = format_test_result(test_result)
+                    progress_bar.write(
+                        formatted_test_result.format_human(fmt=log_color_provider)
+                    )
 
-                if self.exit_first and shared_tests_state.any_failed_or_broken():
-                    tests_left_n = 0
-                    return
+                    if self.should_exit(test_result):
+                        break
+                else:
+                    self._write(format_test_result(test_result))
 
                 if isinstance(test_result, BrokenTestSuiteResult):
                     tests_in_case_count = len(test_result.test_case_names)
+                    if progress_bar:
+                        progress_bar.update(tests_in_case_count)
                     tests_left_n -= tests_in_case_count
                 else:
+                    if progress_bar:
+                        progress_bar.update(1)
                     tests_left_n -= 1
         finally:
+            if progress_bar:
+                progress_bar.close()
             self._write(
                 TestingSummaryResultMessage(
                     test_collector_result=test_collector_result,
@@ -85,68 +120,6 @@ class TestingLiveLogger:
                     slowest_tests_to_report_count=self.slowest_tests_to_report_count,
                 )
             )
-
-    def _log_human(
-        self,
-        shared_tests_state: SharedTestsState,
-        test_collector_result: "TestCollector.Result",
-    ):
-        assert isinstance(self._write, HumanMessenger)
-        try:
-            with bar(
-                total=test_collector_result.test_cases_count,
-                bar_format="{l_bar}{bar}[{n_fmt}/{total_fmt}]",
-                dynamic_ncols=True,
-                leave=False,
-                disable=self._no_progress_bar,
-            ) as progress_bar:
-                tests_left_n = test_collector_result.test_cases_count
-                progress_bar.update()
-                try:
-                    while tests_left_n > 0:
-                        test_result: TestResult = shared_tests_state.get_result()
-
-                        self.testing_summary.extend([test_result])
-
-                        cast(Any, progress_bar).colour = (
-                            "RED"
-                            if shared_tests_state.any_failed_or_broken()
-                            else "GREEN"
-                        )
-
-                        test_result = make_path_relative_if_possible(
-                            test_result, self._project_root_path
-                        )
-
-                        formatted_test_result = format_test_result(test_result)
-                        progress_bar.write(
-                            formatted_test_result.format_human(fmt=log_color_provider)
-                        )
-
-                        if self.should_exit(test_result):
-                            break
-
-                        if isinstance(test_result, BrokenTestSuiteResult):
-                            tests_in_case_count = len(test_result.test_case_names)
-                            progress_bar.update(tests_in_case_count)
-                            tests_left_n -= tests_in_case_count
-                        else:
-                            progress_bar.update(1)
-                            tests_left_n -= 1
-                finally:
-                    progress_bar.close()
-                    self._write(
-                        TestingSummaryResultMessage(
-                            test_collector_result=test_collector_result,
-                            testing_summary=self.testing_summary,
-                            slowest_tests_to_report_count=self.slowest_tests_to_report_count,
-                        )
-                    )
-
-        except queue.Empty:
-            # https://docs.python.org/3/library/queue.html#queue.Queue.get
-            # We skip it to prevent deadlock, but this error should never happen
-            pass
 
     def should_exit(self, test_result: TestResult):
         """
