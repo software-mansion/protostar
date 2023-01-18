@@ -1,28 +1,37 @@
 import asyncio
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.compiler.program import Program
 from starkware.cairo.lang.vm.vm_exceptions import VmException
 
-from protostar.testing.environments.cairo_test_cheatcode_factory import (
-    CairoTestCheatcodeFactory,
-)
-from protostar.testing.environments.test_execution_environment import (
-    TestExecutionEnvironment,
-    TestExecutionResult,
-)
 from protostar.testing.starkware.execution_resources_summary import (
     ExecutionResourcesSummary,
 )
 from protostar.testing.test_environment_exceptions import RevertableException
+from protostar.testing.environments.execution_environment import (
+    ExecutionEnvironment,
+    TestExecutionResult,
+)
+from protostar.testing.cheatcodes.expect_revert_cheatcode import ExpectRevertContext
+from protostar.testing.hook import Hook
+from protostar.cheatable_starknet.cheatable_cached_state import CheatableCachedState
+
+from .cairo_test_cheatcode_factory import (
+    CairoTestCheatcodeFactory,
+)
+from .cairo_test_execution_state import CairoTestExecutionState
 
 
-class CairoTestExecutionEnvironment(TestExecutionEnvironment):
-    def __init__(self, program: Program, *args: Any, **kwargs: Any):
-        super().__init__(*args, **kwargs)
+class CairoTestExecutionEnvironment(ExecutionEnvironment):
+    state: CairoTestExecutionState
+
+    def __init__(self, program: Program, state: CairoTestExecutionState):
+        super().__init__(state)
         self._program = program
         self._max_steps = self.state.config.max_steps
+        self._expect_revert_context = ExpectRevertContext()
+        self._finish_hook = Hook()
         self._profiling = self.state.config.profiling
 
     async def execute(self, function_name: str) -> TestExecutionResult:
@@ -67,7 +76,10 @@ class CairoTestExecutionEnvironment(TestExecutionEnvironment):
 
     def _get_hint_locals(self) -> dict[str, Any]:
         hint_locals: dict[str, Any] = {}
-        cheatcode_factory = CairoTestCheatcodeFactory(state=self.state)
+        cheatcode_factory = CairoTestCheatcodeFactory(
+            cheatable_state=cast(CheatableCachedState, self.state.starknet.state.state),
+            project_compiler=self.state.project_compiler,
+        )
         cheatcodes = cheatcode_factory.build_cheatcodes()
         for cheatcode in cheatcodes:
             hint_locals[cheatcode.name] = cheatcode.build()

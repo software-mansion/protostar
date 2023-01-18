@@ -1,14 +1,15 @@
 import asyncio
 from typing import Any, Optional
 
+from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
+from protostar.cheatable_starknet.cheaters.contracts import ContractsCheaterException
+
 from protostar.starknet import (
     Address,
     RawAddress,
     CairoOrPythonData,
     CheatcodeException,
 )
-from protostar.starknet.cheaters.contracts import ContractsCheaterException
-from protostar.testing.cairo_cheatcodes.cairo_cheatcode import CairoCheatcode
 
 
 class InvokeCairoCheatcode(CairoCheatcode):
@@ -43,6 +44,7 @@ class InvokeCairoCheatcode(CairoCheatcode):
                     contract_address=contract_address,
                     function_name=function_name,
                     calldata=calldata,
+                    cheaters=self.cheaters,
                 )
             )
         except ContractsCheaterException as exc:
