@@ -1,3 +1,4 @@
+# pylint: disable=duplicate-code
 import logging
 from asyncio import get_running_loop
 from dataclasses import dataclass
