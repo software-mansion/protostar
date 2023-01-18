@@ -29,3 +29,20 @@ func test_data_transformer() {
     %}
     return ();
 }
+
+func test_other_cheatcodes_impact_l1_handler() {
+    %{
+        contract_address = deploy_contract("src/main.cairo").contract_address
+        fake_block_timestamp = 321
+        warp(contract_address, fake_block_timestamp)
+        send_message_to_l2(
+            function_name="set_block_timestamp",
+            from_address=123,
+            to_address=contract_address,
+        )
+        result = call(contract_address, "get_state")
+        assert [fake_block_timestamp] == result, f"Expected '{[fake_block_timestamp]}', but got: '{result}'"
+    %}
+
+    return ();
+}
