@@ -29,12 +29,13 @@ from starkware.starknet.compiler.external_wrapper import (
 from starkware.starknet.public.abi import AbiType
 from starkware.cairo.lang.compiler.ast.visitor import Visitor
 
-from protostar.cairo import PassManagerFactory, CompilerConfig
+from protostar.cairo import PassManagerFactory
+from protostar.starknet import StarknetCompilerConfig
 
 
 class StarknetPassManagerFactory(PassManagerFactory):
     @staticmethod
-    def build(config: CompilerConfig) -> PassManager:
+    def build(config: StarknetCompilerConfig) -> PassManager:
         read_module = get_module_reader(cairo_path=config.include_paths).read
         return starknet_pass_manager(
             DEFAULT_PRIME,
@@ -49,7 +50,7 @@ class TestCollectorPassManagerFactory(StarknetPassManagerFactory):
     """
 
     @staticmethod
-    def build(config: CompilerConfig) -> PassManager:
+    def build(config: StarknetCompilerConfig) -> PassManager:
         read_module = get_module_reader(cairo_path=config.include_paths).read
 
         manager = PassManager()
@@ -73,7 +74,7 @@ class ProtostarPassMangerFactory(StarknetPassManagerFactory):
     """
 
     @staticmethod
-    def build(config: CompilerConfig) -> PassManager:
+    def build(config: StarknetCompilerConfig) -> PassManager:
         read_module = get_module_reader(cairo_path=config.include_paths).read
         manager = starknet_pass_manager(
             DEFAULT_PRIME,
@@ -101,7 +102,7 @@ class TestSuitePassMangerFactory(ProtostarPassMangerFactory):
     """
 
     @staticmethod
-    def build(config: CompilerConfig) -> PassManager:
+    def build(config: StarknetCompilerConfig) -> PassManager:
         manager = ProtostarPassMangerFactory.build(config)
         manager.add_before(
             existing_stage="identifier_collector",

@@ -13,13 +13,12 @@ from protostar.io.log_color_provider import LogColorProvider
 from protostar.protostar_exception import ProtostarException
 from protostar.self.cache_io import CacheIO
 from protostar.self.protostar_directory import ProtostarDirectory
-from protostar.starknet.compiler.pass_managers import (
+from protostar.starknet.pass_managers import (
     StarknetPassManagerFactory,
     TestCollectorPassManagerFactory,
 )
-from protostar.starknet.compiler.starknet_compilation import StarknetCompiler
-from protostar.starknet.compiler.cairo_compilation import CairoCompiler
-from protostar.starknet.compiler.common import CompilerConfig
+from protostar.starknet import StarknetCompiler
+from protostar.cairo import CairoCompiler, CairoCompilerConfig
 from protostar.testing import (
     TestCollector,
     TestingSummary,
@@ -220,7 +219,7 @@ A glob or globs to a directory or a test suite, for example:
         with ActivityIndicator(
             self._log_color_provider.colorize("GRAY", "Collecting tests")
         ):
-            compiler_config = CompilerConfig(
+            compiler_config = CairoCompilerConfig(
                 disable_hint_validation=True, include_paths=include_paths
             )
             if use_cairo_test_runner:

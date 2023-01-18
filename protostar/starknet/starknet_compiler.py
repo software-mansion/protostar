@@ -14,15 +14,17 @@ from starkware.starknet.compiler.starknet_preprocessor import (
 from starkware.starknet.services.api.contract_class import ContractClass
 
 from protostar.protostar_exception import ProtostarException
-from protostar.cairo import CompilerConfig, PassManagerFactory
+from protostar.cairo import CairoCompilerConfig, PassManagerFactory
 
 from .pass_managers import TestCollectorPreprocessedProgram
+
+StarknetCompilerConfig = CairoCompilerConfig
 
 
 class StarknetCompiler:
     def __init__(
         self,
-        config: CompilerConfig,
+        config: StarknetCompilerConfig,
         pass_manager_factory: Type[PassManagerFactory],
     ):
         self.pass_manager = pass_manager_factory.build(config)
