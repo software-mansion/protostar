@@ -21,6 +21,10 @@ from .cairo_test_cheatcode_factory import (
     CairoTestCheatcodeFactory,
 )
 from .cairo_test_execution_state import CairoTestExecutionState
+from protostar.starknet.cheaters.expects import assert_no_expected_calls
+from protostar.protostar_exception import ProtostarException
+from protostar.starknet.cheater import CheaterException
+from protostar.starknet import ReportedException
 
 
 class CairoTestExecutionEnvironment(ExecutionEnvironment):
@@ -36,9 +40,16 @@ class CairoTestExecutionEnvironment(ExecutionEnvironment):
 
     async def execute(self, function_name: str) -> TestExecutionResult:
         with self.state.output_recorder.redirect("test"):
-            return TestExecutionResult(
+            result = TestExecutionResult(
                 execution_resources=await self.execute_test_case(function_name)
             )
+            try:
+                assert_no_expected_calls(
+                    self.state.starknet.cheatable_state.cheatable_state.expected_contract_calls
+                )
+            except (ProtostarException, CheaterException) as e:
+                raise ReportedException from e
+            return result
 
     # TODO #1303: Estimate gas if self.state.config.gas_estimation_enabled
     async def execute_test_case(

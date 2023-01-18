@@ -211,4 +211,4 @@ class CairoTestRunner:
             test_case=test_case,
             output_recorder=state.output_recorder,
             stopwatch=state.stopwatch,
-        ).run(state)
+        ).run()
