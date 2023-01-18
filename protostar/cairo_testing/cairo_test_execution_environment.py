@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.compiler.program import Program
@@ -15,6 +15,7 @@ from protostar.testing.environments.execution_environment import (
 )
 from protostar.testing.cheatcodes.expect_revert_cheatcode import ExpectRevertContext
 from protostar.testing.hook import Hook
+from protostar.cheatable_starknet.cheatable_cached_state import CheatableCachedState
 
 from .cairo_test_cheatcode_factory import (
     CairoTestCheatcodeFactory,
@@ -76,7 +77,8 @@ class CairoTestExecutionEnvironment(ExecutionEnvironment):
     def _get_hint_locals(self) -> dict[str, Any]:
         hint_locals: dict[str, Any] = {}
         cheatcode_factory = CairoTestCheatcodeFactory(
-            state=self.state,
+            cheatable_state=cast(CheatableCachedState, self.state.starknet.state.state),
+            project_compiler=self.state.project_compiler,
         )
         cheatcodes = cheatcode_factory.build_cheatcodes()
         for cheatcode in cheatcodes:

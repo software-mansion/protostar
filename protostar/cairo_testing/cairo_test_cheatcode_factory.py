@@ -1,4 +1,4 @@
-from typing import List, cast
+from typing import List
 
 from protostar.cheatable_starknet.cheatable_cached_state import (
     CheatableCachedState,
@@ -8,9 +8,6 @@ from protostar.cheatable_starknet.cheaters.contracts import ContractsCairoCheate
 
 from protostar.cheatable_starknet.cheaters import (
     CairoCheaters,
-)
-from protostar.cairo_testing.cairo_test_execution_state import (
-    CairoTestExecutionState,
 )
 from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
 from protostar.cheatable_starknet.cheatcodes.declare_cairo_cheatcode import (
@@ -37,24 +34,26 @@ from protostar.cheatable_starknet.cheatcodes.warp_cairo_cheatcode import (
 from protostar.cheatable_starknet.cheatcodes.call_cairo_cheatcode import (
     CallCairoCheatcode,
 )
+from protostar.compiler import ProjectCompiler
 
 
 class CairoTestCheatcodeFactory:
     def __init__(
         self,
-        state: CairoTestExecutionState,
+        cheatable_state: CheatableCachedState,
+        project_compiler: ProjectCompiler,
     ):
-        self.state = state
+        self.cheatable_state = cheatable_state
+        self.project_compiler = project_compiler
 
     def build_cheatcodes(self) -> List[CairoCheatcode]:
-        cheatable_state = cast(CheatableCachedState, self.state.starknet.state.state)
         cheaters = CairoCheaters(
-            block_info=BlockInfoCairoCheater(cheatable_state=cheatable_state),
-            contracts=ContractsCairoCheater(cheatable_state=cheatable_state),
+            block_info=BlockInfoCairoCheater(cheatable_state=self.cheatable_state),
+            contracts=ContractsCairoCheater(cheatable_state=self.cheatable_state),
         )
         declare_cheatcode = DeclareCairoCheatcode(
             cheaters=cheaters,
-            project_compiler=self.state.project_compiler,
+            project_compiler=self.project_compiler,
         )
         prepare_cheatcode = PrepareCairoCheatcode(
             cheaters=cheaters,
