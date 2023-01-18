@@ -11,7 +11,7 @@ on:
 jobs:
   setup:
     name: Download deps, install poetry, populate caches
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
         with:
@@ -34,7 +34,7 @@ jobs:
 
   lint:
     name: Check formatting, linting and types
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs: setup
     steps:
       - uses: actions/checkout@v2
@@ -67,7 +67,7 @@ jobs:
 
   unit-and-integration-tests:
     name: Unit and integration tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs: setup
     steps:
       - uses: actions/checkout@v2
@@ -100,7 +100,7 @@ jobs:
 
   e2e-tests:
     name: End-to-end tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs: setup
     steps:
       - uses: actions/checkout@v2
