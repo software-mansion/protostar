@@ -1,6 +1,5 @@
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 from starkware.starknet.public.abi_structs import prepare_type_for_abi
 from starkware.cairo.lang.compiler.ast.code_elements import (
@@ -19,7 +18,6 @@ from starkware.cairo.lang.compiler.preprocessor.pass_manager import (
 from starkware.starknet.compiler.starknet_pass_manager import starknet_pass_manager
 from starkware.cairo.lang.compiler.preprocessor.default_pass_manager import (
     PreprocessorStage,
-    default_pass_manager,
     ModuleCollector,
 )
 from starkware.starknet.security.hints_whitelist import get_hints_whitelist
@@ -31,30 +29,12 @@ from starkware.starknet.compiler.external_wrapper import (
 from starkware.starknet.public.abi import AbiType
 from starkware.cairo.lang.compiler.ast.visitor import Visitor
 
-if TYPE_CHECKING:
-    from protostar.starknet.compiler.common import CompilerConfig
-
-
-class PassManagerFactory(ABC):
-    @staticmethod
-    @abstractmethod
-    def build(config: "CompilerConfig") -> PassManager:
-        ...
-
-
-class CairoPassManagerFactory(PassManagerFactory):
-    @staticmethod
-    def build(config: "CompilerConfig") -> PassManager:
-        read_module = get_module_reader(cairo_path=config.include_paths).read
-        return default_pass_manager(
-            prime=DEFAULT_PRIME,
-            read_module=read_module,
-        )
+from protostar.cairo import PassManagerFactory, CompilerConfig
 
 
 class StarknetPassManagerFactory(PassManagerFactory):
     @staticmethod
-    def build(config: "CompilerConfig") -> PassManager:
+    def build(config: CompilerConfig) -> PassManager:
         read_module = get_module_reader(cairo_path=config.include_paths).read
         return starknet_pass_manager(
             DEFAULT_PRIME,
@@ -69,7 +49,7 @@ class TestCollectorPassManagerFactory(StarknetPassManagerFactory):
     """
 
     @staticmethod
-    def build(config: "CompilerConfig") -> PassManager:
+    def build(config: CompilerConfig) -> PassManager:
         read_module = get_module_reader(cairo_path=config.include_paths).read
 
         manager = PassManager()
@@ -93,7 +73,7 @@ class ProtostarPassMangerFactory(StarknetPassManagerFactory):
     """
 
     @staticmethod
-    def build(config: "CompilerConfig") -> PassManager:
+    def build(config: CompilerConfig) -> PassManager:
         read_module = get_module_reader(cairo_path=config.include_paths).read
         manager = starknet_pass_manager(
             DEFAULT_PRIME,
@@ -121,7 +101,7 @@ class TestSuitePassMangerFactory(ProtostarPassMangerFactory):
     """
 
     @staticmethod
-    def build(config: "CompilerConfig") -> PassManager:
+    def build(config: CompilerConfig) -> PassManager:
         manager = ProtostarPassMangerFactory.build(config)
         manager.add_before(
             existing_stage="identifier_collector",

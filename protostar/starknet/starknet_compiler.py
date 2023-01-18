@@ -3,9 +3,7 @@ from typing import List, Tuple, Type, Union
 
 from starkware.cairo.lang.compiler.constants import MAIN_SCOPE
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
-from starkware.cairo.lang.compiler.preprocessor.pass_manager import (
-    PassManagerContext,
-)
+from starkware.cairo.lang.compiler.preprocessor.pass_manager import PassManagerContext
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     PreprocessorError,
 )
@@ -16,11 +14,9 @@ from starkware.starknet.compiler.starknet_preprocessor import (
 from starkware.starknet.services.api.contract_class import ContractClass
 
 from protostar.protostar_exception import ProtostarException
-from protostar.starknet.compiler.common import CompilerConfig
-from protostar.starknet.compiler.pass_managers import (
-    PassManagerFactory,
-    TestCollectorPreprocessedProgram,
-)
+from protostar.cairo import CompilerConfig, PassManagerFactory
+
+from .pass_managers import TestCollectorPreprocessedProgram
 
 
 class StarknetCompiler:
