@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 
 from starkware.cairo.lang.cairo_constants import DEFAULT_PRIME
 from starkware.cairo.lang.compiler.cairo_compile import get_module_reader
@@ -7,19 +8,23 @@ from starkware.cairo.lang.compiler.preprocessor.default_pass_manager import (
     default_pass_manager,
 )
 
-from .cairo_compiler import CairoCompilerConfig
+
+@dataclass(frozen=True)
+class PassManagerConfig:
+    include_paths: list[str]
+    disable_hint_validation: bool
 
 
 class PassManagerFactory(ABC):
     @staticmethod
     @abstractmethod
-    def build(config: CairoCompilerConfig) -> PassManager:
+    def build(config: PassManagerConfig) -> PassManager:
         ...
 
 
 class CairoPassManagerFactory(PassManagerFactory):
     @staticmethod
-    def build(config: CairoCompilerConfig) -> PassManager:
+    def build(config: PassManagerConfig) -> PassManager:
         read_module = get_module_reader(cairo_path=config.include_paths).read
         return default_pass_manager(
             prime=DEFAULT_PRIME,

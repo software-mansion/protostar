@@ -14,11 +14,11 @@ from starkware.starknet.compiler.starknet_preprocessor import (
 from starkware.starknet.services.api.contract_class import ContractClass
 
 from protostar.protostar_exception import ProtostarException
-from protostar.cairo import CairoCompilerConfig, PassManagerFactory
+from protostar.cairo import PassManagerConfig, PassManagerFactory
 
 from .pass_managers import TestCollectorPreprocessedProgram
 
-StarknetCompilerConfig = CairoCompilerConfig
+StarknetCompilerConfig = PassManagerConfig
 
 
 class StarknetCompiler:
