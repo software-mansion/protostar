@@ -8,7 +8,6 @@ from .cheatable_starknet_exceptions import (
     SimpleReportedException,
 )
 from .cheatcode import Cheatcode
-from .hint_local import HintLocal
 from .storage_var import calc_address
 from .types import ClassHashType, SelectorType, Wei, Hash, TransactionHash
 from .address import Address, RawAddress

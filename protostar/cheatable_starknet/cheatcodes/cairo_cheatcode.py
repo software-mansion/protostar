@@ -1,8 +1,7 @@
 from abc import ABC
 from typing import TYPE_CHECKING
 
-from protostar.starknet import HintLocal
-
+from protostar.cairo import HintLocal
 
 if TYPE_CHECKING:
     from protostar.cheatable_starknet.cheaters import CairoCheaters

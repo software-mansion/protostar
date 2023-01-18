@@ -1,7 +1,8 @@
 from types import SimpleNamespace
 from typing import Any
 
-from protostar.starknet.hint_local import HintLocal
+from protostar.cairo import HintLocal
+
 from .felts import FeltsStrategyDescriptor
 from .integers import IntegersStrategyDescriptor
 from .one_of import OneOfStrategyDescriptor
