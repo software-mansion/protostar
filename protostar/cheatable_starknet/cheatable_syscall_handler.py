@@ -16,10 +16,10 @@ from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
 from starkware.starknet.security.secure_hints import HintsWhitelist
 from starkware.starknet.services.api.contract_class import EntryPointType
 
+from protostar.starknet.address import Address
+
 if TYPE_CHECKING:
-    from protostar.cheatable_starknet.cheatable_cached_state import (
-        CheatableCachedState,
-    )
+    from protostar.cheatable_starknet.cheatable_cached_state import CheatableCachedState
 
 
 class CheatableSysCallHandlerException(Exception):
@@ -53,11 +53,10 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
         caller_address = super()._get_caller_address(
             segments=segments, syscall_ptr=syscall_ptr
         )
-        # TODO: Add prank logic through cheatable state
-        # if self.contract_address in self.cheatable_state.pranked_contracts_map:
-        #     return self.cheatable_state.pranked_contracts_map[self.contract_address]
-
-        return caller_address
+        pranked_address = self.cheatable_state.get_pranked_address(
+            Address(self.contract_address)
+        )
+        return int(pranked_address) if pranked_address is not None else caller_address
 
     def _call_contract(
         self,
