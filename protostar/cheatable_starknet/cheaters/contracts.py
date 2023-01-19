@@ -187,7 +187,7 @@ class ContractsCairoCheater:
     ) -> PreparedContract:
         constructor_calldata = await transform_calldata_to_cairo_data(
             contract_class=await self.cheatable_state.get_contract_class(
-                class_hash=to_bytes(declared.class_hash, 32, "big")
+                class_hash=to_bytes(declared.class_hash)
             ),
             function_name="constructor",
             calldata=constructor_calldata,

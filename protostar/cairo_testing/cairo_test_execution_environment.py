@@ -16,7 +16,7 @@ from protostar.testing.environments.execution_environment import (
 from protostar.testing.cheatcodes.expect_revert_cheatcode import ExpectRevertContext
 from protostar.testing.hook import Hook
 from protostar.cheatable_starknet.cheatable_cached_state import CheatableCachedState
-from protostar.cheatable_starknet.cheaters.expects import assert_no_expected_calls
+from protostar.cheatable_starknet.cheaters.expects import ExpectsCairoCheater
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet.cheater import CheaterException
 from protostar.starknet import ReportedException
@@ -44,9 +44,10 @@ class CairoTestExecutionEnvironment(ExecutionEnvironment):
                 execution_resources=await self.execute_test_case(function_name)
             )
             try:
-                if isinstance(self.state.starknet.state.state, CheatableCachedState):
-                    assert_no_expected_calls(
-                        self.state.starknet.state.state.expected_contract_calls
+                maybe_cheatable_state = self.state.starknet.state.state
+                if isinstance(maybe_cheatable_state, CheatableCachedState):
+                    ExpectsCairoCheater.assert_no_expected_calls(
+                        maybe_cheatable_state.expected_contract_calls
                     )
             except (ProtostarException, CheaterException) as e:
                 raise ReportedException from e

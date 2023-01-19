@@ -17,23 +17,6 @@ if TYPE_CHECKING:
     from protostar.cheatable_starknet.cheatable_cached_state import CheatableCachedState
 
 
-def assert_no_expected_calls(
-    expected_calls: dict[Address, list[tuple[SelectorType, CairoOrPythonData]]],
-    fixed_address: Optional[Address] = None,
-) -> None:
-    msg = "expected calls not fulfilled:"
-    any_addresses_present = False
-    for address, details in expected_calls.items():
-        if fixed_address is not None and address != fixed_address:
-            continue
-        any_addresses_present = True
-        msg += f"{os.linesep}  - for address {address}:"
-        for details_item in details:
-            msg += f"{os.linesep}    - function name: {details_item[0]}, calldata: {details_item[1]}"
-    if any_addresses_present:
-        raise CheaterException(msg)
-
-
 class ExpectsCairoCheater:
     def __init__(self, cheatable_state: "CheatableCachedState"):
         self.cheatable_state = cheatable_state
@@ -62,7 +45,7 @@ class ExpectsCairoCheater:
         )
 
         def stop_callback():
-            assert_no_expected_calls(
+            ExpectsCairoCheater.assert_no_expected_calls(
                 expected_calls=self.cheatable_state.expected_contract_calls,
                 fixed_address=contract_address,
             )
@@ -102,3 +85,20 @@ class ExpectsCairoCheater:
         ]
         if not self.cheatable_state.expected_contract_calls[contract_address]:
             del self.cheatable_state.expected_contract_calls[contract_address]
+
+    @staticmethod
+    def assert_no_expected_calls(
+        expected_calls: dict[Address, list[tuple[SelectorType, CairoOrPythonData]]],
+        fixed_address: Optional[Address] = None,
+    ) -> None:
+        msg = "expected calls not fulfilled:"
+        any_addresses_present = False
+        for address, details in expected_calls.items():
+            if fixed_address is not None and address != fixed_address:
+                continue
+            any_addresses_present = True
+            msg += f"{os.linesep}  - for address {address}:"
+            for details_item in details:
+                msg += f"{os.linesep}    - function name: {details_item[0]}, calldata: {details_item[1]}"
+        if any_addresses_present:
+            raise CheaterException(msg)
