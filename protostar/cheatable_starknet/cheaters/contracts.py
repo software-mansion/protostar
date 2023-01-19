@@ -3,11 +3,8 @@ import copy
 from pathlib import Path
 from typing import List, Optional, TYPE_CHECKING
 
-
 from starkware.python.utils import to_bytes, from_bytes
-from starkware.starknet.business_logic.transaction.objects import (
-    InternalDeclare,
-)
+from starkware.starknet.business_logic.transaction.objects import InternalDeclare
 from starkware.starknet.public.abi import (
     AbiType,
     get_selector_from_name,
@@ -24,9 +21,7 @@ from starkware.starknet.business_logic.execution.execute_entry_point import (
 from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
 )
-from starkware.starknet.business_logic.execution.objects import (
-    CallType,
-)
+from starkware.starknet.business_logic.execution.objects import CallType
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.services.api.contract_class import EntryPointType, ContractClass
 
@@ -48,10 +43,9 @@ from protostar.starknet.data_transformer import (
 )
 
 if TYPE_CHECKING:
+    from protostar.cheatable_starknet.cheatable_cached_state import CheatableCachedState
+
     from . import CairoCheaters
-    from protostar.cheatable_starknet.cheatable_cached_state import (
-        CheatableCachedState,
-    )
 
 
 class ContractsCheaterException(Exception):
@@ -298,3 +292,11 @@ class ContractsCairoCheater:
                 state=state_copy,
                 general_config=StarknetGeneralConfig(),
             )
+
+    def prank(self, caller_address: Address, target_address: Address):
+        self.cheatable_state.set_pranked_address(
+            target_address=target_address, pranked_address=caller_address
+        )
+
+    def cancel_prank(self, target_address: Address):
+        self.cheatable_state.remove_pranked_address(target_address)
