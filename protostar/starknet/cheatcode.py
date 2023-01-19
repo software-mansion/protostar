@@ -15,7 +15,7 @@ from typing_extensions import TypedDict
 
 from protostar.starknet.cheatable_cached_state import CheatableCachedState
 from protostar.starknet.cheaters import Cheaters
-from protostar.starknet.hint_local import HintLocal
+from protostar.cairo import HintLocal
 
 if TYPE_CHECKING:
     from protostar.starknet.cheatable_execute_entry_point import (

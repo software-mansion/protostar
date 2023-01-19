@@ -1,6 +1,7 @@
 # pylint: disable=duplicate-code
+# pylint: disable=protected-access
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from starkware.starknet.business_logic.state.state import (
     ContractClassCache,
@@ -8,9 +9,7 @@ from starkware.starknet.business_logic.state.state import (
 )
 from starkware.starknet.public.abi import AbiType
 from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
-from starkware.starknet.business_logic.state.state_api import (
-    StateReader,
-)
+from starkware.starknet.business_logic.state.state_api import StateReader
 from typing_extensions import Self
 
 from protostar.starknet.address import Address
@@ -33,7 +32,7 @@ class CheatableCachedState(CachedState):
             contract_class_cache=contract_class_cache,
         )
 
-        self.pranked_contracts_map: Dict[int, int] = {}
+        self._target_address_to_pranked_address: dict[Address, Address] = {}
         self.mocked_calls_map: Dict[Address, Dict[SelectorType, List[int]]] = {}
         self.event_selector_to_name_map: Dict[int, str] = {}
 
@@ -48,6 +47,18 @@ class CheatableCachedState(CachedState):
         self.contract_address_to_block_timestamp: dict[Address, int] = {}
         self.contract_address_to_block_number: dict[Address, int] = {}
 
+    def get_pranked_address(self, target_address: Address) -> Optional[Address]:
+        if target_address in self._target_address_to_pranked_address:
+            return self._target_address_to_pranked_address[target_address]
+        return None
+
+    def set_pranked_address(self, target_address: Address, pranked_address: Address):
+        self._target_address_to_pranked_address[target_address] = pranked_address
+
+    def remove_pranked_address(self, target_address: Address):
+        if target_address in self._target_address_to_pranked_address:
+            del self._target_address_to_pranked_address[target_address]
+
     def get_block_info(self, contract_address: int) -> BlockInfo:
         return BlockInfoCairoCheater(self).get_for_contract(Address(contract_address))
 
@@ -58,7 +69,9 @@ class CheatableCachedState(CachedState):
             contract_class_cache=self.contract_classes,
         )
 
-        copied.pranked_contracts_map = self.pranked_contracts_map.copy()
+        copied._target_address_to_pranked_address = (
+            self._target_address_to_pranked_address.copy()
+        )
         copied.mocked_calls_map = self.mocked_calls_map.copy()
         copied.event_selector_to_name_map = self.event_selector_to_name_map.copy()
 
@@ -89,9 +102,9 @@ class CheatableCachedState(CachedState):
         assert isinstance(parent, self.__class__)
         super()._apply(parent)
 
-        parent.pranked_contracts_map = {
-            **parent.pranked_contracts_map,
-            **self.pranked_contracts_map,
+        parent._target_address_to_pranked_address = {
+            **parent._target_address_to_pranked_address,
+            **self._target_address_to_pranked_address,
         }
 
         parent.mocked_calls_map = {**parent.mocked_calls_map}

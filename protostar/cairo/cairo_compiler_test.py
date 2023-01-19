@@ -3,10 +3,9 @@ from pathlib import Path
 import pytest
 from starkware.cairo.lang.compiler.preprocessor.preprocessor import PreprocessedProgram
 
-from protostar.starknet.compiler.cairo_compilation import CairoCompiler
-from protostar.starknet.compiler.common import CompilerConfig
+from .cairo_compiler import CairoCompiler, CairoCompilerConfig
 
-EXAMPLES_DIR_PATH = Path(__file__).parent / "examples"
+EXAMPLES_DIR_PATH = Path(__file__).parent / "cairo_compiler"
 
 
 @pytest.mark.parametrize(
@@ -20,7 +19,7 @@ EXAMPLES_DIR_PATH = Path(__file__).parent / "examples"
     ),
 )
 def test_compilation(test_file: Path, test_function: str):
-    config = CompilerConfig(
+    config = CairoCompilerConfig(
         include_paths=[str(EXAMPLES_DIR_PATH)], disable_hint_validation=False
     )
     compiler = CairoCompiler(config)

@@ -17,11 +17,8 @@ from protostar.configuration_file.configuration_file_factory import (
     ConfigurationFileFactory,
 )
 from protostar.protostar_exception import ProtostarException
-from protostar.starknet.compiler.pass_managers import TestSuitePassMangerFactory
-from protostar.starknet.compiler.starknet_compilation import (
-    CompilerConfig,
-    StarknetCompiler,
-)
+from protostar.starknet.pass_managers import TestSuitePassMangerFactory
+from protostar.starknet import StarknetCompiler, StarknetCompilerConfig
 
 from .environments.setup_execution_environment import SetupExecutionEnvironment
 from .starkware.contract_based_test_execution_state import (
@@ -63,7 +60,7 @@ class TestRunner:
         include_paths = include_paths or []
 
         self.tests_compiler = StarknetCompiler(
-            config=CompilerConfig(
+            config=StarknetCompilerConfig(
                 include_paths=include_paths, disable_hint_validation=True
             ),
             pass_manager_factory=TestSuitePassMangerFactory,

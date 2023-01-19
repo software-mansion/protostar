@@ -334,3 +334,11 @@ class ContractsCairoCheater:
                 contract_address=contract_address,
             )
         return [int(l1_address), *payload]
+
+    def prank(self, caller_address: Address, target_address: Address):
+        self.cheatable_state.set_pranked_address(
+            target_address=target_address, pranked_address=caller_address
+        )
+
+    def cancel_prank(self, target_address: Address):
+        self.cheatable_state.remove_pranked_address(target_address)

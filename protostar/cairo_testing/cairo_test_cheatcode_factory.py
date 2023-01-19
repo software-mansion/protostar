@@ -1,6 +1,9 @@
 from typing import List
 
 from protostar.cheatable_starknet.cheatable_cached_state import CheatableCachedState
+from protostar.cheatable_starknet.cheatcodes.prank_cairo_cheatcode import (
+    PrankCairoCheatcode,
+)
 from protostar.cheatable_starknet.cheaters.block_info import BlockInfoCairoCheater
 from protostar.cheatable_starknet.cheaters.contracts import ContractsCairoCheater
 from protostar.cheatable_starknet.cheaters import CairoCheaters
@@ -77,4 +80,7 @@ class CairoTestCheatcodeFactory:
                 cheaters=cheaters,
             ),
             SendMessageToL2CairoCheatcode(cheaters=cheaters),
+            PrankCairoCheatcode(
+                cheaters=cheaters,
+            ),
         ]
