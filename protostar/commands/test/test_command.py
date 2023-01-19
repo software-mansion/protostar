@@ -1,16 +1,11 @@
-import logging
 from argparse import Namespace
 from pathlib import Path
 from typing import List, Optional
 
-from protostar.cli import ProtostarArgument, ProtostarCommand
+from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
 from protostar.cli.activity_indicator import ActivityIndicator
-from protostar.commands.test.test_collector_summary_formatter import (
-    format_test_collector_summary,
-)
-from protostar.commands.test.test_result_formatter import (
-    format_test_result,
-    make_path_relative_if_possible,
+from protostar.commands.test.messages.testing_summary_message import (
+    TestingSummaryResultMessage,
 )
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.compiler import ProjectCairoPathBuilder
@@ -18,25 +13,23 @@ from protostar.io.log_color_provider import LogColorProvider
 from protostar.protostar_exception import ProtostarException
 from protostar.self.cache_io import CacheIO
 from protostar.self.protostar_directory import ProtostarDirectory
-from protostar.starknet.compiler.pass_managers import (
+from protostar.starknet.pass_managers import (
     StarknetPassManagerFactory,
     TestCollectorPassManagerFactory,
 )
-from protostar.starknet.compiler.starknet_compilation import (
-    StarknetCompiler,
-)
-from protostar.starknet.compiler.cairo_compilation import CairoCompiler
-from protostar.starknet.compiler.common import CompilerConfig
+from protostar.starknet import StarknetCompiler
+from protostar.cairo import CairoCompiler, CairoCompilerConfig
 from protostar.testing import (
     TestCollector,
     TestingSummary,
-    TestResult,
     TestRunner,
     TestScheduler,
     determine_testing_seed,
 )
-from protostar.testing.cairo_test_runner import CairoTestRunner
+from protostar.cairo_testing.cairo_test_runner import CairoTestRunner
+from protostar.io.output import Messenger
 
+from .messages import TestCollectorResultMessage
 from .test_command_cache import TestCommandCache
 
 
@@ -49,6 +42,7 @@ class TestCommand(ProtostarCommand):
         log_color_provider: LogColorProvider,
         cwd: Path,
         active_profile_name: Optional[str],
+        messenger_factory: MessengerFactory,
     ) -> None:
         super().__init__()
         self._log_color_provider = log_color_provider
@@ -57,6 +51,7 @@ class TestCommand(ProtostarCommand):
         self._project_cairo_path_builder = project_cairo_path_builder
         self._cwd = cwd
         self._active_profile_name = active_profile_name
+        self._messenger_factory = messenger_factory
 
     @property
     def name(self) -> str:
@@ -73,6 +68,7 @@ class TestCommand(ProtostarCommand):
     @property
     def arguments(self):
         return [
+            *MessengerFactory.OUTPUT_ARGUMENTS,
             ProtostarArgument(
                 name="target",
                 description="""
@@ -162,6 +158,9 @@ A glob or globs to a directory or a test suite, for example:
         ]
 
     async def run(self, args: Namespace) -> TestingSummary:
+        if not vars(args).get("json"):
+            args.json = None
+        messenger = self._messenger_factory.from_args(args)
         cache = TestCommandCache(CacheIO(self._project_root_path))
         summary = await self.test(
             targets=cache.obtain_targets(args.target, args.last_failed),
@@ -176,14 +175,17 @@ A glob or globs to a directory or a test suite, for example:
             max_steps=args.max_steps,
             slowest_tests_to_report_count=args.report_slowest_tests,
             gas_estimation_enabled=args.estimate_gas,
+            messenger=messenger,
         )
         cache.write_failed_tests_to_cache(summary)
+
         summary.assert_all_passed()
         return summary
 
     async def test(
         self,
         targets: List[str],
+        messenger: Messenger,
         use_cairo_test_runner: bool = False,
         ignored_targets: Optional[List[str]] = None,
         cairo_path: Optional[List[Path]] = None,
@@ -217,7 +219,7 @@ A glob or globs to a directory or a test suite, for example:
         with ActivityIndicator(
             self._log_color_provider.colorize("GRAY", "Collecting tests")
         ):
-            compiler_config = CompilerConfig(
+            compiler_config = CairoCompilerConfig(
                 disable_hint_validation=True, include_paths=include_paths
             )
             if use_cairo_test_runner:
@@ -245,11 +247,12 @@ A glob or globs to a directory or a test suite, for example:
                 "Only one test case can be profiled at the time. Please specify path to a single test case."
             )
 
-        self._log_test_collector_result(test_collector_result)
+        messenger(TestCollectorResultMessage(test_collector_result))
 
         testing_summary = TestingSummary(
-            test_results=test_collector_result.broken_test_suites,  # type: ignore | pyright bug?
+            initial_test_results=test_collector_result.broken_test_suites,  # type: ignore
             testing_seed=testing_seed,
+            test_collector_result=test_collector_result,
         )
 
         if test_collector_result.test_cases_count > 0:
@@ -259,6 +262,7 @@ A glob or globs to a directory or a test suite, for example:
                 exit_first=exit_first,
                 slowest_tests_to_report_count=slowest_tests_to_report_count,
                 project_root_path=self._project_root_path,
+                write=messenger,
             )
             worker = (
                 CairoTestRunner.worker if use_cairo_test_runner else TestRunner.worker
@@ -272,37 +276,17 @@ A glob or globs to a directory or a test suite, for example:
                 exit_first=exit_first,
                 testing_seed=testing_seed,
                 max_steps=max_steps,
-                project_root_path_str=str(self._project_root_path),
+                project_root_path=self._project_root_path,
                 active_profile_name=self._active_profile_name,
                 cwd=self._cwd,
                 gas_estimation_enabled=gas_estimation_enabled,
+                on_exit_first=lambda: messenger(
+                    TestingSummaryResultMessage(
+                        test_collector_result=test_collector_result,
+                        testing_summary=testing_summary,
+                        slowest_tests_to_report_count=slowest_tests_to_report_count,
+                    )
+                ),
             )
 
         return testing_summary
-
-    def _log_test_collector_result(
-        self, test_collector_result: TestCollector.Result
-    ) -> None:
-        for broken_test_suite in test_collector_result.broken_test_suites:
-            self._log_formatted_test_result(broken_test_suite)
-        if test_collector_result.test_cases_count:
-            self._log_formatted_test_collector_summary(test_collector_result)
-        else:
-            logging.warning("No test cases found")
-
-    def _log_formatted_test_collector_summary(
-        self, test_collector_result: TestCollector.Result
-    ) -> None:
-        formatted_result = format_test_collector_summary(
-            test_case_count=test_collector_result.test_cases_count,
-            test_suite_count=len(test_collector_result.test_suites),
-            duration_in_sec=test_collector_result.duration,
-        )
-        logging.info(formatted_result)
-
-    def _log_formatted_test_result(self, test_result: TestResult) -> None:
-        test_result = make_path_relative_if_possible(
-            test_result, self._project_root_path
-        )
-        formatted_test_result = format_test_result(test_result)
-        print(formatted_test_result)

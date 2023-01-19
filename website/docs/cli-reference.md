@@ -40,6 +40,8 @@ Input to the account's constructor.
 Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec) format.
 ### `call`
 Calls a contract on StarkNet with given parameters
+#### `--abi PATH`
+Path to the ABI file to be used by Data Transformer. If not provided, Protostar will get the ABI from StarkNet.
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
 #### `--contract-address ADDRESS`
@@ -378,6 +380,8 @@ Show gas estimation for each test case. Estimations might be inaccurate.
 Exit immediately on first broken or failed test.
 #### `-i` `--ignore STRING[]`
 A glob or globs to a directory or a test suite, which should be ignored.
+#### `--json`
+Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec) format.
 #### `-lf` `--last-failed`
 Only re-run failed and broken test cases.
 #### `--max-steps INT`

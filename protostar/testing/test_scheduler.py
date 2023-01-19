@@ -1,8 +1,10 @@
 import multiprocessing
 import signal
+import dataclasses
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, List, Optional
 
+from .test_results import TestResult
 from .test_collector import TestCollector
 from .test_runner import TestRunner
 from .test_shared_tests_state import SharedTestsState
@@ -10,6 +12,18 @@ from .testing_seed import Seed
 
 if TYPE_CHECKING:
     from protostar.commands.test.testing_live_logger import TestingLiveLogger
+
+
+def make_path_relative_if_possible(test_result: TestResult, path: Path) -> TestResult:
+    try:
+        test_result = dataclasses.replace(
+            test_result,
+            file_path=test_result.file_path.resolve().relative_to(path.resolve()),
+        )
+    except ValueError:
+        # We do this to preserve the functionality of running tests that are outside of the project
+        pass
+    return test_result
 
 
 class TestScheduler:
@@ -33,10 +47,11 @@ class TestScheduler:
         exit_first: bool,
         testing_seed: Seed,
         max_steps: Optional[int],
-        project_root_path_str: str,
+        project_root_path: Path,
         cwd: Path,
         active_profile_name: Optional[str],
         gas_estimation_enabled: bool,
+        on_exit_first: Callable[[], None],
     ):
         with multiprocessing.Manager() as manager:
             shared_tests_state = SharedTestsState(
@@ -51,7 +66,7 @@ class TestScheduler:
                     profiling=profiling,
                     testing_seed=testing_seed,
                     max_steps=max_steps,
-                    project_root_path=Path(project_root_path_str),
+                    project_root_path=project_root_path,
                     active_profile_name=active_profile_name,
                     cwd=cwd,
                     gas_estimation_enabled=gas_estimation_enabled,
@@ -61,7 +76,7 @@ class TestScheduler:
 
             # A test case was broken
             if exit_first and shared_tests_state.any_failed_or_broken():
-                self._live_logger.log_testing_summary(test_collector_result)
+                on_exit_first()
                 return
 
             try:
@@ -70,9 +85,10 @@ class TestScheduler:
                     initializer=_init_worker,
                 ) as pool:
                     results = pool.map_async(self._worker, setups)
-
-                    self._live_logger.log(shared_tests_state, test_collector_result)
-
+                    self._live_logger.log(
+                        shared_tests_state,
+                        test_collector_result,
+                    )
                     if exit_first and shared_tests_state.any_failed_or_broken():
                         pool.terminate()
                         return

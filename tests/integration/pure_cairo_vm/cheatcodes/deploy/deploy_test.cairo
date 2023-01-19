@@ -1,5 +1,24 @@
 from starkware.cairo.common.math import assert_not_zero
 
+func test_deploying_pipeline_with_path(){
+    alloc_locals;
+    local declared_class;
+    local deployed_hash;
+
+    %{
+        declared = declare("./src/main.cairo")
+        ids.declared_class = declared.class_hash
+        prepared = prepare(declared)
+        deployed = deploy(prepared)
+        ids.deployed_hash = deployed.contract_address
+    %}
+
+    assert_not_zero(declared_class);
+    assert_not_zero(deployed_hash);
+
+    return ();
+}
+
 func test_deploying_pipeline(){
     alloc_locals;
     local declared_class;

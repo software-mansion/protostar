@@ -272,9 +272,9 @@ def test_deploy_account_is_available(protostar: ProtostarFixture):
 
 @pytest.mark.usefixtures("init")
 def test_calculate_account_address_is_available(protostar: ProtostarFixture):
-    def run(json_format: bool):
+    def run(structured_format: bool):
         optionals = []
-        if json_format:
+        if structured_format:
             optionals.append("--json")
         return protostar(
             [
@@ -289,8 +289,8 @@ def test_calculate_account_address_is_available(protostar: ProtostarFixture):
             ignore_stderr=True,
         )
 
-    human_output = run(json_format=False)
-    json_output = run(json_format=True)
+    human_output = run(structured_format=False)
+    json_output = run(structured_format=True)
 
     assert (
         "Address: 0x033f7162354afe9442cc91d8f62a09613d33558c9fcdaf8a97912895e3f7ce93\n"

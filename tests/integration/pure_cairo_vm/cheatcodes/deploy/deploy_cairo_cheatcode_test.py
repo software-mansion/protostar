@@ -6,7 +6,7 @@ from tests.integration.conftest import (
     CreateProtostarProjectFixture,
     assert_cairo_test_cases,
 )
-from tests.integration.protostar_fixture import ProtostarFixture
+from tests.integration._conftest import ProtostarFixture
 from tests.integration.pure_cairo_vm.conftest import RunCairoTestRunnerFixture
 
 CONTRACTS_PATH = Path(__file__).parent.parent / "contracts"
@@ -36,6 +36,7 @@ async def test_deploy_pipeline(
         testing_summary,
         expected_passed_test_cases_names=[
             "test_deploying_pipeline",
+            "test_deploying_pipeline_with_path",
             "test_two_interleaving_flows",
         ],
     )

@@ -2,7 +2,7 @@ import ctypes
 from multiprocessing.managers import SyncManager
 
 from .test_collector import TestCollector
-from .test_results import PassedTestCaseResult, TestResult
+from .test_results import AcceptableResult, TestResult
 
 
 class SharedTestsState:
@@ -21,7 +21,7 @@ class SharedTestsState:
         return self._shared_queue.get(block=True, timeout=20000)
 
     def put_result(self, item: TestResult) -> None:
-        if not isinstance(item, PassedTestCaseResult):
+        if not isinstance(item, AcceptableResult):
             self._any_failed_or_broken_shared_value.value = True
         self._shared_queue.put(item)
 

@@ -7,22 +7,20 @@ from starknet_py.net.client_models import Declare, TransactionStatus
 from starknet_py.net.gateway_client import GatewayClient
 from starkware.starknet.public.abi import AbiType
 
-from protostar.compiler.compiled_contract_reader import CompiledContractReader
+from protostar.protostar_exception import ProtostarException
 from protostar.starknet.data_transformer import CairoOrPythonData
-from protostar.starknet import Address
+from protostar.starknet import Address, Selector
 from protostar.starknet_gateway import (
     DeployAccountArgs,
     FeeExceededMaxFeeException,
     GatewayFacade,
     InputValidationException,
-    UnknownFunctionException,
-    ContractNotFoundException,
 )
 from tests._conftest.devnet import DevnetAccount, DevnetFixture
-from tests.conftest import MAX_FEE, TESTS_ROOT_PATH, SetPrivateKeyEnvVarFixture
+from tests.conftest import MAX_FEE, SetPrivateKeyEnvVarFixture
 from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR, IDENTITY_CONTRACT
 from tests.integration.conftest import CreateProtostarProjectFixture
-from tests.integration.protostar_fixture import (
+from tests.integration._conftest import (
     GatewayClientTxInterceptor,
     ProtostarFixture,
     TransactionRegistry,
@@ -59,7 +57,6 @@ def gateway_client_fixture(
 def gateway_facade_fixture(gateway_client: GatewayClient):
     return GatewayFacade(
         gateway_client=gateway_client,
-        compiled_contract_reader=CompiledContractReader(),
         project_root_path=Path(),
     )
 
@@ -126,10 +123,10 @@ async def test_call(
         max_fee="auto",
     )
 
-    response = await gateway_facade.call(
-        deployed_contract.address,
-        function_name="get_balance",
-        inputs={},
+    response = await gateway_facade.send_call(
+        address=deployed_contract.address,
+        selector=Selector("get_balance"),
+        cairo_calldata=[],
     )
 
     initial_balance = 0
@@ -148,59 +145,24 @@ async def test_call_to_unknown_function(
         max_fee="auto",
     )
 
-    with pytest.raises(UnknownFunctionException):
-        await gateway_facade.call(
-            deployed_contract.address,
-            function_name="UNKNOWN_FUNCTION",
-            inputs={},
+    with pytest.raises(
+        ProtostarException,
+        match='"UNKNOWN_FUNCTION" not found',
+    ):
+        await gateway_facade.send_call(
+            address=deployed_contract.address,
+            selector=Selector("UNKNOWN_FUNCTION"),
         )
 
 
 async def test_call_to_unknown_contract(gateway_facade: GatewayFacade):
-    with pytest.raises(ContractNotFoundException):
-        await gateway_facade.call(
-            Address.from_user_input(123),
-            function_name="UNKNOWN_FUNCTION",
-        )
-
-
-async def test_call_to_with_incorrect_args(
-    gateway_facade: GatewayFacade,
-    declared_class_hash: int,
-    devnet_account: DevnetAccount,
-):
-    deployed_contract = await gateway_facade.deploy_via_udc(
-        declared_class_hash,
-        account_address=devnet_account.address,
-        signer=devnet_account.signer,
-        max_fee="auto",
-    )
-
-    with pytest.raises(InputValidationException):
-        await gateway_facade.call(
-            deployed_contract.address,
-            function_name="get_balance",
-            inputs={"UNKNOWN_ARG": 42},
-        )
-
-
-async def test_call_to_with_positional_incorrect_args(
-    gateway_facade: GatewayFacade,
-    declared_class_hash: int,
-    devnet_account: DevnetAccount,
-):
-    deployed_contract = await gateway_facade.deploy_via_udc(
-        declared_class_hash,
-        account_address=devnet_account.address,
-        signer=devnet_account.signer,
-        max_fee="auto",
-    )
-
-    with pytest.raises(InputValidationException):
-        await gateway_facade.call(
-            deployed_contract.address,
-            function_name="get_balance",
-            inputs=[42],
+    with pytest.raises(
+        ProtostarException,
+        match="Contract .* not found",
+    ):
+        await gateway_facade.send_call(
+            address=Address.from_user_input(123),
+            selector=Selector("_"),
         )
 
 
@@ -404,54 +366,3 @@ async def test_deploy_account(
     assert tx.class_hash == deploy_account_args.account_class_hash
     assert tx.contract_address_salt == deploy_account_args.account_address_salt
     await devnet.assert_transaction_accepted(response.transaction_hash)
-
-
-async def test_calling_through_proxy(
-    gateway_facade: GatewayFacade,
-    compiled_contract_path: Path,
-    devnet_account: DevnetAccount,
-):
-    declared = await gateway_facade.declare(
-        compiled_contract_path=compiled_contract_path,
-        wait_for_acceptance=True,
-        account_address=devnet_account.address,
-        signer=devnet_account.signer,
-        token=None,
-        max_fee=213700000000000,
-    )
-
-    contract = await gateway_facade.deploy_via_udc(
-        declared.class_hash,
-        account_address=devnet_account.address,
-        signer=devnet_account.signer,
-        max_fee="auto",
-        wait_for_acceptance=True,
-        salt=2,
-    )
-
-    declared_proxy = await gateway_facade.declare(
-        compiled_contract_path=TESTS_ROOT_PATH
-        / "data"
-        / "oz_proxy_compiled_contract.json",
-        wait_for_acceptance=True,
-        account_address=devnet_account.address,
-        signer=devnet_account.signer,
-        max_fee=213700000000000,
-        token=None,
-    )
-
-    proxy = await gateway_facade.deploy_via_udc(
-        declared_proxy.class_hash,
-        inputs=[int(contract.address)],
-        account_address=devnet_account.address,
-        signer=devnet_account.signer,
-        max_fee="auto",
-        wait_for_acceptance=True,
-    )
-
-    call_result = await gateway_facade.call(
-        address=proxy.address,
-        function_name="get_balance",
-    )
-
-    assert call_result.res == 0  # type: ignore

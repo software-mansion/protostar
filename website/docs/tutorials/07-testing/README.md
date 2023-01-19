@@ -58,6 +58,14 @@ All functions inside a test file starting with `test_` are treated as separate t
 Protostar auto-removes constructors from test files. You can test a constructor using the `deploy_contract` cheatcode.
 :::
 
+:::note
+If you need to print machine-readable output in JSON format, you should use `--json` flag.
+
+This may come in handy for writing scripts that include protostar commands.
+
+For more information, go to [this page](../08-interacting-with-starknet/scripting.md)
+:::
+
 ## Asserts
 
 Protostar ships with its own assert functions. They don't accept [implicit arguments](https://www.cairo-lang.org/docs/how_cairo_works/builtins.html?highlight=implicit%20arguments#implicit-arguments) compared to asserts from [`starkware.cairo.common.math`](https://github.com/starkware-libs/cairo-lang/blob/master/src/starkware/cairo/common/math.cairo). You can import Protostar asserts in the following way:

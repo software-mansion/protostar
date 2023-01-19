@@ -1,3 +1,5 @@
+import json
+import os
 import shutil
 from os import listdir
 from pathlib import Path
@@ -274,3 +276,73 @@ def test_skipping(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     result = protostar(["test", "tests"])
     assert "SKIP" in result
     assert "REASON" in result
+
+
+@pytest.mark.usefixtures("init")
+def test_structured_output_passed_failed(
+    protostar: ProtostarFixture, copy_fixture: CopyFixture
+):
+    copy_fixture("test_failed.cairo", "./tests")
+    copy_fixture("test_passed.cairo", "./tests")
+    copy_fixture("test_skip.cairo", "./tests")
+    result = protostar(
+        [
+            "test",
+            "tests/test_failed.cairo",
+            "tests/test_passed.cairo",
+            "tests/test_skip.cairo",
+            "--json",
+        ],
+        expect_exit_code=1,
+    )
+
+    ndjson_result = []
+    for item in result.split(os.linesep):
+        try:
+            ndjson_result.append(json.loads(item))
+        except json.decoder.JSONDecodeError:
+            pass
+
+    for item in ndjson_result:
+        message_type = item.get("message_type")
+        assert message_type in [
+            "test_collector_result",
+            "testing_summary",
+            "test_case_result",
+        ]
+        if message_type == "test_case_result":
+            assert item["test_type"] in [
+                "failed_test_case",
+                "passed_test_case",
+                "skipped_test_case",
+            ]
+        if message_type == "testing_summary":
+            assert item["test_suite_counts"]["total"] == 3
+            assert item["test_suite_counts"]["failed"] == 1
+            assert item["test_suite_counts"]["passed"] == 2
+
+            assert item["test_case_counts"]["total"] == 3
+            assert item["test_case_counts"]["failed"] == 1
+            assert item["test_case_counts"]["passed"] == 1
+            assert item["test_case_counts"]["skipped"] == 1
+
+
+@pytest.mark.usefixtures("init")
+def test_structured_output_broken(
+    protostar: ProtostarFixture, copy_fixture: CopyFixture
+):
+    copy_fixture("test_broken.cairo", "./tests")
+    result = protostar(
+        ["test", "tests/test_broken.cairo", "--json"], expect_exit_code=1
+    )
+
+    ndjson_result = []
+    for item in result.split(os.linesep):
+        try:
+            ndjson_result.append(json.loads(item))
+        except json.decoder.JSONDecodeError:
+            pass
+
+    assert len(ndjson_result) == 1
+    assert ndjson_result[0]["message_type"] == "test_collector_result"
+    assert ndjson_result[0]["broken_test_suites_count"] == 1

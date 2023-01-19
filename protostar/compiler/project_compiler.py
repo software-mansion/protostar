@@ -13,10 +13,10 @@ from starkware.starknet.core.os.class_hash import compute_class_hash
 from protostar.compiler.compiled_contract_writer import CompiledContractWriter
 from protostar.configuration_file.configuration_file import ConfigurationFile
 from protostar.protostar_exception import ProtostarException
-from protostar.starknet.compiler.pass_managers import StarknetPassManagerFactory
-from protostar.starknet.compiler.starknet_compilation import (
-    CompilerConfig,
+from protostar.starknet import (
+    StarknetPassManagerFactory,
     StarknetCompiler,
+    StarknetCompilerConfig,
 )
 
 from .project_cairo_path_builder import ProjectCairoPathBuilder
@@ -98,7 +98,7 @@ class ProjectCompiler:
         current_config = config or self._default_config
 
         return StarknetCompiler(
-            config=CompilerConfig(
+            config=StarknetCompilerConfig(
                 include_paths=self._build_str_cairo_path_list(
                     current_config.relative_cairo_path
                 ),

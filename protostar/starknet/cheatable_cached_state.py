@@ -2,22 +2,22 @@ from pathlib import Path
 from typing import Dict, List
 
 from services.everest.business_logic.state_api import StateProxy
-from starkware.starknet.business_logic.fact_state.state import CarriedState
 from starkware.starknet.business_logic.state.state import (
-    CachedState,
-    StateSyncifier,
     ContractClassCache,
 )
 from starkware.starknet.public.abi import AbiType
 from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from starkware.starknet.business_logic.state.state_api import StateReader
+
+from starkware.starknet.business_logic.fact_state.state import CarriedState
+from starkware.starknet.business_logic.state.state import CachedState, StateSyncifier
 from typing_extensions import Self
 
-from protostar.starknet.cheaters import BlockInfoCheater, Cheaters, ContractsCheater
+from protostar.starknet.cheaters import BlockInfoCheater, Cheaters
 from protostar.starknet.types import ClassHashType, SelectorType
 from protostar.starknet.data_transformer import CairoOrPythonData
 
-from .address import Address
+from protostar.starknet.address import Address
 
 
 # pylint: disable=too-many-instance-attributes
@@ -48,7 +48,6 @@ class CheatableCachedState(CachedState):
 
         self.cheaters = Cheaters(
             block_info=BlockInfoCheater(self.block_info),
-            contracts=ContractsCheater(self),
         )
 
     def _copy(self):
@@ -175,7 +174,16 @@ class CheatableCachedState(CachedState):
                 del self.expected_contract_calls[contract_address]
 
 
-def cheaters_of(state: StateProxy) -> Cheaters:
+class CheatableStateException(Exception):
+    def __init__(self, message: str) -> None:
+        self.message = message
+        super().__init__(message)
+
+    def __str__(self) -> str:
+        return str(self.message)
+
+
+def cheaters_of(state: StateProxy) -> "Cheaters":
     """
     Extracts the ``Cheaters`` object from any State structures.
 
@@ -187,17 +195,13 @@ def cheaters_of(state: StateProxy) -> Cheaters:
         return state.cheaters
 
     if isinstance(state, CachedState):
-        raise TypeError(
-            f"Protostar should always operate on {CheatableCachedState.__name__}."
-        )
+        raise TypeError("Protostar should always operate on CheatableCachedState.")
 
     if isinstance(state, CarriedState):
         state = state.state
 
         if not isinstance(state, CheatableCachedState):
-            raise TypeError(
-                f"Carried state is not carrying {CheatableCachedState.__name__}."
-            )
+            raise TypeError("Carried state is not carrying CheatableCachedState.")
 
         return state.cheaters
 
@@ -205,19 +209,8 @@ def cheaters_of(state: StateProxy) -> Cheaters:
         state = state.async_state
 
         if not isinstance(state, CheatableCachedState):
-            raise TypeError(
-                f"State syncifier is not carrying {CheatableCachedState.__name__}."
-            )
+            raise TypeError("State syncifier is not carrying CheatableCachedState.")
 
         return state.cheaters
 
     raise TypeError(f"Unknown State class {state.__class__.__name__}.")
-
-
-class CheatableStateException(Exception):
-    def __init__(self, message: str) -> None:
-        self.message = message
-        super().__init__(message)
-
-    def __str__(self) -> str:
-        return str(self.message)

@@ -18,11 +18,6 @@ class SuccessfulDeclareResponse:
 
 
 @dataclass
-class SuccessfulInvokeResponse:
-    transaction_hash: int
-
-
-@dataclass
 class SuccessfulDeployAccountResponse:
     address: Address
     transaction_hash: int

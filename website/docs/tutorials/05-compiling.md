@@ -2,79 +2,51 @@
 sidebar_label: Compilation
 ---
 
-# Project compilation
+# Compiling a Project with Protostar
 
-In order to compile your project:
+To compile your StarkNet contracts using Protostar, follow these steps:
 
-1. Specify contracts and their files in `protostar.toml`.
-2. Run `protostar build`.
-
-##  Specifying contracts and their files
-
-Protostar needs to know how to generate contracts from Cairo files. Each Cairo file that contains an [entrypoint](#entrypoint) should be included in the `"protostar.contracts"` section of the configuration file.
-
-For example, the following configuration tells Protostar to generate two contracts — 'foo' and 'bar'.
-
+1. Specify the contracts and their corresponding Cairo source files in the [`protostar.toml` configuration file](/docs/tutorials/configuration-file).
+Each Cairo file that contains an entrypoint function should be listed in the [`contracts` section of the configuration file](/docs/tutorials/configuration-file#contracts).
+An entrypoint is a function decorated with [`@constructor`](https://starknet.io/docs/hello_starknet/constructors.html), [`@external`](https://starknet.io/docs/hello_starknet/intro.html), [`@view`](https://starknet.io/docs/hello_starknet/intro.html), or [`@l1_handler`](https://starknet.io/docs/hello_starknet/l1l2.html?highlight=l1_handler).
+If a Cairo file is imported by a file that is already included in the contracts section, it does not need to be listed separately.
+For example: 
 ```toml title="protostar.toml"
 # ...
-
-["protostar.contracts"]
-foo = [
-    "./src/main.cairo",
-]
-bar = [
-    "./src/main.cairo",
-]
+[contracts]
+main = ["./src/main.cairo"]
+proxy = ["./src/proxy.cairo"]
 ```
-### Entrypoint
-An entrypoint is a function decorated with one of the following decorators:
+2. Run the [`protostar build`](/docs/cli-reference#build) command.
+This will generate the compiled contracts in the `build` directory by default.
+You can specify a custom output directory using the [`compiled-contracts-dir`](/docs/cli-reference#--compiled-contracts-dir-pathbuild) argument.
 
-- [`@constructor`](https://starknet.io/docs/hello_starknet/constructors.html)
-- [`@external`](https://starknet.io/docs/hello_starknet/intro.html)
-- [`@view`](https://starknet.io/docs/hello_starknet/intro.html)
-- [`@l1_handler`](https://starknet.io/docs/hello_starknet/l1l2.html?highlight=l1_handler)
+```
+$ protostar build --compiled-contracts-dir out
+```
 
-### Contract name
-A contract name refers to an attribute name in this `“protostar.contracts”` section of the configuration file. You can use contract name as a reference to a contract in some Protostar features. In the example above, `foo` and `bar` are contract names.
+This will create the following files in the `out` directory:
 
-## Compiling your project
+```
+protostar-project
+├── src
+│   ├── main.cairo
+│   └── proxy.cairo
+├── out
+│   ├── main.json
+│   ├── main_abi.json
+│   ├── proxy.json
+│   └── proxy_abi.json
+└── protostar.toml
+```
 
-Once you specified contract configurations, run:
+
+## Checking Cairo-lang version
+
+Protostar ships with its own version of Cairo-lang and formatter, so you don't need to set up the environment separately. You can check the version of Cairo-lang that Protostar uses to compile your project by running `protostar -v`.
 
 ```console
-$ protostar build
-```
-
-```console title="A compilation result."
-$ ls ./build
-bar.json     bar_abi.json foo.json     foo_abi.json
-```
-
-:::note
-Protostar detects account contracts. Unlike `starknet-compile`, you don't have to provide `--account_contract` flag to compile them.
-:::
-
-### Output directory
-
-By default, Protostar uses a `build` directory as a compilation destination. However, you can specify a custom directory by running `build` command with the `--output` flag:
-
-```console
-protostar build --output out
-```
-
-### Cairo-lang version
-
-Protostar ships with its own [cairo-lang](https://pypi.org/project/cairo-lang/) and [formatter](./10-formatting.md). You don't have to [set up the environment](https://www.cairo-lang.org/docs/quickstart.html). If you want to check what Cairo version Protostar uses to compile your project, run:
-
-```text title="$ protostar -v"
-Protostar version: 0.1.0
-Cairo-lang version: 0.8.0
-```
-
-### Additional source directories
-
-You can specify additional import search path by using `--cairo-path` flag.
-
-```console
-$ protostar build --cairo-path=modules cairo_libs
+$ protostar -v
+Protostar version: X.Y.Z
+Cairo-lang version: A.B.C
 ```

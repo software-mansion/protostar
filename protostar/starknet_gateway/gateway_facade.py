@@ -1,8 +1,7 @@
 import dataclasses
 from pathlib import Path
-from typing import NamedTuple, Optional, TypeVar, Union
+from typing import Optional, TypeVar, Union
 
-from starknet_py.contract import ContractFunction, InvokeResult
 from starknet_py.net import AccountClient
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.gateway_client import GatewayClient
@@ -19,7 +18,6 @@ from starkware.starknet.public.abi import AbiType
 from typing_extensions import Self, TypeGuard
 
 from protostar.starknet.abi import has_abi_item
-from protostar.compiler import CompiledContractReader
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet.data_transformer import CairoOrPythonData
 from protostar.starknet.selector import Selector
@@ -30,7 +28,6 @@ from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeclareResponse,
     SuccessfulDeployAccountResponse,
     SuccessfulDeployResponse,
-    SuccessfulInvokeResponse,
 )
 from protostar.starknet import Address, CairoData, TransactionHash
 from protostar.starknet_gateway.multicall import MulticallClientResponse
@@ -40,8 +37,7 @@ from protostar.starknet_gateway.multicall.multicall_protocols import (
 )
 from protostar.starknet_gateway.core import PreparedInvokeTransaction
 
-from .contract_function_factory import ContractFunctionFactory
-from .type import ClassHash, ContractFunctionInputType, Fee
+from .type import ClassHash, Fee
 
 
 @dataclasses.dataclass
@@ -68,11 +64,9 @@ class GatewayFacade(MulticallClientProtocol):
         self,
         project_root_path: Path,
         gateway_client: GatewayClient,
-        compiled_contract_reader: CompiledContractReader,
     ):
         self._project_root_path = project_root_path
         self._gateway_client = gateway_client
-        self._compiled_contract_reader = compiled_contract_reader
         self._account_tx_version_detector = AccountTxVersionDetector(
             self._gateway_client
         )
@@ -244,85 +238,6 @@ class GatewayFacade(MulticallClientProtocol):
             transaction_hash=response.transaction_hash,
         )
 
-    async def call(
-        self,
-        address: Address,
-        function_name: str,
-        inputs: Optional[ContractFunctionInputType] = None,
-    ) -> NamedTuple:
-        contract_function = await self._get_contract_function(
-            function_name=function_name,
-            address=address,
-        )
-
-        try:
-            result = await self._call_function(contract_function, inputs)
-        except TransactionFailedError as ex:
-            raise TransactionException(str(ex)) from ex
-        except ClientError as ex:
-            raise TransactionException(message=ex.message) from ex
-
-        return result
-
-    async def invoke(
-        self,
-        contract_address: Address,
-        function_name: str,
-        account_address: Address,
-        signer: BaseSigner,
-        max_fee: Fee,
-        inputs: Optional[CairoOrPythonData] = None,
-        wait_for_acceptance: bool = False,
-    ) -> SuccessfulInvokeResponse:
-        account_client = await self._create_account_client(
-            account_address=account_address, signer=signer
-        )
-        try:
-            contract_function = await self._get_contract_function(
-                function_name=function_name,
-                address=contract_address,
-                client=account_client,
-            )
-            result = await self._invoke_function(
-                contract_function=contract_function,
-                inputs=inputs,
-                max_fee=max_fee,
-            )
-
-        except TransactionFailedError as ex:
-            raise TransactionException(str(ex)) from ex
-        except ClientError as ex:
-            raise TransactionException(message=ex.message) from ex
-
-        result = await result.wait_for_acceptance(wait_for_accept=wait_for_acceptance)
-
-        return SuccessfulInvokeResponse(
-            transaction_hash=result.hash
-            if isinstance(result.hash, int)
-            else int(result.hash),
-        )
-
-    async def _invoke_function(
-        self,
-        contract_function: ContractFunction,
-        max_fee: Fee,
-        inputs: Optional[CairoOrPythonData] = None,
-    ) -> InvokeResult:
-        fee_params = {
-            "max_fee": max_fee if isinstance(max_fee, int) else None,
-            "auto_estimate": max_fee == "auto",
-        }
-
-        if inputs is None:
-            inputs = {}
-
-        try:
-            if isinstance(inputs, list):  # List of felts, raw input
-                return await contract_function.invoke(*inputs, **fee_params)
-            return await contract_function.invoke(**inputs, **fee_params)
-        except (TypeError, ValueError) as ex:
-            raise InputValidationException(str(ex)) from ex
-
     async def _create_account_client(
         self,
         account_address: Address,
@@ -343,32 +258,6 @@ class GatewayFacade(MulticallClientProtocol):
             signer=signer,
             supported_tx_version=supported_by_account_tx_version,
         )
-
-    @staticmethod
-    async def _call_function(
-        contract_function: ContractFunction,
-        inputs: Optional[ContractFunctionInputType] = None,
-    ):
-        if inputs is None:
-            inputs = {}
-
-        try:
-            if isinstance(inputs, list):
-                return await contract_function.call(*inputs)
-            return await contract_function.call(**inputs)
-        except (TypeError, ValueError) as ex:
-            raise InputValidationException(str(ex)) from ex
-
-    async def _get_contract_function(
-        self,
-        address: Address,
-        function_name: str,
-        client: Optional[Union[GatewayClient, AccountClient]] = None,
-    ) -> ContractFunction:
-        if not client:
-            client = self._gateway_client
-
-        return await ContractFunctionFactory(client).create(address, function_name)
 
     async def send_multicall_transaction(
         self, transaction: SignedMulticallTransaction
@@ -392,20 +281,28 @@ class GatewayFacade(MulticallClientProtocol):
         self,
         address: Address,
         selector: Selector,
-        cairo_calldata: CairoData,
+        cairo_calldata: Optional[CairoData] = None,
     ) -> CairoData:
         try:
             return await self._gateway_client.call_contract(
                 call=Call(
                     to_addr=int(address),
                     selector=int(selector),
-                    calldata=cairo_calldata,
+                    calldata=cairo_calldata or [],
                 )
             )
         except ClientError as ex:
+            if "ENTRY_POINT_NOT_FOUND_IN_CONTRACT" in ex.message:
+                raise TransactionException(
+                    message=f'Entry point "{selector}" not found in the contract with address "{address}"'
+                ) from ex
+            if "UNINITIALIZED_CONTRACT" in ex.message:
+                raise TransactionException(
+                    message=f'Contract with address "{address}" not found'
+                ) from ex
             raise TransactionException(message=ex.message) from ex
 
-    async def send_payload_to_account_execute(
+    async def send_prepared_invoke_tx(
         self, prepared_invoke_tx: PreparedInvokeTransaction
     ) -> TransactionHash:
         try:

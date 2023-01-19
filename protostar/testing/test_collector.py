@@ -89,6 +89,9 @@ class TestCollector:
             self.broken_test_suites: List[BrokenTestSuiteResult] = (
                 broken_test_suites or []
             )
+            self.total_test_suites_count = len(test_suites)
+            if broken_test_suites:
+                self.total_test_suites_count += len(broken_test_suites)
             self.test_cases_count = sum(
                 len(test_suite.test_cases) for test_suite in test_suites
             )

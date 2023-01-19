@@ -10,7 +10,7 @@ from protostar.starknet_gateway import FeeExceededMaxFeeException
 from tests.conftest import DevnetAccount, SetPrivateKeyEnvVarFixture
 from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR
 from tests.integration.conftest import CreateProtostarProjectFixture
-from tests.integration.protostar_fixture import ProtostarFixture
+from tests.integration._conftest import ProtostarFixture
 
 
 @pytest.fixture(name="protostar", scope="module")
