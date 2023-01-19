@@ -58,7 +58,7 @@ async def test_setup_suite(
     )
 
 
-@pytest.fixture(autouse=True, name="protostar")
+@pytest.fixture(name="protostar")
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
     with create_protostar_project() as protostar:
         yield protostar
