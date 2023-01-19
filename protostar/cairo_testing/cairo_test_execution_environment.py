@@ -32,7 +32,7 @@ class CairoTestExecutionEnvironment(ExecutionEnvironment):
         self._finish_hook = Hook()
         self._profiling = self.state.config.profiling
 
-    async def execute(self, function_name: str):
+    async def execute(self, function_name: str) -> Any:
         with self.state.output_recorder.redirect("test"):
             await self.execute_test_case(function_name)
             return TestExecutionResult(execution_resources=None)
