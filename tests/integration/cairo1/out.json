@@ -2,10 +2,10 @@
   "prime": "0x800000000000011000000000000000000000000000000000000000000000001",
   "bytecode": [
     "0x1104800180018000",
-    "0x3",
+    "0x9",
     "0x208b7fff7fff7ffe",
     "0x1104800180018000",
-    "0x1b",
+    "0x1e",
     "0x208b7fff7fff7ffe",
     "0x1104800180018000",
     "0x46",
@@ -183,11 +183,11 @@
       "name": "examples::cheatcode_caller::test_cheatcode_caller"
     },
     {
-      "offset": 2,
+      "offset": 3,
       "name": "examples::cheatcode_caller::test_cheatcode_caller_twice"
     },
     {
-      "offset": 4,
+      "offset": 6,
       "name": "examples::cheatcode_caller::test_cheatcode_caller_three"
     }
   ]

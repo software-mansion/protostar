@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 from starkware.cairo.lang.compiler.program import Program, CairoHint, ProgramBase
 from starkware.starkware_utils.marshmallow_dataclass_fields import IntAsHex, additional_metadata
 import json
@@ -7,6 +8,8 @@ import json
 @dataclass
 class CairoHintCode:
     code: str
+    accessible_scopes: list[Any]
+    flow_tracking_data: Any
 
 def parse(path: Path):
     with open(path, "r") as f:
@@ -15,7 +18,7 @@ def parse(path: Path):
     data: list[int] = [IntAsHex()._deserialize(v, None, None) for v in progr["bytecode"]]
     hints: dict[int, list[CairoHintCode]] = {}
     for h in progr["hints"]:
-        codes = [CairoHintCode(str(e)) for e in h[1]]
+        codes = [CairoHintCode(str(e), [None], None) for e in h[1]]
         hints[int(h[0])] = codes
     builtins = []
 
@@ -31,6 +34,7 @@ def parse(path: Path):
         attributes=[],
         debug_info=None,
     ) # type: ignore
+    return (prog, progr["test_entry_points"])
 
 
     
