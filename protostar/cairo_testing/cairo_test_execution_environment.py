@@ -1,27 +1,21 @@
 import asyncio
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.compiler.program import Program
 from starkware.cairo.lang.vm.vm_exceptions import VmException
 
-from protostar.testing.starkware.execution_resources_summary import (
-    ExecutionResourcesSummary,
-)
 from protostar.testing.test_environment_exceptions import RevertableException
-from protostar.testing.environments.execution_environment import (
-    ExecutionEnvironment,
-    TestExecutionResult,
-)
+from protostar.testing.environments.execution_environment import ExecutionEnvironment
+
 from protostar.testing.cheatcodes.expect_revert_cheatcode import ExpectRevertContext
 from protostar.testing.hook import Hook
+from protostar.testing.test_context import TestContextHintLocal
 from protostar.cheatable_starknet.cheatable_cached_state import CheatableCachedState
 
-from .cairo_test_cheatcode_factory import (
-    CairoTestCheatcodeFactory,
-)
+from .cairo_test_cheatcode_factory import CairoTestCheatcodeFactory
+
 from .cairo_test_execution_state import CairoTestExecutionState
-from ..testing.test_context import TestContextHintLocal
 
 
 class CairoTestExecutionEnvironment(ExecutionEnvironment):
@@ -35,11 +29,9 @@ class CairoTestExecutionEnvironment(ExecutionEnvironment):
         self._finish_hook = Hook()
         self._profiling = self.state.config.profiling
 
-    async def execute(self, function_name: str) -> TestExecutionResult:
+    async def execute(self, function_name: str):
         with self.state.output_recorder.redirect("test"):
-            return TestExecutionResult(
-                execution_resources=await self.execute_test_case(function_name)
-            )
+            await self.execute_test_case(function_name)
 
     # TODO #1303: Estimate gas if self.state.config.gas_estimation_enabled
     async def execute_test_case(
@@ -47,7 +39,7 @@ class CairoTestExecutionEnvironment(ExecutionEnvironment):
         function_name: str,
         *args: Any,
         **kwargs: Any,
-    ) -> Optional[ExecutionResourcesSummary]:
+    ):
         async with self._expect_revert_context.test():
             async with self._finish_hook.run_after():
                 loop = asyncio.get_running_loop()
