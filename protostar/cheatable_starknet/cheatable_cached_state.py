@@ -1,6 +1,6 @@
 # pylint: disable=duplicate-code
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Union
 
 from starkware.starknet.business_logic.state.state import (
     ContractClassCache,
@@ -11,6 +11,7 @@ from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from starkware.starknet.business_logic.state.state_api import (
     StateReader,
 )
+from starkware.starknet.services.api.contract_class import ContractClass
 from typing_extensions import Self
 
 from protostar.starknet.address import Address
@@ -166,6 +167,14 @@ class CheatableCachedState(CachedState):
             )
 
         return self.class_hash_to_contract_abi_map[class_hash]
+
+    async def get_contract_class_by_address(
+        self, contract_address: Union[Address, int]
+    ) -> ContractClass:
+        if isinstance(contract_address, Address):
+            contract_address = int(contract_address)
+        class_hash = await self.get_class_hash_at(contract_address=contract_address)
+        return await self.get_contract_class(class_hash=class_hash)
 
 
 class CheatableStateException(Exception):

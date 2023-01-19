@@ -148,10 +148,8 @@ class ContractsCairoCheater:
 
     async def invoke_constructor(self, prepared: PreparedContract):
         await transform_calldata_to_cairo_data(
-            contract_class=await self.cheatable_state.get_contract_class(
-                class_hash=await self.cheatable_state.get_class_hash_at(
-                    contract_address=prepared.contract_address
-                )
+            contract_class=await self.cheatable_state.get_contract_class_by_address(
+                contract_address=prepared.contract_address
             ),
             function_name="constructor",
             calldata=prepared.constructor_calldata,
@@ -223,10 +221,8 @@ class ContractsCairoCheater:
     ) -> CairoData:
         contract_address_int = int(contract_address)
         cairo_calldata = await transform_calldata_to_cairo_data(
-            contract_class=await self.cheatable_state.get_contract_class(
-                class_hash=await self.cheatable_state.get_class_hash_at(
-                    contract_address=contract_address_int
-                )
+            contract_class=await self.cheatable_state.get_contract_class_by_address(
+                contract_address=contract_address_int
             ),
             function_name=function_name,
             calldata=calldata,
@@ -262,10 +258,8 @@ class ContractsCairoCheater:
         contract_address_int = int(contract_address)
 
         cairo_calldata = await transform_calldata_to_cairo_data(
-            contract_class=await self.cheatable_state.get_contract_class(
-                class_hash=await self.cheatable_state.get_class_hash_at(
-                    contract_address=contract_address_int
-                )
+            contract_class=await self.cheatable_state.get_contract_class_by_address(
+                contract_address=contract_address_int
             ),
             function_name=function_name,
             calldata=calldata,
