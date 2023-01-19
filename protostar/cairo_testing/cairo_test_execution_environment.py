@@ -44,11 +44,11 @@ class CairoTestExecutionEnvironment(ExecutionEnvironment):
                 execution_resources=await self.execute_test_case(function_name)
             )
             try:
-                maybe_cheatable_state = self.state.starknet.state.state
-                if isinstance(maybe_cheatable_state, CheatableCachedState):
-                    ExpectsCairoCheater.assert_no_expected_calls(
-                        maybe_cheatable_state.expected_contract_calls
-                    )
+                cheatable_state = self.state.starknet.state.state
+                assert isinstance(cheatable_state, CheatableCachedState)
+                ExpectsCairoCheater.assert_no_expected_calls(
+                    cheatable_state.expected_contract_calls
+                )
             except (ProtostarException, CheaterException) as e:
                 raise ReportedException from e
             return result
