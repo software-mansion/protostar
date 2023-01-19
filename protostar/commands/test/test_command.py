@@ -177,6 +177,7 @@ A glob or globs to a directory or a test suite, for example:
             slowest_tests_to_report_count=args.report_slowest_tests,
             gas_estimation_enabled=args.estimate_gas,
             messenger=messenger,
+            use_cairo_test_runner=True,
         )
         cache.write_failed_tests_to_cache(summary)
 

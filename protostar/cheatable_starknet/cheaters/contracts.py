@@ -325,7 +325,7 @@ class ContractsCairoCheater:
         payload: Optional[CairoOrPythonData] = None,
     ) -> CairoData:
         if payload is None:
-            return []
+            return [int(l1_address)]
         if isinstance(payload, collections.Mapping):
             python_payload = {"from_address": int(l1_address), **payload}
             return await self._transform_calldata_to_cairo_data_by_addr(
