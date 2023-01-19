@@ -3,12 +3,12 @@ from typing import Any, Optional
 
 from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
 from protostar.cheatable_starknet.cheaters.contracts import ContractsCheaterException
-
 from protostar.starknet import (
     Address,
     RawAddress,
     CairoOrPythonData,
     CheatcodeException,
+    Selector,
 )
 
 
@@ -27,7 +27,7 @@ class InvokeCairoCheatcode(CairoCheatcode):
         calldata: Optional[CairoOrPythonData] = None,
     ):
         self._invoke(
-            function_name=function_name,
+            entry_point_selector=Selector(function_name),
             calldata=calldata,
             contract_address=Address.from_user_input(contract_address),
         )
@@ -35,14 +35,14 @@ class InvokeCairoCheatcode(CairoCheatcode):
     def _invoke(
         self,
         contract_address: Address,
-        function_name: str,
+        entry_point_selector: Selector,
         calldata: Optional[CairoOrPythonData] = None,
     ):
         try:
             asyncio.run(
                 self.cheaters.contracts.invoke(
                     contract_address=contract_address,
-                    function_name=function_name,
+                    entry_point_selector=entry_point_selector,
                     calldata=calldata,
                     cheaters=self.cheaters,
                 )
