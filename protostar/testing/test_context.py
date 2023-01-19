@@ -1,7 +1,8 @@
 from types import SimpleNamespace
 from typing import Any
 
-from protostar.starknet import HintLocal, SimpleReportedException
+from protostar.cairo import HintLocal
+from protostar.starknet import SimpleReportedException
 
 
 class TestContext(SimpleNamespace):

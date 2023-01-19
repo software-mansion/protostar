@@ -2,7 +2,8 @@ from typing import Any, List, OrderedDict, Tuple, Type, Union
 
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 
-from protostar.starknet import HintLocal, SimpleBreakingReportedException
+from protostar.starknet import SimpleBreakingReportedException
+from protostar.cairo import HintLocal
 
 
 class CairoStructException(SimpleBreakingReportedException):

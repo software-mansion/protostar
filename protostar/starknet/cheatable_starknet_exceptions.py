@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Type, TypeVar, Union, Dict, Any
 
-from .hint_local import HintLocal
+from protostar.cairo import HintLocal
 
 
 class ExceptionMetadata(ABC):
