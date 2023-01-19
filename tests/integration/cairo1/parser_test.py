@@ -1,9 +1,11 @@
-
 from pathlib import Path
-from protostar.starknet.cairo1_parser import parse_test_suite
+from pytest_mock import MockerFixture
+
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.vm.utils import RunResources
-from pytest_mock import MockerFixture
+
+from protostar.starknet.cairo1_parser import parse_test_suite
+
 
 def test_parse(mocker: MockerFixture):
     with open("tests/integration/cairo1/out.json", "r") as file:
@@ -14,9 +16,7 @@ def test_parse(mocker: MockerFixture):
         runner.run_from_entrypoint(
             case.offset,
             *[],
-            hint_locals={
-                "roll": cheat_mock 
-            },
+            hint_locals={"roll": cheat_mock},
             static_locals={
                 "__find_element_max_size": 2**20,
                 "__squash_dict_max_size": 2**20,

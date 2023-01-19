@@ -16,9 +16,8 @@ class RollCheatcode(Cheatcode):
         blk_number: int,
         target_contract_address: Optional[RawAddress] = None,
     ) -> Callable[[], None]:
-        print("Roolll executes!")
-        # target_contract_address = target_contract_address or self.contract_address
-        # return self.cheaters.block_info.cheat(
-        #     contract_address=Address.from_user_input(target_contract_address),
-        #     block_number=blk_number,
-        # )
+        target_contract_address = target_contract_address or self.contract_address
+        return self.cheaters.block_info.cheat(
+            contract_address=Address.from_user_input(target_contract_address),
+            block_number=blk_number,
+        )
