@@ -26,5 +26,3 @@ def test_parse():
         run_resources=RunResources(n_steps=100000000000000000),
         verify_secure=False,
     )
-
-    assert False
