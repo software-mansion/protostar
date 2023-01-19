@@ -21,6 +21,7 @@ class SendMessageToL2CairoCheatcode(CairoCheatcode):
         ) -> None:
             asyncio.run(
                 self.cheaters.contracts.send_message_to_l2(
+                    cheaters=self.cheaters,
                     from_l1_address=Address.from_user_input(from_address),
                     to_l2_address=Address.from_user_input(to_address),
                     selector=Selector(function_name),

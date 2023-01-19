@@ -289,6 +289,7 @@ class ContractsCairoCheater:
 
     async def send_message_to_l2(
         self,
+        cheaters: "CairoCheaters",
         selector: Selector,
         from_l1_address: Address,
         to_l2_address: Address,
@@ -300,11 +301,12 @@ class ContractsCairoCheater:
             payload=payload,
             selector=selector,
         )
-        entry_point = CheatableExecuteEntryPoint.create_for_testing(
-            contract_address=int(to_l2_address),
+        entry_point = CheatableExecuteEntryPoint.create_with_cheaters(
+            cheaters=cheaters,
+            contract_address=to_l2_address,
             calldata=cairo_calldata,
-            caller_address=int(from_l1_address),
-            entry_point_selector=int(selector),
+            caller_address=from_l1_address,
+            entry_point_selector=selector,
             entry_point_type=EntryPointType.L1_HANDLER,
             call_type=CallType.DELEGATE,
             class_hash=await self.cheatable_state.get_class_hash_at(int(to_l2_address)),

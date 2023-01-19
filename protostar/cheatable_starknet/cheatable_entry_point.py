@@ -63,7 +63,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         cls,
         cheaters: "CairoCheaters",
         contract_address: Address,
-        calldata: List[int],
+        calldata: list[int],
         entry_point_selector: Selector,
         entry_point_type: Optional[EntryPointType] = None,
         caller_address: Optional[Address] = None,
