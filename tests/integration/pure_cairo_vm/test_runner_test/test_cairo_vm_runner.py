@@ -7,9 +7,10 @@ from tests.integration.conftest import (
     assert_cairo_test_cases,
     CreateProtostarProjectFixture,
 )
-from tests.integration.pure_cairo_vm.conftest import RunCairoTestRunnerFixture
-
-CONTRACTS_PATH = Path(__file__).parent.parent / "contracts"
+from tests.integration.pure_cairo_vm.conftest import (
+    RunCairoTestRunnerFixture,
+    CONTRACTS_PATH,
+)
 
 
 async def test_pure_cairo_testing(
