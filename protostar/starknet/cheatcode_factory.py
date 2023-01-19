@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List
 
 from protostar.starknet.cheatcode import Cheatcode
-from protostar.starknet.hint_local import HintLocal
+from protostar.cairo import HintLocal
 
 
 class CheatcodeFactory(ABC):

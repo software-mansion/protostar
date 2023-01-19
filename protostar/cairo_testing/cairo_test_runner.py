@@ -6,6 +6,7 @@ from typing import List, Optional, TYPE_CHECKING
 
 from starkware.cairo.lang.compiler.program import Program
 
+from protostar.cairo.cairo_compiler import CairoCompiler, CairoCompilerConfig
 from protostar.cairo_testing.cairo_setup_execution_environment import (
     CairoSetupExecutionEnvironment,
 )
@@ -15,14 +16,10 @@ from protostar.compiler import (
 )
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.starknet import ReportedException
-from protostar.starknet.compiler.cairo_compilation import CairoCompiler
 from protostar.configuration_file.configuration_file_factory import (
     ConfigurationFileFactory,
 )
 from protostar.protostar_exception import ProtostarException
-from protostar.starknet.compiler.starknet_compilation import (
-    CompilerConfig,
-)
 from protostar.testing import (
     UnexpectedBrokenTestSuiteResult,
     BrokenTestSuiteResult,
@@ -32,9 +29,7 @@ from protostar.testing import (
 from protostar.cairo_testing.cairo_test_execution_environment import (
     CairoTestExecutionEnvironment,
 )
-from protostar.cairo_testing.cairo_test_execution_state import (
-    CairoTestExecutionState,
-)
+from protostar.cairo_testing.cairo_test_execution_state import CairoTestExecutionState
 from protostar.testing.test_case_runners.standard_test_case_runner import (
     StandardTestCaseRunner,
 )
@@ -89,7 +84,7 @@ class CairoTestRunner:
             )
         )
 
-        compiler_config = CompilerConfig(
+        compiler_config = CairoCompilerConfig(
             include_paths=[str(path) for path in project_cairo_path],
             disable_hint_validation=project_compiler_config.hint_validation_disabled,
         )

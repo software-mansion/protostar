@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from pathlib import Path
 from typing import List
 
@@ -6,12 +7,17 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor import Preprocessed
 from starkware.cairo.lang.compiler.preprocessor.preprocess_codes import preprocess_codes
 from starkware.cairo.lang.compiler.program import Program
 
-from .common import CompilerConfig
-from .pass_managers import CairoPassManagerFactory
+from .cairo_pass_manager import CairoPassManagerFactory
+from .pass_manager import PassManagerConfig
+
+
+@dataclass(frozen=True)
+class CairoCompilerConfig(PassManagerConfig):
+    pass
 
 
 class CairoCompiler:
-    def __init__(self, config: CompilerConfig):
+    def __init__(self, config: CairoCompilerConfig):
         self.compiler_config = config
 
     def preprocess(self, file: Path) -> PreprocessedProgram:  # TODO #1280: Cache result
