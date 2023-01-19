@@ -18,7 +18,7 @@ main = ["src/feature_a.cairo", "src/feature_b.cairo"]
 proxy = ["src/proxy.cairo"]
 account = ["src/account.cairo"]
 
-# Command Configuration
+# Command Arguments Configuration Section
 [test]
 target = ["src"]
 
@@ -37,7 +37,7 @@ network = "testnet"
 ```
 
 
-### `[project]`
+### `[project]` section
 The `[project]` section of the `protostar.toml` file allows you to specify global options and settings for your project.
 #### `protostar-version`
 This attribute is defines what Protostar version should be used with your project.
@@ -49,7 +49,7 @@ This attribute should be updated manually.
 You can specify options that are shared by multiple Protostar commands in the `[project]` section.
 For example, the [`lib-path`](/docs/cli-reference#--lib-path-path) option is used by the [`install`](/docs/cli-reference#install), [`update`](/docs/cli-reference#update), and [`remove`](/docs/cli-reference#remove) commands, and [`cairo-path`](/docs/cli-reference#--cairo-path-path) is used by the [`build`](/docs/cli-reference#build) and [`test`](/docs/cli-reference#test) commands.
 
-### `[contracts]`
+### `[contracts]` section
 The `[contracts]` section allows you to define contract names and the corresponding files that make up each contract.
 This is useful because it allows you to refer to contracts by name rather than having to specify the full file path each time.
 You can also combine multiple files into a single contract.
@@ -62,8 +62,8 @@ Here is an example of how to define a contract in the [contracts] section:
 my_contract = ["src/feature_a.cairo", "src/feature_b.cairo"]   
 ```
 
-### `[COMMAND]`
-The `[COMMAND]` section of the `protostar.toml` file allows you to specify options and settings for a specific Protostar command.
+### Command Arguments Configuration Section
+The Command Arguments Configuration section of the `protostar.toml` file allows you to specify options and settings for a specific Protostar command.
 
 For example, the following configuration file specifies the [`target`](/docs/cli-reference#target-string) and [`ignore-broken`](/docs/cli-reference#--ignore-broken) arguments for the [`protostar format` command](/docs/cli-reference#format):
 
@@ -108,15 +108,15 @@ This command makes the following changes to your protostar.toml file:
 
 Here is a table showing the changes between the old and new configuration files:
 
-| protostar.toml V1                                  | protostar.toml V2          |
-| -------------------------------------------------- | -------------------------- |
-| `["protostar.config"]`                             | `[project]`                |
-| `["protostar.project"]`                            | `[project]`                |
-| `["protostar.shared_command_configs"]`             | `[project]`                |
-| `["protostar.contracts"]`, `["protostar.COMMAND"]` | `[contracts]`, `[COMMAND]` |
-| `cairo_path = ...`, `cairo-path = ...`             | `cairo-path = ...`         |
+| protostar.toml V1                                     | protostar.toml V2             |
+| ----------------------------------------------------- | ----------------------------- |
+| `["protostar.config"]`                                | `[project]`                   |
+| `["protostar.project"]`                               | `[project]`                   |
+| `["protostar.shared_command_configs"]`                | `[project]`                   |
+| `["protostar.contracts"]`, `["protostar.build"]`, ... | `[contracts]`, `[build]`, ... |
+| `cairo_path = ...`, `cairo-path = ...`                | `cairo-path = ...`            |
 
-To migrate your protostar.toml file, run the following command:
+To migrate your `protostar.toml` file, run the following command:
 
 ```console
 protostar migrate-configuration-file
