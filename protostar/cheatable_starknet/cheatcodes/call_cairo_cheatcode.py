@@ -44,7 +44,6 @@ class CallCairoCheatcode(CairoCheatcode):
                 function_name=function_name,
                 calldata=calldata,
                 cheaters=self.cheaters,
-                unregister_expected_call=self.cheaters.expects.unregister_expected_call,
             )
         except CheaterException as exc:
             raise CheatcodeException(self, exc.message) from exc

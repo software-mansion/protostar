@@ -1,6 +1,6 @@
 import copy
 from pathlib import Path
-from typing import List, Optional, TYPE_CHECKING, Callable
+from typing import List, Optional, TYPE_CHECKING
 
 
 from starkware.python.utils import to_bytes, from_bytes
@@ -216,7 +216,6 @@ class ContractsCairoCheater:
         contract_address: Address,
         function_name: str,
         cheaters: "CairoCheaters",
-        unregister_expected_call: Callable,
         calldata: Optional[CairoOrPythonData] = None,
     ) -> CairoData:
         contract_address_int = int(contract_address)
@@ -227,15 +226,6 @@ class ContractsCairoCheater:
             function_name=function_name,
             calldata=calldata,
         )
-        function_selector = get_selector_from_name(function_name)
-        if self.cheatable_state.expected_contract_calls:
-            contract_address = Address.from_user_input(str(contract_address))
-
-            unregister_expected_call(
-                contract_address=contract_address,
-                function_selector=function_selector,
-                calldata=cairo_calldata,
-            )
         entry_point = CheatableExecuteEntryPoint.create_with_cheaters(
             contract_address=contract_address_int,
             calldata=cairo_calldata,

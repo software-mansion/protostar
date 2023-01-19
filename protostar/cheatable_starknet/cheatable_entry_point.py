@@ -37,6 +37,8 @@ from starkware.starkware_utils.error_handling import (
     wrap_with_stark_exception,
 )
 
+from protostar.starknet import Address
+
 from .cheatable_syscall_handler import CheatableSysCallHandler
 
 if TYPE_CHECKING:
@@ -273,6 +275,12 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             sync_state = StateSyncifier(async_state=state, loop=get_running_loop())  # type: ignore
         else:
             sync_state = state
+
+        self.cheaters.expects.unregister_expected_call(
+            contract_address=Address.from_user_input(self.contract_address),
+            function_selector=self.entry_point_selector,
+            calldata=self.calldata,
+        )
 
         return super().execute(
             state=sync_state,
