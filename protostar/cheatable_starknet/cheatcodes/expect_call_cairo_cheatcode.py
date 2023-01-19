@@ -5,7 +5,7 @@ from protostar.starknet import CheatcodeException
 from protostar.starknet import RawAddress, Address
 from protostar.starknet.cheater import CheaterException
 from protostar.starknet.data_transformer import CairoOrPythonData
-from protostar.testing.cairo_cheatcodes.cairo_cheatcode import CairoCheatcode
+from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
 
 
 class ExpectCallCairoCheatcode(CairoCheatcode):

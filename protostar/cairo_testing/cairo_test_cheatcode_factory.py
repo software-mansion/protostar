@@ -5,6 +5,7 @@ from protostar.cheatable_starknet.cheatable_cached_state import (
 )
 from protostar.cheatable_starknet.cheaters.block_info import BlockInfoCairoCheater
 from protostar.cheatable_starknet.cheaters.contracts import ContractsCairoCheater
+from protostar.cheatable_starknet.cheaters.expects import ExpectsCairoCheater
 
 from protostar.cheatable_starknet.cheaters import (
     CairoCheaters,
@@ -34,6 +35,9 @@ from protostar.cheatable_starknet.cheatcodes.warp_cairo_cheatcode import (
 from protostar.cheatable_starknet.cheatcodes.call_cairo_cheatcode import (
     CallCairoCheatcode,
 )
+from protostar.cheatable_starknet.cheatcodes.expect_call_cairo_cheatcode import (
+    ExpectCallCairoCheatcode,
+)
 from protostar.compiler import ProjectCompiler
 
 
@@ -50,6 +54,7 @@ class CairoTestCheatcodeFactory:
         cheaters = CairoCheaters(
             block_info=BlockInfoCairoCheater(cheatable_state=self.cheatable_state),
             contracts=ContractsCairoCheater(cheatable_state=self.cheatable_state),
+            expects=ExpectsCairoCheater(cheatable_state=self.cheatable_state),
         )
         declare_cheatcode = DeclareCairoCheatcode(
             cheaters=cheaters,
@@ -78,4 +83,5 @@ class CairoTestCheatcodeFactory:
             InvokeCairoCheatcode(
                 cheaters=cheaters,
             ),
+            ExpectCallCairoCheatcode(cheaters=cheaters),
         ]

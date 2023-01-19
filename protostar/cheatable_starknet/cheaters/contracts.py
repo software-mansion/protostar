@@ -1,6 +1,6 @@
 import copy
 from pathlib import Path
-from typing import List, Optional, TYPE_CHECKING
+from typing import List, Optional, TYPE_CHECKING, Callable
 
 
 from starkware.python.utils import to_bytes, from_bytes
@@ -45,9 +45,6 @@ from protostar.starknet.data_transformer import (
     CairoData,
     transform_calldata_to_cairo_data,
 )
-
-from .stateful import StatefulCheater
-
 
 if TYPE_CHECKING:
     from . import CairoCheaters
@@ -151,8 +148,10 @@ class ContractsCairoCheater:
 
     async def invoke_constructor(self, prepared: PreparedContract):
         await transform_calldata_to_cairo_data(
-            contract_class=await self.cheatable_state.get_contract_class_by_address(
-                contract_address=prepared.contract_address
+            contract_class=await self.cheatable_state.get_contract_class(
+                class_hash=await self.cheatable_state.get_class_hash_at(
+                    contract_address=prepared.contract_address
+                )
             ),
             function_name="constructor",
             calldata=prepared.constructor_calldata,
@@ -219,11 +218,15 @@ class ContractsCairoCheater:
         contract_address: Address,
         function_name: str,
         cheaters: "CairoCheaters",
+        unregister_expected_call: Callable,
         calldata: Optional[CairoOrPythonData] = None,
     ) -> CairoData:
+        contract_address_int = int(contract_address)
         cairo_calldata = await transform_calldata_to_cairo_data(
-            contract_class=await self.cheatable_state.get_contract_class_by_address(
-                contract_address=contract_address
+            contract_class=await self.cheatable_state.get_contract_class(
+                class_hash=await self.cheatable_state.get_class_hash_at(
+                    contract_address=contract_address_int
+                )
             ),
             function_name=function_name,
             calldata=calldata,
@@ -232,12 +235,11 @@ class ContractsCairoCheater:
         if self.cheatable_state.expected_contract_calls:
             contract_address = Address.from_user_input(str(contract_address))
 
-            self.cheatable_state.unregister_expected_call(
+            unregister_expected_call(
                 contract_address=contract_address,
                 function_selector=function_selector,
                 calldata=cairo_calldata,
             )
-        contract_address_int = int(contract_address)
         entry_point = CheatableExecuteEntryPoint.create_with_cheaters(
             contract_address=contract_address_int,
             calldata=cairo_calldata,
@@ -260,8 +262,10 @@ class ContractsCairoCheater:
         contract_address_int = int(contract_address)
 
         cairo_calldata = await transform_calldata_to_cairo_data(
-            contract_class=await self.cheatable_state.get_contract_class_by_address(
-                contract_address=contract_address
+            contract_class=await self.cheatable_state.get_contract_class(
+                class_hash=await self.cheatable_state.get_class_hash_at(
+                    contract_address=contract_address_int
+                )
             ),
             function_name=function_name,
             calldata=calldata,

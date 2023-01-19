@@ -3,7 +3,6 @@ from typing import Dict, List, Union
 
 from services.everest.business_logic.state_api import StateProxy
 
-from starkware.starknet.business_logic.fact_state.state import CarriedState
 from starkware.starknet.business_logic.state.state import (
     ContractClassCache,
 )
@@ -20,8 +19,6 @@ from typing_extensions import Self
 from protostar.starknet.cheaters import (
     BlockInfoCheater,
     Cheaters,
-    ContractsCheater,
-    ExpectsCheater,
 )
 from protostar.starknet.types import ClassHashType, SelectorType
 from protostar.starknet.data_transformer import CairoOrPythonData, CairoData
