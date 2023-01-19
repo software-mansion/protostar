@@ -226,6 +226,15 @@ class ContractsCairoCheater:
             function_name=function_name,
             calldata=calldata,
         )
+
+        function_selector = get_selector_from_name(func_name=function_name)
+        try:
+            return self.cheatable_state.mocked_calls_map[contract_address][
+                function_selector
+            ]
+        except KeyError:
+            pass
+
         entry_point = CheatableExecuteEntryPoint.create_with_cheaters(
             contract_address=contract_address_int,
             calldata=cairo_calldata,

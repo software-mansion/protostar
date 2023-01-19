@@ -27,12 +27,9 @@ class ExpectsCairoCheater:
         function_name: str,
         calldata: Optional[CairoOrPythonData] = None,
     ) -> Callable:
-        contract_address_int = int(contract_address)
         cairo_calldata = await transform_calldata_to_cairo_data(
-            contract_class=await self.cheatable_state.get_contract_class(
-                await self.cheatable_state.get_class_hash_at(
-                    contract_address=contract_address_int
-                )
+            contract_class=await self.cheatable_state.get_contract_class_by_address(
+                contract_address=contract_address
             ),
             function_name=function_name,
             calldata=calldata,
