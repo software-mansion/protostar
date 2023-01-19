@@ -2,7 +2,7 @@
 import logging
 from asyncio import get_running_loop
 from dataclasses import dataclass
-from typing import Optional, Tuple, cast, List, TYPE_CHECKING, Any
+from typing import Optional, Tuple, cast, TYPE_CHECKING, Any
 from copy import deepcopy
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
@@ -37,8 +37,7 @@ from starkware.starkware_utils.error_handling import (
     wrap_with_stark_exception,
 )
 
-from protostar.starknet.address import Address
-from protostar.starknet.selector import Selector
+from protostar.starknet import Address, Selector
 
 from .cheatable_syscall_handler import CheatableSysCallHandler
 
