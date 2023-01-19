@@ -6,7 +6,10 @@ from starkware.cairo.lang.compiler.program import Program
 from starkware.cairo.lang.vm.vm_exceptions import VmException
 
 from protostar.testing.test_environment_exceptions import RevertableException
-from protostar.testing.environments.execution_environment import ExecutionEnvironment
+from protostar.testing.environments.execution_environment import (
+    ExecutionEnvironment,
+    TestExecutionResult,
+)
 
 from protostar.testing.cheatcodes.expect_revert_cheatcode import ExpectRevertContext
 from protostar.testing.hook import Hook
@@ -32,6 +35,7 @@ class CairoTestExecutionEnvironment(ExecutionEnvironment):
     async def execute(self, function_name: str):
         with self.state.output_recorder.redirect("test"):
             await self.execute_test_case(function_name)
+            return TestExecutionResult(execution_resources=None)
 
     # TODO #1303: Estimate gas if self.state.config.gas_estimation_enabled
     async def execute_test_case(
