@@ -211,7 +211,7 @@ class CairoTestRunner:
             state=state,
         )
         return await StandardTestCaseRunner(
-            test_execution_environment=test_execution_environment,
+            function_executor=test_execution_environment,
             test_case=test_case,
             output_recorder=state.output_recorder,
             stopwatch=state.stopwatch,

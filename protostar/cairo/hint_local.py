@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Dict
 
 
 class HintLocal(ABC):
@@ -11,3 +11,6 @@ class HintLocal(ABC):
     @abstractmethod
     def build(self) -> Any:
         ...
+
+
+HintLocalsDict = Dict[str, Any]
