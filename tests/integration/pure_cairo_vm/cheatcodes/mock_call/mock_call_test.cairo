@@ -93,3 +93,21 @@ func test_mock_call_stop_mock_twice_fail() {
     %}
     return ();
 }
+
+func test_expect_call_with_proxy(){
+    %{
+        target_addr = deploy_contract("./src/basic.cairo").contract_address
+        proxy_addr = deploy_contract("./src/proxy.cairo").contract_address
+        invoke(proxy_addr, "set_target", [target_addr])
+
+        mock_call(target_addr, "get_balance", [15])
+        assert call(target_addr, "get_balance") == [15]
+        assert call(proxy_addr, "get_balance") == [15]
+        
+        mock_call(proxy_addr, "get_balance", [40])
+        assert call(target_addr, "get_balance") == [15]
+        assert call(proxy_addr, "get_balance") == [40]
+    %}
+
+    return ();
+}

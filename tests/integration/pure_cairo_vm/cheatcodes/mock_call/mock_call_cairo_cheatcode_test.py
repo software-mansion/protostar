@@ -25,6 +25,7 @@ async def test_mock_call(
     protostar.create_files(
         {
             "src/basic.cairo": CONTRACTS_PATH / "basic_contract.cairo",
+            "src/proxy.cairo": CONTRACTS_PATH / "proxy_for_basic_contract.cairo",
         }
     )
 
@@ -38,6 +39,7 @@ async def test_mock_call(
             "test_mock_call_simple",
             "test_mock_call_with_stop",
             "test_mock_call_different_addresses",
+            "test_expect_call_with_proxy",
         ],
         expected_failed_test_cases_names=[
             "test_mock_call_mock_twice_fail",

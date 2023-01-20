@@ -1,7 +1,7 @@
 # pylint: disable=duplicate-code
 import logging
 from asyncio import get_running_loop
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from typing import Optional, Tuple, cast, List, TYPE_CHECKING, Any
 from copy import deepcopy
 
@@ -40,6 +40,7 @@ from starkware.starkware_utils.error_handling import (
 from protostar.starknet import Address
 
 from .cheatable_syscall_handler import CheatableSysCallHandler
+from .cheatable_cached_state import CheatableCachedState
 
 if TYPE_CHECKING:
     from .cheaters import CairoCheaters
@@ -276,15 +277,29 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         else:
             sync_state = state
 
+        raw_contract_address = Address.from_user_input(self.contract_address)
+
         self.cheaters.expects.unregister_expected_call(
-            contract_address=Address.from_user_input(self.contract_address),
+            contract_address=raw_contract_address,
             function_selector=self.entry_point_selector,
             calldata=self.calldata,
         )
 
-        return super().execute(
+        result = super().execute(
             state=sync_state,
             resources_manager=resources_manager,
             general_config=general_config,
             tx_execution_context=tx_execution_context,
         )
+        try:
+            assert isinstance(sync_state.async_state, CheatableCachedState)
+            mocked = sync_state.async_state.mocked_calls_map[raw_contract_address][
+                self.entry_point_selector
+            ]
+            dict_result = asdict(result)
+            dict_result.update({"retdata": mocked})
+            result = CallInfo(**dict_result)
+        except KeyError:
+            pass
+
+        return result
