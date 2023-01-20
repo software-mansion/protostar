@@ -7,7 +7,13 @@ from typing import List, Optional, TYPE_CHECKING
 from starkware.cairo.lang.compiler.program import Program
 
 from protostar.cairo.cairo_compiler import CairoCompiler, CairoCompilerConfig
-from protostar.compiler import ProjectCompiler, ProjectCompilerConfig
+from protostar.cairo_testing.cairo_setup_execution_environment import (
+    CairoSetupExecutionEnvironment,
+)
+from protostar.compiler import (
+    ProjectCompiler,
+    ProjectCompilerConfig,
+)
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.starknet import ReportedException
 from protostar.configuration_file.configuration_file_factory import (
@@ -28,6 +34,7 @@ from protostar.testing.test_case_runners.standard_test_case_runner import (
     StandardTestCaseRunner,
 )
 from protostar.testing.test_config import TestConfig
+from protostar.testing.test_environment_exceptions import RevertableException
 from protostar.testing.test_suite import TestSuite, TestCase
 from protostar.testing.testing_seed import Seed
 
@@ -102,12 +109,22 @@ class CairoTestRunner:
         )
 
     async def _build_execution_state(self, test_config: TestConfig):
-        state = await CairoTestExecutionState.from_test_config(
+        return await CairoTestExecutionState.from_test_config(
             test_config=test_config,
             project_compiler=self.project_compiler,
         )
-        # TODO #1281: Execute __setup__ using test_execution_state & cairo_setup_execution_environment
-        return state
+
+    async def _run_suite_setup(
+        self,
+        test_suite: TestSuite,
+        test_execution_state: CairoTestExecutionState,
+        program: Program,
+    ):
+        if test_suite.setup_fn_name:
+            env = CairoSetupExecutionEnvironment(
+                program=program, state=test_execution_state
+            )
+            await env.execute(test_suite.setup_fn_name)
 
     async def run_test_suite(
         self,
@@ -115,24 +132,29 @@ class CairoTestRunner:
         testing_seed: Seed,
         max_steps: Optional[int],
     ):
-        test_config = TestConfig(  # pylint: disable=unused-variable
-            seed=testing_seed,
-            profiling=self.profiling,
-            max_steps=max_steps,
-            gas_estimation_enabled=self._gas_estimation_enabled,
-        )
-        test_execution_state = await self._build_execution_state(test_config)
-
         try:
             preprocessed = self.cairo_compiler.preprocess(test_suite.test_path)
             compiled_program = self.cairo_compiler.compile_preprocessed(preprocessed)
+
+            test_config = TestConfig(  # pylint: disable=unused-variable
+                seed=testing_seed,
+                profiling=self.profiling,
+                max_steps=max_steps,
+                gas_estimation_enabled=self._gas_estimation_enabled,
+            )
+            test_execution_state = await self._build_execution_state(test_config)
+            await self._run_suite_setup(
+                test_suite=test_suite,
+                test_execution_state=test_execution_state,
+                program=compiled_program,
+            )
 
             await self._invoke_test_cases(
                 test_suite=test_suite,
                 program=compiled_program,
                 test_execution_state=test_execution_state,
             )
-        except ProtostarException as ex:
+        except (ProtostarException, ReportedException, RevertableException) as ex:
             self.shared_tests_state.put_result(
                 BrokenTestSuiteResult(
                     file_path=test_suite.test_path,
@@ -140,16 +162,6 @@ class CairoTestRunner:
                     exception=ex,
                 )
             )
-
-        except ReportedException as ex:
-            self.shared_tests_state.put_result(
-                BrokenTestSuiteResult(
-                    file_path=test_suite.test_path,
-                    test_case_names=test_suite.collect_test_case_names(),
-                    exception=ex,
-                )
-            )
-
         # An unexpected exception in a worker should neither crash nor freeze the whole application
         except BaseException as ex:  # pylint: disable=broad-except
             self.shared_tests_state.put_result(
@@ -195,11 +207,11 @@ class CairoTestRunner:
         # state.determine_test_mode(test_case)
 
         test_execution_environment = CairoTestExecutionEnvironment(
-            program=program,
             state=state,
+            program=program,
         )
         return await StandardTestCaseRunner(
-            test_execution_environment=test_execution_environment,
+            function_executor=test_execution_environment,
             test_case=test_case,
             output_recorder=state.output_recorder,
             stopwatch=state.stopwatch,

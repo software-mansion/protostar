@@ -1,3 +1,4 @@
+# pylint: disable=duplicate-code
 from typing import List
 
 from protostar.cheatable_starknet.cheatable_cached_state import (
@@ -37,7 +38,7 @@ from protostar.cheatable_starknet.cheatcodes.call_cairo_cheatcode import (
 from protostar.compiler import ProjectCompiler
 
 
-class CairoTestCheatcodeFactory:
+class CairoSetupCheatcodeFactory:
     def __init__(
         self,
         cheatable_state: CheatableCachedState,
