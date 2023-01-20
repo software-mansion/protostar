@@ -37,6 +37,8 @@ from starkware.starkware_utils.error_handling import (
     wrap_with_stark_exception,
 )
 
+from protostar.cheatable_starknet.cheatable_exception import CheatableException
+
 from .cheatable_syscall_handler import CheatableSysCallHandler
 
 if TYPE_CHECKING:
@@ -258,6 +260,23 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         resources_manager: ExecutionResourcesManager,
         general_config: StarknetGeneralConfig,
         tx_execution_context: TransactionExecutionContext,
+    ):
+        try:
+            return self._execute(
+                state,
+                resources_manager,
+                general_config,
+                tx_execution_context,
+            )
+        except StarkException as ex:
+            raise self._translate_stark_exception(ex)
+
+    def _execute(
+        self,
+        state: SyncState,
+        resources_manager: ExecutionResourcesManager,
+        general_config: StarknetGeneralConfig,
+        tx_execution_context: TransactionExecutionContext,
     ) -> CallInfo:
         new_config = deepcopy(general_config)
         if self.max_steps is not None:
@@ -280,3 +299,6 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             general_config=general_config,
             tx_execution_context=tx_execution_context,
         )
+
+    def _translate_stark_exception(self, stark_exception: StarkException):
+        return CheatableException(message="x")
