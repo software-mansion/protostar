@@ -207,8 +207,8 @@ class CairoTestRunner:
         # state.determine_test_mode(test_case)
 
         test_execution_environment = CairoTestExecutionEnvironment(
-            program=program,
             state=state,
+            program=program,
         )
         return await StandardTestCaseRunner(
             function_executor=test_execution_environment,

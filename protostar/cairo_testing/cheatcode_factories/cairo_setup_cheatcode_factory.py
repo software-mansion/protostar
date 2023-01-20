@@ -1,3 +1,4 @@
+# pylint: disable=duplicate-code
 from typing import List
 
 from protostar.cheatable_starknet.cheatable_cached_state import (

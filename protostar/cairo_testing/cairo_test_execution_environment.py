@@ -18,18 +18,16 @@ from ..cairo import HintLocalsDict
 
 
 class CairoTestExecutionEnvironment(CairoExecutionEnvironment):
-    state: CairoTestExecutionState
-
     def __init__(
         self,
-        program: Program,
         state: CairoTestExecutionState,
+        program: Program,
     ):
-        super().__init__(state, program, self._get_hint_locals())
-        self._max_steps = self.state.config.max_steps
+        super().__init__(
+            state=state, program=program, hint_locals=self._get_hint_locals(state)
+        )
         self._expect_revert_context = ExpectRevertContext()
         self._finish_hook = Hook()
-        self._profiling = self.state.config.profiling
 
     async def execute(self, function_name: str) -> Any:
         with self.state.output_recorder.redirect("test"):
@@ -45,21 +43,19 @@ class CairoTestExecutionEnvironment(CairoExecutionEnvironment):
     ):
         async with self._expect_revert_context.test():
             async with self._finish_hook.run_after():
-                await self.run_cairo_function(
-                    function_name, self._get_hint_locals(), *args, **kwargs
-                )
+                await self.run_cairo_function(function_name, *args, **kwargs)
 
-    def _get_hint_locals(self) -> HintLocalsDict:
+    def _get_hint_locals(self, state: CairoTestExecutionState) -> HintLocalsDict:
         hint_locals: HintLocalsDict = {}
         cheatcode_factory = CairoTestCheatcodeFactory(
-            cheatable_state=cast(CheatableCachedState, self.state.starknet.state.state),
-            project_compiler=self.state.project_compiler,
+            cheatable_state=cast(CheatableCachedState, state.starknet.state.state),
+            project_compiler=state.project_compiler,
         )
         cheatcodes = cheatcode_factory.build_cheatcodes()
         for cheatcode in cheatcodes:
             hint_locals[cheatcode.name] = cheatcode.build()
 
-        custom_hint_locals = [TestContextHintLocal(self.state.context)]
+        custom_hint_locals = [TestContextHintLocal(state.context)]
 
         for custom_hint_local in custom_hint_locals:
             hint_locals[custom_hint_local.name] = custom_hint_local.build()
