@@ -104,5 +104,5 @@ async def test_setup_case_with_satellite_contract(
 
     assert_cairo_test_cases(
         testing_summary,
-        expected_passed_test_cases_names=["a_test", "b_doesnt_leak_from_a_setup_test"],
+        expected_passed_test_cases_names=["test_a", "test_b_doesnt_leak_from_a_setup"],
     )
