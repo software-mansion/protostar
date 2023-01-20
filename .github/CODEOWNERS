@@ -19,6 +19,7 @@
 /protostar/starknet_gateway @Arcticae @kasperski95 @Radinyn
 /protostar/testing/cheatcodes/load_cheatcode.py @MaksymilianDemitraszek
 /protostar/testing/cheatcodes/store_cheatcode.py @MaksymilianDemitraszek
+/protostar/testing/fuzzing @Radinyn
 /protostar/upgrader @kasperski95
 
 /website @kasperski95
