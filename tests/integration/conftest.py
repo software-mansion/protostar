@@ -90,7 +90,8 @@ def assert_cairo_test_cases(
     diff = show_diff_between_cairo_test_cases(
         name_to_test_case_result, expected, actual
     )
-    assert diff == ""
+    if diff:
+        assert False, diff
     assert actual == expected
 
 
@@ -110,6 +111,9 @@ def show_diff_between_cairo_test_cases(
                     f"Expected '{expected_test_case_name}' to be {expected_result_type}, got:"
                 )
             )
+            if expected_test_case_name not in name_to_test_case_result:
+                lines.append("nothing — no such test case result found")
+                break
             lines.append(
                 format_test_result(
                     name_to_test_case_result[expected_test_case_name]
