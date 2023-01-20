@@ -21,11 +21,14 @@ func test_invoke_without_transformation() {
 }
 
 func test_panicking() {
+    alloc_locals;
+    local error_code;
     %{
         contract_address = deploy_contract("./src/panic.cairo").ok.contract_address
         result = invoke(contract_address, "panic")
-        assert result.err.message == "PANIC_DESCRIPTION"
+        ids.error_code = result.err.code
     %}
+    assert error_code = 'PANIC_DESCRIPTION';
     return ();
 }
 
