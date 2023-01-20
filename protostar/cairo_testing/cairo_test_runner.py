@@ -7,8 +7,12 @@ from typing import List, Optional, TYPE_CHECKING
 from starkware.cairo.lang.compiler.program import Program
 
 from protostar.cairo.cairo_compiler import CairoCompiler, CairoCompilerConfig
-from protostar.cairo_testing.cairo_setup_execution_environment import (
+from protostar.cairo_testing.execution_environments.cairo_setup_execution_environment import (
     CairoSetupExecutionEnvironment,
+)
+
+from protostar.cairo_testing.execution_environments.cairo_setup_case_execution_environment import (
+    CairoSetupCaseExecutionEnvironment,
 )
 from protostar.compiler import (
     ProjectCompiler,
@@ -25,8 +29,11 @@ from protostar.testing import (
     BrokenTestSuiteResult,
     SharedTestsState,
     TestResult,
+    BrokenSetupCaseResult,
+    PassedSetupCaseResult,
+    SetupCaseResult,
 )
-from protostar.cairo_testing.cairo_test_execution_environment import (
+from protostar.cairo_testing.execution_environments.cairo_test_execution_environment import (
     CairoTestExecutionEnvironment,
 )
 from protostar.cairo_testing.cairo_test_execution_state import CairoTestExecutionState
@@ -126,6 +133,38 @@ class CairoTestRunner:
             )
             await env.execute(test_suite.setup_fn_name)
 
+    async def _run_setup_case(
+        self,
+        test_case: TestCase,
+        state: CairoTestExecutionState,
+        program: Program,
+    ) -> SetupCaseResult:
+        assert test_case.setup_fn_name
+        try:
+            execution_environment = CairoSetupCaseExecutionEnvironment(
+                state=state, program=program
+            )
+
+            with state.stopwatch.lap(test_case.setup_fn_name):
+                await execution_environment.execute(test_case.setup_fn_name)
+
+            return PassedSetupCaseResult(
+                file_path=test_case.test_path,
+                test_case_name=test_case.test_fn_name,
+                setup_case_name=test_case.setup_fn_name,
+                execution_time=state.stopwatch.total_elapsed,
+            )
+
+        except (ReportedException, RevertableException) as ex:
+            return BrokenSetupCaseResult(
+                file_path=test_case.test_path,
+                test_case_name=test_case.test_fn_name,
+                setup_case_name=test_case.setup_fn_name,
+                exception=ex,
+                execution_time=state.stopwatch.total_elapsed,
+                captured_stdout=state.output_recorder.get_captures(),
+            )
+
     async def run_test_suite(
         self,
         test_suite: TestSuite,
@@ -195,13 +234,12 @@ class CairoTestRunner:
     ) -> TestResult:
         state: CairoTestExecutionState = initial_state.fork()
 
-        # TODO #1281: Invoke setup case
-        # if test_case.setup_fn_name:
-        #     setup_case_result = await run_setup_case(test_case, state)
-        #     if isinstance(setup_case_result, BrokenSetupCaseResult):
-        #         return setup_case_result.into_broken_test_case_result()
-        #     if isinstance(setup_case_result, SkippedSetupCaseResult):
-        #         return setup_case_result.into_skipped_test_case_result()
+        if test_case.setup_fn_name:
+            setup_case_result = await self._run_setup_case(
+                test_case=test_case, state=state, program=program
+            )
+            if isinstance(setup_case_result, BrokenSetupCaseResult):
+                return setup_case_result.into_broken_test_case_result()
 
         # TODO #1283, #1282: Plug in other test modes (fuzzing, parametrized)
         # state.determine_test_mode(test_case)

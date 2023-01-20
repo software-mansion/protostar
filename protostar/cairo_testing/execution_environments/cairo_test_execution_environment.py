@@ -10,11 +10,13 @@ from protostar.testing.cheatcodes.expect_revert_cheatcode import ExpectRevertCon
 from protostar.testing.hook import Hook
 from protostar.testing.test_context import TestContextHintLocal
 from protostar.cheatable_starknet.cheatable_cached_state import CheatableCachedState
-from .cairo_execution_environment import CairoExecutionEnvironment
+from protostar.cairo_testing.cairo_test_execution_state import CairoTestExecutionState
+from protostar.cairo_testing.cheatcode_factories.cairo_test_cheatcode_factory import (
+    CairoTestCheatcodeFactory,
+)
+from protostar.cairo import HintLocalsDict
 
-from .cairo_test_execution_state import CairoTestExecutionState
-from .cheatcode_factories.cairo_test_cheatcode_factory import CairoTestCheatcodeFactory
-from ..cairo import HintLocalsDict
+from .cairo_execution_environment import CairoExecutionEnvironment
 
 
 class CairoTestExecutionEnvironment(CairoExecutionEnvironment):

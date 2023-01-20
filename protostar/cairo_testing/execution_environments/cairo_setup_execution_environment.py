@@ -3,7 +3,7 @@ from typing import cast
 from starkware.cairo.lang.compiler.program import Program
 
 from protostar.cairo import HintLocalsDict
-from protostar.cairo_testing.cairo_execution_environment import (
+from protostar.cairo_testing.execution_environments.cairo_execution_environment import (
     CairoExecutionEnvironment,
 )
 from protostar.cairo_testing.cairo_test_execution_state import CairoTestExecutionState
