@@ -24,7 +24,7 @@ class DeclareCairoCheatcode(CairoCheatcode):
     def name(self) -> str:
         return "declare"
 
-    def build(self) -> Any:
+    def _build(self) -> Any:
         return self.declare
 
     def declare(self, contract: str) -> DeclaredContract:

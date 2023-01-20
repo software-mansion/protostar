@@ -4,7 +4,6 @@ from typing import Any, Callable
 from protostar.starknet import CheatcodeException
 from protostar.cheatable_starknet.cheaters.contracts import ContractsCheaterException
 from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
-
 from protostar.contract_types import PreparedContract
 
 
@@ -13,7 +12,7 @@ class DeployCairoCheatcode(CairoCheatcode):
     def name(self) -> str:
         return "deploy"
 
-    def build(self) -> Callable[[Any], Any]:
+    def _build(self) -> Callable[[Any], Any]:
         return self.deploy_prepared
 
     def deploy_prepared(

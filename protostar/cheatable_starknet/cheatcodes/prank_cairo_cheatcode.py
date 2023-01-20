@@ -9,7 +9,7 @@ class PrankCairoCheatcode(CairoCheatcode):
     def name(self) -> str:
         return "prank"
 
-    def build(self) -> Callable:
+    def _build(self) -> Callable:
         return self.prank
 
     def prank(self, caller_address: int, target_address: int):
