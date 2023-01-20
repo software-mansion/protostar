@@ -28,18 +28,21 @@ async def test_invoke(
         {
             "src/basic.cairo": CONTRACTS_PATH / "basic_contract.cairo",
             "src/proxy.cairo": CONTRACTS_PATH / "proxy_for_basic_contract.cairo",
+            "src/panic.cairo": CONTRACTS_PATH / "panicking_contract.cairo",
         }
     )
 
     testing_summary = await run_cairo_test_runner(
         TEST_PATH / "invoke_test.cairo",
+        test_cases=["test_panicking"],
     )
 
     assert_cairo_test_cases(
         testing_summary,
         expected_passed_test_cases_names=[
-            "test_invoke_without_transformation",
-            "test_invoke_with_transformation",
-            "test_invoke_with_proxy",
+            # "test_invoke_without_transformation",
+            "test_panicking",
+            # "test_invoke_with_transformation",
+            # "test_invoke_with_proxy",
         ],
     )

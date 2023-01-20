@@ -1,5 +1,6 @@
 # pylint: disable=duplicate-code
 import logging
+import re
 from asyncio import get_running_loop
 from dataclasses import dataclass
 from typing import Optional, Tuple, cast, List, TYPE_CHECKING, Any
@@ -269,7 +270,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
                 tx_execution_context,
             )
         except StarkException as ex:
-            raise self._translate_stark_exception(ex)
+            raise self._map_stark_exception(ex)
 
     def _execute(
         self,
@@ -300,5 +301,10 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             tx_execution_context=tx_execution_context,
         )
 
-    def _translate_stark_exception(self, stark_exception: StarkException):
-        return CheatableException(message="x")
+    def _map_stark_exception(self, stark_exception: StarkException):
+        results = re.findall("Error message: (.*)", stark_exception.message or "")
+        if len(results) > 0:
+            return CheatableException(message=results[0], raw_ex=stark_exception)
+        return CheatableException(
+            message=stark_exception.message or "", raw_ex=stark_exception
+        )

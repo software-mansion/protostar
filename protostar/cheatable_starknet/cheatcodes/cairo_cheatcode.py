@@ -3,22 +3,16 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Callable, Union
 
 from protostar.cairo import HintLocal
-from protostar.cheatable_starknet.cheaters.contracts import ContractsCheaterException
+from protostar.cheatable_starknet.cheatable_exception import CheatableException
 
 if TYPE_CHECKING:
     from protostar.cheatable_starknet.cheaters import CairoCheaters
 
 
 @dataclass
-class CairoCheatcodeValidationException(Exception):
-    cheatcode_name: str
-    message: str
-
-
-@dataclass
 class CairoCheatcodeInvalidExecution:
     ok = None
-    err: CairoCheatcodeValidationException
+    err: CheatableException
 
 
 @dataclass
@@ -45,11 +39,7 @@ class CairoCheatcode(HintLocal, ABC):
             try:
                 result = self._build()(*args, **kwargs)
                 return CairoCheatcodeValidExecution(ok=result)
-            except ContractsCheaterException as ex:
-                return CairoCheatcodeInvalidExecution(
-                    err=CairoCheatcodeValidationException(
-                        cheatcode_name=self.name, message=ex.message
-                    )
-                )
+            except CheatableException as ex:
+                return CairoCheatcodeInvalidExecution(err=ex)
 
         return wrapper
