@@ -34,15 +34,14 @@ async def test_invoke(
 
     testing_summary = await run_cairo_test_runner(
         TEST_PATH / "invoke_test.cairo",
-        test_cases=["test_panicking"],
     )
 
     assert_cairo_test_cases(
         testing_summary,
         expected_passed_test_cases_names=[
-            # "test_invoke_without_transformation",
+            "test_invoke_without_transformation",
             "test_panicking",
-            # "test_invoke_with_transformation",
-            # "test_invoke_with_proxy",
+            "test_invoke_with_transformation",
+            "test_invoke_with_proxy",
         ],
     )
