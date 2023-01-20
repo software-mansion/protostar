@@ -1,9 +1,12 @@
 from abc import abstractmethod
 from dataclasses import dataclass
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, Optional
 
 from protostar.starknet import BreakingReportedException, ReportedException
 from protostar.testing.environments.execution_environment import TestExecutionResult
+from protostar.testing.starkware.execution_resources_summary import (
+    ExecutionResourcesSummary,
+)
 from protostar.testing.stopwatch import Stopwatch
 from protostar.testing.test_output_recorder import OutputRecorder
 from protostar.testing.test_results import (
@@ -14,7 +17,7 @@ from protostar.testing.test_results import (
 )
 from protostar.testing.test_suite import TestCase
 
-ExecutionResultT = TypeVar("ExecutionResultT", bound=TestExecutionResult)
+ExecutionResultT = TypeVar("ExecutionResultT")
 
 
 class TestCaseRunner(Generic[ExecutionResultT]):
@@ -59,10 +62,17 @@ class TestCaseRunner(Generic[ExecutionResultT]):
     def _map_execution_result_to_passed_test_result(
         self, execution_result: ExecutionResultT, execution_metadata: ExecutionMetadata
     ) -> PassedTestCaseResult:
+        execution_resources: Optional[ExecutionResourcesSummary] = None
+
+        if execution_result is not None and isinstance(
+            execution_result, TestExecutionResult
+        ):
+            execution_resources = execution_result.execution_resources
+
         return PassedTestCaseResult(
             file_path=self._test_case.test_path,
             test_case_name=self._test_case.test_fn_name,
-            execution_resources=execution_result.execution_resources,
+            execution_resources=execution_resources,
             execution_time=execution_metadata.execution_time,
             captured_stdout=self._output_recorder.get_captures(),
         )

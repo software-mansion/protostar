@@ -43,7 +43,9 @@ class PerformExecuteResult:
     resources_manager: ExecutionResourcesManager
 
 
-class ContractBasedTestExecutionEnvironment(ExecutionEnvironment[Any]):
+class ContractBasedTestExecutionEnvironment(
+    ExecutionEnvironment[Optional[TestExecutionResult]]
+):
     state: ContractBasedTestExecutionState
 
     def __init__(self, state: ContractBasedTestExecutionState):
@@ -51,7 +53,7 @@ class ContractBasedTestExecutionEnvironment(ExecutionEnvironment[Any]):
         self._expect_revert_context = ExpectRevertContext()
         self._finish_hook = Hook()
 
-    async def execute(self, function_name: str) -> Any:
+    async def execute(self, function_name: str) -> Optional[TestExecutionResult]:
         assert not has_function_parameters(
             self.state.contract.abi, function_name
         ), f"{self.__class__.__name__} expects no function parameters."

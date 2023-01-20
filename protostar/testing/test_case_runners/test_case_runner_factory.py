@@ -36,9 +36,7 @@ class TestCaseRunnerFactory:
 
         if mode is TestMode.STANDARD:
             return StandardTestCaseRunner(
-                test_execution_environment=ContractBasedTestExecutionEnvironment(
-                    self._state
-                ),
+                function_executor=ContractBasedTestExecutionEnvironment(self._state),
                 test_case=test_case,
                 output_recorder=self._state.output_recorder,
                 stopwatch=self._state.stopwatch,

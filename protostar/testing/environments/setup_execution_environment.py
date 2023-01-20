@@ -9,7 +9,7 @@ from .contract_based_test_execution_environment import (
 
 
 class SetupExecutionEnvironment(ContractBasedTestExecutionEnvironment):
-    async def execute(self, function_name: str):
+    async def execute(self, function_name: str) -> None:
         self.set_cheatcodes(SetupCheatcodeFactory(self.state))
 
         with self.state.output_recorder.redirect("setup"):
