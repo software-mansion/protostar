@@ -14,7 +14,7 @@ Felt = int
 
 
 @dataclass
-class CheatcodeException:
+class CheatcodeException(Exception):
     code: Felt
     ex: Exception
 
@@ -24,11 +24,17 @@ class CairoCheatcodeInvalidExecution:
     ok = None
     err: CheatcodeException
 
+    def unwrap(self) -> Callable:
+        raise self.err
+
 
 @dataclass
 class CairoCheatcodeValidExecution:
     ok: Callable
     err = None
+
+    def unwrap(self) -> Callable:
+        return self.ok
 
 
 CairoCheatcodeExecutionResult = Union[
