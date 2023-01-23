@@ -24,16 +24,16 @@ class CairoCheatcodeInvalidExecution:
     ok = None
     err: CheatcodeException
 
-    def unwrap(self) -> Callable:
+    def unwrap(self) -> Any:
         raise self.err
 
 
 @dataclass
 class CairoCheatcodeValidExecution:
-    ok: Callable
+    ok: Any
     err = None
 
-    def unwrap(self) -> Callable:
+    def unwrap(self) -> Any:
         return self.ok
 
 
