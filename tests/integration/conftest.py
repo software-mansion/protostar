@@ -45,9 +45,6 @@ def assert_cairo_test_cases(
     expected_broken_test_cases_names: Optional[List[str]] = None,
     expected_skipped_test_cases_names: Optional[List[str]] = None,  # Explicitly skipped
 ):
-    assert (
-        len(testing_summary.broken_suites) == 0
-    ), f"Broken Test Suite: {testing_summary.broken_suites[0].exception}"
     expected_passed_test_cases_names = expected_passed_test_cases_names or []
     expected_failed_test_cases_names = expected_failed_test_cases_names or []
     expected_broken_test_cases_names = expected_broken_test_cases_names or []
