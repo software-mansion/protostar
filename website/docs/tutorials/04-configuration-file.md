@@ -63,7 +63,7 @@ my_contract = ["src/feature_a.cairo", "src/feature_b.cairo"]
 ```
 
 ### Command Arguments Configuration Section
-The Command Arguments Configuration section of the `protostar.toml` file allows you to specify options and settings for a specific Protostar command.
+The Command Arguments Configuration section of the `protostar.toml` file allows you to specify arguments for a specific Protostar command.
 
 For example, the following configuration file specifies the [`target`](/docs/cli-reference#target-string) and [`ignore-broken`](/docs/cli-reference#--ignore-broken) arguments for the [`protostar format` command](/docs/cli-reference#format):
 
