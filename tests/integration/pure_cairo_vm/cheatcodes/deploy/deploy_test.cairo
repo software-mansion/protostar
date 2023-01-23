@@ -6,10 +6,10 @@ func test_deploying_pipeline_with_path(){
     local deployed_hash;
 
     %{
-        declared = declare("./src/main.cairo")
+        declared = declare("./src/main.cairo").unwrap()
         ids.declared_class = declared.class_hash
-        prepared = prepare(declared)
-        deployed = deploy(prepared)
+        prepared = prepare(declared).unwrap()
+        deployed = deploy(prepared).unwrap()
         ids.deployed_hash = deployed.contract_address
     %}
 
@@ -25,10 +25,10 @@ func test_deploying_pipeline(){
     local deployed_hash;
 
     %{
-        declared = declare("main")
+        declared = declare("main").unwrap()
         ids.declared_class = declared.class_hash
-        prepared = prepare(declared)
-        deployed = deploy(prepared)
+        prepared = prepare(declared).unwrap()
+        deployed = deploy(prepared).unwrap()
         ids.deployed_hash = deployed.contract_address
     %}
 
@@ -47,19 +47,19 @@ func test_two_interleaving_flows(){
     local deployed_hash_2;
 
     %{
-        declared_1 = declare("main")
-        declared_2 = declare("main")
+        declared_1 = declare("main").unwrap()
+        declared_2 = declare("main").unwrap()
 
         ids.declared_class_1 = declared_1.class_hash
         ids.declared_class_2 = declared_2.class_hash
 
-        prepared_1 = prepare(declared_1)
-        prepared_2 = prepare(declared_2)
+        prepared_1 = prepare(declared_1).unwrap()
+        prepared_2 = prepare(declared_2).unwrap()
 
-        deployed_1 = deploy(prepared_1)
+        deployed_1 = deploy(prepared_1).unwrap()
         ids.deployed_hash_1 = deployed_1.contract_address
 
-        deployed_2 = deploy(prepared_2)
+        deployed_2 = deploy(prepared_2).unwrap()
         ids.deployed_hash_2 = deployed_2.contract_address
 
     %}
