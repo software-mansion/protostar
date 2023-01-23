@@ -86,3 +86,23 @@ async def test_setup_suite_with_satellite_contract(
             "test_suites_with_setups_dont_leak_state",
         ],
     )
+
+
+async def test_setup_case_with_satellite_contract(
+    run_cairo_test_runner: RunCairoTestRunnerFixture,
+    protostar: ProtostarFixture,
+):
+    protostar.create_files(
+        {
+            "src/main.cairo": CONTRACTS_PATH / "basic_contract.cairo",
+        }
+    )
+
+    testing_summary = await run_cairo_test_runner(
+        Path(__file__).parent / "suite_with_setup_case_test.cairo",
+    )
+
+    assert_cairo_test_cases(
+        testing_summary,
+        expected_passed_test_cases_names=["test_a", "test_b_doesnt_leak_from_a_setup"],
+    )

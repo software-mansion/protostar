@@ -1,6 +1,7 @@
 import dataclasses
 from copy import deepcopy
 from dataclasses import dataclass
+from typing import cast
 
 from starkware.crypto.signature.fast_pedersen_hash import pedersen_hash_func
 from starkware.starknet.business_logic.fact_state.patricia_state import (
@@ -33,6 +34,10 @@ class CairoTestExecutionState:
     context: TestContext
     config: TestConfig
     project_compiler: ProjectCompiler
+
+    @property
+    def cheatable_state(self) -> CheatableCachedState:
+        return cast(CheatableCachedState, self.starknet.state.state)
 
     def fork(self) -> Self:
         return dataclasses.replace(
