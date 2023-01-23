@@ -10,6 +10,13 @@ from .test_output_recorder import OutputName
 
 
 @dataclass(frozen=True)
+class AcceptableResult:
+    """
+    Results that do not trigger exit first flag should inherit from this class.
+    """
+
+
+@dataclass(frozen=True)
 class TestResult:
     file_path: Path
 
@@ -31,7 +38,7 @@ class TimedTestCaseResult(TestCaseResult, TimedTestResult):
 
 
 @dataclass(frozen=True)
-class PassedTestCaseResult(TimedTestCaseResult):
+class PassedTestCaseResult(TimedTestCaseResult, AcceptableResult):
     execution_resources: Optional[ExecutionResourcesSummary]
 
 
@@ -46,7 +53,7 @@ class BrokenTestCaseResult(TimedTestCaseResult):
 
 
 @dataclass(frozen=True)
-class SkippedTestCaseResult(TimedTestCaseResult):
+class SkippedTestCaseResult(TimedTestCaseResult, AcceptableResult):
     reason: Optional[str]
 
 
@@ -118,7 +125,7 @@ class SetupCaseResult(TestResult, TimedTestResult):
 
 
 @dataclass(frozen=True)
-class PassedSetupCaseResult(SetupCaseResult):
+class PassedSetupCaseResult(SetupCaseResult, AcceptableResult):
     pass
 
 
@@ -138,7 +145,7 @@ class BrokenSetupCaseResult(SetupCaseResult):
 
 
 @dataclass(frozen=True)
-class SkippedSetupCaseResult(SetupCaseResult):
+class SkippedSetupCaseResult(SetupCaseResult, AcceptableResult):
     captured_stdout: Dict[OutputName, str]
     reason: Optional[str]
 

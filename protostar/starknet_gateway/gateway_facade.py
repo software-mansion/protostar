@@ -18,7 +18,6 @@ from starkware.starknet.public.abi import AbiType
 from typing_extensions import Self, TypeGuard
 
 from protostar.starknet.abi import has_abi_item
-from protostar.compiler import CompiledContractReader
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet.data_transformer import CairoOrPythonData
 from protostar.starknet.selector import Selector
@@ -65,11 +64,9 @@ class GatewayFacade(MulticallClientProtocol):
         self,
         project_root_path: Path,
         gateway_client: GatewayClient,
-        compiled_contract_reader: CompiledContractReader,
     ):
         self._project_root_path = project_root_path
         self._gateway_client = gateway_client
-        self._compiled_contract_reader = compiled_contract_reader
         self._account_tx_version_detector = AccountTxVersionDetector(
             self._gateway_client
         )

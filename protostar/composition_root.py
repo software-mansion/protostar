@@ -34,7 +34,6 @@ from protostar.commands.init.project_creator import (
     NewProjectCreator,
 )
 from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
-from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.configuration_file import (
     ConfigurationFileFactory,
     ConfigurationFileV1,
@@ -102,7 +101,6 @@ def build_di_container(
 
     gateway_facade_factory = GatewayFacadeFactory(
         project_root_path=project_root_path,
-        compiled_contract_reader=CompiledContractReader(),
     )
 
     lib_path_resolver = LibPathResolver(
@@ -207,6 +205,7 @@ def build_di_container(
             messenger_factory=messenger_factory,
         ),
         CallCommand(
+            project_root_path=project_root_path,
             gateway_facade_factory=gateway_facade_factory,
             messenger_factory=messenger_factory,
         ),

@@ -3,7 +3,7 @@ import os
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, ContextManager, List, Optional, Set, cast
+from typing import Any, Callable, ContextManager, List, Optional, Set, cast
 
 import pytest
 from pytest import TempPathFactory
@@ -12,16 +12,14 @@ from starkware.starknet.public.abi import AbiType
 from typing_extensions import Protocol
 
 from protostar.commands.test.test_command import TestCommand
+from protostar.commands.test.test_result_formatter import format_test_result
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.testing import TestingSummary
 from protostar.cli import MessengerFactory
-
+from protostar.testing.test_results import TestCaseResult
 from tests.conftest import TESTS_ROOT_PATH, run_devnet
-from tests.integration.protostar_fixture import (
-    ProtostarFixture,
-    build_protostar_fixture,
-)
+from tests.integration._conftest import ProtostarFixture, create_protostar_fixture
 
 
 @dataclass
@@ -63,7 +61,7 @@ def assert_cairo_test_cases(
     )
     skipped_test_cases_names = set(
         skipped_test_case.test_case_name
-        for skipped_test_case in testing_summary.skipped
+        for skipped_test_case in testing_summary.explicitly_skipped
     )
 
     for broken_test_case in testing_summary.broken_suites:
@@ -84,7 +82,46 @@ def assert_cairo_test_cases(
         skipped=set(expected_skipped_test_cases_names),
     )
 
+    name_to_test_case_result = {
+        test_result.test_case_name: test_result
+        for test_result in testing_summary.test_results
+        if isinstance(test_result, TestCaseResult)
+    }
+    diff = show_diff_between_cairo_test_cases(
+        name_to_test_case_result, expected, actual
+    )
+    if diff:
+        assert False, diff
     assert actual == expected
+
+
+def show_diff_between_cairo_test_cases(
+    name_to_test_case_result: dict[str, Any],
+    expected: CairoTestCases,
+    actual: CairoTestCases,
+) -> str:
+    lines: list[str] = []
+    result_types = ["passed", "failed", "broken", "skipped"]
+    for expected_result_type in result_types:
+        for expected_test_case_name in getattr(expected, expected_result_type):
+            if expected_test_case_name in getattr(actual, expected_result_type):
+                continue
+            lines.append(
+                (
+                    f"Expected '{expected_test_case_name}' to be {expected_result_type}, got:"
+                )
+            )
+            if expected_test_case_name not in name_to_test_case_result:
+                lines.append("nothing — no such test case result found")
+                break
+            lines.append(
+                format_test_result(
+                    name_to_test_case_result[expected_test_case_name]
+                ).format_human(LogColorProvider())
+            )
+            lines.append("")
+            break
+    return "\n".join(lines)
 
 
 @pytest.fixture(name="devnet_gateway_url", scope="module")
@@ -210,7 +247,7 @@ def create_protostar_project_fixture(
         tmp_path = tmp_path_factory.mktemp("project_name")
         project_root_path = tmp_path
         cwd = Path().resolve()
-        protostar = build_protostar_fixture(
+        protostar = create_protostar_fixture(
             mocker=session_mocker,
             project_root_path=tmp_path,
         )
@@ -220,7 +257,7 @@ def create_protostar_project_fixture(
         project_root_path = project_root_path / project_name
         os.chdir(project_root_path)
         # rebuilding protostar fixture to reload configuration file
-        yield build_protostar_fixture(
+        yield create_protostar_fixture(
             mocker=session_mocker,
             project_root_path=project_root_path,
         )

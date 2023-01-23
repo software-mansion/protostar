@@ -2,10 +2,7 @@ from dataclasses import dataclass
 import os
 
 from protostar.io import StructuredMessage, LogColorProvider
-from protostar.testing import (
-    TestCollector,
-    calculate_skipped,
-)
+from protostar.testing import TestCollector
 from protostar.testing import TestingSummary
 from protostar.io.log_color_provider import log_color_provider
 
@@ -44,14 +41,9 @@ def _get_preprocessed_core_testing_summary(
     broken_count: int = 0,
     failed_count: int = 0,
     passed_count: int = 0,
+    skipped_count: int = 0,
     total_count: int = 0,
 ) -> list[str]:
-    skipped_count = calculate_skipped(
-        total_count=total_count,
-        broken_count=broken_count,
-        failed_count=failed_count,
-        passed_count=passed_count,
-    )
     test_suites_result: list[str] = []
 
     if broken_count > 0:
@@ -74,73 +66,6 @@ def _get_preprocessed_core_testing_summary(
         test_suites_result.append(f"{total_count} total")
 
     return test_suites_result
-
-
-def _get_test_suites_summary(
-    testing_summary: TestingSummary, collected_test_suites_count: int
-) -> str:
-    passed_test_suites_count = 0
-    failed_test_suites_count = 0
-    broken_test_suites_count = 0
-    total_test_suites_count = len(testing_summary.test_suites_mapping)
-    for suit_case_results in testing_summary.test_suites_mapping.values():
-        partial_summary = TestingSummary(
-            suit_case_results, testing_summary.testing_seed
-        )
-
-        if len(partial_summary.broken_suites) + len(partial_summary.broken) > 0:
-            broken_test_suites_count += 1
-            continue
-
-        if len(partial_summary.failed) > 0:
-            failed_test_suites_count += 1
-            continue
-
-        if len(partial_summary.passed) > 0:
-            passed_test_suites_count += 1
-
-    test_suites_result: list[str] = []
-
-    if broken_test_suites_count > 0:
-        test_suites_result.append(
-            log_color_provider.colorize("RED", f"{broken_test_suites_count} broken")
-        )
-    if failed_test_suites_count > 0:
-        test_suites_result.append(
-            log_color_provider.colorize("RED", f"{failed_test_suites_count} failed")
-        )
-    if passed_test_suites_count > 0:
-        test_suites_result.append(
-            log_color_provider.colorize("GREEN", f"{passed_test_suites_count} passed")
-        )
-    if total_test_suites_count > 0:
-        test_suites_result.append(f"{total_test_suites_count} total")
-
-    return ", ".join(
-        _get_preprocessed_core_testing_summary(
-            broken_count=broken_test_suites_count,
-            failed_count=failed_test_suites_count,
-            passed_count=passed_test_suites_count,
-            total_count=collected_test_suites_count,
-        )
-    )
-
-
-def _get_test_cases_summary(
-    testing_summary: TestingSummary, collected_test_cases_count: int
-) -> str:
-    broken_test_cases_count = len(testing_summary.broken)
-    failed_test_cases_count = len(testing_summary.failed)
-    passed_test_cases_count = len(testing_summary.passed)
-
-    return ", ".join(
-        _get_preprocessed_core_testing_summary(
-            broken_count=broken_test_cases_count,
-            failed_count=failed_test_cases_count,
-            passed_count=passed_test_cases_count,
-            total_count=collected_test_cases_count,
-        )
-    )
 
 
 @dataclass
@@ -166,20 +91,12 @@ class TestingSummaryResultMessage(StructuredMessage):
         header = fmt.bold("Test suites: ")
         header_size = len(header)
 
-        collected_test_suites_count = len(self.test_collector_result.test_suites)
         item = header.ljust(header_size)
-        item += _get_test_suites_summary(
-            testing_summary=self.testing_summary,
-            collected_test_suites_count=collected_test_suites_count,
-        )
+        item += self._get_test_suites_summary()
         result_arr.append(item)
 
-        collected_test_cases_count = self.test_collector_result.test_cases_count
         item = fmt.bold("Tests: ").ljust(header_size)
-        item += _get_test_cases_summary(
-            testing_summary=self.testing_summary,
-            collected_test_cases_count=collected_test_cases_count,
-        )
+        item += self._get_test_cases_summary()
         result_arr.append(item)
 
         item = fmt.bold("Seed: ").ljust(header_size)
@@ -213,27 +130,80 @@ class TestingSummaryResultMessage(StructuredMessage):
                 "total": failed_test_suites + passed_test_suites,
                 "failed": failed_test_suites,
                 "passed": passed_test_suites,
-                "skipped": calculate_skipped(
-                    total_count=len(self.test_collector_result.test_suites),
-                    broken_count=len(self.testing_summary.broken_suites),
-                    failed_count=failed_test_suites,
-                    passed_count=passed_test_suites,
-                ),
+                "skipped": self.testing_summary.get_skipped_test_suites_count(),
             },
             "test_case_counts": {
                 "total": self.test_collector_result.test_cases_count,
                 "broken": len(self.testing_summary.broken),
                 "failed": failed_tests,
                 "passed": passed_tests,
-                "skipped": calculate_skipped(
-                    total_count=self.test_collector_result.test_cases_count,
-                    broken_count=len(self.testing_summary.broken),
-                    failed_count=failed_tests,
-                    passed_count=passed_tests,
-                ),
+                "skipped": self.testing_summary.get_skipped_test_cases_count(),
             },
             "seed": self.testing_summary.testing_seed,
             "execution_time_in_seconds": format_execution_time_structured(
                 sum(execution_times)
             ),
         }
+
+    def _get_test_suites_summary(self) -> str:
+        passed_test_suites_count = 0
+        failed_test_suites_count = 0
+        broken_test_suites_count = 0
+        total_test_suites_count = len(self.test_collector_result.test_suites)
+        for suite_case_results in self.testing_summary.test_suites_mapping.values():
+            partial_summary = TestingSummary(
+                initial_test_results=suite_case_results,
+                testing_seed=self.testing_summary.testing_seed,
+                test_collector_result=self.test_collector_result,
+            )
+
+            if len(partial_summary.broken_suites) + len(partial_summary.broken) > 0:
+                broken_test_suites_count += 1
+                continue
+
+            if len(partial_summary.failed) > 0:
+                failed_test_suites_count += 1
+                continue
+
+            if len(partial_summary.passed) > 0:
+                passed_test_suites_count += 1
+
+        test_suites_result: list[str] = []
+
+        if broken_test_suites_count > 0:
+            test_suites_result.append(
+                log_color_provider.colorize("RED", f"{broken_test_suites_count} broken")
+            )
+        if failed_test_suites_count > 0:
+            test_suites_result.append(
+                log_color_provider.colorize("RED", f"{failed_test_suites_count} failed")
+            )
+        if passed_test_suites_count > 0:
+            test_suites_result.append(
+                log_color_provider.colorize(
+                    "GREEN", f"{passed_test_suites_count} passed"
+                )
+            )
+        if total_test_suites_count > 0:
+            test_suites_result.append(f"{total_test_suites_count} total")
+
+        return ", ".join(
+            _get_preprocessed_core_testing_summary(
+                broken_count=broken_test_suites_count,
+                failed_count=failed_test_suites_count,
+                passed_count=passed_test_suites_count,
+                skipped_count=self.testing_summary.get_skipped_test_suites_count(),
+                total_count=total_test_suites_count,
+            )
+        )
+
+    def _get_test_cases_summary(self) -> str:
+        return ", ".join(
+            _get_preprocessed_core_testing_summary(
+                broken_count=len(self.testing_summary.broken),
+                failed_count=len(self.testing_summary.failed),
+                passed_count=len(self.testing_summary.passed),
+                skipped_count=self.testing_summary.get_skipped_test_cases_count(),
+                total_count=self.test_collector_result.test_cases_count,
+            )
+        )

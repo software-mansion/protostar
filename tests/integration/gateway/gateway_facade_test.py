@@ -7,7 +7,6 @@ from starknet_py.net.client_models import Declare, TransactionStatus
 from starknet_py.net.gateway_client import GatewayClient
 from starkware.starknet.public.abi import AbiType
 
-from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet.data_transformer import CairoOrPythonData
 from protostar.starknet import Address, Selector
@@ -21,7 +20,7 @@ from tests._conftest.devnet import DevnetAccount, DevnetFixture
 from tests.conftest import MAX_FEE, SetPrivateKeyEnvVarFixture
 from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR, IDENTITY_CONTRACT
 from tests.integration.conftest import CreateProtostarProjectFixture
-from tests.integration.protostar_fixture import (
+from tests.integration._conftest import (
     GatewayClientTxInterceptor,
     ProtostarFixture,
     TransactionRegistry,
@@ -58,7 +57,6 @@ def gateway_client_fixture(
 def gateway_facade_fixture(gateway_client: GatewayClient):
     return GatewayFacade(
         gateway_client=gateway_client,
-        compiled_contract_reader=CompiledContractReader(),
         project_root_path=Path(),
     )
 

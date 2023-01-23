@@ -6,10 +6,12 @@ from tests.integration.conftest import (
     CreateProtostarProjectFixture,
     assert_cairo_test_cases,
 )
-from tests.integration.protostar_fixture import ProtostarFixture
-from tests.integration.pure_cairo_vm.conftest import RunCairoTestRunnerFixture
+from tests.integration._conftest import ProtostarFixture
+from tests.integration.pure_cairo_vm.conftest import (
+    RunCairoTestRunnerFixture,
+    CONTRACTS_PATH,
+)
 
-CONTRACTS_PATH = Path(__file__).parent.parent / "contracts"
 TEST_PATH = Path(__file__).parent
 
 
@@ -24,18 +26,15 @@ async def test_warp_cheatcode(
 ):
     protostar.create_files(
         {
-            "src/main.cairo": CONTRACTS_PATH / "basic_contract.cairo",
+            "src/main.cairo": CONTRACTS_PATH / "roll_warp_tester.cairo",
         }
     )
 
     testing_summary = await run_cairo_test_runner(
-        TEST_PATH
-        / "warp_test.cairo",  # TODO #1330: Add assertions after a "call" cheatcode is available
+        TEST_PATH / "warp_test.cairo",
     )
 
     assert_cairo_test_cases(
         testing_summary,
-        expected_passed_test_cases_names=[
-            "test_warp",
-        ],
+        expected_passed_test_cases_names=["test_warp", "test_warp_with_invoke"],
     )

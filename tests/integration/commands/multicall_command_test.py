@@ -12,7 +12,7 @@ from protostar.starknet_gateway.multicall import (
     Identifier,
 )
 from tests.integration.conftest import CreateProtostarProjectFixture
-from tests.integration.protostar_fixture import ProtostarFixture
+from tests.integration._conftest import ProtostarFixture
 from tests.conftest import DevnetFixture, SetPrivateKeyEnvVarFixture
 
 

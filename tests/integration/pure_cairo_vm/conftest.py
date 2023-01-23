@@ -6,6 +6,8 @@ import pytest
 from protostar.testing import TestingSummary
 from tests.integration.conftest import RunTestRunnerFixture
 
+CONTRACTS_PATH = Path(__file__).parent / "contracts"
+
 
 class RunCairoTestRunnerFixture(Protocol):
     async def __call__(

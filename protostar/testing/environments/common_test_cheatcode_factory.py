@@ -1,8 +1,8 @@
 from typing import List
 
+from protostar.cairo import HintLocal
 from protostar.starknet.cheatcode import Cheatcode
 from protostar.starknet.cheatcode_factory import CheatcodeFactory
-from protostar.starknet.hint_local import HintLocal
 from protostar.testing.cheatcodes import (
     DeclareCheatcode,
     DeployCheatcode,

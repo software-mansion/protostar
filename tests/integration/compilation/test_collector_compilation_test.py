@@ -1,13 +1,10 @@
 from pathlib import Path
 
-from protostar.starknet.compiler.pass_managers import (
+from protostar.starknet.pass_managers import (
     ProtostarPassMangerFactory,
     TestCollectorPassManagerFactory,
 )
-from protostar.starknet.compiler.starknet_compilation import (
-    CompilerConfig,
-    StarknetCompiler,
-)
+from protostar.starknet import StarknetCompilerConfig, StarknetCompiler
 
 
 def preview(abi_entry: dict) -> tuple:
@@ -19,7 +16,7 @@ def preview(abi_entry: dict) -> tuple:
 
 def expected_collected_functions_oracle(path: Path):
     default_compiler = StarknetCompiler(
-        config=CompilerConfig(include_paths=[], disable_hint_validation=False),
+        config=StarknetCompilerConfig(include_paths=[], disable_hint_validation=False),
         pass_manager_factory=ProtostarPassMangerFactory,
     )
     contract_class = default_compiler.preprocess_contract(path)
@@ -28,7 +25,7 @@ def expected_collected_functions_oracle(path: Path):
 
 async def test_test_collector_pass_oracle():
     compiler = StarknetCompiler(
-        config=CompilerConfig(include_paths=[], disable_hint_validation=False),
+        config=StarknetCompilerConfig(include_paths=[], disable_hint_validation=False),
         pass_manager_factory=TestCollectorPassManagerFactory,
     )
     file_path = Path(__file__).parent / "collector_contract.cairo"

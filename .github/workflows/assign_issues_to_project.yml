@@ -6,7 +6,7 @@ on:
 
 jobs:
   assign_one_project:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     name: Assign to Project
     steps:
     - name: Assign new issues to the project board
