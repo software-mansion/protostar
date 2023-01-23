@@ -29,7 +29,7 @@ class CairoCheatcodeInvalidExecution:
 @dataclass(frozen=True)
 class CairoCheatcodeValidExecution:
     ok: Any
-    err: Literal[0] = 0
+    err_code: Literal[0] = 0
 
 
 CairoCheatcodeExecutionResult = Union[
