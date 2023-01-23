@@ -143,7 +143,7 @@ CAIRO_BINDINGS_CONTRACT = """\
 enum MyEnumShort { a: felt, b: felt }
 enum MyEnumLong { a: felt, b: felt, c: felt }
 enum MyEnumGeneric<S, T> { a: T, b: S, c: T }
-func main() -> felt {
+fn main() -> felt {
     let es0 = MyEnumShort::a(10);
     match_short(es0);
     let es1 = MyEnumShort::b(11);
@@ -161,7 +161,7 @@ func main() -> felt {
     300
 }
 
-func match_short(e: MyEnumShort) -> felt {
+fn match_short(e: MyEnumShort) -> felt {
     match e {
         MyEnumShort::a(x) => {
             x
@@ -172,7 +172,7 @@ func match_short(e: MyEnumShort) -> felt {
     }
 }
 
-func match_long(e: MyEnumLong) -> felt {
+fn match_long(e: MyEnumLong) -> felt {
     match e {
         MyEnumLong::a(x) => {
             x
