@@ -38,7 +38,9 @@ from starkware.starkware_utils.error_handling import (
     wrap_with_stark_exception,
 )
 
-from protostar.cheatable_starknet.cheaters.cheater_exception import CheaterException
+from protostar.cheatable_starknet.cheaters.transaction_revert_exception import (
+    TransactionRevertException,
+)
 
 from .cheatable_syscall_handler import CheatableSysCallHandler
 
@@ -304,7 +306,9 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     def _warp_stark_exception(self, stark_exception: StarkException):
         results = re.findall("Error message: (.*)", stark_exception.message or "")
         if len(results) > 0:
-            return CheaterException(message=results[0], raw_ex=stark_exception)
-        return CheaterException(
+            return TransactionRevertException(
+                message=results[0], raw_ex=stark_exception
+            )
+        return TransactionRevertException(
             message=stark_exception.message or "", raw_ex=stark_exception
         )
