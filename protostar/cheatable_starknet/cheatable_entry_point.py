@@ -270,7 +270,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
                 tx_execution_context,
             )
         except StarkException as ex:
-            raise self._map_stark_exception(ex)
+            raise self._warp_stark_exception(ex)
 
     def _execute(
         self,
@@ -301,7 +301,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             tx_execution_context=tx_execution_context,
         )
 
-    def _map_stark_exception(self, stark_exception: StarkException):
+    def _warp_stark_exception(self, stark_exception: StarkException):
         results = re.findall("Error message: (.*)", stark_exception.message or "")
         if len(results) > 0:
             return CheaterException(message=results[0], raw_ex=stark_exception)
