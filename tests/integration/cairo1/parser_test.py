@@ -1,15 +1,40 @@
 from pathlib import Path
+import pytest
 from pytest_mock import MockerFixture
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.vm.utils import RunResources
 
-from protostar.starknet.cairo1_parser import parse_test_suite
+from protostar.cairo.cairo1_test_suite_parser import parse_test_suite
 
 
-def test_parse(mocker: MockerFixture):
-    with open("tests/integration/cairo1/out.json", "r") as file:
-        test_suite = parse_test_suite(Path("test_source.cairo"), file.read())
+@pytest.fixture(name="test_suite_json")
+def test_suite_json_fixture(datadir: Path) -> str:
+    """
+    Cairo source code of the tested fixture
+    -----------------------------------------
+    fn test_cheatcode_caller() {
+       roll(1, 2)
+    }
+
+    fn test_cheatcode_caller_twice() {
+       roll(1, 2);
+       roll(1, 2)
+    }
+
+    fn test_cheatcode_caller_three() {
+       roll(1, 2);
+       roll(1, 2);
+       roll(1, 2)
+    }
+    -----------------------------------------
+    """
+    with open(datadir / "compiled_test_suite.json", "r") as file:
+        return file.read()
+
+
+def test_parse(mocker: MockerFixture, test_suite_json: Path):
+    test_suite = parse_test_suite(Path("test_source.cairo"), test_suite_json)
     cheat_mock = mocker.MagicMock()
     for case in test_suite.test_cases:
         runner = CairoFunctionRunner(program=test_suite.program, layout="all")

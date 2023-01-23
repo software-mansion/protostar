@@ -28,22 +28,32 @@ class TestSuite:
     program: Program
 
 
+InstructionPc = int
+
+
+def build_instruction_pc_to_hint(
+    json_dict: Any,
+) -> dict[InstructionPc, list[CairoHintCode]]:
+    hints: dict[InstructionPc, list[CairoHintCode]] = {}
+    for h in json_dict["hints"]:
+        codes = [CairoHintCode(str(e), [None], None) for e in h[1]]
+        hints[int(h[0])] = codes
+    return hints
+
+
 def parse_test_suite(path: Path, json_raw: Any) -> TestSuite:
     json_dict = json.loads(json_raw)
     prime: int = IntAsHex()._deserialize(json_dict["prime"], None, None)  # pylint
     data: list[int] = [
         IntAsHex()._deserialize(v, None, None) for v in json_dict["bytecode"]
     ]
-    hints: dict[int, list[CairoHintCode]] = {}
-    for h in json_dict["hints"]:
-        codes = [CairoHintCode(str(e), [None], None) for e in h[1]]
-        hints[int(h[0])] = codes
+    instruction_pc_to_hint = build_instruction_pc_to_hint(json_dict)
     builtins = []
 
     program = Program(
         prime=prime,
         data=data,
-        hints=hints,
+        hints=instruction_pc_to_hint,
         builtins=builtins,
         main_scope=None,
         identifiers=None,
