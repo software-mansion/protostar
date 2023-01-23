@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Callable, Union
 
+from typing_extensions import Literal
 from starknet_py.cairo.felt import encode_shortstring
 
 from protostar.cairo import HintLocal
@@ -15,28 +16,20 @@ if TYPE_CHECKING:
 Felt = int
 
 
-@dataclass
-class CheatcodeException(Exception):
-    code: Felt
-    ex: Exception
-
-
-@dataclass
+@dataclass(init=False)
 class CairoCheatcodeInvalidExecution:
     ok = None
-    err: CheatcodeException
+    err_code: int
 
-    def unwrap(self) -> Any:
-        raise self.err
+    def __init__(self, err_code: int):
+        assert err_code > 0
+        self.err_code = err_code
 
 
-@dataclass
+@dataclass(frozen=True)
 class CairoCheatcodeValidExecution:
     ok: Any
-    err = None
-
-    def unwrap(self) -> Any:
-        return self.ok
+    err: Literal[0] = 0
 
 
 CairoCheatcodeExecutionResult = Union[
@@ -59,9 +52,7 @@ class CairoCheatcode(HintLocal, ABC):
                 return CairoCheatcodeValidExecution(ok=result)
             except TransactionRevertException as ex:
                 return CairoCheatcodeInvalidExecution(
-                    err=CheatcodeException(
-                        code=encode_shortstring(ex.message), ex=ex.raw_ex
-                    )
+                    err_code=encode_shortstring(ex.message)
                 )
 
         return wrapper
