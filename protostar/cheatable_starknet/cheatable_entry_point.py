@@ -304,6 +304,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         )
 
     def _warp_stark_exception(self, stark_exception: StarkException):
+        # This code is going change once Starknet is integrated with Cairo 1.
         results = re.findall("Error message: (.*)", stark_exception.message or "")
         if len(results) > 0:
             return TransactionRevertException(
