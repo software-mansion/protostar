@@ -4,7 +4,7 @@ func test_deploying_contract_by_name(){
     alloc_locals;
     local deployed_contract_address;
 
-    %{ ids.deployed_contract_address = deploy_contract("main").contract_address %}
+    %{ ids.deployed_contract_address = deploy_contract("main").unwrap().contract_address %}
 
     assert_not_zero(deployed_contract_address);
     return ();
@@ -14,7 +14,7 @@ func test_deploying_contract(){
     alloc_locals;
     local deployed_contract_address;
 
-    %{ ids.deployed_contract_address = deploy_contract("./src/basic.cairo").contract_address %}
+    %{ ids.deployed_contract_address = deploy_contract("./src/basic.cairo").unwrap().contract_address %}
 
     assert_not_zero(deployed_contract_address);
     return ();
@@ -25,7 +25,7 @@ func test_deploying_contract_with_constructor(){
     local deployed_contract_address;
 
 
-    %{ ids.deployed_contract_address = deploy_contract("./src/basic_with_constructor.cairo", [123]).contract_address %}
+    %{ ids.deployed_contract_address = deploy_contract("./src/basic_with_constructor.cairo", [123]).unwrap().contract_address %}
 
     assert_not_zero(deployed_contract_address);
     return ();
