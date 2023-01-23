@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, Callable, Union
 from starknet_py.cairo.felt import encode_shortstring
 
 from protostar.cairo import HintLocal
-from protostar.cheatable_starknet.cheatable_exception import CheatableException
+from protostar.cheatable_starknet.cheaters.cheater_exception import CheaterException
 
 if TYPE_CHECKING:
     from protostar.cheatable_starknet.cheaters import CairoCheaters
@@ -55,7 +55,7 @@ class CairoCheatcode(HintLocal, ABC):
             try:
                 result = self._build()(*args, **kwargs)
                 return CairoCheatcodeValidExecution(ok=result)
-            except CheatableException as ex:
+            except CheaterException as ex:
                 return CairoCheatcodeInvalidExecution(
                     err=CheatcodeException(
                         code=encode_shortstring(ex.message), ex=ex.raw_ex

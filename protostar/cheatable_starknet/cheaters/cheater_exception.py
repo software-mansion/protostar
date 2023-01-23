@@ -2,6 +2,6 @@ from dataclasses import dataclass
 
 
 @dataclass
-class CheatableException(Exception):
+class CheaterException(Exception):
     message: str
     raw_ex: Exception
