@@ -7,8 +7,8 @@ func test_preparing_deployment_no_constructor(){
     local salt;
 
     %{
-        declared = declare("./src/basic_no_constructor.cairo").unwrap()
-        prepared = prepare(declared).unwrap()
+        declared = declare("./src/basic_no_constructor.cairo").ok
+        prepared = prepare(declared).ok
 
         ids.contract_address = prepared.contract_address
         ids.class_hash = prepared.class_hash
@@ -30,8 +30,8 @@ func test_preparing_deployment_with_constructor_no_args(){
     local salt;
 
     %{
-        declared = declare("./src/basic_with_constructor_no_args.cairo").unwrap()
-        prepared = prepare(declared).unwrap()
+        declared = declare("./src/basic_with_constructor_no_args.cairo").ok
+        prepared = prepare(declared).ok
 
         ids.contract_address = prepared.contract_address
         ids.class_hash = prepared.class_hash
@@ -57,8 +57,8 @@ func test_preparing_deployment_with_constructor_data_transformer(){
 
     // Passing constructor calldata as a dictionary
     %{
-        declared = declare("./src/basic_with_constructor.cairo").unwrap()
-        prepared = prepare(declared, {"initial_balance": ids.initial_balance_input}).unwrap()
+        declared = declare("./src/basic_with_constructor.cairo").ok
+        prepared = prepare(declared, {"initial_balance": ids.initial_balance_input}).ok
         ids.initial_balance = prepared.constructor_calldata[0]
 
         ids.contract_address = prepared.contract_address
@@ -86,8 +86,8 @@ func test_preparing_deployment_with_constructor_no_data_transformer(){
 
     // Passing constructor calldata as a list
     %{
-        declared = declare("./src/basic_with_constructor.cairo").unwrap()
-        prepared = prepare(declared, [ids.initial_balance_input]).unwrap()
+        declared = declare("./src/basic_with_constructor.cairo").ok
+        prepared = prepare(declared, [ids.initial_balance_input]).ok
         ids.initial_balance = prepared.constructor_calldata[0]
 
         ids.contract_address = prepared.contract_address

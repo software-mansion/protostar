@@ -12,11 +12,11 @@ func test_invoke_without_transformation() {
     assert balance = 100;
 
     local new_balance;
-    %{ assert invoke(ids.deployed_contract_address, "increase_balance", {"amount": 123}).err is None %}
+    %{ assert invoke(ids.deployed_contract_address, "increase_balance", {"amount": 123}).err_code == 0 %}
     %{ ids.new_balance = call(ids.deployed_contract_address, "get_balance").ok[0] %}
     assert new_balance = 223;
 
-    %{ assert invoke(ids.deployed_contract_address, "increase_balance", [123]).err is None %}
+    %{ assert invoke(ids.deployed_contract_address, "increase_balance", [123]).err_code == 0 %}
     return ();
 }
 
@@ -26,7 +26,7 @@ func test_panicking() {
     %{
         contract_address = deploy_contract("./src/panic.cairo").ok.contract_address
         result = invoke(contract_address, "panic")
-        ids.error_code = result.err.code
+        ids.error_code = result.err_code
     %}
     assert error_code = 'PANIC_DESCRIPTION';
     return ();
