@@ -13,8 +13,6 @@ from protostar.cheatable_starknet.cheaters.transaction_revert_exception import (
 if TYPE_CHECKING:
     from protostar.cheatable_starknet.cheaters import CairoCheaters
 
-Felt = int
-
 
 @dataclass(init=False)
 class CairoCheatcodeInvalidExecution:
