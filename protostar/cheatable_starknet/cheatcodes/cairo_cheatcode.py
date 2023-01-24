@@ -20,7 +20,9 @@ class CairoCheatcodeInvalidExecution:
     err_code: int
 
     def __init__(self, err_code: int):
-        assert err_code > 0
+        assert (
+            err_code > 0
+        ), "Error code 0 is reserved for successful execution. Error code must be a positive number."
         self.err_code = err_code
 
 
