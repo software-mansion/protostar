@@ -77,7 +77,3 @@ class CairoTestExecutionState:
             config=test_config,
             project_compiler=project_compiler,
         )
-
-    @property
-    def cheatable_state(self):
-        return cast(CheatableCachedState, self.starknet.state.state)
