@@ -271,7 +271,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             return super().execute(
                 state,
                 resources_manager,
-                general_config,
+                self._change_max_steps_in_general_config(general_config),
                 tx_execution_context,
             )
         except StarkException as ex:
