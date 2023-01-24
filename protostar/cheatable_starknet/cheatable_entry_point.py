@@ -246,7 +246,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
                 tx_execution_context=tx_execution_context,
             )
         except StarkException as ex:
-            raise self._warp_stark_exception(ex)
+            raise self._wrap_stark_exception(ex)
 
     def _change_max_steps_in_general_config(
         self, general_config: StarknetGeneralConfig
@@ -275,9 +275,9 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
                 tx_execution_context,
             )
         except StarkException as ex:
-            raise self._warp_stark_exception(ex)
+            raise self._wrap_stark_exception(ex)
 
-    def _warp_stark_exception(self, stark_exception: StarkException):
+    def _wrap_stark_exception(self, stark_exception: StarkException):
         # This code is going change once Starknet is integrated with Cairo 1.
         message = stark_exception.message or ""
         results = re.findall("Error message: (.*)", message)
