@@ -46,14 +46,6 @@ from .transaction_registry import TransactionRegistry
 ContractMap = Dict[str, List[str]]
 
 # pylint: disable=too-many-instance-attributes
-def to_contract_name(contract_identifier: str) -> str:
-    """
-    Converts identifier (path/ contract name) into contract name which can be put into protostar.toml
-    For example:
-        ./src/basic.cairo -> basic
-        basic -> basic
-    """
-    return Path(contract_identifier).stem
 
 
 class ProtostarFixture:
