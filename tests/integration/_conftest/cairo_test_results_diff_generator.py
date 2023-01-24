@@ -61,5 +61,5 @@ class CairoTestCasesDiffGenerator:
     def _get_test_case_result(self, test_case_name: str) -> TestCaseResult:
         assert (
             test_case_name in self._test_case_name_to_result
-        ), "Test suite could be broken"
+        ), f"Couldn't find test case result for '{test_case_name}'. Test suite could be broken"
         return self._test_case_name_to_result[test_case_name]
