@@ -1,9 +1,8 @@
 import json
 import os
 from contextlib import contextmanager
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, ContextManager, List, Optional, Set, cast
+from typing import Callable, ContextManager, List, Optional, cast
 
 import pytest
 from pytest import TempPathFactory
@@ -12,116 +11,17 @@ from starkware.starknet.public.abi import AbiType
 from typing_extensions import Protocol
 
 from protostar.commands.test.test_command import TestCommand
-from protostar.commands.test.test_result_formatter import format_test_result
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.testing import TestingSummary
 from protostar.cli import MessengerFactory
-from protostar.testing.test_results import TestCaseResult
 from tests.conftest import TESTS_ROOT_PATH, run_devnet
 from tests.integration._conftest import ProtostarFixture, create_protostar_fixture
+from tests.integration._conftest import (
+    assert_cairo_test_cases as _assert_cairo_test_cases,
+)
 
-
-@dataclass
-class CairoTestCases:
-    passed: Set[str]
-    failed: Set[str]
-    broken: Set[str]
-    skipped: Set[str]
-
-    def __repr__(self) -> str:
-        passed = "[Passed]\n" + "\n".join(sorted(self.passed))
-        failed = "[Failed]\n" + "\n".join(sorted(self.failed))
-        broken = "[Broken]\n" + "\n".join(sorted(self.broken))
-        skipped = "[Skipped]\n" + "\n".join(sorted(self.skipped))
-
-        return "\n".join([passed, failed, broken, skipped])
-
-
-def assert_cairo_test_cases(
-    testing_summary: TestingSummary,
-    expected_passed_test_cases_names: Optional[List[str]] = None,
-    expected_failed_test_cases_names: Optional[List[str]] = None,
-    expected_broken_test_cases_names: Optional[List[str]] = None,
-    expected_skipped_test_cases_names: Optional[List[str]] = None,  # Explicitly skipped
-):
-    expected_passed_test_cases_names = expected_passed_test_cases_names or []
-    expected_failed_test_cases_names = expected_failed_test_cases_names or []
-    expected_broken_test_cases_names = expected_broken_test_cases_names or []
-    expected_skipped_test_cases_names = expected_skipped_test_cases_names or []
-
-    passed_test_cases_names = set(
-        passed_test_case.test_case_name for passed_test_case in testing_summary.passed
-    )
-    failed_test_cases_names = set(
-        failed_test_case.test_case_name for failed_test_case in testing_summary.failed
-    )
-    broken_test_cases_names = set(
-        broken_test_case.test_case_name for broken_test_case in testing_summary.broken
-    )
-    skipped_test_cases_names = set(
-        skipped_test_case.test_case_name
-        for skipped_test_case in testing_summary.explicitly_skipped
-    )
-
-    for broken_test_case in testing_summary.broken_suites:
-        for test_case_name in broken_test_case.test_case_names:
-            broken_test_cases_names.add(test_case_name)
-
-    actual = CairoTestCases(
-        passed=passed_test_cases_names,
-        failed=failed_test_cases_names,
-        broken=broken_test_cases_names,
-        skipped=skipped_test_cases_names,
-    )
-
-    expected = CairoTestCases(
-        passed=set(expected_passed_test_cases_names),
-        failed=set(expected_failed_test_cases_names),
-        broken=set(expected_broken_test_cases_names),
-        skipped=set(expected_skipped_test_cases_names),
-    )
-
-    name_to_test_case_result = {
-        test_result.test_case_name: test_result
-        for test_result in testing_summary.test_results
-        if isinstance(test_result, TestCaseResult)
-    }
-    diff = show_diff_between_cairo_test_cases(
-        name_to_test_case_result, expected, actual
-    )
-    if diff:
-        assert False, diff
-    assert actual == expected
-
-
-def show_diff_between_cairo_test_cases(
-    name_to_test_case_result: dict[str, Any],
-    expected: CairoTestCases,
-    actual: CairoTestCases,
-) -> str:
-    lines: list[str] = []
-    result_types = ["passed", "failed", "broken", "skipped"]
-    for expected_result_type in result_types:
-        for expected_test_case_name in getattr(expected, expected_result_type):
-            if expected_test_case_name in getattr(actual, expected_result_type):
-                continue
-            lines.append(
-                (
-                    f"Expected '{expected_test_case_name}' to be {expected_result_type}, got:"
-                )
-            )
-            if expected_test_case_name not in name_to_test_case_result:
-                lines.append("nothing — no such test case result found")
-                break
-            lines.append(
-                format_test_result(
-                    name_to_test_case_result[expected_test_case_name]
-                ).format_human(LogColorProvider())
-            )
-            lines.append("")
-            break
-    return "\n".join(lines)
+assert_cairo_test_cases = _assert_cairo_test_cases
 
 
 @pytest.fixture(name="devnet_gateway_url", scope="module")
