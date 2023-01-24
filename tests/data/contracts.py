@@ -230,7 +230,7 @@ mod TestContract {
     }
 }
 """
-CAIRO_BINDINGS_TEST = """\
+CAIRO_BINDINGS_TESTS = """\
 #[test]
 #[should_panic]
 fn test_assert_false() {

@@ -3,7 +3,7 @@ import pytest
 
 import cairo_python_bindings
 
-from tests.data.contracts import CAIRO_BINDINGS_CONTRACT_ENUM, CAIRO_BINDINGS_TEST
+from tests.data.contracts import CAIRO_BINDINGS_CONTRACT_ENUM, CAIRO_BINDINGS_TESTS
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration._conftest import ProtostarFixture
 
@@ -18,13 +18,13 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
 @pytest.fixture(name="prepared_files")
 def prepared_files_fixture(protostar: ProtostarFixture):
     cairo_example_path = Path("./src/example.cairo")
-    cairo_test_path = Path("./src/test.cairo")
+    cairo_tests_path = Path("./src/tests.cairo")
     sierra_path = Path("./src/example.sierra")
     casm_path = Path("./src/example.casm")
 
     paths = {
         "cairo_example": cairo_example_path,
-        "cairo_test": cairo_test_path,
+        "cairo_tests": cairo_tests_path,
         "sierra": sierra_path,
         "casm": casm_path,
     }
@@ -36,10 +36,17 @@ def prepared_files_fixture(protostar: ProtostarFixture):
     with open(cairo_example_path, "w") as file:
         file.write(CAIRO_BINDINGS_CONTRACT_ENUM)
 
-    with open(cairo_test_path, "w") as file:
-        file.write(CAIRO_BINDINGS_TEST)
+    with open(cairo_tests_path, "w") as file:
+        file.write(CAIRO_BINDINGS_TESTS)
 
     return paths
+
+
+def test_tests_collector(prepared_files: dict[str, Path]):
+    sierra_contents = cairo_python_bindings.call_test_collector(  # pyright: ignore
+        str(prepared_files["cairo_tests"])
+    )
+    assert len(sierra_contents)
 
 
 def test_cairo_to_casm(prepared_files: dict[str, Path]):
@@ -58,7 +65,7 @@ def test_cairo_to_casm(prepared_files: dict[str, Path]):
             file_contents = file.readlines()
             assert len(casm_contents.split("\n")) >= len(file_contents)
 
-    for name in ["cairo_example", "cairo_test"]:
+    for name in ["cairo_example", "cairo_tests"]:
         check_compilation(name=name)
 
 
