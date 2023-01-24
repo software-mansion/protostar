@@ -3,17 +3,14 @@ from pathlib import Path
 
 import pytest
 
-from protostar.starknet.compiler.pass_managers import ProtostarPassMangerFactory
-from protostar.starknet.compiler.starknet_compilation import (
-    CompilerConfig,
-    StarknetCompiler,
-)
+from protostar.starknet.pass_managers import ProtostarPassMangerFactory
+from protostar.starknet import StarknetCompilerConfig, StarknetCompiler
 
 
 @pytest.fixture(name="compiler")
 def compiler_fixture() -> StarknetCompiler:
     return StarknetCompiler(
-        config=CompilerConfig(include_paths=[], disable_hint_validation=False),
+        config=StarknetCompilerConfig(include_paths=[], disable_hint_validation=False),
         pass_manager_factory=ProtostarPassMangerFactory,
     )
 

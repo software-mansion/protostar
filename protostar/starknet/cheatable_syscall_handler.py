@@ -16,9 +16,8 @@ from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
 from starkware.starknet.security.secure_hints import HintsWhitelist
 from starkware.starknet.services.api.contract_class import EntryPointType
 
-from protostar.starknet.cheatable_cached_state import CheatableCachedState, cheaters_of
 from protostar.starknet.types import SelectorType
-
+from .cheatable_cached_state import CheatableCachedState, cheaters_of
 from .address import Address
 
 

@@ -2,19 +2,16 @@ from pathlib import Path
 
 from starkware.starknet.public.abi import AbiType
 
-from protostar.starknet.compiler.pass_managers import (
+from protostar.starknet.pass_managers import (
     StarknetPassManagerFactory,
     TestSuitePassMangerFactory,
 )
-from protostar.starknet.compiler.starknet_compilation import (
-    CompilerConfig,
-    StarknetCompiler,
-)
+from protostar.starknet import StarknetCompilerConfig, StarknetCompiler
 
 
 def oracle_abi() -> AbiType:
     original_compiler = StarknetCompiler(
-        config=CompilerConfig(include_paths=[], disable_hint_validation=False),
+        config=StarknetCompilerConfig(include_paths=[], disable_hint_validation=False),
         pass_manager_factory=StarknetPassManagerFactory,
     )
     abi = original_compiler.compile_contract(
@@ -26,7 +23,7 @@ def oracle_abi() -> AbiType:
 
 async def test_case_compile_pass_removes_constructor_oracle():
     compiler = StarknetCompiler(
-        config=CompilerConfig(include_paths=[], disable_hint_validation=False),
+        config=StarknetCompilerConfig(include_paths=[], disable_hint_validation=False),
         pass_manager_factory=TestSuitePassMangerFactory,
     )
     contract_class = compiler.compile_contract(
@@ -41,7 +38,7 @@ async def test_case_compile_pass_removes_constructor_oracle():
 
 async def test_case_compile_pass_removes_namespace_constructor_oracle():
     compiler = StarknetCompiler(
-        config=CompilerConfig(include_paths=[], disable_hint_validation=False),
+        config=StarknetCompilerConfig(include_paths=[], disable_hint_validation=False),
         pass_manager_factory=TestSuitePassMangerFactory,
     )
     contract_class = compiler.compile_contract(

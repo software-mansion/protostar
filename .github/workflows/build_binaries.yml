@@ -10,7 +10,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-latest, macos-latest ]
+        os: [ ubuntu-20.04, macos-latest ]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.9.14
@@ -40,7 +40,7 @@ jobs:
           name: protostar-${{ runner.os }}
           path: protostar.tar.gz
   publish:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs: [build]
     steps:
       - uses: actions/checkout@v2

@@ -4,21 +4,21 @@ from typing import List, Optional
 
 from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
 from protostar.cli.activity_indicator import ActivityIndicator
+from protostar.commands.test.messages.testing_summary_message import (
+    TestingSummaryResultMessage,
+)
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.compiler import ProjectCairoPathBuilder
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.protostar_exception import ProtostarException
 from protostar.self.cache_io import CacheIO
 from protostar.self.protostar_directory import ProtostarDirectory
-from protostar.starknet.compiler.pass_managers import (
+from protostar.starknet.pass_managers import (
     StarknetPassManagerFactory,
     TestCollectorPassManagerFactory,
 )
-from protostar.starknet.compiler.starknet_compilation import (
-    StarknetCompiler,
-)
-from protostar.starknet.compiler.cairo_compilation import CairoCompiler
-from protostar.starknet.compiler.common import CompilerConfig
+from protostar.starknet import StarknetCompiler
+from protostar.cairo import CairoCompiler, CairoCompilerConfig
 from protostar.testing import (
     TestCollector,
     TestingSummary,
@@ -26,7 +26,7 @@ from protostar.testing import (
     TestScheduler,
     determine_testing_seed,
 )
-from protostar.testing.cairo_test_runner import CairoTestRunner
+from protostar.cairo_testing.cairo_test_runner import CairoTestRunner
 from protostar.io.output import Messenger
 
 from .messages import TestCollectorResultMessage
@@ -219,7 +219,7 @@ A glob or globs to a directory or a test suite, for example:
         with ActivityIndicator(
             self._log_color_provider.colorize("GRAY", "Collecting tests")
         ):
-            compiler_config = CompilerConfig(
+            compiler_config = CairoCompilerConfig(
                 disable_hint_validation=True, include_paths=include_paths
             )
             if use_cairo_test_runner:
@@ -250,8 +250,9 @@ A glob or globs to a directory or a test suite, for example:
         messenger(TestCollectorResultMessage(test_collector_result))
 
         testing_summary = TestingSummary(
-            test_results=test_collector_result.broken_test_suites,  # type: ignore
+            initial_test_results=test_collector_result.broken_test_suites,  # type: ignore
             testing_seed=testing_seed,
+            test_collector_result=test_collector_result,
         )
 
         if test_collector_result.test_cases_count > 0:
@@ -261,6 +262,7 @@ A glob or globs to a directory or a test suite, for example:
                 exit_first=exit_first,
                 slowest_tests_to_report_count=slowest_tests_to_report_count,
                 project_root_path=self._project_root_path,
+                write=messenger,
             )
             worker = (
                 CairoTestRunner.worker if use_cairo_test_runner else TestRunner.worker
@@ -278,9 +280,13 @@ A glob or globs to a directory or a test suite, for example:
                 active_profile_name=self._active_profile_name,
                 cwd=self._cwd,
                 gas_estimation_enabled=gas_estimation_enabled,
-                messenger=messenger,
-                testing_summary=testing_summary,
-                slowest_tests_to_report_count=slowest_tests_to_report_count,
+                on_exit_first=lambda: messenger(
+                    TestingSummaryResultMessage(
+                        test_collector_result=test_collector_result,
+                        testing_summary=testing_summary,
+                        slowest_tests_to_report_count=slowest_tests_to_report_count,
+                    )
+                ),
             )
 
         return testing_summary

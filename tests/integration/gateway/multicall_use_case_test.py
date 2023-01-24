@@ -4,7 +4,6 @@ import pytest
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 
-from protostar.compiler.compiled_contract_reader import CompiledContractReader
 from protostar.starknet import Selector
 from protostar.starknet_gateway import Account, AccountManager, GatewayFacade
 from protostar.starknet_gateway.multicall import (
@@ -17,14 +16,13 @@ from protostar.starknet_gateway.multicall import (
 from tests._conftest.devnet import DevnetFixture
 from tests.conftest import SetPrivateKeyEnvVarFixture
 from tests.integration.conftest import CreateProtostarProjectFixture
-from tests.integration.protostar_fixture import ProtostarFixture
+from tests.integration._conftest import ProtostarFixture
 
 
 @pytest.fixture(name="starknet_client")
 def gateway_facade_fixture(devnet: DevnetFixture):
     return GatewayFacade(
         gateway_client=GatewayClient(net=devnet.get_gateway_url()),
-        compiled_contract_reader=CompiledContractReader(),
         project_root_path=Path(),
     )
 

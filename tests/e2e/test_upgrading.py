@@ -5,6 +5,9 @@ from tests.e2e.conftest import ProtostarFixture
 
 @pytest.mark.parametrize("protostar_version", ["0.0.0"])
 @pytest.mark.usefixtures("init")
+@pytest.mark.skip(
+    "Protostar 0.9.1 installation fails on Ubuntu 20.04. Remove the skip, after a new release build on Ubuntu 20.04."
+)
 def test_upgrading(protostar: ProtostarFixture):
     assert "0.0.0" in protostar(["--version"])
     assert "ERROR" not in protostar(["upgrade"])

@@ -6,10 +6,12 @@ from tests.integration.conftest import (
     CreateProtostarProjectFixture,
     assert_cairo_test_cases,
 )
-from tests.integration.protostar_fixture import ProtostarFixture
-from tests.integration.pure_cairo_vm.conftest import RunCairoTestRunnerFixture
+from tests.integration._conftest import ProtostarFixture
+from tests.integration.pure_cairo_vm.conftest import (
+    RunCairoTestRunnerFixture,
+    CONTRACTS_PATH,
+)
 
-CONTRACTS_PATH = Path(__file__).parent.parent / "contracts"
 TEST_PATH = Path(__file__).parent
 
 
