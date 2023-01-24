@@ -340,7 +340,7 @@ class ProtostarFixture:
                 content = file
             self._save_file(self._project_root_path / relative_path_str, content)
 
-    def create_contracts(self, contract_name_to_file: Dict[str, Path]):
+    def create_contracts(self, contract_name_to_file: Dict[str, Union[str, Path]]):
         relative_path_str_to_file = {
             f"src/{contract_name}.cairo": file
             for contract_name, file in contract_name_to_file.items()
@@ -349,8 +349,7 @@ class ProtostarFixture:
         self.add_contracts_to_protostar_toml(contract_name_to_file)
 
     def add_contracts_to_protostar_toml(
-        self,
-        contract_name_to_file: Dict[str, Path],
+        self, contract_name_to_file: Dict[str, Union[str, Path]]
     ):
         protostar_toml_path = self.project_root_path / "protostar.toml"
         assert (
@@ -377,11 +376,17 @@ class ProtostarFixture:
 
         new_contract_map = {
             contract_name: [str(file_path.resolve())]
+            if isinstance(file_path, Path)
+            else [file_path]
             for contract_name, file_path in contract_name_to_file.items()
         }
 
+        declared_protostar_v = config_file_v2.get_declared_protostar_version()
+        declared_protostar_v_str = (
+            str(declared_protostar_v) if declared_protostar_v else None
+        )
         overriden_config_file_model_v2 = ConfigurationFileV2Model(
-            protostar_version=config_file_v2.get_declared_protostar_version(),
+            protostar_version=declared_protostar_v_str,
             contract_name_to_path_strs={
                 **previous_contract_map,
                 **new_contract_map,
