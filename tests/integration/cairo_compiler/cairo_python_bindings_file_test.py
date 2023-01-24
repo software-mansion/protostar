@@ -1,10 +1,9 @@
-import os
 from pathlib import Path
 import pytest
 
 import cairo_python_bindings
 
-from tests.data.contracts import CAIRO_BINDINGS_CONTRACT
+from tests.data.contracts import CAIRO_BINDINGS_CONTRACT_ENUM
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration._conftest import ProtostarFixture
 
@@ -29,12 +28,12 @@ def prepared_files_fixture(protostar: ProtostarFixture):
         assert path.exists()
 
     with open(cairo_path, "w") as file:
-        file.write(CAIRO_BINDINGS_CONTRACT)
+        file.write(CAIRO_BINDINGS_CONTRACT_ENUM)
 
     return paths
 
 
-def test_cairo_to_casm(protostar: ProtostarFixture, prepared_files: dict[str, Path]):
+def test_cairo_to_casm(prepared_files: dict[str, Path]):
     cairo_python_bindings.call_cairo_to_casm_compiler(  # pyright: ignore
         str(prepared_files["cairo"]), str(prepared_files["casm"])
     )
@@ -50,9 +49,7 @@ def test_cairo_to_casm(protostar: ProtostarFixture, prepared_files: dict[str, Pa
         assert len(casm_contents.split("\n")) >= len(file_contents)
 
 
-def test_cairo_to_sierra_to_casm(
-    protostar: ProtostarFixture, prepared_files: dict[str, Path]
-):
+def test_cairo_to_sierra_to_casm(prepared_files: dict[str, Path]):
     # cairo => sierra
     cairo_python_bindings.call_cairo_to_sierra_compiler(  # pyright: ignore
         str(prepared_files["cairo"]), str(prepared_files["sierra"])
