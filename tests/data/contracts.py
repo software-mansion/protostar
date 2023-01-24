@@ -138,7 +138,6 @@ func identity(arg: Uint256) -> (res: Uint256) {
     return (arg,);
 }
 """
-
 CAIRO_BINDINGS_CONTRACT_ENUM = """\
 enum MyEnumShort { a: felt, b: felt }
 enum MyEnumLong { a: felt, b: felt, c: felt }
@@ -186,17 +185,6 @@ fn match_long(e: MyEnumLong) -> felt {
     }
 }
 """
-CAIRO_BINDINGS_CONTRACT_AREAS = """\
-fn circle_area(r: felt) -> felt {
-    3.14 * r * r
-}
-fn rect_area(a: felt, b: felt) -> felt {
-    a*b
-}
-fn triangle_area(a: felt, h: felt) -> felt {
-    a * h * .5
-}
-"""
 CAIRO_BINDINGS_CONTRACT_STARKNET_HELLO = """\
 #[contract]
 mod HelloStarknet {
@@ -241,8 +229,4 @@ mod TestContract {
     fn empty() {
     }
 }
-"""
-PROJECT_FILE_CONTENTS = """\
-[crate_roots]
-cairo_module = "."
 """
