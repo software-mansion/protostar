@@ -3,12 +3,11 @@ from typing import Any
 from protostar.commands.test.test_result_formatter import format_test_result
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.testing import TestCaseResult, TestingSummary
-from tests._conftest.cairo_test_results.cairo_test_results_data import (
-    CairoTestResultsData,
-)
+
+from .cairo_test_results_data import CairoTestResultsData
 
 
-class CairoTestCasesDiff:
+class CairoTestCasesDiffGenerator:
     @classmethod
     def from_testing_summary(cls, testing_summary: TestingSummary):
 
@@ -25,31 +24,30 @@ class CairoTestCasesDiff:
 
     def execute(
         self,
-        expected: CairoTestResultsData,
-        actual: CairoTestResultsData,
+        expected_test_results_data: CairoTestResultsData,
+        actual_test_results_data: CairoTestResultsData,
     ) -> str:
         lines: list[str] = []
         for expected_result_type in ["passed", "failed", "broken", "skipped"]:
-            for expected_test_case_name in getattr(expected, expected_result_type):
-                if expected_test_case_name in getattr(actual, expected_result_type):
+            for expected_test_case_name in getattr(
+                expected_test_results_data, expected_result_type
+            ):
+                if expected_test_case_name in getattr(
+                    actual_test_results_data, expected_result_type
+                ):
                     continue
-                lines.append(
-                    (
-                        f"Expected '{expected_test_case_name}' to be {expected_result_type}, got:"
+                lines.extend(
+                    self._create_error_message(
+                        expected_test_case_name, expected_result_type
                     )
                 )
-                lines.append(
-                    format_test_result(
-                        self._get_test_case_result(expected_test_case_name)
-                    ).format_human(LogColorProvider())
-                )
                 lines.append("")
-                break
         return "\n".join(lines)
 
-    def _fn(self):
-        if expected_test_case_name in getattr(actual, expected_result_type):
-            continue
+    def _create_error_message(
+        self, expected_test_case_name: str, expected_result_type: str
+    ):
+        lines: list[str] = []
         lines.append(
             (f"Expected '{expected_test_case_name}' to be {expected_result_type}, got:")
         )
@@ -58,8 +56,7 @@ class CairoTestCasesDiff:
                 self._get_test_case_result(expected_test_case_name)
             ).format_human(LogColorProvider())
         )
-        lines.append("")
-        break
+        return lines
 
     def _get_test_case_result(self, test_case_name: str) -> TestCaseResult:
         assert (

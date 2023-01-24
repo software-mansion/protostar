@@ -1,10 +1,9 @@
 from typing import Optional
 
-from protostar.testing.test_results import TestCaseResult
 from protostar.testing.testing_summary import TestingSummary
-from tests._conftest.cairo_test_results.cairo_test_results_data import (
-    CairoTestResultsData,
-)
+
+from .cairo_test_results_data import CairoTestResultsData
+from .cairo_test_results_diff_generator import CairoTestCasesDiffGenerator
 
 
 def assert_cairo_test_cases(
@@ -51,14 +50,10 @@ def assert_cairo_test_cases(
         skipped=set(expected_skipped_test_cases_names),
     )
 
-    name_to_test_case_result = {
-        test_result.test_case_name: test_result
-        for test_result in testing_summary.test_results
-        if isinstance(test_result, TestCaseResult)
-    }
-    diff = show_diff_between_cairo_test_cases(
-        name_to_test_case_result, expected, actual
+    diff = CairoTestCasesDiffGenerator.from_testing_summary(testing_summary).execute(
+        actual, expected
     )
     if diff:
+        # diff is not included in the condition to improve errors' readability
         assert False, diff
     assert actual == expected
