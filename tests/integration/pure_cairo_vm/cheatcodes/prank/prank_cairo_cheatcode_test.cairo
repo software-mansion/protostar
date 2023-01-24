@@ -9,7 +9,7 @@ from starkware.cairo.common.uint256 import Uint256
 
 func test_fails_when_not_pranked() {
     %{
-        contract_address = deploy_contract("tests/integration/pure_cairo_vm/cheatcodes/prank/pranked.cairo").contract_address
+        contract_address = deploy_contract("pranked").contract_address
 
         call(contract_address, "assert_pranked")
     %}
@@ -19,7 +19,7 @@ func test_fails_when_not_pranked() {
 func test_not_fails_when_pranked() {
     %{
         EXPECTED_PRANKED_ADDRESS = 123
-        contract_address = deploy_contract("tests/integration/pure_cairo_vm/cheatcodes/prank/pranked.cairo").contract_address
+        contract_address = deploy_contract("pranked").contract_address
 
         prank(EXPECTED_PRANKED_ADDRESS, contract_address)
         call(contract_address, "assert_pranked")
@@ -30,8 +30,8 @@ func test_not_fails_when_pranked() {
 func test_fails_when_different_target_is_pranked() {
     %{
         PRANKED_ADDRESS = 123
-        contract_address = deploy_contract("tests/integration/pure_cairo_vm/cheatcodes/prank/pranked.cairo").contract_address
-        another_contract_address = deploy_contract("tests/integration/pure_cairo_vm/cheatcodes/prank/pranked.cairo").contract_address 
+        contract_address = deploy_contract("pranked").contract_address
+        another_contract_address = deploy_contract("pranked").contract_address
 
         prank(PRANKED_ADDRESS, target_address=another_contract_address)
         call(contract_address, "assert_pranked")
