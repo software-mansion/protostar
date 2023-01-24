@@ -139,7 +139,7 @@ func identity(arg: Uint256) -> (res: Uint256) {
 }
 """
 
-CAIRO_BINDINGS_CONTRACT = """\
+CAIRO_BINDINGS_CONTRACT_ENUM = """\
 enum MyEnumShort { a: felt, b: felt }
 enum MyEnumLong { a: felt, b: felt, c: felt }
 enum MyEnumGeneric<S, T> { a: T, b: S, c: T }
@@ -185,4 +185,64 @@ fn match_long(e: MyEnumLong) -> felt {
         },
     }
 }
+"""
+CAIRO_BINDINGS_CONTRACT_AREAS = """\
+fn circle_area(r: felt) -> felt {
+    3.14 * r * r
+}
+fn rect_area(a: felt, b: felt) -> felt {
+    a*b
+}
+fn triangle_area(a: felt, h: felt) -> felt {
+    a * h * .5
+}
+"""
+CAIRO_BINDINGS_CONTRACT_STARKNET_HELLO = """\
+#[contract]
+mod HelloStarknet {
+    struct Storage { balance: felt, }
+
+    // Increases the balance by the given amount.
+    #[external]
+    fn increase_balance(amount: felt) {
+        balance::write(balance::read() + amount);
+    }
+
+    // Returns the current balance.
+    #[view]
+    fn get_balance() -> felt {
+        balance::read()
+        0
+    }
+}
+"""
+CAIRO_BINDINGS_CONTRACT_STARKNET_HELLO_TEST = """\
+#[abi]
+trait IAnotherContract {
+fn foo(); }
+
+
+#[contract]
+mod TestContract {
+    struct Storage { my_storage_var: felt, }
+
+    fn internal_func() -> felt {
+        1
+    }
+
+    #[external]
+    fn test(ref arg: felt, arg1: felt, arg2: felt) -> felt {
+        let x = my_storage_var::read();
+        my_storage_var::write(x + 1);
+        x + internal_func()
+    }
+
+    #[external]
+    fn empty() {
+    }
+}
+"""
+PROJECT_FILE_CONTENTS = """\
+[crate_roots]
+cairo_module = "."
 """
