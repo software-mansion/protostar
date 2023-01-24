@@ -1,5 +1,20 @@
 from starkware.cairo.common.math import assert_not_zero
 
+func test_call_unknown_fail() {
+    alloc_locals;
+    %{
+        addr = deploy_contract("./src/basic.cairo").ok.contract_address
+        result = call(addr, "get_balance").ok
+        assert result == [100]
+    %}
+    %{
+        addr = deploy_contract("basic").ok.contract_address
+        result = call(addr, "get_balance").ok
+        assert result == [100]
+    %}
+    return ();
+}
+
 func test_call_simple() {
     alloc_locals;
     local deployed_contract_address;

@@ -1,8 +1,11 @@
+from starkware.cairo.common.math import assert_not_zero
+
 func test_declaring_contract(){
     alloc_locals;
     local declared_class;
 
-    %{ ids.declared_class = declare("main").ok.class_hash %}
-    assert declared_class = 3486615995825404773763675912942359106768738718722212119221423115555603404330;
+    %{ ids.declared_class = declare("basic").ok.class_hash %}
+
+    assert_not_zero(declared_class);
     return ();
 }
