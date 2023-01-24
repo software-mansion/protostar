@@ -1,13 +1,10 @@
-from typing import Any, Callable, Optional
 import asyncio
+from typing import Any, Callable, Optional
 
 from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
 from protostar.cheatable_starknet.cheaters.contracts import ContractsCheaterException
-
 from protostar.starknet import CheatcodeException
-from protostar.starknet.data_transformer import (
-    CairoOrPythonData,
-)
+from protostar.starknet.data_transformer import CairoOrPythonData
 from protostar.contract_types import DeclaredContract, PreparedContract
 
 
@@ -18,7 +15,7 @@ class PrepareCairoCheatcode(CairoCheatcode):
     def name(self) -> str:
         return "prepare"
 
-    def build(self) -> Callable[[Any], Any]:
+    def _build(self) -> Callable[[Any], Any]:
         return self.prepare
 
     def prepare(
