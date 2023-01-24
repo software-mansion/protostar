@@ -25,6 +25,7 @@ async def test_invoke(protostar: ProtostarFixture):
         {
             "basic": CONTRACTS_PATH / "basic_contract.cairo",
             "proxy": CONTRACTS_PATH / "proxy_for_basic_contract.cairo",
+            "src/panic.cairo": CONTRACTS_PATH / "panicking_contract.cairo",
         }
     )
 
@@ -37,6 +38,7 @@ async def test_invoke(protostar: ProtostarFixture):
         testing_summary,
         expected_passed_test_cases_names=[
             "test_invoke_without_transformation",
+            "test_panicking",
             "test_invoke_with_transformation",
             "test_invoke_with_proxy",
         ],

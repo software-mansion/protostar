@@ -3,7 +3,6 @@ from typing import Any, Optional
 
 from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
 from protostar.cheatable_starknet.cheaters.contracts import ContractsCheaterException
-
 from protostar.starknet import (
     Address,
     RawAddress,
@@ -17,7 +16,7 @@ class InvokeCairoCheatcode(CairoCheatcode):
     def name(self) -> str:
         return "invoke"
 
-    def build(self) -> Any:
+    def _build(self) -> Any:
         return self.invoke
 
     def invoke(
