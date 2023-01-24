@@ -248,18 +248,6 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         except StarkException as ex:
             raise self._wrap_stark_exception(ex)
 
-    def _change_max_steps_in_general_config(
-        self, general_config: StarknetGeneralConfig
-    ):
-        new_config = deepcopy(general_config)
-        if self.max_steps is not None:
-            # Providing a negative value to Protostar results in infinite steps,
-            # this is here to mimic default Cairo behavior
-            value = None if self.max_steps < 0 else self.max_steps
-            # NOTE: We are doing it this way to avoid TypeError from typeguard
-            new_config.__dict__["invoke_tx_max_n_steps"] = value
-        return new_config
-
     def execute(
         self,
         state: SyncState,
@@ -276,6 +264,18 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             )
         except StarkException as ex:
             raise self._wrap_stark_exception(ex)
+
+    def _change_max_steps_in_general_config(
+        self, general_config: StarknetGeneralConfig
+    ):
+        new_config = deepcopy(general_config)
+        if self.max_steps is not None:
+            # Providing a negative value to Protostar results in infinite steps,
+            # this is here to mimic default Cairo behavior
+            value = None if self.max_steps < 0 else self.max_steps
+            # NOTE: We are doing it this way to avoid TypeError from typeguard
+            new_config.__dict__["invoke_tx_max_n_steps"] = value
+        return new_config
 
     def _wrap_stark_exception(self, stark_exception: StarkException):
         # This code is going change once Starknet is integrated with Cairo 1.
