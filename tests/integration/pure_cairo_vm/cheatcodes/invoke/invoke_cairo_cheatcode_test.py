@@ -25,7 +25,7 @@ async def test_invoke(protostar: ProtostarFixture):
         {
             "basic": CONTRACTS_PATH / "basic_contract.cairo",
             "proxy": CONTRACTS_PATH / "proxy_for_basic_contract.cairo",
-            "src/panic.cairo": CONTRACTS_PATH / "panicking_contract.cairo",
+            "panic": CONTRACTS_PATH / "panicking_contract.cairo",
         }
     )
 
