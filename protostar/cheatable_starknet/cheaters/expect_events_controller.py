@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Optional
 from protostar.cheatable_starknet.cheatables.cheatable_starknet_facade import (
     CheatableStarknetFacade,
 )
-from protostar.starknet import Address, CairoOrPythonData, Selector
+from protostar.starknet import Address, CairoOrPythonData
 from protostar.testing import Hook
 
 if TYPE_CHECKING:
@@ -13,8 +13,8 @@ if TYPE_CHECKING:
 
 @dataclass
 class Event:
-    address: Address
-    selector: Selector
+    from_address: Address
+    name: str
     data: Optional[CairoOrPythonData]
 
 

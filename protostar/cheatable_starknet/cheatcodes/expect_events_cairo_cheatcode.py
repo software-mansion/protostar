@@ -9,7 +9,7 @@ from protostar.cheatable_starknet.cheaters.expect_events_controller import (
     ExpectEventsController,
     Event,
 )
-from protostar.starknet import CairoOrPythonData, Address, Selector
+from protostar.starknet import CairoOrPythonData, Address
 
 
 class RawExpectedEvent(TypedDict):
@@ -44,9 +44,13 @@ class ExpectEventsCheatcode(CairoCheatcode):
     ) -> list[Event]:
         return [
             Event(
-                address=Address.from_user_input(raw_expected_event["from_address"]),
-                data=raw_expected_event["data"] if "data" in raw_expected_event else [],
-                selector=Selector(value=raw_expected_event["name"]),
+                from_address=Address.from_user_input(
+                    raw_expected_event["from_address"]
+                ),
+                name=raw_expected_event["name"],
+                data=raw_expected_event["data"]
+                if "data" in raw_expected_event
+                else None,
             )
             for raw_expected_event in raw_expected_events
         ]
