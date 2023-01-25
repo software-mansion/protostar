@@ -18,7 +18,7 @@ from protostar.cairo import HintLocalsDict
 from protostar.cheatable_starknet.cheatable_cached_state import CheatableCachedState
 from protostar.cheatable_starknet.cheaters.expects import ExpectsCairoCheater
 from protostar.protostar_exception import ProtostarException
-from protostar.starknet.cheater import CheaterException
+from protostar.cheatable_starknet.cheaters.expects import ExpectsCheaterException
 from protostar.starknet import ReportedException
 
 from .cairo_execution_environment import CairoExecutionEnvironment
@@ -47,7 +47,7 @@ class CairoTestExecutionEnvironment(CairoExecutionEnvironment):
                 ExpectsCairoCheater.assert_no_expected_calls(
                     cheatable_state.expected_contract_calls
                 )
-            except (ProtostarException, CheaterException) as e:
+            except (ProtostarException, ExpectsCheaterException) as e:
                 raise ReportedException from e
             return result
 

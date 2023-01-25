@@ -3,9 +3,9 @@ from typing import Callable, Optional
 
 from protostar.starknet import CheatcodeException
 from protostar.starknet import RawAddress, Address
-from protostar.starknet.cheater import CheaterException
 from protostar.starknet.data_transformer import CairoOrPythonData
 from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
+from protostar.cheatable_starknet.cheaters.expects import ExpectsCheaterException
 
 
 class ExpectCallCairoCheatcode(CairoCheatcode):
@@ -44,5 +44,5 @@ class ExpectCallCairoCheatcode(CairoCheatcode):
                 function_name=function_name,
                 calldata=calldata,
             )
-        except CheaterException as exc:
+        except ExpectsCheaterException as exc:
             raise CheatcodeException(self, exc.message) from exc

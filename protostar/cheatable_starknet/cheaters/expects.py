@@ -3,6 +3,7 @@ from typing import Optional, Callable, TYPE_CHECKING
 
 from starkware.starknet.public.abi import get_selector_from_name
 
+from protostar.starknet import CheatcodeException
 from protostar.starknet.cheater import CheaterException
 from protostar.starknet.address import Address
 from protostar.starknet.data_transformer import (
@@ -15,6 +16,10 @@ from protostar.starknet.types import SelectorType
 
 if TYPE_CHECKING:
     from protostar.cheatable_starknet.cheatable_cached_state import CheatableCachedState
+
+
+class ExpectsCheaterException(CheaterException):
+    pass
 
 
 class ExpectsCairoCheater:
@@ -45,10 +50,13 @@ class ExpectsCairoCheater:
         )
 
         def stop_callback():
-            ExpectsCairoCheater.assert_no_expected_calls(
-                expected_calls=self.cheatable_state.expected_contract_calls,
-                fixed_address=contract_address,
-            )
+            try:
+                ExpectsCairoCheater.assert_no_expected_calls(
+                    expected_calls=self.cheatable_state.expected_contract_calls,
+                    fixed_address=contract_address,
+                )
+            except ExpectsCheaterException as e:
+                raise CheatcodeException("expect_call", e.message) from e
 
         return stop_callback
 
@@ -101,4 +109,4 @@ class ExpectsCairoCheater:
             for details_item in details:
                 msg += f"{os.linesep}    - function name: {details_item[0]}, calldata: {details_item[1]}"
         if any_addresses_present:
-            raise CheaterException(msg)
+            raise ExpectsCheaterException(msg)
