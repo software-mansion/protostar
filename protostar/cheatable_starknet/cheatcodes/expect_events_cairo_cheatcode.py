@@ -23,6 +23,10 @@ class ExpectEventsCheatcode(CairoCheatcode):
         super().__init__(cheaters)
         self._controller = controller
 
+    @property
+    def name(self) -> str:
+        return "expect_events"
+
     def _build(self) -> Callable:
         def expect_events(
             *raw_expected_events: RawExpectedEvent,

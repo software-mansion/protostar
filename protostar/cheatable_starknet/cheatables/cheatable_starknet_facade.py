@@ -90,3 +90,6 @@ class CheatableStarknetFacade:
             general_config=StarknetGeneralConfig(),
         )
         return result.retdata
+
+    def get_emitted_events(self):
+        return []

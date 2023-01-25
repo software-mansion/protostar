@@ -6,6 +6,10 @@ from protostar.cheatable_starknet.cheatables.cheatable_starknet_facade import (
 from protostar.cheatable_starknet.cheatcodes.load_cairo_cheatcode import (
     LoadCairoCheatcode,
 )
+from protostar.cairo_testing.cairo_test_execution_state import CairoTestExecutionState
+from protostar.cheatable_starknet.cheatcodes.expect_events_cairo_cheatcode import (
+    ExpectEventsCheatcode,
+)
 from protostar.cheatable_starknet.cheatcodes.prank_cairo_cheatcode import (
     PrankCairoCheatcode,
 )
@@ -40,8 +44,12 @@ from protostar.cheatable_starknet.cheatcodes.warp_cairo_cheatcode import (
 from protostar.cheatable_starknet.cheatcodes.call_cairo_cheatcode import (
     CallCairoCheatcode,
 )
+from protostar.cheatable_starknet.cheaters.expect_events_controller import (
+    ExpectEventsController,
+)
 from protostar.compiler import ProjectCompiler
 from protostar.cheatable_starknet.cheaters.storage import StorageCairoCheater
+from protostar.testing import Hook
 
 
 class CairoTestCheatcodeFactory:
@@ -49,9 +57,13 @@ class CairoTestCheatcodeFactory:
         self,
         cheatable_starknet_facade: CheatableStarknetFacade,
         project_compiler: ProjectCompiler,
+        test_finish_hook: Hook,
+        test_execution_state: CairoTestExecutionState,
     ):
         self._cheatable_starknet_facade = cheatable_starknet_facade
         self.project_compiler = project_compiler
+        self._test_finish_hook = test_finish_hook
+        self._test_execution_state = test_execution_state
 
     def build_cheatcodes(self) -> List[CairoCheatcode]:
         cheaters = CairoCheaters(
@@ -100,5 +112,13 @@ class CairoTestCheatcodeFactory:
             ),
             LoadCairoCheatcode(
                 cheaters=cheaters,
+            ),
+            ExpectEventsCheatcode(
+                cheaters=cheaters,
+                controller=ExpectEventsController(
+                    test_finish_hook=self._test_finish_hook,
+                    test_execution_state=self._test_execution_state,
+                    cheatable_starknet_facade=self._cheatable_starknet_facade,
+                ),
             ),
         ]

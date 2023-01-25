@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
-from protostar.cheatable_starknet.cheatable_cached_state import CheatableCachedState
+from protostar.cheatable_starknet.cheatables.cheatable_starknet_facade import (
+    CheatableStarknetFacade,
+)
 from protostar.starknet import Address, CairoOrPythonData, Selector
 from protostar.testing import Hook
 
@@ -24,10 +26,10 @@ class ExpectEventsController:
         self,
         test_finish_hook: Hook,
         test_execution_state: "CairoTestExecutionState",
-        cheatable_state: "CheatableCachedState",
+        cheatable_starknet_facade: "CheatableStarknetFacade",
     ) -> None:
         self._test_execution_state = test_execution_state
-        self._cheatable_state = cheatable_state
+        self._cheatable_starknet_facade = cheatable_starknet_facade
         self._test_finish_hook = test_finish_hook
         self._test_finish_hook.on(self.compare_expected_and_actual_results)
 
@@ -36,5 +38,5 @@ class ExpectEventsController:
 
     def compare_expected_and_actual_results(self):
         expected_events = self._test_execution_state.get_events_expectations()
-        actual_events = self._cheatable_state.get_emitted_events()
+        actual_events = self._cheatable_starknet_facade.get_emitted_events()
         assert False, "Not implemented"
