@@ -16,7 +16,7 @@ from protostar.starknet.address import Address
 from protostar.starknet.types import ClassHashType, SelectorType
 from protostar.starknet.data_transformer import CairoOrPythonData
 
-from .cheaters.expect_events_controller import ExpectedEvent
+from .cheaters.expect_events_controller import Event
 from .cheaters.block_info import BlockInfoCairoCheater
 
 
@@ -182,7 +182,7 @@ class CheatableCachedState(CachedState):
 
         return self.class_hash_to_contract_abi_map[class_hash]
 
-    def get_emitted_events(self) -> list[ExpectedEvent]:
+    def get_emitted_events(self) -> list[Event]:
         assert False, "Not implemented"
         return []
 

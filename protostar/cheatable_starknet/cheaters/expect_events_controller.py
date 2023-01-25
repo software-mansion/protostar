@@ -12,13 +12,13 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class ExpectedEvent:
+class Event:
     address: Address
     selector: Selector
     data: Optional[CairoOrPythonData]
 
 
-EventsExpectation = list[ExpectedEvent]
+EventsExpectation = list[Event]
 
 
 class ExpectEventsController:
@@ -33,7 +33,7 @@ class ExpectEventsController:
         self._test_finish_hook = test_finish_hook
         self._test_finish_hook.on(self.compare_expected_and_actual_results)
 
-    async def execute(self, expected_events: list[ExpectedEvent]):
+    async def execute(self, expected_events: list[Event]):
         self._test_execution_state.add_events_expectation(expected_events)
 
     def compare_expected_and_actual_results(self):

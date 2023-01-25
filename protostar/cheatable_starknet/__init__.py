@@ -1,1 +1,1 @@
-from .cheaters.expect_events_controller import ExpectedEvent, EventsExpectation
+from .cheaters.expect_events_controller import Event, EventsExpectation

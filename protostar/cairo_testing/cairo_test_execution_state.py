@@ -12,7 +12,10 @@ from protostar.testing.stopwatch import Stopwatch
 from protostar.testing.test_config import TestConfig
 from protostar.testing.test_context import TestContext
 from protostar.testing.test_output_recorder import OutputRecorder
-from protostar.cheatable_starknet import EventsExpectation, ExpectedEvent
+from protostar.cheatable_starknet.cheaters.expect_events_controller import (
+    EventsExpectation,
+    Event,
+)
 
 
 @dataclass
@@ -49,7 +52,7 @@ class CairoTestExecutionState:
             event_expectations=self._event_expectations.copy(),
         )
 
-    def add_events_expectation(self, events_expectation: list[ExpectedEvent]):
+    def add_events_expectation(self, events_expectation: list[Event]):
         self._event_expectations.append(events_expectation)
 
     def get_events_expectations(self) -> list[EventsExpectation]:
