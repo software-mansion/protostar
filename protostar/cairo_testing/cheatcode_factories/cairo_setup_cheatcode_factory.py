@@ -4,6 +4,12 @@ from typing import List
 from protostar.cheatable_starknet.cheatable_cached_state import (
     CheatableCachedState,
 )
+from protostar.cheatable_starknet.cheatcodes.load_cairo_cheatcode import (
+    LoadCairoCheatcode,
+)
+from protostar.cheatable_starknet.cheatcodes.store_cairo_cheatcode import (
+    StoreCairoCheatcode,
+)
 from protostar.cheatable_starknet.cheaters.block_info import BlockInfoCairoCheater
 from protostar.cheatable_starknet.cheaters.contracts import ContractsCairoCheater
 
@@ -36,6 +42,7 @@ from protostar.cheatable_starknet.cheatcodes.call_cairo_cheatcode import (
     CallCairoCheatcode,
 )
 from protostar.compiler import ProjectCompiler
+from protostar.cheatable_starknet.cheaters.storage import StorageCairoCheater
 
 
 class CairoSetupCheatcodeFactory:
@@ -51,6 +58,7 @@ class CairoSetupCheatcodeFactory:
         cheaters = CairoCheaters(
             block_info=BlockInfoCairoCheater(cheatable_state=self.cheatable_state),
             contracts=ContractsCairoCheater(cheatable_state=self.cheatable_state),
+            storage=StorageCairoCheater(cheatable_state=self.cheatable_state),
         )
         declare_cheatcode = DeclareCairoCheatcode(
             cheaters=cheaters,
@@ -77,6 +85,12 @@ class CairoSetupCheatcodeFactory:
             ),
             CallCairoCheatcode(cheaters=cheaters),
             InvokeCairoCheatcode(
+                cheaters=cheaters,
+            ),
+            StoreCairoCheatcode(
+                cheaters=cheaters,
+            ),
+            LoadCairoCheatcode(
                 cheaters=cheaters,
             ),
         ]

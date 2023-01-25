@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Dict, List
 
 from services.everest.business_logic.state_api import StateProxy
 from starkware.starknet.business_logic.state.state import (
@@ -45,7 +45,6 @@ class CheatableCachedState(CachedState):
         self.expected_contract_calls: dict[
             Address, list[tuple[SelectorType, CairoOrPythonData]]
         ] = {}
-        self.cairo_storage: dict[str, Any] = {}
 
         self.cheaters = Cheaters(
             block_info=BlockInfoCheater(self.block_info),
