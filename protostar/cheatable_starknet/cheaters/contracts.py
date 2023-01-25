@@ -30,9 +30,7 @@ from protostar.contract_types import (
     DeclaredContract,
     DeployedContract,
 )
-from protostar.cheatable_starknet.cheatable_entry_point import (
-    CheatableExecuteEntryPoint,
-)
+from protostar.cheatable_starknet.cheatables import CheatableExecuteEntryPoint
 from protostar.starknet.types import ClassHashType
 from protostar.starknet.address import Address
 from protostar.starknet.data_transformer import (
@@ -43,7 +41,7 @@ from protostar.starknet.data_transformer import (
 )
 
 if TYPE_CHECKING:
-    from protostar.cheatable_starknet.cheatable_cached_state import CheatableCachedState
+    from protostar.cheatable_starknet.cheatables import CheatableCachedState
 
     from . import CairoCheaters
 

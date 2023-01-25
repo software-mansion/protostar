@@ -1,5 +1,5 @@
 # pylint: disable=duplicate-code
-from typing import List, cast, Optional, Any, TYPE_CHECKING
+from typing import List, cast, Optional, Any
 
 from starkware.cairo.lang.compiler.preprocessor.flow import ReferenceManager
 from starkware.cairo.lang.compiler.program import CairoHint
@@ -18,8 +18,7 @@ from starkware.starknet.services.api.contract_class import EntryPointType
 
 from protostar.starknet.address import Address
 
-if TYPE_CHECKING:
-    from protostar.cheatable_starknet.cheatable_cached_state import CheatableCachedState
+from .cheatable_cached_state import CheatableCachedState
 
 
 class CheatableSysCallHandlerException(Exception):
