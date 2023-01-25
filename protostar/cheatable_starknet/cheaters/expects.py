@@ -10,6 +10,7 @@ from protostar.starknet.data_transformer import (
     CairoOrPythonData,
     transform_calldata_to_cairo_data,
     CairoData,
+    DataTransformerException,
 )
 from protostar.starknet.types import SelectorType
 
@@ -33,15 +34,18 @@ class ExpectsCairoCheater:
         calldata: Optional[CairoOrPythonData] = None,
     ) -> Callable:
         contract_address_int = int(contract_address)
-        cairo_calldata = await transform_calldata_to_cairo_data(
-            contract_class=await self.cheatable_state.get_contract_class(
-                await self.cheatable_state.get_class_hash_at(
-                    contract_address=contract_address_int
-                )
-            ),
-            function_name=function_name,
-            calldata=calldata,
-        )
+        try:
+            cairo_calldata = await transform_calldata_to_cairo_data(
+                contract_class=await self.cheatable_state.get_contract_class(
+                    await self.cheatable_state.get_class_hash_at(
+                        contract_address=contract_address_int
+                    )
+                ),
+                function_name=function_name,
+                calldata=calldata,
+            )
+        except DataTransformerException as e:
+            raise ExpectsCheaterException(e.message) from e
 
         self.register_expected_call(
             contract_address=contract_address,

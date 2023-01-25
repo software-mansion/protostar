@@ -13,7 +13,6 @@ from starkware.starknet.services.api.contract_class import ContractClass
 
 from protostar.starknet.abi import find_abi_item
 from protostar.protostar_exception import ProtostarException
-from protostar.starknet.cheater import CheaterException
 
 
 class DataTransformerException(ProtostarException):
@@ -112,7 +111,7 @@ async def transform_calldata_to_cairo_data(
         try:
             return transformer(calldata)
         except DataTransformerException as dt_exc:
-            raise CheaterException(
+            raise DataTransformerException(
                 f"There was an error while parsing the arguments for the function {function_name}:\n"
                 + f"{dt_exc.message}",
             ) from dt_exc

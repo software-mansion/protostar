@@ -39,6 +39,7 @@ from protostar.starknet.data_transformer import (
     CairoOrPythonData,
     CairoData,
     transform_calldata_to_cairo_data,
+    DataTransformerException,
 )
 
 if TYPE_CHECKING:
@@ -141,13 +142,16 @@ class ContractsCairoCheater:
         return DeployedContract(contract_address=prepared.contract_address)
 
     async def invoke_constructor(self, prepared: PreparedContract):
-        await transform_calldata_to_cairo_data(
-            contract_class=await self.cheatable_state.get_contract_class_by_address(
-                contract_address=prepared.contract_address
-            ),
-            function_name="constructor",
-            calldata=prepared.constructor_calldata,
-        )
+        try:
+            await transform_calldata_to_cairo_data(
+                contract_class=await self.cheatable_state.get_contract_class_by_address(
+                    contract_address=prepared.contract_address
+                ),
+                function_name="constructor",
+                calldata=prepared.constructor_calldata,
+            )
+        except DataTransformerException as e:
+            raise ContractsCheaterException(e.message) from e
         await self.execute_constructor_entry_point(
             class_hash_bytes=to_bytes(prepared.class_hash),
             constructor_calldata=prepared.constructor_calldata,
@@ -179,13 +183,16 @@ class ContractsCairoCheater:
         constructor_calldata: CairoOrPythonData,
         salt: int,
     ) -> PreparedContract:
-        constructor_calldata = await transform_calldata_to_cairo_data(
-            contract_class=await self.cheatable_state.get_contract_class(
-                class_hash=to_bytes(declared.class_hash)
-            ),
-            function_name="constructor",
-            calldata=constructor_calldata,
-        )
+        try:
+            constructor_calldata = await transform_calldata_to_cairo_data(
+                contract_class=await self.cheatable_state.get_contract_class(
+                    class_hash=to_bytes(declared.class_hash)
+                ),
+                function_name="constructor",
+                calldata=constructor_calldata,
+            )
+        except DataTransformerException as e:
+            raise ContractsCheaterException(e.message) from e
 
         contract_address = calculate_contract_address_from_hash(
             salt=salt,
@@ -213,13 +220,16 @@ class ContractsCairoCheater:
         calldata: Optional[CairoOrPythonData] = None,
     ) -> CairoData:
         contract_address_int = int(contract_address)
-        cairo_calldata = await transform_calldata_to_cairo_data(
-            contract_class=await self.cheatable_state.get_contract_class_by_address(
-                contract_address=contract_address_int
-            ),
-            function_name=function_name,
-            calldata=calldata,
-        )
+        try:
+            cairo_calldata = await transform_calldata_to_cairo_data(
+                contract_class=await self.cheatable_state.get_contract_class_by_address(
+                    contract_address=contract_address_int
+                ),
+                function_name=function_name,
+                calldata=calldata,
+            )
+        except DataTransformerException as e:
+            raise ContractsCheaterException(e.message) from e
         entry_point = CheatableExecuteEntryPoint.create_with_cheaters(
             contract_address=contract_address_int,
             calldata=cairo_calldata,
@@ -240,14 +250,16 @@ class ContractsCairoCheater:
         calldata: Optional[CairoOrPythonData] = None,
     ):
         contract_address_int = int(contract_address)
-
-        cairo_calldata = await transform_calldata_to_cairo_data(
-            contract_class=await self.cheatable_state.get_contract_class_by_address(
-                contract_address=contract_address_int
-            ),
-            function_name=function_name,
-            calldata=calldata,
-        )
+        try:
+            cairo_calldata = await transform_calldata_to_cairo_data(
+                contract_class=await self.cheatable_state.get_contract_class_by_address(
+                    contract_address=contract_address_int
+                ),
+                function_name=function_name,
+                calldata=calldata,
+            )
+        except DataTransformerException as e:
+            raise ContractsCheaterException(e.message) from e
         entry_point = CheatableExecuteEntryPoint.create_with_cheaters(
             contract_address=contract_address_int,
             calldata=cairo_calldata,
