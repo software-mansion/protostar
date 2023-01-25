@@ -15,9 +15,8 @@ from typing_extensions import Self
 from protostar.starknet.address import Address
 from protostar.starknet.types import ClassHashType, SelectorType
 from protostar.starknet.data_transformer import CairoOrPythonData
-
-from .cheaters.expect_events_controller import Event
-from .cheaters.block_info import BlockInfoCairoCheater
+from protostar.cheatable_starknet.cheaters.expect_events_controller import Event
+from protostar.cheatable_starknet.cheaters.block_info import BlockInfoCairoCheater
 
 
 # pylint: disable=too-many-instance-attributes

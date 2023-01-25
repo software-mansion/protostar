@@ -48,6 +48,8 @@ class CairoTestExecutionEnvironment(CairoExecutionEnvironment):
         cheatcode_factory = CairoTestCheatcodeFactory(
             cheatable_starknet_facade=state.cheatable_starknet_facade,
             project_compiler=state.project_compiler,
+            test_execution_state=self.state,
+            test_finish_hook=self._finish_hook,
         )
         cheatcodes = cheatcode_factory.build_cheatcodes()
         for cheatcode in cheatcodes:
