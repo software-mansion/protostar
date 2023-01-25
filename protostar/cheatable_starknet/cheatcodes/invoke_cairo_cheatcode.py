@@ -43,7 +43,6 @@ class InvokeCairoCheatcode(CairoCheatcode):
                     contract_address=contract_address,
                     function_name=function_name,
                     calldata=calldata,
-                    cheaters=self.cheaters,
                 )
             )
         except ContractsCheaterException as exc:

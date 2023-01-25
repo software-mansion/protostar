@@ -2,7 +2,7 @@
 import logging
 import re
 from dataclasses import dataclass
-from typing import Optional, Tuple, cast, List, TYPE_CHECKING, Any
+from typing import Optional, Tuple, cast, List, TYPE_CHECKING
 from copy import deepcopy
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
@@ -55,36 +55,26 @@ logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class CheatableExecuteEntryPoint(ExecuteEntryPoint):
-    cheaters: "CairoCheaters"
     max_steps: Optional[int] = None
     "``None`` means default Cairo value."
 
     @classmethod
-    def create_with_cheaters(
+    def create_for_protostar(
         cls,
         contract_address: int,
         calldata: List[int],
         entry_point_selector: int,
-        cheaters: "CairoCheaters",
     ) -> "CheatableExecuteEntryPoint":
         return cls(
             entry_point_selector=entry_point_selector,
             calldata=calldata,
             contract_address=contract_address,
-            cheaters=cheaters,
             code_address=None,
             class_hash=None,
             call_type=CallType.CALL,
             entry_point_type=EntryPointType.EXTERNAL,
             caller_address=0,
         )
-
-    @classmethod
-    def factory(cls, cheaters: "CairoCheaters") -> type[ExecuteEntryPoint]:
-        def factory_function(*args: Any, **kwargs: Any) -> ExecuteEntryPoint:
-            return cls(*args, cheaters=cheaters, **kwargs)
-
-        return cast(type[ExecuteEntryPoint], factory_function)
 
     def _run(
         self,
@@ -135,9 +125,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             state, StateSyncifier
         ), "Sync state is not a state syncifier!"  # This should always be true
         syscall_handler = CheatableSysCallHandler(
-            execute_entry_point_cls=CheatableExecuteEntryPoint.factory(
-                cheaters=self.cheaters,
-            ),
+            execute_entry_point_cls=CheatableExecuteEntryPoint,
             tx_execution_context=tx_execution_context,
             state=state,
             resources_manager=resources_manager,

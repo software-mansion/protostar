@@ -248,7 +248,6 @@ class ContractsCairoCheater:
         self,
         contract_address: Address,
         function_name: str,
-        cheaters: "CairoCheaters",
         calldata: Optional[CairoOrPythonData] = None,
     ) -> CairoData:
         contract_address_int = int(contract_address)
@@ -257,11 +256,10 @@ class ContractsCairoCheater:
             function_name=function_name,
             calldata=calldata,
         )
-        entry_point = CheatableExecuteEntryPoint.create_with_cheaters(
+        entry_point = CheatableExecuteEntryPoint.create_for_protostar(
             contract_address=contract_address_int,
             calldata=cairo_calldata,
             entry_point_selector=get_selector_from_name(function_name),
-            cheaters=cheaters,
         )
         result = await entry_point.execute_for_testing(
             state=copy.deepcopy(self.cheatable_state),
@@ -273,7 +271,6 @@ class ContractsCairoCheater:
         self,
         function_name: str,
         contract_address: Address,
-        cheaters: "CairoCheaters",
         calldata: Optional[CairoOrPythonData] = None,
     ):
         contract_address_int = int(contract_address)
@@ -283,11 +280,10 @@ class ContractsCairoCheater:
             function_name=function_name,
             calldata=calldata,
         )
-        entry_point = CheatableExecuteEntryPoint.create_with_cheaters(
+        entry_point = CheatableExecuteEntryPoint.create_for_protostar(
             contract_address=contract_address_int,
             calldata=cairo_calldata,
             entry_point_selector=get_selector_from_name(function_name),
-            cheaters=cheaters,
         )
         with self.cheatable_state.copy_and_apply() as state_copy:
             await entry_point.execute_for_testing(

@@ -42,7 +42,6 @@ class CallCairoCheatcode(CairoCheatcode):
                 contract_address=contract_address,
                 function_name=function_name,
                 calldata=calldata,
-                cheaters=self.cheaters,
             )
         except ContractsCheaterException as exc:
             raise CheatcodeException(self, exc.message) from exc
