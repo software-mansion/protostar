@@ -6,7 +6,7 @@ from protostar.starknet import Address, CairoOrPythonData, Selector
 from protostar.testing import Hook
 
 if TYPE_CHECKING:
-    from protostar.testing.starkware.test_execution_state import TestExecutionState
+    from protostar.cairo_testing import CairoTestExecutionState
 
 
 @dataclass
@@ -16,11 +16,14 @@ class ExpectedEvent:
     data: Optional[CairoOrPythonData]
 
 
+EventsExpectation = list[ExpectedEvent]
+
+
 class ExpectEventsController:
     def __init__(
         self,
         test_finish_hook: Hook,
-        test_execution_state: "TestExecutionState",
+        test_execution_state: "CairoTestExecutionState",
         cheatable_state: "CheatableCachedState",
     ) -> None:
         self._test_execution_state = test_execution_state

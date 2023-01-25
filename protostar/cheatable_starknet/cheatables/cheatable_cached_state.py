@@ -13,9 +13,11 @@ from starkware.starknet.business_logic.state.state_api import StateReader
 from typing_extensions import Self
 
 from protostar.starknet.address import Address
-from protostar.cheatable_starknet.cheaters.block_info import BlockInfoCairoCheater
 from protostar.starknet.types import ClassHashType, SelectorType
 from protostar.starknet.data_transformer import CairoOrPythonData
+
+from .cheaters.expect_events_controller import ExpectedEvent
+from .cheaters.block_info import BlockInfoCairoCheater
 
 
 # pylint: disable=too-many-instance-attributes
@@ -179,6 +181,10 @@ class CheatableCachedState(CachedState):
             )
 
         return self.class_hash_to_contract_abi_map[class_hash]
+
+    def get_emitted_events(self) -> list[ExpectedEvent]:
+        assert False, "Not implemented"
+        return []
 
 
 class CheatableStateException(Exception):
