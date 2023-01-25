@@ -1,6 +1,6 @@
 # pylint: disable=duplicate-code
 import logging
-from asyncio import get_running_loop
+import re
 from dataclasses import dataclass
 from typing import Optional, Tuple, cast, List, TYPE_CHECKING, Any
 from copy import deepcopy
@@ -35,6 +35,10 @@ from starkware.starknet.services.api.contract_class import EntryPointType
 from starkware.starkware_utils.error_handling import (
     StarkException,
     wrap_with_stark_exception,
+)
+
+from protostar.cheatable_starknet.cheaters.transaction_revert_exception import (
+    TransactionRevertException,
 )
 
 from .cheatable_syscall_handler import CheatableSysCallHandler
@@ -234,23 +238,15 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         resources_manager: Optional[ExecutionResourcesManager] = None,
         tx_execution_context: Optional[TransactionExecutionContext] = None,
     ) -> CallInfo:
-
-        new_config = deepcopy(general_config)
-        if self.max_steps is not None:
-
-            # Providing a negative value to Protostar results in infinite steps,
-            # this is here to mimic default Cairo behavior
-            value = None if self.max_steps < 0 else self.max_steps
-
-            # NOTE: We are doing it this way to avoid TypeError from typeguard
-            new_config.__dict__["invoke_tx_max_n_steps"] = value
-
-        return await super().execute_for_testing(
-            state=state,
-            general_config=new_config,
-            resources_manager=resources_manager,
-            tx_execution_context=tx_execution_context,
-        )
+        try:
+            return await super().execute_for_testing(
+                state=state,
+                general_config=self._change_max_steps_in_general_config(general_config),
+                resources_manager=resources_manager,
+                tx_execution_context=tx_execution_context,
+            )
+        except StarkException as ex:
+            raise self._wrap_stark_exception(ex)
 
     def execute(
         self,
@@ -258,25 +254,33 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         resources_manager: ExecutionResourcesManager,
         general_config: StarknetGeneralConfig,
         tx_execution_context: TransactionExecutionContext,
-    ) -> CallInfo:
+    ):
+        try:
+            return super().execute(
+                state,
+                resources_manager,
+                self._change_max_steps_in_general_config(general_config),
+                tx_execution_context,
+            )
+        except StarkException as ex:
+            raise self._wrap_stark_exception(ex)
+
+    def _change_max_steps_in_general_config(
+        self, general_config: StarknetGeneralConfig
+    ):
         new_config = deepcopy(general_config)
         if self.max_steps is not None:
-
             # Providing a negative value to Protostar results in infinite steps,
             # this is here to mimic default Cairo behavior
             value = None if self.max_steps < 0 else self.max_steps
-
             # NOTE: We are doing it this way to avoid TypeError from typeguard
             new_config.__dict__["invoke_tx_max_n_steps"] = value
+        return new_config
 
-        if not isinstance(state, StateSyncifier):
-            sync_state = StateSyncifier(async_state=state, loop=get_running_loop())  # type: ignore
-        else:
-            sync_state = state
-
-        return super().execute(
-            state=sync_state,
-            resources_manager=resources_manager,
-            general_config=general_config,
-            tx_execution_context=tx_execution_context,
-        )
+    def _wrap_stark_exception(self, stark_exception: StarkException):
+        # This code is going change once Starknet is integrated with Cairo 1.
+        message = stark_exception.message or ""
+        results = re.findall("Error message: (.*)", message)
+        if len(results) > 0:
+            message = results[0]
+        return TransactionRevertException(message=message, raw_ex=stark_exception)

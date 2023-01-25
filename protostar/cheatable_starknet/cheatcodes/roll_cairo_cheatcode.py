@@ -9,7 +9,7 @@ class RollCairoCheatcode(CairoCheatcode):
     def name(self) -> str:
         return "roll"
 
-    def build(self) -> Callable[..., Any]:
+    def _build(self) -> Callable[..., Any]:
         return self.roll
 
     def roll(

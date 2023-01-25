@@ -1,11 +1,10 @@
 import asyncio
 from typing import Callable, Optional
 
-from protostar.starknet import CheatcodeException
+from protostar.starknet import CheatcodeException, RawAddress, Address
 from protostar.cheatable_starknet.cheaters.contracts import ContractsCheaterException
 from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
 from protostar.starknet.data_transformer import CairoOrPythonData, CairoData
-from protostar.starknet import RawAddress, Address
 
 
 class CallCairoCheatcode(CairoCheatcode):
@@ -13,7 +12,7 @@ class CallCairoCheatcode(CairoCheatcode):
     def name(self) -> str:
         return "call"
 
-    def build(
+    def _build(
         self,
     ) -> Callable[[RawAddress, str, Optional[CairoOrPythonData]], CairoOrPythonData]:
         return self.call

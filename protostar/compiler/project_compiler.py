@@ -86,6 +86,7 @@ class ProjectCompiler:
             contract_paths = self._configuration_file.get_contract_source_paths(
                 contract_name
             )
+            assert contract_paths, f"No contract paths found for {contract_name}!"
             return self.compile_contract_from_contract_source_paths(
                 contract_paths, config
             )
