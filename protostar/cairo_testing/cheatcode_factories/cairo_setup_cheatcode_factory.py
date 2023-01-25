@@ -1,15 +1,12 @@
 # pylint: disable=duplicate-code
 from typing import List
 
-from protostar.cheatable_starknet.cheatable_cached_state import (
+from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
     CheatableCachedState,
 )
 from protostar.cheatable_starknet.cheaters.block_info import BlockInfoCairoCheater
 from protostar.cheatable_starknet.cheaters.contracts import ContractsCairoCheater
-
-from protostar.cheatable_starknet.cheaters import (
-    CairoCheaters,
-)
+from protostar.cheatable_starknet.cheaters import CairoCheaters
 from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
 from protostar.cheatable_starknet.cheatcodes.declare_cairo_cheatcode import (
     DeclareCairoCheatcode,
