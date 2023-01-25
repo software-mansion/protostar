@@ -103,5 +103,5 @@ def test_cairo_to_sierra_to_casm(prepared_files: dict[str, Path]):
             file_contents = file.readlines()
             assert len(casm_contents.split("\n")) >= len(file_contents)
 
-    for name in ["cairo_example", "cairo_test"]:
+    for name in ["cairo_example", "cairo_tests"]:
         check_compilation(name=name)
