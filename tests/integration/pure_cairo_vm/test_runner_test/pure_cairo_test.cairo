@@ -1,4 +1,4 @@
-from tests.integration.pure_cairo_vm.test_runner_test.library import get_three
+from src.library import get_three
 
 func test_simple_passing() {
     assert 1=1;

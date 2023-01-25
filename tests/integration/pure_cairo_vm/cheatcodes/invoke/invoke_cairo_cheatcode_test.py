@@ -8,7 +8,6 @@ from tests.integration.conftest import (
 )
 from tests.integration._conftest import ProtostarFixture
 from tests.integration.pure_cairo_vm.conftest import (
-    RunCairoTestRunnerFixture,
     CONTRACTS_PATH,
 )
 
@@ -21,24 +20,25 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
         yield protostar
 
 
-async def test_invoke(
-    protostar: ProtostarFixture, run_cairo_test_runner: RunCairoTestRunnerFixture
-):
-    protostar.create_files(
+async def test_invoke(protostar: ProtostarFixture):
+    protostar.create_contracts(
         {
-            "src/basic.cairo": CONTRACTS_PATH / "basic_contract.cairo",
-            "src/proxy.cairo": CONTRACTS_PATH / "proxy_for_basic_contract.cairo",
+            "basic": CONTRACTS_PATH / "basic_contract.cairo",
+            "proxy": CONTRACTS_PATH / "proxy_for_basic_contract.cairo",
+            "panic": CONTRACTS_PATH / "panicking_contract.cairo",
         }
     )
 
-    testing_summary = await run_cairo_test_runner(
+    testing_summary = await protostar.run_test_runner(
         TEST_PATH / "invoke_test.cairo",
+        cairo_test_runner=True,
     )
 
     assert_cairo_test_cases(
         testing_summary,
         expected_passed_test_cases_names=[
             "test_invoke_without_transformation",
+            "test_panicking",
             "test_invoke_with_transformation",
             "test_invoke_with_proxy",
         ],

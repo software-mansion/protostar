@@ -8,16 +8,25 @@ from tests.integration.conftest import (
     CreateProtostarProjectFixture,
 )
 from tests.integration.pure_cairo_vm.conftest import (
-    RunCairoTestRunnerFixture,
     CONTRACTS_PATH,
 )
 
 
-async def test_pure_cairo_testing(
-    run_cairo_test_runner: RunCairoTestRunnerFixture,
-):
-    testing_summary = await run_cairo_test_runner(
+@pytest.fixture(name="protostar")
+def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
+    with create_protostar_project() as protostar:
+        yield protostar
+
+
+async def test_pure_cairo_testing(protostar: ProtostarFixture):
+    protostar.create_files(
+        {
+            "src/library.cairo": Path(__file__).parent / "library.cairo",
+        }
+    )
+    testing_summary = await protostar.run_test_runner(
         Path(__file__).parent / "pure_cairo_test.cairo",
+        cairo_test_runner=True,
     )
 
     assert_cairo_test_cases(
@@ -31,11 +40,10 @@ async def test_pure_cairo_testing(
     )
 
 
-async def test_pure_cairo_broken_test(
-    run_cairo_test_runner: RunCairoTestRunnerFixture,
-):
-    testing_summary = await run_cairo_test_runner(
+async def test_pure_cairo_broken_test(protostar: ProtostarFixture):
+    testing_summary = await protostar.run_test_runner(
         Path(__file__).parent / "pure_cairo_broken_test.cairo",
+        cairo_test_runner=True,
     )
 
     assert_cairo_test_cases(
@@ -46,11 +54,10 @@ async def test_pure_cairo_broken_test(
     )
 
 
-async def test_setup_suite(
-    run_cairo_test_runner: RunCairoTestRunnerFixture,
-):
-    testing_summary = await run_cairo_test_runner(
+async def test_setup_suite(protostar: ProtostarFixture):
+    testing_summary = await protostar.run_test_runner(
         Path(__file__).parent / "suite_with_setup_test.cairo",
+        cairo_test_runner=True,
     )
 
     assert_cairo_test_cases(
@@ -59,14 +66,7 @@ async def test_setup_suite(
     )
 
 
-@pytest.fixture(name="protostar")
-def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
-    with create_protostar_project() as protostar:
-        yield protostar
-
-
 async def test_setup_suite_with_satellite_contract(
-    run_cairo_test_runner: RunCairoTestRunnerFixture,
     protostar: ProtostarFixture,
 ):
     protostar.create_files(
@@ -75,8 +75,9 @@ async def test_setup_suite_with_satellite_contract(
         }
     )
 
-    testing_summary = await run_cairo_test_runner(
+    testing_summary = await protostar.run_test_runner(
         Path(__file__).parent / "suite_with_setup_and_cheatcodes_test.cairo",
+        cairo_test_runner=True,
     )
 
     assert_cairo_test_cases(
@@ -89,7 +90,6 @@ async def test_setup_suite_with_satellite_contract(
 
 
 async def test_setup_case_with_satellite_contract(
-    run_cairo_test_runner: RunCairoTestRunnerFixture,
     protostar: ProtostarFixture,
 ):
     protostar.create_files(
@@ -98,8 +98,9 @@ async def test_setup_case_with_satellite_contract(
         }
     )
 
-    testing_summary = await run_cairo_test_runner(
+    testing_summary = await protostar.run_test_runner(
         Path(__file__).parent / "suite_with_setup_case_test.cairo",
+        cairo_test_runner=True,
     )
 
     assert_cairo_test_cases(

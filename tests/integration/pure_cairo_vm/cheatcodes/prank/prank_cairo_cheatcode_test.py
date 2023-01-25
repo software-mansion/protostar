@@ -1,12 +1,27 @@
 from pathlib import Path
 
-from tests.integration.conftest import assert_cairo_test_cases
-from tests.integration.pure_cairo_vm.conftest import RunCairoTestRunnerFixture
+import pytest
+
+from tests.integration._conftest import ProtostarFixture
+from tests.integration.conftest import (
+    assert_cairo_test_cases,
+    CreateProtostarProjectFixture,
+)
+from tests.integration.pure_cairo_vm.conftest import CONTRACTS_PATH
 
 
-async def test_prank_cheatcode(run_cairo_test_runner: RunCairoTestRunnerFixture):
-    testing_summary = await run_cairo_test_runner(
+@pytest.fixture(autouse=True, name="protostar")
+def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
+    with create_protostar_project() as protostar:
+        yield protostar
+
+
+async def test_prank_cheatcode(protostar: ProtostarFixture):
+    protostar.create_contracts({"pranked": CONTRACTS_PATH / "pranked.cairo"})
+
+    testing_summary = await protostar.run_test_runner(
         Path(__file__).parent / "prank_cairo_cheatcode_test.cairo",
+        cairo_test_runner=True,
     )
 
     assert_cairo_test_cases(

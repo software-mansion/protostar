@@ -9,7 +9,7 @@ class WarpCairoCheatcode(CairoCheatcode):
     def name(self) -> str:
         return "warp"
 
-    def build(self):
+    def _build(self):
         return self.warp
 
     def warp(
