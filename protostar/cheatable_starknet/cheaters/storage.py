@@ -17,7 +17,7 @@ class StorageCairoCheater:
         value: List[int],
         key: Optional[List[int]] = None,
     ):
-        variable_address = calc_address(variable_name, key)
+        variable_address = calc_address(variable_name, key or [])
         for i, val in enumerate(value):
             await self.cheatable_state.set_storage_at(
                 contract_address=target_contract_address,
@@ -32,8 +32,7 @@ class StorageCairoCheater:
         variable_type: str,
         key: Optional[List[int]] = None,
     ) -> List[int]:
-        key = key or []
-        variable_address = calc_address(variable_name, key)
+        variable_address = calc_address(variable_name, key or [])
         variable_size = self._get_variable_size(target_contract_address, variable_type)
 
         return [
