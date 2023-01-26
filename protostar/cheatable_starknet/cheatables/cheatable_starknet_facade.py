@@ -1,3 +1,4 @@
+import copy
 from typing import cast
 
 from starkware.starknet.testing.starknet import Starknet
@@ -11,10 +12,15 @@ from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.testing.state import StarknetState
 from starkware.storage.dict_storage import DictStorage
 from starkware.storage.storage import FactFetchingContext
+from starkware.starknet.public.abi import get_selector_from_name
 
 from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
     CheatableCachedState,
 )
+from protostar.cheatable_starknet.cheatables.cheatable_execute_entry_point import (
+    CheatableExecuteEntryPoint,
+)
+from protostar.starknet import Address, CairoData
 
 
 class CheatableStarknetFacade:
@@ -56,3 +62,31 @@ class CheatableStarknetFacade:
 
     def fork(self):
         return CheatableStarknetFacade(self._starknet)
+
+    async def invoke(
+        self, contract_address: Address, function_name: str, calldata: CairoData
+    ):
+        entry_point = CheatableExecuteEntryPoint.create_for_protostar(
+            contract_address=contract_address,
+            calldata=calldata,
+            entry_point_selector=get_selector_from_name(function_name),
+        )
+        with self.cheatable_state.copy_and_apply() as state_copy:
+            await entry_point.execute_for_testing(
+                state=state_copy,
+                general_config=StarknetGeneralConfig(),
+            )
+
+    async def call(
+        self, contract_address: Address, function_name: str, calldata: CairoData
+    ) -> CairoData:
+        entry_point = CheatableExecuteEntryPoint.create_for_protostar(
+            contract_address=contract_address,
+            calldata=calldata,
+            entry_point_selector=get_selector_from_name(function_name),
+        )
+        result = await entry_point.execute_for_testing(
+            state=copy.deepcopy(self.cheatable_state),
+            general_config=StarknetGeneralConfig(),
+        )
+        return result.calldata

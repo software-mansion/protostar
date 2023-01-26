@@ -46,7 +46,7 @@ class CairoTestExecutionEnvironment(CairoExecutionEnvironment):
     def _get_hint_locals(self, state: CairoTestExecutionState) -> HintLocalsDict:
         hint_locals: HintLocalsDict = {}
         cheatcode_factory = CairoTestCheatcodeFactory(
-            cheatable_state=state.starknet.cheatable_state,
+            cheatable_starknet_facade=state.cheatable_starknet_facade,
             project_compiler=state.project_compiler,
         )
         cheatcodes = cheatcode_factory.build_cheatcodes()

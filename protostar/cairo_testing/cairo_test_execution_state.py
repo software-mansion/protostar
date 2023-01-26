@@ -16,12 +16,25 @@ from protostar.testing.test_output_recorder import OutputRecorder
 
 @dataclass
 class CairoTestExecutionState:
-    starknet: CheatableStarknetFacade
+    cheatable_starknet_facade: CheatableStarknetFacade
     stopwatch: Stopwatch
     output_recorder: OutputRecorder
     context: TestContext
     config: TestConfig
     project_compiler: ProjectCompiler
+
+    @classmethod
+    async def from_test_config(
+        cls, test_config: TestConfig, project_compiler: ProjectCompiler
+    ):
+        return cls(
+            cheatable_starknet_facade=await CheatableStarknetFacade.create(),
+            stopwatch=Stopwatch(),
+            output_recorder=OutputRecorder(),
+            context=TestContext(),
+            config=test_config,
+            project_compiler=project_compiler,
+        )
 
     def fork(self) -> Self:
         return dataclasses.replace(
@@ -30,18 +43,5 @@ class CairoTestExecutionState:
             config=deepcopy(self.config),
             output_recorder=self.output_recorder.fork(),
             stopwatch=self.stopwatch.fork(),
-            starknet=self.starknet.fork(),
-        )
-
-    @classmethod
-    async def from_test_config(
-        cls, test_config: TestConfig, project_compiler: ProjectCompiler
-    ):
-        return cls(
-            starknet=await CheatableStarknetFacade.create(),
-            stopwatch=Stopwatch(),
-            output_recorder=OutputRecorder(),
-            context=TestContext(),
-            config=test_config,
-            project_compiler=project_compiler,
+            cheatable_starknet_facade=self.cheatable_starknet_facade.fork(),
         )
