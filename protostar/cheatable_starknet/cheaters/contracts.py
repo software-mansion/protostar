@@ -30,7 +30,7 @@ from protostar.contract_types import (
     DeclaredContract,
     DeployedContract,
 )
-from protostar.cheatable_starknet.cheatables.cheatable_entry_point import (
+from protostar.cheatable_starknet.cheatables.cheatable_execute_entry_point import (
     CheatableExecuteEntryPoint,
 )
 from protostar.starknet.types import ClassHashType
