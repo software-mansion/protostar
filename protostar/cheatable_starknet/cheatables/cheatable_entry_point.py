@@ -44,7 +44,7 @@ from protostar.cheatable_starknet.cheaters.transaction_revert_exception import (
 from .cheatable_syscall_handler import CheatableSysCallHandler
 
 if TYPE_CHECKING:
-    from .cheaters import CairoCheaters
+    from ..cheaters import CairoCheaters
 
 FAULTY_CLASS_HASH = to_bytes(
     0x1A7820094FEAF82D53F53F214B81292D717E7BB9A92BB2488092CD306F3993F
