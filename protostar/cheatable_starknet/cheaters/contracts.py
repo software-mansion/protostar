@@ -1,5 +1,4 @@
 import collections
-import copy
 from pathlib import Path
 from typing import List, Optional, TYPE_CHECKING
 
@@ -257,16 +256,11 @@ class ContractsCairoCheater:
             function_name=function_name,
             calldata=calldata,
         )
-        entry_point = CheatableExecuteEntryPoint.create_for_protostar(
+        return await self._cheatable_starknet_facade.call(
             contract_address=contract_address,
+            function_name=function_name,
             calldata=cairo_calldata,
-            entry_point_selector=get_selector_from_name(function_name),
         )
-        result = await entry_point.execute_for_testing(
-            state=copy.deepcopy(self._cheatable_state),
-            general_config=StarknetGeneralConfig(),
-        )
-        return result.retdata
 
     async def invoke(
         self,

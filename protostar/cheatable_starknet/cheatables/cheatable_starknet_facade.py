@@ -89,4 +89,4 @@ class CheatableStarknetFacade:
             state=copy.deepcopy(self.cheatable_state),
             general_config=StarknetGeneralConfig(),
         )
-        return result.calldata
+        return result.retdata
