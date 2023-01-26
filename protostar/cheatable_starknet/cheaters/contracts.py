@@ -47,8 +47,6 @@ if TYPE_CHECKING:
         CheatableCachedState,
     )
 
-    from . import CairoCheaters
-
 
 class ContractsCheaterException(Exception):
     def __init__(self, message: str):
@@ -250,14 +248,13 @@ class ContractsCairoCheater:
         function_name: str,
         calldata: Optional[CairoOrPythonData] = None,
     ) -> CairoData:
-        contract_address_int = int(contract_address)
         cairo_calldata = await self._transform_calldata_to_cairo_data_by_addr(
             contract_address=contract_address,
             function_name=function_name,
             calldata=calldata,
         )
         entry_point = CheatableExecuteEntryPoint.create_for_protostar(
-            contract_address=contract_address_int,
+            contract_address=contract_address,
             calldata=cairo_calldata,
             entry_point_selector=get_selector_from_name(function_name),
         )
@@ -273,15 +270,13 @@ class ContractsCairoCheater:
         contract_address: Address,
         calldata: Optional[CairoOrPythonData] = None,
     ):
-        contract_address_int = int(contract_address)
-
         cairo_calldata = await self._transform_calldata_to_cairo_data_by_addr(
             contract_address=contract_address,
             function_name=function_name,
             calldata=calldata,
         )
         entry_point = CheatableExecuteEntryPoint.create_for_protostar(
-            contract_address=contract_address_int,
+            contract_address=contract_address,
             calldata=cairo_calldata,
             entry_point_selector=get_selector_from_name(function_name),
         )
