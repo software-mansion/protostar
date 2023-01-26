@@ -273,16 +273,11 @@ class ContractsCairoCheater:
             function_name=function_name,
             calldata=calldata,
         )
-        entry_point = CheatableExecuteEntryPoint.create_for_protostar(
+        await self._cheatable_starknet_facade.invoke(
             contract_address=contract_address,
+            function_name=function_name,
             calldata=cairo_calldata,
-            entry_point_selector=get_selector_from_name(function_name),
         )
-        with self._cheatable_state.copy_and_apply() as state_copy:
-            await entry_point.execute_for_testing(
-                state=state_copy,
-                general_config=StarknetGeneralConfig(),
-            )
 
     def prank(self, caller_address: Address, target_address: Address):
         self._cheatable_state.set_pranked_address(
