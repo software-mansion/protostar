@@ -4,11 +4,7 @@ from typing import List, Optional, TYPE_CHECKING
 
 from starkware.python.utils import to_bytes, from_bytes
 from starkware.starknet.business_logic.transaction.objects import InternalDeclare
-from starkware.starknet.public.abi import (
-    AbiType,
-    get_selector_from_name,
-    CONSTRUCTOR_ENTRY_POINT_SELECTOR,
-)
+from starkware.starknet.public.abi import AbiType, CONSTRUCTOR_ENTRY_POINT_SELECTOR
 from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,
 )
@@ -28,9 +24,6 @@ from protostar.contract_types import (
     PreparedContract,
     DeclaredContract,
     DeployedContract,
-)
-from protostar.cheatable_starknet.cheatables.cheatable_execute_entry_point import (
-    CheatableExecuteEntryPoint,
 )
 from protostar.starknet.types import ClassHashType
 from protostar.starknet.address import Address
