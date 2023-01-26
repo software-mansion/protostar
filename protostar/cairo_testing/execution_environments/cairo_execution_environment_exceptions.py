@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-
 from protostar.testing.test_environment_exceptions import ReportedException
 from protostar.cheatable_starknet.cheaters.expect_events_controller import (
     EventMatchingResult,
@@ -10,9 +8,15 @@ from protostar.cheatable_starknet.cheaters.expect_events_controller import (
 )
 
 
-@dataclass
 class ExpectEventsMismatchReportedException(ReportedException):
-    event_matching_result: EventMatchingResult
+    def __init__(
+        self, event_matching_result: EventMatchingResult, *args: object
+    ) -> None:
+        super().__init__(*args)
+        self.event_matching_result = event_matching_result
+
+    def __reduce__(self):
+        return type(self), (self.event_matching_result,), self.__getstate__()
 
     def __str__(self) -> str:
         lines: list[str] = []
