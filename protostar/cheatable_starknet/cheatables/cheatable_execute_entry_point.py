@@ -2,7 +2,7 @@
 import logging
 import re
 from dataclasses import dataclass
-from typing import Optional, Tuple, cast, List
+from typing import Optional, Tuple, cast
 from copy import deepcopy
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
@@ -21,7 +21,6 @@ from starkware.starknet.business_logic.execution.execute_entry_point import (
 from starkware.starknet.business_logic.execution.objects import (
     CallInfo,
     TransactionExecutionContext,
-    CallType,
 )
 from starkware.starknet.business_logic.fact_state.state import ExecutionResourcesManager
 from starkware.starknet.business_logic.state.state import StateSyncifier
@@ -31,7 +30,6 @@ from starkware.starknet.core.os import os_utils, syscall_utils
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.public import abi as starknet_abi
-from starkware.starknet.services.api.contract_class import EntryPointType
 from starkware.starkware_utils.error_handling import (
     StarkException,
     wrap_with_stark_exception,
@@ -60,18 +58,13 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     def create_for_protostar(
         cls,
         contract_address: Address,
-        calldata: List[int],
+        calldata: list[int],
         entry_point_selector: int,
-    ) -> "CheatableExecuteEntryPoint":
-        return cls(
+    ):
+        return cls.create_for_testing(
             entry_point_selector=entry_point_selector,
             calldata=calldata,
             contract_address=int(contract_address),
-            code_address=None,
-            class_hash=None,
-            call_type=CallType.CALL,
-            entry_point_type=EntryPointType.EXTERNAL,
-            caller_address=0,
         )
 
     def _run(
