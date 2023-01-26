@@ -14,7 +14,6 @@ from protostar.testing.test_context import TestContext
 from protostar.testing.test_output_recorder import OutputRecorder
 from protostar.cheatable_starknet.cheaters.expect_events_controller import (
     EventsExpectation,
-    Event,
 )
 
 
@@ -26,7 +25,7 @@ class CairoTestExecutionState:
     context: TestContext
     config: TestConfig
     project_compiler: ProjectCompiler
-    _event_expectations: list[EventsExpectation] = field(default_factory=list)
+    event_expectations: list[EventsExpectation] = field(default_factory=list)
 
     @classmethod
     async def from_test_config(
@@ -49,11 +48,5 @@ class CairoTestExecutionState:
             output_recorder=self.output_recorder.fork(),
             stopwatch=self.stopwatch.fork(),
             cheatable_starknet_facade=self.cheatable_starknet_facade.fork(),
-            event_expectations=self._event_expectations.copy(),
+            event_expectations=self.event_expectations.copy(),
         )
-
-    def add_events_expectation(self, events_expectation: list[Event]):
-        self._event_expectations.append(events_expectation)
-
-    def get_events_expectations(self) -> list[EventsExpectation]:
-        return self._event_expectations

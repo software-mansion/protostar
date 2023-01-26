@@ -34,9 +34,9 @@ class ExpectEventsController:
         self._test_finish_hook.on(self.compare_expected_and_actual_results)
 
     async def execute(self, expected_events: list[Event]):
-        self._test_execution_state.add_events_expectation(expected_events)
+        self._test_execution_state.event_expectations.append(expected_events)
 
     def compare_expected_and_actual_results(self):
-        expected_events = self._test_execution_state.get_events_expectations()
+        event_expectations = self._test_execution_state.event_expectations
         actual_events = self._cheatable_starknet_facade.get_emitted_events()
         assert False, "Not implemented"
