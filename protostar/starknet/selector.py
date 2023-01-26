@@ -4,7 +4,7 @@ from typing import Union
 from starkware.starknet.public.abi import get_selector_from_name
 
 
-@dataclass(eq=True)
+@dataclass
 class Selector:
     def __init__(self, value: Union[str, int]) -> None:
         self._value = value
@@ -16,3 +16,8 @@ class Selector:
 
     def __str__(self) -> str:
         return str(self._value)
+
+    def __eq__(self, __o: object) -> bool:
+        if isinstance(__o, Selector):
+            return int(self) == int(__o)
+        return False
