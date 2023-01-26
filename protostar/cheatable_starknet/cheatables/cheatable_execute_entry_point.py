@@ -5,6 +5,11 @@ from dataclasses import dataclass
 from typing import Optional, Tuple, cast
 from copy import deepcopy
 
+from starkware.starknet.business_logic.execution.objects import (
+    CallType,
+    CallInfo,
+    TransactionExecutionContext,
+)
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.cairo.lang.vm.security import SecurityError
@@ -18,10 +23,6 @@ from starkware.python.utils import to_bytes
 from starkware.starknet.business_logic.execution.execute_entry_point import (
     ExecuteEntryPoint,
 )
-from starkware.starknet.business_logic.execution.objects import (
-    CallInfo,
-    TransactionExecutionContext,
-)
 from starkware.starknet.business_logic.fact_state.state import ExecutionResourcesManager
 from starkware.starknet.business_logic.state.state import StateSyncifier
 from starkware.starknet.business_logic.state.state_api import State, SyncState
@@ -34,6 +35,7 @@ from starkware.starkware_utils.error_handling import (
     StarkException,
     wrap_with_stark_exception,
 )
+from starkware.starknet.services.api.contract_class import EntryPointType
 
 from protostar.cheatable_starknet.cheaters.transaction_revert_exception import (
     TransactionRevertException,
@@ -60,11 +62,18 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         contract_address: Address,
         calldata: list[int],
         entry_point_selector: int,
+        entry_point_type: EntryPointType = EntryPointType.EXTERNAL,
+        call_type: CallType = CallType.CALL,
+        class_hash: Optional[int] = None,
     ):
         return cls.create_for_testing(
             entry_point_selector=entry_point_selector,
             calldata=calldata,
             contract_address=int(contract_address),
+            entry_point_type=entry_point_type,
+            call_type=call_type,
+            caller_address=0,
+            class_hash=to_bytes(class_hash) if class_hash else None,
         )
 
     def _run(
