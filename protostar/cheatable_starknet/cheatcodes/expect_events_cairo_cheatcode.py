@@ -9,14 +9,14 @@ from protostar.cheatable_starknet.cheaters.expect_events_controller import (
     ExpectEventsController,
     Event,
 )
-from protostar.starknet import CairoOrPythonData, Address
+from protostar.starknet import CairoData, Address
 from protostar.starknet.selector import Selector
 
 
 class RawExpectedEvent(TypedDict):
     from_address: int
     name: str
-    data: NotRequired[CairoOrPythonData]
+    data: NotRequired[CairoData]
 
 
 class ExpectEventsCheatcode(CairoCheatcode):

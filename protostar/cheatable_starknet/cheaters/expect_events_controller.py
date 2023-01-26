@@ -2,7 +2,7 @@ from collections import deque
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
-from protostar.starknet import Address, CairoOrPythonData, Selector
+from protostar.starknet import Address, CairoData, Selector
 from protostar.testing import Hook
 
 if TYPE_CHECKING:
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 class Event:
     from_address: Address
     key: Selector
-    data: Optional[CairoOrPythonData]
+    data: Optional[CairoData]
 
 
 EventsExpectation = list[Event]
