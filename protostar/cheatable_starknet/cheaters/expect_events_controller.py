@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 class Event:
     from_address: Address
     key: Selector
-    data: Optional[CairoData]
+    data: Optional[CairoData] = None
 
 
 EventsExpectation = list[Event]
@@ -44,11 +44,8 @@ class MatchingResult:
     unmatched_expected_events: list[Event]
 
     @property
-    def are_all_matches_accepted(self) -> bool:
-        for event_matching in self.event_matchings:
-            if not isinstance(event_matching, AcceptedEventMatching):
-                return False
-        return True
+    def should_be_accepted(self) -> bool:
+        return len(self.unmatched_expected_events) == 0
 
 
 class ExpectEventsController:
@@ -68,55 +65,52 @@ class ExpectEventsController:
 
     def compare_expected_and_actual_results(self):
         for expected_events in self._test_execution_state.event_expectations:
-            matching_result = self.match_events(
+            matching_result = match_events(
                 expected_events=expected_events,
                 emitted_events=self._cheatable_starknet_facade.get_emitted_events(),
             )
-            if not matching_result.are_all_matches_accepted:
+            if not matching_result.should_be_accepted:
                 raise ExpectEventsMismatchException(matching_result)
 
-    def match_events(
-        self, expected_events: list[Event], emitted_events: list[Event]
-    ) -> MatchingResult:
-        assert len(expected_events) > 0
-        expected_events_queue = deque(expected_events)
-        event_matchings: list[EventMatching] = []
-        for emitted_event in emitted_events:
-            try:
-                expected_event = expected_events_queue[0]
-                if self.should_accept_event_matching(
-                    expected_event=expected_event, emitted_event=emitted_event
-                ):
-                    event_matchings.append(
-                        AcceptedEventMatching(
-                            emitted_event=emitted_event,
-                            expected_event=expected_event,
-                        )
+
+def match_events(
+    expected_events: list[Event], emitted_events: list[Event]
+) -> MatchingResult:
+    assert len(expected_events) > 0
+    expected_events_queue = deque(expected_events)
+    event_matchings: list[EventMatching] = []
+    for emitted_event in emitted_events:
+        try:
+            expected_event = expected_events_queue[0]
+            if should_accept_event_matching(
+                expected_event=expected_event, emitted_event=emitted_event
+            ):
+                event_matchings.append(
+                    AcceptedEventMatching(
+                        emitted_event=emitted_event,
+                        expected_event=expected_event,
                     )
-                    expected_events_queue.popleft()
-                else:
-                    event_matchings.append(
-                        SkippedEventMatching(emitted_event=emitted_event)
-                    )
-            except IndexError:
+                )
+                expected_events_queue.popleft()
+            else:
                 event_matchings.append(
                     SkippedEventMatching(emitted_event=emitted_event)
                 )
+        except IndexError:
+            event_matchings.append(SkippedEventMatching(emitted_event=emitted_event))
 
-        return MatchingResult(
-            event_matchings=event_matchings,
-            unmatched_expected_events=list(expected_events_queue),
-        )
+    return MatchingResult(
+        event_matchings=event_matchings,
+        unmatched_expected_events=list(expected_events_queue),
+    )
 
-    def should_accept_event_matching(
-        self, expected_event: Event, emitted_event: Event
-    ) -> bool:
-        return (
-            expected_event.key == emitted_event.key
-            and expected_event.data is None
-            or expected_event.data == emitted_event.data
-            and expected_event.from_address == emitted_event.from_address
-        )
+
+def should_accept_event_matching(expected_event: Event, emitted_event: Event) -> bool:
+    return (
+        expected_event.key == emitted_event.key
+        and (expected_event.data is None or (expected_event.data == emitted_event.data))
+        and expected_event.from_address == emitted_event.from_address
+    )
 
 
 @dataclass
