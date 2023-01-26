@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Callable, Optional
 
 from protostar.starknet import Address, CairoData, Selector
 from protostar.testing import Hook
+from protostar.protostar_exception import ProtostarException
 
 if TYPE_CHECKING:
     from protostar.cheatable_starknet.cheatables.cheatable_starknet_facade import (
@@ -39,13 +40,25 @@ class AcceptedEventMatching(EventMatching):
 
 
 @dataclass
-class MatchingResult:
+class FailedEventMatching(EventMatching):
+    expected_events: Event
+
+
+@dataclass
+class EventMatchingResult:
     event_matchings: list[EventMatching]
-    unmatched_expected_events: list[Event]
+
+    @property
+    def failed_event_matchings(self):
+        return [
+            matching
+            for matching in self.event_matchings
+            if isinstance(matching, FailedEventMatching)
+        ]
 
     @property
     def should_be_accepted(self) -> bool:
-        return len(self.unmatched_expected_events) == 0
+        return len(self.failed_event_matchings) == 0
 
 
 class ExpectEventsController:
@@ -75,7 +88,7 @@ class ExpectEventsController:
 
 def match_events(
     expected_events: list[Event], emitted_events: list[Event]
-) -> MatchingResult:
+) -> EventMatchingResult:
     assert len(expected_events) > 0
     expected_events_queue = deque(expected_events)
     event_matchings: list[EventMatching] = []
@@ -90,9 +103,12 @@ def match_events(
             )
         except IndexError:
             event_matchings.append(SkippedEventMatching(emitted_event=emitted_event))
-    return MatchingResult(
-        event_matchings=event_matchings,
-        unmatched_expected_events=list(expected_events_queue),
+    failed_event_matchings = [
+        FailedEventMatching(expected_event)
+        for expected_event in list(expected_events_queue)
+    ]
+    return EventMatchingResult(
+        event_matchings=[*event_matchings, *failed_event_matchings],
     )
 
 
@@ -120,6 +136,7 @@ def should_accept_event_matching(expected_event: Event, emitted_event: Event) ->
     )
 
 
-@dataclass
-class ExpectEventsMismatchException(Exception):
-    matching_result: MatchingResult
+class ExpectEventsMismatchException(ProtostarException):
+    def __init__(self, matching_result: EventMatchingResult):
+        super().__init__("Expect Events mismatch")
+        self.matching_result = matching_result
