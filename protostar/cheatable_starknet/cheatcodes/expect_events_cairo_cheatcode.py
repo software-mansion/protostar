@@ -1,4 +1,3 @@
-import asyncio
 from typing import Callable
 
 from typing_extensions import NotRequired, TypedDict
@@ -32,10 +31,8 @@ class ExpectEventsCheatcode(CairoCheatcode):
         def expect_events(
             *raw_expected_events: RawExpectedEvent,
         ):
-            asyncio.run(
-                self._controller.execute(
-                    self._create_expected_events_from(list(raw_expected_events))
-                )
+            self._controller.add_expectation(
+                self._create_expected_events_from(list(raw_expected_events))
             )
 
         return expect_events

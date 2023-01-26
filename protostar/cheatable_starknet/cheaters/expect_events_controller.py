@@ -1,6 +1,6 @@
 from collections import deque
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Callable, Optional
 
 from protostar.starknet import Address, CairoData, Selector
 from protostar.testing import Hook
@@ -60,7 +60,7 @@ class ExpectEventsController:
         self._test_finish_hook = test_finish_hook
         self._test_finish_hook.on(self.compare_expected_and_actual_results)
 
-    async def execute(self, expected_events: list[Event]):
+    def add_expectation(self, expected_events: list[Event]):
         self._test_execution_state.event_expectations.append(expected_events)
 
     def compare_expected_and_actual_results(self):
@@ -81,28 +81,35 @@ def match_events(
     event_matchings: list[EventMatching] = []
     for emitted_event in emitted_events:
         try:
-            expected_event = expected_events_queue[0]
-            if should_accept_event_matching(
-                expected_event=expected_event, emitted_event=emitted_event
-            ):
-                event_matchings.append(
-                    AcceptedEventMatching(
-                        emitted_event=emitted_event,
-                        expected_event=expected_event,
-                    )
+            event_matchings.append(
+                match_expected_and_emitted_event(
+                    emitted_event=emitted_event,
+                    expected_event=expected_events_queue[0],
+                    on_accepted=expected_events_queue.popleft,
                 )
-                expected_events_queue.popleft()
-            else:
-                event_matchings.append(
-                    SkippedEventMatching(emitted_event=emitted_event)
-                )
+            )
         except IndexError:
             event_matchings.append(SkippedEventMatching(emitted_event=emitted_event))
-
     return MatchingResult(
         event_matchings=event_matchings,
         unmatched_expected_events=list(expected_events_queue),
     )
+
+
+def match_expected_and_emitted_event(
+    emitted_event: Event,
+    expected_event: Event,
+    on_accepted: Callable,
+):
+    if should_accept_event_matching(
+        expected_event=expected_event, emitted_event=emitted_event
+    ):
+        on_accepted()
+        return AcceptedEventMatching(
+            emitted_event=emitted_event,
+            expected_event=expected_event,
+        )
+    return SkippedEventMatching(emitted_event=emitted_event)
 
 
 def should_accept_event_matching(expected_event: Event, emitted_event: Event) -> bool:
