@@ -1,5 +1,5 @@
 import asyncio
-from typing import List, Optional
+from typing import Optional
 
 from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
 
@@ -16,8 +16,8 @@ class StoreCairoCheatcode(CairoCheatcode):
         self,
         target_contract_address: int,
         variable_name: str,
-        value: List[int],
-        key: Optional[List[int]] = None,
+        value: list[int],
+        key: Optional[list[int]] = None,
     ):
         asyncio.run(
             self.cheaters.storage.store(

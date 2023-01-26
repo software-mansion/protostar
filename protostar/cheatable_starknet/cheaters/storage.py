@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 class StorageCairoCheater:
     def __init__(self, cheatable_state: "CheatableCachedState"):
-        self.cheatable_state = cheatable_state
+        self._cheatable_state = cheatable_state
 
     async def store(
         self,
@@ -21,7 +21,7 @@ class StorageCairoCheater:
     ):
         variable_address = calc_address(variable_name, key or [])
         for i, val in enumerate(value):
-            await self.cheatable_state.set_storage_at(
+            await self._cheatable_state.set_storage_at(
                 contract_address=target_contract_address,
                 key=variable_address + i,
                 value=val,
@@ -38,7 +38,7 @@ class StorageCairoCheater:
         variable_size = self._get_variable_size(target_contract_address, variable_type)
 
         return [
-            await self.cheatable_state.get_storage_at(
+            await self._cheatable_state.get_storage_at(
                 contract_address=target_contract_address, key=variable_address + i
             )
             for i in range(variable_size)
@@ -47,7 +47,7 @@ class StorageCairoCheater:
     def _get_variable_size(self, contract_address: int, variable_type: str) -> int:
         if variable_type == "felt":
             return 1
-        abi = self.cheatable_state.get_abi_from_contract_address(contract_address)
+        abi = self._cheatable_state.get_abi_from_contract_address(contract_address)
 
         abi_type = next((el for el in abi if el["name"] == variable_type), None)
         if not abi_type or "size" not in abi_type:
