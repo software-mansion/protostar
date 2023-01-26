@@ -41,7 +41,7 @@ class AcceptedEventMatching(EventMatching):
 
 @dataclass
 class FailedEventMatching(EventMatching):
-    expected_events: Event
+    expected_event: Event
 
 
 @dataclass
