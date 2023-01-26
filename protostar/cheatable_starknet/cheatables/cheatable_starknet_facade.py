@@ -61,7 +61,7 @@ class CheatableStarknetFacade:
         return cast(CheatableCachedState, self._starknet.state.state)
 
     def fork(self):
-        return CheatableStarknetFacade(self._starknet)
+        return CheatableStarknetFacade(self._starknet.copy())
 
     async def invoke(
         self, contract_address: Address, function_name: str, calldata: CairoData
