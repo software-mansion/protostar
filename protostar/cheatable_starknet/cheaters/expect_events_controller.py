@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
-from protostar.cheatable_starknet.cheatables.cheatable_starknet_facade import (
-    CheatableStarknetFacade,
-)
 from protostar.starknet import Address, CairoOrPythonData, Selector
 from protostar.testing import Hook
 
 if TYPE_CHECKING:
+    from protostar.cheatable_starknet.cheatables.cheatable_starknet_facade import (
+        CheatableStarknetFacade,
+    )
     from protostar.cairo_testing import CairoTestExecutionState
 
 

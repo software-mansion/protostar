@@ -20,7 +20,8 @@ from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
 from protostar.cheatable_starknet.cheatables.cheatable_execute_entry_point import (
     CheatableExecuteEntryPoint,
 )
-from protostar.starknet import Address, CairoData
+from protostar.starknet import Address, CairoData, Selector
+from protostar.cheatable_starknet.cheaters.expect_events_controller import Event
 
 
 class CheatableStarknetFacade:
@@ -92,4 +93,11 @@ class CheatableStarknetFacade:
         return result.retdata
 
     def get_emitted_events(self):
-        return []
+        return [
+            Event(
+                from_address=Address(event.from_address),
+                key=Selector(event.keys[0]),
+                data=event.data,
+            )
+            for event in self._starknet.state.events
+        ]

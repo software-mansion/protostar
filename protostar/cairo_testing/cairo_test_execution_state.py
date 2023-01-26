@@ -1,6 +1,6 @@
 import dataclasses
 from copy import deepcopy
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from typing_extensions import Self
 
@@ -26,7 +26,7 @@ class CairoTestExecutionState:
     context: TestContext
     config: TestConfig
     project_compiler: ProjectCompiler
-    _event_expectations: list[EventsExpectation] = []
+    _event_expectations: list[EventsExpectation] = field(default_factory=list)
 
     @classmethod
     async def from_test_config(
