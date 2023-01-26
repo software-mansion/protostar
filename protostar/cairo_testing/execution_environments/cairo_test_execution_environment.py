@@ -21,11 +21,11 @@ class CairoTestExecutionEnvironment(CairoExecutionEnvironment):
         state: CairoTestExecutionState,
         program: Program,
     ):
+        self._finish_hook = Hook()  # get hint locals uses this hook
         super().__init__(
             state=state, program=program, hint_locals=self._get_hint_locals(state)
         )
         self._expect_revert_context = ExpectRevertContext()
-        self._finish_hook = Hook()
 
     async def execute(self, function_name: str) -> Any:
         with self.state.output_recorder.redirect("test"):
@@ -48,7 +48,7 @@ class CairoTestExecutionEnvironment(CairoExecutionEnvironment):
         cheatcode_factory = CairoTestCheatcodeFactory(
             cheatable_starknet_facade=state.cheatable_starknet_facade,
             project_compiler=state.project_compiler,
-            test_execution_state=self.state,
+            test_execution_state=state,
             test_finish_hook=self._finish_hook,
         )
         cheatcodes = cheatcode_factory.build_cheatcodes()
