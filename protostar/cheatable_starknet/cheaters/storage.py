@@ -3,7 +3,9 @@ from typing import List, Optional, TYPE_CHECKING
 from protostar.starknet import calc_address, BreakingReportedException
 
 if TYPE_CHECKING:
-    from protostar.cheatable_starknet.cheatable_cached_state import CheatableCachedState
+    from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
+        CheatableCachedState,
+    )
 
 
 class StorageCairoCheater:

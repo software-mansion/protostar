@@ -1,6 +1,8 @@
 from typing import List
 
-from protostar.cheatable_starknet.cheatable_cached_state import CheatableCachedState
+from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
+    CheatableCachedState,
+)
 from protostar.cheatable_starknet.cheatcodes.load_cairo_cheatcode import (
     LoadCairoCheatcode,
 )
