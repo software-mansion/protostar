@@ -12,8 +12,9 @@ function install() {
   pushd "${1}"
   git clone https://github.com/software-mansion-labs/cairo.git
   pushd cairo
-  git checkout 91ac2eed4e8bf3bd92f864a0bb3c86711f251446 # working commit
-  pushd crates/cairo_python_bindings
+  # currrent master works ok, in case it doesn't, uncomment the line below
+  # git checkout 5608ce7e052df79da11485689cb5f1459d3e5d18 # working commit
+  pushd crates/cairo-lang-python-bindings
   rustup override set nightly
   pip install maturin
   maturin develop --release
@@ -24,6 +25,4 @@ function install() {
 
 
 DIR=$(poetry env info -p)
-install $DIR || echo "installation failed"
-
-echo "DONE"
+install $DIR && echo "DONE" || echo "installation failed"
