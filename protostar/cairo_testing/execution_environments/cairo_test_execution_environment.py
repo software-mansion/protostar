@@ -2,9 +2,6 @@ from typing import Any
 
 from starkware.cairo.lang.compiler.program import Program
 
-from protostar.cairo_testing.execution_environments.cairo_execution_environment_exceptions import (
-    ExpectEventsMismatchReportedException,
-)
 from protostar.testing.environments.execution_environment import TestExecutionResult
 from protostar.testing.cheatcodes.expect_revert_cheatcode import ExpectRevertContext
 from protostar.testing.hook import Hook
@@ -14,9 +11,6 @@ from protostar.cairo_testing.cheatcode_factories.cairo_test_cheatcode_factory im
     CairoTestCheatcodeFactory,
 )
 from protostar.cairo import HintLocalsDict
-from protostar.cheatable_starknet.cheaters.expect_events_controller import (
-    ExpectEventsMismatchException,
-)
 
 from .cairo_execution_environment import CairoExecutionEnvironment
 
@@ -48,11 +42,8 @@ class CairoTestExecutionEnvironment(CairoExecutionEnvironment):
         **kwargs: Any,
     ):
         async with self._expect_revert_context.test():
-            try:
-                async with self._finish_hook.run_after():
-                    await self.run_cairo_function(function_name, *args, **kwargs)
-            except ExpectEventsMismatchException as ex:
-                raise self._wrap_hint_exceptions(ex)
+            async with self._finish_hook.run_after():
+                await self.run_cairo_function(function_name, *args, **kwargs)
 
     def _get_hint_locals(self, state: CairoTestExecutionState) -> HintLocalsDict:
         hint_locals: HintLocalsDict = {}
@@ -72,10 +63,3 @@ class CairoTestExecutionEnvironment(CairoExecutionEnvironment):
             hint_locals[custom_hint_local.name] = custom_hint_local.build()
 
         return hint_locals
-
-    def _wrap_hint_exceptions(self, ex: Exception):
-        if isinstance(ex, ExpectEventsMismatchException):
-            return ExpectEventsMismatchReportedException(
-                message=ex.message, event_matching_result=ex.matching_result
-            )
-        return ex

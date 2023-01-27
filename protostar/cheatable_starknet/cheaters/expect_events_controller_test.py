@@ -1,11 +1,15 @@
+# pylint: disable=line-too-long
 from protostar.starknet import Address, Selector
 
 from .expect_events_controller import (
+    EventMatchingResult,
+    FailedEventMatching,
     match_events,
     Event,
     should_accept_event_matching,
     SkippedEventMatching,
     AcceptedEventMatching,
+    ExpectEventsMismatchReportedException,
 )
 
 
@@ -145,3 +149,39 @@ def test_order_impact():
     assert isinstance(result.event_matchings[0], SkippedEventMatching)
     assert isinstance(result.event_matchings[1], SkippedEventMatching)
     assert isinstance(result.event_matchings[2], AcceptedEventMatching)
+
+
+def test_expect_events_mismatch_exception():
+    ex = ExpectEventsMismatchReportedException(
+        event_matching_result=EventMatchingResult(
+            event_matchings=[
+                AcceptedEventMatching(
+                    emitted_event=Event(
+                        from_address=Address(1),
+                        key=Selector("foo"),
+                        data=[1],
+                    ),
+                    expected_event=Event(from_address=Address(1), key=Selector("foo")),
+                ),
+                SkippedEventMatching(
+                    emitted_event=Event(
+                        from_address=Address(2), key=Selector("bar"), data=[1]
+                    )
+                ),
+                FailedEventMatching(
+                    expected_event=Event(from_address=Address(3), key=Selector("baz"))
+                ),
+            ],
+        ),
+    )
+
+    result = str(ex)
+
+    assert result == "\n".join(
+        [
+            "Expect Events mismatch",
+            "  [pass] name: foo, from_address: 0x0000000000000000000000000000000000000000000000000000000000000001, data: [1]",
+            "  [skip] name: bar, from_address: 0x0000000000000000000000000000000000000000000000000000000000000002, data: [1]",
+            "  [fail] name: baz, from_address: 0x0000000000000000000000000000000000000000000000000000000000000003",
+        ]
+    )
