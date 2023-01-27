@@ -43,20 +43,24 @@ def prepared_files_fixture(protostar: ProtostarFixture):
 
 
 def test_tests_collector(prepared_files: dict[str, Path]):
-    sierra = cairo_python_bindings.call_test_collector(  # pyright: ignore
+    sierra, named_tests = cairo_python_bindings.call_test_collector(  # pyright: ignore
         str(prepared_files["cairo_tests"]),
     )
-    assert sierra
-    cairo_python_bindings.call_test_collector(  # pyright: ignore
+    assert sierra and named_tests
+    _, named_tests = cairo_python_bindings.call_test_collector(  # pyright: ignore
         str(prepared_files["cairo_tests"]),
         str(prepared_files["sierra"]),
     )
+    assert named_tests
     assert Path(prepared_files["sierra"]).read_text()
+
     casm = cairo_python_bindings.call_protostar_sierra_to_casm(  # pyright: ignore
+        named_tests,
         str(prepared_files["sierra"]),
     )
     assert casm
     cairo_python_bindings.call_protostar_sierra_to_casm(  # pyright: ignore
+        named_tests,
         str(prepared_files["sierra"]),
         str(prepared_files["casm"]),
     )
