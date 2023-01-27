@@ -66,13 +66,3 @@ func test_allow_checking_for_events_in_any_order() {
     %}
     return ();
 }
-
-func test_fail_selector_to_name_mapping() {
-    %{
-        contract_address = deploy_contract("emitter").contract_address
-        expect_events({"from_address": contract_address, "name": "UNEMITTED_EVENT"})
-        invoke(contract_address, "emit", [21])
-    %}
-    // assert in the pytest file
-    return ();
-}

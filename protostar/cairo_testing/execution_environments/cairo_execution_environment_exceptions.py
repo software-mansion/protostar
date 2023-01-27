@@ -17,7 +17,11 @@ class ExpectEventsMismatchReportedException(ReportedException):
         self.event_matching_result = event_matching_result
 
     def __reduce__(self):
-        return type(self), (self.event_matching_result,), self.__getstate__()
+        return (
+            type(self),
+            (self.message, self.event_matching_result),
+            self.__getstate__(),
+        )
 
     def __str__(self) -> str:
         formatted_event_matches_lines = self._get_event_matches_formatted_lines()
