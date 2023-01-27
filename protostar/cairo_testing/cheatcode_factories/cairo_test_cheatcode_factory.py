@@ -60,7 +60,7 @@ class CairoTestCheatcodeFactory:
             storage=StorageController(cheatable_state=self.cheatable_state),
         )
         declare_cheatcode = DeclareCairoCheatcode(
-            cheaters=controllers,
+            controllers=controllers,
             project_compiler=self.project_compiler,
         )
         prepare_cheatcode = PrepareCairoCheatcode(
