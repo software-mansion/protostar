@@ -42,8 +42,9 @@ def test_expect_events_mismatch_exception():
 
     assert result == "\n".join(
         [
-            "[pass] name: foo, from_address: 0x0000000000000000000000000000000000000000000000000000000000000001, data: [1]",
-            "[skip] name: bar, from_address: 0x0000000000000000000000000000000000000000000000000000000000000002, data: [1]",
-            "[fail] name: baz, from_address: 0x0000000000000000000000000000000000000000000000000000000000000003",
+            "expect_events failed",
+            "  [pass] name: foo, from_address: 0x0000000000000000000000000000000000000000000000000000000000000001, data: [1]",
+            "  [skip] name: bar, from_address: 0x0000000000000000000000000000000000000000000000000000000000000002, data: [1]",
+            "  [fail] name: baz, from_address: 0x0000000000000000000000000000000000000000000000000000000000000003",
         ]
     )

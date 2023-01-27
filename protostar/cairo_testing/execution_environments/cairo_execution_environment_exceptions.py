@@ -19,6 +19,10 @@ class ExpectEventsMismatchReportedException(ReportedException):
         return type(self), (self.event_matching_result,), self.__getstate__()
 
     def __str__(self) -> str:
+        formatted_event_matches_lines = self._get_event_matches_formatted_lines()
+        return "expect_events failed\n  " + ("\n  ".join(formatted_event_matches_lines))
+
+    def _get_event_matches_formatted_lines(self):
         lines: list[str] = []
         for event_matching in self.event_matching_result.event_matchings:
             if isinstance(event_matching, AcceptedEventMatching):
@@ -29,7 +33,7 @@ class ExpectEventsMismatchReportedException(ReportedException):
                 lines.append(self._format_failed_event_matching(event_matching))
             else:
                 assert False, f"Unexpected event_matching: {event_matching}"
-        return "\n".join(lines)
+        return lines
 
     def _format_accepted_event_matching(self, event_matching: AcceptedEventMatching):
         return self._format_event(event=event_matching.emitted_event, prefix="[pass]")
