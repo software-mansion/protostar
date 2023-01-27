@@ -76,6 +76,6 @@ class CairoTestExecutionEnvironment(CairoExecutionEnvironment):
     def _wrap_hint_exceptions(self, ex: Exception):
         if isinstance(ex, ExpectEventsMismatchException):
             return ExpectEventsMismatchReportedException(
-                event_matching_result=ex.matching_result
+                message=ex.message, event_matching_result=ex.matching_result
             )
         return ex

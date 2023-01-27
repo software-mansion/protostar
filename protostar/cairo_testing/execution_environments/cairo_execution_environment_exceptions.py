@@ -10,9 +10,10 @@ from protostar.cheatable_starknet.cheaters.expect_events_controller import (
 
 class ExpectEventsMismatchReportedException(ReportedException):
     def __init__(
-        self, event_matching_result: EventMatchingResult, *args: object
+        self, message: str, event_matching_result: EventMatchingResult, *args: object
     ) -> None:
         super().__init__(*args)
+        self.message = message
         self.event_matching_result = event_matching_result
 
     def __reduce__(self):
@@ -20,7 +21,7 @@ class ExpectEventsMismatchReportedException(ReportedException):
 
     def __str__(self) -> str:
         formatted_event_matches_lines = self._get_event_matches_formatted_lines()
-        return "expect_events failed\n  " + ("\n  ".join(formatted_event_matches_lines))
+        return f"{self.message}\n  " + ("\n  ".join(formatted_event_matches_lines))
 
     def _get_event_matches_formatted_lines(self):
         lines: list[str] = []

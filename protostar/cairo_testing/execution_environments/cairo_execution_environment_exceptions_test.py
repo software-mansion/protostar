@@ -16,6 +16,7 @@ from .cairo_execution_environment_exceptions import (
 
 def test_expect_events_mismatch_exception():
     ex = ExpectEventsMismatchReportedException(
+        message="expect_events failed",
         event_matching_result=EventMatchingResult(
             event_matchings=[
                 AcceptedEventMatching(
