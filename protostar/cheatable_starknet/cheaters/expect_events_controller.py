@@ -19,9 +19,6 @@ class Event:
     data: Optional[CairoData] = None
 
 
-EventsExpectation = list[Event]
-
-
 @dataclass
 class EventMatching:
     pass
@@ -72,11 +69,11 @@ class ExpectEventsController:
         self._test_finish_hook = test_finish_hook
         self._test_finish_hook.on(self.compare_expected_and_actual_results)
 
-    def add_expectation(self, expected_events: list[Event]):
-        self._test_execution_state.event_expectations.append(expected_events)
+    def add_expected_events(self, expected_events: list[Event]):
+        self._test_execution_state.expected_events_list.append(expected_events)
 
     def compare_expected_and_actual_results(self):
-        for expected_events in self._test_execution_state.event_expectations:
+        for expected_events in self._test_execution_state.expected_events_list:
             matching_result = match_events(
                 expected_events=expected_events,
                 emitted_events=self._cheatable_starknet_facade.get_emitted_events(),
