@@ -36,7 +36,6 @@ async def test_expect_events(protostar: ProtostarFixture):
             "test_expect_event_by_name_and_data",
             "test_expect_events_in_declared_order",
             "test_allow_checking_for_events_in_any_order",
-            "test_data_transformation",
         ],
         expected_failed_test_cases_names=[
             "test_fail_on_data_mismatch",

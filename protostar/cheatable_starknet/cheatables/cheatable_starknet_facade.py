@@ -73,10 +73,11 @@ class CheatableStarknetFacade:
             entry_point_selector=get_selector_from_name(function_name),
         )
         with self.cheatable_state.copy_and_apply() as state_copy:
-            await entry_point.execute_for_testing(
+            call_info = await entry_point.execute_for_testing(
                 state=state_copy,
                 general_config=StarknetGeneralConfig(),
             )
+            self._starknet.state.events += call_info.get_sorted_events()
 
     async def call(
         self, contract_address: Address, function_name: str, calldata: CairoData
