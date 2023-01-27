@@ -63,8 +63,8 @@ def parse_test_suite(path: Path, json_raw: Any) -> TestSuite:
         debug_info=None,
     )  # type: ignore
 
-    test_suites = [
+    test_cases = [
         TestCase(name=case["name"], offset=int(case["offset"]))
         for case in json_dict["test_entry_points"]
     ]
-    return TestSuite(path=path, test_cases=test_suites, program=program)
+    return TestSuite(path=path, test_cases=test_cases, program=program)
