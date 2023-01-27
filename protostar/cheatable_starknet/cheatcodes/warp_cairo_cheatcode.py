@@ -17,7 +17,7 @@ class WarpCairoCheatcode(CairoCheatcode):
         target_contract_address: RawAddress,
         blk_timestamp: int,
     ) -> Callable[[], None]:
-        return self.cheaters.block_info.cheat(
+        return self.controllers.block_info.cheat(
             contract_address=Address.from_user_input(target_contract_address),
             block_timestamp=blk_timestamp,
         )

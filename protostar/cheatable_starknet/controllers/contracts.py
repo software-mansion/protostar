@@ -62,7 +62,7 @@ class ConstructorInvocationException(ContractsCheaterException):
     pass
 
 
-class ContractsCairoCheater:
+class ContractsController:
     def __init__(self, cheatable_state: "CheatableCachedState"):
         self.cheatable_state = cheatable_state
 
