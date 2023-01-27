@@ -1,4 +1,3 @@
-from collections import deque
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
@@ -85,24 +84,22 @@ class ExpectEventsController:
 def match_events(
     expected_events: list[Event], emitted_events: list[Event]
 ) -> EventMatchingResult:
-    expected_events_queue = deque(expected_events)
     event_matchings: list[EventMatching] = []
     for emitted_event in emitted_events:
-        if len(expected_events_queue) == 0 or not should_accept_event_matching(
-            expected_event=expected_events_queue[0], emitted_event=emitted_event
+        if len(expected_events) == 0 or not should_accept_event_matching(
+            expected_event=expected_events[0], emitted_event=emitted_event
         ):
             event_matchings.append(SkippedEventMatching(emitted_event=emitted_event))
         else:
             event_matchings.append(
                 AcceptedEventMatching(
                     emitted_event=emitted_event,
-                    expected_event=expected_events_queue[0],
+                    expected_event=expected_events[0],
                 )
             )
-            expected_events_queue.popleft()
+            expected_events.pop(0)
     failed_event_matchings = [
-        FailedEventMatching(expected_event)
-        for expected_event in list(expected_events_queue)
+        FailedEventMatching(expected_event) for expected_event in list(expected_events)
     ]
     return EventMatchingResult(
         event_matchings=[*event_matchings, *failed_event_matchings],
