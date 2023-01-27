@@ -32,13 +32,11 @@ class CheatableStarknetFacade:
         empty_shared_state = await SharedState.empty(
             ffc=ffc, general_config=general_config
         )
-
         state_reader = PatriciaStateReader(
             global_state_root=empty_shared_state.contract_states,
             ffc=ffc,
             contract_class_storage=ffc.storage,
         )
-
         return cls(
             starknet=Starknet(
                 state=StarknetState(
@@ -97,7 +95,9 @@ class CheatableStarknetFacade:
         return [
             Event(
                 from_address=Address(event.from_address),
-                key=Selector(event.keys[0]),
+                key=Selector(
+                    self.cheatable_state.event_selector_to_name_map[event.keys[0]]
+                ),
                 data=event.data,
             )
             for event in self._starknet.state.events

@@ -19,15 +19,9 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
 
 
 async def test_expect_events(protostar: ProtostarFixture):
-    protostar.create_contracts(
-        {
-            "emitter": CONTRACTS_PATH / "emitter.cairo",
-        }
-    )
-    testing_summary = await protostar.run_test_runner(
-        TEST_PATH,
-        cairo_test_runner=True,
-    )
+    protostar.create_contracts({"emitter": CONTRACTS_PATH / "emitter.cairo"})
+
+    testing_summary = await protostar.run_test_runner(TEST_PATH, cairo_test_runner=True)
 
     assert_cairo_test_cases(
         testing_summary,

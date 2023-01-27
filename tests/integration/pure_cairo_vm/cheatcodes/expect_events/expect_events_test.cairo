@@ -60,7 +60,7 @@ func test_allow_checking_for_events_in_any_order() {
     %{
         contract_address = deploy_contract("emitter").ok.contract_address
         expect_events({"from_address": contract_address, "name": "EVENT_NAME"})
-        expect_events({"from_address": contract_address, "name": "EVENT_NAME2"})
+        expect_events({"from_address": contract_address, "name": "EVENT_NAME_2"})
         invoke(contract_address, "emit", [21])
         invoke(contract_address, "emit_2", [37])
     %}
