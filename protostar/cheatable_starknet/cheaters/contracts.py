@@ -30,7 +30,7 @@ from protostar.contract_types import (
     DeclaredContract,
     DeployedContract,
 )
-from protostar.cheatable_starknet.cheatable_entry_point import (
+from protostar.cheatable_starknet.cheatables.cheatable_execute_entry_point import (
     CheatableExecuteEntryPoint,
 )
 from protostar.starknet.types import ClassHashType
@@ -43,9 +43,9 @@ from protostar.starknet.data_transformer import (
 )
 
 if TYPE_CHECKING:
-    from protostar.cheatable_starknet.cheatable_cached_state import CheatableCachedState
-
-    from . import CairoCheaters
+    from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
+        CheatableCachedState,
+    )
 
 
 class ContractsCheaterException(Exception):
@@ -246,20 +246,17 @@ class ContractsCairoCheater:
         self,
         contract_address: Address,
         function_name: str,
-        cheaters: "CairoCheaters",
         calldata: Optional[CairoOrPythonData] = None,
     ) -> CairoData:
-        contract_address_int = int(contract_address)
         cairo_calldata = await self._transform_calldata_to_cairo_data_by_addr(
             contract_address=contract_address,
             function_name=function_name,
             calldata=calldata,
         )
-        entry_point = CheatableExecuteEntryPoint.create_with_cheaters(
-            contract_address=contract_address_int,
+        entry_point = CheatableExecuteEntryPoint.create_for_protostar(
+            contract_address=contract_address,
             calldata=cairo_calldata,
             entry_point_selector=get_selector_from_name(function_name),
-            cheaters=cheaters,
         )
         result = await entry_point.execute_for_testing(
             state=copy.deepcopy(self.cheatable_state),
@@ -271,21 +268,17 @@ class ContractsCairoCheater:
         self,
         function_name: str,
         contract_address: Address,
-        cheaters: "CairoCheaters",
         calldata: Optional[CairoOrPythonData] = None,
     ):
-        contract_address_int = int(contract_address)
-
         cairo_calldata = await self._transform_calldata_to_cairo_data_by_addr(
             contract_address=contract_address,
             function_name=function_name,
             calldata=calldata,
         )
-        entry_point = CheatableExecuteEntryPoint.create_with_cheaters(
-            contract_address=contract_address_int,
+        entry_point = CheatableExecuteEntryPoint.create_for_protostar(
+            contract_address=contract_address,
             calldata=cairo_calldata,
             entry_point_selector=get_selector_from_name(function_name),
-            cheaters=cheaters,
         )
         with self.cheatable_state.copy_and_apply() as state_copy:
             await entry_point.execute_for_testing(

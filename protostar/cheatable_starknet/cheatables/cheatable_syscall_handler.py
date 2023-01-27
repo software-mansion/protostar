@@ -19,7 +19,9 @@ from starkware.starknet.services.api.contract_class import EntryPointType
 from protostar.starknet.address import Address
 
 if TYPE_CHECKING:
-    from protostar.cheatable_starknet.cheatable_cached_state import CheatableCachedState
+    from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
+        CheatableCachedState,
+    )
 
 
 class CheatableSysCallHandlerException(Exception):
