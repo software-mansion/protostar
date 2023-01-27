@@ -99,7 +99,7 @@ def match_events(
             )
             expected_events.pop(0)
     failed_event_matchings = [
-        FailedEventMatching(expected_event) for expected_event in list(expected_events)
+        FailedEventMatching(expected_event) for expected_event in expected_events
     ]
     return EventMatchingResult(
         event_matchings=[*event_matchings, *failed_event_matchings],
