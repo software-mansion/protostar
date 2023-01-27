@@ -27,7 +27,9 @@ class CairoTestExecutionEnvironment(CairoExecutionEnvironment):
         state: CairoTestExecutionState,
         program: Program,
     ):
-        self._finish_hook = Hook()  # get hint locals uses this hook
+        self._finish_hook = (
+            Hook()
+        )  # assigned before super call, because _get_hint_locals uses this hook
         super().__init__(
             state=state, program=program, hint_locals=self._get_hint_locals(state)
         )
@@ -50,7 +52,7 @@ class CairoTestExecutionEnvironment(CairoExecutionEnvironment):
                 async with self._finish_hook.run_after():
                     await self.run_cairo_function(function_name, *args, **kwargs)
             except ExpectEventsMismatchException as ex:
-                raise self._wrap_controller_exceptions(ex)
+                raise self._wrap_hint_exceptions(ex)
 
     def _get_hint_locals(self, state: CairoTestExecutionState) -> HintLocalsDict:
         hint_locals: HintLocalsDict = {}
@@ -71,7 +73,7 @@ class CairoTestExecutionEnvironment(CairoExecutionEnvironment):
 
         return hint_locals
 
-    def _wrap_controller_exceptions(self, ex: Exception):
+    def _wrap_hint_exceptions(self, ex: Exception):
         if isinstance(ex, ExpectEventsMismatchException):
             return ExpectEventsMismatchReportedException(
                 event_matching_result=ex.matching_result
