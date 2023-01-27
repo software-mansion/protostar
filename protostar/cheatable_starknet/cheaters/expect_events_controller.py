@@ -3,10 +3,10 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Callable, Optional
 
 from protostar.starknet import Address, CairoData, Selector
-from protostar.testing import Hook
 from protostar.protostar_exception import ProtostarException
 
 if TYPE_CHECKING:
+    from protostar.testing import Hook
     from protostar.cheatable_starknet.cheatables.cheatable_starknet_facade import (
         CheatableStarknetFacade,
     )
@@ -64,7 +64,7 @@ class EventMatchingResult:
 class ExpectEventsController:
     def __init__(
         self,
-        test_finish_hook: Hook,
+        test_finish_hook: "Hook",
         test_execution_state: "CairoTestExecutionState",
         cheatable_starknet_facade: "CheatableStarknetFacade",
     ) -> None:
