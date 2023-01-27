@@ -46,5 +46,5 @@ class CairoTestExecutionState:
             output_recorder=self.output_recorder.fork(),
             stopwatch=self.stopwatch.fork(),
             cheatable_starknet_facade=self.cheatable_starknet_facade.fork(),
-            event_expectations=self.expected_events_list.copy(),
+            expected_events_list=self.expected_events_list.copy(),
         )
