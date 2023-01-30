@@ -13,7 +13,7 @@ from starkware.starknet.business_logic.state.state_api import StateReader
 from typing_extensions import Self
 
 from protostar.starknet.address import Address
-from protostar.cheatable_starknet.cheaters.block_info import BlockInfoCairoCheater
+from protostar.cheatable_starknet.controllers.block_info import BlockInfoController
 from protostar.starknet.types import ClassHashType, SelectorType
 from protostar.starknet.data_transformer import CairoOrPythonData
 
@@ -60,7 +60,7 @@ class CheatableCachedState(CachedState):
             del self._target_address_to_pranked_address[target_address]
 
     def get_block_info(self, contract_address: int) -> BlockInfo:
-        return BlockInfoCairoCheater(self).get_for_contract(Address(contract_address))
+        return BlockInfoController(self).get_for_contract(Address(contract_address))
 
     def _copy(self):
         copied = CheatableCachedState(

@@ -20,7 +20,7 @@ class LoadCairoCheatcode(CairoCheatcode):
         key: Optional[List[int]] = None,
     ) -> List[int]:
         return asyncio.run(
-            self.cheaters.storage.load(
+            self.controllers.storage.load(
                 target_contract_address=target_contract_address,
                 variable_name=variable_name,
                 variable_type=variable_type,

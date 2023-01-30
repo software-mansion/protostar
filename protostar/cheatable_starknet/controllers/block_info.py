@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     )
 
 
-class BlockInfoCairoCheater:
+class BlockInfoController:
     def __init__(self, cheatable_state: "CheatableCachedState"):
         self.cheatable_state = cheatable_state
 

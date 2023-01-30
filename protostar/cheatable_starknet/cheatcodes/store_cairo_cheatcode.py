@@ -20,7 +20,7 @@ class StoreCairoCheatcode(CairoCheatcode):
         key: Optional[list[int]] = None,
     ):
         asyncio.run(
-            self.cheaters.storage.store(
+            self.controllers.storage.store(
                 target_contract_address=target_contract_address,
                 variable_name=variable_name,
                 value=value,

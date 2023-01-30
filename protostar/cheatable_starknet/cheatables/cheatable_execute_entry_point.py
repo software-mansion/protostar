@@ -35,7 +35,7 @@ from starkware.starkware_utils.error_handling import (
     wrap_with_stark_exception,
 )
 
-from protostar.cheatable_starknet.cheaters.transaction_revert_exception import (
+from protostar.cheatable_starknet.controllers.transaction_revert_exception import (
     TransactionRevertException,
 )
 from protostar.starknet.address import Address
