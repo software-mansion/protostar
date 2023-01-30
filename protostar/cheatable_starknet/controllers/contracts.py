@@ -17,17 +17,20 @@ from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
 )
 from starkware.starknet.business_logic.execution.objects import CallType
+from starkware.starknet.business_logic.execution.objects import Event as StarknetEvent
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.services.api.contract_class import EntryPointType, ContractClass
 
 from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
     CheatableCachedState,
 )
+from protostar.cheatable_starknet.controllers.expect_events_controller import Event
 from protostar.contract_types import (
     PreparedContract,
     DeclaredContract,
     DeployedContract,
 )
+from protostar.starknet.selector import Selector
 from protostar.starknet.types import ClassHashType
 from protostar.starknet.address import Address
 from protostar.starknet.data_transformer import (
@@ -189,7 +192,7 @@ class ContractsController:
         constructor_calldata: List[int],
         contract_address: int,
     ):
-        await ExecuteEntryPoint.create(
+        call_info = await ExecuteEntryPoint.create(
             contract_address=contract_address,
             calldata=constructor_calldata,
             entry_point_selector=CONSTRUCTOR_ENTRY_POINT_SELECTOR,
@@ -200,6 +203,23 @@ class ContractsController:
         ).execute_for_testing(
             state=self.cheatable_state,
             general_config=StarknetGeneralConfig(),
+        )
+        self._add_emitted_events(call_info.get_sorted_events())
+
+    def _add_emitted_events(self, starknet_emitted_events: list[StarknetEvent]):
+        self.cheatable_state.emitted_events.extend(
+            [
+                Event(
+                    from_address=Address(starknet_emitted_event.from_address),
+                    data=starknet_emitted_event.data,
+                    key=Selector(
+                        self.cheatable_state.event_selector_to_name_map[
+                            starknet_emitted_event.keys[0]
+                        ]
+                    ),
+                )
+                for starknet_emitted_event in starknet_emitted_events
+            ]
         )
 
     async def prepare(
