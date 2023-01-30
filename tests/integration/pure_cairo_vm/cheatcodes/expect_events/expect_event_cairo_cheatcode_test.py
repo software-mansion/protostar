@@ -11,8 +11,6 @@ from tests.integration.conftest import (
 from tests.integration._conftest import ProtostarFixture
 from tests.integration.pure_cairo_vm.conftest import CONTRACTS_PATH
 
-TEST_PATH = Path(__file__).parent / "expect_events_test.cairo"
-
 
 @pytest.fixture(name="protostar")
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
@@ -23,7 +21,9 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
 async def test_expect_events(protostar: ProtostarFixture):
     protostar.create_contracts({"emitter": CONTRACTS_PATH / "emitter.cairo"})
 
-    testing_summary = await protostar.run_test_runner(TEST_PATH, cairo_test_runner=True)
+    testing_summary = await protostar.run_test_runner(
+        Path(__file__).parent / "expect_events_test.cairo", cairo_test_runner=True
+    )
 
     assert_cairo_test_cases(
         testing_summary,
