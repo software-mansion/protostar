@@ -33,7 +33,7 @@ def test_suite_json_fixture(datadir: Path) -> str:
         return file.read()
 
 
-def test_parse(mocker: MockerFixture, test_suite_json: Path):
+def test_parse(mocker: MockerFixture, test_suite_json: str):
     test_suite = parse_test_suite(Path("test_source.cairo"), test_suite_json)
     cheat_mock = mocker.MagicMock()
     for case in test_suite.test_cases:
