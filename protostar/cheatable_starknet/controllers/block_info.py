@@ -6,12 +6,12 @@ from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from protostar.starknet.address import Address
 
 if TYPE_CHECKING:
-    from protostar.cheatable_starknet.cheatable_cached_state import (
+    from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
         CheatableCachedState,
     )
 
 
-class BlockInfoCairoCheater:
+class BlockInfoController:
     def __init__(self, cheatable_state: "CheatableCachedState"):
         self.cheatable_state = cheatable_state
 

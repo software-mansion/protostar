@@ -2,10 +2,10 @@ import asyncio
 from typing import Callable, Optional
 
 from protostar.starknet import CheatcodeException, RawAddress, Address
-from protostar.cheatable_starknet.cheaters.contracts import ContractsCheaterException
 from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
 from protostar.starknet.data_transformer import CairoOrPythonData, CairoData
 from protostar.starknet.selector import Selector
+from protostar.cheatable_starknet.controllers.contracts import ContractsCheaterException
 
 
 class CallCairoCheatcode(CairoCheatcode):
@@ -13,7 +13,7 @@ class CallCairoCheatcode(CairoCheatcode):
     def name(self) -> str:
         return "call"
 
-    def build(
+    def _build(
         self,
     ) -> Callable[[RawAddress, str, Optional[CairoOrPythonData]], CairoOrPythonData]:
         return self.call
@@ -27,7 +27,7 @@ class CallCairoCheatcode(CairoCheatcode):
         return asyncio.run(
             self._call(
                 contract_address=Address.from_user_input(contract_address),
-                function_name=function_name,
+                entry_point_selector=Selector(function_name),
                 calldata=calldata,
             )
         )
@@ -35,15 +35,14 @@ class CallCairoCheatcode(CairoCheatcode):
     async def _call(
         self,
         contract_address: Address,
-        function_name: str,
+        entry_point_selector: Selector,
         calldata: Optional[CairoOrPythonData] = None,
     ) -> CairoData:
         try:
-            return await self.cheaters.contracts.call(
+            return await self.controllers.contracts.call(
                 contract_address=contract_address,
-                entry_point_selector=Selector(function_name),
+                entry_point_selector=entry_point_selector,
                 calldata=calldata,
-                cheaters=self.cheaters,
             )
         except ContractsCheaterException as exc:
             raise CheatcodeException(self, exc.message) from exc

@@ -7,9 +7,10 @@ from tests.integration.conftest import (
     assert_cairo_test_cases,
 )
 from tests.integration._conftest import ProtostarFixture
-from tests.integration.pure_cairo_vm.conftest import RunCairoTestRunnerFixture
+from tests.integration.pure_cairo_vm.conftest import (
+    CONTRACTS_PATH,
+)
 
-CONTRACTS_PATH = Path(__file__).parent.parent / "contracts"
 TEST_PATH = Path(__file__).parent
 
 
@@ -19,21 +20,19 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
         yield protostar
 
 
-async def test_prepare_cheatcode(
-    protostar: ProtostarFixture, run_cairo_test_runner: RunCairoTestRunnerFixture
-):
-    protostar.create_files(
+async def test_prepare_cheatcode(protostar: ProtostarFixture):
+    protostar.create_contracts(
         {
-            "src/basic_no_constructor.cairo": CONTRACTS_PATH / "basic_contract.cairo",
-            "src/basic_with_constructor.cairo": CONTRACTS_PATH
-            / "basic_with_constructor.cairo",
-            "src/basic_with_constructor_no_args.cairo": CONTRACTS_PATH
+            "basic_no_constructor": CONTRACTS_PATH / "basic_contract.cairo",
+            "basic_with_constructor": CONTRACTS_PATH / "basic_with_constructor.cairo",
+            "basic_with_constructor_no_args": CONTRACTS_PATH
             / "basic_with_constructor_no_args.cairo",
         }
     )
 
-    testing_summary = await run_cairo_test_runner(
+    testing_summary = await protostar.run_test_runner(
         TEST_PATH / "prepare_contract_test.cairo",
+        cairo_test_runner=True,
     )
 
     assert_cairo_test_cases(

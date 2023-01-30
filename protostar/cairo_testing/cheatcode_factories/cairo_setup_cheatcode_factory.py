@@ -1,12 +1,18 @@
+# pylint: disable=duplicate-code
 from typing import List
 
-from protostar.cheatable_starknet.cheatable_cached_state import CheatableCachedState
-from protostar.cheatable_starknet.cheatcodes.prank_cairo_cheatcode import (
-    PrankCairoCheatcode,
+from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
+    CheatableCachedState,
 )
-from protostar.cheatable_starknet.cheaters.block_info import BlockInfoCairoCheater
-from protostar.cheatable_starknet.cheaters.contracts import ContractsCairoCheater
-from protostar.cheatable_starknet.cheaters import CairoCheaters
+from protostar.cheatable_starknet.cheatcodes.load_cairo_cheatcode import (
+    LoadCairoCheatcode,
+)
+from protostar.cheatable_starknet.cheatcodes.store_cairo_cheatcode import (
+    StoreCairoCheatcode,
+)
+from protostar.cheatable_starknet.controllers.block_info import BlockInfoController
+from protostar.cheatable_starknet.controllers.contracts import ContractsController
+from protostar.cheatable_starknet.controllers import Controllers
 from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
 from protostar.cheatable_starknet.cheatcodes.declare_cairo_cheatcode import (
     DeclareCairoCheatcode,
@@ -32,13 +38,11 @@ from protostar.cheatable_starknet.cheatcodes.warp_cairo_cheatcode import (
 from protostar.cheatable_starknet.cheatcodes.call_cairo_cheatcode import (
     CallCairoCheatcode,
 )
-from protostar.cheatable_starknet.cheatcodes.send_message_to_l2_cairo_cheatcode import (
-    SendMessageToL2CairoCheatcode,
-)
 from protostar.compiler import ProjectCompiler
+from protostar.cheatable_starknet.controllers.storage import StorageController
 
 
-class CairoTestCheatcodeFactory:
+class CairoSetupCheatcodeFactory:
     def __init__(
         self,
         cheatable_state: CheatableCachedState,
@@ -48,39 +52,42 @@ class CairoTestCheatcodeFactory:
         self.project_compiler = project_compiler
 
     def build_cheatcodes(self) -> List[CairoCheatcode]:
-        cheaters = CairoCheaters(
-            block_info=BlockInfoCairoCheater(cheatable_state=self.cheatable_state),
-            contracts=ContractsCairoCheater(cheatable_state=self.cheatable_state),
+        controllers = Controllers(
+            block_info=BlockInfoController(cheatable_state=self.cheatable_state),
+            contracts=ContractsController(cheatable_state=self.cheatable_state),
+            storage=StorageController(cheatable_state=self.cheatable_state),
         )
         declare_cheatcode = DeclareCairoCheatcode(
-            cheaters=cheaters,
+            controllers=controllers,
             project_compiler=self.project_compiler,
         )
         prepare_cheatcode = PrepareCairoCheatcode(
-            cheaters=cheaters,
+            controllers=controllers,
         )
         deploy_cheatcode = DeployCairoCheatcode(
-            cheaters=cheaters,
+            controllers=controllers,
         )
 
         return [
-            WarpCairoCheatcode(cheaters=cheaters),
-            RollCairoCheatcode(cheaters=cheaters),
+            WarpCairoCheatcode(controllers=controllers),
+            RollCairoCheatcode(controllers=controllers),
             deploy_cheatcode,
             declare_cheatcode,
             prepare_cheatcode,
             DeployContractCairoCheatcode(
-                cheaters=cheaters,
+                controllers=controllers,
                 declare_cheatcode=declare_cheatcode,
                 prepare_cheatcode=prepare_cheatcode,
                 deploy_cheatcode=deploy_cheatcode,
             ),
-            CallCairoCheatcode(cheaters=cheaters),
+            CallCairoCheatcode(controllers=controllers),
             InvokeCairoCheatcode(
-                cheaters=cheaters,
+                controllers=controllers,
             ),
-            SendMessageToL2CairoCheatcode(cheaters=cheaters),
-            PrankCairoCheatcode(
-                cheaters=cheaters,
+            StoreCairoCheatcode(
+                controllers=controllers,
+            ),
+            LoadCairoCheatcode(
+                controllers=controllers,
             ),
         ]

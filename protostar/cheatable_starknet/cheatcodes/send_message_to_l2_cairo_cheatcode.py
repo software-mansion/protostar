@@ -12,7 +12,7 @@ class SendMessageToL2CairoCheatcode(CairoCheatcode):
     def name(self) -> str:
         return "send_message_to_l2"
 
-    def build(self):
+    def _build(self):
         def send_message_to_l2(
             function_name: str,
             from_address: RawAddress,
@@ -20,8 +20,7 @@ class SendMessageToL2CairoCheatcode(CairoCheatcode):
             payload: Optional[CairoOrPythonData] = None,
         ) -> None:
             asyncio.run(
-                self.cheaters.contracts.send_message_to_l2(
-                    cheaters=self.cheaters,
+                self.controllers.contracts.send_message_to_l2(
                     from_l1_address=Address.from_user_input(from_address),
                     to_l2_address=Address.from_user_input(to_address),
                     selector=Selector(function_name),

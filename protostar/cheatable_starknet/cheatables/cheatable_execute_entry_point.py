@@ -1,8 +1,8 @@
 # pylint: disable=duplicate-code
 import logging
-from asyncio import get_running_loop
+import re
 from dataclasses import dataclass
-from typing import Optional, Tuple, cast, TYPE_CHECKING, Any
+from typing import Optional, Tuple, cast
 from copy import deepcopy
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
@@ -31,18 +31,19 @@ from starkware.starknet.core.os import os_utils, syscall_utils
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.public import abi as starknet_abi
-from starkware.starknet.services.api.contract_class import EntryPointType
 from starkware.starkware_utils.error_handling import (
     StarkException,
     wrap_with_stark_exception,
 )
+from starkware.starknet.services.api.contract_class import EntryPointType
 
-from protostar.starknet import Address, Selector
+from protostar.starknet import Address
+from protostar.cheatable_starknet.controllers.transaction_revert_exception import (
+    TransactionRevertException,
+)
+from protostar.starknet.selector import Selector
 
 from .cheatable_syscall_handler import CheatableSysCallHandler
-
-if TYPE_CHECKING:
-    from .cheaters import CairoCheaters
 
 FAULTY_CLASS_HASH = to_bytes(
     0x1A7820094FEAF82D53F53F214B81292D717E7BB9A92BB2488092CD306F3993F
@@ -53,42 +54,29 @@ logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class CheatableExecuteEntryPoint(ExecuteEntryPoint):
-    cheaters: "CairoCheaters"
     max_steps: Optional[int] = None
     "``None`` means default Cairo value."
 
     @classmethod
-    def create_with_cheaters(
+    def create_for_protostar(
         cls,
-        cheaters: "CairoCheaters",
         contract_address: Address,
         calldata: list[int],
         entry_point_selector: Selector,
-        entry_point_type: Optional[EntryPointType] = None,
-        caller_address: Optional[Address] = None,
-        call_type: Optional[CallType] = None,
+        entry_point_type: EntryPointType = EntryPointType.EXTERNAL,
+        call_type: CallType = CallType.CALL,
         class_hash: Optional[bytes] = None,
-    ) -> "CheatableExecuteEntryPoint":
-        return cls(
+        caller_address: Optional[Address] = None,
+    ):
+        return cls.create_for_testing(
             entry_point_selector=int(entry_point_selector),
             calldata=calldata,
             contract_address=int(contract_address),
-            cheaters=cheaters,
-            code_address=None,
+            entry_point_type=entry_point_type,
+            call_type=call_type,
+            caller_address=int(caller_address or Address(0)),
             class_hash=class_hash,
-            call_type=call_type if call_type else CallType.CALL,
-            entry_point_type=entry_point_type
-            if entry_point_type
-            else EntryPointType.EXTERNAL,
-            caller_address=0 if caller_address is None else int(caller_address),
         )
-
-    @classmethod
-    def factory(cls, cheaters: "CairoCheaters") -> type[ExecuteEntryPoint]:
-        def factory_function(*args: Any, **kwargs: Any) -> ExecuteEntryPoint:
-            return cls(*args, cheaters=cheaters, **kwargs)
-
-        return cast(type[ExecuteEntryPoint], factory_function)
 
     def _run(
         self,
@@ -139,9 +127,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             state, StateSyncifier
         ), "Sync state is not a state syncifier!"  # This should always be true
         syscall_handler = CheatableSysCallHandler(
-            execute_entry_point_cls=CheatableExecuteEntryPoint.factory(
-                cheaters=self.cheaters,
-            ),
+            execute_entry_point_cls=CheatableExecuteEntryPoint,
             tx_execution_context=tx_execution_context,
             state=state,
             resources_manager=resources_manager,
@@ -242,23 +228,15 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         resources_manager: Optional[ExecutionResourcesManager] = None,
         tx_execution_context: Optional[TransactionExecutionContext] = None,
     ) -> CallInfo:
-
-        new_config = deepcopy(general_config)
-        if self.max_steps is not None:
-
-            # Providing a negative value to Protostar results in infinite steps,
-            # this is here to mimic default Cairo behavior
-            value = None if self.max_steps < 0 else self.max_steps
-
-            # NOTE: We are doing it this way to avoid TypeError from typeguard
-            new_config.__dict__["invoke_tx_max_n_steps"] = value
-
-        return await super().execute_for_testing(
-            state=state,
-            general_config=new_config,
-            resources_manager=resources_manager,
-            tx_execution_context=tx_execution_context,
-        )
+        try:
+            return await super().execute_for_testing(
+                state=state,
+                general_config=self._change_max_steps_in_general_config(general_config),
+                resources_manager=resources_manager,
+                tx_execution_context=tx_execution_context,
+            )
+        except StarkException as ex:
+            raise self._wrap_stark_exception(ex)
 
     def execute(
         self,
@@ -266,25 +244,33 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         resources_manager: ExecutionResourcesManager,
         general_config: StarknetGeneralConfig,
         tx_execution_context: TransactionExecutionContext,
-    ) -> CallInfo:
+    ):
+        try:
+            return super().execute(
+                state,
+                resources_manager,
+                self._change_max_steps_in_general_config(general_config),
+                tx_execution_context,
+            )
+        except StarkException as ex:
+            raise self._wrap_stark_exception(ex)
+
+    def _change_max_steps_in_general_config(
+        self, general_config: StarknetGeneralConfig
+    ):
         new_config = deepcopy(general_config)
         if self.max_steps is not None:
-
             # Providing a negative value to Protostar results in infinite steps,
             # this is here to mimic default Cairo behavior
             value = None if self.max_steps < 0 else self.max_steps
-
             # NOTE: We are doing it this way to avoid TypeError from typeguard
             new_config.__dict__["invoke_tx_max_n_steps"] = value
+        return new_config
 
-        if not isinstance(state, StateSyncifier):
-            sync_state = StateSyncifier(async_state=state, loop=get_running_loop())  # type: ignore
-        else:
-            sync_state = state
-
-        return super().execute(
-            state=sync_state,
-            resources_manager=resources_manager,
-            general_config=general_config,
-            tx_execution_context=tx_execution_context,
-        )
+    def _wrap_stark_exception(self, stark_exception: StarkException):
+        # This code is going change once Starknet is integrated with Cairo 1.
+        message = stark_exception.message or ""
+        results = re.findall("Error message: (.*)", message)
+        if len(results) > 0:
+            message = results[0]
+        return TransactionRevertException(message=message, raw_ex=stark_exception)

@@ -1,9 +1,8 @@
 import json
 import os
 from contextlib import contextmanager
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, ContextManager, List, Optional, Set, cast
+from typing import Callable, ContextManager, List, Optional, cast
 
 import pytest
 from pytest import TempPathFactory
@@ -16,72 +15,13 @@ from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilde
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.testing import TestingSummary
 from protostar.cli import MessengerFactory
-
 from tests.conftest import TESTS_ROOT_PATH, run_devnet
 from tests.integration._conftest import ProtostarFixture, create_protostar_fixture
+from tests.integration._conftest import (
+    assert_cairo_test_cases as _assert_cairo_test_cases,
+)
 
-
-@dataclass
-class CairoTestCases:
-    passed: Set[str]
-    failed: Set[str]
-    broken: Set[str]
-    skipped: Set[str]
-
-    def __repr__(self) -> str:
-        passed = "[Passed]\n" + "\n".join(sorted(self.passed))
-        failed = "[Failed]\n" + "\n".join(sorted(self.failed))
-        broken = "[Broken]\n" + "\n".join(sorted(self.broken))
-        skipped = "[Skipped]\n" + "\n".join(sorted(self.skipped))
-
-        return "\n".join([passed, failed, broken, skipped])
-
-
-def assert_cairo_test_cases(
-    testing_summary: TestingSummary,
-    expected_passed_test_cases_names: Optional[List[str]] = None,
-    expected_failed_test_cases_names: Optional[List[str]] = None,
-    expected_broken_test_cases_names: Optional[List[str]] = None,
-    expected_skipped_test_cases_names: Optional[List[str]] = None,  # Explicitly skipped
-):
-    expected_passed_test_cases_names = expected_passed_test_cases_names or []
-    expected_failed_test_cases_names = expected_failed_test_cases_names or []
-    expected_broken_test_cases_names = expected_broken_test_cases_names or []
-    expected_skipped_test_cases_names = expected_skipped_test_cases_names or []
-
-    passed_test_cases_names = set(
-        passed_test_case.test_case_name for passed_test_case in testing_summary.passed
-    )
-    failed_test_cases_names = set(
-        failed_test_case.test_case_name for failed_test_case in testing_summary.failed
-    )
-    broken_test_cases_names = set(
-        broken_test_case.test_case_name for broken_test_case in testing_summary.broken
-    )
-    skipped_test_cases_names = set(
-        skipped_test_case.test_case_name
-        for skipped_test_case in testing_summary.explicitly_skipped
-    )
-
-    for broken_test_case in testing_summary.broken_suites:
-        for test_case_name in broken_test_case.test_case_names:
-            broken_test_cases_names.add(test_case_name)
-
-    actual = CairoTestCases(
-        passed=passed_test_cases_names,
-        failed=failed_test_cases_names,
-        broken=broken_test_cases_names,
-        skipped=skipped_test_cases_names,
-    )
-
-    expected = CairoTestCases(
-        passed=set(expected_passed_test_cases_names),
-        failed=set(expected_failed_test_cases_names),
-        broken=set(expected_broken_test_cases_names),
-        skipped=set(expected_skipped_test_cases_names),
-    )
-
-    assert actual == expected
+assert_cairo_test_cases = _assert_cairo_test_cases
 
 
 @pytest.fixture(name="devnet_gateway_url", scope="module")

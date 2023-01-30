@@ -24,7 +24,7 @@ class DeclareCairoCheatcode(CairoCheatcode):
     def name(self) -> str:
         return "declare"
 
-    def build(self) -> Any:
+    def _build(self) -> Any:
         return self.declare
 
     def declare(self, contract: str) -> DeclaredContract:
@@ -32,13 +32,13 @@ class DeclareCairoCheatcode(CairoCheatcode):
             self._project_compiler.compile_contract_from_contract_identifier(contract)
         )
         declared_class = asyncio.run(
-            self.cheaters.contracts.declare_contract(compiled_contract)
+            self.controllers.contracts.declare_contract(compiled_contract)
         )
 
         assert declared_class
         class_hash = declared_class.class_hash
 
-        self.cheaters.contracts.bind_class_hash_to_contract_identifier(
+        self.controllers.contracts.bind_class_hash_to_contract_identifier(
             class_hash=class_hash,
             contract_identifier=contract,
         )

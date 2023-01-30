@@ -32,7 +32,7 @@ class DeployContractCairoCheatcode(CairoCheatcode):
     def name(self) -> str:
         return "deploy_contract"
 
-    def build(self):
+    def _build(self):
         return self.deploy_contract
 
     def deploy_contract(

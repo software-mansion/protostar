@@ -7,9 +7,10 @@ from tests.integration.conftest import (
     assert_cairo_test_cases,
 )
 from tests.integration._conftest import ProtostarFixture
-from tests.integration.pure_cairo_vm.conftest import RunCairoTestRunnerFixture
+from tests.integration.pure_cairo_vm.conftest import (
+    CONTRACTS_PATH,
+)
 
-CONTRACTS_PATH = Path(__file__).parent.parent / "contracts"
 TEST_PATH = Path(__file__).parent
 
 
@@ -19,17 +20,16 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
         yield protostar
 
 
-async def test_deploy_pipeline(
-    protostar: ProtostarFixture, run_cairo_test_runner: RunCairoTestRunnerFixture
-):
+async def test_deploy_pipeline(protostar: ProtostarFixture):
     protostar.create_files(
         {
-            "src/main.cairo": CONTRACTS_PATH / "basic_contract.cairo",
+            "basic": CONTRACTS_PATH / "basic_contract.cairo",
         }
     )
 
-    testing_summary = await run_cairo_test_runner(
+    testing_summary = await protostar.run_test_runner(
         TEST_PATH / "deploy_test.cairo",
+        cairo_test_runner=True,
     )
 
     assert_cairo_test_cases(
