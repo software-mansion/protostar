@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -e
 
@@ -23,6 +23,5 @@ function install() {
   popd # "${1}"
 }
 
-
-DIR=$(poetry env info -p)
+DIR=$(mktemp -d)
 install $DIR && echo "DONE" || echo "installation failed"
