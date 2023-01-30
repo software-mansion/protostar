@@ -64,8 +64,7 @@ class ExpectEventsController:
         self._test_finish_hook.on(self.compare_expected_and_actual_results)
 
     def add_expected_events(self, expected_events: list[Event]):
-        assert False, "TODO"
-        # self._test_execution_state.expected_events_list.append(expected_events)
+        self._test_execution_state.expected_events_list.append(expected_events)
 
     def compare_expected_and_actual_results(self):
         assert False, "TODO"
