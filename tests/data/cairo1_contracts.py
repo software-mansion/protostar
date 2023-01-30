@@ -503,3 +503,20 @@ fn test_dict_write_read() {
     assert(val12 == 0, 'default_val == 0');
 }
 """
+CAIRO_ROLL_TEST = """\
+#[test]
+fn test_cheatcode_caller() {
+   roll(1, 2)
+}
+#[test]
+fn test_cheatcode_caller_twice() {
+   roll(1, 2);
+   roll(1, 2)
+}
+#[test]
+fn test_cheatcode_caller_three() {
+   roll(1, 2);
+   roll(1, 2);
+   roll(1, 2)
+}
+"""
