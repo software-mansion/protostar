@@ -1,7 +1,7 @@
 import asyncio
 from typing import Optional
 
-from protostar.starknet import RawAddress, Address, CairoOrPythonData
+from protostar.starknet import RawAddress, Address, CairoData
 from protostar.starknet.selector import Selector
 
 from .cairo_cheatcode import CairoCheatcode
@@ -17,7 +17,7 @@ class SendMessageToL2CairoCheatcode(CairoCheatcode):
             function_name: str,
             from_address: RawAddress,
             to_address: RawAddress,
-            payload: Optional[CairoOrPythonData] = None,
+            payload: Optional[CairoData] = None,
         ) -> None:
             asyncio.run(
                 self.controllers.contracts.send_message_to_l2(

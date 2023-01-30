@@ -288,17 +288,11 @@ class ContractsController:
         selector: Selector,
         from_l1_address: Address,
         to_l2_address: Address,
-        payload: Optional[CairoOrPythonData] = None,
+        payload: Optional[CairoData] = None,
     ) -> None:
-        cairo_calldata = await self._transform_payload_from_l1_to_cairo_data_by_addr(
-            l1_address=from_l1_address,
-            contract_address=to_l2_address,
-            payload=payload,
-            selector=selector,
-        )
         entry_point = CheatableExecuteEntryPoint.create_for_protostar(
             contract_address=to_l2_address,
-            calldata=cairo_calldata,
+            calldata=[int(from_l1_address), *(payload or [])],
             caller_address=from_l1_address,
             entry_point_selector=selector,
             entry_point_type=EntryPointType.L1_HANDLER,
@@ -310,24 +304,6 @@ class ContractsController:
                 state=state_copy,
                 general_config=StarknetGeneralConfig(),
             )
-
-    async def _transform_payload_from_l1_to_cairo_data_by_addr(
-        self,
-        contract_address: Address,
-        l1_address: Address,
-        selector: Selector,
-        payload: Optional[CairoOrPythonData] = None,
-    ) -> CairoData:
-        if payload is None:
-            return [int(l1_address)]
-        if isinstance(payload, collections.Mapping):
-            python_payload = {"from_address": int(l1_address), **payload}
-            return await self._transform_calldata_to_cairo_data_by_addr(
-                function_name=str(selector),
-                calldata=python_payload,
-                contract_address=contract_address,
-            )
-        return [int(l1_address), *payload]
 
     def prank(self, caller_address: Address, target_address: Address):
         self.cheatable_state.set_pranked_address(

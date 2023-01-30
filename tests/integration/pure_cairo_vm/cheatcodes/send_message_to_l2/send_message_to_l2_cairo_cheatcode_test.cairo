@@ -14,22 +14,6 @@ func test_happy_path() {
     return ();
 }
 
-func test_data_transformer() {
-    %{
-        msg_from_l1 = 530437
-        contract_address = deploy_contract("l1_handler_contract").ok.contract_address
-        assert send_message_to_l2(
-            function_name="existing_handler",
-            from_address=123,
-            payload={"value": msg_from_l1},
-            to_address=contract_address,
-        ).err_code == 0
-        result = call(contract_address, "get_state").ok
-        assert [msg_from_l1] == result, f"Expected '{[msg_from_l1]}', but got: '{result}'"
-    %}
-    return ();
-}
-
 func test_other_cheatcodes_impact_l1_handler() {
     %{
         contract_address = deploy_contract("l1_handler_contract").ok.contract_address

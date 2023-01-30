@@ -37,7 +37,6 @@ async def test_l1_to_l2_message_cheatcode(
         testing_summary,
         expected_passed_test_cases_names=[
             "test_happy_path",
-            "test_data_transformer",
             "test_other_cheatcodes_impact_l1_handler",
             "test_other_cheatcodes_impact_contracts_called_from_l1_handler",
         ],
