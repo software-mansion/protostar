@@ -112,6 +112,7 @@ class CairoTestCheatcodeFactory:
                 controller=ExpectEventsController(
                     test_finish_hook=self._test_finish_hook,
                     test_execution_state=self._test_execution_state,
+                    cheatable_state=self._test_execution_state.cheatable_state,
                 ),
             ),
         ]
