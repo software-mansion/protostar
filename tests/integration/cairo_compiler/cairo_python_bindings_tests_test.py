@@ -3,7 +3,10 @@ import pytest
 
 import cairo_python_bindings
 
-from tests.data.contracts import CAIRO_BINDINGS_CONTRACT_ENUM, CAIRO_BINDINGS_TESTS
+from tests.data.cairo1_contracts import (
+    CAIRO_BINDINGS_CONTRACT_ENUM,
+    CAIRO_BINDINGS_TESTS,
+)
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration._conftest import ProtostarFixture
 

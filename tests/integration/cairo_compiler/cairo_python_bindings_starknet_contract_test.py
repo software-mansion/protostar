@@ -3,7 +3,7 @@ import pytest
 
 import cairo_python_bindings
 
-from tests.data.contracts import (
+from tests.data.cairo1_contracts import (
     CAIRO_BINDINGS_CONTRACT_STARKNET_HELLO,
     CAIRO_BINDINGS_CONTRACT_STARKNET_HELLO_TEST,
 )
