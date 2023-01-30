@@ -14,10 +14,10 @@ class PrankCairoCheatcode(CairoCheatcode):
 
     def prank(self, caller_address: int, target_address: int):
         valid_target_address = Address.from_user_input(target_address)
-        self.cheaters.contracts.prank(
+        self.controllers.contracts.prank(
             caller_address=Address.from_user_input(caller_address),
             target_address=valid_target_address,
         )
-        return lambda: self.cheaters.contracts.cancel_prank(
+        return lambda: self.controllers.contracts.cancel_prank(
             target_address=valid_target_address
         )

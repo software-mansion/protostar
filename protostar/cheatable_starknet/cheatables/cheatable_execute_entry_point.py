@@ -37,7 +37,7 @@ from starkware.starkware_utils.error_handling import (
 )
 from starkware.starknet.services.api.contract_class import EntryPointType
 
-from protostar.cheatable_starknet.cheaters.transaction_revert_exception import (
+from protostar.cheatable_starknet.controllers.transaction_revert_exception import (
     TransactionRevertException,
 )
 from protostar.starknet.address import Address

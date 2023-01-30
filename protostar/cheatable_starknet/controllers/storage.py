@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     )
 
 
-class StorageCairoCheater:
+class StorageController:
     def __init__(self, cheatable_state: "CheatableCachedState"):
         self._cheatable_state = cheatable_state
 

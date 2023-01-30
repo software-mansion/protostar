@@ -2,7 +2,7 @@ import asyncio
 from typing import Any, Callable, Optional
 
 from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
-from protostar.cheatable_starknet.cheaters.contracts import ContractsCheaterException
+from protostar.cheatable_starknet.controllers.contracts import ContractsCheaterException
 from protostar.starknet import CheatcodeException
 from protostar.starknet.data_transformer import CairoOrPythonData
 from protostar.contract_types import DeclaredContract, PreparedContract
@@ -42,7 +42,7 @@ class PrepareCairoCheatcode(CairoCheatcode):
         constructor_calldata = constructor_calldata or []
 
         try:
-            return await self.cheaters.contracts.prepare(
+            return await self.controllers.contracts.prepare(
                 declared=declared, constructor_calldata=constructor_calldata, salt=salt
             )
         except ContractsCheaterException as exc:

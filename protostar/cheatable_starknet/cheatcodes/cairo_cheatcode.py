@@ -6,12 +6,12 @@ from typing_extensions import Literal
 from starknet_py.cairo.felt import encode_shortstring
 
 from protostar.cairo import HintLocal
-from protostar.cheatable_starknet.cheaters.transaction_revert_exception import (
+from protostar.cheatable_starknet.controllers.transaction_revert_exception import (
     TransactionRevertException,
 )
 
 if TYPE_CHECKING:
-    from protostar.cheatable_starknet.cheaters import CairoCheaters
+    from protostar.cheatable_starknet.controllers import Controllers
 
 
 @dataclass(init=False)
@@ -38,8 +38,8 @@ CairoCheatcodeExecutionResult = Union[
 
 
 class CairoCheatcode(HintLocal, ABC):
-    def __init__(self, cheaters: "CairoCheaters"):
-        self.cheaters = cheaters
+    def __init__(self, controllers: "Controllers"):
+        self.controllers = controllers
 
     @abstractmethod
     def _build(self) -> Callable:

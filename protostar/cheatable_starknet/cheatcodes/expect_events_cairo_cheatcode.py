@@ -3,8 +3,8 @@ from typing import Callable
 from typing_extensions import NotRequired, TypedDict
 
 from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
-from protostar.cheatable_starknet.cheaters import CairoCheaters
-from protostar.cheatable_starknet.cheaters.expect_events_controller import (
+from protostar.cheatable_starknet.controllers import Controllers
+from protostar.cheatable_starknet.controllers.expect_events_controller import (
     ExpectEventsController,
     Event,
 )
@@ -19,8 +19,8 @@ class RawExpectedEvent(TypedDict):
 
 
 class ExpectEventsCheatcode(CairoCheatcode):
-    def __init__(self, controller: ExpectEventsController, cheaters: "CairoCheaters"):
-        super().__init__(cheaters)
+    def __init__(self, controller: ExpectEventsController, controllers: "Controllers"):
+        super().__init__(controllers)
         self._controller = controller
 
     @property

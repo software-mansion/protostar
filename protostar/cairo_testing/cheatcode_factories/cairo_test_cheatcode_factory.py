@@ -16,9 +16,9 @@ from protostar.cheatable_starknet.cheatcodes.prank_cairo_cheatcode import (
 from protostar.cheatable_starknet.cheatcodes.store_cairo_cheatcode import (
     StoreCairoCheatcode,
 )
-from protostar.cheatable_starknet.cheaters.block_info import BlockInfoCairoCheater
-from protostar.cheatable_starknet.cheaters.contracts import ContractsCairoCheater
-from protostar.cheatable_starknet.cheaters import CairoCheaters
+from protostar.cheatable_starknet.controllers.block_info import BlockInfoController
+from protostar.cheatable_starknet.controllers.contracts import ContractsController
+from protostar.cheatable_starknet.controllers import Controllers
 from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
 from protostar.cheatable_starknet.cheatcodes.declare_cairo_cheatcode import (
     DeclareCairoCheatcode,
@@ -44,12 +44,12 @@ from protostar.cheatable_starknet.cheatcodes.warp_cairo_cheatcode import (
 from protostar.cheatable_starknet.cheatcodes.call_cairo_cheatcode import (
     CallCairoCheatcode,
 )
-from protostar.cheatable_starknet.cheaters.expect_events_controller import (
+from protostar.cheatable_starknet.controllers.expect_events_controller import (
     ExpectEventsController,
 )
 from protostar.compiler import ProjectCompiler
-from protostar.cheatable_starknet.cheaters.storage import StorageCairoCheater
 from protostar.testing import Hook
+from protostar.cheatable_starknet.controllers.storage import StorageController
 
 
 class CairoTestCheatcodeFactory:
@@ -60,55 +60,55 @@ class CairoTestCheatcodeFactory:
         test_finish_hook: Hook,
         test_execution_state: CairoTestExecutionState,
     ):
-        self._cheatable_state = cheatable_state
+        self.cheatable_state = cheatable_state
         self.project_compiler = project_compiler
         self._test_finish_hook = test_finish_hook
         self._test_execution_state = test_execution_state
 
     def build_cheatcodes(self) -> List[CairoCheatcode]:
-        cheaters = CairoCheaters(
-            block_info=BlockInfoCairoCheater(cheatable_state=self._cheatable_state),
-            contracts=ContractsCairoCheater(cheatable_state=self._cheatable_state),
-            storage=StorageCairoCheater(cheatable_state=self._cheatable_state),
+        controllers = Controllers(
+            block_info=BlockInfoController(cheatable_state=self.cheatable_state),
+            contracts=ContractsController(cheatable_state=self.cheatable_state),
+            storage=StorageController(cheatable_state=self.cheatable_state),
         )
         declare_cheatcode = DeclareCairoCheatcode(
-            cheaters=cheaters,
+            controllers=controllers,
             project_compiler=self.project_compiler,
         )
         prepare_cheatcode = PrepareCairoCheatcode(
-            cheaters=cheaters,
+            controllers=controllers,
         )
         deploy_cheatcode = DeployCairoCheatcode(
-            cheaters=cheaters,
+            controllers=controllers,
         )
 
         return [
-            WarpCairoCheatcode(cheaters=cheaters),
-            RollCairoCheatcode(cheaters=cheaters),
+            WarpCairoCheatcode(controllers=controllers),
+            RollCairoCheatcode(controllers=controllers),
             deploy_cheatcode,
             declare_cheatcode,
             prepare_cheatcode,
             DeployContractCairoCheatcode(
-                cheaters=cheaters,
+                controllers=controllers,
                 declare_cheatcode=declare_cheatcode,
                 prepare_cheatcode=prepare_cheatcode,
                 deploy_cheatcode=deploy_cheatcode,
             ),
-            CallCairoCheatcode(cheaters=cheaters),
+            CallCairoCheatcode(controllers=controllers),
             InvokeCairoCheatcode(
-                cheaters=cheaters,
+                controllers=controllers,
             ),
             PrankCairoCheatcode(
-                cheaters=cheaters,
+                controllers=controllers,
             ),
             StoreCairoCheatcode(
-                cheaters=cheaters,
+                controllers=controllers,
             ),
             LoadCairoCheatcode(
-                cheaters=cheaters,
+                controllers=controllers,
             ),
             ExpectEventsCheatcode(
-                cheaters=cheaters,
+                controllers=controllers,
                 controller=ExpectEventsController(
                     test_finish_hook=self._test_finish_hook,
                     test_execution_state=self._test_execution_state,
