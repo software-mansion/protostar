@@ -1,7 +1,7 @@
 from typing import List
 
-from protostar.cheatable_starknet.cheatables.cheatable_starknet_facade import (
-    CheatableStarknetFacade,
+from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
+    CheatableCachedState,
 )
 from protostar.cheatable_starknet.cheatcodes.load_cairo_cheatcode import (
     LoadCairoCheatcode,
@@ -55,27 +55,21 @@ from protostar.testing import Hook
 class CairoTestCheatcodeFactory:
     def __init__(
         self,
-        cheatable_starknet_facade: CheatableStarknetFacade,
+        cheatable_state: CheatableCachedState,
         project_compiler: ProjectCompiler,
         test_finish_hook: Hook,
         test_execution_state: CairoTestExecutionState,
     ):
-        self._cheatable_starknet_facade = cheatable_starknet_facade
+        self._cheatable_state = cheatable_state
         self.project_compiler = project_compiler
         self._test_finish_hook = test_finish_hook
         self._test_execution_state = test_execution_state
 
     def build_cheatcodes(self) -> List[CairoCheatcode]:
         cheaters = CairoCheaters(
-            block_info=BlockInfoCairoCheater(
-                cheatable_state=self._cheatable_starknet_facade.cheatable_state
-            ),
-            contracts=ContractsCairoCheater(
-                cheatable_starknet_facade=self._cheatable_starknet_facade
-            ),
-            storage=StorageCairoCheater(
-                cheatable_state=self._cheatable_starknet_facade.cheatable_state
-            ),
+            block_info=BlockInfoCairoCheater(cheatable_state=self._cheatable_state),
+            contracts=ContractsCairoCheater(cheatable_state=self._cheatable_state),
+            storage=StorageCairoCheater(cheatable_state=self._cheatable_state),
         )
         declare_cheatcode = DeclareCairoCheatcode(
             cheaters=cheaters,
@@ -118,7 +112,6 @@ class CairoTestCheatcodeFactory:
                 controller=ExpectEventsController(
                     test_finish_hook=self._test_finish_hook,
                     test_execution_state=self._test_execution_state,
-                    cheatable_starknet_facade=self._cheatable_starknet_facade,
                 ),
             ),
         ]

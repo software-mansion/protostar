@@ -5,9 +5,6 @@ from protostar.starknet import Address, CairoData, Selector, ReportedException
 
 if TYPE_CHECKING:
     from protostar.testing import Hook
-    from protostar.cheatable_starknet.cheatables.cheatable_starknet_facade import (
-        CheatableStarknetFacade,
-    )
     from protostar.cairo_testing import CairoTestExecutionState
 
 
@@ -61,17 +58,17 @@ class ExpectEventsController:
         self,
         test_finish_hook: "Hook",
         test_execution_state: "CairoTestExecutionState",
-        cheatable_starknet_facade: "CheatableStarknetFacade",
     ) -> None:
         self._test_execution_state = test_execution_state
-        self._cheatable_starknet_facade = cheatable_starknet_facade
         self._test_finish_hook = test_finish_hook
         self._test_finish_hook.on(self.compare_expected_and_actual_results)
 
     def add_expected_events(self, expected_events: list[Event]):
-        self._test_execution_state.expected_events_list.append(expected_events)
+        assert False, "TODO"
+        # self._test_execution_state.expected_events_list.append(expected_events)
 
     def compare_expected_and_actual_results(self):
+        assert False, "TODO"
         for expected_events in self._test_execution_state.expected_events_list:
             matching_result = match_events(
                 expected_events=expected_events,

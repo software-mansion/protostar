@@ -1,8 +1,8 @@
 # pylint: disable=duplicate-code
 from typing import List
 
-from protostar.cheatable_starknet.cheatables.cheatable_starknet_facade import (
-    CheatableStarknetFacade,
+from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
+    CheatableCachedState,
 )
 from protostar.cheatable_starknet.cheatcodes.load_cairo_cheatcode import (
     LoadCairoCheatcode,
@@ -45,23 +45,17 @@ from protostar.cheatable_starknet.cheaters.storage import StorageCairoCheater
 class CairoSetupCheatcodeFactory:
     def __init__(
         self,
-        cheatable_starknet_facade: CheatableStarknetFacade,
+        cheatable_state: CheatableCachedState,
         project_compiler: ProjectCompiler,
     ):
-        self._cheatable_starknet = cheatable_starknet_facade
+        self._cheatable_state = cheatable_state
         self.project_compiler = project_compiler
 
     def build_cheatcodes(self) -> List[CairoCheatcode]:
         cheaters = CairoCheaters(
-            block_info=BlockInfoCairoCheater(
-                cheatable_state=self._cheatable_starknet.cheatable_state
-            ),
-            contracts=ContractsCairoCheater(
-                cheatable_starknet_facade=self._cheatable_starknet,
-            ),
-            storage=StorageCairoCheater(
-                cheatable_state=self._cheatable_starknet.cheatable_state
-            ),
+            block_info=BlockInfoCairoCheater(cheatable_state=self._cheatable_state),
+            contracts=ContractsCairoCheater(cheatable_state=self._cheatable_state),
+            storage=StorageCairoCheater(cheatable_state=self._cheatable_state),
         )
         declare_cheatcode = DeclareCairoCheatcode(
             cheaters=cheaters,

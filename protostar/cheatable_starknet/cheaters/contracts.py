@@ -1,6 +1,6 @@
 import collections
 from pathlib import Path
-from typing import List, Optional, TYPE_CHECKING
+from typing import List, Optional
 
 from starkware.python.utils import to_bytes, from_bytes
 from starkware.starknet.business_logic.transaction.objects import InternalDeclare
@@ -20,6 +20,9 @@ from starkware.starknet.business_logic.execution.objects import CallType
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.services.api.contract_class import EntryPointType, ContractClass
 
+from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
+    CheatableCachedState,
+)
 from protostar.contract_types import (
     PreparedContract,
     DeclaredContract,
@@ -33,11 +36,6 @@ from protostar.starknet.data_transformer import (
     CairoData,
     from_python_transformer,
 )
-
-if TYPE_CHECKING:
-    from protostar.cheatable_starknet.cheatables.cheatable_starknet_facade import (
-        CheatableStarknetFacade,
-    )
 
 
 class ContractsCheaterException(Exception):
@@ -57,10 +55,9 @@ class ConstructorInvocationException(ContractsCheaterException):
 class ContractsCairoCheater:
     def __init__(
         self,
-        cheatable_starknet_facade: "CheatableStarknetFacade",
+        cheatable_state: "CheatableCachedState",
     ):
-        self._cheatable_starknet_facade = cheatable_starknet_facade
-        self._cheatable_state = self._cheatable_starknet_facade.cheatable_state
+        self._cheatable_state = cheatable_state
 
     async def _transform_calldata_to_cairo_data_by_addr(
         self,
@@ -249,6 +246,7 @@ class ContractsCairoCheater:
             function_name=function_name,
             calldata=calldata,
         )
+        assert False, "TODO"
         return await self._cheatable_starknet_facade.call(
             contract_address=contract_address,
             function_name=function_name,
@@ -266,6 +264,7 @@ class ContractsCairoCheater:
             function_name=function_name,
             calldata=calldata,
         )
+        assert False, "TODO"
         await self._cheatable_starknet_facade.invoke(
             contract_address=contract_address,
             function_name=function_name,
