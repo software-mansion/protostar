@@ -12,6 +12,7 @@ from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from starkware.starknet.business_logic.state.state_api import StateReader
 from typing_extensions import Self
 
+from protostar.cheatable_starknet.controllers.expect_events_controller import Event
 from protostar.starknet.address import Address
 from protostar.cheatable_starknet.controllers.block_info import BlockInfoController
 from protostar.starknet.types import ClassHashType, SelectorType
@@ -35,7 +36,7 @@ class CheatableCachedState(CachedState):
         self._target_address_to_pranked_address: dict[Address, Address] = {}
         self.mocked_calls_map: Dict[Address, Dict[SelectorType, List[int]]] = {}
         self.event_selector_to_name_map: Dict[int, str] = {}
-
+        self.emitted_events: list[Event] = []
         self.event_name_to_contract_abi_map: Dict[str, AbiType] = {}
         self.class_hash_to_contract_abi_map: Dict[ClassHashType, AbiType] = {}
         self.class_hash_to_contract_path_map: Dict[ClassHashType, Path] = {}
@@ -95,6 +96,7 @@ class CheatableCachedState(CachedState):
         copied.contract_address_to_block_number = (
             self.contract_address_to_block_number.copy()
         )
+        copied.emitted_events = self.emitted_events.copy()
 
         return copied
 
@@ -149,11 +151,14 @@ class CheatableCachedState(CachedState):
             **parent.contract_address_to_block_timestamp,
             **self.contract_address_to_block_timestamp,
         }
-
         parent.contract_address_to_block_number = {
             **parent.contract_address_to_block_number,
             **self.contract_address_to_block_number,
         }
+        parent.emitted_events = [
+            *parent.emitted_events,
+            *self.emitted_events,
+        ]
 
     def update_event_selector_to_name_map(
         self, local_event_selector_to_name_map: Dict[int, str]
