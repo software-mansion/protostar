@@ -57,17 +57,19 @@ def test_tests_collector(prepared_files: dict[str, Path]):
     assert named_tests
     assert Path(prepared_files["sierra"]).read_text()
 
-    casm = cairo_python_bindings.call_protostar_sierra_to_casm(  # pyright: ignore
-        named_tests,
-        str(prepared_files["sierra"]),
+    protostar_casm_json = (
+        cairo_python_bindings.call_protostar_sierra_to_casm(  # pyright: ignore
+            named_tests,
+            str(prepared_files["sierra"]),
+        )
     )
-    assert casm
+    assert protostar_casm_json
     cairo_python_bindings.call_protostar_sierra_to_casm(  # pyright: ignore
         named_tests,
         str(prepared_files["sierra"]),
         str(prepared_files["casm"]),
     )
-    assert Path(prepared_files["sierra"]).read_text()
+    assert Path(prepared_files["casm"]).read_text()
 
 
 def test_cairo_to_casm(prepared_files: dict[str, Path]):
