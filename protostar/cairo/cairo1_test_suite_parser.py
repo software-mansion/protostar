@@ -41,7 +41,7 @@ def build_instruction_pc_to_hint(
     return hints
 
 
-def parse_test_suite(path: Path, json_raw: Any) -> TestSuite:
+def parse_test_suite(path: Path, json_raw: str) -> TestSuite:
     json_dict = json.loads(json_raw)
     prime: int = IntAsHex()._deserialize(json_dict["prime"], None, None)  # pylint
     data: list[int] = [
