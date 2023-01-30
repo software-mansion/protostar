@@ -53,7 +53,7 @@ class EventMatchingResult:
 
     @property
     def should_be_accepted(self) -> bool:
-        return len(self.failed_event_matchings) == 0
+        return not self.failed_event_matchings
 
 
 class ExpectEventsController:
