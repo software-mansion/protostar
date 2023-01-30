@@ -1,10 +1,15 @@
 import collections
+import copy
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, cast
 
 from starkware.python.utils import to_bytes, from_bytes
 from starkware.starknet.business_logic.transaction.objects import InternalDeclare
-from starkware.starknet.public.abi import AbiType, CONSTRUCTOR_ENTRY_POINT_SELECTOR
+from starkware.starknet.public.abi import (
+    AbiType,
+    CONSTRUCTOR_ENTRY_POINT_SELECTOR,
+    get_selector_from_name,
+)
 from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,
 )
@@ -29,6 +34,9 @@ from protostar.contract_types import (
     PreparedContract,
     DeclaredContract,
     DeployedContract,
+)
+from protostar.cheatable_starknet.cheatables.cheatable_execute_entry_point import (
+    CheatableExecuteEntryPoint,
 )
 from protostar.starknet.selector import Selector
 from protostar.starknet.types import ClassHashType
@@ -192,28 +200,35 @@ class ContractsController:
         constructor_calldata: List[int],
         contract_address: int,
     ):
-        call_info = await ExecuteEntryPoint.create(
-            contract_address=contract_address,
-            calldata=constructor_calldata,
-            entry_point_selector=CONSTRUCTOR_ENTRY_POINT_SELECTOR,
-            caller_address=0,
-            entry_point_type=EntryPointType.CONSTRUCTOR,
-            call_type=CallType.DELEGATE,
-            class_hash=class_hash_bytes,
-        ).execute_for_testing(
-            state=self.cheatable_state,
-            general_config=StarknetGeneralConfig(),
-        )
-        self._add_emitted_events(call_info.get_sorted_events())
+        with self.cheatable_state.copy_and_apply() as state:
+            call_info = await ExecuteEntryPoint.create(
+                contract_address=contract_address,
+                calldata=constructor_calldata,
+                entry_point_selector=CONSTRUCTOR_ENTRY_POINT_SELECTOR,
+                caller_address=0,
+                entry_point_type=EntryPointType.CONSTRUCTOR,
+                call_type=CallType.DELEGATE,
+                class_hash=class_hash_bytes,
+            ).execute_for_testing(
+                state=self.cheatable_state,
+                general_config=StarknetGeneralConfig(),
+            )
+            self._add_emitted_events(
+                cast(CheatableCachedState, state), call_info.get_sorted_events()
+            )
 
-    def _add_emitted_events(self, starknet_emitted_events: list[StarknetEvent]):
-        self.cheatable_state.emitted_events.extend(
+    def _add_emitted_events(
+        self,
+        cheatable_state: CheatableCachedState,
+        starknet_emitted_events: list[StarknetEvent],
+    ):
+        cheatable_state.emitted_events.extend(
             [
                 Event(
                     from_address=Address(starknet_emitted_event.from_address),
                     data=starknet_emitted_event.data,
                     key=Selector(
-                        self.cheatable_state.event_selector_to_name_map[
+                        cheatable_state.event_selector_to_name_map[
                             starknet_emitted_event.keys[0]
                         ]
                     ),
@@ -263,12 +278,16 @@ class ContractsController:
             function_name=function_name,
             calldata=calldata,
         )
-        assert False, "TODO"
-        return await self._cheatable_starknet_facade.call(
+        entry_point = CheatableExecuteEntryPoint.create_for_protostar(
             contract_address=contract_address,
-            function_name=function_name,
             calldata=cairo_calldata,
+            entry_point_selector=get_selector_from_name(function_name),
         )
+        result = await entry_point.execute_for_testing(
+            state=copy.deepcopy(self.cheatable_state),
+            general_config=StarknetGeneralConfig(),
+        )
+        return result.retdata
 
     async def invoke(
         self,
@@ -281,12 +300,19 @@ class ContractsController:
             function_name=function_name,
             calldata=calldata,
         )
-        assert False, "TODO"
-        await self._cheatable_starknet_facade.invoke(
+        entry_point = CheatableExecuteEntryPoint.create_for_protostar(
             contract_address=contract_address,
-            function_name=function_name,
             calldata=cairo_calldata,
+            entry_point_selector=get_selector_from_name(function_name),
         )
+        with self.cheatable_state.copy_and_apply() as state_copy:
+            call_info = await entry_point.execute_for_testing(
+                state=state_copy,
+                general_config=StarknetGeneralConfig(),
+            )
+            self._add_emitted_events(
+                cast(CheatableCachedState, state_copy), call_info.get_sorted_events()
+            )
 
     def prank(self, caller_address: Address, target_address: Address):
         self.cheatable_state.set_pranked_address(
