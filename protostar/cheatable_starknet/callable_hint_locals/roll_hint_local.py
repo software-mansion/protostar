@@ -1,10 +1,12 @@
 from typing import Any, Callable
 
-from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
+from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local import (
+    CallableHintLocal,
+)
 from protostar.starknet import RawAddress, Address
 
 
-class RollCairoCheatcode(CairoCheatcode):
+class RollHintLocal(CallableHintLocal):
     @property
     def name(self) -> str:
         return "roll"

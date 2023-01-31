@@ -1,10 +1,12 @@
 import asyncio
 from typing import Optional
 
-from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
+from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local import (
+    CallableHintLocal,
+)
 
 
-class StoreCairoCheatcode(CairoCheatcode):
+class StoreHintLocal(CallableHintLocal):
     @property
     def name(self) -> str:
         return "store"

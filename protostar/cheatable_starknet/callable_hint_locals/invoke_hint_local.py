@@ -1,7 +1,9 @@
 import asyncio
 from typing import Any, Optional
 
-from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
+from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local import (
+    CallableHintLocal,
+)
 from protostar.cheatable_starknet.controllers.contracts import ContractsCheaterException
 from protostar.starknet import (
     Address,
@@ -11,7 +13,7 @@ from protostar.starknet import (
 )
 
 
-class InvokeCairoCheatcode(CairoCheatcode):
+class InvokeHintLocal(CallableHintLocal):
     @property
     def name(self) -> str:
         return "invoke"

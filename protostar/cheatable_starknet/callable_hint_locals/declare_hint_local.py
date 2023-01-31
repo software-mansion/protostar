@@ -2,7 +2,9 @@ import asyncio
 from typing import Any, Protocol
 
 from protostar.compiler import ProjectCompiler
-from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
+from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local import (
+    CallableHintLocal,
+)
 from protostar.contract_types import DeclaredContract
 
 
@@ -15,7 +17,7 @@ class DeclareCheatcodeProtocol(Protocol):
         ...
 
 
-class DeclareCairoCheatcode(CairoCheatcode):
+class DeclareHintLocal(CallableHintLocal):
     def __init__(self, project_compiler: ProjectCompiler, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self._project_compiler = project_compiler
