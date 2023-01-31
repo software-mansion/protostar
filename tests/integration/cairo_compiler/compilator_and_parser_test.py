@@ -7,64 +7,53 @@ import cairo_python_bindings
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.vm.utils import RunResources
 
-from tests.data.cairo1_contracts import (
-    CAIRO_ROLL_TEST,
-)
-from tests.integration.conftest import CreateProtostarProjectFixture
-from tests.integration._conftest import ProtostarFixture
 from protostar.cairo.cairo1_test_suite_parser import parse_test_suite
 
+from tests.integration.conftest import CreateProtostarProjectFixture
+from tests.integration.cairo_compiler.prepare_files_fixture import (
+    PrepareFilesFixture,
+    RequestedFiles,
+)
 
-@pytest.fixture(name="protostar")
-def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
+
+@pytest.fixture(name="prepare_files")
+def prepare_files_fixture(create_protostar_project: CreateProtostarProjectFixture):
     with create_protostar_project() as protostar:
         protostar.build_sync()
-        yield protostar
+        return PrepareFilesFixture(protostar)
 
 
-@pytest.fixture(name="prepared_files")
-def prepared_files_fixture(protostar: ProtostarFixture):
-    cairo_tests_path = Path("./src/tests.cairo")
-    sierra_path = Path("./src/example.sierra")
-    casm_path = Path("./src/example.casm")
+def test_compilator_and_parser(
+    prepare_files: PrepareFilesFixture, mocker: MockerFixture
+):
+    prepared_files = prepare_files.prepare_files(
+        requested_files=[
+            RequestedFiles.input_roll_test_cairo,
+            RequestedFiles.output_sierra,
+            RequestedFiles.output_casm,
+        ]
+    )
 
-    paths = {
-        "cairo_tests": cairo_tests_path,
-        "sierra": sierra_path,
-        "casm": casm_path,
-    }
-
-    for _, path in paths.items():
-        protostar.create_files({str(path): ""})
-        assert path.exists()
-
-    with open(cairo_tests_path, "w") as file:
-        file.write(CAIRO_ROLL_TEST)
-
-    return paths
-
-
-def test_compilator_and_parser(prepared_files: dict[str, Path], mocker: MockerFixture):
     sierra, named_tests = cairo_python_bindings.call_test_collector(  # pyright: ignore
-        str(prepared_files["cairo_tests"]),
+        str(prepared_files["input_roll_test_cairo"][0]),
     )
     assert sierra and named_tests
     _, named_tests = cairo_python_bindings.call_test_collector(  # pyright: ignore
-        str(prepared_files["cairo_tests"]),
-        str(prepared_files["sierra"]),
+        str(prepared_files["input_roll_test_cairo"][0]),
+        str(prepared_files["output_sierra"][0]),
     )
     assert named_tests
-    assert Path(prepared_files["sierra"]).read_text()
+    assert Path(prepared_files["output_sierra"][0]).read_text()
 
     protostar_casm_json = (
         cairo_python_bindings.call_protostar_sierra_to_casm(  # pyright: ignore
             named_tests,
-            str(prepared_files["sierra"]),
+            str(prepared_files["output_sierra"][0]),
         )
     )
     assert protostar_casm_json
     test_suite = parse_test_suite(
-        Path(str(prepared_files["casm"])), protostar_casm_json
+        Path(str(prepared_files["output_casm"][0])), protostar_casm_json
     )
     cheat_mock = mocker.MagicMock()
     for case in test_suite.test_cases:

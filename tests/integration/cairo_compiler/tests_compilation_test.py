@@ -2,129 +2,132 @@ from pathlib import Path
 import pytest
 
 import cairo_python_bindings
-
-from tests.data.cairo1_contracts import (
-    CAIRO_BINDINGS_CONTRACT_ENUM,
-    CAIRO_BINDINGS_TESTS,
-)
 from tests.integration.conftest import CreateProtostarProjectFixture
-from tests.integration._conftest import ProtostarFixture
+
+from tests.integration.cairo_compiler.prepare_files_fixture import (
+    PrepareFilesFixture,
+    RequestedFiles,
+)
 
 
-@pytest.fixture(name="protostar")
-def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
+@pytest.fixture(name="prepare_files")
+def prepare_files_fixture(create_protostar_project: CreateProtostarProjectFixture):
     with create_protostar_project() as protostar:
         protostar.build_sync()
-        yield protostar
+        return PrepareFilesFixture(protostar)
 
 
-@pytest.fixture(name="prepared_files")
-def prepared_files_fixture(protostar: ProtostarFixture):
-    cairo_example_path = Path("./src/example.cairo")
-    cairo_tests_path = Path("./src/tests.cairo")
-    sierra_path = Path("./src/example.sierra")
-    casm_path = Path("./src/example.casm")
-
-    paths = {
-        "cairo_example": cairo_example_path,
-        "cairo_tests": cairo_tests_path,
-        "sierra": sierra_path,
-        "casm": casm_path,
-    }
-
-    for _, path in paths.items():
-        protostar.create_files({str(path): ""})
-        assert path.exists()
-
-    with open(cairo_example_path, "w") as file:
-        file.write(CAIRO_BINDINGS_CONTRACT_ENUM)
-
-    with open(cairo_tests_path, "w") as file:
-        file.write(CAIRO_BINDINGS_TESTS)
-
-    return paths
-
-
-def test_tests_collector(prepared_files: dict[str, Path]):
+def test_tests_collector(prepare_files: PrepareFilesFixture):
+    prepared_files = prepare_files.prepare_files(
+        requested_files=[
+            RequestedFiles.input_test_cairo,
+            RequestedFiles.output_sierra,
+            RequestedFiles.output_casm,
+        ]
+    )
     sierra, named_tests = cairo_python_bindings.call_test_collector(  # pyright: ignore
-        str(prepared_files["cairo_tests"]),
+        str(prepared_files["input_test_cairo"][0]),
     )
     assert sierra and named_tests
     _, named_tests = cairo_python_bindings.call_test_collector(  # pyright: ignore
-        str(prepared_files["cairo_tests"]),
-        str(prepared_files["sierra"]),
+        str(prepared_files["input_test_cairo"][0]),
+        str(prepared_files["output_sierra"][0]),
     )
     assert named_tests
-    assert Path(prepared_files["sierra"]).read_text()
+    assert Path(prepared_files["output_sierra"][0]).read_text()
 
     protostar_casm_json = (
         cairo_python_bindings.call_protostar_sierra_to_casm(  # pyright: ignore
             named_tests,
-            str(prepared_files["sierra"]),
+            str(prepared_files["output_sierra"][0]),
         )
     )
     assert protostar_casm_json
     cairo_python_bindings.call_protostar_sierra_to_casm(  # pyright: ignore
         named_tests,
-        str(prepared_files["sierra"]),
-        str(prepared_files["casm"]),
+        str(prepared_files["output_sierra"][0]),
+        str(prepared_files["output_casm"][0]),
     )
-    assert Path(prepared_files["casm"]).read_text()
+    assert Path(prepared_files["output_casm"][0]).read_text()
 
 
-def test_cairo_to_casm(prepared_files: dict[str, Path]):
+def test_cairo_to_casm(prepare_files: PrepareFilesFixture):
+    prepared_files = prepare_files.prepare_files(
+        requested_files=[
+            RequestedFiles.input_test_cairo,
+            RequestedFiles.input_contract_cairo,
+            RequestedFiles.output_casm,
+        ]
+    )
+
     def check_compilation(name: str):
         cairo_python_bindings.call_cairo_to_casm_compiler(  # pyright: ignore
-            str(prepared_files[name]), str(prepared_files["casm"])
+            str(prepared_files[name][0]), str(prepared_files["output_casm"][0])
         )
-        assert prepared_files["casm"].exists() and prepared_files["casm"].stat().st_size
+        assert (
+            prepared_files["output_casm"][0].exists()
+            and prepared_files["output_casm"][0].stat().st_size
+        )
         casm_contents = (
             cairo_python_bindings.call_cairo_to_casm_compiler(  # pyright: ignore
-                str(prepared_files[name])
+                str(prepared_files[name][0])
             )
         )
         assert len(casm_contents)
-        with open(prepared_files["casm"], "r") as file:
+        with open(prepared_files["output_casm"][0], "r") as file:
             file_contents = file.readlines()
             assert len(casm_contents.split("\n")) >= len(file_contents)
 
-    for name in ["cairo_example", "cairo_tests"]:
+    for name in ["input_contract_cairo", "input_test_cairo"]:
         check_compilation(name=name)
 
 
-def test_cairo_to_sierra_to_casm(prepared_files: dict[str, Path]):
+def test_cairo_to_sierra_to_casm(prepare_files: PrepareFilesFixture):
+    prepared_files = prepare_files.prepare_files(
+        requested_files=[
+            RequestedFiles.input_test_cairo,
+            RequestedFiles.input_contract_cairo,
+            RequestedFiles.output_sierra,
+            RequestedFiles.output_casm,
+        ]
+    )
+
     def check_compilation(name: str):
         # cairo => sierra
         cairo_python_bindings.call_cairo_to_sierra_compiler(  # pyright: ignore
-            str(prepared_files[name]), str(prepared_files["sierra"])
+            str(prepared_files[name][0]), str(prepared_files["output_sierra"][0])
         )
         assert (
-            prepared_files["sierra"].exists()
-            and prepared_files["sierra"].stat().st_size
+            prepared_files["output_sierra"][0].exists()
+            and prepared_files["output_sierra"][0].stat().st_size
         )
         sierra_contents = (
             cairo_python_bindings.call_cairo_to_sierra_compiler(  # pyright: ignore
-                str(prepared_files[name])
+                str(prepared_files[name][0])
             )
         )
         assert len(sierra_contents)
-        with open(prepared_files["sierra"], "r") as file:
+        with open(prepared_files["output_sierra"][0], "r") as file:
             file_contents = file.readlines()
             assert len(sierra_contents.split("\n")) >= len(file_contents)
         # sierra => casm
         cairo_python_bindings.call_sierra_to_casm_compiler(  # pyright: ignore
-            str(prepared_files["sierra"]), str(prepared_files["casm"])
+            str(prepared_files["output_sierra"][0]),
+            str(prepared_files["output_casm"][0]),
         )
-        assert prepared_files["casm"].exists() and prepared_files["casm"].stat().st_size
+        assert (
+            prepared_files["output_casm"][0].exists()
+            and prepared_files["output_casm"][0].stat().st_size
+        )
         casm_contents = (
             cairo_python_bindings.call_sierra_to_casm_compiler(  # pyright: ignore
-                str(prepared_files["sierra"])
+                str(prepared_files["output_sierra"][0])
             )
         )
         assert len(casm_contents)
-        with open(prepared_files["casm"], "r") as file:
+        with open(prepared_files["output_casm"][0], "r") as file:
             file_contents = file.readlines()
             assert len(casm_contents.split("\n")) >= len(file_contents)
 
-    for name in ["cairo_example", "cairo_tests"]:
+    for name in ["input_contract_cairo", "input_test_cairo"]:
         check_compilation(name=name)
