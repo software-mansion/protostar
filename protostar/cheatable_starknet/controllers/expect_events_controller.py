@@ -86,11 +86,9 @@ def match_events(
 ) -> EventMatchingResult:
     event_matchings: list[EventMatching] = []
     for emitted_event in emitted_events:
-        if not expected_events or not should_accept_event_matching(
+        if expected_events and should_accept_event_matching(
             expected_event=expected_events[0], emitted_event=emitted_event
         ):
-            event_matchings.append(SkippedEventMatching(emitted_event=emitted_event))
-        else:
             event_matchings.append(
                 AcceptedEventMatching(
                     emitted_event=emitted_event,
@@ -98,6 +96,8 @@ def match_events(
                 )
             )
             expected_events.pop(0)
+        else:
+            event_matchings.append(SkippedEventMatching(emitted_event=emitted_event))
     failed_event_matchings = [
         FailedEventMatching(expected_event) for expected_event in expected_events
     ]
