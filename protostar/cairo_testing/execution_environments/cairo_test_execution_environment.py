@@ -2,17 +2,12 @@ from typing import Any
 
 from starkware.cairo.lang.compiler.program import Program
 
-from protostar.testing.environments.execution_environment import (
-    TestExecutionResult,
-)
-
+from protostar.testing.environments.execution_environment import TestExecutionResult
 from protostar.testing.cheatcodes.expect_revert_cheatcode import ExpectRevertContext
 from protostar.testing.hook import Hook
 from protostar.testing.test_context import TestContextHintLocal
 from protostar.cairo_testing.cairo_test_execution_state import CairoTestExecutionState
-from protostar.cairo_testing.cheatcode_factories.cairo_test_cheatcode_factory import (
-    CairoTestCheatcodeFactory,
-)
+from protostar.cairo_testing.cairo_cheatcode_factory import CairoTestCheatcodeFactory
 from protostar.cairo import HintLocalsDict
 
 from .cairo_execution_environment import CairoExecutionEnvironment
