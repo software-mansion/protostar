@@ -5,7 +5,10 @@ from protostar.cairo_testing.execution_environments.cairo_execution_environment 
     CairoExecutionEnvironment,
 )
 from protostar.cairo_testing.cairo_test_execution_state import CairoTestExecutionState
-from protostar.cairo_testing.cairo_cheatcode_factory import CairoSetupCheatcodeFactory
+from protostar.cairo_testing.cairo_cheatcode_factory import (
+    CairoSetupCheatcodeFactory,
+    CairoSharedCheatcodeFactory,
+)
 from protostar.testing.test_context import TestContextHintLocal
 
 
@@ -24,8 +27,10 @@ class CairoSetupExecutionEnvironment(CairoExecutionEnvironment):
     def _get_hint_locals(self, state: CairoTestExecutionState) -> HintLocalsDict:
         hint_locals: HintLocalsDict = {}
         cheatcode_factory = CairoSetupCheatcodeFactory(
-            cheatable_state=state.cheatable_state,
-            project_compiler=state.project_compiler,
+            shared_cheatcode_factory=CairoSharedCheatcodeFactory(
+                cheatable_state=state.cheatable_state,
+                project_compiler=state.project_compiler,
+            )
         )
         cheatcodes = cheatcode_factory.build_cheatcodes()
         for cheatcode in cheatcodes:
