@@ -48,8 +48,8 @@ class CairoTestExecutionEnvironment(CairoExecutionEnvironment):
         hint_locals: HintLocalsDict = {}
         cheatcode_factory = CairoTestCheatcodeFactory(
             shared_cheatcode_factory=CairoSharedCheatcodeFactory(
-                cheatable_state=self.state.cheatable_state,
-                project_compiler=self.state.project_compiler,
+                cheatable_state=state.cheatable_state,
+                project_compiler=state.project_compiler,
             )
         )
         cheatcodes = cheatcode_factory.build_cheatcodes()
