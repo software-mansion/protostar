@@ -1,6 +1,6 @@
 import pytest
 
-import cairo_python_bindings
+from protostar.cairo.cairo_bindings import call_starknet_contract_compiler
 
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.cairo_compiler.prepare_files_fixture import (
@@ -26,14 +26,12 @@ def test_starknet_contract_compile(prepare_files: PrepareFilesFixture):
     )
 
     def check_compile(contract_name: str):
-        casm_contents = (
-            cairo_python_bindings.call_starknet_contract_compiler(  # pyright: ignore
-                str(prepared_files[contract_name][0])
-            )
+        casm_contents = call_starknet_contract_compiler(  # pyright: ignore
+            prepared_files[contract_name][0]
         )
-        assert len(casm_contents)
-        cairo_python_bindings.call_starknet_contract_compiler(  # pyright: ignore
-            str(prepared_files[contract_name][0]), str(prepared_files["output_casm"][0])
+        assert casm_contents
+        call_starknet_contract_compiler(  # pyright: ignore
+            prepared_files[contract_name][0], prepared_files["output_casm"][0]
         )
         assert (
             prepared_files["output_casm"][0].exists()
