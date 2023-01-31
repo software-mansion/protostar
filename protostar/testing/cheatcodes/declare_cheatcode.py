@@ -1,4 +1,5 @@
 import asyncio
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Protocol
 
@@ -12,8 +13,12 @@ from starkware.starknet.testing.contract import DeclaredClass
 from starkware.starknet.testing.contract_utils import EventManager, get_abi
 
 from protostar.compiler import ProjectCompiler
-from protostar.contract_types import DeclaredContract
 from protostar.starknet import Cheatcode, KeywordOnlyArgumentCheatcodeException
+
+
+@dataclass
+class DeclaredContract:
+    class_hash: int
 
 
 class DeclareCheatcodeProtocol(Protocol):
