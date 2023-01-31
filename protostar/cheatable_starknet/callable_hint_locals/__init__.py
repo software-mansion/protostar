@@ -8,3 +8,5 @@ from .prepare_hint_local import PrepareHintLocal
 from .roll_hint_local import RollHintLocal
 from .store_hint_local import StoreHintLocal
 from .warp_hint_local import WarpHintLocal
+from .stop_warp_hint_local import StopWarpHintLocal
+from .stop_roll_hint_local import StopRollHintLocal

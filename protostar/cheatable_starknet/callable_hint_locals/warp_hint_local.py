@@ -1,9 +1,7 @@
-from typing import Callable
-
 from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local import (
     CallableHintLocal,
 )
-from protostar.starknet import RawAddress, Address
+from protostar.starknet import Address
 
 
 class WarpHintLocal(CallableHintLocal):
@@ -16,10 +14,10 @@ class WarpHintLocal(CallableHintLocal):
 
     def warp(
         self,
-        target_contract_address: RawAddress,
+        target_contract_address: int,
         blk_timestamp: int,
-    ) -> Callable[[], None]:
-        return self.controllers.block_info.cheat(
+    ):
+        self.controllers.block_info.cheat(
             contract_address=Address.from_user_input(target_contract_address),
             block_timestamp=blk_timestamp,
         )

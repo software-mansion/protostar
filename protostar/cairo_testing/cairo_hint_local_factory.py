@@ -13,6 +13,8 @@ from protostar.cheatable_starknet.callable_hint_locals import (
     DeployHintLocal,
     PrepareHintLocal,
     DeclareHintLocal,
+    StopWarpHintLocal,
+    StopRollHintLocal,
 )
 from protostar.cheatable_starknet.callable_hint_locals.load_hint_local import (
     LoadHintLocal,
@@ -59,6 +61,8 @@ class CairoSharedHintLocalFactory:
         return [
             WarpHintLocal(controllers=controllers),
             RollHintLocal(controllers=controllers),
+            StopWarpHintLocal(controllers=controllers),
+            StopRollHintLocal(controllers=controllers),
             PrankHintLocal(controllers=controllers),
             deploy_cheatcode,
             declare_cheatcode,
