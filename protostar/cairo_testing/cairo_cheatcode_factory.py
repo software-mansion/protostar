@@ -4,45 +4,28 @@ from typing import List
 from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
     CheatableCachedState,
 )
-from protostar.cheatable_starknet.cheatcodes.load_cairo_cheatcode import (
+from protostar.cheatable_starknet.cheatcodes import (
     LoadCairoCheatcode,
-)
-from protostar.cheatable_starknet.cheatcodes.store_cairo_cheatcode import (
     StoreCairoCheatcode,
+    CairoCheatcode,
+    DeclareCairoCheatcode,
+    DeployCairoCheatcode,
+    DeployContractCairoCheatcode,
+    InvokeCairoCheatcode,
+    PrepareCairoCheatcode,
+    RollCairoCheatcode,
+    WarpCairoCheatcode,
+    CallCairoCheatcode,
+    PrankCairoCheatcode,
 )
 from protostar.cheatable_starknet.controllers.block_info import BlockInfoController
 from protostar.cheatable_starknet.controllers.contracts import ContractsController
 from protostar.cheatable_starknet.controllers import Controllers
-from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
-from protostar.cheatable_starknet.cheatcodes.declare_cairo_cheatcode import (
-    DeclareCairoCheatcode,
-)
-from protostar.cheatable_starknet.cheatcodes.deploy_cairo_cheatcode import (
-    DeployCairoCheatcode,
-)
-from protostar.cheatable_starknet.cheatcodes.deploy_contract_cairo_cheatcode import (
-    DeployContractCairoCheatcode,
-)
-from protostar.cheatable_starknet.cheatcodes.invoke_cairo_cheatcode import (
-    InvokeCairoCheatcode,
-)
-from protostar.cheatable_starknet.cheatcodes.prepare_cairo_cheatcode import (
-    PrepareCairoCheatcode,
-)
-from protostar.cheatable_starknet.cheatcodes.roll_cairo_cheatcode import (
-    RollCairoCheatcode,
-)
-from protostar.cheatable_starknet.cheatcodes.warp_cairo_cheatcode import (
-    WarpCairoCheatcode,
-)
-from protostar.cheatable_starknet.cheatcodes.call_cairo_cheatcode import (
-    CallCairoCheatcode,
-)
 from protostar.compiler import ProjectCompiler
 from protostar.cheatable_starknet.controllers.storage import StorageController
 
 
-class CairoSetupCheatcodeFactory:
+class CairoSharedCheatcodeFactory:
     def __init__(
         self,
         cheatable_state: CheatableCachedState,
@@ -71,6 +54,7 @@ class CairoSetupCheatcodeFactory:
         return [
             WarpCairoCheatcode(controllers=controllers),
             RollCairoCheatcode(controllers=controllers),
+            PrankCairoCheatcode(controllers=controllers),
             deploy_cheatcode,
             declare_cheatcode,
             prepare_cheatcode,
@@ -91,3 +75,19 @@ class CairoSetupCheatcodeFactory:
                 controllers=controllers,
             ),
         ]
+
+
+class CairoSetupCheatcodeFactory:
+    def __init__(self, shared_cheatcode_factory: CairoSharedCheatcodeFactory):
+        self._shared_cheatcode_factory = shared_cheatcode_factory
+
+    def build_cheatcodes(self) -> list[CairoCheatcode]:
+        return self._shared_cheatcode_factory.build_cheatcodes()
+
+
+class CairoTestCheatcodeFactory:
+    def __init__(self, shared_cheatcode_factory: CairoSharedCheatcodeFactory):
+        self._shared_cheatcode_factory = shared_cheatcode_factory
+
+    def build_cheatcodes(self) -> list[CairoCheatcode]:
+        return self._shared_cheatcode_factory.build_cheatcodes()

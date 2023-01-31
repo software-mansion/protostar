@@ -2,16 +2,14 @@ from typing import Any
 
 from starkware.cairo.lang.compiler.program import Program
 
-from protostar.testing.environments.execution_environment import (
-    TestExecutionResult,
-)
-
+from protostar.testing.environments.execution_environment import TestExecutionResult
 from protostar.testing.cheatcodes.expect_revert_cheatcode import ExpectRevertContext
 from protostar.testing.hook import Hook
 from protostar.testing.test_context import TestContextHintLocal
 from protostar.cairo_testing.cairo_test_execution_state import CairoTestExecutionState
-from protostar.cairo_testing.cheatcode_factories.cairo_test_cheatcode_factory import (
+from protostar.cairo_testing.cairo_cheatcode_factory import (
     CairoTestCheatcodeFactory,
+    CairoSharedCheatcodeFactory,
 )
 from protostar.cairo import HintLocalsDict
 
@@ -49,8 +47,10 @@ class CairoTestExecutionEnvironment(CairoExecutionEnvironment):
     def _get_hint_locals(self, state: CairoTestExecutionState) -> HintLocalsDict:
         hint_locals: HintLocalsDict = {}
         cheatcode_factory = CairoTestCheatcodeFactory(
-            cheatable_state=state.cheatable_state,
-            project_compiler=state.project_compiler,
+            shared_cheatcode_factory=CairoSharedCheatcodeFactory(
+                cheatable_state=state.cheatable_state,
+                project_compiler=state.project_compiler,
+            )
         )
         cheatcodes = cheatcode_factory.build_cheatcodes()
         for cheatcode in cheatcodes:
