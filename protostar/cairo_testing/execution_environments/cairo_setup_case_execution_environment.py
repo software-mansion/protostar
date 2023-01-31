@@ -2,8 +2,8 @@ from starkware.cairo.lang.compiler.program import Program
 
 from protostar.cairo import HintLocalsDict
 from protostar.cairo_testing.cairo_test_execution_state import CairoTestExecutionState
-from protostar.cairo_testing.cheatcode_factories.cairo_setup_cheatcode_factory import (
-    CairoSetupCheatcodeFactory,
+from protostar.cairo_testing.hint_locals_factories.cairo_setup_hint_locals_factory import (
+    CairoSetupHintLocalsFactory,
 )
 from protostar.cairo_testing.execution_environments.cairo_execution_environment import (
     CairoExecutionEnvironment,
@@ -25,11 +25,11 @@ class CairoSetupCaseExecutionEnvironment(CairoExecutionEnvironment):
 
     def _get_hint_locals(self, state: CairoTestExecutionState) -> HintLocalsDict:
         hint_locals: HintLocalsDict = {}
-        cheatcode_factory = CairoSetupCheatcodeFactory(
+        hint_locals_factory = CairoSetupHintLocalsFactory(
             cheatable_state=state.cheatable_state,
             project_compiler=state.project_compiler,
         )
-        cheatcodes = cheatcode_factory.build_cheatcodes()
+        cheatcodes = hint_locals_factory.build_hint_locals()
         for cheatcode in cheatcodes:
             hint_locals[cheatcode.name] = cheatcode.build()
 

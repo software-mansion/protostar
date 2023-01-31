@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 @dataclass(init=False)
-class CairoCheatcodeInvalidExecution:
+class InvalidExecution:
     ok = None
     err_code: int
 
@@ -27,17 +27,15 @@ class CairoCheatcodeInvalidExecution:
 
 
 @dataclass(frozen=True)
-class CairoCheatcodeValidExecution:
+class ValidExecution:
     ok: Any
     err_code: Literal[0] = 0
 
 
-CairoCheatcodeExecutionResult = Union[
-    CairoCheatcodeValidExecution, CairoCheatcodeInvalidExecution
-]
+ExecutionResult = Union[ValidExecution, InvalidExecution]
 
 
-class CairoCheatcode(HintLocal, ABC):
+class CallableHintLocal(HintLocal, ABC):
     def __init__(self, controllers: "Controllers"):
         self.controllers = controllers
 
@@ -49,10 +47,8 @@ class CairoCheatcode(HintLocal, ABC):
         def wrapper(*args: Any, **kwargs: Any):
             try:
                 result = self._build()(*args, **kwargs)
-                return CairoCheatcodeValidExecution(ok=result)
+                return ValidExecution(ok=result)
             except TransactionRevertException as ex:
-                return CairoCheatcodeInvalidExecution(
-                    err_code=encode_shortstring(ex.message)
-                )
+                return InvalidExecution(err_code=encode_shortstring(ex.message))
 
         return wrapper

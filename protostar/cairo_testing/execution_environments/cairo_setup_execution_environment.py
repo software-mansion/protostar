@@ -5,8 +5,8 @@ from protostar.cairo_testing.execution_environments.cairo_execution_environment 
     CairoExecutionEnvironment,
 )
 from protostar.cairo_testing.cairo_test_execution_state import CairoTestExecutionState
-from protostar.cairo_testing.cheatcode_factories.cairo_setup_cheatcode_factory import (
-    CairoSetupCheatcodeFactory,
+from protostar.cairo_testing.hint_locals_factories.cairo_setup_hint_locals_factory import (
+    CairoSetupHintLocalsFactory,
 )
 from protostar.testing.test_context import TestContextHintLocal
 
@@ -25,13 +25,13 @@ class CairoSetupExecutionEnvironment(CairoExecutionEnvironment):
 
     def _get_hint_locals(self, state: CairoTestExecutionState) -> HintLocalsDict:
         hint_locals: HintLocalsDict = {}
-        cheatcode_factory = CairoSetupCheatcodeFactory(
+        factory = CairoSetupHintLocalsFactory(
             cheatable_state=state.cheatable_state,
             project_compiler=state.project_compiler,
         )
-        cheatcodes = cheatcode_factory.build_cheatcodes()
-        for cheatcode in cheatcodes:
-            hint_locals[cheatcode.name] = cheatcode.build()
+        setup_hint_locals = factory.build_hint_locals()
+        for hint_local in setup_hint_locals:
+            hint_locals[hint_local.name] = hint_local.build()
 
         custom_hint_locals = [TestContextHintLocal(state.context)]
 
