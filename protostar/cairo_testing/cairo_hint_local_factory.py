@@ -2,47 +2,35 @@
 from typing import List
 
 from protostar.cairo import HintLocal
-from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
-    CheatableCachedState,
+from protostar.cheatable_starknet.callable_hint_locals import (
+    StoreHintLocal,
+    InvokeHintLocal,
+    CallHintLocal,
+    DeployContractHintLocal,
+    PrankHintLocal,
+    RollHintLocal,
+    WarpHintLocal,
+    DeployHintLocal,
+    PrepareHintLocal,
+    DeclareHintLocal,
 )
 from protostar.cheatable_starknet.callable_hint_locals.load_hint_local import (
     LoadHintLocal,
 )
-from protostar.cheatable_starknet.callable_hint_locals.store_hint_local import (
-    StoreHintLocal,
+
+from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
+    CheatableCachedState,
 )
-from protostar.cheatable_starknet.controllers.block_info import BlockInfoController
-from protostar.cheatable_starknet.controllers.contracts import ContractsController
-from protostar.cheatable_starknet.controllers import Controllers
-from protostar.cheatable_starknet.callable_hint_locals.declare_hint_local import (
-    DeclareHintLocal,
-)
-from protostar.cheatable_starknet.callable_hint_locals.deploy_hint_local import (
-    DeployHintLocal,
-)
-from protostar.cheatable_starknet.callable_hint_locals.deploy_contract_hint_local import (
-    DeployContractHintLocal,
-)
-from protostar.cheatable_starknet.callable_hint_locals.invoke_hint_local import (
-    InvokeHintLocal,
-)
-from protostar.cheatable_starknet.callable_hint_locals.prepare_hint_local import (
-    PrepareHintLocal,
-)
-from protostar.cheatable_starknet.callable_hint_locals.roll_hint_local import (
-    RollHintLocal,
-)
-from protostar.cheatable_starknet.callable_hint_locals.warp_hint_local import (
-    WarpHintLocal,
-)
-from protostar.cheatable_starknet.callable_hint_locals.call_hint_local import (
-    CallHintLocal,
+from protostar.cheatable_starknet.controllers import (
+    StorageController,
+    ContractsController,
+    BlockInfoController,
+    Controllers,
 )
 from protostar.compiler import ProjectCompiler
-from protostar.cheatable_starknet.controllers.storage import StorageController
 
 
-class CairoSetupHintLocalsFactory:
+class CairoSharedHintLocalFactory:
     def __init__(
         self,
         cheatable_state: CheatableCachedState,
@@ -71,6 +59,7 @@ class CairoSetupHintLocalsFactory:
         return [
             WarpHintLocal(controllers=controllers),
             RollHintLocal(controllers=controllers),
+            PrankHintLocal(controllers=controllers),
             deploy_cheatcode,
             declare_cheatcode,
             prepare_cheatcode,
@@ -91,3 +80,19 @@ class CairoSetupHintLocalsFactory:
                 controllers=controllers,
             ),
         ]
+
+
+class CairoSetupHintLocalFactory:
+    def __init__(self, shared_hint_local_factory: CairoSharedHintLocalFactory):
+        self._shared_hint_local_factory = shared_hint_local_factory
+
+    def build_hint_locals(self) -> list[HintLocal]:
+        return self._shared_hint_local_factory.build_hint_locals()
+
+
+class CairoTestHintLocalFactory:
+    def __init__(self, shared_hint_local_factory: CairoSharedHintLocalFactory):
+        self._shared_hint_local_factory = shared_hint_local_factory
+
+    def build_hint_locals(self) -> list[HintLocal]:
+        return self._shared_hint_local_factory.build_hint_locals()
