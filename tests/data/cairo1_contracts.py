@@ -1,4 +1,49 @@
-CAIRO_BINDINGS_CONTRACT_ENUM = """\
+CAIRO_1_BASIC_CONTRACT = """\
+#[contract]
+mod HelloStarknet {
+    struct Storage { balance: felt, }
+
+    // Increases the balance by the given amount.
+    #[external]
+    fn increase_balance(amount: felt) {
+        balance::write(balance::read() + amount);
+    }
+
+    // Returns the current balance.
+    #[view]
+    fn get_balance() -> felt {
+        balance::read()
+        0
+    }
+}
+"""
+CAIRO_1_BASIC_TEST = """\
+#[abi]
+trait IAnotherContract {
+fn foo(); }
+
+
+#[contract]
+mod TestContract {
+    struct Storage { my_storage_var: felt, }
+
+    fn internal_func() -> felt {
+        1
+    }
+
+    #[external]
+    fn test(ref arg: felt, arg1: felt, arg2: felt) -> felt {
+        let x = my_storage_var::read();
+        my_storage_var::write(x + 1);
+        x + internal_func()
+    }
+
+    #[external]
+    fn empty() {
+    }
+}
+"""
+CAIRO_1_ENUM_CONTRACT = """\
 enum MyEnumShort { a: felt, b: felt }
 enum MyEnumLong { a: felt, b: felt, c: felt }
 enum MyEnumGeneric<S, T> { a: T, b: S, c: T }
@@ -45,52 +90,7 @@ fn match_long(e: MyEnumLong) -> felt {
     }
 }
 """
-CAIRO_BINDINGS_CONTRACT_STARKNET_HELLO = """\
-#[contract]
-mod HelloStarknet {
-    struct Storage { balance: felt, }
-
-    // Increases the balance by the given amount.
-    #[external]
-    fn increase_balance(amount: felt) {
-        balance::write(balance::read() + amount);
-    }
-
-    // Returns the current balance.
-    #[view]
-    fn get_balance() -> felt {
-        balance::read()
-        0
-    }
-}
-"""
-CAIRO_BINDINGS_CONTRACT_STARKNET_HELLO_TEST = """\
-#[abi]
-trait IAnotherContract {
-fn foo(); }
-
-
-#[contract]
-mod TestContract {
-    struct Storage { my_storage_var: felt, }
-
-    fn internal_func() -> felt {
-        1
-    }
-
-    #[external]
-    fn test(ref arg: felt, arg1: felt, arg2: felt) -> felt {
-        let x = my_storage_var::read();
-        my_storage_var::write(x + 1);
-        x + internal_func()
-    }
-
-    #[external]
-    fn empty() {
-    }
-}
-"""
-CAIRO_BINDINGS_TESTS = """\
+CAIRO_1_BIG_TEST = """\
 #[test]
 #[should_panic]
 fn test_assert_false() {

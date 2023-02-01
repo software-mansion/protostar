@@ -3,19 +3,19 @@ from enum import Enum
 
 from tests.integration._conftest import ProtostarFixture
 from tests.data.cairo1_contracts import (
-    CAIRO_BINDINGS_CONTRACT_ENUM,
-    CAIRO_BINDINGS_TESTS,
-    CAIRO_BINDINGS_CONTRACT_STARKNET_HELLO,
-    CAIRO_BINDINGS_CONTRACT_STARKNET_HELLO_TEST,
+    CAIRO_1_ENUM_CONTRACT,
+    CAIRO_1_BIG_TEST,
+    CAIRO_1_BASIC_CONTRACT,
+    CAIRO_1_BASIC_TEST,
     CAIRO_ROLL_TEST,
 )
 
 
 class RequestedFiles(Enum):
-    input_contract_cairo = 1
-    input_test_cairo = 2
-    input_hello_contract_cairo = 3
-    input_hello_test_cairo = 4
+    input_enum_contract_cairo = 1
+    input_big_test_cairo = 2
+    input_simple_contract_cairo = 3
+    input_simple_test_cairo = 4
     input_roll_test_cairo = 5
     output_sierra = 6
     output_casm = 7
@@ -29,14 +29,14 @@ class PrepareFilesFixture:
         files = {}
         for file in requested_files:
             contents = ""
-            if file == RequestedFiles.input_contract_cairo:
-                contents = CAIRO_BINDINGS_CONTRACT_ENUM
-            elif file == RequestedFiles.input_test_cairo:
-                contents = CAIRO_BINDINGS_TESTS
-            elif file == RequestedFiles.input_hello_contract_cairo:
-                contents = CAIRO_BINDINGS_CONTRACT_STARKNET_HELLO
-            elif file == RequestedFiles.input_hello_test_cairo:
-                contents = CAIRO_BINDINGS_CONTRACT_STARKNET_HELLO_TEST
+            if file == RequestedFiles.input_enum_contract_cairo:
+                contents = CAIRO_1_ENUM_CONTRACT
+            elif file == RequestedFiles.input_big_test_cairo:
+                contents = CAIRO_1_BIG_TEST
+            elif file == RequestedFiles.input_simple_contract_cairo:
+                contents = CAIRO_1_BASIC_CONTRACT
+            elif file == RequestedFiles.input_simple_test_cairo:
+                contents = CAIRO_1_BASIC_TEST
             elif file == RequestedFiles.input_roll_test_cairo:
                 contents = CAIRO_ROLL_TEST
             file_with_ext = ".".join(file.name.rsplit("_", 1))

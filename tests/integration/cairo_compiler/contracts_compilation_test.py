@@ -19,8 +19,8 @@ def prepare_files_fixture(create_protostar_project: CreateProtostarProjectFixtur
 def test_starknet_contract_compile(prepare_files: PrepareFilesFixture):
     prepared_files = prepare_files.prepare_files(
         requested_files=[
-            RequestedFiles.input_hello_contract_cairo,
-            RequestedFiles.input_hello_test_cairo,
+            RequestedFiles.input_simple_contract_cairo,
+            RequestedFiles.input_simple_test_cairo,
             RequestedFiles.output_casm,
         ]
     )

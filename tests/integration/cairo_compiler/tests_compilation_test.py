@@ -27,7 +27,7 @@ def prepare_files_fixture(create_protostar_project: CreateProtostarProjectFixtur
 def test_tests_collector(prepare_files: PrepareFilesFixture):
     prepared_files = prepare_files.prepare_files(
         requested_files=[
-            RequestedFiles.input_test_cairo,
+            RequestedFiles.input_big_test_cairo,
             RequestedFiles.output_sierra,
             RequestedFiles.output_casm,
         ]
@@ -59,8 +59,8 @@ def test_tests_collector(prepare_files: PrepareFilesFixture):
 def test_cairo_to_casm(prepare_files: PrepareFilesFixture):
     prepared_files = prepare_files.prepare_files(
         requested_files=[
-            RequestedFiles.input_test_cairo,
-            RequestedFiles.input_contract_cairo,
+            RequestedFiles.input_big_test_cairo,
+            RequestedFiles.input_enum_contract_cairo,
             RequestedFiles.output_casm,
         ]
     )
@@ -88,8 +88,8 @@ def test_cairo_to_casm(prepare_files: PrepareFilesFixture):
 def test_cairo_to_sierra_to_casm(prepare_files: PrepareFilesFixture):
     prepared_files = prepare_files.prepare_files(
         requested_files=[
-            RequestedFiles.input_test_cairo,
-            RequestedFiles.input_contract_cairo,
+            RequestedFiles.input_big_test_cairo,
+            RequestedFiles.input_enum_contract_cairo,
             RequestedFiles.output_sierra,
             RequestedFiles.output_casm,
         ]
