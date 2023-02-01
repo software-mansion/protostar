@@ -10,7 +10,7 @@ from protostar.cairo.cairo1_test_suite_parser import parse_test_suite
 
 @pytest.fixture(name="test_suite_json")
 def test_suite_json_fixture(datadir: Path) -> str:
-    # Cairo source code of the tested fixture - CAIRO_ROLL_TEST
+    # Cairo source code of the tested fixture - ../cairo_compiler/contracts/roll_test.cairo
     with open(datadir / "compiled_test_suite.json", "r") as file:
         return file.read()
 
