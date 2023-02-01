@@ -36,18 +36,17 @@ def test_compilator_and_parser(
         ]
     )
 
-    sierra, named_tests = call_test_collector(  # pyright: ignore
-        prepared_files["input_roll_test_cairo"][0],
+    sierra, named_tests = call_test_collector(
+        prepared_files["input_roll_test_cairo"][0]
     )
     assert sierra and named_tests
-    _, named_tests = call_test_collector(  # pyright: ignore
-        prepared_files["input_roll_test_cairo"][0],
-        prepared_files["output_sierra"][0],
+    sierra, named_tests = call_test_collector(
+        prepared_files["input_roll_test_cairo"][0], prepared_files["output_sierra"][0]
     )
-    assert named_tests
-    assert Path(prepared_files["output_sierra"][0]).read_text()
+    assert not sierra and named_tests
+    assert prepared_files["output_sierra"][0].read_text()
 
-    protostar_casm_json = call_protostar_sierra_to_casm(  # pyright: ignore
+    protostar_casm_json = call_protostar_sierra_to_casm(
         named_tests,
         prepared_files["output_sierra"][0],
     )
