@@ -3,18 +3,14 @@ from pathlib import Path
 from enum import Enum
 
 from tests.integration._conftest import ProtostarFixture
-from tests.data.cairo1_contracts import (
-    CAIRO_1_ENUM_CONTRACT,
-    CAIRO_1_BASIC_STARKNET_CONTRACT,
-    CAIRO_1_BASIC_STARKNET_TEST,
-    CAIRO_ROLL_TEST,
-)
+
+TEST_CONTRACTS_PATH = Path(__file__).parent / "contracts"
 
 
 class RequestedFiles(Enum):
     input_enum_contract_cairo = 1
-    input_simple_starknet_contract_cairo = 2
-    input_simple_starknet_test_cairo = 3
+    input_basic_starknet_contract_cairo = 2
+    input_basic_starknet_test_cairo = 3
     input_roll_test_cairo = 4
     output_sierra = 5
     output_casm = 6
@@ -27,15 +23,18 @@ class PrepareFilesFixture:
     def prepare_files(self, requested_files: list[RequestedFiles]):
         files = {}
         for file in requested_files:
-            contents = ""
+            input_path = ""
             if file == RequestedFiles.input_enum_contract_cairo:
-                contents = CAIRO_1_ENUM_CONTRACT
-            elif file == RequestedFiles.input_simple_starknet_contract_cairo:
-                contents = CAIRO_1_BASIC_STARKNET_CONTRACT
-            elif file == RequestedFiles.input_simple_starknet_test_cairo:
-                contents = CAIRO_1_BASIC_STARKNET_TEST
+                input_path = TEST_CONTRACTS_PATH / "enum_contract.cairo"
+            elif file == RequestedFiles.input_basic_starknet_contract_cairo:
+                input_path = TEST_CONTRACTS_PATH / "basic_starknet_contract.cairo"
+            elif file == RequestedFiles.input_basic_starknet_test_cairo:
+                input_path = TEST_CONTRACTS_PATH / "basic_starknet_test.cairo"
             elif file == RequestedFiles.input_roll_test_cairo:
-                contents = CAIRO_ROLL_TEST
+                input_path = TEST_CONTRACTS_PATH / "roll_test.cairo"
+            contents = ""
+            if input_path:
+                contents = Path(input_path).read_text()
             file_with_ext = ".".join(file.name.rsplit("_", 1))
             files[file.name] = (Path(f"./src/{file_with_ext}"), contents)
 
