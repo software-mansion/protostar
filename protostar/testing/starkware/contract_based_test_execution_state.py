@@ -1,4 +1,5 @@
 import dataclasses
+from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -8,20 +9,35 @@ from typing_extensions import Self
 
 from protostar.compiler import ProjectCompiler
 from protostar.starknet import Address
+from protostar.starknet.forkable_starknet import ForkableStarknet
 from protostar.testing.starkware.test_execution_state import TestExecutionState
+from protostar.testing.stopwatch import Stopwatch
 from protostar.testing.test_config import TestConfig
+from protostar.testing.test_context import TestContext
+from protostar.testing.test_output_recorder import OutputRecorder
 from protostar.testing.test_suite import TestCase
 
 
 @dataclass
 class ContractBasedTestExecutionState(TestExecutionState):
     contract: StarknetContract
+    starknet: ForkableStarknet
 
     def fork(self) -> Self:
-        super_instance = super().fork()
         return dataclasses.replace(
-            super_instance,
-            contract=super_instance.starknet.copy_and_adapt_contract(self.contract),
+            self,
+            context=deepcopy(self.context),
+            config=deepcopy(self.config),
+            output_recorder=self.output_recorder.fork(),
+            stopwatch=self.stopwatch.fork(),
+            starknet=self.starknet.fork(),
+            contract=self.starknet.copy_and_adapt_contract(self.contract),
+        )
+
+    def determine_test_mode(self, test_case: TestCase):
+        self.config.determine_mode_from_contract(
+            test_case=test_case,
+            contract=self.contract,
         )
 
     @classmethod
@@ -32,8 +48,10 @@ class ContractBasedTestExecutionState(TestExecutionState):
         test_config: TestConfig,
         project_compiler: ProjectCompiler,
     ) -> Self:
-        base = await TestExecutionState.from_test_config(test_config, project_compiler)
-        starknet = base.starknet
+        starknet = await ForkableStarknet.empty()
+        stopwatch = Stopwatch()
+        output_recorder = OutputRecorder()
+        context = TestContext()
 
         contract = await starknet.deploy(contract_class=test_suite_definition)
         assert test_suite_definition.abi is not None
@@ -49,13 +67,10 @@ class ContractBasedTestExecutionState(TestExecutionState):
 
         return cls(
             contract=contract,
-            starknet=base.starknet,
-            stopwatch=base.stopwatch,
-            output_recorder=base.output_recorder,
-            context=base.context,
-            config=base.config,
-            project_compiler=base.project_compiler,
+            starknet=starknet,
+            stopwatch=stopwatch,
+            output_recorder=output_recorder,
+            context=context,
+            config=test_config,
+            project_compiler=project_compiler,
         )
-
-    def determine_test_mode(self, test_case: TestCase):
-        self.config.determine_mode(test_case=test_case, contract=self.contract)

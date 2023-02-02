@@ -18,12 +18,14 @@ from protostar.testing.cheatcodes import (
 )
 from protostar.testing.cheatcodes.reflect.cairo_struct import CairoStructHintLocal
 from protostar.testing.cheatcodes.send_message_to_l2 import SendMessageToL2Cheatcode
-from protostar.testing.starkware.test_execution_state import TestExecutionState
+from protostar.testing.starkware.contract_based_test_execution_state import (
+    ContractBasedTestExecutionState,
+)
 from protostar.testing.test_context import TestContextHintLocal
 
 
 class CommonTestCheatcodeFactory(CheatcodeFactory):
-    def __init__(self, state: TestExecutionState):
+    def __init__(self, state: ContractBasedTestExecutionState):
         self._state = state
 
     def build_cheatcodes(

@@ -115,10 +115,13 @@ class CairoTestRunner:
             )
         )
 
-    async def _build_execution_state(self, test_config: TestConfig):
+    async def _build_execution_state(
+        self, test_config: TestConfig, cairo_program: Program
+    ):
         return await CairoTestExecutionState.from_test_config(
             test_config=test_config,
             project_compiler=self.project_compiler,
+            cairo_program=cairo_program,
         )
 
     async def _run_suite_setup(
@@ -181,7 +184,9 @@ class CairoTestRunner:
                 max_steps=max_steps,
                 gas_estimation_enabled=self._gas_estimation_enabled,
             )
-            test_execution_state = await self._build_execution_state(test_config)
+            test_execution_state = await self._build_execution_state(
+                test_config, compiled_program
+            )
             await self._run_suite_setup(
                 test_suite=test_suite,
                 test_execution_state=test_execution_state,
@@ -242,7 +247,7 @@ class CairoTestRunner:
                 return setup_case_result.into_broken_test_case_result()
 
         # TODO #1283, #1282: Plug in other test modes (fuzzing, parametrized)
-        # state.determine_test_mode(test_case)
+        state.determine_test_mode(test_case)
 
         test_execution_environment = CairoTestExecutionEnvironment(
             state=state,

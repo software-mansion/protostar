@@ -3,6 +3,7 @@ from copy import deepcopy
 from dataclasses import dataclass
 from typing import cast
 
+from starkware.cairo.lang.compiler.program import Program
 from starkware.crypto.signature.fast_pedersen_hash import pedersen_hash_func
 from starkware.starknet.business_logic.fact_state.patricia_state import (
     PatriciaStateReader,
@@ -20,20 +21,17 @@ from protostar.compiler import ProjectCompiler
 from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
     CheatableCachedState,
 )
+from protostar.testing.starkware.test_execution_state import TestExecutionState
 from protostar.testing.stopwatch import Stopwatch
 from protostar.testing.test_config import TestConfig
 from protostar.testing.test_context import TestContext
 from protostar.testing.test_output_recorder import OutputRecorder
+from protostar.testing.test_suite import TestCase
 
 
 @dataclass
-class CairoTestExecutionState:
-    starknet: Starknet
-    stopwatch: Stopwatch
-    output_recorder: OutputRecorder
-    context: TestContext
-    config: TestConfig
-    project_compiler: ProjectCompiler
+class CairoTestExecutionState(TestExecutionState):
+    cairo_program: Program
 
     @property
     def cheatable_state(self) -> CheatableCachedState:
@@ -51,7 +49,10 @@ class CairoTestExecutionState:
 
     @classmethod
     async def from_test_config(
-        cls, test_config: TestConfig, project_compiler: ProjectCompiler
+        cls,
+        test_config: TestConfig,
+        project_compiler: ProjectCompiler,
+        cairo_program: Program,
     ):
         general_config = StarknetGeneralConfig()
         ffc = FactFetchingContext(storage=DictStorage(), hash_func=pedersen_hash_func)
@@ -83,4 +84,11 @@ class CairoTestExecutionState:
             context=TestContext(),
             config=test_config,
             project_compiler=project_compiler,
+            cairo_program=cairo_program,
+        )
+
+    def determine_test_mode(self, test_case: TestCase):
+        self.config.determine_mode_from_program(
+            test_case=test_case,
+            program=self.cairo_program,
         )

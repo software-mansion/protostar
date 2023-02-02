@@ -2,12 +2,14 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional
 
+from starkware.cairo.lang.compiler.program import Program
 from starkware.starknet.testing.contract import StarknetContract
 from typing_extensions import Self
 
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet.abi import has_function_parameters
 from protostar.starknet.data_transformer import PythonData
+from protostar.cairo.program import program_function_has_parameters
 
 from .fuzzing.strategy_descriptor import StrategyDescriptor
 from .test_suite import TestCase
@@ -67,8 +69,17 @@ class TestMode(Enum):
 
         return to_mode
 
-    def determine(self, function_name: str, contract: StarknetContract) -> Self:
+    def determine_from_contract(
+        self, function_name: str, contract: StarknetContract
+    ) -> Self:
         return self or self.infer_from_contract_function(function_name, contract)
+
+    @classmethod
+    def determine_from_program(cls, function_name: str, program: Program) -> Self:
+        if program_function_has_parameters(function_name, program):
+            return cls.FUZZ
+
+        return cls.STANDARD
 
     @classmethod
     def infer_from_contract_function(
@@ -103,7 +114,18 @@ class TestConfig:
     def convert_mode_to(self, to_mode: TestMode):
         self.mode = self.mode.convert_to(to_mode)
 
-    def determine_mode(self, test_case: TestCase, contract: StarknetContract):
-        self.mode = self.mode.determine(
+    def determine_mode_from_contract(
+        self, test_case: TestCase, contract: StarknetContract
+    ):
+        self.mode = self.mode.determine_from_contract(
             function_name=test_case.test_fn_name, contract=contract
+        )
+
+    def determine_mode_from_program(
+        self,
+        test_case: TestCase,
+        program: Program,
+    ):
+        self.mode = self.mode.determine_from_program(
+            function_name=test_case.test_fn_name, program=program
         )
