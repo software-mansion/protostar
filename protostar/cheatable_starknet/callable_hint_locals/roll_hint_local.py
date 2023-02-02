@@ -19,7 +19,7 @@ class RollHintLocal(CallableHintLocal):
         target_contract_address: int,
         blk_number: int,
     ) -> None:
-        self.controllers.block_info.cheat(
+        self.controllers.block_info.set_block_number(
             contract_address=Address.from_user_input(target_contract_address),
             block_number=blk_number,
         )

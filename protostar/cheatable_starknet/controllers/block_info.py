@@ -1,5 +1,5 @@
 import dataclasses
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 
@@ -38,21 +38,19 @@ class BlockInfoController:
 
         return block_info
 
-    def cheat(
+    def set_block_timestamp(
         self,
         contract_address: Address,
-        block_timestamp: Optional[int] = None,
-        block_number: Optional[int] = None,
+        block_timestamp: int,
     ):
-        if block_timestamp is not None:
-            self.cheatable_state.contract_address_to_block_timestamp[
-                contract_address
-            ] = block_timestamp
+        self.cheatable_state.contract_address_to_block_timestamp[
+            contract_address
+        ] = block_timestamp
 
-        if block_number is not None:
-            self.cheatable_state.contract_address_to_block_number[
-                contract_address
-            ] = block_number
+    def set_block_number(self, contract_address: Address, block_number: int):
+        self.cheatable_state.contract_address_to_block_number[
+            contract_address
+        ] = block_number
 
     def clear_block_number_cheat(self, contract_address: Address):
         del self.cheatable_state.contract_address_to_block_number[contract_address]

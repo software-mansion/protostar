@@ -17,7 +17,7 @@ class WarpHintLocal(CallableHintLocal):
         target_contract_address: int,
         blk_timestamp: int,
     ) -> None:
-        self.controllers.block_info.cheat(
+        self.controllers.block_info.set_block_timestamp(
             contract_address=Address.from_user_input(target_contract_address),
             block_timestamp=blk_timestamp,
         )
