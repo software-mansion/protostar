@@ -16,7 +16,7 @@ function install() {
   # git checkout 5608ce7e052df79da11485689cb5f1459d3e5d18 # working commit
   pushd crates/cairo-lang-python-bindings
   rustup override set nightly
-  maturin develop --release
+  maturin develop --release || return 1;
   popd # cairo
   popd # cairo/crates/cairo_python_bindings
   popd # "${1}"
