@@ -3,11 +3,13 @@ from typing import Any, Callable
 
 from protostar.starknet import CheatcodeException
 from protostar.cheatable_starknet.controllers.contracts import ContractsCheaterException
-from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
+from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local import (
+    CallableHintLocal,
+)
 from protostar.contract_types import PreparedContract
 
 
-class DeployCairoCheatcode(CairoCheatcode):
+class DeployHintLocal(CallableHintLocal):
     @property
     def name(self) -> str:
         return "deploy"
