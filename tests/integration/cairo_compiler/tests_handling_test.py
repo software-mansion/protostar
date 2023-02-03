@@ -55,6 +55,7 @@ def test_compilator_and_parser(
         Path(str(prepared_files["output_casm"][0])), protostar_casm_json
     )
     cheat_mock = mocker.MagicMock()
+    # TODO https://github.com/software-mansion/protostar/issues/1434
     for case in test_suite.test_cases:
         runner = CairoFunctionRunner(program=test_suite.program, layout="all")
         runner.run_from_entrypoint(
