@@ -1,0 +1,2 @@
+[crate_roots]
+external_lib = "."
