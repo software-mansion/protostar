@@ -2,6 +2,7 @@
 from typing import List
 
 from protostar.cairo import HintLocal
+from protostar.cairo_testing import CairoTestExecutionState
 from protostar.cheatable_starknet.callable_hint_locals import (
     StoreHintLocal,
     InvokeHintLocal,
@@ -16,6 +17,9 @@ from protostar.cheatable_starknet.callable_hint_locals import (
     StopWarpHintLocal,
     StopRollHintLocal,
 )
+from protostar.cheatable_starknet.callable_hint_locals.expect_events_cairo_cheatcode import (
+    ExpectEventsHintLocal,
+)
 from protostar.cheatable_starknet.callable_hint_locals.load_hint_local import (
     LoadHintLocal,
 )
@@ -29,7 +33,11 @@ from protostar.cheatable_starknet.controllers import (
     BlockInfoController,
     Controllers,
 )
+from protostar.cheatable_starknet.controllers.expect_events_controller import (
+    ExpectEventsController,
+)
 from protostar.compiler import ProjectCompiler
+from protostar.testing import Hook
 
 
 class CairoSharedHintLocalFactory:
@@ -37,9 +45,14 @@ class CairoSharedHintLocalFactory:
         self,
         cheatable_state: CheatableCachedState,
         project_compiler: ProjectCompiler,
+        test_finish_hook: Hook,
+        test_execution_state: CairoTestExecutionState,
     ):
+
         self.cheatable_state = cheatable_state
         self.project_compiler = project_compiler
+        self._test_finish_hook = test_finish_hook
+        self._test_execution_state = test_execution_state
 
     def build_hint_locals(self) -> List[HintLocal]:
         controllers = Controllers(
@@ -81,6 +94,14 @@ class CairoSharedHintLocalFactory:
                 controllers=controllers,
             ),
             LoadHintLocal(
+                controllers=controllers,
+            ),
+            ExpectEventsHintLocal(
+                controller=ExpectEventsController(
+                    test_finish_hook=self._test_finish_hook,
+                    test_execution_state=self._test_execution_state,
+                    cheatable_state=self._test_execution_state.cheatable_state,
+                ),
                 controllers=controllers,
             ),
         ]

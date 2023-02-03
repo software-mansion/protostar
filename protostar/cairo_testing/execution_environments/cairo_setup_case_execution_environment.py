@@ -9,6 +9,7 @@ from protostar.cairo_testing.cairo_test_execution_state import CairoTestExecutio
 from protostar.cairo_testing.execution_environments.cairo_execution_environment import (
     CairoExecutionEnvironment,
 )
+from protostar.testing import Hook
 from protostar.testing.test_context import TestContextHintLocal
 
 
@@ -18,6 +19,9 @@ class CairoSetupCaseExecutionEnvironment(CairoExecutionEnvironment):
         program: Program,
         state: CairoTestExecutionState,
     ):
+        self._finish_hook = (
+            Hook()
+        )  # assigned before super call, because _get_hint_locals uses this hook
         super().__init__(state, program, self._get_hint_locals(state))
 
     async def execute(self, function_name: str):
@@ -30,6 +34,8 @@ class CairoSetupCaseExecutionEnvironment(CairoExecutionEnvironment):
             shared_hint_local_factory=CairoSharedHintLocalFactory(
                 cheatable_state=state.cheatable_state,
                 project_compiler=state.project_compiler,
+                test_execution_state=state,
+                test_finish_hook=self._finish_hook,
             )
         )
         setup_hint_locals = cheatcode_factory.build_hint_locals()

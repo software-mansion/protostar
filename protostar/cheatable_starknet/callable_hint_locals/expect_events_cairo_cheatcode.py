@@ -2,7 +2,9 @@ from typing import Callable
 
 from typing_extensions import NotRequired, TypedDict
 
-from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
+from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local import (
+    CallableHintLocal,
+)
 from protostar.cheatable_starknet.controllers import Controllers
 from protostar.cheatable_starknet.controllers.expect_events_controller import (
     ExpectEventsController,
@@ -18,7 +20,7 @@ class RawExpectedEvent(TypedDict):
     data: NotRequired[CairoData]
 
 
-class ExpectEventsCheatcode(CairoCheatcode):
+class ExpectEventsHintLocal(CallableHintLocal):
     def __init__(self, controller: ExpectEventsController, controllers: "Controllers"):
         super().__init__(controllers)
         self._controller = controller
