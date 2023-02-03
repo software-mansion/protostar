@@ -4,6 +4,9 @@ import pytest
 from protostar.cairo.cairo_bindings import (
     call_test_collector,
     call_protostar_sierra_to_casm,
+    call_cairo_to_casm_compiler,
+    call_cairo_to_sierra_compiler,
+    call_sierra_to_casm_compiler,
 )
 
 from tests.integration.conftest import CreateProtostarProjectFixture
@@ -21,11 +24,10 @@ def prepare_files_fixture(create_protostar_project: CreateProtostarProjectFixtur
 
 
 SCRIPT_ROOT = Path(__file__).parent
+CONTRACTS_DIR = SCRIPT_ROOT / "contracts"
 
 
 def test_cairo_path_for_starknet_compiler(prepare_files: PrepareFilesFixture):
-    contracts_dir = SCRIPT_ROOT / "contracts"
-
     prepared_files = prepare_files.prepare_files(
         requested_files=[
             RequestedFiles.output_sierra,
@@ -33,9 +35,9 @@ def test_cairo_path_for_starknet_compiler(prepare_files: PrepareFilesFixture):
     )
 
     _, test_names = call_test_collector(
-        input_path=contracts_dir / "main_project",
+        input_path=CONTRACTS_DIR / "starknet_project",
         output_path=prepared_files["output_sierra"][0],
-        cairo_paths=[contracts_dir / "external_lib"],
+        cairo_paths=[CONTRACTS_DIR / "external_lib"],
     )
     assert test_names
     protostar_casm = call_protostar_sierra_to_casm(
@@ -43,3 +45,30 @@ def test_cairo_path_for_starknet_compiler(prepare_files: PrepareFilesFixture):
         input_path=prepared_files["output_sierra"][0],
     )
     assert protostar_casm
+
+
+def test_cairo_path_for_regular_compiler(prepare_files: PrepareFilesFixture):
+    prepared_files = prepare_files.prepare_files(
+        requested_files=[
+            RequestedFiles.output_sierra,
+            RequestedFiles.output_casm,
+        ]
+    )
+
+    # # cairo -> sierra -> casm
+    call_cairo_to_sierra_compiler(
+        input_path=CONTRACTS_DIR / "regular_project" / "mycontract.cairo",
+        output_path=prepared_files["output_sierra"][0],
+        cairo_paths=[CONTRACTS_DIR / "external_lib"],
+    )
+    casm_contents = call_sierra_to_casm_compiler(
+        input_path=prepared_files["output_sierra"][0],
+    )
+    assert casm_contents
+
+    # cairo -> casm
+    casm_contents = call_cairo_to_casm_compiler(
+        input_path=CONTRACTS_DIR / "regular_project" / "mycontract.cairo",
+        cairo_paths=[CONTRACTS_DIR / "external_lib"],
+    )
+    assert casm_contents
