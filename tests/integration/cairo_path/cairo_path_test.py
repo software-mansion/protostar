@@ -35,6 +35,13 @@ def test_cairo_path_for_starknet_contract():
     )
     assert casm_contents
 
+    with pytest.raises(Exception):
+        call_starknet_contract_compiler(
+            input_path=CONTRACTS_DIR
+            / "starknet_project"
+            / "basic_starknet_contract.cairo",
+        )
+
 
 def test_cairo_path_for_starknet_test(prepare_files: PrepareFilesFixture):
     prepared_files = prepare_files.prepare_files(
@@ -42,6 +49,9 @@ def test_cairo_path_for_starknet_test(prepare_files: PrepareFilesFixture):
             RequestedFiles.output_sierra,
         ]
     )
+
+    with pytest.raises(Exception):
+        call_test_collector(input_path=CONTRACTS_DIR / "starknet_project")
 
     _, test_names = call_test_collector(
         input_path=CONTRACTS_DIR / "starknet_project",
@@ -64,7 +74,12 @@ def test_cairo_path_for_regular_compiler(prepare_files: PrepareFilesFixture):
         ]
     )
 
-    # # cairo -> sierra -> casm
+    # cairo -> sierra -> casm
+    with pytest.raises(Exception):
+        call_cairo_to_sierra_compiler(
+            input_path=CONTRACTS_DIR / "regular_project" / "mycontract.cairo"
+        )
+
     call_cairo_to_sierra_compiler(
         input_path=CONTRACTS_DIR / "regular_project" / "mycontract.cairo",
         output_path=prepared_files["output_sierra"][0],
@@ -76,6 +91,11 @@ def test_cairo_path_for_regular_compiler(prepare_files: PrepareFilesFixture):
     assert casm_contents
 
     # cairo -> casm
+    with pytest.raises(Exception):
+        call_cairo_to_casm_compiler(
+            input_path=CONTRACTS_DIR / "regular_project" / "mycontract.cairo"
+        )
+
     casm_contents = call_cairo_to_casm_compiler(
         input_path=CONTRACTS_DIR / "regular_project" / "mycontract.cairo",
         cairo_paths=[CONTRACTS_DIR / "external_lib"],
