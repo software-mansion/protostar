@@ -22,6 +22,7 @@ from protostar.commands import (
 from protostar.commands.deploy_account_command import DeployAccountCommand
 from protostar.commands.deploy_command import DeployCommand
 from protostar.commands.test import TestCommand
+from protostar.commands.test.test_result_formatter import format_test_result
 from protostar.configuration_file import (
     ConfigurationFileV2Model,
     ConfigurationFileV2,
@@ -38,6 +39,7 @@ from protostar.starknet_gateway import Fee, Wei
 from protostar.testing import TestingSummary
 from protostar.starknet import Address
 from protostar.starknet.data_transformer import CairoOrPythonData
+from protostar.testing.test_results import TestResult
 from tests.conftest import DevnetAccount
 
 from .tokenizer import tokenize
@@ -440,3 +442,8 @@ class ProtostarFixture:
             encoding="utf-8",
         ) as output_file:
             output_file.write(content)
+
+    def format_test_result(self, test_result: TestResult) -> str:
+        return format_test_result(test_result=test_result).format_human(
+            log_color_provider
+        )

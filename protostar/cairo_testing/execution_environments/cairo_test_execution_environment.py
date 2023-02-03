@@ -22,11 +22,13 @@ class CairoTestExecutionEnvironment(CairoExecutionEnvironment):
         state: CairoTestExecutionState,
         program: Program,
     ):
+        self._finish_hook = (
+            Hook()
+        )  # assigned before super call, because _get_hint_locals uses this hook
         super().__init__(
             state=state, program=program, hint_locals=self._get_hint_locals(state)
         )
         self._expect_revert_context = ExpectRevertContext()
-        self._finish_hook = Hook()
 
     async def execute(self, function_name: str) -> Any:
         with self.state.output_recorder.redirect("test"):
@@ -50,6 +52,8 @@ class CairoTestExecutionEnvironment(CairoExecutionEnvironment):
             shared_hint_local_factory=CairoSharedHintLocalFactory(
                 cheatable_state=state.cheatable_state,
                 project_compiler=state.project_compiler,
+                test_execution_state=state,
+                test_finish_hook=self._finish_hook,
             )
         )
         test_hint_locals = cheatcode_factory.build_hint_locals()
