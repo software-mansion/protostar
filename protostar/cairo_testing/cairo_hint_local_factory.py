@@ -31,7 +31,6 @@ from protostar.cheatable_starknet.controllers import (
     StorageController,
     ContractsController,
     BlockInfoController,
-    Controllers,
 )
 from protostar.cheatable_starknet.controllers.expect_events_controller import (
     ExpectEventsController,
@@ -55,54 +54,48 @@ class CairoSharedHintLocalFactory:
         self._test_execution_state = test_execution_state
 
     def build_hint_locals(self) -> List[HintLocal]:
-        controllers = Controllers(
-            block_info=BlockInfoController(cheatable_state=self.cheatable_state),
-            contracts=ContractsController(cheatable_state=self.cheatable_state),
-            storage=StorageController(cheatable_state=self.cheatable_state),
+
+        block_info_controller = BlockInfoController(
+            cheatable_state=self.cheatable_state
         )
+        contracts_controller = ContractsController(cheatable_state=self.cheatable_state)
+        storage_controller = StorageController(cheatable_state=self.cheatable_state)
+
         declare_cheatcode = DeclareHintLocal(
-            controllers=controllers,
             project_compiler=self.project_compiler,
+            contracts_controller=contracts_controller,
         )
         prepare_cheatcode = PrepareHintLocal(
-            controllers=controllers,
+            contracts_controller=contracts_controller,
         )
         deploy_cheatcode = DeployHintLocal(
-            controllers=controllers,
+            contracts_controller=contracts_controller,
         )
 
         return [
-            WarpHintLocal(controllers=controllers),
-            RollHintLocal(controllers=controllers),
-            StopWarpHintLocal(controllers=controllers),
-            StopRollHintLocal(controllers=controllers),
-            PrankHintLocal(controllers=controllers),
+            WarpHintLocal(block_info_controller=block_info_controller),
+            RollHintLocal(block_info_controller=block_info_controller),
+            StopWarpHintLocal(block_info_controller=block_info_controller),
+            StopRollHintLocal(block_info_controller=block_info_controller),
+            PrankHintLocal(contracts_controller=contracts_controller),
             deploy_cheatcode,
             declare_cheatcode,
             prepare_cheatcode,
             DeployContractHintLocal(
-                controllers=controllers,
                 declare_cheatcode=declare_cheatcode,
                 prepare_cheatcode=prepare_cheatcode,
                 deploy_cheatcode=deploy_cheatcode,
             ),
-            CallHintLocal(controllers=controllers),
-            InvokeHintLocal(
-                controllers=controllers,
-            ),
-            StoreHintLocal(
-                controllers=controllers,
-            ),
-            LoadHintLocal(
-                controllers=controllers,
-            ),
+            CallHintLocal(contracts_controller=contracts_controller),
+            InvokeHintLocal(contracts_controller=contracts_controller),
+            StoreHintLocal(storage_controller=storage_controller),
+            LoadHintLocal(storage_controller=storage_controller),
             ExpectEventsHintLocal(
                 controller=ExpectEventsController(
                     test_finish_hook=self._test_finish_hook,
                     test_execution_state=self._test_execution_state,
                     cheatable_state=self._test_execution_state.cheatable_state,
                 ),
-                controllers=controllers,
             ),
         ]
 

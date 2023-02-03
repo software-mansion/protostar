@@ -4,7 +4,10 @@ from typing import Any, Optional
 from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local import (
     CallableHintLocal,
 )
-from protostar.cheatable_starknet.controllers.contracts import ContractsCheaterException
+from protostar.cheatable_starknet.controllers.contracts import (
+    ContractsCheaterException,
+    ContractsController,
+)
 from protostar.starknet import (
     Address,
     RawAddress,
@@ -14,6 +17,9 @@ from protostar.starknet import (
 
 
 class InvokeHintLocal(CallableHintLocal):
+    def __init__(self, contracts_controller: ContractsController):
+        self._contracts_controller = contracts_controller
+
     @property
     def name(self) -> str:
         return "invoke"
@@ -41,7 +47,7 @@ class InvokeHintLocal(CallableHintLocal):
     ):
         try:
             asyncio.run(
-                self.controllers.contracts.invoke(
+                self._contracts_controller.invoke(
                     contract_address=contract_address,
                     function_name=function_name,
                     calldata=calldata,

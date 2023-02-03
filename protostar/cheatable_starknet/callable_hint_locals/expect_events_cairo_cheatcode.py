@@ -5,7 +5,6 @@ from typing_extensions import NotRequired, TypedDict
 from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local import (
     CallableHintLocal,
 )
-from protostar.cheatable_starknet.controllers import Controllers
 from protostar.cheatable_starknet.controllers.expect_events_controller import (
     ExpectEventsController,
     Event,
@@ -21,8 +20,7 @@ class RawExpectedEvent(TypedDict):
 
 
 class ExpectEventsHintLocal(CallableHintLocal):
-    def __init__(self, controller: ExpectEventsController, controllers: "Controllers"):
-        super().__init__(controllers)
+    def __init__(self, controller: ExpectEventsController):
         self._controller = controller
 
     @property
