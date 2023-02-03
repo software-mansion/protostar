@@ -12,6 +12,14 @@ if [ "$1" == "--cleanup" ]; then
   fi
 fi
 
+# local
+pushd ../cairo-fork
+pushd crates/cairo-lang-python-bindings
+rustup override set nightly
+maturin develop --release
+
+exit 0;
+
 function install() {
   pushd "${1}"
   git clone https://github.com/software-mansion-labs/cairo.git

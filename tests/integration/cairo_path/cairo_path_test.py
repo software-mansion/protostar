@@ -7,6 +7,7 @@ from protostar.cairo.cairo_bindings import (
     call_cairo_to_casm_compiler,
     call_cairo_to_sierra_compiler,
     call_sierra_to_casm_compiler,
+    call_starknet_contract_compiler,
 )
 
 from tests.integration.conftest import CreateProtostarProjectFixture
@@ -27,7 +28,15 @@ SCRIPT_ROOT = Path(__file__).parent
 CONTRACTS_DIR = SCRIPT_ROOT / "contracts"
 
 
-def test_cairo_path_for_starknet_compiler(prepare_files: PrepareFilesFixture):
+def test_cairo_path_for_starknet_contract():
+    casm_contents = call_starknet_contract_compiler(
+        input_path=CONTRACTS_DIR / "starknet_project" / "basic_starknet_contract.cairo",
+        cairo_paths=[CONTRACTS_DIR / "external_lib"],
+    )
+    assert casm_contents
+
+
+def test_cairo_path_for_starknet_test(prepare_files: PrepareFilesFixture):
     prepared_files = prepare_files.prepare_files(
         requested_files=[
             RequestedFiles.output_sierra,

@@ -37,10 +37,14 @@ def call_cairo_to_casm_compiler(
 
 
 def call_starknet_contract_compiler(
-    input_path: Path, output_path: Optional[Path] = None
+    input_path: Path,
+    output_path: Optional[Path] = None,
+    cairo_paths: Optional[list[Path]] = None,
 ) -> Optional[str]:
     return cairo_python_bindings.call_starknet_contract_compiler(  # pyright: ignore
-        str(input_path), str(output_path) if output_path else None
+        str(input_path),
+        str(output_path) if output_path else None,
+        [str(path) for path in cairo_paths] if cairo_paths else None,
     )
 
 
