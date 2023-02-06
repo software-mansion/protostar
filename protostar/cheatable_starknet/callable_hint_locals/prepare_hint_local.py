@@ -4,7 +4,10 @@ from typing import Any, Callable, Optional
 from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local import (
     CallableHintLocal,
 )
-from protostar.cheatable_starknet.controllers.contracts import ContractsCheaterException
+from protostar.cheatable_starknet.controllers.contracts import (
+    ContractsCheaterException,
+    ContractsController,
+)
 from protostar.starknet import CheatcodeException
 from protostar.starknet.data_transformer import CairoOrPythonData
 from protostar.contract_types import DeclaredContract, PreparedContract
@@ -12,6 +15,9 @@ from protostar.contract_types import DeclaredContract, PreparedContract
 
 class PrepareHintLocal(CallableHintLocal):
     salt_nonce = 1
+
+    def __init__(self, contracts_controller: ContractsController):
+        self._contracts_controller = contracts_controller
 
     @property
     def name(self) -> str:
@@ -44,7 +50,7 @@ class PrepareHintLocal(CallableHintLocal):
         constructor_calldata = constructor_calldata or []
 
         try:
-            return await self.controllers.contracts.prepare(
+            return await self._contracts_controller.prepare(
                 declared=declared, constructor_calldata=constructor_calldata, salt=salt
             )
         except ContractsCheaterException as exc:
