@@ -284,7 +284,6 @@ async def test_declare_tx_v1(
     compiled_contract_path: Path,
     devnet_accounts: list[DevnetAccount],
 ):
-
     result = await gateway_facade.declare(
         compiled_contract_path=compiled_contract_path,
         account_address=devnet_accounts[0].address,
@@ -326,7 +325,6 @@ async def test_max_fee_estimation(
     compiled_contract_path: Path,
     devnet_accounts: list[DevnetAccount],
 ):
-
     await gateway_facade.declare(
         compiled_contract_path=compiled_contract_path,
         account_address=devnet_accounts[0].address,

@@ -26,6 +26,7 @@ setattr(
     patched_pedersen_hash,
 )
 
+
 # Deep copy of a ContractClass takes a lot of time, but it should never be mutated.
 def shallow_copy(self: Any, memo: Any):  # pylint: disable=unused-argument
     """

@@ -30,7 +30,6 @@ def fixture_repo(repo_dir: Path):
 
 @pytest.fixture(name="submodule")
 def fixture_submodule(repo: GitRepository, package_name: str, packages_dir: Path):
-
     path_to_package = packages_dir / package_name
 
     repo.add_submodule(

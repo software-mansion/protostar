@@ -21,7 +21,6 @@ def test_deploying_and_interacting_with_contract(
     devnet_account: DevnetAccount,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
-
     copy_file(
         src=str(datadir / "contract_with_constructor.cairo"),
         dst="./src/main.cairo",
@@ -231,7 +230,6 @@ def test_declaring_contract_with_signature(
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
     devnet_account: DevnetAccount,
 ):
-
     copy_file(
         src=str(datadir / "contract_with_constructor.cairo"),
         dst="./src/main.cairo",

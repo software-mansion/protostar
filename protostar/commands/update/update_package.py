@@ -39,7 +39,6 @@ def update_package(package_name: str, repo_dir: Path, packages_dir: Path):
 
     if current_tag is not None:
         if latest_tag != current_tag:
-
             repo.remove_submodule(package_dir)
             repo.add_submodule(
                 url=package_url,

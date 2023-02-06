@@ -20,7 +20,6 @@ async def test_deploying_account(
     salt = 1
     account = await devnet.prepare_account(private_key=int("0x123", base=16), salt=salt)
     with set_private_key_env_var("0x123"):
-
         response = await protostar.deploy_account(
             account_address=account.address,
             account_address_salt=salt,

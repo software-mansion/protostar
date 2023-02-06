@@ -49,7 +49,6 @@ async def test_test_result_types(testing_summary: TestingSummary):
 async def test_already_expecting_error_message_when_no_arguments_were_provided(
     testing_summary: TestingSummary,
 ):
-
     test_result = testing_summary[
         "test_already_expecting_error_message_when_no_arguments_were_provided"
     ]

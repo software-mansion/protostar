@@ -10,7 +10,6 @@ from .cairo_test_results_data import CairoTestResultsData
 class CairoTestCasesDiffGenerator:
     @classmethod
     def from_testing_summary(cls, testing_summary: TestingSummary):
-
         return cls(
             test_case_name_to_result={
                 test_result.test_case_name: test_result

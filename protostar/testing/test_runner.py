@@ -41,6 +41,7 @@ from .testing_seed import Seed
 
 logger = getLogger()
 
+
 # pylint: disable=too-many-instance-attributes
 class TestRunner:
     def __init__(

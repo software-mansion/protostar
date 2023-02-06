@@ -305,7 +305,6 @@ class ProtostarFixture:
         gateway_url: str,
         json: bool = False,
     ):
-
         self._monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, account.private_key)
         result = await self._multicall_command.run(
             self._parse(

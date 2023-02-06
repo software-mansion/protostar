@@ -316,10 +316,8 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         resources_manager: Optional[ExecutionResourcesManager] = None,
         tx_execution_context: Optional[TransactionExecutionContext] = None,
     ) -> CallInfo:
-
         new_config = deepcopy(general_config)
         if self.max_steps is not None:
-
             # Providing a negative value to Protostar results in infinite steps,
             # this is here to mimic default Cairo behavior
             value = None if self.max_steps < 0 else self.max_steps

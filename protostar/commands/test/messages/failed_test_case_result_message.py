@@ -17,7 +17,6 @@ class FailedTestCaseResultMessage(StructuredMessage):
     failed_test_case_result: FailedTestCaseResult
 
     def format_human(self, fmt: LogColorProvider) -> str:
-
         result: list[str] = []
         first_line_items: list[str] = [f"[{fmt.colorize('RED', 'FAIL')}]"]
 
