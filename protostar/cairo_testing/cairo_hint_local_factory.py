@@ -17,11 +17,7 @@ from protostar.cheatable_starknet.callable_hint_locals import (
     StopWarpHintLocal,
     StopRollHintLocal,
     SendMessageToL2HintLocal,
-)
-from protostar.cheatable_starknet.callable_hint_locals.expect_events_cairo_cheatcode import (
     ExpectEventsHintLocal,
-)
-from protostar.cheatable_starknet.callable_hint_locals.load_hint_local import (
     LoadHintLocal,
 )
 from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (

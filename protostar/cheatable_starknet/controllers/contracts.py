@@ -1,5 +1,6 @@
 import collections
 import copy
+from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional, cast
 
@@ -22,18 +23,13 @@ from starkware.starknet.core.os.contract_address.contract_address import (
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.services.api.contract_class import EntryPointType, ContractClass
 
+from protostar.cheatable_starknet.cheatables.cheatable_execute_entry_point import (
+    CheatableExecuteEntryPoint,
+)
 from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
     CheatableCachedState,
 )
 from protostar.cheatable_starknet.controllers.expect_events_controller import Event
-from protostar.contract_types import (
-    PreparedContract,
-    DeclaredContract,
-    DeployedContract,
-)
-from protostar.cheatable_starknet.cheatables.cheatable_execute_entry_point import (
-    CheatableExecuteEntryPoint,
-)
 from protostar.starknet.selector import Selector
 from protostar.starknet.types import ClassHashType
 from protostar.starknet.address import Address
@@ -57,6 +53,24 @@ class ConstructorInputTransformationException(ContractsCheaterException):
 
 class ConstructorInvocationException(ContractsCheaterException):
     pass
+
+
+@dataclass(frozen=True)
+class DeclaredContract:
+    class_hash: int
+
+
+@dataclass(frozen=True)
+class PreparedContract:
+    constructor_calldata: list[int]
+    contract_address: int
+    class_hash: int
+    salt: int
+
+
+@dataclass(frozen=True)
+class DeployedContract:
+    contract_address: int
 
 
 class ContractsController:

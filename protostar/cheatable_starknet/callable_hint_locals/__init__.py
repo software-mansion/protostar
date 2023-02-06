@@ -11,3 +11,5 @@ from .warp_hint_local import WarpHintLocal
 from .stop_warp_hint_local import StopWarpHintLocal
 from .stop_roll_hint_local import StopRollHintLocal
 from .send_message_to_l2_hint_local import SendMessageToL2HintLocal
+from .expect_events_hint_local import ExpectEventsHintLocal
+from .load_hint_local import LoadHintLocal

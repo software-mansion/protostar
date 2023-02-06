@@ -2,11 +2,10 @@ from typing import Dict, Optional, Any, Protocol
 
 from protostar.starknet import Cheatcode, KeywordOnlyArgumentCheatcodeException
 from protostar.starknet.data_transformer import CairoOrPythonData
-from protostar.contract_types import DeployedContract
 
 from .declare_cheatcode import DeclareCheatcode
-from .deploy_cheatcode import DeployCheatcode
 from .prepare_cheatcode import PrepareCheatcode
+from .deploy_cheatcode import DeployCheatcode, DeployedContract
 
 
 class DeployContractCheatcodeProtocol(Protocol):

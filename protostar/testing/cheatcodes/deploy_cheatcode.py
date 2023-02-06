@@ -1,14 +1,21 @@
+from dataclasses import dataclass
 from typing import Any, Callable
 
 from starkware.python.utils import to_bytes
 from starkware.starknet.services.api.contract_class import EntryPointType
 
-from protostar.contract_types import PreparedContract, DeployedContract
 from protostar.starknet import Cheatcode, CheatcodeException
 from protostar.starknet.data_transformer import (
     DataTransformerException,
     to_python_transformer,
 )
+
+from .prepare_cheatcode import PreparedContract
+
+
+@dataclass(frozen=True)
+class DeployedContract:
+    contract_address: int
 
 
 class DeployCheatcode(Cheatcode):
@@ -19,10 +26,7 @@ class DeployCheatcode(Cheatcode):
     def build(self) -> Callable[[Any], Any]:
         return self.deploy_prepared
 
-    def deploy_prepared(
-        self,
-        prepared: PreparedContract,
-    ):
+    def deploy_prepared(self, prepared: PreparedContract):
         self.state.deploy_contract(
             contract_address=int(prepared.contract_address),
             class_hash=to_bytes(prepared.class_hash),

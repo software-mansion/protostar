@@ -1,12 +1,13 @@
 import asyncio
 from typing import Any, Protocol
 
-from protostar.cheatable_starknet.controllers import ContractsController
-from protostar.compiler import ProjectCompiler
-from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local import (
-    CallableHintLocal,
+from protostar.cheatable_starknet.controllers.contracts import (
+    ContractsController,
+    DeclaredContract,
 )
-from protostar.contract_types import DeclaredContract
+from protostar.compiler import ProjectCompiler
+
+from .callable_hint_local import CallableHintLocal
 
 
 class DeclareCheatcodeProtocol(Protocol):

@@ -7,10 +7,11 @@ from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local impor
 from protostar.cheatable_starknet.controllers.contracts import (
     ContractsCheaterException,
     ContractsController,
+    DeclaredContract,
+    PreparedContract,
 )
 from protostar.starknet import CheatcodeException
 from protostar.starknet.data_transformer import CairoOrPythonData
-from protostar.contract_types import DeclaredContract, PreparedContract
 
 
 class PrepareHintLocal(CallableHintLocal):

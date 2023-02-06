@@ -5,11 +5,10 @@ from protostar.starknet import CheatcodeException
 from protostar.cheatable_starknet.controllers.contracts import (
     ContractsCheaterException,
     ContractsController,
+    PreparedContract,
 )
-from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local import (
-    CallableHintLocal,
-)
-from protostar.contract_types import PreparedContract
+
+from .callable_hint_local import CallableHintLocal
 
 
 class DeployHintLocal(CallableHintLocal):

@@ -12,8 +12,8 @@ from protostar.cheatable_starknet.callable_hint_locals.deploy_hint_local import 
 from protostar.cheatable_starknet.callable_hint_locals.prepare_hint_local import (
     PrepareHintLocal,
 )
+from protostar.cheatable_starknet.controllers.contracts import DeployedContract
 from protostar.starknet.data_transformer import CairoOrPythonData
-from protostar.contract_types import DeployedContract
 
 
 class DeployContractHintLocal(CallableHintLocal):
