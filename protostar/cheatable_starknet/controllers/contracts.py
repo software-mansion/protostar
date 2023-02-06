@@ -302,9 +302,12 @@ class ContractsController:
             entry_point_selector=entry_point_selector,
         )
         with self.cheatable_state.copy_and_apply() as state_copy:
-            await entry_point.execute_for_testing(
+            call_info = await entry_point.execute_for_testing(
                 state=state_copy,
                 general_config=StarknetGeneralConfig(),
+            )
+            self._add_emitted_events(
+                cast(CheatableCachedState, state_copy), call_info.get_sorted_events()
             )
 
     async def send_message_to_l2(
