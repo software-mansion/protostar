@@ -40,7 +40,7 @@ class LatestVersionChecker:
         if latest_version_cache_toml:
             self._latest_version_cache_toml_writer.save(latest_version_cache_toml)
 
-            if self._version_manager.protostar_version is None or (
+            if (
                 latest_version_cache_toml.version
                 > self._version_manager.protostar_version
             ):
