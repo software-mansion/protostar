@@ -29,7 +29,7 @@ async def test_l1_to_l2_message_cheatcode(
     )
 
     testing_summary = await protostar.run_test_runner(
-        CURRENT_DIR / "send_message_to_l2_cairo_cheatcode_test.cairo",
+        CURRENT_DIR / "send_message_to_l2_hint_local_test.cairo",
         cairo_test_runner=True,
     )
 
