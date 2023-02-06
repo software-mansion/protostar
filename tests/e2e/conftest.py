@@ -226,9 +226,7 @@ def init(
     chdir(protostar_repo_root)
 
 
-MyPrivateLibsSetupFixture = Tuple[
-    Path,
-]
+MyPrivateLibsSetupFixture = Tuple[Path,]
 
 
 # pylint: disable=unused-argument

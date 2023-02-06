@@ -94,7 +94,6 @@ def repo(
 def repo_clone(
     repo_clone_dir: Path, repo_dir: Path, repo: GitRepository, packages_dir_name: str
 ) -> GitRepository:
-
     cloned_repo = Git.clone(repo_clone_dir, repo)
 
     assert path.exists(

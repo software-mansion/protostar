@@ -238,7 +238,6 @@ class GitRepository:
 
         gitmodules_path = self.repo_path / ".gitmodules"
         if os.path.isfile(gitmodules_path):
-
             with open(gitmodules_path, "r", encoding="utf-8") as file:
                 data = file.read()
                 names = re.finditer(r"\[submodule \"([^\"]+)\"\]", data)

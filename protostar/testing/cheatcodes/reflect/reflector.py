@@ -32,7 +32,6 @@ class Reflector:
         if not self._value:
             new_value = get_value_from_vm(self._ids, name)
         elif isinstance(self._value, VmConstsReference):
-
             assert isinstance(self._value._struct_definition, StructDefinition)
             assert isinstance(self._value._reference_value, RelocatableValue)
             members = self._value._struct_definition.members

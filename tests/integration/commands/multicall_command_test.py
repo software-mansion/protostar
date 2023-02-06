@@ -49,7 +49,6 @@ async def multicall_file_path_fixture(
     standard_contract_class_hash: int,
     tmp_path: Path,
 ) -> Path:
-
     multicall_doc_path = tmp_path / "multicall.toml"
     file_content = prepare_multicall_file_example(
         class_hash=standard_contract_class_hash

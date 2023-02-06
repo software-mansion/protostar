@@ -78,7 +78,6 @@ class ExpectEventsCheatcode(Cheatcode):
         self,
         raw_expected_event: RawExpectedEvent,
     ):
-
         name: str
         data: Optional[CairoOrPythonData] = None
         from_address: Optional[int] = None

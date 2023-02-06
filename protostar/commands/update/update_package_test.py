@@ -77,7 +77,6 @@ def fixture_submodule(
     current_tag: Optional[str],
     package_repo: GitRepository,  # pylint: disable=unused-argument
 ):
-
     repo.add_submodule(
         url=str(package_repo_dir),
         submodule_path=packages_dir / package_name,

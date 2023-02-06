@@ -273,7 +273,6 @@ def test_transforming_file_v1_into_v2(
 def test_saving_in_particular_order(
     content_factory: ConfigurationFileV2ContentFactory,
 ):
-
     configuration_file_v2_model = ConfigurationFileV2Model(
         protostar_version="9.9.9",
         project_config={

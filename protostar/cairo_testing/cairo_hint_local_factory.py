@@ -43,14 +43,12 @@ class CairoSharedHintLocalFactory:
         test_finish_hook: Hook,
         test_execution_state: CairoTestExecutionState,
     ):
-
         self.cheatable_state = cheatable_state
         self.project_compiler = project_compiler
         self._test_finish_hook = test_finish_hook
         self._test_execution_state = test_execution_state
 
     def build_hint_locals(self) -> List[HintLocal]:
-
         block_info_controller = BlockInfoController(
             cheatable_state=self.cheatable_state
         )

@@ -31,7 +31,6 @@ async def test_assume_and_reject_cheatcodes(
 async def test_assume_and_reject_cheatcodes_together(
     run_test_runner: RunTestRunnerFixture,
 ):
-
     testing_summary = await run_test_runner(
         Path(__file__).parent / "assume_and_reject_together_test.cairo", seed=42
     )

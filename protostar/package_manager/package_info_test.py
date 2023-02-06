@@ -102,7 +102,6 @@ class ExtractInfoFromRepoIdTest:
 
 
 class LoadNormalizedToRealNameMapTest:
-
     # - repo_with_normal_name_package
     #   - lib
     #     - package (s)
@@ -198,7 +197,6 @@ class LoadNormalizedToRealNameMapTest:
         packages_dir_name: str,
         mocker: MockerFixture,
     ):
-
         mocked_extract_info_from_repo_id = mocker.patch(
             "protostar.package_manager.package_info.extract_info_from_repo_id",
         )
@@ -222,7 +220,6 @@ class LoadNormalizedToRealNameMapTest:
         packages_dir_name: str,
         mocker: MockerFixture,
     ):
-
         mocked_extract_info_from_repo_id = mocker.patch(
             "protostar.package_manager.package_info.extract_info_from_repo_id",
         )
