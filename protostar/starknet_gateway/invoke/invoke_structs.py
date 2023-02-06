@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Optional
 
+from protostar.starknet import ContractAbiService, CairoOrPythonData, Address, Selector
 from protostar.starknet_gateway.core import Fee
-from protostar.starknet import CairoOrPythonData, Address, Selector, AbiType
 
 
 @dataclass
@@ -11,7 +11,7 @@ class InvokeInput:
     selector: Selector
     calldata: Optional[CairoOrPythonData]
     max_fee: Fee
-    abi: Optional[AbiType]
+    contract_abi_service: Optional[ContractAbiService]
 
 
 @dataclass

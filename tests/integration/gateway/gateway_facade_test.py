@@ -1,13 +1,12 @@
-import json
 from pathlib import Path
 from typing import cast
 
 import pytest
 from starknet_py.net.client_models import Declare, TransactionStatus
 from starknet_py.net.gateway_client import GatewayClient
-from starkware.starknet.public.abi import AbiType
 
 from protostar.protostar_exception import ProtostarException
+from protostar.starknet.contract_abi_service import ContractAbiService
 from protostar.starknet.data_transformer import CairoOrPythonData
 from protostar.starknet import Address, Selector
 from protostar.starknet_gateway import (
@@ -76,10 +75,10 @@ async def declared_class_hash_fixture(
     return response.class_hash
 
 
-@pytest.fixture(name="contract_abi")
-def contract_abi_fixture(protostar: ProtostarFixture):
-    return json.loads(
-        (protostar.project_root_path / "build" / "main_abi.json").read_text()
+@pytest.fixture(name="contract_abi_service")
+def contract_abi_service_fixture(protostar: ProtostarFixture):
+    return ContractAbiService.from_json_file(
+        protostar.project_root_path / "build" / "main_abi.json"
     )
 
 
@@ -188,13 +187,13 @@ async def compiled_contract_without_constructor_class_hash_fixture(
 async def test_compiled_contract_without_constructor_class_hash(
     gateway_facade: GatewayFacade,
     compiled_contract_without_constructor_class_hash: int,
-    contract_abi: AbiType,
+    contract_abi_service: ContractAbiService,
     devnet_account: DevnetAccount,
 ):
     with pytest.raises(InputValidationException) as ex:
         await gateway_facade.deploy_via_udc(
             class_hash=compiled_contract_without_constructor_class_hash,
-            abi=contract_abi,
+            contract_abi_service=contract_abi_service,
             inputs={"UNKNOWN_INPUT": 42},
             account_address=devnet_account.address,
             signer=devnet_account.signer,
@@ -228,17 +227,12 @@ async def test_deploy_supports_data_transformer(
     gateway_facade: GatewayFacade,
     compiled_contract_with_constructor_class_hash: int,
     inputs: CairoOrPythonData,
-    protostar: ProtostarFixture,
     devnet_account: DevnetAccount,
+    contract_abi_service: ContractAbiService,
 ):
-    abi_txt = (protostar.project_root_path / "build" / "main_abi.json").read_text(
-        "utf-8"
-    )
-    abi = json.loads(abi_txt)
-
     await gateway_facade.deploy_via_udc(
         class_hash=compiled_contract_with_constructor_class_hash,
-        abi=abi,
+        contract_abi_service=contract_abi_service,
         inputs=inputs,
         account_address=devnet_account.address,
         signer=devnet_account.signer,
@@ -249,13 +243,13 @@ async def test_deploy_supports_data_transformer(
 async def test_deploy_no_args(
     gateway_facade: GatewayFacade,
     compiled_contract_with_constructor_class_hash: int,
-    contract_abi: AbiType,
+    contract_abi_service: ContractAbiService,
     devnet_account: DevnetAccount,
 ):
     with pytest.raises(InputValidationException):
         await gateway_facade.deploy_via_udc(
             compiled_contract_with_constructor_class_hash,
-            abi=contract_abi,
+            contract_abi_service=contract_abi_service,
             account_address=devnet_account.address,
             signer=devnet_account.signer,
             max_fee="auto",

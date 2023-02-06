@@ -2,14 +2,13 @@ from typing import Optional
 
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet import (
-    to_python_transformer,
-    from_python_transformer,
+    DataTransformerService,
     CairoData,
     PythonData,
     CairoOrPythonData,
-    AbiType,
     Address,
     Selector,
+    ContractAbiService,
 )
 
 from .abi_resolver import AbiResolver
@@ -24,16 +23,18 @@ class DataTransformerPolicy:
         calldata: Optional[CairoOrPythonData],
         address: Address,
         selector: Selector,
-        abi: Optional[AbiType],
+        contract_abi_service: Optional[ContractAbiService],
     ) -> CairoData:
         if calldata is None:
             return []
         if isinstance(calldata, dict):
-            abi = abi or await self._resolve_abi_or_fail(address=address)
-            transform = from_python_transformer(
-                contract_abi=abi, fn_name=str(selector), mode="inputs"
+            contract_abi_service = (
+                contract_abi_service or await self._resolve_abi_or_fail(address=address)
             )
-            return transform(calldata)
+            data_transformer_service = DataTransformerService(contract_abi_service)
+            return data_transformer_service.transform_entrypoint_inputs_to_cairo_data(
+                selector=selector, python_data=calldata
+            )
         return calldata
 
     async def _resolve_abi_or_fail(self, address: Address):
@@ -52,14 +53,14 @@ class DataTransformerPolicy:
         data: CairoData,
         address: Address,
         selector: Selector,
-        abi: Optional[AbiType],
+        contract_abi_service: Optional[ContractAbiService],
     ) -> Optional[PythonData]:
-        abi = abi or await self._abi_resolver.resolve(address)
-        if abi is None:
-            return None
-        transform = to_python_transformer(
-            contract_abi=abi,
-            fn_name=str(selector),
-            mode="outputs",
+        contract_abi_service = contract_abi_service or await self._abi_resolver.resolve(
+            address
         )
-        return transform(data)
+        if contract_abi_service is None:
+            return None
+        data_transformer_service = DataTransformerService(contract_abi_service)
+        return data_transformer_service.transform_entrypoint_outputs_to_python_data(
+            selector=selector, cairo_data=data
+        )
