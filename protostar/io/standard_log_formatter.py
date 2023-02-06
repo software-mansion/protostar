@@ -29,7 +29,7 @@ class StandardLogFormatter(Formatter):
             + time.strftime("%H:%M:%S")
             + color_reset
         )
-        if record.levelname == "DEBUG" and record.name is not None:
+        if record.levelname == "DEBUG":
             message_blocks.append(
                 self._log_color_provider.get_color("GRAY") + record.name + color_reset
             )
